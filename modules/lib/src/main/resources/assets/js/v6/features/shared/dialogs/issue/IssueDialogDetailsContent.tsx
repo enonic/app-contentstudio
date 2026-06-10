@@ -295,6 +295,10 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const scheduleFromRef = useRef<Date | undefined>(issuePublishFrom);
     const scheduleToRef = useRef<Date | undefined>(issuePublishTo);
 
+    const focusBackButton = useCallback((): void => {
+        requestAnimationFrame(() => backButtonRef.current?.focus());
+    }, []);
+
     const {options: assigneeOptions, handleSearchChange} = useAssigneeSearch({
         publishableContentIds: publishTargetIds,
         useRootFallback: true,
@@ -348,9 +352,15 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         () => issueData?.getPublishRequest()?.getItemsIds() ?? [],
         [issueData],
     );
+    // Content-derived key keeps selection identity stable across unrelated
+    // issueData updates, so staged combobox edits are not reset mid-edit.
+    const selectedItemIdsKey = useMemo(
+        () => selectedItemIds.map(id => id.toString()).join('|'),
+        [selectedItemIds],
+    );
     const selectedItemIdStrings = useMemo(
         () => selectedItemIds.map(id => id.toString()),
-        [selectedItemIds],
+        [selectedItemIdsKey],
     );
     const excludeChildrenSet = useMemo(
         () => new Set(excludeChildrenIds.map(id => id.toString())),
@@ -365,19 +375,6 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         [requiredDependantIds],
     );
     const itemsWithUnpublishedChildren = useItemsWithUnpublishedChildren(items);
-    const selectedItemKey = useMemo(
-        () => selectedItemIds.map(id => id.toString()).join('|'),
-        [selectedItemIds],
-    );
-    const selectedItemConfigKey = useMemo(() => {
-        const itemsConfig = issueData?.getPublishRequest()?.getItems() ?? [];
-        return itemsConfig
-            .map(item => `${item.getId().toString()}:${item.isIncludeChildren() ? 1 : 0}`)
-            .join('|');
-    }, [issueData]);
-    const excludedDependantKey = useMemo(() => {
-        return issueData?.getPublishRequest()?.getExcludeIds().map(id => id.toString()).join('|') ?? '';
-    }, [issueData]);
 
     const selectedAssigneeOptions = useAssigneeSelection({
         assigneeIds,
@@ -392,7 +389,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
             return;
         }
         void loadIssueDialogItems(issueData);
-    }, [issueDataId, selectedItemConfigKey, excludedDependantKey, loadIssueDialogItems]);
+    }, [issueDataId, loadIssueDialogItems]);
 
     const handleStatusChange = (next: string): void => {
         if (!isStatusOption(next)) {
@@ -441,12 +438,13 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     useEffect(() => {
         return () => {
             debouncedUpdateItems.cancel();
+            pendingItemIdsRef.current = null;
         };
     }, [debouncedUpdateItems]);
 
     useEffect(() => {
         pendingItemIdsRef.current = null;
-    }, [selectedItemKey]);
+    }, [selectedItemIdsKey]);
 
     const handleAssigneesChange = (next: readonly string[]): void => {
         debouncedUpdateAssignees([...next]);
@@ -538,7 +536,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const handleCommentSubmit = async (focusBackAfterSubmit = false): Promise<void> => {
         const submitted = await submitIssueDialogComment();
         if (submitted && focusBackAfterSubmit) {
-            requestAnimationFrame(() => backButtonRef.current?.focus());
+            focusBackButton();
         }
     };
 
@@ -775,6 +773,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                     label={itemsLabel}
                                     selection={selectedItemIdStrings}
                                     onSelectionChange={handleSelectionChange}
+                                    onAppliedSelectionChange={focusBackButton}
                                     disabled={isItemsDisabled}
                                     closeOnBlur={true}
                                 />
@@ -896,6 +895,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                 searchPlaceholder={inviteUsersLabel}
                                 emptyLabel={noResultsLabel}
                                 onSelectionChange={handleAssigneesChange}
+                                onAppliedSelectionChange={focusBackButton}
                                 onSearchChange={handleSearchChange}
                                 disabled={isAssigneesDisabled}
                                 className='min-h-0 flex-1'

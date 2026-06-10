@@ -701,6 +701,7 @@ export const updateIssueDialogItems = async (nextItemIds: ContentId[]): Promise<
         dialogState,
         issueWithAssignees,
         nextPublishRequest,
+        forceReloadItems: true,
     });
 };
 
@@ -980,12 +981,14 @@ const updateIssueWithPublishRequest = async ({
     dialogState,
     issueWithAssignees,
     nextPublishRequest,
+    forceReloadItems = false,
 }: {
     issueId: string;
     issue: Issue;
     dialogState: IssueDialogState;
     issueWithAssignees?: IssueWithAssignees;
     nextPublishRequest: PublishRequest;
+    forceReloadItems?: boolean;
 }): Promise<void> => {
     try {
         const request = new UpdateIssueRequest(issueId)
@@ -997,7 +1000,9 @@ const updateIssueWithPublishRequest = async ({
         populateSchedule(request, issue);
         const updatedIssue = await request.sendAndParse();
 
-        applyUpdatedIssue(updatedIssue, dialogState, issueWithAssignees, {itemsUpdating: false});
+        applyUpdatedIssue(updatedIssue, dialogState, issueWithAssignees, {});
+        await loadIssueDialogItems(updatedIssue, {forceReload: forceReloadItems});
+        $issueDialogDetails.setKey('itemsUpdating', false);
 
         const prefix = updatedIssue.getType() === IssueType.PUBLISH_REQUEST
                        ? 'notify.publishRequest.'
