@@ -56,7 +56,7 @@ const ACTIVE_ACTION_CLASS = [
 ].join(' ');
 const ACTIVE_REFERENCE_LINK_CLASS = cn(
     'rounded-sm',
-    'data-[active=true]:bg-btn-active data-[active=true]:text-alt',
+    'data-[active=true]:bg-btn-active',
     ACTIVE_ACTION_CLASS,
 );
 
