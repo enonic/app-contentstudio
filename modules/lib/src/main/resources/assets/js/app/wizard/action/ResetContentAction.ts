@@ -41,9 +41,15 @@ export class ResetContentAction
             .then(() => new GetContentByIdRequest(contentId).sendAndParse())
             .then((content) => {
                 wizardPanel.replacePersistedContent(content);
+
+                const wizardActions = wizardPanel.getWizardActions();
+                wizardActions.setContent(wizardPanel.getContent()).refreshState();
+
                 showFeedback(i18n('notify.content.reset'));
                 wizardPanel.setEnabled(false);
                 setWizardReadOnly(true);
+
+                return wizardActions.refreshActions();
             })
             .catch(DefaultErrorHandler.handle);
     }
