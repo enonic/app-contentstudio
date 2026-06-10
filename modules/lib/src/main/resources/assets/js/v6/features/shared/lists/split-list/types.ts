@@ -28,10 +28,9 @@ export type SplitListSeparatorLabelProps = {
     className?: string;
 };
 
-export type SplitListSeparatorToggleProps = {
+export type SplitListSeparatorButtonProps = {
     label: string;
-    pressed: boolean;
-    onPressedChange: (pressed: boolean) => void;
+    onClick: () => void;
     disabled?: boolean;
     className?: string;
 };
