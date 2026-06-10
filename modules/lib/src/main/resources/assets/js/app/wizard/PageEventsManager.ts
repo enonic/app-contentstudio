@@ -53,6 +53,8 @@ export class PageEventsManager {
 
     private componentLoadFailedListeners: ((path: ComponentPath, error: unknown) => void)[] = [];
 
+    private pageRenderErrorsListeners: ((paths: ComponentPath[]) => void)[] = [];
+
     private liveEditPageViewReadyListeners: ((event: LiveEditPageViewReadyEvent) => void)[] = [];
 
     private liveEditPageInitErrorListeners: ((event: LiveEditPageInitializationErrorEvent) => void)[] = [];
@@ -238,6 +240,18 @@ export class PageEventsManager {
 
     notifyComponentLoadFailed(path: ComponentPath, error: unknown) {
         this.componentLoadFailedListeners.forEach((listener) => listener(path, error));
+    }
+
+    onPageRenderErrors(listener: ((paths: ComponentPath[]) => void)) {
+        this.pageRenderErrorsListeners.push(listener);
+    }
+
+    unPageRenderErrors(listener: ((paths: ComponentPath[]) => void)) {
+        this.pageRenderErrorsListeners = this.pageRenderErrorsListeners.filter((curr) => (curr !== listener));
+    }
+
+    notifyPageRenderErrors(paths: ComponentPath[]) {
+        this.pageRenderErrorsListeners.forEach((listener) => listener(paths));
     }
 
     onLiveEditPageViewReady(listener: ((event: LiveEditPageViewReadyEvent) => void)) {

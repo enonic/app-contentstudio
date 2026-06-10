@@ -29,7 +29,7 @@ import {
     $partDescriptorOptions,
     isComponentReferenceMissing,
 } from '../../../../../widgets/inspectors/model/component-inspection.store';
-import { $inspectedPath, $page, $pageVersion } from '../../../../../widgets/inspectors/model/page-editor/store';
+import { $inspectedPath, $page, $pageVersion, $renderErrorComponentPaths } from '../../../../../widgets/inspectors/model/page-editor/store';
 import { $wizardReadOnly } from '../../../model/wizardContent.store';
 import { $invalidComponentPaths, $validationVisibility } from '../../../model/wizardValidation.store';
 import { EditLockOverlay } from '../../../../../shared/ui/EditLockOverlay';
@@ -71,6 +71,7 @@ export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProp
     const layoutDescriptorOptions = useStore($layoutDescriptorOptions);
     const isComponentLoading = useStore($isComponentInspectionLoading);
     const invalidComponentPaths = useStore($invalidComponentPaths);
+    const renderErrorComponentPaths = useStore($renderErrorComponentPaths);
     const validationVisibility = useStore($validationVisibility);
     const readOnly = useStore($wizardReadOnly);
     const showErrors = validationVisibility === 'all';
@@ -229,7 +230,10 @@ export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProp
                 descriptors,
                 referenceLoading,
             );
-            const isInvalid = showErrors && (invalidComponentPaths.has(context.item.id) || referenceMissing);
+            // Render errors are always shown (a real failure), unlike form validation
+            // which respects validation visibility.
+            const isInvalid = renderErrorComponentPaths.has(context.item.id)
+                || (showErrors && (invalidComponentPaths.has(context.item.id) || referenceMissing));
 
             return (
                 <PageComponentsContextMenu node={context.item}>
@@ -250,6 +254,7 @@ export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProp
             pageMetadata,
             showErrors,
             invalidComponentPaths,
+            renderErrorComponentPaths,
             page,
             fragmentOptions,
             descriptors,

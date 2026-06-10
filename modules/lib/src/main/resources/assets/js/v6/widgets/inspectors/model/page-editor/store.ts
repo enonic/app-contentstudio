@@ -37,6 +37,9 @@ export const $selectionEventNonce = atom<number>(0);
 
 export const $insertTabActivateNonce = atom<number>(0);
 
+// Visual-only marks for failed-to-render components; does not affect form validity.
+export const $renderErrorComponentPaths = atom<ReadonlySet<string>>(new Set());
+
 //
 // * Computed
 //
@@ -92,6 +95,24 @@ export function bumpSelectionEventNonce(): void {
 
 export function bumpInsertTabActivateNonce(): void {
     $insertTabActivateNonce.set($insertTabActivateNonce.get() + 1);
+}
+
+export function setRenderErrorComponentPaths(paths: string[]): void {
+    $renderErrorComponentPaths.set(new Set(paths));
+}
+
+export function addRenderErrorComponentPath(path: string): void {
+    const current = $renderErrorComponentPaths.get();
+    if (current.has(path)) return;
+    $renderErrorComponentPaths.set(new Set(current).add(path));
+}
+
+export function removeRenderErrorComponentPath(path: string): void {
+    const current = $renderErrorComponentPaths.get();
+    if (!current.has(path)) return;
+    const next = new Set(current);
+    next.delete(path);
+    $renderErrorComponentPaths.set(next);
 }
 
 export function syncPageFromState(): void {
