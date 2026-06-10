@@ -103,7 +103,7 @@ describe('close.issue.by.user.spec: create a issue for user and close it', funct
             // 4. Expand the status selector
             await issueDetailsDialog.clickOnStatusSelectorMenu();
             // 5. Click on "Closed" menu item:
-            await issueDetailsDialog.clickOncloseMenuOptionItem();
+            await issueDetailsDialog.clickOnCloseMenuOptionItem();
             await studioUtils.saveScreenshot('issue_closed');
             // 6. Verify that 'The Issue is closed' the notification message appears:
             //await issueDetailsDialog.waitForExpectedNotificationMessage(appConst.NOTIFICATION_MESSAGES.ISSUE_CLOSED_MESSAGE);
