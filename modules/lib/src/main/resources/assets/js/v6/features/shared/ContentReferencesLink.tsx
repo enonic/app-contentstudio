@@ -40,7 +40,7 @@ export const ContentReferencesLink = forwardRef<HTMLAnchorElement, ContentRefere
             ref={ref}
             className={cn(
                 className,
-                'visited:text-main h-12 px-2 active:bg-transparent data-[active=true]:bg-transparent',
+                'self-stretch px-2 visited:text-main active:bg-transparent data-[active=true]:bg-transparent',
             )}
             href={href}
             newTab
