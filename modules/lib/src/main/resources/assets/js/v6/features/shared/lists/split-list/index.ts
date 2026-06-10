@@ -3,7 +3,7 @@ export type {
     SplitListPrimaryProps,
     SplitListProps,
     SplitListSecondaryProps,
+    SplitListSeparatorButtonProps,
     SplitListSeparatorLabelProps,
     SplitListSeparatorProps,
-    SplitListSeparatorToggleProps,
 } from './types';
