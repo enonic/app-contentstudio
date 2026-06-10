@@ -6,7 +6,6 @@ export type AssigneeOptionsContentProps = {
     emptyLabel?: string;
     hasOptions: boolean;
     children: ReactNode;
-    onApply?: () => void;
 };
 
 const ASSIGNEE_OPTIONS_CONTENT_NAME = 'AssigneeOptionsContent';
@@ -16,7 +15,6 @@ export const AssigneeOptionsContent = ({
                                            emptyLabel,
                                            hasOptions,
                                            children,
-                                           onApply,
                                        }: AssigneeOptionsContentProps): ReactElement => {
     const {applyStagedSelection, stagingEnabled} = useCombobox();
 
@@ -30,7 +28,6 @@ export const AssigneeOptionsContent = ({
         if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
             event.preventDefault();
             event.stopPropagation();
-            onApply?.();
             applyStagedSelection();
         }
     };
