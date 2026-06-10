@@ -57,7 +57,7 @@ export const ContentListItem = ({
                     onClick={handleClick}
                     className={cn(
                         'box-content justify-start flex-1 px-2.5 py-1',
-                        'active:bg-transparent data-[active=true]:bg-transparent',
+                        'active:bg-transparent data-[active=true]:bg-transparent data-[active=true]:text-unset',
                         isCompact && 'h-6',
                         contentButtonClassName,
                     )}
