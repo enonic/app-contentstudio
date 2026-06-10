@@ -2,11 +2,10 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {recordOwnContentModification} from '../../../v6/features/services/wizardContentSync.service';
 import {getActiveProject} from '../../../v6/features/store/activeProject.store';
 import {setWizardReadOnly} from '../../../v6/features/store/wizardContent.store';
 import {type ContentId} from '../../content/ContentId';
-import {type ContentSummary} from '../../content/ContentSummary';
+import {GetContentByIdRequest} from '../../resource/GetContentByIdRequest';
 import {LocalizeContentsRequest} from '../../resource/LocalizeContentsRequest';
 import {type ContentWizardPanel} from '../ContentWizardPanel';
 
@@ -22,16 +21,22 @@ export class LocalizeContentAction
 
             this.setEnabled(false);
 
-            new LocalizeContentsRequest([contentId], language).sendAndParse().then((summaries: ContentSummary[]) => {
-                const localized = summaries.find((summary) => summary.getContentId().equals(contentId));
-                recordOwnContentModification(localized);
+            new LocalizeContentsRequest([contentId], language).sendAndParse()
+                .then(() => new GetContentByIdRequest(contentId).sendAndParse())
+                .then((content) => {
+                    wizardPanel.replacePersistedContent(content);
 
-                NotifyManager.get().showFeedback(i18n('notify.content.localized'));
-                wizardPanel.setEnabled(true);
-                setWizardReadOnly(false);
-                wizardPanel.unLockPage();
-                wizardPanel.openTranslatorDialog(language);
-            }).catch(DefaultErrorHandler.handle);
+                    const wizardActions = wizardPanel.getWizardActions();
+                    wizardActions.setContent(wizardPanel.getContent()).refreshState();
+
+                    NotifyManager.get().showFeedback(i18n('notify.content.localized'));
+                    wizardPanel.setEnabled(true);
+                    setWizardReadOnly(false);
+                    wizardPanel.unLockPage();
+                    wizardPanel.openTranslatorDialog(language);
+
+                    return wizardActions.refreshActions();
+                }).catch(DefaultErrorHandler.handle);
         });
     }
 }
