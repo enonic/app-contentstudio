@@ -17,7 +17,6 @@ describe('sort.dialog.spec, tests for sort content dialog', function () {
     const DISPLAY_NAME_A_Z_FIRST_ITEM = 'book';
     const MODIFIED_DATE_OLD_TO_NEW_FIRST_ITEM = 'monet-004';
 
-
     it("GIVEN newly crated folder is selected WHEN Sort content modal dialog is opened THEN default sort order should be displayed in the dropdown",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -79,7 +78,6 @@ describe('sort.dialog.spec, tests for sort content dialog', function () {
             await contentBrowsePanel.clickOnExpanderIcon(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
             let items = await contentBrowsePanel.getDisplayNamesInGrid();
             assert.ok(items[1] === DISPLAY_NAME_A_Z_FIRST_ITEM);
-
         });
 
     it(`GIVEN not expanded folder is selected AND dialog is opened WHEN the “Display name (A–Z)” option is clicked THEN the new order should be applied`,
@@ -125,7 +123,29 @@ describe('sort.dialog.spec, tests for sort content dialog', function () {
             await sortContentDialog.waitForDialogClosed();
             let items = await contentBrowsePanel.getDisplayNamesInGrid();
             assert.ok(items[1] === DISPLAY_NAME_A_Z_FIRST_ITEM);
+        });
 
+    // Verify Content grid is not refreshed after content sorting. #10744
+    // https://github.com/enonic/app-contentstudio/issues/10744
+    it.skip(`GIVEN Grid is not filtered AND expanded folder is selected WHEN the “Modified date (Old to new)” option is clicked THEN the new order should be applied in the grid`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let sortContentDialog = new SortContentDialog();
+            await contentBrowsePanel.waitForSpinnerNotVisible();
+            // 1. Select the folder with children an open sort-dialog:
+            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_FOLDER_WITH_IMAGES);
+            await contentBrowsePanel.clickOnExpanderIcon(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
+            await contentBrowsePanel.clickOnSortButton();
+            await sortContentDialog.waitForDialogVisible();
+            // 2. Verify the dialog's title:
+            await sortContentDialog.clickOndropDownHandle();
+            // Display name (A-Z)
+            await sortContentDialog.clickOnSortItemOption(appConst.SORTING_ORDER.MODIFIED_DATE_OLD_TO_NEW);
+            await sortContentDialog.waitForSaveButtonEnabled();
+            await sortContentDialog.clickOnSaveButton();
+            await sortContentDialog.waitForDialogClosed();
+            let items = await contentBrowsePanel.getDisplayNamesInGrid();
+            assert.ok(items[1] === MODIFIED_DATE_OLD_TO_NEW_FIRST_ITEM);
         });
 
     it("WHEN two folders in the root  directory have been selected THEN 'Sort' button should be disabled",

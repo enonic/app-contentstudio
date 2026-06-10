@@ -93,17 +93,6 @@ class IssueDetailsDialog extends BaseDetailsDialog {
         }
     }
 
-    async clickOncloseMenuOptionItem() {
-        try {
-            await this.waitForElementDisplayed(XPATH.closedMenuOption);
-            await this.pause(200);
-            await this.clickOnElement(XPATH.closedMenuOption);
-        } catch (err) {
-            await this.handleError('Issue Details Dialog: error during clicking on Close Issue menu item',
-                'err_click_close_issue_menu_item', err);
-        }
-    }
-
     // gets text in title attribute:
     async getIssueStatus() {
         await this.waitForElementDisplayed(this.issueStatusSelector);

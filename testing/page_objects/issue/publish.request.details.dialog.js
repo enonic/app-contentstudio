@@ -1,18 +1,20 @@
 const BaseDetailsDialog = require('./base.details.dialog')
-const lib = require('../../libs/elements');
+const {BUTTONS, DIALOG_ITEMS} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
 const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
-const {ISSUE} = require('../../libs/elements');
 
 const xpath = {
-    container: `//div[contains(@id,'IssueDetailsDialog')]`,
-    buttonRow: `//div[contains(@id,'IssueDetailsDialogButtonRow')]`,
-    addScheduleButton: `//button[contains(@id,'ButtonEl') and contains(@class,'icon-calendar')]`,
-    itemList: `//ul[contains[@id,'PublishDialogItemList']`,
+    container: `//div[@data-component='IssueDialogDetailsContent']`,
+    footer: `//footer[@data-component='Dialog.Footer']`,
     reopenRequestButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Request']]`,
     includeChildrenToggler: `//div[contains(@id,'IncludeChildrenToggler')]`,
     itemsToPublish: `//div[contains(@id,'TogglableStatusSelectionItem')]`,
+    // Main items live in SplitList.Primary; dependencies in SplitList.Secondary. Name = ContentLabel font-semibold span.
+    mainListItemsPath:
+        `//div[@data-component='SplitList.Primary']//div[@data-component='ContentLabel']//span[contains(@class,'font-semibold')]`,
+    dependantListItemDisplayName:
+        `//div[@data-component='SplitList.Secondary']//div[@data-component='ContentLabel']//span[contains(@class,'font-semibold')]`,
     selectionItemByDisplayName:
         text => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${text}')]]`,
 
@@ -28,28 +30,16 @@ const xpath = {
 class PublishRequestDetailsDialog extends BaseDetailsDialog {
 
     get publishNowButton() {
-        return xpath.container + xpath.buttonRow + lib.dialogButton('Publish Now');
+        return xpath.container + xpath.footer + BUTTONS.buttonByLabel('Publish now');
     }
 
-    get closeRequestButton() {
-        return xpath.container + xpath.buttonRow + lib.dialogButton('Close Request');
+    get scheduleButton() {
+        return xpath.container + xpath.footer + BUTTONS.buttonByLabel('Schedule');
     }
 
-    get reopenRequestButton() {
-        return xpath.container + xpath.buttonRow + xpath.reopenRequestButton;
-    }
-
-    get addScheduleButton() {
-        return xpath.container + xpath.addScheduleButton;
-    }
-
-    get itemNamesToPublish() {
-        return xpath.container + xpath.itemsToPublish + lib.H6_DISPLAY_NAME;
-    }
-
-    async waitForAddScheduleButtonDisplayed() {
+    async waitForScheduleButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.addScheduleButton, appConst.shortTimeout)
+            return await this.waitForElementDisplayed(this.scheduleButton, appConst.shortTimeout);
         } catch (err) {
             await this.handleError(`Request Publish dialog Requests Tab - 'Add schedule' button is not displayed`, 'err_schedule_button',
                 err);
@@ -66,10 +56,6 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
         } catch (err) {
             await this.handleError(`Error during clicking on Publish button to open Publishing Wizard`, 'err_publish_button', err);
         }
-    }
-
-    isPublishNowButtonDisplayed() {
-        return this.isElementDisplayed(this.publishNowButton);
     }
 
     waitForPublishNowButtonEnabled() {
@@ -89,12 +75,19 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
         }
     }
 
-    async getItemDisplayNames() {
+    async getMainItemPath() {
         try {
-            return await this.getTextInElements(this.itemNamesToPublish);
+            let locator = xpath.container + xpath.mainListItemsPath;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getTextInDisplayedElements(locator);
         } catch (err) {
-            await this.handleError(`Items Tab: tried to get display names of items`, 'err_items_names', err);
+            await this.handleError(`Publish Request Details Dialog: tried to get main item display names`, 'err_main_items_names', err);
         }
+    }
+
+    getDependentItemsName() {
+        let locator = xpath.container + xpath.dependantListItemDisplayName;
+        return this.getTextInDisplayedElements(locator);
     }
 
     async getContentStatus(displayName) {
@@ -103,11 +96,12 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
         return await this.getBrowser().getElementText(result[0].elementId);
     };
 
-    async clickOnIncludeChildItems(displayName) {
+    async clickOnIncludeChildrenCheckbox(displayName) {
         try {
-            let includeIcon = xpath.selectionItemByDisplayName(displayName) + xpath.includeChildrenToggler;
-            await this.waitForElementDisplayed(includeIcon, appConst.shortTimeout);
-            await this.clickOnElement(includeIcon)
+            let includeCheckbox = xpath.container + DIALOG_ITEMS.PRIMARY_DATA_COMPONENT + DIALOG_ITEMS.contentRowByName(displayName) +
+                                  "//div[@data-component='Checkbox' and descendant::span[contains(.,'Include child')]]//label";
+            await this.waitForElementDisplayed(includeCheckbox, appConst.shortTimeout);
+            await this.clickOnElement(includeCheckbox)
             return this.pause(2000);
         } catch (err) {
             throw new Error('error occurred during clicking on `Include Child items`: ' + err)
@@ -128,8 +122,10 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
 
     async doAddItem(displayName) {
         try {
-            let contentSelectorDropdown = new ContentSelectorDropdown();
-            return await contentSelectorDropdown.selectFilteredByDisplayNameContentMulti(displayName, xpath.container);
+            let contentSelectorDropdown = new ContentSelectorDropdown(xpath.container);
+            await contentSelectorDropdown.doFilterItem(displayName);
+            await contentSelectorDropdown.clickOnOptionByDisplayName(displayName);
+            await contentSelectorDropdown.clickOnApplySelectionButton();
         } catch (err) {
             await this.handleError(`Request Publish dialog, Request Tab - Error when adding item: ${displayName}`,
                 'err_add_item_request_tab', err);
@@ -145,10 +141,10 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
         }
     }
 
-    async clickOnAddScheduleButton() {
+    async clickOnScheduleButton() {
         try {
-            await this.waitForAddScheduleButtonDisplayed();
-            return await this.clickOnElement(this.addScheduleButton);
+            await this.waitForScheduleButtonDisplayed();
+            return await this.clickOnElement(this.scheduleButton);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_schedule_button');
             throw new Error(`Request Publish dialog - Error after clicking on Add Schedule button, screenshot:${screenshot} ` + err);

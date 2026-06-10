@@ -1,11 +1,10 @@
 /**
- * Created on 28.03.2022
+ * Created on 28.03.2022 updated on 10.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
-const contentBuilder = require("../../libs/content.builder");
 const PersonFormPanel = require('../../page_objects/wizardpanel/person.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
@@ -19,9 +18,7 @@ describe('person.display.name-expression.spec: tests for Display name expression
     const PERSON_FIRST_NAME = 'John';
     const PERSON_LAST_NAME = "O'Brien";
     const EXPECTED_NAME_EXPRESSION = "John O 'Brien";
-    const EXPECTED_CONTENT_NAME = "john-o-brien"
-
-
+    const EXPECTED_CONTENT_NAME = "john-o-brien";
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/4172
     // DisplayNameResolver spawns error on field values with a single quote #4172

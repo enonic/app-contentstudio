@@ -18,6 +18,7 @@ exports.config = {
         path.join(__dirname, '../specs/modal-dialog/insert.relative.link.spec.js'),
         path.join(__dirname, '../specs/modal-dialog/move.child.content.spec.js'),
         path.join(__dirname, '../specs/modal-dialog/sort.content.dialog.spec.js'),
+        path.join(__dirname, '../specs/modal-dialog/delete.content.dialog.spec.js'),
 
 
     ],

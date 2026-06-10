@@ -10,14 +10,16 @@ const XPATH = {
     editIssueTitleToggle: `//h2[@class='inplace-text' and @title='Click to  edit']`,
     reopenIssueButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Issue']]`,
     reopenRequestButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Request']]`,
-    itemsTabBarItem: "//button[@role='tab') and child::span[contains(.,'Items')]]",
-    assigneesTabItem: "//button[@role='tab') and child::span[contains(.,'Assignees')]]",
-    commentsTabItem: "//button[@role='tab') and child::span[contains(.,'Comments')]]",
+    itemsTabBarItem: "//button[@role='tab' and child::span[contains(.,'Items')]]",
+    assigneesTabItem: "//button[@role='tab' and child::span[contains(.,'Assignees')]]",
+    commentsTabItem: "//button[@role='tab' and child::span[contains(.,'Comments')]]",
     issueStatusSelectorButton: `//button[@role='combobox' and descendant::span[@data-component='IssueStatusBadge']]`,
     issueCommentTextArea: `//div[contains(@id,'IssueCommentTextArea')]`,
     issueCommentsListItem: `//div[contains(@id,'IssueCommentsListItem')]`,
     noActionLabel: `//div[@class='no-action-message']`,
     tabByLabel: label => `//button[contains(@role,'tab') and child::span[contains(.,'${label}')]]`,
+    closedMenuOption: "//span[@data-component='IssueStatusBadge' and child::span[text()='Closed']]",
+    openMenuOption: "//span[@data-component='IssueStatusBadge' and child::span[text()='Open']]",
 };
 
 class BaseIssueDetailsDialog extends Page {
@@ -199,6 +201,27 @@ class BaseIssueDetailsDialog extends Page {
         } catch (err) {
             await this.handleError(`Tried to click on 'include children' checkbox for the content: ${displayName}`, 'err_include_children',
                 err);
+        }
+    }
+
+    async clickOnCloseMenuOptionItem() {
+        try {
+            await this.waitForElementDisplayed(XPATH.closedMenuOption);
+            await this.pause(200);
+            await this.clickOnElement(XPATH.closedMenuOption);
+        } catch (err) {
+            await this.handleError('Issue Details Dialog: error during clicking on Close Issue menu item',
+                'err_click_close_issue_menu_item', err);
+        }
+    }
+    async clickOnOpenMenuOptionItem() {
+        try {
+            await this.waitForElementDisplayed(XPATH.openMenuOption);
+            await this.pause(200);
+            await this.clickOnElement(XPATH.openMenuOption);
+        } catch (err) {
+            await this.handleError('Issue Details Dialog: error during clicking on Close Issue menu item',
+                'err_click_close_issue_menu_item', err);
         }
     }
 }
