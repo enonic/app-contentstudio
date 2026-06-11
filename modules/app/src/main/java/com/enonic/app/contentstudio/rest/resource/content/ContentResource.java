@@ -2,6 +2,7 @@ package com.enonic.app.contentstudio.rest.resource.content;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -156,10 +157,6 @@ import com.enonic.xp.content.GetActiveContentVersionsResult;
 import com.enonic.xp.content.GetContentVersionsParams;
 import com.enonic.xp.content.GetContentVersionsResult;
 import com.enonic.xp.content.GetContentByIdsParams;
-import com.enonic.xp.content.GetContentVersionsParams;
-import com.enonic.xp.content.GetContentVersionsResult;
-import com.enonic.xp.content.GetPublishStatusesParams;
-import com.enonic.xp.content.GetPublishStatusesResult;
 import com.enonic.xp.content.HasUnpublishedChildrenParams;
 import com.enonic.xp.content.MoveContentParams;
 import com.enonic.xp.content.MoveContentsResult;
@@ -702,7 +699,7 @@ public final class ContentResource
     {
         final ArrayList<ContentId> childrenIds = new ArrayList<>();
         ids.getContentIds().stream().forEach( id -> {
-            FindContentByParentParams params = FindContentByParentParams.create().parentId( id ).recursive( true ).build();
+            FindContentByParentParams params = FindContentByParentParams.create().parentId( id ).recursive( true ).size( -1 ).build();
             childrenIds.addAll( this.contentService.findIdsByParent( params ).getContentIds().getSet() );
         } );
 
@@ -767,6 +764,13 @@ public final class ContentResource
         final ContentIds notValidContentIds = contentValidity.getNotValidContentIds();
         final ContentIds notReadyContentIds = contentValidity.getNotReadyContentIds();
 
+        final ContentIds publishableContentIds = compareResults.stream()
+            .filter( result -> result.getCompareStatus() != CompareStatus.EQUAL )
+            .map( CompareContentResult::getContentId )
+            .collect( ContentIds.collector() );
+
+        final boolean schedulable = isSchedulable( compareResults, fullPublishList );
+
         //sort all dependant content ids
         final ContentIds sortedDependentContentIds = sortContentIds( dependentContentIds, "_path" );
 
@@ -781,6 +785,8 @@ public final class ContentResource
             .setRequiredContents( requiredDependantIds )
             .setNotPublishableContents( notPublishableContentIds )
             .setSomePublishable( isSomePublishable )
+            .setPublishableContents( publishableContentIds )
+            .setSchedulable( schedulable )
             .setContainsInvalid( !notValidContentIds.isEmpty() )
             .setInvalidContents( notValidContentIds )
             .setContainsNotReady( !notReadyContentIds.isEmpty() )
@@ -828,6 +834,30 @@ public final class ContentResource
         return this.contentService.find(
                 ContentQuery.create().filterContentIds( contentIds ).queryExpr( QueryParser.parse( "order by " + field ) ).size( -1 ).build() )
             .getContentIds();
+    }
+
+    private boolean isSchedulable( final CompareContentResults compareResults, final ContentIds fullPublishList )
+    {
+        // Offline content (never published, or unpublished) shows up as NEW in the compare results.
+        final boolean hasOffline = compareResults.stream().anyMatch( result -> result.getCompareStatus() == CompareStatus.NEW );
+        if ( hasOffline )
+        {
+            return true;
+        }
+
+        if ( fullPublishList.isEmpty() )
+        {
+            return false;
+        }
+
+        // Expired content has a publish-to date in the past, which implies it was already online.
+        final long expiredCount = this.contentService.find( ContentQuery.create()
+            .filterContentIds( fullPublishList )
+            .queryExpr( QueryParser.parse( ContentIndexPath.PUBLISH_TO.getPath() + " < instant('" + Instant.now() + "')" ) )
+            .size( 1 )
+            .build() ).getTotalHits();
+
+        return expiredCount > 0;
     }
 
     private ContentIds problematicDependantsOnTop( final ContentIds dependentContentIdList, final ContentIds requestedContentIds,

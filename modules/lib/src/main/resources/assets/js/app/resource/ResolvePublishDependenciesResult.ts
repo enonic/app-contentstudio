@@ -6,9 +6,11 @@ export class ResolvePublishDependenciesResult {
     dependentContents: ContentId[];
     requestedContents: ContentId[];
     requiredContents: ContentId[];
+    publishableContents: ContentId[];
     containsInvalid: boolean;
     notPublishableContents: ContentId[];
     somePublishable: boolean;
+    schedulable: boolean;
     invalidContents: ContentId[];
     notReadyContents: ContentId[];
     nextDependentContents: ContentId[];
@@ -18,9 +20,11 @@ export class ResolvePublishDependenciesResult {
         this.dependentContents = builder.dependentContents;
         this.requestedContents = builder.requestedContents;
         this.requiredContents = builder.requiredContents;
+        this.publishableContents = builder.publishableContents;
         this.containsInvalid = builder.containsInvalid;
         this.notPublishableContents = builder.notPublishableContents;
         this.somePublishable = builder.somePublishable;
+        this.schedulable = builder.schedulable;
         this.invalidContents = builder.invalidContents;
         this.notReadyContents = builder.notReadyContents;
         this.nextDependentContents = builder.nextDependentContents;
@@ -37,6 +41,14 @@ export class ResolvePublishDependenciesResult {
 
     getRequired(): ContentId[] {
         return this.requiredContents;
+    }
+
+    getPublishable(): ContentId[] {
+        return this.publishableContents;
+    }
+
+    isSchedulable(): boolean {
+        return this.schedulable;
     }
 
     isContainsInvalid(): boolean {
@@ -74,9 +86,11 @@ export class ResolvePublishDependenciesResult {
                                         : [];
         const requested: ContentId[] = json.requestedContents?.map(dependant => new ContentId(dependant.id)) ?? [];
         const required: ContentId[] = json.requiredContents?.map(dependant => new ContentId(dependant.id)) ?? [];
+        const publishable: ContentId[] = json.publishableContents?.map(dependant => new ContentId(dependant.id)) ?? [];
         const containsInvalid: boolean = json.containsInvalid;
         const notPublishableIds: ContentId[] = json.notPublishableContents?.map(dependant => new ContentId(dependant.id)) ?? [];
         const somePublishable: boolean = json.somePublishable;
+        const schedulable: boolean = json.schedulable ?? false;
         const invalidIds: ContentId[] = json.invalidContents?.map(dependant => new ContentId(dependant.id)) ?? [];
         const notReadyIds: ContentId[] = json.notReadyContents?.map(dependant => new ContentId(dependant.id)) ?? [];
         const nextDependentContents: ContentId[] = json.nextDependentContents?.map(dependant => new ContentId(dependant.id)) ?? [];
@@ -85,9 +99,11 @@ export class ResolvePublishDependenciesResult {
         return ResolvePublishDependenciesResult.create().setDependentContents(dependants).setRequestedContents(
             requested)
             .setRequiredContents(required)
+            .setPublishableContents(publishable)
             .setContainsInvalid(containsInvalid)
             .setNotPublishableContents(notPublishableIds)
             .setSomePublishable(somePublishable)
+            .setSchedulable(schedulable)
             .setInvalidContents(invalidIds)
             .setNotReadyContents(notReadyIds)
             .setNextDependentContents(nextDependentContents)
@@ -104,9 +120,11 @@ export class Builder {
     dependentContents: ContentId[];
     requestedContents: ContentId[];
     requiredContents: ContentId[];
+    publishableContents: ContentId[];
     containsInvalid: boolean;
     notPublishableContents: ContentId[];
     somePublishable: boolean;
+    schedulable: boolean;
     invalidContents: ContentId[];
     notReadyContents: ContentId[];
     nextDependentContents: ContentId[];
@@ -127,6 +145,11 @@ export class Builder {
         return this;
     }
 
+    setPublishableContents(value: ContentId[]): Builder {
+        this.publishableContents = value;
+        return this;
+    }
+
     setContainsInvalid(value: boolean): Builder {
         this.containsInvalid = value;
         return this;
@@ -139,6 +162,11 @@ export class Builder {
 
     setSomePublishable(value: boolean): Builder {
         this.somePublishable = value;
+        return this;
+    }
+
+    setSchedulable(value: boolean): Builder {
+        this.schedulable = value;
         return this;
     }
 

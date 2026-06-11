@@ -12,6 +12,7 @@ import {$config} from '../config.store';
 import {
     $dependantPublishItems,
     $hasExcludedDependantItems,
+    $hasMoreDependants,
     $hasSchedulableItems,
     $isPublishReady,
     $isScheduleValid,
@@ -19,7 +20,9 @@ import {
     $publishDialog,
     $publishDialogPending,
     $scheduleFromError,
+    $totalPublishableItems,
     applyDraftPublishDialogSelection,
+    loadMoreDependants,
     openPublishDialog,
     resetPublishDialogContext,
     setPublishDialogDependantItemSelected,
@@ -109,7 +112,10 @@ describe('publishDialog.store', () => {
         mockFindIdsByParents.mockReset().mockResolvedValue([]);
         mockMarkAsReady.mockReset();
         mockPublishContent.mockReset();
-        mockResolvePublishDependencies.mockReset().mockResolvedValue(createResolveResult({}));
+        // By default treat the requested (main) items as publishable, mirroring the
+        // server's publishableContents (status != EQUAL) for typical scenarios.
+        mockResolvePublishDependencies.mockReset().mockImplementation(
+            (params: {ids?: ContentId[]}) => createResolveResult({publishable: params?.ids ?? []}));
     });
 
     afterEach(() => {
@@ -123,11 +129,11 @@ describe('publishDialog.store', () => {
         const original = createMockContent('item-1', {displayName: 'Original name'});
         const updated = createMockContent('item-1', {displayName: 'Updated name'});
 
+        // No dependants, so each reload makes a single resolve call (the duplicate is skipped):
+        // open consumes the first result, the external-update reload the second.
         mockResolvePublishDependencies
-            .mockResolvedValueOnce(createResolveResult({inProgress: [itemId]}))
-            .mockResolvedValueOnce(createResolveResult({inProgress: [itemId]}))
-            .mockResolvedValueOnce(createResolveResult({}))
-            .mockResolvedValueOnce(createResolveResult({}));
+            .mockResolvedValueOnce(createResolveResult({inProgress: [itemId], publishable: [itemId]}))
+            .mockResolvedValueOnce(createResolveResult({publishable: [itemId]}));
 
         openPublishDialog([original]);
         await flushInitialReload();
@@ -143,7 +149,7 @@ describe('publishDialog.store', () => {
 
         expect($publishCheckErrors.get().inProgress.count).toBe(0);
         expect($isPublishReady.get()).toBe(true);
-        expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(4);
+        expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
     });
 
     it('patches renamed tracked items without forcing a dependency reload', async () => {
@@ -188,14 +194,15 @@ describe('publishDialog.store', () => {
         emitContentCreated([unrelated]);
         await flushDebouncedReload();
 
-        expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
+        // The unrelated content is not below a selected path, so no reload happens.
+        expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(1);
         expect($publishDialog.get().items[0].hasChildren()).toBe(false);
 
         emitContentCreated([child]);
         await flushDebouncedReload();
 
         expect($publishDialog.get().items[0].hasChildren()).toBe(true);
-        expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(4);
+        expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
     });
 
     it.each(publishRemovalEventCases)(
@@ -212,7 +219,7 @@ describe('publishDialog.store', () => {
 
             expect($publishDialog.get().open).toBe(true);
             expect($publishDialog.get().items.map(item => item.getId())).toEqual(['item-2']);
-            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(4);
+            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
         },
     );
 
@@ -228,7 +235,7 @@ describe('publishDialog.store', () => {
 
         expect($publishDialog.get().open).toBe(true);
         expect($publishDialog.get().items.map(item => item.getId())).toEqual(['item-1', 'item-2']);
-        expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(4);
+        expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
     });
 
     it.each([
@@ -250,7 +257,7 @@ describe('publishDialog.store', () => {
 
             expect($publishDialog.get().open).toBe(false);
             expect($publishDialog.get().items).toEqual([]);
-            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
+            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(1);
         },
     );
 
@@ -258,6 +265,8 @@ describe('publishDialog.store', () => {
         it('should be true when at least one main item is offline', async () => {
             const offline = createMockContent('item-1', {isOnline: false});
             const online = createMockContent('item-2', {isOnline: true});
+
+            mockResolvePublishDependencies.mockResolvedValue(createResolveResult({schedulable: true}));
 
             openPublishDialog([offline, online]);
             await flushInitialReload();
@@ -284,6 +293,8 @@ describe('publishDialog.store', () => {
             });
             const online = createMockContent('item-2', {isOnline: true});
 
+            mockResolvePublishDependencies.mockResolvedValue(createResolveResult({schedulable: true}));
+
             openPublishDialog([expired, online]);
             await flushInitialReload();
 
@@ -295,7 +306,7 @@ describe('publishDialog.store', () => {
             const dependantId = new ContentId('dep-1');
             const dependant = createMockContent('dep-1', {isOnline: false});
 
-            mockResolvePublishDependencies.mockResolvedValue(createResolveResult({dependants: [dependantId]}));
+            mockResolvePublishDependencies.mockResolvedValue(createResolveResult({dependants: [dependantId], schedulable: true}));
             mockFetchContentSummaries.mockResolvedValue([dependant]);
 
             openPublishDialog([main]);
@@ -322,7 +333,7 @@ describe('publishDialog.store', () => {
         expect($publishDialog.get().open).toBe(true);
         expect($publishDialog.get().items.map(currentItem => currentItem.getId())).toEqual(['item-1']);
         expect($publishDialogPending.get().submitting).toBe(true);
-        expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
+        expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(1);
     });
 
     describe('requiredPublishFrom', () => {
@@ -453,6 +464,44 @@ describe('publishDialog.store', () => {
             expect(dependant.hidden).toBe(false);
             expect($publishDialog.get().excludedDependantItemsIds).toHaveLength(0);
             expect($hasExcludedDependantItems.get()).toBe(false);
+        });
+    });
+
+    describe('windowed dependant loading', () => {
+        afterEach(() => {
+            $config.setKey('excludeDependencies', true);
+        });
+
+        it('loads dependant summaries in windows while counting all by id', async () => {
+            // Auto-exclude off so every dependant stays included; this isolates windowing.
+            $config.setKey('excludeDependencies', false);
+
+            const mainId = new ContentId('main-1');
+            const dependantIds = Array.from({length: 40}, (_, index) => new ContentId(`dep-${index}`));
+
+            mockResolvePublishDependencies.mockResolvedValue(createResolveResult({
+                dependants: dependantIds,
+                publishable: [mainId, ...dependantIds],
+            }));
+            mockFetchContentSummaries.mockImplementation((ids: ContentId[]) =>
+                Promise.resolve(ids.map(id => createMockContent(id.toString()))));
+
+            openPublishDialog([createMockContent('main-1')]);
+            await flushInitialReload();
+
+            // Only the first window of summaries is loaded...
+            expect($dependantPublishItems.get()).toHaveLength(36);
+            expect($hasMoreDependants.get()).toBe(true);
+
+            // ...but the count is id-based, so it includes all dependants plus the main item.
+            expect($totalPublishableItems.get()).toBe(41);
+
+            await loadMoreDependants();
+            await flushPromises();
+
+            expect($dependantPublishItems.get()).toHaveLength(40);
+            expect($hasMoreDependants.get()).toBe(false);
+            expect($totalPublishableItems.get()).toBe(41);
         });
     });
 });
