@@ -26,22 +26,23 @@ exports.get = function (req) {
         log.debug(`Json [${req.method}] exists: ` + !!content);
 
         if (content) {
-            // contributed to the request policy; the portal emits the header at response-flush time
-            portalLib.csp()
-                .defaultSrc(portalLib.CspSource.NONE)
-                .styleSrc(portalLib.CspSource.UNSAFE_INLINE)
-                .baseUri(portalLib.CspSource.NONE)
-                .formAction(portalLib.CspSource.NONE)
-                .frameAncestors(portalLib.CspSource.SELF);
+            // contributed to the request policy; the platform serializes the header.
+            // strict() denies everything; the widget then allows only what it uses: framing
+            // by Content Studio (union makes strict()'s frame-ancestors 'none' yield to
+            // 'self') and its own inline stylesheet, nonce-gated instead of 'unsafe-inline'
+            const csp = portalLib.csp()
+                .strict()
+                .frameAncestors(portalLib.CspSource.SELF)
+                .formAction(portalLib.CspSource.NONE);
+            const styleNonce = csp.nonceStyleSrc();
 
             return {
                 contentType: 'text/html',
                 headers: {
-                    'Cache-Control': 'no-store',
-                    'X-Frame-Options': 'SAMEORIGIN'
+                    'Cache-Control': 'no-store'
                 },
                 status: 200,
-                body: buildBody(content)
+                body: buildBody(content, styleNonce)
             };
         } else {
             return widgetLib.widgetResponse(404, {
@@ -70,10 +71,10 @@ exports.canRender = function (req) {
     }
 }
 
-function buildBody(content) {
+function buildBody(content, styleNonce) {
     return `<html lang="en"><head>
                 <title>${content.displayName}</title>
-                <style>
+                <style nonce="${styleNonce}">
                     body {
                         background-color: #333842;
                         margin: 0;
