@@ -9,12 +9,13 @@ const SiteConfigDialog = require('./site.configurator.dialog');
 
 const XPATH = {
     wizardSteps: `//div[contains(@id,'ContentWizardTabsToolbar')]`,
-    editIcon: `//a[@class='edit']`,
+    editIcon: `//button[.//*[name()='svg' and contains(@class,'lucide-pencil')]]`,
     descriptionInput: `//textarea[contains(@name,'description')]`,
     siteConfigComboboxDiv: "//div[contains(@id,'SiteConfiguratorComboBox')]",
     removeAppIcon: `//button[.//*[name()='svg' and contains(@class,'lucide-x')]]`,
+    // Selected application row in the SortableGridList (ItemLabel with the bold display-name span):
     selectedAppByDisplayName: (displayName) => {
-        return `//div[@data-component='SiteConfiguratorInput']//div[@role='button' and descendant::span[text()='${displayName}']]`
+        return `//div[@data-component='SiteConfiguratorInput']//div[@data-component='SortableGridList']/div[descendant::span[contains(@class,'font-semibold') and text()='${displayName}']]`
     },
 };
 

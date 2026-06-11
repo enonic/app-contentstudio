@@ -1,28 +1,20 @@
 const Page = require('../../page');
-const lib = require('../../../libs/elements-old');
+const {BUTTONS} = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
+
 const XPATH = {
-    container: `//div[contains(@id,'SiteConfiguratorDialog')]`,
-    applyButton: `//button[contains(@id,'DialogButton') and child::span[text()='Apply']]`,
-    cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
+    container: `//div[@data-component='Dialog.Content']`,
 };
 
 class BaseSiteConfiguratorDialog extends Page {
 
-    get cancelButton() {
-        return XPATH.container + `${XPATH.cancelButton}`;
+    get closeButton() {
+        return XPATH.container + BUTTONS.buttonAriaLabel('Close');
     }
 
-    get cancelButtonTop() {
-        return XPATH.container + lib.CANCEL_BUTTON_TOP;
-    }
 
     get applyButton() {
-        return XPATH.container + XPATH.applyButton;
-    }
-
-    clickOnCancelButton() {
-        return this.clickOnElement(this.cancelButton);
+        return XPATH.container + BUTTONS.buttonByLabel('Apply');
     }
 
     async clickOnApplyButton() {

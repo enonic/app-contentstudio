@@ -2,7 +2,7 @@
  * Created on 23.01.2019. updated on 11.02.2026
  */
 const Page = require('../../page');
-const lib = require('../../../libs/elements-old');
+const {BUTTONS} = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const HtmlAreaForm = require('../htmlarea.form.panel');
 

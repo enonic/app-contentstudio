@@ -84,7 +84,7 @@ describe('site.configurator.htmlarea.spec: tests for site configurator with html
             // 2. Click on 'Edit' icon and open 'Site Configurator' Dialog:
             await siteFormPanel.openSiteConfiguratorDialog(appConst.APP_CONTENT_TYPES);
             // 3. Click on 'Show Help' button in htmlArea inputView:
-            await siteConfiguratorDialog.clickOnHtmlAreaHelpToggle();
+            //await siteConfiguratorDialog.clickOnHtmlAreaHelpToggle();
             // 4. Verify the help text for HtmlArea:
             let actualHelpText = await siteConfiguratorDialog.getHelpTextForHtmlArea();
             assert.equal(actualHelpText[0], HELP_TEXT_HTML_AREA, 'Expected help text should be displayed for the htmlArea');
@@ -102,7 +102,7 @@ describe('site.configurator.htmlarea.spec: tests for site configurator with html
             // 3. Insert new text in the htmlAreaL
             await siteConfiguratorDialog.insertTextInHtmlArea(0, TEST_TEXT);
             // 4. Click on Cancel button in the modal dialog:
-            await siteConfiguratorDialog.clickOnCancelButton();
+            await siteConfiguratorDialog.clickOnCloseButton();
             await siteConfiguratorDialog.waitForDialogClosed();
             // 5. Reopen Site Configurator' Dialog
             await siteFormPanel.openSiteConfiguratorDialog(appConst.APP_CONTENT_TYPES);

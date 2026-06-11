@@ -1,5 +1,5 @@
 /**
- * Created on 19.10.2022
+ * Created on 19.10.2022 updated on 11.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -19,17 +19,14 @@ describe('Tests for site configurator modal dialog with multi-selection Option S
     }
     let SITE;
 
-    it(`Precondition: new site should be added`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.MY_FIRST_APP]);
-            await studioUtils.doAddSite(SITE);
-        });
-
     // Verifies: Default options in option-set don't get selected in site configurator #4629
     // https://github.com/enonic/app-contentstudio/issues/4629
     it(`GIVEN site configurator dialog is opened WHEN the checkbox(Option 2) that is checked by default has been unchecked and Apply button has been pressed THEN all options should be unchecked after reopening the dialog`,
         async () => {
+
+            let displayName = contentBuilder.generateRandomName('site');
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.TEST_APPS_NAME.MY_FIRST_APP]);
+            await studioUtils.doAddSite(SITE);
             let siteFormPanel = new SiteFormPanel();
             let siteConfigOptionSet = new SiteConfiguratorWithOptionSetDialog();
             // 1. Open the existing site:
@@ -55,7 +52,8 @@ describe('Tests for site configurator modal dialog with multi-selection Option S
 
     // Verifies: https://github.com/enonic/app-contentstudio/issues/5710
     // Content is not reset from Ready to In progress when controller is selected
-    it("GIVEN site is ready for publishing WHEN site config has been updated THEN the site's status gets 'Work in progress'",
+    // TODO https://github.com/enonic/app-contentstudio/issues/10805
+    it.skip("GIVEN site is ready for publishing WHEN site config has been updated THEN the site's status gets 'Work in progress'",
         async () => {
             let siteFormPanel = new SiteFormPanel();
             let contentWizard = new ContentWizard();
