@@ -104,7 +104,6 @@ class AdminSiteHandlerTest
 
         doHandle();
 
-        // page policy untouched; configured floor follows comma-separated, stamped with the request nonce
         assertThat( this.portalRequest.getContentSecurityPolicy().build() ).matches(
             "script-src 'self', default-src 'self'; object-src 'none'; script-src 'nonce-[A-Za-z0-9_-]+'" );
     }

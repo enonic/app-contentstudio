@@ -62,7 +62,7 @@ contentSecurityPolicy.enabled=false
 
 === Content preview
 
-When content is previewed, Content Studio sends the page's own Content Security Policy together with a configurable baseline policy, comma-joined into one header. The browser enforces both, so a load must satisfy the page policy _and_ the baseline: the baseline can only restrict, never broaden, what the page allows, and pages with a policy stricter than the baseline render exactly as on the live site. Inline scripts stamped with the request nonce (`portal.csp().nonceScriptSrc()`) pass the baseline as well.
+When content is previewed, the page's own Content Security Policy applies together with a configurable baseline. The baseline limits what previewed content may do, but never allows more than the page's own policy does — a page with a policy stricter than the baseline renders exactly as on the live site.
 
 .com.enonic.app.contentstudio.cfg
 [source,properties]
@@ -70,9 +70,9 @@ When content is previewed, Content Studio sends the page's own Content Security 
 site.preview.contentSecurityPolicy=default-src 'self'; base-uri 'self'; form-action 'self'; script-src 'self'; object-src 'none'; img-src * data:; style-src * 'unsafe-inline'; font-src * data:; frame-src *; media-src *
 ----
 
-The value above is the default. It follows one rule: passive and origin-isolated content is open, script-bearing vectors are locked. Embedded video services (YouTube, Vimeo, …) work out of the box — `frame-src *` allows framed players, which run isolated on their own origin, while `blob:` and `data:` frames (which would inherit the preview origin) stay blocked because the CSP wildcard does not match those schemes. A JavaScript-driven player on the page itself (e.g. an HLS player fetching streams from a CDN) additionally needs `connect-src` widened with the CDN host.
+The value above is the default: images, fonts, styles, media and framed embeds (YouTube, Vimeo, …) are allowed from anywhere, while scripts must come from the site itself or carry the request nonce. A player script that fetches streams from a CDN additionally needs the CDN host in `connect-src`.
 
-Set the property to an empty value to disable the baseline and trust each page's own policy alone. Do not put `'unsafe-inline'` into the baseline's `script-src`: the request nonce added to that directive makes browsers ignore `'unsafe-inline'`.
+Set the property to an empty value to disable the baseline and rely on each page's own policy alone. Avoid `'unsafe-inline'` in the baseline's `script-src` — it has no effect there.
 
 == Publishing Wizard
 
