@@ -8,6 +8,9 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const SortContentDialog = require('../../page_objects/browsepanel/sort.content.dialog');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
+const ContentBrowseDetailsPanel = require("../../page_objects/browsepanel/detailspanel/browse.context.window.panel");
+const BrowseVersionsWidget = require("../../page_objects/browsepanel/detailspanel/browse.versions.widget");
+const CompareContentVersionsDialog = require("../../page_objects/compare.content.versions.dialog");
 
 describe('sort.dialog.spec, tests for sort content dialog', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -100,6 +103,55 @@ describe('sort.dialog.spec, tests for sort content dialog', function () {
             let items = await contentBrowsePanel.getDisplayNamesInGrid();
             assert.ok(items[1] === MODIFIED_DATE_OLD_TO_NEW_FIRST_ITEM);
         });
+
+    it(`GIVEN existing folder is selected WHEN sorted-version item has been clicked THEN 'Restore' button should not be displayed`,
+        async () => {
+            let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
+            let browseVersionsWidget = new BrowseVersionsWidget();
+            // 1. Select the existing not sorted folder, sorted version is not active:
+            await studioUtils.findAndSelectItemByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
+            // 2. open Versions Panel
+            await contentBrowseDetailsPanel.openVersionHistory();
+            // 3. Click on 'Sorted' version item :
+            await browseVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 0);
+            // 4. Verify that Restore button should not be displayed in the Sorted item:
+            await browseVersionsWidget.waitForRestoreButtonNotDisplayed();
+        });
+
+    it(`GIVEN sorted folder is selected THEN By Super User  should be displayed in the Versions widget`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let browseVersionsWidget = new BrowseVersionsWidget();
+            let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
+            let compareContentVersionsDialog = new CompareContentVersionsDialog();
+            await contentBrowsePanel.waitForSpinnerNotVisible();
+            // 1. Select the folder with children an open sort-dialog:
+            await studioUtils.findAndSelectItemByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
+            await contentBrowseDetailsPanel.openVersionHistory();
+            let numberOfSortedItems = await browseVersionsWidget.countSortedItems();
+            assert.equal(numberOfSortedItems, 2, "2 sorted item should be present in the versions widget");
+            // 6. Verify that user-name should not be displayed in Sorted version item
+            let byUser = await browseVersionsWidget.getUserNameInItemByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 0);
+            assert.equal(byUser, 'By Super User', 'user-name should be displayed in Sorted version item');
+
+
+             await browseVersionsWidget.waitForCompareChangesCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.SORTED,0);
+            // 6. Click on 'Compare changes' checkbox in the 'Sorted' item:
+            await browseVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 0);
+            // 7. lick on 'Compare changes' checkbox in the latest 'Edited' item:
+
+            await browseVersionsWidget.waitForCompareChangesCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.SORTED,1);
+            await browseVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 1);
+            // 8. Click on 'Compare Versions' button in the widget:
+            await browseVersionsWidget.clickOnCompareVersionsButton();
+            // 9. Verify that the modal dialog is loaded:
+            await compareContentVersionsDialog.waitForDialogOpened();
+            await studioUtils.saveScreenshot('compare_versions_dlg_sorted_1');
+            // 5. Verify that 'childOrder' property is displayed in the modal dialog:
+            let result = await compareContentVersionsDialog.getChildOrderProperty();
+            assert.ok(result.includes(`"modifiedtime DESC"`), `Expected current order should be displayed in the dialog -  'modifiedtime DESC'`);
+        });
+
 
     // Verify Content grid is not refreshed after content sorting. #10744
     // https://github.com/enonic/app-contentstudio/issues/10744

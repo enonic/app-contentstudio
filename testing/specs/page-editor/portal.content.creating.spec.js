@@ -9,7 +9,6 @@ const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const CountryFormPanel = require('../../page_objects/wizardpanel/country.form.panel');
 const CityCreationPage = require('../../page_objects/wizardpanel/city.creation.page');
-const LauncherPanel = require('../../page_objects/launcher.panel');
 const CityFormPanel = require('../../page_objects/wizardpanel/city.form.panel');
 const appConst = require('../../libs/app_const');
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
@@ -84,9 +83,7 @@ describe('portal.content.creating.spec - tests for portal creating', function ()
             await cityCreationPage.clickOnSubmitButton();
             // 4. Navigate to content browse panel again:
             await studioUtils.doSwitchToHome();
-            let launcherPanel = new LauncherPanel();
-            await launcherPanel.clickOnContentStudioLink();
-            await launcherPanel.pause(1000);
+            //TODO
             await studioUtils.doSwitchToContentBrowsePanel();
             // 5. Verify that new city content is present in the grid:
             let cityFormPanel = new CityFormPanel();

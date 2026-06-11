@@ -9,7 +9,6 @@ const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
-const LauncherPanel = require('../../page_objects/launcher.panel');
 const HomePage = require("../../page_objects/home.page");
 
 describe('htmlarea.updated.on.server.event.spec: tests for updating html area on server event', function () {
@@ -37,7 +36,6 @@ describe('htmlarea.updated.on.server.event.spec: tests for updating html area on
         async () => {
             let contentWizard = new ContentWizard();
             let htmlAreaForm = new HtmlAreaForm();
-            let launcherPanel = new LauncherPanel();
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Open a new wizard for a content with htmlArea:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
