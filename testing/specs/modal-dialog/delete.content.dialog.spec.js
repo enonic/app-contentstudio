@@ -1,5 +1,5 @@
 /**
- * Created on 04.10.2019.
+ * Created on 04.10.2019. updated on 10.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -71,13 +71,13 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
             await studioUtils.findAndSelectItem(FOLDER1.displayName);
             await contentBrowsePanel.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogOpened();
-            let status = await deleteContentDialog.getContentStatus(FOLDER1.displayName);
+           let status = await deleteContentDialog.getContentStatus(FOLDER1.displayName);
             assert.equal(status, appConst.CONTENT_STATUS.OFFLINE, 'Offline status should be displayed');
             await deleteContentDialog.waitForCloseButtonDisplayed();
             await deleteContentDialog.waitForDeleteButtonEnabled();
 
-            let itemsToArchiveOrDelete = await deleteContentDialog.getMainItemsToDeleteDisplayName();
-            assert.equal(itemsToArchiveOrDelete[0], FOLDER1.displayName, "Expected display names should be present");
+            let itemToDelete = await deleteContentDialog.getSingleItemDisplayName();
+            assert.equal(itemToDelete, FOLDER1.displayName, "Expected display name should be present");
         });
 
     it(`GIVEN 'Delete Content' dialog is opened WHEN 'Close' button has been pressed THEN dialog closes`,
@@ -97,7 +97,7 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let deleteContentDialog = new DeleteContentDialog();
-            // 1.Select and publish the folder:
+            // 1. Select and publish the folder:
             await studioUtils.findAndSelectItem(FOLDER1.displayName);
             await studioUtils.openDialogAndPublishSelectedContent();
             // 2. Open Delete content Dialog:

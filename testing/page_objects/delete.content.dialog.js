@@ -8,9 +8,15 @@ const XPATH = {
     itemViewer: `//div[contains(@id,'DeleteItemViewer']`,
     dependantListUl: "//ul[contains(@id,'DialogWithRefsDependantList')]",
     dependantsHeader: "//div[@class='dependants-header']/span[@class='dependants-title']",
-    contentStatusBadge: "//span[@data-component='StatusBadge']",
+    // First inner span = publish status (Online/Offline); the optional second span is the workflow state (New/Moved...):
+    contentStatusBadge: "//span[@data-component='DiffStatusBadge']/span[1]",
+    // Item row scoped by display name, role-agnostic (single-item layout uses role='row', multi-item uses role='listitem'):
+    itemByDisplayName: displayName =>
+        `//div[@data-component='ContentListItemWithReference' and descendant::div[@data-component='ContentLabel' and descendant::span[contains(.,'${displayName}')]]]`,
     inboundLink: `//a[contains(@class,'inbound-dependency')]`,
     mainListItemsDisplayName: `//div[@role='separator']/preceding::div[@role='listitem'][ancestor::div[@role='dialog' and @data-component='DeleteDialogMainContent']]//div[@data-component='ContentLabel']//span[following-sibling::small]`,
+    // Single-item case: only one ContentListItemWithReference is rendered (no separator/dependant list shown):
+    singleItemDisplayName: `//div[@data-component='ContentReferenceList']//div[@data-component='ContentListItemWithReference']//div[@data-component='ContentLabel']//span[following-sibling::small]`,
 
     getShowReferencesButtonLocator(displayName) {
         return XPATH.container +
@@ -111,7 +117,8 @@ class DeleteContentDialog extends Page {
     }
 
     async getContentStatus(displayName) {
-        let selector = XPATH.container + TREE_GRID.listItemByDisplayName(displayName) + XPATH.contentStatusBadge;
+        let selector = XPATH.container + XPATH.itemByDisplayName(displayName) + XPATH.contentStatusBadge;
+        await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
         return await this.getText(selector);
     }
 
@@ -125,6 +132,16 @@ class DeleteContentDialog extends Page {
 
     async waitForDeleteButtonEnabled() {
         return this.waitForElementEnabled(this.deleteButton, appConst.mediumTimeout);
+    }
+    // Returns the display name of the single item to delete (unlike getMainItemsToDeleteDisplayName, the DOM here renders one item only)
+    async getSingleItemDisplayName() {
+        try {
+            let selector = XPATH.container + XPATH.singleItemDisplayName;
+            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+            return await this.getText(selector);
+        } catch (err) {
+            await this.handleError('Delete Content Dialog, tried to get the single item display name', 'err_single_item_display_name', err);
+        }
     }
 
     async getMainItemsToDeleteDisplayName() {
