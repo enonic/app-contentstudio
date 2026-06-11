@@ -9,8 +9,10 @@ const xpath = {
     issueItemByName(name) {
         return `//div[@data-component='IssueList']//div[@data-component='IssueListItem' and descendant::div[contains(.,'${name}')]]`
     },
+    // portal-rendered options live outside the dialog container; match by ItemText (count suffix included)
     typeFilterOption: option => {
-        return `//div[contains(@id,'TypeFilter')]//li[contains(@id,'MenuItem') and contains(.,'${option}')]`
+        return `//div[@data-component='Selector.Content' and @data-state='open']` +
+               `//div[@data-component='Selector.Item' and descendant::span[@data-component='Selector.ItemText' and contains(text(),'${option}')]]`
     },
     publishRequestsMenuItem: "//li[contains(@id,'MenuItem')and contains(.,'Publish requests']]",
     createdByMeMenuItem: "//li[contains(@id,'MenuItem')and contains(.,'Created by Me']]",
@@ -27,7 +29,7 @@ class IssuesListDialog extends Page {
     }
 
     get typeFilterDropDownHandle() {
-        return xpath.container + DROPDOWN.buttonComboboxByLabel('Filter');
+        return xpath.container + DROPDOWN.SELECTOR_TRIGGER;
     }
 
     get closedTabButton() {

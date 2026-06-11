@@ -2,7 +2,7 @@
  * Created on 28.03.2022
  */
 const Page = require('../page');
-const lib = require('../../libs/elements-old');
+const {COMMON} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
 const XPATH = {
@@ -14,15 +14,15 @@ const XPATH = {
 class PersonForm extends Page {
 
     get firstNameInput() {
-        return lib.FORM_VIEW + XPATH.firstNameInput;
+        return COMMON.INPUTS.inputFieldByLabel('First Name') + "//input";
     }
 
     get lastNameInput() {
-        return lib.FORM_VIEW + XPATH.lastNameInput;
+        return COMMON.INPUTS.inputFieldByLabel('Last Name') + "//input";
     }
 
     get cityInput() {
-        return lib.FORM_VIEW + XPATH.cityInput;
+        return COMMON.INPUTS.inputFieldByLabel('City') + "//input";
     }
 
     async typeInFirstNameInput(title) {
