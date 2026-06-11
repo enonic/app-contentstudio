@@ -6,7 +6,6 @@ import {type ContentId} from '../../../../app/content/ContentId';
 import type {ContentSummary} from '../../../../app/content/ContentSummary';
 import {fetchContentSummaries} from '../../api/content';
 import {type CompareResult, compareContent} from '../../api/compare';
-import {PublishStatus} from '../../../../app/publish/PublishStatus';
 import {calcSecondaryStatus, calcTreePublishStatus} from '../../utils/cms/content/status';
 import {hasUnpublishedChildren} from '../../api/hasUnpublishedChildren';
 import {findIdsByParents, markAsReady, publishContent, resolvePublishDependencies as resolvePublishDeps} from '../../api/publish';
@@ -90,6 +89,7 @@ type PublishChecksStore = {
     inProgressExcludable: boolean;
     notPublishableIds: ContentId[];
     notPublishableExcludable: boolean;
+    schedulable: boolean;
 }
 
 type PublishCheckError = {
@@ -139,6 +139,7 @@ const initialChecksState: PublishChecksStore = {
     inProgressExcludable: false,
     notPublishableIds: [],
     notPublishableExcludable: false,
+    schedulable: false,
 };
 
 const initialPendingState: PublishDialogPendingStore = {
@@ -155,11 +156,20 @@ export const $draftPublishDialogSelection = map<PublishDialogSelectionStore>(str
 
 const $publishChecks = map<PublishChecksStore>(structuredClone(initialChecksState));
 
-// Store for resolved dependencies (output of reloadPublishDialogData)
+const DEPENDANT_LOAD_SIZE = 36;
+
+// Full ordered dependant id list; summaries load lazily, a window at a time.
+const $dependantIds = atom<ContentId[]>([]);
+
 const $publishDialogDependants = atom<ContentSummary[]>([]);
 
 // Dependant ids visible in the dialog (legacy `calcVisibleIds`): min dependants, direct excluded deps, included children
 const $visibleDependantIds = atom<ContentId[]>([]);
+
+const $dependantWindow = atom<number>(0);
+
+// Publishable ids (status != EQUAL) resolved by the server, across the full set
+const $publishableContentIds = atom<ContentId[]>([]);
 
 export const $publishDialogPending = map<PublishDialogPendingStore>(initialPendingState);
 
@@ -233,27 +243,26 @@ export const $hasExcludedDependantItems = computed($dependantPublishItems, (item
     return items.some(item => item.excludedByDefault && !item.hidden && !item.required);
 });
 
-export const $publishableIds = computed([$mainPublishItems, $dependantPublishItems], (mainItems, dependantItems): ContentId[] => {
-    return [...mainItems, ...dependantItems].filter(item => {
-        return item.included && calcSecondaryStatus(calcTreePublishStatus(item.content), item.content) != null;
-    }).map(item => item.content.getContentId());
-});
+// Filter the server's publishable set by the draft selection so the count stays live
+// while the user toggles checkboxes, without re-resolving or loading summaries.
+export const $publishableIds = computed(
+    [$publishableContentIds, $draftPublishDialogSelection],
+    (publishableIds, {excludedItemsIds, excludedDependantItemsIds}): ContentId[] => {
+        const excludedIds = uniqueIds([...excludedItemsIds, ...excludedDependantItemsIds]);
+        return publishableIds.filter(id => !hasContentIdInIds(id, excludedIds));
+    }
+);
 
 export const $totalPublishableItems = computed($publishableIds, (publishableIds): number => {
     return publishableIds.length;
 });
 
-// Scheduling only makes sense when at least one item is not currently online.
-// Mirrors legacy `hasSchedulable`: hide when all items are Published, Modified, or Scheduled.
-export const $hasSchedulableItems = computed(
-    [$publishDialog, $publishDialogDependants],
-    ({items}, dependants): boolean => {
-        return [...items, ...dependants].some(item => {
-            const status = calcTreePublishStatus(item);
-            return status === PublishStatus.OFFLINE || status === PublishStatus.EXPIRED;
-        });
-    },
-);
+export const $hasMoreDependants = computed([$dependantIds, $dependantWindow], (ids, loaded): boolean => {
+    return loaded < ids.length;
+});
+
+// Scheduling makes sense only when something is offline or expired (resolved server-side).
+export const $hasSchedulableItems = computed($publishChecks, ({schedulable}): boolean => schedulable);
 
 export const $publishCheckErrors = computed([$publishChecks], (state): PublishCheckErrorsStore => {
     return {
@@ -395,9 +404,8 @@ export const openPublishDialog = (items: ContentSummary[], includeChildItems = f
         excludedDependantItemsIds: [...excludedIds],
     });
 
-    // Reset dependants store
-    $publishDialogDependants.set([]);
-    $visibleDependantIds.set([]);
+    // Reset dependants stores
+    resetDependantsState();
 
     // TODO: Sync after updates to $publishDialog
     $draftPublishDialogSelection.set({
@@ -426,8 +434,7 @@ export const resetPublishDialogContext = () => {
     $publishDialog.set(structuredClone(initialPublishDialogState));
     $draftPublishDialogSelection.set(structuredClone(initialSelectionState));
     $publishChecks.set(structuredClone(initialChecksState));
-    $publishDialogDependants.set([]);
-    $visibleDependantIds.set([]);
+    resetDependantsState();
     $publishDialogPending.set(initialPendingState);
     $hasUnpublishedChildrenIds.set(new Set());
     $compareStatuses.set(new Map());
@@ -615,6 +622,54 @@ export const removePublishDialogItem = (id: ContentId): void => {
 
 // DATA
 
+let loadingMore = false;
+
+const orderSummariesByIds = (summaries: ContentSummary[], orderIds: ContentId[]): ContentSummary[] => {
+    const indexById = new Map<string, number>();
+    orderIds.forEach((id, index) => indexById.set(id.toString(), index));
+    const indexOf = (item: ContentSummary): number =>
+        indexById.get(item.getContentId().toString()) ?? orderIds.length;
+    return [...summaries].sort((a, b) => indexOf(a) - indexOf(b));
+};
+
+// Loads the next slice into the window, preserving server order. Returns null if a
+// newer reload superseded this one (guardId no longer matches the current instanceId).
+async function loadDependantWindow(allIds: ContentId[], start: number, guardId: number): Promise<ContentSummary[] | null> {
+    const sliceIds = allIds.slice(start, start + DEPENDANT_LOAD_SIZE);
+    const summaries = sliceIds.length > 0 ? await fetchContentSummaries(sliceIds) : [];
+
+    if (guardId !== instanceId) return null;
+
+    if (sliceIds.length > 0 && summaries.length === 0) {
+        return $publishDialogDependants.get();
+    }
+
+    const base = start === 0 ? [] : $publishDialogDependants.get();
+    const merged = orderSummariesByIds([...base, ...summaries], allIds);
+
+    $publishDialogDependants.set(merged);
+    $dependantWindow.set(Math.min(start + DEPENDANT_LOAD_SIZE, allIds.length));
+
+    return merged;
+}
+
+/** Lazy-load the next window of dependant summaries (triggered by list scroll). */
+export const loadMoreDependants = async (): Promise<void> => {
+    if (loadingMore) return;
+
+    const allIds = $dependantIds.get();
+    const loaded = $dependantWindow.get();
+    if (loaded >= allIds.length) return;
+
+    loadingMore = true;
+    const guardId = instanceId;
+    try {
+        await loadDependantWindow(allIds, loaded, guardId);
+    } finally {
+        loadingMore = false;
+    }
+};
+
 async function reloadPublishDialogData(): Promise<void> {
     $compareStatuses.set(new Map());
     $compareStatusesLoading.set(false);
@@ -625,10 +680,10 @@ async function reloadPublishDialogData(): Promise<void> {
         const result = await resolvePublishDependencies();
         if (!result) return;
 
-        const {dependantItems, visibleDependantIds, excludedItemsIds, excludedDependantItemsIds, ...checks} = result;
+        const {publishableContentIds, visibleDependantIds, excludedItemsIds, excludedDependantItemsIds, ...checks} = result;
 
-        // Write dependantItems to separate store
-        $publishDialogDependants.set(dependantItems);
+        // Dependant summaries are managed (windowed) inside resolvePublishDependencies
+        $publishableContentIds.set(publishableContentIds);
         $visibleDependantIds.set(visibleDependantIds);
 
         // Only update exclusion IDs in $publishDialog
@@ -654,7 +709,7 @@ async function reloadPublishDialogData(): Promise<void> {
         await fetchHasUnpublishedChildren(items);
 
         // Verify compare status for online+modified items (non-blocking)
-        void fetchCompareStatuses([...items, ...dependantItems]);
+        void fetchCompareStatuses([...items, ...$publishDialogDependants.get()]);
     } catch (error) {
         $publishDialog.setKey('failed', true);
         // TODO: Notify error
@@ -682,8 +737,7 @@ export const markAllAsReadyInProgressPublishItems = async (): Promise<void> => {
 
 export const excludeInProgressPublishItems = (): ContentId[] => {
     const {excludedDependantItemsIds} = $publishDialog.get();
-    const dependantItems = $publishDialogDependants.get();
-    const dependantItemsIds = dependantItems.map(item => item.getContentId());
+    const dependantItemsIds = $dependantIds.get();
     const inProgressDependantIds = $publishChecks.get().inProgressIds.filter(id => hasContentIdInIds(id, dependantItemsIds));
     const newExcludedDependantItemsIds = uniqueIds([...excludedDependantItemsIds, ...inProgressDependantIds]);
 
@@ -695,8 +749,7 @@ export const excludeInProgressPublishItems = (): ContentId[] => {
 
 export const excludeInvalidPublishItems = (): ContentId[] => {
     const {excludedDependantItemsIds} = $publishDialog.get();
-    const dependantItems = $publishDialogDependants.get();
-    const dependantItemsIds = dependantItems.map(item => item.getContentId());
+    const dependantItemsIds = $dependantIds.get();
     const invalidDependantIds = $publishChecks.get().invalidIds.filter(id => hasContentIdInIds(id, dependantItemsIds));
     const newExcludedDependantItemsIds = uniqueIds([...excludedDependantItemsIds, ...invalidDependantIds]);
 
@@ -708,8 +761,7 @@ export const excludeInvalidPublishItems = (): ContentId[] => {
 
 export const excludeNotPublishablePublishItems = (): ContentId[] => {
     const {excludedDependantItemsIds} = $publishDialog.get();
-    const dependantItems = $publishDialogDependants.get();
-    const dependantItemsIds = dependantItems.map(item => item.getContentId());
+    const dependantItemsIds = $dependantIds.get();
     const notPublishableDependantIds = $publishChecks.get().notPublishableIds.filter(id => hasContentIdInIds(id, dependantItemsIds));
     const newExcludedDependantItemsIds = uniqueIds([...excludedDependantItemsIds, ...notPublishableDependantIds]);
 
@@ -778,6 +830,15 @@ const filterItemsWithChildren = (items: ContentSummary[]): ContentSummary[] => {
     return items.filter(item => item.hasChildren());
 };
 
+/** Clears all dependant-related state (full IDs, loaded window, publishable set). */
+function resetDependantsState(): void {
+    $publishDialogDependants.set([]);
+    $dependantIds.set([]);
+    $dependantWindow.set(0);
+    $visibleDependantIds.set([]);
+    $publishableContentIds.set([]);
+}
+
 //
 // * Internal Helpers
 //
@@ -814,6 +875,17 @@ const removeItemsByIds = (idsToRemove: Set<string>): {removedMain: boolean; remo
     }
     if (removedDependant) {
         $publishDialogDependants.set(nextDependantItems.items);
+    }
+
+    // Keep the full ID list and publishable set in sync until the follow-up reload.
+    const nextDependantIds = $dependantIds.get().filter(id => !idsToRemove.has(id.toString()));
+    if (nextDependantIds.length !== $dependantIds.get().length) {
+        $dependantIds.set(nextDependantIds);
+        $dependantWindow.set(Math.min($dependantWindow.get(), nextDependantIds.length));
+    }
+    const nextPublishableIds = $publishableContentIds.get().filter(id => !idsToRemove.has(id.toString()));
+    if (nextPublishableIds.length !== $publishableContentIds.get().length) {
+        $publishableContentIds.set(nextPublishableIds);
     }
 
     return {removedMain, removedDependant};
@@ -982,7 +1054,8 @@ $contentPublished.subscribe(onIdlePublishSocketEvent((event) => {
 // TODO: Use AbortController to cancel the request if the instanceId changes
 
 type ResolvePublishDependenciesResult = {
-    dependantItems: ContentSummary[];
+    publishableContentIds: ContentId[];
+    schedulable: boolean;
     visibleDependantIds: ContentId[];
     excludedItemsIds: ContentId[];
     excludedDependantItemsIds: ContentId[];
@@ -1022,7 +1095,12 @@ async function resolvePublishDependencies(): Promise<ResolvePublishDependenciesR
                 !hasContentIdInIds(id, childrenIds) && !hasContentIdInIds(id, itemsIds)),
         ])
         : initialExcludedIds;
-    const minResult = await resolvePublishDeps({ids: itemsIds, excludedIds: minExcludedIds, excludeChildrenIds: allExcludedItemsWithChildrenIds});
+
+    // Skip the second request when its parameters match the first: maxResult
+    // and minResult only differ when non-required dependencies are excluded.
+    const minResult = isIdsEqual(minExcludedIds, excludedItemsIds)
+        ? maxResult
+        : await resolvePublishDeps({ids: itemsIds, excludedIds: minExcludedIds, excludeChildrenIds: allExcludedItemsWithChildrenIds});
 
     if (currentInstanceId !== instanceId) return;
 
@@ -1059,20 +1137,21 @@ async function resolvePublishDependencies(): Promise<ResolvePublishDependenciesR
         // TODO: notify 'dialog.publish.notAllExcluded'
     }
 
-    // TODO: Cache dependant items
-    const dependantItems = await fetchContentSummaries(allDependantIds);
-
-    if (currentInstanceId !== instanceId) return;
+    // Store all ids; load only the first window of summaries (rest load on scroll).
+    $dependantIds.set(allDependantIds);
+    const loaded = await loadDependantWindow(allDependantIds, 0, currentInstanceId);
+    if (loaded == null) return;
 
     const newExcludedItemsIds = items.filter(item =>
         hasContentIdInIds(item.getContentId(), excludedIds) ||
         hasContentIdInIds(item.getContentId(), excludedItemsIds)
     ).map(item => item.getContentId());
 
-    const newExcludedDependantItemsIds = dependantItems.filter(item =>
-        hasContentIdInIds(item.getContentId(), excludedIds) ||
-        hasContentIdInIds(item.getContentId(), baseExcludedDependantIds)
-    ).map(item => item.getContentId());
+    // Exclusions are computed from IDs (the full set), not from loaded summaries.
+    const newExcludedDependantItemsIds = allDependantIds.filter(id =>
+        hasContentIdInIds(id, excludedIds) ||
+        hasContentIdInIds(id, baseExcludedDependantIds)
+    );
 
     const isExcludableFromIds = (id: ContentId): boolean => {
         return !hasContentIdInIds(id, newExcludedItemsIds) &&
@@ -1090,7 +1169,8 @@ async function resolvePublishDependencies(): Promise<ResolvePublishDependenciesR
     const notPublishableExcludable = excludableNotPublishableIds.length === notPublishableIds.length && notPublishableIds.length > 0;
 
     return {
-        dependantItems,
+        publishableContentIds: maxResult.getPublishable(),
+        schedulable: maxResult.isSchedulable(),
         visibleDependantIds,
         excludedItemsIds: newExcludedItemsIds,
         excludedDependantItemsIds: newExcludedDependantItemsIds,

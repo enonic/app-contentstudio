@@ -11,6 +11,8 @@ type ResolveResultOptions = {
     inProgress?: ContentId[];
     notPublishable?: ContentId[];
     next?: ContentId[];
+    publishable?: ContentId[];
+    schedulable?: boolean;
 };
 
 type MockContentOptions = {
@@ -70,6 +72,8 @@ export function createResolveResult({
     inProgress = [],
     notPublishable = [],
     next = [],
+    publishable = [],
+    schedulable = false,
 }: ResolveResultOptions) {
     return {
         getDependants: () => dependants,
@@ -78,6 +82,8 @@ export function createResolveResult({
         getInProgress: () => inProgress,
         getNotPublishable: () => notPublishable,
         getNextDependants: () => next,
+        getPublishable: () => publishable,
+        isSchedulable: () => schedulable,
     };
 }
 
