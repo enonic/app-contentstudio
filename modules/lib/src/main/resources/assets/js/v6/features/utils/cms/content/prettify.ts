@@ -8,6 +8,10 @@ export function resolveDisplayName(summary: ContentSummary): string {
     return summary.getDisplayName() || normalizeDisplayName(resolveUnnamedDisplayName(summary));
 }
 
+export function resolveListTitle(summary: ContentSummary): string {
+    return summary.getListTitle() || normalizeDisplayName(resolveUnnamedDisplayName(summary));
+}
+
 function normalizeDisplayName(displayName: string): string {
     if (!displayName) {
         return `<${i18n('field.displayName')}>`;

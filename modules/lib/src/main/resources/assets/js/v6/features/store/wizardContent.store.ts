@@ -19,6 +19,7 @@ import {setAiDataTree, setAiWizardBridge} from './ai';
 import {$layoutDescriptorOptions, $partDescriptorOptions} from './component-inspection.store';
 import {$pageConfigDescriptor} from './page-inspection.store';
 import {addStringOccurrence, removeStringOccurrence, setStringValue} from './wizardPropertyTree.utils';
+import {resolveDisplayNameExpression} from './displayNameExpression.utils';
 import {createDebounce} from '../utils/timing/createDebounce';
 import {$contextContent} from './context/contextContent.store';
 import {ContentPath} from '../../../app/content/ContentPath';
@@ -704,6 +705,20 @@ export function setDraftDisplayName(value: string): void {
     $wizardDraftDisplayName.set(value);
 }
 
+function regenerateDisplayNameFromExpression(): void {
+    const contentType = $contentType.get();
+    if (!contentType?.hasDisplayNameExpression()) {
+        return;
+    }
+
+    const data = $wizardDraftData.get();
+    if (data == null) {
+        return;
+    }
+
+    setDraftDisplayName(resolveDisplayNameExpression(contentType.getDisplayNameExpression(), contentType.getForm(), data));
+}
+
 export function setDraftName(value: ContentName): void {
     if (contentNamesEqual($wizardDraftName.get(), value)) {
         return;
@@ -952,6 +967,7 @@ $wizardDraftData.subscribe((tree) => {
     if (tree) {
         const handler = () => {
             bumpDraftDataVersion();
+            regenerateDisplayNameFromExpression();
         };
         tree.onChanged(handler);
         cleanupTreeListener = () => tree.unChanged(handler);
