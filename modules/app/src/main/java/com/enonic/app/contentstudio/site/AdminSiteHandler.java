@@ -195,10 +195,10 @@ public class AdminSiteHandler
 
         if ( mode == RenderMode.EDIT )
         {
-            policy.imgSrc( "*", "data:" )
-                .fontSrc( "*", "data:" )
-                .frameSrc( "*" )
-                .mediaSrc( "*" )
+            policy.imgSrc( CspSource.WILDCARD, CspSource.DATA )
+                .fontSrc( CspSource.WILDCARD, CspSource.DATA )
+                .frameSrc( CspSource.WILDCARD )
+                .mediaSrc( CspSource.WILDCARD )
                 .objectSrc( CspSource.NONE )
                 .reset( "script-src", "style-src" );
         }
