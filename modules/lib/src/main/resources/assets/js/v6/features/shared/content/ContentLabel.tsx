@@ -1,6 +1,6 @@
 import {type ReactElement} from 'react';
 import type {ContentSummary} from '../../../../app/content/ContentSummary';
-import {resolveDisplayName, resolvePath} from '../../utils/cms/content/prettify';
+import {resolveDisplayName, resolveListTitle, resolvePath} from '../../utils/cms/content/prettify';
 import {calcContentState} from '../../utils/cms/content/workflow';
 import {ItemLabel, type ItemLabelProps} from '../ItemLabel';
 import {WorkflowContentIcon} from '../icons/WorkflowContentIcon';
@@ -20,12 +20,14 @@ export type ContentLabelProps = {
     variant?: ContentLabelVariant;
     /** Hide the workflow status icon. @default false */
     hideStatus?: boolean;
+    useListTitle?: boolean;
 } & Omit<ItemLabelProps, 'icon' | 'primary' | 'secondary'>;
 
 export const ContentLabel = ({
     content,
     variant = 'normal',
     hideStatus = false,
+    useListTitle = false,
     'data-component': dataComponent = CONTENT_LABEL_NAME,
     ...props
 }: ContentLabelProps): ReactElement => {
@@ -44,9 +46,10 @@ export const ContentLabel = ({
 
     const pathStr = resolvePath(content, showFullPath);
 
+    const titleText = useListTitle ? resolveListTitle(content) : resolveDisplayName(content);
     const primaryText = isCompact
         ? pathStr
-        : resolveDisplayName(content);
+        : titleText;
     const secondaryText = isCompact
         ? undefined
         : pathStr;

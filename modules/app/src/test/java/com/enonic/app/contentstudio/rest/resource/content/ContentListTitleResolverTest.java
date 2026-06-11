@@ -11,7 +11,6 @@ import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeService;
-import com.enonic.xp.util.GenericValue;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -28,8 +27,7 @@ class ContentListTitleResolverTest
     {
         final ContentType contentType = ContentType.create()
             .name( "my:contentType" )
-            .schemaConfig(
-                GenericValue.newObject().put( "listTitleExpression", "${data.val1} ${missing} ${data.val1} ${displayName}" ).build() )
+            .displayNameListExpression( "${data.val1} ${missing} ${data.val1} ${displayName}" )
             .superType( ContentTypeName.unstructured() )
             .build();
 
