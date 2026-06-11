@@ -9,8 +9,10 @@ import {
     $deleteDialog,
     $deleteInboundIds,
     $deleteItemsCount,
+    $hasMoreDeleteDependants,
     $isDeleteDialogReady,
     ignoreDeleteInboundDependencies,
+    loadMoreDeleteDependants,
 } from '../../../store/dialogs/deleteDialog.store';
 import {ContentReferenceList} from '../ContentReferenceList';
 import {InboundStatusBar} from '../status-bar/InboundStatusBar';
@@ -30,6 +32,7 @@ export const DeleteDialogMainContent = ({
         {keys: ['loading', 'failed', 'items', 'dependants', 'inboundIgnored']});
     const ready = useStore($isDeleteDialogReady);
     const total = useStore($deleteItemsCount);
+    const hasMoreDependants = useStore($hasMoreDeleteDependants);
     const inboundIds = useStore($deleteInboundIds);
     const inboundSet = useMemo(() => new Set(inboundIds), [inboundIds]);
     const isInbound = useCallback((content: ContentSummary) =>
@@ -90,6 +93,8 @@ export const DeleteDialogMainContent = ({
                     isInbound={isInbound}
                     label={title}
                     dependantVariant='compact'
+                    hasMore={hasMoreDependants}
+                    onEndReached={loadMoreDeleteDependants}
                 />
             </Dialog.Body>
 
