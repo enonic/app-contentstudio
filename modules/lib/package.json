@@ -26,7 +26,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@enonic/ui": "^1.0.1",
+    "@enonic/ui": "^1.0.4",
     "@nanostores/preact": "^1.0.0",
     "ckeditor4-react": "4.3.0",
     "class-variance-authority": "^0.7.1",
@@ -58,6 +58,8 @@
     "@enonic/eslint-config": "^2.1.0",
     "@enonic/lib-admin-ui": "workspace:*",
     "@radix-ui/react-slot": "^1.2.0",
+    "@rspack/cli": "^1.7.11",
+    "@rspack/core": "^1.7.11",
     "@swc/cli": "^0.8.1",
     "@swc/core": "^1.15.2",
     "@tailwindcss/vite": "^4.1.13",
@@ -70,8 +72,6 @@
     "@types/jqueryui": "^1.12.24",
     "@types/q": "^1.5.8",
     "@types/sortablejs": "^1.15.9",
-    "@rspack/cli": "^1.7.11",
-    "@rspack/core": "^1.7.11",
     "@vitest/ui": "^4.0.11",
     "css-loader": "^7.1.2",
     "eslint": "^9.39.4",
