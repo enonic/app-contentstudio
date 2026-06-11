@@ -67,10 +67,12 @@ When content is previewed, Content Studio sends the page's own Content Security 
 .com.enonic.app.contentstudio.cfg
 [source,properties]
 ----
-site.preview.contentSecurityPolicy=default-src 'self'; base-uri 'self'; form-action 'self'; script-src 'self'; object-src 'none'; img-src * data:; style-src * 'unsafe-inline'; font-src * data:
+site.preview.contentSecurityPolicy=default-src 'self'; base-uri 'self'; form-action 'self'; script-src 'self'; object-src 'none'; img-src * data:; style-src * 'unsafe-inline'; font-src * data:; frame-src *; media-src *
 ----
 
-The value above is the default. Set the property to an empty value to disable the baseline and trust each page's own policy alone. Do not put `'unsafe-inline'` into the baseline's `script-src`: the request nonce added to that directive makes browsers ignore `'unsafe-inline'`.
+The value above is the default. It follows one rule: passive and origin-isolated content is open, script-bearing vectors are locked. Embedded video services (YouTube, Vimeo, …) work out of the box — `frame-src *` allows framed players, which run isolated on their own origin, while `blob:` and `data:` frames (which would inherit the preview origin) stay blocked because the CSP wildcard does not match those schemes. A JavaScript-driven player on the page itself (e.g. an HLS player fetching streams from a CDN) additionally needs `connect-src` widened with the CDN host.
+
+Set the property to an empty value to disable the baseline and trust each page's own policy alone. Do not put `'unsafe-inline'` into the baseline's `script-src`: the request nonce added to that directive makes browsers ignore `'unsafe-inline'`.
 
 == Publishing Wizard
 

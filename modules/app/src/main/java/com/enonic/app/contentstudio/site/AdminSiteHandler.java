@@ -197,6 +197,8 @@ public class AdminSiteHandler
         {
             policy.imgSrc( "*", "data:" )
                 .fontSrc( "*", "data:" )
+                .frameSrc( "*" )
+                .mediaSrc( "*" )
                 .objectSrc( CspSource.NONE )
                 .reset( "script-src", "style-src" );
         }

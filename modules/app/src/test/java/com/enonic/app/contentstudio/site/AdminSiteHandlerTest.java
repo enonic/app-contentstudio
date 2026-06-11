@@ -78,7 +78,7 @@ class AdminSiteHandlerTest
         doHandle();
 
         assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo(
-            "font-src * data:; frame-ancestors 'self'; img-src 'self' * data:; object-src 'none'" );
+            "font-src * data:; frame-ancestors 'self'; frame-src *; img-src 'self' * data:; media-src *; object-src 'none'" );
     }
 
     @Test
