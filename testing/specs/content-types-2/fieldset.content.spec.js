@@ -1,5 +1,5 @@
 /**
- * Created on 15.10.2021
+ * Created on 15.10.2021 updated on 11.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -21,20 +21,14 @@ describe('fieldset.content.spec: tests for fieldSet content', function () {
     const TEXT_2 = 'text2';
     const DOUBLE_1 = 1;
     const DOUBLE_2 = 2;
-
-    it(`Preconditions: new site should be added`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
 
     it(`GIVEN wizard for new FieldSet is opened WHEN required inputs have been filled THEN the content gets valid`,
         async () => {
             let fieldSetForm = new FieldSetForm();
             let contentWizard = new ContentWizard();
             //1. open new wizard and fill in all required inputs:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.FIELDSET);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.FIELDSET);
             await contentWizard.typeDisplayName(FIELDSET_NAME_1);
             await fieldSetForm.typeTextInHtmlArea(TEXT_1, 0);
             await fieldSetForm.typeTextInTextLine(TEXT_2);
@@ -57,7 +51,7 @@ describe('fieldset.content.spec: tests for fieldSet content', function () {
             let fieldSetForm = new FieldSetForm();
             let contentWizard = new ContentWizard();
             // 1. open new wizard and fill in the name input :
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.FIELDSET);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.FIELDSET);
             await contentWizard.typeDisplayName(FIELDSET_NAME_2);
             await studioUtils.saveScreenshot('fieldset_required_empty1');
             // 2. Required htmlArea and textLine are empty. Verify that the content is invalid.
@@ -76,7 +70,6 @@ describe('fieldset.content.spec: tests for fieldSet content', function () {
             result = await fieldSetForm.getTextLineValidationRecording();
             assert.equal(result, appConst.VALIDATION_MESSAGE.THIS_FIELD_IS_REQUIRED, "Expected validation message should be displayed");
         });
-
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());

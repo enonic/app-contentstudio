@@ -1,42 +1,38 @@
 /**
- * Created on 08.07.2019.
+ * Created on 08.07.2019. updated on 11.06.2026
  */
 const Page = require('../page');
-const lib = require('../../libs/elements-old');
 const xpath = {
-    container: "//div[contains(@id,'XDataWizardStepForm') and preceding-sibling::div[child::span[text()='Photo']]]",
-    lensInput: `//input[contains(@name,'lens')]`,
-    dateTimeInput: "//div[contains(@id,'DateTimePicker')]//input[contains(@id,'TextInput')]",
-    makeInput: "//input[contains(@name,'make')]",
-    modelInput: "//input[contains(@name,'model')]",
-    isoInput: "//input[contains(@name,'iso')]",
-    apertureInput: "//input[contains(@name,'aperture')]"
+    // 'Photo' tab panel (media:cameraInfo x-data) in the ContentWizardTabs:
+    container: "//div[@data-component='Tab.Content' and contains(@id,'media:cameraInfo')]",
+    dateTimeInput: "//div[@data-component='DateTimeInput']//input",
+    inputByLabel: label => `//input[@aria-label='${label}']`,
 };
 
 class ImagePhotoInfoFormPanel extends Page {
-
-    get lensInput() {
-        return xpath.container + xpath.lensInput;
-    }
 
     get dateTimeInput() {
         return xpath.container + xpath.dateTimeInput;
     }
 
     get makeInput() {
-        return xpath.container + xpath.makeInput;
+        return xpath.container + xpath.inputByLabel('Make');
     }
 
     get modelInput() {
-        return xpath.container + xpath.modelInput;
+        return xpath.container + xpath.inputByLabel('Model');
+    }
+
+    get lensInput() {
+        return xpath.container + xpath.inputByLabel('Lens');
     }
 
     get isoInput() {
-        return xpath.container + xpath.isoInput;
+        return xpath.container + xpath.inputByLabel('ISO');
     }
 
     get apertureInput() {
-        return xpath.container + xpath.apertureInput;
+        return xpath.container + xpath.inputByLabel('Aperture');
     }
 
     typeDateTime(dateTime) {

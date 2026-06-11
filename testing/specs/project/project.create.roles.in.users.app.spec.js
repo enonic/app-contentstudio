@@ -25,7 +25,7 @@ describe("project.create.roles.in.users.app.spec - ui-tests for checkin project'
             await studioUtils.openSettingsPanel();
             await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, 'test description');
             // 2. Go to Users app:
-            await studioUtils.showLauncherPanel();
+            //TODO
             await studioUtils.navigateToUsersApp();
             // 3. Type the project's name in the filter-input
             await studioUtils.typeNameInUsersFilterPanel(PROJECT_DISPLAY_NAME);
@@ -77,7 +77,7 @@ describe("project.create.roles.in.users.app.spec - ui-tests for checkin project'
             // 1. click on the project and delete it:
             await projectUtils.selectAndDeleteProject(PROJECT_DISPLAY_NAME);
             // 2. Go to Users app:
-            await studioUtils.showLauncherPanel();
+            // TODO
             await studioUtils.navigateToUsersApp();
             // 3. Type the project's name in the filter-input:
             await studioUtils.typeNameInUsersFilterPanel(PROJECT_DISPLAY_NAME);
