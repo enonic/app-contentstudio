@@ -202,7 +202,9 @@ public class AdminSiteHandler
         }
         else if ( mode == RenderMode.PREVIEW && !nullToEmpty( previewContentSecurityPolicy ).isBlank() )
         {
-            policy.resetTo( previewContentSecurityPolicy );
+            // the configured policy is a floor enforced alongside the page's own policy, not a
+            // replacement; sharing the request nonce lets nonce-disciplined pages pass it
+            policy.addPolicy().resetTo( previewContentSecurityPolicy ).nonceScriptSrc();
         }
         return response;
     }

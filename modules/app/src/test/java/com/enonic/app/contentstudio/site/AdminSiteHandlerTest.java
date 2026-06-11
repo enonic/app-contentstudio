@@ -70,8 +70,8 @@ class AdminSiteHandlerTest
         throws Exception
     {
         this.portalRequest.setMode( RenderMode.EDIT );
+        this.portalRequest.getContentSecurityPolicy().nonceScriptSrc();
         this.portalRequest.getContentSecurityPolicy()
-            .add( "script-src", "'nonce-abc'" )
             .add( "style-src", "'sha256-xyz'" )
             .add( "img-src", "'self'" );
 
@@ -86,16 +86,16 @@ class AdminSiteHandlerTest
         throws Exception
     {
         this.portalRequest.setMode( RenderMode.INLINE );
-        this.portalRequest.getContentSecurityPolicy().add( "script-src", "'nonce-abc'" );
+        final String nonce = this.portalRequest.getContentSecurityPolicy().nonceScriptSrc();
 
         doHandle();
 
         assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo(
-            "frame-ancestors 'self'; script-src 'nonce-abc'" );
+            "frame-ancestors 'self'; script-src 'nonce-" + nonce + "'" );
     }
 
     @Test
-    void previewAppliesConfiguredPolicy()
+    void previewAddsConfiguredPolicyAsFloorKeepingPagePolicy()
         throws Exception
     {
         activate( "default-src 'self'; object-src 'none'" );
@@ -104,7 +104,23 @@ class AdminSiteHandlerTest
 
         doHandle();
 
-        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo( "default-src 'self'; object-src 'none'" );
+        // page policy untouched; configured floor follows comma-separated, stamped with the request nonce
+        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).matches(
+            "script-src 'self', default-src 'self'; object-src 'none'; script-src 'nonce-[A-Za-z0-9_-]+'" );
+    }
+
+    @Test
+    void previewFloorSharesTheRequestNonce()
+        throws Exception
+    {
+        activate( "script-src 'self'" );
+        this.portalRequest.setMode( RenderMode.PREVIEW );
+        final String nonce = this.portalRequest.getContentSecurityPolicy().nonceScriptSrc();
+
+        doHandle();
+
+        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo(
+            "script-src 'nonce-" + nonce + "', script-src 'self' 'nonce-" + nonce + "'" );
     }
 
     @Test

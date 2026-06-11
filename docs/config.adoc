@@ -60,6 +60,18 @@ Turn off <<security#content_security_policy,Content Security Policy>> by setting
 contentSecurityPolicy.enabled=false
 ----
 
+=== Content preview
+
+When content is previewed, Content Studio sends the page's own Content Security Policy together with a configurable baseline policy, comma-joined into one header. The browser enforces both, so a load must satisfy the page policy _and_ the baseline: the baseline can only restrict, never broaden, what the page allows, and pages with a policy stricter than the baseline render exactly as on the live site. Inline scripts stamped with the request nonce (`portal.csp().nonceScriptSrc()`) pass the baseline as well.
+
+.com.enonic.app.contentstudio.cfg
+[source,properties]
+----
+site.preview.contentSecurityPolicy=default-src 'self'; base-uri 'self'; form-action 'self'; script-src 'self'; object-src 'none'; img-src * data:; style-src * 'unsafe-inline'; font-src * data:
+----
+
+The value above is the default. Set the property to an empty value to disable the baseline and trust each page's own policy alone. Do not put `'unsafe-inline'` into the baseline's `script-src`: the request nonce added to that directive makes browsers ignore `'unsafe-inline'`.
+
 == Publishing Wizard
 
 === Disable "Mark as Ready" action
