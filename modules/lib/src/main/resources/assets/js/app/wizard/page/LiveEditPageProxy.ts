@@ -246,6 +246,14 @@ export class LiveEditPageProxy
         }
     }
 
+    private static isPreviewAccessible(contextWindow: Window): boolean {
+        try {
+            return !!contextWindow.document;
+        } catch (e) {
+            return false;
+        }
+    }
+
     public skipNextReloadConfirmation(skip: boolean) {
         if (this.isFrameLoaded) {
             new SkipLiveEditReloadConfirmationEvent(skip).fire();
@@ -259,12 +267,11 @@ export class LiveEditPageProxy
 
         const liveEditWindow = (this.liveEditIFrame.getHTMLElement() as HTMLIFrameElement).contentWindow;
 
-        // now that iframe is loaded, add it as a receiver to the IframeEventBus
-        IframeEventBus.get().addReceiver(liveEditWindow);
+        if (liveEditWindow && LiveEditPageProxy.isPreviewAccessible(liveEditWindow)) {
+            // now that iframe is loaded, add it as a receiver to the IframeEventBus
+            IframeEventBus.get().addReceiver(liveEditWindow);
 
-        this.isFrameLoaded = true;
-
-        if (liveEditWindow) {
+            this.isFrameLoaded = true;
             this.isPageLocked = false;
 
             this.stopListening();
@@ -293,6 +300,9 @@ export class LiveEditPageProxy
 
                 PageEventsManager.get().notifyLiveEditPageViewReady(new LiveEditPageViewReadyEvent());
             }
+        } else {
+            IframeEventBus.get().removeReceiver(liveEditWindow);
+            this.isFrameLoaded = false;
         }
 
         // Notify loaded no matter the result
