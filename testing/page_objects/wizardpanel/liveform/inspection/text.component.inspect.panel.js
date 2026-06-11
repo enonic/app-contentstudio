@@ -18,55 +18,55 @@ const XPATH = {
 class TextComponentInspectionPanel extends BaseComponentInspectionPanel {
 
     get insertImageButton() {
-        return XPATH.container + lib.CKE.insertImageButton;
+        return XPATH.container + COMMON.CKE.insertImageButton;
     }
 
     get insertTableButton() {
-        return XPATH.container + lib.CKE.insertTableButton;
+        return XPATH.container + COMMON.CKE.insertTableButton;
     }
 
     get insertMacroButton() {
-        return XPATH.container + lib.CKE.insertMacroButton;
+        return XPATH.container + COMMON.CKE.insertMacroButton;
     }
 
     get boldButton() {
-        return XPATH.container + lib.CKE.boldButton;
+        return XPATH.container + COMMON.CKE.boldButton;
     }
 
     get italicButton() {
-        return XPATH.container + lib.CKE.italicButton;
+        return XPATH.container + COMMON.CKE.italicButton;
     }
 
     get underlineButton() {
-        return XPATH.container + lib.CKE.underlineButton;
+        return XPATH.container + COMMON.CKE.underlineButton;
     }
 
     get justifyButton() {
-        return XPATH.container + lib.CKE.justifyButton;
+        return XPATH.container + COMMON.CKE.justifyButton;
     }
 
     get alignLeftButton() {
-        return XPATH.container + lib.CKE.alignLeftButton;
+        return XPATH.container + COMMON.CKE.alignLeftButton;
     }
 
     get alignRightButton() {
-        return XPATH.container + lib.CKE.alignRightButton;
+        return XPATH.container + COMMON.CKE.alignRightButton;
     }
 
     get centerButton() {
-        return XPATH.container + lib.CKE.centerButton;
+        return XPATH.container + COMMON.CKE.centerButton;
     }
 
     get insertLinkButton() {
-        return XPATH.container + lib.CKE.insertLinkButton;
+        return XPATH.container + COMMON.CKE.insertLinkButton;
     }
 
     get insertAnchorButton() {
-        return XPATH.container + lib.CKE.insertAnchorButton;
+        return XPATH.container + COMMON.CKE.insertAnchorButton;
     }
 
     get sourceButton() {
-        return XPATH.container + lib.CKE.sourceButton;
+        return XPATH.container + COMMON.CKE.sourceButton;
     }
 
     get textArea() {
@@ -98,7 +98,7 @@ class TextComponentInspectionPanel extends BaseComponentInspectionPanel {
     }
 
     async getIdOfTextEditor() {
-        let locator = XPATH.container + lib.TEXT_AREA;
+        let locator = XPATH.container + COMMON.CKE.textAreaElement;
         let elems = await this.findElements(locator);
         return await elems[0].getAttribute('id');
     }
@@ -136,6 +136,18 @@ class TextComponentInspectionPanel extends BaseComponentInspectionPanel {
             return await this.pause(300);
         }catch (err) {
             await this.handleError('Inspect Panel, Text Component - tried to click on Insert Table button: ', 'err_insert_table_btn', err);
+        }
+    }
+    async clickOnMoreButtonInHtmlTableFrame() {
+        try {
+            let locator = "//div[@role='dialog' and @aria-label='Table']//button[text()='More...']";
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.clickOnElement(locator);
+            await this.switchToParentFrame();
+            await this.switchToParentFrame();
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_more_button');
+            throw new Error(`Error after clicking on More button(Insert Table), screenshot: ${screenshot}` + err);
         }
     }
 

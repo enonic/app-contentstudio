@@ -9,6 +9,9 @@ const XPATH = {
     hideDetailsButton: "//button[contains(@id,'TogglerButton') and child::span[text()='Hide details']]",
     showDetailsButton: "//button[contains(@id,'TogglerButton') and child::span[text()='Show details']]",
     validationBlock: "//div[contains(@class,'validation-block')]",
+    // v6 SortableGridList layout: an occurrence row is any direct child div that holds an Input.
+    // Matches both draggable rows (role='button') and single non-draggable rows; skips Dnd helper divs.
+    sortableOccurrence: "//div[@data-component='SortableGridList']/div[descendant::div[@data-component='Input']]",
 };
 
 class OccurrencesFormView extends Page {
@@ -103,18 +106,26 @@ class OccurrencesFormView extends Page {
 
     async waitForOccurrenceValidationRecordingNotDisplayedAt(index) {
         try {
-            let occurrenceSelector = `(${COMMON.INPUTS.OCCURRENCES_DATA_COMPONENT}//div[contains(@class,'w-full')])[${index + 1}]`;
-            let errorSelector = occurrenceSelector + "//div[contains(@class,'text-error')]";
+            let errorSelector = await this.getOccurrenceErrorSelectorAt(index);
             return await this.waitForElementNotDisplayed(errorSelector);
         } catch (err) {
             await this.handleError('Occurrence Validation record should not be displayed', 'err_occurrence_valid_recording', err);
         }
     }
 
+    // Builds the validation-message selector for the occurrence at the given index, supporting both
+    // the multi-occurrence (SortableGridList rows) and single-occurrence (Input) layouts.
+    async getOccurrenceErrorSelectorAt(index) {
+        let sortableRows = await this.findElements(XPATH.sortableOccurrence);
+        let occurrenceSelector = sortableRows.length > 0
+                                 ? `(${XPATH.sortableOccurrence})[${index + 1}]`
+                                 : `(${COMMON.INPUTS.OCCURRENCES_DATA_COMPONENT}${COMMON.INPUTS.DATA_COMPONENT_INPUT})[${index + 1}]`;
+        return occurrenceSelector + COMMON.INPUTS.VALIDATION_RECORDING;
+    }
+
     async waitForOccurrenceValidationRecordingDisplayedAt(index, expectedMessage) {
         try {
-            let occurrenceSelector = `(${COMMON.INPUTS.OCCURRENCES_DATA_COMPONENT}//div[contains(@class,'w-full')])[${index + 1}]`;
-            let errorSelector = occurrenceSelector + "//div[contains(@class,'text-error')]";
+            let errorSelector = await this.getOccurrenceErrorSelectorAt(index);
             await this.getBrowser().waitUntil(async () => {
                 let elements = await this.findElements(errorSelector);
                 if (elements.length === 0) {
