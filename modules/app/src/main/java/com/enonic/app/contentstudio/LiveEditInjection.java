@@ -91,22 +91,18 @@ public final class LiveEditInjection
     }
 
     /**
-     * Unions the editor's requirements into the policy the page contributed during rendering.
-     * Only {@code script-src} / {@code style-src} are overridden: the editor's injected inline
-     * scripts and styles must work even when the page nonce/hash-locks those directives, and
-     * override is the documented way to drop the nonce so {@code 'unsafe-inline'} takes effect.
-     * Post-process runs after the page's own contributions, so the overrides land last.
+     * Unions the editor's content-widening requirements into the policy the page contributed
+     * during rendering: placeholders and content previews may pull images and fonts from anywhere.
+     * The page's script/style locks are removed by {@code AdminSiteHandler} after post-process
+     * ({@code reset("script-src", "style-src")}), and {@code frame-ancestors 'self'} is
+     * contributed there too — this method only widens, it never replaces.
      */
     private static void contributeContentSecurityPolicy( final PortalRequest portalRequest )
     {
         portalRequest.getContentSecurityPolicy()
-            .defaultSrc( CspSource.SELF )
             .imgSrc( "*", "data:" )
             .fontSrc( "*", "data:" )
-            .objectSrc( CspSource.NONE )
-            .frameAncestors( CspSource.SELF )
-            .override( "script-src", "'self'", "'unsafe-inline'" )
-            .override( "style-src", "*", "'unsafe-inline'" );
+            .objectSrc( CspSource.NONE );
     }
 
     private List<String> injectInlineContributions( final PortalRequest portalRequest, final HtmlTag htmlTag )

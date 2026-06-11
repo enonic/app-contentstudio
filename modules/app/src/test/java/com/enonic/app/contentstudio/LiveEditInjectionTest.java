@@ -96,7 +96,7 @@ class LiveEditInjectionTest
     }
 
     @Test
-    public void testEditModeUnionsCspAndOverridesScriptAndStyle()
+    public void testEditModeWidensCspWithoutTouchingScriptAndStyle()
         throws Exception
     {
         mockPortalUrlService();
@@ -108,19 +108,21 @@ class LiveEditInjectionTest
         // the page hardened its policy during rendering
         this.portalRequest.getContentSecurityPolicy()
             .add( "script-src", "'nonce-abc'" )
-            .add( "frame-ancestors", "'none'" )
             .add( "img-src", "https://cdn.example.com" );
 
         this.injection.inject( this.portalRequest, this.portalResponse, HtmlTag.BODY_END );
 
         final String policy = this.portalRequest.getContentSecurityPolicy().build();
-        // overridden: the page's nonce is dropped so the editor's inline scripts/styles work
-        assertEquals( true, policy.contains( "script-src 'self' 'unsafe-inline'" ), policy );
-        assertEquals( true, policy.contains( "style-src * 'unsafe-inline'" ), policy );
-        // unioned: 'none' yields to the editor frame, other page sources are kept
-        assertEquals( true, policy.contains( "frame-ancestors 'self'" ), policy );
+        // unioned: editor placeholders/previews may pull images and fonts from anywhere
         assertEquals( true, policy.contains( "img-src https://cdn.example.com * data:" ), policy );
-        assertEquals( true, policy.contains( "default-src 'self'" ), policy );
+        assertEquals( true, policy.contains( "font-src * data:" ), policy );
+        assertEquals( true, policy.contains( "object-src 'none'" ), policy );
+        // not the editor's business here: script/style locks are removed by AdminSiteHandler
+        // after post-process, and frame-ancestors is contributed there as well
+        assertEquals( true, policy.contains( "script-src 'nonce-abc'" ), policy );
+        assertEquals( false, policy.contains( "default-src" ), policy );
+        assertEquals( false, policy.contains( "frame-ancestors" ), policy );
+        assertEquals( false, policy.contains( "unsafe-inline" ), policy );
     }
 
     @Test

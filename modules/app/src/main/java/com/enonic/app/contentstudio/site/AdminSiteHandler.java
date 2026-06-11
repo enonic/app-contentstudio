@@ -9,8 +9,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 
-import com.google.common.net.HttpHeaders;
-
 import com.enonic.xp.branch.Branch;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
@@ -22,7 +20,6 @@ import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalRequestAccessor;
-import com.enonic.xp.portal.PortalResponse;
 import com.enonic.xp.portal.RenderMode;
 import com.enonic.xp.project.Project;
 import com.enonic.xp.project.ProjectName;
@@ -33,6 +30,8 @@ import com.enonic.xp.security.auth.AuthenticationInfo;
 import com.enonic.xp.site.Site;
 import com.enonic.xp.web.HttpStatus;
 import com.enonic.xp.web.WebException;
+import com.enonic.xp.web.csp.ContentSecurityPolicy;
+import com.enonic.xp.web.csp.CspSource;
 import com.enonic.xp.web.WebRequest;
 import com.enonic.xp.web.WebResponse;
 import com.enonic.xp.web.exception.ExceptionMapper;
@@ -62,8 +61,6 @@ public class AdminSiteHandler
 
     private volatile String previewContentSecurityPolicy;
 
-    private volatile boolean contentSecurityPolicyEnabled;
-
     @Activate
     public AdminSiteHandler( @Reference final ContentService contentService, @Reference final ProjectService projectService,
                              @Reference final ExceptionMapper exceptionMapper, @Reference final ExceptionRenderer exceptionRenderer )
@@ -80,7 +77,6 @@ public class AdminSiteHandler
     public void activate( final AdminSiteConfig config )
     {
         previewContentSecurityPolicy = config.site_preview_contentSecurityPolicy();
-        contentSecurityPolicyEnabled = config.contentSecurityPolicy_enabled();
     }
 
     @Override
@@ -190,31 +186,28 @@ public class AdminSiteHandler
             return response;
         }
 
-        final PortalResponse.Builder builder = PortalResponse.create( response );
+        // CS only shapes the request policy; the platform serializes it into the response header
+        final ContentSecurityPolicy policy = request.getContentSecurityPolicy();
 
         if ( mode == RenderMode.INLINE || mode == RenderMode.EDIT )
         {
-            builder.header( HttpHeaders.X_FRAME_OPTIONS, "SAMEORIGIN" );
+            // frame-ancestors supersedes X-Frame-Options: SAMEORIGIN; the union-identity rule
+            // makes a page's 'none' yield to 'self', so Content Studio can always frame the page
+            policy.frameAncestors( CspSource.SELF );
         }
 
-        // the request policy is serialized into the response header by the platform; CS only
-        // shapes the policy, it never writes the header itself
         if ( mode == RenderMode.EDIT )
         {
-            if ( !contentSecurityPolicyEnabled )
-            {
-                // cleared policy -> nothing is emitted, and a policy a page controller set by
-                // hand (folded into the request policy by the platform) is dropped with it
-                request.getContentSecurityPolicy().resetAll();
-            }
+            // drop the page's script/style locks (a nonce or hash there would block the injected
+            // editor); removed, not replaced: scripts and styles fall back to the page's own
+            // default-src, if any
+            policy.reset( "script-src", "style-src" );
         }
-        else if ( !nullToEmpty( previewContentSecurityPolicy ).isBlank() && request.getContentSecurityPolicy().build().isEmpty() )
+        else if ( mode == RenderMode.PREVIEW && !nullToEmpty( previewContentSecurityPolicy ).isBlank() )
         {
-            // the configured preview policy applies only when neither the page nor its apps
-            // contributed (or hand-set) anything
-            request.getContentSecurityPolicy().resetTo( previewContentSecurityPolicy );
+            policy.resetTo( previewContentSecurityPolicy );
         }
-        return builder.build();
+        return response;
     }
 
     private WebResponse doHandle0( final WebRequest webRequest, final WebResponse webResponse, final WebHandlerChain webHandlerChain )
