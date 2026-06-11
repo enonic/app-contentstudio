@@ -1,10 +1,8 @@
 const Page = require('../page');
-const lib = require('../../libs/elements-old');
+const {BUTTONS} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const XPATH = {
-    container: `//div[contains(@id,'SiteConfiguratorDialog')]`,
-    applyButton: `//button[contains(@id,'DialogButton') and child::span[text()='Apply']]`,
-    cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
+    container: `//div[@data-component='Dialog.Content']`,
     imageContentCombobox: "//div[contains(@id,'ImageContentComboBox')]",
     imageSelectorOptionFilterInput: "//input[contains(@id,'ComboBoxOptionFilterInput')]",
     htmlAreaInputView: `//div[contains(@id,'InputView') and descendant::div[contains(@id,'HtmlArea')]]`,
@@ -18,24 +16,16 @@ const XPATH = {
 
 class SiteConfiguratorDialog extends Page {
 
-    get htmlAreaHelpButton() {
-        return XPATH.container + XPATH.htmlAreaInputView + lib.HELP_TEXT.TOGGLE;
-    }
-
-    get cancelButton() {
-        return XPATH.container + `${XPATH.cancelButton}`;
+    get closeButton() {
+        return XPATH.container + BUTTONS.buttonAriaLabel('Close');
     }
 
     get imageSelectorUploadButton() {
         return XPATH.container + `${XPATH.imageContentCombobox}` + lib.UPLOAD_BUTTON;
     }
 
-    get cancelButtonTop() {
-        return XPATH.container + lib.CANCEL_BUTTON_TOP;
-    }
-
     get applyButton() {
-        return XPATH.container + XPATH.applyButton;
+        return XPATH.container + BUTTONS.buttonByLabel('Apply');
     }
 
     get numPostsTextInput() {
@@ -109,8 +99,8 @@ class SiteConfiguratorDialog extends Page {
         }
     }
 
-    clickOnCancelButton() {
-        return this.clickOnElement(this.cancelButton);
+    async clickOnCloseButton() {
+        return await this.clickOnElement(this.closeButton);
     }
 
     async clickOnApplyButton() {
@@ -169,11 +159,11 @@ class SiteConfiguratorDialog extends Page {
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.clickOnElement(locator);
     }
-
-    async clickOnHtmlAreaHelpToggle() {
-        await this.waitForHtmlAreaHelpToggleDisplayed();
-        return await this.clickOnElement(this.htmlAreaHelpButton);
-    }
+    //
+    // async clickOnHtmlAreaHelpToggle() {
+    //     await this.waitForHtmlAreaHelpToggleDisplayed();
+    //     return await this.clickOnElement(this.htmlAreaHelpButton);
+    // }
 
     async waitForHtmlAreaHelpToggleDisplayed() {
         try {

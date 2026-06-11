@@ -12,6 +12,9 @@ const XPATH = {
     contentListItemDisplayName: "//div[@data-component='SortContentListItem']//span[contains(@class,'font-semibold')]",
     contentListItemByName:
         name => `//div[@data-component='SortContentListItem' and descendant::span[contains(@class,'font-semibold') and text()='${name}']]`,
+    // The dnd-kit sortable wrapper (carries the drag listeners and keyboard sensor focus):
+    draggableItemByName:
+        name => `//div[@role='button' and @aria-roledescription='sortable' and descendant::span[contains(@class,'font-semibold') and text()='${name}']]`,
     // Sort-element dropdown options are rendered in a portal (Selector.Content), outside the dialog container:
     sortElementOption: "//div[@data-component='Selector.Content']//span[@data-component='Selector.ItemText']",
     sortElementOptionByText:
@@ -101,13 +104,38 @@ class SortContentDialog extends Page {
         return await this.getText(selector);
     }
 
+    // Reorders an item using the dnd-kit keyboard sensor (Space to pick up, Arrow keys to move, Space to drop).
+    // Moves `sourceContentName` to the current position of `destinationContentName`.
     async swapItems(sourceContentName, destinationContentName) {
-        let sourceLocator = XPATH.container + XPATH.contentListItemByName(sourceContentName);
-        let destLocator = XPATH.container + XPATH.contentListItemByName(destinationContentName);
-        let source = await this.findElement(sourceLocator);
-        let destination = await this.findElement(destLocator);
-        await source.dragAndDrop(destination);
-        return await this.pause(1000);
+        try {
+            // Current order is needed to compute how many slots (and which direction) to move the item:
+            let names = await this.getTextInDisplayedElements(XPATH.container + XPATH.contentListItemDisplayName);
+            let sourceIndex = names.indexOf(sourceContentName);
+            let destinationIndex = names.indexOf(destinationContentName);
+            if (sourceIndex === -1 || destinationIndex === -1) {
+                throw new Error(`Item not found - source: '${sourceContentName}' (${sourceIndex}), destination: '${destinationContentName}' (${destinationIndex})`);
+            }
+            // Focus the sortable wrapper of the source item:
+            let source = await this.findElement(XPATH.container + XPATH.draggableItemByName(sourceContentName));
+            await source.click();
+            await this.pause(300);
+            // Pick the item up:
+            await this.getBrowser().keys(['Space']);
+            await this.pause(300);
+            // Move it towards the destination position, one slot per arrow press:
+            let steps = Math.abs(destinationIndex - sourceIndex);
+            let arrowKey = destinationIndex > sourceIndex ? 'ArrowDown' : 'ArrowUp';
+            for (let i = 0; i < steps; i++) {
+                await this.getBrowser().keys([arrowKey]);
+                await this.pause(200);
+            }
+            // Drop the item in its new position:
+            await this.getBrowser().keys(['Space']);
+            return await this.pause(1000);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_swap_items');
+            throw new Error(`Sort Content Dialog - error during items swap, screenshot: ${screenshot}. ` + err);
+        }
     }
 
     getDialogTitle() {

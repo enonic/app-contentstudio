@@ -17,7 +17,6 @@ describe('double.content.config.spec:  verifies `Min/max value config for Double
 
     //Verifies https://github.com/enonic/lib-admin-ui/issues/1887
     //Incorrect behaviour of validation of inputs with default values #1887
-    // TODO bug
     it(`GIVEN wizard for 'Double(default value is 3)' is opened WHEN 'Add' button has been pressed AND the top input has been removed THEN validation message should not be displayed`,
         async () => {
             let contentWizard = new ContentWizard();
