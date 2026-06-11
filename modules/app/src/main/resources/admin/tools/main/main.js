@@ -30,12 +30,7 @@ function applySecurityPolicy() {
 
     const configuredPolicy = app.config['contentSecurityPolicy.header'];
     if (configuredPolicy) {
-        configuredPolicy.split(';').forEach((part) => {
-            const tokens = part.trim().split(/\s+/);
-            if (tokens[0]) {
-                csp.override.apply(csp, tokens);
-            }
-        });
+        csp.resetTo(configuredPolicy);
         return undefined;
     }
 
