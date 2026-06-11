@@ -35,7 +35,8 @@ function applySecurityPolicy() {
     const marketApi = configLib.getMarketApi();
     const baseMarketUrl = marketApi.substring(0, marketApi.indexOf('/', 9));
 
-    csp.defaultSrc(portal.CspSource.SELF)
+    csp.strict()
+        .defaultSrc(portal.CspSource.SELF)
         .connectSrc(portal.CspSource.SELF, baseMarketUrl)
         .scriptSrc(portal.CspSource.STRICT_DYNAMIC)
         .scriptSrcAttr(portal.CspSource.UNSAFE_INLINE)
@@ -43,7 +44,6 @@ function applySecurityPolicy() {
         .imgSrc(portal.CspSource.SELF, portal.CspSource.DATA)
         .fontSrc(portal.CspSource.SELF, portal.CspSource.DATA)
         .objectSrc(portal.CspSource.NONE)
-        .baseUri(portal.CspSource.NONE)
         .formAction(portal.CspSource.SELF)
         .frameAncestors(portal.CspSource.SELF);
 
