@@ -198,10 +198,14 @@ public class AdminSiteHandler
 
         if ( mode == RenderMode.EDIT )
         {
-            // drop the page's script/style locks (a nonce or hash there would block the injected
-            // editor); removed, not replaced: scripts and styles fall back to the page's own
-            // default-src, if any
-            policy.reset( "script-src", "style-src" );
+            // editor placeholders and content previews may pull images and fonts from anywhere;
+            // the page's script/style locks are dropped (a nonce or hash there would block the
+            // injected editor) -- removed, not replaced, so scripts and styles fall back to the
+            // page's own default-src, if any
+            policy.imgSrc( "*", "data:" )
+                .fontSrc( "*", "data:" )
+                .objectSrc( CspSource.NONE )
+                .reset( "script-src", "style-src" );
         }
         else if ( mode == RenderMode.PREVIEW && !nullToEmpty( previewContentSecurityPolicy ).isBlank() )
         {

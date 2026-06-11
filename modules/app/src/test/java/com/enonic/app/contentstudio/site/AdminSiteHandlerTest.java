@@ -66,7 +66,7 @@ class AdminSiteHandlerTest
     }
 
     @Test
-    void editResetsScriptAndStyleAndAddsFrameAncestors()
+    void editResetsScriptAndStyleWidensContentAndAddsFrameAncestors()
         throws Exception
     {
         this.portalRequest.setMode( RenderMode.EDIT );
@@ -77,7 +77,8 @@ class AdminSiteHandlerTest
 
         doHandle();
 
-        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo( "frame-ancestors 'self'; img-src 'self'" );
+        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo(
+            "font-src * data:; frame-ancestors 'self'; img-src 'self' * data:; object-src 'none'" );
     }
 
     @Test

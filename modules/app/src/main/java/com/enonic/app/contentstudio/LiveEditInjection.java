@@ -13,12 +13,10 @@ import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.Maps;
 
-import com.enonic.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalRequestAccessor;
 import com.enonic.xp.portal.PortalResponse;
 import com.enonic.xp.portal.RenderMode;
-import com.enonic.xp.web.csp.CspSource;
 import com.enonic.xp.portal.postprocess.HtmlTag;
 import com.enonic.xp.portal.postprocess.PostProcessInjection;
 import com.enonic.xp.portal.url.AssetUrlParams;
@@ -27,7 +25,7 @@ import com.enonic.xp.project.ProjectConstants;
 import com.enonic.xp.repository.RepositoryId;
 import com.enonic.xp.util.Exceptions;
 
-@Component(immediate = true, service = PostProcessInjection.class, configurationPid = "com.enonic.app.contentstudio")
+@Component(immediate = true, service = PostProcessInjection.class)
 public final class LiveEditInjection
     implements PostProcessInjection
 {
@@ -39,18 +37,15 @@ public final class LiveEditInjection
 
     private final String bodyEndTemplate;
 
-    private final AdminRestConfig config;
-
     private final PortalUrlService portalUrlService;
 
     private final String inlineBodyEndTemplate;
 
     @Activate
-    public LiveEditInjection( AdminRestConfig config, @Reference PortalUrlService portalUrlService )
+    public LiveEditInjection( @Reference PortalUrlService portalUrlService )
     {
         this.bodyEndTemplate = loadTemplate( "liveEditBodyEnd.html" );
         this.inlineBodyEndTemplate = loadTemplate( "liveViewBodyEnd.html" );
-        this.config = config;
         this.portalUrlService = portalUrlService;
     }
 
@@ -76,10 +71,6 @@ public final class LiveEditInjection
         {
             if ( htmlTag == HtmlTag.BODY_END )
             {
-                if ( this.config.contentSecurityPolicy_enabled() )
-                {
-                    contributeContentSecurityPolicy( portalRequest );
-                }
                 return Collections.singletonList( injectBodyEnd( portalRequest ) );
             }
         }
@@ -88,21 +79,6 @@ public final class LiveEditInjection
             PortalRequestAccessor.remove();
         }
         return null;
-    }
-
-    /**
-     * Unions the editor's content-widening requirements into the policy the page contributed
-     * during rendering: placeholders and content previews may pull images and fonts from anywhere.
-     * The page's script/style locks are removed by {@code AdminSiteHandler} after post-process
-     * ({@code reset("script-src", "style-src")}), and {@code frame-ancestors 'self'} is
-     * contributed there too — this method only widens, it never replaces.
-     */
-    private static void contributeContentSecurityPolicy( final PortalRequest portalRequest )
-    {
-        portalRequest.getContentSecurityPolicy()
-            .imgSrc( "*", "data:" )
-            .fontSrc( "*", "data:" )
-            .objectSrc( CspSource.NONE );
     }
 
     private List<String> injectInlineContributions( final PortalRequest portalRequest, final HtmlTag htmlTag )
