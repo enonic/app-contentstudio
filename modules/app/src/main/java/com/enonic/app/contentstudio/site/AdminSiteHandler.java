@@ -197,30 +197,22 @@ public class AdminSiteHandler
             builder.header( HttpHeaders.X_FRAME_OPTIONS, "SAMEORIGIN" );
         }
 
+        // the request policy is serialized into the response header by the platform; CS only
+        // shapes the policy, it never writes the header itself
         if ( mode == RenderMode.EDIT )
         {
-            // with CSP disabled the request policy is cleared, so the flush below emits nothing
-            // and any header the page set by hand is stripped; with CSP enabled the composed
-            // policy (page contributions + the editor's, see LiveEditInjection) wins over a
-            // hand-set header, which could otherwise lock the page editor out
             if ( !contentSecurityPolicyEnabled )
             {
+                // cleared policy -> nothing is emitted, and a policy a page controller set by
+                // hand (folded into the request policy by the platform) is dropped with it
                 request.getContentSecurityPolicy().resetAll();
             }
-            final String policy = request.getContentSecurityPolicy().build();
-            if ( policy.isEmpty() )
-            {
-                builder.removeHeader( HttpHeaders.CONTENT_SECURITY_POLICY );
-            }
-            else
-            {
-                builder.header( HttpHeaders.CONTENT_SECURITY_POLICY, policy );
-            }
         }
-        else if ( !nullToEmpty( previewContentSecurityPolicy ).isBlank() &&
-            !response.getHeaders().containsKey( HttpHeaders.CONTENT_SECURITY_POLICY ) )
+        else if ( !nullToEmpty( previewContentSecurityPolicy ).isBlank() && request.getContentSecurityPolicy().build().isEmpty() )
         {
-            builder.header( HttpHeaders.CONTENT_SECURITY_POLICY, previewContentSecurityPolicy );
+            // the configured preview policy applies only when neither the page nor its apps
+            // contributed (or hand-set) anything
+            request.getContentSecurityPolicy().resetTo( previewContentSecurityPolicy );
         }
         return builder.build();
     }
