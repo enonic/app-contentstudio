@@ -6,7 +6,11 @@ import {
     emitContentUpdated,
 } from '../socket.store';
 import {
+    $deleteDialog,
     $deleteInboundIds,
+    $deleteItemsCount,
+    $hasMoreDeleteDependants,
+    loadMoreDeleteDependants,
     openDeleteDialog,
     resetDeleteDialogContext,
 } from './deleteDialog.store';
@@ -141,5 +145,31 @@ describe('deleteDialog.store', () => {
 
         expect($deleteInboundIds.get()).toEqual(['item-1']);
         expect(mockResolveForDelete).toHaveBeenCalledTimes(1);
+    });
+
+    it('loads dependant summaries in windows while counting all by id', async () => {
+        const item = createMockContent('item-1');
+        const dependantIds = Array.from({length: 40}, (_, index) => `dep-${index}`);
+
+        mockResolveForDelete.mockResolvedValue(createDeleteResolveResult(['item-1', ...dependantIds]));
+        mockFetchContentSummaries.mockImplementation((ids: ContentId[]) =>
+            Promise.resolve(ids.map(id => createMockContent(id.toString()))));
+
+        openDeleteDialog([item]);
+        await flushInitialReload();
+
+        // Only the first window of summaries is loaded...
+        expect($deleteDialog.get().dependants).toHaveLength(36);
+        expect($hasMoreDeleteDependants.get()).toBe(true);
+
+        // ...but the count is id-based: 1 main + 40 dependants.
+        expect($deleteItemsCount.get()).toBe(41);
+
+        await loadMoreDeleteDependants();
+        await flushPromises();
+
+        expect($deleteDialog.get().dependants).toHaveLength(40);
+        expect($hasMoreDeleteDependants.get()).toBe(false);
+        expect($deleteItemsCount.get()).toBe(41);
     });
 });

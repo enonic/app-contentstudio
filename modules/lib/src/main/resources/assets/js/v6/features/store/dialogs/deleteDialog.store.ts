@@ -9,7 +9,6 @@ import {fetchContentSummaries} from '../../api/content';
 import {archiveContent, resolveForDelete} from '../../api/delete';
 import {trackTask, cleanupTask} from '../../services/task.service';
 import {hasContentIdInIds} from '../../utils/cms/content/ids';
-import {sortDependantsByInbound} from '../../utils/cms/content/sortDependants';
 import {createDebounce} from '../../utils/timing/createDebounce';
 import {$contentArchived, $contentCreated, $contentDeleted, $contentUpdated} from '../socket.store';
 
@@ -28,7 +27,11 @@ type DeleteDialogStore = {
     failed: boolean;
     // Content
     items: ContentSummary[];
+    // Full ordered dependant id list (inbound-first); summaries load lazily, a window at a time.
+    dependantIds: ContentId[];
+    // Loaded window of dependant summaries (a prefix of dependantIds)
     dependants: ContentSummary[];
+    dependantWindow: number;
     archiveMessage: string;
     // Validation
     inboundTargets: ContentId[];
@@ -48,7 +51,9 @@ const initialState: DeleteDialogStore = {
     loading: false,
     failed: false,
     items: [],
+    dependantIds: [],
     dependants: [],
+    dependantWindow: 0,
     archiveMessage: '',
     inboundTargets: [],
     inboundIgnored: false,
@@ -65,7 +70,10 @@ export const $deleteDialog = map<DeleteDialogStore>(structuredClone(initialState
 // * Derived State
 //
 
-export const $deleteItemsCount = computed($deleteDialog, ({items, dependants}) => items.length + dependants.length);
+// Count uses the full dependant id list, not just the loaded window.
+export const $deleteItemsCount = computed($deleteDialog, ({items, dependantIds}) => items.length + dependantIds.length);
+
+export const $hasMoreDeleteDependants = computed($deleteDialog, ({dependantIds, dependantWindow}) => dependantWindow < dependantIds.length);
 
 export const $isDeleteTargetSite = computed($deleteDialog, ({items, dependants}) => {
     return [...items, ...dependants].some(item => item.isSite());
@@ -85,13 +93,78 @@ export const $isDeleteDialogReady = computed([$deleteDialog, $isDeleteBlockedByI
 // ! Guards against stale async results (increment on each dialog lifecycle)
 let instanceId = 0;
 
+// Number of dependant summaries loaded per page
+const DEPENDANT_LOAD_SIZE = 36;
+
+let loadingMore = false;
+
 //
 // * Helpers
 //
 
 const getAllTargetIds = (): ContentId[] => {
-    const {items, dependants} = $deleteDialog.get();
-    return [...items, ...dependants].map(item => item.getContentId());
+    const {items, dependantIds} = $deleteDialog.get();
+    return [...items.map(item => item.getContentId()), ...dependantIds];
+};
+
+// Inbound (blocking) dependants are shown first so they land in the first window.
+const orderDependantIdsByInbound = (ids: ContentId[], inboundTargets: ContentId[]): ContentId[] => {
+    if (inboundTargets.length === 0) {
+        return ids;
+    }
+    const inboundSet = new Set(inboundTargets.map(id => id.toString()));
+    const inbound = ids.filter(id => inboundSet.has(id.toString()));
+    const rest = ids.filter(id => !inboundSet.has(id.toString()));
+    return [...inbound, ...rest];
+};
+
+const orderSummariesByIds = (summaries: ContentSummary[], orderIds: ContentId[]): ContentSummary[] => {
+    const indexById = new Map<string, number>();
+    orderIds.forEach((id, index) => indexById.set(id.toString(), index));
+    const indexOf = (item: ContentSummary): number =>
+        indexById.get(item.getContentId().toString()) ?? orderIds.length;
+    return [...summaries].sort((a, b) => indexOf(a) - indexOf(b));
+};
+
+// Loads the next slice into the window, preserving id order. Returns null if a newer
+// reload superseded this one (guardId no longer matches the current instanceId).
+async function loadDeleteDependantWindow(allIds: ContentId[], start: number, guardId: number): Promise<void> {
+    const sliceIds = allIds.slice(start, start + DEPENDANT_LOAD_SIZE);
+    const summaries = sliceIds.length > 0 ? await fetchContentSummaries(sliceIds) : [];
+
+    if (guardId !== instanceId) return;
+
+    const {dependants, dependantIds} = $deleteDialog.get();
+    const currentIds = new Set(dependantIds.map(id => id.toString()));
+    const byId = new Map<string, ContentSummary>();
+    for (const item of [...(start === 0 ? [] : dependants), ...summaries]) {
+        const key = item.getContentId().toString();
+        if (currentIds.has(key)) {
+            byId.set(key, item);
+        }
+    }
+
+    $deleteDialog.set({
+        ...$deleteDialog.get(),
+        dependants: orderSummariesByIds([...byId.values()], dependantIds),
+        dependantWindow: Math.min(start + DEPENDANT_LOAD_SIZE, dependantIds.length),
+    });
+}
+
+/** Lazy-load the next window of dependant summaries (triggered by list scroll). */
+export const loadMoreDeleteDependants = async (): Promise<void> => {
+    if (loadingMore) return;
+
+    const {dependantIds, dependantWindow} = $deleteDialog.get();
+    if (dependantWindow >= dependantIds.length) return;
+
+    loadingMore = true;
+    const guardId = instanceId;
+    try {
+        await loadDeleteDependantWindow(dependantIds, dependantWindow, guardId);
+    } finally {
+        loadingMore = false;
+    }
 };
 
 const getArchiveContentIds = (items: ContentSummary[]): ContentId[] => {
@@ -215,21 +288,26 @@ const reloadDeleteDialogData = async (): Promise<void> => {
 
         if (currentInstance !== instanceId) return;
 
-        const dependantIds = result.getContentIds().filter(id => !hasContentIdInIds(id, ids));
-        const dependants = dependantIds.length > 0
-            ? await fetchContentSummaries(dependantIds)
-            : [];
-
-        if (currentInstance !== instanceId) return;
+        const resolvedDependantIds = result.getContentIds().filter(id => !hasContentIdInIds(id, ids));
 
         const inboundDependencies = result.getInboundDependencies();
         const inboundTargets = inboundDependencies.map(dep => dep.getId());
         const inboundSourceIds = inboundDependencies.flatMap(dep =>
             dep.getInboundDependencies().map(id => id.toString()));
 
+        // Keep all ids; load only the first window of summaries (rest load on scroll).
+        const dependantIds = orderDependantIdsByInbound(resolvedDependantIds, inboundTargets);
+        const dependants = dependantIds.length > 0
+            ? await fetchContentSummaries(dependantIds.slice(0, DEPENDANT_LOAD_SIZE))
+            : [];
+
+        if (currentInstance !== instanceId) return;
+
         $deleteDialog.set({
             ...$deleteDialog.get(),
-            dependants: sortDependantsByInbound(dependants, inboundTargets),
+            dependantIds,
+            dependants: orderSummariesByIds(dependants, dependantIds),
+            dependantWindow: Math.min(DEPENDANT_LOAD_SIZE, dependantIds.length),
             inboundTargets,
             inboundIgnored: inboundTargets.length === 0,
             inboundSourceIds,
@@ -266,10 +344,11 @@ const patchItemsWithUpdates = (updates: ContentSummary[]): boolean => {
 
 /** Remove items by IDs from both main items and dependants */
 const removeItemsByIds = (ids: Set<string>): {removedMain: boolean; removedDependant: boolean} => {
-    const {items, dependants} = $deleteDialog.get();
+    const {items, dependants, dependantIds} = $deleteDialog.get();
 
     const newItems = items.filter(item => !ids.has(item.getContentId().toString()));
     const newDependants = dependants.filter(item => !ids.has(item.getContentId().toString()));
+    const newDependantIds = dependantIds.filter(id => !ids.has(id.toString()));
 
     const removedMain = newItems.length !== items.length;
     const removedDependant = newDependants.length !== dependants.length;
@@ -279,6 +358,10 @@ const removeItemsByIds = (ids: Set<string>): {removedMain: boolean; removedDepen
     }
     if (removedDependant) {
         $deleteDialog.setKey('dependants', newDependants);
+    }
+    if (newDependantIds.length !== dependantIds.length) {
+        $deleteDialog.setKey('dependantIds', newDependantIds);
+        $deleteDialog.setKey('dependantWindow', Math.min($deleteDialog.get().dependantWindow, newDependantIds.length));
     }
 
     return {removedMain, removedDependant};
