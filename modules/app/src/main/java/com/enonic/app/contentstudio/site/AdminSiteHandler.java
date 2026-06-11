@@ -186,22 +186,15 @@ public class AdminSiteHandler
             return response;
         }
 
-        // CS only shapes the request policy; the platform serializes it into the response header
         final ContentSecurityPolicy policy = request.getContentSecurityPolicy();
 
         if ( mode == RenderMode.INLINE || mode == RenderMode.EDIT )
         {
-            // frame-ancestors supersedes X-Frame-Options: SAMEORIGIN; the union-identity rule
-            // makes a page's 'none' yield to 'self', so Content Studio can always frame the page
             policy.frameAncestors( CspSource.SELF );
         }
 
         if ( mode == RenderMode.EDIT )
         {
-            // editor placeholders and content previews may pull images and fonts from anywhere;
-            // the page's script/style locks are dropped (a nonce or hash there would block the
-            // injected editor) -- removed, not replaced, so scripts and styles fall back to the
-            // page's own default-src, if any
             policy.imgSrc( "*", "data:" )
                 .fontSrc( "*", "data:" )
                 .objectSrc( CspSource.NONE )

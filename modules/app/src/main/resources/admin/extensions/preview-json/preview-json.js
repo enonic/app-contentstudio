@@ -26,10 +26,6 @@ exports.get = function (req) {
         log.debug(`Json [${req.method}] exists: ` + !!content);
 
         if (content) {
-            // contributed to the request policy; the platform serializes the header.
-            // strict() denies everything; the widget then allows only what it uses: framing
-            // by Content Studio (union makes strict()'s frame-ancestors 'none' yield to
-            // 'self') and its own inline stylesheet, nonce-gated instead of 'unsafe-inline'
             const csp = portalLib.csp()
                 .strict()
                 .frameAncestors(portalLib.CspSource.SELF)

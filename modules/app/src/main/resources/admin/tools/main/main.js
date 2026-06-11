@@ -19,8 +19,6 @@ exports.renderTemplate = function (params) {
     };
 };
 
-// Builds the Content-Security-Policy on the request; the portal emits the header at
-// response-flush time. Returns the nonce to stamp on inline scripts, when nonce-based.
 function applySecurityPolicy() {
     if (app.config['contentSecurityPolicy.enabled'] === 'false') {
         return undefined;
@@ -39,13 +37,7 @@ function applySecurityPolicy() {
 
     csp.defaultSrc(portal.CspSource.SELF)
         .connectSrc(portal.CspSource.SELF, 'ws:', 'wss:', baseMarketUrl)
-        // nonce + 'strict-dynamic': trust propagates from the nonced scripts in main.html to the
-        // script elements they inject at runtime (CKEditor plugins, AI bundles); no fallback
-        // tokens for pre-CSP3 browsers — they are out of scope for Content Studio
         .scriptSrc(portal.CspSource.STRICT_DYNAMIC)
-        // CKEditor 4 chrome (toolbar buttons, dialogs, combos, menus) is wired through inline
-        // event-handler attributes ("CKEDITOR.tools.callFunction(...)"), which 'strict-dynamic'
-        // does not cover; allow attributes only, script elements stay nonce-gated
         .scriptSrcAttr(portal.CspSource.UNSAFE_INLINE)
         .styleSrc(portal.CspSource.SELF, portal.CspSource.UNSAFE_INLINE)
         .imgSrc(portal.CspSource.SELF, portal.CspSource.DATA)
