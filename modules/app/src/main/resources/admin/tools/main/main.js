@@ -36,7 +36,7 @@ function applySecurityPolicy() {
     const baseMarketUrl = marketApi.substring(0, marketApi.indexOf('/', 9));
 
     csp.defaultSrc(portal.CspSource.SELF)
-        .connectSrc(portal.CspSource.SELF, 'ws:', 'wss:', baseMarketUrl)
+        .connectSrc(portal.CspSource.SELF, baseMarketUrl)
         .scriptSrc(portal.CspSource.STRICT_DYNAMIC)
         .scriptSrcAttr(portal.CspSource.UNSAFE_INLINE)
         .styleSrc(portal.CspSource.SELF, portal.CspSource.UNSAFE_INLINE)
