@@ -12,6 +12,7 @@ import {
 } from 'react';
 import type {ContentSummary} from '../../../../app/content/ContentSummary';
 import {type Branch} from '../../../../app/versioning/Branch';
+import {useInfiniteScroll} from '../../hooks/useInfiniteScroll';
 import type {ContentLabelVariant} from '../content/ContentLabel';
 import {ContentListItemWithReference} from '../items';
 
@@ -43,6 +44,10 @@ export type ContentReferenceListProps = {
     mainListClassName?: string;
     dependantListClassName?: string;
     dependantSectionClassName?: string;
+    /** When true, more dependants can be lazy-loaded as the user scrolls to the end. */
+    hasMore?: boolean;
+    /** Invoked when the end of the dependant list is scrolled into view. */
+    onEndReached?: () => void | Promise<void>;
     'data-component'?: string;
 };
 
@@ -111,9 +116,24 @@ export const ContentReferenceList = ({
     mainListClassName,
     dependantListClassName,
     dependantSectionClassName,
+    hasMore = false,
+    onEndReached,
     'data-component': componentName = CONTENT_REFERENCE_LIST_NAME,
 }: ContentReferenceListProps): ReactElement => {
     const baseId = useId();
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const handleLoadMore = useCallback((): void => {
+        if (isLoadingMore || !onEndReached) {
+            return;
+        }
+        setIsLoadingMore(true);
+        void Promise.resolve(onEndReached()).finally(() => setIsLoadingMore(false));
+    }, [isLoadingMore, onEndReached]);
+    const sentinelRef = useInfiniteScroll<HTMLDivElement>({
+        hasMore,
+        isLoading: isLoadingMore,
+        onLoadMore: handleLoadMore,
+    });
     const actionRefs = useRef(new Map<string, HTMLElement>());
     const [activeAction, setActiveAction] = useState<ActiveReferenceAction>(null);
     const [focused, setFocused] = useState(false);
@@ -324,6 +344,7 @@ export const ContentReferenceList = ({
                 <ul role='presentation' className={cn('flex flex-col gap-y-1.5', dependantListClassName)}>
                     {dependantRows.map(renderRow)}
                 </ul>
+                {hasMore && <div ref={sentinelRef} aria-hidden className='h-px w-full' />}
             </div>
         </div>
     );
