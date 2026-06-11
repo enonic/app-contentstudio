@@ -1,6 +1,7 @@
 import {cn, GridList, Separator} from '@enonic/ui';
 import type {ReactElement, ReactNode} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
+import {useInfiniteScroll} from '../../../hooks/useInfiniteScroll';
 import {InlineButton} from '../../InlineButton';
 import type {
     SplitListPrimaryProps,
@@ -130,14 +131,26 @@ SplitListSeparatorButton.displayName = SPLIT_LIST_SEPARATOR_BUTTON_NAME;
 
 const SPLIT_LIST_SECONDARY_NAME = 'SplitList.Secondary';
 
+const NOOP = (): void => undefined;
+
 function SplitListSecondary<T>({
     items,
     renderRow,
     emptyMessage,
     className,
     disabled = false,
+    hasMore = false,
+    onEndReached,
 }: SplitListSecondaryProps<T>): ReactElement | null {
     const secondaryLabel = useI18n('field.split.secondary');
+
+    // IntersectionObserver clips against the scrolling Dialog.Body anyway, so the
+    // hook's default viewport root is correct here.
+    const sentinelRef = useInfiniteScroll<HTMLDivElement>({
+        hasMore,
+        isLoading: disabled,
+        onLoadMore: onEndReached ?? NOOP,
+    });
 
     if (items.length === 0) {
         if (!emptyMessage) {
@@ -151,14 +164,17 @@ function SplitListSecondary<T>({
     }
 
     return (
-        <GridList
-            data-component={SPLIT_LIST_SECONDARY_NAME}
-            className={cn('flex flex-col gap-y-1.5 py-2 rounded-md', className)}
-            label={secondaryLabel}
-            disabled={disabled}
-        >
-            {items.map((item, index) => renderRow(item, index))}
-        </GridList>
+        <>
+            <GridList
+                data-component={SPLIT_LIST_SECONDARY_NAME}
+                className={cn('flex flex-col gap-y-1.5 py-2 rounded-md', className)}
+                label={secondaryLabel}
+                disabled={disabled}
+            >
+                {items.map((item, index) => renderRow(item, index))}
+            </GridList>
+            {hasMore && <div ref={sentinelRef} aria-hidden className="h-px w-full" />}
+        </>
     );
 }
 

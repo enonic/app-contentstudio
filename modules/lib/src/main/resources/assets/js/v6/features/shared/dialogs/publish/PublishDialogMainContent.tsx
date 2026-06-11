@@ -7,6 +7,7 @@ import {$config} from '../../../store/config.store';
 import {
     $dependantPublishItems,
     $hasExcludedDependantItems,
+    $hasMoreDependants,
     $hasSchedulableItems,
     $isPublishChecking,
     $isPublishReady,
@@ -21,6 +22,7 @@ import {
     excludeInProgressPublishItems,
     excludeInvalidPublishItems,
     excludeNotPublishablePublishItems,
+    loadMoreDependants,
     markAllAsReadyInProgressPublishItems,
     removePublishDialogItem,
     setPublishDialogDependantItemSelected,
@@ -50,6 +52,7 @@ export const PublishDialogMainContent = ({
     const {allowContentUpdate, defaultPublishFromTime} = useStore($config, {keys: ['allowContentUpdate', 'defaultPublishFromTime']});
     const mainItems = useStore($mainPublishItems);
     const dependantItems = useStore($dependantPublishItems);
+    const hasMoreDependants = useStore($hasMoreDependants);
     const publishCount = useStore($totalPublishableItems);
     const hasSchedulableItems = useStore($hasSchedulableItems);
     const hasExcludedItems = useStore($hasExcludedDependantItems);
@@ -225,6 +228,8 @@ export const PublishDialogMainContent = ({
                         getItemId={(item) => item.id}
                         emptyMessage={hasExcludedItems ? allExcludedMessage : undefined}
                         disabled={loading}
+                        hasMore={hasMoreDependants}
+                        onEndReached={loadMoreDependants}
                         renderRow={(item) => (
                             <ContentRow
                                 key={item.id}

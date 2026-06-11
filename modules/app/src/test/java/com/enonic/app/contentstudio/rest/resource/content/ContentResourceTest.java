@@ -72,6 +72,8 @@ import com.enonic.app.contentstudio.rest.resource.content.json.LocalizeContentsJ
 import com.enonic.app.contentstudio.rest.resource.content.json.MoveContentJson;
 import com.enonic.app.contentstudio.rest.resource.content.json.PublishContentJson;
 import com.enonic.app.contentstudio.rest.resource.content.json.ResetContentInheritJson;
+import com.enonic.app.contentstudio.rest.resource.content.json.ResolvePublishContentResultJson;
+import com.enonic.app.contentstudio.rest.resource.content.json.ResolvePublishDependenciesJson;
 import com.enonic.app.contentstudio.rest.resource.content.json.RevertContentJson;
 import com.enonic.app.contentstudio.rest.resource.content.json.UnpublishContentJson;
 import com.enonic.xp.aggregation.Aggregation;
@@ -1190,6 +1192,103 @@ public class ContentResourceTest
             .getAsString();
 
         assertJson( "resolve_publish_content.json", jsonString );
+    }
+
+    @Test
+    public void resolve_publish_content_excludes_equal_from_publishable()
+    {
+        final ContentResource contentResource = getResourceInstance();
+
+        final ContentId requestedId = ContentId.from( "requested-content-id" );
+        final ContentId dependantId = ContentId.from( "dependant-content-id" );
+
+        final Content content = mock( Content.class );
+        when( content.getPermissions() ).thenReturn( AccessControlList.empty() );
+
+        // requested is in sync (EQUAL), dependant has changes (NEWER)
+        when( contentService.resolvePublishDependencies( isA( ResolvePublishDependenciesParams.class ) ) ).thenReturn(
+            CompareContentResults.create()
+                .add( new CompareContentResult( CompareStatus.EQUAL, requestedId ) )
+                .add( new CompareContentResult( CompareStatus.NEWER, dependantId ) )
+                .build() );
+        when( contentService.resolveRequiredDependencies( isA( ResolveRequiredDependenciesParams.class ) ) ).thenReturn(
+            ContentIds.empty() );
+        when( contentService.compare( isA( CompareContentsParams.class ) ) ).thenReturn( CompareContentResults.create().build() );
+        when( contentService.getById( isA( ContentId.class ) ) ).thenReturn( content );
+        when( contentService.getOutboundDependencies( isA( ContentId.class ) ) ).thenReturn( ContentIds.empty() );
+        // No NEW items -> schedulable falls back to the expired query, which finds nothing here
+        when( contentService.find( isA( ContentQuery.class ) ) ).thenReturn(
+            FindContentIdsByQueryResult.create().contents( ContentIds.from( dependantId ) ).totalHits( 0L ).build() );
+        doReturn( ContentValidityResult.create().build() ).when( this.contentService ).getContentValidity(
+            isA( ContentValidityParams.class ) );
+
+        final ResolvePublishContentResultJson result = contentResource.resolvePublishContent(
+            createResolveParams( requestedId.toString() ) );
+
+        final List<String> publishable = result.getPublishableContents().stream().map( ContentIdJson::getId ).toList();
+        assertTrue( publishable.contains( dependantId.toString() ) );
+        assertFalse( publishable.contains( requestedId.toString() ) );
+        assertFalse( result.isSchedulable() );
+    }
+
+    @Test
+    public void resolve_publish_content_schedulable_when_expired()
+    {
+        final ContentResource contentResource = getResourceInstance();
+
+        final ContentId requestedId = ContentId.from( "requested-content-id" );
+        final ContentId dependantId = ContentId.from( "dependant-content-id" );
+
+        final Content content = mock( Content.class );
+        when( content.getPermissions() ).thenReturn( AccessControlList.empty() );
+
+        // No NEW items (so the offline shortcut does not apply)
+        when( contentService.resolvePublishDependencies( isA( ResolvePublishDependenciesParams.class ) ) ).thenReturn(
+            CompareContentResults.create()
+                .add( new CompareContentResult( CompareStatus.NEWER, requestedId ) )
+                .add( new CompareContentResult( CompareStatus.NEWER, dependantId ) )
+                .build() );
+        when( contentService.resolveRequiredDependencies( isA( ResolveRequiredDependenciesParams.class ) ) ).thenReturn(
+            ContentIds.empty() );
+        when( contentService.compare( isA( CompareContentsParams.class ) ) ).thenReturn( CompareContentResults.create().build() );
+        when( contentService.getById( isA( ContentId.class ) ) ).thenReturn( content );
+        when( contentService.getOutboundDependencies( isA( ContentId.class ) ) ).thenReturn( ContentIds.empty() );
+        // The expired query (publish.to < now) matches at least one content
+        when( contentService.find( isA( ContentQuery.class ) ) ).thenReturn(
+            FindContentIdsByQueryResult.create().contents( ContentIds.from( dependantId ) ).totalHits( 1L ).build() );
+        doReturn( ContentValidityResult.create().build() ).when( this.contentService ).getContentValidity(
+            isA( ContentValidityParams.class ) );
+
+        final ResolvePublishContentResultJson result = contentResource.resolvePublishContent(
+            createResolveParams( requestedId.toString() ) );
+
+        assertTrue( result.isSchedulable() );
+    }
+
+    @Test
+    public void find_ids_by_parents_resolves_all_descendants_recursively()
+    {
+        final ContentResource contentResource = getResourceInstance();
+
+        final ArgumentCaptor<FindContentByParentParams> captor = ArgumentCaptor.forClass( FindContentByParentParams.class );
+        when( contentService.findIdsByParent( captor.capture() ) ).thenReturn(
+            FindContentIdsByParentResult.create().contentIds( ContentIds.empty() ).build() );
+
+        contentResource.findIdsByParents( new ContentIdsJson( List.of( "parent-id" ) ) );
+
+        final FindContentByParentParams params = captor.getValue();
+        assertTrue( params.isRecursive() );
+        // size(-1) returns all descendants instead of the default page of 500
+        assertEquals( -1, params.getSize().intValue() );
+    }
+
+    private static ResolvePublishDependenciesJson createResolveParams( final String... ids )
+    {
+        final ResolvePublishDependenciesJson params = new ResolvePublishDependenciesJson();
+        params.setIds( Set.of( ids ) );
+        params.setExcludedIds( Set.of() );
+        params.setExcludeChildrenIds( Set.of() );
+        return params;
     }
 
     @Test

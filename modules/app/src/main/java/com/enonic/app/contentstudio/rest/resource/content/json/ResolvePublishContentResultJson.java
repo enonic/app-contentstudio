@@ -16,11 +16,15 @@ public class ResolvePublishContentResultJson
 
     private final List<ContentIdJson> nextDependentContents;
 
+    private final List<ContentIdJson> publishableContents;
+
     private final Boolean containsInvalid;
 
     private final List<ContentIdJson> notPublishableContents;
 
     private final Boolean somePublishable;
+
+    private final Boolean schedulable;
 
     private final Boolean containsNotReady;
 
@@ -38,6 +42,8 @@ public class ResolvePublishContentResultJson
         containsInvalid = builder.containsInvalid;
         notPublishableContents = builder.notPublishableContents.stream().map( ContentIdJson::new ).collect( Collectors.toList() );
         somePublishable = builder.somePublishable;
+        schedulable = builder.schedulable;
+        publishableContents = builder.publishableContents.stream().map( ContentIdJson::new ).collect( Collectors.toList() );
         containsNotReady = builder.containsNotReady;
         invalidContents = builder.invalidContents.stream().map( ContentIdJson::new ).collect( Collectors.toList() );
         notReadyContents = builder.notReadyContents.stream().map( ContentIdJson::new ).collect( Collectors.toList() );
@@ -83,6 +89,17 @@ public class ResolvePublishContentResultJson
         return somePublishable;
     }
 
+    public Boolean isSchedulable()
+    {
+        return schedulable;
+    }
+
+    @SuppressWarnings("unused")
+    public List<ContentIdJson> getPublishableContents()
+    {
+        return publishableContents;
+    }
+
     public Boolean getContainsNotReady()
     {
         return containsNotReady;
@@ -122,6 +139,10 @@ public class ResolvePublishContentResultJson
         private ContentIds notPublishableContents;
 
         private Boolean somePublishable;
+
+        private Boolean schedulable;
+
+        private ContentIds publishableContents;
 
         private Boolean containsNotReady;
 
@@ -170,6 +191,18 @@ public class ResolvePublishContentResultJson
         public Builder setSomePublishable( final Boolean somePublishable )
         {
             this.somePublishable = somePublishable;
+            return this;
+        }
+
+        public Builder setSchedulable( final Boolean schedulable )
+        {
+            this.schedulable = schedulable;
+            return this;
+        }
+
+        public Builder setPublishableContents( final ContentIds publishableContents )
+        {
+            this.publishableContents = publishableContents;
             return this;
         }
 
