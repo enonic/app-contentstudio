@@ -1,115 +1,28 @@
 /**
- * Created  on 20/11/2019
+ * Created  on 20/11/2019 updated on 11.06.2026
  */
 const Page = require('./page');
-const lib = require('../libs/elements-old');
 const appConst = require('../libs/app_const');
-const CompareDropdown = require('../page_objects/components/selectors/compare.versions.dropdown');
+
 const XPATH = {
-    container: `//div[contains(@id,'CompareContentVersionsDialog')]`,
-    containerLeft: `//div[contains(@class,'container left')]`,
-    containerRight: `//div[contains(@class,'container right')]`,
-    containerBottom: `//div[@class='container bottom']`,
-    restoreMenuButton: "//button[contains(@id,'Button') and descendant::li[contains(@id,'MenuItem') and text()='Restore']]",
-    restoreMenuItem: "//ul[contains(@id,'Menu')]/li[contains(@id,'MenuItem') and text()='Restore']",
-    showEntireContentCheckboxDiv: "//div[contains(@id,'Checkbox') and descendant::span[text()='Show the entire content']]",
-    listItemNameAndIconView: "//div[contains(@id,'NamesAndIconView') and not(descendant::h6[contains(.,'version')])]",
-    contentPanel: "//div[contains(@id,'ModalDialogContentPanel')]",
+    container: `//div[@data-component='CompareVersionsDialog']`,
+    closeButton: `//button[@data-component='Dialog.DefaultClose']`,
+    dialogBody: `//div[@data-component='Dialog.Body']`,
+    dialogFooter: `//footer[@data-component='Dialog.Footer']`,
+    // Version card in the dialog body - the column with 'Older' or 'Newer' label:
+    versionCardByLabel: label => `//div[child::span[text()='${label}']]`,
+    showEntireContentCheckboxDiv: `//div[@data-component='Checkbox' and descendant::span[text()='Show the entire content']]`,
+    versionsIdenticalDiv: `//div[contains(@class,'jsondiffpatch-delta') and contains(@class,'empty')]`,
 };
 
 class CompareContentVersionsDialog extends Page {
 
-    get leftRestoreMenuButton() {
-        return XPATH.container + XPATH.containerLeft + XPATH.restoreMenuButton;
-    }
-
-    get leftDropdownHandle() {
-        return XPATH.container + XPATH.containerLeft + lib.DROP_DOWN_HANDLE;
-    }
-
-    get rightRestoreMenuButton() {
-        return XPATH.container + XPATH.containerRight + XPATH.restoreMenuButton;
-    }
-
-    get rightDropdownHandle() {
-        return XPATH.container + XPATH.containerRight + lib.DROP_DOWN_HANDLE;
-    }
-
-
-    get olderVersionDropdownHandle() {
-        return XPATH.container + XPATH.containerLeft + lib.DROP_DOWN_HANDLE;
-    }
-
-    get cancelButtonTop() {
-        return XPATH.container + lib.CANCEL_BUTTON_TOP;
-    }
-
-    get newerVersionDropdownHandle() {
-        return XPATH.container + XPATH.containerRight + lib.DROP_DOWN_HANDLE;
+    get closeButton() {
+        return XPATH.container + XPATH.closeButton;
     }
 
     get showEntireContentCheckbox() {
         return XPATH.container + XPATH.showEntireContentCheckboxDiv + '//label';
-    }
-
-    async expandLeftDropdownAndClickOnModifiedOption(index) {
-
-        let locator = XPATH.container + XPATH.containerLeft +
-                      "//div[contains(@id,'NamesAndIconView') and descendant::div[contains(@class,'version-modified')]]";
-        await this.clickOnElement(this.leftDropdownHandle);
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        let res = await this.findElements(locator);
-        await res[index].click();
-        return await this.pause(500);
-    }
-
-    async clickOnOKAndApplySelection() {
-        let compareDropdown = new CompareDropdown();
-        await compareDropdown.clickOnApplySelectionButton(XPATH.container);
-    }
-
-    async clickOnLeftRestoreMenuButton() {
-        await this.waitForLeftRestoreButtonDisplayed();
-        await this.clickOnElement(this.leftRestoreMenuButton);
-        return await this.pause(300);
-    }
-
-    async waitForLeftRestoreMenuItemDisplayed() {
-        try {
-            let selector = XPATH.container + XPATH.containerLeft + XPATH.restoreMenuItem;
-            return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
-        } catch (err) {
-            await this.handleError('Compare content versions dialog, left menu item', 'err_left_restore_menu_item', err);
-        }
-    }
-
-    async waitForLeftRestoreButtonDisplayed() {
-        return await this.waitForElementDisplayed(this.leftRestoreMenuButton, appConst.mediumTimeout);
-    }
-
-    async waitForRightRestoreMenuButtonDisplayed() {
-        return await this.waitForElementDisplayed(this.rightRestoreMenuButton, appConst.mediumTimeout);
-    }
-
-    async waitForRightRestoreMenuButtonDisabled() {
-        return await this.waitForElementDisabled(this.rightRestoreMenuButton, appConst.mediumTimeout);
-    }
-
-    async waitForRightRestoreMenuButtonEnabled() {
-        return await this.waitForElementEnabled(this.rightRestoreMenuButton, appConst.mediumTimeout);
-    }
-
-    async waitForLeftRestoreMenuButtonEnabled() {
-        return await this.waitForElementEnabled(this.leftRestoreMenuButton, appConst.mediumTimeout);
-    }
-
-    async waitForLeftRestoreMenuButtonDisabled() {
-        return await this.waitForElementDisabled(this.leftRestoreMenuButton, appConst.mediumTimeout);
-    }
-
-    async clickOnRightRevertButton() {
-        await this.waitForElementDisplayed(this.leftRestoreMenuButton, appConst.mediumTimeout);
-        return await this.clickOnElement(this.leftRestoreMenuButton);
     }
 
     async waitForDialogOpened() {
@@ -126,8 +39,10 @@ class CompareContentVersionsDialog extends Page {
         })
     }
 
+    // Clicks on the 'Close' button in the dialog header:
     async clickOnCancelButtonTop() {
-        await this.clickOnElement(this.cancelButtonTop);
+        await this.waitForElementDisplayed(this.closeButton, appConst.mediumTimeout);
+        await this.clickOnElement(this.closeButton);
         return await this.waitForDialogClosed();
     }
 
@@ -135,6 +50,12 @@ class CompareContentVersionsDialog extends Page {
         await this.waitForElementDisplayed(this.showEntireContentCheckbox, appConst.mediumTimeout);
         await this.clickOnElement(this.showEntireContentCheckbox);
         await this.pause(500);
+    }
+
+    async isShowEntireContentCheckboxSelected() {
+        let checkBoxInput = XPATH.container + XPATH.showEntireContentCheckboxDiv + "//input[@type='checkbox']";
+        await this.waitForElementDisplayed(this.showEntireContentCheckbox, appConst.mediumTimeout);
+        return await this.isSelected(checkBoxInput);
     }
 
     async getTypeProperty() {
@@ -149,58 +70,28 @@ class CompareContentVersionsDialog extends Page {
         return await this.getText(locator);
     }
 
-    async clickOnLeftDropdownHandle() {
-        await this.waitForElementDisplayed(this.leftDropdownHandle, appConst.mediumTimeout);
-        await this.clickOnElement(this.leftDropdownHandle);
-        return await this.pause(300);
-    }
-
-    async getSortedOptionsInDropdownList() {
-        let locator = XPATH.containerLeft + "//div[contains(@id,'NamesAndIconView')]//div[contains(@class,'icon-sort')]";
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.findElements(locator);
-    }
-
-    async getPermissionsUpdatedOptionsInDropdownList() {
-        let locator = XPATH.containerLeft + XPATH.listItemNameAndIconView + "//div[contains(@class, 'icon-masks')]";
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.findElements(locator);
-    }
-
-    async clickOnRightDropdownHandle() {
-        await this.waitForElementDisplayed(this.rightDropdownHandle, appConst.mediumTimeout);
-        await this.clickOnElement(this.rightDropdownHandle);
-        return await this.pause(300);
-    }
-
-    async getSortedOptionsInLeftDropdownList() {
-        let locator = XPATH.containerLeft + XPATH.listItemNameAndIconView + "//div[contains(@class,'icon-sort')]";
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.findElements(locator);
-    }
-
-    async getSortedOptionsInRightDropdownList() {
-        let locator = XPATH.containerRight + XPATH.listItemNameAndIconView + "//div[contains(@class,'icon-sort')]";
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.findElements(locator);
-    }
-
-    async getChangedOptionsInDropdownList() {
-        let locator = XPATH.containerLeft + XPATH.listItemNameAndIconView + "//div[contains(@class, 'icon-checkmark')]";
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.findElements(locator);
-    }
-
+    // Returns the message that is displayed when the compared versions are identical:
     async waitForVersionsIdenticalMessage() {
-        let locator = XPATH.container + XPATH.contentPanel + "//div[contains(@class,'jsondiffpatch-delta empty')]";
+        let locator = XPATH.container + XPATH.versionsIdenticalDiv;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator + "//h3");
     }
 
-    async isShowEntireContentCheckboxSelected() {
-        let checkBoxInput = XPATH.container + XPATH.showEntireContentCheckboxDiv + lib.CHECKBOX_INPUT;
-        await this.waitForElementDisplayed(this.showEntireContentCheckbox, appConst.mediumTimeout);
-        return await this.isSelected(checkBoxInput);
+    // Returns the operation label ('Edited', 'Renamed'...) shown in the 'Older' version card:
+    async getOlderVersionOperation() {
+        return await this.getVersionCardOperation('Older');
+    }
+
+    // Returns the operation label ('Edited', 'Renamed'...) shown in the 'Newer' version card:
+    async getNewerVersionOperation() {
+        return await this.getVersionCardOperation('Newer');
+    }
+
+    async getVersionCardOperation(cardLabel) {
+        let locator = XPATH.container + XPATH.dialogBody + XPATH.versionCardByLabel(cardLabel) +
+                      "//div[contains(@class,'gap-1')]/span[last()]";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
     }
 }
 

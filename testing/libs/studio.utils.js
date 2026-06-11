@@ -1,7 +1,6 @@
 /**
  * Created on 12/2/2017.
  */
-const LauncherPanel = require('../page_objects/launcher.panel');
 const HomePage = require('../page_objects/home.page');
 const LoginPage = require('../page_objects/login.page');
 const BrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
@@ -993,17 +992,17 @@ module.exports = {
     },
     async navigateToApplications(userName, password) {
         try {
-            let launcherPanel = new LauncherPanel();
-            let isDisplayed = await launcherPanel.isDisplayed(appConst.mediumTimeout);
-            if (isDisplayed) {
+            //let launcherPanel = new LauncherPanel();
+            //let isDisplayed = await launcherPanel.isDisplayed(appConst.mediumTimeout);
+            if (true) {
                 console.log('Launcher Panel is opened, click on the `Users` link...');
-                await launcherPanel.pause(300);
-                await launcherPanel.clickOnApplicationsLink();
+                //await launcherPanel.pause(300);
+                //await launcherPanel.clickOnApplicationsLink();
             } else {
                 console.log('Login Page is opened, type a password and name...');
                 let loginPage = new LoginPage();
                 await loginPage.doLogin(userName, password);
-                await launcherPanel.clickOnApplicationsLink();
+                //await launcherPanel.clickOnApplicationsLink();
             }
             await this.doSwitchToApplicationsBrowsePanel();
         } catch (err) {

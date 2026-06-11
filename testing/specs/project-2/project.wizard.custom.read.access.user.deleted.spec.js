@@ -28,7 +28,7 @@ describe('project.wizard.custom.read.access.spec - ui-tests for updating Read Ac
     it(`Preconditions: new system user should be created`,
         async () => {
             let userName = builder.generateRandomName("user");
-            await studioUtils.showLauncherPanel();
+            // TODD await studioUtils.showLauncherPanel();
             await studioUtils.navigateToUsersApp();
             USER = builder.buildUser(userName, PASSWORD, builder.generateEmail(userName), null);
             await studioUtils.addSystemUser(USER);
@@ -78,7 +78,7 @@ describe('project.wizard.custom.read.access.spec - ui-tests for updating Read Ac
 
     it(`intermediate condition: The User should be deleted`,
         async () => {
-            await studioUtils.showLauncherPanel();
+            // TODO await studioUtils.showLauncherPanel();
             await studioUtils.navigateToUsersApp();
             await studioUtils.selectAndDeleteUserItem(USER.displayName);
         });

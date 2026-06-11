@@ -14,6 +14,9 @@ const xpath = {
     },
     versionItemExpanded: "//div[@data-component='VersionsListItem' and descendant::button[@aria-label='Restore']]",
     publishMessageDiv: "//div[contains(@class, 'publish-message')]",
+    selectionToolbar: "//div[@data-component='VersionSelectionToolbar']",
+    // Compare checkbox inside a version item (relative locator, the input itself is hidden):
+    compareCheckboxDiv: ".//div[@data-component='Checkbox']",
 };
 
 class BaseVersionsWidget extends Page {
@@ -56,11 +59,11 @@ class BaseVersionsWidget extends Page {
     }
 
     get permissionsUpdatedItems() {
-        return this.extensionView + xpath.versionsList + xpath.permissionsUpdatedListItem;
+        return this.extensionView + xpath.versionsListItemByName('Permissions updated');
     }
 
     get movedItems() {
-        return this.extensionView + xpath.versionsListItemByName(Moved);
+        return this.extensionView + xpath.versionsListItemByName('Moved');
     }
 
     get renamedItems() {
@@ -69,6 +72,16 @@ class BaseVersionsWidget extends Page {
 
     get restoreButton() {
         return this.extensionView + xpath.versionItemExpanded + BUTTONS.buttonByLabel('Restore');
+    }
+
+    // 'Show changes' button in the selection toolbar (gets visible when versions are selected for comparing):
+    get compareVersionsButton() {
+        return this.extensionView + xpath.selectionToolbar + BUTTONS.buttonByLabel('Show changes');
+    }
+
+    // 'Cancel' button in the selection toolbar - resets the selection of versions:
+    get cancelSelectionButton() {
+        return this.extensionView + xpath.selectionToolbar + BUTTONS.buttonByLabel('Cancel');
     }
 
     //Count version items that contain 'Revert' button
@@ -284,17 +297,12 @@ class BaseVersionsWidget extends Page {
         }
     }
 
-    async getContentStatus() {
-        let locator = this.versionsWidget + "/div[contains(@class,'status')]";
-        await this.waitForElementDisplayed(locator);
-        return await this.getText(locator);
-    }
-
     async moveCursorToVersionItemByHeader(itemHeader, index) {
         try {
-            let itemLocator = this.versionsWidget + xpath.anyItemByHeader(itemHeader);
+            let i = index === undefined ? 0 : index;
+            let itemLocator = this.extensionView + xpath.versionsListItemByName(itemHeader);
             let versionItems = await this.findElements(itemLocator);
-            await this.doPerformMoveToAction(versionItems[index]);
+            await this.doPerformMoveToAction(versionItems[i]);
             return await this.pause(200);
         } catch (err) {
             await this.handleError(`Version Widget - moving cursor to version item: ${itemHeader}`, 'err_move_cursor_to_version', err);
@@ -303,10 +311,15 @@ class BaseVersionsWidget extends Page {
 
     async waitForCompareChangesCheckboxDisplayed(itemHeader, index) {
         try {
-            let itemLocator = this.versionsWidget + xpath.anyItemByHeader(itemHeader);
+            let i = index === undefined ? 0 : index;
+            let itemLocator = this.extensionView + xpath.versionsListItemByName(itemHeader);
+            await this.waitForElementDisplayed(itemLocator, appConst.mediumTimeout);
             let versionItems = await this.findElements(itemLocator);
-            let compareVersionsDivElements = await versionItems[index].$$(xpath.compareVersionsDiv);
-            await compareVersionsDivElements[0].waitForDisplayed({timeout: appConst.shortTimeout});
+            let checkboxElements = await versionItems[i].$$(xpath.compareCheckboxDiv);
+            if (checkboxElements.length === 0) {
+                throw new Error(`No 'compare changes' checkbox found for itemHeader: ${itemHeader} at index: ${i}`);
+            }
+            await checkboxElements[0].waitForDisplayed({timeout: appConst.shortTimeout});
         } catch (err) {
             await this.handleError(`Version Widget - compare changes checkbox should be displayed: ${itemHeader}`,
                 'err_compare_ch_checkbox', err);
@@ -315,40 +328,51 @@ class BaseVersionsWidget extends Page {
 
     async clickOnCompareChangesCheckboxByHeader(itemHeader, index) {
         try {
-            let itemLocator = this.versionsWidget + xpath.anyItemByHeader(itemHeader);
+            let i = index === undefined ? 0 : index;
+            let itemLocator = this.extensionView + xpath.versionsListItemByName(itemHeader);
             let versionItems = await this.findElements(itemLocator);
-            let buttonElements = await versionItems[index].$$(xpath.compareVersionsDiv);
-            if (buttonElements.length === 0) {
-                throw new Error(`No 'compare changes' checkbox found for itemHeader: ${itemHeader} at index: ${index}`);
+            // the checkbox input is hidden, so click on its label element:
+            let labelElements = await versionItems[i].$$(xpath.compareCheckboxDiv + '//label');
+            if (labelElements.length === 0) {
+                throw new Error(`No 'compare changes' checkbox found for itemHeader: ${itemHeader} at index: ${i}`);
             }
-            await buttonElements[0].click();
+            await labelElements[0].click();
             return await this.pause(200);
         } catch (err) {
-            await this.handleError('Versions Widget, tried to click on Show changes button...', 'err_click_on_show_changes', err);
+            await this.handleError('Versions Widget, tried to click on the compare changes checkbox...', 'err_click_on_show_changes', err);
         }
     }
 
     async isCompareChangesCheckboxSelectedByHeader(itemHeader, index) {
         try {
-            let itemLocator = this.versionsWidget + xpath.anyItemByHeader(itemHeader);
+            let i = index === undefined ? 0 : index;
+            let itemLocator = this.extensionView + xpath.versionsListItemByName(itemHeader);
             let versionItems = await this.findElements(itemLocator);
-            let buttonElements = await versionItems[index].$$(xpath.compareVersionsDiv);
-            if (buttonElements.length === 0) {
-                throw new Error(`No 'compare changes' checkbox found for itemHeader: ${itemHeader} at index: ${index}`);
+            let checkboxElements = await versionItems[i].$$(xpath.compareCheckboxDiv + "//input[@type='checkbox']");
+            if (checkboxElements.length === 0) {
+                throw new Error(`No 'compare changes' checkbox found for itemHeader: ${itemHeader} at index: ${i}`);
             }
-            return await buttonElements[0].$('input').isSelected();
+            return await checkboxElements[0].isSelected();
         } catch (err) {
-            await this.handleError('Versions Widget, tried to check if Show changes checkbox is selected...',
+            await this.handleError('Versions Widget, tried to check if the compare changes checkbox is selected...',
                 'err_check_show_changes_selected', err);
         }
     }
 
+    // Returns the user-name line ('By Super User') for the version item with the header ('Sorted', 'Edited'...):
     async getUserNameInItemByHeader(itemHeader, index) {
         try {
-            let itemLocator = this.versionsWidget + xpath.anyItemByHeader(itemHeader);
+            let i = index === undefined ? 0 : index;
+            let itemLocator = this.extensionView + xpath.versionsListItemByName(itemHeader);
+            await this.waitForElementDisplayed(itemLocator, appConst.mediumTimeout);
             let versionItems = await this.findElements(itemLocator);
-            let locator = ".//p[contains(@class,'xp-admin-common-sub-name')]";
-            let elements = await versionItems[index].$$(locator);
+            if (versionItems.length === 0 || versionItems[i] === undefined) {
+                throw new Error(`No version item found for the header: ${itemHeader} at index: ${i}`);
+            }
+            let elements = await versionItems[i].$$(".//div[contains(@class,'text-xs')]");
+            if (elements.length === 0) {
+                throw new Error(`No user name found in the version item with the header: ${itemHeader} at index: ${i}`);
+            }
             return await elements[0].getText();
         } catch (err) {
             await this.handleError('Versions Widget, tried to get user name...', 'err_version_username', err);
@@ -357,21 +381,28 @@ class BaseVersionsWidget extends Page {
 
     // Headers or displayNames :Created, Edited.  Permissions Updated is excluded
     versionItemByDisplayName(displayName) {
-        return this.versionsWidget + xpath.versionItem + xpath.itemByDisplayName(displayName);
+        return this.extensionView + xpath.versionsListItemByName(displayName);
     }
 
-    // Checkbox for Edited, Created, Moved, Renamed version items:
+    // Checkbox for Edited, Created, Moved, Renamed version items.
+    // Returns false when the checkbox is not rendered (the version is not comparable):
     async isCompareVersionCheckboxDisplayed(itemHeader, index) {
-        let itemLocator = this.versionsWidget + xpath.anyItemByHeader(itemHeader);
+        let i = index === undefined ? 0 : index;
+        let itemLocator = this.extensionView + xpath.versionsListItemByName(itemHeader);
         let elements = await this.findElements(itemLocator);
-        let buttonElements = await elements[index].$$(xpath.compareVersionsDiv);
-        let result = await buttonElements[0].isDisplayed();
-        return result;
+        if (elements.length === 0 || elements[i] === undefined) {
+            throw new Error(`No version item found for the header: ${itemHeader} at index: ${i}`);
+        }
+        let checkboxElements = await elements[i].$$(xpath.compareCheckboxDiv);
+        if (checkboxElements.length === 0) {
+            return false;
+        }
+        return await checkboxElements[0].isDisplayed();
     }
 
     async clickOnCompareVersionsButton() {
         try {
-            await this.waitForElementDisplayed(this.compareVersionsButton);
+            await this.waitForElementDisplayed(this.compareVersionsButton, appConst.mediumTimeout);
             return await this.clickOnElement(this.compareVersionsButton);
         } catch (err) {
             await this.handleError('Version Widget - Compare versions button', 'err_compare_versions_button', err);
@@ -380,9 +411,8 @@ class BaseVersionsWidget extends Page {
 
     async clickOnCancelSelectionOfVersionItemButton() {
         try {
-            let locator = this.versionsWidget + `//button[contains(@class,'reset-compare-button')]`;
-            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-            return await this.clickOnElement(locator);
+            await this.waitForElementDisplayed(this.cancelSelectionButton, appConst.mediumTimeout);
+            return await this.clickOnElement(this.cancelSelectionButton);
         } catch (err) {
             await this.handleError('Version Widget - Reset Compare versions button', 'err_cancel_selection_versions_button', err);
         }
