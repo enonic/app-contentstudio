@@ -1,5 +1,5 @@
 /**
- * Created on 10.02.2022
+ * Created on 10.02.2022 updated on 11.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -25,13 +25,13 @@ describe('page.template.widget.spec: Tests for page template widget in Details P
             let pageTemplateWidget = new PageTemplateWidget();
             await studioUtils.findAndSelectItem(appConst.TEST_IMAGES.HAND);
             await studioUtils.saveScreenshot("template_widget_image");
-            await pageTemplateWidget.waitForNoTemplateMessageDisplayed();
+            await pageTemplateWidget.waitForNotDisplayed();
         });
 
     it("WHEN site with a controller has been selected THEN 'Custom' template should be displayed in the widget",
         async () => {
             let displayName = appConst.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'My first Site', [appConst.MY_FIRST_APP], COUNTRY_LIST_CONTROLLER);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.MY_FIRST_APP], COUNTRY_LIST_CONTROLLER);
             await studioUtils.doAddSite(SITE);
             let pageTemplateWidget = new PageTemplateWidget();
             // 1. Select a site with a controller
@@ -43,6 +43,8 @@ describe('page.template.widget.spec: Tests for page template widget in Details P
             // 7. Verify that 'Custom' controller type is displayed:
             let type = await pageTemplateWidget.getControllerType();
             assert.equal(type, 'Custom', "'Custom' template should be present in the widget");
+            let name = await pageTemplateWidget.getControllerName();
+            assert.equal(name, 'Country List', "'Country List' controller should be displayed in the widget");
         });
 
     it("WHEN site with a template has been selected THEN link to template should be displayed in the widget",
@@ -50,7 +52,7 @@ describe('page.template.widget.spec: Tests for page template widget in Details P
             let contentWizard = new ContentWizard();
             let pageTemplateForm = new PageTemplateForm();
             let displayName = appConst.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'My first Site', [appConst.MY_FIRST_APP]);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.MY_FIRST_APP]);
             // 1. Add a site:
             await studioUtils.doAddSite(SITE);
             // 2. Open new wizard for template
@@ -77,7 +79,7 @@ describe('page.template.widget.spec: Tests for page template widget in Details P
             assert.equal(actualName, TEMPLATE_NAME, "Expected template name should be displayed in the template widget");
             // 7. Verify that 'Automatic' controller type is displayed:
             let type = await pageTemplateWidget.getControllerType();
-            assert.equal(type, 'Automatic', "Automatic template should be present in the widget");
+            assert.equal(type, 'Automatic', "Automatic template should be displayed in the widget");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
