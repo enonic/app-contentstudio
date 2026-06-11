@@ -46,9 +46,10 @@ const animateLayoutChanges = ({isSorting}: {isSorting: boolean}): boolean => isS
 
 export type PageComponentsViewProps = {
     showTitle?: boolean;
+    disabled?: boolean;
 };
 
-export const PageComponentsView = ({showTitle = false}: PageComponentsViewProps = {}): ReactElement => {
+export const PageComponentsView = ({showTitle = false, disabled = false}: PageComponentsViewProps = {}): ReactElement => {
     const containerRef = useRef<HTMLDivElement>(null);
     const componentsLabel = useI18n('field.components');
     const pageVersion = useStore($pageVersion);
@@ -160,45 +161,65 @@ export const PageComponentsView = ({showTitle = false}: PageComponentsViewProps 
     }, [flatNodes]);
 
     const handleSelect = useCallback((nodeId: string): void => {
+        if (disabled) {
+            return;
+        }
+
         const path = ComponentPath.fromString(nodeId);
         inspectItem(path);
         PageNavigationMediator.get().notify(
             new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(path)),
         );
-    }, []);
+    }, [disabled]);
 
     const isItemMovable = useCallback((node: FlatNode<PageComponentNodeData>): boolean => {
+        if (disabled) {
+            return false;
+        }
+
         return node.data?.draggable ?? false;
-    }, []);
+    }, [disabled]);
 
     const itemClassName = useCallback((
         context: SortableListItemContext<FlatNode<PageComponentNodeData>>,
     ): string => {
         const isSelected = context.item.id === inspectedPath;
         return cn(
-            'w-full px-2.5 select-none cursor-pointer',
-            isSelected ? 'bg-surface-selected text-alt [&>button]:text-alt' : 'hover:bg-surface-neutral-hover',
+            'w-full px-2.5 select-none',
+            disabled ? 'pointer-events-none cursor-default' : 'cursor-pointer',
+            isSelected
+                ? 'bg-surface-selected text-alt [&>button]:text-alt'
+                : !disabled && 'hover:bg-surface-neutral-hover',
         );
-    }, [inspectedPath]);
+    }, [inspectedPath, disabled]);
 
     const renderItem = useCallback((
         context: SortableListItemContext<FlatNode<PageComponentNodeData>>,
     ): ReactElement | null => {
         const isSelected = context.item.id === inspectedPath;
         const isInvalid = showErrors && invalidComponentPaths.has(context.item.id);
+        const item = (
+            <PageComponentsItem
+                context={context}
+                pageMetadata={pageMetadata}
+                selected={isSelected}
+                invalid={isInvalid}
+                disabled={disabled}
+                onToggle={toggleComponentExpand}
+                onSelect={handleSelect}
+            />
+        );
+
+        if (disabled) {
+            return item;
+        }
+
         return (
             <PageComponentsContextMenu node={context.item}>
-                <PageComponentsItem
-                    context={context}
-                    pageMetadata={pageMetadata}
-                    selected={isSelected}
-                    invalid={isInvalid}
-                    onToggle={toggleComponentExpand}
-                    onSelect={handleSelect}
-                />
+                {item}
             </PageComponentsContextMenu>
         );
-    }, [handleSelect, inspectedPath, pageMetadata, showErrors, invalidComponentPaths]);
+    }, [handleSelect, inspectedPath, disabled, pageMetadata, showErrors, invalidComponentPaths]);
 
     return (
         <div ref={containerRef} data-component={PAGE_COMPONENTS_VIEW_NAME} className="flex flex-col gap-1 py-2">
@@ -208,7 +229,7 @@ export const PageComponentsView = ({showTitle = false}: PageComponentsViewProps 
                 keyExtractor={(node) => node.id}
                 onDragStart={handleDragStart}
                 onMove={handleMove}
-                enabled={flatNodes.length > 1}
+                enabled={!disabled && flatNodes.length > 1}
                 fullRowDraggable
                 isItemMovable={isItemMovable}
                 resolveDrop={resolveDrop}

@@ -1,5 +1,6 @@
 import {Combobox} from '@enonic/ui';
 import type {ReactElement} from 'react';
+import {useInheritedNonLocalized} from '../../../../../../hooks/useInheritedNonLocalized';
 import {useI18n} from '../../../../../../hooks/useI18n';
 import {ConfirmationDialog} from '../../../../../../shared/dialogs/ConfirmationDialog';
 import {SelectorPopup} from '../SelectorPopup';
@@ -20,6 +21,8 @@ export const PageControllerSelector = (): ReactElement | null => {
         isLoading,
     } = usePageControllerSelector();
 
+    const isInheritedNonLocalized = useInheritedNonLocalized();
+
     const templateLabel = useI18n('field.page.template');
     const searchPlaceholder = useI18n('field.option.placeholder');
     const noMatchingLabel = useI18n('field.option.noitems');
@@ -35,6 +38,7 @@ export const PageControllerSelector = (): ReactElement | null => {
             <div className="flex flex-col gap-2.5">
                 <span className="font-semibold">{templateLabel}</span>
                 <Combobox.Root
+                    disabled={isInheritedNonLocalized}
                     value={searchValue}
                     onChange={setSearchValue}
                     selection={selection}

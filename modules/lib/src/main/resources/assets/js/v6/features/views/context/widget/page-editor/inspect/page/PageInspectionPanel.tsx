@@ -2,9 +2,10 @@ import {FieldRegistryProvider} from '@enonic/lib-admin-ui/form2';
 import {Button} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {type ReactElement, useCallback, useMemo, useState} from 'react';
+import {useInheritedNonLocalized} from '../../../../../../hooks/useInheritedNonLocalized';
 import {useI18n} from '../../../../../../hooks/useI18n';
 import {ConfirmationDialog} from '../../../../../../shared/dialogs/ConfirmationDialog';
-import {FormRenderer} from '../../../../../../shared/form/FormRenderer';
+import {FormRenderer} from '../../../../../../shared/form';
 import {getAiFieldRegistry} from '../../../../../../store/ai/ai.field-registry';
 import {
     $contentContext,
@@ -31,6 +32,7 @@ export const PageInspectionPanel = (): ReactElement => {
     const descriptor = useStore($pageConfigDescriptor);
     const isCustomizeVisible = useStore($isCustomizeVisible);
     const isEmpty = useStore($isPageInspectionEmpty);
+    const isInheritedNonLocalized = useInheritedNonLocalized();
 
     const customizeLabel = useI18n("action.page.customize");
     const customizeQuestion = useI18n("dialog.page.customize.confirmation");
@@ -73,6 +75,7 @@ export const PageInspectionPanel = (): ReactElement => {
                         label={customizeLabel}
                         variant="outline"
                         onClick={handleCustomize}
+                        disabled={isInheritedNonLocalized}
                         className="w-full"
                     />
                 )}
@@ -83,7 +86,7 @@ export const PageInspectionPanel = (): ReactElement => {
                     <FormRenderer
                         form={configForm}
                         propertySet={configRoot}
-                        enabled={!lifecycle.isPageLocked}
+                        enabled={!lifecycle.isPageLocked && !isInheritedNonLocalized}
                         applicationKey={ctx?.applicationKey ?? undefined}
                     />
                 </FieldRegistryProvider>

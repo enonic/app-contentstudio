@@ -1,6 +1,7 @@
 import {Tab} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {type ReactElement, useEffect, useState} from 'react';
+import {useInheritedNonLocalized} from '../../../hooks/useInheritedNonLocalized';
 import {useI18n} from '../../../hooks/useI18n';
 import {
     $contentTypeDisplayName,
@@ -30,9 +31,11 @@ export const ContentWizardTabs = ({tabListAction}: ContentWizardTabsProps): Reac
     const xDataTabs = useStore($mixinsTabs);
     const invalidTabs = useStore($invalidTabs);
     const validationVisibility = useStore($validationVisibility);
+    const isInheritedNonLocalized = useInheritedNonLocalized();
     const pageTabLabel = useI18n('field.page');
     const [activeTab, setActiveTab] = useState('content');
     const showErrors = validationVisibility === 'all';
+    const inheritedContentClassName = isInheritedNonLocalized ? 'opacity-30' : undefined;
 
     useEffect(() => {
         const validTabs = ['content', ...(hasPage ? ['page'] : []), ...xDataTabs.map((tab) => tab.name)];
@@ -42,16 +45,19 @@ export const ContentWizardTabs = ({tabListAction}: ContentWizardTabsProps): Reac
     }, [hasPage, xDataTabs, activeTab]);
 
     if (!isExpanded) {
-        return <CollapsedFormPanel data-component={CONTENT_WIZARD_TABS_NAME} displayName={displayName || contentTypeDisplayName} />;
+        return <CollapsedFormPanel data-component={CONTENT_WIZARD_TABS_NAME} displayName={displayName || contentTypeDisplayName}/>;
     }
 
     return (
-        <Tab.Root data-component={CONTENT_WIZARD_TABS_NAME} value={activeTab} onValueChange={setActiveTab} className="flex flex-col gap-7.5">
+        <Tab.Root data-component={CONTENT_WIZARD_TABS_NAME} value={activeTab} onValueChange={setActiveTab}
+                  className="flex flex-col gap-7.5">
             <div className="flex items-center gap-1.5">
                 <Tab.ListOverflow className="min-w-0 flex-1">
                     <Tab.List>
-                        <Tab.DefaultTrigger value="content" error={showErrors && invalidTabs.has('content')}>{contentTypeDisplayName}</Tab.DefaultTrigger>
-                        {hasPage && <Tab.DefaultTrigger value="page" error={showErrors && invalidTabs.has('page')}>{pageTabLabel}</Tab.DefaultTrigger>}
+                        <Tab.DefaultTrigger value="content"
+                                            error={showErrors && invalidTabs.has('content')}>{contentTypeDisplayName}</Tab.DefaultTrigger>
+                        {hasPage &&
+                         <Tab.DefaultTrigger value="page" error={showErrors && invalidTabs.has('page')}>{pageTabLabel}</Tab.DefaultTrigger>}
                         {xDataTabs.map((tab) => (
                             <Tab.DefaultTrigger
                                 key={tab.name}
@@ -67,19 +73,19 @@ export const ContentWizardTabs = ({tabListAction}: ContentWizardTabsProps): Reac
                 <ToggleFormButton/>
             </div>
 
-            <Tab.Content value="content">
-                <ContentForm />
+            <Tab.Content className={inheritedContentClassName} value="content">
+                <ContentForm/>
             </Tab.Content>
 
             {hasPage && (
-                <Tab.Content value="page">
-                    <PageComponentsView showTitle />
+                <Tab.Content className={inheritedContentClassName} value="page">
+                    <PageComponentsView showTitle disabled={isInheritedNonLocalized}/>
                 </Tab.Content>
             )}
 
             {xDataTabs.map((tab) => (
-                <Tab.Content key={tab.name} value={tab.name}>
-                    <MixinView mixinName={tab.name} />
+                <Tab.Content className={inheritedContentClassName} key={tab.name} value={tab.name}>
+                    <MixinView mixinName={tab.name}/>
                 </Tab.Content>
             ))}
         </Tab.Root>
