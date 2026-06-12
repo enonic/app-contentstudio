@@ -35,7 +35,9 @@ async function handleComponentLoad(path: EditorComponentPath, isExisting: boolea
 }
 
 function resolveComponentUrl(path: EditorComponentPath): string {
-    const contentId = PageEditor.getContent().getContentId().toString();
+    const content = PageEditor.getContent();
+    if (content == null) throw new Error('Cannot reload component: content is not available');
+    const contentId = content.id;
     const componentPath = path.toString().replace(/^\//, '');
     return `${getSitePathPrefix()}/${contentId}/_/component/${componentPath}`;
 }

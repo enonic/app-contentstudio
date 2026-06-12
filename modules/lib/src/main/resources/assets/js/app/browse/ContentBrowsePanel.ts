@@ -38,7 +38,6 @@ import {GetContentSummaryByIdRequest} from '../resource/GetContentSummaryByIdReq
 import {Router} from '../Router';
 import {UrlAction} from '../UrlAction';
 import {type ContentItemPreviewPanel} from '../view/ContentItemPreviewPanel';
-import {ContentPreviewPathChangedEvent} from '../view/ContentPreviewPathChangedEvent';
 import {buildDefaultContextWidgets, listDefaultContextWidgets} from '../view/context/buildDefaultContextWidgets';
 import {ContextView} from '../view/context/ContextView';
 import {loadCustomContextWidgets, watchCustomContextWidgets} from '../view/context/customContextWidgets';
@@ -58,7 +57,7 @@ import {SearchAndExpandItemEvent} from './SearchAndExpandItemEvent';
 import {State} from './State';
 import {ToggleSearchPanelEvent} from './ToggleSearchPanelEvent';
 import {ToggleSearchPanelWithDependenciesEvent} from './ToggleSearchPanelWithDependenciesEvent';
-import {IframeEventBus} from '@enonic/lib-admin-ui/event/IframeEventBus';
+import {createHostBus, type HostBus} from '@enonic/page-editor/protocol';
 
 export class ContentBrowsePanel
     extends ResponsiveBrowsePanel {
@@ -84,6 +83,8 @@ export class ContentBrowsePanel
     protected expandedContext: TreeListBoxExpandedHolder;
 
     private contentTreeList: ContentTreeListElement;
+
+    private previewBus?: HostBus;
 
     protected initElements() {
         super.initElements();
@@ -156,8 +157,7 @@ export class ContentBrowsePanel
     protected initListeners() {
         super.initListeners();
 
-        IframeEventBus.get().setId('browse-bus');
-        IframeEventBus.get().registerClass('ContentPreviewPathChangedEvent', ContentPreviewPathChangedEvent);
+        this.bindPreviewBus();
 
         this.filterPanel.onSearchEvent((query?: ContentQuery) => {
             this.contentTreeList.setFilterQuery(query);
@@ -349,10 +349,6 @@ export class ContentBrowsePanel
             this.handleCUD();
         });
 
-        ContentPreviewPathChangedEvent.on((event: ContentPreviewPathChangedEvent) => {
-            this.selectInlinedContentInGrid(event.getPreviewPath());
-        });
-
         RepositoryEvent.on(event => {
             if (event.isRestored()) {
                 this.treeListBox.reload();
@@ -372,6 +368,32 @@ export class ContentBrowsePanel
             this.handleProjectNotSet();
             this.selectionWrapper.deselectAll(true);
             this.treeListBox.clearItems(true);
+        });
+    }
+
+    // Scopes a protocol host bus to the inline-preview iframe (which renders via
+    // `@enonic/page-editor`'s viewer). The viewer posts `preview-path-changed`
+    // on link clicks; the bus is recreated on every iframe load and pinned to
+    // the iframe's origin.
+    private bindPreviewBus(): void {
+        const iframe = this.getPreviewPanel().getIFrameEl();
+
+        iframe.onLoaded(() => {
+            this.previewBus?.destroy();
+            this.previewBus = undefined;
+
+            const previewWindow = (iframe.getHTMLElement() as HTMLIFrameElement).contentWindow;
+            if (!previewWindow) {
+                return;
+            }
+
+            const src = (iframe.getHTMLElement() as HTMLIFrameElement).src;
+            const remoteOrigin = src ? new URL(src, window.location.href).origin : window.location.origin;
+
+            this.previewBus = createHostBus({remote: previewWindow, remoteOrigin});
+            this.previewBus.on('preview-path-changed', (payload) => {
+                this.selectInlinedContentInGrid(payload.path);
+            });
         });
     }
 

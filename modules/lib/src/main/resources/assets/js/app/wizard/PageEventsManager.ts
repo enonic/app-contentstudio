@@ -1,4 +1,3 @@
-import {type ComponentViewDragCanceledEvent} from '../../page-editor/event/ComponentViewDragCanceledEvent';
 import {type PageLockedEvent} from '../../page-editor/event/outgoing/manipulation/PageLockedEvent';
 import {type PageUnlockedEvent} from '../../page-editor/event/outgoing/manipulation/PageUnlockedEvent';
 import {type LiveEditPageViewReadyEvent} from '../../page-editor/event/LiveEditPageViewReadyEvent';
@@ -28,7 +27,7 @@ export class PageEventsManager {
 
     private componentViewDragStoppedListeners: ((path: ComponentPath) => void)[] = [];
 
-    private componentViewDragCanceledListeners: ((event: ComponentViewDragCanceledEvent) => void)[] = [];
+    private componentViewDragCanceledListeners: ((path: ComponentPath) => void)[] = [];
 
     private componentDragDroppedListeners: ((from: ComponentPath, to: ComponentPath) => void)[] = [];
 
@@ -145,16 +144,16 @@ export class PageEventsManager {
         this.componentViewDragStoppedListeners.forEach((listener) => listener(path));
     }
 
-    onComponentViewDragCanceled(listener: ((event: ComponentViewDragCanceledEvent) => void)): void {
+    onComponentViewDragCanceled(listener: ((path: ComponentPath) => void)): void {
         this.componentViewDragCanceledListeners.push(listener);
     }
 
-    unComponentViewDragCanceled(listener: ((event: ComponentViewDragCanceledEvent) => void)): void {
+    unComponentViewDragCanceled(listener: ((path: ComponentPath) => void)): void {
         this.componentViewDragCanceledListeners = this.componentViewDragCanceledListeners.filter((curr) => (curr !== listener));
     }
 
-    notifyComponentViewDragCanceled(event: ComponentViewDragCanceledEvent) {
-        this.componentViewDragCanceledListeners.forEach((listener) => listener(event));
+    notifyComponentViewDragCanceled(path: ComponentPath) {
+        this.componentViewDragCanceledListeners.forEach((listener) => listener(path));
     }
 
     onComponentDragDropped(listener: ((from: ComponentPath, to: ComponentPath) => void)): void {
