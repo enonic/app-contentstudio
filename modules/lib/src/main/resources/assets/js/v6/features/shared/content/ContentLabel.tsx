@@ -20,14 +20,14 @@ export type ContentLabelProps = {
     variant?: ContentLabelVariant;
     /** Hide the workflow status icon. @default false */
     hideStatus?: boolean;
-    useListTitle?: boolean;
+    titleSource?: 'display-name' | 'list';
 } & Omit<ItemLabelProps, 'icon' | 'primary' | 'secondary'>;
 
 export const ContentLabel = ({
     content,
     variant = 'normal',
     hideStatus = false,
-    useListTitle = false,
+    titleSource = 'display-name',
     'data-component': dataComponent = CONTENT_LABEL_NAME,
     ...props
 }: ContentLabelProps): ReactElement => {
@@ -46,7 +46,7 @@ export const ContentLabel = ({
 
     const pathStr = resolvePath(content, showFullPath);
 
-    const titleText = useListTitle ? resolveListTitle(content) : resolveDisplayName(content);
+    const titleText = titleSource === 'list' ? resolveListTitle(content) : resolveDisplayName(content);
     const primaryText = isCompact
         ? pathStr
         : titleText;

@@ -35,7 +35,7 @@ export const ContentTreeListItem = ({content, showPath = false, selected = false
     return (
         <ListItem className='p-0' role='presentation'>
             <ListItem.Left className='flex-1'>
-                <ContentLabel content={item} variant={showPath ? 'detailed' : 'normal'} useListTitle />
+                <ContentLabel content={item} variant={showPath ? 'detailed' : 'normal'} titleSource='list' />
             </ListItem.Left>
             <ListItem.Right>
                 {isInherited && (
