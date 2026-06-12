@@ -132,7 +132,7 @@ describe('sort.dialog.spec, tests for sort content dialog', function () {
             assert.equal(numberOfSortedItems, 2, "2 sorted item should be present in the versions widget");
             // 6. Verify that user-name should not be displayed in Sorted version item
             let byUser = await browseVersionsWidget.getUserNameInItemByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 0);
-            assert.equal(byUser, 'By Super User', 'user-name should be displayed in Sorted version item');
+            assert.equal(byUser, 'by Super User', 'user-name should be displayed in Sorted version item');
 
 
              await browseVersionsWidget.waitForCompareChangesCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.SORTED,0);

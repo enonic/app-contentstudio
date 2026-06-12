@@ -359,7 +359,7 @@ class BaseVersionsWidget extends Page {
         }
     }
 
-    // Returns the user-name line ('By Super User') for the version item with the header ('Sorted', 'Edited'...):
+    // Returns the user-name line ('by Super User') for the version item with the header ('Sorted', 'Edited'...):
     async getUserNameInItemByHeader(itemHeader, index) {
         try {
             let i = index === undefined ? 0 : index;
