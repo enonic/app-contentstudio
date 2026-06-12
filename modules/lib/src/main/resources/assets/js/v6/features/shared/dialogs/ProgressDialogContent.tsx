@@ -5,7 +5,7 @@ import {ProgressBar} from '../primitives/ProgressBar';
 type ProgressDialogProps = {
     title: string;
     description?: string;
-    progress: number;
+    progress?: number;
     className?: string;
     'data-component'?: string;
 } & DialogContentProps;
@@ -33,7 +33,7 @@ export const ProgressDialogContent = ({
         >
             <Dialog.DefaultHeader title={title} description={description} />
             <Dialog.Body className='flex flex-col pb-10'>
-                <ProgressBar value={progress} />
+                {progress != null && <ProgressBar value={progress} />}
             </Dialog.Body>
         </Dialog.Content>
     );

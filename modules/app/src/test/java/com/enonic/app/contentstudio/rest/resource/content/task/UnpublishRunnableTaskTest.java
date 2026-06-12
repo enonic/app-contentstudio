@@ -79,14 +79,14 @@ class UnpublishRunnableTaskTest
         final UnpublishRunnableTask task = createAndRunTask();
         task.createTaskResult();
 
-        Mockito.verify( progressReporter, Mockito.times( 2 ) ).info( contentQueryArgumentCaptor.capture() );
+        Mockito.verify( progressReporter, Mockito.times( 3 ) ).info( contentQueryArgumentCaptor.capture() );
         Mockito.verify( progressReporter, Mockito.times( 1 ) ).progress( Mockito.anyInt(), progressArgumentCaptor.capture() );
         Mockito.verify( taskService, Mockito.times( 1 ) )
             .submitLocalTask( any( SubmitLocalTaskParams.class ) );
 
-        final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 1 );
+        final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 2 );
 
-        assertEquals( 4, progressArgumentCaptor.getValue().intValue() );
+        assertEquals( 3, progressArgumentCaptor.getValue().intValue() );
         assertEquals( "{\"state\":\"SUCCESS\",\"message\":\"3 items have been unpublished\"}", resultMessage );
     }
 
@@ -109,9 +109,9 @@ class UnpublishRunnableTaskTest
 
         createAndRunTask();
 
-        Mockito.verify( progressReporter, Mockito.times( 2 ) ).info( contentQueryArgumentCaptor.capture() );
+        Mockito.verify( progressReporter, Mockito.times( 3 ) ).info( contentQueryArgumentCaptor.capture() );
 
-        final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 1 );
+        final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 2 );
 
         assertEquals( "{\"state\":\"SUCCESS\",\"message\":\"Item \\\"id1\\\" has been unpublished.\"}", resultMessage );
     }
@@ -124,7 +124,7 @@ class UnpublishRunnableTaskTest
         Set<String> ids = Collections.emptySet();
 
         Mockito.when( params.getIds() ).thenReturn( ids );
-        Mockito.when( contentService.getByIds( Mockito.isA( GetContentByIdsParams.class ) ) ).thenReturn( Contents.from( contents ) );
+        Mockito.when( contentService.getByIds( Mockito.isA( GetContentByIdsParams.class ) ) ).thenReturn( Contents.empty() );
         Mockito.when( contentService.find( Mockito.isA( ContentQuery.class ) ) )
             .thenReturn( FindContentIdsByQueryResult.create().contents( ids.stream().map( ContentId::from ).collect( ContentIds.collector() ) ).build() );
         Mockito.when( contentService.unpublish( Mockito.isA( UnpublishContentParams.class ) ) ).thenReturn( result );

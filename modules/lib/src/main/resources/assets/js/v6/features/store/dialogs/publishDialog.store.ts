@@ -851,7 +851,7 @@ const reloadPublishDialogDataDebounced = createDebounce(() => {
 /** Check if dialog is open and has items */
 const isDialogActive = (): boolean => {
     const {open, items} = $publishDialog.get();
-    return open && items.length > 0;
+    return open && items.length > 0 && !$publishDialogPending.get().submitting;
 };
 
 const onPublishSocketEvent = createGuardedSocketHandler(isDialogActive);

@@ -9,13 +9,20 @@ import com.enonic.xp.task.ProgressReporter;
 import com.enonic.xp.task.TaskId;
 import com.enonic.xp.task.TaskService;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class UnpublishRunnableTask
     extends AbstractRunnableTask
 {
     public static final Set<CompareStatus> IGNORE_STATUES = EnumSet.of( CompareStatus.EQUAL, CompareStatus.NEWER );
+
+    private static final int UNPUBLISH_BATCH_SIZE = 50;
 
     private final UnpublishContentJson params;
 
@@ -44,9 +51,11 @@ public class UnpublishRunnableTask
 
         final PushContentListener listener = new UnpublishContentProgressListener( progressReporter );
 
+        final Contents contents = contentService.getByIds( GetContentByIdsParams.create().contentIds( contentIds ).build() );
+
         final ContentIds childrenIds = ContentQueryWithChildren.create()
             .contentService( this.contentService )
-            .contentsPaths( contentService.getByIds( GetContentByIdsParams.create().contentIds( contentIds ).build() ).getPaths() )
+            .contentsPaths( contents.getPaths() )
             .size( -1 )
             .build()
             .find()
@@ -54,18 +63,37 @@ public class UnpublishRunnableTask
 
         final ContentIds filteredChildrenIds = this.filterIdsByStatus( childrenIds );
 
-        listener.contentResolved( filteredChildrenIds.getSize() + contentIds.getSize() );
+        final List<ContentId> orderedChildrenIds = new ArrayList<>( childrenIds.getSet() );
+        Collections.reverse( orderedChildrenIds );
+
+        final List<ContentId> idsToUnpublish = Stream.concat(
+                orderedChildrenIds.stream().filter( filteredChildrenIds::contains ),
+                contents.stream()
+                    .sorted( ( a, b ) -> b.getPath().elementCount() - a.getPath().elementCount() )
+                    .map( Content::getId ) )
+            .collect( Collectors.toList() );
+
+        if ( !idsToUnpublish.isEmpty() )
+        {
+            progressReporter.info( TaskPhases.phaseInfo( "unpublish", idsToUnpublish.size() ) );
+
+            listener.contentResolved( idsToUnpublish.size() );
+        }
 
         final UnpublishRunnableTaskResult.Builder resultBuilder = UnpublishRunnableTaskResult.create();
 
         try
         {
-            final UnpublishContentsResult result = this.contentService.unpublish( UnpublishContentParams.create().
-                contentIds( contentIds ).
-                pushListener( listener ).
-                build() );
+            for ( int from = 0; from < idsToUnpublish.size(); from += UNPUBLISH_BATCH_SIZE )
+            {
+                final List<ContentId> batch =
+                    idsToUnpublish.subList( from, Math.min( from + UNPUBLISH_BATCH_SIZE, idsToUnpublish.size() ) );
 
-            resultBuilder.succeeded( result.getUnpublishedContents() );
+                final UnpublishContentsResult result = this.contentService.unpublish(
+                    UnpublishContentParams.create().contentIds( ContentIds.from( batch ) ).pushListener( listener ).build() );
+
+                resultBuilder.succeeded( result.getUnpublishedContents() );
+            }
         }
         catch ( Exception e )
         {

@@ -1,5 +1,6 @@
 package com.enonic.app.contentstudio.rest.resource.content;
 
+import com.enonic.app.contentstudio.rest.resource.content.task.TaskPhases;
 import com.enonic.xp.content.PushContentListener;
 import com.enonic.xp.task.ProgressReporter;
 
@@ -13,6 +14,8 @@ public final class PublishContentProgressListener
 
     private int progressCount = 0;
 
+    private boolean started = false;
+
     public PublishContentProgressListener( final ProgressReporter progressReporter )
     {
         this.progressReporter = progressReporter;
@@ -21,6 +24,12 @@ public final class PublishContentProgressListener
     @Override
     public void contentPushed( final int count )
     {
+        if ( !started )
+        {
+            started = true;
+            progressReporter.info( TaskPhases.phaseInfo( "publish", total ) );
+        }
+
         progressCount = progressCount + count;
         progressReporter.progress( progressCount, total );
     }
@@ -28,7 +37,6 @@ public final class PublishContentProgressListener
     @Override
     public void contentResolved( final int count )
     {
-        total = count; // x2 previously for resolving + copying
-        progressReporter.progress( progressCount, total );
+        total = count;
     }
 }

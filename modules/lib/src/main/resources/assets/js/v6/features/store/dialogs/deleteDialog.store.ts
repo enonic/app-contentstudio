@@ -414,8 +414,8 @@ $deleteDialog.subscribe(({open, loading}, oldState) => {
 
 /** Check if dialog is open and has items */
 const isDialogActive = (): boolean => {
-    const {open, items} = $deleteDialog.get();
-    return open && items.length > 0;
+    const {open, items, submitting} = $deleteDialog.get();
+    return open && !submitting && items.length > 0;
 };
 
 // Handle content created: reload dependencies as new content might be a child or dependency
