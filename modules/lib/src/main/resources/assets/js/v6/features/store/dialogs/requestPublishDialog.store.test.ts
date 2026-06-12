@@ -11,8 +11,11 @@ import {
 import {
     $isRequestPublishReady,
     $requestPublishDialog,
+    $requestPublishDialogCreateCount,
     $requestPublishDialogErrors,
+    $requestPublishHasMoreDependants,
     $requestPublishPublishableCount,
+    loadMoreRequestPublishDependants,
     openRequestPublishDialog,
     resetRequestPublishDialogContext,
     submitRequestPublishDialog,
@@ -138,8 +141,8 @@ describe('requestPublishDialog.store', () => {
         const updated = createMockContent('item-1', {displayName: 'Updated name'});
 
         mockResolvePublishDependencies
-            .mockResolvedValueOnce(createResolveResult({inProgress: [itemId]}))
-            .mockResolvedValueOnce(createResolveResult({}));
+            .mockResolvedValueOnce(createResolveResult({inProgress: [itemId], publishable: [itemId]}))
+            .mockResolvedValueOnce(createResolveResult({publishable: [itemId]}));
 
         openRequestPublishDialog([original]);
         await flushRequestPublishReload();
@@ -162,8 +165,10 @@ describe('requestPublishDialog.store', () => {
         const itemId = new ContentId('item-1');
         const item = createMockContent('item-1');
 
-        // notPublishable must not block creating a publish request.
-        mockResolvePublishDependencies.mockResolvedValue(createResolveResult({notPublishable: [itemId]}));
+        // notPublishable must not block creating a publish request. The server still reports the
+        // item as publishable (it has changes); permission is resolved separately at publish time.
+        mockResolvePublishDependencies.mockResolvedValue(
+            createResolveResult({notPublishable: [itemId], publishable: [itemId]}));
 
         openRequestPublishDialog([item]);
         await flushRequestPublishReload();
@@ -186,11 +191,39 @@ describe('requestPublishDialog.store', () => {
         const onlineItem = createMockContent('online-1', {isOnline: true});
         const offlineItem = createMockContent('offline-1');
 
+        // Only the offline item has changes to publish (status != EQUAL).
+        mockResolvePublishDependencies.mockResolvedValue(
+            createResolveResult({publishable: [new ContentId('offline-1')]}));
+
         openRequestPublishDialog([onlineItem, offlineItem]);
         await flushRequestPublishReload();
 
         expect($requestPublishPublishableCount.get()).toBe(1);
         expect($isRequestPublishReady.get()).toBe(true);
+    });
+
+    it('loads dependant summaries lazily, a window at a time, while counts use the full id set', async () => {
+        const dependantIds = Array.from({length: 40}, (_, index) => new ContentId(`dep-${index}`));
+
+        mockResolvePublishDependencies.mockResolvedValue(
+            createResolveResult({dependants: dependantIds, publishable: dependantIds}));
+        mockFetchContentSummaries.mockImplementation((ids: ContentId[]) =>
+            ids.map(id => createMockContent(id.toString())));
+
+        openRequestPublishDialog([createMockContent('item-1')]);
+        await flushRequestPublishReload();
+
+        // Full id set drives counts; only the first window of summaries is loaded.
+        expect($requestPublishDialog.get().dependantIds).toHaveLength(40);
+        expect($requestPublishDialog.get().dependants).toHaveLength(36);
+        expect($requestPublishHasMoreDependants.get()).toBe(true);
+        expect($requestPublishDialogCreateCount.get()).toBe(41);
+        expect($requestPublishPublishableCount.get()).toBe(40);
+
+        await loadMoreRequestPublishDependants();
+
+        expect($requestPublishDialog.get().dependants).toHaveLength(40);
+        expect($requestPublishHasMoreDependants.get()).toBe(false);
     });
 
     it('patches renamed items without forcing a dependency reload', async () => {
@@ -271,6 +304,9 @@ describe('requestPublishDialog.store', () => {
         const item = createMockContent('item-1', {displayName: 'Item'});
         const submitRequestDeferred = createDeferredPromise<never>();
 
+        mockResolvePublishDependencies.mockResolvedValue(
+            createResolveResult({publishable: [new ContentId('item-1')]}));
+
         openRequestPublishDialog([item]);
         await flushRequestPublishReload();
 
@@ -313,6 +349,8 @@ describe('requestPublishDialog.store', () => {
         const updatedItem = createMockContent('item-1', {displayName: 'Updated item'});
         const submitRequestDeferred = createDeferredPromise<never>();
 
+        mockResolvePublishDependencies.mockResolvedValue(
+            createResolveResult({publishable: [new ContentId('item-1')]}));
         mockFetchContentSummaries.mockImplementation((ids: ContentId[]) => {
             return ids.some(id => id.toString() === 'item-1') ? [updatedItem] : [];
         });

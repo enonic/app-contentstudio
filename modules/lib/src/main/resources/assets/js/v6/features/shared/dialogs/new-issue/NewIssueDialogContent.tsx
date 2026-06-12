@@ -9,7 +9,9 @@ import {useI18n} from '../../../hooks/useI18n';
 import {
     $newIssueDialog,
     $newIssueDialogCreateCount,
+    $newIssueDialogHasMoreDependants,
     addNewIssueItemsByIds,
+    loadMoreNewIssueDependants,
     removeNewIssueItemsByIds,
     setNewIssueAssignees,
     setNewIssueDependantIncluded,
@@ -24,7 +26,6 @@ import {AssigneeSelector} from '../../selectors/assignee/AssigneeSelector';
 import {useAssigneeSearch, useAssigneeSelection} from '../../selectors/assignee/hooks/useAssigneeSearch';
 import {ContentCombobox} from '../../selectors/content';
 import {IssueIcon} from '../issue/IssueIcon';
-import {useIssuePublishTargetIds} from '../issue/hooks/useIssuePublishTargetIds';
 
 const NEW_ISSUE_DIALOG_CONTENT_NAME = 'NewIssueDialogContent';
 
@@ -56,6 +57,7 @@ export const NewIssueDialogContent = (): ReactElement => {
     });
 
     const createCount = useStore($newIssueDialogCreateCount);
+    const hasMoreDependants = useStore($newIssueDialogHasMoreDependants);
 
     const titleLabel = useI18n('field.title');
     const descriptionLabel = useI18n('field.description');
@@ -82,12 +84,7 @@ export const NewIssueDialogContent = (): ReactElement => {
         [requiredDependantIds],
     );
 
-    const publishTargetIds = useIssuePublishTargetIds(items, dependants, excludedDependantIds);
-
-    const {options: assigneeOptions, handleSearchChange} = useAssigneeSearch({
-        publishableContentIds: publishTargetIds,
-        useRootFallback: true,
-    });
+    const {options: assigneeOptions, handleSearchChange} = useAssigneeSearch();
     const selectedAssigneeOptions = useAssigneeSelection({assigneeIds});
 
     const itemsWithUnpublishedChildren = useItemsWithUnpublishedChildren(items);
@@ -249,6 +246,8 @@ export const NewIssueDialogContent = (): ReactElement => {
                                 items={dependants}
                                 getItemId={(item) => item.getId()}
                                 disabled={isItemsDisabled}
+                                hasMore={hasMoreDependants}
+                                onEndReached={loadMoreNewIssueDependants}
                                 renderRow={(item) => {
                                     const id = item.getContentId();
                                     const isRequired = requiredDependantSet.has(id.toString());
@@ -259,13 +258,14 @@ export const NewIssueDialogContent = (): ReactElement => {
                                             key={item.getId()}
                                             content={item}
                                             id={item.getId()}
-                                            disabled={isRequired || isItemsDisabled}
+                                            disabled={isItemsDisabled}
                                         >
                                             <ContentRow.Checkbox
                                                 checked={included}
                                                 onCheckedChange={(checked) =>
                                                     setNewIssueDependantIncluded(id, checked)
                                                 }
+                                                disabled={isRequired || isItemsDisabled}
                                             />
                                             <ContentRow.Label action="edit" />
                                             <ContentRow.Status />

@@ -21,6 +21,13 @@ import {UpdateIssueRequest} from '../../../../app/issue/resource/UpdateIssueRequ
 import {GetPrincipalsByKeysRequest} from '../../../../app/security/GetPrincipalsByKeysRequest';
 import {fetchContentSummaries} from '../../api/content';
 import {resolvePublishDependencies} from '../../api/publish';
+import {
+    DEPENDANT_LOAD_SIZE,
+    createDependantWindowLoader,
+    fetchDependantWindowSlice,
+    orderSummariesByIds,
+    pruneDependantWindow,
+} from '../../utils/cms/content/dependantWindow';
 import {hasContentIdInIds, isIdsEqual, uniqueIds} from '../../utils/cms/content/ids';
 import {findContentIdsWithCreatedDescendants} from '../../utils/cms/content/paths';
 import {
@@ -71,6 +78,8 @@ type IssueDialogDetailsStore = {
     items: ContentSummary[];
     excludeChildrenIds: ContentId[];
     dependants: ContentSummary[];
+    dependantIds: ContentId[];
+    dependantWindow: number;
     excludedDependantIds: ContentId[];
     requiredDependantIds: ContentId[];
 };
@@ -106,6 +115,8 @@ const initialState: IssueDialogDetailsStore = {
     items: [],
     excludeChildrenIds: [],
     dependants: [],
+    dependantIds: [],
+    dependantWindow: 0,
     excludedDependantIds: [],
     requiredDependantIds: [],
 };
@@ -144,6 +155,11 @@ export const $canIssueDialogDetailsShowSelectionStatusBar = computed(
 export const $canIssueDialogDetailsPublish = computed(
     [$isIssueDialogDetailsPublishRequest, $isIssueDialogDetailsClosed],
     (isPublishRequest, isClosed) => isPublishRequest && !isClosed,
+);
+
+export const $issueDialogDetailsHasMoreDependants = computed(
+    $issueDialogDetails,
+    ({dependantIds, dependantWindow}) => dependantWindow < dependantIds.length,
 );
 
 //
@@ -187,6 +203,8 @@ export const loadIssueDialogItems = async (
             items: [],
             excludeChildrenIds: [],
             dependants: [],
+            dependantIds: [],
+            dependantWindow: 0,
             excludedDependantIds: [],
             requiredDependantIds: [],
         });
@@ -208,6 +226,8 @@ export const loadIssueDialogItems = async (
         itemsError: false,
         items: canReuseItems ? currentState.items : [],
         dependants: isSameIssue ? currentState.dependants : [],
+        dependantIds: isSameIssue ? currentState.dependantIds : [],
+        dependantWindow: isSameIssue ? currentState.dependantWindow : 0,
         requiredDependantIds: isSameIssue ? currentState.requiredDependantIds : [],
         excludeChildrenIds,
         excludedDependantIds,
@@ -229,19 +249,29 @@ export const loadIssueDialogItems = async (
             return;
         }
 
-        const dependantIds = result.getDependants()
+        const allDependantIds = result.getDependants()
             .filter(id => !hasContentIdInIds(id, itemIds));
-        const dependants = await fetchContentSummaries(dependantIds);
+
+        const firstWindow = await fetchDependantWindowSlice(allDependantIds, 0);
         if (requestId !== dependenciesRequestId) {
             return;
         }
 
+        if (firstWindow.failed) {
+            $issueDialogDetails.set({
+                ...$issueDialogDetails.get(),
+                itemsLoading: false,
+                itemsError: true,
+            });
+            return;
+        }
+
         const sortedItems = canReuseItems ? items : sortByIdOrder(items, itemIds);
-        const sortedDependants = sortByIdOrder(dependants, dependantIds);
+        const sortedDependants = orderSummariesByIds(firstWindow.summaries, allDependantIds);
         const requiredDependantIds = result.getRequired()
-            .filter(id => hasContentIdInIds(id, dependantIds));
+            .filter(id => hasContentIdInIds(id, allDependantIds));
         const nextExcludedDependantIds = excludedDependantIds
-            .filter(id => hasContentIdInIds(id, dependantIds))
+            .filter(id => hasContentIdInIds(id, allDependantIds))
             .filter(id => !hasContentIdInIds(id, requiredDependantIds));
 
         const latestState = $issueDialogDetails.get();
@@ -250,6 +280,8 @@ export const loadIssueDialogItems = async (
             items: sortedItems,
             excludeChildrenIds,
             dependants: sortedDependants,
+            dependantIds: allDependantIds,
+            dependantWindow: Math.min(DEPENDANT_LOAD_SIZE, allDependantIds.length),
             requiredDependantIds,
             excludedDependantIds: nextExcludedDependantIds,
             itemsLoading: false,
@@ -268,6 +300,9 @@ export const loadIssueDialogItems = async (
         showError(error?.message ?? String(error));
     }
 };
+
+export const loadMoreIssueDialogDependants =
+    createDependantWindowLoader($issueDialogDetails, () => dependenciesRequestId);
 
 export const loadIssueDialogIssue = async (nextIssueId?: string): Promise<void> => {
     const state = $issueDialogDetails.get();
@@ -1098,9 +1133,10 @@ const removeTrackedIssueDialogItems = (
     idsToRemove: Set<string>,
 ): {removedMain: boolean; removedDependants: boolean} => {
     const change = removeTrackedContentItems($issueDialogDetails.get(), idsToRemove);
+    const pruned = pruneDependantWindow(change.changed ? change.state : $issueDialogDetails.get(), idsToRemove);
 
-    if (change.changed) {
-        $issueDialogDetails.set(change.state);
+    if (change.changed || pruned.changed) {
+        $issueDialogDetails.set(pruned.state);
     }
 
     return {

@@ -13,7 +13,12 @@ import {
     emitContentUpdated,
 } from '../socket.store';
 import {$issueDialog, closeIssueDialog, openIssueDialogDetails} from './issueDialog.store';
-import {$issueDialogDetails, loadIssueDialogItems} from './issueDialogDetails.store';
+import {
+    $issueDialogDetails,
+    $issueDialogDetailsHasMoreDependants,
+    loadIssueDialogItems,
+    loadMoreIssueDialogDependants,
+} from './issueDialogDetails.store';
 import {
     createMockChangeItem,
     createMockContent,
@@ -292,6 +297,27 @@ describe('issueDialogDetails.store', () => {
 
         expect($issueDialogDetails.get().items[0].getDisplayName()).toBe('Published');
         expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
+    });
+
+    it('loads dependant summaries lazily, a window at a time, while the id set stays complete', async () => {
+        const itemId = new ContentId('item-1');
+        const issue = createMockIssue('issue-1', [itemId]);
+        const dependantIds = Array.from({length: 40}, (_, index) => new ContentId(`dep-${index}`));
+
+        mockResolvePublishDependencies.mockResolvedValue(createResolveResult({dependants: dependantIds}));
+        mockFetchContentSummaries.mockImplementation((ids: ContentId[]) =>
+            ids.map(id => createMockContent(id.toString())));
+
+        await openListBackedIssueDetails(issue);
+
+        expect($issueDialogDetails.get().dependantIds).toHaveLength(40);
+        expect($issueDialogDetails.get().dependants).toHaveLength(36);
+        expect($issueDialogDetailsHasMoreDependants.get()).toBe(true);
+
+        await loadMoreIssueDialogDependants();
+
+        expect($issueDialogDetails.get().dependants).toHaveLength(40);
+        expect($issueDialogDetailsHasMoreDependants.get()).toBe(false);
     });
 
     describe('issue server events', () => {
