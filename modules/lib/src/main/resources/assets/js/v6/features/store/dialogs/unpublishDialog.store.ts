@@ -8,7 +8,6 @@ import {fetchContentSummaries} from '../../api/content';
 import {resolveUnpublish, unpublishContent} from '../../api/unpublish';
 import {trackTask, cleanupTask} from '../../services/task.service';
 import {hasContentIdInIds} from '../../utils/cms/content/ids';
-import {sortDependantsByInbound} from '../../utils/cms/content/sortDependants';
 import {createDebounce} from '../../utils/timing/createDebounce';
 import {$contentArchived, $contentCreated, $contentDeleted, $contentUnpublished, $contentUpdated} from '../socket.store';
 
@@ -21,7 +20,9 @@ type UnpublishDialogStore = {
     loading: boolean;
     failed: boolean;
     items: ContentSummary[];
+    dependantIds: ContentId[];
     dependants: ContentSummary[];
+    dependantWindow: number;
     inboundTargets: ContentId[];
     inboundIgnored: boolean;
     referenceIds: string[]; // IDs of content that references items/dependants (for change detection)
@@ -41,7 +42,9 @@ const initialState: UnpublishDialogStore = {
     loading: false,
     failed: false,
     items: [],
+    dependantIds: [],
     dependants: [],
+    dependantWindow: 0,
     inboundTargets: [],
     inboundIgnored: true,
     referenceIds: [],
@@ -62,7 +65,9 @@ export const $unpublishDialogPending = map<UnpublishDialogPendingStore>(initialP
 // * Derived state
 //
 
-export const $unpublishItemsCount = computed($unpublishDialog, ({items, dependants}) => items.length + dependants.length);
+export const $unpublishItemsCount = computed($unpublishDialog, ({items, dependantIds}) => items.length + dependantIds.length);
+
+export const $hasMoreUnpublishDependants = computed($unpublishDialog, ({dependantIds, dependantWindow}) => dependantWindow < dependantIds.length);
 
 export const $isUnpublishTargetSite = computed($unpublishDialog, ({items, dependants}) => {
     return [...items, ...dependants].some(item => item.isSite());
@@ -83,13 +88,73 @@ export const $unpublishTaskId = computed($unpublishDialogPending, ({taskId}) => 
 // ! Guards against stale async results (increment on each dialog lifecycle)
 let instanceId = 0;
 
+const DEPENDANT_LOAD_SIZE = 36;
+
+let loadingMore = false;
+
 //
 // * Helpers
 //
 
 const getAllTargetIds = (): ContentId[] => {
-    const {items, dependants} = $unpublishDialog.get();
-    return [...items, ...dependants].map(item => item.getContentId());
+    const {items, dependantIds} = $unpublishDialog.get();
+    return [...items.map(item => item.getContentId()), ...dependantIds];
+};
+
+const orderDependantIdsByInbound = (ids: ContentId[], inboundTargets: ContentId[]): ContentId[] => {
+    if (inboundTargets.length === 0) {
+        return ids;
+    }
+    const inboundSet = new Set(inboundTargets.map(id => id.toString()));
+    const inbound = ids.filter(id => inboundSet.has(id.toString()));
+    const rest = ids.filter(id => !inboundSet.has(id.toString()));
+    return [...inbound, ...rest];
+};
+
+const orderSummariesByIds = (summaries: ContentSummary[], orderIds: ContentId[]): ContentSummary[] => {
+    const indexById = new Map<string, number>();
+    orderIds.forEach((id, index) => indexById.set(id.toString(), index));
+    const indexOf = (item: ContentSummary): number =>
+        indexById.get(item.getContentId().toString()) ?? orderIds.length;
+    return [...summaries].sort((a, b) => indexOf(a) - indexOf(b));
+};
+
+async function loadUnpublishDependantWindow(allIds: ContentId[], start: number, guardId: number): Promise<void> {
+    const sliceIds = allIds.slice(start, start + DEPENDANT_LOAD_SIZE);
+    const summaries = sliceIds.length > 0 ? await fetchContentSummaries(sliceIds) : [];
+
+    if (guardId !== instanceId) return;
+
+    const {dependants, dependantIds} = $unpublishDialog.get();
+    const currentIds = new Set(dependantIds.map(id => id.toString()));
+    const byId = new Map<string, ContentSummary>();
+    for (const item of [...(start === 0 ? [] : dependants), ...summaries]) {
+        const key = item.getContentId().toString();
+        if (currentIds.has(key)) {
+            byId.set(key, item);
+        }
+    }
+
+    $unpublishDialog.set({
+        ...$unpublishDialog.get(),
+        dependants: orderSummariesByIds([...byId.values()], dependantIds),
+        dependantWindow: Math.min(start + DEPENDANT_LOAD_SIZE, dependantIds.length),
+    });
+}
+
+export const loadMoreUnpublishDependants = async (): Promise<void> => {
+    if (loadingMore) return;
+
+    const {dependantIds, dependantWindow} = $unpublishDialog.get();
+    if (dependantWindow >= dependantIds.length) return;
+
+    loadingMore = true;
+    const guardId = instanceId;
+    try {
+        await loadUnpublishDependantWindow(dependantIds, dependantWindow, guardId);
+    } finally {
+        loadingMore = false;
+    }
 };
 
 //
@@ -212,11 +277,22 @@ const reloadUnpublishDialogData = async (): Promise<void> => {
 
     try {
         const ids = items.map(item => item.getContentId());
-        const {dependants, inboundTargets, referenceIds} = await resolveAllDependantsAndInbound(currentInstance, ids);
+        const {dependantIds: resolvedDependantIds, inboundTargets, referenceIds} = await resolveDependantsAndInbound(currentInstance, ids);
+
+        if (currentInstance !== instanceId) return;
+
+        const dependantIds = orderDependantIdsByInbound(resolvedDependantIds, inboundTargets);
+        const dependants = dependantIds.length > 0
+            ? await fetchContentSummaries(dependantIds.slice(0, DEPENDANT_LOAD_SIZE))
+            : [];
+
+        if (currentInstance !== instanceId) return;
 
         $unpublishDialog.set({
             ...$unpublishDialog.get(),
-            dependants: sortDependantsByInbound(dependants, inboundTargets),
+            dependantIds,
+            dependants: orderSummariesByIds(dependants, dependantIds),
+            dependantWindow: Math.min(DEPENDANT_LOAD_SIZE, dependantIds.length),
             inboundTargets,
             inboundIgnored: inboundTargets.length === 0,
             referenceIds,
@@ -240,20 +316,15 @@ const reloadUnpublishDialogDataDebounced = createDebounce(() => {
     void reloadUnpublishDialogData();
 }, 100);
 
-const resolveAllDependantsAndInbound = async (currentInstance: number, roots: ContentId[]): Promise<{dependants: ContentSummary[]; inboundTargets: ContentId[]; referenceIds: string[]}> => {
+const resolveDependantsAndInbound = async (currentInstance: number, roots: ContentId[]): Promise<{dependantIds: ContentId[]; inboundTargets: ContentId[]; referenceIds: string[]}> => {
     const result = await resolveUnpublish(roots);
 
     if (currentInstance !== instanceId || !result) {
-        return {dependants: [], inboundTargets: [], referenceIds: []};
+        return {dependantIds: [], inboundTargets: [], referenceIds: []};
     }
 
     // Filter out root IDs from dependants
     const dependantIds = result.contentIds.filter(id => !hasContentIdInIds(id, roots));
-    const dependants = await fetchContentSummaries(dependantIds);
-
-    if (currentInstance !== instanceId) {
-        return {dependants: [], inboundTargets: [], referenceIds: []};
-    }
 
     const inboundTargets = result.inboundDependencies.map(dep => dep.id);
 
@@ -262,7 +333,7 @@ const resolveAllDependantsAndInbound = async (currentInstance: number, roots: Co
         dep.inboundDependencies.map(id => id.toString())
     );
 
-    return {dependants, inboundTargets, referenceIds};
+    return {dependantIds, inboundTargets, referenceIds};
 };
 
 //
@@ -270,10 +341,11 @@ const resolveAllDependantsAndInbound = async (currentInstance: number, roots: Co
 //
 
 const removeItemsByIds = (ids: Set<string>): {removedMain: boolean; removedDependant: boolean} => {
-    const {items, dependants} = $unpublishDialog.get();
+    const {items, dependants, dependantIds} = $unpublishDialog.get();
 
     const newItems = items.filter(item => !ids.has(item.getContentId().toString()));
     const newDependants = dependants.filter(item => !ids.has(item.getContentId().toString()));
+    const newDependantIds = dependantIds.filter(id => !ids.has(id.toString()));
 
     const removedMain = newItems.length !== items.length;
     const removedDependant = newDependants.length !== dependants.length;
@@ -283,6 +355,10 @@ const removeItemsByIds = (ids: Set<string>): {removedMain: boolean; removedDepen
     }
     if (removedDependant) {
         $unpublishDialog.setKey('dependants', newDependants);
+    }
+    if (newDependantIds.length !== dependantIds.length) {
+        $unpublishDialog.setKey('dependantIds', newDependantIds);
+        $unpublishDialog.setKey('dependantWindow', Math.min($unpublishDialog.get().dependantWindow, newDependantIds.length));
     }
 
     return {removedMain, removedDependant};
