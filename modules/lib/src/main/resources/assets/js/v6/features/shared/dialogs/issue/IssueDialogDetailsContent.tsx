@@ -25,7 +25,9 @@ import {
     $isIssueDialogDetailsClosed,
     $isIssueDialogDetailsPublishRequest,
     $issueDialogDetails,
+    $issueDialogDetailsHasMoreDependants,
     loadIssueDialogItems,
+    loadMoreIssueDialogDependants,
     openDeleteCommentConfirmation,
     setIssueDialogCommentText,
     setIssueDialogDetailsTab,
@@ -70,7 +72,6 @@ import {IssueIcon} from './IssueIcon';
 import {IssueScheduleForm} from './IssueScheduleForm';
 import {IssueCommentsList} from './comment/IssueCommentsList';
 import {useIssueDialogData} from './hooks/useIssueDialogData';
-import {useIssuePublishTargetIds} from './hooks/useIssuePublishTargetIds';
 
 import type {Issue} from '../../../../../app/issue/Issue';
 import type {IssueWithAssignees} from '../../../../../app/issue/IssueWithAssignees';
@@ -170,6 +171,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         items,
         excludeChildrenIds,
         dependants,
+        dependantIds,
         excludedDependantIds,
         requiredDependantIds,
     } = useStore($issueDialogDetails, {
@@ -190,6 +192,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
             'items',
             'excludeChildrenIds',
             'dependants',
+            'dependantIds',
             'excludedDependantIds',
             'requiredDependantIds',
         ],
@@ -198,6 +201,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const isClosed = useStore($isIssueDialogDetailsClosed);
     const canShowSelectionStatusBar = useStore($canIssueDialogDetailsShowSelectionStatusBar);
     const canPublish = useStore($canIssueDialogDetailsPublish);
+    const hasMoreDependants = useStore($issueDialogDetailsHasMoreDependants);
     const publishCount = useStore($totalPublishableItems);
     const isPublishReady = useStore($isPublishReady);
     const isPublishChecking = useStore($isPublishChecking);
@@ -259,7 +263,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const publishLabel = publishCount > 1 ? publishLabelMultiple : publishLabelSingle;
     const commentCount = comments.length;
     const assigneeCount = issueData?.getApprovers().length ?? 0;
-    const itemsCount = items.length + dependants.length - excludedDependantIds.length;
+    const itemsCount = items.length + dependantIds.length - excludedDependantIds.length;
     const tabs = isPublishRequest
         ? [
             {value: 'items', label: publishRequestLabel, count: itemsCount},
@@ -276,7 +280,6 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [publishView, setPublishView] = useState<PublishView>('main');
     const pendingItemIdsRef = useRef<ContentId[] | null>(null);
-    const publishTargetIds = useIssuePublishTargetIds(items, dependants, excludedDependantIds);
     const publishProgressTotal = Math.max(1, publishCount || items.length || 1);
 
     // Schedule state
@@ -299,10 +302,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         requestAnimationFrame(() => backButtonRef.current?.focus());
     }, []);
 
-    const {options: assigneeOptions, handleSearchChange} = useAssigneeSearch({
-        publishableContentIds: publishTargetIds,
-        useRootFallback: true,
-    });
+    const {options: assigneeOptions, handleSearchChange} = useAssigneeSearch();
 
     useIssueDialogData(issueId, !!issueData);
 
@@ -841,6 +841,8 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                             items={dependants}
                                             getItemId={(item) => item.getId()}
                                             disabled={isItemsDisabled || itemsLoading}
+                                            hasMore={hasMoreDependants}
+                                            onEndReached={loadMoreIssueDialogDependants}
                                             renderRow={(item) => {
                                                 const id = item.getContentId();
                                                 const isRequired = requiredDependantSet.has(id.toString());
@@ -851,13 +853,14 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                                         key={item.getId()}
                                                         content={item}
                                                         id={item.getId()}
-                                                        disabled={isRequired || isItemsDisabled || itemsLoading}
+                                                        disabled={isItemsDisabled || itemsLoading}
                                                     >
                                                         <ContentRow.Checkbox
                                                             checked={included}
                                                             onCheckedChange={(checked) =>
                                                                 handleDependencyChange(id, checked)
                                                             }
+                                                            disabled={isRequired || isItemsDisabled || itemsLoading}
                                                         />
                                                         <ContentRow.Label action="edit" />
                                                         <ContentRow.Status />
