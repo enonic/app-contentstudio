@@ -228,6 +228,7 @@ export const PublishDialogMainContent = ({
                         getItemId={(item) => item.id}
                         emptyMessage={hasExcludedItems ? allExcludedMessage : undefined}
                         disabled={loading}
+                        loading={loading}
                         hasMore={hasMoreDependants}
                         onEndReached={loadMoreDependants}
                         renderRow={(item) => (

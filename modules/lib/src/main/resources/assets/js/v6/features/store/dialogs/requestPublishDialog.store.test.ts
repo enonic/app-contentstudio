@@ -226,6 +226,38 @@ describe('requestPublishDialog.store', () => {
         expect($requestPublishHasMoreDependants.get()).toBe(false);
     });
 
+    it('reloads checks when a dependant beyond the loaded window is removed', async () => {
+        const dependantIds = Array.from({length: 40}, (_, index) => new ContentId(`dep-${index}`));
+        const hiddenInvalidId = dependantIds[39];
+
+        mockResolvePublishDependencies
+            .mockResolvedValueOnce(createResolveResult({
+                dependants: dependantIds,
+                publishable: dependantIds,
+                invalid: [hiddenInvalidId],
+            }))
+            .mockResolvedValueOnce(createResolveResult({
+                dependants: dependantIds.slice(0, 39),
+                publishable: dependantIds.slice(0, 39),
+            }));
+        mockFetchContentSummaries.mockImplementation((ids: ContentId[]) =>
+            ids.map(id => createMockContent(id.toString())));
+
+        openRequestPublishDialog([createMockContent('item-1')]);
+        await flushRequestPublishReload();
+
+        // The invalid dependant sits beyond the loaded window: its summary is never fetched.
+        expect($requestPublishDialog.get().dependants).toHaveLength(36);
+        expect($requestPublishDialogErrors.get().invalid.count).toBe(1);
+
+        emitContentDeleted([createMockChangeItem(hiddenInvalidId.toString())]);
+        await flushRequestPublishReload();
+
+        expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
+        expect($requestPublishDialog.get().dependantIds).toHaveLength(39);
+        expect($requestPublishDialogErrors.get().invalid.count).toBe(0);
+    });
+
     it('patches renamed items without forcing a dependency reload', async () => {
         const original = createMockContent('item-1', {displayName: 'Original name'});
         const renamed = createMockContent('item-1', {displayName: 'Renamed item'});
