@@ -1,5 +1,6 @@
 package com.enonic.app.contentstudio.rest.resource.content;
 
+import com.enonic.app.contentstudio.rest.resource.content.task.TaskPhases;
 import com.enonic.xp.content.DeleteContentListener;
 import com.enonic.xp.task.ProgressReporter;
 
@@ -11,6 +12,8 @@ public final class DeleteContentProgressListener
     private int total = 0;
 
     private int progressCount = 0;
+
+    private boolean started = false;
 
     public DeleteContentProgressListener( final ProgressReporter progressReporter )
     {
@@ -25,6 +28,12 @@ public final class DeleteContentProgressListener
     @Override
     public void contentDeleted( final int count )
     {
+        if ( !started )
+        {
+            started = true;
+            progressReporter.info( TaskPhases.phaseInfo( "delete", total ) );
+        }
+
         progressCount = progressCount + count;
         progressReporter.progress( progressCount, total );
     }

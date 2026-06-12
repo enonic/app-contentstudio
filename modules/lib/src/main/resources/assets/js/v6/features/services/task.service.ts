@@ -21,6 +21,13 @@ type ProgressInfoJson = {
     message: string;
 };
 
+export type TaskPhase = 'unpublish' | 'archive' | 'publish' | 'restore' | 'delete';
+
+export type TaskPhaseInfo = {
+    phase: TaskPhase;
+    count?: number;
+};
+
 export type TaskTrackerConfig = {
     /** Callback when task completes (success, error, or warning) */
     onComplete?: (state: TaskResultState, message: string) => void;
@@ -109,6 +116,25 @@ const handleTaskInfo = (taskIdStr: string, taskInfo: TaskInfo, config: TaskTrack
 //
 // * Public API
 //
+
+/**
+ * Parse the phase marker from a running task's progress info.
+ * Multi-phase tasks report the current phase and the number of items it covers
+ * as JSON: {"phase":"unpublish","count":123}.
+ */
+export const getTaskPhaseInfo = (taskInfo: TaskInfo | undefined): TaskPhaseInfo | undefined => {
+    const info = taskInfo?.getProgress()?.getInfo();
+    if (!info) {
+        return undefined;
+    }
+
+    try {
+        const {phase, count} = JSON.parse(info) as {phase?: TaskPhase; count?: number};
+        return phase ? {phase, count} : undefined;
+    } catch {
+        return undefined;
+    }
+};
 
 /**
  * Start tracking a task's progress.

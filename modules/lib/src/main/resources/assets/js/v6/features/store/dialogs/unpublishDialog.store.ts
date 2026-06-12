@@ -307,7 +307,7 @@ const patchItemsWithUpdates = (updates: ContentSummary[]): {patchedMain: boolean
 
 const isDialogActive = (): boolean => {
     const {open, items} = $unpublishDialog.get();
-    return open && items.length > 0;
+    return open && items.length > 0 && !$unpublishDialogPending.get().submitting;
 };
 
 //

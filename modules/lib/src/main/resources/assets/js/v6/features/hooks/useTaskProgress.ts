@@ -1,7 +1,13 @@
 import type {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {useStore} from '@nanostores/preact';
 import {useEffect, useRef} from 'react';
-import {cleanupTask as cleanupTaskService, trackTask as trackTaskService, type TaskTrackerConfig} from '../services/task.service';
+import {
+    cleanupTask as cleanupTaskService,
+    getTaskPhaseInfo,
+    trackTask as trackTaskService,
+    type TaskPhase,
+    type TaskTrackerConfig,
+} from '../services/task.service';
 import {$taskStore, type TaskProgressState, type TaskResultState} from '../store/task.store';
 import {clampProgress} from '../utils/cms/content/progress';
 
@@ -18,6 +24,10 @@ export type UseTaskProgressResult = {
     resultMessage?: string;
     /** Result state (SUCCESS, ERROR, WARNING) */
     resultState?: TaskResultState;
+    /** Current phase reported by a multi-phase task while running */
+    phase?: TaskPhase;
+    /** Number of items covered by the current phase */
+    phaseTotal?: number;
 };
 
 /**
@@ -77,6 +87,8 @@ export const useTaskProgress = (
         };
     }
 
+    const phaseInfo = getTaskPhaseInfo(taskState.taskInfo);
+
     return {
         progress: clampProgress(taskState.progress),
         state: taskState.state,
@@ -84,6 +96,8 @@ export const useTaskProgress = (
         isError: taskState.state === 'failed',
         resultMessage: taskState.resultMessage,
         resultState: taskState.resultState,
+        phase: phaseInfo?.phase,
+        phaseTotal: phaseInfo?.count,
     };
 };
 

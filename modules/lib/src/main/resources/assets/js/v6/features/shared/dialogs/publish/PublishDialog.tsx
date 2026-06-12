@@ -20,7 +20,7 @@ export const PublishDialog = (): ReactElement => {
     const {open, items} = useStore($publishDialog, {keys: ['open', 'items']});
     const publishCount = useStore($totalPublishableItems);
     const taskId = useStore($publishTaskId);
-    const {progress} = useTaskProgress(taskId);
+    const {progress, phase, phaseTotal} = useTaskProgress(taskId);
 
     const [view, setView] = useState<View>('main');
 
@@ -57,7 +57,11 @@ export const PublishDialog = (): ReactElement => {
                     <PublishDialogMainContent onPublish={() => void handlePublish()} />
                 )}
                 {view === 'progress' && (
-                    <PublishDialogProgressContent total={progressTotal} progress={progress} />
+                    <PublishDialogProgressContent
+                        total={phaseTotal ?? progressTotal}
+                        progress={progress}
+                        resolving={phase == null}
+                    />
                 )}
             </Dialog.Portal>
         </Dialog.Root>
