@@ -206,7 +206,7 @@ export const NewIssueDialogContent = (): ReactElement => {
                                                 id={`main-${item.getId()}`}
                                                 disabled={isItemsDisabled}
                                             >
-                                                <ContentRow.Label action="edit" />
+                                                <ContentRow.Label action="edit" variant="detailed" />
                                                 <ContentRow.Status />
                                                 <ContentRow.RemoveButton
                                                     onRemove={() => removeNewIssueItemsByIds([item.getContentId()])}

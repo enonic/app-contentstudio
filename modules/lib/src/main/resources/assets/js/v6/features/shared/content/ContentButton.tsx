@@ -17,6 +17,9 @@ export const ContentButton = ({
     className,
     ...rest
 }: ContentButtonProps): ReactElement => {
+    const variant = labelVariant ?? 'compact';
+    const isCompact = variant === 'compact';
+
     const handleClick = () => {
         new EditContentEvent([content]).fire();
     };
@@ -24,11 +27,11 @@ export const ContentButton = ({
     return (
         <Button
             data-component={CONTENT_BUTTON_NAME}
-            className={cn('box-content justify-start flex-1 h-6 p-1 -ml-1', labelVariant && 'h-8', className)}
+            className={cn('box-content justify-start flex-1 h-6 p-1 -ml-1', !isCompact && 'h-8', className)}
             onClick={handleClick}
             {...rest}
         >
-            <ContentLabel content={content} variant={labelVariant ?? 'compact'} />
+            <ContentLabel content={content} variant={variant} />
         </Button>
     );
 };

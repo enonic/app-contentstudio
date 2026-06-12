@@ -799,7 +799,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                                             id={`main-${item.getId()}`}
                                                             disabled={isItemsDisabled || itemsLoading}
                                                         >
-                                                            <ContentRow.Label action="edit" />
+                                                            <ContentRow.Label action="edit" variant="detailed" />
                                                             <ContentRow.Status />
                                                             <ContentRow.RemoveButton
                                                                 onRemove={() => handleItemRemoved(item.getContentId())}
