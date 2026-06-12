@@ -9,6 +9,13 @@ import {CreateIssueRequest} from '../../../../app/issue/resource/CreateIssueRequ
 import {fetchContentSummaries} from '../../api/content';
 import {resolvePublishDependencies} from '../../api/publish';
 import {buildItems, dedupeItems, getItemIds} from '../../utils/cms/content/buildItems';
+import {
+    DEPENDANT_LOAD_SIZE,
+    createDependantWindowLoader,
+    fetchDependantWindowSlice,
+    orderSummariesByIds,
+    pruneDependantWindow,
+} from '../../utils/cms/content/dependantWindow';
 import {hasContentIdInIds, uniqueIds} from '../../utils/cms/content/ids';
 import {findContentIdsWithCreatedDescendants} from '../../utils/cms/content/paths';
 import {
@@ -39,6 +46,8 @@ type NewIssueDialogStore = {
     items: ContentSummary[];
     excludeChildrenIds: ContentId[];
     dependants: ContentSummary[];
+    dependantIds: ContentId[];
+    dependantWindow: number;
     excludedDependantIds: ContentId[];
     requiredDependantIds: ContentId[];
     loading: boolean;
@@ -54,6 +63,8 @@ const initialState: NewIssueDialogStore = {
     items: [],
     excludeChildrenIds: [],
     dependants: [],
+    dependantIds: [],
+    dependantWindow: 0,
     excludedDependantIds: [],
     requiredDependantIds: [],
     loading: false,
@@ -65,11 +76,16 @@ export const $newIssueDialog = map<NewIssueDialogStore>(structuredClone(initialS
 
 export const $newIssueDialogCreateCount = computed(
     $newIssueDialog,
-    ({items, dependants, excludedDependantIds}) => {
-        const includedDependants = dependants.filter(item =>
-            !hasContentIdInIds(item.getContentId(), excludedDependantIds));
+    ({items, dependantIds, excludedDependantIds}) => {
+        const includedDependants = dependantIds.filter(id =>
+            !hasContentIdInIds(id, excludedDependantIds));
         return items.length + includedDependants.length;
     },
+);
+
+export const $newIssueDialogHasMoreDependants = computed(
+    $newIssueDialog,
+    ({dependantIds, dependantWindow}) => dependantWindow < dependantIds.length,
 );
 
 let instanceId = 0;
@@ -82,6 +98,8 @@ const resetDependenciesState = (state: NewIssueDialogStore): NewIssueDialogStore
     return {
         ...state,
         dependants: [],
+        dependantIds: [],
+        dependantWindow: 0,
         excludedDependantIds: [],
         requiredDependantIds: [],
         loading: false,
@@ -318,9 +336,10 @@ const patchTrackedNewIssueItems = (
 
 const removeTrackedNewIssueItems = (idsToRemove: Set<string>): {removedMain: boolean; removedDependants: boolean} => {
     const change = removeTrackedContentItems($newIssueDialog.get(), idsToRemove);
+    const pruned = pruneDependantWindow(change.changed ? change.state : $newIssueDialog.get(), idsToRemove);
 
-    if (change.changed) {
-        $newIssueDialog.set(change.state);
+    if (change.changed || pruned.changed) {
+        $newIssueDialog.set(pruned.state);
     }
 
     return {
@@ -395,6 +414,8 @@ $contentPublished.subscribe(onNewIssueSocketEvent((event) => {
     }
 }));
 
+export const loadMoreNewIssueDependants = createDependantWindowLoader($newIssueDialog, () => instanceId);
+
 const reloadNewIssueDependencies = async (): Promise<void> => {
     const currentInstance = ++instanceId;
     const state = $newIssueDialog.get();
@@ -421,24 +442,38 @@ const reloadNewIssueDependencies = async (): Promise<void> => {
             return;
         }
 
-        const dependantIds = result.getDependants()
+        const allDependantIds = result.getDependants()
             .filter(id => !hasContentIdInIds(id, itemIds));
-        const dependants = await fetchContentSummaries(dependantIds);
+
+        const firstWindow = await fetchDependantWindowSlice(allDependantIds, 0);
 
         if (currentInstance !== instanceId) {
             return;
         }
 
+        if (firstWindow.failed) {
+            $newIssueDialog.set({
+                ...$newIssueDialog.get(),
+                loading: false,
+                failed: true,
+            });
+            return;
+        }
+
+        const dependants = orderSummariesByIds(firstWindow.summaries, allDependantIds);
+
         const latestState = $newIssueDialog.get();
         const requiredDependantIds = result.getRequired()
-            .filter(id => hasContentIdInIds(id, dependantIds));
+            .filter(id => hasContentIdInIds(id, allDependantIds));
         const nextExcludedDependantIds = latestState.excludedDependantIds
-            .filter(id => hasContentIdInIds(id, dependantIds))
+            .filter(id => hasContentIdInIds(id, allDependantIds))
             .filter(id => !hasContentIdInIds(id, requiredDependantIds));
 
         $newIssueDialog.set({
             ...latestState,
             dependants,
+            dependantIds: allDependantIds,
+            dependantWindow: Math.min(DEPENDANT_LOAD_SIZE, allDependantIds.length),
             requiredDependantIds,
             excludedDependantIds: nextExcludedDependantIds,
             loading: false,

@@ -10,9 +10,15 @@ import {CreateIssueRequest} from '../../../../app/issue/resource/CreateIssueRequ
 import {fetchContentSummaries} from '../../api/content';
 import {markAsReady, resolvePublishDependencies} from '../../api/publish';
 import {buildItems, dedupeItems, getItemIds} from '../../utils/cms/content/buildItems';
+import {
+    DEPENDANT_LOAD_SIZE,
+    createDependantWindowLoader,
+    fetchDependantWindowSlice,
+    orderSummariesByIds,
+    pruneDependantWindow,
+} from '../../utils/cms/content/dependantWindow';
 import {hasContentIdInIds, uniqueIds} from '../../utils/cms/content/ids';
 import {findContentIdsWithCreatedDescendants} from '../../utils/cms/content/paths';
-import {isOnline} from '../../utils/cms/content/status';
 import {
     createContentIdSet,
     patchTrackedContentItems,
@@ -40,6 +46,9 @@ type RequestPublishDialogStore = {
     items: ContentSummary[];
     excludeChildrenIds: ContentId[];
     dependants: ContentSummary[];
+    dependantIds: ContentId[];
+    dependantWindow: number;
+    publishableContentIds: ContentId[];
     excludedDependantIds: ContentId[];
     requiredDependantIds: ContentId[];
     loading: boolean;
@@ -62,6 +71,9 @@ const initialState: RequestPublishDialogStore = {
     items: [],
     excludeChildrenIds: [],
     dependants: [],
+    dependantIds: [],
+    dependantWindow: 0,
+    publishableContentIds: [],
     excludedDependantIds: [],
     requiredDependantIds: [],
     loading: false,
@@ -82,11 +94,16 @@ const $requestPublishChecks = map<RequestPublishChecksStore>(structuredClone(ini
 
 export const $requestPublishDialogCreateCount = computed(
     $requestPublishDialog,
-    ({items, dependants, excludedDependantIds}) => {
-        const includedDependants = dependants.filter(item =>
-            !hasContentIdInIds(item.getContentId(), excludedDependantIds));
+    ({items, dependantIds, excludedDependantIds}) => {
+        const includedDependants = dependantIds.filter(id =>
+            !hasContentIdInIds(id, excludedDependantIds));
         return items.length + includedDependants.length;
     },
+);
+
+export const $requestPublishHasMoreDependants = computed(
+    $requestPublishDialog,
+    ({dependantIds, dependantWindow}) => dependantWindow < dependantIds.length,
 );
 
 export const $requestPublishDialogErrors = computed(
@@ -111,12 +128,8 @@ export const $requestPublishDialogErrors = computed(
 
 export const $requestPublishPublishableCount = computed(
     $requestPublishDialog,
-    ({items, dependants, excludedDependantIds}) => {
-        const included = [
-            ...items,
-            ...dependants.filter(item => !hasContentIdInIds(item.getContentId(), excludedDependantIds)),
-        ];
-        return included.filter(item => !isOnline(item)).length;
+    ({publishableContentIds, excludedDependantIds}) => {
+        return publishableContentIds.filter(id => !hasContentIdInIds(id, excludedDependantIds)).length;
     },
 );
 
@@ -264,9 +277,17 @@ const removeTrackedRequestPublishItems = (
     idsToRemove: Set<string>,
 ): {removedMain: boolean; removedDependants: boolean} => {
     const change = removeTrackedContentItems($requestPublishDialog.get(), idsToRemove);
+    const pruned = pruneDependantWindow(change.changed ? change.state : $requestPublishDialog.get(), idsToRemove);
 
-    if (change.changed) {
-        $requestPublishDialog.set(change.state);
+    // The publishable set can also reference a removed dependant beyond the loaded window.
+    const nextPublishableIds = pruned.state.publishableContentIds.filter(id => !idsToRemove.has(id.toString()));
+    const publishableChanged = nextPublishableIds.length !== pruned.state.publishableContentIds.length;
+
+    if (change.changed || pruned.changed || publishableChanged) {
+        $requestPublishDialog.set({
+            ...pruned.state,
+            publishableContentIds: nextPublishableIds,
+        });
     }
 
     return {
@@ -292,6 +313,9 @@ const resetDependenciesState = (state: RequestPublishDialogStore): RequestPublis
     return {
         ...state,
         dependants: [],
+        dependantIds: [],
+        dependantWindow: 0,
+        publishableContentIds: [],
         excludedDependantIds: [],
         requiredDependantIds: [],
         loading: false,
@@ -421,8 +445,7 @@ export const setRequestPublishDependantIncluded = (id: ContentId, included: bool
 };
 
 export const excludeInvalidRequestPublishItems = (): void => {
-    const {dependants, excludedDependantIds, requiredDependantIds} = $requestPublishDialog.get();
-    const dependantIds = dependants.map(item => item.getContentId());
+    const {dependantIds, excludedDependantIds, requiredDependantIds} = $requestPublishDialog.get();
     const invalidIds = $requestPublishChecks.get().invalidIds;
     const idsToExclude = invalidIds
         .filter(id => hasContentIdInIds(id, dependantIds))
@@ -439,8 +462,7 @@ export const excludeInvalidRequestPublishItems = (): void => {
 };
 
 export const excludeInProgressRequestPublishItems = (): void => {
-    const {dependants, excludedDependantIds, requiredDependantIds} = $requestPublishDialog.get();
-    const dependantIds = dependants.map(item => item.getContentId());
+    const {dependantIds, excludedDependantIds, requiredDependantIds} = $requestPublishDialog.get();
     const inProgressIds = $requestPublishChecks.get().inProgressIds;
     const idsToExclude = inProgressIds
         .filter(id => hasContentIdInIds(id, dependantIds))
@@ -536,6 +558,8 @@ export const submitRequestPublishDialog = async (): Promise<void> => {
     }
 };
 
+export const loadMoreRequestPublishDependants = createDependantWindowLoader($requestPublishDialog, () => instanceId);
+
 const reloadRequestPublishDependencies = async (): Promise<void> => {
     const currentInstance = ++instanceId;
     const state = $requestPublishDialog.get();
@@ -568,19 +592,31 @@ const reloadRequestPublishDependencies = async (): Promise<void> => {
             return;
         }
 
-        const dependantIds = result.getDependants()
+        const allDependantIds = result.getDependants()
             .filter(id => !hasContentIdInIds(id, itemIds));
-        const dependants = await fetchContentSummaries(dependantIds);
+
+        const firstWindow = await fetchDependantWindowSlice(allDependantIds, 0);
 
         if (currentInstance !== instanceId) {
             return;
         }
 
+        if (firstWindow.failed) {
+            $requestPublishDialog.set({
+                ...$requestPublishDialog.get(),
+                loading: false,
+                failed: true,
+            });
+            return;
+        }
+
+        const dependants = orderSummariesByIds(firstWindow.summaries, allDependantIds);
+
         const latestState = $requestPublishDialog.get();
         const requiredDependantIds = result.getRequired()
-            .filter(id => hasContentIdInIds(id, dependantIds));
+            .filter(id => hasContentIdInIds(id, allDependantIds));
         const nextExcludedDependantIds = latestState.excludedDependantIds
-            .filter(id => hasContentIdInIds(id, dependantIds))
+            .filter(id => hasContentIdInIds(id, allDependantIds))
             .filter(id => !hasContentIdInIds(id, requiredDependantIds));
 
         const invalidIds = result.getInvalid();
@@ -589,7 +625,7 @@ const reloadRequestPublishDependencies = async (): Promise<void> => {
         const isExcludable = (id: ContentId): boolean => {
             return !hasContentIdInIds(id, itemIds) &&
                    !hasContentIdInIds(id, requiredDependantIds) &&
-                   hasContentIdInIds(id, dependantIds);
+                   hasContentIdInIds(id, allDependantIds);
         };
 
         const invalidExcludable = invalidIds.length > 0 && invalidIds.every(id => isExcludable(id));
@@ -598,6 +634,9 @@ const reloadRequestPublishDependencies = async (): Promise<void> => {
         $requestPublishDialog.set({
             ...latestState,
             dependants,
+            dependantIds: allDependantIds,
+            dependantWindow: Math.min(DEPENDANT_LOAD_SIZE, allDependantIds.length),
+            publishableContentIds: result.getPublishable(),
             requiredDependantIds,
             excludedDependantIds: nextExcludedDependantIds,
             loading: false,

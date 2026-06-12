@@ -10,9 +10,11 @@ import {
     $requestPublishDialog,
     $requestPublishDialogCreateCount,
     $requestPublishDialogErrors,
+    $requestPublishHasMoreDependants,
     $requestPublishPublishableCount,
     excludeInProgressRequestPublishItems,
     excludeInvalidRequestPublishItems,
+    loadMoreRequestPublishDependants,
     markAllAsReadyInProgressRequestPublishItems,
     removeRequestPublishItem,
     setRequestPublishAssignees,
@@ -22,7 +24,6 @@ import {
     setRequestPublishTitle,
     submitRequestPublishDialog,
 } from '../../../store/dialogs/requestPublishDialog.store';
-import {uniqueIds} from '../../../utils/cms/content/ids';
 import {useItemsWithUnpublishedChildren} from '../../../utils/cms/content/useItemsWithUnpublishedChildren';
 import {ContentRow, SplitList} from '../../lists';
 import {AssigneeSelector} from '../../selectors/assignee/AssigneeSelector';
@@ -62,6 +63,7 @@ export const RequestPublishDialogContent = (): ReactElement => {
     });
     const createCount = useStore($requestPublishDialogCreateCount);
     const publishableCount = useStore($requestPublishPublishableCount);
+    const hasMoreDependants = useStore($requestPublishHasMoreDependants);
     const isPublishReady = useStore($isRequestPublishReady);
     const {invalid, inProgress} = useStore($requestPublishDialogErrors);
     const {allowContentUpdate} = useStore($config, {keys: ['allowContentUpdate']});
@@ -92,18 +94,7 @@ export const RequestPublishDialogContent = (): ReactElement => {
         [requiredDependantIds],
     );
 
-    const publishTargetIds = useMemo(() => {
-        const includedItems = items.map(item => item.getContentId());
-        const includedDependants = dependants
-            .filter(item => !excludedDependantSet.has(item.getContentId().toString()))
-            .map(item => item.getContentId());
-        return uniqueIds([...includedItems, ...includedDependants]);
-    }, [items, dependants, excludedDependantSet]);
-
-    const {options: assigneeOptions, handleSearchChange} = useAssigneeSearch({
-        publishableContentIds: publishTargetIds,
-        useRootFallback: true,
-    });
+    const {options: assigneeOptions, handleSearchChange} = useAssigneeSearch();
     const selectedAssigneeOptions = useAssigneeSelection({assigneeIds});
 
     const itemsWithUnpublishedChildren = useItemsWithUnpublishedChildren(items);
@@ -263,6 +254,8 @@ export const RequestPublishDialogContent = (): ReactElement => {
                             items={dependants}
                             getItemId={(item) => item.getId()}
                             disabled={isItemsDisabled}
+                            hasMore={hasMoreDependants}
+                            onEndReached={loadMoreRequestPublishDependants}
                             renderRow={(item) => {
                                 const id = item.getContentId();
                                 const isRequired = requiredDependantSet.has(id.toString());
@@ -273,13 +266,14 @@ export const RequestPublishDialogContent = (): ReactElement => {
                                         key={item.getId()}
                                         content={item}
                                         id={item.getId()}
-                                        disabled={isRequired || isItemsDisabled}
+                                        disabled={isItemsDisabled}
                                     >
                                         <ContentRow.Checkbox
                                             checked={included}
                                             onCheckedChange={(checked) =>
                                                 setRequestPublishDependantIncluded(id, checked)
                                             }
+                                            disabled={isRequired || isItemsDisabled}
                                         />
                                         <ContentRow.Label action="edit" />
                                         <ContentRow.Status />

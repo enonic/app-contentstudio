@@ -1,5 +1,5 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import type {ContentId} from '../../../../app/content/ContentId';
+import {ContentId} from '../../../../app/content/ContentId';
 import {
     emitContentArchived,
     emitContentCreated,
@@ -10,6 +10,9 @@ import {
 } from '../socket.store';
 import {
     $newIssueDialog,
+    $newIssueDialogCreateCount,
+    $newIssueDialogHasMoreDependants,
+    loadMoreNewIssueDependants,
     openNewIssueDialog,
     resetNewIssueDialogContext,
 } from './newIssueDialog.store';
@@ -180,6 +183,27 @@ describe('newIssueDialog.store', () => {
 
         expect($newIssueDialog.get().items.map(item => item.getId())).toEqual(['item-1']);
         expect($newIssueDialog.get().items[0].getDisplayName()).toBe('Published');
+    });
+
+    it('loads dependant summaries lazily, a window at a time, while counts use the full id set', async () => {
+        const dependantIds = Array.from({length: 40}, (_, index) => new ContentId(`dep-${index}`));
+
+        mockResolvePublishDependencies.mockResolvedValue(createResolveResult({dependants: dependantIds}));
+        mockFetchContentSummaries.mockImplementation((ids: ContentId[]) =>
+            ids.map(id => createMockContent(id.toString())));
+
+        openNewIssueDialog([createMockContent('item-1')]);
+        await flushNewIssueReload();
+
+        expect($newIssueDialog.get().dependantIds).toHaveLength(40);
+        expect($newIssueDialog.get().dependants).toHaveLength(36);
+        expect($newIssueDialogHasMoreDependants.get()).toBe(true);
+        expect($newIssueDialogCreateCount.get()).toBe(41);
+
+        await loadMoreNewIssueDependants();
+
+        expect($newIssueDialog.get().dependants).toHaveLength(40);
+        expect($newIssueDialogHasMoreDependants.get()).toBe(false);
     });
 
     it('ignores events when the dialog is closed', async () => {
