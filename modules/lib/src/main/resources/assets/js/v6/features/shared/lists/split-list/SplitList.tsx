@@ -139,16 +139,18 @@ function SplitListSecondary<T>({
     emptyMessage,
     className,
     disabled = false,
+    loading = false,
     hasMore = false,
     onEndReached,
 }: SplitListSecondaryProps<T>): ReactElement | null {
     const secondaryLabel = useI18n('field.split.secondary');
 
     // IntersectionObserver clips against the scrolling Dialog.Body anyway, so the
-    // hook's default viewport root is correct here.
+    // hook's default viewport root is correct here. Lazy-loading is gated by
+    // `loading` only: a disabled (read-only) list must still load on scroll.
     const sentinelRef = useInfiniteScroll<HTMLDivElement>({
         hasMore,
-        isLoading: disabled,
+        isLoading: loading,
         onLoadMore: onEndReached ?? NOOP,
     });
 

@@ -292,7 +292,9 @@ const removeTrackedRequestPublishItems = (
 
     return {
         removedMain: change.changedMain,
-        removedDependants: change.changedDependants,
+        // An id-only prune (dependant beyond the loaded window) must also count:
+        // callers rely on this flag to reschedule the reload that refreshes checks.
+        removedDependants: change.changedDependants || pruned.changed,
     };
 };
 

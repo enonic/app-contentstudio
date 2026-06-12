@@ -841,6 +841,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                             items={dependants}
                                             getItemId={(item) => item.getId()}
                                             disabled={isItemsDisabled || itemsLoading}
+                                            loading={itemsLoading}
                                             hasMore={hasMoreDependants}
                                             onEndReached={loadMoreIssueDialogDependants}
                                             renderRow={(item) => {

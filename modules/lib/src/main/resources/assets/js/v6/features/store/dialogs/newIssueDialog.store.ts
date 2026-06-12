@@ -344,7 +344,9 @@ const removeTrackedNewIssueItems = (idsToRemove: Set<string>): {removedMain: boo
 
     return {
         removedMain: change.changedMain,
-        removedDependants: change.changedDependants,
+        // An id-only prune (dependant beyond the loaded window) must also count:
+        // callers rely on this flag to reschedule the dependency reload.
+        removedDependants: change.changedDependants || pruned.changed,
     };
 };
 
