@@ -1,6 +1,6 @@
 package com.enonic.app.contentstudio.rest.resource.content.json;
 
-import java.util.Set;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import com.enonic.app.contentstudio.json.issue.PublishRequestItemJson;
@@ -12,26 +12,26 @@ import com.enonic.xp.issue.PublishRequestItems;
 
 public class PublishRequestJson
 {
-    private Set<String> excludeIds;
+    private List<String> excludeIds;
 
-    private Set<PublishRequestItemJson> items;
+    private List<PublishRequestItemJson> items;
 
-    public void setExcludeIds( final Set<String> excludeIds )
+    public void setExcludeIds( final List<String> excludeIds )
     {
         this.excludeIds = excludeIds;
     }
 
-    public Set<String> getExcludeIds()
+    public List<String> getExcludeIds()
     {
         return excludeIds;
     }
 
-    public Set<PublishRequestItemJson> getItems()
+    public List<PublishRequestItemJson> getItems()
     {
         return items;
     }
 
-    public void setItems( final Set<PublishRequestItemJson> itemsJson )
+    public void setItems( final List<PublishRequestItemJson> itemsJson )
     {
         this.items = itemsJson;
     }
@@ -40,9 +40,9 @@ public class PublishRequestJson
     {
         final PublishRequestJson publishRequestJson = new PublishRequestJson();
         publishRequestJson.setExcludeIds(
-            publishRequest.getExcludeIds().stream().map( ContentId::toString ).collect( Collectors.toSet() ) );
+            publishRequest.getExcludeIds().stream().map( ContentId::toString ).collect( Collectors.toList() ) );
         publishRequestJson.setItems(
-            publishRequest.getItems().stream().map( PublishRequestItemJson::new ).collect( Collectors.toSet() ) );
+            publishRequest.getItems().stream().map( PublishRequestItemJson::new ).collect( Collectors.toList() ) );
 
         return publishRequestJson;
     }

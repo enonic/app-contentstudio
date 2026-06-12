@@ -3,7 +3,6 @@ package com.enonic.app.contentstudio.rest.resource.issue;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -770,8 +769,8 @@ public class IssueResourceTest
 
         final PublishRequestJson publishRequestJson = new PublishRequestJson();
 
-        publishRequestJson.setItems( new HashSet( Arrays.asList( publishRequestItemJson ) ) );
-        publishRequestJson.setExcludeIds( new HashSet( Arrays.asList( "exclude-id" ) ) );
+        publishRequestJson.setItems( Arrays.asList( publishRequestItemJson ) );
+        publishRequestJson.setExcludeIds( Arrays.asList( "exclude-id" ) );
         return publishRequestJson;
     }
 
