@@ -1,6 +1,7 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {type IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
+import {IframeEventBus} from '@enonic/lib-admin-ui/event/IframeEventBus';
 import {type Extension} from '@enonic/lib-admin-ui/extension/Extension';
 import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
 import {type Action} from '@enonic/lib-admin-ui/ui/Action';
@@ -24,6 +25,28 @@ export enum PREVIEW_TYPE {
     EMPTY,
     FAILED,
     MISSING,
+}
+
+// Deferred-render protocol: a renderer whose renderability is only known in the
+// browser (after the server probe passed) declares deferReveal:true in its probe
+// widget data, then posts one RENDER_STATUS_EVENT once it knows. Content Studio
+// holds the loading mask until then and never reveals such a renderer on load.
+// Renderers echo the renderToken Content Studio put on their URL, so messages
+// from a candidate a newer render has superseded can be dropped.
+const RENDER_STATUS_EVENT = 'preview-render-status';
+
+// Safety net only: a correct renderer always posts a status, so this never fires
+// for one. It reveals anyway if a renderer dies without reporting, so a bug cannot
+// wedge the mask open. Kept above the wrapper's own 4s probe timeout.
+const RENDER_STATUS_TIMEOUT_MS = 6000;
+
+type RenderStatus = 'ready' | 'unavailable';
+
+interface RenderStatusData {
+    status?: RenderStatus;
+    contentId?: string;
+    renderToken?: string;
+    message?: string;
 }
 
 export class ExtensionRenderingHandler {
@@ -52,6 +75,25 @@ export class ExtensionRenderingHandler {
 
     protected renderableChangedListeners: ((isRenderable: boolean, wasRenderable: boolean) => void)[] = [];
 
+    private failedExtensions: Set<string> = new Set<string>();
+
+    private renderedExtension: Extension;
+
+    private renderedInAutoMode: boolean = false;
+
+    private lastSelectedMode: Extension;
+
+    private awaitingVerdict: boolean = false;
+
+    private verdictTimeout: number;
+
+    // render() bumps renderSeq; handlePreviewSuccess records the rendered candidate as shownSeq.
+    // An iframe load whose shownSeq trails renderSeq belongs to a candidate a newer render has
+    // already superseded (e.g. one that lost its verdict), so it must not reveal that content.
+    private renderSeq: number = 0;
+
+    private shownSeq: number = 0;
+
 
     constructor(renderer: ExtensionRenderer, previewHelper?: PreviewActionHelper) {
         this.renderer = renderer;
@@ -65,6 +107,7 @@ export class ExtensionRenderingHandler {
     public async render(summary: ContentSummary, extension: Extension): Promise<boolean> {
 
         const deferred = Q.defer<boolean>();
+        const renderSeq = ++this.renderSeq;
 
         const wasRenderable = await this.isItemRenderable();
         this.itemRenderable = deferred.promise;
@@ -75,8 +118,13 @@ export class ExtensionRenderingHandler {
             return;
         }
 
+        if (!this.summary?.getContentId().equals(summary.getContentId())) {
+            this.failedExtensions.clear();
+        }
         this.summary = summary;
         this.lastRenderKey = this.getRenderKey(summary, extension);
+        this.lastSelectedMode = extension;
+        this.clearVerdictWait(false);
 
         this.showMask();
         this.renderer.getPreviewAction()?.setEnabled(false);
@@ -84,13 +132,13 @@ export class ExtensionRenderingHandler {
 
         $isWidgetRenderable.set(false);
 
-        return this.doRender(summary, extension)
+        return this.doRender(summary, extension, renderSeq)
             .then((result) => {
                 isRenderable = result.isRenderable();
                 $isWidgetRenderable.set(isRenderable);
 
                 if (isRenderable) {
-                    this.handlePreviewSuccess(result.getResponse(), result.getData());
+                    this.handlePreviewSuccess(result.getResponse(), result.getData(), renderSeq);
                 } else {
                     // handle last item failure meaning no one was successful
                     this.handlePreviewFailure(result.getResponse(), result.getData());
@@ -177,9 +225,18 @@ export class ExtensionRenderingHandler {
         this.messageLabel.setProps({messages, showIcon: true});
     }
 
-    protected handlePreviewSuccess(response: Response, data: Record<string, never>) {
+    protected handlePreviewSuccess(response: Response, data: Record<string, never>, renderSeq: number = this.renderSeq) {
         this.renderer.getPreviewAction()?.setEnabled(true);
         this.setPreviewType(PREVIEW_TYPE.SUCCESS);
+
+        this.shownSeq = renderSeq;
+
+        // A renderer that defers its reveal stays masked until its render-status arrives,
+        // in every mode - so an explicitly selected one cannot flash a spinner either.
+        this.awaitingVerdict = Boolean(data?.deferReveal);
+        if (this.awaitingVerdict) {
+            this.verdictTimeout = window.setTimeout(() => this.clearVerdictWait(true), RENDER_STATUS_TIMEOUT_MS);
+        }
 
         const contentType = response.headers.get('content-type');
         let mainType = 'other';
@@ -233,12 +290,14 @@ export class ExtensionRenderingHandler {
         return {};
     }
 
-    private async doRender(summary: ContentSummary, selectedMode: Extension): Promise<RenderResult> {
+    private async doRender(summary: ContentSummary, selectedMode: Extension, renderToken: number): Promise<RenderResult> {
         if (!selectedMode || !summary) {
             return new RenderResult();
         }
         const isAuto = selectedMode.getDescriptorKey().getName() === WIDGET_AUTO_DESCRIPTOR;
-        const items = isAuto ? $autoModeWidgets.get() : [selectedMode];
+        const items = isAuto
+            ? $autoModeWidgets.get().filter((item) => !this.failedExtensions.has(item.getDescriptorKey().toString()))
+            : [selectedMode];
         let response: Response;
         let extension: Extension;
         let isOk: boolean;
@@ -248,7 +307,8 @@ export class ExtensionRenderingHandler {
             this.previewHelper.setPreviewUrl(selectedMode);
         }
         for (extension of items) {
-            const url = this.previewHelper.getUrl(summary, extension, this.mode) + '&auto=' + isAuto;
+            const url = this.previewHelper.getUrl(summary, extension, this.mode) + '&auto=' + isAuto
+                        + '&renderToken=' + renderToken;
             response = await fetch(url, {method: 'HEAD', credentials: 'include'});
 
             data = this.extractPreviewData(response);
@@ -265,6 +325,10 @@ export class ExtensionRenderingHandler {
             if (isOk) {
                 break;
             }
+        }
+        if (isOk) {
+            this.renderedExtension = extension;
+            this.renderedInAutoMode = isAuto;
         }
         if (isAuto && isOk) {
             // don't save the final url, because they are different for different modes
@@ -331,6 +395,57 @@ export class ExtensionRenderingHandler {
         return `${summary?.getId() ?? ''}:${extension?.getDescriptorKey().toString() ?? ''}`;
     }
 
+    protected handleRenderStatus(data: RenderStatusData) {
+        if (!this.summary || data?.contentId !== this.summary.getContentId().toString()) {
+            return; // stale: a different content is selected now
+        }
+        if (data?.renderToken != null && Number(data.renderToken) !== this.renderSeq) {
+            return; // stale: a newer render has superseded this candidate
+        }
+        if (data?.status === 'ready') {
+            this.clearVerdictWait(true);
+            return;
+        }
+        if (!this.renderedInAutoMode || !this.renderedExtension) {
+            // explicit selection: Content Studio owns the failure view
+            this.showUnavailable(data?.message);
+            return;
+        }
+        const failedKey = this.renderedExtension.getDescriptorKey().toString();
+        if (this.failedExtensions.has(failedKey)) {
+            return;
+        }
+        const hasOtherCandidates = $autoModeWidgets.get()
+            .some((item) => {
+                const key = item.getDescriptorKey().toString();
+                return key !== failedKey && !this.failedExtensions.has(key);
+            });
+        if (!hasOtherCandidates) {
+            // last candidate: Content Studio shows its own failure view, not the renderer's
+            this.showUnavailable(data?.message);
+            return;
+        }
+        this.failedExtensions.add(failedKey);
+        void this.render(this.summary, this.lastSelectedMode);
+    }
+
+    private showUnavailable(message?: string) {
+        this.clearVerdictWait(false);
+        this.setPreviewType(PREVIEW_TYPE.FAILED, message ? [message] : undefined);
+        this.hideMask();
+    }
+
+    private clearVerdictWait(reveal: boolean) {
+        if (this.verdictTimeout) {
+            window.clearTimeout(this.verdictTimeout);
+            this.verdictTimeout = null;
+        }
+        this.awaitingVerdict = false;
+        if (reveal) {
+            this.hideMask();
+        }
+    }
+
     protected handleEmulatorEvent(device: EmulatorDevice) {
         if (this.messageView) {
             this.messageView.getEl().setWidth(device.getWidthWithUnits());
@@ -357,11 +472,20 @@ export class ExtensionRenderingHandler {
     protected bindListeners() {
         ViewExtensionEvent.on(this.handleExtensionEvent.bind(this));
         EmulatedDeviceEvent.listen(this.handleEmulatorEvent.bind(this));
+        IframeEventBus.get().onEvent(RENDER_STATUS_EVENT, (event) => {
+            // the bus delivers the parsed message detail, not an IframeEvent
+            this.handleRenderStatus(event as unknown as RenderStatusData);
+        });
 
         const iframe = this.renderer.getIFrameEl();
         let unsubscribeTheme: () => void;
         iframe.onLoaded((event: UIEvent) => {
             if (this.previewType === PREVIEW_TYPE.EMPTY) {
+                return;
+            }
+            // Ignore a load for a candidate a newer render has superseded; revealing it would
+            // briefly flash the outgoing candidate before the next one renders.
+            if (this.shownSeq !== this.renderSeq) {
                 return;
             }
             // Subscribe to theme changes to update image background
@@ -374,7 +498,9 @@ export class ExtensionRenderingHandler {
                 }
             });
 
-            this.hideMask();
+            if (!this.awaitingVerdict) {
+                this.hideMask();
+            }
 
             const frameWindow = iframe.getHTMLElement()['contentWindow'];
 
@@ -395,9 +521,13 @@ export class ExtensionRenderingHandler {
         if (this.renderer.hasClass('empty-preview')) {
             return;
         }
+        // The 'loading' class hides the iframe wrapper via CSS, so it must apply even when
+        // the panel has no layout yet - e.g. the first render after a full page reload -
+        // otherwise the iframe paints uncovered before the panel becomes visible. The spinner
+        // needs a laid-out panel to position over, so it stays gated on visibility.
+        this.renderer.addClass('loading');
         if (this.renderer.isVisible()) {
             this.renderer.getMask()?.show();
-            this.renderer.addClass('loading');
         }
     }
 
