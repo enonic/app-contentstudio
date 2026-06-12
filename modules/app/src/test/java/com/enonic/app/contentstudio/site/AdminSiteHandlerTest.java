@@ -99,16 +99,27 @@ class AdminSiteHandlerTest
     }
 
     @Test
-    void inlineAddsFrameAncestorsAndKeepsScriptAndStyle()
+    void inlineAddsFrameAncestorsAndLeavesTheRestOfThePolicyAlone()
         throws Exception
     {
         this.portalRequest.setMode( RenderMode.INLINE );
-        final String nonce = this.portalRequest.getContentSecurityPolicy().nonceScriptSrc();
+
+        doHandle();
+
+        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo( "frame-ancestors 'self'" );
+    }
+
+    @Test
+    void inlineKeepsTheSitesOwnScriptSrc()
+        throws Exception
+    {
+        this.portalRequest.setMode( RenderMode.INLINE );
+        this.portalRequest.getContentSecurityPolicy().add( "script-src", "'self'" );
 
         doHandle();
 
         assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo(
-            "frame-ancestors 'self'; script-src 'nonce-" + nonce + "'" );
+            "frame-ancestors 'self'; script-src 'self'" );
     }
 
     @Test

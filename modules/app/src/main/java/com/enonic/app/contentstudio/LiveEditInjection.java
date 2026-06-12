@@ -88,7 +88,15 @@ public final class LiveEditInjection
         {
             if ( htmlTag == HtmlTag.BODY_END )
             {
-                return Collections.singletonList( injectUsingTemplate( this.inlineBodyEndTemplate, makeModelForInjection( portalRequest ) ) );
+                final Map<String, String> model = makeModelForInjection( portalRequest );
+                // ride along with the request nonce only if the rendered page already minted one (a
+                // strict, nonce-based site policy); minting here would become the page's only
+                // script-src entry and block the site's own scripts
+                model.put( "nonceAttr", portalRequest.getContentSecurityPolicy()
+                    .mintedNonce()
+                    .map( nonce -> " nonce=\"" + nonce + "\"" )
+                    .orElse( "" ) );
+                return Collections.singletonList( injectUsingTemplate( this.inlineBodyEndTemplate, model ) );
             }
         }
         finally
@@ -100,7 +108,11 @@ public final class LiveEditInjection
 
     private String injectBodyEnd( final PortalRequest portalRequest )
     {
-        return injectUsingTemplate( this.bodyEndTemplate, makeModelForInjection( portalRequest ) );
+        final Map<String, String> model = makeModelForInjection( portalRequest );
+        // nonceScriptSrc() also wires 'nonce-…' into script-src; in inline preview that would become
+        // the only script-src entry and block the site's own scripts, so only edit mode stamps it
+        model.put( "nonce", portalRequest.getContentSecurityPolicy().nonceScriptSrc() );
+        return injectUsingTemplate( this.bodyEndTemplate, model );
     }
 
     private String injectUsingTemplate( final String template, final Map<String, String> model )
@@ -115,7 +127,6 @@ public final class LiveEditInjection
         params.application( "com.enonic.app.contentstudio" );
         map.put( "assetsUrl", portalUrlService.assetUrl( params ) );
         map.put( "project", resolveProject( portalRequest ) );
-        map.put( "nonce", portalRequest.getContentSecurityPolicy().nonceScriptSrc() );
         return map;
     }
 

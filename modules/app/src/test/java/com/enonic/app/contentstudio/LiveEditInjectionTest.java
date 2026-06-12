@@ -24,8 +24,10 @@ import com.enonic.xp.portal.url.PortalUrlService;
 import com.enonic.xp.project.ProjectName;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
@@ -90,6 +92,36 @@ class LiveEditInjectionTest
         assertNotNull( result );
         final String nonce = this.portalRequest.getContentSecurityPolicy().nonceScriptSrc();
         assertEquals( readResource( "liveEditInjectionBodyEnd.html" ).trim().replace( "{{nonce}}", nonce ), result.trim() );
+    }
+
+    @Test
+    public void testInjectInlineBodyEndDoesNotTouchScriptSrc()
+    {
+        mockPortalUrlService();
+        this.portalRequest.setMode( RenderMode.INLINE );
+        this.portalRequest.setRawRequest( this.request );
+        this.portalRequest.setRepositoryId( ProjectName.from( "myproject" ).getRepoId() );
+
+        final List<String> list = this.injection.inject( this.portalRequest, this.portalResponse, HtmlTag.BODY_END );
+        assertNotNull( list );
+
+        final String result = list.get( 0 );
+        assertFalse( result.contains( "nonce" ) );
+        assertEquals( "", this.portalRequest.getContentSecurityPolicy().build() );
+    }
+
+    @Test
+    public void testInjectInlineBodyEndRidesAlongWithAMintedNonce()
+    {
+        mockPortalUrlService();
+        this.portalRequest.setMode( RenderMode.INLINE );
+        this.portalRequest.setRawRequest( this.request );
+        this.portalRequest.setRepositoryId( ProjectName.from( "myproject" ).getRepoId() );
+        final String nonce = this.portalRequest.getContentSecurityPolicy().nonceScriptSrc();
+
+        final List<String> list = this.injection.inject( this.portalRequest, this.portalResponse, HtmlTag.BODY_END );
+        assertNotNull( list );
+        assertTrue( list.get( 0 ).contains( " nonce=\"" + nonce + "\"" ) );
     }
 
     private HttpServletRequest mockCurrentContextHttpRequest()
