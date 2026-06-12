@@ -200,7 +200,11 @@ public class AdminSiteHandler
                 .frameSrc( CspSource.WILDCARD )
                 .mediaSrc( CspSource.WILDCARD )
                 .objectSrc( CspSource.NONE )
-                .reset( "script-src", "style-src" );
+                .connectSrc( CspSource.SELF )
+                .reset( "script-src", "style-src" )
+                .scriptSrc( CspSource.SELF )
+                .styleSrc( CspSource.WILDCARD, CspSource.UNSAFE_INLINE )
+                .nonceScriptSrc();
         }
         else if ( mode == RenderMode.PREVIEW && !nullToEmpty( previewContentSecurityPolicy ).isBlank() )
         {

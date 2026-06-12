@@ -115,6 +115,7 @@ public final class LiveEditInjection
         params.application( "com.enonic.app.contentstudio" );
         map.put( "assetsUrl", portalUrlService.assetUrl( params ) );
         map.put( "project", resolveProject( portalRequest ) );
+        map.put( "nonce", portalRequest.getContentSecurityPolicy().nonceScriptSrc() );
         return map;
     }
 
