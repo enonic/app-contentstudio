@@ -6,9 +6,11 @@ import {Branch} from '../../../../../app/versioning/Branch';
 import {useI18n} from '../../../hooks/useI18n';
 import {useOnceWhen} from '../../../hooks/useOnce';
 import {
+    $hasMoreUnpublishDependants,
     $isUnpublishDialogReady, $unpublishDialog,
     $unpublishInboundIds,
-    $unpublishItemsCount, ignoreUnpublishInboundDependencies
+    $unpublishItemsCount, ignoreUnpublishInboundDependencies,
+    loadMoreUnpublishDependants
 } from '../../../store/dialogs/unpublishDialog.store';
 import {ContentReferenceList} from '../ContentReferenceList';
 import {InboundStatusBar} from '../status-bar/InboundStatusBar';
@@ -28,6 +30,7 @@ export const UnpublishDialogMainContent = ({
         {keys: ['loading', 'failed', 'items', 'dependants', 'inboundIgnored']});
     const ready = useStore($isUnpublishDialogReady);
     const total = useStore($unpublishItemsCount);
+    const hasMoreDependants = useStore($hasMoreUnpublishDependants);
     const inboundIds = useStore($unpublishInboundIds);
     const inboundSet = useMemo(() => new Set(inboundIds), [inboundIds]);
     const isInbound = useCallback((content: ContentSummary) =>
@@ -85,6 +88,8 @@ export const UnpublishDialogMainContent = ({
                     isInbound={isInbound}
                     label={title}
                     dependantVariant='compact'
+                    hasMore={hasMoreDependants}
+                    onEndReached={loadMoreUnpublishDependants}
                 />
             </Dialog.Body>
 
