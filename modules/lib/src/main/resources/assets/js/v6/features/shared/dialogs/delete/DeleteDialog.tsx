@@ -27,7 +27,7 @@ export const DeleteDialog = (): ReactElement => {
     const total = useStore($deleteItemsCount);
     const hasSite = useStore($isDeleteTargetSite);
     const taskId = useStore($deleteTaskId);
-    const {progress} = useTaskProgress(taskId);
+    const {progress, phase, phaseTotal} = useTaskProgress(taskId);
 
     const [view, setView] = useState<View>('main');
 
@@ -97,8 +97,9 @@ export const DeleteDialog = (): ReactElement => {
                 />}
                 {view === 'progress' && (
                     <DeleteDialogProgressContent
-                        total={progressTotal}
+                        total={phaseTotal ?? progressTotal}
                         progress={progress}
+                        phase={phase}
                     />
                 )}
             </Dialog.Portal>

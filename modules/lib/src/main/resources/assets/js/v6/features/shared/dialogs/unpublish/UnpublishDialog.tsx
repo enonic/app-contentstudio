@@ -24,7 +24,7 @@ export const UnpublishDialog = (): ReactElement => {
     const total = useStore($unpublishItemsCount);
     const hasSite = useStore($isUnpublishTargetSite);
     const taskId = useStore($unpublishTaskId);
-    const {progress} = useTaskProgress(taskId);
+    const {progress, phase, phaseTotal} = useTaskProgress(taskId);
 
     const [view, setView] = useState<View>('main');
 
@@ -82,8 +82,9 @@ export const UnpublishDialog = (): ReactElement => {
                 />}
                 {view === 'progress' &&
                     <UnpublishDialogProgressContent
-                        total={total || items.length || 1}
+                        total={phaseTotal ?? (total || items.length || 1)}
                         progress={progress}
+                        resolving={phase == null}
                     />
                 }
             </Dialog.Portal>

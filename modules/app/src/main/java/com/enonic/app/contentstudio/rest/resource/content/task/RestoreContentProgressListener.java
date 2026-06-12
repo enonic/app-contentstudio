@@ -12,6 +12,8 @@ public final class RestoreContentProgressListener
 
     private int progressCount = 0;
 
+    private boolean started = false;
+
     public RestoreContentProgressListener( final ProgressReporter progressReporter )
     {
         this.progressReporter = progressReporter;
@@ -25,6 +27,12 @@ public final class RestoreContentProgressListener
     @Override
     public void contentRestored( final int count )
     {
+        if ( !started )
+        {
+            started = true;
+            progressReporter.info( TaskPhases.phaseInfo( "restore", total ) );
+        }
+
         progressCount = progressCount + count;
         progressReporter.progress( progressCount, total );
     }

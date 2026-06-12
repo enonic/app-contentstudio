@@ -6,16 +6,21 @@ import java.util.stream.Collectors;
 import com.google.common.base.Strings;
 
 import com.enonic.app.contentstudio.rest.resource.archive.json.RestoreContentJson;
+import com.enonic.app.contentstudio.rest.resource.content.query.ContentQueryWithChildren;
+import com.enonic.xp.archive.ArchiveConstants;
 import com.enonic.xp.archive.RestoreContentException;
 import com.enonic.xp.archive.RestoreContentParams;
 import com.enonic.xp.archive.RestoreContentsResult;
 import com.enonic.xp.content.Content;
+import com.enonic.xp.content.ContentConstants;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.Contents;
 import com.enonic.xp.content.GetContentByIdsParams;
+import com.enonic.xp.context.ContextAccessor;
+import com.enonic.xp.context.ContextBuilder;
 import com.enonic.app.contentstudio.json.task.AbstractRunnableTask;
 import com.enonic.xp.task.ProgressReporter;
 import com.enonic.xp.task.TaskId;
@@ -43,11 +48,22 @@ public class RestoreRunnableTask
         final ContentIds contentToRestoreIds = params.getContentIds().stream().map( ContentId::from ).collect( ContentIds.collector() );
         progressReporter.info( "Restoring content" );
 
-        final RestoreContentProgressListener listener = new RestoreContentProgressListener( progressReporter );
-        listener.setTotal( contentToRestoreIds.getSize() );
-
         final Contents contentsToRestore =
             contentService.getByIds( GetContentByIdsParams.create().contentIds( contentToRestoreIds ).build() );
+
+        final ContentIds childrenIds = ContextBuilder.from( ContextAccessor.current() )
+            .attribute( ContentConstants.CONTENT_ROOT_PATH_ATTRIBUTE, ArchiveConstants.ARCHIVE_ROOT_PATH )
+            .build()
+            .callWith( () -> ContentQueryWithChildren.create()
+                .contentService( this.contentService )
+                .contentsPaths( contentsToRestore.getPaths() )
+                .size( -1 )
+                .build()
+                .find()
+                .getContentIds() );
+
+        final RestoreContentProgressListener listener = new RestoreContentProgressListener( progressReporter );
+        listener.setTotal( contentToRestoreIds.getSize() + childrenIds.getSize() );
 
         RestoreRunnableTaskResult.Builder result = RestoreRunnableTaskResult.create();
 
