@@ -254,6 +254,7 @@ export const RequestPublishDialogContent = (): ReactElement => {
                             items={dependants}
                             getItemId={(item) => item.getId()}
                             disabled={isItemsDisabled}
+                            loading={loading}
                             hasMore={hasMoreDependants}
                             onEndReached={loadMoreRequestPublishDependants}
                             renderRow={(item) => {

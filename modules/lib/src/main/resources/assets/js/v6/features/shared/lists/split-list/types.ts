@@ -42,6 +42,8 @@ export type SplitListSecondaryProps<T> = {
     emptyMessage?: string;
     className?: string;
     disabled?: boolean;
+    /** When true, a load is in progress; suspends the end-reached trigger. */
+    loading?: boolean;
     /** When true, more items can be lazy-loaded as the user scrolls to the end. */
     hasMore?: boolean;
     /** Invoked when the end of the list is scrolled into view (lazy-load trigger). */
