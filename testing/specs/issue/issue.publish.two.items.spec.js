@@ -60,8 +60,8 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
             await issueDetailsDialog.clickOnItemsTabItem();
             // 3. Verify the items to publish:
             let result = await issueDetailsDialogItemsTab.getMainItemsToPublishDisplayName();
-            assert.ok(result.includes("/" + folder2.displayName));
-            assert.ok(result.includes("/" + folder1.displayName));
+            assert.ok(result.includes(folder2.displayName), 'Expected folder 2 should be present in the main items to publish');
+            assert.ok(result.includes(folder1.displayName), 'Expected folder 1 should be present in the main items to publish');
             let actualNumber = await issueDetailsDialog.getNumberInItemsTab();
             assert.equal(actualNumber, '2', '2 items to publish should be present in the dialog');
             let status = await issueDetailsDialogItemsTab.getContentStatus(folder1.name);

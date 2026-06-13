@@ -179,7 +179,7 @@ export const PublishDialogMainContent = ({
                                         id={item.id}
                                         disabled={loading}
                                     >
-                                        <ContentRow.Label action="edit" />
+                                        <ContentRow.Label action="edit" variant="detailed" />
                                         <PublishDialogItemStatus />
                                         <ContentRow.RemoveButton
                                             onRemove={() => removePublishDialogItem(item.content.getContentId())}
