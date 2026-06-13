@@ -35,9 +35,10 @@ function applySecurityPolicy() {
     const marketApi = configLib.getMarketApi();
     const baseMarketUrl = marketApi.substring(0, marketApi.indexOf('/', 9));
 
-    // script-src stays 'self' 'unsafe-inline' (no nonce/'strict-dynamic'): CKEditor 4 writes
-    // inline scripts into its editing iframe that cannot carry a per-request nonce, and a nonce
-    // or 'strict-dynamic' would disable 'unsafe-inline' and break the editor.
+    // script-src stays 'self' 'unsafe-inline' (no nonce/'strict-dynamic'): the admin tool hosts
+    // CKEditor 4 (htmlArea inputs and the text-component editor), which writes inline scripts into
+    // its own editing iframe that cannot carry a per-request nonce; a nonce or 'strict-dynamic'
+    // would disable 'unsafe-inline' and break the editor.
     csp.strict()
         .defaultSrc(portal.CspSource.SELF)
         .connectSrc(portal.CspSource.SELF, baseMarketUrl)

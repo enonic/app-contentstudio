@@ -108,7 +108,11 @@ public final class LiveEditInjection
 
     private String injectBodyEnd( final PortalRequest portalRequest )
     {
-        return injectUsingTemplate( this.bodyEndTemplate, makeModelForInjection( portalRequest ) );
+        final Map<String, String> model = makeModelForInjection( portalRequest );
+        // Edit mode locks script-src to 'self' plus the request nonce, so the injected editor
+        // bootstrap must carry that nonce to load.
+        model.put( "nonce", portalRequest.getContentSecurityPolicy().nonceScriptSrc() );
+        return injectUsingTemplate( this.bodyEndTemplate, model );
     }
 
     private String injectUsingTemplate( final String template, final Map<String, String> model )

@@ -195,9 +195,6 @@ public class AdminSiteHandler
 
         if ( mode == RenderMode.EDIT )
         {
-            // script-src is 'self' 'unsafe-inline' (no nonce): the page editor runs CKEditor 4, which
-            // writes inline scripts that cannot carry a per-request nonce; a nonce would disable
-            // 'unsafe-inline' and break inline text editing.
             policy.imgSrc( CspSource.WILDCARD, CspSource.DATA )
                 .fontSrc( CspSource.WILDCARD, CspSource.DATA )
                 .frameSrc( CspSource.WILDCARD )
@@ -205,8 +202,9 @@ public class AdminSiteHandler
                 .objectSrc( CspSource.NONE )
                 .connectSrc( CspSource.SELF )
                 .reset( "script-src", "style-src" )
-                .scriptSrc( CspSource.SELF, CspSource.UNSAFE_INLINE )
-                .styleSrc( CspSource.WILDCARD, CspSource.UNSAFE_INLINE );
+                .scriptSrc( CspSource.SELF )
+                .styleSrc( CspSource.WILDCARD, CspSource.UNSAFE_INLINE )
+                .nonceScriptSrc();
         }
         else if ( mode == RenderMode.PREVIEW && !nullToEmpty( previewContentSecurityPolicy ).isBlank() )
         {

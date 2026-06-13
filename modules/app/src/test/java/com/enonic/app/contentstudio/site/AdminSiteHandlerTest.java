@@ -70,6 +70,7 @@ class AdminSiteHandlerTest
         throws Exception
     {
         this.portalRequest.setMode( RenderMode.EDIT );
+        final String nonce = this.portalRequest.getContentSecurityPolicy().nonceScriptSrc();
         this.portalRequest.getContentSecurityPolicy()
             .add( "style-src", "'sha256-xyz'" )
             .add( "img-src", "'self'" );
@@ -78,7 +79,7 @@ class AdminSiteHandlerTest
 
         assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo(
             "connect-src 'self'; font-src * data:; frame-ancestors 'self'; frame-src *; img-src 'self' * data:; media-src *; " +
-                "object-src 'none'; script-src 'self' 'unsafe-inline'; style-src * 'unsafe-inline'" );
+                "object-src 'none'; script-src 'self' 'nonce-" + nonce + "'; style-src * 'unsafe-inline'" );
     }
 
     @Test
@@ -90,9 +91,10 @@ class AdminSiteHandlerTest
 
         doHandle();
 
+        final String nonce = this.portalRequest.getContentSecurityPolicy().nonceScriptSrc();
         assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo(
             "base-uri 'none'; connect-src 'self'; default-src 'none'; font-src * data:; frame-ancestors 'self'; frame-src *; " +
-                "img-src * data:; media-src *; object-src 'none'; script-src 'self' 'unsafe-inline'; " +
+                "img-src * data:; media-src *; object-src 'none'; script-src 'self' 'nonce-" + nonce + "'; " +
                 "style-src * 'unsafe-inline'" );
     }
 
