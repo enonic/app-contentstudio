@@ -7,7 +7,7 @@ const XPATH = {
     container: `//div[@data-component='UnpublishDialogMainContent']`,
     dialogHeader: "//h2[contains(.,'Unpublish item')]",
     mainListItemsDisplayName: `//div[@role='separator']/preceding::div[@data-component='ContentListItemWithReference']//div[@data-component='ContentLabel']//span[following-sibling::small]`,
-    dependantListItemDisplayName: `//div[@role='separator']/following::div[@data-component='ContentListItemWithReference']//div[@data-component='ContentLabel']//span[following-sibling::small]`,
+    dependantListItemPath: `//div[@role='separator']/following::div[@data-component='ContentListItemWithReference']//div[@data-component='ContentLabel']//span[contains(@class,'font-semibold')]`,
     showReferencesButton(displayName) {
         return `//div[contains(@id,'ArchiveSelectableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]/button[contains(@id,'ActionButton') and child::span[text()='Show references']]`;
     },
@@ -105,12 +105,12 @@ class ContentUnpublishDialog extends Page {
     }
 
     async getDependentItemsPath() {
-        let locator = XPATH.container + XPATH.dependantListItemDisplayName;
+        let locator = XPATH.container + XPATH.dependantListItemPath;
         return await this.getTextInDisplayedElements(locator);
     }
 
     getDependentItemsName() {
-        let locator = XPATH.container + XPATH.dependantListItemDisplayName;
+        let locator = XPATH.container + XPATH.dependantListItemPath;
         return this.getTextInDisplayedElements(locator);
     }
 
