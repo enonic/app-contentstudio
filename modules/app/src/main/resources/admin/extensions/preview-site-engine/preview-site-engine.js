@@ -5,10 +5,14 @@ const adminLib = require('/lib/xp/admin');
 const appLib = require('/lib/xp/app');
 const schemaLib = require('/lib/xp/schema');
 const contextLib = require('/lib/xp/context');
+const portalLib = require('/lib/xp/portal');
 
 const SHORTCUT_TYPE = 'base:shortcut';
 
 exports.get = function (req) {
+    // Returns data/redirect consumed by the client, never a document; lock down so a direct
+    // browser navigation to this endpoint is inert.
+    portalLib.csp().strict();
     let params;
     try {
         params = widgetLib.validateParams(req.params);

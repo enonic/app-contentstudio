@@ -6,6 +6,7 @@ const contextLib = require('/lib/xp/context');
 const contentLib = require('/lib/xp/content');
 const exportLib = require('/lib/xp/export');
 const adminLib = require('/lib/xp/admin');
+const portalLib = require('/lib/xp/portal');
 
 function jsonResponse(status, data) {
     return {
@@ -139,6 +140,8 @@ function handleImport(req) {
 }
 
 exports.get = function (req) {
+    // Fetch-only API: lock down so a direct browser navigation to this endpoint is inert.
+    portalLib.csp().strict();
     if (req.params.action === 'list') {
         return handleList(req);
     }
@@ -146,6 +149,7 @@ exports.get = function (req) {
 };
 
 exports.post = function (req) {
+    portalLib.csp().strict();
     if (req.params.action === 'export') {
         return handleExport(req);
     }
