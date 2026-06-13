@@ -12,6 +12,7 @@ import com.enonic.xp.content.ContentService;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.RenderMode;
 import com.enonic.xp.project.ProjectService;
+import com.enonic.xp.web.HttpStatus;
 import com.enonic.xp.web.WebResponse;
 import com.enonic.xp.web.exception.ExceptionMapper;
 import com.enonic.xp.web.exception.ExceptionRenderer;
@@ -160,6 +161,19 @@ class AdminSiteHandlerTest
         doHandle();
 
         assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo( "script-src 'self'" );
+    }
+
+    @Test
+    void previewErrorPageStaysFramableByContentStudio()
+        throws Exception
+    {
+        activate( "default-src 'self'" );
+        this.portalRequest.setMode( RenderMode.PREVIEW );
+        when( this.chain.handle( any(), any() ) ).thenReturn( WebResponse.create().status( HttpStatus.NOT_FOUND ).build() );
+
+        doHandle();
+
+        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo( "frame-ancestors 'self'" );
     }
 
     @Test

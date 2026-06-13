@@ -206,9 +206,19 @@ public class AdminSiteHandler
                 .styleSrc( CspSource.WILDCARD, CspSource.UNSAFE_INLINE )
                 .nonceScriptSrc();
         }
-        else if ( mode == RenderMode.PREVIEW && !nullToEmpty( previewContentSecurityPolicy ).isBlank() )
+        else if ( mode == RenderMode.PREVIEW )
         {
-            policy.addPolicy().resetTo( previewContentSecurityPolicy ).nonceScriptSrc();
+            if ( response.getStatus().is4xxClientError() || response.getStatus().is5xxServerError() )
+            {
+                // Keep the error page (e.g. 404 for non-renderable content) framable by Content
+                // Studio so it shows in the preview panel; a successful preview keeps the page's
+                // own policy.
+                policy.frameAncestors( CspSource.SELF );
+            }
+            else if ( !nullToEmpty( previewContentSecurityPolicy ).isBlank() )
+            {
+                policy.addPolicy().resetTo( previewContentSecurityPolicy ).nonceScriptSrc();
+            }
         }
         return response;
     }

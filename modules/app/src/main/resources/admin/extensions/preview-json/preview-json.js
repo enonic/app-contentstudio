@@ -5,6 +5,10 @@ const portalLib = require('/lib/xp/portal');
 
 exports.get = function (req) {
 
+    // Every response, including the 4xx/5xx error pages, is shown in the Content Studio preview
+    // iframe, so it must stay framable by same-origin Content Studio.
+    portalLib.csp().frameAncestors(portalLib.CspSource.SELF);
+
     let params;
     try {
         params = widgetLib.validateParams(req.params);
