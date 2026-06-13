@@ -116,7 +116,7 @@ describe('content.unpublish.dialog.spec tests for unpublish modal dialog', funct
             // 5. Verify the child item is in the dependent block:
             let dependentItems = await contentUnpublishDialog.getDependentItemsPath();
             assert.equal(dependentItems.length, 1, 'One item should be present in the dependent list');
-            assert.ok(dependentItems[0].includes('Templates'), 'Templates folder should be present in the dependent list');
+            assert.ok(dependentItems[0].includes('_templates'), 'Templates folder path should be present in the dependent list');
         });
 
     it("GIVEN published folder and site are selected WHEN Unpublish dialog has been opened THEN two main items and one dependent item should be displayed in the dialog",
@@ -137,7 +137,7 @@ describe('content.unpublish.dialog.spec tests for unpublish modal dialog', funct
             // one item should be displayed in dependent block:
             let dependentItems = await contentUnpublishDialog.getDependentItemsPath();
             assert.equal(dependentItems.length, 1, 'One item should be present in the dependent list');
-            assert.ok(dependentItems[0].includes('Templates'), 'Templates folder should be present in the dependent list');
+            assert.ok(dependentItems[0].includes('_templates'), 'Templates folder path should be present in the dependent list');
 
             // 3. Verify the label in Unpublish button - 3 items should be unpublished (site, _templates, test-folder)
             let result = await contentUnpublishDialog.getNumberInUnpublishButton();

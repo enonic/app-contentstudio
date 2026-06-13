@@ -19,7 +19,7 @@ export const ContentRowLabel = ({
         <GridList.Cell data-component={CONTENT_ROW_LABEL_NAME} className={className ?? 'flex-1 min-w-0'}>
             {action === 'edit' ? (
                 <GridList.Action>
-                    <ContentButton content={content} disabled={disabled} />
+                    <ContentButton content={content} disabled={disabled} labelVariant={labelVariant} />
                 </GridList.Action>
             ) : (
                 <ContentLabel content={content} variant={labelVariant} />

@@ -23,7 +23,7 @@ export type ContentRowCheckboxProps = {
 
 export type ContentRowLabelProps = {
     action?: 'edit' | 'none';
-    variant?: 'default' | 'compact';
+    variant?: 'default' | 'compact' | 'detailed';
     className?: string;
 };
 

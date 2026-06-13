@@ -10,9 +10,10 @@ const xpath = {
     reopenRequestButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Request']]`,
     includeChildrenToggler: `//div[contains(@id,'IncludeChildrenToggler')]`,
     itemsToPublish: `//div[contains(@id,'TogglableStatusSelectionItem')]`,
-    // Main items live in SplitList.Primary; dependencies in SplitList.Secondary. Name = ContentLabel font-semibold span.
+    // Main items live in SplitList.Primary; dependencies in SplitList.Secondary.
+    // In the 'detailed' label variant the full path is the secondary <small> line (display name is the font-semibold span).
     mainListItemsPath:
-        `//div[@data-component='SplitList.Primary']//div[@data-component='ContentLabel']//span[contains(@class,'font-semibold')]`,
+        `//div[@data-component='SplitList.Primary']//div[@data-component='ContentLabel']//small`,
     dependantListItemDisplayName:
         `//div[@data-component='SplitList.Secondary']//div[@data-component='ContentLabel']//span[contains(@class,'font-semibold')]`,
     selectionItemByDisplayName:

@@ -84,6 +84,7 @@ export const UnpublishDialogMainContent = ({
                     branch={Branch.DRAFT}
                     isInbound={isInbound}
                     label={title}
+                    dependantVariant='compact'
                 />
             </Dialog.Body>
 
