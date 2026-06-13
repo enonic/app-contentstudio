@@ -11,7 +11,7 @@ const AI_CONTENT_OPERATOR_APP_KEY = 'com.enonic.app.ai.contentoperator';
 exports.renderTemplate = function (params) {
     const view = resolve('./main.html');
 
-    params.nonce = applySecurityPolicy();
+    applySecurityPolicy();
 
     return {
         contentType: 'text/html',
@@ -21,7 +21,7 @@ exports.renderTemplate = function (params) {
 
 function applySecurityPolicy() {
     if (app.config['contentSecurityPolicy.enabled'] === 'false') {
-        return undefined;
+        return;
     }
 
     const csp = portal.csp();
@@ -29,25 +29,25 @@ function applySecurityPolicy() {
     const configuredPolicy = app.config['contentSecurityPolicy.header'];
     if (configuredPolicy) {
         csp.resetTo(configuredPolicy);
-        return undefined;
+        return;
     }
 
     const marketApi = configLib.getMarketApi();
     const baseMarketUrl = marketApi.substring(0, marketApi.indexOf('/', 9));
 
+    // script-src stays 'self' 'unsafe-inline' (no nonce/'strict-dynamic'): CKEditor 4 writes
+    // inline scripts into its editing iframe that cannot carry a per-request nonce, and a nonce
+    // or 'strict-dynamic' would disable 'unsafe-inline' and break the editor.
     csp.strict()
         .defaultSrc(portal.CspSource.SELF)
         .connectSrc(portal.CspSource.SELF, baseMarketUrl)
-        .scriptSrc(portal.CspSource.STRICT_DYNAMIC)
-        .scriptSrcAttr(portal.CspSource.UNSAFE_INLINE)
+        .scriptSrc(portal.CspSource.SELF, portal.CspSource.UNSAFE_INLINE)
         .styleSrc(portal.CspSource.SELF, portal.CspSource.UNSAFE_INLINE)
         .imgSrc(portal.CspSource.SELF, portal.CspSource.DATA)
         .fontSrc(portal.CspSource.SELF, portal.CspSource.DATA)
         .objectSrc(portal.CspSource.NONE)
         .formAction(portal.CspSource.SELF)
         .frameAncestors(portal.CspSource.SELF);
-
-    return csp.nonceScriptSrc();
 }
 
 exports.getParams = function (path, locales) {

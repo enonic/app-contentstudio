@@ -108,11 +108,7 @@ public final class LiveEditInjection
 
     private String injectBodyEnd( final PortalRequest portalRequest )
     {
-        final Map<String, String> model = makeModelForInjection( portalRequest );
-        // nonceScriptSrc() also wires 'nonce-…' into script-src; in inline preview that would become
-        // the only script-src entry and block the site's own scripts, so only edit mode stamps it
-        model.put( "nonce", portalRequest.getContentSecurityPolicy().nonceScriptSrc() );
-        return injectUsingTemplate( this.bodyEndTemplate, model );
+        return injectUsingTemplate( this.bodyEndTemplate, makeModelForInjection( portalRequest ) );
     }
 
     private String injectUsingTemplate( final String template, final Map<String, String> model )

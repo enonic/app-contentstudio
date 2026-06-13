@@ -90,8 +90,7 @@ class LiveEditInjectionTest
 
         final String result = list.get( 0 );
         assertNotNull( result );
-        final String nonce = this.portalRequest.getContentSecurityPolicy().nonceScriptSrc();
-        assertEquals( readResource( "liveEditInjectionBodyEnd.html" ).trim().replace( "{{nonce}}", nonce ), result.trim() );
+        assertEquals( readResource( "liveEditInjectionBodyEnd.html" ).trim(), result.trim() );
     }
 
     @Test

@@ -12,7 +12,7 @@
     <title>{{appName}} - Enonic XP Admin</title>
 
     <!-- Set theme before styles are loaded to prevent flash of incorrect theme -->
-    <script nonce="{{nonce}}">
+    <script>
         try {
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             const stored = localStorage.getItem('enonic:cs:app');
@@ -65,7 +65,7 @@
 
     {{#isAiEnabled}}
     <!-- Seed window.Enonic.AI so async plugin bundles can register before initAiHost() runs -->
-    <script nonce="{{nonce}}">
+    <script>
         (function () {
             window.Enonic = window.Enonic || {};
             var ai = window.Enonic.AI = window.Enonic.AI || {};
@@ -78,24 +78,24 @@
     {{#aiContentOperatorAssetsUrl}}
     <!-- Append AI Content Operator -->
     <script type="text/javascript" src="{{aiContentOperatorAssetsUrl}}/index.js" data-locales="{{aiLocales}}"
-            data-asset-url="{{aiContentOperatorAssetsUrl}}" nonce="{{nonce}}" async></script>
+            data-asset-url="{{aiContentOperatorAssetsUrl}}" async></script>
     {{/aiContentOperatorAssetsUrl}}
 
     {{#aiTranslatorAssetsUrl}}
     <!-- Append AI Translator -->
     <script type="text/javascript" src="{{aiTranslatorAssetsUrl}}/index.js" data-locales="{{aiLocales}}"
-            data-asset-url="{{aiTranslatorAssetsUrl}}" nonce="{{nonce}}" async></script>
+            data-asset-url="{{aiTranslatorAssetsUrl}}" async></script>
     {{/aiTranslatorAssetsUrl}}
 </head>
 <body>
 <!-- App javascript -->
 
 {{^isBrowseMode}}
-<script type="text/javascript" src="{{assetsUri}}/lib/ckeditor.js" data-asset-url="{{assetsUri}}" nonce="{{nonce}}" defer></script>
+<script type="text/javascript" src="{{assetsUri}}/lib/ckeditor.js" data-asset-url="{{assetsUri}}" defer></script>
 {{/isBrowseMode}}
 
 
 <script type="application/json" id="{{configScriptId}}">{{{configAsJson}}}</script>
-<script type="text/javascript" src="{{assetsUri}}/js/main.js" data-config-script-id="{{configScriptId}}" nonce="{{nonce}}" defer></script>
+<script type="text/javascript" src="{{assetsUri}}/js/main.js" data-config-script-id="{{configScriptId}}" defer></script>
 </body>
 </html>
