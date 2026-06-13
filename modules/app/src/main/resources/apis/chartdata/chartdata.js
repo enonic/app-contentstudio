@@ -1,6 +1,5 @@
 const contextLib = require('/lib/xp/context');
 const contentLib = require('/lib/xp/content');
-const portalLib = require('/lib/xp/portal');
 const helper = require('/helpers/dashboard-helper');
 
 const daysAgo = 30;
@@ -31,8 +30,6 @@ const getFormattedDateXDaysAgo = (days) => {
 const dateFilterValue = getFormattedDateXDaysAgo(daysAgo);
 
 const handleGet = () => {
-    // Fetch-only API: lock down so a direct browser navigation to this endpoint is inert.
-    portalLib.csp().strict();
     const projects = helper.getProjects();
     const activityMap = getStatsFromAllRepos(projects);
 

@@ -1,9 +1,6 @@
 const router = require('/lib/router')();
-const portalLib = require('/lib/xp/portal');
 
 exports.all = function (req) {
-    // Fetch-only CSS endpoint: lock down so a direct browser navigation to it is inert.
-    portalLib.csp().strict();
     return router.dispatch(req);
 };
 

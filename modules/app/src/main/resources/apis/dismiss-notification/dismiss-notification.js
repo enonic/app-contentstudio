@@ -2,11 +2,8 @@
 
 const authLib = require('/lib/xp/auth');
 const configLib = require('/lib/config');
-const portalLib = require('/lib/xp/portal');
 
 exports.post = function (req) {
-    // Fetch-only API: lock down so a direct browser navigation to this endpoint is inert.
-    portalLib.csp().strict();
     let version;
     if (req.body) {
         version = JSON.parse(req.body).version;

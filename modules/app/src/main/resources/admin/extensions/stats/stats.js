@@ -6,16 +6,12 @@ const adminLib = require('/lib/xp/admin');
 const i18nLib = require('/lib/xp/i18n');
 const projectLib = require('/lib/xp/project');
 const staticLib = require('/lib/enonic/static');
-const portalLib = require('/lib/xp/portal');
 const router = require('/lib/router')();
 const issueFetcher = __.newBean('com.enonic.app.contentstudio.widget.issues.IssueFetcher');
 
 const STATIC_BASE_PATH = '/_static';
 
 exports.all = function (req) {
-    // Fetched and injected into the admin shell, so the host page's CSP governs the widget; this
-    // tight policy only takes effect if the endpoint is navigated to directly, keeping it inert.
-    portalLib.csp().strict();
     return router.dispatch(req);
 };
 

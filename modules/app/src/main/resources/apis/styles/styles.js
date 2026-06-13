@@ -1,11 +1,8 @@
 /*global __*/
 
 var adminLib = require('/lib/xp/admin');
-var portalLib = require('/lib/xp/portal');
 
 exports.GET = function (req) {
-    // Fetch-only API: lock down so a direct browser navigation to this endpoint is inert.
-    portalLib.csp().strict();
     var contentId = req.params.contentId;
     var project = req.params.project || 'default';
     if (!contentId) {

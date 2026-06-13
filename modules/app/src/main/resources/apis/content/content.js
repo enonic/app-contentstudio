@@ -2,11 +2,8 @@
 
 var contentLib = require('/lib/xp/content');
 var contextLib = require('/lib/xp/context');
-var portalLib = require('/lib/xp/portal');
 
 exports.get = function (req) {
-    // Fetch-only API: lock down so a direct browser navigation to this endpoint is inert.
-    portalLib.csp().strict();
     var contentId = req.params.contentId;
 
     if (!contentId) {
