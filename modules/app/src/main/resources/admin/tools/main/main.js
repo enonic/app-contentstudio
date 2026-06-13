@@ -11,7 +11,7 @@ const AI_CONTENT_OPERATOR_APP_KEY = 'com.enonic.app.ai.contentoperator';
 exports.renderTemplate = function (params) {
     const view = resolve('./main.html');
 
-    applySecurityPolicy();
+    params.nonce = applySecurityPolicy(params.isBrowseMode);
 
     return {
         contentType: 'text/html',
@@ -19,9 +19,9 @@ exports.renderTemplate = function (params) {
     };
 };
 
-function applySecurityPolicy() {
+function applySecurityPolicy(isBrowseMode) {
     if (app.config['contentSecurityPolicy.enabled'] === 'false') {
-        return;
+        return undefined;
     }
 
     const csp = portal.csp();
@@ -29,26 +29,35 @@ function applySecurityPolicy() {
     const configuredPolicy = app.config['contentSecurityPolicy.header'];
     if (configuredPolicy) {
         csp.resetTo(configuredPolicy);
-        return;
+        return undefined;
     }
 
     const marketApi = configLib.getMarketApi();
     const baseMarketUrl = marketApi.substring(0, marketApi.indexOf('/', 9));
 
-    // script-src stays 'self' 'unsafe-inline' (no nonce/'strict-dynamic'): the admin tool hosts
-    // CKEditor 4 (htmlArea inputs and the text-component editor), which writes inline scripts into
-    // its own editing iframe that cannot carry a per-request nonce; a nonce or 'strict-dynamic'
-    // would disable 'unsafe-inline' and break the editor.
     csp.strict()
         .defaultSrc(portal.CspSource.SELF)
         .connectSrc(portal.CspSource.SELF, baseMarketUrl)
-        .scriptSrc(portal.CspSource.SELF, portal.CspSource.UNSAFE_INLINE)
         .styleSrc(portal.CspSource.SELF, portal.CspSource.UNSAFE_INLINE)
         .imgSrc(portal.CspSource.SELF, portal.CspSource.DATA)
         .fontSrc(portal.CspSource.SELF, portal.CspSource.DATA)
         .objectSrc(portal.CspSource.NONE)
         .formAction(portal.CspSource.SELF)
         .frameAncestors(portal.CspSource.SELF);
+
+    if (!isBrowseMode) {
+        // The content wizard loads CKEditor 4, which writes inline scripts into its own editing
+        // iframe that cannot carry a per-request nonce; a nonce or 'strict-dynamic' would disable
+        // 'unsafe-inline' and break the editor. So the wizard document falls back to 'unsafe-inline'.
+        csp.scriptSrc(portal.CspSource.SELF, portal.CspSource.UNSAFE_INLINE);
+        return undefined;
+    }
+
+    // The browse view loads no CKEditor, so script-src stays nonce-based with 'strict-dynamic'.
+    csp.scriptSrc(portal.CspSource.STRICT_DYNAMIC)
+        .scriptSrcAttr(portal.CspSource.UNSAFE_INLINE);
+
+    return csp.nonceScriptSrc();
 }
 
 exports.getParams = function (path, locales) {
