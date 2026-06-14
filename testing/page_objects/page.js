@@ -628,7 +628,11 @@ class Page {
         }
     }
 
-    clickOnCloseBrowserTab() {
+    async navigateBack() {
+       return this.getBrowser().back();
+    }
+
+    async clickOnCloseBrowserTab() {
         return this.getBrowser().execute('window.close();');
     }
 

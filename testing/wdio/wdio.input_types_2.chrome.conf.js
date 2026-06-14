@@ -25,7 +25,11 @@ exports.config = {
         path.join(__dirname, '../specs/content-types-2/occurrences.image.selector.spec.js'),
         path.join(__dirname, '../specs/content-types-2/article.allow.child.cfg.spec.js'),
         path.join(__dirname, '../specs/content-types-2/site.with.applications.spec.js'),
+        path.join(__dirname, '../specs/content-types-2/itemset.title.label.spec.js'),
+        path.join(__dirname, '../specs/content-types-2/datetime.config.spec.js'),
+        path.join(__dirname, '../specs/content-types-2/display.source.button.spec.js'),
         path.join(__dirname, '../specs/content-types-2/fieldset.content.spec.js'),
+
 
 
     ],

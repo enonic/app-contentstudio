@@ -12,6 +12,7 @@ const DateForm = require('../../page_objects/wizardpanel/date.form.panel');
 const DateTimePickerPopup = require('../../page_objects/wizardpanel/time/date.time.picker.popup');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const VersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
 describe('datetime.config.spec: tests for datetime content ', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -68,8 +69,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             await contentWizard.waitForMarkAsReadyButtonVisible();
         });
 
-    // TODO bug, selection in grid
-    it.skip("GIVEN wizard for new Date(1:1) is opened AND date in december has been saved WHEN the content has been reopened THEN expected date should be present",
+    it("GIVEN wizard for new Date(1:1) is opened AND date in december has been saved WHEN the content has been reopened THEN expected date should be present",
         async () => {
             let dateForm = new DateForm();
             let contentWizard = new ContentWizard();
@@ -78,22 +78,23 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             // 2. Save a date:
             await contentWizard.typeDisplayName(DATE_NAME);
             await dateForm.typeDate(0, DATE_IN_DECEMBER);
-            let aa = await dateForm.getValueInDateInput(0);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
             await studioUtils.saveScreenshot('date_content_saved');
             // 3. Reopen te content
             await studioUtils.doCloseWizardAndSwitchToGrid();
             // 4. Verify the saved date:
-            await studioUtils.selectAndOpenContentInWizard(DATE_NAME);
+            await studioUtils.findContentAndClickCheckBox(DATE_NAME);
+            let contentBrowsePanel = new ContentBrowsePanel();
+            await contentBrowsePanel.clickOnEditButton();
+            await studioUtils.doSwitchToNewWizard();
             let actualDAte = await dateForm.getValueInDateInput(0);
             assert.equal(actualDAte, DATE_IN_DECEMBER, 'Expected and actual dates should be equal');
             await contentWizard.waitUntilInvalidIconDisappears();
         });
 
     // TODO bug versions
-    it.skip(
-        "GIVEN existing Date(1:1) content is opened AND the date has been updated WHEN the previous version has been reverted THEN expected date should appear",
+    it.skip("GIVEN existing Date(1:1) content is opened AND the date has been updated WHEN the previous version has been reverted THEN expected date should appear",
         async () => {
             let dateForm = new DateForm();
             let contentWizard = new ContentWizard();
@@ -170,7 +171,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             // 1. Open wizard for new dateTime 1:1
             await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.DATE_TIME_1_1);
             // 2. Fill in the name input and click on Save button:
-            await contentWizard.typeDisplayName(DATE_TIME_NAME_2);
+            await contentWizard.typeDisplayName(appConst.generateRandomName("dt"));
             await dateTimeForm.typeDatetime(0, VALID_DATE_TIME1);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
@@ -210,7 +211,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             // 3. Verify the expected validation message appears:
             await timeForm.waitForOccurrenceValidationRecordingDisplayedAt(0, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED);
             // 4. Verify that the content is invalid:
-            await contentWizard.waitUntilInvalidIconAppears();
+            await contentWizard.waitForMarkAsReadyButtonVisible();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

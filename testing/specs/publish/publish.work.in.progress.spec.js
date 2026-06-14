@@ -9,6 +9,7 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
+const ContentUnpublishDialog = require('../../page_objects/content.unpublish.dialog');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const TextComponentCke = require('../../page_objects/components/text.component');
@@ -56,6 +57,7 @@ describe('publish.work.in.progress.spec - publishes work in progress content', f
             let contentWizard = new ContentWizard();
             let contentPublishDialog = new ContentPublishDialog();
             let confirmValueDialog = new ConfirmValueDialog();
+            let unpublishDialog = new ContentUnpublishDialog();
             // 1. Open an existing site (work in progress)
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
@@ -68,7 +70,8 @@ describe('publish.work.in.progress.spec - publishes work in progress content', f
             await contentPublishDialog.waitForDialogClosed();
             await contentWizard.waitForNotificationMessage();
             // 4. Open Unpublish modal dialog:
-            let unpublishDialog = await contentWizard.clickOnUnpublishButton();
+            await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.UNPUBLISH);
+            await unpublishDialog.waitForDialogOpened();
             await unpublishDialog.clickOnUnpublishButton();
             await confirmValueDialog.waitForDialogOpened();
             // 5. Fill in the input for required number of items:
@@ -117,7 +120,7 @@ describe('publish.work.in.progress.spec - publishes work in progress content', f
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            await pageComponentView.openMenu('main');
+            await pageComponentView.rightClickAndOpenContextMenu('main');
             // 3. Insert Text Component with test text and save it:
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.typeTextInEditor('test text');

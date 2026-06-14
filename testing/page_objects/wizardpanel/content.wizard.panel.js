@@ -486,6 +486,7 @@ class ContentWizardPanel extends Page {
         return await this.getText(this.displayNameControl);
     }
 
+    // rename button:
     async getNameInToolbar() {
         let locator = XPATH.toolbar + XPATH.nameInToolbarButton;
         await this.waitForElementDisplayed(locator, appConst.shortTimeout);
@@ -1055,9 +1056,10 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    waitForValidationPathMessageDisplayed() {
-        let locator = XPATH.wizardHeader + `//span[@class='path-error']`;
-        return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+    async waitForValidationPathMessageDisplayed() {
+        let locator = XPATH.nameInToolbarButton + `[contains(@class,'text-error')]`;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
     }
 
     async clickOnRenameNameButton(name) {

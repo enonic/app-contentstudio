@@ -1,27 +1,30 @@
 /**
- * Created on 21.03.2019.
+ * Created on 21.03.2019. updated on 11.06.2026
  */
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
 const xpath = {
-    container:"//div[@data-component ='LiveViewImageEditor']",
+    container: "//div[@data-component='LiveViewImageEditor']",
     captionTextArea: "//textarea[contains(@name,'caption')]",
     alternativeText: `//input[contains(@name,'altText')]`,
-    imageEditor: "//div[contains(@id,'ImageEditor')]",
-    buttonReset: "//button[contains(@class,'button-reset') and child::span[text()='Reset filters']]",
-    buttonRotate: "//button[contains(@class,'button-rotate')]",
-    buttonFlip: "//button[contains(@title,'Flip')]",
-    buttonCrop: "//button[contains(@class,'button-crop')]",
-    buttonFocus: "//button[contains(@class,'button-focus')]",
+    imageEditor: "//div[@data-component='ImageUploaderInput']",
+    buttonReset: "//button[@data-component='Button' and contains(.,'Reset')]",
+    buttonRotate: "//button[@data-component='IconButton' and descendant::*[name()='svg' and contains(@class,'lucide-rotate-cw')]]",
+    buttonFlip: "//button[@data-component='IconButton' and descendant::*[name()='svg' and contains(@class,'lucide-flip-horizontal')]]",
+    buttonCrop: "//button[@data-component='IconButton' and descendant::*[name()='svg' and contains(@class,'lucide-crop')]]",
+    buttonFocus: "//button[@data-component='IconButton' and descendant::*[name()='svg' and contains(@class,'lucide-focus')]]",
+    // TODO: zoom slider is not present in the new Image Editor (v6) - update after UX is clarified:
     zoomContainer: "//div[@class='zoom-container']",
     zoomLine: "//div[@class='zoom-line']",
     zoomKnob: "//span[@class='zoom-knob']",
-    resetAutofocusButton: "//button[contains(@id,'Button') and child::span[text()='Reset Autofocus']]",
-    resetMaskButton: "//button[contains(@id,'Button') and child::span[text()='Reset Mask']]",
-    closeEditModeButton: "//button[contains(@class,'close-button')]",
-    buttonApply: "//button[child::span[text()='Apply']]",
+    // Single contextual 'Reset' button replaces 'Reset filters', 'Reset Mask' and 'Reset Autofocus':
+    resetAutofocusButton: "//button[@data-component='Button' and contains(.,'Reset')]",
+    resetMaskButton: "//button[@data-component='Button' and contains(.,'Reset')]",
+    closeEditModeButton: "//button[@data-component='IconButton' and descendant::*[name()='svg' and contains(@class,'lucide-x')]]",
+    buttonApply: "//button[@data-component='Button' and contains(.,'Apply')]",
+    // TODO: crop has no drag handles in the new editor (area is drawn with two clicks) - update doCropImage:
     cropHandle: "//*[name()='svg' and contains(@id,'ImageEditor-dragHandle')]//*[name()='circle']",
-    focusCircle: "//*[name()='svg']/*[name()='g' and contains(@class,'focus-group')]",
+    focusCircle: "//*[name()='svg']//*[name()='circle' and @fill='none' and @stroke='red']",
 };
 
 class ImageEditor extends Page {
@@ -86,10 +89,10 @@ class ImageEditor extends Page {
         try {
             await this.waitForElementDisplayed(this.buttonFlip, appConst.mediumTimeout);
             await this.waitForElementEnabled(this.buttonFlip, appConst.longTimeout);
-            await this.pause(1200);
             await this.clickOnElement(this.buttonFlip);
-            await this.waitForSpinnerNotVisible(appConst.longTimeout);
-            return await this.pause(700);
+            // flip switches the editor to 'loading' mode, wait for 'ready' mode again:
+            await this.waitForElementEnabled(this.buttonFlip, appConst.longTimeout);
+            return await this.pause(300);
         } catch (err) {
             await this.handleError('Image Editor, button flip', 'err_click_on_flip_button', err);
         }
@@ -99,10 +102,10 @@ class ImageEditor extends Page {
         try {
             await this.waitForElementDisplayed(this.buttonRotate, appConst.mediumTimeout);
             await this.waitForElementEnabled(this.buttonRotate, appConst.longTimeout);
-            await this.pause(1000);
             await this.clickOnElement(this.buttonRotate);
-            await this.waitForSpinnerNotVisible(appConst.longTimeout);
-            return await this.pause(700);
+            // rotate switches the editor to 'loading' mode, wait for 'ready' mode again:
+            await this.waitForElementEnabled(this.buttonRotate, appConst.longTimeout);
+            return await this.pause(300);
         } catch (err) {
             await this.handleError('Image Editor, button rotate', 'err_click_on_rotate_button', err);
         }
@@ -112,7 +115,6 @@ class ImageEditor extends Page {
         try {
             await this.waitForElementEnabled(this.buttonResetFilters, appConst.mediumTimeout);
             await this.clickOnElement(this.buttonResetFilters);
-            await this.waitForSpinnerNotVisible(appConst.longTimeout);
             return await this.pause(500);
         } catch (err) {
             await this.handleError('Image Editor, button reset filters', 'err_click_on_reset_filters_button', err);

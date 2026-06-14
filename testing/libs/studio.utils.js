@@ -549,7 +549,8 @@ module.exports = {
         await deleteContentDialog.waitForDialogOpened();
         // Click on 'Delete' menu item in the modal dialog:
         await deleteContentDialog.clickOnDeleteButton();
-        return await deleteContentDialog.waitForDialogClosed();
+        await deleteContentDialog.waitForDialogClosed();
+        await browsePanel.pause(1000);
     },
     async doDeleteContentByDisplayName(displayName) {
         let browsePanel = new BrowsePanel();

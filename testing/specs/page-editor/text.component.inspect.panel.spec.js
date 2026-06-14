@@ -40,7 +40,7 @@ describe('Tests for text-component and htmlArea in Inspect Panel', function () {
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text component:
-            await pageComponentView.openMenu('main');
+            await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // 4. Insert a text in htmlArea in Inspect Panel:
             await textComponentInspectionPanel.typeTextInEditor(TEXT_COMPONENT_TEXT);
@@ -86,7 +86,7 @@ describe('Tests for text-component and htmlArea in Inspect Panel', function () {
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text component:
-            await pageComponentView.openMenu('main');
+            await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // 4. Insert a text in htmlArea in Inspect Panel:
             await textComponentInspectionPanel.typeTextInEditor(TEXT_COMPONENT_TEXT);

@@ -73,6 +73,12 @@ class ConfirmationDialog extends Page {
         await this.waitForElementDisplayed(locator);
         return await this.getText(locator);
     }
+
+    async clickOnYesButton(){
+        let locator = "//button[contains(@class, 'yes-button')]"
+        await this.waitForElementDisplayed(locator);
+        await this.clickOnElement(locator);
+    }
 }
 
 module.exports = ConfirmationDialog;

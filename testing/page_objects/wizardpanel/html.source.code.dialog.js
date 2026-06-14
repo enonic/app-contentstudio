@@ -48,8 +48,7 @@ class HtmlSourceCodeDialog extends Page {
         try {
             return await this.waitForElementDisplayed(this.okButton, appConst.shortTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_open_source_code_dialog');
-            throw new Error(`Source Code Dialog must be opened! screenshot: ${screenshot}` + err);
+            await this.handleError(`Source Code Dialog must be opened!`, 'err_source_code_dialog_loaded', err);
         }
     }
 

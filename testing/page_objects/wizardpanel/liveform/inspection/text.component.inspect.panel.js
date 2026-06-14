@@ -98,7 +98,7 @@ class TextComponentInspectionPanel extends BaseComponentInspectionPanel {
     }
 
     async getIdOfTextEditor() {
-        let locator = XPATH.container + COMMON.CKE.textAreaElement;
+        let locator = XPATH.container + COMMON.CKE.textInspectionEditor;
         let elems = await this.findElements(locator);
         return await elems[0].getAttribute('id');
     }

@@ -1,37 +1,25 @@
 /**
- * Created on 23.01.2019.
+ * Created on 23.01.2019. updated on 12.06.2026
  */
 const Page = require('../../page');
-const lib = require('../../../libs/elements-old');
 const appConst = require('../../../libs/app_const');
-const FilterableListBox = require('../../components/selectors/filterable.list.box');
+const {COMMON} = require('../../../libs/elements');
 
 const xpath = {
-    singleSelectionView: "//div[contains(@id,'FormOptionSetOccurrenceView') and contains(@class,'single-selection')]",
+    singleSelectionSetView: "//div[@data-component='OptionSetView' and child::div[@data-component='SetHeader']//span[text()='Single selection']]",
 };
 
 class OptionSetFormView extends Page {
 
+    // Clicks on a radio button('Option 1', 'Option 2') in the 'Single selection' option set:
     async selectOptionInSingleSelection(optionDisplayName) {
         try {
-            let filterableListBox = new FilterableListBox();
-            await filterableListBox.clickOnDropdownHandle(xpath.singleSelectionView);
-            await filterableListBox.clickOnOptionByDisplayName(optionDisplayName);
+            let locator = xpath.singleSelectionSetView + COMMON.INPUTS.dataComponentRadioByLabel(optionDisplayName);
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.clickOnElement(locator);
             return await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_optionset');
-            throw new Error(`Error,after selecting the option in single selection, screenshot:${screenshot} ` + err);
-        }
-    }
-
-    async expandFormByLabel(formName) {
-        try {
-            let locator = `//div[contains(@id,'FormOccurrenceDraggableLabel') and text()=${formName}]`;
-            let elements = await this.findElements(locator).click();
-            return await elements[0].click();
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_optionset');
-            throw new Error(`Error after expanding the forms, screenshot:${screenshot} ` + err);
+            await this.handleError(`Option Set - single selection, option '${optionDisplayName}'`, 'err_optionset', err);
         }
     }
 }

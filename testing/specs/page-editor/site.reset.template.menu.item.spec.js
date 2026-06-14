@@ -46,7 +46,7 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3.Click on the item and open Context Menu:
-            await pageComponentView.openMenu('country');
+            await pageComponentView.rightClickAndOpenContextMenu('country');
             // 4. Insert Text Component with 'test text' and save it:
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.clickInTextArea();
@@ -105,7 +105,7 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             // 3. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 4. Click on the item and open Context Menu:
-            await pageComponentView.openMenu(TEST_TEXT);
+            await pageComponentView.rightClickAndOpenContextMenu(TEST_TEXT);
             // 5. Remove the text component and save it
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.REMOVE]);
             await contentWizard.waitAndClickOnSave();
@@ -115,7 +115,7 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             let result1 = await pageComponentView.getPageComponentsDisplayName();
             assert.equal(result1.length, 2, 'Number of items in Component View should be reduced after the removing');
             // 7. Expand the controller's menu(the root element) and click on 'Reset' item
-            await pageComponentView.openMenu(CONTROLLER_NAME);
+            await pageComponentView.rightClickAndOpenContextMenu(CONTROLLER_NAME);
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);
             await pageComponentView.pause(1000);
             await confirmationDialog.waitForDialogOpened();
