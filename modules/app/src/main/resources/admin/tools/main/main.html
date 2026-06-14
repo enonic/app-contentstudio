@@ -12,7 +12,7 @@
     <title>{{appName}} - Enonic XP Admin</title>
 
     <!-- Set theme before styles are loaded to prevent flash of incorrect theme -->
-    <script>
+    <script{{#nonce}} nonce="{{nonce}}"{{/nonce}}>
         try {
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             const stored = localStorage.getItem('enonic:cs:app');
@@ -96,6 +96,6 @@
 
 
 <script type="application/json" id="{{configScriptId}}">{{{configAsJson}}}</script>
-<script type="text/javascript" src="{{assetsUri}}/js/main.js" data-config-script-id="{{configScriptId}}" defer></script>
+<script type="text/javascript" src="{{assetsUri}}/js/main.js" data-config-script-id="{{configScriptId}}"{{#nonce}} nonce="{{nonce}}"{{/nonce}} defer></script>
 </body>
 </html>
