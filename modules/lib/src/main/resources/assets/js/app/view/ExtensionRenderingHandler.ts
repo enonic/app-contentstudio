@@ -1,6 +1,7 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {type IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
+import {IframeEventBus} from '@enonic/lib-admin-ui/event/IframeEventBus';
 import {type Extension} from '@enonic/lib-admin-ui/extension/Extension';
 import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
 import {type Action} from '@enonic/lib-admin-ui/ui/Action';
@@ -24,6 +25,21 @@ export enum PREVIEW_TYPE {
     EMPTY,
     FAILED,
     MISSING,
+}
+
+// posted by liveview widgets (e.g. app-liveview-iframe's wrapper) whose
+// renderability is only known in the browser, after the probe already passed;
+// such widgets declare it with verdict:true in the probe's widget data
+const LIVEVIEW_RENDER_VERDICT = 'liveview-render-verdict';
+
+// the wrapper resolves its own probe within 4s; reveal anyway if a widget
+// never delivers the verdict it promised
+const VERDICT_TIMEOUT_MS = 6000;
+
+interface LiveviewRenderVerdictData {
+    ok?: boolean;
+    contentId?: string;
+    url?: string;
 }
 
 export class ExtensionRenderingHandler {
@@ -50,6 +66,18 @@ export class ExtensionRenderingHandler {
 
     protected renderableChangedListeners: ((isRenderable: boolean, wasRenderable: boolean) => void)[] = [];
 
+    private failedExtensions: Set<string> = new Set<string>();
+
+    private renderedExtension: Extension;
+
+    private renderedInAutoMode: boolean = false;
+
+    private lastSelectedMode: Extension;
+
+    private awaitingVerdict: boolean = false;
+
+    private verdictTimeout: number;
+
 
     constructor(renderer: ExtensionRenderer, previewHelper?: PreviewActionHelper) {
         this.renderer = renderer;
@@ -73,7 +101,12 @@ export class ExtensionRenderingHandler {
             return;
         }
 
+        if (!this.summary?.getContentId().equals(summary.getContentId())) {
+            this.failedExtensions.clear();
+        }
         this.summary = summary;
+        this.lastSelectedMode = extension;
+        this.clearVerdictWait(false);
 
         this.showMask();
         this.renderer.getPreviewAction()?.setEnabled(false);
@@ -178,6 +211,11 @@ export class ExtensionRenderingHandler {
         this.renderer.getPreviewAction()?.setEnabled(true);
         this.setPreviewType(PREVIEW_TYPE.SUCCESS);
 
+        this.awaitingVerdict = this.renderedInAutoMode && Boolean(data?.verdict);
+        if (this.awaitingVerdict) {
+            this.verdictTimeout = window.setTimeout(() => this.clearVerdictWait(true), VERDICT_TIMEOUT_MS);
+        }
+
         const contentType = response.headers.get('content-type');
         let mainType = 'other';
         if (contentType) {
@@ -235,7 +273,9 @@ export class ExtensionRenderingHandler {
             return new RenderResult();
         }
         const isAuto = selectedMode.getDescriptorKey().getName() === WIDGET_AUTO_DESCRIPTOR;
-        const items = isAuto ? $autoModeWidgets.get() : [selectedMode];
+        const items = isAuto
+            ? $autoModeWidgets.get().filter((item) => !this.failedExtensions.has(item.getDescriptorKey().toString()))
+            : [selectedMode];
         let response: Response;
         let extension: Extension;
         let isOk: boolean;
@@ -262,6 +302,10 @@ export class ExtensionRenderingHandler {
             if (isOk) {
                 break;
             }
+        }
+        if (isOk) {
+            this.renderedExtension = extension;
+            this.renderedInAutoMode = isAuto;
         }
         if (isAuto && isOk) {
             // don't save the final url, because they are different for different modes
@@ -317,6 +361,47 @@ export class ExtensionRenderingHandler {
         void this.render(this.summary, event.getExtension());
     }
 
+    protected handleRenderVerdict(data: LiveviewRenderVerdictData) {
+        if (!this.summary || data?.contentId !== this.summary.getContentId().toString()) {
+            return; // stale message from a previously selected content
+        }
+        if (data.ok) {
+            this.clearVerdictWait(true);
+            return;
+        }
+        if (!this.renderedInAutoMode || !this.renderedExtension) {
+            // an explicitly selected widget presents its own failure UI
+            return;
+        }
+        const failedKey = this.renderedExtension.getDescriptorKey().toString();
+        if (this.failedExtensions.has(failedKey)) {
+            return;
+        }
+        const hasOtherCandidates = $autoModeWidgets.get()
+            .some((item) => {
+                const key = item.getDescriptorKey().toString();
+                return key !== failedKey && !this.failedExtensions.has(key);
+            });
+        if (!hasOtherCandidates) {
+            // reveal the widget's own failure view instead of rendering nothing
+            this.clearVerdictWait(true);
+            return;
+        }
+        this.failedExtensions.add(failedKey);
+        void this.render(this.summary, this.lastSelectedMode);
+    }
+
+    private clearVerdictWait(reveal: boolean) {
+        if (this.verdictTimeout) {
+            window.clearTimeout(this.verdictTimeout);
+            this.verdictTimeout = null;
+        }
+        this.awaitingVerdict = false;
+        if (reveal) {
+            this.hideMask();
+        }
+    }
+
     protected handleEmulatorEvent(device: EmulatorDevice) {
         if (this.messageView) {
             this.messageView.getEl().setWidth(device.getWidthWithUnits());
@@ -343,6 +428,10 @@ export class ExtensionRenderingHandler {
     protected bindListeners() {
         ViewExtensionEvent.on(this.handleExtensionEvent.bind(this));
         EmulatedDeviceEvent.listen(this.handleEmulatorEvent.bind(this));
+        IframeEventBus.get().onEvent(LIVEVIEW_RENDER_VERDICT, (event) => {
+            // the bus delivers the parsed message detail, not an IframeEvent
+            this.handleRenderVerdict(event as unknown as LiveviewRenderVerdictData);
+        });
 
         const iframe = this.renderer.getIFrameEl();
         let unsubscribeTheme: () => void;
@@ -360,7 +449,9 @@ export class ExtensionRenderingHandler {
                 }
             });
 
-            this.hideMask();
+            if (!this.awaitingVerdict) {
+                this.hideMask();
+            }
 
             const frameWindow = iframe.getHTMLElement()['contentWindow'];
 
