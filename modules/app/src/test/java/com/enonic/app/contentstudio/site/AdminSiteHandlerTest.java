@@ -124,6 +124,31 @@ class AdminSiteHandlerTest
     }
 
     @Test
+    void inlineAppliesTheContainmentBaseline()
+        throws Exception
+    {
+        activate( "script-src 'self'; connect-src 'self'" );
+        this.portalRequest.setMode( RenderMode.INLINE );
+
+        doHandle();
+
+        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).matches(
+            "frame-ancestors 'self', connect-src 'self'; script-src 'self' 'nonce-[A-Za-z0-9_-]+'" );
+    }
+
+    @Test
+    void inlineErrorPageStaysFramableByContentStudio()
+        throws Exception
+    {
+        this.portalRequest.setMode( RenderMode.INLINE );
+        when( this.chain.handle( any(), any() ) ).thenReturn( WebResponse.create().status( HttpStatus.NOT_FOUND ).build() );
+
+        doHandle();
+
+        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo( "frame-ancestors 'self'" );
+    }
+
+    @Test
     void previewAddsConfiguredPolicyAsFloorKeepingPagePolicy()
         throws Exception
     {
@@ -134,7 +159,7 @@ class AdminSiteHandlerTest
         doHandle();
 
         assertThat( this.portalRequest.getContentSecurityPolicy().build() ).matches(
-            "frame-ancestors 'self'; script-src 'self', default-src 'self'; object-src 'none'; script-src 'nonce-[A-Za-z0-9_-]+'" );
+            "script-src 'self', default-src 'self'; object-src 'none'; script-src 'nonce-[A-Za-z0-9_-]+'" );
     }
 
     @Test
@@ -148,11 +173,11 @@ class AdminSiteHandlerTest
         doHandle();
 
         assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo(
-            "frame-ancestors 'self'; script-src 'nonce-" + nonce + "', script-src 'self' 'nonce-" + nonce + "'" );
+            "script-src 'nonce-" + nonce + "', script-src 'self' 'nonce-" + nonce + "'" );
     }
 
     @Test
-    void previewWithBlankConfigStillKeepsFrameAncestors()
+    void previewWithBlankConfigLeavesPolicyAlone()
         throws Exception
     {
         this.portalRequest.setMode( RenderMode.PREVIEW );
@@ -160,20 +185,7 @@ class AdminSiteHandlerTest
 
         doHandle();
 
-        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo( "frame-ancestors 'self'; script-src 'self'" );
-    }
-
-    @Test
-    void previewErrorPageStaysFramableByContentStudio()
-        throws Exception
-    {
-        activate( "" );
-        this.portalRequest.setMode( RenderMode.PREVIEW );
-        when( this.chain.handle( any(), any() ) ).thenReturn( WebResponse.create().status( HttpStatus.NOT_FOUND ).build() );
-
-        doHandle();
-
-        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo( "frame-ancestors 'self'" );
+        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo( "script-src 'self'" );
     }
 
     @Test

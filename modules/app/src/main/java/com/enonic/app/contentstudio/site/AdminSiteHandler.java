@@ -190,7 +190,10 @@ public class AdminSiteHandler
 
         if ( mode == RenderMode.INLINE )
         {
+            // The inline view renders selected content in an admin-origin iframe on mere tree
+            // selection, so it must be framable by Content Studio and contained like preview.
             policy.frameAncestors( CspSource.SELF );
+            applyPreviewBaseline( policy );
         }
         else if ( mode == RenderMode.EDIT )
         {
@@ -208,19 +211,24 @@ public class AdminSiteHandler
         }
         else if ( mode == RenderMode.PREVIEW )
         {
-            // Keep previews (including error pages) framable by Content Studio, then enforce a
-            // configurable baseline alongside the page's own policy: it contains script execution
-            // and data egress to same-origin, leaving the page's rendering directives untouched.
-            // nonceScriptSrc() is additive — it lets a page that nonces its own scripts satisfy the
-            // baseline too; 'self' is untouched, so non-nonce pages keep running same-origin scripts.
-            // Admins can relax the baseline via config.
-            policy.frameAncestors( CspSource.SELF );
-            if ( !nullToEmpty( previewContentSecurityPolicy ).isBlank() )
-            {
-                policy.addPolicy().resetTo( previewContentSecurityPolicy ).nonceScriptSrc();
-            }
+            // Preview opens as a separate top-level tab, not an iframe, so it needs containment but
+            // no frame-ancestors allowance.
+            applyPreviewBaseline( policy );
         }
         return response;
+    }
+
+    private void applyPreviewBaseline( final ContentSecurityPolicy policy )
+    {
+        // A configurable baseline enforced alongside the page's own policy: it contains script
+        // execution and data egress to same-origin, leaving the page's rendering directives
+        // untouched. nonceScriptSrc() is additive — a page that nonces its own scripts satisfies the
+        // baseline too, and 'self' is untouched so non-nonce pages keep running same-origin scripts.
+        // Admins relax it via config.
+        if ( !nullToEmpty( previewContentSecurityPolicy ).isBlank() )
+        {
+            policy.addPolicy().resetTo( previewContentSecurityPolicy ).nonceScriptSrc();
+        }
     }
 
     private WebResponse doHandle0( final WebRequest webRequest, final WebResponse webResponse, final WebHandlerChain webHandlerChain )
