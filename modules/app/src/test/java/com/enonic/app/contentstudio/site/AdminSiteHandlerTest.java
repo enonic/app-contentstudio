@@ -80,7 +80,7 @@ class AdminSiteHandlerTest
         doHandle();
 
         assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo(
-            "connect-src 'self'; font-src * data:; frame-ancestors 'self'; frame-src *; img-src 'self' * data:; media-src *; " +
+            "connect-src 'self'; font-src * data:; frame-ancestors 'self'; img-src 'self' * data:; " +
                 "object-src 'none'; script-src 'self' 'nonce-" + nonce + "'; style-src * 'unsafe-inline'" );
     }
 
@@ -95,9 +95,27 @@ class AdminSiteHandlerTest
 
         final String nonce = this.portalRequest.getContentSecurityPolicy().nonceScriptSrc();
         assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo(
-            "base-uri 'none'; connect-src 'self'; default-src 'none'; font-src * data:; frame-ancestors 'self'; frame-src *; " +
-                "img-src * data:; media-src *; object-src 'none'; script-src 'self' 'nonce-" + nonce + "'; " +
+            "base-uri 'none'; connect-src 'self'; default-src 'none'; font-src * data:; frame-ancestors 'self'; " +
+                "img-src * data:; object-src 'none'; script-src 'self' 'nonce-" + nonce + "'; " +
                 "style-src * 'unsafe-inline'" );
+    }
+
+    @Test
+    void editLeavesFrameSrcAndMediaSrcToThePage()
+        throws Exception
+    {
+        this.portalRequest.setMode( RenderMode.EDIT );
+        this.portalRequest.getContentSecurityPolicy()
+            .add( "frame-src", "'self'" )
+            .add( "media-src", "'self'" );
+
+        doHandle();
+
+        final String nonce = this.portalRequest.getContentSecurityPolicy().nonceScriptSrc();
+        // the editor has no frame-src/media-src dependency, so the page's own values are kept untouched
+        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo(
+            "connect-src 'self'; font-src * data:; frame-ancestors 'self'; frame-src 'self'; img-src * data:; " +
+                "media-src 'self'; object-src 'none'; script-src 'self' 'nonce-" + nonce + "'; style-src * 'unsafe-inline'" );
     }
 
     @Test

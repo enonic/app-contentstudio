@@ -203,11 +203,17 @@ public class AdminSiteHandler
         }
         else if ( mode == RenderMode.EDIT )
         {
+            // The page editor renders content in an admin-origin iframe and injects editor.js. Force only
+            // what the editor itself needs: it must be framable (frame-ancestors), its own script must run
+            // (script-src 'self' + nonce, replacing the page's), its injected inline styles must apply
+            // (style-src 'unsafe-inline'), it talks only to the admin (connect-src 'self'), and plugins stay
+            // blocked (object-src 'none'). img/font/style-src keep '*' because the editor needs 'self'/data:
+            // and 'unsafe-inline' for its own chrome while a no-CSP page must still load its external images,
+            // fonts and stylesheets - a narrower value would break either the editor or the page. frame-src
+            // and media-src have no editor dependency, so they are left to the page's own policy.
             policy.frameAncestors( CspSource.SELF )
                 .imgSrc( CspSource.WILDCARD, CspSource.DATA )
                 .fontSrc( CspSource.WILDCARD, CspSource.DATA )
-                .frameSrc( CspSource.WILDCARD )
-                .mediaSrc( CspSource.WILDCARD )
                 .objectSrc( CspSource.NONE )
                 .connectSrc( CspSource.SELF )
                 .reset( "script-src", "style-src" )
