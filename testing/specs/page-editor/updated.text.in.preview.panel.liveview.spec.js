@@ -46,7 +46,7 @@ describe('updated.text.in.preview.panel.liveview.spec - verify that text is upda
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert a text-component in PCV modal dialog:
-            await pageComponentView.openMenu('main');
+            await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // 4. Insert a text in the text-component:
             await textComponentInspectionPanel.waitForOpened();
@@ -64,7 +64,7 @@ describe('updated.text.in.preview.panel.liveview.spec - verify that text is upda
             // 8. Switch to the site again:
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             // 9. Update the text in text-component:
-            await pageComponentView.openMenu(TEST_TEXT_1);
+            await pageComponentView.rightClickAndOpenContextMenu(TEST_TEXT_1);
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.EDIT]);
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();

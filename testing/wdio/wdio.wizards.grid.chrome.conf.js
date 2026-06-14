@@ -12,9 +12,6 @@ exports.config = {
     ],
     exclude: [
         path.join(__dirname, '../specs/browse.selection.controller.spec.js'),
-        path.join(__dirname, '../specs/content.name.upper.lower.case.spec.js'),
-        path.join(__dirname, '../specs/content.unsaved.changes.spec.js'),
-        path.join(__dirname, '../specs/content.wizard.owner.deleted.spec.js'),
         path.join(__dirname, '../specs/content.workflow.state.spec.js'),
         path.join(__dirname, '../specs/cookies.service.spec.js'),
         path.join(__dirname, '../specs/default.error.page.spec.js'),

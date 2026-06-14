@@ -21,14 +21,11 @@ class DateTimeForm extends OccurrencesFormView {
         return COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + XPATH.dataComponentInput + COMMON.INPUTS.INPUT;
     }
 
-    get validationRecord() {
-        return lib.FORM_VIEW + XPATH.validationRecording;
-    }
-
     async typeDatetime(index, value) {
         let dateTimeElements = await this.getDisplayedElements(this.dateTimeInput);
         for (const ch of value) {
             await dateTimeElements[index].addValue(ch);
+            await this.pause(20);
         }
         // TODO the second option for setting values:
         // await this.getBrowser().execute((el, val) => {
@@ -60,29 +57,6 @@ class DateTimeForm extends OccurrencesFormView {
 
     waitForValidationRecording() {
         return this.waitForElementDisplayed(this.validationRecord, appConst.shortTimeout);
-    }
-
-    isValidationRecordingVisible() {
-        return this.isElementDisplayed(this.validationRecord);
-    }
-
-    async getValidationRecord() {
-        try {
-            await this.waitForValidationRecording();
-            await this.getText(this.validationRecord);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_date_time_validation_record');
-            throw new Error('getting Validation text, screenshot: ' + screenshot + ' ' + err);
-        }
-    }
-
-    async isInvalidValue(index) {
-        let inputs = await this.getDisplayedElements(this.dateTimeInput);
-        if (inputs.length === 0) {
-            throw new Error("Date time Form - DateTime inputs were not found!");
-        }
-        let attr = await inputs[index].getAttribute('class');
-        return attr.includes('invalid');
     }
 
     async showPicker() {

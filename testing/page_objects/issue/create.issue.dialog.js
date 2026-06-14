@@ -7,7 +7,7 @@ const {BUTTONS, ISSUE} = require('../../libs/elements');
 const AssigneeSelectorDropdown = require('../components/selectors/assignee.selector.dropdown');
 const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
 const DependantsControls = require('./dependant.controls');
-const IssueItemsSelector = require('../components/selectors/issue.items.selector');
+
 
 const xpath = {
     container: `//div[contains(@role,'dialog') and @data-component='NewIssueDialogContent']`,

@@ -42,6 +42,7 @@ const COMMON = {
     },
     CKE: {
         textAreaElement: "//textarea[contains(@id,'htmlarea')]",
+        textInspectionEditor: "//textarea[contains(@id,'text-inspection-editor')]",
         TEXTAREA_DIV: "//div[contains(@id,'cke_TextArea')]",
         insertTableButton: `//a[contains(@class,'cke_button') and contains(@title,'Table')]`,
         pasteModeButton: `//a[contains(@class,'cke_button') and contains(@title,'Paste mode')]`,

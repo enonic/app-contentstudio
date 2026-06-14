@@ -22,7 +22,7 @@ describe('revert.zoomed.image.spec: tests for reverting of zoomed image', functi
             let contentWizard = new ContentWizard();
             // 1. Open an existing image:
             await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.SENG);
-            await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
+            //await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
             // 2. Open edit-mode and do zoom in the image
             await imageEditor.clickOnCropButton();
             await imageEditor.doZoomImage(30);

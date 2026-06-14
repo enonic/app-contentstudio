@@ -1,10 +1,11 @@
 /**
- * Created on 30.12.2021.
+ * Created on 30.12.2021.   updated on 13.06.2026
  */
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConst = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
+const assert = require('node:assert');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 
 describe('content.name.upper.lower.case.spec: tests for creating content with an upper and lower case name', function () {
@@ -27,14 +28,15 @@ describe('content.name.upper.lower.case.spec: tests for creating content with an
     it(`GIVEN wizard for new folder is opened WHEN existing name in upper case has been typed THEN 'Save' button gets disabled AND 'Not available' recording gets visible`,
         async () => {
             let contentWizard = new ContentWizard();
-            //1. Open new wizard for a folder:
+            // 1. Open new wizard for a folder:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
-            //2. Type an existing name in upper case:
+            // 2. Type an existing name in upper case:
             await contentWizard.typeDisplayName(NAME_UPPER_CASE);
-            //4. Verify  - 'Save' button gets disabled:
+            // 3. Verify  - 'Save' button gets disabled:
             await contentWizard.waitForSaveButtonDisabled();
-            //5. Verify the validation message 'Not available' is displayed for path input:
-            await contentWizard.waitForValidationPathMessageDisplayed();
+            // 4. Verify the validation message 'Not available' is displayed for path input:
+            let validationText = await contentWizard.waitForValidationPathMessageDisplayed();
+            assert.equal(validationText, NAME_LOWER_CASE, "Validation message should contain the name of the existing folder");
         });
 
     it(`GIVEN wizard for new folder is opened WHEN existing name in mixed cases has been typed THEN 'Save' button gets disabled AND 'Not available' recording gets visible`,
@@ -47,10 +49,11 @@ describe('content.name.upper.lower.case.spec: tests for creating content with an
             //4. Verify  - 'Save' button gets disabled:
             await contentWizard.waitForSaveButtonDisabled();
             //5. Verify the validation message 'Not available' is displayed for path input:
-            await contentWizard.waitForValidationPathMessageDisplayed();
+            let validationText = await contentWizard.waitForValidationPathMessageDisplayed();
+            assert.equal(validationText, NAME_LOWER_CASE, "Validation message should contain the name of the existing folder");
         });
 
-    //Verifies issue -  Impossible to add a content with name that is no longer used
+    // Verifies issue -  Impossible to add a content with name that is no longer used
     it(`GIVEN existing folder is deleted WHEN new folder with the same name has been saved THEN new folder should be created`,
         async () => {
             let contentWizard = new ContentWizard();

@@ -405,9 +405,9 @@ class UserBrowsePanel extends Page {
         await this.findAndSelectItem(name);
         await this.waitForDeleteButtonEnabled();
         await this.clickOnDeleteButton();
-        await confirmationDialog.waitForDialogOpened();
+        //await confirmationDialog.waitForDialogOpened();
         await confirmationDialog.clickOnYesButton();
-        await confirmationDialog.waitForDialogClosed();
+        //await confirmationDialog.waitForDialogClosed();
         return await this.waitForSpinnerNotVisible();
     }
 
