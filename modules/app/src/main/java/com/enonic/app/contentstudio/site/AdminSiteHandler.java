@@ -188,14 +188,14 @@ public class AdminSiteHandler
 
         final ContentSecurityPolicy policy = request.getContentSecurityPolicy();
 
-        if ( mode == RenderMode.INLINE || mode == RenderMode.EDIT )
+        if ( mode == RenderMode.INLINE )
         {
             policy.frameAncestors( CspSource.SELF );
         }
-
-        if ( mode == RenderMode.EDIT )
+        else if ( mode == RenderMode.EDIT )
         {
-            policy.imgSrc( CspSource.WILDCARD, CspSource.DATA )
+            policy.frameAncestors( CspSource.SELF )
+                .imgSrc( CspSource.WILDCARD, CspSource.DATA )
                 .fontSrc( CspSource.WILDCARD, CspSource.DATA )
                 .frameSrc( CspSource.WILDCARD )
                 .mediaSrc( CspSource.WILDCARD )
@@ -208,14 +208,12 @@ public class AdminSiteHandler
         }
         else if ( mode == RenderMode.PREVIEW )
         {
-            if ( response.getStatus().is4xxClientError() || response.getStatus().is5xxServerError() )
-            {
-                // Keep the error page (e.g. 404 for non-renderable content) framable by Content
-                // Studio so it shows in the preview panel; a successful preview keeps the page's
-                // own policy.
-                policy.frameAncestors( CspSource.SELF );
-            }
-            else if ( !nullToEmpty( previewContentSecurityPolicy ).isBlank() )
+            // Keep previews (including error pages) framable by Content Studio, then enforce a
+            // configurable baseline alongside the page's own policy. The baseline contains script
+            // execution and data egress to same-origin while leaving the page's rendering directives
+            // untouched; admins can relax it via config.
+            policy.frameAncestors( CspSource.SELF );
+            if ( !nullToEmpty( previewContentSecurityPolicy ).isBlank() )
             {
                 policy.addPolicy().resetTo( previewContentSecurityPolicy ).nonceScriptSrc();
             }

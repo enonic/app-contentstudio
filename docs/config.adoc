@@ -67,10 +67,10 @@ When content is previewed, the page's own Content Security Policy applies togeth
 .com.enonic.app.contentstudio.cfg
 [source,properties]
 ----
-site.preview.contentSecurityPolicy=default-src 'self'; base-uri 'self'; form-action 'self'; script-src 'self'; object-src 'none'; img-src * data:; style-src * 'unsafe-inline'; font-src * data:; frame-src *; media-src *
+site.preview.contentSecurityPolicy=script-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'
 ----
 
-The value above is the default: images, fonts, styles, media and framed embeds (YouTube, Vimeo, …) are allowed from anywhere, while scripts must come from the site itself or carry the request nonce. A player script that fetches streams from a CDN additionally needs the CDN host in `connect-src`.
+The value above is the default: it contains the directives that let previewed content run code or send data — scripts and connections are limited to the site itself (or the request nonce), forms and `+<base>+` to the site, and plugins are blocked — while everything visual (images, fonts, styles, media, framed embeds such as YouTube or Vimeo) is left to the page's own policy and renders as on the live site. To let a player script reach a CDN, add the CDN host to `script-src`/`connect-src` here.
 
 Set the property to an empty value to disable the baseline and rely on each page's own policy alone. Avoid `'unsafe-inline'` in the baseline's `script-src` — it has no effect there.
 
