@@ -62,15 +62,18 @@ contentSecurityPolicy.enabled=false
 
 === Content preview
 
-When content is rendered inside Content Studio — both the inline view shown as you select content in the tree and the standalone preview — the page's own Content Security Policy applies together with a configurable baseline. The baseline limits what that content may do, but never allows more than the page's own policy does — a page with a policy stricter than the baseline renders exactly as on the live site.
+When content is rendered inside Content Studio — the inline view shown as you select content in the tree, and the standalone preview — a configurable baseline Content Security Policy is applied. The baseline is filled in per directive: a page that ships its own CSP keeps every directive it declares (so an application that legitimately loads an external script keeps working), and only the baseline directives the page left out are added to contain unprotected content. A page with no CSP of its own gets the full baseline.
+
+Inline and preview are configured separately, so you can relax preview — accepting more risk in that explicit, separate-tab view — while keeping the inline view (rendered on mere selection) tight. Both default to the same value:
 
 .com.enonic.app.contentstudio.cfg
 [source,properties]
 ----
+site.inline.contentSecurityPolicy=script-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'
 site.preview.contentSecurityPolicy=script-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'
 ----
 
-The value above is the default: it contains the directives that let previewed content run code or send data — scripts and connections are limited to the site itself (or the request nonce), forms and `+<base>+` to the site, and plugins are blocked — while everything visual (images, fonts, styles, media, framed embeds such as YouTube or Vimeo) is left to the page's own policy and renders as on the live site. To let a player script reach a CDN, add the CDN host to `script-src`/`connect-src` here.
+The default lists only the directives that let content run code or exfiltrate data — scripts and connections limited to the site itself, forms and `+<base>+` to the site, and plugins blocked. Everything visual (images, fonts, styles, media, framed embeds such as YouTube or Vimeo) is left to the page and renders as on the live site. To allow a player script to reach a CDN for content that declares no CSP, add the CDN host to `script-src`/`connect-src` here.
 
 Set the property to an empty value to disable the baseline and rely on each page's own policy alone. Avoid `'unsafe-inline'` in the baseline's `script-src` — it has no effect there.
 

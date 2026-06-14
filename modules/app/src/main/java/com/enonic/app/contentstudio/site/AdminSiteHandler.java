@@ -1,5 +1,9 @@
 package com.enonic.app.contentstudio.site;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -59,6 +63,8 @@ public class AdminSiteHandler
 
     private final ProjectService projectService;
 
+    private volatile String inlineContentSecurityPolicy;
+
     private volatile String previewContentSecurityPolicy;
 
     @Activate
@@ -76,6 +82,7 @@ public class AdminSiteHandler
     @Modified
     public void activate( final AdminSiteConfig config )
     {
+        inlineContentSecurityPolicy = config.site_inline_contentSecurityPolicy();
         previewContentSecurityPolicy = config.site_preview_contentSecurityPolicy();
     }
 
@@ -191,9 +198,9 @@ public class AdminSiteHandler
         if ( mode == RenderMode.INLINE )
         {
             // The inline view renders selected content in an admin-origin iframe on mere tree
-            // selection, so it must be framable by Content Studio and contained like preview.
+            // selection, so it must be framable by Content Studio and contained.
             policy.frameAncestors( CspSource.SELF );
-            applyPreviewBaseline( policy );
+            applyBaseline( policy, inlineContentSecurityPolicy );
         }
         else if ( mode == RenderMode.EDIT )
         {
@@ -213,22 +220,45 @@ public class AdminSiteHandler
         {
             // Preview opens as a separate top-level tab, not an iframe, so it needs containment but
             // no frame-ancestors allowance.
-            applyPreviewBaseline( policy );
+            applyBaseline( policy, previewContentSecurityPolicy );
         }
         return response;
     }
 
-    private void applyPreviewBaseline( final ContentSecurityPolicy policy )
+    private static void applyBaseline( final ContentSecurityPolicy policy, final String baseline )
     {
-        // A configurable baseline enforced alongside the page's own policy: it contains script
-        // execution and data egress to same-origin, leaving the page's rendering directives
-        // untouched. nonceScriptSrc() is additive — a page that nonces its own scripts satisfies the
-        // baseline too, and 'self' is untouched so non-nonce pages keep running same-origin scripts.
-        // Admins relax it via config.
-        if ( !nullToEmpty( previewContentSecurityPolicy ).isBlank() )
+        // Gap-fill: a page that ships its own CSP keeps every directive it declared (so a good app's
+        // external script-src host survives), and only the baseline directives the page left out are
+        // added to contain unprotected content. A page with no CSP of its own gets the full baseline.
+        if ( nullToEmpty( baseline ).isBlank() )
         {
-            policy.addPolicy().resetTo( previewContentSecurityPolicy ).nonceScriptSrc();
+            return;
         }
+        final Set<String> declared = directiveNames( policy.build() );
+        for ( final String part : baseline.split( ";" ) )
+        {
+            final String[] tokens = part.trim().split( "\\s+" );
+            final String directive = tokens[0].toLowerCase( Locale.ROOT );
+            if ( !directive.isEmpty() && !declared.contains( directive ) )
+            {
+                policy.add( directive, Arrays.copyOfRange( tokens, 1, tokens.length ) );
+            }
+        }
+    }
+
+    private static Set<String> directiveNames( final String policyValue )
+    {
+        final Set<String> names = new HashSet<>();
+        for ( final String part : policyValue.split( "[,;]" ) )
+        {
+            final String trimmed = part.trim();
+            if ( !trimmed.isEmpty() )
+            {
+                final int space = trimmed.indexOf( ' ' );
+                names.add( ( space < 0 ? trimmed : trimmed.substring( 0, space ) ).toLowerCase( Locale.ROOT ) );
+            }
+        }
+        return names;
     }
 
     private WebResponse doHandle0( final WebRequest webRequest, final WebResponse webResponse, final WebHandlerChain webHandlerChain )

@@ -53,10 +53,11 @@ class AdminSiteHandlerTest
         when( this.chain.handle( any(), any() ) ).thenReturn( WebResponse.create().build() );
     }
 
-    private void activate( final String previewContentSecurityPolicy )
+    private void activate( final String contentSecurityPolicy )
     {
         final AdminSiteConfig config = mock( AdminSiteConfig.class );
-        when( config.site_preview_contentSecurityPolicy() ).thenReturn( previewContentSecurityPolicy );
+        when( config.site_inline_contentSecurityPolicy() ).thenReturn( contentSecurityPolicy );
+        when( config.site_preview_contentSecurityPolicy() ).thenReturn( contentSecurityPolicy );
         this.handler.activate( config );
     }
 
@@ -124,7 +125,7 @@ class AdminSiteHandlerTest
     }
 
     @Test
-    void inlineAppliesTheContainmentBaseline()
+    void inlineFillsBaselineGapsForUnprotectedContent()
         throws Exception
     {
         activate( "script-src 'self'; connect-src 'self'" );
@@ -132,8 +133,23 @@ class AdminSiteHandlerTest
 
         doHandle();
 
-        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).matches(
-            "frame-ancestors 'self', connect-src 'self'; script-src 'self' 'nonce-[A-Za-z0-9_-]+'" );
+        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo(
+            "connect-src 'self'; frame-ancestors 'self'; script-src 'self'" );
+    }
+
+    @Test
+    void inlinePreservesPageDeclaredDirectivesAndFillsGaps()
+        throws Exception
+    {
+        activate( "script-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'" );
+        this.portalRequest.setMode( RenderMode.INLINE );
+        this.portalRequest.getContentSecurityPolicy().add( "script-src", "'self'", "https://cdn.example.com" );
+
+        doHandle();
+
+        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo(
+            "base-uri 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'self'; object-src 'none'; " +
+                "script-src 'self' https://cdn.example.com" );
     }
 
     @Test
@@ -149,7 +165,7 @@ class AdminSiteHandlerTest
     }
 
     @Test
-    void previewAddsConfiguredPolicyAsFloorKeepingPagePolicy()
+    void previewGapFillsBaselineKeepingPageScriptSrc()
         throws Exception
     {
         activate( "default-src 'self'; object-src 'none'" );
@@ -158,12 +174,12 @@ class AdminSiteHandlerTest
 
         doHandle();
 
-        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).matches(
-            "script-src 'self', default-src 'self'; object-src 'none'; script-src 'nonce-[A-Za-z0-9_-]+'" );
+        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo(
+            "default-src 'self'; object-src 'none'; script-src 'self'" );
     }
 
     @Test
-    void previewFloorSharesTheRequestNonce()
+    void previewKeepsThePageNonceAndSkipsTheBaselineScriptSrc()
         throws Exception
     {
         activate( "script-src 'self'" );
@@ -172,8 +188,7 @@ class AdminSiteHandlerTest
 
         doHandle();
 
-        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo(
-            "script-src 'nonce-" + nonce + "', script-src 'self' 'nonce-" + nonce + "'" );
+        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo( "script-src 'nonce-" + nonce + "'" );
     }
 
     @Test
