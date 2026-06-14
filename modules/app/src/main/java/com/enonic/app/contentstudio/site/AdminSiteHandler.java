@@ -242,9 +242,9 @@ public class AdminSiteHandler
         for ( final String part : baseline.split( ";" ) )
         {
             final String[] tokens = part.trim().split( "\\s+" );
-            if ( !tokens[0].isEmpty() )
+            if ( !tokens[0].isEmpty() && policy.directive( tokens[0] ).isEmpty() )
             {
-                policy.addIfAbsent( tokens[0], Arrays.copyOfRange( tokens, 1, tokens.length ) );
+                policy.add( tokens[0], Arrays.copyOfRange( tokens, 1, tokens.length ) );
             }
         }
     }
