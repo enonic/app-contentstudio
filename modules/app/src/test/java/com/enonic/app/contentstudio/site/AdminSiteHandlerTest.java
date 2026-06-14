@@ -165,6 +165,21 @@ class AdminSiteHandlerTest
     }
 
     @Test
+    void inlineForcesScriptSrcSelfForTheInjectedViewer()
+        throws Exception
+    {
+        activate( "script-src 'self'" );
+        this.portalRequest.setMode( RenderMode.INLINE );
+        this.portalRequest.getContentSecurityPolicy().add( "script-src", "'none'" );
+
+        doHandle();
+
+        // viewer.js is injected in inline mode, so 'self' is forced in even over the page's 'none'
+        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo(
+            "frame-ancestors 'self'; script-src 'self'" );
+    }
+
+    @Test
     void previewGapFillsBaselineKeepingPageScriptSrc()
         throws Exception
     {
@@ -189,6 +204,20 @@ class AdminSiteHandlerTest
         doHandle();
 
         assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo( "script-src 'nonce-" + nonce + "'" );
+    }
+
+    @Test
+    void previewLeavesAGoodAppsStrictScriptSrcUntouched()
+        throws Exception
+    {
+        activate( "script-src 'self'" );
+        this.portalRequest.setMode( RenderMode.PREVIEW );
+        this.portalRequest.getContentSecurityPolicy().add( "script-src", "'none'" );
+
+        doHandle();
+
+        // preview injects nothing, so it must not loosen the page's own 'none'
+        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo( "script-src 'none'" );
     }
 
     @Test

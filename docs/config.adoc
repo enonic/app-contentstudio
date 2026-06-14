@@ -62,7 +62,10 @@ contentSecurityPolicy.enabled=false
 
 === Content preview
 
-When content is rendered inside Content Studio — the inline view shown as you select content in the tree, and the standalone preview — a configurable baseline Content Security Policy is applied. The baseline is filled in per directive: a page that ships its own CSP keeps every directive it declares (so an application that legitimately loads an external script keeps working), and only the baseline directives the page left out are added to contain unprotected content. A page with no CSP of its own gets the full baseline.
+When content is rendered inside Content Studio, a configurable baseline Content Security Policy is applied — but the two contexts treat it differently:
+
+* The *inline view* (shown as you select content in the tree) injects the page editor, so it **forces** the baseline in: every baseline directive is unioned onto the page's policy, guaranteeing the editor's own `script-src 'self'` holds even over a page that declared, say, `script-src 'none'`. A good app's own sources (an external `script-src` host, …) survive the union.
+* The *preview* (a separate, explicit tab) injects nothing, so it **gap-fills**: a page that ships its own CSP keeps every directive it declared untouched (a good app that legitimately loads an external script keeps working, and a page's strict `script-src 'none'` is never loosened); only the directives the page omitted are added, to contain unprotected content. A page with no CSP of its own gets the full baseline.
 
 Inline and preview are configured separately, so you can relax preview — accepting more risk in that explicit, separate-tab view — while keeping the inline view (rendered on mere selection) tight. Both default to the same value:
 

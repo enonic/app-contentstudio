@@ -194,10 +194,13 @@ public class AdminSiteHandler
 
         if ( mode == RenderMode.INLINE )
         {
-            // The inline view renders selected content in an admin-origin iframe on mere tree
-            // selection, so it must be framable by Content Studio and contained.
+            // The inline view renders selected content in an admin-origin iframe on tree selection
+            // and injects the page-editor viewer (viewer.js). It must be framable and must force the
+            // baseline in (union): e.g. script-src 'self' has to hold even over a page that declared
+            // script-src 'none', or the injected viewer would be blocked. A good app's own sources
+            // survive the union.
             policy.frameAncestors( CspSource.SELF );
-            applyBaseline( policy, inlineContentSecurityPolicy );
+            applyBaseline( policy, inlineContentSecurityPolicy, true );
         }
         else if ( mode == RenderMode.EDIT )
         {
@@ -215,18 +218,15 @@ public class AdminSiteHandler
         }
         else if ( mode == RenderMode.PREVIEW )
         {
-            // Preview opens as a separate top-level tab, not an iframe, so it needs containment but
-            // no frame-ancestors allowance.
-            applyBaseline( policy, previewContentSecurityPolicy );
+            // Preview opens as a separate top-level tab and injects nothing, so it gap-fills: lock
+            // down a page that ships no CSP, but never touch a directive a good app declared.
+            applyBaseline( policy, previewContentSecurityPolicy, false );
         }
         return response;
     }
 
-    private static void applyBaseline( final ContentSecurityPolicy policy, final String baseline )
+    private static void applyBaseline( final ContentSecurityPolicy policy, final String baseline, final boolean force )
     {
-        // Gap-fill: a page that ships its own CSP keeps every directive it declared (so a good app's
-        // external script-src host survives), and only the baseline directives the page left out are
-        // added to contain unprotected content. A page with no CSP of its own gets the full baseline.
         if ( nullToEmpty( baseline ).isBlank() )
         {
             return;
@@ -236,7 +236,15 @@ public class AdminSiteHandler
             final String[] tokens = part.trim().split( "\\s+" );
             if ( !tokens[0].isEmpty() )
             {
-                policy.addIfAbsent( tokens[0], Arrays.copyOfRange( tokens, 1, tokens.length ) );
+                final String[] sources = Arrays.copyOfRange( tokens, 1, tokens.length );
+                if ( force )
+                {
+                    policy.add( tokens[0], sources );
+                }
+                else
+                {
+                    policy.addIfAbsent( tokens[0], sources );
+                }
             }
         }
     }
