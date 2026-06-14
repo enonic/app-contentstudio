@@ -24,6 +24,8 @@ import com.enonic.xp.portal.url.PortalUrlService;
 import com.enonic.xp.project.ProjectConstants;
 import com.enonic.xp.repository.RepositoryId;
 import com.enonic.xp.util.Exceptions;
+import com.enonic.xp.web.csp.ContentSecurityPolicy;
+import com.enonic.xp.web.csp.CspSource;
 
 @Component(immediate = true, service = PostProcessInjection.class)
 public final class LiveEditInjection
@@ -88,14 +90,15 @@ public final class LiveEditInjection
         {
             if ( htmlTag == HtmlTag.BODY_END )
             {
+                final ContentSecurityPolicy policy = portalRequest.getContentSecurityPolicy();
+                // viewer.js is same-origin; allow it via script-src 'self' here — only because the
+                // viewer is actually being injected (an error page that injects nothing gets no
+                // script-src from us). This also contains the rendered page's scripts to same-origin.
+                policy.scriptSrc( CspSource.SELF );
                 final Map<String, String> model = makeModelForInjection( portalRequest );
-                // ride along with the request nonce only if the rendered page already minted one (a
-                // strict, nonce-based site policy); minting here would become the page's only
-                // script-src entry and block the site's own scripts
-                model.put( "nonceAttr", portalRequest.getContentSecurityPolicy()
-                    .mintedNonce()
-                    .map( nonce -> " nonce=\"" + nonce + "\"" )
-                    .orElse( "" ) );
+                // ride along with the request nonce too, for a page that uses 'strict-dynamic' (where
+                // 'self' is ignored): the viewer then loads via the page's own nonce.
+                model.put( "nonceAttr", policy.mintedNonce().map( nonce -> " nonce=\"" + nonce + "\"" ).orElse( "" ) );
                 return Collections.singletonList( injectUsingTemplate( this.inlineBodyEndTemplate, model ) );
             }
         }

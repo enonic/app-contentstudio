@@ -194,12 +194,11 @@ public class AdminSiteHandler
 
         if ( mode == RenderMode.INLINE )
         {
-            // The inline view renders selected content in an admin-origin iframe on tree selection
-            // and injects the page-editor viewer (viewer.js). Content Studio enforces script-src
-            // 'self' for it directly (like edit mode) — config must not be able to break the editor —
-            // and frame-ancestors 'self' so the panel can frame it. The configurable baseline then
-            // gap-fills the remaining containment directives, without touching what the page set.
-            policy.frameAncestors( CspSource.SELF ).scriptSrc( CspSource.SELF );
+            // The inline view renders selected content in an admin-origin iframe on tree selection,
+            // so it must be framable. script-src 'self' for the injected page-editor viewer is added
+            // by LiveEditInjection, only when the viewer is actually injected. The configurable
+            // baseline gap-fills the remaining containment directives.
+            policy.frameAncestors( CspSource.SELF );
             applyBaseline( policy, inlineContentSecurityPolicy );
         }
         else if ( mode == RenderMode.EDIT )

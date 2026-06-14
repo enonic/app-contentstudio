@@ -95,7 +95,7 @@ class LiveEditInjectionTest
     }
 
     @Test
-    public void testInjectInlineBodyEndDoesNotTouchScriptSrc()
+    public void testInjectInlineBodyEndAddsScriptSrcSelfForTheViewer()
     {
         mockPortalUrlService();
         this.portalRequest.setMode( RenderMode.INLINE );
@@ -107,7 +107,22 @@ class LiveEditInjectionTest
 
         final String result = list.get( 0 );
         assertFalse( result.contains( "nonce" ) );
-        assertEquals( "", this.portalRequest.getContentSecurityPolicy().build() );
+        assertEquals( "script-src 'self'", this.portalRequest.getContentSecurityPolicy().build() );
+    }
+
+    @Test
+    public void testInjectInlineBodyEndForcesScriptSrcSelfOverAStrictPage()
+    {
+        mockPortalUrlService();
+        this.portalRequest.setMode( RenderMode.INLINE );
+        this.portalRequest.setRawRequest( this.request );
+        this.portalRequest.setRepositoryId( ProjectName.from( "myproject" ).getRepoId() );
+        this.portalRequest.getContentSecurityPolicy().add( "script-src", "'none'" );
+
+        this.injection.inject( this.portalRequest, this.portalResponse, HtmlTag.BODY_END );
+
+        // the injected viewer must run even over a page that declared script-src 'none'
+        assertEquals( "script-src 'self'", this.portalRequest.getContentSecurityPolicy().build() );
     }
 
     @Test

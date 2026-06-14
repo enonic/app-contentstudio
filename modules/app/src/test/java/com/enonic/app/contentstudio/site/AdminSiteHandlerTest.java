@@ -101,15 +101,15 @@ class AdminSiteHandlerTest
     }
 
     @Test
-    void inlineEnforcesFrameAncestorsAndScriptSrcSelf()
+    void inlineAddsFrameAncestorsAndDoesNotTouchScriptSrc()
         throws Exception
     {
         this.portalRequest.setMode( RenderMode.INLINE );
 
         doHandle();
 
-        // script-src 'self' is enforced by Content Studio for the injected viewer, independent of config
-        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo( "frame-ancestors 'self'; script-src 'self'" );
+        // script-src 'self' is added by LiveEditInjection when the viewer is injected, not here
+        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo( "frame-ancestors 'self'" );
     }
 
     @Test
@@ -126,23 +126,23 @@ class AdminSiteHandlerTest
     }
 
     @Test
-    void inlineFillsBaselineGapsForUnprotectedContent()
+    void inlineGapFillsTheContainmentBaseline()
         throws Exception
     {
-        activate( "script-src 'self'; connect-src 'self'" );
+        activate( "connect-src 'self'; object-src 'none'" );
         this.portalRequest.setMode( RenderMode.INLINE );
 
         doHandle();
 
         assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo(
-            "connect-src 'self'; frame-ancestors 'self'; script-src 'self'" );
+            "connect-src 'self'; frame-ancestors 'self'; object-src 'none'" );
     }
 
     @Test
     void inlinePreservesPageDeclaredDirectivesAndFillsGaps()
         throws Exception
     {
-        activate( "script-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'" );
+        activate( "connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'" );
         this.portalRequest.setMode( RenderMode.INLINE );
         this.portalRequest.getContentSecurityPolicy().add( "script-src", "'self'", "https://cdn.example.com" );
 
@@ -154,7 +154,7 @@ class AdminSiteHandlerTest
     }
 
     @Test
-    void inlineErrorPageStaysFramableByContentStudio()
+    void inlineErrorPageStaysFramableWithoutScriptSrc()
         throws Exception
     {
         this.portalRequest.setMode( RenderMode.INLINE );
@@ -162,22 +162,8 @@ class AdminSiteHandlerTest
 
         doHandle();
 
-        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo( "frame-ancestors 'self'; script-src 'self'" );
-    }
-
-    @Test
-    void inlineForcesScriptSrcSelfForTheInjectedViewer()
-        throws Exception
-    {
-        activate( "script-src 'self'" );
-        this.portalRequest.setMode( RenderMode.INLINE );
-        this.portalRequest.getContentSecurityPolicy().add( "script-src", "'none'" );
-
-        doHandle();
-
-        // viewer.js is injected in inline mode, so 'self' is forced in even over the page's 'none'
-        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo(
-            "frame-ancestors 'self'; script-src 'self'" );
+        // no viewer is injected on an error page, so no script-src is added
+        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo( "frame-ancestors 'self'" );
     }
 
     @Test
