@@ -195,12 +195,12 @@ public class AdminSiteHandler
         if ( mode == RenderMode.INLINE )
         {
             // The inline view renders selected content in an admin-origin iframe on tree selection
-            // and injects the page-editor viewer (viewer.js). It must be framable and must force the
-            // baseline in (union): e.g. script-src 'self' has to hold even over a page that declared
-            // script-src 'none', or the injected viewer would be blocked. A good app's own sources
-            // survive the union.
-            policy.frameAncestors( CspSource.SELF );
-            applyBaseline( policy, inlineContentSecurityPolicy, true );
+            // and injects the page-editor viewer (viewer.js). Content Studio enforces script-src
+            // 'self' for it directly (like edit mode) — config must not be able to break the editor —
+            // and frame-ancestors 'self' so the panel can frame it. The configurable baseline then
+            // gap-fills the remaining containment directives, without touching what the page set.
+            policy.frameAncestors( CspSource.SELF ).scriptSrc( CspSource.SELF );
+            applyBaseline( policy, inlineContentSecurityPolicy );
         }
         else if ( mode == RenderMode.EDIT )
         {
@@ -218,15 +218,18 @@ public class AdminSiteHandler
         }
         else if ( mode == RenderMode.PREVIEW )
         {
-            // Preview opens as a separate top-level tab and injects nothing, so it gap-fills: lock
-            // down a page that ships no CSP, but never touch a directive a good app declared.
-            applyBaseline( policy, previewContentSecurityPolicy, false );
+            // Preview opens as a separate top-level tab and injects nothing, so it only gap-fills:
+            // lock down a page that ships no CSP, but never touch a directive a good app declared.
+            applyBaseline( policy, previewContentSecurityPolicy );
         }
         return response;
     }
 
-    private static void applyBaseline( final ContentSecurityPolicy policy, final String baseline, final boolean force )
+    private static void applyBaseline( final ContentSecurityPolicy policy, final String baseline )
     {
+        // Gap-fill: add a baseline directive only when the page did not declare it, so a good app's
+        // own directives (an external script-src host, or even a strict script-src 'none') are left
+        // exactly as declared. A page with no CSP of its own gets the full baseline.
         if ( nullToEmpty( baseline ).isBlank() )
         {
             return;
@@ -236,15 +239,7 @@ public class AdminSiteHandler
             final String[] tokens = part.trim().split( "\\s+" );
             if ( !tokens[0].isEmpty() )
             {
-                final String[] sources = Arrays.copyOfRange( tokens, 1, tokens.length );
-                if ( force )
-                {
-                    policy.add( tokens[0], sources );
-                }
-                else
-                {
-                    policy.addIfAbsent( tokens[0], sources );
-                }
+                policy.addIfAbsent( tokens[0], Arrays.copyOfRange( tokens, 1, tokens.length ) );
             }
         }
     }

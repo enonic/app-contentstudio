@@ -101,14 +101,15 @@ class AdminSiteHandlerTest
     }
 
     @Test
-    void inlineAddsFrameAncestorsAndLeavesTheRestOfThePolicyAlone()
+    void inlineEnforcesFrameAncestorsAndScriptSrcSelf()
         throws Exception
     {
         this.portalRequest.setMode( RenderMode.INLINE );
 
         doHandle();
 
-        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo( "frame-ancestors 'self'" );
+        // script-src 'self' is enforced by Content Studio for the injected viewer, independent of config
+        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo( "frame-ancestors 'self'; script-src 'self'" );
     }
 
     @Test
@@ -161,7 +162,7 @@ class AdminSiteHandlerTest
 
         doHandle();
 
-        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo( "frame-ancestors 'self'" );
+        assertThat( this.portalRequest.getContentSecurityPolicy().build() ).isEqualTo( "frame-ancestors 'self'; script-src 'self'" );
     }
 
     @Test
