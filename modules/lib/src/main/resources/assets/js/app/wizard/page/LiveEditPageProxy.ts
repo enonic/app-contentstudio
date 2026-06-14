@@ -448,6 +448,11 @@ export class LiveEditPageProxy
 
         LiveEditPageViewReadyEvent.on((event: LiveEditPageViewReadyEvent) => {
             eventsManager.notifyLiveEditPageViewReady(event);
+
+            const errorPaths: ComponentPath[] = event.getComponents()
+                .filter((component) => component.error)
+                .map((component) => component.path);
+            eventsManager.notifyPageRenderErrors(errorPaths);
         });
 
         LiveEditPageInitializationErrorEvent.on((event: LiveEditPageInitializationErrorEvent) => {

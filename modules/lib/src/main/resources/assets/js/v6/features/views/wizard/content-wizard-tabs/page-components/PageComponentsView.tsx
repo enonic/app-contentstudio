@@ -19,7 +19,7 @@ import {useI18n} from '../../../../hooks/useI18n';
 import {useSelectedPageOption} from '../../../../hooks/usePageOptions';
 import type {FlatNode} from '../../../../lib/tree-store';
 import {inspectItem, requestComponentMove} from '../../../../store/page-editor';
-import {$inspectedPath, $pageVersion} from '../../../../store/page-editor/store';
+import {$inspectedPath, $pageVersion, $renderErrorComponentPaths} from '../../../../store/page-editor/store';
 import {$invalidComponentPaths, $validationVisibility} from '../../../../store/wizardValidation.store';
 import {PageComponentsContextMenu} from './PageComponentsContextMenu';
 import {calcSpacerWidth, PageComponentsItem, type PageComponentPageMetadata} from './PageComponentsItem';
@@ -53,6 +53,7 @@ export const PageComponentsView = ({showTitle = false}: PageComponentsViewProps 
     const componentsLabel = useI18n('field.components');
     const pageVersion = useStore($pageVersion);
     const invalidComponentPaths = useStore($invalidComponentPaths);
+    const renderErrorComponentPaths = useStore($renderErrorComponentPaths);
     const validationVisibility = useStore($validationVisibility);
     const showErrors = validationVisibility === 'all';
     const inspectedPath = useStore($inspectedPath);
@@ -185,7 +186,10 @@ export const PageComponentsView = ({showTitle = false}: PageComponentsViewProps 
         context: SortableListItemContext<FlatNode<PageComponentNodeData>>,
     ): ReactElement | null => {
         const isSelected = context.item.id === inspectedPath;
-        const isInvalid = showErrors && invalidComponentPaths.has(context.item.id);
+        // Render errors are always shown (a real failure), unlike form validation
+        // which respects validation visibility.
+        const isInvalid = renderErrorComponentPaths.has(context.item.id)
+            || (showErrors && invalidComponentPaths.has(context.item.id));
         return (
             <PageComponentsContextMenu node={context.item}>
                 <PageComponentsItem
@@ -198,7 +202,7 @@ export const PageComponentsView = ({showTitle = false}: PageComponentsViewProps 
                 />
             </PageComponentsContextMenu>
         );
-    }, [handleSelect, inspectedPath, pageMetadata, showErrors, invalidComponentPaths]);
+    }, [handleSelect, inspectedPath, pageMetadata, showErrors, invalidComponentPaths, renderErrorComponentPaths]);
 
     return (
         <div ref={containerRef} data-component={PAGE_COMPONENTS_VIEW_NAME} className="flex flex-col gap-1 py-2">
