@@ -66,12 +66,12 @@ When content is rendered inside Content Studio, a configurable baseline Content 
 
 The *inline view* (shown as you select content in the tree) additionally injects the page editor. Content Studio sets `script-src 'self'` for that viewer at the moment it is injected — not from the config below, which must not be able to break the editor, and not on responses that inject nothing (an error page in the panel) — together with `frame-ancestors 'self'` so the panel can frame it. Its baseline therefore omits `script-src`. The *preview* (a separate, explicit tab) injects nothing and only gap-fills its baseline.
 
-Inline and preview are configured separately, so you can relax preview — accepting more risk in that explicit, separate-tab view — while keeping the inline view (rendered on mere selection) tight. Both default to the same value:
+Inline and preview are configured separately, so you can relax preview — accepting more risk in that explicit, separate-tab view — while keeping the inline view (rendered on mere selection) tight. The two defaults differ in one directive: the inline default omits `script-src`, which Content Studio sets to `'self'` at injection time (as described above), while the preview default includes it:
 
 .com.enonic.app.contentstudio.cfg
 [source,properties]
 ----
-site.inline.contentSecurityPolicy=script-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'
+site.inline.contentSecurityPolicy=connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'
 site.preview.contentSecurityPolicy=script-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'
 ----
 
