@@ -1,9 +1,6 @@
 package com.enonic.app.contentstudio.site;
 
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -234,31 +231,14 @@ public class AdminSiteHandler
         {
             return;
         }
-        final Set<String> declared = directiveNames( policy.build() );
         for ( final String part : baseline.split( ";" ) )
         {
             final String[] tokens = part.trim().split( "\\s+" );
-            final String directive = tokens[0].toLowerCase( Locale.ROOT );
-            if ( !directive.isEmpty() && !declared.contains( directive ) )
+            if ( !tokens[0].isEmpty() )
             {
-                policy.add( directive, Arrays.copyOfRange( tokens, 1, tokens.length ) );
+                policy.addIfAbsent( tokens[0], Arrays.copyOfRange( tokens, 1, tokens.length ) );
             }
         }
-    }
-
-    private static Set<String> directiveNames( final String policyValue )
-    {
-        final Set<String> names = new HashSet<>();
-        for ( final String part : policyValue.split( "[,;]" ) )
-        {
-            final String trimmed = part.trim();
-            if ( !trimmed.isEmpty() )
-            {
-                final int space = trimmed.indexOf( ' ' );
-                names.add( ( space < 0 ? trimmed : trimmed.substring( 0, space ) ).toLowerCase( Locale.ROOT ) );
-            }
-        }
-        return names;
     }
 
     private WebResponse doHandle0( final WebRequest webRequest, final WebResponse webResponse, final WebHandlerChain webHandlerChain )
