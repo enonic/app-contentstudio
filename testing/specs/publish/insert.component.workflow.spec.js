@@ -1,5 +1,5 @@
 /**
- * Created on 11.08.2022
+ * Created on 11.08.2022  updated on 13.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -26,14 +26,13 @@ describe("insert.component.workflow.spec - insert a component and click on 'Mark
     it("Precondition - new site should be added",
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
         });
 
     it("GIVEN a text component has been inserted in the site WHEN 'Mark as ready' button has been pressed THEN site's status gets 'Ready for publishing'",
         async () => {
             let pageComponentView = new PageComponentView();
-            let textComponentCke = new TextComponentCke();
             let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let contentWizard = new ContentWizard();
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -42,10 +41,11 @@ describe("insert.component.workflow.spec - insert a component and click on 'Mark
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            await pageComponentView.openMenu('main');
+            await pageComponentView.rightClickAndOpenContextMenu('main');
             // 3. Insert Text Component with test text and save it:
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await studioUtils.saveScreenshot('issue_text_component_inserted');
+            await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.typeTextInEditor('test text');
             // 4. Click on 'Mark as Ready' button:
             await contentWizard.clickOnMarkAsReadyButton();
@@ -56,9 +56,8 @@ describe("insert.component.workflow.spec - insert a component and click on 'Mark
             await contentPublishDialog.clickOnCloseButton();
             await studioUtils.saveScreenshot("text_component_mark_as_ready_pressed");
             // 5. Verify the workflow state get 'Ready for publishing'
-            await contentWizard.clickOnMinimizeLiveEditToggler();
             let actualWorkflow = await contentWizard.getContentWorkflowState();
-            assert.equal(actualWorkflow, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING,
+            assert.equal(actualWorkflow, appConst.ICON_WORKFLOW_STATE.READY_FOR_PUBLISHING,
                 `Ready for publishing status should be displayed in the wizard`);
             // 6. Verify that Publish button gets displayed in the wizard-toolbar
             await contentWizard.waitForPublishButtonDisplayed();
@@ -69,7 +68,7 @@ describe("insert.component.workflow.spec - insert a component and click on 'Mark
                 "'Ready for publishing' should be displayed in browse panel");
         });
 
-    it("GIVEN text with spaces has been inserted in a text component WHEN 'Save' button has been pressed THEN 'Saved' button should appear in the wizard toolbar",
+    it("GIVEN text with spaces has been inserted in the text component WHEN 'Save' button has been pressed THEN 'Saved' button should appear in the wizard toolbar",
         async () => {
             let pageComponentView = new PageComponentView();
             let textComponentCke = new TextComponentCke();
@@ -79,8 +78,8 @@ describe("insert.component.workflow.spec - insert a component and click on 'Mark
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentView.rightClickAndOpenContextMenu('main');
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // 3. insert a text with spaces:
             await textComponentInspectionPanel.typeTextInEditor(TEXT_WITH_SPACES);
             await textComponentInspectionPanel.typeTextInEditor(TEXT_WITH_SPACES);

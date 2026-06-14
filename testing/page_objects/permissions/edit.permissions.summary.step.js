@@ -218,7 +218,7 @@ class EditPermissionsSummaryStep extends BaseStepPermissionsDialog {
 
     async getNumberFromApplyChangesButton() {
         try {
-            let text = await this.getText(this.applyChangesButton + '//span');
+            let text = await this.getText(this.applyChangesButton);
             const match = text.match(/\((\d+)\)/); // Regular expression to find number inside parentheses
             return match ? parseInt(match[1], 10) : null; // Return the number as an integer or null
         } catch (err) {

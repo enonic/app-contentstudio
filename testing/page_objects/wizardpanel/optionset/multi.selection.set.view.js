@@ -1,36 +1,25 @@
 /**
- * Created on 23.01.2019. updated on 11.02.2026
+ * Created on 23.01.2019. updated on 13.06.2026
  */
 const Page = require('../../page');
-const {BUTTONS} = require('../../../libs/elements');
+const {BUTTONS, COMMON} = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const HtmlAreaForm = require('../htmlarea.form.panel');
 
 const xpath = {
-    container: "//div[contains(@id,'FormView')]//div[contains(@id,'FormOptionSetView') and descendant::h5[text()='Multi selection']]",
-    validationMessage: "//div[contains(@class,'selection-message')]",
-    nameTextInput: "//div[contains(@id,'InputView') and descendant::div[text()='Name']]" + lib.TEXT_INPUT,
-    optionSetOccurrenceLabel: "//div[contains(@id,'FormOccurrenceDraggableLabel')]",
-    multiOptionsView: "//div[contains(@id,'FormOptionSetOccurrenceViewMultiOptions')]",
-    optionLabelLocator: option => `//div[contains(@id,'FormOptionSetOptionView') and descendant::span[text()='${option}']]//label`,
-    optionCheckboxLocator:
-        option => `//div[contains(@id,'FormOptionSetOptionView') and descendant::span[text()='${option}']]//input[@type='checkbox']`
+    container: "//div[@data-component='OptionSetView' and child::div[@data-component='SetHeader']//span[text()='Multi selection']]",
+    validationMessage: "//div[contains(@class,'text-error')]",
+    multiOptionsView: "//div[@data-component='OptionSetOccurrenceBody']",
+    occurrenceHeaderLabel: "//div[@data-component='ContextMenu.Trigger']//button[@aria-expanded]/span",
+    optionLabelLocator: option => `//div[@data-component='Checkbox' and descendant::span[text()='${option}']]//label`,
+    optionCheckboxLocator: option => `//div[@data-component='Checkbox' and descendant::span[text()='${option}']]//input[@type='checkbox']`,
 };
 
 //Page Object for Custom option set
 class MultiSelectionOptionSet extends Page {
 
-    get nameTextInput() {
-        return xpath.container + xpath.nameTextInput;
-    }
-
-    get addItemSetButton() {
-        return xpath.container + xpath.addItemSetButton;
-    }
-
     async clickOnOption(option) {
         let locator = xpath.optionLabelLocator(option);
-        //await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.waitForOptionCheckboxEnabled(option);
         await this.clickOnElement(locator);
         return this.pause(300);
@@ -59,14 +48,12 @@ class MultiSelectionOptionSet extends Page {
     }
 
     async getMultiSelectionTitle() {
-        let locator = xpath.container + xpath.optionSetOccurrenceLabel;
-        let result = await this.getText(locator);
-        let tittle = result.split("\n");
-        return tittle[0].trim();
+        let locator = xpath.container + xpath.occurrenceHeaderLabel;
+        return await this.getText(locator);
     }
 
     async getMultiSelectionSubtitle() {
-        let locator = xpath.container + xpath.optionSetOccurrenceLabel + "//p[@class='note']";
+        let locator = xpath.container + xpath.occurrenceHeaderLabel + '/following-sibling::span';
         return await this.getText(locator);
     }
 
@@ -86,31 +73,26 @@ class MultiSelectionOptionSet extends Page {
     }
 
     async clickOnAddLong() {
-        let locator = "//div[contains(@id,'FormOptionSetOptionView') and descendant::span[text()='Option 1']]//button[child::span[text()='Add']]";
+        let locator = xpath.container + COMMON.INPUTS.inputFieldByLabel('Long') + BUTTONS.buttonAriaLabel('Add');
         await this.waitForElementEnabled(locator, appConst.mediumTimeout);
         await this.clickOnElement(locator);
         return await this.pause(300);
     }
 
     async getValidationRecording() {
-        let locator = xpath.container + xpath.multiOptionsView + "//div[@class='selection-message']";
+        let locator = xpath.container + xpath.multiOptionsView + "//div[contains(@class,'text-error')]";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator);
     }
 
     waitForValidationRecordingNotDisplayed() {
-        let locator = xpath.container + xpath.multiOptionsView + "//div[@class='selection-message']";
+        let locator = xpath.container + xpath.multiOptionsView + "//div[contains(@class,'text-error')]";
         return this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
     }
 
     async typeTextInHtmlAreaInOption3(index, text) {
         let htmlAreaForm = new HtmlAreaForm(xpath.container);
         return await htmlAreaForm.insertTextInHtmlArea(index, text);
-    }
-
-    async showToolbarInHtmlArea(index) {
-        let htmlAreaForm = new HtmlAreaForm();
-        return await htmlAreaForm.showToolbar(index);
     }
 
     async showToolbarAndClickOnInsertImageButton() {

@@ -66,7 +66,7 @@ describe('content.unsaved.changes.spec: tests for unsaved changes in wizard + te
             if (result) {
                 await contentWizard.dismissAlert();
             }
-            assert.ok(result === false, "Alert should not appear after trying to delete the wizard with unsaved changes");
+            assert.ok(result === false, "Alert should not appear when closing a wizard with unsaved changes");
             await studioUtils.doSwitchToContentBrowsePanel();
             await contentBrowsePanel.pause(2000);
         });
@@ -88,7 +88,7 @@ describe('content.unsaved.changes.spec: tests for unsaved changes in wizard + te
             if (result) {
                 await contentWizard.acceptAlert();
             }
-            assert.ok(result, "Alert should appear after trying to close the wizard with unsaved changes");
+            assert.ok(result, "Alert should appear when closing a wizard with unsaved changes");
             await studioUtils.doSwitchToContentBrowsePanel();
             let contentFilterPanel = new ContentFilterPanel();
             // 4. Open Filter Panel and type the name of folder

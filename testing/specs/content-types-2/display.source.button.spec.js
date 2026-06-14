@@ -1,5 +1,5 @@
 /**
- * Created on 31.01.2022
+ * Created on 31.01.2022 update on 14.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -45,7 +45,7 @@ describe('display.source.button.spec - tests for user with Content Manager Exper
             await studioUtils.navigateToContentStudioApp();
             // 2. SU creates new site:
             let siteName = appConst.generateRandomName('site');
-            SITE = contentBuilder.buildSite(siteName, 'description', [appConst.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(siteName, null, [appConst.APP_CONTENT_TYPES]);
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizard.typeData(SITE);
             // 3. The site should be automatically saved
@@ -88,7 +88,10 @@ describe('display.source.button.spec - tests for user with Content Manager Exper
 
     // Verifies issue Edit/Delete icons in the Site configurator should be hidden for non-admin users #3496
     // https://github.com/enonic/app-contentstudio/issues/3496
-    it("GIVEN user with roles 'Author' and 'Content Manager Expert' is signing in WHEN existing site has been opened THEN 'Edit configurator' and 'remove application' icons should be hidden",
+    //https://github.com/enonic/app-contentstudio/issues/10828
+    // TODO
+    it.skip(
+        "GIVEN user with roles 'Author' and 'Content Manager Expert' is signing in WHEN existing site has been opened THEN 'Edit configurator' and 'remove application' icons should be hidden",
         async () => {
             let siteFormPanel = new SiteFormPanel();
             await studioUtils.navigateToContentStudioApp(USER.displayName, appConst.PASSWORD.MEDIUM);

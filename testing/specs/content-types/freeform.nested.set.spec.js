@@ -1,5 +1,5 @@
 /**
- * Created on 12.04.2019.
+ * Created on 12.04.2019. updated on 13.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -18,12 +18,7 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
     let CONTENT_1;
     let CONTENT_2 = contentBuilder.generateRandomName('freeform');
 
-    it("Preconditions: new site should be created",
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
 
     // Verify:  Nested Form Item Sets - incorrect behaviour of validation when 2 levels added #3773
     // https://github.com/enonic/app-contentstudio/issues/3773
@@ -31,7 +26,7 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
         async () => {
             let contentWizard = new ContentWizard();
             let freeFormNestedSet = new FreeFormNestedSet();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.FREE_FORM);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.FREE_FORM);
             // 1. Fill in the name input:
             await contentWizard.typeDisplayName(CONTENT_2);
             await studioUtils.saveScreenshot('freeform_not_scrolled');
@@ -41,7 +36,7 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
             // 3. Add an occurrence block (the second level):
             await freeFormNestedSet.clickOnAddButton();
             await studioUtils.saveScreenshot('freeform_scrolled');
-            // 4. Expand the dropdown selector in the first occurrence then select the required option ( select 'Button' option)
+            // 4. Click on the 'Button' radio in the 'element type' option set in the first occurrence:
             await freeFormNestedSet.expandOptionsAndSelectElementType('Button', 0);
             await studioUtils.saveScreenshot('nested_sets_remains_invalid_0');
             await contentWizard.scrollPanel(-500);
@@ -51,7 +46,7 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
             assert.ok(isInvalid, 'The content should be invalid');
             // 6. Scroll the wizard page and select 'Button' option in the second occurrence block:
             await contentWizard.scrollPanel(600);
-            // expand the second occurrence of 'element type' dropdown and click on 'Button' option
+            // click on the 'Button' radio in the second occurrence of 'element type' option set
             await freeFormNestedSet.expandOptionsAndSelectElementType('Button', 1);
             await studioUtils.saveScreenshot('nested_sets_gets_valid_0');
             // 7. Verify that "Save" button gets enabled
@@ -68,7 +63,7 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
             let contentWizard = new ContentWizard();
             let freeFormNestedSet = new FreeFormNestedSet();
             CONTENT_1 = contentBuilder.generateRandomName('freeform');
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.FREE_FORM);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.FREE_FORM);
             await contentWizard.typeDisplayName(CONTENT_1);
             // save just the name:
             await contentWizard.waitAndClickOnSave();
@@ -97,8 +92,7 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
             await freeFormNestedSet.selectInputType('text');
             await contentWizard.waitAndClickOnSave();
             await contentWizard.pause(1000);
-            // 3. change the selected option to 'image':
-            await freeFormNestedSet.resetInputTypeOption();
+            // 3. change the selected option to 'image' (single-select option set is rendered as radio buttons, so just click on another radio):
             await freeFormNestedSet.selectInputType('image');
             // "Save" button gets enabled, because the option was updated:
             await contentWizard.waitForSaveButtonEnabled();

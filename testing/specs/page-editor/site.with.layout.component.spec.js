@@ -37,7 +37,7 @@ describe('site.with.layout.component.spec - specification', function () {
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert the Layout component (3-column):
-            await pageComponentView.openMenu('main');
+            await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectMenuItem(['Insert', 'Layout']);
             await layoutInspectionPanel.typeNameAndSelectLayout(LAYOUT_NAME);
             // Verify that the site saved automatically(layout was selected):
@@ -59,7 +59,7 @@ describe('site.with.layout.component.spec - specification', function () {
             // 3. Expand the layout item:
             await pageComponentView.expandItem(LAYOUT_NAME);
             // 4. Insert the first text component:
-            await pageComponentView.openMenu('left');
+            await pageComponentView.rightClickAndOpenContextMenu('left');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();
@@ -83,7 +83,7 @@ describe('site.with.layout.component.spec - specification', function () {
             // 3. Expand the layout item:
             await pageComponentView.expandItem(LAYOUT_NAME);
             // 4. Insert the text component in 'center' region:
-            await pageComponentView.openMenu('center');
+            await pageComponentView.rightClickAndOpenContextMenu('center');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();
@@ -109,7 +109,7 @@ describe('site.with.layout.component.spec - specification', function () {
             // 3. Expand the layout item:
             await pageComponentView.expandItem(LAYOUT_NAME);
             // 4. Insert the text component in 'right' region
-            await pageComponentView.openMenu('right');
+            await pageComponentView.rightClickAndOpenContextMenu('right');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();

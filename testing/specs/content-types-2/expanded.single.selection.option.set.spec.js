@@ -1,5 +1,5 @@
 /**
- * Created on 31.10.2022
+ * Created on 31.10.2022 updated on 14.06.2026
  */
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -13,31 +13,25 @@ describe("expanded.single.selection.option.set.spec: tests for single-select opt
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let SITE;
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
     const CONTENT_NAME = appConst.generateRandomName('set');
 
-    it(`Preconditions: new site should be created`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
 
     it(`GIVEN wizard for new content with expanded Single Selection is opened WHEN 'Option 1' has been selected THEN inputs from the 'Option 2' should not be visible`,
         async () => {
             let contentWizard = new ContentWizard();
             let expandedSingleSelectionOptionSet = new ExpandedSingleSelectionOptionSet();
-            //1. Open new wizard for Option Set with expanded by default single selection:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.EXPANDED_SINGLE_SELECTION_OPTION_SET);
+            // 1. Open new wizard for Option Set with expanded by default single selection:
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.EXPANDED_SINGLE_SELECTION_OPTION_SET);
             await contentWizard.typeDisplayName(CONTENT_NAME);
             await contentWizard.pause(1000);
-            //2. Select 'Option 1' in single selection dropdown:
+            // 2. Select 'Option 1' in single selection dropdown:
             await expandedSingleSelectionOptionSet.selectOption('Option 1');
             await studioUtils.saveScreenshot('single_selection_option_1_selected');
-            //3. Verify that inputs from 'option 2'-form are not displayed:
+            // 3. Verify that inputs from 'option 2'-form are not displayed:
             await expandedSingleSelectionOptionSet.waitForOption1TextInputDisplayed();
             await expandedSingleSelectionOptionSet.waitForOption2FilterInputNotDisplayed();
-            //4. Save the content
+            // 4. Save the content
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessages();
         });
@@ -47,10 +41,10 @@ describe("expanded.single.selection.option.set.spec: tests for single-select opt
     it(`WHEN existing content with expanded Single Selection is opened THEN inputs from the 'Option 2' should not be visible`,
         async () => {
             let expandedSingleSelectionOptionSet = new ExpandedSingleSelectionOptionSet();
-            //1. Open the existing content with single-select option-sets with <expanded>true</expanded>:
+            // 1. Open the existing content with single-select option-sets with <expanded>true</expanded>:
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
             await studioUtils.saveScreenshot('single_selection_option_1_reopened');
-            //2. Verify that only input from 'Option 1' is displayed
+            // 2. Verify that only input from 'Option 1' is displayed
             await expandedSingleSelectionOptionSet.waitForOption1TextInputDisplayed();
             await expandedSingleSelectionOptionSet.waitForOption2FilterInputNotDisplayed();
         });

@@ -30,12 +30,7 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
     const OPTION_SET_NAME1 = contentBuilder.generateRandomName('optionset');
     const OPTION_SET_NAME = contentBuilder.generateRandomName('optionset');
 
-    it('Preconditions: new site should be created',
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
 
     // Invalid Option Set is not highlighted when saved in a new content #3183
     // https://github.com/enonic/app-contentstudio/issues/3183
@@ -44,7 +39,7 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             let contentWizard = new ContentWizard();
             let optionSetForm2 = new OptionSetForm2View();
             // 1. Open the new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset2');
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, 'optionset2');
             // 2. Fill in the name input:
             await contentWizard.typeDisplayName(contentBuilder.generateRandomName('optionset'));
             await contentWizard.waitAndClickOnSave();
@@ -63,7 +58,7 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             let contentWizard = new ContentWizard();
             let optionSetForm2 = new OptionSetForm2View();
             // 1. Open the new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.OPTION_SET2);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.OPTION_SET2);
             await contentWizard.typeDisplayName(contentBuilder.generateRandomName('optionset'));
             // 2. Select 'Text block' option
             await optionSetForm2.selectOption('Text block');
@@ -161,7 +156,7 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
         async () => {
             let singleSelectionOptionSet = new SingleSelectionOptionSet();
             // 1. Open the new wizard: optionset
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.OPTION_SET);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.OPTION_SET);
             // 2. Select 'Option 1' :
             await singleSelectionOptionSet.selectOption('Option 1');
             // 3. Verify that the title is equal to text in 'Name' input
@@ -185,7 +180,7 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             let optionSetForm = new OptionSetForm();
             let singleSelectionOptionSet = new SingleSelectionOptionSet();
             // 1. Open the new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.OPTION_SET);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.OPTION_SET);
             await optionSetForm.selectOptionInSingleSelection('Option 1');
             await singleSelectionOptionSet.typeTextInOptionNameInput('test 1');
             await singleSelectionOptionSet.collapseForm();
