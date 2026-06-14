@@ -2,6 +2,7 @@ import {cn, IconButton} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {ChevronLeft, ChevronRight} from 'lucide-react';
 import {createPortal, type CSSProperties, type PointerEvent as ReactPointerEvent, useCallback, useEffect, useRef, useState, type ReactElement} from 'react';
+import {useInheritedNonLocalized} from '../../../hooks/useInheritedNonLocalized';
 import {useI18n} from '../../../hooks/useI18n';
 import {$app, setPageComponentsViewCollapsed} from '../../../store/app.store';
 import {$hasPage, $isContentFormExpanded} from '../../../store/wizardContent.store';
@@ -27,6 +28,7 @@ export const DetachedPageComponentsView = (): ReactElement | null => {
     const isExpanded = useStore($isContentFormExpanded);
     const hasPage = useStore($hasPage);
     const {pageComponentsViewCollapsed: collapsed} = useStore($app, {keys: ['pageComponentsViewCollapsed']});
+    const isInheritedNonLocalized = useInheritedNonLocalized();
     const showLabel = useI18n('field.showComponent');
     const hideLabel = useI18n('field.hideComponent');
     const componentsLabel = useI18n('field.components');
@@ -153,7 +155,7 @@ export const DetachedPageComponentsView = (): ReactElement | null => {
                 />
             </div>
             <div className="overflow-auto px-3 pb-2">
-                <PageComponentsView />
+                <PageComponentsView disabled={isInheritedNonLocalized} />
             </div>
         </div>,
         document.body,

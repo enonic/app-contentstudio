@@ -14,6 +14,7 @@ export type PageComponentsItemProps = {
     pageMetadata?: PageComponentPageMetadata;
     selected?: boolean;
     invalid?: boolean;
+    disabled?: boolean;
     onToggle: (id: string) => void;
     onSelect: (id: string) => void;
 };
@@ -54,6 +55,7 @@ export const PageComponentsItem = ({
     pageMetadata,
     selected,
     invalid,
+    disabled,
     onToggle,
     onSelect,
 }: PageComponentsItemProps): ReactElement | null => {
@@ -73,10 +75,18 @@ export const PageComponentsItem = ({
 
     const handleToggleClick = (e: MouseEvent<HTMLButtonElement>): void => {
         e.stopPropagation();
+        if (disabled) {
+            return;
+        }
+
         onToggle(node.id);
     };
 
     const handleClick = (): void => {
+        if (disabled) {
+            return;
+        }
+
         onSelect(node.id);
     };
 
@@ -84,6 +94,7 @@ export const PageComponentsItem = ({
         <div
             className="flex flex-1 min-w-0 items-center gap-1 py-1"
             data-node-id={node.id}
+            aria-disabled={disabled}
             onClick={handleClick}
         >
             {!context.isMovable && <span className="size-5 shrink-0" />}
@@ -96,8 +107,10 @@ export const PageComponentsItem = ({
                 <button
                     type="button"
                     tabIndex={-1}
+                    disabled={disabled}
                     className={cn(
-                        'flex items-center justify-center size-5 shrink-0 cursor-pointer hover:text-main',
+                        'flex items-center justify-center size-5 shrink-0',
+                        disabled ? 'cursor-default' : 'cursor-pointer hover:text-main',
                         selected ? 'text-alt' : 'text-subtle',
                     )}
                     onClick={handleToggleClick}
