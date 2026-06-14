@@ -209,9 +209,11 @@ public class AdminSiteHandler
         else if ( mode == RenderMode.PREVIEW )
         {
             // Keep previews (including error pages) framable by Content Studio, then enforce a
-            // configurable baseline alongside the page's own policy. The baseline contains script
-            // execution and data egress to same-origin while leaving the page's rendering directives
-            // untouched; admins can relax it via config.
+            // configurable baseline alongside the page's own policy: it contains script execution
+            // and data egress to same-origin, leaving the page's rendering directives untouched.
+            // nonceScriptSrc() is additive — it lets a page that nonces its own scripts satisfy the
+            // baseline too; 'self' is untouched, so non-nonce pages keep running same-origin scripts.
+            // Admins can relax the baseline via config.
             policy.frameAncestors( CspSource.SELF );
             if ( !nullToEmpty( previewContentSecurityPolicy ).isBlank() )
             {
