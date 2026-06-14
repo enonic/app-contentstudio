@@ -22,7 +22,6 @@ import com.enonic.xp.portal.postprocess.HtmlTag;
 import com.enonic.xp.portal.url.AssetUrlParams;
 import com.enonic.xp.portal.url.PortalUrlService;
 import com.enonic.xp.project.ProjectName;
-import com.enonic.xp.web.csp.ContentSecurityPolicySerializer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -108,7 +107,7 @@ class LiveEditInjectionTest
 
         final String result = list.get( 0 );
         assertFalse( result.contains( "nonce" ) );
-        assertEquals( "script-src 'self'", ContentSecurityPolicySerializer.serialize( this.portalRequest.getContentSecurityPolicy() ) );
+        assertEquals( "script-src 'self'", this.portalRequest.getContentSecurityPolicy().serialize() );
     }
 
     @Test
@@ -123,7 +122,7 @@ class LiveEditInjectionTest
         this.injection.inject( this.portalRequest, this.portalResponse, HtmlTag.BODY_END );
 
         // the injected viewer must run even over a page that declared script-src 'none'
-        assertEquals( "script-src 'self'", ContentSecurityPolicySerializer.serialize( this.portalRequest.getContentSecurityPolicy() ) );
+        assertEquals( "script-src 'self'", this.portalRequest.getContentSecurityPolicy().serialize() );
     }
 
     @Test

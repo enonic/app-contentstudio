@@ -14,7 +14,6 @@ import com.enonic.xp.portal.RenderMode;
 import com.enonic.xp.project.ProjectService;
 import com.enonic.xp.web.HttpStatus;
 import com.enonic.xp.web.WebResponse;
-import com.enonic.xp.web.csp.ContentSecurityPolicySerializer;
 import com.enonic.xp.web.exception.ExceptionMapper;
 import com.enonic.xp.web.exception.ExceptionRenderer;
 import com.enonic.xp.web.handler.WebHandlerChain;
@@ -80,7 +79,7 @@ class AdminSiteHandlerTest
 
         doHandle();
 
-        assertThat( ContentSecurityPolicySerializer.serialize( this.portalRequest.getContentSecurityPolicy() ) ).isEqualTo(
+        assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo(
             "connect-src 'self'; font-src * data:; frame-ancestors 'self'; img-src 'self' * data:; " +
                 "object-src 'none'; script-src 'self' 'nonce-" + nonce + "'; style-src * 'unsafe-inline'" );
     }
@@ -95,7 +94,7 @@ class AdminSiteHandlerTest
         doHandle();
 
         final String nonce = this.portalRequest.getContentSecurityPolicy().nonceScriptSrc();
-        assertThat( ContentSecurityPolicySerializer.serialize( this.portalRequest.getContentSecurityPolicy() ) ).isEqualTo(
+        assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo(
             "base-uri 'none'; connect-src 'self'; default-src 'none'; font-src * data:; frame-ancestors 'self'; " +
                 "img-src * data:; object-src 'none'; script-src 'self' 'nonce-" + nonce + "'; " +
                 "style-src * 'unsafe-inline'" );
@@ -114,7 +113,7 @@ class AdminSiteHandlerTest
 
         final String nonce = this.portalRequest.getContentSecurityPolicy().nonceScriptSrc();
         // the editor has no frame-src/media-src dependency, so the page's own values are kept untouched
-        assertThat( ContentSecurityPolicySerializer.serialize( this.portalRequest.getContentSecurityPolicy() ) ).isEqualTo(
+        assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo(
             "connect-src 'self'; font-src * data:; frame-ancestors 'self'; frame-src 'self'; img-src * data:; " +
                 "media-src 'self'; object-src 'none'; script-src 'self' 'nonce-" + nonce + "'; style-src * 'unsafe-inline'" );
     }
@@ -128,7 +127,7 @@ class AdminSiteHandlerTest
         doHandle();
 
         // script-src 'self' is added by LiveEditInjection when the viewer is injected, not here
-        assertThat( ContentSecurityPolicySerializer.serialize( this.portalRequest.getContentSecurityPolicy() ) ).isEqualTo( "frame-ancestors 'self'" );
+        assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo( "frame-ancestors 'self'" );
     }
 
     @Test
@@ -140,7 +139,7 @@ class AdminSiteHandlerTest
 
         doHandle();
 
-        assertThat( ContentSecurityPolicySerializer.serialize( this.portalRequest.getContentSecurityPolicy() ) ).isEqualTo(
+        assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo(
             "frame-ancestors 'self'; script-src 'self'" );
     }
 
@@ -153,7 +152,7 @@ class AdminSiteHandlerTest
 
         doHandle();
 
-        assertThat( ContentSecurityPolicySerializer.serialize( this.portalRequest.getContentSecurityPolicy() ) ).isEqualTo(
+        assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo(
             "connect-src 'self'; frame-ancestors 'self'; object-src 'none'" );
     }
 
@@ -167,7 +166,7 @@ class AdminSiteHandlerTest
 
         doHandle();
 
-        assertThat( ContentSecurityPolicySerializer.serialize( this.portalRequest.getContentSecurityPolicy() ) ).isEqualTo(
+        assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo(
             "base-uri 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'self'; object-src 'none'; " +
                 "script-src 'self' https://cdn.example.com" );
     }
@@ -182,7 +181,7 @@ class AdminSiteHandlerTest
         doHandle();
 
         // no viewer is injected on an error page, so no script-src is added
-        assertThat( ContentSecurityPolicySerializer.serialize( this.portalRequest.getContentSecurityPolicy() ) ).isEqualTo( "frame-ancestors 'self'" );
+        assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo( "frame-ancestors 'self'" );
     }
 
     @Test
@@ -195,7 +194,7 @@ class AdminSiteHandlerTest
 
         doHandle();
 
-        assertThat( ContentSecurityPolicySerializer.serialize( this.portalRequest.getContentSecurityPolicy() ) ).isEqualTo(
+        assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo(
             "default-src 'self'; object-src 'none'; script-src 'self'" );
     }
 
@@ -209,7 +208,7 @@ class AdminSiteHandlerTest
 
         doHandle();
 
-        assertThat( ContentSecurityPolicySerializer.serialize( this.portalRequest.getContentSecurityPolicy() ) ).isEqualTo( "script-src 'nonce-" + nonce + "'" );
+        assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo( "script-src 'nonce-" + nonce + "'" );
     }
 
     @Test
@@ -223,7 +222,7 @@ class AdminSiteHandlerTest
         doHandle();
 
         // preview injects nothing, so it must not loosen the page's own 'none'
-        assertThat( ContentSecurityPolicySerializer.serialize( this.portalRequest.getContentSecurityPolicy() ) ).isEqualTo( "script-src 'none'" );
+        assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo( "script-src 'none'" );
     }
 
     @Test
@@ -235,7 +234,7 @@ class AdminSiteHandlerTest
 
         doHandle();
 
-        assertThat( ContentSecurityPolicySerializer.serialize( this.portalRequest.getContentSecurityPolicy() ) ).isEqualTo( "script-src 'self'" );
+        assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo( "script-src 'self'" );
     }
 
     @Test
@@ -247,6 +246,6 @@ class AdminSiteHandlerTest
 
         doHandle();
 
-        assertThat( ContentSecurityPolicySerializer.serialize( this.portalRequest.getContentSecurityPolicy() ) ).isEqualTo( "script-src 'self'" );
+        assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo( "script-src 'self'" );
     }
 }
