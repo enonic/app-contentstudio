@@ -13,7 +13,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.Maps;
 
-import com.enonic.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalRequestAccessor;
 import com.enonic.xp.portal.PortalResponse;
@@ -25,8 +24,10 @@ import com.enonic.xp.portal.url.PortalUrlService;
 import com.enonic.xp.project.ProjectConstants;
 import com.enonic.xp.repository.RepositoryId;
 import com.enonic.xp.util.Exceptions;
+import com.enonic.xp.web.csp.ContentSecurityPolicy;
+import com.enonic.xp.web.csp.CspSource;
 
-@Component(immediate = true, service = PostProcessInjection.class, configurationPid = "com.enonic.app.contentstudio")
+@Component(immediate = true, service = PostProcessInjection.class)
 public final class LiveEditInjection
     implements PostProcessInjection
 {
@@ -38,21 +39,15 @@ public final class LiveEditInjection
 
     private final String bodyEndTemplate;
 
-    private final String cspMetaTemplate;
-
-    private final AdminRestConfig config;
-
     private final PortalUrlService portalUrlService;
 
     private final String inlineBodyEndTemplate;
 
     @Activate
-    public LiveEditInjection( AdminRestConfig config, @Reference PortalUrlService portalUrlService )
+    public LiveEditInjection( @Reference PortalUrlService portalUrlService )
     {
         this.bodyEndTemplate = loadTemplate( "liveEditBodyEnd.html" );
         this.inlineBodyEndTemplate = loadTemplate( "liveViewBodyEnd.html" );
-        this.cspMetaTemplate = loadTemplate( "liveEditCSP.html" );
-        this.config = config;
         this.portalUrlService = portalUrlService;
     }
 
@@ -76,11 +71,6 @@ public final class LiveEditInjection
         PortalRequestAccessor.set( portalRequest );
         try
         {
-            if ( htmlTag == HtmlTag.HEAD_BEGIN )
-            {
-                return Collections.singletonList( injectHeadBegin() );
-            }
-
             if ( htmlTag == HtmlTag.BODY_END )
             {
                 return Collections.singletonList( injectBodyEnd( portalRequest ) );
@@ -100,7 +90,30 @@ public final class LiveEditInjection
         {
             if ( htmlTag == HtmlTag.BODY_END )
             {
-                return Collections.singletonList( injectUsingTemplate( this.inlineBodyEndTemplate, makeModelForInjection( portalRequest ) ) );
+                final ContentSecurityPolicy policy = portalRequest.getContentSecurityPolicy();
+                // viewer.js is a same-origin external script, so 'self' admits it - and also contains the
+                // rendered page's own scripts to same-origin. Only do this because the viewer is actually
+                // being injected (an error page that injects nothing gets no script-src from us). If the
+                // page declared script-src-elem, that directive (not script-src) governs script elements
+                // per the CSP fallback chain, so mirror 'self' into it too, otherwise the viewer is blocked.
+                final boolean scriptSrcElemDeclared = policy.directive( "script-src-elem" ).isPresent();
+                policy.scriptSrc( CspSource.SELF );
+                if ( scriptSrcElemDeclared )
+                {
+                    policy.scriptSrcElem( CspSource.SELF );
+                }
+                final Map<String, String> model = makeModelForInjection( portalRequest );
+                // 'self' admits the viewer unless the governing directive uses 'strict-dynamic', which
+                // ignores 'self'/host sources. Only then does the viewer need the request nonce stamped
+                // and wired into that directive (minting one if the page was hash-based) - a value that
+                // exists only when it is genuinely needed, never blindly.
+                final String governing = scriptSrcElemDeclared ? "script-src-elem" : "script-src";
+                final boolean strictDynamic =
+                    policy.directive( governing ).orElse( List.of() ).contains( CspSource.STRICT_DYNAMIC.token() );
+                model.put( "nonceAttr", strictDynamic
+                    ? " nonce=\"" + ( scriptSrcElemDeclared ? policy.nonceScriptSrcElem() : policy.nonceScriptSrc() ) + "\""
+                    : "" );
+                return Collections.singletonList( injectUsingTemplate( this.inlineBodyEndTemplate, model ) );
             }
         }
         finally
@@ -110,19 +123,13 @@ public final class LiveEditInjection
         return null;
     }
 
-    private String injectHeadBegin()
-    {
-        String finalTemplate = "";
-        if ( this.config.contentSecurityPolicy_enabled() )
-        {
-            finalTemplate += this.cspMetaTemplate;
-        }
-        return finalTemplate;
-    }
-
     private String injectBodyEnd( final PortalRequest portalRequest )
     {
-        return injectUsingTemplate( this.bodyEndTemplate, makeModelForInjection( portalRequest ) );
+        final Map<String, String> model = makeModelForInjection( portalRequest );
+        // Edit mode locks script-src to 'self' plus the request nonce, so the injected editor
+        // bootstrap must carry that nonce to load.
+        model.put( "nonce", portalRequest.getContentSecurityPolicy().nonceScriptSrc() );
+        return injectUsingTemplate( this.bodyEndTemplate, model );
     }
 
     private String injectUsingTemplate( final String template, final Map<String, String> model )

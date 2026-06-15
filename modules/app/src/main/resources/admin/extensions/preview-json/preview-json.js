@@ -1,8 +1,13 @@
 /*global app, resolve*/
 
 const widgetLib = require('/lib/export/widget');
+const portalLib = require('/lib/xp/portal');
 
 exports.get = function (req) {
+
+    // Every response, including the 4xx/5xx error pages, is shown in the Content Studio preview
+    // iframe, so it must stay framable by same-origin Content Studio.
+    portalLib.csp().frameAncestors(portalLib.CspSource.SELF);
 
     let params;
     try {
@@ -25,15 +30,19 @@ exports.get = function (req) {
         log.debug(`Json [${req.method}] exists: ` + !!content);
 
         if (content) {
+            const csp = portalLib.csp()
+                .strict()
+                .frameAncestors(portalLib.CspSource.SELF)
+                .formAction(portalLib.CspSource.NONE);
+            const styleNonce = csp.nonceStyleSrc();
+
             return {
                 contentType: 'text/html',
                 headers: {
-                    'Cache-Control': 'no-store',
-                    'X-Frame-Options': 'SAMEORIGIN',
-                    'Content-Security-Policy': "media-src 'self'"
+                    'Cache-Control': 'no-store'
                 },
                 status: 200,
-                body: buildBody(content)
+                body: buildBody(content, styleNonce)
             };
         } else {
             return widgetLib.widgetResponse(404, {
@@ -62,10 +71,10 @@ exports.canRender = function (req) {
     }
 }
 
-function buildBody(content) {
+function buildBody(content, styleNonce) {
     return `<html lang="en"><head>
                 <title>${content.displayName}</title>
-                <style>
+                <style nonce="${styleNonce}">
                     body {
                         background-color: #333842;
                         margin: 0;
