@@ -60,8 +60,7 @@ function applySecurityPolicy(isBrowseMode) {
     }
 
     // The browse view loads no CKEditor, so script-src stays nonce-based with 'strict-dynamic'.
-    csp.scriptSrc(portal.CspSource.STRICT_DYNAMIC)
-        .scriptSrcAttr(portal.CspSource.UNSAFE_INLINE);
+    csp.scriptSrc(portal.CspSource.STRICT_DYNAMIC);
 
     return csp.nonceScriptSrc();
 }
