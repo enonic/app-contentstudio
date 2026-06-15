@@ -33,11 +33,12 @@ function applySecurityPolicy(isBrowseMode) {
     }
 
     const marketApi = configLib.getMarketApi();
-    const baseMarketUrl = marketApi.substring(0, marketApi.indexOf('/', 9));
+    const slashIndex = marketApi ? marketApi.indexOf('/', 9) : -1;
+    const baseMarketUrl = slashIndex > 0 ? marketApi.substring(0, slashIndex) : marketApi;
 
     csp.strict()
         .defaultSrc(portal.CspSource.SELF)
-        .connectSrc(portal.CspSource.SELF, baseMarketUrl)
+        .connectSrc(portal.CspSource.SELF, ...(baseMarketUrl ? [baseMarketUrl] : []))
         .styleSrc(portal.CspSource.SELF, portal.CspSource.UNSAFE_INLINE)
         .imgSrc(portal.CspSource.SELF, portal.CspSource.DATA)
         .fontSrc(portal.CspSource.SELF, portal.CspSource.DATA)
