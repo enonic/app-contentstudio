@@ -79,7 +79,7 @@ site.preview.contentSecurityPolicy=script-src 'self'; connect-src 'self'; form-a
 
 The default lists only the directives that let content run code or exfiltrate data — scripts and connections limited to the site itself, forms and `+<base>+` to the site, and plugins blocked. Everything visual (images, fonts, styles, media, framed embeds such as YouTube or Vimeo) is left to the page and renders as on the live site. To allow a player script to reach a CDN for content that declares no CSP, add the CDN host to `script-src`/`connect-src` here.
 
-Set the property to an empty value to disable the baseline and rely on each page's own policy alone. Avoid `'unsafe-inline'` in the baseline's `script-src` — it has no effect there.
+Set the property to an empty value to disable the baseline and rely on each page's own policy alone. Avoid `'unsafe-inline'` in the baseline's `script-src` unless you explicitly need to allow inline scripts on pages that declare no CSP; note that it is ignored when nonces/hashes are present.
 
 == Publishing Wizard
 
