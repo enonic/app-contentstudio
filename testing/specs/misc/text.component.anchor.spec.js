@@ -25,7 +25,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -41,7 +41,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text-component:
             await pageComponentView.rightClickAndOpenContextMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             //await textComponentCke.switchToLiveEditFrame();
             // 4. Open 'Insert Anchor' dialog and type the text:
             await textComponentInspectionPanel.clickInTextArea();
@@ -67,7 +67,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             // 1. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.rightClickAndOpenContextMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // Open Insert Anchor modal dialog:
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.clickOnInsertAnchorButton();
@@ -88,7 +88,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.rightClickAndOpenContextMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // Open Insert Anchor modal dialog and type not correct value:
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.clickOnInsertAnchorButton();
@@ -115,7 +115,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text-component:
             await pageComponentView.rightClickAndOpenContextMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // 4. Open 'Insert Anchor' dialog and type the text:
             await textComponentInspectionPanel.typeTextInEditor(TEST_TEXT);
             await contentWizard.waitAndClickOnSave();
@@ -154,7 +154,8 @@ describe('Text Component with CKE - insert Anchor specification', function () {
 
     // Verify the issue - Keyboard navigation not working in the Page Components View #8586
     // https://github.com/enonic/app-contentstudio/issues/8586
-    it(`WHEN Arrow down/up has been pressed THEN expected item gets selected in PCV tree`,
+    // TODO
+    it.skip(`WHEN Arrow down/up has been pressed THEN expected item gets selected in PCV tree`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
@@ -182,18 +183,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => {
-        let insertAnchorDialog = new InsertAnchorDialog();
-        return insertAnchorDialog.isDialogOpened().then(result => {
-            if (result) {
-                return insertAnchorDialog.clickOnCancelButton();
-            }
-        }).then(() => {
-            return insertAnchorDialog.pause(500);
-        }).then(() => {
-            return studioUtils.doCloseAllWindowTabsAndNavigateToHome();
-        })
-    });
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

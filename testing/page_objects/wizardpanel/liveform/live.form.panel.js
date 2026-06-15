@@ -367,6 +367,12 @@ class LiveFormPanel extends Page {
         await this.clickOnElement(locator);
         await this.pause(200);
     }
+
+    async waitForPartWithErrorDisplayed() {
+
+        let locator = "//div[@data-portal-component-type='part']/span[text()='Error']";
+        return await this.waitForElementDisplayed(locator);
+    }
 }
 
 module.exports = LiveFormPanel;

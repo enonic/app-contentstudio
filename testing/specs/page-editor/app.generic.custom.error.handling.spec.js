@@ -27,7 +27,7 @@ describe('Custom error handling - specification. Verify that application error p
             let contentWizard = new ContentWizard();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP], CONTROLLER_WITH_ERROR);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP], CONTROLLER_WITH_ERROR);
             // 1. Open new wizard for a site:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizard.typeData(SITE);
