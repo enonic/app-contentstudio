@@ -33,6 +33,7 @@ import com.enonic.xp.web.HttpStatus;
 import com.enonic.xp.web.WebException;
 import com.enonic.xp.web.csp.ContentSecurityPolicy;
 import com.enonic.xp.web.csp.CspSource;
+import com.enonic.xp.web.csp.SandboxFlag;
 import com.enonic.xp.web.WebRequest;
 import com.enonic.xp.web.WebResponse;
 import com.enonic.xp.web.exception.ExceptionMapper;
@@ -197,8 +198,13 @@ public class AdminSiteHandler
             // The inline view renders selected content in an admin-origin iframe on tree selection,
             // so it must be framable. script-src 'self' for the injected page-editor viewer is added
             // by LiveEditInjection, only when the viewer is actually injected. The configurable
-            // baseline gap-fills the remaining containment directives.
-            policy.frameAncestors( CspSource.SELF );
+            // baseline gap-fills the remaining containment directives. A sandbox confines the framed
+            // content to running scripts in its own (admin) origin and nothing else: forms cannot
+            // submit, and popups, modals, top-window navigation and downloads are all blocked - none
+            // of which the viewer needs, while the editor's same-origin DOM access still works.
+            policy.frameAncestors( CspSource.SELF )
+                .reset( "sandbox" )
+                .sandbox( SandboxFlag.ALLOW_SCRIPTS, SandboxFlag.ALLOW_SAME_ORIGIN );
             applyBaseline( policy, inlineContentSecurityPolicy );
         }
         else if ( mode == RenderMode.EDIT )
@@ -214,14 +220,19 @@ public class AdminSiteHandler
             // granular script-src-elem/-attr and style-src-elem/-attr are reset alongside script-src/style-src:
             // if a page declared them they would, per the CSP fallback chain, govern elements/attributes
             // instead of the forced script-src/style-src and could block editor.js or its inline styles.
+            // A sandbox confines the framed content to scripts in its own (admin) origin: forms cannot
+            // submit and popups, modals, top-window navigation and downloads are blocked, none of which
+            // the editor needs (its same-origin DOM access keeps working via allow-same-origin).
             policy.frameAncestors( CspSource.SELF )
                 .imgSrc( CspSource.WILDCARD, CspSource.DATA )
                 .fontSrc( CspSource.WILDCARD, CspSource.DATA )
                 .objectSrc( CspSource.NONE )
                 .connectSrc( CspSource.SELF )
-                .reset( "script-src", "script-src-elem", "script-src-attr", "style-src", "style-src-elem", "style-src-attr" )
+                .reset( "sandbox", "script-src", "script-src-elem", "script-src-attr", "style-src", "style-src-elem",
+                        "style-src-attr" )
                 .scriptSrc( CspSource.SELF )
                 .styleSrc( CspSource.WILDCARD, CspSource.UNSAFE_INLINE )
+                .sandbox( SandboxFlag.ALLOW_SCRIPTS, SandboxFlag.ALLOW_SAME_ORIGIN )
                 .nonceScriptSrc();
         }
         else if ( mode == RenderMode.PREVIEW )

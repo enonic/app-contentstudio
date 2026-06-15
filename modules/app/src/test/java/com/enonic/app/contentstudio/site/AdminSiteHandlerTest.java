@@ -81,7 +81,8 @@ class AdminSiteHandlerTest
 
         assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo(
             "connect-src 'self'; font-src * data:; frame-ancestors 'self'; img-src 'self' * data:; " +
-                "object-src 'none'; script-src 'self' 'nonce-" + nonce + "'; style-src * 'unsafe-inline'" );
+                "object-src 'none'; sandbox allow-scripts allow-same-origin; script-src 'self' 'nonce-" + nonce +
+                "'; style-src * 'unsafe-inline'" );
     }
 
     @Test
@@ -96,8 +97,8 @@ class AdminSiteHandlerTest
         final String nonce = this.portalRequest.getContentSecurityPolicy().nonceScriptSrc();
         assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo(
             "base-uri 'none'; connect-src 'self'; default-src 'none'; font-src * data:; frame-ancestors 'self'; " +
-                "img-src * data:; object-src 'none'; script-src 'self' 'nonce-" + nonce + "'; " +
-                "style-src * 'unsafe-inline'" );
+                "img-src * data:; object-src 'none'; sandbox allow-scripts allow-same-origin; " +
+                "script-src 'self' 'nonce-" + nonce + "'; style-src * 'unsafe-inline'" );
     }
 
     @Test
@@ -116,7 +117,8 @@ class AdminSiteHandlerTest
         final String nonce = this.portalRequest.getContentSecurityPolicy().nonceScriptSrc();
         assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo(
             "connect-src 'self'; font-src * data:; frame-ancestors 'self'; img-src * data:; object-src 'none'; " +
-                "script-src 'self' 'nonce-" + nonce + "'; style-src * 'unsafe-inline'" );
+                "sandbox allow-scripts allow-same-origin; script-src 'self' 'nonce-" + nonce +
+                "'; style-src * 'unsafe-inline'" );
     }
 
     @Test
@@ -134,7 +136,8 @@ class AdminSiteHandlerTest
         // the editor has no frame-src/media-src dependency, so the page's own values are kept untouched
         assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo(
             "connect-src 'self'; font-src * data:; frame-ancestors 'self'; frame-src 'self'; img-src * data:; " +
-                "media-src 'self'; object-src 'none'; script-src 'self' 'nonce-" + nonce + "'; style-src * 'unsafe-inline'" );
+                "media-src 'self'; object-src 'none'; sandbox allow-scripts allow-same-origin; script-src 'self' 'nonce-" +
+                nonce + "'; style-src * 'unsafe-inline'" );
     }
 
     @Test
@@ -146,7 +149,8 @@ class AdminSiteHandlerTest
         doHandle();
 
         // script-src 'self' is added by LiveEditInjection when the viewer is injected, not here
-        assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo( "frame-ancestors 'self'" );
+        assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo(
+            "frame-ancestors 'self'; sandbox allow-scripts allow-same-origin" );
     }
 
     @Test
@@ -159,7 +163,7 @@ class AdminSiteHandlerTest
         doHandle();
 
         assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo(
-            "frame-ancestors 'self'; script-src 'self'" );
+            "frame-ancestors 'self'; sandbox allow-scripts allow-same-origin; script-src 'self'" );
     }
 
     @Test
@@ -172,7 +176,21 @@ class AdminSiteHandlerTest
         doHandle();
 
         assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo(
-            "connect-src 'self'; frame-ancestors 'self'; object-src 'none'" );
+            "connect-src 'self'; frame-ancestors 'self'; object-src 'none'; sandbox allow-scripts allow-same-origin" );
+    }
+
+    @Test
+    void inlineImposesItsSandboxDroppingPageGrantedCapabilities()
+        throws Exception
+    {
+        this.portalRequest.setMode( RenderMode.INLINE );
+        this.portalRequest.getContentSecurityPolicy().add( "sandbox", "allow-forms", "allow-popups" );
+
+        doHandle();
+
+        // a page-declared sandbox is replaced, not extended: its extra grants are dropped
+        assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo(
+            "frame-ancestors 'self'; sandbox allow-scripts allow-same-origin" );
     }
 
     @Test
@@ -187,7 +205,7 @@ class AdminSiteHandlerTest
 
         assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo(
             "base-uri 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'self'; object-src 'none'; " +
-                "script-src 'self' https://cdn.example.com" );
+                "sandbox allow-scripts allow-same-origin; script-src 'self' https://cdn.example.com" );
     }
 
     @Test
@@ -200,7 +218,8 @@ class AdminSiteHandlerTest
         doHandle();
 
         // no viewer is injected on an error page, so no script-src is added
-        assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo( "frame-ancestors 'self'" );
+        assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo(
+            "frame-ancestors 'self'; sandbox allow-scripts allow-same-origin" );
     }
 
     @Test
