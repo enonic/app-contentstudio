@@ -22,11 +22,13 @@ import {ProjectHelper} from '../../../../../../app/settings/data/project/Project
 import {useI18n} from '../../../../hooks/useI18n';
 import {$applications, loadApplications, reloadApplications} from '../../../../store/applications.store';
 import {$contextContent} from '../../../../store/context/contextContent.store';
+import {requestMixinSeed} from '../../../../store/wizardContent.store';
 import {ConfirmationDialog} from '../../../dialogs/ConfirmationDialog';
 import {ApplicationIcon} from '../../../icons/ApplicationIcon';
 import {ItemLabel} from '../../../ItemLabel';
 import {ApplicationSelector} from '../../../selectors/ApplicationSelector';
 import {FormRenderer} from '../../FormRenderer';
+import {seedFormDefaults} from '../../seedFormDefaults';
 import type {SiteConfiguratorConfig} from './SiteConfiguratorConfig';
 
 const COMPONENT_NAME = 'SiteConfiguratorInput';
@@ -129,14 +131,24 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
             const tree = new PropertyTree();
             const root = tree.getRoot();
             root.setStringByPath(ApplicationConfig.PROPERTY_KEY, key);
-            root.addPropertySet(ApplicationConfig.PROPERTY_CONFIG);
+            const configSet = root.addPropertySet(ApplicationConfig.PROPERTY_CONFIG);
+            const form = findApplicationByKey(key)?.getForm();
+            if (form) {
+                seedFormDefaults(form, configSet);
+            }
             onAdd(new Value(root, ValueTypes.DATA));
         }
 
-        if (added.length > 0 || removedIndexes.length > 0) {
+        if (added.length === 0 && removedIndexes.length === 0) {
+            return;
+        }
+
+        if (added.length > 0) {
+            requestMixinSeed(added);
+        } else {
             fireContentRequiresSave();
         }
-    }, [selectedKeys, values, onAdd, onRemove]);
+    }, [selectedKeys, values, onAdd, onRemove, findApplicationByKey]);
 
     const handleRemove = useCallback((key: string) => {
         const index = values.findIndex(v => {

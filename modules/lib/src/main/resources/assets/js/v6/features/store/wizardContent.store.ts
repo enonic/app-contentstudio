@@ -24,6 +24,7 @@ import {createDebounce} from '../utils/timing/createDebounce';
 import {$contextContent} from './context/contextContent.store';
 import {ContentPath} from '../../../app/content/ContentPath';
 import {ContentExistsByPathRequest} from '../../../app/resource/ContentExistsByPathRequest';
+import {seedFormDefaults} from '../shared/form/seedFormDefaults';
 
 //
 // * Types
@@ -430,6 +431,16 @@ function cloneMixins(mixins: Mixin[]): Mixin[] {
     return mixins.map((mixin) => mixin.clone());
 }
 
+function seedMixinTree(mixin: Mixin, descriptor: MixinDescriptor): void {
+    seedFormDefaults(descriptor.toForm(), mixin.getData().getRoot());
+}
+
+function createSeededMixinTree(descriptor: MixinDescriptor): PropertyTree {
+    const tree = new PropertyTree();
+    seedFormDefaults(descriptor.toForm(), tree.getRoot());
+    return tree;
+}
+
 function clonePage(page: Page | null): Page | null {
     return page ? page.clone() : null;
 }
@@ -511,7 +522,12 @@ function armRenderedSnapshot(content: Content): void {
 
     $needsRenderedSnapshot.set(true);
 
-    $mixinsPendingMount.set(new Set(content.getMixins().map((m) => m.getName().toString())));
+    const cleanMixinNames = content
+        .getMixins()
+        .map((m) => m.getName().toString())
+        .filter((name) => !isMixinDirtyByName(name));
+
+    $mixinsPendingMount.set(new Set(cleanMixinNames));
     $mixinsNeedingSnapshot.set(new Set());
 }
 
@@ -613,6 +629,12 @@ function isMixinDataDirty(draftMixin: Mixin | undefined, persistedMixin: Mixin |
     if (draftMixin == null && persistedMixin == null) return false;
     if (draftMixin == null || persistedMixin == null) return true;
     return !ContentDiffHelper.dataEquals(draftMixin.getData(), persistedMixin.getData(), false);
+}
+
+function isMixinDirtyByName(name: string): boolean {
+    const draftMixin = $wizardDraftMixins.get().find((m) => m.getName().toString() === name);
+    const persistedMixin = $wizardPersistedMixins.get().find((m) => m.getName().toString() === name);
+    return isMixinDataDirty(draftMixin, persistedMixin);
 }
 
 function applyMixinsFromServer(nextPersisted: Mixin[]): Set<string> {
@@ -803,36 +825,49 @@ export function setContentType(contentType: ContentType): void {
 
 export function setMixinsDescriptors(mixinsDescriptors: MixinDescriptor[]): void {
     $mixinsDescriptors.set(mixinsDescriptors);
-    seedMandatoryMixins();
+    seedMixinDefaults();
 }
 
-function seedMandatoryMixins(): void {
+const mixinSeedRequestCallbacks = new Set<(applicationKeys: string[]) => void>();
+
+export function requestMixinSeed(applicationKeys: string[]): void {
+    if (applicationKeys.length === 0) {
+        return;
+    }
+
+    for (const callback of mixinSeedRequestCallbacks) {
+        callback([...applicationKeys]);
+    }
+}
+
+export function onMixinSeedRequested(callback: (applicationKeys: string[]) => void): () => void {
+    mixinSeedRequestCallbacks.add(callback);
+    return () => {
+        mixinSeedRequestCallbacks.delete(callback);
+    };
+}
+
+function seedMixinDefaults(): void {
     const descriptors = $mixinsDescriptors.get();
-    const persisted = $wizardPersistedMixins.get();
     const draft = $wizardDraftMixins.get();
 
-    const persistedNames = new Set(persisted.map((m) => m.getName().toString()));
-    const draftNames = new Set(draft.map((m) => m.getName().toString()));
+    const draftByName = new Map(draft.map((m) => [m.getName().toString(), m]));
 
-    const persistedAdditions: Mixin[] = [];
     const draftAdditions: Mixin[] = [];
 
     for (const descriptor of descriptors) {
-        if (descriptor.isOptional()) {
-            continue;
-        }
         const name = descriptor.getName();
-        if (!persistedNames.has(name)) {
-            persistedAdditions.push(new Mixin(new MixinName(name), new PropertyTree()));
-        }
-        if (!draftNames.has(name)) {
-            draftAdditions.push(new Mixin(new MixinName(name), new PropertyTree()));
+
+        // Draft only — the persisted baseline must keep reflecting the server,
+        // so seeded defaults stay dirty until actually saved.
+        const draftMixin = draftByName.get(name);
+        if (draftMixin) {
+            seedMixinTree(draftMixin, descriptor);
+        } else if (!descriptor.isOptional()) {
+            draftAdditions.push(new Mixin(new MixinName(name), createSeededMixinTree(descriptor)));
         }
     }
 
-    if (persistedAdditions.length > 0) {
-        $wizardPersistedMixins.set([...persisted, ...persistedAdditions]);
-    }
     if (draftAdditions.length > 0) {
         $wizardDraftMixins.set([...draft, ...draftAdditions]);
     }
@@ -937,7 +972,8 @@ export function setDraftMixinEnabled(name: string, enabled: boolean): void {
     const nextMixins = enabled
         ? (() => {
               const persistedMixin = $wizardPersistedMixins.get().find((mixin) => mixin.getName().toString() === name);
-              const mixinToAdd = persistedMixin ? persistedMixin.clone() : new Mixin(new MixinName(name), new PropertyTree());
+              const newMixinTree = mixinDescriptor ? createSeededMixinTree(mixinDescriptor) : new PropertyTree();
+              const mixinToAdd = persistedMixin ? persistedMixin.clone() : new Mixin(new MixinName(name), newMixinTree);
               return [...currentMixins, mixinToAdd];
           })()
         : currentMixins.filter((mixin) => mixin.getName().toString() !== name);

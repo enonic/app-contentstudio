@@ -19,6 +19,7 @@ import {
 } from './wizardContent.store';
 import {$page, $pageVersion} from './page-editor/store';
 import {$layoutDescriptorOptions, $partDescriptorOptions} from './component-inspection.store';
+import {$applications} from './applications.store';
 import {createDebounce} from '../utils/timing/createDebounce';
 
 //
@@ -244,6 +245,13 @@ function setupSubscriptions(): void {
 
     subscriptions.push(
         $partDescriptorOptions.subscribe(() => {
+            debouncedRunValidation();
+        }),
+    );
+
+    // SiteConfigurator validity depends on the async-loaded application forms.
+    subscriptions.push(
+        $applications.subscribe(() => {
             debouncedRunValidation();
         }),
     );
