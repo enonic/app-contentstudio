@@ -16,17 +16,20 @@ import {useStore} from '@nanostores/preact';
 import {Pencil, X} from 'lucide-react';
 import type {ReactElement} from 'react';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ContentId} from '../../../../../../app/content/ContentId';
 import {ContentRequiresSaveEvent} from '../../../../../../app/event/ContentRequiresSaveEvent';
 import {ProjectHelper} from '../../../../../../app/settings/data/project/ProjectHelper';
 import {useI18n} from '../../../../hooks/useI18n';
 import {$applications, loadApplications, reloadApplications} from '../../../../store/applications.store';
 import {$contextContent} from '../../../../store/context/contextContent.store';
+import {seedMixinsForApplications} from '../../../../store/wizardContent.store';
 import {ConfirmationDialog} from '../../../dialogs/ConfirmationDialog';
 import {ApplicationIcon} from '../../../icons/ApplicationIcon';
 import {ItemLabel} from '../../../ItemLabel';
 import {ApplicationSelector} from '../../../selectors/ApplicationSelector';
 import {FormRenderer} from '../../FormRenderer';
+import {seedFormDefaults} from '../../seedFormDefaults';
 import type {SiteConfiguratorConfig} from './SiteConfiguratorConfig';
 
 const COMPONENT_NAME = 'SiteConfiguratorInput';
@@ -129,14 +132,32 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
             const tree = new PropertyTree();
             const root = tree.getRoot();
             root.setStringByPath(ApplicationConfig.PROPERTY_KEY, key);
-            root.addPropertySet(ApplicationConfig.PROPERTY_CONFIG);
+            const configSet = root.addPropertySet(ApplicationConfig.PROPERTY_CONFIG);
+            const form = findApplicationByKey(key)?.getForm();
+            if (form) {
+                try {
+                    seedFormDefaults(form, configSet);
+                } catch (e) {
+                    DefaultErrorHandler.handle(e);
+                }
+            }
             onAdd(new Value(root, ValueTypes.DATA));
         }
 
-        if (added.length > 0 || removedIndexes.length > 0) {
+        if (added.length === 0 && removedIndexes.length === 0) {
+            return;
+        }
+
+        // Seed the selected applications' x-data before saving so their mandatory
+        // mixins are part of this single save.
+        if (added.length > 0) {
+            void seedMixinsForApplications(added)
+                .catch(DefaultErrorHandler.handle)
+                .then(() => fireContentRequiresSave());
+        } else {
             fireContentRequiresSave();
         }
-    }, [selectedKeys, values, onAdd, onRemove]);
+    }, [selectedKeys, values, onAdd, onRemove, findApplicationByKey]);
 
     const handleRemove = useCallback((key: string) => {
         const index = values.findIndex(v => {

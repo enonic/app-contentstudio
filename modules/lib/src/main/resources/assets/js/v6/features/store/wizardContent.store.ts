@@ -1,5 +1,6 @@
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import type {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
@@ -24,6 +25,8 @@ import {createDebounce} from '../utils/timing/createDebounce';
 import {$contextContent} from './context/contextContent.store';
 import {ContentPath} from '../../../app/content/ContentPath';
 import {ContentExistsByPathRequest} from '../../../app/resource/ContentExistsByPathRequest';
+import {GetApplicationMixinsRequest} from '../../../app/resource/GetApplicationMixinsRequest';
+import {seedFormDefaults} from '../shared/form/seedFormDefaults';
 
 //
 // * Types
@@ -430,6 +433,24 @@ function cloneMixins(mixins: Mixin[]): Mixin[] {
     return mixins.map((mixin) => mixin.clone());
 }
 
+function seedMixinTree(mixin: Mixin, descriptor: MixinDescriptor): void {
+    try {
+        seedFormDefaults(descriptor.toForm(), mixin.getData().getRoot());
+    } catch (e) {
+        DefaultErrorHandler.handle(e);
+    }
+}
+
+function createSeededMixinTree(descriptor: MixinDescriptor): PropertyTree {
+    const tree = new PropertyTree();
+    try {
+        seedFormDefaults(descriptor.toForm(), tree.getRoot());
+    } catch (e) {
+        DefaultErrorHandler.handle(e);
+    }
+    return tree;
+}
+
 function clonePage(page: Page | null): Page | null {
     return page ? page.clone() : null;
 }
@@ -803,36 +824,59 @@ export function setContentType(contentType: ContentType): void {
 
 export function setMixinsDescriptors(mixinsDescriptors: MixinDescriptor[]): void {
     $mixinsDescriptors.set(mixinsDescriptors);
-    seedMandatoryMixins();
+    seedMixinDefaults();
 }
 
-function seedMandatoryMixins(): void {
+/**
+ * Fetches the given applications' x-data (by app key) and seeds their mandatory
+ * defaults into the draft, so a SiteConfigurator selection persists them in the
+ * same save.
+ */
+export async function seedMixinsForApplications(applicationKeys: string[]): Promise<void> {
+    const contentType = $contentType.get();
+    if (!contentType || applicationKeys.length === 0) {
+        return;
+    }
+
+    const contentTypeName = contentType.getContentTypeName();
+
+    const results = await Promise.all(
+        applicationKeys.map((key) =>
+            new GetApplicationMixinsRequest(contentTypeName, ApplicationKey.fromString(key)).sendAndParse()
+        )
+    );
+
+    const byName = new Map($mixinsDescriptors.get().map((descriptor) => [descriptor.getName(), descriptor]));
+    for (const descriptors of results) {
+        for (const descriptor of descriptors) {
+            byName.set(descriptor.getName(), descriptor);
+        }
+    }
+
+    setMixinsDescriptors([...byName.values()]);
+}
+
+function seedMixinDefaults(): void {
     const descriptors = $mixinsDescriptors.get();
-    const persisted = $wizardPersistedMixins.get();
     const draft = $wizardDraftMixins.get();
 
-    const persistedNames = new Set(persisted.map((m) => m.getName().toString()));
-    const draftNames = new Set(draft.map((m) => m.getName().toString()));
+    const draftByName = new Map(draft.map((m) => [m.getName().toString(), m]));
 
-    const persistedAdditions: Mixin[] = [];
     const draftAdditions: Mixin[] = [];
 
     for (const descriptor of descriptors) {
-        if (descriptor.isOptional()) {
-            continue;
-        }
         const name = descriptor.getName();
-        if (!persistedNames.has(name)) {
-            persistedAdditions.push(new Mixin(new MixinName(name), new PropertyTree()));
-        }
-        if (!draftNames.has(name)) {
-            draftAdditions.push(new Mixin(new MixinName(name), new PropertyTree()));
+
+        // Draft only — the persisted baseline must keep reflecting the server,
+        // so seeded defaults stay dirty until actually saved.
+        const draftMixin = draftByName.get(name);
+        if (draftMixin) {
+            seedMixinTree(draftMixin, descriptor);
+        } else if (!descriptor.isOptional()) {
+            draftAdditions.push(new Mixin(new MixinName(name), createSeededMixinTree(descriptor)));
         }
     }
 
-    if (persistedAdditions.length > 0) {
-        $wizardPersistedMixins.set([...persisted, ...persistedAdditions]);
-    }
     if (draftAdditions.length > 0) {
         $wizardDraftMixins.set([...draft, ...draftAdditions]);
     }
@@ -937,7 +981,8 @@ export function setDraftMixinEnabled(name: string, enabled: boolean): void {
     const nextMixins = enabled
         ? (() => {
               const persistedMixin = $wizardPersistedMixins.get().find((mixin) => mixin.getName().toString() === name);
-              const mixinToAdd = persistedMixin ? persistedMixin.clone() : new Mixin(new MixinName(name), new PropertyTree());
+              const newMixinTree = mixinDescriptor ? createSeededMixinTree(mixinDescriptor) : new PropertyTree();
+              const mixinToAdd = persistedMixin ? persistedMixin.clone() : new Mixin(new MixinName(name), newMixinTree);
               return [...currentMixins, mixinToAdd];
           })()
         : currentMixins.filter((mixin) => mixin.getName().toString() !== name);
