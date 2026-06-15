@@ -24,7 +24,6 @@ describe("cookies.service.spec:  tests for cookies service", function () {
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() =>  studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

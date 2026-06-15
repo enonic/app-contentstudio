@@ -57,7 +57,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             // 3. Click on minimize-toggle  expand Live Edit and open 'Page Component view' modal dialog:
             await contentWizardPanel.clickOnMinimizeLiveEditToggler();
             await pageComponentView.rightClickAndOpenContextMenu(MAIN_COMPONENT_NAME);
-            await pageComponentView.selectMenuItem([appConst.PCV_MENU_ITEM.INSERT, 'Layout']);
+            await pageComponentView.selectContextMenuItem([appConst.PCV_MENU_ITEM.INSERT, 'Layout']);
             // 4. Verifies #6393: we keep 'Inspect panel' collapsed (or collapse it if it was expanded).
             // So need to open 'Inspect panel':
             //await contentWizardPanel.clickOnDetailsPanelToggleButton();

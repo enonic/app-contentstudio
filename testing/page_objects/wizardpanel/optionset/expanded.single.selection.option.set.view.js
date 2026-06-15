@@ -13,7 +13,7 @@ const xpath = {
 /**
  * Page Object for content with single-select option-sets with <expanded>true</expanded>
  */
-class ExpandedSingleSelectionOptionSet extends Page {
+class SingleSelectionOptionSet extends Page {
 
     get option1TextInput() {
         return xpath.container + COMMON.INPUTS.inputFieldByLabel('option-1-name') + COMMON.INPUTS.INPUT;
@@ -39,21 +39,14 @@ class ExpandedSingleSelectionOptionSet extends Page {
         return this.waitForElementNotDisplayed(this.option2OptionsFilterInput, appConst.mediumTimeout);
     }
 
-    get selectionMenuButton() {
-        return xpath.container + "//div[@data-component='ContextMenu.Trigger']//button";
+    async typeTextInOption1TextInput(text) {
+        return await this.typeTextInInput(this.option1TextInput, text);
     }
 
-    async expandOptionSetMenu() {
-        await this.waitForElementDisplayed(this.selectionMenuButton, appConst.mediumTimeout);
-        await this.clickOnElement(this.selectionMenuButton);
-        return await this.pause(500);
+    async getTextInOption1TextInput() {
+        return await this.getTextInInput(this.option1TextInput);
     }
 
-    async clickOnResetMenuItem() {
-        await this.waitForElementDisplayed(xpath.resetMenuItem, appConst.mediumTimeout);
-        await this.clickOnElement(xpath.resetMenuItem);
-        return await this.pause(400);
-    }
 
     async selectOption(option) {
         try {
@@ -62,10 +55,9 @@ class ExpandedSingleSelectionOptionSet extends Page {
             await this.clickOnElement(locator);
             return await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_optionset');
-            throw new Error(`Error selecting option '${option}' in single selection, screenshot: ${screenshot} ` + err);
+            await this.handleError("Single Selection option set:", 'err_optionset', err);
         }
     }
 }
 
-module.exports = ExpandedSingleSelectionOptionSet;
+module.exports = SingleSelectionOptionSet;

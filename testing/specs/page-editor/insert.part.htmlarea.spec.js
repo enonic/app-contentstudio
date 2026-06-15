@@ -33,7 +33,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -57,6 +57,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             let wizardContextWindow = await contentWizard.openContextWindow();
             await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_NAME);
+            await contentWizard.clickOnWizardStep('Page');
             // 3 Open the context menu
             await pageComponentsWizardStepForm.rightClickAndOpenContextMenu('main');
             // 4 click on the 'Insert Part' menu item:
@@ -65,6 +66,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             // 5 Type the name and select the filtered option(select the part):
             await partInspectionPanel.typeNameAndSelectPart(HTML_AREA_PART_NAME);
             // 6. Type a text in the html-area
+            await contentWizard.clickOnWizardStep('htmlarea0_1');
             await htmlAreaForm.typeTextInHtmlArea(TEST_TEXT);
             // 7. Save the content:
             await contentWizard.waitAndClickOnSave();

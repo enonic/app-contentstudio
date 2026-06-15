@@ -49,7 +49,7 @@ class DeleteContentDialog extends Page {
     }
 
     get ignoreInboundReferencesButton() {
-        return XPATH.container + "//div[@data-component='StatusBarErrorEntry']" + BUTTONS.button('Ignore inbound references');
+        return XPATH.container + "//div[@data-component='StatusBarErrorEntry']" + BUTTONS.buttonByLabel('Ignore inbound references');
     }
 
     async waitForCloseButtonDisplayed() {

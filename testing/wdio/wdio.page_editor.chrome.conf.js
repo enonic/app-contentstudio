@@ -12,6 +12,9 @@ exports.config = {
         path.join(__dirname, '../specs/page-editor/page.inspection.panel.spec.js'),
         path.join(__dirname, '../specs/page-editor/context.window.insert.panel.spec.js'),
         path.join(__dirname, '../specs/page-editor/layout.context.menu.spec.js'),
+        path.join(__dirname, '../specs/page-editor/fragment.move.spec.js'),
+        path.join(__dirname, '../specs/page-editor/insert.part.in.layout.spec.js'),
+
     ],
     exclude: [
         path.join(__dirname, '../specs/page-editor/revert.site.with.components.spec.js'),
