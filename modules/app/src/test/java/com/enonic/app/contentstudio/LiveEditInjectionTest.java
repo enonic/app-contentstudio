@@ -126,17 +126,85 @@ class LiveEditInjectionTest
     }
 
     @Test
-    public void testInjectInlineBodyEndRidesAlongWithAMintedNonce()
+    public void testInjectInlineBodyEndDoesNotStampANonceForANonceOnlyPage()
+    {
+        mockPortalUrlService();
+        this.portalRequest.setMode( RenderMode.INLINE );
+        this.portalRequest.setRawRequest( this.request );
+        this.portalRequest.setRepositoryId( ProjectName.from( "myproject" ).getRepoId() );
+        // a nonce without 'strict-dynamic' does not defeat 'self', which already admits the same-origin
+        // viewer, so no nonce is stamped on it
+        this.portalRequest.getContentSecurityPolicy().nonceScriptSrc();
+
+        final List<String> list = this.injection.inject( this.portalRequest, this.portalResponse, HtmlTag.BODY_END );
+        assertNotNull( list );
+        assertFalse( list.get( 0 ).contains( "nonce" ) );
+    }
+
+    @Test
+    public void testInjectInlineBodyEndStampsThePageNonceUnderStrictDynamic()
     {
         mockPortalUrlService();
         this.portalRequest.setMode( RenderMode.INLINE );
         this.portalRequest.setRawRequest( this.request );
         this.portalRequest.setRepositoryId( ProjectName.from( "myproject" ).getRepoId() );
         final String nonce = this.portalRequest.getContentSecurityPolicy().nonceScriptSrc();
+        this.portalRequest.getContentSecurityPolicy().add( "script-src", "'strict-dynamic'" );
 
         final List<String> list = this.injection.inject( this.portalRequest, this.portalResponse, HtmlTag.BODY_END );
         assertNotNull( list );
+        // 'strict-dynamic' ignores 'self', so the viewer must carry the page's nonce to load
         assertTrue( list.get( 0 ).contains( " nonce=\"" + nonce + "\"" ) );
+    }
+
+    @Test
+    public void testInjectInlineBodyEndMintsANonceForAHashBasedStrictPage()
+    {
+        mockPortalUrlService();
+        this.portalRequest.setMode( RenderMode.INLINE );
+        this.portalRequest.setRawRequest( this.request );
+        this.portalRequest.setRepositoryId( ProjectName.from( "myproject" ).getRepoId() );
+        // a hash-based 'strict-dynamic' page has no nonce of its own and ignores 'self'
+        this.portalRequest.getContentSecurityPolicy().add( "script-src", "'strict-dynamic'", "'sha256-abc'" );
+
+        final List<String> list = this.injection.inject( this.portalRequest, this.portalResponse, HtmlTag.BODY_END );
+        assertNotNull( list );
+        final String nonce = this.portalRequest.getContentSecurityPolicy().nonceScriptSrc();
+        assertTrue( list.get( 0 ).contains( " nonce=\"" + nonce + "\"" ) );
+        assertTrue( this.portalRequest.getContentSecurityPolicy().serialize().contains( "'nonce-" + nonce + "'" ) );
+    }
+
+    @Test
+    public void testInjectInlineBodyEndMirrorsSelfIntoADeclaredScriptSrcElem()
+    {
+        mockPortalUrlService();
+        this.portalRequest.setMode( RenderMode.INLINE );
+        this.portalRequest.setRawRequest( this.request );
+        this.portalRequest.setRepositoryId( ProjectName.from( "myproject" ).getRepoId() );
+        this.portalRequest.getContentSecurityPolicy().add( "script-src-elem", "https://cdn.example.com" );
+
+        final List<String> list = this.injection.inject( this.portalRequest, this.portalResponse, HtmlTag.BODY_END );
+        assertNotNull( list );
+        assertFalse( list.get( 0 ).contains( "nonce" ) );
+        // script-src-elem governs script elements, so 'self' is mirrored into it for the viewer
+        assertEquals( "script-src 'self'; script-src-elem https://cdn.example.com 'self'",
+                      this.portalRequest.getContentSecurityPolicy().serialize() );
+    }
+
+    @Test
+    public void testInjectInlineBodyEndWiresNonceIntoScriptSrcElemUnderStrictDynamic()
+    {
+        mockPortalUrlService();
+        this.portalRequest.setMode( RenderMode.INLINE );
+        this.portalRequest.setRawRequest( this.request );
+        this.portalRequest.setRepositoryId( ProjectName.from( "myproject" ).getRepoId() );
+        this.portalRequest.getContentSecurityPolicy().add( "script-src-elem", "'strict-dynamic'", "'sha256-abc'" );
+
+        final List<String> list = this.injection.inject( this.portalRequest, this.portalResponse, HtmlTag.BODY_END );
+        assertNotNull( list );
+        final String nonce = this.portalRequest.getContentSecurityPolicy().nonceScriptSrcElem();
+        assertTrue( list.get( 0 ).contains( " nonce=\"" + nonce + "\"" ) );
+        assertTrue( this.portalRequest.getContentSecurityPolicy().serialize().contains( "'nonce-" + nonce + "'" ) );
     }
 
     private HttpServletRequest mockCurrentContextHttpRequest()

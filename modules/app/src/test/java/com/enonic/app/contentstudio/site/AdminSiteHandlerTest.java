@@ -101,6 +101,25 @@ class AdminSiteHandlerTest
     }
 
     @Test
+    void editResetsGranularScriptAndStyleDirectivesSoTheForcedPolicyGoverns()
+        throws Exception
+    {
+        this.portalRequest.setMode( RenderMode.EDIT );
+        // a page-declared script-src-elem/style-src-elem would otherwise shadow the forced
+        // script-src/style-src for elements and could block editor.js or its inline styles
+        this.portalRequest.getContentSecurityPolicy()
+            .add( "script-src-elem", "'none'" )
+            .add( "style-src-elem", "'none'" );
+
+        doHandle();
+
+        final String nonce = this.portalRequest.getContentSecurityPolicy().nonceScriptSrc();
+        assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo(
+            "connect-src 'self'; font-src * data:; frame-ancestors 'self'; img-src * data:; object-src 'none'; " +
+                "script-src 'self' 'nonce-" + nonce + "'; style-src * 'unsafe-inline'" );
+    }
+
+    @Test
     void editLeavesFrameSrcAndMediaSrcToThePage()
         throws Exception
     {

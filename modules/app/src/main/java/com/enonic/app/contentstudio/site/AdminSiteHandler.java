@@ -210,13 +210,16 @@ public class AdminSiteHandler
             // blocked (object-src 'none'). img/font/style-src keep '*' because the editor needs 'self'/data:
             // and 'unsafe-inline' for its own chrome while a no-CSP page must still load its external images,
             // fonts and stylesheets - a narrower value would break either the editor or the page. frame-src
-            // and media-src have no editor dependency, so they are left to the page's own policy.
+            // and media-src have no editor dependency, so they are left to the page's own policy. The
+            // granular script-src-elem/-attr and style-src-elem/-attr are reset alongside script-src/style-src:
+            // if a page declared them they would, per the CSP fallback chain, govern elements/attributes
+            // instead of the forced script-src/style-src and could block editor.js or its inline styles.
             policy.frameAncestors( CspSource.SELF )
                 .imgSrc( CspSource.WILDCARD, CspSource.DATA )
                 .fontSrc( CspSource.WILDCARD, CspSource.DATA )
                 .objectSrc( CspSource.NONE )
                 .connectSrc( CspSource.SELF )
-                .reset( "script-src", "style-src" )
+                .reset( "script-src", "script-src-elem", "script-src-attr", "style-src", "style-src-elem", "style-src-attr" )
                 .scriptSrc( CspSource.SELF )
                 .styleSrc( CspSource.WILDCARD, CspSource.UNSAFE_INLINE )
                 .nonceScriptSrc();

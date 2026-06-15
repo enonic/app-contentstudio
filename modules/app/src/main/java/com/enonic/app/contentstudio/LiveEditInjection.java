@@ -91,14 +91,28 @@ public final class LiveEditInjection
             if ( htmlTag == HtmlTag.BODY_END )
             {
                 final ContentSecurityPolicy policy = portalRequest.getContentSecurityPolicy();
-                // viewer.js is same-origin; allow it via script-src 'self' here — only because the
-                // viewer is actually being injected (an error page that injects nothing gets no
-                // script-src from us). This also contains the rendered page's scripts to same-origin.
+                // viewer.js is a same-origin external script, so 'self' admits it - and also contains the
+                // rendered page's own scripts to same-origin. Only do this because the viewer is actually
+                // being injected (an error page that injects nothing gets no script-src from us). If the
+                // page declared script-src-elem, that directive (not script-src) governs script elements
+                // per the CSP fallback chain, so mirror 'self' into it too, otherwise the viewer is blocked.
+                final boolean scriptSrcElemDeclared = policy.directive( "script-src-elem" ).isPresent();
                 policy.scriptSrc( CspSource.SELF );
+                if ( scriptSrcElemDeclared )
+                {
+                    policy.scriptSrcElem( CspSource.SELF );
+                }
                 final Map<String, String> model = makeModelForInjection( portalRequest );
-                // ride along with the request nonce too, for a page that uses 'strict-dynamic' (where
-                // 'self' is ignored): the viewer then loads via the page's own nonce.
-                model.put( "nonceAttr", policy.mintedNonce().map( nonce -> " nonce=\"" + nonce + "\"" ).orElse( "" ) );
+                // 'self' admits the viewer unless the governing directive uses 'strict-dynamic', which
+                // ignores 'self'/host sources. Only then does the viewer need the request nonce stamped
+                // and wired into that directive (minting one if the page was hash-based) - a value that
+                // exists only when it is genuinely needed, never blindly.
+                final String governing = scriptSrcElemDeclared ? "script-src-elem" : "script-src";
+                final boolean strictDynamic =
+                    policy.directive( governing ).orElse( List.of() ).contains( CspSource.STRICT_DYNAMIC.token() );
+                model.put( "nonceAttr", strictDynamic
+                    ? " nonce=\"" + ( scriptSrcElemDeclared ? policy.nonceScriptSrcElem() : policy.nonceScriptSrc() ) + "\""
+                    : "" );
                 return Collections.singletonList( injectUsingTemplate( this.inlineBodyEndTemplate, model ) );
             }
         }
