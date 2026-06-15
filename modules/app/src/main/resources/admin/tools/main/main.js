@@ -38,13 +38,18 @@ function applySecurityPolicy(isBrowseMode) {
 
     csp.strict()
         .defaultSrc(portal.CspSource.SELF)
-        .connectSrc(portal.CspSource.SELF, ...(baseMarketUrl ? [baseMarketUrl] : []))
         .styleSrc(portal.CspSource.SELF, portal.CspSource.UNSAFE_INLINE)
         .imgSrc(portal.CspSource.SELF, portal.CspSource.DATA)
         .fontSrc(portal.CspSource.SELF, portal.CspSource.DATA)
         .objectSrc(portal.CspSource.NONE)
         .formAction(portal.CspSource.SELF)
         .frameAncestors(portal.CspSource.SELF);
+
+    if (baseMarketUrl) {
+        csp.connectSrc(portal.CspSource.SELF, baseMarketUrl);
+    } else {
+        csp.connectSrc(portal.CspSource.SELF);
+    }
 
     if (!isBrowseMode) {
         // The content wizard loads CKEditor 4, which writes inline scripts into its own editing
