@@ -173,6 +173,8 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
             configSet.addProperty(prop.getName(), prop.getValue());
         });
 
+        fireContentRequiresSave();
+
         setEditing(null);
         setView('main');
     }, [editing, getConfigPropertySet]);
