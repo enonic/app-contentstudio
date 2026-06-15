@@ -46,6 +46,8 @@ export class ExtensionRenderingHandler {
 
     private summary: ContentSummary;
 
+    private lastRenderKey: string;
+
     protected mode: RenderingMode;
 
     protected renderableChangedListeners: ((isRenderable: boolean, wasRenderable: boolean) => void)[] = [];
@@ -74,6 +76,7 @@ export class ExtensionRenderingHandler {
         }
 
         this.summary = summary;
+        this.lastRenderKey = this.getRenderKey(summary, extension);
 
         this.showMask();
         this.renderer.getPreviewAction()?.setEnabled(false);
@@ -314,7 +317,18 @@ export class ExtensionRenderingHandler {
             return;
         }
 
-        void this.render(this.summary, event.getExtension());
+        const extension = event.getExtension();
+
+        // Skip re-render already done by the selection path (#10838).
+        if (this.getRenderKey(this.summary, extension) === this.lastRenderKey) {
+            return;
+        }
+
+        void this.render(this.summary, extension);
+    }
+
+    private getRenderKey(summary?: ContentSummary, extension?: Extension): string {
+        return `${summary?.getId() ?? ''}:${extension?.getDescriptorKey().toString() ?? ''}`;
     }
 
     protected handleEmulatorEvent(device: EmulatorDevice) {
