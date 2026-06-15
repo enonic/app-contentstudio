@@ -68,7 +68,7 @@ describe('Text Component with CKE - insert link and table specification', functi
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert a text component and type an invalid URL:
             await pageComponentView.rightClickAndOpenContextMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // 4. Open Insert link modal dialog
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.clickOnInsertLinkButton();

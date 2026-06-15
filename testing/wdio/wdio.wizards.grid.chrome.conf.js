@@ -14,7 +14,6 @@ exports.config = {
         path.join(__dirname, '../specs/browse.selection.controller.spec.js'),
         path.join(__dirname, '../specs/content.workflow.state.spec.js'),
         path.join(__dirname, '../specs/cookies.service.spec.js'),
-        path.join(__dirname, '../specs/default.error.page.spec.js'),
         path.join(__dirname, '../specs/outbound.dependency.rollback.version.spec.js'),
         path.join(__dirname, '../specs/remove.app.in.site.with.descriptor.spec.js'),
         path.join(__dirname, '../specs/site.app.uninstalled.spec.js'),

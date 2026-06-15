@@ -20,6 +20,8 @@ exports.config = {
         path.join(__dirname, '../specs/misc/text.component.image.caption.spec.js'),
         path.join(__dirname, '../specs/misc/rename.published.content.dialog.spec.js'),
         path.join(__dirname, '../specs/misc/publish.request.create.close.spec.js'),
+        path.join(__dirname, '../specs/misc/person.display.name.expression.spec.js'),
+        path.join(__dirname, '../specs/misc/text.component.anchor.spec.js'),
     ],
     exclude: [
         //path.join(__dirname, '../specs/misc/revert.published.content.spec.js'),

@@ -11,12 +11,8 @@ const XPATH = {
 
 class InsertAnchorModalDialog extends Page {
 
-    get cancelButton() {
-        return XPATH.container + XPATH.cancelButton;
-    }
-
-    get cancelButtonTop() {
-        return XPATH.container + XPATH.cancelButton;
+    get closeButton() {
+        return XPATH.container + BUTTONS.buttonAriaLabel('Close');
     }
 
     get insertButton() {
@@ -24,7 +20,7 @@ class InsertAnchorModalDialog extends Page {
     }
 
     get textInput() {
-        return XPATH.container + lib.TEXT_INPUT;
+        return XPATH.container + "//div[@data-component='Input']//input";
     }
 
     async typeInTextInput(text) {
@@ -35,8 +31,8 @@ class InsertAnchorModalDialog extends Page {
         }
     }
 
-    clickOnCancelButton() {
-        return this.clickOnElement(this.cancelButton);
+    clickOnCloseButton() {
+        return this.clickOnElement(this.closeButton);
     }
 
     async clickOnInsertButton() {
@@ -56,7 +52,7 @@ class InsertAnchorModalDialog extends Page {
     async waitForValidationMessage() {
         try {
             let locator = XPATH.container + "//div[contains(@class,'text-error')]";
-            return await this.waitForElementDisplayed(locator, appConst.shortTimeout)
+            return await this.waitForElementDisplayed(locator, appConst.shortTimeout);
         } catch (err) {
             await this.handleError(`Insert Anchor Dialog`, 'err_wait_for_validation_message', err);
         }
@@ -68,11 +64,12 @@ class InsertAnchorModalDialog extends Page {
         return await this.getText(locator);
     }
 
-    waitForDialogLoaded() {
-        return this.waitForElementDisplayed(this.insertButton, appConst.shortTimeout).catch(err => {
-            this.saveScreenshot('err_open_insert_anchor_dialog');
-            throw new Error('Insert Anchor Dialog should be opened!' + err);
-        });
+    async waitForDialogLoaded() {
+        try {
+            await this.waitForElementDisplayed(this.insertButton, appConst.shortTimeout);
+        } catch (err) {
+            await this.handleError(`Insert Anchor Dialog should be opened!`, 'err_insert_anchor_dialog_loaded', err);
+        }
     }
 
     isDialogOpened() {

@@ -30,7 +30,7 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -42,6 +42,7 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             let liveFormPanel = new LiveFormPanel();
             // 1. Open the existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await contentWizard.clickOnWizardStep("Page");
             // 2. Insert the first text component:
             await pageComponentsWizardStepForm.rightClickAndOpenContextMenu('main');
             await pageComponentsWizardStepForm.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
@@ -98,7 +99,7 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             await contentWizard.waitForNotificationMessage();
             // 4. Insert text component in the left layout's region (Verify that layout item is expanded in PCV)
             await pageComponentView.rightClickAndOpenContextMenu('left');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
 
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();
@@ -149,7 +150,7 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             // 4. Verify that the layout item is gets expanded in PCV:
             let result = await pageComponentView.getPageComponentsDisplayName();
             assert.ok(result.includes('main region'), 'main region item should be displayed in the modal dialog');
-            assert.ok(result.includes('Main'), 'main item should be displayed in the modal dialog');
+            assert.ok(result.includes('MAIN'), 'main item should be displayed in the modal dialog');
             assert.ok(result.includes('text1'), 'text component should be displayed in the modal dialog');
             assert.ok(result.includes('text2'), 'the second text component should be displayed in the modal dialog');
             assert.equal(result.length, 4, "4 items should be displayed in PCV after deleting the layout item");

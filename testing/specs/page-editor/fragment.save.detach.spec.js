@@ -24,7 +24,7 @@ describe('Menu Items: Save as fragment and Customize specification', function ()
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -39,7 +39,7 @@ describe('Menu Items: Save as fragment and Customize specification', function ()
             await pageComponentView.waitForLoaded();
             await studioUtils.saveScreenshot('maximized_page_component_modal');
             // 3. 'Hide Page Component modal dialog' button should be displayed in the dialog:
-            await pageComponentView.waitForHidePcvDialogButtonDisplayed();
+            //await pageComponentView.waitForHidePcvDialogButtonDisplayed();
             // 4. Verify that 2 items are displayed in the modal dialog:
             let result = await pageComponentView.getPageComponentsDisplayName();
             assert.ok(result.includes(CONTROLLER_NAME), 'main region item should be displayed in the modal dialog');

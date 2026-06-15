@@ -66,11 +66,12 @@ class BasePageComponentView extends Page {
 
     async isComponentSelected(displayName) {
         try {
-            let locator = this.container + lib.itemStrictByDisplayName(displayName) + xpath.parentListElement;
+            let locator = this.container +
+                          `//div[@data-component='ContextMenu.Trigger']//span[contains(@class,'truncate') and text()='${displayName}']` +
+                          `/ancestor::div[@role='button']`;
             await this.waitForElementDisplayed(locator, appConst.shortTimeout);
-            let cell = await this.findElement(locator);
-            let attr = await cell.getAttribute('class');
-            return attr.includes('selected');
+            let attr = await this.getAttribute(locator, 'class');
+            return attr.includes('bg-surface-selected');
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_pcv_component');
             throw new Error(`Error occurred in 'isComponentSelected' in PCV, screenshot:${screenshot} ` + err);
@@ -78,31 +79,35 @@ class BasePageComponentView extends Page {
     }
 
     async waitForItemSelected(displayName) {
-        let locator = this.container + lib.itemStrictByDisplayName(displayName) + xpath.parentListElement;
+        let locator = this.container +
+                      `//div[@data-component='ContextMenu.Trigger']//span[contains(@class,'truncate') and text()='${displayName}']` +
+                      `/ancestor::div[@role='button']`;
         await this.getBrowser().waitUntil(async () => {
             let result = await this.getAttribute(locator, 'class');
-            return result.includes('selected');
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: "PCV item should be selected"});
-
+            return result.includes('bg-surface-selected');
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: `PCV item '${displayName}' should be selected`});
     }
 
     async waitForItemNotSelected(displayName) {
-        let locator = this.container + lib.itemStrictByDisplayName(displayName) + xpath.parentListElement;
+        let locator = this.container +
+                      `//div[@data-component='ContextMenu.Trigger']//span[contains(@class,'truncate') and text()='${displayName}']` +
+                      `/ancestor::div[@role='button']`;
         await this.getBrowser().waitUntil(async () => {
             let result = await this.getAttribute(locator, 'class');
-            return !result.includes('selected');
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: "PCV item should not be selected"});
-
+            return !result.includes('bg-surface-selected');
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: `PCV item '${displayName}' should not be selected`});
     }
 
     async waitForComponentItemDisplayed(displayName) {
-        let selector = this.container + lib.itemByDisplayName(displayName);
+        let selector = this.container +
+                       `//div[@data-component='ContextMenu.Trigger']//span[contains(@class,'truncate') and text()='${displayName}']`;
         return await this.waitForElementDisplayed(selector);
     }
 
     async clickOnComponentByDisplayName(displayName) {
         try {
-            let selector = this.container + lib.itemByDisplayName(displayName);
+            let selector = this.container +
+                           `//div[@data-component='ContextMenu.Trigger']//span[contains(@class,'truncate') and text()='${displayName}']`;
             await this.waitForElementDisplayed(selector);
             await this.clickOnElement(selector);
             return await this.pause(400);
@@ -145,30 +150,9 @@ class BasePageComponentView extends Page {
         return await this.getTextInDisplayedElements(locator);
     }
 
-    async openMenuByDescription(description) {
-        try {
-            let menuButton = this.container + xpath.componentByDescription(description) + "/../..//div[contains(@class,'menu-icon')]";
-            await this.waitForElementDisplayed(menuButton);
-            await this.clickOnElement(menuButton);
-            return await this.pause(500);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_component_menu');
-            throw new Error(`Page Component View, Error occurred after clicking on 'Menu button', screenshot:${screenshot} ` + err);
-        }
-    }
-
     waitForMenuItemNotDisplayed(menuItem) {
         let selector = xpath.contextMenuItemByName(menuItem);
         return this.waitForElementNotDisplayed(selector, appConst.shortTimeout);
-    }
-
-    //example: clicks on Insert/Image menu items
-    selectMenuItem1(items) {
-        let result = Promise.resolve();
-        items.forEach(menuItem => {
-            result = result.then(() => this.clickOnMenuItem(menuItem));
-        });
-        return result;
     }
 
     async selectMenuItem(items) {
@@ -289,19 +273,20 @@ class BasePageComponentView extends Page {
         return await this.getTextInDisplayedElements(locator);
     }
 
-
     async getTextComponentsDisplayName() {
-        let locator = this.container + xpath.pageComponentsItemViewerByType('text') + lib.H6_DISPLAY_NAME;
+        let locator = this.container +
+                      `//div[@data-component='ContextMenu.Trigger'][.//*[contains(@class,'lucide-pen-line')]]` +
+                      `//span[contains(@class,'truncate')]`;
         return await this.getTextInDisplayedElements(locator);
     }
 
     async waitForItemDisplayed(itemDisplayName) {
         try {
-            let locator = this.container + xpath.pageComponentsItemViewer + lib.itemByDisplayName(itemDisplayName);
-            return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            let locator = this.container +
+                          `//div[@data-component='ContextMenu.Trigger']//span[contains(@class,'truncate') and text()='${itemDisplayName}']`;
+            return await this.waitForElementDisplayed(locator);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_pcv_item');
-            throw new Error(`Page Component View -  item is not displayed, screenshot: ${screenshot}  ` + err);
+            await this.handleError(`Page Component View - item '${itemDisplayName}' should be displayed`, 'err_pcv_item_displayed', err);
         }
     }
 
@@ -318,8 +303,8 @@ class BasePageComponentView extends Page {
     }
 
     async expandItem(item) {
-        let locator = this.container + lib.itemStrictByDisplayName(item) + `//ancestor::div[contains(@class,'item-view-wrapper')]` +
-                      lib.TREE_GRID.EXPANDER_ICON_DIV;
+        let locator = this.container + xpath.rowExpanderButton(item);
+        await this.waitForElementDisplayed(locator);
         await this.clickOnElement(locator);
         return await this.pause(200);
     }
