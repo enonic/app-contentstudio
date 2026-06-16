@@ -1,5 +1,6 @@
 import {ALLOWED_URI_REGEXP} from '@enonic/lib-contentstudio/v6/features/utils/url/allowedUri';
-import {ComponentPath as EditorComponentPath, EditorEvent, EditorEvents, PageEditor} from '@enonic/page-editor';
+import {ComponentPath as EditorComponentPath, EditorEvent, EditorEvents} from '@enonic/page-editor';
+import * as PageEditor from '@enonic/page-editor';
 import DOMPurify from 'dompurify';
 
 const scriptElement = document.currentScript as HTMLScriptElement | null;
@@ -7,7 +8,7 @@ const project = scriptElement?.dataset.project;
 
 PageEditor.init({editMode: true});
 
-PageEditor.on(
+PageEditor.subscribe(
     EditorEvents.ComponentLoadRequest,
     (event: EditorEvent<{path: EditorComponentPath; isExisting: boolean}>) => {
         const data = event.getData();
