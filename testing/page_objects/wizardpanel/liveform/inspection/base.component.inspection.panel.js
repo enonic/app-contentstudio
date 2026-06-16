@@ -1,20 +1,19 @@
 /**
- * Created on 19.02.2020.
+ * Created on 19.02.2020.  updated on 16.06.2026
  */
 const Page = require('../../../page');
-const lib = require('../../../../libs/elements-old');
 const appConst = require('../../../../libs/app_const');
 
 // Context Window, Base Inspect tab for all components
 class BaseComponentInspectionPanel extends Page {
 
     get applyButton() {
-        return "//div[contains(@id,'InspectionsPanel')]" + lib.actionButton('Apply');
+        return "//button[@data-component='InspectApplyButton']";
     }
 
     async getDropdownSelectedOption() {
-        let locator = this.container + lib.INSPECT_PANEL.DESCRIPTOR_VIEWER_DIV + lib.H6_DISPLAY_NAME;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        let locator = this.container + "//button[@data-component='Combobox.Value']//span[contains(@class,'truncate')]";
+        await this.waitForElementDisplayed(locator);
         return await this.getText(locator);
     }
 
@@ -25,16 +24,16 @@ class BaseComponentInspectionPanel extends Page {
     }
 
     waitForApplyButtonDisplayed() {
-        return this.waitForElementDisplayed(this.applyButton, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.applyButton);
     }
 
     waitForApplyButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.applyButton, appConst.mediumTimeout);
+        return this.waitForElementNotDisplayed(this.applyButton);
     }
 
     async waitForApplyButtonEnabled() {
         try {
-            await this.waitForElementEnabled(this.applyButton, appConst.mediumTimeout);
+            await this.waitForElementEnabled(this.applyButton);
             await this.pause(400);
         } catch (err) {
             await this.handleError('Inspection Panel, Apply button should be enabled', 'err_apply_button', err);
@@ -43,7 +42,7 @@ class BaseComponentInspectionPanel extends Page {
 
     async waitForApplyButtonDisabled() {
         try {
-            await this.waitForElementDisabled(this.applyButton, appConst.mediumTimeout);
+            await this.waitForElementDisabled(this.applyButton);
         } catch (err) {
             await this.handleError('Inspection Panel, Apply button should be disabled', 'err_apply_button', err)
         }

@@ -37,7 +37,7 @@ describe('default.error.page.spec tests for Default error page', function () {
             let partInspectionPanel = new PartInspectionPanel();
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 1. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 2. open the context menu
             await pageComponentView.rightClickAndOpenContextMenu('main');
             // 3. click on the 'Insert Part' menu item:
@@ -62,7 +62,7 @@ describe('default.error.page.spec tests for Default error page', function () {
             let layoutInspectionPanel = new LayoutInspectionPanel();
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 1. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 2. open the context menu for part with errors
             await pageComponentView.rightClickAndOpenContextMenu(ERROR_PART_NAME);
             // 3. click on the 'Remove' menu item in PCV and remove the part-component
@@ -87,7 +87,7 @@ describe('default.error.page.spec tests for Default error page', function () {
             let wizardContextPanel = new WizardContextPanel();
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 1. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             await contentWizard.openContextWindow();
             // 2. open the context menu
             await pageComponentView.rightClickAndOpenContextMenu('main');

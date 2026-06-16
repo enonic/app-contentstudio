@@ -42,8 +42,6 @@ const XPATH = {
     status: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status')]`,
     author: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'author')]`,
     shaderPage: "//div[@class='xp-page-editor-shader xp-page-editor-page']",
-    wizardStepByName:
-        name => `//ul[contains(@id,'WizardStepNavigator')]//li[child::a[text()='${name}']]`,
     wizardStepByTitle:
         name => `//div[@data-component='Tab.List']//button[child::span[text()='${name}']]`,
     xDataTogglerByName:
@@ -99,8 +97,12 @@ class ContentWizardPanel extends Page {
         return XPATH.container + WIZARD.PATH_INPUT;
     }
 
-    get minimizeLiveEditToggler() {
+    get collapseContentFormButton() {
         return COMMON.CONTENT_WIZARD_DATA_COMPONENT + LIVE_VIEW.MINIMIZE_BUTTON;
+    }
+
+    get expandContentFormButton() {
+        return LIVE_VIEW.EXPAND_CONTENT_BUTTON;
     }
 
     get pageEditorTogglerButton() {
@@ -265,8 +267,9 @@ class ContentWizardPanel extends Page {
 
     async isWizardStepPresent(stepName) {
         try {
-            let stepXpath = XPATH.wizardStepByName(stepName);
-            await this.waitForElementDisplayed(stepXpath, appConst.shortTimeout)
+            let locator = XPATH.container + XPATH.wizardStepByTitle(stepName);
+            await this.waitForElementDisplayed(locator, appConst.shortTimeout);
+            return true;
         } catch (err) {
             console.log(`Wizard step is not visible:${stepName} `);
             return false;
@@ -646,6 +649,12 @@ class ContentWizardPanel extends Page {
         return await this.clickOnPageSettingsMenuItem();
     }
 
+    async unlockSiteWithTemplate(){
+        let selector = `//div[contains(@id,'FrameContainer')]`;
+        await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+        await this.clickOnElement(selector);
+    }
+
     // Opens context menu with 'Page Settings' with contentName in its title
     async doOpenPageViewContextMenu(contentName) {
         try {
@@ -773,15 +782,29 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    async waitForMinimizeLiveEditTogglerDisplayed() {
-        await this.waitForElementDisplayed(this.minimizeLiveEditToggler);
+    async waitForCollapseContentFormButtonDisplayed() {
+        await this.waitForElementDisplayed(this.collapseContentFormButton);
         await this.pause(500);
     }
 
-    async clickOnMinimizeLiveEditToggler() {
+    async waitForExpandContentFormButtonDisplayed() {
+        await this.waitForElementDisplayed(this.expandContentFormButton);
+        await this.pause(500);
+    }
+
+    async clickOnCollapseContentForm() {
         try {
-            await this.waitForMinimizeLiveEditTogglerDisplayed();
-            await this.clickOnElement(this.minimizeLiveEditToggler);
+            await this.waitForCollapseContentFormButtonDisplayed();
+            await this.clickOnElement(this.collapseContentFormButton);
+            await this.pause(400);
+        } catch (err) {
+            await this.handleError('Content wizard, tried to click on minimize live edit toggle', 'err_minimize_icon', err);
+        }
+    }
+    async clickOnExpandContentForm() {
+        try {
+            await this.waitForExpandContentFormButtonDisplayed();
+            await this.clickOnElement(this.expandContentFormButton);
             await this.pause(400);
         } catch (err) {
             await this.handleError('Content wizard, tried to click on minimize live edit toggle', 'err_minimize_icon', err);
@@ -1292,6 +1315,29 @@ class ContentWizardPanel extends Page {
             return await this.waitForElementDisplayed(selector);
         } catch (err) {
             await this.handleError(`${menuItem} should be enabled`, 'err_publish_menuItem_enabled', err);
+        }
+    }
+
+    async getPageEditorOverlayShadowHost() {
+        const host = await this.findElement(COMMON.SHADOW_SELECTORS.PAGE_EDITOR_OVERLAY_HOST);
+        await host.waitForExist({timeout: appConst.mediumTimeout});
+        return host;
+    }
+
+    async unlockSiteWithTemplate() {
+        try {
+            const host = await this.getPageEditorOverlayShadowHost();
+            const items = await host.shadow$$(COMMON.SHADOW_SELECTORS.CONTEXT_MENU_ITEM);
+            for (const item of items) {
+                const text = await item.getText();
+                if (text.trim() === 'Page settings') {
+                    await item.click();
+                    return await this.pause(500);
+                }
+            }
+            throw new Error("'Page settings' context menu item was not found in shadow DOM");
+        } catch (err) {
+            await this.handleError('Content Wizard, unlock site with template:', 'err_unlock_site_template', err);
         }
     }
 }

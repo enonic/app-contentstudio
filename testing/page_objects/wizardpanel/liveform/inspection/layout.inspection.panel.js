@@ -13,10 +13,9 @@ const xpath = {
 //Context Window, Inspect tab for Layout Component
 class LayoutInspectionPanel extends BaseComponentInspectionPanel {
 
-    get layoutDropdown() {
-        return xpath.container + xpath.layoutDropdown;
+    get container() {
+        return xpath.container;
     }
-
     optionsFilterInput() {
         return xpath.container + COMMON.INPUTS.INPUT;
     }
@@ -58,12 +57,6 @@ class LayoutInspectionPanel extends BaseComponentInspectionPanel {
     async waitForApplyButtonInComponentsDescriptorNotDisplayed(optionDisplayName) {
         let componentDescriptorsDropdown = new ComponentDescriptorsDropdown(xpath.container);
         await componentDescriptorsDropdown.waitForApplySelectionButtonNotDisplayed(optionDisplayName);
-    }
-
-    async getSelectedOption() {
-        let locator = xpath.container + lib.INSPECT_PANEL.DESCRIPTOR_VIEWER_DIV + lib.H6_DISPLAY_NAME;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.getText(locator);
     }
 
     async getLayoutDropdownOptions() {

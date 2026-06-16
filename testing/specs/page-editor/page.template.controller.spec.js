@@ -34,20 +34,17 @@ describe('page.template.controller: select a controller in a template-wizard', f
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
         });
 
-    // verifies https://github.com/enonic/app-contentstudio/issues/364
-    // Upload button should not be visible in the New Content dialog for Templates folder
-    // TODO bug
-    it.skip(`GIVEN _templates folder is selected WHEN New button has been pressed THEN upload button should not be present in the modal dialog`,
+    it.skip(`GIVEN _templates folder is selected WHEN New button has been pressed THEN Media tab item should be disabled in the modal dialog`,
         async () => {
             let newContentDialog = new NewContentDialog();
             // 1. Expand the site, click on Templates folder and click on 'New' button
             await selectTemplatesFolderAndClickOnNew();
-            // 2. Verify that 'Uploader' button is not be displayed in the 'New Content' modal dialog:
-            await newContentDialog.waitForUploaderButtonNotDisplayed();
+            // 2. Verify that 'Media' button is disabled:
+            await newContentDialog.waitForMediaTabButtonDisabled();
         });
 
     // verifies the xp-apps#686 "Template Wizard - Inspection Panel should appear after page controller is selected"
@@ -70,13 +67,14 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_NAME);
             // 3. Verify the issue - Verifies xp-apps#686 - 'Context Window should be loaded automatically':
             await pageWidgetPanel.waitForOpened();
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 4. Click on the item and open Context Menu:
             await pageComponentView.rightClickAndOpenContextMenu('main');
             // 5. Insert Text Component and insert an image:
             await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             //await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.showToolbarAndClickOnInsertImageButton();
+            await insertImageDialog.clickOnImageSelectorModeTogglerButton();
             await insertImageDialog.filterAndSelectImage(TEST_IMAGE_NAME);
             await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();
@@ -95,7 +93,14 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             await studioUtils.doSwitchToContentBrowsePanel();
             // 2. Open the template:
-            await studioUtils.selectContentAndOpenWizard(TEMPLATE.displayName);
+            let contentBrowsePanel = new ContentBrowsePanel();
+            await contentBrowsePanel.clickOnExpanderIcon(SITE.displayName);
+            await contentBrowsePanel.clickOnExpanderIcon("_templates");
+            await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(TEMPLATE.displayName);
+            await contentBrowsePanel.waitForEditButtonEnabled();
+            await contentBrowsePanel.clickOnEditButton();
+            await studioUtils.doSwitchToNewTab();
+            //await studioUtils.selectContentAndOpenWizard(TEMPLATE.displayName);
             // 3. 'site' option has been selected in 'support' and the template has been saved:
             await pageTemplateForm.filterOptionsAndSelectSupport(appConst.TEMPLATE_SUPPORT.SITE);
             // 4. Save the template with 'Site' option is supports dropdown

@@ -280,7 +280,7 @@ describe.skip('layer.owner.spec - ui-tests for user with layer-Owner role ', fun
             await contentBrowsePanel.clickOnEditButton();
             await studioUtils.doSwitchToNextTab();
             await contentWizard.waitForOpened();
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Insert a text component
             await pageComponentView.rightClickAndOpenContextMenu('main');
             // 4. Insert new text component:

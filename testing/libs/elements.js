@@ -1,6 +1,8 @@
 const COMMON = {
     SHADOW_SELECTORS: {
-        XP_MENU_BUTTON: `button#menu-button`
+        XP_MENU_BUTTON: `button#menu-button`,
+        PAGE_EDITOR_OVERLAY_HOST: `#pe-overlay-host`,
+        CONTEXT_MENU_ITEM: `[data-component="ContextMenu.Item"]`,
     },
     DISPLAY_NAME_INPUT: "//input[@name='displayName']",
     CONTENT_WIZARD_DATA_COMPONENT: "//div[@data-component='ContentWizardTabs']",
@@ -121,6 +123,7 @@ const LIVE_VIEW = {
     EMPTY_LIVE_FRAME_DIV: "//div[contains(@class,'frame-container')]//iframe[@class='live-edit-frame']",
     LIVE_EDIT_FRAME: "//div[contains(@id,'FrameContainer')]//iframe[contains(@class,'text') or contains(@class,'application') and contains(@src,'http')]",
     MINIMIZE_BUTTON: `//button[@data-component='ToggleFormButton' and @aria-label='Collapse content form']`,
+    EXPAND_CONTENT_BUTTON: `//button[@data-component='ToggleFormButton' and @aria-label='Expand content form']`,
     PAGE_EDITOR_TOGGLE_BUTTON: "//button[contains(@id, 'CycleButton')]",
     HIDE_PAGE_EDITOR_BUTTON: "//button[contains(@id,'ContentActionCycleButton') and @title='Hide Page Editor']",
 };

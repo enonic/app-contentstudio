@@ -38,7 +38,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             // 1. Open the site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3.Click on the 'Main' region-item and open Context Menu:
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Part']);
@@ -105,7 +105,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             // 1. Open the site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3.Click on the 'Main' item and open Context Menu:
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Part']);

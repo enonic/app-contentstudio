@@ -42,7 +42,7 @@ describe("text.component.image.outbound.spec: Inserts a text component with an i
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // automatic template does not exist, so no need to unlock the editor
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Insert new text component:
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);

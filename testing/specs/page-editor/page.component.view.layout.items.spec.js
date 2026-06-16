@@ -30,7 +30,7 @@ describe('page.component.view.layout.items.spec - tests for page component view 
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -44,7 +44,7 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             // 1. reopen the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Maximize the Live Edit:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Insert the Layout component (3-column):
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectContextMenuItem(['Insert', 'Layout']);
@@ -53,7 +53,7 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             await contentWizard.waitForNotificationMessage();
             // 4. Insert text component in the left layout's region
             await pageComponentView.rightClickAndOpenContextMenu('left');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.typeTextInEditor('text left');
@@ -63,7 +63,7 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             // 6. Do not need to expand the layouts items, because the text component is selected in Live Edit now:
             // 7. Insert 'text component' in the left layout's region
             await pageComponentView.rightClickAndOpenContextMenu('center');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.typeTextInEditor('text center');
             // 8. Save the site:
@@ -81,7 +81,7 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             let pageWidgetPanel = new PageWidgetContextPanel();
             // 1. Open the existing site
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             await pageComponentView.waitForLoaded();
             // 2. Expand the layout item:
             await pageComponentView.expandItem(LAYOUT_NAME)
@@ -96,7 +96,7 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             // 6. Verify that 'Layout' tab bar item is loaded in the Context Window:
             await pageWidgetPanel.waitForTabBarItemDisplayed('Inspect');
             await layoutInspectionPanel.waitForOpened();
-            let actualSelectedOption = await layoutInspectionPanel.getSelectedOption();
+            let actualSelectedOption = await layoutInspectionPanel.getDropdownSelectedOption();
             assert.equal(actualSelectedOption, LAYOUT_NAME, "expected layout-display name should be present in the selected option view");
         });
 
@@ -109,7 +109,7 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             let pageInspectionPanel = new PageInspectionPanel();
             // 1. Open the existing site
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             await pageComponentView.waitForLoaded();
             // 2. Expand the layout item:
             await pageComponentView.expandItem(LAYOUT_NAME)
@@ -127,12 +127,15 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             // 6. Verify that 'Layout' tab bar item is loaded in the Context Window:
             await pageWidgetPanel.waitForTabBarItemDisplayed('Inspect');
             await layoutInspectionPanel.waitForOpened();
-            let actualSelectedOption = await layoutInspectionPanel.getSelectedOption();
+            let actualSelectedOption = await layoutInspectionPanel.getDropdownSelectedOption();
             assert.equal(actualSelectedOption, LAYOUT_NAME, "expected layout-display name should be present in the selected option view");
         });
 
     // Verify issue - Page Components view and step remain visible after reverting versions #6468
-    it.skip(`GIVEN existing site has been opened WHEN 'Created' version has been reverted THEN 'Page Component View' step should not be displayed`,
+    // Live Edit and PCV are not updated after reverting versions #10753
+    // TODO
+    it.skip(
+        `GIVEN existing site has been opened WHEN 'Created' version has been reverted THEN 'Page Component View' step should not be displayed`,
         async () => {
             let contentWizard = new ContentWizardPanel();
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
@@ -142,8 +145,9 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             // 1. Open new site-wizard
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 2. Verify that the wizard step is loaded:
+            await contentWizard.clickOnWizardStep('Page');
             await pageComponentsWizardStepForm.waitForLoaded();
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Open Context Window panel:
             await contentWizard.openContextWindow();
             // 4. Open versions widget:

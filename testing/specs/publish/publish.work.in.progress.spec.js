@@ -119,14 +119,14 @@ describe('publish.work.in.progress.spec - publishes work in progress content', f
             // 1. Open an existing site (work in progress)
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             await pageComponentView.rightClickAndOpenContextMenu('main');
             // 3. Insert Text Component with test text and save it:
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.typeTextInEditor('test text');
             await contentWizard.waitAndClickOnSave();
             // minimize Live Edit, workflow icon gets visible:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnExpandContentForm();
             // 4. Verify the workflow state in the wizard and in the grid
             let workflowInWizard = await contentWizard.getContentWorkflowState();
             assert.equal(workflowInWizard, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);

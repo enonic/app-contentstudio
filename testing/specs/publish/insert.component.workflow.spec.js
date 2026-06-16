@@ -40,7 +40,7 @@ describe("insert.component.workflow.spec - insert a component and click on 'Mark
             // 1. Open an existing site (work in progress)
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             await pageComponentView.rightClickAndOpenContextMenu('main');
             // 3. Insert Text Component with test text and save it:
             await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
@@ -77,7 +77,7 @@ describe("insert.component.workflow.spec - insert a component and click on 'Mark
             // 1. Open an existing site and insert new text component:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // 3. insert a text with spaces:

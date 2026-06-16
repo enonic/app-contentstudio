@@ -22,7 +22,7 @@ const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wiz
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 
 // TODO remove skip
-describe.skip('Generate name for fragments specification', function () {
+describe('Generate name for fragments specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
@@ -36,7 +36,7 @@ describe.skip('Generate name for fragments specification', function () {
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -58,7 +58,7 @@ describe.skip('Generate name for fragments specification', function () {
             //await siteConfiguratorDialog.typeInTextInTrackingIdInput('test');
             //await siteConfiguratorDialog.clickOnApplyButton();
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 2. Insert new text-component
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
@@ -146,7 +146,7 @@ describe.skip('Generate name for fragments specification', function () {
             // 1. Open the site with a fragment(text component)
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on 'minimize-toggle', expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Click on text-component and expand the menu, then click on Remove menu item:
             await pageComponentView.rightClickAndOpenContextMenu('Text');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.REMOVE]);
@@ -172,7 +172,7 @@ describe.skip('Generate name for fragments specification', function () {
             // 1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Insert existing text-component
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Fragment']);
@@ -192,7 +192,7 @@ describe.skip('Generate name for fragments specification', function () {
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Insert new layout-component
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectContextMenuItem(['Insert', 'Layout']);
@@ -215,7 +215,7 @@ describe.skip('Generate name for fragments specification', function () {
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Insert new fragment-component
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectContextMenuItem(['Insert', 'Fragment']);
@@ -243,7 +243,7 @@ describe.skip('Generate name for fragments specification', function () {
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             await studioUtils.saveScreenshot('issue_valid_site');
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Insert new text-component
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
@@ -259,7 +259,7 @@ describe.skip('Generate name for fragments specification', function () {
             await contentWizard.waitForNotificationMessage();
             await contentPublishDialog.clickOnCloseButton();
             // 6. Verify the workflow state:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             let state = await contentWizard.getContentWorkflowState();
             assert.equal(state, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING,
                 "'Ready for publishing' state should be displayed in the wizard");

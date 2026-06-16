@@ -38,7 +38,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             // 1. Open existing site and open 'Page Component View':
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Insert new text-component:
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
@@ -65,7 +65,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             let insertAnchorDialog = new InsertAnchorDialog();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 1. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // Open Insert Anchor modal dialog:
@@ -86,7 +86,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // Insert a text component:
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // Open Insert Anchor modal dialog and type not correct value:
@@ -112,7 +112,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             // 1. Open existing site and open 'Page Component View':
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Insert new text-component:
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
@@ -142,7 +142,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             // 1. Open existing site and open 'Page Component View':
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             await pageComponentView.waitForItemNotSelected('main');
             // 3. Open  menu in the text component:
             await pageComponentView.rightClickAndOpenContextMenu(TEST_TEXT);
@@ -162,7 +162,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             // 1. Open existing site and open 'Page Component View':
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Select an item:
             await pageComponentView.clickOnComponent('main region');
             // 4. Press the Arrow down key:

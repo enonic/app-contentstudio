@@ -1,5 +1,5 @@
 /**
- * Created on 19.08.2021
+ * Created on 19.08.2021  updated on 16.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -24,7 +24,7 @@ describe('Save as Template specification', function () {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'My first Site', [appConst.MY_FIRST_APP], COUNTRY_LIST_CONTROLLER);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.MY_FIRST_APP], COUNTRY_LIST_CONTROLLER);
             // 1. Open site-wizard and save new site with a controller:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizard.typeData(SITE);
@@ -37,7 +37,7 @@ describe('Save as Template specification', function () {
             await pageInspectionPanel.selectPageTemplateOrController(COUNTRY_LIST_CONTROLLER);
             await contentWizard.waitForSaveButtonDisabled();
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Open the menu in the root element:
             await pageComponentView.rightClickAndOpenContextMenu(COUNTRY_LIST_CONTROLLER);
             // 4. Verify menu items
@@ -54,7 +54,7 @@ describe('Save as Template specification', function () {
             // 1. Open existing site
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Open the menu in the root element:
             await pageComponentView.rightClickAndOpenContextMenu(COUNTRY_LIST_CONTROLLER);
             await studioUtils.saveScreenshot(`save_as_template_0`);
@@ -66,7 +66,7 @@ describe('Save as Template specification', function () {
             await contentWizard.waitForOpened();
             await studioUtils.saveScreenshot('save_as_template1');
             let expectedPath = 'template-' + SITE.displayName;
-            let actualPath = await contentWizard.getPath();
+            let actualPath = await contentWizard.getNameInToolbar();
             assert.equal(actualPath, expectedPath, "Template's path should contain the name of its site");
             // 6. Verify the support selected option:
             let support = await pageTemplateForm.getSupportSelectedOptions();
@@ -83,7 +83,7 @@ describe('Save as Template specification', function () {
             // 1. Open existing site
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Click on the root element in the modal dialog:
             await pageComponentView.clickOnComponent(COUNTRY_LIST_CONTROLLER);
             await studioUtils.saveScreenshot('controller_inspection_panel');
@@ -95,7 +95,7 @@ describe('Save as Template specification', function () {
             await contentWizard.waitForOpened();
             await studioUtils.saveScreenshot('save_as_template2');
             let expectedPath = 'template-' + SITE.displayName + '-1';
-            let actualPath = await contentWizard.getPath();
+            let actualPath = await contentWizard.getNameInToolbar();
             assert.equal(actualPath, expectedPath, `Template's path should contain the name of its site`);
             // 6. Verify the support selected option:
             let support = await pageTemplateForm.getSupportSelectedOptions();
