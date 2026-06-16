@@ -37,7 +37,7 @@ describe("revert.site.with.components.spec: Insert Text component then revert th
             let liveFormPanel = new LiveFormPanel();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 1. Click on minimize-toggle, expand 'Live Edit' and open 'Page Component' modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 2. Open the context menu:
             await pageComponentView.rightClickAndOpenContextMenu('main');
             // 3. Click on the 'Insert Text' menu item:

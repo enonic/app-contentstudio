@@ -1,5 +1,5 @@
 /**
- * Created on 24.01.2023
+ * Created on 24.01.2023  updated on 16.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -32,7 +32,7 @@ describe('layout.config.inspect.panel.spec: tests for layout with config', funct
             let layoutConfigInspectPanel = new LayoutConfigInspectPanel();
             let layoutInspectionPanel = new LayoutInspectionPanel();
             let name = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(name, ' ', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(name, null, [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES]);
             // 1. Open site-wizard and save:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizard.typeData(SITE);
@@ -45,10 +45,10 @@ describe('layout.config.inspect.panel.spec: tests for layout with config', funct
             await pageInspectionPanel.selectPageTemplateOrController(appConst.CONTROLLER_NAME.MAIN_REGION);
             await contentWizard.waitForSaveButtonDisabled();
             // 3. Click on minimize-toggle, expand 'Live Edit' and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             await pageComponentView.rightClickAndOpenContextMenu(MAIN_REGION);
             // 4. Insert the layout:
-            await pageComponentView.selectMenuItem(['Insert', 'Layout']);
+            await pageComponentView.selectContextMenuItem(['Insert', 'Layout']);
             await layoutInspectionPanel.typeNameAndSelectLayout(appConst.LAYOUT_NAME.CENTERED);
             // 5. Site should be saved automatically:
             await contentWizard.waitForNotificationMessage();
@@ -62,9 +62,9 @@ describe('layout.config.inspect.panel.spec: tests for layout with config', funct
             let result = await pageComponentView.getPageComponentsDisplayName();
             await studioUtils.saveScreenshot('layout_config_inspect_panel');
             assert.ok(result.includes('main region'), 'main region item should be displayed in the modal dialog');
-            assert.ok(result.includes('Main'), 'main item should be displayed in the modal dialog');
+            assert.ok(result.includes('MAIN'), 'main item should be displayed in the modal dialog');
             assert.ok(result.includes('Centered'), 'text component should be displayed in the modal dialog');
-            assert.ok(result.includes('Center'), 'the second text component should be displayed in the modal dialog');
+            assert.ok(result.includes('CENTER'), 'the second text component should be displayed in the modal dialog');
             assert.equal(result.length, 4, "4 items should be displayed in PCV after deleting the layout item");
         });
 
@@ -88,13 +88,10 @@ describe('layout.config.inspect.panel.spec: tests for layout with config', funct
             await pageInspectionPanel.selectPageTemplateOrController(appConst.CONTROLLER_NAME.APP_CONTENT_TYPES_PAGE);
             await contentWizard.waitForSaveButtonDisabled();
             // 3. Click on minimize-toggle, expand 'Live Edit' and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             await pageComponentView.rightClickAndOpenContextMenu(MAIN_REGION);
             // 4. Insert the layout:
             await pageComponentView.selectContextMenuItem(['Insert', 'Layout']);
-            // 4. Verifies #6393: we keep 'Inspect panel' collapsed (or collapse it if it was expanded).
-            // So need to open 'Inspect panel':
-            //await contentWizard.clickOnDetailsPanelToggleButton();
             await layoutInspectionPanel.typeNameAndSelectLayout('Centered');
             // 5. Site should be saved automatically:
             await contentWizard.waitForNotificationMessage();
@@ -123,7 +120,7 @@ describe('layout.config.inspect.panel.spec: tests for layout with config', funct
             // 1. Open the existing site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand 'Live Edit' and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Click on the 'Centered' item in PCV:
             await pageComponentView.clickOnComponent('Centered');
             await layoutInspectionPanel.waitForOpened();
@@ -144,30 +141,23 @@ describe('layout.config.inspect.panel.spec: tests for layout with config', funct
             // 1. Open the existing site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand 'Live Edit' and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Click on the Centered item in PCV:
             await pageComponentView.clickOnComponent('Centered');
             await layoutInspectionPanel.waitForOpened();
-            // 4. Expand the menu and click on 'Reset' menu item
-            await layoutConfigInspectPanel.resetSelectedOption();
-            // 5. Notification dialog should be loaded, click on OK
-            await notificationDialog.waitForDialogLoaded();
-            await notificationDialog.clickOnOkButton();
-            await notificationDialog.waitForDialogClosed();
-            await layoutConfigInspectPanel.pause(2000);
-            // 6. Select 'Option 2' and insert another text:
-            await layoutConfigInspectPanel.selectOption('Option 2');
+            // 4. Select 'Option 2' and insert another text:
+            await layoutConfigInspectPanel.selectRadioOption('Option 2');
             await layoutConfigInspectPanel.typeTextInOption2TextInput(OPTION_2_TXT);
             await studioUtils.saveScreenshot('option_set_cfg_inspect_panel_1');
-            // 7. Save button gets enabled after the changes in Inspect Panel
+            // 5. Save button gets enabled after the changes in Inspect Panel
             await contentWizard.waitForSaveButtonEnabled();
-            // 8. Click on 'Apply' in Inspect Panel
+            // 6. Click on 'Apply' in Inspect Panel
             await layoutConfigInspectPanel.clickOnApplyButton();
             await contentWizard.waitForNotificationMessage();
-            // 9. Just wait for until Layout Panel is reloaded:
+            // 7. Just wait for until Layout Panel is reloaded:
             await layoutConfigInspectPanel.waitForOpened();
             await studioUtils.saveScreenshot('option_set_cfg_inspect_panel_2');
-            // 10. Verify that changes is saved
+            // 8. Verify that changes is saved
             let result = await layoutConfigInspectPanel.getTextInOption2TextInput();
             assert.equal(result, OPTION_2_TXT, "'option 2' text should be displayed in the selected option");
         });

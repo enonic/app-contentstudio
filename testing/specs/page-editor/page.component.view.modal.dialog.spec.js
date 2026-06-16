@@ -1,5 +1,5 @@
 /**
- * Created on 28.06.2023
+ * Created on 28.06.2023  updated on 16.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -35,7 +35,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await contentWizardPanel.typeDisplayName(DISPLAY_NAME);
             await siteForm.addApplications([appConst.APP_CONTENT_TYPES]);
             // 2. Expand the Live Edit frame
-            await contentWizardPanel.clickOnMinimizeLiveEditToggler();
+            await contentWizardPanel.clickOnCollapseContentForm();
             // 3. Select a page descriptor:
             let wizardContextWindow = await contentWizardPanel.openContextWindow();
             await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
@@ -44,7 +44,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await pageComponentView.waitForLoaded();
             let result = await pageComponentView.getPageComponentsDisplayName();
             assert.ok(result.includes('main region'), 'main region item should be displayed in the modal dialog');
-            assert.ok(result.includes(appConst.LIVE_EDIT.REGION_MAIN_DISPLAY_NAME), 'Main item should be displayed in the modal dialog');
+            assert.ok(result.includes(appConst.LIVE_EDIT.REGION_MAIN_DISPLAY_NAME), 'MAIN item should be displayed in the modal dialog');
         });
 
     it(`GIVEN existing site has been opened WHEN 'Save as Template' menu item has been clicked THEN new template page with 'Page Component View' step should be loaded `,
@@ -53,6 +53,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             // 1. Open new site-wizard
             await studioUtils.selectAndOpenContentInWizard(DISPLAY_NAME);
+            await contentWizardPanel.clickOnWizardStep('Page');
             // 2. Verify that the wizard step is loaded:
             await pageComponentsWizardStepForm.waitForLoaded();
             // 3. Open the menu:
@@ -64,9 +65,10 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await studioUtils.doSwitchToNextTab();
             // 6. Verify that 'Page Component wizard' step is present in the page-template wizard:
             await contentWizardPanel.waitForOpened();
+            await contentWizardPanel.clickOnWizardStep('Page');
             let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
             assert.ok(result.includes('main region'), 'main region item should be displayed in the modal dialog');
-            assert.ok(result.includes('Main'), 'Main item should be displayed in the modal dialog');
+            assert.ok(result.includes('MAIN'), 'Main item should be displayed in the modal dialog');
         });
 
     // Verify issue https://github.com/enonic/app-contentstudio/issues/6486
@@ -80,9 +82,10 @@ describe('template.config.spec: template config should be displayed in the Inspe
             let pageComponentViewDialog = new PageComponentView();
             // 1. Open new site-wizard
             await studioUtils.selectAndOpenContentInWizard(DISPLAY_NAME);
+            await contentWizard.clickOnWizardStep('Page');
             // 2. Verify that the wizard step is loaded:
             await pageComponentsWizardStepForm.waitForLoaded();
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Open Context panel:
             await contentWizard.openContextWindow();
             // 4. Open versions widget:
@@ -94,7 +97,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             // 6. Verify that PCV is not visible now:
             await studioUtils.saveScreenshot('pcv_hidden_after_reverting');
             await pageComponentViewDialog.waitForNotDisplayed();
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             await versionsWidget.pause(1000);
             await pageComponentsWizardStepForm.waitForNotDisplayed();
         });

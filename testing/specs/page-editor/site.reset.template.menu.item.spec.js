@@ -44,7 +44,7 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageInspectTab.selectPageTemplateOrController(CONTROLLER_NAME);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3.Click on the item and open Context Menu:
             await pageComponentView.rightClickAndOpenContextMenu('country');
             // 4. Insert Text Component with 'test text' and save it:
@@ -103,7 +103,7 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             // 3. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 4. Click on the item and open Context Menu:
             await pageComponentView.rightClickAndOpenContextMenu(TEST_TEXT);
             // 5. Remove the text component and save it

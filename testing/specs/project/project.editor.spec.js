@@ -229,7 +229,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             await contentBrowsePanel.clickOnEditButton();
             await studioUtils.doSwitchToNextTab();
             await contentWizard.waitForOpened();
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 2. Insert a text component:
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);

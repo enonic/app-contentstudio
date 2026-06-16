@@ -35,7 +35,7 @@ describe('site.with.layout.component.spec - specification', function () {
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Insert the Layout component (3-column):
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectMenuItem(['Insert', 'Layout']);
@@ -55,7 +55,7 @@ describe('site.with.layout.component.spec - specification', function () {
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Expand the layout item:
             await pageComponentView.expandItem(LAYOUT_NAME);
             // 4. Insert the first text component:
@@ -79,7 +79,7 @@ describe('site.with.layout.component.spec - specification', function () {
             // 1. Open existing site with 3-col layout:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Expand the layout item:
             await pageComponentView.expandItem(LAYOUT_NAME);
             // 4. Insert the text component in 'center' region:
@@ -105,7 +105,7 @@ describe('site.with.layout.component.spec - specification', function () {
             // 1. Open existing site with 3-col layout:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Expand the layout item:
             await pageComponentView.expandItem(LAYOUT_NAME);
             // 4. Insert the text component in 'right' region

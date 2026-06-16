@@ -171,7 +171,7 @@ module.exports = Object.freeze({
         RELATIVE: 'Relative'
     },
     LIVE_EDIT: {
-        REGION_MAIN_DISPLAY_NAME: 'Main'
+        REGION_MAIN_DISPLAY_NAME: 'MAIN'
     },
 
     VALIDATION_MESSAGE: {
@@ -325,6 +325,7 @@ module.exports = Object.freeze({
         REMOVE: 'Remove',
         DUPLICATE: 'Duplicate',
         EDIT: 'Edit',
+        EDIT_FRAGMENT: 'Edit Fragment',
         SELECT_PARENT: 'Select parent',
         RESET: 'Reset'
     },
