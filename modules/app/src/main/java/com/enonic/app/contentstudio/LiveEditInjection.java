@@ -109,7 +109,7 @@ public final class LiveEditInjection
                 // exists only when it is genuinely needed, never blindly.
                 final String governing = scriptSrcElemDeclared ? "script-src-elem" : "script-src";
                 final boolean strictDynamic =
-                    policy.directive( governing ).orElse( List.of() ).contains( CspSource.STRICT_DYNAMIC.token() );
+                    policy.directive( governing ).orElse( List.of() ).contains( CspSource.STRICT_DYNAMIC );
                 model.put( "nonceAttr", strictDynamic
                     ? " nonce=\"" + ( scriptSrcElemDeclared ? policy.nonceScriptSrcElem() : policy.nonceScriptSrc() ) + "\""
                     : "" );

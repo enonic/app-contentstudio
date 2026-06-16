@@ -42,14 +42,14 @@ contentWizard.allowPathTransliteration=false
 IMPORTANT: You may need to tweak CSP settings in Content Studio _only_ if you are building a widget which will be embedded inside Content Studio where you want to allow references to external resources or other potentially unsafe (from the CSP point of view) actions. If CSP
 errors appear when your content is rendered (when you preview or edit content in Content Studio), then you need to configure CSP settings in https://developer.enonic.com/docs/xp/stable/deployment/config#admin[XP admin config].
 
-You can provide your own header for <<security#_content_security_policy,Content Security Policy>> using `contentSecurityPolicy.header` property.
-For example, Google Analytics injects its own scripts referring to external domains, so
-we are using the following CSP headers for the Google Analytics widget not to be blocked in Content Studio:
+You can grant additional <<security#_content_security_policy,Content Security Policy>> permissions using the `contentSecurityPolicy.header` property — for example when a widget embedded in Content Studio loads external resources. The directives you list are *added on top of* Content Studio's built-in policy: existing directives are extended and missing ones are added, but the policy is never replaced. The admin UI's own protections therefore stay in force — in particular the per-request script nonce, so scripts in the main view still run only via that nonce (a misconfigured value cannot silently disable it).
+
+For example, a Google Analytics widget reaches Google's domains; the following grants the extra connections, images and frames it needs without restating the rest of the policy:
 
 .com.enonic.app.contentstudio.cfg
 [source,properties]
 ----
-contentSecurityPolicy.header=default-src 'self'; connect-src 'self' ws: wss: https://*.gstatic.com https://*.googleapis.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.google.com https://*.googleapis.com https://*.gstatic.com; object-src 'none'; style-src 'self' 'unsafe-inline' https://*.gstatic.com; img-src 'self' data:; frame-src 'self' https://*.googleapis.com
+contentSecurityPolicy.header=connect-src https://*.googleapis.com https://*.gstatic.com; img-src https://*.gstatic.com; frame-src https://*.googleapis.com
 ----
 
 Turn off <<security#content_security_policy,Content Security Policy>> by setting `contentSecurityPolicy.enabled` property to `false`.
@@ -64,22 +64,22 @@ contentSecurityPolicy.enabled=false
 
 When content is rendered inside Content Studio, a configurable baseline Content Security Policy is gap-filled onto the page's own policy: a page that ships its own CSP keeps every directive it declared untouched (a good app that legitimately loads an external script keeps working; in *preview*, a page's strict `script-src 'none'` is never loosened), and only the directives the page omitted are added — so unprotected content is contained while well-behaved apps are not interfered with. A page with no CSP of its own gets the full baseline.
 
-The *inline view* (shown as you select content in the tree) additionally injects the page editor. Content Studio sets `script-src 'self'` for that viewer at the moment it is injected — not from the config below, which must not be able to break the editor, and not on responses that inject nothing (an error page in the panel) — together with `frame-ancestors 'self'` so the panel can frame it. Its baseline therefore omits `script-src`. The *preview* (a separate, explicit tab) injects nothing and only gap-fills its baseline.
+The *inline view* (shown as you select content in the tree) additionally injects the page editor. Content Studio sets `script-src 'self'` for that viewer at the moment it is injected — not from the config below, which must not be able to break the editor, and not on responses that inject nothing (an error page in the panel) — together with `frame-ancestors 'self'` so the panel can frame it. Beyond that it gap-fills the same baseline as preview.
 
 The inline view and the page editor also impose a CSP `sandbox` (`allow-scripts allow-same-origin`) on the framed page. Scripts run only in the admin origin, while form submission, popups, modals, top-window navigation and downloads are blocked — none of which the viewer or editor needs. This is not configurable, and the separate preview tab is not sandboxed.
 
-Inline and preview are configured separately, so you can relax preview — accepting more risk in that explicit, separate-tab view — while keeping the inline view (rendered on mere selection) tight. The two defaults differ in one directive: the inline default omits `script-src`, which Content Studio sets to `'self'` at injection time (as described above), while the preview default includes it:
+`site.preview.contentSecurityPolicy` is the baseline both the *preview* tab and the *inline view* gap-fill — in practice you configure this one value. The inline view can be given a separate baseline via `site.inline.contentSecurityPolicy`, but it is empty by default and falls back to the preview baseline; set it only when you want the inline view (rendered on mere selection) to differ from preview.
 
 .com.enonic.app.contentstudio.cfg
 [source,properties]
 ----
-site.inline.contentSecurityPolicy=connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'
-site.preview.contentSecurityPolicy=script-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'
+site.preview.contentSecurityPolicy=script-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'; worker-src 'self'
+# site.inline.contentSecurityPolicy=   (empty -> falls back to the preview baseline above)
 ----
 
-The default lists only the directives that let content run code or exfiltrate data — scripts and connections limited to the site itself, forms and `+<base>+` to the site, and plugins blocked. Everything visual (images, fonts, styles, media, framed embeds such as YouTube or Vimeo) is left to the page and renders as on the live site. To allow a player script to reach a CDN for content that declares no CSP, add the CDN host to `script-src`/`connect-src` here.
+The baseline lists only the directives that let content run code or exfiltrate data — scripts, connections and workers limited to the site itself, forms and `+<base>+` to the site, and plugins blocked. Everything visual (images, fonts, styles, media, framed embeds such as YouTube or Vimeo) is left to the page and renders as on the live site. To allow a player script to reach a CDN for content that declares no CSP, add the CDN host to `script-src`/`connect-src` here.
 
-Set the property to an empty value to disable the baseline and rely on each page's own policy alone. Avoid `'unsafe-inline'` in the baseline's `script-src` unless you explicitly need to allow inline scripts on pages that declare no CSP; note that it is ignored when nonces/hashes are present.
+Set `site.preview.contentSecurityPolicy` to an empty value to disable the baseline (the inline view then has none either) and rely on each page's own policy alone. Avoid `'unsafe-inline'` in the baseline's `script-src` unless you explicitly need to allow inline scripts on pages that declare no CSP; note that it is ignored when nonces/hashes are present.
 
 == Publishing Wizard
 

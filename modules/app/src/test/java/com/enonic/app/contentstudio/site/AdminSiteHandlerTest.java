@@ -14,6 +14,7 @@ import com.enonic.xp.portal.RenderMode;
 import com.enonic.xp.project.ProjectService;
 import com.enonic.xp.web.HttpStatus;
 import com.enonic.xp.web.WebResponse;
+import com.enonic.xp.web.csp.ContentSecurityPolicy;
 import com.enonic.xp.web.exception.ExceptionMapper;
 import com.enonic.xp.web.exception.ExceptionRenderer;
 import com.enonic.xp.web.handler.WebHandlerChain;
@@ -180,6 +181,24 @@ class AdminSiteHandlerTest
     }
 
     @Test
+    void inlineFallsBackToPreviewBaselineWhenInlineUnset()
+        throws Exception
+    {
+        final AdminSiteConfig config = mock( AdminSiteConfig.class );
+        when( config.site_inline_contentSecurityPolicy() ).thenReturn( "" );
+        when( config.site_preview_contentSecurityPolicy() ).thenReturn( "connect-src 'self'; worker-src 'self'" );
+        this.handler.activate( config );
+
+        this.portalRequest.setMode( RenderMode.INLINE );
+
+        doHandle();
+
+        // inline has no baseline of its own, so it gap-fills the preview baseline (incl. worker-src)
+        assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo(
+            "connect-src 'self'; frame-ancestors 'self'; sandbox allow-scripts allow-same-origin; worker-src 'self'" );
+    }
+
+    @Test
     void inlineImposesItsSandboxDroppingPageGrantedCapabilities()
         throws Exception
     {
@@ -285,5 +304,68 @@ class AdminSiteHandlerTest
         doHandle();
 
         assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo( "script-src 'self'" );
+    }
+
+    @Test
+    void editDropsAContentContributedAdditionalEnforcedPolicy()
+        throws Exception
+    {
+        this.portalRequest.setMode( RenderMode.EDIT );
+        // an additional enforced policy AND-restricts independently - a 'script-src none' here would
+        // block editor.js no matter what the forced main policy allows, so it must be dropped
+        this.portalRequest.getContentSecurityPolicy().addPolicy().add( "script-src", "'none'" );
+
+        doHandle();
+
+        final String nonce = this.portalRequest.getContentSecurityPolicy().nonceScriptSrc();
+        assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo(
+            "connect-src 'self'; font-src * data:; frame-ancestors 'self'; img-src * data:; object-src 'none'; " +
+                "sandbox allow-scripts allow-same-origin; script-src 'self' 'nonce-" + nonce +
+                "'; style-src * 'unsafe-inline'" );
+    }
+
+    @Test
+    void editClearsAContentContributedReportOnlyRuleSet()
+        throws Exception
+    {
+        this.portalRequest.setMode( RenderMode.EDIT );
+        this.portalRequest.getContentSecurityPolicy().reportOnly().add( "script-src", "'unsafe-inline'" );
+
+        doHandle();
+
+        // the page's report-only must not ride onto the admin-origin response
+        assertThat( this.portalRequest.getContentSecurityPolicy().reportOnly().serialize() ).isEmpty();
+    }
+
+    @Test
+    void inlineDropsContentContributedAdditionalAndReportOnlyPolicies()
+        throws Exception
+    {
+        this.portalRequest.setMode( RenderMode.INLINE );
+        final ContentSecurityPolicy policy = this.portalRequest.getContentSecurityPolicy();
+        policy.addPolicy().add( "script-src", "'none'" );
+        policy.reportOnly().add( "img-src", "'self'" );
+
+        doHandle();
+
+        assertThat( policy.serialize() ).isEqualTo( "frame-ancestors 'self'; sandbox allow-scripts allow-same-origin" );
+        assertThat( policy.reportOnly().serialize() ).isEmpty();
+    }
+
+    @Test
+    void previewKeepsContentContributedAdditionalAndReportOnlyPolicies()
+        throws Exception
+    {
+        this.portalRequest.setMode( RenderMode.PREVIEW );
+        final ContentSecurityPolicy policy = this.portalRequest.getContentSecurityPolicy();
+        policy.add( "script-src", "'self'" );
+        policy.addPolicy().add( "object-src", "'none'" );
+        policy.reportOnly().add( "img-src", "'self'" );
+
+        doHandle();
+
+        // preview injects nothing and reflects the page as served, so it takes nothing over
+        assertThat( policy.serialize() ).isEqualTo( "script-src 'self', object-src 'none'" );
+        assertThat( policy.reportOnly().serialize() ).isEqualTo( "img-src 'self'" );
     }
 }
