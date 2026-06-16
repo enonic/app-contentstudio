@@ -7,7 +7,7 @@ import {type ReactElement, useMemo} from 'react';
 import {LegacyElement} from '../../../shared/LegacyElement';
 import {FormItemRenderer, FormRenderProvider} from '../../../shared/form';
 import {ImageUploaderDescriptor} from '../../../shared/form/input-types/image-uploader/ImageUploaderDescriptor';
-import {$contentType, $wizardDraftData} from '../../../store/wizardContent.store';
+import {$contentType, $wizardDraftData, $wizardReadOnly} from '../../../store/wizardContent.store';
 import {$validationVisibility, getContentRawValueMap} from '../../../store/wizardValidation.store';
 import {instanceOf} from '../../../utils/object/instanceOf';
 import {WIDGET_AUTO_DESCRIPTOR, $activeWidget} from '../../../store/liveViewWidgets.store';
@@ -25,6 +25,7 @@ const LiveViewImageEditor = (): ReactElement | null => {
     const contentType = useStore($contentType);
     const draftData = useStore($wizardDraftData);
     const visibility = useStore($validationVisibility);
+    const readOnly = useStore($wizardReadOnly);
 
     const rawValueMap = useMemo(() => getContentRawValueMap(), []);
 
@@ -50,7 +51,7 @@ const LiveViewImageEditor = (): ReactElement | null => {
     return (
         <ValidationVisibilityProvider visibility={visibility}>
             <RawValueProvider map={rawValueMap}>
-                <FormRenderProvider enabled={true} applicationKey={applicationKey}>
+                <FormRenderProvider enabled={!readOnly} applicationKey={applicationKey}>
                     <div
                         data-component={COMPONENT_NAME}
                         className={cn(
