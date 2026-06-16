@@ -32,6 +32,7 @@ import com.enonic.xp.site.Site;
 import com.enonic.xp.web.HttpStatus;
 import com.enonic.xp.web.WebException;
 import com.enonic.xp.web.csp.ContentSecurityPolicy;
+import com.enonic.xp.web.csp.CspDirective;
 import com.enonic.xp.web.csp.CspSource;
 import com.enonic.xp.web.csp.SandboxFlag;
 import com.enonic.xp.web.WebRequest;
@@ -80,8 +81,9 @@ public class AdminSiteHandler
     @Modified
     public void activate( final AdminSiteConfig config )
     {
-        inlineContentSecurityPolicy = config.site_inline_contentSecurityPolicy();
         previewContentSecurityPolicy = config.site_preview_contentSecurityPolicy();
+        final String inline = config.site_inline_contentSecurityPolicy();
+        inlineContentSecurityPolicy = nullToEmpty( inline ).isBlank() ? previewContentSecurityPolicy : inline;
     }
 
     @Override
@@ -202,10 +204,20 @@ public class AdminSiteHandler
             // content to running scripts in its own (admin) origin and nothing else: forms cannot
             // submit, and popups, modals, top-window navigation and downloads are all blocked - none
             // of which the viewer needs, while the editor's same-origin DOM access still works.
-            policy.frameAncestors( CspSource.SELF )
-                .reset( "sandbox" )
+            policy.reportOnly().resetTo( null ).clearAdditionalPolicies();
+            policy.clearAdditionalPolicies().frameAncestors( CspSource.SELF )
+                .reset( CspDirective.SANDBOX )
                 .sandbox( SandboxFlag.ALLOW_SCRIPTS, SandboxFlag.ALLOW_SAME_ORIGIN );
             applyBaseline( policy, inlineContentSecurityPolicy );
+        }
+        else if ( mode == RenderMode.PREVIEW )
+        {
+            // Preview opens as a separate top-level tab and injects nothing, so it only gap-fills:
+            // lock down a page that ships no CSP, but never touch a directive a good app declared.
+            // Unlike inline/edit it does NOT take over the policy - with no injected admin code there
+            // is nothing for a content-contributed additional or report-only policy to break, and the
+            // page's own policy is left intact so the preview reflects what the page actually serves.
+            applyBaseline( policy, previewContentSecurityPolicy );
         }
         else if ( mode == RenderMode.EDIT )
         {
@@ -223,23 +235,19 @@ public class AdminSiteHandler
             // A sandbox confines the framed content to scripts in its own (admin) origin: forms cannot
             // submit and popups, modals, top-window navigation and downloads are blocked, none of which
             // the editor needs (its same-origin DOM access keeps working via allow-same-origin).
-            policy.frameAncestors( CspSource.SELF )
+            policy.reportOnly().resetTo( null ).clearAdditionalPolicies();
+            policy.clearAdditionalPolicies().frameAncestors( CspSource.SELF )
                 .imgSrc( CspSource.WILDCARD, CspSource.DATA )
                 .fontSrc( CspSource.WILDCARD, CspSource.DATA )
                 .objectSrc( CspSource.NONE )
                 .connectSrc( CspSource.SELF )
-                .reset( "sandbox", "script-src", "script-src-elem", "script-src-attr", "style-src", "style-src-elem",
-                        "style-src-attr" )
+                .reset( CspDirective.SANDBOX, CspDirective.SCRIPT_SRC, CspDirective.SCRIPT_SRC_ELEM,
+                        CspDirective.SCRIPT_SRC_ATTR, CspDirective.STYLE_SRC, CspDirective.STYLE_SRC_ELEM,
+                        CspDirective.STYLE_SRC_ATTR )
                 .scriptSrc( CspSource.SELF )
                 .styleSrc( CspSource.WILDCARD, CspSource.UNSAFE_INLINE )
                 .sandbox( SandboxFlag.ALLOW_SCRIPTS, SandboxFlag.ALLOW_SAME_ORIGIN )
                 .nonceScriptSrc();
-        }
-        else if ( mode == RenderMode.PREVIEW )
-        {
-            // Preview opens as a separate top-level tab and injects nothing, so it only gap-fills:
-            // lock down a page that ships no CSP, but never touch a directive a good app declared.
-            applyBaseline( policy, previewContentSecurityPolicy );
         }
         return response;
     }

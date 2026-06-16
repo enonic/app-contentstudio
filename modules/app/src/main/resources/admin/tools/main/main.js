@@ -26,12 +26,6 @@ function applySecurityPolicy(isBrowseMode) {
 
     const csp = portal.csp();
 
-    const configuredPolicy = app.config['contentSecurityPolicy.header'];
-    if (configuredPolicy) {
-        csp.resetTo(configuredPolicy);
-        return undefined;
-    }
-
     const marketApi = configLib.getMarketApi();
     const slashIndex = marketApi ? marketApi.indexOf('/', 9) : -1;
     const baseMarketUrl = slashIndex > 0 ? marketApi.substring(0, slashIndex) : marketApi;
@@ -50,6 +44,11 @@ function applySecurityPolicy(isBrowseMode) {
     } else {
         csp.connectSrc(portal.CspSource.SELF);
     }
+
+    // Operator-configured permissions (e.g. for an embedded widget that loads external resources) are
+    // unioned on top of the baseline, never replacing it: the script-src nonce/'strict-dynamic' that
+    // protects the admin UI stays in force, so a misconfigured value cannot silently disable it.
+    csp.merge(app.config['contentSecurityPolicy.header']);
 
     if (!isBrowseMode) {
         // The content wizard loads CKEditor 4, which writes inline scripts into its own editing
