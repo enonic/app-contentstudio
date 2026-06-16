@@ -649,12 +649,6 @@ class ContentWizardPanel extends Page {
         return await this.clickOnPageSettingsMenuItem();
     }
 
-    async unlockSiteWithTemplate(){
-        let selector = `//div[contains(@id,'FrameContainer')]`;
-        await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
-        await this.clickOnElement(selector);
-    }
-
     // Opens context menu with 'Page Settings' with contentName in its title
     async doOpenPageViewContextMenu(contentName) {
         try {
@@ -1326,6 +1320,10 @@ class ContentWizardPanel extends Page {
 
     async unlockSiteWithTemplate() {
         try {
+            let selector = `//div[contains(@id,'FrameContainer')]`;
+            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+            await this.clickOnElement(selector);
+            await this.switchToLiveEditFrame();
             const host = await this.getPageEditorOverlayShadowHost();
             const items = await host.shadow$$(COMMON.SHADOW_SELECTORS.CONTEXT_MENU_ITEM);
             for (const item of items) {

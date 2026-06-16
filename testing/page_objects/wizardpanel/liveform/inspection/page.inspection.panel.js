@@ -17,7 +17,7 @@ const xpath = {
 class PageInspectionPanel extends BaseComponentInspectionPanel {
 
     get customizePageButton() {
-        return xpath.container + BUTTONS.buttonAriaLabel('Customize Page');
+        return xpath.container + xpath.pageInspectionDataComponent + BUTTONS.buttonAriaLabel('Customize Page');
     }
 
     get noControllerMessage() {
@@ -111,16 +111,6 @@ class PageInspectionPanel extends BaseComponentInspectionPanel {
             return await this.waitForElementEnabled(this.customizePageButton);
         } catch (err) {
             await this.handleError('Page Inspection Tab, Customize button should be enabled', 'err_customize_button', err);
-        }
-    }
-
-    async clickOnCustomizePageButton() {
-        try {
-            await this.waitForCustomizePageButtonEnabled();
-            await this.clickOnElement(this.customizePageButton);
-            return await this.pause(200);
-        } catch (err) {
-            await this.handleError('Page Inspection Tab, tried to click on Customize Page button', 'err_click_customize_button', err);
         }
     }
 
