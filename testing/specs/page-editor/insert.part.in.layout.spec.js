@@ -1,5 +1,5 @@
 /**
- * Created on 07.03.2025
+ * Created on 07.03.2025  updated on 16.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -26,7 +26,7 @@ describe('insert.part.in.layout.spec - test for parts in a layout', function () 
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -41,6 +41,7 @@ describe('insert.part.in.layout.spec - test for parts in a layout', function () 
             let partInspectionPanel = new PartInspectionPanel();
             // 1. Open the existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await contentWizard.clickOnWizardStep('Page');
             // 2. Insert 3-col layout:
             await pageComponentsWizardStepForm.rightClickAndOpenContextMenu('main');
             await pageComponentsWizardStepForm.selectContextMenuItem(['Insert', 'Layout']);

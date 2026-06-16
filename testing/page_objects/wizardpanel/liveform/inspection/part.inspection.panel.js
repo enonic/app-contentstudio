@@ -7,7 +7,7 @@ const appConst = require('../../../../libs/app_const');
 const ComponentDescriptorsDropdown = require('../../../components/selectors/component.descriptors.dropdown');
 
 const xpath = {
-    container: "//div[contains(@id,'PartInspectionPanel')]",
+    container: "//div[@data-component='ComponentInspectionPanel' and descendant::span[text()='Part']]",
     componentDescriptorsDropdownDiv: "//div[contains(@id,'ComponentDescriptorsDropdown')]",
 };
 
@@ -24,8 +24,8 @@ class PartInspectionPanel extends BaseComponentInspectionPanel {
 
     async typeNameAndSelectPart(displayName) {
         try {
-            let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
-            await componentDescriptorsDropdown.selectFilteredComponent(displayName, xpath.container);
+            let componentDescriptorsDropdown = new ComponentDescriptorsDropdown(xpath.container);
+            await componentDescriptorsDropdown.selectFilteredComponent(displayName);
             return await this.pause(500);
         } catch (err) {
             await this.handleError('Part Inspection Panel', 'err_part_inspect_panel_dropdown', err);
