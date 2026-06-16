@@ -121,7 +121,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             // 2. Verify that 'Page Component wizard' step is not displayed, 'Customize' menu item is not clicked yet:
             await pageComponentsWizardStepForm.waitForNotDisplayed();
             // 3. Expand the Live Editor:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 4. Verify that 'Page Component' modal dialog is not displayed before the customization:
             await pageComponentView.waitForNotDisplayed();
         });

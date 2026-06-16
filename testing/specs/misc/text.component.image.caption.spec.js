@@ -41,7 +41,7 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Insert new text component:
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
@@ -81,7 +81,7 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Insert new text component:
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
@@ -107,7 +107,7 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             // 1. Open the existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Insert new text-component
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);

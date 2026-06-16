@@ -1,7 +1,7 @@
 /**
  * Created on 28.03.2018.
  */
-const lib = require('../../../libs/elements-old');
+const {BUTTONS} = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const BasePageComponentView = require('../base.page.components.view');
 
@@ -9,7 +9,7 @@ const xpath = {
     container: "//div[@data-component='DetachedPageComponentsView']",
     pcvDialogMinimizer: "//button[contains(@id,'Button') and contains(@class,'minimize-button')]",
     showPcvDialogButton: "//button[contains(@id,'Button') and @title='Show Component View']",
-    hidePcvDialogButton: "//button[contains(@id,'Button') and @title='Hide Component View']",
+    hidePcvDialogButton: "//button[contains(@id,'Button') and @aria='Hide Component View']",
     pageComponentsItemViewer: "//div[contains(@id,'PageComponentsItemViewer')]",
 };
 
@@ -27,12 +27,12 @@ class PageComponentView extends BasePageComponentView {
 
     // button by the title 'Show Component View', this button shows PCV modal dialog
     get showPcvDialogButton() {
-        return xpath.container + xpath.showPcvDialogButton;
+        return xpath.container + BUTTONS.buttonAriaLabel('Show Component View');
     }
 
     // button by the title 'Hide Component View', this button hides PCV modal dialog
     get hidePcvDialogButton() {
-        return xpath.container + xpath.hidePcvDialogButton;
+        return xpath.container + BUTTONS.buttonAriaLabel('Hide Component View');
     }
 
     //Wait for PCV modal dialog minimizer-toggler is visible
@@ -121,9 +121,9 @@ class PageComponentView extends BasePageComponentView {
 
     async waitForCollapsed() {
         await this.getBrowser().waitUntil(async () => {
-            let result = await this.getAttribute(this.container, 'class');
-            return result.includes('collapsed');
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Page Component View modal dialog should be closed"});
+            let result = await this.getAttribute(this.container, 'data-collapsed');
+            return result === 'true';
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Page Component View modal dialog should have data-collapsed=true"});
     }
 }
 

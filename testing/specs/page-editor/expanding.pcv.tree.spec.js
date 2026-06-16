@@ -90,7 +90,7 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             // 1. Open the existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Maximize the Live Edit:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Insert the first text component:
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectContextMenuItem(['Insert', 'Layout']);
@@ -118,7 +118,7 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             // 1. Open the existing site with text components:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Maximize the Live Edit:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             await contentWizard.switchToLiveEditFrame();
             // 3. Select the text in left region in layout component in Live Edit:
             await liveFormPanel.doClickOnTextComponent(TEXT_LEFT_REGION);
@@ -141,7 +141,7 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             // 1. Open the existing site with text components:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Maximize the Live Edit:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             await pageComponentView.expandItem(LAYOUT_3_COL);
             // 3. Select the text in left region in layout component in Live Edit:
             await pageComponentView.rightClickAndOpenContextMenu(LAYOUT_3_COL);

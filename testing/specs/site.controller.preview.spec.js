@@ -112,7 +112,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             let wizardContextWindow = await contentWizard.openContextWindow();
             await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             // 1. Click on minimize-toggle, expand 'Live Edit' and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 2. Expand the menu:
             await pageComponentView.rightClickAndOpenContextMenu(CONTROLLER_NAME);
             // 3. Click on the 'Reset' menu item:
@@ -144,7 +144,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             await contentWizard.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             // 1. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 2. Select a controller:
             let pageInspectionPanel = new PageInspectionPanel();
             let wizardContextWindow = await contentWizard.openContextWindow();

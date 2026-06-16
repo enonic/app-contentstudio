@@ -1,5 +1,5 @@
 /**
- * Created on 24.08.2023
+ * Created on 24.08.2023  updated on 16.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -46,7 +46,7 @@ describe('layout.context.menu.spec: tests for layout-fragment with config', func
             await pageInspectionPanel.selectPageTemplateOrController(appConst.CONTROLLER_NAME.MAIN_REGION);
             await contentWizard.waitForSaveButtonDisabled();
             // 3. Click on minimize-toggle, expand 'Live Edit' and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             await pageComponentView.rightClickAndOpenContextMenu(MAIN_REGION);
             // 4. Insert the layout:
             await pageComponentView.selectContextMenuItem(['Insert', 'Layout']);
@@ -76,7 +76,7 @@ describe('layout.context.menu.spec: tests for layout-fragment with config', func
             let fragmentInspectionPanel = new FragmentInspectionPanel();
             // 1. Open the existing site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 2. Expand the context menu for layout-component then click on 'Save as Fragment'  menu item:
             await pageComponentView.clickOnComponent('Layout');
             await layoutInspectionPanel.waitForOpened();
@@ -95,7 +95,7 @@ describe('layout.context.menu.spec: tests for layout-fragment with config', func
             await studioUtils.doSwitchToNewWizard();
             // 6. Open PCV
             //await contentWizard.clickOnWizardStep('Page');
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 7. Verify that the only two menu items are displayed in the menu:
             await pageComponentView.rightClickAndOpenContextMenu('3-col');
             let menuItems = await pageComponentsWizardStepForm.getContextMenuItems();

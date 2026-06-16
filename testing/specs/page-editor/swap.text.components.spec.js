@@ -33,7 +33,7 @@ describe('Swap two Text Component - specification', function () {
             let pageComponentView = new PageComponentView();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             let description = await pageComponentView.getComponentDescription('main region');
             assert.equal(description, 'test region', "Expected description should be displayed");
         });
@@ -48,13 +48,13 @@ describe('Swap two Text Component - specification', function () {
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             //await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert the first text component:
-            await pageComponentsWizardStepForm.openMenu('main');
-            await pageComponentsWizardStepForm.selectMenuItem(["Insert", "Text"]);
+            await pageComponentsWizardStepForm.rightClickAndOpenContextMenu('main');
+            await pageComponentsWizardStepForm.selectContextMenuItem(["Insert", "Text"]);
             await textComponentCke.typeTextInCkeEditor('component1');
             await contentWizard.switchToMainFrame();
             // 4. Insert the second text component:
-            await pageComponentsWizardStepForm.openMenu("main");
-            await pageComponentsWizardStepForm.selectMenuItem(["Insert", "Text"]);
+            await pageComponentsWizardStepForm.rightClickAndOpenContextMenu("main");
+            await pageComponentsWizardStepForm.selectContextMenuItem(["Insert", "Text"]);
             await textComponentCke.typeTextInCkeEditor("component2");
             await contentWizard.switchToMainFrame();
             await contentWizard.hotKeySave();

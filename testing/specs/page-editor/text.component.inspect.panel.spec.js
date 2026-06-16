@@ -38,7 +38,7 @@ describe('Tests for text-component and htmlArea in Inspect Panel', function () {
             // 1. Open existing site and insert new text component with the text:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Insert new text component:
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
@@ -63,7 +63,7 @@ describe('Tests for text-component and htmlArea in Inspect Panel', function () {
             // 1. Open existing site and insert new text component with the text:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3.Click on the text component in PCV:
             await pageComponentView.clickOnComponent(TEXT_COMPONENT_TEXT);
             // 4. Verify that the text is displayed in htmlArea in Inspect Panel:
@@ -84,7 +84,7 @@ describe('Tests for text-component and htmlArea in Inspect Panel', function () {
             // 1. Open existing site and insert new text component with the text:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Insert new text component:
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
@@ -111,7 +111,7 @@ describe('Tests for text-component and htmlArea in Inspect Panel', function () {
             // 1. Open existing site and insert new text component with the text:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Click on the text in PCV, insert a text in htmlArea in Inspect Panel and click on Apply button:
             await pageComponentView.clickOnComponent(TEXT_COMPONENT_TEXT);
             await textComponentInspectionPanel.typeTextInEditor(' ');

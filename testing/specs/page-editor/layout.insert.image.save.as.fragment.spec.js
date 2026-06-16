@@ -43,7 +43,7 @@ describe.skip('layot.insert.save.as.fragment.spec - tests for inserting a fragme
             // 1. open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Maximize the Live Edit:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Insert the Layout component (3-column):
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectMenuItem(['Insert', 'Layout']);
@@ -86,7 +86,7 @@ describe.skip('layot.insert.save.as.fragment.spec - tests for inserting a fragme
             await contentBrowsePanel.clickOnExpanderIcon(SITE.displayName);
             await contentBrowsePanel.clickOnRowByName('fragment-3-col');
             await studioUtils.doClickOnEditAndOpenContent('3-col');
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 4. Insert a text component in 'center' region:
             await pageComponentView.rightClickAndOpenContextMenu('center');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);

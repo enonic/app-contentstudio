@@ -15,6 +15,11 @@ exports.config = {
         path.join(__dirname, '../specs/page-editor/fragment.move.spec.js'),
         path.join(__dirname, '../specs/page-editor/insert.part.in.layout.spec.js'),
 
+        path.join(__dirname, '../specs/page-editor/layout.config.inspect.panel.spec.js'),
+        path.join(__dirname, '../specs/page-editor/page.component.view.layout.items.spec.js'),
+        path.join(__dirname, '../specs/page-editor/page.component.view.modal.dialog.spec.js'),
+        path.join(__dirname, '../specs/page-editor/page.components.view.save.as.template.spec.js'),
+
     ],
     exclude: [
         path.join(__dirname, '../specs/page-editor/revert.site.with.components.spec.js'),

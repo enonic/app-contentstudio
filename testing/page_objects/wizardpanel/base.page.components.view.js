@@ -8,6 +8,7 @@ const {COMMON} = require('../../libs/elements');
 const xpath = {
     parentListElement: "//ancestor::div[contains(@class,'item-view-wrapper')]",
     pageComponentsItemName: "//div[@data-component='ContextMenu.Trigger']//span[text()]",
+    fragmentsName: "//div[@data-component='ContextMenu.Trigger'][.//*[contains(@class,'lucide-puzzle')]]//span[contains(@class,'truncate')]",
     pageComponentsItemViewer: "//div[contains(@id,'PageComponentsItemViewer')]",
     contextMenuItems:"//div[@data-component='ContextMenu.Content']//div[@data-component='ContextMenu.Item']",
     pageComponentsItemViewerByType(componentType) {
@@ -192,7 +193,7 @@ class BasePageComponentView extends Page {
     // Wait for Context-menu-item is displayed:
     async waitForMenuItemPresent(name) {
         try {
-            let selector = xpath.contextMenuItemByName(name);
+            let selector = xpath.contextMenuTopLevelItemByName(name);
             return this.waitForElementDisplayed(selector, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_pcv_item');
@@ -263,9 +264,9 @@ class BasePageComponentView extends Page {
         return await items[index].isDisplayed();
     }
 
-    getFragmentsDisplayName() {
+    async getFragmentsDisplayName() {
         let locator = this.container + xpath.fragmentsName;
-        return this.getTextInDisplayedElements(locator);
+        return await this.getTextInDisplayedElements(locator);
     }
 
     async getPageComponentsDisplayName() {

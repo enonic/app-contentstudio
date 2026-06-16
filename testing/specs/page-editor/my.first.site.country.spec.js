@@ -58,7 +58,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageInspectionPanel.selectPageTemplateOrController(TEMPLATE.data.controllerDisplayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3.Click on the country item and open Context Menu:
             await pageComponentView.rightClickAndOpenContextMenu('country');
             await pageComponentView.selectContextMenuItem(['Insert', 'Part']);
@@ -90,7 +90,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             // 1. Open the template
             await studioUtils.selectAndOpenContentInWizard(COUNTRY_TEMPLATE_NAME);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Select the part in PCV
             await pageComponentView.clickOnComponent('City list');
             // 4. Inspect panel should be loaded
@@ -240,7 +240,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             let pageInspectionPanel = new PageInspectionPanel();
             await studioUtils.selectAndOpenContentInWizard(USA_CONTENT_NAME);
             // 1. Open USA country content:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             await contentWizard.pause(1000);
             // 2. 'Page Component View' modal dialog should not be displayed, because the content is not customized:
             await pageComponentView.waitForNotDisplayed();

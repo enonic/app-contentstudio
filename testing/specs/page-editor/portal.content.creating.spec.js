@@ -49,7 +49,7 @@ describe('portal.content.creating.spec - tests for portal creating', function ()
             await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageInspectionPanel.selectPageTemplateOrController(TEMPLATE.data.controllerDisplayName);
             // 2. Click on minimize-toggle  expand Live Edit and show Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3.Click on the country item and open Context Menu:
             await pageComponentView.rightClickAndOpenContextMenu('country');
             await pageComponentView.selectContextMenuItem(['Insert', 'Part']);

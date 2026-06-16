@@ -680,7 +680,7 @@ module.exports = {
             await this.waitForBrowsePanelAndSelectDefaultContext();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_navigate_cs');
-            throw new Error(`Error occurred after clicking on Content Studio link in Launcher Panel,  screenshot:${screenshot}  ` + err);
+            throw new Error(`Error occurred after clicking on Content Studio link ,  screenshot:${screenshot}  ` + err);
         }
     },
     async navigateToContentStudioAppMobile(userName, password) {
@@ -885,7 +885,7 @@ module.exports = {
     },
     async navigateToHomePage() {
         await this.getBrowser().url('http://localhost:8080/admin/');
-        await this.getBrowser().pause(100);
+        await this.getBrowser().pause(500);
     },
     async doCloseAllWindowTabs(keepTitle1 = 'Enonic XP Admin', keepTitle2 = 'Settings') {
         const handles = await this.getBrowser().getWindowHandles();

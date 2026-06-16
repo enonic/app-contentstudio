@@ -1,16 +1,15 @@
 /**
- * Created on 24.01.2023
+ * Created on 24.01.2023 updated on 16.06.2026
  */
 const LayoutInspectionPanel = require('./layout.inspection.panel');
-const lib = require('../../../../libs/elements-old');
 const appConst = require('../../../../libs/app_const');
 const SingleSelectionOptionSet = require('../../optionset/single.selection.option.set.view');
 
 const xpath = {
-    container: `//div[contains(@id,'LayoutInspectionPanel')]`,
-    header: "//h5[text()='Single selection']",
-    option1NameInput: "//input[contains(@id,'TextInput') and contains(@name,'name1')]",
-    option2NameInput: "//input[contains(@id,'TextInput') and contains(@name,'name2')]",
+    container: `//div[@data-component= 'ComponentInspectionPanel']`,
+    header: "//div[@data-component='SetHeader']//span[text()='Single selection']",
+    option1NameInput: "//input[@aria-label='Name1']",
+    option2NameInput: "//input[@aria-label='Name2']",
 };
 
 //Context Window, Inspect tab for Layout Component with cfg file
@@ -48,34 +47,18 @@ class LayoutConfigInspectPanel extends LayoutInspectionPanel {
 
     async waitForOpened() {
         try {
-            await this.waitForElementDisplayed(xpath.header, appConst.mediumTimeout)
+            await this.waitForElementDisplayed(xpath.header, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot('err_layout_cfg_inspect_panel');
-            throw new Error('Live Edit, Inspection was not loaded' + err);
+            await this.handleError("Layout config inspect panel:", 'err_layout_config_inspect', err);
         }
     }
 
-    async resetSelectedOption() {
-        let singleSelectionOptionSet = new SingleSelectionOptionSet();
-        await singleSelectionOptionSet.expandOptionSetMenuAndClickOnMenuItem(0, 'Reset');
+    async selectRadioOption(option) {
+        let locator = xpath.container + `//button[@data-component='RadioGroup.Item' and .//span[text()='${option}']]`;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.clickOnElement(locator);
     }
 
-    async selectOption(option) {
-        let singleSelectionOptionSet = new SingleSelectionOptionSet();
-        await singleSelectionOptionSet.selectOption(option);
-    }
-
-    async clickOnApplyButton() {
-        try {
-            let locator = "//div[contains(@id,'ContextWindow')]" + lib.actionButton('Apply');
-            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-            await this.clickOnElement(locator);
-            return await this.pause(1000);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_apply_button');
-            throw new Error(`Layout Inspect Panel, Apply button , screenshot: ${screenshot}` + err);
-        }
-    }
 }
 
 module.exports = LayoutConfigInspectPanel;

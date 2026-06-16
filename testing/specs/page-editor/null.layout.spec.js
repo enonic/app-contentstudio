@@ -41,7 +41,7 @@ describe('null.layout.spec - test for layout-controller that returns null ', fun
             // 1. Open the existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Maximize the Live Edit:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Insert the layout with controller that returns null:
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectContextMenuItem(['Insert', 'Layout']);
@@ -51,7 +51,7 @@ describe('null.layout.spec - test for layout-controller that returns null ', fun
             // 4. Verify the text in the Live Edit:
             let text = await liveFormPanel.getTextFromEmptyLayout();
             assert.ok(text[0].includes(`Layout "${LAYOUT_NULL}"`, `'layout is empty' - this text should be displayed in the LiveEdit`));
-            let option = await layoutInspectionPanel.getSelectedOption();
+            let option = await layoutInspectionPanel.getDropdownSelectedOption();
             assert.equal(option , 'Layout Null', "Layout Null should be selected in Layout Inspection Panel");
         });
 
@@ -65,7 +65,7 @@ describe('null.layout.spec - test for layout-controller that returns null ', fun
             // 1. Open the existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Maximize the Live Edit:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.clickOnCollapseContentForm();
             // 3. Insert 'City List' part with the config:
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectContextMenuItem(['Insert', 'Part']);
