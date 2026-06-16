@@ -97,7 +97,7 @@ export const ContentIcon = ({className, contentType, url, imageSize = 64, crop =
             <Image
                 className={cn(
                     'size-6 p-px object-contain',
-                    isImageType && 'object-contain dark:invert-100 dark:brightness-75 dark:contrast-125',
+                    !isImageType && 'dark:invert-100 dark:brightness-75 dark:contrast-125',
                     className,
                 )}
                 alt={contentType}
