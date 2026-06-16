@@ -44,26 +44,8 @@ import {
     setPersistedContent,
     notifyContentFormMounted,
     notifyMixinMounted,
-    seedMixinsForApplications,
-    setContentType,
 } from './wizardContent.store';
 import {getMixinDataContext} from './wizardMixinData.store';
-import type {ContentType} from '../../../app/inputtype/schema/ContentType';
-
-vi.mock('../../../app/resource/GetApplicationMixinsRequest', () => ({
-    GetApplicationMixinsRequest: class {
-        sendAndParse(): Promise<unknown[]> {
-            return Promise.resolve([
-                {
-                    getName: () => 'app:meta',
-                    getDisplayName: () => 'Meta',
-                    isOptional: () => false,
-                    toForm: () => ({getFormItems: () => []}),
-                },
-            ]);
-        }
-    },
-}));
 
 function createMixinDescriptor(name: string, optional: boolean): MixinDescriptor {
     return {
@@ -631,21 +613,6 @@ describe('wizardContent.store', () => {
         expect($wizardSectionChanges.get().mixins).toBe(true);
     });
 
-    it('seeds mandatory mixins contributed by a selected application into the draft only', async () => {
-        initializeWizardContentState(createContent(), null, [], WorkflowState.IN_PROGRESS);
-        setContentType({
-            getContentTypeName: () => ContentTypeName.SITE,
-            getTitle: () => 'Site',
-            hasDisplayNameExpression: () => false,
-        } as unknown as ContentType);
-
-        await seedMixinsForApplications(['app']);
-
-        expect($wizardDraftMixins.get().some((m) => m.getName().toString() === 'app:meta')).toBe(true);
-        expect($wizardPersistedMixins.get().some((m) => m.getName().toString() === 'app:meta')).toBe(false);
-        expect($wizardSectionChanges.get().mixins).toBe(true);
-    });
-
     it('marks mixins as changed when mixin PropertyTree is mutated in-place', () => {
         const descriptor = createMixinDescriptor('app:seo', true);
         const mixin = new Mixin(new MixinName('app:seo'), new PropertyTree());
@@ -846,6 +813,38 @@ describe('wizardContent.store', () => {
             draftMixin.getData().setString('metaTitle', 0, 'Updated');
 
             // Flush
+            await vi.advanceTimersByTimeAsync(0);
+
+            expect($wizardSectionChanges.get().mixins).toBe(true);
+            expect($wizardHasChanges.get()).toBe(true);
+        });
+
+        it('should keep a seeded mandatory mixin missing from the content dirty after the tab mounts', async () => {
+            const descriptor = createMixinDescriptorWithForm('app:seo', false, checkboxForm('agree'));
+            initializeWizardContentState(createContent(), null, [descriptor], WorkflowState.IN_PROGRESS);
+
+            expect($wizardSectionChanges.get().mixins).toBe(true);
+
+            notifyMixinMounted('app:seo');
+            await vi.advanceTimersByTimeAsync(0);
+
+            expect($wizardSectionChanges.get().mixins).toBe(true);
+            expect($wizardHasChanges.get()).toBe(true);
+        });
+
+        it('should keep a seeded already-attached mandatory mixin dirty after the tab mounts', async () => {
+            const descriptor = createMixinDescriptorWithForm('app:seo', false, checkboxForm('agree'));
+            const presentEmptyMixin = new Mixin(new MixinName('app:seo'), new PropertyTree());
+            initializeWizardContentState(
+                createContent({mixins: [presentEmptyMixin]}),
+                null,
+                [descriptor],
+                WorkflowState.IN_PROGRESS,
+            );
+
+            expect($wizardSectionChanges.get().mixins).toBe(true);
+
+            notifyMixinMounted('app:seo');
             await vi.advanceTimersByTimeAsync(0);
 
             expect($wizardSectionChanges.get().mixins).toBe(true);

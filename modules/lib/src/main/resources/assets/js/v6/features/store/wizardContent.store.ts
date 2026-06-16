@@ -1,6 +1,5 @@
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import type {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
@@ -25,7 +24,6 @@ import {createDebounce} from '../utils/timing/createDebounce';
 import {$contextContent} from './context/contextContent.store';
 import {ContentPath} from '../../../app/content/ContentPath';
 import {ContentExistsByPathRequest} from '../../../app/resource/ContentExistsByPathRequest';
-import {GetApplicationMixinsRequest} from '../../../app/resource/GetApplicationMixinsRequest';
 import {seedFormDefaults} from '../shared/form/seedFormDefaults';
 
 //
@@ -434,20 +432,12 @@ function cloneMixins(mixins: Mixin[]): Mixin[] {
 }
 
 function seedMixinTree(mixin: Mixin, descriptor: MixinDescriptor): void {
-    try {
-        seedFormDefaults(descriptor.toForm(), mixin.getData().getRoot());
-    } catch (e) {
-        DefaultErrorHandler.handle(e);
-    }
+    seedFormDefaults(descriptor.toForm(), mixin.getData().getRoot());
 }
 
 function createSeededMixinTree(descriptor: MixinDescriptor): PropertyTree {
     const tree = new PropertyTree();
-    try {
-        seedFormDefaults(descriptor.toForm(), tree.getRoot());
-    } catch (e) {
-        DefaultErrorHandler.handle(e);
-    }
+    seedFormDefaults(descriptor.toForm(), tree.getRoot());
     return tree;
 }
 
@@ -532,7 +522,12 @@ function armRenderedSnapshot(content: Content): void {
 
     $needsRenderedSnapshot.set(true);
 
-    $mixinsPendingMount.set(new Set(content.getMixins().map((m) => m.getName().toString())));
+    const cleanMixinNames = content
+        .getMixins()
+        .map((m) => m.getName().toString())
+        .filter((name) => !isMixinDirtyByName(name));
+
+    $mixinsPendingMount.set(new Set(cleanMixinNames));
     $mixinsNeedingSnapshot.set(new Set());
 }
 
@@ -634,6 +629,12 @@ function isMixinDataDirty(draftMixin: Mixin | undefined, persistedMixin: Mixin |
     if (draftMixin == null && persistedMixin == null) return false;
     if (draftMixin == null || persistedMixin == null) return true;
     return !ContentDiffHelper.dataEquals(draftMixin.getData(), persistedMixin.getData(), false);
+}
+
+function isMixinDirtyByName(name: string): boolean {
+    const draftMixin = $wizardDraftMixins.get().find((m) => m.getName().toString() === name);
+    const persistedMixin = $wizardPersistedMixins.get().find((m) => m.getName().toString() === name);
+    return isMixinDataDirty(draftMixin, persistedMixin);
 }
 
 function applyMixinsFromServer(nextPersisted: Mixin[]): Set<string> {
@@ -827,33 +828,23 @@ export function setMixinsDescriptors(mixinsDescriptors: MixinDescriptor[]): void
     seedMixinDefaults();
 }
 
-/**
- * Fetches the given applications' x-data (by app key) and seeds their mandatory
- * defaults into the draft, so a SiteConfigurator selection persists them in the
- * same save.
- */
-export async function seedMixinsForApplications(applicationKeys: string[]): Promise<void> {
-    const contentType = $contentType.get();
-    if (!contentType || applicationKeys.length === 0) {
+const mixinSeedRequestCallbacks = new Set<(applicationKeys: string[]) => void>();
+
+export function requestMixinSeed(applicationKeys: string[]): void {
+    if (applicationKeys.length === 0) {
         return;
     }
 
-    const contentTypeName = contentType.getContentTypeName();
-
-    const results = await Promise.all(
-        applicationKeys.map((key) =>
-            new GetApplicationMixinsRequest(contentTypeName, ApplicationKey.fromString(key)).sendAndParse()
-        )
-    );
-
-    const byName = new Map($mixinsDescriptors.get().map((descriptor) => [descriptor.getName(), descriptor]));
-    for (const descriptors of results) {
-        for (const descriptor of descriptors) {
-            byName.set(descriptor.getName(), descriptor);
-        }
+    for (const callback of mixinSeedRequestCallbacks) {
+        callback([...applicationKeys]);
     }
+}
 
-    setMixinsDescriptors([...byName.values()]);
+export function onMixinSeedRequested(callback: (applicationKeys: string[]) => void): () => void {
+    mixinSeedRequestCallbacks.add(callback);
+    return () => {
+        mixinSeedRequestCallbacks.delete(callback);
+    };
 }
 
 function seedMixinDefaults(): void {

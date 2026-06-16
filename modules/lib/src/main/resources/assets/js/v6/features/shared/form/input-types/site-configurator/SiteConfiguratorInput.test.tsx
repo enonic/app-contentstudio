@@ -40,7 +40,7 @@ vi.mock('../../../../store/applications.store', async () => {
 });
 
 vi.mock('../../../../store/wizardContent.store', () => ({
-    seedMixinsForApplications: vi.fn(() => Promise.resolve()),
+    requestMixinSeed: vi.fn(),
 }));
 
 import {$applications} from '../../../../store/applications.store';
