@@ -16,14 +16,13 @@ import {useStore} from '@nanostores/preact';
 import {Pencil, X} from 'lucide-react';
 import type {ReactElement} from 'react';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ContentId} from '../../../../../../app/content/ContentId';
 import {ContentRequiresSaveEvent} from '../../../../../../app/event/ContentRequiresSaveEvent';
 import {ProjectHelper} from '../../../../../../app/settings/data/project/ProjectHelper';
 import {useI18n} from '../../../../hooks/useI18n';
 import {$applications, loadApplications, reloadApplications} from '../../../../store/applications.store';
 import {$contextContent} from '../../../../store/context/contextContent.store';
-import {seedMixinsForApplications} from '../../../../store/wizardContent.store';
+import {requestMixinSeed} from '../../../../store/wizardContent.store';
 import {ConfirmationDialog} from '../../../dialogs/ConfirmationDialog';
 import {ApplicationIcon} from '../../../icons/ApplicationIcon';
 import {ItemLabel} from '../../../ItemLabel';
@@ -135,11 +134,7 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
             const configSet = root.addPropertySet(ApplicationConfig.PROPERTY_CONFIG);
             const form = findApplicationByKey(key)?.getForm();
             if (form) {
-                try {
-                    seedFormDefaults(form, configSet);
-                } catch (e) {
-                    DefaultErrorHandler.handle(e);
-                }
+                seedFormDefaults(form, configSet);
             }
             onAdd(new Value(root, ValueTypes.DATA));
         }
@@ -148,12 +143,8 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
             return;
         }
 
-        // Seed the selected applications' x-data before saving so their mandatory
-        // mixins are part of this single save.
         if (added.length > 0) {
-            void seedMixinsForApplications(added)
-                .catch(DefaultErrorHandler.handle)
-                .then(() => fireContentRequiresSave());
+            requestMixinSeed(added);
         } else {
             fireContentRequiresSave();
         }

@@ -1,9 +1,14 @@
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {okAsync, ResultAsync} from 'neverthrow';
 import type {Content} from '../../../app/content/Content';
-import type {ContentId} from '../../../app/content/ContentId';
+import {ContentId} from '../../../app/content/ContentId';
+import {ContentRequiresSaveEvent} from '../../../app/event/ContentRequiresSaveEvent';
+import {GetApplicationMixinsRequest} from '../../../app/resource/GetApplicationMixinsRequest';
 import {GetContentMixinsRequest} from '../../../app/resource/GetContentMixinsRequest';
 import {$applications, loadApplications} from '../store/applications.store';
-import {onWizardPersistedContentSet, setMixinsDescriptors} from '../store/wizardContent.store';
+import {$contextContent} from '../store/context/contextContent.store';
+import {$contentType, $mixinsDescriptors, onMixinSeedRequested, onWizardPersistedContentSet, setMixinsDescriptors} from '../store/wizardContent.store';
 
 //
 // * State
@@ -11,6 +16,7 @@ import {onWizardPersistedContentSet, setMixinsDescriptors} from '../store/wizard
 
 let unsubscribePersistedContent: (() => void) | null = null;
 let unsubscribeApplications: (() => void) | null = null;
+let unsubscribeMixinSeed: (() => void) | null = null;
 
 let wizardContentId: ContentId | null = null;
 let lastAppSignature: string | null = null;
@@ -47,6 +53,48 @@ async function loadDescriptors(contentId: ContentId): Promise<void> {
     }
 }
 
+function seedMixinsForApplications(applicationKeys: string[]): ResultAsync<void, Error> {
+    const contentType = $contentType.get();
+    if (!contentType || applicationKeys.length === 0) {
+        return okAsync(undefined);
+    }
+
+    const contentTypeName = contentType.getContentTypeName();
+
+    const requests = applicationKeys.map((key) =>
+        ResultAsync.fromPromise(
+            new GetApplicationMixinsRequest(contentTypeName, ApplicationKey.fromString(key)).sendAndParse(),
+            (error) => (error instanceof Error ? error : new Error(String(error)))
+        )
+    );
+
+    return ResultAsync.combine(requests).map((results) => {
+        const byName = new Map($mixinsDescriptors.get().map((descriptor) => [descriptor.getName(), descriptor]));
+        for (const descriptors of results) {
+            for (const descriptor of descriptors) {
+                byName.set(descriptor.getName(), descriptor);
+            }
+        }
+        setMixinsDescriptors([...byName.values()]);
+    });
+}
+
+function fireContentRequiresSave(): void {
+    const id = $contextContent.get()?.getId();
+    if (!id) {
+        return;
+    }
+    new ContentRequiresSaveEvent(new ContentId(id)).fire();
+}
+
+async function handleMixinSeedRequest(applicationKeys: string[]): Promise<void> {
+    const result = await seedMixinsForApplications(applicationKeys);
+    if (result.isErr()) {
+        console.error(result.error.message);
+    }
+    fireContentRequiresSave();
+}
+
 //
 // * Public API
 //
@@ -59,6 +107,10 @@ export function initWizardMixinsService(): void {
     unsubscribePersistedContent = onWizardPersistedContentSet((content: Content) => {
         wizardContentId ??= content.getContentId();
         void loadDescriptors(wizardContentId);
+    });
+
+    unsubscribeMixinSeed = onMixinSeedRequested((applicationKeys) => {
+        void handleMixinSeedRequest(applicationKeys);
     });
 
     lastAppSignature = buildAppSignature();
@@ -85,6 +137,9 @@ export function cleanupWizardMixinsService(): void {
 
     unsubscribeApplications?.();
     unsubscribeApplications = null;
+
+    unsubscribeMixinSeed?.();
+    unsubscribeMixinSeed = null;
 
     wizardContentId = null;
     lastAppSignature = null;
