@@ -25,12 +25,12 @@ def xpHome = distroDir.dir('home')
 
 dependencies {
     distro "com.enonic.xp:enonic-xp-generic:$xpVersion@tgz"
-    apps "com.enonic.uitest:adfs-idprovider:1.0.0-SNAPSHOT"
-    apps "com.enonic.uitest:auth0-idprovider:1.0.0-SNAPSHOT"
-    apps "com.enonic.uitest:contenttypes:1.0.0-SNAPSHOT"
-    apps "com.enonic.uitest:myfirstapp:1.0.0-SNAPSHOT"
-    apps "com.enonic.uitest:simple-page:1.0.0-SNAPSHOT"
-    apps "com.enonic.uitest:test-application:1.0.0-SNAPSHOT"
+    apps "com.enonic.uitest:adfs-idprovider:1.0.1-SNAPSHOT"
+    apps "com.enonic.uitest:auth0-idprovider:1.0.1-SNAPSHOT"
+    apps "com.enonic.uitest:contenttypes:1.0.1-SNAPSHOT"
+    apps "com.enonic.uitest:myfirstapp:1.0.1-SNAPSHOT"
+    apps "com.enonic.uitest:simple-page:1.0.1-SNAPSHOT"
+    apps "com.enonic.uitest:test-application:1.0.1-SNAPSHOT"
 }
 
 // Setup tasks
