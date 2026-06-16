@@ -1,8 +1,10 @@
 import {Tooltip} from '@enonic/ui';
+import {useStore} from '@nanostores/preact';
 import {type ReactElement} from 'react';
 import type {ContentSummary} from '../../../../../app/content/ContentSummary';
-import {ContentIconUrlResolver} from '../../../../../app/content/ContentIconUrlResolver';
+import {ImageUrlResolver} from '../../../../../app/util/ImageUrlResolver';
 import {useI18n} from '../../../hooks/useI18n';
+import {$activeProject} from '../../../store/activeProject.store';
 import {calcTreePublishStatus} from '../../../utils/cms/content/status';
 import {StatusBadge} from '../../status/StatusBadge';
 
@@ -15,10 +17,12 @@ export type ImageSelectorItemViewProps = {
 
 const IMAGE_SELECTOR_ITEM_VIEW = 'ImageSelectorItemView';
 
-// Gets an image content and render its image within a squared box, with its name and path to the side of the box.
-// The squared box adjusts its size to be 36% of the element's width. For that, add @container class to the element you want to use as reference for the box size.
+// Gets an image content and renders its image within a box, with its name and path to the side of the box.
+// The box width is 36% of the element's width (capped at 240px) and its height follows the image's aspect ratio,
+// clamped to the box width so vertical images stay within a square. For that, add @container class to the element you want to use as reference for the box size.
 export const ImageSelectorItemView = ({content, hideStatus = false}: ImageSelectorItemViewProps): ReactElement => {
     const imageNotAvailableLabel = useI18n('text.image.notavailable');
+    const activeProject = useStore($activeProject);
 
     // Content without a path is considered removed (deleted or archived)
     const isRemoved = !content.getPath();
@@ -26,7 +30,12 @@ export const ImageSelectorItemView = ({content, hideStatus = false}: ImageSelect
     const contentId = content.getId();
     const displayName = content.getDisplayName() || content.getType()?.getLocalName();
     const subName = content.getPath() ? content.getPath().toString() : '';
-    const iconUrl = new ContentIconUrlResolver().setContent(content).resolve() + '&size=240';
+    const iconUrl = new ImageUrlResolver(null, activeProject)
+        .setContentId(content.getContentId())
+        .setSize(480)
+        .setTimestamp(content.getModifiedTime())
+        .disableCropping()
+        .resolveForPreview();
 
     if (isRemoved) {
         return (
@@ -43,8 +52,8 @@ export const ImageSelectorItemView = ({content, hideStatus = false}: ImageSelect
 
     return (
         <div data-component={IMAGE_SELECTOR_ITEM_VIEW} className="flex items-center gap-2.5 min-w-0">
-            <div className="relative w-[36cqw] max-w-[240px] flex items-center justify-center shrink-0">
-                <img src={iconUrl} alt={displayName} className="object-contain object-center w-full max-h-[240px]" />
+            <div className="relative w-[36cqw] max-w-[240px] self-stretch flex items-center justify-center shrink-0">
+                <img src={iconUrl} alt={displayName} className="object-contain object-center w-full max-h-[min(36cqw,240px)]" />
             </div>
 
             <div className="min-w-0">
