@@ -67,11 +67,12 @@ function seedInput(input: Input, propertySet: PropertySet): void {
     const occurrences = getEffectiveOccurrences(mode, input.getOccurrences());
     const propertyArray = getOrCreatePropertyArray(propertySet, input.getName(), descriptor.getValueType());
 
-    // internal-mode (selectors) aren't auto-seeded; cf. useOccurrenceManager minFill.
-    const minFill = mode === 'internal' ? 0 : Math.max(occurrences.getMinimum(), 1);
-    if (minFill === 0) return;
-
     const defaultValue = computeDefaultValue(input, descriptor, config);
+
+    // internal-mode (selectors) aren't auto-seeded, but still seed a single configured default.
+    const minFill =
+        mode === 'internal' ? (defaultValue.isNull() ? 0 : 1) : Math.max(occurrences.getMinimum(), 1);
+    if (minFill === 0) return;
 
     while (propertyArray.getSize() < minFill && !occurrences.maximumReached(propertyArray.getSize())) {
         propertyArray.add(defaultValue);

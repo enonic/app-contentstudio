@@ -82,6 +82,22 @@ describe('seedFormDefaults', () => {
         expect(tree.getRoot().getPropertyArray('ref')?.getSize()).toBe(0);
     });
 
+    it('seeds a single configured default for an internal-mode ComboBox', () => {
+        const tree = seed(
+            inputJson('combo', 'ComboBox', 0, 1, {
+                options: [
+                    {value: 'option A', '@value': 'o1'},
+                    {value: 'option B', '@value': 'o2'},
+                ],
+                default: [{value: 'o1'}],
+            }),
+        );
+
+        const arr = tree.getRoot().getPropertyArray('combo');
+        expect(arr?.getSize()).toBe(1);
+        expect(arr?.get(0)?.getValue().getString()).toBe('o1');
+    });
+
     it('does not seed or crash on unregistered input types', () => {
         const tree = new PropertyTree();
         const form = formOf(inputJson('weird', 'NoSuchType', 1, 1));
