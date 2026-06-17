@@ -26,6 +26,7 @@ describe('publish.wizard.invalid.parent.spec - test for dependent required items
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizard.typeDisplayName(SITE_NAME);
             await siteFormPanel.filterOptionsAndSelectApplication(appConst.TEST_APPS_NAME.APP_CONTENT_TYPES);
+            // TODO add x-data
             await contentWizard.clickOnXdataTogglerByName(X_DATA_NAME);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();

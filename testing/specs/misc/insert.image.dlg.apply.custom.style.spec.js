@@ -22,13 +22,6 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
     const CINEMA_STYLE = 'Cinema';
 
 
-    it(`Preconditions: new site should be added`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
-
     it(`WHEN Insert Image modal dialog is opened THEN none option should be selected in styles-selector by default`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
@@ -42,7 +35,7 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
             await insertImageDialog.clickOnStyleSelectorDropDownHandle()
             await studioUtils.saveScreenshot('image_dialog_custom_style_options');
-            let actualOptions = await insertImageDialog.getStyleSelectorOptions();
+            let actualOptions = await insertImageDialog.getSelectedStyleValue();
             assert.equal(actualOptions[0], "<None>", "First option should be '<None>' ");
             assert.equal(actualOptions[1], appConst.IMAGE_STYLE_ORIGINAL, "one available option should be present in options list");
         });

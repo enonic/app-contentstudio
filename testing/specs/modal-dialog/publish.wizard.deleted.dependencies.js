@@ -14,6 +14,7 @@ const PageComponentView = require('../../page_objects/wizardpanel/liveform/page.
 const TextComponentCke = require('../../page_objects/components/text.component');
 const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
 const DeleteContentDialog = require('../../page_objects/delete.content.dialog');
+const TextComponentInspectionPanel = require("../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel");
 
 describe('publish.dialog.dependant.items.spec: tests for dependant items', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -23,7 +24,7 @@ describe('publish.dialog.dependant.items.spec: tests for dependant items', funct
     let SITE;
     let SHORTCUT_NAME = appConst.generateRandomName('sh');
     const CONTROLLER_NAME = 'Page';
-    const TEST_IMAGE_NAME = appConst.TEST_IMAGES.CAPE + '.jpg-copy';
+    const TEST_IMAGE_PATH = appConst.TEST_IMAGES.CAPE + '.jpg-copy';
 
     it(`Precondition 1: new site should be created`,
         async () => {
@@ -57,17 +58,19 @@ describe('publish.dialog.dependant.items.spec: tests for dependant items', funct
             let contentWizard = new ContentWizard();
             let textComponentCke = new TextComponentCke();
             let insertImageDialog = new InsertImageDialog();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             // 1. Open shortcut-wizard:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Maximize the Live Edit:
             await contentWizard.clickOnCollapseContentForm();
             // 3. Insert the text component:
-            await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
-            await textComponentCke.switchToLiveEditFrame();
+            await pageComponentView.rightClickAndOpenContextMenu('main');
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.clickOnInsertImageButton();
             // 4. Open 'Insert Image' dialog and insert an image in htmlArea:
-            await textComponentCke.clickOnInsertImageButton();
-            await insertImageDialog.filterAndSelectImageByPath(TEST_IMAGE_NAME);
+            await insertImageDialog.clickOnImageSelectorModeTogglerButton();
+            await insertImageDialog.filterAndSelectImageByPath(appConst.TEST_IMAGES.CAPE);
             await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();
             await insertImageDialog.waitForDialogClosed();
@@ -83,11 +86,11 @@ describe('publish.dialog.dependant.items.spec: tests for dependant items', funct
             let contentPublishDialog = new ContentPublishDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Delete the image (outbound dependency in the site)
-            await studioUtils.findAndSelectItem(TEST_IMAGE_NAME);
-            await contentBrowsePanel.clickOnArchiveButton();
+            await studioUtils.findAndSelectItem(TEST_IMAGE_PATH);
+            await contentBrowsePanel.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogOpened();
             await deleteContentDialog.clickOnIgnoreInboundReferences();
-            await deleteContentDialog.clickOnDeleteMenuItem();
+            await deleteContentDialog.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogClosed();
             // 2. Select the shortcut:
             await studioUtils.findAndSelectItem(SHORTCUT_NAME);
@@ -103,7 +106,7 @@ describe('publish.dialog.dependant.items.spec: tests for dependant items', funct
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
