@@ -52,8 +52,7 @@ describe('Tests for site configurator modal dialog with multi-selection Option S
 
     // Verifies: https://github.com/enonic/app-contentstudio/issues/5710
     // Content is not reset from Ready to In progress when controller is selected
-    // TODO https://github.com/enonic/app-contentstudio/issues/10805
-    it.skip("GIVEN site is ready for publishing WHEN site config has been updated THEN the site's status gets 'Work in progress'",
+    it("GIVEN site is ready for publishing WHEN site config has been updated THEN the site's status gets 'Work in progress'",
         async () => {
             let siteFormPanel = new SiteFormPanel();
             let contentWizard = new ContentWizard();
@@ -80,7 +79,7 @@ describe('Tests for site configurator modal dialog with multi-selection Option S
             await studioUtils.saveScreenshot('site_cfg_updated_workflow');
             // 7. Workflow status should be 'Work in progress':
             let workflow = await contentWizard.getContentWorkflowState();
-            assert.equal(workflow, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS, "the site's status should be 'Work in progress'");
+            assert.equal(workflow, appConst.ICON_WORKFLOW_STATE.IN_PROGRESS, "the site's status should be 'Work in progress'");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

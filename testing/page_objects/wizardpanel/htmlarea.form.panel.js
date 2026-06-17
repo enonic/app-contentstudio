@@ -103,7 +103,7 @@ class HtmlAreaForm extends OccurrencesFormView {
     async getIdOfHtmlAreas() {
         try {
             const textAreaSelector = this.container
-                                     ? this.container + COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT
+                                     ? this.container +  COMMON.CKE.textAreaElement
                                      : COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + COMMON.CKE.textAreaElement;
             const elements = await this.findElements(textAreaSelector);
             if (!elements || elements.length === 0) {
