@@ -37,7 +37,7 @@ describe.skip('wizard.compare.versions.dialog - open the dialog and verify eleme
             await contentWizard.openContextWindow();
             // 2. Open Version panel:
             await wizardContextPanel.openVersionHistory();
-            await wizardVersionsWidget.waitForVersionsLoaded();
+            await wizardVersionsWidget.waitForLoaded();
             // 3. Click on 'show changes' icon in the first 'edited' item:
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
             await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
@@ -79,7 +79,7 @@ describe.skip('wizard.compare.versions.dialog - open the dialog and verify eleme
             await contentWizard.openContextWindow();
             // 2. Open Version History panel:
             await wizardContextPanel.openVersionHistory();
-            await wizardVersionsWidget.waitForVersionsLoaded();
+            await wizardVersionsWidget.waitForLoaded();
             // 3. Click on the first top EDITED item(the latest version):
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
             // 4. Check its checkbox:
@@ -113,7 +113,7 @@ describe.skip('wizard.compare.versions.dialog - open the dialog and verify eleme
             await contentWizard.openContextWindow();
             // 2. Open 'Version History' panel:
             await wizardContextPanel.openVersionHistory();
-            await wizardVersionsWidget.waitForVersionsLoaded();
+            await wizardVersionsWidget.waitForLoaded();
             // 3. Check 2 items:
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
             await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
@@ -151,7 +151,7 @@ describe.skip('wizard.compare.versions.dialog - open the dialog and verify eleme
             await contentWizard.openContextWindow();
             // 2. Open Version History panel:
             await wizardContextPanel.openVersionHistory();
-            await wizardVersionsWidget.waitForVersionsLoaded();
+            await wizardVersionsWidget.waitForLoaded();
             // 3. Click on the second top EDITED item(the previous version):
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
             // 4. Check its checkbox:

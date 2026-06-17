@@ -176,18 +176,18 @@ class TextComponentInspectionPanel extends BaseComponentInspectionPanel {
     }
 
 
-    // async clickOnInsertImageButton() {
-    //     try {
-    //         let insertImageDialog = new InsertImageDialog();
-    //         await this.waitForElementDisplayed(this.insertImageButton, appConst.mediumTimeout);
-    //         let res = await this.getDisplayedElements(this.insertImageButton);
-    //         await res[0].click();
-    //         await this.pause(100);
-    //         return await insertImageDialog.waitForDialogVisible();
-    //     } catch (err) {
-    //         await this.handleError('Inspect Panel, Text Component - tried to click on Insert Image button ', 'err_insert_image_btn', err);
-    //     }
-    // }
+    async clickOnInsertImageButton() {
+        try {
+            let insertImageDialog = new InsertImageDialog();
+            await this.waitForElementDisplayed(this.insertImageButton, appConst.mediumTimeout);
+            let res = await this.getDisplayedElements(this.insertImageButton);
+            await res[0].click();
+            await this.pause(100);
+            return await insertImageDialog.waitForDialogVisible();
+        } catch (err) {
+            await this.handleError('Inspect Panel, Text Component - tried to click on Insert Image button ', 'err_insert_image_btn', err);
+        }
+    }
 
     async clickOnSourceButton() {
         let insertLinkDialog = new InsertLinkDialog();

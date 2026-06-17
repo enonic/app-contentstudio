@@ -8,9 +8,8 @@ const XPATH = {
     dialogHeader: "//h2[contains(.,'Unpublish item')]",
     mainListItemsDisplayName: `//div[@role='separator']/preceding::div[@data-component='ContentListItemWithReference']//div[@data-component='ContentLabel']//span[following-sibling::small]`,
     dependantListItemPath: `//div[@role='separator']/following::div[@data-component='ContentListItemWithReference']//div[@data-component='ContentLabel']//span[contains(@class,'font-semibold')]`,
-    showReferencesButton(displayName) {
-        return `//div[contains(@id,'ArchiveSelectableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]/button[contains(@id,'ActionButton') and child::span[text()='Show references']]`;
-    },
+    showReferencesButton: displayName =>
+        `//div[@data-component='ContentListItemWithReference' and descendant::div[@data-component='ContentLabel' and descendant::span[contains(.,'${displayName}')]]]//a[@data-component='ContentReferencesLink' and contains(.,'Show references')]`,
     mainItemByName: name =>
         `//div[@role='separator']/preceding::div[@data-component='ContentListItemWithReference' and descendant::div[@data-component='ContentLabel']//span[contains(.,'${name}')]]`,
     dependentItemByName: name =>
@@ -36,7 +35,7 @@ class ContentUnpublishDialog extends Page {
     }
 
     get ignoreInboundReferencesButton() {
-        return XPATH.container + "//button[@data-component='StatusBarErrorEntry' and contains(.,'Ignore inbound references')]]";
+        return XPATH.container + "//button[@data-component='StatusBarEntryButton' and contains(.,'Ignore inbound references')]";
     }
 
     waitForDialogOpened() {

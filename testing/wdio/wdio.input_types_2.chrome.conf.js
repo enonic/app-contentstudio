@@ -30,6 +30,7 @@ exports.config = {
         path.join(__dirname, '../specs/content-types-2/display.source.button.spec.js'),
         path.join(__dirname, '../specs/content-types-2/fieldset.content.spec.js'),
         path.join(__dirname, '../specs/content-types-2/single.selection.option.set.spec.js'),
+        path.join(__dirname, '../specs/content-types-2/optionset.confirmation.spec.js'),
 
 
 

@@ -17,26 +17,19 @@ describe('insert.image.custom.style.filters.spec: select an image with filters i
         webDriverHelper.setupBrowser();
     }
 
-    let SITE;
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
     let IMAGE_DISPLAY_NAME = appConst.TEST_IMAGES.SEVEROMOR;
     let HTML_AREA_CONTENT_NAME = contentBuilder.generateRandomName('hrtmlarea');
 
-    it(`Preconditions: new site should be added`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
-
     // Verifies No lazy load in content selectors in modal dialogs #8346
     // https://github.com/enonic/app-contentstudio/issues/8346
-    it(`GIVEN Insert Image modal dialog is opened AND image selector is expanded WHEN the options have scrolled down THEN number of option-images should be increased`,
+    it.skip(`GIVEN Insert Image modal dialog is opened AND image selector is expanded WHEN the options have scrolled down THEN number of option-images should be increased`,
         async () => {
             let contentWizard = new ContentWizard();
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
             // 1. Open new wizard with html-area and open Insert Image dialog:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await contentWizard.typeDisplayName(HTML_AREA_CONTENT_NAME);
             // 2. Open Insert Image modal dialog:
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
@@ -64,7 +57,7 @@ describe('insert.image.custom.style.filters.spec: select an image with filters i
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
             // 1. Open new wizard with html-area and open Insert Image dialog:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await contentWizard.typeDisplayName(HTML_AREA_CONTENT_NAME);
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();

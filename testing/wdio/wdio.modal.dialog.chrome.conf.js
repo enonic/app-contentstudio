@@ -23,6 +23,7 @@ exports.config = {
         path.join(__dirname, '../specs/modal-dialog/page.template.widget.spec.js'),
         path.join(__dirname, '../specs/modal-dialog/site.config.modal.dialog.with.optionset.spec.js'),
         path.join(__dirname, '../specs/modal-dialog/sort.content.dialog.manually.sorted.js'),
+        path.join(__dirname, '../specs/modal-dialog/unpublish.dialog.inbound.ref.spec.js'),
 
 
     ],
