@@ -13,6 +13,7 @@ import {
     setDraftMixinEnabled,
 } from '../../../store/wizardContent.store';
 import {$validationVisibility, getMixinRawValueMap} from '../../../store/wizardValidation.store';
+import {EditLockOverlay} from '../../../shared/EditLockOverlay';
 import {FormRenderer} from '../../../shared/form';
 
 type MixinViewProps = {
@@ -80,18 +81,19 @@ export const MixinView = ({mixinName}: MixinViewProps): ReactElement | null => {
     if (!form || !mixinData) return null;
 
     return (
-        <ValidationVisibilityProvider visibility={visibility}>
-            <RawValueProvider map={rawValueMap}>
-                <FieldRegistryProvider registry={fieldRegistry}>
-                    <FormRenderer
-                        form={form}
-                        propertySet={mixinData.getRoot()}
-                        enabled={!readOnly}
-                        applicationKey={applicationKey}
-                    />
-                </FieldRegistryProvider>
-            </RawValueProvider>
-        </ValidationVisibilityProvider>
+        <EditLockOverlay locked={readOnly}>
+            <ValidationVisibilityProvider visibility={visibility}>
+                <RawValueProvider map={rawValueMap}>
+                    <FieldRegistryProvider registry={fieldRegistry}>
+                        <FormRenderer
+                            form={form}
+                            propertySet={mixinData.getRoot()}
+                            applicationKey={applicationKey}
+                        />
+                    </FieldRegistryProvider>
+                </RawValueProvider>
+            </ValidationVisibilityProvider>
+        </EditLockOverlay>
     );
 };
 

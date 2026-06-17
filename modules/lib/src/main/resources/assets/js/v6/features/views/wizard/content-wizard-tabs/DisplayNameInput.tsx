@@ -189,7 +189,6 @@ export const DisplayNameInput = (): ReactElement => {
                         'hover:not-disabled:border-l-4 hover:not-disabled:pl-3.75',
                         'focus:outline-none focus:ring-0 focus:ring-offset-0',
                         'disabled:select-none disabled:cursor-not-allowed',
-                        !aiProcessing && 'disabled:opacity-50',
                         aiProcessing && 'cursor-progress animate-text-shimmer',
                         touched ? 'whitespace-pre-wrap break-words' : 'truncate',
                         !aiProcessing && isShowingPlaceholder && 'text-subtle/50',
