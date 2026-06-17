@@ -1,6 +1,6 @@
 import {Button, Dialog} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {useCallback, useMemo, useRef, type ReactElement} from 'react';
+import {useCallback, useEffect, useMemo, useRef, type ReactElement} from 'react';
 import type {ContentSummary} from '../../../../../app/content/ContentSummary';
 import {Branch} from '../../../../../app/versioning/Branch';
 import {useI18n} from '../../../hooks/useI18n';
@@ -25,9 +25,9 @@ type DeleteDialogMainContentProps = {
 const DELETE_DIALOG_MAIN_CONTENT_NAME = 'DeleteDialogMainContent';
 
 export const DeleteDialogMainContent = ({
-    onArchive,
-    'data-component': componentName = DELETE_DIALOG_MAIN_CONTENT_NAME,
-}: DeleteDialogMainContentProps): ReactElement => {
+                                            onArchive,
+                                            'data-component': componentName = DELETE_DIALOG_MAIN_CONTENT_NAME,
+                                        }: DeleteDialogMainContentProps): ReactElement => {
     const {loading, failed, items, dependants, inboundIgnored} = useStore($deleteDialog,
         {keys: ['loading', 'failed', 'items', 'dependants', 'inboundIgnored']});
     const ready = useStore($isDeleteDialogReady);
@@ -46,16 +46,17 @@ export const DeleteDialogMainContent = ({
     const deleteLabel = useI18n('action.delete');
     const deleteButtonLabel = total > 1 ? `${deleteLabel} (${total})` : deleteLabel;
 
-    const actionButtonRef = useRef<HTMLButtonElement>(null);
+    const deleteButtonRef = useRef<HTMLButtonElement>(null);
+    const ignoreButtonRef = useRef<HTMLButtonElement>(null);
+    const dialogRef = useRef<HTMLDivElement>(null);
 
-    useOnceWhen(() => {
-        actionButtonRef.current?.focus();
-    }, ready);
+    useEffect(() => {
+        if (!ready) {
+            return;
+        }
 
-    const handleOpenAutoFocus = (event: Event) => {
-        event.preventDefault();
-        actionButtonRef.current?.focus();
-    };
+        deleteButtonRef.current?.focus();
+    }, [ready]);
 
     const inboundCount = useMemo(() => {
         if (inboundIgnored) {
@@ -65,15 +66,36 @@ export const DeleteDialogMainContent = ({
         return allItems.filter(item => inboundSet.has(item.getContentId().toString())).length;
     }, [items, dependants, inboundSet, inboundIgnored]);
 
+    const hasInboundErrors = inboundCount > 0 && !inboundIgnored;
+
+    useOnceWhen(() => {
+        if (!ready) {
+            ignoreButtonRef.current?.focus();
+        }
+    }, hasInboundErrors);
+
+    const handleOpenAutoFocus = (event: Event) => {
+        event.preventDefault();
+
+        if (ready) {
+            deleteButtonRef.current?.focus();
+            return;
+        }
+
+        dialogRef.current?.focus();
+    };
+
     return (
         <Dialog.Content
+            ref={dialogRef}
             className="w-full h-full gap-10 sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220"
             onOpenAutoFocus={handleOpenAutoFocus}
             data-component={componentName}
         >
-            <Dialog.DefaultHeader title={title} description={description} withClose />
+            <Dialog.DefaultHeader title={title} description={description} withClose/>
 
             <InboundStatusBar
+                ignoreButtonRef={ignoreButtonRef}
                 loading={loading}
                 failed={failed}
                 errors={{
@@ -99,7 +121,7 @@ export const DeleteDialogMainContent = ({
             </Dialog.Body>
 
             <Dialog.Footer className="flex items-center gap-2.5">
-                <Button variant="solid" size="lg" label={deleteButtonLabel} disabled={!ready} onClick={onArchive} ref={actionButtonRef} />
+                <Button variant="solid" size="lg" label={deleteButtonLabel} disabled={!ready} onClick={onArchive} ref={deleteButtonRef}/>
             </Dialog.Footer>
         </Dialog.Content>
     );

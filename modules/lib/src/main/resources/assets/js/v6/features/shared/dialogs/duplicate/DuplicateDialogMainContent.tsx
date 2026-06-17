@@ -1,9 +1,8 @@
 import {Button, Dialog, Separator, cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {useMemo, useRef, type ReactElement} from 'react';
+import {useEffect, useMemo, useRef, type ReactElement} from 'react';
 import type {ContentSummary} from '../../../../../app/content/ContentSummary';
 import {useI18n} from '../../../hooks/useI18n';
-import {useOnceWhen} from '../../../hooks/useOnce';
 import {
     $duplicateDialog,
     $duplicateDraftIncludeChildrenIds,
@@ -44,20 +43,32 @@ export const DuplicateDialogMainContent = ({
     const duplicateButtonLabel = total > 1 ? `${duplicateLabel} (${total})` : duplicateLabel;
 
     const duplicateButtonRef = useRef<HTMLButtonElement>(null);
+    const dialogRef = useRef<HTMLDivElement>(null);
 
-    useOnceWhen(() => {
+    useEffect(() => {
+        if (!ready) {
+            return;
+        }
+
         duplicateButtonRef.current?.focus({focusVisible: true});
-    }, ready);
+    }, [ready]);
 
     const handleOpenAutoFocus = (event: FocusEvent) => {
         event.preventDefault();
-        duplicateButtonRef.current?.focus({focusVisible: true});
+
+        if (ready) {
+            duplicateButtonRef.current?.focus({focusVisible: true});
+            return;
+        }
+
+        dialogRef.current?.focus();
     };
 
     const noop = () => undefined;
 
     return (
         <Dialog.Content
+            ref={dialogRef}
             className="w-full h-full gap-10 sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220"
             onOpenAutoFocus={handleOpenAutoFocus}
             data-component={componentName}

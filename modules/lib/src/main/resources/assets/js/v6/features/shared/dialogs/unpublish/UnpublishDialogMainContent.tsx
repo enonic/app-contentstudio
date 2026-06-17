@@ -1,10 +1,9 @@
 import {Button, Dialog} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {useCallback, useMemo, useRef, type ReactElement} from 'react';
+import {useCallback, useEffect, useMemo, useRef, type ReactElement} from 'react';
 import type {ContentSummary} from '../../../../../app/content/ContentSummary';
 import {Branch} from '../../../../../app/versioning/Branch';
 import {useI18n} from '../../../hooks/useI18n';
-import {useOnceWhen} from '../../../hooks/useOnce';
 import {
     $hasMoreUnpublishDependants,
     $isUnpublishDialogReady, $unpublishDialog,
@@ -42,14 +41,25 @@ export const UnpublishDialogMainContent = ({
     const unpublishButtonLabel = total > 1 ? `${unpublishLabel} (${total})` : unpublishLabel;
 
     const unpublishButtonRef = useRef<HTMLButtonElement>(null);
+    const dialogRef = useRef<HTMLDivElement>(null);
 
-    useOnceWhen(() => {
+    useEffect(() => {
+        if (!ready) {
+            return;
+        }
+
         unpublishButtonRef.current?.focus();
-    }, ready);
+    }, [ready]);
 
     const handleOpenAutoFocus = (event: Event) => {
         event.preventDefault();
-        unpublishButtonRef.current?.focus();
+
+        if (ready) {
+            unpublishButtonRef.current?.focus();
+            return;
+        }
+
+        dialogRef.current?.focus();
     };
 
     const inboundCount = useMemo(() => {
@@ -62,6 +72,7 @@ export const UnpublishDialogMainContent = ({
 
     return (
         <Dialog.Content
+            ref={dialogRef}
             className="w-full h-full gap-10 sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220"
             onOpenAutoFocus={handleOpenAutoFocus}
             data-component={componentName}
