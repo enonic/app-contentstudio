@@ -4,6 +4,7 @@ import {type TargetedMouseEvent, type TargetedTouchEvent} from 'preact';
 import {useImageUploaderContext} from '../ImageUploaderContext';
 import {getClientXYFromEvent} from '../lib/crop';
 import {type Point} from '../lib/types';
+import {FOCUS_STROKE_WIDTH} from '../lib/focus';
 
 export const ImageUploaderInputFocusSvg = (): ReactElement => {
     const {dimensions, crop, base64Image, mode, focus, setFocus} = useImageUploaderContext();
@@ -20,7 +21,6 @@ export const ImageUploaderInputFocusSvg = (): ReactElement => {
     const viewW = crop ? crop.x2 - crop.x1 : dimensions.w;
     const viewH = crop ? crop.y2 - crop.y1 : dimensions.h;
     const radius = Math.min(viewW, viewH) * 0.25;
-    const strokeWidth = Math.min(10, Math.min(viewW, viewH) * 0.01);
 
     const toLocalFromClient = (clientX: number, clientY: number): Point | null => {
         const svg = svgRef.current;
@@ -117,12 +117,28 @@ export const ImageUploaderInputFocusSvg = (): ReactElement => {
                         <circle cx={displayFocus.x} cy={displayFocus.y} r={radius} fill="black" />
                     </mask>
                     <rect x={viewX} y={viewY} width={viewW} height={viewH} fill="black" fillOpacity={0.5} mask="url(#focus-mask)" />
-                    <circle cx={displayFocus.x} cy={displayFocus.y} r={radius} fill="none" stroke="red" strokeWidth={strokeWidth} />
+                    <circle
+                        cx={displayFocus.x}
+                        cy={displayFocus.y}
+                        r={radius}
+                        fill="none"
+                        stroke="red"
+                        strokeWidth={FOCUS_STROKE_WIDTH}
+                        strokeDasharray={FOCUS_STROKE_WIDTH * 2}
+                    />
                 </>
             )}
 
             {!isFocusing && focus && focus.x !== cropXCenter && focus.y !== cropYCenter && (
-                <circle cx={focus.x} cy={focus.y} r={radius} fill="none" stroke="red" strokeWidth={strokeWidth} />
+                <circle
+                    cx={focus.x}
+                    cy={focus.y}
+                    r={radius}
+                    fill="none"
+                    stroke="red"
+                    strokeWidth={FOCUS_STROKE_WIDTH}
+                    strokeDasharray={FOCUS_STROKE_WIDTH * 2}
+                />
             )}
         </svg>
     );
