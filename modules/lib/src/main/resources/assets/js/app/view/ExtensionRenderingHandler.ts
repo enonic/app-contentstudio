@@ -59,6 +59,7 @@ export class ExtensionRenderingHandler {
         this.previewHelper = previewHelper || new PreviewActionHelper();
         this.emptyView = this.createEmptyView();
         this.messageView = this.createErrorView();
+        this.setPreviewType(PREVIEW_TYPE.EMPTY);
     }
 
 
