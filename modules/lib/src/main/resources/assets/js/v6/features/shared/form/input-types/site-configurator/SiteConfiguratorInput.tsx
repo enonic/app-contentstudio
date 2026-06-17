@@ -332,7 +332,7 @@ const SiteConfiguratorRow = ({context, applications, errors, disabled, onEdit, o
                 />
             </div>
             <div className="flex items-center gap-1.5 ml-auto shrink-0">
-                {hasForm && (
+                {hasForm && !disabled && (
                     <IconButton
                         variant="text"
                         icon={Pencil}
