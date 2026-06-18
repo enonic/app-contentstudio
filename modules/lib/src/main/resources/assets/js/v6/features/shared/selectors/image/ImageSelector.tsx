@@ -3,7 +3,7 @@ import {cn} from '@enonic/ui';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {type ImageSelectorFilterOptions, type ImageSelectorMode} from './image-selector.types';
 import {ContentCombobox} from '../content';
-import {SelectorUploadButton} from '../shared/upload';
+import {SelectorUploadButton, useSelectorUpload} from '../shared/upload';
 import {SelectorSelection, SelectorSelectionItem} from '../shared/selection';
 import {useStore} from '@nanostores/preact';
 import {$activeProject} from '../../../store/activeProject.store';
@@ -69,6 +69,15 @@ export const ImageSelector = ({
 }: ImageSelectorProps): ReactElement => {
     const activeProject = useStore($activeProject);
     const acceptMimeTypes = useAcceptMimeTypes(IMAGE_SELECTOR_CONTENT_TYPE_NAMES);
+    const accept = acceptMimeTypes ?? 'image/*';
+
+    const {handleFiles, progress, isUploading, dragProps} = useSelectorUpload({
+        selection,
+        onSelectionChange,
+        accept,
+        multiple: selectionMode === 'multiple',
+        disabled: disabled || !withUpload,
+    });
 
     return (
         <div data-component={IMAGE_SELECTOR_NAME} className={cn('flex flex-col gap-2.5', className)}>
@@ -76,7 +85,15 @@ export const ImageSelector = ({
             {label && <label className="text-md font-semibold">{label}</label>}
 
             {canAdd && (
-                <div className="flex items-center">
+                <div
+                    className={cn(
+                        'flex items-center rounded transition-highlight',
+                        dragProps.isDragging && 'ring-3 ring-ring ring-offset-3 ring-offset-ring-offset'
+                    )}
+                    onDragOver={dragProps.onDragOver}
+                    onDragLeave={dragProps.onDragLeave}
+                    onDrop={dragProps.onDrop}
+                >
                     <ContentCombobox
                         selection={selection}
                         onSelectionChange={onSelectionChange}
@@ -103,11 +120,12 @@ export const ImageSelector = ({
                     />
                     {withUpload && (
                         <SelectorUploadButton
-                            selection={selection}
-                            onSelectionChange={onSelectionChange}
+                            onFiles={handleFiles}
+                            progress={progress}
+                            isUploading={isUploading}
                             disabled={disabled}
                             multiple={selectionMode === 'multiple'}
-                            accept={acceptMimeTypes ?? 'image/*'}
+                            accept={accept}
                         />
                     )}
                 </div>
