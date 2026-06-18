@@ -4,6 +4,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {computed, map} from 'nanostores';
 import {ContentId} from '../../../../app/content/ContentId';
 import type {ContentSummary} from '../../../../app/content/ContentSummary';
+import type {ContentServerChangeItem} from '../../../../app/event/ContentServerChangeItem';
 import {ContentSummaryAndCompareStatusFetcher} from '../../../../app/resource/ContentSummaryAndCompareStatusFetcher';
 import {OrderChildContentRequest} from '../../../../app/resource/OrderChildContentRequest';
 import {OrderContentRequest} from '../../../../app/resource/OrderContentRequest';
@@ -13,6 +14,7 @@ import {OrderChildMovement} from '../../../../app/resource/order/OrderChildMovem
 import {OrderChildMovements} from '../../../../app/resource/order/OrderChildMovements';
 import {fetchContentByIds} from '../../api/content-fetcher';
 import {$contentCache, getMissingIds} from '../content.store';
+import {$contentArchived, $contentDeleted, type ContentEvent} from '../socket.store';
 import type {
     SortDialogRow,
     SortDirection,
@@ -21,6 +23,10 @@ import type {
     SortOrderOption,
     SortOrderOptionId,
 } from './sortDialog.types';
+
+//
+// * Types
+//
 
 type SortDialogStore = {
     open: boolean;
@@ -36,9 +42,13 @@ type SortDialogStore = {
     manualMovements: SortManualMovement[];
 };
 
+//
+// * Config
+//
+
 const DEFAULT_SORT_OPTION_ID: SortOrderOptionId = 'modified:DESC';
 
-export const SORT_BATCH_SIZE = 24;
+const SORT_BATCH_SIZE = 24;
 
 const initialState: SortDialogStore = {
     open: false,
@@ -74,9 +84,17 @@ const SORT_ELEMENT_FIELD: Record<SortElementId, string> = {
     manual: QueryField.MANUAL_ORDER_VALUE,
 };
 
+//
+// * Internal State
+//
+
 const fetcher = new ContentSummaryAndCompareStatusFetcher();
 let instanceId = 0;
 const loadingBatches = new Set<number>();
+
+//
+// * Helpers
+//
 
 const moveId = (
     itemIds: string[],
@@ -148,12 +166,27 @@ const dropSortDialogItems = (ids: string[]): void => {
         return;
     }
     const idSet = new Set(ids);
-    const {itemIds} = $sortDialog.get();
-    const nextItemIds = itemIds.filter(id => !idSet.has(id));
-    if (nextItemIds.length === itemIds.length) {
+    const state = $sortDialog.get();
+    const nextItemIds = state.itemIds.filter(id => !idSet.has(id));
+    if (nextItemIds.length === state.itemIds.length) {
         return;
     }
-    $sortDialog.setKey('itemIds', nextItemIds);
+
+    // Prune manual movements that reference removed content so submit cannot
+    // send a movement for an item that no longer exists.
+    const nextMovements = state.manualMovements
+        .filter(movement => !idSet.has(movement.contentId.toString()))
+        .map(movement =>
+            movement.moveBefore && idSet.has(movement.moveBefore.toString())
+                ? {...movement, moveBefore: undefined}
+                : movement,
+        );
+
+    $sortDialog.set({
+        ...state,
+        itemIds: nextItemIds,
+        manualMovements: nextMovements,
+    });
 };
 
 const toSortOrderOptionIdFromChildOrder = (order: ChildOrder | null | undefined): SortOrderOptionId => {
@@ -200,7 +233,8 @@ const toChildOrder = (optionId: SortOrderOptionId): ChildOrder => {
 };
 
 async function reloadSortDialogIds(): Promise<void> {
-    const callId = ++instanceId;
+    instanceId += 1;
+    const callId = instanceId;
     const {open, parent, selectedOptionId} = $sortDialog.get();
     if (!open || !parent) {
         return;
@@ -235,9 +269,13 @@ async function reloadSortDialogIds(): Promise<void> {
         }
         $sortDialog.setKey('idsFailed', true);
         $sortDialog.setKey('idsLoading', false);
-        showError(error?.message ?? String(error));
+        showError(error instanceof Error ? error.message : String(error));
     }
 }
+
+//
+// * Stores
+//
 
 export const $sortDialog = map<SortDialogStore>(structuredClone(initialState));
 
@@ -252,6 +290,10 @@ export const $isSortDialogAltered = computed($sortDialog, (state) => {
 export const $isSortDialogReady = computed([$sortDialog, $isSortDialogAltered], (state, altered) => {
     return state.open && !state.idsLoading && !state.submitting && !state.idsFailed && altered;
 });
+
+//
+// * Public API
+//
 
 export const isSortDialogBatchFailed = (failedBatches: readonly number[], index: number): boolean => {
     return failedBatches.includes(toBatchStart(index));
@@ -289,7 +331,7 @@ export const ensureSortDialogBatchLoaded = async (index: number): Promise<void> 
             return;
         }
         markFailedBatch(batchStart);
-        showError(error?.message ?? String(error));
+        showError(error instanceof Error ? error.message : String(error));
     } finally {
         if (callId === instanceId) {
             loadingBatches.delete(batchStart);
@@ -402,10 +444,14 @@ export const openSortDialog = (parent: ContentSummary): void => {
 };
 
 export const closeSortDialog = (): void => {
-    instanceId++;
+    instanceId += 1;
     loadingBatches.clear();
     $sortDialog.set(structuredClone(initialState));
 };
+
+//
+// * Subscriptions
+//
 
 $sortDialog.subscribe((state, previous) => {
     if (!state.open) {
@@ -420,3 +466,15 @@ $sortDialog.subscribe((state, previous) => {
         void reloadSortDialogIds();
     }
 });
+
+// Drop items removed on the server while the dialog is open, regardless of
+// scroll position — a loaded row would otherwise revert to a stuck skeleton.
+const dropDeletedSortDialogItems = (event: ContentEvent<ContentServerChangeItem[]> | null): void => {
+    if (!event?.data || !$sortDialog.get().open) {
+        return;
+    }
+    dropSortDialogItems(event.data.map(item => item.getContentId().toString()));
+};
+
+$contentDeleted.subscribe(dropDeletedSortDialogItems);
+$contentArchived.subscribe(dropDeletedSortDialogItems);

@@ -63,6 +63,10 @@ export const SortDialogMainContent = (): ReactElement => {
     ];
     const isManualSorting = selectedOptionId === 'manual';
 
+    const bodyClassName =
+        'flex flex-col gap-5 focus-within:outline-none focus-within:ring-3 focus-within:ring-ring ' +
+        'focus-within:ring-offset-3 focus-within:ring-offset-ring-offset focus-within:border-bdr-solid rounded-sm';
+
     return (
         <Dialog.Content className='w-full h-full gap-7.5 sm:h-fit md:min-w-184 md:max-w-220'>
             <Dialog.DefaultHeader title={title} withClose >
@@ -76,7 +80,7 @@ export const SortDialogMainContent = (): ReactElement => {
                     className='flex flex-col gap-2.5 col-start-1 row-start-3 col-span-2 min-w-0'
                 />
             </Dialog.DefaultHeader>
-            <Dialog.Body ref={scrollRef} className='flex flex-col gap-5 focus-within:outline-none focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset focus-within:border-bdr-solid rounded-sm'>
+            <Dialog.Body ref={scrollRef} className={bodyClassName}>
                 {idsLoading && <span>{loadingLabel}</span>}
                 {!idsLoading && idsFailed && <span>{loadErrorLabel}</span>}
                 {!idsLoading && !idsFailed && rows.length > 0 && (
