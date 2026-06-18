@@ -15,6 +15,7 @@ import {
 import {$issueDialog, closeIssueDialog, openIssueDialogDetails} from './issueDialog.store';
 import {
     $issueDialogDetails,
+    $issueDialogDetailsDependantsSelection,
     $issueDialogDetailsHasMoreDependants,
     loadIssueDialogItems,
     loadMoreIssueDialogDependants,
@@ -377,6 +378,29 @@ describe('issueDialogDetails.store', () => {
             expect(mockGetIssueSend).not.toHaveBeenCalled();
 
             unsubscribe();
+        });
+    });
+
+    describe('batch dependant selection', () => {
+        it('derives the tri-state from required and excluded dependants', () => {
+            $issueDialogDetails.setKey('dependantIds', [new ContentId('req'), new ContentId('a'), new ContentId('b')]);
+            $issueDialogDetails.setKey('requiredDependantIds', [new ContentId('req')]);
+            $issueDialogDetails.setKey('excludedDependantIds', [new ContentId('a')]);
+
+            const selection = $issueDialogDetailsDependantsSelection.get();
+            expect(selection.count).toBe(3);
+            expect(selection.selectionType).toBe('partial');
+            expect(selection.disabled).toBe(false);
+        });
+
+        it('is checked and disabled when every dependant is required', () => {
+            $issueDialogDetails.setKey('dependantIds', [new ContentId('a'), new ContentId('b')]);
+            $issueDialogDetails.setKey('requiredDependantIds', [new ContentId('a'), new ContentId('b')]);
+            $issueDialogDetails.setKey('excludedDependantIds', []);
+
+            const selection = $issueDialogDetailsDependantsSelection.get();
+            expect(selection.selectionType).toBe('all');
+            expect(selection.disabled).toBe(true);
         });
     });
 });

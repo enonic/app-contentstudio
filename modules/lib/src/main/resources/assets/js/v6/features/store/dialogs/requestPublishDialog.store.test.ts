@@ -10,6 +10,7 @@ import {
 } from '../socket.store';
 import {
     $isRequestPublishReady,
+    $requestPublishDependantsSelection,
     $requestPublishDialog,
     $requestPublishDialogCreateCount,
     $requestPublishDialogErrors,
@@ -19,6 +20,7 @@ import {
     openRequestPublishDialog,
     resetRequestPublishDialogContext,
     submitRequestPublishDialog,
+    toggleRequestPublishDependantsSelection,
 } from './requestPublishDialog.store';
 import {
     createDeferredPromise,
@@ -419,5 +421,55 @@ describe('requestPublishDialog.store', () => {
         expect($requestPublishDialog.get().submitting).toBe(false);
         expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
         expect(mockShowError).toHaveBeenCalledWith('Request failed');
+    });
+
+    describe('batch dependant selection', () => {
+        it('derives the tri-state from required and excluded dependants', () => {
+            $requestPublishDialog.setKey('dependantIds', [new ContentId('req'), new ContentId('a'), new ContentId('b')]);
+            $requestPublishDialog.setKey('requiredDependantIds', [new ContentId('req')]);
+            $requestPublishDialog.setKey('excludedDependantIds', [new ContentId('a')]);
+
+            const selection = $requestPublishDependantsSelection.get();
+            expect(selection.count).toBe(3);
+            expect(selection.selectionType).toBe('partial');
+            expect(selection.disabled).toBe(false);
+        });
+
+        it('deselects every dependant when toggled from a full selection', () => {
+            $requestPublishDialog.setKey('dependantIds', [new ContentId('a'), new ContentId('b')]);
+            $requestPublishDialog.setKey('excludedDependantIds', []);
+
+            expect($requestPublishDependantsSelection.get().selectionType).toBe('all');
+
+            toggleRequestPublishDependantsSelection();
+
+            const excluded = $requestPublishDialog.get().excludedDependantIds.map(id => id.toString()).sort();
+            expect(excluded).toEqual(['a', 'b']);
+            expect($requestPublishDependantsSelection.get().selectionType).toBe('none');
+        });
+
+        it('keeps required dependants selected when deselecting all, staying partial', () => {
+            $requestPublishDialog.setKey('dependantIds', [new ContentId('req'), new ContentId('a')]);
+            $requestPublishDialog.setKey('requiredDependantIds', [new ContentId('req')]);
+            $requestPublishDialog.setKey('excludedDependantIds', []);
+
+            toggleRequestPublishDependantsSelection();
+
+            const excluded = $requestPublishDialog.get().excludedDependantIds.map(id => id.toString());
+            expect(excluded).toEqual(['a']);
+            expect($requestPublishDependantsSelection.get().selectionType).toBe('partial');
+        });
+
+        it('selects every dependant when toggled from an empty selection', () => {
+            $requestPublishDialog.setKey('dependantIds', [new ContentId('a'), new ContentId('b')]);
+            $requestPublishDialog.setKey('excludedDependantIds', [new ContentId('a'), new ContentId('b')]);
+
+            expect($requestPublishDependantsSelection.get().selectionType).toBe('none');
+
+            toggleRequestPublishDependantsSelection();
+
+            expect($requestPublishDialog.get().excludedDependantIds).toHaveLength(0);
+            expect($requestPublishDependantsSelection.get().selectionType).toBe('all');
+        });
     });
 });

@@ -18,10 +18,7 @@ import type {
 
 const SPLIT_LIST_NAME = 'SplitList';
 
-const SplitListRoot = ({
-    className,
-    children,
-}: SplitListProps): ReactElement => {
+const SplitListRoot = ({className, children}: SplitListProps): ReactElement => {
     return (
         <div className={cn('flex flex-col gap-y-8', className)} tabIndex={-1}>
             {children}
@@ -66,20 +63,12 @@ SplitListPrimary.displayName = SPLIT_LIST_PRIMARY_NAME;
 
 const SPLIT_LIST_SEPARATOR_NAME = 'SplitList.Separator';
 
-const SplitListSeparator = ({
-    children,
-    hidden = false,
-    className,
-}: SplitListSeparatorProps): ReactElement | null => {
+const SplitListSeparator = ({children, hidden = false, className}: SplitListSeparatorProps): ReactElement | null => {
     if (hidden) {
         return null;
     }
 
-    return (
-        <div className={cn('flex items-center gap-2.5 -mt-2.5 -mb-7.5 pr-1', className)}>
-            {children}
-        </div>
-    );
+    return <div className={cn('flex items-center gap-2.5 -mt-2.5 -mb-7.5 pr-1', className)}>{children}</div>;
 };
 
 SplitListSeparator.displayName = SPLIT_LIST_SEPARATOR_NAME;
@@ -90,12 +79,12 @@ SplitListSeparator.displayName = SPLIT_LIST_SEPARATOR_NAME;
 
 const SPLIT_LIST_SEPARATOR_LABEL_NAME = 'SplitList.SeparatorLabel';
 
-const SplitListSeparatorLabel = ({
-    children,
-    className,
-}: SplitListSeparatorLabelProps): ReactElement => {
+const SplitListSeparatorLabel = ({children, className}: SplitListSeparatorLabelProps): ReactElement => {
     return (
-        <Separator className={cn('text-sm flex-1', className)} label={typeof children === 'string' ? children : undefined} />
+        <Separator
+            className={cn('text-sm flex-1', className)}
+            label={typeof children === 'string' ? children : undefined}
+        />
     );
 };
 
@@ -113,14 +102,7 @@ const SplitListSeparatorButton = ({
     disabled = false,
     className,
 }: SplitListSeparatorButtonProps): ReactElement => {
-    return (
-        <InlineButton
-            label={label}
-            onClick={onClick}
-            disabled={disabled}
-            className={className}
-        />
-    );
+    return <InlineButton label={label} onClick={onClick} disabled={disabled} className={cn('-my-1.5', className)} />;
 };
 
 SplitListSeparatorButton.displayName = SPLIT_LIST_SEPARATOR_BUTTON_NAME;
@@ -159,7 +141,10 @@ function SplitListSecondary<T>({
             return null;
         }
         return (
-            <div data-component={SPLIT_LIST_SECONDARY_NAME} className={cn('text-sm text-subtle italic', className)}>
+            <div
+                data-component={SPLIT_LIST_SECONDARY_NAME}
+                className={cn('py-2 text-sm text-subtle italic', className)}
+            >
                 {emptyMessage}
             </div>
         );
