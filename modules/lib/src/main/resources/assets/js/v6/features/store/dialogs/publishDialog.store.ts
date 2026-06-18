@@ -10,6 +10,11 @@ import {calcSecondaryStatus, calcTreePublishStatus} from '../../utils/cms/conten
 import {hasUnpublishedChildren} from '../../api/hasUnpublishedChildren';
 import {findIdsByParents, markAsReady, publishContent, resolvePublishDependencies as resolvePublishDeps} from '../../api/publish';
 import {cleanupTask, trackTask} from '../../services/task.service';
+import {
+    calcDependantsSelection,
+    type DependantsSelection,
+    nextDependantExclusions,
+} from '../../utils/cms/content/dependantsSelection';
 import {hasContentById, hasContentIdInIds, isIdsEqual, uniqueIds} from '../../utils/cms/content/ids';
 import {findContentIdsWithCreatedDescendants} from '../../utils/cms/content/paths';
 import {
@@ -44,6 +49,7 @@ type DependantItem = {
     excludedByDefault: boolean;
     hidden: boolean;
 };
+
 
 type PublishDialogSelectionStore = {
     excludedItemsIds: ContentId[];
@@ -166,6 +172,9 @@ const $publishDialogDependants = atom<ContentSummary[]>([]);
 // Dependant ids visible in the dialog (legacy `calcVisibleIds`): min dependants, direct excluded deps, included children
 const $visibleDependantIds = atom<ContentId[]>([]);
 
+// Whether auto-excluded dependants are shown in the list (legacy "Hide/Show excluded" toggle).
+const $showExcludedDependants = atom<boolean>(true);
+
 const $dependantWindow = atom<number>(0);
 
 // Publishable ids (status != EQUAL) resolved by the server, across the full set
@@ -242,6 +251,21 @@ export const $dependantPublishItems = computed(
 export const $hasExcludedDependantItems = computed($dependantPublishItems, (items): boolean => {
     return items.some(item => item.excludedByDefault && !item.hidden && !item.required);
 });
+
+export const $showPublishDependantsExcluded = computed($showExcludedDependants, (show): boolean => show);
+
+export const $publishDependantsSelection = computed(
+    [$dependantIds, $visibleDependantIds, $publishChecks, $publishDialog, $draftPublishDialogSelection, $showExcludedDependants],
+    (allIds, visibleIds, {requiredIds}, {excludedDependantItemsIds}, {excludedDependantItemsIds: draftExcludedIds}, showExcluded): DependantsSelection => {
+        // From the full id set, not the loaded window, so the count is right before summaries
+        // lazy-load; respects the "show excluded" toggle to match the visible rows.
+        const shownIds = allIds.filter(id =>
+            hasContentIdInIds(id, visibleIds) &&
+            (showExcluded || !hasContentIdInIds(id, excludedDependantItemsIds)));
+
+        return calcDependantsSelection(shownIds, requiredIds, draftExcludedIds);
+    }
+);
 
 // Filter the server's publishable set by the draft selection so the count stays live
 // while the user toggles checkboxes, without re-resolving or loading summaries.
@@ -434,6 +458,7 @@ export const resetPublishDialogContext = () => {
     $publishDialog.set(structuredClone(initialPublishDialogState));
     $draftPublishDialogSelection.set(structuredClone(initialSelectionState));
     $publishChecks.set(structuredClone(initialChecksState));
+    $showExcludedDependants.set(true);
     resetDependantsState();
     $publishDialogPending.set(initialPendingState);
     $hasUnpublishedChildrenIds.set(new Set());
@@ -518,6 +543,22 @@ export const setPublishDialogDependantItemSelected = (id: ContentId, selected: b
         ...rest,
         excludedDependantItemsIds: newExcludedDependantItemsIds,
     });
+}
+
+export const togglePublishDialogDependantsSelection = () => {
+    const selection = $publishDependantsSelection.get();
+    if (selection.selectableIds.length === 0) return;
+
+    const {excludedDependantItemsIds, ...rest} = $draftPublishDialogSelection.get();
+
+    $draftPublishDialogSelection.set({
+        ...rest,
+        excludedDependantItemsIds: nextDependantExclusions(selection, excludedDependantItemsIds),
+    });
+}
+
+export const togglePublishDialogShowExcluded = () => {
+    $showExcludedDependants.set(!$showExcludedDependants.get());
 }
 
 export const setPublishDialogMessage = (message: string | undefined) => {
@@ -989,6 +1030,14 @@ $publishDialog.subscribe((state, oldState) => {
 
     if (exclusionsChanged) {
         reloadPublishDialogDataDebounced();
+    }
+});
+
+// Snap back to "show excluded" once there are no toggleable excluded dependants left,
+// so the toggle never lingers in the hidden state with nothing to reveal.
+$hasExcludedDependantItems.subscribe((hasExcluded) => {
+    if (!hasExcluded) {
+        $showExcludedDependants.set(true);
     }
 });
 

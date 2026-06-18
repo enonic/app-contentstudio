@@ -7,6 +7,7 @@ import {useI18n} from '../../../hooks/useI18n';
 import {$config} from '../../../store/config.store';
 import {
     $isRequestPublishReady,
+    $requestPublishDependantsSelection,
     $requestPublishDialog,
     $requestPublishDialogCreateCount,
     $requestPublishDialogErrors,
@@ -23,11 +24,13 @@ import {
     setRequestPublishItemIncludeChildren,
     setRequestPublishTitle,
     submitRequestPublishDialog,
+    toggleRequestPublishDependantsSelection,
 } from '../../../store/dialogs/requestPublishDialog.store';
 import {useItemsWithUnpublishedChildren} from '../../../utils/cms/content/useItemsWithUnpublishedChildren';
 import {ContentRow, SplitList} from '../../lists';
 import {AssigneeSelector} from '../../selectors/assignee/AssigneeSelector';
 import {useAssigneeSearch, useAssigneeSelection} from '../../selectors/assignee/hooks/useAssigneeSearch';
+import {DependantsSelectAll} from '../dependants/DependantsSelectAll';
 import {IssueIcon} from '../issue/IssueIcon';
 import {SelectionStatusBar} from '../status-bar/SelectionStatusBar';
 
@@ -64,6 +67,7 @@ export const RequestPublishDialogContent = (): ReactElement => {
     const createCount = useStore($requestPublishDialogCreateCount);
     const publishableCount = useStore($requestPublishPublishableCount);
     const hasMoreDependants = useStore($requestPublishHasMoreDependants);
+    const dependantsSelection = useStore($requestPublishDependantsSelection);
     const isPublishReady = useStore($isRequestPublishReady);
     const {invalid, inProgress} = useStore($requestPublishDialogErrors);
     const {allowContentUpdate} = useStore($config, {keys: ['allowContentUpdate']});
@@ -250,38 +254,50 @@ export const RequestPublishDialogContent = (): ReactElement => {
                             <SplitList.SeparatorLabel>{dependenciesLabel}</SplitList.SeparatorLabel>
                         </SplitList.Separator>
 
-                        <SplitList.Secondary
-                            items={dependants}
-                            getItemId={(item) => item.getId()}
-                            disabled={isItemsDisabled}
-                            loading={loading}
-                            hasMore={hasMoreDependants}
-                            onEndReached={loadMoreRequestPublishDependants}
-                            renderRow={(item) => {
-                                const id = item.getContentId();
-                                const isRequired = requiredDependantSet.has(id.toString());
-                                const included = !excludedDependantSet.has(id.toString());
-
-                                return (
-                                    <ContentRow
-                                        key={item.getId()}
-                                        content={item}
-                                        id={item.getId()}
+                        {dependants.length > 0 && (
+                            <div>
+                                {dependantsSelection.count > 0 && (
+                                    <DependantsSelectAll
+                                        selection={dependantsSelection}
+                                        onToggle={toggleRequestPublishDependantsSelection}
                                         disabled={isItemsDisabled}
-                                    >
-                                        <ContentRow.Checkbox
-                                            checked={included}
-                                            onCheckedChange={(checked) =>
-                                                setRequestPublishDependantIncluded(id, checked)
-                                            }
-                                            disabled={isRequired || isItemsDisabled}
-                                        />
-                                        <ContentRow.Label action="edit" />
-                                        <ContentRow.Status />
-                                    </ContentRow>
-                                );
-                            }}
-                        />
+                                    />
+                                )}
+
+                                <SplitList.Secondary
+                                    items={dependants}
+                                    getItemId={(item) => item.getId()}
+                                    disabled={isItemsDisabled}
+                                    loading={loading}
+                                    hasMore={hasMoreDependants}
+                                    onEndReached={loadMoreRequestPublishDependants}
+                                    renderRow={(item) => {
+                                        const id = item.getContentId();
+                                        const isRequired = requiredDependantSet.has(id.toString());
+                                        const included = !excludedDependantSet.has(id.toString());
+
+                                        return (
+                                            <ContentRow
+                                                key={item.getId()}
+                                                content={item}
+                                                id={item.getId()}
+                                                disabled={isItemsDisabled}
+                                            >
+                                                <ContentRow.Checkbox
+                                                    checked={included}
+                                                    onCheckedChange={(checked) =>
+                                                        setRequestPublishDependantIncluded(id, checked)
+                                                    }
+                                                    disabled={isRequired || isItemsDisabled}
+                                                />
+                                                <ContentRow.Label action="edit" />
+                                                <ContentRow.Status />
+                                            </ContentRow>
+                                        );
+                                    }}
+                                />
+                            </div>
+                        )}
                     </SplitList>
                 </div>
             </Dialog.Body>

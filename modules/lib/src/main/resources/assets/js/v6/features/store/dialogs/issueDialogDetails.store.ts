@@ -28,6 +28,7 @@ import {
     orderSummariesByIds,
     pruneDependantWindow,
 } from '../../utils/cms/content/dependantWindow';
+import {calcDependantsSelection, nextDependantExclusions} from '../../utils/cms/content/dependantsSelection';
 import {hasContentIdInIds, isIdsEqual, uniqueIds} from '../../utils/cms/content/ids';
 import {findContentIdsWithCreatedDescendants} from '../../utils/cms/content/paths';
 import {
@@ -160,6 +161,12 @@ export const $canIssueDialogDetailsPublish = computed(
 export const $issueDialogDetailsHasMoreDependants = computed(
     $issueDialogDetails,
     ({dependantIds, dependantWindow}) => dependantWindow < dependantIds.length,
+);
+
+export const $issueDialogDetailsDependantsSelection = computed(
+    $issueDialogDetails,
+    ({dependantIds, requiredDependantIds, excludedDependantIds}) =>
+        calcDependantsSelection(dependantIds, requiredDependantIds, excludedDependantIds),
 );
 
 //
@@ -864,6 +871,16 @@ export const updateIssueDialogExcludedDependants = async (nextExcludedIds: Conte
         issueWithAssignees,
         nextPublishRequest,
     });
+};
+
+export const toggleIssueDialogDetailsDependantsSelection = (): void => {
+    const {dependantIds, requiredDependantIds, excludedDependantIds} = $issueDialogDetails.get();
+    const selection = calcDependantsSelection(dependantIds, requiredDependantIds, excludedDependantIds);
+    if (selection.selectableIds.length === 0) {
+        return;
+    }
+
+    void updateIssueDialogExcludedDependants(nextDependantExclusions(selection, excludedDependantIds));
 };
 
 export const openDeleteCommentConfirmation = (commentId: string): void => {

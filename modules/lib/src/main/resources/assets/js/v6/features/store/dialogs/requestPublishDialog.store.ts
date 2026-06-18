@@ -17,6 +17,7 @@ import {
     orderSummariesByIds,
     pruneDependantWindow,
 } from '../../utils/cms/content/dependantWindow';
+import {calcDependantsSelection, nextDependantExclusions} from '../../utils/cms/content/dependantsSelection';
 import {hasContentIdInIds, uniqueIds} from '../../utils/cms/content/ids';
 import {findContentIdsWithCreatedDescendants} from '../../utils/cms/content/paths';
 import {
@@ -104,6 +105,12 @@ export const $requestPublishDialogCreateCount = computed(
 export const $requestPublishHasMoreDependants = computed(
     $requestPublishDialog,
     ({dependantIds, dependantWindow}) => dependantWindow < dependantIds.length,
+);
+
+export const $requestPublishDependantsSelection = computed(
+    $requestPublishDialog,
+    ({dependantIds, requiredDependantIds, excludedDependantIds}) =>
+        calcDependantsSelection(dependantIds, requiredDependantIds, excludedDependantIds),
 );
 
 export const $requestPublishDialogErrors = computed(
@@ -444,6 +451,16 @@ export const setRequestPublishDependantIncluded = (id: ContentId, included: bool
     if (!included && !isExcluded) {
         $requestPublishDialog.setKey('excludedDependantIds', [...state.excludedDependantIds, id]);
     }
+};
+
+export const toggleRequestPublishDependantsSelection = (): void => {
+    const {dependantIds, requiredDependantIds, excludedDependantIds} = $requestPublishDialog.get();
+    const selection = calcDependantsSelection(dependantIds, requiredDependantIds, excludedDependantIds);
+    if (selection.selectableIds.length === 0) {
+        return;
+    }
+
+    $requestPublishDialog.setKey('excludedDependantIds', nextDependantExclusions(selection, excludedDependantIds));
 };
 
 export const excludeInvalidRequestPublishItems = (): void => {

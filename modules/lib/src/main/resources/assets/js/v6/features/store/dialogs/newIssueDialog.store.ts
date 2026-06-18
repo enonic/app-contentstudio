@@ -16,6 +16,7 @@ import {
     orderSummariesByIds,
     pruneDependantWindow,
 } from '../../utils/cms/content/dependantWindow';
+import {calcDependantsSelection, nextDependantExclusions} from '../../utils/cms/content/dependantsSelection';
 import {hasContentIdInIds, uniqueIds} from '../../utils/cms/content/ids';
 import {findContentIdsWithCreatedDescendants} from '../../utils/cms/content/paths';
 import {
@@ -86,6 +87,12 @@ export const $newIssueDialogCreateCount = computed(
 export const $newIssueDialogHasMoreDependants = computed(
     $newIssueDialog,
     ({dependantIds, dependantWindow}) => dependantWindow < dependantIds.length,
+);
+
+export const $newIssueDependantsSelection = computed(
+    $newIssueDialog,
+    ({dependantIds, requiredDependantIds, excludedDependantIds}) =>
+        calcDependantsSelection(dependantIds, requiredDependantIds, excludedDependantIds),
 );
 
 let instanceId = 0;
@@ -265,6 +272,16 @@ export const setNewIssueDependantIncluded = (id: ContentId, included: boolean): 
     if (!included && !isExcluded) {
         $newIssueDialog.setKey('excludedDependantIds', [...state.excludedDependantIds, id]);
     }
+};
+
+export const toggleNewIssueDependantsSelection = (): void => {
+    const {dependantIds, requiredDependantIds, excludedDependantIds} = $newIssueDialog.get();
+    const selection = calcDependantsSelection(dependantIds, requiredDependantIds, excludedDependantIds);
+    if (selection.selectableIds.length === 0) {
+        return;
+    }
+
+    $newIssueDialog.setKey('excludedDependantIds', nextDependantExclusions(selection, excludedDependantIds));
 };
 
 export const submitNewIssueDialog = async (): Promise<void> => {

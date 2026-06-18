@@ -11,7 +11,7 @@ export const InlineButton = ({className, ...props}: InlineButtonProps): ReactEle
             data-component={INLINE_BUTTON_NAME}
             {...props}
             size="sm"
-            className={cn(`h-8 px-1.5 -my-0.75 focus-visible:ring-offset-0`, className)}
+            className={cn(`h-8 px-1.5 -my-1 focus-visible:ring-offset-0`, className)}
         />
     );
 };

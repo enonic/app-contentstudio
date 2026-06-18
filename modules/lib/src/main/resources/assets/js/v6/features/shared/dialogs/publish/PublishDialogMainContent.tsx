@@ -14,7 +14,9 @@ import {
     $isPublishSelectionSynced,
     $mainPublishItems,
     $publishCheckErrors,
+    $publishDependantsSelection,
     $publishDialog,
+    $showPublishDependantsExcluded,
     $totalPublishableItems,
     applyDraftPublishDialogSelection,
     cancelDraftPublishDialogSelection,
@@ -29,8 +31,11 @@ import {
     setPublishDialogItemWithChildrenSelected,
     setPublishDialogMessage,
     setPublishSchedule,
+    togglePublishDialogDependantsSelection,
+    togglePublishDialogShowExcluded,
 } from '../../../store/dialogs/publishDialog.store';
 import {ContentRow, SplitList} from '../../lists';
+import {DependantsSelectAll} from '../dependants/DependantsSelectAll';
 import {SelectionStatusBar} from '../status-bar/SelectionStatusBar';
 import {PublishDialogItemStatus} from './PublishDialogItemStatus';
 import {PublishScheduleForm} from './PublishScheduleForm';
@@ -56,6 +61,8 @@ export const PublishDialogMainContent = ({
     const publishCount = useStore($totalPublishableItems);
     const hasSchedulableItems = useStore($hasSchedulableItems);
     const hasExcludedItems = useStore($hasExcludedDependantItems);
+    const showExcluded = useStore($showPublishDependantsExcluded);
+    const dependantsSelection = useStore($publishDependantsSelection);
 
     const isSelectionSynced = useStore($isPublishSelectionSynced);
 
@@ -66,7 +73,6 @@ export const PublishDialogMainContent = ({
     const firstScheduleInputRef = useRef<HTMLInputElement>(null);
     const wasScheduleMode = useRef(scheduleMode);
 
-    const [showExcluded, setShowExcluded] = useState(true);
     const scheduleKeyboardActivation = useRef(false);
     const [showComment, setShowComment] = useState(false);
     const commentTextareaRef = useRef<HTMLTextAreaElement>(null);
@@ -77,12 +83,6 @@ export const PublishDialogMainContent = ({
     const showExcludedLabel = useI18n('dialog.publish.excluded.show');
     const hideExcludedLabel = useI18n('dialog.publish.excluded.hide');
     const toggleExcludedLabel = showExcluded ? hideExcludedLabel : showExcludedLabel;
-
-    useEffect(() => {
-        if (!hasExcludedItems) {
-            setShowExcluded(true);
-        }
-    }, [hasExcludedItems]);
 
     useEffect(() => {
         if (scheduleMode && !wasScheduleMode.current && scheduleKeyboardActivation.current) {
@@ -107,7 +107,7 @@ export const PublishDialogMainContent = ({
     };
 
     const title = useI18n('dialog.publish');
-    const separatorLabel = useI18n('dialog.publish.dependants');
+    const separatorLabel = useI18n('dialog.dependencies');
     const allExcludedMessage = useI18n('dialog.dependencies.allExcluded');
     const scheduleLabel = useI18n('action.schedule');
     const confirmScheduleLabel = useI18n('action.schedule.confirm');
@@ -217,37 +217,49 @@ export const PublishDialogMainContent = ({
                         {hasExcludedItems && isSelectionSynced && (
                             <SplitList.SeparatorButton
                                 label={toggleExcludedLabel}
-                                onClick={() => setShowExcluded(prev => !prev)}
+                                onClick={togglePublishDialogShowExcluded}
                                 disabled={loading}
                             />
                         )}
                     </SplitList.Separator>
 
-                    <SplitList.Secondary
-                        items={visibleDependantItems}
-                        getItemId={(item) => item.id}
-                        emptyMessage={hasExcludedItems ? allExcludedMessage : undefined}
-                        disabled={loading}
-                        loading={loading}
-                        hasMore={hasMoreDependants}
-                        onEndReached={loadMoreDependants}
-                        renderRow={(item) => (
-                            <ContentRow
-                                key={item.id}
-                                content={item.content}
-                                id={item.id}
-                                disabled={loading}
-                            >
-                                <ContentRow.Checkbox
-                                    checked={item.included}
-                                    onCheckedChange={(checked) => setPublishDialogDependantItemSelected(item.content.getContentId(), checked)}
-                                    disabled={item.required || loading}
+                    {(hasVisibleDependantItems || hasExcludedItems) && (
+                        <div>
+                            {dependantsSelection.count > 0 && (
+                                <DependantsSelectAll
+                                    selection={dependantsSelection}
+                                    onToggle={togglePublishDialogDependantsSelection}
+                                    disabled={loading}
                                 />
-                                <ContentRow.Label action="edit" />
-                                <PublishDialogItemStatus />
-                            </ContentRow>
-                        )}
-                    />
+                            )}
+
+                            <SplitList.Secondary
+                                items={visibleDependantItems}
+                                getItemId={(item) => item.id}
+                                emptyMessage={hasExcludedItems ? allExcludedMessage : undefined}
+                                disabled={loading}
+                                loading={loading}
+                                hasMore={hasMoreDependants}
+                                onEndReached={loadMoreDependants}
+                                renderRow={(item) => (
+                                    <ContentRow
+                                        key={item.id}
+                                        content={item.content}
+                                        id={item.id}
+                                        disabled={loading}
+                                    >
+                                        <ContentRow.Checkbox
+                                            checked={item.included}
+                                            onCheckedChange={(checked) => setPublishDialogDependantItemSelected(item.content.getContentId(), checked)}
+                                            disabled={item.required || loading}
+                                        />
+                                        <ContentRow.Label action="edit" />
+                                        <PublishDialogItemStatus />
+                                    </ContentRow>
+                                )}
+                            />
+                        </div>
+                    )}
                 </SplitList>
 
                 {showComment && (
