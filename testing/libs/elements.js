@@ -191,6 +191,7 @@ const DROPDOWN = {
     listboxOptionByText: (text) => `//div[contains(@role,'option')  and descendant::span[text()='${text}']]`,
     optionByDisplayName: (displayName) => `//div[@data-component='Listbox.Item' and descendant::span[contains(.,'${displayName}')]]`,
     listboxItemByDisplayName: (displayName) => `//div[@data-component='Listbox.Item' and descendant::div[@data-component='ItemLabel']//span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]`,
+    LISTBOX_ITEM_CHECKBOX_LABEL: "//div[@data-component='Listbox.Item']//div[@data-component='Checkbox']//label",
     listItemOptionByDisplayName: (displayName) => `//div[@role='listitem'  and descendant::div[@data-component='ContentLabel' and descendant::span[contains(.,'${displayName}')]]]`,
     treeItemByDisplayName: (displayName) => `//div[@role='treeitem']//div[@data-component='ContentLabel' and descendant::span[contains(.,'${displayName}')]]`,
     treeItemExpanderByDisplayName: (displayName) => `//div[@role='treeitem' and descendant::span[contains(.,'${displayName}')]]//button[@aria-label='Expand']`,
