@@ -51,7 +51,7 @@ export const ContentForm = (): ReactElement | null => {
     }
 
     return (
-        <EditLockOverlay locked={readOnly} contentClassName="flex flex-col gap-7.5 pb-10" data-component={CONTENT_FORM_NAME}>
+        <EditLockOverlay locked={readOnly} contentClassName="flex flex-col gap-7.5 pb-10">
             <DisplayNameInput />
             <ValidationVisibilityProvider visibility={visibility}>
                 <RawValueProvider map={rawValueMap}>

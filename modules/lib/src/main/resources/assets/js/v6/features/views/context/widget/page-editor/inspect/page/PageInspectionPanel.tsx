@@ -4,6 +4,7 @@ import {useStore} from '@nanostores/preact';
 import {type ReactElement, useCallback, useMemo, useState} from 'react';
 import {useI18n} from '../../../../../../hooks/useI18n';
 import {ConfirmationDialog} from '../../../../../../shared/dialogs/ConfirmationDialog';
+import {EditLockOverlay} from '../../../../../../shared/EditLockOverlay';
 import {FormRenderer} from '../../../../../../shared/form/FormRenderer';
 import {getAiFieldRegistry} from '../../../../../../store/ai/ai.field-registry';
 import {
@@ -15,16 +16,15 @@ import {
 } from '../../../../../../store/page-editor';
 import {$isCustomizeVisible, $isPageInspectionEmpty, $pageConfigDescriptor} from '../../../../../../store/page-inspection.store';
 import {$wizardReadOnly} from '../../../../../../store/wizardContent.store';
-import {EditLockOverlay} from '../../../../../../shared/EditLockOverlay';
 import {useInspectFormTracking} from '../useInspectFormTracking';
-import {PageControllerSelector} from "./PageControllerSelector";
+import {PageControllerSelector} from './PageControllerSelector';
 
 type ConfirmDialogState = {
     question: string;
     onConfirm: () => void;
 };
 
-const PAGE_INSPECTION_PANEL_NAME = "PageInspectionPanel";
+const PAGE_INSPECTION_PANEL_NAME = 'PageInspectionPanel';
 
 export const PageInspectionPanel = (): ReactElement => {
     const page = usePageState();
@@ -35,8 +35,8 @@ export const PageInspectionPanel = (): ReactElement => {
     const isEmpty = useStore($isPageInspectionEmpty);
     const readOnly = useStore($wizardReadOnly);
 
-    const customizeLabel = useI18n("action.page.customize");
-    const customizeQuestion = useI18n("dialog.page.customize.confirmation");
+    const customizeLabel = useI18n('action.page.customize');
+    const customizeQuestion = useI18n('dialog.page.customize.confirmation');
     const noTemplatesLabel = useI18n('text.notemplatesorblocks');
 
     const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null);

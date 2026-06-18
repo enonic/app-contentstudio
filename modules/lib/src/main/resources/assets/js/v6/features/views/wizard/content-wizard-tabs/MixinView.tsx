@@ -1,8 +1,8 @@
+import {FieldRegistryProvider, RawValueProvider, ValidationVisibilityProvider} from '@enonic/lib-admin-ui/form2';
 import {Button} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {OctagonAlert} from 'lucide-react';
 import {type ReactElement, useCallback, useEffect, useMemo} from 'react';
-import {FieldRegistryProvider, RawValueProvider, ValidationVisibilityProvider} from '@enonic/lib-admin-ui/form2';
 import {useI18n} from '../../../hooks/useI18n';
 import {getAiFieldRegistry} from '../../../store/ai/ai.field-registry';
 import {
@@ -19,6 +19,8 @@ import {FormRenderer} from '../../../shared/form';
 type MixinViewProps = {
     mixinName: string;
 };
+
+const MIXIN_VIEW_NAME = 'MixinView';
 
 export const MixinView = ({mixinName}: MixinViewProps): ReactElement | null => {
     const descriptors = useStore($mixinsDescriptors);
@@ -97,4 +99,4 @@ export const MixinView = ({mixinName}: MixinViewProps): ReactElement | null => {
     );
 };
 
-MixinView.displayName = 'MixinView';
+MixinView.displayName = MIXIN_VIEW_NAME;
