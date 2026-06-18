@@ -4,6 +4,7 @@
 const {COMMON, BUTTONS} = require('../../libs/elements');
 const BaseSelectorForm = require('./base.selector.form');
 const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
+const {Key} = require('webdriverio');
 
 const XPATH = {
     container: "//div[@data-component='FormRenderer']",
@@ -43,7 +44,44 @@ class ContentSelectorForm extends BaseSelectorForm {
     }
 
     selectedOptionByDisplayName(displayName) {
-        return `//div[contains(@id,'ContentSelectedOptionView') and descendant::h6[contains(@class,'main-name') and text()='${displayName}']]`;
+        return XPATH.selectorSelectionDiv +
+               `/div[@role='button' and @aria-roledescription='sortable' and descendant::span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]`;
+    }
+
+    async swapOptions(sourceName, destinationName) {
+        try {
+            const sortableLocator = XPATH.container + XPATH.selectorSelectionDiv +
+                                    "/div[@role='button' and @aria-roledescription='sortable']";
+            const items = await this.findElements(sortableLocator);
+            let sourceIndex = -1;
+            let destinationIndex = -1;
+            for (let i = 0; i < items.length; i++) {
+                const text = await items[i].getText();
+                if (sourceIndex === -1 && text.includes(sourceName)) sourceIndex = i;
+                if (destinationIndex === -1 && text.includes(destinationName)) destinationIndex = i;
+            }
+            if (sourceIndex === -1 || destinationIndex === -1) {
+                throw new Error(
+                    `Sortable item not found: source='${sourceName}'(${sourceIndex}), destination='${destinationName}'(${destinationIndex})`);
+            }
+            if (sourceIndex === destinationIndex) return;
+            const source = await this.findElement(XPATH.container + this.selectedOptionByDisplayName(sourceName));
+            await source.click();
+            await this.pause(300);
+            await this.keys(Key.Space);
+            await this.pause(500);
+            const steps = Math.abs(destinationIndex - sourceIndex);
+            const moveKey = destinationIndex > sourceIndex ? Key.ArrowDown : Key.ArrowUp;
+            for (let i = 0; i < steps; i++) {
+                await this.keys(moveKey);
+                await this.pause(400);
+            }
+            await this.keys(Key.Space);
+            return await this.pause(1000);
+        } catch (err) {
+            await this.handleError(
+                `Content selector form, tried to swap options: '${sourceName}' <-> '${destinationName}'`, 'err_swap_options', err);
+        }
     }
 
     async getSelectedOptions() {
@@ -51,14 +89,10 @@ class ContentSelectorForm extends BaseSelectorForm {
         return await contentSelectorDropdown.getSelectedOptionsDisplayName();
     }
 
-    getNameOfSelectedOptions() {
-        let selector = "//div[contains(@id,'ContentSelectedOptionView')]" + lib.P_SUB_NAME;
-        return this.getTextInElements(selector);
-    }
-
     async waitForAddNewContentButtonDisplayed() {
         try {
-            await this.waitForElementDisplayed(this.addNewContentButton);
+            let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
+            await contentSelectorDropdown.waitForAddNewContentButtonDisplayed();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_add_new_btn');
             throw new Error(`'Add new' button is not displayed, screenshot:${screenshot} ` + err);
@@ -67,7 +101,8 @@ class ContentSelectorForm extends BaseSelectorForm {
 
     async waitForAddNewContentButtonNotDisplayed() {
         try {
-            await this.waitForElementNotDisplayed(this.addNewContentButton);
+            let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
+            await contentSelectorDropdown.waitForAddNewContentButtonNotDisplayed();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_add_new_btn');
             throw new Error(`'Add new' button should not be displayed, screenshot:${screenshot} ` + err);
@@ -97,12 +132,12 @@ class ContentSelectorForm extends BaseSelectorForm {
     async doFilterOptionInTreeModeAndApply(optionDisplayName) {
         try {
             let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
-            await contentSelectorDropdown.filterItem(optionDisplayName);
+            await contentSelectorDropdown.doFilterItem(optionDisplayName);
             await contentSelectorDropdown.pause(1000);
             let mode = await this.getOptionsMode();
             // TODO check the mode
             // 2. Wait for the required option is displayed then click on it:
-            await contentSelectorDropdown.clickOnOptionByDisplayName(optionDisplayName);
+            await contentSelectorDropdown.clickOnTreeItemOptionByDisplayName(optionDisplayName);
             // 3. Click on 'Apply' button:
             return await contentSelectorDropdown.clickOnApplySelectionButton();
         } catch (err) {
@@ -113,7 +148,7 @@ class ContentSelectorForm extends BaseSelectorForm {
 
     async clickOnApplySelectionButton() {
         try {
-            let contentSelector = new ContentSelectorDropdown();
+            let contentSelector = new ContentSelectorDropdown(XPATH.container);
             await contentSelector.clickOnApplySelectionButton();
         } catch (err) {
             await this.handleError(`Content selector, tried to click on Apply button`, 'err_apply_btn', err);

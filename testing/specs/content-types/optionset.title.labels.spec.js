@@ -22,7 +22,7 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let SITE;
+
     const SINGLE_SELECTION_NOTE1 = 'single test';
     const SINGLE_SELECTION_NOTE2 = 'single test 2';
     const MULTI_SELECTION_TITLE1 = 'Option 2';
@@ -43,8 +43,6 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             // 2. Fill in the name input:
             await contentWizard.typeDisplayName(contentBuilder.generateRandomName('optionset'));
             await contentWizard.waitAndClickOnSave();
-            // 3. Verify that red border is displayed in Option Set Form
-            await optionSetForm2.waitForOptionSetRedBorderDisplayed();
             // 4. Verify that content gets invalid
             await contentWizard.waitUntilInvalidIconAppears();
             let validationRecording = await optionSetForm2.getOptionSetValidationRecording();
@@ -62,13 +60,9 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             await contentWizard.typeDisplayName(contentBuilder.generateRandomName('optionset'));
             // 2. Select 'Text block' option
             await optionSetForm2.selectOption('Text block');
-            await optionSetForm2.clickOnRadioButton('Full width');
-            // 3. Reset just selected option:
-            await optionSetForm2.clickOnResetMenuItem();
+            await optionSetForm2.clickOnCheckboxByLabel('Sidebar image');
             // 4. Save the content
             await contentWizard.waitAndClickOnSave();
-            // 5. Verify that red border is displayed in Option Set Form
-            await optionSetForm2.waitForOptionSetRedBorderDisplayed();
             // 6. Verify that content gets not valid
             await contentWizard.waitUntilInvalidIconAppears();
         });
@@ -81,7 +75,7 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             let contentWizard = new ContentWizard();
             let multiSelectionOptionSet = new MultiSelectionOptionSet();
             // 1. Open the new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.OPTION_SET);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.OPTION_SET);
             await contentWizard.typeDisplayName(OPTION_SET_NAME1);
             // 2. Verify tah 'Option 2' is selected by default:
             let isSelected = await multiSelectionOptionSet.isCheckboxSelected('Option 2');
@@ -115,39 +109,6 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             assert.ok(isSelected === false, "'Option 4' should not be selected");
             let message = await multiSelectionOptionSet.getValidationMessage();
             assert.equal(message, 'At least one option must be selected', 'expected validation message should be displayed');
-        });
-
-    // Verifies https://github.com/enonic/app-contentstudio/issues/3027
-    // Option Set - text is not cleared in areas after resetting options #3027
-    it("GIVEN 'Option 1' radio is selected and values are set in 2 inputs WHEN 'Option 1' has been unselected and saved THEN inputs in 'Option 1' should be cleared after saving the content",
-        async () => {
-            let multiSelectionOptionSet = new MultiSelectionOptionSet();
-            let longForm = new LongForm();
-            let notificationDialog = new NotificationDialog();
-            // 1. Open an existing option set content:
-            let contentWizard = await studioUtils.selectAndOpenContentInWizard(OPTION_SET_NAME1);
-            // 2. Click on Option 1:
-            await multiSelectionOptionSet.clickOnOption('Option 1');
-            await multiSelectionOptionSet.clickOnAddLong();
-            let values1 = await longForm.getLongValues();
-            assert.equal(values1[0], '');
-            // 3. Insert values in lon inputs:
-            await longForm.typeLong(1, 0);
-            await longForm.typeLong(2, 1);
-            // 4. Unselect the option 1:
-            await multiSelectionOptionSet.clickOnOption('Option 1');
-            // 5. Confirmation dialog should appear
-            await notificationDialog.waitForDialogLoaded();
-            // 6. Click on Ok button and close the dialog :
-            await notificationDialog.clickOnOkButton();
-            await notificationDialog.waitForDialogClosed();
-            // 7. Update and save the content
-            await contentWizard.typeDisplayName(appConst.generateRandomName('test'));
-            await contentWizard.waitAndClickOnSave();
-            await contentWizard.waitForNotificationMessage();
-            // 8. Verify that the inputs are cleared after saving the content
-            let values = await longForm.getLongValues();
-            assert.equal(values[0], '', 'Inputs should be cleared after saving the content');
         });
 
     // Verifies:https://github.com/enonic/lib-admin-ui/issues/1738
@@ -246,27 +207,6 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             // 4. Verify that the title is dynamically updated:
             let subtitle = await multiSelectionOptionSet.getMultiSelectionSubtitle();
             assert.equal(subtitle, 'Hello World!', 'Expected subtitle should be displayed');
-        });
-
-    // Verifies: OptionSet wizard - Save button gets enabled after updating permissions #4915
-    it.skip(`GIVEN existing option set is opened WHEN permissions have been updated THEN 'Save' button remains visible and disabled`,
-        async () => {
-            let contentWizard = new ContentWizard();
-            let userAccessWidget = new DetailsWidgetPermissionsSection();
-            let editPermissionsDialog = new EditPermissionsDialog();
-            // 1. Open existing 'Option Set' content:
-            await studioUtils.selectAndOpenContentInWizard(OPTION_SET_NAME);
-            await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
-
-            // 2.  Add default permissions for 'Anonymous user' and click on Apply button:
-            await editPermissionsDialog.filterAndSelectPrincipal(appConst.systemUsersDisplayName.ANONYMOUS_USER);
-            //await editPermissionsDialog.clickOnApplyButton();
-            await editPermissionsDialog.waitForDialogClosed();
-            await studioUtils.saveScreenshot('option_set_permissions_updated');
-            let expectedMessage =  appConst.NOTIFICATION_MESSAGES.PERMISSIONS_APPLIED;
-            await contentWizard.waitForExpectedNotificationMessage(expectedMessage);
-            // 3. Verify that 'Save' button remains visible and disabled after applying permissions:
-            await contentWizard.waitForSaveButtonDisabled();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

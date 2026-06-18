@@ -22,6 +22,13 @@ exports.config = {
         path.join(__dirname, '../specs/content-types/htmlarea.insert.image.dialog.spec.js'),
         path.join(__dirname, '../specs/content-types/pdf.content.spec.js'),
         path.join(__dirname, '../specs/content-types/custom.selector.spec.js'),
+        path.join(__dirname, '../specs/content-types/content.selector.options.order.spec.js'),
+        path.join(__dirname, '../specs/content-types/freeform.nested.set.spec.js'),
+        path.join(__dirname, '../specs/content-types/shortcut.page.editor.spec.js'),
+        path.join(__dirname, '../specs/content-types/shortcut.parameters.spec.js'),
+        path.join(__dirname, '../specs/content-types/multi.selection.option.set.js'),
+        path.join(__dirname, '../specs/content-types/htmlarea.updated.on.server.event.spec.js'),
+        path.join(__dirname, '../specs/content-types/attachments.wizard.spec.js'),
     ],
 
     maxInstances: 1,
