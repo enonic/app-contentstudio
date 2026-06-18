@@ -69,10 +69,26 @@ public class ContentSelectorQueryJsonToContentQueryConverter
 
         if ( applicationKey != null )
         {
-            return this.filterContentTypeNames( applicationKey );
+            final ContentTypeNames filtered = this.filterContentTypeNames( applicationKey );
+
+            // A non-empty config that resolves to no existing type must still constrain the
+            // query (match nothing), not drop the constraint and return everything. Keep the
+            // configured names (qualified with the app key) so the query yields no matches.
+            return filtered.isEmpty() ? this.resolveConfiguredContentTypeNames( applicationKey ) : filtered;
         }
 
         return contentTypeNames.stream().map( ContentTypeName::from ).collect( ContentTypeNames.collector() );
+    }
+
+    private ContentTypeNames resolveConfiguredContentTypeNames( final ApplicationKey applicationKey )
+    {
+        // Wildcards cannot denote a concrete content type, so they are dropped. 
+        // Bare names are qualified with the application key.
+        return this.contentQueryJson.getContentTypeNames()
+            .stream()
+            .filter( name -> !name.contains( "*" ) )
+            .map( name -> name.contains( ":" ) ? ContentTypeName.from( name ) : ContentTypeName.from( applicationKey, name ) )
+            .collect( ContentTypeNames.collector() );
     }
 
     private ApplicationKey getApplicationKey()
