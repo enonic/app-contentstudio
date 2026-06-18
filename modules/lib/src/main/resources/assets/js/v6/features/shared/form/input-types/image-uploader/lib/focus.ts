@@ -1,6 +1,8 @@
 import {applyTransform, FORWARD_MATRICES, INVERSE_MATRICES} from './matrices';
 import {type Dimensions, type Point} from './types';
 
+export const FOCUS_STROKE_WIDTH = 2;
+
 export function adjustFocusToBaseOrientation(point: Point, fromOrientation: number, dimensions: Dimensions): Point | null {
     if (!point) return null;
     if (fromOrientation === 1) return point;

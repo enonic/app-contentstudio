@@ -1,6 +1,8 @@
 import {applyTransform, FORWARD_MATRICES, INVERSE_MATRICES} from './matrices';
 import {type HandleId, type Crop, type DragState, type Dimensions, type Point} from './types';
 
+export const CROP_STROKE_WIDTH = 2;
+
 // Cursor styles for the 8 handle positions on the crop rectangle.
 export const HANDLE_CURSOR: Record<HandleId, string> = {
     tl: 'nw-resize',
