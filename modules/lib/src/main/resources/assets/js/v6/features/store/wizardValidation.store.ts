@@ -1,4 +1,4 @@
-import {ComponentConfigValidationError, DataValidationError, MixinConfigValidationError, SiteConfigValidationError, type ValidationError} from '@enonic/lib-admin-ui/ValidationError';
+import {AttachmentValidationError, ComponentConfigValidationError, DataValidationError, MixinConfigValidationError, SiteConfigValidationError, type ValidationError} from '@enonic/lib-admin-ui/ValidationError';
 import {matchesFieldPath, matchesOccurrencePath, type RawValueMap, type ServerErrorEntry, type ValidationVisibility, validateForm} from '@enonic/lib-admin-ui/form2';
 import {atom, computed} from 'nanostores';
 import type {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
@@ -33,14 +33,20 @@ export const $invalidTabs = atom<ReadonlySet<string>>(new Set());
 
 export const $invalidComponentPaths = atom<ReadonlySet<string>>(new Set());
 
-const $contentServerErrors = atom<DataValidationError[]>([]);
+const $dataServerErrors = atom<DataValidationError[]>([]);
 
-// Server content errors flattened for the form fields to display by data path.
-export const $serverErrorEntries = computed($contentServerErrors, (errors): ServerErrorEntry[] =>
+// Server data errors flattened for the form fields to display by data path.
+export const $dataServerErrorEntries = computed($dataServerErrors, (errors): ServerErrorEntry[] =>
     errors.map((e) => ({path: e.getPropertyPath(), message: e.getMessage()})),
 );
 
 const $componentConfigErrors = atom<ComponentConfigValidationError[]>([]);
+
+const $attachmentServerErrors = atom<AttachmentValidationError[]>([]);
+
+export const $attachmentServerErrorEntries = computed($attachmentServerErrors, (errors): {attachment: string; message: string}[] =>
+    errors.map((e) => ({attachment: e.getAttachment(), message: e.getMessage()})),
+);
 
 const contentRawValueMap: RawValueMap = new Map();
 
@@ -58,7 +64,7 @@ function runValidation(): void {
     const draftMixins = $wizardDraftMixins.get();
     const descriptors = $mixinsDescriptors.get();
     const enabledNames = $enabledMixinsNames.get();
-    const contentServerErrors = $contentServerErrors.get();
+    const dataServerErrors = $dataServerErrors.get();
 
     if (!contentType || !draftData) {
         setWizardFormValidation(true);
@@ -69,13 +75,14 @@ function runValidation(): void {
 
     const contentResult = validateForm(contentType.getForm(), draftData.getRoot(), {
         rawValues: contentRawValueMap,
-        serverErrors: contentServerErrors,
+        serverErrors: dataServerErrors,
     });
 
     const nextInvalidTabs = new Set<string>();
     const hasInvalidDisplayName = $wizardDraftDisplayName.get().trim().length === 0;
+    const hasAttachmentErrors = $attachmentServerErrors.get().length > 0;
 
-    if (!contentResult.isValid || hasInvalidDisplayName) {
+    if (!contentResult.isValid || hasInvalidDisplayName || hasAttachmentErrors) {
         nextInvalidTabs.add('content');
     }
 
@@ -113,7 +120,7 @@ function runValidation(): void {
 
     $invalidComponentPaths.set(allInvalidPaths);
     $invalidTabs.set(nextInvalidTabs);
-    setWizardFormValidation(contentResult.isValid && allMixinsValid && allInvalidPaths.size === 0);
+    setWizardFormValidation(contentResult.isValid && allMixinsValid && allInvalidPaths.size === 0 && !hasAttachmentErrors);
 
 }
 
@@ -318,12 +325,10 @@ function isSystemError(error: ValidationError): boolean {
 }
 
 export function setServerValidationErrors(errors: ValidationError[]): void {
-    // ! Only DataValidationError has a propertyPath that validateForm can match
-    // ! against content form fields. Base ValidationError and AttachmentValidationError
-    // ! return null from getPropertyPath(), which would crash matchServerErrors.
-    // ! System (built-in) errors are dropped — client-side validation covers them with
-    // ! clearer messages; keeping them would also make them sticky until the next save.
-    const contentErrors = errors.filter(
+    // ! Data errors route by propertyPath; attachment errors (null path) route by file
+    // ! name. Data system errors are dropped (client-side validation covers them better),
+    // ! but attachment ones are kept — v6 has no client-side check to re-surface them.
+    const dataErrors = errors.filter(
         (e): e is DataValidationError => e instanceof DataValidationError
             && !(e instanceof ComponentConfigValidationError)
             && !(e instanceof SiteConfigValidationError)
@@ -334,18 +339,24 @@ export function setServerValidationErrors(errors: ValidationError[]): void {
     const componentErrors = errors.filter(
         (e): e is ComponentConfigValidationError => e instanceof ComponentConfigValidationError,
     );
-    $contentServerErrors.set(contentErrors);
+
+    const attachmentErrors = errors.filter(
+        (e): e is AttachmentValidationError => e instanceof AttachmentValidationError,
+    );
+
+    $dataServerErrors.set(dataErrors);
     $componentConfigErrors.set(componentErrors);
+    $attachmentServerErrors.set(attachmentErrors);
     runValidation();
 }
 
 // Drop the server errors on an edited occurrence's data path (and its descendants).
 export function clearServerErrorsAtPath(occurrencePath: string): void {
-    const current = $contentServerErrors.get();
+    const current = $dataServerErrors.get();
     const next = current.filter((e) => !matchesOccurrencePath(e.getPropertyPath(), occurrencePath));
     if (next.length === current.length) return;
 
-    $contentServerErrors.set(next);
+    $dataServerErrors.set(next);
     runValidation();
 }
 
@@ -353,11 +364,20 @@ export function clearServerErrorsAtPath(occurrencePath: string): void {
 // occurrence changes (add/remove/move), where positional alignment is lost;
 // fresh errors arrive on the next save.
 export function clearServerErrorsForField(fieldPath: string): void {
-    const current = $contentServerErrors.get();
+    const current = $dataServerErrors.get();
     const next = current.filter((e) => !matchesFieldPath(e.getPropertyPath(), fieldPath));
     if (next.length === current.length) return;
 
-    $contentServerErrors.set(next);
+    $dataServerErrors.set(next);
+    runValidation();
+}
+
+export function clearAttachmentServerError(attachment: string): void {
+    const current = $attachmentServerErrors.get();
+    const next = current.filter((e) => e.getAttachment() !== attachment);
+    if (next.length === current.length) return;
+
+    $attachmentServerErrors.set(next);
     runValidation();
 }
 
@@ -394,8 +414,9 @@ export function resetValidation(): void {
     $validationVisibility.set('none');
     $invalidTabs.set(new Set());
     $invalidComponentPaths.set(new Set());
-    $contentServerErrors.set([]);
+    $dataServerErrors.set([]);
     $componentConfigErrors.set([]);
+    $attachmentServerErrors.set([]);
     contentRawValueMap.clear();
     mixinRawValueMaps.clear();
 }

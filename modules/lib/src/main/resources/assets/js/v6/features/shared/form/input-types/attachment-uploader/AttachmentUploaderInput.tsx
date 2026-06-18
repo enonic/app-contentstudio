@@ -2,6 +2,7 @@ import {type ChangeEvent, type DragEvent as ReactDragEvent, type ReactElement, u
 import {type SelfManagedComponentProps} from '@enonic/lib-admin-ui/form2';
 import {type AttachmentUploaderConfig} from './AttachmentUploaderConfig';
 import {useAttachmentUploader} from './useAttachmentUploader';
+import {useAttachmentServerErrors} from './useAttachmentServerErrors';
 import {useI18n} from '../../../../hooks/useI18n';
 import {AttachmentUploaderButton} from './AttachmentUploaderButton';
 import {AttachmentUploaderList} from './AttachmentUploaderList';
@@ -22,6 +23,7 @@ export const AttachmentUploaderInput = ({
     const noAttachmentLabel = useI18n('field.content.noattachment');
     const uploadLabel = useI18n('action.upload');
     const attachmentNames: string[] = useMemo(() => values.filter((v) => v.isNotNull()).map((v) => v.getString()), [values]);
+    const serverErrors = useAttachmentServerErrors(attachmentNames);
     const [isDragging, setIsDragging] = useState(false);
     const {progress, canUpload, isUploading, isMultiple, contentId, handleFiles, handleRemove} = useAttachmentUploader({
         values,
@@ -97,6 +99,7 @@ export const AttachmentUploaderInput = ({
                     contentId={contentId}
                     onRemove={handleRemove}
                     disabled={!enabled}
+                    errors={serverErrors}
                 />
                 {attachmentNames.length === 0 && !isUploading && <p className="text-subtle text-center py-2">{noAttachmentLabel}</p>}
             </div>

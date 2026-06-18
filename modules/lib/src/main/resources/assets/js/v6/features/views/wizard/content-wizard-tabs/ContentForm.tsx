@@ -5,7 +5,7 @@ import {FormRenderer} from '../../../shared/form';
 import {useBreakpoints} from '../../../hooks/useBreakpoints';
 import {getAiFieldRegistry} from '../../../store/ai/ai.field-registry';
 import {$contentType, $wizardDraftData, $wizardReadOnly, notifyContentFormMounted} from '../../../store/wizardContent.store';
-import {$serverErrorEntries, $validationVisibility, clearServerErrorsAtPath, clearServerErrorsForField, getContentRawValueMap} from '../../../store/wizardValidation.store';
+import {$dataServerErrorEntries, $validationVisibility, clearServerErrorsAtPath, clearServerErrorsForField, getContentRawValueMap} from '../../../store/wizardValidation.store';
 import {DisplayNameInput} from './DisplayNameInput';
 import {ImageUploaderDescriptor} from '../../../shared/form/input-types/image-uploader';
 
@@ -15,7 +15,7 @@ export const ContentForm = (): ReactElement | null => {
     const contentType = useStore($contentType);
     const draftData = useStore($wizardDraftData);
     const visibility = useStore($validationVisibility);
-    const serverErrorEntries = useStore($serverErrorEntries);
+    const dataServerErrorEntries = useStore($dataServerErrorEntries);
     const readOnly = useStore($wizardReadOnly);
     const {lg} = useBreakpoints();
 
@@ -56,7 +56,7 @@ export const ContentForm = (): ReactElement | null => {
                 <RawValueProvider map={rawValueMap}>
                     <FieldRegistryProvider registry={fieldRegistry}>
                         <ServerErrorsProvider
-                            entries={serverErrorEntries}
+                            entries={dataServerErrorEntries}
                             clear={clearServerErrorsAtPath}
                             clearField={clearServerErrorsForField}
                         >
