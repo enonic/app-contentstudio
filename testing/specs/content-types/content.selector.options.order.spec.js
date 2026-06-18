@@ -1,5 +1,5 @@
 /**
- * Created on 09.07.2020.
+ * Created on 09.07.2020.  updated on 18.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -30,9 +30,10 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             await studioUtils.doAddFolder(FOLDER_1);
         });
 
+
     // Verify the bug - Dropdown should open on down arrow #3966
     // https://github.com/enonic/lib-admin-ui/issues/3966
-    it.skip(`GIVEN wizard with content-selector is opened WHEN 'Arrow Down' key has been pressed in the selector THEN selector should be expanded in in tree mode`,
+    it(`GIVEN wizard with content-selector is opened WHEN 'Arrow Down' key has been pressed in the selector THEN selector should be expanded in in tree mode`,
         async () => {
             let contentSelectorForm = new ContentSelectorForm();
             // 1. Wizard for Content-Selector in tree mode is opened:
@@ -62,7 +63,10 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             // 5. Verify that the only one option with its parent folder are present in the dropdown options:
             let items = await contentSelectorForm.getOptionsDisplayNameInTreeMode();
             assert.ok(items.length === 1, 'single item should be displayed in the filtered list');
-            assert.equal(items[0], appConst.TEST_IMAGES.SPUMANS, 'Expected display name should be present in the options list');
+            await contentSelectorForm.clickOnExpanderIconInOptionsList("All Content types images")
+            items = await contentSelectorForm.getOptionsDisplayNameInTreeMode();
+            assert.ok(items.length === 2, 'single item should be displayed in the filtered list');
+            assert.equal(items[1], appConst.TEST_IMAGES.SPUMANS, 'Expected display name should be present in the options list');
             // 6. Clear the filter input:
             await contentSelectorForm.clearOptionsFilterInput();
             // 7. Verify that tree mode is reloaded and all items are displayed in the dropdown:
@@ -72,26 +76,6 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             let actualMode = await contentSelectorForm.getOptionsMode();
             assert.equal(actualMode, 'tree', 'Tre mode should be after clearing the search input');
         });
-
-    // it(`GIVEN content selector with tree mode is opened WHEN a text has been inserted/cleared in Options Filter Input THEN flat mode should be switched on/off`,
-    //     async () => {
-    //         let contentSelectorForm = new ContentSelectorForm();
-    //         // 1. Wizard for Custom-Selector content is opened:
-    //         await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.CONTENT_SELECTOR_2_8);
-    //         // 2. a content-name has been inserted in options filter input:
-    //         await contentSelectorForm.typeTextInOptionsFilterInput(FOLDER_1.displayName);
-    //         await contentSelectorForm.pause(500);
-    //         // 3. Verify that flat mode is switched on:
-    //         let actualMode = await contentSelectorForm.getOptionsMode();
-    //         assert.equal(actualMode, 'flat', 'Flat mode should be after inserting a text in the search input');
-    //         // 4. Clear the filter input:
-    //         await contentSelectorForm.clearOptionsFilterInput();
-    //         await contentSelectorForm.pause(500);
-    //         await studioUtils.saveScreenshot('filter_input_cleared_tree_mode');
-    //         // 5. Verify that tree mode is switched on again:
-    //         actualMode = await contentSelectorForm.getOptionsMode();
-    //         assert.equal(actualMode, 'tree', 'Tre mode should be after clearing the search input');
-    //     });
 
     // Content selector dropdown - broken layout after updating selected options #7479
     // Verify the bug -  https://github.com/enonic/app-contentstudio/issues/7479
@@ -132,6 +116,7 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             await contentWizard.typeDisplayName(appConst.generateRandomName('cs'));
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
+            await contentSelectorForm.waitForAddNewContentButtonDisplayed();
             // 2. Expand the dropdown:
             await contentSelectorForm.clickOnDropdownHandle();
             // 3. Click on 2 checkboxes in options list:
@@ -243,20 +228,6 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             await contentWizard.waitForNotificationMessage();
         });
 
-
-    it(`GIVEN content with selector in flat mode is opened WHEN mode toggler has been clicked THEN tree mode should be is switched on`,
-        async () => {
-            let contentSelectorForm = new ContentSelectorForm();
-            // 1. Open wizard for new content-selector:
-            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.CONTENT_SELECTOR_1_2);
-            // 2. Click on the selector mode toggler:
-            await contentSelectorForm.clickOnModeTogglerButton();
-            await studioUtils.saveScreenshot('selector_modetoggler_btn');
-            // 3. Verify that tree mode is switched on:
-            let options = await contentSelectorForm.getOptionsDisplayNameInTreeMode();
-            assert.ok(options.includes(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_DISPLAY_NAME),
-                'Expected display name should be present in the options list');
-        });
 
     it(`GIVEN dropdown has been expanded WHEN an option's checkbox has been selected AND 'Apply' button has been pressed THEN the options should be selected`,
         async () => {

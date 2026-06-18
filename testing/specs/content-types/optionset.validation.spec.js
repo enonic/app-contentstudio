@@ -15,17 +15,10 @@ describe("optionset.validation.spec: tests for validation of option set", functi
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let SITE;
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
     const DISPLAY_NAME = contentBuilder.generateRandomName('optionset');
     const OPTION_SET_UNLIM = contentBuilder.generateRandomName('optionset');
 
-    it(`Preconditions: new site should be created`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
 
     // Verifies: https://github.com/enonic/xp/issues/8765
     // Option-set with unlimited number of allowed selections is considered invalid #8765
@@ -34,7 +27,7 @@ describe("optionset.validation.spec: tests for validation of option set", functi
             let optionSetUnlimitedOptions = new MultiSelectionOptionSet();
             let contentWizard = new ContentWizard();
             //1. Open the new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.OPTION_SET_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.OPTION_SET_1);
             await contentWizard.typeDisplayName(DISPLAY_NAME);
             //2. Click  and unselect the default option :
             await optionSetUnlimitedOptions.clickOnOption("Option 2");
@@ -49,7 +42,7 @@ describe("optionset.validation.spec: tests for validation of option set", functi
             let contentWizard = new ContentWizard();
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Open the new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.OPTION_SET_UNLIM);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.OPTION_SET_UNLIM);
             await contentWizard.typeDisplayName(OPTION_SET_UNLIM);
             // 2. save only the display name:
             await contentWizard.waitAndClickOnSave();

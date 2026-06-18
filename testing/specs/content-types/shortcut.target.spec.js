@@ -33,9 +33,7 @@ describe("Shortcut's target specification", function () {
             // 2. save the shortcut:
             await shortcutForm.waitForAddNewContentButtonDisplayed();
             await shortcutForm.filterOptionsAndSelectTarget(TARGET_1);
-            //TODO bug
-            //await shortcutForm.waitForAddNewContentButtonNotDisplayed();
-
+            await shortcutForm.waitForAddNewContentButtonNotDisplayed();
         });
 
     it(`GIVEN wizard for new shortcut is opened WHEN name input has been filled in THEN the content should be invalid`,

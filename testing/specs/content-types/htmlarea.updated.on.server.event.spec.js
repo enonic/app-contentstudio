@@ -19,16 +19,9 @@ describe('htmlarea.updated.on.server.event.spec: tests for updating html area on
 
     const TEXT1 = 'test12345';
     const TEXT2 = 'test 9999';
-    let SITE;
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
     const CONTENT_NAME = contentBuilder.generateRandomName('area');
 
-
-    it(`Preconditions: new site should be created`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
 
     // HtmlArea is not updated on server event #7132
     // https://github.com/enonic/app-contentstudio/issues/7132
@@ -38,13 +31,14 @@ describe('htmlarea.updated.on.server.event.spec: tests for updating html area on
             let htmlAreaForm = new HtmlAreaForm();
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Open a new wizard for a content with htmlArea:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await contentWizard.typeDisplayName(CONTENT_NAME);
             await htmlAreaForm.insertTextInHtmlArea(0, TEXT1);
             // 2. Save the new content:
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
-            await contentWizard.clickOnNavigateToBrowsePanelButton();
+            await studioUtils.doSwitchToPrevTab();
+            //await contentWizard.clickOnNavigateToBrowsePanelButton('Default');
             // 3. Open a same content item with HtmlArea in two browser tabs:
             //  Close then reopen the tab with 'Content Studio'
             await contentBrowsePanel.clickOnShowXpMenuButton();
@@ -53,7 +47,7 @@ describe('htmlarea.updated.on.server.event.spec: tests for updating html area on
             await homePage.clickOnContentStudioLink();
             await studioUtils.doSwitchToContentBrowsePanel();
             // Open the same content in new browser tab   (index of the tab is 3):
-            await studioUtils.findAndSelectItem(CONTENT_NAME);
+            await studioUtils.findContentAndClickCheckBox(CONTENT_NAME);
             await contentBrowsePanel.clickOnEditButton();
             await studioUtils.doSwitchToNewWizard();
             await contentWizard.waitForOpened();

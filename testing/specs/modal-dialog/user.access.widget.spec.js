@@ -5,7 +5,7 @@ const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const builder = require("../../libs/content.builder");
-const DetailsWidgetPermissionsSection = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
+const DetailsWidgetPermissionsSection = require('../../page_objects/browsepanel/detailspanel/details.widget.permissions.section');
 const EditPermissionsGeneralStep = require('../../page_objects/permissions/edit.permissions.general.step');
 const appConst = require('../../libs/app_const');
 const EditPermissionsSummaryStep = require('../../page_objects/permissions/edit.permissions.summary.step');
@@ -28,7 +28,6 @@ describe('user.access.widget.spec:  test for user access widget and Edit Permiss
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE, appConst.SYSTEM_ROLES.CM_APP_EXPERT];
             USER_CAN_WRITE = builder.buildUser(userName, appConst.PASSWORD.MEDIUM, builder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER_CAN_WRITE);
-            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         });
 
     it(`Preconditions: new folder should be added`,
@@ -49,8 +48,8 @@ describe('user.access.widget.spec:  test for user access widget and Edit Permiss
             let names = await detailsWidgetPermissionsSection.getPrincipalsCompactName();
             await studioUtils.saveScreenshot('user_access_widget');
             //assert.equal(names.length, 1, "one acl entry should be displayed in the widget");
-            assert.ok(names.includes(USER_COMPACT_NAME)===false,  "WR user should not be displayed in the access widget");
-            let actualHeader = await detailsWidgetPermissionsSection.getHeader();
+            assert.ok(names.includes(USER_COMPACT_NAME) === false, "WR user should not be displayed in the access widget");
+            let actualHeader = await detailsWidgetPermissionsSection.getPermissionsAccessDescription();
             assert.equal(actualHeader, appConst.ACCESS_WIDGET_HEADER.EVERYONE_CAN_READ,
                 `'Everyone can read' this item - should be displayed`);
         });
@@ -61,7 +60,7 @@ describe('user.access.widget.spec:  test for user access widget and Edit Permiss
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             let detailsWidgetPermissionsSection = new DetailsWidgetPermissionsSection();
             // 1. Select the folder:
-            await studioUtils.findAndSelectItem('folder41858');//FOLDER.displayName);
+            await studioUtils.findAndSelectItem(FOLDER.displayName);//FOLDER.displayName);
             // 2. Open Edit Permissions dialog:
             await detailsWidgetPermissionsSection.clickOnEditPermissionsButton();
             await editPermissionsGeneralStep.waitForLoaded();

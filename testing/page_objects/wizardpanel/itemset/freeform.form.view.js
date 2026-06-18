@@ -45,8 +45,16 @@ class FreeFormView extends Page {
         return await this.pause(200);
     }
 
+    async clickOnItemSetOccurrenceHeader(index) {
+        let locator = xpath.itemSet + "//button[@aria-expanded]";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        let items = await this.findElements(locator);
+        await items[index].click();
+        return await this.pause(300);
+    }
+
     // Clicks on a radio button('Input', 'Button', 'Select') in the 'element type' option set in the occurrence with the given index:
-    async expandOptionsAndSelectElementType(optionDisplayName, occurrenceIndex) {
+    async selectElementType(optionDisplayName, occurrenceIndex) {
         let locator = xpath.elementTypeSetView + COMMON.INPUTS.dataComponentRadioByLabel(optionDisplayName);
         await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
         let radioElements = await this.getDisplayedElements(locator);

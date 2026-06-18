@@ -108,8 +108,7 @@ class BaseDropdown extends Page {
     async clickOnApplySelectionButton() {
         try {
             await this.waitForApplySelectionButtonDisplayed();
-            let elements = await this.getDisplayedElements(this.applySelectionButton);
-            await elements[0].click();
+            await this.clickOnElement(this.applySelectionButton);
             await this.pause(1000);
         } catch (err) {
             await this.handleError('Dropdown, tried to click on Apply Selection button.', 'err_click_apply_button', err);
@@ -139,7 +138,7 @@ class BaseDropdown extends Page {
             let locator = DROPDOWN.COMBOBOX_POPUP + DROPDOWN.treeItemExpanderByDisplayName(listItemName);
             await this.waitForElementDisplayed(locator);
             await this.clickOnElement(locator);
-            return await this.pause(300);
+            return await this.pause(400);
         } catch (err) {
             await this.handleError(`Dropdown, tried to click on expander icon for list item: ${listItemName}`, 'err_click_expander_icon',
                 err);
@@ -158,14 +157,16 @@ class BaseDropdown extends Page {
     // Gets all displayName values in tree mode dropdown
 // Returns array of display names from all visible tree items
     async getOptionsDisplayNameInTreeMode() {
-        const locator = DROPDOWN.COMBOBOX_POPUP + DROPDOWN.CONTENT_LABEL_OPTIONS_NAME;
+        const locator = DROPDOWN.COMBOBOX_POPUP +
+                        "//div[@data-component='VirtualizedTreeList.Row' and @aria-level>'0']//div[@data-component='ContentLabel']//span[contains(@class,'font-semibold')]";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.pause(500);
         return await this.getTextInDisplayedElements(locator);
     }
 
     async getOptionsDisplayNameInFlatMode() {
-        const locator = DROPDOWN.COMBOBOX_POPUP + DROPDOWN.CONTENT_LABEL_OPTIONS_NAME_FLAT_MODE;
+        const locator = DROPDOWN.COMBOBOX_POPUP +
+                        "//div[@data-component='VirtualizedTreeList.Row']//div[@data-component='ContentLabel']//span[contains(@class,'font-semibold')]";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.pause(200);
         return await this.getTextInDisplayedElements(locator);
@@ -201,6 +202,18 @@ class BaseDropdown extends Page {
         } catch (err) {
             await this.handleError(`Dropdown Selector, tried to click on filtered by display name option: ${optionDisplayName}`,
                 'err_click_filtered_option', err);
+        }
+    }
+
+    async clickOnOptionByDisplayNameInTreeMode(displayName) {
+        try {
+            let locator = DROPDOWN.COMBOBOX_POPUP +
+                          `//div[@data-component='VirtualizedTreeList.Row' and @aria-level>'0' and descendant::div[@data-component='ContentLabel']//span[contains(@class,'font-semibold') and text()='${displayName}']]`;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.clickOnElement(locator);
+            return await this.pause(300);
+        } catch (err) {
+            await this.handleError(`Dropdown, tried to click on tree item: ${displayName}`, 'err_click_tree_item', err);
         }
     }
 
@@ -250,7 +263,7 @@ class BaseDropdown extends Page {
     }
 
     async clickOnCheckboxInDropdown(index) {
-        let locator = DROPDOWN.COMBOBOX_POPUP+ DROPDOWN.LIST_BOX_ITEM + DROPDOWN.CHECKBOX_DATA_COMPONENT;
+        let locator = DROPDOWN.COMBOBOX_POPUP + "//div[@data-component='VirtualizedTreeList.RowSelectionControl']";
         await this.waitForElementDisplayed(locator);
         let result = await this.findElements(locator);
         await result[index].click();
@@ -288,27 +301,12 @@ class BaseDropdown extends Page {
         return await this.getTextInDisplayedElements(locator);
     }
 
-    async getCheckedOptionsDisplayNameInDropdownList(parentXpath) {
-        let locator = parentXpath + "//ul[contains(@id,'ContentListBox')]" + "//li[contains(@class,'item-view-wrapper')]";
-        let optionElements = await this.findElements(locator);
-        let checkedOptionElements = await this.doFilterCheckedOptionsElements(optionElements);
-        let pr = await checkedOptionElements.map(async (el) => {
-            let e = await el.$(".//h6[contains(@class,'main-name')]");
-            return await e.getText();
-
-        });
-        return await Promise.all(pr);
-    }
-
-    async doFilterCheckedOptionsElements(elements) {
-        let pr = await elements.map(async (el) => await this.isOptionItemChecked(el));
-        let result = await Promise.all(pr);
-        return elements.filter((el, i) => result[i]);
-    }
-
-    async isOptionItemChecked(el) {
-        let value = await el.getAttribute('class');
-        return value.includes('checked');
+    async getCheckedOptionsDisplayNameInDropdownList() {
+        let locator = DROPDOWN.COMBOBOX_POPUP +
+                      "//div[@data-component='VirtualizedTreeList.Row' and descendant::div[@data-component='VirtualizedTreeList.RowSelectionControl' and @aria-checked='true']]" +
+                      "//div[@data-component='ContentLabel']//span[contains(@class,'font-semibold')]";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getTextInDisplayedElements(locator);
     }
 }
 

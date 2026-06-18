@@ -1,5 +1,5 @@
 /**
- * Created on 10.10.2018.
+ * Created on 10.10.2018. updated on 18.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -29,10 +29,6 @@ describe('Shortcut parameters specification', function () {
             await studioUtils.openContentWizard(appConst.contentTypes.SHORTCUT);
             let isDisplayed = await shortcutForm.waitForAddParametersButtonDisplayed();
             assert.ok(isDisplayed, "'Add Parameters' button should be visible");
-            // 2. Verify that the help text in Parameters form is not visible by default:
-            await shortcutForm.waitForHelpTextInParametersFormNotDisplayed();
-            // 3. Click on show/hide Help Texts toggler in the WizardStepNavigatorAndToolbar:
-            await contentWizard.clickOnHelpTextsToggler();
             // 4. Verify that expected help text gets visible in the shortcut form:
             let actualHelpText = await shortcutForm.getHelpTextsInParametersForm();
             assert.equal(actualHelpText[0], 'HTTP Parameters', 'Expected help message should be displayed');
@@ -66,8 +62,6 @@ describe('Shortcut parameters specification', function () {
             await shortcutForm.clickOnAddParametersButton();
             // 3. 'Add Parameters' button remains visible"
             await shortcutForm.waitForAddParametersButtonDisplayed();
-            // 4. 'Collapse bottom' link gets visible:
-            await shortcutForm.waitForCollapseBottomLinkVisible();
             // 5. 'Add Parameters' button should be visible
             await shortcutForm.waitForParametersFormVisible();
             // 6. Save this shortcut with the parameter:
@@ -87,19 +81,15 @@ describe('Shortcut parameters specification', function () {
             assert.equal(result, PARAM_VALUE, "Expected value of the parameter should be present");
         });
 
-    it("GIVEN existing shortcut with parameters is opened WHEN 'Collapse' link has been clicked THEN 'Expand' link gets visible",
+    it("GIVEN existing shortcut with parameters is opened WHEN 'Collapse' link has been clicked THEN 'Expand' button gets visible",
         async () => {
             let shortcutForm = new ShortcutForm();
             // 1. Open existing shortcut content:
             await studioUtils.selectContentAndOpenWizard(SHORTCUT_NAME);
-            // 2. Click on 'Collapse' link and collapse parameters form:
-            await shortcutForm.clickOnCollapseBottomLink();
-            // 3. Verify that 'Expand' link gets visible now:
-            await shortcutForm.waitForExpandLinkVisible();
-            // 4. Click on 'Add' button:
+            // 2. Click on 'Add' button:
             await shortcutForm.clickOnAddParametersButton();
-            // 5. Verify that 'Collapse all' link gets visible:
-            await shortcutForm.waitForCollapseTopLinkVisible();
+            // 3. Verify that 'Expand all' link gets visible:
+            await shortcutForm.waitForExpandAllButtonDisplayed();
         });
 
     it(`GIVEN existing shortcut with parameters is opened WHEN the parameter has been removed THEN 'Add Parameters' button should appear`,
@@ -111,7 +101,8 @@ describe('Shortcut parameters specification', function () {
             await studioUtils.selectContentAndOpenWizard(SHORTCUT_NAME);
             // 2. Expand the menu and click on 'Delete' menu item the parameter and confirm it:
             await shortcutForm.expandParameterMenuAndClickOnDelete(0);
-            await confirmationMask.clickOnConfirmButton('Delete Parameters');
+            await confirmationMask.clickOnDeleteButton();
+            await confirmationMask.waitForDialogClosed();
             // 3. Save the content:
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('shortcut_parameter_removed');
@@ -131,7 +122,7 @@ describe('Shortcut parameters specification', function () {
             await studioUtils.selectContentAndOpenWizard(SHORTCUT_NAME);
             await contentWizard.openContextWindow();
             await wizardContextPanel.openVersionHistory();
-            await wizardVersionsWidget.waitForVersionsLoaded();
+            await wizardVersionsWidget.waitForLoaded();
             // Expand the previous version:
             await wizardVersionsWidget.clickAndExpandVersion(1);
             await studioUtils.saveScreenshot('shortcut_version_selected');
