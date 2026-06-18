@@ -48,7 +48,7 @@ function applySecurityPolicy(isBrowseMode) {
     // Operator-configured permissions (e.g. for an embedded widget that loads external resources) are
     // unioned on top of the baseline, never replacing it: the script-src nonce/'strict-dynamic' that
     // protects the admin UI stays in force, so a misconfigured value cannot silently disable it.
-    csp.merge(app.config['contentSecurityPolicy.header']);
+    csp.merge(app.config['contentSecurityPolicy.header'] || '');
 
     if (!isBrowseMode) {
         // The content wizard loads CKEditor 4, which writes inline scripts into its own editing

@@ -204,7 +204,7 @@ public class AdminSiteHandler
             // content to running scripts in its own (admin) origin and nothing else: forms cannot
             // submit, and popups, modals, top-window navigation and downloads are all blocked - none
             // of which the viewer needs, while the editor's same-origin DOM access still works.
-            policy.reportOnly().resetTo( null ).clearAdditionalPolicies();
+            policy.reportOnly().resetTo( "" ).clearAdditionalPolicies();
             policy.clearAdditionalPolicies().frameAncestors( CspSource.SELF )
                 .reset( CspDirective.SANDBOX )
                 .sandbox( SandboxFlag.ALLOW_SCRIPTS, SandboxFlag.ALLOW_SAME_ORIGIN );
@@ -235,7 +235,7 @@ public class AdminSiteHandler
             // A sandbox confines the framed content to scripts in its own (admin) origin: forms cannot
             // submit and popups, modals, top-window navigation and downloads are blocked, none of which
             // the editor needs (its same-origin DOM access keeps working via allow-same-origin).
-            policy.reportOnly().resetTo( null ).clearAdditionalPolicies();
+            policy.reportOnly().resetTo( "" ).clearAdditionalPolicies();
             policy.clearAdditionalPolicies().frameAncestors( CspSource.SELF )
                 .imgSrc( CspSource.WILDCARD, CspSource.DATA )
                 .fontSrc( CspSource.WILDCARD, CspSource.DATA )
