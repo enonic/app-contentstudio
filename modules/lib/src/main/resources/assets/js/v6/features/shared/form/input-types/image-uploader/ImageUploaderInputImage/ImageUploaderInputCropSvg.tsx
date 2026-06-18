@@ -1,7 +1,7 @@
 import {type ReactElement, useEffect, useRef, useState} from 'react';
 import {type TargetedMouseEvent, type TargetedTouchEvent} from 'preact';
 import {useImageUploaderContext} from '../ImageUploaderContext';
-import {applyMove, applyResize, getCropSvgCursor, getClientXYFromEvent, HANDLE_CURSOR, toLocalFromClient} from '../lib/crop';
+import {applyMove, applyResize, getCropSvgCursor, getClientXYFromEvent, HANDLE_CURSOR, toLocalFromClient, CROP_STROKE_WIDTH} from '../lib/crop';
 import {type Crop, type DragState, type HandleId} from '../lib/types';
 
 export const ImageUploaderInputCropSvg = (): ReactElement => {
@@ -11,10 +11,9 @@ export const ImageUploaderInputCropSvg = (): ReactElement => {
     const [liveCrop, setLiveCrop] = useState<Crop | null>(null);
     const [isOverRect, setIsOverRect] = useState(false);
 
-    const strokeWidth = Math.min(10, Math.min(dimensions.w, dimensions.h) * 0.01);
-    const handleVisualSize = Math.max(8, strokeWidth * 2.5);
+    const handleVisualSize = 4 * CROP_STROKE_WIDTH;
     const handleHitSize = Math.max(handleVisualSize * 2, 20);
-    const minSize = Math.max(strokeWidth * 2, 4);
+    const minSize = Math.max(CROP_STROKE_WIDTH * 2, 4);
     const dragThreshold = minSize;
 
     // Only use liveCrop during an active drag; otherwise always derive from context crop.
@@ -160,7 +159,7 @@ export const ImageUploaderInputCropSvg = (): ReactElement => {
                 height={handleVisualSize}
                 fill="red"
                 stroke="white"
-                strokeWidth={Math.max(1, strokeWidth * 0.3)}
+                strokeWidth={Math.max(1, CROP_STROKE_WIDTH * 0.3)}
                 style={{pointerEvents: 'none'}}
             />
         </g>
@@ -213,7 +212,8 @@ export const ImageUploaderInputCropSvg = (): ReactElement => {
                 height={displayRect.y2 - displayRect.y1}
                 fill="none"
                 stroke="red"
-                strokeWidth={strokeWidth}
+                strokeWidth={CROP_STROKE_WIDTH}
+                strokeDasharray={CROP_STROKE_WIDTH * 2}
                 style={{pointerEvents: 'none'}}
             />
             {renderHandles(displayRect)}

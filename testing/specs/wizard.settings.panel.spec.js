@@ -21,6 +21,7 @@ describe('wizard.setting.panel.spec:  test for Owner and Language selectors', fu
             let contentWizard = new ContentWizard();
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.openContextWindow();
+            await contentWizard.pause(1000);
             // 2. Open 'Edit Settings' modal dialog:
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             let actualOwner = await editSettingsDialog.getSelectedOwner();
