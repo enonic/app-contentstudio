@@ -10,6 +10,7 @@ import {
     type UploadAttachmentSuccess,
 } from '../../../../api/uploadAttachment';
 import {$uploads, addUpload, completeUpload, failUpload, updateUploadProgress} from '../../../../store/uploads.store';
+import {clearAttachmentServerError} from '../../../../store/wizardValidation.store';
 import {listenKeys} from 'nanostores';
 import {$contextContent} from '../../../../store/context/contextContent.store';
 import {$wizardDraftPage} from '../../../../store/wizardContent.store';
@@ -156,6 +157,7 @@ export const useAttachmentUploader = ({values, onAdd, onRemove, occurrences, inp
 
             if (inUse) {
                 onRemove(index);
+                clearAttachmentServerError(attachmentName);
                 fireContentRequiresSaveEvent(contentId);
                 return;
             }
@@ -165,6 +167,7 @@ export const useAttachmentUploader = ({values, onAdd, onRemove, occurrences, inp
             result.match(
                 () => {
                     onRemove(index);
+                    clearAttachmentServerError(attachmentName);
                     fireContentRequiresSaveEvent(contentId);
                 },
                 (error) => {
