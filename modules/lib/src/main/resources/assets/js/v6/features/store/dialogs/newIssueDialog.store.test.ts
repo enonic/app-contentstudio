@@ -9,12 +9,14 @@ import {
     emitContentUpdated,
 } from '../socket.store';
 import {
+    $newIssueDependantsSelection,
     $newIssueDialog,
     $newIssueDialogCreateCount,
     $newIssueDialogHasMoreDependants,
     loadMoreNewIssueDependants,
     openNewIssueDialog,
     resetNewIssueDialogContext,
+    toggleNewIssueDependantsSelection,
 } from './newIssueDialog.store';
 import {
     createMockChangeItem,
@@ -216,5 +218,55 @@ describe('newIssueDialog.store', () => {
         await flushNewIssueReload();
 
         expect($newIssueDialog.get().items[0].getDisplayName()).toBe('Item');
+    });
+
+    describe('batch dependant selection', () => {
+        it('derives the tri-state from required and excluded dependants', () => {
+            $newIssueDialog.setKey('dependantIds', [new ContentId('req'), new ContentId('a'), new ContentId('b')]);
+            $newIssueDialog.setKey('requiredDependantIds', [new ContentId('req')]);
+            $newIssueDialog.setKey('excludedDependantIds', [new ContentId('a')]);
+
+            const selection = $newIssueDependantsSelection.get();
+            expect(selection.count).toBe(3);
+            expect(selection.selectionType).toBe('partial');
+            expect(selection.disabled).toBe(false);
+        });
+
+        it('deselects every dependant when toggled from a full selection', () => {
+            $newIssueDialog.setKey('dependantIds', [new ContentId('a'), new ContentId('b')]);
+            $newIssueDialog.setKey('excludedDependantIds', []);
+
+            expect($newIssueDependantsSelection.get().selectionType).toBe('all');
+
+            toggleNewIssueDependantsSelection();
+
+            const excluded = $newIssueDialog.get().excludedDependantIds.map(id => id.toString()).sort();
+            expect(excluded).toEqual(['a', 'b']);
+            expect($newIssueDependantsSelection.get().selectionType).toBe('none');
+        });
+
+        it('keeps required dependants selected when deselecting all, staying partial', () => {
+            $newIssueDialog.setKey('dependantIds', [new ContentId('req'), new ContentId('a')]);
+            $newIssueDialog.setKey('requiredDependantIds', [new ContentId('req')]);
+            $newIssueDialog.setKey('excludedDependantIds', []);
+
+            toggleNewIssueDependantsSelection();
+
+            const excluded = $newIssueDialog.get().excludedDependantIds.map(id => id.toString());
+            expect(excluded).toEqual(['a']);
+            expect($newIssueDependantsSelection.get().selectionType).toBe('partial');
+        });
+
+        it('selects every dependant when toggled from an empty selection', () => {
+            $newIssueDialog.setKey('dependantIds', [new ContentId('a'), new ContentId('b')]);
+            $newIssueDialog.setKey('excludedDependantIds', [new ContentId('a'), new ContentId('b')]);
+
+            expect($newIssueDependantsSelection.get().selectionType).toBe('none');
+
+            toggleNewIssueDependantsSelection();
+
+            expect($newIssueDialog.get().excludedDependantIds).toHaveLength(0);
+            expect($newIssueDependantsSelection.get().selectionType).toBe('all');
+        });
     });
 });

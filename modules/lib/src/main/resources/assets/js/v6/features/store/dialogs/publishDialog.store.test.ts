@@ -11,15 +11,18 @@ import {
 import {$config} from '../config.store';
 import {
     $dependantPublishItems,
+    $draftPublishDialogSelection,
     $hasExcludedDependantItems,
     $hasMoreDependants,
     $hasSchedulableItems,
     $isPublishReady,
     $isScheduleValid,
     $publishCheckErrors,
+    $publishDependantsSelection,
     $publishDialog,
     $publishDialogPending,
     $scheduleFromError,
+    $showPublishDependantsExcluded,
     $totalPublishableItems,
     applyDraftPublishDialogSelection,
     loadMoreDependants,
@@ -28,6 +31,8 @@ import {
     setPublishDialogDependantItemSelected,
     setPublishDialogItemWithChildrenSelected,
     setPublishSchedule,
+    togglePublishDialogDependantsSelection,
+    togglePublishDialogShowExcluded,
 } from './publishDialog.store';
 import {
     createMockChangeItem,
@@ -502,6 +507,124 @@ describe('publishDialog.store', () => {
             expect($dependantPublishItems.get()).toHaveLength(40);
             expect($hasMoreDependants.get()).toBe(false);
             expect($totalPublishableItems.get()).toBe(41);
+        });
+    });
+
+    describe('batch dependant selection', () => {
+        const reqId = new ContentId('req-1');
+        const depId = new ContentId('dep-1');
+
+        afterEach(() => {
+            $config.setKey('excludeDependencies', true);
+        });
+
+        // Min resolve excludes every non-required dependant; the server keeps required ones and
+        // reports the rest as "next" (auto-excluded, shown unchecked).
+        function mockResolve(allIds: ContentId[], requiredIds: ContentId[] = []): void {
+            mockResolvePublishDependencies.mockImplementation(({excludedIds = []}: {excludedIds?: ContentId[]}) => {
+                const isMinResolve = excludedIds.some(excludedId => allIds.some(id => id.equals(excludedId)));
+                const nextIds = allIds.filter(id => !requiredIds.some(req => req.equals(id)));
+                return Promise.resolve(isMinResolve
+                    ? createResolveResult({dependants: requiredIds, required: requiredIds, next: nextIds})
+                    : createResolveResult({dependants: allIds}));
+            });
+            mockFetchContentSummaries.mockResolvedValue(allIds.map(id => createMockContent(id.toString())));
+        }
+
+        it('reports all selected when no dependants are excluded', async () => {
+            $config.setKey('excludeDependencies', false);
+            mockResolve([reqId, depId]);
+
+            openPublishDialog([createMockContent('item-1')]);
+            await flushInitialReload();
+
+            const selection = $publishDependantsSelection.get();
+            expect(selection.count).toBe(2);
+            expect(selection.selectionType).toBe('all');
+            expect(selection.disabled).toBe(false);
+        });
+
+        it('reports none selected when every dependant is auto-excluded', async () => {
+            mockResolve([depId]);
+
+            openPublishDialog([createMockContent('item-1')]);
+            await flushInitialReload();
+
+            const selection = $publishDependantsSelection.get();
+            expect(selection.count).toBe(1);
+            expect(selection.selectionType).toBe('none');
+            expect(selection.disabled).toBe(false);
+        });
+
+        it('reports partial selection when a required dependant is mixed with an excluded one', async () => {
+            mockResolve([reqId, depId], [reqId]);
+
+            openPublishDialog([createMockContent('item-1')]);
+            await flushInitialReload();
+
+            const selection = $publishDependantsSelection.get();
+            expect(selection.count).toBe(2);
+            expect(selection.selectionType).toBe('partial');
+            expect(selection.disabled).toBe(false);
+        });
+
+        it('is checked and disabled when every dependant is mandatory', async () => {
+            mockResolve([reqId], [reqId]);
+
+            openPublishDialog([createMockContent('item-1')]);
+            await flushInitialReload();
+
+            const selection = $publishDependantsSelection.get();
+            expect(selection.count).toBe(1);
+            expect(selection.selectionType).toBe('all');
+            expect(selection.disabled).toBe(true);
+        });
+
+        it('drops auto-excluded dependants from the count when excluded are hidden', async () => {
+            mockResolve([reqId, depId], [reqId]);
+
+            openPublishDialog([createMockContent('item-1')]);
+            await flushInitialReload();
+
+            expect($publishDependantsSelection.get().count).toBe(2);
+
+            togglePublishDialogShowExcluded();
+
+            expect($showPublishDependantsExcluded.get()).toBe(false);
+            const selection = $publishDependantsSelection.get();
+            expect(selection.count).toBe(1);
+            expect(selection.selectionType).toBe('all');
+            expect(selection.disabled).toBe(true);
+        });
+
+        it('selects every dependant when toggled from a partial or empty selection', async () => {
+            mockResolve([depId]);
+
+            openPublishDialog([createMockContent('item-1')]);
+            await flushInitialReload();
+
+            expect($publishDependantsSelection.get().selectionType).toBe('none');
+
+            togglePublishDialogDependantsSelection();
+
+            expect($draftPublishDialogSelection.get().excludedDependantItemsIds).toHaveLength(0);
+            expect($publishDependantsSelection.get().selectionType).toBe('all');
+        });
+
+        it('deselects every selectable dependant when toggled from a full selection', async () => {
+            $config.setKey('excludeDependencies', false);
+            const otherId = new ContentId('dep-2');
+            mockResolve([depId, otherId]);
+
+            openPublishDialog([createMockContent('item-1')]);
+            await flushInitialReload();
+
+            expect($publishDependantsSelection.get().selectionType).toBe('all');
+
+            togglePublishDialogDependantsSelection();
+
+            expect($draftPublishDialogSelection.get().excludedDependantItemsIds).toHaveLength(2);
+            expect($publishDependantsSelection.get().selectionType).toBe('none');
         });
     });
 });

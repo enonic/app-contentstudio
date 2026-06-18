@@ -25,6 +25,7 @@ import {
     $isIssueDialogDetailsClosed,
     $isIssueDialogDetailsPublishRequest,
     $issueDialogDetails,
+    $issueDialogDetailsDependantsSelection,
     $issueDialogDetailsHasMoreDependants,
     loadIssueDialogItems,
     loadMoreIssueDialogDependants,
@@ -32,6 +33,7 @@ import {
     setIssueDialogCommentText,
     setIssueDialogDetailsTab,
     submitIssueDialogComment,
+    toggleIssueDialogDetailsDependantsSelection,
     updateIssueDialogAssignees,
     updateIssueDialogComment,
     updateIssueDialogDependencyIncluded,
@@ -65,6 +67,7 @@ import {AssigneeSelector} from '../../selectors/assignee/AssigneeSelector';
 import {useAssigneeSearch, useAssigneeSelection} from '../../selectors/assignee/hooks/useAssigneeSearch';
 import {ContentCombobox} from '../../selectors/content';
 import {IssueStatusBadge} from '../../status/IssueStatusBadge';
+import {DependantsSelectAll} from '../dependants/DependantsSelectAll';
 import {PublishDialogProgressContent} from '../publish/PublishDialogProgressContent';
 import {SelectionStatusBar} from '../status-bar/SelectionStatusBar';
 import {IssueDialogSelector} from './IssueDialogSelector';
@@ -202,6 +205,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const canShowSelectionStatusBar = useStore($canIssueDialogDetailsShowSelectionStatusBar);
     const canPublish = useStore($canIssueDialogDetailsPublish);
     const hasMoreDependants = useStore($issueDialogDetailsHasMoreDependants);
+    const dependantsSelection = useStore($issueDialogDetailsDependantsSelection);
     const publishCount = useStore($totalPublishableItems);
     const isPublishReady = useStore($isPublishReady);
     const isPublishChecking = useStore($isPublishChecking);
@@ -837,38 +841,50 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                             <SplitList.SeparatorLabel>{dependenciesLabel}</SplitList.SeparatorLabel>
                                         </SplitList.Separator>
 
-                                        <SplitList.Secondary
-                                            items={dependants}
-                                            getItemId={(item) => item.getId()}
-                                            disabled={isItemsDisabled || itemsLoading}
-                                            loading={itemsLoading}
-                                            hasMore={hasMoreDependants}
-                                            onEndReached={loadMoreIssueDialogDependants}
-                                            renderRow={(item) => {
-                                                const id = item.getContentId();
-                                                const isRequired = requiredDependantSet.has(id.toString());
-                                                const included = !excludedDependantSet.has(id.toString());
-
-                                                return (
-                                                    <ContentRow
-                                                        key={item.getId()}
-                                                        content={item}
-                                                        id={item.getId()}
+                                        {dependants.length > 0 && (
+                                            <div>
+                                                {dependantsSelection.count > 0 && (
+                                                    <DependantsSelectAll
+                                                        selection={dependantsSelection}
+                                                        onToggle={toggleIssueDialogDetailsDependantsSelection}
                                                         disabled={isItemsDisabled || itemsLoading}
-                                                    >
-                                                        <ContentRow.Checkbox
-                                                            checked={included}
-                                                            onCheckedChange={(checked) =>
-                                                                handleDependencyChange(id, checked)
-                                                            }
-                                                            disabled={isRequired || isItemsDisabled || itemsLoading}
-                                                        />
-                                                        <ContentRow.Label action="edit" />
-                                                        <ContentRow.Status />
-                                                    </ContentRow>
-                                                );
-                                            }}
-                                        />
+                                                    />
+                                                )}
+
+                                                <SplitList.Secondary
+                                                    items={dependants}
+                                                    getItemId={(item) => item.getId()}
+                                                    disabled={isItemsDisabled || itemsLoading}
+                                                    loading={itemsLoading}
+                                                    hasMore={hasMoreDependants}
+                                                    onEndReached={loadMoreIssueDialogDependants}
+                                                    renderRow={(item) => {
+                                                        const id = item.getContentId();
+                                                        const isRequired = requiredDependantSet.has(id.toString());
+                                                        const included = !excludedDependantSet.has(id.toString());
+
+                                                        return (
+                                                            <ContentRow
+                                                                key={item.getId()}
+                                                                content={item}
+                                                                id={item.getId()}
+                                                                disabled={isItemsDisabled || itemsLoading}
+                                                            >
+                                                                <ContentRow.Checkbox
+                                                                    checked={included}
+                                                                    onCheckedChange={(checked) =>
+                                                                        handleDependencyChange(id, checked)
+                                                                    }
+                                                                    disabled={isRequired || isItemsDisabled || itemsLoading}
+                                                                />
+                                                                <ContentRow.Label action="edit" />
+                                                                <ContentRow.Status />
+                                                            </ContentRow>
+                                                        );
+                                                    }}
+                                                />
+                                            </div>
+                                        )}
                                     </SplitList>
                                 </div>
                                 {isPublishRequest && scheduleMode && (
