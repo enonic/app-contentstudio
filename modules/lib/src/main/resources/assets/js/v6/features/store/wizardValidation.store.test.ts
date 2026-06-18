@@ -18,9 +18,11 @@ import {
     setDraftDisplayName,
 } from './wizardContent.store';
 import {
+    $attachmentServerErrorEntries,
     $invalidTabs,
-    $serverErrorEntries,
+    $dataServerErrorEntries,
     $validationVisibility,
+    clearAttachmentServerError,
     clearServerErrorsAtPath,
     clearServerErrorsForField,
     escalateVisibility,
@@ -316,7 +318,7 @@ describe('wizardValidation.store', () => {
 
             setServerValidationErrors([serverError('long[1]', 'The value is not allowed')]);
 
-            expect($serverErrorEntries.get()).toEqual([{path: 'long[1]', message: 'The value is not allowed'}]);
+            expect($dataServerErrorEntries.get()).toEqual([{path: 'long[1]', message: 'The value is not allowed'}]);
         });
 
         it('should ignore system errors (built-in) and keep custom-app errors', () => {
@@ -334,7 +336,7 @@ describe('wizardValidation.store', () => {
 
             setServerValidationErrors([systemError, customError]);
 
-            expect($serverErrorEntries.get()).toEqual([{path: 'long', message: 'Custom app message'}]);
+            expect($dataServerErrorEntries.get()).toEqual([{path: 'long', message: 'Custom app message'}]);
         });
 
         it('should NOT clear server errors when the data version bumps (regression)', () => {
@@ -344,7 +346,7 @@ describe('wizardValidation.store', () => {
             // Simulate any field edit bumping the data version.
             $wizardDataVersion.set($wizardDataVersion.get() + 1);
 
-            expect($serverErrorEntries.get()).toEqual([{path: 'long[1]', message: 'bad'}]);
+            expect($dataServerErrorEntries.get()).toEqual([{path: 'long[1]', message: 'bad'}]);
         });
 
         it('clearServerErrorsAtPath should drop only the matching occurrence', () => {
@@ -353,7 +355,7 @@ describe('wizardValidation.store', () => {
 
             clearServerErrorsAtPath('mySet[1].title');
 
-            expect($serverErrorEntries.get()).toEqual([{path: 'mySet', message: 'a'}]);
+            expect($dataServerErrorEntries.get()).toEqual([{path: 'mySet', message: 'a'}]);
         });
 
         it('clearServerErrorsForField should drop every occurrence of the field only', () => {
@@ -366,7 +368,80 @@ describe('wizardValidation.store', () => {
 
             clearServerErrorsForField('mySet');
 
-            expect($serverErrorEntries.get()).toEqual([{path: 'other', message: 'c'}]);
+            expect($dataServerErrorEntries.get()).toEqual([{path: 'other', message: 'c'}]);
+        });
+    });
+
+    describe('attachment server validation errors', () => {
+        const attachmentError = (attachment: string, message: string, errorCode?: string) => {
+            const builder = ValidationError.create().setAttachment(attachment).setMessage(message);
+            if (errorCode) {
+                builder.setErrorCode(errorCode);
+            }
+            return builder.build();
+        };
+
+        it('should expose attachment server errors as attachment/message entries', () => {
+            setupWizard();
+
+            setServerValidationErrors([attachmentError('a.pdf', 'File too large')]);
+
+            expect($attachmentServerErrorEntries.get()).toEqual([{attachment: 'a.pdf', message: 'File too large'}]);
+        });
+
+        it('should mark the content tab invalid when an attachment error is present', () => {
+            setupWizard();
+            expect($invalidTabs.get().has('content')).toBe(false);
+
+            setServerValidationErrors([attachmentError('a.pdf', 'File too large')]);
+
+            expect($invalidTabs.get().has('content')).toBe(true);
+        });
+
+        it('should keep system attachment errors (no client-side equivalent in v6)', () => {
+            setupWizard();
+
+            setServerValidationErrors([attachmentError('a.pdf', 'System message', 'system:cms.attachmentInvalid')]);
+
+            expect($attachmentServerErrorEntries.get()).toEqual([{attachment: 'a.pdf', message: 'System message'}]);
+        });
+
+        it('should NOT clear attachment errors when the data version bumps (regression)', () => {
+            setupWizard();
+            setServerValidationErrors([attachmentError('a.pdf', 'bad')]);
+
+            $wizardDataVersion.set($wizardDataVersion.get() + 1);
+
+            expect($attachmentServerErrorEntries.get()).toEqual([{attachment: 'a.pdf', message: 'bad'}]);
+        });
+
+        it('clearAttachmentServerError should drop only the matching attachment', () => {
+            setupWizard();
+            setServerValidationErrors([attachmentError('a.pdf', 'a'), attachmentError('b.pdf', 'b')]);
+
+            clearAttachmentServerError('a.pdf');
+
+            expect($attachmentServerErrorEntries.get()).toEqual([{attachment: 'b.pdf', message: 'b'}]);
+        });
+
+        it('clearAttachmentServerError should re-validate the content tab once the last error is gone', () => {
+            setupWizard();
+            setServerValidationErrors([attachmentError('a.pdf', 'a')]);
+            expect($invalidTabs.get().has('content')).toBe(true);
+
+            clearAttachmentServerError('a.pdf');
+
+            expect($invalidTabs.get().has('content')).toBe(false);
+        });
+
+        it('resetValidation should clear attachment errors', () => {
+            setupWizard();
+            setServerValidationErrors([attachmentError('a.pdf', 'a')]);
+            expect($attachmentServerErrorEntries.get()).toHaveLength(1);
+
+            resetValidation();
+
+            expect($attachmentServerErrorEntries.get()).toEqual([]);
         });
     });
 });
