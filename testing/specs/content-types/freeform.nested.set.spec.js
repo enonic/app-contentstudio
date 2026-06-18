@@ -35,23 +35,24 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
             await contentWizard.pause(1000);
             // 3. Add an occurrence block (the second level):
             await freeFormNestedSet.clickOnAddButton();
+            await freeFormNestedSet.clickOnItemSetOccurrenceHeader(0);
             await studioUtils.saveScreenshot('freeform_scrolled');
             // 4. Click on the 'Button' radio in the 'element type' option set in the first occurrence:
-            await freeFormNestedSet.expandOptionsAndSelectElementType('Button', 0);
+            await freeFormNestedSet.selectElementType('Button', 0);
             await studioUtils.saveScreenshot('nested_sets_remains_invalid_0');
-            await contentWizard.scrollPanel(-500);
+            await contentWizard.scrollPanel(-200);
             await studioUtils.saveScreenshot('nested_sets_remains_invalid_1');
             // 5. Verify that the content remains invalid, because the  'element type' dropdown in the second added occurrence block is not selected yet.
             let isInvalid = await contentWizard.isContentInvalid();
             assert.ok(isInvalid, 'The content should be invalid');
             // 6. Scroll the wizard page and select 'Button' option in the second occurrence block:
-            await contentWizard.scrollPanel(600);
+            await contentWizard.scrollPanel(400);
             // click on the 'Button' radio in the second occurrence of 'element type' option set
-            await freeFormNestedSet.expandOptionsAndSelectElementType('Button', 1);
+            await freeFormNestedSet.selectElementType('Button', 1);
             await studioUtils.saveScreenshot('nested_sets_gets_valid_0');
             // 7. Verify that "Save" button gets enabled
             await contentWizard.waitForSaveButtonEnabled();
-            await contentWizard.scrollPanel(-500);
+            await contentWizard.scrollPanel(-200);
             await studioUtils.saveScreenshot('nested_sets_gets_valid_1');
             // 8. Verify that the content gets valid, because options are selected in the both required selectors:
             isInvalid = await contentWizard.isContentInvalid();
@@ -69,7 +70,7 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
             await contentWizard.waitAndClickOnSave();
             // Select Input in the selector and load new form:
             await contentWizard.scrollPanel(600);
-            await freeFormNestedSet.expandOptionsAndSelectElementType('Input', 0);
+            await freeFormNestedSet.selectElementType('Input', 0);
             // save the content again
             await contentWizard.waitAndClickOnSave();
             // Select the option in the dropdown

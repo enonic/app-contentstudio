@@ -24,7 +24,7 @@ describe("wizard.xdata.long.form.spec:  Wizard's navigation toolbar (long forms)
     it(`Preconditions: new site should be added`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
         });
 

@@ -2,8 +2,6 @@
  * Created on 08.01.2024 updated on 11.02.2026
  */
 const BaseDropdown = require('./base.dropdown');
-const lib = require('../../../libs/elements-old');
-const appConst = require('../../../libs/app_const');
 const {DROPDOWN, BUTTONS} = require('../../../libs/elements');
 const XPATH = {
     contentListBoxUL: "//ul[contains(@id,'ContentListBox')]",

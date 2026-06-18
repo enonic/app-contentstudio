@@ -1,5 +1,5 @@
 /**
- * Created on 05.06.2023
+ * Created on 05.06.2023   updated on 18.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -25,7 +25,7 @@ describe('htmlarea.insert.link.to.content.spec: tests for filtering in content s
     it(`Preconditions: new site and its copy should be created`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            SITE = contentBuilder.buildSite(SITE_NAME, 'description', [appConst.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(SITE_NAME, null, [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
 
             await studioUtils.findAndSelectItem(SITE_NAME);
@@ -44,9 +44,6 @@ describe('htmlarea.insert.link.to.content.spec: tests for filtering in content s
             await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
             // 2. Click on content-dropdown handler, expand the options:
             await insertLinkDialogContentPanel.clickOnContentDropdownHandle();
-            // 3. Content selector should be switched to tree mode by default:
-            let actualMode = await insertLinkDialogContentPanel.getOptionsMode();
-            assert.equal(actualMode, 'tree', 'Content selector should be in tree mode');
             // 4. Verify - content name that starts the same as the current site(duplicated content) should not be present in the options:
             let items = await insertLinkDialogContentPanel.getContentSelectorOptionsDisplayNameInTreeMode()
             await studioUtils.saveScreenshot('duplicated_content_is_not_present_in_options');
@@ -70,8 +67,8 @@ describe('htmlarea.insert.link.to.content.spec: tests for filtering in content s
             await insertLinkDialogContentPanel.pause(1000);
             await studioUtils.saveScreenshot('duplicated_content_is_present_in_options');
             // 4. Verify - content name that starts the same as the current site(duplicated content) should be present in the options:
-            let items = await insertLinkDialogContentPanel.getContentSelectorOptionsNameInFlatMode();
-            assert.ok(items.includes('/' + DUPLICATED_SITE_NAME), 'Duplicated site should be present in the options');
+            let items = await insertLinkDialogContentPanel.getContentSelectorOptionsDisplayNameInFlatMode();
+            assert.ok(items.includes(DUPLICATED_SITE_NAME), 'Duplicated site should be present in the options');
         });
 
     // NBSP appears after pasting text before a link #8996

@@ -25,8 +25,8 @@ describe('occurrences.tag.spec: tests for content with tag input', function () {
 
     // Tag input should parse and split pasted string #8032
     // https://github.com/enonic/app-contentstudio/issues/8032
-    // TODO https://github.com/enonic/app-contentstudio/issues/10310
-    it.skip("GIVEN wizard for tag 2:5 is opened WHEN pasting in a string with comma THEN column values get split into several tags AND the content gets valid",
+    // https://github.com/enonic/app-contentstudio/issues/10310
+    it("GIVEN wizard for tag 2:5 is opened WHEN pasting in a string with comma THEN column values get split into several tags AND the content gets valid",
         async () => {
             let contentWizard = new ContentWizard();
             let tagForm = new TagForm();

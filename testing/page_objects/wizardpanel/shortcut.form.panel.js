@@ -7,25 +7,22 @@ const ContentSelectorDropdown = require('../components/selectors/content.selecto
 const {COMMON} = require("../../libs/elements");
 const xpath = {
     stepForm: `//div[@data-component='ContentWizardTabs']`,
-    parametersSet: "//div[contains(@id,'FormItemSetView') and descendant::h5[contains(.,'Parameters')]]",
-    targetFormView: `//div[contains(@id,'FormView') and descendant::div[text()='Target']]`,
-    parametersFormOccurrence: `//div[contains(@id,'FormItemSetOccurrenceView')]`,
-    parameterNameInput: `//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Name']]//input`,
-    parameterValueInput: `//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Value']]//input`,
-    addParametersButton: "//button[contains(@id,'Button') and child::span[contains(.,'Add')]]",
-    expandButton: "//div[@class='bottom-button-row']//a[contains(@class,'collapse-button') and text()='Expand']",
-    parameterOccurrenceMenuButton: "//div[contains(@id,'FormItemSetOccurrenceView')]" ,
-    parametersOccurrenceLabel: "//div[contains(@id,'FormOccurrenceDraggableLabel')]",
+    parametersSet: "//div[@data-component='ItemSetView' and child::div[@data-component='SetHeader']//span[text()='Parameters']]",
+    parametersFormOccurrence: "//div[@data-component='ItemSetOccurrenceView']",
+    parameterNameInput: "//div[@data-component='ItemSetOccurrenceView']" + COMMON.INPUTS.inputFieldByLabel('Name') + "//input",
+    parameterValueInput: "//div[@data-component='ItemSetOccurrenceView']" + COMMON.INPUTS.inputFieldByLabel('Value') + "//input",
+    addParametersButton: "//button[@data-component='Button' and @aria-label='Add']",
+    collapseAllButton: "//div[@data-component='SetHeader']//button[@data-component='InlineButton' and text()='Collapse all']",
+    expandAllButton: "//div[@data-component='SetHeader']//button[@data-component='InlineButton' and text()='Expand all']",
+    parameterOccurrenceMenuButton: "//div[@data-component='ItemSetOccurrenceView']//button[@aria-label='More actions']",
+    contextMenuItem: text => `//div[@data-component='ContextMenu.Content']//div[@data-component='ContextMenu.Item' and child::span[text()='${text}']]`,
+    parametersOccurrenceHeader: "//div[@data-component='ItemSetOccurrenceView']//button[@aria-expanded]",
 };
 
 class ShortcutForm extends Page {
 
-    get targetOptionsFilterInput() {
-        return xpath.stepForm + lib.FORM_VIEW + lib.CONTENT_SELECTOR.DIV + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
-    }
-
     get addParametersButton() {
-        return xpath.stepForm + xpath.parametersSet + "/div[@class='bottom-button-row']" + xpath.addParametersButton;
+        return xpath.stepForm + xpath.parametersSet + xpath.addParametersButton;
     }
 
     get formValidationRecording() {
@@ -37,8 +34,7 @@ class ShortcutForm extends Page {
     }
 
     get helpTextInParametersForm() {
-        return lib.CONTENT_WIZARD_STEP_FORM +
-               "//div[contains(@id,'FormItemSetView') and descendant::h5[text()='Parameters']]//div[contains(@class,'help-text')]/p";
+        return xpath.stepForm + xpath.parametersSet + "//div[@data-component='SetHeader']//span[contains(@class,'text-subtle')]";
     }
 
     async waitForAddNewContentButtonDisplayed() {
@@ -106,73 +102,54 @@ class ShortcutForm extends Page {
         return this.waitForElementDisplayed(this.addParametersButton, appConst.mediumTimeout);
     }
 
-    async waitForCollapseBottomLinkVisible() {
+    async waitForCollapseAllButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(xpath.stepForm + lib.BUTTONS.COLLAPSE_BUTTON_BOTTOM, appConst.shortTimeout)
+            return await this.waitForElementDisplayed(xpath.stepForm + xpath.parametersSet + xpath.collapseAllButton, appConst.shortTimeout);
         } catch (err) {
-            await this.handleError('Collapse link should be visible', 'err_shortcut_collapse_link', err);
+            await this.handleError('Collapse all button should be visible', 'err_shortcut_collapse_all_btn', err);
         }
     }
 
-    async waitForCollapseTopLinkVisible() {
+    async waitForExpandAllButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(xpath.stepForm + lib.BUTTONS.COLLAPSE_BUTTON_TOP, appConst.shortTimeout)
+            return await this.waitForElementDisplayed(xpath.stepForm + xpath.parametersSet + xpath.expandAllButton, appConst.shortTimeout);
         } catch (err) {
-            await this.handleError('Collapse link should be visible', 'err_shortcut_collapse_link', err);
+            await this.handleError('Expand all button should be visible', 'err_shortcut_expand_all_btn', err);
         }
     }
 
-    async waitForExpandLinkVisible() {
+    async clickOnCollapseAllButton() {
         try {
-            return await this.waitForElementDisplayed(xpath.stepForm + xpath.expandButton, appConst.shortTimeout);
+            await this.waitForCollapseAllButtonDisplayed();
+            return await this.clickOnElement(xpath.stepForm + xpath.parametersSet + xpath.collapseAllButton);
         } catch (err) {
-            await this.handleError('Expand link should be visible', 'err_shortcut_expand_link', err);
+            await this.handleError('Error when click on Collapse all button!', 'err_shortcut_collapse_all_btn', err);
         }
-    }
-
-    clickOnCollapseBottomLink() {
-        return this.clickOnElement(xpath.stepForm + lib.BUTTONS.COLLAPSE_BUTTON_BOTTOM).catch(err => {
-            throw new Error("Error when click on `collapse` link! " + err);
-        })
-    }
-
-    clickOnCollapseTopLink() {
-        return this.clickOnElement(xpath.stepForm + lib.BUTTONS.COLLAPSE_BUTTON_TOP).catch(err => {
-            throw new Error("Error when click on `collapse` link! " + err);
-        })
     }
 
     clickOnRemoveParameterButton() {
-        return this.clickOnElement(xpath.stepForm + xpath.parametersFormOccurrence + lib.REMOVE_BUTTON).catch(err => {
+        return this.clickOnElement(xpath.stepForm + xpath.parametersFormOccurrence + "//button[@aria-label='Remove']").catch(err => {
             throw new Error("Error when click on `Remove` button! " + err);
         })
     }
 
-    //Click and Expand/Collapse parameters form:
+    // Click to expand/collapse a parameter occurrence by index:
     async clickOnParametersForm(index) {
-        let locator = xpath.parametersFormOccurrence + xpath.parametersOccurrenceLabel;
+        let locator = xpath.parametersOccurrenceHeader;
         let result = await this.findElements(locator);
         await result[index].click();
         return await this.pause(300);
     }
 
     async expandParameterMenuAndClickOnDelete(index) {
-        let locator = xpath.parameterOccurrenceMenuButton;
-        let deleteMenuItem = "//div[contains(@id,'FormItemSetOccurrenceView')]" + "//li[contains(@id,'MenuItem') and text()='Delete']";
-        let menuButtons = await this.findElements(locator);
+        let menuButtons = await this.findElements(xpath.parameterOccurrenceMenuButton);
         await menuButtons[index].click();
         await this.pause(400);
-        let res = await this.getDisplayedElements(deleteMenuItem);
+        let res = await this.getDisplayedElements(xpath.contextMenuItem('Delete'));
         await res[0].waitForEnabled(
             {timeout: appConst.shortTimeout, timeoutMsg: "Shortcut Parameters - Delete menu item should be enabled!"});
         await res[0].click();
         return await this.pause(300);
-    }
-
-    clickOnExpandLink() {
-        return this.clickOnElement(xpath.stepForm + xpath.expandButton).catch(err => {
-            throw new Error("Error when click on `Expand` link! " + err);
-        })
     }
 
     async clickOnAddParametersButton() {

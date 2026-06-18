@@ -1,36 +1,45 @@
 /**
- * Created on 13.10.2021 updated on 26.04.2026
+ * Created on 13.10.2021 updated on 18.06.2026
  */
 const OccurrencesFormView = require('../wizardpanel/occurrences.form.view');
 const appConst = require('../../libs/app_const');
 
 const XPATH = {
     attachmentUploaderDiv: "//div[@data-component='AttachmentUploaderInput']",
-    uploadButton: "//div[contains(@class,'justify-end')]//button[@type,'button']",
+    gridRow: "//div[@data-component='GridList.Row']",
+    fileLink: "//div[@data-component='GridList.Row']//a[@data-component='Link']",
+    removeButton: "//div[@data-component='GridList.Row']//button[@data-component='IconButton']",
 };
 
 class AttachmentsForm extends OccurrencesFormView {
 
-    get attachmentUploader() {
-        return XPATH.attachmentUploaderDiv + XPATH.uploadButton;
+    get removeItemIcon() {
+        return XPATH.attachmentUploaderDiv + XPATH.removeButton;
     }
 
-    get removeItemIcon() {
-        return XPATH.attachmentUploaderDiv + "//div[@role='grid']//button" ;
+    get attachmentFileLink() {
+        return XPATH.attachmentUploaderDiv + XPATH.fileLink;
     }
 
     async clickOnRemoveItemIcon(index) {
         await this.waitForElementDisplayed(this.removeItemIcon);
         let result = await this.findElements(this.removeItemIcon);
-        result[index].click();
-        await this.pause(200);
+        await result[index].click();
+        return await this.pause(200);
     }
 
-    waitForUploaderDisplayed() {
-        return this.waitForElementDisplayed(this.attachmentUploader);
+    async getAttachmentFileNames() {
+        await this.waitForElementDisplayed(this.attachmentFileLink, appConst.mediumTimeout);
+        return await this.getTextInDisplayedElements(this.attachmentFileLink);
+    }
+
+    waitForAttachmentLinkDisplayed() {
+        return this.waitForElementDisplayed(this.attachmentFileLink, appConst.mediumTimeout);
+    }
+
+    waitForAttachmentLinkNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.attachmentFileLink, appConst.mediumTimeout);
     }
 }
 
 module.exports = AttachmentsForm;
-
-

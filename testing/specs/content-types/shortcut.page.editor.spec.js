@@ -17,16 +17,9 @@ describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortc
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let SITE;
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
     const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const SHORTCUT_NAME = appConst.generateRandomName('shortcut');
-
-    it(`Preconditions: new site should be added`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
-            await studioUtils.doAddSite(SITE);
-        });
 
 
     it(`GIVEN wizard for new child shortcut is opened WHEN the parent site with a controller has been selected in target THEN 'Preview' button should not be displayed in the wizard toolbar`,
@@ -34,11 +27,11 @@ describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortc
             let shortcutForm = new ShortcutForm();
             let contentWizard = new ContentWizard();
             let wizardContextPanel = new WizardContextPanel();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.SHORTCUT);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.SHORTCUT);
             // 1. Type a shortcut name:
             await contentWizard.typeDisplayName(SHORTCUT_NAME);
             // 2. Select the site with a controller in the target selector:
-            await shortcutForm.filterOptionsAndSelectTarget(SITE.displayName);
+            await shortcutForm.filterOptionsAndSelectTarget(IMPORTED_SITE_NAME);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
             await studioUtils.saveScreenshot('shortcut_target_site_with_controller');
@@ -73,10 +66,10 @@ describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortc
             // 1. Select an existing shortcut:
             await studioUtils.findAndSelectItem(SHORTCUT_NAME);
             await studioUtils.saveScreenshot('preview_not_available_shortcut');
-            // 2. Verify that 'Preview not available' is displayed in Preview panel
-            await contentItemPreviewPanel.waitForPreviewNotAvailAbleMessageDisplayed();
             // 3. 'Preview' button should be disabled in the ItemPreviewPanel toolbar:
             await contentBrowsePanel.waitForPreviewButtonDisabled();
+            let actualMessage = await contentItemPreviewPanel.getNoPreviewMessage();
+            assert.ok(actualMessage.includes(appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE), 'Preview not available - should be displayed');
         });
 
     it(`WHEN existing shortcut content has been selected AND 'Enonic rendering' option has been selected THEN 'Preview' button should be disabled in Item Preview Panel`,

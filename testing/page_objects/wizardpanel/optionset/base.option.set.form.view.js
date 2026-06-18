@@ -3,6 +3,7 @@
  */
 const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
+const SingleSelectionOptionSet = require("./single.selection.option.set.view");
 const XPATH = {
     formOptionSetOccurrenceView: "//div[contains(@id,'FormOptionSetOccurrenceView')]"
 };
@@ -21,9 +22,8 @@ class BaseOptionSetFormView extends Page {
     }
 
     async getOptionSetValidationRecording() {
-        await this.waitForFormValidationRecordingDisplayed();
-        let recordingElements = await this.getDisplayedElements(this.formValidationRecording);
-        return await recordingElements[0].getText();
+        let singleSelectionOptionSet = new SingleSelectionOptionSet();
+        return  await singleSelectionOptionSet.getValidationRecording();
     }
 
     async waitForOptionSetValidationRecordingNotDisplayed() {
