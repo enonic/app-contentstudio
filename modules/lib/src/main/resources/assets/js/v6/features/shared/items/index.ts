@@ -5,3 +5,4 @@ export {ContentListItemSelectableWithChildren} from './ContentListItemSelectable
 export {ContentListItemWithChildren} from './ContentListItemWithChildren';
 export {ContentListItemWithReference} from './ContentListItemWithReference';
 export {SortContentListItem, type SortContentListItemProps} from './SortContentListItem';
+export {SortContentListItemSkeleton, type SortContentListItemSkeletonProps} from './SortContentListItemSkeleton';

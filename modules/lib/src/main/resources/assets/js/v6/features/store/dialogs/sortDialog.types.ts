@@ -1,4 +1,5 @@
 import type {ContentId} from '../../../../app/content/ContentId';
+import type {ContentSummary} from '../../../../app/content/ContentSummary';
 
 export type SortElementId = 'modified' | 'created' | 'displayName' | 'publish' | 'manual';
 
@@ -23,4 +24,9 @@ export type SortOrderOption = {
 export type SortManualMovement = {
     contentId: ContentId;
     moveBefore?: ContentId;
+};
+
+export type SortDialogRow = {
+    id: string;
+    content: ContentSummary | undefined;
 };

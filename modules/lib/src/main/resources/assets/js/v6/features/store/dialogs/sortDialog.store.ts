@@ -2,6 +2,7 @@ import {showError, showSuccess} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {QueryField} from '@enonic/lib-admin-ui/query/QueryField';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {computed, map} from 'nanostores';
+import {ContentId} from '../../../../app/content/ContentId';
 import type {ContentSummary} from '../../../../app/content/ContentSummary';
 import {ContentSummaryAndCompareStatusFetcher} from '../../../../app/resource/ContentSummaryAndCompareStatusFetcher';
 import {OrderChildContentRequest} from '../../../../app/resource/OrderChildContentRequest';
@@ -10,7 +11,10 @@ import {ChildOrder} from '../../../../app/resource/order/ChildOrder';
 import {FieldOrderExprBuilder} from '../../../../app/resource/order/FieldOrderExpr';
 import {OrderChildMovement} from '../../../../app/resource/order/OrderChildMovement';
 import {OrderChildMovements} from '../../../../app/resource/order/OrderChildMovements';
+import {fetchContentByIds} from '../../api/content-fetcher';
+import {$contentCache, getMissingIds} from '../content.store';
 import type {
+    SortDialogRow,
     SortDirection,
     SortElementId,
     SortManualMovement,
@@ -20,11 +24,12 @@ import type {
 
 type SortDialogStore = {
     open: boolean;
-    loading: boolean;
+    idsLoading: boolean;
     submitting: boolean;
-    failed: boolean;
+    idsFailed: boolean;
     parent: ContentSummary | undefined;
-    items: ContentSummary[];
+    itemIds: string[];
+    failedBatches: number[];
     selectedOptionId: SortOrderOptionId;
     initialOptionId: SortOrderOptionId;
     hasManualChanges: boolean;
@@ -33,13 +38,16 @@ type SortDialogStore = {
 
 const DEFAULT_SORT_OPTION_ID: SortOrderOptionId = 'modified:DESC';
 
+export const SORT_BATCH_SIZE = 24;
+
 const initialState: SortDialogStore = {
     open: false,
-    loading: false,
+    idsLoading: false,
     submitting: false,
-    failed: false,
+    idsFailed: false,
     parent: undefined,
-    items: [],
+    itemIds: [],
+    failedBatches: [],
     selectedOptionId: DEFAULT_SORT_OPTION_ID,
     initialOptionId: DEFAULT_SORT_OPTION_ID,
     hasManualChanges: false,
@@ -68,33 +76,34 @@ const SORT_ELEMENT_FIELD: Record<SortElementId, string> = {
 
 const fetcher = new ContentSummaryAndCompareStatusFetcher();
 let instanceId = 0;
+const loadingBatches = new Set<number>();
 
-const moveItem = (
-    items: ContentSummary[],
+const moveId = (
+    itemIds: string[],
     fromIndex: number,
     toIndex: number
-): ContentSummary[] => {
+): string[] => {
     if (fromIndex === toIndex) {
-        return items;
+        return itemIds;
     }
 
-    const nextItems = [...items];
-    const [movedItem] = nextItems.splice(fromIndex, 1);
-    nextItems.splice(toIndex, 0, movedItem);
-    return nextItems;
+    const nextIds = [...itemIds];
+    const [movedId] = nextIds.splice(fromIndex, 1);
+    nextIds.splice(toIndex, 0, movedId);
+    return nextIds;
 };
 
 const createManualMovement = (
-    items: readonly ContentSummary[],
+    itemIds: readonly string[],
     fromIndex: number,
     toIndex: number
 ): SortManualMovement => {
-    const movedItem = items[fromIndex];
-    const moveBeforeItem = items[toIndex > fromIndex ? toIndex + 1 : toIndex];
+    const movedId = itemIds[fromIndex];
+    const moveBeforeId = itemIds[toIndex > fromIndex ? toIndex + 1 : toIndex];
 
     return {
-        contentId: movedItem.getContentId(),
-        moveBefore: moveBeforeItem?.getContentId(),
+        contentId: new ContentId(movedId),
+        moveBefore: moveBeforeId ? new ContentId(moveBeforeId) : undefined,
     };
 };
 
@@ -112,6 +121,39 @@ const startsWithField = (orderExprText: string, field: string): boolean => {
 
 const isSortOrderOptionId = (value: string): value is SortOrderOptionId => {
     return value in SORT_OPTION_MAP;
+};
+
+const toBatchStart = (index: number): number => {
+    return Math.floor(index / SORT_BATCH_SIZE) * SORT_BATCH_SIZE;
+};
+
+const clearFailedBatch = (batchStart: number): void => {
+    const {failedBatches} = $sortDialog.get();
+    if (!failedBatches.includes(batchStart)) {
+        return;
+    }
+    $sortDialog.setKey('failedBatches', failedBatches.filter(start => start !== batchStart));
+};
+
+const markFailedBatch = (batchStart: number): void => {
+    const {failedBatches} = $sortDialog.get();
+    if (failedBatches.includes(batchStart)) {
+        return;
+    }
+    $sortDialog.setKey('failedBatches', [...failedBatches, batchStart]);
+};
+
+const dropSortDialogItems = (ids: string[]): void => {
+    if (ids.length === 0) {
+        return;
+    }
+    const idSet = new Set(ids);
+    const {itemIds} = $sortDialog.get();
+    const nextItemIds = itemIds.filter(id => !idSet.has(id));
+    if (nextItemIds.length === itemIds.length) {
+        return;
+    }
+    $sortDialog.setKey('itemIds', nextItemIds);
 };
 
 const toSortOrderOptionIdFromChildOrder = (order: ChildOrder | null | undefined): SortOrderOptionId => {
@@ -157,53 +199,103 @@ const toChildOrder = (optionId: SortOrderOptionId): ChildOrder => {
     return order;
 };
 
-// TODO: Rewrite the loading from scratch:
-// - use content tore to manage the loading state
-// - load in batches
-// - preload the ids first and keep them or fake them with known count to avoid dialog resize
-// - Use ResultAsync and modern fetchers
-async function reloadSortDialogItems(): Promise<void> {
+async function reloadSortDialogIds(): Promise<void> {
     const callId = ++instanceId;
     const {open, parent, selectedOptionId} = $sortDialog.get();
     if (!open || !parent) {
         return;
     }
 
-    $sortDialog.setKey('loading', true);
-    $sortDialog.setKey('failed', false);
+    loadingBatches.clear();
+    $sortDialog.set({
+        ...$sortDialog.get(),
+        idsLoading: true,
+        idsFailed: false,
+        failedBatches: [],
+    });
 
     try {
         const order = toChildOrder(selectedOptionId);
-        const response = await fetcher.fetchChildren(parent.getContentId(), 0, 200, order);
+        const ids = await fetcher.fetchChildrenIds(parent.getContentId(), order);
         if (callId !== instanceId) {
             return;
         }
 
         $sortDialog.set({
             ...$sortDialog.get(),
-            items: response.getContents().map(c => c.getContentSummary()),
-            loading: false,
-            failed: false,
+            itemIds: ids.map(id => id.toString()),
+            idsLoading: false,
+            idsFailed: false,
         });
+
+        void ensureSortDialogBatchLoaded(0);
     } catch (error) {
         if (callId !== instanceId) {
             return;
         }
-        $sortDialog.setKey('failed', true);
-        $sortDialog.setKey('loading', false);
+        $sortDialog.setKey('idsFailed', true);
+        $sortDialog.setKey('idsLoading', false);
         showError(error?.message ?? String(error));
     }
 }
 
 export const $sortDialog = map<SortDialogStore>(structuredClone(initialState));
 
+export const $sortDialogRows = computed([$sortDialog, $contentCache], (state, cache): SortDialogRow[] => {
+    return state.itemIds.map(id => ({id, content: cache[id]}));
+});
+
 export const $isSortDialogAltered = computed($sortDialog, (state) => {
     return state.selectedOptionId !== state.initialOptionId || state.hasManualChanges;
 });
 
 export const $isSortDialogReady = computed([$sortDialog, $isSortDialogAltered], (state, altered) => {
-    return state.open && !state.loading && !state.submitting && !state.failed && altered;
+    return state.open && !state.idsLoading && !state.submitting && !state.idsFailed && altered;
 });
+
+export const isSortDialogBatchFailed = (failedBatches: readonly number[], index: number): boolean => {
+    return failedBatches.includes(toBatchStart(index));
+};
+
+export const ensureSortDialogBatchLoaded = async (index: number): Promise<void> => {
+    const callId = instanceId;
+    const {itemIds} = $sortDialog.get();
+    const batchStart = toBatchStart(index);
+    if (batchStart < 0 || batchStart >= itemIds.length) {
+        return;
+    }
+    if (loadingBatches.has(batchStart)) {
+        return;
+    }
+
+    const slice = itemIds.slice(batchStart, batchStart + SORT_BATCH_SIZE);
+    if (getMissingIds(slice).length === 0) {
+        clearFailedBatch(batchStart);
+        return;
+    }
+
+    loadingBatches.add(batchStart);
+    clearFailedBatch(batchStart);
+
+    try {
+        await fetchContentByIds(slice);
+        if (callId !== instanceId || !$sortDialog.get().open) {
+            return;
+        }
+
+        dropSortDialogItems(getMissingIds(slice));
+    } catch (error) {
+        if (callId !== instanceId || !$sortDialog.get().open) {
+            return;
+        }
+        markFailedBatch(batchStart);
+        showError(error?.message ?? String(error));
+    } finally {
+        if (callId === instanceId) {
+            loadingBatches.delete(batchStart);
+        }
+    }
+};
 
 export const setSortDialogOrderSelection = (selection: readonly string[]): void => {
     const next = selection[0];
@@ -236,17 +328,18 @@ export const reorderSortDialogItems = (fromIndex: number, toIndex: number): void
     const state = $sortDialog.get();
     const isWithinBounds = fromIndex >= 0
         && toIndex >= 0
-        && fromIndex < state.items.length
-        && toIndex < state.items.length;
+        && fromIndex < state.itemIds.length
+        && toIndex < state.itemIds.length;
     if (!isWithinBounds || fromIndex === toIndex) {
         return;
     }
 
-    const nextMovement = createManualMovement(state.items, fromIndex, toIndex);
+    const nextMovement = createManualMovement(state.itemIds, fromIndex, toIndex);
     $sortDialog.set({
         ...state,
         selectedOptionId: 'manual',
-        items: moveItem(state.items, fromIndex, toIndex),
+        itemIds: moveId(state.itemIds, fromIndex, toIndex),
+        failedBatches: state.failedBatches.length > 0 ? [] : state.failedBatches,
         hasManualChanges: true,
         manualMovements: [...state.manualMovements, nextMovement],
     });
@@ -254,7 +347,7 @@ export const reorderSortDialogItems = (fromIndex: number, toIndex: number): void
 
 export const submitSortDialogAction = async (): Promise<boolean> => {
     const state = $sortDialog.get();
-    if (state.loading || state.failed || state.submitting || !state.parent) {
+    if (state.idsLoading || state.idsFailed || state.submitting || !state.parent) {
         return false;
     }
 
@@ -298,6 +391,7 @@ export const submitSortDialogAction = async (): Promise<boolean> => {
 export const openSortDialog = (parent: ContentSummary): void => {
     const initialOptionId = toSortOrderOptionIdFromChildOrder(parent.getChildOrder());
 
+    loadingBatches.clear();
     $sortDialog.set({
         ...structuredClone(initialState),
         open: true,
@@ -308,6 +402,8 @@ export const openSortDialog = (parent: ContentSummary): void => {
 };
 
 export const closeSortDialog = (): void => {
+    instanceId++;
+    loadingBatches.clear();
     $sortDialog.set(structuredClone(initialState));
 };
 
@@ -321,6 +417,6 @@ $sortDialog.subscribe((state, previous) => {
 
     const shouldReload = openedNow || (sortChanged && state.selectedOptionId !== 'manual');
     if (shouldReload) {
-        void reloadSortDialogItems();
+        void reloadSortDialogIds();
     }
 });
