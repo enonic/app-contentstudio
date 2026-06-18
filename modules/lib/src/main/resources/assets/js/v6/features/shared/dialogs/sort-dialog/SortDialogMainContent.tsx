@@ -1,25 +1,33 @@
 import {SortableGridList} from '@enonic/lib-admin-ui/form2/components/sortable-grid-list';
 import {Button, Dialog} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {type ReactElement} from 'react';
+import {useRef, type ReactElement} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
+import {useSortDialogBatchLoader} from '../../../hooks/useSortDialogBatchLoader';
 import {
     $isSortDialogReady,
     $sortDialog,
+    $sortDialogRows,
+    ensureSortDialogBatchLoaded,
+    isSortDialogBatchFailed,
     reorderSortDialogItems,
     setSortDialogOrderSelection,
     startSortDialogManualReorder,
     submitSortDialogAction,
 } from '../../../store/dialogs/sortDialog.store';
 import type {SortOrderOptionId} from '../../../store/dialogs/sortDialog.types';
-import {SortContentListItem} from '../../items';
+import {SortContentListItem, SortContentListItemSkeleton} from '../../items';
 import {SortElementSelector} from '../../selectors/SortElementSelector';
 
 const SORT_DIALOG_MAIN_CONTENT_NAME = 'SortDialogMainContent';
 
 export const SortDialogMainContent = (): ReactElement => {
-    const {items, loading, failed, selectedOptionId} = useStore($sortDialog, {
-        keys: ['items', 'loading', 'failed', 'selectedOptionId'],
+    const scrollRef = useRef<HTMLDivElement>(null);
+    const registerRow = useSortDialogBatchLoader(scrollRef);
+
+    const rows = useStore($sortDialogRows);
+    const {idsLoading, idsFailed, failedBatches, selectedOptionId} = useStore($sortDialog, {
+        keys: ['idsLoading', 'idsFailed', 'failedBatches', 'selectedOptionId'],
     });
     const canSave = useStore($isSortDialogReady);
 
@@ -32,6 +40,7 @@ export const SortDialogMainContent = (): ReactElement => {
     const alphabeticalDescendingLabel = useI18n('field.sortType.alphabetical.descending');
     const loadErrorLabel = useI18n('dialog.sort.items.failed');
     const loadingLabel = useI18n('dialog.sort.items.loading');
+    const retryLabel = useI18n('action.retry');
 
     const modifiedLabel = useI18n('field.sortType.modified');
     const createdLabel = useI18n('field.sortType.created');
@@ -63,17 +72,17 @@ export const SortDialogMainContent = (): ReactElement => {
                     options={sortElementOptions}
                     selection={[selectedOptionId]}
                     onSelectionChange={setSortDialogOrderSelection}
-                    disabled={loading}
+                    disabled={idsLoading}
                     className='flex flex-col gap-2.5 col-start-1 row-start-3 col-span-2 min-w-0'
                 />
             </Dialog.DefaultHeader>
-            <Dialog.Body className='flex flex-col gap-5 focus-within:outline-none focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset focus-within:border-bdr-solid rounded-sm'>
-                {loading && <span>{loadingLabel}</span>}
-                {!loading && failed && <span>{loadErrorLabel}</span>}
-                {!loading && !failed && items.length > 0 && (
+            <Dialog.Body ref={scrollRef} className='flex flex-col gap-5 focus-within:outline-none focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset focus-within:border-bdr-solid rounded-sm'>
+                {idsLoading && <span>{loadingLabel}</span>}
+                {!idsLoading && idsFailed && <span>{loadErrorLabel}</span>}
+                {!idsLoading && !idsFailed && rows.length > 0 && (
                     <SortableGridList
-                        items={items}
-                        keyExtractor={(item) => item.getId()}
+                        items={rows}
+                        keyExtractor={(row) => row.id}
                         onMove={(fromIndex, toIndex) => {
                             if (!isManualSorting) {
                                 startSortDialogManualReorder();
@@ -85,13 +94,39 @@ export const SortDialogMainContent = (): ReactElement => {
                         dragLabel={reorderLabel}
                         className='flex flex-col gap-y-2.5'
                         itemClassName='[&>button]:hidden'
-                        renderItem={({item}) => (
-                            <SortContentListItem
-                                content={item}
-                                variant='detailed'
-                                dragEnabled={isManualSorting}
-                            />
-                        )}
+                        renderItem={({item, index}) => {
+                            if (item.content) {
+                                return (
+                                    <SortContentListItem
+                                        content={item.content}
+                                        variant='detailed'
+                                        dragEnabled={isManualSorting}
+                                    />
+                                );
+                            }
+
+                            if (isSortDialogBatchFailed(failedBatches, index)) {
+                                return (
+                                    <div className='flex flex-1 items-center justify-between gap-2.5 px-2.5 py-1'>
+                                        <span className='text-sm text-subtle'>{loadErrorLabel}</span>
+                                        <Button
+                                            size='sm'
+                                            variant='text'
+                                            label={retryLabel}
+                                            onClick={() => {
+                                                void ensureSortDialogBatchLoaded(index);
+                                            }}
+                                        />
+                                    </div>
+                                );
+                            }
+
+                            return (
+                                <div ref={registerRow(index)} className='flex flex-1 min-w-0'>
+                                    <SortContentListItemSkeleton dragEnabled={isManualSorting} />
+                                </div>
+                            );
+                        }}
                     />
                 )}
             </Dialog.Body>
