@@ -1,18 +1,15 @@
-import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {Button, cn} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
 import {UploadIcon} from 'lucide-react';
-import {listenKeys} from 'nanostores';
-import {type ReactElement, useCallback, useEffect, useRef, useState} from 'react';
-import type {UploadMediaError, UploadMediaSuccess} from '../../../../api/uploadMedia';
+import {type ReactElement, useCallback, useRef} from 'react';
 import {useI18n} from '../../../../hooks/useI18n';
-import {useUploadMedia} from '../../../../hooks/useUploadMedia';
-import {$contextContent} from '../../../../store/context/contextContent.store';
-import {$uploads, removeUpload} from '../../../../store/uploads.store';
 
 export type SelectorUploadButtonProps = {
-    selection: readonly string[];
-    onSelectionChange: (selection: readonly string[]) => void;
+    /** Upload the selected files */
+    onFiles: (files: FileList | File[]) => void;
+    /** Aggregate upload progress (0-100) */
+    progress: number;
+    /** Whether one or more uploads are in flight */
+    isUploading: boolean;
     disabled: boolean;
     multiple: boolean;
     /** MIME type filter for the file input (e.g. "image/*") */
@@ -22,87 +19,25 @@ export type SelectorUploadButtonProps = {
 const SELECTOR_UPLOAD_BUTTON_NAME = 'SelectorUploadButton';
 
 export const SelectorUploadButton = ({
-    selection,
-    onSelectionChange,
+    onFiles,
+    progress,
+    isUploading,
     disabled,
     multiple,
     accept,
 }: SelectorUploadButtonProps): ReactElement => {
     const uploadMediaLabel = useI18n('tooltip.button.uploadMedia');
-    const [progress, setProgress] = useState<number>(0);
-    const [uploadIds, setUploadIds] = useState<string[]>([]);
-    const [newContentIds, setNewContentIds] = useState<string[]>([]);
-    const uploadParent = useStore($contextContent);
-    const highestProgress = useRef<number>(0);
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const isUploading = uploadIds.length > 0;
 
-    const selectionRef = useRef(selection);
-    selectionRef.current = selection;
-
-    const onSelectionChangeRef = useRef(onSelectionChange);
-    onSelectionChangeRef.current = onSelectionChange;
-
-    // Update selection when uploads are complete
-    // Tracks progress of all uploads based on the upload ids
-    useEffect(() => {
-        if (uploadIds.length === 0) {
-            if (newContentIds.length > 0) {
-                onSelectionChangeRef.current([...selectionRef.current, ...newContentIds]);
-                setNewContentIds([]);
-            }
-            setProgress(0);
-            return;
+    const handleInputChange = useCallback(() => {
+        const {files} = fileInputRef.current ?? {};
+        if (files && files.length > 0) {
+            onFiles(files);
         }
-
-        return listenKeys($uploads, uploadIds, (uploads) => {
-            const activeIds = uploadIds.filter((id) => uploads[id]);
-
-            if (activeIds.length === 0) {
-                highestProgress.current = 0;
-                setProgress(0);
-                return;
-            }
-
-            const progress = activeIds.reduce((acc, id) => acc + uploads[id].progress / activeIds.length, 0);
-
-            // Avoid progress decreasing due to completion of other uploads
-            const finalProgress = Math.min(100, Math.max(highestProgress.current, progress));
-            highestProgress.current = finalProgress;
-            setProgress(finalProgress);
-        });
-    }, [uploadIds]);
-
-    // Handlers
-    const onUploadStart = useCallback(
-        (file: File) => {
-            setUploadIds((prev) => [...prev, file.name]);
-        },
-        [setUploadIds]
-    );
-
-    const onUploadComplete = useCallback((success: UploadMediaSuccess) => {
-        const contentId = success.content.getId();
-        setNewContentIds((prev) => [...prev, contentId]);
-        removeUpload(success.mediaIdentifier);
-        setUploadIds((prev) => prev.filter((id) => id !== success.mediaIdentifier));
-    }, []);
-
-    const onUploadError = useCallback(
-        (error: UploadMediaError) => {
-            removeUpload(error.mediaIdentifier);
-            setUploadIds((prev) => prev.filter((id) => id !== error.mediaIdentifier));
-            showError(useI18n('notify.upload.error', error.mediaIdentifier, error.message));
-        },
-        [setUploadIds]
-    );
-
-    const {handleInputChange} = useUploadMedia({
-        parentContent: uploadParent,
-        onUploadStart,
-        onUploadComplete,
-        onUploadError,
-    });
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    }, [onFiles]);
 
     const handleUploadClick = useCallback(() => {
         fileInputRef.current?.click();
@@ -117,7 +52,7 @@ export const SelectorUploadButton = ({
                 multiple={multiple}
                 accept={accept}
                 aria-label={uploadMediaLabel}
-                onChange={e => void handleInputChange(e)}
+                onChange={handleInputChange}
                 className="sr-only"
             />
             <Button

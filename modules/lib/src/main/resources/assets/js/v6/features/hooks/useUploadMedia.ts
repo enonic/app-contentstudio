@@ -16,6 +16,7 @@ export type UseUploadMediaOptions = {
 };
 
 export type UseUploadMediaReturn = {
+    handleFiles: (files: FileList | File[]) => Promise<void>;
     handleInputChange: (event: TargetedEvent<HTMLInputElement>) => Promise<void>;
 };
 
@@ -35,9 +36,7 @@ export const useUploadMedia = ({
     const ref = useRef({parentContent, onUploadStart, onUploadProgress, onUploadComplete, onUploadError});
     ref.current = {parentContent, onUploadStart, onUploadProgress, onUploadComplete, onUploadError};
 
-    const handleInputChange = useCallback(async (event: TargetedEvent<HTMLInputElement>) => {
-        const {files} = event.currentTarget;
-
+    const handleFiles = useCallback(async (files: FileList | File[]) => {
         if (!files || files.length === 0) return;
 
         const {parentContent, onUploadStart} = ref.current;
@@ -77,5 +76,10 @@ export const useUploadMedia = ({
         );
     }, []);
 
-    return useMemo(() => ({handleInputChange}), [handleInputChange]);
+    const handleInputChange = useCallback(
+        (event: TargetedEvent<HTMLInputElement>) => handleFiles(event.currentTarget.files ?? []),
+        [handleFiles]
+    );
+
+    return useMemo(() => ({handleFiles, handleInputChange}), [handleFiles, handleInputChange]);
 };
