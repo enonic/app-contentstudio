@@ -1,5 +1,5 @@
 gradlew eol=lf
 *.sh eol=lf
-*.bat eol=crlf
+*.bat -text
 
 **/pnpm-lock.yaml eol=lf
