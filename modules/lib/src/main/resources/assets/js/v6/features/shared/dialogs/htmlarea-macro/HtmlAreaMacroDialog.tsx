@@ -1,6 +1,5 @@
 import {Button, Dialog} from '@enonic/ui';
 import {type ReactElement} from 'react';
-import type {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import {type CreateHtmlAreaMacroDialogEvent} from '../../../../../app/inputtype/ui/text/CreateHtmlAreaMacroDialogEvent';
 import type {MacroDialogParams} from '../../../../../app/inputtype/ui/text/HtmlEditorTypes';
@@ -84,7 +83,6 @@ export function createMacroDialogOverride(
                 ckeEditor: config.editor,
                 content: macroEvent.getContent(),
                 project: macroEvent.getProject(),
-                applicationKeys: macroEvent.getApplicationKeys(),
                 macro: config.macro,
             });
         },
