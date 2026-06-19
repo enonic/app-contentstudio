@@ -1,5 +1,5 @@
 /**
- * Created on 25.07.2019.
+ * Created on 25.07.2019.  updated on 18.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
@@ -34,7 +34,7 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
             let wizard = new ContentWizard();
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             let state = await wizard.getContentWorkflowState();
-            assert.equal(state, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS, `'Work in progress' icon should be displayed`);
+            assert.equal(state, appConst.ICON_WORKFLOW_STATE.IN_PROGRESS, `'Work in progress' icon should be displayed`);
         });
 
     it(`GIVEN new folder has been opened WHEN the folder has been marked as ready THEN 'Ready for publishing' state should be displayed in the wizard`,
@@ -52,7 +52,7 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
             assert.equal(message, appConst.markedAsReadyMessage(TEST_FOLDER.displayName),
                 "Message: 'Item is marked as ready' should appear");
             let state = await wizard.getContentWorkflowState();
-            assert.equal(state, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING,
+            assert.equal(state, appConst.ICON_WORKFLOW_STATE.READY_FOR_PUBLISHING,
                 "'Ready for publishing' icon should be displayed in the wizard");
         });
 
@@ -65,12 +65,21 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
                 `'Ready for publishing' icon should be displayed in browse panel`);
         });
 
-    it.skip(`GIVEN ready for publishing folder is selected WHEN previous version has been restored THEN 'Work in progress' state gets visible in wizard`,
+    it(`GIVEN ready for publishing folder is selected WHEN previous version has been restored THEN 'Work in progress' state gets visible in wizard`,
         async () => {
             let versionPanel = new WizardVersionsWidget();
             let wizard = new ContentWizard();
+            let contentPublishDialog = new ContentPublishDialog();
             // 1. Open the folder:
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
+            await wizard.clearDisplayNameInput();
+            await wizard.typeDisplayName(appConst.generateRandomName('test'));
+            await wizard.waitForSaveButtonEnabled();
+            await wizard.clickOnMarkAsReadyButton();
+            await wizard.waitForNotificationMessage();
+            await contentPublishDialog.waitForDialogOpened();
+            await contentPublishDialog.clickOnCloseButton();
+            await contentPublishDialog.waitForDialogClosed();
             // 2. Revert the previous version:
             await wizard.openVersionsHistoryPanel();
             await versionPanel.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED,1);
@@ -78,7 +87,7 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
             await studioUtils.saveScreenshot('revert_workflow_state');
             // State in wizard gets 'Work in Progress':
             let state = await wizard.getContentWorkflowState();
-            assert.equal(state, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS,
+            assert.equal(state, appConst.ICON_WORKFLOW_STATE.IN_PROGRESS,
                 `'Work in progress' -state should appear after reverting the previous version`);
         });
     // Verifies: Incorrect notification message after reverting a version that is identical to the current version #1656

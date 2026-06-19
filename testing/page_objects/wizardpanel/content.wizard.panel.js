@@ -437,7 +437,6 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    // TODO enonic ui bug
     async waitForSavedButtonVisible() {
         try {
             await this.waitForElementDisplayed(this.savedButton);
@@ -472,13 +471,17 @@ class ContentWizardPanel extends Page {
     }
 
     async openDisplayNameEditor() {
-        if (await this.isElementDisplayed(this.displayNameInput)) {
-            return;
-        }
+        try {
+            if (await this.isElementDisplayed(this.displayNameInput)) {
+                return;
+            }
 
-        await this.waitForElementDisplayed(this.displayNameControl);
-        await this.clickOnElement(this.displayNameControl);
-        await this.waitForElementDisplayed(this.displayNameInput);
+            await this.waitForElementDisplayed(this.displayNameControl);
+            await this.clickOnElement(this.displayNameControl);
+            await this.waitForElementDisplayed(this.displayNameInput);
+        } catch (err) {
+            await this.handleError('Error when trying to open display name editor', 'err_open_display_name_editor', err);
+        }
     }
 
     async getDisplayName() {
@@ -561,11 +564,6 @@ class ContentWizardPanel extends Page {
         await this.waitForElementDisabled(this.publishDropDownHandle);
     }
 
-    //
-    // async waitForPublishMenuItemDisabled(menuItem) {
-    //     let selector = XPATH.publishMenuItemByName(menuItem);
-    //     await this.waitForAttributeHasValue(selector, 'aria-disabled', 'true');
-    // }
 
     async waitForReadOnlyMode() {
         try {
