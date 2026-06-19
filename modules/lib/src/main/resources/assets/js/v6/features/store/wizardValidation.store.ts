@@ -20,6 +20,7 @@ import {
 import {$page, $pageVersion} from './page-editor/store';
 import {$layoutDescriptorOptions, $partDescriptorOptions} from './component-inspection.store';
 import {$applications} from './applications.store';
+import {getAiFieldRegistry} from './ai/ai.field-registry';
 import {createDebounce} from '../utils/timing/createDebounce';
 
 //
@@ -398,6 +399,9 @@ export function resetValidation(): void {
     $componentConfigErrors.set([]);
     contentRawValueMap.clear();
     mixinRawValueMaps.clear();
+    getAiFieldRegistry('data').clearRawValues();
+    getAiFieldRegistry('mixin').clearRawValues();
+    getAiFieldRegistry('page').clearRawValues();
 }
 
 //
