@@ -20,7 +20,9 @@ import {useSelectedPageOption} from '../../../../hooks/usePageOptions';
 import type {FlatNode} from '../../../../lib/tree-store';
 import {inspectItem, requestComponentMove} from '../../../../store/page-editor';
 import {$inspectedPath, $pageVersion} from '../../../../store/page-editor/store';
+import {$wizardReadOnly} from '../../../../store/wizardContent.store';
 import {$invalidComponentPaths, $validationVisibility} from '../../../../store/wizardValidation.store';
+import {EditLockOverlay} from '../../../../shared/EditLockOverlay';
 import {PageComponentsContextMenu} from './PageComponentsContextMenu';
 import {calcSpacerWidth, PageComponentsItem, type PageComponentPageMetadata} from './PageComponentsItem';
 import {
@@ -54,6 +56,7 @@ export const PageComponentsView = ({showTitle = false}: PageComponentsViewProps 
     const pageVersion = useStore($pageVersion);
     const invalidComponentPaths = useStore($invalidComponentPaths);
     const validationVisibility = useStore($validationVisibility);
+    const readOnly = useStore($wizardReadOnly);
     const showErrors = validationVisibility === 'all';
     const inspectedPath = useStore($inspectedPath);
     const [flatNodes, setFlatNodes] = useState(() => [...$componentsFlatNodes.get()]);
@@ -201,23 +204,25 @@ export const PageComponentsView = ({showTitle = false}: PageComponentsViewProps 
     }, [handleSelect, inspectedPath, pageMetadata, showErrors, invalidComponentPaths]);
 
     return (
-        <div ref={containerRef} data-component={PAGE_COMPONENTS_VIEW_NAME} className="flex flex-col gap-1 py-2">
-            {showTitle && <h3 className="text-base font-semibold">{componentsLabel}</h3>}
-            <SortableList
-                items={flatNodes}
-                keyExtractor={(node) => node.id}
-                onDragStart={handleDragStart}
-                onMove={handleMove}
-                enabled={flatNodes.length > 1}
-                fullRowDraggable
-                isItemMovable={isItemMovable}
-                resolveDrop={resolveDrop}
-                animateLayoutChanges={animateLayoutChanges}
-                itemClassName={itemClassName}
-                renderItem={renderItem}
-                className="flex flex-col gap-1.5"
-            />
-        </div>
+        <EditLockOverlay locked={readOnly}>
+            <div ref={containerRef} data-component={PAGE_COMPONENTS_VIEW_NAME} className="flex flex-col gap-1 py-2">
+                {showTitle && <h3 className="text-base font-semibold">{componentsLabel}</h3>}
+                <SortableList
+                    items={flatNodes}
+                    keyExtractor={(node) => node.id}
+                    onDragStart={handleDragStart}
+                    onMove={handleMove}
+                    enabled={flatNodes.length > 1}
+                    fullRowDraggable
+                    isItemMovable={isItemMovable}
+                    resolveDrop={resolveDrop}
+                    animateLayoutChanges={animateLayoutChanges}
+                    itemClassName={itemClassName}
+                    renderItem={renderItem}
+                    className="flex flex-col gap-1.5"
+                />
+            </div>
+        </EditLockOverlay>
     );
 };
 

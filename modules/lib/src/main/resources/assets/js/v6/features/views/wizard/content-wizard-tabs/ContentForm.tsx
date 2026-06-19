@@ -1,6 +1,7 @@
 import {FieldRegistryProvider, RawValueProvider, ServerErrorsProvider, ValidationVisibilityProvider} from '@enonic/lib-admin-ui/form2';
 import {useStore} from '@nanostores/preact';
 import {type ReactElement, useEffect, useMemo} from 'react';
+import {EditLockOverlay} from '../../../shared/EditLockOverlay';
 import {FormRenderer} from '../../../shared/form';
 import {useBreakpoints} from '../../../hooks/useBreakpoints';
 import {getAiFieldRegistry} from '../../../store/ai/ai.field-registry';
@@ -50,7 +51,7 @@ export const ContentForm = (): ReactElement | null => {
     }
 
     return (
-        <div data-component={CONTENT_FORM_NAME} className="flex flex-col gap-7.5 pb-10">
+        <EditLockOverlay locked={readOnly} contentClassName="flex flex-col gap-7.5 pb-10">
             <DisplayNameInput />
             <ValidationVisibilityProvider visibility={visibility}>
                 <RawValueProvider map={rawValueMap}>
@@ -63,7 +64,6 @@ export const ContentForm = (): ReactElement | null => {
                             <FormRenderer
                                 form={contentType.getForm()}
                                 propertySet={draftData.getRoot()}
-                                enabled={!readOnly}
                                 applicationKey={applicationKey}
                                 excludeInputTypes={excludeInputTypes}
                             />
@@ -71,7 +71,7 @@ export const ContentForm = (): ReactElement | null => {
                     </FieldRegistryProvider>
                 </RawValueProvider>
             </ValidationVisibilityProvider>
-        </div>
+        </EditLockOverlay>
     );
 };
 

@@ -189,7 +189,6 @@ export const DisplayNameInput = (): ReactElement => {
                         'hover:not-disabled:border-l-4 hover:not-disabled:pl-3.75',
                         'focus:outline-none focus:ring-0 focus:ring-offset-0',
                         'disabled:select-none disabled:cursor-not-allowed',
-                        !aiProcessing && 'disabled:opacity-50',
                         aiProcessing && 'cursor-progress animate-text-shimmer',
                         touched ? 'whitespace-pre-wrap break-words' : 'truncate',
                         !aiProcessing && isShowingPlaceholder && 'text-subtle/50',
@@ -219,7 +218,7 @@ export const DisplayNameInput = (): ReactElement => {
                         'block w-full min-w-64 resize-none overflow-hidden whitespace-pre-wrap break-words bg-transparent',
                         'border-0 border-l-1 text-[2rem] font-semibold px-2.5 py-1 pl-4.5',
                         '[&:hover,&:focus]:border-l-4 [&:hover,&:focus]:pl-3.75 placeholder:text-subtle/50 rounded-none',
-                        'transition-highlight focus:outline-none disabled:select-none disabled:cursor-not-allowed disabled:opacity-50',
+                        'transition-highlight focus:outline-none disabled:select-none disabled:cursor-not-allowed',
                         'focus:ring-0 focus:ring-offset-0 focus:border-transparent',
                         showErrorBorder ? 'border-l-error focus:border-l-error' : 'border-l-bdr-subtle focus:border-l-ring',
                     )}
