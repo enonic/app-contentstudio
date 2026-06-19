@@ -82,9 +82,13 @@ export const ItemSetOccurrenceView = forwardRef<HTMLDivElement, ItemSetOccurrenc
             onAddBelow(index);
         }, [onAddBelow, index]);
         const handleRemove = useCallback(() => {
+            if (propertySet.isEmpty()) {
+                onRemove(index);
+                return;
+            }
             if (!expanded) onToggle(index);
             setConfirmingDelete(true);
-        }, [expanded, onToggle, index]);
+        }, [propertySet, expanded, onToggle, index, onRemove]);
         const handleCancelDelete = useCallback(() => {
             setConfirmingDelete(false);
         }, []);
