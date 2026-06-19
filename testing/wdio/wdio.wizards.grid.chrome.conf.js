@@ -12,15 +12,11 @@ exports.config = {
     ],
     exclude: [
         path.join(__dirname, '../specs/browse.selection.controller.spec.js'),
-        path.join(__dirname, '../specs/content.workflow.state.spec.js'),
-        path.join(__dirname, '../specs/cookies.service.spec.js'),
         path.join(__dirname, '../specs/outbound.dependency.rollback.version.spec.js'),
         path.join(__dirname, '../specs/site.app.uninstalled.spec.js'),
         path.join(__dirname, '../specs/site.configurator.htmlarea.spec.js'),
-        path.join(__dirname, '../specs/site.configurator.required.input.spec.js'),
         path.join(__dirname, '../specs/site.with.meta.fields.spec.js'),
         path.join(__dirname, '../specs/wizard.detailspanel.update.dependencies.spec.js'),
-        path.join(__dirname, '../specs/wizard.xdata.long.form.spec.js'),
     ],
 
     maxInstances: 1,

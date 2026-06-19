@@ -17,6 +17,10 @@ const XPATH = {
     selectedAppByDisplayName: (displayName) => {
         return `//div[@data-component='SiteConfiguratorInput']//div[@data-component='SortableGridList']/div[descendant::span[contains(@class,'font-semibold') and text()='${displayName}']]`
     },
+    // FieldError shown below the SortableGridList when the app config is invalid:
+    siteConfiguratorFieldError: (displayName) => {
+        return `//div[@data-component='SiteConfiguratorInput'][descendant::span[text()='${displayName}']]//div[@data-component='FieldError']`;
+    },
 };
 
 class SiteForm extends Page {
@@ -170,21 +174,16 @@ class SiteForm extends Page {
 
     async isSiteConfiguratorViewInvalid(displayName) {
         try {
-            let selector = XPATH.selectedAppByDisplayName(displayName);
-            let result = await this.getAttribute(selector, 'class');
-            return result.includes('invalid');
+            let selector = XPATH.siteConfiguratorFieldError(displayName);
+            return await this.isElementDisplayed(selector);
         } catch (err) {
             throw new Error('error, site configurator validation ' + err);
         }
     }
 
     waitUntilSiteConfiguratorViewValid(displayName) {
-        let selector = XPATH.selectedAppByDisplayName(displayName);
-        return this.getBrowser().waitUntil(() => {
-            return this.getAttribute(selector, 'class').then(result => {
-                return !result.includes('invalid');
-            })
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Site configurator should be valid'});
+        let selector = XPATH.siteConfiguratorFieldError(displayName);
+        return this.waitForElementNotDisplayed(selector, appConst.mediumTimeout);
     }
 
     async swapApplications(sourceAppName, destinationAppName) {

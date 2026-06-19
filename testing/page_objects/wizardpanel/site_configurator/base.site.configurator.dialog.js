@@ -39,9 +39,9 @@ class BaseSiteConfiguratorDialog extends Page {
         return this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
     }
 
-    async clickOnCancelTopButton() {
-        await this.waitForElementDisplayed(this.cancelButtonTop, appConst.mediumTimeout);
-        return await this.clickOnElement(this.cancelButtonTop);
+    async clickOnCloseButton() {
+        await this.waitForElementDisplayed(this.closeButton, appConst.mediumTimeout);
+        return await this.clickOnElement(this.closeButton);
     }
 }
 
