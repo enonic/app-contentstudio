@@ -18,6 +18,7 @@ import com.enonic.xp.site.Site;
 import com.google.common.base.Preconditions;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -69,10 +70,17 @@ public class ContentSelectorQueryJsonToContentQueryConverter
 
         if ( applicationKey != null )
         {
-            return this.filterContentTypeNames( applicationKey );
+            final ContentTypeNames matching = this.getMatchingContentTypeNames( applicationKey );
+
+            return matching.isEmpty() ? nonMatchingContentTypeName( applicationKey ) : matching;
         }
 
         return contentTypeNames.stream().map( ContentTypeName::from ).collect( ContentTypeNames.collector() );
+    }
+
+    private static ContentTypeNames nonMatchingContentTypeName( final ApplicationKey applicationKey )
+    {
+        return ContentTypeNames.from( ContentTypeName.from( applicationKey, "non-matching-" + UUID.randomUUID() ) );
     }
 
     private ApplicationKey getApplicationKey()
@@ -90,7 +98,7 @@ public class ContentSelectorQueryJsonToContentQueryConverter
         return null;
     }
 
-    private ContentTypeNames filterContentTypeNames( final ApplicationKey applicationKey )
+    private ContentTypeNames getMatchingContentTypeNames( final ApplicationKey applicationKey )
     {
         final ApplicationWildcardMatcher<ContentTypeName> wildcardMatcher =
             new ApplicationWildcardMatcher<>( applicationKey, ContentTypeName::toString );
