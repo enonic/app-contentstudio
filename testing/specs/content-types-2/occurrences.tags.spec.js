@@ -4,7 +4,6 @@
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
-const contentBuilder = require("../../libs/content.builder");
 const studioUtils = require('../../libs/studio.utils.js');
 const TagForm = require('../../page_objects/wizardpanel/tag.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');

@@ -303,6 +303,10 @@ class HtmlAreaForm extends OccurrencesFormView {
         await this.pause(100);
     }
 
+    async waitForHtmlAreaDisplayed(){
+        return await this.waitForElementDisplayed(this.container + XPATH.ckeWrapper, appConst.mediumTimeout);
+    }
+
     async showToolbarAndClickOnInsertLinkButton() {
         await this.waitForElementDisplayed(XPATH.ckeWrapper, appConst.mediumTimeout);
         await this.clickInTextArea();

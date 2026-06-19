@@ -30,7 +30,7 @@ exports.config = {
         path.join(__dirname, '../specs/content-types/htmlarea.updated.on.server.event.spec.js'),
         path.join(__dirname, '../specs/content-types/attachments.wizard.spec.js'),
         path.join(__dirname, '../specs/content-types/htmlarea.insert.link.to.content.options.filter.input.spec.js'),
-
+        path.join(__dirname, '../specs/content-types/tag.content.allowpath.spec.js'),
     ],
 
     maxInstances: 1,

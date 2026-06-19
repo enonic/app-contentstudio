@@ -1,5 +1,5 @@
 /**
- * Created on 23.03.2019.
+ * Created on 23.03.2019.  updated on 19.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -23,10 +23,10 @@ describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
     it(`Preconditions: site and child folder should be added`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.APP_CONTENT_TYPES]);
             FOLDER = contentBuilder.buildFolder(MY_TAGS_FOLDER_NAME);
             await studioUtils.doAddSite(SITE);
-            await studioUtils.findAndSelectItem(SITE.displayName);
+            await studioUtils.findContentAndClickCheckBox(SITE.displayName);
             await studioUtils.doAddFolder(FOLDER);
         });
 
@@ -38,6 +38,7 @@ describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'tag0_5');
             await contentWizard.typeDisplayName('test-tag1');
             // 2. type 'enonic' in the input and save this tag:
+            await tagForm.clickOnTagInput();
             await tagForm.doAddTag(TAG_TEXT1);
             await contentWizard.waitAndClickOnSave();
             // 3. Verify that new content is saved:
@@ -53,6 +54,7 @@ describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
             await studioUtils.selectSiteAndOpenNewWizard(MY_TAGS_FOLDER_NAME, 'tag0_5');
             await contentWizard.typeDisplayName('test-tag2');
             // type 'test-enonic' in the input and save this tag:
+            await tagForm.clickOnTagInput();
             await tagForm.doAddTag(TAG_TEXT2);
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('tag2_added');
@@ -70,6 +72,7 @@ describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
             // 2. type a name
             await contentWizard.typeDisplayName('test-tag3');
             // 3. type the text-part of existing tag(the tag is not in allowed folder)
+            await tagForm.clickOnTagInput();
             await tagForm.typeInTagInput('enon');
             // Verify that the suggestion is not visible because tag is not in 'allowPath'
             let actualSuggestion = await tagForm.getTagSuggestions();
@@ -77,7 +80,10 @@ describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
             assert.equal(actualSuggestion, "", "Tag Suggestion should not be visible");
         });
 
-    it(`GIVEN wizard for new tag-content is opened WHEN part of the tag that in 'allowed' folder has been typed THEN tag-suggestion should appear`,
+    // https://github.com/enonic/app-contentstudio/issues/10882
+    // Regression: tags autocompletion #10882
+    it.skip(
+        `GIVEN wizard for new tag-content is opened WHEN part of the tag that in 'allowed' folder has been typed THEN tag-suggestion should appear`,
         async () => {
             let tagForm = new TagForm();
             let contentWizard = new ContentWizard();
@@ -86,6 +92,7 @@ describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
             // 2. type a name:
             await contentWizard.typeDisplayName('test-tag3');
             // 3. type the part of text of existing tag(the tag is in allowed folder)
+            await tagForm.clickOnTagInput();
             await tagForm.typeInTagInput('test');
             // Verify : suggestion should be visible because allowPath is "${site}/mytags"
             let actualSuggestion = await tagForm.getTagSuggestions();

@@ -57,6 +57,9 @@ const XPATH = {
     publishMenuItemByName(name) {
         return `//div[@data-component='Menu.Item' and child::span[text()='${name}']]`;
     },
+    xDataMenuTrigger: `//button[@data-component='Menu.Trigger' and @aria-label='Toggle mixin']`,
+    xDataMenuItem: (name) => `//div[@data-component='Menu.Content']//div[@data-component='Menu.Item' and child::span[text()='${name}']]`,
+    xDataMenuConfirmButton: `//div[@data-component='Menu.Content']//button[@aria-label='Confirm']`,
 };
 
 class ContentWizardPanel extends Page {
@@ -1334,6 +1337,41 @@ class ContentWizardPanel extends Page {
             throw new Error("'Page settings' context menu item was not found in shadow DOM");
         } catch (err) {
             await this.handleError('Content Wizard, unlock site with template:', 'err_unlock_site_template', err);
+        }
+    }
+
+    async clickOnXdataMenuTrigger() {
+        try {
+            await this.waitForElementDisplayed(XPATH.xDataMenuTrigger, appConst.mediumTimeout);
+            await this.clickOnElement(XPATH.xDataMenuTrigger);
+            await this.waitForElementDisplayed(XPATH.xDataMenuItem(''), appConst.shortTimeout).catch(() => {});
+        } catch (err) {
+            await this.handleError('Content Wizard, xdata menu trigger', 'err_xdata_menu_trigger', err);
+        }
+    }
+
+    async clickOnXdataMenuItemCheckbox(menuName) {
+        try {
+            let selector = XPATH.xDataMenuItem(menuName);
+            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+            await this.clickOnElement(selector);
+            return await this.pause(300);
+        } catch (err) {
+            await this.handleError(`Content Wizard, xdata menu item: ${menuName}`, 'err_xdata_menu_item', err);
+        }
+    }
+
+    async waitForConfirmXdataButtonEnabled(){
+        await this.waitForElementEnabled(XPATH.xDataMenuConfirmButton);
+    }
+
+    async clickOnConfirmXdataButton() {
+        try {
+            await this.waitForElementDisplayed(XPATH.xDataMenuConfirmButton);
+            await this.clickOnElement(XPATH.xDataMenuConfirmButton);
+            await this.waitForElementNotDisplayed(XPATH.xDataMenuConfirmButton);
+        } catch (err) {
+            await this.handleError('Content Wizard, xdata menu confirm button', 'err_xdata_menu_confirm', err);
         }
     }
 }

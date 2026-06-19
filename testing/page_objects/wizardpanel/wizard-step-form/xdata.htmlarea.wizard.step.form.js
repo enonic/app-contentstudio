@@ -3,11 +3,10 @@
  */
 const OccurrencesFormView = require('../occurrences.form.view');
 const appConst = require('../../../libs/app_const');
-const lib = require('../../../libs/elements-old');
 const HtmlAreaForm = require('../htmlarea.form.panel');
 
 const XPATH = {
-    container: "//div[contains(@id,'XDataWizardStepForm')]",
+    container: "//div[@data-component='Tab.Content' and contains(@id,'contenttypes:html-area')]",
 };
 
 class XDataHtmlArea extends OccurrencesFormView {
@@ -19,15 +18,14 @@ class XDataHtmlArea extends OccurrencesFormView {
         //await htmlAreaForm.pressEnterKey();
     }
 
-    getTextInHtmlArea() {
+    async getTextInHtmlArea() {
         let htmlAreaForm = new HtmlAreaForm(XPATH.container);
-        return htmlAreaForm.getTextFromHtmlArea();
-        let htmlAreaForm = new HtmlAreaForm(XPATH.container);
-        return htmlAreaForm.getTextFromHtmlArea();
+        return await  htmlAreaForm.getTextFromHtmlArea();
     }
 
-    waitForHtmlAreaVisible() {
-        return this.waitForElementDisplayed(XPATH.container + "//div[contains(@id,'cke_TextArea')]");
+    async waitForHtmlAreaVisible() {
+        let htmlAreaForm = new HtmlAreaForm(XPATH.container);
+        await htmlAreaForm.waitForHtmlAreaDisplayed();
     }
 
     async waitForFormValidationRecordingDisplayed() {
@@ -44,34 +42,14 @@ class XDataHtmlArea extends OccurrencesFormView {
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "Form Validation recording should not be displayed"});
     }
 
-    async waitForXdataRedBorderDisplayed() {
-        let locator = XPATH.container + "//div[contains(@id,'FormView')]";
-        await this.getBrowser().waitUntil(async () => {
-            let result = await this.getAttribute(locator, "class");
-            return result.includes("display-validation-errors");
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Red border should be displayed in X-data Form!"});
-    }
-
-    async waitForXdataRedBorderNotDisplayed() {
-        let locator = XPATH.container + "//div[contains(@id,'FormView')]";
-        await this.getBrowser().waitUntil(async () => {
-            let result = await this.getAttribute(locator, "class");
-            return !result.includes("display-validation-errors");
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Red border should not be displayed in X-data Form!"});
-    }
-
-    async waitForHelpTextToggleNotDisplayedInsideXdata() {
-        return await this.waitForElementNotDisplayed(XPATH.container + lib.HELP_TEXT.TOGGLE);
-    }
-
-    async getHelpText(inputLabel) {
+    async getHelpText() {
         try {
-            let locator = XPATH.container + lib.HELP_TEXT.TEXT;
+            let locator = XPATH.container + "//div[@data-component='InputLabel']/div[contains(@class,'text-subtle')]";
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             return await this.getText(locator);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_help_text');
-            throw new Error(`Error occurred in optionSet help-text: ${err} , Screenshot: ${screenshot}`);
+            throw new Error(`Error occurred in xdata html-area help-text: ${err} , Screenshot: ${screenshot}`);
         }
     }
 }
