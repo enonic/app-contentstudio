@@ -55,6 +55,13 @@ class SiteConfiguratorComboBox extends BasDropdown {
         return await this.getTextInDisplayedElements(locator);
     }
 
+    async clickOnCheckboxInDropdownByDisplayName(displayName) {
+        let locator = DROPDOWN.COMBOBOX_POPUP + DROPDOWN.listboxItemCheckboxByDisplayName(displayName);
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.clickOnElement(locator);
+        return await this.pause(300);
+    }
+
 }
 
 module.exports = SiteConfiguratorComboBox;

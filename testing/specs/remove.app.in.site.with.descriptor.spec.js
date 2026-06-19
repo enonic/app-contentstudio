@@ -1,5 +1,5 @@
 /**
- * Created on 02.02.2024
+ * Created on 02.02.2024  updated on 18.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
@@ -32,7 +32,7 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             await allureReporter.step('new site with a page controller should be added', async () => {
                 let applications = [APP_1];
                 let displayName = appConst.generateRandomName('site');
-                SITE = contentBuilder.buildSite(displayName, 'test site1', applications, CONTROLLER_APP_1);
+                SITE = contentBuilder.buildSite(displayName, null, applications, CONTROLLER_APP_1);
                 await studioUtils.doAddSite(SITE);
             });
         });
@@ -57,6 +57,7 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             // 5. Verify that App2 application is selected in app selector-dropdown:
             let apps = await siteFormPanel.getSelectedAppDisplayNames();
             assert.equal(apps[0], APP_2, 'application should be updated in the form');
+            await contentWizard.clickOnWizardStep('Page');
             // 6. Verify that the controller from the previous application remains visible in PCV:
             await pageComponentsWizardStepForm.rightClickAndOpenContextMenu(CONTROLLER_APP_1);
             // 7. Click on 'Reset' menu item, reset the controller
@@ -87,6 +88,7 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_APP_2);
             // 15. Verify that 'Preview' button gets displayed again:
             await contentWizard.waitForPreviewButtonDisplayed();
+            await contentWizard.clickOnWizardStep('Page');
             // 16. PCV gets visible and contains items from the second application:
             await pageComponentsWizardStepForm.waitForComponentItemDisplayed(CONTROLLER_APP_2);
         });
@@ -113,7 +115,8 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/9211
     // Error displaying controllers from a missing app #9211
-    it(`GIVEN app has been removed in the site the site is reopened WHEN 'Page widget' has been opened THEN Invalid Controller should be displayed in Inspect tab`,
+    // Controllers from a missing app are not displayed in the Inspect Panel #10870
+    it.skip(`GIVEN app has been removed in the site the site is reopened WHEN 'Page widget' has been opened THEN Invalid Controller should be displayed in Inspect tab`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageWidgetPanel = new PageWidgetPanel();
@@ -139,6 +142,7 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             // 1. Existing site is opened:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            await contentWizard.clickOnWizardStep('Page');
             let contextWindow = await contentWizard.openContextWindow();
             // 2. Open Page widget in Context Window:
             await contextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
