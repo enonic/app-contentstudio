@@ -32,6 +32,7 @@ import com.enonic.xp.security.PrincipalKey;
 import com.enonic.xp.site.Site;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class ContentSelectorQueryJsonToContentQueryConverterTest
 {
@@ -256,6 +257,41 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
         assertEquals( "(_path LIKE '/content/path1*' AND (fulltext('displayName^5,_name^3,_alltext', 'check', 'AND') " +
                           "OR ngram('displayName^5,_name^3,_alltext', 'check', 'AND'))) ORDER BY _modifiedtime DESC",
                       contentQuery.getQueryExpr().toString() );
+    }
+
+    @Test
+    public void testAllowTypeThatMatchesNoContentType()
+    {
+        Mockito.when( contentTypeService.getAll() ).thenReturn( ContentTypes.from( createContentType( "myApplication:comment" ) ) );
+
+        final List<String> contentTypeNames = List.of( "myApplication:ghost" );
+
+        final List<String> allowPaths = List.of( "/path/to/parent" );
+
+        ContentSelectorQueryJson contentQueryJson = new ContentSelectorQueryJson( "", 0, 100, "summary", "content-id", "inputName",
+                                                                                  contentTypeNames, allowPaths, "myApplication" );
+
+        final ContentQuery contentQuery = getProcessor( contentQueryJson ).createQuery();
+
+        assertFalse( contentQuery.getContentTypes().isEmpty() );
+        assertFalse( contentQuery.getContentTypes().contains( ContentTypeName.from( "myApplication:comment" ) ) );
+    }
+
+    @Test
+    public void testAllowTypeWildcardThatMatchesNoContentType()
+    {
+        Mockito.when( contentTypeService.getAll() ).thenReturn( ContentTypes.from( createContentType( "otherApplication:article" ) ) );
+
+        final List<String> contentTypeNames = List.of( "myApplication:*" );
+
+        final List<String> allowPaths = List.of( "/path/to/parent" );
+
+        ContentSelectorQueryJson contentQueryJson = new ContentSelectorQueryJson( "", 0, 100, "summary", "content-id", "inputName",
+                                                                                  contentTypeNames, allowPaths, "myApplication" );
+
+        final ContentQuery contentQuery = getProcessor( contentQueryJson ).createQuery();
+
+        assertFalse( contentQuery.getContentTypes().isEmpty() );
     }
 
     private Content createContent( final String id, final String name, final ContentTypeName contentTypeName )
