@@ -1,8 +1,8 @@
+import {FieldRegistryProvider, RawValueProvider, ValidationVisibilityProvider} from '@enonic/lib-admin-ui/form2';
 import {Button} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {OctagonAlert} from 'lucide-react';
 import {type ReactElement, useCallback, useEffect, useMemo} from 'react';
-import {FieldRegistryProvider, RawValueProvider, ValidationVisibilityProvider} from '@enonic/lib-admin-ui/form2';
 import {useI18n} from '../../../hooks/useI18n';
 import {getAiFieldRegistry} from '../../../store/ai/ai.field-registry';
 import {
@@ -13,11 +13,14 @@ import {
     setDraftMixinEnabled,
 } from '../../../store/wizardContent.store';
 import {$validationVisibility, getMixinRawValueMap} from '../../../store/wizardValidation.store';
+import {EditLockOverlay} from '../../../shared/EditLockOverlay';
 import {FormRenderer} from '../../../shared/form';
 
 type MixinViewProps = {
     mixinName: string;
 };
+
+const MIXIN_VIEW_NAME = 'MixinView';
 
 export const MixinView = ({mixinName}: MixinViewProps): ReactElement | null => {
     const descriptors = useStore($mixinsDescriptors);
@@ -80,19 +83,20 @@ export const MixinView = ({mixinName}: MixinViewProps): ReactElement | null => {
     if (!form || !mixinData) return null;
 
     return (
-        <ValidationVisibilityProvider visibility={visibility}>
-            <RawValueProvider map={rawValueMap}>
-                <FieldRegistryProvider registry={fieldRegistry}>
-                    <FormRenderer
-                        form={form}
-                        propertySet={mixinData.getRoot()}
-                        enabled={!readOnly}
-                        applicationKey={applicationKey}
-                    />
-                </FieldRegistryProvider>
-            </RawValueProvider>
-        </ValidationVisibilityProvider>
+        <EditLockOverlay locked={readOnly}>
+            <ValidationVisibilityProvider visibility={visibility}>
+                <RawValueProvider map={rawValueMap}>
+                    <FieldRegistryProvider registry={fieldRegistry}>
+                        <FormRenderer
+                            form={form}
+                            propertySet={mixinData.getRoot()}
+                            applicationKey={applicationKey}
+                        />
+                    </FieldRegistryProvider>
+                </RawValueProvider>
+            </ValidationVisibilityProvider>
+        </EditLockOverlay>
     );
 };
 
-MixinView.displayName = 'MixinView';
+MixinView.displayName = MIXIN_VIEW_NAME;

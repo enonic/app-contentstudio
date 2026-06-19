@@ -19,7 +19,7 @@ import {useElementVisibility} from '../../../utils/hooks/useElementVisibility';
 import {ContextToggle} from './ContextToggle';
 import {OverflowActionRow, type OverflowActionRowItem} from './OverflowActionRow';
 import {SplitActionButton} from './SplitActionButton';
-import {$wizardContentPathExists} from '../../../store/wizardContent.store';
+import {$wizardContentPathExists, $wizardReadOnly} from '../../../store/wizardContent.store';
 
 export type ContentWizardToolbarProps = {
     onProjectBack?: () => void;
@@ -98,6 +98,7 @@ export const ContentWizardToolbar = ({
     const {'ai.contentOperator': isOperatorRegistered} = useStore($aiRegisteredPlugins, {keys: ['ai.contentOperator']});
     const {'ai.contentOperator': isOperatorDialogOpen} = useStore($aiPluginDialogOpen, {keys: ['ai.contentOperator']});
     const {exists: contentPathExists, fetching: isPathFetching} = useStore($wizardContentPathExists);
+    const readOnly = useStore($wizardReadOnly);
 
     // Delay disabling the split buttons until the fetch has been in-flight for 200ms.
     // Most path-exists responses are faster than that, so the buttons never visually
@@ -122,7 +123,8 @@ export const ContentWizardToolbar = ({
     const projectViewLabel = projectLabel || projectRoot;
     const unnamedPathLabel = `<${unnamedFieldLabel}>`;
     const contentNameLabel = contentName || `<${nameFieldLabel}>`;
-    const contentFullPath = canRenameContentPath
+    const canRename = canRenameContentPath && !readOnly;
+    const contentFullPath = canRename
         ? formatContentFullPath(contentParentPath, contentName || unnamedPathLabel, unnamedPathLabel)
         : contentNameLabel;
     const pathTitle = contentPathExists ? pathExistsLabel : contentFullPath;
@@ -242,7 +244,7 @@ export const ContentWizardToolbar = ({
                                     size="sm"
                                     variant="text"
                                     className="min-w-0 max-w-full px-1.5 md:px-2.75"
-                                    disabled={!canRenameContentPath}
+                                    disabled={!canRename}
                                     onClick={onContentPathClick}
                                 >
                                     <span
@@ -264,7 +266,7 @@ export const ContentWizardToolbar = ({
                                     size="md"
                                     icon={Link2}
                                     aria-label={contentNameLabel}
-                                    disabled={!canRenameContentPath}
+                                    disabled={!canRename}
                                     onClick={onContentPathClick}
                                     className="shrink-0 size-8"
                                 />

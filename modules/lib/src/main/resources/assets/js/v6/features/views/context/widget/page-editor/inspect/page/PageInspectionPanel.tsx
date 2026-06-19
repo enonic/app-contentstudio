@@ -4,6 +4,7 @@ import {useStore} from '@nanostores/preact';
 import {type ReactElement, useCallback, useMemo, useState} from 'react';
 import {useI18n} from '../../../../../../hooks/useI18n';
 import {ConfirmationDialog} from '../../../../../../shared/dialogs/ConfirmationDialog';
+import {EditLockOverlay} from '../../../../../../shared/EditLockOverlay';
 import {FormRenderer} from '../../../../../../shared/form/FormRenderer';
 import {getAiFieldRegistry} from '../../../../../../store/ai/ai.field-registry';
 import {
@@ -14,15 +15,16 @@ import {
     usePageState,
 } from '../../../../../../store/page-editor';
 import {$isCustomizeVisible, $isPageInspectionEmpty, $pageConfigDescriptor} from '../../../../../../store/page-inspection.store';
+import {$wizardReadOnly} from '../../../../../../store/wizardContent.store';
 import {useInspectFormTracking} from '../useInspectFormTracking';
-import {PageControllerSelector} from "./PageControllerSelector";
+import {PageControllerSelector} from './PageControllerSelector';
 
 type ConfirmDialogState = {
     question: string;
     onConfirm: () => void;
 };
 
-const PAGE_INSPECTION_PANEL_NAME = "PageInspectionPanel";
+const PAGE_INSPECTION_PANEL_NAME = 'PageInspectionPanel';
 
 export const PageInspectionPanel = (): ReactElement => {
     const page = usePageState();
@@ -31,9 +33,10 @@ export const PageInspectionPanel = (): ReactElement => {
     const descriptor = useStore($pageConfigDescriptor);
     const isCustomizeVisible = useStore($isCustomizeVisible);
     const isEmpty = useStore($isPageInspectionEmpty);
+    const readOnly = useStore($wizardReadOnly);
 
-    const customizeLabel = useI18n("action.page.customize");
-    const customizeQuestion = useI18n("dialog.page.customize.confirmation");
+    const customizeLabel = useI18n('action.page.customize');
+    const customizeQuestion = useI18n('dialog.page.customize.confirmation');
     const noTemplatesLabel = useI18n('text.notemplatesorblocks');
 
     const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null);
@@ -65,29 +68,31 @@ export const PageInspectionPanel = (): ReactElement => {
 
     return (
         <div data-component={PAGE_INSPECTION_PANEL_NAME} className="flex flex-col gap-5">
-            <div className="flex flex-col -mx-5 p-5 bg-surface-primary gap-5">
-                <PageControllerSelector />
+            <EditLockOverlay locked={readOnly} contentClassName="flex flex-col gap-5">
+                <div className="flex flex-col -mx-5 p-5 bg-surface-primary gap-5">
+                    <PageControllerSelector />
 
-                {isCustomizeVisible && (
-                    <Button
-                        label={customizeLabel}
-                        variant="outline"
-                        onClick={handleCustomize}
-                        className="w-full"
-                    />
+                    {isCustomizeVisible && (
+                        <Button
+                            label={customizeLabel}
+                            variant="outline"
+                            onClick={handleCustomize}
+                            className="w-full"
+                        />
+                    )}
+                </div>
+
+                {hasController && configForm && configRoot && (
+                    <FieldRegistryProvider registry={fieldRegistry}>
+                        <FormRenderer
+                            form={configForm}
+                            propertySet={configRoot}
+                            enabled={!lifecycle.isPageLocked}
+                            applicationKey={ctx?.applicationKey ?? undefined}
+                        />
+                    </FieldRegistryProvider>
                 )}
-            </div>
-
-            {hasController && configForm && configRoot && (
-                <FieldRegistryProvider registry={fieldRegistry}>
-                    <FormRenderer
-                        form={configForm}
-                        propertySet={configRoot}
-                        enabled={!lifecycle.isPageLocked}
-                        applicationKey={ctx?.applicationKey ?? undefined}
-                    />
-                </FieldRegistryProvider>
-            )}
+            </EditLockOverlay>
 
             <ConfirmationDialog.Root
                 open={confirmDialog != null}
