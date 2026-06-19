@@ -1,5 +1,4 @@
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import type {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import type {PropertyArrayJson} from '@enonic/lib-admin-ui/data/PropertyArrayJson';
 import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
@@ -21,6 +20,7 @@ import type {Macro} from '../../../../../app/inputtype/ui/text/HtmlEditorTypes';
 import type {Project} from '../../../../../app/settings/data/project/Project';
 import type {PageContributionsJson} from '../../../../../app/macro/resource/MacroPreviewJson';
 import {fetchMacros, fetchMacroPreview, fetchMacroPreviewString} from '../../../api/macro';
+import {useOptionalHtmlAreaContext} from '../../form/input-types/html-area/HtmlAreaContext';
 
 //
 // Types
@@ -33,7 +33,6 @@ export type HtmlAreaMacroDialogState = {
     ckeEditor: CKEDITOR.editor | undefined;
     content: ContentSummary | undefined;
     project: Project | undefined;
-    applicationKeys: ApplicationKey[];
     selectedMacro: Macro | undefined;
     macros: MacroDescriptor[];
     macrosLoading: boolean;
@@ -54,7 +53,6 @@ export type OpenHtmlAreaMacroDialogParams = {
     ckeEditor: CKEDITOR.editor;
     content?: ContentSummary;
     project?: Project;
-    applicationKeys: ApplicationKey[];
     macro: Macro;
 };
 
@@ -64,7 +62,6 @@ function createClosedState(): HtmlAreaMacroDialogState {
         ckeEditor: undefined,
         content: undefined,
         project: undefined,
-        applicationKeys: [],
         selectedMacro: undefined,
         macros: [],
         macrosLoading: false,
@@ -277,6 +274,8 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
     const stateRef = useRef(state);
     stateRef.current = state;
 
+    const applicationKeys = useOptionalHtmlAreaContext()?.applicationKeys ?? [];
+
     // Session counter to reject async responses from a previous open/close cycle
     const sessionIdRef = useRef(0);
     // Preview request counter to reject stale preview responses within a single session
@@ -301,7 +300,7 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
     }, []);
 
     const open = useCallback((params: OpenHtmlAreaMacroDialogParams) => {
-        const {ckeEditor, content, project, applicationKeys, macro} = params;
+        const {ckeEditor, content, project, macro} = params;
 
         sessionIdRef.current += 1;
 
@@ -317,7 +316,6 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
             ckeEditor,
             content,
             project,
-            applicationKeys,
             selectedMacro: macro?.name ? macro : undefined,
             data: initialData,
             macrosLoading: true,
@@ -329,15 +327,14 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
         return () => { openRef.current = undefined; };
     }, [open, openRef]);
 
-    // Load macros when dialog opens
     useEffect(() => {
-        if (!state.open || !state.macrosLoading) {
+        if (!state.open) {
             return;
         }
 
         const requestSessionId = sessionIdRef.current;
 
-        fetchMacros(state.applicationKeys, state.project?.getName()).match(
+        fetchMacros(applicationKeys, state.project?.getName()).match(
             (macros) => {
                 if (sessionIdRef.current !== requestSessionId) {
                     return;
@@ -348,18 +345,18 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
                         return prev;
                     }
 
-                    // If editing existing macro, auto-select it
-                    let selectedDescriptor: MacroDescriptor | undefined;
+                    let selectedDescriptor = prev.selectedDescriptor;
                     let data = prev.data;
 
-                    if (prev.selectedMacro?.name) {
-                        selectedDescriptor = macros.find(
+                    if (!selectedDescriptor && prev.selectedMacro?.name) {
+                        const found = macros.find(
                             m => m.getKey().getName() === prev.selectedMacro?.name,
                         );
 
-                        if (selectedDescriptor) {
+                        if (found) {
+                            selectedDescriptor = found;
                             detachDataListener(prev.data);
-                            data = makeDataFromMacro(prev.selectedMacro, selectedDescriptor);
+                            data = makeDataFromMacro(prev.selectedMacro, found);
                             attachDataListener(data);
                         }
                     }
@@ -381,7 +378,7 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
                 setState(prev => prev.open ? {...prev, macrosLoading: false} : prev);
             },
         );
-    }, [state.open, state.macrosLoading, state.applicationKeys, state.project, state.selectedMacro, attachDataListener, detachDataListener]);
+    }, [state.open, applicationKeys, state.project, attachDataListener, detachDataListener]);
 
     // Derived values
 
