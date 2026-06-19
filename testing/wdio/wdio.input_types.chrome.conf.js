@@ -29,6 +29,8 @@ exports.config = {
         path.join(__dirname, '../specs/content-types/multi.selection.option.set.js'),
         path.join(__dirname, '../specs/content-types/htmlarea.updated.on.server.event.spec.js'),
         path.join(__dirname, '../specs/content-types/attachments.wizard.spec.js'),
+        path.join(__dirname, '../specs/content-types/htmlarea.insert.link.to.content.options.filter.input.spec.js'),
+
     ],
 
     maxInstances: 1,
