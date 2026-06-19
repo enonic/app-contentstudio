@@ -35,6 +35,7 @@ class TagForm extends Page {
     async clickInTagInput(){
         await this.clickOnElement(this.tagInput);
     }
+
     async typeInTagInput(text) {
         let locator = COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + xpath.dataComponent + COMMON.INPUTS.INPUT;
         let inputs = await this.getDisplayedElements(locator);

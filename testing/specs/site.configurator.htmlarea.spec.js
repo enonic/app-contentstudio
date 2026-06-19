@@ -34,7 +34,7 @@ describe('site.configurator.htmlarea.spec: tests for site configurator with html
             let siteConfiguratorDialog = new SiteConfiguratorDialog();
             let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'test site', [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
             // Add a site with 'page'-controller
             await studioUtils.doAddSite(SITE);
             // 1. Open the site:

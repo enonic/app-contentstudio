@@ -1,6 +1,7 @@
 const Page = require('../page');
 const {BUTTONS} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
+const HtmlAreaForm = require("./htmlarea.form.panel");
 const XPATH = {
     container: `//div[@data-component='Dialog.Content']`,
     imageContentCombobox: "//div[contains(@id,'ImageContentComboBox')]",
@@ -88,10 +89,12 @@ class SiteConfiguratorDialog extends Page {
 
     async showToolbarAndClickOnInsertLinkButton() {
         try {
-            let insertLinkButton = XPATH.container + "//a[contains(@class,'cke_button') and contains(@title,'Link')]";
-            await this.clickInTextAreaShowToolbar();
-            await this.waitForElementDisplayed(insertLinkButton, appConst.mediumTimeout);
-            await this.clickOnElement(insertLinkButton);
+            let htmlAreaForm = new HtmlAreaForm(XPATH.container);
+            await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
+            // let insertLinkButton = XPATH.container +  "//div[@data-name='CKEditorWrapper']";
+            // await this.clickInTextAreaShowToolbar();
+            // await this.waitForElementDisplayed(insertLinkButton, appConst.mediumTimeout);
+            // await this.clickOnElement(insertLinkButton);
             return await this.pause(300);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_insert_link_button');
