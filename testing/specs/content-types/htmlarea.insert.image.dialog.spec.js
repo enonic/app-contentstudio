@@ -231,7 +231,7 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
             // 6. Click on 'remove selected option' icon :
             await insertImageDialog.clickOnRemoveImageIcon();
             // 7. Select another image:
-            await insertImageDialog.clickOnImageSelectorModeTogglerButton();
+            //await insertImageDialog.clickOnImageSelectorModeTogglerButton();
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME_2);
             await studioUtils.saveScreenshot('insert_image_dlg_image_changed');
             // 8. Verify that Alternative text input is cleared
