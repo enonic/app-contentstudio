@@ -14,6 +14,7 @@ import {Flow, type RoutineContext} from './Flow';
 import {type ContentWizardPanel} from './ContentWizardPanel';
 import {UpdatePersistedContentRoutine} from './UpdatePersistedContentRoutine';
 import {isBlank} from '../../v6/features/utils/format/isBlank';
+import {pruneUnselectedOptionData} from '../../v6/features/shared/form/sets/option-set/pruneUnselectedOptionData';
 
 export class UpdatePersistedContentWithStoreRoutine
     extends Flow {
@@ -81,6 +82,8 @@ export class UpdatePersistedContentWithStoreRoutine
     private buildDataFromDraft(): PropertyTree {
         const draftData = $wizardDraftData.get();
         const data = draftData ? draftData.copy() : this.persistedContent.getContentData().copy();
+
+        pruneUnselectedOptionData(data.getRoot());
 
         if (this.isSiteContent()) {
             const baseUrl = data.getString(UpdatePersistedContentWithStoreRoutine.BASE_URL_PROP) ?? null;
