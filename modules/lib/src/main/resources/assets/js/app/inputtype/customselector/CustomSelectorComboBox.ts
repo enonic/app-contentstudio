@@ -20,6 +20,7 @@ import {CustomSelectorMode} from './CustomSelectorMode';
 import {CustomSelectorGallerySelectedOptionsView} from './CustomSelectorGallerySelectedOptionsView';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
+import {SelectionHelper} from '../ui/selector/SelectionHelper';
 
 interface CustomSelectorComboBoxOptions extends ListBoxInputOptions<CustomSelectorItem> {
     loader: CustomSelectorLoader;
@@ -119,6 +120,10 @@ export class CustomSelectorComboBox
     }
 
     setSelectedItems(selectedIds: string[]): void {
+        if (SelectionHelper.isSameSelection(this.getSelectedOptions(), selectedIds)) {
+            return;
+        }
+
         this.deselectAll(true);
 
         if (selectedIds?.length > 0) {
