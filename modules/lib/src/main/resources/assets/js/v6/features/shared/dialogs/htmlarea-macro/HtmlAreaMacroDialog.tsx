@@ -1,5 +1,6 @@
 import {Button, Dialog} from '@enonic/ui';
-import {type ReactElement} from 'react';
+import {useEffect, type ReactElement} from 'react';
+import {registerHtmlAreaContextDialogOpen} from '../../../store/dialogs/htmlAreaModal.store';
 import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import {type CreateHtmlAreaMacroDialogEvent} from '../../../../../app/inputtype/ui/text/CreateHtmlAreaMacroDialogEvent';
 import type {MacroDialogParams} from '../../../../../app/inputtype/ui/text/HtmlEditorTypes';
@@ -16,6 +17,11 @@ const DIALOG_NAME = 'HtmlAreaMacroDialog';
 
 const HtmlAreaMacroDialogInner = (): ReactElement => {
     const {state: {open}, isEditing, canSubmit, close, submit} = useHtmlAreaMacroDialogContext();
+
+    useEffect(() => {
+        if (!open) return;
+        return registerHtmlAreaContextDialogOpen();
+    }, [open]);
 
     const title = useI18n('dialog.macro.title');
     const insertLabel = useI18n('action.insert');
