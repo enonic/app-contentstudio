@@ -4,6 +4,8 @@ import {Value} from '@enonic/lib-admin-ui/data/Value';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
 import type {FormOptionSet} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
 import {usePropertyArray} from '@enonic/lib-admin-ui/form2';
+import {showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {useCallback, useMemo} from 'react';
 
 const SELECTED_NAME = '_selected';
@@ -71,6 +73,18 @@ function insertMultiSelection(selectedArray: PropertyArray, name: string, curren
     }
 }
 
+/**
+ * Warns that a deselected option's data will be dropped on save. The data is left
+ * in place so re-selecting before save restores it; `pruneUnselectedOptionData`
+ * strips it from the persisted copy.
+ */
+function warnIfOptionHasData(occurrencePropertySet: PropertySet, name: string): void {
+    const dataSet = occurrencePropertySet.getPropertyArray(name)?.getSet(0);
+    if (dataSet != null && !dataSet.isEmpty()) {
+        showWarning(i18n('notify.optionset.notempty'), true);
+    }
+}
+
 type UseOptionSetSelectionResult = {
     selectedNames: string[];
     isSelected: (name: string) => boolean;
@@ -109,16 +123,21 @@ export function useOptionSetSelection(optionSet: FormOptionSet, occurrenceProper
             ensureOption(name);
 
             if (isRadio) {
+                selectedNames.forEach((prev) => {
+                    if (prev !== name) warnIfOptionHasData(occurrencePropertySet, prev);
+                });
                 writeRadioSelection(selectedArray, name);
             } else {
                 insertMultiSelection(selectedArray, name, selectedNames);
             }
         },
-        [isRadio, selectedArray, selectedNames, ensureOption]
+        [isRadio, selectedArray, selectedNames, ensureOption, occurrencePropertySet]
     );
 
     const deselect = useCallback(
         (name: string) => {
+            warnIfOptionHasData(occurrencePropertySet, name);
+
             const size = selectedArray.getSize();
             for (let i = 0; i < size; i++) {
                 if (selectedArray.get(i)?.getValue().getString() === name) {
@@ -127,7 +146,7 @@ export function useOptionSetSelection(optionSet: FormOptionSet, occurrenceProper
                 }
             }
         },
-        [selectedArray]
+        [selectedArray, occurrencePropertySet]
     );
 
     const toggle = useCallback(
