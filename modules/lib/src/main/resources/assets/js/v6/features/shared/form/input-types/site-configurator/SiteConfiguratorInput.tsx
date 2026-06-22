@@ -11,7 +11,7 @@ import {type Form} from '@enonic/lib-admin-ui/form/Form';
 import type {SelfManagedComponentProps} from '@enonic/lib-admin-ui/form2';
 import {FieldError, getFirstError, validateForm} from '@enonic/lib-admin-ui/form2';
 import {type SortableGridListItemContext, SortableGridList} from '@enonic/lib-admin-ui/form2/components';
-import {Button, Dialog, IconButton} from '@enonic/ui';
+import {Button, cn, Dialog, IconButton} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {Pencil, X} from 'lucide-react';
 import type {ReactElement} from 'react';
@@ -22,6 +22,7 @@ import {ProjectHelper} from '../../../../../../app/settings/data/project/Project
 import {useI18n} from '../../../../hooks/useI18n';
 import {$applications, loadApplications, reloadApplications} from '../../../../store/applications.store';
 import {$contextContent} from '../../../../store/context/contextContent.store';
+import {$isHtmlAreaModalDialogOpen, $isHtmlAreaOverlayOpen} from '../../../../store/dialogs/htmlAreaModal.store';
 import {requestMixinSeed} from '../../../../store/wizardContent.store';
 import {ConfirmationDialog} from '../../../dialogs/ConfirmationDialog';
 import {ApplicationIcon} from '../../../icons/ApplicationIcon';
@@ -202,6 +203,8 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
 
     const handleDialogOpenChange = useCallback((open: boolean) => {
         if (open) return;
+
+        if ($isHtmlAreaOverlayOpen.get()) return;
 
         if (view === 'confirmation') {
             setView('main');
@@ -393,14 +396,22 @@ const SiteConfiguratorDialog = ({
         [editing?.appKey],
     );
 
+    const overlayOpen = useStore($isHtmlAreaOverlayOpen);
+    const modalDialogOpen = useStore($isHtmlAreaModalDialogOpen);
+
     if (!editing) return null;
 
     return (
         <Dialog.Root open onOpenChange={onOpenChange}>
             <Dialog.Portal>
-                <Dialog.Overlay />
+                {!modalDialogOpen && <Dialog.Overlay />}
                 {view === 'main' && form && (
-                    <Dialog.Content className="w-full h-full gap-6 sm:h-fit md:min-w-152 md:max-w-184 md:max-h-[85vh]">
+                    <Dialog.Content
+                        modal={!overlayOpen}
+                        className={cn(
+                            'w-full h-full gap-6 sm:h-fit md:min-w-152 md:max-w-184 md:max-h-[85vh]',
+                            modalDialogOpen && 'invisible',
+                        )}>
                         <Dialog.Header className="flex items-center gap-4">
                             <div className="flex items-center gap-3 flex-1 min-w-0">
                                 {application && (
