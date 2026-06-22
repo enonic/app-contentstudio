@@ -49,7 +49,7 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             await textComponentInspectionPanel.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
             // 4. Insert an image in the text component:
-            await insertImageDialog.clickOnImageSelectorModeTogglerButton();
+            //await insertImageDialog.clickOnImageSelectorModeTogglerButton();
             await insertImageDialog.filterAndSelectImage(appConst.TEST_IMAGES.SENG);
             await insertImageDialog.clickOnDecorativeImageRadioButton();
             // 5. Fill in the Caption input an insert the image:
@@ -115,7 +115,7 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             //await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
-            await insertImageDialog.clickOnImageSelectorModeTogglerButton();
+            //await insertImageDialog.clickOnImageSelectorModeTogglerButton();
             await insertImageDialog.filterAndSelectImage(TEST_IMAGE);
             await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();

@@ -52,6 +52,7 @@ export const HtmlAreaImageDialogContent = (): ReactElement => {
                         selection={selection}
                         onSelectionChange={handleSelectionChange}
                         selectionMode='single'
+                        listMode='flat'
                         label={imageLabel}
                         withUpload
                     />
