@@ -9,6 +9,7 @@ import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {SelectionHelper} from '../ui/selector/SelectionHelper';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {ContentId} from '../../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
@@ -173,6 +174,10 @@ export class ContentSelectorDropdown
     }
 
     updateSelectedItems(): void {
+        if (SelectionHelper.isSameSelection(this.selectedOptionsView.getSelectedOptions(), this.getSelectedItemsHandler())) {
+            return;
+        }
+
         // unselecting all items
         this.selectedOptionsView.getSelectedOptions().forEach((selectedOption) => {
             this.selectedOptionsView.removeOption(selectedOption.getOption(), true);
