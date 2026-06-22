@@ -35,7 +35,7 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
             // 2. Select an image in the modal dialog
-            await insertImageDialog.clickOnImageSelectorModeTogglerButton();
+            //await insertImageDialog.clickOnImageSelectorModeTogglerButton();
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
             // 3. Click on align center button in the modal dialog:
             await insertImageDialog.clickOnParagraphCenterButton();
@@ -74,7 +74,7 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
             // 2. Select an image
-            await insertImageDialog.clickOnImageSelectorModeTogglerButton();
+            //await insertImageDialog.clickOnImageSelectorModeTogglerButton();
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
             await insertImageDialog.typeCaption(TEST_CAPTION);
             // 3. Click on 'Decorative' radio:
@@ -132,7 +132,7 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
             // 3. Select an image:
-            await insertImageDialog.clickOnImageSelectorModeTogglerButton();
+            //await insertImageDialog.clickOnImageSelectorModeTogglerButton();
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
             // 4. Verify that 'both radio-buttons are not selected:
             let isSelected = await insertImageDialog.isDecorativeImageRadioSelected();
@@ -152,7 +152,7 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
             // 2. Select an image:
-            await insertImageDialog.clickOnImageSelectorModeTogglerButton();
+            //await insertImageDialog.clickOnImageSelectorModeTogglerButton();
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME)
             // 4. Verify that Insert button is disabled:
             await insertImageDialog.waitForInsertButtonDisabled();
@@ -169,7 +169,7 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
             // 2. Select an image
-            await insertImageDialog.clickOnImageSelectorModeTogglerButton();
+            //await insertImageDialog.clickOnImageSelectorModeTogglerButton();
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
             // 3. Click on 'Alternative Text' radio:
             await insertImageDialog.clickOnAlternativeTextRadioButton();
@@ -190,7 +190,7 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
             // 2. Select an image
-            await insertImageDialog.clickOnImageSelectorModeTogglerButton();
+            //await insertImageDialog.clickOnImageSelectorModeTogglerButton();
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
             // 3. Click on 'Alternative Text' radio:
             await insertImageDialog.clickOnAlternativeTextRadioButton();
@@ -222,7 +222,7 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
             // 2. Select an image
-            await insertImageDialog.clickOnImageSelectorModeTogglerButton();
+            //await insertImageDialog.clickOnImageSelectorModeTogglerButton();
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
             // 3. Click on 'Alternative Text' radio:
             await insertImageDialog.clickOnAlternativeTextRadioButton();
@@ -231,7 +231,7 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
             // 6. Click on 'remove selected option' icon :
             await insertImageDialog.clickOnRemoveImageIcon();
             // 7. Select another image:
-            await insertImageDialog.clickOnImageSelectorModeTogglerButton();
+            //await insertImageDialog.clickOnImageSelectorModeTogglerButton();
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME_2);
             await studioUtils.saveScreenshot('insert_image_dlg_image_changed');
             // 8. Verify that Alternative text input is cleared
@@ -254,7 +254,7 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
             // 2. Select an image with an alt-text:
-            await insertImageDialog.clickOnImageSelectorModeTogglerButton();
+            //await insertImageDialog.clickOnImageSelectorModeTogglerButton();
             await insertImageDialog.filterAndSelectImage(IMAGE_WIT_ALT_TEXT);
             // 3. Verify - expected 'alt text' should be loaded from image-properties in the modal dialog:
             let actualText = await insertImageDialog.getTextInAlternativeTextInput();
