@@ -1,5 +1,6 @@
 import {Button, Dialog, IdProvider} from '@enonic/ui';
-import {type ReactElement} from 'react';
+import {useEffect, type ReactElement} from 'react';
+import {registerHtmlAreaContextDialogOpen} from '../../../store/dialogs/htmlAreaModal.store';
 import {type CreateHtmlAreaContentDialogEvent} from '../../../../../app/inputtype/ui/text/CreateHtmlAreaContentDialogEvent';
 import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import type {DialogOverrides} from '../../form/input-types/html-area/setupEditor';
@@ -17,6 +18,11 @@ const INNER_NAME = `${DIALOG_NAME}Inner`;
 
 const HtmlAreaLinkDialogInner = (): ReactElement => {
     const {state: {open, isEditing}, canSubmit, close, submit} = useHtmlAreaLinkDialogContext();
+
+    useEffect(() => {
+        if (!open) return;
+        return registerHtmlAreaContextDialogOpen();
+    }, [open]);
 
     const title = useI18n('dialog.link.title');
     const insertLabel = useI18n('action.insert');
