@@ -13,12 +13,15 @@ import type {ContentType} from '../../../app/inputtype/schema/ContentType';
 import {ValidationError} from '@enonic/lib-admin-ui/ValidationError';
 import {
     $wizardDataVersion,
+    $wizardDraftData,
+    $wizardPersistedData,
     initializeWizardContentState,
     resetWizardContent,
     setDraftDisplayName,
 } from './wizardContent.store';
 import {
     $attachmentServerErrorEntries,
+    $generalServerErrorMessages,
     $invalidTabs,
     $dataServerErrorEntries,
     $validationVisibility,
@@ -60,6 +63,7 @@ function createMockContentType(): ContentType {
         getDisplayName: () => 'Article',
         getTitle: () => 'Article',
         getForm: () => MOCK_FORM,
+        hasDisplayNameExpression: () => false,
     } as unknown as ContentType;
 }
 
@@ -442,6 +446,101 @@ describe('wizardValidation.store', () => {
             resetValidation();
 
             expect($attachmentServerErrorEntries.get()).toEqual([]);
+        });
+    });
+
+    describe('general server validation errors', () => {
+        const generalError = (message: string, errorCode?: string) => {
+            const builder = ValidationError.create().setMessage(message);
+            if (errorCode) {
+                builder.setErrorCode(errorCode);
+            }
+            return builder.build();
+        };
+
+        it('should expose custom app general errors as messages', () => {
+            setupWizard();
+
+            setServerValidationErrors([generalError('Content is not allowed here', 'com.acme.app:notAllowed')]);
+
+            expect($generalServerErrorMessages.get()).toEqual(['Content is not allowed here']);
+        });
+
+        it('should ignore system general errors (covered by client-side validation)', () => {
+            setupWizard();
+
+            setServerValidationErrors([
+                generalError('System message', 'system:cms.someGeneralError'),
+                generalError('Custom app message', 'com.acme.app:badContent'),
+            ]);
+
+            expect($generalServerErrorMessages.get()).toEqual(['Custom app message']);
+        });
+
+        it('should mark the content tab invalid when a general error is present', () => {
+            setupWizard();
+            expect($invalidTabs.get().has('content')).toBe(false);
+
+            setServerValidationErrors([generalError('bad')]);
+
+            expect($invalidTabs.get().has('content')).toBe(true);
+        });
+
+        it('should NOT clear general errors on a bare data version bump (no user edit)', () => {
+            setupWizard();
+            setServerValidationErrors([generalError('bad')]);
+
+            $wizardDataVersion.set($wizardDataVersion.get() + 1);
+
+            expect($generalServerErrorMessages.get()).toEqual(['bad']);
+        });
+
+        it('should drop general errors once the user edits the content data', () => {
+            setupWizard();
+            setServerValidationErrors([generalError('bad')]);
+            expect($invalidTabs.get().has('content')).toBe(true);
+
+            $wizardDraftData.get()?.addString('field', 'value');
+            $wizardDataVersion.set($wizardDataVersion.get() + 1);
+
+            expect($generalServerErrorMessages.get()).toEqual([]);
+            expect($invalidTabs.get().has('content')).toBe(false);
+        });
+
+        it('should keep a general error received on save while the form was dirty', () => {
+            setupWizard();
+
+            $wizardDraftData.get()?.addString('field', 'value');
+            $wizardDataVersion.set($wizardDataVersion.get() + 1);
+
+            setServerValidationErrors([generalError('bad')]);
+            expect($invalidTabs.get().has('content')).toBe(true);
+
+            $wizardPersistedData.set($wizardDraftData.get()?.copy() ?? null);
+
+            expect($generalServerErrorMessages.get()).toEqual(['bad']);
+            expect($invalidTabs.get().has('content')).toBe(true);
+        });
+
+        it('should drop general errors once a fresh validation carries none', () => {
+            setupWizard();
+            setServerValidationErrors([generalError('bad')]);
+            expect($invalidTabs.get().has('content')).toBe(true);
+
+            setServerValidationErrors([]);
+
+            expect($generalServerErrorMessages.get()).toEqual([]);
+            expect($invalidTabs.get().has('content')).toBe(false);
+        });
+
+        it('resetValidation should clear general errors', () => {
+            setupWizard();
+            setServerValidationErrors([generalError('bad')]);
+            expect($generalServerErrorMessages.get()).toHaveLength(1);
+
+            resetValidation();
+
+            expect($generalServerErrorMessages.get()).toEqual([]);
         });
     });
 });
