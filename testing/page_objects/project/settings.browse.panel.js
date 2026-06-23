@@ -331,6 +331,14 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         }
     }
 
+    async waitForSyncButtonNotDisplayed() {
+        try {
+            await this.waitForElementNotDisplayed(this.syncButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError('Sync button should not be displayed', 'err_sync_displayed_button', err);
+        }
+    }
+
     async clickOnSyncButton() {
         try {
             await this.waitForSyncButtonEnabled();

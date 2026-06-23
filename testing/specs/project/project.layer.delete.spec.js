@@ -89,6 +89,17 @@ describe('project.layer.delete.spec - ui-tests for deleting a layer', function (
             await projectWizard.waitForDeleteButtonEnabled();
         });
 
+    it("WHEN 'Sync' button has been pressed THEN expected notification messages appear",
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            await settingsBrowsePanel.waitForSyncButtonDisplayed();
+            await settingsBrowsePanel.clickOnSyncButton();
+            let messages = await settingsBrowsePanel.waitForNotificationMessages();
+            assert.equal(messages[0], appConst.PROJECT_SYNC.STARTED, 'Expected message should be displayed');
+            // "Content synchronisation job has finished" - this message should appear:
+            await settingsBrowsePanel.waitForExpectedNotificationMessage(appConst.PROJECT_SYNC.FINISHED);
+        });
+
     // Verifies https://github.com/enonic/app-contentstudio/issues/2105
     // Do not allow deletion of a project if it has child layer.
     it("GIVEN layer was deleted WHEN the parent project has been selected THEN 'Delete' button gets enabled now",

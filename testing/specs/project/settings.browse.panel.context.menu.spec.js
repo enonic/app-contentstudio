@@ -92,16 +92,6 @@ describe('settings.browse.panel.context.menu.spec - ui-tests to verify context m
                 appConst.projectDeletedMessage(PROJECT_DISPLAY_NAME_1, "Expected notification message should appear"));
         });
 
-    it("WHEN 'Sync' button has been pressed THEN expected notification messages appear",
-        async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            await settingsBrowsePanel.waitForSyncButtonDisplayed();
-            await settingsBrowsePanel.clickOnSyncButton();
-            let messages = await settingsBrowsePanel.waitForNotificationMessages();
-            assert.equal(messages[0], appConst.PROJECT_SYNC.STARTED, 'Expected message should be displayed');
-            // "Content synchronisation job has finished" - this message should appear:
-            await settingsBrowsePanel.waitForExpectedNotificationMessage(appConst.PROJECT_SYNC.FINISHED);
-        });
 
     beforeEach(async () => {
         await studioUtils.navigateToContentStudioApp();
