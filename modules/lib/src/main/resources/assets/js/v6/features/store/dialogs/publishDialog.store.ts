@@ -755,8 +755,11 @@ async function reloadPublishDialogData(): Promise<void> {
         $publishDialog.setKey('failed', true);
         // TODO: Notify error
     } finally {
+        // ! Do not bump instanceId here: resolvePublishDependencies owns the guard
+        // token. Incrementing it after a stale reload bails would also invalidate a
+        // concurrently running reload, leaving both to skip their writes (0 publishable,
+        // no banner, disabled button).
         $publishChecks.setKey('loading', false);
-        instanceId += 1;
     }
 }
 
