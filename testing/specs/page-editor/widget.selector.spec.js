@@ -1,5 +1,5 @@
 /**
- * Created on 20.07.2021.
+ * Created on 20.07.2021.  updated on 20.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -58,27 +58,9 @@ describe('widget.selector.spec: tests for options in the widget selector', funct
             // 2. Click on Widget selector dropdown handle and expand the ListBox:
             await wizardContextPanel.clickOnWidgetSelectorDropdownHandle();
             // 3. Verify that the only one item is selected in the options list
-            let items = await wizardContextPanel.getSelectedOptionsDisplayName();
+            let items = await wizardContextPanel.getSelectedOptionsInExpandedList();
             assert.equal(items.length, 1, 'The only one item should be selected in the ListBox');
             assert.equal(items[0], appConst.WIDGET_SELECTOR_OPTIONS.PAGE, "'Page' option item should be selected in the ListBox");
-        });
-
-    // Verify Two items are selected in Widget selector #7897
-    // https://github.com/enonic/app-contentstudio/issues/7897
-    it.skip(`GIVEN Select 'Version History' option in the widget selector WHEN ListBox has been expanded THEN 'Version History' option item should be selected in the ListBox options`,
-        async () => {
-            let contentWizard = new ContentWizard();
-            let wizardContextWindow = new WizardContextPanel();
-            // 1. Open the existing site:
-            await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            // 2. Open Versions Widget:
-            await wizardContextWindow.openVersionHistory();
-            // 3. Expand the widget selector ListBox:
-            await wizardContextWindow.clickOnWidgetSelectorDropdownHandle();
-            // 4. Verify that the only one item is selected in the options list
-            let items = await wizardContextWindow.getSelectedOptionsDisplayName();
-            assert.equal(items.length, 1, 'The only one item should be selected in the ListBox');
-            assert.equal(items[0], 'Version history', "'Version history' option item should be selected in the ListBox");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

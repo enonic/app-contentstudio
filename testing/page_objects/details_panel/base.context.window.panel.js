@@ -103,6 +103,10 @@ class BaseContextWindowPanel extends Page {
         return await widgetSelectorDropdown.getOptionsName();
     }
 
+    async getSelectedOptionsInExpandedList() {
+        let widgetSelectorDropdown = new WidgetSelectorDropdown();
+        return await widgetSelectorDropdown.getSelectedOptionsInListOptions();
+    }
     //clicks on dropdown handle and select the 'Dependencies' menu item
     async openDependenciesWidget() {
         let widgetSelectorDropdown = new WidgetSelectorDropdown();

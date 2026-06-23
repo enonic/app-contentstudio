@@ -8,21 +8,35 @@ const browser_version = properties.get('browser.version');
 exports.config = {
 
     specs: [
-        //path.join(__dirname, '../specs/page-editor/*.spec.js'),
-        path.join(__dirname, '../specs/page-editor/page.inspection.panel.spec.js'),
-        path.join(__dirname, '../specs/page-editor/context.window.insert.panel.spec.js'),
-        path.join(__dirname, '../specs/page-editor/layout.context.menu.spec.js'),
-        path.join(__dirname, '../specs/page-editor/fragment.move.spec.js'),
-        path.join(__dirname, '../specs/page-editor/insert.part.in.layout.spec.js'),
-
-        path.join(__dirname, '../specs/page-editor/layout.config.inspect.panel.spec.js'),
-        path.join(__dirname, '../specs/page-editor/page.component.view.layout.items.spec.js'),
-        path.join(__dirname, '../specs/page-editor/page.component.view.modal.dialog.spec.js'),
-        path.join(__dirname, '../specs/page-editor/page.components.view.save.as.template.spec.js'),
-
+        path.join(__dirname, '../specs/page-editor/*.spec.js'),
     ],
+
     exclude: [
+        path.join(__dirname, '../specs/page-editor/app.generic.custom.error.handling.spec.js'),
+        path.join(__dirname, '../specs/page-editor/expanding.pcv.tree.spec.js'),
+        path.join(__dirname, '../specs/page-editor/fragment.layout.inspect.panel.spec.js'),
+        path.join(__dirname, '../specs/page-editor/fragment.layout.pcv.spec.js'),
+        path.join(__dirname, '../specs/page-editor/fragment.save.detach.spec.js'),
+        path.join(__dirname, '../specs/page-editor/generate.name.for.fragments.spec.js'),
+        path.join(__dirname, '../specs/page-editor/image.text.component.as.fragment.spec.js'),
+        path.join(__dirname, '../specs/page-editor/insert.part.htmlarea.spec.js'),
+        path.join(__dirname, '../specs/page-editor/layout.insert.image.save.as.fragment.spec.js'),
+        path.join(__dirname, '../specs/page-editor/my.first.site.country.spec.js'),
+        path.join(__dirname, '../specs/page-editor/page.template.controller.spec.js'),
+        path.join(__dirname, '../specs/page-editor/page.template.insert.layout.spec.js'),
+        path.join(__dirname, '../specs/page-editor/portal.content.creating.spec.js'),
         path.join(__dirname, '../specs/page-editor/revert.site.with.components.spec.js'),
+        path.join(__dirname, '../specs/page-editor/site.no.apps.selected.spec.js'),
+        path.join(__dirname, '../specs/page-editor/site.reset.template.menu.item.spec.js'),
+        path.join(__dirname, '../specs/page-editor/site.with.layout.component.spec.js'),
+        path.join(__dirname, '../specs/page-editor/site.with.several.templates.spec.js'),
+        path.join(__dirname, '../specs/page-editor/site.wizard.add.application.spec.js'),
+        path.join(__dirname, '../specs/page-editor/swap.text.components.spec.js'),
+        path.join(__dirname, '../specs/page-editor/template.config.spec.js'),
+        path.join(__dirname, '../specs/page-editor/templates.dropdown.inspect.tab.spec.js'),
+        path.join(__dirname, '../specs/page-editor/text.component.inspect.panel.spec.js'),
+        path.join(__dirname, '../specs/page-editor/update.fragment.spec.js'),
+        path.join(__dirname, '../specs/page-editor/updated.text.in.preview.panel.liveview.spec.js'),
     ],
 
     maxInstances: 1,

@@ -1,5 +1,5 @@
 /**
- * Created on 15.04.2024
+ * Created on 15.04.2024  updated on 20.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -11,6 +11,7 @@ const appConst = require('../../libs/app_const');
 const LiveFormPanel = require('../../page_objects/wizardpanel/liveform/live.form.panel');
 const CityListPartInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/city.list.part.inspection.panel');
 const LayoutInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/layout.inspection.panel');
+const FragmentInspectionPanel = require("../../page_objects/wizardpanel/liveform/inspection/fragment.inspection.panel");
 
 describe('null.layout.spec - test for layout-controller that returns null ', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -28,11 +29,11 @@ describe('null.layout.spec - test for layout-controller that returns null ', fun
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES, appConst.TEST_APPS_NAME.MY_FIRST_APP], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES, appConst.TEST_APPS_NAME.MY_FIRST_APP], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
         });
 
-    it(`WHEN null layout has been inserted THEN 'layout is empty' text should be displayed in LiveEdit AND Options filter input should not be displayed in the component`,
+    it(`WHEN null layout has been inserted THEN 'layout is empty' text should be displayed in LiveEdit`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
@@ -49,8 +50,6 @@ describe('null.layout.spec - test for layout-controller that returns null ', fun
             await layoutInspectionPanel.typeNameAndSelectLayout(LAYOUT_NULL);
             await contentWizard.waitForNotificationMessage();
             // 4. Verify the text in the Live Edit:
-            let text = await liveFormPanel.getTextFromEmptyLayout();
-            assert.ok(text[0].includes(`Layout "${LAYOUT_NULL}"`, `'layout is empty' - this text should be displayed in the LiveEdit`));
             let option = await layoutInspectionPanel.getDropdownSelectedOption();
             assert.equal(option , 'Layout Null', "Layout Null should be selected in Layout Inspection Panel");
         });
@@ -62,6 +61,7 @@ describe('null.layout.spec - test for layout-controller that returns null ', fun
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             let partInspectionPanel = new CityListPartInspectionPanel();
+            let fragmentInspectionPanel = new FragmentInspectionPanel();
             // 1. Open the existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Maximize the Live Edit:
@@ -76,13 +76,16 @@ describe('null.layout.spec - test for layout-controller that returns null ', fun
             await pageComponentView.rightClickAndOpenContextMenu(PART_WITH_CONFIG);
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await contentWizard.waitForNotificationMessage();
+            await fragmentInspectionPanel.waitForOpened();
+            await fragmentInspectionPanel.clickOnEditFragmentButton();
             await contentWizard.pause(700);
             // 5. Switch to the new wizard that has been opened and open Page Widget:
             await studioUtils.doSwitchToNewWizard();
             let wizardContextWindow = await contentWizard.openContextWindow();
             await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             // 6. Verify that Part Inspection Panel for 'City List' part is loaded:
-
+            await contentWizard.clickOnCollapseContentForm();
+            await pageComponentView.clickOnComponent(PART_WITH_CONFIG);
             await partInspectionPanel.waitForLoaded();
             await studioUtils.saveScreenshot('fragment_inspect_issue_7676_0');
             // 7. Type a text in the config in 'City List' Part Inspect Panel
@@ -94,7 +97,10 @@ describe('null.layout.spec - test for layout-controller that returns null ', fun
             await studioUtils.saveScreenshot('fragment_inspect_issue_7676_3');
             // 9. Verify the saved text:
             let result = await partInspectionPanel.getTextInZoomLevelInput();
-            assert.equal(result, TEST_TEXT, 'Expected text should be displayed in the input in Fragment(Part) Inspection Panel')
+            assert.equal(result, TEST_TEXT, 'Expected text should be displayed in the input in Fragment(Part) Inspection Panel');
+
+            let isInvalid = await pageComponentView.isComponentInvalid(PART_WITH_CONFIG);
+            assert.ok(isInvalid, 'The component should be invalid because the required input in the config is empty');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

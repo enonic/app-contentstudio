@@ -1,5 +1,5 @@
 /**
- * Created on 20.03.2020.
+ * Created on 20.03.2020. updated on 20.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -16,15 +16,18 @@ describe('settings.browse.panel.context.menu.spec - ui-tests to verify context m
         webDriverHelper.setupBrowser();
     }
 
-    let PROJECT_DISPLAY_NAME_1 = studioUtils.generateRandomName('project');
+    let PROJECT_DISPLAY_NAME_1 = studioUtils.generateRandomName('proj');
 
     it(`Preconditions: new project should be added`,
         async () => {
             // 1. Save new project:
-            await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME_1, 'description');
+            await projectUtils.saveTestProject({
+                name: PROJECT_DISPLAY_NAME_1,
+                accessMode: appConst.PROJECT_ACCESS_MODE.PRIVATE,
+            });
         });
 
-    it(`WHEN right click on 'Projects' folder THEN 'New...' should be enabled , 'Delete' and 'Edit' are disabled`,
+    it(`WHEN right click on 'Projects' folder THEN 'New' should be enabled , 'Delete' and 'Edit' are disabled`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             // 1. Go to Settings Panel and do a right click on Projects folder:
@@ -32,13 +35,13 @@ describe('settings.browse.panel.context.menu.spec - ui-tests to verify context m
             // Verify that 'New...' button should be enabled:
             await settingsBrowsePanel.waitForContextMenuDisplayed();
             await studioUtils.saveScreenshot("projects_context_menu");
-            await settingsBrowsePanel.waitForContextMenuItemEnabled('New...');
+            await settingsBrowsePanel.waitForContextMenuItemEnabled('New');
             // Verify that Edit,Delete menu items should be disabled:
             await settingsBrowsePanel.waitForContextMenuItemDisabled('Edit');
             await settingsBrowsePanel.waitForContextMenuItemDisabled('Delete');
         });
 
-    it(`WHEN right click on 'Default' folder THEN 'New...' should be enabled , 'Delete' and 'Edit' are disabled`,
+    it(`WHEN right click on 'Default' folder THEN 'New' should be enabled , 'Delete' and 'Edit' are disabled`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             // 1. Do a right click on 'Default' folder and Open Context menu:
@@ -47,13 +50,13 @@ describe('settings.browse.panel.context.menu.spec - ui-tests to verify context m
             await settingsBrowsePanel.waitForContextMenuDisplayed();
             await studioUtils.saveScreenshot('default_context_menu');
             // 2. Verify that 'New...' is enabled:
-            await settingsBrowsePanel.waitForContextMenuItemEnabled('New...');
+            await settingsBrowsePanel.waitForContextMenuItemEnabled('New');
             await settingsBrowsePanel.waitForContextMenuItemEnabled('Edit');
             // Verify that Delete menu item is enabled:
             await settingsBrowsePanel.waitForContextMenuItemEnabled('Delete');
         });
 
-    it(`GIVEN right click on Projects folder WHEN 'New..' menu has been clicked THEN 'New Settings Item Dialog' should be loaded`,
+    it(`GIVEN right click on Projects folder WHEN 'New' menu has been clicked THEN 'New Settings Item Dialog' should be loaded`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let parentProjectStep = new ProjectWizardDialogParentProjectStep();
@@ -61,7 +64,7 @@ describe('settings.browse.panel.context.menu.spec - ui-tests to verify context m
             await settingsBrowsePanel.rightClickOnProjects();
             await settingsBrowsePanel.waitForContextMenuDisplayed();
             // 2. Click on 'New...' menu item:
-            await settingsBrowsePanel.clickOnMenuItem("New...");
+            await settingsBrowsePanel.clickOnMenuItem("New");
             await studioUtils.saveScreenshot('projects_context_menu_new');
             // 3. Verify that the modal dialog is loaded:
             await parentProjectStep.waitForLoaded();
@@ -89,8 +92,18 @@ describe('settings.browse.panel.context.menu.spec - ui-tests to verify context m
                 appConst.projectDeletedMessage(PROJECT_DISPLAY_NAME_1, "Expected notification message should appear"));
         });
 
+    it("WHEN 'Sync' button has been pressed THEN expected notification messages appear",
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            await settingsBrowsePanel.clickOnSyncButton();
+            let messages = await settingsBrowsePanel.waitForNotificationMessages();
+            assert.equal(messages[0], appConst.PROJECT_SYNC.STARTED, 'Expected message should be displayed');
+            // "Content synchronisation job has finished" - this message should appear:
+            await settingsBrowsePanel.waitForExpectedNotificationMessage(appConst.PROJECT_SYNC.FINISHED);
+        });
+
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
+        await studioUtils.navigateToContentStudioApp();
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());

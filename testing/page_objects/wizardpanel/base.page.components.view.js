@@ -291,6 +291,18 @@ class BasePageComponentView extends Page {
         }
     }
 
+    async isComponentInvalid(name) {
+        try {
+            let locator = this.container +
+                          `//div[@data-component='ContextMenu.Trigger' and descendant::span[contains(@class,'truncate') and text()='${name}']]` +
+                          `//*[contains(@class,'lucide-octagon-alert')]`;
+            return await this.isElementDisplayed(locator);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_pcv_component_invalid');
+            throw new Error(`Error checking invalid state for component '${name}' in PCV, screenshot:${screenshot} ` + err);
+        }
+    }
+
     async isComponentItemInvalid(itemDisplayName) {
         try {
             let locator = this.container + xpath.componentByName(itemDisplayName) + "//div[contains(@class,'xp-admin-common-wrapper')]";  //div[contains(@class,'xp-admin-common-wrapper')]
