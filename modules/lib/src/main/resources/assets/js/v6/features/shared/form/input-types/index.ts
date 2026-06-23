@@ -8,6 +8,7 @@ import {SiteConfiguratorDescriptor, SiteConfiguratorInput} from './site-configur
 import {AttachmentUploaderDescriptor, AttachmentUploaderInput} from './attachment-uploader';
 import {CustomSelectorDescriptor, CustomSelectorInput} from './custom-selector';
 import {ImageUploaderDescriptor, ImageUploaderInput} from './image-uploader';
+import {TagDescriptor, TagInput} from './tag';
 
 export function registerContentStudioInputTypes(): void {
     InputTypeRegistry.registerType({mode: 'list', descriptor: HtmlAreaDescriptor, component: HtmlAreaInput}, true);
@@ -19,4 +20,7 @@ export function registerContentStudioInputTypes(): void {
     InputTypeRegistry.registerType({mode: 'internal', descriptor: AttachmentUploaderDescriptor, component: AttachmentUploaderInput}, true);
     InputTypeRegistry.registerType({mode: 'internal', descriptor: CustomSelectorDescriptor, component: CustomSelectorInput}, true);
     InputTypeRegistry.registerType({mode: 'internal', descriptor: ImageUploaderDescriptor, component: ImageUploaderInput}, true);
+    // Override the built-in Tag input with the Content Studio variant.
+    // TagDescriptor is already registered by built-in types, so force=true is intentional.
+    InputTypeRegistry.registerType({mode: 'internal', descriptor: TagDescriptor, component: TagInput}, true);
 }
