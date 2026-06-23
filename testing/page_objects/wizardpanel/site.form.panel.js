@@ -37,9 +37,18 @@ class SiteForm extends Page {
         return COMMON.INPUTS.inputFieldByLabel('Description') + "//textarea";
     }
 
+    get baseUrlInput() {
+        return COMMON.INPUTS.inputFieldByLabel('Base URL') + "//input";
+    }
+
+    get helpTextInBaseUrlInput() {
+        return COMMON.INPUTS.inputFieldByLabel('Base URL') +
+               "//div[@data-component='InputLabel']//div[contains(@class,'text-subtle')]";
+    }
+
     get helpTextInApplicationsSelector() {
-        return lib.CONTENT_WIZARD_STEP_FORM +
-               "//div[contains(@id,'InputView') and descendant::div[contains(@class,'application-configurator')]]" + lib.HELP_TEXT.TEXT;
+        return COMMON.INPUTS.inputFieldByLabel('Applications') +
+               "//div[@data-component='InputLabel']//div[contains(@class,'text-subtle')]";
     }
 
     async type(siteData) {
@@ -75,6 +84,24 @@ class SiteForm extends Page {
         }
     }
 
+    async typeBaseUrl(baseUrl) {
+        try {
+            await this.waitForElementDisplayed(this.baseUrlInput);
+            return await this.typeChars(this.baseUrlInput, baseUrl);
+        } catch (err) {
+            await this.handleError("Error occurred in Site wizard, base URL input", 'err_site_base_url', err);
+        }
+    }
+
+    async getTextInBaseUrlInput() {
+        try {
+            await this.waitForElementDisplayed(this.baseUrlInput);
+            return await this.getTextInInput(this.baseUrlInput);
+        } catch (err) {
+            await this.handleError("Error occurred in Site wizard, base URL input", 'err_site_base_url', err);
+        }
+    }
+
     addApplications(appDisplayNames) {
         let result = Promise.resolve();
         appDisplayNames.forEach((displayName) => {
@@ -87,9 +114,6 @@ class SiteForm extends Page {
 
     // Click on the dropdown handler in app-selector
     async clickOnDropdownHandle() {
-        // await this.waitForElementDisplayed(this.dropdownHandle);
-        // await this.clickOnElement(this.dropdownHandle);
-        // await this.pause(1000);
         let siteConfiguratorComboBox = new SiteConfiguratorComboBox(XPATH.wizardSteps);
         await siteConfiguratorComboBox.clickOnDropdownHandle()
     }
@@ -188,32 +212,35 @@ class SiteForm extends Page {
 
     async swapApplications(sourceAppName, destinationAppName) {
         try {
-            let sourceLocator = XPATH.selectedAppByDisplayName(sourceAppName);
-            let destinationLocator = XPATH.selectedAppByDisplayName(destinationAppName);
-            let source = await this.findElement(sourceLocator);
-            let destination = await this.findElement(destinationLocator);
-            let sourceLocation = await source.getLocation();
-            let sourceSize = await source.getSize();
-            let destinationLocation = await destination.getLocation();
-            let destinationSize = await destination.getSize();
-            const sourceCenterX = Math.round(sourceLocation.x + sourceSize.width / 2);
-            const sourceCenterY = Math.round(sourceLocation.y + sourceSize.height / 2);
-            const destCenterX = Math.round(destinationLocation.x + destinationSize.width / 2);
-            const destCenterY = Math.round(destinationLocation.y + destinationSize.height / 2);
-            await this.browser.performActions([{
-                type: 'pointer',
-                id: 'mouse',
-                parameters: {pointerType: 'mouse'},
-                actions: [
-                    {type: 'pointerMove', origin: 'viewport', x: sourceCenterX, y: sourceCenterY},
-                    {type: 'pointerDown', button: 0},
-                    {type: 'pause', duration: 300},
-                    {type: 'pointerMove', origin: 'viewport', x: destCenterX, y: destCenterY, duration: 800},
-                    {type: 'pause', duration: 200},
-                    {type: 'pointerUp', button: 0}
-                ]
-            }]);
-            return await this.pause(1000);
+            const allItemsLocator =
+                "//div[@data-component='SiteConfiguratorInput']//div[@data-component='SortableGridList']/div[@role='button']";
+            const allItems = await this.findElements(allItemsLocator);
+            let sourceIndex = -1;
+            let destIndex = -1;
+            for (let i = 0; i < allItems.length; i++) {
+                const text = await allItems[i].getText();
+                if (text.includes(sourceAppName)) {
+                    sourceIndex = i;
+                }
+                if (text.includes(destinationAppName)) {
+                    destIndex = i;
+                }
+            }
+            if (sourceIndex === -1 || destIndex === -1) {
+                throw new Error(`Application not found: source='${sourceAppName}', destination='${destinationAppName}'`);
+            }
+            await allItems[sourceIndex].click();
+            await this.pause(200);
+            await this.keys(' ');
+            await this.pause(300);
+            const steps = destIndex - sourceIndex;
+            const arrowKey = steps > 0 ? 'ArrowDown' : 'ArrowUp';
+            for (let i = 0; i < Math.abs(steps); i++) {
+                await this.keys(arrowKey);
+                await this.pause(100);
+            }
+            await this.keys(' ');
+            return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_swap_applications');
             throw new Error(`Error during applications swap, screenshot: ${screenshot}. ` + err);
@@ -223,6 +250,11 @@ class SiteForm extends Page {
     async getHelpTextsInApplicationsSelector() {
         await this.waitForElementDisplayed(this.helpTextInApplicationsSelector);
         return await this.getTextInDisplayedElements(this.helpTextInApplicationsSelector);
+    }
+
+    async getHelpTextsInBaseUrl() {
+        await this.waitForElementDisplayed(this.helpTextInBaseUrlInput);
+        return await this.getTextInDisplayedElements(this.helpTextInBaseUrlInput);
     }
 
     waitForHelpTextInApplicationsSelectorNotDisplayed() {

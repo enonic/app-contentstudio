@@ -1,5 +1,5 @@
 /**
- * Created on 09.03.2020.
+ * Created on 09.03.2020.  updated on 20.06.2026
  */
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -38,7 +38,7 @@ describe('settings.browse.panel.toolbar.spec - ui-tests to verify state of butto
             // 1. Select 'Projects' folder
             await settingsBrowsePanel.clickOnProjectsFolderCheckbox();
             await studioUtils.saveScreenshot('settings_toolbar_2');
-            // 'New...' button should be enabled :
+            // 'New' button should be enabled :
             await settingsBrowsePanel.waitForNewButtonEnabled();
             // 'Delete' button should be disabled
             await settingsBrowsePanel.waitForDeleteButtonDisabled();
@@ -61,7 +61,7 @@ describe('settings.browse.panel.toolbar.spec - ui-tests to verify state of butto
         });
 
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
+        await studioUtils.navigateToContentStudioApp();
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());

@@ -32,6 +32,7 @@ const XPATH = {
     showSearchPanelButton: "//button[contains(@aria-label, 'Show Search Panel')]",
     showIssuesListButton: "//button[contains(@id,'ShowIssuesDialogButton')]/button",//'Assigned to Me' or 'Show Issues'
     markAsReadyMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Mark as ready']",
+    showIssuesButton: "//button[@aria-label='View project issues']",
     resetSelectionCheckbox: `//label[child::input[contains(@aria-label,'Clear selection')]]`,
     numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
     publishMenuItemByName(name) {
@@ -181,11 +182,13 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     get displayNames() {
         // div[1] contains the icon, div[2] contains the name
-        return TREE_GRID.CONTENT_TREE_LIST_DATA_COMPONENT + TREE_GRID.VIRTUALIZED_TREE_ROW + TREE_GRID.CONTENT_LABEL_BLOCK + '//div[2]//span';
+        return TREE_GRID.CONTENT_TREE_LIST_DATA_COMPONENT + TREE_GRID.VIRTUALIZED_TREE_ROW + TREE_GRID.CONTENT_LABEL_BLOCK +
+               '//div[2]//span';
     }
 
     get contentNames() {
-        return TREE_GRID.CONTENT_TREE_LIST_DATA_COMPONENT + TREE_GRID.VIRTUALIZED_TREE_ROW + TREE_GRID.CONTENT_LABEL_BLOCK + '//div[2]//small';
+        return TREE_GRID.CONTENT_TREE_LIST_DATA_COMPONENT + TREE_GRID.VIRTUALIZED_TREE_ROW + TREE_GRID.CONTENT_LABEL_BLOCK +
+               '//div[2]//small';
     }
 
     get treeGrid() {
@@ -1168,6 +1171,11 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         await this.pause(500);
         let homePage = new HomePage();
         await homePage.waitForContentLinkDisplayed();
+    }
+
+    async getTextInShowIssuesButton() {
+        await this.waitForElementDisplayed(XPATH.showIssuesButton, appConst.mediumTimeout);
+        return await this.getText(XPATH.showIssuesButton);
     }
 }
 
