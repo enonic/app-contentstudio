@@ -35,6 +35,7 @@ import {
     togglePublishDialogShowExcluded,
 } from './publishDialog.store';
 import {
+    createDeferredPromise,
     createMockChangeItem,
     createMockContent,
     createResolveResult,
@@ -155,6 +156,41 @@ describe('publishDialog.store', () => {
         expect($publishCheckErrors.get().inProgress.count).toBe(0);
         expect($isPublishReady.get()).toBe(true);
         expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
+    });
+
+    it('keeps publishable state consistent when an in-flight reload is superseded', async () => {
+        // Race: the open-time resolve is still in flight when an external update
+        // triggers a second resolve. The latest (update) resolve must win — the
+        // stale one's cleanup must not invalidate it, leaving 0 publishable items.
+        const itemId = new ContentId('item-1');
+        const original = createMockContent('item-1', {displayName: 'Original name'});
+        const updated = createMockContent('item-1', {displayName: 'Updated name'});
+
+        const openResolve = createDeferredPromise<ReturnType<typeof createResolveResult>>();
+        const updateResolve = createDeferredPromise<ReturnType<typeof createResolveResult>>();
+        mockResolvePublishDependencies
+            .mockReturnValueOnce(openResolve.promise)
+            .mockReturnValueOnce(updateResolve.promise);
+
+        // Reload A: opening starts the first resolve, left in flight.
+        openPublishDialog([original]);
+        await flushPromises();
+
+        // Reload B: an external update lands before A's resolve settles.
+        emitContentUpdated([updated]);
+        await vi.advanceTimersByTimeAsync(150);
+        await flushPromises();
+
+        expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
+
+        // Settle the stale reload first, then the fresh one.
+        openResolve.resolve(createResolveResult({publishable: [itemId]}));
+        await flushPromises(10);
+        updateResolve.resolve(createResolveResult({publishable: [itemId]}));
+        await flushPromises(10);
+
+        expect($totalPublishableItems.get()).toBe(1);
+        expect($isPublishReady.get()).toBe(true);
     });
 
     it('patches renamed tracked items without forcing a dependency reload', async () => {
