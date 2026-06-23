@@ -10,6 +10,7 @@ import {
     $contentType,
     $enabledMixinsNames,
     $mixinsDescriptors,
+    $wizardDataChanged,
     $wizardDataVersion,
     $wizardDraftData,
     $wizardDraftDisplayName,
@@ -48,6 +49,12 @@ export const $attachmentServerErrorEntries = computed($attachmentServerErrors, (
     errors.map((e) => ({attachment: e.getAttachment(), message: e.getMessage()})),
 );
 
+const $generalServerErrors = atom<ValidationError[]>([]);
+
+export const $generalServerErrorMessages = computed($generalServerErrors, (errors): string[] =>
+    errors.map((e) => e.getMessage()),
+);
+
 const contentRawValueMap: RawValueMap = new Map();
 
 const mixinRawValueMaps = new Map<string, RawValueMap>();
@@ -81,8 +88,9 @@ function runValidation(): void {
     const nextInvalidTabs = new Set<string>();
     const hasInvalidDisplayName = $wizardDraftDisplayName.get().trim().length === 0;
     const hasAttachmentErrors = $attachmentServerErrors.get().length > 0;
+    const hasGeneralErrors = $generalServerErrors.get().length > 0;
 
-    if (!contentResult.isValid || hasInvalidDisplayName || hasAttachmentErrors) {
+    if (!contentResult.isValid || hasInvalidDisplayName || hasAttachmentErrors || hasGeneralErrors) {
         nextInvalidTabs.add('content');
     }
 
@@ -120,7 +128,9 @@ function runValidation(): void {
 
     $invalidComponentPaths.set(allInvalidPaths);
     $invalidTabs.set(nextInvalidTabs);
-    setWizardFormValidation(contentResult.isValid && allMixinsValid && allInvalidPaths.size === 0 && !hasAttachmentErrors);
+    setWizardFormValidation(
+        contentResult.isValid && allMixinsValid && allInvalidPaths.size === 0 && !hasAttachmentErrors && !hasGeneralErrors,
+    );
 
 }
 
@@ -226,6 +236,15 @@ function setupSubscriptions(): void {
     subscriptions.push(
         $wizardDataVersion.subscribe(() => {
             debouncedRunValidation();
+        }),
+    );
+
+    subscriptions.push(
+        $wizardDataChanged.subscribe((changed) => {
+            if (changed && $generalServerErrors.get().length > 0) {
+                $generalServerErrors.set([]);
+                runValidation();
+            }
         }),
     );
 
@@ -344,9 +363,14 @@ export function setServerValidationErrors(errors: ValidationError[]): void {
         (e): e is AttachmentValidationError => e instanceof AttachmentValidationError,
     );
 
+    const generalErrors = errors.filter(
+        (e) => !(e instanceof DataValidationError) && !(e instanceof AttachmentValidationError) && !isSystemError(e),
+    );
+
     $dataServerErrors.set(dataErrors);
     $componentConfigErrors.set(componentErrors);
     $attachmentServerErrors.set(attachmentErrors);
+    $generalServerErrors.set(generalErrors);
     runValidation();
 }
 
@@ -417,6 +441,7 @@ export function resetValidation(): void {
     $dataServerErrors.set([]);
     $componentConfigErrors.set([]);
     $attachmentServerErrors.set([]);
+    $generalServerErrors.set([]);
     contentRawValueMap.clear();
     mixinRawValueMaps.clear();
 }

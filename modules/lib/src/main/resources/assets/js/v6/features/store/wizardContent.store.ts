@@ -154,7 +154,7 @@ export const $hasPage = computed($wizardDraftPage, (page) => page != null);
 
 export const $contentTypeDisplayName = computed($contentType, (contentType) => contentType?.getTitle() ?? '');
 
-const $wizardDataChanged = computed([$wizardPersistedData, $wizardDraftData, $wizardDataVersion], (persistedData, draftData): boolean => {
+export const $wizardDataChanged = computed([$wizardPersistedData, $wizardDraftData, $wizardDataVersion], (persistedData, draftData): boolean => {
     return !dataTreesEqual(persistedData, draftData);
 });
 
