@@ -80,6 +80,12 @@ function handleSummaryEvent(contents: readonly ContentSummary[] | undefined): vo
     const isEcho = summaryModifiedMs != null && lastKnownModifiedTimeMs != null && summaryModifiedMs <= lastKnownModifiedTimeMs;
 
     if (isEcho) {
+        // A strictly-older echo is stale — ignore it. Applying its outdated workflow
+        // would roll back a newer state, e.g. revert READY to IN_PROGRESS after
+        // mark-as-ready when the earlier in-progress save's event arrives late.
+        if (summaryModifiedMs < lastKnownModifiedTimeMs) {
+            return;
+        }
         const summaryWorkflowState = summary.getWorkflow()?.getState() ?? null;
         if (summaryWorkflowState !== $wizardPersistedWorkflowState.get()) {
             applyWorkflowFromServer(summaryWorkflowState);

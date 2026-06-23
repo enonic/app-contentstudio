@@ -98,6 +98,17 @@ describe('wizardContentSync.service', () => {
         expect(mocks.sendAndParse).not.toHaveBeenCalled();
     });
 
+    it('ignores a strictly-older echo so a late in-progress event cannot revert mark-as-ready', () => {
+        // Mark-as-ready saved READY at a newer modifiedTime.
+        setWizardContent(BASE_MODIFIED_MS + 1_000, WorkflowState.READY);
+
+        // A late echo from the earlier in-progress save arrives with an older modifiedTime.
+        emitContentUpdated([summary({modifiedMs: BASE_MODIFIED_MS, workflowState: WorkflowState.IN_PROGRESS})]);
+
+        expect(mocks.applyWorkflowFromServer).not.toHaveBeenCalled();
+        expect(mocks.sendAndParse).not.toHaveBeenCalled();
+    });
+
     it('ignores an echo event whose workflow matches the wizard state', () => {
         setWizardContent(BASE_MODIFIED_MS, WorkflowState.READY);
 
