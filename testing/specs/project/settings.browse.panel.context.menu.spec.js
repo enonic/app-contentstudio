@@ -95,6 +95,7 @@ describe('settings.browse.panel.context.menu.spec - ui-tests to verify context m
     it("WHEN 'Sync' button has been pressed THEN expected notification messages appear",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
+            await settingsBrowsePanel.waitForSyncButtonDisplayed();
             await settingsBrowsePanel.clickOnSyncButton();
             let messages = await settingsBrowsePanel.waitForNotificationMessages();
             assert.equal(messages[0], appConst.PROJECT_SYNC.STARTED, 'Expected message should be displayed');

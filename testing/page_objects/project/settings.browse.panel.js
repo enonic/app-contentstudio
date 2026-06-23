@@ -323,9 +323,21 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         }
     }
 
+    async waitForSyncButtonDisplayed() {
+        try {
+            await this.waitForElementDisplayed(this.syncButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError('Sync button should be enabled', 'err_sync_disabled_button', err);
+        }
+    }
+
     async clickOnSyncButton() {
-        await this.waitForSyncButtonEnabled();
-        return await this.clickOnElement(this.syncButton);
+        try {
+            await this.waitForSyncButtonEnabled();
+            return await this.clickOnElement(this.syncButton);
+        } catch (err) {
+            await this.handleError(`Error occurred after clicking on 'Sync' button`, 'err_browsepanel_sync_button', err);
+        }
     }
 
     async clickOnDeleteButton() {
