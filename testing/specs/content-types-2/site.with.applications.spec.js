@@ -16,19 +16,18 @@ describe('site.with.applications.spec: swaps applications in the site-form', fun
     }
 
     let SITE;
-    it.skip(`GIVEN wizard for new site is opened WHEN show help texts button has been pressed THEN help text for app-selector gets visible`,
+
+    it(`GIVEN wizard for new site is opened THEN expected help text for should be displayed`,
         async () => {
             let siteFormPanel = new SiteFormPanel();
             let contentWizard = new ContentWizard();
             // 1. Open new site-wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
-            // 2. Verify that the help text for Applications selector is not visible by default:
-            await siteFormPanel.waitForHelpTextInApplicationsSelectorNotDisplayed();
-            // 3. Click on show/hide Help Texts toggler in the wizard toolbar:
-            await contentWizard.clickOnHelpTextsToggler();
-            // 4. Verify that expected help text gets visible in the site form:
+            // 2. Verify that expected help text gets visible in the site form:
             let actualHelpText = await siteFormPanel.getHelpTextsInApplicationsSelector();
             assert.equal(actualHelpText[0], "Configure applications used by this site", "Expected help message should be displayed");
+            actualHelpText = await siteFormPanel.getHelpTextsInBaseUrl();
+            assert.equal(actualHelpText[0], "Override the default base URL", "Expected help message should be displayed in Base URL input");
         });
 
     it(`GIVEN two applications have been selected WHEN the applications have been swapped THEN new order of applications should be displayed`,
@@ -52,9 +51,10 @@ describe('site.with.applications.spec: swaps applications in the site-form', fun
             await siteFormPanel.swapApplications(appConst.TEST_APPS_NAME.APP_CONTENT_TYPES, appConst.MY_FIRST_APP);
             // 5. Verify that the applications are swapped
             apps = await siteFormPanel.getSelectedAppDisplayNames();
-            //assert.equal(apps[0], appConst.MY_FIRST_APP, 'Applications should be swapped');
+            assert.equal(apps[0], appConst.MY_FIRST_APP, 'Applications should be swapped');
             // 6. Verify that 'Save' button gets enabled:
-            //await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitForNotificationMessage();
         });
 
     it(`Given a site with two applications is opened WHEN one is removed, then only one remains in the form`,

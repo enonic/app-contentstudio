@@ -41,6 +41,14 @@ class WidgetSelectorDropdown extends Page {
         return await this.getTextInDisplayedElements(locator);
     }
 
+    async getSelectedOptionsInListOptions() {
+        let locator = DROPDOWN.COMBOBOX_POPUP +
+                      `//div[@data-component='Listbox.Item' and @aria-selected='true']` +
+                      `//span[contains(@class,'font-semibold')]`;
+        await this.waitForElementDisplayed(locator);
+        return await this.getTextInDisplayedElements(locator);
+    }
+
     async clickOnDropdownHandle(parentLocator = '') {
         await this.waitForElementDisplayed(parentLocator + this.dropdownHandle);
         return await this.clickOnElement(parentLocator + this.dropdownHandle);

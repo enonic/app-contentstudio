@@ -1010,7 +1010,7 @@ class ContentWizardPanel extends Page {
     }
 
     async getProjectDisplayName() {
-        let selector = XPATH.toolbar + `//div[contains(@class,'project-info')]` + lib.H6_DISPLAY_NAME;
+        let selector = XPATH.toolbar + `//button[@data-component='Toolbar.Item']//span[contains(@class,'lg:flex')]`;
         await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         return await this.getText(selector);
     }

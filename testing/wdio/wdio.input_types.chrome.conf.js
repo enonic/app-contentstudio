@@ -10,27 +10,18 @@ const height = properties.get('browser.height');
 exports.config = {
 
     specs: [
-        path.join(__dirname, '../specs/content-types/htmlarea.cke.toolbar.spec.js'),
-        path.join(__dirname, '../specs/content-types/occurrences.long.spec.js'),
-        path.join(__dirname, '../specs/content-types/long.content.config.spec.js'),
-        path.join(__dirname, '../specs/content-types/geopoint.content.spec.js'),
-        path.join(__dirname, '../specs/content-types/image.selector0_1.spec.js'),
-        path.join(__dirname, '../specs/content-types/htmlarea2_4.cke.spec.js'),
-        path.join(__dirname, '../specs/content-types/htmlarea_0_2__1_1.cke.spec.js'),
-        path.join(__dirname, '../specs/content-types/occurrences.textline.spec.js'),
-        path.join(__dirname, '../specs/content-types/shortcut.target.spec.js'),
-        path.join(__dirname, '../specs/content-types/htmlarea.insert.image.dialog.spec.js'),
-        path.join(__dirname, '../specs/content-types/pdf.content.spec.js'),
-        path.join(__dirname, '../specs/content-types/custom.selector.spec.js'),
-        path.join(__dirname, '../specs/content-types/content.selector.options.order.spec.js'),
-        path.join(__dirname, '../specs/content-types/freeform.nested.set.spec.js'),
-        path.join(__dirname, '../specs/content-types/shortcut.page.editor.spec.js'),
-        path.join(__dirname, '../specs/content-types/shortcut.parameters.spec.js'),
-        path.join(__dirname, '../specs/content-types/multi.selection.option.set.js'),
-        path.join(__dirname, '../specs/content-types/htmlarea.updated.on.server.event.spec.js'),
-        path.join(__dirname, '../specs/content-types/attachments.wizard.spec.js'),
-        path.join(__dirname, '../specs/content-types/htmlarea.insert.link.to.content.options.filter.input.spec.js'),
-        path.join(__dirname, '../specs/content-types/tag.content.allowpath.spec.js'),
+        path.join(__dirname, '../specs/content-types/*.spec.js')
+    ],
+
+    exclude: [
+        path.join(__dirname, '../specs/content-types/add.new.in.selector.spec.js'),
+        path.join(__dirname, '../specs/content-types/htmlarea.insert.link.to.content.spec.js'),
+        path.join(__dirname, '../specs/content-types/htmlarea.outbound.dependencies.spec.js'),
+        path.join(__dirname, '../specs/content-types/htmlarea0_1.cke.spec.js'),
+        path.join(__dirname, '../specs/content-types/image.selector.required.input.spec.js'),
+        path.join(__dirname, '../specs/content-types/page.template.wizard.spec.js'),
+        path.join(__dirname, '../specs/content-types/optionset.title.labels.spec.js'),
+        path.join(__dirname, '../specs/content-types/optionset.validation.spec.js'),
     ],
 
     maxInstances: 1,

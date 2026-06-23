@@ -144,7 +144,9 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
     }
 
     getDisplayNameOfSelectedPrincipals() {
-        let selector = this.container + xpath.aceSelectedOptionsView + lib.H6_DISPLAY_NAME;
+        let selector = this.container +
+                       `//div[@data-component='GridList']//div[@data-component='GridList.Row']` +
+                       `//div[@data-component='ItemLabel']//span[contains(@class,'font-semibold')]`;
         return this.getTextInElements(selector);
     }
 

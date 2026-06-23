@@ -10,34 +10,21 @@ const height = properties.get('browser.height');
 exports.config = {
 
     specs: [
-        //path.join(__dirname, '../specs/content-types-2/*.spec.js')
-        path.join(__dirname, '../specs/content-types-2/combobox.content.spec.js'),
-        path.join(__dirname, '../specs/content-types-2/occurrences.double.spec.js'),
-        path.join(__dirname, '../specs/content-types-2/checkbox.content.spec.js'),
-        path.join(__dirname, '../specs/content-types-2/double.content.config.spec.js'),
-        path.join(__dirname, '../specs/content-types-2/htmlarea.embed.iframe.spec.js'),
-        path.join(__dirname, '../specs/content-types-2/htmlarea.macro.modal.dialog.spec.js'),
-        path.join(__dirname, '../specs/content-types-2/content.image.selector.spec.js'),
-        path.join(__dirname, '../specs/content-types-2/textline.content.config.spec.js'),
-        path.join(__dirname, '../specs/content-types-2/radio.button.content.spec.js'),
-        path.join(__dirname, '../specs/content-types-2/occurrences.textarea.spec.js'),
-        path.join(__dirname, '../specs/content-types-2/occurrences.tags.spec.js'),
-        path.join(__dirname, '../specs/content-types-2/occurrences.image.selector.spec.js'),
-        path.join(__dirname, '../specs/content-types-2/article.allow.child.cfg.spec.js'),
-        path.join(__dirname, '../specs/content-types-2/site.with.applications.spec.js'),
-        path.join(__dirname, '../specs/content-types-2/itemset.title.label.spec.js'),
-        path.join(__dirname, '../specs/content-types-2/datetime.config.spec.js'),
-        path.join(__dirname, '../specs/content-types-2/display.source.button.spec.js'),
-        path.join(__dirname, '../specs/content-types-2/fieldset.content.spec.js'),
-        path.join(__dirname, '../specs/content-types-2/single.selection.option.set.spec.js'),
-        path.join(__dirname, '../specs/content-types-2/optionset.confirmation.spec.js'),
-
-
-
+        path.join(__dirname, '../specs/content-types-2/*.spec.js')
     ],
+
     exclude: [
-        //path.join(__dirname, '../specs/content-types-2/revert.zoomed.image.spec.js'),
-        //path.join(__dirname, '../specs/content-types-2/folder.content.revert.permissions.spec.js'),
+        path.join(__dirname, '../specs/content-types-2/changing.part.inside.fragment.spec.js'),
+        path.join(__dirname, '../specs/content-types-2/content.selector.spec.js'),
+        path.join(__dirname, '../specs/content-types-2/filtering.by.type.and.workflow.spec.js'),
+        path.join(__dirname, '../specs/content-types-2/folder.content.revert.display.name.spec.js'),
+        path.join(__dirname, '../specs/content-types-2/folder.content.revert.permissions.spec.js'),
+        path.join(__dirname, '../specs/content-types-2/inputs.custom.validation.spec.js'),
+        path.join(__dirname, '../specs/content-types-2/item.set.spec.js'),
+        path.join(__dirname, '../specs/content-types-2/optionset.multi.selection.checkbox.spec.js'),
+        path.join(__dirname, '../specs/content-types-2/shortcut.dependencies.widget.spec.js'),
+        path.join(__dirname, '../specs/content-types-2/content.selector.partinspection.spec.js'),
+        path.join(__dirname, '../specs/content-types-2/revert.zoomed.image.spec.js'),
     ],
 
     maxInstances: 1,
