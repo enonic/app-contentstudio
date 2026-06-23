@@ -6,7 +6,7 @@ import {type ApplicationConfig} from '@enonic/lib-admin-ui/application/Applicati
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {showFeedback, showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
@@ -52,7 +52,7 @@ import {
     setPersistedContent as setWizardPersistedContent,
     setWizardReadOnly,
 } from '../../v6/features/store/wizardContent.store';
-import {escalateVisibility, initializeValidation, setServerValidationErrors} from '../../v6/features/store/wizardValidation.store';
+import {$generalServerErrorMessages, escalateVisibility, initializeValidation, setServerValidationErrors} from '../../v6/features/store/wizardValidation.store';
 import {calcSecondaryStatus, calcTreePublishStatus} from '../../v6/features/utils/cms/content/status';
 import {type PreviewToolbarElement} from '../../v6/features/views/browse/layout/preview/PreviewToolbar';
 import {ContentWizardTabsToolbarElement} from '../../v6/features/views/wizard/content-wizard-tabs/ContentWizardTabsToolbarElement';
@@ -676,6 +676,7 @@ export class ContentWizardPanel
             );
             initializeValidation(this.isNew());
             setServerValidationErrors(this.getPersistedItem().getValidationErrors());
+            this.notifyGeneralValidationErrors();
         } else if (this.contentType) {
             setWizardContentType(this.contentType);
         }
@@ -691,6 +692,10 @@ export class ContentWizardPanel
 
         const leftPanel: Panel = this.createSplitFormAndLivePanel(this.formPanel, this.livePanel);
         return this.createWizardAndDetailsSplitPanel(leftPanel);
+    }
+
+    private notifyGeneralValidationErrors(): void {
+        $generalServerErrorMessages.get().forEach((message: string) => showWarning(message));
     }
 
     private createSplitFormAndLivePanel(firstPanel: Panel, secondPanel: Panel): SplitPanel {
@@ -1438,6 +1443,7 @@ export class ContentWizardPanel
         // carries fresh validationErrors. getCurrentItem() is the in-memory draft
         // built from the form and has none, which would wipe the errors on save.
         setServerValidationErrors(persistedItem.getValidationErrors());
+        this.notifyGeneralValidationErrors();
 
         return Q.resolve(persistedItem);
     }
