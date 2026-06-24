@@ -47,7 +47,6 @@ function hasInvalidContentNameCharacters(value: string): boolean {
         const char = value.charAt(index);
         if (
             INVALID_CONTENT_NAME_CHARACTERS.includes(char) ||
-            (char !== ' ' && /\s/u.test(char)) ||
             (char !== ' ' && !VALID_CONTENT_NAME_CHARACTER_PATTERN.test(char))
         ) {
             return true;
@@ -225,6 +224,10 @@ export const setRenameContentDialogValue = (value: string): void => {
         clearAvailabilityTimer();
         availabilityRequestId += 1;
 
+        return;
+    }
+
+    if (trimmedValue === state.value.trim()) {
         return;
     }
 

@@ -69,11 +69,12 @@ export const RenameContentDialog = (): ReactElement => {
     const hasValidationError = validationStatus === 'invalid';
     const hasStatusError = hasValidationError || availabilityStatus === 'not-available';
 
-    const helperText = hasValidationError
-                       ? invalidNameLabel
-                       : availabilityStatus
-                         ? availabilityLabels[availabilityStatus]
-                         : undefined;
+    let helperText: string | undefined;
+    if (hasValidationError) {
+        helperText = invalidNameLabel;
+    } else if (availabilityStatus) {
+        helperText = availabilityLabels[availabilityStatus];
+    }
 
     return (
         <Dialog.Root
