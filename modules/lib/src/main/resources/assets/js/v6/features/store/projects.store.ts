@@ -137,7 +137,7 @@ function refreshActiveProjectInstance(): void {
     const {projects, activeProjectId} = $projects.get();
     if (!activeProjectId) return;
     const canonical = projects.find((p) => getProjectId(p) === activeProjectId);
-    setActiveProject(canonical);
+    setActiveProject(canonical && isAvailableProject(canonical) ? canonical : undefined);
 }
 
 function resolveFallbackProjectId(projects: Readonly<Project>[], activeProjectId: string | undefined): string | undefined {
