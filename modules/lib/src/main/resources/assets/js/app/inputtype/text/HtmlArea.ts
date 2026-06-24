@@ -43,6 +43,7 @@ export class HtmlArea
 
     protected context: ContentInputTypeViewContext;
     private editors: HtmlAreaOccurrenceInfo[];
+    private editorsNeedReInit: boolean = false;
     private content: ContentSummary;
     private applicationKeys: ApplicationKey[];
 
@@ -102,6 +103,7 @@ export class HtmlArea
 
     private setupEventListeners() {
         this.onRemoved(() => {
+            this.editorsNeedReInit = true;
             ResponsiveManager.unAvailableSizeChanged(this);
         });
 
@@ -532,6 +534,11 @@ export class HtmlArea
     }
 
     refresh() {
+        if (!this.editorsNeedReInit) {
+            return;
+        }
+        this.editorsNeedReInit = false;
+
         this.editors.forEach((editor) => {
             const editorId = editor.id;
 

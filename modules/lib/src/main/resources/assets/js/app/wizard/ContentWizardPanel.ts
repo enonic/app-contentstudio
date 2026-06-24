@@ -1744,6 +1744,11 @@ export class ContentWizardPanel
         return this.fetchPersistedContent(summaryAndStatus).then((content: Content) => {
             const viewedContent: Content = this.assembleViewedContent(new ContentBuilder(this.getPersistedItem()), true).build();
 
+            if (viewedContent.equals(content)) {
+                this.contentAfterLayout = viewedContent;
+                return;
+            }
+
             return this.generateDataAndXDataAfterLayout(content).then((data) => {
                 this.contentAfterLayout = content.newBuilder().setData(data.data).setExtraData(data.xData).build();
 
