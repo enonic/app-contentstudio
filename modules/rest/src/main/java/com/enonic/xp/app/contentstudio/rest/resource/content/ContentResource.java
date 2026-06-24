@@ -176,6 +176,7 @@ import com.enonic.xp.extractor.ExtractedData;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.index.ChildOrder;
 import com.enonic.xp.jaxrs.JaxRsComponent;
+import com.enonic.xp.node.NodeIndexPath;
 import com.enonic.xp.query.expr.CompareExpr;
 import com.enonic.xp.query.expr.FieldExpr;
 import com.enonic.xp.query.expr.FieldOrderExpr;
@@ -1365,26 +1366,7 @@ public final class ContentResource
     @Consumes(MediaType.APPLICATION_JSON)
     public ContentTreeSelectorListJson treeSelectorQuery( final ContentTreeSelectorQueryJson contentQueryJson )
     {
-        final Integer from = contentQueryJson.getFrom();
-        contentQueryJson.setFrom( 0 );
-
-        final Integer size = contentQueryJson.getSize();
-        contentQueryJson.setSize( -1 );
-
-        final ContentPaths targetContentPaths = findContentPathsBySelectorQuery( contentQueryJson );
-
         final ContentPath parentPath = contentQueryJson.getParentPath();
-        final int parentPathSize = parentPath != null ? parentPath.elementCount() : 0;
-
-        final Set<ContentPath> layerPaths = targetContentPaths.stream()
-            .filter( path -> parentPath == null || path.isChildOf( parentPath ) )
-            .map( path -> path.getAncestorPath( path.elementCount() - parentPathSize - 1 ) )
-            .collect( Collectors.toSet() );
-
-        if ( layerPaths.isEmpty() )
-        {
-            return ContentTreeSelectorListJson.empty();
-        }
 
         final ChildOrder layerOrder = parentPath == null
             ? ContentConstants.DEFAULT_CONTENT_REPO_ROOT_ORDER
@@ -1399,20 +1381,62 @@ public final class ContentResource
                                                                                                    .size( -1 )
                                                                                                    .build() );
 
-        final List<Content> layersContents = findLayerContentsResult.getContents()
-            .stream()
-            .filter( content -> layerPaths.contains( content.getPath() ) )
-            .collect( Collectors.toList() );
+        final List<Content> children = findLayerContentsResult.getContents().stream().collect( Collectors.toList() );
 
-        final List<ContentPath> relativeTargetContentPaths =
-            targetContentPaths.stream().map( ContentPath::asRelative ).collect( Collectors.toList() );
+        if ( children.isEmpty() )
+        {
+            return ContentTreeSelectorListJson.empty();
+        }
 
-        final List<ContentTreeSelectorJson> resultItems = layersContents.stream()
-            .map( content -> new ContentTreeSelectorJson( jsonObjectsFactory.createContentJson( content ),
-                                                          relativeTargetContentPaths.contains( content.getPath().asRelative() ),
-                                                          relativeTargetContentPaths.stream()
-                                                              .anyMatch( path -> path.isChildOf( content.getPath().asRelative() ) ) ) )
-            .collect( Collectors.toList() );
+        contentQueryJson.setFrom( 0 );
+        contentQueryJson.setSize( 0 );
+
+        // Number of contents in the expanded subtree that match the selector query.
+        final long selectorMatches = countContentsBySelectorQuery( contentQueryJson, parentPath );
+
+        if ( selectorMatches == 0 )
+        {
+            return ContentTreeSelectorListJson.empty();
+        }
+
+        final List<ContentTreeSelectorJson> resultItems;
+
+        if ( selectorMatches == countContentsUnderPath( parentPath ) )
+        {
+            // Every descendant in the subtree matches the selector (e.g. plain browsing with no search/type filter).
+            // In this case all children are selectable and a child is expandable exactly when it has children, so the
+            // expensive full path scan can be skipped entirely.
+            resultItems = children.stream()
+                .map( content -> new ContentTreeSelectorJson( jsonObjectsFactory.createContentJson( content ), true,
+                                                              content.hasChildren() ) )
+                .collect( Collectors.toList() );
+        }
+        else
+        {
+            // A real filter is applied, so the matches are a small subset of the subtree. Fetch the matching paths
+            // (scoped to this subtree) and derive selectable/expandable from them, as before.
+            contentQueryJson.setSize( -1 );
+
+            final ContentPaths targetContentPaths = findContentPathsBySelectorQuery( contentQueryJson, parentPath );
+
+            final int parentPathSize = parentPath != null ? parentPath.elementCount() : 0;
+
+            final Set<ContentPath> layerPaths = targetContentPaths.stream()
+                .filter( path -> parentPath == null || path.isChildOf( parentPath ) )
+                .map( path -> path.getAncestorPath( path.elementCount() - parentPathSize - 1 ) )
+                .collect( Collectors.toSet() );
+
+            final List<ContentPath> relativeTargetContentPaths =
+                targetContentPaths.stream().map( ContentPath::asRelative ).collect( Collectors.toList() );
+
+            resultItems = children.stream()
+                .filter( content -> layerPaths.contains( content.getPath() ) )
+                .map( content -> new ContentTreeSelectorJson( jsonObjectsFactory.createContentJson( content ),
+                                                              relativeTargetContentPaths.contains( content.getPath().asRelative() ),
+                                                              relativeTargetContentPaths.stream()
+                                                                  .anyMatch( path -> path.isChildOf( content.getPath().asRelative() ) ) ) )
+                .collect( Collectors.toList() );
+        }
 
         final ContentListMetaData metaData = ContentListMetaData.create()
             .hits( findLayerContentsResult.getHits() )
@@ -1424,16 +1448,28 @@ public final class ContentResource
 
     private FindContentIdsByQueryResult findContentsBySelectorQuery( final ContentSelectorQueryJson contentQueryJson )
     {
-        return contentService.find( makeConverterFromSelectorQuery( contentQueryJson ).createQuery() );
+        return contentService.find( makeConverterFromSelectorQuery( contentQueryJson, null ).createQuery() );
     }
 
-    private ContentPaths findContentPathsBySelectorQuery( final ContentSelectorQueryJson contentQueryJson )
+    private long countContentsBySelectorQuery( final ContentSelectorQueryJson contentQueryJson, final ContentPath parentScope )
     {
-        return contentService.findPaths( makeConverterFromSelectorQuery( contentQueryJson ).createQuery() ).getContentPaths();
+        return contentService.find( makeConverterFromSelectorQuery( contentQueryJson, parentScope ).createQuery() ).getTotalHits();
+    }
+
+    private long countContentsUnderPath( final ContentPath parentPath )
+    {
+        final String pathValue = "/" + ContentConstants.CONTENT_ROOT_NAME + ( parentPath != null ? parentPath.toString() : "" ) + "/**";
+        final QueryExpr queryExpr = QueryExpr.from( CompareExpr.like( FieldExpr.from( NodeIndexPath.PATH ), ValueExpr.string( pathValue ) ) );
+        return contentService.find( ContentQuery.create().queryExpr( queryExpr ).size( 0 ).build() ).getTotalHits();
+    }
+
+    private ContentPaths findContentPathsBySelectorQuery( final ContentSelectorQueryJson contentQueryJson, final ContentPath parentScope )
+    {
+        return contentService.findPaths( makeConverterFromSelectorQuery( contentQueryJson, parentScope ).createQuery() ).getContentPaths();
     }
 
     private ContentSelectorQueryJsonToContentQueryConverter makeConverterFromSelectorQuery(
-        final ContentSelectorQueryJson contentQueryJson )
+        final ContentSelectorQueryJson contentQueryJson, final ContentPath parentScope )
     {
         return ContentSelectorQueryJsonToContentQueryConverter.create()
             .contentQueryJson( contentQueryJson )
@@ -1441,6 +1477,7 @@ public final class ContentResource
             .contentTypeService( this.contentTypeService )
             .relationshipTypeService( this.relationshipTypeService )
             .contentTypeParseMode( this.contentTypeParseMode )
+            .parentScope( parentScope )
             .build();
     }
 
