@@ -23,6 +23,7 @@ export const RenameContentDialog = (): ReactElement => {
         parentPath,
         value,
         availabilityStatus,
+        validationStatus,
     } = useStore($renameContentDialog, {
         keys: [
             'open',
@@ -31,6 +32,7 @@ export const RenameContentDialog = (): ReactElement => {
             'parentPath',
             'value',
             'availabilityStatus',
+            'validationStatus',
         ],
     });
 
@@ -44,6 +46,7 @@ export const RenameContentDialog = (): ReactElement => {
     const checkingLabel = useI18n('path.checking');
     const availableLabel = useI18n('path.available');
     const notAvailableLabel = useI18n('path.not.available');
+    const invalidNameLabel = useI18n('path.name.invalid');
     const renameLabel = useI18n('action.rename');
     const unnamedFieldLabel = useI18n('field.unnamed');
 
@@ -63,8 +66,15 @@ export const RenameContentDialog = (): ReactElement => {
         checking: checkingLabel,
         available: availableLabel,
     };
-    const hasAvailabilityError = availabilityStatus === 'not-available';
-    const helperText = availabilityStatus ? availabilityLabels[availabilityStatus] : undefined;
+    const hasValidationError = validationStatus === 'invalid';
+    const hasStatusError = hasValidationError || availabilityStatus === 'not-available';
+
+    let helperText: string | undefined;
+    if (hasValidationError) {
+        helperText = invalidNameLabel;
+    } else if (availabilityStatus) {
+        helperText = availabilityLabels[availabilityStatus];
+    }
 
     return (
         <Dialog.Root
@@ -106,7 +116,7 @@ export const RenameContentDialog = (): ReactElement => {
                                         'mr-4.5 flex cursor-default text-xs text-main h-fit min-w-22 justify-center px-2 self-center rounded-sm leading-normal',
                                         availabilityStatus === 'checking' && 'bg-muted',
                                         availabilityStatus === 'available' && 'bg-surface-success',
-                                        hasAvailabilityError && 'bg-surface-error',
+                                        hasStatusError && 'bg-surface-error',
                                     )}>
                                         {helperText}
                                     </div>
