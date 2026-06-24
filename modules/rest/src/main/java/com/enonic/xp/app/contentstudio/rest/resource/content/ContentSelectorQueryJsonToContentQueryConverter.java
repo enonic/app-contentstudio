@@ -11,6 +11,7 @@ import com.enonic.xp.app.ApplicationWildcardMatcher;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentSelectorQueryJson;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentConstants;
+import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentQuery;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.node.NodeIndexPath;
@@ -46,6 +47,8 @@ public class ContentSelectorQueryJsonToContentQueryConverter
 
     private final ApplicationWildcardMatcher.Mode contentTypeParseMode;
 
+    private final ContentPath parentScope;
+
     private Site parentSite;
 
     private static final FieldExpr PATH_FIELD_EXPR = FieldExpr.from( NodeIndexPath.PATH );
@@ -58,6 +61,7 @@ public class ContentSelectorQueryJsonToContentQueryConverter
         this.content = contentQueryJson.getContentId() != null ? contentService.getById( contentQueryJson.getContentId() ) : null;
         this.contentTypeService = builder.contentTypeService;
         this.contentTypeParseMode = builder.contentTypeParseMode;
+        this.parentScope = builder.parentScope;
     }
 
     public ContentQuery createQuery()
@@ -65,10 +69,29 @@ public class ContentSelectorQueryJsonToContentQueryConverter
         final ContentQuery.Builder builder = ContentQuery.create()
             .from( this.contentQueryJson.getFrom() )
             .size( this.contentQueryJson.getSize() )
-            .queryExpr( this.createQueryExpr() )
+            .queryExpr( this.applyParentScope( this.createQueryExpr() ) )
             .addContentTypeNames( this.getContentTypeNamesFromJson() );
 
         return builder.build();
+    }
+
+    private QueryExpr applyParentScope( final QueryExpr queryExpr )
+    {
+        if ( parentScope == null )
+        {
+            return queryExpr;
+        }
+
+        // Restrict the query to the descendants of the expanded node so the index only returns the relevant
+        // subtree instead of every match in the whole repository. This is a non-scoring filter (unlike pathMatch),
+        // and the result is identical because only paths within this subtree are ever consumed by the caller.
+        final CompareExpr scopeExpr = CompareExpr.like( PATH_FIELD_EXPR, ValueExpr.string(
+            "/" + ContentConstants.CONTENT_ROOT_NAME + parentScope + "/**" ) );
+
+        final ConstraintExpr constraint = queryExpr.getConstraint();
+        final ConstraintExpr combined = constraint == null ? scopeExpr : LogicalExpr.and( constraint, scopeExpr );
+
+        return QueryExpr.from( combined, queryExpr.getOrderList() );
     }
 
     private ContentTypeNames getContentTypeNamesFromJson()
@@ -249,6 +272,8 @@ public class ContentSelectorQueryJsonToContentQueryConverter
 
         private ApplicationWildcardMatcher.Mode contentTypeParseMode;
 
+        private ContentPath parentScope;
+
         public Builder contentQueryJson( final ContentSelectorQueryJson contentQueryJson )
         {
             this.contentQueryJson = contentQueryJson;
@@ -276,6 +301,12 @@ public class ContentSelectorQueryJsonToContentQueryConverter
         public Builder contentTypeParseMode( final ApplicationWildcardMatcher.Mode contentTypeParseMode )
         {
             this.contentTypeParseMode = contentTypeParseMode;
+            return this;
+        }
+
+        public Builder parentScope( final ContentPath parentScope )
+        {
+            this.parentScope = parentScope;
             return this;
         }
 

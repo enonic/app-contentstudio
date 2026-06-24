@@ -1443,8 +1443,30 @@ public class ContentResourceTest
     {
         ContentResource contentResource = getResourceInstance();
 
-        Mockito.when( this.contentService.findPaths( Mockito.isA( ContentQuery.class ) ) )
-            .thenReturn( FindContentPathsByQueryResult.create().build() );
+        Mockito.doReturn( FindContentByParentResult.create().contents( Contents.empty() ).build() )
+            .when( this.contentService )
+            .findByParent( Mockito.isA( FindContentByParentParams.class ) );
+
+        ContentTreeSelectorQueryJson json = initContentTreeSelectorQueryJson( null );
+        ContentTreeSelectorListJson result = contentResource.treeSelectorQuery( json );
+
+        assertEquals( ContentTreeSelectorListJson.empty(), result );
+    }
+
+    @Test
+    public void treeSelectorQuery_no_matches()
+    {
+        ContentResource contentResource = getResourceInstance();
+
+        Content content1 = createContent( "content-id1", "content-name1", "myapplication:content-type" );
+
+        Mockito.doReturn( FindContentByParentResult.create().totalHits( 1L ).contents( Contents.from( content1 ) ).build() )
+            .when( this.contentService )
+            .findByParent( Mockito.isA( FindContentByParentParams.class ) );
+
+        // The selector matches nothing in the subtree.
+        Mockito.when( this.contentService.find( Mockito.isA( ContentQuery.class ) ) )
+            .thenReturn( FindContentIdsByQueryResult.create().totalHits( 0L ).build() );
 
         ContentTreeSelectorQueryJson json = initContentTreeSelectorQueryJson( null );
         ContentTreeSelectorListJson result = contentResource.treeSelectorQuery( json );
@@ -1478,6 +1500,15 @@ public class ContentResourceTest
                              .totalHits( 1 )
                              .build() );
 
+        // For every expansion: selector matches (1) < total contents in subtree (2), so the path-scan branch is used.
+        Mockito.when( this.contentService.find( Mockito.isA( ContentQuery.class ) ) )
+            .thenReturn( FindContentIdsByQueryResult.create().totalHits( 1L ).build(),
+                         FindContentIdsByQueryResult.create().totalHits( 2L ).build(),
+                         FindContentIdsByQueryResult.create().totalHits( 1L ).build(),
+                         FindContentIdsByQueryResult.create().totalHits( 2L ).build(),
+                         FindContentIdsByQueryResult.create().totalHits( 1L ).build(),
+                         FindContentIdsByQueryResult.create().totalHits( 2L ).build() );
+
         Mockito.doReturn( FindContentByParentResult.create().totalHits( 1L ).contents( Contents.from( content1 ) ).build() )
             .when( this.contentService )
             .findByParent( Mockito.isA( FindContentByParentParams.class ) );
@@ -1501,6 +1532,34 @@ public class ContentResourceTest
         json = initContentTreeSelectorQueryJson( content2.getPath() );
         result = contentResource.treeSelectorQuery( json );
         assertEquals( result.getItems().get( 0 ).getContent().getId(), content3.getId().toString() );
+    }
+
+    @Test
+    public void treeSelectorQuery_all_match_skips_path_scan()
+    {
+        ContentResource contentResource = getResourceInstance();
+
+        Content content1 = createContent( "content-id1", "content-name1", "myapplication:content-type" );
+
+        Mockito.when( this.contentService.getByIds( new GetContentByIdsParams( ContentIds.from( content1.getId() ) ) ) )
+            .thenReturn( Contents.from( content1 ) );
+
+        Mockito.doReturn( FindContentByParentResult.create().totalHits( 1L ).contents( Contents.from( content1 ) ).build() )
+            .when( this.contentService )
+            .findByParent( Mockito.isA( FindContentByParentParams.class ) );
+
+        // Selector matches every content in the subtree (matches == total), so the path scan must be skipped.
+        Mockito.when( this.contentService.find( Mockito.isA( ContentQuery.class ) ) )
+            .thenReturn( FindContentIdsByQueryResult.create().totalHits( 5L ).build() );
+
+        ContentTreeSelectorQueryJson json = initContentTreeSelectorQueryJson( null );
+        ContentTreeSelectorListJson result = contentResource.treeSelectorQuery( json );
+
+        assertEquals( content1.getId().toString(), result.getItems().get( 0 ).getContent().getId() );
+        assertEquals( Boolean.TRUE, result.getItems().get( 0 ).getSelectable() );
+        assertEquals( Boolean.valueOf( content1.hasChildren() ), result.getItems().get( 0 ).getExpandable() );
+
+        Mockito.verify( this.contentService, Mockito.never() ).findPaths( Mockito.isA( ContentQuery.class ) );
     }
 
     @Test
