@@ -1,6 +1,5 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {MenuButtonDropdownPos} from '@enonic/lib-admin-ui/ui/button/MenuButton';
-import {ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
 import {ContentWizardPublishMenuButton} from '../browse/ContentWizardPublishMenuButton';
 import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {IssueDialogsManager} from '../issue/IssueDialogsManager';
@@ -12,8 +11,6 @@ export class ContentWizardToolbarPublishControls
 
     private publishButton: ContentWizardPublishMenuButton;
 
-    private mobilePublishControls: DivEl;
-
     private actions: ContentWizardActions;
 
     constructor(actions: ContentWizardActions) {
@@ -22,8 +19,6 @@ export class ContentWizardToolbarPublishControls
         this.actions = actions;
 
         this.createPublishButton(actions);
-
-        this.initMobilePublishControls();
 
         this.initListeners();
 
@@ -68,46 +63,7 @@ export class ContentWizardToolbarPublishControls
         this.publishButton.addClass('content-wizard-toolbar-publish-button');
     }
 
-    protected initMobilePublishControls() {
-        this.mobilePublishControls = new DivEl('mobile-edit-publish-controls');
-        const publishButtonForMobile = this.createPublishButtonForMobile();
-        const markAsReadyButtonForMobile = this.createMarkAsReadyButtonForMobile();
-        this.mobilePublishControls.appendChildren(publishButtonForMobile, markAsReadyButtonForMobile);
-
-        this.handleMarkAsReadyStatus();
-    }
-
-    protected createPublishButtonForMobile(): ActionButton {
-        const publishButtonForMobile = new ActionButton({
-            action: this.actions.getPublishAction(),
-            className: 'mobile-edit-publish-button',
-        });
-
-        return publishButtonForMobile;
-    }
-
-    protected createMarkAsReadyButtonForMobile(): ActionButton {
-        const markAsReadyButtonForMobile = new ActionButton({
-            action: this.actions.getMarkAsReadyAction(),
-            className: 'mobile-edit-mark-as-ready-button',
-        });
-
-        return markAsReadyButtonForMobile;
-    }
-
     protected initListeners() {
-        const publishAction = this.actions.getPublishAction();
-        const markAsReadyAction = this.actions.getMarkAsReadyAction();
-
-        publishAction.onPropertyChanged(() => {
-            this.handleControlsChanged();
-        });
-
-        markAsReadyAction.onPropertyChanged(() => {
-            this.handleControlsChanged();
-            this.handleMarkAsReadyStatus();
-        });
-
         this.actions.onBeforeActionsStashed(() => {
             this.publishButton.setRefreshDisabled(true);
         });
@@ -117,28 +73,9 @@ export class ContentWizardToolbarPublishControls
         });
     }
 
-    private handleControlsChanged() {
-        const publishAction = this.actions.getPublishAction();
-        const markAsReadyAction = this.actions.getMarkAsReadyAction();
-
-        const controlsEnabled = publishAction.isEnabled() || markAsReadyAction.isEnabled();
-        this.mobilePublishControls.toggleClass('enabled', controlsEnabled);
-    }
-
-    private handleMarkAsReadyStatus() {
-        const markAsReadyAction = this.actions.getMarkAsReadyAction();
-
-        const markAsReadyEnabled = markAsReadyAction.isEnabled();
-        this.mobilePublishControls.toggleClass('mark-as-ready', markAsReadyEnabled);
-    }
-
     setContent(content: ContentSummaryAndCompareStatus): ContentWizardToolbarPublishControls {
         this.publishButton.setItem(content);
         return this;
-    }
-
-    getMobilePublishControls(): DivEl {
-        return this.mobilePublishControls;
     }
 
     getPublishButton(): ContentWizardPublishMenuButton {
