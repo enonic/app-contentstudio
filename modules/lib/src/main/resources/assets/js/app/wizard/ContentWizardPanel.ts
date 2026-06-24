@@ -180,13 +180,13 @@ export class ContentWizardPanel
 
     private persistedCompareStatus: CompareStatus;
 
-    private splitPanelThreshold: number = 960;
-
     private minimized: boolean = false;
 
     private minimizedFromFormOnly: boolean = false;
 
     private isTogglingMinimize: boolean = false;
+
+    private restoreSplitViewAfterMobile: boolean = false;
 
     private contentUpdateDisabled: boolean;
 
@@ -293,6 +293,7 @@ export class ContentWizardPanel
         this.minimized = !this.minimized;
         this.splitPanel.setSplitterIsHidden(this.minimized);
         this.formPanel.toggleClass('minimized');
+        this.splitPanel.toggleClass('form-minimized', this.minimized);
 
         new MinimizeWizardPanelEvent().fire();
 
@@ -303,6 +304,10 @@ export class ContentWizardPanel
 
             this.minimizedFromFormOnly = this.splitPanel.hasClass('toggle-form');
             if (this.minimizedFromFormOnly) {
+                if (this.inMobileViewMode) {
+                    this.restoreSplitViewAfterMobile = true;
+                }
+
                 this.splitPanel.removeClass('toggle-form').addClass('toggle-split');
                 this.splitPanel.showSecondPanel();
                 this.syncPreviewPanelVisibility();
@@ -605,7 +610,6 @@ export class ContentWizardPanel
                 .setContentCanBePublished(this.checkContentCanBePublished())
                 .setIsValid(this.isContentFormValid)
                 .refreshState();
-            this.appendChild(this.getContentWizardToolbarPublishControls().getMobilePublishControls());
 
             if (this.contentType?.hasDisplayNameExpression()) {
                 this.displayNameResolver.setExpression(this.contentType.getDisplayNameExpression());
@@ -701,12 +705,9 @@ export class ContentWizardPanel
     private createSplitFormAndLivePanel(firstPanel: Panel, secondPanel: Panel): SplitPanel {
         const builder: SplitPanelBuilder = new SplitPanelBuilder(firstPanel, secondPanel)
             .setFirstPanelMinSize(SplitPanelSize.PIXELS(280))
+            .setFirstPanelSize(SplitPanelSize.PERCENTS(38))
             .setSplitterThickness(1)
             .setAlignment(SplitPanelAlignment.VERTICAL);
-
-        if ($(window).width() > this.splitPanelThreshold) {
-            builder.setFirstPanelSize(SplitPanelSize.PERCENTS(38));
-        }
 
         this.splitPanel = builder.build();
 
@@ -747,20 +748,29 @@ export class ContentWizardPanel
         if (this.isVisible()) {
             this.updateStickyToolbar();
             if (item.isInRangeOrSmaller(ResponsiveRanges._720_960)) {
+                if (!this.inMobileViewMode) {
+                    this.restoreSplitViewAfterMobile = this.restoreSplitViewAfterMobile || this.isSplitView() || this.isLiveView();
+                }
+
                 this.inMobileViewMode = true;
-                if (this.isSplitView()) {
-                    if (this.isMinimized()) {
-                        this.toggleMinimize();
-                    }
+
+                if (this.isSplitView() && !this.isMinimized()) {
                     this.showForm();
                 }
             } else {
-                if (this.inMobileViewMode && this.isLiveView()) {
+                if (this.inMobileViewMode) {
                     this.inMobileViewMode = false;
-                    this.showLiveEdit();
-                }
 
-                this.inMobileViewMode = false;
+                    if (this.restoreSplitViewAfterMobile || this.isLiveView()) {
+                        if (this.isMinimized()) {
+                            this.minimizedFromFormOnly = false;
+                        }
+
+                        this.showLiveEdit();
+                    }
+
+                    this.restoreSplitViewAfterMobile = false;
+                }
             }
         }
     }
@@ -1362,6 +1372,14 @@ export class ContentWizardPanel
         if (ContentWizardPanel.debug) {
             console.debug('ContentWizardPanel.toggleLiveEdit at ' + new Date().toISOString());
         }
+
+        if (!ResponsiveRanges._960_1200.isFitOrBigger(this.getEl().getWidth())) {
+            this.inMobileViewMode = true;
+            this.restoreSplitViewAfterMobile = !!this.contentType;
+            this.showForm();
+            return Q.resolve();
+        }
+
         return Q.allSettled([this.shouldAndCanOpenEditorByDefault(), this.hasControllers()])
             .then(([canOpenEditor, hasControllers]) => {
                 if (canOpenEditor.value || hasControllers.value) {

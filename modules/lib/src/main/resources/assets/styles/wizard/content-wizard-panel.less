@@ -292,12 +292,14 @@
       &._240-360,
       &._360-540,
       &._540-720 {
-        .form-panel {
-          width: 100% !important;
-        }
+        &:not(.form-minimized) {
+          .form-panel {
+            width: 100% !important;
+          }
 
-        & > .splitter, .live-form-panel {
-          display: none !important;
+          & > .splitter, .live-form-panel {
+            display: none !important;
+          }
         }
       }
     }
@@ -453,49 +455,6 @@
   &._240-360,
   &._360-540,
   &._540-720 {
-    .mobile-edit-publish-button {
-      .button(@form-button-font, @admin-green, @form-button-font, lighten(@admin-green, 30%));
-    }
-
-    .mobile-edit-mark-as-ready-button {
-      .button(@form-button-font, @admin-yellow, @form-button-font, lighten(@admin-yellow, 30%));
-    }
-
-    .mobile-edit-publish-button,
-    .mobile-edit-mark-as-ready-button {
-      display: flex !important;
-      position: fixed;
-      bottom: 0;
-      text-align: center;
-      height: 40px;
-      width: 100%;
-      opacity: 0.9;
-      z-index: @z-index-docked-panel;
-      justify-content: center;
-
-      span {
-        font-size: 16px;
-      }
-    }
-
-    .mobile-edit-publish-controls {
-      &:not(.enabled) {
-        display: none;
-      }
-
-      &.mark-as-ready {
-        .mobile-edit-publish-button {
-          display: none !important;
-        }
-      }
-
-      &:not(.mark-as-ready) {
-        .mobile-edit-mark-as-ready-button {
-          display: none !important;
-        }
-      }
-    }
-
     .toolbar-state-icon {
       &.ready,
       &.in-progress,
@@ -525,10 +484,6 @@
   &._1380-1620,
   &._1620-1920,
   &._1920-Infinity {
-    .mobile-edit-publish-controls {
-      display: none;
-    }
-
     .content-wizard-toolbar {
       .toolbar-publish-controls {
         .content-wizard-toolbar-publish-button {
