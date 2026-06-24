@@ -24,6 +24,29 @@ describe('resolveActiveProjectId', () => {
     it('should require manual selection when multiple projects remain and url does not match', () => {
         expect(resolveActiveProjectId([createProject('alpha'), createProject('beta')], 'missing')).toBeUndefined();
     });
+
+    it('should auto-select the only accessible project when inaccessible parent stubs are present', () => {
+        const inaccessibleParent = createProject('parent', [], '');
+        const layer = createProject('layer', ['parent']);
+
+        expect(resolveActiveProjectId([inaccessibleParent, layer], 'missing')).toBe('layer');
+    });
+
+    it('should require manual selection when several accessible projects remain despite stubs', () => {
+        const inaccessibleParent = createProject('parent', [], '');
+        const layerA = createProject('layer-a', ['parent']);
+        const layerB = createProject('layer-b', ['parent']);
+
+        expect(resolveActiveProjectId([inaccessibleParent, layerA, layerB], 'missing')).toBeUndefined();
+    });
+
+    it('should not select an inaccessible project even when the url points to it', () => {
+        const inaccessibleBeta = createProject('beta', [], '');
+        const alpha = createProject('alpha');
+        const gamma = createProject('gamma');
+
+        expect(resolveActiveProjectId([inaccessibleBeta, alpha, gamma], 'beta')).toBeUndefined();
+    });
 });
 
 describe('resolveActiveProjectIdAfterDeletion', () => {

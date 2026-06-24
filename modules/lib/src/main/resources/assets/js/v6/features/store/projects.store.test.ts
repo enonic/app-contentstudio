@@ -73,13 +73,17 @@ vi.mock('../utils/widget/versions/versionsCache', () => ({
     clearVersionsCache: vi.fn(),
 }));
 
-function createProject(name: string, parents: string[] = []): MockProject {
+function createProject(name: string, parents: string[] = [], displayName: string = name): MockProject {
     return {
         getName: () => name,
-        getDisplayName: () => name,
+        getDisplayName: () => displayName,
         getLanguage: () => '',
         getParents: () => parents,
     };
+}
+
+function createInaccessibleProject(name: string, parents: string[] = []): MockProject {
+    return createProject(name, parents, '');
 }
 
 function emitDeleted(projectName: string): void {
@@ -326,6 +330,47 @@ describe('projects.store init', () => {
         const a = createProject('a');
         const b = createProject('b');
         const store = await loadStore([a, b], '', {
+            url: '/com.enonic.app.contentstudio/cms//browse',
+            clearInitMocks: false,
+        });
+
+        expect(store.$projects.get().activeProjectId).toBeUndefined();
+        expect(mockSetProjectSelectionDialogOpen).toHaveBeenCalledWith(true);
+    });
+
+    it('auto-selects the accessible layer when storage holds an inaccessible parent', async () => {
+        localStorage.setItem(LAST_SELECTED_STORAGE_KEY, JSON.stringify('parent'));
+        const parentStub = createInaccessibleProject('parent');
+        const layer = createProject('layer', ['parent']);
+        const store = await loadStore([parentStub, layer], '', {
+            url: '/com.enonic.app.contentstudio/cms//browse',
+            clearInitMocks: false,
+        });
+
+        expect(store.$projects.get().activeProjectId).toBe('layer');
+        expect(store.getActiveProject().getName()).toBe('layer');
+        expect(mockSetProjectSelectionDialogOpen).not.toHaveBeenCalledWith(true);
+    });
+
+    it('auto-selects the single accessible project when storage holds an unrelated id', async () => {
+        localStorage.setItem(LAST_SELECTED_STORAGE_KEY, JSON.stringify('parent'));
+        const otherParentStub = createInaccessibleProject('other-parent');
+        const otherLayer = createProject('other-layer', ['other-parent']);
+        const store = await loadStore([otherParentStub, otherLayer], '', {
+            url: '/com.enonic.app.contentstudio/cms//browse',
+            clearInitMocks: false,
+        });
+
+        expect(store.$projects.get().activeProjectId).toBe('other-layer');
+        expect(store.getActiveProject().getName()).toBe('other-layer');
+        expect(mockSetProjectSelectionDialogOpen).not.toHaveBeenCalledWith(true);
+    });
+
+    it('still requires manual selection when several accessible projects remain and storage is unresolvable', async () => {
+        localStorage.setItem(LAST_SELECTED_STORAGE_KEY, JSON.stringify('ghost'));
+        const alpha = createProject('alpha');
+        const beta = createProject('beta');
+        const store = await loadStore([alpha, beta], '', {
             url: '/com.enonic.app.contentstudio/cms//browse',
             clearInitMocks: false,
         });
