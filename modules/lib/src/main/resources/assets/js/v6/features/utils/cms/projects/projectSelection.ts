@@ -75,14 +75,16 @@ function resolveFirstAvailableProjectId(projects: Readonly<Project>[]): string |
 
 export function resolveActiveProjectId(
     projects: Readonly<Project>[],
-    projectIdFromUrl: string | undefined
+    projectIdFromUrl: string | undefined,
 ): string | undefined {
-    if (projects.length === 1) {
-        return isAvailableProject(projects[0]) ? projects[0].getName() : undefined;
+    const availableProjects = projects.filter(isAvailableProject);
+  
+    if (availableProjects.length === 1) {
+        return availableProjects[0].getName();
     }
 
     const projectFromUrl = projects.find((project) => project.getName() === projectIdFromUrl);
-
+    
     return projectFromUrl && isAvailableProject(projectFromUrl) ? projectIdFromUrl : undefined;
 }
 
