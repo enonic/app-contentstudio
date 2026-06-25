@@ -49,6 +49,7 @@ export const DisplayNameInput = (): ReactElement => {
     const aiError = useStore($aiTopicError);
     const topicHighlight = useStore($aiTopicHighlight);
     const [touched, setTouched] = useState(false);
+    const userEngagedRef = useRef(false);
     const inputRef = useRef<HTMLTextAreaElement | null>(null);
     const rootRef = useRef<HTMLDivElement | null>(null);
     const isBlinking = useBlinkAttention(rootRef, topicHighlight.count, {scrollIntoView: topicHighlight.scroll});
@@ -94,6 +95,7 @@ export const DisplayNameInput = (): ReactElement => {
     const handleEditorChange: ChangeEventHandler<HTMLTextAreaElement> = useCallback((event): void => {
         // Mirrors InputField: clear the transient AI error as soon as the user starts editing.
         clearAiTopicError();
+        userEngagedRef.current = true;
         setDraftDisplayName(normalizeSingleLineValue(event.currentTarget.value));
     }, []);
 
@@ -108,7 +110,9 @@ export const DisplayNameInput = (): ReactElement => {
     const handleEditorBlur: FocusEventHandler<HTMLTextAreaElement> = useCallback((event): void => {
         event.currentTarget.setSelectionRange(0, 0);
         setIsEditing(false);
-        setTouched(true);
+        if (userEngagedRef.current) {
+            setTouched(true);
+        }
         setDraftDisplayName(event.currentTarget.value.trim());
     }, []);
 
