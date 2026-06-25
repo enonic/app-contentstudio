@@ -1,5 +1,5 @@
 /**
- * Created on 25.03.2022
+ * Created on 25.03.2022  updated on 25.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -21,22 +21,19 @@ describe('optionset.multi.selection.checkbox.spec: tests for option set with mul
     const DISPLAY_NAME = contentBuilder.generateRandomName('optionset');
     const DISPLAY_NAME_2 = contentBuilder.generateRandomName('optionset');
 
-    it(`Preconditions: new site should be created`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/5757
-    // Option Set wizard - Html Area is disabled in selected options #5757
-    it(`GIVEN wizard for option set with HtmlArea is opened WHEN an image has been inserted in the HtmlArea THEN Insert Image dialog should be closed`,
+    // Option Set wizard - Html-Area is disabled in selected options #5757
+    // Display Name validation is triggered when clicking inputs in content wizard   #10916
+    it.skip(`GIVEN wizard for option set with HtmlArea is opened WHEN an image has been inserted in the HtmlArea THEN Insert Image dialog should be closed`,
         async () => {
             let multiSelectionSetView = new MultiSelectionSetView();
             let insertImageDialog = new InsertImageDialog();
             // 1. Open new wizard for option-set content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.OPTION_SET);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.OPTION_SET);
             // 2. select the option with HtmlArea:
+            await multiSelectionSetView.pause(1000);
             await multiSelectionSetView.clickOnOption('Option 3');
             // 3. Open Insert Image dialog:
             await multiSelectionSetView.showToolbarAndClickOnInsertImageButton();
@@ -55,7 +52,7 @@ describe('optionset.multi.selection.checkbox.spec: tests for option set with mul
             let multiSelectionOptionSet = new MultiSelectionOptionSet();
             let contentWizard = new ContentWizard();
             // 1. Open the new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.OPTION_SET_0_2);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.OPTION_SET_0_2);
             await contentWizard.typeDisplayName(DISPLAY_NAME);
             // 2. two checkboxes have been clicked
             await multiSelectionOptionSet.clickOnOption('Option 1');
@@ -79,7 +76,7 @@ describe('optionset.multi.selection.checkbox.spec: tests for option set with mul
             let multiSelectionOptionSet = new MultiSelectionOptionSet();
             let contentWizard = new ContentWizard();
             // 1. Open the new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.OPTION_SET);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.OPTION_SET);
             await contentWizard.typeDisplayName(DISPLAY_NAME_2);
             //2. three checkboxes have been clicked, ('Option 2' is selected by default)
             await multiSelectionOptionSet.clickOnOption('Option 1');

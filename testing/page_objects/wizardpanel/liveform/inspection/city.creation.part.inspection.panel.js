@@ -6,7 +6,7 @@ const appConst = require('../../../../libs/app_const');
 const ImageSelectorDropdown = require('../../../components/selectors/image.selector.dropdown');
 const PartInspectionPanel = require('./part.inspection.panel');
 const xpath = {
-    container: `//div[contains(@id,'PartInspectionPanel')]`,
+    container: "//div[@data-component='ComponentInspectionPanel' and descendant::span[text()='Part']]",
 };
 
 // Context Window, Inspect tab for City Creation Part Component
@@ -26,8 +26,8 @@ class CityCreationPartInspectionPanel extends PartInspectionPanel {
 
     async clickOnImageSelectorModeTogglerButton() {
         try {
-            let imageSelectorDropdown = new ImageSelectorDropdown();
-            await imageSelectorDropdown.clickOnModeTogglerButton(xpath.container);
+            let imageSelectorDropdown = new ImageSelectorDropdown(xpath.container);
+            await imageSelectorDropdown.clickOnModeTogglerButton();
             return await this.pause(300);
         } catch (err) {
             await this.handleError('City Creation Part Inspection Panel', 'err_inspect_panel_selector_mode_toggle', err);
@@ -35,8 +35,8 @@ class CityCreationPartInspectionPanel extends PartInspectionPanel {
     }
 
     async getTreeModeOptionsImagesDisplayName() {
-        let imageSelectorDropdown = new ImageSelectorDropdown();
-        return await imageSelectorDropdown.getOptionsDisplayNameInTreeMode(xpath.container);
+        let imageSelectorDropdown = new ImageSelectorDropdown(xpath.container);
+        return await imageSelectorDropdown.getOptionsDisplayNameInTreeMode();
     }
 
 
@@ -59,16 +59,10 @@ class CityCreationPartInspectionPanel extends PartInspectionPanel {
 
     async waitForLoaded() {
         try {
-            return this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout)
+            return await this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout);
         } catch (err) {
             await this.handleError('City Creation Part Inspection Panel', 'err_city_creation_part_inspect_panel', err);
         }
-    }
-
-    async getSelectedImageDisplayName() {
-        let locator = this.container + lib.CONTENT_SELECTED_OPTION_VIEW + lib.H6_DISPLAY_NAME;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.getText(locator);
     }
 }
 

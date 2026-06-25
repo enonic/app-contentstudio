@@ -132,9 +132,9 @@ describe('layer.owner.multi.inheritance.spec - ui-tests for user with layer-owne
             await settingsBrowsePanel.waitForEditButtonEnabled();
         });
 
-    // TODO bug Project context from the previous user session persists after login #10766
+    // bug Project context from the previous user session persists after login #10766
     // https://github.com/enonic/app-contentstudio/issues/10766
-    it.skip("GIVEN user with 'Owner' role is logged in WHEN site that is 'inherited' from the primary project has been selected THEN 'Localise' button should be enabled in the browse toolbar",
+    it("GIVEN user with 'Owner' role is logged in WHEN site that is 'inherited' from the primary project has been selected THEN 'Localise' button should be enabled in the browse toolbar",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentWizard = new ContentWizard();
@@ -143,7 +143,7 @@ describe('layer.owner.multi.inheritance.spec - ui-tests for user with layer-owne
             // Verify that Project Selection dialog is loaded, then close it
             //await studioUtils.closeProjectSelectionDialog();
             // 2. Select the site from the primary-inherited project:
-            await studioUtils.findAndSelectItem(SITE_NAME);
+            await studioUtils.findContentAndClickCheckBox(SITE_NAME);
             // 3. Verify that 'Localise' button gets visible and enabled :
             await contentBrowsePanel.clickOnEditButton();
             await studioUtils.doSwitchToNextTab();
@@ -156,8 +156,7 @@ describe('layer.owner.multi.inheritance.spec - ui-tests for user with layer-owne
                 "'Inherited content has been localized' - message should appear");
         });
 
-    // TODO bug Project context from the previous user session persists after login #10766
-    // https://github.com/enonic/app-contentstudio/issues/10766
+    // Unable to reset content that was inherited from non-primary parent project #7244
     it.skip("GIVEN user with 'Owner'-layer role is logged in WHEN content that is 'inherited' from the secondary project has been selected THEN 'Localize' button should be enabled in the browse toolbar",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -165,11 +164,12 @@ describe('layer.owner.multi.inheritance.spec - ui-tests for user with layer-owne
             // 1. Do log in with the user-owner and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             // 2. Select the content from the secondary-inherited project:
-            await studioUtils.findAndSelectItem(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_NAME);
+            await studioUtils.findContentAndClickCheckBox(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_DISPLAY_NAME);
             // 3. Verify that 'Localize' button gets  enabled :
-            await contentBrowsePanel.clickOnLocalizeButton();
+            await contentBrowsePanel.clickOnEditButton();
             await studioUtils.doSwitchToNextTab();
             await contentWizard.waitForOpened();
+            await contentWizard.clickOnLocalizeButton();
             let message = await contentWizard.waitForNotificationMessage();
             assert.equal(message, appConst.NOTIFICATION_MESSAGES.INHERITED_CONTENT_LOCALIZED,
                 "'Inherited content has been localized' - message should appear");

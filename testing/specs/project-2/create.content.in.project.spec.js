@@ -1,5 +1,5 @@
 /**
- * Created on 21.04.2020.
+ * Created on 21.04.2020.  updated on 23.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -51,9 +51,8 @@ describe('create.content.in.project.spec - create new content in the selected co
             assert.equal(actualDisplayName, PROJECT_DISPLAY_NAME + " (no)",
                 'Expected name should be displayed in the project selected option(App Bar)');
             // 2. Verify that 'No open issues' - this label should be in Issues Button:
-            let actualLabel = await settingsBrowsePanel.getTextInShowIssuesButton();
+            let actualLabel = await contentBrowsePanel.getTextInShowIssuesButton();
             assert.equal(actualLabel, appConst.SHOW_ISSUES_BUTTON_LABEL.NO_OPEN_ISSUES, "'No open issues' should be displayed");
-
         });
 
     it(`GIVEN existing context is selected WHEN new folder wizard has been opened THEN expected language should be automatically set in the wizard step`,
@@ -72,7 +71,7 @@ describe('create.content.in.project.spec - create new content in the selected co
             assert.equal(actualLanguage, appConst.LANGUAGES.NORSK_NO, 'Expected language should be selected in the wizard step form');
             // 4. Verify that expected project display name is present in the wizard-toolbar:
             let actualProjectName = await contentWizardPanel.getProjectDisplayName();
-            assert.equal(actualProjectName, PROJECT_DISPLAY_NAME + '(no)', 'Actual and expected display name should be equal');
+            assert.equal(actualProjectName, PROJECT_DISPLAY_NAME + ' (no)', 'Actual and expected display name should be equal');
         });
 
     it(`WHEN Edit Permissions modal dialog has been opened THEN expected project-ACL entries should be present in Access form`,
@@ -152,15 +151,16 @@ describe('create.content.in.project.spec - create new content in the selected co
             // 2. Check the folder in the current context:
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(TEST_FOLDER_NAME);
             // 3. Verify that 'Selection Toggle' gets visible in tree-grid-toolbar
-            await contentBrowsePanel.waitForSelectionTogglerVisible();
+            await contentBrowsePanel.waitForClearSelectionCheckboxDisplayed();
             // 4. Switch to 'Default' project:
             await contentBrowsePanel.selectContext('Default');
             // 5. Verify that 'Selection Toggle' is not visible in another context:
-            await contentBrowsePanel.waitForSelectionTogglerNotVisible();
+            await contentBrowsePanel.waitForClearSelectionCheckboxNotDisplayed();
             // 6. Switch to the new crated project's context again:
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
             // 7. Verify that 'Selection Toggle' was reset as well:
-            await contentBrowsePanel.waitForSelectionTogglerNotVisible();
+            await contentBrowsePanel.waitForClearSelectionCheckboxNotDisplayed();
+            await contentBrowsePanel.waitforSelectAllCheckboxDisplayed();
         });
 
     it('Post conditions: the project should be deleted',

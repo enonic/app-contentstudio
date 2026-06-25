@@ -2,7 +2,6 @@
  * Created on 04.06.2025
  */
 const BaseStepPermissionsDialog = require('./base.step.edit.permissions.dialog');
-const appConst = require('../../libs/app_const');
 
 const xpath = {
     stepDescriptionP: "//header[child::h2[contains(.,'Choose where the changes should apply')]]",
@@ -81,7 +80,7 @@ class EditPermissionsChooseApplyChangesStep extends BaseStepPermissionsDialog {
 
     async waitForReplaceExistingChildPermissionsCheckboxNotDisplayed() {
         try {
-            await this.waitForElementNotDisplayed(this.replaceAllChildPermissionsCheckbox);
+            await this.waitForElementNotDisplayed(this.replaceAllChildChildPermissionsCheckbox);
         } catch (err) {
             await this.handleError(`Edit Permissions - Wait for 'Replace existing child permissions' checkbox should not be not displayed`,
                 'err_edit_perm_replace_existing_child_permissions_checkbox', err);

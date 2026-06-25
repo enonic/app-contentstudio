@@ -33,7 +33,7 @@ const XPATH = {
     showIssuesListButton: "//button[contains(@id,'ShowIssuesDialogButton')]/button",//'Assigned to Me' or 'Show Issues'
     markAsReadyMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Mark as ready']",
     showIssuesButton: "//button[@aria-label='View project issues']",
-    resetSelectionCheckbox: `//label[child::input[contains(@aria-label,'Clear selection')]]`,
+    clearSelectionCheckbox: `//label[child::input[contains(@aria-label,'Clear selection')]]`,
     numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
     publishMenuItemByName(name) {
         return `//div[@data-component='Menu.Item' and child::span[text()='${name}']]`;
@@ -52,6 +52,10 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     get treeGridToolbar() {
         return XPATH.treeGridToolbar;
+    }
+
+    get clearSelectionCheckbox() {
+        return XPATH.clearSelectionCheckbox;
     }
 
     get toolbar() {
@@ -142,14 +146,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     get showIssuesListButton() {
         return "//div[contains(@class,'header-widgets-block')]" + BUTTONS.buttonAriaLabel('View project issues');
-    }
-
-    get resetSelectionCheckbox() {
-        return XPATH.resetSelectionCheckbox;
-    }
-
-    get selectionPanelToggler() {
-        return `${XPATH.treeGridToolbar}${lib.SELECTION_PANEL_TOGGLER}`;
     }
 
     get newButton() {
@@ -1134,25 +1130,33 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    async waitForResetSelectionCheckboxDisplayed() {
+    async waitForClearSelectionCheckboxDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.resetSelectionCheckbox);
+            return await this.waitForElementDisplayed(this.clearSelectionCheckbox);
         } catch (err) {
             await this.handleError('Clear Selection checkbox should be displayed', 'err_reset_selection_checkbox', err);
         }
     }
+    async waitForClearSelectionCheckboxNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.clearSelectionCheckbox);
+        } catch (err) {
+            await this.handleError('Clear Selection checkbox should not be displayed', 'err_reset_selection_checkbox', err);
+        }
+    }
 
+    // Clear Selection
     async clickOnResetSelectionCheckbox() {
         try {
-            await this.waitForResetSelectionCheckboxDisplayed()
-            return await this.clickOnElement(this.resetSelectionCheckbox);
+            await this.waitForClearSelectionCheckboxDisplayed();
+            return await this.clickOnElement(this.clearSelectionCheckbox);
         } catch (err) {
             await this.handleError('Clicked on Clear Selection checkbox', 'err_reset_selection_checkbox', err);
         }
     }
 
     async waitForReetSelectionCheckboxNotDisplayed() {
-        await this.waitForElementNotDisplayed(this.resetSelectionCheckbox);
+        await this.waitForElementNotDisplayed(this.clearSelectionCheckbox);
     }
 
     async clickOnRefreshButton() {

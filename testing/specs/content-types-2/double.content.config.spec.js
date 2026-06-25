@@ -89,7 +89,7 @@ describe('double.content.config.spec:  verifies `Min/max value config for Double
             await contentWizard.typeDisplayName(displayName);
             // 2. Verify the validation recording:
             await contentWizard.waitAndClickOnSave();
-            await studioUtils.saveScreenshot('double_min_max_4');
+            await studioUtils.saveScreenshot('double_min_max_44');
             let actualValue = await doubleForm.getValueFromInput(0);
             assert.equal(actualValue,'','Invalid values should be cleared after the content is saved.');
             // 4. Verify this content is invalid, because double input is required:

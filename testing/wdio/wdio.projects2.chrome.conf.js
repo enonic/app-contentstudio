@@ -17,6 +17,7 @@ exports.config = {
         path.join(__dirname, '../specs/project-2/edit.project.wizard.access.roles.spec.js'),
         path.join(__dirname, '../specs/project-2/project.wizard.two.apps.spec.js'),
         path.join(__dirname, '../specs/project-2/change.access.mode.spec.js'),
+        path.join(__dirname, '../specs/project-2/create.content.in.project.spec.js'),
     ],
 
     maxInstances: 1,
