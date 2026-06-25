@@ -1,7 +1,7 @@
 import {ContextMenu} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {Box, Columns2, PenLine, Puzzle} from 'lucide-react';
-import {type ReactElement, type ReactNode, useCallback} from 'react';
+import {type ReactElement, type ReactNode, useCallback, useMemo} from 'react';
 import {SaveAsTemplateAction} from '../../../../../../app/wizard/action/SaveAsTemplateAction';
 import {FragmentComponent} from '../../../../../../app/page/region/FragmentComponent';
 import {ComponentPath} from '../../../../../../app/page/region/ComponentPath';
@@ -25,6 +25,8 @@ import {
     requestPageReset,
 } from '../../../../store/page-editor/commands';
 import {$config} from '../../../../store/config.store';
+import {$fragmentOptions, $isFragmentInspectionLoading} from '../../../../store/fragment-inspection.store';
+import {isComponentReferenceMissing} from '../../../../store/component-inspection.store';
 import {$contentContext, $isFragment, $page, isComponentEmpty} from '../../../../store/page-editor/store';
 import {$componentsTreeState, expandComponentNode, hasLayoutAncestor, rebuildComponentsTree} from './pageComponents.store';
 import type {PageComponentNodeData} from './types';
@@ -48,6 +50,10 @@ const ROOT_NODE_ID = '/';
 export const PageComponentsContextMenu = ({node, children}: PageComponentsContextMenuProps): ReactElement => {
     const data = node.data;
 
+    const page = useStore($page);
+    const fragmentOptions = useStore($fragmentOptions);
+    const isFragmentLoading = useStore($isFragmentInspectionLoading);
+
     const selectParentLabel = useI18n('action.component.select.parent');
     const insertLabel = useI18n('widget.components.insert');
     const inspectLabel = useI18n('action.component.inspect');
@@ -58,6 +64,11 @@ export const PageComponentsContextMenu = ({node, children}: PageComponentsContex
     const detachFragmentLabel = useI18n('action.component.detach.fragment');
     const editFragmentLabel = useI18n('action.editFragment');
     const saveAsTemplateLabel = useI18n('action.saveAsTemplate');
+
+    const fragmentRemoved = useMemo(
+        () => isComponentReferenceMissing(node.id, page, fragmentOptions, [], isFragmentLoading),
+        [node.id, page, fragmentOptions, isFragmentLoading],
+    );
 
     if (data == null) {
         return <>{children}</>;
@@ -99,8 +110,10 @@ export const PageComponentsContextMenu = ({node, children}: PageComponentsContex
                             <RemoveItem nodeId={node.id} label={removeLabel} />
                             <DuplicateItem nodeId={node.id} label={duplicateLabel} />
                             {!isFragmentComponent && <SaveAsFragmentItem nodeId={node.id} label={saveAsFragmentLabel} />}
-                            {isFragmentComponent && !isEmpty && <DetachFragmentItem nodeId={node.id} label={detachFragmentLabel} />}
-                            {isFragmentComponent && <EditFragmentItem nodeId={node.id} label={editFragmentLabel} />}
+                            {isFragmentComponent && !isEmpty &&
+                                <DetachFragmentItem nodeId={node.id} label={detachFragmentLabel} disabled={fragmentRemoved} />}
+                            {isFragmentComponent &&
+                                <EditFragmentItem nodeId={node.id} label={editFragmentLabel} disabled={fragmentRemoved} />}
                         </>
                     )}
                 </ContextMenu.Content>
@@ -165,6 +178,7 @@ SaveAsTemplateItem.displayName = 'SaveAsTemplateItem';
 type MenuItemProps = {
     nodeId: string;
     label: string;
+    disabled?: boolean;
 };
 
 const SelectParentItem = ({nodeId, label}: MenuItemProps): ReactElement | null => {
@@ -270,13 +284,13 @@ const SaveAsFragmentItem = ({nodeId, label}: MenuItemProps): ReactElement => {
 
 SaveAsFragmentItem.displayName = 'SaveAsFragmentItem';
 
-const DetachFragmentItem = ({nodeId, label}: MenuItemProps): ReactElement => {
+const DetachFragmentItem = ({nodeId, label, disabled}: MenuItemProps): ReactElement => {
     const handleSelect = useCallback(() => {
         requestComponentDetachFragment(ComponentPath.fromString(nodeId));
     }, [nodeId]);
 
     return (
-        <ContextMenu.Item onSelect={handleSelect}>
+        <ContextMenu.Item disabled={disabled} onSelect={handleSelect}>
             {label}
         </ContextMenu.Item>
     );
@@ -284,7 +298,7 @@ const DetachFragmentItem = ({nodeId, label}: MenuItemProps): ReactElement => {
 
 DetachFragmentItem.displayName = 'DetachFragmentItem';
 
-const EditFragmentItem = ({nodeId, label}: MenuItemProps): ReactElement | null => {
+const EditFragmentItem = ({nodeId, label, disabled}: MenuItemProps): ReactElement | null => {
     const page = $page.get();
     const component = page?.getComponentByPath(ComponentPath.fromString(nodeId)) ?? null;
     const fragmentId = component instanceof FragmentComponent ? component.getFragment() : null;
@@ -298,7 +312,7 @@ const EditFragmentItem = ({nodeId, label}: MenuItemProps): ReactElement | null =
     if (!fragmentId) return null;
 
     return (
-        <ContextMenu.Item onSelect={handleSelect}>
+        <ContextMenu.Item disabled={disabled} onSelect={handleSelect}>
             {label}
         </ContextMenu.Item>
     );

@@ -1,6 +1,10 @@
 import {atom, computed} from 'nanostores';
+import type {ContentSummary} from '../../../app/content/ContentSummary';
 import type {Descriptor} from '../../../app/page/Descriptor';
+import type {Page} from '../../../app/page/Page';
+import {ComponentPath} from '../../../app/page/region/ComponentPath';
 import {DescriptorBasedComponent} from '../../../app/page/region/DescriptorBasedComponent';
+import {FragmentComponent} from '../../../app/page/region/FragmentComponent';
 import type {SiteModel} from '../../../app/site/SiteModel';
 import {createDebounce} from '../utils/timing/createDebounce';
 import type {PageEditorContentContext} from './page-editor/types';
@@ -31,6 +35,39 @@ export const $selectedComponentDescriptorKey = computed(
         return null;
     },
 );
+
+//
+// * API
+//
+
+// Returns true when the component at nodeId points at a reference that no longer
+// exists: a fragment whose content was removed, or a part/layout whose descriptor
+// is missing from the loaded options.
+export function isComponentReferenceMissing(
+    nodeId: string,
+    page: Page | null,
+    fragments: ContentSummary[],
+    descriptors: Descriptor[],
+    isLoading: boolean,
+): boolean {
+    if (isLoading) return false;
+
+    const component = page?.getComponentByPath(ComponentPath.fromString(nodeId)) ?? null;
+
+    if (component instanceof FragmentComponent) {
+        if (!component.hasFragment()) return false;
+        const id = component.getFragment().toString();
+        return !fragments.some((f) => f.getId() === id);
+    }
+
+    if (component instanceof DescriptorBasedComponent) {
+        if (!component.hasDescriptor()) return false;
+        const key = component.getDescriptorKey().toString();
+        return !descriptors.some((d) => d.getKey().toString() === key);
+    }
+
+    return false;
+}
 
 //
 // * Service

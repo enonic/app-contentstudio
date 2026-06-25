@@ -23,6 +23,7 @@ export type FragmentOption = {
     key: string;
     label: string;
     description: string;
+    isInvalid?: boolean;
 };
 
 const compareOptionsByLabel = (a: FragmentOption, b: FragmentOption): number =>
@@ -54,6 +55,7 @@ export function useFragmentContentSelector(): UseFragmentContentSelectorResult {
     const isLoading = useStore($isFragmentInspectionLoading);
 
     const noDescriptionLabel = i18n('text.noDescription');
+    const notFoundLabel = i18n('notify.fragment.component.content.notfound');
 
     const [searchValue, setSearchValue] = useState<string | undefined>();
 
@@ -82,10 +84,11 @@ export function useFragmentContentSelector(): UseFragmentContentSelectorResult {
         const placeholderOption: FragmentOption = {
             key: selectedId,
             label: fallbackLabel,
-            description: noDescriptionLabel,
+            description: notFoundLabel,
+            isInvalid: true,
         };
         return [placeholderOption, ...real];
-    }, [fragments, selectedId, fragment, noDescriptionLabel]);
+    }, [fragments, selectedId, fragment, notFoundLabel]);
 
     const filteredOptions = useMemo(() => {
         if (!searchValue) return options.toSorted(compareOptionsByLabel);
