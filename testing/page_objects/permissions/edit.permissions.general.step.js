@@ -1,21 +1,21 @@
 const BaseStepPermissionsDialog = require('./base.step.edit.permissions.dialog');
 const appConst = require('../../libs/app_const');
-const {BUTTONS} = require('../../libs/elements');
+const {BUTTONS, TREE_GRID, DROPDOWN} = require('../../libs/elements');
 const AccessControlComboBox = require('../components/selectors/access.control.combobox');
 
 const xpath = {
     stepManageAccess: "//div[@role='dialog' and descendant::h2[contains(.,'Manage access')]]",
     accessSelector: "//div[contains(@id,'AccessSelector')]",
     contentPath: "//p[@class='path']",
-    accessModeDiv: `//div[@role='radiogroup')]`,
-    publicRadio: "//button[@role='radio' and descendant::span[contains(.,'Public - Everyone can read')]",
-    restrictedRadio: "//button[@role='radio' and descendant::span[contains(.,'Restricted - Only listed permissions can read')]",
+    accessModeDiv: `//div[@data-component='RadioGroup.Root']`,
+    publicRadio: "//button[@role='radio' and descendant::span[contains(.,'Public - Everyone can read')]]",
+    restrictedRadio: "//button[@role='radio' and descendant::span[contains(.,'Restricted - Only listed permissions can read')]]",
     permissionSelector: `//[contains(@id,'PermissionSelector')]`,
     aceSelectedOptionsView: "//div[contains(@id,'ACESelectedOptionsView')]",
     dialogButtonRow: `//div[contains(@class,'button-container')]`,
     permissionToggleByOperationName: name => `//a[contains(@id,'PermissionToggle') and text()='${name}']`,
     aclEntryRowByName:
-        name => `//div[@role='row' and (descendant::div[@data-component='ItemLabel' and descendant::span[contains(.,'${name}')]])]`,
+        name => `//div[@role='row' and descendant::div[@data-component='ItemLabel' and (descendant::span[contains(.,'${name}')] or descendant::small[contains(.,'${name}')])]]`,
     aclEntryByDisplayName:
         displayName => `//div[contains(@id,'PrincipalContainerSelectedOptionView') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     aclOperationByValue:
@@ -41,11 +41,11 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
     }
 
     get copyFromProjectButton() {
-        return this.container + lib.buttonWithSpan('Copy from project');
+        return this.container + BUTTONS.INLINE_BUTTON_COPY_FROM_PROJECT;
     }
 
     get copyFromParentButton() {
-        return this.container + lib.buttonWithSpan('Copy from parent');
+        return this.container + BUTTONS.INLINE_BUTTON_COPY_FROM_PARENT;
     }
 
     async waitForRestrictedRadioDisplayed() {
@@ -72,7 +72,8 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
     async clickOnCopyFromParentButton() {
         try {
             await this.waitForElementDisplayed(this.copyFromParentButton);
-            return await this.clickOnElement(this.copyFromParentButton);
+            await this.clickOnElement(this.copyFromParentButton);
+            await this.pause(1000);
         } catch (err) {
             await this.handleError('Click on Copy from parent button ', 'err_click_copy_from_parent_button', err);
         }
@@ -89,6 +90,14 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
     async waitForCopyFromProjectButtonDisabled() {
         try {
             return await this.waitForElementDisabled(this.copyFromProjectButton);
+        } catch (err) {
+            await this.handleError('Copy from project button should be disabled', 'err_copy_from_project_button', err);
+        }
+    }
+
+    async waitForCopyFromProjectButtonNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.copyFromProjectButton);
         } catch (err) {
             await this.handleError('Copy from project button should be disabled', 'err_copy_from_project_button', err);
         }
@@ -117,12 +126,14 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
 
     async isPublicRadioSelected() {
         await this.waitForPublicRadioDisplayed();
-        return await this.isSelected(this.publicRadioButton);
+        let ariaChecked = await this.getAttribute(this.publicRadioButton, 'aria-checked');
+        return ariaChecked === 'true';
     }
 
     async isRestrictedRadioSelected() {
         await this.waitForRestrictedRadioDisplayed();
-        return await this.isSelected(this.restrictedRadioButton);
+        let ariaChecked = await this.getAttribute(this.restrictedRadioButton, 'aria-checked');
+        return ariaChecked === 'true';
     }
 
     async waitForLoaded() {
@@ -144,21 +155,21 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
     }
 
     getDisplayNameOfSelectedPrincipals() {
-        let selector = this.container +
-                       `//div[@data-component='GridList']//div[@data-component='GridList.Row']` +
-                       `//div[@data-component='ItemLabel']//span[contains(@class,'font-semibold')]`;
+        let selector = this.container + TREE_GRID.GRID_LIST_ROW +
+                       DROPDOWN.ITEM_LABEL_NAME_SPAN + `[contains(@class,'font-semibold')]`;
         return this.getTextInElements(selector);
     }
 
     getNameOfAccessControlEntries() {
-        let selector = this.container + xpath.aceSelectedOptionsView + lib.P_SUB_NAME;
+        let selector = this.container + TREE_GRID.GRID_LIST_ROW +
+                       DROPDOWN.ITEM_LABEL + `//small[contains(@class,'text-subtle')]`;
         return this.getTextInElements(selector);
     }
 
     async removeAclEntry(principalName) {
         try {
-            let selector = this.container + xpath.aclEntryByName(principalName) + lib.REMOVE_ICON;
-            return await this.clickOnElement(selector)
+            let selector = this.container + xpath.aclEntryRowByName(principalName) + BUTTONS.ICON_BUTTON;
+            return await this.clickOnElement(selector);
         } catch (err) {
             await this.handleError(`Remove ACL entry for principal: ${principalName}`, 'err_remove_acl_entry', err);
         }
@@ -166,8 +177,8 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
 
     async doFilterOptionsInSelector(text) {
         try {
-            let accessControlComboBox = new AccessControlComboBox();
-            await accessControlComboBox.filterItem(text, this.container);
+            let accessControlComboBox = new AccessControlComboBox(this.container);
+            await accessControlComboBox.doFilterItem(text);
         } catch (err) {
             await this.handleError(`Filter options in selector with text: ${text}`, 'err_filter_options_in_selector', err);
         }
@@ -175,7 +186,8 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
 
     async waitForEmptyOptionsMessage() {
         try {
-            return await this.waitForElementDisplayed(this.container + lib.EMPTY_OPTIONS_H5, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(DROPDOWN.COMBOBOX_EMPTY_OPTIONS);
+            return await this.getText(DROPDOWN.COMBOBOX_EMPTY_OPTIONS);
         } catch (err) {
             await this.handleError('Edit Permission Selector - Empty options text should appear', 'err_empty_opt', err);
         }

@@ -6,34 +6,44 @@ const {COMMON} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ComboBoxListInput = require('../components/selectors/combobox.list.input');
 
+const XPATH = {
+    comboboxInput: "//div[@data-component='ComboBoxInput']",
+    fieldErrorText: "//div[@data-component='FieldError']//span",
+    selectedOptionRowByText: text =>
+        `//div[@data-component='SortableGridList']/div[descendant::span[text()='${text}']]`,
+    removeOccurrenceButtonByText: text =>
+        `//span[text()='${text}']/parent::div/following-sibling::button[@aria-label='Remove occurrence']`,
+};
 
 class LocaleCodeCustomValidationForm extends Page {
 
-    get localesInputText(){
-        return COMMON.INPUTS.inputFieldByLabel('Locales') +"//input";
+    get localesInputText() {
+        return COMMON.INPUTS.inputFieldByLabel('Locales') + "//input";
     }
+
     get selectorValidationRecording() {
-        return lib.FORM_VIEW_PANEL.COMBOBOX_INPUT + lib.INPUT_VALIDATION_VIEW;
+        return XPATH.comboboxInput + XPATH.fieldErrorText;
     }
 
     async getSelectorValidationMessage() {
         try {
-            let locator = lib.CONTENT_WIZARD_STEP_FORM + this.selectorValidationRecording;
+            let locator = COMMON.CONTENT_WIZARD_DATA_COMPONENT + this.selectorValidationRecording;
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             return await this.getText(locator);
         } catch (err) {
-            let screenshotName = await this.saveScreenshotUniqueName('err_custom_validation');
-            throw new Error("Custom validation in combobox, screenshot:  " + screenshotName + "  " + err);
+            await this.handleError('Error occurred while getting the validation message for the combobox', 'err_custom_validation_message',
+                err);
         }
     }
 
-    //Locales combobox:
     async getSelectedOption() {
-        await this.waitForElementDisplayed(XPATH.comboboxSelectedOption, appConst.mediumTimeout);
-        return await this.getTextInElements(XPATH.comboboxSelectedOption);
+        let locator = COMMON.CONTENT_WIZARD_DATA_COMPONENT + XPATH.comboboxInput +
+                      "//div[@data-component='SortableGridList']/div";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getTextInElements(locator);
     }
 
-    //Inserts a text in the filter input  then selects an option by the display name
+    //Inserts a text in the filter input then selects an option by the display name
     async typeInFilterAndClickOnOption(option) {
         let comboBoxListInput = new ComboBoxListInput();
         await comboBoxListInput.doFilterItem(option);
@@ -46,19 +56,19 @@ class LocaleCodeCustomValidationForm extends Page {
             await this.typeChars(this.localesInputText, text);
             return await this.pause(300);
         } catch (err) {
-            await this.handleError('Error occurred while typing text in text input with custom validation', 'err_custom_validation_text_input', err);
+            await this.handleError('Error occurred while typing text in text input with custom validation',
+                'err_custom_validation_text_input', err);
         }
     }
 
     async removeSelectedOption(option) {
         try {
-            let locator = XPATH.comboboxSelectedOption(option) + lib.REMOVE_ICON;
-            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-            await this.clickOnElement(locator);
+            let comboBoxListInput = new ComboBoxListInput();
+            await comboBoxListInput.clickOnRemoveSelectedOptionButton(option);
             return await this.pause(400);
         } catch (err) {
-            let screenshot = this.saveScreenshotUniqueName('err_custom_validation_combo');
-            throw new Error('Locale Code, custom validation, remove the selected option, screenshot: ' + screenshot + ' ' + err);
+            await this.handleError('Error occurred while removing the selected option in the combobox with custom validation',
+                'err_custom_validation_remove_option', err);
         }
     }
 }

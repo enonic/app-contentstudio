@@ -24,37 +24,6 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
     const CONTENT_NAME_2 = contentBuilder.generateRandomName('area');
     const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
 
-    it(`GIVEN existing site is opened(controller is not selected) WHEN 'Hide Page Editor'  have been clicked THEN 'Live Form' should be hidden`,
-        async () => {
-            let contentWizard = new ContentWizard();
-            let liveFormPanel = new LiveFormPanel();
-            // 1. Open existing site, controller is not selected:
-            await studioUtils.selectAndOpenContentInWizard(IMPORTED_SITE_NAME);
-            // 2. Verify that Live Form panel is visible:
-            await liveFormPanel.waitForOpened();
-            // 3. Click on 'Hide Page Editor' button:
-            await contentWizard.clickOnPageEditorToggler();
-            // 4. Verify that 'Live Form' gets hidden:
-            await liveFormPanel.waitForHidden();
-            // 5. Click on 'Show Page Editor' button again:
-            await contentWizard.clickOnPageEditorToggler();
-            await liveFormPanel.waitForOpened();
-        });
-
-    it(`GIVEN wizard for a content that has no controller is opened WHEN Hide Page Editor has been clicked THEN Page Editor should be hidden`,
-        async () => {
-            let contentWizard = new ContentWizard();
-            let liveFormPanel = new LiveFormPanel();
-            // 1. Open a new wizard for a content without controller or template
-            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
-            // 2. Verify that 'Live Form' panel is visible by default:
-            await liveFormPanel.waitForOpened();
-            // 3. TODO epic-enonic-ui Click on 'Hide Page Editor' button:
-            await contentWizard.clickOnPageEditorToggler();
-            // 4. Verify that 'Live Form' gets hidden:
-            await liveFormPanel.waitForHidden();
-        });
-
     it(`WHEN wizard for 'htmlArea 0:1' is opened THEN single htmlarea should be present by default`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();

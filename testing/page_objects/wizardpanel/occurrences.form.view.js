@@ -20,11 +20,6 @@ class OccurrencesFormView extends Page {
         return COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + COMMON.INPUTS.VALIDATION_RECORDING;
     }
 
-    //Validation recording
-    get hideDetailsButton() {
-        return lib.FORM_VIEW + XPATH.validationBlock + XPATH.hideDetailsButton;
-    }
-
     // Validation recording
     get showDetailsButton() {
         return lib.FORM_VIEW + XPATH.validationBlock + XPATH.showDetailsButton;
@@ -40,32 +35,6 @@ class OccurrencesFormView extends Page {
 
     get removeButton() {
         return COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + BUTTONS.buttonAriaLabel('Remove occurrence');
-    }
-
-    waitForShowDetailsButtonDisplayed() {
-        return this.waitUntilDisplayed(this.showDetailsButton);
-    }
-
-    waitForShowDetailsButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.showDetailsButton);
-    }
-
-    waitForHideDetailsButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.hideDetailsButton);
-    }
-
-    waitForHideDetailsButtonDisplayed() {
-        return this.waitUntilDisplayed(this.hideDetailsButton);
-    }
-
-    async clickOnShowDetailsButton() {
-        await this.waitForShowDetailsButtonDisplayed();
-        return await this.clickOnElement(this.showDetailsButton);
-    }
-
-    async clickOnHideDetailsButton() {
-        await this.waitForHideDetailsButtonDisplayed();
-        return await this.clickOnElement(this.hideDetailsButton);
     }
 
     async clickOnLastRemoveButton() {

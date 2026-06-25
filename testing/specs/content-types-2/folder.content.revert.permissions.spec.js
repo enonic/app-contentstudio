@@ -46,7 +46,7 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             await editPermissionsGeneralStep.waitForLoaded();
             // 4. Update the permissions and click on 'Apply Changes' button:
-            await editPermissionsGeneralStep.filterAndSelectPrincipal(appConst.systemUsersDisplayName.ANONYMOUS_USER);
+            await editPermissionsGeneralStep.filterAndSelectPrincipal(appConst.systemUsersDisplayName.SUPER_USER);
             await editPermissionsGeneralStep.clickOnNextButton();
             let editPermissionsSummaryStep = new EditPermissionsSummaryStep();
             await editPermissionsSummaryStep.waitForLoaded();
@@ -145,7 +145,7 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             await editPermissionsGeneralStep.waitForLoaded();
             // 4. Update the permissions and click on Apply:
-            await editPermissionsGeneralStep.filterAndSelectPrincipal(appConst.systemUsersDisplayName.ANONYMOUS_USER);
+            await editPermissionsGeneralStep.filterAndSelectPrincipal(appConst.systemUsersDisplayName.SUPER_USER);
             await editPermissionsGeneralStep.clickOnNextButton();
             let editPermissionsSummaryStep = new EditPermissionsSummaryStep();
             await editPermissionsSummaryStep.waitForLoaded();

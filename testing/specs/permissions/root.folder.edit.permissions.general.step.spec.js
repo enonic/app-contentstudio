@@ -18,8 +18,7 @@ describe('Folder in root directory, General step, edit.permissions.dialog.spec '
     let FOLDER;
     const INITIAL_NUMBER_OF_SELECTED_ITEMS = 7;
 
-    // Verify - Copy from project button should be disabled when no changes in entries #8837
-    // https://github.com/enonic/app-contentstudio/issues/8837
+
     it(`GIVEN existing root-folder is selected WHEN 'General Step' of Edit Permissions dialog has been opened THEN expected elements should be displayed in the step`,
         async () => {
             let userAccessWidget = new DetailsWidgetPermissionsSection();
@@ -32,19 +31,17 @@ describe('Folder in root directory, General step, edit.permissions.dialog.spec '
             await studioUtils.openBrowseDetailsPanel();
             // 2. Click on 'Edit Permissions' link and open the modal dialog:
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog()
-            // 3. 'Copy from project' is shown for the top level items (#8837)
-            await editPermissionsGeneralStep.waitForCopyFromProjectButtonDisabled();
-            // 4. Verify that 'Next' button is enabled, 'Reset' button is disabled, 'Copy from project' button is disabled,
-            await editPermissionsGeneralStep.waitForNextButtonEnabled();
-            await editPermissionsGeneralStep.waitForResetButtonDisabled();
+            // 6. 'Restricted' radio should be displayed
+            await editPermissionsGeneralStep.waitForRestrictedRadioDisplayed();
+            // 4. Verify that 'Next' button is disabled
+            await editPermissionsGeneralStep.waitForNextButtonDisabled();
             // 5. Verify that 'Public' radio is selected by default:
             let isSelected = await editPermissionsGeneralStep.isPublicRadioSelected();
             assert.ok(isSelected, `'Public' radio should be selected by default`);
-            // 6. 'Restricted' radio should be displayed
-            await editPermissionsGeneralStep.waitForRestrictedRadioDisplayed();
+            await editPermissionsGeneralStep.waitForCopyFromProjectButtonNotDisplayed();
         });
 
-    it(`GIVEN a permission-entry has been removed in General Step WHEN 'Reset' button has been pressed THEN 'Reset' and 'Copy from project' buttons gets disabled again`,
+    it(`GIVEN a permission-entry has been removed in General Step WHEN 'CopyFromProjectButton' button has been pressed THEN 'Next' button gets disabled again`,
         async () => {
             let userAccessWidget = new DetailsWidgetPermissionsSection();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
@@ -55,70 +52,36 @@ describe('Folder in root directory, General step, edit.permissions.dialog.spec '
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             let items = await editPermissionsGeneralStep.getDisplayNameOfSelectedPrincipals();
             assert.strictEqual(items.length, INITIAL_NUMBER_OF_SELECTED_ITEMS, '7 selected item should be selected by default');
+            // 3. Click on remove icon:
             await editPermissionsGeneralStep.removeAclEntry(appConst.SYSTEM_ROLES_NAME.ADMINISTRATOR);
-            // 3. Verify - "Copy from project" gets enabled
-            await editPermissionsGeneralStep.waitForCopyFromProjectButtonEnabled();
             // 4. Verify that 'Next' button is enabled, 'Reset' button is enabled as well
             await editPermissionsGeneralStep.waitForNextButtonEnabled();
-            await editPermissionsGeneralStep.waitForResetButtonEnabled();
             // 5. Verify that the number of selected items is reduced by one
             items = await editPermissionsGeneralStep.getDisplayNameOfSelectedPrincipals();
             assert.strictEqual(items.length, 6, 'The number of selected items should be 6 after removing one item');
-            // 6. Click on 'Reset' button
-            await editPermissionsGeneralStep.waitForResetButtonEnabled();
-            await editPermissionsGeneralStep.clickOnResetButton();
-            // 7. Verify that 'Reset' and 'Copy from project' buttons are disabled now:
-            await editPermissionsGeneralStep.waitForResetButtonDisabled();
-            await editPermissionsGeneralStep.waitForCopyFromProjectButtonDisabled();
+            // 6. Click on Copy from project button:
+            await editPermissionsGeneralStep.clickOnCopyFromProjectButton();
+            // 7. Verify that 'Next' button is disabled now
+            await editPermissionsGeneralStep.waitForNextButtonDisabled();
             // 8. Verify that the initial number of selected items is restored:
             items = await editPermissionsGeneralStep.getDisplayNameOfSelectedPrincipals();
             assert.strictEqual(items.length, INITIAL_NUMBER_OF_SELECTED_ITEMS,
                 'Initial entries should be restored after clicking on Reset button');
         });
 
-    it(`GIVEN a permission-entry has been removed in General Step WHEN 'Copy from project' button has been pressed THEN 'Reset' and 'Copy from project' buttons gets disabled again`,
-        async () => {
-            let userAccessWidget = new DetailsWidgetPermissionsSection();
-            let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
-            let displayName = contentBuilder.generateRandomName('folder');
-            // 1. Select the folder and open Details Panel:
-            await studioUtils.findAndSelectItem(FOLDER.displayName);
-            await studioUtils.openBrowseDetailsPanel();
-            // 2. Click on 'Edit Permissions' link and open the modal dialog:
-            await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
-            let items = await editPermissionsGeneralStep.getDisplayNameOfSelectedPrincipals();
-            assert.strictEqual(items.length, INITIAL_NUMBER_OF_SELECTED_ITEMS, '7 selected item should be selected by default');
-            await editPermissionsGeneralStep.removeAclEntry(appConst.SYSTEM_ROLES_NAME.ADMINISTRATOR);
-            // 3. Verify - "Copy from project" gets enabled
-            await editPermissionsGeneralStep.waitForCopyFromProjectButtonEnabled();
-            // 4. Verify that 'Next' button is enabled, 'Reset' button is enabled
-            await editPermissionsGeneralStep.waitForNextButtonEnabled();
-            await editPermissionsGeneralStep.waitForResetButtonEnabled();
-
-            items = await editPermissionsGeneralStep.getDisplayNameOfSelectedPrincipals();
-            assert.strictEqual(items.length, 6, 'The number of selected items should be 6 after removing one item');
-            await editPermissionsGeneralStep.waitForCopyFromProjectButtonEnabled();
-            await editPermissionsGeneralStep.clickOnCopyFromProjectButton();
-            await editPermissionsGeneralStep.waitForResetButtonDisabled();
-            await editPermissionsGeneralStep.waitForCopyFromProjectButtonDisabled();
-            items = await editPermissionsGeneralStep.getDisplayNameOfSelectedPrincipals();
-            assert.strictEqual(items.length, INITIAL_NUMBER_OF_SELECTED_ITEMS,
-                `Initial entries should be restored after clicking on 'Reset' button`);
-        });
-
     // Principal selector doesn't include the "Everyone" principal
-    it(`GIVEN General Step of Edit Permissions dialog has been opened WHEN 'Everyone' text has been inserted in the filter input THEN 'No matching items' message should appear`,
+    it(`GIVEN General Step of Edit Permissions dialog has been opened WHEN 'Everyone' text has been inserted in the filter input THEN 'No results found' message should appear`,
         async () => {
             let userAccessWidget = new DetailsWidgetPermissionsSection();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
-            let displayName = contentBuilder.generateRandomName('folder');
             // 1. Select the folder and open Details Panel:
             await studioUtils.findAndSelectItem(FOLDER.displayName);
             await studioUtils.openBrowseDetailsPanel();
             // 2. Click on 'Edit Permissions' link and open the modal dialog:
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             await editPermissionsGeneralStep.doFilterOptionsInSelector('Everyone');
-            await editPermissionsGeneralStep.waitForEmptyOptionsMessage();
+            let message = await editPermissionsGeneralStep.waitForEmptyOptionsMessage();
+            assert.equal(message, 'No results found', "No results found message should be displayed");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

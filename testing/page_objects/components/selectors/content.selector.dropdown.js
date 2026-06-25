@@ -89,6 +89,17 @@ class ContentSelectorDropdown extends BaseDropdown {
                 `Content selector form, tried to remove the selected option: ${displayName}`, 'err_remove_option', err);
         }
     }
+    async removeMediaSelectedOption(displayName) {
+        try {
+            const locator = this.container + DROPDOWN.selectedMediaItemByDisplayName(displayName) + BUTTONS.BUTTON_REMOVE_ICON;
+            await this.waitForElementDisplayed(locator);
+            await this.clickOnElement(locator);
+            return await this.pause(500);
+        } catch (err) {
+            await this.handleError(
+                `Content selector form, tried to remove the selected option: ${displayName}`, 'err_remove_option', err);
+        }
+    }
 
     async waitForAddNewContentButtonDisplayed() {
         try {

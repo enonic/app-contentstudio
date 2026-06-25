@@ -1,5 +1,5 @@
 /**
- * Created on 23.12.2017.
+ * Created on 23.12.2017.  updated on 24.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -86,7 +86,6 @@ describe('content.selector.spec: content-selector specification', function () {
         });
 
     // https://github.com/enonic/app-contentstudio/issues/10225
-    // TODO bug mode toggle
     it.skip(`GIVEN wizard for 'custom-relationship' is opened WHEN mode toggler has been clicked THEN switches to 'Tree' mode`,
         async () => {
             let contentSelectorForm = new ContentSelectorForm();
@@ -102,7 +101,7 @@ describe('content.selector.spec: content-selector specification', function () {
         });
 
     // https://github.com/enonic/app-contentstudio/issues/10225
-    // TODO bug mode toggler
+    /// TODO https://github.com/enonic/app-contentstudio/issues/10916
     it.skip(`GIVEN wizard for 'custom-relationship' is opened WHEN 'mode toggler' button has been clicked THEN switches to 'Tree'-mode AND parent site should be present in the options`,
         async () => {
             let contentSelectorForm = new ContentSelectorForm();

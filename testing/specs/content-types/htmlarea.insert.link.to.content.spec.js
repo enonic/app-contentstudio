@@ -18,8 +18,39 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
     const TEST_TOOLTIP = 'my tooltip';
     const TEST_CONTENT_DISPLAY_NAME = 'Templates';
 
-    it(
-        `GIVEN target is selected in the Insert content-link modal dialog WHEN the option has been removed THEN 'upload' button should appears in the dialog`,
+    it(`GIVEN content link is inserted in a htmlarea WHEN 'Edit link' modal dialog is opened THEN Content tab should be active and expected content should be present in selected options`,
+        async () => {
+            let htmlAreaForm = new HtmlAreaForm();
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
+            await htmlAreaForm.pause(1000);
+            let insertContentLinkTab = new InsertContentLinkTab();
+            // 1. Open Insert Link dialog:
+            let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
+            await insertLinkDialog.clickOnBarItem('Content');
+            // 2. insert a content-link and close the modal dialog
+            await insertLinkDialog.typeInLinkTextInput('test-content-link');
+            await insertLinkDialog.typeInLinkTooltip(TEST_TOOLTIP);
+            // 3. Insert the name of content ('Templates'), switch to flat mode:
+            await insertContentLinkTab.clickOnContentSelectorModeTogglerButton();
+            await insertContentLinkTab.selectTargetInContentSelector(TEST_CONTENT_DISPLAY_NAME);
+            // 4. Click on Insert button in the modal dialog:
+            await insertLinkDialog.clickOnInsertButton();
+            await insertLinkDialog.waitForDialogClosed();
+            // 5. toolbar remains visible after inserting the link, reopen the modal dialog  again
+            await htmlAreaForm.clickOnInsertLinkButton();
+            // 9. Verify that Content tab is active:
+            await studioUtils.saveScreenshot('htmlarea_content_link_reopened');
+            let isActive = await insertLinkDialog.isTabActive('Content');
+            assert.ok(isActive, "'Content' tab should be active");
+            // 10. Verify that expected content is selected in the dropdown selector:
+            let result = await insertContentLinkTab.getSelectedOptionDisplayName();
+            assert.equal(result, TEST_CONTENT_DISPLAY_NAME, 'Expected content should be displayed in selected option');
+            // 11. Verify the text in Tooltip Text Input:
+            let tooltip = await insertLinkDialog.getTextInLinkTooltipInput();
+            assert.equal(tooltip, TEST_TOOLTIP, "Expected text should be present in the tooltip text input");
+        });
+
+    it(`GIVEN target is selected in the Insert content-link modal dialog WHEN the option has been removed THEN 'upload' button should appears in the dialog`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
@@ -32,16 +63,15 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             await insertLinkDialog.typeInLinkTextInput('test-content-link');
             await insertLinkDialog.typeInLinkTooltip(TEST_TOOLTIP);
             // 3. Insert the name of content ('Templates')
+            await insertContentLinkTab.clickOnContentSelectorModeTogglerButton();
             await insertContentLinkTab.selectTargetInContentSelector(TEST_CONTENT_DISPLAY_NAME);
             // 4. Click on remove-icon and remove the selected option:
-            // TODO
-            await insertContentLinkTab.clickOnRemoveSelectedOptionIcon('_templates');
+            await insertContentLinkTab.clickOnRemoveSelectedOptionIcon('Templates');
             // 5. Verify that 'Upload' button appears in the 'Insert content link' form
             await insertContentLinkTab.waitForUploadContentButtonDisplayed();
         });
 
-    it(
-        `GIVEN insert link dialog is opened WHEN 'Show content from entire project' checkbox has been clicked THEN content from entire project should be present in dropdown options`,
+    it(`GIVEN insert link dialog is opened WHEN 'Show content from entire project' checkbox has been clicked THEN content from entire project should be present in dropdown options`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
@@ -63,8 +93,7 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
 
     // Verify the issue - Link dialog - selector not reloaded on mode or checkbox change #7388
     // https://github.com/enonic/app-contentstudio/issues/7388
-    it(
-        `GIVEN 'Show content from entire project' checkbox has been clicked WHEN dropdown has been switched to flat-mode THEN expected folder from the root directory should be present in the options in flat-mode`,
+    it(`GIVEN 'Show content from entire project' checkbox has been clicked WHEN dropdown has been switched to flat-mode THEN expected folder from the root directory should be present in the options in flat-mode`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
@@ -88,7 +117,7 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             assert.ok(items.includes(appConst.TEST_FOLDER_WITH_IMAGES), "Folder from Default project should be present in the options");
         });
 
-    it.skip(`GIVEN insert link dialog is opened WHEN a folder from 'Default' project has been selected in content selector THEN 'show content from entire project' checkbox gets hidden`,
+    it(`GIVEN insert link dialog is opened WHEN a folder from 'Default' project has been selected in content selector THEN 'show content from entire project' checkbox gets hidden`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
@@ -110,7 +139,6 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             let isSelected = await insertContentLinkTab.isOpenInNewTabCheckboxSelected();
             assert.ok(isSelected === false, "'Open in new tab' checkbox should not be selected");
 
-            // TODO bug
             let result = await insertContentLinkTab.getSelectedOptionDisplayName();
             assert.equal(result, appConst.TEST_FOLDER_WITH_IMAGES, 'Expected option should be selected');
         });
@@ -140,37 +168,7 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             await insertContentLinkTab.clickOnContentSelectorModeTogglerButton();
             // 7. Verify the number of available items in the flat mode:
             let itemsFlatMode = await insertContentLinkTab.getContentSelectorOptionsDisplayNameInFlatMode();
-            assert.equal(itemsFlatMode.length > 1, 'Items from the current site should be present in the options list in Flat mode');
-        });
-
-    it(`GIVEN content link is inserted in a htmlarea WHEN 'Edit link' modal dialog is opened THEN Content tab should be active and expected content should be present in selected options`,
-        async () => {
-            let htmlAreaForm = new HtmlAreaForm();
-            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
-            await htmlAreaForm.pause(1000);
-            let insertContentLinkTab = new InsertContentLinkTab();
-            // 1. Open Insert Link dialog:
-            let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
-            await insertLinkDialog.clickOnBarItem('Content');
-            // 2. insert a content-link and close the modal dialog
-            await insertLinkDialog.typeInLinkTextInput('test-content-link');
-            await insertLinkDialog.typeInLinkTooltip(TEST_TOOLTIP);
-            // 3. Insert the name of content ('Templates')
-            await insertContentLinkTab.selectTargetInContentSelector(TEST_CONTENT_DISPLAY_NAME);
-            // 4. Click on Insert button in the modal dialog:
-            await insertLinkDialog.clickOnInsertButton();
-            // 5. toolbar remains visible after inserting the link, reopen the modal dialog  again
-            await htmlAreaForm.clickOnInsertLinkButton();
-            // 9. Verify that Content tab is active:
-            await studioUtils.saveScreenshot('htmlarea_content_link_reopened');
-            let isActive = await insertLinkDialog.isTabActive('Content');
-            assert.ok(isActive, "'Content' tab should be active");
-            // 10. Verify that expected content is selected in the dropdown selector:
-            let result = await insertContentLinkTab.getSelectedOptionDisplayName();
-            assert.equal(result, TEST_CONTENT_DISPLAY_NAME, 'Expected content should be displayed in selected option');
-            // 11. Verify the text in Tooltip Text Input:
-            let tooltip = await insertLinkDialog.getTextInLinkTooltipInput();
-            assert.equal(tooltip, TEST_TOOLTIP, "Expected text should be present in the tooltip text input");
+            assert.ok(itemsFlatMode.length > 1, 'Expected Items from the current site should be present in the options list in Flat mode');
         });
 
     it("GIVEN 'Insert Link' modal dialog is opened WHEN required 'URL' and text inputs are empty THEN Insert button should be disabled",

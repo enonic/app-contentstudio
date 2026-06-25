@@ -1256,7 +1256,7 @@ class ContentWizardPanel extends Page {
     }
 
     async getNoPreviewMessage() {
-        let locator = XPATH.container + lib.LIVE_VIEW.NO_PREVIEW_MSG_SPAN;
+        let locator = XPATH.container + LIVE_VIEW.PREVIEW_NOT_AVAILABLE_SPAN;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
     }
