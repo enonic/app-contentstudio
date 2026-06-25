@@ -6,7 +6,9 @@ import {EditContentEvent} from '../../../../../../../../app/event/EditContentEve
 import {FragmentComponent} from '../../../../../../../../app/page/region/FragmentComponent';
 import {useI18n} from '../../../../../../hooks/useI18n';
 import {$inspectedItem, $pageEditorLifecycle} from '../../../../../../store/page-editor';
-import {$pageVersion} from '../../../../../../store/page-editor/store';
+import {$page, $pageVersion} from '../../../../../../store/page-editor/store';
+import {$fragmentOptions, $isFragmentInspectionLoading} from '../../../../../../store/fragment-inspection.store';
+import {isComponentReferenceMissing} from '../../../../../../store/component-inspection.store';
 import {FragmentContentSelector} from './FragmentContentSelector';
 
 const FRAGMENT_INSPECTION_PANEL_NAME = 'FragmentInspectionPanel';
@@ -15,6 +17,9 @@ export const FragmentInspectionPanel = (): ReactElement | null => {
     const item = useStore($inspectedItem);
     useStore($pageVersion);
     const lifecycle = useStore($pageEditorLifecycle);
+    const page = useStore($page);
+    const fragmentOptions = useStore($fragmentOptions);
+    const isFragmentLoading = useStore($isFragmentInspectionLoading);
 
     const editLabel = useI18n('action.editFragment');
 
@@ -29,6 +34,7 @@ export const FragmentInspectionPanel = (): ReactElement | null => {
     if (!fragment) return null;
 
     const hasFragment = fragment.hasFragment();
+    const fragmentRemoved = isComponentReferenceMissing(fragment.getPath().toString(), page, fragmentOptions, [], isFragmentLoading);
     const disabled = lifecycle.isPageLocked;
 
     return (
@@ -36,7 +42,7 @@ export const FragmentInspectionPanel = (): ReactElement | null => {
             <div className="flex flex-col -mx-5 p-5 bg-surface-primary gap-5">
                 <FragmentContentSelector />
 
-                {hasFragment && (
+                {hasFragment && !fragmentRemoved && (
                     <Button
                         label={editLabel}
                         variant="outline"
