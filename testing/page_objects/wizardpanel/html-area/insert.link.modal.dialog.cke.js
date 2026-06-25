@@ -85,7 +85,8 @@ class InsertLinkDialog extends Page {
 
     async waitForDialogLoaded() {
         try {
-            return await this.waitForElementDisplayed(this.insertButton);
+             await this.waitForElementDisplayed(XPATH.container);
+             await this.pause(300);
         } catch (err) {
             await this.handleError('Insert Link Dialog should be open!', 'err_open_insert_link_dialog', err);
         }

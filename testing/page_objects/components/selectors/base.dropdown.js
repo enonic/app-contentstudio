@@ -172,16 +172,6 @@ class BaseDropdown extends Page {
         return await this.getTextInDisplayedElements(locator);
     }
 
-    // 1. Insert a text in Filter input
-    // 2. Click on the filtered by displayName item (h6[contains(@class,'main-name'))
-    // 3. Click on Apply button and apply the selection.
-    async clickOnFilteredByDisplayNameItemAndClickOnApply(optionDisplayName, parentLocator) {
-        // 1. Click on the filtered item:
-        await this.clickOnFilteredByDisplayNameItem(optionDisplayName, parentLocator);
-        // 3. Click on 'OK' button:
-        return await this.clickOnApplySelectionButton(parentLocator);
-    }
-
     // epic-enonic-ui
     async clickOnOptionByDisplayName(optionDisplayName) {
         try {
@@ -217,7 +207,6 @@ class BaseDropdown extends Page {
         }
     }
 
-    // epic-enonic-ui
     async clickOnTreeItemOptionByDisplayName(optionDisplayName) {
         try {
             let optionLocator = DROPDOWN.COMBOBOX_POPUP + DROPDOWN.treeItemByDisplayName(optionDisplayName);
@@ -227,39 +216,6 @@ class BaseDropdown extends Page {
             await this.handleError(`Dropdown Selector, tried to click on filtered by display name option: ${optionDisplayName}`,
                 'err_click_filtered_option', err);
         }
-    }
-
-    // 1. Insert a text in Filter input
-    // 2. Click on the filtered by name item (p[contains(@class,'sub-name'))
-    // 3. Click on OK button and apply the selection.
-    async clickOnFilteredByNameItemAndClickOnApply(optionName, parentLocator = '') {
-        // parent locator - it is locator for parent modal dialog or wizard form,
-        // 1. type the text in Options Filter Input:
-        await this.filterItem(optionName);
-        // 3. Click on the row with the item:
-        await this.clickOnOptionByName(optionName, parentLocator);
-        // 4. Click on 'OK' button:
-        return await this.clickOnApplySelectionButton(parentLocator);
-    }
-
-    async clickOnOptionByName(name, parentLocator) {
-        let optionLocator = this.buildLocatorForOptionByName(name, parentLocator);
-        //  Wait for the required option is displayed:
-        await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
-        // Click on the item:
-        await this.clickOnElement(optionLocator);
-    }
-
-    // builds a locator for clickable option in Dropdown List options:
-    buildLocatorForOptionByDisplayName(optionDisplayName, parentLocator = '') {
-        let locator = parentLocator + this.container;
-        return lib.DROPDOWN_SELECTOR.dropdownListItemByDisplayName(locator, optionDisplayName);
-    }
-
-    // builds a locator for clickable option in Dropdown List options:
-    buildLocatorForOptionByName(name, parentLocator = '') {
-        let locator = parentLocator + this.container;
-        return lib.DROPDOWN_SELECTOR.dropdownListItemByName(locator, name);
     }
 
     async clickOnCheckboxInDropdown(index) {

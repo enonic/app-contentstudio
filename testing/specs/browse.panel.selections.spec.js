@@ -87,6 +87,7 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
         });
 
     // https://github.com/enonic/app-contentstudio/issues/9238
+    // TODO bug
     it.skip("GIVEN one row is highlighted WHEN hold down 'Shift' key AND click on the 5th row in grid THEN 5 content items get checked",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -139,6 +140,7 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             assert.equal(number2, 0, "expected - no selected rows in grid");
         });
 
+    // TODO bug
     it.skip("GIVEN existing content is selected WHEN 'Refresh' button in the grid toolbar has been clicked THEN the row remains checked",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -205,8 +207,7 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             // 2. Verify that New button is disabled and Archive, Duplicate are enabled:
             await contentBrowsePanel.waitForNewButtonDisabled();
             await contentBrowsePanel.waitForDeleteButtonEnabled();
-            // TODO bug
-            //await contentBrowsePanel.waitForDuplicateButtonEnabled();
+            await contentBrowsePanel.waitForDuplicateButtonEnabled();
         });
 
     it("WHEN one row with content has been clicked THEN the row gets highlighted AND 'Selection Toggler' should not be visible",
@@ -228,7 +229,7 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
     it("WHEN one row with content has been checked THEN the row gets checked AND 'Selection Toggler' gets visible",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            await contentBrowsePanel.pause(1500);
+            await contentBrowsePanel.pause(1000);
             let testContentDisplayName = appConst.TEST_FOLDER_WITH_IMAGES;
             // 1. Click on the checkbox and select the row:
             await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(testContentDisplayName);
@@ -237,7 +238,7 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             assert.equal(result, '', 'no one row should be highlighted');
             result = await contentBrowsePanel.getNumberOfCheckedRows();
             assert.equal(result, 1, 'One row should be checked');
-            await contentBrowsePanel.waitForResetSelectionCheckboxDisplayed();
+            await contentBrowsePanel.waitForClearSelectionCheckboxDisplayed();
 
         });
 

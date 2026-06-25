@@ -19,6 +19,7 @@ class MultiSelectionOptionSet extends Page {
 
     async clickOnOption(option) {
         let locator = xpath.optionLabelLocator(option);
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.waitForOptionCheckboxEnabled(option);
         await this.clickOnElement(locator);
         return this.pause(300);
@@ -95,7 +96,7 @@ class MultiSelectionOptionSet extends Page {
     }
 
     async showToolbarAndClickOnInsertImageButton() {
-        let htmlAreaForm = new HtmlAreaForm();
+        let htmlAreaForm =new HtmlAreaForm("//div[@data-component='OptionSetView']");
         return await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
     }
 }

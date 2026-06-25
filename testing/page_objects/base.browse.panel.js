@@ -6,11 +6,6 @@ const appConst = require('../libs/app_const');
 const {TREE_GRID} = require('../libs/elements');
 const {Key} = require('webdriverio');
 
-const XPATH = {
-    enabledContextMenuButton: name => {
-        return `${lib.TREE_GRID_CONTEXT_MENU}/li[contains(@id,'MenuItem') and not(contains(@class,'disabled')) and contains(.,'${name}')]`;
-    },
-};
 
 class BaseBrowsePanel extends Page {
 
@@ -42,6 +37,15 @@ class BaseBrowsePanel extends Page {
     }
 
     async clickOnSelectAllCheckbox() {
+        try {
+            await this.clickOnElement(this.selectAllCheckboxLabel);
+            return await this.pause(300);
+        } catch (err) {
+            await this.handleError('Browse Panel, tried to click on Select all checkbox. ', 'err_click_on_select_all', err);
+        }
+    }
+
+    async waitforSelectAllCheckboxDisplayed() {
         try {
             await this.clickOnElement(this.selectAllCheckboxLabel);
             return await this.pause(300);

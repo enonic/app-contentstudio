@@ -15,6 +15,10 @@ class AccessControlCombobox extends BasDropdown {
         return this._parentContainer
     }
 
+    get dataComponentDiv() {
+        return "//div[contains(@data-component,'PrincipalSelector')]";
+    }
+
     optionsFilterInput() {
         return this.container + DROPDOWN.OPTION_FILTER_INPUT;
     }

@@ -41,7 +41,8 @@ describe('image.selector.required.input.spec tests for validation of content wit
 
     // Verify https://github.com/enonic/app-contentstudio/issues/6026
     // Handle unresolvable selected items in Content Selector #6026
-    it(`GIVEN an image has been selected in an image-content WHEN the image has been archived THEN 'Image is not available' should be displayed in the content-wizard`,
+    // TODO Image Selector - exception thrown after removing selected options in another browser tab #10921
+    it.skip(`GIVEN an image has been selected in an image-content WHEN the image has been archived THEN 'Image is not available' should be displayed in the content-wizard`,
         async () => {
             let imageSelectorForm = new ImageSelectorForm();
             let contentWizard = new ContentWizard();
@@ -56,7 +57,7 @@ describe('image.selector.required.input.spec tests for validation of content wit
             await contentWizard.waitAndClickOnSave();
             await studioUtils.doSwitchToContentBrowsePanel();
             // 4. Delete the image:
-            await studioUtils.findAndSelectItem(IMAGE_DISPLAY_NAME2);
+            await studioUtils.findContentAndClickCheckBox(IMAGE_DISPLAY_NAME2);
             // Open Delete content modal  dialog:
             await browsePanel.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogOpened();

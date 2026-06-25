@@ -113,11 +113,14 @@ const BUTTONS = {
     ADD_BUTTON: "//div[contains(@class,'bottom-button-row')]//button[child::span[text()='Add']]",
     BUTTON: label => `//button[contains(@type,'button') and contains(.,'${label}')]`,
     ICON_BUTTON: "//button[@data-component='IconButton']",
+    inlineButtonByAriaLabel: (ariaLabel) => `//button[@data-component='InlineButton' and @aria-label='${ariaLabel}']`,
+    INLINE_BUTTON_COPY_FROM_PROJECT: `//button[@data-component='InlineButton' and @aria-label='Copy from project']`,
+    INLINE_BUTTON_COPY_FROM_PARENT: `//button[@data-component='InlineButton' and @aria-label='Copy from parent']`,
 };
 const LIVE_VIEW = {
     EMULATOR_DROPDOWN: "//div[contains(@id,'EmulatorDropdown')]",
     DIV_DROPDOWN: "//div[contains(@id,'PreviewWidgetDropdown')]",
-    PREVIEW_NOT_AVAILABLE_SPAN: "//div[@class='no-preview-message']//span[text()='Preview not available']",
+    PREVIEW_NOT_AVAILABLE_SPAN: "//div[@data-component='PreviewLabel'][.//*[name()='svg' and contains(@class,'lucide-eye-off')]]//span",
     NO_PREVIEW_MSG_SPAN: "//div[@class='no-preview-message']//span",
     NO_CONTROLLER_NO_PREVIEW_MSG_SPAN: "//div[@class='no-selection-message']//span",
     EMPTY_LIVE_FRAME_DIV: "//div[contains(@class,'frame-container')]//iframe[@class='live-edit-frame']",
@@ -165,10 +168,12 @@ const TREE_GRID = {
     itemTreeGridListElementByName: name => {
         return `//div[@data-component='VirtualizedTreeList.Row' and descendant::small[contains(@class,'t-subtle') and contains(.,'${name}')]]`;
     },
+    GRID_LIST_ROW:`//div[@data-component='GridList']//div[@data-component='GridList.Row']`,
 
     gridListRowByDisplayName: displayName => `//div[@data-component='GridList.Row' and descendant::div[@data-component='ItemLabel']//span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]`,
 }
 const DROPDOWN = {
+    COMBOBOX_EMPTY_OPTIONS: "//div[@data-component='Combobox.Popup']//div[contains(@class,'text-subtle')]",
     COMBOBOX_SEARCH_INPUT: "//div[@data-component='Combobox.Search']/input",
     SELECTOR_ICON:"//span[@data-component='Selector.Icon']",
     SELECTOR_TRIGGER: "//button[@role='combobox' and descendant::span[@data-component='Selector.Value']]",
@@ -206,8 +211,10 @@ const DROPDOWN = {
     },
     selectedItemByDisplayName: (displayName) =>
         `//div[@data-component='SelectorSelectionItem' and descendant::span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]`,
+    selectedMediaItemByDisplayName: (displayName) =>
+        `//div[@data-component='SelectorSelectionItem' and descendant::span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]`,
     contentSelectionItemByDisplayName: (displayName) =>
-        `//div[@data-component='ContentSelectionItem' and descendant::span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]`,
+        `//div[@data-component='MediaSelectorItemView' and descendant::span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]`,
     selectorListOptionByName: (optionName) => {
         return `//div[@role='option']//span[contains(.,'${optionName}')]`;
     },

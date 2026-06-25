@@ -8,7 +8,7 @@ const ContentSelectorDropdown = require('../../../components/selectors/content.s
 
 const xpath = {
     contentComboboxDiv: "//div[@data-component='ContentCombobox']",
-    contentSelectionItemDisplayName: "//div[@data-component='ContentSelectionItem']//span[contains(@class,'font-semibold')]",
+    contentSelectionItemDisplayName: "//div[@data-component='MediaSelectorItemView']//span[contains(@class,'font-semibold')]",
 };
 
 // Context Window, Inspect tab for City List Part Component
@@ -37,7 +37,9 @@ class CityListPartInspectionPanel extends PartInspectionPanel {
     async selectContentInSelector(displayName) {
         try {
             let contentSelectorDropdown = new ContentSelectorDropdown(this.container);
-            return await contentSelectorDropdown.selectFilteredByDisplayNameContentMulti(displayName, this.container);
+            await contentSelectorDropdown.doFilterItem(displayName);
+            await contentSelectorDropdown.clickOnListItemOptionByDisplayName(displayName);
+            await contentSelectorDropdown.clickOnApplySelectionButton();
         } catch (err) {
             await this.handleError('City List Part Inspection Panel', 'err_select_content', err);
         }
@@ -46,7 +48,7 @@ class CityListPartInspectionPanel extends PartInspectionPanel {
     async removeSelectedContent(displayName) {
         try {
             let contentSelectorDropdown = new ContentSelectorDropdown(this.container);
-            return await contentSelectorDropdown.removeContentSelectedOption(displayName);
+            return await contentSelectorDropdown.removeMediaSelectedOption(displayName);
         } catch (err) {
             await this.handleError('City List Part Inspection Panel, remove selected option', 'err_remove_selected_content', err);
         }
