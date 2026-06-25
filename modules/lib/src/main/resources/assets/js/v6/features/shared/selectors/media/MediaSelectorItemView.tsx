@@ -68,7 +68,7 @@ export const MediaSelectorItemView = ({content, hideStatus = false}: MediaSelect
                 </Tooltip>
             </div>
 
-            {!hideStatus && <StatusBadge status={calcTreePublishStatus(content)} />}
+            {!hideStatus && <StatusBadge status={calcTreePublishStatus(content)} className="@max-[360px]:hidden" />}
         </div>
     );
 };

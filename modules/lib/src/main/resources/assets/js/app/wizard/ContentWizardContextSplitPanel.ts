@@ -1,6 +1,6 @@
 import {type Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {type ResponsiveRange} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRange';
-import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
+import {LayoutTokens} from '../../v6/features/layout/layout.tokens';
 import {ContextSplitPanel, ContextSplitPanelBuilder} from '../view/context/ContextSplitPanel';
 import {type LiveFormPanel} from './page/LiveFormPanel';
 import {type DockedContextPanel} from '../view/context/DockedContextPanel';
@@ -23,14 +23,14 @@ export class ContentWizardContextSplitPanel
 
     protected getLeftPanelResponsiveRangeToSwitchToFloatingMode(): ResponsiveRange {
         if (!this.liveFormPanel || !this.isPageEditorShown()) {
-            return ResponsiveRanges._720_960;
+            return LayoutTokens.contextPanel.floatingThreshold.wizardNoEditor;
         }
 
         if (this.isWizardPanelMaximized()) {
-            return ResponsiveRanges._1200_1380;
+            return LayoutTokens.contextPanel.floatingThreshold.wizardMaximized;
         }
 
-        return ResponsiveRanges._540_720;
+        return LayoutTokens.contextPanel.floatingThreshold.wizardNormal;
     }
 
     private isPageEditorShown(): boolean {
@@ -43,7 +43,7 @@ export class ContentWizardContextSplitPanel
 
     getActiveWidthPxOfSecondPanel(): number {
         if (this.isPageEditorShown() && this.isWizardPanelMaximized() && this.isFloatingMode()) {
-            return this.getEl().getWidthWithBorder() / 100 * 24;
+            return this.getEl().getWidthWithBorder() / 100 * LayoutTokens.contextPanel.floatingWidthPercent.wizardWithEditor;
         }
 
         return super.getActiveWidthPxOfSecondPanel();
