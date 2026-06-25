@@ -26,6 +26,7 @@ import {type ValidityChangedEvent} from '@enonic/lib-admin-ui/ValidityChangedEve
 import Q from 'q';
 import {LiveEditModel} from '../../page-editor/LiveEditModel';
 import {compareContent} from '../../v6/features/api/compare';
+import {LayoutTokens} from '../../v6/features/layout/layout.tokens';
 import {cleanupWizardMixinsService, initWizardMixinsService} from '../../v6/features/services/wizardMixins.service';
 import {
     cleanupWizardContentSyncService,
@@ -474,7 +475,10 @@ export class ContentWizardPanel
         const contextToggleButton = new NonMobileContextPanelToggleButton();
 
         this.contextSplitPanel = ContentWizardContextSplitPanel.create(leftPanel, rightPanel)
-            .setSecondPanelSize(SplitPanelSize.PERCENTS(this.livePanel ? 16 : 38))
+            .setSecondPanelSize(SplitPanelSize.PERCENTS(
+                this.livePanel
+                ? LayoutTokens.contextPanel.dockedWidthPercent.wizardWithEditor
+                : LayoutTokens.contextPanel.dockedWidthPercent.wizardNoEditor))
             .setContextView(this.contextView)
             .setLiveFormPanel(this.getLivePanel())
             .setWizardFormPanel(this.formPanel)

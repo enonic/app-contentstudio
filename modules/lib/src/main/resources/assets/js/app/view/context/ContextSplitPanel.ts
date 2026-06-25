@@ -6,9 +6,9 @@ import {SplitPanelSize} from '@enonic/lib-admin-ui/ui/panel/SplitPanelSize';
 import {type ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {type ResponsiveRange} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRange';
-import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {LayoutTokens} from '../../../v6/features/layout/layout.tokens';
 import {getContentAsCSCS} from '../../../v6/features/store/content.store';
 import {InspectEvent} from '../../event/InspectEvent';
 import {ContextPanelState} from './ContextPanelState';
@@ -23,7 +23,7 @@ export enum ContextPanelMode {
 export class ContextSplitPanel
     extends SplitPanel {
 
-    public static CONTEXT_MIN_WIDTH: number = 310;
+    public static CONTEXT_MIN_WIDTH: number = LayoutTokens.contextPanel.minWidth;
 
     private contextPanelMode: ContextPanelMode;
     private contextPanelState: ContextPanelState = ContextPanelState.COLLAPSED;
@@ -115,7 +115,7 @@ export class ContextSplitPanel
     }
 
     protected getLeftPanelResponsiveRangeToSwitchToFloatingMode(): ResponsiveRange {
-        return ResponsiveRanges._960_1200;
+        return LayoutTokens.contextPanel.floatingThreshold.browse;
     }
 
     private isContextPanelLessThanMin(): boolean {
@@ -158,7 +158,7 @@ export class ContextSplitPanel
     }
 
     getSplitterThickness(): number {
-        return 1;
+        return LayoutTokens.contextPanel.splitterThickness;
     }
 
     private resetToggleButtonActiveState(): void {
@@ -182,13 +182,14 @@ export class ContextSplitPanel
 
     private requiresCollapsedContextPanel(): boolean {
         const totalWidth: number = Body.get().getEl().getWidthWithBorder();
-        return ResponsiveRanges._1620_1920.isFitOrSmaller(totalWidth) || this.getExpectedContextPanelMode() === ContextPanelMode.FLOATING;
+        return LayoutTokens.contextPanel.initialCollapseThreshold.isFitOrSmaller(totalWidth)
+               || this.getExpectedContextPanelMode() === ContextPanelMode.FLOATING;
     }
 
     private subscribeContextPanelsOnEvents(): void {
         const responsiveHandler = (item: ResponsiveItem) => {
             this.debouncedResizeHandler();
-            this.toggleMobileMode(item.isInRangeOrSmaller(ResponsiveRanges._540_720));
+            this.toggleMobileMode(item.isInRangeOrSmaller(LayoutTokens.contextPanel.mobileThreshold));
         };
         ResponsiveManager.onAvailableSizeChanged(this.getParentElement(), responsiveHandler);
         this.onRemoved(() => {
@@ -321,7 +322,7 @@ export class ContextSplitPanelBuilder
 
         this.setAlignment(SplitPanelAlignment.VERTICAL);
         this.setSecondPanelMinSize(SplitPanelSize.PIXELS(ContextSplitPanel.CONTEXT_MIN_WIDTH));
-        this.setAnimationDelay(600);
+        this.setAnimationDelay(LayoutTokens.contextPanel.animationDelayMs);
         this.setSecondPanelShouldSlideRight(true);
     }
 
