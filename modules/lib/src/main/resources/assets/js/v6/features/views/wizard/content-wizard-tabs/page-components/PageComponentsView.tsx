@@ -19,7 +19,14 @@ import {useI18n} from '../../../../hooks/useI18n';
 import {useSelectedPageOption} from '../../../../hooks/usePageOptions';
 import type {FlatNode} from '../../../../lib/tree-store';
 import {inspectItem, requestComponentMove} from '../../../../store/page-editor';
-import {$inspectedPath, $pageVersion} from '../../../../store/page-editor/store';
+import {$fragmentOptions, $isFragmentInspectionLoading} from '../../../../store/fragment-inspection.store';
+import {
+    $isComponentInspectionLoading,
+    $layoutDescriptorOptions,
+    $partDescriptorOptions,
+    isComponentReferenceMissing,
+} from '../../../../store/component-inspection.store';
+import {$inspectedPath, $page, $pageVersion} from '../../../../store/page-editor/store';
 import {$wizardReadOnly} from '../../../../store/wizardContent.store';
 import {$invalidComponentPaths, $validationVisibility} from '../../../../store/wizardValidation.store';
 import {EditLockOverlay} from '../../../../shared/EditLockOverlay';
@@ -54,11 +61,22 @@ export const PageComponentsView = ({showTitle = false}: PageComponentsViewProps 
     const containerRef = useRef<HTMLDivElement>(null);
     const componentsLabel = useI18n('field.components');
     const pageVersion = useStore($pageVersion);
+    const page = useStore($page);
+    const fragmentOptions = useStore($fragmentOptions);
+    const isFragmentLoading = useStore($isFragmentInspectionLoading);
+    const partDescriptorOptions = useStore($partDescriptorOptions);
+    const layoutDescriptorOptions = useStore($layoutDescriptorOptions);
+    const isComponentLoading = useStore($isComponentInspectionLoading);
     const invalidComponentPaths = useStore($invalidComponentPaths);
     const validationVisibility = useStore($validationVisibility);
     const readOnly = useStore($wizardReadOnly);
     const showErrors = validationVisibility === 'all';
     const inspectedPath = useStore($inspectedPath);
+    const descriptors = useMemo(
+        () => [...partDescriptorOptions, ...layoutDescriptorOptions],
+        [partDescriptorOptions, layoutDescriptorOptions],
+    );
+    const referenceLoading = isFragmentLoading || isComponentLoading;
     const [flatNodes, setFlatNodes] = useState(() => [...$componentsFlatNodes.get()]);
     const selectedPageOption = useSelectedPageOption();
     const pageMetadata = useMemo<PageComponentPageMetadata | undefined>(() => {
@@ -188,7 +206,11 @@ export const PageComponentsView = ({showTitle = false}: PageComponentsViewProps 
         context: SortableListItemContext<FlatNode<PageComponentNodeData>>,
     ): ReactElement | null => {
         const isSelected = context.item.id === inspectedPath;
-        const isInvalid = showErrors && invalidComponentPaths.has(context.item.id);
+        const referenceMissing = isComponentReferenceMissing(
+            context.item.id, page, fragmentOptions, descriptors, referenceLoading,
+        );
+        const isInvalid = showErrors && (invalidComponentPaths.has(context.item.id) || referenceMissing);
+
         return (
             <PageComponentsContextMenu node={context.item}>
                 <PageComponentsItem
@@ -201,7 +223,7 @@ export const PageComponentsView = ({showTitle = false}: PageComponentsViewProps 
                 />
             </PageComponentsContextMenu>
         );
-    }, [handleSelect, inspectedPath, pageMetadata, showErrors, invalidComponentPaths]);
+    }, [handleSelect, inspectedPath, pageMetadata, showErrors, invalidComponentPaths, page, fragmentOptions, descriptors, referenceLoading]);
 
     return (
         <EditLockOverlay locked={readOnly}>
