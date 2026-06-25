@@ -12,6 +12,7 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {SelectionMode} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
 import {$isContextOpen, setContextOpen} from '../../v6/features/store/contextWidgets.store';
+import {LayoutTokens} from '../../v6/features/layout/layout.tokens';
 import {ContextPanelState} from '../view/context/ContextPanelState';
 
 export abstract class ResponsiveBrowsePanel extends BrowsePanel {
@@ -63,7 +64,7 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
         const rightPanel: DockedContextPanel = new DockedContextPanel(this.contextView);
 
         this.contextSplitPanel = ContextSplitPanel.create(leftPanel, rightPanel)
-            .setSecondPanelSize(SplitPanelSize.PERCENTS(25))
+            .setSecondPanelSize(SplitPanelSize.PERCENTS(LayoutTokens.contextPanel.dockedWidthPercent.browse))
             .setContextView(this.contextView)
             .setToggleButton(this.contextSplitPanelToggler)
             .build();
