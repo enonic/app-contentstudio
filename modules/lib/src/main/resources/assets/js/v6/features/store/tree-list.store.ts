@@ -384,7 +384,7 @@ function addContentToTree(content: ContentSummary): void {
         if (parentId) {
             const parent = newState.nodes.get(parentId);
             if (parent && !parent.childIds.includes(id)) {
-                newState = appendChildren(newState, parentId, [id]);
+                newState = setChildren(newState, parentId, [id, ...parent.childIds]); // Prepend (newest first)
             }
             // Update hasChildren if this is first child
             if (!parent?.hasChildren) {

@@ -544,10 +544,10 @@ describe('tree-list.store', () => {
                 const childContent = createMockContentWithParent('child', '/parent', false, 'New Child');
                 emitContentCreated([childContent]);
 
-                // Assert: child appears in tree
+                // Assert: child is prepended to the parent's children (newest first)
                 expect(hasTreeNode('child')).toBe(true);
                 const parent = getTreeNode('parent');
-                expect(parent?.childIds).toContain('child');
+                expect(parent?.childIds).toEqual(['child', 'child1']);
             });
 
             it('does not add a new content to the tree if the parent did not have children loaded yet ', () => {
