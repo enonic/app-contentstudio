@@ -25,7 +25,7 @@ describe('content.image.selector: Image selector dropdown specification', functi
             // 1. Open wizard with Image Selector:
             await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.IMG_SELECTOR_2_4);
             // 2. switch the selector to tree mode:
-            await imageSelectorForm.clickOnModeTogglerButton();
+            //await imageSelectorForm.clickOnModeTogglerButton();
             // 3. Type the image display-name in the filter input:(the selector switches to the flat mode)
             await imageSelectorForm.doFilterOptions(appConst.TEST_IMAGES.KOTEY);
             // 4. Click on the filtered image in flat mode:
