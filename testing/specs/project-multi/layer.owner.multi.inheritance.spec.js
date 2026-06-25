@@ -132,7 +132,7 @@ describe('layer.owner.multi.inheritance.spec - ui-tests for user with layer-owne
             await settingsBrowsePanel.waitForEditButtonEnabled();
         });
 
-    // TODO bug Project context from the previous user session persists after login #10766
+    // bug Project context from the previous user session persists after login #10766
     // https://github.com/enonic/app-contentstudio/issues/10766
     it("GIVEN user with 'Owner' role is logged in WHEN site that is 'inherited' from the primary project has been selected THEN 'Localise' button should be enabled in the browse toolbar",
         async () => {
@@ -156,8 +156,7 @@ describe('layer.owner.multi.inheritance.spec - ui-tests for user with layer-owne
                 "'Inherited content has been localized' - message should appear");
         });
 
-    // bug Project context from the previous user session persists after login #10766
-    // TODO bug https://github.com/enonic/app-contentstudio/issues/10766
+    // Unable to reset content that was inherited from non-primary parent project #7244
     it.skip("GIVEN user with 'Owner'-layer role is logged in WHEN content that is 'inherited' from the secondary project has been selected THEN 'Localize' button should be enabled in the browse toolbar",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();

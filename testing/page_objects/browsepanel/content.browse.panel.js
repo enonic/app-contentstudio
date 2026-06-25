@@ -1145,9 +1145,10 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
+    // Clear Selection
     async clickOnResetSelectionCheckbox() {
         try {
-            await this.waitForResetSelectionCheckboxDisplayed()
+            await this.waitForClearSelectionCheckboxDisplayed();
             return await this.clickOnElement(this.clearSelectionCheckbox);
         } catch (err) {
             await this.handleError('Clicked on Clear Selection checkbox', 'err_reset_selection_checkbox', err);

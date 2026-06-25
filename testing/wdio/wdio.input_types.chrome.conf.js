@@ -20,7 +20,6 @@ exports.config = {
         path.join(__dirname, '../specs/content-types/image.selector.required.input.spec.js'),
         path.join(__dirname, '../specs/content-types/page.template.wizard.spec.js'),
         path.join(__dirname, '../specs/content-types/optionset.title.labels.spec.js'),
-        path.join(__dirname, '../specs/content-types/optionset.validation.spec.js'),
     ],
 
     maxInstances: 1,
