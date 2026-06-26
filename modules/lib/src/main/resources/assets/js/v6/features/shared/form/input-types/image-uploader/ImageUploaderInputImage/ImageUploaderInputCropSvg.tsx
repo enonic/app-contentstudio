@@ -1,7 +1,19 @@
 import {type ReactElement, useEffect, useRef, useState} from 'react';
 import {type TargetedMouseEvent, type TargetedTouchEvent} from 'preact';
 import {useImageUploaderContext} from '../ImageUploaderContext';
-import {applyMove, applyResize, getCropSvgCursor, getClientXYFromEvent, HANDLE_CURSOR, toLocalFromClient, CROP_STROKE_WIDTH} from '../lib/crop';
+import {
+    applyMove,
+    applyResize,
+    getCropSvgCursor,
+    getClientXYFromEvent,
+    HANDLE_CURSOR,
+    toLocalFromClient,
+    CROP_STROKE_WIDTH,
+    DASH_PX,
+    HANDLE_PX,
+    HANDLE_HIT_PX,
+    MIN_CROP_SIZE,
+} from '../lib/crop';
 import {type Crop, type DragState, type HandleId} from '../lib/types';
 
 export const ImageUploaderInputCropSvg = (): ReactElement => {
@@ -10,19 +22,32 @@ export const ImageUploaderInputCropSvg = (): ReactElement => {
     const [dragState, setDragState] = useState<DragState>(null);
     const [liveCrop, setLiveCrop] = useState<Crop | null>(null);
     const [isOverRect, setIsOverRect] = useState(false);
+    // Image-pixels per screen-pixel, used to size handle markers at a constant on-screen size.
+    const [scale, setScale] = useState(1);
 
-    const handleVisualSize = 4 * CROP_STROKE_WIDTH;
-    const handleHitSize = Math.max(handleVisualSize * 2, 20);
-    const minSize = Math.max(CROP_STROKE_WIDTH * 2, 4);
-    const dragThreshold = minSize;
+    const handleVisualSize = HANDLE_PX * scale;
+    const handleHitSize = HANDLE_HIT_PX * scale;
+    const dragThreshold = MIN_CROP_SIZE;
 
     // Only use liveCrop during an active drag; otherwise always derive from context crop.
     const displayRect: Crop =
-        dragState != null && liveCrop != null
-            ? liveCrop
-            : crop ?? {x1: 0, y1: 0, x2: dimensions.w, y2: dimensions.h};
+        dragState != null && liveCrop != null ? liveCrop : (crop ?? {x1: 0, y1: 0, x2: dimensions.w, y2: dimensions.h});
 
     const svgCursor = getCropSvgCursor(dragState, isOverRect);
+
+    // Tracks the rendered svg width so handle markers stay a constant size on screen.
+    useEffect(() => {
+        const svg = svgRef.current;
+        if (!svg) return;
+        const update = (): void => {
+            const w = svg.getBoundingClientRect().width;
+            if (w > 0) setScale(dimensions.w / w);
+        };
+        update();
+        const ro = new ResizeObserver(update);
+        ro.observe(svg);
+        return () => ro.disconnect();
+    }, [dimensions.w]);
 
     useEffect(() => {
         if (!dragState) return;
@@ -36,7 +61,7 @@ export const ImageUploaderInputCropSvg = (): ReactElement => {
             const p = toLocalFromClient(svg, clientX, clientY, dimensions);
             if (!p) return;
             if (dragState.type === 'resize') {
-                setLiveCrop(applyResize(dragState.handle, dragState.snapshot, p, minSize));
+                setLiveCrop(applyResize(dragState.handle, dragState.snapshot, p, MIN_CROP_SIZE));
             } else {
                 setLiveCrop(applyMove(dragState.snapshot, dragState.anchor, p, dimensions));
             }
@@ -51,7 +76,7 @@ export const ImageUploaderInputCropSvg = (): ReactElement => {
 
                 if (p) {
                     if (dragState.type === 'resize') {
-                        setCrop(applyResize(dragState.handle, dragState.snapshot, p, minSize));
+                        setCrop(applyResize(dragState.handle, dragState.snapshot, p, MIN_CROP_SIZE));
                     } else {
                         const dx = Math.abs(p.x - dragState.anchor.x);
                         const dy = Math.abs(p.y - dragState.anchor.y);
@@ -139,6 +164,27 @@ export const ImageUploaderInputCropSvg = (): ReactElement => {
             setLiveCrop(displayRect);
         };
 
+    // Two-tone marching-ants outline so it stays visible on any background.
+    const renderCropOutline = (r: Crop): ReactElement => {
+        const props = {
+            x: r.x1,
+            y: r.y1,
+            width: r.x2 - r.x1,
+            height: r.y2 - r.y1,
+            fill: 'none',
+            strokeWidth: CROP_STROKE_WIDTH,
+            strokeDasharray: DASH_PX,
+            vectorEffect: 'non-scaling-stroke',
+            style: {pointerEvents: 'none'},
+        };
+        return (
+            <>
+                <rect {...props} stroke="white" />
+                <rect {...props} stroke="red" strokeDashoffset={DASH_PX} />
+            </>
+        );
+    };
+
     const renderHandle = (handle: HandleId, cx: number, cy: number): ReactElement => (
         <g key={handle}>
             {/* Enlarged transparent hit area for easier tapping on mobile */}
@@ -157,9 +203,10 @@ export const ImageUploaderInputCropSvg = (): ReactElement => {
                 y={cy - handleVisualSize / 2}
                 width={handleVisualSize}
                 height={handleVisualSize}
-                fill="red"
-                stroke="white"
-                strokeWidth={Math.max(1, CROP_STROKE_WIDTH * 0.3)}
+                fill="white"
+                stroke="red"
+                strokeWidth={1}
+                vectorEffect="non-scaling-stroke"
                 style={{pointerEvents: 'none'}}
             />
         </g>
@@ -205,17 +252,7 @@ export const ImageUploaderInputCropSvg = (): ReactElement => {
                 fillOpacity={0.5}
                 style={{pointerEvents: 'none'}}
             />
-            <rect
-                x={displayRect.x1}
-                y={displayRect.y1}
-                width={displayRect.x2 - displayRect.x1}
-                height={displayRect.y2 - displayRect.y1}
-                fill="none"
-                stroke="red"
-                strokeWidth={CROP_STROKE_WIDTH}
-                strokeDasharray={CROP_STROKE_WIDTH * 2}
-                style={{pointerEvents: 'none'}}
-            />
+            {renderCropOutline(displayRect)}
             {renderHandles(displayRect)}
         </svg>
     );

@@ -4,7 +4,7 @@ import {type TargetedMouseEvent, type TargetedTouchEvent} from 'preact';
 import {useImageUploaderContext} from '../ImageUploaderContext';
 import {getClientXYFromEvent} from '../lib/crop';
 import {type Point} from '../lib/types';
-import {FOCUS_STROKE_WIDTH} from '../lib/focus';
+import {FOCUS_STROKE_WIDTH, FOCUS_DASH_PX} from '../lib/focus';
 
 export const ImageUploaderInputFocusSvg = (): ReactElement => {
     const {dimensions, crop, base64Image, mode, focus, setFocus} = useImageUploaderContext();
@@ -97,6 +97,25 @@ export const ImageUploaderInputFocusSvg = (): ReactElement => {
         };
     }, [isDragging]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    // Two-tone marching-ants ring so it stays visible on any background.
+    const renderFocusRing = (cx: number, cy: number, r: number): ReactElement => {
+        const props = {
+            cx,
+            cy,
+            r,
+            fill: 'none',
+            strokeWidth: FOCUS_STROKE_WIDTH,
+            strokeDasharray: FOCUS_DASH_PX,
+            vectorEffect: 'non-scaling-stroke',
+        };
+        return (
+            <>
+                <circle {...props} stroke="white" />
+                <circle {...props} stroke="red" strokeDashoffset={FOCUS_DASH_PX} />
+            </>
+        );
+    };
+
     return (
         <svg
             ref={svgRef}
@@ -117,29 +136,11 @@ export const ImageUploaderInputFocusSvg = (): ReactElement => {
                         <circle cx={displayFocus.x} cy={displayFocus.y} r={radius} fill="black" />
                     </mask>
                     <rect x={viewX} y={viewY} width={viewW} height={viewH} fill="black" fillOpacity={0.5} mask="url(#focus-mask)" />
-                    <circle
-                        cx={displayFocus.x}
-                        cy={displayFocus.y}
-                        r={radius}
-                        fill="none"
-                        stroke="red"
-                        strokeWidth={FOCUS_STROKE_WIDTH}
-                        strokeDasharray={FOCUS_STROKE_WIDTH * 2}
-                    />
+                    {renderFocusRing(displayFocus.x, displayFocus.y, radius)}
                 </>
             )}
 
-            {!isFocusing && focus && focus.x !== cropXCenter && focus.y !== cropYCenter && (
-                <circle
-                    cx={focus.x}
-                    cy={focus.y}
-                    r={radius}
-                    fill="none"
-                    stroke="red"
-                    strokeWidth={FOCUS_STROKE_WIDTH}
-                    strokeDasharray={FOCUS_STROKE_WIDTH * 2}
-                />
-            )}
+            {!isFocusing && focus && focus.x !== cropXCenter && focus.y !== cropYCenter && renderFocusRing(focus.x, focus.y, radius)}
         </svg>
     );
 };
