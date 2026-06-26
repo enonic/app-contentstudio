@@ -1,7 +1,9 @@
 import {AttachmentValidationError, ComponentConfigValidationError, DataValidationError, MixinConfigValidationError, SiteConfigValidationError, type ValidationError} from '@enonic/lib-admin-ui/ValidationError';
-import {matchesFieldPath, matchesOccurrencePath, type RawValueMap, type ServerErrorEntry, type ValidationVisibility, validateForm} from '@enonic/lib-admin-ui/form2';
+import {type FormValidationResult, matchesFieldPath, matchesOccurrencePath, type RawValueMap, type ServerErrorEntry, type ValidationVisibility, validateForm} from '@enonic/lib-admin-ui/form2';
 import {atom, computed} from 'nanostores';
 import type {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import type {Form} from '@enonic/lib-admin-ui/form/Form';
+import {Input} from '@enonic/lib-admin-ui/form/Input';
 import type {Descriptor} from '../../../app/page/Descriptor';
 import {DescriptorBasedComponent} from '../../../app/page/region/DescriptorBasedComponent';
 import {LayoutComponent} from '../../../app/page/region/LayoutComponent';
@@ -22,6 +24,8 @@ import {$page, $pageVersion} from './page-editor/store';
 import {$layoutDescriptorOptions, $partDescriptorOptions} from './component-inspection.store';
 import {$applications} from './applications.store';
 import {createDebounce} from '../utils/timing/createDebounce';
+import {instanceOf} from '../utils/object/instanceOf';
+import {SiteConfiguratorDescriptor} from '../shared/form/input-types/site-configurator/SiteConfiguratorDescriptor';
 
 //
 // * State
@@ -89,8 +93,10 @@ function runValidation(): void {
     const hasInvalidDisplayName = $wizardDraftDisplayName.get().trim().length === 0;
     const hasAttachmentErrors = $attachmentServerErrors.get().length > 0;
     const hasGeneralErrors = $generalServerErrors.get().length > 0;
+    const hasInvalidSiteConfig = hasInvalidSiteConfigInput(contentType.getForm(), contentResult);
+    const isContentFormValid = contentResult.isValid && !hasInvalidSiteConfig;
 
-    if (!contentResult.isValid || hasInvalidDisplayName || hasAttachmentErrors || hasGeneralErrors) {
+    if (!isContentFormValid || hasInvalidDisplayName || hasAttachmentErrors || hasGeneralErrors) {
         nextInvalidTabs.add('content');
     }
 
@@ -129,9 +135,25 @@ function runValidation(): void {
     $invalidComponentPaths.set(allInvalidPaths);
     $invalidTabs.set(nextInvalidTabs);
     setWizardFormValidation(
-        contentResult.isValid && allMixinsValid && allInvalidPaths.size === 0 && !hasAttachmentErrors && !hasGeneralErrors,
+        isContentFormValid && allMixinsValid && allInvalidPaths.size === 0 && !hasAttachmentErrors && !hasGeneralErrors,
     );
+}
 
+function hasInvalidSiteConfigInput(form: Form, result: FormValidationResult): boolean {
+    const siteConfigNames = new Set<string>();
+    for (const item of form.getFormItems()) {
+        if (instanceOf(item, Input) && item.getInputType().getName() === SiteConfiguratorDescriptor.name) {
+            siteConfigNames.add(item.getName());
+        }
+    }
+
+    if (siteConfigNames.size === 0) {
+        return false;
+    }
+
+    return result.children.some(
+        (node) => node.type === 'input' && siteConfigNames.has(node.name) && node.errors.some((occ) => occ.length > 0),
+    );
 }
 
 const debouncedRunValidation = createDebounce(runValidation, DEBOUNCE_DELAY);
