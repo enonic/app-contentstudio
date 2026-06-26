@@ -473,11 +473,12 @@ const CKEditorWrapper = ({
         isBlinking && 'input-blink-attention',
         showFocusRing && 'ring-3 ring-offset-3 ring-offset-ring-offset',
         showFocusRing && (hasError ? 'ring-error' : 'ring-ring'),
-        showErrorState && 'has-error [&_.cke_chrome]:!border-error',
+        showErrorState && 'has-error',
+        showErrorState && String.raw`[&_.cke\_chrome]:!border-error`,
         processing && [
             'input-animated-border cursor-progress select-none [--shimmer-band-size:320px]',
-            '[&_.cke_chrome]:!border-transparent',
-            '[&_.cke_top]:opacity-50 [&_.cke_top]:pointer-events-none',
+            String.raw`[&_.cke\_chrome]:!border-transparent`,
+            String.raw`[&_.cke\_top]:opacity-50 [&_.cke\_top]:pointer-events-none`,
         ],
     );
 
