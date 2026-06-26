@@ -1,7 +1,14 @@
 import {applyTransform, FORWARD_MATRICES, INVERSE_MATRICES} from './matrices';
 import {type HandleId, type Crop, type DragState, type Dimensions, type Point} from './types';
 
+// Screen-pixel sizes, kept constant on screen via vector-effect: non-scaling-stroke.
 export const CROP_STROKE_WIDTH = 2;
+export const DASH_PX = 4;
+export const HANDLE_PX = 8;
+export const HANDLE_HIT_PX = 24;
+
+// Minimum crop size, in image pixels.
+export const MIN_CROP_SIZE = 4;
 
 // Cursor styles for the 8 handle positions on the crop rectangle.
 export const HANDLE_CURSOR: Record<HandleId, string> = {

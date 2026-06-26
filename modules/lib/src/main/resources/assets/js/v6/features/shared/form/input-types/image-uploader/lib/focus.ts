@@ -1,7 +1,9 @@
 import {applyTransform, FORWARD_MATRICES, INVERSE_MATRICES} from './matrices';
 import {type Dimensions, type Point} from './types';
 
+// Screen-pixel sizes, kept constant on screen via vector-effect: non-scaling-stroke.
 export const FOCUS_STROKE_WIDTH = 2;
+export const FOCUS_DASH_PX = 4;
 
 export function adjustFocusToBaseOrientation(point: Point, fromOrientation: number, dimensions: Dimensions): Point | null {
     if (!point) return null;
