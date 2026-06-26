@@ -1,6 +1,7 @@
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {Input} from '@enonic/lib-admin-ui/form/Input';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {validateForm} from '@enonic/lib-admin-ui/form2';
+import {type FormValidationResult, validateForm} from '@enonic/lib-admin-ui/form2';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {ContentBuilder, type Content} from '../../../app/content/Content';
 import {ContentName} from '../../../app/content/ContentName';
@@ -65,6 +66,35 @@ function createMockContentType(): ContentType {
         getForm: () => MOCK_FORM,
         hasDisplayNameExpression: () => false,
     } as unknown as ContentType;
+}
+
+function createSiteConfiguratorInput(name = 'siteConfig'): Input {
+    return Input.fromJson({
+        name,
+        inputType: 'SiteConfigurator',
+        label: 'Applications',
+        occurrences: {minimum: 0, maximum: 0},
+        config: {},
+        helpText: '',
+    } as Parameters<typeof Input.fromJson>[0]);
+}
+
+function createSiteContentType(input: Input): ContentType {
+    return {
+        getDisplayName: () => 'Site',
+        getTitle: () => 'Site',
+        getForm: () => ({getFormItems: () => [input]}),
+        hasDisplayNameExpression: () => false,
+    } as unknown as ContentType;
+}
+
+function siteConfigResult(errors: {message: string}[]): FormValidationResult {
+    // Mirrors validateForm()'s output for an optional Site Configurator input: the
+    // client errors are recorded on the node, but the rollup keeps the form valid.
+    return {
+        isValid: true,
+        children: [{type: 'input', name: 'siteConfig', path: 'siteConfig', errors: [errors], optional: true}],
+    };
 }
 
 function createMixinDescriptor(name: string, optional: boolean, hasFormItems = true): MixinDescriptor {
@@ -224,6 +254,28 @@ describe('wizardValidation.store', () => {
             initializeValidation(false);
 
             expect($invalidTabs.get().size).toBe(0);
+        });
+
+        it('should mark content tab invalid when a Site Configurator input has client errors (#10892)', () => {
+            const input = createSiteConfiguratorInput();
+            mockedValidateForm.mockReturnValue(siteConfigResult([{message: 'Required config missing'}]));
+
+            const content = createContent();
+            initializeWizardContentState(content, createSiteContentType(input), []);
+            initializeValidation(false);
+
+            expect($invalidTabs.get().has('content')).toBe(true);
+        });
+
+        it('should keep content tab valid when the Site Configurator input has no errors', () => {
+            const input = createSiteConfiguratorInput();
+            mockedValidateForm.mockReturnValue(siteConfigResult([]));
+
+            const content = createContent();
+            initializeWizardContentState(content, createSiteContentType(input), []);
+            initializeValidation(false);
+
+            expect($invalidTabs.get().has('content')).toBe(false);
         });
 
         it('should skip mixin with no form items', () => {
