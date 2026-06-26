@@ -442,8 +442,8 @@ export class ContentWizardActions extends WizardActions<Content> {
         const canBeMarkedAsReady: boolean = this.contentCanBeMarkedAsReady && this.userCanModify;
         const canBeRequestedPublish: boolean = this.canBeRequestedPublish();
         const isInheritedItem: boolean = this.wizardPanel.isContentExistsInParentProject() && this.content.hasOriginProject();
-        const canBeReset: boolean = isInheritedItem && !this.content.isFullyInherited();
         const canBeLocalized: boolean = isInheritedItem && this.content.isDataInherited();
+        const canBeReset: boolean = isInheritedItem && !this.content.isDataInherited();
 
         this.enableActions({
             PUBLISH: canBePublished,
