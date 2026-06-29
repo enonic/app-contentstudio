@@ -1,5 +1,5 @@
 /**
- * Created on 29.10.2025
+ * Created on 29.10.2025  updated on 29.06.2026
  */
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const assert = require('node:assert');
@@ -15,11 +15,19 @@ describe('template.dropdown.inspect.tab.spec: tests for checking templates in Pa
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let IMPORTED_SITE_NAME = 'site040269';
+    let SITE;
     let TEMPLATE;
     let FOLDER;
     const SUPPORT_FOLDER = 'Folder';
     const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
+
+
+    it(`Preconditions: new site should be created`,
+        async () => {
+            let displayName = contentBuilder.generateRandomName('site');
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES]);
+            await studioUtils.doAddSite(SITE);
+        });
 
     it(`Precondition: new template(supports site) should be added`,
         async () => {
@@ -27,9 +35,9 @@ describe('template.dropdown.inspect.tab.spec: tests for checking templates in Pa
             let templateName = contentBuilder.generateRandomName('template');
             TEMPLATE = contentBuilder.buildPageTemplate(templateName, SUPPORT_FOLDER, CONTROLLER_NAME);
             // add a page template for Folder content type:
-            await studioUtils.doAddPageTemplate(IMPORTED_SITE_NAME, TEMPLATE);
+            await studioUtils.doAddPageTemplate(SITE.displayName, TEMPLATE);
             // Add new child folder to the site:
-            await contentBrowsePanel.clickOnRowByDisplayName(IMPORTED_SITE_NAME);
+            await contentBrowsePanel.clickOnRowByDisplayName(SITE.displayName);
             let displayName = appConst.generateRandomName('folder');
             FOLDER = contentBuilder.buildFolder(displayName);
             await studioUtils.doAddFolder(FOLDER);
@@ -42,13 +50,13 @@ describe('template.dropdown.inspect.tab.spec: tests for checking templates in Pa
             // 1. Open the existing folder(page template supports 'Folder' content type
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
             // 2. Click on 'Show Page Editor' button and show Page Editor in the wizard:
-            await contentWizard.clickOnPageEditorToggler();
             let contextWindow = await contentWizard.openContextWindow();
             await contextWindow.openPageWidget();
             // 3. Expand the template-dropdown in 'Inspect' tab and verify the just created template in the options:
-            let actualOptions = await pageInspectionPanel.getOptionsNameInPageTemplateDropdown();
+            let actualOptions = await pageInspectionPanel.getOptionsDescriptionInPageTemplateDropdown();
             await studioUtils.saveScreenshot('template_dropdown_options');
-            assert.ok(actualOptions.includes(TEMPLATE.displayName), 'Template should be present in the dropdown options')
+            let expectedDescription = `(${TEMPLATE.displayName})`;
+            assert.ok(actualOptions.includes(expectedDescription), 'Template should be present in the dropdown options')
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

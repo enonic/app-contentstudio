@@ -147,7 +147,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             await contentWizard.waitForPreviewButtonDisplayed();
         });
 
-    it("GIVEN existing site with 2 fragments is opened WHEN 'Show Outbound' dependencies button has been pressed THEN 2 fragments should be filtered in new browser tab",
+    it("GIVEN existing site with 2 fragments is opened WHEN 'Show all outgoing' dependencies button has been pressed THEN 2 fragments should be filtered in new browser tab",
         async () => {
             let contentWizard = new ContentWizardPanel();
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -160,7 +160,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             // 2. Dependencies widget is opened:
             await wizardContextPanel.openDependenciesWidget();
             // 3. Click on 'Show outbound' button
-            await wizardDependenciesWidget.clickOnShowOutboundButton();
+            await wizardDependenciesWidget.clickOnShowAllOutgoingButton();
             await studioUtils.doSwitchToNextTab();
             // 4. Dependencies section should be loaded in the browse panel
             await contentFilterPanel.waitForDependenciesSectionVisible();

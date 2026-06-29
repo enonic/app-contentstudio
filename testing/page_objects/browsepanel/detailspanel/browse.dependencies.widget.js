@@ -1,14 +1,13 @@
 /**
- * Created on 29/11/2018.
+ * Created on 29/11/2018. updated on 29.06.2026
  */
 const BaseDependenciesWidget = require('../../details_panel/base.dependencies.widget');
 const appConst = require('../../../libs/app_const');
-const lib = require('../../../libs/elements-old');
 
 const xpath = {
     widget: "//div[contains(@id,'ContentBrowsePanel')]//div[@data-component='DependenciesWidget']",
-    showOutboundButton: "//button/span[contains(.,'Show Outbound')]",
-    showInboundButton: "//button/span[contains(.,'Show Inbound')]"
+    showAllOutgoingButton: "//button[contains(@aria-label,'Show all outgoing')]",
+    showAllIncomingButton: "//button[contains(@aria-label,'Show all incoming')]",
 };
 
 class BrowseDependenciesWidget extends BaseDependenciesWidget {
@@ -17,12 +16,12 @@ class BrowseDependenciesWidget extends BaseDependenciesWidget {
         return xpath.widget;
     }
 
-    get showOutboundButton() {
-        return xpath.widget + lib.actionButton('Show Outbound');
+    get showAllOutgoingButton() {
+        return xpath.widget + xpath.showAllOutgoingButton;
     }
 
-    get showInboundButton() {
-        return xpath.widget + xpath.showInboundButton;
+    get showAllIncomingButton() {
+        return xpath.widget + xpath.showAllIncomingButton;
     }
 
     isWidgetVisible() {
@@ -34,8 +33,7 @@ class BrowseDependenciesWidget extends BaseDependenciesWidget {
             await this.waitForElementDisplayed(this.dependenciesWidget, appConst.shortTimeout);
             await this.pause(400);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_widget_load');
-            throw new Error(`Content Wizard: Dependencies Widget was not screenshot:${screenshot} ` + err);
+            await this.handleError('Dependencies Widget was not loaded', 'err_widget_load', err);
         }
     }
 }

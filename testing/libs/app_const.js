@@ -320,7 +320,7 @@ module.exports = Object.freeze({
         INSERT: 'Insert',
         SAVE_AS_FRAGMENT: 'Save as Fragment',
         SAVE_AS_TEMPLATE: 'Save as Template',
-        CUSTOMIZE: 'Detach from Fragment',
+        DETACH_FROM_FRAGMENT: 'Detach from Fragment',
         INSPECT: 'Inspect',
         REMOVE: 'Remove',
         DUPLICATE: 'Duplicate',
@@ -529,7 +529,7 @@ module.exports = Object.freeze({
         INVALID: 'invalid'
     },
     WORKFLOW_STATE: {
-        WORK_IN_PROGRESS: 'Work in progress',
+        WORK_IN_PROGRESS: 'In progress',
         READY_FOR_PUBLISHING: 'Ready for publishing',
         PUBLISHED: 'Published'
     },

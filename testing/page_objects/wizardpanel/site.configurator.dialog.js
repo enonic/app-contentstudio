@@ -1,9 +1,10 @@
 const Page = require('../page');
-const {BUTTONS} = require('../../libs/elements');
+const {BUTTONS, COMMON} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const HtmlAreaForm = require("./htmlarea.form.panel");
 const XPATH = {
     container: `//div[@data-component='Dialog.Content']`,
+    ckeWrapper: "//div[@data-name='CKEditorWrapper']",
     imageContentCombobox: "//div[contains(@id,'ImageContentComboBox')]",
     imageSelectorOptionFilterInput: "//input[contains(@id,'ComboBoxOptionFilterInput')]",
     htmlAreaInputView: `//div[contains(@id,'InputView') and descendant::div[contains(@id,'HtmlArea')]]`,
@@ -62,28 +63,22 @@ class SiteConfiguratorDialog extends Page {
         }
     }
 
-    async clickInTextAreaShowToolbar() {
-        try {
-            let areaSelector = XPATH.container + `//div[contains(@id,'cke_TextArea')]`;
-            await this.waitForElementDisplayed(areaSelector, appConst.mediumTimeout);
-            await this.clickOnElement(areaSelector);
-            return await this.pause(300);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_show_toolbar');
-            throw new Error(`Site Configurator Dialog - error during clicking in the text area, screenshot: '${screenshot}' ` + err);
-        }
+    async clickInTextArea() {
+        let locator = XPATH.container + XPATH.ckeWrapper;
+        await this.waitForElementDisplayed(locator);
+        await this.clickOnElement(locator);
+        await this.pause(100);
     }
 
     async showToolbarAndClickOnInsertImageButton() {
         try {
-            await this.clickInTextAreaShowToolbar();
-            let insertImageButton = XPATH.container + `//a[contains(@class,'cke_button') and contains(@title,'Image')]`;
-            await this.waitForElementDisplayed(insertImageButton, appConst.mediumTimeout);
+            await this.clickInTextArea();
+            let insertImageButton = XPATH.container + COMMON.CKE.insertImageButton;
+            await this.waitForElementDisplayed(insertImageButton);
             await this.clickOnElement(insertImageButton);
             return await this.pause(300);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_insert_image_button');
-            throw new Error(`Site Config, insert image button, screenshot: '${screenshot}' ` + err);
+            await this.handleError(`Site Configurator Dialog - error clicking on Insert Image button`, 'err_insert_image_button', err);
         }
     }
 
@@ -162,6 +157,7 @@ class SiteConfiguratorDialog extends Page {
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.clickOnElement(locator);
     }
+
     //
     // async clickOnHtmlAreaHelpToggle() {
     //     await this.waitForHtmlAreaHelpToggleDisplayed();

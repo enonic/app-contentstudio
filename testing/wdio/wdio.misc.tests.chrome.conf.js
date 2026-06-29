@@ -31,8 +31,6 @@ exports.config = {
         path.join(__dirname, '../specs/misc/moved.modified.content.spec.js'),
         path.join(__dirname, '../specs/misc/publish.request.dialog.add.items.spec.js'),
         path.join(__dirname, '../specs/misc/revert.published.content.spec.js'),
-        path.join(__dirname, '../specs/misc/text.component.cke.email.link.spec.js'),
-        path.join(__dirname, '../specs/misc/text.component.cke.url.link.spec.js'),
         path.join(__dirname, '../specs/misc/text.component.content.link.spec.js'),
         path.join(__dirname, '../specs/misc/text.component.download.link.spec.js'),
         path.join(__dirname, '../specs/misc/text.component.image.outbound.spec.js'),

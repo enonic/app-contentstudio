@@ -178,6 +178,8 @@ const DROPDOWN = {
     SELECTOR_ICON:"//span[@data-component='Selector.Icon']",
     SELECTOR_TRIGGER: "//button[@role='combobox' and descendant::span[@data-component='Selector.Value']]",
     COMBOBOX_DROPDOWN_HANDLE: "//div[@data-component='Combobox.Search']/button",
+    COMBOBOX_VALUE: "//button[@data-component='Combobox.Value']//span[contains(@class,'font-semibold') and contains(@class,'truncate')]",
+    DESCRIPTOR_SELECTOR: "//div[@data-component='ComponentDescriptorSelector']",
     LIST_BOX_ITEM: "//div[@data-component='Listbox.Item']",
     CHECKBOX_DATA_COMPONENT: "//div[@data-component='Checkbox']",
     ITEM_LABEL: "//div[@data-component='ItemLabel']",

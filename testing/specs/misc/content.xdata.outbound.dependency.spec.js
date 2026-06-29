@@ -49,7 +49,7 @@ describe('content.xdata.outbound.dependency.spec: checks outbound dependency for
         });
 
     // Verifies: https://github.com/enonic/app-contentstudio/issues/3267
-    it(`GIVEN existing content with x-data(image) is opened WHEN 'Dependencies widget' has been opened THEN 'Show Outbound' button should be present AND 'Show Inbound' should not be present`,
+    it(`GIVEN existing content with x-data(image) is opened WHEN 'Dependencies widget' has been opened THEN 'Show all outgoing' button should be present AND 'Show all incoming' should not be present`,
         async () => {
             let contentWizard = new ContentWizard();
             let wizardDependenciesWidget = new WizardDependenciesWidget();
@@ -62,9 +62,9 @@ describe('content.xdata.outbound.dependency.spec: checks outbound dependency for
             await wizardContextPanel.openDependenciesWidget();
             await studioUtils.saveScreenshot('content_with_xdata_dependencies_widget');
             // 'Show outbound' button should be present in the widget, because the x-data contains an image:
-            await wizardDependenciesWidget.waitForOutboundButtonVisible();
-            let isVisible = await wizardDependenciesWidget.isInboundButtonVisible();
-            assert.ok(isVisible === false, "'Show Inbound' button should not be present");
+            await wizardDependenciesWidget.waitForAllOutgoingButtonVisible();
+            let isVisible = await wizardDependenciesWidget.isAllIncomingButtonVisible();
+            assert.ok(isVisible === false, "'Show all incoming' button should not be present");
         });
 
     // verifies https://github.com/enonic/app-contentstudio/issues/287

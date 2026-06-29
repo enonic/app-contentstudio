@@ -2,7 +2,7 @@
  * Created on 02.05.2024
  */
 const BaseComponentInspectionPanel = require('./base.component.inspection.panel');
-const lib = require('../../../../libs/elements-old');
+const {DROPDOWN} = require('../../../../libs/elements');
 const appConst = require('../../../../libs/app_const');
 const ComponentDescriptorsDropdown = require('../../../components/selectors/component.descriptors.dropdown');
 
@@ -18,10 +18,6 @@ class PartInspectionPanel extends BaseComponentInspectionPanel {
         return xpath.container;
     }
 
-    get partDropdownOptionsFilterInput() {
-        return this.container + lib.DROPDOWN_OPTION_FILTER_INPUT;
-    }
-
     async typeNameAndSelectPart(displayName) {
         try {
             let componentDescriptorsDropdown = new ComponentDescriptorsDropdown(xpath.container);
@@ -33,7 +29,7 @@ class PartInspectionPanel extends BaseComponentInspectionPanel {
     }
 
     async getDropdownSelectedOption() {
-        let locator = this.container + lib.INSPECT_PANEL.DESCRIPTOR_VIEWER_DIV + lib.H6_DISPLAY_NAME;
+        let locator = this.container + DROPDOWN.DESCRIPTOR_SELECTOR + DROPDOWN.COMBOBOX_VALUE;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator);
     }

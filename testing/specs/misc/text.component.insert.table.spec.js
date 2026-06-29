@@ -30,7 +30,6 @@ describe('Text Component with CKE - insert html table', function () {
     it.skip(`GIVEN Text component has been inserted WHEN 'Html table' has been inserted AND saved THEN 'Saved' button should be visible in the toolbar`,
         async () => {
             let contentWizard = new ContentWizard();
-            let textComponentCke = new TextComponentCke();
             let pageComponentView = new PageComponentView();
             let htmlTableDialog = new HtmlTableDialog();
             // 1. Open the site:
@@ -60,6 +59,7 @@ describe('Text Component with CKE - insert html table', function () {
             await studioUtils.saveScreenshot('cke_html_table_inserted');
             // 9. Verify that 'Saved' button is disabled:
             await contentWizard.waitForSavedButtonVisible();
+            await textComponentInspectionPanel.waitForTableDisplayedInEditorFrame();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

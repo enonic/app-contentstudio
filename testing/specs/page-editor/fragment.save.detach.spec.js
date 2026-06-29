@@ -123,7 +123,7 @@ describe('Menu Items: Save as fragment and Customize specification', function ()
             await pageComponentView.rightClickAndOpenContextMenu('Text');
             await studioUtils.saveScreenshot('text_saved_as_fragment');
             // Verify that "'Customize' menu item should appear in the menu
-            await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.CUSTOMIZE);
+            await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.DETACH_FROM_FRAGMENT);
         });
 
     it(`WHEN existing site with a fragment is opened THEN single fragment should be displayed in Page Components wizard step`,
@@ -145,7 +145,7 @@ describe('Menu Items: Save as fragment and Customize specification', function ()
             await pageComponentsWizardStepForm.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.RESET);
             await pageComponentsWizardStepForm.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.REMOVE);
             await pageComponentsWizardStepForm.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.DUPLICATE);
-            await pageComponentsWizardStepForm.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.CUSTOMIZE);
+            await pageComponentsWizardStepForm.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.DETACH_FROM_FRAGMENT);
             await pageComponentsWizardStepForm.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.EDIT_FRAGMENT);
         });
 
@@ -168,7 +168,7 @@ describe('Menu Items: Save as fragment and Customize specification', function ()
             await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.RESET);
             await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.REMOVE);
             await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.DUPLICATE);
-            await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.CUSTOMIZE);
+            await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.DETACH_FROM_FRAGMENT);
             await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.EDIT_FRAGMENT);
         });
 
@@ -223,7 +223,7 @@ describe('Menu Items: Save as fragment and Customize specification', function ()
             // 2. the fragment's context menu has been opened:
             await pageComponentView.rightClickAndOpenContextMenu('Text');
             // 3. 'Customize' menu item has been clicked:
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.CUSTOMIZE]);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.DETACH_FROM_FRAGMENT]);
             await pageComponentView.pause(2000);
             // 4. The text-component context menu has been opened:
             await pageComponentView.rightClickAndOpenContextMenu('Text');

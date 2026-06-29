@@ -152,8 +152,8 @@ class TextComponentInspectionPanel extends BaseComponentInspectionPanel {
     }
 
     async waitForTableDisplayedInEditorFrame() {
-        await this.waitForElementDisplayed("//iframe[contains(@class,'cke_panel_frame')]", appConst.mediumTimeout);
-        await this.switchToFrame("//iframe[contains(@class,'cke_panel_frame')]");
+        await this.waitForElementDisplayed("//iframe[contains(@class,'text')]", appConst.mediumTimeout);
+        await this.switchToFrame("//iframe[contains(@class,'text')]");
         let table = "//table";
         let result = await this.waitForElementDisplayed(table, appConst.shortTimeout);
         await this.getBrowser().switchToParentFrame();
