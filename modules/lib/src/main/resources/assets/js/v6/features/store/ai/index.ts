@@ -17,9 +17,7 @@ export {initAiHost} from './ai.host';
 
 // Write: AI plugin host commands
 export {
-    captureOperatorSeed,
     closePluginDialog,
-    openOperatorWithSeed,
     openPluginDialog,
     sendPluginContext,
 } from './ai.host';

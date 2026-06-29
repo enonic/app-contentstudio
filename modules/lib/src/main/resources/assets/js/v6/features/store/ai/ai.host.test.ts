@@ -2,11 +2,10 @@ import {beforeEach, describe, expect, it, vi} from 'vitest';
 import type {AiPlugin, AiPluginContext, AiPluginInstance} from './ai-protocol';
 import {
     __resetAiHostForTest,
-    captureOperatorSeed,
     getAiHost,
     handleDataActivePath,
     mountReadyPlugins,
-    openOperatorWithSeed,
+    openPluginDialog,
 } from './ai.host';
 import {$aiPluginDialogOpen, $aiReady} from './ai.store';
 
@@ -110,57 +109,13 @@ describe('Content Operator context', () => {
         expect(operator.received).toEqual(['/title']);
     });
 
-    it('seeds the dialog with the field focused at capture time on open', () => {
+    it('does not preset context when the dialog opens after a field was focused while closed', () => {
         const operator = mountOperator();
+        $aiPluginDialogOpen.setKey('ai.contentOperator', false);
 
-        // Focus while closed: remembered, not sent.
         handleDataActivePath('.title');
-        expect(operator.received).toEqual([]);
-
-        captureOperatorSeed();
-        openOperatorWithSeed();
-
-        expect(operator.received).toEqual(['/title']);
-    });
-
-    it('does not seed when no field is focused at capture time', () => {
-        const operator = mountOperator();
-
-        // Focus then blur to a neutral element: live field cleared.
-        handleDataActivePath('.title');
-        handleDataActivePath(undefined);
-
-        captureOperatorSeed();
-        openOperatorWithSeed();
+        openPluginDialog('ai.contentOperator');
 
         expect(operator.received).toEqual([]);
-    });
-
-    it('seeds the most recently focused field, not a stale one', () => {
-        const operator = mountOperator();
-
-        handleDataActivePath('.title');
-        handleDataActivePath('.body');
-
-        captureOperatorSeed();
-        openOperatorWithSeed();
-
-        expect(operator.received).toEqual(['/body']);
-    });
-
-    it('clears the pending seed after opening, so a later open does not re-seed', () => {
-        const operator = mountOperator();
-
-        handleDataActivePath('.title');
-        captureOperatorSeed();
-        openOperatorWithSeed();
-        expect(operator.received).toEqual(['/title']);
-
-        // No new capture: blur the field, then open again.
-        handleDataActivePath(undefined);
-        captureOperatorSeed();
-        openOperatorWithSeed();
-
-        expect(operator.received).toEqual(['/title']);
     });
 });

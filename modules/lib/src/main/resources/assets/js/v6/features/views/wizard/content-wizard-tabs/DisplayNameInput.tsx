@@ -13,6 +13,7 @@ import {
     type ReactElement,
 } from 'react';
 import {
+    $aiPluginDialogOpen,
     $aiTopicError,
     $aiTopicHighlight,
     $aiTopicProcessing,
@@ -33,6 +34,10 @@ import {$validationVisibility} from '../../../store/wizardValidation.store';
 const DISPLAY_NAME_INPUT_NAME = 'DisplayNameInput';
 
 function setAIContext(): void {
+    // Gate like data fields: send the topic only while the dialog is open.
+    if (!$aiPluginDialogOpen.get()['ai.contentOperator']) {
+        return;
+    }
     sendPluginContext('ai.contentOperator', AI_TOPIC_PATH);
 }
 
