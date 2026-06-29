@@ -1,6 +1,6 @@
 [versions]
 
-junit = "6.0.3"
+junit = "6.1.1"
 mockito = "5.23.0"
 assertj = "3.27.7"
 enonicDefaults = "2.1.7"
@@ -17,7 +17,7 @@ libRouter = "4.0.0"
 libStatic = "3.0.0"
 
 # Rest
-jacksonJrObjects = "2.21.3"
+jacksonJrObjects = "2.22.0"
 
 [libraries]
 
