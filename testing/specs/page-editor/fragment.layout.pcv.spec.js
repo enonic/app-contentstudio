@@ -10,6 +10,7 @@ const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.
 const appConst = require('../../libs/app_const');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const LayoutInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/layout.inspection.panel');
+const FragmentInspectionPanel = require("../../page_objects/wizardpanel/liveform/inspection/fragment.inspection.panel");
 
 describe('fragment.layout.pcv.spec - Select a layout in fragment and verify regions', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -26,6 +27,7 @@ describe('fragment.layout.pcv.spec - Select a layout in fragment and verify regi
         async () => {
 
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
+            let fragmentInspectionPanel = new FragmentInspectionPanel();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
@@ -43,8 +45,8 @@ describe('fragment.layout.pcv.spec - Select a layout in fragment and verify regi
             await pageComponentView.rightClickAndOpenContextMenu('Layout');
             // 4. Save the empty layout-component as fragment:
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
-            //TODO bug
-            //await contentWizard.waitForNotificationMessage();
+            await fragmentInspectionPanel.waitForOpened();
+            await fragmentInspectionPanel.clickOnEditFragmentButton();
             // 5. Switch to the new wizard and select the '3-col' layout:
             await studioUtils.doSwitchToNewWizard();
             await pageComponentsWizardStepForm.clickOnComponent('Layout');

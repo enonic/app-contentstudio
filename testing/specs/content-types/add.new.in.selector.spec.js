@@ -1,5 +1,5 @@
 /**
- * Created on 11.01.2023
+ * Created on 11.01.2023  updated on 26.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -58,7 +58,6 @@ describe('add.new.in.selector.spec ui-tests for adding a new content directly fr
             // 3. Verify that 'Add new' button gets visible again:
             await shortcutForm.waitForAddNewContentButtonDisplayed();
         });
-
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());

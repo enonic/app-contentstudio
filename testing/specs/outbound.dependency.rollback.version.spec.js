@@ -59,7 +59,7 @@ describe('Check Outbound dependencies after rollback a version of content with i
             // 2. Open Dependency Widget
             await openWizardDependencyWidget();
             // 3. Click on Show Outbound button:
-            await wizardDependenciesWidget.clickOnShowOutboundButton();
+            await wizardDependenciesWidget.clickOnShowAllOutgoingButton();
             // 4. Revert the version with single selected image:
             await rollbackVersion();
             await studioUtils.doSwitchToNextTab();
@@ -79,7 +79,7 @@ describe('Check Outbound dependencies after rollback a version of content with i
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
             // 2. Open Version widget
             await wizardContextPanel.openVersionHistory();
-            await wizardVersionsWidget.waitForVersionsLoaded();
+            await wizardVersionsWidget.waitForLoaded();
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED,1);
             // 3. revert the version with 2 selected image:
             await wizardVersionsWidget.clickOnRestoreButton();

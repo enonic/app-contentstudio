@@ -219,7 +219,7 @@ describe('Move Fragment specification', function () {
             await pageComponentsWizardStepForm.rightClickAndOpenContextMenu('Fragment');
             await studioUtils.saveScreenshot('removed_fragment_context_menu');
             await pageComponentsWizardStepForm.waitForContextMenuItemDisabled(appConst.COMPONENT_VIEW_MENU_ITEMS.EDIT);
-            await pageComponentsWizardStepForm.waitForContextMenuItemDisabled(appConst.COMPONENT_VIEW_MENU_ITEMS.CUSTOMIZE);
+            await pageComponentsWizardStepForm.waitForContextMenuItemDisabled(appConst.COMPONENT_VIEW_MENU_ITEMS.DETACH_FROM_FRAGMENT);
             // Verify - These menu items should be enabled: Remove, Duplicate, Reset, Inspect, Insert, Select Parent
             await pageComponentsWizardStepForm.waitForContextMenuItemEnabled(appConst.COMPONENT_VIEW_MENU_ITEMS.REMOVE);
             await pageComponentsWizardStepForm.waitForContextMenuItemEnabled(appConst.COMPONENT_VIEW_MENU_ITEMS.DUPLICATE);

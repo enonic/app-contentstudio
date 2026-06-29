@@ -21,7 +21,6 @@ const ContentPublishDialog = require('../../page_objects/content.publish.dialog'
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 
-// TODO remove skip
 describe('Generate name for fragments specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
@@ -61,7 +60,7 @@ describe('Generate name for fragments specification', function () {
             await contentWizard.clickOnCollapseContentForm();
             // 2. Insert new text-component
             await pageComponentView.rightClickAndOpenContextMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentCke.switchToLiveEditFrame();
             // 3. Open 'Insert Image' dialog and insert an image in htmlArea:
             await textComponentCke.clickOnInsertImageButton();
@@ -107,8 +106,8 @@ describe('Generate name for fragments specification', function () {
             // 3. Open Dependency widget in the Browse Panel:
             await studioUtils.openDependencyWidgetInBrowsePanel();
             let browseDependenciesWidget = new BrowseDependenciesWidget();
-            // 4. Click on 'Show Inbound' button:
-            await browseDependenciesWidget.clickOnShowInboundButton();
+            // 4. Click on 'Show all incoming' button:
+            await browseDependenciesWidget.clickOnShowAllIncomingButton();
             await studioUtils.doSwitchToNextTab();
             // 'Dependencies Section' should be present, in the filter panel
             await contentFilterPanel.waitForDependenciesSectionVisible();
@@ -159,7 +158,7 @@ describe('Generate name for fragments specification', function () {
             let result = await pageComponentView.getFragmentsDisplayName();
             assert.equal(result.length, 0, 'Fragment should not be present in Page Component View');
             // 7. 'Show outbound' button should disappear in the widget, because the fragment was removed in Page Component View
-            await wizardDependenciesWidget.waitForOutboundButtonNotVisible();
+            await wizardDependenciesWidget.waitForAllOutgoingButtonNotVisible();
             // 8. 'No outgoing dependencies' message should be displayed:
             await wizardDependenciesWidget.waitForNoOutgoingDependenciesMessage();
         });

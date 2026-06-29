@@ -6,8 +6,8 @@ const appConst = require('../../../libs/app_const');
 
 const xpath = {
     widget: `//div[contains(@id,'ContentWizardPanel')]//div[@data-component='DependenciesWidget']`,
-    showOutboundButton: `//button/span[contains(.,'Show Outbound')]`,
-    showInboundButton: `//button/span[contains(.,'Show Inbound')]`
+    showAllOutgoingButton: `//button[contains(@aria-label,'Show all outgoing')]`,
+    showAllIncomingButton: `//button[contains(@aria-label,'Show all incoming')]`,
 };
 
 class WizardDependenciesWidget extends BaseDependenciesWidget {
@@ -16,12 +16,12 @@ class WizardDependenciesWidget extends BaseDependenciesWidget {
         return xpath.widget;
     }
 
-    get showOutboundButton() {
-        return xpath.widget + xpath.showOutboundButton;
+    get showAllOutgoingButton() {
+        return xpath.widget + xpath.showAllOutgoingButton;
     }
 
-    get showInboundButton() {
-        return xpath.widget + xpath.showInboundButton;
+    get showAllIncomingButton() {
+        return xpath.widget + xpath.showAllIncomingButton;
     }
 
     isWidgetVisible() {

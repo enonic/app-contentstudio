@@ -172,7 +172,6 @@ class BaseDropdown extends Page {
         return await this.getTextInDisplayedElements(locator);
     }
 
-    // epic-enonic-ui
     async clickOnOptionByDisplayName(optionDisplayName) {
         try {
             let optionLocator = DROPDOWN.optionByDisplayName(optionDisplayName);
