@@ -42,6 +42,7 @@ import {
     setContentFormExpanded,
     toggleContentFormExpanded,
     setPersistedContent,
+    setMixinsDescriptors,
     notifyContentFormMounted,
     notifyMixinMounted,
 } from './wizardContent.store';
@@ -85,6 +86,7 @@ function createContent({
     page = null,
     workflowState = WorkflowState.IN_PROGRESS,
     contentType = ContentTypeName.UNSTRUCTURED,
+    touched = false,
 }: {
     displayName?: string;
     data?: PropertyTree;
@@ -92,6 +94,7 @@ function createContent({
     page?: Page | null;
     workflowState?: WorkflowState;
     contentType?: ContentTypeName;
+    touched?: boolean;
 } = {}): Content {
     const workflow = Workflow.create().setState(workflowState).build();
     const builder = new ContentBuilder();
@@ -102,6 +105,9 @@ function createContent({
     builder.setPage(page);
     builder.setMixins(mixins);
     builder.setWorkflow(workflow);
+
+    builder.createdTime = new Date(1_000);
+    builder.modifiedTime = touched ? new Date(2_000) : new Date(1_000);
 
     return builder.build();
 }
@@ -586,7 +592,7 @@ describe('wizardContent.store', () => {
         expect($wizardHasChanges.get()).toBe(true);
     });
 
-    it('seeds defaults into the draft of an already-attached mandatory mixin and marks it dirty', () => {
+    it('seeds defaults into an already-attached mandatory mixin and baselines them on untouched content', () => {
         const descriptor = createMixinDescriptorWithForm('app:seo', false, checkboxForm('agree'));
         const presentEmptyMixin = new Mixin(new MixinName('app:seo'), new PropertyTree());
 
@@ -595,13 +601,31 @@ describe('wizardContent.store', () => {
         const draftMixin = $wizardDraftMixins.get().find((m) => m.getName().toString() === 'app:seo');
         expect(draftMixin?.getData().getRoot().getPropertyArray('agree')?.get(0)?.getValue().getBoolean()).toBe(true);
 
-        // Persisted baseline stays empty, so the content is dirty until saved.
+        const persistedMixin = $wizardPersistedMixins.get().find((m) => m.getName().toString() === 'app:seo');
+        expect(persistedMixin?.getData().getRoot().getPropertyArray('agree')?.get(0)?.getValue().getBoolean()).toBe(true);
+        expect($wizardSectionChanges.get().mixins).toBe(false);
+    });
+
+    it('seeds defaults into an already-attached mandatory mixin and marks touched content dirty', () => {
+        const descriptor = createMixinDescriptorWithForm('app:seo', false, checkboxForm('agree'));
+        const presentEmptyMixin = new Mixin(new MixinName('app:seo'), new PropertyTree());
+
+        initializeWizardContentState(
+            createContent({mixins: [presentEmptyMixin], touched: true}),
+            null,
+            [descriptor],
+            WorkflowState.IN_PROGRESS,
+        );
+
+        const draftMixin = $wizardDraftMixins.get().find((m) => m.getName().toString() === 'app:seo');
+        expect(draftMixin?.getData().getRoot().getPropertyArray('agree')?.get(0)?.getValue().getBoolean()).toBe(true);
+
         const persistedMixin = $wizardPersistedMixins.get().find((m) => m.getName().toString() === 'app:seo');
         expect(persistedMixin?.getData().getRoot().getPropertyArray('agree')).toBeUndefined();
         expect($wizardSectionChanges.get().mixins).toBe(true);
     });
 
-    it('seeds a mandatory mixin missing from the content into the draft only', () => {
+    it('seeds a mandatory mixin missing from untouched content into both draft and baseline', () => {
         const descriptor = createMixinDescriptorWithForm('app:seo', false, checkboxForm('agree'));
 
         initializeWizardContentState(createContent(), null, [descriptor], WorkflowState.IN_PROGRESS);
@@ -609,8 +633,8 @@ describe('wizardContent.store', () => {
         const draftMixin = $wizardDraftMixins.get().find((m) => m.getName().toString() === 'app:seo');
         expect(draftMixin?.getData().getRoot().getPropertyArray('agree')?.get(0)?.getValue().getBoolean()).toBe(true);
 
-        expect($wizardPersistedMixins.get().some((m) => m.getName().toString() === 'app:seo')).toBe(false);
-        expect($wizardSectionChanges.get().mixins).toBe(true);
+        expect($wizardPersistedMixins.get().some((m) => m.getName().toString() === 'app:seo')).toBe(true);
+        expect($wizardSectionChanges.get().mixins).toBe(false);
     });
 
     it('marks mixins as changed when mixin PropertyTree is mutated in-place', () => {
@@ -819,20 +843,20 @@ describe('wizardContent.store', () => {
             expect($wizardHasChanges.get()).toBe(true);
         });
 
-        it('should keep a seeded mandatory mixin missing from the content dirty after the tab mounts', async () => {
+        it('should treat a seeded mandatory mixin on untouched content as the clean baseline', async () => {
             const descriptor = createMixinDescriptorWithForm('app:seo', false, checkboxForm('agree'));
             initializeWizardContentState(createContent(), null, [descriptor], WorkflowState.IN_PROGRESS);
 
-            expect($wizardSectionChanges.get().mixins).toBe(true);
+            expect($wizardSectionChanges.get().mixins).toBe(false);
 
             notifyMixinMounted('app:seo');
             await vi.advanceTimersByTimeAsync(0);
 
-            expect($wizardSectionChanges.get().mixins).toBe(true);
-            expect($wizardHasChanges.get()).toBe(true);
+            expect($wizardSectionChanges.get().mixins).toBe(false);
+            expect($wizardHasChanges.get()).toBe(false);
         });
 
-        it('should keep a seeded already-attached mandatory mixin dirty after the tab mounts', async () => {
+        it('should treat a seeded already-attached mandatory mixin on untouched content as clean', async () => {
             const descriptor = createMixinDescriptorWithForm('app:seo', false, checkboxForm('agree'));
             const presentEmptyMixin = new Mixin(new MixinName('app:seo'), new PropertyTree());
             initializeWizardContentState(
@@ -841,6 +865,56 @@ describe('wizardContent.store', () => {
                 [descriptor],
                 WorkflowState.IN_PROGRESS,
             );
+
+            expect($wizardSectionChanges.get().mixins).toBe(false);
+
+            notifyMixinMounted('app:seo');
+            await vi.advanceTimersByTimeAsync(0);
+
+            expect($wizardSectionChanges.get().mixins).toBe(false);
+            expect($wizardHasChanges.get()).toBe(false);
+        });
+
+        it('should treat a late-seeded mixin on untouched content as clean', async () => {
+            const descriptor = createMixinDescriptorWithForm('app:seo', false, checkboxForm('agree'));
+            const presentEmptyMixin = new Mixin(new MixinName('app:seo'), new PropertyTree());
+
+            // The real wizard initialises with no descriptors (loaded asynchronously),
+            // so the rendered-snapshot baseline is armed while the empty mixin is clean.
+            initializeWizardContentState(
+                createContent({mixins: [presentEmptyMixin]}),
+                null,
+                [],
+                WorkflowState.IN_PROGRESS,
+            );
+
+            expect($wizardSectionChanges.get().mixins).toBe(false);
+
+            setMixinsDescriptors([descriptor]);
+
+            expect($wizardSectionChanges.get().mixins).toBe(false);
+
+            notifyMixinMounted('app:seo');
+            await vi.advanceTimersByTimeAsync(0);
+
+            expect($wizardSectionChanges.get().mixins).toBe(false);
+            expect($wizardHasChanges.get()).toBe(false);
+        });
+
+        it('should keep a late-seeded mixin dirty on already-saved (touched) content', async () => {
+            const descriptor = createMixinDescriptorWithForm('app:seo', false, checkboxForm('agree'));
+            const presentEmptyMixin = new Mixin(new MixinName('app:seo'), new PropertyTree());
+
+            initializeWizardContentState(
+                createContent({mixins: [presentEmptyMixin], touched: true}),
+                null,
+                [],
+                WorkflowState.IN_PROGRESS,
+            );
+
+            expect($wizardSectionChanges.get().mixins).toBe(false);
+
+            setMixinsDescriptors([descriptor]);
 
             expect($wizardSectionChanges.get().mixins).toBe(true);
 
