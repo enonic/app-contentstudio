@@ -1,5 +1,5 @@
 /**
- * Created on 26.11.2018.
+ * Created on 26.11.2018.  updated on 26.06.2026
  */
 const assert = require('assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -22,12 +22,7 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
     let IMAGE_DISPLAY_NAME = 'Pop_03';
     let CONTENT_NAME = contentBuilder.generateRandomName('htmlarea');
 
-    it(`Preconditions: new site should be added`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
 
     it(`GIVEN new 'htmlArea' content is opened WHEN image has been inserted in 'htmlarea' THEN the content should be updated`,
         async () => {
@@ -35,7 +30,7 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
             let contentWizard = new ContentWizard();
             let insertImageDialog = new InsertImageDialog();
             // 1. open new wizard with html-area
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, 'htmlarea0_1');
             await contentWizard.typeDisplayName(CONTENT_NAME);
             await htmlAreaForm.pause(1500);
             // 2. Insert an image and save:
@@ -62,11 +57,11 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
             await contentWizard.openContextWindow();
             await wizardContextPanel.openDependenciesWidget();
             await studioUtils.saveScreenshot('htmlarea_with_image');
-            // 2. Verify that 'Show outbound' button gets visible in the widget, because an image was inserted in htmlarea
-            await wizardDependenciesWidget.waitForOutboundButtonVisible();
-            // 3. 'Show Inbound' should be not visible:
-            let isVisible = await wizardDependenciesWidget.isInboundButtonVisible();
-            assert.equal(isVisible, false, '`Show Inbound` button should not be visible');
+            // 2. Verify that 'Show all outgoing' button gets visible in the widget, because an image was inserted in htmlarea
+            await wizardDependenciesWidget.waitForAllOutgoingButtonVisible();
+            // 3. 'Show all incoming' should be not visible:
+            let isVisible = await wizardDependenciesWidget.isAllIncomingButtonVisible();
+            assert.equal(isVisible, false, '`Show incoming` button should not be visible');
         });
 
     // verifies https://github.com/enonic/xp/issues/6795 (Outbound Dependency is not cleared after removing an image in html area)
@@ -80,16 +75,16 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
             await studioUtils.selectContentAndOpenWizard(CONTENT_NAME);
             await contentWizard.openContextWindow();
             await wizardContextPanel.openDependenciesWidget();
-            // 2. Clear the html area:
+            // 2. Clear the html-area:
             await htmlAreaForm.clearHtmlArea(0);
             // 3. Save the changes!
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('htmlarea_image_removed');
-            // 4. Verify that 'Show outbound' button gets not visible in the widget, because the image was removed:
-            await wizardDependenciesWidget.waitForOutboundButtonNotVisible();
-            // 5. Show inbound button should be not visible as well:
-            let isVisible = await wizardDependenciesWidget.isInboundButtonVisible();
-            assert.equal(isVisible, false, '`Show Inbound` button should not be visible');
+            // 4. Verify that 'Show all outgoing' button gets not visible in the widget, because the image was removed:
+            await wizardDependenciesWidget.waitForAllOutgoingButtonNotVisible();
+            // 5. Show all incoming button should be not visible as well:
+            let isVisible = await wizardDependenciesWidget.isAllIncomingButtonVisible();
+            assert.equal(isVisible, false, '`Show all incoming` button should not be visible');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

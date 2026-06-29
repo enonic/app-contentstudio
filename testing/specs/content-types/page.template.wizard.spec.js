@@ -25,7 +25,7 @@ describe('page.template.wizard.spec tests for page template wizard', function ()
             let pageTemplateForm = new PageTemplateForm();
             let contentWizard = new ContentWizard();
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
             // 1. Open wizard for new page template
             await studioUtils.doOpenPageTemplateWizard(SITE.displayName);

@@ -17,6 +17,8 @@ const xpath = {
     parameterOccurrenceMenuButton: "//div[@data-component='ItemSetOccurrenceView']//button[@aria-label='More actions']",
     contextMenuItem: text => `//div[@data-component='ContextMenu.Content']//div[@data-component='ContextMenu.Item' and child::span[text()='${text}']]`,
     parametersOccurrenceHeader: "//div[@data-component='ItemSetOccurrenceView']//button[@aria-expanded]",
+    removeSelectedTargetIcon:"//div[@data-component='SelectorSelectionItem']//button[@aria-label='Remove']",
+    editSelectedTargetIcon:"//div[@data-component='SelectorSelectionItem']//button[@aria-label='Edit']"
 };
 
 class ShortcutForm extends Page {
@@ -176,10 +178,15 @@ class ShortcutForm extends Page {
        return await contentSelectorDropdown.getSelectedOptionsDisplayName();
     }
 
-    async clickOnRemoveTargetIcon(displayName) {
-        let contentSelectorDropdown  = new ContentSelectorDropdown(xpath.stepForm);
-        await contentSelectorDropdown.removeSelectedOption(displayName);
-        return await this.pause(200);
+    async clickOnRemoveTargetIcon() {
+        try {
+            let locator = xpath.stepForm + xpath.removeSelectedTargetIcon;
+            await this.waitForElementDisplayed(locator);
+            await this.clickOnElement(locator);
+            return await this.pause(200);
+        }catch (err) {
+            await this.handleError('Click on remove target icon', 'err_click_on_remove_target_icon', err);
+        }
     }
 
     async getFormValidationRecording() {

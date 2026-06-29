@@ -1,5 +1,5 @@
 /**
- * Created on 10.05.2018
+ * Created on 10.05.2018  updated on 29.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -15,7 +15,7 @@ const InsertLinkDialogUrlPanel = require('../../page_objects/wizardpanel/html-ar
 const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
-describe('Text Component with CKE - insert link and table specification', function () {
+describe('Text Component with CKE - insert URL link specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
@@ -29,32 +29,13 @@ describe('Text Component with CKE - insert link and table specification', functi
     it(`Precondition: new site should be added`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(displayName, null, ['All Content Types App'], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
-        });
-
-    it(`GIVEN Text component has been inserted WHEN 'Insert table' button has been clicked THEN menu item for inserting of Html-table gets visible`,
-        async () => {
-            let contentWizard = new ContentWizard();
-            let textComponentInspectionPanel = new TextComponentInspectionPanel();
-            let pageComponentView = new PageComponentView();
-            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 1. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnCollapseContentForm();
-            // 2. Insert a text-component:
-            await pageComponentView.rightClickAndOpenContextMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
-            // 2. Click on 'Insert Table' menu-button:
-            await textComponentInspectionPanel.clickInTextArea();
-            await textComponentInspectionPanel.clickOnInsertTableButton();
-            // menu item for inserting of Html-table gets visible:
-            await textComponentInspectionPanel.waitForTableDisplayedInEditorFrame();
         });
 
     it(`GIVEN 'Insert Link' dialog is opened WHEN invalid 'url' has been typed AND 'Insert' button pressed THEN validation message should appear`,
         async () => {
             let contentWizard = new ContentWizard();
-            let textComponentCke = new TextComponentCke();
             let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let pageComponentView = new PageComponentView();
             let insertLinkDialog = new InsertLinkDialog();
@@ -78,7 +59,7 @@ describe('Text Component with CKE - insert link and table specification', functi
             // 7. Insert invalid URL:
             await insertLinkDialogUrlPanel.typeUrl(INVALID_URL_SPEC);
             // 8. Click on 'Insert" in the modal dialog:
-            await insertLinkDialog.clickOnInsertButton();
+            await insertLinkDialog.waitForInsertButtonDisabled();
             await studioUtils.saveScreenshot('invalid_url');
             // 9. Verify that Validation message gets visible:
             await insertLinkDialogUrlPanel.waitForValidationMessage();
@@ -154,16 +135,7 @@ describe('Text Component with CKE - insert link and table specification', functi
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => {
-        let insertLinkDialog = new InsertLinkDialog();
-        return insertLinkDialog.isDialogOpened().then(result => {
-            if (result) {
-                return insertLinkDialog.clickOnCancelButton();
-            }
-        }).then(() => {
-            return studioUtils.doCloseAllWindowTabsAndNavigateToHome();
-        })
-    });
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

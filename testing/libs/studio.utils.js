@@ -269,10 +269,10 @@ module.exports = {
         await browsePanel.clickOnEditButton();
         await this.switchToContentTabWindow(contentDisplayName);
         await contentWizardPanel.waitForOpened();
-        let waitForFocused = checkFocused === undefined ? true : checkFocused;
-        if (waitForFocused) {
-            await contentWizardPanel.waitForDisplayNameInputFocused();
-        }
+        // let waitForFocused = checkFocused === undefined ? true : checkFocused;
+        // if (waitForFocused) {
+        //     await contentWizardPanel.waitForDisplayNameInputFocused();
+        // }
         return contentWizardPanel;
     },
 

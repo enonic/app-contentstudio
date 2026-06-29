@@ -1,5 +1,5 @@
 /**
- * Created on 23.11.2020.
+ * Created on 23.11.2020.  updated on 26.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -33,7 +33,7 @@ describe('image.selector.required.input.spec tests for validation of content wit
             await studioUtils.saveScreenshot('img_sel_toggle_hidden');
             // 2. Verify that the toggle icon is not displayed in the Image Selector
             await imageSelectorForm.waitForToggleIconNotDisplayed();
-            // 3. Insert a image-name in the filter input:
+            // 3. Insert an image-name in the filter input:
             await imageSelectorForm.typeTextInOptionsFilterInput(appConst.TEST_IMAGES.SPUMANS);
             // 4. Verify that the toggle icon is not displayed in the Image Selector, because the toggle icon is hidden in the config:
             await imageSelectorForm.waitForToggleIconNotDisplayed();

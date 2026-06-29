@@ -30,7 +30,7 @@ describe("text.component.image.outbound.spec: Inserts a text component with an i
             await studioUtils.doAddSite(SITE);
         });
 
-    it(`GIVEN text component with an image is inserted WHEN 'Show Outbound' button has been pressed THEN the image should be filtered in the new browser tab`,
+    it(`GIVEN text component with an image is inserted WHEN 'Show all outgoing' button has been pressed THEN the image should be filtered in the new browser tab`,
         async () => {
             let pageComponentView = new PageComponentView();
             let contentWizard = new ContentWizard();
@@ -57,8 +57,8 @@ describe("text.component.image.outbound.spec: Inserts a text component with an i
             await contentWizard.waitForNotificationMessage();
             // 5. Open dependencies widget
             let wizardDependenciesWidget = await studioUtils.openWizardDependencyWidget();
-            // 6. Click on 'Show Outbound' button:
-            await wizardDependenciesWidget.clickOnShowOutboundButton();
+            // 6. Click on 'Show all outgoing' button:
+            await wizardDependenciesWidget.clickOnShowAllOutgoingButton();
             await studioUtils.doSwitchToNextTab();
             // 7. 'Dependencies Section' should be present, in the filter panel'
             await contentFilterPanel.waitForDependenciesSectionVisible();
@@ -71,7 +71,7 @@ describe("text.component.image.outbound.spec: Inserts a text component with an i
             //assert.equal(result.length, 1, 'One content should be present in the grid');
         });
 
-    it(`GIVEN existing site with outbound dependency WHEN 'Show Outbound' button has been pressed THEN the dependencies section should load no later than 3 seconds`,
+    it(`GIVEN existing site with outbound dependency WHEN 'Show all outgoing' button has been pressed THEN the dependencies section should load no later than 3 seconds`,
         async () => {
             let contentFilterPanel = new ContentFilterPanel();
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -79,8 +79,8 @@ describe("text.component.image.outbound.spec: Inserts a text component with an i
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             //2. Open dependencies widget
             let wizardDependenciesWidget = await studioUtils.openWizardDependencyWidget();
-            //3. Click on 'Show Outbound' button:
-            await wizardDependenciesWidget.clickOnShowOutboundButton();
+            //3. Click on 'Show all outgoing' button:
+            await wizardDependenciesWidget.clickOnShowAllOutgoingButton();
             await studioUtils.doSwitchToNextTab();
             //4. Verify that 'Dependencies Section' should be loaded no later than 3 seconds:
             await contentFilterPanel.waitForDependenciesSectionVisible(appConst.shortTimeout);
