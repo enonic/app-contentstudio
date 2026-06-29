@@ -477,6 +477,13 @@ function mixinsEqual(a: Mixin[], b: Mixin[]): boolean {
     return true;
 }
 
+function isContentUntouched(content: Content): boolean {
+    const created = content.getCreatedTime()?.getTime();
+    const modified = content.getModifiedTime()?.getTime();
+
+    return created != null && modified != null && created === modified;
+}
+
 function buildPersistedSectionsSnapshot(content: Content): WizardPersistedSectionsSnapshot {
     return {
         displayName: content.getDisplayName() ?? '',
@@ -514,6 +521,8 @@ function applyPersistedSectionsSnapshot(snapshot: WizardPersistedSectionsSnapsho
 let contentDisarmTimer: ReturnType<typeof setTimeout> | null = null;
 const mixinDisarmTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
+let isPersistedContentUntouched = false;
+
 function armRenderedSnapshot(content: Content): void {
     if (contentDisarmTimer != null) {
         clearTimeout(contentDisarmTimer);
@@ -545,6 +554,7 @@ export function setWizardFormValidation(isValid: boolean): void {
 }
 
 export function setPersistedContent(content: Content): void {
+    isPersistedContentUntouched = isContentUntouched(content);
     applyPersistedSectionsSnapshot(buildPersistedSectionsSnapshot(content));
     $wizardDataValidation.set({});
 
@@ -583,6 +593,7 @@ export type ApplyServerContentResult = {
 };
 
 export function applyServerSidePersistedContent(content: Content): ApplyServerContentResult {
+    isPersistedContentUntouched = isContentUntouched(content);
     const snapshot = buildPersistedSectionsSnapshot(content);
 
     applyDisplayNameFromServer(snapshot.displayName);
@@ -854,15 +865,18 @@ function seedMixinDefaults(): void {
     const draftByName = new Map(draft.map((m) => [m.getName().toString(), m]));
 
     const draftAdditions: Mixin[] = [];
+    const seededNames: string[] = [];
 
     for (const descriptor of descriptors) {
         const name = descriptor.getName();
 
-        // Draft only — the persisted baseline must keep reflecting the server,
-        // so seeded defaults stay dirty until actually saved.
+        // Seed into the draft only. On already-saved content the persisted
+        // baseline keeps reflecting the server, so seeded defaults stay dirty;
+        // untouched content rebaselines them below.
         const draftMixin = draftByName.get(name);
         if (draftMixin) {
             seedMixinTree(draftMixin, descriptor);
+            seededNames.push(name);
         } else if (!descriptor.isOptional()) {
             draftAdditions.push(new Mixin(new MixinName(name), createSeededMixinTree(descriptor)));
         }
@@ -870,6 +884,62 @@ function seedMixinDefaults(): void {
 
     if (draftAdditions.length > 0) {
         $wizardDraftMixins.set([...draft, ...draftAdditions]);
+    }
+
+    if (isPersistedContentUntouched) {
+        baselineMixinsFromDraft();
+        return;
+    }
+
+    disarmSeededMixinSnapshots(seededNames);
+}
+
+function baselineMixinsFromDraft(): void {
+    const draftMixins = $wizardDraftMixins.get();
+
+    $wizardPersistedMixins.set(cloneMixins(draftMixins));
+    bumpMixinsVersion();
+
+    const pending = new Set($mixinsPendingMount.get());
+    for (const mixin of draftMixins) {
+        pending.add(mixin.getName().toString());
+    }
+    $mixinsPendingMount.set(pending);
+}
+
+// Descriptors load asynchronously, so seeding often runs after the rendered
+// snapshot was armed against a still-empty mixin. A seeded default that makes
+// the draft diverge from the server is a genuine unsaved change; release it
+// from the pending-mount baseline so the tab mount does not swallow it.
+function disarmSeededMixinSnapshots(names: string[]): void {
+    const pending = $mixinsPendingMount.get();
+    const needing = $mixinsNeedingSnapshot.get();
+    let nextPending = pending;
+    let nextNeeding = needing;
+
+    for (const name of names) {
+        if (!isMixinDirtyByName(name)) {
+            continue;
+        }
+        if (nextPending.has(name)) {
+            if (nextPending === pending) {
+                nextPending = new Set(pending);
+            }
+            nextPending.delete(name);
+        }
+        if (nextNeeding.has(name)) {
+            if (nextNeeding === needing) {
+                nextNeeding = new Set(needing);
+            }
+            nextNeeding.delete(name);
+        }
+    }
+
+    if (nextPending !== pending) {
+        $mixinsPendingMount.set(nextPending);
+    }
+    if (nextNeeding !== needing) {
+        $mixinsNeedingSnapshot.set(nextNeeding);
     }
 }
 
@@ -1244,6 +1314,7 @@ export function resetWizardContent(): void {
     $wizardMixinsVersion.set(0);
     $mixinsPendingMount.set(new Set());
     $mixinsNeedingSnapshot.set(new Set());
+    isPersistedContentUntouched = false;
 
     $wizardPersistedPage.set(null);
     $wizardDraftPage.set(null);
