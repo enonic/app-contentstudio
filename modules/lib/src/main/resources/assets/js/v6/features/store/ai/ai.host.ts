@@ -24,12 +24,6 @@ type Registration = {
 const registry = new Map<AiPluginId, Registration>();
 let isInitialized = false;
 
-// Live context path of the focused data field, or null when none is focused.
-let activeDataContext: string | null = null;
-
-// Captured at toggle pointer-down, before the click blurs the focused field.
-let pendingOperatorSeed: string | null = null;
-
 function isKnownId(id: string): id is AiPluginId {
     return (KNOWN_IDS as readonly string[]).includes(id);
 }
@@ -175,38 +169,21 @@ export function sendPluginContext(id: AiPluginId, context: string | null): void 
 //
 // * Content Operator context bridge
 //
-// Focused field is pushed as context only while the dialog is open; while
-// closed it is remembered as a seed for the next open.
+// The focused field becomes context only while the dialog is open — opening it
+// never presets a field.
 
-// Records the focused data field and, while the operator dialog is open, pushes
-// it as context. Blur (undefined) clears the live field but sends nothing — the
-// plugin keeps its last context until another field is focused.
+// Blur (undefined) sends nothing, so the plugin keeps its last context until
+// another field is focused.
 export function handleDataActivePath(activePath: string | undefined): void {
-    if (activePath == null) {
-        activeDataContext = null;
+    if (activePath == null || !$aiPluginDialogOpen.get()['ai.contentOperator']) {
         return;
     }
     // Drop the leading dot: ".itemSet[1].field" -> "itemSet[1].field".
     const field = activePath.startsWith('.') ? activePath.slice(1) : activePath;
     const context = field.length > 0 ? toPluginContextPath({kind: 'data', field}) : null;
-    activeDataContext = context;
-    if (context != null && $aiPluginDialogOpen.get()['ai.contentOperator']) {
+    if (context != null) {
         sendPluginContext('ai.contentOperator', context);
     }
-}
-
-// Snapshots the live focused field as the seed for the next operator open. Call
-// from the toolbar toggle's pointer-down, before the click blurs the field.
-export function captureOperatorSeed(): void {
-    pendingOperatorSeed = activeDataContext;
-}
-
-export function openOperatorWithSeed(): void {
-    openPluginDialog('ai.contentOperator');
-    if (pendingOperatorSeed != null) {
-        sendPluginContext('ai.contentOperator', pendingOperatorSeed);
-    }
-    pendingOperatorSeed = null;
 }
 
 //
@@ -265,13 +242,7 @@ export function initAiHost(): void {
         }
     });
 
-    $aiContent.subscribe(() => {
-        // New content remounts the form; drop remembered focus and seed so the
-        // next open starts clean.
-        activeDataContext = null;
-        pendingOperatorSeed = null;
-        fanOutContent();
-    });
+    $aiContent.subscribe(() => fanOutContent());
     $aiContentType.subscribe(() => fanOutSchema());
     $aiContentLanguage.subscribe(() => fanOutLanguage());
     $aiInstructions.subscribe(() => fanOutConfig());
@@ -287,6 +258,4 @@ export function __resetAiHostForTest(): void {
     $aiRegisteredPlugins.setKey('ai.contentOperator', false);
     $aiPluginDialogOpen.setKey('ai.translator', false);
     $aiPluginDialogOpen.setKey('ai.contentOperator', false);
-    activeDataContext = null;
-    pendingOperatorSeed = null;
 }
