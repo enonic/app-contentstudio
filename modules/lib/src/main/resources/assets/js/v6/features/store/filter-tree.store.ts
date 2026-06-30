@@ -246,12 +246,16 @@ function addContentToFilterTree(content: ContentSummary): void {
 
 $contentCreated.subscribe((event) => {
     if (!event?.data) return;
-    for (const content of event.data) addContentToFilterTree(content);
+    for (const content of event.data) {
+        addContentToFilterTree(content);
+    }
 });
 
 $contentDuplicated.subscribe((event) => {
     if (!event?.data) return;
-    for (const content of event.data) addContentToFilterTree(content);
+    for (const content of event.data) {
+        addContentToFilterTree(content);
+    }
 });
 
 //
