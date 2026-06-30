@@ -181,12 +181,6 @@ export const getVersionConfig = (version: ContentVersion): VersionOperationConfi
     return type ? VERSION_OPERATION_MATRIX[type] : undefined;
 };
 
-export const isVersionRevertable = (version: ContentVersion): boolean =>
-    getVersionConfig(version)?.restorable ?? false;
-
-export const isVersionComparable = (version: ContentVersion): boolean =>
-    getVersionConfig(version)?.comparable ?? false;
-
 // Publish with no editorial ref becomes its own badge target (see
 // `$allPublishBadges`) and must stay visible in default mode.
 const isStandalonePublishBadgeTarget = (version: ContentVersion): boolean => {
@@ -194,6 +188,12 @@ const isStandalonePublishBadgeTarget = (version: ContentVersion): boolean => {
     const publishAction = version.getActions().find(a => a.getOperation() === ContentOperation.PUBLISH);
     return publishAction != null && publishAction.getEditorial() == null;
 };
+
+export const isVersionRevertable = (version: ContentVersion): boolean =>
+    (getVersionConfig(version)?.restorable ?? false) || isStandalonePublishBadgeTarget(version);
+
+export const isVersionComparable = (version: ContentVersion): boolean =>
+    (getVersionConfig(version)?.comparable ?? false) || isStandalonePublishBadgeTarget(version);
 
 export const isStandardModeVersion = (version: ContentVersion): boolean =>
     (getVersionConfig(version)?.standardMode ?? false) || isStandalonePublishBadgeTarget(version);
