@@ -1,5 +1,5 @@
 /**
- * Created on 21.01.2019.
+ * Created on 21.01.2019.  updated on 30.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -9,7 +9,7 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 const appConst = require('../../libs/app_const');
 
-describe('publish.dialog.site.with.children.spec - Select a site with not valid child and try to publish it', function () {
+describe('publish.dialog.site.with.child.items.spec - Select a site with invalid child and try to publish it', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
@@ -23,7 +23,7 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
             await studioUtils.doAddSite(SITE);
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.clickOnMarkAsReadyButton();
@@ -46,6 +46,7 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             await contentPublishDialog.waitForDialogOpened();
             // 2. Click on 'Include children' button
             await contentPublishDialog.clickOnIncludeChildrenCheckbox();
+            await contentPublishDialog.clickOnApplyButton();
             // 3. Verify that 'All' checkbox is displayed and enabled:
             await contentPublishDialog.waitForAllDependantsCheckboxDisplayed();
             await contentPublishDialog.waitForAllDependantsCheckboxEnabled();
@@ -65,10 +66,11 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             await contentPublishDialog.waitForDialogOpened();
             // 2. Click on 'Include children' button
             await contentPublishDialog.clickOnIncludeChildrenCheckbox();
+            await contentPublishDialog.clickOnApplyButton();
             // 3. Unselect the checkbox for 'unnamed' (invalid) folder:
-            await contentPublishDialog.clickOnCheckboxInDependentItem('_unnamed_');
+            await contentPublishDialog.clickOnCheckboxInDependentItem(appConst.UNNAMED_CONTENT_DISPLAY_NAME);
             // 4. Apply the selection:
-            await contentPublishDialog.clickOnApplySelectionButton();
+            await contentPublishDialog.clickOnApplyButton();
             // 5. Verify that 'Exclude invalid items' button gets not visible:
             await contentPublishDialog.waitForExcludeInvalidItemsButtonNotDisplayed();
             // 6. Verify that 'Publish Now' button is enabled in the dialog, because of the valid child item has been excluded:
@@ -89,6 +91,7 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             await contentPublishDialog.waitForDialogOpened();
             // 2. Click on Include children button
             await contentPublishDialog.clickOnIncludeChildrenCheckbox();
+            await contentPublishDialog.clickOnApplyButton();
             let depItems = await contentPublishDialog.getDisplayNameInDependentItems();
             assert.equal(depItems.length, 2, 'Two dependent items should be displayed');
             // 3. Click on 'Exclude invalid' items button:
@@ -96,7 +99,7 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             // 4. Verify that 'Exclude invalid items' button gets not visible:
             await contentPublishDialog.waitForExcludeInvalidItemsButtonNotDisplayed();
             depItems = await contentPublishDialog.getDisplayNameInDependentItems();
-            depItems[0].includes('_unnamed_') ? assert.ok(true,'One invalid unnamed item should be present in the block') : assert.fail('Invalid item is not displayed in the dependant block');
+            depItems[0].includes(appConst.UNNAMED_CONTENT_DISPLAY_NAME) ? assert.ok(true, 'One invalid unnamed item should be present in the block') : assert.fail('Invalid item is not displayed in the dependant block');
             assert.equal(depItems.length, 2, '2 dependent items should be present in the block');
             // 5. 'Hide excluded' button gets visible:
             await contentPublishDialog.waitForHideExcludedItemsButtonDisplayed();
@@ -120,6 +123,7 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             await contentPublishDialog.waitForDialogOpened();
             // 2. Click on 'Include children' button
             await contentPublishDialog.clickOnIncludeChildrenCheckbox();
+            await contentPublishDialog.clickOnApplyButton();
             let depItems = await contentPublishDialog.getDisplayNameInDependentItems();
             assert.equal(depItems.length, 3, 'Three dependent items should be displayed');
             await studioUtils.saveScreenshot('include_children_clicked');
@@ -152,6 +156,7 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             await contentPublishDialog.waitForDialogOpened();
             // 2. Click on 'Include children' checkbox
             await contentPublishDialog.clickOnIncludeChildrenCheckbox();
+            await contentPublishDialog.clickOnApplyButton();
             // 3. Click on 'Exclude invalid items':
             await contentPublishDialog.clickOnExcludeInvalidItemsButton();
             // 4. Exclude all 'work in progress' items:
@@ -169,7 +174,7 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             // 9. Excluded items should be displayed now:
             depItems = await contentPublishDialog.getDisplayNameInDependentItems();
             assert.equal(depItems.length, 3, '3 dependent items should be displayed');
-            assert.ok(depItems[0].includes('_unnamed_'), 'Expected invalid item(unnamed) should be displayed in the dependant list');
+            assert.ok(depItems[0].includes(appConst.UNNAMED_CONTENT_DISPLAY_NAME), 'Expected invalid item(unnamed) should be displayed in the dependant list');
             assert.ok(depItems[2].includes('_templates'), 'Expected item-name should be displayed in the dependant list');
         });
 

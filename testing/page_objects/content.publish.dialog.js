@@ -1,6 +1,5 @@
 const Page = require('./page');
 const appConst = require('../libs/app_const');
-const lib = require('../libs/elements-old');
 const {BUTTONS, DIALOG_ITEMS, COMMON, LIVE_VIEW, WIZARD} = require('../libs/elements');
 const DateTimeRange = require('../page_objects/components/datetime.range');
 const DependantsControls = require('./issue/dependant.controls');
@@ -20,10 +19,11 @@ const XPATH = {
     publishItemList: "//ul[contains(@id,'PublishDialogItemList')]",
     changeLogInput: "//input[contains(@id,'AutosizeTextInput')]",
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
-    readyForPublishingText: "//span[contains(@class,'entry-text') and text()='Content is ready for publishing']",
+    readyForPublishingText: "//div[@data-component='StatusBarEntry']//span[text()='Content is ready for publishing']",
     mainItemDivByName: name => DIALOG_ITEMS.PRIMARY_DATA_COMPONENT + DIALOG_ITEMS.mainItemRowByName(name),
-    inProgressStateEntryDiv: "//div[contains(@data-component,'SelectionStatusBar') and descendant::span[contains(.,'In progress')]]",
-    invalidStateEntryDiv: "//div[contains(@id,'DialogStateEntry') and descendant::span[contains(@class,'icon-state-invalid')]]",
+    selectionStatusBar: "//div[@data-component='SelectionStatusBar']",
+    inProgressStateEntryDiv: "//div[@data-component='SelectionStatusBar']//div[@data-component='StatusBarErrorEntry' and descendant::*[@data-component='StatusIcon' and @aria-label='in-progress']]",
+    invalidStateEntryDiv: "//div[@data-component='SelectionStatusBar']//div[@data-component='StatusBarErrorEntry' and descendant::*[@data-component='StatusIcon' and @aria-label='invalid']]",
     inProgressSpan: "//span[contains(@class,'entry-text') and text()='In progress']",
     dependentItemToPublish: displayName => `//div[contains(@id,'StatusCheckableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     excludedItemsNote: "//span[@class='excluded-items-note']",
@@ -37,10 +37,6 @@ class ContentPublishDialog extends Page {
         this.dependantsControls = new DependantsControls(XPATH.container);
     }
 
-    get applySelectionButton() {
-        return XPATH.container + lib.DEPENDANTS.EDIT_ENTRY + lib.actionButton('Apply');
-    }
-
     get cancelSelectionButton() {
         return XPATH.container + lib.DEPENDANTS.EDIT_ENTRY + lib.actionButton('Cancel');
     }
@@ -49,9 +45,6 @@ class ContentPublishDialog extends Page {
         return XPATH.container + BUTTONS.buttonAriaLabel('Close');
     }
 
-    get dependantsBlock() {
-        return XPATH.container + lib.DEPENDANTS.DEPENDANTS_BLOCK
-    }
 
     get changeLogInput() {
         return XPATH.container + XPATH.changeLogInput;
@@ -95,7 +88,7 @@ class ContentPublishDialog extends Page {
 
     // Invalid item(s) Exclude button:
     get excludeInvalidItemsButton() {
-        return XPATH.container + XPATH.inProgressStateEntryDiv + "//button[@data-component='StatusBarErrorEntry' and contains(.,'Invalid items')]]";
+        return XPATH.container + XPATH.invalidStateEntryDiv + "//button[@data-component='StatusBarEntryButton' and text()='Exclude']";
     }
 
     // In progress() Exclude button:
@@ -120,9 +113,13 @@ class ContentPublishDialog extends Page {
     }
 
     async clickOnApplyButton(){
-        await this.waitForElementDisplayed(this.applyButton, appConst.mediumTimeout);
-        await this.clickOnElement(this.applyButton);
-        await this.pause(1000);
+        try {
+            await this.waitForElementDisplayed(this.applyButton);
+            await this.clickOnElement(this.applyButton);
+            await this.pause(1000);
+        }catch (err) {
+            await this.handleError(`Publish Dialog, click on 'Apply' button `, 'err_apply_button', err);
+        }
     }
 
     async clickOnLogMessageLink() {
@@ -140,33 +137,25 @@ class ContentPublishDialog extends Page {
     }
 
     async waitForDependantsBlockDisplayed() {
-        try {
-            return await this.waitForElementDisplayed(this.dependantsBlock, appConst.mediumTimeout);
-        } catch (err) {
-            await this.handleError(`Publish Dialog, dependencies block is not displayed, `, 'err_dependencies_block', err);
-        }
+        return await this.dependantsControls.waitForDependantsBlockDisplayed();
     }
 
     async waitForDependantsBlockNotDisplayed() {
-        try {
-            return await this.waitForElementNotDisplayed(this.dependantsBlock, appConst.mediumTimeout);
-        } catch (err) {
-            await this.handleError(`Publish Dialog, dependencies block should not be displayed, `, 'err_dependencies_block', err);
-        }
+        return await this.dependantsControls.waitForDependantsBlockNotDisplayed();
     }
 
     waitForExcludeInvalidItemsButtonDisplayed() {
-        return this.waitForElementDisplayed(this.excludeInvalidItemsButton, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.excludeInvalidItemsButton);
     }
 
     waitForExcludeInvalidItemsButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.excludeInvalidItemsButton, appConst.mediumTimeout);
+        return this.waitForElementNotDisplayed(this.excludeInvalidItemsButton);
     }
 
     // Wait for the button - In progress() Exclude  is not displayed:
     async waitForExcludeItemsInProgressButtonNotDisplayed() {
         try {
-            return await this.waitForElementNotDisplayed(this.excludeItemsInProgressButton, appConst.mediumTimeout);
+            return await this.waitForElementNotDisplayed(this.excludeItemsInProgressButton);
         } catch (err) {
             await this.handleError(`Publish Dialog, 'Exclude items in progress' button should not be displayed, `,
                 'err_exclude_items_in_progress_button', err);
@@ -174,7 +163,7 @@ class ContentPublishDialog extends Page {
     }
 
     waitForExcludeItemsInProgressButtonDisplayed() {
-        return this.waitForElementDisplayed(this.excludeItemsInProgressButton, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.excludeItemsInProgressButton);
     }
 
     async waitForCancelSelectionButtonDisplayed() {
@@ -222,13 +211,13 @@ class ContentPublishDialog extends Page {
     }
 
     async clickOnExcludeInvalidItemsButton() {
-        await this.waitForElementDisplayed(this.excludeInvalidItemsButton, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.excludeInvalidItemsButton);
         await this.clickOnElement(this.excludeInvalidItemsButton);
         return await this.pause(500);
     }
 
     async clickOnExcludeItemsInProgressButton() {
-        await this.waitForElementDisplayed(this.excludeItemsInProgressButton, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.excludeItemsInProgressButton);
         await this.clickOnElement(this.excludeItemsInProgressButton);
         return await this.pause(500);
     }

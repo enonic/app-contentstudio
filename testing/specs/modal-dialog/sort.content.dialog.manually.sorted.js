@@ -7,6 +7,7 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const SortContentDialog = require('../../page_objects/browsepanel/sort.content.dialog');
 const studioUtils = require('../../libs/studio.utils.js');
 const appConst = require('../../libs/app_const');
+const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
 
 describe('sort.content.dialog.manually.sorted.spec, sorts a folder(with child items) and checks the sort-icon in content grid',
     function () {
@@ -32,6 +33,22 @@ describe('sort.content.dialog.manually.sorted.spec, sorts a folder(with child it
                 let actualOrder = await sortContentDialog.getSelectedOrder();
                 await studioUtils.saveScreenshot('manually_sorted');
                 assert.equal(actualOrder, "Manually sorted", "Manually sorted  sort type should be displayed ");
+            });
+
+        // Verify the bug New content is added into the end of the tree list #10922
+        it(`WHEN new folder has been created THEN it is added to the firs place in the root`,
+            async () => {
+                let contentBrowsePanel = new ContentBrowsePanel();
+                let contentWizardPanel = new ContentWizardPanel();
+                // 1. Open the folder-wizard:
+                await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
+                let displayName = appConst.generateRandomName('folder')
+                await contentWizardPanel.typeDisplayName(displayName);
+                await contentWizardPanel.waitAndClickOnSave();
+                await contentWizardPanel.waitForNotificationMessage();
+                await studioUtils.doCloseWizardAndSwitchToGrid();
+                let result =  await contentBrowsePanel.getContentNamesInGrid();
+                assert.equal(result[0], displayName, "New folder should be added to the first place in the root");
             });
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());

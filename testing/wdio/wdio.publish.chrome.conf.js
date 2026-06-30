@@ -15,6 +15,11 @@ exports.config = {
         path.join(__dirname, '../specs/publish/refresh.publish.content.dialog.spec.js'),
         path.join(__dirname, '../specs/publish/browse.panel.publish.menu.spec.js'),
         path.join(__dirname, '../specs/publish/content.unpublish.dialog.spec.js'),
+        path.join(__dirname, '../specs/publish/publish.work.in.progress.spec.js'),
+        path.join(__dirname, '../specs/publish/publish.simple.site.js'),
+        path.join(__dirname, '../specs/publish/publish.dialog.site.with.child.items.spec.js'),
+        path.join(__dirname, '../specs/publish/publish.tree.check.child.spec.js'),
+
         path.join(__dirname, '../specs/issue/close.issue.with.item.spec.js'),
         path.join(__dirname, '../specs/issue/close.issue.no.items.spec.js'),
         path.join(__dirname, '../specs/issue/issue.status.selector.spec.js'),

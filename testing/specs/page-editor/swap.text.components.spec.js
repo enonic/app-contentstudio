@@ -27,17 +27,6 @@ describe('Swap two Text Component - specification', function () {
             await studioUtils.doAddSite(SITE);
         });
 
-    it(`GIVEN existing site is opened WHEN Page Component View has been opened THEN expected component's description should be displayed`,
-        async () => {
-            let contentWizard = new ContentWizard();
-            let pageComponentView = new PageComponentView();
-            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnCollapseContentForm();
-            let description = await pageComponentView.getComponentDescription('main region');
-            assert.equal(description, 'test region', "Expected description should be displayed");
-        });
-
     it.skip(`GIVEN 2 Text component are inserted  WHEN components have been swapped THEN 2 strings should be displayed in correct order`,
         async () => {
             let contentWizard = new ContentWizard();

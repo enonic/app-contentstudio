@@ -237,19 +237,6 @@ class BasePageComponentView extends Page {
         return await this.pause(1000);
     }
 
-    async getComponentDescription(name, index) {
-        let selector = this.container + xpath.componentDescriptionByName(name);
-        if (typeof index === 'undefined' || index === null) {
-            return await this.getText(selector);
-        } else {
-            let result = await this.getTextInElements(selector);
-            if (index > result.length) {
-                throw new Error(`Component with the index ${index} was not found`)
-            }
-            return result[index];
-        }
-    }
-
     async isItemWithDefaultIcon(partDisplayName, index) {
         let selector = this.container + xpath.componentByName(partDisplayName) +
                        "//div[contains(@id,'NamesAndIconView')]//div[contains(@class,'xp-admin-common-wrapper')]" +
