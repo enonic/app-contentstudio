@@ -2,7 +2,10 @@ import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {ContentBuilder, type Content} from '../../../app/content/Content';
+import {ContentId} from '../../../app/content/ContentId';
 import {ContentName} from '../../../app/content/ContentName';
+import {Mixin} from '../../../app/content/Mixin';
+import {MixinName} from '../../../app/content/MixinName';
 import type {ContentType} from '../../../app/inputtype/schema/ContentType';
 import {Workflow} from '../../../app/content/Workflow';
 import {WorkflowState} from '../../../app/content/WorkflowState';
@@ -10,6 +13,7 @@ import {
     $wizardDraftMixins,
     $wizardPersistedMixins,
     $wizardSectionChanges,
+    applyServerSidePersistedContent,
     initializeWizardContentState,
     requestMixinSeed,
     resetWizardContent,
@@ -19,6 +23,7 @@ import {cleanupWizardMixinsService, initWizardMixinsService} from './wizardMixin
 
 const mocks = vi.hoisted(() => ({
     fire: vi.fn(),
+    getContentMixins: vi.fn(() => Promise.resolve([] as unknown[])),
 }));
 
 vi.mock('../store/applications.store', () => ({
@@ -42,7 +47,7 @@ vi.mock('../../../app/event/ContentRequiresSaveEvent', () => ({
 vi.mock('../../../app/resource/GetContentMixinsRequest', () => ({
     GetContentMixinsRequest: class {
         sendAndParse(): Promise<unknown[]> {
-            return Promise.resolve([]);
+            return mocks.getContentMixins();
         }
     },
 }));
@@ -62,14 +67,17 @@ vi.mock('../../../app/resource/GetApplicationMixinsRequest', () => ({
     },
 }));
 
-function createContent(): Content {
+function createContent({mixins = [], id}: {mixins?: Mixin[]; id?: string} = {}): Content {
     const builder = new ContentBuilder();
     builder.setData(new PropertyTree());
     builder.setName(new ContentName('content'));
     builder.setType(ContentTypeName.SITE);
     builder.setDisplayName('Content');
-    builder.setMixins([]);
+    builder.setMixins(mixins);
     builder.setWorkflow(Workflow.create().setState(WorkflowState.IN_PROGRESS).build());
+    if (id) {
+        builder.setContentId(new ContentId(id));
+    }
     return builder.build();
 }
 
@@ -77,6 +85,7 @@ describe('wizardMixins.service', () => {
     beforeEach(() => {
         resetWizardContent();
         mocks.fire.mockClear();
+        mocks.getContentMixins.mockClear();
         initWizardMixinsService();
     });
 
@@ -99,5 +108,15 @@ describe('wizardMixins.service', () => {
         expect($wizardDraftMixins.get().some((m) => m.getName().toString() === 'app:meta')).toBe(true);
         expect($wizardPersistedMixins.get().some((m) => m.getName().toString() === 'app:meta')).toBe(false);
         expect($wizardSectionChanges.get().mixins).toBe(true);
+    });
+
+    it('should reload content mixin descriptors when the server mixin set changes', async () => {
+        initializeWizardContentState(createContent({id: 'content-1'}), null, [], WorkflowState.IN_PROGRESS);
+        await vi.waitFor(() => expect(mocks.getContentMixins).toHaveBeenCalled());
+        mocks.getContentMixins.mockClear();
+
+        applyServerSidePersistedContent(createContent({id: 'content-1', mixins: [new Mixin(new MixinName('appA:seo'), new PropertyTree())]}));
+
+        await vi.waitFor(() => expect(mocks.getContentMixins).toHaveBeenCalledTimes(1));
     });
 });

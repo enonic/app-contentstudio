@@ -8,7 +8,7 @@ import {GetApplicationMixinsRequest} from '../../../app/resource/GetApplicationM
 import {GetContentMixinsRequest} from '../../../app/resource/GetContentMixinsRequest';
 import {$applications, loadApplications} from '../store/applications.store';
 import {$contextContent} from '../store/context/contextContent.store';
-import {$contentType, $mixinsDescriptors, onMixinSeedRequested, onWizardPersistedContentSet, setMixinsDescriptors} from '../store/wizardContent.store';
+import {$contentType, $mixinsDescriptors, onMixinSeedRequested, onWizardPersistedContentSet, onWizardServerMixinsChanged, setMixinsDescriptors} from '../store/wizardContent.store';
 
 //
 // * State
@@ -17,6 +17,7 @@ import {$contentType, $mixinsDescriptors, onMixinSeedRequested, onWizardPersiste
 let unsubscribePersistedContent: (() => void) | null = null;
 let unsubscribeApplications: (() => void) | null = null;
 let unsubscribeMixinSeed: (() => void) | null = null;
+let unsubscribeServerMixinsChanged: (() => void) | null = null;
 
 let wizardContentId: ContentId | null = null;
 let lastAppSignature: string | null = null;
@@ -113,6 +114,12 @@ export function initWizardMixinsService(): void {
         void handleMixinSeedRequest(applicationKeys);
     });
 
+    unsubscribeServerMixinsChanged = onWizardServerMixinsChanged(() => {
+        if (wizardContentId) {
+            void loadDescriptors(wizardContentId);
+        }
+    });
+
     lastAppSignature = buildAppSignature();
     unsubscribeApplications = $applications.listen(() => {
         const next = buildAppSignature();
@@ -140,6 +147,9 @@ export function cleanupWizardMixinsService(): void {
 
     unsubscribeMixinSeed?.();
     unsubscribeMixinSeed = null;
+
+    unsubscribeServerMixinsChanged?.();
+    unsubscribeServerMixinsChanged = null;
 
     wizardContentId = null;
     lastAppSignature = null;
