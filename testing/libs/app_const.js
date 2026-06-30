@@ -490,6 +490,7 @@ module.exports = Object.freeze({
         MOVED: 'MOVED',
         MOVED_MODIFIED: 'MOVED, MODIFIED',
     },
+    UNNAMED_CONTENT_DISPLAY_NAME: '<unnamed>',
     CONTENT_STATUS: {
         OFFLINE_NEW: 'Offline New',
         ONLINE_MOVED:'Online Moved',

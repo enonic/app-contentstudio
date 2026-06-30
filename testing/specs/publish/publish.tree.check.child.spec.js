@@ -1,5 +1,5 @@
 /**
- * Created on 23.09.2019.
+ * Created on 23.09.2019.  updated on 30.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -55,18 +55,18 @@ describe('publish.tree.check.child.spec - Publish Tree action - publish a conten
             assert.equal(items1[0], items2[0], "Display name of items should be equal");
         });
 
-    it(`GIVEN existing folder with child WHEN parent folder has been published THEN PUBLISH TREE...  should be default action for the parent folder`,
+    it(`GIVEN existing folder with child WHEN parent folder has been published THEN PUBLISH TREE  should be default action for the parent folder`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select the parent folder
             await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
             // 2. open 'Publish dialog' and click on 'Publish Now' button:(Children items are not included by default in Publish dialog)
             await studioUtils.openDialogAndPublishSelectedContent();
-            // 3. Verify - PUBLISH TREE... should be default action now:
+            // 3. Verify - PUBLISH TREE should be default action now:
             await contentBrowsePanel.waitForPublishTreeButtonVisible();
             await studioUtils.findAndSelectItem(CHILD_FOLDER.displayName);
             let status = await contentBrowsePanel.getContentStatus(CHILD_FOLDER.displayName);
-            assert.equal(status, appConst.CONTENT_STATUS.NEW, "Content's status should be 'New'");
+            assert.equal(status, appConst.CONTENT_STATUS.OFFLINE, "Content's status should be 'Offline'");
         });
 
     it(`GIVEN existing folder(PUBLISHED) with child(NEW) WHEN 'Publish Tree' button has been pressed THEN Default action  gets 'UNPUBLISH...'`,

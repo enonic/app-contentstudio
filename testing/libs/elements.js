@@ -237,11 +237,13 @@ const DIALOG_ITEMS = {
     CONTENT_REMOVE_BUTTON: "//div[@data-component='ContentRowRemoveButton' ]//button",
     mainItemRowByName: name => `//div[@data-component='ContentRow' and descendant::div[@data-component='ContentLabel' and descendant::span[contains(.,'${name}')]]]`,
     contentRowByName: displayName => `//div[@data-component='ContentRow' and (not(@aria-disabled) or @aria-disabled!='true') and (descendant::div[@data-component='ContentRowLabel' and descendant::span[contains(.,'${displayName}')]])]`,
-    ITEMS_NAME_SPAN: "//div[@data-component='ContentRowLabel']//div[@data-component='ContentLabel']//div[2]//span",
+    ITEMS_NAME_SPAN: "//div[@data-component='ContentRowLabel']//div[@data-component='ContentLabel']//div[contains(@class,'flex-col')]//span[1]",
     contentCheckboxInputByName: name => DIALOG_ITEMS.contentRowByName(name) +
                                         `//div[@data-component='ContentRowCheckbox']//input[@type='checkbox']`,
     contentCheckboxLabelByName: name => DIALOG_ITEMS.contentRowByName(name) + `//div[@data-component='ContentRowCheckbox']//label`,
     mainItemDivByName: name => DIALOG_ITEMS.PRIMARY_DATA_COMPONENT + DIALOG_ITEMS.mainItemRowByName(name),
+    DEPENDANTS_SELECT_ALL_INPUT: "//input[@data-component='DependantsSelectAll']",
+    DEPENDANTS_SELECT_ALL_LABEL: "//label[.//input[@data-component='DependantsSelectAll']]",
 };
 const SELECTION_STATUS_BAR = {
     COMPONENT_DIV: "//div[@data-component='SelectionStatusBar']",

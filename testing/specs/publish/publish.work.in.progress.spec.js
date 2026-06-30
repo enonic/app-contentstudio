@@ -1,5 +1,5 @@
 /**
- * Created on 01.02.2021.
+ * Created on 01.02.2021.  updated on 30.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -15,6 +15,7 @@ const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.
 const TextComponentCke = require('../../page_objects/components/text.component');
 const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
 
+
 describe('publish.work.in.progress.spec - publishes work in progress content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
@@ -27,7 +28,7 @@ describe('publish.work.in.progress.spec - publishes work in progress content', f
     it("Precondition - new site should be added",
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -81,9 +82,8 @@ describe('publish.work.in.progress.spec - publishes work in progress content', f
             await confirmValueDialog.waitForDialogClosed();
             await contentWizard.waitForNotificationMessage();
             //7 . Verify that the status is UNPUBLISHED  in the wizard
-            let status = await contentWizard.getContentStatus();
-            assert.equal(status, appConst.CONTENT_STATUS.UNPUBLISHED, 'The content should be Unpublished');
-            // TODO
+            let status = await contentWizard.getContentStatusInToolbar();
+            assert.equal(status, appConst.CONTENT_STATUS.OFFLINE, 'The content should be Unpublished');
             // 8. Verify that PUBLISH button gets visible in 'Default Action'
             await contentWizard.waitForPublishButtonDisplayed();
             // 9. Verify that Save button is disabled:
@@ -100,6 +100,7 @@ describe('publish.work.in.progress.spec - publishes work in progress content', f
             await contentPublishDialog.waitForDialogOpened();
             // 2. Click on 'Include children' checkbox
             await contentPublishDialog.clickOnIncludeChildrenCheckbox();
+            await contentPublishDialog.clickOnApplyButton();
             // 3. Click on 'Publish Now' button
             await contentPublishDialog.clickOnPublishNowButton();
             await contentPublishDialog.waitForDialogClosed();
@@ -122,16 +123,16 @@ describe('publish.work.in.progress.spec - publishes work in progress content', f
             await contentWizard.clickOnCollapseContentForm();
             await pageComponentView.rightClickAndOpenContextMenu('main');
             // 3. Insert Text Component with test text and save it:
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.typeTextInEditor('test text');
             await contentWizard.waitAndClickOnSave();
             // minimize Live Edit, workflow icon gets visible:
             await contentWizard.clickOnExpandContentForm();
             // 4. Verify the workflow state in the wizard and in the grid
             let workflowInWizard = await contentWizard.getContentWorkflowState();
-            assert.equal(workflowInWizard, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
+            assert.equal(workflowInWizard, appConst.ICON_WORKFLOW_STATE.IN_PROGRESS);
             await studioUtils.doSwitchToContentBrowsePanel();
-            await contentBrowsePanel.waitForStatus(SITE.displayName, appConst.CONTENT_STATUS.MODIFIED);
+            await contentBrowsePanel.waitForStatus(SITE.displayName, appConst.CONTENT_STATUS.ONLINE);
             let actualState = await contentBrowsePanel.getWorkflowStateByDisplayName(SITE.displayName);
             assert.equal(actualState, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS, "'Work in progress' should be displayed in browse panel");
         });

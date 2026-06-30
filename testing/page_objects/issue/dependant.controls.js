@@ -3,11 +3,10 @@
  */
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
-const {DIALOG_ITEMS, SELECTION_STATUS_BAR} = require('./../../libs/elements');
+const {COMMON, DIALOG_ITEMS, SELECTION_STATUS_BAR} = require('./../../libs/elements');
 
 const xpath = {
-    dependantsDataComponentDiv: "//div[@data-component,'SplitList.Secondary']",
-    dependentItemDiv: displayName => `//div[contains(@id,'StatusCheckableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
+    dependentItemDiv: displayName => `//div[@data-component='ContentRow' and descendant::span[contains(.,'${displayName}')]]`,
 };
 
 class DependantsControls extends Page {
@@ -22,66 +21,65 @@ class DependantsControls extends Page {
     }
 
     get cancelSelectionButton() {
-        return this.container + lib.DEPENDANTS.EDIT_ENTRY + lib.actionButton('Cancel');
+        return this.container + COMMON.actionButton('Cancel');
     }
 
     get showExcludedItemsButton() {
-        return this.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV + lib.togglerButton('Show excluded');
+        return this.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV + COMMON.togglerButton('Show excluded');
     }
 
     get hideExcludedItemsButton() {
-        return this.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV + lib.togglerButton('Hide excluded');
+        return this.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV + COMMON.togglerButton('Hide excluded');
     }
 
     get dependantsBlock() {
         return this.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV;
     }
 
-    get allDependantsCheckbox() {
-        return this.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV + lib.checkBoxDiv('All');
+    get allDependantsCheckboxLabel() {
+        return this.container + DIALOG_ITEMS.DEPENDANTS_SELECT_ALL_LABEL;
+    }
+
+    get allDependantsCheckboxInput() {
+        return this.container + DIALOG_ITEMS.DEPENDANTS_SELECT_ALL_INPUT;
     }
 
     waitForAllDependantsCheckboxDisplayed() {
-        return this.waitForElementDisplayed(this.allDependantsCheckbox, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.allDependantsCheckboxLabel, appConst.mediumTimeout);
     }
 
     waitForAllDependantsCheckboxNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.allDependantsCheckbox, appConst.mediumTimeout);
+        return this.waitForElementNotDisplayed(this.allDependantsCheckboxLabel, appConst.mediumTimeout);
     }
 
     async clickOnAllDependantsCheckbox() {
         await this.waitForAllDependantsCheckboxDisplayed();
-        await this.clickOnElement(this.allDependantsCheckbox + "//label[contains(.,'All')]");
+        await this.clickOnElement(this.allDependantsCheckboxLabel);
     }
 
     async isAllDependantsCheckboxSelected() {
-        // 1. div-checkbox should be displayed:
         await this.waitForAllDependantsCheckboxDisplayed();
-        // 2. Check the input:
-        return await this.isSelected(this.allDependantsCheckbox + lib.CHECKBOX_INPUT);
+        return await this.isSelected(this.allDependantsCheckboxInput);
     }
 
     async waitForAllDependantsCheckboxDisabled() {
-        let selector = this.allDependantsCheckbox;
+        let selector = this.allDependantsCheckboxInput;
         await this.getBrowser().waitUntil(async () => {
-            let text = await this.getAttribute(selector, 'class');
-            return text.includes('disabled');
+            let ariaDisabled = await this.getAttribute(selector, 'aria-disabled');
+            return ariaDisabled === 'true';
         }, {timeout: appConst.shortTimeout, timeoutMsg: "'All' checkbox should be disabled"});
     }
 
     async waitForAllDependantsCheckboxEnabled() {
-        let selector = this.allDependantsCheckbox;
+        let selector = this.allDependantsCheckboxInput;
         await this.getBrowser().waitUntil(async () => {
-            let text = await this.getAttribute(selector, 'class');
-            return !text.includes('disabled');
+            let ariaDisabled = await this.getAttribute(selector, 'aria-disabled');
+            return ariaDisabled === 'false';
         }, {timeout: appConst.shortTimeout, timeoutMsg: "'All' checkbox should be enabled"});
     }
 
-
-
     async getNumberInAllCheckbox() {
-        let locator = this.allDependantsCheckbox + '//label';
-        return await this.getText(locator);
+        return await this.getText(this.allDependantsCheckboxLabel);
     }
 
     async waitForDependantsBlockDisplayed() {
@@ -90,6 +88,15 @@ class DependantsControls extends Page {
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dependencies_block');
             throw new Error(`Dependants block is not displayed, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    async waitForDependantsBlockNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.dependantsBlock, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_dependencies_block');
+            throw new Error(`Dependants block should not be displayed, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -208,7 +215,7 @@ class DependantsControls extends Page {
     }
 
     async clickOnCheckboxInDependentItem(displayName) {
-        let selector = DIALOG_ITEMS.contentCheckboxLabelByName(displayName);
+        let selector = this.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV + DIALOG_ITEMS.contentCheckboxLabelByName(displayName);
         await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         await this.clickOnElement(selector);
         return await this.pause(400);
@@ -220,8 +227,9 @@ class DependantsControls extends Page {
     }
 
     async isDependantCheckboxEnabled(displayName) {
-        let checkBoxInputLocator = this.container + xpath.dependentItemDiv(displayName) + lib.CHECKBOX_INPUT;
-        await this.waitForElementDisplayed(this.container + xpath.dependentItemDiv(displayName), appConst.mediumTimeout);
+        let itemLocator = this.container + xpath.dependentItemDiv(displayName);
+        let checkBoxInputLocator = itemLocator + DIALOG_ITEMS.contentCheckboxInputByName(displayName);
+        await this.waitForElementDisplayed(itemLocator, appConst.mediumTimeout);
         return await this.isElementEnabled(checkBoxInputLocator);
     }
 }

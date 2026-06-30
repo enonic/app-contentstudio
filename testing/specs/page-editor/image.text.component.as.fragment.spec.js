@@ -1,5 +1,5 @@
 /**
- * Created on 26.01.2024
+ * Created on 26.01.2024 updated on 30.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -7,12 +7,13 @@ const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
-const TextComponentCke = require('../../page_objects/components/text.component');
 const LiveFormPanel = require('../../page_objects/wizardpanel/liveform/live.form.panel');
 const appConst = require('../../libs/app_const');
 const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
+const FragmentInspectionPanel = require("../../page_objects/wizardpanel/liveform/inspection/fragment.inspection.panel");
+const TextComponentInspectionPanel = require("../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel");
 
-describe.skip('image.text.component.as.fragment.spec - tests for saving an image as fragment', function () {
+describe('image.text.component.as.fragment.spec - tests for saving an image as fragment', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
@@ -35,7 +36,8 @@ describe.skip('image.text.component.as.fragment.spec - tests for saving an image
             let insertImageDialog = new InsertImageDialog();
             let pageComponentView = new PageComponentView();
             let liveFormPanel = new LiveFormPanel();
-            let textComponentCke = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
+            let fragmentInspectionPanel = new FragmentInspectionPanel();
             // 1. open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Maximize the Live Edit:
@@ -43,9 +45,9 @@ describe.skip('image.text.component.as.fragment.spec - tests for saving an image
             // 3. Insert a text component:
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
-            await contentWizard.switchToLiveEditFrame();
             // 4. Insert an image in the text component
-            await textComponentCke.clickOnInsertImageButton();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.clickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
             await insertImageDialog.filterAndSelectImage(TEST_IMAGE);
             await insertImageDialog.clickOnDecorativeImageRadioButton();
@@ -53,6 +55,8 @@ describe.skip('image.text.component.as.fragment.spec - tests for saving an image
             // 5. Save the text-component as fragment:
             await pageComponentView.rightClickAndOpenContextMenu('Text');
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
+            await fragmentInspectionPanel.waitForOpened();
+            await fragmentInspectionPanel.clickOnEditFragmentButton();
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             await contentWizard.pause(700);
             await contentWizard.refresh();

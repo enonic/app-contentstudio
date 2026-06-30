@@ -1,5 +1,5 @@
 /**
- * Created on 14.02.2023
+ * Created on 14.02.2023 updated on 29.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -7,7 +7,6 @@ const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
-const LiveFormPanel = require('../../page_objects/wizardpanel/liveform/live.form.panel');
 const appConst = require('../../libs/app_const');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
