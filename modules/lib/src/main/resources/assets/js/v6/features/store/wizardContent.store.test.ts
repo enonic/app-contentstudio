@@ -18,7 +18,9 @@ import {PageBuilder, type Page} from '../../../app/page/Page';
 import {
     $isContentFormExpanded,
     addDraftStringOccurrenceByPath,
+    applyServerSidePersistedContent,
     applyWorkflowFromServer,
+    onWizardServerMixinsChanged,
     $mixinsDescriptors,
     $wizardDataChangedPaths,
     $wizardChangedSections,
@@ -321,6 +323,58 @@ describe('wizardContent.store', () => {
         formData.setDraftStringByPath(PropertyPath.fromString('keywords[2]'), 'c');
 
         expect($wizardSectionChanges.get().mixins).toBe(false);
+    });
+
+    it('should notify server-mixins-changed when the persisted mixin set changes', () => {
+        const mixinA = new Mixin(new MixinName('appA:seo'), new PropertyTree());
+        initializeWizardContentState(createContent({mixins: [mixinA]}), null, [], WorkflowState.IN_PROGRESS);
+
+        const onChange = vi.fn();
+        const unsubscribe = onWizardServerMixinsChanged(onChange);
+
+        const mixinB = new Mixin(new MixinName('appB:seo'), new PropertyTree());
+        applyServerSidePersistedContent(createContent({mixins: [mixinB], touched: true}));
+        unsubscribe();
+
+        expect(onChange).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not notify server-mixins-changed when the mixin set is unchanged', () => {
+        const mixin = new Mixin(new MixinName('appA:seo'), new PropertyTree());
+        initializeWizardContentState(createContent({mixins: [mixin]}), null, [], WorkflowState.IN_PROGRESS);
+
+        const onChange = vi.fn();
+        const unsubscribe = onWizardServerMixinsChanged(onChange);
+
+        applyServerSidePersistedContent(createContent({mixins: [new Mixin(new MixinName('appA:seo'), new PropertyTree())], touched: true}));
+        unsubscribe();
+
+        expect(onChange).not.toHaveBeenCalled();
+    });
+
+    it('should notify server-mixins-changed when a mixin is removed entirely', () => {
+        const mixin = new Mixin(new MixinName('appA:seo'), new PropertyTree());
+        initializeWizardContentState(createContent({mixins: [mixin]}), null, [], WorkflowState.IN_PROGRESS);
+
+        const onChange = vi.fn();
+        const unsubscribe = onWizardServerMixinsChanged(onChange);
+
+        applyServerSidePersistedContent(createContent({mixins: [], touched: true}));
+        unsubscribe();
+
+        expect(onChange).toHaveBeenCalledTimes(1);
+    });
+
+    it('should notify server-mixins-changed when a mixin is added', () => {
+        initializeWizardContentState(createContent({mixins: []}), null, [], WorkflowState.IN_PROGRESS);
+
+        const onChange = vi.fn();
+        const unsubscribe = onWizardServerMixinsChanged(onChange);
+
+        applyServerSidePersistedContent(createContent({mixins: [new Mixin(new MixinName('appA:seo'), new PropertyTree())], touched: true}));
+        unsubscribe();
+
+        expect(onChange).toHaveBeenCalledTimes(1);
     });
 
     it('marks page as changed when page draft is updated', () => {

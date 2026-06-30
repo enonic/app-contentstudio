@@ -584,6 +584,30 @@ export function onWizardPersistedContentSet(callback: (content: Content) => void
     };
 }
 
+const serverMixinsChangedCallbacks = new Set<() => void>();
+
+export function onWizardServerMixinsChanged(callback: () => void): () => void {
+    serverMixinsChangedCallbacks.add(callback);
+    return () => {
+        serverMixinsChangedCallbacks.delete(callback);
+    };
+}
+
+function notifyServerMixinsChanged(): void {
+    for (const callback of serverMixinsChangedCallbacks) {
+        callback();
+    }
+}
+
+function getMixinNames(mixins: Mixin[]): string[] {
+    return mixins.map((m) => m.getName().toString());
+}
+
+function hasMixinNamesChanged(previous: Set<string>, next: string[]): boolean {
+    const nextSet = new Set(next);
+    return previous.size !== nextSet.size || [...nextSet].some((name) => !previous.has(name));
+}
+
 //
 // * Server-side update merge
 //
@@ -596,11 +620,17 @@ export function applyServerSidePersistedContent(content: Content): ApplyServerCo
     isPersistedContentUntouched = isContentUntouched(content);
     const snapshot = buildPersistedSectionsSnapshot(content);
 
+    const previousMixinNames = new Set(getMixinNames($wizardPersistedMixins.get()));
+
     applyDisplayNameFromServer(snapshot.displayName);
     applyNameFromServer(snapshot.name);
     applyDataFromServer(snapshot.data);
     const syncedMixinNames = applyMixinsFromServer(snapshot.mixins);
     applyWorkflowFromServer(snapshot.workflow);
+
+    if (hasMixinNamesChanged(previousMixinNames, getMixinNames(snapshot.mixins))) {
+        notifyServerMixinsChanged();
+    }
 
     return {syncedMixinNames};
 }
