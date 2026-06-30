@@ -16,7 +16,7 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
         webDriverHelper.setupBrowser();
     }
 
-    let SITE;
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
     const IMAGE_DISPLAY_NAME = appConst.TEST_IMAGES.POP_03;
     const HTML_AREA_CONTENT_NAME = contentBuilder.generateRandomName('hrtmlarea');
     const CINEMA_STYLE = 'Cinema';
@@ -27,7 +27,7 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
             // 1. Open new wizard with html-area:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             // 2. Open 'Insert Image' dialog:
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
@@ -35,9 +35,10 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
             await insertImageDialog.clickOnStyleSelectorDropDownHandle()
             await studioUtils.saveScreenshot('image_dialog_custom_style_options');
-            let actualOptions = await insertImageDialog.getSelectedStyleValue();
-            assert.equal(actualOptions[0], "<None>", "First option should be '<None>' ");
-            assert.equal(actualOptions[1], appConst.IMAGE_STYLE_ORIGINAL, "one available option should be present in options list");
+            let actualOption = await insertImageDialog.getSelectedStyleValue();
+            assert.equal(actualOption, "<None>", "First option should be '<None>' ");
+            let actualOptions = await insertImageDialog.getStyleOptions();
+            assert.ok(actualOptions.includes( appConst.IMAGE_STYLE_ORIGINAL), "one available option should be present in options list");
         });
 
     it(`GIVEN Insert Image modal dialog is opened WHEN 'Cinema' option has been selected THEN 'Custom Width' checkbox should be enabled`,
@@ -46,7 +47,7 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
             // 1. Open new wizard with html-area and open Insert Image dialog:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await contentWizard.typeDisplayName(HTML_AREA_CONTENT_NAME);
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();

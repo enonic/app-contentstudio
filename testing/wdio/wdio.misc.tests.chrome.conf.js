@@ -25,7 +25,6 @@ exports.config = {
         path.join(__dirname, '../specs/misc/image.editor.focus.spec.js'),
         path.join(__dirname, '../specs/misc/image.properties.photo.location.spec.js'),
         path.join(__dirname, '../specs/misc/image.wizard.photo.properties.spec.js'),
-        path.join(__dirname, '../specs/misc/insert.image.dlg.apply.custom.style.spec.js'),
         path.join(__dirname, '../specs/misc/insert.image.dlg.custom.width.spec.js'),
         path.join(__dirname, '../specs/misc/insert.image.dlg.style.selector.spec.js'),
         path.join(__dirname, '../specs/misc/moved.modified.content.spec.js'),

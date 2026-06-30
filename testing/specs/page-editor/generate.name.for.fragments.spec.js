@@ -20,6 +20,8 @@ const appConst = require('../../libs/app_const');
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
+const LayoutInspectionPanel = require("../../page_objects/wizardpanel/liveform/inspection/layout.inspection.panel");
+const TextComponentInspectionPanel = require("../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel");
 
 describe('Generate name for fragments specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -43,19 +45,13 @@ describe('Generate name for fragments specification', function () {
     it(`GIVEN an image is inserted in text-component WHEN the component has been saved as fragment THEN expected fragment-name should be generated`,
         async () => {
             let contentWizard = new ContentWizard();
-            let textComponentCke = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let pageComponentView = new PageComponentView();
             let insertImageDialog = new InsertImageDialog();
             let siteFormPanel = new SiteFormPanel();
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            //await siteFormPanel.openSiteConfiguratorDialog(appConst.TEST_APPS_NAME.SIMPLE_SITE_APP);
-            //let siteConfiguratorDialog = new SiteConfiguratorReqInputDialog();
-            //await studioUtils.saveScreenshot('site_configurator_invalid');
-            // Fill in the required input in the site-configurator! The site should be valid!:
-            //await siteConfiguratorDialog.typeInTextInTrackingIdInput('test');
-            //await siteConfiguratorDialog.clickOnApplyButton();
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnCollapseContentForm();
             // 2. Insert new text-component
@@ -63,7 +59,8 @@ describe('Generate name for fragments specification', function () {
             await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentCke.switchToLiveEditFrame();
             // 3. Open 'Insert Image' dialog and insert an image in htmlArea:
-            await textComponentCke.clickOnInsertImageButton();
+            await textComponentInspectionPanel.clickOnInsertImageButton();
+            await insertImageDialog.waitForDialogVisible();
             await insertImageDialog.filterAndSelectImage(TEST_IMAGE_NAME);
             await insertImageDialog.pause(1000);
             await insertImageDialog.clickOnDecorativeImageRadioButton();
@@ -222,7 +219,7 @@ describe('Generate name for fragments specification', function () {
             let fragmentDisplayName = 'Layout';
             await fragmentInspectionPanel.typeNameAndSelectFragment(fragmentDisplayName);
             await studioUtils.saveScreenshot('fragment-inserted-in-inspect');
-            // 5. Verify that the site is automatically saved and Save button is disabled
+            // 5. Verify that the site is automatically saved and Save button is disabledа
             await contentWizard.waitForNotificationMessage();
             await contentWizard.waitForSaveButtonDisabled();
             // 6. Verify the number of fragments in Live Edit:
@@ -246,7 +243,8 @@ describe('Generate name for fragments specification', function () {
             // 3. Insert new text-component
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
-            await textComponentCke.switchToLiveEditFrame();
+            await textComponentInspectionPanel.waitForOpened();
+            await textComponentInspectionPanel.clickInTextArea();
             // 4. Open 'Insert Image' dialog and insert an image in htmlArea:
             await textComponentCke.clickOnInsertImageButton();
             await insertImageDialog.filterAndSelectImage(TEST_IMAGE_NAME);

@@ -1,5 +1,5 @@
 /**
- * Created on 21.11.2023
+ * Created on 21.11.2023  updated on 29.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -7,21 +7,21 @@ const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
-const TextComponentCke = require('../../page_objects/components/text.component');
 const LiveFormPanel = require('../../page_objects/wizardpanel/liveform/live.form.panel');
 const appConst = require('../../libs/app_const');
 const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const LayoutInspectionPanel = require("../../page_objects/wizardpanel/liveform/inspection/layout.inspection.panel");
+const TextComponentInspectionPanel = require("../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel");
 
-// TODO remove skip
-describe.skip('layot.insert.save.as.fragment.spec - tests for inserting a fragment with image in a lyout', function () {
+describe('layout.insert.save.as.fragment.spec - tests for inserting a fragment with image in a layout', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let SITE;
     const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
-    const LAYOUT_NAME = '3-col';
+    const LAYOUT_3_COL = '3-col';
     const TEST_IMAGE = appConst.TEST_IMAGES.POP_03;
     const TEST_IMAGE_2 = appConst.TEST_IMAGES.POP_02;
 
@@ -39,28 +39,32 @@ describe.skip('layot.insert.save.as.fragment.spec - tests for inserting a fragme
             let insertImageDialog = new InsertImageDialog();
             let pageComponentView = new PageComponentView();
             let liveFormPanel = new LiveFormPanel();
-            let textComponentCke = new TextComponentCke();
+            let layoutInspectionPanel = new LayoutInspectionPanel();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             // 1. open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Maximize the Live Edit:
             await contentWizard.clickOnCollapseContentForm();
             // 3. Insert the Layout component (3-column):
             await pageComponentView.rightClickAndOpenContextMenu('main');
-            await pageComponentView.selectMenuItem(['Insert', 'Layout']);
-            await liveFormPanel.selectLayoutByDisplayName(LAYOUT_NAME);
+            await pageComponentView.selectContextMenuItem(['Insert', 'Layout']);
+            await layoutInspectionPanel.waitForOpened();
+            await layoutInspectionPanel.typeNameAndSelectLayout(LAYOUT_3_COL);
+
             await contentWizard.waitForNotificationMessage();
             // 4. Insert a text component in the left layout's region
             await pageComponentView.rightClickAndOpenContextMenu('left');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
-            await contentWizard.switchToLiveEditFrame();
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await textComponentInspectionPanel.waitForOpened();
+            await textComponentInspectionPanel.clickInTextArea();
             // 5. Insert an image in the left region
-            await textComponentCke.clickOnInsertImageButton();
+            await textComponentInspectionPanel.clickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
             await insertImageDialog.filterAndSelectImage(TEST_IMAGE);
             await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();
             // 6. Save the layout-component as fragment:
-            await pageComponentView.rightClickAndOpenContextMenu(LAYOUT_NAME);
+            await pageComponentView.rightClickAndOpenContextMenu(LAYOUT_3_COL);
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await contentWizard.pause(700);
             await contentWizard.switchToLiveEditFrame();
@@ -70,14 +74,17 @@ describe.skip('layot.insert.save.as.fragment.spec - tests for inserting a fragme
             assert.ok(srcAttr.includes('/admin/rest'), "Image in the fragment - Attribute 'src' is not correct");
         });
 
-    it(`GIVEN existing layout-fragment is opened WHEN an image has been inserted in the center region THEN LiveEdit should be updated in the its site`,
+    // BUG https://github.com/enonic/app-contentstudio/issues/10678
+    // Live View is not refreshed after updating a fragment in another browser window
+    // TODO
+    it.skip(`GIVEN existing layout-fragment is opened WHEN an image has been inserted in the center region THEN LiveEdit should be updated in the its site`,
         async () => {
             let contentWizard = new ContentWizard();
             let contentBrowsePanel = new ContentBrowsePanel();
             let insertImageDialog = new InsertImageDialog();
             let pageComponentView = new PageComponentView();
             let liveFormPanel = new LiveFormPanel();
-            let textComponentCke = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             // 1. open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Switch to the browse panel
@@ -89,18 +96,20 @@ describe.skip('layot.insert.save.as.fragment.spec - tests for inserting a fragme
             await contentWizard.clickOnCollapseContentForm();
             // 4. Insert a text component in 'center' region:
             await pageComponentView.rightClickAndOpenContextMenu('center');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // 5. Insert an image in the layout-fragment:
-            await contentWizard.switchToLiveEditFrame();
-            await textComponentCke.clickOnInsertImageButton();
+            await textComponentInspectionPanel.waitForOpened();
+            await textComponentInspectionPanel.clickInTextArea();
+            // 6. Insert an image in the left region
+            await textComponentInspectionPanel.clickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
             await insertImageDialog.filterAndSelectImage(TEST_IMAGE_2);
             await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();
-            // 6. Save the fragment-content:
+            // 7. Save the fragment-content:
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
-            // 7. Switch to the site-wizard:
+            // 8. Switch to the site-wizard:
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             await contentWizard.switchToLiveEditFrame();
             // 8. Verify that Live Edit is updated in the site, both  images are present in the site:

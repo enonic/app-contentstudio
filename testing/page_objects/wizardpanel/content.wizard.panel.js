@@ -2,7 +2,7 @@
  * Created on 5/30/2017.
  */
 const Page = require('../page');
-const {BUTTONS, DROPDOWN, LIVE_VIEW, WIZARD, COMMON} = require('../../libs/elements');
+const {BUTTONS, DROPDOWN, LIVE_VIEW, WIZARD, COMMON, TREE_GRID} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ContentStepForm = require('./content.wizard.step.form');
 const WizardContextPanel = require('./details/wizard.context.window.panel');
@@ -25,7 +25,6 @@ const XPATH = {
     showPageEditorTogglerButton: "//button[contains(@id,'ContentActionCycleButton') and @title='Show Page Editor']",
     displayNameInput: "//input[@name='displayName']",
     toolbar: `//div[@data-component='Toolbar.Container' and @role='toolbar']`,
-
     publishMenuItem: `//div[contains(@id,'ContentWizardToolbar') and @role='menu']`,
     contentItemPreviewToolbar: `//div[contains(@id,'PreviewToolbar')]`,
     toolbarStateIcon: `//div[contains(@class,'toolbar-state-icon')]`,
@@ -39,8 +38,6 @@ const XPATH = {
     xDataToggler: `//div[contains(@id,'WizardStepsPanel')]//div[@class='x-data-toggler']`,
     stepNavigatorToolbar: `//ul[contains(@id,'WizardStepNavigator')]`,
     wizardStepNavigatorAndToolbar: "//div[contains(@id,'WizardStepNavigatorAndToolbar')]",
-    status: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status')]`,
-    author: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'author')]`,
     shaderPage: "//div[@class='xp-page-editor-shader xp-page-editor-page']",
     wizardStepByTitle:
         name => `//div[@data-component='Tab.List']//button[child::span[text()='${name}']]`,
@@ -70,6 +67,10 @@ class ContentWizardPanel extends Page {
 
     get markAsReadyButton() {
         return XPATH.container + BUTTONS.buttonByLabel('Mark as ready');
+    }
+
+    get publishTreeButton() {
+        return XPATH.container + BUTTONS.buttonByLabel('Publish tree');
     }
 
     get createIssueButton() {
@@ -796,6 +797,7 @@ class ContentWizardPanel extends Page {
             await this.handleError('Content wizard, tried to click on minimize live edit toggle', 'err_minimize_icon', err);
         }
     }
+
     async clickOnExpandContentForm() {
         try {
             await this.waitForExpandContentFormButtonDisplayed();
@@ -851,10 +853,9 @@ class ContentWizardPanel extends Page {
     }
 
     // Gets content status from the Item Preview toolbar
-    async getContentStatus() {
+    async getContentStatusInToolbar() {
         try {
-            let locator = this.previewItemToolbar + XPATH.status;
-            let result = await this.getDisplayedElements(XPATH.container + XPATH.status);
+            let result = await this.getDisplayedElements(XPATH.container + TREE_GRID.CONTENT_STATUS);
             return await result[0].getText();
         } catch (err) {
             await this.handleError(`Tried to get the content-status from the Item Wizard Preview toolbar`, 'err_get_content_status', err);
@@ -888,11 +889,12 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    async openPublishMenu(){
+    async openPublishMenu() {
         await this.waitForShowPublishMenuButtonVisible();
         await this.clickOnElement(this.publishDropDownHandle);
         await this.pause(500);
     }
+
     async openPublishMenuSelectItem(menuItem) {
         try {
             await this.waitForShowPublishMenuButtonVisible();
@@ -925,6 +927,24 @@ class ContentWizardPanel extends Page {
         await createRequestPublishDialog.waitForDialogLoaded();
         await createRequestPublishDialog.typeInTitleInput(title);
         return await createRequestPublishDialog.clickOnCreateRequestButton();
+    }
+
+    async waitForPublishTreeButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.publishTreeButton);
+        } catch (err) {
+            await this.handleError('Publish Tree button should be visible', 'err_publish_tree_button', err);
+        }
+    }
+
+    async clickOnPublishTreeButton() {
+        try {
+            await this.waitForPublishTreeButtonDisplayed();
+            await this.clickOnElement(this.publishTreeButton);
+            return await this.pause(300);
+        } catch (err) {
+            await this.handleError(`Tried to click on 'Mark As Ready' button`, 'err_mark_as_ready_button', err);
+        }
     }
 
     async clickOnMarkAsReadyButton() {
@@ -1344,7 +1364,8 @@ class ContentWizardPanel extends Page {
         try {
             await this.waitForElementDisplayed(XPATH.xDataMenuTrigger, appConst.mediumTimeout);
             await this.clickOnElement(XPATH.xDataMenuTrigger);
-            await this.waitForElementDisplayed(XPATH.xDataMenuItem(''), appConst.shortTimeout).catch(() => {});
+            await this.waitForElementDisplayed(XPATH.xDataMenuItem(''), appConst.shortTimeout).catch(() => {
+            });
         } catch (err) {
             await this.handleError('Content Wizard, xdata menu trigger', 'err_xdata_menu_trigger', err);
         }
@@ -1361,7 +1382,7 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    async waitForConfirmXdataButtonEnabled(){
+    async waitForConfirmXdataButtonEnabled() {
         await this.waitForElementEnabled(XPATH.xDataMenuConfirmButton);
     }
 

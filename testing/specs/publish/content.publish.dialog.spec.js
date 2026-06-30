@@ -182,7 +182,7 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             assert.ok(dependantItems[0].includes(CHILD_FOLDER.displayName), 'Expected dependent item should be displayed');
         });
 
-    it(`GIVEN 'Publish Tree...' menu item has been clicked WHEN 'Exclude child items' has been has been clicked THEN 'All' checkbox gets not visible`,
+    it(`GIVEN 'Publish Tree' menu item has been clicked WHEN 'Exclude child items' has been has been clicked THEN 'All' checkbox gets not visible`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();

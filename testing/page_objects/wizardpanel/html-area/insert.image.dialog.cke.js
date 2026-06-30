@@ -13,7 +13,7 @@ const XPATH = {
     alignLeftButton: "//button[@aria-label='Left']",
     alignCenterButton: "//button[@aria-label='Center']",
     alignRightButton: "//button[@@aria-label='Right']",
-    customWidthDiv: "//div[child::label[text()='Custom width']]",
+    customWidthDiv: "//div[@data-component='Checkbox' and descendant::span[text()='Custom width']]",
     imageRangeValue: "//input[@type='range']/following-sibling::span",
     accessibilityRadioGroup: "//div[@role='radiogroup']",
     altTextInput: "//input[@placeholder='Describe image content']",
@@ -175,7 +175,7 @@ class InsertImageDialog extends Page {
 
     async clickOnCustomWidthCheckBox() {
         try {
-            await this.waitForElementDisplayed(XPATH.customWidthDiv, appConst.shortTimeout);
+            await this.waitForElementDisplayed(this.customWidthCheckbox, appConst.shortTimeout);
             await this.clickOnElement(this.customWidthCheckbox);
             return await this.pause(200);
         } catch (err) {
@@ -185,7 +185,7 @@ class InsertImageDialog extends Page {
 
     async isCustomWidthCheckBoxSelected() {
         try {
-            await this.waitForElementDisplayed(XPATH.customWidthDiv, appConst.shortTimeout);
+            await this.waitForElementDisplayed(this.customWidthCheckbox, appConst.shortTimeout);
             let attr = await this.getAttribute(this.customWidthCheckbox, 'aria-checked');
             return attr === 'true';
         } catch (err) {
@@ -329,16 +329,23 @@ class InsertImageDialog extends Page {
         return await this.getText(locator);
     }
 
-    // Select style option from dropdown:
+    // Returns text labels of all options in the open style selector dropdown:
+    async getStyleOptions() {
+        let locator = `//div[@role='listbox']//div[@role='option']//span[@data-component='Selector.ItemText']`;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getTextInElements(locator);
+    }
+
+    // Select style option from dropdown (opens dropdown if not already open):
     async doFilterStyleAndClickOnOption(styleOption) {
         try {
-            let locator = `//div[@role='option' and descendant::*[contains(text(),'${styleOption}')]]`;
+            await this.clickOnStyleSelectorDropDownHandle();
+            let locator = `//div[@role='listbox']//div[@role='option' and descendant::span[contains(text(),'${styleOption}')]]`;
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             await this.clickOnElement(locator);
             return await this.pause(400);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_select_option');
-            throw new Error(`Insert Image Dialog, Style selector , screenshot: ${screenshot} ` + err);
+            await this.handleError(`Insert Image Dialog, Style selector`, 'err_select_option', err);
         }
     }
 
