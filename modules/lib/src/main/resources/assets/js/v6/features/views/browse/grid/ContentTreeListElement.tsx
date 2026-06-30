@@ -26,7 +26,6 @@ export class ContentTreeListElement extends LegacyElement<typeof ContentTreeList
             this.notifySelectionChanged(this.getSelectionChange(new Set(currentIds), new Set(previousIds)));
         });
 
-        // Subscribe to filter refresh signal (content created/duplicated while filtering)
         const unsubscribeFilterRefresh = $filterRefreshNeeded.subscribe((timestamp) => {
             if (timestamp === 0) return; // Signal cleared, ignore
 
