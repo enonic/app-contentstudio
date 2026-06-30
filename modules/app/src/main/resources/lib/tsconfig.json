@@ -1,16 +1,15 @@
 {
     "compilerOptions": {
-        "target": "ES5",
-        "module": "commonjs",
-        "moduleResolution": "node",
+        "target": "ES2023",
+        "module": "ES2022",
+        "moduleResolution": "bundler",
         "sourceMap": false,
         "noImplicitReturns": true,
         "skipLibCheck": true,
         "strict": true,
         "lib": [
-            "ES2015"
+            "ES2023"
         ],
-        "baseUrl": "./",
         "paths": {
             "/lib/http-client": [
                 "./types/lib/httpClient"
@@ -25,12 +24,11 @@
                 "../../../../node_modules/@enonic-types/lib-*"
             ],
         },
-        "typeRoots": [
-            "../../../../node_modules/@types",
-            "../../../../node_modules/@enonic-types",
+        "types": [
+            "@enonic-types/global",
+            "node"
         ],
-        "incremental": true,
-        "outDir": "../../../../build/resources/main/"
+        "noEmit": true
     },
     "include": [
         "./**/*.ts",

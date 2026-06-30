@@ -10,16 +10,12 @@ export class PublishStatusFormatter {
         switch (publishStatus) {
         case PublishStatus.ONLINE:
             return i18n('status.published');
-            break;
         case PublishStatus.PENDING:
             return i18n('status.scheduled');
-            break;
         case PublishStatus.EXPIRED:
             return i18n('status.expired');
-            break;
         case PublishStatus.OFFLINE:
             return i18n('status.offline');
-            break;
         default:
             return i18n('status.unknown');
         }

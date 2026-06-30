@@ -1,0 +1,29 @@
+{
+  "name": "app-contentstudio-workspace",
+  "version": "6.0.0",
+  "description": "Enonic XP - Content Studio (repo-root dev tooling: git hooks, formatting)",
+  "license": "Enonic License 2.0",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/enonic/app-contentstudio"
+  },
+  "scripts": {
+    "prepare": "husky",
+    "format": "oxfmt -c .oxfmtrc.json --write \"modules/*/src/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}\"",
+    "format:check": "oxfmt -c .oxfmtrc.json --check \"modules/*/src/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}\""
+  },
+  "lint-staged": {
+    "*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}": "oxfmt -c .oxfmtrc.json --write"
+  },
+  "devDependencies": {
+    "husky": "9.1.7",
+    "lint-staged": "17.0.8",
+    "oxfmt": "0.56.0"
+  },
+  "packageManager": "pnpm@10.33.4",
+  "engines": {
+    "node": ">= 24.16.0",
+    "pnpm": ">= 10.33.4"
+  }
+}

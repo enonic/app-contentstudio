@@ -59,7 +59,7 @@ import {initAiHost} from '@enonic/lib-contentstudio/v6/features/store/ai';
 import {initConfig} from '@enonic/lib-contentstudio/v6/features/store/config.store';
 import {$activeProject} from '@enonic/lib-contentstudio/v6/features/store/activeProject.store';
 import {$projects, initProjects} from '@enonic/lib-contentstudio/v6/features/store/projects.store';
-import * as $ from 'jquery';
+import $ from 'jquery';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app

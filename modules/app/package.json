@@ -11,13 +11,14 @@
     "build": "pnpm run /^build:.*$/",
     "build:worker": "rspack build --config rspack.worker.config.js",
     "build:client": "rspack build",
-    "build:server": "tsc --project ./src/main/resources/lib/tsconfig.json",
+    "build:server": "node build.server.mjs",
     "check": "pnpm run /^check:.*$/",
     "check:types": "pnpm run /^check:types:.*$/",
     "check:types:client": "tsc --pretty --skipLibCheck --noEmit",
+    "check:types:server": "tsc --pretty --noEmit --project ./src/main/resources/lib/tsconfig.json",
     "check:types:worker": "tsc --pretty --skipLibCheck --noEmit --project ./src/main/resources/assets/shared-socket/tsconfig.json",
-    "check:lint": "eslint **/*.ts --quiet --cache",
-    "check:lint:fix": "eslint **/*.ts --quiet --cache --fix",
+    "check:lint": "oxlint -c ../../.oxlintrc.json --quiet src/main/resources/assets/js",
+    "check:lint:fix": "oxlint -c ../../.oxlintrc.json --quiet --fix src/main/resources/assets/js",
     "test": "echo 'No tests yet'",
     "test:run": "echo 'No tests yet'"
   },
@@ -53,7 +54,6 @@
     "@enonic-types/lib-portal": "^8",
     "@enonic-types/lib-value": "^8",
     "@enonic-types/lib-websocket": "^8",
-    "@enonic/eslint-config": "^2.1.0",
     "@rspack/cli": "^1.7.11",
     "@rspack/core": "^1.7.11",
     "@swc/core": "^1.15.2",
@@ -66,14 +66,12 @@
     "browserslist-config-enonic": "^1.0.8",
     "css-loader": "^7.1.2",
     "cssnano": "^7.1.2",
-    "eslint": "^9.39.4",
-    "globals": "^15.15.0",
     "less-loader": "^12.3.0",
+    "oxlint": "1.71.0",
     "postcss-loader": "^8.2.0",
     "postcss-normalize": "^13.0.1",
     "postcss-sort-media-queries": "^5.2.0",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.47.0"
+    "typescript": "7.0.1-rc"
   },
   "browserslist": [
     "extends browserslist-config-enonic"
