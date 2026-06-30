@@ -1,8 +1,6 @@
 import {atom, computed} from 'nanostores';
 import {$contentDeleted, $contentArchived, $contentCreated, $contentMoved} from './socket.store';
 import type {ContentSummary} from '../../../app/content/ContentSummary';
-import {calcContentState} from '../utils/cms/content/workflow';
-import {calcTreePublishStatus} from '../utils/cms/content/status';
 import {
     createEmptyState,
     setNode,
@@ -33,10 +31,10 @@ import {
     type CreateNodeOptions,
 } from '../lib/tree-store';
 import {$uploads, type UploadItem} from './uploads.store';
-import {$contentCache, getIdByPath} from './content.store';
+import {$contentCache} from './content.store';
 import type {ContentData} from '../views/browse/grid/ContentData';
 import type {ContentUploadData} from '../views/browse/grid/ContentUploadData';
-import {convertToContentFlatNode} from './tree/utils';
+import {convertToContentFlatNode, findParentIdByPath, toTreeNodeData} from './tree/utils';
 import type {
     ContentTreeNodeData,
     ContentTreeState,
@@ -317,33 +315,6 @@ $contentArchived.subscribe((event) => {
         removeContentFromTree(ids);
     }
 });
-
-// Helper: Convert content to tree node data
-function toTreeNodeData(summary: ContentSummary): ContentTreeNodeData {
-    return {
-        id: summary.getId(),
-        displayName: summary.getDisplayName(),
-        name: summary.getName().toString(),
-        publishStatus: calcTreePublishStatus(summary),
-        contentState: calcContentState(summary),
-        contentType: summary.getType(),
-        iconUrl: summary.getIconUrl(),
-    };
-}
-
-// Helper: Find parent ID by path (O(1) lookup via path index)
-function findParentIdByPath(content: ContentSummary): string | null {
-    const path = content.getPath();
-    if (!path?.hasParentContent()) return null;
-
-    const parentPath = path.getParentPath();
-    if (!parentPath || parentPath.isRoot()) return null;
-
-    const parentId = getIdByPath(parentPath.toString());
-    if (!parentId) return null;
-
-    return parentId;
-}
 
 // Helper: Add newly created content to tree
 // Uses single state update to avoid stale state race conditions

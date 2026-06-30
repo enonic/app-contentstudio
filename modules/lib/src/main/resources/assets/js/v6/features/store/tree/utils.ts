@@ -4,6 +4,7 @@ import type {ContentTreeNodeData} from './types';
 import type {ContentData} from '../../views/browse/grid/ContentData';
 import {calcContentState} from '../../utils/cms/content/workflow';
 import {calcTreePublishStatus} from '../../utils/cms/content/status';
+import {getIdByPath} from '../content.store';
 
 /**
  * Converts a tree FlatNode to ContentData format for rendering.
@@ -52,4 +53,26 @@ export function convertToContentFlatNode(
             item: content,
         },
     } as FlatNode<ContentData>;
+}
+
+export function toTreeNodeData(summary: ContentSummary): ContentTreeNodeData {
+    return {
+        id: summary.getId(),
+        displayName: summary.getDisplayName(),
+        name: summary.getName().toString(),
+        publishStatus: calcTreePublishStatus(summary),
+        contentState: calcContentState(summary),
+        contentType: summary.getType(),
+        iconUrl: summary.getIconUrl(),
+    };
+}
+
+export function findParentIdByPath(content: ContentSummary): string | null {
+    const path = content.getPath();
+    if (!path?.hasParentContent()) return null;
+
+    const parentPath = path.getParentPath();
+    if (!parentPath || parentPath.isRoot()) return null;
+
+    return getIdByPath(parentPath.toString()) ?? null;
 }
