@@ -96,7 +96,7 @@ export const RenameContentDialog = (): ReactElement => {
                     }}
                 >
                     <Dialog.DefaultHeader title={title} withClose>
-                        <Dialog.Description className='text-subtle'>
+                        <Dialog.Description className='overflow-hidden text-subtle text-ellipsis'>
                             {fullPath}
                         </Dialog.Description>
                     </Dialog.DefaultHeader>
