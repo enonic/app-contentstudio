@@ -392,6 +392,11 @@ export class ContentWizardActions extends WizardActions<Content> {
         return this;
     }
 
+    resetUnpublishedChildrenCheck(): ContentWizardActions {
+        this.hasCheckedUnpublishedChildren = false;
+        return this;
+    }
+
     setCompareResult(result: CompareResult | undefined): ContentWizardActions {
         this.compareResult = result;
         return this;
