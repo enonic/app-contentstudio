@@ -102,9 +102,6 @@ export function getConfig(locales: string[], aiEnabled: boolean): Record<string,
         statusApiUrl: apiUrl({
             api: 'admin:status'
         }),
-        eventApiUrl: apiUrl({
-            api: 'admin:event'
-        }),
         phrasesAsJson: JSON.stringify(geti18nPhrases(locales)),
         sharedSocketUrl: assetUrl({
             path: 'shared-socket.js'
