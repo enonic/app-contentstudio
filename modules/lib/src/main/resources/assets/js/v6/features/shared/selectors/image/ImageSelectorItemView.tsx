@@ -28,14 +28,6 @@ export const ImageSelectorItemView = ({content, hideStatus = false}: ImageSelect
     const isRemoved = !content.getPath();
 
     const contentId = content.getId();
-    const displayName = content.getDisplayName() || content.getType()?.getLocalName();
-    const subName = content.getPath() ? content.getPath().toString() : '';
-    const iconUrl = new ImageUrlResolver(null, activeProject)
-        .setContentId(content.getContentId())
-        .setSize(480)
-        .setTimestamp(content.getModifiedTime())
-        .disableCropping()
-        .resolveForPreview();
 
     if (isRemoved) {
         return (
@@ -49,6 +41,15 @@ export const ImageSelectorItemView = ({content, hideStatus = false}: ImageSelect
             </div>
         );
     }
+
+    const displayName = content.getDisplayName() || content.getType()?.getLocalName();
+    const subName = content.getPath() ? content.getPath().toString() : '';
+    const iconUrl = new ImageUrlResolver(null, activeProject)
+        .setContentId(content.getContentId())
+        .setSize(480)
+        .setTimestamp(content.getModifiedTime())
+        .disableCropping()
+        .resolveForPreview();
 
     return (
         <div data-component={IMAGE_SELECTOR_ITEM_VIEW} className="flex items-center gap-2.5 min-w-0">
