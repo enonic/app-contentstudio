@@ -1,6 +1,6 @@
 const Page = require('./page');
 const appConst = require('../libs/app_const');
-const {BUTTONS, TREE_GRID} = require('../libs/elements');
+const {BUTTONS} = require('../libs/elements');
 const XPATH = {
     container: `//div[contains(@role,'dialog') and descendant::h2[contains(.,'Delete item')]]`,
     inboundErrorStateEntry: "//div[contains(@id,'DialogStateEntry')]/span[text()='Inbound references']",
@@ -17,11 +17,11 @@ const XPATH = {
     mainListItemsDisplayName: `//div[@role='separator']/preceding::div[@role='listitem'][ancestor::div[@role='dialog' and @data-component='DeleteDialogMainContent']]//div[@data-component='ContentLabel']//span[following-sibling::small]`,
     // Single-item case: only one ContentListItemWithReference is rendered (no separator/dependant list shown):
     singleItemDisplayName: `//div[@data-component='ContentReferenceList']//div[@data-component='ContentListItemWithReference']//div[@data-component='ContentLabel']//span[following-sibling::small]`,
+    // Dependant items listed after the separator ("Other items that will be archived"):
+    dependantItemsDisplayName: `//div[@data-component='Separator']/following-sibling::ul//div[@data-component='ContentLabel']//div[contains(@class,'flex-col')]//span[1]`,
 
     getShowReferencesButtonLocator(displayName) {
-        return XPATH.container +
-               TREE_GRID.listItemByDisplayNameAndDataComponent('ContentListItemWithReference', displayName) +
-               "//a[text()='Show references']";
+        return XPATH.container + XPATH.itemByDisplayName(displayName) + "//a[@data-component='ContentReferencesLink']";
     }
 };
 
@@ -154,7 +154,7 @@ class DeleteContentDialog extends Page {
     }
 
     async getDependantItemsName() {
-        let locator = XPATH.container + XPATH.dependantListUl + lib.H6_DISPLAY_NAME;
+        let locator = XPATH.container + XPATH.dependantItemsDisplayName;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
     }
@@ -169,8 +169,6 @@ class DeleteContentDialog extends Page {
 
     async waitForShowReferencesButtonDisplayed(displayName) {
         try {
-            //let locator = XPATH.container + TREE_GRID.listItemByDisplayNameAndDataComponent('ContentListItemWithReference', displayName) +
-            //             "//a[text()='Show references']";
             let locator = XPATH.getShowReferencesButtonLocator(displayName);
             return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {

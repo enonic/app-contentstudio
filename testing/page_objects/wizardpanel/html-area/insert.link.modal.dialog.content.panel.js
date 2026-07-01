@@ -23,16 +23,24 @@ class InsertLinkDialogContentPanel extends Page {
     }
 
     get addAnchorButton() {
-        return XPATH.container + XPATH.contentPanel + "//span[contains(.,'Fragment')]/following-sibling::button | " +
-               XPATH.container + XPATH.contentPanel + "//span[contains(.,'Fragment')]/..//button[contains(.,'Add')]";
+        return XPATH.container + XPATH.contentPanel + "//span[contains(.,'Anchor')]/..//button[contains(.,'Add')]";
     }
 
     get anchorTextInput() {
-        return XPATH.container + XPATH.contentPanel + "//span[contains(.,'Fragment')]/../following-sibling::div//input";
+        return XPATH.container + XPATH.contentPanel + "//span[contains(.,'Anchor')]/../following-sibling::div//input";
+    }
+
+    get anchorFormValidationMessage() {
+        return XPATH.container + XPATH.contentPanel + "//span[contains(@class,'text-enonic-red-500')]";
     }
 
     get addParametersButton() {
         return XPATH.container + XPATH.contentPanel + "//span[contains(.,'Parameters')]/..//button[contains(.,'Add')]";
+    }
+
+    get parametersFormValidationMessage() {
+        return XPATH.container + XPATH.contentPanel +
+               "//span[contains(.,'Parameters')]/../following-sibling::span[contains(@class,'text-enonic-red-500')]";
     }
 
     get contentSelectorInput() {
@@ -191,13 +199,23 @@ class InsertLinkDialogContentPanel extends Page {
     }
 
     async getTextInAnchorInput() {
-        await this.waitForElementDisplayed(this.anchorTextInput, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.anchorTextInput);
         return await this.getTextInInput(this.anchorTextInput);
     }
 
     async typeTextInAnchorInput(text) {
-        await this.waitForElementDisplayed(this.anchorTextInput, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.anchorTextInput);
         return await this.typeTextInInput(this.anchorTextInput, text);
+    }
+
+    async getAnchorFormValidationMessage() {
+        await this.waitForElementDisplayed(this.anchorFormValidationMessage);
+        return await this.getText(this.anchorFormValidationMessage);
+    }
+
+    async getParametersFormValidationMessage() {
+        await this.waitForElementDisplayed(this.parametersFormValidationMessage);
+        return await this.getText(this.parametersFormValidationMessage);
     }
 
     async typeInParameterNameInput(value, index) {

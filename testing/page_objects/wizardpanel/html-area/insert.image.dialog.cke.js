@@ -296,8 +296,7 @@ class InsertImageDialog extends Page {
             await this.waitForElementDisplayed(this.imageOptionsFilterInput, appConst.mediumTimeout);
             await this.typeTextInInput(this.imageOptionsFilterInput, path);
             await this.pause(1000);
-            let itemLocator = XPATH.container +
-                              `//div[@data-component='ImageSelectorItemView' and descendant::*[contains(text(),'${path}')]]`;
+            let itemLocator = `//div[@data-component='ImageSelectorItemView' and descendant::*[contains(text(),'${path}')]]`;
             await this.waitForElementDisplayed(itemLocator, appConst.mediumTimeout);
             await this.clickOnElement(itemLocator);
             await this.pause(400);

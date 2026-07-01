@@ -83,7 +83,9 @@ describe('Generate name for fragments specification', function () {
 
             await studioUtils.saveScreenshot('x_data_fragment');
             // 8. Verify that x-data toggle is displayed in the fragment-wizard:
-            await contentWizard.clickOnXdataTogglerByName(appConst.X_DATA_NAME.TEXT_AREA_X_DATA_NAME);
+            await contentWizard.clickOnXdataMenuTrigger();
+            await contentWizard.clickOnXdataMenuItemCheckbox(appConst.X_DATA_NAME.TEXT_AREA_X_DATA_NAME);
+            await contentWizard.clickOnConfirmXdataButton();
             // 9. Verify that red icon appears in the wizard, because the fragment gets invalid now, even before a saving:
             await contentWizard.waitUntilInvalidIconAppears();
         });

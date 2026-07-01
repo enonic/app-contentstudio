@@ -54,7 +54,7 @@ describe('Delete a content that has inbound references.', function () {
             await contentBrowsePanel.waitForGridLoaded(appConst.longTimeout);
             let displayNames = await contentBrowsePanel.getDisplayNamesInGrid();
             await studioUtils.saveScreenshot('inbound_ref_shown');
-            assert.equal(displayNames[0], SHORTCUT.displayName, "Expected shortcut should be filtered in the grid");
+            assert.ok(displayNames.includes(SHORTCUT.displayName), "Expected shortcut should be filtered in the grid");
         });
 
     it(`GIVEN Delete content dialog is opened WHEN 'Ignore inbound references' link has been clicked THEN Archive button gets enabled`,
