@@ -14,6 +14,8 @@ export type ContentSelectorFilterOptions = {
     contentTypeNames?: string[];
     /** Allowed content paths for site restriction (e.g., ['${site}']) */
     allowedContentPaths?: string[];
+    /** When true, allowedContentPaths are additionally enforced on the client as exact-node-or-descendant matches */
+    strictAllowedPaths?: boolean;
     /** Context content for path matching in query expressions */
     contextContent?: ContentSummary;
     /** Application key for filtering */

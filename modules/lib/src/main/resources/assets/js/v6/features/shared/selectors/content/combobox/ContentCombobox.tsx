@@ -52,6 +52,8 @@ export type ContentComboboxProps = {
     'contentTypeNames'?: string[];
     /** Allowed content paths for site restriction (e.g., ['${site}']) */
     'allowedContentPaths'?: string[];
+    /** Enforce allowedContentPaths on the client as exact-node-or-descendant matches. */
+    'strictAllowedPaths'?: boolean;
     /** Context content for path matching in query expressions */
     'contextContent'?: ContentSummary;
     /** Application key for filtering */
@@ -92,6 +94,7 @@ export const ContentCombobox = ({
     dropdownMaxHeight,
     contentTypeNames = EMPTY_STRING_ARRAY,
     allowedContentPaths = EMPTY_STRING_ARRAY,
+    strictAllowedPaths = false,
     contextContent,
     applicationKey,
 }: ContentComboboxProps): ReactElement => {
@@ -151,7 +154,7 @@ export const ContentCombobox = ({
         dropdownHeight,
         error: internalError,
         retry,
-    } = useContentComboboxController({filters: filterOptions, listMode: externalListMode, dropdown: dropdownOptions});
+    } = useContentComboboxController({filters: filterOptions, strictAllowedPaths, listMode: externalListMode, dropdown: dropdownOptions});
 
     // Resolved labels
     const resolvedPlaceholder = placeholder ?? defaultPlaceholder;

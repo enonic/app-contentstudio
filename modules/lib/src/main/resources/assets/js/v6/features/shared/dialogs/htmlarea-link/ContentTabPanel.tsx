@@ -121,6 +121,7 @@ export const ContentTabPanel = (): ReactElement => {
                         onSelectionChange={handleSelectionChange}
                         selectionMode='single'
                         allowedContentPaths={allowedContentPaths}
+                        strictAllowedPaths
                         error={!!errors.content}
                         closeOnBlur
                         className='flex-1 focus-within:z-10'

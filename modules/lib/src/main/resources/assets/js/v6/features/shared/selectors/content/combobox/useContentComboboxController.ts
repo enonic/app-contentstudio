@@ -10,6 +10,8 @@ import {useDebouncedValue} from '../../../../utils/hooks/useDebouncedValue';
 export type UseContentComboboxControllerOptions = {
     /** Filter options for content requests */
     filters: ContentFilterOptions;
+    /** Enforce allowedContentPaths on the client as exact-node-or-descendant matches. */
+    strictAllowedPaths?: boolean;
     /** Debounce delay for search input in milliseconds */
     debounceDelay?: number;
     /** List mode */
@@ -86,7 +88,7 @@ const DEFAULT_DEBOUNCE_DELAY = 300;
  * presentation, making the component more testable and maintainable.
  */
 export function useContentComboboxController(options: UseContentComboboxControllerOptions): UseContentComboboxControllerReturn {
-    const {filters, dropdown, debounceDelay = DEFAULT_DEBOUNCE_DELAY, listMode: externalListMode = 'tree'} = options;
+    const {filters, strictAllowedPaths, dropdown, debounceDelay = DEFAULT_DEBOUNCE_DELAY, listMode: externalListMode = 'tree'} = options;
 
     // Dropdown options
     const treeRowHeight = dropdown?.treeRowHeight ?? TREE_ROW_HEIGHT;
@@ -143,6 +145,15 @@ export function useContentComboboxController(options: UseContentComboboxControll
         treeQuery,
     });
 
+    const filteredTreeItems = useMemo(
+        () => (!strictAllowedPaths ? treeItems : strictFilterNodesByPaths(treeItems, filters.allowedContentPaths)),
+        [treeItems]
+    );
+    const filteredFlatItems = useMemo(
+        () => (!strictAllowedPaths ? flatItems : strictFilterNodesByPaths(flatItems, filters.allowedContentPaths)),
+        [flatItems]
+    );
+
     // Track if we need to trigger a search
     const lastSearchedQueryRef = useRef<string | null>(null);
 
@@ -172,7 +183,7 @@ export function useContentComboboxController(options: UseContentComboboxControll
     useEffect(() => {
         if (!open) return;
 
-        const items = isTreeView ? treeItems : flatItems;
+        const items = isTreeView ? filteredTreeItems : filteredFlatItems;
         const firstItem = items[0];
 
         if (firstItem) {
@@ -183,11 +194,11 @@ export function useContentComboboxController(options: UseContentComboboxControll
         } else {
             setActiveId(null);
         }
-    }, [open, isTreeView, treeItems, flatItems, activeId]);
+    }, [open, isTreeView, filteredTreeItems, filteredFlatItems, activeId]);
 
     const displayItems = useMemo(() => {
-        return isTreeView ? treeItems : flatItems;
-    }, [isTreeView, treeItems, flatItems]);
+        return isTreeView ? filteredTreeItems : filteredFlatItems;
+    }, [isTreeView, filteredTreeItems, filteredFlatItems]);
 
     // Calculate dropdown height based on display items
     const dropdownHeight = useMemo(() => {
@@ -208,14 +219,7 @@ export function useContentComboboxController(options: UseContentComboboxControll
         }
 
         return Math.min(contentHeight, maxHeight);
-    }, [
-        displayItems.length,
-        isTreeView,
-        treeRowHeight,
-        flatRowHeight,
-        flatRowHeightRatio,
-        maxHeight,
-    ]);
+    }, [displayItems.length, isTreeView, treeRowHeight, flatRowHeight, flatRowHeightRatio, maxHeight]);
 
     // Handlers
     const handleOpenChange = useCallback((next: boolean): void => {
@@ -313,4 +317,21 @@ export function useContentComboboxController(options: UseContentComboboxControll
         error,
         retry,
     };
+}
+
+//
+// * Helpers
+//
+
+function strictFilterNodesByPaths(nodes: ContentComboboxFlatNode[], allowedContentPaths?: string[]): ContentComboboxFlatNode[] {
+    if (!allowedContentPaths?.length) return nodes;
+
+    const allPlain = allowedContentPaths.every((p) => p.startsWith('/') && !p.includes('*') && !p.includes('$'));
+
+    if (!allPlain) return nodes;
+
+    return nodes.filter((node) => {
+        const path = node.data?.item?.getPath()?.toString();
+        return path == null || allowedContentPaths.some((p) => path === p || path.startsWith(`${p}/`));
+    });
 }

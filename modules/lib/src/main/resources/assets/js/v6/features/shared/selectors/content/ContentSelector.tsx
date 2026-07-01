@@ -81,6 +81,7 @@ export const ContentSelector = ({
     'aria-label': ariaLabel,
     contentTypeNames,
     allowedContentPaths,
+    strictAllowedPaths,
     contextContent,
     applicationKey,
     rowRenderer,
@@ -106,6 +107,7 @@ export const ContentSelector = ({
                     aria-label={ariaLabel}
                     contentTypeNames={contentTypeNames}
                     allowedContentPaths={allowedContentPaths}
+                    strictAllowedPaths={strictAllowedPaths}
                     contextContent={contextContent}
                     applicationKey={applicationKey}
                     rowRenderer={rowRenderer}
