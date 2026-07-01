@@ -18,9 +18,9 @@ apis:
   - "styles"
   - "admin:extension"
   - "admin:status"
-  - "admin:event"
   - "com.enonic.app.contentstudio.plus:license"
   - "com.enonic.app.contentstudio.plus:layers"
+  - "com.enonic.xp.app.main:events"
 interfaces:
   - "contentstudio.menuitem"
   - "contentstudio.contextpanel"
