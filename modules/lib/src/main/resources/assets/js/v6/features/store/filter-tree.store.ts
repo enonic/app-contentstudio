@@ -272,7 +272,14 @@ export function clearFilterRefreshNeeded(): void {
 }
 
 $contentMoved.subscribe((event) => {
-    if (event?.data) {
+    if (!event?.data) return;
+
+    const hasCrossParentMove = event.data.some((moved) => {
+        const newPath = moved.item.getContentSummary().getPath?.();
+        return newPath != null && !moved.oldPath.getParentPath().equals(newPath.getParentPath());
+    });
+
+    if (hasCrossParentMove) {
         $filterRefreshNeeded.set(Date.now());
     }
 });
