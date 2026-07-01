@@ -6,6 +6,7 @@ import {ContentButton} from '../../../content/ContentButton';
 import {StatusBadge} from '../../../status/StatusBadge';
 import {useI18n} from '../../../../hooks/useI18n';
 import {calcTreePublishStatus} from '../../../../utils/cms/content/status';
+import {ContentNotAvailable} from './ContentNotAvailable';
 
 //
 // * Types
@@ -37,14 +38,10 @@ const CONTENT_SELECTION_ITEM_NAME = 'ContentSelectionItem';
  * Left cell: clickable content label (opens content for editing).
  * Right cell: status badge and remove button.
  */
-export const ContentSelectionItem = ({
-    content,
-    onRemove,
-    disabled = false,
-    className,
-}: ContentSelectionItemProps): ReactElement => {
-    const id = content.getId();
+export const ContentSelectionItem = ({content, onRemove, disabled = false, className}: ContentSelectionItemProps): ReactElement => {
     const removeLabel = useI18n('action.remove');
+    const id = content.getId();
+    const isRemoved = !content.getPath();
 
     return (
         <GridList.Row
@@ -54,18 +51,22 @@ export const ContentSelectionItem = ({
             disabled={disabled}
             className={className ?? 'gap-3 px-1.5'}
         >
-            <GridList.Cell className='flex-1 min-w-0'>
-                <GridList.Action>
-                    <ContentButton content={content} disabled={disabled} labelVariant='detailed' />
-                </GridList.Action>
+            <GridList.Cell className="flex-1 min-w-0">
+                {isRemoved ? (
+                    <ContentNotAvailable contentId={id} />
+                ) : (
+                    <GridList.Action>
+                        <ContentButton content={content} disabled={disabled} labelVariant="detailed" />
+                    </GridList.Action>
+                )}
             </GridList.Cell>
-                <StatusBadge status={calcTreePublishStatus(content)} />
+            {!isRemoved && <StatusBadge status={calcTreePublishStatus(content)} />}
             <GridList.Cell>
                 <GridList.Action>
                     <IconButton
                         icon={X}
-                        size='sm'
-                        variant='text'
+                        size="sm"
+                        variant="text"
                         iconSize={18}
                         iconStrokeWidth={2}
                         onClick={(event) => {

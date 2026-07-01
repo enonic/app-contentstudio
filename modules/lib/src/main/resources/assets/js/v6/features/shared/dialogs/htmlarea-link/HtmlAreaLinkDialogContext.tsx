@@ -1,4 +1,3 @@
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {isBlank} from '../../../utils/format/isBlank';
@@ -651,7 +650,7 @@ export function HtmlAreaLinkDialogProvider({children, openRef}: HtmlAreaLinkDial
                 });
             },
             (error) => {
-                DefaultErrorHandler.handle(error);
+                console.error(error);
             },
         );
     }, []);
