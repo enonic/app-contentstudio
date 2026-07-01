@@ -1015,11 +1015,25 @@ export class ContentWizardPanel
         };
 
         const publishOrUnpublishHandler = (contents: ContentSummaryAndCompareStatus[]) => {
+            const persistedPath = this.getPersistedItem()?.getPath();
+            let currentContentUpdated = false;
+            let descendantChanged = false;
+
             contents.forEach(content => {
                 if (this.isCurrentContentId(content.getContentId())) {
                     this.updateWithContentSummary(content);
+                    currentContentUpdated = true;
+                } else if (persistedPath && content.getPath().isDescendantOf(persistedPath)) {
+                    descendantChanged = true;
                 }
             });
+
+            // A descendant may be (un)published without the current content itself
+            // appearing in the event (e.g. publishing the tree of an already-online
+            // site). Its cached unpublished-children info would otherwise stay stale.
+            if (!currentContentUpdated && descendantChanged) {
+                this.wizardActions.resetUnpublishedChildrenCheck();
+            }
 
             this.wizardActions.refreshState();
         };
