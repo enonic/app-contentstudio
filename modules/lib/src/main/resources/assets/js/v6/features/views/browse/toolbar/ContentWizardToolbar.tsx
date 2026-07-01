@@ -215,7 +215,7 @@ export const ContentWizardToolbar = ({
                     </div>
                     <OverflowActionRow actions={toolbarActions} className="hidden sm:flex min-w-0 flex-1" />
                 </div>
-                <div className="flex min-w-0 flex-1 items-center justify-center px-0 sm:flex-none sm:shrink sm:px-2">
+                <div className="flex min-w-0 flex-1 items-center justify-center px-0 sm:px-2">
                     {isContentInherited && (
                         <Toolbar.Item className="inline-flex shrink-0">
                             <LayerIndicator
