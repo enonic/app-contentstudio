@@ -1,6 +1,6 @@
 import {cn, GridList} from '@enonic/ui';
 import {useCallback, useEffect, useRef, useState, type ReactElement} from 'react';
-import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
+import {ContentSummary, ContentSummaryBuilder} from '../../../../../../app/content/ContentSummary';
 import {fetchContentByIds} from '../../../../api/content-fetcher';
 import {useI18n} from '../../../../hooks/useI18n';
 import {ContentSelectionItem} from './ContentSelectionItem';
@@ -86,11 +86,9 @@ export const ContentSelection = ({
         fetchContentByIds([...selection])
             .then((items) => {
                 if (requestId !== requestIdRef.current) return;
-                // Preserve selection order
+                // Preserve selection order; use a pathless stub for ids not found (deleted/missing)
                 const itemMap = new Map(items.map(item => [item.getId(), item]));
-                const ordered = selection
-                    .map(id => itemMap.get(id))
-                    .filter((item): item is ContentSummary => item != null);
+                const ordered = selection.map(id => itemMap.get(id) ?? new ContentSummaryBuilder().setId(id).build());
                 setLoadedItems(ordered);
             })
             .finally(() => {
