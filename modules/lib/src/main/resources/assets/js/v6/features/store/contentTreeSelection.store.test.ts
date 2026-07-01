@@ -824,4 +824,57 @@ describe('contentTreeSelection.store', () => {
             expect($selectAllMode.get()).toBe(false);
         });
     });
+
+    describe('active highlight on filter transitions', () => {
+        beforeEach(() => {
+            addTreeNodes([
+                {id: '1', data: createMockNodeData('1')},
+                {id: '2', data: createMockNodeData('2')},
+            ]);
+            setTreeRootIds(['1', '2']);
+        });
+
+        it('clears active highlight when entering filter mode', () => {
+            setActive('1');
+
+            setFilterActive(true);
+
+            expect($activeId.get()).toBeNull();
+        });
+
+        it('clears active highlight when leaving filter mode', () => {
+            setFilterActive(true);
+            addFilterNodes([{id: 'f1', data: createMockNodeData('f1')}]);
+            setFilterRootIds(['f1']);
+            setActive('f1');
+
+            setFilterActive(false);
+
+            expect($activeId.get()).toBeNull();
+        });
+
+        it('clears active highlight when filter results change', () => {
+            setFilterActive(true);
+            addFilterNodes([{id: 'f1', data: createMockNodeData('f1')}]);
+            setFilterRootIds(['f1']);
+            setActive('f1');
+
+            resetFilterTree();
+            addFilterNodes([{id: 'f2', data: createMockNodeData('f2')}]);
+            setFilterRootIds(['f2']);
+
+            expect($activeId.get()).toBeNull();
+        });
+
+        it('keeps active highlight when filter tree expands (roots unchanged)', () => {
+            setFilterActive(true);
+            addFilterNodes([{id: 'f1', data: createMockNodeData('f1'), childIds: ['f1-1']}]);
+            setFilterRootIds(['f1']);
+            setActive('f1');
+
+            addFilterNodes([{id: 'f1-1', data: createMockNodeData('f1-1'), parentId: 'f1'}]);
+
+            expect($activeId.get()).toBe('f1');
+        });
+    });
 });

@@ -269,6 +269,10 @@ $isFilterActive.subscribe(() => {
     if ($selectAllMode.get()) {
         $selectAllMode.set(false);
     }
+
+    if ($activeId.get() !== null) {
+        $activeId.set(null);
+    }
 });
 
 //
@@ -289,9 +293,14 @@ $filterTreeState.subscribe((state) => {
 
     prevFilterRootIds = currentRootIds;
 
-    // Disable selectAllMode when filter results change (only in filter mode)
-    if (rootsChanged && $selectAllMode.get() && $isFilterActive.get()) {
-        $selectAllMode.set(false);
+    if (rootsChanged && $isFilterActive.get()) {
+        if ($selectAllMode.get()) {
+            $selectAllMode.set(false);
+        }
+
+        if ($activeId.get() !== null) {
+            $activeId.set(null);
+        }
     }
 });
 
