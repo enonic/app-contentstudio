@@ -57,6 +57,7 @@ import {ContentWizardPanelParams} from '@enonic/lib-contentstudio/app/wizard/Con
 import {AppElement} from '@enonic/lib-contentstudio/v6/features/App';
 import {initAiHost} from '@enonic/lib-contentstudio/v6/features/store/ai';
 import {initConfig} from '@enonic/lib-contentstudio/v6/features/store/config.store';
+import {initLanguages} from '@enonic/lib-contentstudio/v6/features/store/languages.store';
 import {$activeProject} from '@enonic/lib-contentstudio/v6/features/store/activeProject.store';
 import {$projects, initProjects} from '@enonic/lib-contentstudio/v6/features/store/projects.store';
 import $ from 'jquery';
@@ -558,6 +559,7 @@ async function startContentBrowser() {
     CONFIG.setConfig(JSON.parse(document.getElementById(configScriptId).innerText) as ConfigObject);
     initConfig(configScriptId);
     initProjects();
+    void initLanguages();
     Messages.addMessages(JSON.parse(CONFIG.getString('phrasesAsJson')) as object);
     AuthContext.init(Principal.fromJson(CONFIG.get('user') as PrincipalJson),
         (CONFIG.get('principals') as PrincipalJson[]).map(Principal.fromJson));
