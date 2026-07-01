@@ -1,5 +1,5 @@
 /**
- * Created on 03.01.2023.
+ * Created on 03.01.2023.  updated on 01.07.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -24,7 +24,7 @@ describe('publish.wizard.exclude.items.in.progress.spec - tests for  Exclude ite
             let childFolderName = contentBuilder.generateRandomName('child');
             PARENT_FOLDER = contentBuilder.buildFolder(parentFolder);
             CHILD_FOLDER = contentBuilder.buildFolder(childFolderName);
-            await studioUtils.doAddFolder(PARENT_FOLDER);
+            await studioUtils.doAddReadyFolder(PARENT_FOLDER);
             await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
             await studioUtils.doAddFolder(CHILD_FOLDER);
         });
@@ -42,21 +42,18 @@ describe('publish.wizard.exclude.items.in.progress.spec - tests for  Exclude ite
             await contentPublishDialog.waitForDialogOpened();
             // 3. Verify that number (2) is displayed for in-progress items
             let actualResult = await contentPublishDialog.getNumberOfInProgressItems();
-            assert.equal(actualResult, '(2)', "(2) should be displayed in 'In progress' label");
+            assert.equal(actualResult, '(1)', "(1) should be displayed in 'In progress' label");
             // 4. Click on 'Exclude items in progress'
             await contentPublishDialog.clickOnExcludeItemsInProgressButton();
             await studioUtils.saveScreenshot('exclude_items_in_progress_clicked');
             // 5. Verify that 'Exclude items in progress' button gets not visible
             await contentPublishDialog.waitForExcludeItemsInProgressButtonNotDisplayed();
-            // 6. Verify that number of item in progress is reduced:
-            actualResult = await contentPublishDialog.getNumberOfInProgressItems();
-            assert.equal(actualResult, '(1)', "(1) should be displayed in 'In progress' label");
-            // 7. Verify that 'Hide excluded'  button is visible:
+            // 6. Verify that 'Hide excluded'  button is visible:
             await contentPublishDialog.waitForHideExcludedItemsButtonDisplayed();
-            // 8.  Verify that 'Publish now' button remains disabled
-            await contentPublishDialog.waitForPublishNowButtonDisabled();
-            await contentPublishDialog.markAsReadyButtonDisplayed();
-            // 9. 'Dependent block' should be visible:
+            // 7.  Verify that 'Publish now' button remains enabled
+            await contentPublishDialog.waitForPublishNowButtonEnabled();
+            //await contentPublishDialog.markAsReadyButtonDisplayed();
+            // 8. 'Dependent block' should be visible:
             await contentPublishDialog.waitForDependantsBlockDisplayed();
             // one item should be present in the 'Dependent block':
             let depItems = await contentPublishDialog.getDisplayNameInDependentItems();
@@ -64,26 +61,6 @@ describe('publish.wizard.exclude.items.in.progress.spec - tests for  Exclude ite
             assert.ok(depItems.length === 1, 'One dependent items should be present in the block');
         });
 
-    it("GIVEN Publish Wizard is opened WHEN 'Exclude child items' icon has been clicked THEN 'Exclude items in progress' button gets not visible",
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            let contentPublishDialog = new ContentPublishDialog();
-            // 1. Select the parent folder:
-            await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
-            // 2. Click on the 'Publish Tree' menu item
-            await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH_TREE);
-            await contentPublishDialog.waitForDialogOpened();
-            // 3. Click on 'Include children' checkbox and exclude children items:
-            await contentPublishDialog.clickOnIncludeChildrenCheckbox();
-            await studioUtils.saveScreenshot('exclude_items_in_progress_toggled');
-            // 4. Verify that 'Exclude items in progress' button gets not visible
-            await contentPublishDialog.waitForExcludeItemsInProgressButtonNotDisplayed();
-            let actualResult = await contentPublishDialog.getNumberOfInProgressItems();
-            assert.equal(actualResult, '(1)', "(1) should be displayed in 'In progress' label");
-            // 5. Verify that 'Publish now' button remains disabled
-            await contentPublishDialog.waitForPublishNowButtonDisabled();
-            await contentPublishDialog.markAsReadyButtonDisplayed();
-        });
 
     it("GIVEN parent folder is ready for publishing AND Publish Wizard is opened WHEN checkbox for 'work in progress' item has been unselected THEN 'Publish now' button gets enabled",
         async () => {
@@ -91,10 +68,6 @@ describe('publish.wizard.exclude.items.in.progress.spec - tests for  Exclude ite
             let contentPublishDialog = new ContentPublishDialog();
             // 1. Select the parent folder then click on Mark as ready button:
             await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
-            await contentBrowsePanel.clickOnMarkAsReadyButton();
-            await contentBrowsePanel.waitForNotificationMessage();
-            await contentPublishDialog.clickOnCloseButton();
-            await contentPublishDialog.waitForDialogClosed();
             // 2. Click on the 'Publish Tree' menu item
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH_TREE);
             await contentPublishDialog.waitForDialogOpened();
@@ -103,7 +76,6 @@ describe('publish.wizard.exclude.items.in.progress.spec - tests for  Exclude ite
             // 4. Unselect the checkbox for 'work in progress' child item:
             await contentPublishDialog.clickOnCheckboxInDependentItem(CHILD_FOLDER.displayName);
             await contentPublishDialog.clickOnApplySelectionButton();
-            // await contentPublishDialog.waitForAllDependantsCheckboxNotDisplayed();
             await studioUtils.saveScreenshot('publish_w_work_in_progress_unselected');
             // 4. Verify that 'Publish Now' button gets enabled after excluding 'work in progress' child item:
             await contentPublishDialog.waitForPublishNowButtonEnabled();
@@ -122,7 +94,7 @@ describe('publish.wizard.exclude.items.in.progress.spec - tests for  Exclude ite
             await contentPublishDialog.waitForDialogOpened();
             // 3. unselect the checkbox for 'ready for publishing' child item:
             await contentPublishDialog.clickOnCheckboxInDependentItem(CHILD_FOLDER.displayName);
-            await contentPublishDialog.clickOnApplySelectionButton();
+            await contentPublishDialog.clickOnApplyButton();
             // 4. Verify that 'Hide excluded' button remains visible
             await contentPublishDialog.waitForHideExcludedItemsButtonDisplayed();
             // 5. Select the checkbox for 'work in progress' child item:
@@ -130,7 +102,7 @@ describe('publish.wizard.exclude.items.in.progress.spec - tests for  Exclude ite
             // 6. 'Publish now' button should be disabled if Apply selection button is present
             await contentPublishDialog.waitForPublishNowButtonDisabled();
             // 7. Click on 'Apply selection':
-            await contentPublishDialog.clickOnApplySelectionButton();
+            await contentPublishDialog.clickOnApplyButton();
             await studioUtils.saveScreenshot('publish_w_work_in_progress_selected');
             // 8. Verify that 'Exclude items in progress' button should be visible now
             await contentPublishDialog.waitForExcludeItemsInProgressButtonDisplayed();

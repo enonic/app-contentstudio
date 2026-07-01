@@ -1,5 +1,5 @@
 /**
- * Created on 15.11.2023
+ * Created on 15.11.2023  updated on 01.07.2026
  */
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -16,7 +16,7 @@ const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/inse
 const DeleteContentDialog = require('../../page_objects/delete.content.dialog');
 const TextComponentInspectionPanel = require("../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel");
 
-describe('publish.dialog.dependant.items.spec: tests for dependant items', function () {
+describe('publish.wizard.deleted.dependencies.spec: tests for dependant items', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
@@ -31,7 +31,7 @@ describe('publish.dialog.dependant.items.spec: tests for dependant items', funct
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentDuplicateDialog = new ContentDuplicateDialog();
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
             await studioUtils.findAndSelectItem(appConst.TEST_IMAGES.CAPE);
             await contentBrowsePanel.clickOnDuplicateButtonAndWait();
@@ -69,8 +69,7 @@ describe('publish.dialog.dependant.items.spec: tests for dependant items', funct
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.clickOnInsertImageButton();
             // 4. Open 'Insert Image' dialog and insert an image in htmlArea:
-            await insertImageDialog.clickOnImageSelectorModeTogglerButton();
-            await insertImageDialog.filterAndSelectImageByPath(appConst.TEST_IMAGES.CAPE);
+            await insertImageDialog.filterAndSelectImageByPath(appConst.TEST_IMAGES.CAPE+".jpg-copy");
             await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();
             await insertImageDialog.waitForDialogClosed();
