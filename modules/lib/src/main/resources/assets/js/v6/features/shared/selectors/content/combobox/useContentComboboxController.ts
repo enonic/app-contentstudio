@@ -112,7 +112,7 @@ export function useContentComboboxController(options: UseContentComboboxControll
     const debouncedQuery = useDebouncedValue(inputValue, debounceDelay);
 
     // Tree view filters the tree itself; flat view drives the flat search instead.
-    const treeQuery = isTreeView ? debouncedQuery : '';
+    const treeQuery = isTreeView && !isBlank(debouncedQuery) ? debouncedQuery : '';
 
     // Memoize filter options to avoid recreating on every render
     const filterOptions: ContentFilterOptions = useMemo(
@@ -147,7 +147,8 @@ export function useContentComboboxController(options: UseContentComboboxControll
         treeQuery,
     });
 
-    // Legacy behavior: a non-blank search value forces flat mode, while clearing it restores the configured default.
+    // Legacy behavior: a non-blank search value forces flat mode,
+    // while clearing it restores the configured default.
     useEffect(() => {
         setIsTreeView(isBlank(debouncedQuery) ? defaultIsTree : false);
     }, [debouncedQuery, defaultIsTree]);
