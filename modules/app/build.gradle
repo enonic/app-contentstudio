@@ -121,6 +121,16 @@ tasks.register( 'pnpmBuild', PnpmTask ) {
     outputs.cacheIf { false }
 }
 
+// pnpmBuild writes into build/resources/main, which is on the main sourceSet output and thus
+// on the test compile/runtime classpaths. Gradle 9 fails the build unless the consumers of that
+// output declare an explicit dependency on the producing task.
+tasks.named('compileTestJava').configure {
+    dependsOn tasks.named('pnpmBuild')
+}
+tasks.named('test').configure {
+    dependsOn tasks.named('pnpmBuild')
+}
+
 tasks.named('jar').configure {
     exclude 'assets/**/*.ts'
     exclude 'assets/**/*.less'
