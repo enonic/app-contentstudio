@@ -24,7 +24,8 @@ const XPATH = {
     selectionStatusBar: "//div[@data-component='SelectionStatusBar']",
     inProgressStateEntryDiv: "//div[@data-component='SelectionStatusBar']//div[@data-component='StatusBarErrorEntry' and descendant::*[@data-component='StatusIcon' and @aria-label='in-progress']]",
     invalidStateEntryDiv: "//div[@data-component='SelectionStatusBar']//div[@data-component='StatusBarErrorEntry' and descendant::*[@data-component='StatusIcon' and @aria-label='invalid']]",
-    inProgressSpan: "//span[contains(@class,'entry-text') and text()='In progress']",
+    inProgressSpan: "//span[contains(@class,'font-semibold') and contains(text(),'In progress')]",
+    invalidItemsSpan: "//span[contains(@class,'font-semibold') and contains(text(),'Invalid items')]",
     dependentItemToPublish: displayName => `//div[contains(@id,'StatusCheckableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     excludedItemsNote: "//span[@class='excluded-items-note']",
     publishChangeLogInput: "//input[contains(@placeholder,'Describe changes that will')]",
@@ -102,14 +103,6 @@ class ContentPublishDialog extends Page {
 
     get cancelButton() {
         return XPATH.container  + "//button[@data-component='StatusBarEntryButton' and text()='Cancel']";
-    }
-
-    getContainerXpath() {
-        return XPATH.container;
-    }
-
-    get allDependantsCheckbox() {
-        return XPATH.container + lib.checkBoxDiv('All');
     }
 
     async clickOnApplyButton(){
@@ -425,7 +418,6 @@ class ContentPublishDialog extends Page {
         return await this.getTextInInput(this.changeLogInput);
     }
 
-
     async isLogMessageLinkDisplayed() {
         await this.saveScreenshotUniqueName('publish_dlg_log_message_input');
         return await this.isElementDisplayed(this.logMessageLink, appConst.shortTimeout);
@@ -433,15 +425,15 @@ class ContentPublishDialog extends Page {
 
     async waitForPublishNowButtonEnabled() {
         try {
-            await this.waitForElementDisplayed(this.publishNowButton, appConst.mediumTimeout);
-            return await this.waitForElementEnabled(this.publishNowButton, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.publishNowButton);
+            return await this.waitForElementEnabled(this.publishNowButton);
         } catch (err) {
             await this.handleError(`Publish Wizard, 'Publish Now' button should be enabled, `, 'err_publish_now_button_enabled', err);
         }
     }
 
     waitForPublishNowButtonDisabled() {
-        return this.waitForElementNotClickable(this.publishNowButton, appConst.mediumTimeout);
+        return this.waitForElementNotClickable(this.publishNowButton);
     }
 
     async isRemoveItemIconDisabled(name) {
@@ -476,8 +468,6 @@ class ContentPublishDialog extends Page {
         let dateTimeRange = new DateTimeRange(XPATH.container);
         return await dateTimeRange.getOnlineFrom();
     }
-
-    getOnlineFrom
 
     async showOnlineToPickerPopup() {
         let dateTimeRange = new DateTimeRange(XPATH.container);
@@ -551,7 +541,7 @@ class ContentPublishDialog extends Page {
     }
 
     async waitForDependenciesListDisplayed() {
-        let locator = XPATH.container + XPATH.dependantList + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER;
+        const locator = XPATH.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV + DIALOG_ITEMS.ITEMS_NAME_SPAN;
         return await this.waitForElementDisplayed(locator);
     }
 
@@ -573,15 +563,14 @@ class ContentPublishDialog extends Page {
 
     // get number of items in the span: In progress (4)
     async getNumberOfInProgressItems() {
-        let locator = XPATH.container + XPATH.inProgressSpan;
+        let locator = XPATH.container + XPATH.inProgressStateEntryDiv + XPATH.inProgressSpan;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        let value = await this.getAttribute(locator, 'data-count');
-        return value;
+        let text = await this.getText(locator);
+        return text.replace('In progress', '').trim();
     }
 
-    async getResolvedEntryText() {
-        let locator = XPATH.container +
-                      "//div[contains(@id,'DialogStateEntry') and contains(@class, 'resolved-entry')]//span[@class='entry-text']";
+    async getSelectionStatusBarText() {
+        let locator = XPATH.container + XPATH.selectionStatusBar + "//div[@data-component='StatusBarEntry']//span[contains(@class,'font-semibold')]";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator);
     }
@@ -610,9 +599,10 @@ class ContentPublishDialog extends Page {
     }
 
     async getNumberOfInvalidItems() {
-        let locator = XPATH.container + XPATH.dialogStateBarDiv + `//span[contains(.,'Invalid item(s)')]`;
+        let locator = XPATH.container + XPATH.invalidStateEntryDiv + XPATH.invalidItemsSpan;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.getAttribute(locator, 'data-count');
+        let text = await this.getText(locator);
+        return text.replace('Invalid items', '').trim();
     }
 
     getOnlineToScheduleValidationRecord() {

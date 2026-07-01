@@ -315,16 +315,6 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    async clickOnXdataTogglerByName(name) {
-        try {
-            await this.waitForElementDisplayed(XPATH.xDataTogglerByName(name));
-            await this.clickOnElement(XPATH.xDataTogglerByName(name));
-            return await this.pause(400);
-        } catch (err) {
-            await this.handleError(`Tried to click on X-data toggle`, 'err_x_data_toggle_click', err);
-        }
-    }
-
     // Gets titles of all x-data forms
     async getXdataTitles() {
         try {
@@ -950,6 +940,7 @@ class ContentWizardPanel extends Page {
     async clickOnMarkAsReadyButton() {
         try {
             await this.waitForMarkAsReadyButtonVisible();
+            await this.pause(300);
             await this.clickOnElement(this.markAsReadyButton);
             return await this.pause(500);
         } catch (err) {

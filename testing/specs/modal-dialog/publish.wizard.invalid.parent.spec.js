@@ -1,5 +1,5 @@
 /**
- * Created on 31.03.2023
+ * Created on 31.03.2023 updated on 01.07.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -26,8 +26,10 @@ describe('publish.wizard.invalid.parent.spec - test for dependent required items
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizard.typeDisplayName(SITE_NAME);
             await siteFormPanel.filterOptionsAndSelectApplication(appConst.TEST_APPS_NAME.APP_CONTENT_TYPES);
-            // TODO add x-data
-            await contentWizard.clickOnXdataTogglerByName(X_DATA_NAME);
+
+            await contentWizard.clickOnXdataMenuTrigger();
+            await contentWizard.clickOnXdataMenuItemCheckbox(X_DATA_NAME);
+            await contentWizard.clickOnConfirmXdataButton();
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
             await studioUtils.doCloseWizardAndSwitchToGrid();

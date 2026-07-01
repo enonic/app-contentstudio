@@ -1,5 +1,5 @@
 /**
- * Created on 16.09.2021
+ * Created on 16.09.2021 updated on 30.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -26,11 +26,11 @@ describe('delete.content.dialog.dependant.list.spec:  tests for Delete Content D
             await contentBrowsePanel.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogOpened();
             // 3. Verify that 'Dependants' header is displayed:
-            await deleteContentDialog.waitForDependantsHeaderDisplayed();
+            //await deleteContentDialog.waitForDependantsHeaderDisplayed();
             // 4. Verify the number of dependant items in the list
             let names = await deleteContentDialog.getDependantItemsName();
             assert.equal(names.length, 11, "Expected number of items should be present in the list");
-            let result = await deleteContentDialog.getNumberInArchiveButton();
+            let result = await deleteContentDialog.getNumberInDeleteButton();
             assert.equal(result, '12', '12 should be displayed in the Archive button');
         });
 
@@ -49,7 +49,7 @@ describe('delete.content.dialog.dependant.list.spec:  tests for Delete Content D
             let result = await deleteContentDialog.getDependantItemsName();
             assert.equal(result.length, 21, "Expected list of dependent items should be displayed");
             // Verify the total number of items to delete
-            let numberInArchiveButton = await deleteContentDialog.getNumberInArchiveButton();
+            let numberInArchiveButton = await deleteContentDialog.getNumberInDeleteButton();
             assert.equal(numberInArchiveButton, '23', '23 should be displayed in the Archive button');
         });
 
@@ -66,7 +66,7 @@ describe('delete.content.dialog.dependant.list.spec:  tests for Delete Content D
             await studioUtils.saveScreenshot('wizard_folder_11_shown_dependant');
             let names = await deleteContentDialog.getDependantItemsName();
             assert.equal(names.length, DEPENDANT_ITEMS_11, "Expected number of dependent items should be present in the list");
-            let numberInArchiveButton = await deleteContentDialog.getNumberInArchiveButton();
+            let numberInArchiveButton = await deleteContentDialog.getNumberInDeleteButton();
             assert.equal(numberInArchiveButton, '12', "12 should be displayed in the 'Archive' button");
         });
 

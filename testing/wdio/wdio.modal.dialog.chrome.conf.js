@@ -8,31 +8,21 @@ const browser_version = properties.get('browser.version');
 exports.config = {
 
     specs: [
-        //path.join(__dirname, '../specs/modal-dialog/*.spec.js'),
-        //path.join(__dirname, '../specs/permissions/*.spec.js')
-        path.join(__dirname, '../specs/modal-dialog/insert.link.email.spec.js'),
-        path.join(__dirname, '../specs/modal-dialog/move.content.spec.js'),
-        path.join(__dirname, '../specs/permissions/access.control.changed.list.spec.js'),
-        path.join(__dirname, '../specs/permissions/root.folder.edit.permissions.general.step.spec.js'),
-        path.join(__dirname, '../specs/modal-dialog/new.content.dialog.spec.js'),
-        path.join(__dirname, '../specs/modal-dialog/insert.link.url.validation.spec.js'),
-        path.join(__dirname, '../specs/modal-dialog/insert.relative.link.spec.js'),
-        path.join(__dirname, '../specs/modal-dialog/move.child.content.spec.js'),
-        path.join(__dirname, '../specs/modal-dialog/sort.content.dialog.spec.js'),
-        path.join(__dirname, '../specs/modal-dialog/delete.content.dialog.spec.js'),
-        path.join(__dirname, '../specs/modal-dialog/page.template.controller.support.spec.js'),
-        path.join(__dirname, '../specs/modal-dialog/page.template.widget.spec.js'),
-        path.join(__dirname, '../specs/modal-dialog/site.config.modal.dialog.with.optionset.spec.js'),
-        path.join(__dirname, '../specs/modal-dialog/sort.content.dialog.manually.sorted.js'),
-        path.join(__dirname, '../specs/modal-dialog/unpublish.dialog.inbound.ref.spec.js'),
-        path.join(__dirname, '../specs/modal-dialog/user.access.widget.spec.js'),
-
+        path.join(__dirname, '../specs/modal-dialog/*.spec.js'),
+        path.join(__dirname, '../specs/permissions/*.spec.js')
 
     ],
     exclude: [
         path.join(__dirname, '../specs/modal-dialog/mobile.mode.preview.panel.spec.js'),
         path.join(__dirname, '../specs/modal-dialog/mobile.browse.panel.toolbar.spec.js'),
         path.join(__dirname, '../specs/modal-dialog/wizard.compare.versions.dialog.spec.js'),
+        path.join(__dirname, '../specs/modal-dialog/compare.with.published.version.dialog.spec.js'),
+        path.join(__dirname, '../specs/modal-dialog/content.changes.metadata.updates.spec.js'),
+        path.join(__dirname, '../specs/permissions/apply.changes.to.children.only.and.overwrite.spec.js'),
+        path.join(__dirname, '../specs/permissions/apply.changes.to.children.only.spec.js'),
+        path.join(__dirname, '../specs/permissions/child.folder.edit.permissions.step.spec.js'),
+        path.join(__dirname, '../specs/permissions/edit.permissions.dialog.access.selector.spec.js'),
+        path.join(__dirname, '../specs/permissions/wizard.update.permissions.spec.js'),
     ],
     maxInstances: 1,
 

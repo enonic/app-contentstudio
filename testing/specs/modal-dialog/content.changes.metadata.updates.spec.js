@@ -1,5 +1,5 @@
 /**
- * Created on 11.12.2023
+ * Created on 11.12.2023 updated on 01.07.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -24,11 +24,12 @@ describe('content.changes.metadata.updated, tests to verify the bug #7128', func
             let contentPublishDialog = new ContentPublishDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description 1', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES]);
             await studioUtils.doAddReadySite(SITE);
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.clickOnPublishButton();
             await contentPublishDialog.clickOnIncludeChildrenCheckbox();
+            await contentPublishDialog.clickOnApplyButton();
             await contentPublishDialog.clickOnPublishNowButton();
             await contentPublishDialog.waitForDialogClosed();
             await contentPublishDialog.waitForNotificationMessage();
@@ -36,7 +37,7 @@ describe('content.changes.metadata.updated, tests to verify the bug #7128', func
 
     // Verify the issue - Content changes are not saved along with meta-data updates #7128
     // https://github.com/enonic/app-contentstudio/issues/7128
-    it(`GIVEN existing sire has been updated WHEN meta-data has been updated THEN 'Save' button remains enabled`,
+    it(`GIVEN existing site has been updated WHEN meta-data has been updated THEN 'Save' button remains enabled`,
         async () => {
             let siteForm = new SiteForm();
             let contentWizard = new ContentWizard();

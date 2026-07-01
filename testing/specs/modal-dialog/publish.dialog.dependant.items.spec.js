@@ -22,7 +22,7 @@ describe('publish.dialog.dependant.items.spec: tests for dependant items', funct
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -75,7 +75,7 @@ describe('publish.dialog.dependant.items.spec: tests for dependant items', funct
             // 4. Verify that 'Publish now' button gets enabled
             await contentPublishDialog.waitForPublishNowButtonEnabled();
             // 5. Expected text gets visible in the dialog:
-            let result = await contentPublishDialog.getResolvedEntryText();
+            let result = await contentPublishDialog.getSelectionStatusBarText();
             assert.equal(result, 'Content is ready for publishing', 'Expected note appears in the dialog');
         });
 

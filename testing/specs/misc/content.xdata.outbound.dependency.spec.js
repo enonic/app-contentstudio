@@ -40,7 +40,9 @@ describe('content.xdata.outbound.dependency.spec: checks outbound dependency for
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.DOUBLE_1_1_X_DATA);
             await contentWizard.typeDisplayName(CONTENT_WITH_XDATA);
             // 2. Enable the x-data and select an image::
-            await contentWizard.clickOnXdataTogglerByName(X_DATA_IMG_SEL);
+            await contentWizard.clickOnXdataMenuTrigger();
+            await contentWizard.clickOnXdataMenuItemCheckbox(X_DATA_IMG_SEL);
+            await contentWizard.clickOnConfirmXdataButton();
             await xDataImageSelector.filterOptionsAndSelectImage(IMAGE_DISPLAY_NAME);
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('xdata_image_selector_saved');
@@ -75,8 +77,10 @@ describe('content.xdata.outbound.dependency.spec: checks outbound dependency for
             // 1. Open new wizard and save the content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'double1_1');
             await contentWizard.typeDisplayName(DOUBLE_CONTENT_WITH_XDATA);
-            // click on '+' and enable the x-data
-            await contentWizard.clickOnXdataTogglerByName(X_DATA_IMG_SEL);
+            // add the x-data
+            await contentWizard.clickOnXdataMenuTrigger();
+            await contentWizard.clickOnXdataMenuItemCheckbox(X_DATA_IMG_SEL);
+            await contentWizard.clickOnConfirmXdataButton();
             await studioUtils.saveAndCloseWizard();
             // 2. Reopen the content:
             await studioUtils.selectContentAndOpenWizard(DOUBLE_CONTENT_WITH_XDATA);
@@ -94,7 +98,10 @@ describe('content.xdata.outbound.dependency.spec: checks outbound dependency for
             // x-data with image-selector should be present:
             await xDataImageSelector.waitForImageOptionsFilterInputVisible();
             // 2. Click on toggler and disable the x-data:
-            await contentWizard.clickOnXdataTogglerByName(X_DATA_IMG_SEL);
+            await contentWizard.clickOnXdataMenuTrigger();
+            await contentWizard.clickOnXdataMenuItemCheckbox(X_DATA_IMG_SEL);
+            await contentWizard.clickOnConfirmXdataButton();
+
             // 3. Verify that 'Save' button gets visible and enabled
             await contentWizard.waitForSaveButtonVisible();
         });
@@ -109,7 +116,9 @@ describe('content.xdata.outbound.dependency.spec: checks outbound dependency for
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.COMBOBOX_0_0);
             await contentWizard.typeDisplayName(CONTENT_XDATA_CONTENT_SELECTOR);
             // 2. Click on '+' and enable the x-data
-            await contentWizard.clickOnXdataTogglerByName(X_DATA_CONTENT_SEL);
+            await contentWizard.clickOnXdataMenuTrigger();
+            await contentWizard.clickOnXdataMenuItemCheckbox(X_DATA_CONTENT_SEL);
+            await contentWizard.clickOnConfirmXdataButton();
             // 3. Select an option in the x-data content selector(one not required):
             await xDataContentSelector.filterOptionsAndSelectContent(SITE.displayName);
             await contentWizard.waitAndClickOnSave();
