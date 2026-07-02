@@ -1,11 +1,21 @@
-import {cn, Combobox, useCombobox, VirtualizedTreeList, type ComboboxRootProps, type FlatNode} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {forwardRef, useCallback, useId, useMemo, useRef, useState, type HTMLAttributes, type ReactElement, type ReactNode} from 'react';
-import {Virtuoso, type VirtuosoHandle} from 'react-virtuoso';
-import type {Project} from '../../../../app/settings/data/project/Project';
-import {$projects} from '../../store/projects.store';
-import {projectsToTreeListItems} from '../../utils/url/projects';
-import {ProjectLabel} from '../project/ProjectLabel';
+import { cn, Combobox, useCombobox, VirtualizedTreeList, type ComboboxRootProps, type FlatNode } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import {
+    forwardRef,
+    useCallback,
+    useId,
+    useMemo,
+    useRef,
+    useState,
+    type HTMLAttributes,
+    type ReactElement,
+    type ReactNode,
+} from 'react';
+import { Virtuoso, type VirtuosoHandle } from 'react-virtuoso';
+import type { Project } from '../../../../app/settings/data/project/Project';
+import { $projects } from '../../store/projects.store';
+import { projectsToTreeListItems } from '../../../shared/lib/url/projects';
+import { ProjectLabel } from '../project/ProjectLabel';
 
 type ProjectSelectorProps = {
     selection: readonly string[];
@@ -35,7 +45,7 @@ export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
     } = props;
 
     // Hooks
-    const {projects} = useStore($projects);
+    const { projects } = useStore($projects);
     const baseId = useId();
     const inputId = `${PROJECT_SELECTOR_NAME}-${baseId}-input`;
     const [searchValue, setSearchValue] = useState<string | undefined>();
@@ -49,7 +59,8 @@ export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
         const searchLower = searchValue.toLowerCase();
         return items.filter(
             (node) =>
-                node.data.getDisplayName().toLowerCase().includes(searchLower) || node.data.getName().toLowerCase().includes(searchLower)
+                node.data.getDisplayName().toLowerCase().includes(searchLower) ||
+                node.data.getName().toLowerCase().includes(searchLower),
         );
     }, [items, searchValue]);
 
@@ -120,28 +131,30 @@ type ProjectSelectorTreeContentProps = {
     emptyLabel?: string;
 };
 const ProjectSelectorTreeContent = (props: ProjectSelectorTreeContentProps): ReactElement => {
-    const {items, handleExpand, handleCollapse, selectionMode, virtuosoRef, emptyLabel} = props;
+    const { items, handleExpand, handleCollapse, selectionMode, virtuosoRef, emptyLabel } = props;
 
-    const {selection, onSelectionChange} = useCombobox();
+    const { selection, onSelectionChange } = useCombobox();
 
     const handleTreeSelectionChange = useCallback(
         (newSelection: ReadonlySet<string>) => {
             onSelectionChange(Array.from(newSelection));
         },
-        [onSelectionChange]
+        [onSelectionChange],
     );
 
     // Tree Height
     const nodesCount = items.length;
     const treeHeight = useMemo(() => {
         const contentHeight =
-            nodesCount === 0 ? ROW_HEIGHT + PADDING : nodesCount * ROW_HEIGHT + Math.max(nodesCount - 1, 0) * GAP + PADDING;
+            nodesCount === 0
+                ? ROW_HEIGHT + PADDING
+                : nodesCount * ROW_HEIGHT + Math.max(nodesCount - 1, 0) * GAP + PADDING;
 
         return Math.min(contentHeight, MAX_HEIGHT);
     }, [nodesCount]);
 
     return (
-        <Combobox.TreeContent style={{height: treeHeight}}>
+        <Combobox.TreeContent style={{ height: treeHeight }}>
             <VirtualizedTreeList
                 items={items}
                 preserveFilteredSelection
@@ -155,7 +168,7 @@ const ProjectSelectorTreeContent = (props: ProjectSelectorTreeContentProps): Rea
                 virtuosoRef={virtuosoRef}
                 className="h-full"
             >
-                {({items, getItemProps, containerProps}) =>
+                {({ items, getItemProps, containerProps }) =>
                     items.length > 0 ? (
                         <Virtuoso<FlatNode<Readonly<Project>>>
                             ref={virtuosoRef}
@@ -175,7 +188,9 @@ const ProjectSelectorTreeContent = (props: ProjectSelectorTreeContentProps): Rea
                                             <VirtualizedTreeList.RowExpandControl
                                                 expanded={node.isExpanded}
                                                 hasChildren={node.hasChildren}
-                                                onToggle={() => (node.isExpanded ? handleCollapse(node.id) : handleExpand(node.id))}
+                                                onToggle={() =>
+                                                    node.isExpanded ? handleCollapse(node.id) : handleExpand(node.id)
+                                                }
                                                 selected={itemProps.selected}
                                             />
                                         </VirtualizedTreeList.RowLeft>
@@ -212,14 +227,18 @@ const GAP = 6;
 const PADDING = 8;
 
 const virtuosoComponents = {
-    Scroller: forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({style, children, className, ...props}, ref) => (
-        <div ref={ref} {...props} style={style} className={cn('rounded-sm *:p-1', className)}>
-            {children}
-        </div>
-    )),
-    List: forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({style, children, className, ...props}, ref) => (
-        <div ref={ref} {...props} style={style} className={cn('flex flex-col gap-y-1.5', className)}>
-            {children}
-        </div>
-    )),
+    Scroller: forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+        ({ style, children, className, ...props }, ref) => (
+            <div ref={ref} {...props} style={style} className={cn('rounded-sm *:p-1', className)}>
+                {children}
+            </div>
+        ),
+    ),
+    List: forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+        ({ style, children, className, ...props }, ref) => (
+            <div ref={ref} {...props} style={style} className={cn('flex flex-col gap-y-1.5', className)}>
+                {children}
+            </div>
+        ),
+    ),
 };

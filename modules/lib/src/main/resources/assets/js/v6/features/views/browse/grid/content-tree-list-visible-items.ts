@@ -1,9 +1,9 @@
-import type {FlatNode} from '../../../lib/tree-store';
-import type {ContentData} from './ContentData';
-import type {ContentUploadData} from './ContentUploadData';
+import type { FlatNode } from '../../../../shared/lib/tree-store';
+import type { ContentData } from './ContentData';
+import type { ContentUploadData } from './ContentUploadData';
 
 export type ContentFlatNode = FlatNode<ContentData | ContentUploadData>;
-export type ErrorPlaceholderNode = ContentFlatNode & {failedIds: string[]};
+export type ErrorPlaceholderNode = ContentFlatNode & { failedIds: string[] };
 
 type BuildVisibleTreeItemsParams = {
     rawItems: ContentFlatNode[];
@@ -67,5 +67,5 @@ export function buildVisibleTreeItems({
 
     flushFailedChunk();
 
-    return {visibleItems, rawIndexById};
+    return { visibleItems, rawIndexById };
 }

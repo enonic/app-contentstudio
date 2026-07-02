@@ -1,10 +1,10 @@
-import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {Message, MessageType} from '@enonic/lib-admin-ui/notify/Message';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {isBlank} from '../../v6/features/utils/format/isBlank';
+import { NotifyManager } from '@enonic/lib-admin-ui/notify/NotifyManager';
+import { Message, MessageType } from '@enonic/lib-admin-ui/notify/Message';
+import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { isBlank } from '../../v6/shared/lib/format/isBlank';
 
 interface MarketResponse {
     data?: {
@@ -13,9 +13,9 @@ interface MarketResponse {
                 data: {
                     version: {
                         versionNumber: string;
-                    }[]
-                }
-            }[]
+                    }[];
+                };
+            }[];
         };
     };
     errors?: {
@@ -27,8 +27,8 @@ interface MarketResponse {
 export class VersionHelper {
     private static RELEASE_NOTES_URL = 'https://developer.enonic.com/docs/content-studio/stable/release';
     private static checkDelay = 5000; // Initiate the first check after 5 seconds
-    private static checkInterval = 30000;   // Retry checks every checkInterval seconds
-    private static checkAttempts = 5;       // for checkAttempts times
+    private static checkInterval = 30000; // Retry checks every checkInterval seconds
+    private static checkAttempts = 5; // for checkAttempts times
 
     static checkAndNotifyIfNewerVersionExists() {
         setTimeout(() => {
@@ -36,17 +36,20 @@ export class VersionHelper {
                 VersionHelper.fetchNewerVersion,
                 VersionHelper.checkInterval,
                 VersionHelper.checkAttempts,
-                (version: string) => ObjectHelper.isDefined(version)
+                (version: string) => ObjectHelper.isDefined(version),
             )
                 .then((newestVersion: string) => {
                     if (!isBlank(newestVersion)) {
                         const lastDismissedVersion = CONFIG.getString('lastDismissedVersion');
-                        if (!lastDismissedVersion || VersionHelper.isVersionGreater(newestVersion, lastDismissedVersion)) {
+                        if (
+                            !lastDismissedVersion ||
+                            VersionHelper.isVersionGreater(newestVersion, lastDismissedVersion)
+                        ) {
                             VersionHelper.notifyAboutNewerVersion(newestVersion);
                         }
                     }
                 })
-                .catch(error => {
+                .catch((error) => {
                     console.error('Version check failed:', error.message);
                 });
         }, VersionHelper.checkDelay);
@@ -61,15 +64,14 @@ export class VersionHelper {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 10000); // Timeout in 10 seconds
 
-            const response = await fetch(
-                `${marketApi}`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json;charset=UTF-8"
-                    },
-                    body: JSON.stringify({query: VersionHelper.getGraphQLQuery(appId)}),
-                    signal: controller.signal,
-                });
+            const response = await fetch(`${marketApi}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json;charset=UTF-8',
+                },
+                body: JSON.stringify({ query: VersionHelper.getGraphQLQuery(appId) }),
+                signal: controller.signal,
+            });
 
             clearTimeout(timeoutId);
 
@@ -151,19 +153,20 @@ export class VersionHelper {
         });
 
         const messageId = NotifyManager.get().notify(message);
-        NotifyManager.get().getNotification(messageId).onRemoved(() => VersionHelper.dismissNotification(version));
+        NotifyManager.get()
+            .getNotification(messageId)
+            .onRemoved(() => VersionHelper.dismissNotification(version));
     }
 
     private static dismissNotification(version: string) {
         const generalErrorMsg = i18n('notify.failedToDismiss');
-        fetch(
-            `${CONFIG.getString('services.dismissNotificationUrl')}`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json;charset=UTF-8",
-                },
-                body: JSON.stringify({version: version})
-            })
+        fetch(`${CONFIG.getString('services.dismissNotificationUrl')}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=UTF-8',
+            },
+            body: JSON.stringify({ version: version }),
+        })
             .then((response) => {
                 if (!response.ok) {
                     response.json().then((errorBody) => {
@@ -213,5 +216,4 @@ export class VersionHelper {
     }
 }`;
     }
-
 }

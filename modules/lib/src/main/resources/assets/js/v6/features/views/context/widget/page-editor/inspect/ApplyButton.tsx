@@ -1,9 +1,9 @@
-import {Button} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import type {ReactElement} from 'react';
-import {useI18n} from '../../../../../hooks/useI18n';
-import {$inspectedItem, $inspectedItemType, requestReloadComponent} from '../../../../../store/page-editor';
-import {$isApplyEnabled, executeInspectSave} from '../../../../../store/inspect-panel.store';
+import { Button } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import type { ReactElement } from 'react';
+import { useI18n } from '../../../../../../shared/lib/hooks/useI18n';
+import { $inspectedItem, $inspectedItemType, requestReloadComponent } from '../../../../../store/page-editor';
+import { $isApplyEnabled, executeInspectSave } from '../../../../../store/inspect-panel.store';
 
 const APPLY_BUTTON_NAME = 'InspectApplyButton';
 

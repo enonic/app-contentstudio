@@ -1,5 +1,5 @@
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {ContentId} from '../../../../app/content/ContentId';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ContentId } from '../../../../app/content/ContentId';
 import {
     emitContentArchived,
     emitContentCreated,
@@ -7,8 +7,8 @@ import {
     emitContentPublished,
     emitContentRenamed,
     emitContentUpdated,
-} from '../socket.store';
-import {$config} from '../config.store';
+} from '../../../shared/socket/socket.store';
+import { $config } from '../../../shared/config/config.store';
 import {
     $dependantPublishItems,
     $draftPublishDialogSelection,
@@ -120,8 +120,11 @@ describe('publishDialog.store', () => {
         mockPublishContent.mockReset();
         // By default treat the requested (main) items as publishable, mirroring the
         // server's publishableContents (status != EQUAL) for typical scenarios.
-        mockResolvePublishDependencies.mockReset().mockImplementation(
-            (params: {ids?: ContentId[]}) => createResolveResult({publishable: params?.ids ?? []}));
+        mockResolvePublishDependencies
+            .mockReset()
+            .mockImplementation((params: { ids?: ContentId[] }) =>
+                createResolveResult({ publishable: params?.ids ?? [] }),
+            );
     });
 
     afterEach(() => {
@@ -132,14 +135,14 @@ describe('publishDialog.store', () => {
 
     it('reloads publish checks when a tracked main item is updated externally', async () => {
         const itemId = new ContentId('item-1');
-        const original = createMockContent('item-1', {displayName: 'Original name'});
-        const updated = createMockContent('item-1', {displayName: 'Updated name'});
+        const original = createMockContent('item-1', { displayName: 'Original name' });
+        const updated = createMockContent('item-1', { displayName: 'Updated name' });
 
         // No dependants, so each reload makes a single resolve call (the duplicate is skipped):
         // open consumes the first result, the external-update reload the second.
         mockResolvePublishDependencies
-            .mockResolvedValueOnce(createResolveResult({inProgress: [itemId], publishable: [itemId]}))
-            .mockResolvedValueOnce(createResolveResult({publishable: [itemId]}));
+            .mockResolvedValueOnce(createResolveResult({ inProgress: [itemId], publishable: [itemId] }))
+            .mockResolvedValueOnce(createResolveResult({ publishable: [itemId] }));
 
         openPublishDialog([original]);
         await flushInitialReload();
@@ -163,8 +166,8 @@ describe('publishDialog.store', () => {
         // triggers a second resolve. The latest (update) resolve must win — the
         // stale one's cleanup must not invalidate it, leaving 0 publishable items.
         const itemId = new ContentId('item-1');
-        const original = createMockContent('item-1', {displayName: 'Original name'});
-        const updated = createMockContent('item-1', {displayName: 'Updated name'});
+        const original = createMockContent('item-1', { displayName: 'Original name' });
+        const updated = createMockContent('item-1', { displayName: 'Updated name' });
 
         const openResolve = createDeferredPromise<ReturnType<typeof createResolveResult>>();
         const updateResolve = createDeferredPromise<ReturnType<typeof createResolveResult>>();
@@ -184,9 +187,9 @@ describe('publishDialog.store', () => {
         expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
 
         // Settle the stale reload first, then the fresh one.
-        openResolve.resolve(createResolveResult({publishable: [itemId]}));
+        openResolve.resolve(createResolveResult({ publishable: [itemId] }));
         await flushPromises(10);
-        updateResolve.resolve(createResolveResult({publishable: [itemId]}));
+        updateResolve.resolve(createResolveResult({ publishable: [itemId] }));
         await flushPromises(10);
 
         expect($totalPublishableItems.get()).toBe(1);
@@ -195,16 +198,16 @@ describe('publishDialog.store', () => {
 
     it('patches renamed tracked items without forcing a dependency reload', async () => {
         const dependantId = new ContentId('dep-1');
-        const mainOriginal = createMockContent('item-1', {displayName: 'Original main'});
-        const mainRenamed = createMockContent('item-1', {displayName: 'Renamed main'});
-        const dependantOriginal = createMockContent('dep-1', {displayName: 'Original dependant'});
-        const dependantRenamed = createMockContent('dep-1', {displayName: 'Renamed dependant'});
+        const mainOriginal = createMockContent('item-1', { displayName: 'Original main' });
+        const mainRenamed = createMockContent('item-1', { displayName: 'Renamed main' });
+        const dependantOriginal = createMockContent('dep-1', { displayName: 'Original dependant' });
+        const dependantRenamed = createMockContent('dep-1', { displayName: 'Renamed dependant' });
 
         mockResolvePublishDependencies.mockImplementation(() => {
-            return createResolveResult({dependants: [dependantId]});
+            return createResolveResult({ dependants: [dependantId] });
         });
         mockFetchContentSummaries.mockImplementation((ids: ContentId[]) => {
-            return ids.some(id => id.equals(dependantId)) ? [dependantOriginal] : [];
+            return ids.some((id) => id.equals(dependantId)) ? [dependantOriginal] : [];
         });
 
         openPublishDialog([mainOriginal]);
@@ -220,13 +223,17 @@ describe('publishDialog.store', () => {
     });
 
     it('refreshes main items when created content is below a selected main item path', async () => {
-        const parent = createMockContent('item-1', {displayName: 'Parent', path: '/parent'});
-        const updatedParent = createMockContent('item-1', {displayName: 'Parent', path: '/parent', hasChildren: true});
-        const unrelated = createMockContent('item-2', {displayName: 'Elsewhere', path: '/other/child'});
-        const child = createMockContent('item-3', {displayName: 'Child', path: '/parent/child'});
+        const parent = createMockContent('item-1', { displayName: 'Parent', path: '/parent' });
+        const updatedParent = createMockContent('item-1', {
+            displayName: 'Parent',
+            path: '/parent',
+            hasChildren: true,
+        });
+        const unrelated = createMockContent('item-2', { displayName: 'Elsewhere', path: '/other/child' });
+        const child = createMockContent('item-3', { displayName: 'Child', path: '/parent/child' });
 
         mockFetchContentSummaries.mockImplementation((ids: ContentId[]) => {
-            return ids.some(id => id.toString() === 'item-1') ? [updatedParent] : [];
+            return ids.some((id) => id.toString() === 'item-1') ? [updatedParent] : [];
         });
 
         openPublishDialog([parent]);
@@ -246,27 +253,24 @@ describe('publishDialog.store', () => {
         expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
     });
 
-    it.each(publishRemovalEventCases)(
-        'removes a non-last main item and reloads on $name events',
-        async ({emit}) => {
-            const first = createMockContent('item-1', {displayName: 'First'});
-            const second = createMockContent('item-2', {displayName: 'Second'});
+    it.each(publishRemovalEventCases)('removes a non-last main item and reloads on $name events', async ({ emit }) => {
+        const first = createMockContent('item-1', { displayName: 'First' });
+        const second = createMockContent('item-2', { displayName: 'Second' });
 
-            openPublishDialog([first, second]);
-            await flushInitialReload();
+        openPublishDialog([first, second]);
+        await flushInitialReload();
 
-            emit(['item-1']);
-            await flushDebouncedReload();
+        emit(['item-1']);
+        await flushDebouncedReload();
 
-            expect($publishDialog.get().open).toBe(true);
-            expect($publishDialog.get().items.map(item => item.getId())).toEqual(['item-2']);
-            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
-        },
-    );
+        expect($publishDialog.get().open).toBe(true);
+        expect($publishDialog.get().items.map((item) => item.getId())).toEqual(['item-2']);
+        expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
+    });
 
     it('reloads when only some main items are published', async () => {
-        const first = createMockContent('item-1', {displayName: 'First'});
-        const second = createMockContent('item-2', {displayName: 'Second'});
+        const first = createMockContent('item-1', { displayName: 'First' });
+        const second = createMockContent('item-2', { displayName: 'Second' });
 
         openPublishDialog([first, second]);
         await flushInitialReload();
@@ -275,7 +279,7 @@ describe('publishDialog.store', () => {
         await flushDebouncedReload();
 
         expect($publishDialog.get().open).toBe(true);
-        expect($publishDialog.get().items.map(item => item.getId())).toEqual(['item-1', 'item-2']);
+        expect($publishDialog.get().items.map((item) => item.getId())).toEqual(['item-1', 'item-2']);
         expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
     });
 
@@ -283,31 +287,28 @@ describe('publishDialog.store', () => {
         ...publishRemovalEventCases,
         {
             name: 'published',
-            emit: (ids: string[]) => emitContentPublished(ids.map(id => createMockContent(id))),
+            emit: (ids: string[]) => emitContentPublished(ids.map((id) => createMockContent(id))),
         },
-    ])(
-        'closes the dialog when the last main item is affected by $name events',
-        async ({emit}) => {
-            const item = createMockContent('item-1', {displayName: 'Item'});
+    ])('closes the dialog when the last main item is affected by $name events', async ({ emit }) => {
+        const item = createMockContent('item-1', { displayName: 'Item' });
 
-            openPublishDialog([item]);
-            await flushInitialReload();
+        openPublishDialog([item]);
+        await flushInitialReload();
 
-            emit(['item-1']);
-            await flushDebouncedReload();
+        emit(['item-1']);
+        await flushDebouncedReload();
 
-            expect($publishDialog.get().open).toBe(false);
-            expect($publishDialog.get().items).toEqual([]);
-            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(1);
-        },
-    );
+        expect($publishDialog.get().open).toBe(false);
+        expect($publishDialog.get().items).toEqual([]);
+        expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(1);
+    });
 
     describe('$hasSchedulableItems', () => {
         it('should be true when at least one main item is offline', async () => {
-            const offline = createMockContent('item-1', {isOnline: false});
-            const online = createMockContent('item-2', {isOnline: true});
+            const offline = createMockContent('item-1', { isOnline: false });
+            const online = createMockContent('item-2', { isOnline: true });
 
-            mockResolvePublishDependencies.mockResolvedValue(createResolveResult({schedulable: true}));
+            mockResolvePublishDependencies.mockResolvedValue(createResolveResult({ schedulable: true }));
 
             openPublishDialog([offline, online]);
             await flushInitialReload();
@@ -316,8 +317,8 @@ describe('publishDialog.store', () => {
         });
 
         it('should be false when all main items are online', async () => {
-            const first = createMockContent('item-1', {isOnline: true});
-            const second = createMockContent('item-2', {isOnline: true});
+            const first = createMockContent('item-1', { isOnline: true });
+            const second = createMockContent('item-2', { isOnline: true });
 
             openPublishDialog([first, second]);
             await flushInitialReload();
@@ -332,9 +333,9 @@ describe('publishDialog.store', () => {
                 publishFromTime: new Date(Date.now() - 120_000),
                 publishToTime: past,
             });
-            const online = createMockContent('item-2', {isOnline: true});
+            const online = createMockContent('item-2', { isOnline: true });
 
-            mockResolvePublishDependencies.mockResolvedValue(createResolveResult({schedulable: true}));
+            mockResolvePublishDependencies.mockResolvedValue(createResolveResult({ schedulable: true }));
 
             openPublishDialog([expired, online]);
             await flushInitialReload();
@@ -343,11 +344,13 @@ describe('publishDialog.store', () => {
         });
 
         it('should be true when an offline dependant is present even if all main items are online', async () => {
-            const main = createMockContent('item-1', {isOnline: true});
+            const main = createMockContent('item-1', { isOnline: true });
             const dependantId = new ContentId('dep-1');
-            const dependant = createMockContent('dep-1', {isOnline: false});
+            const dependant = createMockContent('dep-1', { isOnline: false });
 
-            mockResolvePublishDependencies.mockResolvedValue(createResolveResult({dependants: [dependantId], schedulable: true}));
+            mockResolvePublishDependencies.mockResolvedValue(
+                createResolveResult({ dependants: [dependantId], schedulable: true }),
+            );
             mockFetchContentSummaries.mockResolvedValue([dependant]);
 
             openPublishDialog([main]);
@@ -358,7 +361,7 @@ describe('publishDialog.store', () => {
     });
 
     it('ignores published events while submitting', async () => {
-        const item = createMockContent('item-1', {displayName: 'Item'});
+        const item = createMockContent('item-1', { displayName: 'Item' });
 
         openPublishDialog([item]);
         await flushInitialReload();
@@ -372,7 +375,7 @@ describe('publishDialog.store', () => {
         await flushDebouncedReload();
 
         expect($publishDialog.get().open).toBe(true);
-        expect($publishDialog.get().items.map(currentItem => currentItem.getId())).toEqual(['item-1']);
+        expect($publishDialog.get().items.map((currentItem) => currentItem.getId())).toEqual(['item-1']);
         expect($publishDialogPending.get().submitting).toBe(true);
         expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(1);
     });
@@ -401,7 +404,7 @@ describe('publishDialog.store', () => {
 
         it('accepts a provided "online from" when the config is on', () => {
             $config.setKey('requiredPublishFrom', true);
-            setPublishSchedule({from: new Date('2030-01-01T12:00:00Z')});
+            setPublishSchedule({ from: new Date('2030-01-01T12:00:00Z') });
 
             expect($isScheduleValid.get()).toBe(true);
             expect($scheduleFromError.get()).toBeUndefined();
@@ -418,11 +421,13 @@ describe('publishDialog.store', () => {
         // Max resolve (no exclusions) returns all dependants; min resolve returns direct excluded deps as next
         function mockResolveWithExclusion(directIds: ContentId[], deepIds: ContentId[] = []): void {
             const allIds = [...directIds, ...deepIds];
-            mockResolvePublishDependencies.mockImplementation(({excludedIds = []}: {excludedIds?: ContentId[]}) => {
-                const isMinResolve = excludedIds.some(excludedId => allIds.some(id => id.equals(excludedId)));
-                return Promise.resolve(isMinResolve
-                    ? createResolveResult({next: directIds})
-                    : createResolveResult({dependants: allIds}));
+            mockResolvePublishDependencies.mockImplementation(({ excludedIds = [] }: { excludedIds?: ContentId[] }) => {
+                const isMinResolve = excludedIds.some((excludedId) => allIds.some((id) => id.equals(excludedId)));
+                return Promise.resolve(
+                    isMinResolve
+                        ? createResolveResult({ next: directIds })
+                        : createResolveResult({ dependants: allIds }),
+                );
             });
         }
 
@@ -450,8 +455,8 @@ describe('publishDialog.store', () => {
             await flushInitialReload();
 
             const dependants = $dependantPublishItems.get();
-            const image = dependants.find(item => item.id === 'image-1');
-            const sub = dependants.find(item => item.id === 'sub-1');
+            const image = dependants.find((item) => item.id === 'image-1');
+            const sub = dependants.find((item) => item.id === 'sub-1');
             expect(image?.hidden).toBe(false);
             expect(sub?.hidden).toBe(true);
             expect(image?.included).toBe(false);
@@ -486,12 +491,15 @@ describe('publishDialog.store', () => {
             const itemId = new ContentId('item-1');
             mockFindIdsByParents.mockResolvedValue([imageId]);
             mockFetchContentSummaries.mockResolvedValue([createMockContent('image-1')]);
-            mockResolvePublishDependencies.mockImplementation(({excludedIds = []}: {excludedIds?: ContentId[]}) =>
-                Promise.resolve(excludedIds.some(id => id.equals(imageId))
-                    ? createResolveResult({next: [imageId]})
-                    : createResolveResult({dependants: [imageId]})));
+            mockResolvePublishDependencies.mockImplementation(({ excludedIds = [] }: { excludedIds?: ContentId[] }) =>
+                Promise.resolve(
+                    excludedIds.some((id) => id.equals(imageId))
+                        ? createResolveResult({ next: [imageId] })
+                        : createResolveResult({ dependants: [imageId] }),
+                ),
+            );
 
-            openPublishDialog([createMockContent('item-1', {hasChildren: true})]);
+            openPublishDialog([createMockContent('item-1', { hasChildren: true })]);
             await flushInitialReload();
 
             expect($dependantPublishItems.get()[0].included).toBe(false);
@@ -518,14 +526,17 @@ describe('publishDialog.store', () => {
             $config.setKey('excludeDependencies', false);
 
             const mainId = new ContentId('main-1');
-            const dependantIds = Array.from({length: 40}, (_, index) => new ContentId(`dep-${index}`));
+            const dependantIds = Array.from({ length: 40 }, (_, index) => new ContentId(`dep-${index}`));
 
-            mockResolvePublishDependencies.mockResolvedValue(createResolveResult({
-                dependants: dependantIds,
-                publishable: [mainId, ...dependantIds],
-            }));
+            mockResolvePublishDependencies.mockResolvedValue(
+                createResolveResult({
+                    dependants: dependantIds,
+                    publishable: [mainId, ...dependantIds],
+                }),
+            );
             mockFetchContentSummaries.mockImplementation((ids: ContentId[]) =>
-                Promise.resolve(ids.map(id => createMockContent(id.toString()))));
+                Promise.resolve(ids.map((id) => createMockContent(id.toString()))),
+            );
 
             openPublishDialog([createMockContent('main-1')]);
             await flushInitialReload();
@@ -557,14 +568,16 @@ describe('publishDialog.store', () => {
         // Min resolve excludes every non-required dependant; the server keeps required ones and
         // reports the rest as "next" (auto-excluded, shown unchecked).
         function mockResolve(allIds: ContentId[], requiredIds: ContentId[] = []): void {
-            mockResolvePublishDependencies.mockImplementation(({excludedIds = []}: {excludedIds?: ContentId[]}) => {
-                const isMinResolve = excludedIds.some(excludedId => allIds.some(id => id.equals(excludedId)));
-                const nextIds = allIds.filter(id => !requiredIds.some(req => req.equals(id)));
-                return Promise.resolve(isMinResolve
-                    ? createResolveResult({dependants: requiredIds, required: requiredIds, next: nextIds})
-                    : createResolveResult({dependants: allIds}));
+            mockResolvePublishDependencies.mockImplementation(({ excludedIds = [] }: { excludedIds?: ContentId[] }) => {
+                const isMinResolve = excludedIds.some((excludedId) => allIds.some((id) => id.equals(excludedId)));
+                const nextIds = allIds.filter((id) => !requiredIds.some((req) => req.equals(id)));
+                return Promise.resolve(
+                    isMinResolve
+                        ? createResolveResult({ dependants: requiredIds, required: requiredIds, next: nextIds })
+                        : createResolveResult({ dependants: allIds }),
+                );
             });
-            mockFetchContentSummaries.mockResolvedValue(allIds.map(id => createMockContent(id.toString())));
+            mockFetchContentSummaries.mockResolvedValue(allIds.map((id) => createMockContent(id.toString())));
         }
 
         it('reports all selected when no dependants are excluded', async () => {

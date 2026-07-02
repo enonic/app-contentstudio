@@ -1,8 +1,8 @@
-import {cn, GridList, Separator} from '@enonic/ui';
-import type {ReactElement, ReactNode} from 'react';
-import {useI18n} from '../../../hooks/useI18n';
-import {useInfiniteScroll} from '../../../hooks/useInfiniteScroll';
-import {InlineButton} from '../../InlineButton';
+import { cn, GridList, Separator } from '@enonic/ui';
+import type { ReactElement, ReactNode } from 'react';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { useInfiniteScroll } from '../../../../shared/lib/hooks/useInfiniteScroll';
+import { InlineButton } from '../../../../shared/ui/InlineButton';
 import type {
     SplitListPrimaryProps,
     SplitListProps,
@@ -18,7 +18,7 @@ import type {
 
 const SPLIT_LIST_NAME = 'SplitList';
 
-const SplitListRoot = ({className, children}: SplitListProps): ReactElement => {
+const SplitListRoot = ({ className, children }: SplitListProps): ReactElement => {
     return (
         <div className={cn('flex flex-col gap-y-8', className)} tabIndex={-1}>
             {children}
@@ -63,7 +63,7 @@ SplitListPrimary.displayName = SPLIT_LIST_PRIMARY_NAME;
 
 const SPLIT_LIST_SEPARATOR_NAME = 'SplitList.Separator';
 
-const SplitListSeparator = ({children, hidden = false, className}: SplitListSeparatorProps): ReactElement | null => {
+const SplitListSeparator = ({ children, hidden = false, className }: SplitListSeparatorProps): ReactElement | null => {
     if (hidden) {
         return null;
     }
@@ -79,7 +79,7 @@ SplitListSeparator.displayName = SPLIT_LIST_SEPARATOR_NAME;
 
 const SPLIT_LIST_SEPARATOR_LABEL_NAME = 'SplitList.SeparatorLabel';
 
-const SplitListSeparatorLabel = ({children, className}: SplitListSeparatorLabelProps): ReactElement => {
+const SplitListSeparatorLabel = ({ children, className }: SplitListSeparatorLabelProps): ReactElement => {
     return (
         <Separator
             className={cn('text-sm flex-1', className)}

@@ -1,12 +1,12 @@
-import {type Action} from '@enonic/lib-admin-ui/ui/Action';
-import {Toolbar} from '@enonic/ui';
-import {type ReactElement, useMemo} from 'react';
-import {useI18n} from '../../../hooks/useI18n';
-import {LegacyElement} from '../../../shared/LegacyElement';
-import {ContextToggle} from './ContextToggle';
-import {OverflowActionRow, type OverflowActionRowItem} from './OverflowActionRow';
-import {SearchToggle} from './SearchToggle';
-import {SplitActionButton} from './SplitActionButton';
+import { type Action } from '@enonic/lib-admin-ui/ui/Action';
+import { Toolbar } from '@enonic/ui';
+import { type ReactElement, useMemo } from 'react';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { LegacyElement } from '../../../../shared/ui/LegacyElement';
+import { ContextToggle } from './ContextToggle';
+import { OverflowActionRow, type OverflowActionRowItem } from './OverflowActionRow';
+import { SearchToggle } from './SearchToggle';
+import { SplitActionButton } from './SplitActionButton';
 
 type Props = {
     toggleFilterPanelAction: Action;
@@ -41,15 +41,18 @@ export const BrowseToolbar = ({
     requestPublishAction,
     createIssueAction,
 }: Props): ReactElement => {
-    const toolbarActions: OverflowActionRowItem[] = useMemo(() => [
-        {id: 'new', action: showNewDialogAction},
-        {id: 'edit', action: editAction},
-        {id: 'archive', action: archiveAction},
-        {id: 'duplicate', action: duplicateAction},
-        {id: 'move', action: moveAction},
-        {id: 'sort', action: sortAction},
-        {id: 'preview', action: previewAction},
-    ], [archiveAction, duplicateAction, editAction, moveAction, previewAction, showNewDialogAction, sortAction]);
+    const toolbarActions: OverflowActionRowItem[] = useMemo(
+        () => [
+            { id: 'new', action: showNewDialogAction },
+            { id: 'edit', action: editAction },
+            { id: 'archive', action: archiveAction },
+            { id: 'duplicate', action: duplicateAction },
+            { id: 'move', action: moveAction },
+            { id: 'sort', action: sortAction },
+            { id: 'preview', action: previewAction },
+        ],
+        [archiveAction, duplicateAction, editAction, moveAction, previewAction, showNewDialogAction, sortAction],
+    );
     const publishSplitActions: Action[] = [
         markAsReadyAction,
         publishAction,
@@ -58,10 +61,7 @@ export const BrowseToolbar = ({
         requestPublishAction,
         createIssueAction,
     ];
-    const mobileSplitActions: Action[][] = [
-        toolbarActions.map(({action}) => action),
-        publishSplitActions,
-    ];
+    const mobileSplitActions: Action[][] = [toolbarActions.map(({ action }) => action), publishSplitActions];
 
     return (
         <Toolbar>

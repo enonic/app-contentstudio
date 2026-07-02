@@ -1,6 +1,6 @@
-import {Button, Checkbox, cn, IconButton, Input} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {ArrowDown, ArrowUp} from 'lucide-react';
+import { Button, Checkbox, cn, IconButton, Input } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { ArrowDown, ArrowUp } from 'lucide-react';
 import {
     type CSSProperties,
     type KeyboardEvent,
@@ -10,14 +10,17 @@ import {
     useEffect,
     useRef,
 } from 'react';
-import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
-import {suppressHtmlAreaBlur} from '../../../../app/inputtype/ui/text/HtmlAreaOverlayState';
-import type {SearchPopupParams} from '../../../../app/inputtype/ui/text/HtmlEditorTypes';
-import type {DialogOverrides} from '../form/input-types/html-area/setupEditor';
-import {useCkEditorFocusManager} from '../../hooks/htmlarea/useCkEditorFocusManager';
-import {useI18n} from '../../hooks/useI18n';
-import {usePopupDismiss} from '../../hooks/htmlarea/usePopupDismiss';
-import {usePopupPosition} from '../../hooks/htmlarea/usePopupPosition';
+import {
+    type CreateHtmlAreaDialogEvent,
+    HtmlAreaDialogType,
+} from '../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
+import { suppressHtmlAreaBlur } from '../../../../app/inputtype/ui/text/HtmlAreaOverlayState';
+import type { SearchPopupParams } from '../../../../app/inputtype/ui/text/HtmlEditorTypes';
+import type { DialogOverrides } from '../form/input-types/html-area/setupEditor';
+import { useCkEditorFocusManager } from '../../hooks/htmlarea/useCkEditorFocusManager';
+import { useI18n } from '../../../shared/lib/hooks/useI18n';
+import { usePopupDismiss } from '../../hooks/htmlarea/usePopupDismiss';
+import { usePopupPosition } from '../../hooks/htmlarea/usePopupPosition';
 import {
     $searchPopup,
     closeSearchPopup,
@@ -50,7 +53,7 @@ const preventButtonMouseDown = (event: MouseEvent<HTMLButtonElement>): void => {
 const isActivationKey = (key: string): boolean => key === 'Enter' || key === ' ';
 
 const focusElement = (element: HTMLButtonElement | HTMLInputElement | null): void => {
-    element?.focus({preventScroll: true});
+    element?.focus({ preventScroll: true });
 };
 
 export const SearchPopup = (): ReactElement | null => {
@@ -158,7 +161,7 @@ export const SearchPopup = (): ReactElement | null => {
         }
 
         requestAnimationFrame(() => {
-            findInputRef.current?.focus({preventScroll: true});
+            findInputRef.current?.focus({ preventScroll: true });
         });
     }, [open]);
 
@@ -168,7 +171,7 @@ export const SearchPopup = (): ReactElement | null => {
         }
 
         event.preventDefault();
-        closeSearchPopup({focusTrigger: true});
+        closeSearchPopup({ focusTrigger: true });
     };
 
     const handleFindInputKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
@@ -215,7 +218,7 @@ export const SearchPopup = (): ReactElement | null => {
     };
 
     const queueReplaceFocus = (button: HTMLButtonElement | null): void => {
-        queueFocus(button && !button.disabled ? button : replaceInputRef.current ?? findInputRef.current);
+        queueFocus(button && !button.disabled ? button : (replaceInputRef.current ?? findInputRef.current));
     };
 
     const handlePreviousClick = (): void => {
@@ -244,10 +247,7 @@ export const SearchPopup = (): ReactElement | null => {
         queueFocus(findInputRef.current);
     };
 
-    const handleActionButtonKeyDown = (
-        event: KeyboardEvent<HTMLButtonElement>,
-        action: () => void,
-    ): void => {
+    const handleActionButtonKeyDown = (event: KeyboardEvent<HTMLButtonElement>, action: () => void): void => {
         if (!isActivationKey(event.key)) {
             handleEscape(event);
             return;
@@ -264,7 +264,7 @@ export const SearchPopup = (): ReactElement | null => {
     return (
         <div
             ref={popupRef}
-            role='dialog'
+            role="dialog"
             aria-label={title}
             tabIndex={-1}
             data-component={SEARCH_POPUP_NAME}
@@ -277,46 +277,46 @@ export const SearchPopup = (): ReactElement | null => {
                 'data-[side=top]:zoom-in-95 data-[side=bottom]:zoom-in-95',
                 !position && 'pointer-events-none opacity-0',
             )}
-            style={position ? ({top: position.top, left: position.left} as CSSProperties) : undefined}
+            style={position ? ({ top: position.top, left: position.left } as CSSProperties) : undefined}
             onKeyDownCapture={handleEscape}
         >
-            <div className='flex items-center gap-2'>
+            <div className="flex items-center gap-2">
                 <Button
                     ref={toggleModeButtonRef}
-                    type='button'
-                    size='sm'
-                    variant='outline'
+                    type="button"
+                    size="sm"
+                    variant="outline"
                     label={isReplaceMode ? findLabel : replaceLabel}
                     title={switchLabel}
-                    className='shrink-0'
+                    className="shrink-0"
                     onMouseDown={preventButtonMouseDown}
                     onClick={handleToggleMode}
                     onKeyDown={(event) => handleActionButtonKeyDown(event, handleToggleMode)}
                 />
-                <div className='min-w-0 flex-1 text-xs leading-tight font-medium text-subtle'>{counterLabel}</div>
-                <div className='ml-auto flex items-center gap-1'>
+                <div className="min-w-0 flex-1 text-xs leading-tight font-medium text-subtle">{counterLabel}</div>
+                <div className="ml-auto flex items-center gap-1">
                     <IconButton
                         ref={previousButtonRef}
-                        size='sm'
-                        variant='text'
+                        size="sm"
+                        variant="text"
                         icon={ArrowUp}
                         aria-label={previousLabel}
                         title={previousLabel}
                         disabled={isPreviousDisabled}
-                        className='shrink-0'
+                        className="shrink-0"
                         onMouseDown={preventButtonMouseDown}
                         onClick={handlePreviousClick}
                         onKeyDown={(event) => handleActionButtonKeyDown(event, handlePreviousClick)}
                     />
                     <IconButton
                         ref={nextButtonRef}
-                        size='sm'
-                        variant='text'
+                        size="sm"
+                        variant="text"
                         icon={ArrowDown}
                         aria-label={nextLabel}
                         title={nextLabel}
                         disabled={isNextDisabled}
-                        className='shrink-0'
+                        className="shrink-0"
                         onMouseDown={preventButtonMouseDown}
                         onClick={handleNextClick}
                         onKeyDown={(event) => handleActionButtonKeyDown(event, handleNextClick)}
@@ -333,10 +333,10 @@ export const SearchPopup = (): ReactElement | null => {
                 }}
                 onKeyDown={handleFindInputKeyDown}
             />
-            <div className='flex flex-wrap items-center gap-x-4 gap-y-2'>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
                 <div ref={matchCaseRef}>
                     <Checkbox
-                        className='text-xs font-medium'
+                        className="text-xs font-medium"
                         checked={matchCase}
                         label={matchCaseLabel}
                         onCheckedChange={(checked) => {
@@ -346,7 +346,7 @@ export const SearchPopup = (): ReactElement | null => {
                 </div>
                 <div ref={wholeWordsRef}>
                     <Checkbox
-                        className='text-xs font-medium'
+                        className="text-xs font-medium"
                         checked={wholeWords}
                         label={wholeWordsLabel}
                         onCheckedChange={(checked) => {
@@ -367,12 +367,12 @@ export const SearchPopup = (): ReactElement | null => {
                         }}
                         onKeyDown={handleReplaceInputKeyDown}
                     />
-                    <div className='flex items-center justify-end gap-2'>
+                    <div className="flex items-center justify-end gap-2">
                         <Button
                             ref={replaceButtonRef}
-                            type='button'
-                            size='sm'
-                            variant='outline'
+                            type="button"
+                            size="sm"
+                            variant="outline"
                             label={replaceLabel}
                             disabled={isReplaceDisabled}
                             onMouseDown={preventButtonMouseDown}
@@ -381,9 +381,9 @@ export const SearchPopup = (): ReactElement | null => {
                         />
                         <Button
                             ref={replaceAllButtonRef}
-                            type='button'
-                            size='sm'
-                            variant='solid'
+                            type="button"
+                            size="sm"
+                            variant="solid"
                             label={replaceAllLabel}
                             disabled={isReplaceDisabled}
                             onMouseDown={preventButtonMouseDown}

@@ -1,13 +1,28 @@
-import {AttachmentValidationError, ComponentConfigValidationError, DataValidationError, MixinConfigValidationError, SiteConfigValidationError, type ValidationError} from '@enonic/lib-admin-ui/ValidationError';
-import {type FormValidationResult, matchesFieldPath, matchesOccurrencePath, type RawValueMap, type ServerErrorEntry, type ValidationVisibility, validateForm} from '@enonic/lib-admin-ui/form2';
-import {atom, computed} from 'nanostores';
-import type {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import type {Form} from '@enonic/lib-admin-ui/form/Form';
-import {Input} from '@enonic/lib-admin-ui/form/Input';
-import type {Descriptor} from '../../../app/page/Descriptor';
-import {DescriptorBasedComponent} from '../../../app/page/region/DescriptorBasedComponent';
-import {LayoutComponent} from '../../../app/page/region/LayoutComponent';
-import type {Region} from '../../../app/page/region/Region';
+import {
+    AttachmentValidationError,
+    ComponentConfigValidationError,
+    DataValidationError,
+    MixinConfigValidationError,
+    SiteConfigValidationError,
+    type ValidationError,
+} from '@enonic/lib-admin-ui/ValidationError';
+import {
+    type FormValidationResult,
+    matchesFieldPath,
+    matchesOccurrencePath,
+    type RawValueMap,
+    type ServerErrorEntry,
+    type ValidationVisibility,
+    validateForm,
+} from '@enonic/lib-admin-ui/form2';
+import { atom, computed } from 'nanostores';
+import type { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import type { Form } from '@enonic/lib-admin-ui/form/Form';
+import { Input } from '@enonic/lib-admin-ui/form/Input';
+import type { Descriptor } from '../../../app/page/Descriptor';
+import { DescriptorBasedComponent } from '../../../app/page/region/DescriptorBasedComponent';
+import { LayoutComponent } from '../../../app/page/region/LayoutComponent';
+import type { Region } from '../../../app/page/region/Region';
 import {
     $contentType,
     $enabledMixinsNames,
@@ -20,12 +35,12 @@ import {
     onWizardContentReset,
     setWizardFormValidation,
 } from './wizardContent.store';
-import {$page, $pageVersion} from './page-editor/store';
-import {$layoutDescriptorOptions, $partDescriptorOptions} from './component-inspection.store';
-import {$applications} from './applications.store';
-import {createDebounce} from '../utils/timing/createDebounce';
-import {instanceOf} from '../utils/object/instanceOf';
-import {SiteConfiguratorDescriptor} from '../shared/form/input-types/site-configurator/SiteConfiguratorDescriptor';
+import { $page, $pageVersion } from './page-editor/store';
+import { $layoutDescriptorOptions, $partDescriptorOptions } from './component-inspection.store';
+import { $applications } from './applications.store';
+import { createDebounce } from '../../shared/lib/timing/createDebounce';
+import { instanceOf } from '../../shared/lib/object/instanceOf';
+import { SiteConfiguratorDescriptor } from '../shared/form/input-types/site-configurator/SiteConfiguratorDescriptor';
 
 //
 // * State
@@ -42,15 +57,17 @@ const $dataServerErrors = atom<DataValidationError[]>([]);
 
 // Server data errors flattened for the form fields to display by data path.
 export const $dataServerErrorEntries = computed($dataServerErrors, (errors): ServerErrorEntry[] =>
-    errors.map((e) => ({path: e.getPropertyPath(), message: e.getMessage()})),
+    errors.map((e) => ({ path: e.getPropertyPath(), message: e.getMessage() })),
 );
 
 const $componentConfigErrors = atom<ComponentConfigValidationError[]>([]);
 
 const $attachmentServerErrors = atom<AttachmentValidationError[]>([]);
 
-export const $attachmentServerErrorEntries = computed($attachmentServerErrors, (errors): {attachment: string; message: string}[] =>
-    errors.map((e) => ({attachment: e.getAttachment(), message: e.getMessage()})),
+export const $attachmentServerErrorEntries = computed(
+    $attachmentServerErrors,
+    (errors): { attachment: string; message: string }[] =>
+        errors.map((e) => ({ attachment: e.getAttachment(), message: e.getMessage() })),
 );
 
 const $generalServerErrors = atom<ValidationError[]>([]);
@@ -204,9 +221,7 @@ function validateRegionComponents(
     descriptors: Descriptor[],
     invalidPaths: Set<string>,
 ): void {
-    const regionPath = parentPath === '/'
-        ? `/${region.getName()}`
-        : `${parentPath}/${region.getName()}`;
+    const regionPath = parentPath === '/' ? `/${region.getName()}` : `${parentPath}/${region.getName()}`;
 
     region.getComponents().forEach((component, index) => {
         const componentPath = `${regionPath}/${index}`;
@@ -370,11 +385,12 @@ export function setServerValidationErrors(errors: ValidationError[]): void {
     // ! name. Data system errors are dropped (client-side validation covers them better),
     // ! but attachment ones are kept — v6 has no client-side check to re-surface them.
     const dataErrors = errors.filter(
-        (e): e is DataValidationError => e instanceof DataValidationError
-            && !(e instanceof ComponentConfigValidationError)
-            && !(e instanceof SiteConfigValidationError)
-            && !(e instanceof MixinConfigValidationError)
-            && !isSystemError(e)
+        (e): e is DataValidationError =>
+            e instanceof DataValidationError &&
+            !(e instanceof ComponentConfigValidationError) &&
+            !(e instanceof SiteConfigValidationError) &&
+            !(e instanceof MixinConfigValidationError) &&
+            !isSystemError(e),
     );
 
     const componentErrors = errors.filter(

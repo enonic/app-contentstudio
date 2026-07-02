@@ -1,10 +1,10 @@
-import {type Application} from '@enonic/lib-admin-ui/application/Application';
-import {Checkbox, cn, Combobox, type ComboboxRootProps, Listbox, useCombobox} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {type ReactElement, useId, useMemo, useState} from 'react';
-import {$applications} from '../../store/applications.store';
-import {ApplicationIcon} from '../icons/ApplicationIcon';
-import {ItemLabel} from '../ItemLabel';
+import { type Application } from '@enonic/lib-admin-ui/application/Application';
+import { Checkbox, cn, Combobox, type ComboboxRootProps, Listbox, useCombobox } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { type ReactElement, useId, useMemo, useState } from 'react';
+import { $applications } from '../../store/applications.store';
+import { ApplicationIcon } from '../../../shared/ui/icons/ApplicationIcon';
+import { ItemLabel } from '../../../shared/ui/ItemLabel';
 
 const APPLICATION_SELECTOR_NAME = 'ApplicationSelector';
 
@@ -17,24 +17,41 @@ type ApplicationSelectorProps = {
     emptyLabel?: string;
     closeOnBlur?: boolean;
     className?: string;
+    inheritedKeys?: ReadonlySet<string>;
 };
 
 export const ApplicationSelector = (props: ApplicationSelectorProps): ReactElement => {
-    const {applications} = useStore($applications);
+    const { applications } = useStore($applications);
     const baseId = useId();
     const inputId = `${APPLICATION_SELECTOR_NAME}-${baseId}-input`;
     const [searchValue, setSearchValue] = useState('');
-    const {label, selection, onSelectionChange, selectionMode, placeholder, emptyLabel, closeOnBlur, className} = props;
+    const {
+        label,
+        selection,
+        onSelectionChange,
+        selectionMode,
+        placeholder,
+        emptyLabel,
+        closeOnBlur,
+        className,
+        inheritedKeys,
+    } = props;
 
     const filtered = useMemo(() => {
         if (!searchValue) return applications;
 
-        return applications.filter((application) => application.getDisplayName().toLowerCase().includes(searchValue.toLowerCase()));
+        return applications.filter((application) =>
+            application.getDisplayName().toLowerCase().includes(searchValue.toLowerCase()),
+        );
     }, [applications, searchValue]);
 
     return (
         <div data-component={APPLICATION_SELECTOR_NAME} className={cn('flex flex-col gap-2', className)}>
-            {label && <label htmlFor={inputId} className="font-semibold">{label}</label>}
+            {label && (
+                <label htmlFor={inputId} className="font-semibold">
+                    {label}
+                </label>
+            )}
             <Combobox.Root
                 value={searchValue}
                 onChange={setSearchValue}
@@ -55,7 +72,11 @@ export const ApplicationSelector = (props: ApplicationSelectorProps): ReactEleme
                     </Combobox.Control>
                     <Combobox.Portal>
                         <Combobox.Popup>
-                            <ApplicationSelectorList items={filtered} emptyLabel={emptyLabel} />
+                            <ApplicationSelectorList
+                                items={filtered}
+                                emptyLabel={emptyLabel}
+                                inheritedKeys={inheritedKeys}
+                            />
                         </Combobox.Popup>
                     </Combobox.Portal>
                 </Combobox.Content>
@@ -69,11 +90,12 @@ ApplicationSelector.displayName = APPLICATION_SELECTOR_NAME;
 type ApplicationSelectorListProps = {
     items: Application[];
     emptyLabel?: string;
+    inheritedKeys?: ReadonlySet<string>;
 };
 
 const ApplicationSelectorList = (props: ApplicationSelectorListProps): ReactElement => {
-    const {items, emptyLabel} = props;
-    const {selection, selectionMode} = useCombobox();
+    const { items, emptyLabel, inheritedKeys } = props;
+    const { selection, selectionMode } = useCombobox();
 
     return (
         <Combobox.ListContent className="max-h-60 rounded-sm">
@@ -83,15 +105,19 @@ const ApplicationSelectorList = (props: ApplicationSelectorListProps): ReactElem
                 const description = application.getDescription();
 
                 return (
-                    <Listbox.Item key={key} value={key}>
+                    <Listbox.Item key={key} value={key} disabled={inheritedKeys?.has(key)}>
                         <ItemLabel
                             className="flex-1"
                             icon={<ApplicationIcon application={application} />}
                             primary={name}
                             secondary={description}
                         />
-                        {selectionMode !== 'single' && (
-                            <Checkbox tabIndex={-1} checked={selection.has(key)} onClick={(event) => event.preventDefault()} />
+                        {selectionMode !== 'single' && !inheritedKeys?.has(key) && (
+                            <Checkbox
+                                tabIndex={-1}
+                                checked={selection.has(key)}
+                                onClick={(event) => event.preventDefault()}
+                            />
                         )}
                     </Listbox.Item>
                 );

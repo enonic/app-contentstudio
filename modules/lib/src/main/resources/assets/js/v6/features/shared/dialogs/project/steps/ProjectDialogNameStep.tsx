@@ -1,13 +1,18 @@
-import {Dialog, Input} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {ReactElement, useCallback, useEffect, useRef, useState} from 'react';
-import {useI18n} from '../../../../hooks/useI18n';
-import {$projectDialog, setProjectDialogName} from '../../../../store/dialogs/projectDialog.store';
-import {$projects} from '../../../../store/projects.store';
-import {prettifyProjectIdentifier, validateProjectIdentifier} from '../../../../utils/cms/projects/identifier';
+import { Dialog, Input } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { $projectDialog, setProjectDialogName } from '../../../../store/dialogs/projectDialog.store';
+import { $projects } from '../../../../store/projects.store';
+import {
+    prettifyProjectIdentifier,
+    validateProjectIdentifier,
+} from '../../../../../shared/lib/cms/projects/identifier';
+
+const MAX_IDENTIFIER_LENGTH = 48;
 
 export const ProjectDialogNameStepHeader = (): ReactElement => {
-    const {mode, title} = useStore($projectDialog, {keys: ['mode', 'title']});
+    const { mode, title } = useStore($projectDialog, { keys: ['mode', 'title'] });
     const titleLabel = useI18n('dialog.project.wizard.name.title');
     const descriptionLabel = useI18n('dialog.project.wizard.name.description');
 
@@ -28,12 +33,17 @@ export type ProjectDialogNameStepContentProps = {
     locked?: boolean;
 };
 
-export const ProjectDialogNameStepContent = ({locked = false}: ProjectDialogNameStepContentProps): ReactElement => {
-    const {projects} = useStore($projects);
+export const ProjectDialogNameStepContent = ({ locked = false }: ProjectDialogNameStepContentProps): ReactElement => {
+    const { projects } = useStore($projects);
     const {
-        nameData: {name: projectName, identifier: projectIdentifier, description: projectDescription, hasError: projectNameHasError},
+        nameData: {
+            name: projectName,
+            identifier: projectIdentifier,
+            description: projectDescription,
+            hasError: projectNameHasError,
+        },
         mode,
-    } = useStore($projectDialog, {keys: ['nameData', 'mode']});
+    } = useStore($projectDialog, { keys: ['nameData', 'mode'] });
     const [name, setName] = useState(projectName);
     const identifierRef = useRef<HTMLInputElement>(null);
     const [identifier, setIdentifier] = useState(projectIdentifier);
@@ -50,6 +60,7 @@ export const ProjectDialogNameStepContent = ({locked = false}: ProjectDialogName
     const projectErrorIdentifierAlreadyExists = useI18n('settings.project.name.occupied');
     const errorRequiredField = useI18n('field.value.required');
     const errorInvalidField = useI18n('field.value.invalid');
+    const errorIdentifierTooLong = useI18n('settings.wizard.project.identifier.tooLong', MAX_IDENTIFIER_LENGTH);
 
     const updateIdentifier = useCallback(
         (value: string, isUserInput?: boolean) => {
@@ -65,6 +76,11 @@ export const ProjectDialogNameStepContent = ({locked = false}: ProjectDialogName
                 return;
             }
 
+            if (prettifiedIdentifier.length > MAX_IDENTIFIER_LENGTH) {
+                setIdentifierError(errorIdentifierTooLong);
+                return;
+            }
+
             if (!validateProjectIdentifier(prettifiedIdentifier)) {
                 setIdentifierError(errorInvalidField);
                 return;
@@ -76,7 +92,14 @@ export const ProjectDialogNameStepContent = ({locked = false}: ProjectDialogName
                 setIdentifierError(alreadyExists ? projectErrorIdentifierAlreadyExists : '');
             }
         },
-        [mode, projects, errorRequiredField, errorInvalidField, projectErrorIdentifierAlreadyExists]
+        [
+            mode,
+            projects,
+            errorRequiredField,
+            errorInvalidField,
+            errorIdentifierTooLong,
+            projectErrorIdentifierAlreadyExists,
+        ],
     );
 
     // Processors
@@ -89,13 +112,13 @@ export const ProjectDialogNameStepContent = ({locked = false}: ProjectDialogName
                 setNameError(errorRequiredField);
             }
         },
-        [errorRequiredField]
+        [errorRequiredField],
     );
     const processIdentifier = useCallback(
         (value: string): void => {
             updateIdentifier(value, true);
         },
-        [updateIdentifier]
+        [updateIdentifier],
     );
     const processDescription = useCallback((value: string): void => {
         setDescription(value);
@@ -148,7 +171,12 @@ export const ProjectDialogNameStepContent = ({locked = false}: ProjectDialogName
         <Dialog.StepContent step="step-name" locked={locked}>
             <div className="flex flex-col gap-7.5">
                 {/* Name */}
-                <Input label={projectNameLabel} value={name} error={nameError} onChange={(e) => processName(e.currentTarget.value)} />
+                <Input
+                    label={projectNameLabel}
+                    value={name}
+                    error={nameError}
+                    onChange={(e) => processName(e.currentTarget.value)}
+                />
 
                 {/* Identifier */}
                 {mode === 'create' && (

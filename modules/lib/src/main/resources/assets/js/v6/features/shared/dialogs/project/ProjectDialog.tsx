@@ -1,7 +1,7 @@
-import {cn, Dialog, Tooltip} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {ReactElement, useCallback, useMemo, useRef} from 'react';
-import {useI18n} from '../../../hooks/useI18n';
+import { cn, Dialog, Tooltip } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { ReactElement, useCallback, useMemo, useRef } from 'react';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import {
     $isProjectDialogAccessModeDirty,
     $isProjectDialogDirty,
@@ -14,9 +14,9 @@ import {
     setProjectDialogStep,
     setProjectDialogView,
 } from '../../../store/dialogs/projectDialog.store';
-import {ConfirmationDialog} from '../ConfirmationDialog';
-import {ProjectDialogSteps} from './steps';
-import {ProgressDialogContent} from '../ProgressDialogContent';
+import { ConfirmationDialog } from '../ConfirmationDialog';
+import { ProjectDialogSteps } from './steps';
+import { ProgressDialogContent } from '../ProgressDialogContent';
 
 const PROJECT_DIALOG_NAME = 'ProjectDialog';
 
@@ -27,7 +27,7 @@ export const ProjectDialog = (): ReactElement => {
         step,
         accessMode,
         readAccessProgress,
-        nameData: {hasError},
+        nameData: { hasError },
         submitting,
         mode,
     } = useStore($projectDialog, {
@@ -128,7 +128,7 @@ export const ProjectDialog = (): ReactElement => {
                 <Dialog.Overlay />
                 {view === 'main' && (
                     <Dialog.Content
-                        className='w-full h-full gap-10 sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220'
+                        className="w-full h-full gap-10 sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220"
                         data-component={PROJECT_DIALOG_NAME}
                     >
                         <ProjectDialogSteps.ParentStep.Header />
@@ -147,7 +147,7 @@ export const ProjectDialog = (): ReactElement => {
                             <ProjectDialogSteps.SummaryStep.Content locked={!accessMode || hasError} />
                         </Dialog.Body>
 
-                        <Dialog.Footer className='flex flex-col'>
+                        <Dialog.Footer className="flex flex-col">
                             <Dialog.StepIndicator
                                 previousLabel={previousLabel}
                                 nextLabel={nextLabel}
@@ -156,7 +156,7 @@ export const ProjectDialog = (): ReactElement => {
                                 pending={submitting}
                                 dots
                                 renderDot={(dot, step) => (
-                                    <Tooltip delay={150} side='top' value={String(stepsMap.get(step))}>
+                                    <Tooltip delay={150} side="top" value={String(stepsMap.get(step))}>
                                         {dot}
                                     </Tooltip>
                                 )}

@@ -1,10 +1,8 @@
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {isBlank} from '../../../v6/features/utils/format/isBlank';
-import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { isBlank } from '../../../v6/shared/lib/format/isBlank';
+import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
 
-export class ComponentPath
-    implements Equitable {
-
+export class ComponentPath implements Equitable {
     static DIVIDER: string = '/';
 
     private readonly parentPath?: ComponentPath;

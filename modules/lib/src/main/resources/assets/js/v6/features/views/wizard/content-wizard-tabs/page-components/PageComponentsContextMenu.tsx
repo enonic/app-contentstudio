@@ -1,19 +1,19 @@
-import {ContextMenu} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {Box, Columns2, PenLine, Puzzle} from 'lucide-react';
-import {type ReactElement, type ReactNode, useCallback, useMemo} from 'react';
-import {SaveAsTemplateAction} from '../../../../../../app/wizard/action/SaveAsTemplateAction';
-import {FragmentComponent} from '../../../../../../app/page/region/FragmentComponent';
-import {ComponentPath} from '../../../../../../app/page/region/ComponentPath';
-import {ComponentType} from '../../../../../../app/page/region/ComponentType';
-import {ContentUrlHelper} from '../../../../../../app/util/ContentUrlHelper';
-import {PageNavigationEvent} from '../../../../../../app/wizard/PageNavigationEvent';
-import {PageNavigationEventData} from '../../../../../../app/wizard/PageNavigationEventData';
-import {PageNavigationEventType} from '../../../../../../app/wizard/PageNavigationEventType';
-import {PageNavigationMediator} from '../../../../../../app/wizard/PageNavigationMediator';
-import type {FlatNode} from '../../../../lib/tree-store';
-import {getNode} from '../../../../lib/tree-store';
-import {useI18n} from '../../../../hooks/useI18n';
+import { ContextMenu } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { Box, Columns2, PenLine, Puzzle } from 'lucide-react';
+import { type ReactElement, type ReactNode, useCallback, useMemo } from 'react';
+import { SaveAsTemplateAction } from '../../../../../../app/wizard/action/SaveAsTemplateAction';
+import { FragmentComponent } from '../../../../../../app/page/region/FragmentComponent';
+import { ComponentPath } from '../../../../../../app/page/region/ComponentPath';
+import { ComponentType } from '../../../../../../app/page/region/ComponentType';
+import { ContentUrlHelper } from '../../../../../../app/util/ContentUrlHelper';
+import { PageNavigationEvent } from '../../../../../../app/wizard/PageNavigationEvent';
+import { PageNavigationEventData } from '../../../../../../app/wizard/PageNavigationEventData';
+import { PageNavigationEventType } from '../../../../../../app/wizard/PageNavigationEventType';
+import { PageNavigationMediator } from '../../../../../../app/wizard/PageNavigationMediator';
+import type { FlatNode } from '../../../../../shared/lib/tree-store';
+import { getNode } from '../../../../../shared/lib/tree-store';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import {
     inspectItem,
     requestComponentAdd,
@@ -24,12 +24,17 @@ import {
     requestComponentReset,
     requestPageReset,
 } from '../../../../store/page-editor/commands';
-import {$config} from '../../../../store/config.store';
-import {$fragmentOptions, $isFragmentInspectionLoading} from '../../../../store/fragment-inspection.store';
-import {isComponentReferenceMissing} from '../../../../store/component-inspection.store';
-import {$contentContext, $isFragment, $page, isComponentEmpty} from '../../../../store/page-editor/store';
-import {$componentsTreeState, expandComponentNode, hasLayoutAncestor, rebuildComponentsTree} from './pageComponents.store';
-import type {PageComponentNodeData} from './types';
+import { $config } from '../../../../../shared/config/config.store';
+import { $fragmentOptions, $isFragmentInspectionLoading } from '../../../../store/fragment-inspection.store';
+import { isComponentReferenceMissing } from '../../../../store/component-inspection.store';
+import { $contentContext, $isFragment, $page, isComponentEmpty } from '../../../../store/page-editor/store';
+import {
+    $componentsTreeState,
+    expandComponentNode,
+    hasLayoutAncestor,
+    rebuildComponentsTree,
+} from './pageComponents.store';
+import type { PageComponentNodeData } from './types';
 
 //
 // * Types
@@ -47,7 +52,7 @@ export type PageComponentsContextMenuProps = {
 const PAGE_COMPONENTS_CONTEXT_MENU_NAME = 'PageComponentsContextMenu';
 const ROOT_NODE_ID = '/';
 
-export const PageComponentsContextMenu = ({node, children}: PageComponentsContextMenuProps): ReactElement => {
+export const PageComponentsContextMenu = ({ node, children }: PageComponentsContextMenuProps): ReactElement => {
     const data = node.data;
 
     const page = useStore($page);
@@ -109,11 +114,23 @@ export const PageComponentsContextMenu = ({node, children}: PageComponentsContex
                             {!isEmpty && <ResetItem nodeId={node.id} label={resetLabel} />}
                             <RemoveItem nodeId={node.id} label={removeLabel} />
                             <DuplicateItem nodeId={node.id} label={duplicateLabel} />
-                            {!isFragmentComponent && <SaveAsFragmentItem nodeId={node.id} label={saveAsFragmentLabel} />}
-                            {isFragmentComponent && !isEmpty &&
-                                <DetachFragmentItem nodeId={node.id} label={detachFragmentLabel} disabled={fragmentRemoved} />}
-                            {isFragmentComponent &&
-                                <EditFragmentItem nodeId={node.id} label={editFragmentLabel} disabled={fragmentRemoved} />}
+                            {!isFragmentComponent && (
+                                <SaveAsFragmentItem nodeId={node.id} label={saveAsFragmentLabel} />
+                            )}
+                            {isFragmentComponent && !isEmpty && (
+                                <DetachFragmentItem
+                                    nodeId={node.id}
+                                    label={detachFragmentLabel}
+                                    disabled={fragmentRemoved}
+                                />
+                            )}
+                            {isFragmentComponent && (
+                                <EditFragmentItem
+                                    nodeId={node.id}
+                                    label={editFragmentLabel}
+                                    disabled={fragmentRemoved}
+                                />
+                            )}
                         </>
                     )}
                 </ContextMenu.Content>
@@ -133,24 +150,20 @@ type PageResetItemProps = {
     onSelect: () => void;
 };
 
-const PageResetItem = ({label, onSelect}: PageResetItemProps): ReactElement => {
+const PageResetItem = ({ label, onSelect }: PageResetItemProps): ReactElement => {
     const isFragment = useStore($isFragment);
     const isEmpty = $page.get()?.getFragment()?.isEmpty();
-    
+
     if (isFragment && isEmpty) {
         return null;
     }
 
-    return (
-        <ContextMenu.Item onSelect={onSelect}>
-            {label}
-        </ContextMenu.Item>
-    );
+    return <ContextMenu.Item onSelect={onSelect}>{label}</ContextMenu.Item>;
 };
 
 PageResetItem.displayName = 'PageResetItem';
 
-const SaveAsTemplateItem = ({label}: {label: string}): ReactElement => {
+const SaveAsTemplateItem = ({ label }: { label: string }): ReactElement => {
     const isFragment = useStore($isFragment);
     const contentContext = useStore($contentContext);
 
@@ -162,11 +175,7 @@ const SaveAsTemplateItem = ({label}: {label: string}): ReactElement => {
         return null;
     }
 
-    return (
-        <ContextMenu.Item onSelect={handleSelect}>
-            {label}
-        </ContextMenu.Item>
-    );
+    return <ContextMenu.Item onSelect={handleSelect}>{label}</ContextMenu.Item>;
 };
 
 SaveAsTemplateItem.displayName = 'SaveAsTemplateItem';
@@ -181,7 +190,7 @@ type MenuItemProps = {
     disabled?: boolean;
 };
 
-const SelectParentItem = ({nodeId, label}: MenuItemProps): ReactElement | null => {
+const SelectParentItem = ({ nodeId, label }: MenuItemProps): ReactElement | null => {
     const treeState = $componentsTreeState.get();
     const treeNode = getNode(treeState, nodeId);
 
@@ -199,16 +208,12 @@ const SelectParentItem = ({nodeId, label}: MenuItemProps): ReactElement | null =
         return null;
     }
 
-    return (
-        <ContextMenu.Item onSelect={handleSelect}>
-            {label}
-        </ContextMenu.Item>
-    );
+    return <ContextMenu.Item onSelect={handleSelect}>{label}</ContextMenu.Item>;
 };
 
 SelectParentItem.displayName = 'SelectParentItem';
 
-const InspectItem = ({nodeId, label}: MenuItemProps): ReactElement => {
+const InspectItem = ({ nodeId, label }: MenuItemProps): ReactElement => {
     const handleSelect = useCallback(() => {
         const path = ComponentPath.fromString(nodeId);
         inspectItem(path);
@@ -217,74 +222,54 @@ const InspectItem = ({nodeId, label}: MenuItemProps): ReactElement => {
         );
     }, [nodeId]);
 
-    return (
-        <ContextMenu.Item onSelect={handleSelect}>
-            {label}
-        </ContextMenu.Item>
-    );
+    return <ContextMenu.Item onSelect={handleSelect}>{label}</ContextMenu.Item>;
 };
 
 InspectItem.displayName = 'InspectItem';
 
-const ResetItem = ({nodeId, label}: MenuItemProps): ReactElement => {
+const ResetItem = ({ nodeId, label }: MenuItemProps): ReactElement => {
     const handleSelect = useCallback(() => {
         requestComponentReset(ComponentPath.fromString(nodeId));
     }, [nodeId]);
 
-    return (
-        <ContextMenu.Item onSelect={handleSelect}>
-            {label}
-        </ContextMenu.Item>
-    );
+    return <ContextMenu.Item onSelect={handleSelect}>{label}</ContextMenu.Item>;
 };
 
 ResetItem.displayName = 'ResetItem';
 
-const RemoveItem = ({nodeId, label}: MenuItemProps): ReactElement => {
+const RemoveItem = ({ nodeId, label }: MenuItemProps): ReactElement => {
     const handleSelect = useCallback(() => {
         requestComponentRemove(ComponentPath.fromString(nodeId));
         rebuildComponentsTree();
     }, [nodeId]);
 
-    return (
-        <ContextMenu.Item onSelect={handleSelect}>
-            {label}
-        </ContextMenu.Item>
-    );
+    return <ContextMenu.Item onSelect={handleSelect}>{label}</ContextMenu.Item>;
 };
 
 RemoveItem.displayName = 'RemoveItem';
 
-const DuplicateItem = ({nodeId, label}: MenuItemProps): ReactElement => {
+const DuplicateItem = ({ nodeId, label }: MenuItemProps): ReactElement => {
     const handleSelect = useCallback(() => {
         requestComponentDuplicate(ComponentPath.fromString(nodeId));
         rebuildComponentsTree();
     }, [nodeId]);
 
-    return (
-        <ContextMenu.Item onSelect={handleSelect}>
-            {label}
-        </ContextMenu.Item>
-    );
+    return <ContextMenu.Item onSelect={handleSelect}>{label}</ContextMenu.Item>;
 };
 
 DuplicateItem.displayName = 'DuplicateItem';
 
-const SaveAsFragmentItem = ({nodeId, label}: MenuItemProps): ReactElement => {
+const SaveAsFragmentItem = ({ nodeId, label }: MenuItemProps): ReactElement => {
     const handleSelect = useCallback(() => {
         requestComponentCreateFragment(ComponentPath.fromString(nodeId));
     }, [nodeId]);
 
-    return (
-        <ContextMenu.Item onSelect={handleSelect}>
-            {label}
-        </ContextMenu.Item>
-    );
+    return <ContextMenu.Item onSelect={handleSelect}>{label}</ContextMenu.Item>;
 };
 
 SaveAsFragmentItem.displayName = 'SaveAsFragmentItem';
 
-const DetachFragmentItem = ({nodeId, label, disabled}: MenuItemProps): ReactElement => {
+const DetachFragmentItem = ({ nodeId, label, disabled }: MenuItemProps): ReactElement => {
     const handleSelect = useCallback(() => {
         requestComponentDetachFragment(ComponentPath.fromString(nodeId));
     }, [nodeId]);
@@ -298,7 +283,7 @@ const DetachFragmentItem = ({nodeId, label, disabled}: MenuItemProps): ReactElem
 
 DetachFragmentItem.displayName = 'DetachFragmentItem';
 
-const EditFragmentItem = ({nodeId, label, disabled}: MenuItemProps): ReactElement | null => {
+const EditFragmentItem = ({ nodeId, label, disabled }: MenuItemProps): ReactElement | null => {
     const page = $page.get();
     const component = page?.getComponentByPath(ComponentPath.fromString(nodeId)) ?? null;
     const fragmentId = component instanceof FragmentComponent ? component.getFragment() : null;
@@ -324,47 +309,50 @@ EditFragmentItem.displayName = 'EditFragmentItem';
 // * Insert submenu
 //
 
-const InsertSubMenu = ({nodeId, label}: MenuItemProps): ReactElement => {
+const InsertSubMenu = ({ nodeId, label }: MenuItemProps): ReactElement => {
     const treeState = $componentsTreeState.get();
     const insideLayout = hasLayoutAncestor(treeState, nodeId);
 
-    const {enableTextComponent} = useStore($config, {keys: ['enableTextComponent']});
+    const { enableTextComponent } = useStore($config, { keys: ['enableTextComponent'] });
 
     const partLabel = useI18n('field.part');
     const layoutLabel = useI18n('field.layout');
     const textLabel = useI18n('field.text');
     const fragmentLabel = useI18n('field.fragment');
 
-    const handleInsert = useCallback((typeShortName: string) => {
-        const currentState = $componentsTreeState.get();
-        const treeNode = getNode(currentState, nodeId);
-        const isRegion = treeNode?.data?.nodeType === 'region';
-        const path = ComponentPath.fromString(nodeId);
-        const componentType = ComponentType.byShortName(typeShortName);
+    const handleInsert = useCallback(
+        (typeShortName: string) => {
+            const currentState = $componentsTreeState.get();
+            const treeNode = getNode(currentState, nodeId);
+            const isRegion = treeNode?.data?.nodeType === 'region';
+            const path = ComponentPath.fromString(nodeId);
+            const componentType = ComponentType.byShortName(typeShortName);
 
-        const insertPath = isRegion
-            ? new ComponentPath(treeNode?.childIds.length ?? 0, path)
-            : new ComponentPath(Number(path.getPath()) + 1, path.getParentPath());
+            const insertPath = isRegion
+                ? new ComponentPath(treeNode?.childIds.length ?? 0, path)
+                : new ComponentPath(Number(path.getPath()) + 1, path.getParentPath());
 
-        requestComponentAdd(insertPath, componentType);
-        rebuildComponentsTree();
+            requestComponentAdd(insertPath, componentType);
+            rebuildComponentsTree();
 
-        inspectItem(insertPath);
-        PageNavigationMediator.get().notify(
-            new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(insertPath)),
-        );
+            inspectItem(insertPath);
+            PageNavigationMediator.get().notify(
+                new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(insertPath)),
+            );
 
-        const regionId = isRegion ? nodeId : path.getParentPath()?.toString();
-        if (regionId != null) {
-            expandComponentNode(regionId);
-        }
-    }, [nodeId]);
+            const regionId = isRegion ? nodeId : path.getParentPath()?.toString();
+            if (regionId != null) {
+                expandComponentNode(regionId);
+            }
+        },
+        [nodeId],
+    );
 
     const items = [
-        {type: 'part', Icon: Box, label: partLabel, disabled: false},
-        {type: 'layout', Icon: Columns2, label: layoutLabel, disabled: insideLayout},
-        ...(enableTextComponent ? [{type: 'text', Icon: PenLine, label: textLabel, disabled: false}] : []),
-        {type: 'fragment', Icon: Puzzle, label: fragmentLabel, disabled: false},
+        { type: 'part', Icon: Box, label: partLabel, disabled: false },
+        { type: 'layout', Icon: Columns2, label: layoutLabel, disabled: insideLayout },
+        ...(enableTextComponent ? [{ type: 'text', Icon: PenLine, label: textLabel, disabled: false }] : []),
+        { type: 'fragment', Icon: Puzzle, label: fragmentLabel, disabled: false },
     ];
 
     return (
@@ -372,12 +360,8 @@ const InsertSubMenu = ({nodeId, label}: MenuItemProps): ReactElement => {
             <ContextMenu.SubTrigger>{label}</ContextMenu.SubTrigger>
             <ContextMenu.Portal>
                 <ContextMenu.SubContent className="min-w-48">
-                    {items.map(({type, Icon, label: itemLabel, disabled}) => (
-                        <ContextMenu.Item
-                            key={type}
-                            disabled={disabled}
-                            onSelect={() => handleInsert(type)}
-                        >
+                    {items.map(({ type, Icon, label: itemLabel, disabled }) => (
+                        <ContextMenu.Item key={type} disabled={disabled} onSelect={() => handleInsert(type)}>
                             <Icon className="size-4 me-2 shrink-0" />
                             {itemLabel}
                         </ContextMenu.Item>

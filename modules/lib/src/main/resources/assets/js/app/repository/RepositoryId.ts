@@ -1,11 +1,9 @@
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {isBlank} from '../../v6/features/utils/format/isBlank';
-import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {getActiveProjectName} from '../../v6/features/store/activeProject.store';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { isBlank } from '../../v6/shared/lib/format/isBlank';
+import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
+import { getActiveProjectName } from '../../v6/features/store/activeProject.store';
 
-export class RepositoryId
-    implements Equitable {
-
+export class RepositoryId implements Equitable {
     public static CONTENT_REPO_PREFIX: string = 'com.enonic.cms.';
 
     private static VALID_REPOSITORY_ID_REGEX: RegExp = /([a-zA-Z0-9\-:])([a-zA-Z0-9_\-\.:])*/;
@@ -36,7 +34,6 @@ export class RepositoryId
     }
 
     equals(o: Equitable): boolean {
-
         if (!ObjectHelper.iFrameSafeInstanceOf(o, RepositoryId)) {
             return false;
         }

@@ -1,21 +1,21 @@
-import {Button} from '@enonic/ui';
-import {createPortal, forwardRef, type ReactElement} from 'react';
-import {useI18n} from '../../../../hooks/useI18n';
-import {ConfirmFocusTrap} from './ConfirmFocusTrap';
-import {useConfirmKeyboard} from './hooks';
+import { Button } from '@enonic/ui';
+import { createPortal, forwardRef, type ReactElement } from 'react';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { ConfirmFocusTrap } from './ConfirmFocusTrap';
+import { useConfirmKeyboard } from './hooks';
 
 type SetConfirmDeleteProps = {
-    position: {top: number; left: number; width: number} | null;
+    position: { top: number; left: number; width: number } | null;
     onCancel: () => void;
     onConfirm: () => void;
 };
 
 export const SetConfirmDelete = forwardRef<HTMLDivElement, SetConfirmDeleteProps>(
-    ({position, onCancel, onConfirm}, ref): ReactElement | null => {
+    ({ position, onCancel, onConfirm }, ref): ReactElement | null => {
         const cancelLabel = useI18n('action.cancel');
         const deleteLabel = useI18n('action.delete');
 
-        useConfirmKeyboard({onCancel, enabled: true});
+        useConfirmKeyboard({ onCancel, enabled: true });
 
         return createPortal(
             <ConfirmFocusTrap
@@ -36,9 +36,9 @@ export const SetConfirmDelete = forwardRef<HTMLDivElement, SetConfirmDeleteProps
                     className="bg-btn-error hover:bg-btn-error-hover focus-visible:ring-error/50 active:bg-btn-error-active"
                 />
             </ConfirmFocusTrap>,
-            document.body
+            document.body,
         );
-    }
+    },
 );
 
 SetConfirmDelete.displayName = 'SetConfirmDelete';

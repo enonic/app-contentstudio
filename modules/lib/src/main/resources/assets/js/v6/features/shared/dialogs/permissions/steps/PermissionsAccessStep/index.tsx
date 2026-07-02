@@ -1,36 +1,36 @@
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
-import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
-import {CheckboxChecked, Dialog, GridList, RadioGroup} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {LockKeyhole, LockKeyholeOpen} from 'lucide-react';
-import {Fragment, ReactElement, useCallback, useMemo, useState} from 'react';
-import {AccessControlEntry} from '../../../../../../../app/access/AccessControlEntry';
-import {Permission} from '../../../../../../../app/access/Permission';
-import {Access} from '../../../../../../../app/security/Access';
-import {AccessHelper} from '../../../../../../../app/security/AccessHelper';
-import {useI18n} from '../../../../../hooks/useI18n';
+import { Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { PrincipalType } from '@enonic/lib-admin-ui/security/PrincipalType';
+import { RoleKeys } from '@enonic/lib-admin-ui/security/RoleKeys';
+import { CheckboxChecked, Dialog, GridList, RadioGroup } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { LockKeyhole, LockKeyholeOpen } from 'lucide-react';
+import { Fragment, ReactElement, useCallback, useMemo, useState } from 'react';
+import { AccessControlEntry } from '../../../../../../../app/access/AccessControlEntry';
+import { Permission } from '../../../../../../../app/access/Permission';
+import { Access } from '../../../../../../../app/security/Access';
+import { AccessHelper } from '../../../../../../../app/security/AccessHelper';
+import { useI18n } from '../../../../../../shared/lib/hooks/useI18n';
 import {
     $permissionsDialog,
     setPermissionsDialogAccessControlEntries,
     setPermissionsDialogAccessMode,
 } from '../../../../../store/dialogs/permissionsDialog.store';
-import {$principals} from '../../../../../store/principals.store';
+import { $principals } from '../../../../../store/principals.store';
 import {
     accessControlEntriesToPrincipalKeys,
     areAccessControlEntriesEqual,
     getPrincipalsInCustomAccess,
-} from '../../../../../utils/cms/permissions/accessControl';
-import {InlineButton} from '../../../../InlineButton';
-import {PrincipalSelector} from '../../../../selectors/PrincipalSelector';
-import {AccessControlRow} from './AccessControlRow';
-import {CustomPermissionsRow} from './CustomPermissionsRow';
+} from '../../../../../../shared/lib/cms/permissions/accessControl';
+import { InlineButton } from '../../../../../../shared/ui/InlineButton';
+import { PrincipalSelector } from '../../../../selectors/PrincipalSelector';
+import { AccessControlRow } from './AccessControlRow';
+import { CustomPermissionsRow } from './CustomPermissionsRow';
 
 const filterAnonymousUserOut = (principal: Principal) => !principal.getKey().isAnonymous();
 const filterEveryonePrincipalOut = (principal: Principal) => !principal.getKey().equals(RoleKeys.EVERYONE);
 
 export const PermissionsDialogAccessStepHeader = (): ReactElement => {
-    const {contentDisplayName} = useStore($permissionsDialog, {keys: ['contentDisplayName']});
+    const { contentDisplayName } = useStore($permissionsDialog, { keys: ['contentDisplayName'] });
 
     const helperLabel = useI18n('dialog.permissions.title', contentDisplayName);
     const titleLabel = useI18n('dialog.permissions.access.title');
@@ -42,23 +42,32 @@ PermissionsDialogAccessStepHeader.displayName = 'PermissionsDialogAccessStepHead
 
 export const PermissionsDialogAccessStepContent = (): ReactElement => {
     // Stores
-    const {principals} = useStore($principals);
-    const {accessControlEntries, parentAccessControlEntries, accessMode, isContentRoot} = useStore($permissionsDialog, {
-        keys: ['accessControlEntries', 'parentAccessControlEntries', 'accessMode', 'isContentRoot'],
-    });
+    const { principals } = useStore($principals);
+    const { accessControlEntries, parentAccessControlEntries, accessMode, isContentRoot } = useStore(
+        $permissionsDialog,
+        {
+            keys: ['accessControlEntries', 'parentAccessControlEntries', 'accessMode', 'isContentRoot'],
+        },
+    );
 
     // States
     const [selection, setSelection] = useState<string[]>(accessControlEntriesToPrincipalKeys(accessControlEntries));
-    const [principalsInCustomAccess, setPrincipalsInCustomAccess] = useState<string[]>(getPrincipalsInCustomAccess(accessControlEntries));
+    const [principalsInCustomAccess, setPrincipalsInCustomAccess] = useState<string[]>(
+        getPrincipalsInCustomAccess(accessControlEntries),
+    );
 
     // Memoized values. Make sure Everyone principal is not included.
     const selectedPrincipals = useMemo(
-        () => principals.filter((principal) => filterEveryonePrincipalOut(principal) && selection.includes(principal.getKey().toString())),
-        [principals, selection]
+        () =>
+            principals.filter(
+                (principal) =>
+                    filterEveryonePrincipalOut(principal) && selection.includes(principal.getKey().toString()),
+            ),
+        [principals, selection],
     );
     const canCopyFromParent = useMemo(
         () => !areAccessControlEntriesEqual(accessControlEntries, parentAccessControlEntries),
-        [accessControlEntries, parentAccessControlEntries]
+        [accessControlEntries, parentAccessControlEntries],
     );
 
     // Constants
@@ -70,7 +79,7 @@ export const PermissionsDialogAccessStepContent = (): ReactElement => {
     const copyFromProjectLabel = useI18n('dialog.permissions.access.copyFromProject');
     const copyFromLabel = useMemo(
         () => (isContentRoot ? copyFromProjectLabel : copyFromParentLabel),
-        [isContentRoot, copyFromProjectLabel, copyFromParentLabel]
+        [isContentRoot, copyFromProjectLabel, copyFromParentLabel],
     );
     const typeToSearchLabel = useI18n('field.option.placeholder');
     const notFoundLabel = useI18n('field.search.noItems');
@@ -85,7 +94,9 @@ export const PermissionsDialogAccessStepContent = (): ReactElement => {
     // Manage the selection of principals. New ones are added with read permission only.
     const handleSelect = useCallback(
         (selection: string[]) => {
-            const existingEntries = accessControlEntries.filter((entry) => selection.includes(entry.getPrincipalKey().toString()));
+            const existingEntries = accessControlEntries.filter((entry) =>
+                selection.includes(entry.getPrincipalKey().toString()),
+            );
             const existingKeys = new Set(existingEntries.map((entry) => entry.getPrincipalKey().toString()));
             const newEntries = selection
                 .filter((key) => !existingKeys.has(key))
@@ -96,20 +107,22 @@ export const PermissionsDialogAccessStepContent = (): ReactElement => {
             setSelection(selection);
             setPermissionsDialogAccessControlEntries([...existingEntries, ...newEntries]);
         },
-        [accessControlEntries, principals]
+        [accessControlEntries, principals],
     );
 
     // Manage the unselection of principals.
     const handleUnselect = useCallback(
         (key: string) => {
-            const newAccessControlEntries = accessControlEntries.filter((item) => item.getPrincipalKey().toString() !== key);
+            const newAccessControlEntries = accessControlEntries.filter(
+                (item) => item.getPrincipalKey().toString() !== key,
+            );
             const newSelection = newAccessControlEntries.map((item) => item.getPrincipalKey().toString());
 
             setSelection(newSelection);
             setPermissionsDialogAccessControlEntries(newAccessControlEntries);
             setPrincipalsInCustomAccess((prev) => prev.filter((item) => item !== key));
         },
-        [accessControlEntries]
+        [accessControlEntries],
     );
 
     // Manage the change of access for a principal.
@@ -132,10 +145,10 @@ export const PermissionsDialogAccessStepContent = (): ReactElement => {
             }
 
             setPrincipalsInCustomAccess((prev) =>
-                value === Access.CUSTOM ? [...prev, principalKey] : prev.filter((item) => item !== principalKey)
+                value === Access.CUSTOM ? [...prev, principalKey] : prev.filter((item) => item !== principalKey),
             );
         },
-        [accessControlEntries, setPrincipalsInCustomAccess]
+        [accessControlEntries, setPrincipalsInCustomAccess],
     );
 
     // Manage the change of permissions on custom access of a principal.
@@ -151,7 +164,7 @@ export const PermissionsDialogAccessStepContent = (): ReactElement => {
                 clone.setAllowedPermissions(
                     checked
                         ? [...allowedPermissions, value]
-                        : allowedPermissions.filter((permission) => permission.toString() !== value.toString())
+                        : allowedPermissions.filter((permission) => permission.toString() !== value.toString()),
                 );
 
                 return clone;
@@ -159,7 +172,7 @@ export const PermissionsDialogAccessStepContent = (): ReactElement => {
 
             setPermissionsDialogAccessControlEntries(updatedEntries);
         },
-        [accessControlEntries]
+        [accessControlEntries],
     );
 
     return (

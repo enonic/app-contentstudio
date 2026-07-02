@@ -1,11 +1,11 @@
-import {type ReactElement, useCallback} from 'react';
-import {IconButton, Tooltip} from '@enonic/ui';
-import {X} from 'lucide-react';
-import {useImageUploaderContext} from '../ImageUploaderContext';
-import {useI18n} from '../../../../../hooks/useI18n';
+import { type ReactElement, useCallback } from 'react';
+import { IconButton, Tooltip } from '@enonic/ui';
+import { X } from 'lucide-react';
+import { useImageUploaderContext } from '../ImageUploaderContext';
+import { useI18n } from '../../../../../../shared/lib/hooks/useI18n';
 
 export const ImageUploaderInputCancelButton = (): ReactElement => {
-    const {value, mode, dimensions, setMode, setCrop, setFocus} = useImageUploaderContext();
+    const { value, mode, dimensions, setMode, setCrop, setFocus } = useImageUploaderContext();
     const label = useI18n('action.cancel');
 
     const handleCancel = useCallback(() => {
@@ -20,7 +20,7 @@ export const ImageUploaderInputCancelButton = (): ReactElement => {
             if (x1 === null || y1 === null || x2 === null || y2 === null) {
                 setCrop(null);
             } else {
-                setCrop({x1: x1 * dimensions.w, y1: y1 * dimensions.h, x2: x2 * dimensions.w, y2: y2 * dimensions.h});
+                setCrop({ x1: x1 * dimensions.w, y1: y1 * dimensions.h, x2: x2 * dimensions.w, y2: y2 * dimensions.h });
             }
         }
 
@@ -31,7 +31,7 @@ export const ImageUploaderInputCancelButton = (): ReactElement => {
             if (x === null || y === null) {
                 setFocus(null);
             } else {
-                setFocus({x: x * dimensions.w, y: y * dimensions.h});
+                setFocus({ x: x * dimensions.w, y: y * dimensions.h });
             }
         }
 

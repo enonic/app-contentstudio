@@ -1,41 +1,43 @@
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {SettingsDataItemWizardPanel} from './SettingsDataItemWizardPanel';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
+import { SettingsDataItemWizardPanel } from './SettingsDataItemWizardPanel';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {isBlank} from '../../../../v6/features/utils/format/isBlank';
-import {ProjectUpdateRequest} from '../../resource/ProjectUpdateRequest';
-import {ProjectDeleteRequest} from '../../resource/ProjectDeleteRequest';
-import {type WizardHeaderWithDisplayNameAndName} from '@enonic/lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
-import {ProjectItemNameWizardStepForm} from './form/ProjectItemNameWizardStepForm';
-import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {type Project, ProjectBuilder} from '../../data/project/Project';
-import {ProjectViewItem} from '../../view/ProjectViewItem';
-import {ProjectWizardActions} from '../action/ProjectWizardActions';
-import {ProjectReadAccessWizardStepForm} from './form/ProjectReadAccessWizardStepForm';
-import {type SettingDataItemWizardStepForm} from './form/SettingDataItemWizardStepForm';
-import {type ProjectPermissions} from '../../data/project/ProjectPermissions';
-import {type ProjectReadAccess} from '../../data/project/ProjectReadAccess';
-import {UpdateProjectPermissionsRequest} from '../../resource/UpdateProjectPermissionsRequest';
-import {ProjectRolesWizardStepForm} from './form/ProjectRolesWizardStepForm';
-import {ProjectUpdateIconRequest} from '../../resource/ProjectUpdateIconRequest';
-import {EditProjectAccessDialog} from '../../../wizard/EditProjectAccessDialog';
-import {type TaskId} from '@enonic/lib-admin-ui/task/TaskId';
-import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
-import {UpdateProjectReadAccessRequest} from '../../resource/UpdateProjectReadAccessRequest';
-import {ProjectDataItemFormIcon} from './form/element/ProjectDataItemFormIcon';
-import {ConfirmValueDialog} from '../../../remove/ConfirmValueDialog';
-import {TextInputSize} from '@enonic/lib-admin-ui/ui/text/TextInput';
-import {ProjectApplicationsWizardStepForm} from './form/ProjectApplicationsWizardStepForm';
-import {type ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
-import {LangDirection} from '@enonic/lib-admin-ui/dom/Element';
-import {clearPendingDeletedProject, isActiveProject, markPendingDeletedProject} from '../../../../v6/features/store/projects.store';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { isBlank } from '../../../../v6/shared/lib/format/isBlank';
+import { ProjectUpdateRequest } from '../../resource/ProjectUpdateRequest';
+import { ProjectDeleteRequest } from '../../resource/ProjectDeleteRequest';
+import { type WizardHeaderWithDisplayNameAndName } from '@enonic/lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
+import { ProjectItemNameWizardStepForm } from './form/ProjectItemNameWizardStepForm';
+import { showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { type Project, ProjectBuilder } from '../../data/project/Project';
+import { ProjectViewItem } from '../../view/ProjectViewItem';
+import { ProjectWizardActions } from '../action/ProjectWizardActions';
+import { ProjectReadAccessWizardStepForm } from './form/ProjectReadAccessWizardStepForm';
+import { type SettingDataItemWizardStepForm } from './form/SettingDataItemWizardStepForm';
+import { type ProjectPermissions } from '../../data/project/ProjectPermissions';
+import { type ProjectReadAccess } from '../../data/project/ProjectReadAccess';
+import { UpdateProjectPermissionsRequest } from '../../resource/UpdateProjectPermissionsRequest';
+import { ProjectRolesWizardStepForm } from './form/ProjectRolesWizardStepForm';
+import { ProjectUpdateIconRequest } from '../../resource/ProjectUpdateIconRequest';
+import { EditProjectAccessDialog } from '../../../wizard/EditProjectAccessDialog';
+import { type TaskId } from '@enonic/lib-admin-ui/task/TaskId';
+import { TaskState } from '@enonic/lib-admin-ui/task/TaskState';
+import { UpdateProjectReadAccessRequest } from '../../resource/UpdateProjectReadAccessRequest';
+import { ProjectDataItemFormIcon } from './form/element/ProjectDataItemFormIcon';
+import { ConfirmValueDialog } from '../../../remove/ConfirmValueDialog';
+import { TextInputSize } from '@enonic/lib-admin-ui/ui/text/TextInput';
+import { ProjectApplicationsWizardStepForm } from './form/ProjectApplicationsWizardStepForm';
+import { type ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import { Locale } from '@enonic/lib-admin-ui/locale/Locale';
+import { LangDirection } from '@enonic/lib-admin-ui/dom/Element';
+import {
+    clearPendingDeletedProject,
+    isActiveProject,
+    markPendingDeletedProject,
+} from '../../../../v6/features/store/projects.store';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 
-export class ProjectWizardPanel
-    extends SettingsDataItemWizardPanel<ProjectViewItem> {
-
+export class ProjectWizardPanel extends SettingsDataItemWizardPanel<ProjectViewItem> {
     private projectWizardStepForm: ProjectItemNameWizardStepForm;
 
     private readAccessWizardStepForm: ProjectReadAccessWizardStepForm;
@@ -67,7 +69,7 @@ export class ProjectWizardPanel
     }
 
     protected initConfirmationDialog(): ConfirmValueDialog {
-        return new ConfirmValueDialog({inputSize: TextInputSize.LARGE})
+        return new ConfirmValueDialog({ inputSize: TextInputSize.LARGE })
             .setValueToCheck(this.getPersistedItem().getId())
             .setSubheaderText(i18n('dialog.project.delete.confirm.subheader'))
             .setHeaderText(i18n('dialog.confirmDelete'))
@@ -103,7 +105,8 @@ export class ProjectWizardPanel
 
     doLayout(persistedItem: ProjectViewItem): Q.Promise<void> {
         return super.doLayout(persistedItem).then(() => {
-            const baseUrlHandler = () => this.applicationsWizardStepForm.updateBaseUrlInSiteConfig(this.projectWizardStepForm.getBaseUrl());
+            const baseUrlHandler = () =>
+                this.applicationsWizardStepForm.updateBaseUrlInSiteConfig(this.projectWizardStepForm.getBaseUrl());
             this.projectWizardStepForm.onBaseUrlChanged(AppHelper.debounce(baseUrlHandler, 300));
         });
     }
@@ -116,10 +119,10 @@ export class ProjectWizardPanel
         const stepForms: SettingDataItemWizardStepForm<ProjectViewItem>[] = [];
 
         stepForms.push(
-            this.projectWizardStepForm = new ProjectItemNameWizardStepForm(),
-            this.readAccessWizardStepForm = new ProjectReadAccessWizardStepForm(),
-            this.rolesWizardStepForm = new ProjectRolesWizardStepForm(),
-            this.applicationsWizardStepForm = new ProjectApplicationsWizardStepForm()
+            (this.projectWizardStepForm = new ProjectItemNameWizardStepForm()),
+            (this.readAccessWizardStepForm = new ProjectReadAccessWizardStepForm()),
+            (this.rolesWizardStepForm = new ProjectRolesWizardStepForm()),
+            (this.applicationsWizardStepForm = new ProjectApplicationsWizardStepForm()),
         );
 
         return stepForms;
@@ -130,8 +133,13 @@ export class ProjectWizardPanel
     }
 
     protected isPersistedItemChanged(): boolean {
-        return this.isProjectMetaChanged() || this.isLanguageChanged() || this.isPermissionsChanged() || this.isReadAccessChanged() ||
-               this.isApplicationsChanged();
+        return (
+            this.isProjectMetaChanged() ||
+            this.isLanguageChanged() ||
+            this.isPermissionsChanged() ||
+            this.isReadAccessChanged() ||
+            this.isApplicationsChanged()
+        );
     }
 
     postPersistNewItem(item: ProjectViewItem): Q.Promise<ProjectViewItem> {
@@ -154,8 +162,11 @@ export class ProjectWizardPanel
         });
     }
 
-    private updateProjectPermissions(projectName: string, permissions: ProjectPermissions,
-                                     readAccess: ProjectReadAccess): Q.Promise<ProjectPermissions> {
+    private updateProjectPermissions(
+        projectName: string,
+        permissions: ProjectPermissions,
+        readAccess: ProjectReadAccess,
+    ): Q.Promise<ProjectPermissions> {
         return new UpdateProjectPermissionsRequest()
             .setName(projectName)
             .setPermissions(permissions)
@@ -164,10 +175,7 @@ export class ProjectWizardPanel
     }
 
     private updateProjectReadAccess(projectName: string, readAccess: ProjectReadAccess): Q.Promise<TaskId> {
-        return new UpdateProjectReadAccessRequest()
-            .setName(projectName)
-            .setReadAccess(readAccess)
-            .sendAndParse();
+        return new UpdateProjectReadAccessRequest().setName(projectName).setReadAccess(readAccess).sendAndParse();
     }
 
     protected updateIcon(): Q.Promise<void> {
@@ -176,7 +184,8 @@ export class ProjectWizardPanel
         return new ProjectUpdateIconRequest()
             .setName(this.projectWizardStepForm.getProjectName())
             .setIcon(icon)
-            .sendAndParse().then(() => {
+            .sendAndParse()
+            .then(() => {
                 showFeedback(this.getSuccessfulUpdateMessage(this.projectWizardStepForm.getProjectName()));
             });
     }
@@ -193,13 +202,16 @@ export class ProjectWizardPanel
         const projectName = this.getPersistedItem().getName();
         markPendingDeletedProject(projectName, isActiveProject(projectName));
 
-        this.createDeleteRequest().sendAndParse().then(() => {
-            showFeedback(this.getSuccessfulDeleteMessage());
-            this.close();
-        }).catch((reason) => {
-            clearPendingDeletedProject(projectName);
-            DefaultErrorHandler.handle(reason);
-        });
+        this.createDeleteRequest()
+            .sendAndParse()
+            .then(() => {
+                showFeedback(this.getSuccessfulDeleteMessage());
+                this.close();
+            })
+            .catch((reason) => {
+                clearPendingDeletedProject(projectName);
+                DefaultErrorHandler.handle(reason);
+            });
     }
 
     protected getSuccessfulCreateMessage(name: string): string {
@@ -219,7 +231,12 @@ export class ProjectWizardPanel
     }
 
     private isProjectMetaChanged(): boolean {
-        if (!ObjectHelper.stringEquals(this.getPersistedItem().getDescription(), this.projectWizardStepForm.getDescription())) {
+        if (
+            !ObjectHelper.stringEquals(
+                this.getPersistedItem().getDescription(),
+                this.projectWizardStepForm.getDescription(),
+            )
+        ) {
             return true;
         }
 
@@ -243,7 +260,7 @@ export class ProjectWizardPanel
 
         return !ObjectHelper.arrayEquals(
             item.getReadAccess().getPrincipalsKeys(),
-            this.readAccessWizardStepForm.getReadAccess().getPrincipalsKeys()
+            this.readAccessWizardStepForm.getReadAccess().getPrincipalsKeys(),
         );
     }
 
@@ -252,7 +269,10 @@ export class ProjectWizardPanel
             return true;
         }
 
-        return this.getPersistedItem().getReadAccess().getType() !== this.readAccessWizardStepForm.getReadAccess().getType();
+        return (
+            this.getPersistedItem().getReadAccess().getType() !==
+            this.readAccessWizardStepForm.getReadAccess().getType()
+        );
     }
 
     protected handleDataChanged() {
@@ -276,8 +296,9 @@ export class ProjectWizardPanel
     private updateAccessAndPermissionsForExistingProject(project: Project, language: string): Q.Promise<Project> {
         return this.updatePermissionsIfNeeded(project).then(() => {
             const readAccess: ProjectReadAccess = this.readAccessWizardStepForm.getReadAccess();
-            const readAccessPromise: Q.Promise<TaskId | null> = this.isReadAccessChanged() ?
-                                                         this.updateProjectReadAccess(project.getName(), readAccess) : Q(null);
+            const readAccessPromise: Q.Promise<TaskId | null> = this.isReadAccessChanged()
+                ? this.updateProjectReadAccess(project.getName(), readAccess)
+                : Q(null);
 
             return readAccessPromise.then((taskId: TaskId | null) => {
                 const result = Q.defer<Project>();
@@ -319,9 +340,10 @@ export class ProjectWizardPanel
     }
 
     private doUpdatePersistedItem(): Q.Promise<Project> {
-        const projectPromise: Q.Promise<Project> = (this.isProjectMetaChanged() || this.isApplicationsChanged() || this.isLanguageChanged())
-            ? this.produceUpdateItemRequest().sendAndParse()
-            : Q(this.getPersistedItem().getData());
+        const projectPromise: Q.Promise<Project> =
+            this.isProjectMetaChanged() || this.isApplicationsChanged() || this.isLanguageChanged()
+                ? this.produceUpdateItemRequest().sendAndParse()
+                : Q(this.getPersistedItem().getData());
 
         return projectPromise.then((project: Project) => {
             return this.updateAccessAndPermissionsForExistingProject(project, project.getLanguage()).then();
@@ -382,7 +404,8 @@ export class ProjectWizardPanel
             return true;
         }
 
-        const selectedAppsConfigs: ApplicationConfig[] = this.applicationsWizardStepForm?.getNonInheritedApplicationConfigs() || [];
+        const selectedAppsConfigs: ApplicationConfig[] =
+            this.applicationsWizardStepForm?.getNonInheritedApplicationConfigs() || [];
         const persistedSiteConfigs: ApplicationConfig[] = this.getPersistedItem().getSiteConfigs() || [];
 
         return !ObjectHelper.arrayEquals(persistedSiteConfigs, selectedAppsConfigs);
@@ -405,6 +428,8 @@ export class ProjectWizardPanel
     }
 
     private updateHeaderDir(): void {
-        this.wizardHeader?.setDir(Locale.supportsRtl(this.getPersistedItem()?.getLanguage()) ? LangDirection.RTL : LangDirection.AUTO);
+        this.wizardHeader?.setDir(
+            Locale.supportsRtl(this.getPersistedItem()?.getLanguage()) ? LangDirection.RTL : LangDirection.AUTO,
+        );
     }
 }

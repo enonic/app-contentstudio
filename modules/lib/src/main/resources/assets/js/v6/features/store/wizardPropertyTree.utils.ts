@@ -1,7 +1,7 @@
-import type {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
-import type {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {toPathKey} from '../utils/cms/property/path';
+import type { PropertyPath } from '@enonic/lib-admin-ui/data/PropertyPath';
+import type { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { toPathKey } from '../../shared/lib/cms/property/path';
 
 export type ChangedPathsStore = {
     get: () => Record<string, number>;
@@ -157,9 +157,8 @@ export function setStringValue(
     const basePathKey = getBasePathKey(pathKey);
     const persistedState = getStringPropertyState(persistedTree, path);
     const draftState = getStringPropertyState(draftTree, path);
-    const isClearingToPersistedEmpty = normalizedValue === '' &&
-        persistedState.exists &&
-        (persistedState.isNull || persistedState.value === '');
+    const isClearingToPersistedEmpty =
+        normalizedValue === '' && persistedState.exists && (persistedState.isNull || persistedState.value === '');
     const shouldRemoveProperty = normalizedValue === '' && !persistedState.exists;
     const shouldRestorePersistedProperty = isClearingToPersistedEmpty;
 
@@ -173,11 +172,13 @@ export function setStringValue(
         return false;
     }
 
-    if (!shouldRemoveProperty &&
+    if (
+        !shouldRemoveProperty &&
         !shouldRestorePersistedProperty &&
         draftState.exists &&
         !draftState.isNull &&
-        draftState.value === normalizedValue) {
+        draftState.value === normalizedValue
+    ) {
         return false;
     }
 

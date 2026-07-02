@@ -1,8 +1,8 @@
-import {Checkbox} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {ReactElement} from 'react';
-import {useI18n} from '../../../../hooks/useI18n';
-import {$versionsDisplayMode} from '../../../../store/context/versionStore';
+import { Checkbox } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { ReactElement } from 'react';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { $versionsDisplayMode } from '../../../../store/context/versionStore';
 
 const COMPONENT_NAME = 'VersionsShowAllActivitiesSection';
 
@@ -18,7 +18,7 @@ export const VersionsShowAllActivitiesSection = (): ReactElement => {
     };
 
     return (
-        <div data-component={COMPONENT_NAME} className='flex items-center min-h-16 pl-2.5'>
+        <div data-component={COMPONENT_NAME} className="flex items-center min-h-16 pl-2.5">
             <Checkbox
                 label={showAllActivitiesLabel}
                 checked={displayMode === 'full'}
@@ -29,4 +29,3 @@ export const VersionsShowAllActivitiesSection = (): ReactElement => {
 };
 
 VersionsShowAllActivitiesSection.displayName = COMPONENT_NAME;
-

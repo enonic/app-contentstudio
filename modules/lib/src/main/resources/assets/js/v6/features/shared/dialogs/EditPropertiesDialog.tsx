@@ -1,9 +1,9 @@
-import {Button, Dialog, GridList, IconButton} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {useMemo, type ReactElement} from 'react';
-import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
-import {useI18n} from '../../hooks/useI18n';
-import {PrincipalSelector} from '../selectors/PrincipalSelector';
+import { Button, Dialog, GridList, IconButton } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { useMemo, type ReactElement } from 'react';
+import { PrincipalType } from '@enonic/lib-admin-ui/security/PrincipalType';
+import { useI18n } from '../../../shared/lib/hooks/useI18n';
+import { PrincipalSelector } from '../selectors/PrincipalSelector';
 import {
     $editPropertiesDialog,
     applyEditPropertiesDialog,
@@ -11,22 +11,22 @@ import {
     setEditPropertiesDialogLanguageSelection,
     setEditPropertiesDialogOwnerSelection,
 } from '../../store/dialogs/editPropertiesDialog.store';
-import {$languages, type LanguageOption} from '../../store/languages.store';
-import {$principals} from '../../store/principals.store';
-import {FlagIcon} from '../icons/FlagIcon';
-import {PrincipalLabel} from '../PrincipalLabel';
-import {LanguageSelector} from '../selectors/LanguageSelector';
-import {X} from 'lucide-react';
+import { $languages, type LanguageOption } from '../../store/languages.store';
+import { $principals } from '../../store/principals.store';
+import { FlagIcon } from '../../../shared/ui/icons/FlagIcon';
+import { PrincipalLabel } from '../../../shared/ui/PrincipalLabel';
+import { LanguageSelector } from '../selectors/LanguageSelector';
+import { X } from 'lucide-react';
 
 const EDIT_PROPERTIES_DIALOG_NAME = 'EditPropertiesDialog';
 
 export const EditPropertiesDialog = (): ReactElement => {
     // Stores
-    const {open, content, languageSelection, ownerSelection, saving} = useStore($editPropertiesDialog, {
+    const { open, content, languageSelection, ownerSelection, saving } = useStore($editPropertiesDialog, {
         keys: ['open', 'content', 'languageSelection', 'ownerSelection', 'saving'],
     });
     const languages = useStore($languages);
-    const {principals} = useStore($principals);
+    const { principals } = useStore($principals);
 
     // Constants
     const title = useI18n('field.contextPanel.details.sections.info.editSettings');
@@ -47,13 +47,17 @@ export const EditPropertiesDialog = (): ReactElement => {
 
     // Memoized values
     const selectedLanguageOption = useMemo<LanguageOption | undefined>(
-        () => (languageSelection.length > 0 ? languages.find((language) => language.id === languageSelection[0]) : undefined),
-        [languageSelection, languages]
+        () =>
+            languageSelection.length > 0
+                ? languages.find((language) => language.id === languageSelection[0])
+                : undefined,
+        [languageSelection, languages],
     );
 
     const selectedOwnerPrincipal = useMemo(
-        () => (ownerSelection.length > 0 ? principals.find((p) => p.getKey().toString() === ownerSelection[0]) : undefined),
-        [ownerSelection, principals]
+        () =>
+            ownerSelection.length > 0 ? principals.find((p) => p.getKey().toString() === ownerSelection[0]) : undefined,
+        [ownerSelection, principals],
     );
 
     // Handlers
@@ -100,7 +104,11 @@ export const EditPropertiesDialog = (): ReactElement => {
                             />
                             {selectedLanguageOption && (
                                 <GridList className="rounded-md py-2.5 pl-4 pr-1">
-                                    <GridList.Row key={selectedLanguageOption.id} id={selectedLanguageOption.id} className="p-1 gap-1.5">
+                                    <GridList.Row
+                                        key={selectedLanguageOption.id}
+                                        id={selectedLanguageOption.id}
+                                        className="p-1 gap-1.5"
+                                    >
                                         <GridList.Cell interactive={false} className="flex-1 self-stretch">
                                             <div className="flex gap-2">
                                                 <FlagIcon language={selectedLanguageOption.id} />

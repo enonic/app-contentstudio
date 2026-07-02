@@ -1,18 +1,18 @@
-import type {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {atom, computed, map} from 'nanostores';
-import type {CompareStatus} from '../../../../app/content/CompareStatus';
-import type {Content} from '../../../../app/content/Content';
-import type {ContentData} from '../../../../app/ai/event/data/AiData';
-import type {Mixin} from '../../../../app/content/Mixin';
-import type {MixinDescriptor} from '../../../../app/content/MixinDescriptor';
-import type {ContentType} from '../../../../app/inputtype/schema/ContentType';
-import type {Descriptor} from '../../../../app/page/Descriptor';
-import type {Page} from '../../../../app/page/Page';
-import type {ContentWizardHeader} from '../../../../app/wizard/ContentWizardHeader';
-import {$config} from '../config.store';
-import {$languagesLoaded} from '../languages.store';
-import type {AiPluginId} from './ai-protocol';
-import type {EnonicAiPlugin} from './ai.types';
+import type { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import { atom, computed, map } from 'nanostores';
+import type { CompareStatus } from '../../../../app/content/CompareStatus';
+import type { Content } from '../../../../app/content/Content';
+import type { ContentData } from '../../../../app/ai/event/data/AiData';
+import type { Mixin } from '../../../../app/content/Mixin';
+import type { MixinDescriptor } from '../../../../app/content/MixinDescriptor';
+import type { ContentType } from '../../../../app/inputtype/schema/ContentType';
+import type { Descriptor } from '../../../../app/page/Descriptor';
+import type { Page } from '../../../../app/page/Page';
+import type { ContentWizardHeader } from '../../../../app/wizard/ContentWizardHeader';
+import { $config } from '../../../shared/config/config.store';
+import { $languagesLoaded } from '../languages.store';
+import type { AiPluginId } from './ai-protocol';
+import type { EnonicAiPlugin } from './ai.types';
 
 // Writer bridge supplied by `wizardContent.store` at module init. Inverts the
 // dependency so ai.bridge can apply AI updates to the v6 wizard state without
@@ -78,7 +78,7 @@ export const $aiTopicError = atom<string | null>(null);
 // path has no handle to route through. The router bumps `count`; DisplayNameInput
 // consumes it as a `useBlinkAttention` trigger and reads `scroll` to decide whether
 // to scroll itself into view (true on single-mention click, false on bulk apply-all).
-export const $aiTopicHighlight = atom<{count: number; scroll: boolean}>({count: 0, scroll: false});
+export const $aiTopicHighlight = atom<{ count: number; scroll: boolean }>({ count: 0, scroll: false });
 
 export const $aiWizardBridge = atom<AiWizardBridge | null>(null);
 
@@ -89,10 +89,6 @@ export const $aiWizardBridge = atom<AiWizardBridge | null>(null);
 export const $aiReady = computed(
     [$config, $aiContent, $aiContentType, $aiInstructions, $languagesLoaded],
     (config, content, contentType, instructions, languagesLoaded): boolean => {
-        return config.aiEnabled
-            && content != null
-            && contentType != null
-            && instructions != null
-            && languagesLoaded;
+        return config.aiEnabled && content != null && contentType != null && instructions != null && languagesLoaded;
     },
 );

@@ -1,27 +1,27 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Button, IconButton, Input, RadioGroup, Separator, Tooltip} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {FolderInput, FolderOutput, RefreshCw, X} from 'lucide-react';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { Button, IconButton, Input, RadioGroup, Separator, Tooltip } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { FolderInput, FolderOutput, RefreshCw, X } from 'lucide-react';
 import Q from 'q';
-import {type ChangeEvent, type ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
-import {type ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
-import {type ExtensionItemViewType} from '../../../../../../app/view/context/ExtensionItemView';
-import {type ExportResult, fetchExports, type ImportResult} from '../../../../api/importContent';
-import {useI18n} from '../../../../hooks/useI18n';
-import {LegacyElement} from '../../../../shared/LegacyElement';
-import {ContentLabel} from '../../../../shared/content/ContentLabel';
-import {$contextContent} from '../../../../store/context/contextContent.store';
-import {$activeWidgetId, $isContextOpen} from '../../../../store/contextWidgets.store';
-import {IMPORT_CONTENT_WIDGET_KEY} from '../../../../utils/widget/import-content';
-import {ImportContentExportDialog} from './ImportContentExportDialog';
-import {ImportContentImportDialog} from './ImportContentImportDialog';
+import { type ChangeEvent, type ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import { type ContentSummaryAndCompareStatus } from '../../../../../../app/content/ContentSummaryAndCompareStatus';
+import { type ExtensionItemViewType } from '../../../../../../app/view/context/ExtensionItemView';
+import { type ExportResult, fetchExports, type ImportResult } from '../../../../api/importContent';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { LegacyElement } from '../../../../../shared/ui/LegacyElement';
+import { ContentLabel } from '../../../../shared/content/ContentLabel';
+import { $contextContent } from '../../../../store/context/contextContent.store';
+import { $activeWidgetId, $isContextOpen } from '../../../../store/contextWidgets.store';
+import { IMPORT_CONTENT_WIDGET_KEY } from '../../../../../shared/lib/widget/import-content';
+import { ImportContentExportDialog } from './ImportContentExportDialog';
+import { ImportContentImportDialog } from './ImportContentImportDialog';
 
 const IMPORT_CONTENT_WIDGET_NAME = 'ImportContentWidget';
 
 type StatusKind = 'idle' | 'info' | 'error';
-type Status = {kind: StatusKind; message: string};
+type Status = { kind: StatusKind; message: string };
 
-const IDLE: Status = {kind: 'idle', message: ''};
+const IDLE: Status = { kind: 'idle', message: '' };
 
 const ImportContentWidget = (): ReactElement | null => {
     const isContextOpen = useStore($isContextOpen);
@@ -53,7 +53,7 @@ const ImportContentWidget = (): ReactElement | null => {
     const visibleExports = useMemo(() => {
         const needle = trimmedFilter.toLowerCase();
         if (!needle) return exports;
-        return exports.filter(name => name.toLowerCase().includes(needle));
+        return exports.filter((name) => name.toLowerCase().includes(needle));
     }, [exports, trimmedFilter]);
 
     const handleFilterChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
@@ -73,18 +73,18 @@ const ImportContentWidget = (): ReactElement | null => {
     const refresh = useCallback(
         async (preserveSelected?: string) => {
             setBusy('list');
-            setStatus({kind: 'info', message: loadingLabel});
+            setStatus({ kind: 'info', message: loadingLabel });
             const result = await fetchExports();
             result.match(
-                list => {
+                (list) => {
                     setExports(list);
                     setSelected(preserveSelected && list.includes(preserveSelected) ? preserveSelected : '');
                     setStatus(IDLE);
                 },
-                err => {
+                (err) => {
                     setExports([]);
                     setSelected('');
-                    setStatus({kind: 'error', message: err.message || listErrorLabel});
+                    setStatus({ kind: 'error', message: err.message || listErrorLabel });
                 },
             );
             setBusy(null);
@@ -115,7 +115,7 @@ const ImportContentWidget = (): ReactElement | null => {
 
     const handleExportSuccess = useCallback(
         (exported: ExportResult) => {
-            setStatus({kind: 'info', message: i18n('widget.import.status.exported', exported.exportName)});
+            setStatus({ kind: 'info', message: i18n('widget.import.status.exported', exported.exportName) });
             void refresh(exported.exportName);
         },
         [refresh],
@@ -132,7 +132,7 @@ const ImportContentWidget = (): ReactElement | null => {
 
     const handleImportSuccess = useCallback((imported: ImportResult) => {
         const total = (imported.addedNodes?.length ?? 0) + (imported.updatedNodes?.length ?? 0);
-        setStatus({kind: 'info', message: i18n('widget.import.status.imported', total)});
+        setStatus({ kind: 'info', message: i18n('widget.import.status.imported', total) });
     }, []);
 
     if (!canRender) return null;
@@ -201,7 +201,7 @@ const ImportContentWidget = (): ReactElement | null => {
                         onValueChange={setSelected}
                         className="flex flex-col gap-1 border border-bdr-soft rounded-sm overflow-y-auto overflow-x-hidden p-1.5 flex-1 min-h-0"
                     >
-                        {visibleExports.map(name => (
+                        {visibleExports.map((name) => (
                             <RadioGroup.Item
                                 key={name}
                                 value={name}
@@ -289,4 +289,4 @@ export class ImportContentWidgetElement
     }
 }
 
-export {ImportContentWidget};
+export { ImportContentWidget };

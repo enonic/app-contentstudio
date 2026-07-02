@@ -1,13 +1,13 @@
-import {Button, cn} from '@enonic/ui';
-import {Plus} from 'lucide-react';
-import {type ReactElement, useEffect, useRef, useState} from 'react';
-import {useStore} from '@nanostores/preact';
-import {listenKeys} from 'nanostores';
-import {useI18n} from '../../../../hooks/useI18n';
-import {$newContentDialog, openNewContentDialog} from '../../../../store/dialogs/newContentDialog.store';
-import {$contextContent} from '../../../../store/context/contextContent.store';
-import {$contentCreated} from '../../../../store/socket.store';
-import {$uploads, getUploadsForParent} from '../../../../store/uploads.store';
+import { Button, cn } from '@enonic/ui';
+import { Plus } from 'lucide-react';
+import { type ReactElement, useEffect, useRef, useState } from 'react';
+import { useStore } from '@nanostores/preact';
+import { listenKeys } from 'nanostores';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { $newContentDialog, openNewContentDialog } from '../../../../store/dialogs/newContentDialog.store';
+import { $contextContent } from '../../../../store/context/contextContent.store';
+import { $contentCreated } from '../../../../../shared/socket/socket.store';
+import { $uploads, getUploadsForParent } from '../../../../store/uploads.store';
 
 type ContentSelectorInputAddButtonProps = {
     disabled: boolean;
@@ -40,10 +40,12 @@ export const ContentSelectorInputAddButton = ({
 
     // When the dialog closes with active parent uploads, capture their IDs for progress tracking
     useEffect(() => {
-        const unlisten = listenKeys($newContentDialog, ['open'], ({open}) => {
+        const unlisten = listenKeys($newContentDialog, ['open'], ({ open }) => {
             if (open || !isWaitingForContentCreationRef.current) return;
 
-            const active = getUploadsForParent(parentId).filter((u) => u.status === 'pending' || u.status === 'uploading');
+            const active = getUploadsForParent(parentId).filter(
+                (u) => u.status === 'pending' || u.status === 'uploading',
+            );
 
             if (active.length > 0) {
                 setUploadIds(active.map((u) => u.id));
@@ -86,7 +88,9 @@ export const ContentSelectorInputAddButton = ({
             if (!event?.data || !isWaitingForContentCreationRef.current || !contextContent) return;
 
             const contentIds = event.data
-                .filter((content) => content.getPath().getParentPath().toString() === contextContent.getPath().toString())
+                .filter(
+                    (content) => content.getPath().getParentPath().toString() === contextContent.getPath().toString(),
+                )
                 .map((content) => content.getId());
 
             if (contentIds.length === 0) return;
@@ -95,7 +99,9 @@ export const ContentSelectorInputAddButton = ({
 
             onSelectionChangeRef.current(newSelection);
 
-            const hasActiveParentUploads = getUploadsForParent(parentId).some((u) => u.status === 'pending' || u.status === 'uploading');
+            const hasActiveParentUploads = getUploadsForParent(parentId).some(
+                (u) => u.status === 'pending' || u.status === 'uploading',
+            );
 
             if (!hasActiveParentUploads) {
                 isWaitingForContentCreationRef.current = false;
@@ -122,11 +128,14 @@ export const ContentSelectorInputAddButton = ({
                 isUploading && 'pointer-events-none',
                 'relative w-full h-full rounded-none border border-bdr-subtle rounded-tr rounded-br bg-surface-selected',
                 'hover:outline-1 hover:outline-bdr-subtle',
-                'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset transition-highlight'
+                'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset transition-highlight',
             )}
         >
             {isUploading && (
-                <div className="animate-pulse absolute top-0 left-0 h-full bg-success-rev opacity-30" style={{width: `${progress}%`}} />
+                <div
+                    className="animate-pulse absolute top-0 left-0 h-full bg-success-rev opacity-30"
+                    style={{ width: `${progress}%` }}
+                />
             )}
             <Plus size={20} />
         </Button>

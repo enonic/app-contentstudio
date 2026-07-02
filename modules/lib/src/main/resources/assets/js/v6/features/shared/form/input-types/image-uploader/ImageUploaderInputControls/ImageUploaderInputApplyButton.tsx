@@ -1,11 +1,11 @@
-import {type ReactElement, useCallback} from 'react';
-import {Button} from '@enonic/ui';
-import {useImageUploaderContext} from '../ImageUploaderContext';
-import {useI18n} from '../../../../../hooks/useI18n';
-import {setCropInPropertySet, setFocusInPropertySet} from '../lib/propertySet';
+import { type ReactElement, useCallback } from 'react';
+import { Button } from '@enonic/ui';
+import { useImageUploaderContext } from '../ImageUploaderContext';
+import { useI18n } from '../../../../../../shared/lib/hooks/useI18n';
+import { setCropInPropertySet, setFocusInPropertySet } from '../lib/propertySet';
 
 export const ImageUploaderInputApplyButton = (): ReactElement => {
-    const {value, focus, mode, setMode, crop, dimensions} = useImageUploaderContext();
+    const { value, focus, mode, setMode, crop, dimensions } = useImageUploaderContext();
     const applyLabel = useI18n('action.apply');
 
     const handleApply = useCallback(() => {

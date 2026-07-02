@@ -1,17 +1,15 @@
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {type Extension, type ExtensionDescriptorKey} from '@enonic/lib-admin-ui/extension/Extension';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import type {LucideIcon} from '@enonic/ui';
-import {default as Q} from 'q';
-import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {type ContextView} from './ContextView';
-import {ExtensionItemView, type ExtensionItemViewType} from './ExtensionItemView';
-import {isBlank} from '../../../v6/features/utils/format/isBlank';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
+import { type Extension, type ExtensionDescriptorKey } from '@enonic/lib-admin-ui/extension/Extension';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import type { LucideIcon } from '@enonic/ui';
+import { default as Q } from 'q';
+import { type ContentSummaryAndCompareStatus } from '../../content/ContentSummaryAndCompareStatus';
+import { type ContextView } from './ContextView';
+import { ExtensionItemView, type ExtensionItemViewType } from './ExtensionItemView';
+import { isBlank } from '../../../v6/shared/lib/format/isBlank';
 
-export class ExtensionView
-    extends DivEl {
-
+export class ExtensionView extends DivEl {
     private readonly extensionName: string;
 
     private readonly extensionDescription: string;
@@ -145,7 +143,6 @@ export class ExtensionView
     }
 
     private layout(): Q.Promise<void[]> {
-
         this.slideOut();
 
         const layoutTasks: Q.Promise<void>[] = [];
@@ -298,7 +295,6 @@ export class ExtensionView
 }
 
 export class ExtensionViewBuilder {
-
     name: string;
 
     description: string;

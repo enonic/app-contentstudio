@@ -1,24 +1,23 @@
-import {type ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
-import {type Cloneable} from '@enonic/lib-admin-ui/Cloneable';
-import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {type UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {createPublishStatusKey} from '../../v6/features/utils/cms/content/status';
-import {isEqual} from '../Diff';
-import {type PublishStatus, PublishStatusChecker} from '../publish/PublishStatus';
-import {CompareStatus, CompareStatusChecker, CompareStatusFormatter} from './CompareStatus';
-import {ContentIconUrlResolver} from './ContentIconUrlResolver';
-import {ContentId} from './ContentId';
-import {ContentInheritType} from './ContentInheritType';
-import {type ContentPath} from './ContentPath';
-import {type ContentState} from './ContentState';
-import {ContentSummary, ContentSummaryBuilder} from './ContentSummary';
-import {ContentSummaryAndCompareStatusHelper} from './ContentSummaryAndCompareStatusHelper';
+import { type ViewItem } from '@enonic/lib-admin-ui/app/view/ViewItem';
+import { type Cloneable } from '@enonic/lib-admin-ui/Cloneable';
+import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { type UploadItem } from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { createPublishStatusKey } from '../../v6/shared/lib/cms/content/status';
+import { isEqual } from '../Diff';
+import { type PublishStatus, PublishStatusChecker } from '../publish/PublishStatus';
+import { CompareStatus, CompareStatusChecker, CompareStatusFormatter } from './CompareStatus';
+import { ContentIconUrlResolver } from './ContentIconUrlResolver';
+import { ContentId } from './ContentId';
+import { ContentInheritType } from './ContentInheritType';
+import { type ContentPath } from './ContentPath';
+import { type ContentState } from './ContentState';
+import { ContentSummary, ContentSummaryBuilder } from './ContentSummary';
+import { ContentSummaryAndCompareStatusHelper } from './ContentSummaryAndCompareStatusHelper';
 
 export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
-
     private uploadItem: UploadItem<ContentSummary>;
 
     private contentSummary: ContentSummary;
@@ -35,8 +34,11 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
         return new ContentSummaryAndCompareStatus().setContentSummary(contentSummary).setCompareStatus(compareStatus);
     }
 
-    public static fromContentAndCompareAndPublishStatus(contentSummary: ContentSummary, compareStatus: CompareStatus,
-                                                        publishStatus: PublishStatus) {
+    public static fromContentAndCompareAndPublishStatus(
+        contentSummary: ContentSummary,
+        compareStatus: CompareStatus,
+        publishStatus: PublishStatus,
+    ) {
         const contentSummaryAndCompareStatus: ContentSummaryAndCompareStatus =
             ContentSummaryAndCompareStatus.fromContentAndCompareStatus(contentSummary, compareStatus);
 
@@ -54,7 +56,8 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
     public static fromId(id: string | ContentId): ContentSummaryAndCompareStatus {
         const contentId = id instanceof ContentId ? id : new ContentId(id);
         return ContentSummaryAndCompareStatus.fromContentSummary(
-            new ContentSummary(new ContentSummaryBuilder().setId(contentId.toString()).setContentId(contentId)))
+            new ContentSummary(new ContentSummaryBuilder().setId(contentId.toString()).setContentId(contentId)),
+        );
     }
 
     public static isInArray(contentId: ContentId, array: ContentSummaryAndCompareStatus[]): boolean {
@@ -117,9 +120,9 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
     }
 
     getId(): string {
-        return (this.contentSummary && this.contentSummary.getId()) ||
-               (this.uploadItem && this.uploadItem.getId()) ||
-               '';
+        return (
+            (this.contentSummary && this.contentSummary.getId()) || (this.uploadItem && this.uploadItem.getId()) || ''
+        );
     }
 
     getPath(): ContentPath {
@@ -163,7 +166,7 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
     }
 
     isFullyInherited(): boolean {
-        return (this.getInherit().length * 2) === Object.keys(ContentInheritType).length;
+        return this.getInherit().length * 2 === Object.keys(ContentInheritType).length;
     }
 
     getInherit(): ContentInheritType[] {
@@ -207,7 +210,6 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
     }
 
     getStatusClass(): string {
-
         if (this.isUnpublished()) {
             return 'offline';
         }
@@ -311,7 +313,7 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
         const clone = ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(
             contentSummary,
             this.compareStatus,
-            this.publishStatus
+            this.publishStatus,
         );
         return clone;
     }

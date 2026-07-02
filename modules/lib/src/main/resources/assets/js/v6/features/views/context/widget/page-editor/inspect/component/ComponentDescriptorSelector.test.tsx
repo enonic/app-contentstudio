@@ -1,14 +1,16 @@
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import type {ComponentOption} from './hooks/useComponentDescriptorSelector';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { ComponentOption } from './hooks/useComponentDescriptorSelector';
 
 // Mock @enonic/ui — render structural slots so popup content is observable
 vi.mock('@enonic/ui', () => {
     const passthrough = (name: string) =>
         Object.assign(
-            ({children, ...props}: {children?: React.ReactNode;[key: string]: unknown}) => (
-                <div data-testid={name} {...props}>{children}</div>
+            ({ children, ...props }: { children?: React.ReactNode; [key: string]: unknown }) => (
+                <div data-testid={name} {...props}>
+                    {children}
+                </div>
             ),
-            {displayName: name},
+            { displayName: name },
         );
 
     const MockCombobox = {
@@ -16,8 +18,8 @@ vi.mock('@enonic/ui', () => {
         Content: passthrough('combobox-content'),
         Control: passthrough('combobox-control'),
         Search: passthrough('combobox-search'),
-        Input: ({placeholder, ...props}: {placeholder?: string;[key: string]: unknown}) => (
-            <input role='combobox' placeholder={placeholder} {...props} />
+        Input: ({ placeholder, ...props }: { placeholder?: string; [key: string]: unknown }) => (
+            <input role="combobox" placeholder={placeholder} {...props} />
         ),
         Toggle: passthrough('combobox-toggle'),
         Value: passthrough('combobox-value'),
@@ -38,12 +40,12 @@ vi.mock('@enonic/ui', () => {
 
 // Mock lucide-react icons used by the component type map
 vi.mock('lucide-react', () => ({
-    Box: () => <span data-testid='icon-box' />,
-    Columns2: () => <span data-testid='icon-columns' />,
+    Box: () => <span data-testid="icon-box" />,
+    Columns2: () => <span data-testid="icon-columns" />,
 }));
 
 // Mock useI18n — return readable English strings for asserted keys
-vi.mock('../../../../../../hooks/useI18n', () => ({
+vi.mock('../../../../../../../shared/lib/hooks/useI18n', () => ({
     useI18n: vi.fn((key: string) => {
         const translations: Record<string, string> = {
             'field.part': 'Part',
@@ -72,8 +74,8 @@ vi.mock('./hooks/useComponentDescriptorSelector', () => ({
     useComponentDescriptorSelector: () => mockSelectorState,
 }));
 
-import {render, screen} from '@testing-library/preact';
-import {ComponentDescriptorSelector} from './ComponentDescriptorSelector';
+import { render, screen } from '@testing-library/preact';
+import { ComponentDescriptorSelector } from './ComponentDescriptorSelector';
 
 const buildOption = (key: string, label: string): ComponentOption => ({
     key,
@@ -103,14 +105,14 @@ describe('ComponentDescriptorSelector', () => {
         mockSelectorState.filteredOptions = [];
         mockSelectorState.searchValue = 'zzz';
 
-        render(<ComponentDescriptorSelector componentType='part' />);
+        render(<ComponentDescriptorSelector componentType="part" />);
 
         expect(screen.getByText('No matching items')).toBeDefined();
         expect(screen.queryAllByTestId('listbox-item')).toHaveLength(0);
     });
 
     it('should render the options instead of the empty message when results match', () => {
-        render(<ComponentDescriptorSelector componentType='part' />);
+        render(<ComponentDescriptorSelector componentType="part" />);
 
         expect(screen.getByText('Hero Part')).toBeDefined();
         expect(screen.queryByText('No matching items')).toBeNull();
@@ -120,7 +122,7 @@ describe('ComponentDescriptorSelector', () => {
         mockSelectorState.filteredOptions = [];
         mockSelectorState.isEmpty = true;
 
-        render(<ComponentDescriptorSelector componentType='part' />);
+        render(<ComponentDescriptorSelector componentType="part" />);
 
         expect(screen.getByText('No descriptors found')).toBeDefined();
         expect(screen.queryByText('No matching items')).toBeNull();

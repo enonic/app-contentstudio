@@ -1,10 +1,10 @@
-import {type SortableGridListItemContext} from '@enonic/lib-admin-ui/form2/components';
-import {type ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
-import {cn, IconButton} from '@enonic/ui';
-import {X} from 'lucide-react';
-import {type ReactElement} from 'react';
-import {useI18n} from '../../../../hooks/useI18n';
-import {ContentTypeFilterItemView} from './ContentTypeFilterItemView';
+import { type SortableGridListItemContext } from '@enonic/lib-admin-ui/form2/components';
+import { type ContentTypeSummary } from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import { cn, IconButton } from '@enonic/ui';
+import { X } from 'lucide-react';
+import { type ReactElement } from 'react';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { ContentTypeFilterItemView } from './ContentTypeFilterItemView';
 
 type ContentTypeFilterSelectionItemViewProps = {
     context: SortableGridListItemContext<ContentTypeSummary>;
@@ -20,7 +20,7 @@ export const ContentTypeFilterSelectionItemView = ({
     className,
 }: ContentTypeFilterSelectionItemViewProps): ReactElement => {
     const removeLabel = useI18n('action.remove');
-    const {index, item: contentType} = context;
+    const { index, item: contentType } = context;
 
     return (
         <div className={cn('flex items-center gap-2.5 w-full', className)}>

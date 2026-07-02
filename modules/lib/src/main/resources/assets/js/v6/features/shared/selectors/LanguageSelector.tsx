@@ -1,8 +1,8 @@
-import {cn, Combobox, VirtualizedTreeList} from '@enonic/ui';
-import {forwardRef, useEffect, useId, useMemo, useRef, useState, type HTMLAttributes, type ReactElement} from 'react';
-import type {VirtuosoHandle} from 'react-virtuoso';
-import {Virtuoso} from 'react-virtuoso';
-import {buildKey} from '../../utils/format/keys';
+import { cn, Combobox, VirtualizedTreeList } from '@enonic/ui';
+import { forwardRef, useEffect, useId, useMemo, useRef, useState, type HTMLAttributes, type ReactElement } from 'react';
+import type { VirtuosoHandle } from 'react-virtuoso';
+import { Virtuoso } from 'react-virtuoso';
+import { buildKey } from '../../../shared/lib/format/keys';
 
 //
 // * Types
@@ -53,16 +53,20 @@ const PADDING = 8;
 //
 
 const virtuosoComponents = {
-    Scroller: forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({style, children, className, ...props}, ref) => (
-        <div ref={ref} {...props} style={style} className={cn('rounded-sm *:p-1', className)}>
-            {children}
-        </div>
-    )),
-    List: forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({style, children, className, ...props}, ref) => (
-        <div ref={ref} {...props} style={style} className={cn('flex flex-col gap-y-1.5', className)}>
-            {children}
-        </div>
-    )),
+    Scroller: forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+        ({ style, children, className, ...props }, ref) => (
+            <div ref={ref} {...props} style={style} className={cn('rounded-sm *:p-1', className)}>
+                {children}
+            </div>
+        ),
+    ),
+    List: forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+        ({ style, children, className, ...props }, ref) => (
+            <div ref={ref} {...props} style={style} className={cn('flex flex-col gap-y-1.5', className)}>
+                {children}
+            </div>
+        ),
+    ),
 };
 
 //
@@ -128,7 +132,7 @@ export const LanguageSelector = ({
                 isExpanded: false,
                 nodeType: 'node' as const,
             })),
-        [visibleOptions]
+        [visibleOptions],
     );
 
     // Calculate dynamic height
@@ -176,7 +180,11 @@ export const LanguageSelector = ({
 
     return (
         <div data-component={LANGUAGE_SELECTOR_NAME} className={cn('flex flex-col gap-2', className)}>
-            {label && <label htmlFor={inputId} className="font-semibold">{label}</label>}
+            {label && (
+                <label htmlFor={inputId} className="font-semibold">
+                    {label}
+                </label>
+            )}
             <Combobox.Root
                 open={open}
                 onOpenChange={handleOpenChange}
@@ -190,7 +198,11 @@ export const LanguageSelector = ({
                     <Combobox.Control>
                         <Combobox.Search>
                             <Combobox.SearchIcon />
-                            <Combobox.Input id={inputId} placeholder={searchPlaceholder ?? placeholder} aria-label={label} />
+                            <Combobox.Input
+                                id={inputId}
+                                placeholder={searchPlaceholder ?? placeholder}
+                                aria-label={label}
+                            />
                             <Combobox.Toggle />
                         </Combobox.Search>
                     </Combobox.Control>
@@ -199,7 +211,7 @@ export const LanguageSelector = ({
                             {flatNodes.length === 0 && emptyLabel ? (
                                 <div className="px-4.5 py-2 text-sm text-subtle">{emptyLabel}</div>
                             ) : (
-                                <Combobox.TreeContent style={{height: treeHeight}}>
+                                <Combobox.TreeContent style={{ height: treeHeight }}>
                                     <VirtualizedTreeList
                                         items={flatNodes}
                                         preserveFilteredSelection
@@ -214,7 +226,7 @@ export const LanguageSelector = ({
                                         aria-label={label}
                                         className="h-full"
                                     >
-                                        {({items, getItemProps, containerProps}) => (
+                                        {({ items, getItemProps, containerProps }) => (
                                             <Virtuoso<LanguageFlatNode>
                                                 ref={virtuosoRef}
                                                 data={items as LanguageFlatNode[]}

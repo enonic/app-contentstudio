@@ -1,13 +1,11 @@
-import {type FragmentDropdown} from './FragmentDropdown';
-import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
-import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
-import {FormItemBuilder} from '@enonic/lib-admin-ui/ui/form/FormItem';
-import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
-import {isBlank} from '../../../../../../v6/features/utils/format/isBlank';
+import { type FragmentDropdown } from './FragmentDropdown';
+import { Form } from '@enonic/lib-admin-ui/ui/form/Form';
+import { Fieldset } from '@enonic/lib-admin-ui/ui/form/Fieldset';
+import { FormItemBuilder } from '@enonic/lib-admin-ui/ui/form/FormItem';
+import { FormInputEl } from '@enonic/lib-admin-ui/dom/FormInputEl';
+import { isBlank } from '../../../../../../v6/shared/lib/format/isBlank';
 
-export class FragmentSelectorForm
-    extends Form {
-
+export class FragmentSelectorForm extends Form {
     constructor(fragmentSelector: FragmentDropdown, title?: string) {
         super('fragment-dropdown-form');
 
@@ -19,12 +17,9 @@ export class FragmentSelectorForm
 
         this.add(fieldSet);
     }
-
 }
 
-class FragmentSelectorFormWrapper
-    extends FormInputEl {
-
+class FragmentSelectorFormWrapper extends FormInputEl {
     private readonly selector: FragmentDropdown;
 
     constructor(selector: FragmentDropdown) {
@@ -33,7 +28,6 @@ class FragmentSelectorFormWrapper
         this.selector = selector;
         this.appendChild(this.selector);
     }
-
 
     getValue(): string {
         return this.selector.getSelectedFragment()?.getId() || '';

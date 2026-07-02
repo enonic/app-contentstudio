@@ -1,13 +1,13 @@
-import type {FormItem} from '@enonic/lib-admin-ui/form/FormItem';
-import {Input} from '@enonic/lib-admin-ui/form/Input';
-import {FormOptionSetOption} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSetOption';
-import type {Property} from '@enonic/lib-admin-ui/data/Property';
-import type {PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
-import type {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import type {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {useEffect, useState} from 'react';
-import {instanceOf} from '../../../../../utils/object/instanceOf';
+import type { FormItem } from '@enonic/lib-admin-ui/form/FormItem';
+import { Input } from '@enonic/lib-admin-ui/form/Input';
+import { FormOptionSetOption } from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSetOption';
+import type { Property } from '@enonic/lib-admin-ui/data/Property';
+import type { PropertyArray } from '@enonic/lib-admin-ui/data/PropertyArray';
+import type { PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
+import type { ValueType } from '@enonic/lib-admin-ui/data/ValueType';
+import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { useEffect, useState } from 'react';
+import { instanceOf } from '../../../../../../shared/lib/object/instanceOf';
 
 const ALLOWED_VALUE_TYPES: ValueType[] = [
     ValueTypes.STRING,
@@ -28,7 +28,11 @@ export type SetOccurrenceLabel = {
  * so the label stays in sync as the user edits nested fields. Exists because
  * labels must reflect live content, not just the form definition.
  */
-export function useSetOccurrenceLabel(propertySet: PropertySet, formItems: FormItem[], fallbackLabel: string): SetOccurrenceLabel {
+export function useSetOccurrenceLabel(
+    propertySet: PropertySet,
+    formItems: FormItem[],
+    fallbackLabel: string,
+): SetOccurrenceLabel {
     const [label, setLabel] = useState(() => resolveLabel(propertySet, formItems, fallbackLabel));
 
     useEffect(() => {
@@ -113,7 +117,12 @@ function findFormItem(property: Property, formItems: FormItem[]): FormItem | und
     return undefined;
 }
 
-function fetchPropertyValues(propArray: PropertyArray, formItems: FormItem[], propValues: string[], firstOnly: boolean): void {
+function fetchPropertyValues(
+    propArray: PropertyArray,
+    formItems: FormItem[],
+    propValues: string[],
+    firstOnly: boolean,
+): void {
     propArray.some((property) => {
         const formItem = findFormItem(property, formItems);
         if (!formItem) {
@@ -197,7 +206,7 @@ function resolveLabel(propertySet: PropertySet, formItems: FormItem[], fallbackL
     const firstValue = getFirstPropertyValue(propertySet, formItems);
 
     if (!isOptionSet) {
-        return {primary: firstValue || fallbackLabel};
+        return { primary: firstValue || fallbackLabel };
     }
 
     const selectedOptions = getSelectedOptionsLabel(propertySet, formItems);

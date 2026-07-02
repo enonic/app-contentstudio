@@ -1,10 +1,10 @@
-import {cn, IconButton, Tooltip} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {Layers} from 'lucide-react';
-import {type MouseEvent, type ReactElement} from 'react';
-import {useI18n} from '../../hooks/useI18n';
-import {$registeredWidgetNames} from '../../store/contextWidgets.store';
-import {LAYERS_WIDGET_NAME} from '../../utils/widget/layers';
+import { cn, IconButton, Tooltip } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { Layers } from 'lucide-react';
+import { type MouseEvent, type ReactElement } from 'react';
+import { useI18n } from '../../../shared/lib/hooks/useI18n';
+import { $registeredWidgetNames } from '../../store/contextWidgets.store';
+import { LAYERS_WIDGET_NAME } from '../../../shared/lib/widget/layers';
 
 export type LayerIndicatorProps = {
     isLocalised: boolean;
@@ -33,7 +33,7 @@ export const LayerIndicator = ({
     return (
         <Tooltip delay={300} value={tooltip}>
             <IconButton
-                size='sm'
+                size="sm"
                 icon={Layers}
                 aria-label={tooltip}
                 aria-disabled={!isClickable}
@@ -44,10 +44,7 @@ export const LayerIndicator = ({
                     'shrink-0 bg-transparent hover:bg-transparent active:bg-transparent active:text-main',
                     selected && 'text-alt hover:text-alt active:text-alt',
                     !isLocalised && 'opacity-40',
-                    !isClickable && [
-                        'cursor-default',
-                        'focus-visible:ring-0 focus-visible:ring-offset-0',
-                    ],
+                    !isClickable && ['cursor-default', 'focus-visible:ring-0 focus-visible:ring-offset-0'],
                     className,
                 )}
             />

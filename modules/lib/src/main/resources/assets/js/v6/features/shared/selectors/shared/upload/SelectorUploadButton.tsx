@@ -1,7 +1,7 @@
-import {Button, cn} from '@enonic/ui';
-import {UploadIcon} from 'lucide-react';
-import {type ReactElement, useCallback, useRef} from 'react';
-import {useI18n} from '../../../../hooks/useI18n';
+import { Button, cn } from '@enonic/ui';
+import { UploadIcon } from 'lucide-react';
+import { type ReactElement, useCallback, useRef } from 'react';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 
 export type SelectorUploadButtonProps = {
     /** Upload the selected files */
@@ -30,7 +30,7 @@ export const SelectorUploadButton = ({
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleInputChange = useCallback(() => {
-        const {files} = fileInputRef.current ?? {};
+        const { files } = fileInputRef.current ?? {};
         if (files && files.length > 0) {
             onFiles(files);
         }
@@ -63,11 +63,14 @@ export const SelectorUploadButton = ({
                 className={cn(
                     isUploading && 'pointer-events-none',
                     'relative w-full h-full rounded-none border border-bdr-subtle rounded-tr rounded-br bg-surface-selected',
-                    'focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset transition-highlight'
+                    'focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset transition-highlight',
                 )}
             >
                 {isUploading && (
-                    <div className="animate-pulse absolute top-0 left-0 h-full bg-success-rev opacity-30" style={{width: `${progress}%`}} />
+                    <div
+                        className="animate-pulse absolute top-0 left-0 h-full bg-success-rev opacity-30"
+                        style={{ width: `${progress}%` }}
+                    />
                 )}
                 <UploadIcon size={20} absoluteStrokeWidth />
             </Button>

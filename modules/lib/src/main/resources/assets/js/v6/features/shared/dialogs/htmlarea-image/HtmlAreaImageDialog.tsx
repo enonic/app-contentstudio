@@ -1,21 +1,30 @@
-import {Button, Dialog} from '@enonic/ui';
-import {useEffect, type ReactElement} from 'react';
-import {registerHtmlAreaContextDialogOpen} from '../../../store/dialogs/htmlAreaModal.store';
-import {type CreateHtmlAreaContentDialogEvent} from '../../../../../app/inputtype/ui/text/CreateHtmlAreaContentDialogEvent';
-import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
-import type {DialogOverrides} from '../../form/input-types/html-area/setupEditor';
-import {useI18n} from '../../../hooks/useI18n';
+import { Button, Dialog } from '@enonic/ui';
+import { useEffect, type ReactElement } from 'react';
+import { registerHtmlAreaContextDialogOpen } from '../../../store/dialogs/htmlAreaModal.store';
+import { type CreateHtmlAreaContentDialogEvent } from '../../../../../app/inputtype/ui/text/CreateHtmlAreaContentDialogEvent';
+import {
+    type CreateHtmlAreaDialogEvent,
+    HtmlAreaDialogType,
+} from '../../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
+import type { DialogOverrides } from '../../form/input-types/html-area/setupEditor';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import {
     HtmlAreaImageDialogProvider,
     type OpenHtmlAreaImageDialogParams,
     useHtmlAreaImageDialogContext,
 } from './HtmlAreaImageDialogContext';
-import {HtmlAreaImageDialogContent} from './HtmlAreaImageDialogContent';
+import { HtmlAreaImageDialogContent } from './HtmlAreaImageDialogContent';
 
 const DIALOG_NAME = 'HtmlAreaImageDialog';
 
 const HtmlAreaImageDialogInner = (): ReactElement => {
-    const {state: {open}, isEditing, canSubmit, close, submit} = useHtmlAreaImageDialogContext();
+    const {
+        state: { open },
+        isEditing,
+        canSubmit,
+        close,
+        submit,
+    } = useHtmlAreaImageDialogContext();
 
     useEffect(() => {
         if (!open) return;
@@ -37,17 +46,17 @@ const HtmlAreaImageDialogInner = (): ReactElement => {
             <Dialog.Portal>
                 <Dialog.Overlay />
                 <Dialog.Content
-                    className='w-full h-full gap-10 sm:h-fit md:min-w-180 md:max-w-220 md:max-h-[85vh]'
+                    className="w-full h-full gap-10 sm:h-fit md:min-w-180 md:max-w-220 md:max-h-[85vh]"
                     data-component={DIALOG_NAME}
                 >
                     <Dialog.DefaultHeader title={title} withClose />
-                    <Dialog.Body className='flex flex-col gap-5 p-1.5'>
+                    <Dialog.Body className="flex flex-col gap-5 p-1.5">
                         <HtmlAreaImageDialogContent />
                     </Dialog.Body>
                     <Dialog.Footer>
                         <Button
-                            size='lg'
-                            variant='solid'
+                            size="lg"
+                            variant="solid"
                             label={isEditing ? updateLabel : insertLabel}
                             disabled={!canSubmit}
                             onClick={submit}
@@ -63,7 +72,7 @@ type HtmlAreaImageDialogProps = {
     openRef: { current: ((params: OpenHtmlAreaImageDialogParams) => void) | undefined };
 };
 
-export const HtmlAreaImageDialog = ({openRef}: HtmlAreaImageDialogProps): ReactElement => {
+export const HtmlAreaImageDialog = ({ openRef }: HtmlAreaImageDialogProps): ReactElement => {
     return (
         <HtmlAreaImageDialogProvider openRef={openRef}>
             <HtmlAreaImageDialogInner />
@@ -73,9 +82,9 @@ export const HtmlAreaImageDialog = ({openRef}: HtmlAreaImageDialogProps): ReactE
 
 HtmlAreaImageDialog.displayName = DIALOG_NAME;
 
-export function createImageDialogOverride(
-    openRef: { current: ((params: OpenHtmlAreaImageDialogParams) => void) | undefined },
-): DialogOverrides {
+export function createImageDialogOverride(openRef: {
+    current: ((params: OpenHtmlAreaImageDialogParams) => void) | undefined;
+}): DialogOverrides {
     return {
         [HtmlAreaDialogType.IMAGE]: (event: CreateHtmlAreaDialogEvent) => {
             const contentEvent = event as CreateHtmlAreaContentDialogEvent;

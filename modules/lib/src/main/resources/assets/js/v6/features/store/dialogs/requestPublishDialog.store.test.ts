@@ -1,5 +1,5 @@
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {ContentId} from '../../../../app/content/ContentId';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ContentId } from '../../../../app/content/ContentId';
 import {
     emitContentArchived,
     emitContentCreated,
@@ -7,7 +7,7 @@ import {
     emitContentPublished,
     emitContentRenamed,
     emitContentUpdated,
-} from '../socket.store';
+} from '../../../shared/socket/socket.store';
 import {
     $isRequestPublishReady,
     $requestPublishDependantsSelection,
@@ -109,7 +109,7 @@ const requestPublishMainItemEventCases = [
     },
     {
         name: 'published',
-        emit: (ids: string[]) => emitContentPublished(ids.map(id => createMockContent(id))),
+        emit: (ids: string[]) => emitContentPublished(ids.map((id) => createMockContent(id))),
     },
 ] as const;
 
@@ -139,12 +139,12 @@ describe('requestPublishDialog.store', () => {
 
     it('patches updated main items and refreshes ready-state checks after external updates', async () => {
         const itemId = new ContentId('item-1');
-        const original = createMockContent('item-1', {displayName: 'Original name'});
-        const updated = createMockContent('item-1', {displayName: 'Updated name'});
+        const original = createMockContent('item-1', { displayName: 'Original name' });
+        const updated = createMockContent('item-1', { displayName: 'Updated name' });
 
         mockResolvePublishDependencies
-            .mockResolvedValueOnce(createResolveResult({inProgress: [itemId], publishable: [itemId]}))
-            .mockResolvedValueOnce(createResolveResult({publishable: [itemId]}));
+            .mockResolvedValueOnce(createResolveResult({ inProgress: [itemId], publishable: [itemId] }))
+            .mockResolvedValueOnce(createResolveResult({ publishable: [itemId] }));
 
         openRequestPublishDialog([original]);
         await flushRequestPublishReload();
@@ -170,7 +170,8 @@ describe('requestPublishDialog.store', () => {
         // notPublishable must not block creating a publish request. The server still reports the
         // item as publishable (it has changes); permission is resolved separately at publish time.
         mockResolvePublishDependencies.mockResolvedValue(
-            createResolveResult({notPublishable: [itemId], publishable: [itemId]}));
+            createResolveResult({ notPublishable: [itemId], publishable: [itemId] }),
+        );
 
         openRequestPublishDialog([item]);
         await flushRequestPublishReload();
@@ -180,7 +181,7 @@ describe('requestPublishDialog.store', () => {
 
     it('should block create-readiness when no selected item needs publishing', async () => {
         // A purely online item has nothing to publish.
-        const item = createMockContent('online-1', {isOnline: true});
+        const item = createMockContent('online-1', { isOnline: true });
 
         openRequestPublishDialog([item]);
         await flushRequestPublishReload();
@@ -190,12 +191,13 @@ describe('requestPublishDialog.store', () => {
     });
 
     it('should allow create-readiness when at least one item needs publishing', async () => {
-        const onlineItem = createMockContent('online-1', {isOnline: true});
+        const onlineItem = createMockContent('online-1', { isOnline: true });
         const offlineItem = createMockContent('offline-1');
 
         // Only the offline item has changes to publish (status != EQUAL).
         mockResolvePublishDependencies.mockResolvedValue(
-            createResolveResult({publishable: [new ContentId('offline-1')]}));
+            createResolveResult({ publishable: [new ContentId('offline-1')] }),
+        );
 
         openRequestPublishDialog([onlineItem, offlineItem]);
         await flushRequestPublishReload();
@@ -205,12 +207,14 @@ describe('requestPublishDialog.store', () => {
     });
 
     it('loads dependant summaries lazily, a window at a time, while counts use the full id set', async () => {
-        const dependantIds = Array.from({length: 40}, (_, index) => new ContentId(`dep-${index}`));
+        const dependantIds = Array.from({ length: 40 }, (_, index) => new ContentId(`dep-${index}`));
 
         mockResolvePublishDependencies.mockResolvedValue(
-            createResolveResult({dependants: dependantIds, publishable: dependantIds}));
+            createResolveResult({ dependants: dependantIds, publishable: dependantIds }),
+        );
         mockFetchContentSummaries.mockImplementation((ids: ContentId[]) =>
-            ids.map(id => createMockContent(id.toString())));
+            ids.map((id) => createMockContent(id.toString())),
+        );
 
         openRequestPublishDialog([createMockContent('item-1')]);
         await flushRequestPublishReload();
@@ -229,21 +233,26 @@ describe('requestPublishDialog.store', () => {
     });
 
     it('reloads checks when a dependant beyond the loaded window is removed', async () => {
-        const dependantIds = Array.from({length: 40}, (_, index) => new ContentId(`dep-${index}`));
+        const dependantIds = Array.from({ length: 40 }, (_, index) => new ContentId(`dep-${index}`));
         const hiddenInvalidId = dependantIds[39];
 
         mockResolvePublishDependencies
-            .mockResolvedValueOnce(createResolveResult({
-                dependants: dependantIds,
-                publishable: dependantIds,
-                invalid: [hiddenInvalidId],
-            }))
-            .mockResolvedValueOnce(createResolveResult({
-                dependants: dependantIds.slice(0, 39),
-                publishable: dependantIds.slice(0, 39),
-            }));
+            .mockResolvedValueOnce(
+                createResolveResult({
+                    dependants: dependantIds,
+                    publishable: dependantIds,
+                    invalid: [hiddenInvalidId],
+                }),
+            )
+            .mockResolvedValueOnce(
+                createResolveResult({
+                    dependants: dependantIds.slice(0, 39),
+                    publishable: dependantIds.slice(0, 39),
+                }),
+            );
         mockFetchContentSummaries.mockImplementation((ids: ContentId[]) =>
-            ids.map(id => createMockContent(id.toString())));
+            ids.map((id) => createMockContent(id.toString())),
+        );
 
         openRequestPublishDialog([createMockContent('item-1')]);
         await flushRequestPublishReload();
@@ -261,8 +270,8 @@ describe('requestPublishDialog.store', () => {
     });
 
     it('patches renamed items without forcing a dependency reload', async () => {
-        const original = createMockContent('item-1', {displayName: 'Original name'});
-        const renamed = createMockContent('item-1', {displayName: 'Renamed item'});
+        const original = createMockContent('item-1', { displayName: 'Original name' });
+        const renamed = createMockContent('item-1', { displayName: 'Renamed item' });
 
         openRequestPublishDialog([original]);
         await flushRequestPublishReload();
@@ -274,13 +283,17 @@ describe('requestPublishDialog.store', () => {
     });
 
     it('refreshes main items when created content is below a selected item path', async () => {
-        const parent = createMockContent('item-1', {displayName: 'Parent', path: '/parent'});
-        const updatedParent = createMockContent('item-1', {displayName: 'Parent', path: '/parent', hasChildren: true});
-        const unrelated = createMockContent('item-2', {displayName: 'Elsewhere', path: '/other/child'});
-        const child = createMockContent('item-3', {displayName: 'Child', path: '/parent/child'});
+        const parent = createMockContent('item-1', { displayName: 'Parent', path: '/parent' });
+        const updatedParent = createMockContent('item-1', {
+            displayName: 'Parent',
+            path: '/parent',
+            hasChildren: true,
+        });
+        const unrelated = createMockContent('item-2', { displayName: 'Elsewhere', path: '/other/child' });
+        const child = createMockContent('item-3', { displayName: 'Child', path: '/parent/child' });
 
         mockFetchContentSummaries.mockImplementation((ids: ContentId[]) => {
-            return ids.some(id => id.toString() === 'item-1') ? [updatedParent] : [];
+            return ids.some((id) => id.toString() === 'item-1') ? [updatedParent] : [];
         });
 
         openRequestPublishDialog([parent]);
@@ -301,9 +314,9 @@ describe('requestPublishDialog.store', () => {
 
     it.each(requestPublishMainItemEventCases)(
         'removes a non-last main item and reloads on $name events',
-        async ({emit}) => {
-            const first = createMockContent('item-1', {displayName: 'First'});
-            const second = createMockContent('item-2', {displayName: 'Second'});
+        async ({ emit }) => {
+            const first = createMockContent('item-1', { displayName: 'First' });
+            const second = createMockContent('item-2', { displayName: 'Second' });
 
             openRequestPublishDialog([first, second]);
             await flushRequestPublishReload();
@@ -312,15 +325,15 @@ describe('requestPublishDialog.store', () => {
             await flushRequestPublishReload();
 
             expect($requestPublishDialog.get().open).toBe(true);
-            expect($requestPublishDialog.get().items.map(item => item.getId())).toEqual(['item-2']);
+            expect($requestPublishDialog.get().items.map((item) => item.getId())).toEqual(['item-2']);
             expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
         },
     );
 
     it.each(requestPublishMainItemEventCases)(
         'closes the dialog when the last main item is removed by $name events',
-        async ({emit}) => {
-            const item = createMockContent('item-1', {displayName: 'Item'});
+        async ({ emit }) => {
+            const item = createMockContent('item-1', { displayName: 'Item' });
 
             openRequestPublishDialog([item]);
             await flushRequestPublishReload();
@@ -335,11 +348,12 @@ describe('requestPublishDialog.store', () => {
     );
 
     it('defers socket events during submit and reconciles them after a failed request', async () => {
-        const item = createMockContent('item-1', {displayName: 'Item'});
+        const item = createMockContent('item-1', { displayName: 'Item' });
         const submitRequestDeferred = createDeferredPromise<never>();
 
         mockResolvePublishDependencies.mockResolvedValue(
-            createResolveResult({publishable: [new ContentId('item-1')]}));
+            createResolveResult({ publishable: [new ContentId('item-1')] }),
+        );
 
         openRequestPublishDialog([item]);
         await flushRequestPublishReload();
@@ -359,7 +373,7 @@ describe('requestPublishDialog.store', () => {
         emitContentPublished([item]);
 
         expect($requestPublishDialog.get().open).toBe(true);
-        expect($requestPublishDialog.get().items.map(currentItem => currentItem.getId())).toEqual(['item-1']);
+        expect($requestPublishDialog.get().items.map((currentItem) => currentItem.getId())).toEqual(['item-1']);
         expect($requestPublishDialog.get().title).toBe('Publish request');
         expect($requestPublishDialog.get().description).toBe('Keep this draft state intact');
         expect($requestPublishDialog.get().assigneeIds).toEqual(['user:system:editor']);
@@ -379,14 +393,15 @@ describe('requestPublishDialog.store', () => {
     });
 
     it('reconciles queued non-removal events after a failed request', async () => {
-        const item = createMockContent('item-1', {displayName: 'Original item'});
-        const updatedItem = createMockContent('item-1', {displayName: 'Updated item'});
+        const item = createMockContent('item-1', { displayName: 'Original item' });
+        const updatedItem = createMockContent('item-1', { displayName: 'Updated item' });
         const submitRequestDeferred = createDeferredPromise<never>();
 
         mockResolvePublishDependencies.mockResolvedValue(
-            createResolveResult({publishable: [new ContentId('item-1')]}));
+            createResolveResult({ publishable: [new ContentId('item-1')] }),
+        );
         mockFetchContentSummaries.mockImplementation((ids: ContentId[]) => {
-            return ids.some(id => id.toString() === 'item-1') ? [updatedItem] : [];
+            return ids.some((id) => id.toString() === 'item-1') ? [updatedItem] : [];
         });
 
         openRequestPublishDialog([item]);
@@ -425,7 +440,11 @@ describe('requestPublishDialog.store', () => {
 
     describe('batch dependant selection', () => {
         it('derives the tri-state from required and excluded dependants', () => {
-            $requestPublishDialog.setKey('dependantIds', [new ContentId('req'), new ContentId('a'), new ContentId('b')]);
+            $requestPublishDialog.setKey('dependantIds', [
+                new ContentId('req'),
+                new ContentId('a'),
+                new ContentId('b'),
+            ]);
             $requestPublishDialog.setKey('requiredDependantIds', [new ContentId('req')]);
             $requestPublishDialog.setKey('excludedDependantIds', [new ContentId('a')]);
 
@@ -443,7 +462,10 @@ describe('requestPublishDialog.store', () => {
 
             toggleRequestPublishDependantsSelection();
 
-            const excluded = $requestPublishDialog.get().excludedDependantIds.map(id => id.toString()).sort();
+            const excluded = $requestPublishDialog
+                .get()
+                .excludedDependantIds.map((id) => id.toString())
+                .sort();
             expect(excluded).toEqual(['a', 'b']);
             expect($requestPublishDependantsSelection.get().selectionType).toBe('none');
         });
@@ -455,7 +477,7 @@ describe('requestPublishDialog.store', () => {
 
             toggleRequestPublishDependantsSelection();
 
-            const excluded = $requestPublishDialog.get().excludedDependantIds.map(id => id.toString());
+            const excluded = $requestPublishDialog.get().excludedDependantIds.map((id) => id.toString());
             expect(excluded).toEqual(['a']);
             expect($requestPublishDependantsSelection.get().selectionType).toBe('partial');
         });

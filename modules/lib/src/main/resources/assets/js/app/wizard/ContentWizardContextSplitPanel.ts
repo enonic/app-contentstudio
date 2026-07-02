@@ -1,13 +1,11 @@
-import {type Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
-import {type ResponsiveRange} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRange';
-import {LayoutTokens} from '../../v6/features/layout/layout.tokens';
-import {ContextSplitPanel, ContextSplitPanelBuilder} from '../view/context/ContextSplitPanel';
-import {type LiveFormPanel} from './page/LiveFormPanel';
-import {type DockedContextPanel} from '../view/context/DockedContextPanel';
+import { type Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
+import { type ResponsiveRange } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRange';
+import { LayoutTokens } from '../../v6/shared/ui/layout.tokens';
+import { ContextSplitPanel, ContextSplitPanelBuilder } from '../view/context/ContextSplitPanel';
+import { type LiveFormPanel } from './page/LiveFormPanel';
+import { type DockedContextPanel } from '../view/context/DockedContextPanel';
 
-export class ContentWizardContextSplitPanel
-    extends ContextSplitPanel {
-
+export class ContentWizardContextSplitPanel extends ContextSplitPanel {
     private readonly liveFormPanel: LiveFormPanel;
 
     private readonly wizardFormPanel: Panel;
@@ -43,7 +41,10 @@ export class ContentWizardContextSplitPanel
 
     getActiveWidthPxOfSecondPanel(): number {
         if (this.isPageEditorShown() && this.isWizardPanelMaximized() && this.isFloatingMode()) {
-            return this.getEl().getWidthWithBorder() / 100 * LayoutTokens.contextPanel.floatingWidthPercent.wizardWithEditor;
+            return (
+                (this.getEl().getWidthWithBorder() / 100) *
+                LayoutTokens.contextPanel.floatingWidthPercent.wizardWithEditor
+            );
         }
 
         return super.getActiveWidthPxOfSecondPanel();
@@ -54,9 +55,7 @@ export class ContentWizardContextSplitPanel
     }
 }
 
-export class ContentWizardContextSplitPanelBuilder
-    extends ContextSplitPanelBuilder {
-
+export class ContentWizardContextSplitPanelBuilder extends ContextSplitPanelBuilder {
     liveFormPanel: LiveFormPanel;
 
     wizardFormPanel: Panel;

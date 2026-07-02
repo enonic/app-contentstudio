@@ -1,11 +1,11 @@
-import {type Value} from '@enonic/lib-admin-ui/data/Value';
-import {type ValueType} from '@enonic/lib-admin-ui/data/ValueType';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import type {RawInputConfig} from '@enonic/lib-admin-ui/form/Input';
-import type {InputTypeDescriptor} from '@enonic/lib-admin-ui/form2/descriptor/InputTypeDescriptor';
-import type {ValidationResult} from '@enonic/lib-admin-ui/form2/descriptor/ValidationResult';
-import {isBlank} from '../../../../utils/format/isBlank';
-import type {ContentTypeFilterConfig} from './ContentTypeFilterConfig';
+import { type Value } from '@enonic/lib-admin-ui/data/Value';
+import { type ValueType } from '@enonic/lib-admin-ui/data/ValueType';
+import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import type { RawInputConfig } from '@enonic/lib-admin-ui/form/Input';
+import type { InputTypeDescriptor } from '@enonic/lib-admin-ui/form2/descriptor/InputTypeDescriptor';
+import type { ValidationResult } from '@enonic/lib-admin-ui/form2/descriptor/ValidationResult';
+import { isBlank } from '../../../../../shared/lib/format/isBlank';
+import type { ContentTypeFilterConfig } from './ContentTypeFilterConfig';
 
 export const ContentTypeFilterDescriptor: InputTypeDescriptor<ContentTypeFilterConfig> = {
     name: 'ContentTypeFilter' as const,
@@ -15,7 +15,7 @@ export const ContentTypeFilterDescriptor: InputTypeDescriptor<ContentTypeFilterC
     },
 
     readConfig(raw: RawInputConfig): ContentTypeFilterConfig {
-        return {context: raw?.['context']?.[0]?.value === true};
+        return { context: raw?.['context']?.[0]?.value === true };
     },
 
     createDefaultValue(raw: unknown): Value {

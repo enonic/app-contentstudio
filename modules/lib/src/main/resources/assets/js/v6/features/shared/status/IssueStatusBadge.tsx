@@ -1,8 +1,8 @@
-import {cn} from '@enonic/ui';
-import {type ReactElement} from 'react';
+import { cn } from '@enonic/ui';
+import { type ReactElement } from 'react';
 
-import {IssueStatus} from '../../../../app/issue/IssueStatus';
-import {useI18n} from '../../hooks/useI18n';
+import { IssueStatus } from '../../../../app/issue/IssueStatus';
+import { useI18n } from '../../../shared/lib/hooks/useI18n';
 
 export type IssueStatusBadgeProps = {
     status: IssueStatus;
@@ -11,7 +11,7 @@ export type IssueStatusBadgeProps = {
 
 const ISSUE_STATUS_BADGE_NAME = 'IssueStatusBadge';
 
-export function IssueStatusBadge({status, className}: IssueStatusBadgeProps): ReactElement {
+export function IssueStatusBadge({ status, className }: IssueStatusBadgeProps): ReactElement {
     const isClosed = status === IssueStatus.CLOSED;
     const label = useI18n(isClosed ? 'field.issue.status.closed' : 'field.issue.status.open');
 

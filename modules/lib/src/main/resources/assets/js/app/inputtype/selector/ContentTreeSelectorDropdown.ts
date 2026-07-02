@@ -1,17 +1,16 @@
-import {ContentSelectorDropdown, type ContentSelectorDropdownOptions} from './ContentSelectorDropdown';
-import {ContentsTreeList} from '../../browse/ContentsTreeList';
-import {ModeTogglerButton} from '../ui/selector/ModeTogglerButton';
-import {type ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
+import { ContentSelectorDropdown, type ContentSelectorDropdownOptions } from './ContentSelectorDropdown';
+import { ContentsTreeList } from '../../browse/ContentsTreeList';
+import { ModeTogglerButton } from '../ui/selector/ModeTogglerButton';
+import { type ContentTreeSelectorItem } from '../../item/ContentTreeSelectorItem';
 import type Q from 'q';
-import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
-import {ContentTreeSelectionWrapper} from './ContentTreeSelectionWrapper';
-import {isBlank} from '../../../v6/features/utils/format/isBlank';
-import {type Element} from '@enonic/lib-admin-ui/dom/Element';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {type SelectionDeltaItem} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
+import { type SelectionChange } from '@enonic/lib-admin-ui/util/SelectionChange';
+import { ContentTreeSelectionWrapper } from './ContentTreeSelectionWrapper';
+import { isBlank } from '../../../v6/shared/lib/format/isBlank';
+import { type Element } from '@enonic/lib-admin-ui/dom/Element';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { type SelectionDeltaItem } from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
 
-export interface ContentTreeSelectorDropdownOptions
-    extends ContentSelectorDropdownOptions {
+export interface ContentTreeSelectorDropdownOptions extends ContentSelectorDropdownOptions {
     treeMode?: boolean;
     hideToggleIcon?: boolean;
 }
@@ -21,9 +20,7 @@ export enum ContentTreeSelectorMode {
     FLAT = 'flat',
 }
 
-export class ContentTreeSelectorDropdown
-    extends ContentSelectorDropdown {
-
+export class ContentTreeSelectorDropdown extends ContentSelectorDropdown {
     protected treeList: ContentsTreeList;
 
     protected treeSelectionWrapper: ContentTreeSelectionWrapper;
@@ -43,7 +40,7 @@ export class ContentTreeSelectorDropdown
 
         this.modeButton = new ModeTogglerButton();
         this.modeButton.setActive(false);
-        this.treeList = new ContentsTreeList({loader: this.options.loader});
+        this.treeList = new ContentsTreeList({ loader: this.options.loader });
         this.treeList.setEmptyText(i18n('field.option.noitems'));
         this.treeSelectionWrapper = new ContentTreeSelectionWrapper(this.treeList, {
             maxSelected: this.options.maxSelected,
@@ -113,7 +110,7 @@ export class ContentTreeSelectorDropdown
                 this.treeSelectionWrapper.deselect(item, true);
             });
 
-            this.treeSelectionWrapper.unSelectAllExcept(this.getSelectedItems().map(item => item.getId()));
+            this.treeSelectionWrapper.unSelectAllExcept(this.getSelectedItems().map((item) => item.getId()));
         });
     }
 
@@ -228,7 +225,6 @@ export class ContentTreeSelectorDropdown
 
             super.handleDebouncedSearchValueChange();
         }
-
     }
 
     protected search(value?: string): void {

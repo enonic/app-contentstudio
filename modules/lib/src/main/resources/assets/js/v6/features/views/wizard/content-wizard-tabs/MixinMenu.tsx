@@ -1,15 +1,10 @@
-import {Button, FilledSquareCheck, IconButton, Menu, useActiveItemFocus, useMenu} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {Ellipsis, OctagonAlert, Square} from 'lucide-react';
-import {type ReactElement, useCallback, useEffect, useRef, useState} from 'react';
-import {useI18n} from '../../../hooks/useI18n';
-import {
-    $hasPage,
-    $mixinsMenuItems,
-    $wizardReadOnly,
-    setDraftMixinEnabled,
-} from '../../../store/wizardContent.store';
-import {$invalidTabs, $validationVisibility} from '../../../store/wizardValidation.store';
+import { Button, FilledSquareCheck, IconButton, Menu, useActiveItemFocus, useMenu } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { Ellipsis, OctagonAlert, Square } from 'lucide-react';
+import { type ReactElement, useCallback, useEffect, useRef, useState } from 'react';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { $hasPage, $mixinsMenuItems, $wizardReadOnly, setDraftMixinEnabled } from '../../../store/wizardContent.store';
+import { $invalidTabs, $validationVisibility } from '../../../store/wizardValidation.store';
 
 type ConfirmMenuItemProps = {
     disabled: boolean;
@@ -18,8 +13,8 @@ type ConfirmMenuItemProps = {
 
 const CONFIRM_ITEM_ID = 'mixin-confirm';
 
-const ConfirmMenuItem = ({disabled, onConfirm}: ConfirmMenuItemProps): ReactElement => {
-    const {active, registerItem, unregisterItem} = useMenu();
+const ConfirmMenuItem = ({ disabled, onConfirm }: ConfirmMenuItemProps): ReactElement => {
+    const { active, registerItem, unregisterItem } = useMenu();
     const confirmLabel = useI18n('action.confirm');
 
     const buttonRef = useRef<HTMLButtonElement>(null);
@@ -118,13 +113,13 @@ export const MixinMenu = (): ReactElement => {
                     {hasPage && (
                         <Menu.Item className="font-semibold text-base px-4.5 py-1 gap-2.5" disabled>
                             <span className="flex-1">{pageLabel}</span>
-                            <FilledSquareCheck className="size-4"/>
+                            <FilledSquareCheck className="size-4" />
                         </Menu.Item>
                     )}
                     {menuItems.map((item) => {
                         const effectiveEnabled = item.isOptional
-                                                 ? (pendingChanges.get(item.name) ?? item.isEnabled)
-                                                 : true;
+                            ? (pendingChanges.get(item.name) ?? item.isEnabled)
+                            : true;
 
                         return (
                             <Menu.Item
@@ -140,14 +135,18 @@ export const MixinMenu = (): ReactElement => {
                             >
                                 <span className="flex-1 truncate">{item.displayName}</span>
                                 {(item.unknown || (showErrors && effectiveEnabled && invalidTabs.has(item.name))) && (
-                                    <OctagonAlert className="size-3 shrink-0 text-error" strokeWidth={2.5}/>
+                                    <OctagonAlert className="size-3 shrink-0 text-error" strokeWidth={2.5} />
                                 )}
-                                {effectiveEnabled ? <FilledSquareCheck className="size-4"/> : <Square className="size-4"/>}
+                                {effectiveEnabled ? (
+                                    <FilledSquareCheck className="size-4" />
+                                ) : (
+                                    <Square className="size-4" />
+                                )}
                             </Menu.Item>
                         );
                     })}
                     {menuItems.some((item) => item.isOptional) && (
-                        <ConfirmMenuItem disabled={!hasPendingChanges} onConfirm={handleApply}/>
+                        <ConfirmMenuItem disabled={!hasPendingChanges} onConfirm={handleApply} />
                     )}
                 </Menu.Content>
             </Menu.Portal>

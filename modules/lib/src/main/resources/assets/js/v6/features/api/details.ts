@@ -1,12 +1,12 @@
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {type Content, ContentBuilder} from '../../../app/content/Content';
-import {type ContentId} from '../../../app/content/ContentId';
-import {type ContentJson} from '../../../app/content/ContentJson';
-import {type PageTemplate, PageTemplateBuilder} from '../../../app/content/PageTemplate';
-import {type Site, SiteBuilder} from '../../../app/content/Site';
-import {Descriptor} from '../../../app/page/Descriptor';
-import {type DescriptorJson} from '../../../app/page/DescriptorJson';
-import {getCmsApiUrl, getCmsRestUri} from '../utils/url/cms';
+import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { type Content, ContentBuilder } from '../../../app/content/Content';
+import { type ContentId } from '../../../app/content/ContentId';
+import { type ContentJson } from '../../../app/content/ContentJson';
+import { type PageTemplate, PageTemplateBuilder } from '../../../app/content/PageTemplate';
+import { type Site, SiteBuilder } from '../../../app/content/Site';
+import { Descriptor } from '../../../app/page/Descriptor';
+import { type DescriptorJson } from '../../../app/page/DescriptorJson';
+import { getCmsApiUrl, getCmsRestUri } from '../../shared/lib/url/cms';
 
 /**
  * Parse ContentJson to the appropriate Content subtype.
@@ -100,7 +100,7 @@ export async function loadNearestSite(contentId: ContentId): Promise<Site | unde
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({contentId: contentId.toString()}),
+            body: JSON.stringify({ contentId: contentId.toString() }),
         });
 
         if (!response.ok) {
@@ -129,7 +129,7 @@ export async function loadNearestSite(contentId: ContentId): Promise<Site | unde
  */
 export async function loadDefaultPageTemplate(
     siteId: ContentId,
-    contentType: ContentTypeName
+    contentType: ContentTypeName,
 ): Promise<PageTemplate | undefined> {
     const params = new URLSearchParams({
         siteId: siteId.toString(),

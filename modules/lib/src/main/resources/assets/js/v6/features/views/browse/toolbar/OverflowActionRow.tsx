@@ -1,13 +1,13 @@
-import {type Action} from '@enonic/lib-admin-ui/ui/Action';
-import {cn} from '@enonic/ui';
-import {type ReactElement, useCallback, useLayoutEffect, useMemo, useRef, useState} from 'react';
-import {getIsElementVisible} from '../../../utils/dom/getIsElementVisible';
-import {createThrottle} from '../../../utils/timing/createThrottle';
-import {ActionGroup} from './ActionGroup';
-import {calculateVisibleActionCount} from './OverflowActionRow.utils';
-import {SplitActionButton} from './SplitActionButton';
-import {ToolbarActionButton} from './ToolbarActionButton';
-import {useObservedActions} from './useObservedActions';
+import { type Action } from '@enonic/lib-admin-ui/ui/Action';
+import { cn } from '@enonic/ui';
+import { type ReactElement, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { getIsElementVisible } from '../../../../shared/lib/dom/getIsElementVisible';
+import { createThrottle } from '../../../../shared/lib/timing/createThrottle';
+import { ActionGroup } from './ActionGroup';
+import { calculateVisibleActionCount } from './OverflowActionRow.utils';
+import { SplitActionButton } from './SplitActionButton';
+import { ToolbarActionButton } from './ToolbarActionButton';
+import { useObservedActions } from './useObservedActions';
 
 export type OverflowActionRowItem = {
     id: string;
@@ -21,22 +21,19 @@ type Props = {
 
 const TOOLBAR_ACTION_GAP_PX = 8;
 
-export const OverflowActionRow = ({actions, className}: Props): ReactElement | null => {
+export const OverflowActionRow = ({ actions, className }: Props): ReactElement | null => {
     const containerRef = useRef<HTMLDivElement | null>(null);
     const actionButtonMeasureRefs = useRef<(HTMLDivElement | null)[]>([]);
     const splitButtonMeasureRefs = useRef<(HTMLDivElement | null)[]>([]);
-    const observedActions = useMemo(() => actions.map(({action}) => action), [actions]);
+    const observedActions = useMemo(() => actions.map(({ action }) => action), [actions]);
     const renderVersion = useObservedActions(observedActions);
     const visibleActions = useMemo(
-        () => actions.filter(({action}) => action.isVisible()),
+        () => actions.filter(({ action }) => action.isVisible()),
         // ? `renderVersion` ticks when any observed action fires `onPropertyChanged`,
         // ? invalidating the visibility filter without reading the counter directly.
         [actions, renderVersion],
     );
-    const visibleActionIds = useMemo(
-        () => visibleActions.map(({id}) => id).join('|'),
-        [visibleActions],
-    );
+    const visibleActionIds = useMemo(() => visibleActions.map(({ id }) => id).join('|'), [visibleActions]);
     const visibleActionsRef = useRef(visibleActions);
     const [visibleActionsCount, setVisibleActionsCount] = useState(visibleActions.length);
     const [isContainerVisible, setIsContainerVisible] = useState(false);
@@ -64,11 +61,11 @@ export const OverflowActionRow = ({actions, className}: Props): ReactElement | n
             return;
         }
 
-        const buttonWidths = nextVisibleActions.map((_, index) =>
-            actionButtonMeasureRefs.current[index]?.getBoundingClientRect().width ?? 0
+        const buttonWidths = nextVisibleActions.map(
+            (_, index) => actionButtonMeasureRefs.current[index]?.getBoundingClientRect().width ?? 0,
         );
-        const overflowButtonWidths = nextVisibleActions.map((_, index) =>
-            splitButtonMeasureRefs.current[index]?.getBoundingClientRect().width ?? 0
+        const overflowButtonWidths = nextVisibleActions.map(
+            (_, index) => splitButtonMeasureRefs.current[index]?.getBoundingClientRect().width ?? 0,
         );
         const nextVisibleCount = calculateVisibleActionCount({
             actionButtonWidths: buttonWidths,
@@ -127,28 +124,28 @@ export const OverflowActionRow = ({actions, className}: Props): ReactElement | n
     return (
         <>
             <div ref={containerRef} className={cn('min-w-0', className)}>
-                <div className='flex min-w-0 items-center gap-2'>
+                <div className="flex min-w-0 items-center gap-2">
                     {visibleRowActions.length > 0 && (
                         <ActionGroup>
-                            {visibleRowActions.map(({id, action}) => (
+                            {visibleRowActions.map(({ id, action }) => (
                                 <ToolbarActionButton key={id} action={action} disabled={!isContainerVisible} />
                             ))}
                         </ActionGroup>
                     )}
                     {overflowActions.length > 0 && (
                         <SplitActionButton
-                            key={`toolbar-overflow-${overflowActions.map(({id}) => id).join('-')}`}
-                            actions={[overflowActions.map(({action}) => action)]}
+                            key={`toolbar-overflow-${overflowActions.map(({ id }) => id).join('-')}`}
+                            actions={[overflowActions.map(({ action }) => action)]}
                             disabled={!isContainerVisible}
-                            primaryActionStrategy='firstVisible'
+                            primaryActionStrategy="firstVisible"
                             disableMenuWhenAllMenuActionsDisabled={false}
                         />
                     )}
                 </div>
             </div>
-            <div aria-hidden='true' className='fixed -left-[9999px] top-0 invisible pointer-events-none'>
-                <div className='flex items-center gap-2'>
-                    {visibleActions.map(({id, action}, index) => (
+            <div aria-hidden="true" className="fixed -left-[9999px] top-0 invisible pointer-events-none">
+                <div className="flex items-center gap-2">
+                    {visibleActions.map(({ id, action }, index) => (
                         <div
                             key={`measure-button-${id}`}
                             ref={(element) => {
@@ -159,8 +156,8 @@ export const OverflowActionRow = ({actions, className}: Props): ReactElement | n
                         </div>
                     ))}
                 </div>
-                <div className='flex items-center gap-2'>
-                    {visibleActions.map(({id}, index) => (
+                <div className="flex items-center gap-2">
+                    {visibleActions.map(({ id }, index) => (
                         <div
                             key={`measure-split-${id}`}
                             ref={(element) => {
@@ -168,9 +165,9 @@ export const OverflowActionRow = ({actions, className}: Props): ReactElement | n
                             }}
                         >
                             <SplitActionButton
-                                actions={[visibleActions.slice(index).map(({action}) => action)]}
+                                actions={[visibleActions.slice(index).map(({ action }) => action)]}
                                 disabled={true}
-                                primaryActionStrategy='firstVisible'
+                                primaryActionStrategy="firstVisible"
                                 disableMenuWhenAllMenuActionsDisabled={false}
                             />
                         </div>

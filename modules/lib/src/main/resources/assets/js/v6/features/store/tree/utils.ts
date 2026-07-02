@@ -1,10 +1,10 @@
-import type {FlatNode} from '../../lib/tree-store';
-import type {ContentSummary} from '../../../../app/content/ContentSummary';
-import type {ContentTreeNodeData} from './types';
-import type {ContentData} from '../../views/browse/grid/ContentData';
-import {calcContentState} from '../../utils/cms/content/workflow';
-import {calcTreePublishStatus} from '../../utils/cms/content/status';
-import {getIdByPath} from '../content.store';
+import type { FlatNode } from '../../../shared/lib/tree-store';
+import type { ContentSummary } from '../../../../app/content/ContentSummary';
+import type { ContentTreeNodeData } from './types';
+import type { ContentData } from '../../views/browse/grid/ContentData';
+import { calcContentState } from '../../../shared/lib/cms/content/workflow';
+import { calcTreePublishStatus } from '../../../shared/lib/cms/content/status';
+import { getIdByPath } from '../content.store';
 
 /**
  * Converts a tree FlatNode to ContentData format for rendering.
@@ -12,7 +12,7 @@ import {getIdByPath} from '../content.store';
  */
 export function convertToContentFlatNode(
     node: FlatNode<ContentTreeNodeData>,
-    cache: Record<string, ContentSummary>
+    cache: Record<string, ContentSummary>,
 ): FlatNode<ContentData> {
     if (node.nodeType === 'loading' || !node.data) {
         // Loading node or missing data - return as-is with minimal data

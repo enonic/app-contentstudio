@@ -1,38 +1,36 @@
 import Q from 'q';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {PageTemplateOption} from './PageTemplateOption';
-import {type LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
-import {GetPageTemplatesByCanRenderRequest} from './GetPageTemplatesByCanRenderRequest';
-import {PageTemplateLoader} from './PageTemplateLoader';
-import {ContentServerEventsHandler} from '../../../../../event/ContentServerEventsHandler';
-import {type PageTemplate, PageTemplateBuilder} from '../../../../../content/PageTemplate';
-import {type ContentSummaryAndCompareStatus} from '../../../../../content/ContentSummaryAndCompareStatus';
-import {type PageTemplateAndControllerOption, PageTemplateAndSelectorViewer} from './PageTemplateAndSelectorViewer';
-import {PageControllerOption} from './PageControllerOption';
-import {type LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
-import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
-import {type ContentServerChangeItem} from '../../../../../event/ContentServerChangeItem';
-import {type Descriptor, DescriptorBuilder} from '../../../../../page/Descriptor';
-import {ComponentDescriptorsLoader} from '../region/ComponentDescriptorsLoader';
-import {PageComponentType} from '../../../../../page/region/PageComponentType';
-import {PageState} from '../../../PageState';
-import {PageEventsManager} from '../../../../PageEventsManager';
-import {type PageUpdatedEvent} from '../../../../../page/event/PageUpdatedEvent';
-import {PageControllerUpdatedEvent} from '../../../../../page/event/PageControllerUpdatedEvent';
-import {PageTemplateUpdatedEvent} from '../../../../../page/event/PageTemplateUpdatedEvent';
-import {type Page} from '../../../../../page/Page';
-import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
-import {PageOptionsList} from './PageOptionsList';
-import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {isBlank} from '../../../../../../v6/features/utils/format/isBlank';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { PageTemplateOption } from './PageTemplateOption';
+import { type LiveEditModel } from '../../../../../../page-editor/LiveEditModel';
+import { GetPageTemplatesByCanRenderRequest } from './GetPageTemplatesByCanRenderRequest';
+import { PageTemplateLoader } from './PageTemplateLoader';
+import { ContentServerEventsHandler } from '../../../../../event/ContentServerEventsHandler';
+import { type PageTemplate, PageTemplateBuilder } from '../../../../../content/PageTemplate';
+import { type ContentSummaryAndCompareStatus } from '../../../../../content/ContentSummaryAndCompareStatus';
+import { type PageTemplateAndControllerOption, PageTemplateAndSelectorViewer } from './PageTemplateAndSelectorViewer';
+import { PageControllerOption } from './PageControllerOption';
+import { type LoadedDataEvent } from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
+import { ConfirmationDialog } from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
+import { type ContentServerChangeItem } from '../../../../../event/ContentServerChangeItem';
+import { type Descriptor, DescriptorBuilder } from '../../../../../page/Descriptor';
+import { ComponentDescriptorsLoader } from '../region/ComponentDescriptorsLoader';
+import { PageComponentType } from '../../../../../page/region/PageComponentType';
+import { PageState } from '../../../PageState';
+import { PageEventsManager } from '../../../../PageEventsManager';
+import { type PageUpdatedEvent } from '../../../../../page/event/PageUpdatedEvent';
+import { PageControllerUpdatedEvent } from '../../../../../page/event/PageControllerUpdatedEvent';
+import { PageTemplateUpdatedEvent } from '../../../../../page/event/PageTemplateUpdatedEvent';
+import { type Page } from '../../../../../page/Page';
+import { FilterableListBoxWrapper } from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
+import { PageOptionsList } from './PageOptionsList';
+import { type SelectionChange } from '@enonic/lib-admin-ui/util/SelectionChange';
+import { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import { isBlank } from '../../../../../../v6/shared/lib/format/isBlank';
 
-export class PageTemplateAndControllerSelector
-    extends FilterableListBoxWrapper<PageTemplateAndControllerOption> {
-
+export class PageTemplateAndControllerSelector extends FilterableListBoxWrapper<PageTemplateAndControllerOption> {
     declare protected listBox: PageOptionsList;
 
     declare protected selectedViewer: PageTemplateAndSelectorViewer;
@@ -114,8 +112,9 @@ export class PageTemplateAndControllerSelector
     private initServerEventsListeners() {
         const eventsHandler = ContentServerEventsHandler.getInstance();
         const updatedHandlerDebounced = AppHelper.debounce((summaries: ContentSummaryAndCompareStatus[]) => {
-            const reloadNeeded =
-                summaries.some(summary => PageTemplateAndControllerSelector.isDescendantTemplate(summary, this.liveEditModel));
+            const reloadNeeded = summaries.some((summary) =>
+                PageTemplateAndControllerSelector.isDescendantTemplate(summary, this.liveEditModel),
+            );
             if (reloadNeeded) {
                 this.reload();
             }
@@ -127,7 +126,7 @@ export class PageTemplateAndControllerSelector
 
         eventsHandler.onContentDeleted((items: ContentServerChangeItem[]) => {
             // Remove template from the list, if the corresponding content was deleted
-            items.forEach(item => {
+            items.forEach((item) => {
                 const listItem = this.getItemById(item.getId());
 
                 if (listItem) {
@@ -195,7 +194,8 @@ export class PageTemplateAndControllerSelector
     }
 
     private doSelectController(selectedOption: PageControllerOption, skipDialog: boolean = false) {
-        const yesCallback = () => PageEventsManager.get().notifyPageControllerSetRequested(selectedOption.getData().getKey());
+        const yesCallback = () =>
+            PageEventsManager.get().notifyPageControllerSetRequested(selectedOption.getData().getKey());
         if (skipDialog) {
             yesCallback();
         } else {
@@ -203,22 +203,27 @@ export class PageTemplateAndControllerSelector
         }
     }
 
-    private static isDescendantTemplate(summary: ContentSummaryAndCompareStatus, liveEditModel: LiveEditModel): boolean {
+    private static isDescendantTemplate(
+        summary: ContentSummaryAndCompareStatus,
+        liveEditModel: LiveEditModel,
+    ): boolean {
         // Beware of empty items created for missing options
-        return summary.getType()?.isPageTemplate() && liveEditModel &&
-               summary.getPath()?.isDescendantOf(liveEditModel.getSiteModel().getSite().getPath());
+        return (
+            summary.getType()?.isPageTemplate() &&
+            liveEditModel &&
+            summary.getPath()?.isDescendantOf(liveEditModel.getSiteModel().getSite().getPath())
+        );
     }
 
     private reload(): Q.Promise<number> {
-        return Q.all([
-            this.loadPageTemplates(),
-            this.loadPageControllers()
-        ]).spread((templateOptions: PageTemplateOption[], controllerOptions: PageControllerOption[]) =>
-            this.handleReloaded(templateOptions, controllerOptions)
-        ).catch((e) => {
-            DefaultErrorHandler.handle(e);
-            return 0;
-        });
+        return Q.all([this.loadPageTemplates(), this.loadPageControllers()])
+            .spread((templateOptions: PageTemplateOption[], controllerOptions: PageControllerOption[]) =>
+                this.handleReloaded(templateOptions, controllerOptions),
+            )
+            .catch((e) => {
+                DefaultErrorHandler.handle(e);
+                return 0;
+            });
     }
 
     private handleReloaded(templateOptions: PageTemplateOption[], controllerOptions: PageControllerOption[]): number {
@@ -236,13 +241,13 @@ export class PageTemplateAndControllerSelector
         }
 
         const loader = new PageTemplateLoader(
-            new GetPageTemplatesByCanRenderRequest(siteModel.getSiteId(), this.liveEditModel.getContent().getType())
+            new GetPageTemplatesByCanRenderRequest(siteModel.getSiteId(), this.liveEditModel.getContent().getType()),
         );
 
         loader.onLoadedData((event: LoadedDataEvent<PageTemplate>) => {
-            const options: PageTemplateOption[] = event.getData().map(
-                (pageTemplate: PageTemplate) => new PageTemplateOption(pageTemplate)
-            );
+            const options: PageTemplateOption[] = event
+                .getData()
+                .map((pageTemplate: PageTemplate) => new PageTemplateOption(pageTemplate));
             deferred.resolve(options);
 
             return Q(options);
@@ -260,9 +265,9 @@ export class PageTemplateAndControllerSelector
             .setContentId(this.liveEditModel.getContent().getContentId());
 
         loader.onLoadedData((event: LoadedDataEvent<Descriptor>) => {
-            const options: PageControllerOption[] = event.getData().map(
-                (pageDescriptor: Descriptor) => new PageControllerOption(pageDescriptor)
-            );
+            const options: PageControllerOption[] = event
+                .getData()
+                .map((pageDescriptor: Descriptor) => new PageControllerOption(pageDescriptor));
             deferred.resolve(options);
 
             return Q(options);
@@ -300,7 +305,7 @@ export class PageTemplateAndControllerSelector
                             .setKey(ctrKey)
                             .setIconCls(PageComponentType.get().getIconCls())
                             .setDisplayName(i18n('field.page.controller.invalid'))
-                            .build()
+                            .build(),
                     );
                     this.listBox.addItems(missingControllerOption);
                 }
@@ -317,7 +322,7 @@ export class PageTemplateAndControllerSelector
                         .setData(new PropertyTree())
                         .setContentId(key)
                         .setDisplayName(i18n('field.page.template.invalid'))
-                        .build() as PageTemplate
+                        .build() as PageTemplate,
                 );
                 this.listBox.addItems(missingTemplateOption);
             }
@@ -385,8 +390,10 @@ export class PageTemplateAndControllerSelector
     }
 
     private static filterFunction(item: PageTemplateAndControllerOption, searchString: string): boolean {
-        return !isBlank(searchString) &&
-               item.getData().getName().toString().toLowerCase().indexOf(searchString.toLowerCase()) >= 0 ||
-               item.getData().getDisplayName().toString().toLowerCase().indexOf(searchString.toLowerCase()) >= 0;
+        return (
+            (!isBlank(searchString) &&
+                item.getData().getName().toString().toLowerCase().indexOf(searchString.toLowerCase()) >= 0) ||
+            item.getData().getDisplayName().toString().toLowerCase().indexOf(searchString.toLowerCase()) >= 0
+        );
     }
 }

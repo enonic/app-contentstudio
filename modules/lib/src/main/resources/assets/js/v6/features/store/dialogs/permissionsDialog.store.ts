@@ -1,26 +1,26 @@
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
-import {type TaskId} from '@enonic/lib-admin-ui/task/TaskId';
-import {showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {computed, listenKeys, map} from 'nanostores';
-import {ResultAsync} from 'neverthrow';
-import {type OpenEditPermissionsDialogEvent} from '../../../../app/event/OpenEditPermissionsDialogEvent';
-import {AccessControlHelper} from '../../../../app/wizard/AccessControlHelper';
-import {AccessControlList} from '../../../../app/access/AccessControlList';
-import {AccessControlEntry} from '../../../../app/access/AccessControlEntry';
-import {loadPrincipalsByKeys} from '../principals.store';
-import {GetDescendantsOfContentsRequest} from '../../../../app/resource/GetDescendantsOfContentsRequest';
-import {ApplyContentPermissionsRequest} from '../../../../app/resource/ApplyContentPermissionsRequest';
-import {type ApplyPermissionsScope} from '../../../../app/dialog/permissions/PermissionsData';
-import {type ContentId} from '../../../../app/content/ContentId';
-import {GetContentByPathRequest} from '../../../../app/resource/GetContentByPathRequest';
-import {GetContentRootPermissionsRequest} from '../../../../app/resource/GetContentRootPermissionsRequest';
-import {type TaskResultState} from '../task.store';
-import {trackTask} from '../../services/task.service';
-import {formatError} from '../../utils/format/error';
-import {Permission} from '../../../../app/access/Permission';
-import {compareAccessControlEntries} from '../../utils/cms/permissions/accessControl';
+import { Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { RoleKeys } from '@enonic/lib-admin-ui/security/RoleKeys';
+import { type TaskId } from '@enonic/lib-admin-ui/task/TaskId';
+import { showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { computed, listenKeys, map } from 'nanostores';
+import { ResultAsync } from 'neverthrow';
+import { type OpenEditPermissionsDialogEvent } from '../../../../app/event/OpenEditPermissionsDialogEvent';
+import { AccessControlHelper } from '../../../../app/wizard/AccessControlHelper';
+import { AccessControlList } from '../../../../app/access/AccessControlList';
+import { AccessControlEntry } from '../../../../app/access/AccessControlEntry';
+import { loadPrincipalsByKeys } from '../principals.store';
+import { GetDescendantsOfContentsRequest } from '../../../../app/resource/GetDescendantsOfContentsRequest';
+import { ApplyContentPermissionsRequest } from '../../../../app/resource/ApplyContentPermissionsRequest';
+import { type ApplyPermissionsScope } from '../../../../app/dialog/permissions/PermissionsData';
+import { type ContentId } from '../../../../app/content/ContentId';
+import { GetContentByPathRequest } from '../../../../app/resource/GetContentByPathRequest';
+import { GetContentRootPermissionsRequest } from '../../../../app/resource/GetContentRootPermissionsRequest';
+import { type TaskResultState } from '../task.store';
+import { trackTask } from '../../services/task.service';
+import { formatError } from '../../../shared/lib/format/error';
+import { Permission } from '../../../../app/access/Permission';
+import { compareAccessControlEntries } from '../../../shared/lib/cms/permissions/accessControl';
 
 //
 // * Store State
@@ -87,13 +87,16 @@ export const $permissionsDialog = map<PermissionsDialogStore>(structuredClone(in
 
 export const $isPermissionsDialogDirty = computed(
     [$permissionsDialog],
-    ({initialAccessControlEntries, accessControlEntries, initialAccessMode, accessMode}): boolean => {
+    ({ initialAccessControlEntries, accessControlEntries, initialAccessMode, accessMode }): boolean => {
         if (accessMode !== initialAccessMode) return true;
 
-        const {added, removed, modified} = compareAccessControlEntries(initialAccessControlEntries, accessControlEntries);
+        const { added, removed, modified } = compareAccessControlEntries(
+            initialAccessControlEntries,
+            accessControlEntries,
+        );
 
         return added.length > 0 || removed.length > 0 || modified.length > 0;
-    }
+    },
 );
 
 //
@@ -105,14 +108,15 @@ export const openPermissionsDialog = (event: OpenEditPermissionsDialogEvent): vo
     const parentPath = contentPath.getParentPath();
     const isRoot = !parentPath || parentPath.isRoot();
 
-    const contentDescendants = () => ResultAsync.fromPromise(new GetDescendantsOfContentsRequest(contentPath).sendAndParse(), formatError);
+    const contentDescendants = () =>
+        ResultAsync.fromPromise(new GetDescendantsOfContentsRequest(contentPath).sendAndParse(), formatError);
     const parentPermissions = () =>
         isRoot
-            ? ResultAsync.fromPromise(new GetContentRootPermissionsRequest().sendAndParse(), formatError).map((permissions) =>
-                  permissions.getEntries()
+            ? ResultAsync.fromPromise(new GetContentRootPermissionsRequest().sendAndParse(), formatError).map(
+                  (permissions) => permissions.getEntries(),
               )
-            : ResultAsync.fromPromise(new GetContentByPathRequest(parentPath).sendAndParse(), formatError).map((content) =>
-                  content.getPermissions().getEntries()
+            : ResultAsync.fromPromise(new GetContentByPathRequest(parentPath).sendAndParse(), formatError).map(
+                  (content) => content.getPermissions().getEntries(),
               );
 
     $permissionsDialog.setKey('loading', true);
@@ -127,16 +131,20 @@ export const openPermissionsDialog = (event: OpenEditPermissionsDialogEvent): vo
             // Make sure to remove the everyone from the access control entries. Everyone is managed separately.
             const accessControlEntries = AccessControlHelper.removeRedundantPermissions(permissions);
             const parentAccessControlEntries = AccessControlHelper.removeRedundantPermissions(parentPermissions);
-            const principalKeys = [...accessControlEntries, ...parentAccessControlEntries].map((entry) => entry.getPrincipalKey());
+            const principalKeys = [...accessControlEntries, ...parentAccessControlEntries].map((entry) =>
+                entry.getPrincipalKey(),
+            );
 
-            return {descendants, accessControlEntries, parentAccessControlEntries, principalKeys};
+            return { descendants, accessControlEntries, parentAccessControlEntries, principalKeys };
         })
-        .map(({descendants, accessControlEntries, parentAccessControlEntries, principalKeys}) => {
+        .map(({ descendants, accessControlEntries, parentAccessControlEntries, principalKeys }) => {
             // Make sure all necessary principals are loaded
             return loadPrincipalsByKeys(principalKeys).map(() => {
                 const contentId = event.getContentId();
                 const contentDisplayName = event.getDisplayName();
-                const accessMode = accessControlEntries.some((entry) => entry.getPrincipalKey().equals(RoleKeys.EVERYONE))
+                const accessMode = accessControlEntries.some((entry) =>
+                    entry.getPrincipalKey().equals(RoleKeys.EVERYONE),
+                )
                     ? 'public'
                     : 'restricted';
 
@@ -197,7 +205,7 @@ export const setPermissionsDialogReplaceAllChildPermissions = (replaceAllChildPe
 };
 
 export const updatePermissions = (onComplete: (resultState: TaskResultState, message: string) => void): void => {
-    const {contentId, initialAccessControlEntries, finalAccessControlEntries, applyTo, replaceAllChildPermissions} =
+    const { contentId, initialAccessControlEntries, finalAccessControlEntries, applyTo, replaceAllChildPermissions } =
         $permissionsDialog.get();
 
     const request = new ApplyContentPermissionsRequest().setId(contentId).setScope(applyTo);
@@ -205,7 +213,10 @@ export const updatePermissions = (onComplete: (resultState: TaskResultState, mes
     if (applyTo !== 'single' && replaceAllChildPermissions) {
         request.setPermissions(new AccessControlList(finalAccessControlEntries));
     } else {
-        const {added, removed} = AccessControlHelper.calcMergePermissions(initialAccessControlEntries, finalAccessControlEntries);
+        const { added, removed } = AccessControlHelper.calcMergePermissions(
+            initialAccessControlEntries,
+            finalAccessControlEntries,
+        );
         request.setAddPermissions(added);
         request.setRemovePermissions(removed);
     }
@@ -236,28 +247,34 @@ export const updatePermissions = (onComplete: (resultState: TaskResultState, mes
 //
 
 // Mark as visited when strategy step is visited
-listenKeys($permissionsDialog, ['step'], ({step}) => {
+listenKeys($permissionsDialog, ['step'], ({ step }) => {
     if (step === 'step-strategy') {
         $permissionsDialog.setKey('hasVisitedStrategyStep', true);
     }
 });
 
 // Clear replace all child permissions when applyTo is set to single
-listenKeys($permissionsDialog, ['applyTo'], ({applyTo}) => {
+listenKeys($permissionsDialog, ['applyTo'], ({ applyTo }) => {
     if (applyTo === 'single') {
         $permissionsDialog.setKey('replaceAllChildPermissions', false);
     }
 });
 
 // Prepend or remove everyone entry based on access mode
-listenKeys($permissionsDialog, ['accessMode', 'accessControlEntries'], ({accessMode, accessControlEntries}) => {
-    const everyoneEntry = new AccessControlEntry(Principal.create().setKey(RoleKeys.EVERYONE).setDisplayName('Everyone').build());
+listenKeys($permissionsDialog, ['accessMode', 'accessControlEntries'], ({ accessMode, accessControlEntries }) => {
+    const everyoneEntry = new AccessControlEntry(
+        Principal.create().setKey(RoleKeys.EVERYONE).setDisplayName('Everyone').build(),
+    );
     everyoneEntry.allow(Permission.READ);
 
-    const accessControlEntriesWithoutEveryone = accessControlEntries.filter((entry) => !entry.getPrincipalKey().equals(RoleKeys.EVERYONE));
+    const accessControlEntriesWithoutEveryone = accessControlEntries.filter(
+        (entry) => !entry.getPrincipalKey().equals(RoleKeys.EVERYONE),
+    );
 
     const finalAccessControlEntries =
-        accessMode === 'public' ? [everyoneEntry, ...accessControlEntriesWithoutEveryone] : accessControlEntriesWithoutEveryone;
+        accessMode === 'public'
+            ? [everyoneEntry, ...accessControlEntriesWithoutEveryone]
+            : accessControlEntriesWithoutEveryone;
 
     $permissionsDialog.setKey('finalAccessControlEntries', finalAccessControlEntries);
 });

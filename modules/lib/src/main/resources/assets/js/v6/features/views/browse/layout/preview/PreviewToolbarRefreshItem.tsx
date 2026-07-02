@@ -1,11 +1,11 @@
-import {IconButton, Tooltip, Toolbar} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {RefreshCw} from 'lucide-react';
-import {type ReactElement} from 'react';
-import {useI18n} from '../../../../hooks/useI18n';
-import {$isWidgetRenderable} from '../../../../store/contextWidgets.store';
+import { IconButton, Tooltip, Toolbar } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { RefreshCw } from 'lucide-react';
+import { type ReactElement } from 'react';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { $isWidgetRenderable } from '../../../../store/contextWidgets.store';
 
-export const PreviewToolbarRefreshItem = ({onRefresh}: {onRefresh?: () => void}): ReactElement => {
+export const PreviewToolbarRefreshItem = ({ onRefresh }: { onRefresh?: () => void }): ReactElement => {
     const label = useI18n('action.refresh');
     const isWidgetRenderable = useStore($isWidgetRenderable);
 

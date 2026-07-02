@@ -1,11 +1,11 @@
-import {IconButton, ListItem, Tooltip} from '@enonic/ui';
-import {useCallback, type ReactElement} from 'react';
-import {useI18n} from '../../../../hooks/useI18n';
-import {type ContentSummary} from '../../../../../../app/content/ContentSummary';
-import {PenIcon, XIcon} from 'lucide-react';
-import {EditContentEvent} from '../../../../../../app/event/EditContentEvent';
-import {type Project} from '../../../../../../app/settings/data/project/Project';
-import {type SortableGridListItemContext} from '@enonic/lib-admin-ui/form2/components';
+import { IconButton, ListItem, Tooltip } from '@enonic/ui';
+import { useCallback, type ReactElement } from 'react';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { type ContentSummary } from '../../../../../../app/content/ContentSummary';
+import { PenIcon, XIcon } from 'lucide-react';
+import { EditContentEvent } from '../../../../../../app/event/EditContentEvent';
+import { type Project } from '../../../../../../app/settings/data/project/Project';
+import { type SortableGridListItemContext } from '@enonic/lib-admin-ui/form2/components';
 
 export type SelectorSelectionItemProps = {
     /** The current active project */
@@ -31,7 +31,7 @@ export const SelectorSelectionItem = ({
     onSelectionChange,
     renderContent,
     disabled,
-    context: {item: content},
+    context: { item: content },
 }: SelectorSelectionItemProps): ReactElement => {
     // Content without a path is considered removed (deleted or archived)
     const isRemoved = !content.getPath();

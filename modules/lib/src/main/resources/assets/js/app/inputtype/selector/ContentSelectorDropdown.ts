@@ -1,24 +1,24 @@
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {type BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { type BaseSelectedOptionsView } from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {
     FilterableListBoxWrapperWithSelectedView,
-    type ListBoxInputOptions
+    type ListBoxInputOptions,
 } from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {type LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
-import {isBlank} from '../../../v6/features/utils/format/isBlank';
-import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import { Option } from '@enonic/lib-admin-ui/ui/selector/Option';
+import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
+import { type LoadedDataEvent } from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
+import { isBlank } from '../../../v6/shared/lib/format/isBlank';
+import { type ValueChangedEvent } from '@enonic/lib-admin-ui/ValueChangedEvent';
 import Q from 'q';
-import {ContentId} from '../../content/ContentId';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
-import {ContentsExistRequest} from '../../resource/ContentsExistRequest';
-import {type ContentsExistResult} from '../../resource/ContentsExistResult';
-import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
-import {ContentSummaryOptionDataHelper} from '../../util/ContentSummaryOptionDataHelper';
-import {type ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
-import {type ContentAvailabilityStatus} from './ContentAvailabilityStatus';
+import { ContentId } from '../../content/ContentId';
+import { ContentSummaryAndCompareStatus } from '../../content/ContentSummaryAndCompareStatus';
+import { ContentTreeSelectorItem } from '../../item/ContentTreeSelectorItem';
+import { ContentsExistRequest } from '../../resource/ContentsExistRequest';
+import { type ContentsExistResult } from '../../resource/ContentsExistResult';
+import { ContentSummaryAndCompareStatusFetcher } from '../../resource/ContentSummaryAndCompareStatusFetcher';
+import { ContentSummaryOptionDataHelper } from '../../util/ContentSummaryOptionDataHelper';
+import { type ContentSummaryOptionDataLoader } from '../ui/selector/ContentSummaryOptionDataLoader';
+import { type ContentAvailabilityStatus } from './ContentAvailabilityStatus';
 
 export interface ContentSelectorDropdownOptions extends ListBoxInputOptions<ContentTreeSelectorItem> {
     loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>;
@@ -31,9 +31,7 @@ export interface SelectedContentItem {
     status: ContentAvailabilityStatus;
 }
 
-export class ContentSelectorDropdown
-    extends FilterableListBoxWrapperWithSelectedView<ContentTreeSelectorItem> {
-
+export class ContentSelectorDropdown extends FilterableListBoxWrapperWithSelectedView<ContentTreeSelectorItem> {
     protected helper: ContentSummaryOptionDataHelper;
 
     declare protected options: ContentSelectorDropdownOptions;
@@ -109,36 +107,50 @@ export class ContentSelectorDropdown
 
     protected search(value?: string): void {
         this.loadMask.show();
-        this.options.loader.search(value).catch(DefaultErrorHandler.handle).finally(() => this.loadMask.hide());
+        this.options.loader
+            .search(value)
+            .catch(DefaultErrorHandler.handle)
+            .finally(() => this.loadMask.hide());
     }
 
     protected preSelectItems(): void {
-        const ids = this.getSelectedItemsHandler().filter(id => !isBlank(id)).map(id => new ContentId(id));
+        const ids = this.getSelectedItemsHandler()
+            .filter((id) => !isBlank(id))
+            .map((id) => new ContentId(id));
 
         if (ids.length > 0) {
-            this.fetchPreselectedItems(ids).then((contents) => {
-                const items = contents.map((contentItem) => this.createPreselectedItem(contentItem));
-                const options = items.map((item) => this.createSelectedOption(item));
-                this.selectedOptionsView.addOptions(options, true, -1);
-                this.checkSelectionLimitReached();
-            }).catch(DefaultErrorHandler.handle);
+            this.fetchPreselectedItems(ids)
+                .then((contents) => {
+                    const items = contents.map((contentItem) => this.createPreselectedItem(contentItem));
+                    const options = items.map((item) => this.createSelectedOption(item));
+                    this.selectedOptionsView.addOptions(options, true, -1);
+                    this.checkSelectionLimitReached();
+                })
+                .catch(DefaultErrorHandler.handle);
         }
     }
 
     private fetchPreselectedItems(ids: ContentId[]): Q.Promise<SelectedContentItem[]> {
         return new ContentSummaryAndCompareStatusFetcher().fetchAndCompareStatus(ids).then((contents) => {
-            const missingIds = ids.filter(id => !contents.some(content => content.getId() === id.toString())).map(id => id.toString());
-            const existsReq = missingIds.length > 0 ? new ContentsExistRequest(missingIds).sendAndParse() : Q.resolve({});
+            const missingIds = ids
+                .filter((id) => !contents.some((content) => content.getId() === id.toString()))
+                .map((id) => id.toString());
+            const existsReq =
+                missingIds.length > 0 ? new ContentsExistRequest(missingIds).sendAndParse() : Q.resolve({});
 
             return existsReq.then((existsMap: ContentsExistResult) => {
                 return ids.map((contentId) => {
                     const content = contents.find((c) => c.getId() === contentId.toString());
-                    const status = content ? 'OK' : existsMap.getContentsExistMap().get(contentId.toString()) ? 'NO_ACCESS' : 'NOT_FOUND';
+                    const status = content
+                        ? 'OK'
+                        : existsMap.getContentsExistMap().get(contentId.toString())
+                          ? 'NO_ACCESS'
+                          : 'NOT_FOUND';
 
                     return {
                         item: content || contentId,
                         status: status,
-                    }
+                    };
                 });
             });
         });
@@ -148,7 +160,10 @@ export class ContentSelectorDropdown
         const contentOrId = selectedContentItem.item;
         const cs = contentOrId instanceof ContentId ? ContentSummaryAndCompareStatus.fromId(contentOrId) : contentOrId;
 
-        return ContentTreeSelectorItem.create().setContent(cs).setAvailabilityStatus(selectedContentItem.status).build();
+        return ContentTreeSelectorItem.create()
+            .setContent(cs)
+            .setAvailabilityStatus(selectedContentItem.status)
+            .build();
     }
 
     protected selectLoadedFlatListItems(items: ContentTreeSelectorItem[]): void {

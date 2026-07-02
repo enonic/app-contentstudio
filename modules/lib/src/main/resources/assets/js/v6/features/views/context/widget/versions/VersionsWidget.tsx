@@ -1,15 +1,15 @@
-import {useStore} from '@nanostores/preact';
+import { useStore } from '@nanostores/preact';
 import Q from 'q';
-import {useMemo, type ReactElement} from 'react';
-import type {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
-import type {ExtensionItemViewType} from '../../../../../../app/view/context/ExtensionItemView';
-import {LegacyElement} from '../../../../shared/LegacyElement';
-import {$contextContent} from '../../../../store/context/contextContent.store';
-import {$activeWidgetId, $isContextOpen} from '../../../../store/contextWidgets.store';
-import {VERSIONS_WIDGET_KEY} from '../../../../utils/widget/versions/versions';
-import {createContentStudioDefaults} from './config/defaults';
-import {VersionsConfigProvider} from './config/VersionsConfigContext';
-import {VersionsList} from './VersionsList';
+import { useMemo, type ReactElement } from 'react';
+import type { ContentSummaryAndCompareStatus } from '../../../../../../app/content/ContentSummaryAndCompareStatus';
+import type { ExtensionItemViewType } from '../../../../../../app/view/context/ExtensionItemView';
+import { LegacyElement } from '../../../../../shared/ui/LegacyElement';
+import { $contextContent } from '../../../../store/context/contextContent.store';
+import { $activeWidgetId, $isContextOpen } from '../../../../store/contextWidgets.store';
+import { VERSIONS_WIDGET_KEY } from '../../../../../shared/lib/widget/versions/versions';
+import { createContentStudioDefaults } from './config/defaults';
+import { VersionsConfigProvider } from './config/VersionsConfigContext';
+import { VersionsList } from './VersionsList';
 
 export const VersionsWidget = (): ReactElement | null => {
     const isContextOpen = useStore($isContextOpen);
@@ -29,10 +29,7 @@ export const VersionsWidget = (): ReactElement | null => {
     );
 };
 
-
-export class VersionsWidgetElement
-    extends LegacyElement<typeof VersionsWidget>
-    implements ExtensionItemViewType {
+export class VersionsWidgetElement extends LegacyElement<typeof VersionsWidget> implements ExtensionItemViewType {
     constructor() {
         super({}, VersionsWidget);
     }

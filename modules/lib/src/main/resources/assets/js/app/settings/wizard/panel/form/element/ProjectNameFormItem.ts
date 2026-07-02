@@ -1,23 +1,23 @@
-import {type FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
-import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
-import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
-import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {isBlank} from '../../../../../../v6/features/utils/format/isBlank';
-import {ProjectFormItem, ProjectFormItemBuilder} from './ProjectFormItem';
+import { type FormInputEl } from '@enonic/lib-admin-ui/dom/FormInputEl';
+import { NamePrettyfier } from '@enonic/lib-admin-ui/NamePrettyfier';
+import { Validators } from '@enonic/lib-admin-ui/ui/form/Validators';
+import { TextInput } from '@enonic/lib-admin-ui/ui/text/TextInput';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { isBlank } from '../../../../../../v6/shared/lib/format/isBlank';
+import { ProjectFormItem, ProjectFormItemBuilder } from './ProjectFormItem';
 
-export class ProjectNameFormItem
-    extends ProjectFormItem {
-
+export class ProjectNameFormItem extends ProjectFormItem {
     private static PROJECT_NAME_CHARS: RegExp = /^([a-z0-9])([a-z0-9-])*$/;
 
     private isNameOccupied: boolean;
 
     constructor() {
-        super(new ProjectFormItemBuilder(new NameTextInput())
-            .setHelpText(i18n('settings.projects.name.helptext'))
-            .setValidator(Validators.required)
-            .setLabel(i18n('settings.field.project.name')) as ProjectFormItemBuilder);
+        super(
+            new ProjectFormItemBuilder(new NameTextInput())
+                .setHelpText(i18n('settings.projects.name.helptext'))
+                .setValidator(Validators.required)
+                .setLabel(i18n('settings.field.project.name')) as ProjectFormItemBuilder,
+        );
 
         this.setValidator(this.validateProjectName.bind(this));
         this.addClass('name-form-item');
@@ -63,7 +63,6 @@ export class ProjectNameFormItem
 }
 
 class NameTextInput extends TextInput {
-
     protected handleInput() {
         this.setValue(this.getValue(), false, true);
     }
@@ -73,12 +72,12 @@ class NameTextInput extends TextInput {
     }
 
     private prettify(value: string, userInput?: boolean): string {
-        if (userInput && value.endsWith('-')) { // allowing dash to be used
+        if (userInput && value.endsWith('-')) {
+            // allowing dash to be used
             return value;
         }
 
-        const prettified: string = NamePrettyfier.prettify(value)
-            .replace(/\./g, '');
+        const prettified: string = NamePrettyfier.prettify(value).replace(/\./g, '');
 
         return prettified;
     }

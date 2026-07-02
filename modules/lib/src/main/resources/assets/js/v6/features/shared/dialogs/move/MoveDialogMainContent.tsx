@@ -1,7 +1,7 @@
-import {Button, Dialog} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {type ReactElement} from 'react';
-import {useI18n} from '../../../hooks/useI18n';
+import { Button, Dialog } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { type ReactElement } from 'react';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import {
     $moveDialog,
     $moveItemsCount,
@@ -10,7 +10,7 @@ import {
     setMoveDestinationItem,
     setMoveDestinationId,
 } from '../../../store/dialogs/moveDialog.store';
-import {PathSelector} from '../../selectors/path/PathSelector';
+import { PathSelector } from '../../selectors/path/PathSelector';
 
 type MoveDialogMainContentProps = {
     onMove: () => void;
@@ -23,7 +23,9 @@ export const MoveDialogMainContent = ({
     onMove,
     'data-component': componentName = MOVE_DIALOG_MAIN_CONTENT_NAME,
 }: MoveDialogMainContentProps): ReactElement => {
-    const {destinationId, excludedIds, submitting} = useStore($moveDialog, {keys: ['destinationId', 'excludedIds', 'submitting']});
+    const { destinationId, excludedIds, submitting } = useStore($moveDialog, {
+        keys: ['destinationId', 'excludedIds', 'submitting'],
+    });
     const ready = useStore($isMoveDialogReady);
     const total = useStore($moveItemsCount);
     const isMultiple = total > 1;
@@ -46,9 +48,9 @@ export const MoveDialogMainContent = ({
             data-component={componentName}
         >
             <Dialog.DefaultHeader title={title} description={description} withClose />
-            <Dialog.Body className='overflow-y-visible'>
-                <div className='flex flex-col gap-2.5'>
-                    <span className='text-md font-semibold'>{destinationLabel}</span>
+            <Dialog.Body className="overflow-y-visible">
+                <div className="flex flex-col gap-2.5">
+                    <span className="text-md font-semibold">{destinationLabel}</span>
                     <PathSelector
                         label={destinationLabel}
                         selectedId={selectedId}
@@ -63,13 +65,7 @@ export const MoveDialogMainContent = ({
                 </div>
             </Dialog.Body>
             <Dialog.Footer>
-                <Button
-                    variant="solid"
-                    size="lg"
-                    label={moveButtonLabel}
-                    disabled={!ready}
-                    onClick={onMove}
-                />
+                <Button variant="solid" size="lg" label={moveButtonLabel} disabled={!ready} onClick={onMove} />
             </Dialog.Footer>
         </Dialog.Content>
     );

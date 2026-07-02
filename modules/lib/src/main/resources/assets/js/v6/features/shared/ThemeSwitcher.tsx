@@ -1,9 +1,9 @@
-import {Button, cn, Tooltip} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {Moon, Sun, SunMoon} from 'lucide-react';
-import type {ReactElement} from 'react';
-import {useI18n} from '../hooks/useI18n';
-import {$app, cycleTheme, type Theme} from '../store/app.store';
+import { Button, cn, Tooltip } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { Moon, Sun, SunMoon } from 'lucide-react';
+import type { ReactElement } from 'react';
+import { useI18n } from '../../shared/lib/hooks/useI18n';
+import { $app, cycleTheme, type Theme } from '../store/app.store';
 
 /**
  * Returns the appropriate ARIA label for the next theme in the cycle.
@@ -50,7 +50,7 @@ function getThemeTitle(currentTheme: Theme, i18n: typeof useI18n): string {
  * <ThemeSwitcher />
  */
 export const ThemeSwitcher = (): ReactElement => {
-    const {theme} = useStore($app);
+    const { theme } = useStore($app);
 
     return (
         <Tooltip delay={300} value={getThemeTitle(theme, useI18n)} asChild>

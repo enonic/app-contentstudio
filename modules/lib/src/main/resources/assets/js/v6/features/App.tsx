@@ -1,13 +1,14 @@
-import {Body} from '@enonic/lib-admin-ui/dom/Body';
-import {useStore} from '@nanostores/preact';
-import type {ReactElement} from 'react';
-import {start as startKeyBindingsGuard} from './services/keyBindingsGuard.service';
-import {start as startSocketService} from './services/socket.service';
-import {LegacyElement} from './shared/LegacyElement';
-import {$isWizard} from './store/app.store';
-import {BrowsePage} from './views/browse/BrowsePage';
-import {WizardPage} from './views/wizard/WizardPage';
-
+import { Body } from '@enonic/lib-admin-ui/dom/Body';
+import { useStore } from '@nanostores/preact';
+import type { ReactElement } from 'react';
+import { start as startKeyBindingsGuard } from './services/keyBindingsGuard.service';
+import { startSocketService } from '../shared/socket';
+import { setActiveProjectResolver } from '../shared/lib/url/cms';
+import { LegacyElement } from '../shared/ui/LegacyElement';
+import { $isWizard } from './store/app.store';
+import { $projects } from './store/projects.store';
+import { BrowsePage } from './views/browse/BrowsePage';
+import { WizardPage } from './views/wizard/WizardPage';
 
 /**
  * AppShell component that renders the whole application layout.
@@ -15,7 +16,6 @@ import {WizardPage} from './views/wizard/WizardPage';
  * are portaled correctly and don't interfere with app layout.
  */
 const App = (): ReactElement => {
-
     const isWizard = useStore($isWizard);
 
     return isWizard ? <WizardPage /> : <BrowsePage />;
@@ -32,6 +32,7 @@ export class AppElement extends LegacyElement<typeof App> {
 
     static initialize(): void {
         if (!AppElement.INSTANCE) {
+            setActiveProjectResolver(() => $projects.get().activeProjectId);
             startSocketService();
             startKeyBindingsGuard();
             AppElement.INSTANCE = new AppElement();

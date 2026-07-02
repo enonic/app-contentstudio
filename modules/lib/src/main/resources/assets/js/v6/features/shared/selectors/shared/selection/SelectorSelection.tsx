@@ -1,9 +1,9 @@
-import {SortableGridList, type SortableGridListItemContext} from '@enonic/lib-admin-ui/form2/components';
-import {useCallback, useEffect, useRef, useState, type ReactElement} from 'react';
-import type {MovedContentItem} from '../../../../../../app/browse/MovedContentItem';
-import {ContentSummary, ContentSummaryBuilder} from '../../../../../../app/content/ContentSummary';
-import type {ContentServerChangeItem} from '../../../../../../app/event/ContentServerChangeItem';
-import {fetchContentByIds} from '../../../../api/content-fetcher';
+import { SortableGridList, type SortableGridListItemContext } from '@enonic/lib-admin-ui/form2/components';
+import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
+import type { MovedContentItem } from '../../../../../../app/browse/MovedContentItem';
+import { ContentSummary, ContentSummaryBuilder } from '../../../../../../app/content/ContentSummary';
+import type { ContentServerChangeItem } from '../../../../../../app/event/ContentServerChangeItem';
+import { fetchContentByIds } from '../../../../api/content-fetcher';
 import {
     $contentArchived,
     $contentDeleted,
@@ -14,7 +14,7 @@ import {
     $contentUpdated,
     type ContentEvent,
     type ContentRenamedData,
-} from '../../../../store/socket.store';
+} from '../../../../../shared/socket/socket.store';
 
 export type SelectorSelectionRenderItem = (context: SortableGridListItemContext<ContentSummary>) => ReactElement;
 
@@ -79,7 +79,7 @@ export const SelectorSelection = ({
 
             onSelectionChange(newContents.map((content) => content.getId()));
         },
-        [onSelectionChange]
+        [onSelectionChange],
     );
     const handleUpdateContents = useCallback(
         (event: ContentEvent | null) => {
@@ -91,33 +91,35 @@ export const SelectorSelection = ({
             setContents(newContents);
             contentsRef.current = newContents;
         },
-        [setContents]
+        [setContents],
     );
     const handleRemoveContents = useCallback(
         (event: ContentEvent<ContentServerChangeItem[]> | null) => {
             if (!event?.data) return;
             const removedContentIds = new Set(event.data.map((item) => item.getId()));
             const newContents = contentsRef.current.map((content) =>
-                removedContentIds.has(content.getId()) ? new ContentSummaryBuilder().setId(content.getId()).build() : content
+                removedContentIds.has(content.getId())
+                    ? new ContentSummaryBuilder().setId(content.getId()).build()
+                    : content,
             );
             setContents(newContents);
             contentsRef.current = newContents;
         },
-        [setContents]
+        [setContents],
     );
     const handleMoveContents = useCallback(
         (event: ContentEvent<MovedContentItem[]> | null) => {
             if (!event?.data) return;
-            handleUpdateContents({...event, data: event.data.map((item) => item.item.getContentSummary())});
+            handleUpdateContents({ ...event, data: event.data.map((item) => item.item.getContentSummary()) });
         },
-        [handleUpdateContents]
+        [handleUpdateContents],
     );
     const handleRenameContents = useCallback(
         (event: ContentEvent<ContentRenamedData> | null) => {
             if (!event?.data) return;
-            handleUpdateContents({...event, data: event.data.items});
+            handleUpdateContents({ ...event, data: event.data.items });
         },
-        [handleUpdateContents]
+        [handleUpdateContents],
     );
 
     // Handle events

@@ -1,43 +1,45 @@
 import Q from 'q';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {isBlank} from '../../v6/features/utils/format/isBlank';
-import {Body} from '@enonic/lib-admin-ui/dom/Body';
-import {KeyBindings} from '@enonic/lib-admin-ui/ui/KeyBindings';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {MostPopularItemsBlock} from './MostPopularItemsBlock';
-import {RecentItemsBlock} from './RecentItemsBlock';
-import {type NewContentDialogItemSelectedEvent} from './NewContentDialogItemSelectedEvent';
-import {NewMediaUploadEvent} from './NewMediaUploadEvent';
-import {NewContentEvent} from './NewContentEvent';
-import {FilterableItemsList} from './FilterableItemsList';
-import {type AggregateContentTypesResult} from '../resource/AggregateContentTypesResult';
-import {FileInput} from './FileInput';
-import {type Content} from '../content/Content';
-import {NewContentUploader} from './NewContentUploader';
-import {type UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
-import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
-import {type ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
-import {type UploadStartedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadStartedEvent';
-import {DefaultModalDialogHeader, ModalDialog, type ModalDialogConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
-import {DropzoneContainer} from '@enonic/lib-admin-ui/ui/uploader/UploaderEl';
-import {SectionEl} from '@enonic/lib-admin-ui/dom/SectionEl';
-import {AsideEl} from '@enonic/lib-admin-ui/dom/AsideEl';
-import {FormEl} from '@enonic/lib-admin-ui/dom/FormEl';
-import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
-import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
-import {ContentPath} from '../content/ContentPath';
-import {type ContentSummary} from '../content/ContentSummary';
-import {ContentTypesHelper, type GetTypesParams} from '../util/ContentTypesHelper';
-import {type Project} from '../settings/data/project/Project';
+import { Element } from '@enonic/lib-admin-ui/dom/Element';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { StringHelper } from '@enonic/lib-admin-ui/util/StringHelper';
+import { isBlank } from '../../v6/shared/lib/format/isBlank';
+import { Body } from '@enonic/lib-admin-ui/dom/Body';
+import { KeyBindings } from '@enonic/lib-admin-ui/ui/KeyBindings';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
+import { MostPopularItemsBlock } from './MostPopularItemsBlock';
+import { RecentItemsBlock } from './RecentItemsBlock';
+import { type NewContentDialogItemSelectedEvent } from './NewContentDialogItemSelectedEvent';
+import { NewMediaUploadEvent } from './NewMediaUploadEvent';
+import { NewContentEvent } from './NewContentEvent';
+import { FilterableItemsList } from './FilterableItemsList';
+import { type AggregateContentTypesResult } from '../resource/AggregateContentTypesResult';
+import { FileInput } from './FileInput';
+import { type Content } from '../content/Content';
+import { NewContentUploader } from './NewContentUploader';
+import { type UploadItem } from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
+import { KeyHelper } from '@enonic/lib-admin-ui/ui/KeyHelper';
+import { type ContentTypeSummary } from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import { type UploadStartedEvent } from '@enonic/lib-admin-ui/ui/uploader/UploadStartedEvent';
+import {
+    DefaultModalDialogHeader,
+    ModalDialog,
+    type ModalDialogConfig,
+} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
+import { DropzoneContainer } from '@enonic/lib-admin-ui/ui/uploader/UploaderEl';
+import { SectionEl } from '@enonic/lib-admin-ui/dom/SectionEl';
+import { AsideEl } from '@enonic/lib-admin-ui/dom/AsideEl';
+import { FormEl } from '@enonic/lib-admin-ui/dom/FormEl';
+import { KeyBinding } from '@enonic/lib-admin-ui/ui/KeyBinding';
+import { PEl } from '@enonic/lib-admin-ui/dom/PEl';
+import { ContentPath } from '../content/ContentPath';
+import { type ContentSummary } from '../content/ContentSummary';
+import { ContentTypesHelper, type GetTypesParams } from '../util/ContentTypesHelper';
+import { type Project } from '../settings/data/project/Project';
 
 type TypesAndAggregations = [ContentTypeSummary[], AggregateContentTypesResult];
 
-export class NewContentDialog
-    extends ModalDialog {
-
+export class NewContentDialog extends ModalDialog {
     private parentContent?: ContentSummary;
 
     private fileInput: FileInput;
@@ -69,7 +71,7 @@ export class NewContentDialog
     constructor() {
         super({
             title: i18n('dialog.new'),
-            class: 'new-content-dialog'
+            class: 'new-content-dialog',
         } as ModalDialogConfig);
     }
 
@@ -137,7 +139,7 @@ export class NewContentDialog
         this.dropzoneContainer.hide();
 
         this.newContentUploader = new NewContentUploader()
-            .setUploaderParams({parent: ContentPath.getRoot().toString()})
+            .setUploaderParams({ parent: ContentPath.getRoot().toString() })
             .setDropzoneId(this.dropzoneContainer.getDropzone().getId());
     }
 
@@ -199,7 +201,7 @@ export class NewContentDialog
         this.parentContent = parent;
 
         const params: object = {
-            parent: parent ? parent.getPath().toString() : ContentPath.getRoot().toString()
+            parent: parent ? parent.getPath().toString() : ContentPath.getRoot().toString(),
         };
 
         this.newContentUploader.setUploaderParams(params);
@@ -207,7 +209,9 @@ export class NewContentDialog
         return this;
     }
 
-    setTypeSelectedHandler(handler: (contentType: ContentTypeSummary, parentContent: ContentSummary) => void): NewContentDialog {
+    setTypeSelectedHandler(
+        handler: (contentType: ContentTypeSummary, parentContent: ContentSummary) => void,
+    ): NewContentDialog {
         this.typeSelectedHandler = handler;
 
         return this;
@@ -217,7 +221,6 @@ export class NewContentDialog
         this.contentTypes = types;
         return this;
     }
-
 
     setUploadHandler(handler: (items: UploadItem<Content>[]) => void): NewContentDialog {
         this.uploadHandler = handler;
@@ -255,13 +258,18 @@ export class NewContentDialog
     private bindKeys(): void {
         const keyBindings = [
             new KeyBinding('up', () => {
-                FormEl.moveFocusToPrevFocusable(Element.fromHtmlElement(document.activeElement as HTMLElement),
-                    'input,li');
+                FormEl.moveFocusToPrevFocusable(
+                    Element.fromHtmlElement(document.activeElement as HTMLElement),
+                    'input,li',
+                );
             }).setGlobal(true),
             new KeyBinding('down', () => {
-                FormEl.moveFocusToNextFocusable(Element.fromHtmlElement(document.activeElement as HTMLElement),
-                    'input,li');
-            }).setGlobal(true)];
+                FormEl.moveFocusToNextFocusable(
+                    Element.fromHtmlElement(document.activeElement as HTMLElement),
+                    'input,li',
+                );
+            }).setGlobal(true),
+        ];
 
         KeyBindings.get().bindKeys(keyBindings);
     }
@@ -298,19 +306,24 @@ export class NewContentDialog
     private updateContentTypesLists() {
         this.showLoadMask();
 
-        this.loadTypesWithAggregations().then((result: TypesAndAggregations) => {
-            this.setContentTypes(result[0]);
-            this.updateLists(result[0], result[1]);
-            this.updateUploaderState();
-        }).catch((DefaultErrorHandler.handle)).finally(() => this.handleTypesLoaded());
+        this.loadTypesWithAggregations()
+            .then((result: TypesAndAggregations) => {
+                this.setContentTypes(result[0]);
+                this.updateLists(result[0], result[1]);
+                this.updateUploaderState();
+            })
+            .catch(DefaultErrorHandler.handle)
+            .finally(() => this.handleTypesLoaded());
     }
 
     private loadTypesWithAggregations(): Q.Promise<TypesAndAggregations> {
         return Q.all([
-                this.loadContentTypes(),
-                ContentTypesHelper.getAggregatedTypesByContent(this.parentContent, this.project)
-            ])
-            .spread((contentTypes: ContentTypeSummary[], aggregations: AggregateContentTypesResult) => [contentTypes, aggregations]);
+            this.loadContentTypes(),
+            ContentTypesHelper.getAggregatedTypesByContent(this.parentContent, this.project),
+        ]).spread((contentTypes: ContentTypeSummary[], aggregations: AggregateContentTypesResult) => [
+            contentTypes,
+            aggregations,
+        ]);
     }
 
     private updateUploaderState(): void {
@@ -339,7 +352,7 @@ export class NewContentDialog
 
         const params: GetTypesParams = {
             contentId: this.parentContent?.getContentId(),
-            project: this.project
+            project: this.project,
         };
 
         return ContentTypesHelper.getAvailableContentTypes(params);
@@ -368,7 +381,9 @@ export class NewContentDialog
         this.allContentTypes.createItems(filteredContentTypes);
         this.allContentTypes.setVisible(this.allContentTypes.getItemCount() > 0);
 
-        const popularItemsCount = this.mostPopularContentTypes.getItemsList().createItems(filteredContentTypes, aggregations);
+        const popularItemsCount = this.mostPopularContentTypes
+            .getItemsList()
+            .createItems(filteredContentTypes, aggregations);
         this.mostPopularContentTypes.setVisible(popularItemsCount > 0);
 
         const recentItemsCount = this.recentContentTypes.getItemsList().createItems(this.allContentTypes.getItems());
@@ -393,7 +408,9 @@ export class NewContentDialog
         this.toggleClass('empty', isEmpty);
 
         if (isEmpty) {
-            const emptyViewText = this.isOnlyMediaAllowed() ? i18n('dialog.new.onlyMediaAvailable') : i18n('dialog.new.createNotAvailable');
+            const emptyViewText = this.isOnlyMediaAllowed()
+                ? i18n('dialog.new.onlyMediaAvailable')
+                : i18n('dialog.new.createNotAvailable');
             if (this.emptyView) {
                 this.emptyView.setHtml(emptyViewText);
             } else {
@@ -421,9 +438,7 @@ export class NewContentDialog
     }
 }
 
-export class NewContentDialogHeader
-    extends DefaultModalDialogHeader {
-
+export class NewContentDialogHeader extends DefaultModalDialogHeader {
     private readonly pathEl: PEl;
 
     private readonly titleWrapper: DivEl;

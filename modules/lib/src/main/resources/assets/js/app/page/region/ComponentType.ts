@@ -1,8 +1,7 @@
-import {capitalize} from '../../../v6/features/utils/format/capitalize';
-import {ComponentName} from './ComponentName';
+import { capitalize } from '../../../v6/shared/lib/format/capitalize';
+import { ComponentName } from './ComponentName';
 
 export abstract class ComponentType {
-
     private static shortNameToInstance: Record<string, ComponentType> = {};
 
     private shortName: string;

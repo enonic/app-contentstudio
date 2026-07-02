@@ -1,6 +1,6 @@
-import {describe, it, expect, beforeEach} from 'vitest';
-import {PublishStatus} from '../../../app/publish/PublishStatus';
-import type {ContentSummary} from '../../../app/content/ContentSummary';
+import { describe, it, expect, beforeEach } from 'vitest';
+import { PublishStatus } from '../../../app/publish/PublishStatus';
+import type { ContentSummary } from '../../../app/content/ContentSummary';
 import {
     $treeState,
     $flatNodes,
@@ -31,12 +31,12 @@ import {
     getTreeDescendantIds,
     type ContentTreeNodeData,
 } from './tree-list.store';
-import {clearAllContentCaches, setContent, setContents} from './content.store';
-import {$activeProject} from './activeProject.store';
-import {addUpload, clearUploads} from './uploads.store';
-import type {Project} from '../../../app/settings/data/project/Project';
-import {emitContentCreated, emitContentDeleted, emitContentArchived} from './socket.store';
-import type {ContentServerChangeItem} from '../../../app/event/ContentServerChangeItem';
+import { clearAllContentCaches, setContent, setContents } from './content.store';
+import { $activeProject } from './activeProject.store';
+import { addUpload, clearUploads } from './uploads.store';
+import type { Project } from '../../../app/settings/data/project/Project';
+import { emitContentCreated, emitContentDeleted, emitContentArchived } from '../../shared/socket/socket.store';
+import type { ContentServerChangeItem } from '../../../app/event/ContentServerChangeItem';
 
 // Mock ContentTreeNodeData
 function createNodeData(id: string, displayName?: string): ContentTreeNodeData {
@@ -55,7 +55,7 @@ function createNodeData(id: string, displayName?: string): ContentTreeNodeData {
 function createMockContent(
     id: string,
     displayName?: string,
-    publishFromTime: Date | null = new Date()
+    publishFromTime: Date | null = new Date(),
 ): ContentSummary {
     const mockName = {
         isUnnamed: () => false,
@@ -95,7 +95,7 @@ function createMockContentWithParent(
     id: string,
     parentPath: string,
     hasChildrenValue = false,
-    displayName?: string
+    displayName?: string,
 ): ContentSummary {
     const mockName = {
         isUnnamed: () => false,
@@ -111,15 +111,15 @@ function createMockContentWithParent(
                 ? {
                       toString: () => '/',
                       isRoot: () => true,
-                      equals: (other: {toString: () => string}) => other.toString() === '/',
+                      equals: (other: { toString: () => string }) => other.toString() === '/',
                   }
                 : {
                       toString: () => parentPath,
                       isRoot: () => false,
-                      equals: (other: {toString: () => string}) => other.toString() === parentPath,
+                      equals: (other: { toString: () => string }) => other.toString() === parentPath,
                   },
         isRoot: () => false,
-        equals: (other: {toString: () => string}) => pathStr === other.toString(),
+        equals: (other: { toString: () => string }) => pathStr === other.toString(),
         toString: () => pathStr,
     };
 
@@ -156,7 +156,7 @@ function createMockChangeItem(id: string): ContentServerChangeItem {
 
 describe('tree-list.store', () => {
     beforeEach(() => {
-        $activeProject.set({getName: () => 'default'} as unknown as Project);
+        $activeProject.set({ getName: () => 'default' } as unknown as Project);
         resetTree();
         clearAllContentCaches();
         clearUploads();
@@ -164,14 +164,14 @@ describe('tree-list.store', () => {
 
     describe('addTreeNode', () => {
         it('adds a single node', () => {
-            addTreeNode({id: '1', data: createNodeData('1')});
+            addTreeNode({ id: '1', data: createNodeData('1') });
 
             expect(hasTreeNode('1')).toBe(true);
         });
 
         it('adds node with parent', () => {
-            addTreeNode({id: '1', data: createNodeData('1'), childIds: ['1-1']});
-            addTreeNode({id: '1-1', data: createNodeData('1-1'), parentId: '1'});
+            addTreeNode({ id: '1', data: createNodeData('1'), childIds: ['1-1'] });
+            addTreeNode({ id: '1-1', data: createNodeData('1-1'), parentId: '1' });
 
             const child = getTreeNode('1-1');
             expect(child?.parentId).toBe('1');
@@ -181,9 +181,9 @@ describe('tree-list.store', () => {
     describe('addTreeNodes', () => {
         it('adds multiple nodes', () => {
             addTreeNodes([
-                {id: '1', data: createNodeData('1')},
-                {id: '2', data: createNodeData('2')},
-                {id: '3', data: createNodeData('3')},
+                { id: '1', data: createNodeData('1') },
+                { id: '2', data: createNodeData('2') },
+                { id: '3', data: createNodeData('3') },
             ]);
 
             expect(hasTreeNode('1')).toBe(true);
@@ -199,7 +199,7 @@ describe('tree-list.store', () => {
 
     describe('removeTreeNode', () => {
         it('removes node from tree', () => {
-            addTreeNode({id: '1', data: createNodeData('1')});
+            addTreeNode({ id: '1', data: createNodeData('1') });
 
             removeTreeNode('1');
 
@@ -208,8 +208,8 @@ describe('tree-list.store', () => {
 
         it('removes descendants by default', () => {
             addTreeNodes([
-                {id: '1', data: createNodeData('1'), childIds: ['1-1']},
-                {id: '1-1', data: createNodeData('1-1'), parentId: '1'},
+                { id: '1', data: createNodeData('1'), childIds: ['1-1'] },
+                { id: '1-1', data: createNodeData('1-1'), parentId: '1' },
             ]);
 
             removeTreeNode('1');
@@ -222,9 +222,9 @@ describe('tree-list.store', () => {
     describe('removeTreeNodes', () => {
         it('removes multiple nodes', () => {
             addTreeNodes([
-                {id: '1', data: createNodeData('1')},
-                {id: '2', data: createNodeData('2')},
-                {id: '3', data: createNodeData('3')},
+                { id: '1', data: createNodeData('1') },
+                { id: '2', data: createNodeData('2') },
+                { id: '3', data: createNodeData('3') },
             ]);
 
             removeTreeNodes(['1', '3']);
@@ -238,9 +238,9 @@ describe('tree-list.store', () => {
     describe('setTreeChildren', () => {
         it('sets children for parent node', () => {
             addTreeNodes([
-                {id: '1', data: createNodeData('1')},
-                {id: '1-1', data: createNodeData('1-1')},
-                {id: '1-2', data: createNodeData('1-2')},
+                { id: '1', data: createNodeData('1') },
+                { id: '1-1', data: createNodeData('1-1') },
+                { id: '1-2', data: createNodeData('1-2') },
             ]);
 
             setTreeChildren('1', ['1-1', '1-2']);
@@ -251,8 +251,8 @@ describe('tree-list.store', () => {
 
         it('sets root children with null parent', () => {
             addTreeNodes([
-                {id: '1', data: createNodeData('1')},
-                {id: '2', data: createNodeData('2')},
+                { id: '1', data: createNodeData('1') },
+                { id: '2', data: createNodeData('2') },
             ]);
 
             setTreeChildren(null, ['1', '2']);
@@ -264,9 +264,9 @@ describe('tree-list.store', () => {
     describe('appendTreeChildren', () => {
         it('appends children to existing', () => {
             addTreeNodes([
-                {id: '1', data: createNodeData('1'), childIds: ['1-1']},
-                {id: '1-1', data: createNodeData('1-1'), parentId: '1'},
-                {id: '1-2', data: createNodeData('1-2')},
+                { id: '1', data: createNodeData('1'), childIds: ['1-1'] },
+                { id: '1-1', data: createNodeData('1-1'), parentId: '1' },
+                { id: '1-2', data: createNodeData('1-2') },
             ]);
 
             appendTreeChildren('1', ['1-2']);
@@ -279,8 +279,8 @@ describe('tree-list.store', () => {
     describe('expand/collapse operations', () => {
         beforeEach(() => {
             addTreeNodes([
-                {id: '1', data: createNodeData('1'), hasChildren: true, childIds: ['1-1']},
-                {id: '1-1', data: createNodeData('1-1'), parentId: '1'},
+                { id: '1', data: createNodeData('1'), hasChildren: true, childIds: ['1-1'] },
+                { id: '1-1', data: createNodeData('1-1'), parentId: '1' },
             ]);
             setTreeRootIds(['1']);
         });
@@ -305,7 +305,7 @@ describe('tree-list.store', () => {
         });
 
         it('expandAllNodes expands all nodes with children', () => {
-            addTreeNode({id: '1-1-1', data: createNodeData('1-1-1'), parentId: '1-1', hasChildren: true});
+            addTreeNode({ id: '1-1-1', data: createNodeData('1-1-1'), parentId: '1-1', hasChildren: true });
 
             expandAllNodes();
 
@@ -323,8 +323,14 @@ describe('tree-list.store', () => {
 
         it('expandPathToNode expands ancestors', () => {
             addTreeNodes([
-                {id: '1-1-1', data: createNodeData('1-1-1'), parentId: '1-1', hasChildren: true, childIds: ['1-1-1-1']},
-                {id: '1-1-1-1', data: createNodeData('1-1-1-1'), parentId: '1-1-1'},
+                {
+                    id: '1-1-1',
+                    data: createNodeData('1-1-1'),
+                    parentId: '1-1',
+                    hasChildren: true,
+                    childIds: ['1-1-1-1'],
+                },
+                { id: '1-1-1-1', data: createNodeData('1-1-1-1'), parentId: '1-1-1' },
             ]);
 
             expandPathToNode('1-1-1-1');
@@ -353,8 +359,8 @@ describe('tree-list.store', () => {
     describe('resetTree', () => {
         it('clears all tree state', () => {
             addTreeNodes([
-                {id: '1', data: createNodeData('1')},
-                {id: '2', data: createNodeData('2')},
+                { id: '1', data: createNodeData('1') },
+                { id: '2', data: createNodeData('2') },
             ]);
             expandNode('1');
 
@@ -368,7 +374,7 @@ describe('tree-list.store', () => {
 
     describe('setNodeTotalChildren', () => {
         it('sets totalChildren for pagination', () => {
-            addTreeNode({id: '1', data: createNodeData('1')});
+            addTreeNode({ id: '1', data: createNodeData('1') });
 
             setNodeTotalChildren('1', 100);
 
@@ -379,7 +385,7 @@ describe('tree-list.store', () => {
     describe('selectors', () => {
         describe('getTreeNode', () => {
             it('returns node by ID', () => {
-                addTreeNode({id: '1', data: createNodeData('1', 'Test')});
+                addTreeNode({ id: '1', data: createNodeData('1', 'Test') });
 
                 const node = getTreeNode('1');
 
@@ -393,13 +399,13 @@ describe('tree-list.store', () => {
 
         describe('nodeNeedsChildrenLoad', () => {
             it('returns true when hasChildren but no childIds', () => {
-                addTreeNode({id: '1', data: createNodeData('1'), hasChildren: true});
+                addTreeNode({ id: '1', data: createNodeData('1'), hasChildren: true });
 
                 expect(nodeNeedsChildrenLoad('1')).toBe(true);
             });
 
             it('returns false when already loading', () => {
-                addTreeNode({id: '1', data: createNodeData('1'), hasChildren: true});
+                addTreeNode({ id: '1', data: createNodeData('1'), hasChildren: true });
                 setNodeLoading('1', true);
 
                 expect(nodeNeedsChildrenLoad('1')).toBe(false);
@@ -408,13 +414,13 @@ describe('tree-list.store', () => {
 
         describe('nodeHasMoreChildren', () => {
             it('returns true when loadedCount < totalChildren', () => {
-                addTreeNode({id: '1', data: createNodeData('1'), childIds: ['1-1'], totalChildren: 10});
+                addTreeNode({ id: '1', data: createNodeData('1'), childIds: ['1-1'], totalChildren: 10 });
 
                 expect(nodeHasMoreChildren('1')).toBe(true);
             });
 
             it('returns false when all loaded', () => {
-                addTreeNode({id: '1', data: createNodeData('1'), childIds: ['1-1', '1-2'], totalChildren: 2});
+                addTreeNode({ id: '1', data: createNodeData('1'), childIds: ['1-1', '1-2'], totalChildren: 2 });
 
                 expect(nodeHasMoreChildren('1')).toBe(false);
             });
@@ -423,9 +429,9 @@ describe('tree-list.store', () => {
         describe('getTreeDescendantIds', () => {
             it('returns all descendant IDs', () => {
                 addTreeNodes([
-                    {id: '1', data: createNodeData('1'), childIds: ['1-1', '1-2']},
-                    {id: '1-1', data: createNodeData('1-1'), parentId: '1'},
-                    {id: '1-2', data: createNodeData('1-2'), parentId: '1'},
+                    { id: '1', data: createNodeData('1'), childIds: ['1-1', '1-2'] },
+                    { id: '1-1', data: createNodeData('1-1'), parentId: '1' },
+                    { id: '1-2', data: createNodeData('1-2'), parentId: '1' },
                 ]);
 
                 const descendants = getTreeDescendantIds('1');
@@ -438,8 +444,8 @@ describe('tree-list.store', () => {
     describe('$flatNodes computed', () => {
         it('returns flattened tree for rendering', () => {
             addTreeNodes([
-                {id: '1', data: createNodeData('1'), hasChildren: true, childIds: ['1-1']},
-                {id: '1-1', data: createNodeData('1-1'), parentId: '1'},
+                { id: '1', data: createNodeData('1'), hasChildren: true, childIds: ['1-1'] },
+                { id: '1-1', data: createNodeData('1-1'), parentId: '1' },
             ]);
             setTreeRootIds(['1']);
             expandNode('1');
@@ -455,8 +461,8 @@ describe('tree-list.store', () => {
 
         it('hides children of collapsed nodes', () => {
             addTreeNodes([
-                {id: '1', data: createNodeData('1'), hasChildren: true, childIds: ['1-1']},
-                {id: '1-1', data: createNodeData('1-1'), parentId: '1'},
+                { id: '1', data: createNodeData('1'), hasChildren: true, childIds: ['1-1'] },
+                { id: '1-1', data: createNodeData('1-1'), parentId: '1' },
             ]);
             setTreeRootIds(['1']);
             // Not expanded
@@ -470,7 +476,7 @@ describe('tree-list.store', () => {
 
     describe('$mergedFlatNodes computed', () => {
         it('includes content data from cache', () => {
-            addTreeNodes([{id: '1', data: createNodeData('1', 'Tree Name')}]);
+            addTreeNodes([{ id: '1', data: createNodeData('1', 'Tree Name') }]);
             setTreeRootIds(['1']);
             setContent(createMockContent('1', 'Cache Name'));
 
@@ -482,7 +488,7 @@ describe('tree-list.store', () => {
         });
 
         it('derives publish status from content publish times', () => {
-            addTreeNodes([{id: '1', data: createNodeData('1', 'Tree Name')}]);
+            addTreeNodes([{ id: '1', data: createNodeData('1', 'Tree Name') }]);
             setTreeRootIds(['1']);
             setContent(createMockContent('1', 'Cache Name', new Date()));
 
@@ -495,7 +501,7 @@ describe('tree-list.store', () => {
         });
 
         it('injects uploads at parent position', () => {
-            addTreeNodes([{id: '1', data: createNodeData('1'), hasChildren: true}]);
+            addTreeNodes([{ id: '1', data: createNodeData('1'), hasChildren: true }]);
             setTreeRootIds(['1']);
             expandNode('1');
             addUpload('upload-1', 'file.png', '1');
@@ -507,7 +513,7 @@ describe('tree-list.store', () => {
         });
 
         it('adds root uploads at the beginning', () => {
-            addTreeNodes([{id: '1', data: createNodeData('1')}]);
+            addTreeNodes([{ id: '1', data: createNodeData('1') }]);
             setTreeRootIds(['1']);
             addUpload('upload-1', 'file.png', null);
 
@@ -518,7 +524,7 @@ describe('tree-list.store', () => {
         });
 
         it('does not show child uploads when parent collapsed', () => {
-            addTreeNodes([{id: '1', data: createNodeData('1'), hasChildren: true}]);
+            addTreeNodes([{ id: '1', data: createNodeData('1'), hasChildren: true }]);
             setTreeRootIds(['1']);
             // Not expanded
             addUpload('upload-1', 'file.png', '1');
@@ -536,7 +542,7 @@ describe('tree-list.store', () => {
                 // Setup: parent node in tree with path in cache
                 const parentContent = createMockContentWithParent('parent', '/');
                 setContents([parentContent]);
-                addTreeNode({id: 'parent', data: createNodeData('parent'), hasChildren: true, childIds: ['child1']});
+                addTreeNode({ id: 'parent', data: createNodeData('parent'), hasChildren: true, childIds: ['child1'] });
                 setTreeRootIds(['parent']);
                 expandNode('parent');
 
@@ -554,7 +560,7 @@ describe('tree-list.store', () => {
                 // Setup: parent node in tree with path in cache
                 const parentContent = createMockContentWithParent('parent', '/');
                 setContents([parentContent]);
-                addTreeNode({id: 'parent', data: createNodeData('parent'), hasChildren: true});
+                addTreeNode({ id: 'parent', data: createNodeData('parent'), hasChildren: true });
                 setTreeRootIds(['parent']);
                 expandNode('parent');
 
@@ -582,7 +588,7 @@ describe('tree-list.store', () => {
 
             it('does not add child as root when root is loaded but parent is not yet in tree', () => {
                 // Setup: root is already loaded
-                addTreeNode({id: 'existing-root', data: createNodeData('existing-root')});
+                addTreeNode({ id: 'existing-root', data: createNodeData('existing-root') });
                 setTreeRootIds(['existing-root']);
 
                 // Parent is known in path cache, but not yet present in the tree
@@ -600,7 +606,7 @@ describe('tree-list.store', () => {
 
             it('adds root-level content when root is loaded', () => {
                 // Setup: tree with existing root items
-                addTreeNode({id: '1', data: createNodeData('1')});
+                addTreeNode({ id: '1', data: createNodeData('1') });
                 setTreeRootIds(['1']);
 
                 // Emit: root-level content created (no parent or root parent)
@@ -648,7 +654,7 @@ describe('tree-list.store', () => {
                 // Setup: parent with hasChildren=false
                 const parentContent = createMockContentWithParent('parent', '/');
                 setContents([parentContent]);
-                addTreeNode({id: 'parent', data: createNodeData('parent'), hasChildren: false});
+                addTreeNode({ id: 'parent', data: createNodeData('parent'), hasChildren: false });
                 setTreeRootIds(['parent']);
 
                 // Verify parent starts with hasChildren=false
@@ -666,7 +672,7 @@ describe('tree-list.store', () => {
         describe('$contentDeleted', () => {
             it('removes content from tree', () => {
                 // Setup: node in tree
-                addTreeNode({id: '1', data: createNodeData('1')});
+                addTreeNode({ id: '1', data: createNodeData('1') });
                 setTreeRootIds(['1']);
                 expect(hasTreeNode('1')).toBe(true);
 
@@ -680,8 +686,8 @@ describe('tree-list.store', () => {
             it('updates parent hasChildren when last child deleted', () => {
                 // Setup: parent with single child, expanded
                 addTreeNodes([
-                    {id: 'parent', data: createNodeData('parent'), hasChildren: true, childIds: ['child']},
-                    {id: 'child', data: createNodeData('child'), parentId: 'parent'},
+                    { id: 'parent', data: createNodeData('parent'), hasChildren: true, childIds: ['child'] },
+                    { id: 'child', data: createNodeData('child'), parentId: 'parent' },
                 ]);
                 setTreeRootIds(['parent']);
                 expandNode('parent');
@@ -697,9 +703,9 @@ describe('tree-list.store', () => {
             it('does not affect parent hasChildren when siblings remain', () => {
                 // Setup: parent with two children
                 addTreeNodes([
-                    {id: 'parent', data: createNodeData('parent'), hasChildren: true, childIds: ['child1', 'child2']},
-                    {id: 'child1', data: createNodeData('child1'), parentId: 'parent'},
-                    {id: 'child2', data: createNodeData('child2'), parentId: 'parent'},
+                    { id: 'parent', data: createNodeData('parent'), hasChildren: true, childIds: ['child1', 'child2'] },
+                    { id: 'child1', data: createNodeData('child1'), parentId: 'parent' },
+                    { id: 'child2', data: createNodeData('child2'), parentId: 'parent' },
                 ]);
                 setTreeRootIds(['parent']);
 
@@ -715,7 +721,7 @@ describe('tree-list.store', () => {
         describe('$contentArchived', () => {
             it('removes content from tree on archive', () => {
                 // Setup: node in tree
-                addTreeNode({id: '1', data: createNodeData('1')});
+                addTreeNode({ id: '1', data: createNodeData('1') });
                 setTreeRootIds(['1']);
                 expect(hasTreeNode('1')).toBe(true);
 
@@ -729,8 +735,8 @@ describe('tree-list.store', () => {
             it('updates parent hasChildren when last child archived', () => {
                 // Setup: parent with single child
                 addTreeNodes([
-                    {id: 'parent', data: createNodeData('parent'), hasChildren: true, childIds: ['child']},
-                    {id: 'child', data: createNodeData('child'), parentId: 'parent'},
+                    { id: 'parent', data: createNodeData('parent'), hasChildren: true, childIds: ['child'] },
+                    { id: 'child', data: createNodeData('child'), parentId: 'parent' },
                 ]);
                 setTreeRootIds(['parent']);
 
@@ -741,6 +747,5 @@ describe('tree-list.store', () => {
                 expect(getTreeNode('parent')?.hasChildren).toBe(false);
             });
         });
-
     });
 });

@@ -1,17 +1,23 @@
-import {showError, showSuccess} from '@enonic/lib-admin-ui/notify/MessageBus';
-import type {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {atom, computed, map} from 'nanostores';
-import {type ContentId} from '../../../../app/content/ContentId';
-import type {ContentSummary} from '../../../../app/content/ContentSummary';
-import {EditContentEvent} from '../../../../app/event/EditContentEvent';
-import {fetchContentSummaries} from '../../api/content';
-import {duplicateContent, type DuplicateContentParams, getDescendantsOfContents} from '../../api/duplicate';
-import {cleanupTask, trackTask} from '../../services/task.service';
-import {hasContentIdInIds, isIdsEqual} from '../../utils/cms/content/ids';
-import {createDebounce} from '../../utils/timing/createDebounce';
-import {$isWizard} from '../app.store';
-import {$contentArchived, $contentCreated, $contentDeleted, $contentDuplicated, $contentUpdated} from '../socket.store';
+import { showError, showSuccess } from '@enonic/lib-admin-ui/notify/MessageBus';
+import type { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { atom, computed, map } from 'nanostores';
+import { type ContentId } from '../../../../app/content/ContentId';
+import type { ContentSummary } from '../../../../app/content/ContentSummary';
+import { EditContentEvent } from '../../../../app/event/EditContentEvent';
+import { fetchContentSummaries } from '../../api/content';
+import { duplicateContent, type DuplicateContentParams, getDescendantsOfContents } from '../../api/duplicate';
+import { cleanupTask, trackTask } from '../../services/task.service';
+import { hasContentIdInIds, isIdsEqual } from '../../../shared/lib/cms/content/ids';
+import { createDebounce } from '../../../shared/lib/timing/createDebounce';
+import { $isWizard } from '../app.store';
+import {
+    $contentArchived,
+    $contentCreated,
+    $contentDeleted,
+    $contentDuplicated,
+    $contentUpdated,
+} from '../../../shared/socket/socket.store';
 
 //
 // * Types
@@ -61,17 +67,23 @@ let duplicateCompletionHandled = false;
 // * Derived State
 //
 
-export const $duplicateItemsCount = computed($duplicateDialog, ({items, dependants}) => items.length + dependants.length);
+export const $duplicateItemsCount = computed(
+    $duplicateDialog,
+    ({ items, dependants }) => items.length + dependants.length,
+);
 
-export const $isDuplicateSelectionSynced = computed([$duplicateDialog, $duplicateDraftIncludeChildrenIds], (state, draft) => {
-    return isIdsEqual(state.includeChildrenIds, draft);
-});
+export const $isDuplicateSelectionSynced = computed(
+    [$duplicateDialog, $duplicateDraftIncludeChildrenIds],
+    (state, draft) => {
+        return isIdsEqual(state.includeChildrenIds, draft);
+    },
+);
 
 export const $isDuplicateDialogReady = computed([$duplicateDialog, $isDuplicateSelectionSynced], (state, synced) => {
     return state.open && synced && !state.loading && !state.failed && !state.submitting && state.items.length > 0;
 });
 
-export const $duplicateTaskId = computed($duplicateDialog, ({taskId}) => taskId);
+export const $duplicateTaskId = computed($duplicateDialog, ({ taskId }) => taskId);
 
 //
 // * Public API
@@ -84,9 +96,7 @@ export const openDuplicateDialog = (items: ContentSummary[]): void => {
 
     duplicateCompletionHandled = false;
 
-    const includeChildrenIds = items
-        .filter(item => item.hasChildren())
-        .map(item => item.getContentId());
+    const includeChildrenIds = items.filter((item) => item.hasChildren()).map((item) => item.getContentId());
 
     $duplicateDraftIncludeChildrenIds.set(includeChildrenIds);
 
@@ -99,7 +109,7 @@ export const openDuplicateDialog = (items: ContentSummary[]): void => {
 };
 
 export const cancelDuplicateDialog = (): void => {
-    const {submitting} = $duplicateDialog.get();
+    const { submitting } = $duplicateDialog.get();
     if (submitting) {
         return;
     }
@@ -108,7 +118,7 @@ export const cancelDuplicateDialog = (): void => {
 
 export const resetDuplicateDialogContext = (): void => {
     instanceId += 1;
-    const {taskId} = $duplicateDialog.get();
+    const { taskId } = $duplicateDialog.get();
     if (taskId) {
         cleanupTask(taskId);
     }
@@ -123,9 +133,7 @@ export const toggleDuplicateIncludeChildren = (id: ContentId, include: boolean):
     if (include && hasId) return;
     if (!include && !hasId) return;
 
-    const next = include
-        ? [...draft, id]
-        : draft.filter(itemId => !itemId.equals(id));
+    const next = include ? [...draft, id] : draft.filter((itemId) => !itemId.equals(id));
 
     $duplicateDraftIncludeChildrenIds.set(next);
 };
@@ -136,7 +144,7 @@ export const applyDuplicateIncludeChildrenSelection = (): void => {
 };
 
 export const cancelDuplicateIncludeChildrenSelection = (): void => {
-    const {includeChildrenIds} = $duplicateDialog.get();
+    const { includeChildrenIds } = $duplicateDialog.get();
     $duplicateDraftIncludeChildrenIds.set([...includeChildrenIds]);
 };
 
@@ -149,13 +157,13 @@ export const executeDuplicateDialogAction = async (): Promise<boolean> => {
     const parentPath = state.items[0]?.getPath()?.getParentPath()?.toString();
     const unsubscribeOpenTab = setupOpenTabListener(parentPath);
 
-    const includeChildrenSet = new Set(state.includeChildrenIds.map(id => id.toString()));
-    const params: DuplicateContentParams[] = state.items.map(item => {
+    const includeChildrenSet = new Set(state.includeChildrenIds.map((id) => id.toString()));
+    const params: DuplicateContentParams[] = state.items.map((item) => {
         const includeChildren = includeChildrenSet.has(item.getContentId().toString());
-        return {contentId: item.getContentId(), includeChildren};
+        return { contentId: item.getContentId(), includeChildren };
     });
 
-    const pendingIds = state.items.map(item => item.getContentId().toString());
+    const pendingIds = state.items.map((item) => item.getContentId().toString());
     const pendingPrimaryName = state.items[0]?.getDisplayName() || state.items[0]?.getPath()?.toString();
     const pendingTotal = state.items.length;
 
@@ -228,9 +236,7 @@ const setupOpenTabListener = (parentPath: string | undefined): (() => void) => {
             return;
         }
 
-        const matchedItem = event.data.find(
-            item => item.getPath()?.getParentPath()?.toString() === parentPath
-        );
+        const matchedItem = event.data.find((item) => item.getPath()?.getParentPath()?.toString() === parentPath);
 
         if (matchedItem) {
             new EditContentEvent([matchedItem]).fire();
@@ -247,16 +253,16 @@ const setupOpenTabListener = (parentPath: string | undefined): (() => void) => {
 
 /** Check if dialog is open and has items */
 const isDialogActive = (): boolean => {
-    const {open, items} = $duplicateDialog.get();
+    const { open, items } = $duplicateDialog.get();
     return open && items.length > 0;
 };
 
 /** Remove items by IDs from both main items and dependant items */
-const removeItemsByIds = (ids: Set<string>): {removedMain: boolean; removedDependant: boolean} => {
-    const {items, dependants} = $duplicateDialog.get();
+const removeItemsByIds = (ids: Set<string>): { removedMain: boolean; removedDependant: boolean } => {
+    const { items, dependants } = $duplicateDialog.get();
 
-    const newItems = items.filter(item => !ids.has(item.getContentId().toString()));
-    const newDependants = dependants.filter(item => !ids.has(item.getContentId().toString()));
+    const newItems = items.filter((item) => !ids.has(item.getContentId().toString()));
+    const newDependants = dependants.filter((item) => !ids.has(item.getContentId().toString()));
 
     const removedMain = newItems.length !== items.length;
     const removedDependant = newDependants.length !== dependants.length;
@@ -268,25 +274,31 @@ const removeItemsByIds = (ids: Set<string>): {removedMain: boolean; removedDepen
         $duplicateDialog.setKey('dependants', newDependants);
     }
 
-    return {removedMain, removedDependant};
+    return { removedMain, removedDependant };
 };
 
 /** Patch items with updated data, keeping items not in the update */
-const patchItemsWithUpdates = (updates: ContentSummary[]): {patchedMain: boolean; patchedDependants: boolean} => {
-    const {items, dependants} = $duplicateDialog.get();
-    const updateMap = new Map(updates.map(update => [update.getId(), update]));
+const patchItemsWithUpdates = (updates: ContentSummary[]): { patchedMain: boolean; patchedDependants: boolean } => {
+    const { items, dependants } = $duplicateDialog.get();
+    const updateMap = new Map(updates.map((update) => [update.getId(), update]));
 
-    const patchedMain = items.some(item => updateMap.has(item.getId()));
-    const patchedDependants = dependants.some(item => updateMap.has(item.getId()));
+    const patchedMain = items.some((item) => updateMap.has(item.getId()));
+    const patchedDependants = dependants.some((item) => updateMap.has(item.getId()));
 
     if (patchedMain) {
-        $duplicateDialog.setKey('items', items.map(item => updateMap.get(item.getId()) ?? item));
+        $duplicateDialog.setKey(
+            'items',
+            items.map((item) => updateMap.get(item.getId()) ?? item),
+        );
     }
     if (patchedDependants) {
-        $duplicateDialog.setKey('dependants', dependants.map(item => updateMap.get(item.getId()) ?? item));
+        $duplicateDialog.setKey(
+            'dependants',
+            dependants.map((item) => updateMap.get(item.getId()) ?? item),
+        );
     }
 
-    return {patchedMain, patchedDependants};
+    return { patchedMain, patchedDependants };
 };
 
 //
@@ -295,7 +307,7 @@ const patchItemsWithUpdates = (updates: ContentSummary[]): {patchedMain: boolean
 
 // Reload data when dialog opens OR includeChildrenIds change
 $duplicateDialog.subscribe((state, oldState) => {
-    const {open, includeChildrenIds} = state;
+    const { open, includeChildrenIds } = state;
     const wasOpen = !!oldState?.open;
     if (!open) {
         return;
@@ -334,12 +346,12 @@ $contentUpdated.subscribe((event) => {
         return;
     }
 
-    const {dependants} = $duplicateDialog.get();
-    const updatedIds = new Set(event.data.map(item => item.getId()));
+    const { dependants } = $duplicateDialog.get();
+    const updatedIds = new Set(event.data.map((item) => item.getId()));
 
-    const {patchedMain, patchedDependants} = patchItemsWithUpdates(event.data);
+    const { patchedMain, patchedDependants } = patchItemsWithUpdates(event.data);
 
-    const dependantsUpdated = dependants.some(item => updatedIds.has(item.getId()));
+    const dependantsUpdated = dependants.some((item) => updatedIds.has(item.getId()));
 
     if (patchedMain || patchedDependants || dependantsUpdated) {
         reloadDuplicateDialogDataDebounced();
@@ -352,8 +364,8 @@ $contentDeleted.subscribe((event) => {
         return;
     }
 
-    const deletedIds = new Set(event.data.map(item => item.getContentId().toString()));
-    const {removedMain, removedDependant} = removeItemsByIds(deletedIds);
+    const deletedIds = new Set(event.data.map((item) => item.getContentId().toString()));
+    const { removedMain, removedDependant } = removeItemsByIds(deletedIds);
 
     if ($duplicateDialog.get().items.length === 0) {
         resetDuplicateDialogContext();
@@ -371,8 +383,8 @@ $contentArchived.subscribe((event) => {
         return;
     }
 
-    const archivedIds = new Set(event.data.map(item => item.getContentId().toString()));
-    const {removedMain, removedDependant} = removeItemsByIds(archivedIds);
+    const archivedIds = new Set(event.data.map((item) => item.getContentId().toString()));
+    const { removedMain, removedDependant } = removeItemsByIds(archivedIds);
 
     if ($duplicateDialog.get().items.length === 0) {
         resetDuplicateDialogContext();
@@ -395,10 +407,8 @@ const handleDuplicateSuccess = (): void => {
 
     const state = $duplicateDialog.get();
     const total = state.pendingTotal || state.items.length || state.pendingIds.length;
-    const primaryName = state.pendingPrimaryName
-        || state.items[0]?.getDisplayName()
-        || state.items[0]?.getPath()?.toString()
-        || '';
+    const primaryName =
+        state.pendingPrimaryName || state.items[0]?.getDisplayName() || state.items[0]?.getPath()?.toString() || '';
 
     const singleMessage = i18n('dialog.duplicate.success.single', primaryName);
     const multipleMessage = i18n('dialog.duplicate.success.multiple', total);
@@ -415,13 +425,15 @@ const handleDuplicateSuccess = (): void => {
 async function reloadDuplicateDialogData(): Promise<void> {
     instanceId += 1;
     const currentInstance = instanceId;
-    const {items, includeChildrenIds, open} = $duplicateDialog.get();
+    const { items, includeChildrenIds, open } = $duplicateDialog.get();
     if (!open || items.length === 0) {
         return;
     }
 
-    const includeSet = new Set(includeChildrenIds.map(id => id.toString()));
-    const rootsWithChildren = items.filter(item => includeSet.has(item.getContentId().toString()) && item.hasChildren());
+    const includeSet = new Set(includeChildrenIds.map((id) => id.toString()));
+    const rootsWithChildren = items.filter(
+        (item) => includeSet.has(item.getContentId().toString()) && item.hasChildren(),
+    );
 
     if (rootsWithChildren.length === 0) {
         $duplicateDialog.setKey('dependants', []);
@@ -432,13 +444,11 @@ async function reloadDuplicateDialogData(): Promise<void> {
     $duplicateDialog.setKey('failed', false);
 
     try {
-        const paths = rootsWithChildren.map(item => item.getPath());
+        const paths = rootsWithChildren.map((item) => item.getPath());
         const ids = await getDescendantsOfContents(paths);
         if (currentInstance !== instanceId) return;
 
-        const dependants = ids.length > 0
-            ? await fetchContentSummaries(ids)
-            : [];
+        const dependants = ids.length > 0 ? await fetchContentSummaries(ids) : [];
 
         if (currentInstance !== instanceId) return;
 

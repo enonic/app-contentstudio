@@ -1,23 +1,11 @@
-import {
-    Combobox,
-    VirtualizedTreeList,
-    cn,
-    useCombobox,
-    type FlatNode as VirtualizedTreeListNode,
-} from '@enonic/ui';
-import {
-    forwardRef,
-    useCallback,
-    type ComponentPropsWithoutRef,
-    type ReactElement,
-    type RefObject,
-} from 'react';
-import type {VirtuosoHandle} from 'react-virtuoso';
-import {Virtuoso} from 'react-virtuoso';
-import type {ContentTreeSelectorItem} from '../../../../../app/item/ContentTreeSelectorItem';
-import {useVirtualizedTreeListAutoFocus} from '../../../hooks/useVirtualizedTreeListAutoFocus';
-import {useVirtualizedTreeListNodeContent} from '../../../hooks/useVirtualizedTreeListNodeContent';
-import {PathSelectorTreeRow} from './PathSelectorTreeRow';
+import { Combobox, VirtualizedTreeList, cn, useCombobox, type FlatNode as VirtualizedTreeListNode } from '@enonic/ui';
+import { forwardRef, useCallback, type ComponentPropsWithoutRef, type ReactElement, type RefObject } from 'react';
+import type { VirtuosoHandle } from 'react-virtuoso';
+import { Virtuoso } from 'react-virtuoso';
+import type { ContentTreeSelectorItem } from '../../../../../app/item/ContentTreeSelectorItem';
+import { useVirtualizedTreeListAutoFocus } from '../../../../shared/lib/hooks/useVirtualizedTreeListAutoFocus';
+import { useVirtualizedTreeListNodeContent } from '../../../../shared/lib/hooks/useVirtualizedTreeListNodeContent';
+import { PathSelectorTreeRow } from './PathSelectorTreeRow';
 
 type PathSelectorTreeProps = {
     items: VirtualizedTreeListNode<ContentTreeSelectorItem>[];
@@ -39,16 +27,12 @@ type PathSelectorTreeProps = {
 const PATH_SELECTOR_TREE_NAME = 'PathSelectorTree';
 
 const PathSelectorTreeScroller = forwardRef<HTMLDivElement, ComponentPropsWithoutRef<'div'>>(
-    ({className, ...props}, ref) => (
-        <div ref={ref} {...props} className={cn('rounded-sm *:p-1', className)} />
-    ),
+    ({ className, ...props }, ref) => <div ref={ref} {...props} className={cn('rounded-sm *:p-1', className)} />,
 );
 PathSelectorTreeScroller.displayName = 'PathSelectorTreeScroller';
 
 const PathSelectorTreeList = forwardRef<HTMLDivElement, ComponentPropsWithoutRef<'div'>>(
-    ({className, ...props}, ref) => (
-        <div ref={ref} {...props} className={cn('flex flex-col gap-1', className)} />
-    ),
+    ({ className, ...props }, ref) => <div ref={ref} {...props} className={cn('flex flex-col gap-1', className)} />,
 );
 PathSelectorTreeList.displayName = 'PathSelectorTreeList';
 
@@ -73,8 +57,8 @@ export const PathSelectorTree = ({
     disabledIdSet,
     virtuosoRef,
 }: PathSelectorTreeProps): ReactElement => {
-    const {selection, onSelectionChange, baseId} = useCombobox();
-    const {renderLoadingNode, getNodeContent} = useVirtualizedTreeListNodeContent({
+    const { selection, onSelectionChange, baseId } = useCombobox();
+    const { renderLoadingNode, getNodeContent } = useVirtualizedTreeListNodeContent({
         hasMoreChildren,
         isLoading,
         disabled,
@@ -82,33 +66,39 @@ export const PathSelectorTree = ({
         showMoreLabel,
     });
 
-    const handleTreeSelectionChange = useCallback((nextSelection: ReadonlySet<string>) => {
-        if (disabled) {
-            return;
-        }
-        const filtered = Array.from(nextSelection).filter((id) => !disabledIdSet.has(id));
-        onSelectionChange(filtered.slice(0, 1));
-    }, [disabled, disabledIdSet, onSelectionChange]);
+    const handleTreeSelectionChange = useCallback(
+        (nextSelection: ReadonlySet<string>) => {
+            if (disabled) {
+                return;
+            }
+            const filtered = Array.from(nextSelection).filter((id) => !disabledIdSet.has(id));
+            onSelectionChange(filtered.slice(0, 1));
+        },
+        [disabled, disabledIdSet, onSelectionChange],
+    );
 
-    const getItemInteraction = useCallback((node: typeof items[number]) => {
-        if (disabled || node.isLoading || !node.data) {
-            return 'none';
-        }
-        if (!node.data.isSelectable() || disabledIdSet.has(node.id)) {
-            return 'navigate-only';
-        }
-        return 'full';
-    }, [disabled, disabledIdSet]);
+    const getItemInteraction = useCallback(
+        (node: (typeof items)[number]) => {
+            if (disabled || node.isLoading || !node.data) {
+                return 'none';
+            }
+            if (!node.data.isSelectable() || disabledIdSet.has(node.id)) {
+                return 'navigate-only';
+            }
+            return 'full';
+        },
+        [disabled, disabledIdSet],
+    );
 
     useVirtualizedTreeListAutoFocus(baseId);
 
     return (
-        <Combobox.TreeContent style={{height: treeHeight}}>
+        <Combobox.TreeContent style={{ height: treeHeight }}>
             <VirtualizedTreeList
                 items={items}
                 selection={selection}
                 onSelectionChange={handleTreeSelectionChange}
-                selectionMode='single'
+                selectionMode="single"
                 rowClickSelection="toggle"
                 active={activeId}
                 onActiveChange={onActiveChange}
@@ -119,9 +109,9 @@ export const PathSelectorTree = ({
                 getItemInteraction={getItemInteraction}
                 virtuosoRef={virtuosoRef}
                 aria-label={label}
-                className='h-full focus-within:ring-0 focus-within:ring-offset-0'
+                className="h-full focus-within:ring-0 focus-within:ring-offset-0"
             >
-                {({items: visibleItems, getItemProps, containerProps}) => (
+                {({ items: visibleItems, getItemProps, containerProps }) => (
                     <Virtuoso
                         ref={virtuosoRef}
                         data={visibleItems}
@@ -141,7 +131,8 @@ export const PathSelectorTree = ({
                             }
 
                             const item = node.data;
-                            const selectable = (item?.isSelectable() ?? false) && !disabledIdSet.has(node.id) && !disabled;
+                            const selectable =
+                                (item?.isSelectable() ?? false) && !disabledIdSet.has(node.id) && !disabled;
                             return (
                                 <PathSelectorTreeRow
                                     node={node}

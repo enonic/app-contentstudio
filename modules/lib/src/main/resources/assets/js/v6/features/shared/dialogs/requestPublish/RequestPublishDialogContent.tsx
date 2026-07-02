@@ -1,10 +1,10 @@
-import {Button, Checkbox, Dialog, GridList, Input, TextArea} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {CornerDownRight} from 'lucide-react';
-import {useMemo, type ReactElement} from 'react';
-import {IssueType} from '../../../../../app/issue/IssueType';
-import {useI18n} from '../../../hooks/useI18n';
-import {$config} from '../../../store/config.store';
+import { Button, Checkbox, Dialog, GridList, Input, TextArea } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { CornerDownRight } from 'lucide-react';
+import { useMemo, type ReactElement } from 'react';
+import { IssueType } from '../../../../../app/issue/IssueType';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { $config } from '../../../../shared/config/config.store';
 import {
     $isRequestPublishReady,
     $requestPublishDependantsSelection,
@@ -26,13 +26,13 @@ import {
     submitRequestPublishDialog,
     toggleRequestPublishDependantsSelection,
 } from '../../../store/dialogs/requestPublishDialog.store';
-import {useItemsWithUnpublishedChildren} from '../../../utils/cms/content/useItemsWithUnpublishedChildren';
-import {ContentRow, SplitList} from '../../lists';
-import {AssigneeSelector} from '../../selectors/assignee/AssigneeSelector';
-import {useAssigneeSearch, useAssigneeSelection} from '../../selectors/assignee/hooks/useAssigneeSearch';
-import {DependantsSelectAll} from '../dependants/DependantsSelectAll';
-import {IssueIcon} from '../issue/IssueIcon';
-import {SelectionStatusBar} from '../status-bar/SelectionStatusBar';
+import { useItemsWithUnpublishedChildren } from '../../../utils/cms/content/useItemsWithUnpublishedChildren';
+import { ContentRow, SplitList } from '../../lists';
+import { AssigneeSelector } from '../../selectors/assignee/AssigneeSelector';
+import { useAssigneeSearch, useAssigneeSelection } from '../../selectors/assignee/hooks/useAssigneeSearch';
+import { DependantsSelectAll } from '../dependants/DependantsSelectAll';
+import { IssueIcon } from '../issue/IssueIcon';
+import { SelectionStatusBar } from '../status-bar/SelectionStatusBar';
 
 const REQUEST_PUBLISH_DIALOG_CONTENT_NAME = 'RequestPublishDialogContent';
 
@@ -69,8 +69,8 @@ export const RequestPublishDialogContent = (): ReactElement => {
     const hasMoreDependants = useStore($requestPublishHasMoreDependants);
     const dependantsSelection = useStore($requestPublishDependantsSelection);
     const isPublishReady = useStore($isRequestPublishReady);
-    const {invalid, inProgress} = useStore($requestPublishDialogErrors);
-    const {allowContentUpdate} = useStore($config, {keys: ['allowContentUpdate']});
+    const { invalid, inProgress } = useStore($requestPublishDialogErrors);
+    const { allowContentUpdate } = useStore($config, { keys: ['allowContentUpdate'] });
 
     const dialogTitle = useI18n('action.requestPublish');
     const titleLabel = useI18n('field.title');
@@ -86,26 +86,24 @@ export const RequestPublishDialogContent = (): ReactElement => {
     const nothingToPublishWarning = createCount > 0 && publishableCount === 0 ? nothingToPublishText : undefined;
 
     const excludeChildrenSet = useMemo(
-        () => new Set(excludeChildrenIds.map(id => id.toString())),
+        () => new Set(excludeChildrenIds.map((id) => id.toString())),
         [excludeChildrenIds],
     );
     const excludedDependantSet = useMemo(
-        () => new Set(excludedDependantIds.map(id => id.toString())),
+        () => new Set(excludedDependantIds.map((id) => id.toString())),
         [excludedDependantIds],
     );
     const requiredDependantSet = useMemo(
-        () => new Set(requiredDependantIds.map(id => id.toString())),
+        () => new Set(requiredDependantIds.map((id) => id.toString())),
         [requiredDependantIds],
     );
 
-    const {options: assigneeOptions, handleSearchChange} = useAssigneeSearch();
-    const selectedAssigneeOptions = useAssigneeSelection({assigneeIds});
+    const { options: assigneeOptions, handleSearchChange } = useAssigneeSearch();
+    const selectedAssigneeOptions = useAssigneeSelection({ assigneeIds });
 
     const itemsWithUnpublishedChildren = useItemsWithUnpublishedChildren(items);
 
-    const createButtonLabel = publishableCount > 1
-        ? `${createLabel} (${publishableCount})`
-        : createLabel;
+    const createButtonLabel = publishableCount > 1 ? `${createLabel} (${publishableCount})` : createLabel;
     const isCreateDisabled = submitting || loading || !isPublishReady || title.trim().length === 0;
 
     const handleAssigneesChange = (next: readonly string[]) => {
@@ -124,18 +122,18 @@ export const RequestPublishDialogContent = (): ReactElement => {
     return (
         <Dialog.Content
             data-component={REQUEST_PUBLISH_DIALOG_CONTENT_NAME}
-            className='sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-236 gap-7.5 px-5'
+            className="sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-236 gap-7.5 px-5"
         >
-            <Dialog.Header className='grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-4 px-5'>
-                <div className='flex min-w-0 items-center gap-2.5'>
+            <Dialog.Header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-4 px-5">
+                <div className="flex min-w-0 items-center gap-2.5">
                     <IssueIcon type={IssueType.PUBLISH_REQUEST} />
-                    <Dialog.Title className='min-w-0 truncate text-2xl font-semibold'>{dialogTitle}</Dialog.Title>
+                    <Dialog.Title className="min-w-0 truncate text-2xl font-semibold">{dialogTitle}</Dialog.Title>
                 </div>
-                <Dialog.DefaultClose className='self-start justify-self-end' />
+                <Dialog.DefaultClose className="self-start justify-self-end" />
             </Dialog.Header>
 
             <SelectionStatusBar
-                className='px-5'
+                className="px-5"
                 loading={loading}
                 failed={failed}
                 showReady={isPublishReady}
@@ -158,8 +156,8 @@ export const RequestPublishDialogContent = (): ReactElement => {
                 }}
             />
 
-            <Dialog.Body className='min-h-0 overflow-y-auto rounded-sm outline-none focus:ring-2 focus:ring-ring/10 focus:ring-inset'>
-                <div className='flex min-h-0 flex-col gap-7.5 px-5'>
+            <Dialog.Body className="min-h-0 overflow-y-auto rounded-sm outline-none focus:ring-2 focus:ring-ring/10 focus:ring-inset">
+                <div className="flex min-h-0 flex-col gap-7.5 px-5">
                     <Input
                         label={titleLabel}
                         value={title}
@@ -176,8 +174,8 @@ export const RequestPublishDialogContent = (): ReactElement => {
                         disabled={submitting}
                     />
 
-                    <div className='flex flex-col gap-2.5'>
-                        <span className='text-md font-semibold'>{assigneesLabel}</span>
+                    <div className="flex flex-col gap-2.5">
+                        <span className="text-md font-semibold">{assigneesLabel}</span>
                         <AssigneeSelector
                             label={assigneesLabel}
                             options={assigneeOptions}
@@ -191,10 +189,9 @@ export const RequestPublishDialogContent = (): ReactElement => {
                         />
                     </div>
 
-
                     <SplitList>
-                        <div className='flex flex-col gap-2.5'>
-                            <span className='text-md font-semibold'>{itemsLabel}</span>
+                        <div className="flex flex-col gap-2.5">
+                            <span className="text-md font-semibold">{itemsLabel}</span>
                             <SplitList.Primary
                                 items={items}
                                 getItemId={(item) => item.getId()}
@@ -236,7 +233,10 @@ export const RequestPublishDialogContent = (): ReactElement => {
                                                                 className="font-semibold"
                                                                 checked={includeChildren}
                                                                 onCheckedChange={(enabled) =>
-                                                                    setRequestPublishItemIncludeChildren(id, enabled === true)
+                                                                    setRequestPublishItemIncludeChildren(
+                                                                        id,
+                                                                        enabled === true,
+                                                                    )
                                                                 }
                                                                 disabled={isItemsDisabled}
                                                                 label={includeChildrenLabel}
@@ -301,10 +301,10 @@ export const RequestPublishDialogContent = (): ReactElement => {
                     </SplitList>
                 </div>
             </Dialog.Body>
-            <Dialog.Footer className='px-5'>
+            <Dialog.Footer className="px-5">
                 <Button
-                    variant='solid'
-                    size='lg'
+                    variant="solid"
+                    size="lg"
                     label={createButtonLabel}
                     disabled={isCreateDisabled}
                     onClick={handleCreate}

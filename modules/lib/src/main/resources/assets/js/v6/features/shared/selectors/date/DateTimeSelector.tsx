@@ -1,7 +1,12 @@
-import {Button, DatePicker, Input, TimePicker, usePrefixedId} from '@enonic/ui';
-import {ReactElement, type RefObject, useEffect, useRef, useState} from 'react';
-import {useI18n} from '../../../hooks/useI18n';
-import {combineDateAndTime, formatDateTimeValue, getTimeFromDate, parseDateTimeInput} from '../../../utils/date/format';
+import { Button, DatePicker, Input, TimePicker, usePrefixedId } from '@enonic/ui';
+import { ReactElement, type RefObject, useEffect, useRef, useState } from 'react';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import {
+    combineDateAndTime,
+    formatDateTimeValue,
+    getTimeFromDate,
+    parseDateTimeInput,
+} from '../../../../shared/lib/date/format';
 
 export type DateTimeSelectorProps = {
     label?: string;
@@ -13,7 +18,7 @@ export type DateTimeSelectorProps = {
     error?: string;
     className?: string;
     inputRef?: RefObject<HTMLInputElement>;
-}
+};
 
 export const DateTimeSelector = ({
     label,
@@ -34,9 +39,11 @@ export const DateTimeSelector = ({
     const [open, setOpen] = useState(false);
     const [valueDate, setValueDate] = useState<Date | null>(initialValue ?? null);
     const [valueTime, setValueTime] = useState<string | null>(
-        initialValue ? getTimeFromDate(initialValue) : defaultTimeValue ?? null,
+        initialValue ? getTimeFromDate(initialValue) : (defaultTimeValue ?? null),
     );
-    const [inputValue, setInputValue] = useState(() => formatDateTimeValue(initialValue ?? null, initialValue ? getTimeFromDate(initialValue) : null));
+    const [inputValue, setInputValue] = useState(() =>
+        formatDateTimeValue(initialValue ?? null, initialValue ? getTimeFromDate(initialValue) : null),
+    );
     const [draftDate, setDraftDate] = useState<Date | null>(valueDate);
     const [draftTime, setDraftTime] = useState<string | null>(valueTime);
     const okLabel = useI18n('field.ok');
@@ -57,7 +64,6 @@ export const DateTimeSelector = ({
             focusGrid();
         }
     }, [open]);
-
 
     const handleOpenChange = (nextOpen: boolean): void => {
         if (nextOpen) {
@@ -131,10 +137,7 @@ export const DateTimeSelector = ({
     };
 
     return (
-        <div
-            ref={rootRef}
-            className={`flex max-w-90 flex-1 flex-col gap-3 ${className ?? ''}`}
-        >
+        <div ref={rootRef} className={`flex max-w-90 flex-1 flex-col gap-3 ${className ?? ''}`}>
             <DatePicker
                 value={draftDate}
                 onValueChange={setDraftDate}
@@ -142,65 +145,65 @@ export const DateTimeSelector = ({
                 onOpenChange={handleOpenChange}
                 closeOnSelect={false}
                 focusOnCloseRef={inputRef}
-                className='w-full'
+                className="w-full"
             >
                 <div ref={inputWrapperRef}>
-                <Input
-                    id={inputId}
-                    ref={inputRef}
-                    label={label}
-                    placeholder={placeholder ?? 'YYYY-MM-DD hh:mm'}
-                    value={inputValue}
-                    onChange={handleInputChange}
-                    onBlur={handleInputBlur}
-                    onKeyDown={handleInputKeyDown}
-                    error={error}
-                    className={'datetime-selector-input'}
-                    endAddon={
-                        <div className='flex h-full w-11 items-center justify-center bg-transparent'>
-                            <DatePicker.Trigger className='size-8' aria-label='Open date picker' />
-                        </div>
-                    }
-                />
+                    <Input
+                        id={inputId}
+                        ref={inputRef}
+                        label={label}
+                        placeholder={placeholder ?? 'YYYY-MM-DD hh:mm'}
+                        value={inputValue}
+                        onChange={handleInputChange}
+                        onBlur={handleInputBlur}
+                        onKeyDown={handleInputKeyDown}
+                        error={error}
+                        className={'datetime-selector-input'}
+                        endAddon={
+                            <div className="flex h-full w-11 items-center justify-center bg-transparent">
+                                <DatePicker.Trigger className="size-8" aria-label="Open date picker" />
+                            </div>
+                        }
+                    />
                 </div>
-                    <DatePicker.Content
-                        ref={contentRef}
-                        className='max-w-90'
-                        align='end'
-                        onKeyDown={handleContentKeyDown}
-                        anchorRef={inputWrapperRef}
-                    >
-                        <div className='flex flex-col gap-4'>
-                            <div className='flex flex-col gap-2'>
-                                <DatePicker.Header />
-                                <div className='flex flex-col gap-2'>
-                                    <DatePicker.Weekdays />
-                                    <DatePicker.Grid />
-                                </div>
-                            </div>
-                            <div className='border-bdr-subtle border-t pt-3'>
-                                <div className='flex items-center justify-between gap-3'>
-                                    <TimePicker
-                                        value={draftTime}
-                                        onValueChange={setDraftTime}
-                                        referenceDate={draftDate ?? new Date()}
-                                    >
-                                        <div className='flex items-center gap-2'>
-                                            <TimePicker.HourSelect className='w-20' />
-                                            <span className='font-bold text-lg text-main'>:</span>
-                                            <TimePicker.MinuteSelect className='w-20' />
-                                        </div>
-                                    </TimePicker>
-                                    <Button size='sm' variant='solid' onClick={handleConfirm}>
-                                        {okLabel}
-                                    </Button>
-                                </div>
+                <DatePicker.Content
+                    ref={contentRef}
+                    className="max-w-90"
+                    align="end"
+                    onKeyDown={handleContentKeyDown}
+                    anchorRef={inputWrapperRef}
+                >
+                    <div className="flex flex-col gap-4">
+                        <div className="flex flex-col gap-2">
+                            <DatePicker.Header />
+                            <div className="flex flex-col gap-2">
+                                <DatePicker.Weekdays />
+                                <DatePicker.Grid />
                             </div>
                         </div>
-                    </DatePicker.Content>
+                        <div className="border-bdr-subtle border-t pt-3">
+                            <div className="flex items-center justify-between gap-3">
+                                <TimePicker
+                                    value={draftTime}
+                                    onValueChange={setDraftTime}
+                                    referenceDate={draftDate ?? new Date()}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <TimePicker.HourSelect className="w-20" />
+                                        <span className="font-bold text-lg text-main">:</span>
+                                        <TimePicker.MinuteSelect className="w-20" />
+                                    </div>
+                                </TimePicker>
+                                <Button size="sm" variant="solid" onClick={handleConfirm}>
+                                    {okLabel}
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </DatePicker.Content>
             </DatePicker>
         </div>
     );
-}
+};
 
 DateTimeSelector.displayName = 'DateTimeSelector';

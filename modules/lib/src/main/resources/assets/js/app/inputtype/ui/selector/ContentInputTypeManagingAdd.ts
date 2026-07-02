@@ -1,17 +1,15 @@
-import {isBlank} from '../../../../v6/features/utils/format/isBlank';
-import {type SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {type SelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
-import {type ContentInputTypeViewContext} from '../../ContentInputTypeViewContext';
-import {type ValueType} from '@enonic/lib-admin-ui/data/ValueType';
-import {BaseInputTypeManagingAdd} from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
-import {type ContentPath} from '../../../content/ContentPath';
-import {type ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {ApplicationBasedName} from '@enonic/lib-admin-ui/application/ApplicationBasedName';
-import {type FormItem} from '@enonic/lib-admin-ui/form/FormItem';
+import { isBlank } from '../../../../v6/shared/lib/format/isBlank';
+import { type SelectedOption } from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import { type SelectedOptionsView } from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
+import { type ContentInputTypeViewContext } from '../../ContentInputTypeViewContext';
+import { type ValueType } from '@enonic/lib-admin-ui/data/ValueType';
+import { BaseInputTypeManagingAdd } from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
+import { type ContentPath } from '../../../content/ContentPath';
+import { type ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { ApplicationBasedName } from '@enonic/lib-admin-ui/application/ApplicationBasedName';
+import { type FormItem } from '@enonic/lib-admin-ui/form/FormItem';
 
-export abstract class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
-    extends BaseInputTypeManagingAdd {
-
+export abstract class ContentInputTypeManagingAdd<RAW_VALUE_TYPE> extends BaseInputTypeManagingAdd {
     declare protected context: ContentInputTypeViewContext;
 
     protected allowedContentTypes: string[];
@@ -54,9 +52,7 @@ export abstract class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
     private getAllowedContentPaths(inputConfig: Record<string, Record<string, unknown>[]>): string[] {
         const allowContentPathConfig = inputConfig['allowPath'] || [];
         if (allowContentPathConfig.length > 0) {
-            return allowContentPathConfig
-                .map((cfg) => cfg['value'] as string)
-                .filter((val) => !!val);
+            return allowContentPathConfig.map((cfg) => cfg['value'] as string).filter((val) => !!val);
         }
         if (!isBlank(this.getDefaultAllowPath())) {
             return [this.getDefaultAllowPath()];

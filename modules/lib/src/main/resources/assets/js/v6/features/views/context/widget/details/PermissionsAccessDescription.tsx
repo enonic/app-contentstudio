@@ -1,10 +1,10 @@
-import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
-import {LockKeyhole, LockKeyholeOpen} from 'lucide-react';
-import {ReactElement} from 'react';
-import {Content} from '../../../../../../app/content/Content';
-import {useI18n} from '../../../../hooks/useI18n';
-import {getEveryoneAccess} from '../../../../store/context/detailsWidgets.store';
-import {Access} from '../../../../../../app/security/Access';
+import { RoleKeys } from '@enonic/lib-admin-ui/security/RoleKeys';
+import { LockKeyhole, LockKeyholeOpen } from 'lucide-react';
+import { ReactElement } from 'react';
+import { Content } from '../../../../../../app/content/Content';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { getEveryoneAccess } from '../../../../store/context/detailsWidgets.store';
+import { Access } from '../../../../../../app/security/Access';
 
 type PermissionsAccessDescriptionProps = {
     content: Content;
@@ -12,7 +12,7 @@ type PermissionsAccessDescriptionProps = {
 
 const PERMISSIONS_ACCESS_DESCRIPTION_NAME = 'PermissionsAccessDescription';
 
-export const PermissionsAccessDescription = ({content}: PermissionsAccessDescriptionProps): ReactElement => {
+export const PermissionsAccessDescription = ({ content }: PermissionsAccessDescriptionProps): ReactElement => {
     const restrictedText = useI18n('widget.useraccess.restricted');
     const fullAccessText = useI18n('field.access.full.everyone');
     const publishText = useI18n('field.access.publish.everyone');
@@ -36,7 +36,10 @@ export const PermissionsAccessDescription = ({content}: PermissionsAccessDescrip
     const text = hasEveryoneEntry ? accessTextMap.get(getEveryoneAccess(content)) : restrictedText;
 
     return (
-        <div data-component={PERMISSIONS_ACCESS_DESCRIPTION_NAME} className="flex items-center gap-3.5 text-xs text-subtle overflow-hidden">
+        <div
+            data-component={PERMISSIONS_ACCESS_DESCRIPTION_NAME}
+            className="flex items-center gap-3.5 text-xs text-subtle overflow-hidden"
+        >
             <Icon size={14} className="shrink-0" />
             <span className="truncate">{text}</span>
         </div>

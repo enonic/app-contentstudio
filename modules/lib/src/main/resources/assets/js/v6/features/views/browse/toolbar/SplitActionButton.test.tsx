@@ -1,7 +1,7 @@
-import {render, screen} from '@testing-library/preact';
-import {type ReactElement, type ReactNode, cloneElement, isValidElement} from 'react';
-import {describe, expect, it, vi} from 'vitest';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import { render, screen } from '@testing-library/preact';
+import { type ReactElement, type ReactNode, cloneElement, isValidElement } from 'react';
+import { describe, expect, it, vi } from 'vitest';
+import { Action } from '@enonic/lib-admin-ui/ui/Action';
 
 vi.mock('@enonic/ui', () => {
     type MockButtonProps = {
@@ -11,14 +11,8 @@ vi.mock('@enonic/ui', () => {
         onClick?: () => void;
     } & Record<string, unknown>;
 
-    const Button = ({
-        label,
-        children,
-        disabled,
-        onClick,
-        ...props
-    }: MockButtonProps) => (
-        <button type='button' disabled={disabled} onClick={onClick} {...props}>
+    const Button = ({ label, children, disabled, onClick, ...props }: MockButtonProps) => (
+        <button type="button" disabled={disabled} onClick={onClick} {...props}>
             {label ?? children}
         </button>
     );
@@ -30,15 +24,9 @@ vi.mock('@enonic/ui', () => {
         icon?: unknown;
     } & Record<string, unknown>;
 
-    const IconButton = ({
-        disabled,
-        onClick,
-        className,
-        icon: _icon,
-        ...props
-    }: MockIconButtonProps) => (
+    const IconButton = ({ disabled, onClick, className, icon: _icon, ...props }: MockIconButtonProps) => (
         <button
-            type='button'
+            type="button"
             disabled={disabled}
             onClick={onClick}
             className={className}
@@ -47,42 +35,33 @@ vi.mock('@enonic/ui', () => {
         />
     );
 
-    const ToolbarItem = ({
-        children,
-        disabled = false,
-    }: {
-        children: ReactElement;
-        disabled?: boolean;
-    }) => {
+    const ToolbarItem = ({ children, disabled = false }: { children: ReactElement; disabled?: boolean }) => {
         if (!isValidElement(children)) {
             return <>{children}</>;
         }
 
-        const child = children as ReactElement<{disabled?: boolean}>;
+        const child = children as ReactElement<{ disabled?: boolean }>;
 
         return cloneElement(child, {
             disabled: disabled || Boolean(child.props.disabled),
         });
     };
 
-    const MenuRoot = ({children}: {children?: ReactNode}) => <div>{children}</div>;
+    const MenuRoot = ({ children }: { children?: ReactNode }) => <div>{children}</div>;
 
     type MockMenuTriggerProps = {
         children: ReactElement;
     } & Record<string, unknown>;
 
-    const MenuTrigger = ({
-        children,
-        ...props
-    }: MockMenuTriggerProps) => {
+    const MenuTrigger = ({ children, ...props }: MockMenuTriggerProps) => {
         if (!isValidElement(children)) {
             return <>{children}</>;
         }
 
         return cloneElement(children, props);
     };
-    const MenuPortal = ({children}: {children?: ReactNode}) => <>{children}</>;
-    const MenuContent = ({children}: {children?: ReactNode}) => <div role='menu'>{children}</div>;
+    const MenuPortal = ({ children }: { children?: ReactNode }) => <>{children}</>;
+    const MenuContent = ({ children }: { children?: ReactNode }) => <div role="menu">{children}</div>;
     const MenuItem = ({
         children,
         disabled = false,
@@ -92,7 +71,7 @@ vi.mock('@enonic/ui', () => {
         disabled?: boolean;
         onSelect?: () => void;
     }) => (
-        <button type='button' role='menuitem' disabled={disabled} onClick={onSelect}>
+        <button type="button" role="menuitem" disabled={disabled} onClick={onSelect}>
             {children}
         </button>
     );
@@ -109,12 +88,12 @@ vi.mock('@enonic/ui', () => {
         Toolbar: {
             Item: ToolbarItem,
         },
-        Tooltip: ({children}: {children?: ReactNode}) => <>{children}</>,
+        Tooltip: ({ children }: { children?: ReactNode }) => <>{children}</>,
         cn: (...args: unknown[]) => args.filter(Boolean).join(' '),
     };
 });
 
-vi.mock('../../../hooks/useI18n', () => ({
+vi.mock('../../../../shared/lib/hooks/useI18n', () => ({
     useI18n: (key: string) => key,
 }));
 
@@ -122,7 +101,7 @@ vi.mock('lucide-react', () => ({
     ChevronDown: () => null,
 }));
 
-import {SplitActionButton} from './SplitActionButton';
+import { SplitActionButton } from './SplitActionButton';
 
 const createAction = ({
     label,
@@ -144,18 +123,13 @@ describe('SplitActionButton', () => {
     it('filters out invisible actions before choosing the primary action and menu items', () => {
         render(
             <SplitActionButton
-                actions={[
-                    [
-                        createAction({label: 'Hidden', visible: false}),
-                        createAction({label: 'Visible'}),
-                    ],
-                ]}
-            />
+                actions={[[createAction({ label: 'Hidden', visible: false }), createAction({ label: 'Visible' })]]}
+            />,
         );
 
-        expect(screen.getByRole('button', {name: 'Visible'})).toBeDefined();
+        expect(screen.getByRole('button', { name: 'Visible' })).toBeDefined();
         expect(screen.queryByText('Hidden')).toBeNull();
-        expect(screen.queryByRole('button', {name: 'tooltip.moreActions'})).toBeNull();
+        expect(screen.queryByRole('button', { name: 'tooltip.moreActions' })).toBeNull();
     });
 
     it('disables the dropdown trigger when every overflow menu action is disabled', () => {
@@ -163,15 +137,15 @@ describe('SplitActionButton', () => {
             <SplitActionButton
                 actions={[
                     [
-                        createAction({label: 'Primary'}),
-                        createAction({label: 'Disabled A', enabled: false}),
-                        createAction({label: 'Disabled B', enabled: false}),
+                        createAction({ label: 'Primary' }),
+                        createAction({ label: 'Disabled A', enabled: false }),
+                        createAction({ label: 'Disabled B', enabled: false }),
                     ],
                 ]}
-            />
+            />,
         );
 
-        const dropdownButton = screen.getByRole<HTMLButtonElement>('button', {name: 'tooltip.moreActions'});
+        const dropdownButton = screen.getByRole<HTMLButtonElement>('button', { name: 'tooltip.moreActions' });
 
         expect(dropdownButton.disabled).toBe(true);
     });
@@ -181,20 +155,18 @@ describe('SplitActionButton', () => {
             <SplitActionButton
                 actions={[
                     [
-                        createAction({label: 'Disabled First', enabled: false}),
-                        createAction({label: 'Enabled Primary'}),
-                        createAction({label: 'Disabled Last', enabled: false}),
+                        createAction({ label: 'Disabled First', enabled: false }),
+                        createAction({ label: 'Enabled Primary' }),
+                        createAction({ label: 'Disabled Last', enabled: false }),
                     ],
                 ]}
-            />
+            />,
         );
 
-        expect(screen.getByRole('button', {name: 'Enabled Primary'})).toBeDefined();
+        expect(screen.getByRole('button', { name: 'Enabled Primary' })).toBeDefined();
 
         const menuItems = screen.getAllByRole<HTMLButtonElement>('menuitem');
-        const disabledLabels = menuItems
-            .filter((item) => item.disabled)
-            .map((item) => item.textContent?.trim());
+        const disabledLabels = menuItems.filter((item) => item.disabled).map((item) => item.textContent?.trim());
 
         expect(disabledLabels).toEqual(['Disabled First', 'Disabled Last']);
     });
@@ -204,16 +176,16 @@ describe('SplitActionButton', () => {
             <SplitActionButton
                 actions={[
                     [
-                        createAction({label: 'Disabled First', enabled: false}),
-                        createAction({label: 'Enabled Second'}),
-                        createAction({label: 'Enabled Third'}),
+                        createAction({ label: 'Disabled First', enabled: false }),
+                        createAction({ label: 'Enabled Second' }),
+                        createAction({ label: 'Enabled Third' }),
                     ],
                 ]}
-                primaryActionStrategy='firstVisible'
-            />
+                primaryActionStrategy="firstVisible"
+            />,
         );
 
-        const primaryButton = screen.getByRole<HTMLButtonElement>('button', {name: 'Disabled First'});
+        const primaryButton = screen.getByRole<HTMLButtonElement>('button', { name: 'Disabled First' });
         const menuItemLabels = screen
             .getAllByRole<HTMLButtonElement>('menuitem')
             .map((item) => item.textContent?.trim());
@@ -227,17 +199,17 @@ describe('SplitActionButton', () => {
             <SplitActionButton
                 actions={[
                     [
-                        createAction({label: 'Disabled First', enabled: false}),
-                        createAction({label: 'Disabled Second', enabled: false}),
-                        createAction({label: 'Disabled Third', enabled: false}),
+                        createAction({ label: 'Disabled First', enabled: false }),
+                        createAction({ label: 'Disabled Second', enabled: false }),
+                        createAction({ label: 'Disabled Third', enabled: false }),
                     ],
                 ]}
-                primaryActionStrategy='firstVisible'
+                primaryActionStrategy="firstVisible"
                 disableMenuWhenAllMenuActionsDisabled={false}
-            />
+            />,
         );
 
-        const dropdownButton = screen.getByRole<HTMLButtonElement>('button', {name: 'tooltip.moreActions'});
+        const dropdownButton = screen.getByRole<HTMLButtonElement>('button', { name: 'tooltip.moreActions' });
         const menuItems = screen.getAllByRole<HTMLButtonElement>('menuitem');
 
         expect(dropdownButton.disabled).toBe(false);

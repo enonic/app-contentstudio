@@ -1,35 +1,33 @@
 import Q from 'q';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {isBlank} from '../../../v6/features/utils/format/isBlank';
-import {type PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
-import {Value} from '@enonic/lib-admin-ui/data/Value';
-import {type ValueType} from '@enonic/lib-admin-ui/data/ValueType';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {UriHelper} from '../../rendering/UriHelper';
-import {UriHelper as LibUriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
-import {type SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {type CustomSelectorItem} from './CustomSelectorItem';
-import {CustomSelectorMode} from './CustomSelectorMode';
-import {CustomSelectorComboBox, type CustomSelectorSelectedOptionsView} from './CustomSelectorComboBox';
-import {type CustomSelectorGallerySelectedOptionsView} from './CustomSelectorGallerySelectedOptionsView';
-import {type ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
-import {BaseInputTypeManagingAdd} from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
-import {type Input} from '@enonic/lib-admin-ui/form/Input';
-import {ValueTypeConverter} from '@enonic/lib-admin-ui/data/ValueTypeConverter';
-import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
-import {Class} from '@enonic/lib-admin-ui/Class';
-import {UrlAction} from '../../UrlAction';
-import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
-import {Branch} from '../../versioning/Branch';
-import {type ContentSummary} from '../../content/ContentSummary';
-import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {getActiveProjectName} from '../../../v6/features/store/activeProject.store';
+import { StringHelper } from '@enonic/lib-admin-ui/util/StringHelper';
+import { isBlank } from '../../../v6/shared/lib/format/isBlank';
+import { type PropertyArray } from '@enonic/lib-admin-ui/data/PropertyArray';
+import { Value } from '@enonic/lib-admin-ui/data/Value';
+import { type ValueType } from '@enonic/lib-admin-ui/data/ValueType';
+import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { UriHelper } from '../../rendering/UriHelper';
+import { UriHelper as LibUriHelper } from '@enonic/lib-admin-ui/util/UriHelper';
+import { type SelectedOption } from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import { type CustomSelectorItem } from './CustomSelectorItem';
+import { CustomSelectorMode } from './CustomSelectorMode';
+import { CustomSelectorComboBox, type CustomSelectorSelectedOptionsView } from './CustomSelectorComboBox';
+import { type CustomSelectorGallerySelectedOptionsView } from './CustomSelectorGallerySelectedOptionsView';
+import { type ContentInputTypeViewContext } from '../ContentInputTypeViewContext';
+import { BaseInputTypeManagingAdd } from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
+import { type Input } from '@enonic/lib-admin-ui/form/Input';
+import { ValueTypeConverter } from '@enonic/lib-admin-ui/data/ValueTypeConverter';
+import { InputTypeManager } from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
+import { Class } from '@enonic/lib-admin-ui/Class';
+import { UrlAction } from '../../UrlAction';
+import { type ContentSummaryAndCompareStatus } from '../../content/ContentSummaryAndCompareStatus';
+import { ContentServerEventsHandler } from '../../event/ContentServerEventsHandler';
+import { Branch } from '../../versioning/Branch';
+import { type ContentSummary } from '../../content/ContentSummary';
+import { type SelectionChange } from '@enonic/lib-admin-ui/util/SelectionChange';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { getActiveProjectName } from '../../../v6/features/store/activeProject.store';
 
-export class CustomSelector
-    extends BaseInputTypeManagingAdd {
-
+export class CustomSelector extends BaseInputTypeManagingAdd {
     public static debug: boolean = false;
 
     declare protected context: ContentInputTypeViewContext;
@@ -70,8 +68,9 @@ export class CustomSelector
     }
 
     private handleContentUpdated(data: ContentSummaryAndCompareStatus[]) {
-
-        const modifiedData = data.find((content: ContentSummaryAndCompareStatus) => content.getId() === this.content.getId());
+        const modifiedData = data.find(
+            (content: ContentSummaryAndCompareStatus) => content.getId() === this.content.getId(),
+        );
 
         if (modifiedData) {
             this.content = modifiedData.getContentSummary();
@@ -169,7 +168,7 @@ export class CustomSelector
         const comboBox: CustomSelectorComboBox = new CustomSelectorComboBox({
             maxSelected: input.getOccurrences().getMaximum(),
             mode: this.mode,
-            readonly: this.context.content.isReadOnly()
+            readonly: this.context.content.isReadOnly(),
         });
 
         comboBox.getLoader().setRequestPath(this.getRequestPath());
@@ -181,7 +180,8 @@ export class CustomSelector
             selectionChange.selected?.forEach((item: CustomSelectorItem) => {
                 const value = new Value(item.getId().toString(), ValueTypes.STRING);
 
-                if (this.comboBox.countSelected() === 1) { // overwrite initial value
+                if (this.comboBox.countSelected() === 1) {
+                    // overwrite initial value
                     this.getPropertyArray().set(0, value);
                 } else {
                     this.getPropertyArray().add(value);
@@ -189,15 +189,16 @@ export class CustomSelector
             });
 
             selectionChange.deselected?.forEach((item: CustomSelectorItem) => {
-                const property = this.getPropertyArray().getProperties().find((property) => {
-                    const propertyValue = property.hasNonNullValue() ? property.getString() : '';
-                    return propertyValue === item.getId().toString();
-                });
+                const property = this.getPropertyArray()
+                    .getProperties()
+                    .find((property) => {
+                        const propertyValue = property.hasNonNullValue() ? property.getString() : '';
+                        return propertyValue === item.getId().toString();
+                    });
 
                 if (property) {
                     this.getPropertyArray().remove(property.getIndex());
                 }
-
             });
 
             this.refreshSortable();
@@ -206,13 +207,17 @@ export class CustomSelector
             this.validate(false);
         });
 
-        comboBox.onOptionMoved((moved: SelectedOption<CustomSelectorItem>, fromIndex: number) => this.handleMove(moved, fromIndex));
+        comboBox.onOptionMoved((moved: SelectedOption<CustomSelectorItem>, fromIndex: number) =>
+            this.handleMove(moved, fromIndex),
+        );
 
         return comboBox;
     }
 
     private getSelectedItemsIds(): string[] {
-        return this.getValueFromPropertyArray(this.getPropertyArray()).split(';').filter((id) => !isBlank(id));
+        return this.getValueFromPropertyArray(this.getPropertyArray())
+            .split(';')
+            .filter((id) => !isBlank(id));
     }
 
     protected getNumberOfValids(): number {
@@ -271,7 +276,9 @@ export class CustomSelector
 
     static getServiceUrlPrefix(): string {
         if (!CustomSelector.serviceUrlPrefix) {
-            CustomSelector.serviceUrlPrefix = UriHelper.addSitePrefix(`/${UrlAction.EDIT}/{0}/${Branch.DRAFT}{1}/_/service`);
+            CustomSelector.serviceUrlPrefix = UriHelper.addSitePrefix(
+                `/${UrlAction.EDIT}/{0}/${Branch.DRAFT}{1}/_/service`,
+            );
         }
 
         return CustomSelector.serviceUrlPrefix;

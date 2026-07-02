@@ -1,47 +1,54 @@
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {type AccessControlList} from '../../access/AccessControlList';
-import {type Content} from '../../content/Content';
-import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {Permission} from '../../access/Permission';
-import {PublishStatus} from '../../publish/PublishStatus';
-import {type CompareResult} from '../../../v6/features/api/compare';
-import {calcTreePublishStatus, calcSecondaryStatus, isPublished} from '../../../v6/features/utils/cms/content/status';
-import {$wizardContentPathExists, $wizardContentState, $wizardHasChanges} from '../../../v6/features/store/wizardContent.store';
-import {CloseAction} from '@enonic/lib-admin-ui/app/wizard/CloseAction';
-import {WizardActions} from '@enonic/lib-admin-ui/app/wizard/WizardActions';
-import {type ManagedActionExecutor} from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
-import {ManagedActionManager} from '@enonic/lib-admin-ui/managedaction/ManagedActionManager';
-import {ManagedActionState} from '@enonic/lib-admin-ui/managedaction/ManagedActionState';
-import {type Action} from '@enonic/lib-admin-ui/ui/Action';
-import {type ActionsMap, type ActionsState, ActionsStateManager} from '@enonic/lib-admin-ui/ui/ActionsStateManager';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { type AccessControlList } from '../../access/AccessControlList';
+import { type Content } from '../../content/Content';
+import { type ContentSummaryAndCompareStatus } from '../../content/ContentSummaryAndCompareStatus';
+import { Permission } from '../../access/Permission';
+import { PublishStatus } from '../../publish/PublishStatus';
+import { type CompareResult } from '../../../v6/features/api/compare';
+import { calcTreePublishStatus, calcSecondaryStatus, isPublished } from '../../../v6/shared/lib/cms/content/status';
+import {
+    $wizardContentPathExists,
+    $wizardContentState,
+    $wizardHasChanges,
+} from '../../../v6/features/store/wizardContent.store';
+import { CloseAction } from '@enonic/lib-admin-ui/app/wizard/CloseAction';
+import { WizardActions } from '@enonic/lib-admin-ui/app/wizard/WizardActions';
+import { type ManagedActionExecutor } from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
+import { ManagedActionManager } from '@enonic/lib-admin-ui/managedaction/ManagedActionManager';
+import { ManagedActionState } from '@enonic/lib-admin-ui/managedaction/ManagedActionState';
+import { type Action } from '@enonic/lib-admin-ui/ui/Action';
+import { type ActionsMap, type ActionsState, ActionsStateManager } from '@enonic/lib-admin-ui/ui/ActionsStateManager';
+import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
-import {GetContentByPathRequest} from '../../resource/GetContentByPathRequest';
-import {GetContentPermissionsByIdRequest} from '../../resource/GetContentPermissionsByIdRequest';
-import {GetContentRootPermissionsRequest} from '../../resource/GetContentRootPermissionsRequest';
-import {HasUnpublishedChildrenRequest} from '../../resource/HasUnpublishedChildrenRequest';
-import {type HasUnpublishedChildren, type HasUnpublishedChildrenResult} from '../../resource/HasUnpublishedChildrenResult';
-import {type ContentWizardPanel} from '../ContentWizardPanel';
-import {AccessControlHelper} from '../AccessControlHelper';
-import {ProjectHelper} from '../../settings/data/project/ProjectHelper';
-import {ArchiveContentAction} from './ArchiveContentAction';
-import {ContentSaveAction} from './ContentSaveAction';
-import {CreateIssueAction} from './CreateIssueAction';
-import {DuplicateContentAction} from './DuplicateContentAction';
-import {LocalizeContentAction} from './LocalizeContentAction';
-import {MarkAsReadyAction} from './MarkAsReadyAction';
-import {MoveContentAction} from './MoveContentAction';
-import {OpenRequestAction} from './OpenRequestAction';
-import {PreviewAction} from './PreviewAction';
-import {PublishAction} from './PublishAction';
-import {PublishTreeAction} from './PublishTreeAction';
-import {RequestPublishAction} from './RequestPublishAction';
-import {ResetContentAction} from './ResetContentAction';
-import {SaveAndCloseAction} from './SaveAndCloseAction';
-import {ShowFormAction} from './ShowFormAction';
-import {ShowLiveEditAction} from './ShowLiveEditAction';
-import {UnpublishAction} from './UnpublishAction';
+import { GetContentByPathRequest } from '../../resource/GetContentByPathRequest';
+import { GetContentPermissionsByIdRequest } from '../../resource/GetContentPermissionsByIdRequest';
+import { GetContentRootPermissionsRequest } from '../../resource/GetContentRootPermissionsRequest';
+import { HasUnpublishedChildrenRequest } from '../../resource/HasUnpublishedChildrenRequest';
+import {
+    type HasUnpublishedChildren,
+    type HasUnpublishedChildrenResult,
+} from '../../resource/HasUnpublishedChildrenResult';
+import { type ContentWizardPanel } from '../ContentWizardPanel';
+import { AccessControlHelper } from '../AccessControlHelper';
+import { ProjectHelper } from '../../settings/data/project/ProjectHelper';
+import { ArchiveContentAction } from './ArchiveContentAction';
+import { ContentSaveAction } from './ContentSaveAction';
+import { CreateIssueAction } from './CreateIssueAction';
+import { DuplicateContentAction } from './DuplicateContentAction';
+import { LocalizeContentAction } from './LocalizeContentAction';
+import { MarkAsReadyAction } from './MarkAsReadyAction';
+import { MoveContentAction } from './MoveContentAction';
+import { OpenRequestAction } from './OpenRequestAction';
+import { PreviewAction } from './PreviewAction';
+import { PublishAction } from './PublishAction';
+import { PublishTreeAction } from './PublishTreeAction';
+import { RequestPublishAction } from './RequestPublishAction';
+import { ResetContentAction } from './ResetContentAction';
+import { SaveAndCloseAction } from './SaveAndCloseAction';
+import { ShowFormAction } from './ShowFormAction';
+import { ShowLiveEditAction } from './ShowLiveEditAction';
+import { UnpublishAction } from './UnpublishAction';
 
 export class ContentWizardActions extends WizardActions<Content> {
     private deleteOnlyMode: boolean = false;
@@ -126,7 +133,7 @@ export class ContentWizardActions extends WizardActions<Content> {
             showLiveEditAction,
             showFormAction,
             saveAndCloseAction,
-            localizeContentAction
+            localizeContentAction,
         );
 
         this.wizardPanel = wizardPanel;
@@ -163,15 +170,17 @@ export class ContentWizardActions extends WizardActions<Content> {
 
         this.stateManager = new ActionsStateManager(this.actionsMap);
 
-        ManagedActionManager.instance().onManagedActionStateChanged((state: ManagedActionState, executor: ManagedActionExecutor) => {
-            if (state === ManagedActionState.PREPARING) {
-                this.notifyBeforeActionsStashed();
-                this.stateManager.stashActions(stashableActionsMap, false);
-            } else if (state === ManagedActionState.ENDED) {
-                this.stateManager.unstashActions(stashableActionsMap);
-                this.notifyActionsUnstashed();
-            }
-        });
+        ManagedActionManager.instance().onManagedActionStateChanged(
+            (state: ManagedActionState, executor: ManagedActionExecutor) => {
+                if (state === ManagedActionState.PREPARING) {
+                    this.notifyBeforeActionsStashed();
+                    this.stateManager.stashActions(stashableActionsMap, false);
+                } else if (state === ManagedActionState.ENDED) {
+                    this.stateManager.unstashActions(stashableActionsMap);
+                    this.notifyActionsUnstashed();
+                }
+            },
+        );
 
         this.initUnsavedChangesListeners();
     }
@@ -197,7 +206,7 @@ export class ContentWizardActions extends WizardActions<Content> {
                 }
             },
             100,
-            false
+            false,
         );
 
         this.wizardHasChangesUnsubscribe = $wizardHasChanges.subscribe((hasChanges, previousHasChanges) => {
@@ -249,9 +258,13 @@ export class ContentWizardActions extends WizardActions<Content> {
         let isEnabled: boolean = this.hasUnsavedChanges() && !this.pathAlreadyExists();
 
         if (this.persistedContent) {
-            isEnabled = isEnabled && this.persistedContent.isEditable() && this.userCanModify && !this.persistedContent.isDataInherited();
+            isEnabled =
+                isEnabled &&
+                this.persistedContent.isEditable() &&
+                this.userCanModify &&
+                !this.persistedContent.isDataInherited();
         }
-        this.enableActions({SAVE: isEnabled});
+        this.enableActions({ SAVE: isEnabled });
 
         const canSave = this.hasUnsavedChanges() || isEnabled || !this.getSaveAction().isSavedStateEnabled();
         this.getSaveAction().setLabel(i18n(canSave ? 'action.save' : 'action.saved'));
@@ -293,12 +306,16 @@ export class ContentWizardActions extends WizardActions<Content> {
 
         this.enableActions({
             ARCHIVE: existing.isDeletable(),
-            ...(nameAppeared ? {MOVE: !this.deleteOnlyMode} : {}),
+            ...(nameAppeared ? { MOVE: !this.deleteOnlyMode } : {}),
         });
 
         this.enableActionsForExistingByPermissions(existing);
         this.enableActions({
-            SAVE: existing.isEditable() && this.hasUnsavedChanges() && !existing.isDataInherited() && !this.pathAlreadyExists(),
+            SAVE:
+                existing.isEditable() &&
+                this.hasUnsavedChanges() &&
+                !existing.isDataInherited() &&
+                !this.pathAlreadyExists(),
         });
 
         return Q();
@@ -323,14 +340,14 @@ export class ContentWizardActions extends WizardActions<Content> {
         if (valueOn) {
             this.enableDeleteIfAllowed(content);
         } else {
-            this.enableActions({ARCHIVE: true});
+            this.enableActions({ ARCHIVE: true });
             this.enableActionsForExistingByPermissions(content);
         }
     }
 
     private enableDeleteIfAllowed(content: Content) {
         const hasDeletePermission = AccessControlHelper.hasPermission(Permission.DELETE, content.getPermissions());
-        this.enableActions({ARCHIVE: hasDeletePermission});
+        this.enableActions({ ARCHIVE: hasDeletePermission });
     }
 
     private enableActionsForExistingByPermissions(existing: Content): void {
@@ -341,10 +358,16 @@ export class ContentWizardActions extends WizardActions<Content> {
         (this.actionsMap.PREVIEW as PreviewAction).setWritePermissions(this.userCanModify);
 
         if (!this.userCanModify) {
-            this.enableActions({SAVE: false, SAVE_AND_CLOSE: false, MARK_AS_READY: false, RESET: false, LOCALIZE: false});
+            this.enableActions({
+                SAVE: false,
+                SAVE_AND_CLOSE: false,
+                MARK_AS_READY: false,
+                RESET: false,
+                LOCALIZE: false,
+            });
         }
         if (!hasDeletePermission) {
-            this.enableActions({ARCHIVE: false});
+            this.enableActions({ ARCHIVE: false });
         }
         if (!this.userCanPublish) {
             this.enableActions({
@@ -357,20 +380,28 @@ export class ContentWizardActions extends WizardActions<Content> {
 
         if (existing.hasParent()) {
             new GetContentByPathRequest(existing.getPath().getParentPath()).sendAndParse().then((parent: Content) => {
-                new GetContentPermissionsByIdRequest(parent.getContentId()).sendAndParse().then((accessControlList: AccessControlList) => {
-                    const hasParentCreatePermission = AccessControlHelper.hasPermission(Permission.CREATE, accessControlList);
+                new GetContentPermissionsByIdRequest(parent.getContentId())
+                    .sendAndParse()
+                    .then((accessControlList: AccessControlList) => {
+                        const hasParentCreatePermission = AccessControlHelper.hasPermission(
+                            Permission.CREATE,
+                            accessControlList,
+                        );
 
-                    if (!hasParentCreatePermission) {
-                        this.enableActions({DUPLICATE: false});
-                    }
-                });
+                        if (!hasParentCreatePermission) {
+                            this.enableActions({ DUPLICATE: false });
+                        }
+                    });
             });
         } else {
             new GetContentRootPermissionsRequest().sendAndParse().then((accessControlList: AccessControlList) => {
-                const hasParentCreatePermission = AccessControlHelper.hasPermission(Permission.CREATE, accessControlList);
+                const hasParentCreatePermission = AccessControlHelper.hasPermission(
+                    Permission.CREATE,
+                    accessControlList,
+                );
 
                 if (!hasParentCreatePermission) {
-                    this.enableActions({DUPLICATE: false});
+                    this.enableActions({ DUPLICATE: false });
                 }
             });
         }
@@ -446,7 +477,8 @@ export class ContentWizardActions extends WizardActions<Content> {
         const canBeUnpublished: boolean = isPublished(this.content.getContentSummary()) && this.userCanPublish;
         const canBeMarkedAsReady: boolean = this.contentCanBeMarkedAsReady && this.userCanModify;
         const canBeRequestedPublish: boolean = this.canBeRequestedPublish();
-        const isInheritedItem: boolean = this.wizardPanel.isContentExistsInParentProject() && this.content.hasOriginProject();
+        const isInheritedItem: boolean =
+            this.wizardPanel.isContentExistsInParentProject() && this.content.hasOriginProject();
         const canBeLocalized: boolean = isInheritedItem && this.content.isDataInherited();
         const canBeReset: boolean = isInheritedItem && !this.content.isDataInherited();
 
@@ -470,7 +502,11 @@ export class ContentWizardActions extends WizardActions<Content> {
     }
 
     private canBeRequestedPublish(): boolean {
-        return ProjectHelper.canRequestPublish() && this.isContentValid && (!this.isOnline() || this.hasUnpublishedChildren);
+        return (
+            ProjectHelper.canRequestPublish() &&
+            this.isContentValid &&
+            (!this.isOnline() || this.hasUnpublishedChildren)
+        );
     }
 
     canBePublished(): boolean {

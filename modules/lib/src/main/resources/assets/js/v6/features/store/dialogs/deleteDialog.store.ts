@@ -1,16 +1,21 @@
-import {showError, showSuccess} from '@enonic/lib-admin-ui/notify/MessageBus';
-import type {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {computed, map} from 'nanostores';
-import {type ContentId} from '../../../../app/content/ContentId';
-import type {ContentSummary} from '../../../../app/content/ContentSummary';
-import {type ContentServerChangeItem} from '../../../../app/event/ContentServerChangeItem';
-import {fetchContentSummaries} from '../../api/content';
-import {archiveContent, resolveForDelete} from '../../api/delete';
-import {trackTask, cleanupTask} from '../../services/task.service';
-import {hasContentIdInIds} from '../../utils/cms/content/ids';
-import {createDebounce} from '../../utils/timing/createDebounce';
-import {$contentArchived, $contentCreated, $contentDeleted, $contentUpdated} from '../socket.store';
+import { showError, showSuccess } from '@enonic/lib-admin-ui/notify/MessageBus';
+import type { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { computed, map } from 'nanostores';
+import { type ContentId } from '../../../../app/content/ContentId';
+import type { ContentSummary } from '../../../../app/content/ContentSummary';
+import { type ContentServerChangeItem } from '../../../../app/event/ContentServerChangeItem';
+import { fetchContentSummaries } from '../../api/content';
+import { archiveContent, resolveForDelete } from '../../api/delete';
+import { trackTask, cleanupTask } from '../../services/task.service';
+import { hasContentIdInIds } from '../../../shared/lib/cms/content/ids';
+import { createDebounce } from '../../../shared/lib/timing/createDebounce';
+import {
+    $contentArchived,
+    $contentCreated,
+    $contentDeleted,
+    $contentUpdated,
+} from '../../../shared/socket/socket.store';
 
 //
 // * Types
@@ -71,20 +76,26 @@ export const $deleteDialog = map<DeleteDialogStore>(structuredClone(initialState
 //
 
 // Count uses the full dependant id list, not just the loaded window.
-export const $deleteItemsCount = computed($deleteDialog, ({items, dependantIds}) => items.length + dependantIds.length);
+export const $deleteItemsCount = computed(
+    $deleteDialog,
+    ({ items, dependantIds }) => items.length + dependantIds.length,
+);
 
-export const $hasMoreDeleteDependants = computed($deleteDialog, ({dependantIds, dependantWindow}) => dependantWindow < dependantIds.length);
+export const $hasMoreDeleteDependants = computed(
+    $deleteDialog,
+    ({ dependantIds, dependantWindow }) => dependantWindow < dependantIds.length,
+);
 
-export const $isDeleteTargetSite = computed($deleteDialog, ({items, dependants}) => {
-    return [...items, ...dependants].some(item => item.isSite());
+export const $isDeleteTargetSite = computed($deleteDialog, ({ items, dependants }) => {
+    return [...items, ...dependants].some((item) => item.isSite());
 });
 
-export const $isDeleteBlockedByInbound = computed($deleteDialog, ({inboundTargets, inboundIgnored}) => {
+export const $isDeleteBlockedByInbound = computed($deleteDialog, ({ inboundTargets, inboundIgnored }) => {
     return inboundTargets.length > 0 && !inboundIgnored;
 });
 
-export const $deleteInboundIds = computed($deleteDialog, ({inboundTargets}) => {
-    return inboundTargets.map(id => id.toString());
+export const $deleteInboundIds = computed($deleteDialog, ({ inboundTargets }) => {
+    return inboundTargets.map((id) => id.toString());
 });
 
 export const $isDeleteDialogReady = computed([$deleteDialog, $isDeleteBlockedByInbound], (state, isBlocked) => {
@@ -103,8 +114,8 @@ let loadingMore = false;
 //
 
 const getAllTargetIds = (): ContentId[] => {
-    const {items, dependantIds} = $deleteDialog.get();
-    return [...items.map(item => item.getContentId()), ...dependantIds];
+    const { items, dependantIds } = $deleteDialog.get();
+    return [...items.map((item) => item.getContentId()), ...dependantIds];
 };
 
 // Inbound (blocking) dependants are shown first so they land in the first window.
@@ -112,17 +123,16 @@ const orderDependantIdsByInbound = (ids: ContentId[], inboundTargets: ContentId[
     if (inboundTargets.length === 0) {
         return ids;
     }
-    const inboundSet = new Set(inboundTargets.map(id => id.toString()));
-    const inbound = ids.filter(id => inboundSet.has(id.toString()));
-    const rest = ids.filter(id => !inboundSet.has(id.toString()));
+    const inboundSet = new Set(inboundTargets.map((id) => id.toString()));
+    const inbound = ids.filter((id) => inboundSet.has(id.toString()));
+    const rest = ids.filter((id) => !inboundSet.has(id.toString()));
     return [...inbound, ...rest];
 };
 
 const orderSummariesByIds = (summaries: ContentSummary[], orderIds: ContentId[]): ContentSummary[] => {
     const indexById = new Map<string, number>();
     orderIds.forEach((id, index) => indexById.set(id.toString(), index));
-    const indexOf = (item: ContentSummary): number =>
-        indexById.get(item.getContentId().toString()) ?? orderIds.length;
+    const indexOf = (item: ContentSummary): number => indexById.get(item.getContentId().toString()) ?? orderIds.length;
     return [...summaries].sort((a, b) => indexOf(a) - indexOf(b));
 };
 
@@ -134,8 +144,8 @@ async function loadDeleteDependantWindow(allIds: ContentId[], start: number, gua
 
     if (guardId !== instanceId) return;
 
-    const {dependants, dependantIds} = $deleteDialog.get();
-    const currentIds = new Set(dependantIds.map(id => id.toString()));
+    const { dependants, dependantIds } = $deleteDialog.get();
+    const currentIds = new Set(dependantIds.map((id) => id.toString()));
     const byId = new Map<string, ContentSummary>();
     for (const item of [...(start === 0 ? [] : dependants), ...summaries]) {
         const key = item.getContentId().toString();
@@ -155,7 +165,7 @@ async function loadDeleteDependantWindow(allIds: ContentId[], start: number, gua
 export const loadMoreDeleteDependants = async (): Promise<void> => {
     if (loadingMore) return;
 
-    const {dependantIds, dependantWindow} = $deleteDialog.get();
+    const { dependantIds, dependantWindow } = $deleteDialog.get();
     if (dependantWindow >= dependantIds.length) return;
 
     loadingMore = true;
@@ -168,7 +178,7 @@ export const loadMoreDeleteDependants = async (): Promise<void> => {
 };
 
 const getArchiveContentIds = (items: ContentSummary[]): ContentId[] => {
-    return items.map(item => item.getContentId());
+    return items.map((item) => item.getContentId());
 };
 
 //
@@ -188,7 +198,7 @@ export const openDeleteDialog = (items: ContentSummary[]): void => {
 };
 
 export const cancelDeleteDialog = (): void => {
-    const {submitting} = $deleteDialog.get();
+    const { submitting } = $deleteDialog.get();
     if (submitting) {
         return;
     }
@@ -198,7 +208,7 @@ export const cancelDeleteDialog = (): void => {
 
 export const resetDeleteDialogContext = (): void => {
     instanceId += 1;
-    const {taskId} = $deleteDialog.get();
+    const { taskId } = $deleteDialog.get();
     if (taskId) {
         cleanupTask(taskId);
     }
@@ -214,7 +224,7 @@ export const ignoreDeleteInboundDependencies = (): void => {
     $deleteDialog.setKey('inboundIgnored', true);
 };
 
-export const $deleteTaskId = computed($deleteDialog, ({taskId}) => taskId);
+export const $deleteTaskId = computed($deleteDialog, ({ taskId }) => taskId);
 
 export const executeDeleteDialogAction = async (): Promise<boolean> => {
     const state = $deleteDialog.get();
@@ -223,7 +233,7 @@ export const executeDeleteDialogAction = async (): Promise<boolean> => {
     }
 
     const totalCount = $deleteItemsCount.get();
-    const pendingIds = getAllTargetIds().map(id => id.toString());
+    const pendingIds = getAllTargetIds().map((id) => id.toString());
     const pendingPrimaryName = state.items[0]?.getDisplayName() || state.items[0]?.getPath()?.toString();
     const pendingTotal = totalCount || state.items.length;
 
@@ -243,9 +253,10 @@ export const executeDeleteDialogAction = async (): Promise<boolean> => {
             onComplete: (resultState, message) => {
                 if (resultState === 'SUCCESS') {
                     const total = pendingTotal || pendingIds.length;
-                    const successMessage = total > 1
-                        ? i18n('dialog.archive.success.multiple', total)
-                        : i18n('dialog.archive.success.single', pendingPrimaryName ?? '');
+                    const successMessage =
+                        total > 1
+                            ? i18n('dialog.archive.success.multiple', total)
+                            : i18n('dialog.archive.success.single', pendingPrimaryName ?? '');
                     showSuccess(successMessage);
                 } else {
                     showError(message);
@@ -274,7 +285,7 @@ export const executeDeleteDialogAction = async (): Promise<boolean> => {
 
 const reloadDeleteDialogData = async (): Promise<void> => {
     const currentInstance = instanceId;
-    const {items, open, loading} = $deleteDialog.get();
+    const { items, open, loading } = $deleteDialog.get();
     if (!open || items.length === 0 || loading) {
         return;
     }
@@ -283,23 +294,23 @@ const reloadDeleteDialogData = async (): Promise<void> => {
     $deleteDialog.setKey('failed', false);
 
     try {
-        const ids = items.map(item => item.getContentId());
+        const ids = items.map((item) => item.getContentId());
         const result = await resolveForDelete(ids);
 
         if (currentInstance !== instanceId) return;
 
-        const resolvedDependantIds = result.getContentIds().filter(id => !hasContentIdInIds(id, ids));
+        const resolvedDependantIds = result.getContentIds().filter((id) => !hasContentIdInIds(id, ids));
 
         const inboundDependencies = result.getInboundDependencies();
-        const inboundTargets = inboundDependencies.map(dep => dep.getId());
-        const inboundSourceIds = inboundDependencies.flatMap(dep =>
-            dep.getInboundDependencies().map(id => id.toString()));
+        const inboundTargets = inboundDependencies.map((dep) => dep.getId());
+        const inboundSourceIds = inboundDependencies.flatMap((dep) =>
+            dep.getInboundDependencies().map((id) => id.toString()),
+        );
 
         // Keep all ids; load only the first window of summaries (rest load on scroll).
         const dependantIds = orderDependantIdsByInbound(resolvedDependantIds, inboundTargets);
-        const dependants = dependantIds.length > 0
-            ? await fetchContentSummaries(dependantIds.slice(0, DEPENDANT_LOAD_SIZE))
-            : [];
+        const dependants =
+            dependantIds.length > 0 ? await fetchContentSummaries(dependantIds.slice(0, DEPENDANT_LOAD_SIZE)) : [];
 
         if (currentInstance !== instanceId) return;
 
@@ -331,24 +342,24 @@ const reloadDeleteDialogDataDebounced = createDebounce(() => {
 
 /** Patch items with updated data, keeping items not in the update */
 const patchItemsWithUpdates = (updates: ContentSummary[]): boolean => {
-    const {items} = $deleteDialog.get();
-    const updateMap = new Map(updates.map(u => [u.getId(), u]));
+    const { items } = $deleteDialog.get();
+    const updateMap = new Map(updates.map((u) => [u.getId(), u]));
 
-    const hasUpdates = items.some(item => updateMap.has(item.getId()));
+    const hasUpdates = items.some((item) => updateMap.has(item.getId()));
     if (!hasUpdates) return false;
 
-    const patchedItems = items.map(item => updateMap.get(item.getId()) ?? item);
+    const patchedItems = items.map((item) => updateMap.get(item.getId()) ?? item);
     $deleteDialog.setKey('items', patchedItems);
     return true;
 };
 
 /** Remove items by IDs from both main items and dependants */
-const removeItemsByIds = (ids: Set<string>): {removedMain: boolean; removedDependant: boolean} => {
-    const {items, dependants, dependantIds} = $deleteDialog.get();
+const removeItemsByIds = (ids: Set<string>): { removedMain: boolean; removedDependant: boolean } => {
+    const { items, dependants, dependantIds } = $deleteDialog.get();
 
-    const newItems = items.filter(item => !ids.has(item.getContentId().toString()));
-    const newDependants = dependants.filter(item => !ids.has(item.getContentId().toString()));
-    const newDependantIds = dependantIds.filter(id => !ids.has(id.toString()));
+    const newItems = items.filter((item) => !ids.has(item.getContentId().toString()));
+    const newDependants = dependants.filter((item) => !ids.has(item.getContentId().toString()));
+    const newDependantIds = dependantIds.filter((id) => !ids.has(id.toString()));
 
     const removedMain = newItems.length !== items.length;
     const removedDependant = newDependants.length !== dependants.length;
@@ -364,13 +375,13 @@ const removeItemsByIds = (ids: Set<string>): {removedMain: boolean; removedDepen
         $deleteDialog.setKey('dependantWindow', Math.min($deleteDialog.get().dependantWindow, newDependantIds.length));
     }
 
-    return {removedMain, removedDependant};
+    return { removedMain, removedDependant };
 };
 
 /** Whether any of the changed IDs is a content referencing the items (inbound source) */
 const hasInboundSourceChange = (changedIds: Set<string>): boolean => {
-    const {inboundSourceIds} = $deleteDialog.get();
-    return inboundSourceIds.some(id => changedIds.has(id));
+    const { inboundSourceIds } = $deleteDialog.get();
+    return inboundSourceIds.some((id) => changedIds.has(id));
 };
 
 //
@@ -379,12 +390,12 @@ const hasInboundSourceChange = (changedIds: Set<string>): boolean => {
 
 /** Handles external delete/archive events (not triggered by this dialog's action) */
 const handleExternalDeleteEvent = (changeItems: ContentServerChangeItem[]): void => {
-    const ids = new Set(changeItems.map(item => item.getContentId().toString()));
+    const ids = new Set(changeItems.map((item) => item.getContentId().toString()));
     const state = $deleteDialog.get();
 
     // If dialog is open but not submitting, update items/dependants
     if (state.open && !state.submitting) {
-        const {removedMain, removedDependant} = removeItemsByIds(ids);
+        const { removedMain, removedDependant } = removeItemsByIds(ids);
         if (removedMain && state.items.length === 0) {
             resetDeleteDialogContext();
             return;
@@ -402,7 +413,7 @@ const handleExternalDeleteEvent = (changeItems: ContentServerChangeItem[]): void
 //
 
 // Reload data when dialog opens
-$deleteDialog.subscribe(({open, loading}, oldState) => {
+$deleteDialog.subscribe(({ open, loading }, oldState) => {
     const wasOpen = !!oldState?.open;
     if (!open || wasOpen || loading) return;
     reloadDeleteDialogData();
@@ -414,7 +425,7 @@ $deleteDialog.subscribe(({open, loading}, oldState) => {
 
 /** Check if dialog is open and has items */
 const isDialogActive = (): boolean => {
-    const {open, items, submitting} = $deleteDialog.get();
+    const { open, items, submitting } = $deleteDialog.get();
     return open && !submitting && items.length > 0;
 };
 
@@ -430,14 +441,14 @@ $contentCreated.subscribe((event) => {
 $contentUpdated.subscribe((event) => {
     if (!event || !isDialogActive()) return;
 
-    const {dependants} = $deleteDialog.get();
-    const updatedIds = new Set(event.data.map(item => item.getId()));
+    const { dependants } = $deleteDialog.get();
+    const updatedIds = new Set(event.data.map((item) => item.getId()));
 
     // Patch main items with updated data (display name, status, etc.)
     patchItemsWithUpdates(event.data);
 
     // Reload when dependants change, or when a referencing content is edited to drop a reference.
-    const hasDependantUpdates = dependants.some(item => updatedIds.has(item.getId()));
+    const hasDependantUpdates = dependants.some((item) => updatedIds.has(item.getId()));
     if (hasDependantUpdates || hasInboundSourceChange(updatedIds)) {
         reloadDeleteDialogDataDebounced();
     }

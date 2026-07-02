@@ -1,23 +1,23 @@
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {type Element} from '@enonic/lib-admin-ui/dom/Element';
-import {type IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
-import {type Extension} from '@enonic/lib-admin-ui/extension/Extension';
-import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
-import {type Action} from '@enonic/lib-admin-ui/ui/Action';
-import {type Mask} from '@enonic/lib-admin-ui/ui/mask/Mask';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {listenKeys} from 'nanostores';
+import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
+import { type Element } from '@enonic/lib-admin-ui/dom/Element';
+import { type IFrameEl } from '@enonic/lib-admin-ui/dom/IFrameEl';
+import { type Extension } from '@enonic/lib-admin-ui/extension/Extension';
+import { StatusCode } from '@enonic/lib-admin-ui/rest/StatusCode';
+import { type Action } from '@enonic/lib-admin-ui/ui/Action';
+import { type Mask } from '@enonic/lib-admin-ui/ui/mask/Mask';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { listenKeys } from 'nanostores';
 import Q from 'q';
-import {PreviewLabelElement} from '../../v6/features/shared/PreviewLabel';
-import {$app, getResolvedTheme} from '../../v6/features/store/app.store';
-import {$isWidgetRenderable} from '../../v6/features/store/contextWidgets.store';
-import {$autoModeWidgets, WIDGET_AUTO_DESCRIPTOR} from '../../v6/features/store/liveViewWidgets.store';
-import {EmulatedDeviceEvent} from '../../v6/features/utils/dom/events/registry';
-import {PreviewActionHelper} from '../action/PreviewActionHelper';
-import {type ContentSummary} from '../content/ContentSummary';
-import {ViewExtensionEvent} from '../event/ViewExtensionEvent';
-import {RenderingMode} from '../rendering/RenderingMode';
-import {EmulatorDevice} from './context/extension/emulator/EmulatorDevice';
+import { PreviewLabelElement } from '../../v6/shared/ui/PreviewLabel';
+import { $app, getResolvedTheme } from '../../v6/features/store/app.store';
+import { $isWidgetRenderable } from '../../v6/features/store/contextWidgets.store';
+import { $autoModeWidgets, WIDGET_AUTO_DESCRIPTOR } from '../../v6/features/store/liveViewWidgets.store';
+import { EmulatedDeviceEvent } from '../../v6/shared/lib/dom/events/registry';
+import { PreviewActionHelper } from '../action/PreviewActionHelper';
+import { type ContentSummary } from '../content/ContentSummary';
+import { ViewExtensionEvent } from '../event/ViewExtensionEvent';
+import { RenderingMode } from '../rendering/RenderingMode';
+import { EmulatorDevice } from './context/extension/emulator/EmulatorDevice';
 
 export enum PREVIEW_TYPE {
     SUCCESS,
@@ -27,7 +27,6 @@ export enum PREVIEW_TYPE {
 }
 
 export class ExtensionRenderingHandler {
-
     private PREVIEW_HEADER_NAME = 'enonic-widget-data';
 
     protected readonly renderer: ExtensionRenderer;
@@ -52,7 +51,6 @@ export class ExtensionRenderingHandler {
 
     protected renderableChangedListeners: ((isRenderable: boolean, wasRenderable: boolean) => void)[] = [];
 
-
     constructor(renderer: ExtensionRenderer, previewHelper?: PreviewActionHelper) {
         this.renderer = renderer;
         this.mode = RenderingMode.INLINE;
@@ -62,9 +60,7 @@ export class ExtensionRenderingHandler {
         this.setPreviewType(PREVIEW_TYPE.EMPTY);
     }
 
-
     public async render(summary: ContentSummary, extension: Extension): Promise<boolean> {
-
         const deferred = Q.defer<boolean>();
 
         const wasRenderable = await this.isItemRenderable();
@@ -105,7 +101,8 @@ export class ExtensionRenderingHandler {
                 isRenderable = false;
 
                 return false;
-            }).finally(() => {
+            })
+            .finally(() => {
                 deferred.resolve(isRenderable);
                 if (isRenderable !== wasRenderable) {
                     this.notifyRenderableChanged(isRenderable, wasRenderable);
@@ -133,7 +130,11 @@ export class ExtensionRenderingHandler {
     }
 
     protected createErrorView(): DivEl {
-        this.messageLabel = new PreviewLabelElement({messages: [this.getDefaultMessage()], showIcon: true, className: 'text-xl'});
+        this.messageLabel = new PreviewLabelElement({
+            messages: [this.getDefaultMessage()],
+            showIcon: true,
+            className: 'text-xl',
+        });
         const wrapper = new DivEl('no-preview-message bg-surface-primary');
         wrapper.appendChild(this.messageLabel);
         return wrapper;
@@ -141,7 +142,7 @@ export class ExtensionRenderingHandler {
 
     protected createMessageView(message: string, className?: string, showIcon?: boolean): DivEl {
         const wrapper = new DivEl(className);
-        const label = new PreviewLabelElement({messages: [message], showIcon, className: 'text-xl'});
+        const label = new PreviewLabelElement({ messages: [message], showIcon, className: 'text-xl' });
         wrapper.appendChild(label);
         return wrapper;
     }
@@ -156,12 +157,16 @@ export class ExtensionRenderingHandler {
             }
             case PREVIEW_TYPE.FAILED: {
                 this.renderer.addClass('message-preview');
-            this.showPreviewMessages(messages || [i18n('field.preview.failed'), i18n('field.preview.failed.description')]);
+                this.showPreviewMessages(
+                    messages || [i18n('field.preview.failed'), i18n('field.preview.failed.description')],
+                );
                 break;
             }
             case PREVIEW_TYPE.MISSING: {
                 this.renderer.addClass('message-preview');
-            this.showPreviewMessages(messages || [i18n('field.preview.failed'), i18n('field.preview.missing.description')]);
+                this.showPreviewMessages(
+                    messages || [i18n('field.preview.failed'), i18n('field.preview.missing.description')],
+                );
                 break;
             }
             case PREVIEW_TYPE.EMPTY:
@@ -175,7 +180,7 @@ export class ExtensionRenderingHandler {
     }
 
     protected showPreviewMessages(messages: string[]) {
-        this.messageLabel.setProps({messages, showIcon: true});
+        this.messageLabel.setProps({ messages, showIcon: true });
     }
 
     protected handlePreviewSuccess(response: Response, data: Record<string, never>) {
@@ -188,9 +193,7 @@ export class ExtensionRenderingHandler {
             mainType = contentType.split('/')[0];
         }
 
-        this.renderer.getIFrameEl()
-            .setSrc(response.url)
-            .setClass(mainType);
+        this.renderer.getIFrameEl().setSrc(response.url).setClass(mainType);
     }
 
     protected handlePreviewFailure(response?: Response, data?: Record<string, never>) {
@@ -198,7 +201,6 @@ export class ExtensionRenderingHandler {
 
         const statusCode = response.status;
         if (statusCode > 0) {
-
             const messages: string[] = (data?.messages as string[])?.length ? data.messages : undefined;
 
             switch (statusCode) {
@@ -250,13 +252,13 @@ export class ExtensionRenderingHandler {
         }
         for (extension of items) {
             const url = this.previewHelper.getUrl(summary, extension, this.mode) + '&auto=' + isAuto;
-            response = await fetch(url, {method: 'HEAD', credentials: 'include'});
+            response = await fetch(url, { method: 'HEAD', credentials: 'include' });
 
             data = this.extractPreviewData(response);
             if (data.redirect) {
                 // follow redirect manually to get data headers first
                 try {
-                    response = await fetch(data.redirect, {method: 'HEAD', credentials: 'include'});
+                    response = await fetch(data.redirect, { method: 'HEAD', credentials: 'include' });
                 } catch (e) {
                     response = this.createErrorResponse(e, data.redirect);
                 }
@@ -276,16 +278,16 @@ export class ExtensionRenderingHandler {
     }
 
     private isResponseOk(response: Response, isAuto: boolean) {
-        return response.ok || !isAuto && response.status !== StatusCode.I_AM_A_TEAPOT;
+        return response.ok || (!isAuto && response.status !== StatusCode.I_AM_A_TEAPOT);
     }
 
     private createErrorResponse(error: Error, url: string): Response {
         const resp = new Response(null, {
             status: StatusCode.NOT_FOUND,
-            statusText: error.message || 'Endpoint not reachable'
+            statusText: error.message || 'Endpoint not reachable',
         });
         // The url property cannot be set via the constructor, so we define it manually
-        Object.defineProperty(resp, 'url', {value: url, writable: false, enumerable: true, configurable: false})
+        Object.defineProperty(resp, 'url', { value: url, writable: false, enumerable: true, configurable: false });
         return resp;
     }
 
@@ -340,14 +342,11 @@ export class ExtensionRenderingHandler {
 
         // Keep no selection message intact,
         // Since no toolbar shown when no content is selected
-        const subjects = [
-            this.renderer.getIFrameEl().getHTMLElement(),
-            this.messageView.getHTMLElement()
-        ];
+        const subjects = [this.renderer.getIFrameEl().getHTMLElement(), this.messageView.getHTMLElement()];
 
-        const isFullscreen = device.equals(EmulatorDevice.getFullscreen())|| !device.isValid();
+        const isFullscreen = device.equals(EmulatorDevice.getFullscreen()) || !device.isValid();
 
-        subjects.forEach(s => {
+        subjects.forEach((s) => {
             s.style.width = !isFullscreen ? device.getWidthWithUnits() : '';
             s.style.height = !isFullscreen ? device.getHeightWithUnits() : '';
         });
@@ -412,17 +411,15 @@ export class ExtensionRenderingHandler {
     }
 
     public unRenderableChanged(listener: (isRenderable: boolean, wasRenderable: boolean) => void) {
-        this.renderableChangedListeners = this.renderableChangedListeners.filter(l => l !== listener);
+        this.renderableChangedListeners = this.renderableChangedListeners.filter((l) => l !== listener);
     }
 
     protected notifyRenderableChanged(isRenderable: boolean, wasRenderable: boolean) {
-        this.renderableChangedListeners.forEach(listener => listener(isRenderable, wasRenderable));
+        this.renderableChangedListeners.forEach((listener) => listener(isRenderable, wasRenderable));
     }
 }
 
-export interface ExtensionRenderer
-    extends Element {
-
+export interface ExtensionRenderer extends Element {
     getIFrameEl(): IFrameEl;
 
     getChildrenContainer(): DivEl;

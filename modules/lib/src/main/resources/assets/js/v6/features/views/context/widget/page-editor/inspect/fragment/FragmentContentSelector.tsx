@@ -1,9 +1,9 @@
-import {cn, Combobox} from '@enonic/ui';
-import {FileChartPie} from 'lucide-react';
-import type {ReactElement} from 'react';
-import {useI18n} from '../../../../../../hooks/useI18n';
-import {SelectorPopup} from '../SelectorPopup';
-import {useFragmentContentSelector} from './hooks/useFragmentContentSelector';
+import { cn, Combobox } from '@enonic/ui';
+import { FileChartPie } from 'lucide-react';
+import type { ReactElement } from 'react';
+import { useI18n } from '../../../../../../../shared/lib/hooks/useI18n';
+import { SelectorPopup } from '../SelectorPopup';
+import { useFragmentContentSelector } from './hooks/useFragmentContentSelector';
 
 const FRAGMENT_CONTENT_SELECTOR_NAME = 'FragmentContentSelector';
 
@@ -71,7 +71,7 @@ export const FragmentContentSelector = (): ReactElement | null => {
                         </Combobox.Search>
                     </Combobox.Control>
                     <SelectorPopup options={filteredOptions} emptyLabel={noMatchingLabel}>
-                        {option => (
+                        {(option) => (
                             <div className="flex flex-col overflow-hidden">
                                 <span className="leading-5.5 font-semibold truncate group-data-[tone=inverse]:text-alt">
                                     {option.label}

@@ -1,10 +1,6 @@
-import {useCallback, useState} from 'react';
-import {useI18n} from '../../../../../../../hooks/useI18n';
-import {
-    type PageOption,
-    type PageOptionType,
-    usePageOptions,
-} from '../../../../../../../hooks/usePageOptions';
+import { useCallback, useState } from 'react';
+import { useI18n } from '../../../../../../../../shared/lib/hooks/useI18n';
+import { type PageOption, type PageOptionType, usePageOptions } from '../../../../../../../hooks/usePageOptions';
 import {
     bumpInsertTabActivateNonce,
     executePageReset,
@@ -12,10 +8,7 @@ import {
     requestSetPageController,
     requestSetPageTemplate,
 } from '../../../../../../../store/page-editor';
-import {
-    $pageControllerOptions,
-    $pageTemplateOptions,
-} from '../../../../../../../store/page-inspection.store';
+import { $pageControllerOptions, $pageTemplateOptions } from '../../../../../../../store/page-inspection.store';
 
 export type ConfirmDialogState = {
     question: string;
@@ -40,18 +33,11 @@ export function usePageControllerSelector(): UsePageControllerSelectorResult {
 
     const [searchValue, setSearchValue] = useState<string | undefined>();
     const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null);
-    const {
-        options,
-        filteredOptions,
-        selectedOption,
-        selectedKey,
-        selection,
-        isLoading,
-    } = usePageOptions(searchValue);
+    const { options, filteredOptions, selectedOption, selectedKey, selection, isLoading } = usePageOptions(searchValue);
 
     const getOptionType = useCallback(
         (key: string): PageOptionType | undefined => {
-            return options.find(o => o.key === key)?.type;
+            return options.find((o) => o.key === key)?.type;
         },
         [options],
     );
@@ -64,13 +50,13 @@ export function usePageControllerSelector(): UsePageControllerSelectorResult {
             if (newType === 'auto') {
                 executePageReset();
             } else if (newType === 'template') {
-                const template = $pageTemplateOptions.get().find(t => t.getKey().toString() === newKey);
+                const template = $pageTemplateOptions.get().find((t) => t.getKey().toString() === newKey);
                 if (template) {
                     requestSetPageTemplate(template.getKey());
                     bumpInsertTabActivateNonce();
                 }
             } else {
-                const controller = $pageControllerOptions.get().find(c => c.getKey().toString() === newKey);
+                const controller = $pageControllerOptions.get().find((c) => c.getKey().toString() === newKey);
                 if (controller) {
                     requestSetPageController(controller.getKey());
                     bumpInsertTabActivateNonce();
@@ -102,13 +88,11 @@ export function usePageControllerSelector(): UsePageControllerSelectorResult {
 
             // Cross-type transitions (template↔controller) need confirmation
             const needsConfirmation =
-                oldType && newType &&
-                oldType !== 'auto' && newType !== 'auto' &&
-                oldType !== newType;
+                oldType && newType && oldType !== 'auto' && newType !== 'auto' && oldType !== newType;
 
             if (needsConfirmation) {
                 const question = newType === 'template' ? templateChangeQuestion : controllerChangeQuestion;
-                setConfirmDialog({question, onConfirm: () => executeSelection(newKey)});
+                setConfirmDialog({ question, onConfirm: () => executeSelection(newKey) });
             } else {
                 executeSelection(newKey);
             }

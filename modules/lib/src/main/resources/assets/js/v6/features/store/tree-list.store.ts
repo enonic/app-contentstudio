@@ -1,6 +1,6 @@
-import {atom, computed} from 'nanostores';
-import {$contentDeleted, $contentArchived, $contentCreated, $contentMoved} from './socket.store';
-import type {ContentSummary} from '../../../app/content/ContentSummary';
+import { atom, computed } from 'nanostores';
+import { $contentDeleted, $contentArchived, $contentCreated, $contentMoved } from '../../shared/socket/socket.store';
+import type { ContentSummary } from '../../../app/content/ContentSummary';
 import {
     createEmptyState,
     setNode,
@@ -29,12 +29,12 @@ import {
     ROOT_LOADING_KEY,
     type FlatNode,
     type CreateNodeOptions,
-} from '../lib/tree-store';
-import {$uploads, type UploadItem} from './uploads.store';
-import {$contentCache} from './content.store';
-import type {ContentData} from '../views/browse/grid/ContentData';
-import type {ContentUploadData} from '../views/browse/grid/ContentUploadData';
-import {convertToContentFlatNode, findParentIdByPath, toTreeNodeData} from './tree/utils';
+} from '../../shared/lib/tree-store';
+import { $uploads, type UploadItem } from './uploads.store';
+import { $contentCache } from './content.store';
+import type { ContentData } from '../views/browse/grid/ContentData';
+import type { ContentUploadData } from '../views/browse/grid/ContentUploadData';
+import { convertToContentFlatNode, findParentIdByPath, toTreeNodeData } from './tree/utils';
 import type {
     ContentTreeNodeData,
     ContentTreeState,
@@ -44,7 +44,7 @@ import type {
 } from './tree/types';
 
 // Re-export types for backwards compatibility
-export type {ContentTreeNodeData, ContentTreeState, ContentTreeNode, ContentFlatNode, LoadingStateValue};
+export type { ContentTreeNodeData, ContentTreeState, ContentTreeNode, ContentFlatNode, LoadingStateValue };
 
 //
 // * Store
@@ -224,7 +224,7 @@ export function rootHasMoreChildren(): boolean {
 }
 
 export function setNodeTotalChildren(id: string, totalChildren: number): void {
-    updateTreeState((state) => setNode(state, {id, totalChildren}));
+    updateTreeState((state) => setNode(state, { id, totalChildren }));
 }
 
 //
@@ -339,7 +339,8 @@ function addContentToTree(content: ContentSummary): void {
         } else {
             const parent = state.nodes.get(parentId);
             if (!parent) return state;
-            const hasUnloadedChildren = parent.childIds.length === 0 && (parent.hasChildren || (parent.totalChildren ?? 0) > 0);
+            const hasUnloadedChildren =
+                parent.childIds.length === 0 && (parent.hasChildren || (parent.totalChildren ?? 0) > 0);
             if (hasUnloadedChildren || state.loadingIds.has(parentId)) return state;
         }
 
@@ -359,7 +360,7 @@ function addContentToTree(content: ContentSummary): void {
             }
             // Update hasChildren if this is first child
             if (!parent?.hasChildren) {
-                newState = setNode(newState, {id: parentId, hasChildren: true});
+                newState = setNode(newState, { id: parentId, hasChildren: true });
             }
         } else {
             if (!newState.rootIds.includes(id)) {
@@ -411,19 +412,19 @@ $contentMoved.subscribe((event) => {
 //
 
 /** Main tree state - alias for $treeState */
-export {$treeState as $mainTreeState};
+export { $treeState as $mainTreeState };
 
 /** Main flat nodes - alias for $flatNodes */
-export {$flatNodes as $mainFlatNodes};
+export { $flatNodes as $mainFlatNodes };
 
 /** Main merged flat nodes - alias for $mergedFlatNodes */
-export {$mergedFlatNodes as $mainMergedFlatNodes};
+export { $mergedFlatNodes as $mainMergedFlatNodes };
 
 /** Expand node in main tree */
-export {expandNode as expandMainNode};
+export { expandNode as expandMainNode };
 
 /** Collapse node in main tree */
-export {collapseNode as collapseMainNode};
+export { collapseNode as collapseMainNode };
 
 /** Check if main node needs children load */
-export {nodeNeedsChildrenLoad as mainNodeNeedsChildrenLoad};
+export { nodeNeedsChildrenLoad as mainNodeNeedsChildrenLoad };

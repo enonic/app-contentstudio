@@ -1,12 +1,12 @@
-import {GridList, IconButton} from '@enonic/ui';
-import {X} from 'lucide-react';
-import type {ReactElement} from 'react';
-import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
-import {ContentButton} from '../../../content/ContentButton';
-import {StatusBadge} from '../../../status/StatusBadge';
-import {useI18n} from '../../../../hooks/useI18n';
-import {calcTreePublishStatus} from '../../../../utils/cms/content/status';
-import {ContentNotAvailable} from './ContentNotAvailable';
+import { GridList, IconButton } from '@enonic/ui';
+import { X } from 'lucide-react';
+import type { ReactElement } from 'react';
+import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
+import { ContentButton } from '../../../content/ContentButton';
+import { StatusBadge } from '../../../status/StatusBadge';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { calcTreePublishStatus } from '../../../../../shared/lib/cms/content/status';
+import { ContentNotAvailable } from './ContentNotAvailable';
 
 //
 // * Types
@@ -38,7 +38,12 @@ const CONTENT_SELECTION_ITEM_NAME = 'ContentSelectionItem';
  * Left cell: clickable content label (opens content for editing).
  * Right cell: status badge and remove button.
  */
-export const ContentSelectionItem = ({content, onRemove, disabled = false, className}: ContentSelectionItemProps): ReactElement => {
+export const ContentSelectionItem = ({
+    content,
+    onRemove,
+    disabled = false,
+    className,
+}: ContentSelectionItemProps): ReactElement => {
     const removeLabel = useI18n('action.remove');
     const id = content.getId();
     const isRemoved = !content.getPath();

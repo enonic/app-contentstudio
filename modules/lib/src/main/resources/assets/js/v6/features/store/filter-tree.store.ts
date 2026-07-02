@@ -1,4 +1,4 @@
-import {atom, computed} from 'nanostores';
+import { atom, computed } from 'nanostores';
 import {
     createEmptyState,
     setNode,
@@ -17,13 +17,19 @@ import {
     type FlatNode,
     type CreateNodeOptions,
     ROOT_LOADING_KEY,
-} from '../lib/tree-store';
-import {$contentCache} from './content.store';
-import {$contentDeleted, $contentArchived, $contentCreated, $contentDuplicated, $contentMoved} from './socket.store';
-import type {ContentSummary} from '../../../app/content/ContentSummary';
-import type {ContentData} from '../views/browse/grid/ContentData';
-import {convertToContentFlatNode, findParentIdByPath, toTreeNodeData} from './tree/utils';
-import type {ContentTreeNodeData, LoadingStateValue} from './tree/types';
+} from '../../shared/lib/tree-store';
+import { $contentCache } from './content.store';
+import {
+    $contentDeleted,
+    $contentArchived,
+    $contentCreated,
+    $contentDuplicated,
+    $contentMoved,
+} from '../../shared/socket/socket.store';
+import type { ContentSummary } from '../../../app/content/ContentSummary';
+import type { ContentData } from '../views/browse/grid/ContentData';
+import { convertToContentFlatNode, findParentIdByPath, toTreeNodeData } from './tree/utils';
+import type { ContentTreeNodeData, LoadingStateValue } from './tree/types';
 
 //
 // * Store
@@ -71,7 +77,7 @@ export const $filterMergedFlatNodes = computed(
         }
 
         return result;
-    }
+    },
 );
 
 //
@@ -82,7 +88,9 @@ export function setFilterTreeState(state: TreeState<ContentTreeNodeData>): void 
     $filterTreeState.set(state);
 }
 
-export function updateFilterTreeState(updater: (state: TreeState<ContentTreeNodeData>) => TreeState<ContentTreeNodeData>): void {
+export function updateFilterTreeState(
+    updater: (state: TreeState<ContentTreeNodeData>) => TreeState<ContentTreeNodeData>,
+): void {
     $filterTreeState.set(updater($filterTreeState.get()));
 }
 
@@ -133,7 +141,7 @@ export function setFilterNodesLoadingData(ids: string[], loading: boolean): void
 }
 
 export function setFilterNodeTotalChildren(id: string, totalChildren: number): void {
-    updateFilterTreeState((state) => setNode(state, {id, totalChildren}));
+    updateFilterTreeState((state) => setNode(state, { id, totalChildren }));
 }
 
 export function filterNodeNeedsChildrenLoad(id: string): boolean {
@@ -237,7 +245,7 @@ function addContentToFilterTree(content: ContentSummary): void {
             newState = setChildren(newState, parentId, [id, ...parent.childIds]);
         }
         if (!parent.hasChildren) {
-            newState = setNode(newState, {id: parentId, hasChildren: true});
+            newState = setNode(newState, { id: parentId, hasChildren: true });
         }
 
         return newState;

@@ -1,15 +1,15 @@
-import {Button} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {useCallback, type ReactElement} from 'react';
-import {ContentSummaryAndCompareStatus} from '../../../../../../../../app/content/ContentSummaryAndCompareStatus';
-import {EditContentEvent} from '../../../../../../../../app/event/EditContentEvent';
-import {FragmentComponent} from '../../../../../../../../app/page/region/FragmentComponent';
-import {useI18n} from '../../../../../../hooks/useI18n';
-import {$inspectedItem, $pageEditorLifecycle} from '../../../../../../store/page-editor';
-import {$page, $pageVersion} from '../../../../../../store/page-editor/store';
-import {$fragmentOptions, $isFragmentInspectionLoading} from '../../../../../../store/fragment-inspection.store';
-import {isComponentReferenceMissing} from '../../../../../../store/component-inspection.store';
-import {FragmentContentSelector} from './FragmentContentSelector';
+import { Button } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { useCallback, type ReactElement } from 'react';
+import { ContentSummaryAndCompareStatus } from '../../../../../../../../app/content/ContentSummaryAndCompareStatus';
+import { EditContentEvent } from '../../../../../../../../app/event/EditContentEvent';
+import { FragmentComponent } from '../../../../../../../../app/page/region/FragmentComponent';
+import { useI18n } from '../../../../../../../shared/lib/hooks/useI18n';
+import { $inspectedItem, $pageEditorLifecycle } from '../../../../../../store/page-editor';
+import { $page, $pageVersion } from '../../../../../../store/page-editor/store';
+import { $fragmentOptions, $isFragmentInspectionLoading } from '../../../../../../store/fragment-inspection.store';
+import { isComponentReferenceMissing } from '../../../../../../store/component-inspection.store';
+import { FragmentContentSelector } from './FragmentContentSelector';
 
 const FRAGMENT_INSPECTION_PANEL_NAME = 'FragmentInspectionPanel';
 
@@ -34,7 +34,13 @@ export const FragmentInspectionPanel = (): ReactElement | null => {
     if (!fragment) return null;
 
     const hasFragment = fragment.hasFragment();
-    const fragmentRemoved = isComponentReferenceMissing(fragment.getPath().toString(), page, fragmentOptions, [], isFragmentLoading);
+    const fragmentRemoved = isComponentReferenceMissing(
+        fragment.getPath().toString(),
+        page,
+        fragmentOptions,
+        [],
+        isFragmentLoading,
+    );
     const disabled = lifecycle.isPageLocked;
 
     return (

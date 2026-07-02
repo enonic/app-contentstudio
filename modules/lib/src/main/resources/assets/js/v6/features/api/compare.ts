@@ -1,4 +1,4 @@
-import {getCmsApiUrl} from '../utils/url/cms';
+import { getCmsApiUrl } from '../../shared/lib/url/cms';
 
 type CompareContentResultJson = {
     id: string;
@@ -25,7 +25,7 @@ export async function compareContent(ids: string[]): Promise<Map<string, Compare
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ids}),
+        body: JSON.stringify({ ids }),
     });
 
     if (!response.ok) {

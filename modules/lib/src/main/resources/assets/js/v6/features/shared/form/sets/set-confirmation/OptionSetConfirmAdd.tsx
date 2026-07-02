@@ -1,21 +1,21 @@
-import {createPortal, forwardRef, useCallback, useMemo, useState, type ReactElement} from 'react';
-import type {FormOptionSet} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
-import type {FormOptionSetOption} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSetOption';
-import {Button, Combobox, Listbox} from '@enonic/ui';
-import {ItemLabel} from '../../../ItemLabel';
-import {useI18n} from '../../../../hooks/useI18n';
-import {ConfirmFocusTrap} from './ConfirmFocusTrap';
-import {useConfirmKeyboard} from './hooks';
+import { createPortal, forwardRef, useCallback, useMemo, useState, type ReactElement } from 'react';
+import type { FormOptionSet } from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
+import type { FormOptionSetOption } from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSetOption';
+import { Button, Combobox, Listbox } from '@enonic/ui';
+import { ItemLabel } from '../../../../../shared/ui/ItemLabel';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { ConfirmFocusTrap } from './ConfirmFocusTrap';
+import { useConfirmKeyboard } from './hooks';
 
 type OptionSetConfirmAddProps = {
     optionSet: FormOptionSet;
-    position: {top: number; left: number; width: number} | null;
+    position: { top: number; left: number; width: number } | null;
     onCancel: () => void;
     onConfirm: (selectedName: string) => void;
 };
 
 export const OptionSetConfirmAdd = forwardRef<HTMLDivElement, OptionSetConfirmAddProps>(
-    ({optionSet, position, onCancel, onConfirm}, ref): ReactElement => {
+    ({ optionSet, position, onCancel, onConfirm }, ref): ReactElement => {
         const cancelLabel = useI18n('action.cancel');
         const placeholder = useI18n('field.option.placeholder');
         const [value, setValue] = useState('');
@@ -23,17 +23,19 @@ export const OptionSetConfirmAdd = forwardRef<HTMLDivElement, OptionSetConfirmAd
             () =>
                 optionSet
                     .getOptions()
-                    .filter((option) => (option.getLabel() || option.getName()).toLowerCase().includes(value.toLowerCase())),
-            [optionSet, value]
+                    .filter((option) =>
+                        (option.getLabel() || option.getName()).toLowerCase().includes(value.toLowerCase()),
+                    ),
+            [optionSet, value],
         );
 
-        useConfirmKeyboard({onCancel, enabled: true});
+        useConfirmKeyboard({ onCancel, enabled: true });
 
         const handleSelectionChange = useCallback(
             (names: readonly string[]) => {
                 if (names.length > 0) onConfirm(names[0]);
             },
-            [onConfirm]
+            [onConfirm],
         );
 
         return createPortal(
@@ -78,9 +80,9 @@ export const OptionSetConfirmAdd = forwardRef<HTMLDivElement, OptionSetConfirmAd
                     </Combobox.Content>
                 </Combobox.Root>
             </ConfirmFocusTrap>,
-            document.body
+            document.body,
         );
-    }
+    },
 );
 
 OptionSetConfirmAdd.displayName = 'OptionSetConfirmAdd';

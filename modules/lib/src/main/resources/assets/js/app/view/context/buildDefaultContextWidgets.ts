@@ -1,19 +1,19 @@
-import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
-import {Extension} from '@enonic/lib-admin-ui/extension/Extension';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {FolderInput, History, Link, List, SquareChartGantt} from 'lucide-react';
-import {DEPENDENCIES_WIDGET_KEY} from '../../../v6/features/utils/widget/dependencies';
-import {DETAILS_WIDGET_KEY} from '../../../v6/features/utils/widget/details';
-import {IMPORT_CONTENT_WIDGET_KEY} from '../../../v6/features/utils/widget/import-content';
-import {PAGE_EDITOR_WIDGET_KEY} from '../../../v6/features/utils/widget/pageEditor';
-import {VERSIONS_WIDGET_KEY} from '../../../v6/features/utils/widget/versions/versions';
-import {DependenciesWidgetElement} from '../../../v6/features/views/context/widget/dependencies';
-import {DetailsWidgetElement} from '../../../v6/features/views/context/widget/details';
-import {ImportContentWidgetElement} from '../../../v6/features/views/context/widget/import-content';
-import {PageEditorExtensionElement} from '../../../v6/features/views/context/widget/page-editor';
-import {VersionsWidgetElement} from '../../../v6/features/views/context/widget/versions/VersionsWidget';
-import {type ContextView} from './ContextView';
-import {ExtensionView} from './ExtensionView';
+import { AuthHelper } from '@enonic/lib-admin-ui/auth/AuthHelper';
+import { Extension } from '@enonic/lib-admin-ui/extension/Extension';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { FolderInput, History, Link, List, SquareChartGantt } from 'lucide-react';
+import { DEPENDENCIES_WIDGET_KEY } from '../../../v6/shared/lib/widget/dependencies';
+import { DETAILS_WIDGET_KEY } from '../../../v6/shared/lib/widget/details';
+import { IMPORT_CONTENT_WIDGET_KEY } from '../../../v6/shared/lib/widget/import-content';
+import { PAGE_EDITOR_WIDGET_KEY } from '../../../v6/shared/lib/widget/pageEditor';
+import { VERSIONS_WIDGET_KEY } from '../../../v6/shared/lib/widget/versions/versions';
+import { DependenciesWidgetElement } from '../../../v6/features/views/context/widget/dependencies';
+import { DetailsWidgetElement } from '../../../v6/features/views/context/widget/details';
+import { ImportContentWidgetElement } from '../../../v6/features/views/context/widget/import-content';
+import { PageEditorExtensionElement } from '../../../v6/features/views/context/widget/page-editor';
+import { VersionsWidgetElement } from '../../../v6/features/views/context/widget/versions/VersionsWidget';
+import { type ContextView } from './ContextView';
+import { ExtensionView } from './ExtensionView';
 
 export interface DefaultContextWidgets {
     properties: ExtensionView;
@@ -29,7 +29,7 @@ export interface BuildDefaultContextWidgetsOptions {
 
 export function buildDefaultContextWidgets(
     contextView: ContextView,
-    {editorMode = false}: BuildDefaultContextWidgetsOptions = {},
+    { editorMode = false }: BuildDefaultContextWidgetsOptions = {},
 ): DefaultContextWidgets {
     return {
         properties: createPropertiesWidget(contextView),
@@ -41,7 +41,7 @@ export function buildDefaultContextWidgets(
 }
 
 export function listDefaultContextWidgets(widgets: DefaultContextWidgets): ExtensionView[] {
-    const {properties, versions, dependencies, pageEditor, importContent} = widgets;
+    const { properties, versions, dependencies, pageEditor, importContent } = widgets;
 
     // Page editor sits between properties and versions when present.
     const ordered: ExtensionView[] = pageEditor

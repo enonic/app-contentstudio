@@ -1,18 +1,18 @@
-import {useStore} from '@nanostores/preact';
+import { useStore } from '@nanostores/preact';
 import Q from 'q';
-import type {ReactElement} from 'react';
-import type {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
-import type {ExtensionItemViewType} from '../../../../../../app/view/context/ExtensionItemView';
-import {LegacyElement} from '../../../../shared/LegacyElement';
-import {$contextContent} from '../../../../store/context/contextContent.store';
-import {$activeWidgetId, $isContextOpen} from '../../../../store/contextWidgets.store';
-import {DETAILS_WIDGET_KEY} from '../../../../utils/widget/details';
-import {DetailsWidgetAttachmentsSection} from './DetailsWidgetAttachmentsSection';
-import {DetailsWidgetContentSection} from './DetailsWidgetContentSection';
-import {DetailsWidgetInfoSection} from './DetailsWidgetInfoSection';
-import {DetailsWidgetPermissionsSection} from './DetailsWidgetPermissionsSection';
-import {DetailsWidgetScheduleSection} from './DetailsWidgetScheduleSection';
-import {DetailsWidgetTemplateSection} from './DetailsWidgetTemplateSection';
+import type { ReactElement } from 'react';
+import type { ContentSummaryAndCompareStatus } from '../../../../../../app/content/ContentSummaryAndCompareStatus';
+import type { ExtensionItemViewType } from '../../../../../../app/view/context/ExtensionItemView';
+import { LegacyElement } from '../../../../../shared/ui/LegacyElement';
+import { $contextContent } from '../../../../store/context/contextContent.store';
+import { $activeWidgetId, $isContextOpen } from '../../../../store/contextWidgets.store';
+import { DETAILS_WIDGET_KEY } from '../../../../../shared/lib/widget/details';
+import { DetailsWidgetAttachmentsSection } from './DetailsWidgetAttachmentsSection';
+import { DetailsWidgetContentSection } from './DetailsWidgetContentSection';
+import { DetailsWidgetInfoSection } from './DetailsWidgetInfoSection';
+import { DetailsWidgetPermissionsSection } from './DetailsWidgetPermissionsSection';
+import { DetailsWidgetScheduleSection } from './DetailsWidgetScheduleSection';
+import { DetailsWidgetTemplateSection } from './DetailsWidgetTemplateSection';
 
 const DETAILS_WIDGET_NAME = 'DetailsWidget';
 

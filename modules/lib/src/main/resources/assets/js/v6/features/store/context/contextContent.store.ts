@@ -1,10 +1,15 @@
-import {atom, computed, onMount} from 'nanostores';
-import {$currentItem as $treeContent} from '../contentTreeSelection.store';
-import {$mode, getMode} from '../mode.store';
-import type {ContentSummary} from '../../../../app/content/ContentSummary';
-import {type CompareResult, compareContent} from '../../api/compare';
-import {calcSecondaryStatus, calcTreePublishStatus} from '../../utils/cms/content/status';
-import {$contentMoved, $contentPublished, $contentUnpublished, $contentUpdated} from '../socket.store';
+import { atom, computed, onMount } from 'nanostores';
+import { $currentItem as $treeContent } from '../contentTreeSelection.store';
+import { $mode, getMode } from '../mode.store';
+import type { ContentSummary } from '../../../../app/content/ContentSummary';
+import { type CompareResult, compareContent } from '../../api/compare';
+import { calcSecondaryStatus, calcTreePublishStatus } from '../../../shared/lib/cms/content/status';
+import {
+    $contentMoved,
+    $contentPublished,
+    $contentUnpublished,
+    $contentUpdated,
+} from '../../../shared/socket/socket.store';
 
 const $wizardContent = atom<ContentSummary | null>(null);
 
@@ -13,7 +18,6 @@ export const $contextContent = atom<ContentSummary | null>(null);
 //
 // * Public API
 //
-
 
 export const setWizardContent = (content: ContentSummary): void => {
     $wizardContent.set(content);
@@ -77,7 +81,9 @@ $contentPublished.subscribe((event) => updateWizardContentFromEvent(event?.data)
 
 $contentUnpublished.subscribe((event) => updateWizardContentFromEvent(event?.data));
 
-$contentMoved.subscribe((event) => updateWizardContentFromEvent(event?.data?.map((moved) => moved.item.getContentSummary())));
+$contentMoved.subscribe((event) =>
+    updateWizardContentFromEvent(event?.data?.map((moved) => moved.item.getContentSummary())),
+);
 
 //
 // * Compare status verification

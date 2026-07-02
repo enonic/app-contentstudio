@@ -1,8 +1,8 @@
-import {Checkbox, cn} from '@enonic/ui';
-import {type ReactElement} from 'react';
-import {CornerDownRight} from 'lucide-react';
-import {useI18n} from '../../hooks/useI18n';
-import {ContentItemProps, ContentListItem} from './ContentListItem';
+import { Checkbox, cn } from '@enonic/ui';
+import { type ReactElement } from 'react';
+import { CornerDownRight } from 'lucide-react';
+import { useI18n } from '../../../shared/lib/hooks/useI18n';
+import { ContentItemProps, ContentListItem } from './ContentListItem';
 
 export type ContentListItemWithChildrenProps = {
     id?: string;
@@ -34,7 +34,7 @@ export const ContentListItemWithChildren = ({
     const includeChildrenCheckboxId = `${CONTENT_LIST_ITEM_WITH_CHILDREN_NAME}-${id || content.getId()}-include-children-checkbox`;
 
     return (
-        <li role="row" className={cn("flex flex-col gap-1", className)}>
+        <li role="row" className={cn('flex flex-col gap-1', className)}>
             <ContentListItem content={content} {...props} />
             {showIncludeChildrenCheckbox && (
                 <div className="flex items-center gap-2.5 h-8 pl-5">

@@ -1,9 +1,9 @@
-import {Button, Dialog, Separator, cn} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {useMemo, useRef, type ReactElement} from 'react';
-import type {ContentSummary} from '../../../../../app/content/ContentSummary';
-import {useI18n} from '../../../hooks/useI18n';
-import {useOnceWhen} from '../../../hooks/useOnce';
+import { Button, Dialog, Separator, cn } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { useMemo, useRef, type ReactElement } from 'react';
+import type { ContentSummary } from '../../../../../app/content/ContentSummary';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { useOnceWhen } from '../../../../shared/lib/hooks/useOnce';
 import {
     $duplicateDialog,
     $duplicateDraftIncludeChildrenIds,
@@ -12,11 +12,11 @@ import {
     $isDuplicateSelectionSynced,
     applyDuplicateIncludeChildrenSelection,
     cancelDuplicateIncludeChildrenSelection,
-    toggleDuplicateIncludeChildren
+    toggleDuplicateIncludeChildren,
 } from '../../../store/dialogs/duplicateDialog.store';
-import {ContentListItem} from '../../items';
-import {ContentListItemWithChildren} from '../../items';
-import {SelectionStatusBar} from '../status-bar/SelectionStatusBar';
+import { ContentListItem } from '../../items';
+import { ContentListItemWithChildren } from '../../items';
+import { SelectionStatusBar } from '../status-bar/SelectionStatusBar';
 
 type DuplicateDialogMainContentProps = {
     onDuplicate: () => void;
@@ -29,14 +29,16 @@ export const DuplicateDialogMainContent = ({
     onDuplicate,
     'data-component': componentName = DUPLICATE_DIALOG_MAIN_CONTENT_NAME,
 }: DuplicateDialogMainContentProps): ReactElement => {
-    const {loading, items, dependants} = useStore($duplicateDialog,
-        {keys: ['loading', 'items', 'dependants']});
+    const { loading, items, dependants } = useStore($duplicateDialog, { keys: ['loading', 'items', 'dependants'] });
     const draftIncludeChildrenIds = useStore($duplicateDraftIncludeChildrenIds);
     const synced = useStore($isDuplicateSelectionSynced);
     const ready = useStore($isDuplicateDialogReady);
     const total = useStore($duplicateItemsCount);
 
-    const includeChildrenSet = useMemo(() => new Set(draftIncludeChildrenIds.map(id => id.toString())), [draftIncludeChildrenIds]);
+    const includeChildrenSet = useMemo(
+        () => new Set(draftIncludeChildrenIds.map((id) => id.toString())),
+        [draftIncludeChildrenIds],
+    );
 
     const title = useI18n('dialog.duplicate');
     const dependantsLabel = useI18n('dialog.duplicate.dependants');
@@ -46,12 +48,12 @@ export const DuplicateDialogMainContent = ({
     const duplicateButtonRef = useRef<HTMLButtonElement>(null);
 
     useOnceWhen(() => {
-        duplicateButtonRef.current?.focus({focusVisible: true});
+        duplicateButtonRef.current?.focus({ focusVisible: true });
     }, ready);
 
     const handleOpenAutoFocus = (event: FocusEvent) => {
         event.preventDefault();
-        duplicateButtonRef.current?.focus({focusVisible: true});
+        duplicateButtonRef.current?.focus({ focusVisible: true });
     };
 
     const noop = () => undefined;
@@ -72,15 +74,15 @@ export const DuplicateDialogMainContent = ({
                 onApply={() => applyDuplicateIncludeChildrenSelection()}
                 onCancel={() => cancelDuplicateIncludeChildrenSelection()}
                 errors={{
-                    inProgress: {count: 0, disabled: true, onExclude: noop},
-                    invalid: {count: 0, disabled: true, onExclude: noop},
-                    noPermissions: {count: 0, disabled: true, onExclude: noop},
+                    inProgress: { count: 0, disabled: true, onExclude: noop },
+                    invalid: { count: 0, disabled: true, onExclude: noop },
+                    noPermissions: { count: 0, disabled: true, onExclude: noop },
                 }}
             />
 
             <Dialog.Body className="flex flex-col gap-y-10">
-                <ul className='flex flex-col gap-y-2.5'>
-                    {items.map(item => {
+                <ul className="flex flex-col gap-y-2.5">
+                    {items.map((item) => {
                         const includeChildren = includeChildrenSet.has(item.getContentId().toString());
                         const hasChildren = item.hasChildren();
 
@@ -92,7 +94,9 @@ export const DuplicateDialogMainContent = ({
                                 readOnly={loading}
                                 includeChildren={includeChildren}
                                 defaultIncludeChildren={hasChildren}
-                                onIncludeChildrenChange={(enabled) => toggleDuplicateIncludeChildren(item.getContentId(), enabled)}
+                                onIncludeChildrenChange={(enabled) =>
+                                    toggleDuplicateIncludeChildren(item.getContentId(), enabled)
+                                }
                                 showIncludeChildren={hasChildren}
                             />
                         );
@@ -106,7 +110,7 @@ export const DuplicateDialogMainContent = ({
                             <ContentListItem
                                 key={`dep-${item.getId()}`}
                                 content={item}
-                                variant='compact'
+                                variant="compact"
                                 aria-label={item.getDisplayName()}
                             />
                         ))}

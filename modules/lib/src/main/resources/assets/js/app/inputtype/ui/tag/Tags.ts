@@ -1,19 +1,18 @@
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {isBlank} from '../../../../v6/features/utils/format/isBlank';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {TagRemovedEvent} from './TagRemovedEvent';
-import {TagAddedEvent} from './TagAddedEvent';
-import {type Tag, TagBuilder} from './Tag';
-import {TagSuggestions} from './TagSuggestions';
-import {type TagSuggester} from './TagSuggester';
-import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
-import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
-import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
-import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
+import { StringHelper } from '@enonic/lib-admin-ui/util/StringHelper';
+import { isBlank } from '../../../../v6/shared/lib/format/isBlank';
+import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { TagRemovedEvent } from './TagRemovedEvent';
+import { TagAddedEvent } from './TagAddedEvent';
+import { type Tag, TagBuilder } from './Tag';
+import { TagSuggestions } from './TagSuggestions';
+import { type TagSuggester } from './TagSuggester';
+import { FormInputEl } from '@enonic/lib-admin-ui/dom/FormInputEl';
+import { TextInput } from '@enonic/lib-admin-ui/ui/text/TextInput';
+import { type ValueChangedEvent } from '@enonic/lib-admin-ui/ValueChangedEvent';
+import { KeyHelper } from '@enonic/lib-admin-ui/ui/KeyHelper';
 
 export class TagsBuilder {
-
     tagSuggester: TagSuggester;
 
     tags: string[] = [];
@@ -40,9 +39,7 @@ export class TagsBuilder {
     }
 }
 
-export class Tags
-    extends FormInputEl {
-
+export class Tags extends FormInputEl {
     private tagSuggester: TagSuggester;
 
     private textInput: TextInput;
@@ -74,7 +71,8 @@ export class Tags
         this.appendChild(this.tagSuggestions);
 
         this.textInput.onKeyDown((event: KeyboardEvent) => {
-            if (KeyHelper.isComma(event) || KeyHelper.isEnterKey(event)) { // comma or enter
+            if (KeyHelper.isComma(event) || KeyHelper.isEnterKey(event)) {
+                // comma or enter
                 this.handleWordCompleted();
                 event.preventDefault();
             } else if (KeyHelper.isBackspace(event)) {
@@ -120,9 +118,13 @@ export class Tags
             this.textInput.getEl().setWidth('');
         });
 
-        const searchSuggestionHandler = AppHelper.debounce((searchString: string) => {
-            this.searchSuggestions(searchString);
-        }, 300, false);
+        const searchSuggestionHandler = AppHelper.debounce(
+            (searchString: string) => {
+                this.searchSuggestions(searchString);
+            },
+            300,
+            false,
+        );
 
         this.textInput.onValueChanged((event: ValueChangedEvent) => {
             const searchString = event.getNewValue();
@@ -151,29 +153,37 @@ export class Tags
     }
 
     private searchSuggestions(searchString: string) {
-        this.tagSuggester.suggest(searchString).then((values: string[]) => {
-            if (searchString !== this.textInput.getValue()) {
-                // if input text changed during the request, cancel suggestions
-                return;
-            }
+        this.tagSuggester
+            .suggest(searchString)
+            .then((values: string[]) => {
+                if (searchString !== this.textInput.getValue()) {
+                    // if input text changed during the request, cancel suggestions
+                    return;
+                }
 
-            const existingValues = this.doGetTags().concat(searchString);
-            values = values.filter((value: string) => (existingValues.indexOf(value) < 0));
+                const existingValues = this.doGetTags().concat(searchString);
+                values = values.filter((value: string) => existingValues.indexOf(value) < 0);
 
-            if (values.length === 0) {
-                this.tagSuggestions.hide();
-            } else {
-                this.tagSuggestions.setTags(values);
-                this.tagSuggestions.getEl().setTopPx(this.textInput.getEl().getOffsetToParent().top +
-                                                     this.textInput.getEl().getHeightWithMargin()).setLeftPx(
-                    this.textInput.getEl().getOffsetToParent().left);
-                this.tagSuggestions.show();
-                this.preservedValue = searchString;
-            }
-        }).catch((reason) => {
-            DefaultErrorHandler.handle(reason);
-            return [];
-        }).done();
+                if (values.length === 0) {
+                    this.tagSuggestions.hide();
+                } else {
+                    this.tagSuggestions.setTags(values);
+                    this.tagSuggestions
+                        .getEl()
+                        .setTopPx(
+                            this.textInput.getEl().getOffsetToParent().top +
+                                this.textInput.getEl().getHeightWithMargin(),
+                        )
+                        .setLeftPx(this.textInput.getEl().getOffsetToParent().left);
+                    this.tagSuggestions.show();
+                    this.preservedValue = searchString;
+                }
+            })
+            .catch((reason) => {
+                DefaultErrorHandler.handle(reason);
+                return [];
+            })
+            .done();
     }
 
     private handleWordCompleted() {
@@ -241,7 +251,6 @@ export class Tags
                 if (value === this.tags[i].getValue()) {
                     return i;
                 }
-
             }
         }
         return -1;
@@ -253,7 +262,7 @@ export class Tags
         // if is html text, split by new line or \t, otherwise split by comma
         const parsedTags = isHtmlText ? text.split(/\t|\r\n|\n/g) : text.split(',');
         // if html text and only one tag, split it's content by comma
-        const tagsToAdd = (isHtmlText && parsedTags.length === 1) ? parsedTags[0].split(',') : parsedTags;
+        const tagsToAdd = isHtmlText && parsedTags.length === 1 ? parsedTags[0].split(',') : parsedTags;
 
         tagsToAdd.forEach((tag) => {
             if (!isBlank(tag) && !this.isMaxTagsReached()) {
@@ -265,9 +274,8 @@ export class Tags
     resetPropertyValues() {
         const tags = this.doGetTags();
         if (tags.length > 0) {
-
             this.doClearTags(true);
-            tags.forEach(tag => this.doAddTag(tag));
+            tags.forEach((tag) => this.doAddTag(tag));
         }
     }
 
@@ -338,5 +346,4 @@ export class Tags
             listener(event);
         });
     }
-
 }

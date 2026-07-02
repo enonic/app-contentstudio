@@ -1,6 +1,6 @@
-import {PropertyPath, PropertyPathElement} from '@enonic/lib-admin-ui/data/PropertyPath';
-import type {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import type {FormItemSet} from '@enonic/lib-admin-ui/form/set/itemset/FormItemSet';
+import { PropertyPath, PropertyPathElement } from '@enonic/lib-admin-ui/data/PropertyPath';
+import type { PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
+import type { FormItemSet } from '@enonic/lib-admin-ui/form/set/itemset/FormItemSet';
 import {
     usePropertySetArray,
     useServerErrors,
@@ -8,16 +8,22 @@ import {
     useValidationVisibility,
     ValidationVisibilityProvider,
 } from '@enonic/lib-admin-ui/form2';
-import {SortableList} from '@enonic/lib-admin-ui/form2/components/sortable-list';
-import {type ReactElement, useCallback, useMemo, useRef} from 'react';
-import {FormItemRenderer} from '../../FormItemRenderer';
-import {useFormRender} from '../../FormRenderContext';
-import {SetHeader, usePropertySetKeys, useScrollPanelToOccurrence, useSetExpanded, useSetPropertyArray} from '../set-occurrence';
-import {ItemSetOccurrenceView} from './ItemSetOccurrenceView';
-import {useItemSetChildErrors, useOccurrenceError, useSetChildShowErrors} from '../set-errors';
-import {useI18n} from '../../../../hooks/useI18n';
-import {Button} from '@enonic/ui';
-import {Plus} from 'lucide-react';
+import { SortableList } from '@enonic/lib-admin-ui/form2/components/sortable-list';
+import { type ReactElement, useCallback, useMemo, useRef } from 'react';
+import { FormItemRenderer } from '../../FormItemRenderer';
+import { useFormRender } from '../../FormRenderContext';
+import {
+    SetHeader,
+    usePropertySetKeys,
+    useScrollPanelToOccurrence,
+    useSetExpanded,
+    useSetPropertyArray,
+} from '../set-occurrence';
+import { ItemSetOccurrenceView } from './ItemSetOccurrenceView';
+import { useItemSetChildErrors, useOccurrenceError, useSetChildShowErrors } from '../set-errors';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { Button } from '@enonic/ui';
+import { Plus } from 'lucide-react';
 
 type ItemSetViewProps = {
     itemSet: FormItemSet;
@@ -26,40 +32,41 @@ type ItemSetViewProps = {
 
 const ITEM_SET_VIEW_NAME = 'ItemSetView';
 
-export const ItemSetView = ({itemSet, propertySet}: ItemSetViewProps): ReactElement => {
+export const ItemSetView = ({ itemSet, propertySet }: ItemSetViewProps): ReactElement => {
     const name = itemSet.getName();
     const label = itemSet.getLabel();
     const helpText = itemSet.getHelpText();
     const occurrences = itemSet.getOccurrences();
     const formItems = useMemo(() => itemSet.getFormItems(), [itemSet]);
-    const {enabled} = useFormRender();
+    const { enabled } = useFormRender();
     const validationVisibility = useValidationVisibility();
     const propertyArray = useSetPropertyArray(name, propertySet, occurrences);
-    const {propertySets} = usePropertySetArray(propertyArray);
+    const { propertySets } = usePropertySetArray(propertyArray);
     const propertySetKeys = usePropertySetKeys(propertySets);
-    const {state, remove, move} = useSetOccurrenceManager(occurrences, propertySets);
+    const { state, remove, move } = useSetOccurrenceManager(occurrences, propertySets);
     const serverErrors = useServerErrors();
-    const {setOccurrenceRef, scheduleScrollTo} = useScrollPanelToOccurrence(propertySets);
+    const { setOccurrenceRef, scheduleScrollTo } = useScrollPanelToOccurrence(propertySets);
 
     // Structural occurrence changes (add/remove/move) shift set positions, so the
     // positional server errors under this set no longer align — drop them all
     // (re-validated on the next save). Plain edits clear per-occurrence elsewhere.
     const clearSetServerErrors = useCallback(() => {
-        const path = PropertyPath.fromParent(propertySet.getPropertyPath(), new PropertyPathElement(name, 0)).toString();
+        const path = PropertyPath.fromParent(
+            propertySet.getPropertyPath(),
+            new PropertyPathElement(name, 0),
+        ).toString();
         serverErrors?.clearField(path.startsWith('.') ? path.slice(1) : path);
     }, [serverErrors, propertySet, name]);
     const lastAddedIndexRef = useRef<number | null>(null);
-    const {expanded, isAllExpanded, handleExpandAll, handleCollapseAll, handleDragStart, handleToggleSingle} = useSetExpanded(
-        propertyArray,
-        state.count
-    );
+    const { expanded, isAllExpanded, handleExpandAll, handleCollapseAll, handleDragStart, handleToggleSingle } =
+        useSetExpanded(propertyArray, state.count);
 
     const addLabel = useI18n('action.add');
     const dragLabel = useI18n('field.occurrence.action.reorder');
 
     const showOccurrenceError = validationVisibility !== 'none';
     const occurrenceError = useOccurrenceError(occurrences, state);
-    const {childShowErrors, childValidationVisibility} = useSetChildShowErrors(propertyArray, propertySets);
+    const { childShowErrors, childValidationVisibility } = useSetChildShowErrors(propertyArray, propertySets);
     const childErrors = useItemSetChildErrors(formItems, propertySets);
 
     const handleAdd = useCallback(() => {
@@ -81,7 +88,7 @@ export const ItemSetView = ({itemSet, propertySet}: ItemSetViewProps): ReactElem
             scheduleScrollTo(index);
             clearSetServerErrors();
         },
-        [state.canAdd, propertyArray, scheduleScrollTo, clearSetServerErrors]
+        [state.canAdd, propertyArray, scheduleScrollTo, clearSetServerErrors],
     );
     const handleAddBelow = useCallback(
         (index: number) => {
@@ -93,7 +100,7 @@ export const ItemSetView = ({itemSet, propertySet}: ItemSetViewProps): ReactElem
             scheduleScrollTo(index + 1);
             clearSetServerErrors();
         },
-        [state.canAdd, propertyArray, scheduleScrollTo, clearSetServerErrors]
+        [state.canAdd, propertyArray, scheduleScrollTo, clearSetServerErrors],
     );
     const handleRemove = useCallback(
         (index: number) => {
@@ -104,7 +111,7 @@ export const ItemSetView = ({itemSet, propertySet}: ItemSetViewProps): ReactElem
                 clearSetServerErrors();
             }
         },
-        [state.canRemove, remove, propertyArray, clearSetServerErrors]
+        [state.canRemove, remove, propertyArray, clearSetServerErrors],
     );
     const handleMove = useCallback(
         (fromIndex: number, toIndex: number) => {
@@ -113,7 +120,7 @@ export const ItemSetView = ({itemSet, propertySet}: ItemSetViewProps): ReactElem
                 clearSetServerErrors();
             }
         },
-        [move, propertyArray, clearSetServerErrors]
+        [move, propertyArray, clearSetServerErrors],
     );
 
     return (
@@ -138,7 +145,7 @@ export const ItemSetView = ({itemSet, propertySet}: ItemSetViewProps): ReactElem
                     className="flex flex-col gap-2.5"
                     onDragStart={handleDragStart}
                     controlGrip
-                    renderItem={({item, index}, grip) => (
+                    renderItem={({ item, index }, grip) => (
                         <ValidationVisibilityProvider visibility={childValidationVisibility.get(index)}>
                             <ItemSetOccurrenceView
                                 ref={(node) => setOccurrenceRef(index, node)}

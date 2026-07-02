@@ -1,10 +1,10 @@
-import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
-import {type TaskIdJson} from '@enonic/lib-admin-ui/task/TaskIdJson';
-import {ContentId} from '../../../app/content/ContentId';
-import {type ContentIdBaseItemJson} from '../../../app/resource/json/ContentIdBaseItemJson';
-import {type ResolvePublishContentResultJson} from '../../../app/resource/json/ResolvePublishContentResultJson';
-import {ResolvePublishDependenciesResult} from '../../../app/resource/ResolvePublishDependenciesResult';
-import {getCmsApiUrl} from '../utils/url/cms';
+import { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
+import { type TaskIdJson } from '@enonic/lib-admin-ui/task/TaskIdJson';
+import { ContentId } from '../../../app/content/ContentId';
+import { type ContentIdBaseItemJson } from '../../../app/resource/json/ContentIdBaseItemJson';
+import { type ResolvePublishContentResultJson } from '../../../app/resource/json/ResolvePublishContentResultJson';
+import { ResolvePublishDependenciesResult } from '../../../app/resource/ResolvePublishDependenciesResult';
+import { getCmsApiUrl } from '../../shared/lib/url/cms';
 
 //
 // * Types
@@ -62,7 +62,7 @@ export async function findIdsByParents(contentIds: ContentId[]): Promise<Content
     const url = getCmsApiUrl('findIdsByParents');
 
     const payload = {
-        contentIds: contentIds.map(id => id.toString()),
+        contentIds: contentIds.map((id) => id.toString()),
     };
 
     const response = await fetch(url, {
@@ -77,8 +77,8 @@ export async function findIdsByParents(contentIds: ContentId[]): Promise<Content
         throw new Error(response.statusText);
     }
 
-    const json: {ids: ContentIdBaseItemJson[]} = await response.json();
-    return json.ids?.map(item => new ContentId(item.id)) ?? [];
+    const json: { ids: ContentIdBaseItemJson[] } = await response.json();
+    return json.ids?.map((item) => new ContentId(item.id)) ?? [];
 }
 
 /**
@@ -92,7 +92,7 @@ export async function markAsReady(contentIds: ContentId[]): Promise<void> {
     const url = getCmsApiUrl('markAsReady');
 
     const payload = {
-        contentIds: contentIds.map(id => id.toString()),
+        contentIds: contentIds.map((id) => id.toString()),
     };
 
     const response = await fetch(url, {
@@ -119,17 +119,18 @@ export async function publishContent(params: PublishContentParams): Promise<Task
 
     const url = getCmsApiUrl('publish');
 
-    const schedule = params.schedule?.from || params.schedule?.to
-        ? {
-            from: params.schedule.from?.toISOString() ?? new Date().toISOString(),
-            to: params.schedule.to?.toISOString() ?? null,
-        }
-        : null;
+    const schedule =
+        params.schedule?.from || params.schedule?.to
+            ? {
+                  from: params.schedule.from?.toISOString() ?? new Date().toISOString(),
+                  to: params.schedule.to?.toISOString() ?? null,
+              }
+            : null;
 
     const payload = {
-        ids: params.ids.map(id => id.toString()),
-        excludedIds: params.excludedIds?.map(id => id.toString()) ?? [],
-        excludeChildrenIds: params.excludeChildrenIds?.map(id => id.toString()) ?? [],
+        ids: params.ids.map((id) => id.toString()),
+        excludedIds: params.excludedIds?.map((id) => id.toString()) ?? [],
+        excludeChildrenIds: params.excludeChildrenIds?.map((id) => id.toString()) ?? [],
         schedule,
         message: params.message,
     };
@@ -154,13 +155,15 @@ export async function publishContent(params: PublishContentParams): Promise<Task
  * Resolve publish dependencies for content items.
  * Returns dependants, required items, invalid items, and other publish-related info.
  */
-export async function resolvePublishDependencies(params: ResolvePublishParams): Promise<ResolvePublishDependenciesResult> {
+export async function resolvePublishDependencies(
+    params: ResolvePublishParams,
+): Promise<ResolvePublishDependenciesResult> {
     const url = getCmsApiUrl('resolvePublishContent');
 
     const payload = {
-        ids: params.ids.map(id => id.toString()),
-        excludedIds: params.excludedIds?.map(id => id.toString()) ?? [],
-        excludeChildrenIds: params.excludeChildrenIds?.map(id => id.toString()) ?? [],
+        ids: params.ids.map((id) => id.toString()),
+        excludedIds: params.excludedIds?.map((id) => id.toString()) ?? [],
+        excludeChildrenIds: params.excludeChildrenIds?.map((id) => id.toString()) ?? [],
     };
 
     const response = await fetch(url, {

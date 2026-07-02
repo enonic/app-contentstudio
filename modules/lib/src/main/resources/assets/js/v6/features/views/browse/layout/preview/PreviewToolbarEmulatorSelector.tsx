@@ -1,9 +1,9 @@
-import {Button, Menu, Toolbar} from '@enonic/ui';
-import {ChevronDown, ChevronUp} from 'lucide-react';
-import {useCallback, useState, type ReactElement} from 'react';
-import {EmulatorDevice} from '../../../../../../app/view/context/extension/emulator/EmulatorDevice';
-import {useI18n} from '../../../../hooks/useI18n';
-import {EmulatedDeviceEvent} from '../../../../utils/dom/events/registry';
+import { Button, Menu, Toolbar } from '@enonic/ui';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useCallback, useState, type ReactElement } from 'react';
+import { EmulatorDevice } from '../../../../../../app/view/context/extension/emulator/EmulatorDevice';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { EmulatedDeviceEvent } from '../../../../../shared/lib/dom/events/registry';
 
 const EMULATORS = [
     EmulatorDevice.getFullscreen(),

@@ -1,9 +1,9 @@
-import {cn, IconButton} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {ChevronLeft, ChevronRight} from 'lucide-react';
-import {type ReactElement} from 'react';
-import {useI18n} from '../../../hooks/useI18n';
-import {$isContentFormExpanded, toggleContentFormExpanded} from '../../../store/wizardContent.store';
+import { cn, IconButton } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { type ReactElement } from 'react';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { $isContentFormExpanded, toggleContentFormExpanded } from '../../../store/wizardContent.store';
 
 const TOGGLE_FORM_BUTTON_NAME = 'ToggleFormButton';
 

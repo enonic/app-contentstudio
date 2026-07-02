@@ -1,17 +1,17 @@
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {useStore} from '@nanostores/preact';
+import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { useStore } from '@nanostores/preact';
 import Q from 'q';
-import {type ReactElement, useEffect, useState} from 'react';
-import {DependencyType} from '../../../../../../app/browse/DependencyType';
-import type {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
-import type {ExtensionItemViewType} from '../../../../../../app/view/context/ExtensionItemView';
-import {resolveDependenciesForId} from '../../../../api/resolveDependencies';
-import {LegacyElement} from '../../../../shared/LegacyElement';
-import {$contextContent} from '../../../../store/context/contextContent.store';
-import {$activeWidgetId, $isContextOpen} from '../../../../store/contextWidgets.store';
-import {DEPENDENCIES_WIDGET_KEY} from '../../../../utils/widget/dependencies';
-import {DependenciesWidgetContentSection} from './DependenciesWidgetContentSection';
-import {DependenciesWidgetFlowSection} from './DependenciesWidgetFlowSection';
+import { type ReactElement, useEffect, useState } from 'react';
+import { DependencyType } from '../../../../../../app/browse/DependencyType';
+import type { ContentSummaryAndCompareStatus } from '../../../../../../app/content/ContentSummaryAndCompareStatus';
+import type { ExtensionItemViewType } from '../../../../../../app/view/context/ExtensionItemView';
+import { resolveDependenciesForId } from '../../../../api/resolveDependencies';
+import { LegacyElement } from '../../../../../shared/ui/LegacyElement';
+import { $contextContent } from '../../../../store/context/contextContent.store';
+import { $activeWidgetId, $isContextOpen } from '../../../../store/contextWidgets.store';
+import { DEPENDENCIES_WIDGET_KEY } from '../../../../../shared/lib/widget/dependencies';
+import { DependenciesWidgetContentSection } from './DependenciesWidgetContentSection';
+import { DependenciesWidgetFlowSection } from './DependenciesWidgetFlowSection';
 
 export type DependencyItem = {
     type: DependencyType;
@@ -65,7 +65,10 @@ const DependenciesWidget = (): ReactElement => {
     if (!isContextOpen || !isActiveWidget || !content) return null;
 
     return (
-        <div data-component={DEPENDENCIES_WIDGET_NAME} className="flex flex-col gap-7.5 items-center h-full overflow-hidden">
+        <div
+            data-component={DEPENDENCIES_WIDGET_NAME}
+            className="flex flex-col gap-7.5 items-center h-full overflow-hidden"
+        >
             <DependenciesWidgetFlowSection
                 contentId={content.getContentId()}
                 type={DependencyType.INBOUND}
@@ -85,7 +88,10 @@ const DependenciesWidget = (): ReactElement => {
 
 DependenciesWidget.displayName = DEPENDENCIES_WIDGET_NAME;
 
-export class DependenciesWidgetElement extends LegacyElement<typeof DependenciesWidget> implements ExtensionItemViewType {
+export class DependenciesWidgetElement
+    extends LegacyElement<typeof DependenciesWidget>
+    implements ExtensionItemViewType
+{
     constructor() {
         super({}, DependenciesWidget);
     }

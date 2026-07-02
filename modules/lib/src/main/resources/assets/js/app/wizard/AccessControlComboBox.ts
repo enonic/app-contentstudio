@@ -1,29 +1,28 @@
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
-import {AccessControlEntryView} from '../view/AccessControlEntryView';
-import {AccessControlEntry} from '../access/AccessControlEntry';
-import {Permission} from '../access/Permission';
-import {PrincipalContainerSelectedOptionsView} from '@enonic/lib-admin-ui/ui/security/PrincipalContainerSelectedOptionsView';
-import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {CSPrincipalLoader} from '../security/CSPrincipalLoader';
+import { Option } from '@enonic/lib-admin-ui/ui/selector/Option';
+import { AccessControlEntryView } from '../view/AccessControlEntryView';
+import { AccessControlEntry } from '../access/AccessControlEntry';
+import { Permission } from '../access/Permission';
+import { PrincipalContainerSelectedOptionsView } from '@enonic/lib-admin-ui/ui/security/PrincipalContainerSelectedOptionsView';
+import { type Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { CSPrincipalLoader } from '../security/CSPrincipalLoader';
 import {
     FilterableListBoxWrapperWithSelectedView,
-    type ListBoxInputOptions
+    type ListBoxInputOptions,
 } from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
-import {AccessControlListBox} from './AccessControlListBox';
-import {type LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
+import { AccessControlListBox } from './AccessControlListBox';
+import { type LoadedDataEvent } from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import Q from 'q';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
-import {isBlank} from '../../v6/features/utils/format/isBlank';
+import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
+import { type ValueChangedEvent } from '@enonic/lib-admin-ui/ValueChangedEvent';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { RoleKeys } from '@enonic/lib-admin-ui/security/RoleKeys';
+import { isBlank } from '../../v6/shared/lib/format/isBlank';
 
 interface AccessControlComboBoxOptions extends ListBoxInputOptions<AccessControlEntry> {
     loader: CSPrincipalLoader;
 }
 
 export class AccessControlComboBox extends FilterableListBoxWrapperWithSelectedView<AccessControlEntry> {
-
     declare options: AccessControlComboBoxOptions;
 
     constructor() {
@@ -31,7 +30,7 @@ export class AccessControlComboBox extends FilterableListBoxWrapperWithSelectedV
         loader.skipPrincipals([RoleKeys.EVERYONE]); // not showing everyone in the list to avoid confusion
 
         super(new AccessControlListBox(loader), {
-            maxSelected:  0,
+            maxSelected: 0,
             selectedOptionsView: new ACESelectedOptionsView(),
             className: 'access-control-combobox',
             loader: loader,
@@ -95,9 +94,7 @@ export class AccessControlComboBox extends FilterableListBoxWrapperWithSelectedV
     }
 }
 
-class ACESelectedOptionsView
-    extends PrincipalContainerSelectedOptionsView<AccessControlEntry> {
-
+class ACESelectedOptionsView extends PrincipalContainerSelectedOptionsView<AccessControlEntry> {
     constructor() {
         super('access-control-list');
     }
@@ -111,5 +108,4 @@ class ACESelectedOptionsView
 
         return new AccessControlEntryView(ace, option.isReadOnly());
     }
-
 }

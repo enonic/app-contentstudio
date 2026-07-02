@@ -1,9 +1,9 @@
-import {Combobox} from '@enonic/ui';
-import type {ReactElement} from 'react';
-import {useI18n} from '../../../../../../hooks/useI18n';
-import {ConfirmationDialog} from '../../../../../../shared/dialogs/ConfirmationDialog';
-import {SelectorPopup} from '../SelectorPopup';
-import {usePageControllerSelector} from './hooks/usePageControllerSelector';
+import { Combobox } from '@enonic/ui';
+import type { ReactElement } from 'react';
+import { useI18n } from '../../../../../../../shared/lib/hooks/useI18n';
+import { ConfirmationDialog } from '../../../../../../shared/dialogs/ConfirmationDialog';
+import { SelectorPopup } from '../SelectorPopup';
+import { usePageControllerSelector } from './hooks/usePageControllerSelector';
 
 const PAGE_CONTROLLER_SELECTOR_NAME = 'PageControllerSelector';
 
@@ -56,7 +56,7 @@ export const PageControllerSelector = (): ReactElement | null => {
                             </Combobox.Search>
                         </Combobox.Control>
                         <SelectorPopup options={filteredOptions} emptyLabel={noMatchingLabel}>
-                            {option => (
+                            {(option) => (
                                 <>
                                     <option.icon className="size-6 shrink-0" />
                                     <div className="flex flex-col overflow-hidden">
@@ -86,9 +86,7 @@ export const PageControllerSelector = (): ReactElement | null => {
                     <ConfirmationDialog.Portal>
                         <ConfirmationDialog.Overlay />
                         <ConfirmationDialog.Content>
-                            <ConfirmationDialog.Body>
-                                {confirmDialog.question}
-                            </ConfirmationDialog.Body>
+                            <ConfirmationDialog.Body>{confirmDialog.question}</ConfirmationDialog.Body>
                             <ConfirmationDialog.Footer
                                 onConfirm={() => {
                                     confirmDialog.onConfirm();

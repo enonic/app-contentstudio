@@ -1,8 +1,8 @@
-import type {Occurrences} from '@enonic/lib-admin-ui/form/Occurrences';
-import {FieldError} from '@enonic/lib-admin-ui/form2';
-import {useCallback, type ReactElement} from 'react';
-import {InlineButton} from '../../../InlineButton';
-import {useI18n} from '../../../../hooks/useI18n';
+import type { Occurrences } from '@enonic/lib-admin-ui/form/Occurrences';
+import { FieldError } from '@enonic/lib-admin-ui/form2';
+import { useCallback, type ReactElement } from 'react';
+import { InlineButton } from '../../../../../shared/ui/InlineButton';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 
 type SetHeaderProps = {
     label: string;

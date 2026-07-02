@@ -1,19 +1,18 @@
-import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
+import { AuthHelper } from '@enonic/lib-admin-ui/auth/AuthHelper';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
+import { StringHelper } from '@enonic/lib-admin-ui/util/StringHelper';
+import { UriHelper } from '@enonic/lib-admin-ui/util/UriHelper';
 import Q from 'q';
-import {ContentId} from '../../../content/ContentId';
-import {type Project} from '../../../settings/data/project/Project';
-import {ProjectHelper} from '../../../settings/data/project/ProjectHelper';
-import {ImageUrlResolver} from '../../../util/ImageUrlResolver';
-import {ALLOWED_URI_REGEXP} from '../../../../v6/features/utils/url/allowedUri';
-import {HtmlAreaSanitizer} from './HtmlAreaSanitizer';
-import {Styles} from './styles/Styles';
+import { ContentId } from '../../../content/ContentId';
+import { type Project } from '../../../settings/data/project/Project';
+import { ProjectHelper } from '../../../settings/data/project/ProjectHelper';
+import { ImageUrlResolver } from '../../../util/ImageUrlResolver';
+import { ALLOWED_URI_REGEXP } from '../../../../v6/shared/lib/url/allowedUri';
+import { HtmlAreaSanitizer } from './HtmlAreaSanitizer';
+import { Styles } from './styles/Styles';
 
 export class HTMLAreaHelper {
-
     private static sourceCodeEditablePromise: Q.Promise<boolean> | undefined;
 
     private static getConvertedImageSrc(imgSrc: string, contentId: string, project?: Readonly<Project>): string {
@@ -32,7 +31,7 @@ export class HTMLAreaHelper {
 
             if (imgSrc.includes(styleParameter)) {
                 const styleName = imgSrc.split(styleParameter)[1];
-                const style = Styles.getForImage(contentId).find(s => s.getName() === styleName);
+                const style = Styles.getForImage(contentId).find((s) => s.getName() === styleName);
 
                 if (style) {
                     imageUrlResolver.setFilter(style.getFilter()).setAspectRatio(style.getAspectRatio());
@@ -46,15 +45,16 @@ export class HTMLAreaHelper {
         const src = imgSrc.replace(/&amp;/g, '&');
         const params = UriHelper.decodeUrlParams(src);
         if (params.scale) {
-            imgUrl = UriHelper.appendUrlParams(imgUrl, {scale: params.scale}, false);
+            imgUrl = UriHelper.appendUrlParams(imgUrl, { scale: params.scale }, false);
         }
 
         return ` src="${imgUrl}" data-src="${imgSrc}"`;
     }
 
     public static extractImageIdFromImgSrc(imgSrc: string): string {
-        const prefix = imgSrc.includes(ImageUrlResolver.URL_PREFIX_RENDER) ?
-                       ImageUrlResolver.URL_PREFIX_RENDER : ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL;
+        const prefix = imgSrc.includes(ImageUrlResolver.URL_PREFIX_RENDER)
+            ? ImageUrlResolver.URL_PREFIX_RENDER
+            : ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL;
 
         if (imgSrc.includes('?')) {
             return StringHelper.substringBetween(imgSrc, prefix, '?');
@@ -74,10 +74,14 @@ export class HTMLAreaHelper {
 
         while (imgSrcs) {
             imgSrcs.forEach((imgSrc: string) => {
-                if (imgSrc.indexOf(ImageUrlResolver.URL_PREFIX_RENDER) === 0 ||
-                    imgSrc.indexOf(ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL) === 0) {
-                    processedContent =
-                        processedContent.replace(` src="${imgSrc}"`, HTMLAreaHelper.getConvertedImageSrc(imgSrc, contentId, project));
+                if (
+                    imgSrc.indexOf(ImageUrlResolver.URL_PREFIX_RENDER) === 0 ||
+                    imgSrc.indexOf(ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL) === 0
+                ) {
+                    processedContent = processedContent.replace(
+                        ` src="${imgSrc}"`,
+                        HTMLAreaHelper.getConvertedImageSrc(imgSrc, contentId, project),
+                    );
                 }
             });
 
@@ -91,24 +95,31 @@ export class HTMLAreaHelper {
         const regex: RegExp = /<img.*?data-src="(.*?)".*?>/g;
         let processedContent: string = editorContent;
 
-        AppHelper.whileTruthy(() => regex.exec(editorContent), (imgTags) => {
-            const imgTag = imgTags[0];
+        AppHelper.whileTruthy(
+            () => regex.exec(editorContent),
+            (imgTags) => {
+                const imgTag = imgTags[0];
 
-            if (imgTag.indexOf('<img ') === 0 &&
-                (imgTag.includes(ImageUrlResolver.URL_PREFIX_RENDER) || imgTag.includes(ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL))) {
-                const dataSrc = /<img.*?data-src="(.*?)".*?>/.exec(imgTag)[1];
-                const src = /<img.*?\ssrc="(.*?)".*?>/.exec(imgTags[0])[1];
+                if (
+                    imgTag.indexOf('<img ') === 0 &&
+                    (imgTag.includes(ImageUrlResolver.URL_PREFIX_RENDER) ||
+                        imgTag.includes(ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL))
+                ) {
+                    const dataSrc = /<img.*?data-src="(.*?)".*?>/.exec(imgTag)[1];
+                    const src = /<img.*?\ssrc="(.*?)".*?>/.exec(imgTags[0])[1];
 
-                const convertedImg = imgTag.replace(src, dataSrc).replace(` data-src="${dataSrc}"`, StringHelper.EMPTY_STRING);
-                processedContent = processedContent.replace(imgTag, convertedImg);
-            }
-        });
+                    const convertedImg = imgTag
+                        .replace(src, dataSrc)
+                        .replace(` data-src="${dataSrc}"`, StringHelper.EMPTY_STRING);
+                    processedContent = processedContent.replace(imgTag, convertedImg);
+                }
+            },
+        );
 
         return processedContent;
     }
 
     public static isSourceCodeEditable(): Q.Promise<boolean> {
-
         if (HTMLAreaHelper.sourceCodeEditablePromise === undefined) {
             HTMLAreaHelper.sourceCodeEditablePromise = HTMLAreaHelper.sendIsCodeEditableRequest();
         }
@@ -142,5 +153,4 @@ export class HTMLAreaHelper {
     public static isNbsp(value: string): boolean {
         return value === '\xA0';
     }
-
 }

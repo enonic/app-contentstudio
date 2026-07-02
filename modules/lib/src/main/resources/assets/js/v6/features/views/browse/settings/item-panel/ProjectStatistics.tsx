@@ -1,11 +1,11 @@
-import {ReactElement} from 'react';
-import {ProjectViewItem} from '../../../../../../app/settings/view/ProjectViewItem';
-import {ProjectHelper} from '../../../../../../app/settings/data/project/ProjectHelper';
-import {ProjectIcon} from '../../../../shared/icons/ProjectIcon';
-import {useProjectPrincipals} from './hooks/useProjectPrincipals';
-import {ItemHeader} from './ItemHeader';
-import {ProjectMetaBlock} from './ProjectMetaBlock';
-import {ProjectRolesBlock} from './ProjectRolesBlock';
+import { ReactElement } from 'react';
+import { ProjectViewItem } from '../../../../../../app/settings/view/ProjectViewItem';
+import { ProjectHelper } from '../../../../../../app/settings/data/project/ProjectHelper';
+import { ProjectIcon } from '../../../../../shared/ui/icons/ProjectIcon';
+import { useProjectPrincipals } from './hooks/useProjectPrincipals';
+import { ItemHeader } from './ItemHeader';
+import { ProjectMetaBlock } from './ProjectMetaBlock';
+import { ProjectRolesBlock } from './ProjectRolesBlock';
 
 type ProjectStatisticsProps = {
     item: ProjectViewItem;
@@ -13,10 +13,10 @@ type ProjectStatisticsProps = {
 
 const PROJECT_STATISTICS_NAME = 'ProjectStatistics';
 
-export const ProjectStatistics = ({item}: ProjectStatisticsProps): ReactElement => {
+export const ProjectStatistics = ({ item }: ProjectStatisticsProps): ReactElement => {
     const project = item.getData();
     const isAvailable = ProjectHelper.isAvailable(project);
-    const {owners, editors, authors, contributors, canReadPrincipals} = useProjectPrincipals(item);
+    const { owners, editors, authors, contributors, canReadPrincipals } = useProjectPrincipals(item);
 
     const displayName = (
         <span className="inline-flex items-baseline gap-1">
