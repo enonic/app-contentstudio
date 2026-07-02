@@ -6,7 +6,7 @@ import { ProjectCreatedEvent } from '../../../app/settings/event/ProjectCreatedE
 import { ProjectDeletedEvent } from '../../../app/settings/event/ProjectDeletedEvent';
 import { syncAtomStore } from '../../shared/lib/storage/sync';
 import { defineEvent } from '../../shared/lib/dom/events/definedEvent';
-import { setProjectSelectionDialogOpen } from '../../features/store/dialogs.store';
+import { setProjectSelectionDialogOpen } from '../../shared/dialogs/dialogs.store';
 import {
     resolveActiveProjectId,
     resolveActiveProjectIdAfterDeletion,

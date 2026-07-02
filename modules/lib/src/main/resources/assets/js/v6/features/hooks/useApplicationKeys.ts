@@ -2,9 +2,9 @@ import type { ApplicationKey } from '@enonic/lib-admin-ui/application/Applicatio
 import { useStore } from '@nanostores/preact';
 import { useEffect, useMemo, useState } from 'react';
 import type { Site } from '../../../app/content/Site';
-import { loadNearestSite } from '../api/details';
+import { loadNearestSite } from '../../widgets/inspectors/api/details.api';
 import { $activeProject } from '../../entities/project/activeProject.store';
-import { $contextContent } from '../store/context/contextContent.store';
+import { $contextContent } from '../../widgets/context-panel/model/contextContent.store';
 
 export function useApplicationKeys(): ApplicationKey[] {
     const contextContent = useStore($contextContent);

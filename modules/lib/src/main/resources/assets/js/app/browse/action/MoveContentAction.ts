@@ -1,6 +1,6 @@
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { getCurrentItems } from '../../../v6/entities/content';
-import { openMoveDialog } from '../../../v6/features/store/dialogs/moveDialog.store';
+import { openMoveDialog } from '../../../v6/features/move/model/moveDialog.store';
 import { ContentTreeGridAction } from './ContentTreeGridAction';
 import { type ContentTreeGridItemsState } from './ContentTreeGridItemsState';
 

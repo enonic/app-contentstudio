@@ -1,6 +1,6 @@
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { getCurrentItems } from '../../../v6/entities/content';
-import { openDeleteDialog } from '../../../v6/features/store/dialogs/deleteDialog.store';
+import { openDeleteDialog } from '../../../v6/features/delete/model/deleteDialog.store';
 import { ContentTreeGridAction } from './ContentTreeGridAction';
 import { type ContentTreeGridItemsState } from './ContentTreeGridItemsState';
 

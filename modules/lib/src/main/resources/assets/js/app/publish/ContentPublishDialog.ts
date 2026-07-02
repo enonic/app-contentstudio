@@ -6,8 +6,8 @@ import { DropdownButtonRow } from '@enonic/lib-admin-ui/ui/dialog/DropdownButton
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { isBlank } from '../../v6/shared/lib/format/isBlank';
 import type Q from 'q';
-import { PublishItemsListElement } from '../../v6/features/shared/dialogs/publish/PublishItemsList';
-import { openPublishDialog } from '../../v6/features/store/dialogs/publishDialog.store';
+import { PublishItemsListElement } from '../../v6/features/publish/ui/PublishItemsList';
+import { openPublishDialog } from '../../v6/features/publish/model/publishDialog.store';
 import { type ContentId } from '../content/ContentId';
 import { ContentPublishPromptEvent } from '../browse/ContentPublishPromptEvent';
 import { BasePublishDialog } from '../dialog/BasePublishDialog';

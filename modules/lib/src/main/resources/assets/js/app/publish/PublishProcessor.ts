@@ -3,7 +3,7 @@ import { NotifyManager } from '@enonic/lib-admin-ui/notify/NotifyManager';
 import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
-import { type PublishItemsListElement } from '../../v6/features/shared/dialogs/publish/PublishItemsList';
+import { type PublishItemsListElement } from '../../v6/features/publish/ui/PublishItemsList';
 import { $config } from '../../v6/shared/config/config.store';
 import { CompareStatus } from '../content/CompareStatus';
 import { type ContentId } from '../content/ContentId';

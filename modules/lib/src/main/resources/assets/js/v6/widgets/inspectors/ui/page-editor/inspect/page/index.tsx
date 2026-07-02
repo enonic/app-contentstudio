@@ -1,0 +1,1 @@
+export { PageInspectionPanel } from './PageInspectionPanel';

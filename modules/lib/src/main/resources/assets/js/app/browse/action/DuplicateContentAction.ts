@@ -1,6 +1,6 @@
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { getCurrentItems } from '../../../v6/entities/content';
-import { openDuplicateDialog } from '../../../v6/features/store/dialogs/duplicateDialog.store';
+import { openDuplicateDialog } from '../../../v6/features/duplicate/model/duplicateDialog.store';
 import { ContentTreeGridAction } from './ContentTreeGridAction';
 import { type ContentTreeGridItemsState } from './ContentTreeGridItemsState';
 

@@ -1,0 +1,1340 @@
+import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
+import { NodeServerChangeType } from '@enonic/lib-admin-ui/event/NodeServerChange';
+import { showError, showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { computed, map, onMount } from 'nanostores';
+import { type ContentId } from '../../../../app/content/ContentId';
+import type { ContentSummary } from '../../../../app/content/ContentSummary';
+import type { IssueServerEvent } from '../../../../app/event/IssueServerEvent';
+import { IssueServerEventsHandler } from '../../../../app/issue/event/IssueServerEventsHandler';
+import { IssueStatus } from '../../../../app/issue/IssueStatus';
+import { IssueType } from '../../../../app/issue/IssueType';
+import { PublishRequest } from '../../../../app/issue/PublishRequest';
+import { PublishRequestItem } from '../../../../app/issue/PublishRequestItem';
+import { CreateIssueCommentRequest } from '../../../../app/issue/resource/CreateIssueCommentRequest';
+import { DeleteIssueCommentRequest } from '../../../../app/issue/resource/DeleteIssueCommentRequest';
+import { GetIssueRequest } from '../../../../app/issue/resource/GetIssueRequest';
+import { ListIssueCommentsRequest } from '../../../../app/issue/resource/ListIssueCommentsRequest';
+import { UpdateIssueCommentRequest } from '../../../../app/issue/resource/UpdateIssueCommentRequest';
+import { UpdateIssueRequest } from '../../../../app/issue/resource/UpdateIssueRequest';
+import { GetPrincipalsByKeysRequest } from '../../../../app/security/GetPrincipalsByKeysRequest';
+import { fetchContentSummaries } from '../../../entities/content';
+import { resolvePublishDependencies } from '../../../entities/content/api/publish.api';
+import {
+    DEPENDANT_LOAD_SIZE,
+    createDependantWindowLoader,
+    fetchDependantWindowSlice,
+    orderSummariesByIds,
+    pruneDependantWindow,
+} from '../../../entities/content/lib/dependantWindow';
+import { calcDependantsSelection, nextDependantExclusions } from '../../../shared/lib/cms/content/dependantsSelection';
+import { hasContentIdInIds, isIdsEqual, uniqueIds } from '../../../shared/lib/cms/content/ids';
+import { findContentIdsWithCreatedDescendants } from '../../../shared/lib/cms/content/paths';
+import {
+    createContentIdSet,
+    patchTrackedContentItems,
+    removeTrackedContentItems,
+} from '../../../shared/lib/cms/content/trackedItems';
+import { createGuardedSocketHandler } from '../../../shared/lib/store/createGuardedSocketHandler';
+import { createDebounce } from '../../../shared/lib/timing/createDebounce';
+import {
+    $contentArchived,
+    $contentCreated,
+    $contentDeleted,
+    $contentPublished,
+    $contentRenamed,
+    $contentUpdated,
+} from '../../../shared/socket/socket.store';
+import { $issueDialog, closeIssueDialog, loadIssueDialogList } from './issueDialog.store';
+
+import type { Issue } from '../../../../app/issue/Issue';
+import type { IssueComment } from '../../../../app/issue/IssueComment';
+import { IssueWithAssignees } from '../../../../app/issue/IssueWithAssignees';
+import type { IssueDialogDetailsTab } from '../ui/issue/issueDialog.types';
+
+//
+// * Store state
+//
+
+type IssueDialogDetailsStore = {
+    issueId?: string;
+    issue?: Issue;
+    issueLoading: boolean;
+    issueError: boolean;
+    detailsTab: IssueDialogDetailsTab;
+    commentsLoading: boolean;
+    commentsError: boolean;
+    commentsIssueId?: string;
+    comments: IssueComment[];
+    commentText: string;
+    commentSubmitting: boolean;
+    titleUpdating: boolean;
+    statusUpdating: boolean;
+    assigneesUpdating: boolean;
+    scheduleUpdating: boolean;
+    itemsUpdating: boolean;
+    itemsLoading: boolean;
+    itemsError: boolean;
+    items: ContentSummary[];
+    excludeChildrenIds: ContentId[];
+    dependants: ContentSummary[];
+    dependantIds: ContentId[];
+    dependantWindow: number;
+    excludedDependantIds: ContentId[];
+    requiredDependantIds: ContentId[];
+};
+
+type DeleteCommentConfirmation = {
+    open: boolean;
+    commentId: string | undefined;
+};
+
+type ContentIdProvider = {
+    getContentId(): ContentId;
+};
+
+const initialState: IssueDialogDetailsStore = {
+    issueId: undefined,
+    issue: undefined,
+    issueLoading: false,
+    issueError: false,
+    detailsTab: 'comments',
+    commentsLoading: false,
+    commentsError: false,
+    commentsIssueId: undefined,
+    comments: [],
+    commentText: '',
+    commentSubmitting: false,
+    titleUpdating: false,
+    statusUpdating: false,
+    assigneesUpdating: false,
+    scheduleUpdating: false,
+    itemsUpdating: false,
+    itemsLoading: false,
+    itemsError: false,
+    items: [],
+    excludeChildrenIds: [],
+    dependants: [],
+    dependantIds: [],
+    dependantWindow: 0,
+    excludedDependantIds: [],
+    requiredDependantIds: [],
+};
+
+export const $issueDialogDetails = map<IssueDialogDetailsStore>(structuredClone(initialState));
+
+export const $deleteCommentConfirmation = map<DeleteCommentConfirmation>({
+    open: false,
+    commentId: undefined,
+});
+
+//
+// * Derived state
+//
+
+export const $issueDialogDetailsIssue = computed(
+    [$issueDialog, $issueDialogDetails],
+    ({ issueId, issues }, { issue }) => {
+        if (issue) {
+            return issue;
+        }
+        return issues.find((item) => item.getIssue().getId() === issueId)?.getIssue();
+    },
+);
+
+export const $isIssueDialogDetailsPublishRequest = computed($issueDialogDetailsIssue, (issue) => {
+    return issue?.getType() === IssueType.PUBLISH_REQUEST;
+});
+
+export const $isIssueDialogDetailsClosed = computed($issueDialogDetailsIssue, (issue) => {
+    return issue?.getIssueStatus() === IssueStatus.CLOSED;
+});
+
+export const $canIssueDialogDetailsShowSelectionStatusBar = computed(
+    [$isIssueDialogDetailsPublishRequest, $isIssueDialogDetailsClosed],
+    (isPublishRequest, isClosed) => isPublishRequest && !isClosed,
+);
+
+export const $canIssueDialogDetailsPublish = computed(
+    [$isIssueDialogDetailsPublishRequest, $isIssueDialogDetailsClosed],
+    (isPublishRequest, isClosed) => isPublishRequest && !isClosed,
+);
+
+export const $issueDialogDetailsHasMoreDependants = computed(
+    $issueDialogDetails,
+    ({ dependantIds, dependantWindow }) => dependantWindow < dependantIds.length,
+);
+
+export const $issueDialogDetailsDependantsSelection = computed(
+    $issueDialogDetails,
+    ({ dependantIds, requiredDependantIds, excludedDependantIds }) =>
+        calcDependantsSelection(dependantIds, requiredDependantIds, excludedDependantIds),
+);
+
+//
+// * Public API
+//
+
+export const setIssueDialogDetailsTab = (detailsTab: IssueDialogDetailsTab): void => {
+    $issueDialogDetails.setKey('detailsTab', detailsTab);
+};
+
+export const setIssueDialogCommentText = (commentText: string): void => {
+    $issueDialogDetails.setKey('commentText', commentText);
+};
+
+type IssueDialogItemsOptions = {
+    forceReload?: boolean;
+};
+
+export const loadIssueDialogItems = async (issue?: Issue, options: IssueDialogItemsOptions = {}): Promise<void> => {
+    const { forceReload = false } = options;
+    const state = $issueDialogDetails.get();
+    const targetIssue = issue ?? state.issue;
+
+    if (!targetIssue) {
+        return;
+    }
+
+    const publishRequest = targetIssue.getPublishRequest();
+    const itemIds = publishRequest?.getItemsIds() ?? [];
+    const excludeChildrenIds = publishRequest?.getExcludeChildrenIds() ?? [];
+    const excludedDependantIds = publishRequest?.getExcludeIds() ?? [];
+
+    if (itemIds.length === 0) {
+        $issueDialogDetails.set({
+            ...$issueDialogDetails.get(),
+            itemsLoading: false,
+            itemsError: false,
+            items: [],
+            excludeChildrenIds: [],
+            dependants: [],
+            dependantIds: [],
+            dependantWindow: 0,
+            excludedDependantIds: [],
+            requiredDependantIds: [],
+        });
+        return;
+    }
+
+    const requestId = ++dependenciesRequestId;
+    const currentState = $issueDialogDetails.get();
+    const isSameIssue = !!currentState.issue && currentState.issue.getId() === targetIssue.getId();
+    const existingItemIds = isSameIssue ? currentState.items.map((item) => item.getContentId()) : [];
+    const canReuseItems = isSameIssue && existingItemIds.length > 0 && isIdsEqual(existingItemIds, itemIds);
+    const shouldFetchItems = !canReuseItems || forceReload;
+
+    $issueDialogDetails.set({
+        ...currentState,
+        itemsLoading: true,
+        itemsError: false,
+        items: canReuseItems ? currentState.items : [],
+        dependants: isSameIssue ? currentState.dependants : [],
+        dependantIds: isSameIssue ? currentState.dependantIds : [],
+        dependantWindow: isSameIssue ? currentState.dependantWindow : 0,
+        requiredDependantIds: isSameIssue ? currentState.requiredDependantIds : [],
+        excludeChildrenIds,
+        excludedDependantIds,
+    });
+
+    try {
+        const items = shouldFetchItems ? await fetchContentSummaries(itemIds) : currentState.items;
+        if (requestId !== dependenciesRequestId) {
+            return;
+        }
+
+        const result = await resolvePublishDependencies({
+            ids: itemIds,
+            excludeChildrenIds: excludeChildrenIds,
+        });
+        if (requestId !== dependenciesRequestId) {
+            return;
+        }
+
+        const allDependantIds = result.getDependants().filter((id) => !hasContentIdInIds(id, itemIds));
+
+        const firstWindow = await fetchDependantWindowSlice(allDependantIds, 0);
+        if (requestId !== dependenciesRequestId) {
+            return;
+        }
+
+        if (firstWindow.failed) {
+            $issueDialogDetails.set({
+                ...$issueDialogDetails.get(),
+                itemsLoading: false,
+                itemsError: true,
+            });
+            return;
+        }
+
+        const sortedItems = canReuseItems ? items : sortByIdOrder(items, itemIds);
+        const sortedDependants = orderSummariesByIds(firstWindow.summaries, allDependantIds);
+        const requiredDependantIds = result.getRequired().filter((id) => hasContentIdInIds(id, allDependantIds));
+        const nextExcludedDependantIds = excludedDependantIds
+            .filter((id) => hasContentIdInIds(id, allDependantIds))
+            .filter((id) => !hasContentIdInIds(id, requiredDependantIds));
+
+        const latestState = $issueDialogDetails.get();
+        $issueDialogDetails.set({
+            ...latestState,
+            items: sortedItems,
+            excludeChildrenIds,
+            dependants: sortedDependants,
+            dependantIds: allDependantIds,
+            dependantWindow: Math.min(DEPENDANT_LOAD_SIZE, allDependantIds.length),
+            requiredDependantIds,
+            excludedDependantIds: nextExcludedDependantIds,
+            itemsLoading: false,
+            itemsError: false,
+        });
+    } catch (error) {
+        if (requestId !== dependenciesRequestId) {
+            return;
+        }
+        console.error(error);
+        $issueDialogDetails.set({
+            ...$issueDialogDetails.get(),
+            itemsLoading: false,
+            itemsError: true,
+        });
+        showError(error?.message ?? String(error));
+    }
+};
+
+export const loadMoreIssueDialogDependants = createDependantWindowLoader(
+    $issueDialogDetails,
+    () => dependenciesRequestId,
+);
+
+export const loadIssueDialogIssue = async (nextIssueId?: string): Promise<void> => {
+    const state = $issueDialogDetails.get();
+    const issueId = nextIssueId ?? state.issueId;
+
+    if (!issueId || state.issueLoading) {
+        return;
+    }
+
+    if (state.issue && state.issue.getId() === issueId) {
+        return;
+    }
+
+    $issueDialogDetails.set({
+        ...state,
+        issueLoading: true,
+        issueError: false,
+    });
+
+    try {
+        const issue = await new GetIssueRequest(issueId).sendAndParse();
+        const latestState = $issueDialogDetails.get();
+
+        if (latestState.issueId !== issueId) {
+            return;
+        }
+
+        const defaultTab = resolveDefaultDetailsTab(issueId, issue);
+        const nextTab = latestState.detailsTab === initialState.detailsTab ? defaultTab : latestState.detailsTab;
+
+        $issueDialogDetails.set({
+            ...latestState,
+            issue,
+            issueLoading: false,
+            issueError: false,
+            detailsTab: nextTab,
+        });
+    } catch (error) {
+        console.error(error);
+        const latestState = $issueDialogDetails.get();
+
+        if (latestState.issueId !== issueId) {
+            return;
+        }
+
+        $issueDialogDetails.set({
+            ...latestState,
+            issueLoading: false,
+            issueError: true,
+        });
+    }
+};
+
+export const loadIssueDialogComments = async (
+    nextIssueId?: string,
+    options: LoadIssueDialogCommentsOptions = {},
+): Promise<void> => {
+    const state = $issueDialogDetails.get();
+    const issueId = nextIssueId ?? state.issueId;
+
+    if (!issueId || (state.commentsLoading && !options.forceReload)) {
+        return;
+    }
+
+    const requestId = ++commentsRequestId;
+
+    $issueDialogDetails.set({
+        ...state,
+        commentsLoading: true,
+        commentsError: false,
+    });
+
+    try {
+        const response = await new ListIssueCommentsRequest(issueId).sendAndParse();
+        const latestState = $issueDialogDetails.get();
+
+        if (latestState.issueId !== issueId || requestId !== commentsRequestId) {
+            return;
+        }
+
+        $issueDialogDetails.set({
+            ...latestState,
+            comments: response.getIssueComments(),
+            commentsIssueId: issueId,
+            commentsLoading: false,
+            commentsError: false,
+        });
+    } catch (error) {
+        console.error(error);
+        const latestState = $issueDialogDetails.get();
+
+        if (latestState.issueId !== issueId || requestId !== commentsRequestId) {
+            return;
+        }
+        $issueDialogDetails.set({
+            ...latestState,
+            commentsLoading: false,
+            commentsError: true,
+        });
+    }
+};
+
+export const submitIssueDialogComment = async (): Promise<boolean> => {
+    const state = $issueDialogDetails.get();
+    const issueId = state.issueId;
+
+    if (!issueId) {
+        return false;
+    }
+
+    const trimmedComment = state.commentText.trim();
+
+    if (!trimmedComment || state.commentSubmitting) {
+        return false;
+    }
+
+    $issueDialogDetails.setKey('commentSubmitting', true);
+
+    const dialogState = $issueDialog.get();
+    const issueType = resolveIssueType(issueId, dialogState.issues, state.issue);
+
+    try {
+        const comment = await new CreateIssueCommentRequest(issueId)
+            .setCreator(AuthContext.get().getUser().getKey())
+            .setText(trimmedComment)
+            .sendAndParse();
+        const latestState = $issueDialogDetails.get();
+        const existingComments = latestState.commentsIssueId === issueId ? latestState.comments : [];
+
+        $issueDialogDetails.set({
+            ...latestState,
+            comments: [...existingComments, comment],
+            commentsIssueId: issueId,
+            commentText: '',
+            commentSubmitting: false,
+        });
+        showFeedback(i18n(getCommentMessageKey(issueType)));
+        return true;
+    } catch (error) {
+        console.error(error);
+        $issueDialogDetails.setKey('commentSubmitting', false);
+        const baseMessage = i18n(getCommentErrorMessageKey(issueType));
+        const errorMessage = error?.message ?? String(error);
+        const fallbackMessage =
+            errorMessage && errorMessage !== baseMessage ? `${baseMessage} ${errorMessage}` : baseMessage;
+        showError(fallbackMessage);
+        return false;
+    }
+};
+
+export const updateIssueDialogComment = async (commentId: string, text: string): Promise<boolean> => {
+    const state = $issueDialogDetails.get();
+    const issueId = state.issueId;
+
+    if (!issueId || !commentId) {
+        return false;
+    }
+
+    const trimmedText = text.trim();
+
+    if (!trimmedText) {
+        return false;
+    }
+
+    const dialogState = $issueDialog.get();
+    const issueType = resolveIssueType(issueId, dialogState.issues, state.issue);
+
+    try {
+        const updatedComment = await new UpdateIssueCommentRequest(commentId).setText(trimmedText).sendAndParse();
+        const latestState = $issueDialogDetails.get();
+
+        if (latestState.issueId !== issueId) {
+            return true;
+        }
+
+        $issueDialogDetails.set({
+            ...latestState,
+            comments: latestState.comments.map((comment) => {
+                if (comment.getId() !== commentId) {
+                    return comment;
+                }
+                return updatedComment;
+            }),
+        });
+        showFeedback(i18n(getCommentUpdatedMessageKey(issueType)));
+        return true;
+    } catch (error) {
+        console.error(error);
+        showError(error?.message ?? String(error));
+        return false;
+    }
+};
+
+export const deleteIssueDialogComment = async (commentId: string): Promise<boolean> => {
+    const state = $issueDialogDetails.get();
+    const issueId = state.issueId;
+
+    if (!issueId || !commentId) {
+        return false;
+    }
+
+    const dialogState = $issueDialog.get();
+    const issueType = resolveIssueType(issueId, dialogState.issues, state.issue);
+
+    try {
+        const result = await new DeleteIssueCommentRequest(commentId).sendAndParse();
+        const latestState = $issueDialogDetails.get();
+
+        if (!result || latestState.issueId !== issueId) {
+            return result;
+        }
+
+        $issueDialogDetails.set({
+            ...latestState,
+            comments: latestState.comments.filter((comment) => comment.getId() !== commentId),
+        });
+        showFeedback(i18n(getCommentDeletedMessageKey(issueType)));
+        return true;
+    } catch (error) {
+        console.error(error);
+        showError(error?.message ?? String(error));
+        return false;
+    }
+};
+
+export const updateIssueDialogStatus = async (nextStatus: IssueStatus): Promise<boolean> => {
+    const context = getIssueContext('statusUpdating');
+    if (!context) {
+        return false;
+    }
+    const { issueId, dialogState, issueWithAssignees, issue } = context;
+
+    if (issue.getIssueStatus() === nextStatus) {
+        return true;
+    }
+
+    $issueDialogDetails.setKey('statusUpdating', true);
+
+    try {
+        const request = new UpdateIssueRequest(issueId)
+            .setTitle(issue.getTitle())
+            .setDescription(issue.getDescription())
+            .setIssueStatus(nextStatus);
+        populateSchedule(request, issue);
+        const updatedIssue = await request.sendAndParse();
+
+        applyUpdatedIssue(updatedIssue, dialogState, issueWithAssignees, { statusUpdating: false });
+
+        void loadIssueDialogList();
+        showFeedback(i18n(getStatusMessageKey(updatedIssue.getType(), nextStatus)));
+        return true;
+    } catch (error) {
+        console.error(error);
+        $issueDialogDetails.setKey('statusUpdating', false);
+        showError(error?.message ?? String(error));
+        return false;
+    }
+};
+
+export const updateIssueDialogTitle = async (nextTitle: string): Promise<void> => {
+    const context = getIssueContext('titleUpdating');
+    if (!context) {
+        return;
+    }
+
+    const { issueId, dialogState, issueWithAssignees, issue } = context;
+    const trimmedTitle = nextTitle.trim();
+
+    if (!trimmedTitle || issue.getTitle() === trimmedTitle) {
+        return;
+    }
+
+    $issueDialogDetails.setKey('titleUpdating', true);
+
+    try {
+        const request = new UpdateIssueRequest(issueId)
+            .setTitle(trimmedTitle)
+            .setDescription(issue.getDescription())
+            .setIssueStatus(issue.getIssueStatus())
+            .setApprovers(issue.getApprovers());
+        populateSchedule(request, issue);
+        const updatedIssue = await request.sendAndParse();
+
+        applyUpdatedIssue(updatedIssue, dialogState, issueWithAssignees, { titleUpdating: false });
+
+        const prefix =
+            updatedIssue.getType() === IssueType.PUBLISH_REQUEST ? 'notify.publishRequest.' : 'notify.issue.';
+        showFeedback(i18n(`${prefix}updated`));
+        void loadIssueDialogList();
+    } catch (error) {
+        console.error(error);
+        $issueDialogDetails.setKey('titleUpdating', false);
+        showError(error?.message ?? String(error));
+    }
+};
+
+export const updateIssueDialogAssignees = async (nextAssigneeIds: readonly string[]): Promise<void> => {
+    const context = getIssueContext('assigneesUpdating');
+    if (!context) {
+        return;
+    }
+    const { issueId, dialogState, issueWithAssignees, issue } = context;
+
+    const currentAssigneeIds = issue.getApprovers().map((approver) => approver.toString());
+    const nextIds = [...nextAssigneeIds].sort();
+    const currentIds = [...currentAssigneeIds].sort();
+
+    if (nextIds.length === currentIds.length && nextIds.every((id, index) => id === currentIds[index])) {
+        return;
+    }
+
+    $issueDialogDetails.setKey('assigneesUpdating', true);
+
+    try {
+        const approvers = nextAssigneeIds.map((id) => PrincipalKey.fromString(id));
+        const request = new UpdateIssueRequest(issueId)
+            .setTitle(issue.getTitle())
+            .setDescription(issue.getDescription())
+            .setIssueStatus(issue.getIssueStatus())
+            .setApprovers(approvers);
+        populateSchedule(request, issue);
+        const updatedIssue = await request.sendAndParse();
+
+        let assignees = issueWithAssignees?.getAssignees() ?? [];
+        if (approvers.length > 0) {
+            try {
+                assignees = await new GetPrincipalsByKeysRequest(approvers).sendAndParse();
+            } catch (error) {
+                console.error(error);
+            }
+        } else {
+            assignees = [];
+        }
+
+        applyUpdatedIssue(updatedIssue, dialogState, issueWithAssignees, { assigneesUpdating: false }, assignees);
+
+        const prefix =
+            updatedIssue.getType() === IssueType.PUBLISH_REQUEST ? 'notify.publishRequest.' : 'notify.issue.';
+        showFeedback(i18n(`${prefix}updated`));
+        void loadIssueDialogList();
+    } catch (error) {
+        console.error(error);
+        $issueDialogDetails.setKey('assigneesUpdating', false);
+        showError(error?.message ?? String(error));
+    }
+};
+
+export const updateIssueDialogSchedule = async (
+    publishFrom: Date | undefined,
+    publishTo: Date | undefined,
+): Promise<void> => {
+    const context = getIssueContext('scheduleUpdating');
+    if (!context) {
+        return;
+    }
+    const { issueId, dialogState, issueWithAssignees, issue } = context;
+
+    $issueDialogDetails.setKey('scheduleUpdating', true);
+
+    try {
+        const request = new UpdateIssueRequest(issueId)
+            .setTitle(issue.getTitle())
+            .setDescription(issue.getDescription())
+            .setIssueStatus(issue.getIssueStatus())
+            .setApprovers(issue.getApprovers());
+
+        if (issue.getPublishRequest()) {
+            request.setPublishRequest(issue.getPublishRequest());
+        }
+        if (publishFrom) {
+            request.setPublishFrom(publishFrom);
+        }
+        if (publishTo) {
+            request.setPublishTo(publishTo);
+        }
+
+        const updatedIssue = await request.sendAndParse();
+        applyUpdatedIssue(updatedIssue, dialogState, issueWithAssignees, { scheduleUpdating: false });
+
+        void loadIssueDialogList();
+        const prefix =
+            updatedIssue.getType() === IssueType.PUBLISH_REQUEST ? 'notify.publishRequest.' : 'notify.issue.';
+        showFeedback(i18n(`${prefix}updated`));
+    } catch (error) {
+        console.error(error);
+        $issueDialogDetails.setKey('scheduleUpdating', false);
+        showError(error?.message ?? String(error));
+    }
+};
+
+export const updateIssueDialogItems = async (nextItemIds: ContentId[]): Promise<void> => {
+    const context = getIssueContext('itemsUpdating');
+    if (!context) {
+        return;
+    }
+    const { issueId, dialogState, issueWithAssignees, issue } = context;
+
+    const nextUniqueIds = uniqueIds(nextItemIds);
+    const publishRequest = issue.getPublishRequest();
+    const currentItemIds = publishRequest?.getItemsIds() ?? [];
+    if (isIdsEqual(currentItemIds, nextUniqueIds)) {
+        return;
+    }
+
+    $issueDialogDetails.setKey('itemsUpdating', true);
+
+    const includeChildrenById = new Map(
+        (publishRequest?.getItems() ?? []).map((item) => [item.getId().toString(), item.isIncludeChildren()]),
+    );
+    const nextItems = nextUniqueIds.map((id) =>
+        PublishRequestItem.create()
+            .setId(id)
+            .setIncludeChildren(includeChildrenById.get(id.toString()) ?? true)
+            .build(),
+    );
+    const nextPublishRequest = PublishRequest.create(publishRequest ?? undefined)
+        .setPublishRequestItems(nextItems)
+        .build();
+
+    await updateIssueWithPublishRequest({
+        issueId,
+        issue,
+        dialogState,
+        issueWithAssignees,
+        nextPublishRequest,
+        forceReloadItems: true,
+    });
+};
+
+export const updateIssueDialogItemIncludeChildren = async (id: ContentId, includeChildren: boolean): Promise<void> => {
+    const context = getIssueContext('itemsUpdating');
+    if (!context) {
+        return;
+    }
+    const { issueId, dialogState, issueWithAssignees, issue } = context;
+
+    const publishRequest = issue.getPublishRequest();
+    if (!publishRequest) {
+        return;
+    }
+
+    const nextItems = publishRequest.getItems().map((item) => {
+        if (!item.getId().equals(id)) {
+            return item;
+        }
+        return PublishRequestItem.create().setId(item.getId()).setIncludeChildren(includeChildren).build();
+    });
+
+    const sameValue = publishRequest
+        .getItems()
+        .every((item) => (item.getId().equals(id) ? item.isIncludeChildren() === includeChildren : true));
+    if (sameValue) {
+        return;
+    }
+
+    $issueDialogDetails.setKey('itemsUpdating', true);
+
+    const nextPublishRequest = PublishRequest.create(publishRequest).setPublishRequestItems(nextItems).build();
+
+    await updateIssueWithPublishRequest({
+        issueId,
+        issue,
+        dialogState,
+        issueWithAssignees,
+        nextPublishRequest,
+    });
+};
+
+export const updateIssueDialogDependencyIncluded = async (id: ContentId, included: boolean): Promise<void> => {
+    const context = getIssueContext('itemsUpdating');
+    if (!context) {
+        return;
+    }
+    const { issueId, dialogState, issueWithAssignees, issue } = context;
+
+    const publishRequest = issue.getPublishRequest();
+    if (!publishRequest) {
+        return;
+    }
+
+    const currentExcludeIds = publishRequest.getExcludeIds();
+    const isExcluded = hasContentIdInIds(id, currentExcludeIds);
+    if (included && !isExcluded) {
+        return;
+    }
+    if (!included && isExcluded) {
+        return;
+    }
+
+    const nextExcludeIds = included
+        ? currentExcludeIds.filter((item) => !item.equals(id))
+        : uniqueIds([...currentExcludeIds, id]);
+
+    $issueDialogDetails.setKey('itemsUpdating', true);
+
+    const nextPublishRequest = PublishRequest.create(publishRequest).setExcludeIds(nextExcludeIds).build();
+
+    await updateIssueWithPublishRequest({
+        issueId,
+        issue,
+        dialogState,
+        issueWithAssignees,
+        nextPublishRequest,
+    });
+};
+
+export const updateIssueDialogExcludedDependants = async (nextExcludedIds: ContentId[]): Promise<void> => {
+    const context = getIssueContext('itemsUpdating');
+    if (!context) {
+        return;
+    }
+    const { issueId, dialogState, issueWithAssignees, issue } = context;
+
+    const publishRequest = issue.getPublishRequest();
+    if (!publishRequest) {
+        return;
+    }
+
+    const nextUniqueIds = uniqueIds(nextExcludedIds);
+    const currentExcludeIds = publishRequest.getExcludeIds();
+    if (isIdsEqual(currentExcludeIds, nextUniqueIds)) {
+        return;
+    }
+
+    $issueDialogDetails.setKey('itemsUpdating', true);
+
+    const nextPublishRequest = PublishRequest.create(publishRequest).setExcludeIds(nextUniqueIds).build();
+
+    await updateIssueWithPublishRequest({
+        issueId,
+        issue,
+        dialogState,
+        issueWithAssignees,
+        nextPublishRequest,
+    });
+};
+
+export const toggleIssueDialogDetailsDependantsSelection = (): void => {
+    const { dependantIds, requiredDependantIds, excludedDependantIds } = $issueDialogDetails.get();
+    const selection = calcDependantsSelection(dependantIds, requiredDependantIds, excludedDependantIds);
+    if (selection.selectableIds.length === 0) {
+        return;
+    }
+
+    void updateIssueDialogExcludedDependants(nextDependantExclusions(selection, excludedDependantIds));
+};
+
+export const openDeleteCommentConfirmation = (commentId: string): void => {
+    $deleteCommentConfirmation.set({ open: true, commentId });
+};
+
+export const closeDeleteCommentConfirmation = (): void => {
+    $deleteCommentConfirmation.set({ open: false, commentId: undefined });
+};
+
+export const isDeleteCommentConfirmationOpen = (): boolean => {
+    return $deleteCommentConfirmation.get().open;
+};
+
+//
+// * Internal
+//
+
+type IssueDetailsUpdatingKey =
+    | 'statusUpdating'
+    | 'assigneesUpdating'
+    | 'itemsUpdating'
+    | 'titleUpdating'
+    | 'scheduleUpdating';
+
+type IssueDialogState = ReturnType<typeof $issueDialog.get>;
+
+type IssueContext = {
+    issueId: string;
+    dialogState: IssueDialogState;
+    issueWithAssignees?: IssueWithAssignees;
+    issue: Issue;
+};
+
+type IssueAssignees = ReturnType<IssueWithAssignees['getAssignees']>;
+
+type LoadIssueDialogCommentsOptions = {
+    forceReload?: boolean;
+};
+
+let dependenciesRequestId = 0;
+
+let commentsRequestId = 0;
+
+let serverEventReloadRequestId = 0;
+
+const resolveDefaultDetailsTab = (issueId?: string, issue?: Issue): IssueDialogDetailsTab => {
+    if (!issueId) {
+        return initialState.detailsTab;
+    }
+
+    const dialogState = $issueDialog.get();
+    const issueType = resolveIssueType(issueId, dialogState.issues, issue);
+    return issueType === IssueType.PUBLISH_REQUEST ? 'items' : 'comments';
+};
+
+function sortByIdOrder<T extends ContentIdProvider>(items: T[], order: ContentId[]): T[] {
+    if (items.length === 0 || order.length === 0) {
+        return items;
+    }
+
+    const orderMap = new Map(order.map((id, index) => [id.toString(), index]));
+    return items
+        .map((item, index) => ({
+            item,
+            index,
+            orderIndex: orderMap.get(item.getContentId().toString()),
+        }))
+        .sort((a, b) => {
+            const aOrder = a.orderIndex;
+            const bOrder = b.orderIndex;
+            if (aOrder == null && bOrder == null) {
+                return a.index - b.index;
+            }
+            if (aOrder == null) {
+                return 1;
+            }
+            if (bOrder == null) {
+                return -1;
+            }
+            return aOrder - bOrder;
+        })
+        .map((entry) => entry.item);
+}
+
+const getIssueContext = (updatingKey?: IssueDetailsUpdatingKey): IssueContext | null => {
+    const state = $issueDialogDetails.get();
+    const issueId = state.issueId;
+
+    if (!issueId || (updatingKey && state[updatingKey])) {
+        return null;
+    }
+
+    const dialogState = $issueDialog.get();
+    const issueWithAssignees = dialogState.issues.find((item) => item.getIssue().getId() === issueId);
+    const issue = state.issue ?? issueWithAssignees?.getIssue();
+
+    if (!issue) {
+        return null;
+    }
+
+    return {
+        issueId,
+        dialogState,
+        issueWithAssignees,
+        issue,
+    };
+};
+
+const populateSchedule = (request: UpdateIssueRequest, issue: Issue): void => {
+    const publishFrom = issue.getPublishFrom();
+    const publishTo = issue.getPublishTo();
+
+    if (publishFrom) {
+        request.setPublishFrom(publishFrom);
+    }
+    if (publishTo) {
+        request.setPublishTo(publishTo);
+    }
+};
+
+const applyUpdatedIssue = (
+    updatedIssue: Issue,
+    dialogState: IssueDialogState,
+    issueWithAssignees: IssueWithAssignees | undefined,
+    detailsUpdates: Partial<IssueDialogDetailsStore>,
+    assigneesOverride?: IssueAssignees,
+): void => {
+    if (issueWithAssignees) {
+        const assignees = assigneesOverride ?? issueWithAssignees.getAssignees();
+        const updatedIssues = dialogState.issues.map((item) => {
+            if (item.getIssue().getId() !== updatedIssue.getId()) {
+                return item;
+            }
+            return new IssueWithAssignees(updatedIssue, assignees);
+        });
+
+        $issueDialog.set({
+            ...dialogState,
+            issues: updatedIssues,
+        });
+    }
+
+    const latestState = $issueDialogDetails.get();
+    $issueDialogDetails.set({
+        ...latestState,
+        issue: updatedIssue,
+        ...detailsUpdates,
+    });
+};
+
+const updateIssueWithPublishRequest = async ({
+    issueId,
+    issue,
+    dialogState,
+    issueWithAssignees,
+    nextPublishRequest,
+    forceReloadItems = false,
+}: {
+    issueId: string;
+    issue: Issue;
+    dialogState: IssueDialogState;
+    issueWithAssignees?: IssueWithAssignees;
+    nextPublishRequest: PublishRequest;
+    forceReloadItems?: boolean;
+}): Promise<void> => {
+    try {
+        const request = new UpdateIssueRequest(issueId)
+            .setTitle(issue.getTitle())
+            .setDescription(issue.getDescription())
+            .setIssueStatus(issue.getIssueStatus())
+            .setApprovers(issue.getApprovers())
+            .setPublishRequest(nextPublishRequest);
+        populateSchedule(request, issue);
+        const updatedIssue = await request.sendAndParse();
+
+        applyUpdatedIssue(updatedIssue, dialogState, issueWithAssignees, {});
+        await loadIssueDialogItems(updatedIssue, { forceReload: forceReloadItems });
+        $issueDialogDetails.setKey('itemsUpdating', false);
+
+        const prefix =
+            updatedIssue.getType() === IssueType.PUBLISH_REQUEST ? 'notify.publishRequest.' : 'notify.issue.';
+        showFeedback(i18n(`${prefix}updated`));
+        void loadIssueDialogList();
+    } catch (error) {
+        console.error(error);
+        $issueDialogDetails.setKey('itemsUpdating', false);
+        showError(error?.message ?? String(error));
+    }
+};
+
+const getStatusMessageKey = (issueType: IssueType, status: IssueStatus): string => {
+    const prefix = issueType === IssueType.PUBLISH_REQUEST ? 'notify.publishRequest.' : 'notify.issue.';
+    const suffix = status === IssueStatus.CLOSED ? 'closed' : 'open';
+    return `${prefix}${suffix}`;
+};
+
+const getCommentMessageKey = (issueType: IssueType): string => {
+    const prefix = issueType === IssueType.PUBLISH_REQUEST ? 'notify.publishRequest.' : 'notify.issue.';
+    return `${prefix}commentAdded`;
+};
+
+const getCommentErrorMessageKey = (issueType: IssueType): string => {
+    const prefix = issueType === IssueType.PUBLISH_REQUEST ? 'notify.publishRequest.' : 'notify.issue.';
+    return `${prefix}commentError`;
+};
+
+const getCommentUpdatedMessageKey = (issueType: IssueType): string => {
+    const prefix = issueType === IssueType.PUBLISH_REQUEST ? 'notify.publishRequest.' : 'notify.issue.';
+    return `${prefix}commentUpdated`;
+};
+
+const getCommentDeletedMessageKey = (issueType: IssueType): string => {
+    const prefix = issueType === IssueType.PUBLISH_REQUEST ? 'notify.publishRequest.' : 'notify.issue.';
+    return `${prefix}commentDeleted`;
+};
+
+const resolveIssueType = (issueId: string, issues: IssueWithAssignees[], issue?: Issue): IssueType => {
+    if (issue && issue.getId() === issueId) {
+        return issue.getType();
+    }
+
+    return (
+        issues
+            .find((item) => item.getIssue().getId() === issueId)
+            ?.getIssue()
+            .getType() ?? IssueType.STANDARD
+    );
+};
+
+const resetIssueDialogDetails = (issueId?: string): void => {
+    const baseState = structuredClone(initialState);
+    dependenciesRequestId += 1;
+    commentsRequestId += 1;
+    serverEventReloadRequestId += 1;
+    $issueDialogDetails.set({
+        ...baseState,
+        issueId,
+        detailsTab: resolveDefaultDetailsTab(issueId),
+    });
+    $deleteCommentConfirmation.set({ open: false, commentId: undefined });
+};
+
+//
+// * Socket Event Handlers
+//
+
+const isIssueDialogDetailsActive = (): boolean => {
+    const { open, view } = $issueDialog.get();
+    return open && view === 'details';
+};
+
+const onIssueDialogDetailsSocketEvent = createGuardedSocketHandler(isIssueDialogDetailsActive);
+
+const patchTrackedIssueDialogItems = (
+    updates: ContentSummary[],
+): { updatedMain: boolean; updatedDependants: boolean } => {
+    const change = patchTrackedContentItems($issueDialogDetails.get(), updates);
+
+    if (change.changed) {
+        $issueDialogDetails.set(change.state);
+    }
+
+    return {
+        updatedMain: change.changedMain,
+        updatedDependants: change.changedDependants,
+    };
+};
+
+const removeTrackedIssueDialogItems = (
+    idsToRemove: Set<string>,
+): { removedMain: boolean; removedDependants: boolean } => {
+    const change = removeTrackedContentItems($issueDialogDetails.get(), idsToRemove);
+    const pruned = pruneDependantWindow(change.changed ? change.state : $issueDialogDetails.get(), idsToRemove);
+
+    if (change.changed || pruned.changed) {
+        $issueDialogDetails.set(pruned.state);
+    }
+
+    return {
+        removedMain: change.changedMain,
+        // An id-only prune (dependant beyond the loaded window) must also count:
+        // callers rely on this flag to reschedule the dependency reload.
+        removedDependants: change.changedDependants || pruned.changed,
+    };
+};
+
+const getCurrentIssueDialogIssueId = (): string | undefined => {
+    return $issueDialogDetails.get().issueId ?? $issueDialog.get().issueId;
+};
+
+const getCurrentIssueDialogIssue = (): Issue | undefined => {
+    const state = $issueDialogDetails.get();
+    if (state.issue) {
+        return state.issue;
+    }
+
+    const { issues } = $issueDialog.get();
+    const currentIssueId = getCurrentIssueDialogIssueId();
+
+    return issues.find((item) => item.getIssue().getId() === currentIssueId)?.getIssue();
+};
+
+const getCurrentIssueDialogIssueName = (): string | undefined => {
+    return getCurrentIssueDialogIssue()?.getName();
+};
+
+const isCurrentIssueDialogIssueId = (issueId: string): boolean => {
+    return isIssueDialogDetailsActive() && getCurrentIssueDialogIssueId() === issueId;
+};
+
+const isStaleIssueDialogDetailsReload = (issueId: string, requestId: number): boolean => {
+    return requestId !== serverEventReloadRequestId || !isCurrentIssueDialogIssueId(issueId);
+};
+
+const fetchIssueAssignees = async (issue: Issue): Promise<IssueAssignees | undefined> => {
+    const approvers = issue.getApprovers();
+    if (approvers.length === 0) {
+        return [];
+    }
+
+    try {
+        return await new GetPrincipalsByKeysRequest(approvers).sendAndParse();
+    } catch (error) {
+        console.error(error);
+        return undefined;
+    }
+};
+
+const reloadIssueDialogDetailsForServerEvent = async (issueId: string): Promise<void> => {
+    if (!isCurrentIssueDialogIssueId(issueId)) {
+        return;
+    }
+
+    const requestId = ++serverEventReloadRequestId;
+
+    try {
+        const issue = await new GetIssueRequest(issueId).sendAndParse();
+        if (isStaleIssueDialogDetailsReload(issueId, requestId)) {
+            return;
+        }
+
+        const assignees = await fetchIssueAssignees(issue);
+        if (isStaleIssueDialogDetailsReload(issueId, requestId)) {
+            return;
+        }
+
+        const dialogState = $issueDialog.get();
+        const issueWithAssignees = dialogState.issues.find((item) => item.getIssue().getId() === issueId);
+        applyUpdatedIssue(issue, dialogState, issueWithAssignees, {}, assignees);
+
+        await loadIssueDialogComments(issueId, { forceReload: true });
+        if (isStaleIssueDialogDetailsReload(issueId, requestId)) {
+            return;
+        }
+
+        void loadIssueDialogItems(issue, { forceReload: true });
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const queueIssueDialogDetailsServerEventReload = createDebounce((issueId: string) => {
+    void reloadIssueDialogDetailsForServerEvent(issueId);
+}, 1250);
+
+const isCurrentIssueDialogServerEvent = (issueIds: string[]): boolean => {
+    const currentIssueId = getCurrentIssueDialogIssueId();
+    if (!currentIssueId || !isIssueDialogDetailsActive()) {
+        return false;
+    }
+
+    if (issueIds.includes(currentIssueId)) {
+        return true;
+    }
+
+    const currentIssueName = getCurrentIssueDialogIssueName();
+    return currentIssueName != null && issueIds.includes(currentIssueName);
+};
+
+const reloadIssueDialogItemsForCurrentIssue = (): void => {
+    const issue = getCurrentIssueDialogIssue();
+    if (!issue) {
+        return;
+    }
+    void loadIssueDialogItems(issue, { forceReload: true });
+};
+
+$contentCreated.subscribe(
+    onIssueDialogDetailsSocketEvent((event) => {
+        const matched = findContentIdsWithCreatedDescendants($issueDialogDetails.get().items, event.data);
+        if (matched.length === 0) {
+            return;
+        }
+        reloadIssueDialogItemsForCurrentIssue();
+    }),
+);
+
+$contentUpdated.subscribe(
+    onIssueDialogDetailsSocketEvent((event) => {
+        const { updatedMain, updatedDependants } = patchTrackedIssueDialogItems(event.data);
+        if (updatedMain || updatedDependants) {
+            reloadIssueDialogItemsForCurrentIssue();
+        }
+    }),
+);
+
+$contentRenamed.subscribe(
+    onIssueDialogDetailsSocketEvent((event) => {
+        patchTrackedIssueDialogItems(event.data.items);
+    }),
+);
+
+$contentDeleted.subscribe(
+    onIssueDialogDetailsSocketEvent((event) => {
+        const { removedMain, removedDependants } = removeTrackedIssueDialogItems(createContentIdSet(event.data));
+        if (removedMain || removedDependants) {
+            reloadIssueDialogItemsForCurrentIssue();
+        }
+    }),
+);
+
+$contentArchived.subscribe(
+    onIssueDialogDetailsSocketEvent((event) => {
+        const { removedMain, removedDependants } = removeTrackedIssueDialogItems(createContentIdSet(event.data));
+        if (removedMain || removedDependants) {
+            reloadIssueDialogItemsForCurrentIssue();
+        }
+    }),
+);
+
+$contentPublished.subscribe(
+    onIssueDialogDetailsSocketEvent((event) => {
+        const { updatedMain, updatedDependants } = patchTrackedIssueDialogItems(event.data);
+        if (updatedMain || updatedDependants) {
+            reloadIssueDialogItemsForCurrentIssue();
+        }
+    }),
+);
+
+const handleIssueDialogDetailsIssueChanged = (issueIds: string[], event: IssueServerEvent): void => {
+    const currentIssueId = getCurrentIssueDialogIssueId();
+    if (!currentIssueId || !isCurrentIssueDialogServerEvent(issueIds)) {
+        return;
+    }
+
+    // An id match (not just a name) on delete means the open issue itself was removed, not a comment.
+    if (event.getType() === NodeServerChangeType.DELETE && issueIds.includes(currentIssueId)) {
+        closeIssueDialog();
+        return;
+    }
+
+    queueIssueDialogDetailsServerEventReload(currentIssueId);
+};
+
+onMount($issueDialogDetails, () => {
+    const handler = IssueServerEventsHandler.getInstance();
+    handler.onIssueChanged(handleIssueDialogDetailsIssueChanged);
+
+    return () => {
+        handler.unIssueChanged(handleIssueDialogDetailsIssueChanged);
+        queueIssueDialogDetailsServerEventReload.cancel();
+        serverEventReloadRequestId += 1;
+    };
+});
+
+$issueDialog.subscribe(({ open, view, issueId }) => {
+    if (!open || view !== 'details') {
+        const state = $issueDialogDetails.get();
+        if (
+            state.issueId ||
+            state.issue ||
+            state.issueLoading ||
+            state.issueError ||
+            state.commentText ||
+            state.comments.length > 0
+        ) {
+            resetIssueDialogDetails();
+        }
+        return;
+    }
+
+    const detailsState = $issueDialogDetails.get();
+    if (issueId && issueId !== detailsState.issueId) {
+        resetIssueDialogDetails(issueId);
+    }
+});

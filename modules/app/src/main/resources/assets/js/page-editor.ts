@@ -1,15 +1,15 @@
-import {ALLOWED_URI_REGEXP} from '@enonic/lib-contentstudio/v6/features/utils/url/allowedUri';
-import {ComponentPath as EditorComponentPath, EditorEvent, EditorEvents, PageEditor} from '@enonic/page-editor';
+import { ALLOWED_URI_REGEXP } from '@enonic/lib-contentstudio/v6/shared/lib/url/allowedUri';
+import { ComponentPath as EditorComponentPath, EditorEvent, EditorEvents, PageEditor } from '@enonic/page-editor';
 import DOMPurify from 'dompurify';
 
 const scriptElement = document.currentScript as HTMLScriptElement | null;
 const project = scriptElement?.dataset.project;
 
-PageEditor.init({editMode: true});
+PageEditor.init({ editMode: true });
 
 PageEditor.on(
     EditorEvents.ComponentLoadRequest,
-    (event: EditorEvent<{path: EditorComponentPath; isExisting: boolean}>) => {
+    (event: EditorEvent<{ path: EditorComponentPath; isExisting: boolean }>) => {
         const data = event.getData();
         if (!data) return;
         void handleComponentLoad(data.path, data.isExisting);
@@ -45,7 +45,7 @@ function resolveComponentUrl(path: EditorComponentPath): string {
 function getSitePathPrefix(): string {
     if (!project) throw new Error('Cannot reload component: project is missing');
 
-    const {pathname} = window.location;
+    const { pathname } = window.location;
     const siteIdx = pathname.indexOf('/site/');
     if (siteIdx < 0) throw new Error(`Cannot derive site path prefix from ${pathname}`);
     const adminSitePrefix = pathname.slice(0, siteIdx + '/site/'.length);
@@ -64,5 +64,5 @@ function sanitizeComponentHtml(html: string, path: EditorComponentPath): string 
     if (PageEditor.getComponentAt(path)?.type !== 'fragment') {
         return html;
     }
-    return DOMPurify.sanitize(html, {ALLOWED_URI_REGEXP});
+    return DOMPurify.sanitize(html, { ALLOWED_URI_REGEXP });
 }

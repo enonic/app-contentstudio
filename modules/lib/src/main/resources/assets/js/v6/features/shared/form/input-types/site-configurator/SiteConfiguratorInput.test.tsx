@@ -18,7 +18,7 @@ vi.mock('../../../../../shared/lib/hooks/useI18n', () => ({
 
 // ConfirmationDialog spreads `{...Dialog}` at module load; the global @enonic/ui
 // mock has no Dialog. It is not on this test's path (editing stays null), so stub it.
-vi.mock('../../../dialogs/ConfirmationDialog', () => ({
+vi.mock('../../../../../shared/ui/dialogs/ConfirmationDialog', () => ({
     ConfirmationDialog: { Content: () => null, DefaultHeader: () => null, Footer: () => null },
 }));
 
@@ -39,7 +39,7 @@ vi.mock('../../../../../entities/application/applications.store', async () => {
     };
 });
 
-vi.mock('../../../../store/wizardContent.store', () => ({
+vi.mock('../../../../../pages/wizard/model/wizardContent.store', () => ({
     requestMixinSeed: vi.fn(),
 }));
 

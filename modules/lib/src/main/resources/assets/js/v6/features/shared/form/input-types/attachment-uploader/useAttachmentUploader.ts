@@ -8,12 +8,18 @@ import {
     uploadAttachmentFile,
     type UploadAttachmentError,
     type UploadAttachmentSuccess,
-} from '../../../../api/uploadAttachment';
-import { $uploads, addUpload, completeUpload, failUpload, updateUploadProgress } from '../../../../store/uploads.store';
-import { clearAttachmentServerError } from '../../../../store/wizardValidation.store';
+} from '../../../../../entities/content/api/uploadAttachment.api';
+import {
+    $uploads,
+    addUpload,
+    completeUpload,
+    failUpload,
+    updateUploadProgress,
+} from '../../../../../entities/content/model/uploads.store';
+import { clearAttachmentServerError } from '../../../../../pages/wizard/model/wizardValidation.store';
 import { listenKeys } from 'nanostores';
-import { $contextContent } from '../../../../store/context/contextContent.store';
-import { $wizardDraftPage } from '../../../../store/wizardContent.store';
+import { $contextContent } from '../../../../../widgets/context-panel/model/contextContent.store';
+import { $wizardDraftPage } from '../../../../../pages/wizard/model/wizardContent.store';
 import { isAttachmentInUse } from '../../../../../shared/lib/page/isAttachmentInUse';
 import { ContentRequiresSaveEvent } from '../../../../../../app/event/ContentRequiresSaveEvent';
 import { ContentId } from '../../../../../../app/content/ContentId';

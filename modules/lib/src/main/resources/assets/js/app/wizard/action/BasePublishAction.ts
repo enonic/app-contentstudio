@@ -1,9 +1,9 @@
-import {showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {type ContentWizardPanel} from '../ContentWizardPanel';
-import type {ContentSummary} from '../../content/ContentSummary';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {$wizardContentState} from '../../../v6/features/store/wizardContent.store';
+import { showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { type ContentWizardPanel } from '../ContentWizardPanel';
+import type { ContentSummary } from '../../content/ContentSummary';
+import { Action } from '@enonic/lib-admin-ui/ui/Action';
+import { $wizardContentState } from '../../../v6/pages/wizard/model/wizardContent.store';
 
 export interface BasePublishActionConfig {
     wizard: ContentWizardPanel;
@@ -14,9 +14,7 @@ export interface BasePublishActionConfig {
     markAsReady?: boolean;
 }
 
-export abstract class BasePublishAction
-    extends Action {
-
+export abstract class BasePublishAction extends Action {
     private config: BasePublishActionConfig;
 
     constructor(config: BasePublishActionConfig) {
@@ -27,22 +25,25 @@ export abstract class BasePublishAction
 
         const callback = () => {
             if (this.mustSaveBeforeExecution()) {
-
                 this.setEnabled(false);
 
                 if (config.markAsReady) {
                     config.wizard.setMarkedAsReady(true);
                 }
 
-                this.config.wizard.saveChanges().then((content) => {
-                    const canPublish = !config.markAsReady || $wizardContentState.get() !== 'invalid';
-                    if (content != null && canPublish) {
-                        this.firePromptEvent();
-                    }
-                }).catch((reason) => {
-                    DefaultErrorHandler.handle(reason);
-                }).finally(() => this.setEnabled(true)).done();
-
+                this.config.wizard
+                    .saveChanges()
+                    .then((content) => {
+                        const canPublish = !config.markAsReady || $wizardContentState.get() !== 'invalid';
+                        if (content != null && canPublish) {
+                            this.firePromptEvent();
+                        }
+                    })
+                    .catch((reason) => {
+                        DefaultErrorHandler.handle(reason);
+                    })
+                    .finally(() => this.setEnabled(true))
+                    .done();
             } else {
                 this.firePromptEvent();
             }

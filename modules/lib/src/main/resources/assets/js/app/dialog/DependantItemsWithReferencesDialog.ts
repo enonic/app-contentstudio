@@ -1,25 +1,24 @@
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import type Q from 'q';
-import type {ContentListItemElement} from '../../v6/features/shared/items/ContentListItem';
-import type {ContentId} from '../content/ContentId';
-import type {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import type {ContentServerChangeItem} from '../event/ContentServerChangeItem';
-import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
-import {DialogWithRefsDependantList} from '../remove/DialogWithRefsDependantList';
-import {DialogWithRefsItemList, type DialogWithRefsItemListConfig} from '../remove/DialogWithRefsItemList';
-import type {CmsContentResourceRequest} from '../resource/CmsContentResourceRequest';
-import type {ContentWithRefsResult} from '../resource/ContentWithRefsResult';
-import type {ArchiveSelectableItem} from './ArchiveSelectableItem';
-import {DependantItemsWithProgressDialog} from './DependantItemsWithProgressDialog';
-import {DialogStateBar} from './DialogStateBar';
-import type {DialogStateEntry} from './DialogStateEntry';
+import type { ContentListItemElement } from '../../v6/entities/content/ui/items/ContentListItem';
+import type { ContentId } from '../content/ContentId';
+import type { ContentSummaryAndCompareStatus } from '../content/ContentSummaryAndCompareStatus';
+import type { ContentServerChangeItem } from '../event/ContentServerChangeItem';
+import { ContentServerEventsHandler } from '../event/ContentServerEventsHandler';
+import { DialogWithRefsDependantList } from '../remove/DialogWithRefsDependantList';
+import { DialogWithRefsItemList, type DialogWithRefsItemListConfig } from '../remove/DialogWithRefsItemList';
+import type { CmsContentResourceRequest } from '../resource/CmsContentResourceRequest';
+import type { ContentWithRefsResult } from '../resource/ContentWithRefsResult';
+import type { ArchiveSelectableItem } from './ArchiveSelectableItem';
+import { DependantItemsWithProgressDialog } from './DependantItemsWithProgressDialog';
+import { DialogStateBar } from './DialogStateBar';
+import type { DialogStateEntry } from './DialogStateEntry';
 
 /**
  * @deprecated Use React components instead (DeleteDialog, UnpublishDialog)
  */
-export abstract class DependantItemsWithReferencesDialog
-    extends DependantItemsWithProgressDialog<ContentListItemElement> {
+export abstract class DependantItemsWithReferencesDialog extends DependantItemsWithProgressDialog<ContentListItemElement> {
     protected stateBar: DialogStateBar;
     protected inboundErrorsEntry: DialogStateEntry;
 
@@ -29,7 +28,7 @@ export abstract class DependantItemsWithReferencesDialog
     protected initElements(): void {
         super.initElements();
 
-        this.stateBar = new DialogStateBar({hideIfResolved: true});
+        this.stateBar = new DialogStateBar({ hideIfResolved: true });
         this.inboundErrorsEntry = this.stateBar.addErrorEntry({
             text: i18n('dialog.statusBar.error.inbound.text'),
             actionButtons: [
@@ -49,7 +48,7 @@ export abstract class DependantItemsWithReferencesDialog
 
         const onItemsAdded = (
             items: ContentSummaryAndCompareStatus[],
-            list: DialogWithRefsItemList | DialogWithRefsDependantList
+            list: DialogWithRefsItemList | DialogWithRefsDependantList,
         ) => {
             if (!this.resolveDependenciesResult) {
                 return;
@@ -71,7 +70,9 @@ export abstract class DependantItemsWithReferencesDialog
         ContentServerEventsHandler.getInstance().onContentDeleted(handleRefsChange);
     }
 
-    private updateItemViewsWithInboundDependencies(views: readonly (ContentListItemElement | ArchiveSelectableItem)[]): void {
+    private updateItemViewsWithInboundDependencies(
+        views: readonly (ContentListItemElement | ArchiveSelectableItem)[],
+    ): void {
         for (const v of views) {
             // v.setHasInbound(this.hasInboundRef(v.getItem().getId()));
         }
@@ -88,7 +89,7 @@ export abstract class DependantItemsWithReferencesDialog
 
         const contentIds = items.map((item) => item.getContentId());
         const referringWasUpdated = this.referenceIds.find((id) =>
-            contentIds.some((contentId) => contentId.equals(id))
+            contentIds.some((contentId) => contentId.equals(id)),
         );
         if (referringWasUpdated) {
             this.refreshInboundRefs();
@@ -107,7 +108,9 @@ export abstract class DependantItemsWithReferencesDialog
     }
 
     protected resolveDescendants(): Q.Promise<ContentId[]> {
-        const ids: ContentId[] = this.getItemList().getItems().map((c) => c.getContentId());
+        const ids: ContentId[] = this.getItemList()
+            .getItems()
+            .map((c) => c.getContentId());
         return this.createResolveRequest(ids)
             .sendAndParse()
             .then((result: ContentWithRefsResult) => {
@@ -122,8 +125,7 @@ export abstract class DependantItemsWithReferencesDialog
     protected resolveItemsWithInboundRefs(forceUpdate?: boolean): void {
         this.getDependantList().setResolveDependenciesResult(this.resolveDependenciesResult);
 
-        const itemsWithInboundRefs: ContentId[] =
-            this.dependantIds.filter((id) => this.hasInboundRef(id.toString()));
+        const itemsWithInboundRefs: ContentId[] = this.dependantIds.filter((id) => this.hasInboundRef(id.toString()));
         this.dependantIds = this.dependantIds.filter((id) => !this.hasInboundRef(id.toString()));
         this.dependantIds.unshift(...itemsWithInboundRefs);
 

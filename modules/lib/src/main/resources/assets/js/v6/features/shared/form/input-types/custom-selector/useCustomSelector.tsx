@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Branch } from '../../../../../../app/versioning/Branch';
 import { UrlAction } from '../../../../../../app/UrlAction';
 import { UriHelper } from '../../../../../../app/rendering/UriHelper';
-import { $contextContent } from '../../../../store/context/contextContent.store';
+import { $contextContent } from '../../../../../widgets/context-panel/model/contextContent.store';
 import { $activeProject } from '../../../../../entities/project';
 import { type CustomSelectorConfig } from './CustomSelectorConfig';
 import { type CustomSelectorItem } from './CustomSelectorInput';

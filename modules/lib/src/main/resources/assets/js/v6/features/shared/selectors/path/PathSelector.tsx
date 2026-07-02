@@ -10,7 +10,7 @@ import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import { useTreeSelectorLayout } from '../../../../shared/lib/hooks/useTreeSelectorLayout';
 import { useTreeStore } from '../../../../shared/lib/tree-store';
 import { createDebounce } from '../../../../shared/lib/timing/createDebounce';
-import { ContentLabel } from '../../content/ContentLabel';
+import { ContentLabel } from '../../../../entities/content/ui/content/ContentLabel';
 import { StatusBadge } from '../../status/StatusBadge';
 import { createRootContent, isRootContent, ROOT_ID, RootLabel } from './PathSelectorRoot';
 import { calcTreePublishStatus } from '../../../../shared/lib/cms/content/status';

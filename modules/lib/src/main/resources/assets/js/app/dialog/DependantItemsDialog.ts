@@ -1,26 +1,29 @@
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {type Element} from '@enonic/lib-admin-ui/dom/Element';
-import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
-import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
-import {TogglerButton} from '@enonic/lib-admin-ui/ui/button/TogglerButton';
-import {ModalDialogWithConfirmation, type ModalDialogWithConfirmationConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
-import {type ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
-import {Checkbox} from '@enonic/lib-admin-ui/ui2/Checkbox';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import type {CheckboxChecked} from '@enonic/ui';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
+import { type Element } from '@enonic/lib-admin-ui/dom/Element';
+import { H6El } from '@enonic/lib-admin-ui/dom/H6El';
+import { SpanEl } from '@enonic/lib-admin-ui/dom/SpanEl';
+import { TogglerButton } from '@enonic/lib-admin-ui/ui/button/TogglerButton';
+import {
+    ModalDialogWithConfirmation,
+    type ModalDialogWithConfirmationConfig,
+} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
+import { type ActionButton } from '@enonic/lib-admin-ui/ui2/ActionButton';
+import { Checkbox } from '@enonic/lib-admin-ui/ui2/Checkbox';
+import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import type { CheckboxChecked } from '@enonic/ui';
 import type Q from 'q';
-import type {PublishItemsListElement} from '../../v6/features/shared/dialogs/publish/PublishItemsList';
-import type {ContentListItemElement} from '../../v6/features/shared/items/ContentListItem';
-import {type ContentId} from '../content/ContentId';
-import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
-import {GetDescendantsOfContentsRequest} from '../resource/GetDescendantsOfContentsRequest';
-import {DependantItemViewer} from './DependantItemViewer';
-import {DialogDependantItemsList, type ObserverConfig, SelectionType} from './DialogDependantItemsList';
-import {DialogMainItemsList} from './DialogMainItemsList';
-import type {StatusCheckableItem} from './StatusCheckableItem';
+import type { PublishItemsListElement } from '../../v6/features/publish/ui/PublishItemsList';
+import type { ContentListItemElement } from '../../v6/entities/content/ui/items/ContentListItem';
+import { type ContentId } from '../content/ContentId';
+import { type ContentSummaryAndCompareStatus } from '../content/ContentSummaryAndCompareStatus';
+import { ContentSummaryAndCompareStatusFetcher } from '../resource/ContentSummaryAndCompareStatusFetcher';
+import { GetDescendantsOfContentsRequest } from '../resource/GetDescendantsOfContentsRequest';
+import { DependantItemViewer } from './DependantItemViewer';
+import { DialogDependantItemsList, type ObserverConfig, SelectionType } from './DialogDependantItemsList';
+import { DialogMainItemsList } from './DialogMainItemsList';
+import type { StatusCheckableItem } from './StatusCheckableItem';
 
 enum DependantsStatus {
     HAS_EXCLUDED = 'has-excluded',
@@ -32,16 +35,15 @@ enum DialogStatus {
     EDITING = 'editing',
 }
 
-export interface DependantItemsDialogConfig
-    extends ModalDialogWithConfirmationConfig {
+export interface DependantItemsDialogConfig extends ModalDialogWithConfirmationConfig {
     dialogSubName?: string;
     dependantsTitle?: string;
     controls?: boolean;
 }
 
-export abstract class DependantItemsDialog<Item extends StatusCheckableItem | ContentListItemElement>
-    extends ModalDialogWithConfirmation {
-
+export abstract class DependantItemsDialog<
+    Item extends StatusCheckableItem | ContentListItemElement,
+> extends ModalDialogWithConfirmation {
     protected actionButton: ActionButton;
 
     private ignoreItemsChanged: boolean;
@@ -62,7 +64,7 @@ export abstract class DependantItemsDialog<Item extends StatusCheckableItem | Co
     declare protected config: DependantItemsDialogConfig;
 
     protected constructor(config: DependantItemsDialogConfig) {
-        super({...config, class: `dependant-items-dialog ${config.class ?? ''}`.trim()});
+        super({ ...config, class: `dependant-items-dialog ${config.class ?? ''}`.trim() });
         this.postInitListeners();
         this.dependantIds = [];
         this.resolvedIds = [];
@@ -70,12 +72,12 @@ export abstract class DependantItemsDialog<Item extends StatusCheckableItem | Co
 
     private static createChecked(selection: SelectionType): CheckboxChecked {
         switch (selection) {
-        case SelectionType.PARTIAL:
-            return 'indeterminate';
-        case SelectionType.ALL:
-            return true;
-        case SelectionType.NONE:
-            return false;
+            case SelectionType.PARTIAL:
+                return 'indeterminate';
+            case SelectionType.ALL:
+                return true;
+            case SelectionType.NONE:
+                return false;
         }
     }
 
@@ -116,10 +118,11 @@ export abstract class DependantItemsDialog<Item extends StatusCheckableItem | Co
         });
     }
 
-
     protected initControlsListeners(): void {
-        this.excludedToggler.onActiveChanged(active => {
-            this.excludedToggler.setLabel(active ? i18n('dialog.publish.excluded.hide') : i18n('dialog.publish.excluded.show'));
+        this.excludedToggler.onActiveChanged((active) => {
+            this.excludedToggler.setLabel(
+                active ? i18n('dialog.publish.excluded.hide') : i18n('dialog.publish.excluded.show'),
+            );
             this.dependantsContainer.toggleClass(DependantsStatus.EXCLUDED_HIDDEN, !active);
             this.dependantList.setExcludedHidden(!active);
         });
@@ -161,7 +164,7 @@ export abstract class DependantItemsDialog<Item extends StatusCheckableItem | Co
 
         if (this.config.controls) {
             this.allCheckBox.setLabel(i18n('dialog.select.all', count));
-            this.allCheckBox.setProps({disabled: !this.dependantList.hasExcludableItems()});
+            this.allCheckBox.setProps({ disabled: !this.dependantList.hasExcludableItems() });
         }
 
         this.markDependantsEmpty(count === 0);
@@ -190,7 +193,7 @@ export abstract class DependantItemsDialog<Item extends StatusCheckableItem | Co
         this.allCheckBox = new Checkbox({
             label: i18n('dialog.select.all', 0),
             checked: 'indeterminate',
-            onCheckedChange: next => {
+            onCheckedChange: (next) => {
                 if (next === 'indeterminate') {
                     return;
                 }
@@ -265,7 +268,7 @@ export abstract class DependantItemsDialog<Item extends StatusCheckableItem | Co
 
         if (this.config.controls) {
             this.allCheckBox.setChecked('indeterminate', true);
-            this.allCheckBox.setProps({disabled: false});
+            this.allCheckBox.setProps({ disabled: false });
             this.excludedToggler.setActive(true);
         }
 
@@ -331,22 +334,30 @@ export abstract class DependantItemsDialog<Item extends StatusCheckableItem | Co
     }
 
     protected loadDescendantIds(): Q.Promise<void> {
-        const ids: ContentId[] = this.getItemList().getItems().map(content => content.getContentId());
+        const ids: ContentId[] = this.getItemList()
+            .getItems()
+            .map((content) => content.getContentId());
 
         return this.resolveDescendants().then((resolvedIds: ContentId[]) => {
             this.resolvedIds = resolvedIds;
-            this.dependantIds = resolvedIds.filter((resolveId: ContentId) => !ids.some((id: ContentId) => id.equals(resolveId)));
+            this.dependantIds = resolvedIds.filter(
+                (resolveId: ContentId) => !ids.some((id: ContentId) => id.equals(resolveId)),
+            );
         });
     }
 
     protected resolveDescendants(): Q.Promise<ContentId[]> {
         const contents: ContentSummaryAndCompareStatus[] = this.getContentsToLoad();
 
-        return new GetDescendantsOfContentsRequest().setContentPaths(
-            contents.map(content => content.getContentSummary().getPath())).sendAndParse();
+        return new GetDescendantsOfContentsRequest()
+            .setContentPaths(contents.map((content) => content.getContentSummary().getPath()))
+            .sendAndParse();
     }
 
-    private loadDescendants(from: number, size = GetDescendantsOfContentsRequest.LOAD_SIZE): Q.Promise<ContentSummaryAndCompareStatus[]> {
+    private loadDescendants(
+        from: number,
+        size = GetDescendantsOfContentsRequest.LOAD_SIZE,
+    ): Q.Promise<ContentSummaryAndCompareStatus[]> {
         const ids = this.getDependantIdsToLoad(from, from + size);
         return new ContentSummaryAndCompareStatusFetcher().fetchAndCompareStatus(ids);
     }
@@ -417,6 +428,6 @@ export abstract class DependantItemsDialog<Item extends StatusCheckableItem | Co
     }
 
     getTabbableElements(): Element[] {
-        return super.getTabbableElements().filter(element => element.hasClass('checkable-item-checkbox'));
+        return super.getTabbableElements().filter((element) => element.hasClass('checkable-item-checkbox'));
     }
 }

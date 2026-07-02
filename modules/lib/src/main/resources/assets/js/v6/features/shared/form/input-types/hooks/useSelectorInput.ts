@@ -5,7 +5,7 @@ import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
 import { useCallback, useMemo } from 'react';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { useStore } from '@nanostores/preact';
-import { $contextContent } from '../../../../store/context/contextContent.store';
+import { $contextContent } from '../../../../../widgets/context-panel/model/contextContent.store';
 import { SITE_PATH } from '../../../../../shared/lib/form/form';
 import { type ContentSummary } from '../../../../../../app/content/ContentSummary';
 import { useSelectorInputHasError } from './useSelectorInputHasError';

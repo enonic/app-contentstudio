@@ -6,7 +6,7 @@ import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
 import { useStore } from '@nanostores/preact';
 import { type ReactElement, type ReactNode, useMemo } from 'react';
 import { useApplicationKeys } from '../../hooks/useApplicationKeys';
-import { $contextContent } from '../../store/context/contextContent.store';
+import { $contextContent } from '../../../widgets/context-panel/model/contextContent.store';
 import { $activeProject } from '../../../entities/project';
 import { Input } from '@enonic/lib-admin-ui/form/Input';
 import { instanceOf } from '../../../shared/lib/object/instanceOf';

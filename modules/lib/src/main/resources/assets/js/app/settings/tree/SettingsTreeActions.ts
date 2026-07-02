@@ -8,7 +8,7 @@ import { EditSettingsItemTreeAction } from '../browse/action/EditSettingsItemTre
 import { DeleteSettingsItemTreeAction } from '../browse/action/DeleteSettingsItemTreeAction';
 import { SyncTreeAction } from '../browse/action/SyncTreeAction';
 import { AuthHelper } from '@enonic/lib-admin-ui/auth/AuthHelper';
-import { getCurrentItems } from '../../../v6/features/store/settingsTreeSelection.store';
+import { getCurrentItems } from '../../../v6/pages/settings/model/settingsTreeSelection.store';
 import { $noProjectMode, $projects } from '../../../v6/entities/project/projects.store';
 
 export class SettingsTreeActions implements TreeGridActions<SettingsViewItem> {

@@ -22,7 +22,7 @@ import { ContentAppBar } from '../bar/ContentAppBar';
 import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
 import { ProjectsUtil } from './resource/ProjectsUtil';
 import { upsertProject } from '../../v6/entities/project/projects.store';
-import { openEditProjectDialog } from '../../v6/features/store/dialogs/projectDialog.store';
+import { openEditProjectDialog } from '../../v6/features/manage-project/model/projectDialog.store';
 
 export class SettingsAppPanel extends NavigatedAppPanel {
     declare protected browsePanel: SettingsBrowsePanel;

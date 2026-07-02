@@ -30,7 +30,7 @@ import {
     type FlatNode,
     type CreateNodeOptions,
 } from '../../../shared/lib/tree-store';
-import { $uploads, type UploadItem } from '../../../features/store/uploads.store';
+import { $uploads, type UploadItem } from './uploads.store';
 import { $contentCache } from './content.store';
 import type { ContentData } from './ContentData';
 import type { ContentUploadData } from './ContentUploadData';

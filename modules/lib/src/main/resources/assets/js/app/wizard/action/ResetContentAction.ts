@@ -1,18 +1,16 @@
-import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {RestoreInheritRequest} from '../../resource/RestoreInheritRequest';
-import {GetContentByIdRequest} from '../../resource/GetContentByIdRequest';
-import {type ContentWizardPanel} from '../ContentWizardPanel';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {ContentInheritType} from '../../content/ContentInheritType';
-import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {DialogPresetConfirmElement} from '../../../v6/features/shared/dialogs/DialogPreset';
-import {setWizardReadOnly} from '../../../v6/features/store/wizardContent.store';
+import { type ContentSummaryAndCompareStatus } from '../../content/ContentSummaryAndCompareStatus';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { Action } from '@enonic/lib-admin-ui/ui/Action';
+import { RestoreInheritRequest } from '../../resource/RestoreInheritRequest';
+import { GetContentByIdRequest } from '../../resource/GetContentByIdRequest';
+import { type ContentWizardPanel } from '../ContentWizardPanel';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { ContentInheritType } from '../../content/ContentInheritType';
+import { showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { DialogPresetConfirmElement } from '../../../v6/shared/ui/dialogs/DialogPreset';
+import { setWizardReadOnly } from '../../../v6/pages/wizard/model/wizardContent.store';
 
-export class ResetContentAction
-    extends Action {
-
+export class ResetContentAction extends Action {
     constructor(wizardPanel: ContentWizardPanel) {
         super(i18n('action.reset'));
 
@@ -25,7 +23,7 @@ export class ResetContentAction
                     dialog.close();
                     this.restoreContentInheritance(wizardPanel);
                 },
-                onCancel: () => dialog.close()
+                onCancel: () => dialog.close(),
             });
             dialog.open();
         });
