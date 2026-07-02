@@ -1,9 +1,12 @@
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {fetchVersion, revert} from '../../../../../api/versions';
-import {$versionsCacheInvalidated, registerCacheInvalidationHandlers} from '../../../../../utils/widget/versions/versionsCache';
-import {loadContentVersions} from '../../../../../utils/widget/versions/versionsLoader';
-import {type VersionsConfig} from './VersionsConfig';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { NotifyManager } from '@enonic/lib-admin-ui/notify/NotifyManager';
+import { fetchVersion, revert } from '../../../../../api/versions';
+import {
+    $versionsCacheInvalidated,
+    registerCacheInvalidationHandlers,
+} from '../../../../../../shared/lib/widget/versions/versionsCache';
+import { loadContentVersions } from '../../../../../../shared/lib/widget/versions/versionsLoader';
+import { type VersionsConfig } from './VersionsConfig';
 
 let cacheHandlersRegistered = false;
 
@@ -36,4 +39,3 @@ export const createContentStudioDefaults = (): VersionsConfig => ({
     },
     handleError: (err) => DefaultErrorHandler.handle(err),
 });
-

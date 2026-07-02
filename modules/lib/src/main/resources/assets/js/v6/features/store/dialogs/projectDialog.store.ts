@@ -1,34 +1,34 @@
-import {atom, computed, map} from 'nanostores';
-import {okAsync, ResultAsync} from 'neverthrow';
-import {type TaskId} from '@enonic/lib-admin-ui/task/TaskId';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {showError, showSuccess} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {type Project} from '../../../../app/settings/data/project/Project';
-import {ProjectConfigContext} from '../../../../app/settings/data/project/ProjectConfigContext';
-import {ProjectAccess} from '../../../../app/settings/access/ProjectAccess';
-import {ProjectCreateRequest} from '../../../../app/settings/resource/ProjectCreateRequest';
-import {ProjectUpdateRequest} from '../../../../app/settings/resource/ProjectUpdateRequest';
-import {ProjectReadAccess} from '../../../../app/settings/data/project/ProjectReadAccess';
-import {type ProjectReadAccessType} from '../../../../app/settings/data/project/ProjectReadAccessType';
-import {UpdateProjectPermissionsRequest} from '../../../../app/settings/resource/UpdateProjectPermissionsRequest';
-import {ProjectItemPermissionsBuilder} from '../../../../app/settings/data/project/ProjectPermissions';
-import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {type Application} from '@enonic/lib-admin-ui/application/Application';
-import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {$applications, loadApplications} from '../applications.store';
-import {getProjectDetailedPermissions} from '../../utils/url/projects';
-import {$principals, loadPrincipalsByKeys} from '../principals.store';
-import {formatError} from '../../utils/format/error';
-import {UpdateProjectReadAccessRequest} from '../../../../app/settings/resource/UpdateProjectReadAccessRequest';
-import {trackTask} from '../../services/task.service';
-import {ProjectCreatedEvent} from '../../../../app/settings/event/ProjectCreatedEvent';
-import {ProjectUpdatedEvent} from '../../../../app/settings/event/ProjectUpdatedEvent';
-import {clearSelection, setActive} from '../settingsTreeSelection.store';
-import {$settingsTreeState, resetSettingsTreeForReload} from '../settings-tree.store';
-import {$projects, reloadProjects} from '../projects.store';
-import {setProjectSelectionDialogOpen} from '../dialogs.store';
+import { atom, computed, map } from 'nanostores';
+import { okAsync, ResultAsync } from 'neverthrow';
+import { type TaskId } from '@enonic/lib-admin-ui/task/TaskId';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { showError, showSuccess } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { type Project } from '../../../../app/settings/data/project/Project';
+import { ProjectConfigContext } from '../../../../app/settings/data/project/ProjectConfigContext';
+import { ProjectAccess } from '../../../../app/settings/access/ProjectAccess';
+import { ProjectCreateRequest } from '../../../../app/settings/resource/ProjectCreateRequest';
+import { ProjectUpdateRequest } from '../../../../app/settings/resource/ProjectUpdateRequest';
+import { ProjectReadAccess } from '../../../../app/settings/data/project/ProjectReadAccess';
+import { type ProjectReadAccessType } from '../../../../app/settings/data/project/ProjectReadAccessType';
+import { UpdateProjectPermissionsRequest } from '../../../../app/settings/resource/UpdateProjectPermissionsRequest';
+import { ProjectItemPermissionsBuilder } from '../../../../app/settings/data/project/ProjectPermissions';
+import { type Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { type Application } from '@enonic/lib-admin-ui/application/Application';
+import { ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import { PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
+import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { $applications, loadApplications } from '../applications.store';
+import { getProjectDetailedPermissions } from '../../../shared/lib/url/projects';
+import { $principals, loadPrincipalsByKeys } from '../principals.store';
+import { formatError } from '../../../shared/lib/format/error';
+import { UpdateProjectReadAccessRequest } from '../../../../app/settings/resource/UpdateProjectReadAccessRequest';
+import { trackTask } from '../../services/task.service';
+import { ProjectCreatedEvent } from '../../../../app/settings/event/ProjectCreatedEvent';
+import { ProjectUpdatedEvent } from '../../../../app/settings/event/ProjectUpdatedEvent';
+import { clearSelection, setActive } from '../settingsTreeSelection.store';
+import { $settingsTreeState, resetSettingsTreeForReload } from '../settings-tree.store';
+import { $projects, reloadProjects } from '../projects.store';
+import { setProjectSelectionDialogOpen } from '../dialogs.store';
 
 //
 // * Store State
@@ -113,7 +113,7 @@ export const $isProjectDialogAccessModeDirty = computed(
         if (confirmedAccessMode !== undefined && state.accessMode === confirmedAccessMode) return false;
 
         return true;
-    }
+    },
 );
 
 export const $isProjectDialogDirty = computed(
@@ -129,11 +129,14 @@ export const $isProjectDialogDirty = computed(
             const currentRoleKeys = Object.keys(state.roles);
             const snapshotRoleKeys = Object.keys(snapshot.roles);
             const rolesDirty =
-                currentRoleKeys.length !== snapshotRoleKeys.length || currentRoleKeys.some((k) => state.roles[k] !== snapshot.roles[k]);
+                currentRoleKeys.length !== snapshotRoleKeys.length ||
+                currentRoleKeys.some((k) => state.roles[k] !== snapshot.roles[k]);
 
             const currentAppKeys = state.applications.map((a) => a.getApplicationKey().toString());
             const snapshotAppKeys = snapshot.applications.map((a) => a.getApplicationKey().toString());
-            const appsDirty = currentAppKeys.length !== snapshotAppKeys.length || currentAppKeys.some((k, i) => k !== snapshotAppKeys[i]);
+            const appsDirty =
+                currentAppKeys.length !== snapshotAppKeys.length ||
+                currentAppKeys.some((k, i) => k !== snapshotAppKeys[i]);
 
             return (
                 permissionsDirty ||
@@ -148,7 +151,8 @@ export const $isProjectDialogDirty = computed(
 
         const currentParentNames = state.parentProjects.map((p) => p.getName());
         const parentsDirty =
-            currentParentNames.length !== initialParents.length || currentParentNames.some((name, i) => name !== initialParents[i]);
+            currentParentNames.length !== initialParents.length ||
+            currentParentNames.some((name, i) => name !== initialParents[i]);
 
         return (
             parentsDirty ||
@@ -162,7 +166,7 @@ export const $isProjectDialogDirty = computed(
             state.nameData.identifier !== '' ||
             state.nameData.description !== ''
         );
-    }
+    },
 );
 
 //
@@ -197,7 +201,7 @@ export const openCreateProjectDialog = async (selectedProjects: Project[]): Prom
 
 export const openEditProjectDialog = async (project: Project, parentProjects: Project[]): Promise<void> => {
     const isMultiInheritance = Boolean(ProjectConfigContext.get().getProjectConfig()?.isMultiInheritance());
-    const {principalKeys: rolePrincipalKeys, roles} = getProjectDetailedPermissions(project);
+    const { principalKeys: rolePrincipalKeys, roles } = getProjectDetailedPermissions(project);
 
     const accessPrincipalKeys = project
         .getReadAccess()
@@ -215,7 +219,9 @@ export const openEditProjectDialog = async (project: Project, parentProjects: Pr
     const applications = $applications.get().applications;
     const projectApplications = project
         .getSiteConfigs()
-        .map((config) => applications.find((app) => app.getApplicationKey().toString() === config.getApplicationKey().toString()))
+        .map((config) =>
+            applications.find((app) => app.getApplicationKey().toString() === config.getApplicationKey().toString()),
+        )
         .filter(Boolean);
 
     const snapshot: EditProjectSnapshot = {
@@ -329,12 +335,12 @@ export const createProject = (): ResultAsync<void, Error> => {
 
     const {
         parentProjects,
-        nameData: {name, identifier, description},
+        nameData: { name, identifier, description },
         defaultLanguage,
         permissions,
     } = $projectDialog.get();
 
-    const {readAccess, applicationConfigs, projectRoles} = getDataForRequests();
+    const { readAccess, applicationConfigs, projectRoles } = getDataForRequests();
 
     // Building requests
     const projectCreateRequest = new ProjectCreateRequest()
@@ -353,7 +359,10 @@ export const createProject = (): ResultAsync<void, Error> => {
     // Project create
     return ResultAsync.fromPromise(projectCreateRequest.sendAndParse(), formatError)
         .andThen((project) => {
-            const updatePermissionsResult = ResultAsync.fromPromise(updateProjectPermissionsRequest.sendAndParse(), formatError);
+            const updatePermissionsResult = ResultAsync.fromPromise(
+                updateProjectPermissionsRequest.sendAndParse(),
+                formatError,
+            );
 
             return updatePermissionsResult.map(() => project);
         })
@@ -373,14 +382,14 @@ export const createProject = (): ResultAsync<void, Error> => {
 
 export const updateProject = (): ResultAsync<void, Error> => {
     const {
-        nameData: {name, identifier, description},
+        nameData: { name, identifier, description },
         defaultLanguage,
         accessMode,
         permissions,
     } = $projectDialog.get();
 
-    const {readAccess, applicationConfigs, projectRoles} = getDataForRequests();
-    const {updateGuard, permissionsGuard, accessGuard} = getRequestsGuards();
+    const { readAccess, applicationConfigs, projectRoles } = getDataForRequests();
+    const { updateGuard, permissionsGuard, accessGuard } = getRequestsGuards();
 
     // Building requests
     const projectUpdateRequest = new ProjectUpdateRequest()
@@ -393,7 +402,9 @@ export const updateProject = (): ResultAsync<void, Error> => {
         .setName(identifier)
         .setPermissions(projectRoles)
         .setViewers(accessMode === 'custom' ? permissions.map((p: Principal) => p.getKey()) : []);
-    const updateProjectReadAccessRequest = new UpdateProjectReadAccessRequest().setName(identifier).setReadAccess(readAccess);
+    const updateProjectReadAccessRequest = new UpdateProjectReadAccessRequest()
+        .setName(identifier)
+        .setReadAccess(readAccess);
 
     const handleUpdateSuccess = (): void => {
         $projectDialog.setKey('submitting', false);
@@ -428,8 +439,13 @@ export const updateProject = (): ResultAsync<void, Error> => {
 
             if (accessGuard) {
                 $projectDialog.setKey('view', 'progress');
-                const readAccessResult = ResultAsync.fromPromise<TaskId, Error>(updateProjectReadAccessRequest.sendAndParse(), formatError);
-                return ResultAsync.combine([...requests, readAccessResult]).map((results) => results[results.length - 1] as TaskId);
+                const readAccessResult = ResultAsync.fromPromise<TaskId, Error>(
+                    updateProjectReadAccessRequest.sendAndParse(),
+                    formatError,
+                );
+                return ResultAsync.combine([...requests, readAccessResult]).map(
+                    (results) => results[results.length - 1] as TaskId,
+                );
             }
 
             if (requests.length === 0) {
@@ -468,25 +484,31 @@ export const updateProject = (): ResultAsync<void, Error> => {
 //
 
 function getDataForRequests() {
-    const {accessMode, permissions, roles, applications} = $projectDialog.get();
+    const { accessMode, permissions, roles, applications } = $projectDialog.get();
 
     const readAccess = new ProjectReadAccess(
         accessMode as ProjectReadAccessType,
-        permissions.map((p: Principal) => p.getKey())
+        permissions.map((p: Principal) => p.getKey()),
     );
 
     const applicationConfigs = applications.map((app: Application) =>
-        ApplicationConfig.create().setApplicationKey(app.getApplicationKey()).setConfig(new PropertySet()).build()
+        ApplicationConfig.create().setApplicationKey(app.getApplicationKey()).setConfig(new PropertySet()).build(),
     );
 
     const rolesEntries = Object.entries(roles);
 
-    const owners = rolesEntries.filter(([_, value]) => value === ProjectAccess.OWNER).map(([key]) => PrincipalKey.fromString(key));
+    const owners = rolesEntries
+        .filter(([_, value]) => value === ProjectAccess.OWNER)
+        .map(([key]) => PrincipalKey.fromString(key));
     const contributors = rolesEntries
         .filter(([_, value]) => value === ProjectAccess.CONTRIBUTOR)
         .map(([key]) => PrincipalKey.fromString(key));
-    const editors = rolesEntries.filter(([_, value]) => value === ProjectAccess.EDITOR).map(([key]) => PrincipalKey.fromString(key));
-    const authors = rolesEntries.filter(([_, value]) => value === ProjectAccess.AUTHOR).map(([key]) => PrincipalKey.fromString(key));
+    const editors = rolesEntries
+        .filter(([_, value]) => value === ProjectAccess.EDITOR)
+        .map(([key]) => PrincipalKey.fromString(key));
+    const authors = rolesEntries
+        .filter(([_, value]) => value === ProjectAccess.AUTHOR)
+        .map(([key]) => PrincipalKey.fromString(key));
 
     const projectRoles = new ProjectItemPermissionsBuilder()
         .setOwners(owners)
@@ -512,7 +534,7 @@ function getRequestsGuards(): RequestGuards {
     const snapshot = $editProjectSnapshot.get();
 
     if (!snapshot) {
-        return {updateGuard: false, permissionsGuard: false, accessGuard: false};
+        return { updateGuard: false, permissionsGuard: false, accessGuard: false };
     }
 
     const {
@@ -521,7 +543,7 @@ function getRequestsGuards(): RequestGuards {
         permissions,
         roles,
         applications,
-        nameData: {name, description},
+        nameData: { name, description },
     } = $projectDialog.get();
 
     const currentAppKeys = applications.map((a) => a.getApplicationKey().toString());
@@ -531,19 +553,27 @@ function getRequestsGuards(): RequestGuards {
     const currentRoleKeys = Object.keys(roles);
     const snapshotRoleKeys = Object.keys(snapshot.roles);
 
-    const appsDirty = currentAppKeys.length !== snapshotAppKeys.length || currentAppKeys.some((k, i) => k !== snapshotAppKeys[i]);
+    const appsDirty =
+        currentAppKeys.length !== snapshotAppKeys.length || currentAppKeys.some((k, i) => k !== snapshotAppKeys[i]);
     const permissionsDirty =
         currentPermKeys.length !== snapshotPermKeys.length || currentPermKeys.some((k, i) => k !== snapshotPermKeys[i]);
-    const rolesDirty = currentRoleKeys.length !== snapshotRoleKeys.length || currentRoleKeys.some((k) => roles[k] !== snapshot.roles[k]);
+    const rolesDirty =
+        currentRoleKeys.length !== snapshotRoleKeys.length ||
+        currentRoleKeys.some((k) => roles[k] !== snapshot.roles[k]);
 
     const updateGuard =
-        name !== snapshot.name || description !== snapshot.description || defaultLanguage !== snapshot.defaultLanguage || appsDirty;
+        name !== snapshot.name ||
+        description !== snapshot.description ||
+        defaultLanguage !== snapshot.defaultLanguage ||
+        appsDirty;
     const accessGuard = accessMode !== snapshot.accessMode;
     // third condition clears viewers when switching away from 'custom' mode
     const permissionsGuard =
-        rolesDirty || permissionsDirty || (accessMode !== 'custom' && snapshot.accessMode === 'custom' && permissions.length > 0);
+        rolesDirty ||
+        permissionsDirty ||
+        (accessMode !== 'custom' && snapshot.accessMode === 'custom' && permissions.length > 0);
 
-    return {updateGuard, permissionsGuard, accessGuard};
+    return { updateGuard, permissionsGuard, accessGuard };
 }
 
 function refreshAndSelectProject(projectId: string) {

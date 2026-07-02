@@ -1,31 +1,38 @@
 /*global CKEDITOR*/
 
-import type {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {isBlank} from '../../../../utils/format/isBlank';
-import {ContentPath} from '../../../../../../app/content/ContentPath';
-import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
-import {ContentRequiresSaveEvent} from '../../../../../../app/event/ContentRequiresSaveEvent';
-import {normalizeHtmlAreaLangDirection} from '../../../../../../app/inputtype/ui/text/HtmlAreaLangDirection';
-import {ContentsExistByPathRequest} from '../../../../../../app/resource/ContentsExistByPathRequest';
-import type {ContentsExistByPathResult} from '../../../../../../app/resource/ContentsExistByPathResult';
-import {CreateHtmlAreaDialogEventGenerator} from '../../../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEventGenerator';
-import {bindListStyleDialogContextMenu} from '../../../../../../app/inputtype/ui/text/ListStyleDialogContextMenu';
-import {bindEditableBodyRuntimeState} from '../../../../../../app/inputtype/ui/text/EditableBodyRuntimeState';
-import {HTMLAreaHelper} from '../../../../../../app/inputtype/ui/text/HTMLAreaHelper';
-import {HtmlEditorParams} from '../../../../../../app/inputtype/ui/text/HtmlEditorParams';
-import {StyleHelper} from '../../../../../../app/inputtype/ui/text/styles/StyleHelper';
-import {ImageUrlResolver} from '../../../../../../app/util/ImageUrlResolver';
-import {type CreateHtmlAreaDialogEvent, type HtmlAreaDialogType} from '../../../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
-import {HTMLAreaProxy} from '../../../../../../app/inputtype/ui/text/dialog/HTMLAreaProxy';
-import type {Project} from '../../../../../../app/settings/data/project/Project';
-import type {CodeDialogParams, FullScreenDialogParams, HtmlEditorCursorPosition} from '../../../../../../app/inputtype/ui/text/HtmlEditorTypes';
+import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { BrowserHelper } from '@enonic/lib-admin-ui/BrowserHelper';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { NotifyManager } from '@enonic/lib-admin-ui/notify/NotifyManager';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { StringHelper } from '@enonic/lib-admin-ui/util/StringHelper';
+import { isBlank } from '../../../../../shared/lib/format/isBlank';
+import { ContentPath } from '../../../../../../app/content/ContentPath';
+import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
+import { ContentRequiresSaveEvent } from '../../../../../../app/event/ContentRequiresSaveEvent';
+import { normalizeHtmlAreaLangDirection } from '../../../../../../app/inputtype/ui/text/HtmlAreaLangDirection';
+import { ContentsExistByPathRequest } from '../../../../../../app/resource/ContentsExistByPathRequest';
+import type { ContentsExistByPathResult } from '../../../../../../app/resource/ContentsExistByPathResult';
+import { CreateHtmlAreaDialogEventGenerator } from '../../../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEventGenerator';
+import { bindListStyleDialogContextMenu } from '../../../../../../app/inputtype/ui/text/ListStyleDialogContextMenu';
+import { bindEditableBodyRuntimeState } from '../../../../../../app/inputtype/ui/text/EditableBodyRuntimeState';
+import { HTMLAreaHelper } from '../../../../../../app/inputtype/ui/text/HTMLAreaHelper';
+import { HtmlEditorParams } from '../../../../../../app/inputtype/ui/text/HtmlEditorParams';
+import { StyleHelper } from '../../../../../../app/inputtype/ui/text/styles/StyleHelper';
+import { ImageUrlResolver } from '../../../../../../app/util/ImageUrlResolver';
+import {
+    type CreateHtmlAreaDialogEvent,
+    type HtmlAreaDialogType,
+} from '../../../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
+import { HTMLAreaProxy } from '../../../../../../app/inputtype/ui/text/dialog/HTMLAreaProxy';
+import type { Project } from '../../../../../../app/settings/data/project/Project';
+import type {
+    CodeDialogParams,
+    FullScreenDialogParams,
+    HtmlEditorCursorPosition,
+} from '../../../../../../app/inputtype/ui/text/HtmlEditorTypes';
 
 type EventInfo = CKEDITOR.eventInfo;
 
@@ -126,14 +133,14 @@ function setupSearchPopupToOpen(editor: CKEDITOR.editor, editorParams: HtmlEdito
 
     editor.addCommand('toggleFind', {
         exec: (ed: CKEDITOR.editor) => {
-            dialogEventGenerator.generateSearchPopupEventAndFire({editor: ed, mode: 'find'});
+            dialogEventGenerator.generateSearchPopupEventAndFire({ editor: ed, mode: 'find' });
             return true;
         },
     });
 
     editor.addCommand('toggleFindAndReplace', {
         exec: (ed: CKEDITOR.editor) => {
-            dialogEventGenerator.generateSearchPopupEventAndFire({editor: ed, mode: 'replace'});
+            dialogEventGenerator.generateSearchPopupEventAndFire({ editor: ed, mode: 'replace' });
             return true;
         },
     });
@@ -198,8 +205,8 @@ function modifyImageWidgetDefinition(e: CKEDITOR.eventInfo): void {
         }
 
         if (!result && el.name === 'figure') {
-            const img = el.getFirst('img') ??
-                (el.getFirst('a') as CKEDITOR.htmlParser.element | null)?.getFirst('img') ?? null;
+            const img =
+                el.getFirst('img') ?? (el.getFirst('a') as CKEDITOR.htmlParser.element | null)?.getFirst('img') ?? null;
             if (img) {
                 return el;
             }
@@ -211,10 +218,12 @@ function modifyImageWidgetDefinition(e: CKEDITOR.eventInfo): void {
     // Modify downcast function
     const originalDowncast = data.downcast;
     data.downcast = function (el: CKEDITOR.htmlParser.element) {
-        if (el.name === 'figure' && (
-            el.hasClass(StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS) ||
-            el.hasClass(StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS) ||
-            el.hasClass(StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS))) {
+        if (
+            el.name === 'figure' &&
+            (el.hasClass(StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS) ||
+                el.hasClass(StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS) ||
+                el.hasClass(StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS))
+        ) {
             return el;
         }
 
@@ -240,24 +249,30 @@ function setupDialogsToOpen(editor: CKEDITOR.editor, editorParams: HtmlEditorPar
             const selection = ed.getSelection();
             const bookmarks = selection ? selection.createBookmarks2(true) : undefined;
 
-            dialogEventGenerator.generateAnchorEventAndFire({editor: ed, bookmarks});
+            dialogEventGenerator.generateAnchorEventAndFire({ editor: ed, bookmarks });
 
             return true;
         },
     });
 
-    editor.on('doubleclick', (event: EventInfo) => {
-        if (event.data.dialog !== 'anchor') {
-            return;
-        }
+    editor.on(
+        'doubleclick',
+        (event: EventInfo) => {
+            if (event.data.dialog !== 'anchor') {
+                return;
+            }
 
-        event.data.dialog = null;
-        editor.execCommand('anchor');
-    }, null, null, 30);
+            event.data.dialog = null;
+            editor.execCommand('anchor');
+        },
+        null,
+        null,
+        30,
+    );
 
     editor.addCommand('openMacroDialog', {
         exec: (ed, data) => {
-            dialogEventGenerator.generateMacroEventAndFire({editor: ed, macro: data});
+            dialogEventGenerator.generateMacroEventAndFire({ editor: ed, macro: data });
             return true;
         },
     });
@@ -276,16 +291,16 @@ function setupDialogsToOpen(editor: CKEDITOR.editor, editorParams: HtmlEditorPar
 
     editor.addCommand('specialchar', {
         exec: (ed: CKEDITOR.editor) => {
-            dialogEventGenerator.generateSpecialCharEventAndFire({editor: ed});
+            dialogEventGenerator.generateSpecialCharEventAndFire({ editor: ed });
             return true;
         },
     });
 
     editor.addCommand('table', {
-        modes: {wysiwyg: 1},
+        modes: { wysiwyg: 1 },
         canUndo: false,
         exec: (ed: CKEDITOR.editor) => {
-            dialogEventGenerator.generateTableQuicktableEventAndFire({editor: ed});
+            dialogEventGenerator.generateTableQuicktableEventAndFire({ editor: ed });
             return true;
         },
     });
@@ -306,7 +321,11 @@ export function getCursorPosition(editor: CKEDITOR.editor): HtmlEditorCursorPosi
     const isCursorSetOnText = range.startContainer?.$.nodeName === '#text';
 
     return {
-        selectionIndexes: editor.elementPath().elements.map((e) => e.getIndex()).reverse().slice(1),
+        selectionIndexes: editor
+            .elementPath()
+            .elements.map((e) => e.getIndex())
+            .reverse()
+            .slice(1),
         indexOfSelectedElement: isCursorSetOnText ? range.startContainer.getIndex() : -1,
         startOffset: isCursorSetOnText ? range.startOffset : null,
     };
@@ -335,7 +354,7 @@ function setupSaveHandler(editor: CKEDITOR.editor, onSave?: () => void): void {
 function setupKeyboardShortcuts(editor: CKEDITOR.editor): void {
     const commandDef: CKEDITOR.commandDefinition = {
         exec: function () {
-            const style = new CKEDITOR.style({element: this['name']}, null);
+            const style = new CKEDITOR.style({ element: this['name'] }, null);
 
             if (style.checkActive(editor.elementPath(), editor)) {
                 editor.removeStyle(style);
@@ -387,9 +406,12 @@ function handleSpacePressed(editor: CKEDITOR.editor): void {
     const endNode = range.endContainer;
     const isAfterOrBeforeLink = startNode.getParent()?.is('a') || range.getNextNode()?.is?.('a');
 
-    if (isAfterOrBeforeLink && startNode.$ === endNode.$ && range.startOffset === range.endOffset &&
-        (range.startOffset === startNode.getText().length ||
-         range.startOffset === 1 || range.startOffset === 2)) {
+    if (
+        isAfterOrBeforeLink &&
+        startNode.$ === endNode.$ &&
+        range.startOffset === range.endOffset &&
+        (range.startOffset === startNode.getText().length || range.startOffset === 1 || range.startOffset === 2)
+    ) {
         const prevChar = startNode.getText()[range.startOffset - 1];
         const nextChar = range.getNextNode()?.getText()[0];
 
@@ -414,7 +436,11 @@ function handleSpacePressed(editor: CKEDITOR.editor): void {
     }
 }
 
-function handleFileUpload(editor: CKEDITOR.editor, contentSummary: ContentSummary | undefined, project: Readonly<Project> | undefined): void {
+function handleFileUpload(
+    editor: CKEDITOR.editor,
+    contentSummary: ContentSummary | undefined,
+    project: Readonly<Project> | undefined,
+): void {
     // Wrapping dropped image into figure element — called after editor is ready,
     // so modify uploadimage widget directly (no instanceReady wrapper needed).
     if (editor.widgets?.registered?.uploadimage) {
@@ -422,10 +448,12 @@ function handleFileUpload(editor: CKEDITOR.editor, contentSummary: ContentSummar
             const imageId = StringHelper.substringBetween(upload.url, 'image/', '?');
             const dataSrc = ImageUrlResolver.URL_PREFIX_RENDER + imageId;
 
-            this['replaceWith'](`<figure class="captioned ${StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS}">` +
-                `<img src="${upload.url}" data-src="${dataSrc}" style="width:100%">` +
-                '<figcaption> </figcaption>' +
-                '</figure>');
+            this['replaceWith'](
+                `<figure class="captioned ${StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS}">` +
+                    `<img src="${upload.url}" data-src="${dataSrc}" style="width:100%">` +
+                    '<figcaption> </figcaption>' +
+                    '</figure>',
+            );
 
             editor.fire('change');
         };
@@ -437,27 +465,32 @@ function handleFileUpload(editor: CKEDITOR.editor, contentSummary: ContentSummar
 
         if (!contentSummary) return;
 
-        const contentPathAsString =
-            ContentPath.create().setElements([contentSummary.getPath().toString(), fileLoader.fileName]).build().toString();
+        const contentPathAsString = ContentPath.create()
+            .setElements([contentSummary.getPath().toString(), fileLoader.fileName])
+            .build()
+            .toString();
 
-        new ContentsExistByPathRequest([contentPathAsString]).sendAndParse().then((result: ContentsExistByPathResult) => {
-            const exists = result.getContentsExistMap()[contentPathAsString];
+        new ContentsExistByPathRequest([contentPathAsString])
+            .sendAndParse()
+            .then((result: ContentsExistByPathResult) => {
+                const exists = result.getContentsExistMap()[contentPathAsString];
 
-            if (exists) {
-                NotifyManager.get().showWarning(i18n('notify.fileExists', fileLoader.fileName));
-                evt.editor.document.findOne('.cke_widget_uploadimage')?.remove();
-            } else {
-                const formData = new FormData();
-                const xhr = fileLoader.xhr;
+                if (exists) {
+                    NotifyManager.get().showWarning(i18n('notify.fileExists', fileLoader.fileName));
+                    evt.editor.document.findOne('.cke_widget_uploadimage')?.remove();
+                } else {
+                    const formData = new FormData();
+                    const xhr = fileLoader.xhr;
 
-                xhr.open('POST', fileLoader.uploadUrl, true);
-                formData.append('file', fileLoader.file, fileLoader.fileName);
-                formData.append('parent', contentSummary.getPath().toString());
-                formData.append('name', fileLoader.fileName);
+                    xhr.open('POST', fileLoader.uploadUrl, true);
+                    formData.append('file', fileLoader.file, fileLoader.fileName);
+                    formData.append('parent', contentSummary.getPath().toString());
+                    formData.append('name', fileLoader.fileName);
 
-                fileLoader.xhr.send(formData);
-            }
-        }).catch(DefaultErrorHandler.handle);
+                    fileLoader.xhr.send(formData);
+                }
+            })
+            .catch(DefaultErrorHandler.handle);
 
         evt.stop();
     });
@@ -511,7 +544,9 @@ function handlePaste(editor: CKEDITOR.editor): void {
     editor.on('afterPaste', () => {
         if (isCleanupNbspRequired) {
             selectedTextElement.textContent =
-                selectedTextElement.textContent.slice(0, indexOfNbsp - 1) + ' ' + selectedTextElement.textContent.slice(indexOfNbsp);
+                selectedTextElement.textContent.slice(0, indexOfNbsp - 1) +
+                ' ' +
+                selectedTextElement.textContent.slice(indexOfNbsp);
         }
     });
 }
@@ -549,10 +584,7 @@ function processGoogleDocPaste(value: string): string {
     );
 
     // Remove <p> from <li> entries
-    result = result.replace(
-        /(<li.*?)(<p.*?>)(.*?)(<\/p>)(.*?<\/li>)/g,
-        '$1$3$5',
-    );
+    result = result.replace(/(<li.*?)(<p.*?>)(.*?)(<\/p>)(.*?<\/li>)/g, '$1$3$5');
 
     return result;
 }
@@ -602,37 +634,37 @@ function handleNativeNotifications(editor: CKEDITOR.editor): void {
         const notification = evt.data.notification;
 
         switch (notification.type) {
-        case 'success':
-            NotifyManager.get().showSuccess(notification.message);
-            break;
-        case 'info':
-        case 'progress':
-            NotifyManager.get().showFeedback(notification.message);
-            break;
-        case 'warning':
-            NotifyManager.get().showError(notification.message);
-            break;
+            case 'success':
+                NotifyManager.get().showSuccess(notification.message);
+                break;
+            case 'info':
+            case 'progress':
+                NotifyManager.get().showFeedback(notification.message);
+                break;
+            case 'warning':
+                NotifyManager.get().showError(notification.message);
+                break;
         }
     });
 
     editor.on('notificationUpdate', function (evt: EventInfo) {
         const message = evt.data.options ? evt.data.options.message : evt.data.notification.message;
         const messageId = evt.data.notification.id;
-        const type = (evt.data.options?.type) ?? evt.data.notification.type;
+        const type = evt.data.options?.type ?? evt.data.notification.type;
 
         switch (type) {
-        case 'success':
-            NotifyManager.get().showSuccess(message);
-            if (progressNotifications[messageId]) {
-                NotifyManager.get().hide(progressNotifications[messageId]);
-                delete progressNotifications[messageId];
-            }
-            break;
-        case 'progress':
-            if (!progressNotifications[messageId]) {
-                progressNotifications[messageId] = NotifyManager.get().showFeedback(message, false);
-            }
-            break;
+            case 'success':
+                NotifyManager.get().showSuccess(message);
+                if (progressNotifications[messageId]) {
+                    NotifyManager.get().hide(progressNotifications[messageId]);
+                    delete progressNotifications[messageId];
+                }
+                break;
+            case 'progress':
+                if (!progressNotifications[messageId]) {
+                    progressNotifications[messageId] = NotifyManager.get().showFeedback(message, false);
+                }
+                break;
         }
 
         evt.cancel();
@@ -658,7 +690,8 @@ function updateDialogButtonStates(editor: CKEDITOR.editor, e: EventInfo): void {
     const isImageSelected = selectedElement.hasClass('cke_widget_image');
     const isLinkSelected = selectedElement.is('a') && selectedElement.hasAttribute('href');
     const figureEl = isImageSelected ? selectedElement.findOne('figure') : null;
-    const isImageWithLinkSelected = isImageSelected && !!figureEl && (figureEl.getFirst() as CKEDITOR.dom.element).is('a');
+    const isImageWithLinkSelected =
+        isImageSelected && !!figureEl && (figureEl.getFirst() as CKEDITOR.dom.element).is('a');
 
     toggleToolbarButtonState(editor, 'link', isLinkSelected || isImageWithLinkSelected);
     toggleToolbarButtonState(editor, 'anchor', isAnchorSelected);
@@ -785,10 +818,13 @@ function handleDataReady(editor: CKEDITOR.editor): void {
         const rootElement = e.editor.document.getBody();
 
         setTimeout(() => {
-            rootElement.find('figure').toArray().forEach((figure: CKEDITOR.dom.element) => {
-                updateFigureInlineStyle(figure);
-                sortFigureClasses(figure);
-            });
+            rootElement
+                .find('figure')
+                .toArray()
+                .forEach((figure: CKEDITOR.dom.element) => {
+                    updateFigureInlineStyle(figure);
+                    sortFigureClasses(figure);
+                });
         }, 1);
     });
 }
@@ -823,7 +859,6 @@ function removeUnwantedMenuItems(editor: CKEDITOR.editor): void {
     editor.removeMenuItem('paste');
 }
 
-
 function moveSourceButtonToBottomBar(editor: CKEDITOR.editor): void {
     const container = editor.container?.$;
     if (!container) return;
@@ -839,7 +874,7 @@ function moveSourceButtonToBottomBar(editor: CKEDITOR.editor): void {
 export function setupEditor(editor: CKEDITOR.editor, params: SetupEditorParams): void {
     const editorParams = buildEditorParams(editor, params);
 
-    bindEditableBodyRuntimeState(editor, {fullscreen: editorParams.isFullScreenMode()});
+    bindEditableBodyRuntimeState(editor, { fullscreen: editorParams.isFullScreenMode() });
     handleDataReady(editor);
     handlePaste(editor);
     handleElementSelection(editor);

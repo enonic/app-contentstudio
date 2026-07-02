@@ -1,36 +1,36 @@
-import {type Application} from '@enonic/lib-admin-ui/application/Application';
-import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import {ApplicationEvent} from '@enonic/lib-admin-ui/application/ApplicationEvent';
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
-import {type PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {Value} from '@enonic/lib-admin-ui/data/Value';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {type Form} from '@enonic/lib-admin-ui/form/Form';
-import type {SelfManagedComponentProps} from '@enonic/lib-admin-ui/form2';
-import {FieldError, getFirstError, validateForm} from '@enonic/lib-admin-ui/form2';
-import {type SortableGridListItemContext, SortableGridList} from '@enonic/lib-admin-ui/form2/components';
-import {Button, cn, Dialog, IconButton} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {Pencil, X} from 'lucide-react';
-import type {ReactElement} from 'react';
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {ContentId} from '../../../../../../app/content/ContentId';
-import {ContentRequiresSaveEvent} from '../../../../../../app/event/ContentRequiresSaveEvent';
-import {ProjectHelper} from '../../../../../../app/settings/data/project/ProjectHelper';
-import {useI18n} from '../../../../hooks/useI18n';
-import {$applications, loadApplications, reloadApplications} from '../../../../store/applications.store';
-import {$contextContent} from '../../../../store/context/contextContent.store';
-import {$isHtmlAreaModalDialogOpen, $isHtmlAreaOverlayOpen} from '../../../../store/dialogs/htmlAreaModal.store';
-import {requestMixinSeed} from '../../../../store/wizardContent.store';
-import {ConfirmationDialog} from '../../../dialogs/ConfirmationDialog';
-import {ApplicationIcon} from '../../../icons/ApplicationIcon';
-import {ItemLabel} from '../../../ItemLabel';
-import {ApplicationSelector} from '../../../selectors/ApplicationSelector';
-import {FormRenderer} from '../../FormRenderer';
-import {seedFormDefaults} from '../../seedFormDefaults';
-import type {SiteConfiguratorConfig} from './SiteConfiguratorConfig';
+import { type Application } from '@enonic/lib-admin-ui/application/Application';
+import { ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import { ApplicationEvent } from '@enonic/lib-admin-ui/application/ApplicationEvent';
+import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { AuthHelper } from '@enonic/lib-admin-ui/auth/AuthHelper';
+import { type PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
+import { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import { Value } from '@enonic/lib-admin-ui/data/Value';
+import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { type Form } from '@enonic/lib-admin-ui/form/Form';
+import type { SelfManagedComponentProps } from '@enonic/lib-admin-ui/form2';
+import { FieldError, getFirstError, validateForm } from '@enonic/lib-admin-ui/form2';
+import { type SortableGridListItemContext, SortableGridList } from '@enonic/lib-admin-ui/form2/components';
+import { Button, cn, Dialog, IconButton } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { Pencil, X } from 'lucide-react';
+import type { ReactElement } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ContentId } from '../../../../../../app/content/ContentId';
+import { ContentRequiresSaveEvent } from '../../../../../../app/event/ContentRequiresSaveEvent';
+import { ProjectHelper } from '../../../../../../app/settings/data/project/ProjectHelper';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { $applications, loadApplications, reloadApplications } from '../../../../store/applications.store';
+import { $contextContent } from '../../../../store/context/contextContent.store';
+import { $isHtmlAreaModalDialogOpen, $isHtmlAreaOverlayOpen } from '../../../../store/dialogs/htmlAreaModal.store';
+import { requestMixinSeed } from '../../../../store/wizardContent.store';
+import { ConfirmationDialog } from '../../../dialogs/ConfirmationDialog';
+import { ApplicationIcon } from '../../../../../shared/ui/icons/ApplicationIcon';
+import { ItemLabel } from '../../../../../shared/ui/ItemLabel';
+import { ApplicationSelector } from '../../../selectors/ApplicationSelector';
+import { FormRenderer } from '../../FormRenderer';
+import { seedFormDefaults } from '../../seedFormDefaults';
+import type { SiteConfiguratorConfig } from './SiteConfiguratorConfig';
 
 const COMPONENT_NAME = 'SiteConfiguratorInput';
 const PORTAL_APP_KEY = ApplicationKey.PORTAL.toString();
@@ -47,8 +47,8 @@ type AppItem = {
 };
 
 export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfiguratorConfig>): ReactElement => {
-    const {values, onAdd, onRemove, onMove, enabled, errors} = props;
-    const {applications} = useStore($applications, {keys: ['applications']});
+    const { values, onAdd, onRemove, onMove, enabled, errors } = props;
+    const { applications } = useStore($applications, { keys: ['applications'] });
     const [isReadOnly, setIsReadOnly] = useState(!AuthHelper.isContentAdmin());
     const [editing, setEditing] = useState<EditingState | null>(null);
     const [view, setView] = useState<'main' | 'confirmation'>('main');
@@ -77,13 +77,15 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
                 setIsReadOnly(!isOwner);
             }
         });
-        return () => { cancelled = true; };
+        return () => {
+            cancelled = true;
+        };
     }, []);
 
     const selectedKeys = useMemo(() => {
         return values
-            .filter(v => !v.isNull())
-            .map(v => v.getPropertySet()?.getString(ApplicationConfig.PROPERTY_KEY))
+            .filter((v) => !v.isNull())
+            .map((v) => v.getPropertySet()?.getString(ApplicationConfig.PROPERTY_KEY))
             .filter((key): key is string => !!key && key !== PORTAL_APP_KEY);
     }, [values]);
 
@@ -93,84 +95,104 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
             if (v.isNull()) return;
             const key = v.getPropertySet()?.getString(ApplicationConfig.PROPERTY_KEY);
             if (key && key !== PORTAL_APP_KEY) {
-                items.push({key, index});
+                items.push({ key, index });
             }
         });
         return items;
     }, [values]);
 
-    const handleMove = useCallback((fromIndex: number, toIndex: number) => {
-        onMove(appItems[fromIndex].index, appItems[toIndex].index);
-    }, [appItems, onMove]);
+    const handleMove = useCallback(
+        (fromIndex: number, toIndex: number) => {
+            onMove(appItems[fromIndex].index, appItems[toIndex].index);
+        },
+        [appItems, onMove],
+    );
 
-    const findApplicationByKey = useCallback((key: string): Application | undefined => {
-        return applications.find(app => app.getApplicationKey().toString() === key);
-    }, [applications]);
+    const findApplicationByKey = useCallback(
+        (key: string): Application | undefined => {
+            return applications.find((app) => app.getApplicationKey().toString() === key);
+        },
+        [applications],
+    );
 
-    const getConfigPropertySet = useCallback((index: number): PropertySet | undefined => {
-        const propertySet = values[index]?.getPropertySet();
-        return propertySet?.getPropertySet(ApplicationConfig.PROPERTY_CONFIG);
-    }, [values]);
+    const getConfigPropertySet = useCallback(
+        (index: number): PropertySet | undefined => {
+            const propertySet = values[index]?.getPropertySet();
+            return propertySet?.getPropertySet(ApplicationConfig.PROPERTY_CONFIG);
+        },
+        [values],
+    );
 
-    const handleSelectionChange = useCallback((newSelection: string[]) => {
-        const added = newSelection.filter(key => !selectedKeys.includes(key));
-        const removed = selectedKeys.filter(key => !newSelection.includes(key));
+    const handleSelectionChange = useCallback(
+        (newSelection: string[]) => {
+            const added = newSelection.filter((key) => !selectedKeys.includes(key));
+            const removed = selectedKeys.filter((key) => !newSelection.includes(key));
 
-        const removedIndexes = removed
-            .map(key => values.findIndex(v => {
+            const removedIndexes = removed
+                .map((key) =>
+                    values.findIndex((v) => {
+                        if (v.isNull()) return false;
+                        return v.getPropertySet()?.getString(ApplicationConfig.PROPERTY_KEY) === key;
+                    }),
+                )
+                .filter((i) => i >= 0)
+                .sort((a, b) => b - a);
+
+            for (const index of removedIndexes) {
+                onRemove(index);
+            }
+
+            for (const key of added) {
+                const tree = new PropertyTree();
+                const root = tree.getRoot();
+                root.setStringByPath(ApplicationConfig.PROPERTY_KEY, key);
+                const configSet = root.addPropertySet(ApplicationConfig.PROPERTY_CONFIG);
+                const form = findApplicationByKey(key)?.getForm();
+                if (form) {
+                    seedFormDefaults(form, configSet);
+                }
+                onAdd(new Value(root, ValueTypes.DATA));
+            }
+
+            if (added.length === 0 && removedIndexes.length === 0) {
+                return;
+            }
+
+            if (added.length > 0) {
+                requestMixinSeed(added);
+            } else {
+                fireContentRequiresSave();
+            }
+        },
+        [selectedKeys, values, onAdd, onRemove, findApplicationByKey],
+    );
+
+    const handleRemove = useCallback(
+        (key: string) => {
+            const index = values.findIndex((v) => {
                 if (v.isNull()) return false;
                 return v.getPropertySet()?.getString(ApplicationConfig.PROPERTY_KEY) === key;
-            }))
-            .filter(i => i >= 0)
-            .sort((a, b) => b - a);
-
-        for (const index of removedIndexes) {
-            onRemove(index);
-        }
-
-        for (const key of added) {
-            const tree = new PropertyTree();
-            const root = tree.getRoot();
-            root.setStringByPath(ApplicationConfig.PROPERTY_KEY, key);
-            const configSet = root.addPropertySet(ApplicationConfig.PROPERTY_CONFIG);
-            const form = findApplicationByKey(key)?.getForm();
-            if (form) {
-                seedFormDefaults(form, configSet);
+            });
+            if (index >= 0) {
+                onRemove(index);
+                fireContentRequiresSave();
             }
-            onAdd(new Value(root, ValueTypes.DATA));
-        }
+        },
+        [values, onRemove],
+    );
 
-        if (added.length === 0 && removedIndexes.length === 0) {
-            return;
-        }
-
-        if (added.length > 0) {
-            requestMixinSeed(added);
-        } else {
-            fireContentRequiresSave();
-        }
-    }, [selectedKeys, values, onAdd, onRemove, findApplicationByKey]);
-
-    const handleRemove = useCallback((key: string) => {
-        const index = values.findIndex(v => {
-            if (v.isNull()) return false;
-            return v.getPropertySet()?.getString(ApplicationConfig.PROPERTY_KEY) === key;
-        });
-        if (index >= 0) {
-            onRemove(index);
-            fireContentRequiresSave();
-        }
-    }, [values, onRemove]);
-
-    const openConfigDialog = useCallback((key: string, index: number) => {
-        const configSet = getConfigPropertySet(index);
-        const json = configSet ? configSet.toJson() : [];
-        const clonedTree = PropertyTree.fromJson(json);
-        baselineRef.current = null;
-        dirtyRef.current = false;
-        setEditing({appKey: key, valueIndex: index, editingSet: clonedTree.getRoot()});
-        setView('main');
-    }, [getConfigPropertySet]);
+    const openConfigDialog = useCallback(
+        (key: string, index: number) => {
+            const configSet = getConfigPropertySet(index);
+            const json = configSet ? configSet.toJson() : [];
+            const clonedTree = PropertyTree.fromJson(json);
+            baselineRef.current = null;
+            dirtyRef.current = false;
+            setEditing({ appKey: key, valueIndex: index, editingSet: clonedTree.getRoot() });
+            setView('main');
+        },
+        [getConfigPropertySet],
+    );
 
     const applyConfig = useCallback(() => {
         if (!editing) return;
@@ -182,7 +204,7 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
         const appliedRoot = appliedTree.getRoot();
 
         configSet.removeAllProperties();
-        appliedRoot.forEach(prop => {
+        appliedRoot.forEach((prop) => {
             configSet.addProperty(prop.getName(), prop.getValue());
         });
 
@@ -201,22 +223,25 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
         dirtyRef.current = dirty;
     }, []);
 
-    const handleDialogOpenChange = useCallback((open: boolean) => {
-        if (open) return;
+    const handleDialogOpenChange = useCallback(
+        (open: boolean) => {
+            if (open) return;
 
-        if ($isHtmlAreaOverlayOpen.get()) return;
+            if ($isHtmlAreaOverlayOpen.get()) return;
 
-        if (view === 'confirmation') {
-            setView('main');
-            return;
-        }
+            if (view === 'confirmation') {
+                setView('main');
+                return;
+            }
 
-        if (dirtyRef.current) {
-            setView('confirmation');
-        } else {
-            closeDialog();
-        }
-    }, [view, closeDialog]);
+            if (dirtyRef.current) {
+                setView('confirmation');
+            } else {
+                closeDialog();
+            }
+        },
+        [view, closeDialog],
+    );
 
     useEffect(() => {
         const handler = (event: ApplicationEvent) => {
@@ -237,9 +262,7 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
     const editingForm = editingApp?.getForm();
 
     const errorMessage = useMemo(() => {
-        return errors
-            .map(e => getFirstError(e.validationResults))
-            .find(Boolean);
+        return errors.map((e) => getFirstError(e.validationResults)).find(Boolean);
     }, [errors]);
 
     return (
@@ -309,9 +332,16 @@ type SiteConfiguratorRowProps = {
     onRemove: (key: string) => void;
 };
 
-const SiteConfiguratorRow = ({context, applications, errors, disabled, onEdit, onRemove}: SiteConfiguratorRowProps): ReactElement => {
-    const {item} = context;
-    const application = applications.find(app => app.getApplicationKey().toString() === item.key);
+const SiteConfiguratorRow = ({
+    context,
+    applications,
+    errors,
+    disabled,
+    onEdit,
+    onRemove,
+}: SiteConfiguratorRowProps): ReactElement => {
+    const { item } = context;
+    const application = applications.find((app) => app.getApplicationKey().toString() === item.key);
     const hasForm = application?.getForm()?.getFormItems().length > 0;
     const hasError = errors[item.index]?.validationResults.length > 0;
 
@@ -322,8 +352,8 @@ const SiteConfiguratorRow = ({context, applications, errors, disabled, onEdit, o
     const description = application?.isStopped()
         ? stoppedLabel
         : !application?.getState()
-            ? unavailableLabel
-            : application?.getDescription();
+          ? unavailableLabel
+          : application?.getDescription();
 
     return (
         <div className={`flex items-center gap-1.5 p-1 w-full${hasError ? ' text-error' : ''}`}>
@@ -336,19 +366,9 @@ const SiteConfiguratorRow = ({context, applications, errors, disabled, onEdit, o
             </div>
             <div className="flex items-center gap-1.5 ml-auto shrink-0">
                 {hasForm && !disabled && (
-                    <IconButton
-                        variant="text"
-                        icon={Pencil}
-                        onClick={() => onEdit(item.key, item.index)}
-                    />
+                    <IconButton variant="text" icon={Pencil} onClick={() => onEdit(item.key, item.index)} />
                 )}
-                {!disabled && (
-                    <IconButton
-                        variant="text"
-                        icon={X}
-                        onClick={() => onRemove(item.key)}
-                    />
-                )}
+                {!disabled && <IconButton variant="text" icon={X} onClick={() => onRemove(item.key)} />}
             </div>
         </div>
     );
@@ -392,7 +412,7 @@ const SiteConfiguratorDialog = ({
     onDirtyChange,
 }: SiteConfiguratorDialogProps): ReactElement | null => {
     const applicationKey = useMemo(
-        () => editing ? ApplicationKey.fromString(editing.appKey) : undefined,
+        () => (editing ? ApplicationKey.fromString(editing.appKey) : undefined),
         [editing?.appKey],
     );
 
@@ -411,7 +431,8 @@ const SiteConfiguratorDialog = ({
                         className={cn(
                             'w-full h-full gap-6 sm:h-fit md:min-w-152 md:max-w-184 md:max-h-[85vh]',
                             modalDialogOpen && 'invisible',
-                        )}>
+                        )}
+                    >
                         <Dialog.Header className="flex items-center gap-4">
                             <div className="flex items-center gap-3 flex-1 min-w-0">
                                 {application && (
@@ -478,7 +499,14 @@ type SiteConfigApplyButtonProps = {
     onDirtyChange: (dirty: boolean) => void;
 };
 
-const SiteConfigApplyButton = ({label, editing, form, baselineRef, onApply, onDirtyChange}: SiteConfigApplyButtonProps): ReactElement => {
+const SiteConfigApplyButton = ({
+    label,
+    editing,
+    form,
+    baselineRef,
+    onApply,
+    onDirtyChange,
+}: SiteConfigApplyButtonProps): ReactElement => {
     const [dirty, setDirty] = useState(false);
     const [valid, setValid] = useState(true);
 
@@ -514,13 +542,7 @@ const SiteConfigApplyButton = ({label, editing, form, baselineRef, onApply, onDi
 
     return (
         <Dialog.Close asChild>
-            <Button
-                size="lg"
-                label={label}
-                variant="solid"
-                disabled={!dirty || !valid}
-                onClick={onApply}
-            />
+            <Button size="lg" label={label} variant="solid" disabled={!dirty || !valid} onClick={onApply} />
         </Dialog.Close>
     );
 };

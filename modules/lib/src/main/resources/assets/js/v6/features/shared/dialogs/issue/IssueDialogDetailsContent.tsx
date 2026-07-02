@@ -1,6 +1,6 @@
-import {Button, Checkbox, Dialog, GridList, Tab, TextArea} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {Calendar, CornerDownRight} from 'lucide-react';
+import { Button, Checkbox, Dialog, GridList, Tab, TextArea } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { Calendar, CornerDownRight } from 'lucide-react';
 import {
     useCallback,
     useEffect,
@@ -11,14 +11,14 @@ import {
     type ReactElement,
 } from 'react';
 
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ContentId} from '../../../../../app/content/ContentId';
-import {IssueStatus} from '../../../../../app/issue/IssueStatus';
-import {useI18n} from '../../../hooks/useI18n';
-import {generateIssueStatusInfo} from '../../../utils/cms/issue/generateIssueStatusInfo';
-import {useTaskProgress} from '../../../hooks/useTaskProgress';
-import {$config} from '../../../store/config.store';
-import {$issueDialog, closeIssueDialog, setIssueDialogView} from '../../../store/dialogs/issueDialog.store';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { ContentId } from '../../../../../app/content/ContentId';
+import { IssueStatus } from '../../../../../app/issue/IssueStatus';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { generateIssueStatusInfo } from '../../../../shared/lib/cms/issue/generateIssueStatusInfo';
+import { useTaskProgress } from '../../../hooks/useTaskProgress';
+import { $config } from '../../../../shared/config/config.store';
+import { $issueDialog, closeIssueDialog, setIssueDialogView } from '../../../store/dialogs/issueDialog.store';
 import {
     $canIssueDialogDetailsPublish,
     $canIssueDialogDetailsShowSelectionStatusBar,
@@ -59,26 +59,26 @@ import {
     publishItems,
     syncPublishDialogContext,
 } from '../../../store/dialogs/publishDialog.store';
-import {useItemsWithUnpublishedChildren} from '../../../utils/cms/content/useItemsWithUnpublishedChildren';
-import {createDebounce} from '../../../utils/timing/createDebounce';
-import {ContentRow, SplitList} from '../../lists';
-import {EditableText} from '../../primitives/EditableText';
-import {AssigneeSelector} from '../../selectors/assignee/AssigneeSelector';
-import {useAssigneeSearch, useAssigneeSelection} from '../../selectors/assignee/hooks/useAssigneeSearch';
-import {ContentCombobox} from '../../selectors/content';
-import {IssueStatusBadge} from '../../status/IssueStatusBadge';
-import {DependantsSelectAll} from '../dependants/DependantsSelectAll';
-import {PublishDialogProgressContent} from '../publish/PublishDialogProgressContent';
-import {SelectionStatusBar} from '../status-bar/SelectionStatusBar';
-import {IssueDialogSelector} from './IssueDialogSelector';
-import {IssueIcon} from './IssueIcon';
-import {IssueScheduleForm} from './IssueScheduleForm';
-import {IssueCommentsList} from './comment/IssueCommentsList';
-import {useIssueDialogData} from './hooks/useIssueDialogData';
+import { useItemsWithUnpublishedChildren } from '../../../utils/cms/content/useItemsWithUnpublishedChildren';
+import { createDebounce } from '../../../../shared/lib/timing/createDebounce';
+import { ContentRow, SplitList } from '../../lists';
+import { EditableText } from '../../../../shared/ui/primitives/EditableText';
+import { AssigneeSelector } from '../../selectors/assignee/AssigneeSelector';
+import { useAssigneeSearch, useAssigneeSelection } from '../../selectors/assignee/hooks/useAssigneeSearch';
+import { ContentCombobox } from '../../selectors/content';
+import { IssueStatusBadge } from '../../status/IssueStatusBadge';
+import { DependantsSelectAll } from '../dependants/DependantsSelectAll';
+import { PublishDialogProgressContent } from '../publish/PublishDialogProgressContent';
+import { SelectionStatusBar } from '../status-bar/SelectionStatusBar';
+import { IssueDialogSelector } from './IssueDialogSelector';
+import { IssueIcon } from './IssueIcon';
+import { IssueScheduleForm } from './IssueScheduleForm';
+import { IssueCommentsList } from './comment/IssueCommentsList';
+import { useIssueDialogData } from './hooks/useIssueDialogData';
 
-import type {Issue} from '../../../../../app/issue/Issue';
-import type {IssueWithAssignees} from '../../../../../app/issue/IssueWithAssignees';
-import type {IssueDialogDetailsTab} from './issueDialog.types';
+import type { Issue } from '../../../../../app/issue/Issue';
+import type { IssueWithAssignees } from '../../../../../app/issue/IssueWithAssignees';
+import type { IssueDialogDetailsTab } from './issueDialog.types';
 
 type StatusOption = 'open' | 'closed';
 
@@ -102,16 +102,13 @@ const ISSUE_DIALOG_DETAILS_CONTENT_NAME = 'IssueDialogDetailsContent';
 
 const getStatusOptions = (openLabel: string, closedLabel: string): StatusOptionItem[] => {
     return [
-        {value: 'open', label: openLabel, status: IssueStatus.OPEN},
-        {value: 'closed', label: closedLabel, status: IssueStatus.CLOSED},
+        { value: 'open', label: openLabel, status: IssueStatus.OPEN },
+        { value: 'closed', label: closedLabel, status: IssueStatus.CLOSED },
     ];
 };
 
-const resolveStatusOption = (
-    options: StatusOptionItem[],
-    value: string | undefined,
-): StatusOptionItem | undefined => {
-    return options.find(option => option.value === value);
+const resolveStatusOption = (options: StatusOptionItem[], value: string | undefined): StatusOptionItem | undefined => {
+    return options.find((option) => option.value === value);
 };
 
 const resolveIssueData = ({
@@ -126,24 +123,24 @@ const resolveIssueData = ({
     if (detailsIssue) {
         return detailsIssue;
     }
-    const resolvedIssue = issues.find(item => item.getIssue().getId() === issueId);
+    const resolvedIssue = issues.find((item) => item.getIssue().getId() === issueId);
     return resolvedIssue?.getIssue();
 };
 
-const validateSchedule = (from: Date | undefined, to: Date | undefined): {fromError?: string; toError?: string} => {
+const validateSchedule = (from: Date | undefined, to: Date | undefined): { fromError?: string; toError?: string } => {
     const now = new Date();
     if (from && from <= now) {
-        return {fromError: i18n('field.schedule.invalid.from.past')};
+        return { fromError: i18n('field.schedule.invalid.from.past') };
     }
     if (!to) {
         return {};
     }
     if (to <= now) {
-        return {toError: i18n('field.schedule.invalid.past')};
+        return { toError: i18n('field.schedule.invalid.past') };
     }
     const fromDate = from ?? now;
     if (to <= fromDate) {
-        return {toError: i18n('field.schedule.invalid')};
+        return { toError: i18n('field.schedule.invalid') };
     }
     return {};
 };
@@ -154,7 +151,7 @@ const STATUS_LOOKUP: Record<StatusOption, IssueStatus> = {
 };
 
 export const IssueDialogDetailsContent = (): ReactElement => {
-    const {issueId, issues} = useStore($issueDialog, {
+    const { issueId, issues } = useStore($issueDialog, {
         keys: ['issueId', 'issues'],
     });
     const {
@@ -209,15 +206,15 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const publishCount = useStore($totalPublishableItems);
     const isPublishReady = useStore($isPublishReady);
     const isPublishChecking = useStore($isPublishChecking);
-    const {open: publishDialogOpen, failed: publishDialogFailed} = useStore($publishDialog, {
+    const { open: publishDialogOpen, failed: publishDialogFailed } = useStore($publishDialog, {
         keys: ['open', 'failed'],
     });
-    const {submitting: publishSubmitting} = useStore($publishDialogPending, {keys: ['submitting']});
+    const { submitting: publishSubmitting } = useStore($publishDialogPending, { keys: ['submitting'] });
     const publishTaskId = useStore($publishTaskId);
-    const {progress: publishProgress} = useTaskProgress(publishTaskId);
-    const {invalid, inProgress, noPermissions} = useStore($publishCheckErrors);
+    const { progress: publishProgress } = useTaskProgress(publishTaskId);
+    const { invalid, inProgress, noPermissions } = useStore($publishCheckErrors);
 
-    const {user, defaultPublishFromTime} = useStore($config, {keys: ['user', 'defaultPublishFromTime']});
+    const { user, defaultPublishFromTime } = useStore($config, { keys: ['user', 'defaultPublishFromTime'] });
 
     const fallbackTitle = useI18n('dialog.issue');
     const backLabel = useI18n('dialog.issue.back');
@@ -247,14 +244,14 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         detailsIssue,
     });
     const issueWithAssignees = useMemo(
-        () => issues.find(item => item.getIssue().getId() === issueId),
+        () => issues.find((item) => item.getIssue().getId() === issueId),
         [issues, issueId],
     );
 
     // Intentional: useI18n doesn't use React hooks internally; passing it as a translate function.
     // Replace with useI18n() from @enonic/lib-admin-ui when I18nProvider is wired up.
     const statusInfo = useMemo(
-        () => issueData ? generateIssueStatusInfo(issueData, useI18n, user) : undefined,
+        () => (issueData ? generateIssueStatusInfo(issueData, useI18n, user) : undefined),
         [issueData, user],
     );
 
@@ -270,15 +267,15 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const itemsCount = items.length + dependantIds.length - excludedDependantIds.length;
     const tabs = isPublishRequest
         ? [
-            {value: 'items', label: publishRequestLabel, count: itemsCount},
-            {value: 'comments', label: commentsLabel, count: commentCount},
-            {value: 'assignees', label: assigneesLabel, count: assigneeCount},
-        ]
+              { value: 'items', label: publishRequestLabel, count: itemsCount },
+              { value: 'comments', label: commentsLabel, count: commentCount },
+              { value: 'assignees', label: assigneesLabel, count: assigneeCount },
+          ]
         : [
-            {value: 'comments', label: commentsLabel, count: commentCount},
-            {value: 'items', label: itemsLabel, count: itemsCount},
-            {value: 'assignees', label: assigneesLabel, count: assigneeCount},
-        ];
+              { value: 'comments', label: commentsLabel, count: commentCount },
+              { value: 'items', label: itemsLabel, count: itemsCount },
+              { value: 'assignees', label: assigneesLabel, count: assigneeCount },
+          ];
     const isTitleDisabled = !issueData || issueError || titleUpdating || statusUpdating || isClosed;
     const [portalContainer, setPortalContainer] = useState<HTMLDivElement | null>(null);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -306,7 +303,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         requestAnimationFrame(() => backButtonRef.current?.focus());
     }, []);
 
-    const {options: assigneeOptions, handleSearchChange} = useAssigneeSearch();
+    const { options: assigneeOptions, handleSearchChange } = useAssigneeSearch();
 
     useIssueDialogData(issueId, !!issueData);
 
@@ -337,45 +334,43 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         if (!issueData) {
             return;
         }
-        const schedule = (issuePublishFrom || issuePublishTo)
-            ? {from: issuePublishFrom, to: issuePublishTo}
-            : undefined;
+        const schedule =
+            issuePublishFrom || issuePublishTo ? { from: issuePublishFrom, to: issuePublishTo } : undefined;
         void syncPublishDialogContext({
             items,
             excludeChildrenIds,
             excludedDependantIds,
             schedule,
         });
-    }, [excludeChildrenIds, excludedDependantIds, issueData, issuePublishFrom, issuePublishTo, items, syncPublishDialogContext]);
+    }, [
+        excludeChildrenIds,
+        excludedDependantIds,
+        issueData,
+        issuePublishFrom,
+        issuePublishTo,
+        items,
+        syncPublishDialogContext,
+    ]);
 
     const assigneeIds = useMemo(
-        () => issueData?.getApprovers().map(approver => approver.toString()) ?? [],
+        () => issueData?.getApprovers().map((approver) => approver.toString()) ?? [],
         [issueData],
     );
-    const selectedItemIds = useMemo(
-        () => issueData?.getPublishRequest()?.getItemsIds() ?? [],
-        [issueData],
-    );
+    const selectedItemIds = useMemo(() => issueData?.getPublishRequest()?.getItemsIds() ?? [], [issueData]);
     // Content-derived key keeps selection identity stable across unrelated
     // issueData updates, so staged combobox edits are not reset mid-edit.
-    const selectedItemIdsKey = useMemo(
-        () => selectedItemIds.map(id => id.toString()).join('|'),
-        [selectedItemIds],
-    );
-    const selectedItemIdStrings = useMemo(
-        () => selectedItemIds.map(id => id.toString()),
-        [selectedItemIdsKey],
-    );
+    const selectedItemIdsKey = useMemo(() => selectedItemIds.map((id) => id.toString()).join('|'), [selectedItemIds]);
+    const selectedItemIdStrings = useMemo(() => selectedItemIds.map((id) => id.toString()), [selectedItemIdsKey]);
     const excludeChildrenSet = useMemo(
-        () => new Set(excludeChildrenIds.map(id => id.toString())),
+        () => new Set(excludeChildrenIds.map((id) => id.toString())),
         [excludeChildrenIds],
     );
     const excludedDependantSet = useMemo(
-        () => new Set(excludedDependantIds.map(id => id.toString())),
+        () => new Set(excludedDependantIds.map((id) => id.toString())),
         [excludedDependantIds],
     );
     const requiredDependantSet = useMemo(
-        () => new Set(requiredDependantIds.map(id => id.toString())),
+        () => new Set(requiredDependantIds.map((id) => id.toString())),
         [requiredDependantIds],
     );
     const itemsWithUnpublishedChildren = useItemsWithUnpublishedChildren(items);
@@ -407,9 +402,10 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     };
 
     const debouncedUpdateAssignees = useMemo(
-        () => createDebounce((next: readonly string[]) => {
-            void updateIssueDialogAssignees(next);
-        }, 600),
+        () =>
+            createDebounce((next: readonly string[]) => {
+                void updateIssueDialogAssignees(next);
+            }, 600),
         [],
     );
 
@@ -420,9 +416,10 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     }, [debouncedUpdateAssignees]);
 
     const debouncedUpdateSchedule = useMemo(
-        () => createDebounce((from: Date | undefined, to: Date | undefined) => {
-            void updateIssueDialogSchedule(from, to);
-        }, 600),
+        () =>
+            createDebounce((from: Date | undefined, to: Date | undefined) => {
+                void updateIssueDialogSchedule(from, to);
+            }, 600),
         [],
     );
 
@@ -433,9 +430,10 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     }, [debouncedUpdateSchedule]);
 
     const debouncedUpdateItems = useMemo(
-        () => createDebounce((nextIds: ContentId[]) => {
-            void updateIssueDialogItems(nextIds);
-        }, 0),
+        () =>
+            createDebounce((nextIds: ContentId[]) => {
+                void updateIssueDialogItems(nextIds);
+            }, 0),
         [],
     );
 
@@ -454,24 +452,30 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         debouncedUpdateAssignees([...next]);
     };
 
-    const handleSelectionChange = useCallback((nextSelection: readonly string[]): void => {
-        if (!issueData) {
-            return;
-        }
-        const nextIds = nextSelection.map(id => new ContentId(id));
-        pendingItemIdsRef.current = nextIds;
-        debouncedUpdateItems(nextIds);
-    }, [issueData, debouncedUpdateItems]);
+    const handleSelectionChange = useCallback(
+        (nextSelection: readonly string[]): void => {
+            if (!issueData) {
+                return;
+            }
+            const nextIds = nextSelection.map((id) => new ContentId(id));
+            pendingItemIdsRef.current = nextIds;
+            debouncedUpdateItems(nextIds);
+        },
+        [issueData, debouncedUpdateItems],
+    );
 
-    const handleItemRemoved = useCallback((id: ContentId): void => {
-        if (!issueData) {
-            return;
-        }
-        const baseIds = pendingItemIdsRef.current ?? selectedItemIds;
-        const nextIds = baseIds.filter(baseId => !baseId.equals(id));
-        pendingItemIdsRef.current = nextIds;
-        debouncedUpdateItems(nextIds);
-    }, [issueData, debouncedUpdateItems, selectedItemIds]);
+    const handleItemRemoved = useCallback(
+        (id: ContentId): void => {
+            if (!issueData) {
+                return;
+            }
+            const baseIds = pendingItemIdsRef.current ?? selectedItemIds;
+            const nextIds = baseIds.filter((baseId) => !baseId.equals(id));
+            pendingItemIdsRef.current = nextIds;
+            debouncedUpdateItems(nextIds);
+        },
+        [issueData, debouncedUpdateItems, selectedItemIds],
+    );
 
     const handleIncludeChildrenChange = useCallback((id: ContentId, includeChildren: boolean): void => {
         void updateIssueDialogItemIncludeChildren(id, includeChildren);
@@ -481,28 +485,34 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         void updateIssueDialogDependencyIncluded(id, included);
     }, []);
 
-    const handleScheduleFromChange = useCallback((value: Date | undefined): void => {
-        scheduleFromRef.current = value;
-        const {fromError, toError} = validateSchedule(value, scheduleToRef.current);
-        setScheduleFromRangeError(fromError);
-        setScheduleToRangeError(toError);
-        if (!fromError && !toError) {
-            debouncedUpdateSchedule(value, scheduleToRef.current);
-        }
-    }, [debouncedUpdateSchedule, issuePublishFrom, issuePublishTo]);
+    const handleScheduleFromChange = useCallback(
+        (value: Date | undefined): void => {
+            scheduleFromRef.current = value;
+            const { fromError, toError } = validateSchedule(value, scheduleToRef.current);
+            setScheduleFromRangeError(fromError);
+            setScheduleToRangeError(toError);
+            if (!fromError && !toError) {
+                debouncedUpdateSchedule(value, scheduleToRef.current);
+            }
+        },
+        [debouncedUpdateSchedule, issuePublishFrom, issuePublishTo],
+    );
 
-    const handleScheduleToChange = useCallback((value: Date | undefined): void => {
-        scheduleToRef.current = value;
-        const {fromError, toError} = validateSchedule(scheduleFromRef.current, value);
-        setScheduleFromRangeError(fromError);
-        setScheduleToRangeError(toError);
-        if (!fromError && !toError) {
-            debouncedUpdateSchedule(scheduleFromRef.current, value);
-        }
-    }, [debouncedUpdateSchedule, issuePublishFrom, issuePublishTo]);
+    const handleScheduleToChange = useCallback(
+        (value: Date | undefined): void => {
+            scheduleToRef.current = value;
+            const { fromError, toError } = validateSchedule(scheduleFromRef.current, value);
+            setScheduleFromRangeError(fromError);
+            setScheduleToRangeError(toError);
+            if (!fromError && !toError) {
+                debouncedUpdateSchedule(scheduleFromRef.current, value);
+            }
+        },
+        [debouncedUpdateSchedule, issuePublishFrom, issuePublishTo],
+    );
 
     useEffect(() => {
-        const {fromError, toError} = validateSchedule(issuePublishFrom, issuePublishTo);
+        const { fromError, toError } = validateSchedule(issuePublishFrom, issuePublishTo);
         setScheduleFromRangeError(fromError);
         setScheduleToRangeError(toError);
     }, [issuePublishFrom, issuePublishTo]);
@@ -525,7 +535,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     };
 
     const handleCommentInput: NonNullable<ComponentPropsWithoutRef<'textarea'>['onInput']> = (event) => {
-        const {value} = event.currentTarget;
+        const { value } = event.currentTarget;
         setIssueDialogCommentText(value);
     };
 
@@ -562,9 +572,10 @@ export const IssueDialogDetailsContent = (): ReactElement => {
 
         debouncedUpdateSchedule.flush();
         if (scheduleMode) {
-            const schedule = (scheduleFromRef.current || scheduleToRef.current)
-                ? {from: scheduleFromRef.current, to: scheduleToRef.current}
-                : undefined;
+            const schedule =
+                scheduleFromRef.current || scheduleToRef.current
+                    ? { from: scheduleFromRef.current, to: scheduleToRef.current }
+                    : undefined;
             if (schedule) {
                 void syncPublishDialogContext({
                     items,
@@ -575,7 +586,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
             }
         }
 
-        publishItems(handlePublishComplete).then(started => {
+        publishItems(handlePublishComplete).then((started) => {
             if (!started) {
                 setPublishView('main');
             }
@@ -603,7 +614,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         void (async () => {
             await markAllAsReadyInProgressPublishItems();
             if (issueData) {
-                await loadIssueDialogItems(issueData, {forceReload: true});
+                await loadIssueDialogItems(issueData, { forceReload: true });
             }
         })();
     }, [issueData, loadIssueDialogItems]);
@@ -623,12 +634,9 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         return commentText.trim().length > 0 && !commentSubmitting && !!issueId && !issueError && !isClosed;
     }, [commentText, commentSubmitting, issueId, issueError, isClosed]);
 
-    const handleCommentUpdate = useCallback(
-        async (commentId: string, text: string): Promise<boolean> => {
-            return await updateIssueDialogComment(commentId, text);
-        },
-        [],
-    );
+    const handleCommentUpdate = useCallback(async (commentId: string, text: string): Promise<boolean> => {
+        return await updateIssueDialogComment(commentId, text);
+    }, []);
 
     const scheduleFromError = scheduleFromInputError ?? scheduleFromRangeError;
     const scheduleToError = scheduleToInputError ?? scheduleToRangeError;
@@ -636,7 +644,8 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const isAssigneesDisabled = !issueData || issueError || assigneesUpdating || statusUpdating || isClosed;
     const isItemsDisabled = !issueData || issueError || itemsUpdating || statusUpdating || isClosed;
     const hasScheduleErrors = !!scheduleFromError || !!scheduleToError;
-    const isPublishDisabled = !isPublishReady ||
+    const isPublishDisabled =
+        !isPublishReady ||
         !canPublish ||
         isPublishChecking ||
         publishSubmitting ||
@@ -652,21 +661,16 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     );
 
     if (publishView === 'progress') {
-        return (
-            <PublishDialogProgressContent
-                total={publishProgressTotal}
-                progress={publishProgress}
-            />
-        );
+        return <PublishDialogProgressContent total={publishProgressTotal} progress={publishProgress} />;
     }
 
     return (
         <Dialog.Content
             data-component={ISSUE_DIALOG_DETAILS_CONTENT_NAME}
-            className='sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-236 flex min-h-0 flex-col gap-3 h-sm:gap-7.5 overflow-hidden py-5 px-5 h-sm:py-10'
+            className="sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-236 flex min-h-0 flex-col gap-3 h-sm:gap-7.5 overflow-hidden py-5 px-5 h-sm:py-10"
         >
-            <Dialog.Header className='grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-4 px-5'>
-                <div className='flex min-w-0 items-center gap-1.5'>
+            <Dialog.Header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-4 px-5">
+                <div className="flex min-w-0 items-center gap-1.5">
                     <IssueIcon issue={issueData} />
                     <Dialog.Title asChild>
                         <span className="inline-flex min-w-0 max-w-full items-baseline gap-1">
@@ -681,19 +685,21 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                 aria-label={titleLabel}
                             />
                             {!isEditingTitle && issueIndex != null && (
-                                <span className="text-2xl font-semibold whitespace-nowrap">
-                                    #{issueIndex}
-                                </span>
+                                <span className="text-2xl font-semibold whitespace-nowrap">#{issueIndex}</span>
                             )}
                         </span>
                     </Dialog.Title>
                 </div>
-                <Dialog.DefaultClose className='self-start justify-self-end' />
+                <Dialog.DefaultClose className="self-start justify-self-end" />
             </Dialog.Header>
-            <Dialog.Body className='flex min-h-0 flex-1 flex-col overflow-hidden'>
-                <Tab.Root value={detailsTab} onValueChange={handleTabChange} className='flex min-h-0 flex-1 flex-col gap-3 h-sm:gap-7.5'>
-                    <div className='grid grid-cols-4 gap-x-3.5 items-end px-2.5'>
-                        <div className='flex flex-col gap-2.5 px-2.5 pt-1.5'>
+            <Dialog.Body className="flex min-h-0 flex-1 flex-col overflow-hidden">
+                <Tab.Root
+                    value={detailsTab}
+                    onValueChange={handleTabChange}
+                    className="flex min-h-0 flex-1 flex-col gap-3 h-sm:gap-7.5"
+                >
+                    <div className="grid grid-cols-4 gap-x-3.5 items-end px-2.5">
+                        <div className="flex flex-col gap-2.5 px-2.5 pt-1.5">
                             <IssueDialogSelector
                                 value={statusValue}
                                 disabled={isStatusDisabled}
@@ -708,8 +714,8 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                 renderItemText={(option) => <IssueStatusBadge status={option.status} />}
                             />
                         </div>
-                        <Tab.List className='col-span-3 px-2.5 justify-end'>
-                            {tabs.map(({value, label, count}) => (
+                        <Tab.List className="col-span-3 px-2.5 justify-end">
+                            {tabs.map(({ value, label, count }) => (
                                 <Tab.DefaultTrigger key={value} value={value} count={count || undefined}>
                                     {label}
                                 </Tab.DefaultTrigger>
@@ -717,9 +723,9 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                         </Tab.List>
                     </div>
 
-                    <div className='flex min-h-0 flex-1 flex-col px-5 pb-1.5'>
-                        <Tab.Content value='comments' className='mt-0 flex min-h-0 flex-1 flex-col'>
-                            <div className='flex min-h-0 flex-1 flex-col gap-3 h-sm:gap-7.5'>
+                    <div className="flex min-h-0 flex-1 flex-col px-5 pb-1.5">
+                        <Tab.Content value="comments" className="mt-0 flex min-h-0 flex-1 flex-col">
+                            <div className="flex min-h-0 flex-1 flex-col gap-3 h-sm:gap-7.5">
                                 <IssueCommentsList
                                     comments={comments}
                                     loading={commentsLoading}
@@ -730,7 +736,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                 />
                                 <TextArea
                                     label={commentLabel}
-                                    name='comment'
+                                    name="comment"
                                     value={commentText}
                                     onInput={handleCommentInput}
                                     onKeyDown={handleCommentKeyDown}
@@ -740,21 +746,21 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                     disabled={commentSubmitting || isClosed}
                                     aria-label={commentAriaLabel}
                                     placeholder={commentAriaLabel}
-                                    className='[&_textarea]:max-h-75 [&_textarea]:overflow-y-auto'
+                                    className="[&_textarea]:max-h-75 [&_textarea]:overflow-y-auto"
                                 />
                             </div>
                         </Tab.Content>
 
-                        <Tab.Content value='items' className='mt-0 min-h-0 flex flex-1 flex-col'>
+                        <Tab.Content value="items" className="mt-0 min-h-0 flex flex-1 flex-col">
                             {canShowSelectionStatusBar && (
                                 <SelectionStatusBar
-                                    className='mb-5'
+                                    className="mb-5"
                                     loading={isPublishChecking}
                                     failed={publishDialogFailed}
                                     editing={false}
                                     showReady={isPublishReady}
-                                    onApply={() => { }}
-                                    onCancel={() => { }}
+                                    onApply={() => {}}
+                                    onCancel={() => {}}
                                     errors={{
                                         inProgress: {
                                             ...inProgress,
@@ -772,7 +778,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                     }}
                                 />
                             )}
-                            <div className='min-h-0 flex-1 overflow-y-auto px-1.5 -mx-1.5 rounded-sm outline-none focus:ring-2 focus:ring-ring/10 focus:ring-inset'>
+                            <div className="min-h-0 flex-1 overflow-y-auto px-1.5 -mx-1.5 rounded-sm outline-none focus:ring-2 focus:ring-ring/10 focus:ring-inset">
                                 <ContentCombobox
                                     label={itemsLabel}
                                     selection={selectedItemIdStrings}
@@ -781,7 +787,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                     disabled={isItemsDisabled}
                                     closeOnBlur={true}
                                 />
-                                <div className='pb-1.5 mt-2.5 flex flex-col gap-7.5'>
+                                <div className="pb-1.5 mt-2.5 flex flex-col gap-7.5">
                                     <SplitList>
                                         <SplitList.Primary
                                             items={items}
@@ -793,7 +799,8 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                                 const hasUnpublishedChildrenForItem = itemsWithUnpublishedChildren
                                                     ? itemsWithUnpublishedChildren.has(id.toString())
                                                     : true;
-                                                const showChildrenCheckbox = hasUnpublishedChildrenForItem && item.hasChildren();
+                                                const showChildrenCheckbox =
+                                                    hasUnpublishedChildrenForItem && item.hasChildren();
 
                                                 return (
                                                     <>
@@ -807,7 +814,11 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                                             <ContentRow.Status />
                                                             <ContentRow.RemoveButton
                                                                 onRemove={() => handleItemRemoved(item.getContentId())}
-                                                                disabled={isItemsDisabled || itemsLoading || items.length === 1}
+                                                                disabled={
+                                                                    isItemsDisabled ||
+                                                                    itemsLoading ||
+                                                                    items.length === 1
+                                                                }
                                                             />
                                                         </ContentRow>
 
@@ -824,7 +835,10 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                                                             className="font-semibold"
                                                                             checked={includeChildren}
                                                                             onCheckedChange={(enabled) =>
-                                                                                handleIncludeChildrenChange(id, enabled === true)
+                                                                                handleIncludeChildrenChange(
+                                                                                    id,
+                                                                                    enabled === true,
+                                                                                )
                                                                             }
                                                                             disabled={isItemsDisabled || itemsLoading}
                                                                             label={includeChildrenLabel}
@@ -875,7 +889,9 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                                                     onCheckedChange={(checked) =>
                                                                         handleDependencyChange(id, checked)
                                                                     }
-                                                                    disabled={isRequired || isItemsDisabled || itemsLoading}
+                                                                    disabled={
+                                                                        isRequired || isItemsDisabled || itemsLoading
+                                                                    }
                                                                 />
                                                                 <ContentRow.Label action="edit" />
                                                                 <ContentRow.Status />
@@ -904,7 +920,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                             </div>
                         </Tab.Content>
 
-                        <Tab.Content value='assignees' className='mt-0 min-h-0 flex flex-1 flex-col'>
+                        <Tab.Content value="assignees" className="mt-0 min-h-0 flex flex-1 flex-col">
                             <AssigneeSelector
                                 label={assigneesLabel}
                                 options={assigneeOptions}
@@ -918,20 +934,20 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                 onAppliedSelectionChange={focusBackButton}
                                 onSearchChange={handleSearchChange}
                                 disabled={isAssigneesDisabled}
-                                className='min-h-0 flex-1'
-                                selectedListClassName='min-h-0 flex-1 overflow-y-auto'
+                                className="min-h-0 flex-1"
+                                selectedListClassName="min-h-0 flex-1 overflow-y-auto"
                             />
                         </Tab.Content>
                     </div>
                 </Tab.Root>
                 <div ref={setPortalContainer} />
             </Dialog.Body>
-            <Dialog.Footer className='-mt-1.5 px-5 justify-between'>
-                <Button ref={backButtonRef} variant='outline' size='lg' label={backLabel} onClick={handleBack} />
+            <Dialog.Footer className="-mt-1.5 px-5 justify-between">
+                <Button ref={backButtonRef} variant="outline" size="lg" label={backLabel} onClick={handleBack} />
                 {isCommentsTab && (
                     <Button
-                        variant='solid'
-                        size='lg'
+                        variant="solid"
+                        size="lg"
                         label={commentActionLabel}
                         onClick={() => void handleCommentSubmit()}
                         disabled={!canSubmitComment}
@@ -940,10 +956,10 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                 {isItemsTab && isPublishRequest && (
                     <>
                         <Button
-                            className='ml-auto'
-                            size='lg'
+                            className="ml-auto"
+                            size="lg"
                             label={scheduleMode ? cancelScheduleLabel : scheduleLabelText}
-                            variant='outline'
+                            variant="outline"
                             onClick={handleScheduleToggle}
                             onKeyDown={(event) => {
                                 if (event.key === 'Enter' || event.key === ' ') {
@@ -957,8 +973,8 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                             disabled={!scheduleMode && isPublishDisabled}
                         />
                         <Button
-                            variant='solid'
-                            size='lg'
+                            variant="solid"
+                            size="lg"
                             label={scheduleMode && hasIssueSchedule ? scheduleLabelText : publishLabel}
                             onClick={handlePublish}
                             disabled={isPublishDisabled}

@@ -1,11 +1,14 @@
 import Q from 'q';
 import type { ContentSummaryAndCompareStatus } from '../../../../../../app/content/ContentSummaryAndCompareStatus';
 import type { ExtensionItemViewType } from '../../../../../../app/view/context/ExtensionItemView';
-import { LegacyElement } from '../../../../shared/LegacyElement';
+import { LegacyElement } from '../../../../../shared/ui/LegacyElement';
 import { PageEditorExtension } from './PageEditorExtension';
 
 // Backward compatibility: ContextWindow -> PageEditorExtension
-export class PageEditorExtensionElement extends LegacyElement<typeof PageEditorExtension> implements ExtensionItemViewType {
+export class PageEditorExtensionElement
+    extends LegacyElement<typeof PageEditorExtension>
+    implements ExtensionItemViewType
+{
     constructor() {
         super({}, PageEditorExtension);
     }

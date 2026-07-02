@@ -1,16 +1,17 @@
-import {type ChangeEvent, type ReactElement, useCallback, useRef} from 'react';
-import {Button, cn} from '@enonic/ui';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {UploadIcon} from 'lucide-react';
-import {useImageUploader} from '../useImageUploader';
-import {useImageUploaderContext} from '../ImageUploaderContext';
-import {useI18n} from '../../../../../hooks/useI18n';
-import {ContentRequiresSaveEvent} from '../../../../../../../app/event/ContentRequiresSaveEvent';
-import {getImageUrl} from '../lib/image';
-import {resetPropertySet} from '../lib/propertySet';
+import { type ChangeEvent, type ReactElement, useCallback, useRef } from 'react';
+import { Button, cn } from '@enonic/ui';
+import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { UploadIcon } from 'lucide-react';
+import { useImageUploader } from '../useImageUploader';
+import { useImageUploaderContext } from '../ImageUploaderContext';
+import { useI18n } from '../../../../../../shared/lib/hooks/useI18n';
+import { ContentRequiresSaveEvent } from '../../../../../../../app/event/ContentRequiresSaveEvent';
+import { getImageUrl } from '../lib/image';
+import { resetPropertySet } from '../lib/propertySet';
 
 export const ImageUploaderInputUploadButton = (): ReactElement => {
-    const {contentId, project, value, enabled, setOrientation, setImageUrl, setCrop, setFocus} = useImageUploaderContext();
+    const { contentId, project, value, enabled, setOrientation, setImageUrl, setCrop, setFocus } =
+        useImageUploaderContext();
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -34,10 +35,10 @@ export const ImageUploaderInputUploadButton = (): ReactElement => {
                 new ContentRequiresSaveEvent(contentId).fire();
             }
         },
-        [contentId, project, value, setOrientation, setImageUrl, setCrop, setFocus]
+        [contentId, project, value, setOrientation, setImageUrl, setCrop, setFocus],
     );
 
-    const {isUploading, progress, handleFiles} = useImageUploader({contentId, onChange: handleChange});
+    const { isUploading, progress, handleFiles } = useImageUploader({ contentId, onChange: handleChange });
 
     const handleUploadClick = useCallback(() => {
         fileInputRef.current?.click();
@@ -47,13 +48,13 @@ export const ImageUploaderInputUploadButton = (): ReactElement => {
         (e: ChangeEvent<HTMLInputElement>) => {
             if (!enabled) return;
 
-            const {files} = e.currentTarget;
+            const { files } = e.currentTarget;
             if (!files || files.length === 0) return;
 
             void handleFiles(files);
             e.currentTarget.value = '';
         },
-        [enabled, handleFiles]
+        [enabled, handleFiles],
     );
 
     return (
@@ -75,7 +76,10 @@ export const ImageUploaderInputUploadButton = (): ReactElement => {
                 className={cn(isUploading && 'pointer-events-none', 'relative text-sm')}
             >
                 {isUploading && (
-                    <div className="animate-pulse absolute top-0 left-0 h-full bg-success-rev opacity-30" style={{width: `${progress}%`}} />
+                    <div
+                        className="animate-pulse absolute top-0 left-0 h-full bg-success-rev opacity-30"
+                        style={{ width: `${progress}%` }}
+                    />
                 )}
                 {uploadLabel}
                 <UploadIcon size={20} absoluteStrokeWidth />

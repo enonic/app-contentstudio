@@ -1,8 +1,8 @@
-import {type ReactElement} from 'react';
-import {useAnimatedEllipsis} from '../../../hooks/useAnimatedEllipsis';
-import {useI18n} from '../../../hooks/useI18n';
-import {type TaskPhase} from '../../../services/task.service';
-import {ProgressDialogContent} from '../ProgressDialogContent';
+import { type ReactElement } from 'react';
+import { useAnimatedEllipsis } from '../../../../shared/lib/hooks/useAnimatedEllipsis';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { type TaskPhase } from '../../../services/task.service';
+import { ProgressDialogContent } from '../ProgressDialogContent';
 
 type DeleteDialogProgressContentProps = {
     total: number;

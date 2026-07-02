@@ -1,12 +1,18 @@
-import {atom, computed} from 'nanostores';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {type Project} from '../../../app/settings/data/project/Project';
-import {FolderItemBuilder, type FolderViewItem} from '../../../app/settings/view/FolderViewItem';
-import {ProjectViewItem} from '../../../app/settings/view/ProjectViewItem';
-import {type SettingsViewItem} from '../../../app/settings/view/SettingsViewItem';
-import {createEmptyState, flattenTree, setNodes, setRootIds, type CreateNodeOptions} from '../lib/tree-store';
-import {$projects} from './projects.store';
-import type {TreeState} from '../lib/tree-store';
+import { atom, computed } from 'nanostores';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { type Project } from '../../../app/settings/data/project/Project';
+import { FolderItemBuilder, type FolderViewItem } from '../../../app/settings/view/FolderViewItem';
+import { ProjectViewItem } from '../../../app/settings/view/ProjectViewItem';
+import { type SettingsViewItem } from '../../../app/settings/view/SettingsViewItem';
+import {
+    createEmptyState,
+    flattenTree,
+    setNodes,
+    setRootIds,
+    type CreateNodeOptions,
+} from '../../shared/lib/tree-store';
+import { $projects } from './projects.store';
+import type { TreeState } from '../../shared/lib/tree-store';
 
 export const SETTINGS_PROJECTS_FOLDER_ID = 'projects';
 
@@ -66,17 +72,14 @@ type BuildTreeOptions = {
 function buildTreeState(
     projects: Project[],
     previousState?: SettingsTreeState,
-    options: BuildTreeOptions = {}
+    options: BuildTreeOptions = {},
 ): SettingsTreeState {
     const byName = new Map(projects.map((project) => [project.getName(), project]));
     const itemsByName = new Map<string, ProjectViewItem>();
     const childMap = new Map<string, string[]>();
 
     for (const project of projects) {
-        itemsByName.set(
-            project.getName(),
-            ProjectViewItem.create().setData(project).build()
-        );
+        itemsByName.set(project.getName(), ProjectViewItem.create().setData(project).build());
     }
 
     const getParentName = (project: Project): string | undefined => {
@@ -162,7 +165,7 @@ function buildTreeState(
 let hasLoadedProjects = false;
 
 function updateFromProjects(): void {
-    const {projects} = $projects.get();
+    const { projects } = $projects.get();
     const previousState = $settingsTreeState.get();
     const shouldExpandAll = !hasLoadedProjects && projects.length > 0;
 
@@ -170,9 +173,11 @@ function updateFromProjects(): void {
         hasLoadedProjects = true;
     }
 
-    $settingsTreeState.set(buildTreeState(projects as Project[], previousState, {
-        expandAll: shouldExpandAll,
-    }));
+    $settingsTreeState.set(
+        buildTreeState(projects as Project[], previousState, {
+            expandAll: shouldExpandAll,
+        }),
+    );
 }
 
 $projects.subscribe(() => {
@@ -181,4 +186,4 @@ $projects.subscribe(() => {
 
 updateFromProjects();
 
-export {$settingsTreeState};
+export { $settingsTreeState };

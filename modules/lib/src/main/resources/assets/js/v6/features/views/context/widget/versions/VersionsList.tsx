@@ -1,23 +1,23 @@
-import {Listbox} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {ReactElement, useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {type ContentSummary} from '../../../../../../app/content/ContentSummary';
-import {useI18n} from '../../../../hooks/useI18n';
+import { Listbox } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { type ContentSummary } from '../../../../../../app/content/ContentSummary';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import {
     $selectedVersions,
     $versions,
     $versionsByDate,
     setSelectedVersions,
 } from '../../../../store/context/versionStore';
-import {useInfiniteScroll} from '../../../../hooks/useInfiniteScroll';
-import {useVersionsConfig} from './config/VersionsConfigContext';
-import {RevertPatchConfirmationDialog} from './revert/RevertPatchConfirmationDialog';
-import {$pendingRevert} from './revert/revertStore';
-import {useVersionsData} from './hooks/useVersionsData';
-import {useVersionsKeyboard} from './hooks/useVersionsKeyboard';
-import {VersionsListContent} from './VersionsListContent';
-import {VersionSelectionToolbar} from './VersionSelectionToolbar';
-import {VersionsShowAllActivitiesSection} from './VersionsShowAllActivitiesSection';
+import { useInfiniteScroll } from '../../../../../shared/lib/hooks/useInfiniteScroll';
+import { useVersionsConfig } from './config/VersionsConfigContext';
+import { RevertPatchConfirmationDialog } from './revert/RevertPatchConfirmationDialog';
+import { $pendingRevert } from './revert/revertStore';
+import { useVersionsData } from './hooks/useVersionsData';
+import { useVersionsKeyboard } from './hooks/useVersionsKeyboard';
+import { VersionsListContent } from './VersionsListContent';
+import { VersionSelectionToolbar } from './VersionSelectionToolbar';
+import { VersionsShowAllActivitiesSection } from './VersionsShowAllActivitiesSection';
 
 const INFINITE_SCROLL_CONFIG = {
     ROOT_MARGIN: '200px',
@@ -34,17 +34,17 @@ type VersionsListProps = {
  * Main versions list component
  * Displays content versions grouped by date with infinite scroll and keyboard navigation
  */
-export const VersionsList = ({content}: VersionsListProps): ReactElement => {
+export const VersionsList = ({ content }: VersionsListProps): ReactElement => {
     const versions = useStore($versions);
     const versionsByDate = useStore($versionsByDate);
     const selection = useStore($selectedVersions);
     const selectionArray = useMemo(() => Array.from(selection), [selection]);
     const selectedVersionObjects = useMemo(
-        () => versions.filter(v => selection.has(v.getId())),
+        () => versions.filter((v) => selection.has(v.getId())),
         [versions, selection],
     );
     const pendingRevert = useStore($pendingRevert);
-    const {services} = useVersionsConfig();
+    const { services } = useVersionsConfig();
     const revertEnabled = services.revert != null;
 
     const [activeVersionId, setActiveVersionId] = useState<string | null>(null);
@@ -57,10 +57,10 @@ export const VersionsList = ({content}: VersionsListProps): ReactElement => {
     const noVersionsLabel = useI18n('widget.versions.noVersions');
     const loadingLabel = useI18n('widget.versions.loading');
 
-    const {hasMore, isLoading, error, loadMore} = useVersionsData(content);
+    const { hasMore, isLoading, error, loadMore } = useVersionsData(content);
 
     const expandVersion = useCallback((versionId: string) => {
-        setExpandedVersionId((current) => current === versionId ? current : versionId);
+        setExpandedVersionId((current) => (current === versionId ? current : versionId));
     }, []);
 
     const collapseExpanded = useCallback(() => {
@@ -68,10 +68,10 @@ export const VersionsList = ({content}: VersionsListProps): ReactElement => {
     }, []);
 
     const toggleExpanded = useCallback((versionId: string) => {
-        setExpandedVersionId((current) => current === versionId ? null : versionId);
+        setExpandedVersionId((current) => (current === versionId ? null : versionId));
     }, []);
 
-    const {handleKeyDown} = useVersionsKeyboard({
+    const { handleKeyDown } = useVersionsKeyboard({
         contentId: content.getContentId(),
         activeListItemId: activeVersionId,
         expandedVersionId,
@@ -86,7 +86,7 @@ export const VersionsList = ({content}: VersionsListProps): ReactElement => {
         isLoading,
         onLoadMore: loadMore,
         rootMargin: INFINITE_SCROLL_CONFIG.ROOT_MARGIN,
-        threshold: INFINITE_SCROLL_CONFIG.THRESHOLD
+        threshold: INFINITE_SCROLL_CONFIG.THRESHOLD,
     });
 
     // Reset active version and collapse when content changes
@@ -131,26 +131,15 @@ export const VersionsList = ({content}: VersionsListProps): ReactElement => {
     const handleBlur = (): void => setIsFocused(false);
 
     if (error) {
-        return (
-            <div className='text-center text-red-600'>
-                {error.message}
-            </div>
-        );
+        return <div className="text-center text-red-600">{error.message}</div>;
     }
 
     if (versions.length === 0 && !isLoading) {
-        return (
-            <div className='text-center text-subtle'>
-                {noVersionsLabel}
-            </div>
-        );
+        return <div className="text-center text-subtle">{noVersionsLabel}</div>;
     }
 
     return (
-        <div
-            data-component={COMPONENT_NAME}
-            className={'flex flex-col gap-5'}
-        >
+        <div data-component={COMPONENT_NAME} className={'flex flex-col gap-5'}>
             {selection.size === 0 && <VersionsShowAllActivitiesSection />}
 
             {selection.size > 0 && (
@@ -164,9 +153,9 @@ export const VersionsList = ({content}: VersionsListProps): ReactElement => {
 
             <div onFocus={handleFocus} onBlur={handleBlur}>
                 <Listbox
-                    selectionMode='multiple'
+                    selectionMode="multiple"
                     selection={selectionArray}
-                    focusMode='activedescendant'
+                    focusMode="activedescendant"
                     active={activeVersionId}
                     setActive={setActiveVersionId}
                     onSelectionChange={handleSelectionChange}
@@ -185,14 +174,10 @@ export const VersionsList = ({content}: VersionsListProps): ReactElement => {
                 </Listbox>
 
                 {isLoading && (
-                    <div className='flex items-center justify-center text-sm text-grey-600'>
-                        {loadingLabel}
-                    </div>
+                    <div className="flex items-center justify-center text-sm text-grey-600">{loadingLabel}</div>
                 )}
 
-                {hasMore && !isLoading && (
-                    <div ref={loadMoreRef} className='h-10 w-full opacity-0' />
-                )}
+                {hasMore && !isLoading && <div ref={loadMoreRef} className="h-10 w-full opacity-0" />}
             </div>
 
             {revertEnabled && pendingRevert && <RevertPatchConfirmationDialog />}

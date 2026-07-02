@@ -1,11 +1,11 @@
-import type {Extension} from '@enonic/lib-admin-ui/extension/Extension';
-import {Button, Menu, Toolbar} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {ChevronDown, ChevronUp} from 'lucide-react';
-import {type ReactElement, useCallback, useEffect, useRef, useState} from 'react';
-import {ViewExtensionEvent} from '../../../../../../app/event/ViewExtensionEvent';
-import {useI18n} from '../../../../hooks/useI18n';
-import {$activeWidget, $liveViewWidgets, setActiveWidget} from '../../../../store/liveViewWidgets.store';
+import type { Extension } from '@enonic/lib-admin-ui/extension/Extension';
+import { Button, Menu, Toolbar } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import { type ReactElement, useCallback, useEffect, useRef, useState } from 'react';
+import { ViewExtensionEvent } from '../../../../../../app/event/ViewExtensionEvent';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { $activeWidget, $liveViewWidgets, setActiveWidget } from '../../../../store/liveViewWidgets.store';
 
 const COMPONENT_NAME = 'PreviewToolbarWidgetSelector';
 
@@ -15,7 +15,7 @@ function getWidgetKey(widget: Extension): string | undefined {
 
 export const PreviewToolbarWidgetSelector = (): ReactElement => {
     const activeWidget = useStore($activeWidget);
-    const {widgets} = useStore($liveViewWidgets, {keys: ['widgets']});
+    const { widgets } = useStore($liveViewWidgets, { keys: ['widgets'] });
     const [isOpen, setIsOpen] = useState(false);
     const radioControlKey = activeWidget ? getWidgetKey(activeWidget) : '';
     const hasFiredInitial = useRef(false);
@@ -27,13 +27,16 @@ export const PreviewToolbarWidgetSelector = (): ReactElement => {
         new ViewExtensionEvent(activeWidget).fire();
     }, [activeWidget]);
 
-    const handleWidgetChange = useCallback((key: string) => {
-        const widget = widgets.find((w) => getWidgetKey(w) === key);
-        if (!widget) return;
-        setIsOpen(false);
-        setActiveWidget(widget);
-        new ViewExtensionEvent(widget).fire();
-    }, [widgets]);
+    const handleWidgetChange = useCallback(
+        (key: string) => {
+            const widget = widgets.find((w) => getWidgetKey(w) === key);
+            if (!widget) return;
+            setIsOpen(false);
+            setActiveWidget(widget);
+            new ViewExtensionEvent(widget).fire();
+        },
+        [widgets],
+    );
 
     const widgetSelectorLabel = useI18n('wcag.preview.toolbar.widgetSelector.label');
 
@@ -62,10 +65,7 @@ export const PreviewToolbarWidgetSelector = (): ReactElement => {
                 <Menu.Content>
                     <Menu.RadioGroup value={radioControlKey} onValueChange={handleWidgetChange}>
                         {widgets.map((widget) => (
-                            <Menu.RadioItem
-                                key={getWidgetKey(widget)}
-                                value={getWidgetKey(widget)}
-                            >
+                            <Menu.RadioItem key={getWidgetKey(widget)} value={getWidgetKey(widget)}>
                                 <Menu.ItemIndicator>
                                     <img
                                         className="size-6.5 dark:invert-100 group-data-[state=checked]:invert-100"

@@ -1,32 +1,32 @@
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {type Element} from '@enonic/lib-admin-ui/dom/Element';
-import {FormView} from '@enonic/lib-admin-ui/form/FormView';
-import {showError, showSuccess} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
-import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
-import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
-import {type FormItem, FormItemBuilder} from '@enonic/lib-admin-ui/ui/form/FormItem';
-import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
-import {type PrincipalComboBox, PrincipalComboBoxWrapper} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
-import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
-import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {isBlank} from '../../v6/features/utils/format/isBlank';
+import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
+import { type Element } from '@enonic/lib-admin-ui/dom/Element';
+import { FormView } from '@enonic/lib-admin-ui/form/FormView';
+import { showError, showSuccess } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { PrincipalType } from '@enonic/lib-admin-ui/security/PrincipalType';
+import { Action } from '@enonic/lib-admin-ui/ui/Action';
+import { DropdownButtonRow } from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
+import { Fieldset } from '@enonic/lib-admin-ui/ui/form/Fieldset';
+import { Form } from '@enonic/lib-admin-ui/ui/form/Form';
+import { type FormItem, FormItemBuilder } from '@enonic/lib-admin-ui/ui/form/FormItem';
+import { Validators } from '@enonic/lib-admin-ui/ui/form/Validators';
+import { type PrincipalComboBox, PrincipalComboBoxWrapper } from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
+import { TextInput } from '@enonic/lib-admin-ui/ui/text/TextInput';
+import { ArrayHelper } from '@enonic/lib-admin-ui/util/ArrayHelper';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { isBlank } from '../../v6/shared/lib/format/isBlank';
 import type Q from 'q';
-import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
-import {type ContentId} from '../content/ContentId';
-import {BasePublishDialog} from '../dialog/BasePublishDialog';
-import {type DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
-import {type Issue} from '../issue/Issue';
-import {IssueType} from '../issue/IssueType';
-import {PublishRequest} from '../issue/PublishRequest';
-import {PublishRequestItem} from '../issue/PublishRequestItem';
-import {CreateIssueRequest} from '../issue/resource/CreateIssueRequest';
-import {CSPrincipalCombobox} from '../security/CSPrincipalCombobox';
-import {openPublishDialog} from '../../v6/features/store/dialogs/publishDialog.store';
+import { ContentPublishPromptEvent } from '../browse/ContentPublishPromptEvent';
+import { type ContentId } from '../content/ContentId';
+import { BasePublishDialog } from '../dialog/BasePublishDialog';
+import { type DependantItemsWithProgressDialogConfig } from '../dialog/DependantItemsWithProgressDialog';
+import { type Issue } from '../issue/Issue';
+import { IssueType } from '../issue/IssueType';
+import { PublishRequest } from '../issue/PublishRequest';
+import { PublishRequestItem } from '../issue/PublishRequestItem';
+import { CreateIssueRequest } from '../issue/resource/CreateIssueRequest';
+import { CSPrincipalCombobox } from '../security/CSPrincipalCombobox';
+import { openPublishDialog } from '../../v6/features/store/dialogs/publishDialog.store';
 
 enum Step {
     ITEMS = 'items-step',
@@ -38,9 +38,7 @@ enum Step {
  * Dependant items number will change depending on includeChildren checkbox state as
  * resolved dependencies usually differ in that case.
  */
-export class RequestContentPublishDialog
-    extends BasePublishDialog {
-
+export class RequestContentPublishDialog extends BasePublishDialog {
     private static INSTANCE: RequestContentPublishDialog;
 
     private requestPublishAction: Action;
@@ -130,7 +128,9 @@ export class RequestContentPublishDialog
             this.nextAction.setEnabled(original);
         });
 
-        (this.assigneesFormItem.getInput() as PrincipalComboBoxWrapper).getComboBox().onSelectionChanged(() => this.handleDataChanged());
+        (this.assigneesFormItem.getInput() as PrincipalComboBoxWrapper)
+            .getComboBox()
+            .onSelectionChanged(() => this.handleDataChanged());
         (this.detailsFormItem.getInput() as TextInput).onValueChanged(() => this.handleDataChanged());
     }
 
@@ -207,8 +207,8 @@ export class RequestContentPublishDialog
     }
 
     open(): void {
-        this.publishScheduleForm.setFormVisible(false, true);   // form will be reset on hide as well
-        this.publishProcessor.reloadPublishDependencies({resetDependantItems: true});
+        this.publishScheduleForm.setFormVisible(false, true); // form will be reset on hide as well
+        this.publishProcessor.reloadPublishDependencies({ resetDependantItems: true });
 
         (this.detailsFormItem.getInput() as TextInput).setValue('');
         (this.assigneesFormItem.getInput() as PrincipalComboBoxWrapper).getComboBox().setSelectedItems([]);
@@ -223,12 +223,15 @@ export class RequestContentPublishDialog
         this.lockControls();
         this.publishProcessor.setIgnoreDependantItemsChanged(true);
 
-        this.createIssuesRequest().sendAndParse().then((issue: Issue) => {
-            showSuccess(i18n('notify.publishRequest.created'));
-            this.notifyIssueCreated(issue);
-        }).catch((reason) => {
-            this.handleErrorOnPublishRequest(reason);
-        });
+        this.createIssuesRequest()
+            .sendAndParse()
+            .then((issue: Issue) => {
+                showSuccess(i18n('notify.publishRequest.created'));
+                this.notifyIssueCreated(issue);
+            })
+            .catch((reason) => {
+                this.handleErrorOnPublishRequest(reason);
+            });
     }
 
     private handleErrorOnPublishRequest(reason): void {
@@ -308,13 +311,14 @@ export class RequestContentPublishDialog
     }
 
     protected updateButtonCount(actionString: string, itemsToPublish: number) {
-        const labelWithNumber: (num: number, label: string) => string = (num, label) => `${label}${num > 1 ? ` (${num})` : ''}`;
+        const labelWithNumber: (num: number, label: string) => string = (num, label) =>
+            `${label}${num > 1 ? ` (${num})` : ''}`;
 
         this.requestPublishAction.setLabel(labelWithNumber(itemsToPublish, i18n('action.createRequest')));
     }
 
     private notifyIssueCreated(issue: Issue): void {
-        this.issueCreatedListeners.forEach(listener => listener(issue));
+        this.issueCreatedListeners.forEach((listener) => listener(issue));
     }
 
     public onIssueCreated(listener: (issue: Issue) => void): void {
@@ -322,6 +326,6 @@ export class RequestContentPublishDialog
     }
 
     public unIssueCreated(listener: (issue: Issue) => void): void {
-        this.issueCreatedListeners = this.issueCreatedListeners.filter(curr => curr !== listener);
+        this.issueCreatedListeners = this.issueCreatedListeners.filter((curr) => curr !== listener);
     }
 }

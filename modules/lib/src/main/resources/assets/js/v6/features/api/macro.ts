@@ -1,12 +1,16 @@
-import {ResultAsync} from 'neverthrow';
-import type {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import type {PropertyArrayJson} from '@enonic/lib-admin-ui/data/PropertyArrayJson';
-import {MacroDescriptor} from '@enonic/lib-admin-ui/macro/MacroDescriptor';
-import type {MacrosJson} from '@enonic/lib-admin-ui/macro/MacrosJson';
-import type {MacroPreviewJson, MacroPreviewStringJson, PageContributionsJson} from '../../../app/macro/resource/MacroPreviewJson';
-import {AppError} from './errors';
-import {getCmsRestUri} from '../utils/url/cms';
-import {$projects} from '../store/projects.store';
+import { ResultAsync } from 'neverthrow';
+import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import type { PropertyArrayJson } from '@enonic/lib-admin-ui/data/PropertyArrayJson';
+import { MacroDescriptor } from '@enonic/lib-admin-ui/macro/MacroDescriptor';
+import type { MacrosJson } from '@enonic/lib-admin-ui/macro/MacrosJson';
+import type {
+    MacroPreviewJson,
+    MacroPreviewStringJson,
+    PageContributionsJson,
+} from '../../../app/macro/resource/MacroPreviewJson';
+import { AppError } from '../../shared/api/errors';
+import { getCmsRestUri } from '../../shared/lib/url/cms';
+import { $projects } from '../store/projects.store';
 
 function getMacroApiUrl(endpoint: string, projectName?: string): string {
     const project = projectName ?? $projects.get().activeProjectId ?? '';
@@ -22,18 +26,18 @@ export function fetchMacros(
     return ResultAsync.fromPromise(
         fetch(url, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                appKeys: applicationKeys.map(key => key.toString()),
+                appKeys: applicationKeys.map((key) => key.toString()),
             }),
         }).then(async (response) => {
             if (!response.ok) {
                 throw new AppError(response.statusText);
             }
             const json: MacrosJson = await response.json();
-            return json.macros.map(macro => MacroDescriptor.fromJson(macro));
+            return json.macros.map((macro) => MacroDescriptor.fromJson(macro));
         }),
-        (error): AppError => error instanceof AppError ? error : new AppError(String(error)),
+        (error): AppError => (error instanceof AppError ? error : new AppError(String(error))),
     );
 }
 
@@ -54,7 +58,7 @@ export function fetchMacroPreview(
     return ResultAsync.fromPromise(
         fetch(url, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 form: formData,
                 macroKey,
@@ -71,7 +75,7 @@ export function fetchMacroPreview(
                 pageContributions: json.pageContributions,
             };
         }),
-        (error): AppError => error instanceof AppError ? error : new AppError(String(error)),
+        (error): AppError => (error instanceof AppError ? error : new AppError(String(error))),
     );
 }
 
@@ -85,7 +89,7 @@ export function fetchMacroPreviewString(
     return ResultAsync.fromPromise(
         fetch(url, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 form: formData,
                 macroKey,
@@ -97,6 +101,6 @@ export function fetchMacroPreviewString(
             const json: MacroPreviewStringJson = await response.json();
             return json.macro;
         }),
-        (error): AppError => error instanceof AppError ? error : new AppError(String(error)),
+        (error): AppError => (error instanceof AppError ? error : new AppError(String(error))),
     );
 }

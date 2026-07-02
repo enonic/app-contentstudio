@@ -1,25 +1,28 @@
-import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
-import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {type CustomSelectorItem} from './CustomSelectorItem';
-import {CustomSelectorItemViewer} from './CustomSelectorItemViewer';
-import {RichSelectedOptionView, RichSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
+import { BaseSelectedOptionsView } from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import { Option } from '@enonic/lib-admin-ui/ui/selector/Option';
+import { SelectedOption } from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import { type CustomSelectorItem } from './CustomSelectorItem';
+import { CustomSelectorItemViewer } from './CustomSelectorItemViewer';
+import {
+    RichSelectedOptionView,
+    RichSelectedOptionViewBuilder,
+} from '@enonic/lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
 import {
     FilterableListBoxWrapperWithSelectedView,
-    type ListBoxInputOptions
+    type ListBoxInputOptions,
 } from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
-import {CustomSelectorLoader} from './CustomSelectorLoader';
-import {CustomSelectorListBox} from './CustomSelectorListBox';
-import {type LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
+import { CustomSelectorLoader } from './CustomSelectorLoader';
+import { CustomSelectorListBox } from './CustomSelectorListBox';
+import { type LoadedDataEvent } from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import Q from 'q';
-import {isBlank} from '../../../v6/features/utils/format/isBlank';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {CustomSelectorMode} from './CustomSelectorMode';
-import {CustomSelectorGallerySelectedOptionsView} from './CustomSelectorGallerySelectedOptionsView';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {type SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
+import { isBlank } from '../../../v6/shared/lib/format/isBlank';
+import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
+import { type ValueChangedEvent } from '@enonic/lib-admin-ui/ValueChangedEvent';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { CustomSelectorMode } from './CustomSelectorMode';
+import { CustomSelectorGallerySelectedOptionsView } from './CustomSelectorGallerySelectedOptionsView';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { type SelectedOptionEvent } from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 
 interface CustomSelectorComboBoxOptions extends ListBoxInputOptions<CustomSelectorItem> {
     loader: CustomSelectorLoader;
@@ -31,9 +34,7 @@ export interface CustomSelectorBuilderOptions {
     readonly: boolean;
 }
 
-export class CustomSelectorComboBox
-    extends FilterableListBoxWrapperWithSelectedView<CustomSelectorItem> {
-
+export class CustomSelectorComboBox extends FilterableListBoxWrapperWithSelectedView<CustomSelectorItem> {
     declare protected options: CustomSelectorComboBoxOptions;
 
     constructor(options: CustomSelectorBuilderOptions) {
@@ -42,9 +43,12 @@ export class CustomSelectorComboBox
         const className = `custom-selector-combobox${options.mode === CustomSelectorMode.GALLERY ? ' gallery-mode' : ''}`;
         const config = {
             readonly: options.readonly,
-            editable: false
+            editable: false,
         };
-        const selectedOptionsView = options.mode === CustomSelectorMode.GALLERY ? new CustomSelectorGallerySelectedOptionsView(config) : new CustomSelectorSelectedOptionsView();
+        const selectedOptionsView =
+            options.mode === CustomSelectorMode.GALLERY
+                ? new CustomSelectorGallerySelectedOptionsView(config)
+                : new CustomSelectorSelectedOptionsView();
         selectedOptionsView.setReadonly(options.readonly);
 
         super(listBox, {
@@ -59,10 +63,12 @@ export class CustomSelectorComboBox
         super.initListeners();
 
         if (ObjectHelper.iFrameSafeInstanceOf(this.selectedOptionsView, CustomSelectorGallerySelectedOptionsView)) {
-            (this.selectedOptionsView as CustomSelectorGallerySelectedOptionsView).onOptionDeselected((event: SelectedOptionEvent<CustomSelectorItem>) => {
-                const customSelectorItem = event.getSelectedOption().getOption().getDisplayValue();
-                this.deselect(customSelectorItem);
-            });
+            (this.selectedOptionsView as CustomSelectorGallerySelectedOptionsView).onOptionDeselected(
+                (event: SelectedOptionEvent<CustomSelectorItem>) => {
+                    const customSelectorItem = event.getSelectedOption().getOption().getDisplayValue();
+                    this.deselect(customSelectorItem);
+                },
+            );
         }
 
         this.options.loader.onLoadedData((event: LoadedDataEvent<CustomSelectorItem>) => {
@@ -100,10 +106,7 @@ export class CustomSelectorComboBox
     }
 
     createSelectedOption(item: CustomSelectorItem): Option<CustomSelectorItem> {
-        return Option.create<CustomSelectorItem>()
-            .setValue(item.getId())
-            .setDisplayValue(item)
-            .build();
+        return Option.create<CustomSelectorItem>().setValue(item.getId()).setDisplayValue(item).build();
     }
 
     onOptionMoved(handler: (selectedOption: SelectedOption<CustomSelectorItem>, fromIndex: number) => void): void {
@@ -122,31 +125,35 @@ export class CustomSelectorComboBox
         this.deselectAll(true);
 
         if (selectedIds?.length > 0) {
-            this.getLoader().sendPreLoadRequest(selectedIds).then((items: CustomSelectorItem[]) => {
-                items.sort((a, b) => selectedIds.indexOf(a.getId().toString()) - selectedIds.indexOf(b.getId().toString()));
-                const toSelect = items.filter((item) => selectedIds.indexOf(item.getId().toString()) >= 0);
-                this.select(toSelect, true);
-            }).catch(DefaultErrorHandler.handle);
+            this.getLoader()
+                .sendPreLoadRequest(selectedIds)
+                .then((items: CustomSelectorItem[]) => {
+                    items.sort(
+                        (a, b) => selectedIds.indexOf(a.getId().toString()) - selectedIds.indexOf(b.getId().toString()),
+                    );
+                    const toSelect = items.filter((item) => selectedIds.indexOf(item.getId().toString()) >= 0);
+                    this.select(toSelect, true);
+                })
+                .catch(DefaultErrorHandler.handle);
         }
     }
 }
 
-export class CustomSelectorSelectedOptionsView
-    extends BaseSelectedOptionsView<CustomSelectorItem> {
-
+export class CustomSelectorSelectedOptionsView extends BaseSelectedOptionsView<CustomSelectorItem> {
     createSelectedOption(option: Option<CustomSelectorItem>): SelectedOption<CustomSelectorItem> {
-        return new SelectedOption<CustomSelectorItem>(new CustomSelectorSelectedOptionView(option, this.readonly), this.count());
+        return new SelectedOption<CustomSelectorItem>(
+            new CustomSelectorSelectedOptionView(option, this.readonly),
+            this.count(),
+        );
     }
-
 }
 
-export class CustomSelectorSelectedOptionView
-    extends RichSelectedOptionView<CustomSelectorItem> {
-
+export class CustomSelectorSelectedOptionView extends RichSelectedOptionView<CustomSelectorItem> {
     constructor(option: Option<CustomSelectorItem>, readonly: boolean) {
-        super(new RichSelectedOptionViewBuilder<CustomSelectorItem>()
-            .setDraggable(!readonly)
-            .setOption(option) as RichSelectedOptionViewBuilder<CustomSelectorItem>
+        super(
+            new RichSelectedOptionViewBuilder<CustomSelectorItem>()
+                .setDraggable(!readonly)
+                .setOption(option) as RichSelectedOptionViewBuilder<CustomSelectorItem>,
         );
     }
 

@@ -1,20 +1,23 @@
-import {type ContentId} from '../../../app/content/ContentId';
-import {type ContentDependencyJson} from '../../../app/resource/json/ContentDependencyJson';
-import {ResolveDependenciesResult, type ResolveDependenciesResultJson} from '../../../app/resource/ResolveDependenciesResult';
-import {Branch} from '../../../app/versioning/Branch';
-import {getCmsApiUrl} from '../utils/url/cms';
+import { type ContentId } from '../../../app/content/ContentId';
+import { type ContentDependencyJson } from '../../../app/resource/json/ContentDependencyJson';
+import {
+    ResolveDependenciesResult,
+    type ResolveDependenciesResultJson,
+} from '../../../app/resource/ResolveDependenciesResult';
+import { Branch } from '../../../app/versioning/Branch';
+import { getCmsApiUrl } from '../../shared/lib/url/cms';
 
 /**
  * Resolve dependencies for multiple content items.
  */
 export async function resolveDependencies(
     contentIds: ContentId[],
-    target: Branch = Branch.DRAFT
+    target: Branch = Branch.DRAFT,
 ): Promise<ResolveDependenciesResult> {
     const url = getCmsApiUrl('getDependencies');
 
     const payload = {
-        contentIds: contentIds.map(id => id.toString()),
+        contentIds: contentIds.map((id) => id.toString()),
         target: target.toString(),
     };
 

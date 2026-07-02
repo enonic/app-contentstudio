@@ -1,6 +1,6 @@
-import {cn, useBlinkAttention} from '@enonic/ui';
-import {FieldError} from '@enonic/lib-admin-ui/form2/components/field-error';
-import {useStore} from '@nanostores/preact';
+import { cn, useBlinkAttention } from '@enonic/ui';
+import { FieldError } from '@enonic/lib-admin-ui/form2/components/field-error';
+import { useStore } from '@nanostores/preact';
 import {
     useCallback,
     useEffect,
@@ -21,7 +21,7 @@ import {
     clearAiTopicError,
     sendPluginContext,
 } from '../../../store/ai';
-import {useI18n} from '../../../hooks/useI18n';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import {
     $displayName,
     $displayNameInputFocusRequested,
@@ -29,7 +29,7 @@ import {
     clearDisplayNameInputFocusRequest,
     setDraftDisplayName,
 } from '../../../store/wizardContent.store';
-import {$validationVisibility} from '../../../store/wizardValidation.store';
+import { $validationVisibility } from '../../../store/wizardValidation.store';
 
 const DISPLAY_NAME_INPUT_NAME = 'DisplayNameInput';
 
@@ -57,20 +57,17 @@ export const DisplayNameInput = (): ReactElement => {
     const userEngagedRef = useRef(false);
     const inputRef = useRef<HTMLTextAreaElement | null>(null);
     const rootRef = useRef<HTMLDivElement | null>(null);
-    const isBlinking = useBlinkAttention(rootRef, topicHighlight.count, {scrollIntoView: topicHighlight.scroll});
+    const isBlinking = useBlinkAttention(rootRef, topicHighlight.count, { scrollIntoView: topicHighlight.scroll });
 
     const placeholder = useI18n('field.displayName');
     const requiredErrorMessage = useI18n('field.displayName.required');
 
     const isInvalid = displayName.trim().length === 0;
-    const showRequiredError = !aiProcessing && !aiError && isInvalid && (
-        visibility === 'all' || (visibility === 'interactive' && touched)
-    );
+    const showRequiredError =
+        !aiProcessing && !aiError && isInvalid && (visibility === 'all' || (visibility === 'interactive' && touched));
     // AI failure wins over the required-field check the same way `InputField`
     // surfaces transient translator errors above validation errors.
-    const visibleError = aiProcessing
-        ? undefined
-        : aiError ?? (showRequiredError ? requiredErrorMessage : undefined);
+    const visibleError = aiProcessing ? undefined : (aiError ?? (showRequiredError ? requiredErrorMessage : undefined));
     const showErrorBorder = !aiProcessing && (aiError != null || showRequiredError);
 
     const [isEditing, setIsEditing] = useState(false);
@@ -204,8 +201,8 @@ export const DisplayNameInput = (): ReactElement => {
                         showErrorBorder
                             ? 'border-l-error focus:border-l-error'
                             : aiProcessing
-                                ? 'border-l-bdr-select'
-                                : 'border-l-bdr-subtle focus:border-l-ring',
+                              ? 'border-l-bdr-select'
+                              : 'border-l-bdr-subtle focus:border-l-ring',
                     )}
                 >
                     {displayName || placeholder}
@@ -229,7 +226,9 @@ export const DisplayNameInput = (): ReactElement => {
                         '[&:hover,&:focus]:border-l-4 [&:hover,&:focus]:pl-3.75 placeholder:text-subtle/50 rounded-none',
                         'transition-highlight focus:outline-none disabled:select-none disabled:cursor-not-allowed',
                         'focus:ring-0 focus:ring-offset-0 focus:border-transparent',
-                        showErrorBorder ? 'border-l-error focus:border-l-error' : 'border-l-bdr-subtle focus:border-l-ring',
+                        showErrorBorder
+                            ? 'border-l-error focus:border-l-error'
+                            : 'border-l-bdr-subtle focus:border-l-ring',
                     )}
                 />
             )}

@@ -1,13 +1,13 @@
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {CircleUserRound} from 'lucide-react';
-import {ReactElement} from 'react';
-import {ItemLabel} from '../../../../shared/ItemLabel';
+import { Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { CircleUserRound } from 'lucide-react';
+import { ReactElement } from 'react';
+import { ItemLabel } from '../../../../../shared/ui/ItemLabel';
 
 type PrincipalsListProps = {
     principals: Principal[];
 };
 
-export const PrincipalsList = ({principals}: PrincipalsListProps): ReactElement | null => {
+export const PrincipalsList = ({ principals }: PrincipalsListProps): ReactElement | null => {
     if (principals.length === 0) {
         return null;
     }

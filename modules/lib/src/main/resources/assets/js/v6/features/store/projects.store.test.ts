@@ -1,4 +1,4 @@
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 type MockProject = {
     getName(): string;
@@ -7,17 +7,14 @@ type MockProject = {
     getParents(): string[];
 };
 
-const {
-    createdHandlers,
-    deletedHandlers,
-    mockProjectListSendAndParse,
-    mockSetProjectSelectionDialogOpen,
-} = vi.hoisted(() => ({
-    createdHandlers: [] as (() => void)[],
-    deletedHandlers: [] as ((event: {getProjectName(): string}) => void)[],
-    mockProjectListSendAndParse: vi.fn(),
-    mockSetProjectSelectionDialogOpen: vi.fn(),
-}));
+const { createdHandlers, deletedHandlers, mockProjectListSendAndParse, mockSetProjectSelectionDialogOpen } = vi.hoisted(
+    () => ({
+        createdHandlers: [] as (() => void)[],
+        deletedHandlers: [] as ((event: { getProjectName(): string }) => void)[],
+        mockProjectListSendAndParse: vi.fn(),
+        mockSetProjectSelectionDialogOpen: vi.fn(),
+    }),
+);
 
 vi.mock('../../../app/settings/resource/ProjectListRequest', () => ({
     ProjectListRequest: class {
@@ -41,7 +38,7 @@ vi.mock('../../../app/settings/event/ProjectCreatedEvent', () => ({
 
 vi.mock('../../../app/settings/event/ProjectDeletedEvent', () => ({
     ProjectDeletedEvent: {
-        on: vi.fn((handler: (event: {getProjectName(): string}) => void) => {
+        on: vi.fn((handler: (event: { getProjectName(): string }) => void) => {
             deletedHandlers.push(handler);
         }),
     },
@@ -69,7 +66,7 @@ vi.mock('../api/content-fetcher', () => ({
     deactivateFilter: vi.fn(),
 }));
 
-vi.mock('../utils/widget/versions/versionsCache', () => ({
+vi.mock('../../shared/lib/widget/versions/versionsCache', () => ({
     clearVersionsCache: vi.fn(),
 }));
 
@@ -87,9 +84,11 @@ function createInaccessibleProject(name: string, parents: string[] = []): MockPr
 }
 
 function emitDeleted(projectName: string): void {
-    deletedHandlers.forEach((handler) => handler({
-        getProjectName: () => projectName,
-    }));
+    deletedHandlers.forEach((handler) =>
+        handler({
+            getProjectName: () => projectName,
+        }),
+    );
 }
 
 function emitCreated(): void {
@@ -115,7 +114,7 @@ async function loadStore(
     currentProjectId: string,
     options: LoadStoreOptions = {},
 ): Promise<typeof import('./projects.store') & typeof import('./activeProject.store')> {
-    const {url, clearInitMocks = true, hostProjectId} = options;
+    const { url, clearInitMocks = true, hostProjectId } = options;
 
     vi.resetModules();
     createdHandlers.length = 0;
@@ -229,7 +228,7 @@ describe('projects.store delete intent', () => {
     it('does not leave no-project mode before the created project becomes active', async () => {
         const store = await loadStore([], '');
         const createdProject = createProject('created');
-        const noProjectModeTransitions: {value: boolean; activeProjectId: string | undefined}[] = [];
+        const noProjectModeTransitions: { value: boolean; activeProjectId: string | undefined }[] = [];
 
         expect(store.$noProjectMode.get()).toBe(true);
 
@@ -245,14 +244,14 @@ describe('projects.store delete intent', () => {
         await flushPromises();
         unsubscribe();
 
-        const falseTransitions = noProjectModeTransitions.filter(({value}) => !value);
+        const falseTransitions = noProjectModeTransitions.filter(({ value }) => !value);
 
         expect(store.$projects.get().activeProjectId).toBe('created');
         expect(store.$projects.get().loaded).toBe(true);
         expect(store.$projects.get().resolved).toBe(true);
         expect(store.$projects.get().loadError).toBe(false);
         expect(falseTransitions.length).toBeGreaterThan(0);
-        expect(falseTransitions.every(({activeProjectId}) => activeProjectId === 'created')).toBe(true);
+        expect(falseTransitions.every(({ activeProjectId }) => activeProjectId === 'created')).toBe(true);
     });
 
     it('publishes load errors before marking projects as resolved', async () => {
@@ -266,10 +265,10 @@ describe('projects.store delete intent', () => {
 
         const store = await import('./projects.store');
         store.initProjects();
-        const states: {resolved: boolean; loadError: boolean}[] = [];
+        const states: { resolved: boolean; loadError: boolean }[] = [];
 
-        const unsubscribe = store.$projects.subscribe(({resolved, loadError}) => {
-            states.push({resolved, loadError});
+        const unsubscribe = store.$projects.subscribe(({ resolved, loadError }) => {
+            states.push({ resolved, loadError });
         });
 
         await flushPromises();
@@ -277,7 +276,7 @@ describe('projects.store delete intent', () => {
 
         expect(store.$projects.get().resolved).toBe(true);
         expect(store.$projects.get().loadError).toBe(true);
-        expect(states.some(({resolved, loadError}) => resolved && !loadError)).toBe(false);
+        expect(states.some(({ resolved, loadError }) => resolved && !loadError)).toBe(false);
         expect(mockSetProjectSelectionDialogOpen).not.toHaveBeenCalled();
     });
 });
@@ -308,7 +307,7 @@ describe('projects.store init', () => {
         localStorage.setItem(LAST_SELECTED_STORAGE_KEY, JSON.stringify('saved'));
         const saved = createProject('saved');
         const other = createProject('other');
-        const store = await loadStore([saved, other], '', {url: '/com.enonic.app.contentstudio/cms//browse'});
+        const store = await loadStore([saved, other], '', { url: '/com.enonic.app.contentstudio/cms//browse' });
 
         expect(store.$projects.get().activeProjectId).toBe('saved');
     });
@@ -505,7 +504,7 @@ describe('projects.store host project override', () => {
     it('selects the host project when it is available, overriding the URL', async () => {
         const alpha = createProject('alpha');
         const beta = createProject('beta');
-        const store = await loadStore([alpha, beta], 'alpha', {hostProjectId: 'beta'});
+        const store = await loadStore([alpha, beta], 'alpha', { hostProjectId: 'beta' });
 
         expect(store.$projects.get().activeProjectId).toBe('beta');
         expect(errorSpy).not.toHaveBeenCalled();
@@ -514,7 +513,7 @@ describe('projects.store host project override', () => {
     it('logs an error and falls back to the URL when the host project is unknown', async () => {
         const alpha = createProject('alpha');
         const beta = createProject('beta');
-        const store = await loadStore([alpha, beta], 'alpha', {hostProjectId: 'ghost'});
+        const store = await loadStore([alpha, beta], 'alpha', { hostProjectId: 'ghost' });
 
         expect(store.$projects.get().activeProjectId).toBe('alpha');
         expect(errorSpy).toHaveBeenCalledTimes(1);
@@ -525,7 +524,7 @@ describe('projects.store host project override', () => {
         const alpha = createProject('alpha');
         const beta = createProject('beta');
         const child = createProject('child', ['alpha']);
-        const store = await loadStore([alpha, beta, child], 'alpha', {hostProjectId: 'ghost'});
+        const store = await loadStore([alpha, beta, child], 'alpha', { hostProjectId: 'ghost' });
 
         expect(errorSpy).toHaveBeenCalledTimes(1);
 
@@ -544,7 +543,7 @@ describe('projects.store host project override', () => {
             getLanguage: () => '',
             getParents: () => [],
         };
-        const store = await loadStore([alpha, inaccessible], 'alpha', {hostProjectId: 'beta'});
+        const store = await loadStore([alpha, inaccessible], 'alpha', { hostProjectId: 'beta' });
 
         expect(store.$projects.get().activeProjectId).toBe('alpha');
         expect(errorSpy).toHaveBeenCalledTimes(1);

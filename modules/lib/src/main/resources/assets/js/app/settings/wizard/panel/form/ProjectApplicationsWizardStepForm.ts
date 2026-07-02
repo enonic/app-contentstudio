@@ -1,18 +1,16 @@
-import {ProjectWizardStepForm} from './ProjectWizardStepForm';
-import {isBlank} from '../../../../../v6/features/utils/format/isBlank';
-import {type FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
-import {type ProjectViewItem} from '../../../view/ProjectViewItem';
+import { ProjectWizardStepForm } from './ProjectWizardStepForm';
+import { isBlank } from '../../../../../v6/shared/lib/format/isBlank';
+import { type FormItem } from '@enonic/lib-admin-ui/ui/form/FormItem';
+import { type ProjectViewItem } from '../../../view/ProjectViewItem';
 import Q from 'q';
-import {type SettingsType} from '../../../data/type/SettingsType';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ProjectApplicationsFormItem} from './element/ProjectApplicationsFormItem';
-import {type ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import {ProjectApplicationsFormParams} from './element/ProjectApplicationsFormParams';
-import {type Project} from '../../../data/project/Project';
+import { type SettingsType } from '../../../data/type/SettingsType';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { ProjectApplicationsFormItem } from './element/ProjectApplicationsFormItem';
+import { type ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import { ProjectApplicationsFormParams } from './element/ProjectApplicationsFormParams';
+import { type Project } from '../../../data/project/Project';
 
-export class ProjectApplicationsWizardStepForm
-    extends ProjectWizardStepForm {
-
+export class ProjectApplicationsWizardStepForm extends ProjectWizardStepForm {
     private applicationsFormItem: ProjectApplicationsFormItem;
 
     protected createFormItems(): FormItem[] {
@@ -20,7 +18,9 @@ export class ProjectApplicationsWizardStepForm
     }
 
     private createApplicationsFormItem(): ProjectApplicationsFormItem {
-        this.applicationsFormItem = new ProjectApplicationsFormItem(new ProjectApplicationsFormParams(this.item?.getData(), true));
+        this.applicationsFormItem = new ProjectApplicationsFormItem(
+            new ProjectApplicationsFormParams(this.item?.getData(), true),
+        );
         return this.applicationsFormItem;
     }
 
@@ -55,7 +55,6 @@ export class ProjectApplicationsWizardStepForm
             this.applicationsFormItem.getComboBox().addAndUpdatePortalApp(baseUrl);
         }
     }
-
 
     setParentProjects(projects: Project[]) {
         super.setParentProjects(projects);

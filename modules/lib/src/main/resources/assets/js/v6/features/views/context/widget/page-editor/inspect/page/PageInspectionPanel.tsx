@@ -1,12 +1,12 @@
-import {FieldRegistryProvider} from '@enonic/lib-admin-ui/form2';
-import {Button} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {type ReactElement, useCallback, useMemo, useState} from 'react';
-import {useI18n} from '../../../../../../hooks/useI18n';
-import {ConfirmationDialog} from '../../../../../../shared/dialogs/ConfirmationDialog';
-import {EditLockOverlay} from '../../../../../../shared/EditLockOverlay';
-import {FormRenderer} from '../../../../../../shared/form/FormRenderer';
-import {getAiFieldRegistry} from '../../../../../../store/ai/ai.field-registry';
+import { FieldRegistryProvider } from '@enonic/lib-admin-ui/form2';
+import { Button } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { type ReactElement, useCallback, useMemo, useState } from 'react';
+import { useI18n } from '../../../../../../../shared/lib/hooks/useI18n';
+import { ConfirmationDialog } from '../../../../../../shared/dialogs/ConfirmationDialog';
+import { EditLockOverlay } from '../../../../../../../shared/ui/EditLockOverlay';
+import { FormRenderer } from '../../../../../../shared/form/FormRenderer';
+import { getAiFieldRegistry } from '../../../../../../store/ai/ai.field-registry';
 import {
     $contentContext,
     $pageEditorLifecycle,
@@ -14,10 +14,14 @@ import {
     requestCustomizePage,
     usePageState,
 } from '../../../../../../store/page-editor';
-import {$isCustomizeVisible, $isPageInspectionEmpty, $pageConfigDescriptor} from '../../../../../../store/page-inspection.store';
-import {$wizardReadOnly} from '../../../../../../store/wizardContent.store';
-import {useInspectFormTracking} from '../useInspectFormTracking';
-import {PageControllerSelector} from './PageControllerSelector';
+import {
+    $isCustomizeVisible,
+    $isPageInspectionEmpty,
+    $pageConfigDescriptor,
+} from '../../../../../../store/page-inspection.store';
+import { $wizardReadOnly } from '../../../../../../store/wizardContent.store';
+import { useInspectFormTracking } from '../useInspectFormTracking';
+import { PageControllerSelector } from './PageControllerSelector';
 
 type ConfirmDialogState = {
     question: string;
@@ -73,12 +77,7 @@ export const PageInspectionPanel = (): ReactElement => {
                     <PageControllerSelector />
 
                     {isCustomizeVisible && (
-                        <Button
-                            label={customizeLabel}
-                            variant="outline"
-                            onClick={handleCustomize}
-                            className="w-full"
-                        />
+                        <Button label={customizeLabel} variant="outline" onClick={handleCustomize} className="w-full" />
                     )}
                 </div>
 
@@ -104,9 +103,7 @@ export const PageInspectionPanel = (): ReactElement => {
                     <ConfirmationDialog.Portal>
                         <ConfirmationDialog.Overlay />
                         <ConfirmationDialog.Content>
-                            <ConfirmationDialog.Body>
-                                {confirmDialog.question}
-                            </ConfirmationDialog.Body>
+                            <ConfirmationDialog.Body>{confirmDialog.question}</ConfirmationDialog.Body>
                             <ConfirmationDialog.Footer
                                 onConfirm={() => {
                                     confirmDialog.onConfirm();

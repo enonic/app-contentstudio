@@ -7,31 +7,31 @@ import {
     SortableList,
     type SortableListItemContext,
 } from '@enonic/lib-admin-ui/form2/components';
-import {cn} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {type ReactElement, useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {ComponentPath} from '../../../../../../app/page/region/ComponentPath';
-import {PageNavigationEvent} from '../../../../../../app/wizard/PageNavigationEvent';
-import {PageNavigationEventData} from '../../../../../../app/wizard/PageNavigationEventData';
-import {PageNavigationEventType} from '../../../../../../app/wizard/PageNavigationEventType';
-import {PageNavigationMediator} from '../../../../../../app/wizard/PageNavigationMediator';
-import {useI18n} from '../../../../hooks/useI18n';
-import {useSelectedPageOption} from '../../../../hooks/usePageOptions';
-import type {FlatNode} from '../../../../lib/tree-store';
-import {inspectItem, requestComponentMove} from '../../../../store/page-editor';
-import {$fragmentOptions, $isFragmentInspectionLoading} from '../../../../store/fragment-inspection.store';
+import { cn } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { type ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ComponentPath } from '../../../../../../app/page/region/ComponentPath';
+import { PageNavigationEvent } from '../../../../../../app/wizard/PageNavigationEvent';
+import { PageNavigationEventData } from '../../../../../../app/wizard/PageNavigationEventData';
+import { PageNavigationEventType } from '../../../../../../app/wizard/PageNavigationEventType';
+import { PageNavigationMediator } from '../../../../../../app/wizard/PageNavigationMediator';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { useSelectedPageOption } from '../../../../hooks/usePageOptions';
+import type { FlatNode } from '../../../../../shared/lib/tree-store';
+import { inspectItem, requestComponentMove } from '../../../../store/page-editor';
+import { $fragmentOptions, $isFragmentInspectionLoading } from '../../../../store/fragment-inspection.store';
 import {
     $isComponentInspectionLoading,
     $layoutDescriptorOptions,
     $partDescriptorOptions,
     isComponentReferenceMissing,
 } from '../../../../store/component-inspection.store';
-import {$inspectedPath, $page, $pageVersion} from '../../../../store/page-editor/store';
-import {$wizardReadOnly} from '../../../../store/wizardContent.store';
-import {$invalidComponentPaths, $validationVisibility} from '../../../../store/wizardValidation.store';
-import {EditLockOverlay} from '../../../../shared/EditLockOverlay';
-import {PageComponentsContextMenu} from './PageComponentsContextMenu';
-import {calcSpacerWidth, PageComponentsItem, type PageComponentPageMetadata} from './PageComponentsItem';
+import { $inspectedPath, $page, $pageVersion } from '../../../../store/page-editor/store';
+import { $wizardReadOnly } from '../../../../store/wizardContent.store';
+import { $invalidComponentPaths, $validationVisibility } from '../../../../store/wizardValidation.store';
+import { EditLockOverlay } from '../../../../../shared/ui/EditLockOverlay';
+import { PageComponentsContextMenu } from './PageComponentsContextMenu';
+import { calcSpacerWidth, PageComponentsItem, type PageComponentPageMetadata } from './PageComponentsItem';
 import {
     $componentsFlatNodes,
     $componentsTreeState,
@@ -43,7 +43,7 @@ import {
     remapExpandedIdsAfterMove,
     toggleComponentExpand,
 } from './pageComponents.store';
-import type {PageComponentNodeData} from './types';
+import type { PageComponentNodeData } from './types';
 
 const PAGE_COMPONENTS_VIEW_NAME = 'PageComponentsView';
 
@@ -51,13 +51,13 @@ const PAGE_COMPONENTS_VIEW_NAME = 'PageComponentsView';
 // ? After the drop, items snap to their new positions, preventing
 // ? dnd-kit from replaying a layout-shift animation when the
 // ? tree is rebuilt with changed positional keys.
-const animateLayoutChanges = ({isSorting}: {isSorting: boolean}): boolean => isSorting;
+const animateLayoutChanges = ({ isSorting }: { isSorting: boolean }): boolean => isSorting;
 
 export type PageComponentsViewProps = {
     showTitle?: boolean;
 };
 
-export const PageComponentsView = ({showTitle = false}: PageComponentsViewProps = {}): ReactElement => {
+export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProps = {}): ReactElement => {
     const containerRef = useRef<HTMLDivElement>(null);
     const componentsLabel = useI18n('field.components');
     const pageVersion = useStore($pageVersion);
@@ -106,79 +106,92 @@ export const PageComponentsView = ({showTitle = false}: PageComponentsViewProps 
             const el = containerRef.current?.querySelector<HTMLElement>(
                 `[data-node-id="${CSS.escape(inspectedPath)}"]`,
             );
-            el?.scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'nearest'});
+            el?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
         });
         return () => cancelAnimationFrame(handle);
     }, [inspectedPath]);
 
-    const resolveProjection = useCallback((info: SortableDragInfo): DropProjection | null => {
-        const sourceNode = flatNodes[info.activeIndex];
-        const overNode = flatNodes[info.overIndex];
-        if (sourceNode?.data == null || overNode == null || !sourceNode.data.draggable) {
-            return null;
-        }
+    const resolveProjection = useCallback(
+        (info: SortableDragInfo): DropProjection | null => {
+            const sourceNode = flatNodes[info.activeIndex];
+            const overNode = flatNodes[info.overIndex];
+            if (sourceNode?.data == null || overNode == null || !sourceNode.data.draggable) {
+                return null;
+            }
 
-        const treeState = $componentsTreeState.get();
-        const isLayoutDrag = sourceNode.data.nodeType === 'layout'
-            || (sourceNode.data.nodeType === 'fragment' && sourceNode.data.layoutFragment);
+            const treeState = $componentsTreeState.get();
+            const isLayoutDrag =
+                sourceNode.data.nodeType === 'layout' ||
+                (sourceNode.data.nodeType === 'fragment' && sourceNode.data.layoutFragment);
 
-        return projectTreeDrop({
-            nodes: toDropNodes(flatNodes),
-            activeId: sourceNode.id,
-            overId: overNode.id,
-            side: info.side,
-            direction: info.direction,
-            isContainerAllowed: (containerId) => !(isLayoutDrag && hasLayoutAncestor(treeState, containerId)),
-        });
-    }, [flatNodes]);
+            return projectTreeDrop({
+                nodes: toDropNodes(flatNodes),
+                activeId: sourceNode.id,
+                overId: overNode.id,
+                side: info.side,
+                direction: info.direction,
+                isContainerAllowed: (containerId) => !(isLayoutDrag && hasLayoutAncestor(treeState, containerId)),
+            });
+        },
+        [flatNodes],
+    );
 
-    const resolveDrop = useCallback((info: SortableDragInfo): SortableDropHint | null => {
-        const projection = resolveProjection(info);
-        if (projection == null) {
-            return null;
-        }
-        return {indent: calcSpacerWidth(projection.depth), allowed: projection.allowed};
-    }, [resolveProjection]);
+    const resolveDrop = useCallback(
+        (info: SortableDragInfo): SortableDropHint | null => {
+            const projection = resolveProjection(info);
+            if (projection == null) {
+                return null;
+            }
+            return { indent: calcSpacerWidth(projection.depth), allowed: projection.allowed };
+        },
+        [resolveProjection],
+    );
 
-    const handleMove = useCallback((_fromIndex: number, _toIndex: number, info?: SortableDragInfo): void => {
-        if (info == null) {
-            return;
-        }
-        const sourceNode = flatNodes[info.activeIndex];
-        if (sourceNode?.data == null) {
-            return;
-        }
+    const handleMove = useCallback(
+        (_fromIndex: number, _toIndex: number, info?: SortableDragInfo): void => {
+            if (info == null) {
+                return;
+            }
+            const sourceNode = flatNodes[info.activeIndex];
+            if (sourceNode?.data == null) {
+                return;
+            }
 
-        const projection = resolveProjection(info);
-        if (projection == null || !projection.allowed) {
-            return;
-        }
+            const projection = resolveProjection(info);
+            if (projection == null || !projection.allowed) {
+                return;
+            }
 
-        const targetComponentPath = `${projection.containerId}/${projection.index}`;
-        const fromPath = ComponentPath.fromString(sourceNode.id);
-        const toPath = ComponentPath.fromString(targetComponentPath);
+            const targetComponentPath = `${projection.containerId}/${projection.index}`;
+            const fromPath = ComponentPath.fromString(sourceNode.id);
+            const toPath = ComponentPath.fromString(targetComponentPath);
 
-        if (fromPath.equals(toPath)) {
-            return;
-        }
+            if (fromPath.equals(toPath)) {
+                return;
+            }
 
-        requestComponentMove(fromPath, toPath);
-        remapExpandedIdsAfterMove(sourceNode.id, targetComponentPath);
-        rebuildComponentsTree();
+            requestComponentMove(fromPath, toPath);
+            remapExpandedIdsAfterMove(sourceNode.id, targetComponentPath);
+            rebuildComponentsTree();
 
-        const movedPath = ComponentPath.fromString(computeMovedItemPath(sourceNode.id, targetComponentPath));
-        inspectItem(movedPath);
-        PageNavigationMediator.get().notify(
-            new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(movedPath)),
-        );
-    }, [flatNodes, resolveProjection]);
+            const movedPath = ComponentPath.fromString(computeMovedItemPath(sourceNode.id, targetComponentPath));
+            inspectItem(movedPath);
+            PageNavigationMediator.get().notify(
+                new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(movedPath)),
+            );
+        },
+        [flatNodes, resolveProjection],
+    );
 
-    const handleDragStart = useCallback((index: number): void => {
-        const node = flatNodes[index];
-        if (node?.isExpanded) {
-            collapseComponentNode(node.id);
-        }
-    }, [flatNodes]);
+    const handleDragStart = useCallback(
+        (index: number): void => {
+            const node = flatNodes[index];
+            if (node?.isExpanded) {
+                collapseComponentNode(node.id);
+            }
+        },
+        [flatNodes],
+    );
 
     const handleSelect = useCallback((nodeId: string): void => {
         const path = ComponentPath.fromString(nodeId);
@@ -192,38 +205,54 @@ export const PageComponentsView = ({showTitle = false}: PageComponentsViewProps 
         return node.data?.draggable ?? false;
     }, []);
 
-    const itemClassName = useCallback((
-        context: SortableListItemContext<FlatNode<PageComponentNodeData>>,
-    ): string => {
-        const isSelected = context.item.id === inspectedPath;
-        return cn(
-            'w-full px-2.5 select-none cursor-pointer',
-            isSelected ? 'bg-surface-selected text-alt [&>button]:text-alt' : 'hover:bg-surface-neutral-hover',
-        );
-    }, [inspectedPath]);
+    const itemClassName = useCallback(
+        (context: SortableListItemContext<FlatNode<PageComponentNodeData>>): string => {
+            const isSelected = context.item.id === inspectedPath;
+            return cn(
+                'w-full px-2.5 select-none cursor-pointer',
+                isSelected ? 'bg-surface-selected text-alt [&>button]:text-alt' : 'hover:bg-surface-neutral-hover',
+            );
+        },
+        [inspectedPath],
+    );
 
-    const renderItem = useCallback((
-        context: SortableListItemContext<FlatNode<PageComponentNodeData>>,
-    ): ReactElement | null => {
-        const isSelected = context.item.id === inspectedPath;
-        const referenceMissing = isComponentReferenceMissing(
-            context.item.id, page, fragmentOptions, descriptors, referenceLoading,
-        );
-        const isInvalid = showErrors && (invalidComponentPaths.has(context.item.id) || referenceMissing);
+    const renderItem = useCallback(
+        (context: SortableListItemContext<FlatNode<PageComponentNodeData>>): ReactElement | null => {
+            const isSelected = context.item.id === inspectedPath;
+            const referenceMissing = isComponentReferenceMissing(
+                context.item.id,
+                page,
+                fragmentOptions,
+                descriptors,
+                referenceLoading,
+            );
+            const isInvalid = showErrors && (invalidComponentPaths.has(context.item.id) || referenceMissing);
 
-        return (
-            <PageComponentsContextMenu node={context.item}>
-                <PageComponentsItem
-                    context={context}
-                    pageMetadata={pageMetadata}
-                    selected={isSelected}
-                    invalid={isInvalid}
-                    onToggle={toggleComponentExpand}
-                    onSelect={handleSelect}
-                />
-            </PageComponentsContextMenu>
-        );
-    }, [handleSelect, inspectedPath, pageMetadata, showErrors, invalidComponentPaths, page, fragmentOptions, descriptors, referenceLoading]);
+            return (
+                <PageComponentsContextMenu node={context.item}>
+                    <PageComponentsItem
+                        context={context}
+                        pageMetadata={pageMetadata}
+                        selected={isSelected}
+                        invalid={isInvalid}
+                        onToggle={toggleComponentExpand}
+                        onSelect={handleSelect}
+                    />
+                </PageComponentsContextMenu>
+            );
+        },
+        [
+            handleSelect,
+            inspectedPath,
+            pageMetadata,
+            showErrors,
+            invalidComponentPaths,
+            page,
+            fragmentOptions,
+            descriptors,
+            referenceLoading,
+        ],
+    );
 
     return (
         <EditLockOverlay locked={readOnly}>

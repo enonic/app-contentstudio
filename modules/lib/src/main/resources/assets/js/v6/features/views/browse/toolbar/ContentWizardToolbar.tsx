@@ -1,25 +1,25 @@
-import {type Action} from '@enonic/lib-admin-ui/ui/Action';
-import {Avatar, Button, cn, IconButton, Toggle, Toolbar, Tooltip} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {ArrowLeft, Link2} from 'lucide-react';
-import {type ReactElement, useEffect, useMemo, useState} from 'react';
-import {useI18n} from '../../../hooks/useI18n';
-import {LegacyElement} from '../../../shared/LegacyElement';
-import {JukeIcon} from '../../../shared/icons/JukeIcon';
-import {LayerIndicator} from '../../../shared/icons/LayerIndicator';
-import {ProjectIcon} from '../../../shared/icons/ProjectIcon';
-import {StatusIcon} from '../../../shared/icons/StatusIcon';
-import {StatusBadge} from '../../../shared/status/StatusBadge';
-import {$aiPluginDialogOpen, $aiRegisteredPlugins, closePluginDialog, openPluginDialog} from '../../../store/ai';
-import {setInspectSaveAction} from '../../../store/inspect-panel.store';
-import {$wizardToolbar} from '../../../store/wizardToolbar.store';
-import {formatContentFullPath} from '../../../utils/cms/content/paths';
-import {getInitials} from '../../../utils/format/initials';
-import {useElementVisibility} from '../../../utils/hooks/useElementVisibility';
-import {ContextToggle} from './ContextToggle';
-import {OverflowActionRow, type OverflowActionRowItem} from './OverflowActionRow';
-import {SplitActionButton} from './SplitActionButton';
-import {$wizardContentPathExists, $wizardReadOnly} from '../../../store/wizardContent.store';
+import { type Action } from '@enonic/lib-admin-ui/ui/Action';
+import { Avatar, Button, cn, IconButton, Toggle, Toolbar, Tooltip } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { ArrowLeft, Link2 } from 'lucide-react';
+import { type ReactElement, useEffect, useMemo, useState } from 'react';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { LegacyElement } from '../../../../shared/ui/LegacyElement';
+import { JukeIcon } from '../../../../shared/ui/icons/JukeIcon';
+import { LayerIndicator } from '../../../shared/icons/LayerIndicator';
+import { ProjectIcon } from '../../../../shared/ui/icons/ProjectIcon';
+import { StatusIcon } from '../../../../shared/ui/icons/StatusIcon';
+import { StatusBadge } from '../../../shared/status/StatusBadge';
+import { $aiPluginDialogOpen, $aiRegisteredPlugins, closePluginDialog, openPluginDialog } from '../../../store/ai';
+import { setInspectSaveAction } from '../../../store/inspect-panel.store';
+import { $wizardToolbar } from '../../../store/wizardToolbar.store';
+import { formatContentFullPath } from '../../../../shared/lib/cms/content/paths';
+import { getInitials } from '../../../../shared/lib/format/initials';
+import { useElementVisibility } from '../../../../shared/lib/hooks/useElementVisibility';
+import { ContextToggle } from './ContextToggle';
+import { OverflowActionRow, type OverflowActionRowItem } from './OverflowActionRow';
+import { SplitActionButton } from './SplitActionButton';
+import { $wizardContentPathExists, $wizardReadOnly } from '../../../store/wizardContent.store';
 
 export type ContentWizardToolbarProps = {
     onProjectBack?: () => void;
@@ -95,9 +95,13 @@ export const ContentWizardToolbar = ({
             'isContentDataInherited',
         ],
     });
-    const {'ai.contentOperator': isOperatorRegistered} = useStore($aiRegisteredPlugins, {keys: ['ai.contentOperator']});
-    const {'ai.contentOperator': isOperatorDialogOpen} = useStore($aiPluginDialogOpen, {keys: ['ai.contentOperator']});
-    const {exists: contentPathExists, fetching: isPathFetching} = useStore($wizardContentPathExists);
+    const { 'ai.contentOperator': isOperatorRegistered } = useStore($aiRegisteredPlugins, {
+        keys: ['ai.contentOperator'],
+    });
+    const { 'ai.contentOperator': isOperatorDialogOpen } = useStore($aiPluginDialogOpen, {
+        keys: ['ai.contentOperator'],
+    });
+    const { exists: contentPathExists, fetching: isPathFetching } = useStore($wizardContentPathExists);
     const readOnly = useStore($wizardReadOnly);
 
     // Delay disabling the split buttons until the fetch has been in-flight for 200ms.
@@ -136,13 +140,13 @@ export const ContentWizardToolbar = ({
 
     const toolbarActions: OverflowActionRowItem[] = useMemo(
         () => [
-            {id: 'save', action: saveAction},
-            {id: 'reset', action: resetAction},
-            {id: 'localize', action: localizeAction},
-            {id: 'archive', action: archiveAction},
-            {id: 'duplicate', action: duplicateAction},
-            {id: 'move', action: moveAction},
-            {id: 'preview', action: previewAction},
+            { id: 'save', action: saveAction },
+            { id: 'reset', action: resetAction },
+            { id: 'localize', action: localizeAction },
+            { id: 'archive', action: archiveAction },
+            { id: 'duplicate', action: duplicateAction },
+            { id: 'move', action: moveAction },
+            { id: 'preview', action: previewAction },
         ],
         [archiveAction, duplicateAction, localizeAction, moveAction, previewAction, resetAction, saveAction],
     );
@@ -168,7 +172,7 @@ export const ContentWizardToolbar = ({
         openRequestAction,
         createIssueAction,
     ];
-    const mobileSplitActions: Action[][] = [toolbarActions.map(({action}) => action), publishSplitActions];
+    const mobileSplitActions: Action[][] = [toolbarActions.map(({ action }) => action), publishSplitActions];
 
     const aiToggleClassName = cn(
         'hidden size-9 p-0 shrink-0 sm:flex',
@@ -352,6 +356,6 @@ ContentWizardToolbar.displayName = CONTENT_WIZARD_TOOLBAR_NAME;
 
 export class ContentWizardToolbarElement extends LegacyElement<typeof ContentWizardToolbar, ContentWizardToolbarProps> {
     constructor(props: ContentWizardToolbarProps) {
-        super({className: '', ...props}, ContentWizardToolbar);
+        super({ className: '', ...props }, ContentWizardToolbar);
     }
 }

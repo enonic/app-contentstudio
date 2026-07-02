@@ -1,8 +1,8 @@
-import {initBuiltInTypes} from '@enonic/lib-admin-ui/form2';
-import {computed, map} from 'nanostores';
-import {registerContentStudioInputTypes} from '../shared/form/input-types';
-import {syncMapStore} from '../utils/storage/sync';
-import {isWizardUrl} from '../utils/url/app';
+import { initBuiltInTypes } from '@enonic/lib-admin-ui/form2';
+import { computed, map } from 'nanostores';
+import { registerContentStudioInputTypes } from '../shared/form/input-types';
+import { syncMapStore } from '../../shared/lib/storage/sync';
+import { isWizardUrl } from '../../shared/lib/url/app';
 
 //
 // * Types
@@ -41,7 +41,7 @@ syncMapStore($app, SYNC_NAME, {
 // * Derived State
 //
 
-export const $isWizard = computed($app, ({page}) => page === 'wizard');
+export const $isWizard = computed($app, ({ page }) => page === 'wizard');
 
 //
 // * Public API
@@ -55,7 +55,7 @@ export function setTheme(theme: Theme): void {
  * Cycles through theme options: Light → Dark → System → Light
  */
 export function cycleTheme(): void {
-    const {theme} = $app.get();
+    const { theme } = $app.get();
 
     switch (theme) {
         case 'light':

@@ -1,8 +1,8 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {type LucideIcon, Monitor, Smartphone, Tablet, TvMinimal} from 'lucide-react';
-import {isBlank} from '../../../../../v6/features/utils/format/isBlank';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
+import { type LucideIcon, Monitor, Smartphone, Tablet, TvMinimal } from 'lucide-react';
+import { isBlank } from '../../../../../v6/shared/lib/format/isBlank';
 
 enum DeviceType {
     MONITOR,
@@ -51,7 +51,7 @@ export class EmulatorDevice implements Equitable {
         units: string,
         displayUnits: boolean,
         rotatable: boolean,
-        icon?: LucideIcon
+        icon?: LucideIcon,
     ) {
         this.name = name;
         this.deviceType = type;
@@ -149,7 +149,7 @@ export class EmulatorDevice implements Equitable {
                 '%',
                 true,
                 false,
-                Monitor
+                Monitor,
             );
         }
 
@@ -166,7 +166,7 @@ export class EmulatorDevice implements Equitable {
                 'px',
                 false,
                 true,
-                Smartphone
+                Smartphone,
             );
         }
 
@@ -183,7 +183,7 @@ export class EmulatorDevice implements Equitable {
                 'px',
                 false,
                 true,
-                Smartphone
+                Smartphone,
             );
         }
 
@@ -200,7 +200,7 @@ export class EmulatorDevice implements Equitable {
                 'px',
                 false,
                 true,
-                Smartphone
+                Smartphone,
             );
         }
 
@@ -217,7 +217,7 @@ export class EmulatorDevice implements Equitable {
                 'px',
                 false,
                 true,
-                Tablet
+                Tablet,
             );
         }
 
@@ -234,7 +234,7 @@ export class EmulatorDevice implements Equitable {
                 'px',
                 false,
                 false,
-                Monitor
+                Monitor,
             );
         }
 
@@ -251,7 +251,7 @@ export class EmulatorDevice implements Equitable {
                 'px',
                 false,
                 false,
-                Monitor
+                Monitor,
             );
         }
 
@@ -268,7 +268,7 @@ export class EmulatorDevice implements Equitable {
                 'px',
                 false,
                 false,
-                TvMinimal
+                TvMinimal,
             );
         }
 

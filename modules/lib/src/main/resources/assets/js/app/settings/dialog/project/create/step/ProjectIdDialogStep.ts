@@ -1,20 +1,18 @@
-import {type ProjectFormItem, ProjectFormItemBuilder} from '../../../../wizard/panel/form/element/ProjectFormItem';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
-import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
-import {ProjectDialogStep} from './ProjectDialogStep';
-import {type FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import { type ProjectFormItem, ProjectFormItemBuilder } from '../../../../wizard/panel/form/element/ProjectFormItem';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { TextInput } from '@enonic/lib-admin-ui/ui/text/TextInput';
+import { Validators } from '@enonic/lib-admin-ui/ui/form/Validators';
+import { ProjectDialogStep } from './ProjectDialogStep';
+import { type FormItem } from '@enonic/lib-admin-ui/ui/form/FormItem';
 import Q from 'q';
-import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
-import {isBlank} from '../../../../../../v6/features/utils/format/isBlank';
-import {ProjectListRequest} from '../../../../resource/ProjectListRequest';
-import {type Project} from '../../../../data/project/Project';
-import {ProjectNameFormItem} from '../../../../wizard/panel/form/element/ProjectNameFormItem';
-import {ProjectIdDialogStepData} from '../data/ProjectIdDialogStepData';
+import { ValidationResult } from '@enonic/lib-admin-ui/ui/form/ValidationResult';
+import { isBlank } from '../../../../../../v6/shared/lib/format/isBlank';
+import { ProjectListRequest } from '../../../../resource/ProjectListRequest';
+import { type Project } from '../../../../data/project/Project';
+import { ProjectNameFormItem } from '../../../../wizard/panel/form/element/ProjectNameFormItem';
+import { ProjectIdDialogStepData } from '../data/ProjectIdDialogStepData';
 
-export class ProjectIdDialogStep
-    extends ProjectDialogStep {
-
+export class ProjectIdDialogStep extends ProjectDialogStep {
     private displayNameInput: TextInput;
 
     private displayNameFormItem: FormItem;
@@ -24,7 +22,11 @@ export class ProjectIdDialogStep
     private descriptionInput: TextInput;
 
     createFormItems(): FormItem[] {
-        return [this.createProjectDisplayNameFormItem(), this.createProjectNameFormItem(), this.createDescriptionFormItem()];
+        return [
+            this.createProjectDisplayNameFormItem(),
+            this.createProjectNameFormItem(),
+            this.createDescriptionFormItem(),
+        ];
     }
 
     setDisplayName(value: string, silent?: boolean): void {
@@ -58,7 +60,9 @@ export class ProjectIdDialogStep
     private createDescriptionFormItem(): FormItem {
         this.descriptionInput = new TextInput();
 
-        return new ProjectFormItemBuilder(this.descriptionInput).setLabel(i18n('field.description')).build() as ProjectFormItem;
+        return new ProjectFormItemBuilder(this.descriptionInput)
+            .setLabel(i18n('field.description'))
+            .build() as ProjectFormItem;
     }
 
     isOptional(): boolean {
@@ -98,9 +102,7 @@ export class ProjectIdDialogStep
 
         const data: ProjectIdDialogStepData = this.getData();
 
-        return !isBlank(data.getName()) ||
-               !isBlank(data.getDisplayName()) ||
-               !isBlank(data.getDescription());
+        return !isBlank(data.getName()) || !isBlank(data.getDisplayName()) || !isBlank(data.getDescription());
     }
 
     isValid(): Q.Promise<boolean> {

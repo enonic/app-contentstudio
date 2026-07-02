@@ -1,9 +1,9 @@
-import {cn, Combobox} from '@enonic/ui';
-import {Box, Columns2} from 'lucide-react';
-import type {ReactElement} from 'react';
-import {useI18n} from '../../../../../../hooks/useI18n';
-import {SelectorPopup} from '../SelectorPopup';
-import {useComponentDescriptorSelector} from './hooks/useComponentDescriptorSelector';
+import { cn, Combobox } from '@enonic/ui';
+import { Box, Columns2 } from 'lucide-react';
+import type { ReactElement } from 'react';
+import { useI18n } from '../../../../../../../shared/lib/hooks/useI18n';
+import { SelectorPopup } from '../SelectorPopup';
+import { useComponentDescriptorSelector } from './hooks/useComponentDescriptorSelector';
 
 const COMPONENT_TYPE_ICON = {
     part: Box,
@@ -16,7 +16,9 @@ type ComponentDescriptorSelectorProps = {
 
 const COMPONENT_DESCRIPTOR_SELECTOR_NAME = 'ComponentDescriptorSelector';
 
-export const ComponentDescriptorSelector = ({componentType}: ComponentDescriptorSelectorProps): ReactElement | null => {
+export const ComponentDescriptorSelector = ({
+    componentType,
+}: ComponentDescriptorSelectorProps): ReactElement | null => {
     const {
         filteredOptions,
         selectedOption,
@@ -80,7 +82,7 @@ export const ComponentDescriptorSelector = ({componentType}: ComponentDescriptor
                         </Combobox.Search>
                     </Combobox.Control>
                     <SelectorPopup options={filteredOptions} emptyLabel={noMatchingLabel}>
-                        {option => (
+                        {(option) => (
                             <div className="flex flex-col overflow-hidden">
                                 <span className="leading-5.5 font-semibold truncate group-data-[tone=inverse]:text-alt">
                                     {option.label}

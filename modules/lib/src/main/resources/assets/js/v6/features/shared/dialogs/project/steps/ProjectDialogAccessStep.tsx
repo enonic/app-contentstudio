@@ -1,20 +1,24 @@
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
-import {Dialog, GridList, IconButton, RadioGroup} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {CircleUserRound, X} from 'lucide-react';
-import {ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
-import {useI18n} from '../../../../hooks/useI18n';
-import {$projectDialog, setProjectDialogAccessMode, setProjectDialogPermissions} from '../../../../store/dialogs/projectDialog.store';
-import {$principals, getPrincipalsByKeys} from '../../../../store/principals.store';
-import {InlineButton} from '../../../InlineButton';
-import {ItemLabel} from '../../../ItemLabel';
-import {PrincipalSelector} from '../../../selectors/PrincipalSelector';
+import { Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { PrincipalType } from '@enonic/lib-admin-ui/security/PrincipalType';
+import { Dialog, GridList, IconButton, RadioGroup } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { CircleUserRound, X } from 'lucide-react';
+import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import {
+    $projectDialog,
+    setProjectDialogAccessMode,
+    setProjectDialogPermissions,
+} from '../../../../store/dialogs/projectDialog.store';
+import { $principals, getPrincipalsByKeys } from '../../../../store/principals.store';
+import { InlineButton } from '../../../../../shared/ui/InlineButton';
+import { ItemLabel } from '../../../../../shared/ui/ItemLabel';
+import { PrincipalSelector } from '../../../selectors/PrincipalSelector';
 
 const filterAnonymousUserOut = (principal: Principal) => !principal.getKey().isAnonymous();
 
 export const ProjectDialogAccessStepHeader = (): ReactElement => {
-    const {mode, title} = useStore($projectDialog, {keys: ['mode', 'title']});
+    const { mode, title } = useStore($projectDialog, { keys: ['mode', 'title'] });
     const titleLabel = useI18n('dialog.project.wizard.access.title');
     const descriptionLabel = useI18n('dialog.project.wizard.access.description');
 
@@ -35,15 +39,19 @@ export type ProjectDialogAccessStepContentProps = {
     locked?: boolean;
 };
 
-export const ProjectDialogAccessStepContent = ({locked = false}: ProjectDialogAccessStepContentProps): ReactElement => {
+export const ProjectDialogAccessStepContent = ({
+    locked = false,
+}: ProjectDialogAccessStepContentProps): ReactElement => {
     // Hooks
-    const {principals} = useStore($principals);
-    const {parentProjects, accessMode, permissions} = useStore($projectDialog, {keys: ['parentProjects', 'accessMode', 'permissions']});
+    const { principals } = useStore($principals);
+    const { parentProjects, accessMode, permissions } = useStore($projectDialog, {
+        keys: ['parentProjects', 'accessMode', 'permissions'],
+    });
     const [selection, setSelection] = useState<string[]>(permissions.map((principal) => principal.getKey().toString()));
     const [accessModeValue, setAccessModeValue] = useState(accessMode || '');
     const selectedPrincipals = useMemo(
         () => principals.filter((principal) => selection.includes(principal.getKey().toString())),
-        [principals, selection]
+        [principals, selection],
     );
 
     // Sync with the store
@@ -117,17 +125,24 @@ export const ProjectDialogAccessStepContent = ({locked = false}: ProjectDialogAc
         (principalKey: string): void => {
             setSelection(selection.filter((id) => id !== principalKey));
         },
-        [setSelection, selection]
+        [setSelection, selection],
     );
 
     return (
         <Dialog.StepContent step="step-access" locked={locked}>
             <div className="flex justify-between gap-3 mb-2 h-6.5">
                 <label className="font-semibold">{accessModeLabel}</label>
-                {canCopyFromParentProject && <InlineButton onClick={handleCopyFromParentProject} label={copyFromParentLabel} />}
+                {canCopyFromParentProject && (
+                    <InlineButton onClick={handleCopyFromParentProject} label={copyFromParentLabel} />
+                )}
             </div>
 
-            <RadioGroup.Root name="accessMode" value={accessModeValue} onValueChange={setAccessModeValue} className="rounded-md -mx-2">
+            <RadioGroup.Root
+                name="accessMode"
+                value={accessModeValue}
+                onValueChange={setAccessModeValue}
+                className="rounded-md -mx-2"
+            >
                 <RadioGroup.Item value="public">
                     <RadioGroup.Indicator />
                     <span className="ml-2">{publicLabel}</span>
@@ -178,7 +193,11 @@ export const ProjectDialogAccessStepContent = ({locked = false}: ProjectDialogAc
                                         </GridList.Cell>
                                         <GridList.Cell>
                                             <GridList.Action>
-                                                <IconButton variant="text" icon={X} onClick={() => handleUnselect(key)} />
+                                                <IconButton
+                                                    variant="text"
+                                                    icon={X}
+                                                    onClick={() => handleUnselect(key)}
+                                                />
                                             </GridList.Action>
                                         </GridList.Cell>
                                     </GridList.Row>

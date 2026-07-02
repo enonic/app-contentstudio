@@ -1,14 +1,14 @@
-import {describe, it, expect, beforeEach} from 'vitest';
-import type {MovedContentItem} from '../../../app/browse/MovedContentItem';
-import {emitContentMoved} from './socket.store';
-import {$filterRefreshNeeded, clearFilterRefreshNeeded} from './filter-tree.store';
+import { describe, it, expect, beforeEach } from 'vitest';
+import type { MovedContentItem } from '../../../app/browse/MovedContentItem';
+import { emitContentMoved } from '../../shared/socket/socket.store';
+import { $filterRefreshNeeded, clearFilterRefreshNeeded } from './filter-tree.store';
 
 // Builds a MovedContentItem-like object whose new path (from the summary) and old
 // path expose the parent paths the $contentMoved guard compares.
 function createMovedItem(oldParent: string, newParent: string): MovedContentItem {
     const makeParentPath = (path: string) => ({
         toString: () => path,
-        equals: (other: {toString: () => string}) => other.toString() === path,
+        equals: (other: { toString: () => string }) => other.toString() === path,
     });
 
     const newPath = {

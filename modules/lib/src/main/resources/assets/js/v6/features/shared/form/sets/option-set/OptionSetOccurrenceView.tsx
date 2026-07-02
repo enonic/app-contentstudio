@@ -1,17 +1,17 @@
-import {cn, ContextMenu, FilledOctagonAlert, usePortalFocusContainer} from '@enonic/ui';
-import {forwardRef, type MouseEvent, type ReactElement, type ReactNode, useCallback, useRef, useState} from 'react';
-import {useI18n} from '../../../../hooks/useI18n';
-import type {FormItem} from '@enonic/lib-admin-ui/form/FormItem';
-import type {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {useCloseOnScroll} from '../../../../hooks/useCloseOnScroll';
-import {useIsNewOccurrence, useSetOccurrenceLabel} from '../set-occurrence';
-import {ItemLabel} from '../../../ItemLabel';
-import {MoreVertical} from 'lucide-react';
-import {OptionSetConfirmAdd, SetConfirmDelete, SetConfirmOverlay, useConfirmPosition} from '../set-confirmation';
-import {FormOptionSet} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
-import {isLockedSingleOccurrence} from './isLockedSingleOccurrence';
-import {useOptionSetHasBody} from './useOptionSetHasBody';
-import {useOptionSetSelection} from './useOptionSetSelection';
+import { cn, ContextMenu, FilledOctagonAlert, usePortalFocusContainer } from '@enonic/ui';
+import { forwardRef, type MouseEvent, type ReactElement, type ReactNode, useCallback, useRef, useState } from 'react';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import type { FormItem } from '@enonic/lib-admin-ui/form/FormItem';
+import type { PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
+import { useCloseOnScroll } from '../../../../../shared/lib/hooks/useCloseOnScroll';
+import { useIsNewOccurrence, useSetOccurrenceLabel } from '../set-occurrence';
+import { ItemLabel } from '../../../../../shared/ui/ItemLabel';
+import { MoreVertical } from 'lucide-react';
+import { OptionSetConfirmAdd, SetConfirmDelete, SetConfirmOverlay, useConfirmPosition } from '../set-confirmation';
+import { FormOptionSet } from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
+import { isLockedSingleOccurrence } from './isLockedSingleOccurrence';
+import { useOptionSetHasBody } from './useOptionSetHasBody';
+import { useOptionSetSelection } from './useOptionSetSelection';
 
 type OptionSetOccurrenceViewProps = {
     index: number;
@@ -56,7 +56,7 @@ export const OptionSetOccurrenceView = forwardRef<HTMLDivElement, OptionSetOccur
             onReset,
             children,
         },
-        ref
+        ref,
     ): ReactElement => {
         const anchorRef = useRef<HTMLDivElement>(null);
         const confirmationRef = useRef<HTMLDivElement>(null);
@@ -67,7 +67,7 @@ export const OptionSetOccurrenceView = forwardRef<HTMLDivElement, OptionSetOccur
 
         const isNew = useIsNewOccurrence(isNewProp);
         const hasBody = useOptionSetHasBody(optionSet, propertySet);
-        const {selectedNames} = useOptionSetSelection(optionSet, propertySet);
+        const { selectedNames } = useOptionSetSelection(optionSet, propertySet);
         const canDelete = canRemove || (onReset != null && selectedNames.length > 0);
         const label = useSetOccurrenceLabel(propertySet, formItems, fallbackLabel);
 
@@ -76,7 +76,7 @@ export const OptionSetOccurrenceView = forwardRef<HTMLDivElement, OptionSetOccur
         const showBody = expanded || !showHeader;
         const showExpandedChrome = expanded && hasBody;
         const isConfirming = confirmingDelete || confirmingAdd != null;
-        const confirmationPosition = useConfirmPosition({enabled: isConfirming, anchorRef, confirmationRef});
+        const confirmationPosition = useConfirmPosition({ enabled: isConfirming, anchorRef, confirmationRef });
 
         useCloseOnScroll(menuOpen, () => setMenuOpen(false));
         usePortalFocusContainer(confirmationRef, isConfirming);
@@ -110,7 +110,7 @@ export const OptionSetOccurrenceView = forwardRef<HTMLDivElement, OptionSetOccur
                 if (mode === 'above') onAddAbove(index, selectedName);
                 else if (mode === 'below') onAddBelow(index, selectedName);
             },
-            [confirmingAdd, onAddAbove, onAddBelow, index]
+            [confirmingAdd, onAddAbove, onAddBelow, index],
         );
         const handleToggle = useCallback(() => {
             if (!hasBody) return;
@@ -134,7 +134,9 @@ export const OptionSetOccurrenceView = forwardRef<HTMLDivElement, OptionSetOccur
         }, [canRemove, onRemove, onReset, index]);
         const handleDotsClick = useCallback((e: MouseEvent<HTMLButtonElement>) => {
             e.stopPropagation();
-            e.currentTarget.dispatchEvent(new MouseEvent('contextmenu', {bubbles: true, clientX: e.clientX, clientY: e.clientY}));
+            e.currentTarget.dispatchEvent(
+                new MouseEvent('contextmenu', { bubbles: true, clientX: e.clientX, clientY: e.clientY }),
+            );
         }, []);
 
         return (
@@ -148,7 +150,7 @@ export const OptionSetOccurrenceView = forwardRef<HTMLDivElement, OptionSetOccur
                 <div
                     className={cn(
                         isConfirming && 'pointer-events-none select-none',
-                        confirmingDelete && 'relative z-40 bg-surface-neutral'
+                        confirmingDelete && 'relative z-40 bg-surface-neutral',
                     )}
                     inert={isConfirming}
                 >
@@ -180,7 +182,7 @@ export const OptionSetOccurrenceView = forwardRef<HTMLDivElement, OptionSetOccur
                                 showExpandedChrome && menuOpen && 'bg-surface-selected-hover',
                                 showExpandedChrome && !menuOpen && 'hover:bg-surface-selected-hover',
                                 !showExpandedChrome && menuOpen && 'bg-surface-neutral-hover',
-                                !showExpandedChrome && !menuOpen && 'hover:bg-surface-neutral-hover'
+                                !showExpandedChrome && !menuOpen && 'hover:bg-surface-neutral-hover',
                             )}
                             data-tone={showExpandedChrome ? 'inverse' : undefined}
                         >
@@ -191,7 +193,7 @@ export const OptionSetOccurrenceView = forwardRef<HTMLDivElement, OptionSetOccur
                                         ref={anchorRef}
                                         className={cn(
                                             'grid flex-1 min-w-0 items-center grid-cols-[1fr_auto] rounded',
-                                            showExpandedChrome && 'text-alt rounded-b-none'
+                                            showExpandedChrome && 'text-alt rounded-b-none',
                                         )}
                                     >
                                         <button
@@ -199,7 +201,7 @@ export const OptionSetOccurrenceView = forwardRef<HTMLDivElement, OptionSetOccur
                                             className={cn(
                                                 'flex items-center gap-1.5 truncate text-left min-w-0 p-2.5 pr-0',
                                                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset',
-                                                hasBody ? 'cursor-pointer' : 'cursor-default'
+                                                hasBody ? 'cursor-pointer' : 'cursor-default',
                                             )}
                                             aria-expanded={hasBody ? expanded : undefined}
                                             onClick={handleToggle}
@@ -210,7 +212,9 @@ export const OptionSetOccurrenceView = forwardRef<HTMLDivElement, OptionSetOccur
                                                 secondary={label.secondary}
                                                 className="min-w-0"
                                             />
-                                            {hasErrors && !expanded && <FilledOctagonAlert size={16} className="text-error shrink-0" />}
+                                            {hasErrors && !expanded && (
+                                                <FilledOctagonAlert size={16} className="text-error shrink-0" />
+                                            )}
                                         </button>
                                         <button
                                             type="button"
@@ -242,7 +246,10 @@ export const OptionSetOccurrenceView = forwardRef<HTMLDivElement, OptionSetOccur
 
                     {showBody && hasBody && (
                         <div
-                            className={cn('flex flex-col gap-7.5 border px-4 py-4 border-bdr-soft', showHeader ? 'border-t-0' : 'rounded')}
+                            className={cn(
+                                'flex flex-col gap-7.5 border px-4 py-4 border-bdr-soft',
+                                showHeader ? 'border-t-0' : 'rounded',
+                            )}
                         >
                             {children}
                         </div>
@@ -250,7 +257,7 @@ export const OptionSetOccurrenceView = forwardRef<HTMLDivElement, OptionSetOccur
                 </div>
             </div>
         );
-    }
+    },
 );
 
 OptionSetOccurrenceView.displayName = OPTION_SET_OCCURRENCE_VIEW_NAME;

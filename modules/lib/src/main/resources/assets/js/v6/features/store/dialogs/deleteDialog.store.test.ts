@@ -1,10 +1,6 @@
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {ContentId} from '../../../../app/content/ContentId';
-import {
-    emitContentArchived,
-    emitContentDeleted,
-    emitContentUpdated,
-} from '../socket.store';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ContentId } from '../../../../app/content/ContentId';
+import { emitContentArchived, emitContentDeleted, emitContentUpdated } from '../../../shared/socket/socket.store';
 import {
     $deleteDialog,
     $deleteInboundIds,
@@ -21,19 +17,14 @@ import {
     flushPromises,
 } from './dialog.store.test.utils';
 
-const {
-    mockFetchContentSummaries,
-    mockResolveForDelete,
-    mockArchiveContent,
-    mockCleanupTask,
-    mockTrackTask,
-} = vi.hoisted(() => ({
-    mockFetchContentSummaries: vi.fn(),
-    mockResolveForDelete: vi.fn(),
-    mockArchiveContent: vi.fn(),
-    mockCleanupTask: vi.fn(),
-    mockTrackTask: vi.fn(),
-}));
+const { mockFetchContentSummaries, mockResolveForDelete, mockArchiveContent, mockCleanupTask, mockTrackTask } =
+    vi.hoisted(() => ({
+        mockFetchContentSummaries: vi.fn(),
+        mockResolveForDelete: vi.fn(),
+        mockArchiveContent: vi.fn(),
+        mockCleanupTask: vi.fn(),
+        mockTrackTask: vi.fn(),
+    }));
 
 vi.mock('../../api/content', () => ({
     fetchContentSummaries: mockFetchContentSummaries,
@@ -49,19 +40,20 @@ vi.mock('../../services/task.service', () => ({
     trackTask: mockTrackTask,
 }));
 
-type InboundSpec = {target: string; sources: string[]};
+type InboundSpec = { target: string; sources: string[] };
 
 // Mimics ContentWithRefsResult: getContentIds() + getInboundDependencies(),
 // where each inbound dependency carries the target id and its referencing source ids.
 function createDeleteResolveResult(contentIds: string[], inbound: InboundSpec[] = []) {
     return {
-        getContentIds: () => contentIds.map(id => new ContentId(id)),
-        getInboundDependencies: () => inbound.map(({target, sources}) => ({
-            getId: () => new ContentId(target),
-            getInboundDependencies: () => sources.map(id => new ContentId(id)),
-        })),
+        getContentIds: () => contentIds.map((id) => new ContentId(id)),
+        getInboundDependencies: () =>
+            inbound.map(({ target, sources }) => ({
+                getId: () => new ContentId(target),
+                getInboundDependencies: () => sources.map((id) => new ContentId(id)),
+            })),
         hasInboundDependencies: () => inbound.length > 0,
-        hasInboundDependency: (id: string) => inbound.some(dep => dep.target === id),
+        hasInboundDependency: (id: string) => inbound.some((dep) => dep.target === id),
     };
 }
 
@@ -76,7 +68,7 @@ async function flushDebouncedReload(): Promise<void> {
 const referenceRemovalEventCases = [
     {
         name: 'updated',
-        emit: (ids: string[]) => emitContentUpdated(ids.map(id => createMockContent(id))),
+        emit: (ids: string[]) => emitContentUpdated(ids.map((id) => createMockContent(id))),
     },
     {
         name: 'deleted',
@@ -107,11 +99,13 @@ describe('deleteDialog.store', () => {
 
     it.each(referenceRemovalEventCases)(
         'clears the inbound reference when the referencing content is $name externally',
-        async ({emit}) => {
+        async ({ emit }) => {
             const item = createMockContent('item-1');
 
             mockResolveForDelete
-                .mockResolvedValueOnce(createDeleteResolveResult(['item-1'], [{target: 'item-1', sources: ['ref-1']}]))
+                .mockResolvedValueOnce(
+                    createDeleteResolveResult(['item-1'], [{ target: 'item-1', sources: ['ref-1'] }]),
+                )
                 .mockResolvedValueOnce(createDeleteResolveResult(['item-1'], []));
 
             openDeleteDialog([item]);
@@ -132,7 +126,7 @@ describe('deleteDialog.store', () => {
         const item = createMockContent('item-1');
 
         mockResolveForDelete.mockResolvedValue(
-            createDeleteResolveResult(['item-1'], [{target: 'item-1', sources: ['ref-1']}]),
+            createDeleteResolveResult(['item-1'], [{ target: 'item-1', sources: ['ref-1'] }]),
         );
 
         openDeleteDialog([item]);
@@ -149,11 +143,12 @@ describe('deleteDialog.store', () => {
 
     it('loads dependant summaries in windows while counting all by id', async () => {
         const item = createMockContent('item-1');
-        const dependantIds = Array.from({length: 40}, (_, index) => `dep-${index}`);
+        const dependantIds = Array.from({ length: 40 }, (_, index) => `dep-${index}`);
 
         mockResolveForDelete.mockResolvedValue(createDeleteResolveResult(['item-1', ...dependantIds]));
         mockFetchContentSummaries.mockImplementation((ids: ContentId[]) =>
-            Promise.resolve(ids.map(id => createMockContent(id.toString()))));
+            Promise.resolve(ids.map((id) => createMockContent(id.toString()))),
+        );
 
         openDeleteDialog([item]);
         await flushInitialReload();

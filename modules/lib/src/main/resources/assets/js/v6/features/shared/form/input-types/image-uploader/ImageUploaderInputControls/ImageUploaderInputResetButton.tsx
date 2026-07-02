@@ -1,12 +1,17 @@
-import {type ReactElement, useCallback, useEffect, useRef, useState} from 'react';
-import {useI18n} from '../../../../../hooks/useI18n';
-import {useImageUploaderContext} from '../ImageUploaderContext';
-import {isPropertySetDirty, resetCropInPropertySet, resetFocusInPropertySet, resetPropertySet} from '../lib/propertySet';
-import {type Point} from '../lib/types';
-import {Button} from '@enonic/ui';
+import { type ReactElement, useCallback, useEffect, useRef, useState } from 'react';
+import { useI18n } from '../../../../../../shared/lib/hooks/useI18n';
+import { useImageUploaderContext } from '../ImageUploaderContext';
+import {
+    isPropertySetDirty,
+    resetCropInPropertySet,
+    resetFocusInPropertySet,
+    resetPropertySet,
+} from '../lib/propertySet';
+import { type Point } from '../lib/types';
+import { Button } from '@enonic/ui';
 
 export const ImageUploaderInputResetButton = (): ReactElement | null => {
-    const {mode, value, crop, focus, dimensions, setCrop, setFocus, reset} = useImageUploaderContext();
+    const { mode, value, crop, focus, dimensions, setCrop, setFocus, reset } = useImageUploaderContext();
     const resetLabel = useI18n('action.reset');
     const [isDirty, setIsDirty] = useState(false);
     const [hasFocusMoved, setHasFocusMoved] = useState(false);
@@ -51,7 +56,7 @@ export const ImageUploaderInputResetButton = (): ReactElement | null => {
         if (resetCropInPropertySet(value)) {
             setCrop(null);
             if (dimensions) {
-                setFocus({x: dimensions.w / 2, y: dimensions.h / 2});
+                setFocus({ x: dimensions.w / 2, y: dimensions.h / 2 });
             }
         }
     }, [value, dimensions, setCrop, setFocus]);

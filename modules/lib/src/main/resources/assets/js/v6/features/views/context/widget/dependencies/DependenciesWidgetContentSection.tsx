@@ -1,15 +1,11 @@
-import {ReactElement} from 'react';
-import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
-import {ContentIcon} from '../../../../shared/icons/ContentIcon';
-import {DottedDownArrow} from '../../../../shared/icons/DottedDownArrow';
+import { ReactElement } from 'react';
+import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
+import { ContentIcon } from '../../../../../shared/ui/icons/ContentIcon';
+import { DottedDownArrow } from '../../../../../shared/ui/icons/DottedDownArrow';
 
 const DEPENDENCIES_WIDGET_CONTENT_SECTION_NAME = 'DependenciesWidgetContentSection';
 
-export const DependenciesWidgetContentSection = ({
-    content,
-}: {
-    content: ContentSummary;
-}): ReactElement => {
+export const DependenciesWidgetContentSection = ({ content }: { content: ContentSummary }): ReactElement => {
     return (
         <section
             data-component={DEPENDENCIES_WIDGET_CONTENT_SECTION_NAME}

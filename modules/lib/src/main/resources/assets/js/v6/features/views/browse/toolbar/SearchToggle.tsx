@@ -1,23 +1,23 @@
-import {type Action} from '@enonic/lib-admin-ui/ui/Action';
-import {cn, Toggle, Toolbar, Tooltip} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {Search} from 'lucide-react';
-import {type ReactElement, useEffect, useRef} from 'react';
-import {useAction} from '../../../hooks/useAction';
-import {useI18n} from '../../../hooks/useI18n';
-import {$isContentFilterOpen} from '../../../store/contentFilter.store';
+import { type Action } from '@enonic/lib-admin-ui/ui/Action';
+import { cn, Toggle, Toolbar, Tooltip } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { Search } from 'lucide-react';
+import { type ReactElement, useEffect, useRef } from 'react';
+import { useAction } from '../../../../shared/lib/hooks/useAction';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { $isContentFilterOpen } from '../../../store/contentFilter.store';
 
 type Props = {
     action: Action;
     className?: string;
 };
 
-export const SearchToggle = ({action, className}: Props): ReactElement => {
+export const SearchToggle = ({ action, className }: Props): ReactElement => {
     const toggleRef = useRef<HTMLButtonElement>(null);
     const isContentFilterOpen = useStore($isContentFilterOpen);
     const wasContentFilterOpen = useRef(isContentFilterOpen);
 
-    const {label, enabled, execute} = useAction(action);
+    const { label, enabled, execute } = useAction(action);
 
     const showReachLabel = useI18n('tooltip.filterPanel.show');
     const hideReachLabel = useI18n('tooltip.filterPanel.hide');
@@ -37,7 +37,7 @@ export const SearchToggle = ({action, className}: Props): ReactElement => {
                 <Toggle
                     ref={toggleRef}
                     className={cn('size-9 p-0', className)}
-                    size='sm'
+                    size="sm"
                     iconStrokeWidth={2}
                     aria-label={searchLabel}
                     startIcon={Search}

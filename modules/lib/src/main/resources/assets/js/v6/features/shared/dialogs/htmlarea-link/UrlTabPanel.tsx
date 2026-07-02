@@ -1,20 +1,20 @@
-import {Checkbox, Input, Selector} from '@enonic/ui';
-import {type ReactElement} from 'react';
-import {useI18n} from '../../../hooks/useI18n';
-import {type UrlProtocol, useHtmlAreaLinkDialogContext} from './HtmlAreaLinkDialogContext';
+import { Checkbox, Input, Selector } from '@enonic/ui';
+import { type ReactElement } from 'react';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { type UrlProtocol, useHtmlAreaLinkDialogContext } from './HtmlAreaLinkDialogContext';
 
 const COMPONENT_NAME = 'UrlTabPanel';
 
-const PROTOCOLS: {value: UrlProtocol; label: string}[] = [
-    {value: 'https://', label: 'Https'},
-    {value: 'http://', label: 'Http'},
-    {value: 'ftp://', label: 'Ftp'},
-    {value: 'tel:', label: 'Tel'},
+const PROTOCOLS: { value: UrlProtocol; label: string }[] = [
+    { value: 'https://', label: 'Https' },
+    { value: 'http://', label: 'Http' },
+    { value: 'ftp://', label: 'Ftp' },
+    { value: 'tel:', label: 'Tel' },
 ];
 
 export const UrlTabPanel = (): ReactElement => {
     const {
-        state: {urlProtocol, urlValue, urlTarget},
+        state: { urlProtocol, urlValue, urlTarget },
         validationErrors: errors,
         setUrlProtocol,
         setUrlValue,
@@ -27,19 +27,16 @@ export const UrlTabPanel = (): ReactElement => {
     const relativeLabel = useI18n('dialog.link.urlprotocols.relative');
 
     return (
-        <div data-component={COMPONENT_NAME} className='flex flex-col gap-4 pt-4'>
-            <div className='flex flex-col'>
-                <label className='mb-2 block text-base font-semibold text-main'>{urlLabel} *</label>
-                <div className='flex gap-2'>
-                    <Selector.Root
-                        value={urlProtocol}
-                        onValueChange={(val) => setUrlProtocol(val as UrlProtocol)}
-                    >
-                        <Selector.Trigger className='w-fit shrink-0'>
-                            <span className='flex-1'>{`<${typeLabel}>`}</span>
+        <div data-component={COMPONENT_NAME} className="flex flex-col gap-4 pt-4">
+            <div className="flex flex-col">
+                <label className="mb-2 block text-base font-semibold text-main">{urlLabel} *</label>
+                <div className="flex gap-2">
+                    <Selector.Root value={urlProtocol} onValueChange={(val) => setUrlProtocol(val as UrlProtocol)}>
+                        <Selector.Trigger className="w-fit shrink-0">
+                            <span className="flex-1">{`<${typeLabel}>`}</span>
                             <Selector.Icon />
                         </Selector.Trigger>
-                        <Selector.Content onPointerDown={event => event.stopPropagation()}>
+                        <Selector.Content onPointerDown={(event) => event.stopPropagation()}>
                             <Selector.Viewport>
                                 {PROTOCOLS.map((p) => (
                                     <Selector.Item key={p.value} value={p.value}>
@@ -47,7 +44,7 @@ export const UrlTabPanel = (): ReactElement => {
                                         <Selector.ItemIndicator />
                                     </Selector.Item>
                                 ))}
-                                <Selector.Item value=''>
+                                <Selector.Item value="">
                                     <Selector.ItemText>{relativeLabel}</Selector.ItemText>
                                     <Selector.ItemIndicator />
                                 </Selector.Item>
@@ -59,7 +56,7 @@ export const UrlTabPanel = (): ReactElement => {
                         required
                         error={errors.url}
                         onChange={(e) => setUrlValue((e.target as HTMLInputElement).value)}
-                        className='flex-1'
+                        className="flex-1"
                     />
                 </div>
             </div>

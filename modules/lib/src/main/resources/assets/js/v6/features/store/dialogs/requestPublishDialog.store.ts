@@ -1,15 +1,15 @@
-import {showError, showFeedback, showSuccess, showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {computed, map} from 'nanostores';
-import {type ContentId} from '../../../../app/content/ContentId';
-import type {ContentSummary} from '../../../../app/content/ContentSummary';
-import {IssueType} from '../../../../app/issue/IssueType';
-import {PublishRequest} from '../../../../app/issue/PublishRequest';
-import {CreateIssueRequest} from '../../../../app/issue/resource/CreateIssueRequest';
-import {fetchContentSummaries} from '../../api/content';
-import {markAsReady, resolvePublishDependencies} from '../../api/publish';
-import {buildItems, dedupeItems, getItemIds} from '../../utils/cms/content/buildItems';
+import { showError, showFeedback, showSuccess, showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { computed, map } from 'nanostores';
+import { type ContentId } from '../../../../app/content/ContentId';
+import type { ContentSummary } from '../../../../app/content/ContentSummary';
+import { IssueType } from '../../../../app/issue/IssueType';
+import { PublishRequest } from '../../../../app/issue/PublishRequest';
+import { CreateIssueRequest } from '../../../../app/issue/resource/CreateIssueRequest';
+import { fetchContentSummaries } from '../../api/content';
+import { markAsReady, resolvePublishDependencies } from '../../api/publish';
+import { buildItems, dedupeItems, getItemIds } from '../../../shared/lib/cms/content/buildItems';
 import {
     DEPENDANT_LOAD_SIZE,
     createDependantWindowLoader,
@@ -17,17 +17,17 @@ import {
     orderSummariesByIds,
     pruneDependantWindow,
 } from '../../utils/cms/content/dependantWindow';
-import {calcDependantsSelection, nextDependantExclusions} from '../../utils/cms/content/dependantsSelection';
-import {hasContentIdInIds, uniqueIds} from '../../utils/cms/content/ids';
-import {findContentIdsWithCreatedDescendants} from '../../utils/cms/content/paths';
+import { calcDependantsSelection, nextDependantExclusions } from '../../../shared/lib/cms/content/dependantsSelection';
+import { hasContentIdInIds, uniqueIds } from '../../../shared/lib/cms/content/ids';
+import { findContentIdsWithCreatedDescendants } from '../../../shared/lib/cms/content/paths';
 import {
     createContentIdSet,
     patchTrackedContentItems,
     refreshTrackedMainContentItems,
     removeTrackedContentItems,
-} from '../../utils/cms/content/trackedItems';
-import {createGuardedSocketHandler} from '../../utils/store/createGuardedSocketHandler';
-import {createDebounce} from '../../utils/timing/createDebounce';
+} from '../../../shared/lib/cms/content/trackedItems';
+import { createGuardedSocketHandler } from '../../../shared/lib/store/createGuardedSocketHandler';
+import { createDebounce } from '../../../shared/lib/timing/createDebounce';
 import {
     $contentArchived,
     $contentCreated,
@@ -35,7 +35,7 @@ import {
     $contentPublished,
     $contentRenamed,
     $contentUpdated,
-} from '../socket.store';
+} from '../../../shared/socket/socket.store';
 
 const DEPENDENCY_RELOAD_DELAY_MS = 150;
 
@@ -95,30 +95,29 @@ const $requestPublishChecks = map<RequestPublishChecksStore>(structuredClone(ini
 
 export const $requestPublishDialogCreateCount = computed(
     $requestPublishDialog,
-    ({items, dependantIds, excludedDependantIds}) => {
-        const includedDependants = dependantIds.filter(id =>
-            !hasContentIdInIds(id, excludedDependantIds));
+    ({ items, dependantIds, excludedDependantIds }) => {
+        const includedDependants = dependantIds.filter((id) => !hasContentIdInIds(id, excludedDependantIds));
         return items.length + includedDependants.length;
     },
 );
 
 export const $requestPublishHasMoreDependants = computed(
     $requestPublishDialog,
-    ({dependantIds, dependantWindow}) => dependantWindow < dependantIds.length,
+    ({ dependantIds, dependantWindow }) => dependantWindow < dependantIds.length,
 );
 
 export const $requestPublishDependantsSelection = computed(
     $requestPublishDialog,
-    ({dependantIds, requiredDependantIds, excludedDependantIds}) =>
+    ({ dependantIds, requiredDependantIds, excludedDependantIds }) =>
         calcDependantsSelection(dependantIds, requiredDependantIds, excludedDependantIds),
 );
 
 export const $requestPublishDialogErrors = computed(
     [$requestPublishDialog, $requestPublishChecks],
-    ({excludedDependantIds}, checks) => {
-        const excludedSet = new Set<string>(excludedDependantIds.map(id => id.toString()));
-        const invalidCount = checks.invalidIds.filter(id => !excludedSet.has(id.toString())).length;
-        const inProgressCount = checks.inProgressIds.filter(id => !excludedSet.has(id.toString())).length;
+    ({ excludedDependantIds }, checks) => {
+        const excludedSet = new Set<string>(excludedDependantIds.map((id) => id.toString()));
+        const invalidCount = checks.invalidIds.filter((id) => !excludedSet.has(id.toString())).length;
+        const inProgressCount = checks.inProgressIds.filter((id) => !excludedSet.has(id.toString())).length;
 
         return {
             invalid: {
@@ -135,23 +134,25 @@ export const $requestPublishDialogErrors = computed(
 
 export const $requestPublishPublishableCount = computed(
     $requestPublishDialog,
-    ({publishableContentIds, excludedDependantIds}) => {
-        return publishableContentIds.filter(id => !hasContentIdInIds(id, excludedDependantIds)).length;
+    ({ publishableContentIds, excludedDependantIds }) => {
+        return publishableContentIds.filter((id) => !hasContentIdInIds(id, excludedDependantIds)).length;
     },
 );
 
 export const $isRequestPublishReady = computed(
-    [$requestPublishDialog, $requestPublishDialogCreateCount, $requestPublishPublishableCount, $requestPublishDialogErrors],
-    ({loading, failed}, total, publishableCount, errors): boolean => {
+    [
+        $requestPublishDialog,
+        $requestPublishDialogCreateCount,
+        $requestPublishPublishableCount,
+        $requestPublishDialogErrors,
+    ],
+    ({ loading, failed }, total, publishableCount, errors): boolean => {
         if (loading || failed) {
             return false;
         }
         // Publish permission is intentionally not a gate: a publish request is how a
         // user without publish rights asks someone else to publish.
-        return total > 0 &&
-               publishableCount > 0 &&
-               errors.invalid.count === 0 &&
-               errors.inProgress.count === 0;
+        return total > 0 && publishableCount > 0 && errors.invalid.count === 0 && errors.inProgress.count === 0;
     },
 );
 
@@ -164,12 +165,12 @@ const reloadDependenciesDebounced = createDebounce(() => {
 }, DEPENDENCY_RELOAD_DELAY_MS);
 
 const hasOpenRequestPublishDialog = (): boolean => {
-    const {open, items} = $requestPublishDialog.get();
+    const { open, items } = $requestPublishDialog.get();
     return open && items.length > 0;
 };
 
 const isRequestPublishDialogActive = (): boolean => {
-    const {submitting} = $requestPublishDialog.get();
+    const { submitting } = $requestPublishDialog.get();
     return hasOpenRequestPublishDialog() && !submitting;
 };
 
@@ -203,7 +204,7 @@ const onRequestPublishSocketEvent = <T>(
             return;
         }
 
-        const {submitting} = $requestPublishDialog.get();
+        const { submitting } = $requestPublishDialog.get();
         if (submitting && hasOpenRequestPublishDialog()) {
             queueRequestPublishSocketChanges(getRemovedIds?.(event));
             return;
@@ -215,7 +216,7 @@ const onRequestPublishSocketEvent = <T>(
 
 const patchTrackedRequestPublishItems = (
     updates: ContentSummary[],
-): {updatedMain: boolean; updatedDependants: boolean} => {
+): { updatedMain: boolean; updatedDependants: boolean } => {
     const change = patchTrackedContentItems($requestPublishDialog.get(), updates);
 
     if (change.changed) {
@@ -282,12 +283,12 @@ const syncQueuedRequestPublishSocketChanges = async (): Promise<void> => {
 
 const removeTrackedRequestPublishItems = (
     idsToRemove: Set<string>,
-): {removedMain: boolean; removedDependants: boolean} => {
+): { removedMain: boolean; removedDependants: boolean } => {
     const change = removeTrackedContentItems($requestPublishDialog.get(), idsToRemove);
     const pruned = pruneDependantWindow(change.changed ? change.state : $requestPublishDialog.get(), idsToRemove);
 
     // The publishable set can also reference a removed dependant beyond the loaded window.
-    const nextPublishableIds = pruned.state.publishableContentIds.filter(id => !idsToRemove.has(id.toString()));
+    const nextPublishableIds = pruned.state.publishableContentIds.filter((id) => !idsToRemove.has(id.toString()));
     const publishableChanged = nextPublishableIds.length !== pruned.state.publishableContentIds.length;
 
     if (change.changed || pruned.changed || publishableChanged) {
@@ -306,7 +307,7 @@ const removeTrackedRequestPublishItems = (
 };
 
 const handleRemovedRequestPublishItems = (idsToRemove: Set<string>): void => {
-    const {removedMain, removedDependants} = removeTrackedRequestPublishItems(idsToRemove);
+    const { removedMain, removedDependants } = removeTrackedRequestPublishItems(idsToRemove);
 
     if ($requestPublishDialog.get().items.length === 0) {
         resetRequestPublishDialogContext();
@@ -344,10 +345,7 @@ export const resetRequestPublishDialogContext = (): void => {
     resetChecksState();
 };
 
-export const openRequestPublishDialog = (
-    items?: ContentSummary[],
-    includeChildren = false,
-): void => {
+export const openRequestPublishDialog = (items?: ContentSummary[], includeChildren = false): void => {
     resetRequestPublishDialogContext();
 
     if (items && items.length > 0) {
@@ -369,18 +367,17 @@ export const setRequestPublishAssignees = (assigneeIds: string[]): void => {
     $requestPublishDialog.setKey('assigneeIds', [...assigneeIds]);
 };
 
-export const setRequestPublishItems = (
-    items: ContentSummary[],
-    includeChildren = false,
-): void => {
+export const setRequestPublishItems = (items: ContentSummary[], includeChildren = false): void => {
     const nextItems = dedupeItems(items);
 
     if (nextItems.length === 0) {
-        $requestPublishDialog.set(resetDependenciesState({
-            ...$requestPublishDialog.get(),
-            items: [],
-            excludeChildrenIds: [],
-        }));
+        $requestPublishDialog.set(
+            resetDependenciesState({
+                ...$requestPublishDialog.get(),
+                items: [],
+                excludeChildrenIds: [],
+            }),
+        );
         resetChecksState();
         return;
     }
@@ -403,7 +400,7 @@ export const setRequestPublishItemIncludeChildren = (id: ContentId, includeChild
     if (includeChildren && alreadyExcluded) {
         $requestPublishDialog.setKey(
             'excludeChildrenIds',
-            state.excludeChildrenIds.filter(item => !item.equals(id)),
+            state.excludeChildrenIds.filter((item) => !item.equals(id)),
         );
         reloadDependenciesDebounced();
         return;
@@ -416,8 +413,8 @@ export const setRequestPublishItemIncludeChildren = (id: ContentId, includeChild
 };
 
 export const removeRequestPublishItem = (id: ContentId): void => {
-    const {items, excludeChildrenIds} = $requestPublishDialog.get();
-    const newItems = items.filter(item => !item.getContentId().equals(id));
+    const { items, excludeChildrenIds } = $requestPublishDialog.get();
+    const newItems = items.filter((item) => !item.getContentId().equals(id));
 
     if (newItems.length === 0) {
         resetRequestPublishDialogContext();
@@ -427,7 +424,7 @@ export const removeRequestPublishItem = (id: ContentId): void => {
     $requestPublishDialog.set({
         ...$requestPublishDialog.get(),
         items: newItems,
-        excludeChildrenIds: excludeChildrenIds.filter(i => !i.equals(id)),
+        excludeChildrenIds: excludeChildrenIds.filter((i) => !i.equals(id)),
     });
 
     reloadDependenciesDebounced();
@@ -443,7 +440,7 @@ export const setRequestPublishDependantIncluded = (id: ContentId, included: bool
     if (included && isExcluded) {
         $requestPublishDialog.setKey(
             'excludedDependantIds',
-            state.excludedDependantIds.filter(item => !item.equals(id)),
+            state.excludedDependantIds.filter((item) => !item.equals(id)),
         );
         return;
     }
@@ -454,7 +451,7 @@ export const setRequestPublishDependantIncluded = (id: ContentId, included: bool
 };
 
 export const toggleRequestPublishDependantsSelection = (): void => {
-    const {dependantIds, requiredDependantIds, excludedDependantIds} = $requestPublishDialog.get();
+    const { dependantIds, requiredDependantIds, excludedDependantIds } = $requestPublishDialog.get();
     const selection = calcDependantsSelection(dependantIds, requiredDependantIds, excludedDependantIds);
     if (selection.selectableIds.length === 0) {
         return;
@@ -464,37 +461,31 @@ export const toggleRequestPublishDependantsSelection = (): void => {
 };
 
 export const excludeInvalidRequestPublishItems = (): void => {
-    const {dependantIds, excludedDependantIds, requiredDependantIds} = $requestPublishDialog.get();
+    const { dependantIds, excludedDependantIds, requiredDependantIds } = $requestPublishDialog.get();
     const invalidIds = $requestPublishChecks.get().invalidIds;
     const idsToExclude = invalidIds
-        .filter(id => hasContentIdInIds(id, dependantIds))
-        .filter(id => !hasContentIdInIds(id, requiredDependantIds));
+        .filter((id) => hasContentIdInIds(id, dependantIds))
+        .filter((id) => !hasContentIdInIds(id, requiredDependantIds));
 
     if (idsToExclude.length === 0) {
         return;
     }
 
-    $requestPublishDialog.setKey(
-        'excludedDependantIds',
-        uniqueIds([...excludedDependantIds, ...idsToExclude]),
-    );
+    $requestPublishDialog.setKey('excludedDependantIds', uniqueIds([...excludedDependantIds, ...idsToExclude]));
 };
 
 export const excludeInProgressRequestPublishItems = (): void => {
-    const {dependantIds, excludedDependantIds, requiredDependantIds} = $requestPublishDialog.get();
+    const { dependantIds, excludedDependantIds, requiredDependantIds } = $requestPublishDialog.get();
     const inProgressIds = $requestPublishChecks.get().inProgressIds;
     const idsToExclude = inProgressIds
-        .filter(id => hasContentIdInIds(id, dependantIds))
-        .filter(id => !hasContentIdInIds(id, requiredDependantIds));
+        .filter((id) => hasContentIdInIds(id, dependantIds))
+        .filter((id) => !hasContentIdInIds(id, requiredDependantIds));
 
     if (idsToExclude.length === 0) {
         return;
     }
 
-    $requestPublishDialog.setKey(
-        'excludedDependantIds',
-        uniqueIds([...excludedDependantIds, ...idsToExclude]),
-    );
+    $requestPublishDialog.setKey('excludedDependantIds', uniqueIds([...excludedDependantIds, ...idsToExclude]));
 };
 
 export const markAllAsReadyInProgressRequestPublishItems = async (): Promise<void> => {
@@ -503,7 +494,7 @@ export const markAllAsReadyInProgressRequestPublishItems = async (): Promise<voi
         return;
     }
 
-    const {inProgressIds} = $requestPublishChecks.get();
+    const { inProgressIds } = $requestPublishChecks.get();
     if (inProgressIds.length === 0) {
         return;
     }
@@ -543,9 +534,8 @@ export const submitRequestPublishDialog = async (): Promise<void> => {
 
     $requestPublishDialog.setKey('submitting', true);
 
-    const approvers = state.assigneeIds.map(id => PrincipalKey.fromString(id));
-    const publishRequest = PublishRequest
-        .create()
+    const approvers = state.assigneeIds.map((id) => PrincipalKey.fromString(id));
+    const publishRequest = PublishRequest.create()
         .addExcludeIds(state.excludedDependantIds)
         .addPublishRequestItems(buildItems(state.items, state.excludeChildrenIds))
         .build();
@@ -585,12 +575,14 @@ const reloadRequestPublishDependencies = async (): Promise<void> => {
     const itemIds = getItemIds(state.items);
 
     if (itemIds.length === 0) {
-        $requestPublishDialog.set(resetDependenciesState({
-            ...state,
-            dependants: [],
-            excludedDependantIds: [],
-            requiredDependantIds: [],
-        }));
+        $requestPublishDialog.set(
+            resetDependenciesState({
+                ...state,
+                dependants: [],
+                excludedDependantIds: [],
+                requiredDependantIds: [],
+            }),
+        );
         resetChecksState();
         return;
     }
@@ -611,8 +603,7 @@ const reloadRequestPublishDependencies = async (): Promise<void> => {
             return;
         }
 
-        const allDependantIds = result.getDependants()
-            .filter(id => !hasContentIdInIds(id, itemIds));
+        const allDependantIds = result.getDependants().filter((id) => !hasContentIdInIds(id, itemIds));
 
         const firstWindow = await fetchDependantWindowSlice(allDependantIds, 0);
 
@@ -632,23 +623,24 @@ const reloadRequestPublishDependencies = async (): Promise<void> => {
         const dependants = orderSummariesByIds(firstWindow.summaries, allDependantIds);
 
         const latestState = $requestPublishDialog.get();
-        const requiredDependantIds = result.getRequired()
-            .filter(id => hasContentIdInIds(id, allDependantIds));
+        const requiredDependantIds = result.getRequired().filter((id) => hasContentIdInIds(id, allDependantIds));
         const nextExcludedDependantIds = latestState.excludedDependantIds
-            .filter(id => hasContentIdInIds(id, allDependantIds))
-            .filter(id => !hasContentIdInIds(id, requiredDependantIds));
+            .filter((id) => hasContentIdInIds(id, allDependantIds))
+            .filter((id) => !hasContentIdInIds(id, requiredDependantIds));
 
         const invalidIds = result.getInvalid();
-        const inProgressIds = result.getInProgress().filter(id => !hasContentIdInIds(id, invalidIds));
+        const inProgressIds = result.getInProgress().filter((id) => !hasContentIdInIds(id, invalidIds));
 
         const isExcludable = (id: ContentId): boolean => {
-            return !hasContentIdInIds(id, itemIds) &&
-                   !hasContentIdInIds(id, requiredDependantIds) &&
-                   hasContentIdInIds(id, allDependantIds);
+            return (
+                !hasContentIdInIds(id, itemIds) &&
+                !hasContentIdInIds(id, requiredDependantIds) &&
+                hasContentIdInIds(id, allDependantIds)
+            );
         };
 
-        const invalidExcludable = invalidIds.length > 0 && invalidIds.every(id => isExcludable(id));
-        const inProgressExcludable = inProgressIds.length > 0 && inProgressIds.every(id => isExcludable(id));
+        const invalidExcludable = invalidIds.length > 0 && invalidIds.every((id) => isExcludable(id));
+        const inProgressExcludable = inProgressIds.length > 0 && inProgressIds.every((id) => isExcludable(id));
 
         $requestPublishDialog.set({
             ...latestState,
@@ -686,9 +678,10 @@ const markIdsReady = async (ids: ContentId[]): Promise<ContentId[]> => {
     try {
         await markAsReady(ids);
         const count = ids.length;
-        const message = count > 1
-            ? i18n('notify.item.markedAsReady.multiple', count)
-            : i18n('notify.item.markedAsReady', ids[0].toString());
+        const message =
+            count > 1
+                ? i18n('notify.item.markedAsReady.multiple', count)
+                : i18n('notify.item.markedAsReady', ids[0].toString());
         showFeedback(message);
         return ids;
     } catch (error) {
@@ -697,37 +690,58 @@ const markIdsReady = async (ids: ContentId[]): Promise<ContentId[]> => {
     }
 };
 
-$contentCreated.subscribe(onRequestPublishSocketEvent((event) => {
-    const mainItemIds = findContentIdsWithCreatedDescendants($requestPublishDialog.get().items, event.data);
-    if (mainItemIds.length === 0) {
-        return;
-    }
+$contentCreated.subscribe(
+    onRequestPublishSocketEvent((event) => {
+        const mainItemIds = findContentIdsWithCreatedDescendants($requestPublishDialog.get().items, event.data);
+        if (mainItemIds.length === 0) {
+            return;
+        }
 
-    void refreshRequestPublishMainItems(mainItemIds).finally(() => {
-        reloadDependenciesDebounced();
-    });
-}));
+        void refreshRequestPublishMainItems(mainItemIds).finally(() => {
+            reloadDependenciesDebounced();
+        });
+    }),
+);
 
-$contentUpdated.subscribe(onRequestPublishSocketEvent((event) => {
-    const {updatedMain, updatedDependants} = patchTrackedRequestPublishItems(event.data);
+$contentUpdated.subscribe(
+    onRequestPublishSocketEvent((event) => {
+        const { updatedMain, updatedDependants } = patchTrackedRequestPublishItems(event.data);
 
-    if (updatedMain || updatedDependants) {
-        reloadDependenciesDebounced();
-    }
-}));
+        if (updatedMain || updatedDependants) {
+            reloadDependenciesDebounced();
+        }
+    }),
+);
 
-$contentRenamed.subscribe(onRequestPublishSocketEvent((event) => {
-    patchTrackedRequestPublishItems(event.data.items);
-}));
+$contentRenamed.subscribe(
+    onRequestPublishSocketEvent((event) => {
+        patchTrackedRequestPublishItems(event.data.items);
+    }),
+);
 
-$contentDeleted.subscribe(onRequestPublishSocketEvent((event) => {
-    handleRemovedRequestPublishItems(createContentIdSet(event.data));
-}, (event) => event.data.map(item => item.getContentId().toString())));
+$contentDeleted.subscribe(
+    onRequestPublishSocketEvent(
+        (event) => {
+            handleRemovedRequestPublishItems(createContentIdSet(event.data));
+        },
+        (event) => event.data.map((item) => item.getContentId().toString()),
+    ),
+);
 
-$contentArchived.subscribe(onRequestPublishSocketEvent((event) => {
-    handleRemovedRequestPublishItems(createContentIdSet(event.data));
-}, (event) => event.data.map(item => item.getContentId().toString())));
+$contentArchived.subscribe(
+    onRequestPublishSocketEvent(
+        (event) => {
+            handleRemovedRequestPublishItems(createContentIdSet(event.data));
+        },
+        (event) => event.data.map((item) => item.getContentId().toString()),
+    ),
+);
 
-$contentPublished.subscribe(onRequestPublishSocketEvent((event) => {
-    handleRemovedRequestPublishItems(createContentIdSet(event.data));
-}, (event) => event.data.map(item => item.getContentId().toString())));
+$contentPublished.subscribe(
+    onRequestPublishSocketEvent(
+        (event) => {
+            handleRemovedRequestPublishItems(createContentIdSet(event.data));
+        },
+        (event) => event.data.map((item) => item.getContentId().toString()),
+    ),
+);

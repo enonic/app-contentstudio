@@ -1,7 +1,7 @@
-import {type ReactElement} from 'react';
-import {type Project} from '../../../../app/settings/data/project/Project';
-import {ProjectIcon} from '../icons/ProjectIcon';
-import {ItemLabel, type ItemLabelProps} from '../ItemLabel';
+import { type ReactElement } from 'react';
+import { type Project } from '../../../../app/settings/data/project/Project';
+import { ProjectIcon } from '../../../shared/ui/icons/ProjectIcon';
+import { ItemLabel, type ItemLabelProps } from '../../../shared/ui/ItemLabel';
 
 const PROJECT_LABEL_NAME = 'ProjectLabel';
 

@@ -1,11 +1,11 @@
-import type {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import type {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
-import {Checkbox, cn, Combobox, Listbox, useCombobox, type ComboboxRootProps} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {useEffect, useId, useMemo, useState, type ReactElement} from 'react';
-import {$principals, loadPrincipals} from '../../store/principals.store';
-import {useDebouncedCallback} from '../../utils/hooks/useDebouncedCallback';
-import {PrincipalLabel} from '../PrincipalLabel';
+import type { Principal } from '@enonic/lib-admin-ui/security/Principal';
+import type { PrincipalType } from '@enonic/lib-admin-ui/security/PrincipalType';
+import { Checkbox, cn, Combobox, Listbox, useCombobox, type ComboboxRootProps } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { useEffect, useId, useMemo, useState, type ReactElement } from 'react';
+import { $principals, loadPrincipals } from '../../store/principals.store';
+import { useDebouncedCallback } from '../../../shared/lib/hooks/useDebouncedCallback';
+import { PrincipalLabel } from '../../../shared/ui/PrincipalLabel';
 
 const PRINCIPAL_SELECTOR_NAME = 'PrincipalSelector';
 const DEFAULT_DEBOUNCE = 500;
@@ -37,7 +37,7 @@ export const PrincipalSelector = ({
     disabled,
     className,
 }: PrincipalSelectorProps): ReactElement => {
-    const {principals} = useStore($principals);
+    const { principals } = useStore($principals);
     const baseId = useId();
     const inputId = `${PRINCIPAL_SELECTOR_NAME}-${baseId}-input`;
     const [searchValue, setSearchValue] = useState('');
@@ -50,7 +50,9 @@ export const PrincipalSelector = ({
     const filtered = useMemo(() => {
         if (!searchValue) return allowedPrincipals;
 
-        return allowedPrincipals.filter((principal) => principal.getDisplayName().toLowerCase().includes(searchValue.toLowerCase()));
+        return allowedPrincipals.filter((principal) =>
+            principal.getDisplayName().toLowerCase().includes(searchValue.toLowerCase()),
+        );
     }, [allowedPrincipals, searchValue]);
 
     const debouncedLoadPrincipals = useDebouncedCallback((searchValue: string) => {
@@ -63,7 +65,11 @@ export const PrincipalSelector = ({
 
     return (
         <div data-component={PRINCIPAL_SELECTOR_NAME} className={cn('flex flex-col gap-2', className)}>
-            {label && <label htmlFor={inputId} className="font-semibold">{label}</label>}
+            {label && (
+                <label htmlFor={inputId} className="font-semibold">
+                    {label}
+                </label>
+            )}
             <Combobox.Root
                 value={searchValue}
                 onChange={setSearchValue}
@@ -85,7 +91,11 @@ export const PrincipalSelector = ({
                     </Combobox.Control>
                     <Combobox.Portal>
                         <Combobox.Popup>
-                            <PrincipalSelectorList items={filtered} selectionMode={selectionMode} emptyLabel={emptyLabel} />
+                            <PrincipalSelectorList
+                                items={filtered}
+                                selectionMode={selectionMode}
+                                emptyLabel={emptyLabel}
+                            />
                         </Combobox.Popup>
                     </Combobox.Portal>
                 </Combobox.Content>
@@ -103,8 +113,8 @@ type PrincipalSelectorListProps = {
 };
 
 const PrincipalSelectorList = (props: PrincipalSelectorListProps): ReactElement => {
-    const {items, selectionMode, emptyLabel} = props;
-    const {selection} = useCombobox();
+    const { items, selectionMode, emptyLabel } = props;
+    const { selection } = useCombobox();
 
     return (
         <Combobox.ListContent className="max-h-60 rounded-sm">
@@ -115,7 +125,11 @@ const PrincipalSelectorList = (props: PrincipalSelectorListProps): ReactElement 
                     <Listbox.Item key={key} value={key}>
                         <PrincipalLabel principal={principal} className="flex-1" />
                         {selectionMode !== 'single' && (
-                            <Checkbox tabIndex={-1} checked={selection.has(key)} onClick={(event) => event.preventDefault()} />
+                            <Checkbox
+                                tabIndex={-1}
+                                checked={selection.has(key)}
+                                onClick={(event) => event.preventDefault()}
+                            />
                         )}
                     </Listbox.Item>
                 );

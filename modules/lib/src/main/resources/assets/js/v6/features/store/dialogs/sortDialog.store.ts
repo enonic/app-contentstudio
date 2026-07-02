@@ -1,20 +1,20 @@
-import {showError, showSuccess} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {QueryField} from '@enonic/lib-admin-ui/query/QueryField';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {computed, map} from 'nanostores';
-import {ContentId} from '../../../../app/content/ContentId';
-import type {ContentSummary} from '../../../../app/content/ContentSummary';
-import type {ContentServerChangeItem} from '../../../../app/event/ContentServerChangeItem';
-import {ContentSummaryAndCompareStatusFetcher} from '../../../../app/resource/ContentSummaryAndCompareStatusFetcher';
-import {OrderChildContentRequest} from '../../../../app/resource/OrderChildContentRequest';
-import {OrderContentRequest} from '../../../../app/resource/OrderContentRequest';
-import {ChildOrder} from '../../../../app/resource/order/ChildOrder';
-import {FieldOrderExprBuilder} from '../../../../app/resource/order/FieldOrderExpr';
-import {OrderChildMovement} from '../../../../app/resource/order/OrderChildMovement';
-import {OrderChildMovements} from '../../../../app/resource/order/OrderChildMovements';
-import {fetchContentByIds} from '../../api/content-fetcher';
-import {$contentCache, getMissingIds} from '../content.store';
-import {$contentArchived, $contentDeleted, type ContentEvent} from '../socket.store';
+import { showError, showSuccess } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { QueryField } from '@enonic/lib-admin-ui/query/QueryField';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { computed, map } from 'nanostores';
+import { ContentId } from '../../../../app/content/ContentId';
+import type { ContentSummary } from '../../../../app/content/ContentSummary';
+import type { ContentServerChangeItem } from '../../../../app/event/ContentServerChangeItem';
+import { ContentSummaryAndCompareStatusFetcher } from '../../../../app/resource/ContentSummaryAndCompareStatusFetcher';
+import { OrderChildContentRequest } from '../../../../app/resource/OrderChildContentRequest';
+import { OrderContentRequest } from '../../../../app/resource/OrderContentRequest';
+import { ChildOrder } from '../../../../app/resource/order/ChildOrder';
+import { FieldOrderExprBuilder } from '../../../../app/resource/order/FieldOrderExpr';
+import { OrderChildMovement } from '../../../../app/resource/order/OrderChildMovement';
+import { OrderChildMovements } from '../../../../app/resource/order/OrderChildMovements';
+import { fetchContentByIds } from '../../api/content-fetcher';
+import { $contentCache, getMissingIds } from '../content.store';
+import { $contentArchived, $contentDeleted, type ContentEvent } from '../../../shared/socket/socket.store';
 import type {
     SortDialogRow,
     SortDirection,
@@ -65,15 +65,15 @@ const initialState: SortDialogStore = {
 };
 
 const SORT_OPTION_MAP: Record<SortOrderOptionId, SortOrderOption> = {
-    'modified:ASC': {element: 'modified', direction: 'ASC'},
-    'modified:DESC': {element: 'modified', direction: 'DESC'},
-    'created:ASC': {element: 'created', direction: 'ASC'},
-    'created:DESC': {element: 'created', direction: 'DESC'},
-    'displayName:ASC': {element: 'displayName', direction: 'ASC'},
-    'displayName:DESC': {element: 'displayName', direction: 'DESC'},
-    'publish:ASC': {element: 'publish', direction: 'ASC'},
-    'publish:DESC': {element: 'publish', direction: 'DESC'},
-    manual: {element: 'manual', direction: 'DESC'},
+    'modified:ASC': { element: 'modified', direction: 'ASC' },
+    'modified:DESC': { element: 'modified', direction: 'DESC' },
+    'created:ASC': { element: 'created', direction: 'ASC' },
+    'created:DESC': { element: 'created', direction: 'DESC' },
+    'displayName:ASC': { element: 'displayName', direction: 'ASC' },
+    'displayName:DESC': { element: 'displayName', direction: 'DESC' },
+    'publish:ASC': { element: 'publish', direction: 'ASC' },
+    'publish:DESC': { element: 'publish', direction: 'DESC' },
+    manual: { element: 'manual', direction: 'DESC' },
 };
 
 const SORT_ELEMENT_FIELD: Record<SortElementId, string> = {
@@ -96,11 +96,7 @@ const loadingBatches = new Set<number>();
 // * Helpers
 //
 
-const moveId = (
-    itemIds: string[],
-    fromIndex: number,
-    toIndex: number
-): string[] => {
+const moveId = (itemIds: string[], fromIndex: number, toIndex: number): string[] => {
     if (fromIndex === toIndex) {
         return itemIds;
     }
@@ -111,11 +107,7 @@ const moveId = (
     return nextIds;
 };
 
-const createManualMovement = (
-    itemIds: readonly string[],
-    fromIndex: number,
-    toIndex: number
-): SortManualMovement => {
+const createManualMovement = (itemIds: readonly string[], fromIndex: number, toIndex: number): SortManualMovement => {
     const movedId = itemIds[fromIndex];
     const moveBeforeId = itemIds[toIndex > fromIndex ? toIndex + 1 : toIndex];
 
@@ -127,7 +119,7 @@ const createManualMovement = (
 
 const toOrderChildMovements = (movements: SortManualMovement[]): OrderChildMovements => {
     const result = new OrderChildMovements();
-    movements.forEach(({contentId, moveBefore}) => {
+    movements.forEach(({ contentId, moveBefore }) => {
         result.addChildMovement(new OrderChildMovement(contentId, moveBefore));
     });
     return result;
@@ -146,15 +138,18 @@ const toBatchStart = (index: number): number => {
 };
 
 const clearFailedBatch = (batchStart: number): void => {
-    const {failedBatches} = $sortDialog.get();
+    const { failedBatches } = $sortDialog.get();
     if (!failedBatches.includes(batchStart)) {
         return;
     }
-    $sortDialog.setKey('failedBatches', failedBatches.filter(start => start !== batchStart));
+    $sortDialog.setKey(
+        'failedBatches',
+        failedBatches.filter((start) => start !== batchStart),
+    );
 };
 
 const markFailedBatch = (batchStart: number): void => {
-    const {failedBatches} = $sortDialog.get();
+    const { failedBatches } = $sortDialog.get();
     if (failedBatches.includes(batchStart)) {
         return;
     }
@@ -167,7 +162,7 @@ const dropSortDialogItems = (ids: string[]): void => {
     }
     const idSet = new Set(ids);
     const state = $sortDialog.get();
-    const nextItemIds = state.itemIds.filter(id => !idSet.has(id));
+    const nextItemIds = state.itemIds.filter((id) => !idSet.has(id));
     if (nextItemIds.length === state.itemIds.length) {
         return;
     }
@@ -175,10 +170,10 @@ const dropSortDialogItems = (ids: string[]): void => {
     // Prune manual movements that reference removed content so submit cannot
     // send a movement for an item that no longer exists.
     const nextMovements = state.manualMovements
-        .filter(movement => !idSet.has(movement.contentId.toString()))
-        .map(movement =>
+        .filter((movement) => !idSet.has(movement.contentId.toString()))
+        .map((movement) =>
             movement.moveBefore && idSet.has(movement.moveBefore.toString())
-                ? {...movement, moveBefore: undefined}
+                ? { ...movement, moveBefore: undefined }
                 : movement,
         );
 
@@ -218,7 +213,7 @@ const toSortOrderOptionIdFromChildOrder = (order: ChildOrder | null | undefined)
 };
 
 const toChildOrder = (optionId: SortOrderOptionId): ChildOrder => {
-    const {element, direction} = SORT_OPTION_MAP[optionId];
+    const { element, direction } = SORT_OPTION_MAP[optionId];
     const field = SORT_ELEMENT_FIELD[element];
 
     const order = new ChildOrder();
@@ -235,7 +230,7 @@ const toChildOrder = (optionId: SortOrderOptionId): ChildOrder => {
 async function reloadSortDialogIds(): Promise<void> {
     instanceId += 1;
     const callId = instanceId;
-    const {open, parent, selectedOptionId} = $sortDialog.get();
+    const { open, parent, selectedOptionId } = $sortDialog.get();
     if (!open || !parent) {
         return;
     }
@@ -257,7 +252,7 @@ async function reloadSortDialogIds(): Promise<void> {
 
         $sortDialog.set({
             ...$sortDialog.get(),
-            itemIds: ids.map(id => id.toString()),
+            itemIds: ids.map((id) => id.toString()),
             idsLoading: false,
             idsFailed: false,
         });
@@ -280,7 +275,7 @@ async function reloadSortDialogIds(): Promise<void> {
 export const $sortDialog = map<SortDialogStore>(structuredClone(initialState));
 
 export const $sortDialogRows = computed([$sortDialog, $contentCache], (state, cache): SortDialogRow[] => {
-    return state.itemIds.map(id => ({id, content: cache[id]}));
+    return state.itemIds.map((id) => ({ id, content: cache[id] }));
 });
 
 export const $isSortDialogAltered = computed($sortDialog, (state) => {
@@ -301,7 +296,7 @@ export const isSortDialogBatchFailed = (failedBatches: readonly number[], index:
 
 export const ensureSortDialogBatchLoaded = async (index: number): Promise<void> => {
     const callId = instanceId;
-    const {itemIds} = $sortDialog.get();
+    const { itemIds } = $sortDialog.get();
     const batchStart = toBatchStart(index);
     if (batchStart < 0 || batchStart >= itemIds.length) {
         return;
@@ -368,10 +363,8 @@ export const startSortDialogManualReorder = (): void => {
 
 export const reorderSortDialogItems = (fromIndex: number, toIndex: number): void => {
     const state = $sortDialog.get();
-    const isWithinBounds = fromIndex >= 0
-        && toIndex >= 0
-        && fromIndex < state.itemIds.length
-        && toIndex < state.itemIds.length;
+    const isWithinBounds =
+        fromIndex >= 0 && toIndex >= 0 && fromIndex < state.itemIds.length && toIndex < state.itemIds.length;
     if (!isWithinBounds || fromIndex === toIndex) {
         return;
     }
@@ -398,7 +391,7 @@ export const submitSortDialogAction = async (): Promise<boolean> => {
         return false;
     }
 
-    const {parent, selectedOptionId, manualMovements} = state;
+    const { parent, selectedOptionId, manualMovements } = state;
     const order = toChildOrder(selectedOptionId);
 
     $sortDialog.setKey('submitting', true);
@@ -413,10 +406,7 @@ export const submitSortDialogAction = async (): Promise<boolean> => {
                 .setContentMovements(movements)
                 .sendAndParse();
         } else {
-            await new OrderContentRequest()
-                .setContentId(parent.getContentId())
-                .setChildOrder(order)
-                .sendAndParse();
+            await new OrderContentRequest().setContentId(parent.getContentId()).setChildOrder(order).sendAndParse();
         }
 
         const parentDisplayName = parent.getDisplayName() || parent.getPath()?.toString() || i18n('dialog.sort');
@@ -473,7 +463,7 @@ const dropDeletedSortDialogItems = (event: ContentEvent<ContentServerChangeItem[
     if (!event?.data || !$sortDialog.get().open) {
         return;
     }
-    dropSortDialogItems(event.data.map(item => item.getContentId().toString()));
+    dropSortDialogItems(event.data.map((item) => item.getContentId().toString()));
 };
 
 $contentDeleted.subscribe(dropDeletedSortDialogItems);

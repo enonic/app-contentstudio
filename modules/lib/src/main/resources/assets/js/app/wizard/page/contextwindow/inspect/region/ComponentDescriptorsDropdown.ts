@@ -1,20 +1,18 @@
-import {ComponentDescriptorsLoader} from './ComponentDescriptorsLoader';
-import {type ComponentType} from '../../../../../page/region/ComponentType';
-import {type ContentId} from '../../../../../content/ContentId';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {type Descriptor} from '../../../../../page/Descriptor';
-import {type LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
+import { ComponentDescriptorsLoader } from './ComponentDescriptorsLoader';
+import { type ComponentType } from '../../../../../page/region/ComponentType';
+import { type ContentId } from '../../../../../content/ContentId';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { type Descriptor } from '../../../../../page/Descriptor';
+import { type LoadedDataEvent } from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import type Q from 'q';
-import {DescriptorViewer} from '../DescriptorViewer';
-import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
-import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
-import {DescriptorListBox} from './DescriptorListBox';
-import {type DescriptorKey} from '../../../../../page/DescriptorKey';
-import {isBlank} from '../../../../../../v6/features/utils/format/isBlank';
+import { DescriptorViewer } from '../DescriptorViewer';
+import { type SelectionChange } from '@enonic/lib-admin-ui/util/SelectionChange';
+import { FilterableListBoxWrapper } from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
+import { DescriptorListBox } from './DescriptorListBox';
+import { type DescriptorKey } from '../../../../../page/DescriptorKey';
+import { isBlank } from '../../../../../../v6/shared/lib/format/isBlank';
 
-export class ComponentDescriptorsDropdown
-    extends FilterableListBoxWrapper<Descriptor> {
-
+export class ComponentDescriptorsDropdown extends FilterableListBoxWrapper<Descriptor> {
     protected loader: ComponentDescriptorsLoader;
 
     protected selectedViewer: DescriptorViewer;
@@ -58,18 +56,21 @@ export class ComponentDescriptorsDropdown
         });
 
         this.optionFilterInput.onClicked(() => {
-           if (!this.optionFilterInput.hasFocus()) {
+            if (!this.optionFilterInput.hasFocus()) {
                 this.optionFilterInput.giveFocus();
-           }
+            }
         });
     }
 
     protected loadListOnShown(): void {
-        this.loader.load().then(() => {
-            if (this.selectedDescriptor) {
-                this.select(this.selectedDescriptor, true);
-            }
-        }).catch(DefaultErrorHandler.handle);
+        this.loader
+            .load()
+            .then(() => {
+                if (this.selectedDescriptor) {
+                    this.select(this.selectedDescriptor, true);
+                }
+            })
+            .catch(DefaultErrorHandler.handle);
     }
 
     protected doShowDropdown(): void {
@@ -159,8 +160,9 @@ export class ComponentDescriptorsDropdown
     }
 
     private static filterFunction(item: Descriptor, searchString: string): boolean {
-        return !isBlank(searchString) &&
-               item.getDisplayName().toLowerCase().indexOf(searchString.toLowerCase()) >= 0 ||
-               item.getName().toString().toLowerCase().indexOf(searchString.toLowerCase()) >= 0;
+        return (
+            (!isBlank(searchString) && item.getDisplayName().toLowerCase().indexOf(searchString.toLowerCase()) >= 0) ||
+            item.getName().toString().toLowerCase().indexOf(searchString.toLowerCase()) >= 0
+        );
     }
 }

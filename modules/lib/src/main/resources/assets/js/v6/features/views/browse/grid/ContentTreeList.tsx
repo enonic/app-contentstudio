@@ -1,10 +1,10 @@
-import {Button, cn, VirtualizedTreeList} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {AlertCircle, LoaderCircle} from 'lucide-react';
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import type {ListRange, VirtuosoHandle} from 'react-virtuoso';
-import {Virtuoso} from 'react-virtuoso';
-import {EditContentEvent} from '../../../../../app/event/EditContentEvent';
+import { Button, cn, VirtualizedTreeList } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { AlertCircle, LoaderCircle } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { ListRange, VirtuosoHandle } from 'react-virtuoso';
+import { Virtuoso } from 'react-virtuoso';
+import { EditContentEvent } from '../../../../../app/event/EditContentEvent';
 import {
     clearChildrenIdsRetryCooldown,
     clearFilterChildrenIdsRetryCooldown,
@@ -21,13 +21,19 @@ import {
     isVisibleContentDataLoadFailed,
     isVisibleFilterContentDataLoadFailed,
 } from '../../../api/content-fetcher';
-import {useI18n} from '../../../hooks/useI18n';
-import type {FlatNode} from '../../../lib/tree-store';
-import {ItemLabel} from '../../../shared/ItemLabel';
-import {virtuosoComponents} from '../../../shared/lists';
-import {ProgressBar} from '../../../shared/primitives/ProgressBar';
-import {$activeFlatNodes, $isFilterActive} from '../../../store/active-tree.store';
-import {$activeId, $selection, clearSelection, setActive, setSelection} from '../../../store/contentTreeSelection.store';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import type { FlatNode } from '../../../../shared/lib/tree-store';
+import { ItemLabel } from '../../../../shared/ui/ItemLabel';
+import { virtuosoComponents } from '../../../shared/lists';
+import { ProgressBar } from '../../../../shared/ui/primitives/ProgressBar';
+import { $activeFlatNodes, $isFilterActive } from '../../../store/active-tree.store';
+import {
+    $activeId,
+    $selection,
+    clearSelection,
+    setActive,
+    setSelection,
+} from '../../../store/contentTreeSelection.store';
 import {
     $filterLoadingState,
     collapseFilterNode,
@@ -35,14 +41,14 @@ import {
     filterNodeNeedsChildrenLoad,
     filterRootHasMoreChildren,
 } from '../../../store/filter-tree.store';
-import {$activeProject} from '../../../store/activeProject.store';
-import {$treeState, collapseNode, expandNode, nodeNeedsChildrenLoad} from '../../../store/tree-list.store';
-import {useDebouncedCallback} from '../../../utils/hooks/useDebouncedCallback';
-import type {ContentData} from './ContentData';
-import {ContentTreeContextMenu, type ContentTreeContextMenuProps} from './ContentTreeContextMenu';
-import {ContentTreeListItem} from './ContentTreeListItem';
-import {ContentTreeListSkeletonRow} from './ContentTreeListSkeletonRow';
-import type {ContentUploadData} from './ContentUploadData';
+import { $activeProject } from '../../../store/activeProject.store';
+import { $treeState, collapseNode, expandNode, nodeNeedsChildrenLoad } from '../../../store/tree-list.store';
+import { useDebouncedCallback } from '../../../../shared/lib/hooks/useDebouncedCallback';
+import type { ContentData } from './ContentData';
+import { ContentTreeContextMenu, type ContentTreeContextMenuProps } from './ContentTreeContextMenu';
+import { ContentTreeListItem } from './ContentTreeListItem';
+import { ContentTreeListSkeletonRow } from './ContentTreeListSkeletonRow';
+import type { ContentUploadData } from './ContentUploadData';
 import {
     buildVisibleTreeItems,
     type ContentFlatNode,
@@ -73,7 +79,7 @@ type ContentTreeListUploadRowProps = {
     item: FlatNode<ContentUploadData>;
 };
 
-const ContentTreeListUploadRow = ({item}: ContentTreeListUploadRowProps): React.ReactElement => {
+const ContentTreeListUploadRow = ({ item }: ContentTreeListUploadRowProps): React.ReactElement => {
     return (
         <VirtualizedTreeList.Row active={false} selected={false}>
             <VirtualizedTreeList.RowLeft>
@@ -105,7 +111,13 @@ type ContentTreeListErrorRowProps = {
     onRetry: () => void;
 };
 
-const ContentTreeListErrorRow = ({level, label, retryLabel, loading, onRetry}: ContentTreeListErrorRowProps): React.ReactElement => {
+const ContentTreeListErrorRow = ({
+    level,
+    label,
+    retryLabel,
+    loading,
+    onRetry,
+}: ContentTreeListErrorRowProps): React.ReactElement => {
     return (
         <VirtualizedTreeList.Row active={false} selected={false}>
             <VirtualizedTreeList.RowLeft>
@@ -153,7 +165,7 @@ export type ContentTreeListProps = {
 
 const CONTENT_TREE_LIST_NAME = 'ContentTreeList';
 
-export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps): React.ReactElement => {
+export const ContentTreeList = ({ contextMenuActions = {} }: ContentTreeListProps): React.ReactElement => {
     const virtuosoRef = useRef<VirtuosoHandle>(null);
     const visibleDataLoadInFlightRef = useRef(false);
     const [isVisibleDataLoadInFlight, setIsVisibleDataLoadInFlight] = useState(false);
@@ -176,13 +188,13 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
                         : isVisibleContentDataLoadFailed(node.id);
                 })
                 .map((node) => node.id),
-        [flatNodes, isFilterActive]
+        [flatNodes, isFilterActive],
     );
 
     const failedNodeIdSet = useMemo(() => new Set(failedNodeIds), [failedNodeIds]);
     const hasPendingPlaceholders = useMemo(
         () => flatNodes.some((node) => node.nodeType === 'node' && node.data === null && !failedNodeIdSet.has(node.id)),
-        [flatNodes, failedNodeIdSet]
+        [flatNodes, failedNodeIdSet],
     );
     const pendingChildLoadParentIds = useMemo(() => {
         const parentIds = new Set<string>();
@@ -190,7 +202,8 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
         for (const node of flatNodes) {
             if (node.nodeType !== 'loading' || node.parentId === null) continue;
             if (isFilterActive) {
-                if (isFilterChildrenIdsLoadFailed(node.parentId) || !filterNodeNeedsChildrenLoad(node.parentId)) continue;
+                if (isFilterChildrenIdsLoadFailed(node.parentId) || !filterNodeNeedsChildrenLoad(node.parentId))
+                    continue;
             } else {
                 if (isChildrenIdsLoadFailed(node.parentId) || !nodeNeedsChildrenLoad(node.parentId)) continue;
             }
@@ -200,17 +213,19 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
         return [...parentIds];
     }, [flatNodes, isFilterActive]);
 
-    const {visibleItems, rawIndexById} = useMemo(
+    const { visibleItems, rawIndexById } = useMemo(
         () =>
             buildVisibleTreeItems({
                 rawItems: flatNodes,
                 isFailedPlaceholder: (item) =>
                     item.nodeType === 'node' &&
                     item.data === null &&
-                    (isFilterActive ? isVisibleFilterContentDataLoadFailed(item.id) : isVisibleContentDataLoadFailed(item.id)),
+                    (isFilterActive
+                        ? isVisibleFilterContentDataLoadFailed(item.id)
+                        : isVisibleContentDataLoadFailed(item.id)),
                 errorRowPrefix: ERROR_ROW_PREFIX,
             }),
-        [flatNodes, isFilterActive]
+        [flatNodes, isFilterActive],
     );
     const visibleItemsRef = useRef<ContentFlatNode[]>(visibleItems);
     visibleItemsRef.current = visibleItems;
@@ -220,23 +235,26 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
         setIsVisibleDataLoadInFlight((current) => (current === value ? current : value));
     }, []);
 
-    const retryFailedNodes = useCallback((failedIds: string[]) => {
-        if (failedIds.length === 0 || visibleDataLoadInFlightRef.current) return;
-        const retryIds = failedIds.slice(0, RETRY_BATCH_SIZE);
+    const retryFailedNodes = useCallback(
+        (failedIds: string[]) => {
+            if (failedIds.length === 0 || visibleDataLoadInFlightRef.current) return;
+            const retryIds = failedIds.slice(0, RETRY_BATCH_SIZE);
 
-        setVisibleDataLoadInFlight(true);
+            setVisibleDataLoadInFlight(true);
 
-        const reloadPromise = isFilterActive
-            ? (clearVisibleFilterContentDataRetryCooldown(retryIds), fetchVisibleFilterContentData(retryIds))
-            : (clearVisibleContentDataRetryCooldown(retryIds), fetchVisibleContentData(retryIds));
+            const reloadPromise = isFilterActive
+                ? (clearVisibleFilterContentDataRetryCooldown(retryIds), fetchVisibleFilterContentData(retryIds))
+                : (clearVisibleContentDataRetryCooldown(retryIds), fetchVisibleContentData(retryIds));
 
-        void reloadPromise.finally(() => {
-            setVisibleDataLoadInFlight(false);
-        });
-    }, [isFilterActive, setVisibleDataLoadInFlight]);
+            void reloadPromise.finally(() => {
+                setVisibleDataLoadInFlight(false);
+            });
+        },
+        [isFilterActive, setVisibleDataLoadInFlight],
+    );
 
     // Track visible range for viewport-based loading
-    const visibleRangeRef = useRef<ListRange>({startIndex: 0, endIndex: 20});
+    const visibleRangeRef = useRef<ListRange>({ startIndex: 0, endIndex: 20 });
 
     // Track scroll velocity for adaptive buffer
     const lastScrollTimeRef = useRef(Date.now());
@@ -252,7 +270,7 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
     const loadVisibleContentData = useDebouncedCallback(() => {
         if (visibleDataLoadInFlightRef.current) return;
 
-        const {startIndex, endIndex} = visibleRangeRef.current;
+        const { startIndex, endIndex } = visibleRangeRef.current;
         const buffer = bufferSizeRef.current;
 
         // Read current state directly from stores/refs (avoids stale closure)
@@ -346,7 +364,7 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
                 }
             }
         },
-        [isFilterActive]
+        [isFilterActive],
     );
 
     // Handle collapse - works in both main and filter mode
@@ -358,7 +376,7 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
                 collapseNode(id);
             }
         },
-        [isFilterActive]
+        [isFilterActive],
     );
 
     // Handle activation (Enter or double-click)
@@ -369,7 +387,7 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
                 new EditContentEvent([node.data.item]).fire();
             }
         },
-        [flatNodes]
+        [flatNodes],
     );
 
     // Handle selection change from VirtualizedTreeList (merge-based handling)
@@ -407,12 +425,12 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
     // The ref tracks "what selection was visible in this tree view" for accurate diff calculation.
     const visibleIds = useMemo(
         () => new Set(flatNodes.filter((n) => n.nodeType === 'node').map((n) => n.id)),
-        [flatNodes]
+        [flatNodes],
     );
 
     const visibleSelection = useMemo(
         () => new Set([...selection].filter((id) => visibleIds.has(id))),
-        [selection, visibleIds]
+        [selection, visibleIds],
     );
 
     // Update ref synchronously during render (before VirtualizedTreeList renders)
@@ -459,7 +477,7 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
                 }
             }
         },
-        [loadVisibleContentData]
+        [loadVisibleContentData],
     );
 
     return (
@@ -477,11 +495,11 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
             onActivate={handleActivate}
             clearActiveOnReclick={true}
             virtuosoRef={virtuosoRef}
-            aria-label='Content browser'
-            className='w-full flex-1 min-h-0'
+            aria-label="Content browser"
+            className="w-full flex-1 min-h-0"
         >
-            {({getItemProps, containerProps}) => {
-                const {className: containerClassName, onKeyDown, ...restContainerProps} = containerProps;
+            {({ getItemProps, containerProps }) => {
+                const { className: containerClassName, onKeyDown, ...restContainerProps } = containerProps;
                 const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
                     if (event.key === 'Enter' && event.target === event.currentTarget && editAction) {
                         event.preventDefault();
@@ -504,12 +522,12 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
                             onKeyDown={handleKeyDown}
                             {...restContainerProps}
                             itemContent={(index, node) => {
-                                const {id, level, isExpanded, hasChildren, nodeType, data} = node;
+                                const { id, level, isExpanded, hasChildren, nodeType, data } = node;
 
                                 if (id.startsWith(ERROR_ROW_PREFIX)) {
                                     const failedIds = (node as ErrorPlaceholderNode).failedIds;
                                     const isRetrying = failedIds.some((failedId) =>
-                                        flatNodes.some((n) => n.id === failedId && n.isLoadingData)
+                                        flatNodes.some((n) => n.id === failedId && n.isLoadingData),
                                     );
 
                                     return (
@@ -529,7 +547,8 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
 
                                 if (nodeType === 'loading') {
                                     const parentId = node.parentId;
-                                    const isParentLoadFailed = parentId !== null &&
+                                    const isParentLoadFailed =
+                                        parentId !== null &&
                                         (isFilterActive
                                             ? isFilterChildrenIdsLoadFailed(parentId)
                                             : isChildrenIdsLoadFailed(parentId));
@@ -545,7 +564,9 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
                                                 onRetry={() => {
                                                     if (isFilterActive) {
                                                         clearFilterChildrenIdsRetryCooldown(parentId);
-                                                        void fetchFilterChildrenIdsOnly(parentId).catch(() => undefined);
+                                                        void fetchFilterChildrenIdsOnly(parentId).catch(
+                                                            () => undefined,
+                                                        );
                                                     } else {
                                                         clearChildrenIdsRetryCooldown(parentId);
                                                         void fetchChildrenIdsOnly(parentId).catch(() => undefined);

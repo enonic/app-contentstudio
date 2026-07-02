@@ -1,13 +1,13 @@
-import {type Form} from '@enonic/lib-admin-ui/form/Form';
-import {type FormItem} from '@enonic/lib-admin-ui/form/FormItem';
-import {Input} from '@enonic/lib-admin-ui/form/Input';
-import {FieldSet} from '@enonic/lib-admin-ui/form/set/fieldset/FieldSet';
-import {FormItemSet} from '@enonic/lib-admin-ui/form/set/itemset/FormItemSet';
-import {FormOptionSet} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
-import {FormOptionSetOption} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSetOption';
-import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {camelCase} from '../utils/format/camelCase';
-import {instanceOf} from '../utils/object/instanceOf';
+import { type Form } from '@enonic/lib-admin-ui/form/Form';
+import { type FormItem } from '@enonic/lib-admin-ui/form/FormItem';
+import { Input } from '@enonic/lib-admin-ui/form/Input';
+import { FieldSet } from '@enonic/lib-admin-ui/form/set/fieldset/FieldSet';
+import { FormItemSet } from '@enonic/lib-admin-ui/form/set/itemset/FormItemSet';
+import { FormOptionSet } from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
+import { FormOptionSetOption } from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSetOption';
+import { type PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import { camelCase } from '../../shared/lib/format/camelCase';
+import { instanceOf } from '../../shared/lib/object/instanceOf';
 
 const EXCLUDED_INPUT_TYPES: readonly string[] = ['htmlarea'];
 
@@ -35,8 +35,12 @@ function collectInputs(items: FormItem[]): Input[] {
             return [item];
         }
 
-        if (instanceOf(item, FieldSet) || instanceOf(item, FormItemSet)
-            || instanceOf(item, FormOptionSet) || instanceOf(item, FormOptionSetOption)) {
+        if (
+            instanceOf(item, FieldSet) ||
+            instanceOf(item, FormItemSet) ||
+            instanceOf(item, FormOptionSet) ||
+            instanceOf(item, FormOptionSetOption)
+        ) {
             return collectInputs(item.getFormItems());
         }
 

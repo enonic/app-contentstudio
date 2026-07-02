@@ -1,16 +1,24 @@
-import {useStore} from '@nanostores/preact';
-import {type ReactElement} from 'react';
-import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
-import {PublishStatus} from '../../../../../../app/publish/PublishStatus';
-import {useI18n} from '../../../../hooks/useI18n';
-import {ContentIcon} from '../../../../shared/icons/ContentIcon';
-import {StatusIcon} from '../../../../shared/icons/StatusIcon';
-import {DiffStatusBadge} from '../../../../shared/status/DiffStatusBadge';
-import {$contextContent, $contextContentCompareResult, $isContextCompareLoading} from '../../../../store/context/contextContent.store';
-import {formatCompareResult} from '../../../../utils/cms/content/formatCompareResult';
-import {formatContentPath} from '../../../../utils/cms/content/paths';
-import {calcSecondaryStatus, calcTreePublishStatus, createContentStateKey} from '../../../../utils/cms/content/status';
-import {calcContentState} from '../../../../utils/cms/content/workflow';
+import { useStore } from '@nanostores/preact';
+import { type ReactElement } from 'react';
+import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
+import { PublishStatus } from '../../../../../../app/publish/PublishStatus';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { ContentIcon } from '../../../../../shared/ui/icons/ContentIcon';
+import { StatusIcon } from '../../../../../shared/ui/icons/StatusIcon';
+import { DiffStatusBadge } from '../../../../shared/status/DiffStatusBadge';
+import {
+    $contextContent,
+    $contextContentCompareResult,
+    $isContextCompareLoading,
+} from '../../../../store/context/contextContent.store';
+import { formatCompareResult } from '../../../../utils/cms/content/formatCompareResult';
+import { formatContentPath } from '../../../../../shared/lib/cms/content/paths';
+import {
+    calcSecondaryStatus,
+    calcTreePublishStatus,
+    createContentStateKey,
+} from '../../../../../shared/lib/cms/content/status';
+import { calcContentState } from '../../../../../shared/lib/cms/content/workflow';
 
 function createDisplayName(content: ContentSummary): string {
     return content.getDisplayName() ?? '';
@@ -40,7 +48,9 @@ export const DetailsWidgetContentSection = (): ReactElement => {
     const fullPath = formatContentPath(content.getPath(), `<${unnamedFieldLabel}>`);
     const publishStatus = calcTreePublishStatus(content);
     const secondaryStatus = calcSecondaryStatus(publishStatus, content);
-    const showContentState = contentState != null && !(publishStatus === PublishStatus.ONLINE && contentState === 'ready' && !secondaryStatus);
+    const showContentState =
+        contentState != null &&
+        !(publishStatus === PublishStatus.ONLINE && contentState === 'ready' && !secondaryStatus);
 
     let secondaryOverride: string | undefined;
     if (secondaryStatus === 'modified') {

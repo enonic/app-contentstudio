@@ -1,10 +1,10 @@
-import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
-import {type TaskIdJson} from '@enonic/lib-admin-ui/task/TaskIdJson';
-import {type ContentId} from '../../../app/content/ContentId';
-import {type ContentPath} from '../../../app/content/ContentPath';
-import {ContentWithRefsResult} from '../../../app/resource/ContentWithRefsResult';
-import {type ContentWithRefsResultJson} from '../../../app/resource/json/ContentWithRefsResultJson';
-import {getCmsApiUrl} from '../utils/url/cms';
+import { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
+import { type TaskIdJson } from '@enonic/lib-admin-ui/task/TaskIdJson';
+import { type ContentId } from '../../../app/content/ContentId';
+import { type ContentPath } from '../../../app/content/ContentPath';
+import { ContentWithRefsResult } from '../../../app/resource/ContentWithRefsResult';
+import { type ContentWithRefsResultJson } from '../../../app/resource/json/ContentWithRefsResultJson';
+import { getCmsApiUrl } from '../../shared/lib/url/cms';
 
 //
 // * API
@@ -22,7 +22,7 @@ export async function archiveContent(contentIds: ContentId[], message?: string):
     const url = getCmsApiUrl('archive/archive');
 
     const payload = {
-        contentIds: contentIds.map(id => id.toString()),
+        contentIds: contentIds.map((id) => id.toString()),
         message: message?.trim() || null,
     };
 
@@ -54,7 +54,7 @@ export async function deleteContent(contentPaths: ContentPath[]): Promise<TaskId
     const url = getCmsApiUrl('delete');
 
     const payload = {
-        contentPaths: contentPaths.map(path => path.toString()),
+        contentPaths: contentPaths.map((path) => path.toString()),
     };
 
     const response = await fetch(url, {
@@ -85,7 +85,7 @@ export async function resolveForDelete(contentIds: ContentId[]): Promise<Content
     const url = getCmsApiUrl('resolveForDelete');
 
     const payload = {
-        contentIds: contentIds.map(id => id.toString()),
+        contentIds: contentIds.map((id) => id.toString()),
     };
 
     const response = await fetch(url, {

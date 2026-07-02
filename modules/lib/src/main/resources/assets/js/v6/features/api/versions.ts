@@ -1,10 +1,10 @@
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {ResultAsync} from 'neverthrow';
-import {type ContentId} from '../../../app/content/ContentId';
-import {type ContentJson} from '../../../app/content/ContentJson';
-import {RepositoryId} from '../../../app/repository/RepositoryId';
-import {type ContentVersionJson} from '../../../app/resource/json/ContentVersionJson';
-import {getCmsApiUrl} from '../utils/url/cms';
+import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
+import { ResultAsync } from 'neverthrow';
+import { type ContentId } from '../../../app/content/ContentId';
+import { type ContentJson } from '../../../app/content/ContentJson';
+import { RepositoryId } from '../../../app/repository/RepositoryId';
+import { type ContentVersionJson } from '../../../app/resource/json/ContentVersionJson';
+import { getCmsApiUrl } from '../../shared/lib/url/cms';
 
 export function fetchVersion(contentId: string, versionId: string): ResultAsync<ContentJson, Error> {
     const url = getContentServiceUrl(contentId, versionId);
@@ -17,14 +17,27 @@ export function fetchVersion(contentId: string, versionId: string): ResultAsync<
             const json = await response.json();
             return json as ContentJson;
         }),
-        (error) => error instanceof Error ? error : new Error(String(error))
+        (error) => (error instanceof Error ? error : new Error(String(error))),
     ).map(stripContentMetadata);
 }
 
 function stripContentMetadata(contentJson: ContentJson): ContentJson {
-    const cleaned = {...contentJson};
-    ['_id', 'creator', 'createdTime', 'hasChildren', 'modifiedTime', 'validationErrors', 'publish', 'workflow', 'valid', 'originProject',
-        'type', 'owner', 'modifier'].forEach((key) => {
+    const cleaned = { ...contentJson };
+    [
+        '_id',
+        'creator',
+        'createdTime',
+        'hasChildren',
+        'modifiedTime',
+        'validationErrors',
+        'publish',
+        'workflow',
+        'valid',
+        'originProject',
+        'type',
+        'owner',
+        'modifier',
+    ].forEach((key) => {
         delete cleaned[key];
     });
     return cleaned;
@@ -66,6 +79,6 @@ export function revert(contentId: ContentId, versionId: string): ResultAsync<str
             const json: ContentVersionJson = await response.json();
             return json.id;
         }),
-        (error) => error instanceof Error ? error : new Error(String(error))
+        (error) => (error instanceof Error ? error : new Error(String(error))),
     );
 }

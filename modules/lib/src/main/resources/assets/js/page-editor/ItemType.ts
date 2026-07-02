@@ -1,17 +1,15 @@
-import {type Element} from '@enonic/lib-admin-ui/dom/Element';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {isBlank} from '../v6/features/utils/format/isBlank';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {type ItemTypeConfig} from './ItemTypeConfig';
-import {ComponentType} from '../app/page/region/ComponentType';
-import type {Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {assert} from '@enonic/lib-admin-ui/util/Assert';
+import { type Element } from '@enonic/lib-admin-ui/dom/Element';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { isBlank } from '../v6/shared/lib/format/isBlank';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { type ItemTypeConfig } from './ItemTypeConfig';
+import { ComponentType } from '../app/page/region/ComponentType';
+import type { Equitable } from '@enonic/lib-admin-ui/Equitable';
+import { assert } from '@enonic/lib-admin-ui/util/Assert';
 
 type ShortName = Record<string, ItemType>;
 
-export class ItemType
-    implements Equitable {
-
+export class ItemType implements Equitable {
     static ATTRIBUTE_TYPE: string = 'portal-component-type';
     static ATTRIBUTE_REGION_NAME: string = 'portal-region';
 
@@ -49,7 +47,6 @@ export class ItemType
     }
 
     equals(o: Equitable): boolean {
-
         if (!ObjectHelper.iFrameSafeInstanceOf(o, ItemType)) {
             return false;
         }
@@ -60,7 +57,7 @@ export class ItemType
 
     static getDraggables(): ItemType[] {
         const draggables: ItemType[] = [];
-        for (const shortName in  ItemType.shortNameToInstance) {
+        for (const shortName in ItemType.shortNameToInstance) {
             if (ItemType.shortNameToInstance.hasOwnProperty(shortName)) {
                 const itemType = ItemType.shortNameToInstance[shortName];
                 if (itemType.getConfig().isDraggable()) {

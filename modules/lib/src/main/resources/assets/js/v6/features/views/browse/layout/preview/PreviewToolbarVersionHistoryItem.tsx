@@ -1,11 +1,15 @@
-import {Button, Toolbar} from '@enonic/ui';
-import {History} from 'lucide-react';
-import type {ReactElement} from 'react';
-import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
-import {openContextWidget} from '../../../context/openContextWidget';
-import {useI18n} from '../../../../hooks/useI18n';
-import {calcSecondaryStatus, calcTreePublishStatus, createSecondaryStatusKey} from '../../../../utils/cms/content/status';
-import {VERSIONS_WIDGET_NAME} from '../../../../utils/widget/versions/versions';
+import { Button, Toolbar } from '@enonic/ui';
+import { History } from 'lucide-react';
+import type { ReactElement } from 'react';
+import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
+import { openContextWidget } from '../../../context/openContextWidget';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import {
+    calcSecondaryStatus,
+    calcTreePublishStatus,
+    createSecondaryStatusKey,
+} from '../../../../../shared/lib/cms/content/status';
+import { VERSIONS_WIDGET_NAME } from '../../../../../shared/lib/widget/versions/versions';
 
 type PreviewToolbarVersionHistoryItemProps = {
     contentSummary: ContentSummary;

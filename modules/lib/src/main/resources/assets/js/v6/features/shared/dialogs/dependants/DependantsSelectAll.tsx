@@ -1,7 +1,10 @@
-import {Checkbox, type CheckboxChecked} from '@enonic/ui';
-import {type ReactElement} from 'react';
-import {useI18n} from '../../../hooks/useI18n';
-import {type DependantsSelection, type DependantsSelectionType} from '../../../utils/cms/content/dependantsSelection';
+import { Checkbox, type CheckboxChecked } from '@enonic/ui';
+import { type ReactElement } from 'react';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import {
+    type DependantsSelection,
+    type DependantsSelectionType,
+} from '../../../../shared/lib/cms/content/dependantsSelection';
 
 const DEPENDANTS_SELECT_ALL_NAME = 'DependantsSelectAll';
 
@@ -17,7 +20,7 @@ export type DependantsSelectAllProps = {
     disabled?: boolean;
 };
 
-export const DependantsSelectAll = ({selection, onToggle, disabled}: DependantsSelectAllProps): ReactElement => {
+export const DependantsSelectAll = ({ selection, onToggle, disabled }: DependantsSelectAllProps): ReactElement => {
     const label = useI18n('dialog.select.all', selection.count);
 
     return (

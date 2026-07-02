@@ -1,28 +1,26 @@
-import {Body} from '@enonic/lib-admin-ui/dom/Body';
-import {type Button} from '@enonic/lib-admin-ui/ui/button/Button';
-import {type Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
-import {SplitPanel, SplitPanelAlignment, SplitPanelBuilder} from '@enonic/lib-admin-ui/ui/panel/SplitPanel';
-import {SplitPanelSize} from '@enonic/lib-admin-ui/ui/panel/SplitPanelSize';
-import {type ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
-import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import {type ResponsiveRange} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRange';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {LayoutTokens} from '../../../v6/features/layout/layout.tokens';
-import {getContentAsCSCS} from '../../../v6/features/store/content.store';
-import {InspectEvent} from '../../event/InspectEvent';
-import {ContextPanelState} from './ContextPanelState';
-import {type ContextView} from './ContextView';
-import {type DockedContextPanel} from './DockedContextPanel';
+import { Body } from '@enonic/lib-admin-ui/dom/Body';
+import { type Button } from '@enonic/lib-admin-ui/ui/button/Button';
+import { type Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
+import { SplitPanel, SplitPanelAlignment, SplitPanelBuilder } from '@enonic/lib-admin-ui/ui/panel/SplitPanel';
+import { SplitPanelSize } from '@enonic/lib-admin-ui/ui/panel/SplitPanelSize';
+import { type ResponsiveItem } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
+import { ResponsiveManager } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import { type ResponsiveRange } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRange';
+import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { LayoutTokens } from '../../../v6/shared/ui/layout.tokens';
+import { getContentAsCSCS } from '../../../v6/features/store/content.store';
+import { InspectEvent } from '../../event/InspectEvent';
+import { ContextPanelState } from './ContextPanelState';
+import { type ContextView } from './ContextView';
+import { type DockedContextPanel } from './DockedContextPanel';
 
 export enum ContextPanelMode {
     DOCKED = 'docked',
-    FLOATING = 'floating'
+    FLOATING = 'floating',
 }
 
-export class ContextSplitPanel
-    extends SplitPanel {
-
+export class ContextSplitPanel extends SplitPanel {
     public static CONTEXT_MIN_WIDTH: number = LayoutTokens.contextPanel.minWidth;
 
     private contextPanelMode: ContextPanelMode;
@@ -47,7 +45,9 @@ export class ContextSplitPanel
         this.toggleButton = splitPanelBuilder.toggleButton;
         this.dockedContextPanel = splitPanelBuilder.getSecondPanel();
         this.dockedModeSize = splitPanelBuilder.getSecondPanelSize();
-        this.floatModeSize = SplitPanelSize.PIXELS(ContextSplitPanel.CONTEXT_MIN_WIDTH + this.getSplitterThickness() / 2);
+        this.floatModeSize = SplitPanelSize.PIXELS(
+            ContextSplitPanel.CONTEXT_MIN_WIDTH + this.getSplitterThickness() / 2,
+        );
 
         this.initListeners();
     }
@@ -101,7 +101,8 @@ export class ContextSplitPanel
 
     protected getExpectedContextPanelMode(): ContextPanelMode {
         const parentWidth: number = this.getParentElement().getEl().getWidthWithBorder();
-        const leftPanelFloatingModeResponsiveRange: ResponsiveRange = this.getLeftPanelResponsiveRangeToSwitchToFloatingMode();
+        const leftPanelFloatingModeResponsiveRange: ResponsiveRange =
+            this.getLeftPanelResponsiveRangeToSwitchToFloatingMode();
 
         // Calculate context panel with half width of the splitter, since context panel in floating mode
         // is bigger on that value.
@@ -110,8 +111,8 @@ export class ContextSplitPanel
         const leftPanelExpectedWidth: number = parentWidth - (contextPanelWidth + halfSplitter);
 
         return leftPanelFloatingModeResponsiveRange.isFitOrSmaller(leftPanelExpectedWidth)
-               ? ContextPanelMode.FLOATING
-               : ContextPanelMode.DOCKED;
+            ? ContextPanelMode.FLOATING
+            : ContextPanelMode.DOCKED;
     }
 
     protected getLeftPanelResponsiveRangeToSwitchToFloatingMode(): ResponsiveRange {
@@ -164,7 +165,10 @@ export class ContextSplitPanel
     private resetToggleButtonActiveState(): void {
         const isExpanded: boolean = this.contextPanelState !== ContextPanelState.COLLAPSED;
         this.toggleButton?.toggleClass('expanded', isExpanded);
-        this.toggleButton?.setTitle(isExpanded ? i18n('tooltip.contextPanel.hide') : i18n('tooltip.contextPanel.show'), false);
+        this.toggleButton?.setTitle(
+            isExpanded ? i18n('tooltip.contextPanel.hide') : i18n('tooltip.contextPanel.show'),
+            false,
+        );
     }
 
     private doHandleResizeEvent(): void {
@@ -182,8 +186,10 @@ export class ContextSplitPanel
 
     private requiresCollapsedContextPanel(): boolean {
         const totalWidth: number = Body.get().getEl().getWidthWithBorder();
-        return LayoutTokens.contextPanel.initialCollapseThreshold.isFitOrSmaller(totalWidth)
-               || this.getExpectedContextPanelMode() === ContextPanelMode.FLOATING;
+        return (
+            LayoutTokens.contextPanel.initialCollapseThreshold.isFitOrSmaller(totalWidth) ||
+            this.getExpectedContextPanelMode() === ContextPanelMode.FLOATING
+        );
     }
 
     private subscribeContextPanelsOnEvents(): void {
@@ -270,11 +276,11 @@ export class ContextSplitPanel
     }
 
     unMobileModeChanged(listener: (isMobile: boolean) => void): void {
-        this.mobileModeChangedListeners = this.mobileModeChangedListeners.filter(curr => curr !== listener);
+        this.mobileModeChangedListeners = this.mobileModeChangedListeners.filter((curr) => curr !== listener);
     }
 
     private notifyMobileModeChanged(isMobile: boolean): void {
-        this.mobileModeChangedListeners.forEach(curr => curr(isMobile));
+        this.mobileModeChangedListeners.forEach((curr) => curr(isMobile));
     }
 
     isMobileMode(): boolean {
@@ -286,11 +292,13 @@ export class ContextSplitPanel
     }
 
     unModeChanged(listener: (mode: ContextPanelMode) => void): void {
-        this.modeChangedListeners = this.modeChangedListeners.filter(curr => curr !== listener);
+        this.modeChangedListeners = this.modeChangedListeners.filter((curr) => curr !== listener);
     }
 
     private notifyModeChanged(): void {
-        this.modeChangedListeners.forEach((listener: (mode: ContextPanelMode) => void) => listener(this.contextPanelMode));
+        this.modeChangedListeners.forEach((listener: (mode: ContextPanelMode) => void) =>
+            listener(this.contextPanelMode),
+        );
     }
 
     onStateChanged(listener: (state: ContextPanelState) => void): void {
@@ -298,7 +306,7 @@ export class ContextSplitPanel
     }
 
     unStateChanged(listener: (state: ContextPanelState) => void): void {
-        this.stateChangedListeners = this.stateChangedListeners.filter(curr => curr !== listener);
+        this.stateChangedListeners = this.stateChangedListeners.filter((curr) => curr !== listener);
     }
 
     private notifyStateChanged(): void {
@@ -310,9 +318,7 @@ export class ContextSplitPanel
     }
 }
 
-export class ContextSplitPanelBuilder
-    extends SplitPanelBuilder {
-
+export class ContextSplitPanelBuilder extends SplitPanelBuilder {
     contextView: ContextView;
 
     toggleButton?: Button;

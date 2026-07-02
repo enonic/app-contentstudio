@@ -1,28 +1,28 @@
-import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {Body} from '@enonic/lib-admin-ui/dom/Body';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {type ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { Body } from '@enonic/lib-admin-ui/dom/Body';
+import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
+import { type Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { type ToolbarConfig } from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
+import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
-import {getActiveProject, getActiveProjectName} from '../../v6/features/store/activeProject.store';
-import {normalizeContentPathName} from '../../v6/features/utils/cms/content/paths';
-import {ContentName} from '../content/ContentName';
-import {ContentUnnamed} from '../content/ContentUnnamed';
-import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {GetPrincipalsByKeysRequest} from '../security/GetPrincipalsByKeysRequest';
-import {Project} from '../settings/data/project/Project';
-import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
-import {ProjectGetRequest} from '../settings/resource/ProjectGetRequest';
-import {ProjectListRequest} from '../settings/resource/ProjectListRequest';
-import {subscribe as subscribeToCollaborators} from '../stores/collaboration';
-import {UrlHelper} from '../util/UrlHelper';
-import {type ContentWizardActions} from '../wizard/action/ContentWizardActions';
-import {ContentWizardToolbarPublishControls} from '../wizard/ContentWizardToolbarPublishControls';
-import {PublishStatus} from '../publish/PublishStatus';
+import { getActiveProject, getActiveProjectName } from '../../v6/features/store/activeProject.store';
+import { normalizeContentPathName } from '../../v6/shared/lib/cms/content/paths';
+import { ContentName } from '../content/ContentName';
+import { ContentUnnamed } from '../content/ContentUnnamed';
+import { type ContentSummaryAndCompareStatus } from '../content/ContentSummaryAndCompareStatus';
+import { GetPrincipalsByKeysRequest } from '../security/GetPrincipalsByKeysRequest';
+import { Project } from '../settings/data/project/Project';
+import { ProjectUpdatedEvent } from '../settings/event/ProjectUpdatedEvent';
+import { ProjectGetRequest } from '../settings/resource/ProjectGetRequest';
+import { ProjectListRequest } from '../settings/resource/ProjectListRequest';
+import { subscribe as subscribeToCollaborators } from '../stores/collaboration';
+import { UrlHelper } from '../util/UrlHelper';
+import { type ContentWizardActions } from '../wizard/action/ContentWizardActions';
+import { ContentWizardToolbarPublishControls } from '../wizard/ContentWizardToolbarPublishControls';
+import { PublishStatus } from '../publish/PublishStatus';
 import {
     $wizardToolbar,
     setWizardToolbarCanRenameContentPath,
@@ -37,15 +37,13 @@ import {
     setWizardToolbarProjectLabel,
     setWizardToolbarPublishStatus,
 } from '../../v6/features/store/wizardToolbar.store';
-import {$wizardDraftName, setDraftName} from '../../v6/features/store/wizardContent.store';
-import {openRenameContentDialog} from '../../v6/features/store/dialogs/renameContentDialog.store';
-import type {WizardToolbarCollaborator} from '../../v6/features/store/wizardToolbar.types';
-import {calcTreePublishStatus} from '../../v6/features/utils/cms/content/status';
-import {LAYERS_WIDGET_NAME} from '../../v6/features/utils/widget/layers';
-import {
-    ContentWizardToolbarElement as V6ContentWizardToolbarElement
-} from '../../v6/features/views/browse/toolbar/ContentWizardToolbar';
-import {openContextWidget} from '../../v6/features/views/context/openContextWidget';
+import { $wizardDraftName, setDraftName } from '../../v6/features/store/wizardContent.store';
+import { openRenameContentDialog } from '../../v6/features/store/dialogs/renameContentDialog.store';
+import type { WizardToolbarCollaborator } from '../../v6/features/store/wizardToolbar.types';
+import { calcTreePublishStatus } from '../../v6/shared/lib/cms/content/status';
+import { LAYERS_WIDGET_NAME } from '../../v6/shared/lib/widget/layers';
+import { ContentWizardToolbarElement as V6ContentWizardToolbarElement } from '../../v6/features/views/browse/toolbar/ContentWizardToolbar';
+import { openContextWidget } from '../../v6/features/views/context/openContextWidget';
 
 export type ContentWizardToolbarConfig = ToolbarConfig & {
     actions: ContentWizardActions;
@@ -53,7 +51,6 @@ export type ContentWizardToolbarConfig = ToolbarConfig & {
 };
 
 class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
-
     ariaLabel: string = i18n('wcag.contenteditor.toolbar.label');
 
     private readonly config: ContentWizardToolbarConfig;
@@ -122,7 +119,11 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
         resetWizardToolbar();
         const currentProject = getActiveProject();
         setWizardToolbarIsLayerProject(currentProject.hasParents());
-        setWizardToolbarProjectInfo(currentProject.getName(), currentProject.getLanguage() || '', !!currentProject.getIcon());
+        setWizardToolbarProjectInfo(
+            currentProject.getName(),
+            currentProject.getLanguage() || '',
+            !!currentProject.getIcon(),
+        );
 
         this.addHiddenElementsHost();
 
@@ -142,23 +143,30 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
     private initListeners(): void {
         ProjectUpdatedEvent.on((event: ProjectUpdatedEvent) => {
             if (event.getProjectName() === getActiveProjectName()) {
-                new ProjectGetRequest(event.getProjectName()).sendAndParse().then((project: Project) => {
-                    this.updateProjectLabel(project);
-                }).catch(DefaultErrorHandler.handle);
+                new ProjectGetRequest(event.getProjectName())
+                    .sendAndParse()
+                    .then((project: Project) => {
+                        this.updateProjectLabel(project);
+                    })
+                    .catch(DefaultErrorHandler.handle);
             }
         });
 
         this.whenRendered(() => {
             const onPublishControlsInitialised = () => {
                 this.contentWizardToolbarPublishControls.getPublishButton().show();
-                this.contentWizardToolbarPublishControls.getPublishButton().unActionUpdated(onPublishControlsInitialised);
+                this.contentWizardToolbarPublishControls
+                    .getPublishButton()
+                    .unActionUpdated(onPublishControlsInitialised);
             };
 
             this.contentWizardToolbarPublishControls.getPublishButton().onActionUpdated(onPublishControlsInitialised);
 
-            this.contentWizardToolbarPublishControls.getPublishButton().onPublishRequestActionChanged((added: boolean) => {
-                this.toggleClass('publish-request', added);
-            });
+            this.contentWizardToolbarPublishControls
+                .getPublishButton()
+                .onPublishRequestActionChanged((added: boolean) => {
+                    this.toggleClass('publish-request', added);
+                });
         });
 
         this.onRemoved(() => {
@@ -207,7 +215,7 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
         this.unsubscribeFromCollaborators = subscribeToCollaborators(
             contentId,
             getActiveProjectName(),
-            (collaborators: Set<string>) => this.handleCollaboratorsUpdated(collaborators)
+            (collaborators: Set<string>) => this.handleCollaboratorsUpdated(collaborators),
         );
     }
 
@@ -231,7 +239,8 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
             return;
         }
 
-        new GetPrincipalsByKeysRequest(missingCollaborators).sendAndParse()
+        new GetPrincipalsByKeysRequest(missingCollaborators)
+            .sendAndParse()
             .then((principals: Principal[]) => {
                 principals.forEach((principal: Principal) => {
                     this.collaboratorDisplayNames.set(principal.getKey().toString(), principal.getDisplayName());
@@ -309,13 +318,16 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
     }
 
     private fetchProjectInfo(): void {
-        new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
-            this.updateProjectLabelByName(projects, getActiveProjectName());
-        }).catch((reason) => {
-            this.updateProjectLabel(Project.create().setName(getActiveProjectName()).build());
-            DefaultErrorHandler.handle(reason);
-            return Q.reject(reason);
-        });
+        new ProjectListRequest()
+            .sendAndParse()
+            .then((projects: Project[]) => {
+                this.updateProjectLabelByName(projects, getActiveProjectName());
+            })
+            .catch((reason) => {
+                this.updateProjectLabel(Project.create().setName(getActiveProjectName()).build());
+                DefaultErrorHandler.handle(reason);
+                return Q.reject(reason);
+            });
     }
 
     private updateProjectLabelByName(projects: Project[], projectName: string): void {
@@ -406,4 +418,4 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
     }
 }
 
-export {ContentWizardToolbarElement as ContentWizardToolbar};
+export { ContentWizardToolbarElement as ContentWizardToolbar };

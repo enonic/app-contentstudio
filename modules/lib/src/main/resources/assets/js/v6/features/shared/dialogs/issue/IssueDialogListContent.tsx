@@ -1,9 +1,9 @@
-import {Button, Dialog, Tab} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {Plus} from 'lucide-react';
-import {useMemo, type ReactElement} from 'react';
+import { Button, Dialog, Tab } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { Plus } from 'lucide-react';
+import { useMemo, type ReactElement } from 'react';
 
-import {useI18n} from '../../../hooks/useI18n';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import {
     $issueDialog,
     $issueDialogListFilteredIssues,
@@ -13,12 +13,12 @@ import {
     setIssueDialogListFilter,
     setIssueDialogListTab,
 } from '../../../store/dialogs/issueDialog.store';
-import {openNewIssueDialog} from '../../../store/dialogs/newIssueDialog.store';
-import {IssueDialogSelector} from './IssueDialogSelector';
-import {IssueList} from './IssueList';
+import { openNewIssueDialog } from '../../../store/dialogs/newIssueDialog.store';
+import { IssueDialogSelector } from './IssueDialogSelector';
+import { IssueList } from './IssueList';
 
-import type {IssueWithAssignees} from '../../../../../app/issue/IssueWithAssignees';
-import type {IssueDialogFilter, IssueDialogTab} from './issueDialog.types';
+import type { IssueWithAssignees } from '../../../../../app/issue/IssueWithAssignees';
+import type { IssueDialogFilter, IssueDialogTab } from './issueDialog.types';
 
 const ISSUE_DIALOG_LIST_CONTENT_NAME = 'IssueDialogListContent';
 
@@ -36,7 +36,7 @@ const isIssueDialogTab = (value: string): value is IssueDialogTab => {
 };
 
 export const IssueDialogListContent = (): ReactElement => {
-    const {filter, tab, totals, loading} = useStore($issueDialog, {
+    const { filter, tab, totals, loading } = useStore($issueDialog, {
         keys: ['filter', 'tab', 'totals', 'loading'],
     });
     const tabCounts = useStore($issueDialogListTabCounts);
@@ -54,24 +54,27 @@ export const IssueDialogListContent = (): ReactElement => {
     const publishRequestsLabel = useI18n('field.publishRequests');
     const issuesLabel = useI18n('field.issues');
 
-    const filterLabels = useMemo<Record<IssueDialogFilter, string>>(() => ({
-        all: allLabel,
-        assignedToMe: assignedToMeLabel,
-        createdByMe: createdByMeLabel,
-        publishRequests: publishRequestsLabel,
-        issues: issuesLabel,
-    }), [allLabel, assignedToMeLabel, createdByMeLabel, publishRequestsLabel, issuesLabel]);
+    const filterLabels = useMemo<Record<IssueDialogFilter, string>>(
+        () => ({
+            all: allLabel,
+            assignedToMe: assignedToMeLabel,
+            createdByMe: createdByMeLabel,
+            publishRequests: publishRequestsLabel,
+            issues: issuesLabel,
+        }),
+        [allLabel, assignedToMeLabel, createdByMeLabel, publishRequestsLabel, issuesLabel],
+    );
 
-    const {openCount, closedCount, filterOptions} = useMemo(() => {
+    const { openCount, closedCount, filterOptions } = useMemo(() => {
         const openCount = tabCounts.open ?? 0;
         const closedCount = tabCounts.closed ?? 0;
 
         const getFilterCount = (value: IssueDialogFilter): number => {
-            const counts = totals[value] ?? {open: 0, closed: 0};
-            return tab === 'open' ? counts.open ?? 0 : counts.closed ?? 0;
+            const counts = totals[value] ?? { open: 0, closed: 0 };
+            return tab === 'open' ? (counts.open ?? 0) : (counts.closed ?? 0);
         };
 
-        const filterOptions = ISSUE_DIALOG_FILTER_ORDER.map(option => {
+        const filterOptions = ISSUE_DIALOG_FILTER_ORDER.map((option) => {
             const count = getFilterCount(option);
             const baseLabel = filterLabels[option];
             return {
@@ -81,7 +84,7 @@ export const IssueDialogListContent = (): ReactElement => {
             };
         });
 
-        return {openCount, closedCount, filterOptions};
+        return { openCount, closedCount, filterOptions };
     }, [tabCounts, totals, tab, filterLabels]);
 
     const isOpenDisabled = openCount === 0;
@@ -100,9 +103,9 @@ export const IssueDialogListContent = (): ReactElement => {
     return (
         <Dialog.Content
             data-component={ISSUE_DIALOG_LIST_CONTENT_NAME}
-            className='sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-236 gap-5.5 px-5'
+            className="sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-236 gap-5.5 px-5"
         >
-            <Dialog.DefaultHeader className='pb-2 px-5' title={title} withClose />
+            <Dialog.DefaultHeader className="pb-2 px-5" title={title} withClose />
             <Dialog.Body>
                 <Tab.Root
                     value={tab}
@@ -113,9 +116,9 @@ export const IssueDialogListContent = (): ReactElement => {
                         setIssueDialogListTab(next);
                     }}
                 >
-                    <div className='grid min-h-0 grid-cols-2 gap-x-15 gap-y-5.5 items-end px-3'>
-                        <div className='flex flex-col gap-2.5 pl-2 pr-2.5'>
-                            <span className='font-semibold'>{filterLabel}</span>
+                    <div className="grid min-h-0 grid-cols-2 gap-x-15 gap-y-5.5 items-end px-3">
+                        <div className="flex flex-col gap-2.5 pl-2 pr-2.5">
+                            <span className="font-semibold">{filterLabel}</span>
                             <IssueDialogSelector
                                 value={filter}
                                 options={filterOptions}
@@ -129,24 +132,16 @@ export const IssueDialogListContent = (): ReactElement => {
                             />
                         </div>
 
-                        <Tab.List className='pl-2.5 pr-2 justify-end'>
-                            <Tab.DefaultTrigger
-                                value='open'
-                                count={openTabCount}
-                                disabled={isOpenDisabled}
-                            >
+                        <Tab.List className="pl-2.5 pr-2 justify-end">
+                            <Tab.DefaultTrigger value="open" count={openTabCount} disabled={isOpenDisabled}>
                                 {openLabel}
                             </Tab.DefaultTrigger>
-                            <Tab.DefaultTrigger
-                                value='closed'
-                                count={closedTabCount}
-                                disabled={isClosedDisabled}
-                            >
+                            <Tab.DefaultTrigger value="closed" count={closedTabCount} disabled={isClosedDisabled}>
                                 {closedLabel}
                             </Tab.DefaultTrigger>
                         </Tab.List>
 
-                        <Tab.Content value='open' className='col-span-2 mt-0 min-h-0'>
+                        <Tab.Content value="open" className="col-span-2 mt-0 min-h-0">
                             <IssueList
                                 issues={issues}
                                 emptyLabel={emptyLabel}
@@ -154,7 +149,7 @@ export const IssueDialogListContent = (): ReactElement => {
                                 onSelect={handleIssueSelect}
                             />
                         </Tab.Content>
-                        <Tab.Content value='closed' className='col-span-2 mt-0 min-h-0'>
+                        <Tab.Content value="closed" className="col-span-2 mt-0 min-h-0">
                             <IssueList
                                 issues={issues}
                                 emptyLabel={emptyLabel}
@@ -165,14 +160,8 @@ export const IssueDialogListContent = (): ReactElement => {
                     </div>
                 </Tab.Root>
             </Dialog.Body>
-            <Dialog.Footer className='px-5'>
-                <Button
-                    variant='solid'
-                    size='lg'
-                    label={newIssueLabel}
-                    endIcon={Plus}
-                    onClick={handleCreateIssue}
-                />
+            <Dialog.Footer className="px-5">
+                <Button variant="solid" size="lg" label={newIssueLabel} endIcon={Plus} onClick={handleCreateIssue} />
             </Dialog.Footer>
         </Dialog.Content>
     );

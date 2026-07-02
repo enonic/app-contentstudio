@@ -1,13 +1,11 @@
-import {OptionDataLoader, OptionDataLoaderData} from '@enonic/lib-admin-ui/ui/selector/OptionDataLoader';
-import {type LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
+import { OptionDataLoader, OptionDataLoaderData } from '@enonic/lib-admin-ui/ui/selector/OptionDataLoader';
+import { type LoadedDataEvent } from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import Q from 'q';
-import {isBlank} from '../../../../../../v6/features/utils/format/isBlank';
-import {type Project} from '../../../../data/project/Project';
-import {ProjectListRequest} from '../../../../resource/ProjectListRequest';
+import { isBlank } from '../../../../../../v6/shared/lib/format/isBlank';
+import { type Project } from '../../../../data/project/Project';
+import { ProjectListRequest } from '../../../../resource/ProjectListRequest';
 
-export class ProjectOptionDataLoader
-    extends OptionDataLoader<Project> {
-
+export class ProjectOptionDataLoader extends OptionDataLoader<Project> {
     private modeChangeListener: (isTreeMode: boolean) => void;
 
     protected createRequest(): ProjectListRequest {
@@ -21,9 +19,11 @@ export class ProjectOptionDataLoader
             return true;
         }
 
-        return project.getDisplayName()?.toLowerCase().indexOf(searchString) > -1 ||
-               project.getDescription()?.toLowerCase().indexOf(searchString) > -1 ||
-               project.getName()?.toLowerCase().indexOf(searchString) > -1;
+        return (
+            project.getDisplayName()?.toLowerCase().indexOf(searchString) > -1 ||
+            project.getDescription()?.toLowerCase().indexOf(searchString) > -1 ||
+            project.getName()?.toLowerCase().indexOf(searchString) > -1
+        );
     }
 
     checkReadonly(options: Project[]): Q.Promise<string[]> {
@@ -48,7 +48,7 @@ export class ProjectOptionDataLoader
     }
 
     unLoadModeChanged(listener: (isTreeMode: boolean) => void): void {
-    //
+        //
     }
 
     whenLoaded(listener: (projects: Project[]) => void): void {

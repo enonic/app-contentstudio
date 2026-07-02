@@ -1,26 +1,26 @@
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
-import {Dialog, GridList, IconButton, Selector} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {CircleUserRound, X} from 'lucide-react';
-import {ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
-import {ProjectAccess} from '../../../../../../app/settings/access/ProjectAccess';
-import {useI18n} from '../../../../hooks/useI18n';
+import { Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { PrincipalType } from '@enonic/lib-admin-ui/security/PrincipalType';
+import { Dialog, GridList, IconButton, Selector } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { CircleUserRound, X } from 'lucide-react';
+import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import { ProjectAccess } from '../../../../../../app/settings/access/ProjectAccess';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import {
     $projectDialog,
     setProjectDialogRolePrincipals,
     setProjectDialogRoles,
 } from '../../../../store/dialogs/projectDialog.store';
-import {$principals} from '../../../../store/principals.store';
-import {InlineButton} from '../../../InlineButton';
-import {PrincipalSelector} from '../../../selectors/PrincipalSelector';
-import {getProjectDetailedPermissions} from '../../../../utils/url/projects';
-import {PrincipalLabel} from '../../../PrincipalLabel';
+import { $principals } from '../../../../store/principals.store';
+import { InlineButton } from '../../../../../shared/ui/InlineButton';
+import { PrincipalSelector } from '../../../selectors/PrincipalSelector';
+import { getProjectDetailedPermissions } from '../../../../../shared/lib/url/projects';
+import { PrincipalLabel } from '../../../../../shared/ui/PrincipalLabel';
 
 const filterAnonymousUserOut = (principal: Principal) => !principal.getKey().isAnonymous();
 
 export const ProjectDialogRoleStepHeader = (): ReactElement => {
-    const {mode, title} = useStore($projectDialog, {keys: ['mode', 'title']});
+    const { mode, title } = useStore($projectDialog, { keys: ['mode', 'title'] });
     const titleLabel = useI18n('dialog.project.wizard.role.title');
     const descriptionLabel = useI18n('dialog.project.wizard.role.description');
 
@@ -41,15 +41,15 @@ export type ProjectDialogRoleStepContentProps = {
     locked?: boolean;
 };
 
-export const ProjectDialogRoleStepContent = ({locked = false}: ProjectDialogRoleStepContentProps): ReactElement => {
+export const ProjectDialogRoleStepContent = ({ locked = false }: ProjectDialogRoleStepContentProps): ReactElement => {
     // Hooks
-    const {principals} = useStore($principals);
-    const {parentProjects, roles} = useStore($projectDialog, {
+    const { principals } = useStore($principals);
+    const { parentProjects, roles } = useStore($projectDialog, {
         keys: ['parentProjects', 'roles'],
     });
     const [selection, setSelection] = useState<string[]>(Object.keys(roles));
     const selectedPrincipals = useMemo(
-        () => principals.filter(principal => selection.includes(principal.getKey().toString())),
+        () => principals.filter((principal) => selection.includes(principal.getKey().toString())),
         [principals, selection],
     );
     const [selectedRoles, setSelectedRoles] = useState<Record<string, ProjectAccess>>(roles);
@@ -57,9 +57,9 @@ export const ProjectDialogRoleStepContent = ({locked = false}: ProjectDialogRole
     // Set contributor role of the selected principals.
     // If not set, fallback to contributor role.
     useEffect(() => {
-        setSelectedRoles(prevRoles =>
+        setSelectedRoles((prevRoles) =>
             Object.fromEntries(
-                selectedPrincipals.map(principal => {
+                selectedPrincipals.map((principal) => {
                     const principalKey = principal.getKey().toString();
                     const role = prevRoles[principalKey] || ProjectAccess.CONTRIBUTOR;
                     return [principalKey, role];
@@ -83,10 +83,10 @@ export const ProjectDialogRoleStepContent = ({locked = false}: ProjectDialogRole
     const canCopyFromParentProject = useMemo(() => {
         if (!parentProjects || parentProjects?.length === 0 || !parentProjectName) return false;
 
-        const {principalKeys, roles} = getProjectDetailedPermissions(parentProjects[0]);
+        const { principalKeys, roles } = getProjectDetailedPermissions(parentProjects[0]);
 
         const isParentProjectPrincipalsDifferent =
-            principalKeys.length !== selection.length || principalKeys.some(p => !selection.includes(p));
+            principalKeys.length !== selection.length || principalKeys.some((p) => !selection.includes(p));
 
         const isParentProjectPermissionsRolesDifferent = Object.entries(roles).some(
             ([key, value]) => selectedRoles[key] !== value,
@@ -105,10 +105,10 @@ export const ProjectDialogRoleStepContent = ({locked = false}: ProjectDialogRole
     const authorLabel = useI18n('settings.projects.access.author');
     const roleOptions = useMemo(
         () => [
-            {role: ProjectAccess.OWNER, label: ownerLabel},
-            {role: ProjectAccess.EDITOR, label: editorLabel},
-            {role: ProjectAccess.CONTRIBUTOR, label: contributorLabel},
-            {role: ProjectAccess.AUTHOR, label: authorLabel},
+            { role: ProjectAccess.OWNER, label: ownerLabel },
+            { role: ProjectAccess.EDITOR, label: editorLabel },
+            { role: ProjectAccess.CONTRIBUTOR, label: contributorLabel },
+            { role: ProjectAccess.AUTHOR, label: authorLabel },
         ],
         [ownerLabel, editorLabel, contributorLabel, authorLabel],
     );
@@ -118,7 +118,7 @@ export const ProjectDialogRoleStepContent = ({locked = false}: ProjectDialogRole
     const handleCopyFromParentProject = useCallback(() => {
         if (!canCopyFromParentProject) return;
 
-        const {principalKeys, roles} = getProjectDetailedPermissions(parentProjects[0]);
+        const { principalKeys, roles } = getProjectDetailedPermissions(parentProjects[0]);
 
         setSelection(principalKeys);
         setSelectedRoles(roles);
@@ -126,7 +126,7 @@ export const ProjectDialogRoleStepContent = ({locked = false}: ProjectDialogRole
 
     const handleUnselect = useCallback(
         (principalKey: string): void => {
-            setSelection(selection.filter(id => id !== principalKey));
+            setSelection(selection.filter((id) => id !== principalKey));
         },
         [setSelection, selection],
     );
@@ -134,7 +134,7 @@ export const ProjectDialogRoleStepContent = ({locked = false}: ProjectDialogRole
     const handleSelectRole = useCallback(
         (principal: Principal, role: ProjectAccess): void => {
             const key = principal.getKey().toString();
-            setSelectedRoles({...selectedRoles, [key]: role});
+            setSelectedRoles({ ...selectedRoles, [key]: role });
         },
         [setSelectedRoles, selectedRoles],
     );
@@ -161,10 +161,10 @@ export const ProjectDialogRoleStepContent = ({locked = false}: ProjectDialogRole
 
             {selection.length > 0 && (
                 <GridList className="rounded-md mb-2.5 py-2.5 pl-4 pr-1">
-                    {selectedPrincipals.map(principal => {
+                    {selectedPrincipals.map((principal) => {
                         const key = principal.getKey().toString();
                         const principalRole = selectedRoles[principal.getKey().toString()];
-                        const principalRoleLabel = roleOptions.find(role => role.role === principalRole)?.label;
+                        const principalRoleLabel = roleOptions.find((role) => role.role === principalRole)?.label;
 
                         return (
                             <GridList.Row key={key} id={key} className="p-1 gap-1.5">
@@ -178,7 +178,7 @@ export const ProjectDialogRoleStepContent = ({locked = false}: ProjectDialogRole
                                 <GridList.Cell>
                                     <Selector.Root
                                         value={principalRole}
-                                        onValueChange={value => handleSelectRole(principal, value as ProjectAccess)}
+                                        onValueChange={(value) => handleSelectRole(principal, value as ProjectAccess)}
                                     >
                                         <GridList.Action>
                                             <Selector.Trigger className="border-none text-sm h-10">
@@ -188,7 +188,7 @@ export const ProjectDialogRoleStepContent = ({locked = false}: ProjectDialogRole
                                         </GridList.Action>
                                         <Selector.Content portal={false}>
                                             <Selector.Viewport>
-                                                {roleOptions.map(({role, label}) => (
+                                                {roleOptions.map(({ role, label }) => (
                                                     <Selector.Item key={label} value={role} textValue={label}>
                                                         <Selector.ItemText>{label}</Selector.ItemText>
                                                     </Selector.Item>

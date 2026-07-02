@@ -1,5 +1,5 @@
-import type {FlatNode} from '../../../lib/tree-store';
-import {type ContentData} from './ContentData';
+import type { FlatNode } from '../../../../shared/lib/tree-store';
+import { type ContentData } from './ContentData';
 
 export type ContentUploadData = {
     id: string;
@@ -10,7 +10,7 @@ export type ContentUploadData = {
 };
 
 export function isFlatTreeItemContentUploadData(
-    item: FlatNode<ContentData | ContentUploadData>
+    item: FlatNode<ContentData | ContentUploadData>,
 ): item is FlatNode<ContentUploadData> {
     return item.data !== null && 'progress' in item.data;
 }

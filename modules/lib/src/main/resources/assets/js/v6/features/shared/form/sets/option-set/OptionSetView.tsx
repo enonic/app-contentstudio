@@ -1,6 +1,6 @@
-import {PropertyPath, PropertyPathElement} from '@enonic/lib-admin-ui/data/PropertyPath';
-import type {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import type {FormOptionSet} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
+import { PropertyPath, PropertyPathElement } from '@enonic/lib-admin-ui/data/PropertyPath';
+import type { PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
+import type { FormOptionSet } from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
 import {
     usePropertySetArray,
     useServerErrors,
@@ -8,19 +8,25 @@ import {
     useValidationVisibility,
     ValidationVisibilityProvider,
 } from '@enonic/lib-admin-ui/form2';
-import {useI18n} from '../../../../hooks/useI18n';
-import {SortableList} from '@enonic/lib-admin-ui/form2/components/sortable-list';
-import {type ReactElement, useCallback, useMemo, useRef, useState} from 'react';
-import {OptionSetOccurrenceBody} from './occurrence-body';
-import {OptionSetOccurrenceView} from './OptionSetOccurrenceView';
-import {seedOptionSetDefaults} from './seedOptionSetDefaults';
-import {selectOptionInPropertySet} from './useOptionSetSelection';
-import {useFormRender} from '../../FormRenderContext';
-import {SetHeader, usePropertySetKeys, useScrollPanelToOccurrence, useSetExpanded, useSetPropertyArray} from '../set-occurrence';
-import {OptionSetConfirmAdd, SetConfirmOverlay, useConfirmPosition} from '../set-confirmation';
-import {useOccurrenceError, useOptionSetChildErrors, useSetChildShowErrors} from '../set-errors';
-import {Button} from '@enonic/ui';
-import {Plus} from 'lucide-react';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { SortableList } from '@enonic/lib-admin-ui/form2/components/sortable-list';
+import { type ReactElement, useCallback, useMemo, useRef, useState } from 'react';
+import { OptionSetOccurrenceBody } from './occurrence-body';
+import { OptionSetOccurrenceView } from './OptionSetOccurrenceView';
+import { seedOptionSetDefaults } from './seedOptionSetDefaults';
+import { selectOptionInPropertySet } from './useOptionSetSelection';
+import { useFormRender } from '../../FormRenderContext';
+import {
+    SetHeader,
+    usePropertySetKeys,
+    useScrollPanelToOccurrence,
+    useSetExpanded,
+    useSetPropertyArray,
+} from '../set-occurrence';
+import { OptionSetConfirmAdd, SetConfirmOverlay, useConfirmPosition } from '../set-confirmation';
+import { useOccurrenceError, useOptionSetChildErrors, useSetChildShowErrors } from '../set-errors';
+import { Button } from '@enonic/ui';
+import { Plus } from 'lucide-react';
 
 type OptionSetViewProps = {
     optionSet: FormOptionSet;
@@ -29,7 +35,7 @@ type OptionSetViewProps = {
 
 const OPTION_SET_VIEW_NAME = 'OptionSetView';
 
-export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): ReactElement => {
+export const OptionSetView = ({ optionSet, propertySet }: OptionSetViewProps): ReactElement => {
     const name = optionSet.getName();
     const label = optionSet.getLabel();
     const helpText = optionSet.getHelpText();
@@ -46,7 +52,7 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
 
     const formItems = useMemo(() => optionSet.getFormItems(), [optionSet]);
 
-    const {enabled} = useFormRender();
+    const { enabled } = useFormRender();
     const validationVisibility = useValidationVisibility();
     const seedDefaults = useCallback((ps: PropertySet) => seedOptionSetDefaults(optionSet, ps), [optionSet]);
     const isRadio = optionSet.isRadioSelection();
@@ -55,30 +61,34 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
         onCreateOccurrence: seedDefaults,
         seedMin: !isRadio || isLockedSingle,
     });
-    const {propertySets} = usePropertySetArray(propertyArray);
+    const { propertySets } = usePropertySetArray(propertyArray);
     const propertySetKeys = usePropertySetKeys(propertySets);
-    const {state, remove, move} = useSetOccurrenceManager(occurrences, propertySets);
+    const { state, remove, move } = useSetOccurrenceManager(occurrences, propertySets);
     const serverErrors = useServerErrors();
-    const {setOccurrenceRef, scheduleScrollTo} = useScrollPanelToOccurrence(propertySets);
+    const { setOccurrenceRef, scheduleScrollTo } = useScrollPanelToOccurrence(propertySets);
     const lastAddedIndexRef = useRef<number | null>(null);
 
     // Structural occurrence changes (add/remove/move/reset) shift set positions, so
     // the positional server errors under this set no longer align — drop them all
     // (re-validated on the next save). Plain edits clear per-occurrence elsewhere.
     const clearSetServerErrors = useCallback(() => {
-        const path = PropertyPath.fromParent(propertySet.getPropertyPath(), new PropertyPathElement(name, 0)).toString();
+        const path = PropertyPath.fromParent(
+            propertySet.getPropertyPath(),
+            new PropertyPathElement(name, 0),
+        ).toString();
         serverErrors?.clearField(path.startsWith('.') ? path.slice(1) : path);
     }, [serverErrors, propertySet, name]);
-    const {expanded, isAllExpanded, handleExpandAll, handleCollapseAll, handleDragStart, handleToggleSingle} = useSetExpanded(
-        propertyArray,
-        state.count
-    );
+    const { expanded, isAllExpanded, handleExpandAll, handleCollapseAll, handleDragStart, handleToggleSingle } =
+        useSetExpanded(propertyArray, state.count);
 
     const addLabel = useI18n('action.add');
     const dragLabel = useI18n('field.occurrence.action.reorder');
 
     const occurrenceError = useOccurrenceError(occurrences, state);
-    const {childShowErrors, childValidationVisibility, setInteracted} = useSetChildShowErrors(propertyArray, propertySets);
+    const { childShowErrors, childValidationVisibility, setInteracted } = useSetChildShowErrors(
+        propertyArray,
+        propertySets,
+    );
     const childErrors = useOptionSetChildErrors(optionSet, propertySets);
 
     const handleAdd = useCallback(() => {
@@ -109,7 +119,7 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
             scheduleScrollTo(index);
             clearSetServerErrors();
         },
-        [state.canAdd, propertyArray, optionSet, scheduleScrollTo, clearSetServerErrors]
+        [state.canAdd, propertyArray, optionSet, scheduleScrollTo, clearSetServerErrors],
     );
     const handleCancelAdd = useCallback(() => {
         setConfirmingAdd(false);
@@ -129,7 +139,7 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
             scheduleScrollTo(index);
             clearSetServerErrors();
         },
-        [state.canAdd, propertyArray, optionSet, seedDefaults, scheduleScrollTo, clearSetServerErrors]
+        [state.canAdd, propertyArray, optionSet, seedDefaults, scheduleScrollTo, clearSetServerErrors],
     );
     const handleAddBelow = useCallback(
         (index: number, selectedName?: string) => {
@@ -146,7 +156,7 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
             scheduleScrollTo(index + 1);
             clearSetServerErrors();
         },
-        [state.canAdd, propertyArray, optionSet, seedDefaults, scheduleScrollTo, clearSetServerErrors]
+        [state.canAdd, propertyArray, optionSet, seedDefaults, scheduleScrollTo, clearSetServerErrors],
     );
     const handleRemove = useCallback(
         (index: number) => {
@@ -157,7 +167,7 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
                 clearSetServerErrors();
             }
         },
-        [state.canRemove, remove, propertyArray, clearSetServerErrors]
+        [state.canRemove, remove, propertyArray, clearSetServerErrors],
     );
     const handleReset = useCallback(
         (index: number) => {
@@ -174,7 +184,7 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
             }
             clearSetServerErrors();
         },
-        [propertySets, optionSet, clearSetServerErrors]
+        [propertySets, optionSet, clearSetServerErrors],
     );
     const handleMove = useCallback(
         (fromIndex: number, toIndex: number) => {
@@ -183,7 +193,7 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
                 clearSetServerErrors();
             }
         },
-        [move, propertyArray, clearSetServerErrors]
+        [move, propertyArray, clearSetServerErrors],
     );
 
     return (
@@ -221,7 +231,7 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
                     className="flex flex-col gap-2.5"
                     onDragStart={handleDragStart}
                     controlGrip
-                    renderItem={({item, index}, grip) => (
+                    renderItem={({ item, index }, grip) => (
                         <ValidationVisibilityProvider visibility={childValidationVisibility.get(index)}>
                             <OptionSetOccurrenceView
                                 ref={(node) => setOccurrenceRef(index, node)}
@@ -242,7 +252,11 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
                                 onToggle={handleToggleSingle}
                                 hasErrors={childShowErrors.get(index) && childErrors.get(index) === true}
                             >
-                                <OptionSetOccurrenceBody optionSet={optionSet} occurrencePropertySet={item} enabled={enabled} />
+                                <OptionSetOccurrenceBody
+                                    optionSet={optionSet}
+                                    occurrencePropertySet={item}
+                                    enabled={enabled}
+                                />
                             </OptionSetOccurrenceView>
                         </ValidationVisibilityProvider>
                     )}

@@ -1,7 +1,7 @@
-import {Tab} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {type ReactElement, useEffect, useState} from 'react';
-import {useI18n} from '../../../hooks/useI18n';
+import { Tab } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { type ReactElement, useEffect, useState } from 'react';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import {
     $contentTypeDisplayName,
     $displayName,
@@ -9,12 +9,12 @@ import {
     $isContentFormExpanded,
     $mixinsTabs,
 } from '../../../store/wizardContent.store';
-import {$invalidTabs, $validationVisibility} from '../../../store/wizardValidation.store';
-import {CollapsedFormPanel} from './CollapsedFormPanel';
-import {ContentForm} from './ContentForm';
-import {MixinView} from './MixinView';
-import {ToggleFormButton} from './ToggleFormButton';
-import {PageComponentsView} from './page-components/PageComponentsView';
+import { $invalidTabs, $validationVisibility } from '../../../store/wizardValidation.store';
+import { CollapsedFormPanel } from './CollapsedFormPanel';
+import { ContentForm } from './ContentForm';
+import { MixinView } from './MixinView';
+import { ToggleFormButton } from './ToggleFormButton';
+import { PageComponentsView } from './page-components/PageComponentsView';
 
 type ContentWizardTabsProps = {
     tabListAction?: ReactElement;
@@ -22,7 +22,7 @@ type ContentWizardTabsProps = {
 
 const CONTENT_WIZARD_TABS_NAME = 'ContentWizardTabs';
 
-export const ContentWizardTabs = ({tabListAction}: ContentWizardTabsProps): ReactElement => {
+export const ContentWizardTabs = ({ tabListAction }: ContentWizardTabsProps): ReactElement => {
     const isExpanded = useStore($isContentFormExpanded);
     const contentTypeDisplayName = useStore($contentTypeDisplayName);
     const displayName = useStore($displayName);
@@ -42,16 +42,32 @@ export const ContentWizardTabs = ({tabListAction}: ContentWizardTabsProps): Reac
     }, [hasPage, xDataTabs, activeTab]);
 
     if (!isExpanded) {
-        return <CollapsedFormPanel data-component={CONTENT_WIZARD_TABS_NAME} displayName={displayName || contentTypeDisplayName} />;
+        return (
+            <CollapsedFormPanel
+                data-component={CONTENT_WIZARD_TABS_NAME}
+                displayName={displayName || contentTypeDisplayName}
+            />
+        );
     }
 
     return (
-        <Tab.Root data-component={CONTENT_WIZARD_TABS_NAME} value={activeTab} onValueChange={setActiveTab} className="flex flex-col gap-7.5">
+        <Tab.Root
+            data-component={CONTENT_WIZARD_TABS_NAME}
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="flex flex-col gap-7.5"
+        >
             <div className="flex items-center gap-1.5">
                 <Tab.ListOverflow className="min-w-0 flex-1">
                     <Tab.List>
-                        <Tab.DefaultTrigger value="content" error={showErrors && invalidTabs.has('content')}>{contentTypeDisplayName}</Tab.DefaultTrigger>
-                        {hasPage && <Tab.DefaultTrigger value="page" error={showErrors && invalidTabs.has('page')}>{pageTabLabel}</Tab.DefaultTrigger>}
+                        <Tab.DefaultTrigger value="content" error={showErrors && invalidTabs.has('content')}>
+                            {contentTypeDisplayName}
+                        </Tab.DefaultTrigger>
+                        {hasPage && (
+                            <Tab.DefaultTrigger value="page" error={showErrors && invalidTabs.has('page')}>
+                                {pageTabLabel}
+                            </Tab.DefaultTrigger>
+                        )}
                         {xDataTabs.map((tab) => (
                             <Tab.DefaultTrigger
                                 key={tab.name}
@@ -64,7 +80,7 @@ export const ContentWizardTabs = ({tabListAction}: ContentWizardTabsProps): Reac
                     </Tab.List>
                 </Tab.ListOverflow>
                 {tabListAction}
-                <ToggleFormButton/>
+                <ToggleFormButton />
             </div>
 
             <Tab.Content value="content">

@@ -1,11 +1,11 @@
-import {cn} from '@enonic/ui';
-import {LoaderCircle} from 'lucide-react';
-import {useI18n} from '../../../hooks/useI18n';
-import {StatusIcon} from '../../icons/StatusIcon';
-import {LegacyElement} from '../../LegacyElement';
-import {StatusBarEntry} from './StatusBarEntry';
-import {StatusBarEntryButton} from './StatusBarEntryButton';
-import {StatusBarErrorEntry} from './StatusBarErrorEntry';
+import { cn } from '@enonic/ui';
+import { LoaderCircle } from 'lucide-react';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { StatusIcon } from '../../../../shared/ui/icons/StatusIcon';
+import { LegacyElement } from '../../../../shared/ui/LegacyElement';
+import { StatusBarEntry } from './StatusBarEntry';
+import { StatusBarEntryButton } from './StatusBarEntryButton';
+import { StatusBarErrorEntry } from './StatusBarErrorEntry';
 
 type Props = {
     className?: string;
@@ -57,7 +57,7 @@ function getStatus({
     if (editing) {
         return 'editing';
     }
-    if (Object.values(errors).some(entry => (entry?.count ?? 0) > 0)) {
+    if (Object.values(errors).some((entry) => (entry?.count ?? 0) > 0)) {
         return 'errors';
     }
     if (warningText) {
@@ -71,7 +71,7 @@ function getStatus({
 
 const SELECTION_STATUS_BAR_NAME = 'SelectionStatusBar';
 
-export const SelectionStatusBar = ({className, onApply, onCancel, ...props}: Props): React.ReactElement => {
+export const SelectionStatusBar = ({ className, onApply, onCancel, ...props }: Props): React.ReactElement => {
     const loadingText = useI18n('dialog.statusBar.loading');
     const failedText = useI18n('dialog.statusBar.error.failed.text');
     const editingText = useI18n('dialog.state.editing');
@@ -90,7 +90,7 @@ export const SelectionStatusBar = ({className, onApply, onCancel, ...props}: Pro
         return null;
     }
 
-    const {inProgress, invalid, noPermissions} = props.errors || {};
+    const { inProgress, invalid, noPermissions } = props.errors || {};
 
     return (
         <div data-component={SELECTION_STATUS_BAR_NAME} className={cn('flex flex-col gap-2.5', className)}>
@@ -200,38 +200,38 @@ export class SelectionStatusBarElement extends LegacyElement<typeof SelectionSta
     }
 
     setEditing(editing: boolean): void {
-        this.setProps({editing});
+        this.setProps({ editing });
     }
 
     setLoading(loading: boolean): void {
-        this.setProps({loading});
+        this.setProps({ loading });
     }
 
     setFailed(failed: boolean): void {
-        this.setProps({failed});
+        this.setProps({ failed });
     }
 
     setErrorCount(kind: ErrorKind, count: number): void {
-        const {errors} = this.props.get();
+        const { errors } = this.props.get();
         const error = errors[kind];
-        this.setProps({errors: {...errors, [kind]: {...error, count}}});
+        this.setProps({ errors: { ...errors, [kind]: { ...error, count } } });
     }
 
     setErrorDisabled(kind: Exclude<ErrorKind, 'inbound'>, disabled: boolean): void {
-        const {errors} = this.props.get();
+        const { errors } = this.props.get();
         const error = errors[kind];
-        this.setProps({errors: {...errors, [kind]: {...error, disabled}}});
+        this.setProps({ errors: { ...errors, [kind]: { ...error, disabled } } });
     }
 
     reset(): void {
-        const {inProgress, invalid, noPermissions} = this.props.get().errors;
+        const { inProgress, invalid, noPermissions } = this.props.get().errors;
         this.setProps({
             failed: false,
             editing: false,
             errors: {
-                inProgress: {...inProgress, count: 0, disabled: false},
-                invalid: {...invalid, count: 0, disabled: false},
-                noPermissions: {...noPermissions, count: 0, disabled: false},
+                inProgress: { ...inProgress, count: 0, disabled: false },
+                invalid: { ...invalid, count: 0, disabled: false },
+                noPermissions: { ...noPermissions, count: 0, disabled: false },
             },
         });
     }

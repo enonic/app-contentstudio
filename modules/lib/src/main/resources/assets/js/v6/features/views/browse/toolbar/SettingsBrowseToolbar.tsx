@@ -1,11 +1,11 @@
-import {type Action} from '@enonic/lib-admin-ui/ui/Action';
-import {Toolbar} from '@enonic/ui';
-import {type ReactElement} from 'react';
-import {type SettingsTreeActions} from 'src/main/resources/assets/js/app/settings/tree/SettingsTreeActions';
-import {useI18n} from '../../../hooks/useI18n';
-import {LegacyElement} from '../../../shared/LegacyElement';
-import {ActionGroup} from './ActionGroup';
-import {ToolbarActionButton} from './ToolbarActionButton';
+import { type Action } from '@enonic/lib-admin-ui/ui/Action';
+import { Toolbar } from '@enonic/ui';
+import { type ReactElement } from 'react';
+import { type SettingsTreeActions } from 'src/main/resources/assets/js/app/settings/tree/SettingsTreeActions';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { LegacyElement } from '../../../../shared/ui/LegacyElement';
+import { ActionGroup } from './ActionGroup';
+import { ToolbarActionButton } from './ToolbarActionButton';
 
 type SettingsBrowseToolbarProps = {
     actions: Action[];
@@ -13,7 +13,7 @@ type SettingsBrowseToolbarProps = {
 
 const SETTINGS_BROWSE_TOOLBAR_NAME = 'SettingsBrowseToolbar';
 
-export const SettingsBrowseToolbar = ({actions}: SettingsBrowseToolbarProps): ReactElement => {
+export const SettingsBrowseToolbar = ({ actions }: SettingsBrowseToolbarProps): ReactElement => {
     const ariaLabel = useI18n('wcag.toolbar.settings.label');
 
     return (
@@ -38,8 +38,11 @@ SettingsBrowseToolbar.displayName = SETTINGS_BROWSE_TOOLBAR_NAME;
 // * Legacy
 //
 
-export class SettingsBrowseToolbarElement extends LegacyElement<typeof SettingsBrowseToolbar, SettingsBrowseToolbarProps> {
+export class SettingsBrowseToolbarElement extends LegacyElement<
+    typeof SettingsBrowseToolbar,
+    SettingsBrowseToolbarProps
+> {
     constructor(settingsTreeActions: SettingsTreeActions) {
-        super({actions: settingsTreeActions.getAllActions()}, SettingsBrowseToolbar);
+        super({ actions: settingsTreeActions.getAllActions() }, SettingsBrowseToolbar);
     }
 }

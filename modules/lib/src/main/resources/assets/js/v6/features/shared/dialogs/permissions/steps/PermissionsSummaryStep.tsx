@@ -1,17 +1,17 @@
-import {Dialog} from '@enonic/ui';
-import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
-import {useStore} from '@nanostores/preact';
-import {type ReactElement, useMemo} from 'react';
-import {useI18n} from '../../../../hooks/useI18n';
-import {$permissionsDialog} from '../../../../store/dialogs/permissionsDialog.store';
-import {compareAccessControlEntries} from '../../../../utils/cms/permissions/accessControl';
-import {MoveRight} from 'lucide-react';
-import {Access} from '../../../../../../app/security/Access';
-import {AccessHelper} from '../../../../../../app/security/AccessHelper';
-import {PrincipalLabel} from '../../../PrincipalLabel';
+import { Dialog } from '@enonic/ui';
+import { RoleKeys } from '@enonic/lib-admin-ui/security/RoleKeys';
+import { useStore } from '@nanostores/preact';
+import { type ReactElement, useMemo } from 'react';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { $permissionsDialog } from '../../../../store/dialogs/permissionsDialog.store';
+import { compareAccessControlEntries } from '../../../../../shared/lib/cms/permissions/accessControl';
+import { MoveRight } from 'lucide-react';
+import { Access } from '../../../../../../app/security/Access';
+import { AccessHelper } from '../../../../../../app/security/AccessHelper';
+import { PrincipalLabel } from '../../../../../shared/ui/PrincipalLabel';
 
 export const PermissionsDialogSummaryStepHeader = (): ReactElement => {
-    const {contentDisplayName, contentDescendantsCount} = useStore($permissionsDialog, {
+    const { contentDisplayName, contentDescendantsCount } = useStore($permissionsDialog, {
         keys: ['contentDisplayName', 'contentDescendantsCount'],
     });
 
@@ -27,29 +27,40 @@ export const PermissionsDialogSummaryStepHeader = (): ReactElement => {
 
 PermissionsDialogSummaryStepHeader.displayName = 'PermissionsDialogSummaryStepHeader';
 
-export const PermissionsDialogSummaryStepContent = ({locked}: {locked: boolean}): ReactElement => {
+export const PermissionsDialogSummaryStepContent = ({ locked }: { locked: boolean }): ReactElement => {
     // Stores
-    const {initialAccessControlEntries, accessControlEntries, initialAccessMode, accessMode, applyTo, replaceAllChildPermissions} =
-        useStore($permissionsDialog, {
-            keys: [
-                'initialAccessControlEntries',
-                'accessControlEntries',
-                'initialAccessMode',
-                'accessMode',
-                'applyTo',
-                'replaceAllChildPermissions',
-            ],
-        });
+    const {
+        initialAccessControlEntries,
+        accessControlEntries,
+        initialAccessMode,
+        accessMode,
+        applyTo,
+        replaceAllChildPermissions,
+    } = useStore($permissionsDialog, {
+        keys: [
+            'initialAccessControlEntries',
+            'accessControlEntries',
+            'initialAccessMode',
+            'accessMode',
+            'applyTo',
+            'replaceAllChildPermissions',
+        ],
+    });
 
     // Memoized values
-    const {added, modified, removed, unchanged} = useMemo(() => {
-        const {added, modified, removed, unchanged} = compareAccessControlEntries(initialAccessControlEntries, accessControlEntries);
+    const { added, modified, removed, unchanged } = useMemo(() => {
+        const { added, modified, removed, unchanged } = compareAccessControlEntries(
+            initialAccessControlEntries,
+            accessControlEntries,
+        );
 
         // Omit Everyone principal
         const addedWithoutPrincipal = added.filter((entry) => !entry.getPrincipalKey().equals(RoleKeys.EVERYONE));
         const modifiedWithoutPrincipal = modified.filter((entry) => !entry.getPrincipalKey().equals(RoleKeys.EVERYONE));
         const removedWithoutPrincipal = removed.filter((entry) => !entry.getPrincipalKey().equals(RoleKeys.EVERYONE));
-        const unchangedWithoutPrincipal = unchanged.filter((entry) => !entry.getPrincipalKey().equals(RoleKeys.EVERYONE));
+        const unchangedWithoutPrincipal = unchanged.filter(
+            (entry) => !entry.getPrincipalKey().equals(RoleKeys.EVERYONE),
+        );
 
         return {
             added: addedWithoutPrincipal,
@@ -88,7 +99,7 @@ export const PermissionsDialogSummaryStepContent = ({locked}: {locked: boolean})
                 [Access.READ, accessReadLabel],
                 [Access.CUSTOM, accessCustomLabel],
             ]),
-        [accessFullLabel, accessPublishLabel, accessWriteLabel, accessReadLabel, accessCustomLabel]
+        [accessFullLabel, accessPublishLabel, accessWriteLabel, accessReadLabel, accessCustomLabel],
     );
 
     return (
@@ -99,17 +110,25 @@ export const PermissionsDialogSummaryStepContent = ({locked}: {locked: boolean})
                     <dt className="font-semibold">{accessModeLabel}</dt>
                     {initialAccessMode !== accessMode && (
                         <dd className="flex items-center gap-2.5">
-                            <span className="line-through">{initialAccessMode === 'public' ? publicLabel : restrictedLabel}</span>
+                            <span className="line-through">
+                                {initialAccessMode === 'public' ? publicLabel : restrictedLabel}
+                            </span>
                             <MoveRight strokeWidth={1} />
                             <span>{accessMode === 'public' ? publicLabel : restrictedLabel}</span>
                         </dd>
                     )}
-                    {initialAccessMode === accessMode && <dd>{accessMode === 'public' ? publicLabel : restrictedLabel}</dd>}
+                    {initialAccessMode === accessMode && (
+                        <dd>{accessMode === 'public' ? publicLabel : restrictedLabel}</dd>
+                    )}
                 </div>
                 <div className="contents">
                     <dt className="font-semibold">{applyToLabel}</dt>
                     <dd>
-                        {applyTo === 'single' ? thisItemLabel : applyTo === 'subtree' ? childrenOnlyLabel : thisItemAndAllChildrenLabel}
+                        {applyTo === 'single'
+                            ? thisItemLabel
+                            : applyTo === 'subtree'
+                              ? childrenOnlyLabel
+                              : thisItemAndAllChildrenLabel}
                     </dd>
                 </div>
                 {applyTo !== 'single' && (
@@ -130,7 +149,9 @@ export const PermissionsDialogSummaryStepContent = ({locked}: {locked: boolean})
                             {added.map((entry) => {
                                 const principal = entry.getPrincipal();
                                 const key = principal.getKey().toString();
-                                const accessValue = AccessHelper.getAccessValueFromPermissions(entry.getAllowedPermissions());
+                                const accessValue = AccessHelper.getAccessValueFromPermissions(
+                                    entry.getAllowedPermissions(),
+                                );
                                 const accessControlEntryLabel = accessLabelMap.get(accessValue);
 
                                 return (
@@ -153,13 +174,15 @@ export const PermissionsDialogSummaryStepContent = ({locked}: {locked: boolean})
                                 const principal = newEntry.getPrincipal();
                                 const key = principal.getKey().toString();
                                 const initialEntry = initialAccessControlEntries.find((initialEntry) =>
-                                    initialEntry.getPrincipal().getKey().equals(principal.getKey())
+                                    initialEntry.getPrincipal().getKey().equals(principal.getKey()),
                                 );
                                 const initialAccessValue = AccessHelper.getAccessValueFromPermissions(
-                                    initialEntry?.getAllowedPermissions()
+                                    initialEntry?.getAllowedPermissions(),
                                 );
                                 const initialAccessControlEntryLabel = accessLabelMap.get(initialAccessValue);
-                                const accessValue = AccessHelper.getAccessValueFromPermissions(newEntry.getAllowedPermissions());
+                                const accessValue = AccessHelper.getAccessValueFromPermissions(
+                                    newEntry.getAllowedPermissions(),
+                                );
                                 const accessControlEntryLabel = accessLabelMap.get(accessValue);
 
                                 return (
@@ -185,12 +208,17 @@ export const PermissionsDialogSummaryStepContent = ({locked}: {locked: boolean})
                             {removed.map((entry) => {
                                 const principal = entry.getPrincipal();
                                 const key = principal.getKey().toString();
-                                const accessValue = AccessHelper.getAccessValueFromPermissions(entry.getAllowedPermissions());
+                                const accessValue = AccessHelper.getAccessValueFromPermissions(
+                                    entry.getAllowedPermissions(),
+                                );
                                 const accessControlEntryLabel = accessLabelMap.get(accessValue);
 
                                 return (
                                     <li key={key} className="flex items-center justify-between py-1">
-                                        <PrincipalLabel principal={principal} className="[&_span:has(+small)]:line-through" />
+                                        <PrincipalLabel
+                                            principal={principal}
+                                            className="[&_span:has(+small)]:line-through"
+                                        />
                                         <span className="line-through text-sm">{accessControlEntryLabel}</span>
                                     </li>
                                 );
@@ -207,7 +235,9 @@ export const PermissionsDialogSummaryStepContent = ({locked}: {locked: boolean})
                             {unchanged.map((entry) => {
                                 const principal = entry.getPrincipal();
                                 const key = principal.getKey().toString();
-                                const accessValue = AccessHelper.getAccessValueFromPermissions(entry.getAllowedPermissions());
+                                const accessValue = AccessHelper.getAccessValueFromPermissions(
+                                    entry.getAllowedPermissions(),
+                                );
                                 const accessControlEntryLabel = accessLabelMap.get(accessValue);
 
                                 return (

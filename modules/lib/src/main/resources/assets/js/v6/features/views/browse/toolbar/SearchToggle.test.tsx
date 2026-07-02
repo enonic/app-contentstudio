@@ -1,14 +1,8 @@
-import {act, render, screen} from '@testing-library/preact';
-import {
-    cloneElement,
-    forwardRef,
-    isValidElement,
-    type ReactElement,
-    type ReactNode,
-} from 'react';
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {setContentFilterOpen} from '../../../store/contentFilter.store';
+import { act, render, screen } from '@testing-library/preact';
+import { cloneElement, forwardRef, isValidElement, type ReactElement, type ReactNode } from 'react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { Action } from '@enonic/lib-admin-ui/ui/Action';
+import { setContentFilterOpen } from '../../../store/contentFilter.store';
 
 vi.mock('@enonic/ui', () => {
     type MockToggleProps = {
@@ -20,39 +14,38 @@ vi.mock('@enonic/ui', () => {
         className?: string;
     } & Record<string, unknown>;
 
-    const Toggle = forwardRef<HTMLButtonElement, MockToggleProps>(({
-        pressed,
-        onPressedChange,
-        startIcon: _startIcon,
-        iconStrokeWidth: _iconStrokeWidth,
-        size: _size,
-        className,
-        ...props
-    }, ref) => (
-        <button
-            ref={ref}
-            type='button'
-            aria-pressed={pressed}
-            className={className}
-            onClick={() => onPressedChange?.(!pressed)}
-            {...props}
-        />
-    ));
+    const Toggle = forwardRef<HTMLButtonElement, MockToggleProps>(
+        (
+            {
+                pressed,
+                onPressedChange,
+                startIcon: _startIcon,
+                iconStrokeWidth: _iconStrokeWidth,
+                size: _size,
+                className,
+                ...props
+            },
+            ref,
+        ) => (
+            <button
+                ref={ref}
+                type="button"
+                aria-pressed={pressed}
+                className={className}
+                onClick={() => onPressedChange?.(!pressed)}
+                {...props}
+            />
+        ),
+    );
     Toggle.displayName = 'Toggle';
 
     // Mimics the roving tabindex state where the item is not the active one
-    const ToolbarItem = ({
-        children,
-        disabled = false,
-    }: {
-        children: ReactElement;
-        disabled?: boolean;
-    }) => {
+    const ToolbarItem = ({ children, disabled = false }: { children: ReactElement; disabled?: boolean }) => {
         if (!isValidElement(children)) {
             return <>{children}</>;
         }
 
-        const child = children as ReactElement<{disabled?: boolean; tabIndex?: number}>;
+        const child = children as ReactElement<{ disabled?: boolean; tabIndex?: number }>;
 
         return cloneElement(child, {
             disabled: disabled || Boolean(child.props.disabled),
@@ -65,12 +58,12 @@ vi.mock('@enonic/ui', () => {
         Toolbar: {
             Item: ToolbarItem,
         },
-        Tooltip: ({children}: {children?: ReactNode}) => <>{children}</>,
+        Tooltip: ({ children }: { children?: ReactNode }) => <>{children}</>,
         cn: (...args: unknown[]) => args.filter(Boolean).join(' '),
     };
 });
 
-vi.mock('../../../hooks/useI18n', () => ({
+vi.mock('../../../../shared/lib/hooks/useI18n', () => ({
     useI18n: (key: string) => key,
 }));
 
@@ -78,7 +71,7 @@ vi.mock('lucide-react', () => ({
     Search: () => null,
 }));
 
-import {SearchToggle} from './SearchToggle';
+import { SearchToggle } from './SearchToggle';
 
 const createAction = (enabled = true) => {
     const action = new Action('Search');
@@ -90,7 +83,7 @@ const createAction = (enabled = true) => {
 // useStore from @nanostores/preact batches re-renders via setTimeout
 const flushStoreUpdates = async () => {
     await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 0));
+        await new Promise((resolve) => setTimeout(resolve, 0));
     });
 };
 

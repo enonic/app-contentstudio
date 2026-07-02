@@ -1,6 +1,6 @@
-import {useCallback, useEffect, useRef, type RefObject} from 'react';
-import {ensureSortDialogBatchLoaded} from '../store/dialogs/sortDialog.store';
-import {useDebouncedCallback} from '../utils/hooks/useDebouncedCallback';
+import { useCallback, useEffect, useRef, type RefObject } from 'react';
+import { ensureSortDialogBatchLoaded } from '../store/dialogs/sortDialog.store';
+import { useDebouncedCallback } from '../../shared/lib/hooks/useDebouncedCallback';
 
 type RowRef = (node: HTMLElement | null) => void;
 type RegisterRow = (index: number) => RowRef;
@@ -17,7 +17,7 @@ export function useSortDialogBatchLoader(rootRef: RefObject<HTMLElement | null>)
     const rowRefs = useRef(new Map<number, RowRef>());
 
     const flush = useDebouncedCallback(() => {
-        visibleIndices.current.forEach(index => {
+        visibleIndices.current.forEach((index) => {
             void ensureSortDialogBatchLoaded(index);
         });
     }, 100);
@@ -26,8 +26,8 @@ export function useSortDialogBatchLoader(rootRef: RefObject<HTMLElement | null>)
         // ? Observer root is captured once from rootRef.current; a Dialog.Body
         // ? remount would not rebuild it. Safe today — the body is stable while open.
         const observer = new IntersectionObserver(
-            entries => {
-                entries.forEach(entry => {
+            (entries) => {
+                entries.forEach((entry) => {
                     const index = indexByElement.current.get(entry.target);
                     if (index == null) return;
                     if (entry.isIntersecting) {
@@ -38,11 +38,11 @@ export function useSortDialogBatchLoader(rootRef: RefObject<HTMLElement | null>)
                 });
                 flush();
             },
-            {root: rootRef.current, rootMargin: '200px 0px'},
+            { root: rootRef.current, rootMargin: '200px 0px' },
         );
         observerRef.current = observer;
 
-        elementByIndex.current.forEach(element => observer.observe(element));
+        elementByIndex.current.forEach((element) => observer.observe(element));
 
         return () => {
             observer.disconnect();

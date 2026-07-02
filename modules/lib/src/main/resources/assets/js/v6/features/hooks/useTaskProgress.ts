@@ -1,6 +1,6 @@
-import type {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
-import {useStore} from '@nanostores/preact';
-import {useEffect, useRef} from 'react';
+import type { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
+import { useStore } from '@nanostores/preact';
+import { useEffect, useRef } from 'react';
 import {
     cleanupTask as cleanupTaskService,
     getTaskPhaseInfo,
@@ -8,8 +8,8 @@ import {
     type TaskPhase,
     type TaskTrackerConfig,
 } from '../services/task.service';
-import {$taskStore, type TaskProgressState, type TaskResultState} from '../store/task.store';
-import {clampProgress} from '../utils/cms/content/progress';
+import { $taskStore, type TaskProgressState, type TaskResultState } from '../store/task.store';
+import { clampProgress } from '../../shared/lib/cms/content/progress';
 
 export type UseTaskProgressResult = {
     /** Current progress value (0-100), clamped */
@@ -49,7 +49,7 @@ export type UseTaskProgressResult = {
  */
 export const useTaskProgress = (
     taskId: TaskId | null | undefined,
-    config?: TaskTrackerConfig
+    config?: TaskTrackerConfig,
 ): UseTaskProgressResult => {
     const store = useStore($taskStore);
     const configRef = useRef(config);

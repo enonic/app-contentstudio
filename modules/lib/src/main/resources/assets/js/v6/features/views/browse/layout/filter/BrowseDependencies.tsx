@@ -1,11 +1,11 @@
-import {ReactElement} from 'react';
-import {ContentSummary} from '../../../../../../app/content/ContentSummary';
-import {LegacyElement} from '../../../../shared/LegacyElement';
-import {ContentId} from '../../../../../../app/content/ContentId';
-import {useI18n} from '../../../../hooks/useI18n';
-import {ContentIcon} from '../../../../shared/icons/ContentIcon';
-import {X} from 'lucide-react';
-import {IconButton} from '@enonic/ui';
+import { ReactElement } from 'react';
+import { ContentSummary } from '../../../../../../app/content/ContentSummary';
+import { LegacyElement } from '../../../../../shared/ui/LegacyElement';
+import { ContentId } from '../../../../../../app/content/ContentId';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { ContentIcon } from '../../../../../shared/ui/icons/ContentIcon';
+import { X } from 'lucide-react';
+import { IconButton } from '@enonic/ui';
 
 type BrowseDependenciesProps = {
     item?: ContentSummary;
@@ -37,7 +37,13 @@ const BrowseDependencies = ({
                         <span className="text-xs text-subtle truncate">{item.getPath().toString()}</span>
                     </div>
                 </div>
-                <IconButton variant="text" icon={X} onClick={onCancelClick} size="lg" className="shrink-0 size-7 rounded-md" />
+                <IconButton
+                    variant="text"
+                    icon={X}
+                    onClick={onCancelClick}
+                    size="lg"
+                    className="shrink-0 size-7 rounded-md"
+                />
             </div>
         </div>
     );

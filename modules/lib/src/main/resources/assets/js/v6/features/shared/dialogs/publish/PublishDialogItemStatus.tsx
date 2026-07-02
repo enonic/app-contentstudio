@@ -1,17 +1,17 @@
-import {GridList} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {type ReactElement, useMemo} from 'react';
-import {DiffStatusBadge} from '../../status/DiffStatusBadge';
-import {calcSecondaryStatus, calcTreePublishStatus} from '../../../utils/cms/content/status';
-import {formatCompareResult} from '../../../utils/cms/content/formatCompareResult';
-import {useContentRow} from '../../lists/content-row/ContentRowContext';
-import {$isCompareStatusesLoading, $publishCompareStatuses} from '../../../store/dialogs/publishDialog.store';
-import {useI18n} from '../../../hooks/useI18n';
+import { GridList } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { type ReactElement, useMemo } from 'react';
+import { DiffStatusBadge } from '../../status/DiffStatusBadge';
+import { calcSecondaryStatus, calcTreePublishStatus } from '../../../../shared/lib/cms/content/status';
+import { formatCompareResult } from '../../../utils/cms/content/formatCompareResult';
+import { useContentRow } from '../../lists/content-row/ContentRowContext';
+import { $isCompareStatusesLoading, $publishCompareStatuses } from '../../../store/dialogs/publishDialog.store';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 
 const COMPONENT_NAME = 'PublishDialogItemStatus';
 
 export const PublishDialogItemStatus = (): ReactElement => {
-    const {content} = useContentRow();
+    const { content } = useContentRow();
     const compareStatuses = useStore($publishCompareStatuses);
     const compareLoading = useStore($isCompareStatusesLoading);
 

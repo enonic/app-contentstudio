@@ -1,13 +1,18 @@
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import type {Content} from '../../../app/content/Content';
-import type {ContentId} from '../../../app/content/ContentId';
-import type {ContentSummary} from '../../../app/content/ContentSummary';
-import {GetContentByIdRequest} from '../../../app/resource/GetContentByIdRequest';
-import {$contentRenamed, $contentUpdated} from '../store/socket.store';
-import {$wizardPersistedWorkflowState, applyWorkflowFromServer, applyServerSidePersistedContent, onWizardPersistedContentSet} from '../store/wizardContent.store';
-import {resetMixinChangedPaths} from '../store/wizardMixinData.store';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import type { Content } from '../../../app/content/Content';
+import type { ContentId } from '../../../app/content/ContentId';
+import type { ContentSummary } from '../../../app/content/ContentSummary';
+import { GetContentByIdRequest } from '../../../app/resource/GetContentByIdRequest';
+import { $contentRenamed, $contentUpdated } from '../../shared/socket/socket.store';
+import {
+    $wizardPersistedWorkflowState,
+    applyWorkflowFromServer,
+    applyServerSidePersistedContent,
+    onWizardPersistedContentSet,
+} from '../store/wizardContent.store';
+import { resetMixinChangedPaths } from '../store/wizardMixinData.store';
 
 //
 // * State
@@ -25,7 +30,7 @@ let pendingFetchToken = 0;
 //
 
 function applyContentToStores(content: Content): void {
-    const {syncedMixinNames} = applyServerSidePersistedContent(content);
+    const { syncedMixinNames } = applyServerSidePersistedContent(content);
 
     // Per-mixin changedPaths live outside the wizard store.
     for (const name of syncedMixinNames) {
@@ -77,7 +82,8 @@ function handleSummaryEvent(contents: readonly ContentSummary[] | undefined): vo
     if (summary == null) return;
 
     const summaryModifiedMs = getModifiedTimeMs(summary);
-    const isEcho = summaryModifiedMs != null && lastKnownModifiedTimeMs != null && summaryModifiedMs <= lastKnownModifiedTimeMs;
+    const isEcho =
+        summaryModifiedMs != null && lastKnownModifiedTimeMs != null && summaryModifiedMs <= lastKnownModifiedTimeMs;
 
     if (isEcho) {
         // A strictly-older echo is stale — ignore it. Applying its outdated workflow
@@ -111,7 +117,10 @@ export function recordOwnContentModification(content: Content | ContentSummary |
 
 // nanostores subscribe() fires once synchronously with the current value; drop
 // that replay so we don't act on an event from before the wizard opened.
-function subscribeFresh<T>(atom: {subscribe: (cb: (value: T) => void) => () => void}, handler: (value: T) => void): () => void {
+function subscribeFresh<T>(
+    atom: { subscribe: (cb: (value: T) => void) => () => void },
+    handler: (value: T) => void,
+): () => void {
     let primed = false;
     return atom.subscribe((value) => {
         if (!primed) {

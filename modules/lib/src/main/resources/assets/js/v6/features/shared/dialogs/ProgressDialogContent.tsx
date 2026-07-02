@@ -1,6 +1,6 @@
-import {Dialog, DialogContentProps, cn} from '@enonic/ui';
-import type {ReactElement} from 'react';
-import {ProgressBar} from '../primitives/ProgressBar';
+import { Dialog, DialogContentProps, cn } from '@enonic/ui';
+import type { ReactElement } from 'react';
+import { ProgressBar } from '../../../shared/ui/primitives/ProgressBar';
 
 type ProgressDialogProps = {
     title: string;
@@ -32,7 +32,7 @@ export const ProgressDialogContent = ({
             data-component={componentName}
         >
             <Dialog.DefaultHeader title={title} description={description} />
-            <Dialog.Body className='flex flex-col pb-10'>
+            <Dialog.Body className="flex flex-col pb-10">
                 {progress != null && <ProgressBar value={progress} />}
             </Dialog.Body>
         </Dialog.Content>

@@ -1,22 +1,31 @@
-import {Button, Dialog} from '@enonic/ui';
-import {useEffect, type ReactElement} from 'react';
-import {registerHtmlAreaContextDialogOpen} from '../../../store/dialogs/htmlAreaModal.store';
-import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
-import {type CreateHtmlAreaMacroDialogEvent} from '../../../../../app/inputtype/ui/text/CreateHtmlAreaMacroDialogEvent';
-import type {MacroDialogParams} from '../../../../../app/inputtype/ui/text/HtmlEditorTypes';
-import type {DialogOverrides} from '../../form/input-types/html-area/setupEditor';
-import {useI18n} from '../../../hooks/useI18n';
+import { Button, Dialog } from '@enonic/ui';
+import { useEffect, type ReactElement } from 'react';
+import { registerHtmlAreaContextDialogOpen } from '../../../store/dialogs/htmlAreaModal.store';
+import {
+    type CreateHtmlAreaDialogEvent,
+    HtmlAreaDialogType,
+} from '../../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
+import { type CreateHtmlAreaMacroDialogEvent } from '../../../../../app/inputtype/ui/text/CreateHtmlAreaMacroDialogEvent';
+import type { MacroDialogParams } from '../../../../../app/inputtype/ui/text/HtmlEditorTypes';
+import type { DialogOverrides } from '../../form/input-types/html-area/setupEditor';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import {
     HtmlAreaMacroDialogProvider,
     type OpenHtmlAreaMacroDialogParams,
     useHtmlAreaMacroDialogContext,
 } from './HtmlAreaMacroDialogContext';
-import {HtmlAreaMacroDialogContent} from './HtmlAreaMacroDialogContent';
+import { HtmlAreaMacroDialogContent } from './HtmlAreaMacroDialogContent';
 
 const DIALOG_NAME = 'HtmlAreaMacroDialog';
 
 const HtmlAreaMacroDialogInner = (): ReactElement => {
-    const {state: {open}, isEditing, canSubmit, close, submit} = useHtmlAreaMacroDialogContext();
+    const {
+        state: { open },
+        isEditing,
+        canSubmit,
+        close,
+        submit,
+    } = useHtmlAreaMacroDialogContext();
 
     useEffect(() => {
         if (!open) return;
@@ -39,17 +48,17 @@ const HtmlAreaMacroDialogInner = (): ReactElement => {
             <Dialog.Portal>
                 <Dialog.Overlay />
                 <Dialog.Content
-                    className='w-full h-full gap-10 sm:h-fit md:min-w-180 md:max-w-220 md:max-h-[85vh]'
+                    className="w-full h-full gap-10 sm:h-fit md:min-w-180 md:max-w-220 md:max-h-[85vh]"
                     data-component={DIALOG_NAME}
                 >
                     <Dialog.DefaultHeader title={title} withClose />
-                    <Dialog.Body className='flex flex-col gap-5 p-1.5'>
+                    <Dialog.Body className="flex flex-col gap-5 p-1.5">
                         <HtmlAreaMacroDialogContent />
                     </Dialog.Body>
                     <Dialog.Footer>
                         <Button
-                            size='lg'
-                            variant='solid'
+                            size="lg"
+                            variant="solid"
                             label={isEditing ? updateLabel : insertLabel}
                             disabled={!canSubmit}
                             onClick={submit}
@@ -67,7 +76,7 @@ type HtmlAreaMacroDialogProps = {
     openRef: { current: ((params: OpenHtmlAreaMacroDialogParams) => void) | undefined };
 };
 
-export const HtmlAreaMacroDialog = ({openRef}: HtmlAreaMacroDialogProps): ReactElement => {
+export const HtmlAreaMacroDialog = ({ openRef }: HtmlAreaMacroDialogProps): ReactElement => {
     return (
         <HtmlAreaMacroDialogProvider openRef={openRef}>
             <HtmlAreaMacroDialogInner />
@@ -77,9 +86,9 @@ export const HtmlAreaMacroDialog = ({openRef}: HtmlAreaMacroDialogProps): ReactE
 
 HtmlAreaMacroDialog.displayName = DIALOG_NAME;
 
-export function createMacroDialogOverride(
-    openRef: { current: ((params: OpenHtmlAreaMacroDialogParams) => void) | undefined },
-): DialogOverrides {
+export function createMacroDialogOverride(openRef: {
+    current: ((params: OpenHtmlAreaMacroDialogParams) => void) | undefined;
+}): DialogOverrides {
     return {
         [HtmlAreaDialogType.MACRO]: (event: CreateHtmlAreaDialogEvent) => {
             const macroEvent = event as CreateHtmlAreaMacroDialogEvent;

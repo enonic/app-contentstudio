@@ -1,8 +1,8 @@
-import {type ReactElement} from 'react';
-import {cn, GridList, IconButton, Link} from '@enonic/ui';
-import {FieldError} from '@enonic/lib-admin-ui/form2';
-import {X} from 'lucide-react';
-import {getCmsApiUrl} from '../../../../utils/url/cms';
+import { type ReactElement } from 'react';
+import { cn, GridList, IconButton, Link } from '@enonic/ui';
+import { FieldError } from '@enonic/lib-admin-ui/form2';
+import { X } from 'lucide-react';
+import { getCmsApiUrl } from '../../../../../shared/lib/url/cms';
 
 export type AttachmentUploaderListProps = {
     names: string[];
@@ -12,7 +12,13 @@ export type AttachmentUploaderListProps = {
     errors?: ReadonlyMap<string, string>;
 };
 
-export const AttachmentUploaderList = ({contentId, names, onRemove, disabled, errors}: AttachmentUploaderListProps): ReactElement => {
+export const AttachmentUploaderList = ({
+    contentId,
+    names,
+    onRemove,
+    disabled,
+    errors,
+}: AttachmentUploaderListProps): ReactElement => {
     if (names.length === 0) return null;
 
     return (
@@ -22,7 +28,11 @@ export const AttachmentUploaderList = ({contentId, names, onRemove, disabled, er
                 const error = errors?.get(name);
 
                 return (
-                    <GridList.Row key={name} id={index.toString()} className={cn('flex items-center justify-between gap-2 py-1')}>
+                    <GridList.Row
+                        key={name}
+                        id={index.toString()}
+                        className={cn('flex items-center justify-between gap-2 py-1')}
+                    >
                         <GridList.Cell>
                             <div className="flex flex-col gap-0.5 min-w-0">
                                 <GridList.Action>
@@ -35,7 +45,12 @@ export const AttachmentUploaderList = ({contentId, names, onRemove, disabled, er
                         </GridList.Cell>
                         <GridList.Cell>
                             <GridList.Action>
-                                <IconButton icon={X} variant="text" onClick={() => onRemove(index)} disabled={disabled} />
+                                <IconButton
+                                    icon={X}
+                                    variant="text"
+                                    onClick={() => onRemove(index)}
+                                    disabled={disabled}
+                                />
                             </GridList.Action>
                         </GridList.Cell>
                     </GridList.Row>

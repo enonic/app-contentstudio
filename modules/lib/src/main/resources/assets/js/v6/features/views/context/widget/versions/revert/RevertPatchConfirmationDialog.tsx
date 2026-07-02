@@ -1,7 +1,7 @@
-import {type ReactElement} from 'react';
-import {useI18n} from '../../../../../hooks/useI18n';
-import {ConfirmationDialog} from '../../../../../shared/dialogs/ConfirmationDialog';
-import {useRevertActions} from './useRevertActions';
+import { type ReactElement } from 'react';
+import { useI18n } from '../../../../../../shared/lib/hooks/useI18n';
+import { ConfirmationDialog } from '../../../../../shared/dialogs/ConfirmationDialog';
+import { useRevertActions } from './useRevertActions';
 
 export const RevertPatchConfirmationDialog = (): ReactElement | null => {
     const title = useI18n('dialog.revert.patch.title');
@@ -22,7 +22,7 @@ export const RevertPatchConfirmationDialog = (): ReactElement | null => {
                     <ConfirmationDialog.Footer
                         onConfirm={revertActions.confirmRevert}
                         onCancel={revertActions.cancelRevert}
-                        intent='danger'
+                        intent="danger"
                     />
                 </ConfirmationDialog.Content>
             </ConfirmationDialog.Portal>

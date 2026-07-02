@@ -1,4 +1,4 @@
-import {describe, it, expect, beforeEach, vi, afterEach} from 'vitest';
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import {
     $contentCache,
     setContent,
@@ -14,21 +14,21 @@ import {
     getAllContentIds,
     getIdByPath,
 } from './content.store';
-import {$activeProject} from './activeProject.store';
+import { $activeProject } from './activeProject.store';
 import {
     emitContentUpdated,
     emitContentCreated,
     emitContentDeleted,
     emitContentArchived,
     emitContentPublished,
-} from './socket.store';
-import type {ContentSummary} from '../../../app/content/ContentSummary';
-import type {Project} from '../../../app/settings/data/project/Project';
+} from '../../shared/socket/socket.store';
+import type { ContentSummary } from '../../../app/content/ContentSummary';
+import type { Project } from '../../../app/settings/data/project/Project';
 
 const DEFAULT_TEST_PROJECT = 'default';
 
 function mockProject(name: string): Project {
-    return {getName: () => name} as unknown as Project;
+    return { getName: () => name } as unknown as Project;
 }
 
 // Mock ContentSummary
@@ -57,13 +57,13 @@ function createMockContentWithPath(id: string, pathStr: string, displayName?: st
                 };
             },
             isRoot: () => false,
-            equals: (other: {toString: () => string}) => pathStr === other.toString(),
+            equals: (other: { toString: () => string }) => pathStr === other.toString(),
         }),
     } as unknown as ContentSummary;
 }
 
 // Mock ContentServerChangeItem for delete/archive events
-function createMockChangeItem(id: string): {getContentId: () => {toString: () => string}} {
+function createMockChangeItem(id: string): { getContentId: () => { toString: () => string } } {
     return {
         getContentId: () => ({
             toString: () => id,

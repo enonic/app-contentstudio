@@ -1,16 +1,16 @@
-import {type Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
-import {type BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
-import {Checkbox, cn, Combobox, Listbox, useControlledState} from '@enonic/ui';
-import {type ReactElement, useCallback, useMemo, useState} from 'react';
-import {useI18n} from '../../hooks/useI18n';
-import {buildKey} from '../../utils/format/keys';
+import { type Bucket } from '@enonic/lib-admin-ui/aggregation/Bucket';
+import { type BucketAggregation } from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
+import { Checkbox, cn, Combobox, Listbox, useControlledState } from '@enonic/ui';
+import { type ReactElement, useCallback, useMemo, useState } from 'react';
+import { useI18n } from '../../../shared/lib/hooks/useI18n';
+import { buildKey } from '../../../shared/lib/format/keys';
 
 export type FilterableBucketAggregationProps = {
     aggregation: BucketAggregation;
     selection?: Bucket[];
     onSelectionChange?: (selection: Bucket[]) => void;
     idsToKeepOnTop?: string[];
-}
+};
 
 export const FilterableBucketAggregation = ({
     aggregation,
@@ -22,47 +22,44 @@ export const FilterableBucketAggregation = ({
     const searchPlaceholder = useI18n('field.option.placeholder');
 
     const [selectionState, setSelectionState] = useControlledState(selection, [], onSelectionChange);
-    const isSelected = (bucket: Bucket) => selectionState.some(b => b.getKey() === bucket.getKey());
+    const isSelected = (bucket: Bucket) => selectionState.some((b) => b.getKey() === bucket.getKey());
 
     const toLabel = useCallback((bucket: Bucket) => {
         return `${bucket.getDisplayName() ?? bucket.getKey()} (${bucket.getDocCount()})`;
     }, []);
 
-    const buckets = useMemo(
-        () => aggregation.getBuckets().filter(b => b.getDocCount() > 0),
-        [aggregation]
-    );
+    const buckets = useMemo(() => aggregation.getBuckets().filter((b) => b.getDocCount() > 0), [aggregation]);
 
     const filteredBuckets = useMemo(() => {
         const val: string = inputValue.toLowerCase();
-        return buckets.filter(bucket => bucket.getKey().toLowerCase().indexOf(val) >= 0 ||
-                                        bucket.getDisplayName()?.toLowerCase().indexOf(val) >= 0);
+        return buckets.filter(
+            (bucket) =>
+                bucket.getKey().toLowerCase().indexOf(val) >= 0 ||
+                bucket.getDisplayName()?.toLowerCase().indexOf(val) >= 0,
+        );
     }, [buckets, inputValue]);
 
-    const listboxSelection = useMemo(
-        () => selectionState.map(b => buildKey(b.getKey())),
-        [selectionState]
-    );
+    const listboxSelection = useMemo(() => selectionState.map((b) => buildKey(b.getKey())), [selectionState]);
 
     const onListboxSelectionChange = useCallback(
         (selectedKeys: string[]) => {
-            const selectedBuckets = buckets.filter(b => selectedKeys.includes(buildKey(b.getKey())));
+            const selectedBuckets = buckets.filter((b) => selectedKeys.includes(buildKey(b.getKey())));
             setSelectionState(selectedBuckets);
         },
-        [buckets, setSelectionState]
+        [buckets, setSelectionState],
     );
 
     const bucketsToShowOnTop = useMemo(() => {
         if (!idsToKeepOnTop || idsToKeepOnTop.length === 0) {
             return [];
         }
-        return buckets.filter(b => idsToKeepOnTop.includes(b.getKey()));
+        return buckets.filter((b) => idsToKeepOnTop.includes(b.getKey()));
     }, [buckets, idsToKeepOnTop]);
 
     const topBuckets = useMemo(() => {
         const result = new Map<string, Bucket>();
-        bucketsToShowOnTop.forEach(b => result.set(b.getKey(), b));
-        selectionState.forEach(b => {
+        bucketsToShowOnTop.forEach((b) => result.set(b.getKey(), b));
+        selectionState.forEach((b) => {
             if (!result.has(b.getKey())) {
                 result.set(b.getKey(), b);
             }
@@ -76,43 +73,49 @@ export const FilterableBucketAggregation = ({
             const isBucketSelected = isSelected(bucket);
             let newSelection: Bucket[];
             if (isBucketSelected) {
-                newSelection = selectionState.filter(b => b.getKey() !== bucket.getKey());
+                newSelection = selectionState.filter((b) => b.getKey() !== bucket.getKey());
             } else {
                 newSelection = [...selectionState, bucket];
             }
             setSelectionState(newSelection);
         },
-        [selectionState, setSelectionState]
+        [selectionState, setSelectionState],
     );
 
     const displayName = useMemo(() => useI18n(`field.${aggregation.getName()}`), [aggregation]);
 
     return (
-        <div className='relative flex flex-col'>
-            <div className='font-semibold'>{displayName}</div>
-            <div className='flex flex-col gap-2.5 px-2.5 py-2'>
-            {topBuckets.map((bucket) => {
-                const key = buildKey(aggregation.getName(), bucket.getKey(), 'top');
+        <div className="relative flex flex-col">
+            <div className="font-semibold">{displayName}</div>
+            <div className="flex flex-col gap-2.5 px-2.5 py-2">
+                {topBuckets.map((bucket) => {
+                    const key = buildKey(aggregation.getName(), bucket.getKey(), 'top');
 
-                return(
-                    <Checkbox
-                        id={key}
-                        key={key}
-                        checked={isSelected(bucket)}
-                        onClick={() => toggleTopBucket(bucket)}
-                        label={toLabel(bucket)}
-                    />
-                )
-            })}
+                    return (
+                        <Checkbox
+                            id={key}
+                            key={key}
+                            checked={isSelected(bucket)}
+                            onClick={() => toggleTopBucket(bucket)}
+                            label={toLabel(bucket)}
+                        />
+                    );
+                })}
             </div>
-            <Combobox.Root value={inputValue} onChange={setInputValue} selectionMode='multiple' onSelectionChange={onListboxSelectionChange} selection={listboxSelection}>
+            <Combobox.Root
+                value={inputValue}
+                onChange={setInputValue}
+                selectionMode="multiple"
+                onSelectionChange={onListboxSelectionChange}
+                selection={listboxSelection}
+            >
                 <Combobox.Content>
                     <Combobox.Control>
-                    <Combobox.Search>
-                        <Combobox.SearchIcon />
-                        <Combobox.Input placeholder={searchPlaceholder}/>
-                        <Combobox.Toggle/>
-                    </Combobox.Search>
+                        <Combobox.Search>
+                            <Combobox.SearchIcon />
+                            <Combobox.Input placeholder={searchPlaceholder} />
+                            <Combobox.Toggle />
+                        </Combobox.Search>
                     </Combobox.Control>
 
                     <Combobox.Popup>
@@ -122,11 +125,17 @@ export const FilterableBucketAggregation = ({
                                 const isBucketSelected = isSelected(bucket);
 
                                 return (
-                                    <Listbox.Item key={key} value={buildKey(bucket.getKey())} className={cn('h-9', isBucketSelected && 'group')} data-tone={isBucketSelected ? 'inverse' : ''} >
+                                    <Listbox.Item
+                                        key={key}
+                                        value={buildKey(bucket.getKey())}
+                                        className={cn('h-9', isBucketSelected && 'group')}
+                                        data-tone={isBucketSelected ? 'inverse' : ''}
+                                    >
                                         <Checkbox
                                             id={`${key}-checkbox`}
                                             checked={isBucketSelected}
-                                            onClick={e => { // listbox will handle selection
+                                            onClick={(e) => {
+                                                // listbox will handle selection
                                                 e.preventDefault();
                                             }}
                                             label={toLabel(bucket)}

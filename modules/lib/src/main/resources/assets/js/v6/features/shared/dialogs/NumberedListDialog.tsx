@@ -1,10 +1,13 @@
-import {Button, Dialog, Input, Selector} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {type FormEvent, type ReactElement, useRef} from 'react';
-import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
-import type {DialogOverrides} from '../form/input-types/html-area/setupEditor';
-import {useCkEditorFocusManager} from '../../hooks/htmlarea/useCkEditorFocusManager';
-import {useI18n} from '../../hooks/useI18n';
+import { Button, Dialog, Input, Selector } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { type FormEvent, type ReactElement, useRef } from 'react';
+import {
+    type CreateHtmlAreaDialogEvent,
+    HtmlAreaDialogType,
+} from '../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
+import type { DialogOverrides } from '../form/input-types/html-area/setupEditor';
+import { useCkEditorFocusManager } from '../../hooks/htmlarea/useCkEditorFocusManager';
+import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import {
     $numberedListDialog,
     closeNumberedListDialog,
@@ -20,7 +23,7 @@ import {
 const NUMBERED_LIST_DIALOG_NAME = 'NumberedListDialog';
 
 export const NumberedListDialog = (): ReactElement => {
-    const {open, start, type, typeOptions, startValidationError} = useStore($numberedListDialog, {
+    const { open, start, type, typeOptions, startValidationError } = useStore($numberedListDialog, {
         keys: ['open', 'start', 'type', 'typeOptions', 'startValidationError'],
     });
     const contentRef = useRef<HTMLDivElement | null>(null);
@@ -37,7 +40,11 @@ export const NumberedListDialog = (): ReactElement => {
 
     const editor = open ? $numberedListDialog.get().editor : undefined;
 
-    useCkEditorFocusManager(editor, [contentRef, closeButtonRef, startInputRef, typeTriggerRef, submitButtonRef], [open]);
+    useCkEditorFocusManager(
+        editor,
+        [contentRef, closeButtonRef, startInputRef, typeTriggerRef, submitButtonRef],
+        [open],
+    );
 
     const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
         event.preventDefault();
@@ -52,7 +59,7 @@ export const NumberedListDialog = (): ReactElement => {
 
     const preventOpenAutoFocus = (event: Event): void => {
         event.preventDefault();
-        startInputRef.current?.focus({focusVisible: true});
+        startInputRef.current?.focus({ focusVisible: true });
     };
 
     const handleCloseAutoFocus = (event: Event): void => {
@@ -68,24 +75,26 @@ export const NumberedListDialog = (): ReactElement => {
                     ref={contentRef}
                     onOpenAutoFocus={preventOpenAutoFocus}
                     onCloseAutoFocus={handleCloseAutoFocus}
-                    className='w-full gap-5.5 h-fit py-5 px-3 sm:py-10 sm:px-8 max-w-full md:max-w-140'
+                    className="w-full gap-5.5 h-fit py-5 px-3 sm:py-10 sm:px-8 max-w-full md:max-w-140"
                     data-component={NUMBERED_LIST_DIALOG_NAME}
                 >
-                    <Dialog.Header className='px-2 grid grid-cols-[minmax(0,1fr)_auto] gap-2.5'>
-                        <Dialog.Title className='col-start-1 row-start-1 min-w-0 font-semibold text-2xl'>{title}</Dialog.Title>
+                    <Dialog.Header className="px-2 grid grid-cols-[minmax(0,1fr)_auto] gap-2.5">
+                        <Dialog.Title className="col-start-1 row-start-1 min-w-0 font-semibold text-2xl">
+                            {title}
+                        </Dialog.Title>
                         <Dialog.DefaultClose
                             ref={closeButtonRef}
-                            className='col-start-2 row-start-1 self-start justify-self-end'
+                            className="col-start-2 row-start-1 self-start justify-self-end"
                         />
                     </Dialog.Header>
-                    <form className='contents' onSubmit={handleSubmit}>
-                        <Dialog.Body className='grid gap-7.5 p-2'>
+                    <form className="contents" onSubmit={handleSubmit}>
+                        <Dialog.Body className="grid gap-7.5 p-2">
                             <Input
                                 ref={startInputRef}
                                 label={startLabel}
                                 value={start}
                                 error={startValidationError}
-                                inputMode='numeric'
+                                inputMode="numeric"
                                 onChange={(event) => {
                                     setNumberedListDialogStart(event.currentTarget.value);
                                 }}
@@ -93,8 +102,8 @@ export const NumberedListDialog = (): ReactElement => {
                                     validateNumberedListDialog();
                                 }}
                             />
-                            <div className='flex flex-col gap-2.5'>
-                                <span className='font-semibold'>{typeLabel}</span>
+                            <div className="flex flex-col gap-2.5">
+                                <span className="font-semibold">{typeLabel}</span>
                                 <Selector.Root
                                     value={type}
                                     onValueChange={(value) => {
@@ -124,14 +133,8 @@ export const NumberedListDialog = (): ReactElement => {
                                 </Selector.Root>
                             </div>
                         </Dialog.Body>
-                        <Dialog.Footer className='px-2'>
-                            <Button
-                                ref={submitButtonRef}
-                                type='submit'
-                                size='lg'
-                                variant='solid'
-                                label={submitLabel}
-                            />
+                        <Dialog.Footer className="px-2">
+                            <Button ref={submitButtonRef} type="submit" size="lg" variant="solid" label={submitLabel} />
                         </Dialog.Footer>
                     </form>
                 </Dialog.Content>

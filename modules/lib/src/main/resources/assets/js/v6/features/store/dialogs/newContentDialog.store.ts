@@ -1,13 +1,16 @@
-import {showError, showSuccess} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {type ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {listenKeys, map, task} from 'nanostores';
-import {errAsync} from 'neverthrow';
-import {type ContentSummary} from '../../../../app/content/ContentSummary';
-import {type AggregateContentTypesResult, type ContentTypeAggregation} from '../../../../app/resource/AggregateContentTypesResult';
-import {ContentTypesHelper} from '../../../../app/util/ContentTypesHelper';
-import {reloadParentChildren} from '../../api/content-fetcher';
+import { showError, showSuccess } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { type ContentTypeSummary } from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { listenKeys, map, task } from 'nanostores';
+import { errAsync } from 'neverthrow';
+import { type ContentSummary } from '../../../../app/content/ContentSummary';
+import {
+    type AggregateContentTypesResult,
+    type ContentTypeAggregation,
+} from '../../../../app/resource/AggregateContentTypesResult';
+import { ContentTypesHelper } from '../../../../app/util/ContentTypesHelper';
+import { reloadParentChildren } from '../../api/content-fetcher';
 import {
     type UploadDataUrlImageOptions,
     type UploadMediaError,
@@ -15,10 +18,10 @@ import {
     type UploadMediaSuccess,
     uploadRemoteImage,
 } from '../../api/uploadMedia';
-import {generateUniqueName} from '../../utils/image/generateUniqueName';
-import {$activeProject} from '../activeProject.store';
-import {expandNode, hasTreeNode, isNodeExpanded} from '../tree-list.store';
-import {addUpload, removeUpload, updateUploadProgress} from '../uploads.store';
+import { generateUniqueName } from '../../../shared/lib/image/generateUniqueName';
+import { $activeProject } from '../activeProject.store';
+import { expandNode, hasTreeNode, isNodeExpanded } from '../tree-list.store';
+import { addUpload, removeUpload, updateUploadProgress } from '../uploads.store';
 
 type UploadOptions = {
     dataTransfer: DataTransfer;
@@ -65,7 +68,7 @@ export const $newContentDialog = map<NewContentDialogStore>(structuredClone(init
 // * Listeners
 //
 
-listenKeys($newContentDialog, ['open', 'parentContent'], ({open, parentContent}) => {
+listenKeys($newContentDialog, ['open', 'parentContent'], ({ open, parentContent }) => {
     const activeProject = $activeProject.get();
 
     if (!open || !activeProject) return;
@@ -78,7 +81,7 @@ listenKeys($newContentDialog, ['open', 'parentContent'], ({open, parentContent})
 
         const aggregatedContentTypes = await ContentTypesHelper.getAggregatedTypesByContent(
             parentContent,
-            activeProject
+            activeProject,
         );
 
         const baseContentTypes = getBaseContentTypes(allContentTypes);
@@ -93,7 +96,7 @@ listenKeys($newContentDialog, ['open', 'parentContent'], ({open, parentContent})
     });
 });
 
-listenKeys($newContentDialog, ['inputValue'], ({inputValue, baseContentTypes, suggestedContentTypes}) => {
+listenKeys($newContentDialog, ['inputValue'], ({ inputValue, baseContentTypes, suggestedContentTypes }) => {
     if (!inputValue || inputValue.length === 0) {
         $newContentDialog.setKey('filteredBaseContentTypes', baseContentTypes);
         $newContentDialog.setKey('filteredSuggestedContentTypes', suggestedContentTypes);
@@ -101,10 +104,10 @@ listenKeys($newContentDialog, ['inputValue'], ({inputValue, baseContentTypes, su
     }
 
     const filteredBaseContentTypes = baseContentTypes.filter((contentType) =>
-        contentType.getTitle().toLowerCase().includes(inputValue.toLowerCase())
+        contentType.getTitle().toLowerCase().includes(inputValue.toLowerCase()),
     );
     const filteredSuggestedContentTypes = suggestedContentTypes.filter((contentType) =>
-        contentType.getTitle().toLowerCase().includes(inputValue.toLowerCase())
+        contentType.getTitle().toLowerCase().includes(inputValue.toLowerCase()),
     );
 
     $newContentDialog.setKey('filteredBaseContentTypes', filteredBaseContentTypes);
@@ -141,7 +144,7 @@ export const setIsDragging = (isDragging: boolean): void => {
 };
 
 // TODO: replace places invoking this function with the useUploadMedia hook
-export async function uploadMediaFiles({dataTransfer, parentContent}: UploadOptions): Promise<void> {
+export async function uploadMediaFiles({ dataTransfer, parentContent }: UploadOptions): Promise<void> {
     if (dataTransfer.files.length === 0) return;
 
     const files = Array.from(dataTransfer.files);
@@ -169,7 +172,7 @@ export async function uploadMediaFiles({dataTransfer, parentContent}: UploadOpti
 }
 
 // TODO: replace places invoking this function with the useUploadMedia hook
-export async function uploadDragImages({dataTransfer, parentContent}: UploadOptions) {
+export async function uploadDragImages({ dataTransfer, parentContent }: UploadOptions) {
     const htmlData = dataTransfer.getData('text/html');
     const imgSources = extractImageSources(htmlData);
 
@@ -192,7 +195,7 @@ export async function uploadDragImages({dataTransfer, parentContent}: UploadOpti
 
         // Not allowed
         if (src.startsWith('data:')) {
-            return errAsync({mediaIdentifier: id, message: i18n('notify.upload.dataUri.notAllowed')});
+            return errAsync({ mediaIdentifier: id, message: i18n('notify.upload.dataUri.notAllowed') });
         }
 
         return uploadRemoteImage(params);
@@ -215,7 +218,10 @@ function getBaseContentTypes(contentTypes: ContentTypeSummary[]): ContentTypeSum
         .sort((a, b) => a.getTitle().localeCompare(b.getTitle()));
 }
 
-function getSuggestedContentTypes(contentTypes: ContentTypeSummary[], aggregations: AggregateContentTypesResult): ContentTypeSummary[] {
+function getSuggestedContentTypes(
+    contentTypes: ContentTypeSummary[],
+    aggregations: AggregateContentTypesResult,
+): ContentTypeSummary[] {
     const DEFAULT_MAX_ITEMS = 100;
 
     const isAllowedContentType = (contentType: ContentTypeName) =>
@@ -228,7 +234,9 @@ function getSuggestedContentTypes(contentTypes: ContentTypeSummary[], aggregatio
     return allowedContentTypeAggregations
         .slice(0, DEFAULT_MAX_ITEMS)
         .sort((a, b) => b.getCount() - a.getCount())
-        .map((aggregation) => contentTypes.find((type: ContentTypeSummary) => type.getName() === aggregation.getContentType().toString()))
+        .map((aggregation) =>
+            contentTypes.find((type: ContentTypeSummary) => type.getName() === aggregation.getContentType().toString()),
+        )
         .filter(Boolean);
 }
 

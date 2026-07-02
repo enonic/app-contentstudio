@@ -1,30 +1,30 @@
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import type {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
-import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {atom, batched, computed, map} from 'nanostores';
-import type {Content} from '../../../app/content/Content';
-import type {ContentName} from '../../../app/content/ContentName';
-import type {ContentState} from '../../../app/content/ContentState';
-import {ContentUnnamed} from '../../../app/content/ContentUnnamed';
-import {Mixin} from '../../../app/content/Mixin';
-import type {MixinDescriptor} from '../../../app/content/MixinDescriptor';
-import {MixinName} from '../../../app/content/MixinName';
-import {WorkflowState} from '../../../app/content/WorkflowState';
-import type {ContentType} from '../../../app/inputtype/schema/ContentType';
-import type {Page} from '../../../app/page/Page';
-import {ContentDiffHelper} from '../../../app/util/ContentDiffHelper';
-import {setAiDataTree, setAiWizardBridge} from './ai';
-import {$layoutDescriptorOptions, $partDescriptorOptions} from './component-inspection.store';
-import {$pageConfigDescriptor} from './page-inspection.store';
-import {addStringOccurrence, removeStringOccurrence, setStringValue} from './wizardPropertyTree.utils';
-import {resolveDisplayNameExpression} from './displayNameExpression.utils';
-import {createDebounce} from '../utils/timing/createDebounce';
-import {$contextContent} from './context/contextContent.store';
-import {ContentPath} from '../../../app/content/ContentPath';
-import {ContentExistsByPathRequest} from '../../../app/resource/ContentExistsByPathRequest';
-import {seedFormDefaults} from '../shared/form/seedFormDefaults';
+import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import type { PropertyPath } from '@enonic/lib-admin-ui/data/PropertyPath';
+import { NamePrettyfier } from '@enonic/lib-admin-ui/NamePrettyfier';
+import { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { atom, batched, computed, map } from 'nanostores';
+import type { Content } from '../../../app/content/Content';
+import type { ContentName } from '../../../app/content/ContentName';
+import type { ContentState } from '../../../app/content/ContentState';
+import { ContentUnnamed } from '../../../app/content/ContentUnnamed';
+import { Mixin } from '../../../app/content/Mixin';
+import type { MixinDescriptor } from '../../../app/content/MixinDescriptor';
+import { MixinName } from '../../../app/content/MixinName';
+import { WorkflowState } from '../../../app/content/WorkflowState';
+import type { ContentType } from '../../../app/inputtype/schema/ContentType';
+import type { Page } from '../../../app/page/Page';
+import { ContentDiffHelper } from '../../../app/util/ContentDiffHelper';
+import { setAiDataTree, setAiWizardBridge } from './ai';
+import { $layoutDescriptorOptions, $partDescriptorOptions } from './component-inspection.store';
+import { $pageConfigDescriptor } from './page-inspection.store';
+import { addStringOccurrence, removeStringOccurrence, setStringValue } from './wizardPropertyTree.utils';
+import { resolveDisplayNameExpression } from './displayNameExpression.utils';
+import { createDebounce } from '../../shared/lib/timing/createDebounce';
+import { $contextContent } from './context/contextContent.store';
+import { ContentPath } from '../../../app/content/ContentPath';
+import { ContentExistsByPathRequest } from '../../../app/resource/ContentExistsByPathRequest';
+import { seedFormDefaults } from '../shared/form/seedFormDefaults';
 
 //
 // * Types
@@ -136,7 +136,7 @@ export const $mixinsDescriptors = atom<MixinDescriptor[]>([]);
 
 export const $wizardDataValidation = map<FormDataValidation>({});
 
-export const $wizardContentPathExists = map<WizardContentPathExists>({fetching: false, exists: false});
+export const $wizardContentPathExists = map<WizardContentPathExists>({ fetching: false, exists: false });
 
 export const $isContentFormExpanded = atom<boolean>(true);
 
@@ -154,39 +154,49 @@ export const $hasPage = computed($wizardDraftPage, (page) => page != null);
 
 export const $contentTypeDisplayName = computed($contentType, (contentType) => contentType?.getTitle() ?? '');
 
-export const $wizardDataChanged = computed([$wizardPersistedData, $wizardDraftData, $wizardDataVersion], (persistedData, draftData): boolean => {
-    return !dataTreesEqual(persistedData, draftData);
-});
+export const $wizardDataChanged = computed(
+    [$wizardPersistedData, $wizardDraftData, $wizardDataVersion],
+    (persistedData, draftData): boolean => {
+        return !dataTreesEqual(persistedData, draftData);
+    },
+);
 
 const $wizardDisplayNameChanged = computed(
     [$wizardPersistedDisplayName, $wizardDraftDisplayName],
-    (persistedDisplayName, draftDisplayName): boolean => persistedDisplayName !== draftDisplayName
+    (persistedDisplayName, draftDisplayName): boolean => persistedDisplayName !== draftDisplayName,
 );
 
 const $wizardNameChanged = computed(
     [$wizardPersistedName, $wizardDraftName],
-    (persistedName, draftName): boolean => !contentNamesEqual(persistedName, draftName)
+    (persistedName, draftName): boolean => !contentNamesEqual(persistedName, draftName),
 );
 
 const $wizardMixinsChanged = computed(
     [$wizardPersistedMixins, $wizardDraftMixins, $wizardMixinsVersion],
-    (persistedMixins, draftMixins): boolean => !mixinsEqual(persistedMixins, draftMixins)
+    (persistedMixins, draftMixins): boolean => !mixinsEqual(persistedMixins, draftMixins),
 );
 
 const $wizardPageChanged = computed([$wizardPersistedPage, $wizardDraftPage], (persistedPage, draftPage): boolean =>
-    persistedPage ? !persistedPage.equals(draftPage) : !!draftPage
+    persistedPage ? !persistedPage.equals(draftPage) : !!draftPage,
 );
 
 const $wizardWorkflowChanged = computed(
     [$wizardPersistedWorkflowState, $wizardDraftWorkflowState],
-    (persistedWorkflowState, draftWorkflowState): boolean => persistedWorkflowState !== draftWorkflowState
+    (persistedWorkflowState, draftWorkflowState): boolean => persistedWorkflowState !== draftWorkflowState,
 );
 
 export const $wizardSectionChanges = computed(
-    [$wizardDataChanged, $wizardDisplayNameChanged, $wizardNameChanged, $wizardMixinsChanged, $wizardPageChanged, $wizardWorkflowChanged],
+    [
+        $wizardDataChanged,
+        $wizardDisplayNameChanged,
+        $wizardNameChanged,
+        $wizardMixinsChanged,
+        $wizardPageChanged,
+        $wizardWorkflowChanged,
+    ],
     (data, displayName, name, mixins, page, workflow): WizardSectionChanges => {
-        return {data, displayName, name, mixins, page, workflow};
-    }
+        return { data, displayName, name, mixins, page, workflow };
+    },
 );
 
 export const $wizardChangedSections = computed($wizardSectionChanges, (sections): WizardChangeSection[] => {
@@ -194,7 +204,9 @@ export const $wizardChangedSections = computed($wizardSectionChanges, (sections)
 });
 
 export const $wizardHasChanges = computed($wizardSectionChanges, (sections): boolean => {
-    return sections.data || sections.displayName || sections.name || sections.mixins || sections.page || sections.workflow;
+    return (
+        sections.data || sections.displayName || sections.name || sections.mixins || sections.page || sections.workflow
+    );
 });
 
 const $wizardHasContentChanges = computed($wizardSectionChanges, (sections): boolean => {
@@ -210,7 +222,7 @@ type CreateContentStateParams = {
     name: ContentName | null;
     draftWorkflowState: WorkflowState | null;
     validation: FormDataValidation;
-    pathExists: {fetching: boolean; exists: boolean};
+    pathExists: { fetching: boolean; exists: boolean };
 };
 
 function hasDataValidationErrors(validation: FormDataValidation): boolean {
@@ -258,7 +270,13 @@ export function createContentState({
 }
 
 export const $wizardContentState = batched(
-    [$wizardDraftDisplayName, $wizardDraftName, $wizardDraftWorkflowState, $wizardDataValidation, $wizardContentPathExists],
+    [
+        $wizardDraftDisplayName,
+        $wizardDraftName,
+        $wizardDraftWorkflowState,
+        $wizardDataValidation,
+        $wizardContentPathExists,
+    ],
     (displayName, name, draftWorkflowState, validation, pathExists): ContentState | null => {
         return createContentState({
             displayName,
@@ -267,7 +285,7 @@ export const $wizardContentState = batched(
             validation,
             pathExists,
         });
-    }
+    },
 );
 
 $wizardHasContentChanges.subscribe((hasChanges) => {
@@ -287,33 +305,39 @@ export type MixinTabInfo = {
     unknown?: boolean;
 };
 
-export const $enabledMixinsNames = computed([$wizardDraftMixins, $mixinsDescriptors], (mixins, schemas): Set<string> => {
-    const enabledMixinNames = new Set(mixins.map((mixin) => mixin.getName().toString()));
-    const enabledNames = new Set<string>();
+export const $enabledMixinsNames = computed(
+    [$wizardDraftMixins, $mixinsDescriptors],
+    (mixins, schemas): Set<string> => {
+        const enabledMixinNames = new Set(mixins.map((mixin) => mixin.getName().toString()));
+        const enabledNames = new Set<string>();
 
-    for (const schema of schemas) {
-        const name = schema.getName();
-        if (!schema.isOptional() || enabledMixinNames.has(name)) {
-            enabledNames.add(name);
+        for (const schema of schemas) {
+            const name = schema.getName();
+            if (!schema.isOptional() || enabledMixinNames.has(name)) {
+                enabledNames.add(name);
+            }
         }
-    }
 
-    return enabledNames;
-});
+        return enabledNames;
+    },
+);
 
-export const $unknownMixinsNames = computed([$wizardDraftMixins, $mixinsDescriptors], (mixins, schemas): Set<string> => {
-    const knownNames = new Set(schemas.map((schema) => schema.getName()));
-    const unknownNames = new Set<string>();
+export const $unknownMixinsNames = computed(
+    [$wizardDraftMixins, $mixinsDescriptors],
+    (mixins, schemas): Set<string> => {
+        const knownNames = new Set(schemas.map((schema) => schema.getName()));
+        const unknownNames = new Set<string>();
 
-    for (const mixin of mixins) {
-        const name = mixin.getName().toString();
-        if (!knownNames.has(name)) {
-            unknownNames.add(name);
+        for (const mixin of mixins) {
+            const name = mixin.getName().toString();
+            if (!knownNames.has(name)) {
+                unknownNames.add(name);
+            }
         }
-    }
 
-    return unknownNames;
-});
+        return unknownNames;
+    },
+);
 
 export const $mixinsTabs = computed(
     [$enabledMixinsNames, $mixinsDescriptors, $unknownMixinsNames],
@@ -324,7 +348,7 @@ export const $mixinsTabs = computed(
                 (schema): MixinTabInfo => ({
                     name: schema.getName(),
                     title: schema.getTitle() ?? schema.getName(),
-                })
+                }),
             );
 
         const unknownTabs = Array.from(unknownNames).map(
@@ -332,11 +356,11 @@ export const $mixinsTabs = computed(
                 name,
                 title: name,
                 unknown: true,
-            })
+            }),
         );
 
         return [...knownTabs, ...unknownTabs];
-    }
+    },
 );
 
 export type MixinMenuItem = {
@@ -356,7 +380,7 @@ export const $mixinsMenuItems = computed(
                 displayName: schema.getTitle() ?? schema.getName(),
                 isOptional: schema.isOptional(),
                 isEnabled: enabledNames.has(schema.getName()),
-            })
+            }),
         );
 
         const unknownItems = Array.from(unknownNames).map(
@@ -366,11 +390,11 @@ export const $mixinsMenuItems = computed(
                 isOptional: true,
                 isEnabled: true,
                 unknown: true,
-            })
+            }),
         );
 
         return [...knownItems, ...unknownItems];
-    }
+    },
 );
 
 //
@@ -632,7 +656,7 @@ export function applyServerSidePersistedContent(content: Content): ApplyServerCo
         notifyServerMixinsChanged();
     }
 
-    return {syncedMixinNames};
+    return { syncedMixinNames };
 }
 
 function applyDisplayNameFromServer(nextValue: string): void {
@@ -746,7 +770,7 @@ export function initializeWizardContentState(
     content: Content,
     contentType: ContentType | null,
     mixins: MixinDescriptor[],
-    workflowState?: WorkflowState | null
+    workflowState?: WorkflowState | null,
 ): void {
     setPersistedContent(content);
     $contentType.set(contentType);
@@ -779,7 +803,9 @@ function regenerateDisplayNameFromExpression(): void {
         return;
     }
 
-    setDraftDisplayName(resolveDisplayNameExpression(contentType.getDisplayNameExpression(), contentType.getForm(), data));
+    setDraftDisplayName(
+        resolveDisplayNameExpression(contentType.getDisplayNameExpression(), contentType.getForm(), data),
+    );
 }
 
 export function setDraftName(value: ContentName): void {
@@ -812,7 +838,13 @@ export function addDraftStringOccurrenceByPath(path: PropertyPath, occurrenceInd
         return;
     }
 
-    const mutated = addStringOccurrence(draftData, $wizardPersistedData.get(), $wizardDataChangedPaths, path, occurrenceIndex);
+    const mutated = addStringOccurrence(
+        draftData,
+        $wizardPersistedData.get(),
+        $wizardDataChangedPaths,
+        path,
+        occurrenceIndex,
+    );
     if (mutated) {
         bumpDraftDataVersion();
     }
@@ -824,7 +856,13 @@ export function removeDraftStringOccurrenceByPath(path: PropertyPath, occurrence
         return;
     }
 
-    const mutated = removeStringOccurrence(draftData, $wizardPersistedData.get(), $wizardDataChangedPaths, path, occurrenceIndex);
+    const mutated = removeStringOccurrence(
+        draftData,
+        $wizardPersistedData.get(),
+        $wizardDataChangedPaths,
+        path,
+        occurrenceIndex,
+    );
     if (mutated) {
         bumpDraftDataVersion();
     }
@@ -1144,7 +1182,9 @@ $siteConfigAppKeys.subscribe((currentKeys) => {
     for (const key of previousAppKeys) {
         if (!currentKeys.has(key)) {
             const descriptors = $mixinsDescriptors.get();
-            const filteredDescriptors = descriptors.filter((d) => d.getMixinName().getApplicationKey().toString() !== key);
+            const filteredDescriptors = descriptors.filter(
+                (d) => d.getMixinName().getApplicationKey().toString() !== key,
+            );
             if (filteredDescriptors.length !== descriptors.length) {
                 $mixinsDescriptors.set(filteredDescriptors);
             }
@@ -1222,7 +1262,7 @@ function snapshotMixinBaseline(mixinName: string): void {
                 return new Mixin(m.getName(), draftMixin.getData().copy());
             }
             return m;
-        })
+        }),
     );
 
     const next = new Set(needed);
@@ -1258,14 +1298,14 @@ const debouncedPathCheck = createDebounce(async () => {
     const draftName = $wizardDraftName.get();
 
     if (!draftName || draftName.isUnnamed()) {
-        $wizardContentPathExists.set({fetching: false, exists: false});
+        $wizardContentPathExists.set({ fetching: false, exists: false });
         return;
     }
 
     const persistedName = $wizardPersistedName.get();
 
     if (persistedName && !persistedName.isUnnamed() && draftName.equals(persistedName)) {
-        $wizardContentPathExists.set({fetching: false, exists: false});
+        $wizardContentPathExists.set({ fetching: false, exists: false });
         return;
     }
 
@@ -1277,10 +1317,10 @@ const debouncedPathCheck = createDebounce(async () => {
     try {
         const exists = await new ContentExistsByPathRequest(fullPath.toString()).sendAndParse();
         if (seq !== pathCheckSeq) return;
-        $wizardContentPathExists.set({fetching: false, exists});
+        $wizardContentPathExists.set({ fetching: false, exists });
     } catch {
         if (seq !== pathCheckSeq) return;
-        $wizardContentPathExists.set({fetching: false, exists: false});
+        $wizardContentPathExists.set({ fetching: false, exists: false });
     }
 }, PATH_CHECK_DEBOUNCE_MS);
 
@@ -1357,7 +1397,7 @@ export function resetWizardContent(): void {
     // cannot mark the freshly opened content as invalid.
     debouncedPathCheck.cancel();
     pathCheckSeq++;
-    $wizardContentPathExists.set({fetching: false, exists: false});
+    $wizardContentPathExists.set({ fetching: false, exists: false });
 
     $contentType.set(null);
     $mixinsDescriptors.set([]);

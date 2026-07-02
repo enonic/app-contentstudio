@@ -1,19 +1,19 @@
-import {Store} from '@enonic/lib-admin-ui/store/Store';
-import {Button} from '@enonic/ui';
-import {atom} from 'nanostores';
-import {useStore} from '@nanostores/preact';
-import {ArrowLeftRight, BellDotIcon, BellIcon} from 'lucide-react';
-import type {ReactElement} from 'react';
-import {ShowIssuesDialogEvent} from '../../../../../app/browse/ShowIssuesDialogEvent';
-import {useI18n} from '../../../hooks/useI18n';
-import {$activeProjectName} from '../../../store/activeProject.store';
-import {$noProjectMode} from '../../../store/projects.store';
-import {setProjectSelectionDialogOpen} from '../../../store/dialogs.store';
-import {$issuesStats} from '../../../store/issuesStats.store';
-import {$activeWidget, isMainWidget} from '../../../store/sidebarWidgets.store';
-import type {IssueStatsJson} from '../../../../../app/issue/json/IssueStatsJson';
-import {LegacyElement} from '../../../shared/LegacyElement';
-import {ThemeSwitcher} from '../../../shared/ThemeSwitcher';
+import { Store } from '@enonic/lib-admin-ui/store/Store';
+import { Button } from '@enonic/ui';
+import { atom } from 'nanostores';
+import { useStore } from '@nanostores/preact';
+import { ArrowLeftRight, BellDotIcon, BellIcon } from 'lucide-react';
+import type { ReactElement } from 'react';
+import { ShowIssuesDialogEvent } from '../../../../../app/browse/ShowIssuesDialogEvent';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { $activeProjectName } from '../../../store/activeProject.store';
+import { $noProjectMode } from '../../../store/projects.store';
+import { setProjectSelectionDialogOpen } from '../../../store/dialogs.store';
+import { $issuesStats } from '../../../store/issuesStats.store';
+import { $activeWidget, isMainWidget } from '../../../store/sidebarWidgets.store';
+import type { IssueStatsJson } from '../../../../../app/issue/json/IssueStatsJson';
+import { LegacyElement } from '../../../../shared/ui/LegacyElement';
+import { ThemeSwitcher } from '../../../shared/ThemeSwitcher';
 
 const $isProjectSelectorVisible = atom<boolean>(true);
 const $appName = atom<string>('');
@@ -37,7 +37,7 @@ export const BrowseAppBar = (): ReactElement => {
     const activeWidget = useStore($activeWidget);
     const isIssuesButtonVisible = isMainWidget(activeWidget);
     const appName = useStore($appName);
-    const {stats} = useStore($issuesStats);
+    const { stats } = useStore($issuesStats);
     const applicationName = Store.instance().get('application').getName();
     const issuesStatsLabel = useI18n(...createIssuesLabelKeys(stats));
     const projectAriaLabel = useI18n('wcag.appbar.project.label');
@@ -100,7 +100,7 @@ export class BrowseAppBarElement extends LegacyElement<typeof BrowseAppBar> {
         $appName.set(name);
     }
 
-    disable() { }
+    disable() {}
 
     showProjectSelector() {
         $isProjectSelectorVisible.set(true);

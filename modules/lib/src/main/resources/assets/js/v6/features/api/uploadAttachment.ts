@@ -1,11 +1,11 @@
-import {Result, ResultAsync} from 'neverthrow';
-import {type AttachmentJson} from '../../../app/attachment/AttachmentJson';
-import {ContentPath} from '../../../app/content/ContentPath';
-import {type Project} from '../../../app/settings/data/project/Project';
-import {UrlHelper} from '../../../app/util/UrlHelper';
-import {UploadError} from './errors';
-import {$activeProject} from '../store/activeProject.store';
-import {sanitizeName} from '../utils/upload/upload';
+import { Result, ResultAsync } from 'neverthrow';
+import { type AttachmentJson } from '../../../app/attachment/AttachmentJson';
+import { ContentPath } from '../../../app/content/ContentPath';
+import { type Project } from '../../../app/settings/data/project/Project';
+import { UrlHelper } from '../../../app/util/UrlHelper';
+import { UploadError } from '../../shared/api/errors';
+import { $activeProject } from '../store/activeProject.store';
+import { sanitizeName } from '../../shared/lib/upload/upload';
 
 const UPLOAD_PROGRESS_CAP = 99;
 
@@ -13,8 +13,8 @@ const UPLOAD_PROGRESS_CAP = 99;
 // * Types
 //
 
-export type UploadAttachmentSuccess = {identifier: string; attachment: AttachmentJson};
-export type UploadAttachmentError = {identifier: string; message: string};
+export type UploadAttachmentSuccess = { identifier: string; attachment: AttachmentJson };
+export type UploadAttachmentError = { identifier: string; message: string };
 
 export type UploadAttachmentFileOptions = {
     id: string;
@@ -39,7 +39,9 @@ export function uploadAttachmentFile({
     onProgress,
 }: UploadAttachmentFileOptions): ResultAsync<UploadAttachmentSuccess, UploadAttachmentError> {
     const project = $activeProject.get() as Project;
-    const endpoint = UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath(ContentPath.CONTENT_ROOT, project)}/content/createAttachment`);
+    const endpoint = UrlHelper.getCmsRestUri(
+        `${UrlHelper.getCMSPath(ContentPath.CONTENT_ROOT, project)}/content/createAttachment`,
+    );
 
     const formData = new FormData();
     formData.append('file', file);
@@ -66,7 +68,7 @@ export function uploadAttachmentFile({
                     onProgress?.(id, 100);
                     try {
                         const attachment: AttachmentJson = JSON.parse(xhr.responseText);
-                        resolve({identifier: id, attachment});
+                        resolve({ identifier: id, attachment });
                     } catch {
                         reject(new UploadError(id, 'Failed to parse response'));
                     }
@@ -84,26 +86,28 @@ export function uploadAttachmentFile({
         }),
         (error): UploadAttachmentError =>
             error instanceof UploadError
-                ? {identifier: error.mediaIdentifier, message: error.message}
-                : {identifier: '', message: String(error)}
+                ? { identifier: error.mediaIdentifier, message: error.message }
+                : { identifier: '', message: String(error) },
     );
 }
 
-export function deleteAttachment({contentId, attachmentNames}: DeleteAttachmentOptions): ResultAsync<void, Error> {
+export function deleteAttachment({ contentId, attachmentNames }: DeleteAttachmentOptions): ResultAsync<void, Error> {
     const project = $activeProject.get() as Project;
-    const endpoint = UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath(ContentPath.CONTENT_ROOT, project)}/content/deleteAttachment`);
+    const endpoint = UrlHelper.getCmsRestUri(
+        `${UrlHelper.getCMSPath(ContentPath.CONTENT_ROOT, project)}/content/deleteAttachment`,
+    );
 
     return ResultAsync.fromPromise(
         fetch(endpoint, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({contentId, attachmentNames}),
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contentId, attachmentNames }),
         }).then((response) => {
             if (!response.ok) {
                 throw new Error(response.statusText);
             }
         }),
-        (error): Error => (error instanceof Error ? error : new Error(String(error)))
+        (error): Error => (error instanceof Error ? error : new Error(String(error))),
     );
 }
 
@@ -113,5 +117,5 @@ export function deleteAttachment({contentId, attachmentNames}: DeleteAttachmentO
 
 const safeJsonParse = Result.fromThrowable(
     (text: string) => JSON.parse(text) as Record<string, unknown>,
-    (e) => e as Error
+    (e) => e as Error,
 );

@@ -1,5 +1,5 @@
-import {renderHook, act} from '@testing-library/preact';
-import {describe, expect, it, vi, beforeEach, afterEach} from 'vitest';
+import { renderHook, act } from '@testing-library/preact';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 
 // Mock useContentComboboxData
 const mockSearch = vi.fn().mockResolvedValue(undefined);
@@ -10,7 +10,7 @@ const mockLoadMoreFlat = vi.fn().mockResolvedValue(undefined);
 const mockRetry = vi.fn();
 
 const mockTreeStore = {
-    state: {rootIds: [], nodes: new Map(), expandedIds: new Set(), loadingIds: new Set(), loadingDataIds: new Set()},
+    state: { rootIds: [], nodes: new Map(), expandedIds: new Set(), loadingIds: new Set(), loadingDataIds: new Set() },
     flatNodes: [],
     expand: vi.fn(),
     collapse: vi.fn(),
@@ -46,12 +46,12 @@ vi.mock('../../../../hooks/useContentComboboxData', () => ({
     }),
 }));
 
-vi.mock('../../../../utils/hooks/useDebouncedValue', () => ({
+vi.mock('../../../../../shared/lib/hooks/useDebouncedValue', () => ({
     useDebouncedValue: <T>(value: T, _delay: number) => value,
 }));
 
 // Import after mocks are set up
-import {useContentComboboxController} from './useContentComboboxController';
+import { useContentComboboxController } from './useContentComboboxController';
 
 describe('useContentComboboxController', () => {
     beforeEach(() => {
@@ -70,41 +70,31 @@ describe('useContentComboboxController', () => {
 
     describe('initial state', () => {
         it('starts with closed combobox', () => {
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             expect(result.current.open).toBe(false);
         });
 
         it('starts in tree view mode', () => {
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             expect(result.current.isTreeView).toBe(true);
         });
 
         it('starts with empty input', () => {
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             expect(result.current.inputValue).toBe('');
         });
 
         it('starts with null activeId', () => {
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             expect(result.current.activeId).toBeNull();
         });
 
         it('starts in tree list mode', () => {
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             expect(result.current.listMode).toBe('tree');
         });
@@ -112,9 +102,7 @@ describe('useContentComboboxController', () => {
 
     describe('handleOpenChange', () => {
         it('opens the combobox', () => {
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             act(() => {
                 result.current.handleOpenChange(true);
@@ -124,9 +112,7 @@ describe('useContentComboboxController', () => {
         });
 
         it('closes the combobox', () => {
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             act(() => {
                 result.current.handleOpenChange(true);
@@ -140,9 +126,7 @@ describe('useContentComboboxController', () => {
         });
 
         it('preserves input value on close', () => {
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             act(() => {
                 result.current.handleOpenChange(true);
@@ -161,9 +145,7 @@ describe('useContentComboboxController', () => {
 
     describe('handleToggleView', () => {
         it('switches to flat view when pressed is false', () => {
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             act(() => {
                 result.current.handleToggleView(false);
@@ -174,9 +156,7 @@ describe('useContentComboboxController', () => {
         });
 
         it('switches to tree view when pressed is true', () => {
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             act(() => {
                 result.current.handleToggleView(false);
@@ -191,10 +171,8 @@ describe('useContentComboboxController', () => {
         });
 
         it('resets activeId when switching views', () => {
-            mockTreeItems = [{id: 'item-1', data: {}, nodeType: 'node'}];
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            mockTreeItems = [{ id: 'item-1', data: {}, nodeType: 'node' }];
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             act(() => {
                 result.current.handleOpenChange(true);
@@ -216,9 +194,7 @@ describe('useContentComboboxController', () => {
 
     describe('handleKeyDown', () => {
         it('toggles view on Ctrl+Shift+V', () => {
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             expect(result.current.isTreeView).toBe(true);
 
@@ -239,9 +215,7 @@ describe('useContentComboboxController', () => {
         });
 
         it('toggles view on Cmd+Shift+V', () => {
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             const event = {
                 ctrlKey: false,
@@ -259,9 +233,7 @@ describe('useContentComboboxController', () => {
         });
 
         it('does not toggle without modifier keys', () => {
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             const event = {
                 ctrlKey: false,
@@ -282,9 +254,7 @@ describe('useContentComboboxController', () => {
 
     describe('handleExpand', () => {
         it('expands node in tree', () => {
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             act(() => {
                 result.current.handleExpand('node-1');
@@ -296,9 +266,7 @@ describe('useContentComboboxController', () => {
         it('loads children if needed', () => {
             mockTreeStore.needsChildrenLoad.mockReturnValue(true);
 
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             act(() => {
                 result.current.handleExpand('node-1');
@@ -310,9 +278,7 @@ describe('useContentComboboxController', () => {
 
     describe('handleCollapse', () => {
         it('collapses node in tree', () => {
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             act(() => {
                 result.current.handleCollapse('node-1');
@@ -324,9 +290,7 @@ describe('useContentComboboxController', () => {
 
     describe('handleLoadMore', () => {
         it('calls loadMoreRoot for null parentId', () => {
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             act(() => {
                 result.current.handleLoadMore(null);
@@ -339,9 +303,7 @@ describe('useContentComboboxController', () => {
             mockTreeStore.hasMoreChildren.mockReturnValue(true);
             mockTreeStore.isLoading.mockReturnValue(false);
 
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             act(() => {
                 result.current.handleLoadMore('parent-1');
@@ -353,9 +315,7 @@ describe('useContentComboboxController', () => {
         it('does not load more if no more children', () => {
             mockTreeStore.hasMoreChildren.mockReturnValue(false);
 
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             act(() => {
                 result.current.handleLoadMore('parent-1');
@@ -367,17 +327,13 @@ describe('useContentComboboxController', () => {
 
     describe('listMode', () => {
         it('is "tree" in tree view without filtering', () => {
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             expect(result.current.listMode).toBe('tree');
         });
 
         it('is "flat" in flat view', () => {
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             act(() => {
                 result.current.handleToggleView(false);
@@ -387,9 +343,7 @@ describe('useContentComboboxController', () => {
         });
 
         it('switches to "flat" when a search value is entered while open', () => {
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             act(() => {
                 result.current.handleOpenChange(true);
@@ -403,9 +357,7 @@ describe('useContentComboboxController', () => {
         });
 
         it('restores the default "tree" mode when the search value is cleared', () => {
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             act(() => {
                 result.current.handleOpenChange(true);
@@ -425,8 +377,8 @@ describe('useContentComboboxController', () => {
         });
 
         it('restores the default "flat" mode when the search value is cleared', () => {
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}, listMode: 'flat'}),
+            const { result } = renderHook(() =>
+                useContentComboboxController({ filters: {}, dropdown: {}, listMode: 'flat' }),
             );
 
             act(() => {
@@ -453,23 +405,19 @@ describe('useContentComboboxController', () => {
 
     describe('displayItems', () => {
         it('returns treeItems in tree view without filter', () => {
-            mockTreeItems = [{id: 'tree-1', data: {}, nodeType: 'node'}];
-            mockFlatItems = [{id: 'flat-1', data: {}, nodeType: 'node'}];
+            mockTreeItems = [{ id: 'tree-1', data: {}, nodeType: 'node' }];
+            mockFlatItems = [{ id: 'flat-1', data: {}, nodeType: 'node' }];
 
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             expect(result.current.displayItems).toEqual(mockTreeItems);
         });
 
         it('returns flatItems in flat view', () => {
-            mockTreeItems = [{id: 'tree-1', data: {}, nodeType: 'node'}];
-            mockFlatItems = [{id: 'flat-1', data: {}, nodeType: 'node'}];
+            mockTreeItems = [{ id: 'tree-1', data: {}, nodeType: 'node' }];
+            mockFlatItems = [{ id: 'flat-1', data: {}, nodeType: 'node' }];
 
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             act(() => {
                 result.current.handleToggleView(false);
@@ -479,12 +427,10 @@ describe('useContentComboboxController', () => {
         });
 
         it('returns flatItems when a search value is entered while open', () => {
-            mockTreeItems = [{id: 'tree-1', data: {}, nodeType: 'node'}];
-            mockFlatItems = [{id: 'flat-1', data: {}, nodeType: 'node'}];
+            mockTreeItems = [{ id: 'tree-1', data: {}, nodeType: 'node' }];
+            mockFlatItems = [{ id: 'flat-1', data: {}, nodeType: 'node' }];
 
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             act(() => {
                 result.current.handleOpenChange(true);
@@ -502,17 +448,13 @@ describe('useContentComboboxController', () => {
         it('exposes error from data hook', () => {
             mockError = new Error('Test error');
 
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             expect(result.current.error).toEqual(mockError);
         });
 
         it('exposes retry function from data hook', () => {
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             act(() => {
                 result.current.retry();
@@ -524,9 +466,7 @@ describe('useContentComboboxController', () => {
 
     describe('dropdownHeight', () => {
         it('returns minimum height for empty list', () => {
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             // ROW_HEIGHT (48) + PADDING (8) = 56
             expect(result.current.dropdownHeight).toBe(56);
@@ -534,28 +474,24 @@ describe('useContentComboboxController', () => {
 
         it('calculates height based on item count', () => {
             mockTreeItems = [
-                {id: '1', data: {}, nodeType: 'node'},
-                {id: '2', data: {}, nodeType: 'node'},
+                { id: '1', data: {}, nodeType: 'node' },
+                { id: '2', data: {}, nodeType: 'node' },
             ];
 
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             // 2 items * 48 + 1 gap * 6 + 8 padding = 110
             expect(result.current.dropdownHeight).toBe(110);
         });
 
         it('caps at MAX_HEIGHT for large lists', () => {
-            mockTreeItems = Array.from({length: 20}, (_, i) => ({
+            mockTreeItems = Array.from({ length: 20 }, (_, i) => ({
                 id: `item-${i}`,
                 data: {},
                 nodeType: 'node',
             }));
 
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown: {}}),
-            );
+            const { result } = renderHook(() => useContentComboboxController({ filters: {}, dropdown: {} }));
 
             expect(result.current.dropdownHeight).toBe(300);
         });
@@ -563,14 +499,13 @@ describe('useContentComboboxController', () => {
 
     describe('filter options normalization', () => {
         it('sorts contentTypeNames for stable filter key', () => {
-            const {rerender} = renderHook(
-                ({filters}) => useContentComboboxController({filters}),
-                {initialProps: {filters: {contentTypeNames: ['b', 'a']}}},
-            );
+            const { rerender } = renderHook(({ filters }) => useContentComboboxController({ filters }), {
+                initialProps: { filters: { contentTypeNames: ['b', 'a'] } },
+            });
 
             // Rerender with same values in different order
             // This should not trigger a filter change effect
-            rerender({filters: {contentTypeNames: ['a', 'b']}});
+            rerender({ filters: { contentTypeNames: ['a', 'b'] } });
 
             // Test passes if no errors occur - the sorting prevents filter key changes
         });

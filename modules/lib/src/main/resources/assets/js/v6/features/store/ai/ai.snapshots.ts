@@ -7,10 +7,10 @@ import type {
     AiState,
     AiUser,
 } from './ai-protocol';
-import {createContentData, createContentLanguage, createContentSchema} from './ai.commands';
-import {$aiInstructions} from './ai.store';
-import type {EnonicAiPlugin} from './ai.types';
-import {$config} from '../config.store';
+import { createContentData, createContentLanguage, createContentSchema } from './ai.commands';
+import { $aiInstructions } from './ai.store';
+import type { EnonicAiPlugin } from './ai.types';
+import { $config } from '../../../shared/config/config.store';
 
 //
 // * State snapshots

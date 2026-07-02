@@ -1,8 +1,8 @@
-import {useStore} from '@nanostores/preact';
-import {LayoutTemplate, type LucideIcon, SquareChartGantt, SquareCode, WandSparkles} from 'lucide-react';
-import {useMemo} from 'react';
-import type {PageTemplate} from '../../../app/content/PageTemplate';
-import {$contentContext, $defaultPageTemplateName, usePageState} from '../store/page-editor';
+import { useStore } from '@nanostores/preact';
+import { LayoutTemplate, type LucideIcon, SquareChartGantt, SquareCode, WandSparkles } from 'lucide-react';
+import { useMemo } from 'react';
+import type { PageTemplate } from '../../../app/content/PageTemplate';
+import { $contentContext, $defaultPageTemplateName, usePageState } from '../store/page-editor';
 import {
     $isPageInspectionLoading,
     $pageConfigDescriptor,
@@ -10,7 +10,7 @@ import {
     $pageTemplateOptions,
     $selectedPageOptionKey,
 } from '../store/page-inspection.store';
-import {useI18n} from './useI18n';
+import { useI18n } from '../../shared/lib/hooks/useI18n';
 
 export const AUTO_KEY = '__auto__';
 
@@ -65,7 +65,7 @@ export function useSelectedPageOption(): PageOption | undefined {
         }
 
         if (selectedKey !== undefined) {
-            const template = templates.find(t => t.getKey().toString() === selectedKey);
+            const template = templates.find((t) => t.getKey().toString() === selectedKey);
             if (template != null) {
                 return {
                     key: selectedKey,
@@ -76,7 +76,7 @@ export function useSelectedPageOption(): PageOption | undefined {
                 };
             }
 
-            const controller = controllers.find(c => c.getKey().toString() === selectedKey);
+            const controller = controllers.find((c) => c.getKey().toString() === selectedKey);
             if (controller != null) {
                 return {
                     key: selectedKey,
@@ -91,19 +91,21 @@ export function useSelectedPageOption(): PageOption | undefined {
         if (page?.hasController()) {
             const controllerKey = page.getController();
             const controllerKeyString = controllerKey.toString();
-            const matchingDescriptor = pageConfigDescriptor != null
-                && pageConfigDescriptor.getKey().toString() === controllerKeyString
-                ? pageConfigDescriptor
-                : null;
+            const matchingDescriptor =
+                pageConfigDescriptor != null && pageConfigDescriptor.getKey().toString() === controllerKeyString
+                    ? pageConfigDescriptor
+                    : null;
 
             return {
                 key: controllerKeyString,
-                label: matchingDescriptor != null
-                    ? matchingDescriptor.getDisplayName()
-                    : controllerKey.getName().toString(),
-                description: matchingDescriptor != null
-                    ? matchingDescriptor.getDescription() || noDescriptionLabel
-                    : controllerKeyString,
+                label:
+                    matchingDescriptor != null
+                        ? matchingDescriptor.getDisplayName()
+                        : controllerKey.getName().toString(),
+                description:
+                    matchingDescriptor != null
+                        ? matchingDescriptor.getDescription() || noDescriptionLabel
+                        : controllerKeyString,
                 type: 'controller',
                 icon: SquareCode,
             };
@@ -191,7 +193,7 @@ export function usePageOptions(searchValue?: string): UsePageOptionsResult {
     const filteredOptions = useMemo(() => {
         if (!searchValue) return options;
         const lower = searchValue.toLowerCase();
-        return options.filter(option => option.label.toLowerCase().includes(lower));
+        return options.filter((option) => option.label.toLowerCase().includes(lower));
     }, [searchValue, options]);
 
     const selectedOption = useSelectedPageOption();

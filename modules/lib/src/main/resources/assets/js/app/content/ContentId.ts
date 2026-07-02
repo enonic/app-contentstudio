@@ -1,11 +1,9 @@
-import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {type Reference} from '@enonic/lib-admin-ui/util/Reference';
-import {isBlank} from '../../v6/features/utils/format/isBlank';
+import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { type Reference } from '@enonic/lib-admin-ui/util/Reference';
+import { isBlank } from '../../v6/shared/lib/format/isBlank';
 
-export class ContentId
-    implements Equitable {
-
+export class ContentId implements Equitable {
     private value: string;
 
     constructor(value: string) {
@@ -28,7 +26,6 @@ export class ContentId
     }
 
     equals(o: Equitable): boolean {
-
         if (!ObjectHelper.iFrameSafeInstanceOf(o, ContentId)) {
             return false;
         }

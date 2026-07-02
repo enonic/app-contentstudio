@@ -1,14 +1,14 @@
-import {showError, showSuccess, showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {computed, map} from 'nanostores';
-import {ContentId} from '../../../../app/content/ContentId';
-import type {ContentSummary} from '../../../../app/content/ContentSummary';
-import {PublishRequest} from '../../../../app/issue/PublishRequest';
-import {CreateIssueRequest} from '../../../../app/issue/resource/CreateIssueRequest';
-import {fetchContentSummaries} from '../../api/content';
-import {resolvePublishDependencies} from '../../api/publish';
-import {buildItems, dedupeItems, getItemIds} from '../../utils/cms/content/buildItems';
+import { showError, showSuccess, showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { computed, map } from 'nanostores';
+import { ContentId } from '../../../../app/content/ContentId';
+import type { ContentSummary } from '../../../../app/content/ContentSummary';
+import { PublishRequest } from '../../../../app/issue/PublishRequest';
+import { CreateIssueRequest } from '../../../../app/issue/resource/CreateIssueRequest';
+import { fetchContentSummaries } from '../../api/content';
+import { resolvePublishDependencies } from '../../api/publish';
+import { buildItems, dedupeItems, getItemIds } from '../../../shared/lib/cms/content/buildItems';
 import {
     DEPENDANT_LOAD_SIZE,
     createDependantWindowLoader,
@@ -16,17 +16,17 @@ import {
     orderSummariesByIds,
     pruneDependantWindow,
 } from '../../utils/cms/content/dependantWindow';
-import {calcDependantsSelection, nextDependantExclusions} from '../../utils/cms/content/dependantsSelection';
-import {hasContentIdInIds, uniqueIds} from '../../utils/cms/content/ids';
-import {findContentIdsWithCreatedDescendants} from '../../utils/cms/content/paths';
+import { calcDependantsSelection, nextDependantExclusions } from '../../../shared/lib/cms/content/dependantsSelection';
+import { hasContentIdInIds, uniqueIds } from '../../../shared/lib/cms/content/ids';
+import { findContentIdsWithCreatedDescendants } from '../../../shared/lib/cms/content/paths';
 import {
     createContentIdSet,
     patchTrackedContentItems,
     refreshTrackedMainContentItems,
     removeTrackedContentItems,
-} from '../../utils/cms/content/trackedItems';
-import {createGuardedSocketHandler} from '../../utils/store/createGuardedSocketHandler';
-import {createDebounce} from '../../utils/timing/createDebounce';
+} from '../../../shared/lib/cms/content/trackedItems';
+import { createGuardedSocketHandler } from '../../../shared/lib/store/createGuardedSocketHandler';
+import { createDebounce } from '../../../shared/lib/timing/createDebounce';
 import {
     $contentArchived,
     $contentCreated,
@@ -34,8 +34,8 @@ import {
     $contentPublished,
     $contentRenamed,
     $contentUpdated,
-} from '../socket.store';
-import {closeIssueDialog, openIssueDialogDetails} from './issueDialog.store';
+} from '../../../shared/socket/socket.store';
+import { closeIssueDialog, openIssueDialogDetails } from './issueDialog.store';
 
 const DEPENDENCY_RELOAD_DELAY_MS = 150;
 
@@ -75,23 +75,19 @@ const initialState: NewIssueDialogStore = {
 
 export const $newIssueDialog = map<NewIssueDialogStore>(structuredClone(initialState));
 
-export const $newIssueDialogCreateCount = computed(
-    $newIssueDialog,
-    ({items, dependantIds, excludedDependantIds}) => {
-        const includedDependants = dependantIds.filter(id =>
-            !hasContentIdInIds(id, excludedDependantIds));
-        return items.length + includedDependants.length;
-    },
-);
+export const $newIssueDialogCreateCount = computed($newIssueDialog, ({ items, dependantIds, excludedDependantIds }) => {
+    const includedDependants = dependantIds.filter((id) => !hasContentIdInIds(id, excludedDependantIds));
+    return items.length + includedDependants.length;
+});
 
 export const $newIssueDialogHasMoreDependants = computed(
     $newIssueDialog,
-    ({dependantIds, dependantWindow}) => dependantWindow < dependantIds.length,
+    ({ dependantIds, dependantWindow }) => dependantWindow < dependantIds.length,
 );
 
 export const $newIssueDependantsSelection = computed(
     $newIssueDialog,
-    ({dependantIds, requiredDependantIds, excludedDependantIds}) =>
+    ({ dependantIds, requiredDependantIds, excludedDependantIds }) =>
         calcDependantsSelection(dependantIds, requiredDependantIds, excludedDependantIds),
 );
 
@@ -149,11 +145,13 @@ export const setNewIssueItems = (items: ContentSummary[]): void => {
     const nextItems = dedupeItems(items);
 
     if (nextItems.length === 0) {
-        $newIssueDialog.set(resetDependenciesState({
-            ...$newIssueDialog.get(),
-            items: [],
-            excludeChildrenIds: [],
-        }));
+        $newIssueDialog.set(
+            resetDependenciesState({
+                ...$newIssueDialog.get(),
+                items: [],
+                excludeChildrenIds: [],
+            }),
+        );
         return;
     }
 
@@ -172,12 +170,12 @@ export const addNewIssueItems = (items: ContentSummary[]): void => {
     }
 
     const state = $newIssueDialog.get();
-    const existingIds = new Set(state.items.map(item => item.getContentId().toString()));
-    const newItems = items.filter(item => !existingIds.has(item.getContentId().toString()));
+    const existingIds = new Set(state.items.map((item) => item.getContentId().toString()));
+    const newItems = items.filter((item) => !existingIds.has(item.getContentId().toString()));
     const nextItems = dedupeItems([...state.items, ...newItems]);
     const nextExcludeChildrenIds = uniqueIds([
         ...state.excludeChildrenIds,
-        ...newItems.map(item => item.getContentId()),
+        ...newItems.map((item) => item.getContentId()),
     ]);
 
     $newIssueDialog.set({
@@ -195,8 +193,8 @@ export const addNewIssueItemsByIds = async (ids: string[]): Promise<void> => {
     }
 
     const state = $newIssueDialog.get();
-    const existingIds = new Set(state.items.map(item => item.getContentId().toString()));
-    const newIds = ids.filter(id => !existingIds.has(id)).map(id => new ContentId(id));
+    const existingIds = new Set(state.items.map((item) => item.getContentId().toString()));
+    const newIds = ids.filter((id) => !existingIds.has(id)).map((id) => new ContentId(id));
 
     if (newIds.length === 0) {
         return;
@@ -211,18 +209,19 @@ export const removeNewIssueItemsByIds = (ids: ContentId[]): void => {
         return;
     }
 
-    const idsToRemove = new Set(ids.map(id => id.toString()));
+    const idsToRemove = new Set(ids.map((id) => id.toString()));
     const state = $newIssueDialog.get();
-    const nextItems = state.items.filter(item => !idsToRemove.has(item.getContentId().toString()));
-    const nextExcludeChildrenIds = state.excludeChildrenIds
-        .filter(id => !idsToRemove.has(id.toString()));
+    const nextItems = state.items.filter((item) => !idsToRemove.has(item.getContentId().toString()));
+    const nextExcludeChildrenIds = state.excludeChildrenIds.filter((id) => !idsToRemove.has(id.toString()));
 
     if (nextItems.length === 0) {
-        $newIssueDialog.set(resetDependenciesState({
-            ...state,
-            items: [],
-            excludeChildrenIds: [],
-        }));
+        $newIssueDialog.set(
+            resetDependenciesState({
+                ...state,
+                items: [],
+                excludeChildrenIds: [],
+            }),
+        );
         return;
     }
 
@@ -242,7 +241,7 @@ export const setNewIssueItemIncludeChildren = (id: ContentId, includeChildren: b
     if (includeChildren && alreadyExcluded) {
         $newIssueDialog.setKey(
             'excludeChildrenIds',
-            state.excludeChildrenIds.filter(item => !item.equals(id)),
+            state.excludeChildrenIds.filter((item) => !item.equals(id)),
         );
         reloadDependenciesDebounced();
         return;
@@ -264,7 +263,7 @@ export const setNewIssueDependantIncluded = (id: ContentId, included: boolean): 
     if (included && isExcluded) {
         $newIssueDialog.setKey(
             'excludedDependantIds',
-            state.excludedDependantIds.filter(item => !item.equals(id)),
+            state.excludedDependantIds.filter((item) => !item.equals(id)),
         );
         return;
     }
@@ -275,7 +274,7 @@ export const setNewIssueDependantIncluded = (id: ContentId, included: boolean): 
 };
 
 export const toggleNewIssueDependantsSelection = (): void => {
-    const {dependantIds, requiredDependantIds, excludedDependantIds} = $newIssueDialog.get();
+    const { dependantIds, requiredDependantIds, excludedDependantIds } = $newIssueDialog.get();
     const selection = calcDependantsSelection(dependantIds, requiredDependantIds, excludedDependantIds);
     if (selection.selectableIds.length === 0) {
         return;
@@ -294,9 +293,8 @@ export const submitNewIssueDialog = async (): Promise<void> => {
 
     $newIssueDialog.setKey('submitting', true);
 
-    const approvers = state.assigneeIds.map(id => PrincipalKey.fromString(id));
-    const publishRequest = PublishRequest
-        .create()
+    const approvers = state.assigneeIds.map((id) => PrincipalKey.fromString(id));
+    const publishRequest = PublishRequest.create()
         .addExcludeIds(state.excludedDependantIds)
         .addPublishRequestItems(buildItems(state.items, state.excludeChildrenIds))
         .build();
@@ -330,15 +328,13 @@ export const submitNewIssueDialog = async (): Promise<void> => {
 //
 
 const isNewIssueDialogActive = (): boolean => {
-    const {open, items} = $newIssueDialog.get();
+    const { open, items } = $newIssueDialog.get();
     return open && items.length > 0;
 };
 
 const onNewIssueSocketEvent = createGuardedSocketHandler(isNewIssueDialogActive);
 
-const patchTrackedNewIssueItems = (
-    updates: ContentSummary[],
-): {updatedMain: boolean; updatedDependants: boolean} => {
+const patchTrackedNewIssueItems = (updates: ContentSummary[]): { updatedMain: boolean; updatedDependants: boolean } => {
     const change = patchTrackedContentItems($newIssueDialog.get(), updates);
 
     if (change.changed) {
@@ -351,7 +347,7 @@ const patchTrackedNewIssueItems = (
     };
 };
 
-const removeTrackedNewIssueItems = (idsToRemove: Set<string>): {removedMain: boolean; removedDependants: boolean} => {
+const removeTrackedNewIssueItems = (idsToRemove: Set<string>): { removedMain: boolean; removedDependants: boolean } => {
     const change = removeTrackedContentItems($newIssueDialog.get(), idsToRemove);
     const pruned = pruneDependantWindow(change.changed ? change.state : $newIssueDialog.get(), idsToRemove);
 
@@ -368,14 +364,16 @@ const removeTrackedNewIssueItems = (idsToRemove: Set<string>): {removedMain: boo
 };
 
 const handleRemovedNewIssueItems = (idsToRemove: Set<string>): void => {
-    const {removedMain, removedDependants} = removeTrackedNewIssueItems(idsToRemove);
+    const { removedMain, removedDependants } = removeTrackedNewIssueItems(idsToRemove);
 
     if ($newIssueDialog.get().items.length === 0) {
-        $newIssueDialog.set(resetDependenciesState({
-            ...$newIssueDialog.get(),
-            items: [],
-            excludeChildrenIds: [],
-        }));
+        $newIssueDialog.set(
+            resetDependenciesState({
+                ...$newIssueDialog.get(),
+                items: [],
+                excludeChildrenIds: [],
+            }),
+        );
         return;
     }
 
@@ -396,42 +394,54 @@ const refreshNewIssueMainItems = async (ids: ContentId[]): Promise<void> => {
     }
 };
 
-$contentCreated.subscribe(onNewIssueSocketEvent((event) => {
-    const matched = findContentIdsWithCreatedDescendants($newIssueDialog.get().items, event.data);
-    if (matched.length === 0) {
-        return;
-    }
+$contentCreated.subscribe(
+    onNewIssueSocketEvent((event) => {
+        const matched = findContentIdsWithCreatedDescendants($newIssueDialog.get().items, event.data);
+        if (matched.length === 0) {
+            return;
+        }
 
-    void refreshNewIssueMainItems(matched).finally(() => {
-        reloadDependenciesDebounced();
-    });
-}));
+        void refreshNewIssueMainItems(matched).finally(() => {
+            reloadDependenciesDebounced();
+        });
+    }),
+);
 
-$contentUpdated.subscribe(onNewIssueSocketEvent((event) => {
-    const {updatedMain, updatedDependants} = patchTrackedNewIssueItems(event.data);
-    if (updatedMain || updatedDependants) {
-        reloadDependenciesDebounced();
-    }
-}));
+$contentUpdated.subscribe(
+    onNewIssueSocketEvent((event) => {
+        const { updatedMain, updatedDependants } = patchTrackedNewIssueItems(event.data);
+        if (updatedMain || updatedDependants) {
+            reloadDependenciesDebounced();
+        }
+    }),
+);
 
-$contentRenamed.subscribe(onNewIssueSocketEvent((event) => {
-    patchTrackedNewIssueItems(event.data.items);
-}));
+$contentRenamed.subscribe(
+    onNewIssueSocketEvent((event) => {
+        patchTrackedNewIssueItems(event.data.items);
+    }),
+);
 
-$contentDeleted.subscribe(onNewIssueSocketEvent((event) => {
-    handleRemovedNewIssueItems(createContentIdSet(event.data));
-}));
+$contentDeleted.subscribe(
+    onNewIssueSocketEvent((event) => {
+        handleRemovedNewIssueItems(createContentIdSet(event.data));
+    }),
+);
 
-$contentArchived.subscribe(onNewIssueSocketEvent((event) => {
-    handleRemovedNewIssueItems(createContentIdSet(event.data));
-}));
+$contentArchived.subscribe(
+    onNewIssueSocketEvent((event) => {
+        handleRemovedNewIssueItems(createContentIdSet(event.data));
+    }),
+);
 
-$contentPublished.subscribe(onNewIssueSocketEvent((event) => {
-    const {updatedMain, updatedDependants} = patchTrackedNewIssueItems(event.data);
-    if (updatedMain || updatedDependants) {
-        reloadDependenciesDebounced();
-    }
-}));
+$contentPublished.subscribe(
+    onNewIssueSocketEvent((event) => {
+        const { updatedMain, updatedDependants } = patchTrackedNewIssueItems(event.data);
+        if (updatedMain || updatedDependants) {
+            reloadDependenciesDebounced();
+        }
+    }),
+);
 
 export const loadMoreNewIssueDependants = createDependantWindowLoader($newIssueDialog, () => instanceId);
 
@@ -461,8 +471,7 @@ const reloadNewIssueDependencies = async (): Promise<void> => {
             return;
         }
 
-        const allDependantIds = result.getDependants()
-            .filter(id => !hasContentIdInIds(id, itemIds));
+        const allDependantIds = result.getDependants().filter((id) => !hasContentIdInIds(id, itemIds));
 
         const firstWindow = await fetchDependantWindowSlice(allDependantIds, 0);
 
@@ -482,11 +491,10 @@ const reloadNewIssueDependencies = async (): Promise<void> => {
         const dependants = orderSummariesByIds(firstWindow.summaries, allDependantIds);
 
         const latestState = $newIssueDialog.get();
-        const requiredDependantIds = result.getRequired()
-            .filter(id => hasContentIdInIds(id, allDependantIds));
+        const requiredDependantIds = result.getRequired().filter((id) => hasContentIdInIds(id, allDependantIds));
         const nextExcludedDependantIds = latestState.excludedDependantIds
-            .filter(id => hasContentIdInIds(id, allDependantIds))
-            .filter(id => !hasContentIdInIds(id, requiredDependantIds));
+            .filter((id) => hasContentIdInIds(id, allDependantIds))
+            .filter((id) => !hasContentIdInIds(id, requiredDependantIds));
 
         $newIssueDialog.set({
             ...latestState,

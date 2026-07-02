@@ -1,12 +1,19 @@
-import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
-import {Checkbox, type CheckboxChecked, IconButton} from '@enonic/ui';
-import {RefreshCcw} from 'lucide-react';
-import {type ReactElement, useMemo} from 'react';
-import {useStore} from '@nanostores/preact';
-import {useI18n} from '../../../hooks/useI18n';
-import {reloadProjects} from '../../../store/projects.store';
-import {$isAllSelected, $isNoneSelected, $selectionCount, clearSelection, selectAll, setActive} from '../../../store/settingsTreeSelection.store';
-import {resetSettingsTreeForReload} from '../../../store/settings-tree.store';
+import { LegacyElement } from '@enonic/lib-admin-ui/ui2/LegacyElement';
+import { Checkbox, type CheckboxChecked, IconButton } from '@enonic/ui';
+import { RefreshCcw } from 'lucide-react';
+import { type ReactElement, useMemo } from 'react';
+import { useStore } from '@nanostores/preact';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { reloadProjects } from '../../../store/projects.store';
+import {
+    $isAllSelected,
+    $isNoneSelected,
+    $selectionCount,
+    clearSelection,
+    selectAll,
+    setActive,
+} from '../../../store/settingsTreeSelection.store';
+import { resetSettingsTreeForReload } from '../../../store/settings-tree.store';
 
 type SettingsTreeListToolbarProps = {
     enabled?: boolean;
@@ -19,7 +26,7 @@ const handleReload = (): void => {
     reloadProjects();
 };
 
-const SettingsTreeListToolbar = ({enabled = true}: SettingsTreeListToolbarProps): ReactElement => {
+const SettingsTreeListToolbar = ({ enabled = true }: SettingsTreeListToolbarProps): ReactElement => {
     const isAllSelected = useStore($isAllSelected);
     const totalSelected = useStore($selectionCount);
     const isNoneSelected = useStore($isNoneSelected);
@@ -62,7 +69,10 @@ const SettingsTreeListToolbar = ({enabled = true}: SettingsTreeListToolbarProps)
 
 SettingsTreeListToolbar.displayName = 'SettingsTreeListToolbar';
 
-export class SettingsTreeListToolbarElement extends LegacyElement<typeof SettingsTreeListToolbar, SettingsTreeListToolbarProps> {
+export class SettingsTreeListToolbarElement extends LegacyElement<
+    typeof SettingsTreeListToolbar,
+    SettingsTreeListToolbarProps
+> {
     constructor(props?: SettingsTreeListToolbarProps) {
         super(props ?? {}, SettingsTreeListToolbar);
     }

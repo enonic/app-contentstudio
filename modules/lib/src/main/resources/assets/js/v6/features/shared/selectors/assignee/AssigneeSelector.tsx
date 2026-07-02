@@ -1,11 +1,11 @@
-import {Combobox, IconButton, ListItem, Listbox, cn} from '@enonic/ui';
-import {X} from 'lucide-react';
-import {useEffect, useMemo, useState, type ReactElement} from 'react';
-import {createDebounce} from '../../../utils/timing/createDebounce';
-import {AssigneeOptionItem} from './AssigneeOptionItem';
-import {AssigneeOptionRow} from './AssigneeOptionRow';
-import {AssigneeOptionsContent} from './AssigneeOptionsContent';
-import type {AssigneeSelectorOption} from './assignee.types';
+import { Combobox, IconButton, ListItem, Listbox, cn } from '@enonic/ui';
+import { X } from 'lucide-react';
+import { useEffect, useMemo, useState, type ReactElement } from 'react';
+import { createDebounce } from '../../../../shared/lib/timing/createDebounce';
+import { AssigneeOptionItem } from './AssigneeOptionItem';
+import { AssigneeOptionRow } from './AssigneeOptionRow';
+import { AssigneeOptionsContent } from './AssigneeOptionsContent';
+import type { AssigneeSelectorOption } from './assignee.types';
 
 export type AssigneeSelectorProps = {
     label: string;
@@ -50,8 +50,10 @@ const matchesQuery = (option: AssigneeSelectorOption, normalizedQuery: string): 
         return true;
     }
 
-    return option.label.toLowerCase().includes(normalizedQuery) ||
-        option.description?.toLowerCase().includes(normalizedQuery) === true;
+    return (
+        option.label.toLowerCase().includes(normalizedQuery) ||
+        option.description?.toLowerCase().includes(normalizedQuery) === true
+    );
 };
 
 export const AssigneeSelector = ({
@@ -84,7 +86,7 @@ export const AssigneeSelector = ({
     const optionLookup = useMemo(() => {
         const merged = [...options, ...(selectedOptions ?? [])];
         const lookup = new Map<string, AssigneeSelectorOption>();
-        merged.forEach(option => lookup.set(option.id, option));
+        merged.forEach((option) => lookup.set(option.id, option));
         return lookup;
     }, [options, selectedOptions]);
 
@@ -101,16 +103,16 @@ export const AssigneeSelector = ({
             safeToRaw.set(safe, id);
         };
 
-        options.forEach(option => register(option.id));
-        selectedOptions?.forEach(option => register(option.id));
+        options.forEach((option) => register(option.id));
+        selectedOptions?.forEach((option) => register(option.id));
         selectedIds.forEach(register);
 
-        return {rawToSafe, safeToRaw};
+        return { rawToSafe, safeToRaw };
     }, [options, selectedOptions, selectedIdsKey]);
 
     const selectedOptionList = useMemo(() => {
         return selectedIds
-            .map(id => optionLookup.get(id))
+            .map((id) => optionLookup.get(id))
             .filter((option): option is AssigneeSelectorOption => !!option);
     }, [selectedIds, optionLookup]);
 
@@ -124,7 +126,7 @@ export const AssigneeSelector = ({
             return options;
         }
 
-        return options.filter(option => matchesQuery(option, normalizedQuery));
+        return options.filter((option) => matchesQuery(option, normalizedQuery));
     }, [open, shouldFilter, options, inputValue]);
 
     const debouncedSearch = useMemo(() => {
@@ -168,19 +170,14 @@ export const AssigneeSelector = ({
     }, [debouncedSearch]);
 
     const showSelectedOptions = selectedOptionList.length > 0;
-    const safeSelection = useMemo(
-        () => selectedIds.map(toSafeValue),
-        [selectedIdsKey],
-    );
+    const safeSelection = useMemo(() => selectedIds.map(toSafeValue), [selectedIdsKey]);
 
     const handleRemoveAssignee = (id: string): void => {
-        onSelectionChange(selectedIds.filter(selectedId => selectedId !== id));
+        onSelectionChange(selectedIds.filter((selectedId) => selectedId !== id));
     };
 
     return (
-        <div
-            data-component={ASSIGNEE_SELECTOR_NAME}
-            className={cn('flex min-h-0 flex-col gap-2', className)}>
+        <div data-component={ASSIGNEE_SELECTOR_NAME} className={cn('flex min-h-0 flex-col gap-2', className)}>
             <Combobox.Root
                 open={open}
                 onOpenChange={setOpen}
@@ -188,11 +185,11 @@ export const AssigneeSelector = ({
                 onChange={setInputValue}
                 active={activeItem ?? ''}
                 setActive={setActiveItem}
-                selectionMode='staged'
+                selectionMode="staged"
                 selection={safeSelection}
                 onSelectionChange={(next) => {
                     const mapped = next
-                        .map(value => valueMap.safeToRaw.get(value))
+                        .map((value) => valueMap.safeToRaw.get(value))
                         .filter((value): value is string => !!value);
                     onSelectionChange(mapped);
                     onAppliedSelectionChange?.(mapped);
@@ -203,10 +200,7 @@ export const AssigneeSelector = ({
                     <Combobox.Control>
                         <Combobox.Search>
                             <Combobox.SearchIcon />
-                            <Combobox.Input
-                                placeholder={searchPlaceholder ?? placeholder}
-                                aria-label={label}
-                            />
+                            <Combobox.Input placeholder={searchPlaceholder ?? placeholder} aria-label={label} />
                             <Combobox.Apply label={applyLabel} />
                             <Combobox.Toggle />
                         </Combobox.Search>
@@ -219,14 +213,10 @@ export const AssigneeSelector = ({
                                 emptyLabel={emptyLabel}
                                 hasOptions={visibleOptions.length > 0}
                             >
-                                {visibleOptions.map(option => {
+                                {visibleOptions.map((option) => {
                                     const safeValue = valueMap.rawToSafe.get(option.id) ?? toSafeValue(option.id);
                                     return (
-                                        <Listbox.Item
-                                            key={option.id}
-                                            value={safeValue}
-                                            disabled={option.disabled}
-                                        >
+                                        <Listbox.Item key={option.id} value={safeValue} disabled={option.disabled}>
                                             <AssigneeOptionItem option={option} value={safeValue} />
                                         </Listbox.Item>
                                     );
@@ -238,21 +228,18 @@ export const AssigneeSelector = ({
             </Combobox.Root>
             {showSelectedOptions && (
                 <div className={cn('flex flex-col gap-1.5', selectedListClassName)}>
-                    {selectedOptionList.map(option => (
-                        <ListItem
-                            key={option.id}
-                            className='h-12 py-0 px-2.5'
-                        >
-                            <ListItem.Content className='flex'>
-                                <div className='flex flex-1 items-center gap-x-2.5'>
+                    {selectedOptionList.map((option) => (
+                        <ListItem key={option.id} className="h-12 py-0 px-2.5">
+                            <ListItem.Content className="flex">
+                                <div className="flex flex-1 items-center gap-x-2.5">
                                     <AssigneeOptionRow option={option} />
                                 </div>
                             </ListItem.Content>
-                            <ListItem.Right className='flex items-center gap-2.5'>
+                            <ListItem.Right className="flex items-center gap-2.5">
                                 <IconButton
                                     icon={X}
-                                    size='sm'
-                                    variant='text'
+                                    size="sm"
+                                    variant="text"
                                     iconSize={18}
                                     iconStrokeWidth={2}
                                     onClick={() => handleRemoveAssignee(option.id)}

@@ -1,15 +1,14 @@
-import {type ContentSummary} from '../../../../../app/content/ContentSummary';
-import {type ContentData} from '../../../views/browse/grid/ContentData';
-import {calcTreePublishStatus} from './status';
-import {calcContentState} from './workflow';
-import {resolveDisplayName, resolveSubName} from './prettify';
-
+import { type ContentSummary } from '../../../../../app/content/ContentSummary';
+import { type ContentData } from '../../../views/browse/grid/ContentData';
+import { calcTreePublishStatus } from '../../../../shared/lib/cms/content/status';
+import { calcContentState } from '../../../../shared/lib/cms/content/workflow';
+import { resolveDisplayName, resolveSubName } from '../../../../shared/lib/cms/content/prettify';
 
 export function toContentData(item: ContentSummary): ContentData {
     return {
         ...toContentProps(item),
         hasChildren: item.hasChildren(),
-    }
+    };
 }
 
 export function toContentProps(item: ContentSummary): Omit<ContentData, 'path' | 'children'> {
@@ -23,5 +22,5 @@ export function toContentProps(item: ContentSummary): Omit<ContentData, 'path' |
         contentState: calcContentState(item),
         iconUrl: item.getIconUrl(),
         item,
-    }
+    };
 }

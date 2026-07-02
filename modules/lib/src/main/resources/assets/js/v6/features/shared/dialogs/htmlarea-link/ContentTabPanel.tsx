@@ -1,23 +1,29 @@
-import {Button, Checkbox, IconButton, Input, RadioGroup} from '@enonic/ui';
-import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {UploadIcon, X} from 'lucide-react';
-import {useCallback, useEffect, useMemo, useRef, useState, type ReactElement} from 'react';
-import {fetchNearestSite} from '../../../api/content';
-import {type UploadMediaError, type UploadMediaSuccess} from '../../../api/uploadMedia';
-import {useI18n} from '../../../hooks/useI18n';
-import {useUploadMedia} from '../../../hooks/useUploadMedia';
-import {$contextContent} from '../../../store/context/contextContent.store';
-import {useStore} from '@nanostores/preact';
-import {type MediaOption, useHtmlAreaLinkDialogContext} from './HtmlAreaLinkDialogContext';
-import {ContentSelector} from '../../selectors/content';
+import { Button, Checkbox, IconButton, Input, RadioGroup } from '@enonic/ui';
+import { showError } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { UploadIcon, X } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
+import { fetchNearestSite } from '../../../api/content';
+import { type UploadMediaError, type UploadMediaSuccess } from '../../../api/uploadMedia';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { useUploadMedia } from '../../../hooks/useUploadMedia';
+import { $contextContent } from '../../../store/context/contextContent.store';
+import { useStore } from '@nanostores/preact';
+import { type MediaOption, useHtmlAreaLinkDialogContext } from './HtmlAreaLinkDialogContext';
+import { ContentSelector } from '../../selectors/content';
 
 const COMPONENT_NAME = 'ContentTabPanel';
 
 export const ContentTabPanel = (): ReactElement => {
     const {
         state: {
-            selectedContentId, selectedContent, mediaOption, showAllContent,
-            contentTarget, fragment, fragmentVisible, queryParams,
+            selectedContentId,
+            selectedContent,
+            mediaOption,
+            showAllContent,
+            contentTarget,
+            fragment,
+            fragmentVisible,
+            queryParams,
             contentSummary,
         },
         validationErrors: errors,
@@ -72,13 +78,16 @@ export const ContentTabPanel = (): ReactElement => {
     const showNonMediaOptions = !!selectedContent && !isMedia;
     const showTargetCheckbox = showNonMediaOptions || (showMediaOptions && mediaOption !== 'download');
 
-    const handleSelectionChange = useCallback((newSelection: readonly string[]) => {
-        if (newSelection.length === 0) {
-            deselectContent();
-        } else {
-            selectContentById(newSelection[0]);
-        }
-    }, [deselectContent, selectContentById]);
+    const handleSelectionChange = useCallback(
+        (newSelection: readonly string[]) => {
+            if (newSelection.length === 0) {
+                deselectContent();
+            } else {
+                selectContentById(newSelection[0]);
+            }
+        },
+        [deselectContent, selectContentById],
+    );
 
     const allowedContentPaths = useMemo(() => {
         if (showAllContent || !parentSitePath) {
@@ -91,15 +100,18 @@ export const ContentTabPanel = (): ReactElement => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const uploadParent = useStore($contextContent);
 
-    const onUploadComplete = useCallback((success: UploadMediaSuccess) => {
-        handleSelectionChange([success.content.getId()]);
-    }, [handleSelectionChange]);
+    const onUploadComplete = useCallback(
+        (success: UploadMediaSuccess) => {
+            handleSelectionChange([success.content.getId()]);
+        },
+        [handleSelectionChange],
+    );
 
     const onUploadError = useCallback((error: UploadMediaError) => {
         showError(useI18n('notify.upload.error', error.mediaIdentifier, error.message));
     }, []);
 
-    const {handleInputChange} = useUploadMedia({
+    const { handleInputChange } = useUploadMedia({
         parentContent: uploadParent ?? undefined,
         onUploadComplete,
         onUploadError,
@@ -112,18 +124,18 @@ export const ContentTabPanel = (): ReactElement => {
     const showUpload = !selectedContentId;
 
     return (
-        <div data-component={COMPONENT_NAME} className='flex flex-col gap-4 pt-4'>
-            <div className='flex flex-col gap-2.5'>
-                {contentLabel && <label className='text-md font-semibold'>{contentLabel} *</label>}
-                <div className='flex items-center'>
+        <div data-component={COMPONENT_NAME} className="flex flex-col gap-4 pt-4">
+            <div className="flex flex-col gap-2.5">
+                {contentLabel && <label className="text-md font-semibold">{contentLabel} *</label>}
+                <div className="flex items-center">
                     <ContentSelector
                         selection={selection}
                         onSelectionChange={handleSelectionChange}
-                        selectionMode='single'
+                        selectionMode="single"
                         allowedContentPaths={allowedContentPaths}
                         error={!!errors.content}
                         closeOnBlur
-                        className='flex-1 focus-within:z-10'
+                        className="flex-1 focus-within:z-10"
                         withRightButton={showUpload}
                     />
                     {showUpload && (
@@ -131,16 +143,16 @@ export const ContentTabPanel = (): ReactElement => {
                             <input
                                 tabIndex={-1}
                                 ref={fileInputRef}
-                                type='file'
+                                type="file"
                                 aria-label={uploadMediaLabel}
                                 onChange={handleInputChange}
-                                className='sr-only'
+                                className="sr-only"
                             />
                             <Button
                                 onClick={handleUploadClick}
-                                variant='solid'
+                                variant="solid"
                                 aria-label={uploadMediaLabel}
-                                className='relative h-12 rounded-none border border-bdr-subtle rounded-tr rounded-br bg-surface-selected focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset transition-highlight'
+                                className="relative h-12 rounded-none border border-bdr-subtle rounded-tr rounded-br bg-surface-selected focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset transition-highlight"
                             >
                                 <UploadIcon size={20} absoluteStrokeWidth />
                             </Button>
@@ -159,20 +171,20 @@ export const ContentTabPanel = (): ReactElement => {
 
             {showMediaOptions && (
                 <RadioGroup.Root
-                    name='mediaOption'
+                    name="mediaOption"
                     value={mediaOption}
                     onValueChange={(val) => setMediaOption(val as MediaOption)}
-                    className='rounded-md'
+                    className="rounded-md"
                 >
-                    <RadioGroup.Item value='open'>
+                    <RadioGroup.Item value="open">
                         <RadioGroup.Indicator />
                         {openLabel}
                     </RadioGroup.Item>
-                    <RadioGroup.Item value='download'>
+                    <RadioGroup.Item value="download">
                         <RadioGroup.Indicator />
                         {downloadLabel}
                     </RadioGroup.Item>
-                    <RadioGroup.Item value='link'>
+                    <RadioGroup.Item value="link">
                         <RadioGroup.Indicator />
                         {linkLabel}
                     </RadioGroup.Item>
@@ -189,24 +201,14 @@ export const ContentTabPanel = (): ReactElement => {
 
             {showNonMediaOptions && (
                 <>
-                    <div className='flex flex-col gap-2'>
-                        <div className='flex items-center gap-2'>
-                            <span className='text-sm font-medium'>{fragmentLabel}</span>
+                    <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium">{fragmentLabel}</span>
                             {!fragmentVisible && (
-                                <Button
-                                    size='sm'
-                                    variant='text'
-                                    label={addLabel}
-                                    onClick={toggleFragmentVisible}
-                                />
+                                <Button size="sm" variant="text" label={addLabel} onClick={toggleFragmentVisible} />
                             )}
                             {fragmentVisible && (
-                                <IconButton
-                                    size='sm'
-                                    variant='text'
-                                    icon={X}
-                                    onClick={toggleFragmentVisible}
-                                />
+                                <IconButton size="sm" variant="text" icon={X} onClick={toggleFragmentVisible} />
                             )}
                         </div>
                         {fragmentVisible && (
@@ -217,40 +219,30 @@ export const ContentTabPanel = (): ReactElement => {
                         )}
                     </div>
 
-                    <div className='flex flex-col gap-2'>
-                        <div className='flex items-center gap-2'>
-                            <span className='text-sm font-medium'>{paramsLabel}</span>
-                            <Button
-                                size='sm'
-                                variant='text'
-                                label={addLabel}
-                                onClick={addQueryParam}
-                            />
+                    <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium">{paramsLabel}</span>
+                            <Button size="sm" variant="text" label={addLabel} onClick={addQueryParam} />
                         </div>
                         {errors.queryParams && (
-                            <span className='text-sm text-enonic-red-500'>{errors.queryParams}</span>
+                            <span className="text-sm text-enonic-red-500">{errors.queryParams}</span>
                         )}
                         {queryParams.map((param, index) => (
-                            <div key={index} className='flex items-center gap-2'>
+                            <div key={index} className="flex items-center gap-2">
                                 <Input
                                     placeholder={paramNameLabel}
                                     value={param.key}
                                     error={!param.key ? errors.queryParams : undefined}
                                     onChange={(e) => setQueryParamKey(index, (e.target as HTMLInputElement).value)}
-                                    className='flex-1'
+                                    className="flex-1"
                                 />
                                 <Input
                                     placeholder={paramValueLabel}
                                     value={param.value}
                                     onChange={(e) => setQueryParamValue(index, (e.target as HTMLInputElement).value)}
-                                    className='flex-1'
+                                    className="flex-1"
                                 />
-                                <IconButton
-                                    size='sm'
-                                    variant='text'
-                                    icon={X}
-                                    onClick={() => removeQueryParam(index)}
-                                />
+                                <IconButton size="sm" variant="text" icon={X} onClick={() => removeQueryParam(index)} />
                             </div>
                         ))}
                     </div>

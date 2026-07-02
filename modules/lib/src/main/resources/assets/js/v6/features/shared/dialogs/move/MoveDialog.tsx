@@ -1,9 +1,9 @@
-import {Button, Dialog} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {useEffect, useState, type ReactElement} from 'react';
-import {GetNearestSiteRequest} from '../../../../../app/resource/GetNearestSiteRequest';
-import {useI18n} from '../../../hooks/useI18n';
-import {useTaskProgress} from '../../../hooks/useTaskProgress';
+import { Button, Dialog } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { useEffect, useState, type ReactElement } from 'react';
+import { GetNearestSiteRequest } from '../../../../../app/resource/GetNearestSiteRequest';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { useTaskProgress } from '../../../hooks/useTaskProgress';
 import {
     $moveItems,
     $moveDialog,
@@ -11,18 +11,20 @@ import {
     cancelMoveDialog,
     executeMoveDialogAction,
 } from '../../../store/dialogs/moveDialog.store';
-import {clearSelection, setActive} from '../../../store/contentTreeSelection.store';
-import {MoveDialogMainContent} from './MoveDialogMainContent';
-import {MoveDialogProgressContent} from './MoveDialogProgressContent';
+import { clearSelection, setActive } from '../../../store/contentTreeSelection.store';
+import { MoveDialogMainContent } from './MoveDialogMainContent';
+import { MoveDialogProgressContent } from './MoveDialogProgressContent';
 
 const MOVE_DIALOG_NAME = 'MoveDialog';
 type View = 'main' | 'confirmation' | 'progress';
 
 export const MoveDialog = (): ReactElement => {
-    const {open, destinationPath, destinationItem} = useStore($moveDialog, {keys: ['open', 'destinationPath', 'destinationItem']});
+    const { open, destinationPath, destinationItem } = useStore($moveDialog, {
+        keys: ['open', 'destinationPath', 'destinationItem'],
+    });
     const taskId = useStore($moveTaskId);
     const items = useStore($moveItems);
-    const {progress} = useTaskProgress(taskId);
+    const { progress } = useTaskProgress(taskId);
     const [view, setView] = useState<View>('main');
 
     const confirmTitle = useI18n('dialog.confirm.title');
@@ -81,9 +83,7 @@ export const MoveDialog = (): ReactElement => {
 
         const parentSites = await Promise.all(parentSitePromises);
 
-        return parentSites
-            .filter((site) => site != null)
-            .some((site) => site.getId() !== targetSiteId);
+        return parentSites.filter((site) => site != null).some((site) => site.getId() !== targetSiteId);
     };
 
     useEffect(() => {
@@ -96,29 +96,24 @@ export const MoveDialog = (): ReactElement => {
         <Dialog.Root open={open} onOpenChange={handleOpenChange}>
             <Dialog.Portal>
                 <Dialog.Overlay />
-                {view === 'main' && (
-                    <MoveDialogMainContent onMove={() => void handleMove()} />
-                )}
+                {view === 'main' && <MoveDialogMainContent onMove={() => void handleMove()} />}
                 {view === 'confirmation' && (
-                    <Dialog.Content className='max-w-180 w-fit sm:min-w-152 text-main gap-2.5'>
+                    <Dialog.Content className="max-w-180 w-fit sm:min-w-152 text-main gap-2.5">
                         <Dialog.DefaultHeader title={confirmTitle} description={confirmDescription} withClose />
                         <Dialog.Footer>
-                            <Button size='lg' label={cancelLabel} variant='outline' onClick={resetView} />
+                            <Button size="lg" label={cancelLabel} variant="outline" onClick={resetView} />
                             <Button
-                                size='lg'
+                                size="lg"
                                 label={confirmLabel}
-                                variant='solid'
-                                className='bg-btn-error text-alt hover:bg-btn-error-hover active:bg-btn-error-active focus-visible:ring-error/50'
+                                variant="solid"
+                                className="bg-btn-error text-alt hover:bg-btn-error-hover active:bg-btn-error-active focus-visible:ring-error/50"
                                 onClick={() => void startMove()}
                             />
                         </Dialog.Footer>
                     </Dialog.Content>
                 )}
                 {view === 'progress' && (
-                    <MoveDialogProgressContent
-                        destinationPath={destinationPath ?? undefined}
-                        progress={progress}
-                    />
+                    <MoveDialogProgressContent destinationPath={destinationPath ?? undefined} progress={progress} />
                 )}
             </Dialog.Portal>
         </Dialog.Root>

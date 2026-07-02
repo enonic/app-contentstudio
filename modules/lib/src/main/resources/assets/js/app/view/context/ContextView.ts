@@ -1,27 +1,25 @@
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {cn} from '@enonic/ui';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { LoadMask } from '@enonic/lib-admin-ui/ui/mask/LoadMask';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { cn } from '@enonic/ui';
 import Q from 'q';
-import {PreviewLabelElement} from '../../../v6/features/shared/PreviewLabel';
+import { PreviewLabelElement } from '../../../v6/shared/ui/PreviewLabel';
 import {
     type RegisteredWidget,
     setActiveWidgetId as setActiveExtensionId,
     setRegisteredWidgets,
 } from '../../../v6/features/store/contextWidgets.store';
 import WidgetsSelectorElement from '../../../v6/features/views/context/widget/WidgetsSelector';
-import {CompareStatus} from '../../content/CompareStatus';
-import type {ContentId} from '../../content/ContentId';
-import type {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
-import {type ExtensionView} from './ExtensionView';
-import {ReloadActiveExtensionEvent} from './ReloadActiveExtensionEvent';
+import { CompareStatus } from '../../content/CompareStatus';
+import type { ContentId } from '../../content/ContentId';
+import type { ContentSummaryAndCompareStatus } from '../../content/ContentSummaryAndCompareStatus';
+import { ContentServerEventsHandler } from '../../event/ContentServerEventsHandler';
+import { type ExtensionView } from './ExtensionView';
+import { ReloadActiveExtensionEvent } from './ReloadActiveExtensionEvent';
 
-export class ContextView
-    extends DivEl {
-
+export class ContextView extends DivEl {
     private widgets: ExtensionView[] = [];
     private contextContainer: DivEl;
     private widgetsSelector: WidgetsSelectorElement;
@@ -60,10 +58,10 @@ export class ContextView
 
     setWidgets(widgets: ExtensionView[], defaultWidget?: ExtensionView): void {
         this.resetActiveExtension();
-        this.widgets.forEach(w => w.remove());
+        this.widgets.forEach((w) => w.remove());
         this.widgets = [];
 
-        widgets.forEach(w => {
+        widgets.forEach((w) => {
             this.widgets.push(w);
             this.contextContainer.appendChild(w);
             this.warnIfDescriptorNameConflict(w);
@@ -95,13 +93,13 @@ export class ContextView
         const name = widget.getExtensionDescriptorName();
         if (!name) return;
 
-        const matches = this.widgets.filter(w => w.getExtensionDescriptorName() === name);
+        const matches = this.widgets.filter((w) => w.getExtensionDescriptorName() === name);
         if (matches.length < 2) return;
 
-        const keys = matches.map(w => w.getExtensionKey()).join(', ');
+        const keys = matches.map((w) => w.getExtensionKey()).join(', ');
         console.warn(
             `ContextView: multiple widgets share descriptor name "${name}" (${keys}). ` +
-            `setActiveExtensionByName will activate the first one registered.`,
+                `setActiveExtensionByName will activate the first one registered.`,
         );
     }
 
@@ -109,7 +107,7 @@ export class ContextView
         const widget = this.getWidgetByKey(key);
         if (!widget) return;
 
-        this.widgets = this.widgets.filter(w => w !== widget);
+        this.widgets = this.widgets.filter((w) => w !== widget);
         widget.remove();
 
         if (this.isActiveWidget(key)) {
@@ -120,7 +118,7 @@ export class ContextView
     }
 
     replaceWidgetByKey(key: string, widget: ExtensionView): void {
-        const index = this.widgets.findIndex(w => w.getExtensionKey() === key);
+        const index = this.widgets.findIndex((w) => w.getExtensionKey() === key);
         if (index < 0) return;
 
         const wasActive = this.isActiveWidget(key);
@@ -137,7 +135,7 @@ export class ContextView
     }
 
     getWidgetByKey(key: string): ExtensionView | null {
-        return this.widgets.find(w => w.getExtensionKey() === key) ?? null;
+        return this.widgets.find((w) => w.getExtensionKey() === key) ?? null;
     }
 
     getWidgets(): ExtensionView[] {
@@ -172,7 +170,7 @@ export class ContextView
     // a direct `setActiveExtension` would tear down external iframes via
     // `setInactive`/`cleanupWidget` and render the widget empty.
     setActiveExtensionByName(name: string, applicationKey?: string): void {
-        const widget = this.widgets.find(w => {
+        const widget = this.widgets.find((w) => {
             if (w.getExtensionDescriptorName() !== name) return false;
             if (applicationKey === undefined) return true;
             return w.getExtensionApplicationKey() === applicationKey;
@@ -198,9 +196,12 @@ export class ContextView
             return Q();
         }
 
-        return this.activeWidget.updateExtensionItemViews().then(() => {
-            this.activeWidget.slideIn();
-        }).catch(DefaultErrorHandler.handle);
+        return this.activeWidget
+            .updateExtensionItemViews()
+            .then(() => {
+                this.activeWidget.slideIn();
+            })
+            .catch(DefaultErrorHandler.handle);
     }
 
     setItem(item: ContentSummaryAndCompareStatus): Q.Promise<void> {
@@ -239,7 +240,7 @@ export class ContextView
     }
 
     notifyPanelSizeChanged(): void {
-        this.sizeChangedListeners.forEach(listener => listener());
+        this.sizeChangedListeners.forEach((listener) => listener());
     }
 
     isVisible(): boolean {
@@ -252,7 +253,10 @@ export class ContextView
 
     private initDivForNoSelection(): void {
         this.divForNoSelection = new DivEl('no-selection-message bg-surface-primary');
-        const label = new PreviewLabelElement({messages: [i18n('field.contextPanel.empty')], className: 'h-full text-base'});
+        const label = new PreviewLabelElement({
+            messages: [i18n('field.contextPanel.empty')],
+            className: 'h-full text-base',
+        });
         this.divForNoSelection.appendChild(label);
         this.appendChild(this.divForNoSelection);
     }
@@ -270,8 +274,12 @@ export class ContextView
             const itemSelected = this.item != null;
             const activeWidgetVisible = this.activeWidget != null && this.isVisible();
 
-            if (activeWidgetVisible && this.activeWidget.isInternal() && itemSelected &&
-                contentIds.some(id => id.equals(this.item.getContentId()))) {
+            if (
+                activeWidgetVisible &&
+                this.activeWidget.isInternal() &&
+                itemSelected &&
+                contentIds.some((id) => id.equals(this.item.getContentId()))
+            ) {
                 this.updateActiveExtension();
             }
         });
@@ -282,8 +290,8 @@ export class ContextView
             const itemId = this.item.getId();
 
             contents
-                .filter(content => content.getId() === itemId)
-                .forEach(content => {
+                .filter((content) => content.getId() === itemId)
+                .forEach((content) => {
                     const isSameContent = this.item.equals(content);
                     const wasModified = this.item.getCompareStatus() !== CompareStatus.NEW;
 
@@ -310,7 +318,7 @@ export class ContextView
 
     private publishRegisteredWidgets(): void {
         const registry: RegisteredWidget[] = [];
-        this.widgets.forEach(w => {
+        this.widgets.forEach((w) => {
             const descriptorKey = w.getDescriptorKey();
             if (!descriptorKey) return;
             registry.push({

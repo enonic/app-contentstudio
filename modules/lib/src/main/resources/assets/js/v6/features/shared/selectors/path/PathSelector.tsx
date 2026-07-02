@@ -1,21 +1,21 @@
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
-import {Combobox, IconButton} from '@enonic/ui';
-import {X} from 'lucide-react';
-import {useCallback, useEffect, useMemo, useRef, useState, type ReactElement} from 'react';
-import type {VirtuosoHandle} from 'react-virtuoso';
-import type {ContentSummary} from '../../../../../app/content/ContentSummary';
-import type {ContentTreeSelectorItem} from '../../../../../app/item/ContentTreeSelectorItem';
-import {ContentSummaryOptionDataLoader} from '../../../../../app/inputtype/ui/selector/ContentSummaryOptionDataLoader';
-import {useI18n} from '../../../hooks/useI18n';
-import {useTreeSelectorLayout} from '../../../hooks/useTreeSelectorLayout';
-import {useTreeStore} from '../../../lib/tree-store';
-import {createDebounce} from '../../../utils/timing/createDebounce';
-import {ContentLabel} from '../../content/ContentLabel';
-import {StatusBadge} from '../../status/StatusBadge';
-import {createRootContent, isRootContent, ROOT_ID, RootLabel} from './PathSelectorRoot';
-import {calcTreePublishStatus} from '../../../utils/cms/content/status';
-import {PathSelectorTree} from './PathSelectorTree';
-import {getFilterContentPaths, getFilterExactPaths, isInvalidMoveTarget} from './pathSelectorFilters';
+import { Option } from '@enonic/lib-admin-ui/ui/selector/Option';
+import { Combobox, IconButton } from '@enonic/ui';
+import { X } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
+import type { VirtuosoHandle } from 'react-virtuoso';
+import type { ContentSummary } from '../../../../../app/content/ContentSummary';
+import type { ContentTreeSelectorItem } from '../../../../../app/item/ContentTreeSelectorItem';
+import { ContentSummaryOptionDataLoader } from '../../../../../app/inputtype/ui/selector/ContentSummaryOptionDataLoader';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { useTreeSelectorLayout } from '../../../../shared/lib/hooks/useTreeSelectorLayout';
+import { useTreeStore } from '../../../../shared/lib/tree-store';
+import { createDebounce } from '../../../../shared/lib/timing/createDebounce';
+import { ContentLabel } from '../../content/ContentLabel';
+import { StatusBadge } from '../../status/StatusBadge';
+import { createRootContent, isRootContent, ROOT_ID, RootLabel } from './PathSelectorRoot';
+import { calcTreePublishStatus } from '../../../../shared/lib/cms/content/status';
+import { PathSelectorTree } from './PathSelectorTree';
+import { getFilterContentPaths, getFilterExactPaths, isInvalidMoveTarget } from './pathSelectorFilters';
 
 export type PathSelectorProps = {
     label: string;
@@ -77,10 +77,7 @@ export const PathSelector = ({
     const excludedIdSet = useMemo(() => new Set(excludedIds), [excludedIds]);
 
     if (!loaderRef.current) {
-        loaderRef.current = ContentSummaryOptionDataLoader
-            .create()
-            .setFakeRoot(createRootContent())
-            .build();
+        loaderRef.current = ContentSummaryOptionDataLoader.create().setFakeRoot(createRootContent()).build();
     }
 
     const {
@@ -102,7 +99,7 @@ export const PathSelector = ({
 
     const selectedIdStrings = selectedId ? [selectedId] : [];
 
-    const {treeHeight} = useTreeSelectorLayout({
+    const { treeHeight } = useTreeSelectorLayout({
         flatNodes,
         activeId,
         setActiveId,
@@ -116,9 +113,12 @@ export const PathSelector = ({
     const filterContentPaths = useMemo(() => getFilterContentPaths(filterItems), [filterItems]);
     const filterExactPaths = useMemo(() => getFilterExactPaths(filterContentPaths), [filterContentPaths]);
 
-    const isInvalidTarget = useCallback((item: ContentTreeSelectorItem): boolean => {
-        return isInvalidMoveTarget(item, filterContentPaths, filterExactPaths);
-    }, [filterContentPaths, filterExactPaths]);
+    const isInvalidTarget = useCallback(
+        (item: ContentTreeSelectorItem): boolean => {
+            return isInvalidMoveTarget(item, filterContentPaths, filterExactPaths);
+        },
+        [filterContentPaths, filterExactPaths],
+    );
 
     const getChildRequestId = (id: string): number => {
         const current = childRequestIds.current.get(id) ?? 0;
@@ -130,16 +130,19 @@ export const PathSelector = ({
     const isLatestChildRequest = (id: string, requestId: number): boolean =>
         childRequestIds.current.get(id) === requestId;
 
-    const isIdDisabled = useCallback((id: string): boolean => {
-        if (excludedIdSet.has(id)) {
-            return true;
-        }
-        if (hideRoot && id === ROOT_ID) {
-            return true;
-        }
-        const node = getNode(id);
-        return !!(node?.data && isInvalidTarget(node.data));
-    }, [excludedIdSet, getNode, hideRoot, isInvalidTarget]);
+    const isIdDisabled = useCallback(
+        (id: string): boolean => {
+            if (excludedIdSet.has(id)) {
+                return true;
+            }
+            if (hideRoot && id === ROOT_ID) {
+                return true;
+            }
+            const node = getNode(id);
+            return !!(node?.data && isInvalidTarget(node.data));
+        },
+        [excludedIdSet, getNode, hideRoot, isInvalidTarget],
+    );
 
     const disabledIdSet = useMemo(() => {
         const ids = new Set(excludedIdSet);
@@ -173,13 +176,15 @@ export const PathSelector = ({
             }
 
             const items = data.getData();
-            setNodes(items.map(item => ({
-                id: item.getId(),
-                data: item,
-                parentId: null,
-                hasChildren: item.hasChildren() === true,
-            })));
-            setRootIds(items.map(item => item.getId()));
+            setNodes(
+                items.map((item) => ({
+                    id: item.getId(),
+                    data: item,
+                    parentId: null,
+                    hasChildren: item.hasChildren() === true,
+                })),
+            );
+            setRootIds(items.map((item) => item.getId()));
         } catch (error) {
             console.error(error);
         } finally {
@@ -189,123 +194,142 @@ export const PathSelector = ({
         }
     }, [clear, setLoading, setNodes, setRootIds]);
 
-    const loadSearch = useCallback(async (query: string): Promise<void> => {
-        const loader = loaderRef.current;
-        if (!loader) {
-            return;
-        }
-
-        const requestId = ++searchRequestId.current;
-        lastModeRef.current = 'search';
-        clear();
-        setLoading(null, true);
-
-        try {
-            const items = await loader.search(query);
-            if (requestId !== searchRequestId.current) {
+    const loadSearch = useCallback(
+        async (query: string): Promise<void> => {
+            const loader = loaderRef.current;
+            if (!loader) {
                 return;
             }
 
-            setNodes(items.map(item => ({
-                id: item.getId(),
-                data: item,
-                parentId: null,
-                hasChildren: false,
-            })));
-            setRootIds(items.map(item => item.getId()));
-        } catch (error) {
-            console.error(error);
-        } finally {
-            if (requestId === searchRequestId.current) {
-                setLoading(null, false);
+            const requestId = ++searchRequestId.current;
+            lastModeRef.current = 'search';
+            clear();
+            setLoading(null, true);
+
+            try {
+                const items = await loader.search(query);
+                if (requestId !== searchRequestId.current) {
+                    return;
+                }
+
+                setNodes(
+                    items.map((item) => ({
+                        id: item.getId(),
+                        data: item,
+                        parentId: null,
+                        hasChildren: false,
+                    })),
+                );
+                setRootIds(items.map((item) => item.getId()));
+            } catch (error) {
+                console.error(error);
+            } finally {
+                if (requestId === searchRequestId.current) {
+                    setLoading(null, false);
+                }
             }
-        }
-    }, [clear, setLoading, setNodes, setRootIds]);
+        },
+        [clear, setLoading, setNodes, setRootIds],
+    );
 
-    const loadChildren = useCallback(async (parentId: string): Promise<void> => {
-        const loader = loaderRef.current;
-        if (!loader) {
-            return;
-        }
-
-        const parentNode = getNode(parentId);
-        const parentItem = parentNode?.data;
-        if (!parentItem) {
-            return;
-        }
-
-        const requestId = getChildRequestId(parentId);
-        setLoading(parentId, true);
-
-        try {
-            const from = parentNode?.childIds.length ?? 0;
-            const parentOption = Option.create<ContentTreeSelectorItem>()
-                .setValue(parentItem.getId())
-                .setDisplayValue(parentItem)
-                .build();
-            const data = await loader.fetchChildren(parentOption, from, CHILD_PAGE_SIZE);
-            if (!isLatestChildRequest(parentId, requestId)) {
+    const loadChildren = useCallback(
+        async (parentId: string): Promise<void> => {
+            const loader = loaderRef.current;
+            if (!loader) {
                 return;
             }
 
-            const items = data.getData();
-            const ids = items.map(item => item.getId());
-            setNodes(items.map(item => ({
-                id: item.getId(),
-                data: item,
-                parentId,
-                hasChildren: item.hasChildren() === true,
-            })));
-
-            if (from === 0) {
-                setChildren(parentId, ids);
-            } else {
-                appendChildren(parentId, ids);
+            const parentNode = getNode(parentId);
+            const parentItem = parentNode?.data;
+            if (!parentItem) {
+                return;
             }
 
-            setNode({id: parentId, totalChildren: data.getTotalHits()});
-        } catch (error) {
-            console.error(error);
-        } finally {
-            if (isLatestChildRequest(parentId, requestId)) {
-                setLoading(parentId, false);
+            const requestId = getChildRequestId(parentId);
+            setLoading(parentId, true);
+
+            try {
+                const from = parentNode?.childIds.length ?? 0;
+                const parentOption = Option.create<ContentTreeSelectorItem>()
+                    .setValue(parentItem.getId())
+                    .setDisplayValue(parentItem)
+                    .build();
+                const data = await loader.fetchChildren(parentOption, from, CHILD_PAGE_SIZE);
+                if (!isLatestChildRequest(parentId, requestId)) {
+                    return;
+                }
+
+                const items = data.getData();
+                const ids = items.map((item) => item.getId());
+                setNodes(
+                    items.map((item) => ({
+                        id: item.getId(),
+                        data: item,
+                        parentId,
+                        hasChildren: item.hasChildren() === true,
+                    })),
+                );
+
+                if (from === 0) {
+                    setChildren(parentId, ids);
+                } else {
+                    appendChildren(parentId, ids);
+                }
+
+                setNode({ id: parentId, totalChildren: data.getTotalHits() });
+            } catch (error) {
+                console.error(error);
+            } finally {
+                if (isLatestChildRequest(parentId, requestId)) {
+                    setLoading(parentId, false);
+                }
             }
-        }
-    }, [appendChildren, getNode, setChildren, setLoading, setNode, setNodes]);
+        },
+        [appendChildren, getNode, setChildren, setLoading, setNode, setNodes],
+    );
 
-    const handleExpand = useCallback((id: string): void => {
-        expand(id);
-        if (needsChildrenLoad(id) || hasMoreChildren(id)) {
-            void loadChildren(id);
-        }
-    }, [expand, hasMoreChildren, loadChildren, needsChildrenLoad]);
+    const handleExpand = useCallback(
+        (id: string): void => {
+            expand(id);
+            if (needsChildrenLoad(id) || hasMoreChildren(id)) {
+                void loadChildren(id);
+            }
+        },
+        [expand, hasMoreChildren, loadChildren, needsChildrenLoad],
+    );
 
-    const handleCollapse = useCallback((id: string): void => {
-        collapse(id);
-    }, [collapse]);
+    const handleCollapse = useCallback(
+        (id: string): void => {
+            collapse(id);
+        },
+        [collapse],
+    );
 
-    const handleSelectionChange = useCallback((nextSelection: readonly string[]): void => {
-        const nextId = nextSelection[0];
-        if (!nextId) {
-            setSelectedItem(null);
-            onSelectionChange(null);
-            onItemChange?.(null);
-            return;
-        }
-        if (isIdDisabled(nextId)) {
-            return;
-        }
-        const node = getNode(nextId);
-        const item = node?.data?.getContentSummary();
-        if (!item) {
-            setSelectedItem(null);
-            onItemChange?.(null);
-            return;
-        }
-        setSelectedItem(item);
-        onSelectionChange(nextId);
-        onItemChange?.(item);
-    }, [getNode, isIdDisabled, onItemChange, onSelectionChange]);
+    const handleSelectionChange = useCallback(
+        (nextSelection: readonly string[]): void => {
+            const nextId = nextSelection[0];
+            if (!nextId) {
+                setSelectedItem(null);
+                onSelectionChange(null);
+                onItemChange?.(null);
+                return;
+            }
+            if (isIdDisabled(nextId)) {
+                return;
+            }
+            const node = getNode(nextId);
+            const item = node?.data?.getContentSummary();
+            if (!item) {
+                setSelectedItem(null);
+                onItemChange?.(null);
+                return;
+            }
+            setSelectedItem(item);
+            onSelectionChange(nextId);
+            onItemChange?.(item);
+        },
+        [getNode, isIdDisabled, onItemChange, onSelectionChange],
+    );
 
     const debouncedSearch = useMemo(() => createDebounce(loadSearch, DEFAULT_DEBOUNCE_MS), [loadSearch]);
 
@@ -367,13 +391,13 @@ export const PathSelector = ({
         }
     }, [getNode, isIdDisabled, onItemChange, onSelectionChange, selectedId, flatNodes]);
 
-    const hasVisibleNodes = flatNodes.some(node => !node.isLoading);
+    const hasVisibleNodes = flatNodes.some((node) => !node.isLoading);
     const showEmptyState = !hasVisibleNodes && !isLoading(null);
 
     const showCombobox = !(hideWhenSelected && selectedItem);
 
     return (
-        <div data-component={PATH_SELECTOR_NAME} className='flex flex-col gap-2.5'>
+        <div data-component={PATH_SELECTOR_NAME} className="flex flex-col gap-2.5">
             {showCombobox && (
                 <Combobox.Root
                     open={open}
@@ -382,27 +406,23 @@ export const PathSelector = ({
                     onChange={setInputValue}
                     selection={selectedIdStrings}
                     onSelectionChange={handleSelectionChange}
-                    selectionMode='single'
-                    contentType='tree'
+                    selectionMode="single"
+                    contentType="tree"
                     disabled={disabled}
                 >
                     <Combobox.Content>
                         <Combobox.Control>
                             <Combobox.Search>
                                 <Combobox.SearchIcon />
-                                <Combobox.Input
-                                    ref={inputRef}
-                                    placeholder={searchPlaceholder}
-                                    aria-label={label}
-                                />
+                                <Combobox.Input ref={inputRef} placeholder={searchPlaceholder} aria-label={label} />
                                 <Combobox.Toggle />
                             </Combobox.Search>
                         </Combobox.Control>
 
                         <Combobox.Portal>
-                            <Combobox.Popup className='overflow-y-auto rounded-sm shadow-bdr-subtle'>
+                            <Combobox.Popup className="overflow-y-auto rounded-sm shadow-bdr-subtle">
                                 {showEmptyState ? (
-                                    <div className='px-4.5 py-2 text-sm text-subtle'>{emptyLabel}</div>
+                                    <div className="px-4.5 py-2 text-sm text-subtle">{emptyLabel}</div>
                                 ) : (
                                     <PathSelectorTree
                                         items={flatNodes}
@@ -429,29 +449,27 @@ export const PathSelector = ({
                 </Combobox.Root>
             )}
             {selectedItem && (
-                    <div className='flex items-center gap-2.5 pl-5 pr-2.5'>
-                        {isRootContent(selectedItem) ? (
-                            <RootLabel content={selectedItem} className='flex-1 min-w-0' />
-                        ) : (
-                            <ContentLabel content={selectedItem} variant='detailed' className='flex-1 min-w-0' />
-                        )}
-                        {!isRootContent(selectedItem) && (
-                            <StatusBadge status={calcTreePublishStatus(selectedItem)} />
-                        )}
-                        <IconButton
-                            icon={X}
-                            size='sm'
-                            variant='text'
-                            iconSize={18}
-                            iconStrokeWidth={2}
-                            onClick={() => {
-                                setSelectedItem(null);
-                                onSelectionChange(null);
-                            }}
-                            disabled={disabled}
-                            aria-label={removeLabel}
-                        />
-                    </div>
+                <div className="flex items-center gap-2.5 pl-5 pr-2.5">
+                    {isRootContent(selectedItem) ? (
+                        <RootLabel content={selectedItem} className="flex-1 min-w-0" />
+                    ) : (
+                        <ContentLabel content={selectedItem} variant="detailed" className="flex-1 min-w-0" />
+                    )}
+                    {!isRootContent(selectedItem) && <StatusBadge status={calcTreePublishStatus(selectedItem)} />}
+                    <IconButton
+                        icon={X}
+                        size="sm"
+                        variant="text"
+                        iconSize={18}
+                        iconStrokeWidth={2}
+                        onClick={() => {
+                            setSelectedItem(null);
+                            onSelectionChange(null);
+                        }}
+                        disabled={disabled}
+                        aria-label={removeLabel}
+                    />
+                </div>
             )}
         </div>
     );

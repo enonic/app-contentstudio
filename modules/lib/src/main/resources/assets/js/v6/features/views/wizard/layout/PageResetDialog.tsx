@@ -1,9 +1,9 @@
-import {useEffect, useState, type ReactElement} from 'react';
-import {ComponentPath} from '../../../../../app/page/region/ComponentPath';
-import {PageEventsManager} from '../../../../../app/wizard/PageEventsManager';
-import {useI18n} from '../../../hooks/useI18n';
-import {ConfirmationDialog} from '../../../shared/dialogs/ConfirmationDialog';
-import {$isFragment, executePageReset, requestComponentReset} from '../../../store/page-editor';
+import { useEffect, useState, type ReactElement } from 'react';
+import { ComponentPath } from '../../../../../app/page/region/ComponentPath';
+import { PageEventsManager } from '../../../../../app/wizard/PageEventsManager';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { ConfirmationDialog } from '../../../shared/dialogs/ConfirmationDialog';
+import { $isFragment, executePageReset, requestComponentReset } from '../../../store/page-editor';
 
 const PAGE_RESET_DIALOG_NAME = 'PageResetDialog';
 const ROOT_PATH = '/';

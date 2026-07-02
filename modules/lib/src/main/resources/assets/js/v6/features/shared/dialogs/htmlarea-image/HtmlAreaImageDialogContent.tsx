@@ -1,20 +1,20 @@
-import {IconButton, Input, Tooltip} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {PenIcon, XIcon} from 'lucide-react';
-import {type ReactElement, useCallback, useMemo} from 'react';
-import {EditContentEvent} from '../../../../../app/event/EditContentEvent';
-import {useI18n} from '../../../hooks/useI18n';
-import {$activeProject} from '../../../store/activeProject.store';
-import {ImageSelector} from '../../selectors/image';
-import {useHtmlAreaImageDialogContext} from './HtmlAreaImageDialogContext';
-import {ImageAccessibilityField} from './ImageAccessibilityField';
-import {ImagePreview} from './ImagePreview';
-import {ImageToolbar} from './ImageToolbar';
-import {ImageUploadZone} from './ImageUploadZone';
+import { IconButton, Input, Tooltip } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { PenIcon, XIcon } from 'lucide-react';
+import { type ReactElement, useCallback, useMemo } from 'react';
+import { EditContentEvent } from '../../../../../app/event/EditContentEvent';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { $activeProject } from '../../../store/activeProject.store';
+import { ImageSelector } from '../../selectors/image';
+import { useHtmlAreaImageDialogContext } from './HtmlAreaImageDialogContext';
+import { ImageAccessibilityField } from './ImageAccessibilityField';
+import { ImagePreview } from './ImagePreview';
+import { ImageToolbar } from './ImageToolbar';
+import { ImageUploadZone } from './ImageUploadZone';
 
 export const HtmlAreaImageDialogContent = (): ReactElement => {
     const {
-        state: {selectedImageId, selectedImageContent, caption},
+        state: { selectedImageId, selectedImageContent, caption },
         deselectImage,
         selectImageById,
         setCaption,
@@ -26,15 +26,18 @@ export const HtmlAreaImageDialogContent = (): ReactElement => {
     const deselectLabel = useI18n('dialog.image.deselect');
 
     const hasImage = selectedImageId != null;
-    const selection = useMemo(() => selectedImageId ? [selectedImageId] : [], [selectedImageId]);
+    const selection = useMemo(() => (selectedImageId ? [selectedImageId] : []), [selectedImageId]);
 
-    const handleSelectionChange = useCallback((newSelection: readonly string[]) => {
-        if (newSelection.length > 0) {
-            selectImageById(newSelection[0]);
-        } else {
-            deselectImage();
-        }
-    }, [selectImageById, deselectImage]);
+    const handleSelectionChange = useCallback(
+        (newSelection: readonly string[]) => {
+            if (newSelection.length > 0) {
+                selectImageById(newSelection[0]);
+            } else {
+                deselectImage();
+            }
+        },
+        [selectImageById, deselectImage],
+    );
 
     const activeProject = useStore($activeProject);
 
@@ -45,14 +48,14 @@ export const HtmlAreaImageDialogContent = (): ReactElement => {
     }, [selectedImageContent, activeProject]);
 
     return (
-        <div className='flex flex-col gap-5'>
+        <div className="flex flex-col gap-5">
             {!hasImage && (
                 <>
                     <ImageSelector
                         selection={selection}
                         onSelectionChange={handleSelectionChange}
-                        selectionMode='single'
-                        listMode='flat'
+                        selectionMode="single"
+                        listMode="flat"
                         label={imageLabel}
                         withUpload
                     />
@@ -62,17 +65,18 @@ export const HtmlAreaImageDialogContent = (): ReactElement => {
 
             {hasImage && selectedImageContent && (
                 <>
-                    <div className='flex flex-col gap-2.5'>
-                        <div className='flex items-center gap-2.5 min-w-0'>
-                            <div className='min-w-0 flex-1'>
-                                <span className='font-semibold text-base block whitespace-nowrap overflow-hidden text-ellipsis'>
-                                    {selectedImageContent.getDisplayName() || selectedImageContent.getType()?.getLocalName()}
+                    <div className="flex flex-col gap-2.5">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="min-w-0 flex-1">
+                                <span className="font-semibold text-base block whitespace-nowrap overflow-hidden text-ellipsis">
+                                    {selectedImageContent.getDisplayName() ||
+                                        selectedImageContent.getType()?.getLocalName()}
                                 </span>
-                                <span className='text-subtle text-sm block whitespace-nowrap overflow-hidden text-ellipsis'>
+                                <span className="text-subtle text-sm block whitespace-nowrap overflow-hidden text-ellipsis">
                                     {selectedImageContent.getPath()?.toString() ?? ''}
                                 </span>
                             </div>
-                            <div className='flex gap-1.5 shrink-0'>
+                            <div className="flex gap-1.5 shrink-0">
                                 <Tooltip delay={300} value={editLabel} asChild>
                                     <IconButton icon={PenIcon} onClick={handleEdit} aria-label={editLabel} />
                                 </Tooltip>

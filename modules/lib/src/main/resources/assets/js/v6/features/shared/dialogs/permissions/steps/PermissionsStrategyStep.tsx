@@ -1,7 +1,7 @@
-import {Checkbox, Dialog, RadioGroup} from '@enonic/ui';
-import {ReactElement} from 'react';
-import {useStore} from '@nanostores/preact';
-import {useI18n} from '../../../../hooks/useI18n';
+import { Checkbox, Dialog, RadioGroup } from '@enonic/ui';
+import { ReactElement } from 'react';
+import { useStore } from '@nanostores/preact';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import {
     $permissionsDialog,
     setPermissionsDialogApplyTo,
@@ -10,7 +10,7 @@ import {
 } from '../../../../store/dialogs/permissionsDialog.store';
 
 export const PermissionsDialogStrategyStepHeader = (): ReactElement => {
-    const {contentDisplayName} = useStore($permissionsDialog, {keys: ['contentDisplayName']});
+    const { contentDisplayName } = useStore($permissionsDialog, { keys: ['contentDisplayName'] });
 
     const helperLabel = useI18n('dialog.permissions.title', contentDisplayName);
     const titleLabel = useI18n('dialog.permissions.strategy.title');
@@ -20,9 +20,9 @@ export const PermissionsDialogStrategyStepHeader = (): ReactElement => {
 
 PermissionsDialogStrategyStepHeader.displayName = 'PermissionsDialogStrategyStepHeader';
 
-export const PermissionsDialogStrategyStepContent = ({locked}: {locked: boolean}): ReactElement => {
+export const PermissionsDialogStrategyStepContent = ({ locked }: { locked: boolean }): ReactElement => {
     // Stores
-    const {applyTo, contentDescendantsCount, replaceAllChildPermissions} = useStore($permissionsDialog, {
+    const { applyTo, contentDescendantsCount, replaceAllChildPermissions } = useStore($permissionsDialog, {
         keys: ['applyTo', 'contentDescendantsCount', 'replaceAllChildPermissions'],
     });
 
@@ -39,7 +39,12 @@ export const PermissionsDialogStrategyStepContent = ({locked}: {locked: boolean}
             <div className="space-y-2">
                 <label className="block font-semibold">{applyToLabel}</label>
 
-                <RadioGroup.Root name="applyTo" value={applyTo} onValueChange={setPermissionsDialogApplyTo} className="rounded-md -mx-2">
+                <RadioGroup.Root
+                    name="applyTo"
+                    value={applyTo}
+                    onValueChange={setPermissionsDialogApplyTo}
+                    className="rounded-md -mx-2"
+                >
                     <RadioGroup.Item value="single">
                         <RadioGroup.Indicator />
                         <span className="ml-2">{applyToItemLabel}</span>

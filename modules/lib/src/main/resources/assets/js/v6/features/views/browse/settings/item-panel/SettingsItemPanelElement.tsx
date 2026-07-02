@@ -1,15 +1,15 @@
-import {BrowseItemPanel} from '@enonic/lib-admin-ui/app/browse/BrowseItemPanel';
-import {ItemStatisticsPanel} from '@enonic/lib-admin-ui/app/view/ItemStatisticsPanel';
-import {IdProvider} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
+import { BrowseItemPanel } from '@enonic/lib-admin-ui/app/browse/BrowseItemPanel';
+import { ItemStatisticsPanel } from '@enonic/lib-admin-ui/app/view/ItemStatisticsPanel';
+import { IdProvider } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
 import type Q from 'q';
-import {type ReactElement} from 'react';
-import {render} from 'react-dom';
-import {type SettingsViewItem} from '../../../../../../app/settings/view/SettingsViewItem';
-import {useI18n} from '../../../../hooks/useI18n';
-import {PreviewLabel} from '../../../../shared/PreviewLabel';
-import {$currentItems, getCurrentItems, hasCurrentItems} from '../../../../store/settingsTreeSelection.store';
-import {SettingsItemStatistics} from './SettingsItemStatistics';
+import { type ReactElement } from 'react';
+import { render } from 'react-dom';
+import { type SettingsViewItem } from '../../../../../../app/settings/view/SettingsViewItem';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { PreviewLabel } from '../../../../../shared/ui/PreviewLabel';
+import { $currentItems, getCurrentItems, hasCurrentItems } from '../../../../store/settingsTreeSelection.store';
+import { SettingsItemStatistics } from './SettingsItemStatistics';
 
 const SETTINGS_ITEM_PANEL_NAME = 'SettingsItemPanel';
 
@@ -45,7 +45,7 @@ class SettingsItemStatisticsPanelElement extends ItemStatisticsPanel {
                 <IdProvider prefix="settings-item-panel">
                     <SettingsItemPanel />
                 </IdProvider>,
-                this.getHTMLElement()
+                this.getHTMLElement(),
             );
             return rendered;
         });
@@ -53,7 +53,6 @@ class SettingsItemStatisticsPanelElement extends ItemStatisticsPanel {
 }
 
 export class SettingsItemPanelElement extends BrowseItemPanel {
-
     constructor() {
         super();
 

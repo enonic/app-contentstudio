@@ -1,8 +1,8 @@
-import type {LucideIcon} from 'lucide-react';
-import type {ReactElement} from 'react';
-import {ItemLabel} from '../../../../../shared/ItemLabel';
-import type {PortalComponentType} from '../../../../../store/page-editor';
-import {useInsertableDrag} from './useInsertableDrag';
+import type { LucideIcon } from 'lucide-react';
+import type { ReactElement } from 'react';
+import { ItemLabel } from '../../../../../../shared/ui/ItemLabel';
+import type { PortalComponentType } from '../../../../../store/page-editor';
+import { useInsertableDrag } from './useInsertableDrag';
 
 export type InsertableItemProps = {
     name: PortalComponentType;
@@ -13,8 +13,8 @@ export type InsertableItemProps = {
 
 const INSERTABLE_ITEM_NAME = 'InsertableItem';
 
-export const InsertableItem = ({name, icon: Icon, displayName, description}: InsertableItemProps): ReactElement => {
-    const {onMouseDown} = useInsertableDrag({itemType: name, itemLabel: displayName});
+export const InsertableItem = ({ name, icon: Icon, displayName, description }: InsertableItemProps): ReactElement => {
+    const { onMouseDown } = useInsertableDrag({ itemType: name, itemLabel: displayName });
 
     return (
         <li

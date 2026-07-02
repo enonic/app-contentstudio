@@ -1,12 +1,20 @@
-import {type ChangeEvent, type DragEvent as ReactDragEvent, type ReactElement, useCallback, useMemo, useRef, useState} from 'react';
-import {type SelfManagedComponentProps} from '@enonic/lib-admin-ui/form2';
-import {type AttachmentUploaderConfig} from './AttachmentUploaderConfig';
-import {useAttachmentUploader} from './useAttachmentUploader';
-import {useAttachmentServerErrors} from './useAttachmentServerErrors';
-import {useI18n} from '../../../../hooks/useI18n';
-import {AttachmentUploaderButton} from './AttachmentUploaderButton';
-import {AttachmentUploaderList} from './AttachmentUploaderList';
-import {cn} from '@enonic/ui';
+import {
+    type ChangeEvent,
+    type DragEvent as ReactDragEvent,
+    type ReactElement,
+    useCallback,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
+import { type SelfManagedComponentProps } from '@enonic/lib-admin-ui/form2';
+import { type AttachmentUploaderConfig } from './AttachmentUploaderConfig';
+import { useAttachmentUploader } from './useAttachmentUploader';
+import { useAttachmentServerErrors } from './useAttachmentServerErrors';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { AttachmentUploaderButton } from './AttachmentUploaderButton';
+import { AttachmentUploaderList } from './AttachmentUploaderList';
+import { cn } from '@enonic/ui';
 
 const ATTACHMENT_UPLOADER_INPUT_NAME = 'AttachmentUploaderInput';
 
@@ -22,16 +30,20 @@ export const AttachmentUploaderInput = ({
     const fileInputRef = useRef<HTMLInputElement>(null);
     const noAttachmentLabel = useI18n('field.content.noattachment');
     const uploadLabel = useI18n('action.upload');
-    const attachmentNames: string[] = useMemo(() => values.filter((v) => v.isNotNull()).map((v) => v.getString()), [values]);
+    const attachmentNames: string[] = useMemo(
+        () => values.filter((v) => v.isNotNull()).map((v) => v.getString()),
+        [values],
+    );
     const serverErrors = useAttachmentServerErrors(attachmentNames);
     const [isDragging, setIsDragging] = useState(false);
-    const {progress, canUpload, isUploading, isMultiple, contentId, handleFiles, handleRemove} = useAttachmentUploader({
-        values,
-        onAdd,
-        onRemove,
-        occurrences,
-        inputName: input.getName(),
-    });
+    const { progress, canUpload, isUploading, isMultiple, contentId, handleFiles, handleRemove } =
+        useAttachmentUploader({
+            values,
+            onAdd,
+            onRemove,
+            occurrences,
+            inputName: input.getName(),
+        });
 
     // Handlers
     const openFileDialog = useCallback(() => {
@@ -41,13 +53,13 @@ export const AttachmentUploaderInput = ({
         (e: ChangeEvent<HTMLInputElement>) => {
             if (!enabled) return;
 
-            const {files} = e.currentTarget;
+            const { files } = e.currentTarget;
 
             if (!files || files.length === 0) return;
 
             void handleFiles(files);
         },
-        [enabled, handleFiles]
+        [enabled, handleFiles],
     );
     const handleDrop = useCallback(
         (e: ReactDragEvent<HTMLDivElement>) => {
@@ -55,13 +67,13 @@ export const AttachmentUploaderInput = ({
 
             e.preventDefault();
             setIsDragging(false);
-            const {files} = e.dataTransfer;
+            const { files } = e.dataTransfer;
 
             if (files.length > 0) {
                 void handleFiles(files);
             }
         },
-        [enabled, handleFiles]
+        [enabled, handleFiles],
     );
     const handleDragOver = useCallback(
         (e: ReactDragEvent<HTMLDivElement>) => {
@@ -70,7 +82,7 @@ export const AttachmentUploaderInput = ({
             e.preventDefault();
             setIsDragging(true);
         },
-        [enabled]
+        [enabled],
     );
     const handleDragLeave = useCallback(() => {
         if (!enabled) return;
@@ -80,7 +92,7 @@ export const AttachmentUploaderInput = ({
 
     const dropHandlers = config.hideDropZone
         ? undefined
-        : {onDrop: handleDrop, onDragOver: handleDragOver, onDragLeave: handleDragLeave};
+        : { onDrop: handleDrop, onDragOver: handleDragOver, onDragLeave: handleDragLeave };
 
     return (
         <div data-component={ATTACHMENT_UPLOADER_INPUT_NAME} className="flex flex-col gap-2.5" {...dropHandlers}>
@@ -93,7 +105,15 @@ export const AttachmentUploaderInput = ({
                 className="hidden"
             />
 
-            <div className={cn('w-full', !config.hideDropZone && canUpload && isDragging && 'dash-border dash-border-select bg-bdr-select/8 rounded p-1')}>
+            <div
+                className={cn(
+                    'w-full',
+                    !config.hideDropZone &&
+                        canUpload &&
+                        isDragging &&
+                        'dash-border dash-border-select bg-bdr-select/8 rounded p-1',
+                )}
+            >
                 <AttachmentUploaderList
                     names={attachmentNames}
                     contentId={contentId}
@@ -101,7 +121,9 @@ export const AttachmentUploaderInput = ({
                     disabled={!enabled}
                     errors={serverErrors}
                 />
-                {attachmentNames.length === 0 && !isUploading && <p className="text-subtle text-center py-2">{noAttachmentLabel}</p>}
+                {attachmentNames.length === 0 && !isUploading && (
+                    <p className="text-subtle text-center py-2">{noAttachmentLabel}</p>
+                )}
             </div>
 
             {(canUpload || isUploading) && (

@@ -1,20 +1,20 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Button, Checkbox, type CheckboxChecked, Dialog, IconButton, Tooltip} from '@enonic/ui';
-import {Copy, FolderOutput, LoaderCircle} from 'lucide-react';
-import {type FormEvent, type ReactElement, useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
-import {importContent, type ImportResult} from '../../../../api/importContent';
-import {useI18n} from '../../../../hooks/useI18n';
-import {PathSelector} from '../../../../shared/selectors/path/PathSelector';
-import {createRootContent, ROOT_ID} from '../../../../shared/selectors/path/PathSelectorRoot';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { Button, Checkbox, type CheckboxChecked, Dialog, IconButton, Tooltip } from '@enonic/ui';
+import { Copy, FolderOutput, LoaderCircle } from 'lucide-react';
+import { type FormEvent, type ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
+import { importContent, type ImportResult } from '../../../../api/importContent';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { PathSelector } from '../../../../shared/selectors/path/PathSelector';
+import { createRootContent, ROOT_ID } from '../../../../shared/selectors/path/PathSelectorRoot';
 
 const IMPORT_CONTENT_IMPORT_DIALOG_NAME = 'ImportContentImportDialog';
 
 type ImportPhase =
-    | {kind: 'idle'}
-    | {kind: 'loading'}
-    | {kind: 'success'; result: ImportResult}
-    | {kind: 'error'; message: string};
+    | { kind: 'idle' }
+    | { kind: 'loading' }
+    | { kind: 'success'; result: ImportResult }
+    | { kind: 'error'; message: string };
 
 type ImportContentImportDialogProps = {
     open: boolean;
@@ -45,13 +45,13 @@ export const ImportContentImportDialog = ({
 
     const [targetId, setTargetId] = useState<string | null>(initialId);
     const [keepPublishFirst, setKeepPublishFirst] = useState<boolean>(true);
-    const [phase, setPhase] = useState<ImportPhase>({kind: 'idle'});
+    const [phase, setPhase] = useState<ImportPhase>({ kind: 'idle' });
 
     useEffect(() => {
         if (!open) return;
         setTargetId(initialId);
         setKeepPublishFirst(true);
-        setPhase({kind: 'idle'});
+        setPhase({ kind: 'idle' });
     }, [open, initialId]);
 
     const handleTargetChange = useCallback((id: string | null) => {
@@ -62,28 +62,34 @@ export const ImportContentImportDialog = ({
         setKeepPublishFirst(checked === true);
     }, []);
 
-    const handleSubmit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        if (phase.kind === 'loading') return;
-        if (!targetId) return;
-        setPhase({kind: 'loading'});
+    const handleSubmit = useCallback(
+        async (event: FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            if (phase.kind === 'loading') return;
+            if (!targetId) return;
+            setPhase({ kind: 'loading' });
 
-        const result = await importContent(targetId, exportName, {keepPublishFirst});
+            const result = await importContent(targetId, exportName, { keepPublishFirst });
 
-        result.match(
-            imported => {
-                setPhase({kind: 'success', result: imported});
-                onSuccess?.(imported);
-            },
-            err => {
-                setPhase({kind: 'error', message: err.message});
-            },
-        );
-    }, [phase.kind, targetId, exportName, keepPublishFirst, onSuccess]);
+            result.match(
+                (imported) => {
+                    setPhase({ kind: 'success', result: imported });
+                    onSuccess?.(imported);
+                },
+                (err) => {
+                    setPhase({ kind: 'error', message: err.message });
+                },
+            );
+        },
+        [phase.kind, targetId, exportName, keepPublishFirst, onSuccess],
+    );
 
-    const handleOpenChange = useCallback((nextOpen: boolean) => {
-        if (!nextOpen) onClose();
-    }, [onClose]);
+    const handleOpenChange = useCallback(
+        (nextOpen: boolean) => {
+            if (!nextOpen) onClose();
+        },
+        [onClose],
+    );
 
     const handleOpenAutoFocus = useCallback((event: Event) => {
         event.preventDefault();
@@ -114,7 +120,12 @@ export const ImportContentImportDialog = ({
                             copyLabel={copyLabel}
                         />
                     ) : (
-                        <form className="contents" onSubmit={(event) => { void handleSubmit(event); }}>
+                        <form
+                            className="contents"
+                            onSubmit={(event) => {
+                                void handleSubmit(event);
+                            }}
+                        >
                             <Dialog.Body className="flex flex-col gap-4 overflow-visible">
                                 <div className="flex flex-col gap-2">
                                     <span className="text-base font-semibold">{sourceLabel}</span>
@@ -140,9 +151,7 @@ export const ImportContentImportDialog = ({
                                     />
                                     <span className="text-sm">{keepLabel}</span>
                                 </label>
-                                {phase.kind === 'error' && (
-                                    <span className="text-sm text-error">{phase.message}</span>
-                                )}
+                                {phase.kind === 'error' && <span className="text-sm text-error">{phase.message}</span>}
                             </Dialog.Body>
                             <Dialog.Footer>
                                 <Button
@@ -172,7 +181,7 @@ type ResultViewProps = {
     copyLabel: string;
 };
 
-const ResultView = ({result, exportName, nameLabel, copyLabel}: ResultViewProps): ReactElement => {
+const ResultView = ({ result, exportName, nameLabel, copyLabel }: ResultViewProps): ReactElement => {
     const added = result.addedNodes?.length ?? 0;
     const updated = result.updatedNodes?.length ?? 0;
     const summary = i18n('widget.import.import.dialog.result.summary', added, updated);

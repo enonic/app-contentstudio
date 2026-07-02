@@ -1,11 +1,11 @@
-import {atom, computed} from 'nanostores';
-import type {PageTemplate} from '../../../app/content/PageTemplate';
-import type {Descriptor} from '../../../app/page/Descriptor';
-import type {SiteModel} from '../../../app/site/SiteModel';
-import {createDebounce} from '../utils/timing/createDebounce';
-import {$contentContext, $page, $pageEditorLifecycle, $pageVersion} from './page-editor/store';
-import type {PageEditorContentContext} from './page-editor/types';
-import {$contentUpdated} from './socket.store';
+import { atom, computed } from 'nanostores';
+import type { PageTemplate } from '../../../app/content/PageTemplate';
+import type { Descriptor } from '../../../app/page/Descriptor';
+import type { SiteModel } from '../../../app/site/SiteModel';
+import { createDebounce } from '../../shared/lib/timing/createDebounce';
+import { $contentContext, $page, $pageEditorLifecycle, $pageVersion } from './page-editor/store';
+import type { PageEditorContentContext } from './page-editor/types';
+import { $contentUpdated } from '../../shared/socket/socket.store';
 
 //
 // * State
@@ -23,23 +23,17 @@ export const $isPageInspectionLoading = atom<boolean>(false);
 // * Computed
 //
 
-export const $selectedPageOptionKey = computed(
-    [$page, $pageVersion],
-    (page): string | null => {
-        if (!page) return '__auto__';
-        if (page.hasController()) return page.getController().toString();
-        if (page.hasTemplate()) return page.getTemplate().toString();
-        return '__auto__';
-    },
-);
+export const $selectedPageOptionKey = computed([$page, $pageVersion], (page): string | null => {
+    if (!page) return '__auto__';
+    if (page.hasController()) return page.getController().toString();
+    if (page.hasTemplate()) return page.getTemplate().toString();
+    return '__auto__';
+});
 
-export const $isCustomizeVisible = computed(
-    [$pageEditorLifecycle, $contentContext],
-    (lifecycle, ctx): boolean => {
-        if (!ctx || !lifecycle.isPageLocked || !lifecycle.isPageRenderable) return false;
-        return !ctx.isInherited || !ctx.isDataInherited;
-    },
-);
+export const $isCustomizeVisible = computed([$pageEditorLifecycle, $contentContext], (lifecycle, ctx): boolean => {
+    if (!ctx || !lifecycle.isPageLocked || !lifecycle.isPageRenderable) return false;
+    return !ctx.isInherited || !ctx.isDataInherited;
+});
 
 export const $isPageInspectionEmpty = computed(
     [$pageTemplateOptions, $pageControllerOptions, $isPageInspectionLoading],
@@ -60,10 +54,10 @@ async function loadTemplatesAndControllers(ctx: PageEditorContentContext): Promi
     $isPageInspectionLoading.set(true);
     abortController?.abort();
     abortController = new AbortController();
-    const {signal} = abortController;
+    const { signal } = abortController;
 
     try {
-        const {loadPageTemplatesByCanRender, loadPageControllers} = await import('../api/pageInspection');
+        const { loadPageTemplatesByCanRender, loadPageControllers } = await import('../api/pageInspection');
 
         const [templates, controllers] = await Promise.all([
             ctx.siteId ? loadPageTemplatesByCanRender(ctx.siteId, ctx.contentTypeName) : Promise.resolve([]),
@@ -154,7 +148,7 @@ export function initPageInspectionService(siteModel?: SiteModel | null): void {
 
         void (async () => {
             try {
-                const {loadPageDescriptor} = await import('../api/pageInspection');
+                const { loadPageDescriptor } = await import('../api/pageInspection');
                 const descriptor = await loadPageDescriptor(controllerKey);
                 $pageConfigDescriptor.set(descriptor ?? null);
             } catch {

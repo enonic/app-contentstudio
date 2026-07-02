@@ -1,17 +1,17 @@
-import type {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {Input} from '@enonic/lib-admin-ui/form/Input';
-import type {FormItem} from '@enonic/lib-admin-ui/form/FormItem';
-import {RawValueProvider, ValidationVisibilityProvider} from '@enonic/lib-admin-ui/form2';
-import {useStore} from '@nanostores/preact';
-import {type ReactElement, useMemo} from 'react';
-import {LegacyElement} from '../../../shared/LegacyElement';
-import {FormItemRenderer, FormRenderProvider} from '../../../shared/form';
-import {ImageUploaderDescriptor} from '../../../shared/form/input-types/image-uploader/ImageUploaderDescriptor';
-import {$contentType, $wizardDraftData, $wizardReadOnly} from '../../../store/wizardContent.store';
-import {$validationVisibility, getContentRawValueMap} from '../../../store/wizardValidation.store';
-import {instanceOf} from '../../../utils/object/instanceOf';
-import {WIDGET_AUTO_DESCRIPTOR, $activeWidget} from '../../../store/liveViewWidgets.store';
-import {cn} from '@enonic/ui';
+import type { PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
+import { Input } from '@enonic/lib-admin-ui/form/Input';
+import type { FormItem } from '@enonic/lib-admin-ui/form/FormItem';
+import { RawValueProvider, ValidationVisibilityProvider } from '@enonic/lib-admin-ui/form2';
+import { useStore } from '@nanostores/preact';
+import { type ReactElement, useMemo } from 'react';
+import { LegacyElement } from '../../../../shared/ui/LegacyElement';
+import { FormItemRenderer, FormRenderProvider } from '../../../shared/form';
+import { ImageUploaderDescriptor } from '../../../shared/form/input-types/image-uploader/ImageUploaderDescriptor';
+import { $contentType, $wizardDraftData, $wizardReadOnly } from '../../../store/wizardContent.store';
+import { $validationVisibility, getContentRawValueMap } from '../../../store/wizardValidation.store';
+import { instanceOf } from '../../../../shared/lib/object/instanceOf';
+import { WIDGET_AUTO_DESCRIPTOR, $activeWidget } from '../../../store/liveViewWidgets.store';
+import { cn } from '@enonic/ui';
 
 const COMPONENT_NAME = 'LiveViewImageEditor';
 
@@ -36,7 +36,8 @@ const LiveViewImageEditor = (): ReactElement | null => {
             .getFormItems()
             .find(
                 (item) =>
-                    instanceOf(item, Input) && item.getInputType().getName().toLowerCase() === ImageUploaderDescriptor.name.toLowerCase()
+                    instanceOf(item, Input) &&
+                    item.getInputType().getName().toLowerCase() === ImageUploaderDescriptor.name.toLowerCase(),
             );
     }, [contentType]);
 
@@ -59,7 +60,7 @@ const LiveViewImageEditor = (): ReactElement | null => {
                             // Reuse the standard ImageUploader rendering but adapt it to the
                             // preview area: hide the input label and let the input field grow
                             // to fill the available height.
-                            "**:data-[component='InputLabel']:hidden **:data-[component='InputField']:flex-1 **:data-[component='InputField']:min-h-0"
+                            "**:data-[component='InputLabel']:hidden **:data-[component='InputField']:flex-1 **:data-[component='InputField']:min-h-0",
                         )}
                     >
                         <FormItemRenderer formItem={imageUploaderItem} propertySet={propertySet} />

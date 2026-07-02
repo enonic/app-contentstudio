@@ -1,11 +1,11 @@
-import type {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import type {ContentId} from '../../../app/content/ContentId';
-import type {ContentJson} from '../../../app/content/ContentJson';
-import {type PageTemplate, PageTemplateBuilder} from '../../../app/content/PageTemplate';
-import {Descriptor} from '../../../app/page/Descriptor';
-import type {DescriptorJson} from '../../../app/page/DescriptorJson';
-import {$projects} from '../store/projects.store';
-import {getCmsApiUrl, getCmsRestUri} from '../utils/url/cms';
+import type { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import type { ContentId } from '../../../app/content/ContentId';
+import type { ContentJson } from '../../../app/content/ContentJson';
+import { type PageTemplate, PageTemplateBuilder } from '../../../app/content/PageTemplate';
+import { Descriptor } from '../../../app/page/Descriptor';
+import type { DescriptorJson } from '../../../app/page/DescriptorJson';
+import { $projects } from '../store/projects.store';
+import { getCmsApiUrl, getCmsRestUri } from '../../shared/lib/url/cms';
 
 /**
  * Load page templates that can render the given content type within a site.
@@ -26,7 +26,7 @@ export async function loadPageTemplatesByCanRender(
 
         const json = await response.json();
         const contents: ContentJson[] = json.contents ?? [];
-        return contents.map(c => new PageTemplateBuilder().fromContentJson(c).build());
+        return contents.map((c) => new PageTemplateBuilder().fromContentJson(c).build());
     } catch (error) {
         console.error(error);
         return [];
@@ -38,7 +38,7 @@ export async function loadPageTemplatesByCanRender(
  */
 export async function loadPageControllers(contentId: ContentId): Promise<Descriptor[]> {
     const project = $projects.get().activeProjectId ?? '';
-    const params = new URLSearchParams({contentId: contentId.toString()});
+    const params = new URLSearchParams({ contentId: contentId.toString() });
     const url = `${getCmsRestUri(`cms/${project}/content/schema/filter/pages`)}?${params}`;
 
     try {
@@ -47,7 +47,7 @@ export async function loadPageControllers(contentId: ContentId): Promise<Descrip
 
         const json = await response.json();
         const descriptors: DescriptorJson[] = json.descriptors ?? [];
-        return descriptors.map(d => Descriptor.fromJson(d));
+        return descriptors.map((d) => Descriptor.fromJson(d));
     } catch (error) {
         console.error(error);
         return [];

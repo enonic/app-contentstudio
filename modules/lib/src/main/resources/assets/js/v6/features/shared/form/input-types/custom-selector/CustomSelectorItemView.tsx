@@ -1,21 +1,35 @@
 import DOMPurify from 'dompurify';
-import {ReactElement} from 'react';
-import {CustomSelectorItem} from './CustomSelectorInput';
-import {ItemLabel} from '../../../ItemLabel';
-import {Tooltip} from '@enonic/ui';
+import { ReactElement } from 'react';
+import { CustomSelectorItem } from './CustomSelectorInput';
+import { ItemLabel } from '../../../../../shared/ui/ItemLabel';
+import { Tooltip } from '@enonic/ui';
 
-export const CustomSelectorItemView = ({item, listMode}: {item: CustomSelectorItem; listMode: 'list' | 'flat'}): ReactElement => {
-    return listMode === 'list' ? <CustomSelectorItemListView item={item} /> : <CustomSelectorItemFlatView item={item} />;
+export const CustomSelectorItemView = ({
+    item,
+    listMode,
+}: {
+    item: CustomSelectorItem;
+    listMode: 'list' | 'flat';
+}): ReactElement => {
+    return listMode === 'list' ? (
+        <CustomSelectorItemListView item={item} />
+    ) : (
+        <CustomSelectorItemFlatView item={item} />
+    );
 };
 
 CustomSelectorItemView.displayName = 'CustomSelectorItemView';
 
-const CustomSelectorItemListView = ({item: {displayName, description, icon, iconUrl}}: {item: CustomSelectorItem}): ReactElement => {
+const CustomSelectorItemListView = ({
+    item: { displayName, description, icon, iconUrl },
+}: {
+    item: CustomSelectorItem;
+}): ReactElement => {
     const hasIcon = icon || iconUrl;
 
     const Icon = hasIcon ? (
         icon ? (
-            <span dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(icon.data, {ADD_TAGS: ['use']})}} />
+            <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(icon.data, { ADD_TAGS: ['use'] }) }} />
         ) : (
             <img src={iconUrl} alt={displayName} />
         )
@@ -24,7 +38,11 @@ const CustomSelectorItemListView = ({item: {displayName, description, icon, icon
     return <ItemLabel icon={Icon} primary={displayName} secondary={description} className="w-full min-w-0" />;
 };
 
-const CustomSelectorItemFlatView = ({item: {displayName, description, icon, iconUrl}}: {item: CustomSelectorItem}): ReactElement => {
+const CustomSelectorItemFlatView = ({
+    item: { displayName, description, icon, iconUrl },
+}: {
+    item: CustomSelectorItem;
+}): ReactElement => {
     const hasIcon = icon || iconUrl;
 
     return (
@@ -33,17 +51,23 @@ const CustomSelectorItemFlatView = ({item: {displayName, description, icon, icon
                 <div className="relative w-[36cqw] max-w-[240px] flex items-center justify-center shrink-0">
                     {icon ? (
                         <span
-                            dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(icon.data, {ADD_TAGS: ['use']})}}
+                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(icon.data, { ADD_TAGS: ['use'] }) }}
                             className="object-contain object-center w-full max-h-[240px]"
                         />
                     ) : (
-                        <img src={iconUrl} alt={displayName} className="object-contain object-center w-full max-h-[240px]" />
+                        <img
+                            src={iconUrl}
+                            alt={displayName}
+                            className="object-contain object-center w-full max-h-[240px]"
+                        />
                     )}
                 </div>
             )}
 
             <div className="min-w-0">
-                <span className="font-semibold text-base block whitespace-nowrap overflow-hidden text-ellipsis">{displayName}</span>
+                <span className="font-semibold text-base block whitespace-nowrap overflow-hidden text-ellipsis">
+                    {displayName}
+                </span>
 
                 {description && (
                     <Tooltip delay={300} value={description}>

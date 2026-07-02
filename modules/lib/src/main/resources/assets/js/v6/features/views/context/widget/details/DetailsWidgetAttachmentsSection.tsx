@@ -1,13 +1,13 @@
-import {Link, Separator} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {Paperclip} from 'lucide-react';
-import {ReactElement} from 'react';
-import {AttachmentName} from '../../../../../../app/attachment/AttachmentName';
-import {ContentId} from '../../../../../../app/content/ContentId';
-import {useI18n} from '../../../../hooks/useI18n';
-import {$contextContent} from '../../../../store/context/contextContent.store';
-import {$detailsWidgetAttachments} from '../../../../store/context/detailsWidgets.store';
-import {getCmsApiUrl} from '../../../../utils/url/cms';
+import { Link, Separator } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { Paperclip } from 'lucide-react';
+import { ReactElement } from 'react';
+import { AttachmentName } from '../../../../../../app/attachment/AttachmentName';
+import { ContentId } from '../../../../../../app/content/ContentId';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { $contextContent } from '../../../../store/context/contextContent.store';
+import { $detailsWidgetAttachments } from '../../../../store/context/detailsWidgets.store';
+import { getCmsApiUrl } from '../../../../../shared/lib/url/cms';
 
 function getAttachmentUrl(contentId: ContentId, attachmentName: AttachmentName) {
     return getCmsApiUrl(`media/${contentId}/${encodeURIComponent(attachmentName.toString())}`);
@@ -23,7 +23,7 @@ export const DetailsWidgetAttachmentsSection = (): ReactElement => {
     if (!content || !attachments || attachments.getSize() === 0) return null;
 
     return (
-        <section data-component={DETAILS_WIDGET_ATTACHMENTS_SECTION_NAME} className='flex flex-col gap-5'>
+        <section data-component={DETAILS_WIDGET_ATTACHMENTS_SECTION_NAME} className="flex flex-col gap-5">
             <Separator label={titleText} />
             <ul className="list-none">
                 {attachments.map((attachment) => (

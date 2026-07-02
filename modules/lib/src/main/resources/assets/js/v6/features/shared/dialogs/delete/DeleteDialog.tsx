@@ -1,8 +1,8 @@
-import {Dialog} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {useEffect, useState, type ReactElement} from 'react';
-import {useI18n} from '../../../hooks/useI18n';
-import {useTaskProgress} from '../../../hooks/useTaskProgress';
+import { Dialog } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { useEffect, useState, type ReactElement } from 'react';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { useTaskProgress } from '../../../hooks/useTaskProgress';
 import {
     $deleteDialog,
     $deleteItemsCount,
@@ -11,23 +11,20 @@ import {
     cancelDeleteDialog,
     executeDeleteDialogAction,
 } from '../../../store/dialogs/deleteDialog.store';
-import {DialogPresetGatedConfirmContent} from '../DialogPreset';
-import {DeleteDialogMainContent} from './DeleteDialogMainContent';
-import {DeleteDialogProgressContent} from './DeleteDialogProgressContent';
+import { DialogPresetGatedConfirmContent } from '../DialogPreset';
+import { DeleteDialogMainContent } from './DeleteDialogMainContent';
+import { DeleteDialogProgressContent } from './DeleteDialogProgressContent';
 
 type View = 'main' | 'confirmation' | 'progress';
 
 const DELETE_DIALOG_NAME = 'DeleteDialog';
 
 export const DeleteDialog = (): ReactElement => {
-    const {
-        open,
-        pendingTotal,
-    } = useStore($deleteDialog, {keys: ['open', 'pendingTotal']});
+    const { open, pendingTotal } = useStore($deleteDialog, { keys: ['open', 'pendingTotal'] });
     const total = useStore($deleteItemsCount);
     const hasSite = useStore($isDeleteTargetSite);
     const taskId = useStore($deleteTaskId);
-    const {progress, phase, phaseTotal} = useTaskProgress(taskId);
+    const { progress, phase, phaseTotal } = useTaskProgress(taskId);
 
     const [view, setView] = useState<View>('main');
 
@@ -82,19 +79,17 @@ export const DeleteDialog = (): ReactElement => {
         <Dialog.Root open={open} onOpenChange={handleOpenChange}>
             <Dialog.Portal>
                 <Dialog.Overlay />
-                {view === 'main' &&
-                    <DeleteDialogMainContent
-                        onArchive={() => void handleArchive()}
+                {view === 'main' && <DeleteDialogMainContent onArchive={() => void handleArchive()} />}
+                {view === 'confirmation' && (
+                    <DialogPresetGatedConfirmContent
+                        className="sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220"
+                        title={confirmDeleteTitle}
+                        description={confirmDeleteDescription}
+                        expected={total}
+                        onConfirm={() => void handleConfirm()}
+                        onCancel={resetView}
                     />
-                }
-                {view === 'confirmation' && <DialogPresetGatedConfirmContent
-                    className="sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220"
-                    title={confirmDeleteTitle}
-                    description={confirmDeleteDescription}
-                    expected={total}
-                    onConfirm={() => void handleConfirm()}
-                    onCancel={resetView}
-                />}
+                )}
                 {view === 'progress' && (
                     <DeleteDialogProgressContent
                         total={phaseTotal ?? progressTotal}

@@ -1,9 +1,9 @@
-import {type ReactElement} from 'react';
-import type {ContentSummary} from '../../../../app/content/ContentSummary';
-import {resolveDisplayName, resolveListTitle, resolvePath} from '../../utils/cms/content/prettify';
-import {calcContentState} from '../../utils/cms/content/workflow';
-import {ItemLabel, type ItemLabelProps} from '../ItemLabel';
-import {WorkflowContentIcon} from '../icons/WorkflowContentIcon';
+import { type ReactElement } from 'react';
+import type { ContentSummary } from '../../../../app/content/ContentSummary';
+import { resolveDisplayName, resolveListTitle, resolvePath } from '../../../shared/lib/cms/content/prettify';
+import { calcContentState } from '../../../shared/lib/cms/content/workflow';
+import { ItemLabel, type ItemLabelProps } from '../../../shared/ui/ItemLabel';
+import { WorkflowContentIcon } from '../../../shared/ui/icons/WorkflowContentIcon';
 
 const CONTENT_LABEL_NAME = 'ContentLabel';
 
@@ -37,22 +37,14 @@ export const ContentLabel = ({
     const statusHidden = hideStatus || !!content.getPublishTime();
     const status = statusHidden ? null : calcContentState(content);
     const Icon = (
-        <WorkflowContentIcon
-            status={status}
-            contentType={content.getType().toString()}
-            url={content.getIconUrl()}
-        />
+        <WorkflowContentIcon status={status} contentType={content.getType().toString()} url={content.getIconUrl()} />
     );
 
     const pathStr = resolvePath(content, showFullPath);
 
     const titleText = titleSource === 'list' ? resolveListTitle(content) : resolveDisplayName(content);
-    const primaryText = isCompact
-        ? pathStr
-        : titleText;
-    const secondaryText = isCompact
-        ? undefined
-        : pathStr;
+    const primaryText = isCompact ? pathStr : titleText;
+    const secondaryText = isCompact ? undefined : pathStr;
 
     return (
         <ItemLabel

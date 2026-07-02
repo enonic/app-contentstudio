@@ -1,14 +1,14 @@
-import {type SelfManagedComponentProps} from '@enonic/lib-admin-ui/form2';
-import {Reference} from '@enonic/lib-admin-ui/util/Reference';
-import {Value} from '@enonic/lib-admin-ui/data/Value';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {useCallback, useMemo} from 'react';
-import {useI18n} from '../../../../hooks/useI18n';
-import {useStore} from '@nanostores/preact';
-import {$contextContent} from '../../../../store/context/contextContent.store';
-import {SITE_PATH} from '../../../../utils/form/form';
-import {type ContentSummary} from '../../../../../../app/content/ContentSummary';
-import {useSelectorInputHasError} from './useSelectorInputHasError';
+import { type SelfManagedComponentProps } from '@enonic/lib-admin-ui/form2';
+import { Reference } from '@enonic/lib-admin-ui/util/Reference';
+import { Value } from '@enonic/lib-admin-ui/data/Value';
+import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { useCallback, useMemo } from 'react';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { useStore } from '@nanostores/preact';
+import { $contextContent } from '../../../../store/context/contextContent.store';
+import { SITE_PATH } from '../../../../../shared/lib/form/form';
+import { type ContentSummary } from '../../../../../../app/content/ContentSummary';
+import { useSelectorInputHasError } from './useSelectorInputHasError';
 
 export type GeneralSelectorConfig = {
     allowContentType: string[];
@@ -39,7 +39,10 @@ export const useSelectorInput = <T extends Omit<GeneralSelectorConfig, 'allowCon
     const resolvedHideToggleIcon: boolean = config.hideToggleIcon;
 
     // Selection
-    const selection: string[] = useMemo(() => values.filter((v) => v.isNotNull()).map((v) => v.getReference().getNodeId()), [values]);
+    const selection: string[] = useMemo(
+        () => values.filter((v) => v.isNotNull()).map((v) => v.getReference().getNodeId()),
+        [values],
+    );
 
     // i18n
     const placeholder: string = useI18n('field.option.placeholder');
@@ -81,7 +84,7 @@ export const useSelectorInput = <T extends Omit<GeneralSelectorConfig, 'allowCon
                 }
             }
         },
-        [selection, onAdd, onRemove, onMove]
+        [selection, onAdd, onRemove, onMove],
     );
 
     return {

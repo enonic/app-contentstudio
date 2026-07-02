@@ -1,14 +1,14 @@
-import {atom, computed} from 'nanostores';
-import type {ContentSummary} from '../../../app/content/ContentSummary';
-import type {Descriptor} from '../../../app/page/Descriptor';
-import type {Page} from '../../../app/page/Page';
-import {ComponentPath} from '../../../app/page/region/ComponentPath';
-import {DescriptorBasedComponent} from '../../../app/page/region/DescriptorBasedComponent';
-import {FragmentComponent} from '../../../app/page/region/FragmentComponent';
-import type {SiteModel} from '../../../app/site/SiteModel';
-import {createDebounce} from '../utils/timing/createDebounce';
-import type {PageEditorContentContext} from './page-editor/types';
-import {$contentContext, $inspectedItem, $pageVersion} from './page-editor/store';
+import { atom, computed } from 'nanostores';
+import type { ContentSummary } from '../../../app/content/ContentSummary';
+import type { Descriptor } from '../../../app/page/Descriptor';
+import type { Page } from '../../../app/page/Page';
+import { ComponentPath } from '../../../app/page/region/ComponentPath';
+import { DescriptorBasedComponent } from '../../../app/page/region/DescriptorBasedComponent';
+import { FragmentComponent } from '../../../app/page/region/FragmentComponent';
+import type { SiteModel } from '../../../app/site/SiteModel';
+import { createDebounce } from '../../shared/lib/timing/createDebounce';
+import type { PageEditorContentContext } from './page-editor/types';
+import { $contentContext, $inspectedItem, $pageVersion } from './page-editor/store';
 
 //
 // * State
@@ -26,15 +26,12 @@ export const $isComponentInspectionLoading = atom<boolean>(false);
 // * Computed
 //
 
-export const $selectedComponentDescriptorKey = computed(
-    [$inspectedItem, $pageVersion],
-    (item): string | null => {
-        if (item instanceof DescriptorBasedComponent && item.hasDescriptor()) {
-            return item.getDescriptorKey().toString();
-        }
-        return null;
-    },
-);
+export const $selectedComponentDescriptorKey = computed([$inspectedItem, $pageVersion], (item): string | null => {
+    if (item instanceof DescriptorBasedComponent && item.hasDescriptor()) {
+        return item.getDescriptorKey().toString();
+    }
+    return null;
+});
 
 //
 // * API
@@ -80,10 +77,10 @@ async function loadDescriptors(ctx: PageEditorContentContext): Promise<void> {
     $isComponentInspectionLoading.set(true);
     abortController?.abort();
     abortController = new AbortController();
-    const {signal} = abortController;
+    const { signal } = abortController;
 
     try {
-        const {loadComponentDescriptors} = await import('../api/componentInspection');
+        const { loadComponentDescriptors } = await import('../api/componentInspection');
 
         const [parts, layouts] = await Promise.all([
             loadComponentDescriptors('part', ctx.contentId),
@@ -138,7 +135,7 @@ export function initComponentInspectionService(siteModel?: SiteModel | null): vo
 
     const $derivedDescriptorInfo = computed(
         [$inspectedItem, $pageVersion],
-        (item): {componentType: string; descriptorKey: string} | null => {
+        (item): { componentType: string; descriptorKey: string } | null => {
             if (item instanceof DescriptorBasedComponent && item.hasDescriptor()) {
                 return {
                     componentType: item.getType().getShortName(),
@@ -162,7 +159,7 @@ export function initComponentInspectionService(siteModel?: SiteModel | null): vo
 
         void (async () => {
             try {
-                const {loadComponentDescriptor} = await import('../api/componentInspection');
+                const { loadComponentDescriptor } = await import('../api/componentInspection');
                 const descriptor = await loadComponentDescriptor(info.componentType, info.descriptorKey);
                 $componentConfigDescriptor.set(descriptor ?? null);
             } catch {

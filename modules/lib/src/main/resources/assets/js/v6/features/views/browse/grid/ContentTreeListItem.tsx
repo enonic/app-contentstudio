@@ -1,12 +1,12 @@
-import {ListItem} from '@enonic/ui';
-import {type MouseEvent} from 'react';
-import {ContentLabel} from '../../../shared/content/ContentLabel';
-import {LayerIndicator} from '../../../shared/icons/LayerIndicator';
-import {StatusBadge} from '../../../shared/status/StatusBadge';
-import {$activeId, setActive} from '../../../store/contentTreeSelection.store';
-import {LAYERS_WIDGET_NAME} from '../../../utils/widget/layers';
-import {openContextWidget} from '../../context/openContextWidget';
-import {type ContentData} from './ContentData';
+import { ListItem } from '@enonic/ui';
+import { type MouseEvent } from 'react';
+import { ContentLabel } from '../../../shared/content/ContentLabel';
+import { LayerIndicator } from '../../../shared/icons/LayerIndicator';
+import { StatusBadge } from '../../../shared/status/StatusBadge';
+import { $activeId, setActive } from '../../../store/contentTreeSelection.store';
+import { LAYERS_WIDGET_NAME } from '../../../../shared/lib/widget/layers';
+import { openContextWidget } from '../../context/openContextWidget';
+import { type ContentData } from './ContentData';
 
 export type ContentTreeListItemProps = {
     content: ContentData;
@@ -14,8 +14,12 @@ export type ContentTreeListItemProps = {
     selected?: boolean;
 };
 
-export const ContentTreeListItem = ({content, showPath = false, selected = false}: ContentTreeListItemProps): React.ReactElement => {
-    const {item} = content;
+export const ContentTreeListItem = ({
+    content,
+    showPath = false,
+    selected = false,
+}: ContentTreeListItemProps): React.ReactElement => {
+    const { item } = content;
     const isInherited = item.isInherited();
     const isLocalised = isInherited && !item.isDataInherited();
 
@@ -25,7 +29,7 @@ export const ContentTreeListItem = ({content, showPath = false, selected = false
         if ($activeId.get() !== content.id) {
             setActive(content.id);
         }
-        openContextWidget(LAYERS_WIDGET_NAME, {contentId: content.id});
+        openContextWidget(LAYERS_WIDGET_NAME, { contentId: content.id });
     };
 
     const stopRowActivation = (e: MouseEvent<HTMLButtonElement>) => {
@@ -33,9 +37,9 @@ export const ContentTreeListItem = ({content, showPath = false, selected = false
     };
 
     return (
-        <ListItem className='p-0' role='presentation'>
-            <ListItem.Left className='flex-1'>
-                <ContentLabel content={item} variant={showPath ? 'detailed' : 'normal'} titleSource='list' />
+        <ListItem className="p-0" role="presentation">
+            <ListItem.Left className="flex-1">
+                <ContentLabel content={item} variant={showPath ? 'detailed' : 'normal'} titleSource="list" />
             </ListItem.Left>
             <ListItem.Right>
                 {isInherited && (

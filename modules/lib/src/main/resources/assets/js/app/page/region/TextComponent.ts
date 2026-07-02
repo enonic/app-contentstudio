@@ -1,17 +1,15 @@
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {isBlank} from '../../../v6/features/utils/format/isBlank';
-import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {Component, ComponentBuilder} from './Component';
-import {type ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
-import {type TextComponentJson} from './TextComponentJson';
-import {TextComponentType} from './TextComponentType';
-import {ComponentName} from './ComponentName';
-import {ComponentTextUpdatedEvent} from './ComponentTextUpdatedEvent';
-import {type ComponentTextUpdatedOrigin} from './ComponentTextUpdatedOrigin';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { isBlank } from '../../../v6/shared/lib/format/isBlank';
+import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
+import { Component, ComponentBuilder } from './Component';
+import { type ComponentTypeWrapperJson } from './ComponentTypeWrapperJson';
+import { type TextComponentJson } from './TextComponentJson';
+import { TextComponentType } from './TextComponentType';
+import { ComponentName } from './ComponentName';
+import { ComponentTextUpdatedEvent } from './ComponentTextUpdatedEvent';
+import { type ComponentTextUpdatedOrigin } from './ComponentTextUpdatedOrigin';
 
-export class TextComponent
-    extends Component {
-
+export class TextComponent extends Component {
     private text: string;
 
     public static PROPERTY_TEXT: string = 'text';
@@ -45,12 +43,11 @@ export class TextComponent
     }
 
     toJson(): ComponentTypeWrapperJson {
-
         const json: TextComponentJson = {} as TextComponentJson;
         json.text = this.text != null ? this.text : null;
 
         return {
-            TextComponent: json
+            TextComponent: json,
         } as ComponentTypeWrapperJson;
     }
 
@@ -71,9 +68,7 @@ export class TextComponent
     }
 }
 
-export class TextComponentBuilder
-    extends ComponentBuilder {
-
+export class TextComponentBuilder extends ComponentBuilder {
     text: string;
 
     constructor(source?: TextComponent) {
@@ -87,7 +82,6 @@ export class TextComponentBuilder
     }
 
     public fromJson(json: TextComponentJson): this {
-
         if (json.text) {
             this.setText(json.text);
         }

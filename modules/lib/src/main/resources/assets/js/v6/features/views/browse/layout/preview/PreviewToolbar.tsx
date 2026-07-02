@@ -1,19 +1,19 @@
-import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import {Toolbar} from '@enonic/ui';
-import type {ReactElement} from 'react';
-import type {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
-import {LegacyElement} from '../../../../shared/LegacyElement';
-import {PreviewToolbarEmulatorSelector} from './PreviewToolbarEmulatorSelector';
-import {PreviewToolbarRefreshItem} from './PreviewToolbarRefreshItem';
-import {PreviewToolbarVersionHistoryItem} from './PreviewToolbarVersionHistoryItem';
-import {PreviewToolbarWidgetSelector} from './PreviewToolbarWidgetSelector';
+import { ResponsiveManager } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import { Toolbar } from '@enonic/ui';
+import type { ReactElement } from 'react';
+import type { ContentSummaryAndCompareStatus } from '../../../../../../app/content/ContentSummaryAndCompareStatus';
+import { LegacyElement } from '../../../../../shared/ui/LegacyElement';
+import { PreviewToolbarEmulatorSelector } from './PreviewToolbarEmulatorSelector';
+import { PreviewToolbarRefreshItem } from './PreviewToolbarRefreshItem';
+import { PreviewToolbarVersionHistoryItem } from './PreviewToolbarVersionHistoryItem';
+import { PreviewToolbarWidgetSelector } from './PreviewToolbarWidgetSelector';
 
 type PreviewToolbarProps = {
     item?: ContentSummaryAndCompareStatus | null;
     onRefresh?: () => void;
 };
 
-const PreviewToolbar = ({item = null, onRefresh}: PreviewToolbarProps): ReactElement | null => {
+const PreviewToolbar = ({ item = null, onRefresh }: PreviewToolbarProps): ReactElement | null => {
     if (!item) return null;
 
     return (

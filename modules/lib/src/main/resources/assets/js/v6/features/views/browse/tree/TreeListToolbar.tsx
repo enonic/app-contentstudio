@@ -1,14 +1,22 @@
-import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
-import {Checkbox, type CheckboxChecked, IconButton} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {RefreshCcw} from 'lucide-react';
-import {type ReactElement, useMemo} from 'react';
-import {activateFilter, fetchRootChildrenIdsOnly, getFilterQuery} from '../../../api/content-fetcher';
-import {useI18n} from '../../../hooks/useI18n';
-import {$activeRawFlatNodes, $isFilterActive} from '../../../store/active-tree.store';
-import {clearProjectContentCache} from '../../../store/content.store';
-import {$activeId, $isAllLoadedSelected, $isNoneSelected, $selectionCount, clearSelection, selectAll, setActive} from '../../../store/contentTreeSelection.store';
-import {$rootLoadingState, resetTree} from '../../../store/tree-list.store';
+import { LegacyElement } from '@enonic/lib-admin-ui/ui2/LegacyElement';
+import { Checkbox, type CheckboxChecked, IconButton } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { RefreshCcw } from 'lucide-react';
+import { type ReactElement, useMemo } from 'react';
+import { activateFilter, fetchRootChildrenIdsOnly, getFilterQuery } from '../../../api/content-fetcher';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { $activeRawFlatNodes, $isFilterActive } from '../../../store/active-tree.store';
+import { clearProjectContentCache } from '../../../store/content.store';
+import {
+    $activeId,
+    $isAllLoadedSelected,
+    $isNoneSelected,
+    $selectionCount,
+    clearSelection,
+    selectAll,
+    setActive,
+} from '../../../store/contentTreeSelection.store';
+import { $rootLoadingState, resetTree } from '../../../store/tree-list.store';
 
 type TreeListToolbarProps = {
     enabled?: boolean;
@@ -41,15 +49,16 @@ const handleReload = async (): Promise<void> => {
     }
 };
 
-const TreeListToolbar = ({enabled = true}: TreeListToolbarProps): ReactElement => {
+const TreeListToolbar = ({ enabled = true }: TreeListToolbarProps): ReactElement => {
     const loadingState = useStore($rootLoadingState);
     const isLoading = loadingState === 'loading';
     const isAllSelected = useStore($isAllLoadedSelected);
     const totalSelected = useStore($selectionCount);
     const isNoneSelected = useStore($isNoneSelected);
     const reloadLabel = useI18n('action.reload.content');
-    const selectAllLabel = isNoneSelected ? useI18n('field.selection.selectAll') : useI18n('field.selection.clear',
-        totalSelected);
+    const selectAllLabel = isNoneSelected
+        ? useI18n('field.selection.selectAll')
+        : useI18n('field.selection.clear', totalSelected);
 
     const checkedStatus = useMemo<CheckboxChecked>(() => {
         if (isAllSelected) return true;
@@ -78,7 +87,12 @@ const TreeListToolbar = ({enabled = true}: TreeListToolbarProps): ReactElement =
                 />
             </div>
 
-            <IconButton aria-label={reloadLabel} icon={RefreshCcw} disabled={isLoading || !enabled} onClick={handleReload} />
+            <IconButton
+                aria-label={reloadLabel}
+                icon={RefreshCcw}
+                disabled={isLoading || !enabled}
+                onClick={handleReload}
+            />
         </div>
     );
 };

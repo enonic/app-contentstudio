@@ -1,22 +1,21 @@
-import {BrowsePanel} from '@enonic/lib-admin-ui/app/browse/BrowsePanel';
-import {Body} from '@enonic/lib-admin-ui/dom/Body';
-import {ResponsiveToolbar} from './ResponsiveToolbar';
-import {ContextSplitPanel} from '../view/context/ContextSplitPanel';
-import {type ContextView} from '../view/context/ContextView';
-import {DockedContextPanel} from '../view/context/DockedContextPanel';
-import {type BrowseItemPanel} from '@enonic/lib-admin-ui/app/browse/BrowseItemPanel';
+import { BrowsePanel } from '@enonic/lib-admin-ui/app/browse/BrowsePanel';
+import { Body } from '@enonic/lib-admin-ui/dom/Body';
+import { ResponsiveToolbar } from './ResponsiveToolbar';
+import { ContextSplitPanel } from '../view/context/ContextSplitPanel';
+import { type ContextView } from '../view/context/ContextView';
+import { DockedContextPanel } from '../view/context/DockedContextPanel';
+import { type BrowseItemPanel } from '@enonic/lib-admin-ui/app/browse/BrowseItemPanel';
 import type Q from 'q';
-import {type ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
-import {SplitPanelSize} from '@enonic/lib-admin-ui/ui/panel/SplitPanelSize';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {SelectionMode} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
-import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
-import {$isContextOpen, setContextOpen} from '../../v6/features/store/contextWidgets.store';
-import {LayoutTokens} from '../../v6/features/layout/layout.tokens';
-import {ContextPanelState} from '../view/context/ContextPanelState';
+import { type ViewItem } from '@enonic/lib-admin-ui/app/view/ViewItem';
+import { SplitPanelSize } from '@enonic/lib-admin-ui/ui/panel/SplitPanelSize';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { SelectionMode } from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
+import { NonMobileContextPanelToggleButton } from '../view/context/button/NonMobileContextPanelToggleButton';
+import { $isContextOpen, setContextOpen } from '../../v6/features/store/contextWidgets.store';
+import { LayoutTokens } from '../../v6/shared/ui/layout.tokens';
+import { ContextPanelState } from '../view/context/ContextPanelState';
 
 export abstract class ResponsiveBrowsePanel extends BrowsePanel {
-
     static MOBILE_MODE_CLASS = 'mobile-mode';
     static MOBILE_PREVIEW_CLASS = 'mobile-preview-on';
 
@@ -48,8 +47,10 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
         });
 
         this.selectableListBoxPanel.onSelectionChanged(() => {
-            if (this.selectableListBoxPanel.getSelectedItems().length > 0 && this.selectableListBoxPanel.getSelectionMode() ===
-                SelectionMode.HIGHLIGHT) {
+            if (
+                this.selectableListBoxPanel.getSelectedItems().length > 0 &&
+                this.selectableListBoxPanel.getSelectionMode() === SelectionMode.HIGHLIGHT
+            ) {
                 if (this.contextSplitPanel.isMobileMode()) {
                     this.toggleMobilePreviewMode(true);
                 }
@@ -69,7 +70,6 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
             .setToggleButton(this.contextSplitPanelToggler)
             .build();
 
-
         // TODO: Enonic UI - Backward compatibility with old panel
         setContextOpen(this.contextSplitPanel.getState() === ContextPanelState.EXPANDED);
 
@@ -85,7 +85,6 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
             } else {
                 this.contextSplitPanel.hideContextPanel();
             }
-
         });
 
         return this.contextSplitPanel;
