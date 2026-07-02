@@ -9,11 +9,7 @@ import { LayoutComponentType } from '../../../../../../../../app/page/region/Lay
 import { GetContentByIdRequest } from '../../../../../../../../app/resource/GetContentByIdRequest';
 import { $inspectedItem, $pageEditorLifecycle, requestSetFragmentComponent } from '../../../../../model/page-editor';
 import { $pageVersion } from '../../../../../model/page-editor/store';
-import {
-    $fragmentOptions,
-    $isFragmentInspectionLoading,
-    $selectedFragmentId,
-} from '../../../../../model/fragment-inspection.store';
+import { $fragmentOptions, $isFragmentInspectionLoading, $selectedFragmentId } from '../../../../../model/fragment-inspection.store';
 
 //
 // * Types
@@ -109,6 +105,8 @@ export function useFragmentContentSelector(): UseFragmentContentSelectorResult {
 
             setSearchValue(undefined);
 
+            const optionLabel = options.find((o) => o.key === newId)?.label;
+
             if (isInsideLayout) {
                 new GetContentByIdRequest(new ContentId(newId)).sendAndParse().done((content) => {
                     const fragmentComp = content.getPage()?.getFragment() ?? null;
@@ -116,14 +114,14 @@ export function useFragmentContentSelector(): UseFragmentContentSelectorResult {
                     if (fragmentComp?.getType() instanceof LayoutComponentType) {
                         showWarning(i18n('notify.nestedLayouts'));
                     } else {
-                        requestSetFragmentComponent(fragment.getPath(), newId);
+                        requestSetFragmentComponent(fragment.getPath(), newId, content.getDisplayName());
                     }
                 });
             } else {
-                requestSetFragmentComponent(fragment.getPath(), newId);
+                requestSetFragmentComponent(fragment.getPath(), newId, optionLabel);
             }
         },
-        [fragment, selectedId, isInsideLayout],
+        [fragment, selectedId, isInsideLayout, options]
     );
 
     const selection = selectedId ? [selectedId] : [];
