@@ -59,14 +59,11 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             // 2. Insert a content-name in options filter input:
             await contentSelectorForm.typeTextInOptionsFilterInput(appConst.TEST_IMAGES.SPUMANS);
             await contentSelectorForm.pause(500);
+            // Content Selector is switching to flat mode when filtered #10984
             await studioUtils.saveScreenshot('tree_mode_filtered_image_content');
             // 5. Verify that the only one option with its parent folder are present in the dropdown options:
-            let items = await contentSelectorForm.getOptionsDisplayNameInTreeMode();
+            let items = await contentSelectorForm.getOptionsDisplayNameInFlatMode();
             assert.ok(items.length === 1, 'single item should be displayed in the filtered list');
-            await contentSelectorForm.clickOnExpanderIconInOptionsList("All Content types images")
-            items = await contentSelectorForm.getOptionsDisplayNameInTreeMode();
-            assert.ok(items.length === 2, 'single item should be displayed in the filtered list');
-            assert.equal(items[1], appConst.TEST_IMAGES.SPUMANS, 'Expected display name should be present in the options list');
             // 6. Clear the filter input:
             await contentSelectorForm.clearOptionsFilterInput();
             // 7. Verify that tree mode is reloaded and all items are displayed in the dropdown:

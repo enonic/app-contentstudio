@@ -115,13 +115,19 @@ class BaseDropdown extends Page {
         }
     }
 
-    // new
     async doFilterItem(text) {
         let optionsFilterLocator = this.optionsFilterInput();
         await this.waitUntilDisplayed(optionsFilterLocator);
         let elements = await this.getDisplayedElements(optionsFilterLocator);
         await elements[0].setValue(text);
         return await this.pause(300);
+    }
+
+    async clearOptionsFilterInput() {
+        let optionsFilterLocator = this.optionsFilterInput();
+        await this.waitUntilDisplayed(optionsFilterLocator);
+        await this.clearInputText(optionsFilterLocator);
+        return await this.pause(100);
     }
 
     async typeCharsInFilterItem(text) {
