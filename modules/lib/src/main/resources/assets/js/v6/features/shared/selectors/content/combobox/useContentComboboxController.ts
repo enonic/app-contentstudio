@@ -2,6 +2,7 @@ import {type KeyboardEvent, type RefObject, useCallback, useEffect, useMemo, use
 import type {VirtuosoHandle} from 'react-virtuoso';
 import {useContentComboboxData, type ContentFilterOptions, type ContentComboboxFlatNode} from '../../../../hooks/useContentComboboxData';
 import {useDebouncedValue} from '../../../../utils/hooks/useDebouncedValue';
+import {isBlank} from '../../../../utils/format/isBlank';
 
 //
 // * Types
@@ -98,9 +99,12 @@ export function useContentComboboxController(options: UseContentComboboxControll
     const virtuosoRef = useRef<VirtuosoHandle>(null);
     const inputRef = useRef<HTMLInputElement | null>(null);
 
+    // Configured default view, restored when the search value is cleared.
+    const defaultIsTree = externalListMode === 'tree';
+
     // View state
     const [open, setOpen] = useState(false);
-    const [isTreeView, setIsTreeView] = useState(externalListMode === 'tree');
+    const [isTreeView, setIsTreeView] = useState(defaultIsTree);
     const [inputValue, setInputValue] = useState('');
     const [activeId, setActiveId] = useState<string | null>(null);
 
@@ -108,7 +112,7 @@ export function useContentComboboxController(options: UseContentComboboxControll
     const debouncedQuery = useDebouncedValue(inputValue, debounceDelay);
 
     // Tree view filters the tree itself; flat view drives the flat search instead.
-    const treeQuery = isTreeView ? debouncedQuery : '';
+    const treeQuery = isTreeView && !isBlank(debouncedQuery) ? debouncedQuery : '';
 
     // Memoize filter options to avoid recreating on every render
     const filterOptions: ContentFilterOptions = useMemo(
@@ -142,6 +146,12 @@ export function useContentComboboxController(options: UseContentComboboxControll
         isOpen: open,
         treeQuery,
     });
+
+    // Legacy behavior: a non-blank search value forces flat mode,
+    // while clearing it restores the configured default.
+    useEffect(() => {
+        setIsTreeView(isBlank(debouncedQuery) ? defaultIsTree : false);
+    }, [debouncedQuery, defaultIsTree]);
 
     // Track if we need to trigger a search
     const lastSearchedQueryRef = useRef<string | null>(null);
