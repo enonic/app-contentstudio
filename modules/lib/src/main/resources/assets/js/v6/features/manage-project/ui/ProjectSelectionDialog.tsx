@@ -9,7 +9,7 @@ import { selectProject, $projects } from '../../../entities/project';
 import { flattenProjects } from '../../../shared/lib/cms/projects/flattenProjects';
 import { AuthHelper } from '@enonic/lib-admin-ui/auth/AuthHelper';
 import { $dialogs, setProjectSelectionDialogOpen } from '../../../shared/dialogs/dialogs.store';
-import { ProjectLabel } from '../../shared/project/ProjectLabel';
+import { ProjectLabel } from '../../../entities/project/ui/ProjectLabel';
 import { openCreateProjectDialog } from '../model/projectDialog.store';
 
 const PROJECT_SELECTION_DIALOG_NAME = 'ProjectSelectionDialog';

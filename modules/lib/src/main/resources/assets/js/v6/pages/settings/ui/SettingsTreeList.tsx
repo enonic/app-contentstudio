@@ -9,7 +9,7 @@ import { type SettingsViewItem } from '../../../../app/settings/view/SettingsVie
 import { ProjectHelper } from '../../../../app/settings/data/project/ProjectHelper';
 import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
 import { virtuosoComponents } from '../../../features/shared/lists';
-import { ProjectLabel } from '../../../features/shared/project/ProjectLabel';
+import { ProjectLabel } from '../../../entities/project/ui/ProjectLabel';
 import { ItemLabel } from '../../../shared/ui/ItemLabel';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import type { FlatNode } from '../../../shared/lib/tree-store';

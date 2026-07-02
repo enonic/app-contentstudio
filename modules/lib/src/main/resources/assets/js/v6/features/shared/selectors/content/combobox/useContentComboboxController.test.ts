@@ -25,7 +25,7 @@ let mockError: Error | null = null;
 let mockIsFlatLoading = false;
 let mockIsTreeLoading = false;
 
-vi.mock('../../../../hooks/useContentComboboxData', () => ({
+vi.mock('../../../hooks/useContentComboboxData', () => ({
     useContentComboboxData: () => ({
         tree: mockTreeStore,
         treeItems: mockTreeItems,
