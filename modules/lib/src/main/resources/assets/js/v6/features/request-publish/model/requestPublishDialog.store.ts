@@ -19,23 +19,8 @@ import {
 } from '../../../entities/content/lib/dependantWindow';
 import { calcDependantsSelection, nextDependantExclusions } from '../../../shared/lib/cms/content/dependantsSelection';
 import { hasContentIdInIds, uniqueIds } from '../../../shared/lib/cms/content/ids';
-import { findContentIdsWithCreatedDescendants } from '../../../shared/lib/cms/content/paths';
-import {
-    createContentIdSet,
-    patchTrackedContentItems,
-    refreshTrackedMainContentItems,
-    removeTrackedContentItems,
-} from '../../../shared/lib/cms/content/trackedItems';
-import { createGuardedSocketHandler } from '../../../shared/lib/store/createGuardedSocketHandler';
+import { patchTrackedContentItems, removeTrackedContentItems } from '../../../shared/lib/cms/content/trackedItems';
 import { createDebounce } from '../../../shared/lib/timing/createDebounce';
-import {
-    $contentArchived,
-    $contentCreated,
-    $contentDeleted,
-    $contentPublished,
-    $contentRenamed,
-    $contentUpdated,
-} from '../../../shared/socket/socket.store';
 
 const DEPENDENCY_RELOAD_DELAY_MS = 150;
 
@@ -160,28 +145,21 @@ let instanceId = 0;
 let hasQueuedRequestPublishSocketChanges = false;
 const queuedRequestPublishRemovedIds = new Set<string>();
 
-const reloadDependenciesDebounced = createDebounce(() => {
+export const reloadDependenciesDebounced = createDebounce(() => {
     void reloadRequestPublishDependencies();
 }, DEPENDENCY_RELOAD_DELAY_MS);
 
-const hasOpenRequestPublishDialog = (): boolean => {
+export const hasOpenRequestPublishDialog = (): boolean => {
     const { open, items } = $requestPublishDialog.get();
     return open && items.length > 0;
 };
-
-const isRequestPublishDialogActive = (): boolean => {
-    const { submitting } = $requestPublishDialog.get();
-    return hasOpenRequestPublishDialog() && !submitting;
-};
-
-const onActiveRequestPublishSocketEvent = createGuardedSocketHandler(isRequestPublishDialogActive);
 
 const clearQueuedRequestPublishSocketChanges = (): void => {
     hasQueuedRequestPublishSocketChanges = false;
     queuedRequestPublishRemovedIds.clear();
 };
 
-const queueRequestPublishSocketChanges = (removedIds?: Iterable<string>): void => {
+export const queueRequestPublishSocketChanges = (removedIds?: Iterable<string>): void => {
     hasQueuedRequestPublishSocketChanges = true;
 
     if (!removedIds) {
@@ -193,28 +171,7 @@ const queueRequestPublishSocketChanges = (removedIds?: Iterable<string>): void =
     }
 };
 
-const onRequestPublishSocketEvent = <T>(
-    handler: (event: T) => void,
-    getRemovedIds?: (event: T) => Iterable<string>,
-): ((event: T | null | undefined) => void) => {
-    const activeHandler = onActiveRequestPublishSocketEvent(handler);
-
-    return (event) => {
-        if (event == null) {
-            return;
-        }
-
-        const { submitting } = $requestPublishDialog.get();
-        if (submitting && hasOpenRequestPublishDialog()) {
-            queueRequestPublishSocketChanges(getRemovedIds?.(event));
-            return;
-        }
-
-        activeHandler(event);
-    };
-};
-
-const patchTrackedRequestPublishItems = (
+export const patchTrackedRequestPublishItems = (
     updates: ContentSummary[],
 ): { updatedMain: boolean; updatedDependants: boolean } => {
     const change = patchTrackedContentItems($requestPublishDialog.get(), updates);
@@ -227,22 +184,6 @@ const patchTrackedRequestPublishItems = (
         updatedMain: change.changedMain,
         updatedDependants: change.changedDependants,
     };
-};
-
-const refreshRequestPublishMainItems = async (ids: ContentId[]): Promise<void> => {
-    if (ids.length === 0) {
-        return;
-    }
-
-    try {
-        const change = await refreshTrackedMainContentItems($requestPublishDialog.get(), ids, fetchContentSummaries);
-
-        if (change.changed && isRequestPublishDialogActive()) {
-            $requestPublishDialog.set(change.state);
-        }
-    } catch (error) {
-        console.error(error);
-    }
 };
 
 const syncQueuedRequestPublishSocketChanges = async (): Promise<void> => {
@@ -281,7 +222,7 @@ const syncQueuedRequestPublishSocketChanges = async (): Promise<void> => {
     await reloadRequestPublishDependencies();
 };
 
-const removeTrackedRequestPublishItems = (
+export const removeTrackedRequestPublishItems = (
     idsToRemove: Set<string>,
 ): { removedMain: boolean; removedDependants: boolean } => {
     const change = removeTrackedContentItems($requestPublishDialog.get(), idsToRemove);
@@ -304,19 +245,6 @@ const removeTrackedRequestPublishItems = (
         // callers rely on this flag to reschedule the reload that refreshes checks.
         removedDependants: change.changedDependants || pruned.changed,
     };
-};
-
-const handleRemovedRequestPublishItems = (idsToRemove: Set<string>): void => {
-    const { removedMain, removedDependants } = removeTrackedRequestPublishItems(idsToRemove);
-
-    if ($requestPublishDialog.get().items.length === 0) {
-        resetRequestPublishDialogContext();
-        return;
-    }
-
-    if (removedMain || removedDependants) {
-        reloadDependenciesDebounced();
-    }
 };
 
 const resetDependenciesState = (state: RequestPublishDialogStore): RequestPublishDialogStore => {
@@ -689,59 +617,3 @@ const markIdsReady = async (ids: ContentId[]): Promise<ContentId[]> => {
         return [];
     }
 };
-
-$contentCreated.subscribe(
-    onRequestPublishSocketEvent((event) => {
-        const mainItemIds = findContentIdsWithCreatedDescendants($requestPublishDialog.get().items, event.data);
-        if (mainItemIds.length === 0) {
-            return;
-        }
-
-        void refreshRequestPublishMainItems(mainItemIds).finally(() => {
-            reloadDependenciesDebounced();
-        });
-    }),
-);
-
-$contentUpdated.subscribe(
-    onRequestPublishSocketEvent((event) => {
-        const { updatedMain, updatedDependants } = patchTrackedRequestPublishItems(event.data);
-
-        if (updatedMain || updatedDependants) {
-            reloadDependenciesDebounced();
-        }
-    }),
-);
-
-$contentRenamed.subscribe(
-    onRequestPublishSocketEvent((event) => {
-        patchTrackedRequestPublishItems(event.data.items);
-    }),
-);
-
-$contentDeleted.subscribe(
-    onRequestPublishSocketEvent(
-        (event) => {
-            handleRemovedRequestPublishItems(createContentIdSet(event.data));
-        },
-        (event) => event.data.map((item) => item.getContentId().toString()),
-    ),
-);
-
-$contentArchived.subscribe(
-    onRequestPublishSocketEvent(
-        (event) => {
-            handleRemovedRequestPublishItems(createContentIdSet(event.data));
-        },
-        (event) => event.data.map((item) => item.getContentId().toString()),
-    ),
-);
-
-$contentPublished.subscribe(
-    onRequestPublishSocketEvent(
-        (event) => {
-            handleRemovedRequestPublishItems(createContentIdSet(event.data));
-        },
-        (event) => event.data.map((item) => item.getContentId().toString()),
-    ),
-);

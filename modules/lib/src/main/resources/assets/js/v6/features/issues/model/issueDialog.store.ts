@@ -1,6 +1,5 @@
 import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
 import { computed, map } from 'nanostores';
-import { IssueServerEventsHandler } from '../../../../app/issue/event/IssueServerEventsHandler';
 import { IssueStatus } from '../../../../app/issue/IssueStatus';
 import { IssueType } from '../../../../app/issue/IssueType';
 import { GetIssueStatsRequest } from '../../../../app/issue/resource/GetIssueStatsRequest';
@@ -341,7 +340,8 @@ const queueReload = createDebounce(() => {
     void loadIssueDialogList();
 }, 250);
 
-const triggerReload = (): void => {
+// Debounced list reload gated on the load state machine; shared with the service wiring.
+export const triggerReload = (): void => {
     if (isLoading) {
         needsReload = true;
         return;
@@ -355,30 +355,3 @@ const triggerReload = (): void => {
 
     queueReload();
 };
-
-//
-// * Initialization
-//
-
-$activeProject.subscribe((activeProject) => {
-    if (!activeProject) {
-        return;
-    }
-    triggerReload();
-});
-
-let wasOpen = $issueDialog.get().open;
-
-$issueDialog.subscribe(({ open }) => {
-    if (!wasOpen && open) {
-        void loadIssueDialogList();
-    }
-    wasOpen = open;
-});
-
-IssueServerEventsHandler.getInstance().onIssueCreated(() => {
-    triggerReload();
-});
-IssueServerEventsHandler.getInstance().onIssueUpdated(() => {
-    triggerReload();
-});

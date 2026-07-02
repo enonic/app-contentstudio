@@ -4,8 +4,6 @@ import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { computed, map } from 'nanostores';
 import { ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
-import type { ContentServerChangeItem } from '../../../../app/event/ContentServerChangeItem';
-import { ContentSummaryAndCompareStatusFetcher } from '../../../../app/resource/ContentSummaryAndCompareStatusFetcher';
 import { OrderChildContentRequest } from '../../../../app/resource/OrderChildContentRequest';
 import { OrderContentRequest } from '../../../../app/resource/OrderContentRequest';
 import { ChildOrder } from '../../../../app/resource/order/ChildOrder';
@@ -13,7 +11,6 @@ import { FieldOrderExprBuilder } from '../../../../app/resource/order/FieldOrder
 import { OrderChildMovement } from '../../../../app/resource/order/OrderChildMovement';
 import { OrderChildMovements } from '../../../../app/resource/order/OrderChildMovements';
 import { fetchContentByIds, $contentCache, getMissingIds } from '../../../entities/content';
-import { $contentArchived, $contentDeleted, type ContentEvent } from '../../../shared/socket/socket.store';
 import type {
     SortDialogRow,
     SortDirection,
@@ -32,6 +29,8 @@ type SortDialogStore = {
     idsLoading: boolean;
     submitting: boolean;
     idsFailed: boolean;
+    // Lifecycle guard against stale async results; bumped on close and on each ids reload
+    instance: number;
     parent: ContentSummary | undefined;
     itemIds: string[];
     failedBatches: number[];
@@ -54,6 +53,7 @@ const initialState: SortDialogStore = {
     idsLoading: false,
     submitting: false,
     idsFailed: false,
+    instance: 0,
     parent: undefined,
     itemIds: [],
     failedBatches: [],
@@ -87,9 +87,8 @@ const SORT_ELEMENT_FIELD: Record<SortElementId, string> = {
 // * Internal State
 //
 
-const fetcher = new ContentSummaryAndCompareStatusFetcher();
-let instanceId = 0;
-const loadingBatches = new Set<number>();
+// Tracks in-flight batch loads; shared with the sort dialog service.
+export const loadingBatches = new Set<number>();
 
 //
 // * Helpers
@@ -155,7 +154,7 @@ const markFailedBatch = (batchStart: number): void => {
     $sortDialog.setKey('failedBatches', [...failedBatches, batchStart]);
 };
 
-const dropSortDialogItems = (ids: string[]): void => {
+export const dropSortDialogItems = (ids: string[]): void => {
     if (ids.length === 0) {
         return;
     }
@@ -211,7 +210,7 @@ const toSortOrderOptionIdFromChildOrder = (order: ChildOrder | null | undefined)
     return DEFAULT_SORT_OPTION_ID;
 };
 
-const toChildOrder = (optionId: SortOrderOptionId): ChildOrder => {
+export const toChildOrder = (optionId: SortOrderOptionId): ChildOrder => {
     const { element, direction } = SORT_OPTION_MAP[optionId];
     const field = SORT_ELEMENT_FIELD[element];
 
@@ -225,47 +224,6 @@ const toChildOrder = (optionId: SortOrderOptionId): ChildOrder => {
 
     return order;
 };
-
-async function reloadSortDialogIds(): Promise<void> {
-    instanceId += 1;
-    const callId = instanceId;
-    const { open, parent, selectedOptionId } = $sortDialog.get();
-    if (!open || !parent) {
-        return;
-    }
-
-    loadingBatches.clear();
-    $sortDialog.set({
-        ...$sortDialog.get(),
-        idsLoading: true,
-        idsFailed: false,
-        failedBatches: [],
-    });
-
-    try {
-        const order = toChildOrder(selectedOptionId);
-        const ids = await fetcher.fetchChildrenIds(parent.getContentId(), order);
-        if (callId !== instanceId) {
-            return;
-        }
-
-        $sortDialog.set({
-            ...$sortDialog.get(),
-            itemIds: ids.map((id) => id.toString()),
-            idsLoading: false,
-            idsFailed: false,
-        });
-
-        void ensureSortDialogBatchLoaded(0);
-    } catch (error) {
-        if (callId !== instanceId) {
-            return;
-        }
-        $sortDialog.setKey('idsFailed', true);
-        $sortDialog.setKey('idsLoading', false);
-        showError(error instanceof Error ? error.message : String(error));
-    }
-}
 
 //
 // * Stores
@@ -294,8 +252,7 @@ export const isSortDialogBatchFailed = (failedBatches: readonly number[], index:
 };
 
 export const ensureSortDialogBatchLoaded = async (index: number): Promise<void> => {
-    const callId = instanceId;
-    const { itemIds } = $sortDialog.get();
+    const { itemIds, instance: callId } = $sortDialog.get();
     const batchStart = toBatchStart(index);
     if (batchStart < 0 || batchStart >= itemIds.length) {
         return;
@@ -315,19 +272,19 @@ export const ensureSortDialogBatchLoaded = async (index: number): Promise<void> 
 
     try {
         await fetchContentByIds(slice);
-        if (callId !== instanceId || !$sortDialog.get().open) {
+        if (callId !== $sortDialog.get().instance || !$sortDialog.get().open) {
             return;
         }
 
         dropSortDialogItems(getMissingIds(slice));
     } catch (error) {
-        if (callId !== instanceId || !$sortDialog.get().open) {
+        if (callId !== $sortDialog.get().instance || !$sortDialog.get().open) {
             return;
         }
         markFailedBatch(batchStart);
         showError(error instanceof Error ? error.message : String(error));
     } finally {
-        if (callId === instanceId) {
+        if (callId === $sortDialog.get().instance) {
             loadingBatches.delete(batchStart);
         }
     }
@@ -425,6 +382,7 @@ export const openSortDialog = (parent: ContentSummary): void => {
     loadingBatches.clear();
     $sortDialog.set({
         ...structuredClone(initialState),
+        instance: $sortDialog.get().instance,
         open: true,
         parent,
         selectedOptionId: initialOptionId,
@@ -433,37 +391,6 @@ export const openSortDialog = (parent: ContentSummary): void => {
 };
 
 export const closeSortDialog = (): void => {
-    instanceId += 1;
     loadingBatches.clear();
-    $sortDialog.set(structuredClone(initialState));
+    $sortDialog.set({ ...structuredClone(initialState), instance: $sortDialog.get().instance + 1 });
 };
-
-//
-// * Subscriptions
-//
-
-$sortDialog.subscribe((state, previous) => {
-    if (!state.open) {
-        return;
-    }
-
-    const openedNow = !previous?.open;
-    const sortChanged = state.selectedOptionId !== previous?.selectedOptionId;
-
-    const shouldReload = openedNow || (sortChanged && state.selectedOptionId !== 'manual');
-    if (shouldReload) {
-        void reloadSortDialogIds();
-    }
-});
-
-// Drop items removed on the server while the dialog is open, regardless of
-// scroll position — a loaded row would otherwise revert to a stuck skeleton.
-const dropDeletedSortDialogItems = (event: ContentEvent<ContentServerChangeItem[]> | null): void => {
-    if (!event?.data || !$sortDialog.get().open) {
-        return;
-    }
-    dropSortDialogItems(event.data.map((item) => item.getContentId().toString()));
-};
-
-$contentDeleted.subscribe(dropDeletedSortDialogItems);
-$contentArchived.subscribe(dropDeletedSortDialogItems);

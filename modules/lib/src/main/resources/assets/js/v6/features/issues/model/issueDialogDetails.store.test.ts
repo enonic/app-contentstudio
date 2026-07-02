@@ -13,6 +13,7 @@ import {
     emitContentUpdated,
 } from '../../../shared/socket/socket.store';
 import { $issueDialog, closeIssueDialog, openIssueDialogDetails } from './issueDialog.store';
+import { start as startIssueDialogDetailsService } from './issueDialogDetails.service';
 import {
     $issueDialogDetails,
     $issueDialogDetailsDependantsSelection,
@@ -180,6 +181,7 @@ const removalEventCases = [
 
 describe('issueDialogDetails.store', () => {
     beforeEach(() => {
+        startIssueDialogDetailsService();
         vi.useFakeTimers();
         closeIssueDialog();
         mockFetchContentSummaries.mockReset().mockResolvedValue([]);

@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentId } from '../../../../app/content/ContentId';
 import { emitContentDeleted, emitContentUpdated } from '../../../shared/socket/socket.store';
+import { start as startUnpublishDialogService } from './unpublishDialog.service';
 import {
     $hasMoreUnpublishDependants,
     $unpublishDialog,
@@ -62,6 +63,7 @@ async function flushDebouncedReload(): Promise<void> {
 
 describe('unpublishDialog.store', () => {
     beforeEach(() => {
+        startUnpublishDialogService();
         vi.useFakeTimers();
         resetUnpublishDialogContext();
         mockFetchContentSummaries.mockReset().mockResolvedValue([]);

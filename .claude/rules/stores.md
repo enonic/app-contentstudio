@@ -47,17 +47,20 @@ const { account } = useStore($app, { keys: ['account'] });
 
 ## Feature File Structure
 
+The default shape is two files per domain concept in `model/`:
+
 ```
 feature/
-  types.ts              # Domain types (no store file imports)
-  store.ts              # Atoms + computed (state + derivations)
-  commands.ts           # Functions that mutate atoms (write path)
-  hooks.ts              # useStore wrappers for components
-  service.ts            # Async I/O, subscriptions
-  index.ts              # Public API
+  model/
+    <name>.store.ts     # State + computed + commands (what components read and call)
+    <name>.service.ts   # start()/stop() lifecycle: subscriptions, reload orchestration
+  api/                  # REST calls
+  ui/                   # Components
 ```
 
-Not every feature needs all files. Split when a file serves two audiences.
+Add `<name>.types.ts` only when domain types are shared beyond the store's own type.
+Split `commands.ts` out of the store only when the file outgrows a single audience
+(e.g. the publish dialog). Do not create `types.ts`/`hooks.ts`/`commands.ts` by ritual.
 
 ## Commands Are the Only Write Path
 
@@ -70,6 +73,8 @@ setSelection([id]);
 ```
 
 Atoms are private to the feature. Commands are the public write API.
+Reading the feature's own map with `useStore($store, { keys })` from that feature's
+UI is allowed — privacy is about writes and cross-feature access, not keyed reads.
 
 ## Async at the Boundary
 
@@ -113,11 +118,24 @@ A consumer should never assemble its view by reading five atoms — that's what 
 // ❌ Side effects at module load (import-order dependent)
 $currentIds.subscribe(async (ids) => { ... });
 
-// ✅ Explicit init called at app bootstrap
-export function initPermissionsSync(): void {
-    $currentIds.subscribe(async (ids) => { ... });
-}
+// ✅ Service with explicit lifecycle, started at app bootstrap
+let unsubscribers: Array<() => void> = [];
+
+export const start = (): void => {
+    if (unsubscribers.length > 0) return;
+    unsubscribers = [
+        $currentIds.subscribe(async (ids) => { ... }),
+    ];
+};
+
+export const stop = (): void => {
+    unsubscribers.forEach((unsubscribe) => unsubscribe());
+    unsubscribers = [];
+};
 ```
+
+Services export `start`/`stop`. The app root imports `start as start<Name>Service`
+and calls it in `AppElement.initialize()`. Tests call `start` explicitly (idempotent).
 
 ## Dependency Direction
 

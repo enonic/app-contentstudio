@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentId } from '../../../../app/content/ContentId';
 import { emitContentArchived, emitContentDeleted, emitContentUpdated } from '../../../shared/socket/socket.store';
+import { start as startDeleteDialogService } from './deleteDialog.service';
 import {
     $deleteDialog,
     $deleteInboundIds,
@@ -83,6 +84,7 @@ const referenceRemovalEventCases = [
 describe('deleteDialog.store', () => {
     beforeEach(() => {
         vi.useFakeTimers();
+        startDeleteDialogService();
         resetDeleteDialogContext();
         mockFetchContentSummaries.mockReset().mockResolvedValue([]);
         mockArchiveContent.mockReset();

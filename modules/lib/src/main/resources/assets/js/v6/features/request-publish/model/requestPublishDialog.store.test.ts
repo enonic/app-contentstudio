@@ -8,6 +8,7 @@ import {
     emitContentRenamed,
     emitContentUpdated,
 } from '../../../shared/socket/socket.store';
+import { start as startRequestPublishDialogService } from './requestPublishDialog.service';
 import {
     $isRequestPublishReady,
     $requestPublishDependantsSelection,
@@ -119,6 +120,7 @@ async function flushRequestPublishReload(): Promise<void> {
 
 describe('requestPublishDialog.store', () => {
     beforeEach(() => {
+        startRequestPublishDialogService();
         vi.useFakeTimers();
         resetRequestPublishDialogContext();
         mockFetchContentSummaries.mockReset().mockResolvedValue([]);
