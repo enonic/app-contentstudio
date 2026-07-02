@@ -1,12 +1,10 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {getCurrentItems} from '../../../v6/features/store/contentTreeSelection.store';
-import {openMoveDialog} from '../../../v6/features/store/dialogs/moveDialog.store';
-import {ContentTreeGridAction} from './ContentTreeGridAction';
-import {type ContentTreeGridItemsState} from './ContentTreeGridItemsState';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { getCurrentItems } from '../../../v6/entities/content';
+import { openMoveDialog } from '../../../v6/features/store/dialogs/moveDialog.store';
+import { ContentTreeGridAction } from './ContentTreeGridAction';
+import { type ContentTreeGridItemsState } from './ContentTreeGridItemsState';
 
-export class MoveContentAction
-    extends ContentTreeGridAction {
-
+export class MoveContentAction extends ContentTreeGridAction {
     constructor() {
         super(i18n('action.move'), 'alt+m');
 
@@ -18,7 +16,12 @@ export class MoveContentAction
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {
-        return !state.isEmpty() && !state.isManagedActionExecuting() && this.isAnyRootItemNotSelected() && state.canDelete();
+        return (
+            !state.isEmpty() &&
+            !state.isManagedActionExecuting() &&
+            this.isAnyRootItemNotSelected() &&
+            state.canDelete()
+        );
     }
 
     private isAnyRootItemNotSelected(): boolean {

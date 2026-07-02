@@ -1,4 +1,5 @@
-import { getCmsApiUrl } from '../../shared/lib/url/cms';
+import { requestJson } from '../../../shared/api/client';
+import { getCmsApiUrl } from '../../../shared/lib/url/cms';
 
 type CompareContentResultJson = {
     id: string;
@@ -20,19 +21,12 @@ export async function compareContent(ids: string[]): Promise<Map<string, Compare
 
     const url = getCmsApiUrl('compare');
 
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ids }),
-    });
-
-    if (!response.ok) {
-        throw new Error(response.statusText);
+    const compared = await requestJson<CompareContentResultsJson>(url, { method: 'POST', body: { ids } });
+    if (compared.isErr()) {
+        throw compared.error;
     }
 
-    const json: CompareContentResultsJson = await response.json();
+    const json = compared.value;
     const result = new Map<string, CompareResult>();
 
     for (const entry of json.compareContentResults) {

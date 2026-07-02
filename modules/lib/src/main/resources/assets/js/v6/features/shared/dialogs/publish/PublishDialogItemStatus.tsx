@@ -3,7 +3,7 @@ import { useStore } from '@nanostores/preact';
 import { type ReactElement, useMemo } from 'react';
 import { DiffStatusBadge } from '../../status/DiffStatusBadge';
 import { calcSecondaryStatus, calcTreePublishStatus } from '../../../../shared/lib/cms/content/status';
-import { formatCompareResult } from '../../../utils/cms/content/formatCompareResult';
+import { formatCompareResult } from '../../../../entities/content';
 import { useContentRow } from '../../lists/content-row/ContentRowContext';
 import { $isCompareStatusesLoading, $publishCompareStatuses } from '../../../store/dialogs/publishDialog.store';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';

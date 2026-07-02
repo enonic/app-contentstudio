@@ -26,7 +26,7 @@ const { mockFetchContentSummaries, mockResolveForDelete, mockArchiveContent, moc
         mockTrackTask: vi.fn(),
     }));
 
-vi.mock('../../api/content', () => ({
+vi.mock('../../../entities/content/api/content.api', () => ({
     fetchContentSummaries: mockFetchContentSummaries,
 }));
 

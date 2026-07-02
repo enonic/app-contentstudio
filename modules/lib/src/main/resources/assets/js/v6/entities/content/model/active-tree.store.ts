@@ -1,6 +1,6 @@
-import {atom, computed} from 'nanostores';
-import {$mergedFlatNodes, $flatNodes} from './tree-list.store';
-import {$filterMergedFlatNodes, $filterFlatNodes, resetFilterTree} from './filter-tree.store';
+import { atom, computed } from 'nanostores';
+import { $mergedFlatNodes, $flatNodes } from './content-tree.store';
+import { $filterMergedFlatNodes, $filterFlatNodes, resetFilterTree } from './filter-tree.store';
 
 //
 // * Filter Mode State
@@ -44,7 +44,7 @@ export const $activeFlatNodes = computed(
     [$isFilterActive, $mergedFlatNodes, $filterMergedFlatNodes],
     (isFilterActive, mainNodes, filterNodes) => {
         return isFilterActive ? filterNodes : mainNodes;
-    }
+    },
 );
 
 /**
@@ -55,5 +55,5 @@ export const $activeRawFlatNodes = computed(
     [$isFilterActive, $flatNodes, $filterFlatNodes],
     (isFilterActive, mainNodes, filterNodes) => {
         return isFilterActive ? filterNodes : mainNodes;
-    }
+    },
 );

@@ -1,68 +1,64 @@
-import {RepositoryEvent} from '@enonic/lib-admin-ui/content/event/RepositoryEvent';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {type Action} from '@enonic/lib-admin-ui/ui/Action';
-import {MenuButtonDropdownPos} from '@enonic/lib-admin-ui/ui/button/MenuButton';
-import {type SelectableListBoxPanel} from '@enonic/lib-admin-ui/ui/panel/SelectableListBoxPanel';
-import {type ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
-import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
-import {ListBoxToolbar} from '@enonic/lib-admin-ui/ui/selector/list/ListBoxToolbar';
-import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
-import {type SelectableTreeListBoxKeyNavigator} from '@enonic/lib-admin-ui/ui/selector/list/SelectableTreeListBoxKeyNavigator';
-import {TreeListBoxExpandedHolder} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import { RepositoryEvent } from '@enonic/lib-admin-ui/content/event/RepositoryEvent';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { type Action } from '@enonic/lib-admin-ui/ui/Action';
+import { MenuButtonDropdownPos } from '@enonic/lib-admin-ui/ui/button/MenuButton';
+import { type SelectableListBoxPanel } from '@enonic/lib-admin-ui/ui/panel/SelectableListBoxPanel';
+import { type ResponsiveItem } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
+import { ResponsiveManager } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import { ResponsiveRanges } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
+import { ListBoxToolbar } from '@enonic/lib-admin-ui/ui/selector/list/ListBoxToolbar';
+import { SelectableListBoxWrapper } from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
+import { type SelectableTreeListBoxKeyNavigator } from '@enonic/lib-admin-ui/ui/selector/list/SelectableTreeListBoxKeyNavigator';
+import { TreeListBoxExpandedHolder } from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
+import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
 import type Q from 'q';
-import {$actionsNeedRefresh, clearActionsRefreshSignal} from '../../v6/features/store/actions.store';
-import {removeContent, setContent} from '../../v6/features/store/content.store';
-import {setContentFilterOpen} from '../../v6/features/store/contentFilter.store';
-import {hasCurrentItems} from '../../v6/features/store/contentTreeSelection.store';
-import {onActiveProjectChanged} from '../../v6/features/store/activeProject.store';
-import {onNoProjectsAvailable} from '../../v6/features/store/projects.store';
-import {removeTreeNode} from '../../v6/features/store/tree-list.store';
-import {ContentTreeListElement} from '../../v6/features/views/browse/grid/ContentTreeListElement';
-import {BrowseToolbarElement} from '../../v6/features/views/browse/toolbar/BrowseToolbar';
-import {type ContentId} from '../content/ContentId';
-import {ContentPath} from '../content/ContentPath';
-import {type ContentQuery} from '../content/ContentQuery';
-import {ContentSummaryBuilder} from '../content/ContentSummary';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentActionMenuButton} from '../ContentActionMenuButton';
-import {type ContentServerChangeItem} from '../event/ContentServerChangeItem';
-import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
-import {EditContentEvent} from '../event/EditContentEvent';
-import {type ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
-import {RenderingMode} from '../rendering/RenderingMode';
-import {UriHelper} from '../rendering/UriHelper';
-import {ContentExistsByPathRequest} from '../resource/ContentExistsByPathRequest';
-import {GetContentSummaryByIdRequest} from '../resource/GetContentSummaryByIdRequest';
-import {Router} from '../Router';
-import {UrlAction} from '../UrlAction';
-import {type ContentItemPreviewPanel} from '../view/ContentItemPreviewPanel';
-import {ContentPreviewPathChangedEvent} from '../view/ContentPreviewPathChangedEvent';
-import {buildDefaultContextWidgets, listDefaultContextWidgets} from '../view/context/buildDefaultContextWidgets';
-import {ContextView} from '../view/context/ContextView';
-import {loadCustomContextWidgets, watchCustomContextWidgets} from '../view/context/customContextWidgets';
-import {type PreviewContentAction} from './action/PreviewContentAction';
-import {ContentBrowseItemPanel} from './ContentBrowseItemPanel';
-import {ContentBrowsePanelKeyNavigator} from './ContentBrowsePanelKeyNavigator';
-import {ContentBrowseToolbar} from './ContentBrowseToolbar';
-import {type ContentsTreeGridList, type ContentsTreeGridListElement} from './ContentsTreeGridList';
-import {ContentsTreeGridRootList} from './ContentsTreeGridRootList';
-import {ActionName, ContentTreeActions} from './ContentTreeActions';
-import {ContentTreeListSelectablePanelProxy} from './ContentTreeListSelectablePanelProxy';
-import {DeletedContentItem} from './DeletedContentItem';
-import {ContentBrowseFilterPanel} from './filter/ContentBrowseFilterPanel';
-import {type MovedContentItem} from './MovedContentItem';
-import {ResponsiveBrowsePanel} from './ResponsiveBrowsePanel';
-import {SearchAndExpandItemEvent} from './SearchAndExpandItemEvent';
-import {State} from './State';
-import {ToggleSearchPanelEvent} from './ToggleSearchPanelEvent';
-import {ToggleSearchPanelWithDependenciesEvent} from './ToggleSearchPanelWithDependenciesEvent';
-import {IframeEventBus} from '@enonic/lib-admin-ui/event/IframeEventBus';
+import { $actionsNeedRefresh, clearActionsRefreshSignal } from '../../v6/features/store/actions.store';
+import { removeContent, setContent, hasCurrentItems, removeTreeNode } from '../../v6/entities/content';
+import { setContentFilterOpen } from '../../v6/features/store/contentFilter.store';
+import { onActiveProjectChanged } from '../../v6/features/store/activeProject.store';
+import { onNoProjectsAvailable } from '../../v6/features/store/projects.store';
+import { ContentTreeListElement } from '../../v6/features/views/browse/grid/ContentTreeListElement';
+import { BrowseToolbarElement } from '../../v6/features/views/browse/toolbar/BrowseToolbar';
+import { type ContentId } from '../content/ContentId';
+import { ContentPath } from '../content/ContentPath';
+import { type ContentQuery } from '../content/ContentQuery';
+import { ContentSummaryBuilder } from '../content/ContentSummary';
+import { ContentSummaryAndCompareStatus } from '../content/ContentSummaryAndCompareStatus';
+import { ContentActionMenuButton } from '../ContentActionMenuButton';
+import { type ContentServerChangeItem } from '../event/ContentServerChangeItem';
+import { ContentServerEventsHandler } from '../event/ContentServerEventsHandler';
+import { EditContentEvent } from '../event/EditContentEvent';
+import { type ContentTreeSelectorItem } from '../item/ContentTreeSelectorItem';
+import { RenderingMode } from '../rendering/RenderingMode';
+import { UriHelper } from '../rendering/UriHelper';
+import { ContentExistsByPathRequest } from '../resource/ContentExistsByPathRequest';
+import { GetContentSummaryByIdRequest } from '../resource/GetContentSummaryByIdRequest';
+import { Router } from '../Router';
+import { UrlAction } from '../UrlAction';
+import { type ContentItemPreviewPanel } from '../view/ContentItemPreviewPanel';
+import { ContentPreviewPathChangedEvent } from '../view/ContentPreviewPathChangedEvent';
+import { buildDefaultContextWidgets, listDefaultContextWidgets } from '../view/context/buildDefaultContextWidgets';
+import { ContextView } from '../view/context/ContextView';
+import { loadCustomContextWidgets, watchCustomContextWidgets } from '../view/context/customContextWidgets';
+import { type PreviewContentAction } from './action/PreviewContentAction';
+import { ContentBrowseItemPanel } from './ContentBrowseItemPanel';
+import { ContentBrowsePanelKeyNavigator } from './ContentBrowsePanelKeyNavigator';
+import { ContentBrowseToolbar } from './ContentBrowseToolbar';
+import { type ContentsTreeGridList, type ContentsTreeGridListElement } from './ContentsTreeGridList';
+import { ContentsTreeGridRootList } from './ContentsTreeGridRootList';
+import { ActionName, ContentTreeActions } from './ContentTreeActions';
+import { ContentTreeListSelectablePanelProxy } from './ContentTreeListSelectablePanelProxy';
+import { DeletedContentItem } from './DeletedContentItem';
+import { ContentBrowseFilterPanel } from './filter/ContentBrowseFilterPanel';
+import { type MovedContentItem } from './MovedContentItem';
+import { ResponsiveBrowsePanel } from './ResponsiveBrowsePanel';
+import { SearchAndExpandItemEvent } from './SearchAndExpandItemEvent';
+import { State } from './State';
+import { ToggleSearchPanelEvent } from './ToggleSearchPanelEvent';
+import { ToggleSearchPanelWithDependenciesEvent } from './ToggleSearchPanelWithDependenciesEvent';
+import { IframeEventBus } from '@enonic/lib-admin-ui/event/IframeEventBus';
 
-export class ContentBrowsePanel
-    extends ResponsiveBrowsePanel {
-
+export class ContentBrowsePanel extends ResponsiveBrowsePanel {
     declare protected browseToolbar: ContentBrowseToolbar;
     declare protected filterPanel: ContentBrowseFilterPanel;
     private debouncedFilterRefresh: () => void;
@@ -90,22 +86,24 @@ export class ContentBrowsePanel
 
         const browseActions = this.getBrowseActions();
 
-        this.prependChild(new BrowseToolbarElement({
-            toggleFilterPanelAction: browseActions.getToggleSearchPanelAction(),
-            showNewDialogAction: browseActions.getAction(ActionName.SHOW_NEW_DIALOG),
-            editAction: browseActions.getAction(ActionName.EDIT),
-            archiveAction: browseActions.getAction(ActionName.ARCHIVE),
-            duplicateAction: browseActions.getAction(ActionName.DUPLICATE),
-            moveAction: browseActions.getAction(ActionName.MOVE),
-            sortAction: browseActions.getAction(ActionName.SORT),
-            previewAction: browseActions.getAction(ActionName.PREVIEW),
-            publishAction: browseActions.getAction(ActionName.PUBLISH),
-            unpublishAction: browseActions.getAction(ActionName.UNPUBLISH),
-            publishTreeAction: browseActions.getAction(ActionName.PUBLISH_TREE),
-            markAsReadyAction: browseActions.getAction(ActionName.MARK_AS_READY),
-            requestPublishAction: browseActions.getAction(ActionName.REQUEST_PUBLISH),
-            createIssueAction: browseActions.getAction(ActionName.CREATE_ISSUE),
-        }));
+        this.prependChild(
+            new BrowseToolbarElement({
+                toggleFilterPanelAction: browseActions.getToggleSearchPanelAction(),
+                showNewDialogAction: browseActions.getAction(ActionName.SHOW_NEW_DIALOG),
+                editAction: browseActions.getAction(ActionName.EDIT),
+                archiveAction: browseActions.getAction(ActionName.ARCHIVE),
+                duplicateAction: browseActions.getAction(ActionName.DUPLICATE),
+                moveAction: browseActions.getAction(ActionName.MOVE),
+                sortAction: browseActions.getAction(ActionName.SORT),
+                previewAction: browseActions.getAction(ActionName.PREVIEW),
+                publishAction: browseActions.getAction(ActionName.PUBLISH),
+                unpublishAction: browseActions.getAction(ActionName.UNPUBLISH),
+                publishTreeAction: browseActions.getAction(ActionName.PUBLISH_TREE),
+                markAsReadyAction: browseActions.getAction(ActionName.MARK_AS_READY),
+                requestPublishAction: browseActions.getAction(ActionName.REQUEST_PUBLISH),
+                createIssueAction: browseActions.getAction(ActionName.CREATE_ISSUE),
+            }),
+        );
 
         this.contentTreeList.setContextMenuActions({
             showNewDialogAction: browseActions.getAction(ActionName.SHOW_NEW_DIALOG),
@@ -165,45 +163,47 @@ export class ContentBrowsePanel
 
         this.handleGlobalEvents();
 
-        this.treeListBox.onItemsAdded((items: ContentSummaryAndCompareStatus[], itemViews: ContentsTreeGridListElement[]) => {
-            items.forEach((item: ContentSummaryAndCompareStatus, index) => {
-                const listElement = itemViews[index]?.getDataView();
+        this.treeListBox.onItemsAdded(
+            (items: ContentSummaryAndCompareStatus[], itemViews: ContentsTreeGridListElement[]) => {
+                items.forEach((item: ContentSummaryAndCompareStatus, index) => {
+                    const listElement = itemViews[index]?.getDataView();
 
-                listElement?.onDblClicked((event: MouseEvent) => {
-                    const target = event.target;
+                    listElement?.onDblClicked((event: MouseEvent) => {
+                        const target = event.target;
 
-                    if (target instanceof HTMLElement && target.classList.contains('toggle')) {
-                        return;
-                    }
-
-                    new EditContentEvent([item]).fire();
-                });
-            });
-
-            itemViews?.forEach((itemView: ContentsTreeGridListElement) => {
-                const itemId = this.treeListBox.getIdOfItem(itemView.getItem());
-                const wasExpanded = this.expandedContext.isExpanded(itemId);
-
-                if (wasExpanded) {
-                    itemView.whenRendered(() => {
-                        const isStillExpanded = this.expandedContext.isExpanded(itemId);
-
-                        if (isStillExpanded) {
-                            itemView.expand();
+                        if (target instanceof HTMLElement && target.classList.contains('toggle')) {
+                            return;
                         }
+
+                        new EditContentEvent([item]).fire();
                     });
-                }
-            });
-        });
+                });
+
+                itemViews?.forEach((itemView: ContentsTreeGridListElement) => {
+                    const itemId = this.treeListBox.getIdOfItem(itemView.getItem());
+                    const wasExpanded = this.expandedContext.isExpanded(itemId);
+
+                    if (wasExpanded) {
+                        itemView.whenRendered(() => {
+                            const isStillExpanded = this.expandedContext.isExpanded(itemId);
+
+                            if (isStillExpanded) {
+                                itemView.expand();
+                            }
+                        });
+                    }
+                });
+            },
+        );
 
         this.selectionWrapper.whenRendered(() => {
-           this.treeListBox.load();
+            this.treeListBox.load();
         });
     }
 
     createListBoxPanel(): SelectableListBoxPanel<ContentSummaryAndCompareStatus> {
         this.expandedContext = new TreeListBoxExpandedHolder();
-        this.treeListBox = new ContentsTreeGridRootList({scrollParent: this, expandedContext : this.expandedContext});
+        this.treeListBox = new ContentsTreeGridRootList({ scrollParent: this, expandedContext: this.expandedContext });
 
         this.selectionWrapper = new SelectableListBoxWrapper<ContentSummaryAndCompareStatus>(this.treeListBox, {
             className: 'content-list-box-wrapper content-tree-grid',
@@ -219,7 +219,11 @@ export class ContentBrowsePanel
         this.contentTreeList = new ContentTreeListElement();
         this.treeActions = new ContentTreeActions();
 
-        const panel = new ContentTreeListSelectablePanelProxy(this.selectionWrapper, this.contentTreeList, this.toolbar);
+        const panel = new ContentTreeListSelectablePanelProxy(
+            this.selectionWrapper,
+            this.contentTreeList,
+            this.toolbar,
+        );
         panel.addClass('content-selectable-list-box-panel');
 
         return panel;
@@ -238,7 +242,7 @@ export class ContentBrowsePanel
             ...super.getActions(),
             ...this.getPreviewPanel().getActions(),
             ...this.getBrowseActions().getPublishActions(),
-            this.getBrowseActions().getToggleSearchPanelAction()
+            this.getBrowseActions().getToggleSearchPanelAction(),
         ];
     }
 
@@ -265,11 +269,11 @@ export class ContentBrowsePanel
     }
 
     protected updateFilterPanelOnSelectionChange() {
-        this.filterPanel.setSelectedItems(this.selectableListBoxPanel.getSelectedItems().map(item => item.getId()));
+        this.filterPanel.setSelectedItems(this.selectableListBoxPanel.getSelectedItems().map((item) => item.getId()));
     }
 
     protected enableSelectionMode() {
-        this.filterPanel.setSelectedItems(this.selectableListBoxPanel.getSelectedItems().map(item => item.getId()));
+        this.filterPanel.setSelectedItems(this.selectableListBoxPanel.getSelectedItems().map((item) => item.getId()));
     }
 
     protected disableSelectionMode() {
@@ -296,22 +300,26 @@ export class ContentBrowsePanel
     }
 
     doRender(): Q.Promise<boolean> {
-        return super.doRender().then((rendered) => {
-            this.createContentPublishMenuButton();
+        return super
+            .doRender()
+            .then((rendered) => {
+                this.createContentPublishMenuButton();
 
-            this.addClass('content-browse-panel');
+                this.addClass('content-browse-panel');
 
-            return rendered;
-        }).catch((error) => {
-            console.error('Couldn\'t render ContentBrowsePanel', error);
-            return true;
-        });
+                return rendered;
+            })
+            .catch((error) => {
+                console.error("Couldn't render ContentBrowsePanel", error);
+                return true;
+            });
     }
 
     private handleGlobalEvents() {
         ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {
-            this.getBrowseActions().getToggleSearchPanelAction().setVisible(
-                item.isInRangeOrSmaller(ResponsiveRanges._540_720));
+            this.getBrowseActions()
+                .getToggleSearchPanelAction()
+                .setVisible(item.isInRangeOrSmaller(ResponsiveRanges._540_720));
         });
 
         ToggleSearchPanelEvent.on(() => {
@@ -353,7 +361,7 @@ export class ContentBrowsePanel
             this.selectInlinedContentInGrid(event.getPreviewPath());
         });
 
-        RepositoryEvent.on(event => {
+        RepositoryEvent.on((event) => {
             if (event.isRestored()) {
                 this.treeListBox.reload();
             }
@@ -379,10 +387,13 @@ export class ContentBrowsePanel
         const path: string = this.getPathFromInlinePath(contentInlinePath);
 
         if (path) {
-            new ContentExistsByPathRequest(path).sendAndParse().then((exists: boolean) => {
-                const targetPath = ContentPath.create().fromString(path).build();
-                this.expandToListElementByPath(this.treeListBox, targetPath.getPathAtLevel(1), targetPath);
-            }).catch(DefaultErrorHandler.handle);
+            new ContentExistsByPathRequest(path)
+                .sendAndParse()
+                .then((exists: boolean) => {
+                    const targetPath = ContentPath.create().fromString(path).build();
+                    this.expandToListElementByPath(this.treeListBox, targetPath.getPathAtLevel(1), targetPath);
+                })
+                .catch(DefaultErrorHandler.handle);
         }
     }
 
@@ -392,7 +403,11 @@ export class ContentBrowsePanel
         return UriHelper.getPathFromPortalInlineUri(contentPreviewPath, RenderingMode.INLINE) || contentPreviewPath;
     }
 
-    private expandToListElementByPath(list: ContentsTreeGridList, itemPath: ContentPath, targetPath: ContentPath): void {
+    private expandToListElementByPath(
+        list: ContentsTreeGridList,
+        itemPath: ContentPath,
+        targetPath: ContentPath,
+    ): void {
         let loadCount = 0;
 
         const itemFinder = () => {
@@ -409,7 +424,11 @@ export class ContentBrowsePanel
                         this.selectionWrapper.select(listElement.getItem());
                     } else {
                         listElement.expand(); // if was loaded but the children list collapsed
-                        this.expandToListElementByPath(listElement.getList(), targetPath.getPathAtLevel(itemPath.getLevel() + 1), targetPath);
+                        this.expandToListElementByPath(
+                            listElement.getList(),
+                            targetPath.getPathAtLevel(itemPath.getLevel() + 1),
+                            targetPath,
+                        );
                     }
                 });
             } else {
@@ -439,7 +458,10 @@ export class ContentBrowsePanel
 
         handler.onContentDeleted((data: ContentServerChangeItem[]) => {
             this.handleContentDeleted(
-                data.map((item: ContentServerChangeItem) => new DeletedContentItem(item.getContentId(), item.getPath())));
+                data.map(
+                    (item: ContentServerChangeItem) => new DeletedContentItem(item.getContentId(), item.getPath()),
+                ),
+            );
         });
 
         handler.onContentPublished((data: ContentSummaryAndCompareStatus[]) => this.handleContentPublished(data));
@@ -462,12 +484,15 @@ export class ContentBrowsePanel
 
             if (movedToOtherParentItems.length > 0) {
                 this.handleContentDeleted(
-                    movedToOtherParentItems.map((item: MovedContentItem) => new DeletedContentItem(item.item.getContentId(), item.oldPath)));
+                    movedToOtherParentItems.map(
+                        (item: MovedContentItem) => new DeletedContentItem(item.item.getContentId(), item.oldPath),
+                    ),
+                );
                 this.handleContentCreated(movedToOtherParentItems.map((item: MovedContentItem) => item.item));
             }
 
             if (renamedItems.length > 0) {
-                this.handleContentRenamed(renamedItems.map(renamedItem => renamedItem.item));
+                this.handleContentRenamed(renamedItems.map((renamedItem) => renamedItem.item));
             }
         });
     }
@@ -491,7 +516,7 @@ export class ContentBrowsePanel
     }
 
     private addNewItemToList(item: ContentSummaryAndCompareStatus): void {
-        this.treeListBox.findParentLists(item).forEach(list => {
+        this.treeListBox.findParentLists(item).forEach((list) => {
             // if filtered or already present, don't add to root list
             if ((!this.treeListBox.isFiltered() || list !== this.treeListBox) && !list.getItem(item.getId())) {
                 list.addNewItems([item]);
@@ -509,15 +534,18 @@ export class ContentBrowsePanel
 
         if (listItem && !listItem.hasChildren()) {
             const newContSumm = new ContentSummaryBuilder(listItem.getContentSummary()).setHasChildren(true).build();
-            const newContSummAndCompStatus = ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(newContSumm,
-                listItem.getCompareStatus(), listItem.getPublishStatus());
+            const newContSummAndCompStatus = ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(
+                newContSumm,
+                listItem.getCompareStatus(),
+                listItem.getPublishStatus(),
+            );
             list.getParentListElement().replaceItems(newContSummAndCompStatus);
         }
     }
 
     private handleContentRenamed(data: ContentSummaryAndCompareStatus[]) {
         data.forEach((item: ContentSummaryAndCompareStatus) => {
-            this.treeListBox.findParentLists(item).forEach(list => list.replaceItems(item));
+            this.treeListBox.findParentLists(item).forEach((list) => list.replaceItems(item));
         });
 
         this.refreshFilterWithDelay();
@@ -537,13 +565,16 @@ export class ContentBrowsePanel
 
     private handleContentDeleted(items: DeletedContentItem[]) {
         if (ContentBrowsePanel.debug) {
-            console.debug('ContentBrowsePanel: deleted', items.map(i => i.id.toString()));
+            console.debug(
+                'ContentBrowsePanel: deleted',
+                items.map((i) => i.id.toString()),
+            );
         }
 
         this.handleCUD();
         this.deleteTreeItems(items);
 
-        items.forEach(i => {
+        items.forEach((i) => {
             const id = i.id.toString();
             removeContent(id);
             removeTreeNode(id);
@@ -554,12 +585,15 @@ export class ContentBrowsePanel
     }
 
     private deleteTreeItems(toDeleteItems: DeletedContentItem[]): void {
-        const itemsToDeselect = toDeleteItems.map(toDeleteItem => ContentSummaryAndCompareStatus.fromContentSummary(
-            new ContentSummaryBuilder().setId(toDeleteItem.id.toString()).build()));
+        const itemsToDeselect = toDeleteItems.map((toDeleteItem) =>
+            ContentSummaryAndCompareStatus.fromContentSummary(
+                new ContentSummaryBuilder().setId(toDeleteItem.id.toString()).build(),
+            ),
+        );
         this.selectionWrapper.deselect(itemsToDeselect);
 
-        const filteredChildren = toDeleteItems.filter(toDeleteItem => {
-            return !toDeleteItems.some(item => toDeleteItem.path.isDescendantOf(item.path));
+        const filteredChildren = toDeleteItems.filter((toDeleteItem) => {
+            return !toDeleteItems.some((item) => toDeleteItem.path.isDescendantOf(item.path));
         });
 
         filteredChildren.forEach((toDeleteItem) => {
@@ -568,7 +602,7 @@ export class ContentBrowsePanel
     }
 
     private deleteItemAndUpdateParentsLists(toDeleteItem: DeletedContentItem): void {
-        this.treeListBox.findParentLists(toDeleteItem.path).forEach(parentList => {
+        this.treeListBox.findParentLists(toDeleteItem.path).forEach((parentList) => {
             if (parentList.wasAlreadyShownAndLoaded()) {
                 this.removeItemFromParentList(parentList, toDeleteItem);
             }
@@ -578,7 +612,7 @@ export class ContentBrowsePanel
     }
 
     private removeItemFromParentList(parentList: ContentsTreeGridList, toDeleteItem: DeletedContentItem): void {
-        const itemInList = parentList.getItems().find(item => item.getContentId().equals(toDeleteItem.id));
+        const itemInList = parentList.getItems().find((item) => item.getContentId().equals(toDeleteItem.id));
 
         if (itemInList) {
             parentList.removeItems(itemInList);
@@ -592,15 +626,21 @@ export class ContentBrowsePanel
             return;
         }
 
-        new GetContentSummaryByIdRequest(parentItem.getContentId()).sendAndParse().then((updatedItem) => {
-            if (!updatedItem.hasChildren()) {
-                const newContSumm = new ContentSummaryBuilder(updatedItem).build();
-                const newContSummAndCompStatus = ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(
-                    newContSumm,
-                    parentItem.getCompareStatus(), parentItem.getPublishStatus());
-                parentList.getParentList().replaceItems(newContSummAndCompStatus);
-            }
-        }).catch(DefaultErrorHandler.handle);
+        new GetContentSummaryByIdRequest(parentItem.getContentId())
+            .sendAndParse()
+            .then((updatedItem) => {
+                if (!updatedItem.hasChildren()) {
+                    const newContSumm = new ContentSummaryBuilder(updatedItem).build();
+                    const newContSummAndCompStatus =
+                        ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(
+                            newContSumm,
+                            parentItem.getCompareStatus(),
+                            parentItem.getPublishStatus(),
+                        );
+                    parentList.getParentList().replaceItems(newContSummAndCompStatus);
+                }
+            })
+            .catch(DefaultErrorHandler.handle);
     }
 
     private updateContextPanelOnNodesDelete(items: DeletedContentItem[]) {
@@ -690,11 +730,11 @@ export class ContentBrowsePanel
                 browseActions.getAction(ActionName.PUBLISH_TREE),
                 browseActions.getAction(ActionName.UNPUBLISH),
                 browseActions.getAction(ActionName.CREATE_ISSUE),
-                browseActions.getAction(ActionName.REQUEST_PUBLISH)
+                browseActions.getAction(ActionName.REQUEST_PUBLISH),
             ],
             defaultActionNoContent: browseActions.getAction(ActionName.CREATE_ISSUE),
             debounceRequests: 500,
-            dropdownPosition: MenuButtonDropdownPos.RIGHT
+            dropdownPosition: MenuButtonDropdownPos.RIGHT,
         });
 
         this.selectionWrapper.onSelectionChanged(() => {

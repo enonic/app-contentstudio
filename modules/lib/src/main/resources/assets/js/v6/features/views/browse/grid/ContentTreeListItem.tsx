@@ -3,10 +3,10 @@ import { type MouseEvent } from 'react';
 import { ContentLabel } from '../../../shared/content/ContentLabel';
 import { LayerIndicator } from '../../../shared/icons/LayerIndicator';
 import { StatusBadge } from '../../../shared/status/StatusBadge';
-import { $activeId, setActive } from '../../../store/contentTreeSelection.store';
+import { $activeId, setActive } from '../../../../entities/content';
 import { LAYERS_WIDGET_NAME } from '../../../../shared/lib/widget/layers';
 import { openContextWidget } from '../../context/openContextWidget';
-import { type ContentData } from './ContentData';
+import { type ContentData } from '../../../../entities/content/model/ContentData';
 
 export type ContentTreeListItemProps = {
     content: ContentData;

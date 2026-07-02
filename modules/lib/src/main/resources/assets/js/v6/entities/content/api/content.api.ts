@@ -1,15 +1,15 @@
 import { ResultAsync } from 'neverthrow';
-import { type Content } from '../../../app/content/Content';
-import { type ContentId } from '../../../app/content/ContentId';
-import { type ContentJson } from '../../../app/content/ContentJson';
-import { type Site } from '../../../app/content/Site';
-import { ContentSummary } from '../../../app/content/ContentSummary';
-import { type ContentSummaryJson } from '../../../app/content/ContentSummaryJson';
-import { type ListContentResult } from '../../../app/resource/ListContentResult';
-import { parseContent } from './details';
-import { requestJson, requestOptionalJson } from '../../shared/api/client';
-import { AppError } from '../../shared/api/errors';
-import { getCmsApiUrl } from '../../shared/lib/url/cms';
+import { type Content } from '../../../../app/content/Content';
+import { type ContentId } from '../../../../app/content/ContentId';
+import { type ContentJson } from '../../../../app/content/ContentJson';
+import { type Site } from '../../../../app/content/Site';
+import { ContentSummary } from '../../../../app/content/ContentSummary';
+import { type ContentSummaryJson } from '../../../../app/content/ContentSummaryJson';
+import { type ListContentResult } from '../../../../app/resource/ListContentResult';
+import { parseContent } from '../lib/parseContent';
+import { requestJson, requestOptionalJson } from '../../../shared/api/client';
+import { AppError } from '../../../shared/api/errors';
+import { getCmsApiUrl } from '../../../shared/lib/url/cms';
 
 async function resolveContentSummaries(contentIds: ContentId[]): Promise<ContentSummary[]> {
     if (contentIds.length === 0) {
@@ -22,20 +22,12 @@ async function resolveContentSummaries(contentIds: ContentId[]): Promise<Content
         contentIds: contentIds.map((id) => id.toString()),
     };
 
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-        throw new Error(response.statusText);
+    const result = await requestJson<ListContentResult<ContentSummaryJson>>(url, { method: 'POST', body: payload });
+    if (result.isErr()) {
+        throw result.error;
     }
 
-    const json: ListContentResult<ContentSummaryJson> = await response.json();
-    return ContentSummary.fromJsonArray(json.contents);
+    return ContentSummary.fromJsonArray(result.value.contents);
 }
 
 export function fetchContentById(contentId: string, projectName?: string): ResultAsync<Content, AppError> {

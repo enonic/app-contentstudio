@@ -1,5 +1,5 @@
 import { type ContentSummary } from '../../../../../app/content/ContentSummary';
-import { type ContentData } from '../../../views/browse/grid/ContentData';
+import { type ContentData } from '../../../../entities/content/model/ContentData';
 import { calcTreePublishStatus } from '../../../../shared/lib/cms/content/status';
 import { calcContentState } from '../../../../shared/lib/cms/content/workflow';
 import { resolveDisplayName, resolveSubName } from '../../../../shared/lib/cms/content/prettify';

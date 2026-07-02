@@ -1,4 +1,4 @@
-import type { FlatNode } from '../../../../shared/lib/tree-store';
+import type { FlatNode } from '../../../shared/lib/tree-store';
 import { type ContentData } from './ContentData';
 
 export type ContentUploadData = {

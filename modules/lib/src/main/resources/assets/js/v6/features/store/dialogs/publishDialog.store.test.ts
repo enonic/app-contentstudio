@@ -65,15 +65,15 @@ const {
     mockCompareContent: vi.fn(),
 }));
 
-vi.mock('../../api/content', () => ({
+vi.mock('../../../entities/content/api/content.api', () => ({
     fetchContentSummaries: mockFetchContentSummaries,
 }));
 
-vi.mock('../../api/compare', () => ({
+vi.mock('../../../entities/content/api/compare.api', () => ({
     compareContent: mockCompareContent,
 }));
 
-vi.mock('../../api/hasUnpublishedChildren', () => ({
+vi.mock('../../../entities/content/api/hasUnpublishedChildren.api', () => ({
     hasUnpublishedChildren: mockHasUnpublishedChildren,
 }));
 

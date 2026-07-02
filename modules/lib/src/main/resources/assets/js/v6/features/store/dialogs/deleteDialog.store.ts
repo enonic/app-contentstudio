@@ -5,7 +5,7 @@ import { computed, map } from 'nanostores';
 import { type ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { type ContentServerChangeItem } from '../../../../app/event/ContentServerChangeItem';
-import { fetchContentSummaries } from '../../api/content';
+import { fetchContentSummaries } from '../../../entities/content';
 import { archiveContent, resolveForDelete } from '../../api/delete';
 import { trackTask, cleanupTask } from '../../services/task.service';
 import { hasContentIdInIds } from '../../../shared/lib/cms/content/ids';

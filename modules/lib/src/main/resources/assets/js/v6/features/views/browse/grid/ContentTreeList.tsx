@@ -20,35 +20,35 @@ import {
     isFilterChildrenIdsLoadFailed,
     isVisibleContentDataLoadFailed,
     isVisibleFilterContentDataLoadFailed,
-} from '../../../api/content-fetcher';
-import { useI18n } from '../../../../shared/lib/hooks/useI18n';
-import type { FlatNode } from '../../../../shared/lib/tree-store';
-import { ItemLabel } from '../../../../shared/ui/ItemLabel';
-import { virtuosoComponents } from '../../../shared/lists';
-import { ProgressBar } from '../../../../shared/ui/primitives/ProgressBar';
-import { $activeFlatNodes, $isFilterActive } from '../../../store/active-tree.store';
-import {
+    $activeFlatNodes,
+    $isFilterActive,
     $activeId,
     $selection,
     clearSelection,
     setActive,
     setSelection,
-} from '../../../store/contentTreeSelection.store';
-import {
     $filterLoadingState,
     collapseFilterNode,
     expandFilterNode,
     filterNodeNeedsChildrenLoad,
     filterRootHasMoreChildren,
-} from '../../../store/filter-tree.store';
+    $treeState,
+    collapseNode,
+    expandNode,
+    nodeNeedsChildrenLoad,
+} from '../../../../entities/content';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import type { FlatNode } from '../../../../shared/lib/tree-store';
+import { ItemLabel } from '../../../../shared/ui/ItemLabel';
+import { virtuosoComponents } from '../../../shared/lists';
+import { ProgressBar } from '../../../../shared/ui/primitives/ProgressBar';
 import { $activeProject } from '../../../store/activeProject.store';
-import { $treeState, collapseNode, expandNode, nodeNeedsChildrenLoad } from '../../../store/tree-list.store';
 import { useDebouncedCallback } from '../../../../shared/lib/hooks/useDebouncedCallback';
-import type { ContentData } from './ContentData';
+import type { ContentData } from '../../../../entities/content/model/ContentData';
 import { ContentTreeContextMenu, type ContentTreeContextMenuProps } from './ContentTreeContextMenu';
 import { ContentTreeListItem } from './ContentTreeListItem';
 import { ContentTreeListSkeletonRow } from './ContentTreeListSkeletonRow';
-import type { ContentUploadData } from './ContentUploadData';
+import type { ContentUploadData } from '../../../../entities/content/model/ContentUploadData';
 import {
     buildVisibleTreeItems,
     type ContentFlatNode,

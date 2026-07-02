@@ -1,8 +1,8 @@
 import { atom, computed, onMount } from 'nanostores';
-import { $currentItem as $treeContent } from '../contentTreeSelection.store';
+import { $currentItem as $treeContent, compareContent } from '../../../entities/content';
+import type { CompareResult } from '../../../entities/content';
 import { $mode, getMode } from '../mode.store';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
-import { type CompareResult, compareContent } from '../../api/compare';
 import { calcSecondaryStatus, calcTreePublishStatus } from '../../../shared/lib/cms/content/status';
 import {
     $contentMoved,

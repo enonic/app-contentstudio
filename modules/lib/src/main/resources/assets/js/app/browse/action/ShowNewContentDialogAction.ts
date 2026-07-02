@@ -1,11 +1,10 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {getCurrentItems} from '../../../v6/features/store/contentTreeSelection.store';
-import {openNewContentDialog} from '../../../v6/features/store/dialogs/newContentDialog.store';
-import {ContentTreeGridAction} from './ContentTreeGridAction';
-import {type ContentTreeGridItemsState} from './ContentTreeGridItemsState';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { getCurrentItems } from '../../../v6/entities/content';
+import { openNewContentDialog } from '../../../v6/features/store/dialogs/newContentDialog.store';
+import { ContentTreeGridAction } from './ContentTreeGridAction';
+import { type ContentTreeGridItemsState } from './ContentTreeGridItemsState';
 
 export class ShowNewContentDialogAction extends ContentTreeGridAction {
-
     constructor() {
         super(i18n('action.new'), 'alt+n');
 

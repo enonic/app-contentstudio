@@ -1,12 +1,10 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {getCurrentItems} from '../../../v6/features/store/contentTreeSelection.store';
-import {openDuplicateDialog} from '../../../v6/features/store/dialogs/duplicateDialog.store';
-import {ContentTreeGridAction} from './ContentTreeGridAction';
-import {type ContentTreeGridItemsState} from './ContentTreeGridItemsState';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { getCurrentItems } from '../../../v6/entities/content';
+import { openDuplicateDialog } from '../../../v6/features/store/dialogs/duplicateDialog.store';
+import { ContentTreeGridAction } from './ContentTreeGridAction';
+import { type ContentTreeGridItemsState } from './ContentTreeGridItemsState';
 
-export class DuplicateContentAction
-    extends ContentTreeGridAction {
-
+export class DuplicateContentAction extends ContentTreeGridAction {
     constructor() {
         super(i18n('action.duplicate'));
 

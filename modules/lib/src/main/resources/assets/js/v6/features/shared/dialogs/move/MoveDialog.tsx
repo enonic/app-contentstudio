@@ -11,7 +11,7 @@ import {
     cancelMoveDialog,
     executeMoveDialogAction,
 } from '../../../store/dialogs/moveDialog.store';
-import { clearSelection, setActive } from '../../../store/contentTreeSelection.store';
+import { clearSelection, setActive } from '../../../../entities/content';
 import { MoveDialogMainContent } from './MoveDialogMainContent';
 import { MoveDialogProgressContent } from './MoveDialogProgressContent';
 

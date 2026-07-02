@@ -1,18 +1,18 @@
-import type {Property} from '@enonic/lib-admin-ui/data/Property';
-import type {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
-import type {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {FulltextSearchExpressionBuilder} from '@enonic/lib-admin-ui/query/FulltextSearchExpression';
-import {QueryExpr} from '@enonic/lib-admin-ui/query/expr/QueryExpr';
-import type {Expression} from '@enonic/lib-admin-ui/query/expr/Expression';
-import {QueryField} from '@enonic/lib-admin-ui/query/QueryField';
-import {Expand} from '@enonic/lib-admin-ui/rest/Expand';
-import type {Content} from '../../../../../../app/content/Content';
-import type {ContentJson} from '../../../../../../app/content/ContentJson';
-import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
-import {ContentSelectorQueryRequest} from '../../../../../../app/resource/ContentSelectorQueryRequest';
-import {fetchNearestSite} from '../../../../api/content';
-import {TAG_SITE_PATH, type TagConfig} from './TagConfig';
+import type { Property } from '@enonic/lib-admin-ui/data/Property';
+import type { PropertyPath } from '@enonic/lib-admin-ui/data/PropertyPath';
+import type { PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
+import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { FulltextSearchExpressionBuilder } from '@enonic/lib-admin-ui/query/FulltextSearchExpression';
+import { QueryExpr } from '@enonic/lib-admin-ui/query/expr/QueryExpr';
+import type { Expression } from '@enonic/lib-admin-ui/query/expr/Expression';
+import { QueryField } from '@enonic/lib-admin-ui/query/QueryField';
+import { Expand } from '@enonic/lib-admin-ui/rest/Expand';
+import type { Content } from '../../../../../../app/content/Content';
+import type { ContentJson } from '../../../../../../app/content/ContentJson';
+import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
+import { ContentSelectorQueryRequest } from '../../../../../../app/resource/ContentSelectorQueryRequest';
+import { fetchNearestSite } from '../../../../../entities/content';
+import { TAG_SITE_PATH, type TagConfig } from './TagConfig';
 
 const TAG_SUGGESTION_LIMIT = 10;
 
@@ -51,7 +51,7 @@ async function hasNearestSite(content: ContentSummary | null): Promise<boolean> 
     }
 
     return fetchNearestSite(content.getContentId()).match(
-        site => site != null,
+        (site) => site != null,
         () => false,
     );
 }
@@ -108,7 +108,12 @@ function filterSuggestedTags(contents: Content[], dataPath: PropertyPath, query:
     return suggestedTags;
 }
 
-export async function suggestContentTags({query, dataPath, content, config}: SuggestContentTagsParams): Promise<string[]> {
+export async function suggestContentTags({
+    query,
+    dataPath,
+    content,
+    config,
+}: SuggestContentTagsParams): Promise<string[]> {
     const normalizedQuery = query.trim();
     if (normalizedQuery.length === 0) {
         return [];

@@ -12,8 +12,7 @@ import { ChildOrder } from '../../../../app/resource/order/ChildOrder';
 import { FieldOrderExprBuilder } from '../../../../app/resource/order/FieldOrderExpr';
 import { OrderChildMovement } from '../../../../app/resource/order/OrderChildMovement';
 import { OrderChildMovements } from '../../../../app/resource/order/OrderChildMovements';
-import { fetchContentByIds } from '../../api/content-fetcher';
-import { $contentCache, getMissingIds } from '../content.store';
+import { fetchContentByIds, $contentCache, getMissingIds } from '../../../entities/content';
 import { $contentArchived, $contentDeleted, type ContentEvent } from '../../../shared/socket/socket.store';
 import type {
     SortDialogRow,

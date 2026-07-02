@@ -1,11 +1,10 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {getCurrentItems} from '../../../v6/features/store/contentTreeSelection.store';
-import {openUnpublishDialog} from '../../../v6/features/store/dialogs/unpublishDialog.store';
-import {ContentTreeGridAction} from './ContentTreeGridAction';
-import {type ContentTreeGridItemsState} from './ContentTreeGridItemsState';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { getCurrentItems } from '../../../v6/entities/content';
+import { openUnpublishDialog } from '../../../v6/features/store/dialogs/unpublishDialog.store';
+import { ContentTreeGridAction } from './ContentTreeGridAction';
+import { type ContentTreeGridItemsState } from './ContentTreeGridItemsState';
 
 export class UnpublishContentAction extends ContentTreeGridAction {
-
     constructor() {
         super(i18n('action.unpublish'));
 

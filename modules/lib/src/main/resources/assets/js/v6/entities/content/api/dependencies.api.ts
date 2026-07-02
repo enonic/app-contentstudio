@@ -1,11 +1,12 @@
-import { type ContentId } from '../../../app/content/ContentId';
-import { type ContentDependencyJson } from '../../../app/resource/json/ContentDependencyJson';
+import { type ContentId } from '../../../../app/content/ContentId';
+import { type ContentDependencyJson } from '../../../../app/resource/json/ContentDependencyJson';
 import {
     ResolveDependenciesResult,
     type ResolveDependenciesResultJson,
-} from '../../../app/resource/ResolveDependenciesResult';
-import { Branch } from '../../../app/versioning/Branch';
-import { getCmsApiUrl } from '../../shared/lib/url/cms';
+} from '../../../../app/resource/ResolveDependenciesResult';
+import { Branch } from '../../../../app/versioning/Branch';
+import { requestJson } from '../../../shared/api/client';
+import { getCmsApiUrl } from '../../../shared/lib/url/cms';
 
 /**
  * Resolve dependencies for multiple content items.
@@ -21,20 +22,12 @@ export async function resolveDependencies(
         target: target.toString(),
     };
 
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-        throw new Error(response.statusText);
+    const result = await requestJson<ResolveDependenciesResultJson>(url, { method: 'POST', body: payload });
+    if (result.isErr()) {
+        throw result.error;
     }
 
-    const json: ResolveDependenciesResultJson = await response.json();
-    return ResolveDependenciesResult.fromJson(json);
+    return ResolveDependenciesResult.fromJson(result.value);
 }
 
 /**
