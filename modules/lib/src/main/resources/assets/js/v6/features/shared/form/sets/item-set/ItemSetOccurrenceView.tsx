@@ -1,13 +1,13 @@
-import {cn, ContextMenu, FilledOctagonAlert, usePortalFocusContainer} from '@enonic/ui';
-import {forwardRef, type MouseEvent, type ReactElement, type ReactNode, useCallback, useRef, useState} from 'react';
-import {useI18n} from '../../../../hooks/useI18n';
-import type {FormItem} from '@enonic/lib-admin-ui/form/FormItem';
-import type {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {useCloseOnScroll} from '../../../../hooks/useCloseOnScroll';
-import {useIsNewOccurrence, useSetOccurrenceLabel} from '../set-occurrence';
-import {MoreVertical} from 'lucide-react';
-import {SetConfirmDelete, SetConfirmOverlay, useConfirmPosition} from '../set-confirmation';
-import {Occurrences} from '@enonic/lib-admin-ui/form/Occurrences';
+import { cn, ContextMenu, FilledOctagonAlert, usePortalFocusContainer } from '@enonic/ui';
+import { forwardRef, type MouseEvent, type ReactElement, type ReactNode, useCallback, useRef, useState } from 'react';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import type { FormItem } from '@enonic/lib-admin-ui/form/FormItem';
+import type { PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
+import { useCloseOnScroll } from '../../../../../shared/lib/hooks/useCloseOnScroll';
+import { useIsNewOccurrence, useSetOccurrenceLabel } from '../set-occurrence';
+import { MoreVertical } from 'lucide-react';
+import { SetConfirmDelete, SetConfirmOverlay, useConfirmPosition } from '../set-confirmation';
+import { Occurrences } from '@enonic/lib-admin-ui/form/Occurrences';
 
 type ItemSetOccurrenceViewProps = {
     index: number;
@@ -50,7 +50,7 @@ export const ItemSetOccurrenceView = forwardRef<HTMLDivElement, ItemSetOccurrenc
             onRemove,
             children,
         },
-        ref
+        ref,
     ): ReactElement => {
         const anchorRef = useRef<HTMLDivElement>(null);
         const confirmationRef = useRef<HTMLDivElement>(null);
@@ -98,7 +98,9 @@ export const ItemSetOccurrenceView = forwardRef<HTMLDivElement, ItemSetOccurrenc
         }, [onRemove, index]);
         const handleDotsClick = useCallback((e: MouseEvent<HTMLButtonElement>) => {
             e.stopPropagation();
-            e.currentTarget.dispatchEvent(new MouseEvent('contextmenu', {bubbles: true, clientX: e.clientX, clientY: e.clientY}));
+            e.currentTarget.dispatchEvent(
+                new MouseEvent('contextmenu', { bubbles: true, clientX: e.clientX, clientY: e.clientY }),
+            );
         }, []);
 
         return (
@@ -110,7 +112,9 @@ export const ItemSetOccurrenceView = forwardRef<HTMLDivElement, ItemSetOccurrenc
                 {confirmingDelete && <SetConfirmOverlay />}
 
                 <div
-                    className={cn(confirmingDelete && 'relative z-40 bg-surface-neutral pointer-events-none select-none')}
+                    className={cn(
+                        confirmingDelete && 'relative z-40 bg-surface-neutral pointer-events-none select-none',
+                    )}
                     inert={confirmingDelete}
                 >
                     {confirmingDelete && (
@@ -131,7 +135,7 @@ export const ItemSetOccurrenceView = forwardRef<HTMLDivElement, ItemSetOccurrenc
                                 expanded && menuOpen && 'bg-surface-selected-hover',
                                 expanded && !menuOpen && 'hover:bg-surface-selected-hover',
                                 !expanded && menuOpen && 'bg-surface-neutral-hover',
-                                !expanded && !menuOpen && 'hover:bg-surface-neutral-hover'
+                                !expanded && !menuOpen && 'hover:bg-surface-neutral-hover',
                             )}
                             data-tone={expanded ? 'inverse' : undefined}
                         >
@@ -142,20 +146,22 @@ export const ItemSetOccurrenceView = forwardRef<HTMLDivElement, ItemSetOccurrenc
                                         ref={anchorRef}
                                         className={cn(
                                             'grid flex-1 min-w-0 items-center grid-cols-[1fr_auto] rounded',
-                                            expanded && 'text-alt rounded-b-none'
+                                            expanded && 'text-alt rounded-b-none',
                                         )}
                                     >
                                         <button
                                             type="button"
                                             className={cn(
                                                 'flex items-center gap-1.5 truncate text-left cursor-pointer min-w-0 p-2.5 pr-0',
-                                                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset'
+                                                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset',
                                             )}
                                             aria-expanded={expanded}
                                             onClick={() => onToggle(index)}
                                         >
                                             <span className="truncate font-semibold text-base">{label.primary}</span>
-                                            {hasErrors && !expanded && <FilledOctagonAlert size={16} className="text-error shrink-0" />}
+                                            {hasErrors && !expanded && (
+                                                <FilledOctagonAlert size={16} className="text-error shrink-0" />
+                                            )}
                                         </button>
                                         <button
                                             type="button"
@@ -187,7 +193,10 @@ export const ItemSetOccurrenceView = forwardRef<HTMLDivElement, ItemSetOccurrenc
 
                     {(expanded || !showHeader) && (
                         <div
-                            className={cn('flex flex-col gap-7.5 border px-4 py-4 border-bdr-soft', showHeader ? 'border-t-0' : 'rounded')}
+                            className={cn(
+                                'flex flex-col gap-7.5 border px-4 py-4 border-bdr-soft',
+                                showHeader ? 'border-t-0' : 'rounded',
+                            )}
                         >
                             {children}
                         </div>
@@ -195,7 +204,7 @@ export const ItemSetOccurrenceView = forwardRef<HTMLDivElement, ItemSetOccurrenc
                 </div>
             </div>
         );
-    }
+    },
 );
 
 ItemSetOccurrenceView.displayName = ITEM_SET_OCCURRENCE_VIEW_NAME;

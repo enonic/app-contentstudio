@@ -1,11 +1,14 @@
-import {Button, Dialog, TextArea} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {type FormEvent, type ReactElement, useRef} from 'react';
-import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
-import type {CodeDialogParams} from '../../../../app/inputtype/ui/text/HtmlEditorTypes';
-import type {DialogOverrides} from '../form/input-types/html-area/setupEditor';
-import {useCkEditorFocusManager} from '../../hooks/htmlarea/useCkEditorFocusManager';
-import {useI18n} from '../../hooks/useI18n';
+import { Button, Dialog, TextArea } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { type FormEvent, type ReactElement, useRef } from 'react';
+import {
+    type CreateHtmlAreaDialogEvent,
+    HtmlAreaDialogType,
+} from '../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
+import type { CodeDialogParams } from '../../../../app/inputtype/ui/text/HtmlEditorTypes';
+import type { DialogOverrides } from '../form/input-types/html-area/setupEditor';
+import { useCkEditorFocusManager } from '../../hooks/htmlarea/useCkEditorFocusManager';
+import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import {
     $codeDialog,
     closeCodeDialog,
@@ -18,7 +21,7 @@ import {
 const CODE_DIALOG_NAME = 'CodeDialog';
 
 export const CodeDialog = (): ReactElement => {
-    const {open, value} = useStore($codeDialog, {keys: ['open', 'value']});
+    const { open, value } = useStore($codeDialog, { keys: ['open', 'value'] });
     const contentRef = useRef<HTMLDivElement | null>(null);
     const closeButtonRef = useRef<HTMLButtonElement | null>(null);
     const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -44,7 +47,7 @@ export const CodeDialog = (): ReactElement => {
 
     const preventOpenAutoFocus = (event: Event): void => {
         event.preventDefault();
-        textAreaRef.current?.focus({focusVisible: true});
+        textAreaRef.current?.focus({ focusVisible: true });
     };
 
     const handleCloseAutoFocus = (event: Event): void => {
@@ -60,35 +63,31 @@ export const CodeDialog = (): ReactElement => {
                     ref={contentRef}
                     onOpenAutoFocus={preventOpenAutoFocus}
                     onCloseAutoFocus={handleCloseAutoFocus}
-                    className='source-code-modal-dialog w-full gap-5.5 h-fit py-5 px-3 sm:py-10 sm:px-8 max-w-full md:max-w-240'
+                    className="source-code-modal-dialog w-full gap-5.5 h-fit py-5 px-3 sm:py-10 sm:px-8 max-w-full md:max-w-240"
                     data-component={CODE_DIALOG_NAME}
                 >
-                    <Dialog.Header className='px-2 grid grid-cols-[minmax(0,1fr)_auto] gap-2.5'>
-                        <Dialog.Title className='col-start-1 row-start-1 min-w-0 font-semibold text-2xl'>{title}</Dialog.Title>
+                    <Dialog.Header className="px-2 grid grid-cols-[minmax(0,1fr)_auto] gap-2.5">
+                        <Dialog.Title className="col-start-1 row-start-1 min-w-0 font-semibold text-2xl">
+                            {title}
+                        </Dialog.Title>
                         <Dialog.DefaultClose
                             ref={closeButtonRef}
-                            className='col-start-2 row-start-1 self-start justify-self-end'
+                            className="col-start-2 row-start-1 self-start justify-self-end"
                         />
                     </Dialog.Header>
-                    <form className='contents' onSubmit={handleSubmit}>
-                        <Dialog.Body className='p-2'>
+                    <form className="contents" onSubmit={handleSubmit}>
+                        <Dialog.Body className="p-2">
                             <TextArea
                                 ref={textAreaRef}
-                                id='source-textarea'
+                                id="source-textarea"
                                 value={value}
                                 onInput={(event) => {
                                     setCodeDialogValue(event.currentTarget.value);
                                 }}
                             />
                         </Dialog.Body>
-                        <Dialog.Footer className='px-2'>
-                            <Button
-                                ref={submitButtonRef}
-                                type='submit'
-                                size='lg'
-                                variant='solid'
-                                label={submitLabel}
-                            />
+                        <Dialog.Footer className="px-2">
+                            <Button ref={submitButtonRef} type="submit" size="lg" variant="solid" label={submitLabel} />
                         </Dialog.Footer>
                     </form>
                 </Dialog.Content>

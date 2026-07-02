@@ -1,7 +1,7 @@
-import {Button, Dialog, cn} from '@enonic/ui';
-import type {ComponentPropsWithoutRef, ReactElement, ReactNode} from 'react';
-import {createContext, forwardRef, useContext, useMemo, useState} from 'react';
-import {useI18n} from '../../hooks/useI18n';
+import { Button, Dialog, cn } from '@enonic/ui';
+import type { ComponentPropsWithoutRef, ReactElement, ReactNode } from 'react';
+import { createContext, forwardRef, useContext, useMemo, useState } from 'react';
+import { useI18n } from '../../../shared/lib/hooks/useI18n';
 
 //
 // * ConfirmationDialogContext
@@ -28,10 +28,16 @@ type ConfirmationDialogProviderProps = {
     children?: ReactNode;
 };
 
-const ConfirmationDialogProvider = ({defaultConfirmEnabled = true, children}: ConfirmationDialogProviderProps): ReactElement => {
+const ConfirmationDialogProvider = ({
+    defaultConfirmEnabled = true,
+    children,
+}: ConfirmationDialogProviderProps): ReactElement => {
     const [confirmEnabled, setConfirmEnabled] = useState<boolean>(defaultConfirmEnabled);
 
-    const value = useMemo<ConfirmationDialogContextValue>(() => ({confirmEnabled, setConfirmEnabled}), [confirmEnabled]);
+    const value = useMemo<ConfirmationDialogContextValue>(
+        () => ({ confirmEnabled, setConfirmEnabled }),
+        [confirmEnabled],
+    );
 
     return <ConfirmationDialogContext.Provider value={value}>{children}</ConfirmationDialogContext.Provider>;
 };
@@ -47,13 +53,19 @@ export type ConfirmationDialogContentProps = {
 } & ComponentPropsWithoutRef<typeof Dialog.Content>;
 
 const ConfirmationDialogContent = forwardRef<HTMLDivElement, ConfirmationDialogContentProps>(
-    ({defaultConfirmEnabled = true, className, children, ...props}, ref): ReactElement => {
+    ({ defaultConfirmEnabled = true, className, children, ...props }, ref): ReactElement => {
         return (
-            <Dialog.Content ref={ref} className={cn('max-w-180 w-fit sm:min-w-152 text-main gap-10', className)} {...props}>
-                <ConfirmationDialogProvider defaultConfirmEnabled={defaultConfirmEnabled}>{children}</ConfirmationDialogProvider>
+            <Dialog.Content
+                ref={ref}
+                className={cn('max-w-180 w-fit sm:min-w-152 text-main gap-10', className)}
+                {...props}
+            >
+                <ConfirmationDialogProvider defaultConfirmEnabled={defaultConfirmEnabled}>
+                    {children}
+                </ConfirmationDialogProvider>
             </Dialog.Content>
         );
-    }
+    },
 );
 ConfirmationDialogContent.displayName = 'ConfirmationDialog.Content';
 
@@ -71,8 +83,11 @@ export type ConfirmationDialogFooterProps = {
 } & ComponentPropsWithoutRef<'footer'>;
 
 const ConfirmationDialogFooter = forwardRef<HTMLButtonElement, ConfirmationDialogFooterProps>(
-    ({onCancel, onConfirm, closeOnCancel = true, closeOnConfirm = true, intent = 'default', className, ...props}, ref): ReactElement => {
-        const {confirmEnabled} = useConfirmationDialog();
+    (
+        { onCancel, onConfirm, closeOnCancel = true, closeOnConfirm = true, intent = 'default', className, ...props },
+        ref,
+    ): ReactElement => {
+        const { confirmEnabled } = useConfirmationDialog();
 
         const cancel = useI18n('action.cancel');
         const confirm = useI18n('action.confirm');
@@ -87,7 +102,7 @@ const ConfirmationDialogFooter = forwardRef<HTMLButtonElement, ConfirmationDialo
                 variant="solid"
                 className={cn(
                     intent === 'danger' &&
-                        'bg-btn-error text-alt hover:bg-btn-error-hover active:bg-btn-error-active focus-visible:ring-error/50'
+                        'bg-btn-error text-alt hover:bg-btn-error-hover active:bg-btn-error-active focus-visible:ring-error/50',
                 )}
             />
         );
@@ -100,7 +115,7 @@ const ConfirmationDialogFooter = forwardRef<HTMLButtonElement, ConfirmationDialo
                 {closeOnConfirm ? <Dialog.Close asChild>{ConfirmButton}</Dialog.Close> : ConfirmButton}
             </Dialog.Footer>
         );
-    }
+    },
 );
 ConfirmationDialogFooter.displayName = 'ConfirmationDialog.Footer';
 

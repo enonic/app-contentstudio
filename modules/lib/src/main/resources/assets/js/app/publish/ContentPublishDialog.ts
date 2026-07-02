@@ -1,20 +1,20 @@
-import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {type TaskId} from '@enonic/lib-admin-ui/task/TaskId';
-import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {isBlank} from '../../v6/features/utils/format/isBlank';
+import { showError } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { type TaskId } from '@enonic/lib-admin-ui/task/TaskId';
+import { TaskState } from '@enonic/lib-admin-ui/task/TaskState';
+import { Action } from '@enonic/lib-admin-ui/ui/Action';
+import { DropdownButtonRow } from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { isBlank } from '../../v6/shared/lib/format/isBlank';
 import type Q from 'q';
-import {PublishItemsListElement} from '../../v6/features/shared/dialogs/publish/PublishItemsList';
-import {openPublishDialog} from '../../v6/features/store/dialogs/publishDialog.store';
-import {type ContentId} from '../content/ContentId';
-import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
-import {BasePublishDialog} from '../dialog/BasePublishDialog';
-import {ContentDialogSubTitle} from '../dialog/ContentDialogSubTitle';
-import {type DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
-import {PublishContentRequest} from '../resource/PublishContentRequest';
-import {ContentPublishDialogAction} from './ContentPublishDialogAction';
+import { PublishItemsListElement } from '../../v6/features/shared/dialogs/publish/PublishItemsList';
+import { openPublishDialog } from '../../v6/features/store/dialogs/publishDialog.store';
+import { type ContentId } from '../content/ContentId';
+import { ContentPublishPromptEvent } from '../browse/ContentPublishPromptEvent';
+import { BasePublishDialog } from '../dialog/BasePublishDialog';
+import { ContentDialogSubTitle } from '../dialog/ContentDialogSubTitle';
+import { type DependantItemsWithProgressDialogConfig } from '../dialog/DependantItemsWithProgressDialog';
+import { PublishContentRequest } from '../resource/PublishContentRequest';
+import { ContentPublishDialogAction } from './ContentPublishDialogAction';
 
 /**
  * ContentPublishDialog manages list of initially checked (initially requested) items resolved via ResolvePublishDependencies command.
@@ -22,9 +22,7 @@ import {ContentPublishDialogAction} from './ContentPublishDialogAction';
  * Dependant items number will change depending on includeChildren checkbox state as
  * resolved dependencies usually differ in that case.
  */
-export class ContentPublishDialog
-    extends BasePublishDialog {
-
+export class ContentPublishDialog extends BasePublishDialog {
     private static INSTANCE: ContentPublishDialog;
 
     private publishAction: Action;
@@ -46,10 +44,10 @@ export class ContentPublishDialog
 
         this.onProgressComplete((taskState) => {
             switch (taskState) {
-            case TaskState.FINISHED:
-            case TaskState.FAILED:
-                this.setSubTitleMessage('');
-                break;
+                case TaskState.FINISHED:
+                case TaskState.FAILED:
+                    this.setSubTitleMessage('');
+                    break;
             }
         });
     }
@@ -78,7 +76,7 @@ export class ContentPublishDialog
 
         this.publishSubTitle = new ContentDialogSubTitle({
             placeholderText: i18n('dialog.publish.messagePlaceholder'),
-            hintText: i18n('dialog.publish.messageHint')
+            hintText: i18n('dialog.publish.messageHint'),
         });
 
         this.addAction(this.scheduleAction);
@@ -107,7 +105,7 @@ export class ContentPublishDialog
     }
 
     protected createItemList(): PublishItemsListElement {
-        return new PublishItemsListElement({items: []});
+        return new PublishItemsListElement({ items: [] });
     }
 
     protected getItemList(): PublishItemsListElement {
@@ -142,7 +140,7 @@ export class ContentPublishDialog
             this.getItemList().setExcludedChildrenIds(exceptedIds);
         }
 
-        this.publishProcessor.reloadDependenciesDebounced({resetDependantItems: true});
+        this.publishProcessor.reloadDependenciesDebounced({ resetDependantItems: true });
 
         return this;
     }
@@ -153,7 +151,6 @@ export class ContentPublishDialog
     }
 
     private doPublish(scheduled: boolean = false) {
-
         this.lockControls();
         this.publishProcessor.setIgnoreDependantItemsChanged(true);
 
@@ -181,17 +178,19 @@ export class ContentPublishDialog
             }
         }
 
-        publishRequest.sendAndParse().then((taskId: TaskId) => {
-            this.pollTask(taskId);
-        }).catch((reason) => {
-            this.unlockControls();
-            this.close();
-            if (reason && reason.message) {
-                showError(reason.message);
-            }
-        });
+        publishRequest
+            .sendAndParse()
+            .then((taskId: TaskId) => {
+                this.pollTask(taskId);
+            })
+            .catch((reason) => {
+                this.unlockControls();
+                this.close();
+                if (reason && reason.message) {
+                    showError(reason.message);
+                }
+            });
     }
-
 
     protected updateSubTitle(itemsToPublish: number = this.countTotal()) {
         this.setSubTitle('');
@@ -209,7 +208,6 @@ export class ContentPublishDialog
         super.updateSubTitle();
     }
 
-
     protected updateControls(itemsToPublish: number = this.countTotal()) {
         const canPublish = this.publishProcessor.areAllConditionsSatisfied(itemsToPublish);
         const isScheduleValid = this.isScheduleFormValid();
@@ -222,10 +220,16 @@ export class ContentPublishDialog
     }
 
     protected updateButtonCount(actionString: string, itemsToPublish: number) {
-        const labelWithNumber: (num: number, label: string) => string = (num, label) => `${label}${num > 1 ? ` (${num})` : ''}`;
+        const labelWithNumber: (num: number, label: string) => string = (num, label) =>
+            `${label}${num > 1 ? ` (${num})` : ''}`;
         const containsOnlyScheduled = this.publishProcessor.containsOnlyScheduledItems();
 
-        this.publishAction.setLabel(labelWithNumber(itemsToPublish, containsOnlyScheduled ? i18n('action.updateScheduled') : i18n('action.publishNow')));
+        this.publishAction.setLabel(
+            labelWithNumber(
+                itemsToPublish,
+                containsOnlyScheduled ? i18n('action.updateScheduled') : i18n('action.publishNow'),
+            ),
+        );
         this.scheduleAction.setLabel(labelWithNumber(itemsToPublish, i18n('action.schedule')));
         this.scheduleFormToggle.setEnabled(this.publishProcessor.hasSchedulable());
     }
@@ -254,4 +258,3 @@ export class ContentPublishDialog
         this.publishSubTitle.setValue(message);
     }
 }
-

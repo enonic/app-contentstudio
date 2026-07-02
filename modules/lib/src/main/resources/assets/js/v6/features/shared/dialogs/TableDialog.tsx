@@ -1,12 +1,15 @@
-import {Button, Dialog, Input, Selector} from '@enonic/ui';
-import type {Value} from '@enonic/lib-admin-ui/data/Value';
-import {LongInput} from '@enonic/lib-admin-ui/form2';
-import {useStore} from '@nanostores/preact';
-import {type FormEvent, type ReactElement, useRef} from 'react';
-import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
-import type {DialogOverrides} from '../form/input-types/html-area/setupEditor';
-import {useCkEditorFocusManager} from '../../hooks/htmlarea/useCkEditorFocusManager';
-import {useI18n} from '../../hooks/useI18n';
+import { Button, Dialog, Input, Selector } from '@enonic/ui';
+import type { Value } from '@enonic/lib-admin-ui/data/Value';
+import { LongInput } from '@enonic/lib-admin-ui/form2';
+import { useStore } from '@nanostores/preact';
+import { type FormEvent, type ReactElement, useRef } from 'react';
+import {
+    type CreateHtmlAreaDialogEvent,
+    HtmlAreaDialogType,
+} from '../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
+import type { DialogOverrides } from '../form/input-types/html-area/setupEditor';
+import { useCkEditorFocusManager } from '../../hooks/htmlarea/useCkEditorFocusManager';
+import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import {
     $tableDialog,
     TABLE_DIALOG_HEADER_NONE_VALUE,
@@ -55,7 +58,7 @@ const useStableLongInputValue = (rawValue: string): Value => {
 };
 
 export const TableDialog = (): ReactElement => {
-    const {open, mode, rows, cols, headers, caption, validationErrors} = useStore($tableDialog, {
+    const { open, mode, rows, cols, headers, caption, validationErrors } = useStore($tableDialog, {
         keys: ['open', 'mode', 'rows', 'cols', 'headers', 'caption', 'validationErrors'],
     });
     const contentRef = useRef<HTMLDivElement | null>(null);
@@ -87,7 +90,7 @@ export const TableDialog = (): ReactElement => {
         col: headerColumnLabel,
         both: headerBothLabel,
     };
-    const headerOptions = Object.entries(headerLabels).map(([value, label]) => ({value, label}));
+    const headerOptions = Object.entries(headerLabels).map(([value, label]) => ({ value, label }));
     const selectedHeaderValue = toInternalTableDialogHeaderValue(headers);
 
     const editor = open ? $tableDialog.get().editor : undefined;
@@ -108,11 +111,11 @@ export const TableDialog = (): ReactElement => {
 
     const focusInitialElement = (): void => {
         if (isPropertiesMode) {
-            headersTriggerRef.current?.focus({focusVisible: true});
+            headersTriggerRef.current?.focus({ focusVisible: true });
             return;
         }
 
-        getLongInputElement(rowsInputContainerRef.current)?.focus({focusVisible: true});
+        getLongInputElement(rowsInputContainerRef.current)?.focus({ focusVisible: true });
     };
 
     const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
@@ -144,20 +147,22 @@ export const TableDialog = (): ReactElement => {
                     ref={contentRef}
                     onOpenAutoFocus={preventOpenAutoFocus}
                     onCloseAutoFocus={handleCloseAutoFocus}
-                    className='w-full gap-5.5 h-fit py-5 px-3 sm:py-10 sm:px-8 max-w-full md:max-w-160'
+                    className="w-full gap-5.5 h-fit py-5 px-3 sm:py-10 sm:px-8 max-w-full md:max-w-160"
                     data-component={TABLE_DIALOG_NAME}
                 >
-                    <Dialog.Header className='px-2 grid grid-cols-[minmax(0,1fr)_auto] gap-2.5'>
-                        <Dialog.Title className='col-start-1 row-start-1 min-w-0 font-semibold text-2xl'>{title}</Dialog.Title>
+                    <Dialog.Header className="px-2 grid grid-cols-[minmax(0,1fr)_auto] gap-2.5">
+                        <Dialog.Title className="col-start-1 row-start-1 min-w-0 font-semibold text-2xl">
+                            {title}
+                        </Dialog.Title>
                         <Dialog.DefaultClose
                             ref={closeButtonRef}
-                            className='col-start-2 row-start-1 self-start justify-self-end'
+                            className="col-start-2 row-start-1 self-start justify-self-end"
                         />
                     </Dialog.Header>
-                    <form className='contents' onSubmit={handleSubmit}>
-                        <Dialog.Body className='grid gap-4 p-2 md:grid-cols-2'>
-                            <label className='flex flex-col gap-2.5'>
-                                <span className='font-semibold'>{rowsLabel}</span>
+                    <form className="contents" onSubmit={handleSubmit}>
+                        <Dialog.Body className="grid gap-4 p-2 md:grid-cols-2">
+                            <label className="flex flex-col gap-2.5">
+                                <span className="font-semibold">{rowsLabel}</span>
                                 <div ref={rowsInputContainerRef}>
                                     <LongInput
                                         value={rowsLongInputValue}
@@ -175,8 +180,8 @@ export const TableDialog = (): ReactElement => {
                                     />
                                 </div>
                             </label>
-                            <label className='flex flex-col gap-2.5'>
-                                <span className='font-semibold'>{columnsLabel}</span>
+                            <label className="flex flex-col gap-2.5">
+                                <span className="font-semibold">{columnsLabel}</span>
                                 <div ref={colsInputContainerRef}>
                                     <LongInput
                                         value={colsLongInputValue}
@@ -194,8 +199,8 @@ export const TableDialog = (): ReactElement => {
                                     />
                                 </div>
                             </label>
-                            <div className='flex flex-col gap-2.5 md:col-span-2'>
-                                <span className='font-semibold'>{headersLabel}</span>
+                            <div className="flex flex-col gap-2.5 md:col-span-2">
+                                <span className="font-semibold">{headersLabel}</span>
                                 <Selector.Root
                                     value={selectedHeaderValue}
                                     onValueChange={(value) => {
@@ -224,7 +229,7 @@ export const TableDialog = (): ReactElement => {
                                     </Selector.Content>
                                 </Selector.Root>
                             </div>
-                            <div className='md:col-span-2'>
+                            <div className="md:col-span-2">
                                 <Input
                                     ref={captionInputRef}
                                     label={captionLabel}
@@ -235,12 +240,12 @@ export const TableDialog = (): ReactElement => {
                                 />
                             </div>
                         </Dialog.Body>
-                        <Dialog.Footer className='px-2'>
+                        <Dialog.Footer className="px-2">
                             <Button
                                 ref={submitButtonRef}
-                                type='submit'
-                                size='lg'
-                                variant='solid'
+                                type="submit"
+                                size="lg"
+                                variant="solid"
                                 label={submitLabel}
                                 disabled={isSubmitDisabled}
                             />

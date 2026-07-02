@@ -1,23 +1,31 @@
-import {Button, Dialog, IdProvider} from '@enonic/ui';
-import {useEffect, type ReactElement} from 'react';
-import {registerHtmlAreaContextDialogOpen} from '../../../store/dialogs/htmlAreaModal.store';
-import {type CreateHtmlAreaContentDialogEvent} from '../../../../../app/inputtype/ui/text/CreateHtmlAreaContentDialogEvent';
-import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
-import type {DialogOverrides} from '../../form/input-types/html-area/setupEditor';
-import {useI18n} from '../../../hooks/useI18n';
+import { Button, Dialog, IdProvider } from '@enonic/ui';
+import { useEffect, type ReactElement } from 'react';
+import { registerHtmlAreaContextDialogOpen } from '../../../store/dialogs/htmlAreaModal.store';
+import { type CreateHtmlAreaContentDialogEvent } from '../../../../../app/inputtype/ui/text/CreateHtmlAreaContentDialogEvent';
+import {
+    type CreateHtmlAreaDialogEvent,
+    HtmlAreaDialogType,
+} from '../../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
+import type { DialogOverrides } from '../../form/input-types/html-area/setupEditor';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import {
     HtmlAreaLinkDialogProvider,
     type OpenHtmlAreaLinkDialogParams,
     useHtmlAreaLinkDialogContext,
 } from './HtmlAreaLinkDialogContext';
-import {HtmlAreaLinkDialogContent} from './HtmlAreaLinkDialogContent';
+import { HtmlAreaLinkDialogContent } from './HtmlAreaLinkDialogContent';
 
 const DIALOG_NAME = 'HtmlAreaLinkDialog';
 
 const INNER_NAME = `${DIALOG_NAME}Inner`;
 
 const HtmlAreaLinkDialogInner = (): ReactElement => {
-    const {state: {open, isEditing}, canSubmit, close, submit} = useHtmlAreaLinkDialogContext();
+    const {
+        state: { open, isEditing },
+        canSubmit,
+        close,
+        submit,
+    } = useHtmlAreaLinkDialogContext();
 
     useEffect(() => {
         if (!open) return;
@@ -43,17 +51,17 @@ const HtmlAreaLinkDialogInner = (): ReactElement => {
                 <IdProvider prefix={DIALOG_NAME}>
                     <Dialog.Overlay />
                     <Dialog.Content
-                        className='w-full h-full gap-10 sm:h-fit md:min-w-160 md:max-w-200 md:max-h-[85vh]'
+                        className="w-full h-full gap-10 sm:h-fit md:min-w-160 md:max-w-200 md:max-h-[85vh]"
                         data-component={DIALOG_NAME}
                     >
                         <Dialog.DefaultHeader title={title} withClose />
-                        <Dialog.Body className='flex flex-col gap-5 p-1.5'>
+                        <Dialog.Body className="flex flex-col gap-5 p-1.5">
                             <HtmlAreaLinkDialogContent />
                         </Dialog.Body>
                         <Dialog.Footer>
                             <Button
-                                size='lg'
-                                variant='solid'
+                                size="lg"
+                                variant="solid"
                                 label={isEditing ? updateLabel : insertLabel}
                                 disabled={!canSubmit}
                                 onClick={submit}
@@ -72,7 +80,7 @@ type HtmlAreaLinkDialogProps = {
     openRef: { current: ((params: OpenHtmlAreaLinkDialogParams) => void) | undefined };
 };
 
-export const HtmlAreaLinkDialog = ({openRef}: HtmlAreaLinkDialogProps): ReactElement => {
+export const HtmlAreaLinkDialog = ({ openRef }: HtmlAreaLinkDialogProps): ReactElement => {
     return (
         <HtmlAreaLinkDialogProvider openRef={openRef}>
             <HtmlAreaLinkDialogInner />
@@ -82,9 +90,9 @@ export const HtmlAreaLinkDialog = ({openRef}: HtmlAreaLinkDialogProps): ReactEle
 
 HtmlAreaLinkDialog.displayName = DIALOG_NAME;
 
-export function createLinkDialogOverride(
-    openRef: { current: ((params: OpenHtmlAreaLinkDialogParams) => void) | undefined },
-): DialogOverrides {
+export function createLinkDialogOverride(openRef: {
+    current: ((params: OpenHtmlAreaLinkDialogParams) => void) | undefined;
+}): DialogOverrides {
     return {
         [HtmlAreaDialogType.LINK]: (event: CreateHtmlAreaDialogEvent) => {
             const contentEvent = event as CreateHtmlAreaContentDialogEvent;

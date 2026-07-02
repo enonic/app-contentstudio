@@ -1,66 +1,69 @@
 import type Q from 'q';
-import {type Element} from '@enonic/lib-admin-ui/dom/Element';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import {Body} from '@enonic/lib-admin-ui/dom/Body';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {type FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
-import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {ActionIcon} from '@enonic/lib-admin-ui/ui2/ActionIcon';
-import {type UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
-import {type UploadProgressEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadProgressEvent';
-import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
-import {InputEl} from '@enonic/lib-admin-ui/dom/InputEl';
-import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
-import {AlignCenter, AlignJustify, AlignLeft, AlignRight, type LucideIcon} from 'lucide-react';
-import {type Content} from '../../../../../content/Content';
-import {ContentSummaryAndCompareStatus} from '../../../../../content/ContentSummaryAndCompareStatus';
-import {OverrideNativeDialog} from '../OverrideNativeDialog';
-import {type HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from '../ModalDialog';
-import {ImageStyleSelector} from './ImageStyleSelector';
-import {MediaTreeSelectorItem} from '../../../selector/media/MediaTreeSelectorItem';
-import {ImageUploaderEl} from '../../../selector/image/ImageUploaderEl';
-import {ContentSelectedOptionsView} from '../../../selector/ContentComboBox';
-import {MediaUploaderElOperation} from '../../../upload/MediaUploaderEl';
-import {GetContentByIdRequest} from '../../../../../resource/GetContentByIdRequest';
-import {StylesRequest} from '../../styles/StylesRequest';
-import {Styles} from '../../styles/Styles';
-import {type Style} from '../../styles/Style';
-import {HTMLAreaHelper} from '../../HTMLAreaHelper';
-import {ImageUrlResolver} from '../../../../../util/ImageUrlResolver';
-import {StyleHelper} from '../../styles/StyleHelper';
-import {HtmlEditor} from '../../HtmlEditor';
-import {ImageHelper} from '../../../../../util/ImageHelper';
-import {ProgressBar} from '@enonic/lib-admin-ui/ui/ProgressBar';
-import {FigureEl} from '@enonic/lib-admin-ui/dom/FigureEl';
-import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
-import {DropzoneContainer} from '@enonic/lib-admin-ui/ui/uploader/UploaderEl';
-import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
-import {Toolbar, type ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
-import {Checkbox} from '@enonic/lib-admin-ui/ui/Checkbox';
-import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
-import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
-import {LinkEl} from '@enonic/lib-admin-ui/dom/LinkEl';
-import {type ContentSummary} from '../../../../../content/ContentSummary';
-import {ContentId} from '../../../../../content/ContentId';
-import {type Project} from '../../../../../settings/data/project/Project';
-import {ContentPath} from '../../../../../content/ContentPath';
-import {ImageSelectorDropdown} from '../../../../selector/ImageSelectorDropdown';
-import {type ContentSelectorDropdownOptions} from '../../../../selector/ContentSelectorDropdown';
-import {ImageContentListBox} from '../../../../selector/ImageContentListBox';
-import {type ImageOptionDataLoader, ImageOptionDataLoaderBuilder} from '../../../selector/image/ImageOptionDataLoader';
-import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
-import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
-import {RadioGroup} from '@enonic/lib-admin-ui/ui/RadioGroup';
-import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
-import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
-import {type Form} from '@enonic/lib-admin-ui/ui/form/Form';
-import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
-import {isBlank} from '../../../../../../v6/features/utils/format/isBlank';
-import {FormView} from '@enonic/lib-admin-ui/form/FormView';
+import { type Element } from '@enonic/lib-admin-ui/dom/Element';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
+import { ResponsiveManager } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import { Body } from '@enonic/lib-admin-ui/dom/Body';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
+import { type FormItem } from '@enonic/lib-admin-ui/ui/form/FormItem';
+import { Validators } from '@enonic/lib-admin-ui/ui/form/Validators';
+import { Action } from '@enonic/lib-admin-ui/ui/Action';
+import { ActionIcon } from '@enonic/lib-admin-ui/ui2/ActionIcon';
+import { type UploadedEvent } from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
+import { type UploadProgressEvent } from '@enonic/lib-admin-ui/ui/uploader/UploadProgressEvent';
+import { ActionButton } from '@enonic/lib-admin-ui/ui/button/ActionButton';
+import { InputEl } from '@enonic/lib-admin-ui/dom/InputEl';
+import { SpanEl } from '@enonic/lib-admin-ui/dom/SpanEl';
+import { AlignCenter, AlignJustify, AlignLeft, AlignRight, type LucideIcon } from 'lucide-react';
+import { type Content } from '../../../../../content/Content';
+import { ContentSummaryAndCompareStatus } from '../../../../../content/ContentSummaryAndCompareStatus';
+import { OverrideNativeDialog } from '../OverrideNativeDialog';
+import { type HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder } from '../ModalDialog';
+import { ImageStyleSelector } from './ImageStyleSelector';
+import { MediaTreeSelectorItem } from '../../../selector/media/MediaTreeSelectorItem';
+import { ImageUploaderEl } from '../../../selector/image/ImageUploaderEl';
+import { ContentSelectedOptionsView } from '../../../selector/ContentComboBox';
+import { MediaUploaderElOperation } from '../../../upload/MediaUploaderEl';
+import { GetContentByIdRequest } from '../../../../../resource/GetContentByIdRequest';
+import { StylesRequest } from '../../styles/StylesRequest';
+import { Styles } from '../../styles/Styles';
+import { type Style } from '../../styles/Style';
+import { HTMLAreaHelper } from '../../HTMLAreaHelper';
+import { ImageUrlResolver } from '../../../../../util/ImageUrlResolver';
+import { StyleHelper } from '../../styles/StyleHelper';
+import { HtmlEditor } from '../../HtmlEditor';
+import { ImageHelper } from '../../../../../util/ImageHelper';
+import { ProgressBar } from '@enonic/lib-admin-ui/ui/ProgressBar';
+import { FigureEl } from '@enonic/lib-admin-ui/dom/FigureEl';
+import { LoadMask } from '@enonic/lib-admin-ui/ui/mask/LoadMask';
+import { DropzoneContainer } from '@enonic/lib-admin-ui/ui/uploader/UploaderEl';
+import { IFrameEl } from '@enonic/lib-admin-ui/dom/IFrameEl';
+import { Toolbar, type ToolbarConfig } from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
+import { Checkbox } from '@enonic/lib-admin-ui/ui/Checkbox';
+import { ImgEl } from '@enonic/lib-admin-ui/dom/ImgEl';
+import { UriHelper } from '@enonic/lib-admin-ui/util/UriHelper';
+import { LinkEl } from '@enonic/lib-admin-ui/dom/LinkEl';
+import { type ContentSummary } from '../../../../../content/ContentSummary';
+import { ContentId } from '../../../../../content/ContentId';
+import { type Project } from '../../../../../settings/data/project/Project';
+import { ContentPath } from '../../../../../content/ContentPath';
+import { ImageSelectorDropdown } from '../../../../selector/ImageSelectorDropdown';
+import { type ContentSelectorDropdownOptions } from '../../../../selector/ContentSelectorDropdown';
+import { ImageContentListBox } from '../../../../selector/ImageContentListBox';
+import {
+    type ImageOptionDataLoader,
+    ImageOptionDataLoaderBuilder,
+} from '../../../selector/image/ImageOptionDataLoader';
+import { FormInputEl } from '@enonic/lib-admin-ui/dom/FormInputEl';
+import { type SelectionChange } from '@enonic/lib-admin-ui/util/SelectionChange';
+import { RadioGroup } from '@enonic/lib-admin-ui/ui/RadioGroup';
+import { type ValueChangedEvent } from '@enonic/lib-admin-ui/ValueChangedEvent';
+import { ValidationResult } from '@enonic/lib-admin-ui/ui/form/ValidationResult';
+import { type Form } from '@enonic/lib-admin-ui/ui/form/Form';
+import { TextInput } from '@enonic/lib-admin-ui/ui/text/TextInput';
+import { isBlank } from '../../../../../../v6/shared/lib/format/isBlank';
+import { FormView } from '@enonic/lib-admin-ui/form/FormView';
 import eventInfo = CKEDITOR.eventInfo;
 
 enum ImageAccessibilityType {
@@ -68,9 +71,7 @@ enum ImageAccessibilityType {
     INFORMATIVE = 'informative',
 }
 
-export class ImageModalDialog
-    extends OverrideNativeDialog {
-
+export class ImageModalDialog extends OverrideNativeDialog {
     private imagePreviewContainer: DivEl;
     private imageCaptionField: FormItem;
     private imageAltTextInput: TextInput;
@@ -106,7 +107,7 @@ export class ImageModalDialog
             confirmation: {
                 yesCallback: () => this.getSubmitAction().execute(),
                 noCallback: () => this.close(),
-            }
+            },
         } as ImageModalDialogConfig);
 
         if (this.content) {
@@ -134,7 +135,7 @@ export class ImageModalDialog
 
         this.onRendered(() => {
             this.imageUploaderEl.setParams({
-                parent: this.content?.getContentId().toString() || ContentPath.getRoot().toString()
+                parent: this.content?.getContentId().toString() || ContentPath.getRoot().toString(),
             });
         });
 
@@ -185,7 +186,6 @@ export class ImageModalDialog
     }
 
     private initPresetImage() {
-
         const selectedElement = this.ckeOriginalDialog.getSelectedElement();
 
         if (!this.getOriginalUrlElem().getValue() || !selectedElement) {
@@ -207,8 +207,8 @@ export class ImageModalDialog
 
     protected setDialogInputValues() {
         const caption: string = this.ckeOriginalDialog.getSelectedElement()
-                                ? this.ckeOriginalDialog.getSelectedElement().getText()
-                                : '';
+            ? this.ckeOriginalDialog.getSelectedElement().getText()
+            : '';
         (this.imageCaptionField.getInput() as InputEl).setValue(caption);
     }
 
@@ -223,17 +223,21 @@ export class ImageModalDialog
             this.getImageAltTextRadioInput().setValue(ImageAccessibilityType.INFORMATIVE);
         }
 
-        new GetContentByIdRequest(new ContentId(this.presetImageId)).setRequestProject(this.config.project).sendAndParse().then(
-            (imageContent: Content) => {
+        new GetContentByIdRequest(new ContentId(this.presetImageId))
+            .setRequestProject(this.config.project)
+            .sendAndParse()
+            .then((imageContent: Content) => {
                 this.imageSelector.updateSelectedItems();
                 this.imageSelector.show();
                 this.previewImage(imageContent, presetStyles);
                 this.imageSelectorFormItem.addClass('selected-item-preview');
-            }).catch((reason) => {
-            this.presetImageEl = null;
-            this.imageSelector.show();
-            DefaultErrorHandler.handle(reason);
-        }).done();
+            })
+            .catch((reason) => {
+                this.presetImageEl = null;
+                this.imageSelector.show();
+                DefaultErrorHandler.handle(reason);
+            })
+            .done();
     }
 
     private extractImageId(): string {
@@ -260,39 +264,37 @@ export class ImageModalDialog
             this.imageUploaderEl.hide();
         }
 
-        return [
-            this.imageSelectorFormItem
-        ];
+        return [this.imageSelectorFormItem];
     }
 
     private createSecondaryForm(): Form {
-        this.imageCaptionField = this.createFormItem(new ModalDialogFormItemBuilder('caption', i18n('dialog.image.formitem.caption')));
+        this.imageCaptionField = this.createFormItem(
+            new ModalDialogFormItemBuilder('caption', i18n('dialog.image.formitem.caption')),
+        );
         this.imageAltTextRadioFormItem = this.createAltTextOptionRadio('altTextRadio');
 
         this.imageCaptionField.addClass('caption');
         this.imageAltTextRadioFormItem.addClass('image-accessibility');
 
-        return this.createForm([
-            this.imageCaptionField,
-            this.imageAltTextRadioFormItem,
-        ]);
+        return this.createForm([this.imageCaptionField, this.imageAltTextRadioFormItem]);
     }
 
     private createImageSelector(id: string): FormItem {
         const loader = this.createImageLoader();
-        const listBox = new ImageContentListBox({loader: loader});
+        const listBox = new ImageContentListBox({ loader: loader });
         const dropdownOptions: ContentSelectorDropdownOptions = {
             loader: loader,
             maxSelected: 1,
             selectedOptionsView: new ContentSelectedOptionsView(),
             className: 'single-occurrence',
-            getSelectedItems: () => this.presetImageId ? [this.presetImageId] : [],
+            getSelectedItems: () => (this.presetImageId ? [this.presetImageId] : []),
         };
 
         const imageSelector = new ImageSelectorDropdown(listBox, dropdownOptions);
 
-        const formItemBuilder = new ModalDialogFormItemBuilder(id, i18n('dialog.image.formitem.image')).setValidator(
-            Validators.required).setInputEl(new ImageSelectorFormInputWrapper(imageSelector));
+        const formItemBuilder = new ModalDialogFormItemBuilder(id, i18n('dialog.image.formitem.image'))
+            .setValidator(Validators.required)
+            .setInputEl(new ImageSelectorFormInputWrapper(imageSelector));
 
         const formItem = this.createFormItem(formItemBuilder);
 
@@ -310,16 +312,20 @@ export class ImageModalDialog
                 this.previewImage(imageSelectorItem.getContentSummary());
                 formItem.addClass('selected-item-preview');
 
-                new GetContentByIdRequest(imageSelectorItem.getContent().getContentId()).setRequestProject(
-                    this.config.project).sendAndParse().then((content: Content) => {
+                new GetContentByIdRequest(imageSelectorItem.getContent().getContentId())
+                    .setRequestProject(this.config.project)
+                    .sendAndParse()
+                    .then((content: Content) => {
                         const altTextValue = ImageHelper.getImageAltText(content);
 
-                    if (!isBlank(altTextValue)) {
-                        this.imageAltTextInput.setValue(altTextValue, true);
-                    }
+                        if (!isBlank(altTextValue)) {
+                            this.imageAltTextInput.setValue(altTextValue, true);
+                        }
 
-                    this.setCaptionFieldValue(ImageHelper.getImageCaption(content));
-                }).catch(DefaultErrorHandler.handle).done();
+                        this.setCaptionFieldValue(ImageHelper.getImageCaption(content));
+                    })
+                    .catch(DefaultErrorHandler.handle)
+                    .done();
             }
 
             if (selectionChange.deselected?.length > 0) {
@@ -353,23 +359,29 @@ export class ImageModalDialog
         const imageAccessibilityRadio = new RadioGroup('radio');
         imageAccessibilityRadio.addClass('image-accessibility-radio');
 
-        imageAccessibilityRadio.addOption(ImageAccessibilityType.DECORATIVE, i18n('dialog.image.accessibility.decorative'));
-        imageAccessibilityRadio.addOption(ImageAccessibilityType.INFORMATIVE, i18n('dialog.image.accessibility.informative'));
+        imageAccessibilityRadio.addOption(
+            ImageAccessibilityType.DECORATIVE,
+            i18n('dialog.image.accessibility.decorative'),
+        );
+        imageAccessibilityRadio.addOption(
+            ImageAccessibilityType.INFORMATIVE,
+            i18n('dialog.image.accessibility.informative'),
+        );
 
         imageAccessibilityRadio.onValueChanged((event: ValueChangedEvent) => {
             this.imageAltTextInput.setEnabled(event.getNewValue() === ImageAccessibilityType.INFORMATIVE.toString());
         });
 
-        this.imageAltTextInput =
-            new TextInput('alt-text').setPlaceholder(i18n('dialog.image.accessibility.informative.placeholder')) as TextInput;
+        this.imageAltTextInput = new TextInput('alt-text').setPlaceholder(
+            i18n('dialog.image.accessibility.informative.placeholder'),
+        ) as TextInput;
         this.imageAltTextInput.setEnabled(false);
 
         imageAccessibilityRadio.appendChild(this.imageAltTextInput);
 
-        const formItemBuilder =
-            new ModalDialogFormItemBuilder(id, i18n('dialog.image.accessibility.title'))
-                .setInputEl(imageAccessibilityRadio)
-                .setValidator(this.validateImageAccessibility.bind(this));
+        const formItemBuilder = new ModalDialogFormItemBuilder(id, i18n('dialog.image.accessibility.title'))
+            .setInputEl(imageAccessibilityRadio)
+            .setValidator(this.validateImageAccessibility.bind(this));
 
         const imageAltTextRadioFormItem = this.createFormItem(formItemBuilder);
         imageAltTextRadioFormItem.getLabel().addClass('required');
@@ -411,7 +423,7 @@ export class ImageModalDialog
             head.appendChild(linkEl.getHTMLElement());
         };
         const injectCssIntoFrame = (head) => {
-            Styles.getCssPaths(this.content?.getId()).forEach(cssPath => appendStylesheet(head, cssPath));
+            Styles.getCssPaths(this.content?.getId()).forEach((cssPath) => appendStylesheet(head, cssPath));
         };
 
         this.previewFrame = new IFrameEl('preview-frame');
@@ -419,9 +431,7 @@ export class ImageModalDialog
         this.imagePreviewContainer.insertChild(this.previewFrame, 0);
 
         this.previewFrame.onRendered(() => {
-
             setTimeout(() => {
-
                 const frameDocument = this.previewFrame.getHTMLElement()['contentDocument'];
                 const frameBody = frameDocument.getElementsByTagName('body')[0];
                 const frameBodyEl = new Body(false, frameBody);
@@ -432,7 +442,6 @@ export class ImageModalDialog
                 injectCssIntoFrame(frameDocument.getElementsByTagName('head')[0]);
             }, 50);
         });
-
     }
 
     private updatePreview(styles: string) {
@@ -456,7 +465,7 @@ export class ImageModalDialog
 
         this.figure.setClass(presetStyles || ImageModalDialog.defaultStyles.join(' ').trim());
 
-        if (!StyleHelper.getAlignmentStyles().some(style => this.figure.hasClass(style))) {
+        if (!StyleHelper.getAlignmentStyles().some((style) => this.figure.hasClass(style))) {
             this.figure.setClass(StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS);
         }
 
@@ -493,7 +502,6 @@ export class ImageModalDialog
         }
     }
 
-
     private createImageUrlResolver(imageContent: ContentSummary, size?: number, style?: Style): ImageUrlResolver {
         const isOriginalImage = style ? StyleHelper.isOriginalImage(style.getName()) : false;
         const imgUrlResolver = new ImageUrlResolver(null, this.config.project)
@@ -506,14 +514,11 @@ export class ImageModalDialog
         }
 
         if (style) {
-
             if (isOriginalImage) {
                 imgUrlResolver.disableProcessing();
             }
 
-            imgUrlResolver
-                .setAspectRatio(style.getAspectRatio())
-                .setFilter(style.getFilter());
+            imgUrlResolver.setAspectRatio(style.getAspectRatio()).setFilter(style.getFilter());
         }
 
         return imgUrlResolver;
@@ -541,7 +546,10 @@ export class ImageModalDialog
             imgSrcAttr = this.getImagePreviewSrc();
             imgDataSrcAttr = this.presetImageEl.getAttribute('data-src');
         } else {
-            const imageUrlBuilder = this.createImageUrlResolver(imageContent, this.imagePreviewContainer.getEl().getWidth());
+            const imageUrlBuilder = this.createImageUrlResolver(
+                imageContent,
+                this.imagePreviewContainer.getEl().getWidth(),
+            );
             imgSrcAttr = imageUrlBuilder.resolveForPreview();
             imgDataSrcAttr = imageUrlBuilder.resolveForRender();
         }
@@ -577,7 +585,7 @@ export class ImageModalDialog
             deferred: true,
             showCancel: false,
             selfIsDropzone: false,
-            project: this.config.project
+            project: this.config.project,
         });
 
         this.dropzoneContainer = new DropzoneContainer(true);
@@ -603,7 +611,10 @@ export class ImageModalDialog
             const createdContent = item.getModel();
 
             this.imageSelector.select(
-                MediaTreeSelectorItem.create().setContent(ContentSummaryAndCompareStatus.fromContentSummary(createdContent)).build());
+                MediaTreeSelectorItem.create()
+                    .setContent(ContentSummaryAndCompareStatus.fromContentSummary(createdContent))
+                    .build(),
+            );
         });
 
         uploader.onUploadFailed(() => {
@@ -690,7 +701,9 @@ export class ImageModalDialog
     }
 
     private getAltTextFieldValue() {
-        return this.getImageAltTextRadioInput().getValue() === ImageAccessibilityType.INFORMATIVE.toString() ? this.imageAltTextInput.getValue() : '';
+        return this.getImageAltTextRadioInput().getValue() === ImageAccessibilityType.INFORMATIVE.toString()
+            ? this.imageAltTextInput.getValue()
+            : '';
     }
 
     private getImageAltTextRadioInput(): RadioGroup {
@@ -724,7 +737,10 @@ export class ImageModalDialog
         const imageUrlBuilder = this.createImageUrlResolver(imageContent.getContentSummary(), width, processingStyle);
 
         imageEl.setAttribute('src', imageUrlBuilder.resolveForPreview());
-        imageEl.setAttribute('data-src', imageUrlBuilder.resolveForRender(processingStyle ? processingStyle.getName() : ''));
+        imageEl.setAttribute(
+            'data-src',
+            imageUrlBuilder.resolveForRender(processingStyle ? processingStyle.getName() : ''),
+        );
     }
 
     private applyStylingToPreview(classNames: string) {
@@ -735,16 +751,13 @@ export class ImageModalDialog
     }
 }
 
-export interface ImageModalDialogConfig
-    extends HtmlAreaModalDialogConfig {
+export interface ImageModalDialogConfig extends HtmlAreaModalDialogConfig {
     content?: ContentSummary;
     project?: Project;
     editorWidth: number;
 }
 
-export class ImageDialogToolbar
-    extends Toolbar<ToolbarConfig> {
-
+export class ImageDialogToolbar extends Toolbar<ToolbarConfig> {
     private contentId?: string;
 
     private previewEl: FigureEl;
@@ -765,7 +778,7 @@ export class ImageDialogToolbar
     private previewSizeChangeListeners: (() => void)[] = [];
 
     constructor(previewEl: FigureEl, contentId: string) {
-        super({className: 'image-toolbar'});
+        super({ className: 'image-toolbar' });
 
         this.previewEl = previewEl;
         this.contentId = contentId;
@@ -776,8 +789,8 @@ export class ImageDialogToolbar
     private createElements() {
         const alignmentButtonContainer = this.createAlignmentButtons();
         super.addContainer(alignmentButtonContainer, alignmentButtonContainer.getChildren());
-        super.addElement(this.imageStyleSelector = this.createImageStyleSelector());
-        super.addElement(this.customWidthCheckbox = this.createCustomWidthCheckbox());
+        super.addElement((this.imageStyleSelector = this.createImageStyleSelector()));
+        super.addElement((this.customWidthCheckbox = this.createCustomWidthCheckbox()));
         super.addElement(this.createCustomWidthRangeInput());
     }
 
@@ -788,20 +801,19 @@ export class ImageDialogToolbar
             this.createAlignmentButton(AlignJustify, StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS),
             this.createAlignmentButton(AlignLeft, StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS),
             this.createAlignmentButton(AlignCenter, StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS),
-            this.createAlignmentButton(AlignRight, StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS)
+            this.createAlignmentButton(AlignRight, StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS),
         );
 
         return alignmentButtonContainer;
     }
 
     private createAlignmentButton(icon: LucideIcon, styleClass: string): ActionIcon {
-
         const action = new Action().onExecuted(() => {
             this.resetActiveAlignmentButton();
             button.addClass('active');
             this.notifyStylesChanged();
         });
-        const button = new ActionIcon({action, icon});
+        const button = new ActionIcon({ action, icon });
 
         this.alignmentButtons[styleClass] = button;
 
@@ -930,7 +942,7 @@ export class ImageDialogToolbar
         }
 
         const imageStyles = Styles.getForImageAsString(this.contentId);
-        stylesApplied.forEach(style => {
+        stylesApplied.forEach((style) => {
             if (imageStyles.indexOf(style) > -1) {
                 imageStyleSelector.selectStyleByName(style);
 
@@ -940,7 +952,6 @@ export class ImageDialogToolbar
     }
 
     private getAlignmentStyleCls(): string {
-
         for (const alignment in this.alignmentButtons) {
             if (this.alignmentButtons[alignment].hasClass('active')) {
                 return alignment.toString();
@@ -951,7 +962,6 @@ export class ImageDialogToolbar
     }
 
     getAlignment(): string {
-
         for (const alignment in this.alignmentButtons) {
             if (this.alignmentButtons[alignment].hasClass('active')) {
                 return alignment.toString().replace('editor-align-', '');
@@ -970,7 +980,6 @@ export class ImageDialogToolbar
     }
 
     private resetActiveAlignmentButton() {
-
         for (const alignment in this.alignmentButtons) {
             this.alignmentButtons[alignment].removeClass('active');
         }
@@ -1020,7 +1029,7 @@ export class ImageDialogToolbar
 
     private notifyStylesChanged() {
         const styleClasses = this.getStyleCls();
-        this.stylesChangeListeners.forEach(listener => listener(styleClasses));
+        this.stylesChangeListeners.forEach((listener) => listener(styleClasses));
     }
 
     onPreviewSizeChanged(listener: () => void) {
@@ -1032,13 +1041,11 @@ export class ImageDialogToolbar
     }
 
     private notifyPreviewSizeChanged() {
-        this.previewSizeChangeListeners.forEach(listener => listener());
+        this.previewSizeChangeListeners.forEach((listener) => listener());
     }
 }
 
-class ImageSelectorFormInputWrapper
-    extends FormInputEl {
-
+class ImageSelectorFormInputWrapper extends FormInputEl {
     private readonly imageSelector: ImageSelectorDropdown;
 
     constructor(imageSelector: ImageSelectorDropdown) {
@@ -1047,7 +1054,6 @@ class ImageSelectorFormInputWrapper
         this.imageSelector = imageSelector;
         this.appendChild(this.imageSelector);
     }
-
 
     getValue(): string {
         return this.imageSelector.getSelectedOptions()[0]?.getOption().getDisplayValue()?.getContent()?.getId() || '';

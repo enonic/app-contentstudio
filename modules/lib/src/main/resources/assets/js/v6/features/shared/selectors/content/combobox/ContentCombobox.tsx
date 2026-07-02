@@ -1,12 +1,12 @@
-import type {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {Button, cn, Combobox, Toggle, Tooltip} from '@enonic/ui';
-import {AlertCircle, ListTree, RefreshCw} from 'lucide-react';
-import {useId, useMemo, type ReactElement} from 'react';
-import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
-import {useI18n} from '../../../../hooks/useI18n';
-import type {ContentRowProps} from '../../shared/combobox/ContentRow';
-import {ContentComboboxList} from './ContentComboboxList';
-import {useContentComboboxController, type UseContentComboboxControllerOptions} from './useContentComboboxController';
+import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { Button, cn, Combobox, Toggle, Tooltip } from '@enonic/ui';
+import { AlertCircle, ListTree, RefreshCw } from 'lucide-react';
+import { useId, useMemo, type ReactElement } from 'react';
+import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import type { ContentRowProps } from '../../shared/combobox/ContentRow';
+import { ContentComboboxList } from './ContentComboboxList';
+import { useContentComboboxController, type UseContentComboboxControllerOptions } from './useContentComboboxController';
 
 //
 // * Constants
@@ -19,43 +19,43 @@ const EMPTY_STRING_ARRAY: string[] = [];
 //
 
 export type ContentComboboxProps = {
-    'selection': readonly string[];
-    'onSelectionChange': (selection: readonly string[]) => void;
+    selection: readonly string[];
+    onSelectionChange: (selection: readonly string[]) => void;
     /** Called alongside onSelectionChange when a staged selection is applied. */
-    'onAppliedSelectionChange'?: (selection: readonly string[]) => void;
-    'selectionMode'?: 'single' | 'multiple';
-    'listMode'?: 'tree' | 'flat';
-    'closeOnBlur'?: boolean;
-    'disabled'?: boolean;
-    'label'?: string;
-    'placeholder'?: string;
-    'searchPlaceholder'?: string;
-    'emptyLabel'?: string;
-    'withRightButton'?: boolean;
-    'className'?: string;
-    'hideToggleIcon'?: boolean;
-    'error'?: boolean;
+    onAppliedSelectionChange?: (selection: readonly string[]) => void;
+    selectionMode?: 'single' | 'multiple';
+    listMode?: 'tree' | 'flat';
+    closeOnBlur?: boolean;
+    disabled?: boolean;
+    label?: string;
+    placeholder?: string;
+    searchPlaceholder?: string;
+    emptyLabel?: string;
+    withRightButton?: boolean;
+    className?: string;
+    hideToggleIcon?: boolean;
+    error?: boolean;
     'aria-label'?: string;
 
     /** Row renderer */
-    'rowRenderer'?: (props: ContentRowProps) => ReactElement;
+    rowRenderer?: (props: ContentRowProps) => ReactElement;
     /** Height for each tree row in pixels */
-    'rowTreeHeight'?: number;
+    rowTreeHeight?: number;
     /** Height for each flat row in pixels */
-    'rowFlatHeight'?: number;
+    rowFlatHeight?: number;
     /** If set, the flat row height will be calculated as a percentage of the container's width */
-    'rowFlatHeightRatio'?: number;
+    rowFlatHeightRatio?: number;
     /** Maximum height for the dropdown in pixels */
-    'dropdownMaxHeight'?: number;
+    dropdownMaxHeight?: number;
 
     /** Content types to filter by (e.g., ['app:article', 'media:image']) */
-    'contentTypeNames'?: string[];
+    contentTypeNames?: string[];
     /** Allowed content paths for site restriction (e.g., ['${site}']) */
-    'allowedContentPaths'?: string[];
+    allowedContentPaths?: string[];
     /** Context content for path matching in query expressions */
-    'contextContent'?: ContentSummary;
+    contextContent?: ContentSummary;
     /** Application key for filtering */
-    'applicationKey'?: ApplicationKey;
+    applicationKey?: ApplicationKey;
 };
 
 //
@@ -73,7 +73,7 @@ export const ContentCombobox = ({
     onSelectionChange,
     onAppliedSelectionChange,
     selectionMode = 'multiple',
-    'listMode': externalListMode = 'tree',
+    listMode: externalListMode = 'tree',
     closeOnBlur = false,
     disabled = false,
     label,
@@ -114,7 +114,7 @@ export const ContentCombobox = ({
             allowedContentPaths,
             applicationKey,
         }),
-        [contextContent, contentTypeNames, allowedContentPaths, applicationKey]
+        [contextContent, contentTypeNames, allowedContentPaths, applicationKey],
     );
 
     const dropdownOptions: UseContentComboboxControllerOptions['dropdown'] = useMemo(
@@ -124,7 +124,7 @@ export const ContentCombobox = ({
             flatRowHeightRatio: rowFlatHeightRatio,
             maxHeight: dropdownMaxHeight,
         }),
-        [rowTreeHeight, rowFlatHeight, rowFlatHeightRatio, dropdownMaxHeight]
+        [rowTreeHeight, rowFlatHeight, rowFlatHeightRatio, dropdownMaxHeight],
     );
 
     // Controller hook handles all state and logic
@@ -151,7 +151,7 @@ export const ContentCombobox = ({
         dropdownHeight,
         error: internalError,
         retry,
-    } = useContentComboboxController({filters: filterOptions, listMode: externalListMode, dropdown: dropdownOptions});
+    } = useContentComboboxController({ filters: filterOptions, listMode: externalListMode, dropdown: dropdownOptions });
 
     // Resolved labels
     const resolvedPlaceholder = placeholder ?? defaultPlaceholder;
@@ -192,7 +192,13 @@ export const ContentCombobox = ({
             >
                 <Combobox.Content onKeyDown={handleKeyDown}>
                     <Combobox.Control className={cn(withRightButton && 'rounded-tr-none rounded-br-none')}>
-                        <Combobox.Search disabled={disabled} className={cn(!hideToggleIcon && 'pl-0', withRightButton && 'rounded-tr-none rounded-br-none')}>
+                        <Combobox.Search
+                            disabled={disabled}
+                            className={cn(
+                                !hideToggleIcon && 'pl-0',
+                                withRightButton && 'rounded-tr-none rounded-br-none',
+                            )}
+                        >
                             {hideToggleIcon ? (
                                 <Combobox.SearchIcon />
                             ) : (
@@ -207,7 +213,7 @@ export const ContentCombobox = ({
                                         tabIndex={-1}
                                         className={cn(
                                             'ml-1.25 size-9 shrink-0 rounded-[0.1875rem] p-0 hover:bg-surface-neutral-hover',
-                                            'after:-inset-1.25 after:-z-10 relative z-0 overflow-visible after:pointer-events-auto after:absolute after:rounded-sm after:content-[""]'
+                                            'after:-inset-1.25 after:-z-10 relative z-0 overflow-visible after:pointer-events-auto after:absolute after:rounded-sm after:content-[""]',
                                         )}
                                     />
                                 </Tooltip>

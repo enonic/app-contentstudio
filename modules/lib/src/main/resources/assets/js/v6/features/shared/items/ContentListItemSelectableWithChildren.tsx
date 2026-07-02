@@ -1,9 +1,9 @@
-import {Checkbox, cn} from '@enonic/ui';
-import {type ReactElement} from 'react';
-import {CornerDownRight} from 'lucide-react';
-import {useI18n} from '../../hooks/useI18n';
-import type {ContentListItemSelectableProps as ContentItemCheckableProps} from './ContentListItemSelectable';
-import {ContentListItemSelectable} from './ContentListItemSelectable';
+import { Checkbox, cn } from '@enonic/ui';
+import { type ReactElement } from 'react';
+import { CornerDownRight } from 'lucide-react';
+import { useI18n } from '../../../shared/lib/hooks/useI18n';
+import type { ContentListItemSelectableProps as ContentItemCheckableProps } from './ContentListItemSelectable';
+import { ContentListItemSelectable } from './ContentListItemSelectable';
 
 export type ContentListItemSelectableWithChildrenProps = {
     includeChildren?: boolean;
@@ -37,11 +37,10 @@ export const ContentListItemSelectableWithChildren = ({
     const hasChildren = content.hasChildren();
     const showIncludeChildrenCheckbox = hasChildren && showIncludeChildren;
 
-    const includeChildrenCheckboxId =
-        `${CONTENT_LIST_ITEM_SELECTABLE_WITH_CHILDREN_NAME}-${id || content.getId()}-include-children-checkbox`;
+    const includeChildrenCheckboxId = `${CONTENT_LIST_ITEM_SELECTABLE_WITH_CHILDREN_NAME}-${id || content.getId()}-include-children-checkbox`;
 
     return (
-        <li role="row" className={cn("flex flex-col gap-1", className)}>
+        <li role="row" className={cn('flex flex-col gap-1', className)}>
             <ContentListItemSelectable
                 id={id}
                 role={undefined}

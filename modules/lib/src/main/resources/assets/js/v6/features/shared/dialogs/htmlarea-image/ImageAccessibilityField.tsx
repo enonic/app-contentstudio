@@ -1,11 +1,11 @@
-import {Input, RadioGroup} from '@enonic/ui';
-import {type ReactElement, useCallback} from 'react';
-import {useI18n} from '../../../hooks/useI18n';
-import {useHtmlAreaImageDialogContext} from './HtmlAreaImageDialogContext';
+import { Input, RadioGroup } from '@enonic/ui';
+import { type ReactElement, useCallback } from 'react';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { useHtmlAreaImageDialogContext } from './HtmlAreaImageDialogContext';
 
 export const ImageAccessibilityField = (): ReactElement => {
     const {
-        state: {accessibility, altText, showValidation},
+        state: { accessibility, altText, showValidation },
         validationErrors,
         setAccessibility,
         setAltText,
@@ -22,15 +22,15 @@ export const ImageAccessibilityField = (): ReactElement => {
     const scrollRef = useCallback((node: HTMLDivElement | null) => {
         if (node) {
             requestAnimationFrame(() => {
-                node.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+                node.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             });
         }
     }, []);
 
     return (
-        <div className='flex flex-col gap-2'>
+        <div className="flex flex-col gap-2">
             <RadioGroup.Root
-                name='image-accessibility'
+                name="image-accessibility"
                 value={accessibility}
                 onValueChange={(value) => {
                     setAccessibility(value as 'decorative' | 'informative');
@@ -39,29 +39,29 @@ export const ImageAccessibilityField = (): ReactElement => {
                 errorMessage={accessibilityError}
                 required
             >
-                <label className='text-sm font-medium'>
+                <label className="text-sm font-medium">
                     {accessibilityTitle}
-                    <span className='text-error'> *</span>
+                    <span className="text-error"> *</span>
                 </label>
-                <RadioGroup.Item value='decorative'>
+                <RadioGroup.Item value="decorative">
                     <RadioGroup.Indicator />
                     <span>{decorativeLabel}</span>
                 </RadioGroup.Item>
-                <RadioGroup.Item value='informative'>
+                <RadioGroup.Item value="informative">
                     <RadioGroup.Indicator />
                     <span>{informativeLabel}</span>
                 </RadioGroup.Item>
             </RadioGroup.Root>
 
-                <div ref={scrollRef}>
-                    <Input
-                        value={altText}
-                        placeholder={altTextPlaceholder}
-                        onChange={(event) => setAltText(event.currentTarget.value)}
-                        error={altTextError}
-                        disabled={accessibility !== 'informative'}
-                    />
-                </div>
+            <div ref={scrollRef}>
+                <Input
+                    value={altText}
+                    placeholder={altTextPlaceholder}
+                    onChange={(event) => setAltText(event.currentTarget.value)}
+                    error={altTextError}
+                    disabled={accessibility !== 'informative'}
+                />
+            </div>
         </div>
     );
 };

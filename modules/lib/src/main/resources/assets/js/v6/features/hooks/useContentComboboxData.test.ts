@@ -7,7 +7,7 @@
  *
  * Integration tests with the actual API would provide more comprehensive coverage.
  */
-import {describe, expect, it, vi} from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 // Mock all external dependencies before importing the hook
 vi.mock('../../../app/resource/ContentTreeSelectorQueryRequest', () => ({
@@ -18,7 +18,7 @@ vi.mock('../../../app/resource/ContentTreeSelectorQueryRequest', () => ({
         setParentPath: vi.fn().mockReturnThis(),
         setChildOrder: vi.fn().mockReturnThis(),
         sendAndParse: vi.fn().mockResolvedValue([]),
-        getMetadata: vi.fn().mockReturnValue({getTotalHits: () => 0}),
+        getMetadata: vi.fn().mockReturnValue({ getTotalHits: () => 0 }),
     })),
 }));
 
@@ -30,7 +30,7 @@ vi.mock('../../../app/resource/ContentSelectorQueryRequest', () => ({
         setSearchString: vi.fn().mockReturnThis(),
         setAppendLoadResults: vi.fn().mockReturnThis(),
         sendAndParse: vi.fn().mockResolvedValue([]),
-        getMetadata: vi.fn().mockReturnValue({getTotalHits: () => 0, getHits: () => 0}),
+        getMetadata: vi.fn().mockReturnValue({ getTotalHits: () => 0, getHits: () => 0 }),
     })),
 }));
 
@@ -45,21 +45,21 @@ vi.mock('../store/content.store', () => ({
     setContents: vi.fn(),
 }));
 
-vi.mock('../utils/cms/content/applyContentFilters', () => ({
+vi.mock('../../shared/lib/cms/content/applyContentFilters', () => ({
     applyContentFilters: vi.fn(),
 }));
 
-vi.mock('../utils/cms/content/workflow', () => ({
+vi.mock('../../shared/lib/cms/content/workflow', () => ({
     calcContentState: vi.fn(() => null),
 }));
 
-vi.mock('../utils/cms/content/prettify', () => ({
+vi.mock('../../shared/lib/cms/content/prettify', () => ({
     resolveDisplayName: vi.fn((c) => c?.getDisplayName?.() ?? 'Display Name'),
     resolveSubName: vi.fn((c) => c?.getName?.() ?? 'sub-name'),
 }));
 
 vi.mock('@enonic/lib-admin-ui/rest/Expand', () => ({
-    Expand: {SUMMARY: 'summary'},
+    Expand: { SUMMARY: 'summary' },
 }));
 
 vi.mock('../../../app/resource/order/ChildOrder', () => ({
@@ -67,7 +67,7 @@ vi.mock('../../../app/resource/order/ChildOrder', () => ({
 }));
 
 // Import types for testing
-import {getLoadingNodeParentId} from './useContentComboboxData';
+import { getLoadingNodeParentId } from './useContentComboboxData';
 
 describe('useContentComboboxData', () => {
     describe('getLoadingNodeParentId', () => {

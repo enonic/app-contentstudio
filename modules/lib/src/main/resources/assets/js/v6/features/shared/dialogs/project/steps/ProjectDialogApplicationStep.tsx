@@ -1,17 +1,17 @@
-import {Dialog, IconButton, ListItem} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {X} from 'lucide-react';
-import {ReactElement, useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {$projectDialog, setProjectDialogApplications} from '../../../../store/dialogs/projectDialog.store';
-import {useI18n} from '../../../../hooks/useI18n';
-import {$applications} from '../../../../store/applications.store';
-import {ItemLabel} from '../../../ItemLabel';
-import {ApplicationIcon} from '../../../icons/ApplicationIcon';
-import {ApplicationSelector} from '../../../selectors/ApplicationSelector';
-import {SortableGridList} from '@enonic/lib-admin-ui/form2/components/sortable-grid-list';
+import { Dialog, IconButton, ListItem } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { X } from 'lucide-react';
+import { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { $projectDialog, setProjectDialogApplications } from '../../../../store/dialogs/projectDialog.store';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { $applications } from '../../../../store/applications.store';
+import { ItemLabel } from '../../../../../shared/ui/ItemLabel';
+import { ApplicationIcon } from '../../../../../shared/ui/icons/ApplicationIcon';
+import { ApplicationSelector } from '../../../selectors/ApplicationSelector';
+import { SortableGridList } from '@enonic/lib-admin-ui/form2/components/sortable-grid-list';
 
 export const ProjectDialogApplicationStepHeader = (): ReactElement => {
-    const {mode, title} = useStore($projectDialog, {keys: ['mode', 'title']});
+    const { mode, title } = useStore($projectDialog, { keys: ['mode', 'title'] });
     const titleLabel = useI18n('dialog.project.wizard.application.title');
     const descriptionLabel = useI18n('dialog.project.wizard.application.description');
 
@@ -32,13 +32,17 @@ export type ProjectDialogApplicationStepContentProps = {
     locked?: boolean;
 };
 
-export const ProjectDialogApplicationStepContent = ({locked = false}: ProjectDialogApplicationStepContentProps): ReactElement => {
+export const ProjectDialogApplicationStepContent = ({
+    locked = false,
+}: ProjectDialogApplicationStepContentProps): ReactElement => {
     // Hooks
-    const {applications: newProjectApplications, parentProjects} = useStore($projectDialog, {keys: ['applications', 'parentProjects']});
-    const {applications} = useStore($applications, {keys: ['applications']});
+    const { applications: newProjectApplications, parentProjects } = useStore($projectDialog, {
+        keys: ['applications', 'parentProjects'],
+    });
+    const { applications } = useStore($applications, { keys: ['applications'] });
     const inheritedKeySet = useMemo(
         () => new Set(parentProjects.flatMap((p) => p.getSiteConfigs()).map((c) => c.getApplicationKey().toString())),
-        [parentProjects]
+        [parentProjects],
     );
 
     // Constants
@@ -51,7 +55,9 @@ export const ProjectDialogApplicationStepContent = ({locked = false}: ProjectDia
     const prevInheritedRef = useRef<Set<string>>(inheritedKeySet);
 
     // States
-    const [selection, setSelection] = useState<string[]>(() => newProjectApplications.map((app) => app.getApplicationKey().toString()));
+    const [selection, setSelection] = useState<string[]>(() =>
+        newProjectApplications.map((app) => app.getApplicationKey().toString()),
+    );
 
     // Reconcile orderedKeys when inherited apps change (parent added/removed in step 1)
     useEffect(() => {
@@ -87,7 +93,7 @@ export const ProjectDialogApplicationStepContent = ({locked = false}: ProjectDia
                 return [...prev.filter((k) => !removed.has(k)), ...added];
             });
         },
-        [inheritedKeySet]
+        [inheritedKeySet],
     );
 
     const handleUnselect = useCallback((key: string): void => {
@@ -124,7 +130,7 @@ export const ProjectDialogApplicationStepContent = ({locked = false}: ProjectDia
                     fullRowDraggable
                     dragLabel={reorderLabel}
                     className="flex flex-col gap-y-2.5 rounded-md mb-2.5 py-2.5 px-1"
-                    renderItem={({item: key}) => {
+                    renderItem={({ item: key }) => {
                         const application = applications.find((app) => app.getApplicationKey().toString() === key);
                         const name = application?.getDisplayName();
                         const description = application?.getDescription();

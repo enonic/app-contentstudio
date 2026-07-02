@@ -1,15 +1,13 @@
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
 import Q from 'q';
-import {PreviewContextMenuElement} from '../../v6/features/shared/PreviewContextMenu';
-import {capitalize} from '../../v6/features/utils/format/capitalize';
-import {type ContentSummary} from '../content/ContentSummary';
-import {type ViewExtensionEvent} from '../event/ViewExtensionEvent';
-import {RenderingMode} from '../rendering/RenderingMode';
-import {ExtensionRenderingHandler, PREVIEW_TYPE, type ExtensionRenderer} from '../view/ExtensionRenderingHandler';
+import { PreviewContextMenuElement } from '../../v6/shared/ui/PreviewContextMenu';
+import { capitalize } from '../../v6/shared/lib/format/capitalize';
+import { type ContentSummary } from '../content/ContentSummary';
+import { type ViewExtensionEvent } from '../event/ViewExtensionEvent';
+import { RenderingMode } from '../rendering/RenderingMode';
+import { ExtensionRenderingHandler, PREVIEW_TYPE, type ExtensionRenderer } from '../view/ExtensionRenderingHandler';
 
-export class WizardExtensionRenderingHandler
-    extends ExtensionRenderingHandler {
-
+export class WizardExtensionRenderingHandler extends ExtensionRenderingHandler {
     private hasControllersDeferred: Q.Deferred<boolean>;
     private hasPageDeferred: Q.Deferred<boolean>;
     private emptyMenu: PreviewContextMenuElement;
@@ -43,7 +41,7 @@ export class WizardExtensionRenderingHandler
     }
 
     protected showPreviewMessages(messages: string[]) {
-        this.errorMenu?.setProps({messages, showIcon: true});
+        this.errorMenu?.setProps({ messages, showIcon: true });
     }
 
     async render(summary: ContentSummary, widget): Promise<boolean> {
@@ -52,8 +50,8 @@ export class WizardExtensionRenderingHandler
         const pageName = summary.getDisplayName();
         const localName = summary.getType()?.getLocalName() ?? '';
         const pageType = localName ? capitalize(localName) : '';
-        this.emptyMenu?.setProps({pageName, pageType});
-        this.errorMenu?.setProps({pageName, pageType});
+        this.emptyMenu?.setProps({ pageName, pageType });
+        this.errorMenu?.setProps({ pageName, pageType });
         return super.render(summary, widget);
     }
 
@@ -85,6 +83,4 @@ export class WizardExtensionRenderingHandler
     public hasPage(): Q.Promise<boolean> {
         return this.hasPageDeferred ? this.hasPageDeferred.promise : Q.resolve(false);
     }
-
-
 }

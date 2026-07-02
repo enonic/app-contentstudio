@@ -1,11 +1,11 @@
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {atom, computed} from 'nanostores';
-import type {Page} from '../../../../../../app/page/Page';
-import type {Component} from '../../../../../../app/page/region/Component';
-import {DescriptorBasedComponent} from '../../../../../../app/page/region/DescriptorBasedComponent';
-import {LayoutComponent} from '../../../../../../app/page/region/LayoutComponent';
-import type {Region} from '../../../../../../app/page/region/Region';
-import {TextComponent} from '../../../../../../app/page/region/TextComponent';
+import { StringHelper } from '@enonic/lib-admin-ui/util/StringHelper';
+import { atom, computed } from 'nanostores';
+import type { Page } from '../../../../../../app/page/Page';
+import type { Component } from '../../../../../../app/page/region/Component';
+import { DescriptorBasedComponent } from '../../../../../../app/page/region/DescriptorBasedComponent';
+import { LayoutComponent } from '../../../../../../app/page/region/LayoutComponent';
+import type { Region } from '../../../../../../app/page/region/Region';
+import { TextComponent } from '../../../../../../app/page/region/TextComponent';
 import {
     type CreateNodeOptions,
     type TreeNode,
@@ -20,9 +20,9 @@ import {
     setNodes,
     setRootIds,
     toggle,
-} from '../../../../lib/tree-store';
-import {$page, $pageVersion} from '../../../../store/page-editor/store';
-import type {PageComponentNodeData, PageComponentNodeType} from './types';
+} from '../../../../../shared/lib/tree-store';
+import { $page, $pageVersion } from '../../../../store/page-editor/store';
+import type { PageComponentNodeData, PageComponentNodeType } from './types';
 
 //
 // * State
@@ -53,15 +53,11 @@ export function rebuildComponentsTree(preserveExpanded = true): void {
     const isRebuild = preserveExpanded && currentState.nodes.size > 0;
 
     const layoutsByPath = collectLayouts(page);
-    const layoutDiff = isRebuild
-        ? diffLayouts(lastLayoutsByPath, layoutsByPath)
-        : EMPTY_LAYOUT_DIFF;
+    const layoutDiff = isRebuild ? diffLayouts(lastLayoutsByPath, layoutsByPath) : EMPTY_LAYOUT_DIFF;
 
     lastLayoutsByPath = layoutsByPath;
 
-    const expandedIds = preserveExpanded
-        ? remapExpandedAfterDiff(currentState.expandedIds, layoutDiff)
-        : undefined;
+    const expandedIds = preserveExpanded ? remapExpandedAfterDiff(currentState.expandedIds, layoutDiff) : undefined;
 
     const newState = buildTreeFromPage(page, expandedIds, isRebuild, layoutDiff.added);
     $componentsTreeState.set(newState);
@@ -115,12 +111,12 @@ export function remapExpandedIdsAfterMove(fromPath: string, toPath: string): voi
         const adjustedRegion = sameRegion
             ? targetRegion
             : adjustChildIndex(targetRegion, sourceRegion ?? '', (idx) =>
-                idx > lastPathIndex(fromPath) ? idx - 1 : idx,
-            );
+                  idx > lastPathIndex(fromPath) ? idx - 1 : idx,
+              );
         remapped.add(adjustedRegion);
     }
 
-    $componentsTreeState.set({...state, expandedIds: remapped});
+    $componentsTreeState.set({ ...state, expandedIds: remapped });
 }
 
 //
@@ -192,7 +188,7 @@ function buildTreeFromPage(
         }
     }
 
-    return {...state, expandedIds};
+    return { ...state, expandedIds };
 }
 
 function isNestedLayout(node: TreeNode<PageComponentNodeData>): boolean {
@@ -219,11 +215,7 @@ function collectLayouts(page: Page | null): Map<string, LayoutComponent> {
     return layouts;
 }
 
-function collectLayoutsFromRegion(
-    region: Region,
-    parentPath: string,
-    layouts: Map<string, LayoutComponent>,
-): void {
+function collectLayoutsFromRegion(region: Region, parentPath: string, layouts: Map<string, LayoutComponent>): void {
     const regionPath = buildRegionPath(parentPath, region.getName());
     region.getComponents().forEach((component, index) => {
         if (!(component instanceof LayoutComponent)) return;
@@ -277,7 +269,7 @@ function diffLayouts(
         }
     }
 
-    return {added, pathRemap, removed};
+    return { added, pathRemap, removed };
 }
 
 function remapExpandedAfterDiff(expandedIds: Set<string>, diff: LayoutDiff): Set<string> {
@@ -312,10 +304,7 @@ function applyPathRemap(id: string, remap: [string, string][]): string {
     return id;
 }
 
-function buildPageTree(
-    page: Page,
-    nodes: CreateNodeOptions<PageComponentNodeData>[],
-): void {
+function buildPageTree(page: Page, nodes: CreateNodeOptions<PageComponentNodeData>[]): void {
     const regions = page.getRegions()?.getRegions() ?? [];
     const regionChildIds = regions.map((region) => buildRegionPath(PAGE_ROOT_ID, region.getName()));
 
@@ -338,10 +327,7 @@ function buildPageTree(
     }
 }
 
-function buildFragmentTree(
-    page: Page,
-    nodes: CreateNodeOptions<PageComponentNodeData>[],
-): void {
+function buildFragmentTree(page: Page, nodes: CreateNodeOptions<PageComponentNodeData>[]): void {
     const fragment = page.getFragment();
     const isLayout = fragment instanceof LayoutComponent;
     const regions = isLayout ? (fragment.getRegions()?.getRegions() ?? []) : [];
@@ -367,11 +353,7 @@ function buildFragmentTree(
     }
 }
 
-function buildRegionNodes(
-    region: Region,
-    parentPath: string,
-    nodes: CreateNodeOptions<PageComponentNodeData>[],
-): void {
+function buildRegionNodes(region: Region, parentPath: string, nodes: CreateNodeOptions<PageComponentNodeData>[]): void {
     const regionId = buildRegionPath(parentPath, region.getName());
     const components = region.getComponents();
     const componentChildIds = components.map((_, index) => buildComponentPath(regionId, index));
@@ -407,14 +389,11 @@ function buildComponentNodes(
     const regions = isLayout ? (component.getRegions()?.getRegions() ?? []) : [];
     const childIds = regions.map((r) => buildRegionPath(componentId, r.getName()));
 
-    const componentHasDescriptor = component instanceof DescriptorBasedComponent
-        ? component.hasDescriptor()
-        : true;
+    const componentHasDescriptor = component instanceof DescriptorBasedComponent ? component.hasDescriptor() : true;
 
     const fallbackName = component.getName()?.toString() ?? nodeType;
-    const displayName = component instanceof TextComponent
-        ? (getTextComponentSnippet(component) || fallbackName)
-        : fallbackName;
+    const displayName =
+        component instanceof TextComponent ? getTextComponentSnippet(component) || fallbackName : fallbackName;
 
     nodes.push({
         id: componentId,
@@ -436,9 +415,7 @@ function buildComponentNodes(
 }
 
 function buildRegionPath(parentPath: string, regionName: string): string {
-    return parentPath === PAGE_ROOT_ID
-        ? `/${regionName}`
-        : `${parentPath}/${regionName}`;
+    return parentPath === PAGE_ROOT_ID ? `/${regionName}` : `${parentPath}/${regionName}`;
 }
 
 function buildComponentPath(regionPath: string, index: number): string {
@@ -452,20 +429,14 @@ function getTextComponentSnippet(component: TextComponent): string {
         .replace(/\s+/g, ' ')
         .trim();
     const codepoints = Array.from(text);
-    return codepoints.length > TEXT_SNIPPET_MAX_LENGTH
-        ? codepoints.slice(0, TEXT_SNIPPET_MAX_LENGTH).join('')
-        : text;
+    return codepoints.length > TEXT_SNIPPET_MAX_LENGTH ? codepoints.slice(0, TEXT_SNIPPET_MAX_LENGTH).join('') : text;
 }
 
 //
 // * Path remapping after move
 //
 
-function remapExpandedIds(
-    expandedIds: Set<string>,
-    fromPath: string,
-    toPath: string,
-): Set<string> {
+function remapExpandedIds(expandedIds: Set<string>, fromPath: string, toPath: string): Set<string> {
     const sourceRegion = parentOfPath(fromPath);
     const sourceIndex = lastPathIndex(fromPath);
     const targetRegion = parentOfPath(toPath);
@@ -478,9 +449,7 @@ function remapExpandedIds(
     // Target region path may shift when source removal affects its ancestors
     const adjustedTargetRegion = sameRegion
         ? sourceRegion
-        : adjustChildIndex(targetRegion, sourceRegion, (idx) =>
-            idx > sourceIndex ? idx - 1 : idx,
-        );
+        : adjustChildIndex(targetRegion, sourceRegion, (idx) => (idx > sourceIndex ? idx - 1 : idx));
 
     const result = new Set<string>();
 
@@ -509,12 +478,8 @@ function remapExpandedIds(
                 );
             }
         } else {
-            newId = adjustChildIndex(newId, sourceRegion, (idx) =>
-                idx > sourceIndex ? idx - 1 : idx,
-            );
-            newId = adjustChildIndex(newId, adjustedTargetRegion, (idx) =>
-                idx >= targetIndex ? idx + 1 : idx,
-            );
+            newId = adjustChildIndex(newId, sourceRegion, (idx) => (idx > sourceIndex ? idx - 1 : idx));
+            newId = adjustChildIndex(newId, adjustedTargetRegion, (idx) => (idx >= targetIndex ? idx + 1 : idx));
         }
 
         result.add(newId);
@@ -524,11 +489,7 @@ function remapExpandedIds(
 }
 
 // Adjusts the component index immediately under `regionPath` in `id`.
-function adjustChildIndex(
-    id: string,
-    regionPath: string,
-    adjustFn: (index: number) => number,
-): string {
+function adjustChildIndex(id: string, regionPath: string, adjustFn: (index: number) => number): string {
     const prefix = regionPath + '/';
     if (!id.startsWith(prefix)) return id;
 

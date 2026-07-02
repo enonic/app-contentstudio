@@ -1,19 +1,19 @@
-import {type SelfManagedComponentProps} from '@enonic/lib-admin-ui/form2';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {type ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {useStore} from '@nanostores/preact';
-import {okAsync, ResultAsync} from 'neverthrow';
-import {useCallback, useEffect, useMemo, useState} from 'react';
-import type {Site} from '../../../../../../app/content/Site';
-import {GetAllContentTypesRequest} from '../../../../../../app/resource/GetAllContentTypesRequest';
-import {GetContentTypesByContentRequest} from '../../../../../../app/resource/GetContentTypesByContentRequest';
-import {GetNearestSiteRequest} from '../../../../../../app/resource/GetNearestSiteRequest';
-import {$contextContent} from '../../../../store/context/contextContent.store';
-import {$activeProject} from '../../../../store/activeProject.store';
-import {$contentType} from '../../../../store/wizardContent.store';
-import {formatError} from '../../../../utils/format/error';
-import type {ContentTypeFilterConfig} from './ContentTypeFilterConfig';
+import { type SelfManagedComponentProps } from '@enonic/lib-admin-ui/form2';
+import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { type ContentTypeSummary } from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { useStore } from '@nanostores/preact';
+import { okAsync, ResultAsync } from 'neverthrow';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { Site } from '../../../../../../app/content/Site';
+import { GetAllContentTypesRequest } from '../../../../../../app/resource/GetAllContentTypesRequest';
+import { GetContentTypesByContentRequest } from '../../../../../../app/resource/GetContentTypesByContentRequest';
+import { GetNearestSiteRequest } from '../../../../../../app/resource/GetNearestSiteRequest';
+import { $contextContent } from '../../../../store/context/contextContent.store';
+import { $activeProject } from '../../../../store/activeProject.store';
+import { $contentType } from '../../../../store/wizardContent.store';
+import { formatError } from '../../../../../shared/lib/format/error';
+import type { ContentTypeFilterConfig } from './ContentTypeFilterConfig';
 
 const TYPES_ALLOWED_EVERYWHERE = new Set([
     String(ContentTypeName.UNSTRUCTURED),
@@ -29,7 +29,7 @@ type UseContentTypeFilterOptions = {
     onRemove: SelfManagedComponentProps['onRemove'];
 };
 
-export const useContentTypeFilter = ({config, selection, query, onAdd, onRemove}: UseContentTypeFilterOptions) => {
+export const useContentTypeFilter = ({ config, selection, query, onAdd, onRemove }: UseContentTypeFilterOptions) => {
     const [allContentTypes, setAllContentTypes] = useState<ContentTypeSummary[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [hasError, setHasError] = useState(false);
@@ -42,7 +42,7 @@ export const useContentTypeFilter = ({config, selection, query, onAdd, onRemove}
     // Memoized values
     const filteredContentTypes = useMemo(
         () => allContentTypes.filter((ct) => matchesSearch(ct, (query ?? '').trim())),
-        [allContentTypes, query]
+        [allContentTypes, query],
     );
 
     const fetchContentTypes = useCallback(async () => {
@@ -51,11 +51,18 @@ export const useContentTypeFilter = ({config, selection, query, onAdd, onRemove}
 
         if (!contentId || !project) return okAsync<ContentTypeSummary[], Error>([]);
 
-        const allContentTypes = () => ResultAsync.fromPromise(new GetAllContentTypesRequest().sendAndParse(), formatError);
+        const allContentTypes = () =>
+            ResultAsync.fromPromise(new GetAllContentTypesRequest().sendAndParse(), formatError);
         const site = () =>
-            ResultAsync.fromPromise(new GetNearestSiteRequest(contentId).setRequestProject(project).sendAndParse(), formatError);
+            ResultAsync.fromPromise(
+                new GetNearestSiteRequest(contentId).setRequestProject(project).sendAndParse(),
+                formatError,
+            );
         const contentTypesByContent = () =>
-            ResultAsync.fromPromise(new GetContentTypesByContentRequest(contentId).setRequestProject(project).sendAndParse(), formatError);
+            ResultAsync.fromPromise(
+                new GetContentTypesByContentRequest(contentId).setRequestProject(project).sendAndParse(),
+                formatError,
+            );
 
         if (isPageTemplate) {
             return ResultAsync.combine([allContentTypes(), site()])
@@ -90,7 +97,7 @@ export const useContentTypeFilter = ({config, selection, query, onAdd, onRemove}
                     setAllContentTypes([]);
                     setIsLoading(false);
                     setHasError(true);
-                }
+                },
             );
         })();
     }, [fetchContentTypes]);
@@ -113,10 +120,10 @@ export const useContentTypeFilter = ({config, selection, query, onAdd, onRemove}
                 }
             }
         },
-        [selection, onAdd, onRemove]
+        [selection, onAdd, onRemove],
     );
 
-    return {allContentTypes, filteredContentTypes, isLoading, hasError, onSelectionChange};
+    return { allContentTypes, filteredContentTypes, isLoading, hasError, onSelectionChange };
 };
 
 //

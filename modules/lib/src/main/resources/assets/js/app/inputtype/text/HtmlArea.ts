@@ -1,46 +1,44 @@
-import {type ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
-import {Class} from '@enonic/lib-admin-ui/Class';
-import {type Property} from '@enonic/lib-admin-ui/data/Property';
-import {type Value} from '@enonic/lib-admin-ui/data/Value';
-import {type ValueType} from '@enonic/lib-admin-ui/data/ValueType';
-import {ValueTypeConverter} from '@enonic/lib-admin-ui/data/ValueTypeConverter';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {FormEl} from '@enonic/lib-admin-ui/dom/FormEl';
-import {type FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
-import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
-import {BaseInputTypeNotManagingAdd} from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeNotManagingAdd';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
-import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import {TextArea} from '@enonic/lib-admin-ui/ui/text/TextArea';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {isBlank} from '../../../v6/features/utils/format/isBlank';
-import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import { type ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { BrowserHelper } from '@enonic/lib-admin-ui/BrowserHelper';
+import { Class } from '@enonic/lib-admin-ui/Class';
+import { type Property } from '@enonic/lib-admin-ui/data/Property';
+import { type Value } from '@enonic/lib-admin-ui/data/Value';
+import { type ValueType } from '@enonic/lib-admin-ui/data/ValueType';
+import { ValueTypeConverter } from '@enonic/lib-admin-ui/data/ValueTypeConverter';
+import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
+import { Element } from '@enonic/lib-admin-ui/dom/Element';
+import { FormEl } from '@enonic/lib-admin-ui/dom/FormEl';
+import { type FormInputEl } from '@enonic/lib-admin-ui/dom/FormInputEl';
+import { InputTypeManager } from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
+import { BaseInputTypeNotManagingAdd } from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeNotManagingAdd';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { KeyHelper } from '@enonic/lib-admin-ui/ui/KeyHelper';
+import { ResponsiveManager } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import { TextArea } from '@enonic/lib-admin-ui/ui/text/TextArea';
+import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
+import { ArrayHelper } from '@enonic/lib-admin-ui/util/ArrayHelper';
+import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
+import { isBlank } from '../../../v6/shared/lib/format/isBlank';
+import { type ValueChangedEvent } from '@enonic/lib-admin-ui/ValueChangedEvent';
 import $ from 'jquery';
 import 'jquery-simulate/jquery.simulate.js';
 import type Q from 'q';
-import {getActiveProject} from '../../../v6/features/store/activeProject.store';
-import {type ContentSummary} from '../../content/ContentSummary';
-import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
-import {type ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
-import {HTMLAreaProxy} from '../ui/text/dialog/HTMLAreaProxy';
-import {HTMLAreaHelper} from '../ui/text/HTMLAreaHelper';
-import {getHtmlAreaLangDirection} from '../ui/text/HtmlAreaLangDirection';
-import {shouldIgnoreHtmlAreaBlur} from '../ui/text/HtmlAreaOverlayState';
-import {HtmlEditor} from '../ui/text/HtmlEditor';
-import {HtmlEditorParams} from '../ui/text/HtmlEditorParams';
-import {StylesRequest} from '../ui/text/styles/StylesRequest';
-import {HtmlAreaResizeEvent} from './HtmlAreaResizeEvent';
+import { getActiveProject } from '../../../v6/features/store/activeProject.store';
+import { type ContentSummary } from '../../content/ContentSummary';
+import { ContentRequiresSaveEvent } from '../../event/ContentRequiresSaveEvent';
+import { type ContentInputTypeViewContext } from '../ContentInputTypeViewContext';
+import { HTMLAreaProxy } from '../ui/text/dialog/HTMLAreaProxy';
+import { HTMLAreaHelper } from '../ui/text/HTMLAreaHelper';
+import { getHtmlAreaLangDirection } from '../ui/text/HtmlAreaLangDirection';
+import { shouldIgnoreHtmlAreaBlur } from '../ui/text/HtmlAreaOverlayState';
+import { HtmlEditor } from '../ui/text/HtmlEditor';
+import { HtmlEditorParams } from '../ui/text/HtmlEditorParams';
+import { StylesRequest } from '../ui/text/styles/StylesRequest';
+import { HtmlAreaResizeEvent } from './HtmlAreaResizeEvent';
 
-export class HtmlArea
-    extends BaseInputTypeNotManagingAdd {
-
+export class HtmlArea extends BaseInputTypeNotManagingAdd {
     declare protected context: ContentInputTypeViewContext;
     private editors: HtmlAreaOccurrenceInfo[];
     private content: ContentSummary;
@@ -83,7 +81,11 @@ export class HtmlArea
         }
 
         // if is root non-site content then get application keys from project, e.g. headless content items
-        return getActiveProject()?.getSiteConfigs()?.map((config) => config.getApplicationKey()) || [];
+        return (
+            getActiveProject()
+                ?.getSiteConfigs()
+                ?.map((config) => config.getApplicationKey()) || []
+        );
     }
 
     private processInputConfig() {
@@ -150,7 +152,7 @@ export class HtmlArea
             textAreaWrapper,
             textAreaEl,
             savedValue: property.hasNonNullValue() ? property.getString() : '',
-            hasStickyToolbar: false
+            hasStickyToolbar: false,
         };
         this.editors.push(editor);
 
@@ -198,7 +200,9 @@ export class HtmlArea
     clearInputOccurrenceElement(occurrence: Element): void {
         super.clearInputOccurrenceElement(occurrence);
 
-        const editor: HtmlAreaOccurrenceInfo = this.editors.find((e: HtmlAreaOccurrenceInfo) => e.textAreaWrapper === occurrence);
+        const editor: HtmlAreaOccurrenceInfo = this.editors.find(
+            (e: HtmlAreaOccurrenceInfo) => e.textAreaWrapper === occurrence,
+        );
 
         if (editor) {
             HtmlEditor.setData(editor.id, '');
@@ -220,7 +224,7 @@ export class HtmlArea
     private setEditorEnabled(editorInfo: HtmlAreaOccurrenceInfo, enable: boolean): void {
         HtmlEditor.setReadOnly(editorInfo.id, !enable);
         const iframe: HTMLIFrameElement = editorInfo.textAreaWrapper.getHTMLElement().querySelector('iframe');
-        iframe?.setAttribute('tabindex', enable? '0' : '-1');
+        iframe?.setAttribute('tabindex', enable ? '0' : '-1');
     }
 
     private initEditor(id: string, value: string, textAreaWrapper: Element): Q.Promise<HtmlEditor> {
@@ -257,7 +261,8 @@ export class HtmlArea
         };
 
         const keydownHandler = (e: KeyboardEvent) => {
-            if ((KeyHelper.isMetaKey(e) || KeyHelper.isControlKey(e)) && e.key === 's') {  // Cmd-S or Ctrl-S
+            if ((KeyHelper.isMetaKey(e) || KeyHelper.isControlKey(e)) && e.key === 's') {
+                // Cmd-S or Ctrl-S
                 e.preventDefault();
 
                 // as editor resides in a frame - propagate event via wrapping element
@@ -270,14 +275,17 @@ export class HtmlArea
                     shiftKey: e.shiftKey,
                     metaKey: e.metaKey,
                     keyCode: e.keyCode,
-                    charCode: e.charCode
+                    charCode: e.charCode,
                 });
-            } else if (KeyHelper.isAltKey(e) && KeyHelper.isTabKey(e)) { // alt+tab for OSX
+            } else if (KeyHelper.isAltKey(e) && KeyHelper.isTabKey(e)) {
+                // alt+tab for OSX
                 e.preventDefault();
                 // the one that event is triggered from
                 const htmlAreaIframe = $(textAreaWrapper.getHTMLElement()).find('iframe').get(0);
                 // check if focused element is html area that triggered event
-                const activeElement = this.isNotActiveElement(htmlAreaIframe) ? htmlAreaIframe : document.activeElement as HTMLElement;
+                const activeElement = this.isNotActiveElement(htmlAreaIframe)
+                    ? htmlAreaIframe
+                    : (document.activeElement as HTMLElement);
                 const focusedEl = Element.fromHtmlElement(activeElement);
                 const isShift = e.shiftKey;
                 let nextFocusable;
@@ -298,7 +306,6 @@ export class HtmlArea
                 }
             }
         };
-
 
         const editorLoadedHandler = () => {
             if (this.notInLiveEdit()) {
@@ -360,7 +367,12 @@ export class HtmlArea
 
         if (toolsObj && toolsObj instanceof Array) {
             toolsObj.forEach((tool: { value: string }) => {
-                result.push(...tool.value.trim().split(/\s+/).filter((v: string) => v));
+                result.push(
+                    ...tool.value
+                        .trim()
+                        .split(/\s+/)
+                        .filter((v: string) => v),
+                );
             });
         }
 
@@ -369,12 +381,13 @@ export class HtmlArea
 
     private getAllowedHeadingsConfig(): string {
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-        return this.getContext().inputConfig['allowHeadings']?.[0]?.value as string ?? null;
+        return (this.getContext().inputConfig['allowHeadings']?.[0]?.value as string) ?? null;
     }
 
     private moveButtonToBottomBar(inputOccurence: Element, buttonClass: string): void {
-        $(inputOccurence.getHTMLElement()).find(buttonClass).appendTo(
-            $(inputOccurence.getHTMLElement()).find('.cke_bottom'));
+        $(inputOccurence.getHTMLElement())
+            .find(buttonClass)
+            .appendTo($(inputOccurence.getHTMLElement()).find('.cke_bottom'));
     }
 
     private setFocusOnEditorAfterCreate(inputOccurence: Element, id: string): void {
@@ -389,10 +402,15 @@ export class HtmlArea
     }
 
     private setupStickyEditorToolbarForInputOccurence(inputOccurence: Element, editorId: string) {
-        const scrollHandler = AppHelper.debounce(() =>
-            this.updateStickyEditorToolbar(inputOccurence, this.getEditorInfo(editorId)), 20, false);
+        const scrollHandler = AppHelper.debounce(
+            () => this.updateStickyEditorToolbar(inputOccurence, this.getEditorInfo(editorId)),
+            20,
+            false,
+        );
 
-        $(this.getHTMLElement()).closest('.form-panel').on('scroll', () => scrollHandler());
+        $(this.getHTMLElement())
+            .closest('.form-panel')
+            .on('scroll', () => scrollHandler());
 
         ResponsiveManager.onAvailableSizeChanged(this, () => {
             this.updateEditorToolbarPos(inputOccurence);
@@ -416,14 +434,18 @@ export class HtmlArea
     }
 
     private updateEditorToolbarPos(inputOccurence: Element) {
-        $(inputOccurence.getHTMLElement()).find(this.getToolbarClass()).css({top: this.getToolbarOffsetTop(1)});
+        $(inputOccurence.getHTMLElement())
+            .find(this.getToolbarClass())
+            .css({ top: this.getToolbarOffsetTop(1) });
     }
 
     private updateEditorToolbarWidth(inputOccurence: Element, editorInfo: HtmlAreaOccurrenceInfo) {
         if (editorInfo.hasStickyToolbar) {
             // Toolbar in sticky mode has position: fixed which makes it not
             // inherit width of its parent, so we have to explicitly set width
-            $(inputOccurence.getHTMLElement()).find(this.getToolbarClass()).width(inputOccurence.getEl().getWidth() - 3);
+            $(inputOccurence.getHTMLElement())
+                .find(this.getToolbarClass())
+                .width(inputOccurence.getEl().getWidth() - 3);
         } else {
             $(inputOccurence.getHTMLElement()).find(this.getToolbarClass()).width('auto');
         }
@@ -445,8 +467,13 @@ export class HtmlArea
         const distToTopOfScrlblArea = this.calcDistToTopOfScrlbleArea(inputOccurence);
         const editorToolbarHeight = $(inputOccurence.getHTMLElement()).find(this.getToolbarClass()).outerHeight(true);
         const statusToolbarHeight = $(inputOccurence.getHTMLElement()).find(this.getBottomBarClass()).outerHeight(true);
-        return (inputOccurence.getEl().getHeightWithoutPadding() - editorToolbarHeight - statusToolbarHeight +
-                distToTopOfScrlblArea) > 0;
+        return (
+            inputOccurence.getEl().getHeightWithoutPadding() -
+                editorToolbarHeight -
+                statusToolbarHeight +
+                distToTopOfScrlblArea >
+            0
+        );
     }
 
     private calcDistToTopOfScrlbleArea(inputOccurence: Element): number {
@@ -470,7 +497,9 @@ export class HtmlArea
         const editorScrollTop: number = e.editor.document.$.children[0].scrollTop;
 
         if (this.editorTopEdgeIsVisible(inputOccurence) || editorScrollTop > 0) {
-            const toolbarHeight: number = $(inputOccurence.getHTMLElement()).find(this.getToolbarClass()).outerHeight(true);
+            const toolbarHeight: number = $(inputOccurence.getHTMLElement())
+                .find(this.getToolbarClass())
+                .outerHeight(true);
             const panel = $(this.getHTMLElement()).closest('.form-panel');
             const newScrollTop: number = panel.scrollTop() + editorScrollTop;
 
@@ -488,7 +517,11 @@ export class HtmlArea
         const editorId: string = textArea.getId();
 
         if (HtmlEditor.exists(editorId)) {
-            const content: string = HTMLAreaHelper.convertRenderSrcToPreviewSrc(value, this.content?.getId(), this.context.project);
+            const content: string = HTMLAreaHelper.convertRenderSrcToPreviewSrc(
+                value,
+                this.content?.getId(),
+                this.context.project,
+            );
             const currentData: string = HtmlEditor.getData(editorId);
             // invoke setData only if data changed
             if (content !== currentData) {
@@ -610,7 +643,6 @@ export class HtmlArea
         const textAreaEl = occurrence.getChildren().find((child) => child instanceof TextArea);
         super.updateInputOccurrenceElement(textAreaEl, property, unchangedOnly);
     }
-
 }
 
 export interface HtmlAreaOccurrenceInfo {
@@ -621,8 +653,6 @@ export interface HtmlAreaOccurrenceInfo {
     hasStickyToolbar: boolean;
 }
 
-class TextAreaWrapper
-    extends DivEl {
-}
+class TextAreaWrapper extends DivEl {}
 
 InputTypeManager.register(new Class('HtmlArea', HtmlArea));

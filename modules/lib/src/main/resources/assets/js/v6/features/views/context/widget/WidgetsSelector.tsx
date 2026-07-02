@@ -1,9 +1,9 @@
-import {cn, Combobox, Listbox} from '@enonic/ui';
-import {useCallback, useEffect, useMemo, useState, type FocusEvent} from 'react';
-import type {ExtensionView} from '../../../../../app/view/context/ExtensionView';
-import {useI18n} from '../../../hooks/useI18n';
-import {WidgetIcon} from '../../../shared/icons/WidgetIcon';
-import {LegacyElement} from '../../../shared/LegacyElement';
+import { cn, Combobox, Listbox } from '@enonic/ui';
+import { useCallback, useEffect, useMemo, useState, type FocusEvent } from 'react';
+import type { ExtensionView } from '../../../../../app/view/context/ExtensionView';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { WidgetIcon } from '../../../../shared/ui/icons/WidgetIcon';
+import { LegacyElement } from '../../../../shared/ui/LegacyElement';
 
 type WidgetsSelectorProps = {
     widgetViews?: ExtensionView[];
@@ -12,7 +12,7 @@ type WidgetsSelectorProps = {
 
 const WIDGETS_SELECTOR_NAME = 'WidgetsSelector';
 
-const WidgetsSelector = ({widgetViews = [], externalSelectedWidgetView = undefined}: WidgetsSelectorProps) => {
+const WidgetsSelector = ({ widgetViews = [], externalSelectedWidgetView = undefined }: WidgetsSelectorProps) => {
     const placeholder = useI18n('field.option.placeholder');
     const notFoundLabel = useI18n('field.contextPanel.selector.notfound');
     const [isOpen, setIsOpen] = useState(false);
@@ -22,10 +22,15 @@ const WidgetsSelector = ({widgetViews = [], externalSelectedWidgetView = undefin
     const filteredWidgetViews = useMemo(() => {
         if (!isOpen || !searchValue) return widgetViews;
 
-        return widgetViews.filter((widgetView) => widgetView.getExtensionName().toLowerCase().includes(searchValue.toLowerCase()));
+        return widgetViews.filter((widgetView) =>
+            widgetView.getExtensionName().toLowerCase().includes(searchValue.toLowerCase()),
+        );
     }, [isOpen, searchValue, widgetViews]);
 
-    const selectedWidgetView = useMemo(() => getWidgetViewFromKey(widgetViews, selectedWidgetKey?.[0]), [widgetViews, selectedWidgetKey]);
+    const selectedWidgetView = useMemo(
+        () => getWidgetViewFromKey(widgetViews, selectedWidgetKey?.[0]),
+        [widgetViews, selectedWidgetKey],
+    );
     const selectedWidgetLabel = selectedWidgetView?.getExtensionName();
     const inputValue = isOpen ? searchValue : selectedWidgetLabel;
 
@@ -49,7 +54,7 @@ const WidgetsSelector = ({widgetViews = [], externalSelectedWidgetView = undefin
             setSearchValue(undefined);
             getWidgetViewFromKey(widgetViews, key)?.setActive();
         },
-        [widgetViews]
+        [widgetViews],
     );
 
     const handleOpenChange = useCallback((open: boolean) => {
@@ -60,16 +65,17 @@ const WidgetsSelector = ({widgetViews = [], externalSelectedWidgetView = undefin
         }
     }, []);
 
-    const handleInputFocus = useCallback((event: FocusEvent<HTMLInputElement>): void => {
-        if (!isOpen && event.currentTarget.value) {
-            event.currentTarget.select();
-        }
-    }, [isOpen]);
+    const handleInputFocus = useCallback(
+        (event: FocusEvent<HTMLInputElement>): void => {
+            if (!isOpen && event.currentTarget.value) {
+                event.currentTarget.select();
+            }
+        },
+        [isOpen],
+    );
 
     return (
-        <div
-            data-component={WIDGETS_SELECTOR_NAME}
-            className="h-15 p-1.5 border-b border-bdr-soft">
+        <div data-component={WIDGETS_SELECTOR_NAME} className="h-15 p-1.5 border-b border-bdr-soft">
             <Combobox.Root
                 value={inputValue}
                 onChange={setSearchValue}
@@ -106,8 +112,12 @@ const WidgetsSelector = ({widgetViews = [], externalSelectedWidgetView = undefin
                                         <Listbox.Item key={key} value={key}>
                                             <WidgetIcon widgetView={widgetView} className="size-6 shrink-0" />
                                             <div className="flex flex-col overflow-hidden">
-                                                <span className='leading-5.5 font-semibold truncate group-data-[tone=inverse]:text-alt'>{name}</span>
-                                                <small className="leading-4.5 text-sm text-subtle truncate group-data-[tone=inverse]:text-alt">{description}</small>
+                                                <span className="leading-5.5 font-semibold truncate group-data-[tone=inverse]:text-alt">
+                                                    {name}
+                                                </span>
+                                                <small className="leading-4.5 text-sm text-subtle truncate group-data-[tone=inverse]:text-alt">
+                                                    {description}
+                                                </small>
                                             </div>
                                         </Listbox.Item>
                                     );

@@ -1,20 +1,20 @@
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
-import {createContext, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
-import type {ReactNode} from 'react';
-import {type ContentSummary} from '../../../../../app/content/ContentSummary';
-import {HTMLAreaHelper} from '../../../../../app/inputtype/ui/text/HTMLAreaHelper';
-import {HtmlEditor} from '../../../../../app/inputtype/ui/text/HtmlEditor';
-import {type Style} from '../../../../../app/inputtype/ui/text/styles/Style';
-import {StyleHelper} from '../../../../../app/inputtype/ui/text/styles/StyleHelper';
-import {Styles} from '../../../../../app/inputtype/ui/text/styles/Styles';
-import {StylesRequest} from '../../../../../app/inputtype/ui/text/styles/StylesRequest';
-import {type Project} from '../../../../../app/settings/data/project/Project';
-import {ImageHelper} from '../../../../../app/util/ImageHelper';
-import {ImageUrlResolver} from '../../../../../app/util/ImageUrlResolver';
-import {isBlank} from '../../../utils/format/isBlank';
-import {fetchContentById} from '../../../api/content';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { UriHelper } from '@enonic/lib-admin-ui/util/UriHelper';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
+import { type ContentSummary } from '../../../../../app/content/ContentSummary';
+import { HTMLAreaHelper } from '../../../../../app/inputtype/ui/text/HTMLAreaHelper';
+import { HtmlEditor } from '../../../../../app/inputtype/ui/text/HtmlEditor';
+import { type Style } from '../../../../../app/inputtype/ui/text/styles/Style';
+import { StyleHelper } from '../../../../../app/inputtype/ui/text/styles/StyleHelper';
+import { Styles } from '../../../../../app/inputtype/ui/text/styles/Styles';
+import { StylesRequest } from '../../../../../app/inputtype/ui/text/styles/StylesRequest';
+import { type Project } from '../../../../../app/settings/data/project/Project';
+import { ImageHelper } from '../../../../../app/util/ImageHelper';
+import { ImageUrlResolver } from '../../../../../app/util/ImageUrlResolver';
+import { isBlank } from '../../../../shared/lib/format/isBlank';
+import { fetchContentById } from '../../../api/content';
 
 //
 // Types
@@ -86,14 +86,14 @@ const CLOSED_STATE: HtmlAreaImageDialogState = {
 
 function getAlignmentClass(alignment: Alignment): string {
     switch (alignment) {
-    case 'justify':
-        return StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS;
-    case 'left':
-        return StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS;
-    case 'center':
-        return StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS;
-    case 'right':
-        return StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS;
+        case 'justify':
+            return StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS;
+        case 'left':
+            return StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS;
+        case 'center':
+            return StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS;
+        case 'right':
+            return StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS;
     }
 }
 
@@ -112,14 +112,14 @@ function getAlignmentFromClasses(classes: string): Alignment {
 
 function getAlignmentWidth(alignment: Alignment): number {
     switch (alignment) {
-    case 'left':
-        return Number(StyleHelper.STYLE.ALIGNMENT.LEFT.WIDTH) || 100;
-    case 'center':
-        return Number(StyleHelper.STYLE.ALIGNMENT.CENTER.WIDTH) || 100;
-    case 'right':
-        return Number(StyleHelper.STYLE.ALIGNMENT.RIGHT.WIDTH) || 100;
-    default:
-        return 100;
+        case 'left':
+            return Number(StyleHelper.STYLE.ALIGNMENT.LEFT.WIDTH) || 100;
+        case 'center':
+            return Number(StyleHelper.STYLE.ALIGNMENT.CENTER.WIDTH) || 100;
+        case 'right':
+            return Number(StyleHelper.STYLE.ALIGNMENT.RIGHT.WIDTH) || 100;
+        default:
+            return 100;
     }
 }
 
@@ -257,7 +257,7 @@ function getProcessingStyle(contentId: string | undefined, styleName: string): S
         return undefined;
     }
     const styles = Styles.getForImage(contentId);
-    return styles.find(s => s.getName() === styleName);
+    return styles.find((s) => s.getName() === styleName);
 }
 
 function createImageUrlResolver(
@@ -280,16 +280,14 @@ function createImageUrlResolver(
         if (isOriginalImage) {
             resolver.disableProcessing();
         }
-        resolver
-            .setAspectRatio(style.getAspectRatio())
-            .setFilter(style.getFilter());
+        resolver.setAspectRatio(style.getAspectRatio()).setFilter(style.getFilter());
     }
 
     return resolver;
 }
 
 function computeOpenState(params: OpenHtmlAreaImageDialogParams): HtmlAreaImageDialogState {
-    const {ckeDialog, ckeEditor, editorWidth, content, project} = params;
+    const { ckeDialog, ckeEditor, editorWidth, content, project } = params;
     const contentId = content?.getId();
 
     const presetImageEl = readPresetImage(ckeDialog);
@@ -399,7 +397,7 @@ type HtmlAreaImageDialogContextValue = {
     setAltText: (altText: string) => void;
     setPreviewLoading: (loading: boolean) => void;
     setUploadState: (uploading: boolean, progress?: number, error?: string) => void;
-    resolvePreviewImageSrc: (imageContent: ContentSummary, previewWidth: number) => {src: string; dataSrc: string};
+    resolvePreviewImageSrc: (imageContent: ContentSummary, previewWidth: number) => { src: string; dataSrc: string };
 };
 
 const HtmlAreaImageDialogContext = createContext<HtmlAreaImageDialogContextValue | null>(null);
@@ -421,7 +419,7 @@ type HtmlAreaImageDialogProviderProps = {
     openRef: { current: ((params: OpenHtmlAreaImageDialogParams) => void) | undefined };
 };
 
-export function HtmlAreaImageDialogProvider({children, openRef}: HtmlAreaImageDialogProviderProps): ReactNode {
+export function HtmlAreaImageDialogProvider({ children, openRef }: HtmlAreaImageDialogProviderProps): ReactNode {
     const [state, setState] = useState<HtmlAreaImageDialogState>(CLOSED_STATE);
     const stateRef = useRef(state);
     stateRef.current = state;
@@ -434,7 +432,9 @@ export function HtmlAreaImageDialogProvider({children, openRef}: HtmlAreaImageDi
 
     useEffect(() => {
         openRef.current = open;
-        return () => { openRef.current = undefined; };
+        return () => {
+            openRef.current = undefined;
+        };
     }, [open, openRef]);
 
     // Derived values
@@ -466,11 +466,11 @@ export function HtmlAreaImageDialogProvider({children, openRef}: HtmlAreaImageDi
     const loadPresetImageContent = useCallback((imageId: string, project?: Project) => {
         fetchContentById(imageId, project?.getName()).match(
             (imageContent) => {
-                setState(prev => {
+                setState((prev) => {
                     if (!prev.open || prev.selectedImageId !== imageId) {
                         return prev;
                     }
-                    return {...prev, selectedImageContent: imageContent};
+                    return { ...prev, selectedImageContent: imageContent };
                 });
             },
             (error) => {
@@ -482,7 +482,7 @@ export function HtmlAreaImageDialogProvider({children, openRef}: HtmlAreaImageDi
     const loadImageContentById = useCallback((imageId: string) => {
         fetchContentById(imageId, stateRef.current.project?.getName()).match(
             (content) => {
-                setState(prev => {
+                setState((prev) => {
                     if (!prev.open || prev.selectedImageId !== imageId) {
                         return prev;
                     }
@@ -505,7 +505,7 @@ export function HtmlAreaImageDialogProvider({children, openRef}: HtmlAreaImageDi
 
         fetchContentById(imageId, stateRef.current.project?.getName()).match(
             (content) => {
-                setState(prev => {
+                setState((prev) => {
                     if (!prev.open || prev.selectedImageId !== imageId) {
                         return prev;
                     }
@@ -529,7 +529,14 @@ export function HtmlAreaImageDialogProvider({children, openRef}: HtmlAreaImageDi
             return;
         }
         loadPresetImageContent(state.selectedImageId, state.project);
-    }, [state.open, state.selectedImageId, state.presetImageEl, state.selectedImageContent, state.project, loadPresetImageContent]);
+    }, [
+        state.open,
+        state.selectedImageId,
+        state.presetImageEl,
+        state.selectedImageContent,
+        state.project,
+        loadPresetImageContent,
+    ]);
 
     // Actions
 
@@ -541,44 +548,50 @@ export function HtmlAreaImageDialogProvider({children, openRef}: HtmlAreaImageDi
         setState(CLOSED_STATE);
     }, []);
 
-    const selectImage = useCallback((imageContent: ContentSummary) => {
-        setState(prev => {
-            if (!prev.open) {
-                return prev;
-            }
-            return {
-                ...prev,
-                selectedImageId: imageContent.getContentId().toString(),
-                selectedImageContent: imageContent,
-                previewLoading: true,
-                uploading: false,
-                uploadProgress: 0,
-                uploadError: undefined,
-            };
-        });
-        loadImageMetadata(imageContent);
-    }, [loadImageMetadata]);
+    const selectImage = useCallback(
+        (imageContent: ContentSummary) => {
+            setState((prev) => {
+                if (!prev.open) {
+                    return prev;
+                }
+                return {
+                    ...prev,
+                    selectedImageId: imageContent.getContentId().toString(),
+                    selectedImageContent: imageContent,
+                    previewLoading: true,
+                    uploading: false,
+                    uploadProgress: 0,
+                    uploadError: undefined,
+                };
+            });
+            loadImageMetadata(imageContent);
+        },
+        [loadImageMetadata],
+    );
 
-    const selectImageById = useCallback((imageId: string) => {
-        setState(prev => {
-            if (!prev.open) {
-                return prev;
-            }
-            return {
-                ...prev,
-                selectedImageId: imageId,
-                selectedImageContent: undefined,
-                previewLoading: true,
-                uploading: false,
-                uploadProgress: 0,
-                uploadError: undefined,
-            };
-        });
-        loadImageContentById(imageId);
-    }, [loadImageContentById]);
+    const selectImageById = useCallback(
+        (imageId: string) => {
+            setState((prev) => {
+                if (!prev.open) {
+                    return prev;
+                }
+                return {
+                    ...prev,
+                    selectedImageId: imageId,
+                    selectedImageContent: undefined,
+                    previewLoading: true,
+                    uploading: false,
+                    uploadProgress: 0,
+                    uploadError: undefined,
+                };
+            });
+            loadImageContentById(imageId);
+        },
+        [loadImageContentById],
+    );
 
     const deselectImage = useCallback(() => {
-        setState(prev => {
+        setState((prev) => {
             if (!prev.open) {
                 return prev;
             }
@@ -601,11 +614,11 @@ export function HtmlAreaImageDialogProvider({children, openRef}: HtmlAreaImageDi
     }, []);
 
     const setAlignment = useCallback((alignment: Alignment) => {
-        setState(prev => prev.open ? {...prev, alignment} : prev);
+        setState((prev) => (prev.open ? { ...prev, alignment } : prev));
     }, []);
 
     const setProcessingStyle = useCallback((styleName: string) => {
-        setState(prev => {
+        setState((prev) => {
             if (!prev.open) {
                 return prev;
             }
@@ -619,7 +632,7 @@ export function HtmlAreaImageDialogProvider({children, openRef}: HtmlAreaImageDi
     }, []);
 
     const setCustomWidth = useCallback((enabled: boolean, percent?: number) => {
-        setState(prev => {
+        setState((prev) => {
             if (!prev.open) {
                 return prev;
             }
@@ -632,27 +645,27 @@ export function HtmlAreaImageDialogProvider({children, openRef}: HtmlAreaImageDi
     }, []);
 
     const setCustomWidthPercent = useCallback((percent: number) => {
-        setState(prev => prev.open ? {...prev, customWidthPercent: percent} : prev);
+        setState((prev) => (prev.open ? { ...prev, customWidthPercent: percent } : prev));
     }, []);
 
     const setCaption = useCallback((caption: string) => {
-        setState(prev => prev.open ? {...prev, caption} : prev);
+        setState((prev) => (prev.open ? { ...prev, caption } : prev));
     }, []);
 
     const setAccessibility = useCallback((value: 'decorative' | 'informative') => {
-        setState(prev => prev.open ? {...prev, accessibility: value} : prev);
+        setState((prev) => (prev.open ? { ...prev, accessibility: value } : prev));
     }, []);
 
     const setAltText = useCallback((altText: string) => {
-        setState(prev => prev.open ? {...prev, altText} : prev);
+        setState((prev) => (prev.open ? { ...prev, altText } : prev));
     }, []);
 
     const setPreviewLoading = useCallback((loading: boolean) => {
-        setState(prev => prev.open ? {...prev, previewLoading: loading} : prev);
+        setState((prev) => (prev.open ? { ...prev, previewLoading: loading } : prev));
     }, []);
 
     const setUploadState = useCallback((uploading: boolean, progress?: number, error?: string) => {
-        setState(prev => {
+        setState((prev) => {
             if (!prev.open) {
                 return prev;
             }
@@ -673,7 +686,7 @@ export function HtmlAreaImageDialogProvider({children, openRef}: HtmlAreaImageDi
 
         const errors = computeValidationErrors(s);
         if (Object.keys(errors).length > 0) {
-            setState(prev => ({...prev, showValidation: true}));
+            setState((prev) => ({ ...prev, showValidation: true }));
             return;
         }
 
@@ -733,65 +746,83 @@ export function HtmlAreaImageDialogProvider({children, openRef}: HtmlAreaImageDi
         setState(CLOSED_STATE);
     }, []);
 
-    const resolvePreviewImageSrc = useCallback((imageContent: ContentSummary, previewWidth: number): {src: string; dataSrc: string} => {
-        const s = stateRef.current;
-        const processingStyle = getProcessingStyle(s.contentId, s.processingStyleName);
+    const resolvePreviewImageSrc = useCallback(
+        (imageContent: ContentSummary, previewWidth: number): { src: string; dataSrc: string } => {
+            const s = stateRef.current;
+            const processingStyle = getProcessingStyle(s.contentId, s.processingStyleName);
 
-        if (s.presetImageEl && !s.selectedImageContent) {
-            let imgSrcAttr = s.presetImageEl.getAttribute('src') ?? '';
-            const src = imgSrcAttr.replace(/&amp;/g, '&');
-            const params = UriHelper.decodeUrlParams(src);
-            if (params.size) {
-                const plainUrl = UriHelper.trimUrlParams(src);
-                params.size = String(previewWidth);
-                imgSrcAttr = UriHelper.appendUrlParams(plainUrl, params, false);
+            if (s.presetImageEl && !s.selectedImageContent) {
+                let imgSrcAttr = s.presetImageEl.getAttribute('src') ?? '';
+                const src = imgSrcAttr.replace(/&amp;/g, '&');
+                const params = UriHelper.decodeUrlParams(src);
+                if (params.size) {
+                    const plainUrl = UriHelper.trimUrlParams(src);
+                    params.size = String(previewWidth);
+                    imgSrcAttr = UriHelper.appendUrlParams(plainUrl, params, false);
+                }
+                const dataSrc = s.presetImageEl.getAttribute('data-src') ?? '';
+                return { src: imgSrcAttr, dataSrc };
             }
-            const dataSrc = s.presetImageEl.getAttribute('data-src') ?? '';
-            return {src: imgSrcAttr, dataSrc};
-        }
 
-        const resolver = createImageUrlResolver(imageContent, previewWidth, s.project, processingStyle);
-        return {
-            src: resolver.resolveForPreview(),
-            dataSrc: resolver.resolveForRender(processingStyle ? processingStyle.getName() : ''),
-        };
-    }, []);
+            const resolver = createImageUrlResolver(imageContent, previewWidth, s.project, processingStyle);
+            return {
+                src: resolver.resolveForPreview(),
+                dataSrc: resolver.resolveForRender(processingStyle ? processingStyle.getName() : ''),
+            };
+        },
+        [],
+    );
 
     // Context value
 
-    const value = useMemo<HtmlAreaImageDialogContextValue>(() => ({
-        state,
-        isEditing,
-        validationErrors,
-        canSubmit,
-        figureClasses,
-        figureStyle,
-        close,
-        submit,
-        selectImage,
-        selectImageById,
-        deselectImage,
-        setAlignment,
-        setProcessingStyle,
-        setCustomWidth,
-        setCustomWidthPercent,
-        setCaption,
-        setAccessibility,
-        setAltText,
-        setPreviewLoading,
-        setUploadState,
-        resolvePreviewImageSrc,
-    }), [
-        state, isEditing, validationErrors, canSubmit, figureClasses, figureStyle,
-        close, submit, selectImage, selectImageById, deselectImage,
-        setAlignment, setProcessingStyle, setCustomWidth, setCustomWidthPercent,
-        setCaption, setAccessibility, setAltText, setPreviewLoading, setUploadState,
-        resolvePreviewImageSrc,
-    ]);
-
-    return (
-        <HtmlAreaImageDialogContext.Provider value={value}>
-            {children}
-        </HtmlAreaImageDialogContext.Provider>
+    const value = useMemo<HtmlAreaImageDialogContextValue>(
+        () => ({
+            state,
+            isEditing,
+            validationErrors,
+            canSubmit,
+            figureClasses,
+            figureStyle,
+            close,
+            submit,
+            selectImage,
+            selectImageById,
+            deselectImage,
+            setAlignment,
+            setProcessingStyle,
+            setCustomWidth,
+            setCustomWidthPercent,
+            setCaption,
+            setAccessibility,
+            setAltText,
+            setPreviewLoading,
+            setUploadState,
+            resolvePreviewImageSrc,
+        }),
+        [
+            state,
+            isEditing,
+            validationErrors,
+            canSubmit,
+            figureClasses,
+            figureStyle,
+            close,
+            submit,
+            selectImage,
+            selectImageById,
+            deselectImage,
+            setAlignment,
+            setProcessingStyle,
+            setCustomWidth,
+            setCustomWidthPercent,
+            setCaption,
+            setAccessibility,
+            setAltText,
+            setPreviewLoading,
+            setUploadState,
+            resolvePreviewImageSrc,
+        ],
     );
+
+    return <HtmlAreaImageDialogContext.Provider value={value}>{children}</HtmlAreaImageDialogContext.Provider>;
 }

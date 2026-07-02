@@ -1,17 +1,17 @@
-import type {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {Avatar, Dialog, Tooltip} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import type {ReactElement} from 'react';
-import {ProjectAccess} from '../../../../../../app/settings/access/ProjectAccess';
-import {useI18n} from '../../../../hooks/useI18n';
-import {$projectDialog} from '../../../../store/dialogs/projectDialog.store';
-import {$languages} from '../../../../store/languages.store';
-import {getInitials} from '../../../../utils/format/initials';
-import {ApplicationIcon} from '../../../icons/ApplicationIcon';
-import {FlagIcon} from '../../../icons/FlagIcon';
+import type { Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { Avatar, Dialog, Tooltip } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import type { ReactElement } from 'react';
+import { ProjectAccess } from '../../../../../../app/settings/access/ProjectAccess';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { $projectDialog } from '../../../../store/dialogs/projectDialog.store';
+import { $languages } from '../../../../store/languages.store';
+import { getInitials } from '../../../../../shared/lib/format/initials';
+import { ApplicationIcon } from '../../../../../shared/ui/icons/ApplicationIcon';
+import { FlagIcon } from '../../../../../shared/ui/icons/FlagIcon';
 
 export const ProjectDialogSummaryStepHeader = (): ReactElement => {
-    const {mode, title} = useStore($projectDialog, {keys: ['mode', 'title']});
+    const { mode, title } = useStore($projectDialog, { keys: ['mode', 'title'] });
     const titleLabel = useI18n('dialog.project.wizard.summary.title');
     const descriptionLabel = useI18n('dialog.project.wizard.summary.description');
 
@@ -32,7 +32,9 @@ export type ProjectDialogSummaryStepContentProps = {
     locked?: boolean;
 };
 
-export const ProjectDialogSummaryStepContent = ({locked = false}: ProjectDialogSummaryStepContentProps): ReactElement => {
+export const ProjectDialogSummaryStepContent = ({
+    locked = false,
+}: ProjectDialogSummaryStepContentProps): ReactElement => {
     const {
         parentProjects,
         nameData,
@@ -43,7 +45,16 @@ export const ProjectDialogSummaryStepContent = ({locked = false}: ProjectDialogS
         rolePrincipals,
         applications,
     } = useStore($projectDialog, {
-        keys: ['parentProjects', 'nameData', 'defaultLanguage', 'accessMode', 'permissions', 'roles', 'applications', 'rolePrincipals'],
+        keys: [
+            'parentProjects',
+            'nameData',
+            'defaultLanguage',
+            'accessMode',
+            'permissions',
+            'roles',
+            'applications',
+            'rolePrincipals',
+        ],
     });
     const languages = useStore($languages);
 
@@ -80,10 +91,18 @@ export const ProjectDialogSummaryStepContent = ({locked = false}: ProjectDialogS
     const principalsByRole = (() => {
         const bucket: Map<string, Principal[]> = new Map<string, Principal[]>();
 
-        const owners = rolePrincipals.filter((principal) => roles[principal.getKey().toString()] === ProjectAccess.OWNER);
-        const editors = rolePrincipals.filter((principal) => roles[principal.getKey().toString()] === ProjectAccess.EDITOR);
-        const contributors = rolePrincipals.filter((principal) => roles[principal.getKey().toString()] === ProjectAccess.CONTRIBUTOR);
-        const authors = rolePrincipals.filter((principal) => roles[principal.getKey().toString()] === ProjectAccess.AUTHOR);
+        const owners = rolePrincipals.filter(
+            (principal) => roles[principal.getKey().toString()] === ProjectAccess.OWNER,
+        );
+        const editors = rolePrincipals.filter(
+            (principal) => roles[principal.getKey().toString()] === ProjectAccess.EDITOR,
+        );
+        const contributors = rolePrincipals.filter(
+            (principal) => roles[principal.getKey().toString()] === ProjectAccess.CONTRIBUTOR,
+        );
+        const authors = rolePrincipals.filter(
+            (principal) => roles[principal.getKey().toString()] === ProjectAccess.AUTHOR,
+        );
 
         if (owners.length > 0) bucket.set(ownerLabel, owners);
         if (editors.length > 0) bucket.set(editorLabel, editors);
@@ -100,7 +119,9 @@ export const ProjectDialogSummaryStepContent = ({locked = false}: ProjectDialogS
             <dl className="grid grid-cols-[auto_1fr] gap-x-7.5 gap-y-5 bg-surface-primary p-5 rounded-md text-sm">
                 {parentProjects.length > 0 && (
                     <div className="contents">
-                        <dt className="font-semibold">{parentProjects.length > 1 ? parentProjectsLabel : parentProjectLabel}</dt>
+                        <dt className="font-semibold">
+                            {parentProjects.length > 1 ? parentProjectsLabel : parentProjectLabel}
+                        </dt>
                         <dd className="flex flex-col gap-2.5">
                             {parentProjects.map((project) => {
                                 const name = project.getDisplayName();

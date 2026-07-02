@@ -1,14 +1,12 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {isBlank} from '../../../v6/features/utils/format/isBlank';
-import {Body} from '@enonic/lib-admin-ui/dom/Body';
-import {CompositeFormInputEl} from '@enonic/lib-admin-ui/dom/CompositeFormInputEl';
-import {H2El} from '@enonic/lib-admin-ui/dom/H2El';
-import {TextInput, type TextInputSize} from '@enonic/lib-admin-ui/ui/text/TextInput';
-import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { isBlank } from '../../../v6/shared/lib/format/isBlank';
+import { Body } from '@enonic/lib-admin-ui/dom/Body';
+import { CompositeFormInputEl } from '@enonic/lib-admin-ui/dom/CompositeFormInputEl';
+import { H2El } from '@enonic/lib-admin-ui/dom/H2El';
+import { TextInput, type TextInputSize } from '@enonic/lib-admin-ui/ui/text/TextInput';
+import { SpanEl } from '@enonic/lib-admin-ui/dom/SpanEl';
 
-export class InPlaceTextInput
-    extends CompositeFormInputEl {
-
+export class InPlaceTextInput extends CompositeFormInputEl {
     private readonly input: TextInput;
     private readonly h2: H2El;
     private persistedValue: string;
@@ -52,14 +50,14 @@ export class InPlaceTextInput
         input.onKeyDown((event: KeyboardEvent) => {
             event.stopImmediatePropagation();
             switch (event.code) {
-            case 'Escape':
-                this.setEditMode(false, true);
-                break;
-            case 'Enter':
-                if (this.isInputValid()) {
-                    this.setEditMode(false);
-                }
-                break;
+                case 'Escape':
+                    this.setEditMode(false, true);
+                    break;
+                case 'Enter':
+                    if (this.isInputValid()) {
+                        this.setEditMode(false);
+                    }
+                    break;
             }
         });
 
@@ -131,11 +129,11 @@ export class InPlaceTextInput
     }
 
     public unEditModeChanged(listener: (editMode: boolean, newValue: string, oldValue: string) => void) {
-        this.modeListeners = this.modeListeners.filter(curr => curr !== listener);
+        this.modeListeners = this.modeListeners.filter((curr) => curr !== listener);
     }
 
     private notifyEditModeChanged(editMode: boolean, newValue: string, oldValue: string) {
-        this.modeListeners.forEach(listener => {
+        this.modeListeners.forEach((listener) => {
             listener(editMode, newValue, oldValue);
         });
     }

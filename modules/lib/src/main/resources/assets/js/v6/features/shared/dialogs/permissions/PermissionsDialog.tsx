@@ -1,6 +1,6 @@
-import {showError, showSuccess, showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {Dialog, Skeleton, Tooltip} from '@enonic/ui';
-import {ReactElement, useCallback, useMemo} from 'react';
+import { showError, showSuccess, showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { Dialog, Skeleton, Tooltip } from '@enonic/ui';
+import { ReactElement, useCallback, useMemo } from 'react';
 import {
     $isPermissionsDialogDirty,
     $permissionsDialog,
@@ -10,12 +10,12 @@ import {
     setPermissionsDialogView,
     updatePermissions,
 } from '../../../store/dialogs/permissionsDialog.store';
-import {useStore} from '@nanostores/preact';
-import {PermissionsDialogSteps} from './steps';
-import {useI18n} from '../../../hooks/useI18n';
-import {useTaskProgress} from '../../../hooks/useTaskProgress';
-import {ProgressBar} from '../../primitives/ProgressBar';
-import {ConfirmationDialog} from '../ConfirmationDialog';
+import { useStore } from '@nanostores/preact';
+import { PermissionsDialogSteps } from './steps';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { useTaskProgress } from '../../../hooks/useTaskProgress';
+import { ProgressBar } from '../../../../shared/ui/primitives/ProgressBar';
+import { ConfirmationDialog } from '../ConfirmationDialog';
 
 const PERMISSIONS_DIALOG_NAME = 'PermissionsDialog';
 
@@ -50,25 +50,35 @@ export const PermissionsDialog = (): ReactElement => {
 
     // Memoized values
     const numberItemsToApplyTo = useMemo(
-        () => (applyTo === 'single' ? 1 : applyTo === 'subtree' ? contentDescendantsCount : contentDescendantsCount + 1),
-        [applyTo, contentDescendantsCount]
+        () =>
+            applyTo === 'single' ? 1 : applyTo === 'subtree' ? contentDescendantsCount : contentDescendantsCount + 1,
+        [applyTo, contentDescendantsCount],
     );
 
     const isLeafContent = contentDescendantsCount === 0;
 
     const canGoToSummaryStep = useMemo(
-        () => (isLeafContent ? isDirty : hasVisitedStrategyStep && (applyTo === 'tree' || applyTo === 'subtree' || isDirty)),
-        [hasVisitedStrategyStep, isLeafContent, isDirty, applyTo]
+        () =>
+            isLeafContent
+                ? isDirty
+                : hasVisitedStrategyStep && (applyTo === 'tree' || applyTo === 'subtree' || isDirty),
+        [hasVisitedStrategyStep, isLeafContent, isDirty, applyTo],
     );
 
     // Constants
-    const {progress} = useTaskProgress(taskId);
+    const { progress } = useTaskProgress(taskId);
     const previousLabel = useI18n('action.previous');
     const nextLabel = useI18n('action.next');
     const permissionsAppliedSingleLabel = useI18n('dialog.permissions.permissionsAppliedSingle');
-    const permissionsAppliedMultipleLabel = useI18n('dialog.permissions.permissionsAppliedMultiple', numberItemsToApplyTo);
+    const permissionsAppliedMultipleLabel = useI18n(
+        'dialog.permissions.permissionsAppliedMultiple',
+        numberItemsToApplyTo,
+    );
     const permissionsFailedSingleLabel = useI18n('dialog.permissions.permissionsFailedSingle');
-    const permissionsFailedMultipleLabel = useI18n('dialog.permissions.permissionsFailedMultiple', numberItemsToApplyTo);
+    const permissionsFailedMultipleLabel = useI18n(
+        'dialog.permissions.permissionsFailedMultiple',
+        numberItemsToApplyTo,
+    );
     const replaceAllPermissionsLabel = useI18n('dialog.permissions.replaceAllPermissions', numberItemsToApplyTo);
     const applyPermissionsLabel = useI18n('dialog.permissions.applyChanges', numberItemsToApplyTo);
     const progressHelper = useI18n('dialog.permissions.title', contentDisplayName);
@@ -87,7 +97,7 @@ export const PermissionsDialog = (): ReactElement => {
                 ['step-strategy', stepStrategyTooltip],
                 ['step-summary', stepSummaryTooltip],
             ]),
-        [stepAccessTooltip, stepStrategyTooltip, stepSummaryTooltip]
+        [stepAccessTooltip, stepStrategyTooltip, stepSummaryTooltip],
     );
 
     // Handlers
@@ -112,7 +122,7 @@ export const PermissionsDialog = (): ReactElement => {
 
             closePermissionsDialog();
         },
-        [view, taskId, isDirty]
+        [view, taskId, isDirty],
     );
 
     const handleSubmit = useCallback(() => {
@@ -197,7 +207,9 @@ export const PermissionsDialog = (): ReactElement => {
 
                                 <Dialog.Body className="p-2 -m-2">
                                     <PermissionsDialogSteps.AccessStep.Content />
-                                    {!isLeafContent && <PermissionsDialogSteps.StrategyStep.Content locked={!isDirty} />}
+                                    {!isLeafContent && (
+                                        <PermissionsDialogSteps.StrategyStep.Content locked={!isDirty} />
+                                    )}
                                     <PermissionsDialogSteps.SummaryStep.Content locked={!canGoToSummaryStep} />
                                 </Dialog.Body>
 
@@ -206,7 +218,11 @@ export const PermissionsDialog = (): ReactElement => {
                                         dots
                                         previousLabel={previousLabel}
                                         nextLabel={nextLabel}
-                                        lastStepLabel={replaceAllChildPermissions ? replaceAllPermissionsLabel : applyPermissionsLabel}
+                                        lastStepLabel={
+                                            replaceAllChildPermissions
+                                                ? replaceAllPermissionsLabel
+                                                : applyPermissionsLabel
+                                        }
                                         onLastStep={handleSubmit}
                                         renderDot={(dot, step) => (
                                             <Tooltip delay={150} side="top" value={stepsMap.get(step) ?? ''}>
@@ -220,7 +236,12 @@ export const PermissionsDialog = (): ReactElement => {
 
                         {!loading && taskId && (
                             <>
-                                <Dialog.StepHeader step="step-summary" helper={progressHelper} title={progressTitle} withClose />
+                                <Dialog.StepHeader
+                                    step="step-summary"
+                                    helper={progressHelper}
+                                    title={progressTitle}
+                                    withClose
+                                />
                                 <ProgressBar value={progress} />
                             </>
                         )}

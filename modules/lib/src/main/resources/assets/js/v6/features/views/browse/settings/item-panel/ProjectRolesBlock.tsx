@@ -1,9 +1,9 @@
-import {ReactElement} from 'react';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {useI18n} from '../../../../hooks/useI18n';
-import {PrincipalsList} from './PrincipalsList';
-import {StatisticsBlock} from './StatisticsBlock';
-import {StatisticsColumn} from './StatisticsColumn';
+import { ReactElement } from 'react';
+import { Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { PrincipalsList } from './PrincipalsList';
+import { StatisticsBlock } from './StatisticsBlock';
+import { StatisticsColumn } from './StatisticsColumn';
 
 type ProjectRolesBlockProps = {
     owners: Principal[];

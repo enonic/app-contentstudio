@@ -1,19 +1,15 @@
-import {Dialog, Checkbox, cn} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {DiffPatcher} from 'jsondiffpatch';
-import {format, showUnchanged} from 'jsondiffpatch/formatters/html';
-import {ReactElement, useCallback, useEffect, useId, useMemo} from 'react';
-import {ContentVersion} from '../../../../../../../app/ContentVersion';
-import {fetchVersion as defaultFetchVersion} from '../../../../../api/versions';
-import {getVersionOperationTime} from '../../../../../store/context/versionOperations';
-import {useI18n} from '../../../../../hooks/useI18n';
-import {
-    $compareVersionsDialog,
-    closeCompareVersionsDialog,
-    setCompareVersionsShowAll,
-} from './store';
-import {SelectedVersionCard} from './SelectedVersionCard';
-import {useVersionsJson, type FetchVersionFn} from './useVersionsJson';
+import { Dialog, Checkbox, cn } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { DiffPatcher } from 'jsondiffpatch';
+import { format, showUnchanged } from 'jsondiffpatch/formatters/html';
+import { ReactElement, useCallback, useEffect, useId, useMemo } from 'react';
+import { ContentVersion } from '../../../../../../../app/ContentVersion';
+import { fetchVersion as defaultFetchVersion } from '../../../../../api/versions';
+import { getVersionOperationTime } from '../../../../../store/context/versionOperations';
+import { useI18n } from '../../../../../../shared/lib/hooks/useI18n';
+import { $compareVersionsDialog, closeCompareVersionsDialog, setCompareVersionsShowAll } from './store';
+import { SelectedVersionCard } from './SelectedVersionCard';
+import { useVersionsJson, type FetchVersionFn } from './useVersionsJson';
 
 const COMPARE_VERSIONS_DIALOG_NAME = 'CompareVersionsDialog';
 
@@ -24,8 +20,8 @@ type OrderedVersions = {
 
 const orderVersions = (left: ContentVersion, right: ContentVersion): OrderedVersions =>
     getVersionOperationTime(left) <= getVersionOperationTime(right)
-        ? {older: left, newer: right}
-        : {older: right, newer: left};
+        ? { older: left, newer: right }
+        : { older: right, newer: left };
 
 type CompareVersionsDialogProps = {
     /** Override the version-content fetcher. Defaults to Content Studio's API. */
@@ -35,13 +31,7 @@ type CompareVersionsDialogProps = {
 export const CompareVersionsDialog = ({
     fetchVersion = defaultFetchVersion,
 }: CompareVersionsDialogProps = {}): ReactElement => {
-    const {
-        open,
-        contentId,
-        leftVersion,
-        rightVersion,
-        showAllContent,
-    } = useStore($compareVersionsDialog);
+    const { open, contentId, leftVersion, rightVersion, showAllContent } = useStore($compareVersionsDialog);
 
     const title = useI18n('dialog.compareVersions.comparingVersions');
     const olderLabel = useI18n('dialog.compareVersions.olderVersion');
@@ -65,14 +55,9 @@ export const CompareVersionsDialog = ({
     const olderVersionId = orderedVersions?.older.getId();
     const newerVersionId = orderedVersions?.newer.getId();
 
-    const {
-        olderVersionJson,
-        newerVersionJson,
-        isLoading,
-        error,
-    } = useVersionsJson(
+    const { olderVersionJson, newerVersionJson, isLoading, error } = useVersionsJson(
         fetchVersion,
-        open ? contentId ?? undefined : undefined,
+        open ? (contentId ?? undefined) : undefined,
         open ? olderVersionId : undefined,
         open ? newerVersionId : undefined,
     );
@@ -93,18 +78,18 @@ export const CompareVersionsDialog = ({
         }
     }, [open]);
 
-    const {diffHtml, isEmpty} = useMemo(() => {
+    const { diffHtml, isEmpty } = useMemo(() => {
         if (!open || !olderVersionJson || !newerVersionJson) {
-            return {diffHtml: '', isEmpty: false};
+            return { diffHtml: '', isEmpty: false };
         }
 
         const delta = diffPatcher.diff(olderVersionJson, newerVersionJson);
 
         if (delta) {
-            return {diffHtml: format(delta, olderVersionJson), isEmpty: false};
+            return { diffHtml: format(delta, olderVersionJson), isEmpty: false };
         }
 
-        return {diffHtml: `<h3>${versionsIdenticalLabel}</h3>`, isEmpty: true};
+        return { diffHtml: `<h3>${versionsIdenticalLabel}</h3>`, isEmpty: true };
     }, [open, olderVersionJson, newerVersionJson, diffPatcher, versionsIdenticalLabel]);
 
     useEffect(() => {
@@ -134,18 +119,14 @@ export const CompareVersionsDialog = ({
                         </div>
 
                         <div className="flex-1 min-h-0 overflow-auto bg-surface-neutral/40 py-3">
-                            {isLoading && (
-                                <div className="text-sm text-subtle">{loadingLabel}</div>
-                            )}
+                            {isLoading && <div className="text-sm text-subtle">{loadingLabel}</div>}
 
-                            {!isLoading && error && (
-                                <div className="text-sm text-red-600">{error.message}</div>
-                            )}
+                            {!isLoading && error && <div className="text-sm text-red-600">{error.message}</div>}
 
                             {!isLoading && !error && (
                                 <div
                                     className={cn('jsondiffpatch-delta text-sm', isEmpty && 'empty')}
-                                    dangerouslySetInnerHTML={{__html: diffHtml}}
+                                    dangerouslySetInnerHTML={{ __html: diffHtml }}
                                 />
                             )}
                         </div>

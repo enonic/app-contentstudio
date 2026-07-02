@@ -1,10 +1,10 @@
-import {Name} from '@enonic/lib-admin-ui/Name';
-import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
-import {map} from 'nanostores';
-import {ContentName} from '../../../app/content/ContentName';
-import {ContentUnnamed} from '../../../app/content/ContentUnnamed';
-import type {PublishStatus} from '../../../app/publish/PublishStatus';
-import {$config} from './config.store';
+import { Name } from '@enonic/lib-admin-ui/Name';
+import { NamePrettyfier } from '@enonic/lib-admin-ui/NamePrettyfier';
+import { map } from 'nanostores';
+import { ContentName } from '../../../app/content/ContentName';
+import { ContentUnnamed } from '../../../app/content/ContentUnnamed';
+import type { PublishStatus } from '../../../app/publish/PublishStatus';
+import { $config } from '../../shared/config/config.store';
 import {
     $contentType,
     $wizardContentState,
@@ -14,7 +14,7 @@ import {
     $wizardPersistedName,
     setDraftName,
 } from './wizardContent.store';
-import type {WizardToolbarCollaborator, WizardToolbarStore} from './wizardToolbar.types';
+import type { WizardToolbarCollaborator, WizardToolbarStore } from './wizardToolbar.types';
 
 const createInitialState = (): WizardToolbarStore => ({
     projectLabel: '',
@@ -64,7 +64,7 @@ function normalizeContentName(name: string): string {
 
 let previousDisplayName: string | undefined;
 
-$wizardDraftDisplayName.subscribe(displayName => {
+$wizardDraftDisplayName.subscribe((displayName) => {
     if (
         $wizardToolbar.get().isContentOnline ||
         previousDisplayName === undefined ||
@@ -94,12 +94,12 @@ $wizardDraftDisplayName.subscribe(displayName => {
     previousDisplayName = displayName;
 });
 
-$wizardDraftName.subscribe(name => {
+$wizardDraftName.subscribe((name) => {
     const nameStr = name?.toString() || '';
     $wizardToolbar.setKey('contentName', normalizeContentName(nameStr));
 });
 
-$wizardContentState.subscribe(contentState => {
+$wizardContentState.subscribe((contentState) => {
     $wizardToolbar.setKey('contentState', contentState);
 });
 

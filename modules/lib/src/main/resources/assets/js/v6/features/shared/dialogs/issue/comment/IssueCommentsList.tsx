@@ -1,10 +1,10 @@
-import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
-import {cn} from '@enonic/ui';
-import {type ReactElement} from 'react';
-import {useI18n} from '../../../../hooks/useI18n';
-import {IssueCommentItem} from './IssueCommentItem';
+import { DateHelper } from '@enonic/lib-admin-ui/util/DateHelper';
+import { cn } from '@enonic/ui';
+import { type ReactElement } from 'react';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { IssueCommentItem } from './IssueCommentItem';
 
-import type {IssueComment} from '../../../../../../app/issue/IssueComment';
+import type { IssueComment } from '../../../../../../app/issue/IssueComment';
 
 export type IssueCommentsListProps = {
     comments: IssueComment[];
@@ -36,14 +36,14 @@ export const IssueCommentsList = ({
             aria-label={ariaLabel}
             className={cn('flex min-h-5 max-h-80 flex-col gap-2.5 overflow-y-auto px-2 -mx-2', className)}
         >
-            {hasNoContent && (
-                <div className='italic text-subtle'>{noCommentsText}</div>
-            )}
+            {hasNoContent && <div className="italic text-subtle">{noCommentsText}</div>}
             {comments.map((comment) => (
                 <IssueCommentItem
                     key={comment.getId()}
                     name={comment.getCreatorDisplayName()}
-                    timeLabel={comment.getCreatedTime() ? DateHelper.getModifiedString(comment.getCreatedTime()) : undefined}
+                    timeLabel={
+                        comment.getCreatedTime() ? DateHelper.getModifiedString(comment.getCreatedTime()) : undefined
+                    }
                     text={comment.getText()}
                     onUpdate={onUpdateComment ? (nextText) => onUpdateComment(comment.getId(), nextText) : undefined}
                     onDelete={onDeleteComment ? () => onDeleteComment(comment.getId()) : undefined}

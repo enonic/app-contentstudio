@@ -1,15 +1,18 @@
-import {Button, IconButton, Separator, Tooltip} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {Copy} from 'lucide-react';
-import {type ReactElement, useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
-import {ExtensionBasePropertiesItemViewHelper} from '../../../../../../app/view/context/extension/details/ExtensionBasePropertiesItemViewHelper';
-import type {ExtensionPropertiesItemViewValue} from '../../../../../../app/view/context/extension/details/ExtensionPropertiesItemViewValue';
-import {PropertiesWizardStepFormType} from '../../../../../../app/view/context/extension/details/PropertiesWizardStepFormFactory';
-import {useI18n} from '../../../../hooks/useI18n';
-import {EditPropertiesDialog} from '../../../../shared/dialogs/EditPropertiesDialog';
-import {$contextContent} from '../../../../store/context/contextContent.store';
-import {closeEditPropertiesDialog, openEditPropertiesDialog} from '../../../../store/dialogs/editPropertiesDialog.store';
+import { Button, IconButton, Separator, Tooltip } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { Copy } from 'lucide-react';
+import { type ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ContentSummaryAndCompareStatus } from '../../../../../../app/content/ContentSummaryAndCompareStatus';
+import { ExtensionBasePropertiesItemViewHelper } from '../../../../../../app/view/context/extension/details/ExtensionBasePropertiesItemViewHelper';
+import type { ExtensionPropertiesItemViewValue } from '../../../../../../app/view/context/extension/details/ExtensionPropertiesItemViewValue';
+import { PropertiesWizardStepFormType } from '../../../../../../app/view/context/extension/details/PropertiesWizardStepFormFactory';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { EditPropertiesDialog } from '../../../../shared/dialogs/EditPropertiesDialog';
+import { $contextContent } from '../../../../store/context/contextContent.store';
+import {
+    closeEditPropertiesDialog,
+    openEditPropertiesDialog,
+} from '../../../../store/dialogs/editPropertiesDialog.store';
 
 type ContentProps = Map<string, ExtensionPropertiesItemViewValue>;
 
@@ -52,34 +55,37 @@ export const DetailsWidgetInfoSection = (): ReactElement => {
         });
     }, [content, contentId, helper]);
 
-    const renderPropertyRow = useCallback((key: string, value: ExtensionPropertiesItemViewValue): ReactElement => {
-        const isId = key === 'Id';
-        const title = value.getTitle() ?? '';
-        const displayName = value.getDisplayName();
+    const renderPropertyRow = useCallback(
+        (key: string, value: ExtensionPropertiesItemViewValue): ReactElement => {
+            const isId = key === 'Id';
+            const title = value.getTitle() ?? '';
+            const displayName = value.getDisplayName();
 
-        return (
-            <div key={key} className="contents">
-                <dt className="text-xs text-subtle">{key}</dt>
-                <dd className="flex items-center justify-between gap-2 overflow-hidden">
-                    <span className="text-xs truncate" title={title}>
-                        {displayName}
-                    </span>
-                    {isId && (
-                        <Tooltip delay={150} value={copyTooltip} side="left">
-                            <IconButton
-                                className="size-4 shrink-0"
-                                size="sm"
-                                icon={Copy}
-                                iconSize={14}
-                                aria-label={copyTooltip}
-                                onClick={() => copyToClipboard(displayName)}
-                            />
-                        </Tooltip>
-                    )}
-                </dd>
-            </div>
-        );
-    }, [copyTooltip]);
+            return (
+                <div key={key} className="contents">
+                    <dt className="text-xs text-subtle">{key}</dt>
+                    <dd className="flex items-center justify-between gap-2 overflow-hidden">
+                        <span className="text-xs truncate" title={title}>
+                            {displayName}
+                        </span>
+                        {isId && (
+                            <Tooltip delay={150} value={copyTooltip} side="left">
+                                <IconButton
+                                    className="size-4 shrink-0"
+                                    size="sm"
+                                    icon={Copy}
+                                    iconSize={14}
+                                    aria-label={copyTooltip}
+                                    onClick={() => copyToClipboard(displayName)}
+                                />
+                            </Tooltip>
+                        )}
+                    </dd>
+                </div>
+            );
+        },
+        [copyTooltip],
+    );
 
     if (!content) return null;
 

@@ -1,21 +1,21 @@
-import {Link, Separator, Tooltip} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {type ReactElement, useEffect, useState} from 'react';
-import type {Content} from '../../../../../../app/content/Content';
-import type {PageTemplate} from '../../../../../../app/content/PageTemplate';
-import type {Descriptor} from '../../../../../../app/page/Descriptor';
-import {PageMode} from '../../../../../../app/page/PageMode';
-import {ContentUrlHelper} from '../../../../../../app/util/ContentUrlHelper';
+import { Link, Separator, Tooltip } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { type ReactElement, useEffect, useState } from 'react';
+import type { Content } from '../../../../../../app/content/Content';
+import type { PageTemplate } from '../../../../../../app/content/PageTemplate';
+import type { Descriptor } from '../../../../../../app/page/Descriptor';
+import { PageMode } from '../../../../../../app/page/PageMode';
+import { ContentUrlHelper } from '../../../../../../app/util/ContentUrlHelper';
 import {
     loadComponentDescriptor,
     loadDefaultPageTemplate,
     loadNearestSite,
     loadPageTemplate,
 } from '../../../../api/details';
-import {useI18n} from '../../../../hooks/useI18n';
-import {TemplateIcon} from '../../../../shared/icons/TemplateIcon';
-import {ItemLabel} from '../../../../shared/ItemLabel';
-import {$detailsWidgetContent} from '../../../../store/context/detailsWidgets.store';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { TemplateIcon } from '../../../../../shared/ui/icons/TemplateIcon';
+import { ItemLabel } from '../../../../../shared/ui/ItemLabel';
+import { $detailsWidgetContent } from '../../../../store/context/detailsWidgets.store';
 
 type State = {
     mode: PageMode;
@@ -36,25 +36,27 @@ function getDisplayName(content: Content, state: State, translations: ModeTransl
 async function attemptAutomaticMode(content: Content): Promise<State> {
     const site = await loadNearestSite(content.getContentId());
 
-    const defaultPageTemplate = site ? await loadDefaultPageTemplate(site.getContentId(), content.getType()) : undefined;
+    const defaultPageTemplate = site
+        ? await loadDefaultPageTemplate(site.getContentId(), content.getType())
+        : undefined;
 
     if (defaultPageTemplate?.isPage()) {
-        return {mode: PageMode.AUTOMATIC, template: defaultPageTemplate, descriptor: null};
+        return { mode: PageMode.AUTOMATIC, template: defaultPageTemplate, descriptor: null };
     }
 
-    return {mode: PageMode.NO_CONTROLLER, template: null, descriptor: null};
+    return { mode: PageMode.NO_CONTROLLER, template: null, descriptor: null };
 }
 
 async function getState(content: Content): Promise<State> {
     if (content.getType().isFragment()) {
-        return {mode: PageMode.FRAGMENT, template: null, descriptor: null};
+        return { mode: PageMode.FRAGMENT, template: null, descriptor: null };
     }
 
     if (content.isPage() && content.getPage().hasTemplate()) {
         const template = await loadPageTemplate(content.getPage().getTemplate());
 
         if (template) {
-            return {mode: PageMode.FORCED_TEMPLATE, template, descriptor: null};
+            return { mode: PageMode.FORCED_TEMPLATE, template, descriptor: null };
         }
 
         return attemptAutomaticMode(content);
@@ -64,7 +66,7 @@ async function getState(content: Content): Promise<State> {
         const descriptor = await loadComponentDescriptor(content);
 
         if (descriptor) {
-            return {mode: PageMode.FORCED_CONTROLLER, template: null, descriptor};
+            return { mode: PageMode.FORCED_CONTROLLER, template: null, descriptor };
         }
     }
 
@@ -75,7 +77,7 @@ const DETAILS_WIDGET_TEMPLATE_SECTION_NAME = 'DetailsWidgetTemplateSection';
 
 export const DetailsWidgetTemplateSection = (): ReactElement => {
     const content = useStore($detailsWidgetContent);
-    const [state, setState] = useState<State>({mode: PageMode.NO_CONTROLLER, template: null, descriptor: null});
+    const [state, setState] = useState<State>({ mode: PageMode.NO_CONTROLLER, template: null, descriptor: null });
 
     const titleText = useI18n('field.contextPanel.details.sections.template');
     const modeTranslations: ModeTranslations = {

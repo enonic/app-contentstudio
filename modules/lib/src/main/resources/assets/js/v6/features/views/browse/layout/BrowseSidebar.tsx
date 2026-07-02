@@ -1,18 +1,25 @@
-import type {Extension} from '@enonic/lib-admin-ui/extension/Extension';
-import {Store} from '@enonic/lib-admin-ui/store/Store';
-import {Tooltip} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {type LucideIcon, Pen, Settings} from 'lucide-react';
-import {type ReactElement, useCallback} from 'react';
-import {useI18n} from '../../../hooks/useI18n';
-import {DefaultProjectIcon} from '../../../shared/icons/DefaultProjectIcon';
-import {ProjectIcon} from '../../../shared/icons/ProjectIcon';
-import {LegacyElement} from '../../../shared/LegacyElement';
-import {WidgetButton} from '../../../shared/WidgetButton';
-import {$activeProject} from '../../../store/activeProject.store';
-import {$config} from '../../../store/config.store';
-import {$noProjectMode} from '../../../store/projects.store';
-import {$sidebarWidgets, getSettingsWidget, getWidgetKey, isMainWidget, isSettingsWidget, setActiveWidget} from '../../../store/sidebarWidgets.store';
+import type { Extension } from '@enonic/lib-admin-ui/extension/Extension';
+import { Store } from '@enonic/lib-admin-ui/store/Store';
+import { Tooltip } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { type LucideIcon, Pen, Settings } from 'lucide-react';
+import { type ReactElement, useCallback } from 'react';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { DefaultProjectIcon } from '../../../../shared/ui/icons/DefaultProjectIcon';
+import { ProjectIcon } from '../../../../shared/ui/icons/ProjectIcon';
+import { LegacyElement } from '../../../../shared/ui/LegacyElement';
+import { WidgetButton } from '../../../../shared/ui/WidgetButton';
+import { $activeProject } from '../../../store/activeProject.store';
+import { $config } from '../../../../shared/config/config.store';
+import { $noProjectMode } from '../../../store/projects.store';
+import {
+    $sidebarWidgets,
+    getSettingsWidget,
+    getWidgetKey,
+    isMainWidget,
+    isSettingsWidget,
+    setActiveWidget,
+} from '../../../store/sidebarWidgets.store';
 
 function getWidgetIcon(widget: Readonly<Extension>): LucideIcon | undefined {
     if (isMainWidget(widget)) return Pen;
@@ -27,8 +34,8 @@ function stripVersionSuffix(version: string): string {
 export const BrowseSidebar = (): ReactElement => {
     const activeProject = useStore($activeProject);
     const noProjectMode = useStore($noProjectMode);
-    const {widgets, activeWidgetId} = useStore($sidebarWidgets);
-    const config = useStore($config, {keys: ['appVersion']});
+    const { widgets, activeWidgetId } = useStore($sidebarWidgets);
+    const config = useStore($config, { keys: ['appVersion'] });
     const name = Store.instance().get('application').getName();
     const version = `v${stripVersionSuffix(config.appVersion)}`;
     const settingsWidget = getSettingsWidget(widgets);
@@ -39,7 +46,7 @@ export const BrowseSidebar = (): ReactElement => {
         (widget: Readonly<Extension> | undefined) => {
             return getWidgetKey(widget) === activeWidgetId;
         },
-        [activeWidgetId]
+        [activeWidgetId],
     );
 
     return (
@@ -77,7 +84,7 @@ export const BrowseSidebar = (): ReactElement => {
                     ))}
                 </div>
                 {/* Footer */}
-                <div className='flex flex-col gap-1'>
+                <div className="flex flex-col gap-1">
                     {footerWidget && (
                         <WidgetButton
                             label={footerWidget.getDisplayName()}

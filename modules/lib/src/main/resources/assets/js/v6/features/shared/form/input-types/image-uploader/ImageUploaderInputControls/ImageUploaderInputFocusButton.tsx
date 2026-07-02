@@ -1,11 +1,11 @@
-import {type ReactElement} from 'react';
-import {cn, IconButton, Tooltip} from '@enonic/ui';
-import {Focus} from 'lucide-react';
-import {useImageUploaderContext} from '../ImageUploaderContext';
-import {useI18n} from '../../../../../hooks/useI18n';
+import { type ReactElement } from 'react';
+import { cn, IconButton, Tooltip } from '@enonic/ui';
+import { Focus } from 'lucide-react';
+import { useImageUploaderContext } from '../ImageUploaderContext';
+import { useI18n } from '../../../../../../shared/lib/hooks/useI18n';
 
 export const ImageUploaderInputFocusButton = (): ReactElement => {
-    const {enabled, mode, setMode} = useImageUploaderContext();
+    const { enabled, mode, setMode } = useImageUploaderContext();
     const label = useI18n('editor.setautofocus');
 
     return (

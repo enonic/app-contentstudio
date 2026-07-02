@@ -1,15 +1,15 @@
-import {type ReactElement, useEffect, useMemo, useState} from 'react';
-import {type SelfManagedComponentProps} from '@enonic/lib-admin-ui/form2';
-import {type CustomSelectorConfig} from './CustomSelectorConfig';
-import {Combobox} from '@enonic/ui';
-import {useI18n} from '../../../../hooks/useI18n';
-import {SortableGridList} from '@enonic/lib-admin-ui/form2/components';
-import {ContentId} from '../../../../../../app/content/ContentId';
-import {ContentSummary, ContentSummaryBuilder} from '../../../../../../app/content/ContentSummary';
-import {CustomSelectorInputComboboxList} from './CustomSelectorComboboxList';
-import {CustomSelectorSelectionItemView} from './CustomSelectorSelectionItemView';
-import {useCustomSelector} from './useCustomSelector';
-import {useSelectorInputHasError} from '../hooks';
+import { type ReactElement, useEffect, useMemo, useState } from 'react';
+import { type SelfManagedComponentProps } from '@enonic/lib-admin-ui/form2';
+import { type CustomSelectorConfig } from './CustomSelectorConfig';
+import { Combobox } from '@enonic/ui';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { SortableGridList } from '@enonic/lib-admin-ui/form2/components';
+import { ContentId } from '../../../../../../app/content/ContentId';
+import { ContentSummary, ContentSummaryBuilder } from '../../../../../../app/content/ContentSummary';
+import { CustomSelectorInputComboboxList } from './CustomSelectorComboboxList';
+import { CustomSelectorSelectionItemView } from './CustomSelectorSelectionItemView';
+import { useCustomSelector } from './useCustomSelector';
+import { useSelectorInputHasError } from '../hooks';
 
 export type CustomSelectorItem = {
     id: string;
@@ -36,16 +36,20 @@ export const CustomSelectorInput = ({
 }: SelfManagedComponentProps<CustomSelectorConfig>): ReactElement => {
     const selection: string[] = useMemo(() => values.filter((v) => v.isNotNull()).map((v) => v.getString()), [values]);
     const [inputValue, setInputValue] = useState<string | undefined>();
-    const {allItems, filteredItems, isLoading, hasError, hasMore, preLoad, load, onSelectionChange} = useCustomSelector({
-        config,
-        selection,
-        query: inputValue,
-        onAdd,
-        onRemove,
-    });
+    const { allItems, filteredItems, isLoading, hasError, hasMore, preLoad, load, onSelectionChange } =
+        useCustomSelector({
+            config,
+            selection,
+            query: inputValue,
+            onAdd,
+            onRemove,
+        });
     const selectedItems = useMemo(
-        () => selection.map((id) => allItems.find((item) => item.id === id)).filter((item): item is CustomSelectorItem => !!item),
-        [allItems, selection]
+        () =>
+            selection
+                .map((id) => allItems.find((item) => item.id === id))
+                .filter((item): item is CustomSelectorItem => !!item),
+        [allItems, selection],
     );
     const selectedContents = useMemo(() => selectedItems.map(itemToContent), [selectedItems]);
 
@@ -162,6 +166,9 @@ function itemToContent(item: CustomSelectorItem): ContentSummary {
     const contentId = new ContentId(item.id);
 
     return new ContentSummary(
-        new ContentSummaryBuilder().setId(contentId.toString()).setContentId(contentId).setDisplayName(item.displayName)
+        new ContentSummaryBuilder()
+            .setId(contentId.toString())
+            .setContentId(contentId)
+            .setDisplayName(item.displayName),
     );
 }

@@ -1,10 +1,8 @@
-import {type OptionDataHelper} from '@enonic/lib-admin-ui/ui/selector/OptionDataHelper';
-import {type Project} from '../../../../data/project/Project';
-import {isBlank} from '../../../../../../v6/features/utils/format/isBlank';
+import { type OptionDataHelper } from '@enonic/lib-admin-ui/ui/selector/OptionDataHelper';
+import { type Project } from '../../../../data/project/Project';
+import { isBlank } from '../../../../../../v6/shared/lib/format/isBlank';
 
-export class ProjectOptionDataHelper
-    implements OptionDataHelper<Project> {
-
+export class ProjectOptionDataHelper implements OptionDataHelper<Project> {
     private projects: Project[] = [];
 
     private searchString: string;
@@ -57,8 +55,10 @@ export class ProjectOptionDataHelper
             return true;
         }
 
-        return project.getDisplayName()?.toLowerCase().indexOf(this.searchString) > -1 ||
-               project.getDescription()?.toLowerCase().indexOf(this.searchString) > -1 ||
-               project.getName()?.toLowerCase().indexOf(this.searchString) > -1;
+        return (
+            project.getDisplayName()?.toLowerCase().indexOf(this.searchString) > -1 ||
+            project.getDescription()?.toLowerCase().indexOf(this.searchString) > -1 ||
+            project.getName()?.toLowerCase().indexOf(this.searchString) > -1
+        );
     }
 }

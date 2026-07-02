@@ -1,9 +1,9 @@
-import {SortableGridList} from '@enonic/lib-admin-ui/form2/components/sortable-grid-list';
-import {Button, Dialog} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {useRef, type ReactElement} from 'react';
-import {useI18n} from '../../../hooks/useI18n';
-import {useSortDialogBatchLoader} from '../../../hooks/useSortDialogBatchLoader';
+import { SortableGridList } from '@enonic/lib-admin-ui/form2/components/sortable-grid-list';
+import { Button, Dialog } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { useRef, type ReactElement } from 'react';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { useSortDialogBatchLoader } from '../../../hooks/useSortDialogBatchLoader';
 import {
     $isSortDialogReady,
     $sortDialog,
@@ -15,9 +15,9 @@ import {
     startSortDialogManualReorder,
     submitSortDialogAction,
 } from '../../../store/dialogs/sortDialog.store';
-import type {SortOrderOptionId} from '../../../store/dialogs/sortDialog.types';
-import {SortContentListItem, SortContentListItemSkeleton} from '../../items';
-import {SortElementSelector} from '../../selectors/SortElementSelector';
+import type { SortOrderOptionId } from '../../../store/dialogs/sortDialog.types';
+import { SortContentListItem, SortContentListItemSkeleton } from '../../items';
+import { SortElementSelector } from '../../selectors/SortElementSelector';
 
 const SORT_DIALOG_MAIN_CONTENT_NAME = 'SortDialogMainContent';
 
@@ -26,7 +26,7 @@ export const SortDialogMainContent = (): ReactElement => {
     const registerRow = useSortDialogBatchLoader(scrollRef);
 
     const rows = useStore($sortDialogRows);
-    const {idsLoading, idsFailed, failedBatches, selectedOptionId} = useStore($sortDialog, {
+    const { idsLoading, idsFailed, failedBatches, selectedOptionId } = useStore($sortDialog, {
         keys: ['idsLoading', 'idsFailed', 'failedBatches', 'selectedOptionId'],
     });
     const canSave = useStore($isSortDialogReady);
@@ -50,16 +50,16 @@ export const SortDialogMainContent = (): ReactElement => {
     const saveLabel = useI18n('action.save');
     const reorderLabel = useI18n('field.occurrence.action.reorder');
 
-    const sortElementOptions: {id: SortOrderOptionId; label: string}[] = [
-        {id: 'modified:ASC', label: `${modifiedLabel} (${ascendingLabel})`},
-        {id: 'modified:DESC', label: `${modifiedLabel} (${descendingLabel})`},
-        {id: 'created:ASC', label: `${createdLabel} (${ascendingLabel})`},
-        {id: 'created:DESC', label: `${createdLabel} (${descendingLabel})`},
-        {id: 'displayName:ASC', label: `${displayNameLabel} (${alphabeticalAscendingLabel})`},
-        {id: 'displayName:DESC', label: `${displayNameLabel} (${alphabeticalDescendingLabel})`},
-        {id: 'publish:ASC', label: `${publishLabel} (${ascendingLabel})`},
-        {id: 'publish:DESC', label: `${publishLabel} (${descendingLabel})`},
-        {id: 'manual', label: manualLabel},
+    const sortElementOptions: { id: SortOrderOptionId; label: string }[] = [
+        { id: 'modified:ASC', label: `${modifiedLabel} (${ascendingLabel})` },
+        { id: 'modified:DESC', label: `${modifiedLabel} (${descendingLabel})` },
+        { id: 'created:ASC', label: `${createdLabel} (${ascendingLabel})` },
+        { id: 'created:DESC', label: `${createdLabel} (${descendingLabel})` },
+        { id: 'displayName:ASC', label: `${displayNameLabel} (${alphabeticalAscendingLabel})` },
+        { id: 'displayName:DESC', label: `${displayNameLabel} (${alphabeticalDescendingLabel})` },
+        { id: 'publish:ASC', label: `${publishLabel} (${ascendingLabel})` },
+        { id: 'publish:DESC', label: `${publishLabel} (${descendingLabel})` },
+        { id: 'manual', label: manualLabel },
     ];
     const isManualSorting = selectedOptionId === 'manual';
 
@@ -68,8 +68,8 @@ export const SortDialogMainContent = (): ReactElement => {
         'focus-within:ring-offset-3 focus-within:ring-offset-ring-offset focus-within:border-bdr-solid rounded-sm';
 
     return (
-        <Dialog.Content className='w-full h-full gap-7.5 sm:h-fit md:min-w-184 md:max-w-220'>
-            <Dialog.DefaultHeader title={title} withClose >
+        <Dialog.Content className="w-full h-full gap-7.5 sm:h-fit md:min-w-184 md:max-w-220">
+            <Dialog.DefaultHeader title={title} withClose>
                 <SortElementSelector
                     label={sortElementLabel}
                     emptyLabel={sortElementEmptyLabel}
@@ -77,7 +77,7 @@ export const SortDialogMainContent = (): ReactElement => {
                     selection={[selectedOptionId]}
                     onSelectionChange={setSortDialogOrderSelection}
                     disabled={idsLoading}
-                    className='flex flex-col gap-2.5 col-start-1 row-start-3 col-span-2 min-w-0'
+                    className="flex flex-col gap-2.5 col-start-1 row-start-3 col-span-2 min-w-0"
                 />
             </Dialog.DefaultHeader>
             <Dialog.Body ref={scrollRef} className={bodyClassName}>
@@ -96,14 +96,14 @@ export const SortDialogMainContent = (): ReactElement => {
                         enabled={isManualSorting}
                         fullRowDraggable
                         dragLabel={reorderLabel}
-                        className='flex flex-col gap-y-2.5'
-                        itemClassName='[&>button]:hidden'
-                        renderItem={({item, index}) => {
+                        className="flex flex-col gap-y-2.5"
+                        itemClassName="[&>button]:hidden"
+                        renderItem={({ item, index }) => {
                             if (item.content) {
                                 return (
                                     <SortContentListItem
                                         content={item.content}
-                                        variant='detailed'
+                                        variant="detailed"
                                         dragEnabled={isManualSorting}
                                     />
                                 );
@@ -111,11 +111,11 @@ export const SortDialogMainContent = (): ReactElement => {
 
                             if (isSortDialogBatchFailed(failedBatches, index)) {
                                 return (
-                                    <div className='flex flex-1 items-center justify-between gap-2.5 px-2.5 py-1'>
-                                        <span className='text-sm text-subtle'>{loadErrorLabel}</span>
+                                    <div className="flex flex-1 items-center justify-between gap-2.5 px-2.5 py-1">
+                                        <span className="text-sm text-subtle">{loadErrorLabel}</span>
                                         <Button
-                                            size='sm'
-                                            variant='text'
+                                            size="sm"
+                                            variant="text"
                                             label={retryLabel}
                                             onClick={() => {
                                                 void ensureSortDialogBatchLoaded(index);
@@ -126,7 +126,7 @@ export const SortDialogMainContent = (): ReactElement => {
                             }
 
                             return (
-                                <div ref={registerRow(index)} className='flex flex-1 min-w-0'>
+                                <div ref={registerRow(index)} className="flex flex-1 min-w-0">
                                     <SortContentListItemSkeleton dragEnabled={isManualSorting} />
                                 </div>
                             );
@@ -136,8 +136,8 @@ export const SortDialogMainContent = (): ReactElement => {
             </Dialog.Body>
             <Dialog.Footer>
                 <Button
-                    size='lg'
-                    variant='solid'
+                    size="lg"
+                    variant="solid"
                     label={saveLabel}
                     disabled={!canSave}
                     onClick={() => {

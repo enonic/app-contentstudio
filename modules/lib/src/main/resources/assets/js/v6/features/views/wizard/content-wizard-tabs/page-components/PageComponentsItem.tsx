@@ -1,9 +1,9 @@
-import type {SortableListItemContext} from '@enonic/lib-admin-ui/form2/components';
-import {cn} from '@enonic/ui';
-import {Box, ChevronRight, Columns2, Globe, type LucideIcon, OctagonAlert, PenLine, Puzzle} from 'lucide-react';
-import {type MouseEvent, type ReactElement} from 'react';
-import type {FlatNode} from '../../../../lib/tree-store';
-import type {PageComponentNodeData, PageComponentNodeType} from './types';
+import type { SortableListItemContext } from '@enonic/lib-admin-ui/form2/components';
+import { cn } from '@enonic/ui';
+import { Box, ChevronRight, Columns2, Globe, type LucideIcon, OctagonAlert, PenLine, Puzzle } from 'lucide-react';
+import { type MouseEvent, type ReactElement } from 'react';
+import type { FlatNode } from '../../../../../shared/lib/tree-store';
+import type { PageComponentNodeData, PageComponentNodeType } from './types';
 
 //
 // * Types
@@ -57,7 +57,7 @@ export const PageComponentsItem = ({
     onToggle,
     onSelect,
 }: PageComponentsItemProps): ReactElement | null => {
-    const {item: node} = context;
+    const { item: node } = context;
     const data = node.data;
     if (data == null) {
         return null;
@@ -81,16 +81,10 @@ export const PageComponentsItem = ({
     };
 
     return (
-        <div
-            className="flex flex-1 min-w-0 items-center gap-1 py-1"
-            data-node-id={node.id}
-            onClick={handleClick}
-        >
+        <div className="flex flex-1 min-w-0 items-center gap-1 py-1" data-node-id={node.id} onClick={handleClick}>
             {!context.isMovable && <span className="size-5 shrink-0" />}
 
-            {spacerWidth > 0 && (
-                <span style={{paddingInlineStart: `${spacerWidth}px`}} />
-            )}
+            {spacerWidth > 0 && <span style={{ paddingInlineStart: `${spacerWidth}px` }} />}
 
             {node.hasChildren ? (
                 <button
@@ -102,33 +96,35 @@ export const PageComponentsItem = ({
                     )}
                     onClick={handleToggleClick}
                 >
-                    <ChevronRight className={cn(
-                        'size-5 transition-transform duration-150',
-                        node.isExpanded && 'rotate-90',
-                    )} />
+                    <ChevronRight
+                        className={cn('size-5 transition-transform duration-150', node.isExpanded && 'rotate-90')}
+                    />
                 </button>
             ) : (
                 <span className="size-5 shrink-0" />
             )}
 
             {Icon != null && (
-                <Icon className={cn('size-5 shrink-0', selected ? 'text-alt' : isSubdued ? 'text-subtle' : 'text-default')} />
+                <Icon
+                    className={cn(
+                        'size-5 shrink-0',
+                        selected ? 'text-alt' : isSubdued ? 'text-subtle' : 'text-default',
+                    )}
+                />
             )}
 
-            <span className={cn(
-                'truncate text-base',
-                isRegion && 'uppercase',
-                isRegion ? 'text-subtle font-normal' : 'font-semibold',
-                selected
-                    ? 'text-alt'
-                    : isSubdued ? 'text-subtle' : 'text-default',
-            )}>
+            <span
+                className={cn(
+                    'truncate text-base',
+                    isRegion && 'uppercase',
+                    isRegion ? 'text-subtle font-normal' : 'font-semibold',
+                    selected ? 'text-alt' : isSubdued ? 'text-subtle' : 'text-default',
+                )}
+            >
                 {displayName}
             </span>
 
-            {invalid && (
-                <OctagonAlert className="size-3.5 shrink-0 text-error" strokeWidth={2.5} />
-            )}
+            {invalid && <OctagonAlert className="size-3.5 shrink-0 text-error" strokeWidth={2.5} />}
         </div>
     );
 };

@@ -1,17 +1,17 @@
-import {Input, Tab} from '@enonic/ui';
-import {type ReactElement, useEffect, useRef} from 'react';
-import {useI18n} from '../../../hooks/useI18n';
-import {type LinkType, useHtmlAreaLinkDialogContext} from './HtmlAreaLinkDialogContext';
-import {AnchorTabPanel} from './AnchorTabPanel';
-import {ContentTabPanel} from './ContentTabPanel';
-import {EmailTabPanel} from './EmailTabPanel';
-import {UrlTabPanel} from './UrlTabPanel';
+import { Input, Tab } from '@enonic/ui';
+import { type ReactElement, useEffect, useRef } from 'react';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { type LinkType, useHtmlAreaLinkDialogContext } from './HtmlAreaLinkDialogContext';
+import { AnchorTabPanel } from './AnchorTabPanel';
+import { ContentTabPanel } from './ContentTabPanel';
+import { EmailTabPanel } from './EmailTabPanel';
+import { UrlTabPanel } from './UrlTabPanel';
 
 const COMPONENT_NAME = 'HtmlAreaLinkDialogContent';
 
 export const HtmlAreaLinkDialogContent = (): ReactElement => {
     const {
-        state: {open, linkText, linkTextEditable, tooltip, activeTab, anchors},
+        state: { open, linkText, linkTextEditable, tooltip, activeTab, anchors },
         validationErrors: errors,
         setActiveTab,
         setLinkText,
@@ -34,12 +34,12 @@ export const HtmlAreaLinkDialogContent = (): ReactElement => {
         wasOpenRef.current = open;
 
         if (justOpened && linkTextEditable && linkText.trim() === '') {
-            linkTextInputRef.current?.focus({focusVisible: true});
+            linkTextInputRef.current?.focus({ focusVisible: true });
         }
     }, [open, linkText, linkTextEditable]);
 
     return (
-        <div data-component={COMPONENT_NAME} className='flex flex-col gap-5'>
+        <div data-component={COMPONENT_NAME} className="flex flex-col gap-5">
             {linkTextEditable && (
                 <Input
                     ref={linkTextInputRef}
@@ -55,27 +55,24 @@ export const HtmlAreaLinkDialogContent = (): ReactElement => {
                 value={tooltip}
                 onChange={(e) => setTooltip((e.target as HTMLInputElement).value)}
             />
-            <Tab.Root
-                value={activeTab}
-                onValueChange={(value) => setActiveTab(value as LinkType)}
-            >
+            <Tab.Root value={activeTab} onValueChange={(value) => setActiveTab(value as LinkType)}>
                 <Tab.List>
-                    <Tab.DefaultTrigger value='content'>{contentTabLabel}</Tab.DefaultTrigger>
-                    <Tab.DefaultTrigger value='url'>{urlTabLabel}</Tab.DefaultTrigger>
-                    <Tab.DefaultTrigger value='email'>{emailTabLabel}</Tab.DefaultTrigger>
-                    {hasAnchors && <Tab.DefaultTrigger value='anchor'>{anchorTabLabel}</Tab.DefaultTrigger>}
+                    <Tab.DefaultTrigger value="content">{contentTabLabel}</Tab.DefaultTrigger>
+                    <Tab.DefaultTrigger value="url">{urlTabLabel}</Tab.DefaultTrigger>
+                    <Tab.DefaultTrigger value="email">{emailTabLabel}</Tab.DefaultTrigger>
+                    {hasAnchors && <Tab.DefaultTrigger value="anchor">{anchorTabLabel}</Tab.DefaultTrigger>}
                 </Tab.List>
-                <Tab.Content value='content'>
+                <Tab.Content value="content">
                     <ContentTabPanel />
                 </Tab.Content>
-                <Tab.Content value='url'>
+                <Tab.Content value="url">
                     <UrlTabPanel />
                 </Tab.Content>
-                <Tab.Content value='email'>
+                <Tab.Content value="email">
                     <EmailTabPanel />
                 </Tab.Content>
                 {hasAnchors && (
-                    <Tab.Content value='anchor'>
+                    <Tab.Content value="anchor">
                         <AnchorTabPanel />
                     </Tab.Content>
                 )}

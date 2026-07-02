@@ -1,36 +1,34 @@
-import {ProjectAccessControlEntry} from '../../../../access/ProjectAccessControlEntry';
-import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {PrincipalContainerSelectedOptionsView} from '@enonic/lib-admin-ui/ui/security/PrincipalContainerSelectedOptionsView';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
-import {ProjectAccessControlEntryView} from './ProjectAccessControlEntryView';
-import {CSPrincipalLoader} from '../../../../../security/CSPrincipalLoader';
+import { ProjectAccessControlEntry } from '../../../../access/ProjectAccessControlEntry';
+import { type Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { PrincipalContainerSelectedOptionsView } from '@enonic/lib-admin-ui/ui/security/PrincipalContainerSelectedOptionsView';
+import { Option } from '@enonic/lib-admin-ui/ui/selector/Option';
+import { ProjectAccessControlEntryView } from './ProjectAccessControlEntryView';
+import { CSPrincipalLoader } from '../../../../../security/CSPrincipalLoader';
 import {
     FilterableListBoxWrapperWithSelectedView,
-    type ListBoxInputOptions
+    type ListBoxInputOptions,
 } from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
-import {ProjectAccessControlListBox} from './ProjectAccessControlListBox';
-import {type LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
+import { ProjectAccessControlListBox } from './ProjectAccessControlListBox';
+import { type LoadedDataEvent } from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import Q from 'q';
-import {isBlank} from '../../../../../../v6/features/utils/format/isBlank';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
+import { isBlank } from '../../../../../../v6/shared/lib/format/isBlank';
+import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
+import { type ValueChangedEvent } from '@enonic/lib-admin-ui/ValueChangedEvent';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { FormInputEl } from '@enonic/lib-admin-ui/dom/FormInputEl';
 
 interface ProjectAccessControlComboBoxOptions extends ListBoxInputOptions<ProjectAccessControlEntry> {
     loader: CSPrincipalLoader;
 }
 
-export class ProjectAccessControlComboBox
-    extends FilterableListBoxWrapperWithSelectedView<ProjectAccessControlEntry> {
-
+export class ProjectAccessControlComboBox extends FilterableListBoxWrapperWithSelectedView<ProjectAccessControlEntry> {
     declare options: ProjectAccessControlComboBoxOptions;
 
     constructor() {
         const loader = new CSPrincipalLoader();
 
         super(new ProjectAccessControlListBox(loader), {
-            maxSelected:  0,
+            maxSelected: 0,
             selectedOptionsView: new ProjectACESelectedOptionsView(),
             className: 'project-access-combobox',
             loader: loader,
@@ -98,17 +96,13 @@ export class ProjectAccessControlComboBox
     }
 }
 
-export class ProjectACESelectedOptionsView
-    extends PrincipalContainerSelectedOptionsView<ProjectAccessControlEntry> {
-
+export class ProjectACESelectedOptionsView extends PrincipalContainerSelectedOptionsView<ProjectAccessControlEntry> {
     protected createSelectedEntryView(option: Option<ProjectAccessControlEntry>): ProjectAccessControlEntryView {
         return new ProjectAccessControlEntryView(option.getDisplayValue(), option.isReadOnly());
     }
-
 }
 
 export class ProjectAccessControlComboBoxWrapper extends FormInputEl {
-
     private readonly selector: ProjectAccessControlComboBox;
 
     constructor(selector: ProjectAccessControlComboBox) {

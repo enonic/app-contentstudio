@@ -1,13 +1,11 @@
-import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
-import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
-import {FormItemBuilder} from '@enonic/lib-admin-ui/ui/form/FormItem';
-import {type ComponentDescriptorsDropdown} from './ComponentDescriptorsDropdown';
-import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
-import {isBlank} from '../../../../../../v6/features/utils/format/isBlank';
+import { Form } from '@enonic/lib-admin-ui/ui/form/Form';
+import { Fieldset } from '@enonic/lib-admin-ui/ui/form/Fieldset';
+import { FormItemBuilder } from '@enonic/lib-admin-ui/ui/form/FormItem';
+import { type ComponentDescriptorsDropdown } from './ComponentDescriptorsDropdown';
+import { FormInputEl } from '@enonic/lib-admin-ui/dom/FormInputEl';
+import { isBlank } from '../../../../../../v6/shared/lib/format/isBlank';
 
-export class DescriptorBasedDropdownForm
-    extends Form {
-
+export class DescriptorBasedDropdownForm extends Form {
     private templateSelector: ComponentDescriptorsDropdown;
 
     constructor(templateSelector: ComponentDescriptorsDropdown, title?: string) {
@@ -21,12 +19,9 @@ export class DescriptorBasedDropdownForm
 
         this.add(fieldSet);
     }
-
 }
 
-class ComponentDescriptorsDropdownWrapper
-    extends FormInputEl {
-
+class ComponentDescriptorsDropdownWrapper extends FormInputEl {
     private readonly selector: ComponentDescriptorsDropdown;
 
     constructor(selector: ComponentDescriptorsDropdown) {
@@ -35,7 +30,6 @@ class ComponentDescriptorsDropdownWrapper
         this.selector = selector;
         this.appendChild(this.selector);
     }
-
 
     getValue(): string {
         return this.selector.getSelectedDescriptor()?.getKey().toString() || '';

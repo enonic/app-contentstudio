@@ -1,18 +1,18 @@
-import type {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {Expand} from '@enonic/lib-admin-ui/rest/Expand';
-import type {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import type {ContentSummary} from '../../../app/content/ContentSummary';
-import type {ContentSummaryJson} from '../../../app/content/ContentSummaryJson';
-import type {ContentTreeSelectorItem} from '../../../app/item/ContentTreeSelectorItem';
-import type {PublishStatus} from '../../../app/publish/PublishStatus';
-import {ContentSelectorQueryRequest} from '../../../app/resource/ContentSelectorQueryRequest';
-import {ContentSummaryAndCompareStatusFetcher} from '../../../app/resource/ContentSummaryAndCompareStatusFetcher';
-import {ContentTreeSelectorQueryRequest} from '../../../app/resource/ContentTreeSelectorQueryRequest';
-import {type ChildOrder} from '../../../app/resource/order/ChildOrder';
-import type {CreateNodeOptions, FlatNode, UseTreeStoreReturn} from '../lib/tree-store';
-import {getLoadingNodeParentId, LOADING_NODE_PREFIX, useTreeStore} from '../lib/tree-store';
-import {getContent, setContents} from '../store/content.store';
+import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { Expand } from '@enonic/lib-admin-ui/rest/Expand';
+import type { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { ContentSummary } from '../../../app/content/ContentSummary';
+import type { ContentSummaryJson } from '../../../app/content/ContentSummaryJson';
+import type { ContentTreeSelectorItem } from '../../../app/item/ContentTreeSelectorItem';
+import type { PublishStatus } from '../../../app/publish/PublishStatus';
+import { ContentSelectorQueryRequest } from '../../../app/resource/ContentSelectorQueryRequest';
+import { ContentSummaryAndCompareStatusFetcher } from '../../../app/resource/ContentSummaryAndCompareStatusFetcher';
+import { ContentTreeSelectorQueryRequest } from '../../../app/resource/ContentTreeSelectorQueryRequest';
+import { type ChildOrder } from '../../../app/resource/order/ChildOrder';
+import type { CreateNodeOptions, FlatNode, UseTreeStoreReturn } from '../../shared/lib/tree-store';
+import { getLoadingNodeParentId, LOADING_NODE_PREFIX, useTreeStore } from '../../shared/lib/tree-store';
+import { getContent, setContents } from '../store/content.store';
 import {
     $contentArchived,
     $contentCreated,
@@ -24,19 +24,19 @@ import {
     $contentSorted,
     $contentUnpublished,
     $contentUpdated,
-} from '../store/socket.store';
-import {applyContentFilters, type ContentFilterOptions} from '../utils/cms/content/applyContentFilters';
-import type {ContentState} from '../../../app/content/ContentState';
-import {resolveDisplayName, resolveSubName} from '../utils/cms/content/prettify';
-import {calcContentState} from '../utils/cms/content/workflow';
-import {calcTreePublishStatus} from '../utils/cms/content/status';
+} from '../../shared/socket/socket.store';
+import { applyContentFilters, type ContentFilterOptions } from '../../shared/lib/cms/content/applyContentFilters';
+import type { ContentState } from '../../../app/content/ContentState';
+import { resolveDisplayName, resolveSubName } from '../../shared/lib/cms/content/prettify';
+import { calcContentState } from '../../shared/lib/cms/content/workflow';
+import { calcTreePublishStatus } from '../../shared/lib/cms/content/status';
 
 //
 // * Types
 //
 
 // Re-export for consumers
-export type {ContentFilterOptions};
+export type { ContentFilterOptions };
 
 /**
  * Node data stored in the tree for each content item.
@@ -150,7 +150,10 @@ function toNodeDataFromTreeItem(item: ContentTreeSelectorItem): ContentComboboxN
     };
 }
 
-function toNodeOptionsFromTreeItem(item: ContentTreeSelectorItem, parentId: string | null): CreateNodeOptions<ContentComboboxNodeData> {
+function toNodeOptionsFromTreeItem(
+    item: ContentTreeSelectorItem,
+    parentId: string | null,
+): CreateNodeOptions<ContentComboboxNodeData> {
     return {
         id: item.getId(),
         data: toNodeDataFromTreeItem(item),
@@ -163,7 +166,7 @@ function createDefaultChildOrder(): ChildOrder {
     return fetcher.createRootChildOrder();
 }
 
-function deduplicateById<T extends {getId(): string}>(items: T[]): T[] {
+function deduplicateById<T extends { getId(): string }>(items: T[]): T[] {
     const seen = new Set<string>();
     return items.filter((item) => {
         const id = item.getId();
@@ -195,7 +198,7 @@ function createFilterKey(filters: ContentFilterOptions): string {
  * Handles tree and flat list data, pagination, search, and error handling.
  */
 export function useContentComboboxData(options: UseContentComboboxDataOptions): UseContentComboboxDataReturn {
-    const {filters, isOpen, treeQuery = ''} = options;
+    const { filters, isOpen, treeQuery = '' } = options;
 
     // Create stable filter key for dependency tracking
     const filterKey = useMemo(() => createFilterKey(filters), [filters]);
@@ -257,7 +260,7 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
                 return summaries;
             }
         },
-        []
+        [],
     );
 
     const enrichAndCache = useCallback(
@@ -270,7 +273,7 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
             setContents(enriched);
             return true;
         },
-        [enrichReadonly]
+        [enrichReadonly],
     );
 
     // Error state
@@ -485,9 +488,9 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
                 treeSetNodes(nodeOptions);
                 treeSetChildren(
                     parentId,
-                    items.map((item) => item.getId())
+                    items.map((item) => item.getId()),
                 );
-                treeSetNode({id: parentId, totalChildren});
+                treeSetNode({ id: parentId, totalChildren });
             } catch (err) {
                 if (currentRequestId === treeRequestIdRef.current) {
                     setError(err instanceof Error ? err : new Error('Failed to load children'));
@@ -499,7 +502,7 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
                 }
             }
         },
-        [enrichAndCache, treeSetLoading, treeGetNode, treeSetNodes, treeSetChildren, treeSetNode]
+        [enrichAndCache, treeSetLoading, treeGetNode, treeSetNodes, treeSetChildren, treeSetNode],
     );
 
     // Load more children for pagination
@@ -546,12 +549,12 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
                 treeSetNodes(nodeOptions);
                 treeAppendChildren(
                     parentId,
-                    newItems.map((item) => item.getId())
+                    newItems.map((item) => item.getId()),
                 );
 
                 // If dedup or filtering removed items, cap totalChildren to stop pagination
                 if (newItems.length < rawItems.length) {
-                    treeSetNode({id: parentId, totalChildren: node.childIds.length + newItems.length});
+                    treeSetNode({ id: parentId, totalChildren: node.childIds.length + newItems.length });
                 }
             } catch (err) {
                 if (currentRequestId === treeRequestIdRef.current) {
@@ -564,7 +567,15 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
                 }
             }
         },
-        [enrichAndCache, treeHasMoreChildren, treeIsLoading, treeGetNode, treeSetLoading, treeSetNodes, treeAppendChildren]
+        [
+            enrichAndCache,
+            treeHasMoreChildren,
+            treeIsLoading,
+            treeGetNode,
+            treeSetLoading,
+            treeSetNodes,
+            treeAppendChildren,
+        ],
     );
 
     // Search / load flat list content
@@ -728,22 +739,20 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
             }
 
             setFlatItems((prev) => {
-                const updatedIds = new Map(
-                    items.map((item) => [item.getId(), item] as const)
-                );
+                const updatedIds = new Map(items.map((item) => [item.getId(), item] as const));
                 let changed = false;
                 const next = prev.map((node) => {
                     const updated = updatedIds.get(node.id);
                     if (updated && node.data) {
                         changed = true;
-                        return {...node, data: toNodeData(updated, node.data.selectable)};
+                        return { ...node, data: toNodeData(updated, node.data.selectable) };
                     }
                     return node;
                 });
                 return changed ? next : prev;
             });
         },
-        [tree, treeGetNode]
+        [tree, treeGetNode],
     );
 
     // Socket sync: remove deleted/archived nodes from tree and flat list
@@ -757,7 +766,7 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
                 return next.length === prev.length ? prev : next;
             });
         },
-        [tree]
+        [tree],
     );
 
     // Socket sync: invalidate tree on structural changes (create/move/sort/duplicate)
@@ -847,4 +856,4 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
 }
 
 // Re-export helper function for loading node detection
-export {getLoadingNodeParentId};
+export { getLoadingNodeParentId };

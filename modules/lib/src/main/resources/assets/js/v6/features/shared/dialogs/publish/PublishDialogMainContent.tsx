@@ -1,9 +1,9 @@
-import {Button, Checkbox, Dialog, GridList, TextArea} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {Calendar, CornerDownRight, Plus, X} from 'lucide-react';
-import {useEffect, useId, useRef, useState, type ReactElement} from 'react';
-import {useI18n} from '../../../hooks/useI18n';
-import {$config} from '../../../store/config.store';
+import { Button, Checkbox, Dialog, GridList, TextArea } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { Calendar, CornerDownRight, Plus, X } from 'lucide-react';
+import { useEffect, useId, useRef, useState, type ReactElement } from 'react';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { $config } from '../../../../shared/config/config.store';
 import {
     $dependantPublishItems,
     $hasExcludedDependantItems,
@@ -34,11 +34,11 @@ import {
     togglePublishDialogDependantsSelection,
     togglePublishDialogShowExcluded,
 } from '../../../store/dialogs/publishDialog.store';
-import {ContentRow, SplitList} from '../../lists';
-import {DependantsSelectAll} from '../dependants/DependantsSelectAll';
-import {SelectionStatusBar} from '../status-bar/SelectionStatusBar';
-import {PublishDialogItemStatus} from './PublishDialogItemStatus';
-import {PublishScheduleForm} from './PublishScheduleForm';
+import { ContentRow, SplitList } from '../../lists';
+import { DependantsSelectAll } from '../dependants/DependantsSelectAll';
+import { SelectionStatusBar } from '../status-bar/SelectionStatusBar';
+import { PublishDialogItemStatus } from './PublishDialogItemStatus';
+import { PublishScheduleForm } from './PublishScheduleForm';
 
 type PublishDialogMainContentProps = {
     onPublish: () => void;
@@ -51,10 +51,12 @@ export const PublishDialogMainContent = ({
     onPublish,
     'data-component': componentName = PUBLISH_DIALOG_MAIN_CONTENT_NAME,
 }: PublishDialogMainContentProps): ReactElement => {
-    const {failed, message} = useStore($publishDialog, {keys: ['failed', 'message']});
+    const { failed, message } = useStore($publishDialog, { keys: ['failed', 'message'] });
     const loading = useStore($isPublishChecking);
     const isPublishReady = useStore($isPublishReady);
-    const {allowContentUpdate, defaultPublishFromTime} = useStore($config, {keys: ['allowContentUpdate', 'defaultPublishFromTime']});
+    const { allowContentUpdate, defaultPublishFromTime } = useStore($config, {
+        keys: ['allowContentUpdate', 'defaultPublishFromTime'],
+    });
     const mainItems = useStore($mainPublishItems);
     const dependantItems = useStore($dependantPublishItems);
     const hasMoreDependants = useStore($hasMoreDependants);
@@ -66,8 +68,8 @@ export const PublishDialogMainContent = ({
 
     const isSelectionSynced = useStore($isPublishSelectionSynced);
 
-    const {invalid, inProgress, noPermissions} = useStore($publishCheckErrors);
-    const {schedule} = useStore($publishDialog, {keys: ['schedule']});
+    const { invalid, inProgress, noPermissions } = useStore($publishCheckErrors);
+    const { schedule } = useStore($publishDialog, { keys: ['schedule'] });
     const scheduleMode = schedule !== undefined;
     const showScheduleButton = scheduleMode || hasSchedulableItems;
     const firstScheduleInputRef = useRef<HTMLInputElement>(null);
@@ -77,8 +79,9 @@ export const PublishDialogMainContent = ({
     const [showComment, setShowComment] = useState(false);
     const commentTextareaRef = useRef<HTMLTextAreaElement>(null);
 
-    const visibleDependantItems = dependantItems.filter(item =>
-        !item.hidden && (showExcluded || !item.excludedByDefault));
+    const visibleDependantItems = dependantItems.filter(
+        (item) => !item.hidden && (showExcluded || !item.excludedByDefault),
+    );
     const hasVisibleDependantItems = visibleDependantItems.length > 0;
     const showExcludedLabel = useI18n('dialog.publish.excluded.show');
     const hideExcludedLabel = useI18n('dialog.publish.excluded.hide');
@@ -95,7 +98,7 @@ export const PublishDialogMainContent = ({
     useEffect(() => {
         if (showComment && commentTextareaRef.current) {
             commentTextareaRef.current.focus();
-            commentTextareaRef.current.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+            commentTextareaRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
     }, [showComment]);
 
@@ -103,7 +106,7 @@ export const PublishDialogMainContent = ({
         if (showComment) {
             setPublishDialogMessage(undefined);
         }
-        setShowComment(prev => !prev);
+        setShowComment((prev) => !prev);
     };
 
     const title = useI18n('dialog.publish');
@@ -150,7 +153,9 @@ export const PublishDialogMainContent = ({
                 errors={{
                     inProgress: {
                         ...inProgress,
-                        onMarkAsReady: allowContentUpdate ? () => void markAllAsReadyInProgressPublishItems() : undefined,
+                        onMarkAsReady: allowContentUpdate
+                            ? () => void markAllAsReadyInProgressPublishItems()
+                            : undefined,
                         onExclude: () => excludeInProgressPublishItems(),
                     },
                     invalid: {
@@ -161,7 +166,8 @@ export const PublishDialogMainContent = ({
                         ...noPermissions,
                         onExclude: () => excludeNotPublishablePublishItems(),
                     },
-                }} />
+                }}
+            />
 
             <Dialog.Body className="flex flex-col gap-y-10 px-1.5 -mx-1.5 rounded-sm outline-none focus:ring-2 focus:ring-ring/10 focus:ring-inset">
                 <SplitList>
@@ -173,12 +179,7 @@ export const PublishDialogMainContent = ({
                             const showChildrenCheckbox = item.hasUnpublishedChildren && item.content.hasChildren();
                             return (
                                 <>
-                                    <ContentRow
-                                        key={item.id}
-                                        content={item.content}
-                                        id={item.id}
-                                        disabled={loading}
-                                    >
+                                    <ContentRow key={item.id} content={item.content} id={item.id} disabled={loading}>
                                         <ContentRow.Label action="edit" variant="detailed" />
                                         <PublishDialogItemStatus />
                                         <ContentRow.RemoveButton
@@ -199,7 +200,12 @@ export const PublishDialogMainContent = ({
                                                     <Checkbox
                                                         className="font-semibold"
                                                         checked={item.childrenIncluded}
-                                                        onCheckedChange={(enabled) => setPublishDialogItemWithChildrenSelected(item.content.getContentId(), enabled === true)}
+                                                        onCheckedChange={(enabled) =>
+                                                            setPublishDialogItemWithChildrenSelected(
+                                                                item.content.getContentId(),
+                                                                enabled === true,
+                                                            )
+                                                        }
                                                         disabled={item.required || loading || !item.included}
                                                         label={includeChildrenLabel}
                                                     />
@@ -242,15 +248,15 @@ export const PublishDialogMainContent = ({
                                 hasMore={hasMoreDependants}
                                 onEndReached={loadMoreDependants}
                                 renderRow={(item) => (
-                                    <ContentRow
-                                        key={item.id}
-                                        content={item.content}
-                                        id={item.id}
-                                        disabled={loading}
-                                    >
+                                    <ContentRow key={item.id} content={item.content} id={item.id} disabled={loading}>
                                         <ContentRow.Checkbox
                                             checked={item.included}
-                                            onCheckedChange={(checked) => setPublishDialogDependantItemSelected(item.content.getContentId(), checked)}
+                                            onCheckedChange={(checked) =>
+                                                setPublishDialogDependantItemSelected(
+                                                    item.content.getContentId(),
+                                                    checked,
+                                                )
+                                            }
                                             disabled={item.required || loading}
                                         />
                                         <ContentRow.Label action="edit" />
@@ -273,7 +279,12 @@ export const PublishDialogMainContent = ({
                         className="mb-2"
                     />
                 )}
-                {scheduleMode && <PublishScheduleForm firstInputRef={firstScheduleInputRef} defaultTimeValue={defaultPublishFromTime} />}
+                {scheduleMode && (
+                    <PublishScheduleForm
+                        firstInputRef={firstScheduleInputRef}
+                        defaultTimeValue={defaultPublishFromTime}
+                    />
+                )}
             </Dialog.Body>
             <Dialog.Footer>
                 <Button
@@ -308,7 +319,6 @@ export const PublishDialogMainContent = ({
                     disabled={!isPublishReady}
                 />
             </Dialog.Footer>
-
         </Dialog.Content>
     );
 };

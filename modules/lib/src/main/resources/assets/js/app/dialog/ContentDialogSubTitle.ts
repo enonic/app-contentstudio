@@ -1,10 +1,10 @@
-import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
-import {Body} from '@enonic/lib-admin-ui/dom/Body';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {type Element} from '@enonic/lib-admin-ui/dom/Element';
-import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
-import {AutosizeTextInput} from '@enonic/lib-admin-ui/ui/text/AutosizeTextInput';
-import {isBlank} from '../../v6/features/utils/format/isBlank';
+import { AEl } from '@enonic/lib-admin-ui/dom/AEl';
+import { Body } from '@enonic/lib-admin-ui/dom/Body';
+import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
+import { type Element } from '@enonic/lib-admin-ui/dom/Element';
+import { KeyHelper } from '@enonic/lib-admin-ui/ui/KeyHelper';
+import { AutosizeTextInput } from '@enonic/lib-admin-ui/ui/text/AutosizeTextInput';
+import { isBlank } from '../../v6/shared/lib/format/isBlank';
 import type Q from 'q';
 
 export class ContentDialogSubTitleOptions {
@@ -12,8 +12,7 @@ export class ContentDialogSubTitleOptions {
     hintText: string;
 }
 
-export class ContentDialogSubTitle
-    extends DivEl {
+export class ContentDialogSubTitle extends DivEl {
     private readonly input: AutosizeTextInput;
     private readonly message: AEl;
     private readonly options: ContentDialogSubTitleOptions;
@@ -76,9 +75,10 @@ export class ContentDialogSubTitle
 
     private initListeners() {
         const keyDownHandler = (event: KeyboardEvent) => {
-            const isTextInputFocused = document.activeElement &&
-                                       (document.activeElement.tagName.toUpperCase() === 'INPUT' ||
-                                        document.activeElement.tagName.toUpperCase() === 'TEXTAREA');
+            const isTextInputFocused =
+                document.activeElement &&
+                (document.activeElement.tagName.toUpperCase() === 'INPUT' ||
+                    document.activeElement.tagName.toUpperCase() === 'TEXTAREA');
 
             const isPublishMessageInputFocused = this.input.getHTMLElement() === document.activeElement;
 
@@ -103,10 +103,11 @@ export class ContentDialogSubTitle
         };
 
         const clickHandler = (event: MouseEvent) => {
-            if (this.input.isVisible()
-                && isBlank(this.input.getValue())
-                && event.target !== this.input.getHTMLElement()) {
-
+            if (
+                this.input.isVisible() &&
+                isBlank(this.input.getValue()) &&
+                event.target !== this.input.getHTMLElement()
+            ) {
                 this.toggleInput(false);
             }
         };

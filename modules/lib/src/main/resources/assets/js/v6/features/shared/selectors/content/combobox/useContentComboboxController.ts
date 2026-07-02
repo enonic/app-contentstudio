@@ -1,8 +1,12 @@
-import {type KeyboardEvent, type RefObject, useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import type {VirtuosoHandle} from 'react-virtuoso';
-import {useContentComboboxData, type ContentFilterOptions, type ContentComboboxFlatNode} from '../../../../hooks/useContentComboboxData';
-import {useDebouncedValue} from '../../../../utils/hooks/useDebouncedValue';
-import {isBlank} from '../../../../utils/format/isBlank';
+import { type KeyboardEvent, type RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { VirtuosoHandle } from 'react-virtuoso';
+import {
+    useContentComboboxData,
+    type ContentFilterOptions,
+    type ContentComboboxFlatNode,
+} from '../../../../hooks/useContentComboboxData';
+import { useDebouncedValue } from '../../../../../shared/lib/hooks/useDebouncedValue';
+import { isBlank } from '../../../../../shared/lib/format/isBlank';
 
 //
 // * Types
@@ -86,8 +90,10 @@ const DEFAULT_DEBOUNCE_DELAY = 300;
  * handlers, and derived values. This separates orchestration logic from
  * presentation, making the component more testable and maintainable.
  */
-export function useContentComboboxController(options: UseContentComboboxControllerOptions): UseContentComboboxControllerReturn {
-    const {filters, dropdown, debounceDelay = DEFAULT_DEBOUNCE_DELAY, listMode: externalListMode = 'tree'} = options;
+export function useContentComboboxController(
+    options: UseContentComboboxControllerOptions,
+): UseContentComboboxControllerReturn {
+    const { filters, dropdown, debounceDelay = DEFAULT_DEBOUNCE_DELAY, listMode: externalListMode = 'tree' } = options;
 
     // Dropdown options
     const treeRowHeight = dropdown?.treeRowHeight ?? TREE_ROW_HEIGHT;
@@ -122,7 +128,7 @@ export function useContentComboboxController(options: UseContentComboboxControll
             allowedContentPaths: filters.allowedContentPaths ? [...filters.allowedContentPaths].sort() : undefined,
             applicationKey: filters.applicationKey,
         }),
-        [filters.contextContent, filters.contentTypeNames, filters.allowedContentPaths, filters.applicationKey]
+        [filters.contextContent, filters.contentTypeNames, filters.allowedContentPaths, filters.applicationKey],
     );
 
     // Data hook
@@ -218,14 +224,7 @@ export function useContentComboboxController(options: UseContentComboboxControll
         }
 
         return Math.min(contentHeight, maxHeight);
-    }, [
-        displayItems.length,
-        isTreeView,
-        treeRowHeight,
-        flatRowHeight,
-        flatRowHeightRatio,
-        maxHeight,
-    ]);
+    }, [displayItems.length, isTreeView, treeRowHeight, flatRowHeight, flatRowHeightRatio, maxHeight]);
 
     // Handlers
     const handleOpenChange = useCallback((next: boolean): void => {
@@ -252,14 +251,14 @@ export function useContentComboboxController(options: UseContentComboboxControll
                 void loadChildren(id);
             }
         },
-        [tree, loadChildren]
+        [tree, loadChildren],
     );
 
     const handleCollapse = useCallback(
         (id: string): void => {
             tree.collapse(id);
         },
-        [tree]
+        [tree],
     );
 
     const handleLoadMore = useCallback(
@@ -273,7 +272,7 @@ export function useContentComboboxController(options: UseContentComboboxControll
                 void loadMoreChildren(parentId);
             }
         },
-        [tree, loadMoreChildren, loadMoreRoot]
+        [tree, loadMoreChildren, loadMoreRoot],
     );
 
     const handleFlatListEndReached = useCallback(() => {

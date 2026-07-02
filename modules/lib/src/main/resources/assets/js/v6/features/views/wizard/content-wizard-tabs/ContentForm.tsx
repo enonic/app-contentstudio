@@ -1,14 +1,30 @@
-import {FieldRegistryProvider, RawValueProvider, ServerErrorsProvider, ValidationVisibilityProvider} from '@enonic/lib-admin-ui/form2';
-import {useStore} from '@nanostores/preact';
-import {type ReactElement, useEffect, useMemo} from 'react';
-import {EditLockOverlay} from '../../../shared/EditLockOverlay';
-import {FormRenderer} from '../../../shared/form';
-import {useBreakpoints} from '../../../hooks/useBreakpoints';
-import {getAiFieldRegistry} from '../../../store/ai/ai.field-registry';
-import {$contentType, $wizardDraftData, $wizardReadOnly, notifyContentFormMounted} from '../../../store/wizardContent.store';
-import {$dataServerErrorEntries, $validationVisibility, clearServerErrorsAtPath, clearServerErrorsForField, getContentRawValueMap} from '../../../store/wizardValidation.store';
-import {DisplayNameInput} from './DisplayNameInput';
-import {ImageUploaderDescriptor} from '../../../shared/form/input-types/image-uploader';
+import {
+    FieldRegistryProvider,
+    RawValueProvider,
+    ServerErrorsProvider,
+    ValidationVisibilityProvider,
+} from '@enonic/lib-admin-ui/form2';
+import { useStore } from '@nanostores/preact';
+import { type ReactElement, useEffect, useMemo } from 'react';
+import { EditLockOverlay } from '../../../../shared/ui/EditLockOverlay';
+import { FormRenderer } from '../../../shared/form';
+import { useBreakpoints } from '../../../../shared/lib/hooks/useBreakpoints';
+import { getAiFieldRegistry } from '../../../store/ai/ai.field-registry';
+import {
+    $contentType,
+    $wizardDraftData,
+    $wizardReadOnly,
+    notifyContentFormMounted,
+} from '../../../store/wizardContent.store';
+import {
+    $dataServerErrorEntries,
+    $validationVisibility,
+    clearServerErrorsAtPath,
+    clearServerErrorsForField,
+    getContentRawValueMap,
+} from '../../../store/wizardValidation.store';
+import { DisplayNameInput } from './DisplayNameInput';
+import { ImageUploaderDescriptor } from '../../../shared/form/input-types/image-uploader';
 
 const CONTENT_FORM_NAME = 'ContentForm';
 
@@ -18,7 +34,7 @@ export const ContentForm = (): ReactElement | null => {
     const visibility = useStore($validationVisibility);
     const dataServerErrorEntries = useStore($dataServerErrorEntries);
     const readOnly = useStore($wizardReadOnly);
-    const {lg} = useBreakpoints();
+    const { lg } = useBreakpoints();
 
     const isReady = contentType != null && draftData != null;
     const rawValueMap = useMemo(() => getContentRawValueMap(), []);

@@ -1,11 +1,11 @@
-import {ListItem, VirtualizedTreeList, type VirtualizedTreeListItemProps} from '@enonic/ui';
-import {Loader2} from 'lucide-react';
-import type {ReactElement} from 'react';
-import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
-import {ContentLabel} from '../../../content/ContentLabel';
-import {StatusBadge} from '../../../status/StatusBadge';
-import {calcTreePublishStatus} from '../../../../utils/cms/content/status';
-import type {ContentComboboxFlatNode} from '../../../../hooks/useContentComboboxData';
+import { ListItem, VirtualizedTreeList, type VirtualizedTreeListItemProps } from '@enonic/ui';
+import { Loader2 } from 'lucide-react';
+import type { ReactElement } from 'react';
+import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
+import { ContentLabel } from '../../../content/ContentLabel';
+import { StatusBadge } from '../../../status/StatusBadge';
+import { calcTreePublishStatus } from '../../../../../shared/lib/cms/content/status';
+import type { ContentComboboxFlatNode } from '../../../../hooks/useContentComboboxData';
 
 //
 // * Types
@@ -37,12 +37,16 @@ type LoadingRowProps = {
     showExpandControl?: boolean;
 };
 
-export const LoadingRow = ({level, isLoading, showExpandControl = true}: LoadingRowProps): ReactElement => {
+export const LoadingRow = ({ level, isLoading, showExpandControl = true }: LoadingRowProps): ReactElement => {
     return (
         <VirtualizedTreeList.RowLoading level={level} className="h-12">
             {isLoading && (
                 <Loader2
-                    className={showExpandControl ? 'ml-7.5 size-6 animate-spin text-subtle' : 'ml-2 size-6 animate-spin text-subtle'}
+                    className={
+                        showExpandControl
+                            ? 'ml-7.5 size-6 animate-spin text-subtle'
+                            : 'ml-2 size-6 animate-spin text-subtle'
+                    }
                 />
             )}
         </VirtualizedTreeList.RowLoading>
@@ -60,7 +64,7 @@ type SkeletonRowProps = {
     showExpandControl?: boolean;
 };
 
-export const SkeletonRow = ({level, showExpandControl = true}: SkeletonRowProps): ReactElement => {
+export const SkeletonRow = ({ level, showExpandControl = true }: SkeletonRowProps): ReactElement => {
     return (
         <VirtualizedTreeList.Row active={false} selected={false}>
             {showExpandControl && (
@@ -94,7 +98,7 @@ SkeletonRow.displayName = 'SkeletonRow';
 const DefaultRow = (content: ContentSummary, hideStatus: boolean): ReactElement => (
     <ListItem className="p-0">
         <ListItem.Left className="flex-1">
-            <ContentLabel content={content} variant='detailed' />
+            <ContentLabel content={content} variant="detailed" />
         </ListItem.Left>
         {!hideStatus && (
             <ListItem.Right>
@@ -115,7 +119,7 @@ export const ContentRow = ({
     onExpand,
     onCollapse,
 }: ContentRowProps): ReactElement => {
-    const {id, level, isExpanded, hasChildren, data, nodeType, isLoading} = node;
+    const { id, level, isExpanded, hasChildren, data, nodeType, isLoading } = node;
 
     // Handle loading node (renders spinner when actually loading)
     if (nodeType === 'loading') {

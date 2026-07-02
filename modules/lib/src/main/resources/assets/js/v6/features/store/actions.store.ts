@@ -1,11 +1,11 @@
-import {atom} from 'nanostores';
+import { atom } from 'nanostores';
 import {
     $contentUpdated,
     $contentPublished,
     $contentUnpublished,
     $contentPermissionsUpdated,
-} from './socket.store';
-import {$currentIds} from './contentTreeSelection.store';
+} from '../../shared/socket/socket.store';
+import { $currentIds } from './contentTreeSelection.store';
 
 //
 // * Actions Refresh Signal

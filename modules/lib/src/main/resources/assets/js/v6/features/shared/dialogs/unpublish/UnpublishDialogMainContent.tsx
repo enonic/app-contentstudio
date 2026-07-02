@@ -1,19 +1,21 @@
-import {Button, Dialog} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {useCallback, useMemo, useRef, type ReactElement} from 'react';
-import type {ContentSummary} from '../../../../../app/content/ContentSummary';
-import {Branch} from '../../../../../app/versioning/Branch';
-import {useI18n} from '../../../hooks/useI18n';
-import {useOnceWhen} from '../../../hooks/useOnce';
+import { Button, Dialog } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { useCallback, useMemo, useRef, type ReactElement } from 'react';
+import type { ContentSummary } from '../../../../../app/content/ContentSummary';
+import { Branch } from '../../../../../app/versioning/Branch';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { useOnceWhen } from '../../../../shared/lib/hooks/useOnce';
 import {
     $hasMoreUnpublishDependants,
-    $isUnpublishDialogReady, $unpublishDialog,
+    $isUnpublishDialogReady,
+    $unpublishDialog,
     $unpublishInboundIds,
-    $unpublishItemsCount, ignoreUnpublishInboundDependencies,
-    loadMoreUnpublishDependants
+    $unpublishItemsCount,
+    ignoreUnpublishInboundDependencies,
+    loadMoreUnpublishDependants,
 } from '../../../store/dialogs/unpublishDialog.store';
-import {ContentReferenceList} from '../ContentReferenceList';
-import {InboundStatusBar} from '../status-bar/InboundStatusBar';
+import { ContentReferenceList } from '../ContentReferenceList';
+import { InboundStatusBar } from '../status-bar/InboundStatusBar';
 
 type UnpublishDialogMainContentProps = {
     onUnpublish: () => void;
@@ -26,15 +28,18 @@ export const UnpublishDialogMainContent = ({
     onUnpublish,
     'data-component': componentName = UNPUBLISH_DIALOG_MAIN_CONTENT_NAME,
 }: UnpublishDialogMainContentProps): ReactElement => {
-    const {loading, failed, items, dependants, inboundIgnored} = useStore($unpublishDialog,
-        {keys: ['loading', 'failed', 'items', 'dependants', 'inboundIgnored']});
+    const { loading, failed, items, dependants, inboundIgnored } = useStore($unpublishDialog, {
+        keys: ['loading', 'failed', 'items', 'dependants', 'inboundIgnored'],
+    });
     const ready = useStore($isUnpublishDialogReady);
     const total = useStore($unpublishItemsCount);
     const hasMoreDependants = useStore($hasMoreUnpublishDependants);
     const inboundIds = useStore($unpublishInboundIds);
     const inboundSet = useMemo(() => new Set(inboundIds), [inboundIds]);
-    const isInbound = useCallback((content: ContentSummary) =>
-        inboundSet.has(content.getContentId().toString()), [inboundSet]);
+    const isInbound = useCallback(
+        (content: ContentSummary) => inboundSet.has(content.getContentId().toString()),
+        [inboundSet],
+    );
 
     const title = useI18n('dialog.unpublish');
     const dependantsLabel = useI18n('dialog.unpublish.dependants');
@@ -57,7 +62,7 @@ export const UnpublishDialogMainContent = ({
             return 0;
         }
         const allItems = [...items, ...dependants];
-        return allItems.filter(item => inboundSet.has(item.getContentId().toString())).length;
+        return allItems.filter((item) => inboundSet.has(item.getContentId().toString())).length;
     }, [items, dependants, inboundSet, inboundIgnored]);
 
     return (
@@ -87,7 +92,7 @@ export const UnpublishDialogMainContent = ({
                     branch={Branch.DRAFT}
                     isInbound={isInbound}
                     label={title}
-                    dependantVariant='compact'
+                    dependantVariant="compact"
                     hasMore={hasMoreDependants}
                     onEndReached={loadMoreUnpublishDependants}
                 />

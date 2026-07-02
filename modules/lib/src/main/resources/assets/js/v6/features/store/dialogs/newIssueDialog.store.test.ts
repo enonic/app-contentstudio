@@ -1,5 +1,5 @@
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {ContentId} from '../../../../app/content/ContentId';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ContentId } from '../../../../app/content/ContentId';
 import {
     emitContentArchived,
     emitContentCreated,
@@ -7,7 +7,7 @@ import {
     emitContentPublished,
     emitContentRenamed,
     emitContentUpdated,
-} from '../socket.store';
+} from '../../../shared/socket/socket.store';
 import {
     $newIssueDependantsSelection,
     $newIssueDialog,
@@ -25,19 +25,14 @@ import {
     flushDebouncedReload,
 } from './dialog.store.test.utils';
 
-const {
-    mockFetchContentSummaries,
-    mockResolvePublishDependencies,
-    mockShowError,
-    mockShowSuccess,
-    mockShowWarning,
-} = vi.hoisted(() => ({
-    mockFetchContentSummaries: vi.fn(),
-    mockResolvePublishDependencies: vi.fn(),
-    mockShowError: vi.fn(),
-    mockShowSuccess: vi.fn(),
-    mockShowWarning: vi.fn(),
-}));
+const { mockFetchContentSummaries, mockResolvePublishDependencies, mockShowError, mockShowSuccess, mockShowWarning } =
+    vi.hoisted(() => ({
+        mockFetchContentSummaries: vi.fn(),
+        mockResolvePublishDependencies: vi.fn(),
+        mockShowError: vi.fn(),
+        mockShowSuccess: vi.fn(),
+        mockShowWarning: vi.fn(),
+    }));
 
 vi.mock('../../api/content', () => ({
     fetchContentSummaries: mockFetchContentSummaries,
@@ -90,8 +85,8 @@ describe('newIssueDialog.store', () => {
     });
 
     it('patches updated items in the open dialog', async () => {
-        const original = createMockContent('item-1', {displayName: 'Original name'});
-        const updated = createMockContent('item-1', {displayName: 'Updated name'});
+        const original = createMockContent('item-1', { displayName: 'Original name' });
+        const updated = createMockContent('item-1', { displayName: 'Updated name' });
 
         openNewIssueDialog([original]);
         await flushNewIssueReload();
@@ -102,8 +97,8 @@ describe('newIssueDialog.store', () => {
     });
 
     it('patches renamed items in the open dialog', async () => {
-        const original = createMockContent('item-1', {displayName: 'Original name'});
-        const renamed = createMockContent('item-1', {displayName: 'Renamed item'});
+        const original = createMockContent('item-1', { displayName: 'Original name' });
+        const renamed = createMockContent('item-1', { displayName: 'Renamed item' });
 
         openNewIssueDialog([original]);
         await flushNewIssueReload();
@@ -114,13 +109,17 @@ describe('newIssueDialog.store', () => {
     });
 
     it('refreshes main items when created content is below a selected item path', async () => {
-        const parent = createMockContent('item-1', {displayName: 'Parent', path: '/parent'});
-        const updatedParent = createMockContent('item-1', {displayName: 'Parent', path: '/parent', hasChildren: true});
-        const unrelated = createMockContent('item-2', {displayName: 'Elsewhere', path: '/other/child'});
-        const child = createMockContent('item-3', {displayName: 'Child', path: '/parent/child'});
+        const parent = createMockContent('item-1', { displayName: 'Parent', path: '/parent' });
+        const updatedParent = createMockContent('item-1', {
+            displayName: 'Parent',
+            path: '/parent',
+            hasChildren: true,
+        });
+        const unrelated = createMockContent('item-2', { displayName: 'Elsewhere', path: '/other/child' });
+        const child = createMockContent('item-3', { displayName: 'Child', path: '/parent/child' });
 
         mockFetchContentSummaries.mockImplementation((ids: ContentId[]) => {
-            return ids.some(id => id.toString() === 'item-1') ? [updatedParent] : [];
+            return ids.some((id) => id.toString() === 'item-1') ? [updatedParent] : [];
         });
 
         openNewIssueDialog([parent]);
@@ -139,43 +138,37 @@ describe('newIssueDialog.store', () => {
         expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
     });
 
-    it.each(removalEventCases)(
-        'removes a non-last item on $name events',
-        async ({emit}) => {
-            const first = createMockContent('item-1', {displayName: 'First'});
-            const second = createMockContent('item-2', {displayName: 'Second'});
+    it.each(removalEventCases)('removes a non-last item on $name events', async ({ emit }) => {
+        const first = createMockContent('item-1', { displayName: 'First' });
+        const second = createMockContent('item-2', { displayName: 'Second' });
 
-            openNewIssueDialog([first, second]);
-            await flushNewIssueReload();
+        openNewIssueDialog([first, second]);
+        await flushNewIssueReload();
 
-            emit(['item-1']);
-            await flushNewIssueReload();
+        emit(['item-1']);
+        await flushNewIssueReload();
 
-            expect($newIssueDialog.get().open).toBe(true);
-            expect($newIssueDialog.get().items.map(item => item.getId())).toEqual(['item-2']);
-        },
-    );
+        expect($newIssueDialog.get().open).toBe(true);
+        expect($newIssueDialog.get().items.map((item) => item.getId())).toEqual(['item-2']);
+    });
 
-    it.each(removalEventCases)(
-        'clears items when the last one is removed by $name events',
-        async ({emit}) => {
-            const item = createMockContent('item-1', {displayName: 'Item'});
+    it.each(removalEventCases)('clears items when the last one is removed by $name events', async ({ emit }) => {
+        const item = createMockContent('item-1', { displayName: 'Item' });
 
-            openNewIssueDialog([item]);
-            await flushNewIssueReload();
+        openNewIssueDialog([item]);
+        await flushNewIssueReload();
 
-            emit(['item-1']);
-            await flushNewIssueReload();
+        emit(['item-1']);
+        await flushNewIssueReload();
 
-            expect($newIssueDialog.get().items).toEqual([]);
-            expect($newIssueDialog.get().dependants).toEqual([]);
-            expect($newIssueDialog.get().excludeChildrenIds).toEqual([]);
-        },
-    );
+        expect($newIssueDialog.get().items).toEqual([]);
+        expect($newIssueDialog.get().dependants).toEqual([]);
+        expect($newIssueDialog.get().excludeChildrenIds).toEqual([]);
+    });
 
     it('patches published items in the open dialog without removing them', async () => {
-        const original = createMockContent('item-1', {displayName: 'Original'});
-        const published = createMockContent('item-1', {displayName: 'Published', isOnline: true});
+        const original = createMockContent('item-1', { displayName: 'Original' });
+        const published = createMockContent('item-1', { displayName: 'Published', isOnline: true });
 
         openNewIssueDialog([original]);
         await flushNewIssueReload();
@@ -183,16 +176,17 @@ describe('newIssueDialog.store', () => {
         emitContentPublished([published]);
         await flushNewIssueReload();
 
-        expect($newIssueDialog.get().items.map(item => item.getId())).toEqual(['item-1']);
+        expect($newIssueDialog.get().items.map((item) => item.getId())).toEqual(['item-1']);
         expect($newIssueDialog.get().items[0].getDisplayName()).toBe('Published');
     });
 
     it('loads dependant summaries lazily, a window at a time, while counts use the full id set', async () => {
-        const dependantIds = Array.from({length: 40}, (_, index) => new ContentId(`dep-${index}`));
+        const dependantIds = Array.from({ length: 40 }, (_, index) => new ContentId(`dep-${index}`));
 
-        mockResolvePublishDependencies.mockResolvedValue(createResolveResult({dependants: dependantIds}));
+        mockResolvePublishDependencies.mockResolvedValue(createResolveResult({ dependants: dependantIds }));
         mockFetchContentSummaries.mockImplementation((ids: ContentId[]) =>
-            ids.map(id => createMockContent(id.toString())));
+            ids.map((id) => createMockContent(id.toString())),
+        );
 
         openNewIssueDialog([createMockContent('item-1')]);
         await flushNewIssueReload();
@@ -209,8 +203,8 @@ describe('newIssueDialog.store', () => {
     });
 
     it('ignores events when the dialog is closed', async () => {
-        const item = createMockContent('item-1', {displayName: 'Item'});
-        const updated = createMockContent('item-1', {displayName: 'Updated'});
+        const item = createMockContent('item-1', { displayName: 'Item' });
+        const updated = createMockContent('item-1', { displayName: 'Updated' });
 
         emitContentUpdated([updated]);
 
@@ -240,7 +234,10 @@ describe('newIssueDialog.store', () => {
 
             toggleNewIssueDependantsSelection();
 
-            const excluded = $newIssueDialog.get().excludedDependantIds.map(id => id.toString()).sort();
+            const excluded = $newIssueDialog
+                .get()
+                .excludedDependantIds.map((id) => id.toString())
+                .sort();
             expect(excluded).toEqual(['a', 'b']);
             expect($newIssueDependantsSelection.get().selectionType).toBe('none');
         });
@@ -252,7 +249,7 @@ describe('newIssueDialog.store', () => {
 
             toggleNewIssueDependantsSelection();
 
-            const excluded = $newIssueDialog.get().excludedDependantIds.map(id => id.toString());
+            const excluded = $newIssueDialog.get().excludedDependantIds.map((id) => id.toString());
             expect(excluded).toEqual(['a']);
             expect($newIssueDependantsSelection.get().selectionType).toBe('partial');
         });

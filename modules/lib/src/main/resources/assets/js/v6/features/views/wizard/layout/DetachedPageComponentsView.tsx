@@ -1,40 +1,49 @@
-import {cn, IconButton} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {ChevronLeft, ChevronRight} from 'lucide-react';
-import {createPortal, type CSSProperties, type PointerEvent as ReactPointerEvent, useCallback, useEffect, useRef, useState, type ReactElement} from 'react';
-import {useI18n} from '../../../hooks/useI18n';
-import {$app, setPageComponentsViewCollapsed} from '../../../store/app.store';
-import {$hasPage, $isContentFormExpanded} from '../../../store/wizardContent.store';
-import {PageComponentsView} from '../content-wizard-tabs/page-components/PageComponentsView';
+import { cn, IconButton } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+    createPortal,
+    type CSSProperties,
+    type PointerEvent as ReactPointerEvent,
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+    type ReactElement,
+} from 'react';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { $app, setPageComponentsViewCollapsed } from '../../../store/app.store';
+import { $hasPage, $isContentFormExpanded } from '../../../store/wizardContent.store';
+import { PageComponentsView } from '../content-wizard-tabs/page-components/PageComponentsView';
 
 const DETACHED_PAGE_COMPONENTS_VIEW_NAME = 'DetachedPageComponentsView';
 
 const DEFAULT_TOP = 96;
 const DEFAULT_LEFT = 24;
 
-type Position = {top: number; left: number};
+type Position = { top: number; left: number };
 
 const clampPosition = (next: Position, panel: HTMLElement | null): Position => {
     if (typeof window === 'undefined' || panel == null) return next;
-    const {innerWidth, innerHeight} = window;
+    const { innerWidth, innerHeight } = window;
     const rect = panel.getBoundingClientRect();
     const top = Math.max(0, Math.min(next.top, innerHeight - rect.height));
     const left = Math.max(0, Math.min(next.left, innerWidth - rect.width));
-    return {top, left};
+    return { top, left };
 };
 
 export const DetachedPageComponentsView = (): ReactElement | null => {
     const isExpanded = useStore($isContentFormExpanded);
     const hasPage = useStore($hasPage);
-    const {pageComponentsViewCollapsed: collapsed} = useStore($app, {keys: ['pageComponentsViewCollapsed']});
+    const { pageComponentsViewCollapsed: collapsed } = useStore($app, { keys: ['pageComponentsViewCollapsed'] });
     const showLabel = useI18n('field.showComponent');
     const hideLabel = useI18n('field.hideComponent');
     const componentsLabel = useI18n('field.components');
 
     const panelRef = useRef<HTMLDivElement>(null);
-    const dragStateRef = useRef<{pointerId: number; offsetX: number; offsetY: number} | null>(null);
+    const dragStateRef = useRef<{ pointerId: number; offsetX: number; offsetY: number } | null>(null);
 
-    const [position, setPosition] = useState<Position>({top: DEFAULT_TOP, left: DEFAULT_LEFT});
+    const [position, setPosition] = useState<Position>({ top: DEFAULT_TOP, left: DEFAULT_LEFT });
 
     const isVisible = !isExpanded && hasPage;
 
@@ -78,10 +87,9 @@ export const DetachedPageComponentsView = (): ReactElement | null => {
     const handlePointerMove = useCallback((event: ReactPointerEvent<HTMLDivElement>): void => {
         const drag = dragStateRef.current;
         if (drag == null || drag.pointerId !== event.pointerId) return;
-        setPosition(clampPosition(
-            {top: event.clientY - drag.offsetY, left: event.clientX - drag.offsetX},
-            panelRef.current,
-        ));
+        setPosition(
+            clampPosition({ top: event.clientY - drag.offsetY, left: event.clientX - drag.offsetX }, panelRef.current),
+        );
     }, []);
 
     const handlePointerUp = useCallback((event: ReactPointerEvent<HTMLDivElement>): void => {

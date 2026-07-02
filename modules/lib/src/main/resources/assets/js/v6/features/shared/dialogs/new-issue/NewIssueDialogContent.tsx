@@ -1,11 +1,11 @@
-import {Button, Checkbox, Dialog, GridList, Input, TextArea} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {CornerDownRight} from 'lucide-react';
-import {useCallback, useMemo, type ReactElement} from 'react';
+import { Button, Checkbox, Dialog, GridList, Input, TextArea } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { CornerDownRight } from 'lucide-react';
+import { useCallback, useMemo, type ReactElement } from 'react';
 
-import {ContentId} from '../../../../../app/content/ContentId';
-import {IssueType} from '../../../../../app/issue/IssueType';
-import {useI18n} from '../../../hooks/useI18n';
+import { ContentId } from '../../../../../app/content/ContentId';
+import { IssueType } from '../../../../../app/issue/IssueType';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import {
     $newIssueDependantsSelection,
     $newIssueDialog,
@@ -22,13 +22,13 @@ import {
     submitNewIssueDialog,
     toggleNewIssueDependantsSelection,
 } from '../../../store/dialogs/newIssueDialog.store';
-import {useItemsWithUnpublishedChildren} from '../../../utils/cms/content/useItemsWithUnpublishedChildren';
-import {ContentRow, SplitList} from '../../lists';
-import {AssigneeSelector} from '../../selectors/assignee/AssigneeSelector';
-import {useAssigneeSearch, useAssigneeSelection} from '../../selectors/assignee/hooks/useAssigneeSearch';
-import {ContentCombobox} from '../../selectors/content';
-import {DependantsSelectAll} from '../dependants/DependantsSelectAll';
-import {IssueIcon} from '../issue/IssueIcon';
+import { useItemsWithUnpublishedChildren } from '../../../utils/cms/content/useItemsWithUnpublishedChildren';
+import { ContentRow, SplitList } from '../../lists';
+import { AssigneeSelector } from '../../selectors/assignee/AssigneeSelector';
+import { useAssigneeSearch, useAssigneeSelection } from '../../selectors/assignee/hooks/useAssigneeSearch';
+import { ContentCombobox } from '../../selectors/content';
+import { DependantsSelectAll } from '../dependants/DependantsSelectAll';
+import { IssueIcon } from '../issue/IssueIcon';
 
 const NEW_ISSUE_DIALOG_CONTENT_NAME = 'NewIssueDialogContent';
 
@@ -76,49 +76,47 @@ export const NewIssueDialogContent = (): ReactElement => {
     const includeChildrenLabel = useI18n('dialog.includeChildren');
 
     const excludeChildrenSet = useMemo(
-        () => new Set(excludeChildrenIds.map(id => id.toString())),
+        () => new Set(excludeChildrenIds.map((id) => id.toString())),
         [excludeChildrenIds],
     );
     const excludedDependantSet = useMemo(
-        () => new Set(excludedDependantIds.map(id => id.toString())),
+        () => new Set(excludedDependantIds.map((id) => id.toString())),
         [excludedDependantIds],
     );
     const requiredDependantSet = useMemo(
-        () => new Set(requiredDependantIds.map(id => id.toString())),
+        () => new Set(requiredDependantIds.map((id) => id.toString())),
         [requiredDependantIds],
     );
 
-    const {options: assigneeOptions, handleSearchChange} = useAssigneeSearch();
-    const selectedAssigneeOptions = useAssigneeSelection({assigneeIds});
+    const { options: assigneeOptions, handleSearchChange } = useAssigneeSearch();
+    const selectedAssigneeOptions = useAssigneeSelection({ assigneeIds });
 
     const itemsWithUnpublishedChildren = useItemsWithUnpublishedChildren(items);
 
     const isItemsDisabled = submitting || loading;
 
-    const createButtonLabel = createCount > 1
-        ? `${createLabel} (${createCount})`
-        : createLabel;
+    const createButtonLabel = createCount > 1 ? `${createLabel} (${createCount})` : createLabel;
     const isCreateDisabled = submitting || loading || title.trim().length === 0;
 
-    const selectedIds = useMemo(
-        () => items.map(item => item.getContentId().toString()),
-        [items],
+    const selectedIds = useMemo(() => items.map((item) => item.getContentId().toString()), [items]);
+
+    const handleSelectionChange = useCallback(
+        (nextSelection: readonly string[]) => {
+            const prevSet = new Set(selectedIds);
+            const nextSet = new Set(nextSelection);
+
+            const addedIds = nextSelection.filter((id) => !prevSet.has(id));
+            const removedIds = selectedIds.filter((id) => !nextSet.has(id));
+
+            if (addedIds.length > 0) {
+                void addNewIssueItemsByIds([...addedIds]);
+            }
+            if (removedIds.length > 0) {
+                removeNewIssueItemsByIds(removedIds.map((id) => new ContentId(id)));
+            }
+        },
+        [selectedIds],
     );
-
-    const handleSelectionChange = useCallback((nextSelection: readonly string[]) => {
-        const prevSet = new Set(selectedIds);
-        const nextSet = new Set(nextSelection);
-
-        const addedIds = nextSelection.filter(id => !prevSet.has(id));
-        const removedIds = selectedIds.filter(id => !nextSet.has(id));
-
-        if (addedIds.length > 0) {
-            void addNewIssueItemsByIds([...addedIds]);
-        }
-        if (removedIds.length > 0) {
-            removeNewIssueItemsByIds(removedIds.map(id => new ContentId(id)));
-        }
-    }, [selectedIds]);
 
     const handleAssigneesChange = (next: readonly string[]) => {
         setNewIssueAssignees([...next]);
@@ -134,17 +132,17 @@ export const NewIssueDialogContent = (): ReactElement => {
     return (
         <Dialog.Content
             data-component={NEW_ISSUE_DIALOG_CONTENT_NAME}
-            className='sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-236 gap-7.5 px-5'
+            className="sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-236 gap-7.5 px-5"
         >
-            <Dialog.Header className='grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-4 px-5'>
-                <div className='flex min-w-0 items-center gap-2.5'>
+            <Dialog.Header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-4 px-5">
+                <div className="flex min-w-0 items-center gap-2.5">
                     <IssueIcon type={IssueType.STANDARD} />
-                    <Dialog.Title className='min-w-0 truncate text-2xl font-semibold'>{dialogTitle}</Dialog.Title>
+                    <Dialog.Title className="min-w-0 truncate text-2xl font-semibold">{dialogTitle}</Dialog.Title>
                 </div>
-                <Dialog.DefaultClose className='self-start justify-self-end' />
+                <Dialog.DefaultClose className="self-start justify-self-end" />
             </Dialog.Header>
-            <Dialog.Body className='min-h-0 overflow-y-auto rounded-sm outline-none focus:ring-2 focus:ring-ring/10 focus:ring-inset'>
-                <div className='flex min-h-0 flex-col gap-7.5 px-5'>
+            <Dialog.Body className="min-h-0 overflow-y-auto rounded-sm outline-none focus:ring-2 focus:ring-ring/10 focus:ring-inset">
+                <div className="flex min-h-0 flex-col gap-7.5 px-5">
                     <Input
                         label={titleLabel}
                         value={title}
@@ -160,8 +158,8 @@ export const NewIssueDialogContent = (): ReactElement => {
                         autoSize
                         disabled={submitting}
                     />
-                    <div className='flex flex-col gap-2.5'>
-                        <span className='text-md font-semibold'>{assigneesLabel}</span>
+                    <div className="flex flex-col gap-2.5">
+                        <span className="text-md font-semibold">{assigneesLabel}</span>
                         <AssigneeSelector
                             label={assigneesLabel}
                             options={assigneeOptions}
@@ -177,8 +175,7 @@ export const NewIssueDialogContent = (): ReactElement => {
                         />
                     </div>
 
-                    <div className='flex flex-col gap-2'>
-
+                    <div className="flex flex-col gap-2">
                         <ContentCombobox
                             label={itemsLabel}
                             selection={selectedIds}
@@ -214,7 +211,6 @@ export const NewIssueDialogContent = (): ReactElement => {
                                                     disabled={isItemsDisabled || items.length === 1}
                                                 />
                                             </ContentRow>
-
 
                                             {showChildrenCheckbox && (
                                                 <GridList.Row
@@ -292,13 +288,12 @@ export const NewIssueDialogContent = (): ReactElement => {
                             )}
                         </SplitList>
                     </div>
-
                 </div>
             </Dialog.Body>
-            <Dialog.Footer className='px-5'>
+            <Dialog.Footer className="px-5">
                 <Button
-                    variant='solid'
-                    size='lg'
+                    variant="solid"
+                    size="lg"
                     label={createButtonLabel}
                     disabled={isCreateDisabled}
                     onClick={handleCreate}

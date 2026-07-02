@@ -1,11 +1,11 @@
-import {type ReactElement} from 'react';
-import {cn, IconButton, Tooltip} from '@enonic/ui';
-import {Crop} from 'lucide-react';
-import {useImageUploaderContext} from '../ImageUploaderContext';
-import {useI18n} from '../../../../../hooks/useI18n';
+import { type ReactElement } from 'react';
+import { cn, IconButton, Tooltip } from '@enonic/ui';
+import { Crop } from 'lucide-react';
+import { useImageUploaderContext } from '../ImageUploaderContext';
+import { useI18n } from '../../../../../../shared/lib/hooks/useI18n';
 
 export const ImageUploaderInputCropButton = (): ReactElement => {
-    const {mode, setMode, enabled} = useImageUploaderContext();
+    const { mode, setMode, enabled } = useImageUploaderContext();
     const label = useI18n('editor.cropimage');
 
     return (

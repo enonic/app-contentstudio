@@ -1,13 +1,13 @@
-import {Input} from '@enonic/ui';
-import {type ReactElement} from 'react';
-import {useI18n} from '../../../hooks/useI18n';
-import {useHtmlAreaLinkDialogContext} from './HtmlAreaLinkDialogContext';
+import { Input } from '@enonic/ui';
+import { type ReactElement } from 'react';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { useHtmlAreaLinkDialogContext } from './HtmlAreaLinkDialogContext';
 
 const COMPONENT_NAME = 'EmailTabPanel';
 
 export const EmailTabPanel = (): ReactElement => {
     const {
-        state: {email, emailSubject},
+        state: { email, emailSubject },
         validationErrors: errors,
         setEmail,
         setEmailSubject,
@@ -17,7 +17,7 @@ export const EmailTabPanel = (): ReactElement => {
     const subjectLabel = useI18n('dialog.link.formitem.subject');
 
     return (
-        <div data-component={COMPONENT_NAME} className='flex flex-col gap-4 pt-4'>
+        <div data-component={COMPONENT_NAME} className="flex flex-col gap-4 pt-4">
             <Input
                 label={`${emailLabel} *`}
                 value={email}

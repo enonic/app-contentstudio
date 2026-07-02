@@ -1,37 +1,63 @@
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock @enonic/ui before importing the component
 vi.mock('@enonic/ui', () => {
     const createMockComponent = (name: string) => {
-        const Component = ({children, ...props}: {children?: React.ReactNode;[key: string]: unknown}) => {
-            return <div data-testid={name} {...props}>{children}</div>;
+        const Component = ({ children, ...props }: { children?: React.ReactNode; [key: string]: unknown }) => {
+            return (
+                <div data-testid={name} {...props}>
+                    {children}
+                </div>
+            );
         };
         Component.displayName = name;
         return Component;
     };
 
     const MockCombobox = {
-        Root: ({children, disabled, open, onOpenChange, value, onChange, ...props}: {children?: React.ReactNode; disabled?: boolean; open?: boolean; onOpenChange?: (open: boolean) => void; value?: string; onChange?: (value: string) => void;[key: string]: unknown}) => {
+        Root: ({
+            children,
+            disabled,
+            open,
+            onOpenChange,
+            value,
+            onChange,
+            ...props
+        }: {
+            children?: React.ReactNode;
+            disabled?: boolean;
+            open?: boolean;
+            onOpenChange?: (open: boolean) => void;
+            value?: string;
+            onChange?: (value: string) => void;
+            [key: string]: unknown;
+        }) => {
             return (
-                <div data-testid='combobox-root' data-disabled={disabled} data-open={open} {...props}>{children}</div>
+                <div data-testid="combobox-root" data-disabled={disabled} data-open={open} {...props}>
+                    {children}
+                </div>
             );
         },
         Content: createMockComponent('combobox-content'),
         Control: createMockComponent('combobox-control'),
         Search: createMockComponent('combobox-search'),
         SearchIcon: createMockComponent('combobox-search-icon'),
-        Input: ({placeholder, disabled, id, ...props}: {placeholder?: string; disabled?: boolean; id?: string; 'aria-label'?: string; 'aria-labelledby'?: string;[key: string]: unknown}) => (
-            <input
-                id={id}
-                role='combobox'
-                placeholder={placeholder}
-                disabled={disabled}
-                {...props}
-            />
-        ),
+        Input: ({
+            placeholder,
+            disabled,
+            id,
+            ...props
+        }: {
+            placeholder?: string;
+            disabled?: boolean;
+            id?: string;
+            'aria-label'?: string;
+            'aria-labelledby'?: string;
+            [key: string]: unknown;
+        }) => <input id={id} role="combobox" placeholder={placeholder} disabled={disabled} {...props} />,
         Toggle: createMockComponent('combobox-toggle'),
-        Portal: ({children}: {children?: React.ReactNode}) => <>{children}</>,
-        Popup: ({children}: {children?: React.ReactNode}) => <div data-testid='combobox-popup'>{children}</div>,
+        Portal: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
+        Popup: ({ children }: { children?: React.ReactNode }) => <div data-testid="combobox-popup">{children}</div>,
         Apply: createMockComponent('combobox-apply'),
         TreeContent: createMockComponent('combobox-tree-content'),
     };
@@ -42,19 +68,30 @@ vi.mock('@enonic/ui', () => {
         Item: createMockComponent('listbox-item'),
     };
 
-    const MockToggle = ({pressed, onPressedChange, children, ...props}: {pressed?: boolean; onPressedChange?: (pressed: boolean) => void; children?: React.ReactNode;[key: string]: unknown}) => (
-        <button
-            role='button'
-            aria-pressed={pressed}
-            onClick={() => onPressedChange?.(!pressed)}
-            {...props}
-        >
+    const MockToggle = ({
+        pressed,
+        onPressedChange,
+        children,
+        ...props
+    }: {
+        pressed?: boolean;
+        onPressedChange?: (pressed: boolean) => void;
+        children?: React.ReactNode;
+        [key: string]: unknown;
+    }) => (
+        <button role="button" aria-pressed={pressed} onClick={() => onPressedChange?.(!pressed)} {...props}>
             {children}
         </button>
     );
 
-    const MockVirtualizedTreeList = ({children, ...props}: {children?: React.ReactNode | ((args: unknown) => React.ReactNode);[key: string]: unknown}) => (
-        <div data-testid='virtualized-tree-list' {...props}>
+    const MockVirtualizedTreeList = ({
+        children,
+        ...props
+    }: {
+        children?: React.ReactNode | ((args: unknown) => React.ReactNode);
+        [key: string]: unknown;
+    }) => (
+        <div data-testid="virtualized-tree-list" {...props}>
             {typeof children === 'function' ? null : children}
         </div>
     );
@@ -62,25 +99,79 @@ vi.mock('@enonic/ui', () => {
     MockVirtualizedTreeList.RowContent = createMockComponent('virtualized-tree-list-row-content');
 
     const MockListItem = Object.assign(
-        ({children, className, ...props}: {children?: React.ReactNode; className?: string;[key: string]: unknown}) => (
-            <div data-testid='list-item' className={className} {...props}>{children}</div>
+        ({
+            children,
+            className,
+            ...props
+        }: {
+            children?: React.ReactNode;
+            className?: string;
+            [key: string]: unknown;
+        }) => (
+            <div data-testid="list-item" className={className} {...props}>
+                {children}
+            </div>
         ),
         {
-            Left: ({children, className, ...props}: {children?: React.ReactNode; className?: string;[key: string]: unknown}) => (
-                <div data-testid='list-item-left' className={className} {...props}>{children}</div>
+            Left: ({
+                children,
+                className,
+                ...props
+            }: {
+                children?: React.ReactNode;
+                className?: string;
+                [key: string]: unknown;
+            }) => (
+                <div data-testid="list-item-left" className={className} {...props}>
+                    {children}
+                </div>
             ),
-            Right: ({children, className, ...props}: {children?: React.ReactNode; className?: string;[key: string]: unknown}) => (
-                <div data-testid='list-item-right' className={className} {...props}>{children}</div>
+            Right: ({
+                children,
+                className,
+                ...props
+            }: {
+                children?: React.ReactNode;
+                className?: string;
+                [key: string]: unknown;
+            }) => (
+                <div data-testid="list-item-right" className={className} {...props}>
+                    {children}
+                </div>
             ),
         },
     );
 
-    const MockTooltip = ({children, value, delay, ...props}: {children?: React.ReactNode; value?: string; delay?: number;[key: string]: unknown}) => (
-        <div data-testid='tooltip' data-value={value} {...props}>{children}</div>
+    const MockTooltip = ({
+        children,
+        value,
+        delay,
+        ...props
+    }: {
+        children?: React.ReactNode;
+        value?: string;
+        delay?: number;
+        [key: string]: unknown;
+    }) => (
+        <div data-testid="tooltip" data-value={value} {...props}>
+            {children}
+        </div>
     );
 
-    const MockButton = ({children, onClick, startIcon, ...props}: {children?: React.ReactNode; onClick?: () => void; startIcon?: unknown;[key: string]: unknown}) => (
-        <button data-testid='button' onClick={onClick} {...props}>{children}</button>
+    const MockButton = ({
+        children,
+        onClick,
+        startIcon,
+        ...props
+    }: {
+        children?: React.ReactNode;
+        onClick?: () => void;
+        startIcon?: unknown;
+        [key: string]: unknown;
+    }) => (
+        <button data-testid="button" onClick={onClick} {...props}>
+            {children}
+        </button>
     );
 
     return {
@@ -94,7 +185,7 @@ vi.mock('@enonic/ui', () => {
         cn: (...args: unknown[]) => args.filter(Boolean).join(' '),
         useCombobox: () => ({
             selection: [],
-            onSelectionChange: () => { },
+            onSelectionChange: () => {},
             selectionMode: 'multiple',
         }),
     };
@@ -102,15 +193,21 @@ vi.mock('@enonic/ui', () => {
 
 // Mock lucide-react
 vi.mock('lucide-react', () => ({
-    ListTree: () => <span data-testid='list-tree-icon' />,
-    AlertCircle: () => <span data-testid='alert-circle-icon' />,
-    RefreshCw: () => <span data-testid='refresh-icon' />,
+    ListTree: () => <span data-testid="list-tree-icon" />,
+    AlertCircle: () => <span data-testid="alert-circle-icon" />,
+    RefreshCw: () => <span data-testid="refresh-icon" />,
 }));
 
 // Mock react-virtuoso
 vi.mock('react-virtuoso', () => ({
-    Virtuoso: ({data, itemContent}: {data?: unknown[]; itemContent?: (index: number, item: unknown) => React.ReactNode}) => (
-        <div data-testid='virtuoso'>
+    Virtuoso: ({
+        data,
+        itemContent,
+    }: {
+        data?: unknown[];
+        itemContent?: (index: number, item: unknown) => React.ReactNode;
+    }) => (
+        <div data-testid="virtuoso">
             {data?.map((item, index) => (
                 <div key={index}>{itemContent?.(index, item)}</div>
             ))}
@@ -119,7 +216,7 @@ vi.mock('react-virtuoso', () => ({
 }));
 
 // Mock useI18n hook
-vi.mock('../../../../hooks/useI18n', () => ({
+vi.mock('../../../../../shared/lib/hooks/useI18n', () => ({
     useI18n: vi.fn((key: string) => {
         const translations: Record<string, string> = {
             'field.search.placeholder': 'Type to search...',
@@ -135,8 +232,16 @@ vi.mock('../../../../hooks/useI18n', () => ({
 
 // Mock ContentComboboxList
 vi.mock('./ContentComboboxList', () => ({
-    ContentComboboxList: ({items, isLoading, emptyLabel}: {items?: unknown[]; isLoading?: boolean; emptyLabel?: string}) => (
-        <div data-testid='content-combobox-list' data-loading={isLoading}>
+    ContentComboboxList: ({
+        items,
+        isLoading,
+        emptyLabel,
+    }: {
+        items?: unknown[];
+        isLoading?: boolean;
+        emptyLabel?: string;
+    }) => (
+        <div data-testid="content-combobox-list" data-loading={isLoading}>
             {isLoading ? 'Loading...' : items?.length === 0 ? emptyLabel : `${items?.length ?? 0} items`}
         </div>
     ),
@@ -155,7 +260,7 @@ const mockSetActiveId = vi.fn();
 const mockRetry = vi.fn();
 
 let mockControllerState = {
-    virtuosoRef: {current: null},
+    virtuosoRef: { current: null },
     open: false,
     isTreeView: true,
     inputValue: '',
@@ -183,8 +288,8 @@ vi.mock('./useContentComboboxController', () => ({
 }));
 
 // Now import the component and test utilities
-import {fireEvent, render, screen, waitFor} from '@testing-library/preact';
-import {ContentCombobox, type ContentComboboxProps} from './ContentCombobox';
+import { fireEvent, render, screen, waitFor } from '@testing-library/preact';
+import { ContentCombobox, type ContentComboboxProps } from './ContentCombobox';
 
 describe('ContentCombobox', () => {
     const defaultProps: ContentComboboxProps = {
@@ -196,7 +301,7 @@ describe('ContentCombobox', () => {
         vi.clearAllMocks();
         // Reset mock controller state to defaults
         mockControllerState = {
-            virtuosoRef: {current: null},
+            virtuosoRef: { current: null },
             open: false,
             isTreeView: true,
             inputValue: '',
@@ -232,14 +337,14 @@ describe('ContentCombobox', () => {
         });
 
         it('renders with label as proper label element', () => {
-            render(<ContentCombobox {...defaultProps} label='Select content' />);
+            render(<ContentCombobox {...defaultProps} label="Select content" />);
 
             const labelElement = screen.getByText('Select content');
             expect(labelElement.tagName).toBe('LABEL');
         });
 
         it('associates label with input via htmlFor', () => {
-            render(<ContentCombobox {...defaultProps} label='Select content' />);
+            render(<ContentCombobox {...defaultProps} label="Select content" />);
 
             const labelElement = screen.getByText('Select content');
             const inputElement = screen.getByRole('combobox');
@@ -248,7 +353,7 @@ describe('ContentCombobox', () => {
         });
 
         it('renders with custom placeholder', () => {
-            render(<ContentCombobox {...defaultProps} placeholder='Choose items...' />);
+            render(<ContentCombobox {...defaultProps} placeholder="Choose items..." />);
 
             const input = screen.getByRole('combobox');
             expect((input as HTMLInputElement).placeholder).toBe('Choose items...');
@@ -262,14 +367,14 @@ describe('ContentCombobox', () => {
         });
 
         it('renders with aria-label when no label provided', () => {
-            render(<ContentCombobox {...defaultProps} aria-label='Content selector' />);
+            render(<ContentCombobox {...defaultProps} aria-label="Content selector" />);
 
             const input = screen.getByRole('combobox');
             expect(input.getAttribute('aria-label')).toBe('Content selector');
         });
 
         it('uses aria-labelledby when label is provided', () => {
-            render(<ContentCombobox {...defaultProps} label='Select content' />);
+            render(<ContentCombobox {...defaultProps} label="Select content" />);
 
             const input = screen.getByRole('combobox');
             const labelElement = screen.getByText('Select content');
@@ -284,7 +389,7 @@ describe('ContentCombobox', () => {
             mockControllerState.isTreeView = true;
             render(<ContentCombobox {...defaultProps} />);
 
-            const toggleButton = screen.getByRole('button', {pressed: true});
+            const toggleButton = screen.getByRole('button', { pressed: true });
             expect(toggleButton).toBeDefined();
             expect(toggleButton.getAttribute('aria-pressed')).toBe('true');
         });
@@ -305,36 +410,32 @@ describe('ContentCombobox', () => {
         it('calls onSelectionChange prop correctly', () => {
             const onSelectionChange = vi.fn();
             render(
-                <ContentCombobox
-                    {...defaultProps}
-                    onSelectionChange={onSelectionChange}
-                    selectionMode='multiple'
-                />,
+                <ContentCombobox {...defaultProps} onSelectionChange={onSelectionChange} selectionMode="multiple" />,
             );
 
             expect(screen.getByRole('combobox')).toBeDefined();
         });
 
         it('supports single selection mode', () => {
-            render(<ContentCombobox {...defaultProps} selectionMode='single' />);
+            render(<ContentCombobox {...defaultProps} selectionMode="single" />);
 
             expect(screen.getByRole('combobox')).toBeDefined();
         });
 
         it('supports multiple selection mode', () => {
-            render(<ContentCombobox {...defaultProps} selectionMode='multiple' />);
+            render(<ContentCombobox {...defaultProps} selectionMode="multiple" />);
 
             expect(screen.getByRole('combobox')).toBeDefined();
         });
 
         it('shows Apply button for multiple selection mode', () => {
-            render(<ContentCombobox {...defaultProps} selectionMode='multiple' />);
+            render(<ContentCombobox {...defaultProps} selectionMode="multiple" />);
 
             expect(screen.getByTestId('combobox-apply')).toBeDefined();
         });
 
         it('hides Apply button for single selection mode', () => {
-            render(<ContentCombobox {...defaultProps} selectionMode='single' />);
+            render(<ContentCombobox {...defaultProps} selectionMode="single" />);
 
             expect(screen.queryByTestId('combobox-apply')).toBeNull();
         });
@@ -356,7 +457,7 @@ describe('ContentCombobox', () => {
             mockControllerState.displayItems = [];
             mockControllerState.open = true;
 
-            render(<ContentCombobox {...defaultProps} emptyLabel='No content found' />);
+            render(<ContentCombobox {...defaultProps} emptyLabel="No content found" />);
 
             const list = screen.getByTestId('content-combobox-list');
             expect(list.textContent).toBe('No content found');
@@ -365,7 +466,7 @@ describe('ContentCombobox', () => {
 
     describe('className prop', () => {
         it('applies custom className to wrapper', () => {
-            const {container} = render(<ContentCombobox {...defaultProps} className='custom-class' />);
+            const { container } = render(<ContentCombobox {...defaultProps} className="custom-class" />);
 
             const wrapper = container.querySelector('[data-component="ContentCombobox"]');
             expect(wrapper?.classList.contains('custom-class')).toBe(true);

@@ -4,14 +4,14 @@ import {
     type FlatNode as VirtualizedTreeListNode,
     type VirtualizedTreeListItemProps,
 } from '@enonic/ui';
-import {type ReactElement} from 'react';
-import type {ContentSummary} from '../../../../../app/content/ContentSummary';
-import type {ContentTreeSelectorItem} from '../../../../../app/item/ContentTreeSelectorItem';
-import {useVirtualizedTreeListRowClick} from '../../../hooks/useVirtualizedTreeListRowClick';
-import {ContentLabel} from '../../content/ContentLabel';
-import {StatusBadge} from '../../status/StatusBadge';
-import {calcTreePublishStatus} from '../../../utils/cms/content/status';
-import {RootLabel, isRootContent} from './PathSelectorRoot';
+import { type ReactElement } from 'react';
+import type { ContentSummary } from '../../../../../app/content/ContentSummary';
+import type { ContentTreeSelectorItem } from '../../../../../app/item/ContentTreeSelectorItem';
+import { useVirtualizedTreeListRowClick } from '../../../../shared/lib/hooks/useVirtualizedTreeListRowClick';
+import { ContentLabel } from '../../content/ContentLabel';
+import { StatusBadge } from '../../status/StatusBadge';
+import { calcTreePublishStatus } from '../../../../shared/lib/cms/content/status';
+import { RootLabel, isRootContent } from './PathSelectorRoot';
 
 type PathSelectorTreeRowProps = {
     node: VirtualizedTreeListNode<ContentTreeSelectorItem>;
@@ -35,7 +35,7 @@ export const PathSelectorTreeRow = ({
     onCollapse,
 }: PathSelectorTreeRowProps): ReactElement => {
     const defaultOnClick = itemProps.onClick;
-    const {onClick} = useVirtualizedTreeListRowClick({
+    const { onClick } = useVirtualizedTreeListRowClick({
         index,
         id: node.id,
         selectable,
@@ -45,11 +45,7 @@ export const PathSelectorTreeRow = ({
     const isDisabled = !selectable;
 
     return (
-        <VirtualizedTreeList.Row
-            {...itemProps}
-            selectable={selectable}
-            onClick={onClick}
-        >
+        <VirtualizedTreeList.Row {...itemProps} selectable={selectable} onClick={onClick}>
             <VirtualizedTreeList.RowLeft>
                 <VirtualizedTreeList.RowLevelSpacer level={node.level} />
                 <VirtualizedTreeList.RowExpandControl
@@ -61,11 +57,7 @@ export const PathSelectorTreeRow = ({
                 />
             </VirtualizedTreeList.RowLeft>
             <VirtualizedTreeList.RowContent className={cn('min-w-0', isDisabled && 'opacity-50 pointer-events-none')}>
-                {isRoot ? (
-                    <RootLabel content={content} />
-                ) : (
-                    <ContentLabel content={content} variant='detailed' />
-                )}
+                {isRoot ? <RootLabel content={content} /> : <ContentLabel content={content} variant="detailed" />}
             </VirtualizedTreeList.RowContent>
             <VirtualizedTreeList.RowRight
                 className={cn('flex items-center gap-2.5', isDisabled && 'opacity-50 pointer-events-none')}

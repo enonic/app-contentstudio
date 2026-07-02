@@ -1,13 +1,13 @@
-import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
-import {computed, map} from 'nanostores';
-import {IssueServerEventsHandler} from '../../../../app/issue/event/IssueServerEventsHandler';
-import {IssueStatus} from '../../../../app/issue/IssueStatus';
-import {IssueType} from '../../../../app/issue/IssueType';
-import {GetIssueStatsRequest} from '../../../../app/issue/resource/GetIssueStatsRequest';
-import {ListIssuesRequest} from '../../../../app/issue/resource/ListIssuesRequest';
-import type {IssueWithAssignees} from '../../../../app/issue/IssueWithAssignees';
-import {createDebounce} from '../../utils/timing/createDebounce';
-import {$activeProject} from '../activeProject.store';
+import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
+import { computed, map } from 'nanostores';
+import { IssueServerEventsHandler } from '../../../../app/issue/event/IssueServerEventsHandler';
+import { IssueStatus } from '../../../../app/issue/IssueStatus';
+import { IssueType } from '../../../../app/issue/IssueType';
+import { GetIssueStatsRequest } from '../../../../app/issue/resource/GetIssueStatsRequest';
+import { ListIssuesRequest } from '../../../../app/issue/resource/ListIssuesRequest';
+import type { IssueWithAssignees } from '../../../../app/issue/IssueWithAssignees';
+import { createDebounce } from '../../../shared/lib/timing/createDebounce';
+import { $activeProject } from '../activeProject.store';
 
 import type {
     IssueDialogFilter,
@@ -35,7 +35,7 @@ type IssueDialogStore = {
     totals: IssueDialogListTotals;
 };
 
-const EMPTY_COUNTS = {open: 0, closed: 0};
+const EMPTY_COUNTS = { open: 0, closed: 0 };
 
 export const ISSUE_DIALOG_FILTER_ORDER: IssueDialogFilter[] = [
     'all',
@@ -46,11 +46,11 @@ export const ISSUE_DIALOG_FILTER_ORDER: IssueDialogFilter[] = [
 ];
 
 const createEmptyTotals = (): IssueDialogListTotals => ({
-    all: {...EMPTY_COUNTS},
-    assignedToMe: {...EMPTY_COUNTS},
-    createdByMe: {...EMPTY_COUNTS},
-    publishRequests: {...EMPTY_COUNTS},
-    issues: {...EMPTY_COUNTS},
+    all: { ...EMPTY_COUNTS },
+    assignedToMe: { ...EMPTY_COUNTS },
+    createdByMe: { ...EMPTY_COUNTS },
+    publishRequests: { ...EMPTY_COUNTS },
+    issues: { ...EMPTY_COUNTS },
 });
 
 const initialListState: Pick<IssueDialogStore, 'loading' | 'error' | 'issues' | 'filter' | 'tab' | 'totals'> = {
@@ -75,11 +75,11 @@ export const $issueDialog = map<IssueDialogStore>(structuredClone(initialState))
 // * Derived state
 //
 
-export const $issueDialogListFilteredIssues = computed($issueDialog, ({issues, filter, tab}) => {
-    return issues.filter(issue => matchesFilter(issue, filter, tab));
+export const $issueDialogListFilteredIssues = computed($issueDialog, ({ issues, filter, tab }) => {
+    return issues.filter((issue) => matchesFilter(issue, filter, tab));
 });
 
-export const $issueDialogListTabCounts = computed($issueDialog, ({totals, filter}) => {
+export const $issueDialogListTabCounts = computed($issueDialog, ({ totals, filter }) => {
     return totals[filter] ?? EMPTY_COUNTS;
 });
 
@@ -150,7 +150,7 @@ export const setIssueDialogListTab = (tab: IssueDialogTab): void => {
 };
 
 export const resetIssueDialogList = (): void => {
-    const {open, view, issueId} = $issueDialog.get();
+    const { open, view, issueId } = $issueDialog.get();
     $issueDialog.set({
         ...structuredClone(initialListState),
         open,
@@ -170,10 +170,7 @@ export const loadIssueDialogList = async (): Promise<void> => {
     $issueDialog.setKey('error', false);
 
     try {
-        const [issues, totals] = await Promise.all([
-            fetchIssues(),
-            fetchIssueTotals(),
-        ]);
+        const [issues, totals] = await Promise.all([fetchIssues(), fetchIssueTotals()]);
 
         $issueDialog.set({
             ...$issueDialog.get(),
@@ -231,7 +228,7 @@ const matchesFilter = (
 
     if (filter === 'assignedToMe') {
         const assignees = issueWithAssignees.getAssignees() ?? [];
-        return assignees.some(assignee => assignee.equals(AuthContext.get().getUser()));
+        return assignees.some((assignee) => assignee.equals(AuthContext.get().getUser()));
     }
 
     if (filter === 'publishRequests') {
@@ -252,20 +249,20 @@ const getTabCount = (counts: IssueDialogListCounts | undefined, tab: IssueDialog
 // Keep the current view when it has issues; otherwise prefer the first filter with open
 // issues, and only fall back to closed issues when no filter has anything open.
 const syncViewWithTotals = (): void => {
-    const {filter, tab, totals} = $issueDialog.get();
+    const { filter, tab, totals } = $issueDialog.get();
     if (getTabCount(totals[filter], tab) > 0) {
         return;
     }
 
-    const openFilter = ISSUE_DIALOG_FILTER_ORDER.find(option => getTabCount(totals[option], 'open') > 0);
+    const openFilter = ISSUE_DIALOG_FILTER_ORDER.find((option) => getTabCount(totals[option], 'open') > 0);
     if (openFilter) {
-        $issueDialog.set({...$issueDialog.get(), filter: openFilter, tab: 'open'});
+        $issueDialog.set({ ...$issueDialog.get(), filter: openFilter, tab: 'open' });
         return;
     }
 
-    const closedFilter = ISSUE_DIALOG_FILTER_ORDER.find(option => getTabCount(totals[option], 'closed') > 0);
+    const closedFilter = ISSUE_DIALOG_FILTER_ORDER.find((option) => getTabCount(totals[option], 'closed') > 0);
     if (closedFilter) {
-        $issueDialog.set({...$issueDialog.get(), filter: closedFilter, tab: 'closed'});
+        $issueDialog.set({ ...$issueDialog.get(), filter: closedFilter, tab: 'closed' });
     }
 };
 
@@ -277,10 +274,7 @@ const fetchIssues = async (): Promise<IssueWithAssignees[]> => {
     const activeProject = $activeProject.get();
 
     do {
-        const request = new ListIssuesRequest()
-            .setResolveAssignees(true)
-            .setFrom(from)
-            .setSize(LIST_PAGE_SIZE);
+        const request = new ListIssuesRequest().setResolveAssignees(true).setFrom(from).setSize(LIST_PAGE_SIZE);
 
         if (activeProject) {
             request.setRequestProject(activeProject);
@@ -353,7 +347,7 @@ const triggerReload = (): void => {
         return;
     }
 
-    const {open} = $issueDialog.get();
+    const { open } = $issueDialog.get();
     if (!open) {
         needsReload = true;
         return;
@@ -375,7 +369,7 @@ $activeProject.subscribe((activeProject) => {
 
 let wasOpen = $issueDialog.get().open;
 
-$issueDialog.subscribe(({open}) => {
+$issueDialog.subscribe(({ open }) => {
     if (!wasOpen && open) {
         void loadIssueDialogList();
     }

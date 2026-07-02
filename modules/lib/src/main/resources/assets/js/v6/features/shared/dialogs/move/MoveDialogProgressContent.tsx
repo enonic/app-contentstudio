@@ -1,8 +1,8 @@
-import {useStore} from '@nanostores/preact';
-import {type ReactElement} from 'react';
-import {useI18n} from '../../../hooks/useI18n';
-import {$moveItemsCount} from '../../../store/dialogs/moveDialog.store';
-import {ProgressDialogContent} from '../ProgressDialogContent';
+import { useStore } from '@nanostores/preact';
+import { type ReactElement } from 'react';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { $moveItemsCount } from '../../../store/dialogs/moveDialog.store';
+import { ProgressDialogContent } from '../ProgressDialogContent';
 
 type MoveDialogProgressContentProps = {
     destinationPath?: string;
@@ -20,7 +20,9 @@ export const MoveDialogProgressContent = ({
     const total = useStore($moveItemsCount);
     const isMultiple = total > 1;
     const title = useI18n(isMultiple ? 'dialog.move.multi' : 'dialog.move.single');
-    const progressLabel = useI18n(isMultiple ? 'dialog.move.progressMessage.multi' : 'dialog.move.progressMessage.single');
+    const progressLabel = useI18n(
+        isMultiple ? 'dialog.move.progressMessage.multi' : 'dialog.move.progressMessage.single',
+    );
     const description = destinationPath ? `${progressLabel} ${destinationPath}` : progressLabel;
 
     return (

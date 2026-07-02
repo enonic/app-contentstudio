@@ -1,14 +1,14 @@
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {Button} from '@enonic/ui';
-import {ReactElement, useCallback} from 'react';
-import {DependencyItem} from '.';
-import {DependencyParams} from '../../../../../../app/browse/DependencyParams';
-import {DependencyType} from '../../../../../../app/browse/DependencyType';
-import {ShowDependenciesEvent} from '../../../../../../app/browse/ShowDependenciesEvent';
-import {ContentId} from '../../../../../../app/content/ContentId';
-import {useI18n} from '../../../../hooks/useI18n';
-import {ContentIcon} from '../../../../shared/icons/ContentIcon';
-import {capitalize} from '../../../../utils/format/capitalize';
+import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { Button } from '@enonic/ui';
+import { ReactElement, useCallback } from 'react';
+import { DependencyItem } from '.';
+import { DependencyParams } from '../../../../../../app/browse/DependencyParams';
+import { DependencyType } from '../../../../../../app/browse/DependencyType';
+import { ShowDependenciesEvent } from '../../../../../../app/browse/ShowDependenciesEvent';
+import { ContentId } from '../../../../../../app/content/ContentId';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { ContentIcon } from '../../../../../shared/ui/icons/ContentIcon';
+import { capitalize } from '../../../../../shared/lib/format/capitalize';
 
 type DependenciesProps = {
     type: DependencyType;
@@ -16,12 +16,12 @@ type DependenciesProps = {
     contentId: ContentId;
 };
 
-type ShowAllButtonProps = Omit<DependenciesProps, 'dependencies'> & {total: number};
+type ShowAllButtonProps = Omit<DependenciesProps, 'dependencies'> & { total: number };
 
 const DEPENDENCIES_WIDGET_FLOW_SECTION_NAME = 'DependenciesWidgetFlowSection';
 
 export const DependenciesWidgetFlowSection = (props: DependenciesProps): ReactElement => {
-    const {type, dependencies} = props;
+    const { type, dependencies } = props;
     const noDependenciesLabel = useI18n(`field.widget.noDependencies.${type}`);
     const total = dependencies.reduce((acc, dependency) => acc + dependency.itemCount, 0);
 
@@ -62,7 +62,7 @@ DependenciesWidgetFlowSection.displayName = DEPENDENCIES_WIDGET_FLOW_SECTION_NAM
  *  Internal Components
  */
 
-const DependenciesList = ({type, dependencies, contentId}: DependenciesProps) => {
+const DependenciesList = ({ type, dependencies, contentId }: DependenciesProps) => {
     const onDependencyClick = useCallback(
         (dependency: DependencyItem) => {
             new ShowDependenciesEvent(
@@ -70,10 +70,10 @@ const DependenciesList = ({type, dependencies, contentId}: DependenciesProps) =>
                     .setContentId(contentId)
                     .setDependencyType(type)
                     .setContentType(dependency.contentType)
-                    .build()
+                    .build(),
             ).fire();
         },
-        [contentId, type]
+        [contentId, type],
     );
 
     return (
@@ -96,25 +96,18 @@ const DependenciesList = ({type, dependencies, contentId}: DependenciesProps) =>
 
 DependenciesList.displayName = 'DependenciesList';
 
-const ShowAllButton = ({type, contentId, total}: ShowAllButtonProps) => {
+const ShowAllButton = ({ type, contentId, total }: ShowAllButtonProps) => {
     const showAllInboundLabel = useI18n('field.contextPanel.showAllInbound', total);
     const showAllOutboundLabel = useI18n('field.contextPanel.showAllOutbound', total);
     const showAllDependenciesLabel = type === DependencyType.INBOUND ? showAllInboundLabel : showAllOutboundLabel;
 
     const onShowDependenciesClick = useCallback(() => {
         new ShowDependenciesEvent(
-            DependencyParams.create().setContentId(contentId).setDependencyType(type).build()
+            DependencyParams.create().setContentId(contentId).setDependencyType(type).build(),
         ).fire();
     }, [contentId, type]);
 
-    return (
-        <Button
-            size="sm"
-            onClick={onShowDependenciesClick}
-            label={showAllDependenciesLabel}
-            variant="outline"
-        />
-    );
+    return <Button size="sm" onClick={onShowDependenciesClick} label={showAllDependenciesLabel} variant="outline" />;
 };
 
 ShowAllButton.displayName = 'ShowAllButton';

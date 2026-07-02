@@ -1,20 +1,23 @@
-import {atom, computed, map} from 'nanostores';
-import {type Project} from '../../../app/settings/data/project/Project';
-import {ProjectListRequest} from '../../../app/settings/resource/ProjectListRequest';
-import {ProjectUpdatedEvent} from '../../../app/settings/event/ProjectUpdatedEvent';
-import {ProjectCreatedEvent} from '../../../app/settings/event/ProjectCreatedEvent';
-import {ProjectDeletedEvent} from '../../../app/settings/event/ProjectDeletedEvent';
-import {syncAtomStore} from '../utils/storage/sync';
-import {defineEvent} from '../utils/dom/events/definedEvent';
-import {setProjectSelectionDialogOpen} from './dialogs.store';
-import {resetTree} from './tree-list.store';
-import {clearSelection, setActive} from './contentTreeSelection.store';
-import {setContentFilterOpen, resetContentFilter} from './contentFilter.store';
-import {deactivateFilter} from '../api/content-fetcher';
-import {clearVersionsCache} from '../utils/widget/versions/versionsCache';
-import {resolveActiveProjectId, resolveActiveProjectIdAfterDeletion} from '../utils/cms/projects/projectSelection';
-import {isWizardUrl} from '../utils/url/app';
-import {$activeProject, setActiveProject} from './activeProject.store';
+import { atom, computed, map } from 'nanostores';
+import { type Project } from '../../../app/settings/data/project/Project';
+import { ProjectListRequest } from '../../../app/settings/resource/ProjectListRequest';
+import { ProjectUpdatedEvent } from '../../../app/settings/event/ProjectUpdatedEvent';
+import { ProjectCreatedEvent } from '../../../app/settings/event/ProjectCreatedEvent';
+import { ProjectDeletedEvent } from '../../../app/settings/event/ProjectDeletedEvent';
+import { syncAtomStore } from '../../shared/lib/storage/sync';
+import { defineEvent } from '../../shared/lib/dom/events/definedEvent';
+import { setProjectSelectionDialogOpen } from './dialogs.store';
+import { resetTree } from './tree-list.store';
+import { clearSelection, setActive } from './contentTreeSelection.store';
+import { setContentFilterOpen, resetContentFilter } from './contentFilter.store';
+import { deactivateFilter } from '../api/content-fetcher';
+import { clearVersionsCache } from '../../shared/lib/widget/versions/versionsCache';
+import {
+    resolveActiveProjectId,
+    resolveActiveProjectIdAfterDeletion,
+} from '../../shared/lib/cms/projects/projectSelection';
+import { isWizardUrl } from '../../shared/lib/url/app';
+import { $activeProject, setActiveProject } from './activeProject.store';
 
 // TODO: Enonic UI - Feature: store projects as JSON objects in the sync store
 // TODO: Enonic UI - Feature: load projects from the sync store on startup if other tabs are active
@@ -45,7 +48,7 @@ export const $projects = map<ProjectsStore>({
 // * Read in browse mode when the URL has no project; ignored on wizard URLs.
 //
 const $lastSelectedProjectId = atom<string | undefined>(undefined);
-syncAtomStore($lastSelectedProjectId, 'lastSelectedProjectId', {loadInitial: true});
+syncAtomStore($lastSelectedProjectId, 'lastSelectedProjectId', { loadInitial: true });
 
 export const $noProjectMode = computed($projects, (store) => {
     if (!store.loaded) {
@@ -134,13 +137,16 @@ function selectProjectById(projectId: string | undefined): void {
 // * canonical instance (or undefined if the active id is no longer present).
 //
 function refreshActiveProjectInstance(): void {
-    const {projects, activeProjectId} = $projects.get();
+    const { projects, activeProjectId } = $projects.get();
     if (!activeProjectId) return;
     const canonical = projects.find((p) => getProjectId(p) === activeProjectId);
     setActiveProject(canonical && isAvailableProject(canonical) ? canonical : undefined);
 }
 
-function resolveFallbackProjectId(projects: Readonly<Project>[], activeProjectId: string | undefined): string | undefined {
+function resolveFallbackProjectId(
+    projects: Readonly<Project>[],
+    activeProjectId: string | undefined,
+): string | undefined {
     const activeProject = projects.find((project) => getProjectId(project) === activeProjectId);
 
     if (!activeProject) {
@@ -170,9 +176,7 @@ const pendingDeletedProjectNavigation = new Map<string, boolean>();
 // ? Same-window pub/sub used to sync the active project across widget bundles
 // ? (Settings, Studio Plus, etc.) that share the window but ship their own
 // ? copy of this store. Goes through window CustomEvent; no cross-tab scope.
-const activeProjectChangedEvent = defineEvent<{projectName: string}>(
-    'enonic:cs:active-project-changed',
-);
+const activeProjectChangedEvent = defineEvent<{ projectName: string }>('enonic:cs:active-project-changed');
 
 async function loadProjects(): Promise<void> {
     if (isLoading) {
@@ -246,9 +250,9 @@ function updateActiveProject(): void {
         return;
     }
 
-    const {projects, activeProjectId} = $projects.get();
-    const nextProjectId = resolveActiveProjectId(projects, getProjectIdFromUrl())
-        ?? resolveFallbackProjectId(projects, activeProjectId);
+    const { projects, activeProjectId } = $projects.get();
+    const nextProjectId =
+        resolveActiveProjectId(projects, getProjectIdFromUrl()) ?? resolveFallbackProjectId(projects, activeProjectId);
 
     if (nextProjectId) {
         selectProjectById(nextProjectId);
@@ -262,7 +266,7 @@ function updateActiveProject(): void {
 }
 
 function updateActiveProjectAfterDeletion(deletedProject: Readonly<Project> | undefined): void {
-    const {projects} = $projects.get();
+    const { projects } = $projects.get();
     const nextProjectId = resolveActiveProjectIdAfterDeletion(projects, deletedProject);
     const wasLast = $lastSelectedProjectId.get() === getProjectId(deletedProject);
 
@@ -346,7 +350,7 @@ export function initProjects(activeProjectId?: string): void {
         removeProject(deletedProjectId, resolveDeleteNavigation(deletedProjectId));
     });
 
-    activeProjectChangedEvent.listen(({projectName}) => {
+    activeProjectChangedEvent.listen(({ projectName }) => {
         if ($projects.get().activeProjectId === projectName) return;
         const project = $projects.get().projects.find((p) => getProjectId(p) === projectName);
         if (!project) return;
@@ -379,7 +383,7 @@ export function selectProject(project: Readonly<Project>): void {
     if ($projects.get().activeProjectId === projectId) {
         $lastSelectedProjectId.set(projectId);
         if (!applyingRemoteSelection && projectId) {
-            activeProjectChangedEvent.dispatch({projectName: projectId});
+            activeProjectChangedEvent.dispatch({ projectName: projectId });
         }
     }
 }
@@ -410,14 +414,14 @@ function resolveDeleteNavigation(projectName: string): boolean {
 }
 
 export function upsertProject(project: Readonly<Project>): void {
-    const {projects} = $projects.get();
+    const { projects } = $projects.get();
     const updatedProjects = [...projects.filter((p) => getProjectId(p) !== getProjectId(project)), project as Project];
     $projects.setKey('projects', updatedProjects);
     updateActiveProject();
 }
 
 export function removeProject(projectName: string, navigateAfterDeletion: boolean = false): void {
-    const {projects} = $projects.get();
+    const { projects } = $projects.get();
     const deletedProject = projects.find((p) => getProjectId(p) === projectName);
     const updatedProjects = projects.filter((p) => getProjectId(p) !== projectName);
     $projects.setKey('projects', updatedProjects);
@@ -433,7 +437,6 @@ export function removeProject(projectName: string, navigateAfterDeletion: boolea
 
     updateActiveProject();
 }
-
 
 // Reset dependent stores when project changes
 function resetProjectDependentStores(): void {

@@ -1,13 +1,13 @@
-import type {SelfManagedComponentProps} from '@enonic/lib-admin-ui/form2';
-import {SortableGridList} from '@enonic/lib-admin-ui/form2/components';
-import {Combobox} from '@enonic/ui';
-import {type ReactElement, useMemo, useState} from 'react';
-import {useI18n} from '../../../../hooks/useI18n';
-import type {ContentTypeFilterConfig} from './ContentTypeFilterConfig';
-import {ContentTypeFilterComboboxList} from './ContentTypeFilterComboboxList';
-import {ContentTypeFilterSelectionItemView} from './ContentTypeFilterSelectionItemView';
-import {useContentTypeFilter} from './useContentTypeFilter';
-import {useSelectorInputHasError} from '../hooks';
+import type { SelfManagedComponentProps } from '@enonic/lib-admin-ui/form2';
+import { SortableGridList } from '@enonic/lib-admin-ui/form2/components';
+import { Combobox } from '@enonic/ui';
+import { type ReactElement, useMemo, useState } from 'react';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import type { ContentTypeFilterConfig } from './ContentTypeFilterConfig';
+import { ContentTypeFilterComboboxList } from './ContentTypeFilterComboboxList';
+import { ContentTypeFilterSelectionItemView } from './ContentTypeFilterSelectionItemView';
+import { useContentTypeFilter } from './useContentTypeFilter';
+import { useSelectorInputHasError } from '../hooks';
 
 const COMPONENT_NAME = 'ContentTypeFilterInput';
 
@@ -23,7 +23,7 @@ export const ContentTypeFilterInput = ({
 }: SelfManagedComponentProps<ContentTypeFilterConfig>): ReactElement => {
     const [inputValue, setInputValue] = useState<string | undefined>();
     const selection: string[] = useMemo(() => values.filter((v) => v.isNotNull()).map((v) => v.getString()), [values]);
-    const {allContentTypes, filteredContentTypes, isLoading, hasError, onSelectionChange} = useContentTypeFilter({
+    const { allContentTypes, filteredContentTypes, isLoading, hasError, onSelectionChange } = useContentTypeFilter({
         config,
         selection,
         query: inputValue,
@@ -51,8 +51,11 @@ export const ContentTypeFilterInput = ({
 
     // Memoized values
     const selectedContentTypes = useMemo(
-        () => selection.map((name) => allContentTypes.find((ct) => ct.getContentTypeName().toString() === name)).filter(Boolean),
-        [selection, allContentTypes]
+        () =>
+            selection
+                .map((name) => allContentTypes.find((ct) => ct.getContentTypeName().toString() === name))
+                .filter(Boolean),
+        [selection, allContentTypes],
     );
 
     return (
@@ -95,7 +98,9 @@ export const ContentTypeFilterInput = ({
                 onMove={onMove}
                 enabled={!disabled}
                 fullRowDraggable
-                renderItem={(context) => <ContentTypeFilterSelectionItemView context={context} onRemove={onRemove} className="py-2" />}
+                renderItem={(context) => (
+                    <ContentTypeFilterSelectionItemView context={context} onRemove={onRemove} className="py-2" />
+                )}
             />
         </div>
     );

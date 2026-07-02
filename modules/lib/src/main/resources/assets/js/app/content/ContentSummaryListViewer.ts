@@ -1,20 +1,18 @@
 import Q from 'q';
-import {ContentSummaryAndCompareStatusViewer} from './ContentSummaryAndCompareStatusViewer';
-import {type ContentSummaryAndCompareStatus} from './ContentSummaryAndCompareStatus';
-import {Request} from '@enonic/lib-admin-ui/rest/Request';
-import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
-import {Path} from '@enonic/lib-admin-ui/rest/Path';
-import {type Response} from '@enonic/lib-admin-ui/rest/Response';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
-import {Element, NewElementBuilder} from '@enonic/lib-admin-ui/dom/Element';
-import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
-import {isBlank} from '../../v6/features/utils/format/isBlank';
+import { ContentSummaryAndCompareStatusViewer } from './ContentSummaryAndCompareStatusViewer';
+import { type ContentSummaryAndCompareStatus } from './ContentSummaryAndCompareStatus';
+import { Request } from '@enonic/lib-admin-ui/rest/Request';
+import { HttpMethod } from '@enonic/lib-admin-ui/rest/HttpMethod';
+import { UriHelper } from '@enonic/lib-admin-ui/util/UriHelper';
+import { Path } from '@enonic/lib-admin-ui/rest/Path';
+import { type Response } from '@enonic/lib-admin-ui/rest/Response';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { ImgEl } from '@enonic/lib-admin-ui/dom/ImgEl';
+import { Element, NewElementBuilder } from '@enonic/lib-admin-ui/dom/Element';
+import { StatusCode } from '@enonic/lib-admin-ui/rest/StatusCode';
+import { isBlank } from '../../v6/shared/lib/format/isBlank';
 
-export class ContentSummaryListViewer
-    extends ContentSummaryAndCompareStatusViewer {
-
+export class ContentSummaryListViewer extends ContentSummaryAndCompareStatusViewer {
     private iconWrapperId: string;
 
     constructor() {
@@ -54,15 +52,21 @@ export class ContentSummaryListViewer
 
         if (!isBlank(url)) {
             if (!this.iconWrapperId) {
-                const iconWrapper: Element =
-                    new Element(new NewElementBuilder().setTagName('div').setGenerateId(true).setClassName('icon-spinner icon-wrapper'));
+                const iconWrapper: Element = new Element(
+                    new NewElementBuilder()
+                        .setTagName('div')
+                        .setGenerateId(true)
+                        .setClassName('icon-spinner icon-wrapper'),
+                );
                 this.namesAndIconView.getIconImageEl().wrapWithElement(iconWrapper);
                 this.iconWrapperId = iconWrapper.getId();
             }
 
-            this.sendImageRequest(url).finally(() => {
-                document.getElementById(this.iconWrapperId)?.classList.remove('icon-spinner');
-            }).catch(DefaultErrorHandler.handle);
+            this.sendImageRequest(url)
+                .finally(() => {
+                    document.getElementById(this.iconWrapperId)?.classList.remove('icon-spinner');
+                })
+                .catch(DefaultErrorHandler.handle);
         }
     }
 
@@ -96,12 +100,13 @@ export class ContentSummaryListViewer
     }
 }
 
-class ImageRequest
-    extends Request {
-
+class ImageRequest extends Request {
     private readonly url: string;
 
-    private static cachedRequestsPromises: Map<string, Q.Promise<ImageResponse>> = new Map<string, Q.Promise<ImageResponse>>();
+    private static cachedRequestsPromises: Map<string, Q.Promise<ImageResponse>> = new Map<
+        string,
+        Q.Promise<ImageResponse>
+    >();
 
     constructor(url: string) {
         super(HttpMethod.GET);
@@ -136,11 +141,15 @@ class ImageRequest
     }
 
     private doSend(): Q.Promise<ImageResponse> {
-        return this.send().then((response: Response) => {
-            return this.request.status === StatusCode.OK ? this.encodeImageAsURL(response) : Q({status: this.request.status});
-        }).catch((reason) => {
-            return Q({error: reason});
-        });
+        return this.send()
+            .then((response: Response) => {
+                return this.request.status === StatusCode.OK
+                    ? this.encodeImageAsURL(response)
+                    : Q({ status: this.request.status });
+            })
+            .catch((reason) => {
+                return Q({ error: reason });
+            });
     }
 
     private encodeImageAsURL(response: Response): Q.Promise<ImageResponse> {
@@ -149,7 +158,7 @@ class ImageRequest
         const reader: FileReader = new FileReader();
 
         reader.onload = () => {
-            deferred.resolve({status: this.getRequestStatus(), imageAsUrl: reader.result as string});
+            deferred.resolve({ status: this.getRequestStatus(), imageAsUrl: reader.result as string });
         };
 
         try {
@@ -163,11 +172,9 @@ class ImageRequest
 }
 
 interface ImageResponse {
-
     status?: number;
 
     imageAsUrl?: string;
 
     error?: string;
-
 }

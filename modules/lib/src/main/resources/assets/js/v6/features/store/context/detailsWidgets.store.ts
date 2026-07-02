@@ -1,20 +1,20 @@
-import {atom, computed, onMount, task} from 'nanostores';
-import {$contextContent} from './contextContent.store';
-import {type Content} from '../../../../app/content/Content';
-import {type EffectivePermission} from '../../../../app/security/EffectivePermission';
-import {type Attachments} from '../../../../app/attachment/Attachments';
-import {ContentPath} from '../../../../app/content/ContentPath';
-import {type ContentSummary} from '../../../../app/content/ContentSummary';
-import {GetContentByIdRequest} from '../../../../app/resource/GetContentByIdRequest';
-import {GetContentAttachmentsRequest} from '../../../../app/resource/GetContentAttachmentsRequest';
-import {GetEffectivePermissionsRequest} from '../../../../app/resource/GetEffectivePermissionsRequest';
-import {type ContentId} from '../../../../app/content/ContentId';
-import {type Access} from '../../../../app/security/Access';
-import {AccessControlEntryView} from '../../../../app/view/AccessControlEntryView';
-import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
-import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
-import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {$contentPermissionsUpdated} from '../socket.store';
+import { atom, computed, onMount, task } from 'nanostores';
+import { $contextContent } from './contextContent.store';
+import { type Content } from '../../../../app/content/Content';
+import { type EffectivePermission } from '../../../../app/security/EffectivePermission';
+import { type Attachments } from '../../../../app/attachment/Attachments';
+import { ContentPath } from '../../../../app/content/ContentPath';
+import { type ContentSummary } from '../../../../app/content/ContentSummary';
+import { GetContentByIdRequest } from '../../../../app/resource/GetContentByIdRequest';
+import { GetContentAttachmentsRequest } from '../../../../app/resource/GetContentAttachmentsRequest';
+import { GetEffectivePermissionsRequest } from '../../../../app/resource/GetEffectivePermissionsRequest';
+import { type ContentId } from '../../../../app/content/ContentId';
+import { type Access } from '../../../../app/security/Access';
+import { AccessControlEntryView } from '../../../../app/view/AccessControlEntryView';
+import { RoleKeys } from '@enonic/lib-admin-ui/security/RoleKeys';
+import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
+import { type Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { $contentPermissionsUpdated } from '../../../shared/socket/socket.store';
 
 const $detailsContentRefreshSignal = atom(0);
 
@@ -28,20 +28,22 @@ onMount($detailsContentRefreshSignal, () =>
         if (event.data.some((id) => id.equals(contentId))) {
             $detailsContentRefreshSignal.set(Date.now());
         }
-    })
+    }),
 );
 
-export const $detailsWidgetContent = computed([$contextContent, $detailsContentRefreshSignal], (contentSummary, _refresh) =>
-    task(async () => {
-        if (!contentSummary) return undefined;
+export const $detailsWidgetContent = computed(
+    [$contextContent, $detailsContentRefreshSignal],
+    (contentSummary, _refresh) =>
+        task(async () => {
+            if (!contentSummary) return undefined;
 
-        try {
-            return await loadContent(contentSummary);
-        } catch (error) {
-            console.error(error);
-            return undefined;
-        }
-    })
+            try {
+                return await loadContent(contentSummary);
+            } catch (error) {
+                console.error(error);
+                return undefined;
+            }
+        }),
 );
 
 export const $detailsWidgetPermissions = computed($detailsWidgetContent, (content) =>
@@ -54,7 +56,7 @@ export const $detailsWidgetPermissions = computed($detailsWidgetContent, (conten
             console.error(error);
             return undefined;
         }
-    })
+    }),
 );
 
 export const $detailsWidgetAttachments = computed($detailsWidgetContent, (content) =>
@@ -67,7 +69,7 @@ export const $detailsWidgetAttachments = computed($detailsWidgetContent, (conten
             console.error(error);
             return undefined;
         }
-    })
+    }),
 );
 
 export const $detailsWidgetEffectivePermissions = computed(
@@ -75,7 +77,7 @@ export const $detailsWidgetEffectivePermissions = computed(
     (content, permissions) => {
         if (!content || !permissions) return [];
         return filterEffectivePermissions(content, permissions);
-    }
+    },
 );
 
 //
@@ -106,7 +108,7 @@ export function sortPrincipals(principals: Principal[]): Principal[] {
 function filterEffectivePermissions(content: Content, permissions: EffectivePermission[]): EffectivePermission[] {
     return permissions.filter(
         (item: EffectivePermission) =>
-            item.getAccess() !== getEveryoneAccess(content) && item.getPermissionAccess().getCount() > 0
+            item.getAccess() !== getEveryoneAccess(content) && item.getPermissionAccess().getCount() > 0,
     );
 }
 

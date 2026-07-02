@@ -1,6 +1,6 @@
-import {type ReactElement, useCallback, useEffect, useRef, useState} from 'react';
-import {useI18n} from '../../../hooks/useI18n';
-import {useHtmlAreaMacroDialogContext} from './HtmlAreaMacroDialogContext';
+import { type ReactElement, useCallback, useEffect, useRef, useState } from 'react';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { useHtmlAreaMacroDialogContext } from './HtmlAreaMacroDialogContext';
 
 const COMPONENT_NAME = 'MacroPreviewPanel';
 const MAX_IFRAME_HEIGHT = 500;
@@ -12,17 +12,17 @@ function buildIframeContent(
     pageContributions: { headBegin: string[]; headEnd: string[]; bodyBegin: string[]; bodyEnd: string[] },
 ): string {
     let result = '';
-    pageContributions.headBegin.forEach(s => result += s);
-    pageContributions.headEnd.forEach(s => result += s);
-    pageContributions.bodyBegin.forEach(s => result += s);
+    pageContributions.headBegin.forEach((s) => (result += s));
+    pageContributions.headEnd.forEach((s) => (result += s));
+    pageContributions.bodyBegin.forEach((s) => (result += s));
     result += html;
-    pageContributions.bodyEnd.forEach(s => result += s);
+    pageContributions.bodyEnd.forEach((s) => (result += s));
     return result;
 }
 
 export const MacroPreviewPanel = (): ReactElement => {
     const {
-        state: {previewLoading, previewResolved, previewHtml, previewPageContributions, selectedDescriptor},
+        state: { previewLoading, previewResolved, previewHtml, previewPageContributions, selectedDescriptor },
         hasPreviewScripts,
     } = useHtmlAreaMacroDialogContext();
 
@@ -36,35 +36,29 @@ export const MacroPreviewPanel = (): ReactElement => {
 
     if (previewLoading) {
         return (
-            <div data-component={COMPONENT_NAME} className='flex items-center justify-center py-8'>
-                <span className='text-sm text-subtle'>{previewLoadingLabel}</span>
+            <div data-component={COMPONENT_NAME} className="flex items-center justify-center py-8">
+                <span className="text-sm text-subtle">{previewLoadingLabel}</span>
             </div>
         );
     }
 
     if (!previewResolved) {
         return (
-            <div data-component={COMPONENT_NAME} className='py-4 text-sm text-subtle'>
+            <div data-component={COMPONENT_NAME} className="py-4 text-sm text-subtle">
                 {incompleteLabel}
             </div>
         );
     }
 
     if (hasPreviewScripts && previewPageContributions) {
-        return (
-            <PreviewIframe
-                html={previewHtml}
-                pageContributions={previewPageContributions}
-                title={previewTitle}
-            />
-        );
+        return <PreviewIframe html={previewHtml} pageContributions={previewPageContributions} title={previewTitle} />;
     }
 
     return (
         <div
             data-component={COMPONENT_NAME}
-            className='preview-content py-2'
-            dangerouslySetInnerHTML={{__html: previewHtml}}
+            className="preview-content py-2"
+            dangerouslySetInnerHTML={{ __html: previewHtml }}
         />
     );
 };
@@ -77,7 +71,7 @@ type PreviewIframeProps = {
     title: string;
 };
 
-const PreviewIframe = ({html, pageContributions, title}: PreviewIframeProps): ReactElement => {
+const PreviewIframe = ({ html, pageContributions, title }: PreviewIframeProps): ReactElement => {
     const iframeRef = useRef<HTMLIFrameElement>(null);
     const [height, setHeight] = useState(MIN_IFRAME_HEIGHT);
     const resizeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -152,8 +146,8 @@ const PreviewIframe = ({html, pageContributions, title}: PreviewIframeProps): Re
     return (
         <iframe
             ref={iframeRef}
-            className='w-full border-0'
-            style={{height: `${height}px`}}
+            className="w-full border-0"
+            style={{ height: `${height}px` }}
             onLoad={handleLoad}
             title={title}
         />

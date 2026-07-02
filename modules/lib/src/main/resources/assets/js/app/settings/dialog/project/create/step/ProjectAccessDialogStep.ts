@@ -1,16 +1,14 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {type FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
-import {ProjectDialogStep} from './ProjectDialogStep';
-import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { type FormItem } from '@enonic/lib-admin-ui/ui/form/FormItem';
+import { ProjectDialogStep } from './ProjectDialogStep';
+import { type Principal } from '@enonic/lib-admin-ui/security/Principal';
 import Q from 'q';
-import {ProjectAccessDialogStepData} from '../data/ProjectAccessDialogStepData';
-import {ProjectReadAccessType} from '../../../../data/project/ProjectReadAccessType';
-import {ProjectReadAccessFormItem} from '../../../../wizard/panel/form/element/ProjectReadAccessFormItem';
-import {isBlank} from '../../../../../../v6/features/utils/format/isBlank';
+import { ProjectAccessDialogStepData } from '../data/ProjectAccessDialogStepData';
+import { ProjectReadAccessType } from '../../../../data/project/ProjectReadAccessType';
+import { ProjectReadAccessFormItem } from '../../../../wizard/panel/form/element/ProjectReadAccessFormItem';
+import { isBlank } from '../../../../../../v6/shared/lib/format/isBlank';
 
-export class ProjectAccessDialogStep
-    extends ProjectDialogStep {
-
+export class ProjectAccessDialogStep extends ProjectDialogStep {
     private readAccessFormItem: ProjectReadAccessFormItem;
 
     createFormItems(): FormItem[] {
@@ -44,8 +42,10 @@ export class ProjectAccessDialogStep
         }
 
         if (readAccessString === ProjectReadAccessType.CUSTOM.toString()) {
-            const principals: Principal[] =
-                this.readAccessFormItem.getPrincipalComboBox().getSelectedOptions().map(option => option.getOption().getDisplayValue());
+            const principals: Principal[] = this.readAccessFormItem
+                .getPrincipalComboBox()
+                .getSelectedOptions()
+                .map((option) => option.getOption().getDisplayValue());
 
             if (principals.length === 0) {
                 return data.setAccess(ProjectReadAccessType.PRIVATE);

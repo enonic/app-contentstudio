@@ -1,22 +1,28 @@
-import {cn, VirtualizedTreeList} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {Folder, FolderOpen} from 'lucide-react';
-import {type ReactElement, useCallback, useMemo, useRef} from 'react';
-import type {ListRange, VirtuosoHandle} from 'react-virtuoso';
-import {Virtuoso} from 'react-virtuoso';
-import {EditSettingsItemEvent} from '../../../../../app/settings/event/EditSettingsItemEvent';
-import {type SettingsViewItem} from '../../../../../app/settings/view/SettingsViewItem';
-import {ProjectHelper} from '../../../../../app/settings/data/project/ProjectHelper';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {virtuosoComponents} from '../../../shared/lists';
-import {ProjectLabel} from '../../../shared/project/ProjectLabel';
-import {ItemLabel} from '../../../shared/ItemLabel';
-import {useI18n} from '../../../hooks/useI18n';
-import type {FlatNode} from '../../../lib/tree-store';
-import {$settingsFlatNodes, collapseSettingsNode, expandSettingsNode} from '../../../store/settings-tree.store';
-import {$activeId, $selection, clearSelection, setActive, setSelection} from '../../../store/settingsTreeSelection.store';
-import {SettingsTreeContextMenu, type SettingsTreeContextMenuProps} from './SettingsTreeContextMenu';
-import {ProjectViewItem} from '../../../../../app/settings/view/ProjectViewItem';
+import { cn, VirtualizedTreeList } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { Folder, FolderOpen } from 'lucide-react';
+import { type ReactElement, useCallback, useMemo, useRef } from 'react';
+import type { ListRange, VirtuosoHandle } from 'react-virtuoso';
+import { Virtuoso } from 'react-virtuoso';
+import { EditSettingsItemEvent } from '../../../../../app/settings/event/EditSettingsItemEvent';
+import { type SettingsViewItem } from '../../../../../app/settings/view/SettingsViewItem';
+import { ProjectHelper } from '../../../../../app/settings/data/project/ProjectHelper';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { virtuosoComponents } from '../../../shared/lists';
+import { ProjectLabel } from '../../../shared/project/ProjectLabel';
+import { ItemLabel } from '../../../../shared/ui/ItemLabel';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import type { FlatNode } from '../../../../shared/lib/tree-store';
+import { $settingsFlatNodes, collapseSettingsNode, expandSettingsNode } from '../../../store/settings-tree.store';
+import {
+    $activeId,
+    $selection,
+    clearSelection,
+    setActive,
+    setSelection,
+} from '../../../store/settingsTreeSelection.store';
+import { SettingsTreeContextMenu, type SettingsTreeContextMenuProps } from './SettingsTreeContextMenu';
+import { ProjectViewItem } from '../../../../../app/settings/view/ProjectViewItem';
 
 type SettingsFlatNode = FlatNode<SettingsViewItem>;
 
@@ -29,7 +35,7 @@ const SETTINGS_TREE_LIST_NAME = 'SettingsTreeList';
 const isProjectViewItem = (item: SettingsViewItem): item is ProjectViewItem =>
     ObjectHelper.iFrameSafeInstanceOf(item, ProjectViewItem);
 
-export const SettingsTreeList = ({contextMenuActions = []}: SettingsTreeListProps): ReactElement => {
+export const SettingsTreeList = ({ contextMenuActions = [] }: SettingsTreeListProps): ReactElement => {
     const virtuosoRef = useRef<VirtuosoHandle>(null);
     const suppressNextClickForIdRef = useRef<string | null>(null);
     const flatNodes = useStore($settingsFlatNodes);
@@ -45,14 +51,17 @@ export const SettingsTreeList = ({contextMenuActions = []}: SettingsTreeListProp
         collapseSettingsNode(id);
     }, []);
 
-    const handleActivate = useCallback((id: string) => {
-        const node = flatNodes.find((n) => n.id === id);
-        if (!node?.data) return;
+    const handleActivate = useCallback(
+        (id: string) => {
+            const node = flatNodes.find((n) => n.id === id);
+            if (!node?.data) return;
 
-        if (ObjectHelper.iFrameSafeInstanceOf(node.data, ProjectViewItem)) {
-            new EditSettingsItemEvent([node.data]).fire();
-        }
-    }, [flatNodes]);
+            if (ObjectHelper.iFrameSafeInstanceOf(node.data, ProjectViewItem)) {
+                new EditSettingsItemEvent([node.data]).fire();
+            }
+        },
+        [flatNodes],
+    );
 
     const handleSelectionChange = useCallback((newSelection: ReadonlySet<string>) => {
         setSelection(newSelection);
@@ -60,12 +69,12 @@ export const SettingsTreeList = ({contextMenuActions = []}: SettingsTreeListProp
 
     const visibleIds = useMemo(
         () => new Set(flatNodes.filter((n) => n.nodeType === 'node').map((n) => n.id)),
-        [flatNodes]
+        [flatNodes],
     );
 
     const visibleSelection = useMemo(
         () => new Set([...selection].filter((id) => visibleIds.has(id))),
-        [selection, visibleIds]
+        [selection, visibleIds],
     );
 
     const handleRangeChange = useCallback((_range: ListRange) => {
@@ -89,8 +98,8 @@ export const SettingsTreeList = ({contextMenuActions = []}: SettingsTreeListProp
             aria-label="Settings tree"
             className="w-full flex-1 min-h-0 settings-tree-list"
         >
-            {({items, getItemProps, containerProps}) => {
-                const {className: containerClassName, ...restContainerProps} = containerProps;
+            {({ items, getItemProps, containerProps }) => {
+                const { className: containerClassName, ...restContainerProps } = containerProps;
                 return (
                     <SettingsTreeContextMenu actions={contextMenuActions}>
                         <Virtuoso<SettingsFlatNode>
@@ -101,12 +110,10 @@ export const SettingsTreeList = ({contextMenuActions = []}: SettingsTreeListProp
                             rangeChanged={handleRangeChange}
                             {...restContainerProps}
                             itemContent={(index, node) => {
-                                const {id, level, isExpanded, hasChildren, nodeType, data} = node;
+                                const { id, level, isExpanded, hasChildren, nodeType, data } = node;
 
                                 if (nodeType === 'loading' || data === null) {
-                                    return (
-                                        <VirtualizedTreeList.RowLoading level={level} className="min-h-12" />
-                                    );
+                                    return <VirtualizedTreeList.RowLoading level={level} className="min-h-12" />;
                                 }
 
                                 const itemProps = getItemProps(index, node);
@@ -191,13 +198,7 @@ export const SettingsTreeList = ({contextMenuActions = []}: SettingsTreeListProp
                                                 />
                                             ) : (
                                                 <ItemLabel
-                                                    icon={
-                                                        isExpanded ? (
-                                                            <FolderOpen size={20} />
-                                                        ) : (
-                                                            <Folder size={20} />
-                                                        )
-                                                    }
+                                                    icon={isExpanded ? <FolderOpen size={20} /> : <Folder size={20} />}
                                                     primary={data.getDisplayName()}
                                                     secondary={secondaryText}
                                                 />

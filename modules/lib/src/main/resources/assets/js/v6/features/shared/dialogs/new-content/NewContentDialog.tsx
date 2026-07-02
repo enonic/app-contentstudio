@@ -1,7 +1,7 @@
-import {cn, Dialog, Tab} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {type KeyboardEvent, type ReactElement, useEffect, useRef} from 'react';
-import {useI18n} from '../../../hooks/useI18n';
+import { cn, Dialog, Tab } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { type KeyboardEvent, type ReactElement, useEffect, useRef } from 'react';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import {
     $newContentDialog,
     closeNewContentDialog,
@@ -11,10 +11,10 @@ import {
     uploadDragImages,
     uploadMediaFiles,
 } from '../../../store/dialogs/newContentDialog.store';
-import {isTypingCharacter} from '../../../utils/dom/keyboard';
-import {NewContentDialogContentTypesTab} from './NewContentDialogContentTypesTab';
-import {NewContentDialogMediaTab} from './NewContentDialogMediaTab';
-import {NewContentDialogSearch} from './NewContentDialogSearch';
+import { isTypingCharacter } from '../../../../shared/lib/dom/keyboard';
+import { NewContentDialogContentTypesTab } from './NewContentDialogContentTypesTab';
+import { NewContentDialogMediaTab } from './NewContentDialogMediaTab';
+import { NewContentDialogSearch } from './NewContentDialogSearch';
 
 const NEW_CONTENT_DIALOG_NAME = 'NewContentDialog';
 
@@ -22,7 +22,7 @@ export const NewContentDialog = (): ReactElement => {
     const inputRef = useRef<HTMLInputElement>(null);
     const dialogContentRef = useRef<HTMLDivElement>(null);
     const shouldFocusInput = useRef(false);
-    const {open, selectedTab, inputValue, parentContent, filteredBaseContentTypes, filteredSuggestedContentTypes} =
+    const { open, selectedTab, inputValue, parentContent, filteredBaseContentTypes, filteredSuggestedContentTypes } =
         useStore($newContentDialog);
     const isTemplateFolder = parentContent?.getType().isTemplateFolder() ?? false;
     const isMediaTab = selectedTab === 'media';
@@ -117,7 +117,7 @@ export const NewContentDialog = (): ReactElement => {
 
         if (!isMediaTab) return;
 
-        const {dataTransfer} = event;
+        const { dataTransfer } = event;
 
         if (!dataTransfer) return;
 

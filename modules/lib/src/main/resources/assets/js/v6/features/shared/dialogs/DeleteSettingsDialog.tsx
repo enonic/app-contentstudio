@@ -1,18 +1,20 @@
-import {useStore} from '@nanostores/preact';
-import {type ReactElement} from 'react';
-import {useI18n} from '../../hooks/useI18n';
+import { useStore } from '@nanostores/preact';
+import { type ReactElement } from 'react';
+import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import {
     $deleteSettingsDialog,
     closeDeleteSettingsDialog,
-    executeDeleteSettingsDialogAction
+    executeDeleteSettingsDialogAction,
 } from '../../store/dialogs/deleteSettingsDialog.store';
-import {ConfirmationDialog} from './ConfirmationDialog';
-import {DialogPresetGatedConfirmContent} from './DialogPreset';
+import { ConfirmationDialog } from './ConfirmationDialog';
+import { DialogPresetGatedConfirmContent } from './DialogPreset';
 
 const DELETE_SETTINGS_DIALOG_NAME = 'DeleteSettingsDialog';
 
 export const DeleteSettingsDialog = (): ReactElement => {
-    const {open, expected, projectName} = useStore($deleteSettingsDialog, {keys: ['open', 'expected', 'projectName']});
+    const { open, expected, projectName } = useStore($deleteSettingsDialog, {
+        keys: ['open', 'expected', 'projectName'],
+    });
 
     const confirmTitle = useI18n('dialog.confirmDelete');
     const confirmDescription = useI18n('dialog.project.delete.confirm.subheader');
@@ -24,7 +26,11 @@ export const DeleteSettingsDialog = (): ReactElement => {
     };
 
     return (
-        <ConfirmationDialog.Root data-component={DELETE_SETTINGS_DIALOG_NAME} open={open} onOpenChange={handleOpenChange}>
+        <ConfirmationDialog.Root
+            data-component={DELETE_SETTINGS_DIALOG_NAME}
+            open={open}
+            onOpenChange={handleOpenChange}
+        >
             <ConfirmationDialog.Portal>
                 <ConfirmationDialog.Overlay />
                 <DialogPresetGatedConfirmContent

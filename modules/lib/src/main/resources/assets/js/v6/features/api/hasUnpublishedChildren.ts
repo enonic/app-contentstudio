@@ -1,8 +1,8 @@
-import {type ContentId} from '../../../app/content/ContentId';
-import {getCmsApiUrl} from '../utils/url/cms';
+import { type ContentId } from '../../../app/content/ContentId';
+import { getCmsApiUrl } from '../../shared/lib/url/cms';
 
 type HasUnpublishedChildrenJson = {
-    id: {id: string};
+    id: { id: string };
     hasChildren: boolean;
 };
 
@@ -18,7 +18,7 @@ export async function hasUnpublishedChildren(contentIds: ContentId[]): Promise<M
     const url = getCmsApiUrl('hasUnpublishedChildren');
 
     const payload = {
-        contentIds: contentIds.map(id => id.toString()),
+        contentIds: contentIds.map((id) => id.toString()),
     };
 
     const response = await fetch(url, {
@@ -35,7 +35,7 @@ export async function hasUnpublishedChildren(contentIds: ContentId[]): Promise<M
 
     const json: HasUnpublishedChildrenListJson = await response.json();
 
-    return new Map(json.contents.map(item => [item.id.id, item.hasChildren]));
+    return new Map(json.contents.map((item) => [item.id.id, item.hasChildren]));
 }
 
 /**

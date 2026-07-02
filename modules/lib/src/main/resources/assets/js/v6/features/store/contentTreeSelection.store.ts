@@ -1,11 +1,11 @@
-import {atom, computed} from 'nanostores';
-import {ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
-import type {ContentSummary} from '../../../app/content/ContentSummary';
-import {$activeRawFlatNodes, $isFilterActive} from './active-tree.store';
-import {$contentCache} from './content.store';
-import {$filterTreeState} from './filter-tree.store';
-import {$contentArchived, $contentDeleted, $contentMoved} from './socket.store';
-import {$treeState} from './tree-list.store';
+import { atom, computed } from 'nanostores';
+import { ContentSummaryAndCompareStatus } from '../../../app/content/ContentSummaryAndCompareStatus';
+import type { ContentSummary } from '../../../app/content/ContentSummary';
+import { $activeRawFlatNodes, $isFilterActive } from './active-tree.store';
+import { $contentCache } from './content.store';
+import { $filterTreeState } from './filter-tree.store';
+import { $contentArchived, $contentDeleted, $contentMoved } from '../../shared/socket/socket.store';
+import { $treeState } from './tree-list.store';
 
 //
 // Core State
@@ -48,9 +48,7 @@ export const $isNoneSelected = computed($selection, (selection) => selection.siz
 /** Count of selected items that are VISIBLE & LOADED (for action availability) */
 export const $loadedSelectionCount = computed([$activeRawFlatNodes, $selection], (flatNodes, selection) => {
     const visibleLoadedIds = new Set(
-        flatNodes
-            .filter((node) => node.nodeType === 'node' && node.data !== null)
-            .map((node) => node.id)
+        flatNodes.filter((node) => node.nodeType === 'node' && node.data !== null).map((node) => node.id),
     );
     return Array.from(selection).filter((id) => visibleLoadedIds.has(id)).length;
 });
@@ -74,25 +72,19 @@ export const $currentIds = computed([$selection, $activeId], (selection, activeI
 });
 
 /** Current context items: selected items if any, otherwise active item */
-export const $currentItems = computed(
-    [$currentIds, $contentCache],
-    (currentIds, cache) => {
-        return currentIds.map((id) => cache[id]).filter((item): item is ContentSummary => item !== undefined);
-    }
-);
+export const $currentItems = computed([$currentIds, $contentCache], (currentIds, cache) => {
+    return currentIds.map((id) => cache[id]).filter((item): item is ContentSummary => item !== undefined);
+});
 
 /** Single current item for context panel (last selected or active) */
-export const $currentItem = computed(
-    [$selection, $activeId, $contentCache],
-    (selection, activeId, cache) => {
-        if (selection.size > 0) {
-            const lastId = Array.from(selection).pop();
-            return lastId ? cache[lastId] ?? null : null;
-        }
-
-        return activeId ? cache[activeId] ?? null : null;
+export const $currentItem = computed([$selection, $activeId, $contentCache], (selection, activeId, cache) => {
+    if (selection.size > 0) {
+        const lastId = Array.from(selection).pop();
+        return lastId ? (cache[lastId] ?? null) : null;
     }
-);
+
+    return activeId ? (cache[activeId] ?? null) : null;
+});
 
 //
 // Actions
@@ -185,15 +177,11 @@ let previousSelectionIds = new Set<string>();
 // - Keep enabled when items are removed due to collapse (items are no longer visible)
 $selection.subscribe((selection) => {
     const currentFlatNodes = $activeRawFlatNodes.get();
-    const visibleNodeIds = new Set(
-        currentFlatNodes.filter((n) => n.nodeType === 'node').map((n) => n.id)
-    );
+    const visibleNodeIds = new Set(currentFlatNodes.filter((n) => n.nodeType === 'node').map((n) => n.id));
 
     // Check if any VISIBLE item was removed from selection (user explicitly unchecked)
     // Items removed due to collapse are no longer visible, so they won't match
-    const visibleItemWasRemoved = [...previousSelectionIds].some(
-        (id) => !selection.has(id) && visibleNodeIds.has(id)
-    );
+    const visibleItemWasRemoved = [...previousSelectionIds].some((id) => !selection.has(id) && visibleNodeIds.has(id));
 
     previousSelectionIds = new Set(selection);
 
@@ -222,15 +210,11 @@ $activeRawFlatNodes.subscribe((flatNodes) => {
     const currentSelection = $selection.get();
 
     // Build set of visible node IDs (only actual nodes, not loading indicators)
-    const visibleNodeIds = new Set(
-        flatNodes.filter((node) => node.nodeType === 'node').map((node) => node.id)
-    );
+    const visibleNodeIds = new Set(flatNodes.filter((node) => node.nodeType === 'node').map((node) => node.id));
 
     // Build set of visible LOADED node IDs (for adding to selection)
     const visibleLoadedIds = new Set(
-        flatNodes
-            .filter((node) => node.nodeType === 'node' && node.data !== null)
-            .map((node) => node.id)
+        flatNodes.filter((node) => node.nodeType === 'node' && node.data !== null).map((node) => node.id),
     );
 
     let changed = false;

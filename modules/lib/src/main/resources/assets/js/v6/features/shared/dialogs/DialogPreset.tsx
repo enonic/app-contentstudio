@@ -1,8 +1,8 @@
-import {Body} from '@enonic/lib-admin-ui/dom/Body';
-import {ReactElement, RefObject, useEffect, useRef} from 'react';
-import {LegacyElement} from './../LegacyElement';
-import {ConfirmationDialog, useConfirmationDialog} from './ConfirmationDialog';
-import {Gate} from './Gate';
+import { Body } from '@enonic/lib-admin-ui/dom/Body';
+import { ReactElement, RefObject, useEffect, useRef } from 'react';
+import { LegacyElement } from '../../../shared/ui/LegacyElement';
+import { ConfirmationDialog, useConfirmationDialog } from './ConfirmationDialog';
+import { Gate } from './Gate';
 
 //
 // * DialogPresetConfirm
@@ -28,12 +28,18 @@ const DialogPresetConfirm = ({
     onCancel,
 }: DialogPresetConfirmProps): ReactElement => {
     return (
-        <ConfirmationDialog.Root open={open} onOpenChange={(next) => {
-            if (!next) onCancel?.();
-        }}>
+        <ConfirmationDialog.Root
+            open={open}
+            onOpenChange={(next) => {
+                if (!next) onCancel?.();
+            }}
+        >
             <ConfirmationDialog.Portal>
                 <ConfirmationDialog.Overlay />
-                <ConfirmationDialog.Content data-component={DIALOG_PRESET_CONFIRM_NAME} defaultConfirmEnabled={defaultConfirmEnabled}>
+                <ConfirmationDialog.Content
+                    data-component={DIALOG_PRESET_CONFIRM_NAME}
+                    defaultConfirmEnabled={defaultConfirmEnabled}
+                >
                     <ConfirmationDialog.DefaultHeader title={title} />
                     <ConfirmationDialog.Body>{description}</ConfirmationDialog.Body>
                     <ConfirmationDialog.Footer onConfirm={onConfirm} onCancel={onCancel} />
@@ -60,7 +66,7 @@ const DIALOG_PRESET_GATED_CONFIRM_CONTENT_NAME = 'DialogPresetGatedConfirmConten
 /**
  * Internal component that renders inside ConfirmationDialog.Content to access ConfirmationDialogProvider context.
  * This allows useConfirmationDialog() to work properly, tracking the confirmEnabled state set by Gate.Input validation.
-*/
+ */
 export const DialogPresetGatedConfirmContent = ({
     className,
     ...props
@@ -70,7 +76,7 @@ export const DialogPresetGatedConfirmContent = ({
     // Handles both on open and on rendered (e.g. when switching views in the Dialog)
     const handleOpenAutoFocus = (event: Event): void => {
         event.preventDefault();
-        gateInputRef.current?.focus({focusVisible: true});
+        gateInputRef.current?.focus({ focusVisible: true });
     };
 
     return (
@@ -100,14 +106,14 @@ const DialogPresetGatedConfirmContentParts = ({
     onCancel,
     gateInputRef,
 }: DialogPresetGatedConfirmContentPartsProps): ReactElement => {
-    const {confirmEnabled} = useConfirmationDialog();
+    const { confirmEnabled } = useConfirmationDialog();
 
     const confirmButtonRef = useRef<HTMLButtonElement>(null);
 
     // Shift focus to confirm the button when Gate becomes valid
     useEffect(() => {
         if (confirmEnabled) {
-            confirmButtonRef.current?.focus({focusVisible: true});
+            confirmButtonRef.current?.focus({ focusVisible: true });
         }
     }, [confirmEnabled]);
 
@@ -117,10 +123,21 @@ const DialogPresetGatedConfirmContentParts = ({
             <ConfirmationDialog.Body>
                 <Gate className="mb-2.5">
                     <Gate.Hint value={expected} />
-                    <Gate.Input ref={gateInputRef} inputMode={typeof expected === 'number' ? 'numeric' : undefined} expected={expected} validate={validate} />
+                    <Gate.Input
+                        ref={gateInputRef}
+                        inputMode={typeof expected === 'number' ? 'numeric' : undefined}
+                        expected={expected}
+                        validate={validate}
+                    />
                 </Gate>
             </ConfirmationDialog.Body>
-            <ConfirmationDialog.Footer onCancel={onCancel} onConfirm={onConfirm} intent='danger' ref={confirmButtonRef} closeOnConfirm={false} />
+            <ConfirmationDialog.Footer
+                onCancel={onCancel}
+                onConfirm={onConfirm}
+                intent="danger"
+                ref={confirmButtonRef}
+                closeOnConfirm={false}
+            />
         </>
     );
 };
@@ -133,20 +150,18 @@ export const DialogPreset = {
     Confirm: DialogPresetConfirm,
 };
 
-export class DialogPresetConfirmElement
-    extends LegacyElement<typeof DialogPresetConfirm, DialogPresetConfirmProps> {
-
+export class DialogPresetConfirmElement extends LegacyElement<typeof DialogPresetConfirm, DialogPresetConfirmProps> {
     constructor(props: DialogPresetConfirmProps) {
-        super({...props}, DialogPresetConfirm);
+        super({ ...props }, DialogPresetConfirm);
     }
 
     open(): void {
         Body.get().appendChild(this);
-        this.setProps({open: true});
+        this.setProps({ open: true });
     }
 
     close(): void {
-        this.setProps({open: false});
+        this.setProps({ open: false });
         Body.get().removeChild(this);
     }
 }

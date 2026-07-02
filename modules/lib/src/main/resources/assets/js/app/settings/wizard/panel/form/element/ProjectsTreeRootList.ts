@@ -1,12 +1,11 @@
-import {ProjectsTreeList, type ProjectsTreeListParams, ProjectTreeListElement} from './ProjectsTreeList';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {isBlank} from '../../../../../../v6/features/utils/format/isBlank';
-import {type Project} from '../../../../data/project/Project';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { ProjectsTreeList, type ProjectsTreeListParams, ProjectTreeListElement } from './ProjectsTreeList';
+import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { isBlank } from '../../../../../../v6/shared/lib/format/isBlank';
+import { type Project } from '../../../../data/project/Project';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 
 export class ProjectsTreeRootList extends ProjectsTreeList {
-
     protected lastSearchString: string;
 
     protected searchString: string;
@@ -29,8 +28,12 @@ export class ProjectsTreeRootList extends ProjectsTreeList {
     }
 
     protected createItemView(item: Project, readOnly: boolean): ProjectTreeListElement {
-        return new ProjectTreeListElement(item,
-            {helper: this.options.helper, scrollParent: this.scrollParent, isFilterMode: this.isFilterMode(), parentList: this});
+        return new ProjectTreeListElement(item, {
+            helper: this.options.helper,
+            scrollParent: this.scrollParent,
+            isFilterMode: this.isFilterMode(),
+            parentList: this,
+        });
     }
 
     protected handleLazyLoad(): void {
@@ -64,10 +67,17 @@ export class ProjectsTreeRootList extends ProjectsTreeList {
     }
 
     protected doSearch(): void {
-        if (!ObjectHelper.isDefined(this.lastSearchString) || !ObjectHelper.stringEquals(this.lastSearchString, this.searchString)) {
+        if (
+            !ObjectHelper.isDefined(this.lastSearchString) ||
+            !ObjectHelper.stringEquals(this.lastSearchString, this.searchString)
+        ) {
             this.lastSearchString = this.searchString;
 
-            this.setItems(this.isFilterMode() ? this.options.helper.filter(this.searchString) : this.options.helper.getRootProjects());
+            this.setItems(
+                this.isFilterMode()
+                    ? this.options.helper.filter(this.searchString)
+                    : this.options.helper.getRootProjects(),
+            );
         }
     }
 

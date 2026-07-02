@@ -1,13 +1,13 @@
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {useStore} from '@nanostores/preact';
-import {PenLine} from 'lucide-react';
-import {useRef, type ReactElement} from 'react';
-import type {PageItem} from '../../../../../../../../app/page/region/PageItem';
-import {TextComponent} from '../../../../../../../../app/page/region/TextComponent';
-import {ItemLabel} from '../../../../../../shared/ItemLabel';
-import {$inspectedItem, $pageEditorLifecycle} from '../../../../../../store/page-editor';
-import {$pageVersion} from '../../../../../../store/page-editor/store';
-import {TextEditor} from './TextEditor';
+import { StringHelper } from '@enonic/lib-admin-ui/util/StringHelper';
+import { useStore } from '@nanostores/preact';
+import { PenLine } from 'lucide-react';
+import { useRef, type ReactElement } from 'react';
+import type { PageItem } from '../../../../../../../../app/page/region/PageItem';
+import { TextComponent } from '../../../../../../../../app/page/region/TextComponent';
+import { ItemLabel } from '../../../../../../../shared/ui/ItemLabel';
+import { $inspectedItem, $pageEditorLifecycle } from '../../../../../../store/page-editor';
+import { $pageVersion } from '../../../../../../store/page-editor/store';
+import { TextEditor } from './TextEditor';
 
 function getDisplayName(component: TextComponent): string {
     const raw = component.getText();

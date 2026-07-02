@@ -1,15 +1,15 @@
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
-import {Value} from '@enonic/lib-admin-ui/data/Value';
-import {CompareStatusChecker} from '../../../../app/content/CompareStatus';
-import {ComponentPath} from '../../../../app/page/region/ComponentPath';
-import {DescriptorBasedComponent} from '../../../../app/page/region/DescriptorBasedComponent';
-import type {PageItem} from '../../../../app/page/region/PageItem';
-import {TextComponent} from '../../../../app/page/region/TextComponent';
-import {PageState} from '../../../../app/wizard/page/PageState';
-import {isBlank} from '../../utils/format/isBlank';
-import type {AiFieldPath} from './ai-protocol';
-import {$aiCompareStatus, $aiContentHeader, $aiDataTree, $aiWizardBridge} from './ai.store';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { PropertyPath } from '@enonic/lib-admin-ui/data/PropertyPath';
+import { Value } from '@enonic/lib-admin-ui/data/Value';
+import { CompareStatusChecker } from '../../../../app/content/CompareStatus';
+import { ComponentPath } from '../../../../app/page/region/ComponentPath';
+import { DescriptorBasedComponent } from '../../../../app/page/region/DescriptorBasedComponent';
+import type { PageItem } from '../../../../app/page/region/PageItem';
+import { TextComponent } from '../../../../app/page/region/TextComponent';
+import { PageState } from '../../../../app/wizard/page/PageState';
+import { isBlank } from '../../../shared/lib/format/isBlank';
+import type { AiFieldPath } from './ai-protocol';
+import { $aiCompareStatus, $aiContentHeader, $aiDataTree, $aiWizardBridge } from './ai.store';
 
 //
 // * Value writes
@@ -66,9 +66,11 @@ function isAllowedToChangeName(text: string, currentDisplayName: string): boolea
         return false;
     }
 
-    return !isBlank(text)
-        && !ObjectHelper.stringEquals(text?.trim(), currentDisplayName)
-        && CompareStatusChecker.isNew(status);
+    return (
+        !isBlank(text) &&
+        !ObjectHelper.stringEquals(text?.trim(), currentDisplayName) &&
+        CompareStatusChecker.isNew(status)
+    );
 }
 
 function handleDataEvent(field: string, text: string): boolean {

@@ -1,26 +1,26 @@
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import type {PropertyArrayJson} from '@enonic/lib-admin-ui/data/PropertyArrayJson';
-import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {Input} from '@enonic/lib-admin-ui/form/Input';
-import {InputTypeRegistry, validateForm} from '@enonic/lib-admin-ui/form2';
-import type {MacroDescriptor} from '@enonic/lib-admin-ui/macro/MacroDescriptor';
-import {Reference} from '@enonic/lib-admin-ui/util/Reference';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import type { PropertyArrayJson } from '@enonic/lib-admin-ui/data/PropertyArrayJson';
+import { PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
+import { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import { Input } from '@enonic/lib-admin-ui/form/Input';
+import { InputTypeRegistry, validateForm } from '@enonic/lib-admin-ui/form2';
+import type { MacroDescriptor } from '@enonic/lib-admin-ui/macro/MacroDescriptor';
+import { Reference } from '@enonic/lib-admin-ui/util/Reference';
+import { StringHelper } from '@enonic/lib-admin-ui/util/StringHelper';
+import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { showError } from '@enonic/lib-admin-ui/notify/MessageBus';
 import DOMPurify from 'dompurify';
-import {instanceOf} from '../../../utils/object/instanceOf';
-import {createContext, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
-import type {ReactNode} from 'react';
-import type {ContentSummary} from '../../../../../app/content/ContentSummary';
-import {HTMLAreaHelper} from '../../../../../app/inputtype/ui/text/HTMLAreaHelper';
-import type {Macro} from '../../../../../app/inputtype/ui/text/HtmlEditorTypes';
-import type {Project} from '../../../../../app/settings/data/project/Project';
-import type {PageContributionsJson} from '../../../../../app/macro/resource/MacroPreviewJson';
-import {fetchMacros, fetchMacroPreview, fetchMacroPreviewString} from '../../../api/macro';
-import {useOptionalHtmlAreaContext} from '../../form/input-types/html-area/HtmlAreaContext';
+import { instanceOf } from '../../../../shared/lib/object/instanceOf';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
+import type { ContentSummary } from '../../../../../app/content/ContentSummary';
+import { HTMLAreaHelper } from '../../../../../app/inputtype/ui/text/HTMLAreaHelper';
+import type { Macro } from '../../../../../app/inputtype/ui/text/HtmlEditorTypes';
+import type { Project } from '../../../../../app/settings/data/project/Project';
+import type { PageContributionsJson } from '../../../../../app/macro/resource/MacroPreviewJson';
+import { fetchMacros, fetchMacroPreview, fetchMacroPreviewString } from '../../../api/macro';
+import { useOptionalHtmlAreaContext } from '../../form/input-types/html-area/HtmlAreaContext';
 
 //
 // Types
@@ -152,7 +152,12 @@ function isReferenceInput(descriptor: MacroDescriptor | undefined, attrName: str
     return false;
 }
 
-function addTypedProperty(data: PropertySet, name: string, value: string, descriptor: MacroDescriptor | undefined): void {
+function addTypedProperty(
+    data: PropertySet,
+    name: string,
+    value: string,
+    descriptor: MacroDescriptor | undefined,
+): void {
     if (isReferenceInput(descriptor, name) && value) {
         data.addReference(name, new Reference(value));
     } else {
@@ -167,7 +172,7 @@ function makeDataFromMacro(macro: Macro | undefined, descriptor: MacroDescriptor
         return data;
     }
 
-    macro.attributes?.forEach(item => {
+    macro.attributes?.forEach((item) => {
         const attr = item[0];
         const attrValue = brToNl(sanitizeMacro(item[1], descriptor));
         addTypedProperty(data, attr, attrValue, descriptor);
@@ -178,7 +183,7 @@ function makeDataFromMacro(macro: Macro | undefined, descriptor: MacroDescriptor
             data.addString('body', sanitizeMacro(macro.body as string, descriptor));
         } else if (isMultipleTagsBodyMacro(macro)) {
             const body = macro.body as HTMLElement[];
-            const bodyText = body.map(elem => elem.outerHTML).join('');
+            const bodyText = body.map((elem) => elem.outerHTML).join('');
             data.addString('body', sanitizeMacro(bodyText, descriptor));
         }
     }
@@ -219,9 +224,7 @@ function isFormConfigValid(descriptor: MacroDescriptor | undefined, data: Proper
     return validateForm(form, data).isValid;
 }
 
-function computeValidationErrors(
-    state: HtmlAreaMacroDialogState,
-): Record<string, string> {
+function computeValidationErrors(state: HtmlAreaMacroDialogState): Record<string, string> {
     const errors: Record<string, string> = {};
 
     if (!state.selectedDescriptor) {
@@ -269,7 +272,7 @@ type HtmlAreaMacroDialogProviderProps = {
     openRef: { current: ((params: OpenHtmlAreaMacroDialogParams) => void) | undefined };
 };
 
-export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDialogProviderProps): ReactNode {
+export function HtmlAreaMacroDialogProvider({ children, openRef }: HtmlAreaMacroDialogProviderProps): ReactNode {
     const [state, setState] = useState<HtmlAreaMacroDialogState>(createClosedState);
     const stateRef = useRef(state);
     stateRef.current = state;
@@ -286,7 +289,11 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
 
     const attachDataListener = useCallback((data: PropertySet) => {
         const listener = () => {
-            setState(prev => prev.open ? {...prev, previewResolved: false, previewMacroString: '', dataVersion: prev.dataVersion + 1} : prev);
+            setState((prev) =>
+                prev.open
+                    ? { ...prev, previewResolved: false, previewMacroString: '', dataVersion: prev.dataVersion + 1 }
+                    : prev,
+            );
         };
         dataChangeListenerRef.current = listener;
         data.onChanged(listener);
@@ -299,32 +306,37 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
         }
     }, []);
 
-    const open = useCallback((params: OpenHtmlAreaMacroDialogParams) => {
-        const {ckeEditor, content, project, macro} = params;
+    const open = useCallback(
+        (params: OpenHtmlAreaMacroDialogParams) => {
+            const { ckeEditor, content, project, macro } = params;
 
-        sessionIdRef.current += 1;
+            sessionIdRef.current += 1;
 
-        ckeEditor.focusManager.add(new CKEDITOR.dom.element(document.body), true);
-        ckeEditor.focusManager.lock();
+            ckeEditor.focusManager.add(new CKEDITOR.dom.element(document.body), true);
+            ckeEditor.focusManager.lock();
 
-        const initialData = new PropertySet();
-        attachDataListener(initialData);
+            const initialData = new PropertySet();
+            attachDataListener(initialData);
 
-        setState({
-            ...createClosedState(),
-            open: true,
-            ckeEditor,
-            content,
-            project,
-            selectedMacro: macro?.name ? macro : undefined,
-            data: initialData,
-            macrosLoading: true,
-        });
-    }, [attachDataListener]);
+            setState({
+                ...createClosedState(),
+                open: true,
+                ckeEditor,
+                content,
+                project,
+                selectedMacro: macro?.name ? macro : undefined,
+                data: initialData,
+                macrosLoading: true,
+            });
+        },
+        [attachDataListener],
+    );
 
     useEffect(() => {
         openRef.current = open;
-        return () => { openRef.current = undefined; };
+        return () => {
+            openRef.current = undefined;
+        };
     }, [open, openRef]);
 
     useEffect(() => {
@@ -340,7 +352,7 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
                     return;
                 }
 
-                setState(prev => {
+                setState((prev) => {
                     if (!prev.open) {
                         return prev;
                     }
@@ -349,9 +361,7 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
                     let data = prev.data;
 
                     if (!selectedDescriptor && prev.selectedMacro?.name) {
-                        const found = macros.find(
-                            m => m.getKey().getName() === prev.selectedMacro?.name,
-                        );
+                        const found = macros.find((m) => m.getKey().getName() === prev.selectedMacro?.name);
 
                         if (found) {
                             selectedDescriptor = found;
@@ -375,7 +385,7 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
                     return;
                 }
                 DefaultErrorHandler.handle(error);
-                setState(prev => prev.open ? {...prev, macrosLoading: false} : prev);
+                setState((prev) => (prev.open ? { ...prev, macrosLoading: false } : prev));
             },
         );
     }, [state.open, applicationKeys, state.project, attachDataListener, detachDataListener]);
@@ -384,10 +394,7 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
 
     const isEditing = useMemo(() => state.selectedMacro != null, [state.selectedMacro]);
 
-    const validationErrors = useMemo(
-        () => computeValidationErrors(state),
-        [state.selectedDescriptor],
-    );
+    const validationErrors = useMemo(() => computeValidationErrors(state), [state.selectedDescriptor]);
 
     const formConfigValid = useMemo(
         () => isFormConfigValid(state.selectedDescriptor, state.data),
@@ -397,8 +404,12 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
     );
 
     const canSubmit = useMemo(
-        () => state.open && !state.configLoading && state.selectedDescriptor != null
-            && Object.keys(validationErrors).length === 0 && formConfigValid,
+        () =>
+            state.open &&
+            !state.configLoading &&
+            state.selectedDescriptor != null &&
+            Object.keys(validationErrors).length === 0 &&
+            formConfigValid,
         [state.open, state.configLoading, state.selectedDescriptor, validationErrors, formConfigValid],
     );
 
@@ -419,7 +430,7 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
     }, [state.touchedFields, validationErrors]);
 
     const validationVisibility = useMemo<'interactive' | 'all'>(
-        () => state.touchedFields.macro ? 'all' : 'interactive',
+        () => (state.touchedFields.macro ? 'all' : 'interactive'),
         [state.touchedFields],
     );
 
@@ -434,26 +445,33 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
         setState(createClosedState());
     }, [detachDataListener]);
 
-    const selectDescriptor = useCallback((descriptor: MacroDescriptor) => {
-        const s = stateRef.current;
-        detachDataListener(s.data);
+    const selectDescriptor = useCallback(
+        (descriptor: MacroDescriptor) => {
+            const s = stateRef.current;
+            detachDataListener(s.data);
 
-        const isFirst = !s.selectedDescriptor && s.selectedMacro?.name;
-        const data = isFirst ? makeDataFromMacro(s.selectedMacro, descriptor) : new PropertySet();
-        attachDataListener(data);
+            const isFirst = !s.selectedDescriptor && s.selectedMacro?.name;
+            const data = isFirst ? makeDataFromMacro(s.selectedMacro, descriptor) : new PropertySet();
+            attachDataListener(data);
 
-        setState(prev => prev.open ? {
-            ...prev,
-            selectedDescriptor: descriptor,
-            data,
-            previewResolved: false,
-            previewHtml: '',
-            previewMacroString: '',
-            previewPageContributions: undefined,
-            activeTab: 'configuration',
-            touchedFields: {},
-        } : prev);
-    }, [attachDataListener, detachDataListener]);
+            setState((prev) =>
+                prev.open
+                    ? {
+                          ...prev,
+                          selectedDescriptor: descriptor,
+                          data,
+                          previewResolved: false,
+                          previewHtml: '',
+                          previewMacroString: '',
+                          previewPageContributions: undefined,
+                          activeTab: 'configuration',
+                          touchedFields: {},
+                      }
+                    : prev,
+            );
+        },
+        [attachDataListener, detachDataListener],
+    );
 
     const deselectDescriptor = useCallback(() => {
         const s = stateRef.current;
@@ -462,22 +480,26 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
         const data = new PropertySet();
         attachDataListener(data);
 
-        setState(prev => prev.open ? {
-            ...prev,
-            selectedMacro: undefined,
-            selectedDescriptor: undefined,
-            data,
-            previewResolved: false,
-            previewHtml: '',
-            previewMacroString: '',
-            previewPageContributions: undefined,
-            activeTab: 'configuration',
-            touchedFields: {},
-        } : prev);
+        setState((prev) =>
+            prev.open
+                ? {
+                      ...prev,
+                      selectedMacro: undefined,
+                      selectedDescriptor: undefined,
+                      data,
+                      previewResolved: false,
+                      previewHtml: '',
+                      previewMacroString: '',
+                      previewPageContributions: undefined,
+                      activeTab: 'configuration',
+                      touchedFields: {},
+                  }
+                : prev,
+        );
     }, [attachDataListener, detachDataListener]);
 
     const setActiveTab = useCallback((tab: MacroTab) => {
-        setState(prev => prev.open ? {...prev, activeTab: tab} : prev);
+        setState((prev) => (prev.open ? { ...prev, activeTab: tab } : prev));
     }, []);
 
     const loadPreview = useCallback(() => {
@@ -497,20 +519,15 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
         const requestSessionId = sessionIdRef.current;
         const requestPreviewId = ++previewRequestIdRef.current;
 
-        setState(prev => prev.open ? {...prev, previewLoading: true} : prev);
+        setState((prev) => (prev.open ? { ...prev, previewLoading: true } : prev));
 
-        fetchMacroPreview(
-            propertySetToJson(s.data),
-            macroKey,
-            contentPath,
-            s.project?.getName(),
-        ).match(
+        fetchMacroPreview(propertySetToJson(s.data), macroKey, contentPath, s.project?.getName()).match(
             (preview) => {
                 if (sessionIdRef.current !== requestSessionId || previewRequestIdRef.current !== requestPreviewId) {
                     return;
                 }
 
-                setState(prev => {
+                setState((prev) => {
                     if (!prev.open) {
                         return prev;
                     }
@@ -532,13 +549,17 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
                 }
 
                 DefaultErrorHandler.handle(error);
-                setState(prev => prev.open ? {
-                    ...prev,
-                    previewResolved: true,
-                    previewLoading: false,
-                    previewHtml: `<div class='preview-message'>${i18n('dialog.macro.tab.preview.loaderror')}</div>`,
-                    previewMacroString: '',
-                } : prev);
+                setState((prev) =>
+                    prev.open
+                        ? {
+                              ...prev,
+                              previewResolved: true,
+                              previewLoading: false,
+                              previewHtml: `<div class='preview-message'>${i18n('dialog.macro.tab.preview.loaderror')}</div>`,
+                              previewMacroString: '',
+                          }
+                        : prev,
+                );
             },
         );
     }, []);
@@ -555,7 +576,7 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
         const errors = computeValidationErrors(s);
         const formValid = isFormConfigValid(descriptor, s.data);
         if (Object.keys(errors).length > 0 || !formValid) {
-            setState(prev => ({...prev, touchedFields: ALL_TOUCHED}));
+            setState((prev) => ({ ...prev, touchedFields: ALL_TOUCHED }));
             return;
         }
 
@@ -570,7 +591,7 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
                     updateSingleTagMacro(s.selectedMacro, sanitized, `[/${s.selectedMacro.name}]`, descriptor);
                 } else if (isMultipleTagsBodyMacro(s.selectedMacro)) {
                     const bodyElements = s.selectedMacro.body as HTMLElement[];
-                    bodyElements.forEach(elem => elem.remove());
+                    bodyElements.forEach((elem) => elem.remove());
                     s.selectedMacro.macroEnd?.remove();
                     updateSingleTagMacro(s.selectedMacro, sanitized, ']', descriptor);
                 }
@@ -595,7 +616,7 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
         } else {
             const requestSessionId = sessionIdRef.current;
 
-            setState(prev => prev.open ? {...prev, configLoading: true} : prev);
+            setState((prev) => (prev.open ? { ...prev, configLoading: true } : prev));
 
             fetchMacroPreviewString(
                 getSanitizedFormData(s.data),
@@ -614,7 +635,7 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
                     }
                     DefaultErrorHandler.handle(error);
                     showError(i18n('dialog.macro.error'));
-                    setState(prev => prev.open ? {...prev, configLoading: false} : prev);
+                    setState((prev) => (prev.open ? { ...prev, configLoading: false } : prev));
                 },
             );
         }
@@ -622,30 +643,38 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
 
     // Context value
 
-    const value = useMemo<HtmlAreaMacroDialogContextValue>(() => ({
-        state,
-        isEditing,
-        validationErrors: visibleValidationErrors,
-        canSubmit,
-        hasPreviewScripts: hasScripts,
-        validationVisibility,
-        close,
-        submit,
-        selectDescriptor,
-        deselectDescriptor,
-        setActiveTab,
-        loadPreview,
-    }), [
-        state, isEditing, visibleValidationErrors, canSubmit, hasScripts, validationVisibility,
-        close, submit, selectDescriptor, deselectDescriptor, setActiveTab,
-        loadPreview,
-    ]);
-
-    return (
-        <HtmlAreaMacroDialogContext.Provider value={value}>
-            {children}
-        </HtmlAreaMacroDialogContext.Provider>
+    const value = useMemo<HtmlAreaMacroDialogContextValue>(
+        () => ({
+            state,
+            isEditing,
+            validationErrors: visibleValidationErrors,
+            canSubmit,
+            hasPreviewScripts: hasScripts,
+            validationVisibility,
+            close,
+            submit,
+            selectDescriptor,
+            deselectDescriptor,
+            setActiveTab,
+            loadPreview,
+        }),
+        [
+            state,
+            isEditing,
+            visibleValidationErrors,
+            canSubmit,
+            hasScripts,
+            validationVisibility,
+            close,
+            submit,
+            selectDescriptor,
+            deselectDescriptor,
+            setActiveTab,
+            loadPreview,
+        ],
     );
+
+    return <HtmlAreaMacroDialogContext.Provider value={value}>{children}</HtmlAreaMacroDialogContext.Provider>;
 }
 
 //
@@ -660,7 +689,8 @@ function updateSingleTagMacro(
 ): void {
     const currentText = macro.macroStart.$.innerText;
     const closingIndex = currentText.indexOf(closingSequence, macro.index);
-    const newText = currentText.substring(0, macro.index) +
+    const newText =
+        currentText.substring(0, macro.index) +
         sanitized +
         currentText.substring(closingIndex + closingSequence.length);
 

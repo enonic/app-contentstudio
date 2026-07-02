@@ -1,14 +1,14 @@
-import {type Value} from '@enonic/lib-admin-ui/data/Value';
-import {type ValueType} from '@enonic/lib-admin-ui/data/ValueType';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import type {RawInputConfig} from '@enonic/lib-admin-ui/form/Input';
-import type {InputTypeDescriptor} from '@enonic/lib-admin-ui/form2/descriptor/InputTypeDescriptor';
-import type {ValidationResult} from '@enonic/lib-admin-ui/form2/descriptor/ValidationResult';
-import {isBlank} from '../../../../utils/format/isBlank';
-import type {HtmlAreaConfig} from './HtmlAreaConfig';
+import { type Value } from '@enonic/lib-admin-ui/data/Value';
+import { type ValueType } from '@enonic/lib-admin-ui/data/ValueType';
+import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import type { RawInputConfig } from '@enonic/lib-admin-ui/form/Input';
+import type { InputTypeDescriptor } from '@enonic/lib-admin-ui/form2/descriptor/InputTypeDescriptor';
+import type { ValidationResult } from '@enonic/lib-admin-ui/form2/descriptor/ValidationResult';
+import { isBlank } from '../../../../../shared/lib/format/isBlank';
+import type { HtmlAreaConfig } from './HtmlAreaConfig';
 
 function parseTools(raw: RawInputConfig, key: string): string[] {
-    const toolsObj = raw[key] as {value: string}[] | undefined;
+    const toolsObj = raw[key] as { value: string }[] | undefined;
     const result: string[] = [];
 
     if (Array.isArray(toolsObj)) {
@@ -31,7 +31,7 @@ export const HtmlAreaDescriptor: InputTypeDescriptor<HtmlAreaConfig> = {
         return {
             enabledTools: parseTools(raw, 'include'),
             disabledTools: parseTools(raw, 'exclude'),
-            allowedHeadings: (raw['allowHeadings']?.[0] as {value: string} | undefined)?.value,
+            allowedHeadings: (raw['allowHeadings']?.[0] as { value: string } | undefined)?.value,
         };
     },
 

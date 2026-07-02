@@ -1,6 +1,6 @@
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import type {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {type PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
+import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import type { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import { type PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
 import Q from 'q';
 import {
     $wizardDraftData,
@@ -9,16 +9,14 @@ import {
     $wizardDraftName,
     $wizardDraftPage,
 } from '../../v6/features/store/wizardContent.store';
-import {type Content} from '../content/Content';
-import {Flow, type RoutineContext} from './Flow';
-import {type ContentWizardPanel} from './ContentWizardPanel';
-import {UpdatePersistedContentRoutine} from './UpdatePersistedContentRoutine';
-import {isBlank} from '../../v6/features/utils/format/isBlank';
-import {pruneUnselectedOptionData} from '../../v6/features/shared/form/sets/option-set/pruneUnselectedOptionData';
+import { type Content } from '../content/Content';
+import { Flow, type RoutineContext } from './Flow';
+import { type ContentWizardPanel } from './ContentWizardPanel';
+import { UpdatePersistedContentRoutine } from './UpdatePersistedContentRoutine';
+import { isBlank } from '../../v6/shared/lib/format/isBlank';
+import { pruneUnselectedOptionData } from '../../v6/features/shared/form/sets/option-set/pruneUnselectedOptionData';
 
-export class UpdatePersistedContentWithStoreRoutine
-    extends Flow {
-
+export class UpdatePersistedContentWithStoreRoutine extends Flow {
     private static readonly BASE_URL_PROP = 'baseUrl';
 
     private static readonly LEGACY_PORTAL_BASE_URL_PROP = 'portalBaseUrl';
@@ -47,8 +45,11 @@ export class UpdatePersistedContentWithStoreRoutine
     private async executeAsync(): Promise<RoutineContext> {
         const viewedContent = this.buildViewedContentFromStore();
 
-        const routine = new UpdatePersistedContentRoutine(this.getThisOfProducer(), this.persistedContent, viewedContent)
-            .setRequireValid(this.requireValid);
+        const routine = new UpdatePersistedContentRoutine(
+            this.getThisOfProducer(),
+            this.persistedContent,
+            viewedContent,
+        ).setRequireValid(this.requireValid);
 
         return await routine.execute();
     }
@@ -101,7 +102,8 @@ export class UpdatePersistedContentWithStoreRoutine
         }
 
         const portalSiteConfig = this.getOrCreatePortalSiteConfig(data);
-        const config = portalSiteConfig.getPropertySet(UpdatePersistedContentWithStoreRoutine.CONFIG_PROP) ||
+        const config =
+            portalSiteConfig.getPropertySet(UpdatePersistedContentWithStoreRoutine.CONFIG_PROP) ||
             portalSiteConfig.addPropertySet(UpdatePersistedContentWithStoreRoutine.CONFIG_PROP);
 
         config.setString(UpdatePersistedContentWithStoreRoutine.BASE_URL_PROP, 0, baseUrl);
@@ -127,7 +129,10 @@ export class UpdatePersistedContentWithStoreRoutine
             return;
         }
 
-        const portalSiteConfig = data.getPropertySet(UpdatePersistedContentWithStoreRoutine.SITE_CONFIG_PROP, portalConfigIndex);
+        const portalSiteConfig = data.getPropertySet(
+            UpdatePersistedContentWithStoreRoutine.SITE_CONFIG_PROP,
+            portalConfigIndex,
+        );
         const config = portalSiteConfig?.getPropertySet(UpdatePersistedContentWithStoreRoutine.CONFIG_PROP);
 
         if (!config) {
@@ -169,8 +174,10 @@ export class UpdatePersistedContentWithStoreRoutine
 
         for (let index = 0; index < siteConfigs.getSize(); index += 1) {
             const siteConfig = siteConfigs.getSet(index);
-            if (siteConfig?.getString(UpdatePersistedContentWithStoreRoutine.APPLICATION_KEY_PROP) ===
-                UpdatePersistedContentWithStoreRoutine.PORTAL_APPLICATION_KEY) {
+            if (
+                siteConfig?.getString(UpdatePersistedContentWithStoreRoutine.APPLICATION_KEY_PROP) ===
+                UpdatePersistedContentWithStoreRoutine.PORTAL_APPLICATION_KEY
+            ) {
                 return index;
             }
         }

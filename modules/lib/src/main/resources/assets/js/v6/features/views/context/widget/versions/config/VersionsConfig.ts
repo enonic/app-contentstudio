@@ -1,7 +1,7 @@
-import {type ResultAsync} from 'neverthrow';
-import {type ContentId} from '../../../../../../../app/content/ContentId';
-import {type ContentJson} from '../../../../../../../app/content/ContentJson';
-import {type ContentVersionsLoadResult} from '../../../../../utils/widget/versions/versionsCache';
+import { type ResultAsync } from 'neverthrow';
+import { type ContentId } from '../../../../../../../app/content/ContentId';
+import { type ContentJson } from '../../../../../../../app/content/ContentJson';
+import { type ContentVersionsLoadResult } from '../../../../../../shared/lib/widget/versions/versionsCache';
 
 export type VersionsServices = {
     loadVersions: (contentId: ContentId, cursor?: string) => Promise<ContentVersionsLoadResult>;

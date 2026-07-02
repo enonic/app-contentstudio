@@ -1,19 +1,19 @@
-import {PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
-import type {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import type {Value} from '@enonic/lib-admin-ui/data/Value';
-import type {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import type {Form} from '@enonic/lib-admin-ui/form/Form';
-import type {FormItem} from '@enonic/lib-admin-ui/form/FormItem';
-import {Input} from '@enonic/lib-admin-ui/form/Input';
-import {FieldSet} from '@enonic/lib-admin-ui/form/set/fieldset/FieldSet';
-import {FormItemSet} from '@enonic/lib-admin-ui/form/set/itemset/FormItemSet';
-import {FormOptionSet} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
-import {getEffectiveOccurrences, InputTypeRegistry} from '@enonic/lib-admin-ui/form2';
-import type {InputTypeConfig} from '@enonic/lib-admin-ui/form2/descriptor/InputTypeConfig';
-import type {InputTypeDescriptor} from '@enonic/lib-admin-ui/form2/descriptor/InputTypeDescriptor';
-import {instanceOf} from '../../utils/object/instanceOf';
-import {seedOptionSetDefaults} from './sets/option-set/seedOptionSetDefaults';
+import { PropertyArray } from '@enonic/lib-admin-ui/data/PropertyArray';
+import type { PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
+import type { Value } from '@enonic/lib-admin-ui/data/Value';
+import type { ValueType } from '@enonic/lib-admin-ui/data/ValueType';
+import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import type { Form } from '@enonic/lib-admin-ui/form/Form';
+import type { FormItem } from '@enonic/lib-admin-ui/form/FormItem';
+import { Input } from '@enonic/lib-admin-ui/form/Input';
+import { FieldSet } from '@enonic/lib-admin-ui/form/set/fieldset/FieldSet';
+import { FormItemSet } from '@enonic/lib-admin-ui/form/set/itemset/FormItemSet';
+import { FormOptionSet } from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
+import { getEffectiveOccurrences, InputTypeRegistry } from '@enonic/lib-admin-ui/form2';
+import type { InputTypeConfig } from '@enonic/lib-admin-ui/form2/descriptor/InputTypeConfig';
+import type { InputTypeDescriptor } from '@enonic/lib-admin-ui/form2/descriptor/InputTypeDescriptor';
+import { instanceOf } from '../../../shared/lib/object/instanceOf';
+import { seedOptionSetDefaults } from './sets/option-set/seedOptionSetDefaults';
 
 const SELECTED_NAME = '_selected';
 
@@ -62,7 +62,7 @@ function seedInput(input: Input, propertySet: PropertySet): void {
     // No component → rendered as UnsupportedInput, seeds nothing.
     if (definition?.component == null) return;
 
-    const {descriptor, mode} = definition;
+    const { descriptor, mode } = definition;
     const config = descriptor.readConfig(input.getInputTypeConfig() ?? {});
     const occurrences = getEffectiveOccurrences(mode, input.getOccurrences());
     const propertyArray = getOrCreatePropertyArray(propertySet, input.getName(), descriptor.getValueType());
@@ -70,8 +70,7 @@ function seedInput(input: Input, propertySet: PropertySet): void {
     const defaultValue = computeDefaultValue(input, descriptor, config);
 
     // internal-mode (selectors) aren't auto-seeded, but still seed a single configured default.
-    const minFill =
-        mode === 'internal' ? (defaultValue.isNull() ? 0 : 1) : Math.max(occurrences.getMinimum(), 1);
+    const minFill = mode === 'internal' ? (defaultValue.isNull() ? 0 : 1) : Math.max(occurrences.getMinimum(), 1);
     if (minFill === 0) return;
 
     while (propertyArray.getSize() < minFill && !occurrences.maximumReached(propertyArray.getSize())) {

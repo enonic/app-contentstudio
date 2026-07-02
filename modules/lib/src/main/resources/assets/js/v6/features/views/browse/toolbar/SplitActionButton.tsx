@@ -1,9 +1,9 @@
-import {type Action} from '@enonic/lib-admin-ui/ui/Action';
-import {Button, cn, IconButton, Menu, Toolbar, Tooltip} from '@enonic/ui';
-import {ChevronDown} from 'lucide-react';
-import {Fragment, type ReactElement, useMemo} from 'react';
-import {useI18n} from '../../../hooks/useI18n';
-import {useObservedActions} from './useObservedActions';
+import { type Action } from '@enonic/lib-admin-ui/ui/Action';
+import { Button, cn, IconButton, Menu, Toolbar, Tooltip } from '@enonic/ui';
+import { ChevronDown } from 'lucide-react';
+import { Fragment, type ReactElement, useMemo } from 'react';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { useObservedActions } from './useObservedActions';
 
 type Props = {
     actions: Action[][];
@@ -61,8 +61,8 @@ export const SplitActionButton = ({
     const renderVersion = useObservedActions(observedActions);
 
     const actionStates = useMemo(
-        () => observedActions.map(getActionState).filter(({visible}) => visible),
-        [observedActions, renderVersion]
+        () => observedActions.map(getActionState).filter(({ visible }) => visible),
+        [observedActions, renderVersion],
     );
 
     const primaryIndex = useMemo(() => {
@@ -76,33 +76,35 @@ export const SplitActionButton = ({
 
     const primaryState = actionStates[primaryIndex];
     const menuActionGroups = useMemo(
-        () => actions
-            .map((group) => group
-                .map(getActionState)
-                .filter(({action, visible}) => visible && action !== primaryState?.action))
-            .filter((group) => group.length > 0),
-        [actions, primaryState?.action, renderVersion]
+        () =>
+            actions
+                .map((group) =>
+                    group
+                        .map(getActionState)
+                        .filter(({ action, visible }) => visible && action !== primaryState?.action),
+                )
+                .filter((group) => group.length > 0),
+        [actions, primaryState?.action, renderVersion],
     );
 
     const menuStates = menuActionGroups.flat();
     const hasMenuActions = menuStates.length > 0;
-    const areAllMenuActionsDisabled = menuStates.every(({enabled}) => !enabled);
+    const areAllMenuActionsDisabled = menuStates.every(({ enabled }) => !enabled);
 
     if (!primaryState || observedActions.length === 0) {
         return null;
     }
 
     const isPrimaryDisabled = disabled || !primaryState.enabled;
-    const isDropdownDisabled = disabled
-        || !hasMenuActions
-        || (disableMenuWhenAllMenuActionsDisabled && areAllMenuActionsDisabled);
+    const isDropdownDisabled =
+        disabled || !hasMenuActions || (disableMenuWhenAllMenuActionsDisabled && areAllMenuActionsDisabled);
 
     return (
         <div className={cn('flex items-stretch min-w-fit', className)} data-component={SPLIT_ACTION_BUTTON_NAME}>
             <Toolbar.Item asChild disabled={isPrimaryDisabled}>
                 <Button
                     className={cn(hasMenuActions && 'rounded-r-none border-r-0', 'focus-visible:z-1')}
-                    size='sm'
+                    size="sm"
                     iconStrokeWidth={2}
                     aria-label={primaryState.label}
                     label={primaryState.label}
@@ -115,8 +117,11 @@ export const SplitActionButton = ({
                     <Toolbar.Item asChild disabled={isDropdownDisabled}>
                         <Menu.Trigger asChild>
                             <IconButton
-                                className={cn('mr-1.5 sm:mr-0 w-6 sm:size-9', hasMenuActions ? 'p-0 rounded-l-none' : 'hidden')}
-                                size='sm'
+                                className={cn(
+                                    'mr-1.5 sm:mr-0 w-6 sm:size-9',
+                                    hasMenuActions ? 'p-0 rounded-l-none' : 'hidden',
+                                )}
+                                size="sm"
                                 iconStrokeWidth={2}
                                 aria-label={moreLabel}
                                 icon={ChevronDown}
@@ -129,9 +134,13 @@ export const SplitActionButton = ({
                         {menuActionGroups.map((group, groupIndex) => (
                             <Fragment key={groupIndex}>
                                 {groupIndex > 0 && <Menu.Separator className="my-0 w-full" />}
-                                {group.map(({enabled, label, action}, index) => (
-                                    <Menu.Item key={`${groupIndex}-${index}`} disabled={!enabled} onSelect={() => action.execute()}>
-                                        <span className='font-semibold'>{label}</span>
+                                {group.map(({ enabled, label, action }, index) => (
+                                    <Menu.Item
+                                        key={`${groupIndex}-${index}`}
+                                        disabled={!enabled}
+                                        onSelect={() => action.execute()}
+                                    >
+                                        <span className="font-semibold">{label}</span>
                                     </Menu.Item>
                                 ))}
                             </Fragment>
@@ -140,7 +149,6 @@ export const SplitActionButton = ({
                 </Menu.Portal>
             </Menu>
         </div>
-
     );
 };
 

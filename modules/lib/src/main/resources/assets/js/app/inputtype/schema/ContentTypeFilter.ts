@@ -1,28 +1,26 @@
 import type Q from 'q';
-import {type Input} from '@enonic/lib-admin-ui/form/Input';
-import {type PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
-import {Value} from '@enonic/lib-admin-ui/data/Value';
-import {type ValueType} from '@enonic/lib-admin-ui/data/ValueType';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {type ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
-import {type BaseLoader} from '@enonic/lib-admin-ui/util/loader/BaseLoader';
-import {BaseInputTypeManagingAdd} from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
-import {type ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
-import {PageTemplateContentTypeLoader} from './PageTemplateContentTypeLoader';
-import {ContentTypeSummaryLoader} from './ContentTypeSummaryLoader';
-import {ContentTypeComparator} from './ContentTypeComparator';
-import {ValueTypeConverter} from '@enonic/lib-admin-ui/data/ValueTypeConverter';
-import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
-import {Class} from '@enonic/lib-admin-ui/Class';
-import {type ContentId} from '../../content/ContentId';
-import {ContentTypeFilterDropdown} from './ContentTypeFilterDropdown';
-import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
-import {isBlank} from '../../../v6/features/utils/format/isBlank';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import { type Input } from '@enonic/lib-admin-ui/form/Input';
+import { type PropertyArray } from '@enonic/lib-admin-ui/data/PropertyArray';
+import { Value } from '@enonic/lib-admin-ui/data/Value';
+import { type ValueType } from '@enonic/lib-admin-ui/data/ValueType';
+import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { type ContentTypeSummary } from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import { type BaseLoader } from '@enonic/lib-admin-ui/util/loader/BaseLoader';
+import { BaseInputTypeManagingAdd } from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
+import { type ContentInputTypeViewContext } from '../ContentInputTypeViewContext';
+import { PageTemplateContentTypeLoader } from './PageTemplateContentTypeLoader';
+import { ContentTypeSummaryLoader } from './ContentTypeSummaryLoader';
+import { ContentTypeComparator } from './ContentTypeComparator';
+import { ValueTypeConverter } from '@enonic/lib-admin-ui/data/ValueTypeConverter';
+import { InputTypeManager } from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
+import { Class } from '@enonic/lib-admin-ui/Class';
+import { type ContentId } from '../../content/ContentId';
+import { ContentTypeFilterDropdown } from './ContentTypeFilterDropdown';
+import { type SelectionChange } from '@enonic/lib-admin-ui/util/SelectionChange';
+import { isBlank } from '../../../v6/shared/lib/format/isBlank';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
 
-export class ContentTypeFilter
-    extends BaseInputTypeManagingAdd {
-
+export class ContentTypeFilter extends BaseInputTypeManagingAdd {
     declare protected context: ContentInputTypeViewContext;
 
     private typesListDropdown: ContentTypeFilterDropdown;
@@ -44,7 +42,7 @@ export class ContentTypeFilter
     }
 
     getValueType(): ValueType {
-           return ValueTypes.STRING;
+        return ValueTypes.STRING;
     }
 
     newInitialValue(): Value {
@@ -68,7 +66,8 @@ export class ContentTypeFilter
     private onContentTypeSelected(contentType: ContentTypeSummary): void {
         this.ignorePropertyChange(true);
         const value = new Value(contentType.getContentTypeName().toString(), ValueTypes.STRING);
-        if (this.typesListDropdown.countSelected() === 1) { // overwrite initial value
+        if (this.typesListDropdown.countSelected() === 1) {
+            // overwrite initial value
             this.getPropertyArray().set(0, value);
         } else {
             this.getPropertyArray().add(value);
@@ -79,10 +78,12 @@ export class ContentTypeFilter
     }
 
     private onContentTypeDeselected(item: ContentTypeSummary): void {
-        const property = this.getPropertyArray().getProperties().find((property) => {
-            const propertyValue = property.hasNonNullValue() ? property.getString() : '';
-            return propertyValue === item.getId();
-        });
+        const property = this.getPropertyArray()
+            .getProperties()
+            .find((property) => {
+                const propertyValue = property.hasNonNullValue() ? property.getString() : '';
+                return propertyValue === item.getId();
+            });
 
         if (property) {
             this.ignorePropertyChange(true);
@@ -97,13 +98,16 @@ export class ContentTypeFilter
             propertyArray.convertValues(ValueTypes.STRING, ValueTypeConverter.convertTo);
         }
 
-        return super.layout(input, propertyArray).then(() => {
-            this.initiallySelectedItems = this.getSelectedItemsIds();
-            this.typesListDropdown = this.createListDropdown();
-            this.appendChild(this.typesListDropdown);
-        }).finally(() => {
-            this.setLayoutInProgress(false);
-        });
+        return super
+            .layout(input, propertyArray)
+            .then(() => {
+                this.initiallySelectedItems = this.getSelectedItemsIds();
+                this.typesListDropdown = this.createListDropdown();
+                this.appendChild(this.typesListDropdown);
+            })
+            .finally(() => {
+                this.setLayoutInProgress(false);
+            });
     }
 
     private createListDropdown(): ContentTypeFilterDropdown {
@@ -127,7 +131,9 @@ export class ContentTypeFilter
     }
 
     private getSelectedItemsIds(): string[] {
-        return this.getValueFromPropertyArray(this.getPropertyArray()).split(';').filter((id) => !isBlank(id));
+        return this.getValueFromPropertyArray(this.getPropertyArray())
+            .split(';')
+            .filter((id) => !isBlank(id));
     }
 
     update(propertyArray: PropertyArray, unchangedOnly: boolean): Q.Promise<void> {
@@ -139,7 +145,7 @@ export class ContentTypeFilter
             if (!unchangedOnly || !isDirty) {
                 this.typesListDropdown.updateSelectedItems();
             } else if (isDirty) {
-               this.updateDirty();
+                this.updateDirty();
             }
         });
     }
@@ -154,7 +160,10 @@ export class ContentTypeFilter
         this.getPropertyArray().removeAll(true);
 
         this.typesListDropdown.getSelectedOptions().filter((option) => {
-            const value = new Value(option.getOption().getDisplayValue().getContentTypeName().toString(), ValueTypes.STRING);
+            const value = new Value(
+                option.getOption().getDisplayValue().getContentTypeName().toString(),
+                ValueTypes.STRING,
+            );
             this.getPropertyArray().add(value);
         });
 

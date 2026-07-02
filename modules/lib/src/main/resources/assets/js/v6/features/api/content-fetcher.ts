@@ -1,16 +1,16 @@
-import {Expand} from '@enonic/lib-admin-ui/rest/Expand';
-import {ContentId} from '../../../app/content/ContentId';
-import {ContentQuery} from '../../../app/content/ContentQuery';
-import type {ContentSummary} from '../../../app/content/ContentSummary';
-import type {ContentSummaryJson} from '../../../app/content/ContentSummaryJson';
-import {ContentQueryRequest} from '../../../app/resource/ContentQueryRequest';
-import {ContentSummaryAndCompareStatusFetcher} from '../../../app/resource/ContentSummaryAndCompareStatusFetcher';
-import {ListContentByIdRequest} from '../../../app/resource/ListContentByIdRequest';
-import {type ChildOrder} from '../../../app/resource/order/ChildOrder';
-import {Branch} from '../../../app/versioning/Branch';
-import {$activeProject} from '../store/activeProject.store';
-import {setContents, getMissingIds, getContents, getIdByPath} from '../store/content.store';
-import {$contentDuplicated, $contentMoved, $contentSorted} from '../store/socket.store';
+import { Expand } from '@enonic/lib-admin-ui/rest/Expand';
+import { ContentId } from '../../../app/content/ContentId';
+import { ContentQuery } from '../../../app/content/ContentQuery';
+import type { ContentSummary } from '../../../app/content/ContentSummary';
+import type { ContentSummaryJson } from '../../../app/content/ContentSummaryJson';
+import { ContentQueryRequest } from '../../../app/resource/ContentQueryRequest';
+import { ContentSummaryAndCompareStatusFetcher } from '../../../app/resource/ContentSummaryAndCompareStatusFetcher';
+import { ListContentByIdRequest } from '../../../app/resource/ListContentByIdRequest';
+import { type ChildOrder } from '../../../app/resource/order/ChildOrder';
+import { Branch } from '../../../app/versioning/Branch';
+import { $activeProject } from '../store/activeProject.store';
+import { setContents, getMissingIds, getContents, getIdByPath } from '../store/content.store';
+import { $contentDuplicated, $contentMoved, $contentSorted } from '../../shared/socket/socket.store';
 import {
     $treeState,
     addTreeNode,
@@ -24,10 +24,10 @@ import {
     setRootTotalChildren,
     type ContentTreeNodeData,
 } from '../store/tree-list.store';
-import type {CreateNodeOptions} from '../lib/tree-store';
-import {calcContentState} from '../utils/cms/content/workflow';
-import {calcTreePublishStatus} from '../utils/cms/content/status';
-import {resolveDisplayName, resolveSubName} from '../utils/cms/content/prettify';
+import type { CreateNodeOptions } from '../../shared/lib/tree-store';
+import { calcContentState } from '../../shared/lib/cms/content/workflow';
+import { calcTreePublishStatus } from '../../shared/lib/cms/content/status';
+import { resolveDisplayName, resolveSubName } from '../../shared/lib/cms/content/prettify';
 
 /**
  * Snapshots the active project at request start. Tree writes are gated with
@@ -171,15 +171,15 @@ export async function fetchChildren(
         setContents(summaries, projectName);
 
         if (isProjectStale(projectName)) {
-            return {ids: [], hasMore: false, total: 0};
+            return { ids: [], hasMore: false, total: 0 };
         }
 
-        const nodeOptions: CreateNodeOptions<ContentTreeNodeData>[] = summaries.map(content =>
+        const nodeOptions: CreateNodeOptions<ContentTreeNodeData>[] = summaries.map((content) =>
             toNodeOptions(content, parentId),
         );
         addTreeNodes(nodeOptions);
 
-        const childIds = summaries.map(c => c.getId());
+        const childIds = summaries.map((c) => c.getId());
 
         if (offset === 0) {
             setTreeChildren(parentId, childIds);
@@ -193,7 +193,7 @@ export async function fetchChildren(
             setRootTotalChildren(total);
         }
 
-        return {ids: childIds, hasMore, total};
+        return { ids: childIds, hasMore, total };
     } finally {
         setNodeLoading(parentId, false);
     }
@@ -269,16 +269,16 @@ export async function fetchFilteredRootChildren(
         setContents(summaries, projectName);
 
         if (isProjectStale(projectName)) {
-            return {ids: [], hasMore: false, total: 0};
+            return { ids: [], hasMore: false, total: 0 };
         }
 
         // Flat query result, every item is at root level.
-        const nodeOptions: CreateNodeOptions<ContentTreeNodeData>[] = summaries.map(content =>
+        const nodeOptions: CreateNodeOptions<ContentTreeNodeData>[] = summaries.map((content) =>
             toNodeOptions(content, null),
         );
         addTreeNodes(nodeOptions);
 
-        const childIds = summaries.map(c => c.getId());
+        const childIds = summaries.map((c) => c.getId());
 
         if (offset === 0) {
             setTreeChildren(null, childIds);
@@ -288,7 +288,7 @@ export async function fetchFilteredRootChildren(
 
         setRootTotalChildren(total);
 
-        return {ids: childIds, hasMore, total};
+        return { ids: childIds, hasMore, total };
     } finally {
         setNodeLoading(null, false);
     }
@@ -309,7 +309,7 @@ export async function fetchContentByIds(ids: string[]): Promise<ContentSummary[]
     const missingIds = getMissingIds(ids, projectName);
 
     if (missingIds.length > 0) {
-        const contentIds = missingIds.map(id => new ContentId(id));
+        const contentIds = missingIds.map((id) => new ContentId(id));
         const fetched = await fetcher.fetchByIds(contentIds);
         await fetcher.updateReadOnly(fetched);
         setContents(fetched, projectName);
@@ -328,7 +328,7 @@ export async function fetchMissingContent(ids: string[]): Promise<void> {
     const missingIds = getMissingIds(ids, projectName);
     if (missingIds.length === 0) return;
 
-    const contentIds = missingIds.map(id => new ContentId(id));
+    const contentIds = missingIds.map((id) => new ContentId(id));
     const fetched = await fetcher.fetchByIds(contentIds);
     await fetcher.updateReadOnly(fetched);
     setContents(fetched, projectName);
@@ -358,7 +358,7 @@ export async function refreshContents(ids: string[]): Promise<ContentSummary[]> 
 
     const projectName = captureActiveProjectName();
 
-    const contentIds = ids.map(id => new ContentId(id));
+    const contentIds = ids.map((id) => new ContentId(id));
     const summaries = await fetcher.fetchByIds(contentIds);
     await fetcher.updateReadOnly(summaries);
     setContents(summaries, projectName);
@@ -414,11 +414,11 @@ export async function fetchChildrenIdsOnly(parentId: string | null, childOrder?:
         const ids = await fetcher.fetchChildrenIds(parentContentId, childOrder);
         clearChildrenIdsRetryCooldown(parentId);
 
-        const idStrings = ids.map(id => id.toString());
+        const idStrings = ids.map((id) => id.toString());
 
         if (isProjectStale(projectName)) return [];
 
-        const placeholderNodes: CreateNodeOptions<ContentTreeNodeData>[] = idStrings.map(id => ({
+        const placeholderNodes: CreateNodeOptions<ContentTreeNodeData>[] = idStrings.map((id) => ({
             id,
             data: null,
             parentId,
@@ -472,8 +472,8 @@ const visibleDataBatchState = new Map<string, BatchLoadState>();
 const visibleFilterDataBatchState = new Map<string, BatchLoadState>();
 const visibleDataFailedIds = new Set<string>();
 const visibleFilterDataFailedIds = new Set<string>();
-const childrenIdsRetryState = new Map<string, {attempts: number; retryAt: number}>();
-const filterChildrenIdsRetryState = new Map<string, {attempts: number; retryAt: number}>();
+const childrenIdsRetryState = new Map<string, { attempts: number; retryAt: number }>();
+const filterChildrenIdsRetryState = new Map<string, { attempts: number; retryAt: number }>();
 const failedChildrenParentIds = new Set<string>();
 const failedFilterChildrenParentIds = new Set<string>();
 
@@ -482,7 +482,7 @@ function toParentRetryKey(parentId: string | null): string {
 }
 
 function isParentRetryReady(
-    stateByParentKey: Map<string, {attempts: number; retryAt: number}>,
+    stateByParentKey: Map<string, { attempts: number; retryAt: number }>,
     parentId: string | null,
     now: number,
 ): boolean {
@@ -493,7 +493,7 @@ function isParentRetryReady(
 }
 
 function markParentRetryFailure(
-    stateByParentKey: Map<string, {attempts: number; retryAt: number}>,
+    stateByParentKey: Map<string, { attempts: number; retryAt: number }>,
     failedParentIds: Set<string>,
     parentId: string | null,
     now = Date.now(),
@@ -513,7 +513,7 @@ function markParentRetryFailure(
 }
 
 function clearParentRetryFailure(
-    stateByParentKey: Map<string, {attempts: number; retryAt: number}>,
+    stateByParentKey: Map<string, { attempts: number; retryAt: number }>,
     failedParentIds: Set<string>,
     parentId: string | null,
 ): void {
@@ -523,7 +523,7 @@ function clearParentRetryFailure(
 }
 
 function resetParentRetryState(
-    stateByParentKey: Map<string, {attempts: number; retryAt: number}>,
+    stateByParentKey: Map<string, { attempts: number; retryAt: number }>,
     failedParentIds: Set<string>,
 ): void {
     stateByParentKey.clear();
@@ -565,7 +565,7 @@ function markBatchFailure(
     });
 
     if (attempts >= MAX_VISIBLE_DATA_ATTEMPTS) {
-        ids.forEach(id => failedIds.add(id));
+        ids.forEach((id) => failedIds.add(id));
     }
 }
 
@@ -577,11 +577,11 @@ function markBatchFailure(
 function clearBatchFailure(stateByBatchKey: Map<string, BatchLoadState>, failedIds: Set<string>, ids: string[]): void {
     if (ids.length === 0) return;
 
-    ids.forEach(id => failedIds.delete(id));
+    ids.forEach((id) => failedIds.delete(id));
 
     const idSet = new Set(ids);
     for (const [key, state] of stateByBatchKey.entries()) {
-        if (state.ids.some(id => idSet.has(id))) {
+        if (state.ids.some((id) => idSet.has(id))) {
             stateByBatchKey.delete(key);
         }
     }
@@ -646,7 +646,7 @@ export async function fetchVisibleContentData(ids: string[]): Promise<void> {
     const projectName = captureActiveProjectName();
     const state = $treeState.get();
 
-    const idsNeedingUpdate = ids.filter(id => {
+    const idsNeedingUpdate = ids.filter((id) => {
         const node = state.nodes.get(id);
         return node && node.data === null && !state.loadingDataIds.has(id) && !visibleDataFailedIds.has(id);
     });
@@ -654,7 +654,7 @@ export async function fetchVisibleContentData(ids: string[]): Promise<void> {
     if (idsNeedingUpdate.length === 0) return;
 
     const cachedContents = getContents(idsNeedingUpdate, projectName);
-    const cachedIds = new Set(cachedContents.map(c => c.getId()));
+    const cachedIds = new Set(cachedContents.map((c) => c.getId()));
 
     // Sync path before any await — no project staleness possible here.
     if (cachedContents.length > 0) {
@@ -662,11 +662,11 @@ export async function fetchVisibleContentData(ids: string[]): Promise<void> {
         clearBatchFailure(
             visibleDataBatchState,
             visibleDataFailedIds,
-            cachedContents.map(c => c.getId()),
+            cachedContents.map((c) => c.getId()),
         );
     }
 
-    const uncachedIds = idsNeedingUpdate.filter(id => !cachedIds.has(id));
+    const uncachedIds = idsNeedingUpdate.filter((id) => !cachedIds.has(id));
 
     if (uncachedIds.length === 0) return;
 
@@ -677,12 +677,12 @@ export async function fetchVisibleContentData(ids: string[]): Promise<void> {
         for (let i = 0; i < uncachedIds.length; i += DATA_BATCH_SIZE) {
             const batch = uncachedIds.slice(i, i + DATA_BATCH_SIZE);
             if (!isBatchReady(visibleDataBatchState, batch, Date.now())) continue;
-            const contentIds = batch.map(id => new ContentId(id));
+            const contentIds = batch.map((id) => new ContentId(id));
             try {
                 const summaries = await fetcher.fetchByIds(contentIds);
                 await fetcher.updateReadOnly(summaries);
-                const fetchedIds = new Set(summaries.map(content => content.getId()));
-                const unresolvedIds = batch.filter(id => !fetchedIds.has(id));
+                const fetchedIds = new Set(summaries.map((content) => content.getId()));
+                const unresolvedIds = batch.filter((id) => !fetchedIds.has(id));
 
                 setContents(summaries, projectName);
 
@@ -711,7 +711,7 @@ export async function fetchVisibleContentData(ids: string[]): Promise<void> {
  * Populates placeholder tree nodes with fetched content data.
  */
 function updateTreeNodesWithData(contents: ContentSummary[]): void {
-    const updates: CreateNodeOptions<ContentTreeNodeData>[] = contents.map(content => ({
+    const updates: CreateNodeOptions<ContentTreeNodeData>[] = contents.map((content) => ({
         id: content.getId(),
         data: toTreeNodeData(content),
         hasChildren: content.hasChildren(),
@@ -816,19 +816,19 @@ async function fetchFilteredContentForFilterTree(
     setContents(summaries, projectName);
 
     if (isProjectStale(projectName)) {
-        return {ids: [], hasMore: false, total: 0};
+        return { ids: [], hasMore: false, total: 0 };
     }
 
     // Flat query result, every item is at root level.
-    const nodeOptions: CreateNodeOptions<ContentTreeNodeData>[] = summaries.map(content =>
+    const nodeOptions: CreateNodeOptions<ContentTreeNodeData>[] = summaries.map((content) =>
         toNodeOptions(content, null),
     );
 
     addFilterNodes(nodeOptions);
 
-    const childIds = summaries.map(c => c.getId());
+    const childIds = summaries.map((c) => c.getId());
 
-    return {ids: childIds, hasMore, total};
+    return { ids: childIds, hasMore, total };
 }
 
 /**
@@ -876,7 +876,7 @@ export async function fetchVisibleFilterContentData(ids: string[]): Promise<void
     const projectName = captureActiveProjectName();
     const state = $filterTreeState.get();
 
-    const idsNeedingUpdate = ids.filter(id => {
+    const idsNeedingUpdate = ids.filter((id) => {
         const node = state.nodes.get(id);
         return node && node.data === null && !state.loadingDataIds.has(id) && !visibleFilterDataFailedIds.has(id);
     });
@@ -884,11 +884,11 @@ export async function fetchVisibleFilterContentData(ids: string[]): Promise<void
     if (idsNeedingUpdate.length === 0) return;
 
     const cachedContents = getContents(idsNeedingUpdate, projectName);
-    const cachedIds = new Set(cachedContents.map(c => c.getId()));
+    const cachedIds = new Set(cachedContents.map((c) => c.getId()));
 
     // Sync path before any await — no project staleness possible here.
     if (cachedContents.length > 0) {
-        const updates: CreateNodeOptions<ContentTreeNodeData>[] = cachedContents.map(content => ({
+        const updates: CreateNodeOptions<ContentTreeNodeData>[] = cachedContents.map((content) => ({
             id: content.getId(),
             data: toTreeNodeData(content),
             hasChildren: content.hasChildren(),
@@ -898,11 +898,11 @@ export async function fetchVisibleFilterContentData(ids: string[]): Promise<void
         clearBatchFailure(
             visibleFilterDataBatchState,
             visibleFilterDataFailedIds,
-            cachedContents.map(c => c.getId()),
+            cachedContents.map((c) => c.getId()),
         );
     }
 
-    const uncachedIds = idsNeedingUpdate.filter(id => !cachedIds.has(id));
+    const uncachedIds = idsNeedingUpdate.filter((id) => !cachedIds.has(id));
 
     if (uncachedIds.length === 0) return;
 
@@ -913,18 +913,18 @@ export async function fetchVisibleFilterContentData(ids: string[]): Promise<void
         for (let i = 0; i < uncachedIds.length; i += DATA_BATCH_SIZE) {
             const batch = uncachedIds.slice(i, i + DATA_BATCH_SIZE);
             if (!isBatchReady(visibleFilterDataBatchState, batch, Date.now())) continue;
-            const contentIds = batch.map(id => new ContentId(id));
+            const contentIds = batch.map((id) => new ContentId(id));
             try {
                 const summaries = await fetcher.fetchByIds(contentIds);
                 await fetcher.updateReadOnly(summaries);
-                const fetchedIds = new Set(summaries.map(content => content.getId()));
-                const unresolvedIds = batch.filter(id => !fetchedIds.has(id));
+                const fetchedIds = new Set(summaries.map((content) => content.getId()));
+                const unresolvedIds = batch.filter((id) => !fetchedIds.has(id));
 
                 setContents(summaries, projectName);
 
                 if (isProjectStale(projectName)) return;
 
-                const updates: CreateNodeOptions<ContentTreeNodeData>[] = summaries.map(content => ({
+                const updates: CreateNodeOptions<ContentTreeNodeData>[] = summaries.map((content) => ({
                     id: content.getId(),
                     data: toTreeNodeData(content),
                     hasChildren: content.hasChildren(),
@@ -977,11 +977,11 @@ export async function fetchFilterChildrenIdsOnly(parentId: string, childOrder?: 
         const ids = await fetcher.fetchChildrenIds(parentContentId, childOrder);
         clearFilterChildrenIdsRetryCooldown(parentId);
 
-        const idStrings = ids.map(id => id.toString());
+        const idStrings = ids.map((id) => id.toString());
 
         if (isProjectStale(projectName)) return [];
 
-        const placeholderNodes: CreateNodeOptions<ContentTreeNodeData>[] = idStrings.map(id => ({
+        const placeholderNodes: CreateNodeOptions<ContentTreeNodeData>[] = idStrings.map((id) => ({
             id,
             data: null,
             parentId,
@@ -1020,7 +1020,7 @@ export async function reloadParentChildren(parentId: string | null): Promise<str
     if (!parent) return [];
 
     // Force hasChildren=true and clear childIds so the fetchChildrenIdsOnly guard passes.
-    addTreeNode({id: parentId, hasChildren: true, childIds: []});
+    addTreeNode({ id: parentId, hasChildren: true, childIds: [] });
 
     return fetchChildrenIdsOnly(parentId);
 }
@@ -1028,7 +1028,7 @@ export async function reloadParentChildren(parentId: string | null): Promise<str
 // Old-parent refresh handles the case where the moved item lived under an unexpanded
 // parent and was never in $treeState, so removeContentFromTree could not adjust its
 // hasChildren. Runs in filter mode too so the main tree is current when the filter clears.
-$contentMoved.subscribe(event => {
+$contentMoved.subscribe((event) => {
     if (!event?.data) return;
 
     const state = $treeState.get();
@@ -1059,7 +1059,7 @@ $contentMoved.subscribe(event => {
                 if (parent.childIds.length > 0) {
                     parentsToReload.add(newParentId);
                 } else if (!parent.hasChildren) {
-                    addTreeNode({id: newParentId, hasChildren: true});
+                    addTreeNode({ id: newParentId, hasChildren: true });
                 }
             }
         }
@@ -1080,11 +1080,11 @@ $contentMoved.subscribe(event => {
 
     for (const id of oldParentsToRefresh) {
         void refreshContent(id)
-            .then(summary => {
+            .then((summary) => {
                 if (!summary) return;
                 const node = $treeState.get().nodes.get(id);
                 if (node && node.hasChildren !== summary.hasChildren()) {
-                    addTreeNode({id, hasChildren: summary.hasChildren()});
+                    addTreeNode({ id, hasChildren: summary.hasChildren() });
                 }
             })
             .catch(() => undefined);
@@ -1095,11 +1095,11 @@ $contentMoved.subscribe(event => {
 // be manual) so we cannot compute the new item's slot client-side. With includeChildren,
 // descendants of a freshly duplicated node are skipped — their parent is not yet
 // loaded, lazy-load fills the subtree on expand.
-$contentDuplicated.subscribe(event => {
+$contentDuplicated.subscribe((event) => {
     if (!event?.data) return;
 
     const state = $treeState.get();
-    const duplicatedIds = new Set(event.data.map(content => content.getId()));
+    const duplicatedIds = new Set(event.data.map((content) => content.getId()));
     const parentsToReload = new Set<string | null>();
 
     for (const content of event.data) {
@@ -1126,7 +1126,7 @@ $contentDuplicated.subscribe(event => {
                 if (parent.childIds.length > 0) {
                     parentsToReload.add(newParentId);
                 } else if (!parent.hasChildren) {
-                    addTreeNode({id: newParentId, hasChildren: true});
+                    addTreeNode({ id: newParentId, hasChildren: true });
                 }
             }
         }
@@ -1145,7 +1145,7 @@ $contentDuplicated.subscribe(event => {
 // reorder the moved children may appear in the payload too. Refetch instead of
 // reordering locally: the server owns the child order. Nodes without loaded
 // children are skipped — lazy-load fetches the fresh order on expand.
-$contentSorted.subscribe(event => {
+$contentSorted.subscribe((event) => {
     if (!event?.data) return;
 
     const state = $treeState.get();

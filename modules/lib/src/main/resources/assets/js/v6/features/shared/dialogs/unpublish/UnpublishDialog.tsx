@@ -1,30 +1,30 @@
-import {Dialog} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {useEffect, useState, type ReactElement} from 'react';
-import {useI18n} from '../../../hooks/useI18n';
-import {useTaskProgress} from '../../../hooks/useTaskProgress';
+import { Dialog } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { useEffect, useState, type ReactElement } from 'react';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { useTaskProgress } from '../../../hooks/useTaskProgress';
 import {
     $isUnpublishTargetSite,
     $unpublishDialog,
     $unpublishItemsCount,
     $unpublishTaskId,
     cancelUnpublishDialog,
-    confirmUnpublishAction
+    confirmUnpublishAction,
 } from '../../../store/dialogs/unpublishDialog.store';
-import {DialogPresetGatedConfirmContent} from '../DialogPreset';
-import {UnpublishDialogMainContent} from './UnpublishDialogMainContent';
-import {UnpublishDialogProgressContent} from './UnpublishDialogProgressContent';
+import { DialogPresetGatedConfirmContent } from '../DialogPreset';
+import { UnpublishDialogMainContent } from './UnpublishDialogMainContent';
+import { UnpublishDialogProgressContent } from './UnpublishDialogProgressContent';
 
 type View = 'main' | 'confirmation' | 'progress';
 
 const UNPUBLISH_DIALOG_NAME = 'UnpublishDialog';
 
 export const UnpublishDialog = (): ReactElement => {
-    const {open, items} = useStore($unpublishDialog, {keys: ['open', 'items']});
+    const { open, items } = useStore($unpublishDialog, { keys: ['open', 'items'] });
     const total = useStore($unpublishItemsCount);
     const hasSite = useStore($isUnpublishTargetSite);
     const taskId = useStore($unpublishTaskId);
-    const {progress, phase, phaseTotal} = useTaskProgress(taskId);
+    const { progress, phase, phaseTotal } = useTaskProgress(taskId);
 
     const [view, setView] = useState<View>('main');
 
@@ -68,25 +68,25 @@ export const UnpublishDialog = (): ReactElement => {
         <Dialog.Root open={open} onOpenChange={handleOpenChange}>
             <Dialog.Portal>
                 <Dialog.Overlay />
-                {view === 'main' &&
-                    <UnpublishDialogMainContent onUnpublish={() => void handleUnpublish()} />
-                }
-                {view === 'confirmation' && <DialogPresetGatedConfirmContent
-                    className="sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220"
-                    title={confirmTitle}
-                    description={confirmDescription}
-                    expected={total}
-                    // onConfirm={() => void handleUnpublish()}
-                    onConfirm={() => void startUnpublish()}
-                    onCancel={resetView}
-                />}
-                {view === 'progress' &&
+                {view === 'main' && <UnpublishDialogMainContent onUnpublish={() => void handleUnpublish()} />}
+                {view === 'confirmation' && (
+                    <DialogPresetGatedConfirmContent
+                        className="sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220"
+                        title={confirmTitle}
+                        description={confirmDescription}
+                        expected={total}
+                        // onConfirm={() => void handleUnpublish()}
+                        onConfirm={() => void startUnpublish()}
+                        onCancel={resetView}
+                    />
+                )}
+                {view === 'progress' && (
                     <UnpublishDialogProgressContent
                         total={phaseTotal ?? (total || items.length || 1)}
                         progress={progress}
                         resolving={phase == null}
                     />
-                }
+                )}
             </Dialog.Portal>
         </Dialog.Root>
     );

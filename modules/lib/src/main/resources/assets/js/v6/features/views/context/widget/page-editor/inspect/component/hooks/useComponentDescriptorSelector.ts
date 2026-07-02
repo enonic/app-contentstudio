@@ -1,9 +1,9 @@
-import {useStore} from '@nanostores/preact';
-import {useCallback, useMemo, useState} from 'react';
-import {DescriptorKey} from '../../../../../../../../../app/page/DescriptorKey';
-import {DescriptorBasedComponent} from '../../../../../../../../../app/page/region/DescriptorBasedComponent';
-import {useI18n} from '../../../../../../../hooks/useI18n';
-import {$inspectedItem, requestSetComponentDescriptor} from '../../../../../../../store/page-editor';
+import { useStore } from '@nanostores/preact';
+import { useCallback, useMemo, useState } from 'react';
+import { DescriptorKey } from '../../../../../../../../../app/page/DescriptorKey';
+import { DescriptorBasedComponent } from '../../../../../../../../../app/page/region/DescriptorBasedComponent';
+import { useI18n } from '../../../../../../../../shared/lib/hooks/useI18n';
+import { $inspectedItem, requestSetComponentDescriptor } from '../../../../../../../store/page-editor';
 import {
     $componentConfigDescriptor,
     $isComponentInspectionLoading,
@@ -20,8 +20,7 @@ export type ComponentOption = {
 };
 
 const compareOptionsByLabel = (a: ComponentOption, b: ComponentOption): number =>
-    a.label.localeCompare(b.label, undefined, {sensitivity: 'base'}) ||
-    a.key.localeCompare(b.key);
+    a.label.localeCompare(b.label, undefined, { sensitivity: 'base' }) || a.key.localeCompare(b.key);
 
 type UseComponentDescriptorSelectorResult = {
     filteredOptions: ComponentOption[];
@@ -50,13 +49,13 @@ export function useComponentDescriptorSelector(componentType: 'part' | 'layout')
     const descriptors = componentType === 'part' ? partDescriptors : layoutDescriptors;
 
     const options = useMemo((): ComponentOption[] => {
-        const real = descriptors.map(d => ({
+        const real = descriptors.map((d) => ({
             key: d.getKey().toString(),
             label: d.getDisplayName(),
             description: d.getDescription() || noDescriptionLabel,
         }));
 
-        if (!selectedKey || real.some(o => o.key === selectedKey)) {
+        if (!selectedKey || real.some((o) => o.key === selectedKey)) {
             return real;
         }
 
@@ -79,17 +78,11 @@ export function useComponentDescriptorSelector(componentType: 'part' | 'layout')
 
         const lower = searchValue.toLowerCase();
         return options
-            .filter(o =>
-                o.label.toLowerCase().includes(lower) ||
-                o.key.toLowerCase().includes(lower),
-            )
+            .filter((o) => o.label.toLowerCase().includes(lower) || o.key.toLowerCase().includes(lower))
             .toSorted(compareOptionsByLabel);
     }, [searchValue, options]);
 
-    const selectedOption = useMemo(
-        () => options.find(o => o.key === selectedKey),
-        [options, selectedKey],
-    );
+    const selectedOption = useMemo(() => options.find((o) => o.key === selectedKey), [options, selectedKey]);
 
     const handleSelectionChange = useCallback(
         (selection: readonly string[]): void => {

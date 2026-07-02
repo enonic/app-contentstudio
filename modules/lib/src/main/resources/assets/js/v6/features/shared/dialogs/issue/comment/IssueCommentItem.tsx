@@ -1,9 +1,9 @@
-import {Avatar, cn} from '@enonic/ui';
-import {type ComponentPropsWithoutRef, type ReactElement, useCallback, useEffect, useRef, useState} from 'react';
-import {useI18n} from '../../../../hooks/useI18n';
-import {getInitials} from '../../../../utils/format/initials';
-import {IssueCommentEditor} from './IssueCommentEditor';
-import {IssueCommentMenu} from './IssueCommentMenu';
+import { Avatar, cn } from '@enonic/ui';
+import { type ComponentPropsWithoutRef, type ReactElement, useCallback, useEffect, useRef, useState } from 'react';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { getInitials } from '../../../../../shared/lib/format/initials';
+import { IssueCommentEditor } from './IssueCommentEditor';
+import { IssueCommentMenu } from './IssueCommentMenu';
 
 export type IssueCommentItemProps = {
     name: string;
@@ -60,7 +60,7 @@ export const IssueCommentItem = ({
             return;
         }
         textAreaRef.current.focus();
-        textAreaRef.current.scrollIntoView({behavior: 'smooth', block: 'center'});
+        textAreaRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
         textAreaRef.current.select();
     }, [editMode]);
 
@@ -106,18 +106,21 @@ export const IssueCommentItem = ({
         onDelete();
     }, [onDelete]);
 
-    const handleDraftKeyDown: NonNullable<ComponentPropsWithoutRef<'textarea'>['onKeyDown']> = useCallback((event) => {
-        if (event.key === 'Escape') {
-            event.preventDefault();
-            handleCancel();
-            return;
-        }
+    const handleDraftKeyDown: NonNullable<ComponentPropsWithoutRef<'textarea'>['onKeyDown']> = useCallback(
+        (event) => {
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                handleCancel();
+                return;
+            }
 
-        if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
-            event.preventDefault();
-            void handleSave();
-        }
-    }, [handleCancel, handleSave]);
+            if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+                event.preventDefault();
+                void handleSave();
+            }
+        },
+        [handleCancel, handleSave],
+    );
 
     const hasActions = canEdit || canDelete;
     const initials = getInitials(name);
@@ -125,15 +128,15 @@ export const IssueCommentItem = ({
     return (
         <div
             data-component={ISSUE_COMMENT_ITEM_NAME}
-            className='grid grid-cols-[auto_minmax(0,1fr)_auto] gap-x-3 items-center py-2.5'
+            className="grid grid-cols-[auto_minmax(0,1fr)_auto] gap-x-3 items-center py-2.5"
         >
-            <Avatar size='md' className='row-span-2 self-start mt-2.25'>
+            <Avatar size="md" className="row-span-2 self-start mt-2.25">
                 <Avatar.Fallback>{initials}</Avatar.Fallback>
             </Avatar>
-            <div className='flex flex-col gap-1.5 min-w-0 leading-5.5'>
-                <div className='flex min-w-0 flex-wrap items-baseline gap-2'>
-                    <span className='truncate text-md font-semibold'>{name}</span>
-                    {timeLabel && <span className='text-xs text-subtle'>{timeLabel}</span>}
+            <div className="flex flex-col gap-1.5 min-w-0 leading-5.5">
+                <div className="flex min-w-0 flex-wrap items-baseline gap-2">
+                    <span className="truncate text-md font-semibold">{name}</span>
+                    {timeLabel && <span className="text-xs text-subtle">{timeLabel}</span>}
                 </div>
                 {editMode ? (
                     <IssueCommentEditor
@@ -161,7 +164,7 @@ export const IssueCommentItem = ({
                     editLabel={editLabel}
                     deleteLabel={deleteLabel}
                     portalContainer={portalContainer}
-                    className='row-span-2 justify-self-end self-start'
+                    className="row-span-2 justify-self-end self-start"
                 />
             )}
         </div>

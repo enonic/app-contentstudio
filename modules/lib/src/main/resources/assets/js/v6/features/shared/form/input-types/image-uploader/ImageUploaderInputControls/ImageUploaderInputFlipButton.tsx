@@ -1,12 +1,12 @@
-import {type ReactElement, useCallback} from 'react';
-import {IconButton, Tooltip} from '@enonic/ui';
-import {FlipHorizontal} from 'lucide-react';
-import {useImageUploaderContext} from '../ImageUploaderContext';
-import {useI18n} from '../../../../../hooks/useI18n';
-import {setFlipInPropertySet} from '../lib/propertySet';
+import { type ReactElement, useCallback } from 'react';
+import { IconButton, Tooltip } from '@enonic/ui';
+import { FlipHorizontal } from 'lucide-react';
+import { useImageUploaderContext } from '../ImageUploaderContext';
+import { useI18n } from '../../../../../../shared/lib/hooks/useI18n';
+import { setFlipInPropertySet } from '../lib/propertySet';
 
 export const ImageUploaderInputFlipButton = (): ReactElement => {
-    const {value, enabled, mode, setOrientation} = useImageUploaderContext();
+    const { value, enabled, mode, setOrientation } = useImageUploaderContext();
 
     const label = useI18n('action.mirror');
 

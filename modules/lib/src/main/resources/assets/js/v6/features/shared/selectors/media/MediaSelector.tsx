@@ -1,47 +1,47 @@
-import {type ReactElement} from 'react';
-import {cn} from '@enonic/ui';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {type MediaSelectorFilterOptions, type MediaSelectorMode} from './media-selector.types';
-import {ContentCombobox} from '../content';
-import {SelectorUploadButton, useSelectorUpload} from '../shared/upload';
-import {SelectorSelection, SelectorSelectionItem} from '../shared/selection';
-import {useStore} from '@nanostores/preact';
-import {$activeProject} from '../../../store/activeProject.store';
-import {ContentRow} from '../shared/combobox/ContentRow';
-import {MediaSelectorItemView} from './MediaSelectorItemView';
-import {useAcceptMimeTypes} from '../../../hooks/useAcceptMimeTypes';
+import { type ReactElement } from 'react';
+import { cn } from '@enonic/ui';
+import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { type MediaSelectorFilterOptions, type MediaSelectorMode } from './media-selector.types';
+import { ContentCombobox } from '../content';
+import { SelectorUploadButton, useSelectorUpload } from '../shared/upload';
+import { SelectorSelection, SelectorSelectionItem } from '../shared/selection';
+import { useStore } from '@nanostores/preact';
+import { $activeProject } from '../../../store/activeProject.store';
+import { ContentRow } from '../shared/combobox/ContentRow';
+import { MediaSelectorItemView } from './MediaSelectorItemView';
+import { useAcceptMimeTypes } from '../../../../shared/lib/hooks/useAcceptMimeTypes';
 
 export type MediaSelectorProps = {
     /** Selected content IDs */
-    'selection': readonly string[];
+    selection: readonly string[];
     /** Callback when selection changes */
-    'onSelectionChange': (selection: readonly string[]) => void;
+    onSelectionChange: (selection: readonly string[]) => void;
     /** Whether the selector can add more items */
-    'canAdd'?: boolean;
+    canAdd?: boolean;
     /** Selection mode */
-    'selectionMode'?: MediaSelectorMode;
+    selectionMode?: MediaSelectorMode;
     /** List mode */
-    'listMode'?: 'tree' | 'flat';
+    listMode?: 'tree' | 'flat';
     /** Whether to close the combobox when the input is blurred */
-    'closeOnBlur'?: boolean;
+    closeOnBlur?: boolean;
     /** Whether the selector is disabled */
-    'disabled'?: boolean;
+    disabled?: boolean;
     /** Label for the selector */
-    'label'?: string;
+    label?: string;
     /** Placeholder text for the search input */
-    'placeholder'?: string;
+    placeholder?: string;
     /** Text shown when no results found */
-    'emptyLabel'?: string;
+    emptyLabel?: string;
     /** Additional CSS class for the wrapper */
-    'className'?: string;
+    className?: string;
     /** Whether to hide the toggle icon */
-    'hideToggleIcon'?: boolean;
+    hideToggleIcon?: boolean;
     /** Whether the selector has an error */
-    'error'?: boolean;
+    error?: boolean;
     /** Aria label for accessibility */
     'aria-label'?: string;
     /** Whether to show the upload button */
-    'withUpload'?: boolean;
+    withUpload?: boolean;
 } & MediaSelectorFilterOptions;
 
 const MEDIA_SELECTOR_NAME = 'MediaSelector';
@@ -83,11 +83,12 @@ export const MediaSelector = ({
     contextContent,
     applicationKey,
 }: MediaSelectorProps): ReactElement => {
-    const resolvedContentTypeNames = contentTypeNames && contentTypeNames.length > 0 ? contentTypeNames : MEDIA_SELECTOR_CONTENT_TYPE_NAMES;
+    const resolvedContentTypeNames =
+        contentTypeNames && contentTypeNames.length > 0 ? contentTypeNames : MEDIA_SELECTOR_CONTENT_TYPE_NAMES;
     const activeProject = useStore($activeProject);
     const acceptMimeTypes = useAcceptMimeTypes(resolvedContentTypeNames);
 
-    const {handleFiles, progress, isUploading, dragProps} = useSelectorUpload({
+    const { handleFiles, progress, isUploading, dragProps } = useSelectorUpload({
         selection,
         onSelectionChange,
         accept: acceptMimeTypes,
@@ -104,7 +105,7 @@ export const MediaSelector = ({
                 <div
                     className={cn(
                         'flex items-center rounded transition-highlight',
-                        dragProps.isDragging && 'ring-3 ring-ring ring-offset-3 ring-offset-ring-offset'
+                        dragProps.isDragging && 'ring-3 ring-ring ring-offset-3 ring-offset-ring-offset',
                     )}
                     onDragOver={dragProps.onDragOver}
                     onDragLeave={dragProps.onDragLeave}

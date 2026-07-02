@@ -1,10 +1,10 @@
-import {Button} from '@enonic/ui';
-import React, {useCallback} from 'react';
-import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
-import {type ContentVersion} from '../../../../../../app/ContentVersion';
-import {useI18n} from '../../../../hooks/useI18n';
-import {resetVersionsSelection} from '../../../../store/context/versionStore';
-import {openCompareVersionsDialog} from './compare/store';
+import { Button } from '@enonic/ui';
+import React, { useCallback } from 'react';
+import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
+import { type ContentVersion } from '../../../../../../app/ContentVersion';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { resetVersionsSelection } from '../../../../store/context/versionStore';
+import { openCompareVersionsDialog } from './compare/store';
 
 const COMPONENT_NAME = 'VersionSelectionToolbar';
 
@@ -43,20 +43,16 @@ export const VersionSelectionToolbar = ({
 
     return (
         <div
-            className='flex justify-center items-center gap-2.5 sticky -top-5 bg-surface-neutral min-h-16 z-1'
+            className="flex justify-center items-center gap-2.5 sticky -top-5 bg-surface-neutral min-h-16 z-1"
             data-component={COMPONENT_NAME}
         >
             <Button
                 label={showChangesButtonLabel}
-                variant='filled'
+                variant="filled"
                 onClick={handleShowChanges}
                 disabled={selectionSize !== 2}
             />
-            <Button
-                label={cancelButtonLabel}
-                variant='outline'
-                onClick={handleCancel}
-            />
+            <Button label={cancelButtonLabel} variant="outline" onClick={handleCancel} />
         </div>
     );
 };

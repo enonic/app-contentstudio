@@ -1,9 +1,9 @@
-import type {ContentId} from '../../../app/content/ContentId';
-import {Descriptor} from '../../../app/page/Descriptor';
-import type {DescriptorJson} from '../../../app/page/DescriptorJson';
-import {ComponentType} from '../../../app/page/region/ComponentType';
-import {$projects} from '../store/projects.store';
-import {getCmsRestUri} from '../utils/url/cms';
+import type { ContentId } from '../../../app/content/ContentId';
+import { Descriptor } from '../../../app/page/Descriptor';
+import type { DescriptorJson } from '../../../app/page/DescriptorJson';
+import { ComponentType } from '../../../app/page/region/ComponentType';
+import { $projects } from '../store/projects.store';
+import { getCmsRestUri } from '../../shared/lib/url/cms';
 
 /**
  * Load component descriptors available for a given content, filtered by component type.
@@ -11,7 +11,7 @@ import {getCmsRestUri} from '../utils/url/cms';
  */
 export async function loadComponentDescriptors(componentType: string, contentId: ContentId): Promise<Descriptor[]> {
     const project = $projects.get().activeProjectId ?? '';
-    const params = new URLSearchParams({contentId: contentId.toString()});
+    const params = new URLSearchParams({ contentId: contentId.toString() });
     const url = `${getCmsRestUri(`cms/${project}/content/schema/filter/${componentType}s`)}?${params}`;
 
     try {
@@ -20,7 +20,9 @@ export async function loadComponentDescriptors(componentType: string, contentId:
 
         const json = await response.json();
         const descriptors: DescriptorJson[] = json.descriptors ?? [];
-        return descriptors.map(d => Descriptor.fromJson(d).setComponentType(ComponentType.byShortName(componentType)));
+        return descriptors.map((d) =>
+            Descriptor.fromJson(d).setComponentType(ComponentType.byShortName(componentType)),
+        );
     } catch (error) {
         console.error(error);
         return [];
@@ -34,7 +36,10 @@ const descriptorCache = new Map<string, Promise<Descriptor>>();
  * Load a single component descriptor by key and type.
  * Results are cached by `componentType::descriptorKey`.
  */
-export async function loadComponentDescriptor(componentType: string, descriptorKey: string): Promise<Descriptor | undefined> {
+export async function loadComponentDescriptor(
+    componentType: string,
+    descriptorKey: string,
+): Promise<Descriptor | undefined> {
     const cacheKey = `${componentType}::${descriptorKey}`;
 
     if (descriptorCache.has(cacheKey)) {

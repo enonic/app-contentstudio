@@ -1,12 +1,12 @@
-import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {useStore} from '@nanostores/preact';
-import {listenKeys} from 'nanostores';
-import {type DragEvent as ReactDragEvent, useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import type {UploadMediaError, UploadMediaSuccess} from '../../../../api/uploadMedia';
-import {useI18n} from '../../../../hooks/useI18n';
-import {useUploadMedia} from '../../../../hooks/useUploadMedia';
-import {$contextContent} from '../../../../store/context/contextContent.store';
-import {$uploads, removeUpload} from '../../../../store/uploads.store';
+import { showError } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { useStore } from '@nanostores/preact';
+import { listenKeys } from 'nanostores';
+import { type DragEvent as ReactDragEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { UploadMediaError, UploadMediaSuccess } from '../../../../api/uploadMedia';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { useUploadMedia } from '../../../../hooks/useUploadMedia';
+import { $contextContent } from '../../../../store/context/contextContent.store';
+import { $uploads, removeUpload } from '../../../../store/uploads.store';
 
 //
 // * Types
@@ -64,7 +64,7 @@ const filterByAccept = (files: FileList, accept?: string): File[] => {
                 return file.type.startsWith(type.slice(0, -1));
             }
             return file.type === type;
-        })
+        }),
     );
 };
 
@@ -141,7 +141,7 @@ export const useSelectorUpload = ({
         showError(useI18n('notify.upload.error', error.mediaIdentifier, error.message));
     }, []);
 
-    const {handleFiles: uploadFiles} = useUploadMedia({
+    const { handleFiles: uploadFiles } = useUploadMedia({
         parentContent: uploadParent,
         onUploadStart,
         onUploadComplete,
@@ -152,7 +152,7 @@ export const useSelectorUpload = ({
         (files: FileList | File[]) => {
             void uploadFiles(files);
         },
-        [uploadFiles]
+        [uploadFiles],
     );
 
     // Drag-and-drop handlers
@@ -164,7 +164,7 @@ export const useSelectorUpload = ({
             event.preventDefault();
             setIsDragging(true);
         },
-        [disabled]
+        [disabled],
     );
 
     const onDragLeave = useCallback((event: ReactDragEvent<HTMLDivElement>) => {
@@ -191,13 +191,16 @@ export const useSelectorUpload = ({
                 void uploadFiles(files);
             }
         },
-        [disabled, accept, multiple, uploadFiles]
+        [disabled, accept, multiple, uploadFiles],
     );
 
     const dragProps = useMemo<SelectorUploadDragProps>(
-        () => ({isDragging, onDragOver, onDragLeave, onDrop}),
-        [isDragging, onDragOver, onDragLeave, onDrop]
+        () => ({ isDragging, onDragOver, onDragLeave, onDrop }),
+        [isDragging, onDragOver, onDragLeave, onDrop],
     );
 
-    return useMemo(() => ({handleFiles, progress, isUploading, dragProps}), [handleFiles, progress, isUploading, dragProps]);
+    return useMemo(
+        () => ({ handleFiles, progress, isUploading, dragProps }),
+        [handleFiles, progress, isUploading, dragProps],
+    );
 };

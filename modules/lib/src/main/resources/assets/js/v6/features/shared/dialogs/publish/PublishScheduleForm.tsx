@@ -1,6 +1,6 @@
-import {useStore} from '@nanostores/preact';
-import {ReactElement, type RefObject, useEffect, useRef} from 'react';
-import {useI18n} from '../../../hooks/useI18n';
+import { useStore } from '@nanostores/preact';
+import { ReactElement, type RefObject, useEffect, useRef } from 'react';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import {
     $publishDialog,
     $scheduleFromError,
@@ -10,7 +10,7 @@ import {
     setPublishScheduleTo,
     setPublishScheduleToError,
 } from '../../../store/dialogs/publishDialog.store';
-import {DateTimeSelector} from '../../selectors/date/DateTimeSelector';
+import { DateTimeSelector } from '../../selectors/date/DateTimeSelector';
 
 const COMPONENT_NAME = 'PublishScheduleForm';
 
@@ -19,9 +19,9 @@ type PublishScheduleFormProps = {
     defaultTimeValue?: string;
 };
 
-export const PublishScheduleForm = ({firstInputRef, defaultTimeValue}: PublishScheduleFormProps): ReactElement => {
+export const PublishScheduleForm = ({ firstInputRef, defaultTimeValue }: PublishScheduleFormProps): ReactElement => {
     const containerRef = useRef<HTMLDivElement>(null);
-    const {schedule} = useStore($publishDialog, {keys: ['schedule']});
+    const { schedule } = useStore($publishDialog, { keys: ['schedule'] });
     const fromError = useStore($scheduleFromError);
     const toError = useStore($scheduleToError);
 
@@ -30,14 +30,14 @@ export const PublishScheduleForm = ({firstInputRef, defaultTimeValue}: PublishSc
     const nowLabel = useI18n('text.now');
 
     useEffect(() => {
-        containerRef.current?.scrollIntoView({behavior: 'smooth', block: 'center'});
+        containerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, []);
 
     return (
         <div
             ref={containerRef}
             data-component={COMPONENT_NAME}
-            className='flex flex-wrap gap-x-6 gap-y-4 rounded-lg bg-surface-primary p-7.5'
+            className="flex flex-wrap gap-x-6 gap-y-4 rounded-lg bg-surface-primary p-7.5"
         >
             <DateTimeSelector
                 label={onlineFromLabel}
@@ -59,6 +59,6 @@ export const PublishScheduleForm = ({firstInputRef, defaultTimeValue}: PublishSc
             />
         </div>
     );
-}
+};
 
 PublishScheduleForm.displayName = COMPONENT_NAME;

@@ -1,11 +1,11 @@
-import {Separator} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {ReactElement} from 'react';
-import {useI18n} from '../../../../hooks/useI18n';
-import {$detailsWidgetContent} from '../../../../store/context/detailsWidgets.store';
-import {PermissionsAccessDescription} from './PermissionsAccessDescription';
-import {PermissionsEditButton} from './PermissionsEditButton';
-import {PermissionsList} from './PermissionsList';
+import { Separator } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { ReactElement } from 'react';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { $detailsWidgetContent } from '../../../../store/context/detailsWidgets.store';
+import { PermissionsAccessDescription } from './PermissionsAccessDescription';
+import { PermissionsEditButton } from './PermissionsEditButton';
+import { PermissionsList } from './PermissionsList';
 
 const DETAILS_WIDGET_PERMISSIONS_SECTION_NAME = 'DetailsWidgetPermissionsSection';
 

@@ -1,7 +1,7 @@
-import {computed, map} from 'nanostores';
-import type {ContentSummary} from '../../../app/content/ContentSummary';
-import {ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
-import {$activeProject} from './activeProject.store';
+import { computed, map } from 'nanostores';
+import type { ContentSummary } from '../../../app/content/ContentSummary';
+import { ContentSummaryAndCompareStatus } from '../../../app/content/ContentSummaryAndCompareStatus';
+import { $activeProject } from './activeProject.store';
 import {
     $contentArchived,
     $contentCreated,
@@ -13,7 +13,7 @@ import {
     $contentSorted,
     $contentUnpublished,
     $contentUpdated,
-} from './socket.store';
+} from '../../shared/socket/socket.store';
 
 //
 // * Types
@@ -34,14 +34,11 @@ const $contentCacheByProject = map<Record<string, ProjectCache>>({});
 const $pathToIdByProject = map<Record<string, PathIndex>>({});
 
 /** Active project's slice. Shape kept as Record<id, ContentSummary> for legacy consumers. */
-export const $contentCache = computed(
-    [$contentCacheByProject, $activeProject],
-    (byProject, project): ProjectCache => {
-        const name = project?.getName();
-        if (!name) return EMPTY_CACHE;
-        return byProject[name] ?? EMPTY_CACHE;
-    },
-);
+export const $contentCache = computed([$contentCacheByProject, $activeProject], (byProject, project): ProjectCache => {
+    const name = project?.getName();
+    if (!name) return EMPTY_CACHE;
+    return byProject[name] ?? EMPTY_CACHE;
+});
 
 //
 // * Internal helpers
@@ -81,9 +78,9 @@ export function setContent(content: ContentSummary, projectName?: string): void 
     const id = content.getId();
     const path = content.getPath?.()?.toString();
 
-    writeProjectCache(name, {...readProjectCache(name), [id]: content});
+    writeProjectCache(name, { ...readProjectCache(name), [id]: content });
     if (path) {
-        writePathIndex(name, {...readPathIndex(name), [path]: id});
+        writePathIndex(name, { ...readPathIndex(name), [path]: id });
     }
 }
 
@@ -92,8 +89,8 @@ export function setContents(contents: ContentSummary[], projectName?: string): v
     const name = resolveProjectName(projectName);
     if (!name) return;
 
-    const cacheUpdates: ProjectCache = {...readProjectCache(name)};
-    const indexUpdates: PathIndex = {...readPathIndex(name)};
+    const cacheUpdates: ProjectCache = { ...readProjectCache(name) };
+    const indexUpdates: PathIndex = { ...readPathIndex(name) };
 
     for (const content of contents) {
         const id = content.getId();
@@ -118,12 +115,12 @@ export function removeContent(id: string, projectName?: string): void {
     const content = cache[id];
     const path = content?.getPath?.()?.toString();
 
-    const {[id]: _, ...restCache} = cache;
+    const { [id]: _, ...restCache } = cache;
     writeProjectCache(name, restCache);
 
     if (path) {
         const index = readPathIndex(name);
-        const {[path]: __, ...restIndex} = index;
+        const { [path]: __, ...restIndex } = index;
         writePathIndex(name, restIndex);
     }
 }
@@ -279,8 +276,8 @@ $contentMoved.subscribe((event) => {
     const name = $activeProject.get()?.getName();
     if (!name) return;
 
-    const cacheUpdates: ProjectCache = {...readProjectCache(name)};
-    const indexUpdates: PathIndex = {...readPathIndex(name)};
+    const cacheUpdates: ProjectCache = { ...readProjectCache(name) };
+    const indexUpdates: PathIndex = { ...readPathIndex(name) };
 
     for (const moved of event.data) {
         const summary = moved.item.getContentSummary();

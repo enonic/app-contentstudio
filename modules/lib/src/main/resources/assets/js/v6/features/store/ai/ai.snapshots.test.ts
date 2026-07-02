@@ -1,8 +1,8 @@
-import {describe, expect, it, beforeEach} from 'vitest';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {$config} from '../config.store';
-import {$aiInstructions} from './ai.store';
-import {buildPluginConfig} from './ai.snapshots';
+import { describe, expect, it, beforeEach } from 'vitest';
+import { Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { $config } from '../../../shared/config/config.store';
+import { $aiInstructions } from './ai.store';
+import { buildPluginConfig } from './ai.snapshots';
 
 describe('buildPluginConfig', () => {
     beforeEach(() => {
@@ -24,7 +24,7 @@ describe('buildPluginConfig', () => {
                 aiTranslatorWsServiceUrl: 'wss://translator',
             },
         });
-        $aiInstructions.set({translator: 'translate well', contentOperator: undefined});
+        $aiInstructions.set({ translator: 'translate well', contentOperator: undefined });
     });
 
     it('builds the translator config from CS config and instructions', () => {
@@ -42,11 +42,14 @@ describe('buildPluginConfig', () => {
     });
 
     it('includes the current user when set', () => {
-        $config.setKey('user', Principal.fromJson({
-            key: 'user:system:edloidas',
-            displayName: 'Mikita Taukachou',
-            modifiedTime: new Date().toISOString(),
-        }));
+        $config.setKey(
+            'user',
+            Principal.fromJson({
+                key: 'user:system:edloidas',
+                displayName: 'Mikita Taukachou',
+                modifiedTime: new Date().toISOString(),
+            }),
+        );
         expect(buildPluginConfig('ai.contentOperator').user).toEqual({
             key: 'user:system:edloidas',
             displayName: 'Mikita Taukachou',

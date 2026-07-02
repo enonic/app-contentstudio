@@ -1,7 +1,7 @@
-import {Result, ResultAsync} from 'neverthrow';
-import {type Content, ContentBuilder} from '../../../app/content/Content';
-import {getCmsApiUrl} from '../utils/url/cms';
-import {UploadError} from './errors';
+import { Result, ResultAsync } from 'neverthrow';
+import { type Content, ContentBuilder } from '../../../app/content/Content';
+import { getCmsApiUrl } from '../../shared/lib/url/cms';
+import { UploadError } from '../../shared/api/errors';
 
 const UPLOAD_PROGRESS_CAP = 99;
 
@@ -11,12 +11,12 @@ const UPLOAD_PROGRESS_CAP = 99;
 
 export type UpdateImageMediaSuccess = {
     mediaIdentifier: string;
-    content: Content
+    content: Content;
 };
 
 export type UpdateImageMediaError = {
     mediaIdentifier: string;
-    message: string
+    message: string;
 };
 
 export type UpdateImageMediaOptions = {
@@ -64,7 +64,7 @@ export function updateImageMedia({
                     try {
                         const json = JSON.parse(xhr.responseText);
                         const content = new ContentBuilder().fromContentJson(json).build();
-                        resolve({mediaIdentifier: id, content});
+                        resolve({ mediaIdentifier: id, content });
                     } catch {
                         reject(new UploadError(id, 'Failed to parse response'));
                     }
@@ -81,7 +81,7 @@ export function updateImageMedia({
             xhr.send(formData);
         }),
         (error): UpdateImageMediaError =>
-            error instanceof UploadError ? error.toResult() : {mediaIdentifier: '', message: String(error)}
+            error instanceof UploadError ? error.toResult() : { mediaIdentifier: '', message: String(error) },
     );
 }
 
@@ -91,5 +91,5 @@ export function updateImageMedia({
 
 const safeJsonParse = Result.fromThrowable(
     (text: string) => JSON.parse(text) as Record<string, unknown>,
-    (e) => e as Error
+    (e) => e as Error,
 );

@@ -1,19 +1,19 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Button, Dialog, IconButton, Input, Tooltip} from '@enonic/ui';
-import {Copy, FolderInput, LoaderCircle} from 'lucide-react';
-import {type ChangeEvent, type FormEvent, type ReactElement, useCallback, useEffect, useRef, useState} from 'react';
-import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
-import {exportContent, type ExportResult} from '../../../../api/importContent';
-import {useI18n} from '../../../../hooks/useI18n';
-import {ContentLabel} from '../../../../shared/content/ContentLabel';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { Button, Dialog, IconButton, Input, Tooltip } from '@enonic/ui';
+import { Copy, FolderInput, LoaderCircle } from 'lucide-react';
+import { type ChangeEvent, type FormEvent, type ReactElement, useCallback, useEffect, useRef, useState } from 'react';
+import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
+import { exportContent, type ExportResult } from '../../../../api/importContent';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { ContentLabel } from '../../../../shared/content/ContentLabel';
 
 const IMPORT_CONTENT_EXPORT_DIALOG_NAME = 'ImportContentExportDialog';
 
 type ExportPhase =
-    | {kind: 'idle'}
-    | {kind: 'loading'}
-    | {kind: 'success'; result: ExportResult}
-    | {kind: 'error'; message: string};
+    | { kind: 'idle' }
+    | { kind: 'loading' }
+    | { kind: 'success'; result: ExportResult }
+    | { kind: 'error'; message: string };
 
 type ImportContentExportDialogProps = {
     open: boolean;
@@ -39,7 +39,7 @@ export const ImportContentExportDialog = ({
     const inputRef = useRef<HTMLInputElement | null>(null);
 
     const [name, setName] = useState<string>(defaultName);
-    const [phase, setPhase] = useState<ExportPhase>({kind: 'idle'});
+    const [phase, setPhase] = useState<ExportPhase>({ kind: 'idle' });
 
     const handleOpenAutoFocus = useCallback((event: Event) => {
         event.preventDefault();
@@ -49,36 +49,42 @@ export const ImportContentExportDialog = ({
     useEffect(() => {
         if (!open) return;
         setName(defaultName);
-        setPhase({kind: 'idle'});
+        setPhase({ kind: 'idle' });
     }, [open, defaultName]);
 
     const handleNameChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
         setName(event.currentTarget.value);
     }, []);
 
-    const handleSubmit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        if (phase.kind === 'loading') return;
+    const handleSubmit = useCallback(
+        async (event: FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            if (phase.kind === 'loading') return;
 
-        const contentId = content.getContentId().toString();
-        const finalName = name.trim() || defaultName;
-        setPhase({kind: 'loading'});
-        const result = await exportContent(contentId, {name: finalName});
+            const contentId = content.getContentId().toString();
+            const finalName = name.trim() || defaultName;
+            setPhase({ kind: 'loading' });
+            const result = await exportContent(contentId, { name: finalName });
 
-        result.match(
-            exported => {
-                setPhase({kind: 'success', result: exported});
-                onSuccess?.(exported);
-            },
-            err => {
-                setPhase({kind: 'error', message: err.message});
-            },
-        );
-    }, [phase.kind, content, name, defaultName, onSuccess]);
+            result.match(
+                (exported) => {
+                    setPhase({ kind: 'success', result: exported });
+                    onSuccess?.(exported);
+                },
+                (err) => {
+                    setPhase({ kind: 'error', message: err.message });
+                },
+            );
+        },
+        [phase.kind, content, name, defaultName, onSuccess],
+    );
 
-    const handleOpenChange = useCallback((nextOpen: boolean) => {
-        if (!nextOpen) onClose();
-    }, [onClose]);
+    const handleOpenChange = useCallback(
+        (nextOpen: boolean) => {
+            if (!nextOpen) onClose();
+        },
+        [onClose],
+    );
 
     return (
         <Dialog.Root open={open} onOpenChange={handleOpenChange}>
@@ -97,13 +103,14 @@ export const ImportContentExportDialog = ({
                     </Dialog.Header>
 
                     {phase.kind === 'success' ? (
-                        <ResultView
-                            result={phase.result}
-                            nameLabel={resultNameLabel}
-                            copyLabel={copyLabel}
-                        />
+                        <ResultView result={phase.result} nameLabel={resultNameLabel} copyLabel={copyLabel} />
                     ) : (
-                        <form className="contents" onSubmit={(event) => { void handleSubmit(event); }}>
+                        <form
+                            className="contents"
+                            onSubmit={(event) => {
+                                void handleSubmit(event);
+                            }}
+                        >
                             <Dialog.Body className="flex flex-col gap-4 overflow-visible">
                                 <div className="flex flex-col gap-2">
                                     <span className="text-base font-semibold">{selectedLabel}</span>
@@ -117,9 +124,7 @@ export const ImportContentExportDialog = ({
                                     onChange={handleNameChange}
                                     disabled={phase.kind === 'loading'}
                                 />
-                                {phase.kind === 'error' && (
-                                    <span className="text-sm text-error">{phase.message}</span>
-                                )}
+                                {phase.kind === 'error' && <span className="text-sm text-error">{phase.message}</span>}
                             </Dialog.Body>
                             <Dialog.Footer>
                                 <Button
@@ -148,7 +153,7 @@ type ResultViewProps = {
     copyLabel: string;
 };
 
-const ResultView = ({result, nameLabel, copyLabel}: ResultViewProps): ReactElement => {
+const ResultView = ({ result, nameLabel, copyLabel }: ResultViewProps): ReactElement => {
     const nodeCount = result.exportedNodes?.length ?? 0;
     const nodesSummary = i18n('widget.import.export.dialog.result.nodes', nodeCount);
 

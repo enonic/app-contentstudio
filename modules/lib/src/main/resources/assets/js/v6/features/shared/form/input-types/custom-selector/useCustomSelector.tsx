@@ -1,19 +1,19 @@
-import {UriHelper as LibUriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {Branch} from '../../../../../../app/versioning/Branch';
-import {UrlAction} from '../../../../../../app/UrlAction';
-import {UriHelper} from '../../../../../../app/rendering/UriHelper';
-import {$contextContent} from '../../../../store/context/contextContent.store';
-import {$activeProject} from '../../../../store/activeProject.store';
-import {type CustomSelectorConfig} from './CustomSelectorConfig';
-import {type CustomSelectorItem} from './CustomSelectorInput';
-import {useDebouncedCallback} from '../../../../utils/hooks/useDebouncedCallback';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {type SelfManagedComponentProps} from '@enonic/lib-admin-ui/form2';
-import {errAsync, okAsync, ResultAsync} from 'neverthrow';
-import {formatError} from '../../../../utils/format/error';
-import {parseNumber} from '../../../../utils/format/values';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import { UriHelper as LibUriHelper } from '@enonic/lib-admin-ui/util/UriHelper';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Branch } from '../../../../../../app/versioning/Branch';
+import { UrlAction } from '../../../../../../app/UrlAction';
+import { UriHelper } from '../../../../../../app/rendering/UriHelper';
+import { $contextContent } from '../../../../store/context/contextContent.store';
+import { $activeProject } from '../../../../store/activeProject.store';
+import { type CustomSelectorConfig } from './CustomSelectorConfig';
+import { type CustomSelectorItem } from './CustomSelectorInput';
+import { useDebouncedCallback } from '../../../../../shared/lib/hooks/useDebouncedCallback';
+import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { type SelfManagedComponentProps } from '@enonic/lib-admin-ui/form2';
+import { errAsync, okAsync, ResultAsync } from 'neverthrow';
+import { formatError } from '../../../../../shared/lib/format/error';
+import { parseNumber } from '../../../../../shared/lib/format/values';
+import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
 
 const PRELOAD_KEY = 'CUSTOM_SELECTOR_PRELOAD_KEY';
 const DEFAULT_SIZE = 10;
@@ -47,7 +47,14 @@ type useCustomSelectorOptions = {
     onRemove: SelfManagedComponentProps['onRemove'];
 };
 
-export const useCustomSelector = ({config, selection, query, count = DEFAULT_SIZE, onAdd, onRemove}: useCustomSelectorOptions) => {
+export const useCustomSelector = ({
+    config,
+    selection,
+    query,
+    count = DEFAULT_SIZE,
+    onAdd,
+    onRemove,
+}: useCustomSelectorOptions) => {
     // States
     const [itemsMap, setItemsMap] = useState<Map<string, CustomSelectorItem[]>>(new Map());
     const [startMap, setStartMap] = useState<Map<string, number>>(new Map());
@@ -66,11 +73,11 @@ export const useCustomSelector = ({config, selection, query, count = DEFAULT_SIZ
                 .map(([_, items]) => items)
                 .flat()
                 .filter(uniqueItemsFilter),
-        [itemsMap]
+        [itemsMap],
     );
     const filteredItems = useMemo(
         () => (key ? (itemsMap.get(key) ?? []) : allItemsWithoutPreload),
-        [key, itemsMap, allItemsWithoutPreload]
+        [key, itemsMap, allItemsWithoutPreload],
     );
     const hasMore = useMemo(() => {
         const total = totalMap.get(key);
@@ -93,8 +100,11 @@ export const useCustomSelector = ({config, selection, query, count = DEFAULT_SIZ
             return ResultAsync.fromPromise(fetch(requestUrl), formatError)
                 .andThen((response) => {
                     if (!response.ok) {
-                        return errAsync(new Error(
-                            `Error fetching ${config.extension ? config.extension + ' extension' : config.service + ' service'} items.`));
+                        return errAsync(
+                            new Error(
+                                `Error fetching ${config.extension ? config.extension + ' extension' : config.service + ' service'} items.`,
+                            ),
+                        );
                     }
 
                     return ResultAsync.fromPromise(response.json(), formatError);
@@ -105,8 +115,11 @@ export const useCustomSelector = ({config, selection, query, count = DEFAULT_SIZ
                     const isTotalValid = parseNumber(data?.['total']) !== undefined;
 
                     if (!isHitsValid || !isTotalValid || !isCountValid) {
-                        return errAsync(new Error(
-                            `Invalid ${config.extension ? config.extension + ' extension' : config.service + ' service'} response.`));
+                        return errAsync(
+                            new Error(
+                                `Invalid ${config.extension ? config.extension + ' extension' : config.service + ' service'} response.`,
+                            ),
+                        );
                     }
 
                     return okAsync(data as ServiceResponse);
@@ -115,7 +128,7 @@ export const useCustomSelector = ({config, selection, query, count = DEFAULT_SIZ
                     return error;
                 });
         },
-        [config]
+        [config],
     );
 
     const processResponse = useCallback(
@@ -131,16 +144,24 @@ export const useCustomSelector = ({config, selection, query, count = DEFAULT_SIZ
             setTotalMap((prev) => new Map(prev).set(resolvedKey, resolvedTotal));
             setItemsMap((prev) => {
                 const existing = prev.get(resolvedKey) || [];
-                return new Map(prev).set(resolvedKey, [...existing, ...resolvedHits.map(hitToItem)].filter(uniqueItemsFilter));
+                return new Map(prev).set(
+                    resolvedKey,
+                    [...existing, ...resolvedHits.map(hitToItem)].filter(uniqueItemsFilter),
+                );
             });
         },
-        [key]
+        [key],
     );
 
     // Used to load the items that are already selected
     const preLoad = useCallback(async () => {
-        if (!projectIdRef.current || !contentIdRef.current || (!config.extension && !config.service) || !selection || selection?.length ===
-            0) {
+        if (
+            !projectIdRef.current ||
+            !contentIdRef.current ||
+            (!config.extension && !config.service) ||
+            !selection ||
+            selection?.length === 0
+        ) {
             return;
         }
 
@@ -169,7 +190,7 @@ export const useCustomSelector = ({config, selection, query, count = DEFAULT_SIZ
                 console.error(error.message);
                 setLoadingCount((c) => c - 1);
                 setHasError(true);
-            }
+            },
         );
     }, [selection, config, query, key, startMap, count, fetchItems, processResponse]);
 
@@ -204,7 +225,7 @@ export const useCustomSelector = ({config, selection, query, count = DEFAULT_SIZ
                 console.error(error.message);
                 setLoadingCount((c) => c - 1);
                 setHasError(true);
-            }
+            },
         );
     }, [config, query, key, startMap, count, fetchItems, processResponse]);
 
@@ -233,10 +254,10 @@ export const useCustomSelector = ({config, selection, query, count = DEFAULT_SIZ
                 }
             }
         },
-        [selection, onAdd, onRemove]
+        [selection, onAdd, onRemove],
     );
 
-    return {allItems, filteredItems, isLoading, hasError, hasMore, preLoad, load: debouncedLoad, onSelectionChange};
+    return { allItems, filteredItems, isLoading, hasError, hasMore, preLoad, load: debouncedLoad, onSelectionChange };
 };
 
 //
@@ -252,15 +273,27 @@ type BuildRequestUrlProps = {
     requestParams: RequestParams;
 };
 
-function buildRequestUrl({extension, service, configParams, projectId, contentId, requestParams}: BuildRequestUrlProps): string {
-    const params = (configParams ?? []).reduce<Record<string, string>>((acc, {label, value}) => ({...acc, [label]: value}), {});
+function buildRequestUrl({
+    extension,
+    service,
+    configParams,
+    projectId,
+    contentId,
+    requestParams,
+}: BuildRequestUrlProps): string {
+    const params = (configParams ?? []).reduce<Record<string, string>>(
+        (acc, { label, value }) => ({ ...acc, [label]: value }),
+        {},
+    );
     let url = '';
     if (extension) {
         const extensionBaseUrl = (CONFIG.getString('extensionApiUrl') || '').replace(/\/+$/, '');
         const extensionPrefix = `${extensionBaseUrl}/${extension}/`;
         url = LibUriHelper.appendUrlParams(extensionPrefix, params);
     } else if (service) {
-        const servicePrefix = UriHelper.addSitePrefix(`/${UrlAction.EDIT}/${projectId}/${Branch.DRAFT}/${contentId}/_/service`);
+        const servicePrefix = UriHelper.addSitePrefix(
+            `/${UrlAction.EDIT}/${projectId}/${Branch.DRAFT}/${contentId}/_/service`,
+        );
         url = `${servicePrefix}/${LibUriHelper.appendUrlParams(service, params)}`;
     } else {
         return '';

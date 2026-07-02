@@ -1,19 +1,19 @@
-import {Checkbox, CheckboxChecked, GridList} from '@enonic/ui';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {ReactElement} from 'react';
-import {Permission} from '../../../../../../../app/access/Permission';
-import {getPrincipalAllowedPermissions} from '../../../../../utils/cms/permissions/accessControl';
-import {useI18n} from '../../../../../hooks/useI18n';
-import {useStore} from '@nanostores/preact';
-import {$permissionsDialog} from '../../../../../store/dialogs/permissionsDialog.store';
+import { Checkbox, CheckboxChecked, GridList } from '@enonic/ui';
+import { Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { ReactElement } from 'react';
+import { Permission } from '../../../../../../../app/access/Permission';
+import { getPrincipalAllowedPermissions } from '../../../../../../shared/lib/cms/permissions/accessControl';
+import { useI18n } from '../../../../../../shared/lib/hooks/useI18n';
+import { useStore } from '@nanostores/preact';
+import { $permissionsDialog } from '../../../../../store/dialogs/permissionsDialog.store';
 
 type CustomPermissionsRowProps = {
     principal: Principal;
     onCheckedChange: (permission: Permission, checked: CheckboxChecked) => void;
 };
 
-export const CustomPermissionsRow = ({principal, onCheckedChange}: CustomPermissionsRowProps): ReactElement => {
-    const {accessControlEntries} = useStore($permissionsDialog, {keys: ['accessControlEntries']});
+export const CustomPermissionsRow = ({ principal, onCheckedChange }: CustomPermissionsRowProps): ReactElement => {
+    const { accessControlEntries } = useStore($permissionsDialog, { keys: ['accessControlEntries'] });
 
     const key = principal.getKey().toString();
     const allowedPermissions = getPrincipalAllowedPermissions(accessControlEntries, key);
@@ -39,7 +39,11 @@ export const CustomPermissionsRow = ({principal, onCheckedChange}: CustomPermiss
 
                 return (
                     <GridList.Cell key={id}>
-                        <Checkbox label={displayName} checked={checked} onCheckedChange={(checked) => onCheckedChange(id, checked)} />
+                        <Checkbox
+                            label={displayName}
+                            checked={checked}
+                            onCheckedChange={(checked) => onCheckedChange(id, checked)}
+                        />
                     </GridList.Cell>
                 );
             })}

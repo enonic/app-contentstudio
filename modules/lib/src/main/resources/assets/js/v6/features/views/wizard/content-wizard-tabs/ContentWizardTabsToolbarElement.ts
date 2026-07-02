@@ -1,5 +1,5 @@
-import {LegacyElement} from '../../../shared/LegacyElement';
-import {ContentWizardTabsToolbar} from './ContentWizardTabsToolbar';
+import { LegacyElement } from '../../../../shared/ui/LegacyElement';
+import { ContentWizardTabsToolbar } from './ContentWizardTabsToolbar';
 
 export class ContentWizardTabsToolbarElement extends LegacyElement<typeof ContentWizardTabsToolbar> {
     constructor() {

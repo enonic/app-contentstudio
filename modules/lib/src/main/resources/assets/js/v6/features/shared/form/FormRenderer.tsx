@@ -1,18 +1,18 @@
-import type {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import type {Form} from '@enonic/lib-admin-ui/form/Form';
-import type {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {LocaleProvider} from '@enonic/lib-admin-ui/form2';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {useStore} from '@nanostores/preact';
-import {type ReactElement, type ReactNode, useMemo} from 'react';
-import {useApplicationKeys} from '../../hooks/useApplicationKeys';
-import {$contextContent} from '../../store/context/contextContent.store';
-import {$activeProject} from '../../store/activeProject.store';
-import {Input} from '@enonic/lib-admin-ui/form/Input';
-import {instanceOf} from '../../utils/object/instanceOf';
-import {FormRenderProvider} from './FormRenderContext';
-import {FormItemRenderer} from './FormItemRenderer';
-import {HtmlAreaProvider, useOptionalHtmlAreaContext} from './input-types/html-area';
+import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import type { Form } from '@enonic/lib-admin-ui/form/Form';
+import type { PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
+import { LocaleProvider } from '@enonic/lib-admin-ui/form2';
+import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
+import { useStore } from '@nanostores/preact';
+import { type ReactElement, type ReactNode, useMemo } from 'react';
+import { useApplicationKeys } from '../../hooks/useApplicationKeys';
+import { $contextContent } from '../../store/context/contextContent.store';
+import { $activeProject } from '../../store/activeProject.store';
+import { Input } from '@enonic/lib-admin-ui/form/Input';
+import { instanceOf } from '../../../shared/lib/object/instanceOf';
+import { FormRenderProvider } from './FormRenderContext';
+import { FormItemRenderer } from './FormItemRenderer';
+import { HtmlAreaProvider, useOptionalHtmlAreaContext } from './input-types/html-area';
 
 type FormRendererProps = {
     form: Form;
@@ -22,10 +22,19 @@ type FormRendererProps = {
     excludeInputTypes?: string[];
 };
 
-export const FormRenderer = ({form, propertySet, enabled = true, applicationKey, excludeInputTypes}: FormRendererProps): ReactElement => {
+export const FormRenderer = ({
+    form,
+    propertySet,
+    enabled = true,
+    applicationKey,
+    excludeInputTypes,
+}: FormRendererProps): ReactElement => {
     const existingHtmlAreaContext = useOptionalHtmlAreaContext();
 
-    const excluded = useMemo(() => new Set((excludeInputTypes ?? []).map((name) => name.toLowerCase())), [excludeInputTypes]);
+    const excluded = useMemo(
+        () => new Set((excludeInputTypes ?? []).map((name) => name.toLowerCase())),
+        [excludeInputTypes],
+    );
 
     const items =
         excluded.size === 0
@@ -60,7 +69,7 @@ FormRenderer.displayName = 'FormRenderer';
 
 // Mounts only when no HtmlAreaProvider exists above. Subscriptions live here
 // so nested FormRenderers inheriting an existing provider don't pay for them.
-const HtmlAreaShell = ({children}: {children: ReactNode}): ReactElement => {
+const HtmlAreaShell = ({ children }: { children: ReactNode }): ReactElement => {
     const contextContent = useStore($contextContent);
     const activeProject = useStore($activeProject);
     const applicationKeys = useApplicationKeys();

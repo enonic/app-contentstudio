@@ -1,13 +1,13 @@
-import {Result, ResultAsync} from 'neverthrow';
-import {type Content, ContentBuilder} from '../../../app/content/Content';
-import {ContentPath} from '../../../app/content/ContentPath';
-import {type ContentSummary} from '../../../app/content/ContentSummary';
-import {type Project} from '../../../app/settings/data/project/Project';
-import {UrlHelper} from '../../../app/util/UrlHelper';
-import {UploadError} from './errors';
-import {$activeProject} from '../store/activeProject.store';
-import {generateUniqueName} from '../utils/image/generateUniqueName';
-import {sanitizeName} from '../utils/upload/upload';
+import { Result, ResultAsync } from 'neverthrow';
+import { type Content, ContentBuilder } from '../../../app/content/Content';
+import { ContentPath } from '../../../app/content/ContentPath';
+import { type ContentSummary } from '../../../app/content/ContentSummary';
+import { type Project } from '../../../app/settings/data/project/Project';
+import { UrlHelper } from '../../../app/util/UrlHelper';
+import { UploadError, type UploadMediaError } from '../../shared/api/errors';
+import { $activeProject } from '../store/activeProject.store';
+import { generateUniqueName } from '../../shared/lib/image/generateUniqueName';
+import { sanitizeName } from '../../shared/lib/upload/upload';
 
 const UPLOAD_PROGRESS_CAP = 99;
 
@@ -15,8 +15,8 @@ const UPLOAD_PROGRESS_CAP = 99;
 // * Types
 //
 
-export type UploadMediaSuccess = {mediaIdentifier: string; content: Content};
-export type UploadMediaError = {mediaIdentifier: string; message: string};
+export type UploadMediaSuccess = { mediaIdentifier: string; content: Content };
+export type { UploadMediaError };
 
 export type UploadMediaFileOptions = {
     id: string;
@@ -82,7 +82,7 @@ export function uploadMediaFile({
                     try {
                         const json = JSON.parse(xhr.responseText);
                         const content = new ContentBuilder().fromContentJson(json).build();
-                        resolve({mediaIdentifier, content});
+                        resolve({ mediaIdentifier, content });
                     } catch {
                         reject(new UploadError(mediaIdentifier, 'Failed to parse response'));
                     }
@@ -98,7 +98,8 @@ export function uploadMediaFile({
             xhr.open('POST', endpoint);
             xhr.send(formData);
         }),
-        (error): UploadMediaError => (error instanceof UploadError ? error.toResult() : {mediaIdentifier: '', message: String(error)})
+        (error): UploadMediaError =>
+            error instanceof UploadError ? error.toResult() : { mediaIdentifier: '', message: String(error) },
     );
 }
 
@@ -111,10 +112,10 @@ export function uploadDataUrlImage({
 }: UploadDataUrlImageOptions): ResultAsync<UploadMediaSuccess, UploadMediaError> {
     return ResultAsync.fromPromise(
         fetch(imageSource).then((response) => response.blob()),
-        (): UploadMediaError => ({mediaIdentifier: id, message: 'Failed to load image from URL'})
+        (): UploadMediaError => ({ mediaIdentifier: id, message: 'Failed to load image from URL' }),
     )
         .map((blob) => new File([blob], name))
-        .andThen((file) => uploadMediaFile({id, file, parentContent, onProgress}));
+        .andThen((file) => uploadMediaFile({ id, file, parentContent, onProgress }));
 }
 
 export function uploadRemoteImage({
@@ -124,7 +125,9 @@ export function uploadRemoteImage({
     onProgress,
 }: UploadRemoteImageOptions): ResultAsync<UploadMediaSuccess, UploadMediaError> {
     const project = $activeProject.get() as Project;
-    const endpoint = UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath(null, project)}/content/content/createMediaFromUrl`);
+    const endpoint = UrlHelper.getCmsRestUri(
+        `${UrlHelper.getCMSPath(null, project)}/content/content/createMediaFromUrl`,
+    );
 
     const mediaIdentifier = id;
 
@@ -155,7 +158,7 @@ export function uploadRemoteImage({
                     try {
                         const json = JSON.parse(xhr.responseText);
                         const content = new ContentBuilder().fromContentJson(json).build();
-                        resolve({mediaIdentifier, content});
+                        resolve({ mediaIdentifier, content });
                     } catch {
                         reject(new UploadError(mediaIdentifier, 'Failed to parse response'));
                     }
@@ -172,7 +175,8 @@ export function uploadRemoteImage({
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.send(body);
         }),
-        (error): UploadMediaError => (error instanceof UploadError ? error.toResult() : {mediaIdentifier: '', message: String(error)})
+        (error): UploadMediaError =>
+            error instanceof UploadError ? error.toResult() : { mediaIdentifier: '', message: String(error) },
     );
 }
 
@@ -182,7 +186,7 @@ export function uploadRemoteImage({
 
 const safeJsonParse = Result.fromThrowable(
     (text: string) => JSON.parse(text) as Record<string, unknown>,
-    (e) => e as Error
+    (e) => e as Error,
 );
 
 function getParentPath(parentContent?: ContentSummary): string {

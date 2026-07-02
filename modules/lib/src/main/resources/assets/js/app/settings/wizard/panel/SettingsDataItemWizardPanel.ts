@@ -1,37 +1,36 @@
 import Q from 'q';
-import {WizardPanel, type WizardPanelParams} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
-import {type Action} from '@enonic/lib-admin-ui/ui/Action';
-import {Toolbar, type ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
-import {WizardStep} from '@enonic/lib-admin-ui/app/wizard/WizardStep';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {WizardHeaderWithDisplayNameAndName} from '@enonic/lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
-import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import {type FormIcon} from '@enonic/lib-admin-ui/app/wizard/FormIcon';
-import {type SettingDataItemWizardStepForm} from './form/SettingDataItemWizardStepForm';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {isBlank} from '../../../../v6/features/utils/format/isBlank';
-import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
-import {type ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {SettingsDataItemFormIcon} from './form/element/SettingsDataItemFormIcon';
-import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {type SettingsDataItemWizardActions} from '../action/SettingsDataItemWizardActions';
-import {type SettingsDataViewItem} from '../../view/SettingsDataViewItem';
-import {type SettingsType} from '../../data/type/SettingsType';
-import {type AppBarTabId} from '@enonic/lib-admin-ui/app/bar/AppBarTabId';
-import {type ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
+import { WizardPanel, type WizardPanelParams } from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
+import { type Action } from '@enonic/lib-admin-ui/ui/Action';
+import { Toolbar, type ToolbarConfig } from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
+import { WizardStep } from '@enonic/lib-admin-ui/app/wizard/WizardStep';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { WizardHeaderWithDisplayNameAndName } from '@enonic/lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
+import { ResponsiveManager } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import { type FormIcon } from '@enonic/lib-admin-ui/app/wizard/FormIcon';
+import { type SettingDataItemWizardStepForm } from './form/SettingDataItemWizardStepForm';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { isBlank } from '../../../../v6/shared/lib/format/isBlank';
+import { ConfirmationDialog } from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
+import { type ResourceRequest } from '@enonic/lib-admin-ui/rest/ResourceRequest';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { SettingsDataItemFormIcon } from './form/element/SettingsDataItemFormIcon';
+import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
+import { type SettingsDataItemWizardActions } from '../action/SettingsDataItemWizardActions';
+import { type SettingsDataViewItem } from '../../view/SettingsDataViewItem';
+import { type SettingsType } from '../../data/type/SettingsType';
+import { type AppBarTabId } from '@enonic/lib-admin-ui/app/bar/AppBarTabId';
+import { type ModalDialog } from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 
-class SettingsWizardPanelParams<ITEM extends SettingsDataViewItem<Equitable>>
-    implements WizardPanelParams<ITEM> {
+class SettingsWizardPanelParams<ITEM extends SettingsDataViewItem<Equitable>> implements WizardPanelParams<ITEM> {
     tabId: AppBarTabId;
     type: SettingsType;
     persistedItem?: ITEM;
 }
 
-export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewItem<Equitable>>
-    extends WizardPanel<ITEM> {
-
+export abstract class SettingsDataItemWizardPanel<
+    ITEM extends SettingsDataViewItem<Equitable>,
+> extends WizardPanel<ITEM> {
     declare protected wizardHeader: WizardHeaderWithDisplayNameAndName;
 
     declare protected wizardActions: SettingsDataItemWizardActions<ITEM>;
@@ -110,17 +109,20 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
 
     saveChanges(): Q.Promise<ITEM> {
         this.formMask.show();
-        return super.saveChanges().then((item: ITEM) => {
-            if (this.isClosePending) {
-                this.close(true);
-            }
+        return super
+            .saveChanges()
+            .then((item: ITEM) => {
+                if (this.isClosePending) {
+                    this.close(true);
+                }
 
-            return item;
-        }).finally(() => {
-            this.isClosePending = false;
-            this.getFormIcon().setDisabled(false);
-            this.formMask.hide();
-        });
+                return item;
+            })
+            .finally(() => {
+                this.isClosePending = false;
+                this.getFormIcon().setDisabled(false);
+                this.formMask.hide();
+            });
     }
 
     hasUnsavedChanges(): boolean {
@@ -171,27 +173,27 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     private openSaveBeforeCloseDialog() {
         const isValid: boolean = this.isValid();
         const question: string = i18n('dialog.confirm.unsavedChanges');
-        const yesCallback: () => void = isValid ? this.saveAndClose.bind(this) : () => {
-            this.validate();
-        };
+        const yesCallback: () => void = isValid
+            ? this.saveAndClose.bind(this)
+            : () => {
+                  this.validate();
+              };
         const noCallback: () => void = this.close.bind(this);
 
-        new ConfirmationDialog()
-            .setQuestion(question)
-            .setYesCallback(yesCallback)
-            .setNoCallback(noCallback)
-            .open();
+        new ConfirmationDialog().setQuestion(question).setYesCallback(yesCallback).setNoCallback(noCallback).open();
     }
 
     private saveAndClose() {
-        this.saveChanges().then(() => {
-            this.close();
-        }).catch((reason) => {
-            if (this.isValid()) {
-                this.wizardActions.getSaveAction().setEnabled(true);
-            }
-            DefaultErrorHandler.handle(reason);
-        });
+        this.saveChanges()
+            .then(() => {
+                this.close();
+            })
+            .catch((reason) => {
+                if (this.isValid()) {
+                    this.wizardActions.getSaveAction().setEnabled(true);
+                }
+                DefaultErrorHandler.handle(reason);
+            });
     }
 
     getCloseAction(): Action {
@@ -226,10 +228,9 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     }
 
     unNewItemSaved(listener: (item: ITEM) => void) {
-        this.newItemSavedListeners =
-            this.newItemSavedListeners.filter((curr: (item: ITEM) => void) => {
-                return listener !== curr;
-            });
+        this.newItemSavedListeners = this.newItemSavedListeners.filter((curr: (item: ITEM) => void) => {
+            return listener !== curr;
+        });
     }
 
     onWizardHeaderNameUpdated(listener: (name: string) => void) {
@@ -237,15 +238,16 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     }
 
     unWizardHeaderNameUpdated(listener: (name: string) => void) {
-        this.wizardHeaderNameUpdatedListeners =
-            this.wizardHeaderNameUpdatedListeners.filter((curr: (name: string) => void) => {
+        this.wizardHeaderNameUpdatedListeners = this.wizardHeaderNameUpdatedListeners.filter(
+            (curr: (name: string) => void) => {
                 return listener !== curr;
-            });
+            },
+        );
     }
 
     protected abstract createWizardActions(): SettingsDataItemWizardActions<ITEM>;
 
-    protected abstract createDeleteRequest(): ResourceRequest<boolean> ;
+    protected abstract createDeleteRequest(): ResourceRequest<boolean>;
 
     protected abstract getSuccessfulDeleteMessage(): string;
 
@@ -285,8 +287,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     }
 
     protected createSettingsDataItemFormIcon(): SettingsDataItemFormIcon {
-        return new SettingsDataItemFormIcon(
-            this.getPersistedItem() ? this.getPersistedItem().getIconUrl() : null);
+        return new SettingsDataItemFormIcon(this.getPersistedItem() ? this.getPersistedItem().getIconUrl() : null);
     }
 
     protected updateIcon(): Q.Promise<void> {
@@ -336,10 +337,13 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     }
 
     protected deletePersistedItem() {
-        this.createDeleteRequest().sendAndParse().then(() => {
-            showFeedback(this.getSuccessfulDeleteMessage());
-            this.close();
-        }).catch(DefaultErrorHandler.handle);
+        this.createDeleteRequest()
+            .sendAndParse()
+            .then(() => {
+                showFeedback(this.getSuccessfulDeleteMessage());
+                this.close();
+            })
+            .catch(DefaultErrorHandler.handle);
     }
 
     protected initEventsListeners() {

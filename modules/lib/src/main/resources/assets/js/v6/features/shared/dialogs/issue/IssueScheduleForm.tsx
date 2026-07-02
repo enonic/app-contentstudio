@@ -1,6 +1,6 @@
-import {type ReactElement, type RefObject, useEffect, useRef} from 'react';
-import {useI18n} from '../../../hooks/useI18n';
-import {DateTimeSelector} from '../../selectors/date/DateTimeSelector';
+import { type ReactElement, type RefObject, useEffect, useRef } from 'react';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { DateTimeSelector } from '../../selectors/date/DateTimeSelector';
 
 const COMPONENT_NAME = 'IssueScheduleForm';
 
@@ -36,14 +36,14 @@ export const IssueScheduleForm = ({
     const nowLabel = useI18n('text.now');
 
     useEffect(() => {
-        containerRef.current?.scrollIntoView({behavior: 'smooth', block: 'center'});
+        containerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, []);
 
     return (
         <div
             ref={containerRef}
             data-component={COMPONENT_NAME}
-            className='flex flex-wrap justify-between gap-x-6 gap-y-4 rounded-lg bg-surface-primary p-7.5'
+            className="flex flex-wrap justify-between gap-x-6 gap-y-4 rounded-lg bg-surface-primary p-7.5"
         >
             <DateTimeSelector
                 label={onlineFromLabel}

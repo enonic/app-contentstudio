@@ -1,18 +1,18 @@
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {NodeServerChangeType} from '@enonic/lib-admin-ui/event/NodeServerChange';
-import {ContentId} from '../../../../app/content/ContentId';
-import type {IssueServerEvent} from '../../../../app/event/IssueServerEvent';
-import type {Issue} from '../../../../app/issue/Issue';
-import {IssueType} from '../../../../app/issue/IssueType';
-import type {IssueWithAssignees} from '../../../../app/issue/IssueWithAssignees';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { NodeServerChangeType } from '@enonic/lib-admin-ui/event/NodeServerChange';
+import { ContentId } from '../../../../app/content/ContentId';
+import type { IssueServerEvent } from '../../../../app/event/IssueServerEvent';
+import type { Issue } from '../../../../app/issue/Issue';
+import { IssueType } from '../../../../app/issue/IssueType';
+import type { IssueWithAssignees } from '../../../../app/issue/IssueWithAssignees';
 import {
     emitContentArchived,
     emitContentCreated,
     emitContentDeleted,
     emitContentPublished,
     emitContentUpdated,
-} from '../socket.store';
-import {$issueDialog, closeIssueDialog, openIssueDialogDetails} from './issueDialog.store';
+} from '../../../shared/socket/socket.store';
+import { $issueDialog, closeIssueDialog, openIssueDialogDetails } from './issueDialog.store';
 import {
     $issueDialogDetails,
     $issueDialogDetailsDependantsSelection,
@@ -115,7 +115,7 @@ vi.mock('../../../../app/issue/resource/ListIssuesRequest', () => ({
             return this;
         }
 
-        sendAndParse(): Promise<{getIssues: () => []; getMetadata: () => {getTotalHits: () => number}}> {
+        sendAndParse(): Promise<{ getIssues: () => []; getMetadata: () => { getTotalHits: () => number } }> {
             return Promise.resolve({
                 getIssues: () => [],
                 getMetadata: () => ({
@@ -199,12 +199,12 @@ describe('issueDialogDetails.store', () => {
     it('reloads items for list-backed issue details on tracked content updates', async () => {
         const itemId = new ContentId('item-1');
         const issue = createMockIssue('issue-1', [itemId]);
-        const original = createMockContent('item-1', {displayName: 'Original'});
-        const updated = createMockContent('item-1', {displayName: 'Updated'});
+        const original = createMockContent('item-1', { displayName: 'Original' });
+        const updated = createMockContent('item-1', { displayName: 'Updated' });
         let fetchedItems = [original];
 
         mockFetchContentSummaries.mockImplementation((ids: ContentId[]) => {
-            return ids.some(id => id.toString() === 'item-1') ? fetchedItems : [];
+            return ids.some((id) => id.toString() === 'item-1') ? fetchedItems : [];
         });
 
         await openListBackedIssueDetails(issue);
@@ -225,18 +225,18 @@ describe('issueDialogDetails.store', () => {
     it('reloads list-backed issue details when content is created below a tracked item', async () => {
         const itemId = new ContentId('item-1');
         const issue = createMockIssue('issue-1', [itemId]);
-        const parent = createMockContent('item-1', {displayName: 'Parent', path: '/parent'});
+        const parent = createMockContent('item-1', { displayName: 'Parent', path: '/parent' });
         const updatedParent = createMockContent('item-1', {
             displayName: 'Parent',
             path: '/parent',
             hasChildren: true,
         });
-        const unrelated = createMockContent('item-2', {displayName: 'Elsewhere', path: '/other/child'});
-        const child = createMockContent('item-3', {displayName: 'Child', path: '/parent/child'});
+        const unrelated = createMockContent('item-2', { displayName: 'Elsewhere', path: '/other/child' });
+        const child = createMockContent('item-3', { displayName: 'Child', path: '/parent/child' });
         let fetchedItems = [parent];
 
         mockFetchContentSummaries.mockImplementation((ids: ContentId[]) => {
-            return ids.some(id => id.toString() === 'item-1') ? fetchedItems : [];
+            return ids.some((id) => id.toString() === 'item-1') ? fetchedItems : [];
         });
 
         await openListBackedIssueDetails(issue);
@@ -256,38 +256,35 @@ describe('issueDialogDetails.store', () => {
         expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
     });
 
-    it.each(removalEventCases)(
-        'removes and reloads list-backed issue details on $name events',
-        async ({emit}) => {
-            const itemId = new ContentId('item-1');
-            const issue = createMockIssue('issue-1', [itemId]);
-            const original = createMockContent('item-1', {displayName: 'Original'});
-            let fetchedItems = [original];
+    it.each(removalEventCases)('removes and reloads list-backed issue details on $name events', async ({ emit }) => {
+        const itemId = new ContentId('item-1');
+        const issue = createMockIssue('issue-1', [itemId]);
+        const original = createMockContent('item-1', { displayName: 'Original' });
+        let fetchedItems = [original];
 
-            mockFetchContentSummaries.mockImplementation((ids: ContentId[]) => {
-                return ids.some(id => id.toString() === 'item-1') ? fetchedItems : [];
-            });
+        mockFetchContentSummaries.mockImplementation((ids: ContentId[]) => {
+            return ids.some((id) => id.toString() === 'item-1') ? fetchedItems : [];
+        });
 
-            await openListBackedIssueDetails(issue);
+        await openListBackedIssueDetails(issue);
 
-            fetchedItems = [];
-            emit('item-1');
-            await flushPromises();
+        fetchedItems = [];
+        emit('item-1');
+        await flushPromises();
 
-            expect($issueDialogDetails.get().items).toEqual([]);
-            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
-        },
-    );
+        expect($issueDialogDetails.get().items).toEqual([]);
+        expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
+    });
 
     it('patches and reloads list-backed issue details on published events', async () => {
         const itemId = new ContentId('item-1');
         const issue = createMockIssue('issue-1', [itemId]);
-        const original = createMockContent('item-1', {displayName: 'Original'});
-        const published = createMockContent('item-1', {displayName: 'Published', isOnline: true});
+        const original = createMockContent('item-1', { displayName: 'Original' });
+        const published = createMockContent('item-1', { displayName: 'Published', isOnline: true });
         let fetchedItems = [original];
 
         mockFetchContentSummaries.mockImplementation((ids: ContentId[]) => {
-            return ids.some(id => id.toString() === 'item-1') ? fetchedItems : [];
+            return ids.some((id) => id.toString() === 'item-1') ? fetchedItems : [];
         });
 
         await openListBackedIssueDetails(issue);
@@ -303,11 +300,12 @@ describe('issueDialogDetails.store', () => {
     it('loads dependant summaries lazily, a window at a time, while the id set stays complete', async () => {
         const itemId = new ContentId('item-1');
         const issue = createMockIssue('issue-1', [itemId]);
-        const dependantIds = Array.from({length: 40}, (_, index) => new ContentId(`dep-${index}`));
+        const dependantIds = Array.from({ length: 40 }, (_, index) => new ContentId(`dep-${index}`));
 
-        mockResolvePublishDependencies.mockResolvedValue(createResolveResult({dependants: dependantIds}));
+        mockResolvePublishDependencies.mockResolvedValue(createResolveResult({ dependants: dependantIds }));
         mockFetchContentSummaries.mockImplementation((ids: ContentId[]) =>
-            ids.map(id => createMockContent(id.toString())));
+            ids.map((id) => createMockContent(id.toString())),
+        );
 
         await openListBackedIssueDetails(issue);
 
@@ -322,14 +320,14 @@ describe('issueDialogDetails.store', () => {
     });
 
     describe('issue server events', () => {
-        const captureIssueChangedListener = (): (issueIds: string[], event: IssueServerEvent) => void => {
+        const captureIssueChangedListener = (): ((issueIds: string[], event: IssueServerEvent) => void) => {
             const listener = mockIssueServerEventsHandler.onIssueChanged.mock.calls.at(-1)?.[0];
             expect(listener).toBeTypeOf('function');
             return listener as (issueIds: string[], event: IssueServerEvent) => void;
         };
 
         const createServerEvent = (type: NodeServerChangeType): IssueServerEvent => {
-            return {getType: () => type} as unknown as IssueServerEvent;
+            return { getType: () => type } as unknown as IssueServerEvent;
         };
 
         it('reloads issue details when the current issue changes on the server', async () => {
@@ -343,12 +341,14 @@ describe('issueDialogDetails.store', () => {
             } as unknown as Issue;
 
             mockGetIssueSend.mockResolvedValue(serverIssue);
-            mockListIssueCommentsSend.mockResolvedValue({getIssueComments: () => [{getId: () => 'comment-1'}]});
+            mockListIssueCommentsSend.mockResolvedValue({ getIssueComments: () => [{ getId: () => 'comment-1' }] });
 
             openIssueDialogDetails(issueId);
             await flushPromises();
 
-            const unsubscribe = $issueDialogDetails.subscribe(() => { /* mount the store */ });
+            const unsubscribe = $issueDialogDetails.subscribe(() => {
+                /* mount the store */
+            });
             const notifyIssueChanged = captureIssueChangedListener();
 
             notifyIssueChanged([issueId], createServerEvent(NodeServerChangeType.UPDATE));
@@ -367,7 +367,9 @@ describe('issueDialogDetails.store', () => {
             openIssueDialogDetails(issueId);
             await flushPromises();
 
-            const unsubscribe = $issueDialogDetails.subscribe(() => { /* mount the store */ });
+            const unsubscribe = $issueDialogDetails.subscribe(() => {
+                /* mount the store */
+            });
             const notifyIssueChanged = captureIssueChangedListener();
 
             expect($issueDialog.get().open).toBe(true);

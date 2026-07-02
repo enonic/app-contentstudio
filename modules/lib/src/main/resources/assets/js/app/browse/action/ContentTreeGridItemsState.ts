@@ -1,14 +1,13 @@
-import type {ContentSummary} from '../../content/ContentSummary';
-import {ManagedActionManager} from '@enonic/lib-admin-ui/managedaction/ManagedActionManager';
-import {Permission} from '../../access/Permission';
-import {isOnline, isPublished} from '../../../v6/features/utils/cms/content/status';
+import type { ContentSummary } from '../../content/ContentSummary';
+import { ManagedActionManager } from '@enonic/lib-admin-ui/managedaction/ManagedActionManager';
+import { Permission } from '../../access/Permission';
+import { isOnline, isPublished } from '../../../v6/shared/lib/cms/content/status';
 
 function canBeMarkedAsReady(content: ContentSummary): boolean {
     return !isOnline(content) && content.isValid() && !content.isReady();
 }
 
 export class ContentTreeGridItemsState {
-
     private items: ContentSummary[] = [];
 
     private allowedPermissions: Permission[] = [];
@@ -215,9 +214,14 @@ export class ContentTreeGridItemsState {
     }
 
     isReadyForPublishing(): boolean {
-        return !this.isEmpty() && !this.isManagedActionExecuting() && this.canPublish() &&
-               !this.hasAllOnline() && this.hasValidNonOnline() &&
-               (this.canModify() || !this.hasAnyInProgress());
+        return (
+            !this.isEmpty() &&
+            !this.isManagedActionExecuting() &&
+            this.canPublish() &&
+            !this.hasAllOnline() &&
+            this.hasValidNonOnline() &&
+            (this.canModify() || !this.hasAnyInProgress())
+        );
     }
 
     total(): number {

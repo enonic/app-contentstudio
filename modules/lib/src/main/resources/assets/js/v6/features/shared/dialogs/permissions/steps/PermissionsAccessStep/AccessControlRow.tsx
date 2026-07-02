@@ -1,14 +1,14 @@
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {ReactElement} from 'react';
-import {GridList, IconButton, Selector} from '@enonic/ui';
-import {X} from 'lucide-react';
-import {Access} from '../../../../../../../app/security/Access';
-import {useI18n} from '../../../../../hooks/useI18n';
-import {getPrincipalAllowedPermissions} from '../../../../../utils/cms/permissions/accessControl';
-import {AccessHelper} from '../../../../../../../app/security/AccessHelper';
-import {$permissionsDialog} from '../../../../../store/dialogs/permissionsDialog.store';
-import {useStore} from '@nanostores/preact';
-import {PrincipalLabel} from '../../../../PrincipalLabel';
+import { Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { ReactElement } from 'react';
+import { GridList, IconButton, Selector } from '@enonic/ui';
+import { X } from 'lucide-react';
+import { Access } from '../../../../../../../app/security/Access';
+import { useI18n } from '../../../../../../shared/lib/hooks/useI18n';
+import { getPrincipalAllowedPermissions } from '../../../../../../shared/lib/cms/permissions/accessControl';
+import { AccessHelper } from '../../../../../../../app/security/AccessHelper';
+import { $permissionsDialog } from '../../../../../store/dialogs/permissionsDialog.store';
+import { useStore } from '@nanostores/preact';
+import { PrincipalLabel } from '../../../../../../shared/ui/PrincipalLabel';
 
 type AccessControlRowProps = {
     principal: Principal;
@@ -17,8 +17,13 @@ type AccessControlRowProps = {
     onUnselect: () => void;
 };
 
-export const AccessControlRow = ({principal, principalsInCustomAccess, onSelect, onUnselect}: AccessControlRowProps): ReactElement => {
-    const {accessControlEntries} = useStore($permissionsDialog, {keys: ['accessControlEntries']});
+export const AccessControlRow = ({
+    principal,
+    principalsInCustomAccess,
+    onSelect,
+    onUnselect,
+}: AccessControlRowProps): ReactElement => {
+    const { accessControlEntries } = useStore($permissionsDialog, { keys: ['accessControlEntries'] });
 
     const accessFullLabel = useI18n('security.access.full');
     const accessPublishLabel = useI18n('security.access.publish');

@@ -1,20 +1,20 @@
-import {cn} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {Cloud} from 'lucide-react';
-import {ReactElement, useMemo} from 'react';
-import {ContentVersion} from '../../../../app/ContentVersion';
-import {useI18n} from '../../hooks/useI18n';
-import {
-    $publishBadgeByVersionId,
-    VersionPublishStatus,
-} from '../../store/context/versionPublishState';
+import { cn } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { Cloud } from 'lucide-react';
+import { ReactElement, useMemo } from 'react';
+import { ContentVersion } from '../../../../app/ContentVersion';
+import { useI18n } from '../../../shared/lib/hooks/useI18n';
+import { $publishBadgeByVersionId, VersionPublishStatus } from '../../store/context/versionPublishState';
 
 type VersionItemPublishStatusProps = {
     version: ContentVersion | null;
     className?: string;
 };
 
-export const VersionItemPublishStatus = ({version, className}: VersionItemPublishStatusProps): ReactElement | null => {
+export const VersionItemPublishStatus = ({
+    version,
+    className,
+}: VersionItemPublishStatusProps): ReactElement | null => {
     const onlineLabel = useI18n('status.online');
     const expiredLabel = useI18n('status.expired');
     const scheduledLabel = useI18n('status.scheduled');
@@ -23,10 +23,7 @@ export const VersionItemPublishStatus = ({version, className}: VersionItemPublis
 
     const versionId = version?.getId();
 
-    const badge = useMemo(
-        () => (versionId ? badges.get(versionId) : undefined),
-        [versionId, badges],
-    );
+    const badge = useMemo(() => (versionId ? badges.get(versionId) : undefined), [versionId, badges]);
 
     if (!version || !badge) {
         return null;

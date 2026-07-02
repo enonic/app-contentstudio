@@ -1,7 +1,7 @@
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {ContextMenu} from '@enonic/ui';
-import {ReactElement, ReactNode} from 'react';
-import {useAction} from '../../../hooks/useAction';
+import { Action } from '@enonic/lib-admin-ui/ui/Action';
+import { ContextMenu } from '@enonic/ui';
+import { ReactElement, ReactNode } from 'react';
+import { useAction } from '../../../../shared/lib/hooks/useAction';
 
 export type SettingsTreeContextMenuProps = {
     actions: Action[];
@@ -10,7 +10,7 @@ export type SettingsTreeContextMenuProps = {
 
 const SETTINGS_TREE_CONTEXT_MENU_NAME = 'SettingsTreeContextMenu';
 
-export const SettingsTreeContextMenu = ({children, actions = []}: SettingsTreeContextMenuProps): ReactElement => {
+export const SettingsTreeContextMenu = ({ children, actions = [] }: SettingsTreeContextMenuProps): ReactElement => {
     const hasActions = actions.length > 0;
 
     if (!hasActions) {
@@ -33,8 +33,8 @@ export const SettingsTreeContextMenu = ({children, actions = []}: SettingsTreeCo
 
 SettingsTreeContextMenu.displayName = SETTINGS_TREE_CONTEXT_MENU_NAME;
 
-const SettingsTreeContextMenuAction = ({action}: {action: Action}): ReactElement | null => {
-    const {label, enabled, visible, execute} = useAction(action);
+const SettingsTreeContextMenuAction = ({ action }: { action: Action }): ReactElement | null => {
+    const { label, enabled, visible, execute } = useAction(action);
 
     if (!visible) {
         return null;

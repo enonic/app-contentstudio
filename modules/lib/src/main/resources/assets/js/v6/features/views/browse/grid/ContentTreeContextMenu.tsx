@@ -1,9 +1,9 @@
-import {type Action} from '@enonic/lib-admin-ui/ui/Action';
-import {ContextMenu} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {type ReactElement, type ReactNode} from 'react';
-import {useAction} from '../../../hooks/useAction';
-import {$currentItems} from '../../../store/contentTreeSelection.store';
+import { type Action } from '@enonic/lib-admin-ui/ui/Action';
+import { ContextMenu } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { type ReactElement, type ReactNode } from 'react';
+import { useAction } from '../../../../shared/lib/hooks/useAction';
+import { $currentItems } from '../../../store/contentTreeSelection.store';
 
 export type ContentTreeContextMenuProps = {
     actions: Record<string, Action>;
@@ -12,15 +12,16 @@ export type ContentTreeContextMenuProps = {
 
 const CONTENT_TREE_CONTEXT_MENU_NAME = 'ContentTreeContextMenu';
 
-export const ContentTreeContextMenu = ({children, actions = {}}: ContentTreeContextMenuProps): ReactElement => {
+export const ContentTreeContextMenu = ({ children, actions = {} }: ContentTreeContextMenuProps): ReactElement => {
     const items = useStore($currentItems);
     const hasPublishedItems = items.some((item) => !!item.getPublishFromTime());
     const hasUnpublishedItems = items.some((item) => !item.getPublishFromTime());
     const hasActions = Object.keys(actions).length > 0;
     const publishAction = actions.publishAction;
     const unpublishAction = actions.unpublishAction;
-    const otherActions = Object.entries(actions)
-        .filter(([actionName]) => actionName !== 'publishAction' && actionName !== 'unpublishAction');
+    const otherActions = Object.entries(actions).filter(
+        ([actionName]) => actionName !== 'publishAction' && actionName !== 'unpublishAction',
+    );
 
     if (!hasActions) {
         return <>{children}</>;
@@ -42,7 +43,6 @@ export const ContentTreeContextMenu = ({children, actions = {}}: ContentTreeCont
                     {hasPublishedItems && unpublishAction && (
                         <ContentTreeContextMenuAction key="unpublishAction" action={unpublishAction} />
                     )}
-
                 </ContextMenu.Content>
             </ContextMenu.Portal>
         </ContextMenu>
@@ -51,8 +51,8 @@ export const ContentTreeContextMenu = ({children, actions = {}}: ContentTreeCont
 
 ContentTreeContextMenu.displayName = CONTENT_TREE_CONTEXT_MENU_NAME;
 
-const ContentTreeContextMenuAction = ({action}: {action: Action}): ReactElement => {
-    const {label, enabled, visible, execute} = useAction(action);
+const ContentTreeContextMenuAction = ({ action }: { action: Action }): ReactElement => {
+    const { label, enabled, visible, execute } = useAction(action);
 
     if (!visible) {
         return null;
