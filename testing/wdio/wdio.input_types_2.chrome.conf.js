@@ -21,7 +21,7 @@ exports.config = {
         path.join(__dirname, '../specs/content-types-2/revert.zoomed.image.spec.js'),
     ],
 
-    maxInstances: 1,
+    maxInstances: 2,
 
     capabilities: [{
         browserName: 'chrome',

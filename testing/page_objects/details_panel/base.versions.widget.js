@@ -75,7 +75,7 @@ class BaseVersionsWidget extends Page {
     }
 
     // 'Show changes' button in the selection toolbar (gets visible when versions are selected for comparing):
-    get compareVersionsButton() {
+    get showChangesButton() {
         return this.extensionView + xpath.selectionToolbar + BUTTONS.buttonByLabel('Show changes');
     }
 
@@ -400,10 +400,10 @@ class BaseVersionsWidget extends Page {
         return await checkboxElements[0].isDisplayed();
     }
 
-    async clickOnCompareVersionsButton() {
+    async clickOnShowChangesButton() {
         try {
-            await this.waitForElementDisplayed(this.compareVersionsButton, appConst.mediumTimeout);
-            return await this.clickOnElement(this.compareVersionsButton);
+            await this.waitForElementDisplayed(this.showChangesButton);
+            return await this.clickOnElement(this.showChangesButton);
         } catch (err) {
             await this.handleError('Version Widget - Compare versions button', 'err_compare_versions_button', err);
         }
@@ -411,7 +411,7 @@ class BaseVersionsWidget extends Page {
 
     async clickOnCancelSelectionOfVersionItemButton() {
         try {
-            await this.waitForElementDisplayed(this.cancelSelectionButton, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.cancelSelectionButton);
             return await this.clickOnElement(this.cancelSelectionButton);
         } catch (err) {
             await this.handleError('Version Widget - Reset Compare versions button', 'err_cancel_selection_versions_button', err);

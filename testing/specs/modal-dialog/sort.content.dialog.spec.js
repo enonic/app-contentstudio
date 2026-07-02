@@ -139,11 +139,10 @@ describe('sort.dialog.spec, tests for sort content dialog', function () {
             // 6. Click on 'Compare changes' checkbox in the 'Sorted' item:
             await browseVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 0);
             // 7. lick on 'Compare changes' checkbox in the latest 'Edited' item:
-
             await browseVersionsWidget.waitForCompareChangesCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.SORTED,1);
             await browseVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 1);
             // 8. Click on 'Compare Versions' button in the widget:
-            await browseVersionsWidget.clickOnCompareVersionsButton();
+            await browseVersionsWidget.clickOnShowChangesButton();
             // 9. Verify that the modal dialog is loaded:
             await compareContentVersionsDialog.waitForDialogOpened();
             await studioUtils.saveScreenshot('compare_versions_dlg_sorted_1');

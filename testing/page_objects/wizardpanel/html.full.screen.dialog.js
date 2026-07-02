@@ -1,105 +1,105 @@
 const Page = require('../page');
-const lib = require('../../libs/elements-old');
+const {COMMON, BUTTONS} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const HtmlAreaForm = require('./htmlarea.form.panel');
 
 
 const xpath = {
-    container: `//div[contains(@id,'FullscreenDialog')]`,
+    container: `//div[@data-component='FullscreenDialog']`,
 };
 
 class HtmlFullScreenDialog extends Page {
 
     get cancelButtonTop() {
-        return xpath.container + lib.CANCEL_BUTTON_TOP;
+        return xpath.container + BUTTONS.buttonAriaLabel('Close');
     }
 
     get boldButton() {
-        return xpath.container + lib.CKE.boldButton;
+        return xpath.container + COMMON.CKE.boldButton;
     }
 
     get italicButton() {
-        return xpath.container + lib.CKE.italicButton;
+        return xpath.container + COMMON.CKE.italicButton;
     }
 
     get underlineButton() {
-        return xpath.container + lib.CKE.underlineButton;
+        return xpath.container + COMMON.CKE.underlineButton;
     }
 
     get justifyButton() {
-        return xpath.container + lib.CKE.justifyButton;
+        return xpath.container + COMMON.CKE.justifyButton;
     }
 
     get alignRightButton() {
-        return xpath.container + lib.CKE.alignRightButton;
+        return xpath.container + COMMON.CKE.alignRightButton;
     }
 
     get alignLeftButton() {
-        return xpath.container + lib.CKE.alignLeftButton;
+        return xpath.container + COMMON.CKE.alignLeftButton;
     }
 
     get fullScreenButton() {
-        return xpath.container + lib.CKE.fullScreen;
+        return xpath.container + COMMON.CKE.fullScreen;
     }
 
     get insertRemoveBulletedListButton() {
-        return xpath.container + lib.CKE.bulletedButton;
+        return xpath.container + COMMON.CKE.bulletedButton;
     }
 
     get insertRemoveNumberedListButton() {
-        return xpath.container + lib.CKE.numberedButton;
+        return xpath.container + COMMON.CKE.numberedButton;
     }
 
     get decreaseIndentButton() {
-        return xpath.container + lib.CKE.decreaseIndentButton;
+        return xpath.container + COMMON.CKE.decreaseIndentButton;
     }
 
     get increaseIndentButton() {
-        return xpath.container + lib.CKE.increaseIndentButton;
+        return xpath.container + COMMON.CKE.increaseIndentButton;
     }
 
     get centerButton() {
-        return xpath.container + lib.CKE.centerButton;
+        return xpath.container + COMMON.CKE.centerButton;
     }
 
     get insertSpecialCharacterButton() {
-        return xpath.container + lib.CKE.insertSpecialCharacter;
+        return xpath.container + COMMON.CKE.insertSpecialCharacter;
     }
 
     get insertImageButton() {
-        return xpath.container + lib.CKE.insertImageButton;
+        return xpath.container + COMMON.CKE.insertImageButton;
     }
 
     get insertAnchorButton() {
-        return xpath.container + lib.CKE.insertAnchorButton;
+        return xpath.container + COMMON.CKE.insertAnchorButton;
     }
 
     get findAndReplaceButton() {
-        return xpath.container + lib.CKE.findAndReplaceButton;
+        return xpath.container + COMMON.CKE.findAndReplaceButton;
     }
 
     get insertLinkButton() {
-        return xpath.container + lib.CKE.insertLinkButton;
+        return xpath.container + COMMON.CKE.insertLinkButton;
     }
 
     get unlinkButton() {
-        return xpath.container + lib.CKE.unlinkButton
+        return xpath.container + COMMON.CKE.unlinkButton
     }
 
     get insertTableButton() {
-        return xpath.container + lib.CKE.insertTableButton;
+        return xpath.container + COMMON.CKE.insertTableButton;
     }
 
     get pasteModeButton() {
-        return xpath.container + lib.CKE.pasteModeButton;
+        return xpath.container + COMMON.CKE.pasteModeButton;
     }
 
     get sourceButton() {
-        return xpath.container + lib.CKE.sourceButton;
+        return xpath.container + COMMON.CKE.sourceButton;
     }
 
     get insertMacroButton() {
-        return xpath.container + lib.CKE.insertMacroButton;
+        return xpath.container + COMMON.CKE.insertMacroButton;
     }
 
     clickOnCancelButtonTop() {
@@ -127,36 +127,36 @@ class HtmlFullScreenDialog extends Page {
     }
 
     getTextFromHtmlArea() {
-        let htmlArea = new HtmlAreaForm(xpath.container);
+        let htmlArea = new HtmlAreaForm();
         return htmlArea.getTextFromHtmlArea();
     }
 
     async waitForDecreaseIndentButtonDisplayed() {
-        return await this.waitForElementDisplayed(this.decreaseIndentButton(), appConst.mediumTimeout);
+        return await this.waitForElementDisplayed(this.decreaseIndentButton());
     }
 
     async waitForIncreaseIndentButtonDisplayed() {
-        return await this.waitForElementDisplayed(this.increaseIndentButton(), appConst.mediumTimeout);
+        return await this.waitForElementDisplayed(this.increaseIndentButton());
     }
 
     waitForBoldButtonDisplayed() {
-        return this.waitForElementDisplayed(this.boldButton, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.boldButton);
     }
 
     waitForItalicButtonDisplayed() {
-        return this.waitForElementDisplayed(this.italicButton, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.italicButton);
     }
 
     waitForUnderlineButtonDisplayed() {
-        return this.waitForElementDisplayed(this.underlineButton, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.underlineButton);
     }
 
     waitForJustifyButtonDisplayed() {
-        return this.waitForElementDisplayed(this.justifyButton, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.justifyButton);
     }
 
     waitForUnderlineButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.underlineButton, appConst.mediumTimeout);
+        return this.waitForElementNotDisplayed(this.underlineButton);
     }
 
     async waitForDecreaseIndentButtonDisabled() {
@@ -174,79 +174,79 @@ class HtmlFullScreenDialog extends Page {
     }
 
     waitForIncreaseIndentButtonEnabled() {
-        return this.waitForElementEnabled(this.increaseIndentButton, appConst.mediumTimeout);
+        return this.waitForElementEnabled(this.increaseIndentButton);
     }
 
     waitForIncreaseIndentButtonDisabled() {
-        return this.waitForElementDisabled(this.increaseIndentButton, appConst.mediumTimeout);
+        return this.waitForElementDisabled(this.increaseIndentButton);
     }
 
     waitForAlignLeftButtonDisplayed() {
-        return this.waitForElementDisplayed(this.alignLeftButton, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.alignLeftButton);
     }
 
     waitForInsertRemoveBulletedListButtonEnabled() {
-        return this.waitForElementEnabled(this.insertRemoveBulletedListButton, appConst.mediumTimeout);
+        return this.waitForElementEnabled(this.insertRemoveBulletedListButton);
     }
 
     waitForInsertRemoveNumberedListButtonEnabled() {
-        return this.waitForElementEnabled(this.insertRemoveNumberedListButton, appConst.mediumTimeout);
+        return this.waitForElementEnabled(this.insertRemoveNumberedListButton);
     }
 
     waitForAlignRightButtonDisplayed() {
-        return this.waitForElementDisplayed(this.alignRightButton, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.alignRightButton);
     }
 
     waitForAlignCenterButtonDisplayed() {
-        return this.waitForElementDisplayed(this.centerButton, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.centerButton);
     }
 
     waitForInsertTableButtonDisplayed() {
-        return this.waitForElementDisplayed(this.insertTableButton, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.insertTableButton);
     }
 
     waitForPasteModeButtonDisplayed() {
-        return this.waitForElementDisplayed(this.pasteModeButton, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.pasteModeButton);
     }
 
     waitForSourceButtonDisplayed() {
-        return this.waitForElementDisplayed(this.sourceButton, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.sourceButton);
     }
 
     waitForFullScreenButtonDisplayed() {
-        return this.waitForElementDisplayed(this.fullScreenButton, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.fullScreenButton);
     }
 
     waitForInsertAnchorButtonDisplayed() {
-        return this.waitForElementDisplayed(this.insertAnchorButton, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.insertAnchorButton);
     }
 
     waitForFindAndReplaceButtonDisplayed() {
-        return this.waitForElementDisplayed(this.findAndReplaceButton, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.findAndReplaceButton);
     }
 
     waitForFindAndReplaceButtonEnabled() {
-        return this.waitForElementEnabled(this.findAndReplaceButton, appConst.mediumTimeout);
+        return this.waitForElementEnabled(this.findAndReplaceButton);
     }
 
     waitForSpecialCharactersButtonEnabled() {
-        return this.waitForElementEnabled(this.insertSpecialCharacterButton, appConst.mediumTimeout);
+        return this.waitForElementEnabled(this.insertSpecialCharacterButton);
     }
 
     waitForInsertImageButtonDisplayed() {
-        return this.waitForElementDisplayed(this.insertImageButton, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.insertImageButton);
     }
 
     waitForInsertMacroButtonDisplayed() {
-        return this.waitForElementDisplayed(this.insertMacroButton, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.insertMacroButton);
     }
 
     waitForInsertLinkButtonDisplayed() {
-        return this.waitForElementDisplayed(this.insertLinkButton, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.insertLinkButton);
     }
 
     waitForUnlinkButtonDisplayed() {
-        return this.waitForElementDisplayed(this.unlinkButton, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.unlinkButton);
     }
 
     async getNumberOfToolbarButtons() {

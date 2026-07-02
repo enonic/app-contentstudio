@@ -10,7 +10,6 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const FullScreenDialog = require('../../page_objects/wizardpanel/html.full.screen.dialog');
 const SourceCodeDialog = require('../../page_objects/wizardpanel/html.source.code.dialog');
 const appConst = require('../../libs/app_const');
-const LiveFormPanel = require('../../page_objects/wizardpanel/liveform/live.form.panel');
 
 describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -136,7 +135,6 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
             await fullScreenDialog.waitForInsertTableButtonDisplayed();
             await fullScreenDialog.waitForPasteModeButtonDisplayed();
             await fullScreenDialog.waitForSourceButtonDisplayed();
-            await fullScreenDialog.waitForFullScreenButtonDisplayed();
         });
 
     it(`GIVEN existing 'htmlArea 0:1' is opened WHEN 'Source Code' button has been pressed THEN source dialog should appear with expected text`,
@@ -175,7 +173,7 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
             await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT.displayName);
             await htmlAreaForm.clickOnSourceButton();
             await sourceCodeDialog.waitForDialogLoaded();
-            await sourceCodeDialog.typeText("");
+            await sourceCodeDialog.clearTextArea();
             await sourceCodeDialog.clickOnOkButton();
             let result = await htmlAreaForm.getTextFromHtmlArea();
             await studioUtils.saveScreenshot('htmlarea_0_1_cleared');
@@ -208,7 +206,9 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
             await studioUtils.saveScreenshot('htmlarea_full_screen_conf');
             // 2. Verify that only 6 buttons are present in the toolbar - JustifyLeft JustifyRight | Bold Italic + 'Source' + Fullscreen buttons
             let numberOfButtons = await fullScreenDialog.getNumberOfToolbarButtons();
-            assert.equal(numberOfButtons, 6, '6 buttons should be present in toolbar in Full screen mode');
+            await fullScreenDialog.waitForBoldButtonDisplayed();
+            await fullScreenDialog.waitForItalicButtonDisplayed();
+            assert.equal(numberOfButtons, 5, '5 buttons should be present in toolbar in Full screen mode');
             await fullScreenDialog.waitForUnderlineButtonNotDisplayed();
         });
 

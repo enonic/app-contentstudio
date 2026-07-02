@@ -14,12 +14,11 @@ exports.config = {
     ],
 
     exclude: [
-        path.join(__dirname, '../specs/content-types/htmlarea0_1.cke.spec.js'),
         path.join(__dirname, '../specs/content-types/image.selector.required.input.spec.js'),
         path.join(__dirname, '../specs/content-types/optionset.title.labels.spec.js'),
     ],
 
-    maxInstances: 1,
+    maxInstances: 2,
 
     capabilities: [{
         browserName: 'chrome',
