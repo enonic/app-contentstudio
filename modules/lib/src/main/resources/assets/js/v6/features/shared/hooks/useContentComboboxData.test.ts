@@ -10,7 +10,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 // Mock all external dependencies before importing the hook
-vi.mock('../../../app/resource/ContentTreeSelectorQueryRequest', () => ({
+vi.mock('../../../../app/resource/ContentTreeSelectorQueryRequest', () => ({
     ContentTreeSelectorQueryRequest: vi.fn(() => ({
         setFrom: vi.fn().mockReturnThis(),
         setSize: vi.fn().mockReturnThis(),
@@ -22,7 +22,7 @@ vi.mock('../../../app/resource/ContentTreeSelectorQueryRequest', () => ({
     })),
 }));
 
-vi.mock('../../../app/resource/ContentSelectorQueryRequest', () => ({
+vi.mock('../../../../app/resource/ContentSelectorQueryRequest', () => ({
     ContentSelectorQueryRequest: vi.fn(() => ({
         setFrom: vi.fn().mockReturnThis(),
         setSize: vi.fn().mockReturnThis(),
@@ -34,14 +34,14 @@ vi.mock('../../../app/resource/ContentSelectorQueryRequest', () => ({
     })),
 }));
 
-vi.mock('../../../app/resource/ContentSummaryAndCompareStatusFetcher', () => ({
+vi.mock('../../../../app/resource/ContentSummaryAndCompareStatusFetcher', () => ({
     ContentSummaryAndCompareStatusFetcher: class {
         createRootChildOrder = vi.fn(() => ({}));
         updateReadOnly = vi.fn((items) => Promise.resolve(items));
     },
 }));
 
-vi.mock('../../entities/content/model/content.commands', () => ({
+vi.mock('../../../entities/content/model/content.commands', () => ({
     setContent: vi.fn(),
     setContents: vi.fn(),
     removeContent: vi.fn(),
@@ -49,15 +49,15 @@ vi.mock('../../entities/content/model/content.commands', () => ({
     clearAllContentCaches: vi.fn(),
 }));
 
-vi.mock('../../shared/lib/cms/content/applyContentFilters', () => ({
+vi.mock('../../../shared/lib/cms/content/applyContentFilters', () => ({
     applyContentFilters: vi.fn(),
 }));
 
-vi.mock('../../shared/lib/cms/content/workflow', () => ({
+vi.mock('../../../shared/lib/cms/content/workflow', () => ({
     calcContentState: vi.fn(() => null),
 }));
 
-vi.mock('../../shared/lib/cms/content/prettify', () => ({
+vi.mock('../../../shared/lib/cms/content/prettify', () => ({
     resolveDisplayName: vi.fn((c) => c?.getDisplayName?.() ?? 'Display Name'),
     resolveSubName: vi.fn((c) => c?.getName?.() ?? 'sub-name'),
 }));
@@ -66,7 +66,7 @@ vi.mock('@enonic/lib-admin-ui/rest/Expand', () => ({
     Expand: { SUMMARY: 'summary' },
 }));
 
-vi.mock('../../../app/resource/order/ChildOrder', () => ({
+vi.mock('../../../../app/resource/order/ChildOrder', () => ({
     ChildOrder: vi.fn(),
 }));
 

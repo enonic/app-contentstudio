@@ -5,7 +5,7 @@ import type { ContentSummary } from '../../../../../../app/content/ContentSummar
 import { ContentLabel } from '../../../../../entities/content/ui/content/ContentLabel';
 import { StatusBadge } from '../../../status/StatusBadge';
 import { calcTreePublishStatus } from '../../../../../shared/lib/cms/content/status';
-import type { ContentComboboxFlatNode } from '../../../../hooks/useContentComboboxData';
+import type { ContentComboboxFlatNode } from '../../../hooks/useContentComboboxData';
 
 //
 // * Types

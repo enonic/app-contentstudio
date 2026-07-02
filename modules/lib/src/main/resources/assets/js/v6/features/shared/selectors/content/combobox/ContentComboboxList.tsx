@@ -1,11 +1,11 @@
-import {Combobox, VirtualizedTreeList, cn, useCombobox} from '@enonic/ui';
-import {Loader2} from 'lucide-react';
-import {forwardRef, useCallback, type HTMLAttributes, type ReactElement, type RefObject} from 'react';
-import type {ListRange, VirtuosoHandle} from 'react-virtuoso';
-import {Virtuoso} from 'react-virtuoso';
-import type {ContentComboboxFlatNode} from '../../../../hooks/useContentComboboxData';
-import {getLoadingNodeParentId} from '../../../../hooks/useContentComboboxData';
-import {ContentRow, type ContentRowProps} from '../../shared/combobox/ContentRow';
+import { Combobox, VirtualizedTreeList, cn, useCombobox } from '@enonic/ui';
+import { Loader2 } from 'lucide-react';
+import { forwardRef, useCallback, type HTMLAttributes, type ReactElement, type RefObject } from 'react';
+import type { ListRange, VirtuosoHandle } from 'react-virtuoso';
+import { Virtuoso } from 'react-virtuoso';
+import type { ContentComboboxFlatNode } from '../../../hooks/useContentComboboxData';
+import { getLoadingNodeParentId } from '../../../hooks/useContentComboboxData';
+import { ContentRow, type ContentRowProps } from '../../shared/combobox/ContentRow';
 
 //
 // * Types
@@ -35,16 +35,20 @@ export type ContentComboboxListProps = {
 //
 
 const virtuosoComponents = {
-    Scroller: forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({style, children, className, ...props}, ref) => (
-        <div ref={ref} {...props} style={style} className={cn('rounded-sm *:p-1', className)}>
-            {children}
-        </div>
-    )),
-    List: forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({style, children, className, ...props}, ref) => (
-        <div ref={ref} {...props} style={style} className={cn('flex flex-col gap-y-1.5', className)}>
-            {children}
-        </div>
-    )),
+    Scroller: forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+        ({ style, children, className, ...props }, ref) => (
+            <div ref={ref} {...props} style={style} className={cn('rounded-sm *:p-1', className)}>
+                {children}
+            </div>
+        ),
+    ),
+    List: forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+        ({ style, children, className, ...props }, ref) => (
+            <div ref={ref} {...props} style={style} className={cn('flex flex-col gap-y-1.5', className)}>
+                {children}
+            </div>
+        ),
+    ),
 };
 
 //
@@ -68,7 +72,7 @@ export const ContentComboboxList = ({
     virtuosoRef,
     rowRenderer,
 }: ContentComboboxListProps): ReactElement => {
-    const {selection, onSelectionChange, selectionMode} = useCombobox();
+    const { selection, onSelectionChange, selectionMode } = useCombobox();
     const showExpandControl = mode === 'tree';
 
     // Convert Set changes to array for Combobox's staged selection
@@ -87,13 +91,14 @@ export const ContentComboboxList = ({
             // non-selectable row). In single mode the Combobox closes the popup on
             // every onSelectionChange call, so firing it here would close the
             // dropdown even though nothing was actually selected.
-            const isUnchanged = selectableIds.length === selection.size && selectableIds.every((id) => selection.has(id));
+            const isUnchanged =
+                selectableIds.length === selection.size && selectableIds.every((id) => selection.has(id));
 
             if (isUnchanged) return;
 
             onSelectionChange(selectableIds);
         },
-        [onSelectionChange, items, selection]
+        [onSelectionChange, items, selection],
     );
 
     // Trigger load more when loading nodes become visible
@@ -115,7 +120,7 @@ export const ContentComboboxList = ({
                 }
             }
         },
-        [items, onLoadMore]
+        [items, onLoadMore],
     );
 
     if (isLoading) {
@@ -135,7 +140,7 @@ export const ContentComboboxList = ({
     }
 
     return (
-        <Combobox.TreeContent style={{height}}>
+        <Combobox.TreeContent style={{ height }}>
             <VirtualizedTreeList
                 items={items}
                 preserveFilteredSelection
@@ -152,7 +157,7 @@ export const ContentComboboxList = ({
                 aria-label={ariaLabel}
                 className="h-full"
             >
-                {({items: visibleItems, getItemProps, containerProps}) => (
+                {({ items: visibleItems, getItemProps, containerProps }) => (
                     <Virtuoso<ContentComboboxFlatNode>
                         ref={virtuosoRef}
                         data={visibleItems as ContentComboboxFlatNode[]}

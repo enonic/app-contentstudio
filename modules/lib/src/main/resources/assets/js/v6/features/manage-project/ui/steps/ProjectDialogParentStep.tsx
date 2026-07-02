@@ -12,7 +12,7 @@ import {
 import { $languages } from '../../../../entities/language';
 import type { LanguageOption } from '../../../../entities/language';
 import { $projects } from '../../../../entities/project';
-import { ProjectLabel } from '../../../shared/project/ProjectLabel';
+import { ProjectLabel } from '../../../../entities/project/ui/ProjectLabel';
 import { ProjectSelector } from '../../../shared/selectors/ProjectSelector';
 import { LanguageSelector } from '../../../shared/selectors/LanguageSelector';
 import { InlineButton } from '../../../../shared/ui/InlineButton';
