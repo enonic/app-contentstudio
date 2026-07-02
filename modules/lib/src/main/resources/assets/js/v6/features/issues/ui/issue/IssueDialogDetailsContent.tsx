@@ -45,6 +45,14 @@ import {
     updateIssueDialogTitle,
 } from '../../model/issueDialogDetails.store';
 import {
+    excludeInProgressPublishItems,
+    excludeInvalidPublishItems,
+    excludeNotPublishablePublishItems,
+    markAllAsReadyInProgressPublishItems,
+    publishItems,
+    syncPublishDialogContext,
+} from '../../../publish/model/publishDialog.commands';
+import {
     $isPublishChecking,
     $isPublishReady,
     $publishCheckErrors,
@@ -52,12 +60,6 @@ import {
     $publishDialogPending,
     $publishTaskId,
     $totalPublishableItems,
-    excludeInProgressPublishItems,
-    excludeInvalidPublishItems,
-    excludeNotPublishablePublishItems,
-    markAllAsReadyInProgressPublishItems,
-    publishItems,
-    syncPublishDialogContext,
 } from '../../../publish/model/publishDialog.store';
 import { useItemsWithUnpublishedChildren } from '../../../../entities/content';
 import { createDebounce } from '../../../../shared/lib/timing/createDebounce';

@@ -2,14 +2,12 @@ import { useStore } from '@nanostores/preact';
 import { ReactElement, type RefObject, useEffect, useRef } from 'react';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import {
-    $publishDialog,
-    $scheduleFromError,
-    $scheduleToError,
     setPublishScheduleFrom,
     setPublishScheduleFromError,
     setPublishScheduleTo,
     setPublishScheduleToError,
-} from '../model/publishDialog.store';
+} from '../model/publishDialog.commands';
+import { $publishDialog, $scheduleFromError, $scheduleToError } from '../model/publishDialog.store';
 import { DateTimeSelector } from '../../shared/selectors/date/DateTimeSelector';
 
 const COMPONENT_NAME = 'PublishScheduleForm';
