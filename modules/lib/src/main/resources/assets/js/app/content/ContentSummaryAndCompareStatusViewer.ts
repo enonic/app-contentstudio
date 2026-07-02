@@ -1,16 +1,14 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
-import {type ContentSummaryAndCompareStatus} from './ContentSummaryAndCompareStatus';
-import {ExtendedViewer} from '../view/ExtendedViewer';
-import {ContentIconUrlResolver} from './ContentIconUrlResolver';
-import {type ContentSummary} from './ContentSummary';
-import {type ContentName} from './ContentName';
-import {ContentPath} from './ContentPath';
-import {getActiveProject} from '../../v6/features/store/activeProject.store';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { NamePrettyfier } from '@enonic/lib-admin-ui/NamePrettyfier';
+import { type ContentSummaryAndCompareStatus } from './ContentSummaryAndCompareStatus';
+import { ExtendedViewer } from '../view/ExtendedViewer';
+import { ContentIconUrlResolver } from './ContentIconUrlResolver';
+import { type ContentSummary } from './ContentSummary';
+import { type ContentName } from './ContentName';
+import { ContentPath } from './ContentPath';
+import { getActiveProject } from '../../v6/entities/project/activeProject.store';
 
-export class ContentSummaryAndCompareStatusViewer
-    extends ExtendedViewer<ContentSummaryAndCompareStatus> {
-
+export class ContentSummaryAndCompareStatusViewer extends ExtendedViewer<ContentSummaryAndCompareStatus> {
     constructor() {
         super('content-summary-and-compare-status-viewer');
     }
@@ -35,7 +33,7 @@ export class ContentSummaryAndCompareStatusViewer
 
     resolveUnnamedDisplayName(object: ContentSummaryAndCompareStatus): string {
         const contentSummary: ContentSummary = object.getContentSummary();
-        return (contentSummary && contentSummary.getType()) ? contentSummary.getType().getLocalName() : '';
+        return contentSummary && contentSummary.getType() ? contentSummary.getType().getLocalName() : '';
     }
 
     resolveSubName(object: ContentSummaryAndCompareStatus): string {
@@ -55,13 +53,15 @@ export class ContentSummaryAndCompareStatusViewer
         const contentName: ContentName = contentSummary.getName();
 
         if (this.isRelativePath) {
-            return !contentName.isUnnamed() ? contentName.toString() :
-                   NamePrettyfier.prettifyUnnamed();
+            return !contentName.isUnnamed() ? contentName.toString() : NamePrettyfier.prettifyUnnamed();
         }
 
-        return !contentName.isUnnamed() ? contentSummary.getPath().toString() :
-               ContentPath.create().fromParent(contentSummary.getPath().getParentPath(),
-                   NamePrettyfier.prettifyUnnamed()).build().toString();
+        return !contentName.isUnnamed()
+            ? contentSummary.getPath().toString()
+            : ContentPath.create()
+                  .fromParent(contentSummary.getPath().getParentPath(), NamePrettyfier.prettifyUnnamed())
+                  .build()
+                  .toString();
     }
 
     private resolveStateClass(object: ContentSummaryAndCompareStatus) {
@@ -69,7 +69,8 @@ export class ContentSummaryAndCompareStatusViewer
             return;
         }
         const contentSummary: ContentSummary = object.getContentSummary();
-        const invalid: boolean = !contentSummary.isValid() || !contentSummary.getDisplayName() || contentSummary.getName().isUnnamed();
+        const invalid: boolean =
+            !contentSummary.isValid() || !contentSummary.getDisplayName() || contentSummary.getName().isUnnamed();
         this.toggleClass('invalid', invalid);
         this.toggleClass('has-origin-project', object.hasOriginProject());
         this.toggleClass('data-inherited', object.isDataInherited());

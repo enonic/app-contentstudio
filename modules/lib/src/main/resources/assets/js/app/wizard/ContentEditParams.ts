@@ -1,5 +1,5 @@
-import {type ContentId} from '../content/ContentId';
-import {getActiveProjectName} from '../../v6/features/store/activeProject.store';
+import { type ContentId } from '../content/ContentId';
+import { getActiveProjectName } from '../../v6/entities/project/activeProject.store';
 
 export class ContentEditParams {
     private readonly contentId: ContentId;

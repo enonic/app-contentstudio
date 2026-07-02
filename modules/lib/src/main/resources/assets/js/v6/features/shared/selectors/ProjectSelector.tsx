@@ -13,7 +13,7 @@ import {
 } from 'react';
 import { Virtuoso, type VirtuosoHandle } from 'react-virtuoso';
 import type { Project } from '../../../../app/settings/data/project/Project';
-import { $projects } from '../../store/projects.store';
+import { $projects } from '../../../entities/project';
 import { projectsToTreeListItems } from '../../../shared/lib/url/projects';
 import { ProjectLabel } from '../project/ProjectLabel';
 

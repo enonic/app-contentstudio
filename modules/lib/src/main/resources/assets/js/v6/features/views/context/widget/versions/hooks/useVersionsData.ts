@@ -1,15 +1,16 @@
-import {useCallback, useEffect, useRef, useState} from 'react';
-import {type ContentId} from '../../../../../../../app/content/ContentId';
-import {type ContentSummary} from '../../../../../../../app/content/ContentSummary';
-import {setOnlineVersionId} from '../../../../../store/context/versionPublishState';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { type ContentId } from '../../../../../../../app/content/ContentId';
+import { type ContentSummary } from '../../../../../../../app/content/ContentSummary';
 import {
+    setOnlineVersionId,
     $allVersionsLoaded,
     appendVersions,
     resetVersionsSelection,
     setContentCreatedTime,
     setVersions,
-} from '../../../../../store/context/versionStore';
-import {useVersionsConfig} from '../config/VersionsConfigContext';
+    setAllVersionsLoaded,
+} from '../../../../../../entities/content/version';
+import { useVersionsConfig } from '../config/VersionsConfigContext';
 
 /**
  * Hook for managing versions data loading
@@ -20,10 +21,10 @@ type UseVersionsDataResult = {
     isLoading: boolean;
     error: Error | null;
     loadMore: () => Promise<void>;
-}
+};
 
 export const useVersionsData = (content: ContentSummary | null): UseVersionsDataResult => {
-    const {services} = useVersionsConfig();
+    const { services } = useVersionsConfig();
     const loadVersions = services.loadVersions;
     const subscribeContentInvalidation = services.subscribeContentInvalidation;
 
@@ -33,31 +34,34 @@ export const useVersionsData = (content: ContentSummary | null): UseVersionsData
     const [error, setError] = useState<Error | null>(null);
     const loadIdRef = useRef(0);
 
-    const loadInitialVersions = useCallback((contentId: ContentId, createdDate: Date) => {
-        const id = ++loadIdRef.current;
+    const loadInitialVersions = useCallback(
+        (contentId: ContentId, createdDate: Date) => {
+            const id = ++loadIdRef.current;
 
-        setIsLoading(true);
-        setError(null);
-        setContentCreatedTime(createdDate);
+            setIsLoading(true);
+            setError(null);
+            setContentCreatedTime(createdDate);
 
-        loadVersions(contentId)
-            .then((result) => {
-                if (loadIdRef.current !== id) return;
-                setVersions(result.versions);
-                setOnlineVersionId(result.onlineVersionId);
-                resetVersionsSelection();
-                setHasMore(result.hasMore);
-                $allVersionsLoaded.set(!result.hasMore);
-                setCursor(result.cursor);
-            })
-            .catch((err) => {
-                if (loadIdRef.current !== id) return;
-                setError(err instanceof Error ? err : new Error('Failed to load versions'));
-            })
-            .finally(() => {
-                if (loadIdRef.current === id) setIsLoading(false);
-            });
-    }, [loadVersions]);
+            loadVersions(contentId)
+                .then((result) => {
+                    if (loadIdRef.current !== id) return;
+                    setVersions(result.versions);
+                    setOnlineVersionId(result.onlineVersionId);
+                    resetVersionsSelection();
+                    setHasMore(result.hasMore);
+                    setAllVersionsLoaded(!result.hasMore);
+                    setCursor(result.cursor);
+                })
+                .catch((err) => {
+                    if (loadIdRef.current !== id) return;
+                    setError(err instanceof Error ? err : new Error('Failed to load versions'));
+                })
+                .finally(() => {
+                    if (loadIdRef.current === id) setIsLoading(false);
+                });
+        },
+        [loadVersions],
+    );
 
     // Initial load when content changes
     useEffect(() => {
@@ -68,7 +72,7 @@ export const useVersionsData = (content: ContentSummary | null): UseVersionsData
             setContentCreatedTime(undefined);
             resetVersionsSelection();
             setHasMore(false);
-            $allVersionsLoaded.set(false);
+            setAllVersionsLoaded(false);
             setCursor(undefined);
             setError(null);
             return;
@@ -98,7 +102,7 @@ export const useVersionsData = (content: ContentSummary | null): UseVersionsData
             const result = await loadVersions(content.getContentId(), cursor);
             appendVersions(result.versions);
             setHasMore(result.hasMore);
-            $allVersionsLoaded.set(!result.hasMore);
+            setAllVersionsLoaded(!result.hasMore);
             setCursor(result.cursor);
         } catch (err) {
             setError(err instanceof Error ? err : new Error('Failed to load more versions'));
@@ -111,6 +115,6 @@ export const useVersionsData = (content: ContentSummary | null): UseVersionsData
         hasMore,
         isLoading,
         error,
-        loadMore
+        loadMore,
     };
 };

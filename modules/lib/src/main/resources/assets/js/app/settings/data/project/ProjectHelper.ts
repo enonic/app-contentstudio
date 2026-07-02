@@ -1,15 +1,14 @@
-import {type Project} from './Project';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {ProjectGetRequest} from '../../resource/ProjectGetRequest';
+import { type Project } from './Project';
+import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { ProjectGetRequest } from '../../resource/ProjectGetRequest';
 import Q from 'q';
-import {type ProjectPermissions} from './ProjectPermissions';
-import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
-import {getActiveProjectName, isProjectInitialized} from '../../../../v6/features/store/activeProject.store';
-import {ProjectAccess} from '../../access/ProjectAccess';
-import {PermissionsHelper} from '../../../access/PermissionsHelper';
+import { type ProjectPermissions } from './ProjectPermissions';
+import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
+import { getActiveProjectName, isProjectInitialized } from '../../../../v6/entities/project/activeProject.store';
+import { ProjectAccess } from '../../access/ProjectAccess';
+import { PermissionsHelper } from '../../../access/PermissionsHelper';
 
 export class ProjectHelper {
-
     // Any project member except a viewer.
     private static PUBLISH_REQUEST_ROLES: ProjectAccess[] = [
         ProjectAccess.OWNER,
@@ -28,11 +27,13 @@ export class ProjectHelper {
         }
 
         const projectName: string = getActiveProjectName();
-        const allowedRoleKeys: PrincipalKey[] = ProjectHelper.PUBLISH_REQUEST_ROLES.map(
-            (role: ProjectAccess) => PrincipalKey.ofRole(`cms.project.${projectName}.${role}`));
+        const allowedRoleKeys: PrincipalKey[] = ProjectHelper.PUBLISH_REQUEST_ROLES.map((role: ProjectAccess) =>
+            PrincipalKey.ofRole(`cms.project.${projectName}.${role}`),
+        );
 
-        return AuthContext.get().getPrincipals().some(
-            principal => allowedRoleKeys.some((roleKey: PrincipalKey) => roleKey.equals(principal.getKey())));
+        return AuthContext.get()
+            .getPrincipals()
+            .some((principal) => allowedRoleKeys.some((roleKey: PrincipalKey) => roleKey.equals(principal.getKey())));
     }
 
     public static isUserProjectOwnerOrEditor(): Q.Promise<boolean> {
@@ -54,18 +55,19 @@ export class ProjectHelper {
             return true;
         }
 
-        const userGroups: PrincipalKey[] = AuthContext.get().getPrincipals()
-                                            .filter((principal) => principal.isGroup())
-                                            .map((principal) => principal.getKey());
+        const userGroups: PrincipalKey[] = AuthContext.get()
+            .getPrincipals()
+            .filter((principal) => principal.isGroup())
+            .map((principal) => principal.getKey());
         const permissions: ProjectPermissions = project.getPermissions();
-        const ownerGroups: PrincipalKey[] = permissions.getOwners()
-                                            .filter((principal) => principal.isGroup());
-        const editorGroups: PrincipalKey[] = permissions.getEditors()
-                                            .filter((principal) => principal.isGroup());
+        const ownerGroups: PrincipalKey[] = permissions.getOwners().filter((principal) => principal.isGroup());
+        const editorGroups: PrincipalKey[] = permissions.getEditors().filter((principal) => principal.isGroup());
 
-        return userGroups.some((userPrincipal: PrincipalKey) =>
-            ownerGroups.some((owner: PrincipalKey) => owner.equals(userPrincipal)) ||
-            editorGroups.some((editor: PrincipalKey) => editor.equals(userPrincipal)));
+        return userGroups.some(
+            (userPrincipal: PrincipalKey) =>
+                ownerGroups.some((owner: PrincipalKey) => owner.equals(userPrincipal)) ||
+                editorGroups.some((editor: PrincipalKey) => editor.equals(userPrincipal)),
+        );
     }
 
     static isProjectOwner(project: Project): boolean {

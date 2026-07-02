@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { PublishStatus } from '../../../../app/publish/PublishStatus';
 import { setFilterActive } from './active-tree.store';
-import { $activeProject } from '../../../features/store/activeProject.store';
+import { $activeProject } from '../../project/activeProject.store';
 import { clearAllContentCaches, setContent } from './content.commands';
 import type { Project } from '../../../../app/settings/data/project/Project';
 import {

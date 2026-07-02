@@ -2,7 +2,7 @@ import { type Application } from '@enonic/lib-admin-ui/application/Application';
 import { Checkbox, cn, Combobox, type ComboboxRootProps, Listbox, useCombobox } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { type ReactElement, useId, useMemo, useState } from 'react';
-import { $applications } from '../../store/applications.store';
+import { $applications } from '../../../entities/application';
 import { ApplicationIcon } from '../../../shared/ui/icons/ApplicationIcon';
 import { ItemLabel } from '../../../shared/ui/ItemLabel';
 

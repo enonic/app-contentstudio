@@ -1,11 +1,11 @@
-import {FindPrincipalsRequest} from '@enonic/lib-admin-ui/security/FindPrincipalsRequest';
-import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
-import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {computed, map} from 'nanostores';
-import {UrlHelper} from '../../../app/util/UrlHelper';
-import {ResultAsync} from 'neverthrow';
-import {type PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {GetPrincipalsByKeysRequest} from '@enonic/lib-admin-ui/security/GetPrincipalsByKeysRequest';
+import { FindPrincipalsRequest } from '@enonic/lib-admin-ui/security/FindPrincipalsRequest';
+import { PrincipalType } from '@enonic/lib-admin-ui/security/PrincipalType';
+import { type Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { computed, map } from 'nanostores';
+import { UrlHelper } from '../../../app/util/UrlHelper';
+import { ResultAsync } from 'neverthrow';
+import { type PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { GetPrincipalsByKeysRequest } from '@enonic/lib-admin-ui/security/GetPrincipalsByKeysRequest';
 
 type PrincipalsStore = {
     principals: Principal[];

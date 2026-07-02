@@ -30,7 +30,7 @@ vi.mock('../../../selectors/ApplicationSelector', () => ({
     ),
 }));
 
-vi.mock('../../../../store/applications.store', async () => {
+vi.mock('../../../../../entities/application/applications.store', async () => {
     const { map } = await import('nanostores');
     return {
         $applications: map({ applications: [], loading: false, loaded: false }),
@@ -43,7 +43,7 @@ vi.mock('../../../../store/wizardContent.store', () => ({
     requestMixinSeed: vi.fn(),
 }));
 
-import { $applications } from '../../../../store/applications.store';
+import { $applications } from '../../../../../entities/application/applications.store';
 import { SiteConfiguratorInput } from './SiteConfiguratorInput';
 
 function checkboxForm(): ReturnType<FormBuilder['build']> {

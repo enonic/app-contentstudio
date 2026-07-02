@@ -35,7 +35,7 @@ import {
 import { setWizardContent } from '../../v6/features/store/context/contextContent.store';
 import { $isContextOpen, setContextOpen } from '../../v6/features/store/contextWidgets.store';
 import { $isPreviewPanelVisible } from '../../v6/features/store/previewPanel.store';
-import { getActiveProject, getActiveProjectName } from '../../v6/features/store/activeProject.store';
+import { getActiveProject, getActiveProjectName } from '../../v6/entities/project/activeProject.store';
 import {
     $displayNameInputFocusRequested,
     $isContentFormExpanded,

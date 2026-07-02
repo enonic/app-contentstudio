@@ -1,21 +1,19 @@
-import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {type Element} from '@enonic/lib-admin-ui/dom/Element';
-import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import {PrincipalViewerCompact} from '@enonic/lib-admin-ui/ui/security/PrincipalViewer';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
+import { type Element } from '@enonic/lib-admin-ui/dom/Element';
+import { type Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { ResponsiveManager } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import { PrincipalViewerCompact } from '@enonic/lib-admin-ui/ui/security/PrincipalViewer';
+import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
 import Q from 'q';
-import {getActiveProjectName} from '../../v6/features/store/activeProject.store';
-import {type ContentId} from '../content/ContentId';
-import {GetPrincipalsByKeysRequest} from '../security/GetPrincipalsByKeysRequest';
-import {subscribe as subscribeToCollaborators} from '../stores/collaboration';
+import { getActiveProjectName } from '../../v6/entities/project/activeProject.store';
+import { type ContentId } from '../content/ContentId';
+import { GetPrincipalsByKeysRequest } from '../security/GetPrincipalsByKeysRequest';
+import { subscribe as subscribeToCollaborators } from '../stores/collaboration';
 
-export class CollaborationEl
-    extends DivEl {
-
+export class CollaborationEl extends DivEl {
     private currentUser: Principal;
 
     private usersBlock: DivEl;
@@ -65,17 +63,25 @@ export class CollaborationEl
         const numOfUsersFitting: number = this.getVisibleCount();
         const totalUsers: number = this.usersBlock.getChildren().length;
         // if some items not fitting then showing one item less to save a space for a counter
-        const numOfUsersToDisplay: number = totalUsers === numOfUsersFitting ? totalUsers : Math.max(numOfUsersFitting - 1, 1);
+        const numOfUsersToDisplay: number =
+            totalUsers === numOfUsersFitting ? totalUsers : Math.max(numOfUsersFitting - 1, 1);
         const numOfUsersHidden: number = totalUsers - numOfUsersToDisplay;
 
-        this.usersBlock.getChildren().forEach((userEl: Element, index: number) => userEl.setVisible(index < numOfUsersToDisplay));
+        this.usersBlock
+            .getChildren()
+            .forEach((userEl: Element, index: number) => userEl.setVisible(index < numOfUsersToDisplay));
         this.updateCounterBlock(numOfUsersHidden);
     }
 
     private getVisibleCount(): number {
         const userElWidth: number = this.usersBlock.getChildren()[0].getEl().getWidthWithMargin();
-        const nonOriginalElements = this.getChildren().filter((el: Element) => el !== this.usersBlock && el !== this.counterBlock);
-        const extras = nonOriginalElements.reduce((acc: number, el: Element) => acc + el.getEl().getWidthWithMargin(), 0);
+        const nonOriginalElements = this.getChildren().filter(
+            (el: Element) => el !== this.usersBlock && el !== this.counterBlock,
+        );
+        const extras = nonOriginalElements.reduce(
+            (acc: number, el: Element) => acc + el.getEl().getWidthWithMargin(),
+            0,
+        );
         const availableWidth: number = this.getEl().getWidth() - extras;
 
         return Math.floor(availableWidth / userElWidth);
@@ -102,7 +108,7 @@ export class CollaborationEl
     }
 
     private handleCollaboratorsUpdated(collaborators: Set<string>): void {
-        const collaboratorsKeys = Array.from(collaborators).map(c => PrincipalKey.fromString(c));
+        const collaboratorsKeys = Array.from(collaborators).map((c) => PrincipalKey.fromString(c));
         this.collaborators = collaboratorsKeys;
 
         this.addMissingCollaborators();
@@ -114,7 +120,9 @@ export class CollaborationEl
     }
 
     private addMissingCollaborators(): void {
-        const collaboratorsToAdd: PrincipalKey[] = this.collaborators.filter((userKey: PrincipalKey) => !this.containsUserWithKey(userKey));
+        const collaboratorsToAdd: PrincipalKey[] = this.collaborators.filter(
+            (userKey: PrincipalKey) => !this.containsUserWithKey(userKey),
+        );
 
         if (collaboratorsToAdd.length === 0) {
             return;
@@ -129,7 +137,9 @@ export class CollaborationEl
     }
 
     private containsUserWithKey(userKey: PrincipalKey): boolean {
-        return this.usersBlock.getChildren().some((viewer: PrincipalViewerCompact) => viewer.getObject().getKey().equals(userKey));
+        return this.usersBlock
+            .getChildren()
+            .some((viewer: PrincipalViewerCompact) => viewer.getObject().getKey().equals(userKey));
     }
 
     private addCollaborators(collaborators: Principal[]): void {
@@ -156,14 +166,17 @@ export class CollaborationEl
     }
 
     private fetchAndAddCollaborators(collaboratorsToAdd: PrincipalKey[]): void {
-        new GetPrincipalsByKeysRequest(collaboratorsToAdd).sendAndParse().then((collaborators: Principal[]) => {
-            // putting current user at first place
-            if (this.currentUser) {
-                collaborators.sort(this.sortItemsCurrentUserFirst.bind(this));
-            }
+        new GetPrincipalsByKeysRequest(collaboratorsToAdd)
+            .sendAndParse()
+            .then((collaborators: Principal[]) => {
+                // putting current user at first place
+                if (this.currentUser) {
+                    collaborators.sort(this.sortItemsCurrentUserFirst.bind(this));
+                }
 
-            this.addCollaborators(collaborators);
-        }).catch(DefaultErrorHandler.handle);
+                this.addCollaborators(collaborators);
+            })
+            .catch(DefaultErrorHandler.handle);
     }
 
     private sortItemsCurrentUserFirst(a: Principal, b: Principal): number {
@@ -198,7 +211,9 @@ export class CollaborationEl
     }
 
     private isCollaborator(key: PrincipalKey): boolean {
-        return key.equals(this.currentUser?.getKey()) || this.collaborators.some((colKey: PrincipalKey) => colKey.equals(key));
+        return (
+            key.equals(this.currentUser?.getKey()) ||
+            this.collaborators.some((colKey: PrincipalKey) => colKey.equals(key))
+        );
     }
-
 }

@@ -3,7 +3,7 @@ import React, { useCallback } from 'react';
 import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
 import { type ContentVersion } from '../../../../../../app/ContentVersion';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
-import { resetVersionsSelection } from '../../../../store/context/versionStore';
+import { resetVersionsSelection } from '../../../../../entities/content/version';
 import { openCompareVersionsDialog } from './compare/store';
 
 const COMPONENT_NAME = 'VersionSelectionToolbar';

@@ -1,5 +1,5 @@
-import type {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import type {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import type { ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import type { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
 import type {
     ContentData,
     ContentLanguage,
@@ -11,17 +11,17 @@ import type {
     PageContentData,
     PageContentSchema,
 } from '../../../../app/ai/event/data/AiData';
-import type {CompareStatus} from '../../../../app/content/CompareStatus';
-import type {Content} from '../../../../app/content/Content';
-import type {ContentType} from '../../../../app/inputtype/schema/ContentType';
-import type {Page} from '../../../../app/page/Page';
-import type {Component} from '../../../../app/page/region/Component';
-import {DescriptorBasedComponent} from '../../../../app/page/region/DescriptorBasedComponent';
-import {LayoutComponent} from '../../../../app/page/region/LayoutComponent';
-import type {Region} from '../../../../app/page/region/Region';
-import {TextComponent} from '../../../../app/page/region/TextComponent';
-import type {ContentWizardHeader} from '../../../../app/wizard/ContentWizardHeader';
-import {$locales} from '../languages.store';
+import type { CompareStatus } from '../../../../app/content/CompareStatus';
+import type { Content } from '../../../../app/content/Content';
+import type { ContentType } from '../../../../app/inputtype/schema/ContentType';
+import type { Page } from '../../../../app/page/Page';
+import type { Component } from '../../../../app/page/region/Component';
+import { DescriptorBasedComponent } from '../../../../app/page/region/DescriptorBasedComponent';
+import { LayoutComponent } from '../../../../app/page/region/LayoutComponent';
+import type { Region } from '../../../../app/page/region/Region';
+import { TextComponent } from '../../../../app/page/region/TextComponent';
+import type { ContentWizardHeader } from '../../../../app/wizard/ContentWizardHeader';
+import { $locales } from '../../../entities/language';
 import {
     $aiCompareStatus,
     $aiContent,
@@ -36,8 +36,8 @@ import {
     $aiWizardBridge,
     type AiWizardBridge,
 } from './ai.store';
-import {AI_PLUGIN_KEYS, type EnonicAiPlugin} from './ai.types';
-import {getActiveProject, getActiveProjectName} from '../activeProject.store';
+import { AI_PLUGIN_KEYS, type EnonicAiPlugin } from './ai.types';
+import { getActiveProject, getActiveProjectName } from '../../../entities/project/activeProject.store';
 
 //
 // * State setters
@@ -85,15 +85,15 @@ export function clearAiTopicError(): void {
 export function updateAiInstructions(configs: ApplicationConfig[]): void {
     const current = $aiInstructions.get();
     const next: Record<EnonicAiPlugin, string | undefined> = current
-        ? {...current}
-        : {contentOperator: undefined, translator: undefined};
+        ? { ...current }
+        : { contentOperator: undefined, translator: undefined };
 
     let changed = current == null;
 
     const plugins = Object.keys(AI_PLUGIN_KEYS) as EnonicAiPlugin[];
     for (const plugin of plugins) {
         const appKey = AI_PLUGIN_KEYS[plugin];
-        const pluginConfig = configs.find(c => c.getApplicationKey().getName() === appKey);
+        const pluginConfig = configs.find((c) => c.getApplicationKey().getName() === appKey);
         if (!pluginConfig) {
             continue;
         }
@@ -116,7 +116,7 @@ export function updateAiInstructions(configs: ApplicationConfig[]): void {
 
 const readyCallbacks: (() => void)[] = [];
 
-$aiReady.subscribe(ready => {
+$aiReady.subscribe((ready) => {
     if (!ready) {
         return;
     }
@@ -171,7 +171,7 @@ function createMixinData(): MixinContentData[] | undefined {
         return undefined;
     }
 
-    return mixins.map(mixin => ({
+    return mixins.map((mixin) => ({
         name: mixin.getName().toString(),
         fields: mixin.getData().toJson(),
     }));
@@ -183,9 +183,9 @@ export function createContentLanguage(): ContentLanguage | undefined {
         return undefined;
     }
 
-    const locale = $locales.get().find(l => l.getTag() === tag);
+    const locale = $locales.get().find((l) => l.getTag() === tag);
 
-    return {tag, name: locale ? locale.getDisplayName() : tag};
+    return { tag, name: locale ? locale.getDisplayName() : tag };
 }
 
 export function createContentSchema(): ContentSchema | undefined {
@@ -208,7 +208,7 @@ function createMixinSchemas(): MixinContentSchema[] | undefined {
         return undefined;
     }
 
-    return descriptors.map(descriptor => ({
+    return descriptors.map((descriptor) => ({
         name: descriptor.getName(),
         form: descriptor.toForm().toJson(),
     }));
@@ -232,7 +232,7 @@ function createPageData(): PageContentData | undefined {
         return undefined;
     }
 
-    return {controller, config, components};
+    return { controller, config, components };
 }
 
 function collectPageComponents(page: Page): PageComponentData[] | undefined {
@@ -242,7 +242,7 @@ function collectPageComponents(page: Page): PageComponentData[] | undefined {
 }
 
 function walkRegions(regions: Region[] | undefined, out: PageComponentData[]): void {
-    regions?.forEach(region => region.getComponents().forEach(component => visitComponent(component, out)));
+    regions?.forEach((region) => region.getComponents().forEach((component) => visitComponent(component, out)));
 }
 
 function visitComponent(component: Component, out: PageComponentData[]): void {
@@ -250,7 +250,7 @@ function visitComponent(component: Component, out: PageComponentData[]): void {
 
     if (component instanceof TextComponent) {
         const text = component.getText();
-        if (text) out.push({path, text});
+        if (text) out.push({ path, text });
         return;
     }
 
@@ -258,7 +258,7 @@ function visitComponent(component: Component, out: PageComponentData[]): void {
         const descriptor = component.hasDescriptor() ? component.getDescriptorKey().toString() : undefined;
         const config = component.getConfig()?.toJson();
         if (descriptor != null || (config != null && config.length > 0)) {
-            out.push({path, descriptor, config});
+            out.push({ path, descriptor, config });
         }
     }
 
@@ -284,15 +284,17 @@ function createPageSchema(): PageContentSchema | undefined {
         return undefined;
     }
 
-    return {configForm, componentForms};
+    return { configForm, componentForms };
 }
 
-function createPageComponentSchemas(descriptors: ReturnType<AiWizardBridge['getCurrentComponentDescriptors']>): PageComponentSchema[] | undefined {
+function createPageComponentSchemas(
+    descriptors: ReturnType<AiWizardBridge['getCurrentComponentDescriptors']>,
+): PageComponentSchema[] | undefined {
     if (!descriptors || descriptors.length === 0) {
         return undefined;
     }
 
-    return descriptors.map(descriptor => ({
+    return descriptors.map((descriptor) => ({
         descriptor: descriptor.getKey().toString(),
         configForm: descriptor.getConfig().toJson(),
     }));

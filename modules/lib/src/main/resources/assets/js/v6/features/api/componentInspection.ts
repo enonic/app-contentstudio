@@ -2,7 +2,7 @@ import type { ContentId } from '../../../app/content/ContentId';
 import { Descriptor } from '../../../app/page/Descriptor';
 import type { DescriptorJson } from '../../../app/page/DescriptorJson';
 import { ComponentType } from '../../../app/page/region/ComponentType';
-import { $projects } from '../store/projects.store';
+import { $projects } from '../../entities/project';
 import { getCmsRestUri } from '../../shared/lib/url/cms';
 
 /**

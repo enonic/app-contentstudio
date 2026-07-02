@@ -4,7 +4,7 @@ import { type ReactElement } from 'react';
 import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 import { ImageUrlResolver } from '../../../../../app/util/ImageUrlResolver';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
-import { $activeProject } from '../../../store/activeProject.store';
+import { $activeProject } from '../../../../entities/project';
 import { calcTreePublishStatus } from '../../../../shared/lib/cms/content/status';
 import { StatusBadge } from '../../status/StatusBadge';
 

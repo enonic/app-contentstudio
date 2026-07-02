@@ -1,12 +1,13 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Clock, ClockAlert, Pen, type LucideIcon} from 'lucide-react';
-import {type ContentVersion} from '../../../../../../app/ContentVersion';
-import {getVersionPublishStatus, VersionPublishStatus} from '../../../../store/context/versionPublishState';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { Clock, ClockAlert, Pen, type LucideIcon } from 'lucide-react';
+import { type ContentVersion } from '../../../../../../app/ContentVersion';
 import {
+    getVersionPublishStatus,
+    VersionPublishStatus,
     getVersionConfig,
     resolveVersionOperationType,
     VersionOperationType,
-} from '../../../../store/context/versionOperations';
+} from '../../../../../entities/content/version';
 
 const getFirstAction = (version: ContentVersion) => version.getActions()[0];
 

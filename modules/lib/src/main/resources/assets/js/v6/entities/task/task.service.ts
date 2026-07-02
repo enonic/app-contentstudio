@@ -1,16 +1,10 @@
-import {TaskEvent, TaskEventType} from '@enonic/lib-admin-ui/task/TaskEvent';
-import type {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
-import type {TaskInfo} from '@enonic/lib-admin-ui/task/TaskInfo';
-import type {TaskProgress} from '@enonic/lib-admin-ui/task/TaskProgress';
-import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
-import {GetTaskInfoRequest} from '../../../app/resource/GetTaskInfoRequest';
-import {
-    completeTask,
-    registerTask,
-    unregisterTask,
-    updateTaskProgress,
-    type TaskResultState,
-} from '../store/task.store';
+import { TaskEvent, TaskEventType } from '@enonic/lib-admin-ui/task/TaskEvent';
+import type { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
+import type { TaskInfo } from '@enonic/lib-admin-ui/task/TaskInfo';
+import type { TaskProgress } from '@enonic/lib-admin-ui/task/TaskProgress';
+import { TaskState } from '@enonic/lib-admin-ui/task/TaskState';
+import { GetTaskInfoRequest } from '../../../app/resource/GetTaskInfoRequest';
+import { completeTask, registerTask, unregisterTask, updateTaskProgress, type TaskResultState } from './task.store';
 
 //
 // * Types
@@ -129,8 +123,8 @@ export const getTaskPhaseInfo = (taskInfo: TaskInfo | undefined): TaskPhaseInfo 
     }
 
     try {
-        const {phase, count} = JSON.parse(info) as {phase?: TaskPhase; count?: number};
-        return phase ? {phase, count} : undefined;
+        const { phase, count } = JSON.parse(info) as { phase?: TaskPhase; count?: number };
+        return phase ? { phase, count } : undefined;
     } catch {
         return undefined;
     }
@@ -177,7 +171,8 @@ export const trackTask = (taskId: TaskId, config: TaskTrackerConfig = {}): (() =
     });
 
     // HTTP fallback for race conditions
-    new GetTaskInfoRequest(taskId).sendAndParse()
+    new GetTaskInfoRequest(taskId)
+        .sendAndParse()
         .then((taskInfo: TaskInfo) => {
             if (!hasReceivedEvents) {
                 handleTaskInfo(taskIdStr, taskInfo, config);

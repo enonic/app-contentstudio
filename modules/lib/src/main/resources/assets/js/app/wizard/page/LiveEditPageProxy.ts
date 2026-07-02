@@ -1,94 +1,92 @@
-import {BeforeContentSavedEvent} from '../../event/BeforeContentSavedEvent';
-import {type ComponentAddedEvent} from '../../page/region/ComponentAddedEvent';
-import {ComponentDuplicatedEvent} from '../../page/region/ComponentDuplicatedEvent';
-import {ComponentMovedEvent} from '../../page/region/ComponentMovedEvent';
-import {ComponentPath} from '../../page/region/ComponentPath';
-import {type ComponentRemovedEvent} from '../../page/region/ComponentRemovedEvent';
-import {ComponentRemovedOnMoveEvent} from '../../page/region/ComponentRemovedOnMoveEvent';
-import {ComponentTextUpdatedEvent} from '../../page/region/ComponentTextUpdatedEvent';
-import {ComponentType} from '../../page/region/ComponentType';
-import {type ComponentUpdatedEvent} from '../../page/region/ComponentUpdatedEvent';
-import {ContentId} from '../../content/ContentId';
-import {DescriptorKey} from '../../page/DescriptorKey';
-import {FragmentComponentType} from '../../page/region/FragmentComponentType';
-import {IframeBeforeContentSavedEvent} from '../../event/IframeBeforeContentSavedEvent';
-import {LayoutComponentType} from '../../page/region/LayoutComponentType';
-import {PageControllerCustomizedEvent} from '../../page/event/PageControllerCustomizedEvent';
-import {PageEventsManager} from '../PageEventsManager';
-import {PageNavigationEvent} from '../PageNavigationEvent';
-import {PageNavigationEventData, PageNavigationEventSource} from '../PageNavigationEventData';
-import {PageNavigationEventType} from '../PageNavigationEventType';
-import {type PageNavigationHandler} from '../PageNavigationHandler';
-import {PageNavigationMediator} from '../PageNavigationMediator';
-import {PageState} from './PageState';
-import {type PageUpdatedEvent} from '../../page/event/PageUpdatedEvent';
-import {PartComponentType} from '../../page/region/PartComponentType';
-import {SessionStorageHelper} from '../../util/SessionStorageHelper';
-import {TextComponentType} from '../../page/region/TextComponentType';
-import {getActiveProject} from '../../../v6/features/store/activeProject.store';
-import {type LiveEditModel} from '../../../page-editor/LiveEditModel';
-import {ComponentViewDragStartedEvent} from '../../../page-editor/event/ComponentViewDragStartedEvent';
-import {ComponentViewDragStoppedEvent} from '../../../page-editor/event/ComponentViewDragStoppedEvent';
-import {ComponentViewDragCanceledEvent} from '../../../page-editor/event/ComponentViewDragCanceledEvent';
-import {ComponentViewDragDroppedEvent} from '../../../page-editor/event/ComponentViewDragDroppedEvent';
-import {PageLockedEvent} from '../../../page-editor/event/outgoing/manipulation/PageLockedEvent';
-import {PageUnlockedEvent} from '../../../page-editor/event/outgoing/manipulation/PageUnlockedEvent';
-import {SelectComponentEvent} from '../../../page-editor/event/outgoing/navigation/SelectComponentEvent';
-import {DeselectComponentEvent} from '../../../page-editor/event/outgoing/navigation/DeselectComponentEvent';
-import {ComponentInspectedEvent} from '../../../page-editor/event/ComponentInspectedEvent';
-import {ComponentLoadedEvent} from '../../../page-editor/event/ComponentLoadedEvent';
-import {LiveEditPageViewReadyEvent} from '../../../page-editor/event/LiveEditPageViewReadyEvent';
-import {LiveEditPageInitializationErrorEvent} from '../../../page-editor/event/LiveEditPageInitializationErrorEvent';
-import {ShowWarningLiveEditEvent} from '../../../page-editor/event/ShowWarningLiveEditEvent';
-import {InitializeLiveEditEvent} from '../../../page-editor/event/InitializeLiveEditEvent';
-import {SkipLiveEditReloadConfirmationEvent} from '../../../page-editor/event/SkipLiveEditReloadConfirmationEvent';
-import {SaveAsTemplateEvent} from '../../../page-editor/SaveAsTemplateEvent';
-import {LiveEditParams} from '../../../page-editor/LiveEditParams';
-import {CreateFragmentEvent} from '../../../page-editor/event/outgoing/manipulation/CreateFragmentEvent';
-import {PageResetEvent} from '../../../page-editor/event/outgoing/manipulation/PageResetEvent';
-import {SelectPageDescriptorEvent} from '../../../page-editor/event/outgoing/manipulation/SelectPageDescriptorEvent';
-import {SelectComponentViewEvent} from '../../../page-editor/event/incoming/navigation/SelectComponentViewEvent';
-import {DeselectComponentViewEvent} from '../../../page-editor/event/incoming/navigation/DeselectComponentViewEvent';
-import {EditTextComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/EditTextComponentViewEvent';
-import {AddComponentEvent} from '../../../page-editor/event/outgoing/manipulation/AddComponentEvent';
-import {AddComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/AddComponentViewEvent';
-import {RemoveComponentRequest} from '../../../page-editor/event/outgoing/manipulation/RemoveComponentRequest';
-import {RemoveComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/RemoveComponentViewEvent';
-import {LoadComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/LoadComponentViewEvent';
-import {DuplicateComponentEvent} from '../../../page-editor/event/outgoing/manipulation/DuplicateComponentEvent';
-import {SetFragmentComponentEvent} from '../../../page-editor/event/outgoing/manipulation/SetFragmentComponentEvent';
-import {UpdateTextComponentEvent} from '../../../page-editor/event/outgoing/manipulation/UpdateTextComponentEvent';
-import {DuplicateComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/DuplicateComponentViewEvent';
-import {CustomizePageEvent} from '../../../page-editor/event/outgoing/manipulation/CustomizePageEvent';
-import {MoveComponentEvent} from '../../../page-editor/event/outgoing/manipulation/MoveComponentEvent';
-import {MoveComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/MoveComponentViewEvent';
-import {DetachFragmentEvent} from '../../../page-editor/event/outgoing/manipulation/DetachFragmentEvent';
-import {SetPageLockStateEvent} from '../../../page-editor/event/incoming/manipulation/SetPageLockStateEvent';
-import {SetModifyAllowedEvent} from '../../../page-editor/event/incoming/manipulation/SetModifyAllowedEvent';
-import {CreateOrDestroyDraggableEvent} from '../../../page-editor/event/incoming/manipulation/CreateOrDestroyDraggableEvent';
-import {ResetComponentEvent} from '../../../page-editor/event/outgoing/manipulation/ResetComponentEvent';
-import {ResetComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/ResetComponentViewEvent';
-import {TextEditModeChangedEvent} from '../../../page-editor/event/outgoing/navigation/TextEditModeChangedEvent';
-import {EditContentFromComponentViewEvent} from '../../../page-editor/event/outgoing/manipulation/EditContentFromComponentViewEvent';
-import {PageStateEvent} from '../../../page-editor/event/incoming/common/PageStateEvent';
-import {UpdateTextComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/UpdateTextComponentViewEvent';
-import {SetComponentStateEvent} from '../../../page-editor/event/incoming/manipulation/SetComponentStateEvent';
-import {PageReloadRequestedEvent} from '../../../page-editor/event/outgoing/manipulation/PageReloadRequestedEvent';
-import {LoadComponentFailedEvent} from '../../../page-editor/event/outgoing/manipulation/LoadComponentFailedEvent';
-import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
-import {DragMask} from '@enonic/lib-admin-ui/ui/mask/DragMask';
-import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
-import {ContentUrlHelper} from '../../util/ContentUrlHelper';
-import {type Extension} from '@enonic/lib-admin-ui/extension/Extension';
-import {type WizardExtensionRenderingHandler} from '../WizardExtensionRenderingHandler';
-import {IframeEventBus} from '@enonic/lib-admin-ui/event/IframeEventBus';
-import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
-import {SetDraggableVisibleEvent} from '../../../page-editor/event/incoming/manipulation/SetDraggableVisibleEvent';
+import { BeforeContentSavedEvent } from '../../event/BeforeContentSavedEvent';
+import { type ComponentAddedEvent } from '../../page/region/ComponentAddedEvent';
+import { ComponentDuplicatedEvent } from '../../page/region/ComponentDuplicatedEvent';
+import { ComponentMovedEvent } from '../../page/region/ComponentMovedEvent';
+import { ComponentPath } from '../../page/region/ComponentPath';
+import { type ComponentRemovedEvent } from '../../page/region/ComponentRemovedEvent';
+import { ComponentRemovedOnMoveEvent } from '../../page/region/ComponentRemovedOnMoveEvent';
+import { ComponentTextUpdatedEvent } from '../../page/region/ComponentTextUpdatedEvent';
+import { ComponentType } from '../../page/region/ComponentType';
+import { type ComponentUpdatedEvent } from '../../page/region/ComponentUpdatedEvent';
+import { ContentId } from '../../content/ContentId';
+import { DescriptorKey } from '../../page/DescriptorKey';
+import { FragmentComponentType } from '../../page/region/FragmentComponentType';
+import { IframeBeforeContentSavedEvent } from '../../event/IframeBeforeContentSavedEvent';
+import { LayoutComponentType } from '../../page/region/LayoutComponentType';
+import { PageControllerCustomizedEvent } from '../../page/event/PageControllerCustomizedEvent';
+import { PageEventsManager } from '../PageEventsManager';
+import { PageNavigationEvent } from '../PageNavigationEvent';
+import { PageNavigationEventData, PageNavigationEventSource } from '../PageNavigationEventData';
+import { PageNavigationEventType } from '../PageNavigationEventType';
+import { type PageNavigationHandler } from '../PageNavigationHandler';
+import { PageNavigationMediator } from '../PageNavigationMediator';
+import { PageState } from './PageState';
+import { type PageUpdatedEvent } from '../../page/event/PageUpdatedEvent';
+import { PartComponentType } from '../../page/region/PartComponentType';
+import { SessionStorageHelper } from '../../util/SessionStorageHelper';
+import { TextComponentType } from '../../page/region/TextComponentType';
+import { getActiveProject } from '../../../v6/entities/project/activeProject.store';
+import { type LiveEditModel } from '../../../page-editor/LiveEditModel';
+import { ComponentViewDragStartedEvent } from '../../../page-editor/event/ComponentViewDragStartedEvent';
+import { ComponentViewDragStoppedEvent } from '../../../page-editor/event/ComponentViewDragStoppedEvent';
+import { ComponentViewDragCanceledEvent } from '../../../page-editor/event/ComponentViewDragCanceledEvent';
+import { ComponentViewDragDroppedEvent } from '../../../page-editor/event/ComponentViewDragDroppedEvent';
+import { PageLockedEvent } from '../../../page-editor/event/outgoing/manipulation/PageLockedEvent';
+import { PageUnlockedEvent } from '../../../page-editor/event/outgoing/manipulation/PageUnlockedEvent';
+import { SelectComponentEvent } from '../../../page-editor/event/outgoing/navigation/SelectComponentEvent';
+import { DeselectComponentEvent } from '../../../page-editor/event/outgoing/navigation/DeselectComponentEvent';
+import { ComponentInspectedEvent } from '../../../page-editor/event/ComponentInspectedEvent';
+import { ComponentLoadedEvent } from '../../../page-editor/event/ComponentLoadedEvent';
+import { LiveEditPageViewReadyEvent } from '../../../page-editor/event/LiveEditPageViewReadyEvent';
+import { LiveEditPageInitializationErrorEvent } from '../../../page-editor/event/LiveEditPageInitializationErrorEvent';
+import { ShowWarningLiveEditEvent } from '../../../page-editor/event/ShowWarningLiveEditEvent';
+import { InitializeLiveEditEvent } from '../../../page-editor/event/InitializeLiveEditEvent';
+import { SkipLiveEditReloadConfirmationEvent } from '../../../page-editor/event/SkipLiveEditReloadConfirmationEvent';
+import { SaveAsTemplateEvent } from '../../../page-editor/SaveAsTemplateEvent';
+import { LiveEditParams } from '../../../page-editor/LiveEditParams';
+import { CreateFragmentEvent } from '../../../page-editor/event/outgoing/manipulation/CreateFragmentEvent';
+import { PageResetEvent } from '../../../page-editor/event/outgoing/manipulation/PageResetEvent';
+import { SelectPageDescriptorEvent } from '../../../page-editor/event/outgoing/manipulation/SelectPageDescriptorEvent';
+import { SelectComponentViewEvent } from '../../../page-editor/event/incoming/navigation/SelectComponentViewEvent';
+import { DeselectComponentViewEvent } from '../../../page-editor/event/incoming/navigation/DeselectComponentViewEvent';
+import { EditTextComponentViewEvent } from '../../../page-editor/event/incoming/manipulation/EditTextComponentViewEvent';
+import { AddComponentEvent } from '../../../page-editor/event/outgoing/manipulation/AddComponentEvent';
+import { AddComponentViewEvent } from '../../../page-editor/event/incoming/manipulation/AddComponentViewEvent';
+import { RemoveComponentRequest } from '../../../page-editor/event/outgoing/manipulation/RemoveComponentRequest';
+import { RemoveComponentViewEvent } from '../../../page-editor/event/incoming/manipulation/RemoveComponentViewEvent';
+import { LoadComponentViewEvent } from '../../../page-editor/event/incoming/manipulation/LoadComponentViewEvent';
+import { DuplicateComponentEvent } from '../../../page-editor/event/outgoing/manipulation/DuplicateComponentEvent';
+import { SetFragmentComponentEvent } from '../../../page-editor/event/outgoing/manipulation/SetFragmentComponentEvent';
+import { UpdateTextComponentEvent } from '../../../page-editor/event/outgoing/manipulation/UpdateTextComponentEvent';
+import { DuplicateComponentViewEvent } from '../../../page-editor/event/incoming/manipulation/DuplicateComponentViewEvent';
+import { CustomizePageEvent } from '../../../page-editor/event/outgoing/manipulation/CustomizePageEvent';
+import { MoveComponentEvent } from '../../../page-editor/event/outgoing/manipulation/MoveComponentEvent';
+import { MoveComponentViewEvent } from '../../../page-editor/event/incoming/manipulation/MoveComponentViewEvent';
+import { DetachFragmentEvent } from '../../../page-editor/event/outgoing/manipulation/DetachFragmentEvent';
+import { SetPageLockStateEvent } from '../../../page-editor/event/incoming/manipulation/SetPageLockStateEvent';
+import { SetModifyAllowedEvent } from '../../../page-editor/event/incoming/manipulation/SetModifyAllowedEvent';
+import { CreateOrDestroyDraggableEvent } from '../../../page-editor/event/incoming/manipulation/CreateOrDestroyDraggableEvent';
+import { ResetComponentEvent } from '../../../page-editor/event/outgoing/manipulation/ResetComponentEvent';
+import { ResetComponentViewEvent } from '../../../page-editor/event/incoming/manipulation/ResetComponentViewEvent';
+import { TextEditModeChangedEvent } from '../../../page-editor/event/outgoing/navigation/TextEditModeChangedEvent';
+import { EditContentFromComponentViewEvent } from '../../../page-editor/event/outgoing/manipulation/EditContentFromComponentViewEvent';
+import { PageStateEvent } from '../../../page-editor/event/incoming/common/PageStateEvent';
+import { UpdateTextComponentViewEvent } from '../../../page-editor/event/incoming/manipulation/UpdateTextComponentViewEvent';
+import { SetComponentStateEvent } from '../../../page-editor/event/incoming/manipulation/SetComponentStateEvent';
+import { PageReloadRequestedEvent } from '../../../page-editor/event/outgoing/manipulation/PageReloadRequestedEvent';
+import { LoadComponentFailedEvent } from '../../../page-editor/event/outgoing/manipulation/LoadComponentFailedEvent';
+import { IFrameEl } from '@enonic/lib-admin-ui/dom/IFrameEl';
+import { DragMask } from '@enonic/lib-admin-ui/ui/mask/DragMask';
+import { WindowDOM } from '@enonic/lib-admin-ui/dom/WindowDOM';
+import { ContentUrlHelper } from '../../util/ContentUrlHelper';
+import { type Extension } from '@enonic/lib-admin-ui/extension/Extension';
+import { type WizardExtensionRenderingHandler } from '../WizardExtensionRenderingHandler';
+import { IframeEventBus } from '@enonic/lib-admin-ui/event/IframeEventBus';
+import { IframeEvent } from '@enonic/lib-admin-ui/event/IframeEvent';
+import { SetDraggableVisibleEvent } from '../../../page-editor/event/incoming/manipulation/SetDraggableVisibleEvent';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
-export class LiveEditPageProxy
-    implements PageNavigationHandler {
-
+export class LiveEditPageProxy implements PageNavigationHandler {
     private liveEditModel?: LiveEditModel;
 
     private liveEditIFrame?: IFrameEl;
@@ -108,7 +106,6 @@ export class LiveEditPageProxy
     private isPageLocked: boolean;
 
     constructor(model: LiveEditModel) {
-
         this.setModel(model);
 
         this.initElements();
@@ -161,9 +158,11 @@ export class LiveEditPageProxy
         IframeEventBus.get().registerClass('SetFragmentComponentEvent', SetFragmentComponentEvent);
         IframeEventBus.get().registerClass('CreateFragmentEvent', CreateFragmentEvent);
         IframeEventBus.get().registerClass('EditTextComponentViewEvent', EditTextComponentViewEvent);
-        IframeEventBus.get().registerClass('LiveEditPageInitializationErrorEvent', LiveEditPageInitializationErrorEvent);
+        IframeEventBus.get().registerClass(
+            'LiveEditPageInitializationErrorEvent',
+            LiveEditPageInitializationErrorEvent,
+        );
         IframeEventBus.get().registerClass('PageReloadRequestedEvent', PageReloadRequestedEvent);
-
 
         IframeEventBus.get().onEvent('editor-iframe-loaded', (event) => {
             this.handleIFrameLoadedEvent();
@@ -229,7 +228,6 @@ export class LiveEditPageProxy
     }
 
     public load(widgetRenderingHelper: WizardExtensionRenderingHandler, viewWidget: Extension): Promise<boolean> {
-
         PageEventsManager.get().notifyBeforeLoad();
 
         // load the page
@@ -280,7 +278,10 @@ export class LiveEditPageProxy
 
             if (this.isLiveEditAllowed()) {
                 if (LiveEditPageProxy.debug) {
-                    console.debug('LiveEditPageProxy.hanldeIframeLoadedEvent: initialize live edit at ' + new Date().toISOString());
+                    console.debug(
+                        'LiveEditPageProxy.hanldeIframeLoadedEvent: initialize live edit at ' +
+                            new Date().toISOString(),
+                    );
                 }
 
                 new InitializeLiveEditEvent(this.createLiveEditParams())
@@ -292,10 +293,12 @@ export class LiveEditPageProxy
                     .setUser()
                     .setHostDomain(`${window.location.protocol}//${window.location.host}`)
                     .fire();
-
             } else {
                 if (LiveEditPageProxy.debug) {
-                    console.debug('LiveEditPageProxy.handleIframeLoadedEvent: notify live edit ready at ' + new Date().toISOString());
+                    console.debug(
+                        'LiveEditPageProxy.handleIframeLoadedEvent: notify live edit ready at ' +
+                            new Date().toISOString(),
+                    );
                 }
 
                 PageEventsManager.get().notifyLiveEditPageViewReady(new LiveEditPageViewReadyEvent());
@@ -310,18 +313,31 @@ export class LiveEditPageProxy
     }
 
     private createLiveEditParams(): LiveEditParams {
-
-        return LiveEditParams.fromLiveEditModel(this.liveEditModel, this.resolveApplicationKeys(), this.modifyPermissions);
+        return LiveEditParams.fromLiveEditModel(
+            this.liveEditModel,
+            this.resolveApplicationKeys(),
+            this.modifyPermissions,
+        );
     }
 
     private resolveApplicationKeys(): string[] {
         // if is site or within site then get application keys from site
         if (this.liveEditModel.getSiteModel()?.getSite()) {
-            return this.liveEditModel.getSiteModel().getSite().getApplicationKeys().map((key) => key.toString()) || [];
+            return (
+                this.liveEditModel
+                    .getSiteModel()
+                    .getSite()
+                    .getApplicationKeys()
+                    .map((key) => key.toString()) || []
+            );
         }
 
         // if is root non-site content then get application keys from project, e.g. headless content items
-        return getActiveProject()?.getSiteConfigs()?.map((config) => config.getApplicationKey().toString()) || [];
+        return (
+            getActiveProject()
+                ?.getSiteConfigs()
+                ?.map((config) => config.getApplicationKey().toString()) || []
+        );
     }
 
     isLocked(): boolean {
@@ -423,19 +439,25 @@ export class LiveEditPageProxy
             const eventData = new PageNavigationEventData(path, PageNavigationEventSource.EDITOR);
 
             PageNavigationMediator.get().notify(
-                new PageNavigationEvent(PageNavigationEventType.SELECT, eventData), this);
+                new PageNavigationEvent(PageNavigationEventType.SELECT, eventData),
+                this,
+            );
         });
 
         DeselectComponentEvent.on(() => {
             PageNavigationMediator.get().notify(
-                new PageNavigationEvent(PageNavigationEventType.DESELECT, new PageNavigationEventData()), this);
+                new PageNavigationEvent(PageNavigationEventType.DESELECT, new PageNavigationEventData()),
+                this,
+            );
         });
 
         ComponentInspectedEvent.on((event: ComponentInspectedEvent) => {
-
             PageNavigationMediator.get().notify(
-                new PageNavigationEvent(PageNavigationEventType.INSPECT,
-                    new PageNavigationEventData(event.getComponentPath())));
+                new PageNavigationEvent(
+                    PageNavigationEventType.INSPECT,
+                    new PageNavigationEventData(event.getComponentPath()),
+                ),
+            );
         });
 
         ShowWarningLiveEditEvent.on((event: ShowWarningLiveEditEvent) => {
@@ -516,7 +538,7 @@ export class LiveEditPageProxy
 
         EditTextComponentViewEvent.on((event: EditTextComponentViewEvent): void => {
             PageEventsManager.get().notifyTextComponentEditRequested(event.getPath());
-        })
+        });
 
         CustomizePageEvent.on((event: CustomizePageEvent): void => {
             PageEventsManager.get().notifyCustomizePageRequested();
@@ -555,7 +577,6 @@ export class LiveEditPageProxy
     }
 
     private listenToMainFrameEvents() {
-
         PageState.getEvents().onComponentAdded((event: ComponentAddedEvent): void => {
             if (this.isFrameLoaded) {
                 if (event instanceof ComponentDuplicatedEvent) {
@@ -637,10 +658,12 @@ export class LiveEditPageProxy
     private isLiveEditAllowed(): boolean {
         // if content is rendered, but has no controller nor template, we should not allow live edit
 
-        return this.liveEditModel ? this.liveEditModel.getContent().isPageTemplate() ||
-                                    PageState.getState()?.hasController() ||
-                                    this.liveEditModel.getContent().getType().isFragment() ||
-                                    this.liveEditModel.getDefaultModels()?.hasDefaultPageTemplate() : false;
+        return this.liveEditModel
+            ? this.liveEditModel.getContent().isPageTemplate() ||
+                  PageState.getState()?.hasController() ||
+                  this.liveEditModel.getContent().getType().isFragment() ||
+                  this.liveEditModel.getDefaultModels()?.hasDefaultPageTemplate()
+            : false;
     }
 
     private initElements() {

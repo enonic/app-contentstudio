@@ -5,10 +5,9 @@ import {
     cleanupTask as cleanupTaskService,
     getTaskPhaseInfo,
     trackTask as trackTaskService,
-    type TaskPhase,
-    type TaskTrackerConfig,
-} from '../services/task.service';
-import { $taskStore, type TaskProgressState, type TaskResultState } from '../store/task.store';
+    $taskStore,
+} from '../../entities/task';
+import type { TaskPhase, TaskTrackerConfig, TaskProgressState, TaskResultState } from '../../entities/task';
 import { clampProgress } from '../../shared/lib/cms/content/progress';
 
 export type UseTaskProgressResult = {

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { getContent, hasContent, getMissingIds } from '../model/content.store';
 import { clearAllContentCaches, clearProjectContentCache, setContent } from '../model/content.commands';
-import { $activeProject } from '../../../features/store/activeProject.store';
+import { $activeProject } from '../../project/activeProject.store';
 import type { Project } from '../../../../app/settings/data/project/Project';
 import {
     addTreeNodes,

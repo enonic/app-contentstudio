@@ -1,13 +1,13 @@
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {type Element as UiElement} from '@enonic/lib-admin-ui/dom/Element';
-import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
+import { type Element as UiElement } from '@enonic/lib-admin-ui/dom/Element';
+import { LoadMask } from '@enonic/lib-admin-ui/ui/mask/LoadMask';
+import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
-import {getActiveProjectName} from '../../../v6/features/store/activeProject.store';
-import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {ContextPanelExtensionElement} from '../../extension/ContextPanelExtensionElement';
-import {RepositoryId} from '../../repository/RepositoryId';
+import { getActiveProjectName } from '../../../v6/entities/project/activeProject.store';
+import { type ContentSummaryAndCompareStatus } from '../../content/ContentSummaryAndCompareStatus';
+import { ContextPanelExtensionElement } from '../../extension/ContextPanelExtensionElement';
+import { RepositoryId } from '../../repository/RepositoryId';
 
 export interface ExtensionItemViewType {
     layout(): Q.Promise<void>;
@@ -17,9 +17,7 @@ export interface ExtensionItemViewType {
     show(): void;
 }
 
-export class ExtensionItemView
-    extends DivEl implements ExtensionItemViewType {
-
+export class ExtensionItemView extends DivEl implements ExtensionItemViewType {
     public static debug: boolean = false;
 
     private loadMask?: LoadMask;
@@ -76,7 +74,7 @@ export class ExtensionItemView
         const fullUrl: string = ExtensionItemView.getFullExtensionUrl(url, contentId);
 
         fetch(fullUrl)
-            .then(response => response.text())
+            .then((response) => response.text())
             .then((html: string) => {
                 this.show();
                 this.cleanupWidget();
@@ -115,10 +113,9 @@ export class ExtensionItemView
         }
 
         this.restoreInProgress = true;
-        this.fetchExtensionContents(this.lastUrl, this.lastContentId)
-            .finally(() => {
-                this.restoreInProgress = false;
-            });
+        this.fetchExtensionContents(this.lastUrl, this.lastContentId).finally(() => {
+            this.restoreInProgress = false;
+        });
     }
 
     public cleanupWidget(): void {

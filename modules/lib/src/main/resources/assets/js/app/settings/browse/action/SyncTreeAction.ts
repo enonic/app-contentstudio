@@ -1,12 +1,10 @@
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {SyncLayersRequest} from '../../resource/SyncLayersRequest';
-import {showFeedback, showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {$projects} from '../../../../v6/features/store/projects.store';
+import { Action } from '@enonic/lib-admin-ui/ui/Action';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { SyncLayersRequest } from '../../resource/SyncLayersRequest';
+import { showFeedback, showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { $projects } from '../../../../v6/entities/project/projects.store';
 
-export class SyncTreeAction
-    extends Action {
-
+export class SyncTreeAction extends Action {
     private inProgress: boolean = false;
 
     constructor() {

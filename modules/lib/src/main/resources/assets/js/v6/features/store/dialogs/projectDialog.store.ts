@@ -17,17 +17,17 @@ import { type Application } from '@enonic/lib-admin-ui/application/Application';
 import { ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import { PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
 import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
-import { $applications, loadApplications } from '../applications.store';
+import { $applications, loadApplications } from '../../../entities/application';
 import { getProjectDetailedPermissions } from '../../../shared/lib/url/projects';
-import { $principals, loadPrincipalsByKeys } from '../principals.store';
+import { $principals, loadPrincipalsByKeys } from '../../../entities/principal';
 import { formatError } from '../../../shared/lib/format/error';
 import { UpdateProjectReadAccessRequest } from '../../../../app/settings/resource/UpdateProjectReadAccessRequest';
-import { trackTask } from '../../services/task.service';
+import { trackTask } from '../../../entities/task';
 import { ProjectCreatedEvent } from '../../../../app/settings/event/ProjectCreatedEvent';
 import { ProjectUpdatedEvent } from '../../../../app/settings/event/ProjectUpdatedEvent';
 import { clearSelection, setActive } from '../settingsTreeSelection.store';
 import { $settingsTreeState, resetSettingsTreeForReload } from '../settings-tree.store';
-import { $projects, reloadProjects } from '../projects.store';
+import { $projects, reloadProjects } from '../../../entities/project/projects.store';
 import { setProjectSelectionDialogOpen } from '../dialogs.store';
 
 //

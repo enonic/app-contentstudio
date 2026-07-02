@@ -7,7 +7,7 @@ import { useStore } from '@nanostores/preact';
 import { type ReactElement, type ReactNode, useMemo } from 'react';
 import { useApplicationKeys } from '../../hooks/useApplicationKeys';
 import { $contextContent } from '../../store/context/contextContent.store';
-import { $activeProject } from '../../store/activeProject.store';
+import { $activeProject } from '../../../entities/project';
 import { Input } from '@enonic/lib-admin-ui/form/Input';
 import { instanceOf } from '../../../shared/lib/object/instanceOf';
 import { FormRenderProvider } from './FormRenderContext';

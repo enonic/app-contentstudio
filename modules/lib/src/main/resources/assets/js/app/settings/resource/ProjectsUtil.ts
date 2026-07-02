@@ -1,9 +1,8 @@
-import {type Project} from '../data/project/Project';
-import {$projects} from '../../../v6/features/store/projects.store';
-import {Projects} from './Projects';
+import { type Project } from '../data/project/Project';
+import { $projects } from '../../../v6/entities/project/projects.store';
+import { Projects } from './Projects';
 
 export class ProjectsUtil {
-
     public static getProjectsPyParent(parentName: string | null): Project[] {
         const projects = $projects.get().projects;
         if (parentName == null) {

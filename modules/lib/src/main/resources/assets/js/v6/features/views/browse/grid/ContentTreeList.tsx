@@ -42,7 +42,7 @@ import type { FlatNode } from '../../../../shared/lib/tree-store';
 import { ItemLabel } from '../../../../shared/ui/ItemLabel';
 import { virtuosoComponents } from '../../../shared/lists';
 import { ProgressBar } from '../../../../shared/ui/primitives/ProgressBar';
-import { $activeProject } from '../../../store/activeProject.store';
+import { $activeProject } from '../../../../entities/project';
 import { useDebouncedCallback } from '../../../../shared/lib/hooks/useDebouncedCallback';
 import type { ContentData } from '../../../../entities/content/model/ContentData';
 import { ContentTreeContextMenu, type ContentTreeContextMenuProps } from './ContentTreeContextMenu';

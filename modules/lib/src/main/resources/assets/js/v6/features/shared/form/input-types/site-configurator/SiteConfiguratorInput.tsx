@@ -20,7 +20,7 @@ import { ContentId } from '../../../../../../app/content/ContentId';
 import { ContentRequiresSaveEvent } from '../../../../../../app/event/ContentRequiresSaveEvent';
 import { ProjectHelper } from '../../../../../../app/settings/data/project/ProjectHelper';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
-import { $applications, loadApplications, reloadApplications } from '../../../../store/applications.store';
+import { $applications, loadApplications, reloadApplications } from '../../../../../entities/application';
 import { $contextContent } from '../../../../store/context/contextContent.store';
 import { $isHtmlAreaModalDialogOpen, $isHtmlAreaOverlayOpen } from '../../../../store/dialogs/htmlAreaModal.store';
 import { requestMixinSeed } from '../../../../store/wizardContent.store';

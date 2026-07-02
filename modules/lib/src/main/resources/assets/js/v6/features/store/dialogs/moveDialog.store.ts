@@ -1,12 +1,12 @@
-import {showError, showSuccess} from '@enonic/lib-admin-ui/notify/MessageBus';
-import type {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {computed, map} from 'nanostores';
-import {ContentIds} from '../../../../app/content/ContentIds';
-import type {ContentSummary} from '../../../../app/content/ContentSummary';
-import {MoveContentRequest} from '../../../../app/resource/MoveContentRequest';
-import {cleanupTask, trackTask} from '../../services/task.service';
-import {$isWizard} from '../app.store';
+import { showError, showSuccess } from '@enonic/lib-admin-ui/notify/MessageBus';
+import type { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { computed, map } from 'nanostores';
+import { ContentIds } from '../../../../app/content/ContentIds';
+import type { ContentSummary } from '../../../../app/content/ContentSummary';
+import { MoveContentRequest } from '../../../../app/resource/MoveContentRequest';
+import { cleanupTask, trackTask } from '../../../entities/task';
+import { $isWizard } from '../app.store';
 
 //
 // * Types
@@ -50,12 +50,12 @@ export const $moveDialog = map<MoveDialogStore>(structuredClone(initialState));
 // * Derived State
 //
 
-export const $moveItemsCount = computed($moveDialog, ({items}) => items.length);
-export const $moveItems = computed($moveDialog, ({open, items}) => (open ? items : []));
-export const $isMoveDialogReady = computed($moveDialog, ({open, submitting, items, destinationId}) => {
+export const $moveItemsCount = computed($moveDialog, ({ items }) => items.length);
+export const $moveItems = computed($moveDialog, ({ open, items }) => (open ? items : []));
+export const $isMoveDialogReady = computed($moveDialog, ({ open, submitting, items, destinationId }) => {
     return open && !submitting && items.length > 0 && !!destinationId;
 });
-export const $moveTaskId = computed($moveDialog, ({taskId}) => taskId);
+export const $moveTaskId = computed($moveDialog, ({ taskId }) => taskId);
 
 let moveCompletionHandled = false;
 
@@ -85,7 +85,7 @@ export const openMoveDialog = (items: readonly ContentSummary[]): void => {
 };
 
 export const cancelMoveDialog = (): void => {
-    const {submitting} = $moveDialog.get();
+    const { submitting } = $moveDialog.get();
     if (submitting) {
         return;
     }
@@ -93,7 +93,7 @@ export const cancelMoveDialog = (): void => {
 };
 
 export const resetMoveDialogContext = (): void => {
-    const {taskId} = $moveDialog.get();
+    const { taskId } = $moveDialog.get();
     if (taskId) {
         cleanupTask(taskId);
     }
@@ -128,7 +128,7 @@ export const executeMoveDialogAction = async (): Promise<boolean> => {
     }
 
     const contentIds = ContentIds.create()
-        .fromContentIds(items.map(item => item.getContentId()))
+        .fromContentIds(items.map((item) => item.getContentId()))
         .build();
     const pendingTotal = items.length;
     const pendingPrimaryName = items[0]?.getDisplayName() || items[0]?.getPath()?.toString() || '';
@@ -180,10 +180,7 @@ const handleMoveSuccess = (): void => {
     const total = state.pendingTotal || state.items.length || 1;
     const destinationPath = state.pendingDestinationPath || state.destinationPath || '';
     const destinationLabel = destinationPath || i18n('field.root');
-    const baseMessage = i18n(
-        total > 1 ? 'notify.items.moved.to.multi' : 'notify.items.moved.to.single',
-        total,
-    );
+    const baseMessage = i18n(total > 1 ? 'notify.items.moved.to.multi' : 'notify.items.moved.to.single', total);
     const message = $isWizard.get() ? baseMessage : `${baseMessage} ${destinationLabel}`;
 
     showSuccess(message);

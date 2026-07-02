@@ -84,7 +84,7 @@ vi.mock('../../api/publish', () => ({
     resolvePublishDependencies: mockResolvePublishDependencies,
 }));
 
-vi.mock('../../services/task.service', () => ({
+vi.mock('../../../entities/task/task.service', () => ({
     cleanupTask: mockCleanupTask,
     trackTask: mockTrackTask,
 }));

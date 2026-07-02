@@ -1,11 +1,10 @@
-import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {type ContentId} from '../content/ContentId';
-import {type DependencyType} from './DependencyType';
-import {getActiveProjectName} from '../../v6/features/store/activeProject.store';
-import {Branch} from '../versioning/Branch';
+import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { type ContentId } from '../content/ContentId';
+import { type DependencyType } from './DependencyType';
+import { getActiveProjectName } from '../../v6/entities/project/activeProject.store';
+import { Branch } from '../versioning/Branch';
 
 export class DependencyParams {
-
     private readonly id: ContentId;
 
     private readonly dependencyType: DependencyType;
@@ -47,7 +46,6 @@ export class DependencyParams {
     static create(): DependencyParamsBuilder {
         return new DependencyParamsBuilder();
     }
-
 }
 
 export class DependencyParamsBuilder {

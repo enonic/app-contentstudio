@@ -9,9 +9,8 @@ import { DefaultProjectIcon } from '../../../../shared/ui/icons/DefaultProjectIc
 import { ProjectIcon } from '../../../../shared/ui/icons/ProjectIcon';
 import { LegacyElement } from '../../../../shared/ui/LegacyElement';
 import { WidgetButton } from '../../../../shared/ui/WidgetButton';
-import { $activeProject } from '../../../store/activeProject.store';
+import { $activeProject, $noProjectMode } from '../../../../entities/project';
 import { $config } from '../../../../shared/config/config.store';
-import { $noProjectMode } from '../../../store/projects.store';
 import {
     $sidebarWidgets,
     getSettingsWidget,
