@@ -1,11 +1,4 @@
 import { atom } from 'nanostores';
-import {
-    $contentUpdated,
-    $contentPublished,
-    $contentUnpublished,
-    $contentPermissionsUpdated,
-} from '../shared/socket/socket.store';
-import { $currentIds } from '../entities/content';
 
 //
 // * Actions Refresh Signal
@@ -15,6 +8,7 @@ import { $currentIds } from '../entities/content';
 //
 // Currently, actions are only re-evaluated on selection change. This store bridges
 // the gap by detecting when selected content changes and signaling a refresh.
+// The socket wiring lives in actions.service.ts, started from the app root.
 //
 
 //
@@ -61,50 +55,3 @@ export const $actionsNeedRefresh = atom<number>(0);
 export function clearActionsRefreshSignal(): void {
     $actionsNeedRefresh.set(0);
 }
-
-//
-// * Internal Helpers
-//
-
-// Check if any changed IDs are in current selection and signal refresh
-function checkAndSignalRefresh(changedIds: string[]): void {
-    const currentIds = $currentIds.get();
-    if (currentIds.length === 0) return;
-
-    const changedSet = new Set(changedIds);
-    if (currentIds.some((id) => changedSet.has(id))) {
-        $actionsNeedRefresh.set(Date.now());
-    }
-}
-
-//
-// * Socket Event Subscriptions (self-initializing at module load)
-//
-
-// Content updated - properties may affect action availability
-$contentUpdated.subscribe((event) => {
-    if (event?.data) {
-        checkAndSignalRefresh(event.data.map((item) => item.getId()));
-    }
-});
-
-// Content published - publish state affects many actions
-$contentPublished.subscribe((event) => {
-    if (event?.data) {
-        checkAndSignalRefresh(event.data.map((item) => item.getId()));
-    }
-});
-
-// Content unpublished - publish state affects many actions
-$contentUnpublished.subscribe((event) => {
-    if (event?.data) {
-        checkAndSignalRefresh(event.data.map((item) => item.getId()));
-    }
-});
-
-// Permissions updated - directly affects action availability
-$contentPermissionsUpdated.subscribe((event) => {
-    if (event?.data) {
-        checkAndSignalRefresh(event.data.map((id) => id.toString()));
-    }
-});

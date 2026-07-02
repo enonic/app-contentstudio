@@ -14,27 +14,10 @@ import {
     createDependantWindowLoader,
     fetchDependantWindowSlice,
     orderSummariesByIds,
-    pruneDependantWindow,
 } from '../../../entities/content/lib/dependantWindow';
 import { calcDependantsSelection, nextDependantExclusions } from '../../../shared/lib/cms/content/dependantsSelection';
 import { hasContentIdInIds, uniqueIds } from '../../../shared/lib/cms/content/ids';
-import { findContentIdsWithCreatedDescendants } from '../../../shared/lib/cms/content/paths';
-import {
-    createContentIdSet,
-    patchTrackedContentItems,
-    refreshTrackedMainContentItems,
-    removeTrackedContentItems,
-} from '../../../shared/lib/cms/content/trackedItems';
-import { createGuardedSocketHandler } from '../../../shared/lib/store/createGuardedSocketHandler';
 import { createDebounce } from '../../../shared/lib/timing/createDebounce';
-import {
-    $contentArchived,
-    $contentCreated,
-    $contentDeleted,
-    $contentPublished,
-    $contentRenamed,
-    $contentUpdated,
-} from '../../../shared/socket/socket.store';
 import { closeIssueDialog, openIssueDialogDetails } from './issueDialog.store';
 
 const DEPENDENCY_RELOAD_DELAY_MS = 150;
@@ -93,11 +76,13 @@ export const $newIssueDependantsSelection = computed(
 
 let instanceId = 0;
 
-const reloadDependenciesDebounced = createDebounce(() => {
+// Shared with the service wiring, which also schedules reloads on socket events.
+export const reloadDependenciesDebounced = createDebounce(() => {
     void reloadNewIssueDependencies();
 }, DEPENDENCY_RELOAD_DELAY_MS);
 
-const resetDependenciesState = (state: NewIssueDialogStore): NewIssueDialogStore => {
+// Shared with the service wiring, which clears dependencies when items empty out.
+export const resetDependenciesState = (state: NewIssueDialogStore): NewIssueDialogStore => {
     return {
         ...state,
         dependants: [],
@@ -322,126 +307,6 @@ export const submitNewIssueDialog = async (): Promise<void> => {
         $newIssueDialog.setKey('submitting', false);
     }
 };
-
-//
-// * Socket Event Handlers
-//
-
-const isNewIssueDialogActive = (): boolean => {
-    const { open, items } = $newIssueDialog.get();
-    return open && items.length > 0;
-};
-
-const onNewIssueSocketEvent = createGuardedSocketHandler(isNewIssueDialogActive);
-
-const patchTrackedNewIssueItems = (updates: ContentSummary[]): { updatedMain: boolean; updatedDependants: boolean } => {
-    const change = patchTrackedContentItems($newIssueDialog.get(), updates);
-
-    if (change.changed) {
-        $newIssueDialog.set(change.state);
-    }
-
-    return {
-        updatedMain: change.changedMain,
-        updatedDependants: change.changedDependants,
-    };
-};
-
-const removeTrackedNewIssueItems = (idsToRemove: Set<string>): { removedMain: boolean; removedDependants: boolean } => {
-    const change = removeTrackedContentItems($newIssueDialog.get(), idsToRemove);
-    const pruned = pruneDependantWindow(change.changed ? change.state : $newIssueDialog.get(), idsToRemove);
-
-    if (change.changed || pruned.changed) {
-        $newIssueDialog.set(pruned.state);
-    }
-
-    return {
-        removedMain: change.changedMain,
-        // An id-only prune (dependant beyond the loaded window) must also count:
-        // callers rely on this flag to reschedule the dependency reload.
-        removedDependants: change.changedDependants || pruned.changed,
-    };
-};
-
-const handleRemovedNewIssueItems = (idsToRemove: Set<string>): void => {
-    const { removedMain, removedDependants } = removeTrackedNewIssueItems(idsToRemove);
-
-    if ($newIssueDialog.get().items.length === 0) {
-        $newIssueDialog.set(
-            resetDependenciesState({
-                ...$newIssueDialog.get(),
-                items: [],
-                excludeChildrenIds: [],
-            }),
-        );
-        return;
-    }
-
-    if (removedMain || removedDependants) {
-        reloadDependenciesDebounced();
-    }
-};
-
-const refreshNewIssueMainItems = async (ids: ContentId[]): Promise<void> => {
-    try {
-        const change = await refreshTrackedMainContentItems($newIssueDialog.get(), ids, fetchContentSummaries);
-
-        if (change.changed && isNewIssueDialogActive()) {
-            $newIssueDialog.set(change.state);
-        }
-    } catch (error) {
-        console.error(error);
-    }
-};
-
-$contentCreated.subscribe(
-    onNewIssueSocketEvent((event) => {
-        const matched = findContentIdsWithCreatedDescendants($newIssueDialog.get().items, event.data);
-        if (matched.length === 0) {
-            return;
-        }
-
-        void refreshNewIssueMainItems(matched).finally(() => {
-            reloadDependenciesDebounced();
-        });
-    }),
-);
-
-$contentUpdated.subscribe(
-    onNewIssueSocketEvent((event) => {
-        const { updatedMain, updatedDependants } = patchTrackedNewIssueItems(event.data);
-        if (updatedMain || updatedDependants) {
-            reloadDependenciesDebounced();
-        }
-    }),
-);
-
-$contentRenamed.subscribe(
-    onNewIssueSocketEvent((event) => {
-        patchTrackedNewIssueItems(event.data.items);
-    }),
-);
-
-$contentDeleted.subscribe(
-    onNewIssueSocketEvent((event) => {
-        handleRemovedNewIssueItems(createContentIdSet(event.data));
-    }),
-);
-
-$contentArchived.subscribe(
-    onNewIssueSocketEvent((event) => {
-        handleRemovedNewIssueItems(createContentIdSet(event.data));
-    }),
-);
-
-$contentPublished.subscribe(
-    onNewIssueSocketEvent((event) => {
-        const { updatedMain, updatedDependants } = patchTrackedNewIssueItems(event.data);
-        if (updatedMain || updatedDependants) {
-            reloadDependenciesDebounced();
-        }
-    }),
-);
 
 export const loadMoreNewIssueDependants = createDependantWindowLoader($newIssueDialog, () => instanceId);
 

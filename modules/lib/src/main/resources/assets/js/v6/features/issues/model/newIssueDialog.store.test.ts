@@ -8,6 +8,7 @@ import {
     emitContentRenamed,
     emitContentUpdated,
 } from '../../../shared/socket/socket.store';
+import { start as startNewIssueDialogService } from './newIssueDialog.service';
 import {
     $newIssueDependantsSelection,
     $newIssueDialog,
@@ -69,6 +70,7 @@ async function flushNewIssueReload(): Promise<void> {
 
 describe('newIssueDialog.store', () => {
     beforeEach(() => {
+        startNewIssueDialogService();
         vi.useFakeTimers();
         resetNewIssueDialogContext();
         mockFetchContentSummaries.mockReset().mockResolvedValue([]);
