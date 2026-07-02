@@ -1,24 +1,24 @@
-import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
-import {DialogPresetConfirmElement} from '../../../v6/features/shared/dialogs/DialogPreset';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ContentAggregation} from './ContentAggregation';
-import {type AggregationSelection} from '@enonic/lib-admin-ui/aggregation/AggregationSelection';
-import {Path} from '@enonic/lib-admin-ui/rest/Path';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {type DateRangeBucket} from '@enonic/lib-admin-ui/aggregation/DateRangeBucket';
-import {ValueExpr} from '@enonic/lib-admin-ui/query/expr/ValueExpr';
-import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
-import {DateTimeFormatter} from '@enonic/lib-admin-ui/ui/treegrid/DateTimeFormatter';
-import {type SearchInputValues} from '@enonic/lib-admin-ui/query/SearchInputValues';
-import {type ContentDependency} from './ContentDependency';
-import {getActiveProjectName} from '../../../v6/features/store/activeProject.store';
+import { SpanEl } from '@enonic/lib-admin-ui/dom/SpanEl';
+import { DialogPresetConfirmElement } from '../../../v6/features/shared/dialogs/DialogPreset';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { ContentAggregation } from './ContentAggregation';
+import { type AggregationSelection } from '@enonic/lib-admin-ui/aggregation/AggregationSelection';
+import { Path } from '@enonic/lib-admin-ui/rest/Path';
+import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
+import { type DateRangeBucket } from '@enonic/lib-admin-ui/aggregation/DateRangeBucket';
+import { ValueExpr } from '@enonic/lib-admin-ui/query/expr/ValueExpr';
+import { UriHelper } from '@enonic/lib-admin-ui/util/UriHelper';
+import { DateTimeFormatter } from '@enonic/lib-admin-ui/ui/treegrid/DateTimeFormatter';
+import { type SearchInputValues } from '@enonic/lib-admin-ui/query/SearchInputValues';
+import { type ContentDependency } from './ContentDependency';
+import { getActiveProjectName } from '../../../v6/entities/project/activeProject.store';
 
 enum EXPORT_TYPE {
-    CSV = 'csv', JSON = 'json'
+    CSV = 'csv',
+    JSON = 'json',
 }
 
 export class ContentExportElement extends SpanEl {
-
     protected exportServicePath: string;
 
     protected total: number;
@@ -73,7 +73,7 @@ export class ContentExportElement extends SpanEl {
                 dialog.close();
                 this.exportSearch(this.getSelectedType());
             },
-            onCancel: () => dialog.close()
+            onCancel: () => dialog.close(),
         });
 
         dialog.open();
@@ -104,22 +104,28 @@ export class ContentExportElement extends SpanEl {
             params[dependencyType] = this.dependency.dependencyId?.toString();
         }
 
-        this.searchInputValues.aggregationSelections.filter((value) => value.getSelectedBuckets().length).forEach((selected) => {
-            params[selected.getName()] = this.aggregationSelectionValueToString(selected);
-        });
+        this.searchInputValues.aggregationSelections
+            .filter((value) => value.getSelectedBuckets().length)
+            .forEach((selected) => {
+                params[selected.getName()] = this.aggregationSelectionValueToString(selected);
+            });
 
         return UriHelper.appendUrlParams(this.getReportServicePath(), params);
     }
 
     protected aggregationSelectionValueToString(selected: AggregationSelection): string {
         if (selected.getName() === ContentAggregation.LAST_MODIFIED.toString()) {
-            return selected.getSelectedBuckets().map(
-                (bucket: DateRangeBucket) => ValueExpr.dateTime(bucket.getFrom()).getValue().getString()).join();
+            return selected
+                .getSelectedBuckets()
+                .map((bucket: DateRangeBucket) => ValueExpr.dateTime(bucket.getFrom()).getValue().getString())
+                .join();
         }
 
-        return selected.getSelectedBuckets().map((bucket) => bucket.getKey()).join();
+        return selected
+            .getSelectedBuckets()
+            .map((bucket) => bucket.getKey())
+            .join();
     }
-
 
     protected getReportServicePath(): string {
         if (!this.exportServicePath) {
@@ -139,5 +145,4 @@ export class ContentExportElement extends SpanEl {
         element.click();
         document.body.removeChild(element);
     }
-
 }

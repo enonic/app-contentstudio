@@ -35,7 +35,7 @@ vi.mock('../../api/delete', () => ({
     archiveContent: mockArchiveContent,
 }));
 
-vi.mock('../../services/task.service', () => ({
+vi.mock('../../../entities/task/task.service', () => ({
     cleanupTask: mockCleanupTask,
     trackTask: mockTrackTask,
 }));

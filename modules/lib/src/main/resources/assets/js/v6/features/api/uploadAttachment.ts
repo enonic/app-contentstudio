@@ -4,7 +4,7 @@ import { ContentPath } from '../../../app/content/ContentPath';
 import { type Project } from '../../../app/settings/data/project/Project';
 import { UrlHelper } from '../../../app/util/UrlHelper';
 import { UploadError } from '../../shared/api/errors';
-import { $activeProject } from '../store/activeProject.store';
+import { $activeProject } from '../../entities/project';
 import { sanitizeName } from '../../shared/lib/upload/upload';
 
 const UPLOAD_PROGRESS_CAP = 99;

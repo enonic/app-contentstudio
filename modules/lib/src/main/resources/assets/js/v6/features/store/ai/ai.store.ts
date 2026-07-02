@@ -10,7 +10,7 @@ import type { Descriptor } from '../../../../app/page/Descriptor';
 import type { Page } from '../../../../app/page/Page';
 import type { ContentWizardHeader } from '../../../../app/wizard/ContentWizardHeader';
 import { $config } from '../../../shared/config/config.store';
-import { $languagesLoaded } from '../languages.store';
+import { $languagesLoaded } from '../../../entities/language';
 import type { AiPluginId } from './ai-protocol';
 import type { EnonicAiPlugin } from './ai.types';
 

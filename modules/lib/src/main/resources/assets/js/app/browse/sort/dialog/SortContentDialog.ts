@@ -1,35 +1,33 @@
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
-import {ModalDialog, type ModalDialogConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
-import {TabMenu} from '@enonic/lib-admin-ui/ui/tab/TabMenu';
-import {type TabMenuItem, TabMenuItemBuilder} from '@enonic/lib-admin-ui/ui/tab/TabMenuItem';
-import {type ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { H6El } from '@enonic/lib-admin-ui/dom/H6El';
+import { ModalDialog, type ModalDialogConfig } from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
+import { TabMenu } from '@enonic/lib-admin-ui/ui/tab/TabMenu';
+import { type TabMenuItem, TabMenuItemBuilder } from '@enonic/lib-admin-ui/ui/tab/TabMenuItem';
+import { type ActionButton } from '@enonic/lib-admin-ui/ui2/ActionButton';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import type Q from 'q';
-import {Permission} from '../../../access/Permission';
-import {type Content} from '../../../content/Content';
-import {ContentInheritType} from '../../../content/ContentInheritType';
-import {type ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
-import {ContentsExistRequest} from '../../../resource/ContentsExistRequest';
-import {type ContentsExistResult} from '../../../resource/ContentsExistResult';
-import {ContentSummaryAndCompareStatusFetcher} from '../../../resource/ContentSummaryAndCompareStatusFetcher';
-import {GetPermittedActionsRequest} from '../../../resource/GetPermittedActionsRequest';
-import {type ChildOrder} from '../../../resource/order/ChildOrder';
-import {type OrderChildMovements} from '../../../resource/order/OrderChildMovements';
-import {OrderChildContentRequest} from '../../../resource/OrderChildContentRequest';
-import {OrderContentRequest} from '../../../resource/OrderContentRequest';
-import {RestoreInheritRequest} from '../../../resource/RestoreInheritRequest';
-import {SaveSortedContentAction} from '../../action/SaveSortedContentAction';
-import {ContentGridDragHandler} from '../../ContentGridDragHandler';
-import {OpenSortDialogEvent} from '../../OpenSortDialogEvent';
-import {SortContentTabMenu} from '../menu/SortContentTabMenu';
-import {type SortContentTabMenuItem} from '../menu/SortContentTabMenuItem';
-import {SortContentTreeGrid} from '../SortContentTreeGrid';
-import {getActiveProject} from '../../../../v6/features/store/activeProject.store';
+import { Permission } from '../../../access/Permission';
+import { type Content } from '../../../content/Content';
+import { ContentInheritType } from '../../../content/ContentInheritType';
+import { type ContentSummaryAndCompareStatus } from '../../../content/ContentSummaryAndCompareStatus';
+import { ContentsExistRequest } from '../../../resource/ContentsExistRequest';
+import { type ContentsExistResult } from '../../../resource/ContentsExistResult';
+import { ContentSummaryAndCompareStatusFetcher } from '../../../resource/ContentSummaryAndCompareStatusFetcher';
+import { GetPermittedActionsRequest } from '../../../resource/GetPermittedActionsRequest';
+import { type ChildOrder } from '../../../resource/order/ChildOrder';
+import { type OrderChildMovements } from '../../../resource/order/OrderChildMovements';
+import { OrderChildContentRequest } from '../../../resource/OrderChildContentRequest';
+import { OrderContentRequest } from '../../../resource/OrderContentRequest';
+import { RestoreInheritRequest } from '../../../resource/RestoreInheritRequest';
+import { SaveSortedContentAction } from '../../action/SaveSortedContentAction';
+import { ContentGridDragHandler } from '../../ContentGridDragHandler';
+import { OpenSortDialogEvent } from '../../OpenSortDialogEvent';
+import { SortContentTabMenu } from '../menu/SortContentTabMenu';
+import { type SortContentTabMenuItem } from '../menu/SortContentTabMenuItem';
+import { SortContentTreeGrid } from '../SortContentTreeGrid';
+import { getActiveProject } from '../../../../v6/entities/project/activeProject.store';
 
-export class SortContentDialog
-    extends ModalDialog {
-
+export class SortContentDialog extends ModalDialog {
     private sortAction: SaveSortedContentAction;
 
     private selectedContent: ContentSummaryAndCompareStatus;
@@ -47,7 +45,7 @@ export class SortContentDialog
     constructor() {
         super({
             title: i18n('dialog.sort'),
-            class: 'sort-content-dialog'
+            class: 'sort-content-dialog',
         } as ModalDialogConfig);
     }
 
@@ -125,7 +123,7 @@ export class SortContentDialog
 
     private initTabMenu() {
         const menu: TabMenu = new TabMenu();
-        const tabMenuItem: TabMenuItem = (new TabMenuItemBuilder().setLabel(i18n('field.sortType'))).build();
+        const tabMenuItem: TabMenuItem = new TabMenuItemBuilder().setLabel(i18n('field.sortType')).build();
         tabMenuItem.setActive(true);
         menu.addNavigationItem(tabMenuItem);
         menu.selectNavigationItem(0);
@@ -158,7 +156,8 @@ export class SortContentDialog
         this.toggleGridVisibility();
         this.checkSortPermissions();
 
-        if (document.activeElement instanceof HTMLElement) { // making sure other keyboard handlers are removed before opening this dialog
+        if (document.activeElement instanceof HTMLElement) {
+            // making sure other keyboard handlers are removed before opening this dialog
             document.activeElement.blur();
         }
 
@@ -178,13 +177,15 @@ export class SortContentDialog
         const hasParents = getActiveProject().hasParents();
 
         if (hasParents) {
-            this.fetchParentLayerContent().then((parentLayerContent: ContentSummaryAndCompareStatus) => {
-                if (!parentLayerContent) {
-                    this.sortContentMenu.removeInheritedItem();
-                } else {
-                    this.addInheritedItemByOrder(parentLayerContent.getContentSummary().getChildOrder());
-                }
-            }).catch(DefaultErrorHandler.handle);
+            this.fetchParentLayerContent()
+                .then((parentLayerContent: ContentSummaryAndCompareStatus) => {
+                    if (!parentLayerContent) {
+                        this.sortContentMenu.removeInheritedItem();
+                    } else {
+                        this.addInheritedItemByOrder(parentLayerContent.getContentSummary().getChildOrder());
+                    }
+                })
+                .catch(DefaultErrorHandler.handle);
         } else {
             this.sortContentMenu.removeInheritedItem();
         }
@@ -199,7 +200,10 @@ export class SortContentDialog
             .sendAndParse()
             .then((result: ContentsExistResult) => {
                 if (result.getContentsExistMap().get(this.selectedContent.getId())) {
-                    return new ContentSummaryAndCompareStatusFetcher().fetch(this.selectedContent.getContentId(), parentProject);
+                    return new ContentSummaryAndCompareStatusFetcher().fetch(
+                        this.selectedContent.getContentId(),
+                        parentProject,
+                    );
                 } else {
                     return null;
                 }
@@ -233,11 +237,13 @@ export class SortContentDialog
         new GetPermittedActionsRequest()
             .addContentIds(this.selectedContent.getContentId())
             .addPermissionsToBeChecked(Permission.CREATE)
-            .sendAndParse().then((result) => {
-            const hasModifyPermission: boolean = result.some(p => p === Permission.CREATE);
-            this.sortContentMenu.setEnabled(hasModifyPermission);
-            this.gridDragHandler.setEnabled(hasModifyPermission);
-        }).catch(DefaultErrorHandler.handle);
+            .sendAndParse()
+            .then((result) => {
+                const hasModifyPermission: boolean = result.some((p) => p === Permission.CREATE);
+                this.sortContentMenu.setEnabled(hasModifyPermission);
+                this.gridDragHandler.setEnabled(hasModifyPermission);
+            })
+            .catch(DefaultErrorHandler.handle);
     }
 
     private handleSortOrderChanged() {
@@ -256,9 +262,12 @@ export class SortContentDialog
     }
 
     private isOrderChanged(): boolean {
-        return !this.getParentChildOrder().equals(this.getSelectedOrder()) ||
-               this.selectedContent.isSortInherited() !== this.sortContentMenu.isInheritedItemSelected() ||
-               this.sortContentMenu.isManualItemSelected() && this.gridDragHandler.getContentMovements().getReorderChildren().length > 0;
+        return (
+            !this.getParentChildOrder().equals(this.getSelectedOrder()) ||
+            this.selectedContent.isSortInherited() !== this.sortContentMenu.isInheritedItemSelected() ||
+            (this.sortContentMenu.isManualItemSelected() &&
+                this.gridDragHandler.getContentMovements().getReorderChildren().length > 0)
+        );
     }
 
     private onAfterSetOrder() {

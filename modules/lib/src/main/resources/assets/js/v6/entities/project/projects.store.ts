@@ -6,15 +6,7 @@ import { ProjectCreatedEvent } from '../../../app/settings/event/ProjectCreatedE
 import { ProjectDeletedEvent } from '../../../app/settings/event/ProjectDeletedEvent';
 import { syncAtomStore } from '../../shared/lib/storage/sync';
 import { defineEvent } from '../../shared/lib/dom/events/definedEvent';
-import { setProjectSelectionDialogOpen } from './dialogs.store';
-// ! Deep imports on purpose: this store sits below entities/content in the
-// import graph (content.store reads the active project), and pulling the
-// slice barrel here creates a module cycle.
-import { resetTree } from '../../entities/content/model/content-tree.store';
-import { clearSelection, setActive } from '../../entities/content/model/content-selection.store';
-import { deactivateFilter } from '../../entities/content/api/content-fetcher';
-import { setContentFilterOpen, resetContentFilter } from './contentFilter.store';
-import { clearVersionsCache } from '../../shared/lib/widget/versions/versionsCache';
+import { setProjectSelectionDialogOpen } from '../../features/store/dialogs.store';
 import {
     resolveActiveProjectId,
     resolveActiveProjectIdAfterDeletion,
@@ -441,40 +433,4 @@ export function removeProject(projectName: string, navigateAfterDeletion: boolea
     updateActiveProject();
 }
 
-// Reset dependent stores when project changes
-function resetProjectDependentStores(): void {
-    // Reset filter state first (this also resets filter tree)
-    deactivateFilter();
-    resetContentFilter();
-    setContentFilterOpen(false);
-
-    // Reset selection
-    clearSelection();
-    setActive(null);
-
-    // Reset main tree (will be repopulated by ContentTreeListElement)
-    resetTree();
-
-    // Clear version history cache (versions are project-specific)
-    clearVersionsCache();
-}
-
-const $previousProjectId = atom<string | undefined>(undefined);
-$activeProject.subscribe((project) => {
-    const currentId = project?.getName();
-    const previousId = $previousProjectId.get();
-
-    // Skip on initial load (no previous project)
-    if (previousId === undefined) {
-        $previousProjectId.set(currentId);
-        return;
-    }
-
-    // Skip if project didn't actually change
-    if (currentId === previousId) {
-        return;
-    }
-
-    $previousProjectId.set(currentId);
-    resetProjectDependentStores();
-});
+// Project-dependent state resets on switch live in services/projectSwitch.service.

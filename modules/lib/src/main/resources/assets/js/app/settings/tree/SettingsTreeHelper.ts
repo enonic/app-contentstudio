@@ -1,14 +1,15 @@
-import {type SettingsViewItem} from '../view/SettingsViewItem';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {FolderViewItem} from '../view/FolderViewItem';
-import {$projects} from '../../../v6/features/store/projects.store';
-import {type Project} from '../data/project/Project';
-import {Projects} from '../resource/Projects';
+import { type SettingsViewItem } from '../view/SettingsViewItem';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { FolderViewItem } from '../view/FolderViewItem';
+import { $projects } from '../../../v6/entities/project/projects.store';
+import { type Project } from '../data/project/Project';
+import { Projects } from '../resource/Projects';
 
 export class SettingsTreeHelper {
-
     public static hasChildren(item: SettingsViewItem): boolean {
-        return ObjectHelper.iFrameSafeInstanceOf(item, FolderViewItem) ||
-               $projects.get().projects.some((project: Project) => project.hasMainParentByName(item.getId()));
+        return (
+            ObjectHelper.iFrameSafeInstanceOf(item, FolderViewItem) ||
+            $projects.get().projects.some((project: Project) => project.hasMainParentByName(item.getId()))
+        );
     }
 }

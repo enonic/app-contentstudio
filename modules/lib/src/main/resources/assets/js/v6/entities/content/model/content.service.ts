@@ -1,4 +1,4 @@
-import { $activeProject } from '../../../features/store/activeProject.store';
+import { $activeProject } from '../../project';
 import {
     $contentArchived,
     $contentCreated,

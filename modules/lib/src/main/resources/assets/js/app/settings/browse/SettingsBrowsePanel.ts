@@ -1,23 +1,21 @@
-import {BrowsePanel} from '@enonic/lib-admin-ui/app/browse/BrowsePanel';
-import {type SelectableListBoxPanel} from '@enonic/lib-admin-ui/ui/panel/SelectableListBoxPanel';
-import {ListBoxToolbar} from '@enonic/lib-admin-ui/ui/selector/list/ListBoxToolbar';
-import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
-import {SelectableTreeListBoxKeyNavigator} from '@enonic/lib-admin-ui/ui/selector/list/SelectableTreeListBoxKeyNavigator';
+import { BrowsePanel } from '@enonic/lib-admin-ui/app/browse/BrowsePanel';
+import { type SelectableListBoxPanel } from '@enonic/lib-admin-ui/ui/panel/SelectableListBoxPanel';
+import { ListBoxToolbar } from '@enonic/lib-admin-ui/ui/selector/list/ListBoxToolbar';
+import { SelectableListBoxWrapper } from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
+import { SelectableTreeListBoxKeyNavigator } from '@enonic/lib-admin-ui/ui/selector/list/SelectableTreeListBoxKeyNavigator';
 import type Q from 'q';
-import {reloadProjects} from '../../../v6/features/store/projects.store';
-import {getSettingsItem, hasSettingsItem} from '../../../v6/features/store/settings-tree.store';
-import {SettingsItemPanelElement} from '../../../v6/features/views/browse/settings/item-panel/SettingsItemPanelElement';
-import {SettingsTreeListElement} from '../../../v6/features/views/browse/settings/SettingsTreeListElement';
-import {SettingsBrowseToolbarElement} from '../../../v6/features/views/browse/toolbar/SettingsBrowseToolbar';
-import {SettingsTreeList} from '../SettingsTreeList';
-import {SettingsTreeActions} from '../tree/SettingsTreeActions';
-import {type SettingsViewItem} from '../view/SettingsViewItem';
-import {SettingsBrowseToolbar} from './SettingsBrowseToolbar';
-import {SettingsTreeListSelectablePanelProxy} from './SettingsTreeListSelectablePanelProxy';
+import { reloadProjects } from '../../../v6/entities/project/projects.store';
+import { getSettingsItem, hasSettingsItem } from '../../../v6/features/store/settings-tree.store';
+import { SettingsItemPanelElement } from '../../../v6/features/views/browse/settings/item-panel/SettingsItemPanelElement';
+import { SettingsTreeListElement } from '../../../v6/features/views/browse/settings/SettingsTreeListElement';
+import { SettingsBrowseToolbarElement } from '../../../v6/features/views/browse/toolbar/SettingsBrowseToolbar';
+import { SettingsTreeList } from '../SettingsTreeList';
+import { SettingsTreeActions } from '../tree/SettingsTreeActions';
+import { type SettingsViewItem } from '../view/SettingsViewItem';
+import { SettingsBrowseToolbar } from './SettingsBrowseToolbar';
+import { SettingsTreeListSelectablePanelProxy } from './SettingsTreeListSelectablePanelProxy';
 
-export class SettingsBrowsePanel
-    extends BrowsePanel {
-
+export class SettingsBrowsePanel extends BrowsePanel {
     protected treeListBox: SettingsTreeList;
     private settingsTreeList: SettingsTreeListElement;
 
@@ -45,7 +43,6 @@ export class SettingsBrowsePanel
             checkboxPosition: 'left',
             highlightMode: true,
         });
-
 
         this.treeActions = new SettingsTreeActions();
         this.toolbar = new ListBoxToolbar<SettingsViewItem>(this.selectionWrapper, {
@@ -89,5 +86,4 @@ export class SettingsBrowsePanel
             return rendered;
         });
     }
-
 }

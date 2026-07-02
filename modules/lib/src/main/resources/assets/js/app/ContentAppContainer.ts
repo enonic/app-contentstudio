@@ -3,7 +3,7 @@ import { showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
 import { type Path } from '@enonic/lib-admin-ui/rest/Path';
 import { Store } from '@enonic/lib-admin-ui/store/Store';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
-import { onNoProjectsAvailable } from '../v6/features/store/projects.store';
+import { onNoProjectsAvailable } from '../v6/entities/project/projects.store';
 import { $rootLoadingState } from '../v6/entities/content';
 import { BrowseAppBarElement } from '../v6/features/views/browse/layout/BrowseAppBar';
 import { AppContainer } from './AppContainer';

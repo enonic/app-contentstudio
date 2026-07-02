@@ -1,16 +1,16 @@
-import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
-import {ReactElement} from 'react';
-import {ContentVersion} from '../../../../../../../app/ContentVersion';
-import {VersionItemPublishStatus} from '../../../../../shared/status/VersionItemPublishStatus';
-import {getVersionOperationTime} from '../../../../../store/context/versionOperations';
-import {getModifierLabel, getOperationLabel} from '../labels';
+import { DateHelper } from '@enonic/lib-admin-ui/util/DateHelper';
+import { ReactElement } from 'react';
+import { ContentVersion } from '../../../../../../../app/ContentVersion';
+import { VersionItemPublishStatus } from '../../../../../shared/status/VersionItemPublishStatus';
+import { getVersionOperationTime } from '../../../../../../entities/content/version';
+import { getModifierLabel, getOperationLabel } from '../labels';
 
 type SelectedVersionCardProps = {
     label: string;
     version: ContentVersion;
 };
 
-export const SelectedVersionCard = ({label, version}: SelectedVersionCardProps): ReactElement => {
+export const SelectedVersionCard = ({ label, version }: SelectedVersionCardProps): ReactElement => {
     const modifierLabel = getModifierLabel(version);
     const operationLabel = getOperationLabel(version);
     const timeLabel = DateHelper.getFormattedTimeFromDate(getVersionOperationTime(version));
@@ -21,15 +21,11 @@ export const SelectedVersionCard = ({label, version}: SelectedVersionCardProps):
             <div className="flex items-center gap-2 px-4.5 py-3 rounded-lg border border-bdr-subtle bg-surface">
                 <div className="flex flex-col justify-center grow">
                     <div className="flex gap-1">
-                        <span className="shrink-0 text-base text-subtle">
-                            {timeLabel}
-                        </span>
+                        <span className="shrink-0 text-base text-subtle">{timeLabel}</span>
                         <span className="text-bdr-soft text-base">|</span>
                         <span className="text-base text-subtle">{operationLabel}</span>
                     </div>
-                    {modifierLabel && (
-                        <div className="text-xs">{modifierLabel}</div>
-                    )}
+                    {modifierLabel && <div className="text-xs">{modifierLabel}</div>}
                 </div>
 
                 <VersionItemPublishStatus version={version} />

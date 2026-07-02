@@ -37,7 +37,7 @@ import {
 } from './wizardContent.store';
 import { $page, $pageVersion } from './page-editor/store';
 import { $layoutDescriptorOptions, $partDescriptorOptions } from './component-inspection.store';
-import { $applications } from './applications.store';
+import { $applications } from '../../entities/application';
 import { createDebounce } from '../../shared/lib/timing/createDebounce';
 import { instanceOf } from '../../shared/lib/object/instanceOf';
 import { SiteConfiguratorDescriptor } from '../shared/form/input-types/site-configurator/SiteConfiguratorDescriptor';

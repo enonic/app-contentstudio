@@ -34,12 +34,18 @@ const noUpwardImports = LAYERS.slice(1).map((layer, i) => ({
 // Slices on the same layer must not import each other ($1 = the importing slice).
 // shared is segment-based (ui/lib/api may use each other) and app is a single
 // composition root, so neither needs a sideways rule.
+// Documented exception: every entity may read entities/project — the project is
+// the partitioning key for entity state (the content cache is per-project), so
+// sibling reads of the project slice are inherent, not accidental coupling.
 const noSidewaysImports = ['pages', 'widgets', 'features', 'entities'].map((layer) => ({
     name: `${layer}-no-same-layer-imports`,
     comment: 'Same-layer slices must not import each other; drop shared state to a lower layer',
     severity: 'warn',
     from: { path: `^${V6}/${layer}/([^/]+)/`, pathNot: LEGACY_UMBRELLA },
-    to: { path: `^${V6}/${layer}/`, pathNot: `^${V6}/${layer}/$1/` },
+    to: {
+        path: `^${V6}/${layer}/`,
+        pathNot: layer === 'entities' ? [`^${V6}/entities/$1/`, `^${V6}/entities/project/`] : `^${V6}/${layer}/$1/`,
+    },
 }));
 
 module.exports = {

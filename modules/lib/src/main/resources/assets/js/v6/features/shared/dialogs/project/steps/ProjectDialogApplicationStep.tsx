@@ -4,7 +4,7 @@ import { X } from 'lucide-react';
 import { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { $projectDialog, setProjectDialogApplications } from '../../../../store/dialogs/projectDialog.store';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
-import { $applications } from '../../../../store/applications.store';
+import { $applications } from '../../../../../entities/application';
 import { ItemLabel } from '../../../../../shared/ui/ItemLabel';
 import { ApplicationIcon } from '../../../../../shared/ui/icons/ApplicationIcon';
 import { ApplicationSelector } from '../../../selectors/ApplicationSelector';

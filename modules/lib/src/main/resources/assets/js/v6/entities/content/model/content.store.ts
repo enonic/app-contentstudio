@@ -1,7 +1,7 @@
 import { computed, map } from 'nanostores';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { ContentSummaryAndCompareStatus } from '../../../../app/content/ContentSummaryAndCompareStatus';
-import { $activeProject } from '../../../features/store/activeProject.store';
+import { $activeProject } from '../../project';
 import type { PathIndex, ProjectCache } from './content.types';
 
 //

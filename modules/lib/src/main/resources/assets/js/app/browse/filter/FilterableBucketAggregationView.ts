@@ -1,20 +1,18 @@
-import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
-import {type BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
-import {BucketAggregationView} from '@enonic/lib-admin-ui/aggregation/BucketAggregationView';
-import {type Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
-import {type BucketView} from '@enonic/lib-admin-ui/aggregation/BucketView';
-import {BucketListBox} from '@enonic/lib-admin-ui/aggregation/BucketListBox';
-import {type BucketViewSelectionChangedEvent} from '@enonic/lib-admin-ui/aggregation/BucketViewSelectionChangedEvent';
-import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {type AggregationsDisplayNamesResolver} from './AggregationsDisplayNamesResolver';
-import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
+import { type SelectionChange } from '@enonic/lib-admin-ui/util/SelectionChange';
+import { type BucketAggregation } from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
+import { BucketAggregationView } from '@enonic/lib-admin-ui/aggregation/BucketAggregationView';
+import { type Bucket } from '@enonic/lib-admin-ui/aggregation/Bucket';
+import { type BucketView } from '@enonic/lib-admin-ui/aggregation/BucketView';
+import { BucketListBox } from '@enonic/lib-admin-ui/aggregation/BucketListBox';
+import { type BucketViewSelectionChangedEvent } from '@enonic/lib-admin-ui/aggregation/BucketViewSelectionChangedEvent';
+import { FilterableListBoxWrapper } from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { type AggregationsDisplayNamesResolver } from './AggregationsDisplayNamesResolver';
+import { LoadMask } from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import type Q from 'q';
-import {onActiveProjectChanged} from '../../../v6/features/store/activeProject.store';
+import { onActiveProjectChanged } from '../../../v6/entities/project/activeProject.store';
 
-export class FilterableBucketAggregationView
-    extends BucketAggregationView {
-
+export class FilterableBucketAggregationView extends BucketAggregationView {
     private listBoxDropdown: FilterableListBoxWrapper<Bucket>;
 
     private bucketListBox: BucketListBox = new BucketListBox();
@@ -50,7 +48,7 @@ export class FilterableBucketAggregationView
         this.bucketListBox = new BucketListBox();
         this.listBoxDropdown = new BucketDropdown(this.bucketListBox, {
             filter: this.filterBuckets,
-            maxSelected: 0
+            maxSelected: 0,
         });
 
         this.scrollSentinel = document.createElement('li');
@@ -63,8 +61,10 @@ export class FilterableBucketAggregationView
 
     private filterBuckets(bucket: Bucket, searchString: string): boolean {
         const lowerCaseSearchString: string = searchString.toLowerCase();
-        return bucket.getKey().toLowerCase().indexOf(lowerCaseSearchString) >= 0 ||
-               bucket.getDisplayName()?.toLowerCase().indexOf(lowerCaseSearchString) >= 0;
+        return (
+            bucket.getKey().toLowerCase().indexOf(lowerCaseSearchString) >= 0 ||
+            bucket.getDisplayName()?.toLowerCase().indexOf(lowerCaseSearchString) >= 0
+        );
     }
 
     protected initListeners(): void {
@@ -76,7 +76,9 @@ export class FilterableBucketAggregationView
 
         this.listBoxDropdown.onSelectionChanged((bucketSelection: SelectionChange<Bucket>) => {
             bucketSelection.selected.forEach((item: Bucket) => {
-                const bucketView: BucketView = this.bucketViews.find((view: BucketView) => view.getBucket().getKey() === item.getKey());
+                const bucketView: BucketView = this.bucketViews.find(
+                    (view: BucketView) => view.getBucket().getKey() === item.getKey(),
+                );
 
                 if (bucketView) {
                     bucketView.select(true);
@@ -86,7 +88,9 @@ export class FilterableBucketAggregationView
             });
 
             bucketSelection.deselected.forEach((item: Bucket) => {
-                const bucketView: BucketView = this.bucketViews.find((view: BucketView) => view.getBucket().getKey() === item.getKey());
+                const bucketView: BucketView = this.bucketViews.find(
+                    (view: BucketView) => view.getBucket().getKey() === item.getKey(),
+                );
 
                 if (bucketView) {
                     bucketView.deselect(true);
@@ -116,7 +120,8 @@ export class FilterableBucketAggregationView
 
             const loadMask = new LoadMask(this.listBoxDropdown);
             loadMask.show();
-            this.resolver.updateUnknownPrincipals(this.aggregation)
+            this.resolver
+                .updateUnknownPrincipals(this.aggregation)
                 .then(() => {
                     this.aggregationResolved = true;
                     this.update(this.aggregation);
@@ -134,7 +139,7 @@ export class FilterableBucketAggregationView
         if (!this.activeFilter) {
             return this.pendingBuckets;
         }
-        return this.pendingBuckets.filter(b => this.filterBuckets(b, this.activeFilter));
+        return this.pendingBuckets.filter((b) => this.filterBuckets(b, this.activeFilter));
     }
 
     private resetAndPopulateListBox(): void {
@@ -146,7 +151,10 @@ export class FilterableBucketAggregationView
 
     private loadNextPage(): void {
         const filtered = this.getFilteredBuckets();
-        const nextBatch = filtered.slice(this.loadedCount, this.loadedCount + FilterableBucketAggregationView.PAGE_SIZE);
+        const nextBatch = filtered.slice(
+            this.loadedCount,
+            this.loadedCount + FilterableBucketAggregationView.PAGE_SIZE,
+        );
 
         if (nextBatch.length === 0) {
             return;
@@ -166,12 +174,15 @@ export class FilterableBucketAggregationView
         const listEl = this.bucketListBox.getHTMLElement();
         listEl.appendChild(this.scrollSentinel);
 
-        this.sentinelObserver = new IntersectionObserver((entries) => {
-            if (entries.some(e => e.isIntersecting)) {
-                this.disconnectSentinelObserver();
-                this.loadNextPage();
-            }
-        }, {root: null, threshold: 0});
+        this.sentinelObserver = new IntersectionObserver(
+            (entries) => {
+                if (entries.some((e) => e.isIntersecting)) {
+                    this.disconnectSentinelObserver();
+                    this.loadNextPage();
+                }
+            },
+            { root: null, threshold: 0 },
+        );
 
         this.sentinelObserver.observe(this.scrollSentinel);
     }
@@ -257,7 +268,9 @@ export class FilterableBucketAggregationView
             this.resetAndPopulateListBox();
         }
 
-        const isEveryPendingOnTop: boolean = this.pendingBuckets.every((bucket: Bucket) => this.isBucketToBeAlwaysOnTop(bucket));
+        const isEveryPendingOnTop: boolean = this.pendingBuckets.every((bucket: Bucket) =>
+            this.isBucketToBeAlwaysOnTop(bucket),
+        );
         this.listBoxDropdown.setVisible(!isEveryPendingOnTop);
     }
 
@@ -269,15 +282,12 @@ export class FilterableBucketAggregationView
             return rendered;
         });
     }
-
 }
 
 class BucketDropdown extends FilterableListBoxWrapper<Bucket> {
-
     protected initElements(): void {
         super.initElements();
 
         this.applyButton.setLabel(i18n('action.ok'));
     }
-
 }

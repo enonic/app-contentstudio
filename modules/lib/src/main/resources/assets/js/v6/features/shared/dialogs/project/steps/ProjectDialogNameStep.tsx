@@ -3,7 +3,7 @@ import { useStore } from '@nanostores/preact';
 import { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { $projectDialog, setProjectDialogName } from '../../../../store/dialogs/projectDialog.store';
-import { $projects } from '../../../../store/projects.store';
+import { $projects } from '../../../../../entities/project';
 import {
     prettifyProjectIdentifier,
     validateProjectIdentifier,

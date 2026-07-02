@@ -4,7 +4,7 @@ import { PenIcon, XIcon } from 'lucide-react';
 import { type ReactElement, useCallback, useMemo } from 'react';
 import { EditContentEvent } from '../../../../../app/event/EditContentEvent';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
-import { $activeProject } from '../../../store/activeProject.store';
+import { $activeProject } from '../../../../entities/project';
 import { ImageSelector } from '../../selectors/image';
 import { useHtmlAreaImageDialogContext } from './HtmlAreaImageDialogContext';
 import { ImageAccessibilityField } from './ImageAccessibilityField';

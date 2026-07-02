@@ -3,7 +3,7 @@ import { DeleteSettingsDialog } from '../../shared/dialogs/DeleteSettingsDialog'
 import { ProjectDialog } from '../../shared/dialogs/project/ProjectDialog';
 import { setActiveProjectResolver } from '../../../shared/lib/url/cms';
 import { LegacyElement } from '../../../shared/ui/LegacyElement';
-import { $projects } from '../../store/projects.store';
+import { $projects } from '../../../entities/project';
 
 export const SettingsAppShell = (): ReactElement => {
     return (

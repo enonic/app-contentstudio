@@ -1,17 +1,15 @@
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {getActiveProject} from '../../../v6/features/store/activeProject.store';
-import {setWizardReadOnly} from '../../../v6/features/store/wizardContent.store';
-import {type ContentId} from '../../content/ContentId';
-import {GetContentByIdRequest} from '../../resource/GetContentByIdRequest';
-import {LocalizeContentsRequest} from '../../resource/LocalizeContentsRequest';
-import {type ContentWizardPanel} from '../ContentWizardPanel';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { NotifyManager } from '@enonic/lib-admin-ui/notify/NotifyManager';
+import { Action } from '@enonic/lib-admin-ui/ui/Action';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { getActiveProject } from '../../../v6/entities/project/activeProject.store';
+import { setWizardReadOnly } from '../../../v6/features/store/wizardContent.store';
+import { type ContentId } from '../../content/ContentId';
+import { GetContentByIdRequest } from '../../resource/GetContentByIdRequest';
+import { LocalizeContentsRequest } from '../../resource/LocalizeContentsRequest';
+import { type ContentWizardPanel } from '../ContentWizardPanel';
 
-export class LocalizeContentAction
-    extends Action {
-
+export class LocalizeContentAction extends Action {
     constructor(wizardPanel: ContentWizardPanel) {
         super(i18n('action.translate'));
 
@@ -21,7 +19,8 @@ export class LocalizeContentAction
 
             this.setEnabled(false);
 
-            new LocalizeContentsRequest([contentId], language).sendAndParse()
+            new LocalizeContentsRequest([contentId], language)
+                .sendAndParse()
                 .then(() => new GetContentByIdRequest(contentId).sendAndParse())
                 .then((content) => {
                     wizardPanel.replacePersistedContent(content);
@@ -36,7 +35,8 @@ export class LocalizeContentAction
                     wizardPanel.openTranslatorDialog(language);
 
                     return wizardActions.refreshActions();
-                }).catch(DefaultErrorHandler.handle);
+                })
+                .catch(DefaultErrorHandler.handle);
         });
     }
 }

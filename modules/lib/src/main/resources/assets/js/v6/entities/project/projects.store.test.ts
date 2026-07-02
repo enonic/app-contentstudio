@@ -44,25 +44,25 @@ vi.mock('../../../app/settings/event/ProjectDeletedEvent', () => ({
     },
 }));
 
-vi.mock('./dialogs.store', () => ({
+vi.mock('../../features/store/dialogs.store', () => ({
     setProjectSelectionDialogOpen: mockSetProjectSelectionDialogOpen,
 }));
 
-vi.mock('../../entities/content/model/content-tree.store', () => ({
+vi.mock('../content/model/content-tree.store', () => ({
     resetTree: vi.fn(),
 }));
 
-vi.mock('../../entities/content/model/content-selection.store', () => ({
+vi.mock('../content/model/content-selection.store', () => ({
     clearSelection: vi.fn(),
     setActive: vi.fn(),
 }));
 
-vi.mock('./contentFilter.store', () => ({
+vi.mock('../../features/store/contentFilter.store', () => ({
     setContentFilterOpen: vi.fn(),
     resetContentFilter: vi.fn(),
 }));
 
-vi.mock('../../entities/content/api/content-fetcher', () => ({
+vi.mock('../content/api/content-fetcher', () => ({
     deactivateFilter: vi.fn(),
 }));
 

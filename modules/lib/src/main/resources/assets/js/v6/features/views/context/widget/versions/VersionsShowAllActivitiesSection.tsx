@@ -2,7 +2,7 @@ import { Checkbox } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { ReactElement } from 'react';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
-import { $versionsDisplayMode } from '../../../../store/context/versionStore';
+import { $versionsDisplayMode, setVersionsDisplayMode } from '../../../../../entities/content/version';
 
 const COMPONENT_NAME = 'VersionsShowAllActivitiesSection';
 
@@ -14,7 +14,7 @@ export const VersionsShowAllActivitiesSection = (): ReactElement => {
     const showAllActivitiesLabel = useI18n('widget.versions.showAllActivities');
 
     const handleCheckedChange = (checked: boolean) => {
-        $versionsDisplayMode.set(checked ? 'full' : 'standard');
+        setVersionsDisplayMode(checked ? 'full' : 'standard');
     };
 
     return (

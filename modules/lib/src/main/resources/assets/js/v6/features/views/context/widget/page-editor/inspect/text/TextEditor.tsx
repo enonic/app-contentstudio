@@ -1,45 +1,60 @@
 /*global CKEDITOR*/
 
-import type {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {cn} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {useCKEditor} from 'ckeditor4-react';
-import {useEffect, useMemo, useRef, useState, type JSX} from 'react';
-import type {ContentSummary} from '../../../../../../../../app/content/ContentSummary';
-import {BeforeContentSavedEvent} from '../../../../../../../../app/event/BeforeContentSavedEvent';
-import {ContentRequiresSaveEvent} from '../../../../../../../../app/event/ContentRequiresSaveEvent';
-import {HTMLAreaHelper} from '../../../../../../../../app/inputtype/ui/text/HTMLAreaHelper';
-import {HtmlAreaSanitizer} from '../../../../../../../../app/inputtype/ui/text/HtmlAreaSanitizer';
-import {ComponentTextUpdatedEvent} from '../../../../../../../../app/page/region/ComponentTextUpdatedEvent';
-import type {ComponentUpdatedEvent} from '../../../../../../../../app/page/region/ComponentUpdatedEvent';
-import type {TextComponent} from '../../../../../../../../app/page/region/TextComponent';
-import type {Project} from '../../../../../../../../app/settings/data/project/Project';
-import {PageState} from '../../../../../../../../app/wizard/page/PageState';
-import {createAnchorDialogOverride} from '../../../../../../shared/dialogs/AnchorDialog';
-import {createBulletedListDialogOverride} from '../../../../../../shared/dialogs/BulletedListDialog';
-import {createCodeDialogOverride} from '../../../../../../shared/dialogs/CodeDialog';
-import {createFullscreenDialogOverride} from '../../../../../../shared/dialogs/FullscreenDialog';
-import {HtmlAreaDialogs} from '../../../../../../shared/dialogs/HtmlAreaDialogs';
-import {createNumberedListDialogOverride} from '../../../../../../shared/dialogs/NumberedListDialog';
-import {createSearchPopupOverride} from '../../../../../../shared/dialogs/SearchPopup';
-import {createSpecialCharDialogOverride} from '../../../../../../shared/dialogs/SpecialCharDialog';
-import {createTableDialogOverride} from '../../../../../../shared/dialogs/TableDialog';
-import {createTableQuicktablePopupOverride} from '../../../../../../shared/dialogs/TableQuicktablePopup';
-import {createImageDialogOverride, HtmlAreaImageDialog} from '../../../../../../shared/dialogs/htmlarea-image/HtmlAreaImageDialog';
-import type {OpenHtmlAreaImageDialogParams} from '../../../../../../shared/dialogs/htmlarea-image/HtmlAreaImageDialogContext';
-import {createLinkDialogOverride, HtmlAreaLinkDialog} from '../../../../../../shared/dialogs/htmlarea-link/HtmlAreaLinkDialog';
-import type {OpenHtmlAreaLinkDialogParams} from '../../../../../../shared/dialogs/htmlarea-link/HtmlAreaLinkDialogContext';
-import {createMacroDialogOverride, HtmlAreaMacroDialog} from '../../../../../../shared/dialogs/htmlarea-macro/HtmlAreaMacroDialog';
-import type {OpenHtmlAreaMacroDialogParams} from '../../../../../../shared/dialogs/htmlarea-macro/HtmlAreaMacroDialogContext';
-import type {HtmlAreaConfig} from '../../../../../../shared/form/input-types/html-area/HtmlAreaConfig';
-import {createContentSaveHandler, getCursorPosition, setupEditor, setupEditorUi, type DialogOverrides} from '../../../../../../shared/form/input-types/html-area/setupEditor';
-import {useCKEditorConfig} from '../../../../../../shared/form/input-types/html-area/useCKEditorConfig';
-import {$contextContent} from '../../../../../../store/context/contextContent.store';
-import {requestUpdateTextComponent} from '../../../../../../store/page-editor';
-import {$activeProject} from '../../../../../../store/activeProject.store';
-import {useApplicationKeys} from '../../../../../../hooks/useApplicationKeys';
-import {useInspectTextTracking} from './useInspectTextTracking';
+import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
+import { cn } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { useCKEditor } from 'ckeditor4-react';
+import { useEffect, useMemo, useRef, useState, type JSX } from 'react';
+import type { ContentSummary } from '../../../../../../../../app/content/ContentSummary';
+import { BeforeContentSavedEvent } from '../../../../../../../../app/event/BeforeContentSavedEvent';
+import { ContentRequiresSaveEvent } from '../../../../../../../../app/event/ContentRequiresSaveEvent';
+import { HTMLAreaHelper } from '../../../../../../../../app/inputtype/ui/text/HTMLAreaHelper';
+import { HtmlAreaSanitizer } from '../../../../../../../../app/inputtype/ui/text/HtmlAreaSanitizer';
+import { ComponentTextUpdatedEvent } from '../../../../../../../../app/page/region/ComponentTextUpdatedEvent';
+import type { ComponentUpdatedEvent } from '../../../../../../../../app/page/region/ComponentUpdatedEvent';
+import type { TextComponent } from '../../../../../../../../app/page/region/TextComponent';
+import type { Project } from '../../../../../../../../app/settings/data/project/Project';
+import { PageState } from '../../../../../../../../app/wizard/page/PageState';
+import { createAnchorDialogOverride } from '../../../../../../shared/dialogs/AnchorDialog';
+import { createBulletedListDialogOverride } from '../../../../../../shared/dialogs/BulletedListDialog';
+import { createCodeDialogOverride } from '../../../../../../shared/dialogs/CodeDialog';
+import { createFullscreenDialogOverride } from '../../../../../../shared/dialogs/FullscreenDialog';
+import { HtmlAreaDialogs } from '../../../../../../shared/dialogs/HtmlAreaDialogs';
+import { createNumberedListDialogOverride } from '../../../../../../shared/dialogs/NumberedListDialog';
+import { createSearchPopupOverride } from '../../../../../../shared/dialogs/SearchPopup';
+import { createSpecialCharDialogOverride } from '../../../../../../shared/dialogs/SpecialCharDialog';
+import { createTableDialogOverride } from '../../../../../../shared/dialogs/TableDialog';
+import { createTableQuicktablePopupOverride } from '../../../../../../shared/dialogs/TableQuicktablePopup';
+import {
+    createImageDialogOverride,
+    HtmlAreaImageDialog,
+} from '../../../../../../shared/dialogs/htmlarea-image/HtmlAreaImageDialog';
+import type { OpenHtmlAreaImageDialogParams } from '../../../../../../shared/dialogs/htmlarea-image/HtmlAreaImageDialogContext';
+import {
+    createLinkDialogOverride,
+    HtmlAreaLinkDialog,
+} from '../../../../../../shared/dialogs/htmlarea-link/HtmlAreaLinkDialog';
+import type { OpenHtmlAreaLinkDialogParams } from '../../../../../../shared/dialogs/htmlarea-link/HtmlAreaLinkDialogContext';
+import {
+    createMacroDialogOverride,
+    HtmlAreaMacroDialog,
+} from '../../../../../../shared/dialogs/htmlarea-macro/HtmlAreaMacroDialog';
+import type { OpenHtmlAreaMacroDialogParams } from '../../../../../../shared/dialogs/htmlarea-macro/HtmlAreaMacroDialogContext';
+import type { HtmlAreaConfig } from '../../../../../../shared/form/input-types/html-area/HtmlAreaConfig';
+import {
+    createContentSaveHandler,
+    getCursorPosition,
+    setupEditor,
+    setupEditorUi,
+    type DialogOverrides,
+} from '../../../../../../shared/form/input-types/html-area/setupEditor';
+import { useCKEditorConfig } from '../../../../../../shared/form/input-types/html-area/useCKEditorConfig';
+import { $contextContent } from '../../../../../../store/context/contextContent.store';
+import { requestUpdateTextComponent } from '../../../../../../store/page-editor';
+import { $activeProject } from '../../../../../../../entities/project';
+import { useApplicationKeys } from '../../../../../../hooks/useApplicationKeys';
+import { useInspectTextTracking } from './useInspectTextTracking';
 
 const sanitizer = new HtmlAreaSanitizer();
 
@@ -56,7 +71,7 @@ export type TextEditorProps = {
 
 const TEXT_EDITOR_NAME = 'TextEditor';
 
-export const TextEditor = ({textComponent, disabled}: TextEditorProps): JSX.Element => {
+export const TextEditor = ({ textComponent, disabled }: TextEditorProps): JSX.Element => {
     const contentSummary = useStore($contextContent);
     const activeProject = useStore($activeProject);
     const applicationKeys = useApplicationKeys();
@@ -67,14 +82,16 @@ export const TextEditor = ({textComponent, disabled}: TextEditorProps): JSX.Elem
     const [editableSourceCode, setEditableSourceCode] = useState<boolean | undefined>(undefined);
 
     useEffect(() => {
-        HTMLAreaHelper.isSourceCodeEditable().then((editable: boolean) => {
-            setEditableSourceCode(editable);
-        }).catch(() => {
-            setEditableSourceCode(false);
-        });
+        HTMLAreaHelper.isSourceCodeEditable()
+            .then((editable: boolean) => {
+                setEditableSourceCode(editable);
+            })
+            .catch(() => {
+                setEditableSourceCode(false);
+            });
     }, []);
 
-    const {editorConfig} = useCKEditorConfig({
+    const { editorConfig } = useCKEditorConfig({
         config: TEXT_EDITOR_CONFIG,
         editorId,
         assetsUri,
@@ -230,7 +247,7 @@ const TextEditorInner = ({
     // * CKEditor lifecycle
     //
 
-    const {editor, status} = useCKEditor({
+    const { editor, status } = useCKEditor({
         element,
         config: editorConfig,
         type: 'classic',
@@ -513,17 +530,15 @@ const TextEditorInner = ({
 
     return (
         <>
-            <div data-component={TEXT_EDITOR_INNER_NAME} className={cn(
-                'html-area rounded-sm *:rounded-sm transition-highlight',
-                focused && 'ring-3 ring-offset-3 ring-offset-ring-offset',
-                focused && 'ring-ring',
-            )}>
-                <textarea
-                    className="hidden invisible"
-                    ref={setElement}
-                    id={editorId}
-                    name={editorId}
-                />
+            <div
+                data-component={TEXT_EDITOR_INNER_NAME}
+                className={cn(
+                    'html-area rounded-sm *:rounded-sm transition-highlight',
+                    focused && 'ring-3 ring-offset-3 ring-offset-ring-offset',
+                    focused && 'ring-ring',
+                )}
+            >
+                <textarea className="hidden invisible" ref={setElement} id={editorId} name={editorId} />
             </div>
             <HtmlAreaImageDialog openRef={openImageDialogRef} />
             <HtmlAreaLinkDialog openRef={openLinkDialogRef} />

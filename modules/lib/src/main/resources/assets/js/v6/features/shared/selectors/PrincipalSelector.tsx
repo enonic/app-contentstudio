@@ -3,7 +3,7 @@ import type { PrincipalType } from '@enonic/lib-admin-ui/security/PrincipalType'
 import { Checkbox, cn, Combobox, Listbox, useCombobox, type ComboboxRootProps } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { useEffect, useId, useMemo, useState, type ReactElement } from 'react';
-import { $principals, loadPrincipals } from '../../store/principals.store';
+import { $principals, loadPrincipals } from '../../../entities/principal';
 import { useDebouncedCallback } from '../../../shared/lib/hooks/useDebouncedCallback';
 import { PrincipalLabel } from '../../../shared/ui/PrincipalLabel';
 

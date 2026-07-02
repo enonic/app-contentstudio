@@ -1,10 +1,10 @@
-import {Listbox} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import type {KeyboardEvent, ReactElement, RefObject} from 'react';
-import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
-import {ContentVersion} from '../../../../../../app/ContentVersion';
-import {$versionsDisplayMode} from '../../../../store/context/versionStore';
-import {VersionsListItem} from './VersionsListItem';
+import { Listbox } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import type { KeyboardEvent, ReactElement, RefObject } from 'react';
+import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
+import { ContentVersion } from '../../../../../../app/ContentVersion';
+import { $versionsDisplayMode } from '../../../../../entities/content/version';
+import { VersionsListItem } from './VersionsListItem';
 
 const COMPONENT_NAME = 'VersionsListContent';
 
@@ -29,27 +29,27 @@ export const VersionsListContent = ({
     isFocused,
     onKeyDown,
     onToggleExpanded,
-    listRef
+    listRef,
 }: VersionsListContentProps): ReactElement => {
     const displayMode = useStore($versionsDisplayMode);
 
     return (
         <Listbox.Content
-            className='flex flex-col gap-7.5 max-h-none p-0 overflow-y-visible'
+            className="flex flex-col gap-7.5 max-h-none p-0 overflow-y-visible"
             onKeyDownCapture={onKeyDown}
             ref={listRef}
             data-component={COMPONENT_NAME}
         >
             {Object.entries(versionsByDate).map(([date, versions]) => (
-                <div key={date} className='flex flex-col gap-3 w-full'>
-                    <div className='text-base font-semibold'>{date}</div>
+                <div key={date} className="flex flex-col gap-3 w-full">
+                    <div className="text-base font-semibold">{date}</div>
 
-                    <div className='flex flex-col gap-1.25'>
+                    <div className="flex flex-col gap-1.25">
                         {versions.map((version) => (
                             <Listbox.Item
                                 key={`${version.getId()}-${displayMode}`}
                                 value={version.getId()}
-                                className='p-0 rounded-sm'
+                                className="p-0 rounded-sm"
                                 data-active={isFocused && activeVersionId === version.getId()}
                             >
                                 <VersionsListItem

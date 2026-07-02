@@ -1,26 +1,24 @@
-import {GetPrincipalsByKeysRequest} from '@enonic/lib-admin-ui/security/GetPrincipalsByKeysRequest';
-import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {UrlHelper} from '../../../../util/UrlHelper';
-import {ExtensionPropertiesItemViewHelper} from './ExtensionPropertiesItemViewHelper';
-import {type Application} from '@enonic/lib-admin-ui/application/Application';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {DateTimeFormatter} from '@enonic/lib-admin-ui/ui/treegrid/DateTimeFormatter';
-import {ExtensionPropertiesItemViewValue} from './ExtensionPropertiesItemViewValue';
-import {PropertiesWizardStepFormType} from './PropertiesWizardStepFormFactory';
+import { GetPrincipalsByKeysRequest } from '@enonic/lib-admin-ui/security/GetPrincipalsByKeysRequest';
+import { type Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { UrlHelper } from '../../../../util/UrlHelper';
+import { ExtensionPropertiesItemViewHelper } from './ExtensionPropertiesItemViewHelper';
+import { type Application } from '@enonic/lib-admin-ui/application/Application';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { DateTimeFormatter } from '@enonic/lib-admin-ui/ui/treegrid/DateTimeFormatter';
+import { ExtensionPropertiesItemViewValue } from './ExtensionPropertiesItemViewValue';
+import { PropertiesWizardStepFormType } from './PropertiesWizardStepFormFactory';
 import Q from 'q';
-import {AccessControlHelper} from '../../../../wizard/AccessControlHelper';
-import {ProjectHelper} from '../../../../settings/data/project/ProjectHelper';
-import {GetContentPermissionsByIdRequest} from '../../../../resource/GetContentPermissionsByIdRequest';
-import {type AccessControlList} from '../../../../access/AccessControlList';
-import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
-import {PermissionsHelper} from '../../../../access/PermissionsHelper';
-import {getActiveProject} from '../../../../../v6/features/store/activeProject.store';
+import { AccessControlHelper } from '../../../../wizard/AccessControlHelper';
+import { ProjectHelper } from '../../../../settings/data/project/ProjectHelper';
+import { GetContentPermissionsByIdRequest } from '../../../../resource/GetContentPermissionsByIdRequest';
+import { type AccessControlList } from '../../../../access/AccessControlList';
+import { NotifyManager } from '@enonic/lib-admin-ui/notify/NotifyManager';
+import { AuthHelper } from '@enonic/lib-admin-ui/auth/AuthHelper';
+import { PermissionsHelper } from '../../../../access/PermissionsHelper';
+import { getActiveProject } from '../../../../../v6/entities/project/activeProject.store';
 
-export class ExtensionBasePropertiesItemViewHelper
-    extends ExtensionPropertiesItemViewHelper {
-
+export class ExtensionBasePropertiesItemViewHelper extends ExtensionPropertiesItemViewHelper {
     private application?: Application;
 
     private postfixUri: string;
@@ -50,11 +48,13 @@ export class ExtensionBasePropertiesItemViewHelper
 
     private fetchPrincipals(): Q.Promise<void> {
         const keys = Array.from(this.getPrincipalKeysToFetch()).filter(
-            (key) => !ExtensionBasePropertiesItemViewHelper.CACHED_PRINCIPALS.has(key));
+            (key) => !ExtensionBasePropertiesItemViewHelper.CACHED_PRINCIPALS.has(key),
+        );
         const pKeys = keys.map(PrincipalKey.fromString);
-        const fetchPromise = pKeys.length > 0
-                             ? new GetPrincipalsByKeysRequest(pKeys).setPostfixUri(this.postfixUri).sendAndParse()
-                             : Q<Principal[]>([]);
+        const fetchPromise =
+            pKeys.length > 0
+                ? new GetPrincipalsByKeysRequest(pKeys).setPostfixUri(this.postfixUri).sendAndParse()
+                : Q<Principal[]>([]);
 
         return fetchPromise.then((principals) => {
             principals.forEach((p) => {
@@ -82,7 +82,10 @@ export class ExtensionBasePropertiesItemViewHelper
     }
 
     protected doGenerateProps(): Map<string, ExtensionPropertiesItemViewValue> {
-        const propsMap: Map<string, ExtensionPropertiesItemViewValue> = new Map<string, ExtensionPropertiesItemViewValue>();
+        const propsMap: Map<string, ExtensionPropertiesItemViewValue> = new Map<
+            string,
+            ExtensionPropertiesItemViewValue
+        >();
 
         this.setPropsFieldId(propsMap);
         this.setPropsType(propsMap);
@@ -101,14 +104,23 @@ export class ExtensionBasePropertiesItemViewHelper
     }
 
     protected setPropsType(propsMap: Map<string, ExtensionPropertiesItemViewValue>) {
-        propsMap.set(i18n('field.type'), new ExtensionPropertiesItemViewValue(this.item.getType().getLocalName()
-                                                                           ? this.item.getType().getLocalName()
-                                                                           : this.item.getType().toString()));
+        propsMap.set(
+            i18n('field.type'),
+            new ExtensionPropertiesItemViewValue(
+                this.item.getType().getLocalName()
+                    ? this.item.getType().getLocalName()
+                    : this.item.getType().toString(),
+            ),
+        );
     }
 
     protected setPropsApp(propsMap: Map<string, ExtensionPropertiesItemViewValue>) {
-        propsMap.set(i18n('field.app'),
-            new ExtensionPropertiesItemViewValue(this.application?.getDisplayName() || this.item.getType().getApplicationKey().getName()));
+        propsMap.set(
+            i18n('field.app'),
+            new ExtensionPropertiesItemViewValue(
+                this.application?.getDisplayName() || this.item.getType().getApplicationKey().getName(),
+            ),
+        );
     }
 
     protected setPropsLang(propsMap: Map<string, ExtensionPropertiesItemViewValue>) {
@@ -155,7 +167,10 @@ export class ExtensionBasePropertiesItemViewHelper
         const publishFirstTime = this.item.getContentSummary().getPublishFirstTime();
 
         if (publishFirstTime) {
-            propsMap.set(i18n('field.firstPublished'), new ExtensionPropertiesItemViewValue(DateTimeFormatter.createHtml(publishFirstTime)));
+            propsMap.set(
+                i18n('field.firstPublished'),
+                new ExtensionPropertiesItemViewValue(DateTimeFormatter.createHtml(publishFirstTime)),
+            );
         }
     }
 
@@ -168,21 +183,26 @@ export class ExtensionBasePropertiesItemViewHelper
     }
 
     private isEditSettingAllowed(): Q.Promise<boolean> {
-        return this.hasAdminAccessToSettings() ? Q.resolve(true) : this.hasFullAccess().catch(() => {
-            NotifyManager.get().showWarning(i18n(''));
-            return Q.resolve(false);
-        });
+        return this.hasAdminAccessToSettings()
+            ? Q.resolve(true)
+            : this.hasFullAccess().catch(() => {
+                  NotifyManager.get().showWarning(i18n(''));
+                  return Q.resolve(false);
+              });
     }
 
     private hasAdminAccessToSettings(): boolean {
-        return PermissionsHelper.hasAdminPermissions() ||
-               AuthHelper.isContentExpert() ||
-               ProjectHelper.isProjectOwner(getActiveProject());
+        return (
+            PermissionsHelper.hasAdminPermissions() ||
+            AuthHelper.isContentExpert() ||
+            ProjectHelper.isProjectOwner(getActiveProject())
+        );
     }
 
     private hasFullAccess(): Q.Promise<boolean> {
-        return new GetContentPermissionsByIdRequest(this.item.getContentId()).sendAndParse().then(
-            (permissions: AccessControlList) => {
+        return new GetContentPermissionsByIdRequest(this.item.getContentId())
+            .sendAndParse()
+            .then((permissions: AccessControlList) => {
                 return AccessControlHelper.hasFullAccess(permissions);
             });
     }

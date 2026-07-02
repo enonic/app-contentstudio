@@ -6,7 +6,7 @@ import { type ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { fetchContentSummaries } from '../../../entities/content';
 import { resolveUnpublish, unpublishContent } from '../../api/unpublish';
-import { trackTask, cleanupTask } from '../../services/task.service';
+import { trackTask, cleanupTask } from '../../../entities/task';
 import { hasContentIdInIds } from '../../../shared/lib/cms/content/ids';
 import { createDebounce } from '../../../shared/lib/timing/createDebounce';
 import {

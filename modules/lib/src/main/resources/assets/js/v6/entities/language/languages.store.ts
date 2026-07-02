@@ -1,7 +1,7 @@
-import type {Locale} from '@enonic/lib-admin-ui/locale/Locale';
-import {computed, map} from 'nanostores';
-import {GetLocalesRequest} from '../../../app/resource/GetLocalesRequest';
-import {LocaleViewer} from '../../../app/locale/LocaleViewer';
+import type { Locale } from '@enonic/lib-admin-ui/locale/Locale';
+import { computed, map } from 'nanostores';
+import { GetLocalesRequest } from '../../../app/resource/GetLocalesRequest';
+import { LocaleViewer } from '../../../app/locale/LocaleViewer';
 
 //
 // * Types
@@ -48,7 +48,7 @@ export const $languagesLoaded = computed($languagesStore, (state) => state.loade
 // Explicit init called at app bootstrap. The loading/loaded guard keeps it
 // idempotent; keeping it out of module scope avoids I/O on import.
 export async function initLanguages(): Promise<void> {
-    const {loading, loaded} = $languagesStore.get();
+    const { loading, loaded } = $languagesStore.get();
     if (loaded || loading) {
         return;
     }

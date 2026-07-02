@@ -19,7 +19,7 @@ import {
     uploadRemoteImage,
 } from '../../api/uploadMedia';
 import { generateUniqueName } from '../../../shared/lib/image/generateUniqueName';
-import { $activeProject } from '../activeProject.store';
+import { $activeProject } from '../../../entities/project/activeProject.store';
 import { addUpload, removeUpload, updateUploadProgress } from '../uploads.store';
 
 type UploadOptions = {

@@ -4,7 +4,7 @@ import { Cloud } from 'lucide-react';
 import { ReactElement, useMemo } from 'react';
 import { ContentVersion } from '../../../../app/ContentVersion';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
-import { $publishBadgeByVersionId, VersionPublishStatus } from '../../store/context/versionPublishState';
+import { $publishBadgeByVersionId, VersionPublishStatus } from '../../../entities/content/version';
 
 type VersionItemPublishStatusProps = {
     version: ContentVersion | null;

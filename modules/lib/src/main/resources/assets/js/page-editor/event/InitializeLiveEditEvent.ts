@@ -1,20 +1,18 @@
-import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import type {PrincipalJson} from '@enonic/lib-admin-ui/security/PrincipalJson';
-import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
-import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
-import {CONFIG, type ConfigObject} from '@enonic/lib-admin-ui/util/Config';
+import { ClassHelper } from '@enonic/lib-admin-ui/ClassHelper';
+import type { PrincipalJson } from '@enonic/lib-admin-ui/security/PrincipalJson';
+import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
+import { IframeEvent } from '@enonic/lib-admin-ui/event/IframeEvent';
+import { CONFIG, type ConfigObject } from '@enonic/lib-admin-ui/util/Config';
 
-import {type LiveEditParams} from '../LiveEditParams';
+import { type LiveEditParams } from '../LiveEditParams';
 
-import {type ProjectJson} from '../../app/settings/resource/json/ProjectJson';
-import {type ContentSummaryAndCompareStatus} from '../../app/content/ContentSummaryAndCompareStatus';
-import {PageState} from '../../app/wizard/page/PageState';
-import {type PageJson} from '../../app/page/PageJson';
-import {getActiveProject} from '../../v6/features/store/activeProject.store';
+import { type ProjectJson } from '../../app/settings/resource/json/ProjectJson';
+import { type ContentSummaryAndCompareStatus } from '../../app/content/ContentSummaryAndCompareStatus';
+import { PageState } from '../../app/wizard/page/PageState';
+import { type PageJson } from '../../app/page/PageJson';
+import { getActiveProject } from '../../v6/entities/project';
 
-export class InitializeLiveEditEvent
-    extends IframeEvent {
-
+export class InitializeLiveEditEvent extends IframeEvent {
     public projectJson: ProjectJson;
 
     private config: ConfigObject;
@@ -89,7 +87,11 @@ export class InitializeLiveEditEvent
         return this;
     }
 
-    setPrincipals(value: PrincipalJson[] = AuthContext?.get().getPrincipals().map(principal => principal.toJson())) {
+    setPrincipals(
+        value: PrincipalJson[] = AuthContext?.get()
+            .getPrincipals()
+            .map((principal) => principal.toJson()),
+    ) {
         this.principals = value;
         return this;
     }

@@ -7,7 +7,7 @@ import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { EditContentEvent } from '../../../../app/event/EditContentEvent';
 import { fetchContentSummaries } from '../../../entities/content';
 import { duplicateContent, type DuplicateContentParams, getDescendantsOfContents } from '../../api/duplicate';
-import { cleanupTask, trackTask } from '../../services/task.service';
+import { cleanupTask, trackTask } from '../../../entities/task';
 import { hasContentIdInIds, isIdsEqual } from '../../../shared/lib/cms/content/ids';
 import { createDebounce } from '../../../shared/lib/timing/createDebounce';
 import { $isWizard } from '../app.store';

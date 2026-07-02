@@ -8,7 +8,7 @@ import { type ToolbarConfig } from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
-import { getActiveProject, getActiveProjectName } from '../../v6/features/store/activeProject.store';
+import { getActiveProject, getActiveProjectName } from '../../v6/entities/project/activeProject.store';
 import { normalizeContentPathName } from '../../v6/shared/lib/cms/content/paths';
 import { ContentName } from '../content/ContentName';
 import { ContentUnnamed } from '../content/ContentUnnamed';

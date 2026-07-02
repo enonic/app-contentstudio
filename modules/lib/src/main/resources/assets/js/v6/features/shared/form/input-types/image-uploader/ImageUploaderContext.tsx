@@ -1,10 +1,20 @@
-import {type ReactElement, type ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
-import {type Value} from '@enonic/lib-admin-ui/data/Value';
-import {type ContentId} from '../../../../../../app/content/ContentId';
-import {type Project} from '../../../../../../app/settings/data/project/Project';
-import {$contextContent} from '../../../../store/context/contextContent.store';
-import {$activeProject} from '../../../../store/activeProject.store';
-import {type Mode, type Crop, type Dimensions, type Point} from './lib/types';
+import {
+    type ReactElement,
+    type ReactNode,
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
+import { type Value } from '@enonic/lib-admin-ui/data/Value';
+import { type ContentId } from '../../../../../../app/content/ContentId';
+import { type Project } from '../../../../../../app/settings/data/project/Project';
+import { $contextContent } from '../../../../store/context/contextContent.store';
+import { $activeProject } from '../../../../../entities/project';
+import { type Mode, type Crop, type Dimensions, type Point } from './lib/types';
 import {
     readNormalizedCropFromPropertySet,
     readNormalizedFocusFromPropertySet,
@@ -12,10 +22,10 @@ import {
     setCropInPropertySet,
     setFocusInPropertySet,
 } from './lib/propertySet';
-import {adjustCropForOrientation, adjustCropToBaseOrientation} from './lib/crop';
-import {adjustFocusForOrientation, adjustFocusToBaseOrientation} from './lib/focus';
-import {getBase64Image} from './lib/canvas';
-import {getImageUrl} from './lib/image';
+import { adjustCropForOrientation, adjustCropToBaseOrientation } from './lib/crop';
+import { adjustFocusForOrientation, adjustFocusToBaseOrientation } from './lib/focus';
+import { getBase64Image } from './lib/canvas';
+import { getImageUrl } from './lib/image';
 
 type ImageUploaderContextValue = {
     contentId?: ContentId;
@@ -46,7 +56,7 @@ type ImageUploaderProviderProps = {
     children: ReactNode;
 };
 
-export const ImageUploaderProvider = ({values, enabled, children}: ImageUploaderProviderProps): ReactElement => {
+export const ImageUploaderProvider = ({ values, enabled, children }: ImageUploaderProviderProps): ReactElement => {
     const value = values[0];
 
     // the context content id
@@ -111,7 +121,7 @@ export const ImageUploaderProvider = ({values, enabled, children}: ImageUploader
         const requestId = ++loadRequestIdRef.current;
 
         getBase64Image(imageUrl, fetchedOrientation, isCropEditing ? null : crop)
-            .then(({base64Image, dimensions}) => {
+            .then(({ base64Image, dimensions }) => {
                 if (requestId !== loadRequestIdRef.current) return;
                 setBase64Image(base64Image);
                 setDimensions(dimensions);
@@ -133,7 +143,7 @@ export const ImageUploaderProvider = ({values, enabled, children}: ImageUploader
 
             setCrop(adjustCropToBaseOrientation(crop, committedOrientation, dimensions));
         },
-        [committedOrientation, dimensions]
+        [committedOrientation, dimensions],
     );
 
     const cropForOrientation = useMemo(() => {
@@ -177,7 +187,7 @@ export const ImageUploaderProvider = ({values, enabled, children}: ImageUploader
 
             setFocus(adjustFocusToBaseOrientation(focus, committedOrientation, dimensions));
         },
-        [committedOrientation, dimensions]
+        [committedOrientation, dimensions],
     );
 
     const focusForOrientation = useMemo(() => {
@@ -218,8 +228,8 @@ export const ImageUploaderProvider = ({values, enabled, children}: ImageUploader
 
         const cropForOri = crop ? adjustCropForOrientation(crop, committedOrientation, dimensions) : null;
         const center: Point = cropForOri
-            ? {x: (cropForOri.x1 + cropForOri.x2) / 2, y: (cropForOri.y1 + cropForOri.y2) / 2}
-            : {x: dimensions.w / 2, y: dimensions.h / 2};
+            ? { x: (cropForOri.x1 + cropForOri.x2) / 2, y: (cropForOri.y1 + cropForOri.y2) / 2 }
+            : { x: dimensions.w / 2, y: dimensions.h / 2 };
 
         setFocus(adjustFocusToBaseOrientation(center, committedOrientation, dimensions));
     }, [mode, focus, crop, dimensions, committedOrientation]);
@@ -262,7 +272,7 @@ export const ImageUploaderProvider = ({values, enabled, children}: ImageUploader
             const sideways = committedOrientation >= 5;
             const baseW = sideways ? dimensions.h : dimensions.w;
             const baseH = sideways ? dimensions.w : dimensions.h;
-            setFocus({x: baseW / 2, y: baseH / 2});
+            setFocus({ x: baseW / 2, y: baseH / 2 });
         } else {
             setFocus(null);
         }
@@ -309,7 +319,7 @@ export const ImageUploaderProvider = ({values, enabled, children}: ImageUploader
             focusForOrientation,
             setFocusToBaseOrientation,
             reset,
-        ]
+        ],
     );
 
     return <ImageUploaderContext.Provider value={providerValue}>{children}</ImageUploaderContext.Provider>;

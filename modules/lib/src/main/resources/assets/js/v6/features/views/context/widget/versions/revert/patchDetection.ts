@@ -1,6 +1,5 @@
-import {type ContentVersion} from '../../../../../../../app/ContentVersion';
-import {ContentOperation} from '../../../../../store/context/versionOperations';
-import {$versions} from '../../../../../store/context/versionStore';
+import { type ContentVersion } from '../../../../../../../app/ContentVersion';
+import { ContentOperation, $versions } from '../../../../../../entities/content/version';
 
 const hasPatchOperation = (version: ContentVersion): boolean =>
     version.getActions().some((action) => action.getOperation() === ContentOperation.PATCH);

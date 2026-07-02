@@ -32,7 +32,7 @@ import {
     type ContentTreeNodeData,
 } from './content-tree.store';
 import { clearAllContentCaches, setContent, setContents } from './content.commands';
-import { $activeProject } from '../../../features/store/activeProject.store';
+import { $activeProject } from '../../project/activeProject.store';
 import { addUpload, clearUploads } from '../../../features/store/uploads.store';
 import type { Project } from '../../../../app/settings/data/project/Project';
 import { emitContentCreated, emitContentDeleted, emitContentArchived } from '../../../shared/socket/socket.store';

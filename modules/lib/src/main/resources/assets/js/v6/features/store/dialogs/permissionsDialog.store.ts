@@ -9,15 +9,15 @@ import { type OpenEditPermissionsDialogEvent } from '../../../../app/event/OpenE
 import { AccessControlHelper } from '../../../../app/wizard/AccessControlHelper';
 import { AccessControlList } from '../../../../app/access/AccessControlList';
 import { AccessControlEntry } from '../../../../app/access/AccessControlEntry';
-import { loadPrincipalsByKeys } from '../principals.store';
+import { loadPrincipalsByKeys } from '../../../entities/principal';
 import { GetDescendantsOfContentsRequest } from '../../../../app/resource/GetDescendantsOfContentsRequest';
 import { ApplyContentPermissionsRequest } from '../../../../app/resource/ApplyContentPermissionsRequest';
 import { type ApplyPermissionsScope } from '../../../../app/dialog/permissions/PermissionsData';
 import { type ContentId } from '../../../../app/content/ContentId';
 import { GetContentByPathRequest } from '../../../../app/resource/GetContentByPathRequest';
 import { GetContentRootPermissionsRequest } from '../../../../app/resource/GetContentRootPermissionsRequest';
-import { type TaskResultState } from '../task.store';
-import { trackTask } from '../../services/task.service';
+import { trackTask } from '../../../entities/task';
+import type { TaskResultState } from '../../../entities/task';
 import { formatError } from '../../../shared/lib/format/error';
 import { Permission } from '../../../../app/access/Permission';
 import { compareAccessControlEntries } from '../../../shared/lib/cms/permissions/accessControl';

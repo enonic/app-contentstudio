@@ -1,18 +1,16 @@
-import {type Application} from '@enonic/lib-admin-ui/app/Application';
-import {TabbedAppBar} from '@enonic/lib-admin-ui/app/bar/TabbedAppBar';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Store} from '@enonic/lib-admin-ui/store/Store';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import { type Application } from '@enonic/lib-admin-ui/app/Application';
+import { TabbedAppBar } from '@enonic/lib-admin-ui/app/bar/TabbedAppBar';
+import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
+import { Store } from '@enonic/lib-admin-ui/store/Store';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import type Q from 'q';
-import {Project} from '../settings/data/project/Project';
-import {ProjectViewer} from '../settings/wizard/viewer/ProjectViewer';
-import {AccessibilityHelper} from '../util/AccessibilityHelper';
-import {$activeProject} from '../../v6/features/store/activeProject.store';
-import {$noProjectMode, $projects} from '../../v6/features/store/projects.store';
+import { Project } from '../settings/data/project/Project';
+import { ProjectViewer } from '../settings/wizard/viewer/ProjectViewer';
+import { AccessibilityHelper } from '../util/AccessibilityHelper';
+import { $activeProject } from '../../v6/entities/project/activeProject.store';
+import { $noProjectMode, $projects } from '../../v6/entities/project/projects.store';
 
-export class ContentAppBar
-    extends TabbedAppBar {
-
+export class ContentAppBar extends TabbedAppBar {
     private selectedProjectViewer: ProjectViewer;
 
     private viewerAndNameSeparator: DivEl;
@@ -73,7 +71,11 @@ export class ContentAppBar
     }
 
     disable() {
-        this.selectedProjectViewer.setObject(Project.create().setDisplayName(`<${i18n('settings.projects.notfound')}>`).build());
+        this.selectedProjectViewer.setObject(
+            Project.create()
+                .setDisplayName(`<${i18n('settings.projects.notfound')}>`)
+                .build(),
+        );
         this.selectedProjectViewer.addClass('no-project');
     }
 

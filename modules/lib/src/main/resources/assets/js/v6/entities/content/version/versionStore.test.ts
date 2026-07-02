@@ -1,6 +1,6 @@
-import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {type ContentVersionAction, ContentVersionActionBuilder} from '../../../../app/ContentVersionAction';
-import {type ContentVersion, ContentVersionBuilder} from '../../../../app/ContentVersion';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { type ContentVersionAction, ContentVersionActionBuilder } from '../../../../app/ContentVersionAction';
+import { type ContentVersion, ContentVersionBuilder } from '../../../../app/ContentVersion';
 import {
     $allVersionsLoaded,
     $versions,
@@ -29,7 +29,7 @@ import {
     getIconForOperation,
     getOperationLabel,
     getVersionBranch,
-} from '../../views/context/widget/versions/labels';
+} from '../../../features/views/context/widget/versions/labels';
 
 import {
     Archive,
@@ -81,8 +81,12 @@ function createVersion(id: string, actions: ContentVersionAction[], timestamp?: 
     return builder.build();
 }
 
-function createPublishedVersion(id: string, publishedFrom: Date, publishedTo?: Date,
-                                publishOptions: ActionOptions = {}): ContentVersion {
+function createPublishedVersion(
+    id: string,
+    publishedFrom: Date,
+    publishedTo?: Date,
+    publishOptions: ActionOptions = {},
+): ContentVersion {
     const builder = new ContentVersionBuilder();
     builder.id = id;
     builder.actions = [createAction(ContentOperation.PUBLISH, [], publishOptions)];
@@ -242,10 +246,16 @@ describe('isVersionRevertable', () => {
 
     it('returns false for non-restorable operations', () => {
         const nonRestorableOps = [
-            ContentOperation.PUBLISH, ContentOperation.UNPUBLISH, ContentOperation.PERMISSIONS,
-            ContentOperation.MOVE, ContentOperation.SORT, ContentOperation.PATCH,
-            ContentOperation.ARCHIVE, ContentOperation.RESTORE,
-            ContentOperation.METADATA, ContentOperation.WORKFLOW,
+            ContentOperation.PUBLISH,
+            ContentOperation.UNPUBLISH,
+            ContentOperation.PERMISSIONS,
+            ContentOperation.MOVE,
+            ContentOperation.SORT,
+            ContentOperation.PATCH,
+            ContentOperation.ARCHIVE,
+            ContentOperation.RESTORE,
+            ContentOperation.METADATA,
+            ContentOperation.WORKFLOW,
         ];
         for (const op of nonRestorableOps) {
             const version = createVersion('v1', [createAction(op)]);
@@ -267,8 +277,12 @@ describe('isVersionRevertable', () => {
 describe('isVersionComparable', () => {
     it('returns true for comparable operations', () => {
         const comparableOps = [
-            ContentOperation.CREATE, ContentOperation.DUPLICATE, ContentOperation.UPDATE,
-            ContentOperation.MOVE, ContentOperation.SORT, ContentOperation.SYNC,
+            ContentOperation.CREATE,
+            ContentOperation.DUPLICATE,
+            ContentOperation.UPDATE,
+            ContentOperation.MOVE,
+            ContentOperation.SORT,
+            ContentOperation.SYNC,
         ];
         for (const op of comparableOps) {
             const version = createVersion('v1', [createAction(op)]);
@@ -283,9 +297,13 @@ describe('isVersionComparable', () => {
 
     it('returns false for non-comparable operations', () => {
         const nonComparableOps = [
-            ContentOperation.PUBLISH, ContentOperation.UNPUBLISH, ContentOperation.PERMISSIONS,
-            ContentOperation.PATCH, ContentOperation.ARCHIVE,
-            ContentOperation.METADATA, ContentOperation.WORKFLOW,
+            ContentOperation.PUBLISH,
+            ContentOperation.UNPUBLISH,
+            ContentOperation.PERMISSIONS,
+            ContentOperation.PATCH,
+            ContentOperation.ARCHIVE,
+            ContentOperation.METADATA,
+            ContentOperation.WORKFLOW,
         ];
         for (const op of nonComparableOps) {
             const version = createVersion('v1', [createAction(op)]);
@@ -305,8 +323,12 @@ describe('isVersionComparable', () => {
 describe('isStandardModeVersion', () => {
     it('returns true for standard mode operations', () => {
         const standardOps = [
-            ContentOperation.CREATE, ContentOperation.DUPLICATE, ContentOperation.UPDATE,
-            ContentOperation.MOVE, ContentOperation.SORT, ContentOperation.SYNC,
+            ContentOperation.CREATE,
+            ContentOperation.DUPLICATE,
+            ContentOperation.UPDATE,
+            ContentOperation.MOVE,
+            ContentOperation.SORT,
+            ContentOperation.SYNC,
         ];
         for (const op of standardOps) {
             const version = createVersion('v1', [createAction(op)]);
@@ -316,9 +338,13 @@ describe('isStandardModeVersion', () => {
 
     it('returns false for non-standard mode operations', () => {
         const nonStandardOps = [
-            ContentOperation.PUBLISH, ContentOperation.UNPUBLISH, ContentOperation.PERMISSIONS,
-            ContentOperation.PATCH, ContentOperation.ARCHIVE,
-            ContentOperation.METADATA, ContentOperation.WORKFLOW,
+            ContentOperation.PUBLISH,
+            ContentOperation.UNPUBLISH,
+            ContentOperation.PERMISSIONS,
+            ContentOperation.PATCH,
+            ContentOperation.ARCHIVE,
+            ContentOperation.METADATA,
+            ContentOperation.WORKFLOW,
         ];
         for (const op of nonStandardOps) {
             const version = createVersion('v1', [createAction(op)]);
@@ -345,7 +371,9 @@ describe('isStandardModeVersion', () => {
     });
 
     it('returns false for PUBLISH with editorial counterpart', () => {
-        const version = createPublishedVersion('v1', new Date('2024-01-15T09:00:00Z'), undefined, {editorial: 'editorial-1'});
+        const version = createPublishedVersion('v1', new Date('2024-01-15T09:00:00Z'), undefined, {
+            editorial: 'editorial-1',
+        });
         expect(isStandardModeVersion(version)).toBe(false);
     });
 
@@ -386,8 +414,14 @@ describe('$versionsByDate', () => {
 
     it('hides a publish that has an editorial counterpart in standard mode', () => {
         const create = createVersion('v1', [createAction(ContentOperation.CREATE)], new Date('2024-01-15'));
-        const editorial = createVersion('editorial-1', [createAction(ContentOperation.PATCH, [VersionField.DATA])], new Date('2024-01-15'));
-        const publish = createPublishedVersion('v3', new Date('2024-01-15T09:00:00Z'), undefined, {editorial: 'editorial-1'});
+        const editorial = createVersion(
+            'editorial-1',
+            [createAction(ContentOperation.PATCH, [VersionField.DATA])],
+            new Date('2024-01-15'),
+        );
+        const publish = createPublishedVersion('v3', new Date('2024-01-15T09:00:00Z'), undefined, {
+            editorial: 'editorial-1',
+        });
         $versions.set([publish, editorial, create]);
         $versionsDisplayMode.set('standard');
 
@@ -397,7 +431,11 @@ describe('$versionsByDate', () => {
     });
 
     it('includes SORT with manualOrderValue in full mode', () => {
-        const sort = createVersion('v1', [createAction(ContentOperation.SORT, [VersionField.MANUAL_ORDER])], new Date('2024-01-15'));
+        const sort = createVersion(
+            'v1',
+            [createAction(ContentOperation.SORT, [VersionField.MANUAL_ORDER])],
+            new Date('2024-01-15'),
+        );
         const update = createVersion('v2', [createAction(ContentOperation.UPDATE)], new Date('2024-01-15'));
 
         $versions.set([update, sort]);
@@ -510,8 +548,8 @@ describe('getOperationLabel', () => {
     });
 
     it('returns generic patch label regardless of origin', () => {
-        const draft = createVersion('v1', [createAction(ContentOperation.PATCH, [], {origin: 'draft'})]);
-        const master = createVersion('v2', [createAction(ContentOperation.PATCH, [], {origin: 'master'})]);
+        const draft = createVersion('v1', [createAction(ContentOperation.PATCH, [], { origin: 'draft' })]);
+        const master = createVersion('v2', [createAction(ContentOperation.PATCH, [], { origin: 'master' })]);
         const none = createVersion('v3', [createAction(ContentOperation.PATCH)]);
 
         expect(getOperationLabel(draft)).toBe('operation.content.patch');
@@ -542,12 +580,12 @@ describe('getVersionBranch', () => {
 
     for (const [name, operation, fields] of branchAwareCases) {
         it(`resolves draft origin for ${name}`, () => {
-            const version = createVersion('v1', [createAction(operation, fields ?? [], {origin: 'draft'})]);
+            const version = createVersion('v1', [createAction(operation, fields ?? [], { origin: 'draft' })]);
             expect(getVersionBranch(version)).toBe('draft');
         });
 
         it(`resolves master origin for ${name}`, () => {
-            const version = createVersion('v1', [createAction(operation, fields ?? [], {origin: 'master'})]);
+            const version = createVersion('v1', [createAction(operation, fields ?? [], { origin: 'master' })]);
             expect(getVersionBranch(version)).toBe('master');
         });
 
@@ -558,7 +596,7 @@ describe('getVersionBranch', () => {
     }
 
     it('returns undefined for operations that do not target a branch', () => {
-        const version = createVersion('v1', [createAction(ContentOperation.UPDATE, [], {origin: 'draft'})]);
+        const version = createVersion('v1', [createAction(ContentOperation.UPDATE, [], { origin: 'draft' })]);
         expect(getVersionBranch(version)).toBeUndefined();
     });
 });
@@ -607,9 +645,11 @@ describe('publish badge', () => {
 
     it('marks the editorial version for a master editorial patch with editorial', () => {
         const update = createVersion('v-update', [createAction(ContentOperation.UPDATE)], new Date('2024-01-14'));
-        const patch = createVersion('v-patch',
-            [createAction(ContentOperation.PATCH, [VersionField.DATA], {origin: 'master', editorial: 'v-update'})],
-            new Date('2024-01-15'));
+        const patch = createVersion(
+            'v-patch',
+            [createAction(ContentOperation.PATCH, [VersionField.DATA], { origin: 'master', editorial: 'v-update' })],
+            new Date('2024-01-15'),
+        );
 
         $versions.set([patch, update]);
         $onlineVersionId.set('some-id');
@@ -619,9 +659,11 @@ describe('publish badge', () => {
     });
 
     it('marks the patch version itself when editorial is missing on master editorial patch', () => {
-        const patch = createVersion('v-patch',
-            [createAction(ContentOperation.PATCH, [VersionField.DATA], {origin: 'master'})],
-            new Date('2024-01-15'));
+        const patch = createVersion(
+            'v-patch',
+            [createAction(ContentOperation.PATCH, [VersionField.DATA], { origin: 'master' })],
+            new Date('2024-01-15'),
+        );
 
         $versions.set([patch]);
         $onlineVersionId.set('some-id');
@@ -631,9 +673,11 @@ describe('publish badge', () => {
     });
 
     it('does not treat draft editorial patch as an online event', () => {
-        const patch = createVersion('v-patch',
-            [createAction(ContentOperation.PATCH, [VersionField.DATA], {origin: 'draft', editorial: 'v-other'})],
-            new Date('2024-01-15'));
+        const patch = createVersion(
+            'v-patch',
+            [createAction(ContentOperation.PATCH, [VersionField.DATA], { origin: 'draft', editorial: 'v-other' })],
+            new Date('2024-01-15'),
+        );
 
         $versions.set([patch]);
         $onlineVersionId.set('some-id');
@@ -643,9 +687,11 @@ describe('publish badge', () => {
     });
 
     it('does not treat plain master patch (no editorial fields) as an online event', () => {
-        const patch = createVersion('v-patch',
-            [createAction(ContentOperation.PATCH, [], {origin: 'master'})],
-            new Date('2024-01-15'));
+        const patch = createVersion(
+            'v-patch',
+            [createAction(ContentOperation.PATCH, [], { origin: 'master' })],
+            new Date('2024-01-15'),
+        );
 
         $versions.set([patch]);
         $onlineVersionId.set('some-id');
@@ -656,9 +702,11 @@ describe('publish badge', () => {
 
     it('master editorial patch supersedes a prior publish, which becomes a past badge', () => {
         const publish = createPublishedVersion('v-pub', new Date('2024-01-10'));
-        const patch = createVersion('v-patch',
-            [createAction(ContentOperation.PATCH, [VersionField.DATA], {origin: 'master'})],
-            new Date('2024-01-15'));
+        const patch = createVersion(
+            'v-patch',
+            [createAction(ContentOperation.PATCH, [VersionField.DATA], { origin: 'master' })],
+            new Date('2024-01-15'),
+        );
 
         $versions.set([patch, publish]);
         $onlineVersionId.set('some-id');
@@ -676,12 +724,12 @@ describe('publish badge', () => {
         const unpublishTimestamp = new Date('2024-01-12');
         const laterPublishTimestamp = new Date('2024-01-15');
 
-        const earlyPatch = createVersion('v-patch',
-            [createAction(ContentOperation.PATCH, [VersionField.DATA], {origin: 'master'})],
-            earlyPatchTimestamp);
-        const unpublish = createVersion('v-unpub',
-            [createAction(ContentOperation.UNPUBLISH)],
-            unpublishTimestamp);
+        const earlyPatch = createVersion(
+            'v-patch',
+            [createAction(ContentOperation.PATCH, [VersionField.DATA], { origin: 'master' })],
+            earlyPatchTimestamp,
+        );
+        const unpublish = createVersion('v-unpub', [createAction(ContentOperation.UNPUBLISH)], unpublishTimestamp);
         const laterPublish = createPublishedVersion('v-pub', laterPublishTimestamp);
 
         $versions.set([laterPublish, unpublish, earlyPatch]);
@@ -837,25 +885,26 @@ describe('VERSION_OPERATION_MATRIX', () => {
     it('covers all VersionOperationType values', () => {
         const allTypes = Object.values(VersionOperationType);
         for (const type of allTypes) {
-            const version = type === VersionOperationType.RENAME
-                ? createVersion('v1', [createAction(ContentOperation.MOVE, [VersionField.NAME])])
-                : type === VersionOperationType.IMPORT
-                    ? createVersion('v-import', [createAction(ContentOperation.IMPORT)])
-                    : type === VersionOperationType.SYNTHETIC_CREATE
+            const version =
+                type === VersionOperationType.RENAME
+                    ? createVersion('v1', [createAction(ContentOperation.MOVE, [VersionField.NAME])])
+                    : type === VersionOperationType.IMPORT
+                      ? createVersion('v-import', [createAction(ContentOperation.IMPORT)])
+                      : type === VersionOperationType.SYNTHETIC_CREATE
                         ? (() => {
-                            const b = new ContentVersionBuilder();
-                            b.id = '__synthetic_create__';
-                            b.timestamp = new Date();
-                            b.actions = [];
-                            return b.build();
-                        })()
+                              const b = new ContentVersionBuilder();
+                              b.id = '__synthetic_create__';
+                              b.timestamp = new Date();
+                              b.actions = [];
+                              return b.build();
+                          })()
                         : type === VersionOperationType.LOCALIZE
-                            ? null // stubbed, skip
-                            : type === VersionOperationType.EDITORIAL_PATCH
-                                ? createVersion('v1', [createAction(ContentOperation.PATCH, [VersionField.DATA])])
-                                : type === VersionOperationType.UNKNOWN
-                                    ? createVersion('v1', [])
-                                    : createVersion('v1', [createAction(type)]);
+                          ? null // stubbed, skip
+                          : type === VersionOperationType.EDITORIAL_PATCH
+                            ? createVersion('v1', [createAction(ContentOperation.PATCH, [VersionField.DATA])])
+                            : type === VersionOperationType.UNKNOWN
+                              ? createVersion('v1', [])
+                              : createVersion('v1', [createAction(type)]);
 
             if (!version) {
                 continue;

@@ -1,8 +1,8 @@
-import {atom, computed} from 'nanostores';
-import {type ContentVersion} from '../../../../app/ContentVersion';
-import {type ContentVersionAction} from '../../../../app/ContentVersionAction';
-import {ContentOperation, EDITORIAL_PATCH_FIELDS, getVersionOperationTime} from './versionOperations';
-import {$versions} from './versionStore';
+import { atom, computed } from 'nanostores';
+import { type ContentVersion } from '../../../../app/ContentVersion';
+import { type ContentVersionAction } from '../../../../app/ContentVersionAction';
+import { ContentOperation, EDITORIAL_PATCH_FIELDS, getVersionOperationTime } from './versionOperations';
+import { $versions } from './versionStore';
 
 //
 // * Types
@@ -16,7 +16,7 @@ export const VersionPublishStatus = {
     UNPUBLISHED: 'unpublished',
 } as const;
 
-export type VersionPublishStatus = typeof VersionPublishStatus[keyof typeof VersionPublishStatus];
+export type VersionPublishStatus = (typeof VersionPublishStatus)[keyof typeof VersionPublishStatus];
 
 export type PublishBadge = {
     versionId: string;
@@ -66,7 +66,7 @@ export const getVersionPublishStatus = (version: ContentVersion): VersionPublish
 
         const actions = version.getActions();
 
-        if (actions.some(a => a.getOperation() === ContentOperation.PUBLISH)) {
+        if (actions.some((a) => a.getOperation() === ContentOperation.PUBLISH)) {
             return VersionPublishStatus.PUBLISHED;
         }
 
@@ -81,10 +81,10 @@ export const getVersionPublishStatus = (version: ContentVersion): VersionPublish
 //
 
 const getPublishAction = (version: ContentVersion) =>
-    version.getActions().find(a => a.getOperation() === ContentOperation.PUBLISH);
+    version.getActions().find((a) => a.getOperation() === ContentOperation.PUBLISH);
 
 const isUnpublishEvent = (version: ContentVersion): boolean =>
-    version.getActions().some(a => a.getOperation() === ContentOperation.UNPUBLISH);
+    version.getActions().some((a) => a.getOperation() === ContentOperation.UNPUBLISH);
 
 // Master editorial patches mutate the master branch directly, so they count as
 // "online" events alongside publishes. Backend may set `onlineVersionId`
@@ -102,7 +102,7 @@ const getOnlineEventAction = (version: ContentVersion): ContentVersionAction | u
     if (first.getOrigin() !== 'master') {
         return undefined;
     }
-    if (!first.getFields().some(f => EDITORIAL_PATCH_FIELDS.includes(f))) {
+    if (!first.getFields().some((f) => EDITORIAL_PATCH_FIELDS.includes(f))) {
         return undefined;
     }
     return first;
@@ -166,22 +166,26 @@ const $allPublishBadges = computed($versions, (versions): PublishBadge[] => {
     return badges;
 });
 
-const $activePublishBadge = computed([$allPublishBadges, $onlineVersionId], (badges, onlineVersionId): PublishBadge | undefined =>
-    onlineVersionId ? badges[0] : undefined,
+const $activePublishBadge = computed(
+    [$allPublishBadges, $onlineVersionId],
+    (badges, onlineVersionId): PublishBadge | undefined => (onlineVersionId ? badges[0] : undefined),
 );
 
-export const $activePublishVersionId = computed($activePublishBadge, badge => badge?.versionId);
+export const $activePublishVersionId = computed($activePublishBadge, (badge) => badge?.versionId);
 
-export const $activePublishStatus = computed($activePublishBadge, badge => badge?.publishStatus);
+export const $activePublishStatus = computed($activePublishBadge, (badge) => badge?.publishStatus);
 
-export const $activePublishedFrom = computed($activePublishBadge, badge => badge?.publishedFrom);
+export const $activePublishedFrom = computed($activePublishBadge, (badge) => badge?.publishedFrom);
 
-export const $activePublishedTo = computed($activePublishBadge, badge => badge?.publishedTo);
+export const $activePublishedTo = computed($activePublishBadge, (badge) => badge?.publishedTo);
 
-export const $pastPublishBadges = computed([$allPublishBadges, $onlineVersionId], (badges, onlineVersionId): ReadonlyMap<string, PublishBadge> => {
-    const pastBadges = onlineVersionId ? badges.slice(1) : badges;
-    return new Map(pastBadges.map(b => [b.versionId, b]));
-});
+export const $pastPublishBadges = computed(
+    [$allPublishBadges, $onlineVersionId],
+    (badges, onlineVersionId): ReadonlyMap<string, PublishBadge> => {
+        const pastBadges = onlineVersionId ? badges.slice(1) : badges;
+        return new Map(pastBadges.map((b) => [b.versionId, b]));
+    },
+);
 
 /**
  * Per-version publish badge map. Single subscription point for list items.

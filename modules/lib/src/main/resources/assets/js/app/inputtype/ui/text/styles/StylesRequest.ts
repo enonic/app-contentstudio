@@ -1,20 +1,18 @@
 import Q from 'q';
-import {Path} from '@enonic/lib-admin-ui/rest/Path';
-import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {type StyleJson} from './StylesDescriptor';
-import {Styles} from './Styles';
-import {ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {getActiveProjectName} from '../../../../../v6/features/store/activeProject.store';
+import { Path } from '@enonic/lib-admin-ui/rest/Path';
+import { type JsonResponse } from '@enonic/lib-admin-ui/rest/JsonResponse';
+import { type StyleJson } from './StylesDescriptor';
+import { Styles } from './Styles';
+import { ResourceRequest } from '@enonic/lib-admin-ui/rest/ResourceRequest';
+import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
+import { getActiveProjectName } from '../../../../../v6/entities/project/activeProject.store';
 
 export interface GetStylesResponse {
     css: string[];
     styles: StyleJson[];
 }
 
-export class StylesRequest
-    extends ResourceRequest<Styles> {
-
+export class StylesRequest extends ResourceRequest<Styles> {
     private static requests: Record<string, Q.Promise<Styles>> = {};
 
     private contentId: string;
@@ -26,7 +24,6 @@ export class StylesRequest
     }
 
     static fetchStyles(contentId: string): Q.Promise<Styles> {
-
         const deferred = Q.defer<Styles>();
 
         if (Styles.getInstance(contentId)) {
@@ -47,7 +44,7 @@ export class StylesRequest
     getParams(): object {
         return {
             contentId: this.contentId,
-            project: getActiveProjectName()
+            project: getActiveProjectName(),
         };
     }
 

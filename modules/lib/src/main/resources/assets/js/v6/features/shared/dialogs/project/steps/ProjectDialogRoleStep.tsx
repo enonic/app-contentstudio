@@ -11,7 +11,7 @@ import {
     setProjectDialogRolePrincipals,
     setProjectDialogRoles,
 } from '../../../../store/dialogs/projectDialog.store';
-import { $principals } from '../../../../store/principals.store';
+import { $principals } from '../../../../../entities/principal';
 import { InlineButton } from '../../../../../shared/ui/InlineButton';
 import { PrincipalSelector } from '../../../selectors/PrincipalSelector';
 import { getProjectDetailedPermissions } from '../../../../../shared/lib/url/projects';

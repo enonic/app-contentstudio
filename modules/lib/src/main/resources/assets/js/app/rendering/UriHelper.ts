@@ -1,13 +1,12 @@
-import {RenderingMode} from './RenderingMode';
-import {Branch} from '../versioning/Branch';
-import {type ComponentPath} from '../page/region/ComponentPath';
-import {UriHelper as LibUriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
-import {Path} from '@enonic/lib-admin-ui/rest/Path';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {getActiveProjectName} from '../../v6/features/store/activeProject.store';
+import { RenderingMode } from './RenderingMode';
+import { Branch } from '../versioning/Branch';
+import { type ComponentPath } from '../page/region/ComponentPath';
+import { UriHelper as LibUriHelper } from '@enonic/lib-admin-ui/util/UriHelper';
+import { Path } from '@enonic/lib-admin-ui/rest/Path';
+import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
+import { getActiveProjectName } from '../../v6/entities/project/activeProject.store';
 
 export class UriHelper {
-
     /**
      * Adds a prefix to a site path.
      *
@@ -27,7 +26,11 @@ export class UriHelper {
         return UriHelper.addSitePrefix(uri);
     }
 
-    public static getPathFromPortalInlineUri(portalUri: string, renderingMode: RenderingMode, branch: Branch = Branch.DRAFT): string {
+    public static getPathFromPortalInlineUri(
+        portalUri: string,
+        renderingMode: RenderingMode,
+        branch: Branch = Branch.DRAFT,
+    ): string {
         const project: string = getActiveProjectName();
         const searchEntry: string = [renderingMode, project, branch].join(Path.DEFAULT_ELEMENT_DIVIDER);
 
@@ -39,8 +42,12 @@ export class UriHelper {
         return null;
     }
 
-    public static getComponentUri(contentId: string, componentPath: ComponentPath, renderingMode: RenderingMode,
-                                  branch: Branch = Branch.DRAFT): string {
+    public static getComponentUri(
+        contentId: string,
+        componentPath: ComponentPath,
+        renderingMode: RenderingMode,
+        branch: Branch = Branch.DRAFT,
+    ): string {
         const componentPart: string = `_${Path.DEFAULT_ELEMENT_DIVIDER}component`;
         const componentPathStr: string = componentPath ? componentPath.toString().replace(/^\//, '') : '';
         const path: string = [contentId, componentPart, componentPathStr].join(Path.DEFAULT_ELEMENT_DIVIDER);
@@ -49,7 +56,12 @@ export class UriHelper {
 
     public static getAdminUri(baseUrl: string, contentPath: string): string {
         const adminUrl = UriHelper.getPortalUri(contentPath, RenderingMode.ADMIN);
-        return adminUrl + (adminUrl.charAt(adminUrl.length - 1) === Path.DEFAULT_ELEMENT_DIVIDER ? '' : Path.DEFAULT_ELEMENT_DIVIDER) +
-               baseUrl;
+        return (
+            adminUrl +
+            (adminUrl.charAt(adminUrl.length - 1) === Path.DEFAULT_ELEMENT_DIVIDER
+                ? ''
+                : Path.DEFAULT_ELEMENT_DIVIDER) +
+            baseUrl
+        );
     }
 }
