@@ -17,7 +17,14 @@ public class ContentRelativePathResolver
 
     public static String resolveWithSite( final String pathExpression, final Site parentSite )
     {
-        return makeEndWithStar( makeStartWithSlash( resolveSitePath( pathExpression, parentSite ) ) );
+        final String resolved = makeStartWithSlash( resolveSitePath( pathExpression, parentSite ) );
+
+        if ( SITE_WILDCARD.equals( pathExpression ) )
+        {
+            return makeEndWithStar( makeEndWithSlash( resolved ) );
+        }
+
+        return makeEndWithStar( resolved );
     }
 
     public static boolean anyPathNeedsSiteResolving( final List<String> allowedPaths )
@@ -104,6 +111,18 @@ public class ContentRelativePathResolver
         else
         {
             return "/" + str;
+        }
+    }
+
+    private static String makeEndWithSlash( final String str )
+    {
+        if ( str.endsWith( "/" ) )
+        {
+            return str;
+        }
+        else
+        {
+            return str + "/";
         }
     }
 
