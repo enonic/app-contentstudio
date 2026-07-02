@@ -98,7 +98,7 @@ export class PageEventsManager {
 
     private componentAddRequestedListeners: ((path: ComponentPath, type: ComponentType) => void)[] = [];
 
-    private setFragmentComponentRequestedListeners: ((path: ComponentPath, id: string) => void)[] = [];
+    private setFragmentComponentRequestedListeners: ((path: ComponentPath, id: string, name?: string) => void)[] = [];
 
     private textComponentUpdateRequestedListeners: ((path: ComponentPath, value: string,
                                                      origin?: ComponentTextUpdatedOrigin) => void)[] = [];
@@ -469,16 +469,16 @@ export class PageEventsManager {
         this.pageControllerSetRequestedListeners.forEach((listener) => listener(controller));
     }
 
-    onSetFragmentComponentRequested(listener: ((parentPath: ComponentPath, id: string) => void)): void {
+    onSetFragmentComponentRequested(listener: ((parentPath: ComponentPath, id: string, name?: string) => void)): void {
         this.setFragmentComponentRequestedListeners.push(listener);
     }
 
-    unSetFragmentComponentRequested(listener: ((parentPath: ComponentPath, id: string) => void)): void {
+    unSetFragmentComponentRequested(listener: ((parentPath: ComponentPath, id: string, name?: string) => void)): void {
         this.setFragmentComponentRequestedListeners = this.setFragmentComponentRequestedListeners.filter((curr) => (curr !== listener));
     }
 
-    notifySetFragmentComponentRequested(parentPath: ComponentPath, id: string) {
-        this.setFragmentComponentRequestedListeners.forEach((listener) => listener(parentPath, id));
+    notifySetFragmentComponentRequested(parentPath: ComponentPath, id: string, name?: string) {
+        this.setFragmentComponentRequestedListeners.forEach((listener) => listener(parentPath, id, name));
     }
 
     onComponentDescriptorSetRequested(listener: ((path: ComponentPath, descriptorKey: DescriptorKey) => void)): void {

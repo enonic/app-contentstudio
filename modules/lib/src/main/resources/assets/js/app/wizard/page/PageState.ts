@@ -176,13 +176,13 @@ export class PageStateEventHandler {
             }
         });
 
-        PageEventsManager.get().onSetFragmentComponentRequested((path: ComponentPath, id: string) => {
+        PageEventsManager.get().onSetFragmentComponentRequested((path: ComponentPath, id: string, name?: string) => {
             if (!PageState.getState()) {
                 console.warn('Unable to select a fragment for fragment component: Page is not set');
                 return;
             }
 
-            this.setFragmentComponent(path, id);
+            this.setFragmentComponent(path, id, name);
         });
 
         PageEventsManager.get().onComponentResetRequested((path: ComponentPath) => {
@@ -385,12 +385,13 @@ export class PageStateEventHandler {
         }
     }
 
-    private setFragmentComponent(path: ComponentPath, id: string): void {
+    private setFragmentComponent(path: ComponentPath, id: string, name?: string): void {
         const item: PageItem = PageState.getState().getComponentByPath(path);
         const contentId: ContentId = id ? new ContentId(id) : null;
 
         if (item instanceof FragmentComponent) {
-            item.setFragment(contentId, null);
+            item.setFragment(contentId, name ?? null);
+            PageEventsManager.get().notifyComponentReloadRequested(path, false);
         }
     }
 }
