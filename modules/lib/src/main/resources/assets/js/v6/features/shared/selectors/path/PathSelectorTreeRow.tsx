@@ -8,7 +8,7 @@ import { type ReactElement } from 'react';
 import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 import type { ContentTreeSelectorItem } from '../../../../../app/item/ContentTreeSelectorItem';
 import { useVirtualizedTreeListRowClick } from '../../../../shared/lib/hooks/useVirtualizedTreeListRowClick';
-import { ContentLabel } from '../../content/ContentLabel';
+import { ContentLabel } from '../../../../entities/content/ui/content/ContentLabel';
 import { StatusBadge } from '../../status/StatusBadge';
 import { calcTreePublishStatus } from '../../../../shared/lib/cms/content/status';
 import { RootLabel, isRootContent } from './PathSelectorRoot';

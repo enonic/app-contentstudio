@@ -21,10 +21,10 @@ import {
     hasFilterValueSet,
     resetContentFilter,
     setContentFilterSelection,
-} from '../../../v6/features/store/contentFilter.store';
+} from '../../../v6/features/search/model/contentFilter.store';
 import { onActiveProjectChanged } from '../../../v6/entities/project/activeProject.store';
-import { BrowseDependenciesElement } from '../../../v6/features/views/browse/layout/filter/BrowseDependencies';
-import { BrowseFilterElement } from '../../../v6/features/views/browse/layout/filter/BrowseFilter';
+import { BrowseDependenciesElement } from '../../../v6/features/search/ui/BrowseDependencies';
+import { BrowseFilterElement } from '../../../v6/features/search/ui/BrowseFilter';
 import type { ContentId } from '../../content/ContentId';
 import type { ContentQuery } from '../../content/ContentQuery';
 import type { ContentSummary } from '../../content/ContentSummary';

@@ -1,13 +1,11 @@
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {EditSettingsItemEvent} from '../../event/EditSettingsItemEvent';
-import {type SettingsViewItem} from '../../view/SettingsViewItem';
-import {getCurrentItems} from '../../../../v6/features/store/settingsTreeSelection.store';
-import {type SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
+import { Action } from '@enonic/lib-admin-ui/ui/Action';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { EditSettingsItemEvent } from '../../event/EditSettingsItemEvent';
+import { type SettingsViewItem } from '../../view/SettingsViewItem';
+import { getCurrentItems } from '../../../../v6/pages/settings/model/settingsTreeSelection.store';
+import { type SelectableListBoxWrapper } from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
-export class EditSettingsItemTreeAction
-    extends Action {
-
+export class EditSettingsItemTreeAction extends Action {
     constructor() {
         super(i18n('action.edit'), 'mod+e');
         this.onExecuted(() => {

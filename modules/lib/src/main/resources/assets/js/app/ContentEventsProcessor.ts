@@ -1,17 +1,16 @@
-import {openSortDialog} from '../v6/features/store/dialogs/sortDialog.store';
-import {type ShowDependenciesEvent} from './browse/ShowDependenciesEvent';
-import {type SortContentEvent} from './browse/sort/SortContentEvent';
-import {type ContentSummary} from './content/ContentSummary';
-import type {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
-import {type NewContentEvent} from './create/NewContentEvent';
-import {type ContentUpdatedEvent} from './event/ContentUpdatedEvent';
-import {type EditContentEvent} from './event/EditContentEvent';
-import {ContentUrlHelper} from './util/ContentUrlHelper';
-import {ContentCreateParams} from './wizard/ContentCreateParams';
-import {ContentEditParams} from './wizard/ContentEditParams';
+import { openSortDialog } from '../v6/features/sort/model/sortDialog.store';
+import { type ShowDependenciesEvent } from './browse/ShowDependenciesEvent';
+import { type SortContentEvent } from './browse/sort/SortContentEvent';
+import { type ContentSummary } from './content/ContentSummary';
+import type { ContentSummaryAndCompareStatus } from './content/ContentSummaryAndCompareStatus';
+import { type NewContentEvent } from './create/NewContentEvent';
+import { type ContentUpdatedEvent } from './event/ContentUpdatedEvent';
+import { type EditContentEvent } from './event/EditContentEvent';
+import { ContentUrlHelper } from './util/ContentUrlHelper';
+import { ContentCreateParams } from './wizard/ContentCreateParams';
+import { ContentEditParams } from './wizard/ContentEditParams';
 
 export class ContentEventsProcessor {
-
     static handleNew(newContentEvent: NewContentEvent): void {
         const params: ContentCreateParams = ContentCreateParams.create()
             .setParentContentId(newContentEvent.getParentContent()?.getContentId())
@@ -22,8 +21,7 @@ export class ContentEventsProcessor {
     }
 
     static handleEdit(event: EditContentEvent): void {
-        event.getModels()
-            .forEach((contentSummary: ContentSummary) => {
+        event.getModels().forEach((contentSummary: ContentSummary) => {
             const editParams: ContentEditParams = ContentEditParams.create()
                 .setContentId(contentSummary.getContentId())
                 .setProjectName(event.getProjectName())

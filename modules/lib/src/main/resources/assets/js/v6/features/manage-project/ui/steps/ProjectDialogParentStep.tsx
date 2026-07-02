@@ -1,0 +1,248 @@
+import { SortableGridList } from '@enonic/lib-admin-ui/form2/components/sortable-grid-list';
+import { Dialog, GridList, IconButton, ListItem, cn } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { GripVertical, X } from 'lucide-react';
+import { type ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import {
+    $projectDialog,
+    setProjectDialogDefaultLanguage,
+    setProjectDialogParentProjects,
+} from '../../model/projectDialog.store';
+import { $languages } from '../../../../entities/language';
+import type { LanguageOption } from '../../../../entities/language';
+import { $projects } from '../../../../entities/project';
+import { ProjectLabel } from '../../../shared/project/ProjectLabel';
+import { ProjectSelector } from '../../../shared/selectors/ProjectSelector';
+import { LanguageSelector } from '../../../shared/selectors/LanguageSelector';
+import { InlineButton } from '../../../../shared/ui/InlineButton';
+import { FlagIcon } from '../../../../shared/ui/icons/FlagIcon';
+
+export const ProjectDialogParentStepHeader = (): ReactElement => {
+    const { mode, title } = useStore($projectDialog, { keys: ['mode', 'title'] });
+    const createTitleLabel = useI18n('dialog.project.wizard.parent.title');
+    const editTitleLabel = useI18n('dialog.project.wizard.parent.edit.title');
+    const descriptionLabel = useI18n('dialog.project.wizard.parent.description');
+
+    return (
+        <Dialog.StepHeader
+            step="step-parent"
+            helper={title}
+            title={mode === 'create' ? createTitleLabel : editTitleLabel}
+            description={mode === 'create' && descriptionLabel}
+            withClose
+        />
+    );
+};
+
+ProjectDialogParentStepHeader.displayName = 'ProjectDialogParentStepHeader';
+
+export const ProjectDialogParentStepContent = (): ReactElement => {
+    // Hooks
+    const languages = useStore($languages);
+    const { parentProjects, isMultiInheritance, defaultLanguage, mode } = useStore($projectDialog, {
+        keys: ['parentProjects', 'isMultiInheritance', 'defaultLanguage', 'mode'],
+    });
+    const { projects } = useStore($projects, { keys: ['projects'] });
+    // Constants
+    const parentProjectsLabel = useI18n('settings.field.project.parents');
+    const parentProjectLabel = useI18n('settings.field.project.parent');
+    const typeToSearchLabel = useI18n('field.option.placeholder');
+    const noProjectsFoundLabel = useI18n('settings.projects.notfound');
+    const helptextLabel = useI18n('dialog.project.wizard.parent.helptext');
+    const projectLabel = isMultiInheritance ? parentProjectsLabel : parentProjectLabel;
+    const languageLabel = useI18n('settings.projects.language.label');
+    const noLanguagesFoundLabel = useI18n('dialog.project.wizard.parent.noLanguagesFound');
+    const reorderLabel = useI18n('field.occurrence.action.reorder');
+    const parentProjectName = parentProjects[0]?.getDisplayName() ?? '';
+    const copyFromParentLabel = useI18n('settings.wizard.project.copy', parentProjectName);
+    const [projectSelection, setProjectSelection] = useState<readonly string[]>(parentProjects.map((p) => p.getName()));
+    const [languageSelection, setLanguageSelection] = useState<readonly string[]>([defaultLanguage]);
+
+    // Memoized values
+    const selectedLanguage = useMemo<LanguageOption | undefined>(
+        () =>
+            languageSelection.length > 0
+                ? languages.find((language) => language.id === languageSelection[0])
+                : undefined,
+        [languageSelection, languages],
+    );
+    const canCopyFromParentProject = useMemo(() => {
+        const hasParentProjects = parentProjects?.length > 0;
+        const hasParentProjectLanguage = parentProjects[0]?.getLanguage();
+        const isParentProjectLanguageDifferent = parentProjects[0]?.getLanguage() !== selectedLanguage?.id;
+
+        return hasParentProjects && hasParentProjectLanguage && isParentProjectLanguageDifferent && !!parentProjectName;
+    }, [parentProjects, selectedLanguage, parentProjectName]);
+
+    // Sync project selection with the store
+    useEffect(() => {
+        const resolvedProjects = Array.from(projectSelection).map((id) => projects.find((p) => p.getName() === id));
+        setProjectDialogParentProjects(resolvedProjects);
+    }, [projectSelection, projects]);
+
+    // Sync language selection with the store
+    useEffect(() => {
+        setProjectDialogDefaultLanguage(languageSelection?.[0] ?? '');
+    }, [languageSelection]);
+
+    // Handlers
+    const handleUnselectProject = useCallback((projectName: string): void => {
+        setProjectSelection((prev) => prev.filter((id) => id !== projectName));
+    }, []);
+    const handleCopyFromParentProject = useCallback(() => {
+        if (!canCopyFromParentProject) return;
+        const parentProject = parentProjects[0];
+        setLanguageSelection([parentProject.getLanguage()]);
+    }, [parentProjects, canCopyFromParentProject]);
+    const handleUnselectLanguage = useCallback(() => {
+        setLanguageSelection([]);
+    }, []);
+    const handleReorder = useCallback((fromIndex: number, toIndex: number): void => {
+        setProjectSelection((prev) => {
+            const next = [...prev];
+            const [moved] = next.splice(fromIndex, 1);
+            next.splice(toIndex, 0, moved);
+            return next;
+        });
+    }, []);
+
+    return (
+        <Dialog.StepContent step="step-parent">
+            <div className="flex flex-col">
+                {/* Project selection */}
+                <div>
+                    {mode === 'create' && projects.length > 0 && (
+                        <ProjectSelector
+                            label={projectLabel}
+                            description={helptextLabel}
+                            selection={projectSelection}
+                            onSelectionChange={setProjectSelection}
+                            selectionMode={isMultiInheritance ? 'staged' : 'single'}
+                            placeholder={typeToSearchLabel}
+                            emptyLabel={noProjectsFoundLabel}
+                            closeOnBlur
+                        />
+                    )}
+
+                    {mode === 'edit' && projectSelection.length > 0 && (
+                        <div>
+                            <label className="block font-semibold">{projectLabel}</label>
+                            <GridList className="rounded-md py-2.5 pl-4 pr-1">
+                                {parentProjects.map((project) => (
+                                    <GridList.Row
+                                        key={project.getName()}
+                                        id={project.getName()}
+                                        className="p-1 gap-1.5"
+                                    >
+                                        <GridList.Cell interactive={false} className="flex-1 self-stretch">
+                                            <ProjectLabel project={project} />
+                                        </GridList.Cell>
+                                    </GridList.Row>
+                                ))}
+                            </GridList>
+                        </div>
+                    )}
+
+                    {mode === 'create' && projectSelection.length > 1 && isMultiInheritance && (
+                        <SortableGridList
+                            items={Array.from(projectSelection).filter((name) =>
+                                projects.some((p) => p.getName() === name),
+                            )}
+                            keyExtractor={(projectName) => projectName}
+                            onMove={handleReorder}
+                            enabled
+                            fullRowDraggable
+                            dragLabel={reorderLabel}
+                            className="flex flex-col gap-y-2.5 rounded-md py-2.5 px-1"
+                            renderItem={({ item: projectName }) => {
+                                const project = projects.find((p) => p.getName() === projectName);
+
+                                return (
+                                    <ListItem className="pl-0 py-0 flex-1">
+                                        <ListItem.Content className="flex items-center gap-2.5 p-1.5 rounded cursor-move">
+                                            <ProjectLabel project={project} className="flex-1 self-stretch" />
+                                            <IconButton
+                                                variant="text"
+                                                icon={X}
+                                                onClick={() => handleUnselectProject(projectName)}
+                                            />
+                                        </ListItem.Content>
+                                    </ListItem>
+                                );
+                            }}
+                        />
+                    )}
+
+                    {mode === 'create' && projectSelection.length === 1 && (
+                        <GridList className="rounded-md py-2.5 pl-4 pr-1">
+                            {Array.from(projectSelection).map((projectName) => {
+                                const project = projects.find((p) => p.getName() === projectName);
+
+                                return (
+                                    <GridList.Row key={projectName} id={projectName} className="p-1 gap-1.5">
+                                        <GridList.Cell interactive={false} className="flex-1 self-stretch">
+                                            <ProjectLabel project={project} />
+                                        </GridList.Cell>
+                                        <GridList.Cell>
+                                            <GridList.Action>
+                                                <IconButton
+                                                    variant="text"
+                                                    icon={X}
+                                                    onClick={() => handleUnselectProject(projectName)}
+                                                />
+                                            </GridList.Action>
+                                        </GridList.Cell>
+                                    </GridList.Row>
+                                );
+                            })}
+                        </GridList>
+                    )}
+                </div>
+
+                {/* Language selection */}
+                <div
+                    className={cn(
+                        ((mode === 'create' && projects.length > 0) ||
+                            (mode === 'edit' && projectSelection.length > 0)) &&
+                            'mt-7.5',
+                    )}
+                >
+                    <div className="flex justify-between gap-3 mb-2">
+                        <label className="font-semibold">{languageLabel}</label>
+                        {canCopyFromParentProject && (
+                            <InlineButton onClick={handleCopyFromParentProject} label={copyFromParentLabel} />
+                        )}
+                    </div>
+                    <LanguageSelector
+                        options={languages}
+                        selection={languageSelection}
+                        onSelectionChange={setLanguageSelection}
+                        searchPlaceholder={typeToSearchLabel}
+                        emptyLabel={noLanguagesFoundLabel}
+                        closeOnBlur
+                    />
+                    {selectedLanguage && (
+                        <GridList className="rounded-md mb-2.5 py-2.5 pl-4 pr-1">
+                            <GridList.Row key={selectedLanguage.id} id={selectedLanguage.id} className="p-1 gap-1.5">
+                                <GridList.Cell interactive={false} className="flex-1 self-stretch">
+                                    <div className="flex gap-2">
+                                        <FlagIcon language={selectedLanguage.id} />
+                                        <span>{selectedLanguage.label}</span>
+                                    </div>
+                                </GridList.Cell>
+                                <GridList.Cell>
+                                    <GridList.Action>
+                                        <IconButton variant="text" icon={X} onClick={handleUnselectLanguage} />
+                                    </GridList.Action>
+                                </GridList.Cell>
+                            </GridList.Row>
+                        </GridList>
+                    )}
+                </div>
+            </div>
+        </Dialog.StepContent>
+    );
+};
+
+ProjectDialogParentStepContent.displayName = 'ProjectDialogParentStepContent';

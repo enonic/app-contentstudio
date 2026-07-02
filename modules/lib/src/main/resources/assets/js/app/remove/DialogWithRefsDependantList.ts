@@ -1,13 +1,12 @@
-import {ContentListItemElement} from '../../v6/features/shared/items/ContentListItem';
-import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {compareItems, DialogDependantItemsList, type ObserverConfig} from '../dialog/DialogDependantItemsList';
-import {EditContentEvent} from '../event/EditContentEvent';
-import {type ContentWithRefsResult} from '../resource/ContentWithRefsResult';
-import {ArchiveCheckableItem} from '../dialog/ArchiveCheckableItem';
-import {DependantArchiveItemViewer} from '../dialog/DependantArchiveItemViewer';
+import { ContentListItemElement } from '../../v6/entities/content/ui/items/ContentListItem';
+import { type ContentSummaryAndCompareStatus } from '../content/ContentSummaryAndCompareStatus';
+import { compareItems, DialogDependantItemsList, type ObserverConfig } from '../dialog/DialogDependantItemsList';
+import { EditContentEvent } from '../event/EditContentEvent';
+import { type ContentWithRefsResult } from '../resource/ContentWithRefsResult';
+import { ArchiveCheckableItem } from '../dialog/ArchiveCheckableItem';
+import { DependantArchiveItemViewer } from '../dialog/DependantArchiveItemViewer';
 
-export class DialogWithRefsDependantList
-    extends DialogDependantItemsList<ContentListItemElement> {
+export class DialogWithRefsDependantList extends DialogDependantItemsList<ContentListItemElement> {
     private resolveDependenciesResult: ContentWithRefsResult;
 
     constructor(observer: Omit<ObserverConfig, 'sort'>) {

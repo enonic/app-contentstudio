@@ -3,7 +3,7 @@ import { useStore } from '@nanostores/preact';
 import { Layers } from 'lucide-react';
 import { type MouseEvent, type ReactElement } from 'react';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
-import { $registeredWidgetNames } from '../../store/contextWidgets.store';
+import { $registeredWidgetNames } from '../../../widgets/context-panel/model/contextWidgets.store';
 import { LAYERS_WIDGET_NAME } from '../../../shared/lib/widget/layers';
 
 export type LayerIndicatorProps = {

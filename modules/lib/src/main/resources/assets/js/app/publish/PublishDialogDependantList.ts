@@ -1,14 +1,12 @@
-import {ContentListItemSelectableElement} from '../../v6/features/shared/items/ContentListItemSelectable';
-import type {ContentId} from '../content/ContentId';
-import {ContentIds} from '../content/ContentIds';
-import type {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {DialogDependantItemsList, type ObserverConfig} from '../dialog/DialogDependantItemsList';
-import type {ContentServerChangeItem} from '../event/ContentServerChangeItem';
-import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
+import { ContentListItemSelectableElement } from '../../v6/entities/content/ui/items/ContentListItemSelectable';
+import type { ContentId } from '../content/ContentId';
+import { ContentIds } from '../content/ContentIds';
+import type { ContentSummaryAndCompareStatus } from '../content/ContentSummaryAndCompareStatus';
+import { DialogDependantItemsList, type ObserverConfig } from '../dialog/DialogDependantItemsList';
+import type { ContentServerChangeItem } from '../event/ContentServerChangeItem';
+import { ContentServerEventsHandler } from '../event/ContentServerEventsHandler';
 
-export class PublishDialogDependantList
-    extends DialogDependantItemsList {
-
+export class PublishDialogDependantList extends DialogDependantItemsList {
     private requiredIds = ContentIds.empty();
     private visibleIds = ContentIds.empty();
 
@@ -17,11 +15,11 @@ export class PublishDialogDependantList
 
     constructor(observer: ObserverConfig) {
         const className = 'publish-dialog-dependant-list gap-y-1.5';
-        super({className, observer});
+        super({ className, observer });
     }
 
     hasExcluded(): boolean {
-        return this.excludedIds.some(id => this.isIdExcludable(id));
+        return this.excludedIds.some((id) => this.isIdExcludable(id));
     }
 
     setRequiredIds(value: ContentId[]) {
@@ -36,7 +34,6 @@ export class PublishDialogDependantList
     refresh(): void {
         //
     }
-
 
     createItemView(content: ContentSummaryAndCompareStatus, readOnly: boolean): ContentListItemSelectableElement {
         const className = this.isItemHidden(content) ? 'hidden' : undefined;
@@ -55,15 +52,15 @@ export class PublishDialogDependantList
         const serverEvents = ContentServerEventsHandler.getInstance();
 
         const permissionsUpdatedHandler = (contentIds: ContentId[]): void => {
-            const touched = this.getItems().some(item => contentIds.some(id => id.toString() === item.getId()));
+            const touched = this.getItems().some((item) => contentIds.some((id) => id.toString() === item.getId()));
             if (touched) {
                 this.notifyListChanged();
             }
         };
 
         const deletedHandler = (deletedItems: ContentServerChangeItem[]) => {
-            const touched = deletedItems.some(del =>
-                this.getItems().some(item => item.getContentId().equals(del.getContentId()))
+            const touched = deletedItems.some((del) =>
+                this.getItems().some((item) => item.getContentId().equals(del.getContentId())),
             );
             if (touched) {
                 this.notifyListChanged();
@@ -71,8 +68,8 @@ export class PublishDialogDependantList
         };
 
         const updatedHandler = (updatedItems: ContentSummaryAndCompareStatus[]) => {
-            const updatedIds = updatedItems.map(item => item.getId());
-            const touched = this.getItems().some(item => updatedIds.includes(item.getId()));
+            const updatedIds = updatedItems.map((item) => item.getId());
+            const touched = this.getItems().some((item) => updatedIds.includes(item.getId()));
             if (touched) {
                 this.notifyListChanged();
             }
@@ -108,13 +105,13 @@ export class PublishDialogDependantList
     }
 
     private notifyListChanged() {
-        this.listChangedListeners.forEach(listener => {
+        this.listChangedListeners.forEach((listener) => {
             listener();
         });
     }
 
     protected notifyVisibleUpdated(): void {
-        this.visibleUpdatedListeners.forEach(listener => {
+        this.visibleUpdatedListeners.forEach((listener) => {
             listener();
         });
     }

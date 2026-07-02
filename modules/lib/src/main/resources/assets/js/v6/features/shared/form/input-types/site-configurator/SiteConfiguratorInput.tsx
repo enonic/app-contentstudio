@@ -21,10 +21,13 @@ import { ContentRequiresSaveEvent } from '../../../../../../app/event/ContentReq
 import { ProjectHelper } from '../../../../../../app/settings/data/project/ProjectHelper';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { $applications, loadApplications, reloadApplications } from '../../../../../entities/application';
-import { $contextContent } from '../../../../store/context/contextContent.store';
-import { $isHtmlAreaModalDialogOpen, $isHtmlAreaOverlayOpen } from '../../../../store/dialogs/htmlAreaModal.store';
-import { requestMixinSeed } from '../../../../store/wizardContent.store';
-import { ConfirmationDialog } from '../../../dialogs/ConfirmationDialog';
+import { $contextContent } from '../../../../../widgets/context-panel/model/contextContent.store';
+import {
+    $isHtmlAreaModalDialogOpen,
+    $isHtmlAreaOverlayOpen,
+} from '../../../../rich-text-inserts/model/htmlAreaModal.store';
+import { requestMixinSeed } from '../../../../../pages/wizard/model/wizardContent.store';
+import { ConfirmationDialog } from '../../../../../shared/ui/dialogs/ConfirmationDialog';
 import { ApplicationIcon } from '../../../../../shared/ui/icons/ApplicationIcon';
 import { ItemLabel } from '../../../../../shared/ui/ItemLabel';
 import { ApplicationSelector } from '../../../selectors/ApplicationSelector';

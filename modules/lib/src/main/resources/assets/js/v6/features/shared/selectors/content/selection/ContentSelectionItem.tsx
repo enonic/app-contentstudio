@@ -2,7 +2,7 @@ import { GridList, IconButton } from '@enonic/ui';
 import { X } from 'lucide-react';
 import type { ReactElement } from 'react';
 import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
-import { ContentButton } from '../../../content/ContentButton';
+import { ContentButton } from '../../../../../entities/content/ui/content/ContentButton';
 import { StatusBadge } from '../../../status/StatusBadge';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { calcTreePublishStatus } from '../../../../../shared/lib/cms/content/status';

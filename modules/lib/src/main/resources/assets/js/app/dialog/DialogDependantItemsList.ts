@@ -1,13 +1,13 @@
-import {type Element} from '@enonic/lib-admin-ui/dom/Element';
-import {ElementHelper} from '@enonic/lib-admin-ui/dom/ElementHelper';
-import {LazyListBox} from '@enonic/lib-admin-ui/ui/selector/list/LazyListBox';
-import {cn} from '@enonic/ui';
-import {type ContentListItemElement} from '../../v6/features/shared/items/ContentListItem';
-import {type ContentId} from '../content/ContentId';
-import type {ContentSummary} from '../content/ContentSummary';
-import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
-import {StatusCheckableItem} from './StatusCheckableItem';
+import { type Element } from '@enonic/lib-admin-ui/dom/Element';
+import { ElementHelper } from '@enonic/lib-admin-ui/dom/ElementHelper';
+import { LazyListBox } from '@enonic/lib-admin-ui/ui/selector/list/LazyListBox';
+import { cn } from '@enonic/ui';
+import { type ContentListItemElement } from '../../v6/entities/content/ui/items/ContentListItem';
+import { type ContentId } from '../content/ContentId';
+import type { ContentSummary } from '../content/ContentSummary';
+import { type ContentSummaryAndCompareStatus } from '../content/ContentSummaryAndCompareStatus';
+import { ContentSummaryAndCompareStatusViewer } from '../content/ContentSummaryAndCompareStatusViewer';
+import { StatusCheckableItem } from './StatusCheckableItem';
 
 export enum SelectionType {
     ALL = 'all',
@@ -37,25 +37,28 @@ export interface ObserverConfig {
 
 export interface DialogDependantItemsListConfig<View extends Element> {
     className?: string;
-    createViewer?: () => ContentSummaryAndCompareStatusViewer,
-    createItem?: (viewer: ContentSummaryAndCompareStatusViewer, item: ContentSummaryAndCompareStatus) => View,
+    createViewer?: () => ContentSummaryAndCompareStatusViewer;
+    createItem?: (viewer: ContentSummaryAndCompareStatusViewer, item: ContentSummaryAndCompareStatus) => View;
     observer?: ObserverConfig;
     emptyText?: string;
 }
 
-const calcIdsDiff = (idsA: ContentId[], idsB: ContentId[]): ContentId[] => idsA.filter(idA => idsB.every(idB => !idB.equals(idA)));
-const hasIdsDiff = (idsA: ContentId[], idsB: ContentId[]): boolean => idsA.some(idA => idsB.every(idB => !idB.equals(idA)));
+const calcIdsDiff = (idsA: ContentId[], idsB: ContentId[]): ContentId[] =>
+    idsA.filter((idA) => idsB.every((idB) => !idB.equals(idA)));
+const hasIdsDiff = (idsA: ContentId[], idsB: ContentId[]): boolean =>
+    idsA.some((idA) => idsB.every((idB) => !idB.equals(idA)));
 
 const readOnlyToNumber = (content: ContentSummaryAndCompareStatus): number => Number(content.isReadOnly() === true);
-const validityToNumber = (content: ContentSummaryAndCompareStatus): number => Number(content.getContentSummary().isValid() === true);
+const validityToNumber = (content: ContentSummaryAndCompareStatus): number =>
+    Number(content.getContentSummary().isValid() === true);
 
 export function compareItems(a: ContentSummaryAndCompareStatus, b: ContentSummaryAndCompareStatus): number {
     return readOnlyToNumber(b) - readOnlyToNumber(a) + validityToNumber(a) - validityToNumber(b);
 }
 
-export class DialogDependantItemsList<View extends StatusCheckableItem | ContentListItemElement = StatusCheckableItem>
-    extends LazyListBox<ContentSummaryAndCompareStatus> {
-
+export class DialogDependantItemsList<
+    View extends StatusCheckableItem | ContentListItemElement = StatusCheckableItem,
+> extends LazyListBox<ContentSummaryAndCompareStatus> {
     protected config: DialogDependantItemsListConfig<View>;
 
     private itemClickListeners: ItemClickListener[];
@@ -94,12 +97,12 @@ export class DialogDependantItemsList<View extends StatusCheckableItem | Content
         viewer.setObject(item);
         viewer.onClicked((event) => {
             const el = new ElementHelper(event.target as HTMLElement);
-            if (!(el.hasClass('checkbox'))) {
+            if (!el.hasClass('checkbox')) {
                 this.notifyItemClicked(item);
             }
         });
 
-        const statusItem = this.config.createItem?.(viewer, item) ?? new StatusCheckableItem({viewer, item});
+        const statusItem = this.config.createItem?.(viewer, item) ?? new StatusCheckableItem({ viewer, item });
         statusItem.onSelected(() => this.handleSelectionChange());
 
         return statusItem;
@@ -110,7 +113,7 @@ export class DialogDependantItemsList<View extends StatusCheckableItem | Content
     }
 
     getItemsIds(): ContentId[] {
-        return this.getItems().map(item => item.getContentId());
+        return this.getItems().map((item) => item.getContentId());
     }
 
     getItems(): ContentSummaryAndCompareStatus[] {
@@ -126,7 +129,7 @@ export class DialogDependantItemsList<View extends StatusCheckableItem | Content
     setItems(items: ContentSummaryAndCompareStatus[], silent?: boolean): void {
         this.selectionType = SelectionType.ALL;
 
-        const {observer} = this.config;
+        const { observer } = this.config;
         if (typeof observer?.sort === 'function') {
             super.setItems(observer.sort(items));
         } else if (observer?.sort !== false) {
@@ -161,7 +164,7 @@ export class DialogDependantItemsList<View extends StatusCheckableItem | Content
     addExcludedIds(ids: ContentId[]): ContentId[] {
         const added = calcIdsDiff(ids, this.excludedIds);
         this.excludedIds = [...this.excludedIds, ...added];
-        this.notifyExclusionUpdated({manual: true, added, removed: []});
+        this.notifyExclusionUpdated({ manual: true, added, removed: [] });
         return this.excludedIds;
     }
 
@@ -169,14 +172,19 @@ export class DialogDependantItemsList<View extends StatusCheckableItem | Content
         const added = calcIdsDiff(ids, this.excludedIds);
         const removed = calcIdsDiff(this.excludedIds, ids);
         this.excludedIds = ids;
-        this.notifyExclusionUpdated({manual: true, added, removed});
+        this.notifyExclusionUpdated({ manual: true, added, removed });
         return this.excludedIds;
     }
 
     saveExclusions(): void {
-        const newExcludedIds = this.getItemViews().filter(view => !view.isSelected()).map(view => view.getItem().getContentId());
-        const loadedOldExcludedIds = this.excludedHidden ? [] : this.excludedIds.filter(
-            id => this.getItemViews().some(view => view.getItem().getContentId().equals(id)));
+        const newExcludedIds = this.getItemViews()
+            .filter((view) => !view.isSelected())
+            .map((view) => view.getItem().getContentId());
+        const loadedOldExcludedIds = this.excludedHidden
+            ? []
+            : this.excludedIds.filter((id) =>
+                  this.getItemViews().some((view) => view.getItem().getContentId().equals(id)),
+              );
         const added = calcIdsDiff(newExcludedIds, this.excludedIds);
         const removed = calcIdsDiff(loadedOldExcludedIds, newExcludedIds);
 
@@ -187,12 +195,12 @@ export class DialogDependantItemsList<View extends StatusCheckableItem | Content
 
         this.excludedIds = [...calcIdsDiff(this.excludedIds, removed), ...added];
 
-        this.notifyExclusionUpdated({manual: false, added, removed});
+        this.notifyExclusionUpdated({ manual: false, added, removed });
     }
 
     restoreExclusions(): void {
-        const excludedIds = this.excludedIds.map(id => id.toString());
-        this.getItemViews().forEach(view => {
+        const excludedIds = this.excludedIds.map((id) => id.toString());
+        this.getItemViews().forEach((view) => {
             const wasSelected = excludedIds.indexOf(this.getItemId(view.getItem())) < 0;
             view.setSelected(wasSelected);
         });
@@ -205,7 +213,7 @@ export class DialogDependantItemsList<View extends StatusCheckableItem | Content
     toggleSelectAll(select: boolean): void {
         let isSelectionChanged = false;
 
-        this.getItemViews().forEach(view => {
+        this.getItemViews().forEach((view) => {
             if (view.isSelected() !== select) {
                 view.setSelected(select, false, true);
                 isSelectionChanged = true;
@@ -273,10 +281,10 @@ export class DialogDependantItemsList<View extends StatusCheckableItem | Content
     }
 
     private calcSelectionType(): SelectionType {
-        const selectableViews = this.getItemViews().filter(view => view.isSelectable());
+        const selectableViews = this.getItemViews().filter((view) => view.isSelectable());
 
         const totalCount = selectableViews.length;
-        const selectedCount = selectableViews.filter(view => view.isSelected()).length;
+        const selectedCount = selectableViews.filter((view) => view.isSelected()).length;
 
         if (totalCount === selectedCount) {
             return SelectionType.ALL;
@@ -288,8 +296,13 @@ export class DialogDependantItemsList<View extends StatusCheckableItem | Content
     }
 
     protected mustSelectItem(item: ContentSummaryAndCompareStatus): boolean {
-        return !this.isItemExcludable(item) ||
-               !(this.selectionType === SelectionType.NONE || this.excludedIds.some(id => id.equals(item.getContentId())));
+        return (
+            !this.isItemExcludable(item) ||
+            !(
+                this.selectionType === SelectionType.NONE ||
+                this.excludedIds.some((id) => id.equals(item.getContentId()))
+            )
+        );
     }
 
     protected isItemExcludable(item: ContentSummaryAndCompareStatus): boolean {
@@ -297,15 +310,19 @@ export class DialogDependantItemsList<View extends StatusCheckableItem | Content
     }
 
     hasExcludableItems(): boolean {
-        return this.getItems().some(item => this.isItemExcludable(item));
+        return this.getItems().some((item) => this.isItemExcludable(item));
     }
 
     protected handleSelectionChange(): void {
-        const newExcludedIds = this.getItemViews().filter(view => !view.isSelected()).map(view => view.getItem().getContentId());
-        const loadedOldExcludedIds = this.excludedIds.filter(
-            id => this.getItemViews().some(view => view.getItem().getContentId().equals(id)));
+        const newExcludedIds = this.getItemViews()
+            .filter((view) => !view.isSelected())
+            .map((view) => view.getItem().getContentId());
+        const loadedOldExcludedIds = this.excludedIds.filter((id) =>
+            this.getItemViews().some((view) => view.getItem().getContentId().equals(id)),
+        );
 
-        const hasExclusionChanges = hasIdsDiff(newExcludedIds, this.excludedIds) || hasIdsDiff(loadedOldExcludedIds, newExcludedIds);
+        const hasExclusionChanges =
+            hasIdsDiff(newExcludedIds, this.excludedIds) || hasIdsDiff(loadedOldExcludedIds, newExcludedIds);
 
         this.updateSelectionType();
         this.notifySelectionChanged(!hasExclusionChanges);
@@ -320,18 +337,18 @@ export class DialogDependantItemsList<View extends StatusCheckableItem | Content
     }
 
     protected notifyItemClicked(item: ContentSummaryAndCompareStatus): void {
-        this.itemClickListeners.forEach(listener => listener(item));
+        this.itemClickListeners.forEach((listener) => listener(item));
     }
 
     protected notifySelectionChanged(original: boolean): void {
-        this.selectionChangeListeners.forEach(listener => listener(original));
+        this.selectionChangeListeners.forEach((listener) => listener(original));
     }
 
     protected notifyExclusionUpdated(event: ExclusionUpdateEvent): void {
-        this.exclusionUpdateListeners.forEach(listener => listener(event));
+        this.exclusionUpdateListeners.forEach((listener) => listener(event));
     }
 
     protected notifySelectionTypeChanged(type: SelectionType): void {
-        this.selectionTypeChangeListeners.forEach(listener => listener(type));
+        this.selectionTypeChangeListeners.forEach((listener) => listener(type));
     }
 }

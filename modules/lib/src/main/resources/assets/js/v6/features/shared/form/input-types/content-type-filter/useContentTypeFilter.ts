@@ -9,9 +9,9 @@ import type { Site } from '../../../../../../app/content/Site';
 import { GetAllContentTypesRequest } from '../../../../../../app/resource/GetAllContentTypesRequest';
 import { GetContentTypesByContentRequest } from '../../../../../../app/resource/GetContentTypesByContentRequest';
 import { GetNearestSiteRequest } from '../../../../../../app/resource/GetNearestSiteRequest';
-import { $contextContent } from '../../../../store/context/contextContent.store';
+import { $contextContent } from '../../../../../widgets/context-panel/model/contextContent.store';
 import { $activeProject } from '../../../../../entities/project';
-import { $contentType } from '../../../../store/wizardContent.store';
+import { $contentType } from '../../../../../pages/wizard/model/wizardContent.store';
 import { formatError } from '../../../../../shared/lib/format/error';
 import type { ContentTypeFilterConfig } from './ContentTypeFilterConfig';
 

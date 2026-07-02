@@ -22,12 +22,16 @@ const LAYERS = ['app', 'pages', 'widgets', 'features', 'entities', 'shared'];
 // Not-yet-migrated role dirs under the old features/ umbrella.
 const LEGACY_UMBRELLA = `^${V6}/features/(store|views|services|api|utils|lib|hooks|layout|shared)/`;
 
+// Test files are not architecture: they may reach across slices for mocks,
+// fixtures, and assertions, so they are exempt as import sources.
+const TEST_FILES = '\\.test\\.';
+
 // One rule per layer below app: importing any layer above it is a violation.
 const noUpwardImports = LAYERS.slice(1).map((layer, i) => ({
     name: `${layer}-imports-downward-only`,
     comment: `${layer} may import only from layers strictly below it (${LAYERS.slice(i + 2).join(', ') || 'nothing'})`,
     severity: 'warn',
-    from: { path: `^${V6}/${layer}/`, pathNot: LEGACY_UMBRELLA },
+    from: { path: `^${V6}/${layer}/`, pathNot: [LEGACY_UMBRELLA, TEST_FILES] },
     to: { path: `^${V6}/(${LAYERS.slice(0, i + 1).join('|')})/` },
 }));
 
@@ -41,7 +45,7 @@ const noSidewaysImports = ['pages', 'widgets', 'features', 'entities'].map((laye
     name: `${layer}-no-same-layer-imports`,
     comment: 'Same-layer slices must not import each other; drop shared state to a lower layer',
     severity: 'warn',
-    from: { path: `^${V6}/${layer}/([^/]+)/`, pathNot: LEGACY_UMBRELLA },
+    from: { path: `^${V6}/${layer}/([^/]+)/`, pathNot: [LEGACY_UMBRELLA, TEST_FILES] },
     to: {
         path: `^${V6}/${layer}/`,
         pathNot: layer === 'entities' ? [`^${V6}/entities/$1/`, `^${V6}/entities/project/`] : `^${V6}/${layer}/$1/`,

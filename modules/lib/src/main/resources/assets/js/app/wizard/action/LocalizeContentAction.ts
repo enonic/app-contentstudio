@@ -3,7 +3,7 @@ import { NotifyManager } from '@enonic/lib-admin-ui/notify/NotifyManager';
 import { Action } from '@enonic/lib-admin-ui/ui/Action';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { getActiveProject } from '../../../v6/entities/project/activeProject.store';
-import { setWizardReadOnly } from '../../../v6/features/store/wizardContent.store';
+import { setWizardReadOnly } from '../../../v6/pages/wizard/model/wizardContent.store';
 import { type ContentId } from '../../content/ContentId';
 import { GetContentByIdRequest } from '../../resource/GetContentByIdRequest';
 import { LocalizeContentsRequest } from '../../resource/LocalizeContentsRequest';

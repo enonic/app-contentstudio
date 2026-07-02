@@ -14,10 +14,10 @@ import {
     isDefaultWidget,
     isSettingsWidget,
     setActiveWidget,
-} from '../v6/features/store/sidebarWidgets.store';
+} from '../v6/widgets/context-panel/model/sidebarWidgets.store';
 import { $noProjectMode } from '../v6/entities/project/projects.store';
-import { BrowseAppBarElement } from '../v6/features/views/browse/layout/BrowseAppBar';
-import { BrowseSidebarElement } from '../v6/features/views/browse/layout/BrowseSidebar';
+import { BrowseAppBarElement } from '../v6/pages/browse/BrowseAppBar';
+import { BrowseSidebarElement } from '../v6/pages/browse/BrowseSidebar';
 import { ContentAppContainer } from './ContentAppContainer';
 import { Router } from './Router';
 import { UrlAction } from './UrlAction';

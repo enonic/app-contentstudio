@@ -10,8 +10,8 @@ import {
     type RegisteredWidget,
     setActiveWidgetId as setActiveExtensionId,
     setRegisteredWidgets,
-} from '../../../v6/features/store/contextWidgets.store';
-import WidgetsSelectorElement from '../../../v6/features/views/context/widget/WidgetsSelector';
+} from '../../../v6/widgets/context-panel/model/contextWidgets.store';
+import WidgetsSelectorElement from '../../../v6/widgets/context-panel/widget/WidgetsSelector';
 import { CompareStatus } from '../../content/CompareStatus';
 import type { ContentId } from '../../content/ContentId';
 import type { ContentSummaryAndCompareStatus } from '../../content/ContentSummaryAndCompareStatus';

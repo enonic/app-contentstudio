@@ -12,7 +12,7 @@ import {
 import { type Value } from '@enonic/lib-admin-ui/data/Value';
 import { type ContentId } from '../../../../../../app/content/ContentId';
 import { type Project } from '../../../../../../app/settings/data/project/Project';
-import { $contextContent } from '../../../../store/context/contextContent.store';
+import { $contextContent } from '../../../../../widgets/context-panel/model/contextContent.store';
 import { $activeProject } from '../../../../../entities/project';
 import { type Mode, type Crop, type Dimensions, type Point } from './lib/types';
 import {

@@ -1,12 +1,12 @@
-import {$anchorDialog} from '../../../../v6/features/store/dialogs/anchorDialog.store';
-import {$bulletedListDialog} from '../../../../v6/features/store/dialogs/bulletedListDialog.store';
-import {$codeDialog} from '../../../../v6/features/store/dialogs/codeDialog.store';
-import {$fullscreenDialog} from '../../../../v6/features/store/dialogs/fullscreenDialog.store';
-import {$numberedListDialog} from '../../../../v6/features/store/dialogs/numberedListDialog.store';
-import {$searchPopup} from '../../../../v6/features/store/dialogs/searchPopup.store';
-import {$specialCharDialog} from '../../../../v6/features/store/dialogs/specialCharDialog.store';
-import {$tableDialog} from '../../../../v6/features/store/dialogs/tableDialog.store';
-import {$tableQuicktablePopup} from '../../../../v6/features/store/dialogs/tableQuicktablePopup.store';
+import { $anchorDialog } from '../../../../v6/features/rich-text-inserts/model/anchorDialog.store';
+import { $bulletedListDialog } from '../../../../v6/features/rich-text-inserts/model/bulletedListDialog.store';
+import { $codeDialog } from '../../../../v6/features/rich-text-inserts/model/codeDialog.store';
+import { $fullscreenDialog } from '../../../../v6/features/rich-text-inserts/model/fullscreenDialog.store';
+import { $numberedListDialog } from '../../../../v6/features/rich-text-inserts/model/numberedListDialog.store';
+import { $searchPopup } from '../../../../v6/features/rich-text-inserts/model/searchPopup.store';
+import { $specialCharDialog } from '../../../../v6/features/rich-text-inserts/model/specialCharDialog.store';
+import { $tableDialog } from '../../../../v6/features/rich-text-inserts/model/tableDialog.store';
+import { $tableQuicktablePopup } from '../../../../v6/features/rich-text-inserts/model/tableQuicktablePopup.store';
 
 const HTMLAREA_OVERLAY_SELECTOR = [
     '[data-component="AnchorDialog"]',
@@ -38,7 +38,7 @@ const toElement = (target: EventTarget | null | undefined): Element | null => {
         return null;
     }
 
-    return target.nodeType === Node.ELEMENT_NODE ? target as Element : target.parentElement;
+    return target.nodeType === Node.ELEMENT_NODE ? (target as Element) : target.parentElement;
 };
 
 const isSameEditor = (editor: CKEDITOR.editor | undefined, other: CKEDITOR.editor | undefined): boolean => {
@@ -48,10 +48,7 @@ const isSameEditor = (editor: CKEDITOR.editor | undefined, other: CKEDITOR.edito
     return !!editorName && !!otherEditorName && editorName === otherEditorName;
 };
 
-const isMatchingDialogState = (
-    state: HtmlAreaDialogState,
-    editor: CKEDITOR.editor | undefined,
-): boolean => {
+const isMatchingDialogState = (state: HtmlAreaDialogState, editor: CKEDITOR.editor | undefined): boolean => {
     if (!state.open) {
         return false;
     }
@@ -69,7 +66,8 @@ export const suppressHtmlAreaBlur = (editor?: CKEDITOR.editor, duration = 300): 
 };
 
 export const isHtmlAreaOverlayOpen = (editor?: CKEDITOR.editor): boolean => {
-    return isMatchingDialogState($anchorDialog.get(), editor) ||
+    return (
+        isMatchingDialogState($anchorDialog.get(), editor) ||
         isMatchingDialogState($bulletedListDialog.get(), editor) ||
         isMatchingDialogState($codeDialog.get(), editor) ||
         isMatchingDialogState($fullscreenDialog.get(), editor) ||
@@ -78,7 +76,8 @@ export const isHtmlAreaOverlayOpen = (editor?: CKEDITOR.editor): boolean => {
         isMatchingDialogState($specialCharDialog.get(), editor) ||
         isMatchingDialogState($tableDialog.get(), editor) ||
         isMatchingDialogState($tableQuicktablePopup.get(), editor) ||
-        !!document.querySelector('.html-area-modal-dialog');
+        !!document.querySelector('.html-area-modal-dialog')
+    );
 };
 
 export const isWithinHtmlAreaOverlay = (target: EventTarget | null | undefined): boolean => {

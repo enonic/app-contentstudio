@@ -1,12 +1,11 @@
-import {type TaskId} from '@enonic/lib-admin-ui/task/TaskId';
-import {type TaskState} from '@enonic/lib-admin-ui/task/TaskState';
-import {type ContentListItemElement} from '../../v6/features/shared/items/ContentListItem';
-import {DependantItemsDialog, type DependantItemsDialogConfig} from './DependantItemsDialog';
-import {type StatusCheckableItem} from './StatusCheckableItem';
-import {TaskProgressManager, type WithTaskProgress} from './TaskProgressManager';
+import { type TaskId } from '@enonic/lib-admin-ui/task/TaskId';
+import { type TaskState } from '@enonic/lib-admin-ui/task/TaskState';
+import { type ContentListItemElement } from '../../v6/entities/content/ui/items/ContentListItem';
+import { DependantItemsDialog, type DependantItemsDialogConfig } from './DependantItemsDialog';
+import { type StatusCheckableItem } from './StatusCheckableItem';
+import { TaskProgressManager, type WithTaskProgress } from './TaskProgressManager';
 
-export interface DependantItemsWithProgressDialogConfig
-    extends DependantItemsDialogConfig {
+export interface DependantItemsWithProgressDialogConfig extends DependantItemsDialogConfig {
     processingLabel: string;
     processHandler: () => void;
 }
@@ -14,10 +13,12 @@ export interface DependantItemsWithProgressDialogConfig
 /**
  * @deprecated Use React components instead (DeleteDialog, UnpublishDialog)
  */
-export abstract class DependantItemsWithProgressDialog<Item extends StatusCheckableItem | ContentListItemElement = StatusCheckableItem>
+export abstract class DependantItemsWithProgressDialog<
+    Item extends StatusCheckableItem | ContentListItemElement = StatusCheckableItem,
+>
     extends DependantItemsDialog<Item>
-    implements WithTaskProgress {
-
+    implements WithTaskProgress
+{
     protected progressManager: TaskProgressManager;
 
     declare protected config: DependantItemsWithProgressDialogConfig;
@@ -36,7 +37,7 @@ export abstract class DependantItemsWithProgressDialog<Item extends StatusChecka
             unlockControlsHandler: () => {
                 this.unlockControls();
             },
-            managingElement: this
+            managingElement: this,
         });
     }
 

@@ -2,11 +2,11 @@ import { showError } from '@enonic/lib-admin-ui/notify/MessageBus';
 import { useStore } from '@nanostores/preact';
 import { listenKeys } from 'nanostores';
 import { type DragEvent as ReactDragEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { UploadMediaError, UploadMediaSuccess } from '../../../../api/uploadMedia';
+import type { UploadMediaError, UploadMediaSuccess } from '../../../../../entities/content/api/uploadMedia.api';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
-import { useUploadMedia } from '../../../../hooks/useUploadMedia';
-import { $contextContent } from '../../../../store/context/contextContent.store';
-import { $uploads, removeUpload } from '../../../../store/uploads.store';
+import { useUploadMedia } from '../../../../../entities/content/lib/useUploadMedia';
+import { $contextContent } from '../../../../../widgets/context-panel/model/contextContent.store';
+import { $uploads, removeUpload } from '../../../../../entities/content/model/uploads.store';
 
 //
 // * Types

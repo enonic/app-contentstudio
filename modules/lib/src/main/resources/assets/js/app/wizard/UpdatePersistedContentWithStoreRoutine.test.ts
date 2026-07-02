@@ -1,22 +1,22 @@
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
-import {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {afterEach, assert, beforeEach, describe, expect, it, vi} from 'vitest';
-import {ContentBuilder, type Content} from '../content/Content';
-import {ContentName} from '../content/ContentName';
-import {Workflow} from '../content/Workflow';
-import {WorkflowState} from '../content/WorkflowState';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { PropertyArray } from '@enonic/lib-admin-ui/data/PropertyArray';
+import { PropertyPath } from '@enonic/lib-admin-ui/data/PropertyPath';
+import { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ContentBuilder, type Content } from '../content/Content';
+import { ContentName } from '../content/ContentName';
+import { Workflow } from '../content/Workflow';
+import { WorkflowState } from '../content/WorkflowState';
+import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {
     $wizardDraftData,
     initializeWizardContentState,
     resetWizardContent,
     setDraftStringByPath,
-} from '../../v6/features/store/wizardContent.store';
-import {type ContentWizardPanel} from './ContentWizardPanel';
-import {UpdatePersistedContentWithStoreRoutine} from './UpdatePersistedContentWithStoreRoutine';
+} from '../../v6/pages/wizard/model/wizardContent.store';
+import { type ContentWizardPanel } from './ContentWizardPanel';
+import { UpdatePersistedContentWithStoreRoutine } from './UpdatePersistedContentWithStoreRoutine';
 
 function createContent(data: PropertyTree): Content {
     const workflow = Workflow.create().setState(WorkflowState.IN_PROGRESS).build();
@@ -43,7 +43,7 @@ function addSiteConfig(data: PropertyTree, applicationKey: string, config: Recor
 
 function buildViewedContentFromStore(content: Content): Content {
     const routine = new UpdatePersistedContentWithStoreRoutine({} as ContentWizardPanel, content);
-    return (routine as unknown as {buildViewedContentFromStore: () => Content}).buildViewedContentFromStore();
+    return (routine as unknown as { buildViewedContentFromStore: () => Content }).buildViewedContentFromStore();
 }
 
 describe('UpdatePersistedContentWithStoreRoutine', () => {
@@ -57,7 +57,7 @@ describe('UpdatePersistedContentWithStoreRoutine', () => {
 
     it('stores baseUrl in portal siteConfig and removes bridge field', () => {
         const persistedData = new PropertyTree();
-        addSiteConfig(persistedData, 'my.app', {title: 'existing'});
+        addSiteConfig(persistedData, 'my.app', { title: 'existing' });
         const persistedContent = createContent(persistedData);
 
         initializeWizardContentState(persistedContent, null, [], WorkflowState.IN_PROGRESS);
@@ -76,7 +76,7 @@ describe('UpdatePersistedContentWithStoreRoutine', () => {
 
     it('removes empty portal siteConfig when baseUrl is cleared', () => {
         const persistedData = new PropertyTree();
-        addSiteConfig(persistedData, ApplicationKey.PORTAL.toString(), {baseUrl: 'https://old.example.com'});
+        addSiteConfig(persistedData, ApplicationKey.PORTAL.toString(), { baseUrl: 'https://old.example.com' });
         const persistedContent = createContent(persistedData);
 
         initializeWizardContentState(persistedContent, null, [], WorkflowState.IN_PROGRESS);
@@ -91,7 +91,7 @@ describe('UpdatePersistedContentWithStoreRoutine', () => {
 
     it('handles empty baseUrl PropertyArray from form rendering', () => {
         const persistedData = new PropertyTree();
-        addSiteConfig(persistedData, 'my.app', {title: 'existing'});
+        addSiteConfig(persistedData, 'my.app', { title: 'existing' });
         const persistedContent = createContent(persistedData);
 
         initializeWizardContentState(persistedContent, null, [], WorkflowState.IN_PROGRESS);

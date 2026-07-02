@@ -1,0 +1,533 @@
+import { showError, showSuccess } from '@enonic/lib-admin-ui/notify/MessageBus';
+import type { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { computed, map } from 'nanostores';
+import { type ContentId } from '../../../../app/content/ContentId';
+import type { ContentSummary } from '../../../../app/content/ContentSummary';
+import { fetchContentSummaries } from '../../../entities/content';
+import { resolveUnpublish, unpublishContent } from '../api/unpublish.api';
+import { trackTask, cleanupTask } from '../../../entities/task';
+import { hasContentIdInIds } from '../../../shared/lib/cms/content/ids';
+import { createDebounce } from '../../../shared/lib/timing/createDebounce';
+import {
+    $contentArchived,
+    $contentCreated,
+    $contentDeleted,
+    $contentUnpublished,
+    $contentUpdated,
+} from '../../../shared/socket/socket.store';
+
+//
+// * Store state
+//
+
+type UnpublishDialogStore = {
+    open: boolean;
+    loading: boolean;
+    failed: boolean;
+    items: ContentSummary[];
+    dependantIds: ContentId[];
+    dependants: ContentSummary[];
+    dependantWindow: number;
+    inboundTargets: ContentId[];
+    inboundIgnored: boolean;
+    referenceIds: string[]; // IDs of content that references items/dependants (for change detection)
+};
+
+type UnpublishDialogPendingStore = {
+    submitting: boolean;
+    pendingIds: string[];
+    pendingTotal: number;
+    pendingPrimaryName?: string;
+    taskId?: TaskId;
+};
+
+// Initial state snapshot for reset
+const initialState: UnpublishDialogStore = {
+    open: false,
+    loading: false,
+    failed: false,
+    items: [],
+    dependantIds: [],
+    dependants: [],
+    dependantWindow: 0,
+    inboundTargets: [],
+    inboundIgnored: true,
+    referenceIds: [],
+};
+
+const initialPendingState: UnpublishDialogPendingStore = {
+    submitting: false,
+    pendingIds: [],
+    pendingTotal: 0,
+    pendingPrimaryName: undefined,
+    taskId: undefined,
+};
+
+export const $unpublishDialog = map<UnpublishDialogStore>(structuredClone(initialState));
+export const $unpublishDialogPending = map<UnpublishDialogPendingStore>(initialPendingState);
+
+//
+// * Derived state
+//
+
+export const $unpublishItemsCount = computed(
+    $unpublishDialog,
+    ({ items, dependantIds }) => items.length + dependantIds.length,
+);
+
+export const $hasMoreUnpublishDependants = computed(
+    $unpublishDialog,
+    ({ dependantIds, dependantWindow }) => dependantWindow < dependantIds.length,
+);
+
+export const $isUnpublishTargetSite = computed($unpublishDialog, ({ items, dependants }) => {
+    return [...items, ...dependants].some((item) => item.isSite());
+});
+
+export const $isUnpublishBlockedByInbound = computed($unpublishDialog, ({ inboundTargets, inboundIgnored }) => {
+    return inboundTargets.length > 0 && !inboundIgnored;
+});
+
+export const $unpublishInboundIds = computed($unpublishDialog, ({ inboundTargets }) =>
+    inboundTargets.map((id) => id.toString()),
+);
+
+export const $isUnpublishDialogReady = computed(
+    [$unpublishDialog, $unpublishDialogPending, $isUnpublishBlockedByInbound],
+    (state, pending, hasInbound) => {
+        return (
+            state.open &&
+            !state.loading &&
+            !state.failed &&
+            !pending.submitting &&
+            state.items.length > 0 &&
+            !hasInbound
+        );
+    },
+);
+
+export const $unpublishTaskId = computed($unpublishDialogPending, ({ taskId }) => taskId);
+
+// ! Guards against stale async results (increment on each dialog lifecycle)
+let instanceId = 0;
+
+const DEPENDANT_LOAD_SIZE = 36;
+
+let loadingMore = false;
+
+//
+// * Helpers
+//
+
+const getAllTargetIds = (): ContentId[] => {
+    const { items, dependantIds } = $unpublishDialog.get();
+    return [...items.map((item) => item.getContentId()), ...dependantIds];
+};
+
+const orderDependantIdsByInbound = (ids: ContentId[], inboundTargets: ContentId[]): ContentId[] => {
+    if (inboundTargets.length === 0) {
+        return ids;
+    }
+    const inboundSet = new Set(inboundTargets.map((id) => id.toString()));
+    const inbound = ids.filter((id) => inboundSet.has(id.toString()));
+    const rest = ids.filter((id) => !inboundSet.has(id.toString()));
+    return [...inbound, ...rest];
+};
+
+const orderSummariesByIds = (summaries: ContentSummary[], orderIds: ContentId[]): ContentSummary[] => {
+    const indexById = new Map<string, number>();
+    orderIds.forEach((id, index) => indexById.set(id.toString(), index));
+    const indexOf = (item: ContentSummary): number => indexById.get(item.getContentId().toString()) ?? orderIds.length;
+    return [...summaries].sort((a, b) => indexOf(a) - indexOf(b));
+};
+
+async function loadUnpublishDependantWindow(allIds: ContentId[], start: number, guardId: number): Promise<void> {
+    const sliceIds = allIds.slice(start, start + DEPENDANT_LOAD_SIZE);
+    const summaries = sliceIds.length > 0 ? await fetchContentSummaries(sliceIds) : [];
+
+    if (guardId !== instanceId) return;
+
+    const { dependants, dependantIds } = $unpublishDialog.get();
+    const currentIds = new Set(dependantIds.map((id) => id.toString()));
+    const byId = new Map<string, ContentSummary>();
+    for (const item of [...(start === 0 ? [] : dependants), ...summaries]) {
+        const key = item.getContentId().toString();
+        if (currentIds.has(key)) {
+            byId.set(key, item);
+        }
+    }
+
+    $unpublishDialog.set({
+        ...$unpublishDialog.get(),
+        dependants: orderSummariesByIds([...byId.values()], dependantIds),
+        dependantWindow: Math.min(start + DEPENDANT_LOAD_SIZE, dependantIds.length),
+    });
+}
+
+export const loadMoreUnpublishDependants = async (): Promise<void> => {
+    if (loadingMore) return;
+
+    const { dependantIds, dependantWindow } = $unpublishDialog.get();
+    if (dependantWindow >= dependantIds.length) return;
+
+    loadingMore = true;
+    const guardId = instanceId;
+    try {
+        await loadUnpublishDependantWindow(dependantIds, dependantWindow, guardId);
+    } finally {
+        loadingMore = false;
+    }
+};
+
+//
+// * Public API
+//
+
+export const openUnpublishDialog = (items: ContentSummary[]): void => {
+    if (items.length === 0) {
+        return;
+    }
+
+    $unpublishDialog.set({
+        ...structuredClone(initialState),
+        open: true,
+        items,
+        inboundIgnored: true,
+    });
+    $unpublishDialogPending.set(initialPendingState);
+};
+
+export const cancelUnpublishDialog = (): void => {
+    const { submitting, pendingIds } = $unpublishDialogPending.get();
+    if (submitting || pendingIds.length > 0) {
+        return;
+    }
+
+    resetUnpublishDialogContext();
+};
+
+export const resetUnpublishDialogContext = (): void => {
+    instanceId += 1;
+    const { taskId } = $unpublishDialogPending.get();
+    if (taskId) {
+        cleanupTask(taskId);
+    }
+    $unpublishDialog.set(initialState);
+    $unpublishDialogPending.set(initialPendingState);
+};
+
+export const ignoreUnpublishInboundDependencies = (): void => {
+    $unpublishDialog.setKey('inboundIgnored', true);
+};
+
+export const executeUnpublishDialogAction = async (): Promise<boolean> => {
+    const { loading, failed, items } = $unpublishDialog.get();
+    const { submitting } = $unpublishDialogPending.get();
+    if (loading || failed || submitting || items.length === 0) {
+        return false;
+    }
+    return confirmUnpublishAction(items);
+};
+
+export const confirmUnpublishAction = async (selectedItems: ContentSummary[]): Promise<boolean> => {
+    const { items, loading, failed } = $unpublishDialog.get();
+    const { submitting } = $unpublishDialogPending.get();
+    if (submitting || loading || failed) {
+        return false;
+    }
+
+    const itemsToUnpublish = selectedItems.length > 0 ? selectedItems : items;
+    if (itemsToUnpublish.length === 0) {
+        return false;
+    }
+
+    const pendingIds = getAllTargetIds().map((id) => id.toString());
+    const pendingPrimaryName = itemsToUnpublish[0]?.getDisplayName() || itemsToUnpublish[0]?.getPath()?.toString();
+    const pendingTotal = $unpublishItemsCount.get() || pendingIds.length;
+
+    try {
+        const taskId = await unpublishContent({
+            contentIds: itemsToUnpublish.map((item) => item.getContentId()),
+        });
+
+        $unpublishDialogPending.set({
+            submitting: true,
+            pendingIds,
+            pendingTotal,
+            pendingPrimaryName,
+            taskId,
+        });
+
+        trackTask(taskId, {
+            onComplete: (state, message) => {
+                if (state === 'SUCCESS') {
+                    const total = pendingTotal || pendingIds.length;
+                    const successMessage =
+                        total > 1
+                            ? i18n('dialog.unpublish.success.multiple', total)
+                            : i18n('dialog.unpublish.success.single', pendingPrimaryName ?? '');
+                    showSuccess(successMessage);
+                } else {
+                    showError(message);
+                }
+                resetUnpublishDialogContext();
+            },
+        });
+
+        return true;
+    } catch (error) {
+        showError(error?.message ?? String(error));
+        $unpublishDialogPending.set(initialPendingState);
+        $unpublishDialog.setKey('failed', true);
+        return false;
+    }
+};
+
+//
+// * Data loading
+//
+
+const reloadUnpublishDialogData = async (): Promise<void> => {
+    instanceId += 1;
+    const currentInstance = instanceId;
+    const { items, open } = $unpublishDialog.get();
+    if (!open || items.length === 0) {
+        return;
+    }
+
+    $unpublishDialog.setKey('loading', true);
+    $unpublishDialog.setKey('failed', false);
+
+    try {
+        const ids = items.map((item) => item.getContentId());
+        const {
+            dependantIds: resolvedDependantIds,
+            inboundTargets,
+            referenceIds,
+        } = await resolveDependantsAndInbound(currentInstance, ids);
+
+        if (currentInstance !== instanceId) return;
+
+        const dependantIds = orderDependantIdsByInbound(resolvedDependantIds, inboundTargets);
+        const dependants =
+            dependantIds.length > 0 ? await fetchContentSummaries(dependantIds.slice(0, DEPENDANT_LOAD_SIZE)) : [];
+
+        if (currentInstance !== instanceId) return;
+
+        $unpublishDialog.set({
+            ...$unpublishDialog.get(),
+            dependantIds,
+            dependants: orderSummariesByIds(dependants, dependantIds),
+            dependantWindow: Math.min(DEPENDANT_LOAD_SIZE, dependantIds.length),
+            inboundTargets,
+            inboundIgnored: inboundTargets.length === 0,
+            referenceIds,
+            loading: false,
+            failed: false,
+        });
+    } catch (error) {
+        if (currentInstance !== instanceId) {
+            return;
+        }
+        $unpublishDialog.setKey('failed', true);
+        showError(error?.message ?? String(error));
+    } finally {
+        if (currentInstance === instanceId) {
+            $unpublishDialog.setKey('loading', false);
+        }
+    }
+};
+
+const reloadUnpublishDialogDataDebounced = createDebounce(() => {
+    void reloadUnpublishDialogData();
+}, 100);
+
+const resolveDependantsAndInbound = async (
+    currentInstance: number,
+    roots: ContentId[],
+): Promise<{ dependantIds: ContentId[]; inboundTargets: ContentId[]; referenceIds: string[] }> => {
+    const result = await resolveUnpublish(roots);
+
+    if (currentInstance !== instanceId || !result) {
+        return { dependantIds: [], inboundTargets: [], referenceIds: [] };
+    }
+
+    // Filter out root IDs from dependants
+    const dependantIds = result.contentIds.filter((id) => !hasContentIdInIds(id, roots));
+
+    const inboundTargets = result.inboundDependencies.map((dep) => dep.id);
+
+    // Extract IDs of content that references items (for change detection)
+    const referenceIds = result.inboundDependencies.flatMap((dep) =>
+        dep.inboundDependencies.map((id) => id.toString()),
+    );
+
+    return { dependantIds, inboundTargets, referenceIds };
+};
+
+//
+// * State mutation helpers
+//
+
+const removeItemsByIds = (ids: Set<string>): { removedMain: boolean; removedDependant: boolean } => {
+    const { items, dependants, dependantIds } = $unpublishDialog.get();
+
+    const newItems = items.filter((item) => !ids.has(item.getContentId().toString()));
+    const newDependants = dependants.filter((item) => !ids.has(item.getContentId().toString()));
+    const newDependantIds = dependantIds.filter((id) => !ids.has(id.toString()));
+
+    const removedMain = newItems.length !== items.length;
+    const removedDependant = newDependants.length !== dependants.length;
+
+    if (removedMain) {
+        $unpublishDialog.setKey('items', newItems);
+    }
+    if (removedDependant) {
+        $unpublishDialog.setKey('dependants', newDependants);
+    }
+    if (newDependantIds.length !== dependantIds.length) {
+        $unpublishDialog.setKey('dependantIds', newDependantIds);
+        $unpublishDialog.setKey(
+            'dependantWindow',
+            Math.min($unpublishDialog.get().dependantWindow, newDependantIds.length),
+        );
+    }
+
+    return { removedMain, removedDependant };
+};
+
+const patchItemsWithUpdates = (updates: ContentSummary[]): { patchedMain: boolean; patchedDependants: boolean } => {
+    const { items, dependants } = $unpublishDialog.get();
+    const updateMap = new Map(updates.map((update) => [update.getId(), update]));
+
+    const patchedMain = items.some((item) => updateMap.has(item.getId()));
+    const patchedDependants = dependants.some((item) => updateMap.has(item.getId()));
+
+    if (patchedMain) {
+        $unpublishDialog.setKey(
+            'items',
+            items.map((item) => updateMap.get(item.getId()) ?? item),
+        );
+    }
+    if (patchedDependants) {
+        $unpublishDialog.setKey(
+            'dependants',
+            dependants.map((item) => updateMap.get(item.getId()) ?? item),
+        );
+    }
+
+    return { patchedMain, patchedDependants };
+};
+
+const isDialogActive = (): boolean => {
+    const { open, items } = $unpublishDialog.get();
+    return open && items.length > 0 && !$unpublishDialogPending.get().submitting;
+};
+
+//
+// * Completion handling
+//
+
+/** Handles external unpublish events (not triggered by this dialog's action) */
+const handleExternalUnpublishEvent = (changeItems: ContentSummary[]): void => {
+    const ids = new Set(changeItems.map((item) => item.getContentId().toString()));
+    const state = $unpublishDialog.get();
+
+    // If dialog is open but not submitting, update items/dependants
+    if (state.open && !$unpublishDialogPending.get().submitting) {
+        const { removedMain, removedDependant } = removeItemsByIds(ids);
+        if (removedMain && state.items.length === 0) {
+            resetUnpublishDialogContext();
+            return;
+        }
+
+        if (removedMain || removedDependant) {
+            reloadUnpublishDialogDataDebounced();
+        }
+    }
+};
+
+//
+// * Subscriptions
+//
+
+$unpublishDialog.subscribe(({ open, loading }, prev) => {
+    const wasOpen = !!prev?.open;
+    if (!open || wasOpen || loading) {
+        return;
+    }
+    void reloadUnpublishDialogData();
+});
+
+$contentCreated.subscribe((event) => {
+    if (!event || !isDialogActive()) {
+        return;
+    }
+    reloadUnpublishDialogDataDebounced();
+});
+
+$contentUpdated.subscribe((event) => {
+    if (!event || !isDialogActive()) {
+        return;
+    }
+
+    const { referenceIds } = $unpublishDialog.get();
+    const updatedIds = new Set(event.data.map((item) => item.getId()));
+
+    const { patchedMain, patchedDependants } = patchItemsWithUpdates(event.data);
+
+    // Check if referencing content was updated (might have removed reference)
+    const referenceUpdated = referenceIds.some((id) => updatedIds.has(id));
+
+    if (patchedMain || patchedDependants || referenceUpdated) {
+        reloadUnpublishDialogDataDebounced();
+    }
+});
+
+$contentArchived.subscribe((event) => {
+    if (!event || !isDialogActive()) {
+        return;
+    }
+
+    const archivedIds = new Set(event.data.map((item) => item.getContentId().toString()));
+    const { removedMain, removedDependant } = removeItemsByIds(archivedIds);
+
+    if ($unpublishDialog.get().items.length === 0) {
+        resetUnpublishDialogContext();
+        return;
+    }
+
+    if (removedMain || removedDependant) {
+        reloadUnpublishDialogDataDebounced();
+    }
+});
+
+$contentDeleted.subscribe((event) => {
+    if (!event || !isDialogActive()) {
+        return;
+    }
+
+    const { referenceIds } = $unpublishDialog.get();
+    const deletedIds = new Set(event.data.map((item) => item.getContentId().toString()));
+    const { removedMain, removedDependant } = removeItemsByIds(deletedIds);
+
+    if ($unpublishDialog.get().items.length === 0) {
+        resetUnpublishDialogContext();
+        return;
+    }
+
+    // Check if referencing content was deleted (removes reference)
+    const referenceDeleted = referenceIds.some((id) => deletedIds.has(id));
+
+    if (removedMain || removedDependant || referenceDeleted) {
+        reloadUnpublishDialogDataDebounced();
+    }
+});
+
+$contentUnpublished.subscribe((event) => {
+    if (!event) {
+        return;
+    }
+    handleExternalUnpublishEvent(event.data);
+});

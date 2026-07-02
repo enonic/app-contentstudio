@@ -27,14 +27,14 @@ import Q from 'q';
 import { LiveEditModel } from '../../page-editor/LiveEditModel';
 import { compareContent } from '../../v6/entities/content';
 import { LayoutTokens } from '../../v6/shared/ui/layout.tokens';
-import { cleanupWizardMixinsService, initWizardMixinsService } from '../../v6/features/services/wizardMixins.service';
+import { cleanupWizardMixinsService, initWizardMixinsService } from '../../v6/pages/wizard/model/wizardMixins.service';
 import {
     cleanupWizardContentSyncService,
     initWizardContentSyncService,
-} from '../../v6/features/services/wizardContentSync.service';
-import { setWizardContent } from '../../v6/features/store/context/contextContent.store';
-import { $isContextOpen, setContextOpen } from '../../v6/features/store/contextWidgets.store';
-import { $isPreviewPanelVisible } from '../../v6/features/store/previewPanel.store';
+} from '../../v6/pages/wizard/model/wizardContentSync.service';
+import { setWizardContent } from '../../v6/widgets/context-panel/model/contextContent.store';
+import { $isContextOpen, setContextOpen } from '../../v6/widgets/context-panel/model/contextWidgets.store';
+import { $isPreviewPanelVisible } from '../../v6/widgets/preview-panel/model/previewPanel.store';
 import { getActiveProject, getActiveProjectName } from '../../v6/entities/project/activeProject.store';
 import {
     $displayNameInputFocusRequested,
@@ -52,16 +52,16 @@ import {
     setWizardMarkedAsReady,
     setPersistedContent as setWizardPersistedContent,
     setWizardReadOnly,
-} from '../../v6/features/store/wizardContent.store';
+} from '../../v6/pages/wizard/model/wizardContent.store';
 import {
     $generalServerErrorMessages,
     escalateVisibility,
     initializeValidation,
     setServerValidationErrors,
-} from '../../v6/features/store/wizardValidation.store';
+} from '../../v6/pages/wizard/model/wizardValidation.store';
 import { calcSecondaryStatus, calcTreePublishStatus } from '../../v6/shared/lib/cms/content/status';
-import { type PreviewToolbarElement } from '../../v6/features/views/browse/layout/preview/PreviewToolbar';
-import { ContentWizardTabsToolbarElement } from '../../v6/features/views/wizard/content-wizard-tabs/ContentWizardTabsToolbarElement';
+import { type PreviewToolbarElement } from '../../v6/widgets/preview-panel/ui/PreviewToolbar';
+import { ContentWizardTabsToolbarElement } from '../../v6/pages/wizard/ui/content-wizard-tabs/ContentWizardTabsToolbarElement';
 import { Permission } from '../access/Permission';
 import {
     openPluginDialog,
@@ -72,7 +72,7 @@ import {
     setAiLanguage,
     updateAiInstructions,
     whenAiReady,
-} from '../../v6/features/store/ai';
+} from '../../v6/features/ai';
 import { ContentWizardToolbar } from '../browse/ContentWizardToolbar';
 import { type MovedContentItem } from '../browse/MovedContentItem';
 import { type CompareStatus } from '../content/CompareStatus';

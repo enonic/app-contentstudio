@@ -10,7 +10,7 @@ import {
     $wizardContentPathExists,
     $wizardContentState,
     $wizardHasChanges,
-} from '../../../v6/features/store/wizardContent.store';
+} from '../../../v6/pages/wizard/model/wizardContent.store';
 import { CloseAction } from '@enonic/lib-admin-ui/app/wizard/CloseAction';
 import { WizardActions } from '@enonic/lib-admin-ui/app/wizard/WizardActions';
 import { type ManagedActionExecutor } from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';

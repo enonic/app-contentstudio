@@ -1,5 +1,5 @@
 import { SpanEl } from '@enonic/lib-admin-ui/dom/SpanEl';
-import { DialogPresetConfirmElement } from '../../../v6/features/shared/dialogs/DialogPreset';
+import { DialogPresetConfirmElement } from '../../../v6/shared/ui/dialogs/DialogPreset';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { ContentAggregation } from './ContentAggregation';
 import { type AggregationSelection } from '@enonic/lib-admin-ui/aggregation/AggregationSelection';

@@ -8,8 +8,8 @@ import { type DataChangedEvent } from '@enonic/lib-admin-ui/ui/treegrid/DataChan
 import { type SelectionChange } from '@enonic/lib-admin-ui/util/SelectionChange';
 import Q from 'q';
 import { getContentAsCSCS, getCurrentItemsAsCSCS, $treeState } from '../../v6/entities/content';
-import { type ContentTreeListElement } from '../../v6/features/views/browse/grid/ContentTreeListElement';
-import { TreeListToolbarElement } from '../../v6/features/views/browse/tree/TreeListToolbar';
+import { type ContentTreeListElement } from '../../v6/widgets/browse-grid/ContentTreeListElement';
+import { TreeListToolbarElement } from '../../v6/widgets/browse-tree/TreeListToolbar';
 import { type ContentSummary } from '../content/ContentSummary';
 import { type ContentSummaryAndCompareStatus } from '../content/ContentSummaryAndCompareStatus';
 

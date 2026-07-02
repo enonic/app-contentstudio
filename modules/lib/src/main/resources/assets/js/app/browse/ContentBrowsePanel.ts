@@ -12,13 +12,13 @@ import { type SelectableTreeListBoxKeyNavigator } from '@enonic/lib-admin-ui/ui/
 import { TreeListBoxExpandedHolder } from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
 import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
 import type Q from 'q';
-import { $actionsNeedRefresh, clearActionsRefreshSignal } from '../../v6/features/store/actions.store';
+import { $actionsNeedRefresh, clearActionsRefreshSignal } from '../../v6/app/actions.store';
 import { removeContent, setContent, hasCurrentItems, removeTreeNode } from '../../v6/entities/content';
-import { setContentFilterOpen } from '../../v6/features/store/contentFilter.store';
+import { setContentFilterOpen } from '../../v6/features/search/model/contentFilter.store';
 import { onActiveProjectChanged } from '../../v6/entities/project/activeProject.store';
 import { onNoProjectsAvailable } from '../../v6/entities/project/projects.store';
-import { ContentTreeListElement } from '../../v6/features/views/browse/grid/ContentTreeListElement';
-import { BrowseToolbarElement } from '../../v6/features/views/browse/toolbar/BrowseToolbar';
+import { ContentTreeListElement } from '../../v6/widgets/browse-grid/ContentTreeListElement';
+import { BrowseToolbarElement } from '../../v6/widgets/browse-toolbar/BrowseToolbar';
 import { type ContentId } from '../content/ContentId';
 import { ContentPath } from '../content/ContentPath';
 import { type ContentQuery } from '../content/ContentQuery';

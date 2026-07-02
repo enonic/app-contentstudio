@@ -8,7 +8,7 @@ import {
     $wizardDraftMixins,
     $wizardDraftName,
     $wizardDraftPage,
-} from '../../v6/features/store/wizardContent.store';
+} from '../../v6/pages/wizard/model/wizardContent.store';
 import { type Content } from '../content/Content';
 import { Flow, type RoutineContext } from './Flow';
 import { type ContentWizardPanel } from './ContentWizardPanel';

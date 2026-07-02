@@ -36,14 +36,14 @@ import {
     setWizardToolbarProjectInfo,
     setWizardToolbarProjectLabel,
     setWizardToolbarPublishStatus,
-} from '../../v6/features/store/wizardToolbar.store';
-import { $wizardDraftName, setDraftName } from '../../v6/features/store/wizardContent.store';
-import { openRenameContentDialog } from '../../v6/features/store/dialogs/renameContentDialog.store';
-import type { WizardToolbarCollaborator } from '../../v6/features/store/wizardToolbar.types';
+} from '../../v6/pages/wizard/model/wizardToolbar.store';
+import { $wizardDraftName, setDraftName } from '../../v6/pages/wizard/model/wizardContent.store';
+import { openRenameContentDialog } from '../../v6/features/rename/model/renameContentDialog.store';
+import type { WizardToolbarCollaborator } from '../../v6/pages/wizard/model/wizardToolbar.types';
 import { calcTreePublishStatus } from '../../v6/shared/lib/cms/content/status';
 import { LAYERS_WIDGET_NAME } from '../../v6/shared/lib/widget/layers';
-import { ContentWizardToolbarElement as V6ContentWizardToolbarElement } from '../../v6/features/views/browse/toolbar/ContentWizardToolbar';
-import { openContextWidget } from '../../v6/features/views/context/openContextWidget';
+import { ContentWizardToolbarElement as V6ContentWizardToolbarElement } from '../../v6/widgets/browse-toolbar/ContentWizardToolbar';
+import { openContextWidget } from '../../v6/widgets/context-panel/openContextWidget';
 
 export type ContentWizardToolbarConfig = ToolbarConfig & {
     actions: ContentWizardActions;

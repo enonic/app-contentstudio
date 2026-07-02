@@ -1,40 +1,49 @@
 /*global CKEDITOR*/
 
-import type {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import type {Value} from '@enonic/lib-admin-ui/data/Value';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {FieldError} from '@enonic/lib-admin-ui/form2/components/field-error';
-import type {InputTypeComponentProps} from '@enonic/lib-admin-ui/form2/types';
-import {getFirstError} from '@enonic/lib-admin-ui/form2/utils/validation';
-import {cn, useBlinkAttention} from '@enonic/ui';
-import {useCKEditor} from 'ckeditor4-react';
-import {useEffect, useRef, useState, type JSX} from 'react';
-import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
-import {HTMLAreaHelper} from '../../../../../../app/inputtype/ui/text/HTMLAreaHelper';
-import {shouldIgnoreHtmlAreaBlur} from '../../../../../../app/inputtype/ui/text/HtmlAreaOverlayState';
-import {HtmlAreaSanitizer} from '../../../../../../app/inputtype/ui/text/HtmlAreaSanitizer';
-import type {Project} from '../../../../../../app/settings/data/project/Project';
-import {createAnchorDialogOverride} from '../../../dialogs/AnchorDialog';
-import {createBulletedListDialogOverride} from '../../../dialogs/BulletedListDialog';
-import {createCodeDialogOverride} from '../../../dialogs/CodeDialog';
-import {createFullscreenDialogOverride} from '../../../dialogs/FullscreenDialog';
-import {HtmlAreaDialogs} from '../../../dialogs/HtmlAreaDialogs';
-import {createNumberedListDialogOverride} from '../../../dialogs/NumberedListDialog';
-import {createSearchPopupOverride} from '../../../dialogs/SearchPopup';
-import {createSpecialCharDialogOverride} from '../../../dialogs/SpecialCharDialog';
-import {createTableDialogOverride} from '../../../dialogs/TableDialog';
-import {createTableQuicktablePopupOverride} from '../../../dialogs/TableQuicktablePopup';
-import {createImageDialogOverride, HtmlAreaImageDialog} from '../../../dialogs/htmlarea-image/HtmlAreaImageDialog';
-import type {OpenHtmlAreaImageDialogParams} from '../../../dialogs/htmlarea-image/HtmlAreaImageDialogContext';
-import {createLinkDialogOverride, HtmlAreaLinkDialog} from '../../../dialogs/htmlarea-link/HtmlAreaLinkDialog';
-import type {OpenHtmlAreaLinkDialogParams} from '../../../dialogs/htmlarea-link/HtmlAreaLinkDialogContext';
-import {createMacroDialogOverride, HtmlAreaMacroDialog} from '../../../dialogs/htmlarea-macro/HtmlAreaMacroDialog';
-import type {OpenHtmlAreaMacroDialogParams} from '../../../dialogs/htmlarea-macro/HtmlAreaMacroDialogContext';
-import type {HtmlAreaConfig} from './HtmlAreaConfig';
-import {dispatchSyntheticTabKey, focusAdjacentDocumentTabStop} from './editorIframeNavigation';
-import {useHtmlAreaContext} from './HtmlAreaContext';
-import {createContentSaveHandler, setupEditor, setupEditorUi, type DialogOverrides} from './setupEditor';
-import {useCKEditorConfig} from './useCKEditorConfig';
+import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import type { Value } from '@enonic/lib-admin-ui/data/Value';
+import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { FieldError } from '@enonic/lib-admin-ui/form2/components/field-error';
+import type { InputTypeComponentProps } from '@enonic/lib-admin-ui/form2/types';
+import { getFirstError } from '@enonic/lib-admin-ui/form2/utils/validation';
+import { cn, useBlinkAttention } from '@enonic/ui';
+import { useCKEditor } from 'ckeditor4-react';
+import { useEffect, useRef, useState, type JSX } from 'react';
+import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
+import { HTMLAreaHelper } from '../../../../../../app/inputtype/ui/text/HTMLAreaHelper';
+import { shouldIgnoreHtmlAreaBlur } from '../../../../../../app/inputtype/ui/text/HtmlAreaOverlayState';
+import { HtmlAreaSanitizer } from '../../../../../../app/inputtype/ui/text/HtmlAreaSanitizer';
+import type { Project } from '../../../../../../app/settings/data/project/Project';
+import { createAnchorDialogOverride } from '../../../../rich-text-inserts/ui/AnchorDialog';
+import { createBulletedListDialogOverride } from '../../../../rich-text-inserts/ui/BulletedListDialog';
+import { createCodeDialogOverride } from '../../../../rich-text-inserts/ui/CodeDialog';
+import { createFullscreenDialogOverride } from '../../../../rich-text-inserts/ui/FullscreenDialog';
+import { HtmlAreaDialogs } from '../../../../rich-text-inserts/ui/HtmlAreaDialogs';
+import { createNumberedListDialogOverride } from '../../../../rich-text-inserts/ui/NumberedListDialog';
+import { createSearchPopupOverride } from '../../../../rich-text-inserts/ui/SearchPopup';
+import { createSpecialCharDialogOverride } from '../../../../rich-text-inserts/ui/SpecialCharDialog';
+import { createTableDialogOverride } from '../../../../rich-text-inserts/ui/TableDialog';
+import { createTableQuicktablePopupOverride } from '../../../../rich-text-inserts/ui/TableQuicktablePopup';
+import {
+    createImageDialogOverride,
+    HtmlAreaImageDialog,
+} from '../../../../rich-text-inserts/ui/htmlarea-image/HtmlAreaImageDialog';
+import type { OpenHtmlAreaImageDialogParams } from '../../../../rich-text-inserts/ui/htmlarea-image/HtmlAreaImageDialogContext';
+import {
+    createLinkDialogOverride,
+    HtmlAreaLinkDialog,
+} from '../../../../rich-text-inserts/ui/htmlarea-link/HtmlAreaLinkDialog';
+import type { OpenHtmlAreaLinkDialogParams } from '../../../../rich-text-inserts/ui/htmlarea-link/HtmlAreaLinkDialogContext';
+import {
+    createMacroDialogOverride,
+    HtmlAreaMacroDialog,
+} from '../../../../rich-text-inserts/ui/htmlarea-macro/HtmlAreaMacroDialog';
+import type { OpenHtmlAreaMacroDialogParams } from '../../../../rich-text-inserts/ui/htmlarea-macro/HtmlAreaMacroDialogContext';
+import type { HtmlAreaConfig } from './HtmlAreaConfig';
+import { dispatchSyntheticTabKey, focusAdjacentDocumentTabStop } from './editorIframeNavigation';
+import { useHtmlAreaContext } from './HtmlAreaContext';
+import { createContentSaveHandler, setupEditor, setupEditorUi, type DialogOverrides } from './setupEditor';
+import { useCKEditorConfig } from './useCKEditorConfig';
 
 const sanitizer = new HtmlAreaSanitizer();
 const SORTABLE_MANAGED_TABINDEX_ATTR = 'data-sortable-list-navigation-target-tabindex';
@@ -122,7 +131,7 @@ const CKEditorWrapper = ({
 
     // ? Scroll is owned by the parent InputField (gated on RevealOptions.scroll);
     // the inner blink should highlight only, never scroll again.
-    const isBlinking = useBlinkAttention(wrapperRef, highlight, {scrollIntoView: false});
+    const isBlinking = useBlinkAttention(wrapperRef, highlight, { scrollIntoView: false });
 
     // Report the editor wrapper as the focusable element so InputField's reveal can
     // scroll to it — the editor itself exposes no DOM node InputField can address.
@@ -183,7 +192,7 @@ const CKEditorWrapper = ({
         };
     }, [debouncedOnChange]);
 
-    const {editor, status} = useCKEditor({
+    const { editor, status } = useCKEditor({
         element,
         config: editorConfig,
         type: 'classic',
@@ -265,14 +274,14 @@ const CKEditorWrapper = ({
         const changeHandler = debouncedOnChange.trigger;
         const blurHandler = onBlur
             ? () => {
-                requestAnimationFrame(() => {
-                    if (!mountedRef.current || shouldIgnoreHtmlAreaBlur(editor)) {
-                        return;
-                    }
+                  requestAnimationFrame(() => {
+                      if (!mountedRef.current || shouldIgnoreHtmlAreaBlur(editor)) {
+                          return;
+                      }
 
-                    onBlur();
-                });
-            }
+                      onBlur();
+                  });
+              }
             : undefined;
 
         editor.on('change', changeHandler);
@@ -371,7 +380,8 @@ const CKEditorWrapper = ({
         let editableBody: HTMLElement | null = null;
 
         const syncIframe = () => {
-            const nextIframe = (editor.container?.$.querySelector('iframe') as HTMLIFrameElement | null | undefined) ?? null;
+            const nextIframe =
+                (editor.container?.$.querySelector('iframe') as HTMLIFrameElement | null | undefined) ?? null;
 
             iframe = nextIframe;
 
@@ -489,7 +499,7 @@ const CKEditorWrapper = ({
                 className={wrapperClassName}
                 ref={wrapperRef}
                 tabIndex={0}
-                data-sortable-list-composite-target='true'
+                data-sortable-list-composite-target="true"
                 aria-busy={processing || undefined}
                 onFocus={(event: JSX.TargetedFocusEvent<HTMLDivElement>) => {
                     if (event.target !== event.currentTarget) {
@@ -499,15 +509,10 @@ const CKEditorWrapper = ({
                     focusEditorFromWrapper();
                 }}
             >
-                <textarea
-                    className="hidden invisible"
-                    ref={setElement}
-                    id={editorId}
-                    name={editorId}
-                />
+                <textarea className="hidden invisible" ref={setElement} id={editorId} name={editorId} />
                 {processing && (
                     <div
-                        aria-hidden='true'
+                        aria-hidden="true"
                         className={cn(
                             'pointer-events-none absolute inset-0 z-10 opacity-60',
                             'bg-[length:var(--shimmer-band-size)_100%] bg-no-repeat',
@@ -542,7 +547,7 @@ export const HtmlAreaInput = ({
     inputRef,
     highlight,
 }: InputTypeComponentProps<HtmlAreaConfig>): JSX.Element => {
-    const {contentSummary, project, applicationKeys, assetsUri} = useHtmlAreaContext();
+    const { contentSummary, project, applicationKeys, assetsUri } = useHtmlAreaContext();
 
     const editorId = `htmlarea-${input.getName()}-${index}`;
     const editorLabel = input.getLabel() || input.getName().toString();
@@ -550,14 +555,16 @@ export const HtmlAreaInput = ({
 
     // Resolve editableSourceCode async (cached after first resolve)
     useEffect(() => {
-        HTMLAreaHelper.isSourceCodeEditable().then((editable: boolean) => {
-            setEditableSourceCode(editable);
-        }).catch(() => {
-            setEditableSourceCode(false);
-        });
+        HTMLAreaHelper.isSourceCodeEditable()
+            .then((editable: boolean) => {
+                setEditableSourceCode(editable);
+            })
+            .catch(() => {
+                setEditableSourceCode(false);
+            });
     }, []);
 
-    const {editorConfig} = useCKEditorConfig({
+    const { editorConfig } = useCKEditorConfig({
         config,
         editorId,
         assetsUri,

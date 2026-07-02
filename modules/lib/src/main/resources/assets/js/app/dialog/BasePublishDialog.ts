@@ -1,31 +1,32 @@
-import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
-import {type PropertyEvent} from '@enonic/lib-admin-ui/data/PropertyEvent';
-import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {type ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
-import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {type DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
+import { type PropertyEvent } from '@enonic/lib-admin-ui/data/PropertyEvent';
+import { PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { type ButtonEl } from '@enonic/lib-admin-ui/dom/ButtonEl';
+import { showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { type DropdownButtonRow } from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
+import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import type Q from 'q';
-import type {PublishItemsListElement} from '../../v6/features/shared/dialogs/publish/PublishItemsList';
-import {SelectionStatusBarElement} from '../../v6/features/shared/dialogs/status-bar/SelectionStatusBar';
-import {type ContentId} from '../content/ContentId';
-import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {IssueServerEventsHandler} from '../issue/event/IssueServerEventsHandler';
-import {type Issue} from '../issue/Issue';
-import {CreateIssueDialog} from '../issue/view/CreateIssueDialog';
-import {PublishDialogDependantList} from '../publish/PublishDialogDependantList';
-import {PublishDialogItemList} from '../publish/PublishDialogItemList';
-import {PublishProcessor} from '../publish/PublishProcessor';
-import {PublishScheduleForm} from '../publish/PublishScheduleForm';
-import {HasUnpublishedChildrenRequest} from '../resource/HasUnpublishedChildrenRequest';
-import {MarkAsReadyRequest} from '../resource/MarkAsReadyRequest';
-import {DependantItemsWithProgressDialog, type DependantItemsWithProgressDialogConfig} from './DependantItemsWithProgressDialog';
+import type { PublishItemsListElement } from '../../v6/features/publish/ui/PublishItemsList';
+import { SelectionStatusBarElement } from '../../v6/shared/ui/dialogs/status-bar/SelectionStatusBar';
+import { type ContentId } from '../content/ContentId';
+import { type ContentSummaryAndCompareStatus } from '../content/ContentSummaryAndCompareStatus';
+import { IssueServerEventsHandler } from '../issue/event/IssueServerEventsHandler';
+import { type Issue } from '../issue/Issue';
+import { CreateIssueDialog } from '../issue/view/CreateIssueDialog';
+import { PublishDialogDependantList } from '../publish/PublishDialogDependantList';
+import { PublishDialogItemList } from '../publish/PublishDialogItemList';
+import { PublishProcessor } from '../publish/PublishProcessor';
+import { PublishScheduleForm } from '../publish/PublishScheduleForm';
+import { HasUnpublishedChildrenRequest } from '../resource/HasUnpublishedChildrenRequest';
+import { MarkAsReadyRequest } from '../resource/MarkAsReadyRequest';
+import {
+    DependantItemsWithProgressDialog,
+    type DependantItemsWithProgressDialogConfig,
+} from './DependantItemsWithProgressDialog';
 
-export abstract class BasePublishDialog
-    extends DependantItemsWithProgressDialog {
-
+export abstract class BasePublishDialog extends DependantItemsWithProgressDialog {
     protected publishProcessor: PublishProcessor;
 
     protected publishScheduleForm: PublishScheduleForm;
@@ -108,9 +109,11 @@ export abstract class BasePublishDialog
                     onExclude: () => {
                         this.publishProcessor.excludeInProgress();
                     },
-                    onMarkAsReady: allowContentUpdate ? () => {
-                        this.markAllAsReady();
-                    } : undefined,
+                    onMarkAsReady: allowContentUpdate
+                        ? () => {
+                              this.markAllAsReady();
+                          }
+                        : undefined,
                 },
                 invalid: {
                     count: this.publishProcessor.getInvalidCount(),
@@ -126,7 +129,6 @@ export abstract class BasePublishDialog
                         this.publishProcessor.excludeNotPublishable();
                     },
                 },
-
             },
         });
     }
@@ -171,7 +173,7 @@ export abstract class BasePublishDialog
             this.refreshControls();
         });
 
-        this.excludedToggler.onActiveChanged(loadExcluded => this.publishProcessor.updateLoadExcluded(loadExcluded));
+        this.excludedToggler.onActiveChanged((loadExcluded) => this.publishProcessor.updateLoadExcluded(loadExcluded));
     }
 
     private handleLoadStarted(checking: boolean): void {
@@ -214,7 +216,7 @@ export abstract class BasePublishDialog
         // TODO: Enonic UI - Implement for PublishItemsListElement
         if (itemList instanceof PublishDialogItemList) {
             new HasUnpublishedChildrenRequest(ids).sendAndParse().then((children) => {
-                const toggleable = children.getResult().some(requestedResult => requestedResult.getHasChildren());
+                const toggleable = children.getResult().some((requestedResult) => requestedResult.getHasChildren());
                 itemList.setContainsToggleable(toggleable);
 
                 children.getResult().forEach((requestedResult) => {
@@ -268,7 +270,6 @@ export abstract class BasePublishDialog
     }
 
     private handleIssueGlobalEvents() {
-
         IssueServerEventsHandler.getInstance().onIssueCreated((issues: Issue[]) => {
             if (this.isOpen()) {
                 if (issues.some((issue) => this.isIssueCreatedByCurrentUser(issue))) {
@@ -377,9 +378,10 @@ export abstract class BasePublishDialog
 
         const ids: ContentId[] = this.publishProcessor.getContentIsProgressIds();
 
-        return await new MarkAsReadyRequest(ids).sendAndParse()
+        return await new MarkAsReadyRequest(ids)
+            .sendAndParse()
             .then(() => showFeedback(i18n('notify.item.markedAsReady.multiple', ids.length)))
-            .catch(e => {
+            .catch((e) => {
                 DefaultErrorHandler.handle(e);
                 this.statusBar.setLoading(false);
                 this.unlockControls();

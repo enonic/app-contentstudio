@@ -1,6 +1,6 @@
-import {useMemo} from 'react';
-import {useStore} from '@nanostores/preact';
-import {$attachmentServerErrorEntries} from '../../../../store/wizardValidation.store';
+import { useMemo } from 'react';
+import { useStore } from '@nanostores/preact';
+import { $attachmentServerErrorEntries } from '../../../../../pages/wizard/model/wizardValidation.store';
 
 export function useAttachmentServerErrors(names: string[]): ReadonlyMap<string, string> {
     const entries = useStore($attachmentServerErrorEntries);

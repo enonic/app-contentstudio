@@ -44,7 +44,7 @@ vi.mock('../../../app/settings/event/ProjectDeletedEvent', () => ({
     },
 }));
 
-vi.mock('../../features/store/dialogs.store', () => ({
+vi.mock('../../shared/dialogs/dialogs.store', () => ({
     setProjectSelectionDialogOpen: mockSetProjectSelectionDialogOpen,
 }));
 
@@ -57,7 +57,7 @@ vi.mock('../content/model/content-selection.store', () => ({
     setActive: vi.fn(),
 }));
 
-vi.mock('../../features/store/contentFilter.store', () => ({
+vi.mock('../../features/search/model/contentFilter.store', () => ({
     setContentFilterOpen: vi.fn(),
     resetContentFilter: vi.fn(),
 }));

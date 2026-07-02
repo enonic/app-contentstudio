@@ -1,34 +1,31 @@
-import {ContentPath} from '../content/ContentPath';
-import {type ContentSummary} from '../content/ContentSummary';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
-import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
-import {type ManagedActionExecutor} from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
-import {Message} from '@enonic/lib-admin-ui/notify/Message';
-import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {type TaskId} from '@enonic/lib-admin-ui/task/TaskId';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
-import {ModalDialogWithConfirmation} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import { ContentPath } from '../content/ContentPath';
+import { type ContentSummary } from '../content/ContentSummary';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { H6El } from '@enonic/lib-admin-ui/dom/H6El';
+import { SpanEl } from '@enonic/lib-admin-ui/dom/SpanEl';
+import { type ManagedActionExecutor } from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
+import { Message } from '@enonic/lib-admin-ui/notify/Message';
+import { showError } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { NotifyManager } from '@enonic/lib-admin-ui/notify/NotifyManager';
+import { type TaskId } from '@enonic/lib-admin-ui/task/TaskId';
+import { Action } from '@enonic/lib-admin-ui/ui/Action';
+import { ConfirmationDialog } from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
+import { ModalDialogWithConfirmation } from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
-import {SearchAndExpandItemEvent} from '../browse/SearchAndExpandItemEvent';
-import {ContentIds} from '../content/ContentIds';
-import {ProgressBarManager} from '../dialog/ProgressBarManager';
-import {type ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
-import {GetNearestSiteRequest} from '../resource/GetNearestSiteRequest';
-import {MoveContentRequest} from '../resource/MoveContentRequest';
-import {ContentAppHelper} from '../wizard/ContentAppHelper';
-import {ContentMoveComboBox} from './ContentMoveComboBox';
-import {ContentMovePromptEvent} from './ContentMovePromptEvent';
-import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
-import {DialogPresetConfirmElement} from '../../v6/features/shared/dialogs/DialogPreset';
+import { SearchAndExpandItemEvent } from '../browse/SearchAndExpandItemEvent';
+import { ContentIds } from '../content/ContentIds';
+import { ProgressBarManager } from '../dialog/ProgressBarManager';
+import { type ContentTreeSelectorItem } from '../item/ContentTreeSelectorItem';
+import { GetNearestSiteRequest } from '../resource/GetNearestSiteRequest';
+import { MoveContentRequest } from '../resource/MoveContentRequest';
+import { ContentAppHelper } from '../wizard/ContentAppHelper';
+import { ContentMoveComboBox } from './ContentMoveComboBox';
+import { ContentMovePromptEvent } from './ContentMovePromptEvent';
+import { type SelectionChange } from '@enonic/lib-admin-ui/util/SelectionChange';
+import { DialogPresetConfirmElement } from '../../v6/shared/ui/dialogs/DialogPreset';
 
-export class MoveContentDialog
-    extends ModalDialogWithConfirmation
-    implements ManagedActionExecutor {
-
+export class MoveContentDialog extends ModalDialogWithConfirmation implements ManagedActionExecutor {
     private destinationSearchInput: ContentMoveComboBox;
 
     private movedContentSummaries: ContentSummary[] = [];
@@ -47,7 +44,7 @@ export class MoveContentDialog
         super({
             class: 'move-content-dialog',
             confirmation: {},
-            title: i18n('dialog.move')
+            title: i18n('dialog.move'),
         });
     }
 
@@ -85,16 +82,18 @@ export class MoveContentDialog
         });
 
         this.moveAction.onExecuted(() => {
-            this.checkContentWillMoveOutOfSite().then((isContentToBeMovedOutOfSite: boolean) => {
-                if (isContentToBeMovedOutOfSite) {
-                    this.showConfirmationDialog();
-                } else {
-                    this.doMove();
-                }
-            }).catch((reason) => {
-                DefaultErrorHandler.handle(reason);
-            }).done();
-
+            this.checkContentWillMoveOutOfSite()
+                .then((isContentToBeMovedOutOfSite: boolean) => {
+                    if (isContentToBeMovedOutOfSite) {
+                        this.showConfirmationDialog();
+                    } else {
+                        this.doMove();
+                    }
+                })
+                .catch((reason) => {
+                    DefaultErrorHandler.handle(reason);
+                })
+                .done();
         });
     }
 
@@ -143,9 +142,10 @@ export class MoveContentDialog
             processHandler: () => {
                 new ContentMovePromptEvent([]).fire();
             },
-            createProcessingMessage: () => new SpanEl()
-                .setHtml(`${i18n('dialog.move.progressMessage')} `)
-                .appendChild(new SpanEl('content-path').setHtml(this.getParentPath().toString())),
+            createProcessingMessage: () =>
+                new SpanEl()
+                    .setHtml(`${i18n('dialog.move.progressMessage')} `)
+                    .appendChild(new SpanEl('content-path').setHtml(this.getParentPath().toString())),
             managingElement: this,
             successHandler: this.handleSuccess.bind(this),
         });
@@ -168,9 +168,11 @@ export class MoveContentDialog
             }
 
             return Q.all(contentParentSitePromises).spread((...parentSites: ContentSummary[]) => {
-                return parentSites.filter((parentSite: ContentSummary) => !!parentSite).some((parentSite: ContentSummary) => {
-                    return !targetContent || (parentSite.getId() !== targetContentSiteId);
-                });
+                return parentSites
+                    .filter((parentSite: ContentSummary) => !!parentSite)
+                    .some((parentSite: ContentSummary) => {
+                        return !targetContent || parentSite.getId() !== targetContentSiteId;
+                    });
             });
         });
     }
@@ -200,8 +202,9 @@ export class MoveContentDialog
     }
 
     private doMove(): void {
-        const contentIds: ContentIds =
-            ContentIds.create().fromContentIds(this.movedContentSummaries.map(summary => summary.getContentId())).build();
+        const contentIds: ContentIds = ContentIds.create()
+            .fromContentIds(this.movedContentSummaries.map((summary) => summary.getContentId()))
+            .build();
 
         this.lockControls();
 
@@ -209,12 +212,13 @@ export class MoveContentDialog
             .sendAndParse()
             .then((taskId: TaskId) => {
                 this.pollTask(taskId);
-            }).catch((reason) => {
-            this.close();
-            if (reason && reason.message) {
-                showError(reason.message);
-            }
-        });
+            })
+            .catch((reason) => {
+                this.close();
+                if (reason && reason.message) {
+                    showError(reason.message);
+                }
+            });
     }
 
     private getMoveToPath(): ContentPath {
@@ -227,7 +231,11 @@ export class MoveContentDialog
         const moveToPath = this.getMoveToPath();
         const isMovedToRoot = moveToPath.isRoot();
         const isInWizard = ContentAppHelper.isContentWizardUrl();
-        const movePath = isMovedToRoot ? ` ${i18n('field.root').toLowerCase()}` : (isInWizard ? ` ${moveToPath.toString()}` : '');
+        const movePath = isMovedToRoot
+            ? ` ${i18n('field.root').toLowerCase()}`
+            : isInWizard
+              ? ` ${moveToPath.toString()}`
+              : '';
         const text = i18n('notify.items.moved.to', totalMoved) + movePath;
         const msg = Message.newSuccess(text);
 

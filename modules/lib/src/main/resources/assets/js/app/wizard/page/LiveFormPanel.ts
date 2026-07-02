@@ -1,40 +1,55 @@
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {type DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {type IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
-import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {type Action} from '@enonic/lib-admin-ui/ui/Action';
-import {type Mask} from '@enonic/lib-admin-ui/ui/mask/Mask';
-import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
-import type {default as Q} from 'q';
-import {type LiveEditModel} from '../../../page-editor/LiveEditModel';
-import {cleanupComponentInspection, initComponentInspectionService} from '../../../v6/features/store/component-inspection.store';
-import {cleanupFragmentInspection, initFragmentInspectionService} from '../../../v6/features/store/fragment-inspection.store';
-import {$activeWidget, $isLiveViewImageEditorActive} from '../../../v6/features/store/liveViewWidgets.store';
-import {cleanupPageEditorBridge, initPageEditorBridge, syncInitialRenderable} from '../../../v6/features/store/page-editor';
-import {cleanupPageInspection, initPageInspectionService} from '../../../v6/features/store/page-inspection.store';
-import {type Content} from '../../content/Content';
-import {type Site} from '../../content/Site';
-import {type ContentType} from '../../inputtype/schema/ContentType';
-import {type ComponentPath} from '../../page/region/ComponentPath';
-import {type ContextPanelState} from '../../view/context/ContextPanelState';
-import {type ContextPanelMode} from '../../view/context/ContextSplitPanel';
-import {type ExtensionRenderer} from '../../view/ExtensionRenderingHandler';
-import {SaveAsTemplateAction} from '../action/SaveAsTemplateAction';
-import {type ContentWizardPanel} from '../ContentWizardPanel';
-import {PageEventsManager} from '../PageEventsManager';
-import {type PageNavigationEvent} from '../PageNavigationEvent';
-import {type PageNavigationHandler} from '../PageNavigationHandler';
-import {PageNavigationMediator} from '../PageNavigationMediator';
-import {ShowContentFormEvent} from '../ShowContentFormEvent';
-import {ShowLiveEditEvent} from '../ShowLiveEditEvent';
-import {WizardExtensionRenderingHandler} from '../WizardExtensionRenderingHandler';
-import {FrameContainer} from './FrameContainer';
-import {type LiveEditPageProxy} from './LiveEditPageProxy';
-import {PageState} from './PageState';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { type DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
+import { type IFrameEl } from '@enonic/lib-admin-ui/dom/IFrameEl';
+import { WindowDOM } from '@enonic/lib-admin-ui/dom/WindowDOM';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { type Action } from '@enonic/lib-admin-ui/ui/Action';
+import { type Mask } from '@enonic/lib-admin-ui/ui/mask/Mask';
+import { Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
+import type { default as Q } from 'q';
+import { type LiveEditModel } from '../../../page-editor/LiveEditModel';
+import {
+    cleanupComponentInspection,
+    initComponentInspectionService,
+} from '../../../v6/widgets/inspectors/model/component-inspection.store';
+import {
+    cleanupFragmentInspection,
+    initFragmentInspectionService,
+} from '../../../v6/widgets/inspectors/model/fragment-inspection.store';
+import {
+    $activeWidget,
+    $isLiveViewImageEditorActive,
+} from '../../../v6/widgets/inspectors/model/liveViewWidgets.store';
+import {
+    cleanupPageEditorBridge,
+    initPageEditorBridge,
+    syncInitialRenderable,
+} from '../../../v6/widgets/inspectors/model/page-editor';
+import {
+    cleanupPageInspection,
+    initPageInspectionService,
+} from '../../../v6/widgets/inspectors/model/page-inspection.store';
+import { type Content } from '../../content/Content';
+import { type Site } from '../../content/Site';
+import { type ContentType } from '../../inputtype/schema/ContentType';
+import { type ComponentPath } from '../../page/region/ComponentPath';
+import { type ContextPanelState } from '../../view/context/ContextPanelState';
+import { type ContextPanelMode } from '../../view/context/ContextSplitPanel';
+import { type ExtensionRenderer } from '../../view/ExtensionRenderingHandler';
+import { SaveAsTemplateAction } from '../action/SaveAsTemplateAction';
+import { type ContentWizardPanel } from '../ContentWizardPanel';
+import { PageEventsManager } from '../PageEventsManager';
+import { type PageNavigationEvent } from '../PageNavigationEvent';
+import { type PageNavigationHandler } from '../PageNavigationHandler';
+import { PageNavigationMediator } from '../PageNavigationMediator';
+import { ShowContentFormEvent } from '../ShowContentFormEvent';
+import { ShowLiveEditEvent } from '../ShowLiveEditEvent';
+import { WizardExtensionRenderingHandler } from '../WizardExtensionRenderingHandler';
+import { FrameContainer } from './FrameContainer';
+import { type LiveEditPageProxy } from './LiveEditPageProxy';
+import { PageState } from './PageState';
 
 export interface LiveFormPanelConfig {
-
     contentType: ContentType;
 
     contentWizardPanel: ContentWizardPanel;
@@ -44,10 +59,7 @@ export interface LiveFormPanelConfig {
     liveEditModel: LiveEditModel;
 }
 
-export class LiveFormPanel
-    extends Panel
-    implements PageNavigationHandler, ExtensionRenderer {
-
+export class LiveFormPanel extends Panel implements PageNavigationHandler, ExtensionRenderer {
     public static debug: boolean = false;
 
     private content: Content;
@@ -141,7 +153,8 @@ export class LiveFormPanel
 
     private saveAndReloadComponent(path: ComponentPath, existing: boolean): void {
         this.pageSkipReload = true;
-        this.contentWizardPanel.saveChangesWithoutValidation(false)
+        this.contentWizardPanel
+            .saveChangesWithoutValidation(false)
             .then(() => {
                 this.liveEditPageProxy?.loadComponent(path, existing);
             })
@@ -153,7 +166,6 @@ export class LiveFormPanel
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-
             this.appendChild(this.frameContainer);
             // we handle widget event manually in LiveEditPageProxy
             this.widgetRenderingHandler.layout();
@@ -167,7 +179,6 @@ export class LiveFormPanel
             return rendered;
         });
     }
-
 
     remove(): LiveFormPanel {
         ShowLiveEditEvent.un(this.showLoadMaskHandler);
@@ -183,19 +194,16 @@ export class LiveFormPanel
     }
 
     setModel(liveEditModel: LiveEditModel) {
-
         this.liveEditModel = liveEditModel;
         this.content = liveEditModel.getContent();
 
         const site: Site = this.content.isSite()
-                           ? this.content as Site
-                           : liveEditModel.getSiteModel()
-                             ? this.liveEditModel.getSiteModel().getSite()
-                             : null;
+            ? (this.content as Site)
+            : liveEditModel.getSiteModel()
+              ? this.liveEditModel.getSiteModel().getSite()
+              : null;
 
-        SaveAsTemplateAction.get()
-            .setContentSummary(this.content)
-            .setSite(site);
+        SaveAsTemplateAction.get().setContentSummary(this.content).setSite(site);
 
         this.liveEditPageProxy.setModel(liveEditModel);
 
@@ -259,17 +267,16 @@ export class LiveFormPanel
             return Promise.resolve(false);
         }
 
-        return this.liveEditPageProxy.load(this.widgetRenderingHandler, $activeWidget.get())
-            .then((loaded) => {
-                if (clearInspection) {
-                    const clearInspectionFn = () => {
-                        PageEventsManager.get().unLoaded(clearInspectionFn);
-                    };
-                    PageEventsManager.get().onLoaded(clearInspectionFn);
-                }
+        return this.liveEditPageProxy.load(this.widgetRenderingHandler, $activeWidget.get()).then((loaded) => {
+            if (clearInspection) {
+                const clearInspectionFn = () => {
+                    PageEventsManager.get().unLoaded(clearInspectionFn);
+                };
+                PageEventsManager.get().onLoaded(clearInspectionFn);
+            }
 
-                return loaded;
-            });
+            return loaded;
+        });
     }
 
     isShown(): boolean {
