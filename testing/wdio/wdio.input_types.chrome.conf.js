@@ -18,7 +18,7 @@ exports.config = {
         path.join(__dirname, '../specs/content-types/optionset.title.labels.spec.js'),
     ],
 
-    maxInstances: 2,
+    maxInstances: 1,
 
     capabilities: [{
         browserName: 'chrome',
