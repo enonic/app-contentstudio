@@ -5,6 +5,7 @@ import {SettingsAppContainer} from '@enonic/lib-contentstudio/app/settings/Setti
 import {CONFIG, ConfigObject} from '@enonic/lib-admin-ui/util/Config';
 import {ProjectConfigContext} from '@enonic/lib-contentstudio/app/settings/data/project/ProjectConfigContext';
 import {initConfig} from '@enonic/lib-contentstudio/v6/features/store/config.store';
+import {initLanguages} from '@enonic/lib-contentstudio/v6/features/store/languages.store';
 import {initProjects} from '@enonic/lib-contentstudio/v6/features/store/projects.store';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
@@ -33,6 +34,7 @@ const init = async (configScriptId: string, elemId: string): Promise<void> => {
     CONFIG.setConfig(JSON.parse(document.getElementById(configScriptId).innerText) as ConfigObject);
     initConfig(configScriptId);
     initProjects();
+    void initLanguages();
     AuthContext.init(Principal.fromJson(CONFIG.get('user') as PrincipalJson),
         (CONFIG.get('principals') as PrincipalJson[]).map(Principal.fromJson));
     await ProjectConfigContext.get().init();

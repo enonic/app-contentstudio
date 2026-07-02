@@ -66,7 +66,7 @@ export class CustomSelectorRequest
 
     private validateResponse(result: CustomSelectorResponse) {
         const errors = [];
-        const isInvalid = (value) => value == null || value == null;
+        const isInvalid = (value) => value == null;
 
         if (isInvalid(result.total)) {
             errors.push('\'total\'');

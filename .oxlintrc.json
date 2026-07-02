@@ -1,0 +1,40 @@
+{
+  "$schema": "./modules/lib/node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "oxc"],
+  "categories": {
+    "correctness": "error"
+  },
+  "ignorePatterns": [
+    "**/*.d.ts",
+    "**/spec/**",
+    "**/build/**",
+    "**/dist/**",
+    "**/out/**",
+    "**/.xp/**",
+    "**/node_modules/**"
+  ],
+  "rules": {
+    "typescript/consistent-type-imports": [
+      "off",
+      {
+        "prefer": "type-imports",
+        "fixStyle": "inline-type-imports",
+        "disallowTypeAnnotations": false
+      }
+    ],
+    "no-unused-vars": "off",
+    "no-useless-escape": "off",
+    "no-extra-boolean-cast": "off",
+    "no-prototype-builtins": "off",
+    "no-empty-pattern": "off",
+    "prefer-const": "off"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.tsx", "**/v6/**/*.ts"],
+      "rules": {
+        "typescript/consistent-type-definitions": ["off", "type"]
+      }
+    }
+  ]
+}

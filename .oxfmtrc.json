@@ -1,0 +1,17 @@
+{
+  "$schema": "./modules/lib/node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 120,
+  "tabWidth": 4,
+  "useTabs": false,
+  "singleQuote": true,
+  "endOfLine": "lf",
+  "sortPackageJson": false,
+  "ignorePatterns": [
+    "**/build/**",
+    "**/dist/**",
+    "**/out/**",
+    "**/.xp/**",
+    "**/node_modules/**",
+    "**/*.d.ts"
+  ]
+}

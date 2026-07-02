@@ -42,10 +42,12 @@ export const $languagesLoading = computed($languagesStore, (state) => state.load
 export const $languagesLoaded = computed($languagesStore, (state) => state.loaded);
 
 //
-// * Loader — runs once at module load
+// * Loader
 //
 
-async function loadLanguages(): Promise<void> {
+// Explicit init called at app bootstrap. The loading/loaded guard keeps it
+// idempotent; keeping it out of module scope avoids I/O on import.
+export async function initLanguages(): Promise<void> {
     const {loading, loaded} = $languagesStore.get();
     if (loaded || loading) {
         return;
@@ -75,8 +77,6 @@ async function loadLanguages(): Promise<void> {
         });
     }
 }
-
-void loadLanguages();
 
 //
 // * Actions

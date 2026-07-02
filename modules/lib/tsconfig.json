@@ -3,19 +3,19 @@
         "module": "ES2022",
         "moduleResolution": "bundler",
         "target": "ES2023",
+        "strict": false,
         "lib": [
             "ES2023",
             "DOM"
         ],
-        "baseUrl": ".",
         "jsx": "react-jsx",
         "jsxImportSource": "preact",
         "outDir": "build/resources/main/dev/lib-contentstudio/",
+        "rootDir": "./src/main/resources/assets/js",
         "declaration": true,
         "declarationDir": "build/resources/main/dev/lib-contentstudio/",
         "allowSyntheticDefaultImports": true,
         "forceConsistentCasingInFileNames": true,
-        "downlevelIteration": true,
         "useDefineForClassFields": false,
         "allowJs": false,
         "noImplicitReturns": false,
@@ -30,9 +30,10 @@
             "jqueryui"
         ],
         "paths": {
-            "react": ["node_modules/preact/compat"],
-            "react-dom": ["node_modules/preact/compat"],
-            "@enonic/lib-admin-ui": [".xp/dev/lib-admin-ui/"]
+            "react": ["./node_modules/preact/compat"],
+            "react-dom": ["./node_modules/preact/compat"],
+            "@enonic/lib-admin-ui": ["./.xp/dev/lib-admin-ui/"],
+            "*": ["./*"]
         }
     },
     "include": [
