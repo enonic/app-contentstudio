@@ -107,10 +107,28 @@ tasks.register( 'pnpmBuild', PnpmTask ) {
     description = 'Build UI resources (ts, css, etc).'
     args = ['run', 'build']
     inputs.dir '.xp/dev'
-    inputs.dir 'src/main/resources/assets'
+    inputs.dir 'src/main/resources/assets' // build:client + build:worker (rspack)
+    inputs.dir 'src/main/resources/lib'    // build:server (swc)
+    inputs.dir 'src/main/resources/shared' // build:server (swc)
     inputs.file 'rspack.config.js'
     inputs.file 'rspack.worker.config.js'
-    outputs.dir "$buildDir/build/resources/main/assets"
+    inputs.file 'build.server.mjs'
+    outputs.dir "$buildDir/resources/main/assets" // build:client + build:worker
+    outputs.dir "$buildDir/resources/main/lib"    // build:server
+    outputs.dir "$buildDir/resources/main/shared" // build:server
+    // Outputs land under build/resources/main, which processResources also writes to;
+    // overlapping outputs make the build cache unreliable, so don't cache (matches pnpmCheck etc.).
+    outputs.cacheIf { false }
+}
+
+// pnpmBuild writes into build/resources/main, which is on the main sourceSet output and thus
+// on the test compile/runtime classpaths. Gradle 9 fails the build unless the consumers of that
+// output declare an explicit dependency on the producing task.
+tasks.named('compileTestJava').configure {
+    dependsOn tasks.named('pnpmBuild')
+}
+tasks.named('test').configure {
+    dependsOn tasks.named('pnpmBuild')
 }
 
 tasks.named('jar').configure {

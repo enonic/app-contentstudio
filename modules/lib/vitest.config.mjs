@@ -6,7 +6,8 @@ export default defineConfig({
     globals: true,
     environment: 'happy-dom',
     setupFiles: ['./vitest.setup.ts'],
-    reporters: ['dot'],
+    reporters: ['minimal'],
+    onConsoleLog: () => false,
     include: ['**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     exclude: ['**/node_modules/**', '**/build/**', '**/dist/**'],
     coverage: {

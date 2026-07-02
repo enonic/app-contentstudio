@@ -1,4 +1,4 @@
-import {vi} from 'vitest';
+import {beforeEach, vi} from 'vitest';
 import jQuery from 'jquery';
 
 // Expose jQuery globally for jquery-ui and other plugins that expect it
@@ -10,6 +10,50 @@ if (typeof window !== 'undefined') {
     (window as unknown as {jQuery: typeof jQuery}).jQuery = jQuery;
     (window as unknown as {$: typeof jQuery}).$ = jQuery;
 }
+
+//
+// * Deterministic localStorage.
+//
+// happy-dom's ambient `localStorage` is intermittently unattached when test
+// workers run under CPU contention, which makes any code that reads it — test
+// hooks or the store's storage-sync (`window.localStorage` in getStorage()) —
+// fail nondeterministically. Installing an in-memory implementation on both
+// `globalThis` and `window`, and clearing it before each test, removes the
+// dependency on that racy global for every current and future test.
+//
+function createInMemoryStorage(): Storage {
+    let entries = new Map<string, string>();
+    return {
+        get length(): number {
+            return entries.size;
+        },
+        clear(): void {
+            entries = new Map();
+        },
+        getItem(key: string): string | null {
+            return entries.has(key) ? entries.get(key) as string : null;
+        },
+        key(index: number): string | null {
+            return Array.from(entries.keys())[index] ?? null;
+        },
+        removeItem(key: string): void {
+            entries.delete(key);
+        },
+        setItem(key: string, value: string): void {
+            entries.set(key, String(value));
+        },
+    };
+}
+
+const inMemoryStorage = createInMemoryStorage();
+Object.defineProperty(globalThis, 'localStorage', {value: inMemoryStorage, configurable: true, writable: true});
+if (typeof window !== 'undefined') {
+    Object.defineProperty(window, 'localStorage', {value: inMemoryStorage, configurable: true, writable: true});
+}
+
+beforeEach(() => {
+    inMemoryStorage.clear();
+});
 
 // Mock @enonic/ui globally to prevent ESM/CJS interop issues with preact/compat
 // This mock is applied to all tests to avoid bundled @enonic/ui trying to import from 'react'

@@ -22,7 +22,7 @@ import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {isBlank} from '../../../v6/features/utils/format/isBlank';
 import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
-import * as $ from 'jquery';
+import $ from 'jquery';
 import 'jquery-simulate/jquery.simulate.js';
 import type Q from 'q';
 import {getActiveProject} from '../../../v6/features/store/activeProject.store';

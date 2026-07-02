@@ -3,15 +3,14 @@
         "module": "ES2022",
         "moduleResolution": "bundler",
         "target": "ES2023",
+        "strict": false,
         "lib": [
             "ES2022",
             "DOM"
         ],
-        "baseUrl": ".",
         "jsx": "react-jsx",
         "jsxImportSource": "preact",
         "sourceMap": true,
-        "downlevelIteration": true,
         "useDefineForClassFields": false,
         "types": [
             "ckeditor",
@@ -20,7 +19,7 @@
             "q"
         ],
         "paths": {
-            "@enonic/lib-admin-ui": [".xp/dev/lib-admin-ui/"]
+            "@enonic/lib-admin-ui": ["./.xp/dev/lib-admin-ui/"]
         }
     },
     "include": [

@@ -1,4 +1,4 @@
-import * as $ from 'jquery';
+import $ from 'jquery';
 import 'jquery-simulate/jquery.simulate.js';
 import 'jquery-ui/ui/widgets/draggable';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
