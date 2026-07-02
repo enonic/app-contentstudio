@@ -9,8 +9,9 @@ import {
     setProjectDialogDefaultLanguage,
     setProjectDialogParentProjects,
 } from '../../../../store/dialogs/projectDialog.store';
-import { $languages, type LanguageOption } from '../../../../store/languages.store';
-import { $projects } from '../../../../store/projects.store';
+import { $languages } from '../../../../../entities/language';
+import type { LanguageOption } from '../../../../../entities/language';
+import { $projects } from '../../../../../entities/project';
 import { ProjectLabel } from '../../../project/ProjectLabel';
 import { ProjectSelector } from '../../../selectors/ProjectSelector';
 import { LanguageSelector } from '../../../selectors/LanguageSelector';

@@ -1,28 +1,28 @@
-import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
-import {NavigatedAppPanel} from '@enonic/lib-admin-ui/app/NavigatedAppPanel';
-import {SettingsBrowsePanel} from './browse/SettingsBrowsePanel';
-import {AppBarTabId} from '@enonic/lib-admin-ui/app/bar/AppBarTabId';
-import {type AppBarTabMenuItem, AppBarTabMenuItemBuilder} from '@enonic/lib-admin-ui/app/bar/AppBarTabMenuItem';
-import {ProjectWizardPanel} from './wizard/panel/ProjectWizardPanel';
-import {type TabMenuItem} from '@enonic/lib-admin-ui/ui/tab/TabMenuItem';
-import {EditSettingsItemEvent} from './event/EditSettingsItemEvent';
-import {type SettingsDataItemWizardPanel} from './wizard/panel/SettingsDataItemWizardPanel';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {type Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
-import {type Project} from './data/project/Project';
-import {type SettingsViewItem} from './view/SettingsViewItem';
-import {type SettingsDataViewItem} from './view/SettingsDataViewItem';
-import {ProjectViewItem} from './view/ProjectViewItem';
-import {ProjectUpdatedEvent} from './event/ProjectUpdatedEvent';
-import {ProjectDeletedEvent} from './event/ProjectDeletedEvent';
-import {ProjectCreatedEvent} from './event/ProjectCreatedEvent';
-import {ProjectGetRequest} from './resource/ProjectGetRequest';
-import {ContentAppBar} from '../bar/ContentAppBar';
-import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {ProjectsUtil} from './resource/ProjectsUtil';
-import {upsertProject} from '../../v6/features/store/projects.store';
-import {openEditProjectDialog} from '../../v6/features/store/dialogs/projectDialog.store';
+import { NamePrettyfier } from '@enonic/lib-admin-ui/NamePrettyfier';
+import { NavigatedAppPanel } from '@enonic/lib-admin-ui/app/NavigatedAppPanel';
+import { SettingsBrowsePanel } from './browse/SettingsBrowsePanel';
+import { AppBarTabId } from '@enonic/lib-admin-ui/app/bar/AppBarTabId';
+import { type AppBarTabMenuItem, AppBarTabMenuItemBuilder } from '@enonic/lib-admin-ui/app/bar/AppBarTabMenuItem';
+import { ProjectWizardPanel } from './wizard/panel/ProjectWizardPanel';
+import { type TabMenuItem } from '@enonic/lib-admin-ui/ui/tab/TabMenuItem';
+import { EditSettingsItemEvent } from './event/EditSettingsItemEvent';
+import { type SettingsDataItemWizardPanel } from './wizard/panel/SettingsDataItemWizardPanel';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { type Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
+import { type Project } from './data/project/Project';
+import { type SettingsViewItem } from './view/SettingsViewItem';
+import { type SettingsDataViewItem } from './view/SettingsDataViewItem';
+import { ProjectViewItem } from './view/ProjectViewItem';
+import { ProjectUpdatedEvent } from './event/ProjectUpdatedEvent';
+import { ProjectDeletedEvent } from './event/ProjectDeletedEvent';
+import { ProjectCreatedEvent } from './event/ProjectCreatedEvent';
+import { ProjectGetRequest } from './resource/ProjectGetRequest';
+import { ContentAppBar } from '../bar/ContentAppBar';
+import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
+import { ProjectsUtil } from './resource/ProjectsUtil';
+import { upsertProject } from '../../v6/entities/project/projects.store';
+import { openEditProjectDialog } from '../../v6/features/store/dialogs/projectDialog.store';
 
 export class SettingsAppPanel extends NavigatedAppPanel {
     declare protected browsePanel: SettingsBrowsePanel;
@@ -74,7 +74,7 @@ export class SettingsAppPanel extends NavigatedAppPanel {
 
     private getWizardPanelForEdit(
         item: SettingsViewItem,
-        tabId: AppBarTabId
+        tabId: AppBarTabId,
     ): SettingsDataItemWizardPanel<SettingsDataViewItem<Equitable>> {
         if (ObjectHelper.iFrameSafeInstanceOf(item, ProjectViewItem)) {
             const projectItem: ProjectViewItem = item as ProjectViewItem;
@@ -125,7 +125,10 @@ export class SettingsAppPanel extends NavigatedAppPanel {
             this.selectPanel(tabMenuItem);
         } else {
             const unnamedTabMenuText: string = NamePrettyfier.prettifyUnnamed();
-            const wizard: SettingsDataItemWizardPanel<SettingsDataViewItem<Equitable>> = this.getWizardPanelForEdit(item, tabId);
+            const wizard: SettingsDataItemWizardPanel<SettingsDataViewItem<Equitable>> = this.getWizardPanelForEdit(
+                item,
+                tabId,
+            );
             const newTabMenuItem: AppBarTabMenuItem = new AppBarTabMenuItemBuilder()
                 .setLabel(item.getDisplayName())
                 .setTabId(wizard.getTabId())

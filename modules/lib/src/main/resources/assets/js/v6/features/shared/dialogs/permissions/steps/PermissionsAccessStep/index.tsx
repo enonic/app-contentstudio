@@ -15,7 +15,7 @@ import {
     setPermissionsDialogAccessControlEntries,
     setPermissionsDialogAccessMode,
 } from '../../../../../store/dialogs/permissionsDialog.store';
-import { $principals } from '../../../../../store/principals.store';
+import { $principals } from '../../../../../../entities/principal';
 import {
     accessControlEntriesToPrincipalKeys,
     areAccessControlEntriesEqual,

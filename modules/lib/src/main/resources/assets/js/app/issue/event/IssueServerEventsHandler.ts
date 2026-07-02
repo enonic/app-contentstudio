@@ -1,10 +1,10 @@
-import {NodeServerChangeType} from '@enonic/lib-admin-ui/event/NodeServerChange';
-import {GetIssuesRequest} from '../resource/GetIssuesRequest';
-import {type Issue} from '../Issue';
-import {IssueServerEvent} from '../../event/IssueServerEvent';
-import {type IssueServerChangeItem} from '../../event/IssueServerChangeItem';
-import {RepositoryId} from '../../repository/RepositoryId';
-import {isProjectInitialized} from '../../../v6/features/store/activeProject.store';
+import { NodeServerChangeType } from '@enonic/lib-admin-ui/event/NodeServerChange';
+import { GetIssuesRequest } from '../resource/GetIssuesRequest';
+import { type Issue } from '../Issue';
+import { IssueServerEvent } from '../../event/IssueServerEvent';
+import { type IssueServerChangeItem } from '../../event/IssueServerChangeItem';
+import { RepositoryId } from '../../repository/RepositoryId';
+import { isProjectInitialized } from '../../../v6/entities/project/activeProject.store';
 
 interface IssueServerEventIds {
     rootIssueIds: string[];
@@ -125,14 +125,17 @@ export class IssueServerEventsHandler {
             return;
         }
 
-        new GetIssuesRequest(issueIds).sendAndParse().then((issues: Issue[]) => {
-            setTimeout(() => {
-                // giving a chance for backend to refresh indexes so we get correct results on requests
-                this.notifyIssueCreated(issues);
-            }, 1000);
-        }).catch((error) => {
-            console.error(error);
-        });
+        new GetIssuesRequest(issueIds)
+            .sendAndParse()
+            .then((issues: Issue[]) => {
+                setTimeout(() => {
+                    // giving a chance for backend to refresh indexes so we get correct results on requests
+                    this.notifyIssueCreated(issues);
+                }, 1000);
+            })
+            .catch((error) => {
+                console.error(error);
+            });
     }
 
     private handleIssueUpdate(issueIds: string[]) {
@@ -140,14 +143,17 @@ export class IssueServerEventsHandler {
             return;
         }
 
-        new GetIssuesRequest(issueIds).sendAndParse().then((issues: Issue[]) => {
-            setTimeout(() => {
-                // giving a chance for backend to refresh indexes so we get correct results on requests
-                this.notifyIssueUpdated(issues);
-            }, 1000);
-        }).catch((error) => {
-            console.error(error);
-        });
+        new GetIssuesRequest(issueIds)
+            .sendAndParse()
+            .then((issues: Issue[]) => {
+                setTimeout(() => {
+                    // giving a chance for backend to refresh indexes so we get correct results on requests
+                    this.notifyIssueUpdated(issues);
+                }, 1000);
+            })
+            .catch((error) => {
+                console.error(error);
+            });
     }
 
     onIssueCreated(listener: (issues: Issue[]) => void) {
@@ -187,9 +193,11 @@ export class IssueServerEventsHandler {
     }
 
     unIssueChanged(listener: (issueIds: string[], event: IssueServerEvent) => void) {
-        this.issueChangedListeners = this.issueChangedListeners.filter((currentListener: (issueIds: string[], event: IssueServerEvent) => void) => {
-            return currentListener !== listener;
-        });
+        this.issueChangedListeners = this.issueChangedListeners.filter(
+            (currentListener: (issueIds: string[], event: IssueServerEvent) => void) => {
+                return currentListener !== listener;
+            },
+        );
     }
 
     private notifyIssueChanged(issueIds: string[], event: IssueServerEvent) {

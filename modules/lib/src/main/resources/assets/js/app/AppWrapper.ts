@@ -1,19 +1,26 @@
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Element, NewElementBuilder} from '@enonic/lib-admin-ui/dom/Element';
-import type {Extension} from '@enonic/lib-admin-ui/extension/Extension';
-import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {type ExtensionElement, ExtensionHelper} from '@enonic/lib-admin-ui/extension/ExtensionHelper';
-import {cn} from '@enonic/ui';
+import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
+import { Element, NewElementBuilder } from '@enonic/lib-admin-ui/dom/Element';
+import type { Extension } from '@enonic/lib-admin-ui/extension/Extension';
+import { ResponsiveManager } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { type ExtensionElement, ExtensionHelper } from '@enonic/lib-admin-ui/extension/ExtensionHelper';
+import { cn } from '@enonic/ui';
 import type Q from 'q';
-import {$activeWidget, $sidebarWidgets, getSettingsWidget, isDefaultWidget, isSettingsWidget, setActiveWidget} from '../v6/features/store/sidebarWidgets.store';
-import {$noProjectMode} from '../v6/features/store/projects.store';
-import {BrowseAppBarElement} from '../v6/features/views/browse/layout/BrowseAppBar';
-import {BrowseSidebarElement} from '../v6/features/views/browse/layout/BrowseSidebar';
-import {ContentAppContainer} from './ContentAppContainer';
-import {Router} from './Router';
-import {UrlAction} from './UrlAction';
+import {
+    $activeWidget,
+    $sidebarWidgets,
+    getSettingsWidget,
+    isDefaultWidget,
+    isSettingsWidget,
+    setActiveWidget,
+} from '../v6/features/store/sidebarWidgets.store';
+import { $noProjectMode } from '../v6/entities/project/projects.store';
+import { BrowseAppBarElement } from '../v6/features/views/browse/layout/BrowseAppBar';
+import { BrowseSidebarElement } from '../v6/features/views/browse/layout/BrowseSidebar';
+import { ContentAppContainer } from './ContentAppContainer';
+import { Router } from './Router';
+import { UrlAction } from './UrlAction';
 
 export class AppWrapper extends DivEl {
     private sidebar: BrowseSidebarElement;
@@ -82,7 +89,9 @@ export class AppWrapper extends DivEl {
     }
 
     private createStudioWidgetEl(): Element {
-        const extensionEl: Element = new Element(new NewElementBuilder().setTagName('extension')).setId('extension-studio');
+        const extensionEl: Element = new Element(new NewElementBuilder().setTagName('extension')).setId(
+            'extension-studio',
+        );
         const appContainer: ContentAppContainer = new ContentAppContainer();
 
         extensionEl.appendChild(appContainer);
@@ -145,7 +154,7 @@ export class AppWrapper extends DivEl {
         if (isDefaultWidget(widget)) {
             // default studio app
             const extensionEl: Element = this.createStudioWidgetEl();
-            this.extensionElements.set(widget.getDescriptorKey().toString(), {el: extensionEl});
+            this.extensionElements.set(widget.getDescriptorKey().toString(), { el: extensionEl });
             this.extensionsBlock.appendChild(extensionEl);
             return;
         }
@@ -153,11 +162,13 @@ export class AppWrapper extends DivEl {
         fetch(widget.getFullUrl())
             .then((response) => response.text())
             .then((html: string) => {
-                ExtensionHelper.createFromHtmlAndAppend(html, this.extensionsBlock).then((extensionEl: ExtensionElement) => {
-                    const widgetKey = widget.getDescriptorKey().toString();
-                    this.extensionElements.set(widgetKey, extensionEl);
-                    this.activeExtensions.push(widgetKey);
-                });
+                ExtensionHelper.createFromHtmlAndAppend(html, this.extensionsBlock).then(
+                    (extensionEl: ExtensionElement) => {
+                        const widgetKey = widget.getDescriptorKey().toString();
+                        this.extensionElements.set(widgetKey, extensionEl);
+                        this.activeExtensions.push(widgetKey);
+                    },
+                );
             })
             .catch((err) => {
                 throw new Error('Failed to fetch widget: ' + err);
@@ -183,11 +194,14 @@ export class AppWrapper extends DivEl {
             return;
         }
 
-        const isExtensionActive = this.activeExtensions.findIndex((activeExtensionKey: string) => activeExtensionKey === key) > -1;
+        const isExtensionActive =
+            this.activeExtensions.findIndex((activeExtensionKey: string) => activeExtensionKey === key) > -1;
         if (isExtensionActive !== active) {
             if (isExtensionActive) {
                 extensionEl.assets?.forEach((asset: HTMLElement) => asset.remove());
-                this.activeExtensions = this.activeExtensions.filter((activeWidgetKey: string) => activeWidgetKey !== key);
+                this.activeExtensions = this.activeExtensions.filter(
+                    (activeWidgetKey: string) => activeWidgetKey !== key,
+                );
             } else {
                 extensionEl.assets?.forEach((asset: HTMLElement) => document.head.appendChild(asset));
                 this.activeExtensions.push(key);

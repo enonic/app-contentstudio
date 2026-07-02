@@ -1,14 +1,14 @@
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {map} from 'nanostores';
-import type {ContentSummary} from '../../../../app/content/ContentSummary';
-import {ContentLanguageUpdatedEvent} from '../../../../app/event/ContentLanguageUpdatedEvent';
-import {GetContentByIdRequest} from '../../../../app/resource/GetContentByIdRequest';
-import {UpdateContentLanguageRequest} from '../../../../app/resource/UpdateContentLanguageRequest';
-import {UpdateContentMetadataRequest} from '../../../../app/resource/UpdateContentMetadataRequest';
-import {loadPrincipalsByKeys} from '../principals.store';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { map } from 'nanostores';
+import type { ContentSummary } from '../../../../app/content/ContentSummary';
+import { ContentLanguageUpdatedEvent } from '../../../../app/event/ContentLanguageUpdatedEvent';
+import { GetContentByIdRequest } from '../../../../app/resource/GetContentByIdRequest';
+import { UpdateContentLanguageRequest } from '../../../../app/resource/UpdateContentLanguageRequest';
+import { UpdateContentMetadataRequest } from '../../../../app/resource/UpdateContentMetadataRequest';
+import { loadPrincipalsByKeys } from '../../../entities/principal';
 
 //
 // * Store state
@@ -75,7 +75,7 @@ export const openEditPropertiesDialog = (content: ContentSummary): void => {
 };
 
 export const closeEditPropertiesDialog = (): void => {
-    const {saving} = $editPropertiesDialog.get();
+    const { saving } = $editPropertiesDialog.get();
     if (saving) {
         return;
     }
@@ -122,7 +122,9 @@ export const applyEditPropertiesDialog = async (): Promise<void> => {
         }
 
         if (languageChanged) {
-            requests.push(new UpdateContentLanguageRequest(contentItem.getId()).setLanguage(nextLanguage).sendAndParse());
+            requests.push(
+                new UpdateContentLanguageRequest(contentItem.getId()).setLanguage(nextLanguage).sendAndParse(),
+            );
         }
 
         if (requests.length > 0) {

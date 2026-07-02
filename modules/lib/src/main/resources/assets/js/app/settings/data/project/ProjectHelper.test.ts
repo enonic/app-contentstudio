@@ -1,10 +1,10 @@
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {setActiveProject} from '../../../../v6/features/store/activeProject.store';
-import {Project} from './Project';
-import {ProjectHelper} from './ProjectHelper';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
+import { Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { setActiveProject } from '../../../../v6/entities/project/activeProject.store';
+import { Project } from './Project';
+import { ProjectHelper } from './ProjectHelper';
 
 const PROJECT_NAME = 'my-project';
 
@@ -52,13 +52,11 @@ describe('ProjectHelper.canRequestPublish', () => {
         expect(ProjectHelper.canRequestPublish()).toBe(true);
     });
 
-    it.each(['owner', 'editor', 'author', 'contributor'])(
-        'should allow a project %s',
-        (role) => {
-            initPrincipals([projectRole(role)]);
+    it.each(['owner', 'editor', 'author', 'contributor'])('should allow a project %s', (role) => {
+        initPrincipals([projectRole(role)]);
 
-            expect(ProjectHelper.canRequestPublish()).toBe(true);
-        });
+        expect(ProjectHelper.canRequestPublish()).toBe(true);
+    });
 
     it('should allow a role granted transitively via a group membership', () => {
         // Group membership is resolved server-side into the user's principals.

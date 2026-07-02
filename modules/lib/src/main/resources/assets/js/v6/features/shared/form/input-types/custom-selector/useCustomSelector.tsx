@@ -4,7 +4,7 @@ import { Branch } from '../../../../../../app/versioning/Branch';
 import { UrlAction } from '../../../../../../app/UrlAction';
 import { UriHelper } from '../../../../../../app/rendering/UriHelper';
 import { $contextContent } from '../../../../store/context/contextContent.store';
-import { $activeProject } from '../../../../store/activeProject.store';
+import { $activeProject } from '../../../../../entities/project';
 import { type CustomSelectorConfig } from './CustomSelectorConfig';
 import { type CustomSelectorItem } from './CustomSelectorInput';
 import { useDebouncedCallback } from '../../../../../shared/lib/hooks/useDebouncedCallback';

@@ -35,7 +35,7 @@ vi.mock('../../api/unpublish', () => ({
     unpublishContent: mockUnpublishContent,
 }));
 
-vi.mock('../../services/task.service', () => ({
+vi.mock('../../../entities/task/task.service', () => ({
     cleanupTask: mockCleanupTask,
     trackTask: mockTrackTask,
 }));

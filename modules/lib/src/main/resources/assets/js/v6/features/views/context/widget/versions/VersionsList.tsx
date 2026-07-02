@@ -8,7 +8,7 @@ import {
     $versions,
     $versionsByDate,
     setSelectedVersions,
-} from '../../../../store/context/versionStore';
+} from '../../../../../entities/content/version';
 import { useInfiniteScroll } from '../../../../../shared/lib/hooks/useInfiniteScroll';
 import { useVersionsConfig } from './config/VersionsConfigContext';
 import { RevertPatchConfirmationDialog } from './revert/RevertPatchConfirmationDialog';

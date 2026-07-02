@@ -1,28 +1,27 @@
-import {type CompareStatus} from '../content/CompareStatus';
-import {type Content} from '../content/Content';
-import {type ContentId} from '../content/ContentId';
-import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {type ContentType} from '../inputtype/schema/ContentType';
-import {DefaultModels} from './page/DefaultModels';
-import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
-import {GetContentTypeByNameRequest} from '../resource/GetContentTypeByNameRequest';
-import {getActiveProject} from '../../v6/features/store/activeProject.store';
-import {type PublishStatus} from '../publish/PublishStatus';
-import {type Site} from '../content/Site';
+import { type CompareStatus } from '../content/CompareStatus';
+import { type Content } from '../content/Content';
+import { type ContentId } from '../content/ContentId';
+import { type ContentSummaryAndCompareStatus } from '../content/ContentSummaryAndCompareStatus';
+import { type ContentType } from '../inputtype/schema/ContentType';
+import { DefaultModels } from './page/DefaultModels';
+import { GetContentByIdRequest } from '../resource/GetContentByIdRequest';
+import { GetContentTypeByNameRequest } from '../resource/GetContentTypeByNameRequest';
+import { getActiveProject } from '../../v6/entities/project/activeProject.store';
+import { type PublishStatus } from '../publish/PublishStatus';
+import { type Site } from '../content/Site';
 import Q from 'q';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {DefaultModelsFactory, type DefaultModelsFactoryConfig} from './page/DefaultModelsFactory';
-import {type ContentWizardPanelParams} from './ContentWizardPanelParams';
-import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
-import {GetContentByPathRequest} from '../resource/GetContentByPathRequest';
-import {GetNearestSiteRequest} from '../resource/GetNearestSiteRequest';
-import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {ContentsExistRequest} from '../resource/ContentsExistRequest';
-import {type ContentsExistResult} from '../resource/ContentsExistResult';
-import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { DefaultModelsFactory, type DefaultModelsFactoryConfig } from './page/DefaultModelsFactory';
+import { type ContentWizardPanelParams } from './ContentWizardPanelParams';
+import { ContentSummaryAndCompareStatusFetcher } from '../resource/ContentSummaryAndCompareStatusFetcher';
+import { GetContentByPathRequest } from '../resource/GetContentByPathRequest';
+import { GetNearestSiteRequest } from '../resource/GetNearestSiteRequest';
+import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { ContentsExistRequest } from '../resource/ContentsExistRequest';
+import { type ContentsExistResult } from '../resource/ContentsExistResult';
+import { NotifyManager } from '@enonic/lib-admin-ui/notify/NotifyManager';
 
 export class ContentWizardDataLoader {
-
     parentContent: Content;
 
     content: Content;
@@ -48,28 +47,23 @@ export class ContentWizardDataLoader {
     }
 
     private loadDataForNew(params: ContentWizardPanelParams): Q.Promise<ContentWizardDataLoader> {
-
-        return this.loadContentType(params.contentTypeName).then((loadedContentType: ContentType) => {
-
-            this.contentType = loadedContentType;
-            return this.loadParentContent(params, true);
-
-        }).then((loadedParentContent: Content) => {
-
-            this.parentContent = loadedParentContent;
-            return this.loadSite(loadedParentContent ? loadedParentContent.getContentId() : null);
-
-        }).then((loadedSite: Site) => {
-
-            this.siteContent = loadedSite;
-            return ContentWizardDataLoader.loadDefaultModels(this.siteContent, params.contentTypeName);
-
-        }).then((defaultModels: DefaultModels) => {
-
-            this.defaultModels = defaultModels;
-            return this;
-
-        });
+        return this.loadContentType(params.contentTypeName)
+            .then((loadedContentType: ContentType) => {
+                this.contentType = loadedContentType;
+                return this.loadParentContent(params, true);
+            })
+            .then((loadedParentContent: Content) => {
+                this.parentContent = loadedParentContent;
+                return this.loadSite(loadedParentContent ? loadedParentContent.getContentId() : null);
+            })
+            .then((loadedSite: Site) => {
+                this.siteContent = loadedSite;
+                return ContentWizardDataLoader.loadDefaultModels(this.siteContent, params.contentTypeName);
+            })
+            .then((defaultModels: DefaultModels) => {
+                this.defaultModels = defaultModels;
+                return this;
+            });
     }
 
     private loadDataForEdit(params: ContentWizardPanelParams): Q.Promise<ContentWizardDataLoader> {
@@ -82,9 +76,11 @@ export class ContentWizardDataLoader {
         });
 
         const modelsPromise: Q.Promise<void> = Q.all([sitePromise, contentPromise]).then(() => {
-            return ContentWizardDataLoader.loadDefaultModels(this.siteContent, this.content.getType()).then((defaultModels) => {
-                this.defaultModels = defaultModels;
-            });
+            return ContentWizardDataLoader.loadDefaultModels(this.siteContent, this.content.getType()).then(
+                (defaultModels) => {
+                    this.defaultModels = defaultModels;
+                },
+            );
         });
 
         const otherPromises: Q.Promise<void> = contentPromise.then(() => {
@@ -104,7 +100,8 @@ export class ContentWizardDataLoader {
                         this.compareStatus = compareStatus.getCompareStatus();
                         this.publishStatus = compareStatus.getPublishStatus();
                     }
-                });
+                },
+            );
         });
 
         return Q.all([modelsPromise, otherPromises]).then(() => {
@@ -118,13 +115,17 @@ export class ContentWizardDataLoader {
 
     private loadContentType(name: ContentTypeName): Q.Promise<ContentType> {
         const deferred = Q.defer<ContentType>();
-        new GetContentTypeByNameRequest(name).sendAndParse().then((contentType) => {
-            deferred.resolve(contentType);
-        }).catch((reason) => {
-            const msg = i18n('notify.wizard.noContentType', name.toString());
-            NotifyManager.get().showWarning(msg);
-            deferred.resolve(null);
-        }).done();
+        new GetContentTypeByNameRequest(name)
+            .sendAndParse()
+            .then((contentType) => {
+                deferred.resolve(contentType);
+            })
+            .catch((reason) => {
+                const msg = i18n('notify.wizard.noContentType', name.toString());
+                NotifyManager.get().showWarning(msg);
+                deferred.resolve(null);
+            })
+            .done();
         return deferred.promise;
     }
 
@@ -146,8 +147,7 @@ export class ContentWizardDataLoader {
     }
 
     private loadParentContent(params: ContentWizardPanelParams, isNew: boolean = true): Q.Promise<Content> {
-        if (!isNew && !this.content.hasParent() ||
-            isNew && params.parentContentId == null) {
+        if ((!isNew && !this.content.hasParent()) || (isNew && params.parentContentId == null)) {
             return Q<Content>(null);
         } else if (this.content) {
             return new GetContentByPathRequest(this.content.getPath().getParentPath()).sendAndParse();

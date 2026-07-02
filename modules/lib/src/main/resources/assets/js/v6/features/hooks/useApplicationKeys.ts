@@ -1,10 +1,10 @@
-import type {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {useStore} from '@nanostores/preact';
-import {useEffect, useMemo, useState} from 'react';
-import type {Site} from '../../../app/content/Site';
-import {loadNearestSite} from '../api/details';
-import {$activeProject} from '../store/activeProject.store';
-import {$contextContent} from '../store/context/contextContent.store';
+import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { useStore } from '@nanostores/preact';
+import { useEffect, useMemo, useState } from 'react';
+import type { Site } from '../../../app/content/Site';
+import { loadNearestSite } from '../api/details';
+import { $activeProject } from '../../entities/project/activeProject.store';
+import { $contextContent } from '../store/context/contextContent.store';
 
 export function useApplicationKeys(): ApplicationKey[] {
     const contextContent = useStore($contextContent);
@@ -12,10 +12,7 @@ export function useApplicationKeys(): ApplicationKey[] {
     const [nearestSite, setNearestSite] = useState<Site | undefined>(undefined);
     const [siteLoaded, setSiteLoaded] = useState(false);
 
-    const contentId = useMemo(
-        () => contextContent?.getContentId(),
-        [contextContent],
-    );
+    const contentId = useMemo(() => contextContent?.getContentId(), [contextContent]);
 
     // Load the nearest site ancestor for this content
     useEffect(() => {
@@ -29,16 +26,18 @@ export function useApplicationKeys(): ApplicationKey[] {
 
         let cancelled = false;
 
-        loadNearestSite(contentId).then((site) => {
-            if (!cancelled) {
-                setNearestSite(site);
-                setSiteLoaded(true);
-            }
-        }).catch(() => {
-            if (!cancelled) {
-                setSiteLoaded(true);
-            }
-        });
+        loadNearestSite(contentId)
+            .then((site) => {
+                if (!cancelled) {
+                    setNearestSite(site);
+                    setSiteLoaded(true);
+                }
+            })
+            .catch(() => {
+                if (!cancelled) {
+                    setSiteLoaded(true);
+                }
+            });
 
         return () => {
             cancelled = true;

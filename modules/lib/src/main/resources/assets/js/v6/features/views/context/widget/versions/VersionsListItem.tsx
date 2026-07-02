@@ -11,14 +11,13 @@ import {
     getVersionOperationTime,
     isVersionComparable,
     isVersionRevertable,
-} from '../../../../store/context/versionOperations';
-import { $publishBadgeByVersionId, VersionPublishStatus } from '../../../../store/context/versionPublishState';
-import {
+    $publishBadgeByVersionId,
+    VersionPublishStatus,
     $activeVersionId,
     $comparableVersionsCount,
     $selectedVersions,
     toggleVersionSelection,
-} from '../../../../store/context/versionStore';
+} from '../../../../../entities/content/version';
 import { getOperationLabel, getVersionBranch, VersionBranch } from './labels';
 import { useRevertActions } from './revert/useRevertActions';
 

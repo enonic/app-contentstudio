@@ -1,9 +1,9 @@
-import {type Application} from '@enonic/lib-admin-ui/application/Application';
-import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {map} from 'nanostores';
-import {ResultAsync} from 'neverthrow';
-import {ListSiteApplicationsRequest} from '../../../app/resource/ListSiteApplicationsRequest';
+import { type Application } from '@enonic/lib-admin-ui/application/Application';
+import { ApplicationEvent, ApplicationEventType } from '@enonic/lib-admin-ui/application/ApplicationEvent';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { map } from 'nanostores';
+import { ResultAsync } from 'neverthrow';
+import { ListSiteApplicationsRequest } from '../../../app/resource/ListSiteApplicationsRequest';
 
 //
 // * Types
@@ -32,7 +32,7 @@ export const $applications = map<ApplicationsStoreState>(structuredClone(initial
 //
 
 export async function loadApplications(): Promise<void> {
-    const {loading, loaded} = $applications.get();
+    const { loading, loaded } = $applications.get();
 
     if (loaded || loading) {
         return;
@@ -42,7 +42,7 @@ export async function loadApplications(): Promise<void> {
 }
 
 export async function reloadApplications(): Promise<void> {
-    const {loading} = $applications.get();
+    const { loading } = $applications.get();
 
     if (loading) {
         return;

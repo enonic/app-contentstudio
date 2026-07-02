@@ -17,7 +17,7 @@ import {
     clearProjectContentCache,
 } from './content.commands';
 import { start as startContentService } from './content.service';
-import { $activeProject } from '../../../features/store/activeProject.store';
+import { $activeProject } from '../../project/activeProject.store';
 import {
     emitContentUpdated,
     emitContentCreated,

@@ -1,4 +1,4 @@
-import {type ContentVersion} from '../../../../app/ContentVersion';
+import { type ContentVersion } from '../../../../app/ContentVersion';
 
 import {
     Archive,
@@ -44,12 +44,11 @@ export const ContentOperation = {
     IMPORT: 'content.import',
 } as const;
 
-export type ContentOperation = typeof ContentOperation[keyof typeof ContentOperation];
+export type ContentOperation = (typeof ContentOperation)[keyof typeof ContentOperation];
 
 const CONTENT_OPERATION_SET = new Set<string>(Object.values(ContentOperation));
 
-export const isContentOperation = (value: string): value is ContentOperation =>
-    CONTENT_OPERATION_SET.has(value);
+export const isContentOperation = (value: string): value is ContentOperation => CONTENT_OPERATION_SET.has(value);
 
 export const VersionField = {
     DISPLAY_NAME: 'displayName',
@@ -77,7 +76,7 @@ export const VersionOperationType = {
     UNKNOWN: 'content.unknown',
 } as const;
 
-export type VersionOperationType = typeof VersionOperationType[keyof typeof VersionOperationType];
+export type VersionOperationType = (typeof VersionOperationType)[keyof typeof VersionOperationType];
 
 export const EDITORIAL_PATCH_FIELDS: readonly string[] = [
     VersionField.DISPLAY_NAME,
@@ -94,8 +93,7 @@ export const EDITORIAL_PATCH_FIELDS: readonly string[] = [
 
 export const SYNTHETIC_VERSION_ID = '__synthetic_create__';
 
-export const isSyntheticVersion = (version: ContentVersion): boolean =>
-    version.getId() === SYNTHETIC_VERSION_ID;
+export const isSyntheticVersion = (version: ContentVersion): boolean => version.getId() === SYNTHETIC_VERSION_ID;
 
 //
 // * Matrix
@@ -111,26 +109,166 @@ export type VersionOperationConfig = {
 };
 
 const VERSION_OPERATION_MATRIX: Record<VersionOperationType, VersionOperationConfig> = {
-    [VersionOperationType.CREATE]: {standardMode: true, fullMode: true, restorable: true, comparable: true, icon: PenLine, labelKey: 'operation.content.create'},
-    [VersionOperationType.DUPLICATE]: {standardMode: true, fullMode: true, restorable: true, comparable: true, icon: Copy, labelKey: 'operation.content.duplicate'},
-    [VersionOperationType.UPDATE]: {standardMode: true, fullMode: true, restorable: true, comparable: true, icon: Pen, labelKey: 'operation.content.update'},
-    [VersionOperationType.PUBLISH]: {standardMode: false, fullMode: true, restorable: false, comparable: false, icon: Cloud, labelKey: 'operation.content.publish'},
-    [VersionOperationType.UNPUBLISH]: {standardMode: false, fullMode: true, restorable: false, comparable: false, icon: CloudOff, labelKey: 'operation.content.unpublish'},
-    [VersionOperationType.PERMISSIONS]: {standardMode: false, fullMode: true, restorable: false, comparable: false, icon: CircleUserRound, labelKey: 'operation.content.permissions'},
-    [VersionOperationType.MOVE]: {standardMode: true, fullMode: true, restorable: false, comparable: true, icon: FolderInput, labelKey: 'operation.content.move'},
-    [VersionOperationType.RENAME]: {standardMode: true, fullMode: true, restorable: false, comparable: true, icon: CaseSensitive, labelKey: 'operation.content.name'},
-    [VersionOperationType.SORT]: {standardMode: true, fullMode: true, restorable: false, comparable: true, icon: ArrowDownNarrowWide, labelKey: 'operation.content.sort'},
-    [VersionOperationType.PATCH]: {standardMode: false, fullMode: true, restorable: false, comparable: false, icon: SquarePen, labelKey: 'operation.content.patch'},
-    [VersionOperationType.EDITORIAL_PATCH]: {standardMode: true, fullMode: true, restorable: false, comparable: true, icon: SquarePen, labelKey: 'operation.content.patch'},
-    [VersionOperationType.ARCHIVE]: {standardMode: false, fullMode: true, restorable: false, comparable: false, icon: Archive, labelKey: 'operation.content.archive'},
-    [VersionOperationType.RESTORE]: {standardMode: false, fullMode: true, restorable: false, comparable: false, icon: ArchiveRestore, labelKey: 'operation.content.restore'},
-    [VersionOperationType.METADATA]: {standardMode: false, fullMode: true, restorable: false, comparable: false, icon: FilePenLine, labelKey: 'operation.content.updateMetadata'},
-    [VersionOperationType.WORKFLOW]: {standardMode: false, fullMode: true, restorable: false, comparable: false, icon: CircleCheckBig, labelKey: 'operation.content.updateWorkflow'},
-    [VersionOperationType.SYNC]: {standardMode: true, fullMode: true, restorable: true, comparable: true, icon: SendToBack, labelKey: 'operation.content.sync'},
-    [VersionOperationType.IMPORT]: {standardMode: true, fullMode: true, restorable: true, comparable: true, icon: Import, labelKey: 'operation.content.import'},
-    [VersionOperationType.LOCALIZE]: {standardMode: true, fullMode: true, restorable: true, comparable: true, icon: Globe, labelKey: 'operation.content.localize'},
-    [VersionOperationType.SYNTHETIC_CREATE]: {standardMode: true, fullMode: true, restorable: false, comparable: false, icon: PenLine, labelKey: 'operation.content.create'},
-    [VersionOperationType.UNKNOWN]: {standardMode: false, fullMode: true, restorable: false, comparable: false, icon: CircleQuestionMark, labelKey: 'operation.content.unknown'},
+    [VersionOperationType.CREATE]: {
+        standardMode: true,
+        fullMode: true,
+        restorable: true,
+        comparable: true,
+        icon: PenLine,
+        labelKey: 'operation.content.create',
+    },
+    [VersionOperationType.DUPLICATE]: {
+        standardMode: true,
+        fullMode: true,
+        restorable: true,
+        comparable: true,
+        icon: Copy,
+        labelKey: 'operation.content.duplicate',
+    },
+    [VersionOperationType.UPDATE]: {
+        standardMode: true,
+        fullMode: true,
+        restorable: true,
+        comparable: true,
+        icon: Pen,
+        labelKey: 'operation.content.update',
+    },
+    [VersionOperationType.PUBLISH]: {
+        standardMode: false,
+        fullMode: true,
+        restorable: false,
+        comparable: false,
+        icon: Cloud,
+        labelKey: 'operation.content.publish',
+    },
+    [VersionOperationType.UNPUBLISH]: {
+        standardMode: false,
+        fullMode: true,
+        restorable: false,
+        comparable: false,
+        icon: CloudOff,
+        labelKey: 'operation.content.unpublish',
+    },
+    [VersionOperationType.PERMISSIONS]: {
+        standardMode: false,
+        fullMode: true,
+        restorable: false,
+        comparable: false,
+        icon: CircleUserRound,
+        labelKey: 'operation.content.permissions',
+    },
+    [VersionOperationType.MOVE]: {
+        standardMode: true,
+        fullMode: true,
+        restorable: false,
+        comparable: true,
+        icon: FolderInput,
+        labelKey: 'operation.content.move',
+    },
+    [VersionOperationType.RENAME]: {
+        standardMode: true,
+        fullMode: true,
+        restorable: false,
+        comparable: true,
+        icon: CaseSensitive,
+        labelKey: 'operation.content.name',
+    },
+    [VersionOperationType.SORT]: {
+        standardMode: true,
+        fullMode: true,
+        restorable: false,
+        comparable: true,
+        icon: ArrowDownNarrowWide,
+        labelKey: 'operation.content.sort',
+    },
+    [VersionOperationType.PATCH]: {
+        standardMode: false,
+        fullMode: true,
+        restorable: false,
+        comparable: false,
+        icon: SquarePen,
+        labelKey: 'operation.content.patch',
+    },
+    [VersionOperationType.EDITORIAL_PATCH]: {
+        standardMode: true,
+        fullMode: true,
+        restorable: false,
+        comparable: true,
+        icon: SquarePen,
+        labelKey: 'operation.content.patch',
+    },
+    [VersionOperationType.ARCHIVE]: {
+        standardMode: false,
+        fullMode: true,
+        restorable: false,
+        comparable: false,
+        icon: Archive,
+        labelKey: 'operation.content.archive',
+    },
+    [VersionOperationType.RESTORE]: {
+        standardMode: false,
+        fullMode: true,
+        restorable: false,
+        comparable: false,
+        icon: ArchiveRestore,
+        labelKey: 'operation.content.restore',
+    },
+    [VersionOperationType.METADATA]: {
+        standardMode: false,
+        fullMode: true,
+        restorable: false,
+        comparable: false,
+        icon: FilePenLine,
+        labelKey: 'operation.content.updateMetadata',
+    },
+    [VersionOperationType.WORKFLOW]: {
+        standardMode: false,
+        fullMode: true,
+        restorable: false,
+        comparable: false,
+        icon: CircleCheckBig,
+        labelKey: 'operation.content.updateWorkflow',
+    },
+    [VersionOperationType.SYNC]: {
+        standardMode: true,
+        fullMode: true,
+        restorable: true,
+        comparable: true,
+        icon: SendToBack,
+        labelKey: 'operation.content.sync',
+    },
+    [VersionOperationType.IMPORT]: {
+        standardMode: true,
+        fullMode: true,
+        restorable: true,
+        comparable: true,
+        icon: Import,
+        labelKey: 'operation.content.import',
+    },
+    [VersionOperationType.LOCALIZE]: {
+        standardMode: true,
+        fullMode: true,
+        restorable: true,
+        comparable: true,
+        icon: Globe,
+        labelKey: 'operation.content.localize',
+    },
+    [VersionOperationType.SYNTHETIC_CREATE]: {
+        standardMode: true,
+        fullMode: true,
+        restorable: false,
+        comparable: false,
+        icon: PenLine,
+        labelKey: 'operation.content.create',
+    },
+    [VersionOperationType.UNKNOWN]: {
+        standardMode: false,
+        fullMode: true,
+        restorable: false,
+        comparable: false,
+        icon: CircleQuestionMark,
+        labelKey: 'operation.content.unknown',
+    },
 };
 
 //
@@ -161,14 +299,14 @@ export const resolveVersionOperationType = (version: ContentVersion): VersionOpe
 
     if (operation === ContentOperation.UPDATE || operation === ContentOperation.METADATA) {
         const fields = action.getFields();
-        if (fields.some(f => f === VersionField.INHERIT)) {
+        if (fields.some((f) => f === VersionField.INHERIT)) {
             return VersionOperationType.LOCALIZE;
         }
     }
 
     if (operation === ContentOperation.PATCH) {
         const fields = action.getFields();
-        if (fields.some(f => EDITORIAL_PATCH_FIELDS.includes(f))) {
+        if (fields.some((f) => EDITORIAL_PATCH_FIELDS.includes(f))) {
             return VersionOperationType.EDITORIAL_PATCH;
         }
     }
@@ -185,7 +323,7 @@ export const getVersionConfig = (version: ContentVersion): VersionOperationConfi
 // `$allPublishBadges`) and must stay visible in default mode.
 const isStandalonePublishBadgeTarget = (version: ContentVersion): boolean => {
     if (!version.getPublishInfo()) return false;
-    const publishAction = version.getActions().find(a => a.getOperation() === ContentOperation.PUBLISH);
+    const publishAction = version.getActions().find((a) => a.getOperation() === ContentOperation.PUBLISH);
     return publishAction != null && publishAction.getEditorial() == null;
 };
 

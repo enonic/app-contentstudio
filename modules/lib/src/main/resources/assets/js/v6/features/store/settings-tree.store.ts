@@ -11,7 +11,7 @@ import {
     setRootIds,
     type CreateNodeOptions,
 } from '../../shared/lib/tree-store';
-import { $projects } from './projects.store';
+import { $projects } from '../../entities/project/projects.store';
 import type { TreeState } from '../../shared/lib/tree-store';
 
 export const SETTINGS_PROJECTS_FOLDER_ID = 'projects';

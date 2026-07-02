@@ -1,26 +1,24 @@
 import Q from 'q';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {Body} from '@enonic/lib-admin-ui/dom/Body';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
+import { Body } from '@enonic/lib-admin-ui/dom/Body';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {
     ModalDialogWithConfirmation,
-    type ModalDialogWithConfirmationConfig
+    type ModalDialogWithConfirmationConfig,
 } from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
-import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {type IssuesCount, IssuesPanel} from './IssuesPanel';
-import {type Issue} from '../Issue';
-import {IssueServerEventsHandler} from '../event/IssueServerEventsHandler';
-import {GetIssueStatsRequest} from '../resource/GetIssueStatsRequest';
-import {type IssueStatsJson} from '../json/IssueStatsJson';
-import {IssueType} from '../IssueType';
-import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
-import {onActiveProjectChanged} from '../../../v6/features/store/activeProject.store';
+import { NotifyManager } from '@enonic/lib-admin-ui/notify/NotifyManager';
+import { Action } from '@enonic/lib-admin-ui/ui/Action';
+import { type IssuesCount, IssuesPanel } from './IssuesPanel';
+import { type Issue } from '../Issue';
+import { IssueServerEventsHandler } from '../event/IssueServerEventsHandler';
+import { GetIssueStatsRequest } from '../resource/GetIssueStatsRequest';
+import { type IssueStatsJson } from '../json/IssueStatsJson';
+import { IssueType } from '../IssueType';
+import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
+import { onActiveProjectChanged } from '../../../v6/entities/project/activeProject.store';
 
-export class IssueListDialog
-    extends ModalDialogWithConfirmation {
-
+export class IssueListDialog extends ModalDialogWithConfirmation {
     private static INSTANCE: IssueListDialog;
 
     private issuesPanel: IssuesPanel;
@@ -37,7 +35,7 @@ export class IssueListDialog
         super({
             title: i18n('field.issues'),
             class: 'issue-dialog issue-list-dialog grey-header',
-            confirmation: {}
+            confirmation: {},
         } as ModalDialogWithConfirmationConfig);
 
         this.getBody().addClass('mask-wrapper');
@@ -91,7 +89,6 @@ export class IssueListDialog
     }
 
     open(assignedToMe: boolean = false) {
-
         if (assignedToMe) {
             this.skipInitialLoad = true;
         }
@@ -115,7 +112,8 @@ export class IssueListDialog
 
     private reload(updatedIssues?: Issue[]) {
         this.showLoadMask();
-        this.issuesPanel.reload()
+        this.issuesPanel
+            .reload()
             .then(() => {
                 return this.updateTabAndFiltersLabels();
             })
@@ -133,7 +131,6 @@ export class IssueListDialog
     }
 
     private handleIssueGlobalEvents() {
-
         const debouncedReload = AppHelper.runOnceAndDebounce((issues?: Issue[]) => {
             this.reload(issues);
         }, 3000);
@@ -178,7 +175,7 @@ export class IssueListDialog
         return Q.all([
             new GetIssueStatsRequest().sendAndParse(),
             new GetIssueStatsRequest(IssueType.PUBLISH_REQUEST).sendAndParse(),
-            new GetIssueStatsRequest(IssueType.STANDARD).sendAndParse()
+            new GetIssueStatsRequest(IssueType.STANDARD).sendAndParse(),
         ]).then((results: IssueStatsJson[]) => {
             return this.updatePanelIssuesCount(results);
         });
@@ -196,7 +193,7 @@ export class IssueListDialog
             assignedToMe: stats[0].openAssignedToMe,
             assignedByMe: stats[0].openCreatedByMe,
             publishRequests: stats[1].open,
-            tasks: stats[2].open
+            tasks: stats[2].open,
         };
     }
 
@@ -206,7 +203,7 @@ export class IssueListDialog
             assignedToMe: stats[0].closedAssignedToMe,
             assignedByMe: stats[0].closedCreatedByMe,
             publishRequests: stats[1].closed,
-            tasks: stats[2].closed
+            tasks: stats[2].closed,
         };
     }
 
@@ -219,13 +216,13 @@ export class IssueListDialog
         issuePanel.setDoOffset(false);
         issuePanel.setLoadMask(this.loadMask);
 
-        issuePanel.onIssueSelected(issue => this.notifyIssueSelected(issue.getIssue()));
+        issuePanel.onIssueSelected((issue) => this.notifyIssueSelected(issue.getIssue()));
 
         return issuePanel;
     }
 
     private notifyIssueSelected(issue: Issue) {
-        this.issueSelectedListeners.forEach(listener => listener(issue));
+        this.issueSelectedListeners.forEach((listener) => listener(issue));
     }
 
     public onIssueSelected(listener: (issue: Issue) => void) {
@@ -233,6 +230,6 @@ export class IssueListDialog
     }
 
     public unIssueSelected(listener: (issue: Issue) => void) {
-        this.issueSelectedListeners = this.issueSelectedListeners.filter(curr => curr !== listener);
+        this.issueSelectedListeners = this.issueSelectedListeners.filter((curr) => curr !== listener);
     }
 }

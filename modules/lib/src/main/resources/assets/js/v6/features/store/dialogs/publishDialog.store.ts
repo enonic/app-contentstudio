@@ -13,7 +13,8 @@ import {
     publishContent,
     resolvePublishDependencies as resolvePublishDeps,
 } from '../../api/publish';
-import { cleanupTask, trackTask } from '../../services/task.service';
+import { cleanupTask, trackTask } from '../../../entities/task';
+import type { TaskResultState } from '../../../entities/task';
 import {
     calcDependantsSelection,
     type DependantsSelection,
@@ -37,7 +38,6 @@ import {
     $contentRenamed,
     $contentUpdated,
 } from '../../../shared/socket/socket.store';
-import type { TaskResultState } from '../task.store';
 
 //
 // * Types

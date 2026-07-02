@@ -7,7 +7,7 @@ import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { type ContentServerChangeItem } from '../../../../app/event/ContentServerChangeItem';
 import { fetchContentSummaries } from '../../../entities/content';
 import { archiveContent, resolveForDelete } from '../../api/delete';
-import { trackTask, cleanupTask } from '../../services/task.service';
+import { trackTask, cleanupTask } from '../../../entities/task';
 import { hasContentIdInIds } from '../../../shared/lib/cms/content/ids';
 import { createDebounce } from '../../../shared/lib/timing/createDebounce';
 import {

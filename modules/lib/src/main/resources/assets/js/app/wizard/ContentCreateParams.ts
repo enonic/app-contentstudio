@@ -1,6 +1,6 @@
-import {type ContentId} from '../content/ContentId';
-import {getActiveProjectName} from '../../v6/features/store/activeProject.store';
-import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { type ContentId } from '../content/ContentId';
+import { getActiveProjectName } from '../../v6/entities/project/activeProject.store';
+import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 
 export class ContentCreateParams {
     private readonly parentContentId?: ContentId;

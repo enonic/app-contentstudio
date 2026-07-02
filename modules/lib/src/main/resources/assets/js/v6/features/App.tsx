@@ -2,12 +2,13 @@ import { Body } from '@enonic/lib-admin-ui/dom/Body';
 import { useStore } from '@nanostores/preact';
 import type { ReactElement } from 'react';
 import { start as startKeyBindingsGuard } from './services/keyBindingsGuard.service';
+import { start as startProjectSwitchService } from './services/projectSwitch.service';
 import { startSocketService } from '../shared/socket';
 import { startContentService } from '../entities/content';
 import { setActiveProjectResolver } from '../shared/lib/url/cms';
 import { LegacyElement } from '../shared/ui/LegacyElement';
 import { $isWizard } from './store/app.store';
-import { $projects } from './store/projects.store';
+import { $projects } from '../entities/project';
 import { BrowsePage } from './views/browse/BrowsePage';
 import { WizardPage } from './views/wizard/WizardPage';
 
@@ -36,6 +37,7 @@ export class AppElement extends LegacyElement<typeof App> {
             setActiveProjectResolver(() => $projects.get().activeProjectId);
             startSocketService();
             startContentService();
+            startProjectSwitchService();
             startKeyBindingsGuard();
             AppElement.INSTANCE = new AppElement();
             Body.get().appendChild(AppElement.INSTANCE);

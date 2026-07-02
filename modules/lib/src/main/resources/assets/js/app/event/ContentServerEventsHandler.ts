@@ -1,24 +1,24 @@
 import Q from 'q';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {NodeServerChangeType} from '@enonic/lib-admin-ui/event/NodeServerChange';
-import {ContentDeletedEvent} from './ContentDeletedEvent';
-import {BatchContentServerEvent} from './BatchContentServerEvent';
-import {ContentUpdatedEvent} from './ContentUpdatedEvent';
-import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
-import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {Branch} from '../versioning/Branch';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {type ContentServerChangeItem} from './ContentServerChangeItem';
-import {RepositoryId} from '../repository/RepositoryId';
-import {type ContentId} from '../content/ContentId';
-import {type ContentPath} from '../content/ContentPath';
-import {ArchiveServerEvent} from './ArchiveServerEvent';
-import {PermissionsServerEvent} from './PermissionsServerEvent';
-import {Store} from '@enonic/lib-admin-ui/store/Store';
-import {MovedContentItem} from '../browse/MovedContentItem';
-import {isProjectInitialized} from '../../v6/features/store/activeProject.store';
-import {ContentsExistByPathRequest} from '../resource/ContentsExistByPathRequest';
-import {type ContentsExistByPathResult} from '../resource/ContentsExistByPathResult';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { NodeServerChangeType } from '@enonic/lib-admin-ui/event/NodeServerChange';
+import { ContentDeletedEvent } from './ContentDeletedEvent';
+import { BatchContentServerEvent } from './BatchContentServerEvent';
+import { ContentUpdatedEvent } from './ContentUpdatedEvent';
+import { ContentSummaryAndCompareStatusFetcher } from '../resource/ContentSummaryAndCompareStatusFetcher';
+import { type ContentSummaryAndCompareStatus } from '../content/ContentSummaryAndCompareStatus';
+import { Branch } from '../versioning/Branch';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { type ContentServerChangeItem } from './ContentServerChangeItem';
+import { RepositoryId } from '../repository/RepositoryId';
+import { type ContentId } from '../content/ContentId';
+import { type ContentPath } from '../content/ContentPath';
+import { ArchiveServerEvent } from './ArchiveServerEvent';
+import { PermissionsServerEvent } from './PermissionsServerEvent';
+import { Store } from '@enonic/lib-admin-ui/store/Store';
+import { MovedContentItem } from '../browse/MovedContentItem';
+import { isProjectInitialized } from '../../v6/entities/project/activeProject.store';
+import { ContentsExistByPathRequest } from '../resource/ContentsExistByPathRequest';
+import { type ContentsExistByPathResult } from '../resource/ContentsExistByPathResult';
 
 export const CONTENT_SERVER_EVENTS_HANDLER_KEY: string = 'ContentServerEventsHandler';
 
@@ -26,7 +26,6 @@ export const CONTENT_SERVER_EVENTS_HANDLER_KEY: string = 'ContentServerEventsHan
  * Class that listens to server events and fires UI events
  */
 export class ContentServerEventsHandler {
-
     private static readonly RECENTLY_DELETED_CONTENT_ID_TTL_MS: number = 5000;
 
     private handler: (event: BatchContentServerEvent) => void;
@@ -122,7 +121,7 @@ export class ContentServerEventsHandler {
     }
 
     private hasDraftBranchChanges(changeItems: ContentServerChangeItem[]): boolean {
-        return changeItems.some(changeItem => {
+        return changeItems.some((changeItem) => {
             return changeItem.getBranch() === Branch.DRAFT.toString();
         });
     }
@@ -173,8 +172,11 @@ export class ContentServerEventsHandler {
 
         const contentDeletedEvent: ContentDeletedEvent = new ContentDeletedEvent();
         changeItems.forEach((changeItem) => {
-            contentDeletedEvent.addItem(changeItem.getContentId(), changeItem.getPath(),
-                Branch[changeItem.getBranch().toUpperCase()]);
+            contentDeletedEvent.addItem(
+                changeItem.getContentId(),
+                changeItem.getPath(),
+                Branch[changeItem.getBranch().toUpperCase()],
+            );
         });
         contentDeletedEvent.fire();
 
@@ -219,8 +221,9 @@ export class ContentServerEventsHandler {
     }
 
     unContentPermissionsUpdated(listener: (contentIds: ContentId[]) => void) {
-        this.contentPermissionsUpdatedListeners =
-            this.contentPermissionsUpdatedListeners.filter((currentListener) => currentListener !== listener);
+        this.contentPermissionsUpdatedListeners = this.contentPermissionsUpdatedListeners.filter(
+            (currentListener) => currentListener !== listener,
+        );
     }
 
     onContentCreated(listener: (data: ContentSummaryAndCompareStatus[]) => void) {
@@ -228,10 +231,11 @@ export class ContentServerEventsHandler {
     }
 
     unContentCreated(listener: (data: ContentSummaryAndCompareStatus[]) => void) {
-        this.contentCreatedListeners =
-            this.contentCreatedListeners.filter((currentListener: (data: ContentSummaryAndCompareStatus[]) => void) => {
+        this.contentCreatedListeners = this.contentCreatedListeners.filter(
+            (currentListener: (data: ContentSummaryAndCompareStatus[]) => void) => {
                 return currentListener !== listener;
-            });
+            },
+        );
     }
 
     private notifyContentCreated(data: ContentSummaryAndCompareStatus[]) {
@@ -245,10 +249,11 @@ export class ContentServerEventsHandler {
     }
 
     unContentUpdated(listener: (data: ContentSummaryAndCompareStatus[]) => void) {
-        this.contentUpdatedListeners =
-            this.contentUpdatedListeners.filter((currentListener: (data: ContentSummaryAndCompareStatus[]) => void) => {
+        this.contentUpdatedListeners = this.contentUpdatedListeners.filter(
+            (currentListener: (data: ContentSummaryAndCompareStatus[]) => void) => {
                 return currentListener !== listener;
-            });
+            },
+        );
     }
 
     private notifyContentUpdated(data: ContentSummaryAndCompareStatus[]) {
@@ -262,10 +267,11 @@ export class ContentServerEventsHandler {
     }
 
     unContentDeleted(listener: (paths: ContentServerChangeItem[]) => void) {
-        this.contentDeletedListeners =
-            this.contentDeletedListeners.filter((currentListener: (paths: ContentServerChangeItem[]) => void) => {
+        this.contentDeletedListeners = this.contentDeletedListeners.filter(
+            (currentListener: (paths: ContentServerChangeItem[]) => void) => {
                 return currentListener !== listener;
-            });
+            },
+        );
     }
 
     private notifyContentDeleted(paths: ContentServerChangeItem[]) {
@@ -279,10 +285,11 @@ export class ContentServerEventsHandler {
     }
 
     unContentDeletedInOtherRepos(listener: (paths: ContentServerChangeItem[]) => void) {
-        this.contentDeletedInOtherReposListeners =
-            this.contentDeletedInOtherReposListeners.filter((currentListener: (paths: ContentServerChangeItem[]) => void) => {
+        this.contentDeletedInOtherReposListeners = this.contentDeletedInOtherReposListeners.filter(
+            (currentListener: (paths: ContentServerChangeItem[]) => void) => {
                 return currentListener !== listener;
-            });
+            },
+        );
     }
 
     private notifyContentDeletedInOtherRepos(paths: ContentServerChangeItem[]) {
@@ -296,10 +303,11 @@ export class ContentServerEventsHandler {
     }
 
     unContentMoved(listener: (movedItems: MovedContentItem[]) => void) {
-        this.contentMovedListeners =
-            this.contentMovedListeners.filter((currentListener: (movedItems: MovedContentItem[]) => void) => {
+        this.contentMovedListeners = this.contentMovedListeners.filter(
+            (currentListener: (movedItems: MovedContentItem[]) => void) => {
                 return currentListener !== listener;
-            });
+            },
+        );
     }
 
     private notifyContentMoved(movedItems: MovedContentItem[]) {
@@ -313,10 +321,11 @@ export class ContentServerEventsHandler {
     }
 
     unContentArchived(listener: (paths: ContentServerChangeItem[]) => void) {
-        this.contentArchivedListeners =
-            this.contentArchivedListeners.filter((currentListener: (paths: ContentServerChangeItem[]) => void) => {
+        this.contentArchivedListeners = this.contentArchivedListeners.filter(
+            (currentListener: (paths: ContentServerChangeItem[]) => void) => {
                 return currentListener !== listener;
-            });
+            },
+        );
     }
 
     private notifyContentArchived(paths: ContentServerChangeItem[]) {
@@ -330,17 +339,19 @@ export class ContentServerEventsHandler {
     }
 
     unContentRenamed(listener: (data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => void) {
-        this.contentRenamedListeners =
-            this.contentRenamedListeners.filter((currentListener: (data: ContentSummaryAndCompareStatus[],
-                                                                   oldPaths: ContentPath[]) => void) => {
+        this.contentRenamedListeners = this.contentRenamedListeners.filter(
+            (currentListener: (data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => void) => {
                 return currentListener !== listener;
-            });
+            },
+        );
     }
 
     private notifyContentRenamed(data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) {
-        this.contentRenamedListeners.forEach((listener: (data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => void) => {
-            listener(data, oldPaths);
-        });
+        this.contentRenamedListeners.forEach(
+            (listener: (data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => void) => {
+                listener(data, oldPaths);
+            },
+        );
     }
 
     onContentDuplicated(listener: (data: ContentSummaryAndCompareStatus[]) => void) {
@@ -348,10 +359,11 @@ export class ContentServerEventsHandler {
     }
 
     unContentDuplicated(listener: (data: ContentSummaryAndCompareStatus[]) => void) {
-        this.contentDuplicateListeners =
-            this.contentDuplicateListeners.filter((currentListener: (data: ContentSummaryAndCompareStatus[]) => void) => {
+        this.contentDuplicateListeners = this.contentDuplicateListeners.filter(
+            (currentListener: (data: ContentSummaryAndCompareStatus[]) => void) => {
                 return currentListener !== listener;
-            });
+            },
+        );
     }
 
     private notifyContentDuplicated(data: ContentSummaryAndCompareStatus[]) {
@@ -365,10 +377,11 @@ export class ContentServerEventsHandler {
     }
 
     unContentPublished(listener: (data: ContentSummaryAndCompareStatus[]) => void) {
-        this.contentPublishListeners =
-            this.contentPublishListeners.filter((currentListener: (data: ContentSummaryAndCompareStatus[]) => void) => {
+        this.contentPublishListeners = this.contentPublishListeners.filter(
+            (currentListener: (data: ContentSummaryAndCompareStatus[]) => void) => {
                 return currentListener !== listener;
-            });
+            },
+        );
     }
 
     private notifyContentPublished(data: ContentSummaryAndCompareStatus[]) {
@@ -382,10 +395,11 @@ export class ContentServerEventsHandler {
     }
 
     unContentUnpublished(listener: (data: ContentSummaryAndCompareStatus[]) => void) {
-        this.contentUnpublishListeners =
-            this.contentUnpublishListeners.filter((currentListener: (data: ContentSummaryAndCompareStatus[]) => void) => {
+        this.contentUnpublishListeners = this.contentUnpublishListeners.filter(
+            (currentListener: (data: ContentSummaryAndCompareStatus[]) => void) => {
                 return currentListener !== listener;
-            });
+            },
+        );
     }
 
     private notifyContentUnpublished(data: ContentSummaryAndCompareStatus[]) {
@@ -399,10 +413,11 @@ export class ContentServerEventsHandler {
     }
 
     unContentSorted(listener: (data: ContentSummaryAndCompareStatus[]) => void) {
-        this.contentSortListeners =
-            this.contentSortListeners.filter((currentListener: (data: ContentSummaryAndCompareStatus[]) => void) => {
+        this.contentSortListeners = this.contentSortListeners.filter(
+            (currentListener: (data: ContentSummaryAndCompareStatus[]) => void) => {
                 return currentListener !== listener;
-            });
+            },
+        );
     }
 
     private notifyContentSorted(data: ContentSummaryAndCompareStatus[]) {
@@ -457,23 +472,27 @@ export class ContentServerEventsHandler {
     }
 
     private handleDeleteAndUnPublish(changeItems: ContentServerChangeItem[]) {
-        const deletedItems: ContentServerChangeItem[] = changeItems.filter(d => d.getBranch() === Branch.DRAFT.toString());
+        const deletedItems: ContentServerChangeItem[] = changeItems.filter(
+            (d) => d.getBranch() === Branch.DRAFT.toString(),
+        );
         if (deletedItems.length) {
             this.handleContentDeleted(deletedItems);
         }
 
-        const unpublishedItems: ContentServerChangeItem[] = changeItems.filter(
-            d => deletedItems.every(deleted => !ObjectHelper.equals(deleted.getContentId(),
-                d.getContentId())));
+        const unpublishedItems: ContentServerChangeItem[] = changeItems.filter((d) =>
+            deletedItems.every((deleted) => !ObjectHelper.equals(deleted.getContentId(), d.getContentId())),
+        );
 
         this.handleMasterDeleteItems(unpublishedItems);
     }
 
     private handleMovedAndArchived(changeItems: ContentServerChangeItem[]) {
-        const archivedItems: ContentServerChangeItem[] =
-            changeItems.filter((item: ContentServerChangeItem) => item.getNewPath().isInArchiveRoot());
-        const movedItems: ContentServerChangeItem[] =
-            changeItems.filter((item: ContentServerChangeItem) => item.getNewPath().isInContentRoot());
+        const archivedItems: ContentServerChangeItem[] = changeItems.filter((item: ContentServerChangeItem) =>
+            item.getNewPath().isInArchiveRoot(),
+        );
+        const movedItems: ContentServerChangeItem[] = changeItems.filter((item: ContentServerChangeItem) =>
+            item.getNewPath().isInContentRoot(),
+        );
 
         if (archivedItems.length > 0) {
             this.rememberDeletedContentIds(archivedItems);
@@ -482,23 +501,28 @@ export class ContentServerEventsHandler {
         }
 
         if (movedItems.length > 0) {
-            this.contentFetcher.fetchAndCompareStatus(this.extractContentIds(movedItems))
+            this.contentFetcher
+                .fetchAndCompareStatus(this.extractContentIds(movedItems))
                 .then((summaries: ContentSummaryAndCompareStatus[]) => {
                     this.handleContentMoved(this.createMovedItems(summaries, movedItems));
                 });
         }
     }
 
-    private createMovedItems(summaries: ContentSummaryAndCompareStatus[], movedItems: ContentServerChangeItem[]): MovedContentItem[] {
+    private createMovedItems(
+        summaries: ContentSummaryAndCompareStatus[],
+        movedItems: ContentServerChangeItem[],
+    ): MovedContentItem[] {
         const result: MovedContentItem[] = [];
 
         summaries.forEach((content: ContentSummaryAndCompareStatus) => {
-             const oldPath: ContentPath =
-                 movedItems.find((moved: ContentServerChangeItem) => moved.getNewPath()?.equals(content.getPath()))?.getPath();
+            const oldPath: ContentPath = movedItems
+                .find((moved: ContentServerChangeItem) => moved.getNewPath()?.equals(content.getPath()))
+                ?.getPath();
 
-             if (oldPath) {
-                 result.push(new MovedContentItem(content, oldPath));
-             }
+            if (oldPath) {
+                result.push(new MovedContentItem(content, oldPath));
+            }
         });
 
         return result;
@@ -528,8 +552,9 @@ export class ContentServerEventsHandler {
         }
 
         this.filterExistingContentRootItems(itemsToFetch)
-            .then((existingItemsToFetch: ContentServerChangeItem[]) => this.fetchAndHandleEventByType(existingItemsToFetch,
-                NodeServerChangeType.DELETE))
+            .then((existingItemsToFetch: ContentServerChangeItem[]) =>
+                this.fetchAndHandleEventByType(existingItemsToFetch, NodeServerChangeType.DELETE),
+            )
             .catch(DefaultErrorHandler.handle);
     }
 
@@ -538,58 +563,65 @@ export class ContentServerEventsHandler {
             return;
         }
 
-        this.contentFetcher.fetchAndCompareStatus(this.extractContentIds(itemsToFetch))
+        this.contentFetcher
+            .fetchAndCompareStatus(this.extractContentIds(itemsToFetch))
             .then((summaries: ContentSummaryAndCompareStatus[]) => {
                 switch (type) {
-                case NodeServerChangeType.CREATE:
-                    this.handleContentCreated(summaries);
-                    break;
-                case NodeServerChangeType.UPDATE:
-                    this.handleContentUpdated(summaries);
-                    break;
-                case NodeServerChangeType.RENAME:
-                    // also supply old paths in case of rename
-                    this.handleContentRenamed(summaries, this.extractContentPaths(itemsToFetch));
-                    break;
-                case NodeServerChangeType.DELETE:
-                    // delete from draft has been handled without fetching summaries,
-                    // deleting from master is unpublish
-                    this.handleContentUnpublished(summaries);
-                    break;
-                case NodeServerChangeType.DUPLICATE:
-                    this.handleContentDuplicated(summaries);
-                    break;
-                case NodeServerChangeType.PUBLISH:
-                    this.handleContentPublished(summaries);
-                    break;
-                case NodeServerChangeType.SORT:
-                    this.handleContentSorted(summaries);
-                    break;
-                case NodeServerChangeType.UNKNOWN:
-                    break;
-                default:
+                    case NodeServerChangeType.CREATE:
+                        this.handleContentCreated(summaries);
+                        break;
+                    case NodeServerChangeType.UPDATE:
+                        this.handleContentUpdated(summaries);
+                        break;
+                    case NodeServerChangeType.RENAME:
+                        // also supply old paths in case of rename
+                        this.handleContentRenamed(summaries, this.extractContentPaths(itemsToFetch));
+                        break;
+                    case NodeServerChangeType.DELETE:
+                        // delete from draft has been handled without fetching summaries,
+                        // deleting from master is unpublish
+                        this.handleContentUnpublished(summaries);
+                        break;
+                    case NodeServerChangeType.DUPLICATE:
+                        this.handleContentDuplicated(summaries);
+                        break;
+                    case NodeServerChangeType.PUBLISH:
+                        this.handleContentPublished(summaries);
+                        break;
+                    case NodeServerChangeType.SORT:
+                        this.handleContentSorted(summaries);
+                        break;
+                    case NodeServerChangeType.UNKNOWN:
+                        break;
+                    default:
                     //
                 }
-            }).catch(DefaultErrorHandler.handle);
+            })
+            .catch(DefaultErrorHandler.handle);
     }
 
-    private filterExistingContentRootItems(changeItems: ContentServerChangeItem[]): Q.Promise<ContentServerChangeItem[]> {
-        const itemsWithPath: ContentServerChangeItem[] = changeItems.filter((changeItem: ContentServerChangeItem) => !!changeItem.getPath());
+    private filterExistingContentRootItems(
+        changeItems: ContentServerChangeItem[],
+    ): Q.Promise<ContentServerChangeItem[]> {
+        const itemsWithPath: ContentServerChangeItem[] = changeItems.filter(
+            (changeItem: ContentServerChangeItem) => !!changeItem.getPath(),
+        );
 
         if (itemsWithPath.length === 0) {
             return Q([]);
         }
 
-        const contentPaths: string[] = this.extractContentPaths(itemsWithPath).map((path: ContentPath) => path.toString());
+        const contentPaths: string[] = this.extractContentPaths(itemsWithPath).map((path: ContentPath) =>
+            path.toString(),
+        );
 
-        return new ContentsExistByPathRequest(contentPaths).sendAndParse()
-            .then((result: ContentsExistByPathResult) => {
-                const contentsExistMap: object = result.getContentsExistMap();
+        return new ContentsExistByPathRequest(contentPaths).sendAndParse().then((result: ContentsExistByPathResult) => {
+            const contentsExistMap: object = result.getContentsExistMap();
 
-                return itemsWithPath.filter((changeItem: ContentServerChangeItem) => {
-                    return contentsExistMap[changeItem.getPath().toString()];
-                });
+            return itemsWithPath.filter((changeItem: ContentServerChangeItem) => {
+                return contentsExistMap[changeItem.getPath().toString()];
             });
+        });
     }
 
     private rememberDeletedContentIds(changeItems: ContentServerChangeItem[]) {
@@ -642,19 +674,21 @@ export class ContentServerEventsHandler {
     }
 
     private handleContentRestored(changeItems: ContentServerChangeItem[]) {
-        this.contentFetcher.fetchAndCompareStatus(this.extractContentIds(changeItems))
+        this.contentFetcher
+            .fetchAndCompareStatus(this.extractContentIds(changeItems))
             .then((data: ContentSummaryAndCompareStatus[]) => {
                 this.notifyContentCreated(data);
-            }).catch(DefaultErrorHandler.handle);
+            })
+            .catch(DefaultErrorHandler.handle);
     }
 
     private filterDuplicates(changeItems: ContentServerChangeItem[]): ContentServerChangeItem[] {
         const result = [];
 
         changeItems.filter((changeItem: ContentServerChangeItem) => {
-           if (!result.some(item => item.equals(changeItem))) {
-               result.push(changeItem);
-           }
+            if (!result.some((item) => item.equals(changeItem))) {
+                result.push(changeItem);
+            }
         });
 
         return result;

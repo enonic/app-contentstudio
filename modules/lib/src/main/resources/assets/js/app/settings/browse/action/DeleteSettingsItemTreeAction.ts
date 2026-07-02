@@ -1,15 +1,13 @@
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {type SettingsViewItem} from '../../view/SettingsViewItem';
-import {ProjectViewItem} from '../../view/ProjectViewItem';
-import {getCurrentItems} from '../../../../v6/features/store/settingsTreeSelection.store';
-import {openDeleteSettingsDialog} from '../../../../v6/features/store/dialogs/deleteSettingsDialog.store';
-import {isActiveProject} from '../../../../v6/features/store/projects.store';
+import { Action } from '@enonic/lib-admin-ui/ui/Action';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { type SettingsViewItem } from '../../view/SettingsViewItem';
+import { ProjectViewItem } from '../../view/ProjectViewItem';
+import { getCurrentItems } from '../../../../v6/features/store/settingsTreeSelection.store';
+import { openDeleteSettingsDialog } from '../../../../v6/features/store/dialogs/deleteSettingsDialog.store';
+import { isActiveProject } from '../../../../v6/entities/project/projects.store';
 
-export class DeleteSettingsItemTreeAction
-    extends Action {
-
+export class DeleteSettingsItemTreeAction extends Action {
     constructor() {
         super(i18n('action.delete'), 'mod+del');
         this.setEnabled(false);

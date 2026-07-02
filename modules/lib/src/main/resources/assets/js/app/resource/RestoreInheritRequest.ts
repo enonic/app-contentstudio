@@ -1,13 +1,11 @@
-import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {ContentInheritType} from '../content/ContentInheritType';
-import {type ContentId} from '../content/ContentId';
-import {CmsContentResourceRequest} from './CmsContentResourceRequest';
-import {getActiveProjectName} from '../../v6/features/store/activeProject.store';
+import { HttpMethod } from '@enonic/lib-admin-ui/rest/HttpMethod';
+import { type JsonResponse } from '@enonic/lib-admin-ui/rest/JsonResponse';
+import { ContentInheritType } from '../content/ContentInheritType';
+import { type ContentId } from '../content/ContentId';
+import { CmsContentResourceRequest } from './CmsContentResourceRequest';
+import { getActiveProjectName } from '../../v6/entities/project/activeProject.store';
 
-export class RestoreInheritRequest
-    extends CmsContentResourceRequest<void> {
-
+export class RestoreInheritRequest extends CmsContentResourceRequest<void> {
     private contentId: ContentId;
 
     private projectToUpdate: string;
@@ -39,7 +37,7 @@ export class RestoreInheritRequest
         return {
             contentId: this.contentId.toString(),
             project: this.projectToUpdate ? this.projectToUpdate : getActiveProjectName(),
-            inherit: this.inherit
+            inherit: this.inherit,
         };
     }
 

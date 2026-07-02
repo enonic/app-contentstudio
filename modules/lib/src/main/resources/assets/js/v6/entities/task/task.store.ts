@@ -1,5 +1,5 @@
-import type {TaskInfo} from '@enonic/lib-admin-ui/task/TaskInfo';
-import {map} from 'nanostores';
+import type { TaskInfo } from '@enonic/lib-admin-ui/task/TaskInfo';
+import { map } from 'nanostores';
 
 //
 // * Types
@@ -12,10 +12,10 @@ export type TaskResultState = 'SUCCESS' | 'ERROR' | 'WARNING';
 export type TaskTrackerState = {
     taskId: string;
     state: TaskProgressState;
-    progress: number;           // 0-100
-    startedAt: number;          // Timestamp when tracking started
-    taskInfo?: TaskInfo;        // Latest TaskInfo from server
-    resultMessage?: string;     // Success/error message from task completion
+    progress: number; // 0-100
+    startedAt: number; // Timestamp when tracking started
+    taskInfo?: TaskInfo; // Latest TaskInfo from server
+    resultMessage?: string; // Success/error message from task completion
     resultState?: TaskResultState;
 };
 
@@ -64,7 +64,7 @@ export const registerTask = (taskId: string): void => {
         progress: 0,
         startedAt: Date.now(),
     });
-    $taskStore.set({tasks: newTasks});
+    $taskStore.set({ tasks: newTasks });
 };
 
 export const updateTaskProgress = (taskId: string, taskInfo: TaskInfo, state: TaskProgressState): void => {
@@ -83,14 +83,14 @@ export const updateTaskProgress = (taskId: string, taskInfo: TaskInfo, state: Ta
         progress,
         taskInfo,
     });
-    $taskStore.set({tasks: newTasks});
+    $taskStore.set({ tasks: newTasks });
 };
 
 export const completeTask = (
     taskId: string,
     taskInfo: TaskInfo,
     resultState: TaskResultState,
-    resultMessage: string
+    resultMessage: string,
 ): void => {
     const current = $taskStore.get();
     const existing = current.tasks.get(taskId);
@@ -107,7 +107,7 @@ export const completeTask = (
         resultState,
         resultMessage,
     });
-    $taskStore.set({tasks: newTasks});
+    $taskStore.set({ tasks: newTasks });
 };
 
 export const unregisterTask = (taskId: string): void => {
@@ -118,5 +118,5 @@ export const unregisterTask = (taskId: string): void => {
 
     const newTasks = new Map(current.tasks);
     newTasks.delete(taskId);
-    $taskStore.set({tasks: newTasks});
+    $taskStore.set({ tasks: newTasks });
 };

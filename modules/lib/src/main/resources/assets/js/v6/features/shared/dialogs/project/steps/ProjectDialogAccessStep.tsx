@@ -10,7 +10,7 @@ import {
     setProjectDialogAccessMode,
     setProjectDialogPermissions,
 } from '../../../../store/dialogs/projectDialog.store';
-import { $principals, getPrincipalsByKeys } from '../../../../store/principals.store';
+import { $principals, getPrincipalsByKeys } from '../../../../../entities/principal';
 import { InlineButton } from '../../../../../shared/ui/InlineButton';
 import { ItemLabel } from '../../../../../shared/ui/ItemLabel';
 import { PrincipalSelector } from '../../../selectors/PrincipalSelector';

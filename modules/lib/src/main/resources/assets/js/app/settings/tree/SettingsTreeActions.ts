@@ -1,19 +1,17 @@
 import Q from 'q';
-import {type TreeGridActions} from '@enonic/lib-admin-ui/ui/treegrid/actions/TreeGridActions';
-import {type Action} from '@enonic/lib-admin-ui/ui/Action';
-import {type SettingsViewItem} from '../view/SettingsViewItem';
-import {SettingsTreeHelper} from './SettingsTreeHelper';
-import {NewSettingsItemTreeAction} from '../browse/action/NewSettingsItemTreeAction';
-import {EditSettingsItemTreeAction} from '../browse/action/EditSettingsItemTreeAction';
-import {DeleteSettingsItemTreeAction} from '../browse/action/DeleteSettingsItemTreeAction';
-import {SyncTreeAction} from '../browse/action/SyncTreeAction';
-import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
-import {getCurrentItems} from '../../../v6/features/store/settingsTreeSelection.store';
-import {$noProjectMode, $projects} from '../../../v6/features/store/projects.store';
+import { type TreeGridActions } from '@enonic/lib-admin-ui/ui/treegrid/actions/TreeGridActions';
+import { type Action } from '@enonic/lib-admin-ui/ui/Action';
+import { type SettingsViewItem } from '../view/SettingsViewItem';
+import { SettingsTreeHelper } from './SettingsTreeHelper';
+import { NewSettingsItemTreeAction } from '../browse/action/NewSettingsItemTreeAction';
+import { EditSettingsItemTreeAction } from '../browse/action/EditSettingsItemTreeAction';
+import { DeleteSettingsItemTreeAction } from '../browse/action/DeleteSettingsItemTreeAction';
+import { SyncTreeAction } from '../browse/action/SyncTreeAction';
+import { AuthHelper } from '@enonic/lib-admin-ui/auth/AuthHelper';
+import { getCurrentItems } from '../../../v6/features/store/settingsTreeSelection.store';
+import { $noProjectMode, $projects } from '../../../v6/entities/project/projects.store';
 
-export class SettingsTreeActions
-    implements TreeGridActions<SettingsViewItem> {
-
+export class SettingsTreeActions implements TreeGridActions<SettingsViewItem> {
     private readonly NEW: NewSettingsItemTreeAction;
     private readonly EDIT: EditSettingsItemTreeAction;
     private readonly DELETE: DeleteSettingsItemTreeAction;
@@ -67,8 +65,9 @@ export class SettingsTreeActions
     }
 
     private isDeleteAllowed(selectedItems: SettingsViewItem[]): boolean {
-        return selectedItems.length === 1 ?
-               selectedItems.every((item: SettingsViewItem) => !this.itemHasChildren(item) && item.isDeleteAllowed()) : false;
+        return selectedItems.length === 1
+            ? selectedItems.every((item: SettingsViewItem) => !this.itemHasChildren(item) && item.isDeleteAllowed())
+            : false;
     }
 
     private itemHasChildren(item: SettingsViewItem): boolean {

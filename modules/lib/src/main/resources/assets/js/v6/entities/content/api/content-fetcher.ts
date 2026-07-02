@@ -8,7 +8,7 @@ import { ContentSummaryAndCompareStatusFetcher } from '../../../../app/resource/
 import { ListContentByIdRequest } from '../../../../app/resource/ListContentByIdRequest';
 import { type ChildOrder } from '../../../../app/resource/order/ChildOrder';
 import { Branch } from '../../../../app/versioning/Branch';
-import { $activeProject } from '../../../features/store/activeProject.store';
+import { $activeProject } from '../../project';
 import { getMissingIds, getContents, getIdByPath } from '../model/content.store';
 import { setContents } from '../model/content.commands';
 import { $contentDuplicated, $contentMoved, $contentSorted } from '../../../shared/socket/socket.store';

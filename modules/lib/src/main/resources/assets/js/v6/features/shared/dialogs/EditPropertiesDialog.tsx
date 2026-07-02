@@ -11,8 +11,9 @@ import {
     setEditPropertiesDialogLanguageSelection,
     setEditPropertiesDialogOwnerSelection,
 } from '../../store/dialogs/editPropertiesDialog.store';
-import { $languages, type LanguageOption } from '../../store/languages.store';
-import { $principals } from '../../store/principals.store';
+import { $languages } from '../../../entities/language';
+import type { LanguageOption } from '../../../entities/language';
+import { $principals } from '../../../entities/principal';
 import { FlagIcon } from '../../../shared/ui/icons/FlagIcon';
 import { PrincipalLabel } from '../../../shared/ui/PrincipalLabel';
 import { LanguageSelector } from '../selectors/LanguageSelector';

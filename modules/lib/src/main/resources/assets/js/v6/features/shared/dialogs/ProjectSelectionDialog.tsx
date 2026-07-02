@@ -5,7 +5,7 @@ import { useMemo, useRef } from 'react';
 import { ConfirmationDialog } from './ConfirmationDialog';
 import { ProjectHelper } from '../../../../app/settings/data/project/ProjectHelper';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
-import { selectProject, $projects } from '../../store/projects.store';
+import { selectProject, $projects } from '../../../entities/project';
 import { flattenProjects } from '../../../shared/lib/cms/projects/flattenProjects';
 import { AuthHelper } from '@enonic/lib-admin-ui/auth/AuthHelper';
 import { $dialogs, setProjectSelectionDialogOpen } from '../../store/dialogs.store';

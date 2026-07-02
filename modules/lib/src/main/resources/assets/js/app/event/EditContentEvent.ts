@@ -1,8 +1,8 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
-import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import type {ContentSummary} from '../content/ContentSummary';
-import type {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {getActiveProjectName} from '../../v6/features/store/activeProject.store';
+import { Event } from '@enonic/lib-admin-ui/event/Event';
+import { ClassHelper } from '@enonic/lib-admin-ui/ClassHelper';
+import type { ContentSummary } from '../content/ContentSummary';
+import type { ContentSummaryAndCompareStatus } from '../content/ContentSummaryAndCompareStatus';
+import { getActiveProjectName } from '../../v6/entities/project/activeProject.store';
 
 type EditContentModel = ContentSummary | ContentSummaryAndCompareStatus;
 
@@ -14,9 +14,7 @@ const toContentSummary = (item: EditContentModel): ContentSummary | null => {
     return item;
 };
 
-export class EditContentEvent
-    extends Event {
-
+export class EditContentEvent extends Event {
     private readonly model: ContentSummary[];
 
     private readonly projectName: string;
@@ -27,9 +25,7 @@ export class EditContentEvent
 
     constructor(model: EditContentModel[], projectName?: string) {
         super();
-        this.model = model
-            .map(toContentSummary)
-            .filter((item): item is ContentSummary => !!item);
+        this.model = model.map(toContentSummary).filter((item): item is ContentSummary => !!item);
         this.projectName = projectName || getActiveProjectName();
     }
 

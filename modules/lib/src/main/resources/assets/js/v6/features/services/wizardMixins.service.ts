@@ -1,14 +1,21 @@
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {okAsync, ResultAsync} from 'neverthrow';
-import type {Content} from '../../../app/content/Content';
-import {ContentId} from '../../../app/content/ContentId';
-import {ContentRequiresSaveEvent} from '../../../app/event/ContentRequiresSaveEvent';
-import {GetApplicationMixinsRequest} from '../../../app/resource/GetApplicationMixinsRequest';
-import {GetContentMixinsRequest} from '../../../app/resource/GetContentMixinsRequest';
-import {$applications, loadApplications} from '../store/applications.store';
-import {$contextContent} from '../store/context/contextContent.store';
-import {$contentType, $mixinsDescriptors, onMixinSeedRequested, onWizardPersistedContentSet, onWizardServerMixinsChanged, setMixinsDescriptors} from '../store/wizardContent.store';
+import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { okAsync, ResultAsync } from 'neverthrow';
+import type { Content } from '../../../app/content/Content';
+import { ContentId } from '../../../app/content/ContentId';
+import { ContentRequiresSaveEvent } from '../../../app/event/ContentRequiresSaveEvent';
+import { GetApplicationMixinsRequest } from '../../../app/resource/GetApplicationMixinsRequest';
+import { GetContentMixinsRequest } from '../../../app/resource/GetContentMixinsRequest';
+import { $applications, loadApplications } from '../../entities/application';
+import { $contextContent } from '../store/context/contextContent.store';
+import {
+    $contentType,
+    $mixinsDescriptors,
+    onMixinSeedRequested,
+    onWizardPersistedContentSet,
+    onWizardServerMixinsChanged,
+    setMixinsDescriptors,
+} from '../store/wizardContent.store';
 
 //
 // * State
@@ -28,7 +35,7 @@ let pendingToken = 0;
 //
 
 function buildAppSignature(): string {
-    const {applications, loaded} = $applications.get();
+    const { applications, loaded } = $applications.get();
     if (!loaded) {
         return '';
     }
@@ -65,8 +72,8 @@ function seedMixinsForApplications(applicationKeys: string[]): ResultAsync<void,
     const requests = applicationKeys.map((key) =>
         ResultAsync.fromPromise(
             new GetApplicationMixinsRequest(contentTypeName, ApplicationKey.fromString(key)).sendAndParse(),
-            (error) => (error instanceof Error ? error : new Error(String(error)))
-        )
+            (error) => (error instanceof Error ? error : new Error(String(error))),
+        ),
     );
 
     return ResultAsync.combine(requests).map((results) => {

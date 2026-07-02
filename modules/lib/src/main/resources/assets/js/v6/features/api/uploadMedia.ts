@@ -5,7 +5,7 @@ import { type ContentSummary } from '../../../app/content/ContentSummary';
 import { type Project } from '../../../app/settings/data/project/Project';
 import { UrlHelper } from '../../../app/util/UrlHelper';
 import { UploadError, type UploadMediaError } from '../../shared/api/errors';
-import { $activeProject } from '../store/activeProject.store';
+import { $activeProject } from '../../entities/project';
 import { generateUniqueName } from '../../shared/lib/image/generateUniqueName';
 import { sanitizeName } from '../../shared/lib/upload/upload';
 

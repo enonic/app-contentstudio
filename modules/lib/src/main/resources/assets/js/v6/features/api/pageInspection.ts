@@ -4,7 +4,7 @@ import type { ContentJson } from '../../../app/content/ContentJson';
 import { type PageTemplate, PageTemplateBuilder } from '../../../app/content/PageTemplate';
 import { Descriptor } from '../../../app/page/Descriptor';
 import type { DescriptorJson } from '../../../app/page/DescriptorJson';
-import { $projects } from '../store/projects.store';
+import { $projects } from '../../entities/project';
 import { getCmsApiUrl, getCmsRestUri } from '../../shared/lib/url/cms';
 
 /**

@@ -1,5 +1,5 @@
-import {atom, computed} from 'nanostores';
-import {type Project} from '../../../app/settings/data/project/Project';
+import { atom, computed } from 'nanostores';
+import { type Project } from '../../../app/settings/data/project/Project';
 
 type ProjectChangedHandler = (project: Project) => void;
 

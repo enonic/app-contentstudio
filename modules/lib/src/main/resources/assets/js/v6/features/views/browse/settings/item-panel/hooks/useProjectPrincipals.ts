@@ -1,8 +1,8 @@
-import {useEffect, useRef, useState} from 'react';
-import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {type PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {type ProjectViewItem} from '../../../../../../../app/settings/view/ProjectViewItem';
-import {getPrincipalsByKeys} from '../../../../../store/principals.store';
+import { useEffect, useRef, useState } from 'react';
+import { type Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { type PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { type ProjectViewItem } from '../../../../../../../app/settings/view/ProjectViewItem';
+import { getPrincipalsByKeys } from '../../../../../../entities/principal';
 
 type PrincipalsByRole = {
     owners: Principal[];
@@ -23,9 +23,7 @@ const emptyResult: PrincipalsByRole = {
 };
 
 function filterPrincipalsByKeys(principals: Principal[], keys: PrincipalKey[]): Principal[] {
-    return principals.filter((principal) =>
-        keys.some((key) => key.equals(principal.getKey()))
-    );
+    return principals.filter((principal) => keys.some((key) => key.equals(principal.getKey())));
 }
 
 export function useProjectPrincipals(item: ProjectViewItem | null): PrincipalsByRole {
@@ -60,7 +58,7 @@ export function useProjectPrincipals(item: ProjectViewItem | null): PrincipalsBy
         }
 
         const requestId = ++requestIdRef.current;
-        setResult((prev) => ({...prev, loading: true}));
+        setResult((prev) => ({ ...prev, loading: true }));
 
         void getPrincipalsByKeys(allKeys).match(
             (principals) => {
@@ -78,7 +76,7 @@ export function useProjectPrincipals(item: ProjectViewItem | null): PrincipalsBy
                 if (requestId !== requestIdRef.current) return;
                 console.error('Failed to fetch principals:', error);
                 setResult(emptyResult);
-            }
+            },
         );
     }, [item]);
 

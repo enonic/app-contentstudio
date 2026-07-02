@@ -6,7 +6,7 @@ import { ContentCombobox } from '../content';
 import { SelectorUploadButton, useSelectorUpload } from '../shared/upload';
 import { SelectorSelection, SelectorSelectionItem } from '../shared/selection';
 import { useStore } from '@nanostores/preact';
-import { $activeProject } from '../../../store/activeProject.store';
+import { $activeProject } from '../../../../entities/project';
 import { ContentRow } from '../shared/combobox/ContentRow';
 import { MediaSelectorItemView } from './MediaSelectorItemView';
 import { useAcceptMimeTypes } from '../../../../shared/lib/hooks/useAcceptMimeTypes';

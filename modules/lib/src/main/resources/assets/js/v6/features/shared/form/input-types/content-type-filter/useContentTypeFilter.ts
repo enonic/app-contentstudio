@@ -10,7 +10,7 @@ import { GetAllContentTypesRequest } from '../../../../../../app/resource/GetAll
 import { GetContentTypesByContentRequest } from '../../../../../../app/resource/GetContentTypesByContentRequest';
 import { GetNearestSiteRequest } from '../../../../../../app/resource/GetNearestSiteRequest';
 import { $contextContent } from '../../../../store/context/contextContent.store';
-import { $activeProject } from '../../../../store/activeProject.store';
+import { $activeProject } from '../../../../../entities/project';
 import { $contentType } from '../../../../store/wizardContent.store';
 import { formatError } from '../../../../../shared/lib/format/error';
 import type { ContentTypeFilterConfig } from './ContentTypeFilterConfig';

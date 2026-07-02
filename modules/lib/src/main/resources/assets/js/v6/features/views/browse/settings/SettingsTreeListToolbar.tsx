@@ -4,7 +4,7 @@ import { RefreshCcw } from 'lucide-react';
 import { type ReactElement, useMemo } from 'react';
 import { useStore } from '@nanostores/preact';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
-import { reloadProjects } from '../../../store/projects.store';
+import { reloadProjects } from '../../../../entities/project';
 import {
     $isAllSelected,
     $isNoneSelected,

@@ -5,7 +5,7 @@ import type { ReactElement } from 'react';
 import { ProjectAccess } from '../../../../../../app/settings/access/ProjectAccess';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { $projectDialog } from '../../../../store/dialogs/projectDialog.store';
-import { $languages } from '../../../../store/languages.store';
+import { $languages } from '../../../../../entities/language';
 import { getInitials } from '../../../../../shared/lib/format/initials';
 import { ApplicationIcon } from '../../../../../shared/ui/icons/ApplicationIcon';
 import { FlagIcon } from '../../../../../shared/ui/icons/FlagIcon';

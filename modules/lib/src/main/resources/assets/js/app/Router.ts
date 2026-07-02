@@ -1,12 +1,11 @@
 import * as hasher from 'hasher';
-import {Path} from '@enonic/lib-admin-ui/rest/Path';
-import {Store} from '@enonic/lib-admin-ui/store/Store';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {ShadowScriptExecutor} from '@enonic/lib-admin-ui/dom/shadow/ShadowScriptExecutor';
-import {getActiveProjectName, onActiveProjectChanged} from '../v6/features/store/activeProject.store';
+import { Path } from '@enonic/lib-admin-ui/rest/Path';
+import { Store } from '@enonic/lib-admin-ui/store/Store';
+import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
+import { ShadowScriptExecutor } from '@enonic/lib-admin-ui/dom/shadow/ShadowScriptExecutor';
+import { getActiveProjectName, onActiveProjectChanged } from '../v6/entities/project/activeProject.store';
 
 export class Router {
-
     private prevHash: string;
 
     private constructor() {

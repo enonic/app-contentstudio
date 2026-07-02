@@ -1,13 +1,13 @@
-import {type Extension} from '@enonic/lib-admin-ui/extension/Extension';
-import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {getActiveProjectName} from '../../v6/features/store/activeProject.store';
-import {type ContentSummary} from '../content/ContentSummary';
-import {RenderingMode} from '../rendering/RenderingMode';
-import {UriHelper} from '../rendering/UriHelper';
-import {RepositoryId} from '../repository/RepositoryId';
+import { type Extension } from '@enonic/lib-admin-ui/extension/Extension';
+import { NotifyManager } from '@enonic/lib-admin-ui/notify/NotifyManager';
+import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
+import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { getActiveProjectName } from '../../v6/entities/project/activeProject.store';
+import { type ContentSummary } from '../content/ContentSummary';
+import { RenderingMode } from '../rendering/RenderingMode';
+import { UriHelper } from '../rendering/UriHelper';
+import { RepositoryId } from '../repository/RepositoryId';
 
 interface OpenedWindow {
     openedWindow: Window;
@@ -15,16 +15,19 @@ interface OpenedWindow {
 }
 
 export class PreviewActionHelper {
-
     protected additionalParams: Record<string, string>;
 
     private notifyBlocked: () => void;
 
     constructor(additionalParams?: Record<string, string>) {
         // Notification is shown not less than once in a minute, if triggered
-        this.notifyBlocked = AppHelper.debounce(() => {
-            NotifyManager.get().showWarning(i18n('notify.popupBlocker.sites'), false);
-        }, 60000, true);
+        this.notifyBlocked = AppHelper.debounce(
+            () => {
+                NotifyManager.get().showWarning(i18n('notify.popupBlocker.sites'), false);
+            },
+            60000,
+            true,
+        );
 
         this.additionalParams = additionalParams || {};
     }
@@ -40,14 +43,18 @@ export class PreviewActionHelper {
     }
 
     setPreviewUrl(widget: Readonly<Extension>, url?: string) {
-        widget.getConfig().setProperty("previewUrl", url);
+        widget.getConfig().setProperty('previewUrl', url);
     }
 
     getPreviewUrl(widget: Readonly<Extension>): string {
-        return widget.getConfig().getProperty("previewUrl");
+        return widget.getConfig().getProperty('previewUrl');
     }
 
-    getUrl(content: ContentSummary, extension?: Readonly<Extension>, mode: RenderingMode = RenderingMode.INLINE): string {
+    getUrl(
+        content: ContentSummary,
+        extension?: Readonly<Extension>,
+        mode: RenderingMode = RenderingMode.INLINE,
+    ): string {
         if (!content) {
             throw new Error('Content parameter is required for preview');
         }
@@ -69,8 +76,8 @@ export class PreviewActionHelper {
             repo: `${RepositoryId.CONTENT_REPO_PREFIX}${getActiveProjectName()}`,
             branch: CONFIG.getString('branch'),
             mode,
-            cb: Date.now().toString()
-        })
+            cb: Date.now().toString(),
+        });
 
         for (const key in this.additionalParams) {
             params.append(key, this.additionalParams[key]);
@@ -96,10 +103,16 @@ export class PreviewActionHelper {
     private openBlankWindow(content: ContentSummary): OpenedWindow {
         const openedWindow = window.open('', content.getId());
         const isBlocked = this.popupCheck(openedWindow);
-        return {openedWindow, isBlocked};
+        return { openedWindow, isBlocked };
     }
 
-    private updateLocation(targetWindow: Window, content: ContentSummary, widget?: Readonly<Extension>, mode?: RenderingMode, focus: boolean = true) {
+    private updateLocation(
+        targetWindow: Window,
+        content: ContentSummary,
+        widget?: Readonly<Extension>,
+        mode?: RenderingMode,
+        focus: boolean = true,
+    ) {
         targetWindow.location.href = this.getUrl(content, widget, mode);
         if (focus) {
             targetWindow.focus(); // behavior depends on user settings for firefox

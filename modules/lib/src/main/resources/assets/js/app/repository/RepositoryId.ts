@@ -1,7 +1,7 @@
 import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
 import { isBlank } from '../../v6/shared/lib/format/isBlank';
 import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
-import { getActiveProjectName } from '../../v6/features/store/activeProject.store';
+import { getActiveProjectName } from '../../v6/entities/project/activeProject.store';
 
 export class RepositoryId implements Equitable {
     public static CONTENT_REPO_PREFIX: string = 'com.enonic.cms.';

@@ -34,7 +34,7 @@ import {
     clearPendingDeletedProject,
     isActiveProject,
     markPendingDeletedProject,
-} from '../../../../v6/features/store/projects.store';
+} from '../../../../v6/entities/project/projects.store';
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 
 export class ProjectWizardPanel extends SettingsDataItemWizardPanel<ProjectViewItem> {

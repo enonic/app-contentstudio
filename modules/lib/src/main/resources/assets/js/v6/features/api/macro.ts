@@ -10,7 +10,7 @@ import type {
 } from '../../../app/macro/resource/MacroPreviewJson';
 import { AppError } from '../../shared/api/errors';
 import { getCmsRestUri } from '../../shared/lib/url/cms';
-import { $projects } from '../store/projects.store';
+import { $projects } from '../../entities/project';
 
 function getMacroApiUrl(endpoint: string, projectName?: string): string {
     const project = projectName ?? $projects.get().activeProjectId ?? '';

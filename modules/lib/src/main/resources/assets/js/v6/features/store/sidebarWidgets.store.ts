@@ -1,11 +1,11 @@
-import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
-import {Extension, ExtensionConfig} from '@enonic/lib-admin-ui/extension/Extension';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {computed, map} from 'nanostores';
-import {GetExtensionsByInterfaceRequest} from '../../../app/resource/GetExtensionsByInterfaceRequest';
-import {UrlAction} from '../../../app/UrlAction';
-import {$noProjectMode} from './projects.store';
+import { ApplicationEvent, ApplicationEventType } from '@enonic/lib-admin-ui/application/ApplicationEvent';
+import { Extension, ExtensionConfig } from '@enonic/lib-admin-ui/extension/Extension';
+import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { computed, map } from 'nanostores';
+import { GetExtensionsByInterfaceRequest } from '../../../app/resource/GetExtensionsByInterfaceRequest';
+import { UrlAction } from '../../../app/UrlAction';
+import { $noProjectMode } from '../../entities/project/projects.store';
 
 type WidgetsStore = {
     widgets: Readonly<Extension>[];
@@ -36,7 +36,7 @@ export function getWidgetKey(widget: Readonly<Extension> | undefined): string | 
 }
 
 export function isDefaultWidget(widget: Readonly<Extension>): boolean {
-    const {widgets} = $sidebarWidgets.get();
+    const { widgets } = $sidebarWidgets.get();
     const firstWidget = widgets[0];
     return firstWidget != null && getWidgetKey(firstWidget) === getWidgetKey(widget);
 }
@@ -49,7 +49,9 @@ export function isSettingsWidget(widget: Readonly<Extension> | undefined): boole
     return getWidgetKey(widget)?.endsWith('studio:settings') ?? false;
 }
 
-export function getSettingsWidget(widgets: Readonly<Extension>[] = $sidebarWidgets.get().widgets): Readonly<Extension> | undefined {
+export function getSettingsWidget(
+    widgets: Readonly<Extension>[] = $sidebarWidgets.get().widgets,
+): Readonly<Extension> | undefined {
     return widgets.find((widget) => isSettingsWidget(widget));
 }
 
@@ -92,7 +94,7 @@ async function loadWidgets(): Promise<void> {
 function updateActiveWidget(): void {
     if ($activeWidget.get()) return;
 
-    const {widgets} = $sidebarWidgets.get();
+    const { widgets } = $sidebarWidgets.get();
 
     if ($noProjectMode.get()) {
         setActiveWidget(getSettingsWidget(widgets));
@@ -165,7 +167,7 @@ ApplicationEvent.on((event: ApplicationEvent) => {
     if (startedOrInstalledEvent) {
         loadWidgets();
     } else if (stoppedOrUninstalledEvent) {
-        const {widgets} = $sidebarWidgets.get();
+        const { widgets } = $sidebarWidgets.get();
         const appKey = String(event.getApplicationKey());
         const filteredWidgets = widgets.filter((w) => getWidgetKey(w) !== appKey);
 

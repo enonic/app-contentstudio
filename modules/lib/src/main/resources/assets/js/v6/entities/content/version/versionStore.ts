@@ -1,5 +1,5 @@
-import {atom, computed} from 'nanostores';
-import {type ContentVersion, ContentVersionBuilder} from '../../../../app/ContentVersion';
+import { atom, computed } from 'nanostores';
+import { type ContentVersion, ContentVersionBuilder } from '../../../../app/ContentVersion';
 import {
     getFormattedVersionDate,
     isStandardModeVersion,
@@ -22,7 +22,15 @@ export const $versions = atom<ContentVersion[]>([]);
 
 export const $allVersionsLoaded = atom(false);
 
+export function setAllVersionsLoaded(loaded: boolean): void {
+    $allVersionsLoaded.set(loaded);
+}
+
 export const $versionsDisplayMode = atom<VersionsDisplayModeType>('standard');
+
+export function setVersionsDisplayMode(mode: VersionsDisplayModeType): void {
+    $versionsDisplayMode.set(mode);
+}
 
 export const $selectedVersions = atom<ReadonlySet<string>>(new Set());
 
@@ -69,29 +77,24 @@ export const $versionsForDisplay = computed(
     },
 );
 
-export const $versionsByDate = computed(
-    [$versionsForDisplay, $versionsDisplayMode],
-    (versions, displayMode) => {
-        const filteredVersions = displayMode === 'standard'
-                                 ? versions.filter(isStandardModeVersion)
-                                 : versions.filter(isVersionToBeDisplayedInFullMode);
+export const $versionsByDate = computed([$versionsForDisplay, $versionsDisplayMode], (versions, displayMode) => {
+    const filteredVersions =
+        displayMode === 'standard'
+            ? versions.filter(isStandardModeVersion)
+            : versions.filter(isVersionToBeDisplayedInFullMode);
 
-        return filteredVersions.reduce<Record<string, ContentVersion[]>>((acc, version) => {
-            const dateKey = getFormattedVersionDate(version);
-            if (!acc[dateKey]) {
-                acc[dateKey] = [];
-            }
-            acc[dateKey].push(version);
-            return acc;
-        }, {});
-    },
-);
+    return filteredVersions.reduce<Record<string, ContentVersion[]>>((acc, version) => {
+        const dateKey = getFormattedVersionDate(version);
+        if (!acc[dateKey]) {
+            acc[dateKey] = [];
+        }
+        acc[dateKey].push(version);
+        return acc;
+    }, {});
+});
 
 export const $comparableVersionsCount = computed($versionsByDate, (versionsByDate) =>
-    Object.values(versionsByDate).reduce(
-        (count, versions) => count + versions.filter(isVersionComparable).length,
-        0,
-    ),
+    Object.values(versionsByDate).reduce((count, versions) => count + versions.filter(isVersionComparable).length, 0),
 );
 
 //
