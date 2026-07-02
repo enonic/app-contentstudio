@@ -6,6 +6,7 @@ type Props = {
     status: ContentState | null;
     contentType: string;
     url?: string | null;
+    hasThumbnail?: boolean;
 };
 
 export function WorkflowContentIcon({ status, ...props }: Props): React.ReactElement {
