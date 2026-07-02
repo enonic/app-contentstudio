@@ -37,6 +37,7 @@ type Props = {
     url?: string | null;
     imageSize?: number;
     crop?: boolean;
+    hasThumbnail?: boolean;
 };
 
 type BuiltInIconProps = Pick<Props, 'contentType'> & React.ComponentProps<LucideIcon>;
@@ -83,6 +84,7 @@ export const ContentIcon = ({
     url,
     imageSize = 64,
     crop = false,
+    hasThumbnail = false,
 }: Props): React.ReactElement => {
     const src = url ? createImageUrl(url, { size: imageSize * 2, crop }) : undefined;
 
@@ -95,7 +97,7 @@ export const ContentIcon = ({
     const isImageType = IMAGE_CONTENT_TYPES.has(contentType);
     const isUnknownType = !BUILT_IN_CONTENT_TYPE_ICON_MAP.has(contentType);
 
-    const canShowImage = (isImageType || isUnknownType) && !isImageBroken;
+    const canShowImage = (isImageType || isUnknownType || hasThumbnail) && !isImageBroken;
 
     if (canShowImage && src) {
         // 2x size for better quality
@@ -103,8 +105,8 @@ export const ContentIcon = ({
             <Image
                 className={cn(
                     'size-6 p-px object-contain',
-                    !isImageType && 'dark:invert-100 dark:brightness-75 dark:contrast-125',
-                    className,
+                    !isImageType && !hasThumbnail && 'dark:invert-100 dark:brightness-75 dark:contrast-125',
+                    className
                 )}
                 alt={contentType}
                 src={src}

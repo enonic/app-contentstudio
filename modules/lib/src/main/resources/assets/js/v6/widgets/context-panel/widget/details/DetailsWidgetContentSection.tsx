@@ -3,21 +3,13 @@ import { type ReactElement } from 'react';
 import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 import { PublishStatus } from '../../../../../app/publish/PublishStatus';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
-import { ContentIcon } from '../../../../shared/ui/icons/ContentIcon';
 import { StatusIcon } from '../../../../shared/ui/icons/StatusIcon';
 import { DiffStatusBadge } from '../../../../features/shared/status/DiffStatusBadge';
-import {
-    $contextContent,
-    $contextContentCompareResult,
-    $isContextCompareLoading,
-} from '../../model/contextContent.store';
+import { DetailsWidgetContentIcon } from './DetailsWidgetContentIcon';
+import { $contextContent, $contextContentCompareResult, $isContextCompareLoading } from '../../model/contextContent.store';
 import { formatCompareResult } from '../../../../entities/content';
 import { formatContentPath } from '../../../../shared/lib/cms/content/paths';
-import {
-    calcSecondaryStatus,
-    calcTreePublishStatus,
-    createContentStateKey,
-} from '../../../../shared/lib/cms/content/status';
+import { calcSecondaryStatus, calcTreePublishStatus, createContentStateKey } from '../../../../shared/lib/cms/content/status';
 import { calcContentState } from '../../../../shared/lib/cms/content/workflow';
 
 function createDisplayName(content: ContentSummary): string {
@@ -49,8 +41,7 @@ export const DetailsWidgetContentSection = (): ReactElement => {
     const publishStatus = calcTreePublishStatus(content);
     const secondaryStatus = calcSecondaryStatus(publishStatus, content);
     const showContentState =
-        contentState != null &&
-        !(publishStatus === PublishStatus.ONLINE && contentState === 'ready' && !secondaryStatus);
+        contentState != null && !(publishStatus === PublishStatus.ONLINE && contentState === 'ready' && !secondaryStatus);
 
     let secondaryOverride: string | undefined;
     if (secondaryStatus === 'modified') {
@@ -67,7 +58,7 @@ export const DetailsWidgetContentSection = (): ReactElement => {
                 <div className="flex flex-col gap-1">
                     <dt className="text-xs text-subtle">{iconLabel}</dt>
                     <dd>
-                        <ContentIcon contentType={String(content.getType())} url={content.getIconUrl()} />
+                        <DetailsWidgetContentIcon content={content} />
                     </dd>
                 </div>
 

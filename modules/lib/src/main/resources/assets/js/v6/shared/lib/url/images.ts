@@ -3,16 +3,16 @@ type ImageUrlParams = {
     crop?: boolean | null;
 };
 
-function trimUrlParams(url: string): string {
-    const index = url.lastIndexOf('?');
-    return index >= 0 ? url.substring(0, index) : url;
-}
-
-function encodeUrlParams(params: Record<string, unknown>): string {
-    const entries = Object.entries(params).filter(([, value]) => value != null);
-    return new URLSearchParams(entries.map(([key, value]) => [key, String(value)])).toString();
-}
-
 export function createImageUrl(url: string, params: ImageUrlParams): string {
-    return `${trimUrlParams(url)}?${encodeUrlParams(params)}`;
+    const queryIndex = url.indexOf('?');
+    const base = queryIndex >= 0 ? url.substring(0, queryIndex) : url;
+
+    // Preserve the existing query (e.g. the server's `ts` cache-buster) so a re-uploaded
+    // icon yields a distinct, non-stale src, while overriding our own params by key.
+    const search = new URLSearchParams(queryIndex >= 0 ? url.substring(queryIndex + 1) : '');
+    for (const [key, value] of Object.entries(params)) {
+        if (value != null) search.set(key, String(value));
+    }
+
+    return `${base}?${search.toString()}`;
 }
