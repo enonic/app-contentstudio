@@ -5,7 +5,7 @@ import { atom, computed, map } from 'nanostores';
 import { type ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { EditContentEvent } from '../../../../app/event/EditContentEvent';
-import { fetchContentSummaries } from '../../api/content';
+import { fetchContentSummaries } from '../../../entities/content';
 import { duplicateContent, type DuplicateContentParams, getDescendantsOfContents } from '../../api/duplicate';
 import { cleanupTask, trackTask } from '../../services/task.service';
 import { hasContentIdInIds, isIdsEqual } from '../../../shared/lib/cms/content/ids';

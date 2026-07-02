@@ -4,10 +4,9 @@ import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { atom, computed, map } from 'nanostores';
 import { type ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
-import { fetchContentSummaries } from '../../api/content';
-import { type CompareResult, compareContent } from '../../api/compare';
+import { fetchContentSummaries, compareContent, hasUnpublishedChildren } from '../../../entities/content';
+import type { CompareResult } from '../../../entities/content';
 import { calcSecondaryStatus, calcTreePublishStatus } from '../../../shared/lib/cms/content/status';
-import { hasUnpublishedChildren } from '../../api/hasUnpublishedChildren';
 import {
     findIdsByParents,
     markAsReady,

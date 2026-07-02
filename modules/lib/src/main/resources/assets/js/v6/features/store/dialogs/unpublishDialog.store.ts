@@ -4,7 +4,7 @@ import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { computed, map } from 'nanostores';
 import { type ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
-import { fetchContentSummaries } from '../../api/content';
+import { fetchContentSummaries } from '../../../entities/content';
 import { resolveUnpublish, unpublishContent } from '../../api/unpublish';
 import { trackTask, cleanupTask } from '../../services/task.service';
 import { hasContentIdInIds } from '../../../shared/lib/cms/content/ids';

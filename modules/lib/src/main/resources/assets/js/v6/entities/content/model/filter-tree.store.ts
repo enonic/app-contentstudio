@@ -17,7 +17,7 @@ import {
     type FlatNode,
     type CreateNodeOptions,
     ROOT_LOADING_KEY,
-} from '../../shared/lib/tree-store';
+} from '../../../shared/lib/tree-store';
 import { $contentCache } from './content.store';
 import {
     $contentDeleted,
@@ -25,9 +25,9 @@ import {
     $contentCreated,
     $contentDuplicated,
     $contentMoved,
-} from '../../shared/socket/socket.store';
-import type { ContentSummary } from '../../../app/content/ContentSummary';
-import type { ContentData } from '../views/browse/grid/ContentData';
+} from '../../../shared/socket/socket.store';
+import type { ContentSummary } from '../../../../app/content/ContentSummary';
+import type { ContentData } from './ContentData';
 import { convertToContentFlatNode, findParentIdByPath, toTreeNodeData } from './tree/utils';
 import type { ContentTreeNodeData, LoadingStateValue } from './tree/types';
 
@@ -208,16 +208,6 @@ function removeFilterContent(ids: string[]): void {
     updateFilterTreeState((s) => removeNodes(s, idsToRemove, true));
 }
 
-$contentDeleted.subscribe((event) => {
-    if (!event?.data) return;
-    removeFilterContent(event.data.map((item) => item.getContentId().toString()));
-});
-
-$contentArchived.subscribe((event) => {
-    if (!event?.data) return;
-    removeFilterContent(event.data.map((item) => item.getContentId().toString()));
-});
-
 function addContentToFilterTree(content: ContentSummary): void {
     updateFilterTreeState((state) => {
         const id = content.getId();
@@ -252,20 +242,6 @@ function addContentToFilterTree(content: ContentSummary): void {
     });
 }
 
-$contentCreated.subscribe((event) => {
-    if (!event?.data) return;
-    for (const content of event.data) {
-        addContentToFilterTree(content);
-    }
-});
-
-$contentDuplicated.subscribe((event) => {
-    if (!event?.data) return;
-    for (const content of event.data) {
-        addContentToFilterTree(content);
-    }
-});
-
 //
 // * Filter Refresh Signal
 //
@@ -279,15 +255,45 @@ export function clearFilterRefreshNeeded(): void {
     $filterRefreshNeeded.set(0);
 }
 
-$contentMoved.subscribe((event) => {
-    if (!event?.data) return;
+//
+// * Socket wiring
+//
+// Attached by content.service on explicit start; never on import.
+//
 
-    const hasCrossParentMove = event.data.some((moved) => {
-        const newPath = moved.item.getContentSummary().getPath?.();
-        return newPath != null && !moved.oldPath.getParentPath().equals(newPath.getParentPath());
-    });
+export function connectFilterTreeToSocket(): Array<() => void> {
+    return [
+        $contentDeleted.subscribe((event) => {
+            if (!event?.data) return;
+            removeFilterContent(event.data.map((item) => item.getContentId().toString()));
+        }),
+        $contentArchived.subscribe((event) => {
+            if (!event?.data) return;
+            removeFilterContent(event.data.map((item) => item.getContentId().toString()));
+        }),
+        $contentCreated.subscribe((event) => {
+            if (!event?.data) return;
+            for (const content of event.data) {
+                addContentToFilterTree(content);
+            }
+        }),
+        $contentDuplicated.subscribe((event) => {
+            if (!event?.data) return;
+            for (const content of event.data) {
+                addContentToFilterTree(content);
+            }
+        }),
+        $contentMoved.subscribe((event) => {
+            if (!event?.data) return;
 
-    if (hasCrossParentMove) {
-        $filterRefreshNeeded.set(Date.now());
-    }
-});
+            const hasCrossParentMove = event.data.some((moved) => {
+                const newPath = moved.item.getContentSummary().getPath?.();
+                return newPath != null && !moved.oldPath.getParentPath().equals(newPath.getParentPath());
+            });
+
+            if (hasCrossParentMove) {
+                $filterRefreshNeeded.set(Date.now());
+            }
+        }),
+    ];
+}

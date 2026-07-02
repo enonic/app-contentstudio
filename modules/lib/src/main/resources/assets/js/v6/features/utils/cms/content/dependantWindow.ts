@@ -1,6 +1,6 @@
-import {type ContentId} from '../../../../../app/content/ContentId';
-import type {ContentSummary} from '../../../../../app/content/ContentSummary';
-import {fetchContentSummaries} from '../../../api/content';
+import { type ContentId } from '../../../../../app/content/ContentId';
+import type { ContentSummary } from '../../../../../app/content/ContentSummary';
+import { fetchContentSummaries } from '../../../../entities/content';
 
 export const DEPENDANT_LOAD_SIZE = 36;
 
@@ -18,8 +18,7 @@ type WindowStore<S extends DependantWindowState> = {
 export const orderSummariesByIds = (summaries: ContentSummary[], orderIds: ContentId[]): ContentSummary[] => {
     const indexById = new Map<string, number>();
     orderIds.forEach((id, index) => indexById.set(id.toString(), index));
-    const indexOf = (item: ContentSummary): number =>
-        indexById.get(item.getContentId().toString()) ?? orderIds.length;
+    const indexOf = (item: ContentSummary): number => indexById.get(item.getContentId().toString()) ?? orderIds.length;
     return [...summaries].sort((a, b) => indexOf(a) - indexOf(b));
 };
 
@@ -28,7 +27,7 @@ export const mergeDependantWindow = (
     fetched: ContentSummary[],
     currentIds: ContentId[],
 ): ContentSummary[] => {
-    const idSet = new Set(currentIds.map(id => id.toString()));
+    const idSet = new Set(currentIds.map((id) => id.toString()));
     const byId = new Map<string, ContentSummary>();
     for (const item of [...loaded, ...fetched]) {
         const key = item.getContentId().toString();
@@ -46,26 +45,23 @@ export type DependantWindowSlice = {
 
 // `failed` is true when a non-empty slice resolves to no summaries: fetchContentSummaries
 // returns [] on a transient error, so callers must not advance past an unloaded slice.
-export const fetchDependantWindowSlice = async (
-    allIds: ContentId[],
-    start: number,
-): Promise<DependantWindowSlice> => {
+export const fetchDependantWindowSlice = async (allIds: ContentId[], start: number): Promise<DependantWindowSlice> => {
     const sliceIds = allIds.slice(start, start + DEPENDANT_LOAD_SIZE);
     if (sliceIds.length === 0) {
-        return {summaries: [], failed: false};
+        return { summaries: [], failed: false };
     }
 
     const summaries = await fetchContentSummaries(sliceIds);
-    return {summaries, failed: summaries.length === 0};
+    return { summaries, failed: summaries.length === 0 };
 };
 
 export const pruneDependantWindow = <S extends DependantWindowState>(
     state: S,
     idsToRemove: Set<string>,
-): {state: S; changed: boolean} => {
-    const nextDependantIds = state.dependantIds.filter(id => !idsToRemove.has(id.toString()));
+): { state: S; changed: boolean } => {
+    const nextDependantIds = state.dependantIds.filter((id) => !idsToRemove.has(id.toString()));
     if (nextDependantIds.length === state.dependantIds.length) {
-        return {state, changed: false};
+        return { state, changed: false };
     }
 
     return {
@@ -89,7 +85,7 @@ export const createDependantWindowLoader = <S extends DependantWindowState>(
             return;
         }
 
-        const {dependantIds, dependantWindow} = store.get();
+        const { dependantIds, dependantWindow } = store.get();
         if (dependantWindow >= dependantIds.length) {
             return;
         }
@@ -97,7 +93,7 @@ export const createDependantWindowLoader = <S extends DependantWindowState>(
         loadingMore = true;
         const guardId = getGuardId();
         try {
-            const {summaries, failed} = await fetchDependantWindowSlice(dependantIds, dependantWindow);
+            const { summaries, failed } = await fetchDependantWindowSlice(dependantIds, dependantWindow);
 
             if (guardId !== getGuardId() || failed) {
                 return;

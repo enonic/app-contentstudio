@@ -1,11 +1,10 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {getCurrentItems} from '../../../v6/features/store/contentTreeSelection.store';
-import {openPublishDialog} from '../../../v6/features/store/dialogs/publishDialog.store';
-import {ContentTreeGridAction} from './ContentTreeGridAction';
-import {type ContentTreeGridItemsState} from './ContentTreeGridItemsState';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { getCurrentItems } from '../../../v6/entities/content';
+import { openPublishDialog } from '../../../v6/features/store/dialogs/publishDialog.store';
+import { ContentTreeGridAction } from './ContentTreeGridAction';
+import { type ContentTreeGridItemsState } from './ContentTreeGridItemsState';
 
 export class PublishContentAction extends ContentTreeGridAction {
-
     private includeChildItems: boolean = false;
 
     constructor(includeChildItems: boolean = false, useShortcut: boolean = true) {

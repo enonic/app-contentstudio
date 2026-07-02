@@ -3,6 +3,7 @@ import { useStore } from '@nanostores/preact';
 import type { ReactElement } from 'react';
 import { start as startKeyBindingsGuard } from './services/keyBindingsGuard.service';
 import { startSocketService } from '../shared/socket';
+import { startContentService } from '../entities/content';
 import { setActiveProjectResolver } from '../shared/lib/url/cms';
 import { LegacyElement } from '../shared/ui/LegacyElement';
 import { $isWizard } from './store/app.store';
@@ -34,6 +35,7 @@ export class AppElement extends LegacyElement<typeof App> {
         if (!AppElement.INSTANCE) {
             setActiveProjectResolver(() => $projects.get().activeProjectId);
             startSocketService();
+            startContentService();
             startKeyBindingsGuard();
             AppElement.INSTANCE = new AppElement();
             Body.get().appendChild(AppElement.INSTANCE);

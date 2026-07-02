@@ -6,7 +6,7 @@ import type { ReactNode } from 'react';
 import { type ContentSummary } from '../../../../../app/content/ContentSummary';
 import { HTMLAreaHelper } from '../../../../../app/inputtype/ui/text/HTMLAreaHelper';
 import { type Project } from '../../../../../app/settings/data/project/Project';
-import { fetchContentById } from '../../../api/content';
+import { fetchContentById } from '../../../../entities/content';
 
 //
 // * Types

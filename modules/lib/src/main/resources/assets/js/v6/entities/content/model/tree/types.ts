@@ -1,8 +1,8 @@
 import type { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import type { ContentSummary } from '../../../../app/content/ContentSummary';
-import type { PublishStatus } from '../../../../app/publish/PublishStatus';
-import type { TreeState, TreeNode, FlatNode } from '../../../shared/lib/tree-store';
-import type { ContentState } from '../../../../app/content/ContentState';
+import type { ContentSummary } from '../../../../../app/content/ContentSummary';
+import type { PublishStatus } from '../../../../../app/publish/PublishStatus';
+import type { TreeState, TreeNode, FlatNode } from '../../../../shared/lib/tree-store';
+import type { ContentState } from '../../../../../app/content/ContentState';
 
 //
 // * Shared Types

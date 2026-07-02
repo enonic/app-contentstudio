@@ -1,16 +1,17 @@
 import { Expand } from '@enonic/lib-admin-ui/rest/Expand';
-import { ContentId } from '../../../app/content/ContentId';
-import { ContentQuery } from '../../../app/content/ContentQuery';
-import type { ContentSummary } from '../../../app/content/ContentSummary';
-import type { ContentSummaryJson } from '../../../app/content/ContentSummaryJson';
-import { ContentQueryRequest } from '../../../app/resource/ContentQueryRequest';
-import { ContentSummaryAndCompareStatusFetcher } from '../../../app/resource/ContentSummaryAndCompareStatusFetcher';
-import { ListContentByIdRequest } from '../../../app/resource/ListContentByIdRequest';
-import { type ChildOrder } from '../../../app/resource/order/ChildOrder';
-import { Branch } from '../../../app/versioning/Branch';
-import { $activeProject } from '../store/activeProject.store';
-import { setContents, getMissingIds, getContents, getIdByPath } from '../store/content.store';
-import { $contentDuplicated, $contentMoved, $contentSorted } from '../../shared/socket/socket.store';
+import { ContentId } from '../../../../app/content/ContentId';
+import { ContentQuery } from '../../../../app/content/ContentQuery';
+import type { ContentSummary } from '../../../../app/content/ContentSummary';
+import type { ContentSummaryJson } from '../../../../app/content/ContentSummaryJson';
+import { ContentQueryRequest } from '../../../../app/resource/ContentQueryRequest';
+import { ContentSummaryAndCompareStatusFetcher } from '../../../../app/resource/ContentSummaryAndCompareStatusFetcher';
+import { ListContentByIdRequest } from '../../../../app/resource/ListContentByIdRequest';
+import { type ChildOrder } from '../../../../app/resource/order/ChildOrder';
+import { Branch } from '../../../../app/versioning/Branch';
+import { $activeProject } from '../../../features/store/activeProject.store';
+import { getMissingIds, getContents, getIdByPath } from '../model/content.store';
+import { setContents } from '../model/content.commands';
+import { $contentDuplicated, $contentMoved, $contentSorted } from '../../../shared/socket/socket.store';
 import {
     $treeState,
     addTreeNode,
@@ -23,11 +24,11 @@ import {
     setNodeTotalChildren,
     setRootTotalChildren,
     type ContentTreeNodeData,
-} from '../store/tree-list.store';
-import type { CreateNodeOptions } from '../../shared/lib/tree-store';
-import { calcContentState } from '../../shared/lib/cms/content/workflow';
-import { calcTreePublishStatus } from '../../shared/lib/cms/content/status';
-import { resolveDisplayName, resolveSubName } from '../../shared/lib/cms/content/prettify';
+} from '../model/content-tree.store';
+import type { CreateNodeOptions } from '../../../shared/lib/tree-store';
+import { calcContentState } from '../../../shared/lib/cms/content/workflow';
+import { calcTreePublishStatus } from '../../../shared/lib/cms/content/status';
+import { resolveDisplayName, resolveSubName } from '../../../shared/lib/cms/content/prettify';
 
 /**
  * Snapshots the active project at request start. Tree writes are gated with
@@ -727,7 +728,7 @@ function updateTreeNodesWithData(contents: ContentSummary[]): void {
 import {
     setFilterActive as setFilterActiveState,
     deactivateFilter as deactivateFilterState,
-} from '../store/active-tree.store';
+} from '../model/active-tree.store';
 import {
     $filterTreeState,
     addFilterNodes,
@@ -739,7 +740,7 @@ import {
     setFilterChildren,
     setFilterNodeTotalChildren,
     resetFilterTree,
-} from '../store/filter-tree.store';
+} from '../model/filter-tree.store';
 
 /**
  * Activates filter mode: resets the filter tree and fetches fresh results.

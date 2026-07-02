@@ -1,13 +1,11 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {getCurrentItemsAsCSCS} from '../../../v6/features/store/contentTreeSelection.store';
-import {ProjectHelper} from '../../settings/data/project/ProjectHelper';
-import {RequestContentPublishPromptEvent} from '../RequestContentPublishPromptEvent';
-import {ContentTreeGridAction} from './ContentTreeGridAction';
-import {type ContentTreeGridItemsState} from './ContentTreeGridItemsState';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { getCurrentItemsAsCSCS } from '../../../v6/entities/content';
+import { ProjectHelper } from '../../settings/data/project/ProjectHelper';
+import { RequestContentPublishPromptEvent } from '../RequestContentPublishPromptEvent';
+import { ContentTreeGridAction } from './ContentTreeGridAction';
+import { type ContentTreeGridItemsState } from './ContentTreeGridItemsState';
 
-export class RequestPublishContentAction
-    extends ContentTreeGridAction {
-
+export class RequestPublishContentAction extends ContentTreeGridAction {
     constructor() {
         super(i18n('action.requestPublish'));
 

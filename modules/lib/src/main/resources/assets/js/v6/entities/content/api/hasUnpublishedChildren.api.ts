@@ -1,5 +1,6 @@
-import { type ContentId } from '../../../app/content/ContentId';
-import { getCmsApiUrl } from '../../shared/lib/url/cms';
+import { type ContentId } from '../../../../app/content/ContentId';
+import { requestJson } from '../../../shared/api/client';
+import { getCmsApiUrl } from '../../../shared/lib/url/cms';
 
 type HasUnpublishedChildrenJson = {
     id: { id: string };
@@ -21,21 +22,12 @@ export async function hasUnpublishedChildren(contentIds: ContentId[]): Promise<M
         contentIds: contentIds.map((id) => id.toString()),
     };
 
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-        throw new Error(response.statusText);
+    const result = await requestJson<HasUnpublishedChildrenListJson>(url, { method: 'POST', body: payload });
+    if (result.isErr()) {
+        throw result.error;
     }
 
-    const json: HasUnpublishedChildrenListJson = await response.json();
-
-    return new Map(json.contents.map((item) => [item.id.id, item.hasChildren]));
+    return new Map(result.value.contents.map((item) => [item.id.id, item.hasChildren]));
 }
 
 /**

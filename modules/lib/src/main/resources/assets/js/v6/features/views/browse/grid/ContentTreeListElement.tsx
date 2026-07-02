@@ -1,18 +1,22 @@
-import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
-import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
-import {ContentQuery} from '../../../../../app/content/ContentQuery';
-import type {ContentSummary} from '../../../../../app/content/ContentSummary';
-import {activateFilter, deactivateFilter, getFilterQuery} from '../../../api/content-fetcher';
-import {$isFilterActive} from '../../../store/active-tree.store';
-import {getContent} from '../../../store/content.store';
-import {$currentIds} from '../../../store/contentTreeSelection.store';
-import {$filterRefreshNeeded, clearFilterRefreshNeeded} from '../../../store/filter-tree.store';
-import {ContentTreeContextMenuProps} from './ContentTreeContextMenu';
-import {ContentTreeList, ContentTreeListProps} from './ContentTreeList';
+import { LegacyElement } from '@enonic/lib-admin-ui/ui2/LegacyElement';
+import { SelectionChange } from '@enonic/lib-admin-ui/util/SelectionChange';
+import { ContentQuery } from '../../../../../app/content/ContentQuery';
+import type { ContentSummary } from '../../../../../app/content/ContentSummary';
+import {
+    activateFilter,
+    deactivateFilter,
+    getFilterQuery,
+    $isFilterActive,
+    getContent,
+    $currentIds,
+    $filterRefreshNeeded,
+    clearFilterRefreshNeeded,
+} from '../../../../entities/content';
+import { ContentTreeContextMenuProps } from './ContentTreeContextMenu';
+import { ContentTreeList, ContentTreeListProps } from './ContentTreeList';
 
 export class ContentTreeListElement extends LegacyElement<typeof ContentTreeList, ContentTreeListProps> {
-    private selectionChangedListeners: ((selectionChange: SelectionChange<ContentSummary>) => void)[] =
-        [];
+    private selectionChangedListeners: ((selectionChange: SelectionChange<ContentSummary>) => void)[] = [];
 
     constructor() {
         super({}, ContentTreeList);
@@ -50,15 +54,14 @@ export class ContentTreeListElement extends LegacyElement<typeof ContentTreeList
     }
 
     protected notifySelectionChanged(selectionChange: SelectionChange<ContentSummary>): void {
-        this.selectionChangedListeners.forEach(
-            (listener: (selectionChange: SelectionChange<ContentSummary>) => void) =>
-                listener(selectionChange)
+        this.selectionChangedListeners.forEach((listener: (selectionChange: SelectionChange<ContentSummary>) => void) =>
+            listener(selectionChange),
         );
     }
 
     private getSelectionChange(
         newSelection: ReadonlySet<string>,
-        oldSelection: ReadonlySet<string>
+        oldSelection: ReadonlySet<string>,
     ): SelectionChange<ContentSummary> {
         const selected: ContentSummary[] = [];
 

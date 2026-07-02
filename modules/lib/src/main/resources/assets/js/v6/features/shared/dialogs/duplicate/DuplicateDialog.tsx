@@ -1,27 +1,27 @@
-import {Dialog} from '@enonic/ui';
-import {useStore} from '@nanostores/preact';
-import {useEffect, useState, type ReactElement} from 'react';
-import {useTaskProgress} from '../../../hooks/useTaskProgress';
+import { Dialog } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { useEffect, useState, type ReactElement } from 'react';
+import { useTaskProgress } from '../../../hooks/useTaskProgress';
 import {
     $duplicateDialog,
     $duplicateItemsCount,
     $duplicateTaskId,
     cancelDuplicateDialog,
-    executeDuplicateDialogAction
+    executeDuplicateDialogAction,
 } from '../../../store/dialogs/duplicateDialog.store';
-import {clearSelection, setActive} from '../../../store/contentTreeSelection.store';
-import {DuplicateDialogMainContent} from './DuplicateDialogMainContent';
-import {DuplicateDialogProgressContent} from './DuplicateDialogProgressContent';
+import { clearSelection, setActive } from '../../../../entities/content';
+import { DuplicateDialogMainContent } from './DuplicateDialogMainContent';
+import { DuplicateDialogProgressContent } from './DuplicateDialogProgressContent';
 
 type View = 'main' | 'progress';
 
 const DUPLICATE_DIALOG_NAME = 'DuplicateDialog';
 
 export const DuplicateDialog = (): ReactElement => {
-    const {open, items} = useStore($duplicateDialog, {keys: ['open', 'items']});
+    const { open, items } = useStore($duplicateDialog, { keys: ['open', 'items'] });
     const total = useStore($duplicateItemsCount);
     const taskId = useStore($duplicateTaskId);
-    const {progress} = useTaskProgress(taskId);
+    const { progress } = useTaskProgress(taskId);
 
     const [view, setView] = useState<View>('main');
 
@@ -57,12 +57,8 @@ export const DuplicateDialog = (): ReactElement => {
         <Dialog.Root open={open} onOpenChange={handleOpenChange}>
             <Dialog.Portal>
                 <Dialog.Overlay />
-                {view === 'main' && (
-                    <DuplicateDialogMainContent onDuplicate={() => void handleDuplicate()} />
-                )}
-                {view === 'progress' && (
-                    <DuplicateDialogProgressContent total={progressTotal} progress={progress} />
-                )}
+                {view === 'main' && <DuplicateDialogMainContent onDuplicate={() => void handleDuplicate()} />}
+                {view === 'progress' && <DuplicateDialogProgressContent total={progressTotal} progress={progress} />}
             </Dialog.Portal>
         </Dialog.Root>
     );

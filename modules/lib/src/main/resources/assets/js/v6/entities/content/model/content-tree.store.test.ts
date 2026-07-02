@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { PublishStatus } from '../../../app/publish/PublishStatus';
-import type { ContentSummary } from '../../../app/content/ContentSummary';
+import { PublishStatus } from '../../../../app/publish/PublishStatus';
+import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import {
     $treeState,
     $flatNodes,
@@ -30,13 +30,17 @@ import {
     nodeHasMoreChildren,
     getTreeDescendantIds,
     type ContentTreeNodeData,
-} from './tree-list.store';
-import { clearAllContentCaches, setContent, setContents } from './content.store';
-import { $activeProject } from './activeProject.store';
-import { addUpload, clearUploads } from './uploads.store';
-import type { Project } from '../../../app/settings/data/project/Project';
-import { emitContentCreated, emitContentDeleted, emitContentArchived } from '../../shared/socket/socket.store';
-import type { ContentServerChangeItem } from '../../../app/event/ContentServerChangeItem';
+} from './content-tree.store';
+import { clearAllContentCaches, setContent, setContents } from './content.commands';
+import { $activeProject } from '../../../features/store/activeProject.store';
+import { addUpload, clearUploads } from '../../../features/store/uploads.store';
+import type { Project } from '../../../../app/settings/data/project/Project';
+import { emitContentCreated, emitContentDeleted, emitContentArchived } from '../../../shared/socket/socket.store';
+import type { ContentServerChangeItem } from '../../../../app/event/ContentServerChangeItem';
+import { connectContentTreeToSocket } from './content-tree.store';
+
+// Attach this store's socket handlers once; in the app content.service does this.
+connectContentTreeToSocket();
 
 // Mock ContentTreeNodeData
 function createNodeData(id: string, displayName?: string): ContentTreeNodeData {

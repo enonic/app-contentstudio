@@ -1,4 +1,4 @@
-import {describe, it, expect, beforeEach, vi} from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
     $isFilterActive,
     $activeFlatNodes,
@@ -6,8 +6,8 @@ import {
     setFilterActive,
     deactivateFilter,
 } from './active-tree.store';
-import {$mergedFlatNodes, $flatNodes, resetTree} from './tree-list.store';
-import {$filterMergedFlatNodes, $filterFlatNodes, resetFilterTree} from './filter-tree.store';
+import { $mergedFlatNodes, $flatNodes, resetTree } from './content-tree.store';
+import { $filterMergedFlatNodes, $filterFlatNodes, resetFilterTree } from './filter-tree.store';
 
 // Mock the filter-tree store's resetFilterTree
 vi.mock('./filter-tree.store', async (importOriginal) => {

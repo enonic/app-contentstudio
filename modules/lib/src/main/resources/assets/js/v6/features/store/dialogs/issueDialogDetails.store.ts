@@ -19,7 +19,7 @@ import { ListIssueCommentsRequest } from '../../../../app/issue/resource/ListIss
 import { UpdateIssueCommentRequest } from '../../../../app/issue/resource/UpdateIssueCommentRequest';
 import { UpdateIssueRequest } from '../../../../app/issue/resource/UpdateIssueRequest';
 import { GetPrincipalsByKeysRequest } from '../../../../app/security/GetPrincipalsByKeysRequest';
-import { fetchContentSummaries } from '../../api/content';
+import { fetchContentSummaries } from '../../../entities/content';
 import { resolvePublishDependencies } from '../../api/publish';
 import {
     DEPENDANT_LOAD_SIZE,

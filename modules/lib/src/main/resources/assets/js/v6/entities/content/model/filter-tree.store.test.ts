@@ -1,7 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import type { MovedContentItem } from '../../../app/browse/MovedContentItem';
-import { emitContentMoved } from '../../shared/socket/socket.store';
+import type { MovedContentItem } from '../../../../app/browse/MovedContentItem';
+import { emitContentMoved } from '../../../shared/socket/socket.store';
 import { $filterRefreshNeeded, clearFilterRefreshNeeded } from './filter-tree.store';
+import { connectFilterTreeToSocket } from './filter-tree.store';
+
+// Attach this store's socket handlers once; in the app content.service does this.
+connectFilterTreeToSocket();
 
 // Builds a MovedContentItem-like object whose new path (from the summary) and old
 // path expose the parent paths the $contentMoved guard compares.

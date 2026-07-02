@@ -1,10 +1,10 @@
-import {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {Expand} from '@enonic/lib-admin-ui/rest/Expand';
-import {beforeEach, describe, expect, it, vi} from 'vitest';
-import type {Content} from '../../../../../../app/content/Content';
-import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
-import {TAG_SITE_PATH, type TagConfig} from './TagConfig';
+import { PropertyPath } from '@enonic/lib-admin-ui/data/PropertyPath';
+import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { Expand } from '@enonic/lib-admin-ui/rest/Expand';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Content } from '../../../../../../app/content/Content';
+import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
+import { TAG_SITE_PATH, type TagConfig } from './TagConfig';
 
 const mocks = vi.hoisted(() => ({
     fetchNearestSite: vi.fn(),
@@ -12,7 +12,7 @@ const mocks = vi.hoisted(() => ({
     nextContents: [] as Content[],
 }));
 
-vi.mock('../../../../api/content', () => ({
+vi.mock('../../../../../entities/content/api/content.api', () => ({
     fetchNearestSite: mocks.fetchNearestSite,
 }));
 
@@ -33,7 +33,7 @@ vi.mock('../../../../../../app/resource/ContentSelectorQueryRequest', () => ({
     }),
 }));
 
-import {buildTagQueryField, suggestContentTags} from './ContentTagSuggester';
+import { buildTagQueryField, suggestContentTags } from './ContentTagSuggester';
 
 function resultOk<T>(value: T) {
     return {
@@ -54,7 +54,7 @@ function makeConfig(overrides: Partial<TagConfig> = {}): TagConfig {
 
 function makeContextContent(): ContentSummary {
     return {
-        getContentId: () => ({toString: () => 'content-id'}),
+        getContentId: () => ({ toString: () => 'content-id' }),
     } as unknown as ContentSummary;
 }
 
@@ -103,7 +103,7 @@ describe('ContentTagSuggester', () => {
             query: 'al',
             dataPath: PropertyPath.fromString('.tags'),
             content: makeContextContent(),
-            config: makeConfig({allowPath: [TAG_SITE_PATH], allowPathConfigured: false}),
+            config: makeConfig({ allowPath: [TAG_SITE_PATH], allowPathConfigured: false }),
         });
 
         expect(result).toEqual([]);
@@ -119,7 +119,7 @@ describe('ContentTagSuggester', () => {
             query: 'al',
             dataPath: PropertyPath.fromString('.tags'),
             content,
-            config: makeConfig({allowPath: [TAG_SITE_PATH], allowPathConfigured: true}),
+            config: makeConfig({ allowPath: [TAG_SITE_PATH], allowPathConfigured: true }),
         });
 
         const request = mocks.requestInstances[0];
@@ -138,7 +138,7 @@ describe('ContentTagSuggester', () => {
             query: 'al',
             dataPath: PropertyPath.fromString('.tags'),
             content: makeContextContent(),
-            config: makeConfig({allowPath: ['/site-a/*', '/site-b/*'], allowPathConfigured: true}),
+            config: makeConfig({ allowPath: ['/site-a/*', '/site-b/*'], allowPathConfigured: true }),
         });
 
         expect(mocks.requestInstances[0].setAllowedContentPaths).toHaveBeenCalledWith(['/site-a/*', '/site-b/*']);

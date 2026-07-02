@@ -1,15 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import type { ContentSummary } from '../../../app/content/ContentSummary';
-import {
-    clearAllContentCaches,
-    clearProjectContentCache,
-    getContent,
-    hasContent,
-    setContent,
-    getMissingIds,
-} from '../store/content.store';
-import { $activeProject } from '../store/activeProject.store';
-import type { Project } from '../../../app/settings/data/project/Project';
+import type { ContentSummary } from '../../../../app/content/ContentSummary';
+import { getContent, hasContent, getMissingIds } from '../model/content.store';
+import { clearAllContentCaches, clearProjectContentCache, setContent } from '../model/content.commands';
+import { $activeProject } from '../../../features/store/activeProject.store';
+import type { Project } from '../../../../app/settings/data/project/Project';
 import {
     addTreeNodes,
     hasTreeNode,
@@ -17,9 +11,10 @@ import {
     setTreeChildren,
     setTreeRootIds,
     $treeState,
-} from '../store/tree-list.store';
-import { emitContentSorted } from '../../shared/socket/socket.store';
-import { addFilterNodes, resetFilterTree, setFilterRootIds, $filterTreeState } from '../store/filter-tree.store';
+} from '../model/content-tree.store';
+import { emitContentSorted } from '../../../shared/socket/socket.store';
+import { start as startContentService } from '../model/content.service';
+import { addFilterNodes, resetFilterTree, setFilterRootIds, $filterTreeState } from '../model/filter-tree.store';
 import {
     clearChildrenIdsRetryCooldown,
     clearFilterChildrenIdsRetryCooldown,
@@ -47,7 +42,7 @@ const { mockFetchByIds, mockUpdateReadOnly, mockFetchChildrenIds } = vi.hoisted(
     mockFetchChildrenIds: vi.fn(),
 }));
 
-vi.mock('../../../app/resource/ContentSummaryAndCompareStatusFetcher', () => ({
+vi.mock('../../../../app/resource/ContentSummaryAndCompareStatusFetcher', () => ({
     ContentSummaryAndCompareStatusFetcher: class {
         fetchByIds = mockFetchByIds;
         updateReadOnly = mockUpdateReadOnly;
@@ -56,15 +51,15 @@ vi.mock('../../../app/resource/ContentSummaryAndCompareStatusFetcher', () => ({
     },
 }));
 
-vi.mock('../../shared/lib/cms/content/workflow', () => ({
+vi.mock('../../../shared/lib/cms/content/workflow', () => ({
     calcContentState: vi.fn(() => null),
 }));
 
-vi.mock('../../shared/lib/cms/content/status', () => ({
+vi.mock('../../../shared/lib/cms/content/status', () => ({
     calcTreePublishStatus: vi.fn(() => null),
 }));
 
-vi.mock('../../shared/lib/cms/content/prettify', () => ({
+vi.mock('../../../shared/lib/cms/content/prettify', () => ({
     resolveDisplayName: vi.fn((content) => content?.getDisplayName?.() ?? ''),
     resolveSubName: vi.fn((content) => content?.getName?.() ?? ''),
 }));
@@ -94,6 +89,7 @@ function createMockContent(id: string, displayName?: string): ContentSummary {
 
 describe('content-fetcher store integration', () => {
     beforeEach(() => {
+        startContentService();
         $activeProject.set({ getName: () => 'default' } as unknown as Project);
         resetTree();
         resetFilterTree();

@@ -41,8 +41,12 @@ vi.mock('../../../app/resource/ContentSummaryAndCompareStatusFetcher', () => ({
     },
 }));
 
-vi.mock('../store/content.store', () => ({
+vi.mock('../../entities/content/model/content.commands', () => ({
+    setContent: vi.fn(),
     setContents: vi.fn(),
+    removeContent: vi.fn(),
+    clearProjectContentCache: vi.fn(),
+    clearAllContentCaches: vi.fn(),
 }));
 
 vi.mock('../../shared/lib/cms/content/applyContentFilters', () => ({

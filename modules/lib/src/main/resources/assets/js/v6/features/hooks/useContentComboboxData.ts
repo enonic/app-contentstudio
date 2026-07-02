@@ -12,7 +12,7 @@ import { ContentTreeSelectorQueryRequest } from '../../../app/resource/ContentTr
 import { type ChildOrder } from '../../../app/resource/order/ChildOrder';
 import type { CreateNodeOptions, FlatNode, UseTreeStoreReturn } from '../../shared/lib/tree-store';
 import { getLoadingNodeParentId, LOADING_NODE_PREFIX, useTreeStore } from '../../shared/lib/tree-store';
-import { getContent, setContents } from '../store/content.store';
+import { getContent, setContents } from '../../entities/content';
 import {
     $contentArchived,
     $contentCreated,

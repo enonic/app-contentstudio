@@ -4,7 +4,7 @@ import { type Content } from '../../content/Content';
 import { type ContentSummaryAndCompareStatus } from '../../content/ContentSummaryAndCompareStatus';
 import { Permission } from '../../access/Permission';
 import { PublishStatus } from '../../publish/PublishStatus';
-import { type CompareResult } from '../../../v6/features/api/compare';
+import type { CompareResult } from '../../../v6/entities/content';
 import { calcTreePublishStatus, calcSecondaryStatus, isPublished } from '../../../v6/shared/lib/cms/content/status';
 import {
     $wizardContentPathExists,

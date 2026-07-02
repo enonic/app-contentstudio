@@ -5,7 +5,7 @@ import {
     $contentUnpublished,
     $contentPermissionsUpdated,
 } from '../../shared/socket/socket.store';
-import { $currentIds } from './contentTreeSelection.store';
+import { $currentIds } from '../../entities/content';
 
 //
 // * Actions Refresh Signal

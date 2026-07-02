@@ -1,6 +1,6 @@
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { NotifyManager } from '@enonic/lib-admin-ui/notify/NotifyManager';
-import { fetchVersion, revert } from '../../../../../api/versions';
+import { fetchVersion, revert } from '../../../../../../entities/content';
 import {
     $versionsCacheInvalidated,
     registerCacheInvalidationHandlers,

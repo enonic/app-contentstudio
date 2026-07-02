@@ -25,7 +25,7 @@ import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { type ValidityChangedEvent } from '@enonic/lib-admin-ui/ValidityChangedEvent';
 import Q from 'q';
 import { LiveEditModel } from '../../page-editor/LiveEditModel';
-import { compareContent } from '../../v6/features/api/compare';
+import { compareContent } from '../../v6/entities/content';
 import { LayoutTokens } from '../../v6/shared/ui/layout.tokens';
 import { cleanupWizardMixinsService, initWizardMixinsService } from '../../v6/features/services/wizardMixins.service';
 import {

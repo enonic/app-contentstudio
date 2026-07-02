@@ -1,9 +1,9 @@
-import type { FlatNode } from '../../../shared/lib/tree-store';
-import type { ContentSummary } from '../../../../app/content/ContentSummary';
+import type { FlatNode } from '../../../../shared/lib/tree-store';
+import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 import type { ContentTreeNodeData } from './types';
-import type { ContentData } from '../../views/browse/grid/ContentData';
-import { calcContentState } from '../../../shared/lib/cms/content/workflow';
-import { calcTreePublishStatus } from '../../../shared/lib/cms/content/status';
+import type { ContentData } from '../ContentData';
+import { calcContentState } from '../../../../shared/lib/cms/content/workflow';
+import { calcTreePublishStatus } from '../../../../shared/lib/cms/content/status';
 import { getIdByPath } from '../content.store';
 
 /**
