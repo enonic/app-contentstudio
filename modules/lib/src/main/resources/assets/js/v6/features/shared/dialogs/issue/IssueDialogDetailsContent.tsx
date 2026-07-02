@@ -59,7 +59,7 @@ import {
     publishItems,
     syncPublishDialogContext,
 } from '../../../store/dialogs/publishDialog.store';
-import { useItemsWithUnpublishedChildren } from '../../../utils/cms/content/useItemsWithUnpublishedChildren';
+import { useItemsWithUnpublishedChildren } from '../../../../entities/content';
 import { createDebounce } from '../../../../shared/lib/timing/createDebounce';
 import { ContentRow, SplitList } from '../../lists';
 import { EditableText } from '../../../../shared/ui/primitives/EditableText';

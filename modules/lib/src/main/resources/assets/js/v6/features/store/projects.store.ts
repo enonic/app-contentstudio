@@ -7,10 +7,13 @@ import { ProjectDeletedEvent } from '../../../app/settings/event/ProjectDeletedE
 import { syncAtomStore } from '../../shared/lib/storage/sync';
 import { defineEvent } from '../../shared/lib/dom/events/definedEvent';
 import { setProjectSelectionDialogOpen } from './dialogs.store';
-import { resetTree } from './tree-list.store';
-import { clearSelection, setActive } from './contentTreeSelection.store';
+// ! Deep imports on purpose: this store sits below entities/content in the
+// import graph (content.store reads the active project), and pulling the
+// slice barrel here creates a module cycle.
+import { resetTree } from '../../entities/content/model/content-tree.store';
+import { clearSelection, setActive } from '../../entities/content/model/content-selection.store';
+import { deactivateFilter } from '../../entities/content/api/content-fetcher';
 import { setContentFilterOpen, resetContentFilter } from './contentFilter.store';
-import { deactivateFilter } from '../api/content-fetcher';
 import { clearVersionsCache } from '../../shared/lib/widget/versions/versionsCache';
 import {
     resolveActiveProjectId,

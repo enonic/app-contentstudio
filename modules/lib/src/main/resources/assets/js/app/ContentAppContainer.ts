@@ -1,30 +1,28 @@
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {type Path} from '@enonic/lib-admin-ui/rest/Path';
-import {Store} from '@enonic/lib-admin-ui/store/Store';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {onNoProjectsAvailable} from '../v6/features/store/projects.store';
-import {$rootLoadingState} from '../v6/features/store/tree-list.store';
-import {BrowseAppBarElement} from '../v6/features/views/browse/layout/BrowseAppBar';
-import {AppContainer} from './AppContainer';
-import {ToggleSearchPanelWithDependenciesEvent} from './browse/ToggleSearchPanelWithDependenciesEvent';
-import {ToggleSearchPanelWithDependenciesGlobalEvent} from './browse/ToggleSearchPanelWithDependenciesGlobalEvent';
-import {ContentId} from './content/ContentId';
-import {type ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
-import {ContentAppPanel} from './ContentAppPanel';
-import {type Issue} from './issue/Issue';
-import {IssueDialogsManager} from './issue/IssueDialogsManager';
-import {GetIssueRequest} from './issue/resource/GetIssueRequest';
-import {ContentSummaryAndCompareStatusFetcher} from './resource/ContentSummaryAndCompareStatusFetcher';
-import {ResolveDependenciesRequest} from './resource/ResolveDependenciesRequest';
-import {type ResolveDependenciesResult} from './resource/ResolveDependenciesResult';
-import {type ResolveDependencyResult} from './resource/ResolveDependencyResult';
-import {UrlAction} from './UrlAction';
-import {Branch} from './versioning/Branch';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { type Path } from '@enonic/lib-admin-ui/rest/Path';
+import { Store } from '@enonic/lib-admin-ui/store/Store';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { onNoProjectsAvailable } from '../v6/features/store/projects.store';
+import { $rootLoadingState } from '../v6/entities/content';
+import { BrowseAppBarElement } from '../v6/features/views/browse/layout/BrowseAppBar';
+import { AppContainer } from './AppContainer';
+import { ToggleSearchPanelWithDependenciesEvent } from './browse/ToggleSearchPanelWithDependenciesEvent';
+import { ToggleSearchPanelWithDependenciesGlobalEvent } from './browse/ToggleSearchPanelWithDependenciesGlobalEvent';
+import { ContentId } from './content/ContentId';
+import { type ContentSummaryAndCompareStatus } from './content/ContentSummaryAndCompareStatus';
+import { ContentAppPanel } from './ContentAppPanel';
+import { type Issue } from './issue/Issue';
+import { IssueDialogsManager } from './issue/IssueDialogsManager';
+import { GetIssueRequest } from './issue/resource/GetIssueRequest';
+import { ContentSummaryAndCompareStatusFetcher } from './resource/ContentSummaryAndCompareStatusFetcher';
+import { ResolveDependenciesRequest } from './resource/ResolveDependenciesRequest';
+import { type ResolveDependenciesResult } from './resource/ResolveDependenciesResult';
+import { type ResolveDependencyResult } from './resource/ResolveDependencyResult';
+import { UrlAction } from './UrlAction';
+import { Branch } from './versioning/Branch';
 
-export class ContentAppContainer
-    extends AppContainer {
-
+export class ContentAppContainer extends AppContainer {
     private resolveDependenciesRequest: ResolveDependenciesRequest;
     private issueRequest: GetIssueRequest;
 
@@ -42,7 +40,7 @@ export class ContentAppContainer
         this.initSearchPanelListener(this.appPanel as ContentAppPanel);
 
         onNoProjectsAvailable(() => {
-           this.handleNoProjectsAvailable();
+            this.handleNoProjectsAvailable();
         });
 
         this.onShown(() => {
@@ -56,7 +54,7 @@ export class ContentAppContainer
 
     private initSearchPanelListener(panel: ContentAppPanel) {
         ToggleSearchPanelWithDependenciesGlobalEvent.on((event) => {
-            new ToggleSearchPanelWithDependenciesEvent({item: event.getContent(), inbound: event.isInbound()}).fire();
+            new ToggleSearchPanelWithDependenciesEvent({ item: event.getContent(), inbound: event.isInbound() }).fire();
         });
     }
 
@@ -66,15 +64,15 @@ export class ContentAppContainer
         const id = path ? path.getElement(2) : null;
 
         switch (actionAsTabMode) {
-        case UrlAction.ISSUE:
-            this.handleIssueUrl(path);
-            break;
-        case UrlAction.INBOUND:
-            this.handleInboundDependencies(path);
-            break;
-        case UrlAction.OUTBOUND:
-            this.handleOutboundDependencies(path);
-            break;
+            case UrlAction.ISSUE:
+                this.handleIssueUrl(path);
+                break;
+            case UrlAction.INBOUND:
+                this.handleInboundDependencies(path);
+                break;
+            case UrlAction.OUTBOUND:
+                this.handleOutboundDependencies(path);
+                break;
         }
     }
 
@@ -86,11 +84,10 @@ export class ContentAppContainer
                 return;
             }
             this.issueRequest = new GetIssueRequest(id);
-            this.issueRequest.sendAndParse().then(
-                (issue: Issue) => {
-                    IssueDialogsManager.get().openDetailsDialogWithListDialog(issue);
-                    this.issueRequest = null;
-                });
+            this.issueRequest.sendAndParse().then((issue: Issue) => {
+                IssueDialogsManager.get().openDetailsDialogWithListDialog(issue);
+                this.issueRequest = null;
+            });
         }
     }
 
@@ -124,33 +121,35 @@ export class ContentAppContainer
 
         this.resolveDependenciesRequest = new ResolveDependenciesRequest([contentId]).setTarget(target);
 
-        this.resolveDependenciesRequest.sendAndParse().then((result: ResolveDependenciesResult) => {
-            const dependencyEntry: ResolveDependencyResult = result.getDependencies()[0];
+        this.resolveDependenciesRequest
+            .sendAndParse()
+            .then((result: ResolveDependenciesResult) => {
+                const dependencyEntry: ResolveDependencyResult = result.getDependencies()[0];
 
-            const hasDependencies: boolean = inbound
-                                             ? dependencyEntry.getDependency().inbound.length > 0
-                                             : dependencyEntry.getDependency().outbound.length > 0;
+                const hasDependencies: boolean = inbound
+                    ? dependencyEntry.getDependency().inbound.length > 0
+                    : dependencyEntry.getDependency().outbound.length > 0;
 
-            if (hasDependencies) {
-                this.toggleSearchPanelWithDependencies(id, inbound, target, type);
-            } else {
-                showFeedback(i18n('notify.dependencies.absent', id));
-            }
-        })
-        .catch(reason => DefaultErrorHandler.handle(reason))
-        .finally(() => this.resolveDependenciesRequest = null);
+                if (hasDependencies) {
+                    this.toggleSearchPanelWithDependencies(id, inbound, target, type);
+                } else {
+                    showFeedback(i18n('notify.dependencies.absent', id));
+                }
+            })
+            .catch((reason) => DefaultErrorHandler.handle(reason))
+            .finally(() => (this.resolveDependenciesRequest = null));
     }
 
     private toggleSearchPanelWithDependencies(id: string, inbound: boolean, target: Branch, type?: string) {
-        new ContentSummaryAndCompareStatusFetcher().fetch(new ContentId(id)).done(
-            (content: ContentSummaryAndCompareStatus) => {
+        new ContentSummaryAndCompareStatusFetcher()
+            .fetch(new ContentId(id))
+            .done((content: ContentSummaryAndCompareStatus) => {
                 new ToggleSearchPanelWithDependenciesEvent({
                     item: content.getContentSummary(),
                     inbound: inbound,
                     branch: target,
-                    type: type
+                    type: type,
                 }).fire();
             });
     }
-
 }

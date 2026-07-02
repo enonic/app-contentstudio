@@ -4,7 +4,7 @@ import { DiffPatcher } from 'jsondiffpatch';
 import { format, showUnchanged } from 'jsondiffpatch/formatters/html';
 import { ReactElement, useCallback, useEffect, useId, useMemo } from 'react';
 import { ContentVersion } from '../../../../../../../app/ContentVersion';
-import { fetchVersion as defaultFetchVersion } from '../../../../../api/versions';
+import { fetchVersion as defaultFetchVersion } from '../../../../../../entities/content';
 import { getVersionOperationTime } from '../../../../../store/context/versionOperations';
 import { useI18n } from '../../../../../../shared/lib/hooks/useI18n';
 import { $compareVersionsDialog, closeCompareVersionsDialog, setCompareVersionsShowAll } from './store';

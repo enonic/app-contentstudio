@@ -3,11 +3,13 @@ import { Checkbox, type CheckboxChecked, IconButton } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { RefreshCcw } from 'lucide-react';
 import { type ReactElement, useMemo } from 'react';
-import { activateFilter, fetchRootChildrenIdsOnly, getFilterQuery } from '../../../api/content-fetcher';
-import { useI18n } from '../../../../shared/lib/hooks/useI18n';
-import { $activeRawFlatNodes, $isFilterActive } from '../../../store/active-tree.store';
-import { clearProjectContentCache } from '../../../store/content.store';
 import {
+    activateFilter,
+    fetchRootChildrenIdsOnly,
+    getFilterQuery,
+    $activeRawFlatNodes,
+    $isFilterActive,
+    clearProjectContentCache,
     $activeId,
     $isAllLoadedSelected,
     $isNoneSelected,
@@ -15,8 +17,10 @@ import {
     clearSelection,
     selectAll,
     setActive,
-} from '../../../store/contentTreeSelection.store';
-import { $rootLoadingState, resetTree } from '../../../store/tree-list.store';
+    $rootLoadingState,
+    resetTree,
+} from '../../../../entities/content';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 
 type TreeListToolbarProps = {
     enabled?: boolean;

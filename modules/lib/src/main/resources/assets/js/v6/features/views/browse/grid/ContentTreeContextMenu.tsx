@@ -3,7 +3,7 @@ import { ContextMenu } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { type ReactElement, type ReactNode } from 'react';
 import { useAction } from '../../../../shared/lib/hooks/useAction';
-import { $currentItems } from '../../../store/contentTreeSelection.store';
+import { $currentItems } from '../../../../entities/content';
 
 export type ContentTreeContextMenuProps = {
     actions: Record<string, Action>;

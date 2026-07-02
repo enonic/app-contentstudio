@@ -22,7 +22,7 @@ import {
     submitNewIssueDialog,
     toggleNewIssueDependantsSelection,
 } from '../../../store/dialogs/newIssueDialog.store';
-import { useItemsWithUnpublishedChildren } from '../../../utils/cms/content/useItemsWithUnpublishedChildren';
+import { useItemsWithUnpublishedChildren } from '../../../../entities/content';
 import { ContentRow, SplitList } from '../../lists';
 import { AssigneeSelector } from '../../selectors/assignee/AssigneeSelector';
 import { useAssigneeSearch, useAssigneeSelection } from '../../selectors/assignee/hooks/useAssigneeSearch';

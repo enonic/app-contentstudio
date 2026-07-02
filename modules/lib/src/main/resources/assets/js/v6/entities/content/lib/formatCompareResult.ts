@@ -1,4 +1,4 @@
-import type {CompareResult} from '../../../api/compare';
+import type { CompareResult } from '../api/compare.api';
 
 export function formatCompareResult(
     result: CompareResult,
@@ -8,7 +8,7 @@ export function formatCompareResult(
     if (result.diff.length === 0) return undefined;
 
     const isMoved = result.diff.includes('path');
-    const isModified = result.diff.some(field => field !== 'path');
+    const isModified = result.diff.some((field) => field !== 'path');
 
     if (isMoved && isModified) {
         return `${movedLabel}, ${modifiedLabel}`;

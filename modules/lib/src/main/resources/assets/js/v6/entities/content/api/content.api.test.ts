@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import type { ContentId } from '../../../app/content/ContentId';
-import { AppError } from '../../shared/api/errors';
-import { fetchContentById, fetchNearestSite } from './content';
+import type { ContentId } from '../../../../app/content/ContentId';
+import { AppError } from '../../../shared/api/errors';
+import { fetchContentById, fetchNearestSite } from './content.api';
 
 const { mockParseContent } = vi.hoisted(() => ({
     mockParseContent: vi.fn((json: { id: string }) => ({ parsedId: json.id })),
 }));
 
-vi.mock('./details', () => ({
+vi.mock('../lib/parseContent', () => ({
     parseContent: mockParseContent,
 }));
 

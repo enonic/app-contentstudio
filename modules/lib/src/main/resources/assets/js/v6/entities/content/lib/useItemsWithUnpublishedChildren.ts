@@ -1,6 +1,6 @@
-import {useEffect, useMemo, useRef, useState} from 'react';
-import type {ContentId} from '../../../../../app/content/ContentId';
-import {hasUnpublishedChildren} from '../../../api/hasUnpublishedChildren';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { ContentId } from '../../../../app/content/ContentId';
+import { hasUnpublishedChildren } from '../api/hasUnpublishedChildren.api';
 
 type ItemWithChildren = {
     getContentId(): ContentId;
@@ -13,10 +13,7 @@ export const useItemsWithUnpublishedChildren = <T extends ItemWithChildren>(
     const [itemsWithUnpublishedChildren, setItemsWithUnpublishedChildren] = useState<Set<string> | null>(null);
     const requestIdRef = useRef(0);
 
-    const itemsWithChildren = useMemo(
-        () => items.filter(item => item.hasChildren()),
-        [items],
-    );
+    const itemsWithChildren = useMemo(() => items.filter((item) => item.hasChildren()), [items]);
 
     useEffect(() => {
         const requestId = ++requestIdRef.current;
@@ -28,7 +25,7 @@ export const useItemsWithUnpublishedChildren = <T extends ItemWithChildren>(
 
         setItemsWithUnpublishedChildren(null);
 
-        hasUnpublishedChildren(itemsWithChildren.map(item => item.getContentId()))
+        hasUnpublishedChildren(itemsWithChildren.map((item) => item.getContentId()))
             .then((result) => {
                 if (requestId !== requestIdRef.current) {
                     return;

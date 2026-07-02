@@ -1,13 +1,11 @@
-import {showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {getCurrentItemsAsCSCS} from '../../../v6/features/store/contentTreeSelection.store';
-import {EditContentEvent} from '../../event/EditContentEvent';
-import {ContentTreeGridAction} from './ContentTreeGridAction';
-import {type ContentTreeGridItemsState} from './ContentTreeGridItemsState';
+import { showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { getCurrentItemsAsCSCS } from '../../../v6/entities/content';
+import { EditContentEvent } from '../../event/EditContentEvent';
+import { ContentTreeGridAction } from './ContentTreeGridAction';
+import { type ContentTreeGridItemsState } from './ContentTreeGridItemsState';
 
-export class EditContentAction
-    extends ContentTreeGridAction {
-
+export class EditContentAction extends ContentTreeGridAction {
     private static MAX_ITEMS_TO_EDIT: number = 50;
 
     constructor() {

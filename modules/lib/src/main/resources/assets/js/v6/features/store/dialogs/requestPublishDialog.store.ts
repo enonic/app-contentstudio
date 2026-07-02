@@ -7,7 +7,7 @@ import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { IssueType } from '../../../../app/issue/IssueType';
 import { PublishRequest } from '../../../../app/issue/PublishRequest';
 import { CreateIssueRequest } from '../../../../app/issue/resource/CreateIssueRequest';
-import { fetchContentSummaries } from '../../api/content';
+import { fetchContentSummaries } from '../../../entities/content';
 import { markAsReady, resolvePublishDependencies } from '../../api/publish';
 import { buildItems, dedupeItems, getItemIds } from '../../../shared/lib/cms/content/buildItems';
 import {

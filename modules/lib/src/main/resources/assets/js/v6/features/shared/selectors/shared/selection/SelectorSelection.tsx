@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState, type ReactElement } from 'rea
 import type { MovedContentItem } from '../../../../../../app/browse/MovedContentItem';
 import { ContentSummary, ContentSummaryBuilder } from '../../../../../../app/content/ContentSummary';
 import type { ContentServerChangeItem } from '../../../../../../app/event/ContentServerChangeItem';
-import { fetchContentByIds } from '../../../../api/content-fetcher';
+import { fetchContentByIds } from '../../../../../entities/content';
 import {
     $contentArchived,
     $contentDeleted,

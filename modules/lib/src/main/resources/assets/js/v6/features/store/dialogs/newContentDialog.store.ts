@@ -10,7 +10,7 @@ import {
     type ContentTypeAggregation,
 } from '../../../../app/resource/AggregateContentTypesResult';
 import { ContentTypesHelper } from '../../../../app/util/ContentTypesHelper';
-import { reloadParentChildren } from '../../api/content-fetcher';
+import { reloadParentChildren, expandNode, hasTreeNode, isNodeExpanded } from '../../../entities/content';
 import {
     type UploadDataUrlImageOptions,
     type UploadMediaError,
@@ -20,7 +20,6 @@ import {
 } from '../../api/uploadMedia';
 import { generateUniqueName } from '../../../shared/lib/image/generateUniqueName';
 import { $activeProject } from '../activeProject.store';
-import { expandNode, hasTreeNode, isNodeExpanded } from '../tree-list.store';
 import { addUpload, removeUpload, updateUploadProgress } from '../uploads.store';
 
 type UploadOptions = {

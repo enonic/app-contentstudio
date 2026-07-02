@@ -1,11 +1,11 @@
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {beforeEach, describe, expect, it} from 'vitest';
-import type {ContentSummary} from '../../../app/content/ContentSummary';
-import {PublishStatus} from '../../../app/publish/PublishStatus';
-import {setFilterActive} from './active-tree.store';
-import {$activeProject} from './activeProject.store';
-import {clearAllContentCaches, setContent} from './content.store';
-import type {Project} from '../../../app/settings/data/project/Project';
+import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { beforeEach, describe, expect, it } from 'vitest';
+import type { ContentSummary } from '../../../../app/content/ContentSummary';
+import { PublishStatus } from '../../../../app/publish/PublishStatus';
+import { setFilterActive } from './active-tree.store';
+import { $activeProject } from '../../../features/store/activeProject.store';
+import { clearAllContentCaches, setContent } from './content.commands';
+import type { Project } from '../../../../app/settings/data/project/Project';
 import {
     $activeId,
     $currentIds,
@@ -28,10 +28,10 @@ import {
     setActive,
     setSelection,
     toggleSelection,
-} from './contentTreeSelection.store';
-import {addFilterNodes, resetFilterTree, setFilterRootIds} from './filter-tree.store';
-import {addTreeNodes, collapseNode, expandNode, resetTree, setTreeRootIds} from './tree-list.store';
-import type {ContentTreeNodeData} from './tree/types';
+} from './content-selection.store';
+import { addFilterNodes, resetFilterTree, setFilterRootIds } from './filter-tree.store';
+import { addTreeNodes, collapseNode, expandNode, resetTree, setTreeRootIds } from './content-tree.store';
+import type { ContentTreeNodeData } from './tree/types';
 
 // Mock tree node data - minimal valid structure for testing
 function createMockNodeData(id: string): ContentTreeNodeData {
@@ -57,7 +57,7 @@ function createMockContent(id: string, name?: string): ContentSummary {
 describe('contentTreeSelection.store', () => {
     beforeEach(() => {
         // Reset all state
-        $activeProject.set({getName: () => 'default'} as unknown as Project);
+        $activeProject.set({ getName: () => 'default' } as unknown as Project);
         $selection.set(new Set());
         $activeId.set(null);
         $selectAllMode.set(false);
@@ -251,9 +251,9 @@ describe('contentTreeSelection.store', () => {
         beforeEach(() => {
             // Add some nodes to tree
             addTreeNodes([
-                {id: '1', data: createMockNodeData('1')},
-                {id: '2', data: createMockNodeData('2')},
-                {id: '3', data: createMockNodeData('3')},
+                { id: '1', data: createMockNodeData('1') },
+                { id: '2', data: createMockNodeData('2') },
+                { id: '3', data: createMockNodeData('3') },
             ]);
             setTreeRootIds(['1', '2', '3']);
         });
@@ -378,9 +378,9 @@ describe('contentTreeSelection.store', () => {
         beforeEach(() => {
             // Set up tree with nodes
             addTreeNodes([
-                {id: '1', data: createMockNodeData('1')},
-                {id: '2', data: createMockNodeData('2')},
-                {id: '3', data: null}, // Placeholder node
+                { id: '1', data: createMockNodeData('1') },
+                { id: '2', data: createMockNodeData('2') },
+                { id: '3', data: null }, // Placeholder node
             ]);
             setTreeRootIds(['1', '2', '3']);
         });
@@ -403,9 +403,9 @@ describe('contentTreeSelection.store', () => {
     describe('$loadedSelectionCount', () => {
         beforeEach(() => {
             addTreeNodes([
-                {id: '1', data: createMockNodeData('1')},
-                {id: '2', data: createMockNodeData('2')},
-                {id: '3', data: null}, // Placeholder
+                { id: '1', data: createMockNodeData('1') },
+                { id: '2', data: createMockNodeData('2') },
+                { id: '3', data: null }, // Placeholder
             ]);
             setTreeRootIds(['1', '2', '3']);
         });
@@ -420,9 +420,9 @@ describe('contentTreeSelection.store', () => {
     describe('$isAllLoadedSelected', () => {
         beforeEach(() => {
             addTreeNodes([
-                {id: '1', data: createMockNodeData('1')},
-                {id: '2', data: createMockNodeData('2')},
-                {id: '3', data: null}, // Placeholder
+                { id: '1', data: createMockNodeData('1') },
+                { id: '2', data: createMockNodeData('2') },
+                { id: '3', data: null }, // Placeholder
             ]);
             setTreeRootIds(['1', '2', '3']);
         });
@@ -483,7 +483,7 @@ describe('contentTreeSelection.store', () => {
             $selection.set(new Set());
 
             // Add new node to tree
-            addTreeNodes([{id: '1', data: createMockNodeData('1')}]);
+            addTreeNodes([{ id: '1', data: createMockNodeData('1') }]);
             setTreeRootIds(['1']);
 
             // Node should be auto-selected
@@ -493,7 +493,7 @@ describe('contentTreeSelection.store', () => {
         it('does not auto-select when selectAllMode is off', () => {
             $selectAllMode.set(false);
 
-            addTreeNodes([{id: '1', data: createMockNodeData('1')}]);
+            addTreeNodes([{ id: '1', data: createMockNodeData('1') }]);
             setTreeRootIds(['1']);
 
             expect($selection.get().has('1')).toBe(false);
@@ -502,7 +502,7 @@ describe('contentTreeSelection.store', () => {
         it('does not auto-select placeholder nodes', () => {
             $selectAllMode.set(true);
 
-            addTreeNodes([{id: '1', data: null}]); // Placeholder
+            addTreeNodes([{ id: '1', data: null }]); // Placeholder
             setTreeRootIds(['1']);
 
             expect($selection.get().has('1')).toBe(false);
@@ -511,9 +511,9 @@ describe('contentTreeSelection.store', () => {
         it('removes hidden nodes from selection when collapsing in selectAllMode', () => {
             // Setup: Add nodes with parent-child relationship
             addTreeNodes([
-                {id: '1', data: createMockNodeData('1'), childIds: ['1-1', '1-2']},
-                {id: '1-1', data: createMockNodeData('1-1'), parentId: '1'},
-                {id: '1-2', data: createMockNodeData('1-2'), parentId: '1'},
+                { id: '1', data: createMockNodeData('1'), childIds: ['1-1', '1-2'] },
+                { id: '1-1', data: createMockNodeData('1-1'), parentId: '1' },
+                { id: '1-2', data: createMockNodeData('1-2'), parentId: '1' },
             ]);
             setTreeRootIds(['1']);
             expandNode('1'); // Expand to show children
@@ -538,8 +538,8 @@ describe('contentTreeSelection.store', () => {
         it('re-selects children when expanding after collapse in selectAllMode', () => {
             // Setup: Add nodes with parent-child relationship
             addTreeNodes([
-                {id: '1', data: createMockNodeData('1'), childIds: ['1-1']},
-                {id: '1-1', data: createMockNodeData('1-1'), parentId: '1'},
+                { id: '1', data: createMockNodeData('1'), childIds: ['1-1'] },
+                { id: '1-1', data: createMockNodeData('1-1'), parentId: '1' },
             ]);
             setTreeRootIds(['1']);
             expandNode('1');
@@ -563,8 +563,8 @@ describe('contentTreeSelection.store', () => {
         it('maintains selection through multiple collapse-expand cycles', () => {
             // Setup: Add parent with child
             addTreeNodes([
-                {id: '1', data: createMockNodeData('1'), childIds: ['1-1']},
-                {id: '1-1', data: createMockNodeData('1-1'), parentId: '1'},
+                { id: '1', data: createMockNodeData('1'), childIds: ['1-1'] },
+                { id: '1-1', data: createMockNodeData('1-1'), parentId: '1' },
             ]);
             setTreeRootIds(['1']);
             expandNode('1');
@@ -592,9 +592,9 @@ describe('contentTreeSelection.store', () => {
 
         it('does not affect selection when collapsing parent of selected child', () => {
             addTreeNodes([
-                {id: '1', data: createMockNodeData('1'), childIds: ['1-1', '1-2']},
-                {id: '1-1', data: createMockNodeData('1-1'), parentId: '1'},
-                {id: '1-2', data: createMockNodeData('1-2'), parentId: '1'},
+                { id: '1', data: createMockNodeData('1'), childIds: ['1-1', '1-2'] },
+                { id: '1-1', data: createMockNodeData('1-1'), parentId: '1' },
+                { id: '1-2', data: createMockNodeData('1-2'), parentId: '1' },
             ]);
             setTreeRootIds(['1']);
             expandNode('1');
@@ -615,11 +615,11 @@ describe('contentTreeSelection.store', () => {
         beforeEach(() => {
             // Setup tree with parent and children
             addTreeNodes([
-                {id: '1', data: createMockNodeData('1'), childIds: ['1-1', '1-2']},
-                {id: '1-1', data: createMockNodeData('1-1'), parentId: '1'},
-                {id: '1-2', data: createMockNodeData('1-2'), parentId: '1'},
-                {id: '2', data: createMockNodeData('2'), childIds: ['2-1']},
-                {id: '2-1', data: createMockNodeData('2-1'), parentId: '2'},
+                { id: '1', data: createMockNodeData('1'), childIds: ['1-1', '1-2'] },
+                { id: '1-1', data: createMockNodeData('1-1'), parentId: '1' },
+                { id: '1-2', data: createMockNodeData('1-2'), parentId: '1' },
+                { id: '2', data: createMockNodeData('2'), childIds: ['2-1'] },
+                { id: '2-1', data: createMockNodeData('2-1'), parentId: '2' },
             ]);
             setTreeRootIds(['1', '2']);
             expandNode('1');
@@ -713,8 +713,8 @@ describe('contentTreeSelection.store', () => {
         beforeEach(() => {
             // Setup main tree
             addTreeNodes([
-                {id: '1', data: createMockNodeData('1')},
-                {id: '2', data: createMockNodeData('2')},
+                { id: '1', data: createMockNodeData('1') },
+                { id: '2', data: createMockNodeData('2') },
             ]);
             setTreeRootIds(['1', '2']);
         });
@@ -731,8 +731,8 @@ describe('contentTreeSelection.store', () => {
             setFilterActive(true);
             // Setup filter tree nodes
             addFilterNodes([
-                {id: 'f1', data: createMockNodeData('f1')},
-                {id: 'f2', data: createMockNodeData('f2')},
+                { id: 'f1', data: createMockNodeData('f1') },
+                { id: 'f2', data: createMockNodeData('f2') },
             ]);
             setFilterRootIds(['f1', 'f2']);
 
@@ -746,9 +746,7 @@ describe('contentTreeSelection.store', () => {
         it('does not auto-select main tree when leaving filter mode with selectAll enabled', () => {
             setFilterActive(true);
             // Setup filter tree nodes
-            addFilterNodes([
-                {id: 'f1', data: createMockNodeData('f1')},
-            ]);
+            addFilterNodes([{ id: 'f1', data: createMockNodeData('f1') }]);
             setFilterRootIds(['f1']);
 
             selectAll();
@@ -779,9 +777,7 @@ describe('contentTreeSelection.store', () => {
         it('disables selectAllMode when filter results change', () => {
             setFilterActive(true);
             // Setup initial filter results
-            addFilterNodes([
-                {id: 'f1', data: createMockNodeData('f1')},
-            ]);
+            addFilterNodes([{ id: 'f1', data: createMockNodeData('f1') }]);
             setFilterRootIds(['f1']);
 
             selectAll();
@@ -789,9 +785,7 @@ describe('contentTreeSelection.store', () => {
 
             // Simulate new filter query (reset and set new root IDs)
             resetFilterTree();
-            addFilterNodes([
-                {id: 'f2', data: createMockNodeData('f2')},
-            ]);
+            addFilterNodes([{ id: 'f2', data: createMockNodeData('f2') }]);
             setFilterRootIds(['f2']);
 
             // selectAllMode should be disabled due to filter change
@@ -802,8 +796,8 @@ describe('contentTreeSelection.store', () => {
             setFilterActive(true);
             // Setup initial filter results
             addFilterNodes([
-                {id: 'shared', data: createMockNodeData('shared')},
-                {id: 'f1', data: createMockNodeData('f1')},
+                { id: 'shared', data: createMockNodeData('shared') },
+                { id: 'f1', data: createMockNodeData('f1') },
             ]);
             setFilterRootIds(['shared', 'f1']);
 
@@ -814,8 +808,8 @@ describe('contentTreeSelection.store', () => {
             // Simulate new filter query with shared item still present
             resetFilterTree();
             addFilterNodes([
-                {id: 'shared', data: createMockNodeData('shared')},
-                {id: 'f2', data: createMockNodeData('f2')},
+                { id: 'shared', data: createMockNodeData('shared') },
+                { id: 'f2', data: createMockNodeData('f2') },
             ]);
             setFilterRootIds(['shared', 'f2']);
 
@@ -828,8 +822,8 @@ describe('contentTreeSelection.store', () => {
     describe('active highlight on filter transitions', () => {
         beforeEach(() => {
             addTreeNodes([
-                {id: '1', data: createMockNodeData('1')},
-                {id: '2', data: createMockNodeData('2')},
+                { id: '1', data: createMockNodeData('1') },
+                { id: '2', data: createMockNodeData('2') },
             ]);
             setTreeRootIds(['1', '2']);
         });
@@ -844,7 +838,7 @@ describe('contentTreeSelection.store', () => {
 
         it('clears active highlight when leaving filter mode', () => {
             setFilterActive(true);
-            addFilterNodes([{id: 'f1', data: createMockNodeData('f1')}]);
+            addFilterNodes([{ id: 'f1', data: createMockNodeData('f1') }]);
             setFilterRootIds(['f1']);
             setActive('f1');
 
@@ -855,12 +849,12 @@ describe('contentTreeSelection.store', () => {
 
         it('clears active highlight when filter results change', () => {
             setFilterActive(true);
-            addFilterNodes([{id: 'f1', data: createMockNodeData('f1')}]);
+            addFilterNodes([{ id: 'f1', data: createMockNodeData('f1') }]);
             setFilterRootIds(['f1']);
             setActive('f1');
 
             resetFilterTree();
-            addFilterNodes([{id: 'f2', data: createMockNodeData('f2')}]);
+            addFilterNodes([{ id: 'f2', data: createMockNodeData('f2') }]);
             setFilterRootIds(['f2']);
 
             expect($activeId.get()).toBeNull();
@@ -868,11 +862,11 @@ describe('contentTreeSelection.store', () => {
 
         it('keeps active highlight when filter tree expands (roots unchanged)', () => {
             setFilterActive(true);
-            addFilterNodes([{id: 'f1', data: createMockNodeData('f1'), childIds: ['f1-1']}]);
+            addFilterNodes([{ id: 'f1', data: createMockNodeData('f1'), childIds: ['f1-1'] }]);
             setFilterRootIds(['f1']);
             setActive('f1');
 
-            addFilterNodes([{id: 'f1-1', data: createMockNodeData('f1-1'), parentId: 'f1'}]);
+            addFilterNodes([{ id: 'f1-1', data: createMockNodeData('f1-1'), parentId: 'f1' }]);
 
             expect($activeId.get()).toBe('f1');
         });

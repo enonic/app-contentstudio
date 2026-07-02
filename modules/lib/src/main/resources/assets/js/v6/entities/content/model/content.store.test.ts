@@ -1,12 +1,6 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import {
     $contentCache,
-    setContent,
-    setContents,
-    removeContent,
-    removeContents,
-    clearAllContentCaches,
-    clearProjectContentCache,
     getContent,
     getContents,
     hasContent,
@@ -14,16 +8,25 @@ import {
     getAllContentIds,
     getIdByPath,
 } from './content.store';
-import { $activeProject } from './activeProject.store';
+import {
+    setContent,
+    setContents,
+    removeContent,
+    removeContents,
+    clearAllContentCaches,
+    clearProjectContentCache,
+} from './content.commands';
+import { start as startContentService } from './content.service';
+import { $activeProject } from '../../../features/store/activeProject.store';
 import {
     emitContentUpdated,
     emitContentCreated,
     emitContentDeleted,
     emitContentArchived,
     emitContentPublished,
-} from '../../shared/socket/socket.store';
-import type { ContentSummary } from '../../../app/content/ContentSummary';
-import type { Project } from '../../../app/settings/data/project/Project';
+} from '../../../shared/socket/socket.store';
+import type { ContentSummary } from '../../../../app/content/ContentSummary';
+import type { Project } from '../../../../app/settings/data/project/Project';
 
 const DEFAULT_TEST_PROJECT = 'default';
 
@@ -73,6 +76,7 @@ function createMockChangeItem(id: string): { getContentId: () => { toString: () 
 
 describe('content.store', () => {
     beforeEach(() => {
+        startContentService();
         $activeProject.set(mockProject(DEFAULT_TEST_PROJECT));
         clearAllContentCaches();
     });

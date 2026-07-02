@@ -5,7 +5,7 @@ import { type ReactElement, useEffect, useState } from 'react';
 import { DependencyType } from '../../../../../../app/browse/DependencyType';
 import type { ContentSummaryAndCompareStatus } from '../../../../../../app/content/ContentSummaryAndCompareStatus';
 import type { ExtensionItemViewType } from '../../../../../../app/view/context/ExtensionItemView';
-import { resolveDependenciesForId } from '../../../../api/resolveDependencies';
+import { resolveDependenciesForId } from '../../../../../entities/content';
 import { LegacyElement } from '../../../../../shared/ui/LegacyElement';
 import { $contextContent } from '../../../../store/context/contextContent.store';
 import { $activeWidgetId, $isContextOpen } from '../../../../store/contextWidgets.store';

@@ -9,7 +9,7 @@ import { type ResponsiveRange } from '@enonic/lib-admin-ui/ui/responsive/Respons
 import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { LayoutTokens } from '../../../v6/shared/ui/layout.tokens';
-import { getContentAsCSCS } from '../../../v6/features/store/content.store';
+import { getContentAsCSCS } from '../../../v6/entities/content';
 import { InspectEvent } from '../../event/InspectEvent';
 import { ContextPanelState } from './ContextPanelState';
 import { type ContextView } from './ContextView';

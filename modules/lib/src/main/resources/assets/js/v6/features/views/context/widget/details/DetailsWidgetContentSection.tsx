@@ -11,7 +11,7 @@ import {
     $contextContentCompareResult,
     $isContextCompareLoading,
 } from '../../../../store/context/contextContent.store';
-import { formatCompareResult } from '../../../../utils/cms/content/formatCompareResult';
+import { formatCompareResult } from '../../../../../entities/content';
 import { formatContentPath } from '../../../../../shared/lib/cms/content/paths';
 import {
     calcSecondaryStatus,

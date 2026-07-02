@@ -1,11 +1,11 @@
 import { atom, computed } from 'nanostores';
-import { ContentSummaryAndCompareStatus } from '../../../app/content/ContentSummaryAndCompareStatus';
-import type { ContentSummary } from '../../../app/content/ContentSummary';
+import { ContentSummaryAndCompareStatus } from '../../../../app/content/ContentSummaryAndCompareStatus';
+import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { $activeRawFlatNodes, $isFilterActive } from './active-tree.store';
 import { $contentCache } from './content.store';
 import { $filterTreeState } from './filter-tree.store';
-import { $contentArchived, $contentDeleted, $contentMoved } from '../../shared/socket/socket.store';
-import { $treeState } from './tree-list.store';
+import { $contentArchived, $contentDeleted, $contentMoved } from '../../../shared/socket/socket.store';
+import { $treeState } from './content-tree.store';
 
 //
 // Core State
@@ -317,29 +317,37 @@ function dropFromSelectionAndActive(ids: ReadonlySet<string>): void {
     }
 }
 
-// Cross-parent moves only — same-parent renames keep the node in the tree.
-$contentMoved.subscribe((event) => {
-    if (!event?.data) return;
+//
+// * Socket wiring
+//
+// Attached by content.service on explicit start; never on import.
+//
 
-    const ids = new Set<string>();
-    for (const moved of event.data) {
-        const summary = moved.item.getContentSummary();
-        const newPath = summary.getPath?.();
-        if (!newPath) continue;
-        if (moved.oldPath.getParentPath().equals(newPath.getParentPath())) continue;
-        ids.add(summary.getId());
-    }
-    dropFromSelectionAndActive(ids);
-});
+export function connectContentSelectionToSocket(): Array<() => void> {
+    return [
+        // Cross-parent moves only — same-parent renames keep the node in the tree.
+        $contentMoved.subscribe((event) => {
+            if (!event?.data) return;
 
-$contentDeleted.subscribe((event) => {
-    if (!event?.data) return;
-    const ids = new Set(event.data.map((item) => item.getContentId().toString()));
-    dropFromSelectionAndActive(ids);
-});
-
-$contentArchived.subscribe((event) => {
-    if (!event?.data) return;
-    const ids = new Set(event.data.map((item) => item.getContentId().toString()));
-    dropFromSelectionAndActive(ids);
-});
+            const ids = new Set<string>();
+            for (const moved of event.data) {
+                const summary = moved.item.getContentSummary();
+                const newPath = summary.getPath?.();
+                if (!newPath) continue;
+                if (moved.oldPath.getParentPath().equals(newPath.getParentPath())) continue;
+                ids.add(summary.getId());
+            }
+            dropFromSelectionAndActive(ids);
+        }),
+        $contentDeleted.subscribe((event) => {
+            if (!event?.data) return;
+            const ids = new Set(event.data.map((item) => item.getContentId().toString()));
+            dropFromSelectionAndActive(ids);
+        }),
+        $contentArchived.subscribe((event) => {
+            if (!event?.data) return;
+            const ids = new Set(event.data.map((item) => item.getContentId().toString()));
+            dropFromSelectionAndActive(ids);
+        }),
+    ];
+}

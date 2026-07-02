@@ -14,7 +14,7 @@ import { type Project } from '../../../../../app/settings/data/project/Project';
 import { ImageHelper } from '../../../../../app/util/ImageHelper';
 import { ImageUrlResolver } from '../../../../../app/util/ImageUrlResolver';
 import { isBlank } from '../../../../shared/lib/format/isBlank';
-import { fetchContentById } from '../../../api/content';
+import { fetchContentById } from '../../../../entities/content';
 
 //
 // Types

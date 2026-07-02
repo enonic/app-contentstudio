@@ -2,7 +2,7 @@ import { Button, Checkbox, IconButton, Input, RadioGroup } from '@enonic/ui';
 import { showError } from '@enonic/lib-admin-ui/notify/MessageBus';
 import { UploadIcon, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
-import { fetchNearestSite } from '../../../api/content';
+import { fetchNearestSite } from '../../../../entities/content';
 import { type UploadMediaError, type UploadMediaSuccess } from '../../../api/uploadMedia';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import { useUploadMedia } from '../../../hooks/useUploadMedia';

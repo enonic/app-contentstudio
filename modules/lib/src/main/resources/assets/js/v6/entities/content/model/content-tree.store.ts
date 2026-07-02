@@ -1,6 +1,6 @@
 import { atom, computed } from 'nanostores';
-import { $contentDeleted, $contentArchived, $contentCreated, $contentMoved } from '../../shared/socket/socket.store';
-import type { ContentSummary } from '../../../app/content/ContentSummary';
+import { $contentDeleted, $contentArchived, $contentCreated, $contentMoved } from '../../../shared/socket/socket.store';
+import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import {
     createEmptyState,
     setNode,
@@ -29,11 +29,11 @@ import {
     ROOT_LOADING_KEY,
     type FlatNode,
     type CreateNodeOptions,
-} from '../../shared/lib/tree-store';
-import { $uploads, type UploadItem } from './uploads.store';
+} from '../../../shared/lib/tree-store';
+import { $uploads, type UploadItem } from '../../../features/store/uploads.store';
 import { $contentCache } from './content.store';
-import type { ContentData } from '../views/browse/grid/ContentData';
-import type { ContentUploadData } from '../views/browse/grid/ContentUploadData';
+import type { ContentData } from './ContentData';
+import type { ContentUploadData } from './ContentUploadData';
 import { convertToContentFlatNode, findParentIdByPath, toTreeNodeData } from './tree/utils';
 import type {
     ContentTreeNodeData,
@@ -302,20 +302,6 @@ function removeContentFromTree(ids: string[]): void {
     });
 }
 
-$contentDeleted.subscribe((event) => {
-    if (event?.data) {
-        const ids = event.data.map((item) => item.getContentId().toString());
-        removeContentFromTree(ids);
-    }
-});
-
-$contentArchived.subscribe((event) => {
-    if (event?.data) {
-        const ids = event.data.map((item) => item.getContentId().toString());
-        removeContentFromTree(ids);
-    }
-});
-
 // Helper: Add newly created content to tree
 // Uses single state update to avoid stale state race conditions
 function addContentToTree(content: ContentSummary): void {
@@ -372,37 +358,7 @@ function addContentToTree(content: ContentSummary): void {
     });
 }
 
-// Socket: Content created
-$contentCreated.subscribe((event) => {
-    if (!event?.data) return;
-    for (const content of event.data) {
-        addContentToTree(content);
-    }
-});
-
 // Duplicates: positioned by content-fetcher's $contentDuplicated reload.
-
-// Skip renames that leak into $contentMoved as same-parent changes — $contentCache covers them.
-// The new parent is reloaded by content-fetcher so the item lands in the correct sorted slot.
-$contentMoved.subscribe((event) => {
-    if (!event?.data) return;
-
-    const state = $treeState.get();
-    const ids: string[] = [];
-
-    for (const moved of event.data) {
-        const summary = moved.item.getContentSummary();
-        const newPath = summary.getPath?.();
-        if (!newPath) continue;
-        if (moved.oldPath.getParentPath().equals(newPath.getParentPath())) continue;
-
-        const id = summary.getId();
-        if (state.nodes.has(id)) ids.push(id);
-    }
-
-    if (ids.length === 0) return;
-    removeContentFromTree(ids);
-});
 
 //
 // * Aliases for Main Tree (Phase 8: Filter Mode Support)
@@ -428,3 +384,54 @@ export { collapseNode as collapseMainNode };
 
 /** Check if main node needs children load */
 export { nodeNeedsChildrenLoad as mainNodeNeedsChildrenLoad };
+
+//
+// * Socket wiring
+//
+// Attached by content.service on explicit start; never on import.
+//
+
+export function connectContentTreeToSocket(): Array<() => void> {
+    return [
+        $contentDeleted.subscribe((event) => {
+            if (event?.data) {
+                const ids = event.data.map((item) => item.getContentId().toString());
+                removeContentFromTree(ids);
+            }
+        }),
+        $contentArchived.subscribe((event) => {
+            if (event?.data) {
+                const ids = event.data.map((item) => item.getContentId().toString());
+                removeContentFromTree(ids);
+            }
+        }),
+        // Socket: Content created
+        $contentCreated.subscribe((event) => {
+            if (!event?.data) return;
+            for (const content of event.data) {
+                addContentToTree(content);
+            }
+        }),
+        // Skip renames that leak into $contentMoved as same-parent changes — $contentCache covers them.
+        // The new parent is reloaded by content-fetcher so the item lands in the correct sorted slot.
+        $contentMoved.subscribe((event) => {
+            if (!event?.data) return;
+
+            const state = $treeState.get();
+            const ids: string[] = [];
+
+            for (const moved of event.data) {
+                const summary = moved.item.getContentSummary();
+                const newPath = summary.getPath?.();
+                if (!newPath) continue;
+                if (moved.oldPath.getParentPath().equals(newPath.getParentPath())) continue;
+
+                const id = summary.getId();
+                if (state.nodes.has(id)) ids.push(id);
+            }
+
+            if (ids.length === 0) return;
+            removeContentFromTree(ids);
+        }),
+    ];
+}

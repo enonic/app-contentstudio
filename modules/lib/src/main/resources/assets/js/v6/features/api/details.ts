@@ -1,27 +1,15 @@
-import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import { type Content, ContentBuilder } from '../../../app/content/Content';
+import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { type Content } from '../../../app/content/Content';
 import { type ContentId } from '../../../app/content/ContentId';
 import { type ContentJson } from '../../../app/content/ContentJson';
-import { type PageTemplate, PageTemplateBuilder } from '../../../app/content/PageTemplate';
-import { type Site, SiteBuilder } from '../../../app/content/Site';
+import { type PageTemplate } from '../../../app/content/PageTemplate';
+import { type Site } from '../../../app/content/Site';
 import { Descriptor } from '../../../app/page/Descriptor';
 import { type DescriptorJson } from '../../../app/page/DescriptorJson';
+import { parseContent } from '../../entities/content/lib/parseContent';
 import { getCmsApiUrl, getCmsRestUri } from '../../shared/lib/url/cms';
 
-/**
- * Parse ContentJson to the appropriate Content subtype.
- */
-export function parseContent(json: ContentJson): Content {
-    const type = new ContentTypeName(json.type);
-
-    if (type.isSite()) {
-        return new SiteBuilder().fromContentJson(json).build();
-    }
-    if (type.isPageTemplate()) {
-        return new PageTemplateBuilder().fromContentJson(json).build();
-    }
-    return new ContentBuilder().fromContentJson(json).build();
-}
+export { parseContent };
 
 /**
  * Load page template by content ID.

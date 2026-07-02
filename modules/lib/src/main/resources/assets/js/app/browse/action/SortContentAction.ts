@@ -1,11 +1,10 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {getCurrentItemsAsCSCS} from '../../../v6/features/store/contentTreeSelection.store';
-import {SortContentEvent} from '../sort/SortContentEvent';
-import {ContentTreeGridAction} from './ContentTreeGridAction';
-import {type ContentTreeGridItemsState} from './ContentTreeGridItemsState';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { getCurrentItemsAsCSCS } from '../../../v6/entities/content';
+import { SortContentEvent } from '../sort/SortContentEvent';
+import { ContentTreeGridAction } from './ContentTreeGridAction';
+import { type ContentTreeGridItemsState } from './ContentTreeGridItemsState';
 
 export class SortContentAction extends ContentTreeGridAction {
-
     constructor() {
         super(i18n('action.sort'));
 

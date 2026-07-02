@@ -1,7 +1,7 @@
 import { cn, GridList } from '@enonic/ui';
 import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
 import { ContentSummary, ContentSummaryBuilder } from '../../../../../../app/content/ContentSummary';
-import { fetchContentByIds } from '../../../../api/content-fetcher';
+import { fetchContentByIds } from '../../../../../entities/content';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { ContentSelectionItem } from './ContentSelectionItem';
 

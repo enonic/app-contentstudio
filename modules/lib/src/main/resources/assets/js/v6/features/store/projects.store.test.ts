@@ -48,11 +48,11 @@ vi.mock('./dialogs.store', () => ({
     setProjectSelectionDialogOpen: mockSetProjectSelectionDialogOpen,
 }));
 
-vi.mock('./tree-list.store', () => ({
+vi.mock('../../entities/content/model/content-tree.store', () => ({
     resetTree: vi.fn(),
 }));
 
-vi.mock('./contentTreeSelection.store', () => ({
+vi.mock('../../entities/content/model/content-selection.store', () => ({
     clearSelection: vi.fn(),
     setActive: vi.fn(),
 }));
@@ -62,7 +62,7 @@ vi.mock('./contentFilter.store', () => ({
     resetContentFilter: vi.fn(),
 }));
 
-vi.mock('../api/content-fetcher', () => ({
+vi.mock('../../entities/content/api/content-fetcher', () => ({
     deactivateFilter: vi.fn(),
 }));
 
