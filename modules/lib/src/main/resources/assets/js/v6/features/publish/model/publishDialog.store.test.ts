@@ -10,6 +10,18 @@ import {
 } from '../../../shared/socket/socket.store';
 import { $config } from '../../../shared/config/config.store';
 import {
+    applyDraftPublishDialogSelection,
+    loadMoreDependants,
+    openPublishDialog,
+    resetPublishDialogContext,
+    setPublishDialogDependantItemSelected,
+    setPublishDialogItemWithChildrenSelected,
+    setPublishSchedule,
+    togglePublishDialogDependantsSelection,
+    togglePublishDialogShowExcluded,
+} from './publishDialog.commands';
+import { start as startPublishDialogService } from './publishDialog.service';
+import {
     $dependantPublishItems,
     $draftPublishDialogSelection,
     $hasExcludedDependantItems,
@@ -24,15 +36,6 @@ import {
     $scheduleFromError,
     $showPublishDependantsExcluded,
     $totalPublishableItems,
-    applyDraftPublishDialogSelection,
-    loadMoreDependants,
-    openPublishDialog,
-    resetPublishDialogContext,
-    setPublishDialogDependantItemSelected,
-    setPublishDialogItemWithChildrenSelected,
-    setPublishSchedule,
-    togglePublishDialogDependantsSelection,
-    togglePublishDialogShowExcluded,
 } from './publishDialog.store';
 import {
     createDeferredPromise,
@@ -110,6 +113,7 @@ const publishRemovalEventCases = [
 
 describe('publishDialog.store', () => {
     beforeEach(() => {
+        startPublishDialogService();
         vi.useFakeTimers();
         resetPublishDialogContext();
         mockFetchContentSummaries.mockReset().mockResolvedValue([]);

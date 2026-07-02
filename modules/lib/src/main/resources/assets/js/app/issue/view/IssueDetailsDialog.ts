@@ -27,7 +27,7 @@ import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { type SelectionChange } from '@enonic/lib-admin-ui/util/SelectionChange';
 import { StringHelper } from '@enonic/lib-admin-ui/util/StringHelper';
 import type Q from 'q';
-import { openPublishDialog } from '../../../v6/features/publish/model/publishDialog.store';
+import { openPublishDialog } from '../../../v6/features/publish/model/publishDialog.commands';
 import { type ContentId } from '../../content/ContentId';
 import { type ContentSummaryAndCompareStatus } from '../../content/ContentSummaryAndCompareStatus';
 import {

@@ -4,7 +4,7 @@ import { type Action } from '@enonic/lib-admin-ui/ui/Action';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { DialogPresetConfirmElement } from '../../../v6/shared/ui/dialogs/DialogPreset';
 import { getCurrentItemsAsCSCS } from '../../../v6/entities/content';
-import { openPublishDialog } from '../../../v6/features/publish/model/publishDialog.store';
+import { openPublishDialog } from '../../../v6/features/publish/model/publishDialog.commands';
 import type { ContentId } from '../../content/ContentId';
 import { type ContentSummaryAndCompareStatus } from '../../content/ContentSummaryAndCompareStatus';
 import { MarkAsReadyRequest } from '../../resource/MarkAsReadyRequest';
