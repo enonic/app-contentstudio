@@ -1,7 +1,7 @@
 /**
- * Created on 09.07.2020.
+ * Created on 09.07.2020.  updated on 02.07.2026
  */
-const {COMMON, BUTTONS} = require('../../libs/elements');
+const {BUTTONS} = require('../../libs/elements');
 const BaseSelectorForm = require('./base.selector.form');
 const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
 const {Key} = require('webdriverio');
@@ -64,7 +64,9 @@ class ContentSelectorForm extends BaseSelectorForm {
                 throw new Error(
                     `Sortable item not found: source='${sourceName}'(${sourceIndex}), destination='${destinationName}'(${destinationIndex})`);
             }
-            if (sourceIndex === destinationIndex) return;
+            if (sourceIndex === destinationIndex) {
+                return;
+            }
             const source = await this.findElement(XPATH.container + this.selectedOptionByDisplayName(sourceName));
             await source.click();
             await this.pause(300);
@@ -104,8 +106,7 @@ class ContentSelectorForm extends BaseSelectorForm {
             let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
             await contentSelectorDropdown.waitForAddNewContentButtonNotDisplayed();
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_add_new_btn');
-            throw new Error(`'Add new' button should not be displayed, screenshot:${screenshot} ` + err);
+            await this.handleError(`Content selector, 'Add new' button should not be displayed`, 'err_add_new_btn', err);
         }
     }
 
@@ -132,8 +133,9 @@ class ContentSelectorForm extends BaseSelectorForm {
     async doFilterOptionInTreeModeAndApply(optionDisplayName) {
         try {
             let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
+            await contentSelectorDropdown.clearOptionsFilterInput();
             await contentSelectorDropdown.doFilterItem(optionDisplayName);
-            await contentSelectorDropdown.pause(1000);
+            await contentSelectorDropdown.pause(800);
             let mode = await this.getOptionsMode();
             // TODO check the mode
             // 2. Wait for the required option is displayed then click on it:
@@ -156,13 +158,21 @@ class ContentSelectorForm extends BaseSelectorForm {
     }
 
     async getOptionsDisplayNameInTreeMode() {
-        let contentSelector = new ContentSelectorDropdown(XPATH.container);
-        return await contentSelector.getOptionsDisplayNameInTreeMode();
+        try {
+            let contentSelector = new ContentSelectorDropdown(XPATH.container);
+            return await contentSelector.getOptionsDisplayNameInTreeMode();
+        } catch (err) {
+            await this.handleError(`Content selector, tried to get options display name in tree mode`, 'err_get_options_tree_mode', err)
+        }
     }
 
     async getOptionsDisplayNameInFlatMode() {
-        let contentSelector = new ContentSelectorDropdown(XPATH.container);
-        return await contentSelector.getOptionsDisplayNameInFlatMode();
+        try {
+            let contentSelector = new ContentSelectorDropdown(XPATH.container);
+            return await contentSelector.getOptionsDisplayNameInFlatMode();
+        } catch (err) {
+            await this.handleError(`Content selector, tried to get options display name in flat mode`, 'err_get_options_flat_mode', err)
+        }
     }
 
     async removeSelectedOption(displayName) {

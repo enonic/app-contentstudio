@@ -54,13 +54,15 @@ describe('htmlarea.insert.link.to.content.spec: tests for filtering in content s
             assert.ok(items.includes( DUPLICATED_SITE_NAME) === false, 'Duplicated site should not be present in the options');
         });
 
-    it(`GIVEN Show content from entire project checkbox is selected WHEN current site's name has been typed in the options filter input THEN content name that starts the same as the current site should be present in the options`,
+    // Content Selector is not switching to flat mode when filtered #10984
+    //https://github.com/enonic/app-contentstudio/issues/10984
+    it(`GIVEN Show content from entire project checkbox is selected WHEN current site's name has been typed in the options filter input THEN content from entire project  should be displayed in the options`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             await studioUtils.selectSiteAndOpenNewWizard(SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
             let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
-            // 1. Open Insert Link dialog:
+            // 1. Open 'Insert Link' dialog:
             await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
             // 2. Click on 'show content from entire project' checkbox
             await insertLinkDialogContentPanel.clickOnShowContentFromEntireProjectCheckbox();
@@ -68,8 +70,13 @@ describe('htmlarea.insert.link.to.content.spec: tests for filtering in content s
             await insertLinkDialogContentPanel.typeTextInContentOptionsFilterInput(SITE_NAME)
             await insertLinkDialogContentPanel.pause(1000);
             await studioUtils.saveScreenshot('duplicated_content_is_present_in_options');
-            // 4. Verify - content name that starts the same as the current site(duplicated content) should be present in the options:
+            // Verify Content Selector is switching to flat mode when filtered
+            // 4. Verify - Content From Entire Project should be present in the options:
             let items = await insertLinkDialogContentPanel.getContentSelectorOptionsDisplayNameInFlatMode();
+            assert.ok(items.length>= 2, 'Content From Entire Project should be present in the options');
+            // 5. switch to Tree mode and verify that duplicated content is present in the options:
+            await insertLinkDialogContentPanel.clickOnContentSelectorModeTogglerButton();
+            items = await insertLinkDialogContentPanel.getContentSelectorOptionsDisplayNameInFlatMode();
             assert.equal(items.length, 2, 'Duplicated site should be present in the options');
         });
 
@@ -111,7 +118,7 @@ describe('htmlarea.insert.link.to.content.spec: tests for filtering in content s
             let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
             await studioUtils.selectSiteAndOpenNewWizard(SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
-            // 1. Insert text in the html area:
+            // 1. Insert text in the html-area:
             await htmlAreaForm.insertTextInHtmlArea(0, 'test');
             await htmlAreaForm.clickInTextArea();
             // 2. Copy and paste the text in the html area:
