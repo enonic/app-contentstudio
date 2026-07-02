@@ -5,7 +5,7 @@ import { LocaleProvider } from '@enonic/lib-admin-ui/form2';
 import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
 import { useStore } from '@nanostores/preact';
 import { type ReactElement, type ReactNode, useMemo } from 'react';
-import { useApplicationKeys } from '../../hooks/useApplicationKeys';
+import { useApplicationKeys } from '../hooks/useApplicationKeys';
 import { $contextContent } from '../../../widgets/context-panel/model/contextContent.store';
 import { $activeProject } from '../../../entities/project';
 import { Input } from '@enonic/lib-admin-ui/form/Input';

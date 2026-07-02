@@ -53,7 +53,7 @@ import { useCKEditorConfig } from '../../../../../../features/shared/form/input-
 import { $contextContent } from '../../../../../context-panel/model/contextContent.store';
 import { requestUpdateTextComponent } from '../../../../model/page-editor';
 import { $activeProject } from '../../../../../../entities/project';
-import { useApplicationKeys } from '../../../../../../features/hooks/useApplicationKeys';
+import { useApplicationKeys } from '../../../../../../features/shared/hooks/useApplicationKeys';
 import { useInspectTextTracking } from './useInspectTextTracking';
 
 const sanitizer = new HtmlAreaSanitizer();

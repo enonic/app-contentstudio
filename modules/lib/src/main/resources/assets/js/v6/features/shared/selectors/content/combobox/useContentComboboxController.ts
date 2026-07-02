@@ -4,7 +4,7 @@ import {
     useContentComboboxData,
     type ContentFilterOptions,
     type ContentComboboxFlatNode,
-} from '../../../../hooks/useContentComboboxData';
+} from '../../../hooks/useContentComboboxData';
 import { useDebouncedValue } from '../../../../../shared/lib/hooks/useDebouncedValue';
 import { isBlank } from '../../../../../shared/lib/format/isBlank';
 

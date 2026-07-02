@@ -1,6 +1,6 @@
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {fireEvent, render, screen} from '@testing-library/preact';
-import type {ContentComboboxFlatNode} from '../../../../hooks/useContentComboboxData';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/preact';
+import type { ContentComboboxFlatNode } from '../../../hooks/useContentComboboxData';
 
 // Mock state - can be changed in tests
 let mockUseComboboxReturn = {
@@ -11,47 +11,80 @@ let mockUseComboboxReturn = {
 
 vi.mock('@enonic/ui', async () => {
     const createMockComponent = (name: string) => {
-        const Component = ({children, ...props}: {children?: React.ReactNode;[key: string]: unknown}) => (
-            <div data-testid={name} {...props}>{children}</div>
+        const Component = ({ children, ...props }: { children?: React.ReactNode; [key: string]: unknown }) => (
+            <div data-testid={name} {...props}>
+                {children}
+            </div>
         );
         Component.displayName = name;
         return Component;
     };
 
     const MockCombobox = {
-        TreeContent: ({children, style}: {children?: React.ReactNode; style?: React.CSSProperties}) => (
-            <div data-testid='combobox-tree-content' style={style}>{children}</div>
+        TreeContent: ({ children, style }: { children?: React.ReactNode; style?: React.CSSProperties }) => (
+            <div data-testid="combobox-tree-content" style={style}>
+                {children}
+            </div>
         ),
     };
 
     const MockVirtualizedTreeList = Object.assign(
-        ({children, items, onSelectionChange, ...props}: {
-            children?: (args: {items: unknown[]; getItemProps: (index: number, node: unknown) => object; containerProps: object}) => React.ReactNode;
+        ({
+            children,
+            items,
+            onSelectionChange,
+            ...props
+        }: {
+            children?: (args: {
+                items: unknown[];
+                getItemProps: (index: number, node: unknown) => object;
+                containerProps: object;
+            }) => React.ReactNode;
             items?: unknown[];
             onSelectionChange?: (selection: ReadonlySet<string>) => void;
             [key: string]: unknown;
         }) => (
             <div
-                data-testid='virtualized-tree-list'
+                data-testid="virtualized-tree-list"
                 data-items-length={items?.length ?? 0}
                 data-selection-change={onSelectionChange ? 'true' : 'false'}
                 {...props}
             >
                 {typeof children === 'function'
                     ? children({
-                        items: items ?? [],
-                        getItemProps: (index: number, node: unknown) => ({index, node}),
-                        containerProps: {className: 'container'},
-                    })
+                          items: items ?? [],
+                          getItemProps: (index: number, node: unknown) => ({ index, node }),
+                          containerProps: { className: 'container' },
+                      })
                     : children}
             </div>
         ),
         {
-            RowLoading: ({children, level, className}: {children?: React.ReactNode; level?: number; className?: string}) => (
-                <div data-testid='row-loading' data-level={level} className={className}>{children}</div>
+            RowLoading: ({
+                children,
+                level,
+                className,
+            }: {
+                children?: React.ReactNode;
+                level?: number;
+                className?: string;
+            }) => (
+                <div data-testid="row-loading" data-level={level} className={className}>
+                    {children}
+                </div>
             ),
-            RowPlaceholder: ({children, level, className}: {children?: React.ReactNode; level?: number; className?: string}) => (
-                <div data-testid='row-placeholder' data-level={level} className={className}>{children}</div>
+            RowPlaceholder: ({
+                children,
+                level,
+                className,
+            }: {
+                children?: React.ReactNode;
+                level?: number;
+                className?: string;
+            }) => (
+                <div data-testid="row-placeholder" data-level={level} className={className}>
+                    {children}
+                </div>
             ),
         },
     );
@@ -66,7 +99,7 @@ vi.mock('@enonic/ui', async () => {
 
 // Mock lucide-react
 vi.mock('lucide-react', () => ({
-    Loader2: ({className}: {className?: string}) => <span data-testid='loader-icon' className={className} />,
+    Loader2: ({ className }: { className?: string }) => <span data-testid="loader-icon" className={className} />,
 }));
 
 // Mock react-virtuoso
@@ -82,7 +115,7 @@ vi.mock('react-virtuoso', () => ({
     }: {
         data?: unknown[];
         itemContent?: (index: number, item: unknown) => React.ReactNode;
-        rangeChanged?: (range: {startIndex: number; endIndex: number}) => void;
+        rangeChanged?: (range: { startIndex: number; endIndex: number }) => void;
         endReached?: () => void;
     }) => {
         // Store callbacks for testing
@@ -94,7 +127,7 @@ vi.mock('react-virtuoso', () => ({
         }
 
         return (
-            <div data-testid='virtuoso'>
+            <div data-testid="virtuoso">
                 {data?.map((item, index) => (
                     <div key={index} data-index={index}>
                         {itemContent?.(index, item)}
@@ -107,9 +140,9 @@ vi.mock('react-virtuoso', () => ({
 
 // Mock ContentRow
 vi.mock('../../shared/combobox/ContentRow', () => ({
-    ContentRow: ({node, showExpandControl}: {node: unknown; showExpandControl?: boolean}) => (
+    ContentRow: ({ node, showExpandControl }: { node: unknown; showExpandControl?: boolean }) => (
         <div
-            data-testid='content-combobox-row'
+            data-testid="content-combobox-row"
             data-node-id={(node as ContentComboboxFlatNode).id}
             data-show-expand={showExpandControl}
         />
@@ -117,7 +150,7 @@ vi.mock('../../shared/combobox/ContentRow', () => ({
 }));
 
 // Now import the component
-import {ContentComboboxList, type ContentComboboxListProps} from './ContentComboboxList';
+import { ContentComboboxList, type ContentComboboxListProps } from './ContentComboboxList';
 
 // Helper to create mock flat node
 function createMockNode(
@@ -129,12 +162,7 @@ function createMockNode(
         hasChildren?: boolean;
     } = {},
 ): ContentComboboxFlatNode {
-    const {
-        nodeType = 'node',
-        selectable = true,
-        level = 1,
-        hasChildren = false,
-    } = options;
+    const { nodeType = 'node', selectable = true, level = 1, hasChildren = false } = options;
 
     if (nodeType === 'loading') {
         return {
@@ -158,7 +186,7 @@ function createMockNode(
             name: `name-${id}`,
             publishStatus: 'ONLINE' as never,
             contentState: null,
-            contentType: {toString: () => 'base:content'} as never,
+            contentType: { toString: () => 'base:content' } as never,
             iconUrl: null,
             item: {} as never,
             selectable,
@@ -237,9 +265,9 @@ describe('ContentComboboxList', () => {
     describe('handleSelectionChange', () => {
         it('filters out non-selectable item IDs', () => {
             const items = [
-                createMockNode('1', {selectable: true}),
-                createMockNode('2', {selectable: false}),
-                createMockNode('3', {selectable: true}),
+                createMockNode('1', { selectable: true }),
+                createMockNode('2', { selectable: false }),
+                createMockNode('3', { selectable: true }),
             ];
 
             render(<ContentComboboxList {...defaultProps} items={items} />);
@@ -276,21 +304,12 @@ describe('ContentComboboxList', () => {
     describe('handleRangeChange', () => {
         it('calls onLoadMore when loading node is visible', () => {
             const onLoadMore = vi.fn();
-            const items = [
-                createMockNode('1'),
-                createMockNode('root', {nodeType: 'loading'}),
-            ];
+            const items = [createMockNode('1'), createMockNode('root', { nodeType: 'loading' })];
 
-            render(
-                <ContentComboboxList
-                    {...defaultProps}
-                    items={items}
-                    onLoadMore={onLoadMore}
-                />,
-            );
+            render(<ContentComboboxList {...defaultProps} items={items} onLoadMore={onLoadMore} />);
 
             // Simulate range change that includes the loading node
-            mockRangeChanged({startIndex: 0, endIndex: 1});
+            mockRangeChanged({ startIndex: 0, endIndex: 1 });
 
             expect(onLoadMore).toHaveBeenCalled();
         });
@@ -312,15 +331,9 @@ describe('ContentComboboxList', () => {
                 },
             ];
 
-            render(
-                <ContentComboboxList
-                    {...defaultProps}
-                    items={items}
-                    onLoadMore={onLoadMore}
-                />,
-            );
+            render(<ContentComboboxList {...defaultProps} items={items} onLoadMore={onLoadMore} />);
 
-            mockRangeChanged({startIndex: 0, endIndex: 1});
+            mockRangeChanged({ startIndex: 0, endIndex: 1 });
 
             expect(onLoadMore).toHaveBeenCalledWith(null);
         });
@@ -342,15 +355,9 @@ describe('ContentComboboxList', () => {
                 },
             ];
 
-            render(
-                <ContentComboboxList
-                    {...defaultProps}
-                    items={items}
-                    onLoadMore={onLoadMore}
-                />,
-            );
+            render(<ContentComboboxList {...defaultProps} items={items} onLoadMore={onLoadMore} />);
 
-            mockRangeChanged({startIndex: 0, endIndex: 1});
+            mockRangeChanged({ startIndex: 0, endIndex: 1 });
 
             expect(onLoadMore).toHaveBeenCalledWith('parent123');
         });
@@ -362,19 +369,13 @@ describe('ContentComboboxList', () => {
                 createMockNode('2'),
                 createMockNode('3'),
                 createMockNode('4'),
-                createMockNode('root', {nodeType: 'loading'}), // index 4 - outside visible range
+                createMockNode('root', { nodeType: 'loading' }), // index 4 - outside visible range
             ];
 
-            render(
-                <ContentComboboxList
-                    {...defaultProps}
-                    items={items}
-                    onLoadMore={onLoadMore}
-                />,
-            );
+            render(<ContentComboboxList {...defaultProps} items={items} onLoadMore={onLoadMore} />);
 
             // Range only includes indices 0-2
-            mockRangeChanged({startIndex: 0, endIndex: 2});
+            mockRangeChanged({ startIndex: 0, endIndex: 2 });
 
             // Should not call onLoadMore since loading node is at index 4
             expect(onLoadMore).not.toHaveBeenCalled();
@@ -384,19 +385,13 @@ describe('ContentComboboxList', () => {
             const onLoadMore = vi.fn();
             const items = [
                 createMockNode('1'),
-                createMockNode('root', {nodeType: 'loading'}), // index 1
-                createMockNode('parent', {nodeType: 'loading'}), // index 2
+                createMockNode('root', { nodeType: 'loading' }), // index 1
+                createMockNode('parent', { nodeType: 'loading' }), // index 2
             ];
 
-            render(
-                <ContentComboboxList
-                    {...defaultProps}
-                    items={items}
-                    onLoadMore={onLoadMore}
-                />,
-            );
+            render(<ContentComboboxList {...defaultProps} items={items} onLoadMore={onLoadMore} />);
 
-            mockRangeChanged({startIndex: 0, endIndex: 2});
+            mockRangeChanged({ startIndex: 0, endIndex: 2 });
 
             // Should only be called once for the first loading node
             expect(onLoadMore).toHaveBeenCalledTimes(1);
@@ -409,13 +404,7 @@ describe('ContentComboboxList', () => {
             const items = [createMockNode('1')];
 
             render(
-                <ContentComboboxList
-                    {...defaultProps}
-                    items={items}
-                    mode='flat'
-                    hasMore
-                    onEndReached={onEndReached}
-                />,
+                <ContentComboboxList {...defaultProps} items={items} mode="flat" hasMore onEndReached={onEndReached} />,
             );
 
             // Trigger end reached
@@ -429,13 +418,7 @@ describe('ContentComboboxList', () => {
             const items = [createMockNode('1')];
 
             render(
-                <ContentComboboxList
-                    {...defaultProps}
-                    items={items}
-                    mode='tree'
-                    hasMore
-                    onEndReached={onEndReached}
-                />,
+                <ContentComboboxList {...defaultProps} items={items} mode="tree" hasMore onEndReached={onEndReached} />,
             );
 
             // In tree mode, endReached should not be configured
@@ -448,7 +431,7 @@ describe('ContentComboboxList', () => {
         it('shows expand control in tree mode', () => {
             const items = [createMockNode('1')];
 
-            render(<ContentComboboxList {...defaultProps} items={items} mode='tree' />);
+            render(<ContentComboboxList {...defaultProps} items={items} mode="tree" />);
 
             const row = screen.getByTestId('content-combobox-row');
             expect(row.getAttribute('data-show-expand')).toBe('true');
@@ -457,7 +440,7 @@ describe('ContentComboboxList', () => {
         it('hides expand control in flat mode', () => {
             const items = [createMockNode('1')];
 
-            render(<ContentComboboxList {...defaultProps} items={items} mode='flat' />);
+            render(<ContentComboboxList {...defaultProps} items={items} mode="flat" />);
 
             const row = screen.getByTestId('content-combobox-row');
             expect(row.getAttribute('data-show-expand')).toBe('false');

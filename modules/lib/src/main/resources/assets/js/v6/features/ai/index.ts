@@ -1,13 +1,13 @@
-// Read: stores
-export {
-    $aiContext,
-    $aiPluginDialogOpen,
-    $aiReady,
-    $aiRegisteredPlugins,
-    $aiTopicError,
-    $aiTopicHighlight,
-    $aiTopicProcessing,
+import { computed } from 'nanostores';
+import {
+    $aiContext as $aiContextAtom,
+    $aiTopicError as $aiTopicErrorAtom,
+    $aiTopicHighlight as $aiTopicHighlightAtom,
+    $aiTopicProcessing as $aiTopicProcessingAtom,
 } from './ai.store';
+
+// Read: stores
+export { $aiPluginDialogOpen, $aiReady, $aiRegisteredPlugins } from './ai.store';
 
 // Write: signal commands
 export { clearAiTopicError } from './ai.commands';
@@ -34,3 +34,14 @@ export {
 
 // Constants
 export { AI_TOPIC_PATH } from './ai.types';
+
+//
+// * Read-only views
+//
+// Atoms stay private to the slice; writes go through commands.
+//
+
+export const $aiContext = computed($aiContextAtom, (value) => value);
+export const $aiTopicError = computed($aiTopicErrorAtom, (value) => value);
+export const $aiTopicHighlight = computed($aiTopicHighlightAtom, (value) => value);
+export const $aiTopicProcessing = computed($aiTopicProcessingAtom, (value) => value);
