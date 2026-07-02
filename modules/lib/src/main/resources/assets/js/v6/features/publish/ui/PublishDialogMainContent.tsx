@@ -5,19 +5,6 @@ import { useEffect, useId, useRef, useState, type ReactElement } from 'react';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import { $config } from '../../../shared/config/config.store';
 import {
-    $dependantPublishItems,
-    $hasExcludedDependantItems,
-    $hasMoreDependants,
-    $hasSchedulableItems,
-    $isPublishChecking,
-    $isPublishReady,
-    $isPublishSelectionSynced,
-    $mainPublishItems,
-    $publishCheckErrors,
-    $publishDependantsSelection,
-    $publishDialog,
-    $showPublishDependantsExcluded,
-    $totalPublishableItems,
     applyDraftPublishDialogSelection,
     cancelDraftPublishDialogSelection,
     clearPublishSchedule,
@@ -33,6 +20,21 @@ import {
     setPublishSchedule,
     togglePublishDialogDependantsSelection,
     togglePublishDialogShowExcluded,
+} from '../model/publishDialog.commands';
+import {
+    $dependantPublishItems,
+    $hasExcludedDependantItems,
+    $hasMoreDependants,
+    $hasSchedulableItems,
+    $isPublishChecking,
+    $isPublishReady,
+    $isPublishSelectionSynced,
+    $mainPublishItems,
+    $publishCheckErrors,
+    $publishDependantsSelection,
+    $publishDialog,
+    $showPublishDependantsExcluded,
+    $totalPublishableItems,
 } from '../model/publishDialog.store';
 import { ContentRow, SplitList } from '../../shared/lists';
 import { DependantsSelectAll } from '../../../shared/ui/dialogs/dependants/DependantsSelectAll';

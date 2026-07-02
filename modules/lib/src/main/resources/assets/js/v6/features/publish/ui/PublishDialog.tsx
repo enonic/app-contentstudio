@@ -2,13 +2,8 @@ import { Dialog } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { useEffect, useState, type ReactElement } from 'react';
 import { useTaskProgress } from '../../../entities/task/useTaskProgress';
-import {
-    $publishDialog,
-    $publishTaskId,
-    $totalPublishableItems,
-    publishItems,
-    resetPublishDialogContext,
-} from '../model/publishDialog.store';
+import { publishItems, resetPublishDialogContext } from '../model/publishDialog.commands';
+import { $publishDialog, $publishTaskId, $totalPublishableItems } from '../model/publishDialog.store';
 import { PublishDialogMainContent } from './PublishDialogMainContent';
 import { PublishDialogProgressContent } from './PublishDialogProgressContent';
 

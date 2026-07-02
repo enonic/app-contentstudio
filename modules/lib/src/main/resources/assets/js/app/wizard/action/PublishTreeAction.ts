@@ -3,7 +3,7 @@ import { type ContentWizardPanel } from '../ContentWizardPanel';
 import { ContentPublishPromptEvent } from '../../browse/ContentPublishPromptEvent';
 import type { ContentSummary } from '../../content/ContentSummary';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
-import { openPublishDialog } from '../../../v6/features/publish/model/publishDialog.store';
+import { openPublishDialog } from '../../../v6/features/publish/model/publishDialog.commands';
 
 export class PublishTreeAction extends BasePublishAction {
     constructor(wizard: ContentWizardPanel) {
