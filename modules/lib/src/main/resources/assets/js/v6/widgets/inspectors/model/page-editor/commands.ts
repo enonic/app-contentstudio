@@ -67,8 +67,8 @@ export function requestUpdateTextComponent(
     PageEventsManager.get().notifyTextComponentUpdateRequested(path, text, origin);
 }
 
-export function requestSetFragmentComponent(path: ComponentPath, id: string): void {
-    PageEventsManager.get().notifySetFragmentComponentRequested(path, id);
+export function requestSetFragmentComponent(path: ComponentPath, id: string, name?: string): void {
+    PageEventsManager.get().notifySetFragmentComponentRequested(path, id, name);
 }
 
 export function requestComponentAdd(path: ComponentPath, type: ComponentType): void {
