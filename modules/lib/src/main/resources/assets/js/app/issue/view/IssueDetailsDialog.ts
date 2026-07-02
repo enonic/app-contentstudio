@@ -1,71 +1,72 @@
-import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
-import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
-import {type ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {type Element} from '@enonic/lib-admin-ui/dom/Element';
-import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
-import {showError, showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
-import {type TaskId} from '@enonic/lib-admin-ui/task/TaskId';
-import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {type ModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
-import {NavigatedDeckPanel} from '@enonic/lib-admin-ui/ui/panel/NavigatedDeckPanel';
-import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
-import {type PrincipalComboBox} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
-import {TabBar} from '@enonic/lib-admin-ui/ui/tab/TabBar';
-import {type TabBarItem, TabBarItemBuilder} from '@enonic/lib-admin-ui/ui/tab/TabBarItem';
-import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
-import {type ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {LocalDateTime} from '@enonic/lib-admin-ui/util/LocalDateTime';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
+import { PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { AEl } from '@enonic/lib-admin-ui/dom/AEl';
+import { type ButtonEl } from '@enonic/lib-admin-ui/dom/ButtonEl';
+import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
+import { type Element } from '@enonic/lib-admin-ui/dom/Element';
+import { H6El } from '@enonic/lib-admin-ui/dom/H6El';
+import { showError, showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { type Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { PrincipalType } from '@enonic/lib-admin-ui/security/PrincipalType';
+import { type TaskId } from '@enonic/lib-admin-ui/task/TaskId';
+import { TaskState } from '@enonic/lib-admin-ui/task/TaskState';
+import { Action } from '@enonic/lib-admin-ui/ui/Action';
+import { type ModalDialogHeader } from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
+import { NavigatedDeckPanel } from '@enonic/lib-admin-ui/ui/panel/NavigatedDeckPanel';
+import { Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
+import { type PrincipalComboBox } from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
+import { TabBar } from '@enonic/lib-admin-ui/ui/tab/TabBar';
+import { type TabBarItem, TabBarItemBuilder } from '@enonic/lib-admin-ui/ui/tab/TabBarItem';
+import { Tooltip } from '@enonic/lib-admin-ui/ui/Tooltip';
+import { type ActionButton } from '@enonic/lib-admin-ui/ui2/ActionButton';
+import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
+import { LocalDateTime } from '@enonic/lib-admin-ui/util/LocalDateTime';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { type SelectionChange } from '@enonic/lib-admin-ui/util/SelectionChange';
+import { StringHelper } from '@enonic/lib-admin-ui/util/StringHelper';
 import type Q from 'q';
-import {openPublishDialog} from '../../../v6/features/store/dialogs/publishDialog.store';
-import {type ContentId} from '../../content/ContentId';
-import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {DependantItemsWithProgressDialog, type DependantItemsWithProgressDialogConfig} from '../../dialog/DependantItemsWithProgressDialog';
-import {DialogStateBar} from '../../dialog/DialogStateBar';
-import {ContentListBox} from '../../inputtype/selector/ContentListBox';
-import {type ContentSelectorDropdownOptions} from '../../inputtype/selector/ContentSelectorDropdown';
-import {ContentTreeSelectorDropdown} from '../../inputtype/selector/ContentTreeSelectorDropdown';
-import {ContentSelectedOptionsView} from '../../inputtype/ui/selector/ContentComboBox';
-import {ContentSummaryOptionDataLoader} from '../../inputtype/ui/selector/ContentSummaryOptionDataLoader';
-import {type ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
-import {ContentPublishDialog} from '../../publish/ContentPublishDialog';
-import {ContentPublishDialogAction} from '../../publish/ContentPublishDialogAction';
-import {PublishDialogDependantList} from '../../publish/PublishDialogDependantList';
-import {PublishDialogItemList} from '../../publish/PublishDialogItemList';
-import {PublishProcessor} from '../../publish/PublishProcessor';
-import {PublishScheduleForm} from '../../publish/PublishScheduleForm';
-import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
-import {PublishContentRequest} from '../../resource/PublishContentRequest';
-import {Router} from '../../Router';
-import {CSPrincipalCombobox} from '../../security/CSPrincipalCombobox';
-import {IssueServerEventsHandler} from '../event/IssueServerEventsHandler';
-import {type Issue} from '../Issue';
-import {type IssueComment} from '../IssueComment';
-import {IssueStatus, IssueStatusFormatter} from '../IssueStatus';
-import {IssueType} from '../IssueType';
-import {PublishRequest} from '../PublishRequest';
-import {PublishRequestItem} from '../PublishRequestItem';
-import {CreateIssueCommentRequest} from '../resource/CreateIssueCommentRequest';
-import {UpdateIssueRequest} from '../resource/UpdateIssueRequest';
-import {IssueCommentsList} from './IssueCommentsList';
-import {IssueCommentTextArea} from './IssueCommentTextArea';
-import {IssueDetailsDialogButtonRow} from './IssueDetailsDialogDropdownButtonRow';
-import {IssueDetailsDialogHeader} from './IssueDetailsDialogHeader';
-import {IssueDetailsDialogSubTitle} from './IssueDetailsDialogSubTitle';
+import { openPublishDialog } from '../../../v6/features/publish/model/publishDialog.store';
+import { type ContentId } from '../../content/ContentId';
+import { type ContentSummaryAndCompareStatus } from '../../content/ContentSummaryAndCompareStatus';
+import {
+    DependantItemsWithProgressDialog,
+    type DependantItemsWithProgressDialogConfig,
+} from '../../dialog/DependantItemsWithProgressDialog';
+import { DialogStateBar } from '../../dialog/DialogStateBar';
+import { ContentListBox } from '../../inputtype/selector/ContentListBox';
+import { type ContentSelectorDropdownOptions } from '../../inputtype/selector/ContentSelectorDropdown';
+import { ContentTreeSelectorDropdown } from '../../inputtype/selector/ContentTreeSelectorDropdown';
+import { ContentSelectedOptionsView } from '../../inputtype/ui/selector/ContentComboBox';
+import { ContentSummaryOptionDataLoader } from '../../inputtype/ui/selector/ContentSummaryOptionDataLoader';
+import { type ContentTreeSelectorItem } from '../../item/ContentTreeSelectorItem';
+import { ContentPublishDialog } from '../../publish/ContentPublishDialog';
+import { ContentPublishDialogAction } from '../../publish/ContentPublishDialogAction';
+import { PublishDialogDependantList } from '../../publish/PublishDialogDependantList';
+import { PublishDialogItemList } from '../../publish/PublishDialogItemList';
+import { PublishProcessor } from '../../publish/PublishProcessor';
+import { PublishScheduleForm } from '../../publish/PublishScheduleForm';
+import { ContentSummaryAndCompareStatusFetcher } from '../../resource/ContentSummaryAndCompareStatusFetcher';
+import { PublishContentRequest } from '../../resource/PublishContentRequest';
+import { Router } from '../../Router';
+import { CSPrincipalCombobox } from '../../security/CSPrincipalCombobox';
+import { IssueServerEventsHandler } from '../event/IssueServerEventsHandler';
+import { type Issue } from '../Issue';
+import { type IssueComment } from '../IssueComment';
+import { IssueStatus, IssueStatusFormatter } from '../IssueStatus';
+import { IssueType } from '../IssueType';
+import { PublishRequest } from '../PublishRequest';
+import { PublishRequestItem } from '../PublishRequestItem';
+import { CreateIssueCommentRequest } from '../resource/CreateIssueCommentRequest';
+import { UpdateIssueRequest } from '../resource/UpdateIssueRequest';
+import { IssueCommentsList } from './IssueCommentsList';
+import { IssueCommentTextArea } from './IssueCommentTextArea';
+import { IssueDetailsDialogButtonRow } from './IssueDetailsDialogDropdownButtonRow';
+import { IssueDetailsDialogHeader } from './IssueDetailsDialogHeader';
+import { IssueDetailsDialogSubTitle } from './IssueDetailsDialogSubTitle';
 
-export class IssueDetailsDialog
-    extends DependantItemsWithProgressDialog {
-
+export class IssueDetailsDialog extends DependantItemsWithProgressDialog {
     private issue: Issue;
 
     private errorTooltip: Tooltip;
@@ -195,7 +196,7 @@ export class IssueDetailsDialog
 
     private createContentSelector(): ContentTreeSelectorDropdown {
         const loader = new ContentSummaryOptionDataLoader<ContentTreeSelectorItem>();
-        const listBox = new ContentListBox({loader: loader});
+        const listBox = new ContentListBox({ loader: loader });
         const dropdownOptions: ContentSelectorDropdownOptions = {
             loader: loader,
             selectedOptionsView: new ContentSelectedOptionsView(),
@@ -208,13 +209,18 @@ export class IssueDetailsDialog
     }
 
     private getAssignedItems(): string[] {
-        return this.issue?.getPublishRequest().getItemsIds()?.map(itemId => itemId.toString()) || [];
+        return (
+            this.issue
+                ?.getPublishRequest()
+                .getItemsIds()
+                ?.map((itemId) => itemId.toString()) || []
+        );
     }
 
     protected initTabs(): void {
         this.assigneesCombobox = new CSPrincipalCombobox({
-           allowedTypes: [PrincipalType.USER],
-              skipPrincipals: [PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()],
+            allowedTypes: [PrincipalType.USER],
+            skipPrincipals: [PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()],
         });
         this.commentsList = new IssueCommentsList();
 
@@ -228,7 +234,10 @@ export class IssueDetailsDialog
     }
 
     private static createTabBar(name: string): TabBarItem {
-        const tab = new TabBarItemBuilder().setLabel(i18n(`field.${name}`)).setAddLabelTitleAttribute(false).build();
+        const tab = new TabBarItemBuilder()
+            .setLabel(i18n(`field.${name}`))
+            .setAddLabelTitleAttribute(false)
+            .build();
         tab.addClass(`${name}-tab`);
         return tab;
     }
@@ -265,7 +274,7 @@ export class IssueDetailsDialog
                     this.getDependantList().restoreExclusions();
                     this.markEditing(false);
                 },
-            }
+            },
         });
 
         this.stateBar.insertBeforeEl(this.dependantsControls);
@@ -276,26 +285,26 @@ export class IssueDetailsDialog
 
         this.debouncedUpdateIssue = AppHelper.debounce(this.doUpdateIssue.bind(this), 1000);
 
-        this.commentTextArea.onValueChanged(event => {
+        this.commentTextArea.onValueChanged((event) => {
             const saveAllowed = event.getNewValue().trim().length > 0;
             this.commentAction.setEnabled(saveAllowed);
             this.closeAction.setVisible(saveAllowed);
         });
 
-        this.commentTextArea.onKeyDown(event => {
+        this.commentTextArea.onKeyDown((event) => {
             event.stopImmediatePropagation();
             const value = this.commentTextArea.getValue();
             const saveAllowed = value.length > 0;
             switch (event.keyCode) {
-            case 27:
-                this.commentTextArea.setValue('').giveBlur();
-                break;
-            case 13:
-                // ctrl/cmd + enter
-                if (saveAllowed && (event.ctrlKey || event.metaKey)) {
-                    this.saveComment(value, this.commentAction);
-                }
-                break;
+                case 27:
+                    this.commentTextArea.setValue('').giveBlur();
+                    break;
+                case 13:
+                    // ctrl/cmd + enter
+                    if (saveAllowed && (event.ctrlKey || event.metaKey)) {
+                        this.saveComment(value, this.commentAction);
+                    }
+                    break;
             }
         });
 
@@ -331,7 +340,7 @@ export class IssueDetailsDialog
 
         this.commentsList.onItemsAdded(updateCommentsCount);
         this.commentsList.onItemsRemoved(updateCommentsCount);
-        this.commentsList.onEditModeChanged(editMode => {
+        this.commentsList.onEditModeChanged((editMode) => {
             this.commentTextArea.setEnabled(!editMode);
             this.getHeader().setReadOnly(editMode);
             this.setActionsEnabled(!editMode);
@@ -358,12 +367,15 @@ export class IssueDetailsDialog
 
         this.itemSelector.onSelectionChanged((selectionChange: SelectionChange<ContentTreeSelectorItem>): void => {
             if (selectionChange.selected?.length > 0) {
-                const selectedIds: ContentId[] = selectionChange.selected.map(item => item.getContentId());
+                const selectedIds: ContentId[] = selectionChange.selected.map((item) => item.getContentId());
                 this.saveOnLoaded = true;
                 this.isUpdatePending = true;
-                this.contentFetcher.fetchAndCompareStatus(selectedIds).then((result: ContentSummaryAndCompareStatus[]) => {
-                    this.addListItems(result);
-                }).catch(DefaultErrorHandler.handle);
+                this.contentFetcher
+                    .fetchAndCompareStatus(selectedIds)
+                    .then((result: ContentSummaryAndCompareStatus[]) => {
+                        this.addListItems(result);
+                    })
+                    .catch(DefaultErrorHandler.handle);
             }
 
             if (selectionChange.deselected?.length > 0) {
@@ -377,7 +389,7 @@ export class IssueDetailsDialog
             }
         });
 
-        this.tabPanel.onPanelShown(event => {
+        this.tabPanel.onPanelShown((event) => {
             const isAssignees = event.getPanel() === this.assigneesPanel;
             const isComments = event.getPanel() === this.commentsPanel;
             this.toggleClass('tab-assignees', isAssignees);
@@ -387,7 +399,7 @@ export class IssueDetailsDialog
             this.closeAction.setVisible(hasComment);
         });
 
-        this.closeAction.onExecuted(action => {
+        this.closeAction.onExecuted((action) => {
             const comment = this.commentTextArea.getValue();
             const hasComment = !StringHelper.isEmpty(comment);
             if (!hasComment) {
@@ -395,18 +407,21 @@ export class IssueDetailsDialog
             }
 
             action.setEnabled(false);
-            this.saveComment(comment, this.commentAction, true).then(() => {
-                this.detailsSubTitle.setStatus(IssueStatus.CLOSED);
-            }).catch(DefaultErrorHandler.handle).finally(() => {
-                action.setEnabled(true);
-            });
+            this.saveComment(comment, this.commentAction, true)
+                .then(() => {
+                    this.detailsSubTitle.setStatus(IssueStatus.CLOSED);
+                })
+                .catch(DefaultErrorHandler.handle)
+                .finally(() => {
+                    action.setEnabled(true);
+                });
         });
 
         this.reopenAction.onExecuted(() => {
             this.detailsSubTitle.setStatus(IssueStatus.OPEN);
         });
 
-        this.commentAction.onExecuted(action => {
+        this.commentAction.onExecuted((action) => {
             const comment = this.commentTextArea.getValue();
             this.saveComment(comment, action);
         });
@@ -439,11 +454,13 @@ export class IssueDetailsDialog
     }
 
     private updateTabLabel(tabIndex: number, label: string, count: number) {
-        this.tabBar.getNavigationItem(tabIndex).setLabel(IssueDetailsDialog.makeLabelWithCounter(label, count), false, false);
+        this.tabBar
+            .getNavigationItem(tabIndex)
+            .setLabel(IssueDetailsDialog.makeLabelWithCounter(label, count), false, false);
     }
 
     private static makeLabelWithCounter(label: string, count: number = 0): string {
-        return (count > 0 ? `${label} (${count})` : label);
+        return count > 0 ? `${label} (${count})` : label;
     }
 
     doRender(): Q.Promise<boolean> {
@@ -463,8 +480,12 @@ export class IssueDetailsDialog
 
             const itemList = this.getItemList();
             itemList.setCanBeEmpty(!isPublishRequest);
-            this.itemsPanel.appendChildren<DivEl>(this.publishScheduleForm, this.itemSelector, itemList,
-                this.getDependantsContainer());
+            this.itemsPanel.appendChildren<DivEl>(
+                this.publishScheduleForm,
+                this.itemSelector,
+                itemList,
+                this.getDependantsContainer(),
+            );
 
             this.tabPanel.addNavigablePanel(this.commentsTab, this.commentsPanel, !isPublishRequest);
             this.tabPanel.addNavigablePanel(this.itemsTab, this.itemsPanel, isPublishRequest);
@@ -507,7 +528,10 @@ export class IssueDetailsDialog
         if (isPublishRequestViewed) {
             const containsOnlyScheduled = this.publishProcessor.containsOnlyScheduledItems();
 
-            return IssueDetailsDialog.makeLabelWithCounter(containsOnlyScheduled ? i18n('action.updateScheduled') : i18n('action.publishNow'), itemsCount);
+            return IssueDetailsDialog.makeLabelWithCounter(
+                containsOnlyScheduled ? i18n('action.updateScheduled') : i18n('action.publishNow'),
+                itemsCount,
+            );
         } else {
             return i18n('action.publish');
         }
@@ -561,13 +585,15 @@ export class IssueDetailsDialog
     }
 
     private setActionsEnabled(flag: boolean) {
-        this.getButtonRow().getActions().forEach(action => {
-            if (action === this.commentAction) {
-                action.setEnabled(flag && this.commentTextArea.getValue().length > 0);
-            } else {
-                action.setEnabled(flag);
-            }
-        });
+        this.getButtonRow()
+            .getActions()
+            .forEach((action) => {
+                if (action === this.commentAction) {
+                    action.setEnabled(flag && this.commentTextArea.getValue().length > 0);
+                } else {
+                    action.setEnabled(flag);
+                }
+            });
         this.closeAction.setEnabled(flag);
     }
 
@@ -584,14 +610,17 @@ export class IssueDetailsDialog
     }
 
     public reloadItemList() {
-        this.contentFetcher.fetchAndCompareStatus(this.getItemList().getItemsIds()).then(items => {
-            this.getItemList().replaceItems(items);
-            this.getItemList().refreshList();
+        this.contentFetcher
+            .fetchAndCompareStatus(this.getItemList().getItemsIds())
+            .then((items) => {
+                this.getItemList().replaceItems(items);
+                this.getItemList().refreshList();
 
-            this.initItemListTogglers(this.getItemList());
+                this.initItemListTogglers(this.getItemList());
 
-            this.updateItemsCountAndButtonLabels();
-        }).catch(DefaultErrorHandler.handle);
+                this.updateItemsCountAndButtonLabels();
+            })
+            .catch(DefaultErrorHandler.handle);
     }
 
     private initElementListeners() {
@@ -644,7 +673,7 @@ export class IssueDetailsDialog
             this.hideLoadMask();
         });
 
-        this.excludedToggler.onActiveChanged(loadExcluded => this.publishProcessor.updateLoadExcluded(loadExcluded));
+        this.excludedToggler.onActiveChanged((loadExcluded) => this.publishProcessor.updateLoadExcluded(loadExcluded));
 
         this.getDependantList().onSelectionChanged((original) => {
             const isEditing = !original;
@@ -658,17 +687,20 @@ export class IssueDetailsDialog
     }
 
     private handleIssueGlobalEvents() {
-        const updateHandler: (issue: Issue) => void = AppHelper.debounce((issue: Issue) => {
-            this.setIssue(issue);
-        }, 3000, true);
+        const updateHandler: (issue: Issue) => void = AppHelper.debounce(
+            (issue: Issue) => {
+                this.setIssue(issue);
+            },
+            3000,
+            true,
+        );
 
         IssueServerEventsHandler.getInstance().onIssueUpdated((issues: Issue[]) => {
-
             if (!this.issue) {
                 return;
             }
 
-            issues.some(issue => {
+            issues.some((issue) => {
                 if (issue.getId() === this.issue.getId()) {
                     if (this.canUpdateDialog()) {
                         updateHandler(issue);
@@ -746,13 +778,13 @@ export class IssueDetailsDialog
     private refreshAssignedItemsListSelection(): void {
         const selectedItems = this.getAssignedItems();
 
-        this.itemSelector.getSelectedItems().forEach(item => {
+        this.itemSelector.getSelectedItems().forEach((item) => {
             const itemId = item.getId();
 
             if (selectedItems.indexOf(itemId) < 0) {
                 this.itemSelector.deselect(item, true);
             }
-        })
+        });
     }
 
     private loadAndSetPublishItems(): void {
@@ -768,15 +800,14 @@ export class IssueDetailsDialog
         this.itemSelector.updateSelectedItems();
         this.showLoadMask();
 
-        this.contentFetcher.fetchAndCompareStatus(ids).then((items: ContentSummaryAndCompareStatus[]) => {
-            this.clearListItems(true);
-            this.setListItems(items);
-        }).catch(
-            (reason) => DefaultErrorHandler.handle(reason)
-        )
-        .finally(
-            () => this.hideLoadMask()
-        );
+        this.contentFetcher
+            .fetchAndCompareStatus(ids)
+            .then((items: ContentSummaryAndCompareStatus[]) => {
+                this.clearListItems(true);
+                this.setListItems(items);
+            })
+            .catch((reason) => DefaultErrorHandler.handle(reason))
+            .finally(() => this.hideLoadMask());
     }
 
     private loadAndSetComments(): void {
@@ -786,7 +817,9 @@ export class IssueDetailsDialog
             this.showLoadMask();
         }
 
-        this.commentsList.setParentIssue(this.issue).catch(DefaultErrorHandler.handle)
+        this.commentsList
+            .setParentIssue(this.issue)
+            .catch(DefaultErrorHandler.handle)
             .finally(() => {
                 if (ids.length === 0) {
                     this.hideLoadMask();
@@ -794,7 +827,7 @@ export class IssueDetailsDialog
             });
     }
 
-   private updatePublishScheduleForm(): void {
+    private updatePublishScheduleForm(): void {
         let publishScheduleSet: PropertySet;
 
         if (this.issue.getPublishFrom() || this.issue.getPublishTo()) {
@@ -856,11 +889,14 @@ export class IssueDetailsDialog
         return new CreateIssueCommentRequest(this.issue.getId())
             .setCreator(AuthContext.get().getUser().getKey())
             .setSilent(silent)
-            .setText(text).sendAndParse()
-            .then(issueComment => {
+            .setText(text)
+            .sendAndParse()
+            .then((issueComment) => {
                 this.commentsList.addItems(issueComment);
                 this.commentTextArea.setValue('').giveFocus();
-                const messageKey = this.isPublishRequest() ? 'notify.publishRequest.commentAdded' : 'notify.issue.commentAdded';
+                const messageKey = this.isPublishRequest()
+                    ? 'notify.publishRequest.commentAdded'
+                    : 'notify.issue.commentAdded';
                 showFeedback(i18n(messageKey));
             });
     }
@@ -923,14 +959,20 @@ export class IssueDetailsDialog
         }
 
         const contents = this.getItemList().getItems();
-        const exceptedContentIds = contents.filter(content => {
-            return this.areChildrenIncludedInIssue(content.getContentId());
-        }).map(content => content.getContentId());
+        const exceptedContentIds = contents
+            .filter((content) => {
+                return this.areChildrenIncludedInIssue(content.getContentId());
+            })
+            .map((content) => content.getContentId());
 
         const excludedIds = this.publishProcessor.getExcludedIds();
         const message = this.issue.getTitle();
 
-        openPublishDialog(contents.map(item => item.getContentSummary()), false, excludedIds);
+        openPublishDialog(
+            contents.map((item) => item.getContentSummary()),
+            false,
+            excludedIds,
+        );
         // TODO: Enonic UI - Use other props
         // new ContentPublishPromptEvent({
         //     model: contents,
@@ -957,10 +999,10 @@ export class IssueDetailsDialog
     }
 
     private doPublish(): Q.Promise<void> {
-
         this.publishMessage.setHtml(i18n('dialog.publish.publishing', this.countTotal()));
 
-        return this.createPublishContentRequest().sendAndParse()
+        return this.createPublishContentRequest()
+            .sendAndParse()
             .then((taskId: TaskId) => {
                 const issue = this.issue;
                 this.ignoreNextExcludeChildrenEvent = true;
@@ -973,7 +1015,8 @@ export class IssueDetailsDialog
                 };
                 this.onProgressComplete(issuePublishedHandler);
                 this.pollTask(taskId);
-            }).catch((reason) => {
+            })
+            .catch((reason) => {
                 this.unlockControls();
                 this.close();
                 if (reason && reason.message) {
@@ -986,14 +1029,18 @@ export class IssueDetailsDialog
     private doUpdateIssueAfterPublish(issue: Issue): Q.Promise<void> {
         const request = new UpdateIssueRequest(issue.getId()).setIsPublish(true).setIssueStatus(IssueStatus.CLOSED);
 
-        return this.populateSchedule(request).sendAndParse()
+        return this.populateSchedule(request)
+            .sendAndParse()
             .then((updatedIssue: Issue) => {
                 this.setIssue(updatedIssue);
                 this.notifyIssueUpdated(updatedIssue);
                 const messageKey = this.isPublishRequest() ? 'notify.publishRequest.closed' : 'notify.issue.closed';
                 showFeedback(i18n(messageKey, updatedIssue.getTitle()));
-            }).catch(() => {
-                const messageKey = this.isPublishRequest() ? 'notify.publishRequest.closeError' : 'notify.issue.closeError';
+            })
+            .catch(() => {
+                const messageKey = this.isPublishRequest()
+                    ? 'notify.publishRequest.closeError'
+                    : 'notify.issue.closeError';
                 showError(i18n(messageKey, issue.getTitle()));
             });
     }
@@ -1039,10 +1086,11 @@ export class IssueDetailsDialog
             .setTitle(this.header.getHeading().trim())
             .setIssueStatus(status)
             .setAutoSave(!statusChanged)
-            .setApprovers(this.assigneesCombobox.getSelectedItems().map(item => item.getKey()))
+            .setApprovers(this.assigneesCombobox.getSelectedItems().map((item) => item.getKey()))
             .setPublishRequest(publishRequest);
 
-        return this.populateSchedule(updateIssueRequest).sendAndParse()
+        return this.populateSchedule(updateIssueRequest)
+            .sendAndParse()
             .then((updatedIssue: Issue) => {
                 const messageKey = this.isPublishRequest() ? 'notify.publishRequest.' : 'notify.issue.';
                 const statusKey = statusChanged ? IssueStatusFormatter.getFormattedStatus(status) : 'updated';
@@ -1063,28 +1111,31 @@ export class IssueDetailsDialog
     }
 
     private createPublishRequest(): PublishRequest {
-        const publishRequestItems = this.publishProcessor.getContentToPublishIds()
-            .map(contentId => {
-                return PublishRequestItem.create()
-                    .setId(contentId)
-                    .setIncludeChildren(this.areChildrenIncludedInPublishProcessor(contentId))
-                    .build();
-            });
+        const publishRequestItems = this.publishProcessor.getContentToPublishIds().map((contentId) => {
+            return PublishRequestItem.create()
+                .setId(contentId)
+                .setIncludeChildren(this.areChildrenIncludedInPublishProcessor(contentId))
+                .build();
+        });
 
-        return PublishRequest
-            .create(this.issue.getPublishRequest())
+        return PublishRequest.create(this.issue.getPublishRequest())
             .setExcludeIds(this.publishProcessor.getExcludedIds())
             .setPublishRequestItems(publishRequestItems)
             .build();
     }
 
     private areChildrenIncludedInIssue(id: ContentId): boolean {
-        return this.issue.getPublishRequest().hasItemId(id) &&
-               !this.issue.getPublishRequest().getExcludeChildrenIds().some(contentId => contentId.equals(id));
+        return (
+            this.issue.getPublishRequest().hasItemId(id) &&
+            !this.issue
+                .getPublishRequest()
+                .getExcludeChildrenIds()
+                .some((contentId) => contentId.equals(id))
+        );
     }
 
     private areChildrenIncludedInPublishProcessor(id: ContentId): boolean {
-        return !this.publishProcessor.getExcludeChildrenIds().some(contentId => contentId.equals(id));
+        return !this.publishProcessor.getExcludeChildrenIds().some((contentId) => contentId.equals(id));
     }
 
     private createPublishContentRequest(): PublishContentRequest {
@@ -1116,7 +1167,7 @@ export class IssueDetailsDialog
     }
 
     protected createItemList(): PublishDialogItemList {
-        return new PublishDialogItemList({allowOnlyItemRemoval: true});
+        return new PublishDialogItemList({ allowOnlyItemRemoval: true });
     }
 
     protected createDependantList(): PublishDialogDependantList {
@@ -1157,7 +1208,7 @@ export class IssueDetailsDialog
     }
 
     private toggleControlsAccordingToStatus(status: IssueStatus) {
-        this.toggleClass('closed', (status === IssueStatus.CLOSED));
+        this.toggleClass('closed', status === IssueStatus.CLOSED);
     }
 
     public onIssueUpdated(listener: (issue: Issue) => void) {
@@ -1165,11 +1216,11 @@ export class IssueDetailsDialog
     }
 
     public unIssueUpdated(listener: (issue: Issue) => void) {
-        this.updatedListeners = this.updatedListeners.filter(curr => curr !== listener);
+        this.updatedListeners = this.updatedListeners.filter((curr) => curr !== listener);
     }
 
     private notifyIssueUpdated(issue: Issue) {
-        this.updatedListeners.forEach(listener => listener(issue));
+        this.updatedListeners.forEach((listener) => listener(issue));
     }
 
     public onBackButtonClicked(listener: () => void) {
@@ -1177,11 +1228,11 @@ export class IssueDetailsDialog
     }
 
     public unBackButtonClicked(listener: () => void) {
-        this.backButtonClickedListeners = this.backButtonClickedListeners.filter(curr => curr !== listener);
+        this.backButtonClickedListeners = this.backButtonClickedListeners.filter((curr) => curr !== listener);
     }
 
     private notifyBackButtonClicked() {
-        this.backButtonClickedListeners.forEach(listener => listener());
+        this.backButtonClickedListeners.forEach((listener) => listener());
     }
 
     protected showLoadMask() {

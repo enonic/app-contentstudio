@@ -1,1 +1,0 @@
-export {RegionInspectionPanel} from './RegionInspectionPanel';

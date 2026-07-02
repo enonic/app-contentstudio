@@ -1,9 +1,9 @@
-import {GridList} from '@enonic/ui';
-import type {ReactElement} from 'react';
-import {ContentLabel} from '../../content/ContentLabel';
-import {ContentButton} from '../../content/ContentButton';
-import {useContentRow} from './ContentRowContext';
-import type {ContentRowLabelProps} from './types';
+import { GridList } from '@enonic/ui';
+import type { ReactElement } from 'react';
+import { ContentLabel } from '../../../../entities/content/ui/content/ContentLabel';
+import { ContentButton } from '../../../../entities/content/ui/content/ContentButton';
+import { useContentRow } from './ContentRowContext';
+import type { ContentRowLabelProps } from './types';
 
 const CONTENT_ROW_LABEL_NAME = 'ContentRowLabel';
 
@@ -12,7 +12,7 @@ export const ContentRowLabel = ({
     variant = 'compact',
     className,
 }: ContentRowLabelProps): ReactElement => {
-    const {content, disabled} = useContentRow();
+    const { content, disabled } = useContentRow();
     const labelVariant = variant === 'default' ? 'normal' : variant;
 
     return (

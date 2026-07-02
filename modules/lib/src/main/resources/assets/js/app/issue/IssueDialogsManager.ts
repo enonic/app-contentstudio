@@ -1,23 +1,22 @@
-import {type ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
-import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
-import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentPublishDialog} from '../publish/ContentPublishDialog';
+import { type ModalDialog } from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
+import { ContentPublishPromptEvent } from '../browse/ContentPublishPromptEvent';
+import { type ContentSummaryAndCompareStatus } from '../content/ContentSummaryAndCompareStatus';
+import { ContentPublishDialog } from '../publish/ContentPublishDialog';
 import {
     openIssueDialog,
     openIssueDialogDetails,
     setIssueDialogListFilter,
-} from '../../v6/features/store/dialogs/issueDialog.store';
-import {openNewIssueDialog} from '../../v6/features/store/dialogs/newIssueDialog.store';
-import {openRequestPublishDialog} from '../../v6/features/store/dialogs/requestPublishDialog.store';
-import {IssueServerEventsHandler} from './event/IssueServerEventsHandler';
-import {type Issue} from './Issue';
-import {GetIssueRequest} from './resource/GetIssueRequest';
-import {CreateIssueDialog} from './view/CreateIssueDialog';
-import {IssueDetailsDialog} from './view/IssueDetailsDialog';
-import {IssueListDialog} from './view/IssueListDialog';
+} from '../../v6/features/issues/model/issueDialog.store';
+import { openNewIssueDialog } from '../../v6/features/issues/model/newIssueDialog.store';
+import { openRequestPublishDialog } from '../../v6/features/request-publish/model/requestPublishDialog.store';
+import { IssueServerEventsHandler } from './event/IssueServerEventsHandler';
+import { type Issue } from './Issue';
+import { GetIssueRequest } from './resource/GetIssueRequest';
+import { CreateIssueDialog } from './view/CreateIssueDialog';
+import { IssueDetailsDialog } from './view/IssueDetailsDialog';
+import { IssueListDialog } from './view/IssueListDialog';
 
 export class IssueDialogsManager {
-
     private static INSTANCE: IssueDialogsManager;
 
     private detailsDialog: IssueDetailsDialog;
@@ -82,7 +81,7 @@ export class IssueDialogsManager {
             }
         };
         this.issueUpdateHandler = (issues: Issue[]) => {
-            issues.some(issue => {
+            issues.some((issue) => {
                 if (issue.getId() === this.issue.getId()) {
                     this.issue = issue;
                     return true;
@@ -101,7 +100,7 @@ export class IssueDialogsManager {
 
     private listenCreateDialog() {
         let ignoreNextClosedEvent = false;
-        this.createDialog.onIssueCreated(issue => {
+        this.createDialog.onIssueCreated((issue) => {
             ignoreNextClosedEvent = true;
             this.createDialog.close();
             this.openDetailsDialogWithListDialog(issue);
@@ -121,12 +120,12 @@ export class IssueDialogsManager {
             this.listDialog.addClickIgnoredElement(this.detailsDialog);
             this.listDialog.addClickIgnoredElement(this.createDialog);
         });
-        this.listDialog.onIssueSelected(issue => {
+        this.listDialog.onIssueSelected((issue) => {
             if (this.getIssueRequest) {
                 return;
             }
             this.getIssueRequest = new GetIssueRequest(issue.getId());
-            this.getIssueRequest.sendAndParse().done(issueWithComments => {
+            this.getIssueRequest.sendAndParse().done((issueWithComments) => {
                 this.openDetailsDialogWithListDialog(issueWithComments);
                 this.getIssueRequest = null;
             });
@@ -154,7 +153,6 @@ export class IssueDialogsManager {
         });
     }
 
-
     private static closeDialog(dialog: ModalDialog) {
         if (dialog.isOpen()) {
             dialog.close();
@@ -175,11 +173,13 @@ export class IssueDialogsManager {
     }
 
     openCreateDialog(summaries?: ContentSummaryAndCompareStatus[]) {
-        openNewIssueDialog(summaries?.map(item => item.getContentSummary()));
+        openNewIssueDialog(summaries?.map((item) => item.getContentSummary()));
     }
 
     openCreateRequestDialog(summaries?: ContentSummaryAndCompareStatus[], isIncludeChildren?: boolean) {
-        openRequestPublishDialog(summaries?.map(item => item.getContentSummary()), isIncludeChildren);
+        openRequestPublishDialog(
+            summaries?.map((item) => item.getContentSummary()),
+            isIncludeChildren,
+        );
     }
-
 }

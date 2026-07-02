@@ -3,7 +3,7 @@ import { useStore } from '@nanostores/preact';
 import { Moon, Sun, SunMoon } from 'lucide-react';
 import type { ReactElement } from 'react';
 import { useI18n } from '../../shared/lib/hooks/useI18n';
-import { $app, cycleTheme, type Theme } from '../store/app.store';
+import { $app, cycleTheme, type Theme } from '../../shared/app-state/app.store';
 
 /**
  * Returns the appropriate ARIA label for the next theme in the cycle.

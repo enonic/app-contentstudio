@@ -1,22 +1,20 @@
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
 import Q from 'q';
-import {type Content} from '../content/Content';
-import {WorkflowState} from '../content/WorkflowState';
-import {type Page} from '../page/Page';
-import {type PageCUDRequest} from '../resource/PageCUDRequest';
-import {UpdateContentRequest} from '../resource/UpdateContentRequest';
-import {UpdatePageRequest} from '../resource/UpdatePageRequest';
-import {UpdateWorkflowRequest} from '../resource/UpdateWorkflowRequest';
-import {ContentDiffHelper} from '../util/ContentDiffHelper';
-import {$wizardDraftWorkflowState} from '../../v6/features/store/wizardContent.store';
-import {type ContentWizardPanel} from './ContentWizardPanel';
-import {CreatePageRequest} from './CreatePageRequest';
-import {DeletePageRequest} from './DeletePageRequest';
-import {Flow, RoutineContext} from './Flow';
+import { type Content } from '../content/Content';
+import { WorkflowState } from '../content/WorkflowState';
+import { type Page } from '../page/Page';
+import { type PageCUDRequest } from '../resource/PageCUDRequest';
+import { UpdateContentRequest } from '../resource/UpdateContentRequest';
+import { UpdatePageRequest } from '../resource/UpdatePageRequest';
+import { UpdateWorkflowRequest } from '../resource/UpdateWorkflowRequest';
+import { ContentDiffHelper } from '../util/ContentDiffHelper';
+import { $wizardDraftWorkflowState } from '../../v6/pages/wizard/model/wizardContent.store';
+import { type ContentWizardPanel } from './ContentWizardPanel';
+import { CreatePageRequest } from './CreatePageRequest';
+import { DeletePageRequest } from './DeletePageRequest';
+import { Flow, RoutineContext } from './Flow';
 
-export class UpdatePersistedContentRoutine
-    extends Flow {
-
+export class UpdatePersistedContentRoutine extends Flow {
     private readonly persistedContent: Content;
 
     private readonly viewedContent: Content;
@@ -62,9 +60,9 @@ export class UpdatePersistedContentRoutine
     }
 
     private doHandleUpdateContent(context: RoutineContext, markUpdated: boolean = true): Q.Promise<void> {
-        return this.produceUpdateContentRequest(this.viewedContent).sendAndParse().then(
-            (content: Content): void => {
-
+        return this.produceUpdateContentRequest(this.viewedContent)
+            .sendAndParse()
+            .then((content: Content): void => {
                 // NB: reloading the page because it may use any changed data
                 context.pageUpdated = true;
 
@@ -82,11 +80,10 @@ export class UpdatePersistedContentRoutine
             return Q();
         }
 
-        return pageCUDRequest.sendAndParse()
-            .then((content: Content): void => {
-                context.content = content;
-                context.pageUpdated = true;
-            });
+        return pageCUDRequest.sendAndParse().then((content: Content): void => {
+            context.content = content;
+            context.pageUpdated = true;
+        });
     }
 
     private hasNamesChanged(): boolean {
@@ -100,11 +97,13 @@ export class UpdatePersistedContentRoutine
         const persisted: Content = this.persistedContent;
         const viewed: Content = this.viewedContent;
 
-        return !ContentDiffHelper.dataEquals(persisted.getContentData(), viewed.getContentData()) ||
-               !ContentDiffHelper.extraDataEquals(persisted.getMixins(), viewed.getMixins()) ||
-               !ObjectHelper.dateEquals(persisted.getPublishFromTime(), viewed.getPublishFromTime()) ||
-               !ObjectHelper.dateEquals(persisted.getPublishToTime(), viewed.getPublishToTime()) ||
-               !persisted.getPermissions().equals(viewed.getPermissions());
+        return (
+            !ContentDiffHelper.dataEquals(persisted.getContentData(), viewed.getContentData()) ||
+            !ContentDiffHelper.extraDataEquals(persisted.getMixins(), viewed.getMixins()) ||
+            !ObjectHelper.dateEquals(persisted.getPublishFromTime(), viewed.getPublishFromTime()) ||
+            !ObjectHelper.dateEquals(persisted.getPublishToTime(), viewed.getPublishToTime()) ||
+            !persisted.getPermissions().equals(viewed.getPermissions())
+        );
     }
 
     private hasPageChanged(): boolean {
@@ -128,8 +127,8 @@ export class UpdatePersistedContentRoutine
         } else if (persistedContent.isPage() && viewedContent.isPage()) {
             const viewedPage = viewedContent.getPage();
             return new UpdatePageRequest(persistedContent.getContentId())
-                .setController((viewedPage.getController()))
-                .setPageTemplateKey((viewedPage.getTemplate()))
+                .setController(viewedPage.getController())
+                .setPageTemplateKey(viewedPage.getTemplate())
                 .setConfig(viewedPage.getConfig())
                 .setRegions(viewedPage.getRegions())
                 .setFragment(viewedPage.getFragment());
@@ -140,16 +139,17 @@ export class UpdatePersistedContentRoutine
         return UpdateContentRequest.create(viewedContent).setRequireValid(this.requireValid);
     }
 
-
     setRequireValid(requireValid: boolean): UpdatePersistedContentRoutine {
         this.requireValid = requireValid;
         return this;
     }
 
     private doHandleWorkflowChange(context: RoutineContext, workflowState: WorkflowState): Q.Promise<void> {
-        return new UpdateWorkflowRequest(this.viewedContent.getContentId(), workflowState).sendAndParse().then((content) => {
-            context.content = content;
-            context.workflowUpdated = true;
-        });
+        return new UpdateWorkflowRequest(this.viewedContent.getContentId(), workflowState)
+            .sendAndParse()
+            .then((content) => {
+                context.content = content;
+                context.workflowUpdated = true;
+            });
     }
 }

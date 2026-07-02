@@ -1,6 +1,6 @@
-import {SettingsAppShellElement} from '../../v6/features/views/settings/SettingsAppShell';
-import {AppContainer} from '../AppContainer';
-import {SettingsAppPanel} from './SettingsAppPanel';
+import { SettingsAppShellElement } from '../../v6/pages/settings/SettingsAppShell';
+import { AppContainer } from '../AppContainer';
+import { SettingsAppPanel } from './SettingsAppPanel';
 
 export class SettingsAppContainer extends AppContainer {
     constructor() {

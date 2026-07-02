@@ -1,13 +1,13 @@
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {type Project} from '../../data/project/Project';
-import {type SettingsViewItem} from '../../view/SettingsViewItem';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
-import {ProjectViewItem} from '../../view/ProjectViewItem';
-import {ProjectConfigContext} from '../../data/project/ProjectConfigContext';
-import {getCurrentItems} from '../../../../v6/features/store/settingsTreeSelection.store';
-import {openCreateProjectDialog} from '../../../../v6/features/store/dialogs/projectDialog.store';
+import { Action } from '@enonic/lib-admin-ui/ui/Action';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { type Project } from '../../data/project/Project';
+import { type SettingsViewItem } from '../../view/SettingsViewItem';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { AuthHelper } from '@enonic/lib-admin-ui/auth/AuthHelper';
+import { ProjectViewItem } from '../../view/ProjectViewItem';
+import { ProjectConfigContext } from '../../data/project/ProjectConfigContext';
+import { getCurrentItems } from '../../../../v6/pages/settings/model/settingsTreeSelection.store';
+import { openCreateProjectDialog } from '../../../../v6/features/manage-project/model/projectDialog.store';
 
 export class NewSettingsItemTreeAction extends Action {
     constructor() {

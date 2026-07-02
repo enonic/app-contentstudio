@@ -1,0 +1,126 @@
+import { Button, cn, Dialog, Input } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { type ReactElement, useRef } from 'react';
+import { useI18n } from '../../../shared/lib/hooks/useI18n';
+import {
+    $canSubmitRenameContentDialog,
+    $renameContentDialog,
+    closeRenameContentDialog,
+    type RenameContentDialogAvailabilityStatus,
+    setRenameContentDialogValue,
+    submitRenameContentDialog,
+} from '../model/renameContentDialog.store';
+import { formatContentFullPath } from '../../../shared/lib/cms/content/paths';
+
+const RENAME_CONTENT_DIALOG_NAME = 'RenameContentDialog';
+
+export const RenameContentDialog = (): ReactElement => {
+    const inputRef = useRef<HTMLInputElement>(null);
+    const { open, mode, pathName, parentPath, value, availabilityStatus, validationStatus } = useStore(
+        $renameContentDialog,
+        {
+            keys: ['open', 'mode', 'pathName', 'parentPath', 'value', 'availabilityStatus', 'validationStatus'],
+        },
+    );
+
+    const canSubmit = useStore($canSubmitRenameContentDialog);
+
+    const renamePublishedTitle = useI18n('dialog.rename.published.title');
+    const renameTitle = useI18n('dialog.rename.title');
+    const setNameTitle = useI18n('dialog.rename.setName.title');
+    const newNameLabel = useI18n('dialog.rename.label');
+    const nameLabel = useI18n('dialog.rename.name');
+    const checkingLabel = useI18n('path.checking');
+    const availableLabel = useI18n('path.available');
+    const notAvailableLabel = useI18n('path.not.available');
+    const invalidNameLabel = useI18n('path.name.invalid');
+    const renameLabel = useI18n('action.rename');
+    const unnamedFieldLabel = useI18n('field.unnamed');
+
+    const unnamedPathLabel = `<${unnamedFieldLabel}>`;
+    const placeholder = pathName || unnamedPathLabel;
+    const fullPath = parentPath ? formatContentFullPath(parentPath, placeholder, unnamedPathLabel) : '';
+
+    const title = mode === 'rename-published' ? renamePublishedTitle : mode === 'set-name' ? setNameTitle : renameTitle;
+
+    const inputLabel = mode === 'set-name' ? nameLabel : newNameLabel;
+    const availabilityLabels: Record<RenameContentDialogAvailabilityStatus, string> = {
+        'not-available': notAvailableLabel,
+        checking: checkingLabel,
+        available: availableLabel,
+    };
+    const hasValidationError = validationStatus === 'invalid';
+    const hasStatusError = hasValidationError || availabilityStatus === 'not-available';
+
+    let helperText: string | undefined;
+    if (hasValidationError) {
+        helperText = invalidNameLabel;
+    } else if (availabilityStatus) {
+        helperText = availabilityLabels[availabilityStatus];
+    }
+
+    return (
+        <Dialog.Root
+            open={open}
+            onOpenChange={(nextOpen) => {
+                if (!nextOpen) {
+                    closeRenameContentDialog();
+                }
+            }}
+        >
+            <Dialog.Portal>
+                <Dialog.Overlay />
+                <Dialog.Content
+                    className="w-full h-full gap-7.5 sm:h-fit md:min-w-180 md:max-w-184"
+                    data-component={RENAME_CONTENT_DIALOG_NAME}
+                    onOpenAutoFocus={(event) => {
+                        event.preventDefault();
+                        inputRef.current?.focus({ focusVisible: true });
+                    }}
+                >
+                    <Dialog.DefaultHeader title={title} withClose>
+                        <Dialog.Description className="overflow-hidden text-subtle text-ellipsis">
+                            {fullPath}
+                        </Dialog.Description>
+                    </Dialog.DefaultHeader>
+                    <Dialog.Body className="flex flex-col gap-2.5 overflow-visible">
+                        <Input
+                            ref={inputRef}
+                            label={inputLabel}
+                            value={value}
+                            placeholder={placeholder}
+                            onChange={(event) => {
+                                setRenameContentDialogValue(event.currentTarget.value);
+                            }}
+                            endAddon={
+                                helperText ? (
+                                    <div
+                                        className={cn(
+                                            'mr-4.5 flex cursor-default text-xs text-main h-fit min-w-22 justify-center px-2 self-center rounded-sm leading-normal',
+                                            availabilityStatus === 'checking' && 'bg-muted',
+                                            availabilityStatus === 'available' && 'bg-surface-success',
+                                            hasStatusError && 'bg-surface-error',
+                                        )}
+                                    >
+                                        {helperText}
+                                    </div>
+                                ) : undefined
+                            }
+                        />
+                    </Dialog.Body>
+                    <Dialog.Footer>
+                        <Button
+                            size="lg"
+                            variant="solid"
+                            label={renameLabel}
+                            disabled={!canSubmit}
+                            onClick={submitRenameContentDialog}
+                        />
+                    </Dialog.Footer>
+                </Dialog.Content>
+            </Dialog.Portal>
+        </Dialog.Root>
+    );
+};
+
+RenameContentDialog.displayName = RENAME_CONTENT_DIALOG_NAME;

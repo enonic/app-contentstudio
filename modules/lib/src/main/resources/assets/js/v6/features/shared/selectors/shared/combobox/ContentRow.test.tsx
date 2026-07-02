@@ -1,72 +1,107 @@
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {fireEvent, render, screen} from '@testing-library/preact';
-import type {ContentComboboxFlatNode} from '../../../../hooks/useContentComboboxData';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/preact';
+import type { ContentComboboxFlatNode } from '../../../../hooks/useContentComboboxData';
 
 // Mock @enonic/ui
 vi.mock('@enonic/ui', () => {
     const createMockComponent = (name: string) => {
-        const Component = ({children, ...props}: {children?: React.ReactNode;[key: string]: unknown}) => (
-            <div data-testid={name} {...props}>{children}</div>
+        const Component = ({ children, ...props }: { children?: React.ReactNode; [key: string]: unknown }) => (
+            <div data-testid={name} {...props}>
+                {children}
+            </div>
         );
         Component.displayName = name;
         return Component;
     };
 
     const MockListItem = Object.assign(
-        ({children, className, ...props}: {children?: React.ReactNode; className?: string;[key: string]: unknown}) => (
-            <div data-testid='list-item' className={className} {...props}>{children}</div>
+        ({
+            children,
+            className,
+            ...props
+        }: {
+            children?: React.ReactNode;
+            className?: string;
+            [key: string]: unknown;
+        }) => (
+            <div data-testid="list-item" className={className} {...props}>
+                {children}
+            </div>
         ),
         {
-            Left: ({children, className}: {children?: React.ReactNode; className?: string}) => (
-                <div data-testid='list-item-left' className={className}>{children}</div>
+            Left: ({ children, className }: { children?: React.ReactNode; className?: string }) => (
+                <div data-testid="list-item-left" className={className}>
+                    {children}
+                </div>
             ),
-            Right: ({children, className}: {children?: React.ReactNode; className?: string}) => (
-                <div data-testid='list-item-right' className={className}>{children}</div>
+            Right: ({ children, className }: { children?: React.ReactNode; className?: string }) => (
+                <div data-testid="list-item-right" className={className}>
+                    {children}
+                </div>
             ),
         },
     );
 
-    const MockVirtualizedTreeList = Object.assign(
-        createMockComponent('virtualized-tree-list'),
-        {
-            Row: ({children, ...props}: {children?: React.ReactNode;[key: string]: unknown}) => (
-                <div data-testid='tree-row' {...props}>{children}</div>
-            ),
-            RowLeft: ({children, ...props}: {children?: React.ReactNode;[key: string]: unknown}) => (
-                <div data-testid='row-left' {...props}>{children}</div>
-            ),
-            RowContent: ({children, ...props}: {children?: React.ReactNode;[key: string]: unknown}) => (
-                <div data-testid='row-content' {...props}>{children}</div>
-            ),
-            RowRight: ({children, ...props}: {children?: React.ReactNode;[key: string]: unknown}) => (
-                <div data-testid='row-right' {...props}>{children}</div>
-            ),
-            RowLoading: ({children, level, className}: {children?: React.ReactNode; level?: number; className?: string}) => (
-                <div data-testid='row-loading' data-level={level} className={className}>{children}</div>
-            ),
-            RowLevelSpacer: ({level}: {level?: number}) => (
-                <span data-testid='row-level-spacer' data-level={level} />
-            ),
-            RowExpandControl: ({rowId, expanded, hasChildren, onToggle, selected}: {
-                rowId?: string;
-                expanded?: boolean;
-                hasChildren?: boolean;
-                onToggle?: () => void;
-                selected?: boolean;
-            }) => (
-                <button
-                    data-testid='row-expand-control'
-                    data-row-id={rowId}
-                    data-expanded={expanded}
-                    data-has-children={hasChildren}
-                    onClick={onToggle}
-                />
-            ),
-            RowSelectionControl: ({rowId}: {rowId?: string}) => (
-                <div data-testid='row-selection-control' data-row-id={rowId} />
-            ),
-        },
-    );
+    const MockVirtualizedTreeList = Object.assign(createMockComponent('virtualized-tree-list'), {
+        Row: ({ children, ...props }: { children?: React.ReactNode; [key: string]: unknown }) => (
+            <div data-testid="tree-row" {...props}>
+                {children}
+            </div>
+        ),
+        RowLeft: ({ children, ...props }: { children?: React.ReactNode; [key: string]: unknown }) => (
+            <div data-testid="row-left" {...props}>
+                {children}
+            </div>
+        ),
+        RowContent: ({ children, ...props }: { children?: React.ReactNode; [key: string]: unknown }) => (
+            <div data-testid="row-content" {...props}>
+                {children}
+            </div>
+        ),
+        RowRight: ({ children, ...props }: { children?: React.ReactNode; [key: string]: unknown }) => (
+            <div data-testid="row-right" {...props}>
+                {children}
+            </div>
+        ),
+        RowLoading: ({
+            children,
+            level,
+            className,
+        }: {
+            children?: React.ReactNode;
+            level?: number;
+            className?: string;
+        }) => (
+            <div data-testid="row-loading" data-level={level} className={className}>
+                {children}
+            </div>
+        ),
+        RowLevelSpacer: ({ level }: { level?: number }) => <span data-testid="row-level-spacer" data-level={level} />,
+        RowExpandControl: ({
+            rowId,
+            expanded,
+            hasChildren,
+            onToggle,
+            selected,
+        }: {
+            rowId?: string;
+            expanded?: boolean;
+            hasChildren?: boolean;
+            onToggle?: () => void;
+            selected?: boolean;
+        }) => (
+            <button
+                data-testid="row-expand-control"
+                data-row-id={rowId}
+                data-expanded={expanded}
+                data-has-children={hasChildren}
+                onClick={onToggle}
+            />
+        ),
+        RowSelectionControl: ({ rowId }: { rowId?: string }) => (
+            <div data-testid="row-selection-control" data-row-id={rowId} />
+        ),
+    });
 
     return {
         ListItem: MockListItem,
@@ -76,27 +111,29 @@ vi.mock('@enonic/ui', () => {
 
 // Mock lucide-react
 vi.mock('lucide-react', () => ({
-    Loader2: ({className}: {className?: string}) => (
-        <span data-testid='loader-icon' className={className} />
-    ),
+    Loader2: ({ className }: { className?: string }) => <span data-testid="loader-icon" className={className} />,
 }));
 
 // Mock ContentLabel
-vi.mock('../../../content/ContentLabel', () => ({
-    ContentLabel: ({content, variant, className}: {content: unknown; variant?: string; className?: string}) => (
-        <span data-testid='content-label' className={className}>Content Label</span>
+vi.mock('../../../../../entities/content/ui/content/ContentLabel', () => ({
+    ContentLabel: ({ content, variant, className }: { content: unknown; variant?: string; className?: string }) => (
+        <span data-testid="content-label" className={className}>
+            Content Label
+        </span>
     ),
 }));
 
 // Mock StatusBadge
 vi.mock('../../../status/StatusBadge', () => ({
-    StatusBadge: ({status}: {status?: string}) => (
-        <span data-testid='status-badge' data-status={status}>Status</span>
+    StatusBadge: ({ status }: { status?: string }) => (
+        <span data-testid="status-badge" data-status={status}>
+            Status
+        </span>
     ),
 }));
 
 // Now import the component
-import {ContentRow, type ContentRowProps} from './ContentRow';
+import { ContentRow, type ContentRowProps } from './ContentRow';
 
 // Helper to create mock flat node
 function createMockNode(
@@ -156,7 +193,7 @@ function createMockNode(
         getPublishFromTime: () => new Date(),
         getPublishToTime: () => null,
         getDisplayName: () => `Display ${id}`,
-        getType: () => ({getLocalName: () => 'page'}),
+        getType: () => ({ getLocalName: () => 'page' }),
         getPath: () => null,
         getIconUrl: () => null,
     };
@@ -174,7 +211,7 @@ function createMockNode(
             name: `name-${id}`,
             publishStatus: 'ONLINE' as never,
             contentState: null,
-            contentType: {toString: () => 'base:content'} as never,
+            contentType: { toString: () => 'base:content' } as never,
             iconUrl: null,
             item: mockContent as never,
             selectable,
@@ -218,66 +255,39 @@ describe('ContentRow', () => {
 
     describe('loading node', () => {
         it('renders LoadingRow when nodeType="loading"', () => {
-            const loadingNode = createMockNode('root', {nodeType: 'loading', isLoading: true});
+            const loadingNode = createMockNode('root', { nodeType: 'loading', isLoading: true });
 
-            render(
-                <ContentRow
-                    {...defaultProps}
-                    node={loadingNode}
-                />,
-            );
+            render(<ContentRow {...defaultProps} node={loadingNode} />);
 
             expect(screen.getByTestId('row-loading')).toBeDefined();
             expect(screen.queryByTestId('tree-row')).toBeNull();
         });
 
         it('shows spinner only when isLoading=true', () => {
-            const loadingNode = createMockNode('root', {nodeType: 'loading', isLoading: true});
+            const loadingNode = createMockNode('root', { nodeType: 'loading', isLoading: true });
 
-            render(
-                <ContentRow
-                    {...defaultProps}
-                    node={loadingNode}
-                />,
-            );
+            render(<ContentRow {...defaultProps} node={loadingNode} />);
 
             expect(screen.getByTestId('loader-icon')).toBeDefined();
         });
 
         it('hides spinner when isLoading=false', () => {
-            const loadingNode = createMockNode('root', {nodeType: 'loading', isLoading: false});
+            const loadingNode = createMockNode('root', { nodeType: 'loading', isLoading: false });
 
-            render(
-                <ContentRow
-                    {...defaultProps}
-                    node={loadingNode}
-                />,
-            );
+            render(<ContentRow {...defaultProps} node={loadingNode} />);
 
             expect(screen.queryByTestId('loader-icon')).toBeNull();
         });
 
         it('respects showExpandControl for margin', () => {
-            const loadingNode = createMockNode('root', {nodeType: 'loading', isLoading: true});
+            const loadingNode = createMockNode('root', { nodeType: 'loading', isLoading: true });
 
-            const {rerender} = render(
-                <ContentRow
-                    {...defaultProps}
-                    node={loadingNode}
-                    showExpandControl
-                />,
-            );
+            const { rerender } = render(<ContentRow {...defaultProps} node={loadingNode} showExpandControl />);
 
             const iconWithExpand = screen.getByTestId('loader-icon');
             expect(iconWithExpand.className).toContain('ml-7.5');
 
-            rerender(
-                <ContentRow
-                    {...defaultProps}
-                    node={loadingNode}
-                    showExpandControl={false}
-                />,
-            );
+            rerender(<ContentRow {...defaultProps} node={loadingNode} showExpandControl={false} />);
 
             const iconWithoutExpand = screen.getByTestId('loader-icon');
             expect(iconWithoutExpand.className).toContain('ml-2');
@@ -286,14 +296,9 @@ describe('ContentRow', () => {
 
     describe('skeleton node', () => {
         it('renders SkeletonRow when data=null', () => {
-            const skeletonNode = createMockNode('1', {skeleton: true});
+            const skeletonNode = createMockNode('1', { skeleton: true });
 
-            render(
-                <ContentRow
-                    {...defaultProps}
-                    node={skeletonNode}
-                />,
-            );
+            render(<ContentRow {...defaultProps} node={skeletonNode} />);
 
             expect(screen.getByTestId('tree-row')).toBeDefined();
             // Skeleton has pulse animation
@@ -313,13 +318,7 @@ describe('ContentRow', () => {
                 nodeType: 'node', // regular node with null data = skeleton
             };
 
-            render(
-                <ContentRow
-                    {...defaultProps}
-                    node={skeletonNode}
-                    showExpandControl
-                />,
-            );
+            render(<ContentRow {...defaultProps} node={skeletonNode} showExpandControl />);
 
             expect(screen.getByTestId('row-left')).toBeDefined();
         });
@@ -337,13 +336,7 @@ describe('ContentRow', () => {
                 nodeType: 'node', // regular node with null data = skeleton
             };
 
-            render(
-                <ContentRow
-                    {...defaultProps}
-                    node={skeletonNode}
-                    showExpandControl={false}
-                />,
-            );
+            render(<ContentRow {...defaultProps} node={skeletonNode} showExpandControl={false} />);
 
             expect(screen.queryByTestId('row-left')).toBeNull();
         });
@@ -357,73 +350,43 @@ describe('ContentRow', () => {
         });
 
         it('shows RowLeft when showExpandControl=true', () => {
-            render(
-                <ContentRow
-                    {...defaultProps}
-                    showExpandControl
-                />,
-            );
+            render(<ContentRow {...defaultProps} showExpandControl />);
 
             expect(screen.getByTestId('row-left')).toBeDefined();
             expect(screen.getByTestId('row-expand-control')).toBeDefined();
         });
 
         it('hides RowLeft when showExpandControl=false', () => {
-            render(
-                <ContentRow
-                    {...defaultProps}
-                    showExpandControl={false}
-                />,
-            );
+            render(<ContentRow {...defaultProps} showExpandControl={false} />);
 
             expect(screen.queryByTestId('row-left')).toBeNull();
             expect(screen.queryByTestId('row-expand-control')).toBeNull();
         });
 
         it('shows selection control when selectable=true', () => {
-            const selectableNode = createMockNode('1', {selectable: true});
+            const selectableNode = createMockNode('1', { selectable: true });
 
-            render(
-                <ContentRow
-                    {...defaultProps}
-                    node={selectableNode}
-                />,
-            );
+            render(<ContentRow {...defaultProps} node={selectableNode} />);
 
             expect(screen.getByTestId('row-selection-control')).toBeDefined();
         });
 
         it('hides selection control when selectable=false', () => {
-            const nonSelectableNode = createMockNode('1', {selectable: false});
+            const nonSelectableNode = createMockNode('1', { selectable: false });
 
-            render(
-                <ContentRow
-                    {...defaultProps}
-                    node={nonSelectableNode}
-                />,
-            );
+            render(<ContentRow {...defaultProps} node={nonSelectableNode} />);
 
             expect(screen.queryByTestId('row-selection-control')).toBeNull();
         });
 
         it('shows StatusBadge when showStatusBadge=true', () => {
-            render(
-                <ContentRow
-                    {...defaultProps}
-                    showStatusBadge
-                />,
-            );
+            render(<ContentRow {...defaultProps} showStatusBadge />);
 
             expect(screen.getByTestId('status-badge')).toBeDefined();
         });
 
         it('hides StatusBadge when showStatusBadge=false', () => {
-            render(
-                <ContentRow
-                    {...defaultProps}
-                    showStatusBadge={false}
-                />,
-            );
+            render(<ContentRow {...defaultProps} showStatusBadge={false} />);
 
             expect(screen.queryByTestId('status-badge')).toBeNull();
         });
@@ -432,15 +395,9 @@ describe('ContentRow', () => {
     describe('expand/collapse', () => {
         it('calls onExpand when expand control clicked (collapsed)', () => {
             const onExpand = vi.fn();
-            const node = createMockNode('1', {hasChildren: true, isExpanded: false});
+            const node = createMockNode('1', { hasChildren: true, isExpanded: false });
 
-            render(
-                <ContentRow
-                    {...defaultProps}
-                    node={node}
-                    onExpand={onExpand}
-                />,
-            );
+            render(<ContentRow {...defaultProps} node={node} onExpand={onExpand} />);
 
             const expandControl = screen.getByTestId('row-expand-control');
             fireEvent.click(expandControl);
@@ -450,15 +407,9 @@ describe('ContentRow', () => {
 
         it('calls onCollapse when expand control clicked (expanded)', () => {
             const onCollapse = vi.fn();
-            const node = createMockNode('1', {hasChildren: true, isExpanded: true});
+            const node = createMockNode('1', { hasChildren: true, isExpanded: true });
 
-            render(
-                <ContentRow
-                    {...defaultProps}
-                    node={node}
-                    onCollapse={onCollapse}
-                />,
-            );
+            render(<ContentRow {...defaultProps} node={node} onCollapse={onCollapse} />);
 
             const expandControl = screen.getByTestId('row-expand-control');
             fireEvent.click(expandControl);
@@ -467,28 +418,18 @@ describe('ContentRow', () => {
         });
 
         it('passes correct expanded state to RowExpandControl', () => {
-            const expandedNode = createMockNode('1', {hasChildren: true, isExpanded: true});
+            const expandedNode = createMockNode('1', { hasChildren: true, isExpanded: true });
 
-            render(
-                <ContentRow
-                    {...defaultProps}
-                    node={expandedNode}
-                />,
-            );
+            render(<ContentRow {...defaultProps} node={expandedNode} />);
 
             const expandControl = screen.getByTestId('row-expand-control');
             expect(expandControl.getAttribute('data-expanded')).toBe('true');
         });
 
         it('passes correct hasChildren to RowExpandControl', () => {
-            const nodeWithChildren = createMockNode('1', {hasChildren: true});
+            const nodeWithChildren = createMockNode('1', { hasChildren: true });
 
-            render(
-                <ContentRow
-                    {...defaultProps}
-                    node={nodeWithChildren}
-                />,
-            );
+            render(<ContentRow {...defaultProps} node={nodeWithChildren} />);
 
             const expandControl = screen.getByTestId('row-expand-control');
             expect(expandControl.getAttribute('data-has-children')).toBe('true');
@@ -497,28 +438,18 @@ describe('ContentRow', () => {
 
     describe('level handling', () => {
         it('passes level to RowLevelSpacer', () => {
-            const node = createMockNode('1', {level: 3});
+            const node = createMockNode('1', { level: 3 });
 
-            render(
-                <ContentRow
-                    {...defaultProps}
-                    node={node}
-                />,
-            );
+            render(<ContentRow {...defaultProps} node={node} />);
 
             const spacer = screen.getByTestId('row-level-spacer');
             expect(spacer.getAttribute('data-level')).toBe('3');
         });
 
         it('passes level to LoadingRow', () => {
-            const loadingNode = createMockNode('parent', {nodeType: 'loading', level: 2, isLoading: true});
+            const loadingNode = createMockNode('parent', { nodeType: 'loading', level: 2, isLoading: true });
 
-            render(
-                <ContentRow
-                    {...defaultProps}
-                    node={loadingNode}
-                />,
-            );
+            render(<ContentRow {...defaultProps} node={loadingNode} />);
 
             const loadingRow = screen.getByTestId('row-loading');
             expect(loadingRow.getAttribute('data-level')).toBe('2');

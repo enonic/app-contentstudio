@@ -7,11 +7,11 @@ import { DETAILS_WIDGET_KEY } from '../../../v6/shared/lib/widget/details';
 import { IMPORT_CONTENT_WIDGET_KEY } from '../../../v6/shared/lib/widget/import-content';
 import { PAGE_EDITOR_WIDGET_KEY } from '../../../v6/shared/lib/widget/pageEditor';
 import { VERSIONS_WIDGET_KEY } from '../../../v6/shared/lib/widget/versions/versions';
-import { DependenciesWidgetElement } from '../../../v6/features/views/context/widget/dependencies';
-import { DetailsWidgetElement } from '../../../v6/features/views/context/widget/details';
-import { ImportContentWidgetElement } from '../../../v6/features/views/context/widget/import-content';
-import { PageEditorExtensionElement } from '../../../v6/features/views/context/widget/page-editor';
-import { VersionsWidgetElement } from '../../../v6/features/views/context/widget/versions/VersionsWidget';
+import { DependenciesWidgetElement } from '../../../v6/widgets/context-panel/widget/dependencies';
+import { DetailsWidgetElement } from '../../../v6/widgets/context-panel/widget/details';
+import { ImportContentWidgetElement } from '../../../v6/widgets/context-panel/widget/import-content';
+import { PageEditorExtensionElement } from '../../../v6/widgets/inspectors/ui/page-editor';
+import { VersionsWidgetElement } from '../../../v6/widgets/context-panel/widget/versions/VersionsWidget';
 import { type ContextView } from './ContextView';
 import { ExtensionView } from './ExtensionView';
 

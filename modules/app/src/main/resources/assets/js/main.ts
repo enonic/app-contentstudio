@@ -1,79 +1,75 @@
 /*global Q, JQuery */
 
-import {Application} from '@enonic/lib-admin-ui/app/Application';
-import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
-import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
-import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {Body} from '@enonic/lib-admin-ui/dom/Body';
-import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
-import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
-import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
-import {showError, showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
-import {Path} from '@enonic/lib-admin-ui/rest/Path';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {PrincipalJson} from '@enonic/lib-admin-ui/security/PrincipalJson';
-import {Store} from '@enonic/lib-admin-ui/store/Store';
-import {ConnectionDetector} from '@enonic/lib-admin-ui/system/ConnectionDetector';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {CONFIG, ConfigObject} from '@enonic/lib-admin-ui/util/Config';
-import {CustomElement} from '@enonic/lib-admin-ui/dom/CustomElement';
-import {i18n, Messages} from '@enonic/lib-admin-ui/util/Messages';
-import {ContentDuplicatePromptEvent} from '@enonic/lib-contentstudio/app/browse/ContentDuplicatePromptEvent';
-import {ContentPublishPromptEvent} from '@enonic/lib-contentstudio/app/browse/ContentPublishPromptEvent';
-import {CreateIssuePromptEvent} from '@enonic/lib-contentstudio/app/browse/CreateIssuePromptEvent';
-import {RequestContentPublishPromptEvent} from '@enonic/lib-contentstudio/app/browse/RequestContentPublishPromptEvent';
-import {ShowDependenciesEvent} from '@enonic/lib-contentstudio/app/browse/ShowDependenciesEvent';
-import {ShowIssuesDialogEvent} from '@enonic/lib-contentstudio/app/browse/ShowIssuesDialogEvent';
-import {ShowNewContentDialogEvent} from '@enonic/lib-contentstudio/app/browse/ShowNewContentDialogEvent';
-import {Content} from '@enonic/lib-contentstudio/app/content/Content';
-import {ContentIconUrlResolver} from '@enonic/lib-contentstudio/app/content/ContentIconUrlResolver';
-import {ContentSummary} from '@enonic/lib-contentstudio/app/content/ContentSummary';
-import {ContentEventsListener} from '@enonic/lib-contentstudio/app/ContentEventsListener';
-import {ContentEventsProcessor} from '@enonic/lib-contentstudio/app/ContentEventsProcessor';
-import {NewContentEvent} from '@enonic/lib-contentstudio/app/create/NewContentEvent';
-import {AggregatedServerEventsListener} from '@enonic/lib-contentstudio/app/event/AggregatedServerEventsListener';
-import {ContentServerEventsHandler} from '@enonic/lib-contentstudio/app/event/ContentServerEventsHandler';
-import {ContentUpdatedEvent} from '@enonic/lib-contentstudio/app/event/ContentUpdatedEvent';
-import {EditContentEvent} from '@enonic/lib-contentstudio/app/event/EditContentEvent';
-import {OpenEditPermissionsDialogEvent} from '@enonic/lib-contentstudio/app/event/OpenEditPermissionsDialogEvent';
-import {IssueServerEventsHandler} from '@enonic/lib-contentstudio/app/issue/event/IssueServerEventsHandler';
-import {IssueDialogsManager} from '@enonic/lib-contentstudio/app/issue/IssueDialogsManager';
-import {ContentMovePromptEvent} from '@enonic/lib-contentstudio/app/move/ContentMovePromptEvent';
-import {GetContentByIdRequest} from '@enonic/lib-contentstudio/app/resource/GetContentByIdRequest';
-import {GetContentByPathRequest} from '@enonic/lib-contentstudio/app/resource/GetContentByPathRequest';
-import {GetContentTypeByNameRequest} from '@enonic/lib-contentstudio/app/resource/GetContentTypeByNameRequest';
-import {Router} from '@enonic/lib-contentstudio/app/Router';
-import {SettingsServerEventsListener} from '@enonic/lib-contentstudio/app/settings/event/SettingsServerEventsListener';
-import {$isDown, subscribe as subscribeToWorker} from '@enonic/lib-contentstudio/app/stores/worker';
-import {UrlAction} from '@enonic/lib-contentstudio/app/UrlAction';
-import {UrlHelper} from '@enonic/lib-contentstudio/app/util/UrlHelper';
-import {VersionHelper} from '@enonic/lib-contentstudio/app/util/VersionHelper';
-import {ContentAppHelper} from '@enonic/lib-contentstudio/app/wizard/ContentAppHelper';
-import {ContentWizardPanelParams} from '@enonic/lib-contentstudio/app/wizard/ContentWizardPanelParams';
-import {AppElement} from '@enonic/lib-contentstudio/v6/features/App';
-import {initAiHost} from '@enonic/lib-contentstudio/v6/features/store/ai';
-import {initConfig} from '@enonic/lib-contentstudio/v6/features/store/config.store';
-import {initLanguages} from '@enonic/lib-contentstudio/v6/features/store/languages.store';
-import {$activeProject} from '@enonic/lib-contentstudio/v6/features/store/activeProject.store';
-import {$projects, initProjects} from '@enonic/lib-contentstudio/v6/features/store/projects.store';
+import { Application } from '@enonic/lib-admin-ui/app/Application';
+import { ApplicationEvent, ApplicationEventType } from '@enonic/lib-admin-ui/application/ApplicationEvent';
+import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
+import { AuthHelper } from '@enonic/lib-admin-ui/auth/AuthHelper';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { Body } from '@enonic/lib-admin-ui/dom/Body';
+import { ImgEl } from '@enonic/lib-admin-ui/dom/ImgEl';
+import { WindowDOM } from '@enonic/lib-admin-ui/dom/WindowDOM';
+import { NamePrettyfier } from '@enonic/lib-admin-ui/NamePrettyfier';
+import { showError, showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { NotifyManager } from '@enonic/lib-admin-ui/notify/NotifyManager';
+import { PropertyChangedEvent } from '@enonic/lib-admin-ui/PropertyChangedEvent';
+import { Path } from '@enonic/lib-admin-ui/rest/Path';
+import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { PrincipalJson } from '@enonic/lib-admin-ui/security/PrincipalJson';
+import { Store } from '@enonic/lib-admin-ui/store/Store';
+import { ConnectionDetector } from '@enonic/lib-admin-ui/system/ConnectionDetector';
+import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
+import { CONFIG, ConfigObject } from '@enonic/lib-admin-ui/util/Config';
+import { CustomElement } from '@enonic/lib-admin-ui/dom/CustomElement';
+import { i18n, Messages } from '@enonic/lib-admin-ui/util/Messages';
+import { ContentDuplicatePromptEvent } from '@enonic/lib-contentstudio/app/browse/ContentDuplicatePromptEvent';
+import { ContentPublishPromptEvent } from '@enonic/lib-contentstudio/app/browse/ContentPublishPromptEvent';
+import { CreateIssuePromptEvent } from '@enonic/lib-contentstudio/app/browse/CreateIssuePromptEvent';
+import { RequestContentPublishPromptEvent } from '@enonic/lib-contentstudio/app/browse/RequestContentPublishPromptEvent';
+import { ShowDependenciesEvent } from '@enonic/lib-contentstudio/app/browse/ShowDependenciesEvent';
+import { ShowIssuesDialogEvent } from '@enonic/lib-contentstudio/app/browse/ShowIssuesDialogEvent';
+import { ShowNewContentDialogEvent } from '@enonic/lib-contentstudio/app/browse/ShowNewContentDialogEvent';
+import { Content } from '@enonic/lib-contentstudio/app/content/Content';
+import { ContentIconUrlResolver } from '@enonic/lib-contentstudio/app/content/ContentIconUrlResolver';
+import { ContentSummary } from '@enonic/lib-contentstudio/app/content/ContentSummary';
+import { ContentEventsListener } from '@enonic/lib-contentstudio/app/ContentEventsListener';
+import { ContentEventsProcessor } from '@enonic/lib-contentstudio/app/ContentEventsProcessor';
+import { NewContentEvent } from '@enonic/lib-contentstudio/app/create/NewContentEvent';
+import { AggregatedServerEventsListener } from '@enonic/lib-contentstudio/app/event/AggregatedServerEventsListener';
+import { ContentServerEventsHandler } from '@enonic/lib-contentstudio/app/event/ContentServerEventsHandler';
+import { ContentUpdatedEvent } from '@enonic/lib-contentstudio/app/event/ContentUpdatedEvent';
+import { EditContentEvent } from '@enonic/lib-contentstudio/app/event/EditContentEvent';
+import { OpenEditPermissionsDialogEvent } from '@enonic/lib-contentstudio/app/event/OpenEditPermissionsDialogEvent';
+import { IssueServerEventsHandler } from '@enonic/lib-contentstudio/app/issue/event/IssueServerEventsHandler';
+import { IssueDialogsManager } from '@enonic/lib-contentstudio/app/issue/IssueDialogsManager';
+import { ContentMovePromptEvent } from '@enonic/lib-contentstudio/app/move/ContentMovePromptEvent';
+import { GetContentByIdRequest } from '@enonic/lib-contentstudio/app/resource/GetContentByIdRequest';
+import { GetContentByPathRequest } from '@enonic/lib-contentstudio/app/resource/GetContentByPathRequest';
+import { GetContentTypeByNameRequest } from '@enonic/lib-contentstudio/app/resource/GetContentTypeByNameRequest';
+import { Router } from '@enonic/lib-contentstudio/app/Router';
+import { SettingsServerEventsListener } from '@enonic/lib-contentstudio/app/settings/event/SettingsServerEventsListener';
+import { $isDown, subscribe as subscribeToWorker } from '@enonic/lib-contentstudio/app/stores/worker';
+import { UrlAction } from '@enonic/lib-contentstudio/app/UrlAction';
+import { UrlHelper } from '@enonic/lib-contentstudio/app/util/UrlHelper';
+import { VersionHelper } from '@enonic/lib-contentstudio/app/util/VersionHelper';
+import { ContentAppHelper } from '@enonic/lib-contentstudio/app/wizard/ContentAppHelper';
+import { ContentWizardPanelParams } from '@enonic/lib-contentstudio/app/wizard/ContentWizardPanelParams';
+import { AppElement } from '@enonic/lib-contentstudio/v6/app/App';
+import { initAiHost } from '@enonic/lib-contentstudio/v6/features/ai';
+import { initConfig } from '@enonic/lib-contentstudio/v6/shared/config/config.store';
+import { initLanguages } from '@enonic/lib-contentstudio/v6/entities/language/languages.store';
+import { $activeProject } from '@enonic/lib-contentstudio/v6/entities/project/activeProject.store';
+import { $projects, initProjects } from '@enonic/lib-contentstudio/v6/entities/project/projects.store';
 import $ from 'jquery';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
-declare const require: {context: (directory: string, useSubdirectories: boolean, filter: RegExp) => void};
-const importAll = r => r.keys().forEach(r);
+declare const require: { context: (directory: string, useSubdirectories: boolean, filter: RegExp) => void };
+const importAll = (r) => r.keys().forEach(r);
 importAll(require.context('@enonic/lib-contentstudio/app/inputtype', true, /^(?!\.[\/\\](ui)).*(\.js)$/));
 
 function getApplication(): Application {
-    const application = new Application(
-        CONFIG.getString('appId'),
-        i18n('admin.tool.displayName'),
-        i18n('app.abbr')
-    );
+    const application = new Application(CONFIG.getString('appId'), i18n('admin.tool.displayName'), i18n('app.abbr'));
     application.setPath(processApplicationPath());
     application.setWindow(window);
 
@@ -95,11 +91,10 @@ function processApplicationPath(): Path {
 function startLostConnectionDetector(): ConnectionDetector {
     let readonlyMessageId: string;
 
-    const connectionDetector =
-        ConnectionDetector.get(CONFIG.getString('statusApiUrl'))
-            .setAuthenticated(true)
-            .setSessionExpireRedirectUrl(CONFIG.getString('toolUri'))
-            .setNotificationMessage(i18n('notify.connection.loss'));
+    const connectionDetector = ConnectionDetector.get(CONFIG.getString('statusApiUrl'))
+        .setAuthenticated(true)
+        .setSessionExpireRedirectUrl(CONFIG.getString('toolUri'))
+        .setNotificationMessage(i18n('notify.connection.loss'));
 
     connectionDetector.onReadonlyStatusChanged((readonly: boolean) => {
         if (readonly && !readonlyMessageId) {
@@ -112,7 +107,7 @@ function startLostConnectionDetector(): ConnectionDetector {
 
     let wsConnectionErrorId: string;
     let timeoutId: number;
-    $isDown.subscribe(isDown => {
+    $isDown.subscribe((isDown) => {
         clearTimeout(timeoutId);
 
         if (isDown && connectionDetector.isConnected()) {
@@ -134,13 +129,14 @@ function startLostConnectionDetector(): ConnectionDetector {
 }
 
 function initApplicationEventListener() {
-
     let messageId: string;
     let appStatusCheckInterval: number;
 
     ApplicationEvent.on((event: ApplicationEvent) => {
-        if (ApplicationEventType.STOPPED === event.getEventType() ||
-            ApplicationEventType.UNINSTALLED === event.getEventType()) {
+        if (
+            ApplicationEventType.STOPPED === event.getEventType() ||
+            ApplicationEventType.UNINSTALLED === event.getEventType()
+        ) {
             if (appStatusCheckInterval) {
                 return;
             }
@@ -204,7 +200,9 @@ function updateFavicon(content: ContentSummary) {
                 if (sizes.length > 0) {
                     try {
                         resolver.setSize(parseInt(sizes[0], 10));
-                    } catch (e) { /* empty */ }
+                    } catch (e) {
+                        /* empty */
+                    }
                 }
                 link.setAttribute('href', resolver.resolve());
             } else {
@@ -232,7 +230,9 @@ function preLoadApplication(): Promise<void> {
         // ? invalid bookmarks also get URL cleanup before the user focuses them.
         // ? Favicon/title updates remain gated on shouldPreloadTabData.
         return Promise.resolve(
-            new GetContentByIdRequest(wizardParams.contentId).setRequestProjectName(wizardParams.projectName).sendAndParse()
+            new GetContentByIdRequest(wizardParams.contentId)
+                .setRequestProjectName(wizardParams.projectName)
+                .sendAndParse()
                 .then((content: Content) => {
                     if (!shouldPreloadTabData) {
                         return;
@@ -248,17 +248,16 @@ function preLoadApplication(): Promise<void> {
                     invalidEditUrlNotificationPending = true;
                     history.replaceState(null, '', UrlHelper.createContentBrowseUrl(wizardParams.projectName));
                     wizardParams = undefined;
-                })
+                }),
         ).then(() => undefined);
     }
 
     if (shouldPreloadTabData) {
         dataPreloaded = true;
         clearFavicon();
-        new GetContentTypeByNameRequest(wizardParams.contentTypeName).sendAndParse().then(
-            (contentType) => {
-                updateTabTitle(NamePrettyfier.prettifyUnnamed(contentType.getTitle()));
-            });
+        new GetContentTypeByNameRequest(wizardParams.contentTypeName).sendAndParse().then((contentType) => {
+            updateTabTitle(NamePrettyfier.prettifyUnnamed(contentType.getTitle()));
+        });
     }
 
     return Promise.resolve();
@@ -328,7 +327,7 @@ async function startApplication() {
 
     AppHelper.preventDragRedirect();
 
-    const {ContentDuplicateDialog} = await import('@enonic/lib-contentstudio/app/duplicate/ContentDuplicateDialog');
+    const { ContentDuplicateDialog } = await import('@enonic/lib-contentstudio/app/duplicate/ContentDuplicateDialog');
     let contentDuplicateDialog = null;
 
     ContentDuplicatePromptEvent.on((event) => {
@@ -344,7 +343,7 @@ async function startApplication() {
             .open();
     });
 
-    const {MoveContentDialog} = await import('@enonic/lib-contentstudio/app/move/MoveContentDialog');
+    const { MoveContentDialog } = await import('@enonic/lib-contentstudio/app/move/MoveContentDialog');
     let moveContentDialog = null;
 
     ContentMovePromptEvent.on((event) => {
@@ -355,7 +354,7 @@ async function startApplication() {
         moveContentDialog.handlePromptEvent(event);
     });
 
-    const {ContentPublishDialog} = await import('@enonic/lib-contentstudio/app/publish/ContentPublishDialog');
+    const { ContentPublishDialog } = await import('@enonic/lib-contentstudio/app/publish/ContentPublishDialog');
     let contentPublishDialog = null;
 
     ContentPublishPromptEvent.on((event) => {
@@ -373,17 +372,18 @@ async function startApplication() {
             .open();
     });
 
-    RequestContentPublishPromptEvent.on(
-        (event) => IssueDialogsManager.get().openCreateRequestDialog(event.getModels(), event.isIncludeChildItems()));
+    RequestContentPublishPromptEvent.on((event) =>
+        IssueDialogsManager.get().openCreateRequestDialog(event.getModels(), event.isIncludeChildItems()),
+    );
 
     CreateIssuePromptEvent.on((event) => IssueDialogsManager.get().openCreateDialog(event.getModels()));
 
-    ShowIssuesDialogEvent.on(() =>
-        IssueDialogsManager.get().openListDialog());
+    ShowIssuesDialogEvent.on(() => IssueDialogsManager.get().openListDialog());
 
     ShowDependenciesEvent.on(ContentEventsProcessor.handleShowDependencies);
 
-    const {openPermissionsDialog} = await import('@enonic/lib-contentstudio/v6/features/store/dialogs/permissionsDialog.store');
+    const { openPermissionsDialog } =
+        await import('@enonic/lib-contentstudio/v6/features/permissions/model/permissionsDialog.store');
 
     OpenEditPermissionsDialogEvent.on((event: OpenEditPermissionsDialogEvent) => {
         openPermissionsDialog(event);
@@ -407,8 +407,8 @@ const refreshTabOnContentUpdate = (content: Content) => {
 async function startContentWizard() {
     window['CKEDITOR'].config.language = CONFIG.getString('locale');
 
-    const {ContentWizardPanel} = await import('@enonic/lib-contentstudio/app/wizard/ContentWizardPanel');
-    const {setMode} = await import('@enonic/lib-contentstudio/v6/features/store/mode.store');
+    const { ContentWizardPanel } = await import('@enonic/lib-contentstudio/app/wizard/ContentWizardPanel');
+    const { setMode } = await import('@enonic/lib-contentstudio/v6/shared/app-state/mode.store');
 
     const wizard = new ContentWizardPanel(wizardParams, getTheme());
     setMode('wizard');
@@ -422,7 +422,6 @@ async function startContentWizard() {
             if (shouldUpdateFavicon(content.getType())) {
                 refreshTabOnContentUpdate(content);
             }
-
         }
         if (!dataPreloaded) {
             updateTabTitle(content.getDisplayName() || NamePrettyfier.prettifyUnnamed(contentType.getTitle()));
@@ -433,7 +432,7 @@ async function startContentWizard() {
         wizard.getWizardHeader().onPropertyChanged((event: PropertyChangedEvent) => {
             if (event.getPropertyName() === 'displayName') {
                 let contentType = wizard.getContentType();
-                let name = event.getNewValue() as string || NamePrettyfier.prettifyUnnamed(contentType.getTitle());
+                let name = (event.getNewValue() as string) || NamePrettyfier.prettifyUnnamed(contentType.getTitle());
 
                 updateTabTitle(name);
             }
@@ -446,7 +445,7 @@ async function startContentWizard() {
         }
         if (wizard.hasUnsavedChanges() && !wizard.isReadOnly()) {
             const message = i18n('dialog.wizard.unsavedChanges');
-            const e: UIEvent | object = event || {returnValue: ''};
+            const e: UIEvent | object = event || { returnValue: '' };
             e['returnValue'] = message;
             return message;
         }
@@ -468,7 +467,6 @@ function getTheme(): string {
     return '';
 }
 
-
 function appendMenuPanel(): void {
     const menuUrl = CONFIG.getString('menuUrl');
     if (!menuUrl) {
@@ -477,7 +475,7 @@ function appendMenuPanel(): void {
     const menuElement = CustomElement.create('xp-menu');
     document.body.appendChild(menuElement);
     fetch(menuUrl)
-        .then(response => response.text())
+        .then((response) => response.text())
         .then((html: string) => menuElement.setHtml(html))
         .catch((e: Error) => {
             throw new Error(`Failed to fetch the Menu extension panel at ${menuUrl}: ${e.toString()}`);
@@ -486,7 +484,7 @@ function appendMenuPanel(): void {
 
 async function startContentBrowser() {
     await import('@enonic/lib-contentstudio/app/ContentAppPanel');
-    const {setMode} = await import('@enonic/lib-contentstudio/v6/features/store/mode.store');
+    const { setMode } = await import('@enonic/lib-contentstudio/v6/shared/app-state/mode.store');
 
     const AppWrapper = (await import('@enonic/lib-contentstudio/app/AppWrapper')).AppWrapper;
     const commonWrapper = new AppWrapper(getTheme());
@@ -509,36 +507,42 @@ async function startContentBrowser() {
     const newContentDialog = new NewContentDialog();
     ShowNewContentDialogEvent.on((event) => {
         const parentContent: ContentSummary = event.getParentContent()
-            ? event.getParentContent().getContentSummary() : null;
+            ? event.getParentContent().getContentSummary()
+            : null;
 
         if (parentContent != null) {
-            new GetContentByIdRequest(parentContent.getContentId()).sendAndParse().then(
-                (newParentContent: Content) => {
-
+            new GetContentByIdRequest(parentContent.getContentId())
+                .sendAndParse()
+                .then((newParentContent: Content) => {
                     // TODO: remove pyramid of doom
                     if (parentContent.hasParent() && parentContent.getType().isTemplateFolder()) {
-                        new GetContentByPathRequest(parentContent.getPath().getParentPath()).sendAndParse()
+                        new GetContentByPathRequest(parentContent.getPath().getParentPath())
+                            .sendAndParse()
                             .then(() => {
                                 newContentDialog.setParentContent(newParentContent);
                                 newContentDialog.open();
-                            }).catch((reason) => {
-                            DefaultErrorHandler.handle(reason);
-                        }).done();
+                            })
+                            .catch((reason) => {
+                                DefaultErrorHandler.handle(reason);
+                            })
+                            .done();
                     } else {
                         newContentDialog.setParentContent(newParentContent);
                         newContentDialog.open();
                     }
-                }).catch((reason) => {
-                DefaultErrorHandler.handle(reason);
-            }).done();
+                })
+                .catch((reason) => {
+                    DefaultErrorHandler.handle(reason);
+                })
+                .done();
         } else {
             newContentDialog.setParentContent(null);
             newContentDialog.open();
         }
     });
 
-    const {IssueListDialog} = await import('@enonic/lib-contentstudio/app/issue/view/IssueListDialog');
-    const {SortContentDialog} = await import('@enonic/lib-contentstudio/app/browse/sort/dialog/SortContentDialog');
+    const { IssueListDialog } = await import('@enonic/lib-contentstudio/app/issue/view/IssueListDialog');
+    const { SortContentDialog } = await import('@enonic/lib-contentstudio/app/browse/sort/dialog/SortContentDialog');
 
     IssueListDialog.get();
 
@@ -561,8 +565,10 @@ async function startContentBrowser() {
     initProjects();
     void initLanguages();
     Messages.addMessages(JSON.parse(CONFIG.getString('phrasesAsJson')) as object);
-    AuthContext.init(Principal.fromJson(CONFIG.get('user') as PrincipalJson),
-        (CONFIG.get('principals') as PrincipalJson[]).map(Principal.fromJson));
+    AuthContext.init(
+        Principal.fromJson(CONFIG.get('user') as PrincipalJson),
+        (CONFIG.get('principals') as PrincipalJson[]).map(Principal.fromJson),
+    );
 
     const body = Body.get();
 

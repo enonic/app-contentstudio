@@ -1,23 +1,22 @@
-import {type ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
-import {type Action} from '@enonic/lib-admin-ui/ui/Action';
-import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
-import {type Mask} from '@enonic/lib-admin-ui/ui/mask/Mask';
-import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {cn} from '@enonic/ui';
+import { type ViewItem } from '@enonic/lib-admin-ui/app/view/ViewItem';
+import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
+import { IFrameEl } from '@enonic/lib-admin-ui/dom/IFrameEl';
+import { type Action } from '@enonic/lib-admin-ui/ui/Action';
+import { LoadMask } from '@enonic/lib-admin-ui/ui/mask/LoadMask';
+import { type Mask } from '@enonic/lib-admin-ui/ui/mask/Mask';
+import { Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
+import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
+import { cn } from '@enonic/ui';
 import Q from 'q';
-import {$activeWidget} from '../../v6/features/store/liveViewWidgets.store';
-import {$isPreviewPanelVisible} from '../../v6/features/store/previewPanel.store';
-import {PreviewToolbarElement} from '../../v6/features/views/browse/layout/preview/PreviewToolbar';
-import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentSummaryAndCompareStatusHelper} from '../content/ContentSummaryAndCompareStatusHelper';
-import {ContentResourceRequest} from '../resource/ContentResourceRequest';
-import {type ExtensionRenderer, ExtensionRenderingHandler} from './ExtensionRenderingHandler';
+import { $activeWidget } from '../../v6/widgets/inspectors/model/liveViewWidgets.store';
+import { $isPreviewPanelVisible } from '../../v6/widgets/preview-panel/model/previewPanel.store';
+import { PreviewToolbarElement } from '../../v6/widgets/preview-panel/ui/PreviewToolbar';
+import { type ContentSummaryAndCompareStatus } from '../content/ContentSummaryAndCompareStatus';
+import { ContentSummaryAndCompareStatusHelper } from '../content/ContentSummaryAndCompareStatusHelper';
+import { ContentResourceRequest } from '../resource/ContentResourceRequest';
+import { type ExtensionRenderer, ExtensionRenderingHandler } from './ExtensionRenderingHandler';
 
 export class ContentItemPreviewPanel extends Panel implements ExtensionRenderer {
-
     protected frame: IFrameEl;
     protected wrapper: DivEl;
     protected toolbar: PreviewToolbarElement;
@@ -106,8 +105,13 @@ export class ContentItemPreviewPanel extends Panel implements ExtensionRenderer 
 
     private isItemChanged(item: ContentSummaryAndCompareStatus): boolean {
         const diff = ContentSummaryAndCompareStatusHelper.diff(item, this.item as ContentSummaryAndCompareStatus);
-        return diff.contentSummary.page || !!diff.contentSummary?.path
-               || !!diff.contentSummary?.displayName || !!diff.contentSummary?.name || !!diff.contentSummary?.inherit;
+        return (
+            diff.contentSummary.page ||
+            !!diff.contentSummary?.path ||
+            !!diff.contentSummary?.displayName ||
+            !!diff.contentSummary?.name ||
+            !!diff.contentSummary?.inherit
+        );
     }
 
     protected async update(item: ContentSummaryAndCompareStatus) {
@@ -132,7 +136,6 @@ export class ContentItemPreviewPanel extends Panel implements ExtensionRenderer 
     }
 
     private setupListeners() {
-
         this.onShown(() => {
             $isPreviewPanelVisible.set(true);
         });

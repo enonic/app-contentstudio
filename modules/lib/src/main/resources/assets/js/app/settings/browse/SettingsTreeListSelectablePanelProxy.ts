@@ -1,14 +1,17 @@
-import {SelectableListBoxPanel} from '@enonic/lib-admin-ui/ui/panel/SelectableListBoxPanel';
-import {type ListBoxToolbar} from '@enonic/lib-admin-ui/ui/selector/list/ListBoxToolbar';
-import {type SelectableListBoxWrapper, SelectionMode} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
-import {type DataChangedEvent} from '@enonic/lib-admin-ui/ui/treegrid/DataChangedEvent';
-import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import { SelectableListBoxPanel } from '@enonic/lib-admin-ui/ui/panel/SelectableListBoxPanel';
+import { type ListBoxToolbar } from '@enonic/lib-admin-ui/ui/selector/list/ListBoxToolbar';
+import {
+    type SelectableListBoxWrapper,
+    SelectionMode,
+} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
+import { type DataChangedEvent } from '@enonic/lib-admin-ui/ui/treegrid/DataChangedEvent';
+import { type SelectionChange } from '@enonic/lib-admin-ui/util/SelectionChange';
 import Q from 'q';
-import {type SettingsTreeListElement} from '../../../v6/features/views/browse/settings/SettingsTreeListElement';
-import {type SettingsViewItem} from '../view/SettingsViewItem';
-import {getSettingsItem, $settingsTreeState} from '../../../v6/features/store/settings-tree.store';
-import {getCurrentItems as getCurrentSettingsItems} from '../../../v6/features/store/settingsTreeSelection.store';
-import {SettingsTreeListToolbarElement} from '../../../v6/features/views/browse/settings/SettingsTreeListToolbar';
+import { type SettingsTreeListElement } from '../../../v6/pages/settings/ui/SettingsTreeListElement';
+import { type SettingsViewItem } from '../view/SettingsViewItem';
+import { getSettingsItem, $settingsTreeState } from '../../../v6/pages/settings/model/settings-tree.store';
+import { getCurrentItems as getCurrentSettingsItems } from '../../../v6/pages/settings/model/settingsTreeSelection.store';
+import { SettingsTreeListToolbarElement } from '../../../v6/pages/settings/ui/SettingsTreeListToolbar';
 
 export class SettingsTreeListSelectablePanelProxy extends SelectableListBoxPanel<SettingsViewItem> {
     private readonly settingsTreeList: SettingsTreeListElement;
@@ -17,7 +20,7 @@ export class SettingsTreeListSelectablePanelProxy extends SelectableListBoxPanel
     constructor(
         listBoxWrapper: SelectableListBoxWrapper<SettingsViewItem>,
         settingsTreeList: SettingsTreeListElement,
-        toolbar: ListBoxToolbar<SettingsViewItem>
+        toolbar: ListBoxToolbar<SettingsViewItem>,
     ) {
         super(listBoxWrapper, toolbar);
         this.settingsTreeList = settingsTreeList;

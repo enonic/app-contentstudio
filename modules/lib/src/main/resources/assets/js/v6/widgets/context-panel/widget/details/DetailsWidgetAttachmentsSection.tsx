@@ -1,0 +1,46 @@
+import { Link, Separator } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { Paperclip } from 'lucide-react';
+import { ReactElement } from 'react';
+import { AttachmentName } from '../../../../../app/attachment/AttachmentName';
+import { ContentId } from '../../../../../app/content/ContentId';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { $contextContent } from '../../model/contextContent.store';
+import { $detailsWidgetAttachments } from '../../model/detailsWidgets.store';
+import { getCmsApiUrl } from '../../../../shared/lib/url/cms';
+
+function getAttachmentUrl(contentId: ContentId, attachmentName: AttachmentName) {
+    return getCmsApiUrl(`media/${contentId}/${encodeURIComponent(attachmentName.toString())}`);
+}
+
+const DETAILS_WIDGET_ATTACHMENTS_SECTION_NAME = 'DetailsWidgetAttachmentsSection';
+
+export const DetailsWidgetAttachmentsSection = (): ReactElement => {
+    const content = useStore($contextContent);
+    const attachments = useStore($detailsWidgetAttachments);
+    const titleText = useI18n('field.contextPanel.details.sections.attachments');
+
+    if (!content || !attachments || attachments.getSize() === 0) return null;
+
+    return (
+        <section data-component={DETAILS_WIDGET_ATTACHMENTS_SECTION_NAME} className="flex flex-col gap-5">
+            <Separator label={titleText} />
+            <ul className="list-none">
+                {attachments.map((attachment) => (
+                    <li key={attachment.getName().toString()} className="w-full">
+                        <Link
+                            className="flex items-center gap-2 shrink-1"
+                            leftIcon={Paperclip}
+                            href={getAttachmentUrl(content.getContentId(), attachment.getName())}
+                            target="_blank"
+                        >
+                            <span className="text-xs truncate">{attachment.getName().toString()}</span>
+                        </Link>
+                    </li>
+                ))}
+            </ul>
+        </section>
+    );
+};
+
+DetailsWidgetAttachmentsSection.displayName = DETAILS_WIDGET_ATTACHMENTS_SECTION_NAME;

@@ -1,10 +1,10 @@
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {type Element} from '@enonic/lib-admin-ui/dom/Element';
-import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
-import {LiveViewImageEditorElement} from '../../../v6/features/views/wizard/layout/LiveViewImageEditor';
-import {PreviewToolbarElement} from '../../../v6/features/views/browse/layout/preview/PreviewToolbar';
-import {$isLiveViewImageEditorActive} from '../../../v6/features/store/liveViewWidgets.store';
-import {type LiveEditPageProxy} from './LiveEditPageProxy';
+import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
+import { type Element } from '@enonic/lib-admin-ui/dom/Element';
+import { Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
+import { LiveViewImageEditorElement } from '../../../v6/pages/wizard/ui/layout/LiveViewImageEditor';
+import { PreviewToolbarElement } from '../../../v6/widgets/preview-panel/ui/PreviewToolbar';
+import { $isLiveViewImageEditorActive } from '../../../v6/widgets/inspectors/model/liveViewWidgets.store';
+import { type LiveEditPageProxy } from './LiveEditPageProxy';
 
 export interface FrameContainerConfig {
     proxy: LiveEditPageProxy;

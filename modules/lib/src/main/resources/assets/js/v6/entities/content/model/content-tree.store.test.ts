@@ -33,7 +33,7 @@ import {
 } from './content-tree.store';
 import { clearAllContentCaches, setContent, setContents } from './content.commands';
 import { $activeProject } from '../../project/activeProject.store';
-import { addUpload, clearUploads } from '../../../features/store/uploads.store';
+import { addUpload, clearUploads } from './uploads.store';
 import type { Project } from '../../../../app/settings/data/project/Project';
 import { emitContentCreated, emitContentDeleted, emitContentArchived } from '../../../shared/socket/socket.store';
 import type { ContentServerChangeItem } from '../../../../app/event/ContentServerChangeItem';

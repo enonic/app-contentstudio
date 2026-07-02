@@ -4,10 +4,10 @@ import { type ReactElement, useEffect, useRef, useState } from 'react';
 import { useStore } from '@nanostores/preact';
 import { listenKeys } from 'nanostores';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
-import { $newContentDialog, openNewContentDialog } from '../../../../store/dialogs/newContentDialog.store';
-import { $contextContent } from '../../../../store/context/contextContent.store';
+import { $newContentDialog, openNewContentDialog } from '../../../../new-content/model/newContentDialog.store';
+import { $contextContent } from '../../../../../widgets/context-panel/model/contextContent.store';
 import { $contentCreated } from '../../../../../shared/socket/socket.store';
-import { $uploads, getUploadsForParent } from '../../../../store/uploads.store';
+import { $uploads, getUploadsForParent } from '../../../../../entities/content/model/uploads.store';
 
 type ContentSelectorInputAddButtonProps = {
     disabled: boolean;

@@ -1,0 +1,107 @@
+import { LegacyElement } from '@enonic/lib-admin-ui/ui2/LegacyElement';
+import { SelectionChange } from '@enonic/lib-admin-ui/util/SelectionChange';
+import { ContentQuery } from '../../../app/content/ContentQuery';
+import type { ContentSummary } from '../../../app/content/ContentSummary';
+import {
+    activateFilter,
+    deactivateFilter,
+    getFilterQuery,
+    $isFilterActive,
+    getContent,
+    $currentIds,
+    $filterRefreshNeeded,
+    clearFilterRefreshNeeded,
+} from '../../entities/content';
+import { ContentTreeContextMenuProps } from './ContentTreeContextMenu';
+import { ContentTreeList, ContentTreeListProps } from './ContentTreeList';
+
+export class ContentTreeListElement extends LegacyElement<typeof ContentTreeList, ContentTreeListProps> {
+    private selectionChangedListeners: ((selectionChange: SelectionChange<ContentSummary>) => void)[] = [];
+
+    constructor() {
+        super({}, ContentTreeList);
+
+        this.initListeners();
+    }
+
+    private initListeners(): void {
+        // Subscribe to selection changes
+        const unsubscribeCurrentIds = $currentIds.listen((currentIds, previousIds) => {
+            this.notifySelectionChanged(this.getSelectionChange(new Set(currentIds), new Set(previousIds)));
+        });
+
+        const unsubscribeFilterRefresh = $filterRefreshNeeded.subscribe((timestamp) => {
+            if (timestamp === 0) return; // Signal cleared, ignore
+
+            // Only refresh if filter mode is active
+            if (!$isFilterActive.get()) return;
+
+            const currentQuery = getFilterQuery();
+            if (currentQuery) {
+                clearFilterRefreshNeeded();
+                activateFilter(currentQuery);
+            }
+        });
+
+        this.onRemoved(() => {
+            unsubscribeCurrentIds();
+            unsubscribeFilterRefresh();
+        });
+    }
+
+    onSelectionChanged(listener: (selectionChange: SelectionChange<ContentSummary>) => void): void {
+        this.selectionChangedListeners.push(listener);
+    }
+
+    protected notifySelectionChanged(selectionChange: SelectionChange<ContentSummary>): void {
+        this.selectionChangedListeners.forEach((listener: (selectionChange: SelectionChange<ContentSummary>) => void) =>
+            listener(selectionChange),
+        );
+    }
+
+    private getSelectionChange(
+        newSelection: ReadonlySet<string>,
+        oldSelection: ReadonlySet<string>,
+    ): SelectionChange<ContentSummary> {
+        const selected: ContentSummary[] = [];
+
+        newSelection.forEach((id) => {
+            if (!oldSelection.has(id)) {
+                const content = getContent(id);
+                if (content) {
+                    selected.push(content);
+                }
+            }
+        });
+
+        const deselected: ContentSummary[] = [];
+
+        oldSelection.forEach((id) => {
+            if (!newSelection.has(id)) {
+                const content = getContent(id);
+                if (content) {
+                    deselected.push(content);
+                }
+            }
+        });
+
+        return {
+            selected,
+            deselected,
+        };
+    }
+
+    setFilterQuery(filterQuery: ContentQuery | null): void {
+        if (filterQuery) {
+            // Activate filter mode with the query
+            activateFilter(filterQuery);
+        } else {
+            // Deactivate filter mode, return to main tree
+            deactivateFilter();
+        }
+    }
+
+    setContextMenuActions(actions: ContentTreeContextMenuProps['actions']): void {
+        this.props.setKey('contextMenuActions', actions);
+    }
+}

@@ -29,7 +29,7 @@ import {
     getIconForOperation,
     getOperationLabel,
     getVersionBranch,
-} from '../../../features/views/context/widget/versions/labels';
+} from '../../../widgets/context-panel/widget/versions/labels';
 
 import {
     Archive,

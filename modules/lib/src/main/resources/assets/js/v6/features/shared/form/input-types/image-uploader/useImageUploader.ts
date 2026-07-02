@@ -1,10 +1,21 @@
-import {useCallback, useEffect, useState} from 'react';
-import {listenKeys} from 'nanostores';
-import {showError, showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {updateImageMedia, type UpdateImageMediaError, type UpdateImageMediaSuccess} from '../../../../api/updateImageMedia';
-import {$uploads, addUpload, completeUpload, failUpload, removeUpload, updateUploadProgress} from '../../../../store/uploads.store';
-import type {ContentId} from '../../../../../../app/content/ContentId';
+import { useCallback, useEffect, useState } from 'react';
+import { listenKeys } from 'nanostores';
+import { showError, showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import {
+    updateImageMedia,
+    type UpdateImageMediaError,
+    type UpdateImageMediaSuccess,
+} from '../../../../../entities/content/api/updateImageMedia.api';
+import {
+    $uploads,
+    addUpload,
+    completeUpload,
+    failUpload,
+    removeUpload,
+    updateUploadProgress,
+} from '../../../../../entities/content/model/uploads.store';
+import type { ContentId } from '../../../../../../app/content/ContentId';
 
 //
 // * Types
@@ -25,7 +36,7 @@ type UseImageUploaderResult = {
 // * Hook
 //
 
-export const useImageUploader = ({contentId, onChange}: UseImageUploaderOptions): UseImageUploaderResult => {
+export const useImageUploader = ({ contentId, onChange }: UseImageUploaderOptions): UseImageUploaderResult => {
     const [progress, setProgress] = useState<number>(0);
     const [uploadId, setUploadId] = useState<string>();
 
@@ -83,11 +94,11 @@ export const useImageUploader = ({contentId, onChange}: UseImageUploaderOptions)
                     removeUpload(error.mediaIdentifier);
                     setUploadId(undefined);
                     showError(i18n('notify.upload.error', file.name, error.message));
-                }
+                },
             );
         },
-        [contentId, onChange]
+        [contentId, onChange],
     );
 
-    return {isUploading: !!uploadId, progress, handleFiles};
+    return { isUploading: !!uploadId, progress, handleFiles };
 };

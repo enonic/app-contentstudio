@@ -11,7 +11,7 @@ import { SplitPanelSize } from '@enonic/lib-admin-ui/ui/panel/SplitPanelSize';
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { SelectionMode } from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 import { NonMobileContextPanelToggleButton } from '../view/context/button/NonMobileContextPanelToggleButton';
-import { $isContextOpen, setContextOpen } from '../../v6/features/store/contextWidgets.store';
+import { $isContextOpen, setContextOpen } from '../../v6/widgets/context-panel/model/contextWidgets.store';
 import { LayoutTokens } from '../../v6/shared/ui/layout.tokens';
 import { ContextPanelState } from '../view/context/ContextPanelState';
 

@@ -26,7 +26,7 @@ import { PublishRequest } from '../issue/PublishRequest';
 import { PublishRequestItem } from '../issue/PublishRequestItem';
 import { CreateIssueRequest } from '../issue/resource/CreateIssueRequest';
 import { CSPrincipalCombobox } from '../security/CSPrincipalCombobox';
-import { openPublishDialog } from '../../v6/features/store/dialogs/publishDialog.store';
+import { openPublishDialog } from '../../v6/features/publish/model/publishDialog.store';
 
 enum Step {
     ITEMS = 'items-step',
