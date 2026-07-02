@@ -37,7 +37,12 @@ export const ContentLabel = ({
     const statusHidden = hideStatus || !!content.getPublishTime();
     const status = statusHidden ? null : calcContentState(content);
     const Icon = (
-        <WorkflowContentIcon status={status} contentType={content.getType().toString()} url={content.getIconUrl()} />
+        <WorkflowContentIcon
+            status={status}
+            contentType={content.getType().toString()}
+            url={content.getIconUrl()}
+            hasThumbnail={content.hasThumbnail()}
+        />
     );
 
     const pathStr = resolvePath(content, showFullPath);
@@ -46,15 +51,7 @@ export const ContentLabel = ({
     const primaryText = isCompact ? pathStr : titleText;
     const secondaryText = isCompact ? undefined : pathStr;
 
-    return (
-        <ItemLabel
-            data-component={dataComponent}
-            icon={Icon}
-            primary={primaryText}
-            secondary={secondaryText}
-            {...props}
-        />
-    );
+    return <ItemLabel data-component={dataComponent} icon={Icon} primary={primaryText} secondary={secondaryText} {...props} />;
 };
 
 ContentLabel.displayName = CONTENT_LABEL_NAME;
