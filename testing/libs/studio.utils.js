@@ -599,15 +599,19 @@ module.exports = {
         }
     },
     async clickOnItemInNewContentDialog(contentType) {
-        let newContentDialog = new NewContentDialog();
-        let contentWizard = new ContentWizardPanel();
-        await newContentDialog.waitForOpened();
-        await newContentDialog.typeSearchText(contentType);
-        await newContentDialog.clickOnContentType(contentType);
-        await this.doSwitchToNewWizard();
-        await contentWizard.waitForOpened();
-        //await contentWizard.waitForDisplayNameInputFocused();
-        return contentWizard;
+        try {
+            let newContentDialog = new NewContentDialog();
+            let contentWizard = new ContentWizardPanel();
+            await newContentDialog.waitForOpened();
+            await newContentDialog.typeSearchText(contentType);
+            await newContentDialog.clickOnContentType(contentType);
+            await this.doSwitchToNewWizard();
+            await contentWizard.waitForOpened();
+            return contentWizard;
+        } catch (err) {
+            await this.saveScreenshotUniqueName('err_new_content_dlg');
+            throw new Error('Error in New content dialog: ' + err);
+        }
     },
     // Open delete dialog, click on 'Delete' button then type a number to delete
     async doDeleteNowAndConfirm(numberOfContents) {
