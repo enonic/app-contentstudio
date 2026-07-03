@@ -261,49 +261,7 @@
     }
   }
 
-  .split-panel.wizard-and-preview {
-    &.toggle-form {
-      .form-panel {
-        width: 100% !important;
-      }
-    }
-
-    &.toggle-live {
-      .context-split-panel {
-        width: 100% !important;
-        z-index: 1;
-
-        .live-form-panel {
-          width: 100% !important;
-        }
-
-        & > .splitter, .form-panel {
-          display: none !important;
-        }
-
-        .hide-mobile-preview-button {
-          display: none;
-        }
-      }
-    }
-
-    &.toggle-split {
-      &._0-240,
-      &._240-360,
-      &._360-540,
-      &._540-720 {
-        &:not(.form-minimized) {
-          .form-panel {
-            width: 100% !important;
-          }
-
-          & > .splitter, .live-form-panel {
-            display: none !important;
-          }
-        }
-      }
-    }
-
+  .wizard-layout-panel {
     .form-panel {
       .panel-strip-panel-header {
         &.step-icon.icon-masks::before {
@@ -445,10 +403,6 @@
       margin-top: @app-header-height; // leave space for the wizard toolbar
       top: 3000px; // hide by default;
     }
-  }
-
-  .split-panel.floating .context-panel {
-    top: 0;
   }
 
   &._0-240,

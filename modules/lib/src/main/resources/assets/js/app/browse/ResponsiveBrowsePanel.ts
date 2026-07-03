@@ -11,6 +11,7 @@ import { BrowseLayoutElement } from '../../v6/pages/browse/layout/BrowseLayout';
 import { setMobilePreviewOpen } from '../../v6/pages/browse/model/browseLayout.store';
 import {
     $contextPanelMode,
+    $isContextLayoutMeasured,
     shouldCollapseContextInitially,
 } from '../../v6/widgets/context-panel/model/contextPanelMode.store';
 import { $isContextOpen, setContextOpen } from '../../v6/widgets/context-panel/model/contextWidgets.store';
@@ -129,12 +130,16 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
             }
         });
 
-        this.whenRendered(() => {
-            setTimeout(() => {
-                if (!shouldCollapseContextInitially() && this.dockedContextPanel.getActiveExtension()) {
-                    setContextOpen(true);
-                }
-            }, 100);
+        // Auto-open on wide screens once the layout reports its first measurement.
+        let unsubscribeInitialOpen: (() => void) | undefined;
+        unsubscribeInitialOpen = $isContextLayoutMeasured.subscribe((measured: boolean) => {
+            if (!measured) return;
+            unsubscribeInitialOpen?.();
+            unsubscribeInitialOpen = undefined;
+
+            if (!shouldCollapseContextInitially() && this.dockedContextPanel.getActiveExtension()) {
+                setContextOpen(true);
+            }
         });
     }
 

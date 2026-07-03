@@ -28,6 +28,8 @@ export const $contextPanelMode = computed($contextLayoutMetrics, ({ totalWidth, 
     return isFloating ? 'floating' : 'docked';
 });
 
+export const $isContextLayoutMeasured = computed($contextLayoutMetrics, ({ totalWidth }) => totalWidth > 0);
+
 // Legacy requiresCollapsedContextPanel.
 export function shouldCollapseContextInitially(): boolean {
     const { totalWidth } = $contextLayoutMetrics.get();

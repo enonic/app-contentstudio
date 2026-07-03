@@ -3,7 +3,8 @@ import { act, render, screen } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { setContextOpen } from '../../../widgets/context-panel/model/contextWidgets.store';
 import { setContextLayoutMetrics } from '../../../widgets/context-panel/model/contextPanelMode.store';
-import { setFloatingContextWidth, setMobilePreviewOpen } from '../model/browseLayout.store';
+import { setMobilePreviewOpen } from '../model/browseLayout.store';
+import { setFloatingContextWidth } from '../../../widgets/context-panel/model/floatingContextWidth.store';
 import { setContentFilterOpen } from '../../../features/search/model/contentFilter.store';
 import { BrowseLayout } from './BrowseLayout';
 
@@ -152,7 +153,7 @@ describe('BrowseLayout', () => {
         setContextOpen(false);
         setContentFilterOpen(false);
         setMobilePreviewOpen(false);
-        setFloatingContextWidth(360);
+        setFloatingContextWidth(0);
         setContextLayoutMetrics({ totalWidth: 0, contextWidth: 0 });
     });
 
@@ -186,7 +187,7 @@ describe('BrowseLayout', () => {
         expect(screen.getByTestId('context').querySelector('.legacy-context')).toBe(
             panels.contextPanel.getHTMLElement(),
         );
-        expect(document.querySelector('[data-component="BrowseLayout.FloatingContext"]')).toBeNull();
+        expect(document.querySelector('[data-component="FloatingContextPanel"]')).toBeNull();
     });
 
     it('floats the context panel as an overlay on narrow screens', async () => {
@@ -196,7 +197,7 @@ describe('BrowseLayout', () => {
 
         await renderLayout(panels);
 
-        const overlay = document.querySelector('[data-component="BrowseLayout.FloatingContext"]');
+        const overlay = document.querySelector('[data-component="FloatingContextPanel"]');
         expect(overlay).not.toBeNull();
         expect(overlay?.querySelector('.legacy-context')).toBe(panels.contextPanel.getHTMLElement());
         expect(document.querySelector('[data-testid="context"]')).toBeNull();
@@ -209,7 +210,7 @@ describe('BrowseLayout', () => {
 
         await renderLayout(panels);
 
-        const handle = document.querySelector('[data-component="BrowseLayout.FloatingContext"] [role="separator"]');
+        const handle = document.querySelector('[data-component="FloatingContextPanel"] [role="separator"]');
         expect(handle).not.toBeNull();
         if (!(handle instanceof HTMLElement)) throw new Error('no handle');
 
@@ -222,7 +223,7 @@ describe('BrowseLayout', () => {
         await settle();
 
         const handleAfter = document.querySelector(
-            '[data-component="BrowseLayout.FloatingContext"] [role="separator"]',
+            '[data-component="FloatingContextPanel"] [role="separator"]',
         );
         expect(Number(handleAfter?.getAttribute('aria-valuenow'))).toBeGreaterThan(before);
     });

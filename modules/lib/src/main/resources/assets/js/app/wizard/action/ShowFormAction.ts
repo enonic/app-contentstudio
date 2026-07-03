@@ -1,4 +1,5 @@
 import {ShowContentFormEvent} from '../ShowContentFormEvent';
+import {setWizardViewMode} from '../../../v6/pages/wizard/model/wizardLayout.store';
 import {type ContentWizardPanel} from '../ContentWizardPanel';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
@@ -31,7 +32,7 @@ export class ShowFormAction
     }
 
     private showForm() {
-        this.wizard.getSplitPanel().addClass('toggle-form').removeClass('toggle-live toggle-split');
+        setWizardViewMode('form');
         this.wizard.getMainToolbar().toggleClass('live', false);
         this.wizard.toggleClass('form', true);
 
@@ -39,7 +40,6 @@ export class ShowFormAction
     }
 
     private closeLiveEdit() {
-        this.wizard.getSplitPanel().hideSecondPanel();
         this.wizard.hideMinimizeEditButton();
 
         if (this.wizard.getLiveMask()?.isVisible()) {

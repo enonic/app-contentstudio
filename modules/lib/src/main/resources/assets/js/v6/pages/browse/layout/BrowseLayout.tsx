@@ -13,99 +13,13 @@ import { LayoutTokens } from '../../../shared/ui/layout.tokens';
 import { LegacyElement } from '../../../shared/ui/LegacyElement';
 import { LegacyElementHost } from '../../../shared/ui/LegacyElementHost';
 import { SplitView } from '../../../shared/ui/split-view';
-import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import { $isContentFilterOpen } from '../../../features/search/model/contentFilter.store';
-import {
-    $floatingContextWidth,
-    $isMobilePreviewOpen,
-    setFloatingContextWidth,
-} from '../model/browseLayout.store';
+import { FloatingContextPanel } from '../../../widgets/context-panel/ui/FloatingContextPanel';
+import { $isMobilePreviewOpen } from '../model/browseLayout.store';
 
 const CONTEXT_MIN_WIDTH = LayoutTokens.contextPanel.minWidth;
 const CONTEXT_DEFAULT_PERCENT = LayoutTokens.contextPanel.dockedWidthPercent.browse;
 const RESIZE_NOTIFY_DELAY_MS = 200;
-const FLOATING_MIN_LEFT_GAP = 60;
-const FLOATING_KEYBOARD_STEP = 16;
-
-function clampFloatingWidth(width: number, maxWidth: number): number {
-    return Math.min(Math.max(width, CONTEXT_MIN_WIDTH), Math.max(maxWidth, CONTEXT_MIN_WIDTH));
-}
-
-type FloatingContextProps = {
-    element: Element;
-    onResized: () => void;
-};
-
-// Floating stays resizable, as the legacy splitter did.
-const FloatingContext = ({ element, onResized }: FloatingContextProps): ReactElement => {
-    const width = useStore($floatingContextWidth);
-    const label = useI18n('field.splitView.resize');
-
-    const getMaxWidth = (handle: HTMLElement): number => {
-        const layoutWidth = handle.closest('[data-component="BrowseLayout"]')?.getBoundingClientRect().width;
-        return (layoutWidth ?? window.innerWidth) - FLOATING_MIN_LEFT_GAP;
-    };
-
-    const handlePointerDown = (event: { pointerId: number; clientX: number; currentTarget: EventTarget | null }) => {
-        const handle = event.currentTarget;
-        if (!(handle instanceof HTMLElement)) return;
-
-        handle.setPointerCapture(event.pointerId);
-        const startX = event.clientX;
-        const startWidth = $floatingContextWidth.get();
-        const maxWidth = getMaxWidth(handle);
-
-        const handleMove = (moveEvent: PointerEvent): void => {
-            setFloatingContextWidth(clampFloatingWidth(startWidth + (startX - moveEvent.clientX), maxWidth));
-        };
-        const stopDragging = (): void => {
-            handle.removeEventListener('pointermove', handleMove);
-            onResized();
-        };
-
-        handle.addEventListener('pointermove', handleMove);
-        handle.addEventListener('pointerup', stopDragging, { once: true });
-        handle.addEventListener('pointercancel', stopDragging, { once: true });
-    };
-
-    const handleKeyDown = (event: { key: string; currentTarget: EventTarget | null; preventDefault: () => void }) => {
-        const handle = event.currentTarget;
-        if (!(handle instanceof HTMLElement)) return;
-        if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
-
-        event.preventDefault();
-        const delta = event.key === 'ArrowLeft' ? FLOATING_KEYBOARD_STEP : -FLOATING_KEYBOARD_STEP;
-        setFloatingContextWidth(clampFloatingWidth($floatingContextWidth.get() + delta, getMaxWidth(handle)));
-        onResized();
-    };
-
-    return (
-        <div
-            data-component='BrowseLayout.FloatingContext'
-            className='absolute inset-y-0 right-0 z-40 flex bg-surface-neutral shadow-xl'
-            style={{ width }}
-        >
-            <div
-                role='separator'
-                aria-orientation='vertical'
-                aria-label={label}
-                aria-valuenow={width}
-                aria-valuemin={CONTEXT_MIN_WIDTH}
-                tabIndex={0}
-                className={cn(
-                    'relative w-px shrink-0 cursor-col-resize bg-bdr-soft transition-colors',
-                    'hover:bg-bdr-select focus-visible:ring-3 focus-visible:ring-ring focus-visible:z-10',
-                    String.raw`after:content-[''] after:absolute after:inset-y-0 after:-left-1 after:w-2.5`,
-                )}
-                onPointerDown={handlePointerDown}
-                onKeyDown={handleKeyDown}
-            />
-            <LegacyElementHost element={element} className='min-w-0 grow' />
-        </div>
-    );
-};
-
-FloatingContext.displayName = 'BrowseLayout.FloatingContext';
 
 export type BrowseLayoutProps = {
     // Owned by ContentBrowsePanel; the layout only places them.
@@ -184,21 +98,21 @@ export const BrowseLayout = ({ gridPanel, previewPanel, contextPanel, filterPane
             >
                 <LegacyElementHost element={gridPanel} className='size-full' />
                 {filterPanel != null && isFilterOpen && (
-                    <div data-component='BrowseLayout.MobileFilter' className='absolute inset-0 z-20 bg-surface-neutral'>
+                    <div data-component='BrowseLayout.MobileFilter' className='absolute inset-0 z-[2] bg-surface-neutral'>
                         <LegacyElementHost element={filterPanel} className='size-full' />
                     </div>
                 )}
                 <div
                     data-component='BrowseLayout.MobilePreview'
                     className={cn(
-                        'absolute inset-0 z-10 bg-surface-neutral transition-transform duration-500',
+                        'absolute inset-0 z-[1] bg-surface-neutral transition-transform duration-500',
                         isMobilePreviewOpen ? 'translate-x-0' : 'translate-x-full',
                     )}
                 >
                     <LegacyElementHost element={previewPanel} className='size-full' />
                     <div
                         className={cn(
-                            'absolute inset-0 z-10 transition-transform duration-500',
+                            'absolute inset-0 z-[1] transition-transform duration-500',
                             isContextOpen ? 'translate-y-0' : 'translate-y-full',
                         )}
                     >
@@ -253,7 +167,13 @@ export const BrowseLayout = ({ gridPanel, previewPanel, contextPanel, filterPane
                     </>
                 )}
             </SplitView>
-            {showFloatingContext && <FloatingContext element={contextPanel} onResized={notifyLegacyResize} />}
+            {showFloatingContext && (
+                <FloatingContextPanel
+                    element={contextPanel}
+                    boundsSelector='[data-component="BrowseLayout"]'
+                    onResized={notifyLegacyResize}
+                />
+            )}
         </div>
     );
 };
