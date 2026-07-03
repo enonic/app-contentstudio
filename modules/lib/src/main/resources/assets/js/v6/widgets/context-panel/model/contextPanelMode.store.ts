@@ -16,8 +16,7 @@ export function setContextLayoutMetrics(metrics: ContextLayoutMetrics): void {
     $contextLayoutMetrics.set(metrics);
 }
 
-// Replicates the legacy ContextSplitPanel decision: mobile below the mobile threshold,
-// floating when the remaining left-panel width would drop into the floating range.
+// Replicates the legacy ContextSplitPanel mode decision.
 export const $contextPanelMode = computed($contextLayoutMetrics, ({ totalWidth, contextWidth }): ContextPanelMode => {
     if (totalWidth <= 0) return 'docked';
 
@@ -29,7 +28,7 @@ export const $contextPanelMode = computed($contextLayoutMetrics, ({ totalWidth, 
     return isFloating ? 'floating' : 'docked';
 });
 
-// On first render the panel starts closed on narrow screens (legacy requiresCollapsedContextPanel).
+// Legacy requiresCollapsedContextPanel.
 export function shouldCollapseContextInitially(): boolean {
     const { totalWidth } = $contextLayoutMetrics.get();
     const belowInitialThreshold = LayoutTokens.contextPanel.initialCollapseThreshold.isFitOrSmaller(totalWidth);

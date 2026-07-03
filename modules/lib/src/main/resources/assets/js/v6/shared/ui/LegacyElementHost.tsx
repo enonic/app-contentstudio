@@ -3,8 +3,7 @@ import { cn } from '@enonic/ui';
 import { useEffect, useRef, type ComponentPropsWithoutRef, type ReactElement } from 'react';
 
 export type LegacyElementHostProps = {
-    // The hosted element stays owned by its legacy creator: it is attached on mount
-    // and detached (not destroyed) on unmount, so it can be re-hosted elsewhere.
+    // Owned by its legacy creator; detached (not destroyed) on unmount.
     element: Element;
 } & ComponentPropsWithoutRef<'div'>;
 
@@ -17,20 +16,18 @@ export const LegacyElementHost = ({ element, className, ...props }: LegacyElemen
         const container = containerRef.current;
         if (container == null) return;
 
-        // Attach through a legacy wrapper so the element's onAdded lifecycle fires
-        // (split panels distribute, preview tracks visibility) — a raw appendChild would not.
+        // Legacy wrapper fires the onAdded lifecycle; raw appendChild would not.
         const wrapper = Element.fromHtmlElement(container);
         wrapper.appendChild(element);
         if (!element.isRendered() && !element.isRendering()) void element.render();
 
         return () => {
-            // ! Detach the DOM silently: element.remove()/removeChild would fire onRemoved,
-            // which legacy components use for one-shot teardown and could not survive re-hosting.
+            // ! Silent detach: onRemoved teardown would not survive re-hosting.
             element.getHTMLElement().remove();
         };
     }, [element]);
 
-    // Positioned: legacy `.panel` children are absolute and must anchor to this container.
+    // Relative: legacy `.panel` children are absolute.
     return (
         <div
             ref={containerRef}

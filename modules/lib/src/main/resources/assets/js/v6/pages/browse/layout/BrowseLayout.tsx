@@ -14,6 +14,7 @@ import { LegacyElement } from '../../../shared/ui/LegacyElement';
 import { LegacyElementHost } from '../../../shared/ui/LegacyElementHost';
 import { SplitView } from '../../../shared/ui/split-view';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
+import { $isContentFilterOpen } from '../../../features/search/model/contentFilter.store';
 import {
     $floatingContextWidth,
     $isMobilePreviewOpen,
@@ -35,7 +36,7 @@ type FloatingContextProps = {
     onResized: () => void;
 };
 
-// The legacy floating panel kept its draggable splitter, so the overlay stays resizable.
+// Floating stays resizable, as the legacy splitter did.
 const FloatingContext = ({ element, onResized }: FloatingContextProps): ReactElement => {
     const width = useStore($floatingContextWidth);
     const label = useI18n('field.splitView.resize');
@@ -107,18 +108,27 @@ const FloatingContext = ({ element, onResized }: FloatingContextProps): ReactEle
 FloatingContext.displayName = 'BrowseLayout.FloatingContext';
 
 export type BrowseLayoutProps = {
-    // Legacy panels stay owned by ContentBrowsePanel; the layout only places them.
+    // Owned by ContentBrowsePanel; the layout only places them.
     gridPanel: Element;
     previewPanel: Element;
     contextPanel: Element;
+    filterPanel?: Element;
 };
 
 const BROWSE_LAYOUT_NAME = 'BrowseLayout';
 
-export const BrowseLayout = ({ gridPanel, previewPanel, contextPanel }: BrowseLayoutProps): ReactElement => {
+// Legacy panels must fill their hosts; `!` beats the unlayered legacy CSS.
+const LEGACY_PANEL_OVERRIDES = cn(
+    '[&_.context-panel]:!absolute [&_.context-panel]:!inset-0 [&_.context-panel]:!w-auto',
+    '[&_.context-panel]:!h-auto [&_.context-panel]:!transition-none',
+    '[&_.filter-panel]:!inset-0 [&_.filter-panel]:!w-auto',
+);
+
+export const BrowseLayout = ({ gridPanel, previewPanel, contextPanel, filterPanel }: BrowseLayoutProps): ReactElement => {
     const isContextOpen = useStore($isContextOpen);
     const mode = useStore($contextPanelMode);
     const isMobilePreviewOpen = useStore($isMobilePreviewOpen);
+    const isFilterOpen = useStore($isContentFilterOpen);
 
     const rootRef = useRef<HTMLDivElement>(null);
     const totalWidthRef = useRef(0);
@@ -147,8 +157,7 @@ export const BrowseLayout = ({ gridPanel, previewPanel, contextPanel }: BrowseLa
         return () => observer.disconnect();
     }, [publishMetrics]);
 
-    // Hosted legacy content (preview iframe, context widgets) re-measures only on
-    // ResponsiveManager events, so panel resizes must be re-fired into that system.
+    // Hosted legacy content re-measures only on ResponsiveManager events.
     const notifyLegacyResize = useMemo(
         () => AppHelper.debounce(() => ResponsiveManager.fireResizeEvent(), RESIZE_NOTIFY_DELAY_MS),
         [],
@@ -165,15 +174,20 @@ export const BrowseLayout = ({ gridPanel, previewPanel, contextPanel }: BrowseLa
         [publishMetrics, notifyLegacyResize],
     );
 
-    // The legacy toolbar above is 60px (top-15); the layout fills the rest of the panel.
+    // top-15 clears the 60px legacy toolbar.
     if (mode === 'mobile') {
         return (
             <div
                 ref={rootRef}
                 data-component={BROWSE_LAYOUT_NAME}
-                className='absolute inset-x-0 bottom-0 top-15 overflow-hidden'
+                className={cn('absolute inset-x-0 bottom-0 top-15 overflow-hidden', LEGACY_PANEL_OVERRIDES)}
             >
                 <LegacyElementHost element={gridPanel} className='size-full' />
+                {filterPanel != null && isFilterOpen && (
+                    <div data-component='BrowseLayout.MobileFilter' className='absolute inset-0 z-20 bg-surface-neutral'>
+                        <LegacyElementHost element={filterPanel} className='size-full' />
+                    </div>
+                )}
                 <div
                     data-component='BrowseLayout.MobilePreview'
                     className={cn(
@@ -199,8 +213,25 @@ export const BrowseLayout = ({ gridPanel, previewPanel, contextPanel }: BrowseLa
     const showFloatingContext = isContextOpen && mode === 'floating';
 
     return (
-        <div ref={rootRef} data-component={BROWSE_LAYOUT_NAME} className='absolute inset-x-0 bottom-0 top-15'>
+        <div
+            ref={rootRef}
+            data-component={BROWSE_LAYOUT_NAME}
+            className={cn('absolute inset-x-0 bottom-0 top-15', LEGACY_PANEL_OVERRIDES)}
+        >
             <SplitView orientation='horizontal' storageId='browse-layout' className='size-full'>
+                {filterPanel != null && isFilterOpen && (
+                    <>
+                        <SplitView.Panel
+                            id='filter'
+                            defaultSize='300px'
+                            minSize='300px'
+                            groupResizeBehavior='preserve-pixel-size'
+                        >
+                            <LegacyElementHost element={filterPanel} className='size-full bg-surface-neutral' />
+                        </SplitView.Panel>
+                        <SplitView.Handle id='filter-handle' variant='thin' />
+                    </>
+                )}
                 <SplitView.Panel id='grid' defaultSize='50%' minSize='300px' onResize={handlePanelResize}>
                     <LegacyElementHost element={gridPanel} className='size-full' />
                 </SplitView.Panel>

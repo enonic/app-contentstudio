@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { setContextOpen } from '../../../widgets/context-panel/model/contextWidgets.store';
 import { setContextLayoutMetrics } from '../../../widgets/context-panel/model/contextPanelMode.store';
 import { setFloatingContextWidth, setMobilePreviewOpen } from '../model/browseLayout.store';
+import { setContentFilterOpen } from '../../../features/search/model/contentFilter.store';
 import { BrowseLayout } from './BrowseLayout';
 
 // Layout-engine stubs (happy-dom has none); see split-view.test.tsx for details.
@@ -118,6 +119,7 @@ type Panels = {
     gridPanel: DivEl;
     previewPanel: DivEl;
     contextPanel: DivEl;
+    filterPanel: DivEl;
 };
 
 function createPanels(): Panels {
@@ -125,6 +127,7 @@ function createPanels(): Panels {
         gridPanel: new DivEl('legacy-grid'),
         previewPanel: new DivEl('legacy-preview'),
         contextPanel: new DivEl('legacy-context'),
+        filterPanel: new DivEl('legacy-filter'),
     };
 }
 
@@ -147,6 +150,7 @@ describe('BrowseLayout', () => {
         stubLayout();
         layoutRootWidth = 2000;
         setContextOpen(false);
+        setContentFilterOpen(false);
         setMobilePreviewOpen(false);
         setFloatingContextWidth(360);
         setContextLayoutMetrics({ totalWidth: 0, contextWidth: 0 });
@@ -237,6 +241,37 @@ describe('BrowseLayout', () => {
         await act(async () => setMobilePreviewOpen(true));
         await settle();
         expect(preview?.className).toContain('translate-x-0');
+    });
+
+    it('mounts the filter as a resizable split panel when opened', async () => {
+        const panels = createPanels();
+
+        await renderLayout(panels);
+        expect(document.querySelector('.legacy-filter')).toBeNull();
+
+        await act(async () => setContentFilterOpen(true));
+        await settle();
+
+        expect(screen.getByTestId('filter').querySelector('.legacy-filter')).toBe(
+            panels.filterPanel.getHTMLElement(),
+        );
+        expect(document.querySelector('[data-testid="filter-handle"]')).not.toBeNull();
+
+        await act(async () => setContentFilterOpen(false));
+        await settle();
+        expect(document.querySelector('.legacy-filter')).toBeNull();
+    });
+
+    it('shows the filter as a fullscreen overlay in mobile mode', async () => {
+        layoutRootWidth = 700;
+        const panels = createPanels();
+        setContentFilterOpen(true);
+
+        await renderLayout(panels);
+
+        const overlay = document.querySelector('[data-component="BrowseLayout.MobileFilter"]');
+        expect(overlay).not.toBeNull();
+        expect(overlay?.querySelector('.legacy-filter')).toBe(panels.filterPanel.getHTMLElement());
     });
 
     it('reacts to context open toggling', async () => {

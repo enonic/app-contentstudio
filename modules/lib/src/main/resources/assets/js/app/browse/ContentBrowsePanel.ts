@@ -14,7 +14,6 @@ import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
 import type Q from 'q';
 import { $actionsNeedRefresh, clearActionsRefreshSignal } from '../../v6/app/actions.store';
 import { removeContent, setContent, hasCurrentItems, removeTreeNode, revealContentByPath } from '../../v6/entities/content';
-import { setContentFilterOpen } from '../../v6/features/search/model/contentFilter.store';
 import { onActiveProjectChanged } from '../../v6/entities/project/activeProject.store';
 import { onNoProjectsAvailable } from '../../v6/entities/project/projects.store';
 import { ContentTreeListElement } from '../../v6/widgets/browse-grid/ContentTreeListElement';
@@ -756,13 +755,6 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
             this.toolbar.disable();
             this.keyNavigator.disableKeys();
         }
-    }
-
-    // TODO: Enonic UI - Sync layer
-    toggleFilterPanel() {
-        super.toggleFilterPanel();
-        const isFilterPanelHidden = this.filterPanelIsHidden();
-        setContentFilterOpen(!isFilterPanelHidden);
     }
 
 }

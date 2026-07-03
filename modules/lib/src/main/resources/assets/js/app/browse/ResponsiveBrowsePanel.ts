@@ -4,8 +4,6 @@ import { type ViewItem } from '@enonic/lib-admin-ui/app/view/ViewItem';
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { Body } from '@enonic/lib-admin-ui/dom/Body';
 import { Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
-import { SplitPanel, SplitPanelAlignment, SplitPanelBuilder } from '@enonic/lib-admin-ui/ui/panel/SplitPanel';
-import { SplitPanelSize } from '@enonic/lib-admin-ui/ui/panel/SplitPanelSize';
 import { SelectionMode } from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import type Q from 'q';
@@ -16,6 +14,7 @@ import {
     shouldCollapseContextInitially,
 } from '../../v6/widgets/context-panel/model/contextPanelMode.store';
 import { $isContextOpen, setContextOpen } from '../../v6/widgets/context-panel/model/contextWidgets.store';
+import { $isContentFilterOpen, setContentFilterOpen } from '../../v6/features/search/model/contentFilter.store';
 import { getContentAsCSCS } from '../../v6/entities/content';
 import { InspectEvent } from '../event/InspectEvent';
 import { type ContextView } from '../view/context/ContextView';
@@ -31,8 +30,7 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
     protected dockedContextPanel: DockedContextPanel;
     protected browseLayout: BrowseLayoutElement;
 
-    // Bypasses the BrowsePanel split-panel construction: panel placement is owned
-    // by the v6 BrowseLayout, which hosts the legacy panels created here.
+    // Bypasses BrowsePanel splits: placement is owned by the v6 BrowseLayout.
     protected initElements(): void {
         this.selectableListBoxPanel = this.createListBoxPanel();
         this.keyNavigator = this.createKeyNavigator();
@@ -44,19 +42,19 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
         }
 
         if (this.filterPanel) {
-            this.filterAndGridSplitPanel = this.setupBrowseFilterPanel();
+            this.setupFilterPanelWiring();
         }
 
         this.contextView = this.createContextView();
         this.dockedContextPanel = new DockedContextPanel(this.contextView);
         this.browseLayout = new BrowseLayoutElement({
-            gridPanel: this.filterAndGridSplitPanel ?? this.selectableListBoxPanel,
+            gridPanel: this.selectableListBoxPanel,
             previewPanel: this.browseItemPanel,
             contextPanel: this.dockedContextPanel,
+            filterPanel: this.filterPanel ?? undefined,
         });
 
         this.selectableListBoxPanel.getWrapper().setSkipFirstClickOnFocus(true);
-        this.hideFilterPanel();
     }
 
     protected initListeners(): void {
@@ -109,7 +107,22 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
             }
         });
 
-        // Custom (legacy) context widgets still fetch data through ContextView on open.
+        $isContentFilterOpen.subscribe((isOpen: boolean, wasOpen: boolean) => {
+            if (this.filterPanel == null || isOpen === wasOpen) return;
+
+            if (isOpen) {
+                this.browseToolbar.giveBlur();
+                this.toggleFilterPanelAction.setVisible(false);
+                this.toggleFilterPanelButton.removeClass('filtered');
+                // Focus after the batched render mounts the panel.
+                setTimeout(() => this.filterPanel.giveFocusToSearch(), 100);
+            } else {
+                this.toggleFilterPanelAction.setVisible(true);
+                if (this.filterPanel.hasFilterSet()) this.toggleFilterPanelButton.addClass('filtered');
+            }
+        });
+
+        // Custom legacy widgets still fetch through ContextView on open.
         $isContextOpen.subscribe((isOpen: boolean, wasOpen: boolean) => {
             if (isOpen && !wasOpen && this.dockedContextPanel.getItem()) {
                 this.contextView.updateActiveExtension();
@@ -125,21 +138,9 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
         });
     }
 
-    // TODO: [#11010] Dissolve the legacy filter split into BrowseLayout; this mirrors the
-    // private BrowsePanel.setupFilterPanel, which became unreachable once initElements was overridden.
-    private setupBrowseFilterPanel(): SplitPanel {
-        const splitPanel = new SplitPanelBuilder(this.filterPanel, this.selectableListBoxPanel)
-            .setFirstPanelMinSize(SplitPanelSize.PIXELS(300))
-            .setFirstPanelSize(SplitPanelSize.PIXELS(300))
-            .setAlignment(SplitPanelAlignment.VERTICAL)
-            .setAnimationDelay(100)
-            .setSplitterThickness(1)
-            .build();
-
-        this.filterPanel.onHideFilterPanelButtonClicked(() => {
-            this.toggleFilterPanel();
-        });
-        this.filterPanel.onShowResultsButtonClicked(this.toggleFilterPanel.bind(this));
+    private setupFilterPanelWiring(): void {
+        this.filterPanel.onHideFilterPanelButtonClicked(() => setContentFilterOpen(false));
+        this.filterPanel.onShowResultsButtonClicked(() => setContentFilterOpen(false));
 
         this.toggleFilterPanelAction = new ToggleFilterPanelAction(this).setFoldable(false);
         this.toggleFilterPanelAction.setWcagAttributes({
@@ -147,9 +148,24 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
         });
         this.toggleFilterPanelButton = this.browseToolbar.addAction(this.toggleFilterPanelAction);
         this.toggleFilterPanelButton.setTitle(i18n('tooltip.filterPanel.show'));
-        this.toggleFilterPanelAction.setVisible(false);
+        this.toggleFilterPanelAction.setVisible(true);
+    }
 
-        return splitPanel;
+    // Filter state lives in $isContentFilterOpen; BrowseLayout renders it.
+    toggleFilterPanel(): void {
+        setContentFilterOpen(!$isContentFilterOpen.get());
+    }
+
+    protected showFilterPanel(): void {
+        setContentFilterOpen(true);
+    }
+
+    protected hideFilterPanel(): void {
+        setContentFilterOpen(false);
+    }
+
+    protected filterPanelIsHidden(): boolean {
+        return !$isContentFilterOpen.get();
     }
 
     protected createToolbar(): ResponsiveToolbar {
@@ -188,7 +204,7 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
 
     protected abstract updateContextView(item: ViewItem): Q.Promise<void>;
 
-    // Bypasses BrowsePanel.doRender: the toolbar and the v6 layout are the only children.
+    // Bypasses BrowsePanel.doRender.
     doRender(): Q.Promise<boolean> {
         return Panel.prototype.doRender.call(this).then(() => {
             this.browseToolbar.addClass('browse-toolbar');
