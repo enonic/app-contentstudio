@@ -10,6 +10,7 @@ import { $contextContent } from '../../../../widgets/context-panel/model/context
 import { useStore } from '@nanostores/preact';
 import { type MediaOption, useHtmlAreaLinkDialogContext } from './HtmlAreaLinkDialogContext';
 import { ContentSelector } from '../../../shared/selectors/content';
+import { resolveAllowedContentPaths } from './resolveAllowedContentPaths';
 
 const COMPONENT_NAME = 'ContentTabPanel';
 
@@ -53,21 +54,20 @@ export const ContentTabPanel = (): ReactElement => {
     const addLabel = useI18n('action.add');
     const uploadMediaLabel = useI18n('tooltip.button.uploadMedia');
 
-    // Load parent site path for scoping
-    const [parentSitePath, setParentSitePath] = useState<string | undefined>(undefined);
+    const [isInSite, setIsInSite] = useState(false);
 
     useEffect(() => {
         const contentId = contentSummary?.getContentId();
         if (!contentId) {
-            setParentSitePath(undefined);
+            setIsInSite(false);
             return;
         }
         fetchNearestSite(contentId).match(
             (site) => {
-                setParentSitePath(site ? site.getPath().toString() : undefined);
+                setIsInSite(!!site);
             },
             () => {
-                setParentSitePath(undefined);
+                setIsInSite(false);
             },
         );
     }, [contentSummary]);
@@ -89,12 +89,10 @@ export const ContentTabPanel = (): ReactElement => {
         [deselectContent, selectContentById],
     );
 
-    const allowedContentPaths = useMemo(() => {
-        if (showAllContent || !parentSitePath) {
-            return undefined;
-        }
-        return [parentSitePath];
-    }, [showAllContent, parentSitePath]);
+    const allowedContentPaths = useMemo(
+        () => resolveAllowedContentPaths({ isInSite, showAllContent }),
+        [isInSite, showAllContent],
+    );
 
     // Media upload
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -133,6 +131,7 @@ export const ContentTabPanel = (): ReactElement => {
                         onSelectionChange={handleSelectionChange}
                         selectionMode="single"
                         allowedContentPaths={allowedContentPaths}
+                        contextContent={contentSummary}
                         error={!!errors.content}
                         closeOnBlur
                         className="flex-1 focus-within:z-10"
@@ -161,7 +160,7 @@ export const ContentTabPanel = (): ReactElement => {
                 </div>
             </div>
 
-            {parentSitePath && !selectedContent && (
+            {isInSite && !selectedContent && (
                 <Checkbox
                     checked={showAllContent}
                     onCheckedChange={(checked) => setShowAllContent(checked === true)}
