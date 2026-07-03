@@ -59,9 +59,12 @@
     <link rel="mask-icon" href="{{assetsUri}}/icons/icon-black.svg" color="#5bbad5">
 
     <!-- Styles -->
+    <!-- index.css goes first: layer order is fixed by first occurrence document-wide, and it is
+         the only bundle declaring all layers in the intended order (theme, base, legacy,
+         utilities, overrides). Later bundles (lib.css) merge into the established layers. -->
+    <link rel="stylesheet" type="text/css" href="{{assetsUri}}/styles/index.css">
     <link rel="stylesheet" type="text/css" href="{{assetsUri}}/admin/common/styles/lib.css">
     <link rel="stylesheet" type="text/css" href="{{assetsUri}}/styles/contentlib.css">
-    <link rel="stylesheet" type="text/css" href="{{assetsUri}}/styles/index.css">
 
     {{#isAiEnabled}}
     <!-- Seed window.Enonic.AI so async plugin bundles can register before initAiHost() runs -->
