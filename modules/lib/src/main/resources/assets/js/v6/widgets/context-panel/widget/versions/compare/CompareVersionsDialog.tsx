@@ -98,6 +98,11 @@ export const CompareVersionsDialog = ({
         }
     }, [open, showAllContent, diffHtml]);
 
+    const deltaClasses = cn(
+        'jsondiffpatch-delta block text-sm [&_pre]:whitespace-pre-wrap [&_pre]:wrap-anywhere',
+        isEmpty && 'empty',
+    );
+
     return (
         <Dialog.Root open={open} onOpenChange={handleOpenChange}>
             <Dialog.Portal>
@@ -125,7 +130,7 @@ export const CompareVersionsDialog = ({
 
                             {!isLoading && !error && (
                                 <div
-                                    className={cn('jsondiffpatch-delta text-sm', isEmpty && 'empty')}
+                                    className={deltaClasses}
                                     dangerouslySetInnerHTML={{ __html: diffHtml }}
                                 />
                             )}
