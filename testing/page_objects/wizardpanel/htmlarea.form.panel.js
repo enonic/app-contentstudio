@@ -40,7 +40,7 @@ class HtmlAreaForm extends OccurrencesFormView {
     }
 
     get fullScreenButton() {
-        return lib.FORM_VIEW + lib.CKE.fullScreen;
+        return COMMON.CKE.fullScreen;
     }
 
     get addButton() {
@@ -337,7 +337,7 @@ class HtmlAreaForm extends OccurrencesFormView {
     async clickOnFullScreenButton() {
         try {
             await this.clickOnElement(XPATH.ckeWrapper);
-            await this.waitForElementDisplayed(this.fullScreenButton, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.fullScreenButton);
             await this.clickOnElement(this.fullScreenButton);
             return await this.pause(200);
         } catch (err) {

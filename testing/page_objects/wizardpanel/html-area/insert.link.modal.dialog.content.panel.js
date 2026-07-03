@@ -98,7 +98,7 @@ class InsertLinkDialogContentPanel extends Page {
     async clickOnContentSelectorModeTogglerButton() {
         let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
         await contentSelectorDropdown.clickOnModeTogglerButton();
-        await this.pause(700);
+        await this.pause(1000);
     }
     // returns the list of options display-name(flat mode):
     async getContentSelectorOptionsDisplayNameInFlatMode() {
