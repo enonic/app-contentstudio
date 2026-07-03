@@ -1,11 +1,10 @@
 /**
- * Created on 30.07.2021
+ * Created on 30.07.2021  updated on 03.07.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const LiveFormPanel = require('../../page_objects/wizardpanel/liveform/live.form.panel');
 const appConst = require('../../libs/app_const');
@@ -17,28 +16,23 @@ describe('site.with.layout.component.spec - specification', function () {
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let SITE;
+    let IMPORTED_SITE_NAME= "simple-site984116";
     const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const LAYOUT_NAME = '3-col';
 
     it(`WHEN 3-column layout has been inserted THEN layout-component with 3 regions should be present in Live Edit`,
         async () => {
-
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP], CONTROLLER_NAME);
-            await studioUtils.doAddSite(SITE);
-
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             let liveFormPanel = new LiveFormPanel();
             let layoutInspectionPanel = new LayoutInspectionPanel();
             // 1. Open existing site:
-            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await studioUtils.selectContentAndOpenWizard(IMPORTED_SITE_NAME);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnCollapseContentForm();
             // 3. Insert the Layout component (3-column):
             await pageComponentView.rightClickAndOpenContextMenu('main');
-            await pageComponentView.selectMenuItem(['Insert', 'Layout']);
+            await pageComponentView.selectContextMenuItem(['Insert', 'Layout']);
             await layoutInspectionPanel.typeNameAndSelectLayout(LAYOUT_NAME);
             // Verify that the site saved automatically(layout was selected):
             await contentWizard.waitForNotificationMessage();
@@ -53,14 +47,14 @@ describe('site.with.layout.component.spec - specification', function () {
             let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let liveFormPanel = new LiveFormPanel();
             // 1. Open existing site:
-            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await studioUtils.selectContentAndOpenWizard(IMPORTED_SITE_NAME);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnCollapseContentForm();
             // 3. Expand the layout item:
             await pageComponentView.expandItem(LAYOUT_NAME);
             // 4. Insert the first text component:
             await pageComponentView.rightClickAndOpenContextMenu('left');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.typeTextInEditor('text left');
@@ -77,14 +71,14 @@ describe('site.with.layout.component.spec - specification', function () {
             let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let liveFormPanel = new LiveFormPanel();
             // 1. Open existing site with 3-col layout:
-            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await studioUtils.selectContentAndOpenWizard(IMPORTED_SITE_NAME);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnCollapseContentForm();
             // 3. Expand the layout item:
             await pageComponentView.expandItem(LAYOUT_NAME);
             // 4. Insert the text component in 'center' region:
             await pageComponentView.rightClickAndOpenContextMenu('center');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.typeTextInEditor('text center');
@@ -103,14 +97,14 @@ describe('site.with.layout.component.spec - specification', function () {
             let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let liveFormPanel = new LiveFormPanel();
             // 1. Open existing site with 3-col layout:
-            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await studioUtils.selectContentAndOpenWizard(IMPORTED_SITE_NAME);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnCollapseContentForm();
             // 3. Expand the layout item:
             await pageComponentView.expandItem(LAYOUT_NAME);
             // 4. Insert the text component in 'right' region
             await pageComponentView.rightClickAndOpenContextMenu('right');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.typeTextInEditor('text right');

@@ -16,7 +16,6 @@ describe('site.wizard.add.application.spec: Select an application in the wizard 
         webDriverHelper.setupBrowser();
     }
 
-    // verifies  https://github.com/enonic/app-contentstudio/issues/1151 (controller selector does not appear after selecting an application in the saved site)
     it(`GIVEN new wizard is opened and site's name is saved WHEN an application has been selected in the wizard THEN controller selector should appear in the Page Editor`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
@@ -35,7 +34,7 @@ describe('site.wizard.add.application.spec: Select an application in the wizard 
             let result = await liveFormPanel.waitForEditingNotAvailableMessageDisplayed();
             assert.equal(result, appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE, "'Preview not available' message should be displayed");
             // 7. Verify that 'Page Settings' menu item is available in the context menu:
-            await contentWizard.doOpenPageViewContextMenu(displayName);
+            await contentWizard.doOpenItemViewContextMenu();
             await contentWizard.waitForPageSettingsMenuItemDisplayed();
         });
 

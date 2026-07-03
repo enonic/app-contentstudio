@@ -24,13 +24,14 @@ class DateForm extends OccurrencesFormView {
         let dateElements = await this.getDisplayedElements(this.dateInput);
         for (const ch of value) {
             await dateElements[index].addValue(ch);
+            await this.pause(20);
         }
         // await this.getBrowser().execute((el, val) => {
         //     el.value = val;
         //     el.dispatchEvent(new Event('input', { bubbles: true }));
         //     el.dispatchEvent(new Event('change', { bubbles: true }));
         // }, dateElements[index], value);
-        return await this.pause(300);
+        return await this.pause(200);
     }
 
     // Gets array of values from DateTime inputs, if there are more than one
