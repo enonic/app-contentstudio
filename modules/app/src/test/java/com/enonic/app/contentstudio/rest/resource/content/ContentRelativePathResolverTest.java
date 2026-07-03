@@ -23,7 +23,7 @@ public class ContentRelativePathResolverTest
         final String resolvedWildcardOption2 =
             ContentRelativePathResolver.resolveWithSite( ContentRelativePathResolver.SITE_WILDCARD + "/somepath/", parentSite );
 
-        assertEquals( "/mySitePath/test*", resolvedWildcardOption1 );
+        assertEquals( "/mySitePath/test/*", resolvedWildcardOption1 );
         assertEquals( "/mySitePath/test/somepath/*", resolvedWildcardOption2 );
     }
 

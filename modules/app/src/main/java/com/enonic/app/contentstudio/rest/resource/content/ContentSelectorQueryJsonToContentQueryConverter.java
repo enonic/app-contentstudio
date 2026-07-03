@@ -177,7 +177,20 @@ public class ContentSelectorQueryJsonToContentQueryConverter
 
     private ConstraintExpr addAllowPathToExpr( final String allowedPath, final ConstraintExpr expr )
     {
-        return createAndAppendExpr( doResolvePath( allowedPath ), expr );
+        final ConstraintExpr pathExpr = createPathExpr( allowedPath );
+        return expr == null ? pathExpr : LogicalExpr.or( expr, pathExpr );
+    }
+
+    private ConstraintExpr createPathExpr( final String allowedPath )
+    {
+        final ConstraintExpr subtreeExpr = createCompareExpr( doResolvePath( allowedPath ) );
+
+        if ( ContentRelativePathResolver.SITE_WILDCARD.equals( allowedPath ) && this.parentSite != null )
+        {
+            return LogicalExpr.or( createCompareExpr( this.parentSite.getPath().toString() ), subtreeExpr );
+        }
+
+        return subtreeExpr;
     }
 
     private String doResolvePath( final String allowedPath )
@@ -187,11 +200,6 @@ public class ContentSelectorQueryJsonToContentQueryConverter
             return ContentRelativePathResolver.resolveWithSite( allowedPath, this.parentSite );
         }
         return ContentRelativePathResolver.resolve( this.content, allowedPath );
-    }
-
-    private ConstraintExpr createAndAppendExpr( final String resolvedPath, final ConstraintExpr expr )
-    {
-        return expr == null ? createCompareExpr( resolvedPath ) : LogicalExpr.or( expr, createCompareExpr( resolvedPath ) );
     }
 
     private CompareExpr createCompareExpr( final String resolvedPath )

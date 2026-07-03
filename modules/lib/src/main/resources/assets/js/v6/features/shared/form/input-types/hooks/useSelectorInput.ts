@@ -6,7 +6,6 @@ import { useCallback, useMemo } from 'react';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { useStore } from '@nanostores/preact';
 import { $contextContent } from '../../../../../widgets/context-panel/model/contextContent.store';
-import { SITE_PATH } from '../../../../../shared/lib/form/form';
 import { type ContentSummary } from '../../../../../../app/content/ContentSummary';
 import { useSelectorInputHasError } from './useSelectorInputHasError';
 
@@ -30,9 +29,7 @@ export const useSelectorInput = <T extends Omit<GeneralSelectorConfig, 'allowCon
     const contextContent = useStore($contextContent);
 
     // Constants
-    const resolvedContextContent: ContentSummary | undefined = config.allowPath.some((path) => path !== SITE_PATH)
-        ? contextContent
-        : undefined;
+    const resolvedContextContent: ContentSummary | undefined = contextContent ?? undefined;
     const resolvedSelectionMode: 'single' | 'multiple' = occurrences.getMaximum() === 1 ? 'single' : 'multiple';
     const resolvedListMode: 'tree' | 'flat' = config.treeMode ? 'tree' : 'flat';
     const resolvedHasErrors: boolean = useSelectorInputHasError(occurrences, errors);

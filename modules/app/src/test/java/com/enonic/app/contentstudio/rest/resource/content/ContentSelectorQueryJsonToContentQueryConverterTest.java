@@ -117,6 +117,67 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
     }
 
     @Test
+    public void testBareSiteWildcardMatchesSiteAndSubtree()
+    {
+        final Content content = createContent( "content-id", "my-content", ContentTypeName.folder() );
+
+        final Site site = createSite( "site-id", "my-site" );
+
+        final List<String> allowPaths = List.of( "${site}" );
+
+        Mockito.when( contentService.getById( Mockito.isA( ContentId.class ) ) ).thenReturn( content );
+
+        Mockito.when( contentService.getNearestSite( Mockito.isA( ContentId.class ) ) ).thenReturn( site );
+
+        ContentSelectorQueryJson contentQueryJson =
+            new ContentSelectorQueryJson( "", 0, 100, "summary", "content-id", "inputName", Collections.emptyList(), allowPaths, null );
+
+        final ContentQuery contentQuery = getProcessor( contentQueryJson ).createQuery();
+
+        assertEquals( "(_path LIKE '/content/my-site' OR _path LIKE '/content/my-site/*')", contentQuery.getQueryExpr().toString() );
+    }
+
+    @Test
+    public void testBareSiteWildcardWithoutSiteMatchesWholeRepository()
+    {
+        final Content content = createContent( "content-id", "my-content", ContentTypeName.folder() );
+
+        final List<String> allowPaths = List.of( "${site}" );
+
+        Mockito.when( contentService.getById( Mockito.isA( ContentId.class ) ) ).thenReturn( content );
+
+        Mockito.when( contentService.getNearestSite( Mockito.isA( ContentId.class ) ) ).thenReturn( null );
+
+        ContentSelectorQueryJson contentQueryJson =
+            new ContentSelectorQueryJson( "", 0, 100, "summary", "content-id", "inputName", Collections.emptyList(), allowPaths, null );
+
+        final ContentQuery contentQuery = getProcessor( contentQueryJson ).createQuery();
+
+        assertEquals( "_path LIKE '/content/*'", contentQuery.getQueryExpr().toString() );
+    }
+
+    @Test
+    public void testSiteSubtreeWildcardMatchesDescendantsOnly()
+    {
+        final Content content = createContent( "content-id", "my-content", ContentTypeName.folder() );
+
+        final Site site = createSite( "site-id", "my-site" );
+
+        final List<String> allowPaths = List.of( "${site}/*" );
+
+        Mockito.when( contentService.getById( Mockito.isA( ContentId.class ) ) ).thenReturn( content );
+
+        Mockito.when( contentService.getNearestSite( Mockito.isA( ContentId.class ) ) ).thenReturn( site );
+
+        ContentSelectorQueryJson contentQueryJson =
+            new ContentSelectorQueryJson( "", 0, 100, "summary", "content-id", "inputName", Collections.emptyList(), allowPaths, null );
+
+        final ContentQuery contentQuery = getProcessor( contentQueryJson ).createQuery();
+
+        assertEquals( "_path LIKE '/content/my-site/*'", contentQuery.getQueryExpr().toString() );
+    }
+
+    @Test
     public void testPathWithAllowTypePassedFromJson()
     {
         Mockito.when( contentTypeService.getAll() )
