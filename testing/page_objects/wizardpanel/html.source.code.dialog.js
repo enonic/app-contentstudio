@@ -63,6 +63,10 @@ class HtmlSourceCodeDialog extends Page {
     typeText(text) {
         return this.typeTextInInput(xpath.container + xpath.textArea, text);
     }
+
+    async clearTextArea(){
+        await this.clearInputText(xpath.container + xpath.textArea)
+    }
 }
 
 module.exports = HtmlSourceCodeDialog;

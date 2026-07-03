@@ -103,7 +103,7 @@ describe.skip('version.items.after.publishing.spec tests for version items', fun
             await studioUtils.saveScreenshot('compare_dlg_inherit_perm')
             // 3. Verify that inheritPermissions property is false now:
             await compareWithPublishedVersionDialog.waitForModifiedPropertyDisplayed(appConst.COMPARE_VERSIONS_DLG_PROP.INHERIT_PERM);
-            let value = await compareWithPublishedVersionDialog.getNewValueInModifiedProperty(
+            let value = await compareWithPublishedVersionDialog.getModifiedPropertyNewValue(
                 appConst.COMPARE_VERSIONS_DLG_PROP.INHERIT_PERM);
             assert.equal(value, 'false', 'inheritPermissions:false  should be displayed in the dialog');
         });

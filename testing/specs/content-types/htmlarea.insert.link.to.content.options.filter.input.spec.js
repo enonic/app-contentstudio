@@ -36,7 +36,8 @@ describe('htmlarea.insert.link.to.content.spec: tests for filtering in content s
 
     // https://github.com/enonic/app-contentstudio/issues/10874
     // Insert link modal dialog - Incorrect filtering in content selector
-    it.skip(`GIVEN Show content from entire project checkbox is not selected WHEN options are expanded THEN content name that starts the same as the current site should not be present in the options`,
+    it.skip(
+        `GIVEN Show content from entire project checkbox is not selected WHEN options are expanded THEN content name that starts the same as the current site should not be present in the options`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             await studioUtils.selectSiteAndOpenNewWizard(SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
@@ -51,7 +52,7 @@ describe('htmlarea.insert.link.to.content.spec: tests for filtering in content s
             await studioUtils.saveScreenshot('duplicated_content_is_not_present_in_options');
             // Only one item should be present in the list of options in Tree mode:
             assert.equal(items.length, 1, 'Only one item should be present in the list of options');
-            assert.ok(items.includes( DUPLICATED_SITE_NAME) === false, 'Duplicated site should not be present in the options');
+            assert.ok(items.includes(DUPLICATED_SITE_NAME) === false, 'Duplicated site should not be present in the options');
         });
 
     // Content Selector is not switching to flat mode when filtered #10984
@@ -73,9 +74,10 @@ describe('htmlarea.insert.link.to.content.spec: tests for filtering in content s
             // Verify Content Selector is switching to flat mode when filtered
             // 4. Verify - Content From Entire Project should be present in the options:
             let items = await insertLinkDialogContentPanel.getContentSelectorOptionsDisplayNameInFlatMode();
-            assert.ok(items.length>= 2, 'Content From Entire Project should be present in the options');
+            assert.ok(items.length >= 2, 'Content From Entire Project should be present in the options');
             // 5. switch to Tree mode and verify that duplicated content is present in the options:
             await insertLinkDialogContentPanel.clickOnContentSelectorModeTogglerButton();
+            await studioUtils.saveScreenshot('duplicated_content_2');
             items = await insertLinkDialogContentPanel.getContentSelectorOptionsDisplayNameInFlatMode();
             assert.equal(items.length, 2, 'Duplicated site should be present in the options');
         });

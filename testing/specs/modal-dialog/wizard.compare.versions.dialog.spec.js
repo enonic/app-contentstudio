@@ -44,7 +44,7 @@ describe.skip('wizard.compare.versions.dialog - open the dialog and verify eleme
 
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
             await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
-            await wizardVersionsWidget.clickOnCompareVersionsButton();
+            await wizardVersionsWidget.clickOnShowChangesButton();
             await compareContentVersionsDialog.waitForDialogOpened();
             // 4. Expand the left dropdown(Older) and click on the latest edited-option in the dropdown list:
             await compareContentVersionsDialog.expandLeftDropdownAndClickOnModifiedOption(1);
@@ -89,7 +89,7 @@ describe.skip('wizard.compare.versions.dialog - open the dialog and verify eleme
             // 6. Check its checkbox:
             await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
             // 7. Click on Compare Versions button:
-            await wizardVersionsWidget.clickOnCompareVersionsButton();
+            await wizardVersionsWidget.clickOnShowChangesButton();
             // 4. Verify that modal dialog is loaded:
             await compareContentVersionsDialog.waitForDialogOpened();
             let type = await compareContentVersionsDialog.getTypeProperty();
@@ -120,7 +120,7 @@ describe.skip('wizard.compare.versions.dialog - open the dialog and verify eleme
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
             await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
             // 4. Click on 'Compare Versions' button:
-            await wizardVersionsWidget.clickOnCompareVersionsButton();
+            await wizardVersionsWidget.clickOnShowChangesButton();
             await compareContentVersionsDialog.waitForDialogOpened();
             // 5. Verify that 'Show entire content' checkbox is not selected:
             let isSelected = await compareContentVersionsDialog.isShowEntireContentCheckboxSelected();
@@ -132,7 +132,7 @@ describe.skip('wizard.compare.versions.dialog - open the dialog and verify eleme
             // 7. Close then reopen the modal dialog:
             await compareContentVersionsDialog.clickOnCancelButtonTop();
             await compareContentVersionsDialog.waitForDialogClosed();
-            await wizardVersionsWidget.clickOnCompareVersionsButton();
+            await wizardVersionsWidget.clickOnShowChangesButton();
             await compareContentVersionsDialog.waitForDialogOpened();
             await studioUtils.saveScreenshot('show_entire_content_not_selected');
             // 8. Verify that 'Show entire content' checkbox  is not selected:
@@ -161,7 +161,7 @@ describe.skip('wizard.compare.versions.dialog - open the dialog and verify eleme
             // 6. Check its checkbox:
             await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
             // 7. Click on Compare Versions button:
-            await wizardVersionsWidget.clickOnCompareVersionsButton();
+            await wizardVersionsWidget.clickOnShowChangesButton();
             // 4. Verify that modal dialog is loaded:
             await compareContentVersionsDialog.waitForDialogOpened();
             // 5. Right 'Revert'(Newer) menu-button should be disabled:
@@ -185,7 +185,7 @@ describe.skip('wizard.compare.versions.dialog - open the dialog and verify eleme
             await contentWizard.openContextWindow();
             // 2. Open Version History panel:
             await wizardContextPanel.openVersionHistory();
-            await wizardVersionsWidget.waitForVersionsLoaded();
+            await wizardVersionsWidget.waitForLoaded();
             // 3. Click on the current version(the first item on the top) and click on its checkbox:
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
             await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
@@ -193,7 +193,7 @@ describe.skip('wizard.compare.versions.dialog - open the dialog and verify eleme
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
             await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
             // 5. Click on the Compare Versions button:
-            await wizardVersionsWidget.clickOnCompareVersionsButton();
+            await wizardVersionsWidget.clickOnShowChangesButton();
             // 4. Verify that modal dialog is loaded:
             await compareContentVersionsDialog.waitForDialogOpened();
             // 5. Right(Newer) 'Revert' menu-button should be disabled:
@@ -212,14 +212,14 @@ describe.skip('wizard.compare.versions.dialog - open the dialog and verify eleme
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
             await contentWizard.openContextWindow();
             await wizardContextPanel.openVersionHistory();
-            await wizardVersionsWidget.waitForVersionsLoaded();
+            await wizardVersionsWidget.waitForLoaded();
             // 2. Click on the Edited version item and click on its checkbox:
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
             await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
             // 3. Click on the Created version item and click on its checkbox:
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
             await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
-            await wizardVersionsWidget.clickOnCompareVersionsButton();
+            await wizardVersionsWidget.clickOnShowChangesButton();
             await compareContentVersionsDialog.waitForDialogOpened();
             // 2. 'Esc' key has been pressed:
             await contentWizard.pressEscKey();
@@ -237,14 +237,14 @@ describe.skip('wizard.compare.versions.dialog - open the dialog and verify eleme
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
             await contentWizard.openContextWindow();
             await wizardContextPanel.openVersionHistory();
-            await wizardVersionsWidget.waitForVersionsLoaded();
+            await wizardVersionsWidget.waitForLoaded();
             // 2. Click on the Edited version item and click on its checkbox:
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
             await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
             // 3. Click on the Created version item and click on its checkbox:
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
             await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
-            await wizardVersionsWidget.clickOnCompareVersionsButton();
+            await wizardVersionsWidget.clickOnShowChangesButton();
             await compareContentVersionsDialog.waitForDialogOpened();
             // 4. 'Cancel button top' key been pressed:
             await compareContentVersionsDialog.clickOnCancelButtonTop();

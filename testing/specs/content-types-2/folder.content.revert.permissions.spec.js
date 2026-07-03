@@ -185,7 +185,7 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             // 8. Click on 'Compare changes' button in the 'Permissions Updated' item:
             await browseVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.PERMISSIONS_UPDATED, 1);
             // 9. Click on 'Compare Versions' button in the Versions Widget:
-            await browseVersionsWidget.clickOnCompareVersionsButton();
+            await browseVersionsWidget.clickOnShowChangesButton();
             await compareContentVersionsDialog.waitForDialogOpened();
             // 10. Click on the left dropdown handle:
             await compareContentVersionsDialog.clickOnLeftDropdownHandle();

@@ -117,7 +117,7 @@ function rollbackVersion() {
     let wizardContextPanel = new WizardContextPanel();
     let wizardVersionsWidget = new WizardVersionsWidget();
     return wizardContextPanel.openVersionHistory().then(() => {
-        return wizardVersionsWidget.waitForVersionsLoaded();
+        return wizardVersionsWidget.waitForLoaded();
     }).then(() => {
         return wizardVersionsWidget.clickAndExpandVersion(1)
     }).then(() => {

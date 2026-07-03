@@ -585,13 +585,18 @@ module.exports = {
         return await browsePanel.clickCheckboxAndSelectRowByDisplayName(displayName);
     },
     async selectSiteAndOpenNewWizard(siteName, contentType) {
-        let browsePanel = new BrowsePanel();
-        let newContentDialog = new NewContentDialog();
-        await this.findAndSelectItem(siteName);
-        await browsePanel.waitForNewButtonEnabled();
-        await browsePanel.clickOnNewButton();
-        await newContentDialog.waitForOpened();
-        return await this.clickOnItemInNewContentDialog(contentType);
+        try {
+            let browsePanel = new BrowsePanel();
+            let newContentDialog = new NewContentDialog();
+            await this.findAndSelectItem(siteName);
+            await browsePanel.waitForNewButtonEnabled();
+            await browsePanel.clickOnNewButton();
+            await newContentDialog.waitForOpened();
+            return await this.clickOnItemInNewContentDialog(contentType);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_new_content');
+            throw new Error(`Error occurred while selecting the item in New Content dialog, screenshot: ${screenshot}` + err);
+        }
     },
     async clickOnItemInNewContentDialog(contentType) {
         let newContentDialog = new NewContentDialog();
