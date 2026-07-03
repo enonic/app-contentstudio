@@ -135,14 +135,12 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
     private handleProjectNotSet() {
         this.getBrowseActions().setState(State.DISABLED);
         this.toggleFilterPanelAction.setEnabled(false);
-        this.contextSplitPanelToggler.setEnabled(false);
         this.setContentTreeState(State.DISABLED);
 
         let unsubscribeProjectSetHandler = () => undefined;
         const projectSetHandler = () => {
             this.getBrowseActions().setState(State.ENABLED);
             this.toggleFilterPanelAction.setEnabled(true);
-            this.contextSplitPanelToggler.setEnabled(true);
             this.setContentTreeState(State.ENABLED);
             Router.get().setHash(UrlAction.BROWSE);
             unsubscribeProjectSetHandler();
@@ -292,10 +290,6 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
         watchCustomContextWidgets(contextView);
 
         return contextView;
-    }
-
-    protected getFirstPanelSize(): number {
-        return 50;
     }
 
     doRender(): Q.Promise<boolean> {
@@ -725,7 +719,6 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
         });
 
         this.browseToolbar.addContainer(contentActionMenuButton, contentActionMenuButton.getChildControls());
-        this.browseToolbar.addElement(this.contextSplitPanelToggler);
 
         browseActions.onBeforeActionsStashed(() => {
             contentActionMenuButton.setRefreshDisabled(true);
@@ -747,10 +740,6 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
         this.browseActionsAndPreviewUpdateRequired = false;
 
         super.updateActionsAndPreview();
-    }
-
-    protected togglePreviewPanelDependingOnScreenSize(item: ResponsiveItem): void {
-        //
     }
 
     protected updateContextView(item: ContentSummaryAndCompareStatus): Q.Promise<void> {
@@ -776,7 +765,4 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
         setContentFilterOpen(!isFilterPanelHidden);
     }
 
-    protected getSplitterThickness(): number {
-        return 1;
-    }
 }

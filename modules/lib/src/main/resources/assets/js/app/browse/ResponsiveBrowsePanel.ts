@@ -1,38 +1,72 @@
 import { BrowsePanel } from '@enonic/lib-admin-ui/app/browse/BrowsePanel';
+import { ToggleFilterPanelAction } from '@enonic/lib-admin-ui/app/browse/action/ToggleFilterPanelAction';
+import { type ViewItem } from '@enonic/lib-admin-ui/app/view/ViewItem';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { Body } from '@enonic/lib-admin-ui/dom/Body';
-import { ResponsiveToolbar } from './ResponsiveToolbar';
-import { ContextSplitPanel } from '../view/context/ContextSplitPanel';
+import { Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
+import { SplitPanel, SplitPanelAlignment, SplitPanelBuilder } from '@enonic/lib-admin-ui/ui/panel/SplitPanel';
+import { SplitPanelSize } from '@enonic/lib-admin-ui/ui/panel/SplitPanelSize';
+import { SelectionMode } from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import type Q from 'q';
+import { BrowseLayoutElement } from '../../v6/pages/browse/layout/BrowseLayout';
+import { setMobilePreviewOpen } from '../../v6/pages/browse/model/browseLayout.store';
+import {
+    $contextPanelMode,
+    shouldCollapseContextInitially,
+} from '../../v6/widgets/context-panel/model/contextPanelMode.store';
+import { $isContextOpen, setContextOpen } from '../../v6/widgets/context-panel/model/contextWidgets.store';
+import { getContentAsCSCS } from '../../v6/entities/content';
+import { InspectEvent } from '../event/InspectEvent';
 import { type ContextView } from '../view/context/ContextView';
 import { DockedContextPanel } from '../view/context/DockedContextPanel';
-import { type BrowseItemPanel } from '@enonic/lib-admin-ui/app/browse/BrowseItemPanel';
-import type Q from 'q';
-import { type ViewItem } from '@enonic/lib-admin-ui/app/view/ViewItem';
-import { SplitPanelSize } from '@enonic/lib-admin-ui/ui/panel/SplitPanelSize';
-import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import { SelectionMode } from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
-import { NonMobileContextPanelToggleButton } from '../view/context/button/NonMobileContextPanelToggleButton';
-import { $isContextOpen, setContextOpen } from '../../v6/widgets/context-panel/model/contextWidgets.store';
-import { LayoutTokens } from '../../v6/shared/ui/layout.tokens';
-import { ContextPanelState } from '../view/context/ContextPanelState';
+import { ResponsiveToolbar } from './ResponsiveToolbar';
 
 export abstract class ResponsiveBrowsePanel extends BrowsePanel {
     static MOBILE_MODE_CLASS = 'mobile-mode';
     static MOBILE_PREVIEW_CLASS = 'mobile-preview-on';
 
     declare protected browseToolbar: ResponsiveToolbar;
-    protected contextSplitPanel: ContextSplitPanel;
-    protected contextSplitPanelToggler: NonMobileContextPanelToggleButton;
     protected contextView: ContextView;
+    protected dockedContextPanel: DockedContextPanel;
+    protected browseLayout: BrowseLayoutElement;
+
+    // Bypasses the BrowsePanel split-panel construction: panel placement is owned
+    // by the v6 BrowseLayout, which hosts the legacy panels created here.
+    protected initElements(): void {
+        this.selectableListBoxPanel = this.createListBoxPanel();
+        this.keyNavigator = this.createKeyNavigator();
+        this.filterPanel = this.createFilterPanel();
+        this.browseToolbar = this.createToolbar();
+
+        if (!this.browseItemPanel) {
+            this.browseItemPanel = this.createBrowseItemPanel();
+        }
+
+        if (this.filterPanel) {
+            this.filterAndGridSplitPanel = this.setupBrowseFilterPanel();
+        }
+
+        this.contextView = this.createContextView();
+        this.dockedContextPanel = new DockedContextPanel(this.contextView);
+        this.browseLayout = new BrowseLayoutElement({
+            gridPanel: this.filterAndGridSplitPanel ?? this.selectableListBoxPanel,
+            previewPanel: this.browseItemPanel,
+            contextPanel: this.dockedContextPanel,
+        });
+
+        this.selectableListBoxPanel.getWrapper().setSkipFirstClickOnFocus(true);
+        this.hideFilterPanel();
+    }
 
     protected initListeners(): void {
         super.initListeners();
 
-        this.contextSplitPanel.onMobileModeChanged((isMobile: boolean) => {
-            if (isMobile) {
-                this.hidePreviewPanel();
-            } else {
-                this.gridAndItemsSplitPanel.showFirstPanel();
-                this.showPreviewPanel();
+        $contextPanelMode.subscribe((mode, prevMode) => {
+            const isMobile = mode === 'mobile';
+            if (prevMode !== undefined && isMobile === (prevMode === 'mobile')) return;
+
+            if (!isMobile) {
                 this.toggleMobilePreviewMode(false);
             }
 
@@ -42,52 +76,80 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
         });
 
         this.browseToolbar.onFoldClicked(() => {
-            this.contextSplitPanel.hideContextPanel();
+            setContextOpen(false);
             this.toggleMobilePreviewMode(false);
         });
 
         this.selectableListBoxPanel.onSelectionChanged(() => {
             if (
                 this.selectableListBoxPanel.getSelectedItems().length > 0 &&
-                this.selectableListBoxPanel.getSelectionMode() === SelectionMode.HIGHLIGHT
+                this.selectableListBoxPanel.getSelectionMode() === SelectionMode.HIGHLIGHT &&
+                $contextPanelMode.get() === 'mobile'
             ) {
-                if (this.contextSplitPanel.isMobileMode()) {
-                    this.toggleMobilePreviewMode(true);
+                this.toggleMobilePreviewMode(true);
+            }
+        });
+
+        InspectEvent.on((event: InspectEvent) => {
+            const contentId = event.getContentId();
+            if (contentId !== undefined) {
+                const item = getContentAsCSCS(contentId);
+                if (item) {
+                    void this.contextView.setItem(item);
                 }
             }
+
+            const widgetName = event.getWidgetName();
+            if (widgetName !== undefined) {
+                this.contextView.setActiveExtensionByName(widgetName, event.getWidgetApplicationKey());
+            }
+
+            if (event.isShowPanel()) {
+                setContextOpen(true);
+            }
+        });
+
+        // Custom (legacy) context widgets still fetch data through ContextView on open.
+        $isContextOpen.subscribe((isOpen: boolean, wasOpen: boolean) => {
+            if (isOpen && !wasOpen && this.dockedContextPanel.getItem()) {
+                this.contextView.updateActiveExtension();
+            }
+        });
+
+        this.whenRendered(() => {
+            setTimeout(() => {
+                if (!shouldCollapseContextInitially() && this.dockedContextPanel.getActiveExtension()) {
+                    setContextOpen(true);
+                }
+            }, 100);
         });
     }
 
-    protected createBrowseWithItemsPanel(): ContextSplitPanel {
-        this.contextView = this.createContextView();
-        this.contextSplitPanelToggler = new NonMobileContextPanelToggleButton();
-        const leftPanel: BrowseItemPanel = this.getBrowseItemPanel();
-        const rightPanel: DockedContextPanel = new DockedContextPanel(this.contextView);
-
-        this.contextSplitPanel = ContextSplitPanel.create(leftPanel, rightPanel)
-            .setSecondPanelSize(SplitPanelSize.PERCENTS(LayoutTokens.contextPanel.dockedWidthPercent.browse))
-            .setContextView(this.contextView)
-            .setToggleButton(this.contextSplitPanelToggler)
+    // TODO: [#11010] Dissolve the legacy filter split into BrowseLayout; this mirrors the
+    // private BrowsePanel.setupFilterPanel, which became unreachable once initElements was overridden.
+    private setupBrowseFilterPanel(): SplitPanel {
+        const splitPanel = new SplitPanelBuilder(this.filterPanel, this.selectableListBoxPanel)
+            .setFirstPanelMinSize(SplitPanelSize.PIXELS(300))
+            .setFirstPanelSize(SplitPanelSize.PIXELS(300))
+            .setAlignment(SplitPanelAlignment.VERTICAL)
+            .setAnimationDelay(100)
+            .setSplitterThickness(1)
             .build();
 
-        // TODO: Enonic UI - Backward compatibility with old panel
-        setContextOpen(this.contextSplitPanel.getState() === ContextPanelState.EXPANDED);
-
-        this.contextSplitPanel.onStateChanged((state: ContextPanelState) => {
-            setContextOpen(state === ContextPanelState.EXPANDED);
+        this.filterPanel.onHideFilterPanelButtonClicked(() => {
+            this.toggleFilterPanel();
         });
+        this.filterPanel.onShowResultsButtonClicked(this.toggleFilterPanel.bind(this));
 
-        $isContextOpen.subscribe((isOpen: boolean, wasOpen: boolean) => {
-            if (isOpen === wasOpen) return;
-
-            if (isOpen) {
-                this.contextSplitPanel.showContextPanel();
-            } else {
-                this.contextSplitPanel.hideContextPanel();
-            }
+        this.toggleFilterPanelAction = new ToggleFilterPanelAction(this).setFoldable(false);
+        this.toggleFilterPanelAction.setWcagAttributes({
+            ariaLabel: i18n('tooltip.filterPanel.show'),
         });
+        this.toggleFilterPanelButton = this.browseToolbar.addAction(this.toggleFilterPanelAction);
+        this.toggleFilterPanelButton.setTitle(i18n('tooltip.filterPanel.show'));
+        this.toggleFilterPanelAction.setVisible(false);
 
-        return this.contextSplitPanel;
+        return splitPanel;
     }
 
     protected createToolbar(): ResponsiveToolbar {
@@ -96,12 +158,8 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
 
     protected abstract createContextView(): ContextView;
 
-    private hidePreviewPanel(): void {
-        this.gridAndItemsSplitPanel.hideSecondPanel();
-    }
-
-    private showPreviewPanel(): void {
-        this.gridAndItemsSplitPanel.showSecondPanel();
+    protected togglePreviewPanelDependingOnScreenSize(): void {
+        // Preview visibility is owned by BrowseLayout.
     }
 
     protected updatePreviewItem(): void {
@@ -112,30 +170,33 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
     }
 
     private toggleMobilePreviewMode(isMobile: boolean): void {
+        setMobilePreviewOpen(isMobile);
+
         Body.get().toggleClass(ResponsiveBrowsePanel.MOBILE_PREVIEW_CLASS, isMobile);
         this.toggleClass(ResponsiveBrowsePanel.MOBILE_PREVIEW_CLASS, isMobile);
         this.browseToolbar.toggleClass(ResponsiveBrowsePanel.MOBILE_PREVIEW_CLASS, isMobile);
 
         if (isMobile) {
             this.browseToolbar.enableMobileMode();
-            this.browseToolbar.setFoldButtonLabel(this.selectableListBoxPanel.getLastSelectedItem().getDisplayName());
+            const lastItem = this.selectableListBoxPanel.getLastSelectedItem();
+            if (lastItem) this.browseToolbar.setFoldButtonLabel(lastItem.getDisplayName());
         } else {
             this.browseToolbar.disableMobileMode();
             this.browseToolbar.updateFoldButtonLabel();
         }
     }
 
-    getContextSplitPanelToggler(): NonMobileContextPanelToggleButton {
-        return this.contextSplitPanelToggler;
-    }
-
     protected abstract updateContextView(item: ViewItem): Q.Promise<void>;
 
+    // Bypasses BrowsePanel.doRender: the toolbar and the v6 layout are the only children.
     doRender(): Q.Promise<boolean> {
-        return super.doRender().then((rendered) => {
+        return Panel.prototype.doRender.call(this).then(() => {
+            this.browseToolbar.addClass('browse-toolbar');
+            this.appendChild(this.browseToolbar);
+            this.appendChild(this.browseLayout);
             this.addClass('responsive-browse-panel');
 
-            return rendered;
+            return true;
         });
     }
 }

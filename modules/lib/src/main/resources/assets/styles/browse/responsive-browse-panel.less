@@ -1,57 +1,22 @@
-.responsive-browse-panel {
-  .content-grid-and-browse-split-panel {
-    top: 60px !important;
+// Inside the v6 BrowseLayout the context panel fills its host; the legacy
+// slide-in parking (right: -360px) and fixed width belong to the old split panel.
+[data-component='BrowseLayout'] {
+  .context-panel {
+    position: absolute;
+    inset: 0;
+    width: auto;
+    height: auto;
+    transition: none;
   }
+}
 
+.responsive-browse-panel {
   &.mobile-mode {
-    .context-split-panel {
-      z-index: 1;
-      width: 0 !important;
-      display: block !important;
-      transition: width 0.5s ease-in-out;
-
-      .splitter {
-        display: none !important;
-      }
-
-      .browse-item-panel {
-        width: 100% !important;
-      }
-
-      .docked-context-panel {
-        transition: top 0.5s ease-in-out;
-        height: 100%;
-        top: 100%;
-        right: 0 !important;
-        width: 100% !important;
-      }
-
-      &.expanded {
-        .docked-context-panel {
-          top: 0;
-        }
-      }
-    }
-
-    .responsive-toolbar {
-      .non-mobile-details-panel-toggle-button {
-        display: none;
-      }
-    }
-
     &.mobile-preview-on {
       .responsive-toolbar {
         .icon-search {
           display: none;
         }
-
-        .non-mobile-details-panel-toggle-button {
-          display: flex;
-        }
-      }
-
-      .context-split-panel {
-        width: 100% !important;
       }
     }
   }
