@@ -330,6 +330,7 @@ class BaseVersionsWidget extends Page {
         try {
             let i = index === undefined ? 0 : index;
             let itemLocator = this.extensionView + xpath.versionsListItemByName(itemHeader);
+            await this.waitForElementDisplayed(itemLocator);
             let versionItems = await this.findElements(itemLocator);
             // the checkbox input is hidden, so click on its label element:
             let labelElements = await versionItems[i].$$(xpath.compareCheckboxDiv + '//label');
