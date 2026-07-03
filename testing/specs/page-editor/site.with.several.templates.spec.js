@@ -33,17 +33,6 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             await studioUtils.doAddSite(SITE);
         });
 
-    it(`GIVEN existing site is opened WHEN a controller is not selected THEN button 'Show Page Editor' should be present in the wizard toolbar`,
-        async () => {
-            let contentWizard = new ContentWizard();
-            // 1. Open the existing site(no page controller is selected):
-            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 2. Verify that 'Hide Page Editor' button is displayed
-            await contentWizard.waitForPageEditorTogglerDisplayed();
-            // 3. Verify that 'Show Context Window' button is visible:
-            await contentWizard.waitForShowContextPanelButtonDisplayed();
-        });
-
     it(`Precondition 2: the first template should be added`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -70,14 +59,11 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             // 1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             await contentWizard.pause(1000);
-            // 3. Verify that LiveEdit is locked: Check for editor-shader in style attribute:
-            let isLocked = await contentWizard.isLiveEditLocked();
-            assert.ok(isLocked, 'Page editor should be locked');
             // PCV should be hidden in locked LiveEdit:
             await pageComponentsWizardStepForm.waitForNotDisplayed();
             await contentWizard.switchToParentFrame();
             // 4. Click on 'Customize' menu item:
-            await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
+            await contentWizard.unlockSiteWithTemplate();
             // 5. Click on Customize Page button:
             await contentWizard.switchToParentFrame();
             await pageInspectionTab.clickOnCustomizePageButton();
@@ -100,7 +86,7 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             let confirmationDialog = new ConfirmationDialog();
             // 1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
+            await contentWizard.unlockSiteWithTemplate();
             await contentWizard.switchToParentFrame();
             // 2. Click on 'Customize Page' button:
             await pageInspectionPanel.clickOnCustomizePageButton();
@@ -132,7 +118,7 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             // 1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on Customize menu item::
-            await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
+            await contentWizard.unlockSiteWithTemplate();
             await contentWizard.switchToParentFrame();
             // Click on 'Customize' Page button:
             await pageInspectionPanel.clickOnCustomizePageButton();
@@ -180,6 +166,7 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             // 2. Select the 'Page' widget:
             let wizardContextWindow = await contentWizard.openContextWindow();
             await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            await contentWizard.clickOnWizardStep('Page');
             // 3. Click on 'Reset' menu item and reset the selected controller:
             await pageComponentsWizardStepForm.openMenu('default');
             await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);

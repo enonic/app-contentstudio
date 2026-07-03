@@ -1,5 +1,5 @@
 /**
- * Created on 12.09.2019.
+ * Created on 12.09.2019.  updated on 03.07.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -34,7 +34,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -48,6 +48,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
 
     // Verify - Creating a template doesn't work from a non-site content #9183
     // https://github.com/enonic/app-contentstudio/issues/9183
+    // TODO  bug https://github.com/enonic/app-contentstudio/issues/11021
     it(`GIVEN a controller in article-content has been set WHEN 'Save as template' menu item has been clicked in PCV THEN new page template for this content should be created`,
         async () => {
             let wizardContextWindowPanel = new WizardContextWindowPanel();
@@ -60,7 +61,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             // 2. Inspection Panel should be loaded in the Context Window:
             await wizardContextWindowPanel.waitForOpened();
             // 3. Click on 'Customize' menu item:
-            await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
+            await contentWizard.unlockSiteWithTemplate();
             await contentWizard.switchToMainFrame();
             // 4. Click on 'Customize Page' button in the Page Inspection panel:
             await pageInspectionPanel.clickOnCustomizePageButton();
@@ -68,7 +69,8 @@ describe('template.config.spec: template config should be displayed in the Inspe
             // 5. Confirm the action in the Confirmation dialog:
             await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
-            await pageComponentsWizardStepForm.openMenu('Page');
+            await contentWizard.clickOnWizardStep('Page');
+            await pageComponentsWizardStepForm.rightClickAndOpenContextMenu('Page');
             await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_TEMPLATE]);
             await studioUtils.doSwitchToNextTab();
             await studioUtils.saveScreenshot('article_support_template');
@@ -91,7 +93,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             // 2. Inspection Panel should be loaded in the Context Window:
             await wizardContextWindowPanel.waitForOpened();
             // 3. Click on 'Customize' menu item:
-            await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
+            await contentWizard.unlockSiteWithTemplate();
             await contentWizard.switchToMainFrame();
             //4. Click on 'Customize Page' button in the Page Inspection panel:
             await pageInspectionPanel.clickOnCustomizePageButton();
@@ -136,7 +138,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ARTICLE);
             await contentWizard.typeDisplayName(ARTICLE_NAME);
             // 2. Click on 'Customize' menu item:
-            await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
+            await contentWizard.unlockSiteWithTemplate();
             await contentWizard.switchToMainFrame();
             // 3. Click on 'Customize Page' button in the Page Inspection panel:
             await pageInspectionPanel.clickOnCustomizePageButton();
@@ -171,7 +173,8 @@ describe('template.config.spec: template config should be displayed in the Inspe
             // 3. Verify that Page item is displayed in the WizardStepNavigator
             await contentWizard.waitForWizardStepDisplayed('Page');
             // 4. Insert text component in Page Component wizard step
-            await pageComponentsWizardStepForm.openMenu('main');
+            await contentWizard.clickOnWizardStep('Page');
+            await pageComponentsWizardStepForm.rightClickAndOpenContextMenu('main');
             await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();
@@ -197,8 +200,9 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await liveFormPanel.waitForTextComponentDisplayed(TEST_TEXT);
             await contentWizard.switchToMainFrame();
             // 3. Remove the text component and save it
-            await pageComponentsWizardStepForm.openMenu(TEST_TEXT);
-            await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.REMOVE]);
+            await contentWizard.clickOnWizardStep('Page');
+            await pageComponentsWizardStepForm.rightClickAndOpenContextMenu(TEST_TEXT);
+            await pageComponentsWizardStepForm.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.REMOVE]);
             await studioUtils.saveScreenshot('component_step_form_txt_removed');
             await contentWizard.waitAndClickOnSave();
             await contentWizard.pause(1500);
@@ -217,7 +221,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await studioUtils.selectAndOpenContentInWizard(ARTICLE_NAME);
             let contextWindow = await contentWizard.openContextWindow();
             // 2. Click on 'Reset' menu item in the wizard step form:
-            await pageComponentsWizardStepForm.openMenu('Page');
+            await pageComponentsWizardStepForm.rightClickAndOpenContextMenu('Page');
             await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);
             await confirmationDialog.waitForDialogOpened();
             await confirmationDialog.clickOnConfirmButton();
@@ -228,6 +232,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await contentWizard.pause(500);
             // 4. Verify that 'Page Component wizard' step gets not visible:
             await pageComponentsWizardStepForm.waitForNotDisplayed();
+            await contentWizard.clickOnWizardStep('Page');
             // 5. Verify that 'Page' item is not displayed in the WizardStepNavigator
             await contentWizard.waitForWizardStepNotDisplayed('Page');
             // 6. Verify that 'Customize Page' button is displayed in the Inspection Panel:

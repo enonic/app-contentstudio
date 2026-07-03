@@ -1,5 +1,5 @@
 /**
- * Created on 6.04.2018.
+ * Created on 6.04.2018.  updated on 03.07.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -31,14 +31,14 @@ describe('page.template.controller: select a controller in a template-wizard', f
     const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const TEST_IMAGE_NAME = appConst.TEST_IMAGES.FOSS;
 
-    it.skip(`Preconditions: new site should be created`,
+    it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, null, [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
         });
 
-    it.skip(`GIVEN _templates folder is selected WHEN New button has been pressed THEN Media tab item should be disabled in the modal dialog`,
+    it(`GIVEN _templates folder is selected WHEN New button has been pressed THEN Media tab item should be disabled in the modal dialog`,
         async () => {
             let newContentDialog = new NewContentDialog();
             // 1. Expand the site, click on Templates folder and click on 'New' button
@@ -48,7 +48,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
         });
 
     // verifies the xp-apps#686 "Template Wizard - Inspection Panel should appear after page controller is selected"
-    it.skip(`GIVEN template wizard is opened WHEN controller has been selected THEN Live Context Window should be loaded automatically`,
+    it(`GIVEN template wizard is opened WHEN controller has been selected THEN Live Context Window should be loaded automatically`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageWidgetPanel = new PageWidgetPanel();
@@ -72,7 +72,6 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await pageComponentView.rightClickAndOpenContextMenu('main');
             // 5. Insert Text Component and insert an image:
             await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
-            //await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.clickOnImageSelectorModeTogglerButton();
             await insertImageDialog.filterAndSelectImage(TEST_IMAGE_NAME);
@@ -84,7 +83,9 @@ describe('page.template.controller: select a controller in a template-wizard', f
         });
 
     // xp-apps#737: Page Editor panel for a site is not correctly refreshed when a page template was added or removed
-    it.skip(`GIVEN site and its page-template are opened WHEN the 'site' has been selected in supports (in template) THEN template should be applied in the site-wizard`,
+    //WidgetTemplateSection is not updated after creating new template #11018
+    // https://github.com/enonic/app-contentstudio/issues/11018
+    it(`GIVEN site and its page-template are opened WHEN the 'site' has been selected in supports (in template) THEN template should be applied in the site-wizard`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageTemplateForm = new PageTemplateForm();
@@ -108,12 +109,12 @@ describe('page.template.controller: select a controller in a template-wizard', f
             // 5. Switch to the site again:
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             let pageTemplateWidget = new PageTemplateWidget();
-            // TODO bug
+            // TODO bug #11018
             // 6. Verify that 'Automatic' controller type is displayed in pageTemplateWidget:
-            // let actualName = await pageTemplateWidget.getControllerLink();
-            // assert.equal(actualName, TEMPLATE.displayName, 'Expected template name should be displayed in the template widget');
-            // let type = await pageTemplateWidget.getControllerType();
-            // assert.equal(type, 'Automatic', `'Automatic' template should be present in the widget`);
+            //let actualName = await pageTemplateWidget.getControllerLink();
+            //assert.equal(actualName, TEMPLATE.displayName, 'Expected template name should be displayed in the template widget');
+            //let type = await pageTemplateWidget.getControllerType();
+            //assert.equal(type, 'Automatic', `'Automatic' template should be present in the widget`);
             await studioUtils.saveScreenshot('support_site_applied');
             // 7. Template should be applied in the site-wizard Preview button gets enabled:
             await contentWizard.waitForPreviewButtonEnabled();
@@ -132,7 +133,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
             let liveFormPanel = new LiveFormPanel();
             let pageInspectionPanel = new PageInspectionPanel();
             // 1. Open the site:
-            await studioUtils.selectContentAndOpenWizard('site412129');
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Unlock the LiveEdit(Click on Customize menu item)
             await contentWizard.unlockSiteWithTemplate();
             await liveFormPanel.switchToParentFrame();
@@ -199,7 +200,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
             // 1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Switch to 'live-edit' iframe and click on Page Settings
-            await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
+            await contentWizard.unlockSiteWithTemplate();
             // 3. Switch to the parent frame:
             await contentWizard.switchToParentFrame();
             // 4. Click on Customize Page button in Inspect panel:
@@ -208,9 +209,11 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             await studioUtils.saveScreenshot('site_customised');
+            await contentWizard.clickOnWizardStep('Page');
             // 5. Open the Page Components modal dialog and insert a text component:
             await pageComponentsWizardStepForm.rightClickAndOpenContextMenu('main');
-            await pageComponentsWizardStepForm.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentsWizardStepForm.selectContextMenuItem(
+                [appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await studioUtils.saveScreenshot('site_customised_component_inserted');
             // 6. Switches to 'live-edit' iframe and insert a text:
             await textComponentInspectionPanel.waitForOpened();
@@ -226,8 +229,9 @@ describe('page.template.controller: select a controller in a template-wizard', f
             assert.ok(result.includes(TEST_TEXT), 'Expected text should be displayed in the text component');
         });
 
-    // xp-apps#738 Live Editor is not updated after a page template was added or removed
-    // https://github.com/enonic/xp-apps/issues/738
+    //Template dropdown options not refreshed after deleting/creating template in Browse Panel #11020
+    //https://github.com/enonic/app-contentstudio/issues/11020
+    //TODO add checking
     it(`GIVEN site is opened WHEN page-template has been deleted THEN site-wizard should be reset and controller-combobox should appear`,
         async () => {
             let contentWizard = new ContentWizard();

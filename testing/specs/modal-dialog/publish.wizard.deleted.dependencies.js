@@ -21,35 +21,18 @@ describe('publish.wizard.deleted.dependencies.spec: tests for dependant items', 
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let SITE;
-    let SHORTCUT_NAME = appConst.generateRandomName('sh');
-    const CONTROLLER_NAME = 'Page';
+    let IMPORTED_SITE_NAME= "site624991";
+    let IMPORTED_SHORTCUT_NAME = "sh518816";
     const TEST_IMAGE_PATH = appConst.TEST_IMAGES.CAPE + '.jpg-copy';
 
     it(`Precondition 1: new site should be created`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentDuplicateDialog = new ContentDuplicateDialog();
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, null, [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
-            await studioUtils.doAddSite(SITE);
             await studioUtils.findAndSelectItem(appConst.TEST_IMAGES.CAPE);
             await contentBrowsePanel.clickOnDuplicateButtonAndWait();
             await contentDuplicateDialog.clickOnDuplicateButton();
             await contentDuplicateDialog.waitForDialogClosed();
-        });
-
-    it(`Precondition 2: new shortcut should be added`,
-        async () => {
-            let shortcutForm = new ShortcutForm();
-            let contentWizard = new ContentWizard();
-            // 1. Open shortcut-wizard:
-            await studioUtils.openContentWizard(appConst.contentTypes.SHORTCUT);
-            await contentWizard.typeDisplayName(SHORTCUT_NAME);
-            // 2. Select the site in target-selector:
-            await shortcutForm.filterOptionsAndSelectTarget(SITE.displayName);
-            await contentWizard.waitAndClickOnSave();
-            await contentWizard.waitForNotificationMessage();
         });
 
     it(`Precondition 3: insert the image in the site`,
@@ -60,7 +43,7 @@ describe('publish.wizard.deleted.dependencies.spec: tests for dependant items', 
             let insertImageDialog = new InsertImageDialog();
             let textComponentInspectionPanel = new TextComponentInspectionPanel();
             // 1. Open shortcut-wizard:
-            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await studioUtils.selectContentAndOpenWizard(IMPORTED_SITE_NAME);
             // 2. Maximize the Live Edit:
             await contentWizard.clickOnCollapseContentForm();
             // 3. Insert the text component:
@@ -92,7 +75,7 @@ describe('publish.wizard.deleted.dependencies.spec: tests for dependant items', 
             await deleteContentDialog.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogClosed();
             // 2. Select the shortcut:
-            await studioUtils.findAndSelectItem(SHORTCUT_NAME);
+            await studioUtils.findAndSelectItem(IMPORTED_SHORTCUT_NAME);
             // 3. Click on Publish... menu item
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
             await contentPublishDialog.waitForDialogOpened();
