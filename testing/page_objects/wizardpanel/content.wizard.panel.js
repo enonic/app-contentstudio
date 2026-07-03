@@ -34,7 +34,9 @@ const XPATH = {
     inspectionPanelToggler: "//button[contains(@id, 'TogglerButton') and contains(@class,'icon-cog')]",
     thumbnailUploader: "//div[contains(@id,'ThumbnailUploaderEl')]",
     scheduleTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Schedule']`,
-    itemViewContextMenu: `//div[contains(@id,'ItemViewContextMenu')]`,
+    itemViewContextMenu: `//div[@data-component='ContextMenu.Content' and @data-state='open']`,
+    previewContextMenuTrigger: `//div[contains(@id,'FrameContainer')]//div[@data-component='ContextMenu.Trigger']`,
+    pageSettingsMenuItem: `//div[@data-component='ContextMenu.Item' and text()='Page settings']`,
     xDataToggler: `//div[contains(@id,'WizardStepsPanel')]//div[@class='x-data-toggler']`,
     stepNavigatorToolbar: `//ul[contains(@id,'WizardStepNavigator')]`,
     wizardStepNavigatorAndToolbar: "//div[contains(@id,'WizardStepNavigatorAndToolbar')]",
@@ -634,7 +636,7 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    // Switches to the live edit frame, opens context menu and clicks on 'Page settings' item
+    // Opens the preview context menu and clicks on 'Page settings' item
     async openLockedSiteContextMenuClickOnPageSettings() {
         await this.doOpenItemViewContextMenu();
         await this.saveScreenshot(appConst.generateRandomName('unlock_context_menu'));
@@ -644,10 +646,8 @@ class ContentWizardPanel extends Page {
     // Opens context menu with 'Page Settings' with contentName in its title
     async doOpenPageViewContextMenu(contentName) {
         try {
-            let frameContainer = `//div[contains(@id,'FrameContainer')]`;
-            await this.waitForElementDisplayed(frameContainer, appConst.mediumTimeout);
-            await this.clickOnElement(frameContainer);
-            let menuLocator = `//div[contains(@id,'ItemViewContextMenu') and descendant::h6[contains(@class,'main-name') and text()='${contentName}']]`;
+            await this.doOpenItemViewContextMenu();
+            let menuLocator = XPATH.itemViewContextMenu + `[descendant::span[contains(@class,'truncate') and text()='${contentName}']]`;
             await this.waitForElementDisplayed(menuLocator, appConst.mediumTimeout);
             return await this.pause(300);
         } catch (err) {
@@ -658,10 +658,15 @@ class ContentWizardPanel extends Page {
     // Opens context menu with 'Page Settings' item
     async doOpenItemViewContextMenu() {
         try {
-            let selector = `//div[contains(@id,'FrameContainer')]`;
-            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
-            await this.clickOnElement(selector);
-            await this.switchToLiveEditFrame();
+            // The menu opens on a click on the preview placeholder (ContextMenu.Trigger) and is rendered
+            // in the main document, so no switching to the live edit frame here.
+            // Both empty- and error-preview placeholders contain a trigger, click the visible one:
+            let triggerElements = [];
+            await this.getBrowser().waitUntil(async () => {
+                triggerElements = await this.getDisplayedElements(XPATH.previewContextMenuTrigger);
+                return triggerElements.length > 0;
+            }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Preview placeholder with context menu trigger should be displayed'});
+            await triggerElements[0].click();
             await this.waitForElementDisplayed(XPATH.itemViewContextMenu, appConst.mediumTimeout);
             return await this.pause(300);
         } catch (err) {
@@ -671,7 +676,7 @@ class ContentWizardPanel extends Page {
 
     // wait for 'Page settings' context menu item and click on it:
     async clickOnPageSettingsMenuItem() {
-        let locator = XPATH.itemViewContextMenu + `//dl//dt[text()='Page settings']`;
+        let locator = XPATH.itemViewContextMenu + XPATH.pageSettingsMenuItem;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.clickOnElement(locator);
         return await this.pause(500);
@@ -679,7 +684,7 @@ class ContentWizardPanel extends Page {
 
     async waitForPageSettingsMenuItemDisplayed() {
         try {
-            let locator = XPATH.itemViewContextMenu + `//dl//dt[text()='Page settings']`;
+            let locator = XPATH.itemViewContextMenu + XPATH.pageSettingsMenuItem;
             return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
             await this.handleError('Universal Editor - Page settings menu item is not displayed', 'err_page_settings_menu_item', err);
