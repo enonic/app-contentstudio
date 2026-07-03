@@ -1,6 +1,6 @@
 import { Dialog, Checkbox, cn } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import { DiffPatcher } from 'jsondiffpatch';
+import {create as createDiffPatcher} from 'jsondiffpatch/with-text-diffs';
 import { format, showUnchanged } from 'jsondiffpatch/formatters/html';
 import { ReactElement, useCallback, useEffect, useId, useMemo } from 'react';
 import { ContentVersion } from '../../../../../../app/ContentVersion';
@@ -43,7 +43,7 @@ export const CompareVersionsDialog = ({
     const baseId = useId();
     const showAllCheckboxId = `${COMPARE_VERSIONS_DIALOG_NAME}-${baseId}-show-all`;
 
-    const diffPatcher = useMemo(() => new DiffPatcher(), []);
+    const diffPatcher = useMemo(() => createDiffPatcher(), []);
 
     const orderedVersions = useMemo(() => {
         if (!leftVersion || !rightVersion) {
