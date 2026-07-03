@@ -62,7 +62,11 @@ export const WizardLayout = ({ formPanel, livePanel, contextPanel, onResized }: 
         if (root == null) return;
 
         const observer = new ResizeObserver(() => {
-            totalWidthRef.current = root.getBoundingClientRect().width;
+            const width = root.getBoundingClientRect().width;
+            // A hidden app (e.g. Archive in CS+) reports 0 and must not clobber the shared metrics.
+            if (width <= 0) return;
+
+            totalWidthRef.current = width;
             publishMetrics();
         });
         observer.observe(root);

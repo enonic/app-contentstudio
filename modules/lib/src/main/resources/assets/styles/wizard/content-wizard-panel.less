@@ -49,27 +49,6 @@
     }
   }
 
-  .mobile-mode {
-    .split-panel.wizard-and-preview {
-      &.toggle-live {
-        .live-form-panel {
-          z-index: 1;
-          width: 100% !important;
-        }
-      }
-
-      .splitter {
-        display: none !important;
-      }
-    }
-
-    &.context-split-panel.expanded {
-      .context-panel {
-        width: 100% !important;
-      }
-    }
-  }
-
   .wizard-header {
     .path-error {
       color: @admin-level-3;
@@ -201,12 +180,6 @@
     }
   }
 
-  &._0-240, &._240-360, &._360-540, &._540-720, &._720-960 {
-    .splitter {
-      display: none;
-    }
-  }
-
   .wizard-step-navigator-and-toolbar {
     .help-text-button {
       order: 1;
@@ -218,10 +191,6 @@
     .fold-button,
     .wizard-step-navigator {
       order: 2;
-    }
-
-    .minimize-edit {
-      order: 4;
     }
 
     &:not(.folded) {
@@ -335,13 +304,6 @@
             line-height: 18px;
           }
         }
-
-        .minimize-edit {
-          font-weight: bold;
-          position: absolute;
-          left: 5px;
-          top: 5px;
-        }
       }
 
       &:not(.minimized) {
@@ -356,25 +318,6 @@
     }
   }
 
-  .minimize-edit {
-    display: none;
-    min-width: 30px;
-    margin: 0 0 0 auto;
-    font-size: 30px;
-    font-weight: 800;
-    text-align: center;
-    line-height: 40px;
-    overflow: hidden;
-    cursor: pointer;
-
-    &::before {
-      color: @admin-dark-gray;
-    }
-
-    &:hover::before {
-      color: @admin-black;
-    }
-  }
 
   .context-panel {
     overflow: visible;
@@ -382,27 +325,6 @@
 
    // .widget-selection-row(@height: @app-header-height);
 
-    .non-mobile-details-panel-toggle-button {
-      top: 0;
-      border: none;
-      height: @app-header-height - 1;
-      width: @app-header-height - 1;
-      padding-left: 10px;
-
-      &::before {
-        line-height: @app-header-height - 1;
-      }
-    }
-
-    &.mobile {
-      width: auto;
-      height: auto;
-      right: 0;
-      left: 0;
-      display: block;
-      margin-top: @app-header-height; // leave space for the wizard toolbar
-      top: 3000px; // hide by default;
-    }
   }
 
   &._0-240,
