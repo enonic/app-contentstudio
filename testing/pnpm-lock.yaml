@@ -33,8 +33,8 @@ importers:
         specifier: ^9.27.2
         version: 9.29.1
       '@wdio/spec-reporter':
-        specifier: ^9.27.0
-        version: 9.27.0
+        specifier: ^9.29.1
+        version: 9.29.1
       allure-commandline:
         specifier: ^2.43.0
         version: 2.43.0
@@ -529,8 +529,8 @@ packages:
       expect-webdriverio: ^5.6.5
       webdriverio: ^9.0.0
 
-  '@wdio/spec-reporter@9.27.0':
-    resolution: {integrity: sha512-pSrSfflFGthCc14B/4VZqthrz6T5/N+PDqpIOf+bfwJwtPgVlzZoLzbkKYDmCYHGDlDFt1QrZS9WQ5Qw2Qz/Ow==}
+  '@wdio/spec-reporter@9.29.1':
+    resolution: {integrity: sha512-iqlHW/qGDRGmxQKN7XyCHxfKphTbPNnniV3yxNXZRSGHCCQok5KFKOnj4fpUCKEyD5jtPAmP6Y0qc1UyR3Dc3Q==}
     engines: {node: '>=18.20.0'}
 
   '@wdio/types@9.27.0':
@@ -2472,10 +2472,10 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@wdio/spec-reporter@9.27.0':
+  '@wdio/spec-reporter@9.29.1':
     dependencies:
-      '@wdio/reporter': 9.27.0
-      '@wdio/types': 9.27.0
+      '@wdio/reporter': 9.29.1
+      '@wdio/types': 9.29.1
       chalk: 5.6.2
       easy-table: 1.2.0
       pretty-ms: 9.3.0
