@@ -1,14 +1,13 @@
+import { ResultAsync, errAsync, okAsync } from 'neverthrow';
 import { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
 import { type TaskIdJson } from '@enonic/lib-admin-ui/task/TaskIdJson';
 import { ContentId } from '../../../../app/content/ContentId';
 import { type ContentIdBaseItemJson } from '../../../../app/resource/json/ContentIdBaseItemJson';
 import { type ResolvePublishContentResultJson } from '../../../../app/resource/json/ResolvePublishContentResultJson';
 import { ResolvePublishDependenciesResult } from '../../../../app/resource/ResolvePublishDependenciesResult';
+import { requestJson, requestOptionalJson } from '../../../shared/api/client';
+import { AppError } from '../../../shared/api/errors';
 import { getCmsApiUrl } from '../../../shared/lib/url/cms';
-
-//
-// * Types
-//
 
 export type PublishContentParams = {
     /**
@@ -47,16 +46,13 @@ export type ResolvePublishParams = {
     excludeChildrenIds?: ContentId[];
 };
 
-//
-// * API
-//
-
 /**
  * Find all child content IDs for given parent content IDs.
+ * Used by: features/publish/model/publishDialog.commands.
  */
-export async function findIdsByParents(contentIds: ContentId[]): Promise<ContentId[]> {
+export function findIdsByParents(contentIds: ContentId[]): ResultAsync<ContentId[], AppError> {
     if (contentIds.length === 0) {
-        return [];
+        return okAsync([]);
     }
 
     const url = getCmsApiUrl('findIdsByParents');
@@ -65,28 +61,19 @@ export async function findIdsByParents(contentIds: ContentId[]): Promise<Content
         contentIds: contentIds.map((id) => id.toString()),
     };
 
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-        throw new Error(response.statusText);
-    }
-
-    const json: { ids: ContentIdBaseItemJson[] } = await response.json();
-    return json.ids?.map((item) => new ContentId(item.id)) ?? [];
+    return requestJson<{ ids: ContentIdBaseItemJson[] }>(url, { method: 'POST', body: payload }).map(
+        (json) => json.ids?.map((item) => new ContentId(item.id)) ?? [],
+    );
 }
 
 /**
  * Mark content items as ready for publishing.
+ * Used by: features/publish/model/publishDialog.commands,
+ * features/request-publish/model/requestPublishDialog.store.
  */
-export async function markAsReady(contentIds: ContentId[]): Promise<void> {
+export function markAsReady(contentIds: ContentId[]): ResultAsync<void, AppError> {
     if (contentIds.length === 0) {
-        return;
+        return okAsync(undefined);
     }
 
     const url = getCmsApiUrl('markAsReady');
@@ -95,26 +82,18 @@ export async function markAsReady(contentIds: ContentId[]): Promise<void> {
         contentIds: contentIds.map((id) => id.toString()),
     };
 
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-        throw new Error(response.statusText);
-    }
+    // The endpoint answer carries no data the caller needs, so tolerate an empty body.
+    return requestOptionalJson(url, { method: 'POST', body: payload }).map(() => undefined);
 }
 
 /**
  * Publish content items.
  * Returns a TaskId that can be tracked for progress.
+ * Used by: features/publish/model/publishDialog.commands.
  */
-export async function publishContent(params: PublishContentParams): Promise<TaskId> {
+export function publishContent(params: PublishContentParams): ResultAsync<TaskId, AppError> {
     if (params.ids.length === 0) {
-        throw new Error('No content to publish');
+        return errAsync(new AppError('No content to publish'));
     }
 
     const url = getCmsApiUrl('publish');
@@ -135,29 +114,19 @@ export async function publishContent(params: PublishContentParams): Promise<Task
         message: params.message,
     };
 
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-        throw new Error(response.statusText);
-    }
-
-    const json: TaskIdJson = await response.json();
-    return TaskId.fromJson(json);
+    return requestJson<TaskIdJson>(url, { method: 'POST', body: payload }).map(TaskId.fromJson);
 }
 
 /**
  * Resolve publish dependencies for content items.
  * Returns dependants, required items, invalid items, and other publish-related info.
+ * Used by: features/publish/model/publishDialog.commands,
+ * features/issues/model/issueDialogDetails.store, features/issues/model/newIssueDialog.store,
+ * features/request-publish/model/requestPublishDialog.store.
  */
-export async function resolvePublishDependencies(
+export function resolvePublishDependencies(
     params: ResolvePublishParams,
-): Promise<ResolvePublishDependenciesResult> {
+): ResultAsync<ResolvePublishDependenciesResult, AppError> {
     const url = getCmsApiUrl('resolvePublishContent');
 
     const payload = {
@@ -166,18 +135,7 @@ export async function resolvePublishDependencies(
         excludeChildrenIds: params.excludeChildrenIds?.map((id) => id.toString()) ?? [],
     };
 
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-        throw new Error(response.statusText);
-    }
-
-    const json: ResolvePublishContentResultJson = await response.json();
-    return ResolvePublishDependenciesResult.fromJson(json);
+    return requestJson<ResolvePublishContentResultJson>(url, { method: 'POST', body: payload }).map(
+        ResolvePublishDependenciesResult.fromJson,
+    );
 }

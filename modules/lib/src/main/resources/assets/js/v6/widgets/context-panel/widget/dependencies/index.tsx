@@ -5,7 +5,7 @@ import { type ReactElement, useEffect, useState } from 'react';
 import { DependencyType } from '../../../../../app/browse/DependencyType';
 import type { ContentSummaryAndCompareStatus } from '../../../../../app/content/ContentSummaryAndCompareStatus';
 import type { ExtensionItemViewType } from '../../../../../app/view/context/ExtensionItemView';
-import { resolveDependenciesForId } from '../../../../entities/content';
+import { resolveDependencies } from '../../../../entities/content';
 import { LegacyElement } from '../../../../shared/ui/LegacyElement';
 import { $contextContent } from '../../model/contextContent.store';
 import { $activeWidgetId, $isContextOpen } from '../../model/contextWidgets.store';
@@ -41,25 +41,35 @@ const DependenciesWidget = (): ReactElement => {
             return;
         }
 
-        resolveDependenciesForId(content.getContentId()).then((dependencyEntry) => {
-            const inbound = dependencyEntry.inbound.map((item) => ({
-                type: DependencyType.INBOUND,
-                itemCount: item.count,
-                iconUrl: item.iconUrl,
-                contentType: new ContentTypeName(item.type),
-            }));
+        void resolveDependencies([content.getContentId()]).match(
+            (result) => {
+                const entry = result.getDependencies()[0]?.getDependency();
+                if (!entry) {
+                    setInboundDependencies([]);
+                    setOutboundDependencies([]);
+                    return;
+                }
 
-            setInboundDependencies(inbound);
+                const inbound = entry.inbound.map((item) => ({
+                    type: DependencyType.INBOUND,
+                    itemCount: item.count,
+                    iconUrl: item.iconUrl,
+                    contentType: new ContentTypeName(item.type),
+                }));
 
-            const outbound = dependencyEntry.outbound.map((item) => ({
-                type: DependencyType.OUTBOUND,
-                itemCount: item.count,
-                iconUrl: item.iconUrl,
-                contentType: new ContentTypeName(item.type),
-            }));
+                setInboundDependencies(inbound);
 
-            setOutboundDependencies(outbound);
-        });
+                const outbound = entry.outbound.map((item) => ({
+                    type: DependencyType.OUTBOUND,
+                    itemCount: item.count,
+                    iconUrl: item.iconUrl,
+                    contentType: new ContentTypeName(item.type),
+                }));
+
+                setOutboundDependencies(outbound);
+            },
+            (error) => console.error(error),
+        );
     }, [content, isContextOpen, isActiveWidget]);
 
     if (!isContextOpen || !isActiveWidget || !content) return null;

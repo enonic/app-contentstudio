@@ -9,15 +9,17 @@ import { IssueStatus } from '../../../../app/issue/IssueStatus';
 import { IssueType } from '../../../../app/issue/IssueType';
 import { PublishRequest } from '../../../../app/issue/PublishRequest';
 import { PublishRequestItem } from '../../../../app/issue/PublishRequestItem';
-import { CreateIssueCommentRequest } from '../../../../app/issue/resource/CreateIssueCommentRequest';
-import { DeleteIssueCommentRequest } from '../../../../app/issue/resource/DeleteIssueCommentRequest';
-import { GetIssueRequest } from '../../../../app/issue/resource/GetIssueRequest';
-import { ListIssueCommentsRequest } from '../../../../app/issue/resource/ListIssueCommentsRequest';
-import { UpdateIssueCommentRequest } from '../../../../app/issue/resource/UpdateIssueCommentRequest';
-import { UpdateIssueRequest } from '../../../../app/issue/resource/UpdateIssueRequest';
-import { GetPrincipalsByKeysRequest } from '../../../../app/security/GetPrincipalsByKeysRequest';
 import { fetchContentSummaries } from '../../../entities/content';
 import { resolvePublishDependencies } from '../../../entities/content/api/publish.api';
+import { resolvePrincipalsByKeys } from '../../../entities/principal/api/principals.api';
+import {
+    createIssueComment,
+    deleteIssueComment,
+    fetchIssue,
+    listIssueComments,
+    updateIssue,
+    updateIssueComment,
+} from '../../../entities/issue/api/issues.api';
 import {
     DEPENDANT_LOAD_SIZE,
     createDependantWindowLoader,
@@ -224,13 +226,26 @@ export const loadIssueDialogItems = async (issue?: Issue, options: IssueDialogIt
             return;
         }
 
-        const result = await resolvePublishDependencies({
+        const dependenciesResult = await resolvePublishDependencies({
             ids: itemIds,
             excludeChildrenIds: excludeChildrenIds,
         });
         if (requestId !== dependenciesRequestId) {
             return;
         }
+
+        if (dependenciesResult.isErr()) {
+            console.error(dependenciesResult.error);
+            $issueDialogDetails.set({
+                ...$issueDialogDetails.get(),
+                itemsLoading: false,
+                itemsError: true,
+            });
+            showError(dependenciesResult.error.message);
+            return;
+        }
+
+        const result = dependenciesResult.value;
 
         const allDependantIds = result.getDependants().filter((id) => !hasContentIdInIds(id, itemIds));
 
@@ -306,7 +321,14 @@ export const loadIssueDialogIssue = async (nextIssueId?: string): Promise<void> 
     });
 
     try {
-        const issue = await new GetIssueRequest(issueId).sendAndParse();
+        const issueResult = await fetchIssue(issueId);
+
+        if (issueResult.isErr()) {
+            handleIssueLoadError(issueResult.error, issueId);
+            return;
+        }
+
+        const issue = issueResult.value;
         const latestState = $issueDialogDetails.get();
 
         if (latestState.issueId !== issueId) {
@@ -324,19 +346,25 @@ export const loadIssueDialogIssue = async (nextIssueId?: string): Promise<void> 
             detailsTab: nextTab,
         });
     } catch (error) {
-        console.error(error);
-        const latestState = $issueDialogDetails.get();
-
-        if (latestState.issueId !== issueId) {
-            return;
-        }
-
-        $issueDialogDetails.set({
-            ...latestState,
-            issueLoading: false,
-            issueError: true,
-        });
+        // Throws escaping the Result contract (e.g. Issue.fromJson on a
+        // malformed payload) must not leave the details panel loading forever.
+        handleIssueLoadError(error, issueId);
     }
+};
+
+const handleIssueLoadError = (error: unknown, issueId: string): void => {
+    console.error(error);
+    const latestState = $issueDialogDetails.get();
+
+    if (latestState.issueId !== issueId) {
+        return;
+    }
+
+    $issueDialogDetails.set({
+        ...latestState,
+        issueLoading: false,
+        issueError: true,
+    });
 };
 
 export const loadIssueDialogComments = async (
@@ -358,23 +386,10 @@ export const loadIssueDialogComments = async (
         commentsError: false,
     });
 
-    try {
-        const response = await new ListIssueCommentsRequest(issueId).sendAndParse();
-        const latestState = $issueDialogDetails.get();
+    const result = await listIssueComments(issueId);
 
-        if (latestState.issueId !== issueId || requestId !== commentsRequestId) {
-            return;
-        }
-
-        $issueDialogDetails.set({
-            ...latestState,
-            comments: response.getIssueComments(),
-            commentsIssueId: issueId,
-            commentsLoading: false,
-            commentsError: false,
-        });
-    } catch (error) {
-        console.error(error);
+    if (result.isErr()) {
+        console.error(result.error);
         const latestState = $issueDialogDetails.get();
 
         if (latestState.issueId !== issueId || requestId !== commentsRequestId) {
@@ -385,7 +400,22 @@ export const loadIssueDialogComments = async (
             commentsLoading: false,
             commentsError: true,
         });
+        return;
     }
+
+    const latestState = $issueDialogDetails.get();
+
+    if (latestState.issueId !== issueId || requestId !== commentsRequestId) {
+        return;
+    }
+
+    $issueDialogDetails.set({
+        ...latestState,
+        comments: result.value,
+        commentsIssueId: issueId,
+        commentsLoading: false,
+        commentsError: false,
+    });
 };
 
 export const submitIssueDialogComment = async (): Promise<boolean> => {
@@ -407,33 +437,36 @@ export const submitIssueDialogComment = async (): Promise<boolean> => {
     const dialogState = $issueDialog.get();
     const issueType = resolveIssueType(issueId, dialogState.issues, state.issue);
 
-    try {
-        const comment = await new CreateIssueCommentRequest(issueId)
-            .setCreator(AuthContext.get().getUser().getKey())
-            .setText(trimmedComment)
-            .sendAndParse();
-        const latestState = $issueDialogDetails.get();
-        const existingComments = latestState.commentsIssueId === issueId ? latestState.comments : [];
+    const result = await createIssueComment({
+        issueId,
+        text: trimmedComment,
+        creator: AuthContext.get().getUser().getKey(),
+    });
 
-        $issueDialogDetails.set({
-            ...latestState,
-            comments: [...existingComments, comment],
-            commentsIssueId: issueId,
-            commentText: '',
-            commentSubmitting: false,
-        });
-        showFeedback(i18n(getCommentMessageKey(issueType)));
-        return true;
-    } catch (error) {
-        console.error(error);
+    if (result.isErr()) {
+        console.error(result.error);
         $issueDialogDetails.setKey('commentSubmitting', false);
         const baseMessage = i18n(getCommentErrorMessageKey(issueType));
-        const errorMessage = error?.message ?? String(error);
+        const errorMessage = result.error.message;
         const fallbackMessage =
             errorMessage && errorMessage !== baseMessage ? `${baseMessage} ${errorMessage}` : baseMessage;
         showError(fallbackMessage);
         return false;
     }
+
+    const comment = result.value;
+    const latestState = $issueDialogDetails.get();
+    const existingComments = latestState.commentsIssueId === issueId ? latestState.comments : [];
+
+    $issueDialogDetails.set({
+        ...latestState,
+        comments: [...existingComments, comment],
+        commentsIssueId: issueId,
+        commentText: '',
+        commentSubmitting: false,
+    });
+    showFeedback(i18n(getCommentMessageKey(issueType)));
+    return true;
 };
 
 export const updateIssueDialogComment = async (commentId: string, text: string): Promise<boolean> => {
@@ -453,30 +486,32 @@ export const updateIssueDialogComment = async (commentId: string, text: string):
     const dialogState = $issueDialog.get();
     const issueType = resolveIssueType(issueId, dialogState.issues, state.issue);
 
-    try {
-        const updatedComment = await new UpdateIssueCommentRequest(commentId).setText(trimmedText).sendAndParse();
-        const latestState = $issueDialogDetails.get();
+    const result = await updateIssueComment({ commentId, text: trimmedText });
 
-        if (latestState.issueId !== issueId) {
-            return true;
-        }
-
-        $issueDialogDetails.set({
-            ...latestState,
-            comments: latestState.comments.map((comment) => {
-                if (comment.getId() !== commentId) {
-                    return comment;
-                }
-                return updatedComment;
-            }),
-        });
-        showFeedback(i18n(getCommentUpdatedMessageKey(issueType)));
-        return true;
-    } catch (error) {
-        console.error(error);
-        showError(error?.message ?? String(error));
+    if (result.isErr()) {
+        console.error(result.error);
+        showError(result.error.message);
         return false;
     }
+
+    const updatedComment = result.value;
+    const latestState = $issueDialogDetails.get();
+
+    if (latestState.issueId !== issueId) {
+        return true;
+    }
+
+    $issueDialogDetails.set({
+        ...latestState,
+        comments: latestState.comments.map((comment) => {
+            if (comment.getId() !== commentId) {
+                return comment;
+            }
+            return updatedComment;
+        }),
+    });
+    showFeedback(i18n(getCommentUpdatedMessageKey(issueType)));
+    return true;
 };
 
 export const deleteIssueDialogComment = async (commentId: string): Promise<boolean> => {
@@ -490,25 +525,27 @@ export const deleteIssueDialogComment = async (commentId: string): Promise<boole
     const dialogState = $issueDialog.get();
     const issueType = resolveIssueType(issueId, dialogState.issues, state.issue);
 
-    try {
-        const result = await new DeleteIssueCommentRequest(commentId).sendAndParse();
-        const latestState = $issueDialogDetails.get();
+    const result = await deleteIssueComment(commentId);
 
-        if (!result || latestState.issueId !== issueId) {
-            return result;
-        }
-
-        $issueDialogDetails.set({
-            ...latestState,
-            comments: latestState.comments.filter((comment) => comment.getId() !== commentId),
-        });
-        showFeedback(i18n(getCommentDeletedMessageKey(issueType)));
-        return true;
-    } catch (error) {
-        console.error(error);
-        showError(error?.message ?? String(error));
+    if (result.isErr()) {
+        console.error(result.error);
+        showError(result.error.message);
         return false;
     }
+
+    const deleted = result.value;
+    const latestState = $issueDialogDetails.get();
+
+    if (!deleted || latestState.issueId !== issueId) {
+        return deleted;
+    }
+
+    $issueDialogDetails.set({
+        ...latestState,
+        comments: latestState.comments.filter((comment) => comment.getId() !== commentId),
+    });
+    showFeedback(i18n(getCommentDeletedMessageKey(issueType)));
+    return true;
 };
 
 export const updateIssueDialogStatus = async (nextStatus: IssueStatus): Promise<boolean> => {
@@ -524,25 +561,29 @@ export const updateIssueDialogStatus = async (nextStatus: IssueStatus): Promise<
 
     $issueDialogDetails.setKey('statusUpdating', true);
 
-    try {
-        const request = new UpdateIssueRequest(issueId)
-            .setTitle(issue.getTitle())
-            .setDescription(issue.getDescription())
-            .setIssueStatus(nextStatus);
-        populateSchedule(request, issue);
-        const updatedIssue = await request.sendAndParse();
+    const result = await updateIssue({
+        id: issueId,
+        title: issue.getTitle(),
+        description: issue.getDescription(),
+        status: nextStatus,
+        publishFrom: issue.getPublishFrom(),
+        publishTo: issue.getPublishTo(),
+    });
 
-        applyUpdatedIssue(updatedIssue, dialogState, issueWithAssignees, { statusUpdating: false });
-
-        void loadIssueDialogList();
-        showFeedback(i18n(getStatusMessageKey(updatedIssue.getType(), nextStatus)));
-        return true;
-    } catch (error) {
-        console.error(error);
+    if (result.isErr()) {
+        console.error(result.error);
         $issueDialogDetails.setKey('statusUpdating', false);
-        showError(error?.message ?? String(error));
+        showError(result.error.message);
         return false;
     }
+
+    const updatedIssue = result.value;
+
+    applyUpdatedIssue(updatedIssue, dialogState, issueWithAssignees, { statusUpdating: false });
+
+    void loadIssueDialogList();
+    showFeedback(i18n(getStatusMessageKey(updatedIssue.getType(), nextStatus)));
+    return true;
 };
 
 export const updateIssueDialogTitle = async (nextTitle: string): Promise<void> => {
@@ -560,26 +601,30 @@ export const updateIssueDialogTitle = async (nextTitle: string): Promise<void> =
 
     $issueDialogDetails.setKey('titleUpdating', true);
 
-    try {
-        const request = new UpdateIssueRequest(issueId)
-            .setTitle(trimmedTitle)
-            .setDescription(issue.getDescription())
-            .setIssueStatus(issue.getIssueStatus())
-            .setApprovers(issue.getApprovers());
-        populateSchedule(request, issue);
-        const updatedIssue = await request.sendAndParse();
+    const result = await updateIssue({
+        id: issueId,
+        title: trimmedTitle,
+        description: issue.getDescription(),
+        status: issue.getIssueStatus(),
+        approvers: issue.getApprovers(),
+        publishFrom: issue.getPublishFrom(),
+        publishTo: issue.getPublishTo(),
+    });
 
-        applyUpdatedIssue(updatedIssue, dialogState, issueWithAssignees, { titleUpdating: false });
-
-        const prefix =
-            updatedIssue.getType() === IssueType.PUBLISH_REQUEST ? 'notify.publishRequest.' : 'notify.issue.';
-        showFeedback(i18n(`${prefix}updated`));
-        void loadIssueDialogList();
-    } catch (error) {
-        console.error(error);
+    if (result.isErr()) {
+        console.error(result.error);
         $issueDialogDetails.setKey('titleUpdating', false);
-        showError(error?.message ?? String(error));
+        showError(result.error.message);
+        return;
     }
+
+    const updatedIssue = result.value;
+
+    applyUpdatedIssue(updatedIssue, dialogState, issueWithAssignees, { titleUpdating: false });
+
+    const prefix = updatedIssue.getType() === IssueType.PUBLISH_REQUEST ? 'notify.publishRequest.' : 'notify.issue.';
+    showFeedback(i18n(`${prefix}updated`));
+    void loadIssueDialogList();
 };
 
 export const updateIssueDialogAssignees = async (nextAssigneeIds: readonly string[]): Promise<void> => {
@@ -599,38 +644,46 @@ export const updateIssueDialogAssignees = async (nextAssigneeIds: readonly strin
 
     $issueDialogDetails.setKey('assigneesUpdating', true);
 
-    try {
-        const approvers = nextAssigneeIds.map((id) => PrincipalKey.fromString(id));
-        const request = new UpdateIssueRequest(issueId)
-            .setTitle(issue.getTitle())
-            .setDescription(issue.getDescription())
-            .setIssueStatus(issue.getIssueStatus())
-            .setApprovers(approvers);
-        populateSchedule(request, issue);
-        const updatedIssue = await request.sendAndParse();
+    const approvers = nextAssigneeIds.map((id) => PrincipalKey.fromString(id));
+    const updateResult = await updateIssue({
+        id: issueId,
+        title: issue.getTitle(),
+        description: issue.getDescription(),
+        status: issue.getIssueStatus(),
+        approvers,
+        publishFrom: issue.getPublishFrom(),
+        publishTo: issue.getPublishTo(),
+    });
 
-        let assignees = issueWithAssignees?.getAssignees() ?? [];
-        if (approvers.length > 0) {
-            try {
-                assignees = await new GetPrincipalsByKeysRequest(approvers).sendAndParse();
-            } catch (error) {
-                console.error(error);
-            }
-        } else {
-            assignees = [];
-        }
-
-        applyUpdatedIssue(updatedIssue, dialogState, issueWithAssignees, { assigneesUpdating: false }, assignees);
-
-        const prefix =
-            updatedIssue.getType() === IssueType.PUBLISH_REQUEST ? 'notify.publishRequest.' : 'notify.issue.';
-        showFeedback(i18n(`${prefix}updated`));
-        void loadIssueDialogList();
-    } catch (error) {
-        console.error(error);
+    if (updateResult.isErr()) {
+        console.error(updateResult.error);
         $issueDialogDetails.setKey('assigneesUpdating', false);
-        showError(error?.message ?? String(error));
+        showError(updateResult.error.message);
+        return;
     }
+
+    const updatedIssue = updateResult.value;
+
+    let assignees = issueWithAssignees?.getAssignees() ?? [];
+    if (approvers.length > 0) {
+        const result = await resolvePrincipalsByKeys(approvers);
+        result.match(
+            (principals) => {
+                assignees = principals;
+            },
+            (error) => {
+                console.error(error);
+            },
+        );
+    } else {
+        assignees = [];
+    }
+
+    applyUpdatedIssue(updatedIssue, dialogState, issueWithAssignees, { assigneesUpdating: false }, assignees);
+
+    const prefix = updatedIssue.getType() === IssueType.PUBLISH_REQUEST ? 'notify.publishRequest.' : 'notify.issue.';
+    showFeedback(i18n(`${prefix}updated`));
+    void loadIssueDialogList();
 };
 
 export const updateIssueDialogSchedule = async (
@@ -645,35 +698,30 @@ export const updateIssueDialogSchedule = async (
 
     $issueDialogDetails.setKey('scheduleUpdating', true);
 
-    try {
-        const request = new UpdateIssueRequest(issueId)
-            .setTitle(issue.getTitle())
-            .setDescription(issue.getDescription())
-            .setIssueStatus(issue.getIssueStatus())
-            .setApprovers(issue.getApprovers());
+    const result = await updateIssue({
+        id: issueId,
+        title: issue.getTitle(),
+        description: issue.getDescription(),
+        status: issue.getIssueStatus(),
+        approvers: issue.getApprovers(),
+        publishRequest: issue.getPublishRequest() ?? undefined,
+        publishFrom,
+        publishTo,
+    });
 
-        if (issue.getPublishRequest()) {
-            request.setPublishRequest(issue.getPublishRequest());
-        }
-        if (publishFrom) {
-            request.setPublishFrom(publishFrom);
-        }
-        if (publishTo) {
-            request.setPublishTo(publishTo);
-        }
-
-        const updatedIssue = await request.sendAndParse();
-        applyUpdatedIssue(updatedIssue, dialogState, issueWithAssignees, { scheduleUpdating: false });
-
-        void loadIssueDialogList();
-        const prefix =
-            updatedIssue.getType() === IssueType.PUBLISH_REQUEST ? 'notify.publishRequest.' : 'notify.issue.';
-        showFeedback(i18n(`${prefix}updated`));
-    } catch (error) {
-        console.error(error);
+    if (result.isErr()) {
+        console.error(result.error);
         $issueDialogDetails.setKey('scheduleUpdating', false);
-        showError(error?.message ?? String(error));
+        showError(result.error.message);
+        return;
     }
+
+    const updatedIssue = result.value;
+    applyUpdatedIssue(updatedIssue, dialogState, issueWithAssignees, { scheduleUpdating: false });
+
+    void loadIssueDialogList();
+    const prefix = updatedIssue.getType() === IssueType.PUBLISH_REQUEST ? 'notify.publishRequest.' : 'notify.issue.';
+    showFeedback(i18n(`${prefix}updated`));
 };
 
 export const updateIssueDialogItems = async (nextItemIds: ContentId[]): Promise<void> => {
@@ -938,18 +986,6 @@ const getIssueContext = (updatingKey?: IssueDetailsUpdatingKey): IssueContext | 
     };
 };
 
-const populateSchedule = (request: UpdateIssueRequest, issue: Issue): void => {
-    const publishFrom = issue.getPublishFrom();
-    const publishTo = issue.getPublishTo();
-
-    if (publishFrom) {
-        request.setPublishFrom(publishFrom);
-    }
-    if (publishTo) {
-        request.setPublishTo(publishTo);
-    }
-};
-
 // Shared with the service wiring, which applies server-event reload results.
 export const applyUpdatedIssue = (
     updatedIssue: Issue,
@@ -996,29 +1032,33 @@ const updateIssueWithPublishRequest = async ({
     nextPublishRequest: PublishRequest;
     forceReloadItems?: boolean;
 }): Promise<void> => {
-    try {
-        const request = new UpdateIssueRequest(issueId)
-            .setTitle(issue.getTitle())
-            .setDescription(issue.getDescription())
-            .setIssueStatus(issue.getIssueStatus())
-            .setApprovers(issue.getApprovers())
-            .setPublishRequest(nextPublishRequest);
-        populateSchedule(request, issue);
-        const updatedIssue = await request.sendAndParse();
+    const result = await updateIssue({
+        id: issueId,
+        title: issue.getTitle(),
+        description: issue.getDescription(),
+        status: issue.getIssueStatus(),
+        approvers: issue.getApprovers(),
+        publishRequest: nextPublishRequest,
+        publishFrom: issue.getPublishFrom(),
+        publishTo: issue.getPublishTo(),
+    });
 
-        applyUpdatedIssue(updatedIssue, dialogState, issueWithAssignees, {});
-        await loadIssueDialogItems(updatedIssue, { forceReload: forceReloadItems });
+    if (result.isErr()) {
+        console.error(result.error);
         $issueDialogDetails.setKey('itemsUpdating', false);
-
-        const prefix =
-            updatedIssue.getType() === IssueType.PUBLISH_REQUEST ? 'notify.publishRequest.' : 'notify.issue.';
-        showFeedback(i18n(`${prefix}updated`));
-        void loadIssueDialogList();
-    } catch (error) {
-        console.error(error);
-        $issueDialogDetails.setKey('itemsUpdating', false);
-        showError(error?.message ?? String(error));
+        showError(result.error.message);
+        return;
     }
+
+    const updatedIssue = result.value;
+
+    applyUpdatedIssue(updatedIssue, dialogState, issueWithAssignees, {});
+    await loadIssueDialogItems(updatedIssue, { forceReload: forceReloadItems });
+    $issueDialogDetails.setKey('itemsUpdating', false);
+
+    const prefix = updatedIssue.getType() === IssueType.PUBLISH_REQUEST ? 'notify.publishRequest.' : 'notify.issue.';
+    showFeedback(i18n(`${prefix}updated`));
+    void loadIssueDialogList();
 };
 
 const getStatusMessageKey = (issueType: IssueType, status: IssueStatus): string => {

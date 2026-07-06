@@ -9,7 +9,7 @@ import { useStore } from '@nanostores/preact';
 import { $activeProject } from '../../../../entities/project';
 import { ContentRow, type ContentRowProps } from '../shared/combobox/ContentRow';
 import { ImageSelectorItemView } from './ImageSelectorItemView';
-import { useAcceptMimeTypes } from '../../../../shared/lib/hooks/useAcceptMimeTypes';
+import { useAcceptMimeTypes } from '../../../../entities/schema';
 
 export type ImageSelectorProps = {
     /** Selected content IDs */

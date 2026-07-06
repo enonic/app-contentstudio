@@ -12,12 +12,12 @@ import {
 import { ContentTypesHelper } from '../../../../app/util/ContentTypesHelper';
 import { reloadParentChildren, expandNode, hasTreeNode, isNodeExpanded } from '../../../entities/content';
 import {
-    type UploadDataUrlImageOptions,
-    type UploadMediaError,
     uploadMediaFile,
     type UploadMediaSuccess,
     uploadRemoteImage,
+    type UploadRemoteImageOptions,
 } from '../../../entities/content/api/uploadMedia.api';
+import { UploadError } from '../../../shared/api';
 import { generateUniqueName } from '../../../shared/lib/image/generateUniqueName';
 import { $activeProject } from '../../../entities/project/activeProject.store';
 import { addUpload, removeUpload, updateUploadProgress } from '../../../entities/content/model/uploads.store';
@@ -184,9 +184,8 @@ export async function uploadDragImages({ dataTransfer, parentContent }: UploadOp
 
         addUpload(id, name, parentId);
 
-        const params: UploadDataUrlImageOptions = {
+        const params: UploadRemoteImageOptions = {
             id,
-            name,
             imageSource: src,
             parentContent,
             onProgress: (id, progress) => updateUploadProgress(id, progress),
@@ -194,7 +193,7 @@ export async function uploadDragImages({ dataTransfer, parentContent }: UploadOp
 
         // Not allowed
         if (src.startsWith('data:')) {
-            return errAsync({ mediaIdentifier: id, message: i18n('notify.upload.dataUri.notAllowed') });
+            return errAsync(new UploadError(id, i18n('notify.upload.dataUri.notAllowed')));
         }
 
         return uploadRemoteImage(params);
@@ -259,7 +258,7 @@ function onEachSuccess(success: UploadMediaSuccess): boolean {
     return true;
 }
 
-function onEachError(error: UploadMediaError): boolean {
+function onEachError(error: UploadError): boolean {
     console.error(error);
     removeUpload(error.mediaIdentifier);
     showError(i18n('notify.upload.error', error.mediaIdentifier, error.message));

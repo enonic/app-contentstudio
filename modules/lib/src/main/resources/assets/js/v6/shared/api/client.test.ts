@@ -66,6 +66,26 @@ describe('requestJson', () => {
         expect(result._unsafeUnwrapErr().message).toBe('Request failed with status 500');
     });
 
+    it('should surface a server-provided error message from the response body', async () => {
+        mockFetch.mockResolvedValue(
+            jsonResponse({ message: 'Content is locked' }, { status: 409, statusText: 'Conflict' }),
+        );
+
+        const result = await requestJson('/api/test');
+
+        expect(result.isErr()).toBe(true);
+        expect(result._unsafeUnwrapErr().message).toBe('Content is locked');
+    });
+
+    it('should fall back to status text when the error body has no message', async () => {
+        mockFetch.mockResolvedValue(jsonResponse({ error: 'nope' }, { status: 400, statusText: 'Bad Request' }));
+
+        const result = await requestJson('/api/test');
+
+        expect(result.isErr()).toBe(true);
+        expect(result._unsafeUnwrapErr().message).toBe('Bad Request');
+    });
+
     it('should return AppError on network failure', async () => {
         mockFetch.mockRejectedValue(new TypeError('Failed to fetch'));
 

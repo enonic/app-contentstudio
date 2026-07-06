@@ -3,10 +3,9 @@ import { forwardRef, useMemo } from 'react';
 
 import type { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { useStore } from '@nanostores/preact';
-import { DependencyType } from '../../../app/browse/DependencyType';
-import { UrlHelper } from '../../../app/util/UrlHelper';
 import { type Branch } from '../../../app/versioning/Branch';
 import { useI18n } from '../../shared/lib/hooks/useI18n';
+import { getInboundReferencesUrl } from '../../shared/lib/url/navigation';
 import { $activeProject } from '../../entities/project';
 
 export type ContentReferencesLinkProps = {
@@ -34,10 +33,10 @@ export const ContentReferencesLink = forwardRef<HTMLAnchorElement, ContentRefere
         const projectName = useStore($activeProject)?.getName();
         const contentType = contentTypeName?.toString();
 
-        const href = useMemo(() => {
-            const relative = `${projectName}/${DependencyType.INBOUND}/${branch}/${contentId}${contentType ? `/${contentType}` : ''}`;
-            return UrlHelper.getPrefixedUrl(relative);
-        }, [projectName, branch, contentType, contentId]);
+        const href = useMemo(
+            () => getInboundReferencesUrl({ contentId, branch, project: projectName, contentType }),
+            [projectName, branch, contentType, contentId],
+        );
 
         return (
             <Link

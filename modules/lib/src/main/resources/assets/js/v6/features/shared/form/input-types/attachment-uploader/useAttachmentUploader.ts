@@ -6,9 +6,9 @@ import { type SelfManagedComponentProps } from '@enonic/lib-admin-ui/form2';
 import {
     deleteAttachment,
     uploadAttachmentFile,
-    type UploadAttachmentError,
     type UploadAttachmentSuccess,
 } from '../../../../../entities/content/api/uploadAttachment.api';
+import { type UploadError } from '../../../../../shared/api';
 import {
     $uploads,
     addUpload,
@@ -138,16 +138,17 @@ export const useAttachmentUploader = ({
                             completeUpload(success.identifier);
                             setUploads((prev) => prev.filter((item) => item.id !== success.identifier));
 
-                            const isDuplicate = values.some((v) => v.getString() === success.attachment.name);
+                            const attachmentName = success.attachment.getName().toString();
+                            const isDuplicate = values.some((v) => v.getString() === attachmentName);
                             if (!isDuplicate) {
-                                onAdd(ValueTypes.STRING.newValue(success.attachment.name));
+                                onAdd(ValueTypes.STRING.newValue(attachmentName));
                             }
 
-                            showFeedback(i18n('notify.upload.success', success.attachment.name));
+                            showFeedback(i18n('notify.upload.success', attachmentName));
                         },
-                        (error: UploadAttachmentError) => {
-                            failUpload(error.identifier, error.message);
-                            setUploads((prev) => prev.filter((item) => item.id !== error.identifier));
+                        (error: UploadError) => {
+                            failUpload(error.mediaIdentifier, error.message);
+                            setUploads((prev) => prev.filter((item) => item.id !== error.mediaIdentifier));
                             showError(i18n('notify.upload.error', file.name, error.message));
                         },
                     );

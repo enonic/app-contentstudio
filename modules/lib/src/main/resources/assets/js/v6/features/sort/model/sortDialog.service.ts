@@ -1,6 +1,6 @@
 import { showError } from '@enonic/lib-admin-ui/notify/MessageBus';
 import type { ContentServerChangeItem } from '../../../../app/event/ContentServerChangeItem';
-import { ContentSummaryAndCompareStatusFetcher } from '../../../../app/resource/ContentSummaryAndCompareStatusFetcher';
+import { listContentIdsByParent } from '../../../entities/content/api/contentQuery.api';
 import { $contentArchived, $contentDeleted, type ContentEvent } from '../../../shared/socket/socket.store';
 import {
     $sortDialog,
@@ -24,8 +24,6 @@ let unsubscribers: Array<() => void> = [];
 // * Data Loading
 //
 
-const fetcher = new ContentSummaryAndCompareStatusFetcher();
-
 async function reloadSortDialogIds(): Promise<void> {
     // Bump the shared instance up front so older reloads and batch loads go stale.
     const callId = $sortDialog.get().instance + 1;
@@ -43,29 +41,28 @@ async function reloadSortDialogIds(): Promise<void> {
         failedBatches: [],
     });
 
-    try {
-        const order = toChildOrder(selectedOptionId);
-        const ids = await fetcher.fetchChildrenIds(parent.getContentId(), order);
-        if (callId !== $sortDialog.get().instance) {
-            return;
-        }
+    const order = toChildOrder(selectedOptionId);
+    const result = await listContentIdsByParent({ parentId: parent.getContentId(), childOrder: order });
+    if (callId !== $sortDialog.get().instance) {
+        return;
+    }
 
-        $sortDialog.set({
-            ...$sortDialog.get(),
-            itemIds: ids.map((id) => id.toString()),
-            idsLoading: false,
-            idsFailed: false,
-        });
-
-        void ensureSortDialogBatchLoaded(0);
-    } catch (error) {
-        if (callId !== $sortDialog.get().instance) {
-            return;
-        }
+    if (result.isErr()) {
         $sortDialog.setKey('idsFailed', true);
         $sortDialog.setKey('idsLoading', false);
-        showError(error instanceof Error ? error.message : String(error));
+        showError(result.error.message);
+        return;
     }
+
+    const ids = result.value;
+    $sortDialog.set({
+        ...$sortDialog.get(),
+        itemIds: ids.map((id) => id.toString()),
+        idsLoading: false,
+        idsFailed: false,
+    });
+
+    void ensureSortDialogBatchLoaded(0);
 }
 
 //

@@ -1,8 +1,5 @@
-import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
-import { ContentId } from '../../../../app/content/ContentId';
-import { RepositoryId } from '../../../../app/repository/RepositoryId';
+import { $config } from '../../config/config.store';
 
-const ADMIN_PATH = '/admin';
 const REST_PATH = 'rest-v2/cs';
 
 type ActiveProjectResolver = () => string | undefined;
@@ -16,6 +13,15 @@ let resolveActiveProject: ActiveProjectResolver = () => undefined;
  */
 export function setActiveProjectResolver(resolver: ActiveProjectResolver): void {
     resolveActiveProject = resolver;
+}
+
+/**
+ * Resolve the current active project name via the injected resolver. Returns
+ * undefined when no resolver is wired or no project is active. Lets shared URL
+ * builders reuse the same project context without reaching into project state.
+ */
+export function resolveActiveProjectName(): string | undefined {
+    return resolveActiveProject();
 }
 
 /**
@@ -39,11 +45,12 @@ export function getCmsPath(endpoint: string, projectName?: string): string {
 }
 
 /**
- * Build a full CMS REST API URL.
- * @param path - Path to append after `/admin/rest-v2/cs/`
+ * Build a full CMS REST API URL. The admin prefix comes from the server config
+ * (`adminUrl`), so vhost-mapped admin deployments resolve correctly.
+ * @param path - Path to append after `<adminUrl>/rest-v2/cs/`
  */
 export function getCmsRestUri(path: string): string {
-    return joinPath(ADMIN_PATH, REST_PATH, path);
+    return joinPath($config.get().adminUrl, REST_PATH, path);
 }
 
 /**
@@ -54,4 +61,21 @@ export function getCmsRestUri(path: string): string {
  */
 export function getCmsApiUrl(endpoint: string, projectName?: string): string {
     return getCmsRestUri(getCmsPath(endpoint, projectName));
+}
+
+/**
+ * Build a project-scoped CMS path for non-content endpoints (schema, page).
+ * @param subPath - Path after the project segment, e.g. 'content/schema/filter/parts'
+ * @param projectName - Optional project name, defaults to the active project
+ */
+export function getCmsProjectPath(subPath: string, projectName?: string): string {
+    const project = projectName ?? resolveActiveProject() ?? '';
+    return `cms/${project}/${subPath}`;
+}
+
+/**
+ * Build a full project-scoped CMS REST URL for non-content endpoints.
+ */
+export function getCmsProjectUrl(subPath: string, projectName?: string): string {
+    return getCmsRestUri(getCmsProjectPath(subPath, projectName));
 }

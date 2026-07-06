@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { okAsync } from 'neverthrow';
 import { NodeServerChangeType } from '@enonic/lib-admin-ui/event/NodeServerChange';
 import { ContentId } from '../../../../app/content/ContentId';
 import type { IssueServerEvent } from '../../../../app/event/IssueServerEvent';
@@ -35,8 +36,8 @@ const {
     mockShowError,
     mockShowFeedback,
     mockIssueServerEventsHandler,
-    mockGetIssueSend,
-    mockListIssueCommentsSend,
+    mockFetchIssue,
+    mockListIssueComments,
 } = vi.hoisted(() => ({
     mockFetchContentSummaries: vi.fn(),
     mockResolvePublishDependencies: vi.fn(),
@@ -48,11 +49,11 @@ const {
         onIssueChanged: vi.fn(),
         unIssueChanged: vi.fn(),
     },
-    mockGetIssueSend: vi.fn(),
-    mockListIssueCommentsSend: vi.fn(),
+    mockFetchIssue: vi.fn(),
+    mockListIssueComments: vi.fn(),
 }));
 
-vi.mock('../../../entities/content/api/content.api', () => ({
+vi.mock('../../../entities/content/lib/contentSummaries', () => ({
     fetchContentSummaries: mockFetchContentSummaries,
 }));
 
@@ -66,65 +67,18 @@ vi.mock('../../../../app/issue/event/IssueServerEventsHandler', () => ({
     },
 }));
 
-vi.mock('../../../../app/issue/resource/GetIssueRequest', () => ({
-    GetIssueRequest: class {
-        constructor(private readonly id: string) {}
-
-        sendAndParse(): Promise<unknown> {
-            return mockGetIssueSend(this.id);
-        }
-    },
+vi.mock('../../../entities/issue/api/issues.api', () => ({
+    fetchIssue: mockFetchIssue,
+    listIssueComments: mockListIssueComments,
+    listIssues: () => okAsync({ issues: [], totalHits: 0 }),
+    updateIssue: () => okAsync(undefined),
+    createIssueComment: () => okAsync(undefined),
+    updateIssueComment: () => okAsync(undefined),
+    deleteIssueComment: () => okAsync(true),
 }));
 
-vi.mock('../../../../app/issue/resource/ListIssueCommentsRequest', () => ({
-    ListIssueCommentsRequest: class {
-        constructor(private readonly id: string) {}
-
-        sendAndParse(): Promise<unknown> {
-            return mockListIssueCommentsSend(this.id);
-        }
-    },
-}));
-
-vi.mock('../../../../app/issue/resource/GetIssueStatsRequest', () => ({
-    GetIssueStatsRequest: class {
-        setRequestProject(): this {
-            return this;
-        }
-
-        sendAndParse(): Promise<object> {
-            return Promise.resolve({});
-        }
-    },
-}));
-
-vi.mock('../../../../app/issue/resource/ListIssuesRequest', () => ({
-    ListIssuesRequest: class {
-        setResolveAssignees(): this {
-            return this;
-        }
-
-        setFrom(): this {
-            return this;
-        }
-
-        setSize(): this {
-            return this;
-        }
-
-        setRequestProject(): this {
-            return this;
-        }
-
-        sendAndParse(): Promise<{ getIssues: () => []; getMetadata: () => { getTotalHits: () => number } }> {
-            return Promise.resolve({
-                getIssues: () => [],
-                getMetadata: () => ({
-                    getTotalHits: () => 0,
-                }),
-            });
-        }
-    },
+vi.mock('../../../entities/issue/api/issuesStats.api', () => ({
+    fetchIssueStats: () => okAsync({}),
 }));
 
 vi.mock('@enonic/lib-admin-ui/notify/MessageBus', () => ({
@@ -188,8 +142,8 @@ describe('issueDialogDetails.store', () => {
         mockResolvePublishDependencies.mockReset().mockResolvedValue(createResolveResult({}));
         mockShowError.mockReset();
         mockShowFeedback.mockReset();
-        mockGetIssueSend.mockReset();
-        mockListIssueCommentsSend.mockReset();
+        mockFetchIssue.mockReset();
+        mockListIssueComments.mockReset();
     });
 
     afterEach(() => {
@@ -342,8 +296,8 @@ describe('issueDialogDetails.store', () => {
                 getPublishRequest: () => null,
             } as unknown as Issue;
 
-            mockGetIssueSend.mockResolvedValue(serverIssue);
-            mockListIssueCommentsSend.mockResolvedValue({ getIssueComments: () => [{ getId: () => 'comment-1' }] });
+            mockFetchIssue.mockReturnValue(okAsync(serverIssue));
+            mockListIssueComments.mockReturnValue(okAsync([{ getId: () => 'comment-1' }]));
 
             openIssueDialogDetails(issueId);
             await flushPromises();
@@ -356,7 +310,7 @@ describe('issueDialogDetails.store', () => {
             notifyIssueChanged([issueId], createServerEvent(NodeServerChangeType.UPDATE));
             await flushDebouncedReload(1250, 10);
 
-            expect(mockGetIssueSend).toHaveBeenCalledWith(issueId);
+            expect(mockFetchIssue).toHaveBeenCalledWith(issueId);
             expect($issueDialogDetails.get().comments).toHaveLength(1);
             expect($issueDialogDetails.get().commentsIssueId).toBe(issueId);
 
@@ -379,7 +333,7 @@ describe('issueDialogDetails.store', () => {
             notifyIssueChanged([issueId], createServerEvent(NodeServerChangeType.DELETE));
 
             expect($issueDialog.get().open).toBe(false);
-            expect(mockGetIssueSend).not.toHaveBeenCalled();
+            expect(mockFetchIssue).not.toHaveBeenCalled();
 
             unsubscribe();
         });

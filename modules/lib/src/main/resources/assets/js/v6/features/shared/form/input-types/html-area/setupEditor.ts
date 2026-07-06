@@ -13,15 +13,14 @@ import { ContentPath } from '../../../../../../app/content/ContentPath';
 import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
 import { ContentRequiresSaveEvent } from '../../../../../../app/event/ContentRequiresSaveEvent';
 import { normalizeHtmlAreaLangDirection } from '../../../../../../app/inputtype/ui/text/HtmlAreaLangDirection';
-import { ContentsExistByPathRequest } from '../../../../../../app/resource/ContentsExistByPathRequest';
-import type { ContentsExistByPathResult } from '../../../../../../app/resource/ContentsExistByPathResult';
+import { contentExistsByPath } from '../../../../../entities/content/api/contentExists.api';
 import { CreateHtmlAreaDialogEventGenerator } from '../../../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEventGenerator';
 import { bindListStyleDialogContextMenu } from '../../../../../../app/inputtype/ui/text/ListStyleDialogContextMenu';
 import { bindEditableBodyRuntimeState } from '../../../../../../app/inputtype/ui/text/EditableBodyRuntimeState';
 import { HTMLAreaHelper } from '../../../../../../app/inputtype/ui/text/HTMLAreaHelper';
 import { HtmlEditorParams } from '../../../../../../app/inputtype/ui/text/HtmlEditorParams';
 import { StyleHelper } from '../../../../../../app/inputtype/ui/text/styles/StyleHelper';
-import { ImageUrlResolver } from '../../../../../../app/util/ImageUrlResolver';
+import { buildImagePreviewUrl, buildImageRenderUrl } from '../../../../../shared/lib/url/images';
 import {
     type CreateHtmlAreaDialogEvent,
     type HtmlAreaDialogType,
@@ -446,7 +445,7 @@ function handleFileUpload(
     if (editor.widgets?.registered?.uploadimage) {
         editor.widgets.registered.uploadimage['onUploaded'] = function (upload) {
             const imageId = StringHelper.substringBetween(upload.url, 'image/', '?');
-            const dataSrc = ImageUrlResolver.URL_PREFIX_RENDER + imageId;
+            const dataSrc = buildImageRenderUrl(imageId);
 
             this['replaceWith'](
                 `<figure class="captioned ${StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS}">` +
@@ -470,27 +469,22 @@ function handleFileUpload(
             .build()
             .toString();
 
-        new ContentsExistByPathRequest([contentPathAsString])
-            .sendAndParse()
-            .then((result: ContentsExistByPathResult) => {
-                const exists = result.getContentsExistMap()[contentPathAsString];
+        void contentExistsByPath(contentPathAsString).match((exists) => {
+            if (exists) {
+                NotifyManager.get().showWarning(i18n('notify.fileExists', fileLoader.fileName));
+                evt.editor.document.findOne('.cke_widget_uploadimage')?.remove();
+            } else {
+                const formData = new FormData();
+                const xhr = fileLoader.xhr;
 
-                if (exists) {
-                    NotifyManager.get().showWarning(i18n('notify.fileExists', fileLoader.fileName));
-                    evt.editor.document.findOne('.cke_widget_uploadimage')?.remove();
-                } else {
-                    const formData = new FormData();
-                    const xhr = fileLoader.xhr;
+                xhr.open('POST', fileLoader.uploadUrl, true);
+                formData.append('file', fileLoader.file, fileLoader.fileName);
+                formData.append('parent', contentSummary.getPath().toString());
+                formData.append('name', fileLoader.fileName);
 
-                    xhr.open('POST', fileLoader.uploadUrl, true);
-                    formData.append('file', fileLoader.file, fileLoader.fileName);
-                    formData.append('parent', contentSummary.getPath().toString());
-                    formData.append('name', fileLoader.fileName);
-
-                    fileLoader.xhr.send(formData);
-                }
-            })
-            .catch(DefaultErrorHandler.handle);
+                fileLoader.xhr.send(formData);
+            }
+        }, DefaultErrorHandler.handle);
 
         evt.stop();
     });
@@ -509,10 +503,11 @@ function handleFileUpload(
         } else {
             const mediaContent = JSON.parse(response[0]);
 
-            const imgUrl = new ImageUrlResolver(null, project)
-                .setContentId(mediaContent.id)
-                .setScaleWidth(true)
-                .resolveForPreview();
+            const imgUrl = buildImagePreviewUrl({
+                contentId: mediaContent.id,
+                projectName: project?.getName(),
+                scaleWidth: true,
+            });
 
             data.url = imgUrl;
         }

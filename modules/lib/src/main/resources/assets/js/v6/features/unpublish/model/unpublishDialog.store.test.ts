@@ -1,3 +1,4 @@
+import { ok } from 'neverthrow';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentId } from '../../../../app/content/ContentId';
 import { emitContentDeleted, emitContentUpdated } from '../../../shared/socket/socket.store';
@@ -27,7 +28,7 @@ const { mockFetchContentSummaries, mockResolveUnpublish, mockUnpublishContent, m
         mockTrackTask: vi.fn(),
     }));
 
-vi.mock('../../../entities/content/api/content.api', () => ({
+vi.mock('../../../entities/content/lib/contentSummaries', () => ({
     fetchContentSummaries: mockFetchContentSummaries,
 }));
 
@@ -70,7 +71,7 @@ describe('unpublishDialog.store', () => {
         mockUnpublishContent.mockReset();
         mockCleanupTask.mockReset();
         mockTrackTask.mockReset();
-        mockResolveUnpublish.mockReset().mockResolvedValue(createUnpublishResolveResult([]));
+        mockResolveUnpublish.mockReset().mockResolvedValue(ok(createUnpublishResolveResult([])));
     });
 
     afterEach(() => {
@@ -83,7 +84,7 @@ describe('unpublishDialog.store', () => {
         const item = createMockContent('item-1');
         const dependantIds = Array.from({ length: 40 }, (_, index) => `dep-${index}`);
 
-        mockResolveUnpublish.mockResolvedValue(createUnpublishResolveResult(['item-1', ...dependantIds]));
+        mockResolveUnpublish.mockResolvedValue(ok(createUnpublishResolveResult(['item-1', ...dependantIds])));
         mockFetchContentSummaries.mockImplementation((ids: ContentId[]) =>
             Promise.resolve(ids.map((id) => createMockContent(id.toString()))),
         );
@@ -108,7 +109,7 @@ describe('unpublishDialog.store', () => {
         const item = createMockContent('item-1');
         const dependantIds = Array.from({ length: 40 }, (_, index) => `dep-${index}`);
 
-        mockResolveUnpublish.mockResolvedValue(createUnpublishResolveResult(['item-1', ...dependantIds]));
+        mockResolveUnpublish.mockResolvedValue(ok(createUnpublishResolveResult(['item-1', ...dependantIds])));
         mockFetchContentSummaries.mockImplementation((ids: ContentId[]) =>
             Promise.resolve(ids.map((id) => createMockContent(id.toString()))),
         );
@@ -129,7 +130,7 @@ describe('unpublishDialog.store', () => {
         const dependantIds = Array.from({ length: 40 }, (_, index) => `dep-${index}`);
 
         mockResolveUnpublish.mockResolvedValue(
-            createUnpublishResolveResult(['item-1', ...dependantIds], [{ target: 'dep-39', sources: ['ref-1'] }]),
+            ok(createUnpublishResolveResult(['item-1', ...dependantIds], [{ target: 'dep-39', sources: ['ref-1'] }])),
         );
         mockFetchContentSummaries.mockImplementation((ids: ContentId[]) =>
             Promise.resolve(ids.map((id) => createMockContent(id.toString()))),
@@ -145,7 +146,7 @@ describe('unpublishDialog.store', () => {
     it('does not reload when an unrelated content is updated externally', async () => {
         const item = createMockContent('item-1');
 
-        mockResolveUnpublish.mockResolvedValue(createUnpublishResolveResult(['item-1']));
+        mockResolveUnpublish.mockResolvedValue(ok(createUnpublishResolveResult(['item-1'])));
 
         openUnpublishDialog([item]);
         await flushInitialReload();

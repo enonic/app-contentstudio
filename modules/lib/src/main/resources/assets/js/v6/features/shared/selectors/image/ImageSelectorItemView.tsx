@@ -2,7 +2,7 @@ import { Tooltip } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { type ReactElement } from 'react';
 import type { ContentSummary } from '../../../../../app/content/ContentSummary';
-import { ImageUrlResolver } from '../../../../../app/util/ImageUrlResolver';
+import { buildImagePreviewUrl } from '../../../../shared/lib/url/images';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import { $activeProject } from '../../../../entities/project';
 import { calcTreePublishStatus } from '../../../../shared/lib/cms/content/status';
@@ -46,12 +46,13 @@ export const ImageSelectorItemView = ({ content, hideStatus = false }: ImageSele
 
     const displayName = content.getDisplayName() || content.getType()?.getLocalName();
     const subName = content.getPath() ? content.getPath().toString() : '';
-    const iconUrl = new ImageUrlResolver(null, activeProject)
-        .setContentId(content.getContentId())
-        .setSize(480)
-        .setTimestamp(content.getModifiedTime())
-        .disableCropping()
-        .resolveForPreview();
+    const iconUrl = buildImagePreviewUrl({
+        contentId: content.getContentId().toString(),
+        projectName: activeProject?.getName(),
+        timestamp: content.getModifiedTime() ?? undefined,
+        size: 480,
+        crop: false,
+    });
 
     return (
         <div data-component={IMAGE_SELECTOR_ITEM_VIEW} className="flex items-center gap-2.5 min-w-0">

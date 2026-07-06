@@ -27,14 +27,10 @@ export function useApplicationKeys(): ApplicationKey[] {
         let cancelled = false;
 
         loadNearestSite(contentId)
+            .unwrapOr(undefined)
             .then((site) => {
                 if (!cancelled) {
                     setNearestSite(site);
-                    setSiteLoaded(true);
-                }
-            })
-            .catch(() => {
-                if (!cancelled) {
                     setSiteLoaded(true);
                 }
             });

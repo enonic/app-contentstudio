@@ -2,8 +2,7 @@ import { type Application } from '@enonic/lib-admin-ui/application/Application';
 import { ApplicationEvent, ApplicationEventType } from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { map } from 'nanostores';
-import { ResultAsync } from 'neverthrow';
-import { ListSiteApplicationsRequest } from '../../../app/resource/ListSiteApplicationsRequest';
+import { fetchSiteApplications } from './api/applications.api';
 
 //
 // * Types
@@ -54,9 +53,7 @@ export async function reloadApplications(): Promise<void> {
 async function fetchApplications(): Promise<void> {
     $applications.setKey('loading', true);
 
-    const request = new ListSiteApplicationsRequest();
-
-    await ResultAsync.fromPromise(request.sendAndParse(), (error) => error).match(
+    await fetchSiteApplications().match(
         (applications) => {
             const sorted = applications.sort((a, b) => a.getDisplayName().localeCompare(b.getDisplayName()));
 

@@ -6,11 +6,9 @@ import { FulltextSearchExpressionBuilder } from '@enonic/lib-admin-ui/query/Full
 import { QueryExpr } from '@enonic/lib-admin-ui/query/expr/QueryExpr';
 import type { Expression } from '@enonic/lib-admin-ui/query/expr/Expression';
 import { QueryField } from '@enonic/lib-admin-ui/query/QueryField';
-import { Expand } from '@enonic/lib-admin-ui/rest/Expand';
 import type { Content } from '../../../../../../app/content/Content';
-import type { ContentJson } from '../../../../../../app/content/ContentJson';
 import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
-import { ContentSelectorQueryRequest } from '../../../../../../app/resource/ContentSelectorQueryRequest';
+import { contentFullSelectorQuery } from '../../../../../entities/content/api/selectorQueryFull.api';
 import { fetchNearestSite } from '../../../../../entities/content';
 import { TAG_SITE_PATH, type TagConfig } from './TagConfig';
 
@@ -123,15 +121,18 @@ export async function suggestContentTags({
         return [];
     }
 
-    const request = new ContentSelectorQueryRequest<ContentJson, Content>();
-    request.setSize(TAG_SUGGESTION_LIMIT);
-    if (content != null) {
-        request.setContent(content);
-    }
-    request.setExpand(Expand.FULL);
-    request.setAllowedContentPaths(config.allowPath);
-    request.setQueryExpr(buildTagQueryExpr(normalizedQuery, dataPath));
+    const result = await contentFullSelectorQuery({
+        from: 0,
+        size: TAG_SUGGESTION_LIMIT,
+        contentId: content?.getContentId().toString(),
+        allowedContentPaths: config.allowPath,
+        queryExpr: buildTagQueryExpr(normalizedQuery, dataPath),
+    });
 
-    const contents = await request.sendAndParse();
-    return filterSuggestedTags(contents, dataPath, normalizedQuery);
+    // Tag autocomplete is best-effort: a failed query yields no suggestions,
+    // matching the legacy request's error-swallowing send().
+    return result.match(
+        (data) => filterSuggestedTags(data.contents, dataPath, normalizedQuery),
+        () => [],
+    );
 }

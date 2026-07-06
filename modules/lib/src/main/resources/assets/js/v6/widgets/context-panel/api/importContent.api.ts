@@ -1,6 +1,8 @@
-import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
-import { ResultAsync } from 'neverthrow';
+import { type ResultAsync } from 'neverthrow';
 import { RepositoryId } from '../../../../app/repository/RepositoryId';
+import { requestJson } from '../../../shared/api/client';
+import { AppError } from '../../../shared/api/errors';
+import { $config } from '../../../shared/config/config.store';
 
 export type ImportNodesError = {
     exception: string;
@@ -23,10 +25,8 @@ export type ExportResult = {
     exportErrors: string[];
 };
 
-type ErrorBody = { message?: string };
-
 function getBaseUrl(): string {
-    return CONFIG.getString('services.importContentUrl');
+    return $config.get().services.importContentUrl;
 }
 
 function getRepository(): string {
@@ -38,55 +38,47 @@ function buildUrl(action: 'list' | 'export' | 'import', extra: Record<string, st
     return `${getBaseUrl()}?${params.toString()}`;
 }
 
-async function parseJsonOrThrow<T>(response: Response): Promise<T> {
-    const json = (await response.json().catch(() => ({}))) as T & ErrorBody;
-    if (!response.ok) {
-        throw new Error(json.message ?? `${response.status} ${response.statusText || 'Request failed'}`);
-    }
-    return json;
-}
-
-export function fetchExports(): ResultAsync<string[], Error> {
-    return ResultAsync.fromPromise(
-        fetch(buildUrl('list'), { credentials: 'same-origin' })
-            .then(parseJsonOrThrow<{ exports?: string[] }>)
-            .then((body) => body.exports ?? []),
-        (error) => (error instanceof Error ? error : new Error(String(error))),
-    );
+/**
+ * List available export names for the current repository.
+ * Used by: widgets/context-panel/widget/import-content/ImportContentWidget.
+ */
+export function fetchExports(): ResultAsync<string[], AppError> {
+    return requestJson<{ exports?: string[] }>(buildUrl('list')).map((body) => body.exports ?? []);
 }
 
 export type ExportContentOptions = {
     name?: string;
 };
 
-export function exportContent(contentId: string, options: ExportContentOptions = {}): ResultAsync<ExportResult, Error> {
+/**
+ * Export a content tree to a named export on the server.
+ * Used by: widgets/context-panel/widget/import-content/ImportContentExportDialog.
+ */
+export function exportContent(
+    contentId: string,
+    options: ExportContentOptions = {},
+): ResultAsync<ExportResult, AppError> {
     const params: Record<string, string> = { contentId };
     if (options.name) params.name = options.name;
 
-    return ResultAsync.fromPromise(
-        fetch(buildUrl('export', params), { method: 'POST', credentials: 'same-origin' }).then(
-            parseJsonOrThrow<ExportResult>,
-        ),
-        (error) => (error instanceof Error ? error : new Error(String(error))),
-    );
+    return requestJson<ExportResult>(buildUrl('export', params), { method: 'POST' });
 }
 
 export type ImportContentOptions = {
     keepPublishFirst?: boolean;
 };
 
+/**
+ * Import a previously created export under the given content.
+ * Used by: widgets/context-panel/widget/import-content/ImportContentImportDialog.
+ */
 export function importContent(
     contentId: string,
     exportName: string,
     options: ImportContentOptions = {},
-): ResultAsync<ImportResult, Error> {
+): ResultAsync<ImportResult, AppError> {
     const params: Record<string, string> = { contentId, exportName };
     if (options.keepPublishFirst != null) params.keepPublishFirst = String(options.keepPublishFirst);
 
-    return ResultAsync.fromPromise(
-        fetch(buildUrl('import', params), { method: 'POST', credentials: 'same-origin' }).then(
-            parseJsonOrThrow<ImportResult>,
-        ),
-        (error) => (error instanceof Error ? error : new Error(String(error))),
-    );
+    return requestJson<ImportResult>(buildUrl('import', params), { method: 'POST' });
 }

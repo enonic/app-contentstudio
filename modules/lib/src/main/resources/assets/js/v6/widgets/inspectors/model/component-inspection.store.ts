@@ -83,8 +83,8 @@ async function loadDescriptors(ctx: PageEditorContentContext): Promise<void> {
         const { loadComponentDescriptors } = await import('../api/componentInspection.api');
 
         const [parts, layouts] = await Promise.all([
-            loadComponentDescriptors('part', ctx.contentId),
-            loadComponentDescriptors('layout', ctx.contentId),
+            loadComponentDescriptors('part', ctx.contentId).unwrapOr([]),
+            loadComponentDescriptors('layout', ctx.contentId).unwrapOr([]),
         ]);
 
         if (!signal.aborted) {
@@ -160,7 +160,9 @@ export function initComponentInspectionService(siteModel?: SiteModel | null): vo
         void (async () => {
             try {
                 const { loadComponentDescriptor } = await import('../api/componentInspection.api');
-                const descriptor = await loadComponentDescriptor(info.componentType, info.descriptorKey);
+                const descriptor = await loadComponentDescriptor(info.componentType, info.descriptorKey).unwrapOr(
+                    undefined,
+                );
                 $componentConfigDescriptor.set(descriptor ?? null);
             } catch {
                 $componentConfigDescriptor.set(null);

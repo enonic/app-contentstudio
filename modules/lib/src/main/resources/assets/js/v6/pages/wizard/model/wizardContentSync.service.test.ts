@@ -1,3 +1,4 @@
+import { okAsync } from 'neverthrow';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentId } from '../../../../app/content/ContentId';
 import type { Content } from '../../../../app/content/Content';
@@ -18,7 +19,7 @@ const mocks = vi.hoisted(() => ({
     persistedWorkflowState: { current: null as WorkflowState | null },
     applyWorkflowFromServer: vi.fn(),
     applyServerSidePersistedContent: vi.fn(() => ({ syncedMixinNames: new Set<string>() })),
-    sendAndParse: vi.fn(),
+    fetchContentById: vi.fn(),
 }));
 
 vi.mock('./wizardContent.store', () => ({
@@ -37,10 +38,8 @@ vi.mock('./wizardMixinData.store', () => ({
     resetMixinChangedPaths: vi.fn(),
 }));
 
-vi.mock('../../../../app/resource/GetContentByIdRequest', () => ({
-    GetContentByIdRequest: class {
-        sendAndParse = mocks.sendAndParse;
-    },
+vi.mock('../../../entities/content/api/content.api', () => ({
+    fetchContentById: mocks.fetchContentById,
 }));
 
 vi.mock('@enonic/lib-admin-ui/notify/MessageBus', () => ({
@@ -95,7 +94,7 @@ describe('wizardContentSync.service', () => {
         emitContentUpdated([summary({ modifiedMs: BASE_MODIFIED_MS, workflowState: WorkflowState.IN_PROGRESS })]);
 
         expect(mocks.applyWorkflowFromServer).not.toHaveBeenCalled();
-        expect(mocks.sendAndParse).not.toHaveBeenCalled();
+        expect(mocks.fetchContentById).not.toHaveBeenCalled();
     });
 
     it('applies the new workflow state from an echo event that only changed workflow', () => {
@@ -103,7 +102,7 @@ describe('wizardContentSync.service', () => {
 
         expect(mocks.applyWorkflowFromServer).toHaveBeenCalledTimes(1);
         expect(mocks.applyWorkflowFromServer).toHaveBeenCalledWith(WorkflowState.READY);
-        expect(mocks.sendAndParse).not.toHaveBeenCalled();
+        expect(mocks.fetchContentById).not.toHaveBeenCalled();
     });
 
     it('ignores a strictly-older echo so a late in-progress event cannot revert mark-as-ready', () => {
@@ -114,7 +113,7 @@ describe('wizardContentSync.service', () => {
         emitContentUpdated([summary({ modifiedMs: BASE_MODIFIED_MS, workflowState: WorkflowState.IN_PROGRESS })]);
 
         expect(mocks.applyWorkflowFromServer).not.toHaveBeenCalled();
-        expect(mocks.sendAndParse).not.toHaveBeenCalled();
+        expect(mocks.fetchContentById).not.toHaveBeenCalled();
     });
 
     it('ignores an echo event whose workflow matches the wizard state', () => {
@@ -123,13 +122,15 @@ describe('wizardContentSync.service', () => {
         emitContentUpdated([summary({ modifiedMs: BASE_MODIFIED_MS, workflowState: WorkflowState.READY })]);
 
         expect(mocks.applyWorkflowFromServer).not.toHaveBeenCalled();
-        expect(mocks.sendAndParse).not.toHaveBeenCalled();
+        expect(mocks.fetchContentById).not.toHaveBeenCalled();
     });
 
     it('fetches and applies full content for a non-echo update', async () => {
-        mocks.sendAndParse.mockResolvedValue({
-            getModifiedTime: () => new Date(BASE_MODIFIED_MS + 1_000),
-        } as unknown as Content);
+        mocks.fetchContentById.mockReturnValue(
+            okAsync({
+                getModifiedTime: () => new Date(BASE_MODIFIED_MS + 1_000),
+            } as unknown as Content),
+        );
 
         emitContentUpdated([summary({ modifiedMs: BASE_MODIFIED_MS + 1_000, workflowState: WorkflowState.READY })]);
 
@@ -144,7 +145,7 @@ describe('wizardContentSync.service', () => {
 
         emitContentUpdated([summary({ modifiedMs: localizedMs, workflowState: WorkflowState.IN_PROGRESS })]);
 
-        expect(mocks.sendAndParse).not.toHaveBeenCalled();
+        expect(mocks.fetchContentById).not.toHaveBeenCalled();
         expect(mocks.applyServerSidePersistedContent).not.toHaveBeenCalled();
     });
 
@@ -154,6 +155,6 @@ describe('wizardContentSync.service', () => {
         ]);
 
         expect(mocks.applyWorkflowFromServer).not.toHaveBeenCalled();
-        expect(mocks.sendAndParse).not.toHaveBeenCalled();
+        expect(mocks.fetchContentById).not.toHaveBeenCalled();
     });
 });

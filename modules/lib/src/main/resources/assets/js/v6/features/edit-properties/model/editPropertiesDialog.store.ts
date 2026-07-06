@@ -2,13 +2,14 @@ import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
 import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { ResultAsync } from 'neverthrow';
 import { map } from 'nanostores';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { ContentLanguageUpdatedEvent } from '../../../../app/event/ContentLanguageUpdatedEvent';
-import { GetContentByIdRequest } from '../../../../app/resource/GetContentByIdRequest';
-import { UpdateContentLanguageRequest } from '../../../../app/resource/UpdateContentLanguageRequest';
-import { UpdateContentMetadataRequest } from '../../../../app/resource/UpdateContentMetadataRequest';
+import { fetchContentById } from '../../../entities/content';
 import { loadPrincipalsByKeys } from '../../../entities/principal';
+import { type AppError } from '../../../shared/api/errors';
+import { updateContentLanguage, updateContentMetadata } from '../api/properties.api';
 
 //
 // * Store state
@@ -100,45 +101,52 @@ export const applyEditPropertiesDialog = async (): Promise<void> => {
 
     $editPropertiesDialog.setKey('saving', true);
 
-    try {
-        const contentItem = await new GetContentByIdRequest(contentSummary.getContentId()).sendAndParse();
+    const contentResult = await fetchContentById(contentSummary.getContentId().toString());
+    if (contentResult.isErr()) {
+        DefaultErrorHandler.handle(contentResult.error);
+        $editPropertiesDialog.setKey('saving', false);
+        return;
+    }
 
-        const previousLanguage = contentItem.getLanguage();
-        const previousOwnerKey = contentItem.getOwner()?.toString();
-        const nextLanguage = state.languageSelection[0];
-        const nextOwnerKey = state.ownerSelection[0];
+    const contentItem = contentResult.value;
 
-        const languageChanged = (nextLanguage ?? undefined) !== (previousLanguage ?? undefined);
-        const ownerChanged = (nextOwnerKey ?? undefined) !== (previousOwnerKey ?? undefined);
+    const previousLanguage = contentItem.getLanguage();
+    const previousOwnerKey = contentItem.getOwner()?.toString();
+    const nextLanguage = state.languageSelection[0];
+    const nextOwnerKey = state.ownerSelection[0];
 
-        const requests: PromiseLike<unknown>[] = [];
+    const languageChanged = (nextLanguage ?? undefined) !== (previousLanguage ?? undefined);
+    const ownerChanged = (nextOwnerKey ?? undefined) !== (previousOwnerKey ?? undefined);
 
-        if (ownerChanged) {
-            const ownerRequest = new UpdateContentMetadataRequest(contentItem.getId());
-            if (nextOwnerKey) {
-                ownerRequest.setOwner(PrincipalKey.fromString(nextOwnerKey));
-            }
-            requests.push(ownerRequest.sendAndParse());
+    const updates: ResultAsync<void, AppError>[] = [];
+
+    if (ownerChanged) {
+        updates.push(
+            updateContentMetadata(
+                contentItem.getContentId(),
+                nextOwnerKey ? PrincipalKey.fromString(nextOwnerKey) : undefined,
+            ),
+        );
+    }
+
+    if (languageChanged) {
+        updates.push(updateContentLanguage(contentItem.getContentId(), nextLanguage));
+    }
+
+    if (updates.length > 0) {
+        const result = await ResultAsync.combine(updates);
+        if (result.isErr()) {
+            DefaultErrorHandler.handle(result.error);
+            $editPropertiesDialog.setKey('saving', false);
+            return;
         }
+
+        showFeedback(i18n('notify.properties.settings.updated', contentItem.getName().toString()));
 
         if (languageChanged) {
-            requests.push(
-                new UpdateContentLanguageRequest(contentItem.getId()).setLanguage(nextLanguage).sendAndParse(),
-            );
+            new ContentLanguageUpdatedEvent(nextLanguage).fire();
         }
-
-        if (requests.length > 0) {
-            await Promise.all(requests);
-            showFeedback(i18n('notify.properties.settings.updated', contentItem.getName().toString()));
-
-            if (languageChanged) {
-                new ContentLanguageUpdatedEvent(nextLanguage).fire();
-            }
-        }
-
-        resetEditPropertiesDialog();
-    } catch (error) {
-        DefaultErrorHandler.handle(error);
-        $editPropertiesDialog.setKey('saving', false);
     }
+
+    resetEditPropertiesDialog();
 };

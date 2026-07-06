@@ -1,20 +1,19 @@
-import { Option } from '@enonic/lib-admin-ui/ui/selector/Option';
 import { Combobox, IconButton } from '@enonic/ui';
 import { X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 import type { VirtuosoHandle } from 'react-virtuoso';
 import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 import type { ContentTreeSelectorItem } from '../../../../../app/item/ContentTreeSelectorItem';
-import { ContentSummaryOptionDataLoader } from '../../../../../app/inputtype/ui/selector/ContentSummaryOptionDataLoader';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import { useTreeSelectorLayout } from '../../../../shared/lib/hooks/useTreeSelectorLayout';
 import { useTreeStore } from '../../../../shared/lib/tree-store';
 import { createDebounce } from '../../../../shared/lib/timing/createDebounce';
 import { ContentLabel } from '../../../../entities/content/ui/content/ContentLabel';
 import { StatusBadge } from '../../status/StatusBadge';
-import { createRootContent, isRootContent, ROOT_ID, RootLabel } from './PathSelectorRoot';
+import { isRootContent, ROOT_ID, RootLabel } from './PathSelectorRoot';
 import { calcTreePublishStatus } from '../../../../shared/lib/cms/content/status';
 import { PathSelectorTree } from './PathSelectorTree';
+import { loadChildItems, loadRootItems, searchItems } from './pathSelectorData';
 import { getFilterContentPaths, getFilterExactPaths, isInvalidMoveTarget } from './pathSelectorFilters';
 
 export type PathSelectorProps = {
@@ -32,8 +31,6 @@ export type PathSelectorProps = {
 };
 
 const PATH_SELECTOR_NAME = 'PathSelector';
-const ROOT_PAGE_SIZE = 50;
-const CHILD_PAGE_SIZE = 50;
 const DEFAULT_DEBOUNCE_MS = 200;
 const TREE_ROW_HEIGHT = 48;
 const TREE_ROW_GAP = 6;
@@ -68,17 +65,12 @@ export const PathSelector = ({
     const virtuosoRef = useRef<VirtuosoHandle>(null);
     const internalInputRef = useRef<HTMLInputElement>(null);
     const inputRef = externalInputRef ?? internalInputRef;
-    const loaderRef = useRef<ContentSummaryOptionDataLoader<ContentTreeSelectorItem> | null>(null);
     const rootRequestId = useRef(0);
     const searchRequestId = useRef(0);
     const childRequestIds = useRef(new Map<string, number>());
     const lastModeRef = useRef<'tree' | 'search'>('tree');
     const hasLoadedRootRef = useRef(false);
     const excludedIdSet = useMemo(() => new Set(excludedIds), [excludedIds]);
-
-    if (!loaderRef.current) {
-        loaderRef.current = ContentSummaryOptionDataLoader.create().setFakeRoot(createRootContent()).build();
-    }
 
     const {
         flatNodes,
@@ -158,87 +150,69 @@ export const PathSelector = ({
     }, [excludedIdSet, flatNodes, hideRoot, isInvalidTarget]);
 
     const loadRoot = useCallback(async (): Promise<void> => {
-        const loader = loaderRef.current;
-        if (!loader) {
-            return;
-        }
-
         const requestId = ++rootRequestId.current;
         hasLoadedRootRef.current = true;
         lastModeRef.current = 'tree';
         clear();
         setLoading(null, true);
 
-        try {
-            const data = await loader.fetchChildren(null, 0, ROOT_PAGE_SIZE);
-            if (requestId !== rootRequestId.current) {
-                return;
-            }
-
-            const items = data.getData();
-            setNodes(
-                items.map((item) => ({
-                    id: item.getId(),
-                    data: item,
-                    parentId: null,
-                    hasChildren: item.hasChildren() === true,
-                })),
-            );
-            setRootIds(items.map((item) => item.getId()));
-        } catch (error) {
-            console.error(error);
-        } finally {
-            if (requestId === rootRequestId.current) {
-                setLoading(null, false);
-            }
+        const result = await loadRootItems();
+        if (requestId !== rootRequestId.current) {
+            return;
         }
-    }, [clear, setLoading, setNodes, setRootIds]);
 
-    const loadSearch = useCallback(
-        async (query: string): Promise<void> => {
-            const loader = loaderRef.current;
-            if (!loader) {
-                return;
-            }
-
-            const requestId = ++searchRequestId.current;
-            lastModeRef.current = 'search';
-            clear();
-            setLoading(null, true);
-
-            try {
-                const items = await loader.search(query);
-                if (requestId !== searchRequestId.current) {
-                    return;
-                }
-
+        result.match(
+            (items) => {
                 setNodes(
                     items.map((item) => ({
                         id: item.getId(),
                         data: item,
                         parentId: null,
-                        hasChildren: false,
+                        hasChildren: item.hasChildren() === true,
                     })),
                 );
                 setRootIds(items.map((item) => item.getId()));
-            } catch (error) {
-                console.error(error);
-            } finally {
-                if (requestId === searchRequestId.current) {
-                    setLoading(null, false);
-                }
+            },
+            (error) => console.error(error),
+        );
+
+        setLoading(null, false);
+    }, [clear, setLoading, setNodes, setRootIds]);
+
+    const loadSearch = useCallback(
+        async (query: string): Promise<void> => {
+            const requestId = ++searchRequestId.current;
+            lastModeRef.current = 'search';
+            clear();
+            setLoading(null, true);
+
+            const result = await searchItems(query);
+            if (requestId !== searchRequestId.current) {
+                return;
             }
+
+            result.match(
+                (items) => {
+                    setNodes(
+                        items.map((item) => ({
+                            id: item.getId(),
+                            data: item,
+                            parentId: null,
+                            hasChildren: false,
+                        })),
+                    );
+                    setRootIds(items.map((item) => item.getId()));
+                },
+                (error) => console.error(error),
+            );
+
+            setLoading(null, false);
         },
         [clear, setLoading, setNodes, setRootIds],
     );
 
     const loadChildren = useCallback(
         async (parentId: string): Promise<void> => {
-            const loader = loaderRef.current;
-            if (!loader) {
-                return;
-            }
-
             const parentNode = getNode(parentId);
             const parentItem = parentNode?.data;
             if (!parentItem) {
@@ -248,42 +222,36 @@ export const PathSelector = ({
             const requestId = getChildRequestId(parentId);
             setLoading(parentId, true);
 
-            try {
-                const from = parentNode?.childIds.length ?? 0;
-                const parentOption = Option.create<ContentTreeSelectorItem>()
-                    .setValue(parentItem.getId())
-                    .setDisplayValue(parentItem)
-                    .build();
-                const data = await loader.fetchChildren(parentOption, from, CHILD_PAGE_SIZE);
-                if (!isLatestChildRequest(parentId, requestId)) {
-                    return;
-                }
-
-                const items = data.getData();
-                const ids = items.map((item) => item.getId());
-                setNodes(
-                    items.map((item) => ({
-                        id: item.getId(),
-                        data: item,
-                        parentId,
-                        hasChildren: item.hasChildren() === true,
-                    })),
-                );
-
-                if (from === 0) {
-                    setChildren(parentId, ids);
-                } else {
-                    appendChildren(parentId, ids);
-                }
-
-                setNode({ id: parentId, totalChildren: data.getTotalHits() });
-            } catch (error) {
-                console.error(error);
-            } finally {
-                if (isLatestChildRequest(parentId, requestId)) {
-                    setLoading(parentId, false);
-                }
+            const from = parentNode?.childIds.length ?? 0;
+            const result = await loadChildItems(parentItem, from);
+            if (!isLatestChildRequest(parentId, requestId)) {
+                return;
             }
+
+            result.match(
+                (page) => {
+                    const ids = page.items.map((item) => item.getId());
+                    setNodes(
+                        page.items.map((item) => ({
+                            id: item.getId(),
+                            data: item,
+                            parentId,
+                            hasChildren: item.hasChildren() === true,
+                        })),
+                    );
+
+                    if (from === 0) {
+                        setChildren(parentId, ids);
+                    } else {
+                        appendChildren(parentId, ids);
+                    }
+
+                    setNode({ id: parentId, totalChildren: page.totalHits });
+                },
+                (error) => console.error(error),
+            );
+
+            setLoading(parentId, false);
         },
         [appendChildren, getNode, setChildren, setLoading, setNode, setNodes],
     );

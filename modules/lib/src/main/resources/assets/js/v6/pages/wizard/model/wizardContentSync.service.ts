@@ -4,7 +4,7 @@ import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import type { Content } from '../../../../app/content/Content';
 import type { ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
-import { GetContentByIdRequest } from '../../../../app/resource/GetContentByIdRequest';
+import { fetchContentById } from '../../../entities/content/api/content.api';
 import { $contentRenamed, $contentUpdated } from '../../../shared/socket/socket.store';
 import {
     $wizardPersistedWorkflowState,
@@ -56,25 +56,26 @@ function getModifiedTimeMs(content: Content | ContentSummary | null | undefined)
 async function fetchAndApply(contentId: ContentId): Promise<void> {
     const token = ++pendingFetchToken;
 
-    try {
-        const content = await new GetContentByIdRequest(contentId).sendAndParse();
+    const result = await fetchContentById(contentId.toString());
 
-        if (token !== pendingFetchToken) return;
+    if (token !== pendingFetchToken) return;
 
-        // Own save may have completed during the await — its modifiedTime would
-        // already be recorded. A stale fetch must not roll the form back.
-        const fetchedMs = getModifiedTimeMs(content);
-        if (fetchedMs != null && lastKnownModifiedTimeMs != null && fetchedMs < lastKnownModifiedTimeMs) {
-            return;
-        }
-
-        applyContentToStores(content);
-        lastKnownModifiedTimeMs = fetchedMs;
-    } catch (error) {
-        if (token === pendingFetchToken) {
-            DefaultErrorHandler.handle(error);
-        }
+    if (result.isErr()) {
+        DefaultErrorHandler.handle(result.error);
+        return;
     }
+
+    const content = result.value;
+
+    // Own save may have completed during the await — its modifiedTime would
+    // already be recorded. A stale fetch must not roll the form back.
+    const fetchedMs = getModifiedTimeMs(content);
+    if (fetchedMs != null && lastKnownModifiedTimeMs != null && fetchedMs < lastKnownModifiedTimeMs) {
+        return;
+    }
+
+    applyContentToStores(content);
+    lastKnownModifiedTimeMs = fetchedMs;
 }
 
 function handleSummaryEvent(contents: readonly ContentSummary[] | undefined): void {

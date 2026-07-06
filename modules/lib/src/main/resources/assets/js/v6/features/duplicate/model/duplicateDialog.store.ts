@@ -159,44 +159,47 @@ export const executeDuplicateDialogAction = async (): Promise<boolean> => {
     const pendingPrimaryName = state.items[0]?.getDisplayName() || state.items[0]?.getPath()?.toString();
     const pendingTotal = state.items.length;
 
-    try {
-        const taskId = await duplicateContent(params);
+    const result = await duplicateContent(params);
 
-        $duplicateDialog.set({
-            ...$duplicateDialog.get(),
-            submitting: true,
-            pendingIds,
-            pendingTotal,
-            pendingPrimaryName,
-            taskId,
-        });
+    return result.match(
+        (taskId) => {
+            $duplicateDialog.set({
+                ...$duplicateDialog.get(),
+                submitting: true,
+                pendingIds,
+                pendingTotal,
+                pendingPrimaryName,
+                taskId,
+            });
 
-        trackTask(taskId, {
-            onComplete: (resultState, message) => {
-                if (resultState === 'SUCCESS') {
-                    handleDuplicateSuccess();
-                } else {
-                    showError(message || i18n('notify.duplicate.failed'));
-                    unsubscribeOpenTab();
-                    resetDuplicateDialogContext();
-                }
-            },
-        });
+            trackTask(taskId, {
+                onComplete: (resultState, message) => {
+                    if (resultState === 'SUCCESS') {
+                        handleDuplicateSuccess();
+                    } else {
+                        showError(message || i18n('notify.duplicate.failed'));
+                        unsubscribeOpenTab();
+                        resetDuplicateDialogContext();
+                    }
+                },
+            });
 
-        return true;
-    } catch (error) {
-        showError(error?.message ?? String(error));
-        unsubscribeOpenTab();
-        $duplicateDialog.set({
-            ...$duplicateDialog.get(),
-            submitting: false,
-            pendingIds: [],
-            pendingTotal: 0,
-            pendingPrimaryName: undefined,
-            taskId: undefined,
-        });
-        return false;
-    }
+            return true;
+        },
+        (error) => {
+            showError(error.message);
+            unsubscribeOpenTab();
+            $duplicateDialog.set({
+                ...$duplicateDialog.get(),
+                submitting: false,
+                pendingIds: [],
+                pendingTotal: 0,
+                pendingPrimaryName: undefined,
+                taskId: undefined,
+            });
+            return false;
+        },
+    );
 };
 
 //

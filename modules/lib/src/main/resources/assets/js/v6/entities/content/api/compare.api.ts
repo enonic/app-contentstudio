@@ -1,4 +1,6 @@
+import { okAsync, type ResultAsync } from 'neverthrow';
 import { requestJson } from '../../../shared/api/client';
+import { type AppError } from '../../../shared/api/errors';
 import { getCmsApiUrl } from '../../../shared/lib/url/cms';
 
 type CompareContentResultJson = {
@@ -14,26 +16,27 @@ export type CompareResult = {
     diff: string[];
 };
 
-export async function compareContent(ids: string[]): Promise<Map<string, CompareResult>> {
+/**
+ * Compare draft and master versions of content items by id.
+ * Used by: features/publish/model/publishDialog.commands,
+ * widgets/context-panel/model/contextContent.service, app/wizard/ContentWizardPanel.
+ */
+export function compareContent(ids: string[]): ResultAsync<Map<string, CompareResult>, AppError> {
     if (ids.length === 0) {
-        return new Map();
+        return okAsync(new Map<string, CompareResult>());
     }
 
-    const url = getCmsApiUrl('compare');
+    return requestJson<CompareContentResultsJson>(getCmsApiUrl('compare'), { method: 'POST', body: { ids } }).map(
+        (json) => {
+            const result = new Map<string, CompareResult>();
 
-    const compared = await requestJson<CompareContentResultsJson>(url, { method: 'POST', body: { ids } });
-    if (compared.isErr()) {
-        throw compared.error;
-    }
+            for (const entry of json.compareContentResults) {
+                result.set(entry.id, {
+                    diff: entry.diff,
+                });
+            }
 
-    const json = compared.value;
-    const result = new Map<string, CompareResult>();
-
-    for (const entry of json.compareContentResults) {
-        result.set(entry.id, {
-            diff: entry.diff,
-        });
-    }
-
-    return result;
+            return result;
+        },
+    );
 }

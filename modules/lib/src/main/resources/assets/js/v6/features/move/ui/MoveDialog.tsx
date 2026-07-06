@@ -1,7 +1,9 @@
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { Button, Dialog } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
+import { ResultAsync, okAsync } from 'neverthrow';
 import { useEffect, useState, type ReactElement } from 'react';
-import { GetNearestSiteRequest } from '../../../../app/resource/GetNearestSiteRequest';
+import { type ContentSummary } from '../../../../app/content/ContentSummary';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import { useTaskProgress } from '../../../entities/task/useTaskProgress';
 import {
@@ -11,7 +13,8 @@ import {
     cancelMoveDialog,
     executeMoveDialogAction,
 } from '../model/moveDialog.store';
-import { clearSelection, setActive } from '../../../entities/content';
+import { clearSelection, fetchNearestSite, setActive } from '../../../entities/content';
+import { type AppError } from '../../../shared/api/errors';
 import { MoveDialogMainContent } from './MoveDialogMainContent';
 import { MoveDialogProgressContent } from './MoveDialogProgressContent';
 
@@ -55,35 +58,37 @@ export const MoveDialog = (): ReactElement => {
     };
 
     const handleMove = async () => {
-        const willMoveOutOfSite = await checkContentWillMoveOutOfSite();
-        if (willMoveOutOfSite) {
+        const result = await checkContentWillMoveOutOfSite();
+        if (result.isErr()) {
+            DefaultErrorHandler.handle(result.error);
+            return;
+        }
+
+        if (result.value) {
             setView('confirmation');
             return;
         }
+
         await startMove();
     };
 
-    const checkContentWillMoveOutOfSite = async (): Promise<boolean> => {
+    const checkContentWillMoveOutOfSite = (): ResultAsync<boolean, AppError> => {
         if (!destinationItem) {
-            return false;
+            return okAsync(false);
         }
 
-        const targetContentId = destinationItem.getContentId();
-        const targetSite = destinationItem.isSite()
-            ? destinationItem
-            : await new GetNearestSiteRequest(targetContentId).sendAndParse();
-        const targetSiteId = targetSite?.getId() ?? null;
+        const targetSiteResult: ResultAsync<ContentSummary | undefined, AppError> = destinationItem.isSite()
+            ? okAsync(destinationItem)
+            : fetchNearestSite(destinationItem.getContentId());
 
-        const parentSitePromises = items.map((item) => {
-            if (item.isSite()) {
-                return Promise.resolve(null);
-            }
-            return new GetNearestSiteRequest(item.getContentId()).sendAndParse();
+        const parentSiteResults: ResultAsync<ContentSummary | undefined, AppError>[] = items.map((item) =>
+            item.isSite() ? okAsync(undefined) : fetchNearestSite(item.getContentId()),
+        );
+
+        return ResultAsync.combine([targetSiteResult, ...parentSiteResults]).map(([targetSite, ...parentSites]) => {
+            const targetSiteId = targetSite?.getId() ?? null;
+            return parentSites.filter((site) => site != null).some((site) => site.getId() !== targetSiteId);
         });
-
-        const parentSites = await Promise.all(parentSitePromises);
-
-        return parentSites.filter((site) => site != null).some((site) => site.getId() !== targetSiteId);
     };
 
     useEffect(() => {

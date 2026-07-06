@@ -1,17 +1,16 @@
 /*global CKEDITOR*/
 
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {useEffect, useMemo, useState} from 'react';
-import {ContentResourceRequest} from '../../../../../../app/resource/ContentResourceRequest';
-import {getHtmlAreaLangDirection} from '../../../../../../app/inputtype/ui/text/HtmlAreaLangDirection';
-import {StyleHelper} from '../../../../../../app/inputtype/ui/text/styles/StyleHelper';
-import {Styles} from '../../../../../../app/inputtype/ui/text/styles/Styles';
-import {StylesRequest} from '../../../../../../app/inputtype/ui/text/styles/StylesRequest';
-import {UrlHelper} from '../../../../../../app/util/UrlHelper';
-import type {HtmlAreaConfig} from './HtmlAreaConfig';
-import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
-import type {Project} from '../../../../../../app/settings/data/project/Project';
-import {getEarlyEditorEventHandlers} from './setupEditor';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { useEffect, useMemo, useState } from 'react';
+import { getHtmlAreaLangDirection } from '../../../../../../app/inputtype/ui/text/HtmlAreaLangDirection';
+import { StyleHelper } from '../../../../../../app/inputtype/ui/text/styles/StyleHelper';
+import { Styles } from '../../../../../../app/inputtype/ui/text/styles/Styles';
+import { fetchStyles } from '../../../../../entities/content/api/styles.api';
+import { getCmsApiUrl } from '../../../../../shared/lib/url/cms';
+import type { HtmlAreaConfig } from './HtmlAreaConfig';
+import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
+import type { Project } from '../../../../../../app/settings/data/project/Project';
+import { getEarlyEditorEventHandlers } from './setupEditor';
 
 type UseCKEditorConfigParams = {
     config: HtmlAreaConfig;
@@ -31,7 +30,8 @@ const DEFAULT_TOOLS: string[][] = [
     ['JustifyBlock', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'],
     ['BulletedList', 'NumberedList', 'Outdent', 'Indent'],
     ['FindAndReplace', 'SpecialChar', 'Anchor', 'Image', 'Macro', 'Link', 'Unlink'],
-    ['Table'], ['PasteModeSwitcher'],
+    ['Table'],
+    ['PasteModeSwitcher'],
 ];
 
 function isDefaultTool(tools: string[][], tool: string): boolean {
@@ -46,25 +46,43 @@ function getAllowedHeadings(allowedHeadings: string | undefined): string[] {
 
 function getExtraSpecialChars(): (string | [string, string])[] {
     return [
-        ['&alpha;', 'alpha'], ['&beta;', 'beta'], ['&gamma;', 'gamma'],
-        ['&delta;', 'delta'], ['&epsilon;', 'epsilon'], ['&zeta;', 'zeta'],
-        ['&eta;', 'eta'], ['&theta;', 'theta'], ['&iota;', 'iota'],
-        ['&kappa;', 'kappa'], ['&lambda;', 'lambda'], ['&mu;', 'mu'],
-        ['&nu;', 'nu'], ['&xi;', 'xi'], ['&omicron;', 'omicron'],
-        ['&pi;', 'pi'], ['&rho;', 'rho'], ['&sigma;', 'sigma'],
-        ['&tau;', 'tau'], ['&upsilon;', 'upsilon'], ['&phi;', 'phi'],
-        ['&chi;', 'chi'], ['&psi;', 'psi'], ['&omega;', 'omega'],
+        ['&alpha;', 'alpha'],
+        ['&beta;', 'beta'],
+        ['&gamma;', 'gamma'],
+        ['&delta;', 'delta'],
+        ['&epsilon;', 'epsilon'],
+        ['&zeta;', 'zeta'],
+        ['&eta;', 'eta'],
+        ['&theta;', 'theta'],
+        ['&iota;', 'iota'],
+        ['&kappa;', 'kappa'],
+        ['&lambda;', 'lambda'],
+        ['&mu;', 'mu'],
+        ['&nu;', 'nu'],
+        ['&xi;', 'xi'],
+        ['&omicron;', 'omicron'],
+        ['&pi;', 'pi'],
+        ['&rho;', 'rho'],
+        ['&sigma;', 'sigma'],
+        ['&tau;', 'tau'],
+        ['&upsilon;', 'upsilon'],
+        ['&phi;', 'phi'],
+        ['&chi;', 'chi'],
+        ['&psi;', 'psi'],
+        ['&omega;', 'omega'],
         ['(_)', i18n('text.htmlEditor.specialchars.nbsp')],
         ['(-)', i18n('text.htmlEditor.specialchars.shy')],
     ];
 }
 
 function getUploadUrl(project: Readonly<Project> | undefined): string {
-    return UrlHelper.getCmsRestUri(
-        `${UrlHelper.getCMSPathForContentRoot(project)}/${ContentResourceRequest.CONTENT_PATH}/createMedia`);
+    return getCmsApiUrl('createMedia', project?.getName());
 }
 
-function buildToolbar(inputConfig: HtmlAreaConfig, editableSourceCode: boolean): {tools: string[][], disabledTools: string[], enabledTools: string[]} {
+function buildToolbar(
+    inputConfig: HtmlAreaConfig,
+    editableSourceCode: boolean,
+): { tools: string[][]; disabledTools: string[]; enabledTools: string[] } {
     const tools = DEFAULT_TOOLS.map((group) => [...group]);
 
     let disabledTools = [...(inputConfig.disabledTools || [])];
@@ -85,7 +103,7 @@ function buildToolbar(inputConfig: HtmlAreaConfig, editableSourceCode: boolean):
     // Process enabled tools
     if (enabledTools.length > 0) {
         enabledTools = enabledTools
-            .map((tool) => tool === 'Format' ? 'Styles' : tool.replace(/\|/g, '-'))
+            .map((tool) => (tool === 'Format' ? 'Styles' : tool.replace(/\|/g, '-')))
             .filter((tool) => !isDefaultTool(tools, tool));
     }
 
@@ -119,7 +137,7 @@ function buildToolbar(inputConfig: HtmlAreaConfig, editableSourceCode: boolean):
         tools.push(toolsToAdd);
     }
 
-    return {tools, disabledTools, enabledTools};
+    return { tools, disabledTools, enabledTools };
 }
 
 function initCustomStyleSet(editorId: string, allowedHeadings: string | undefined, disabledTools: string[]): string {
@@ -130,18 +148,18 @@ function initCustomStyleSet(editorId: string, allowedHeadings: string | undefine
     const isEverythingDisabled = disabledTools.length === 1 && disabledTools[0] === '*';
     const isToolDisabled = (tool: string) => isEverythingDisabled || disabledTools.includes(tool);
 
-    const customStyleSet: {name: string; element: string}[] = [];
-    customStyleSet.push({name: i18n('text.htmlEditor.styles.p'), element: 'p'});
+    const customStyleSet: { name: string; element: string }[] = [];
+    customStyleSet.push({ name: i18n('text.htmlEditor.styles.p'), element: 'p' });
 
     for (const heading of getAllowedHeadings(allowedHeadings)) {
-        customStyleSet.push({name: i18n('text.htmlEditor.styles.heading', heading.charAt(1)), element: heading});
+        customStyleSet.push({ name: i18n('text.htmlEditor.styles.heading', heading.charAt(1)), element: heading });
     }
 
-    customStyleSet.push({name: i18n('text.htmlEditor.styles.div'), element: 'div'});
-    customStyleSet.push({name: i18n('text.htmlEditor.styles.pre'), element: 'pre'});
+    customStyleSet.push({ name: i18n('text.htmlEditor.styles.div'), element: 'div' });
+    customStyleSet.push({ name: i18n('text.htmlEditor.styles.pre'), element: 'pre' });
 
     if (!isToolDisabled('Code')) {
-        customStyleSet.push({name: i18n('text.htmlEditor.styles.code'), element: 'code'});
+        customStyleSet.push({ name: i18n('text.htmlEditor.styles.code'), element: 'code' });
     }
 
     CKEDITOR.stylesSet.add(customStyleSetID, customStyleSet as unknown);
@@ -150,7 +168,7 @@ function initCustomStyleSet(editorId: string, allowedHeadings: string | undefine
 }
 
 function buildConfig(params: UseCKEditorConfigParams, cssPaths: string[]): CKEDITOR.config {
-    const {tools, disabledTools} = buildToolbar(params.config, params.editableSourceCode);
+    const { tools, disabledTools } = buildToolbar(params.config, params.editableSourceCode);
 
     const styleSetId = initCustomStyleSet(params.editorId, params.config.allowedHeadings, disabledTools);
 
@@ -184,10 +202,20 @@ function buildConfig(params: UseCKEditorConfigParams, cssPaths: string[]): CKEDI
         specialChars: (CKEDITOR.config.specialChars || []).concat(getExtraSpecialChars()),
         protectedSource: (CKEDITOR.config.protectedSource || []).concat([/&shy;/g]),
         language_list: [
-            'ca:Català', 'da:Dansk', 'de:Deutsch', 'en:English',
-            'es:Español', 'fr:Français', 'fo:Føroyskt', 'it:Italiano',
-            'nb:Norsk bokmål', 'no:Norsk', 'pl:Polski', 'pt:Português',
-            'ru:Русский', 'sv:Svenska',
+            'ca:Català',
+            'da:Dansk',
+            'de:Deutsch',
+            'en:English',
+            'es:Español',
+            'fr:Français',
+            'fo:Føroyskt',
+            'it:Italiano',
+            'nb:Norsk bokmål',
+            'no:Norsk',
+            'pl:Polski',
+            'pt:Português',
+            'ru:Русский',
+            'sv:Svenska',
         ],
     };
 
@@ -203,7 +231,7 @@ function buildConfig(params: UseCKEditorConfigParams, cssPaths: string[]): CKEDI
 }
 
 export function useCKEditorConfig(params: UseCKEditorConfigParams): UseCKEditorConfigResult {
-    const {config, editorId, assetsUri, contentSummary, project, editableSourceCode} = params;
+    const { config, editorId, assetsUri, contentSummary, project, editableSourceCode } = params;
 
     // Async: fetch custom styles CSS paths (depends only on content).
     const [cssPaths, setCssPaths] = useState<string[] | undefined>(undefined);
@@ -216,17 +244,18 @@ export function useCKEditorConfig(params: UseCKEditorConfigParams): UseCKEditorC
             return;
         }
 
-        new StylesRequest(contentSummary.getId()).sendAndParse()
-            .then(() => {
+        void fetchStyles(contentSummary.getId()).match(
+            () => {
                 if (!cancelled) {
                     setCssPaths(Styles.getCssPaths(contentSummary.getId()));
                 }
-            })
-            .catch(() => {
+            },
+            () => {
                 if (!cancelled) {
                     setCssPaths([]);
                 }
-            });
+            },
+        );
 
         return () => {
             cancelled = true;
@@ -239,11 +268,8 @@ export function useCKEditorConfig(params: UseCKEditorConfigParams): UseCKEditorC
     const editorConfig = useMemo(() => {
         if (cssPaths === undefined) return undefined;
 
-        return buildConfig(
-            {config, editorId, assetsUri, contentSummary, project, editableSourceCode},
-            cssPaths,
-        );
+        return buildConfig({ config, editorId, assetsUri, contentSummary, project, editableSourceCode }, cssPaths);
     }, [config, editorId, assetsUri, contentSummary, project, editableSourceCode, cssPaths]);
 
-    return {editorConfig};
+    return { editorConfig };
 }

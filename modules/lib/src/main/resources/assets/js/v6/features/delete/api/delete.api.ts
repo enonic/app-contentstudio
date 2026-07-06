@@ -1,22 +1,22 @@
+import { ResultAsync, errAsync } from 'neverthrow';
 import { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
 import { type TaskIdJson } from '@enonic/lib-admin-ui/task/TaskIdJson';
 import { type ContentId } from '../../../../app/content/ContentId';
 import { type ContentPath } from '../../../../app/content/ContentPath';
 import { ContentWithRefsResult } from '../../../../app/resource/ContentWithRefsResult';
 import { type ContentWithRefsResultJson } from '../../../../app/resource/json/ContentWithRefsResultJson';
+import { requestJson } from '../../../shared/api/client';
+import { AppError } from '../../../shared/api/errors';
 import { getCmsApiUrl } from '../../../shared/lib/url/cms';
-
-//
-// * API
-//
 
 /**
  * Archive content items.
  * Returns a TaskId that can be tracked for progress.
+ * Used by: features/delete/model/deleteDialog.store.
  */
-export async function archiveContent(contentIds: ContentId[], message?: string): Promise<TaskId> {
+export function archiveContent(contentIds: ContentId[], message?: string): ResultAsync<TaskId, AppError> {
     if (contentIds.length === 0) {
-        throw new Error('No content to archive');
+        return errAsync(new AppError('No content to archive'));
     }
 
     const url = getCmsApiUrl('archive/archive');
@@ -26,29 +26,17 @@ export async function archiveContent(contentIds: ContentId[], message?: string):
         message: message?.trim() || null,
     };
 
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-        throw new Error(response.statusText);
-    }
-
-    const json: TaskIdJson = await response.json();
-    return TaskId.fromJson(json);
+    return requestJson<TaskIdJson>(url, { method: 'POST', body: payload }).map(TaskId.fromJson);
 }
 
 /**
  * Delete content items by their paths.
  * Returns a TaskId that can be tracked for progress.
+ * Used by: (no external callers yet).
  */
-export async function deleteContent(contentPaths: ContentPath[]): Promise<TaskId> {
+export function deleteContent(contentPaths: ContentPath[]): ResultAsync<TaskId, AppError> {
     if (contentPaths.length === 0) {
-        throw new Error('No content to delete');
+        return errAsync(new AppError('No content to delete'));
     }
 
     const url = getCmsApiUrl('delete');
@@ -57,29 +45,17 @@ export async function deleteContent(contentPaths: ContentPath[]): Promise<TaskId
         contentPaths: contentPaths.map((path) => path.toString()),
     };
 
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-        throw new Error(response.statusText);
-    }
-
-    const json: TaskIdJson = await response.json();
-    return TaskId.fromJson(json);
+    return requestJson<TaskIdJson>(url, { method: 'POST', body: payload }).map(TaskId.fromJson);
 }
 
 /**
  * Resolve delete dependencies for content items.
  * Returns content IDs to delete and inbound dependencies.
+ * Used by: features/delete/model/deleteDialog.service.
  */
-export async function resolveForDelete(contentIds: ContentId[]): Promise<ContentWithRefsResult> {
+export function resolveForDelete(contentIds: ContentId[]): ResultAsync<ContentWithRefsResult, AppError> {
     if (contentIds.length === 0) {
-        throw new Error('No content IDs provided');
+        return errAsync(new AppError('No content IDs provided'));
     }
 
     const url = getCmsApiUrl('resolveForDelete');
@@ -88,18 +64,7 @@ export async function resolveForDelete(contentIds: ContentId[]): Promise<Content
         contentIds: contentIds.map((id) => id.toString()),
     };
 
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-        throw new Error(response.statusText);
-    }
-
-    const json: ContentWithRefsResultJson = await response.json();
-    return ContentWithRefsResult.fromJson(json);
+    return requestJson<ContentWithRefsResultJson>(url, { method: 'POST', body: payload }).map(
+        ContentWithRefsResult.fromJson,
+    );
 }

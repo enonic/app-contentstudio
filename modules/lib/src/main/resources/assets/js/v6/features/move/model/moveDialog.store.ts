@@ -2,11 +2,10 @@ import { showError, showSuccess } from '@enonic/lib-admin-ui/notify/MessageBus';
 import type { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { computed, map } from 'nanostores';
-import { ContentIds } from '../../../../app/content/ContentIds';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
-import { MoveContentRequest } from '../../../../app/resource/MoveContentRequest';
 import { cleanupTask, trackTask } from '../../../entities/task';
 import { $isWizard } from '../../../shared/app-state/app.store';
+import { moveContent } from '../api/move.api';
 
 //
 // * Types
@@ -127,39 +126,14 @@ export const executeMoveDialogAction = async (): Promise<boolean> => {
         return false;
     }
 
-    const contentIds = ContentIds.create()
-        .fromContentIds(items.map((item) => item.getContentId()))
-        .build();
+    const contentIds = items.map((item) => item.getContentId());
     const pendingTotal = items.length;
     const pendingPrimaryName = items[0]?.getDisplayName() || items[0]?.getPath()?.toString() || '';
     const pendingDestinationPath = destinationPath.toString();
 
-    try {
-        const taskId = await new MoveContentRequest(contentIds, destinationPath).sendAndParse();
-
-        $moveDialog.set({
-            ...state,
-            submitting: true,
-            taskId,
-            pendingTotal,
-            pendingPrimaryName,
-            pendingDestinationPath,
-        });
-
-        trackTask(taskId, {
-            onComplete: (resultState, message) => {
-                if (resultState === 'SUCCESS') {
-                    handleMoveSuccess();
-                } else {
-                    showError(message || i18n('notify.process.failed', i18n('action.move')));
-                    resetMoveDialogContext();
-                }
-            },
-        });
-
-        return true;
-    } catch (error) {
-        showError(error?.message ?? String(error));
+    const result = await moveContent(contentIds, destinationPath);
+    if (result.isErr()) {
+        showError(result.error.message);
         $moveDialog.set({
             ...$moveDialog.get(),
             submitting: false,
@@ -170,6 +144,30 @@ export const executeMoveDialogAction = async (): Promise<boolean> => {
         });
         return false;
     }
+
+    const taskId = result.value;
+
+    $moveDialog.set({
+        ...state,
+        submitting: true,
+        taskId,
+        pendingTotal,
+        pendingPrimaryName,
+        pendingDestinationPath,
+    });
+
+    trackTask(taskId, {
+        onComplete: (resultState, message) => {
+            if (resultState === 'SUCCESS') {
+                handleMoveSuccess();
+            } else {
+                showError(message || i18n('notify.process.failed', i18n('action.move')));
+                resetMoveDialogContext();
+            }
+        },
+    });
+
+    return true;
 };
 
 const handleMoveSuccess = (): void => {

@@ -3,7 +3,7 @@ import type { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
 import type { TaskInfo } from '@enonic/lib-admin-ui/task/TaskInfo';
 import type { TaskProgress } from '@enonic/lib-admin-ui/task/TaskProgress';
 import { TaskState } from '@enonic/lib-admin-ui/task/TaskState';
-import { GetTaskInfoRequest } from '../../../app/resource/GetTaskInfoRequest';
+import { fetchTaskInfo } from './api/task.api';
 import { completeTask, registerTask, unregisterTask, updateTaskProgress, type TaskResultState } from './task.store';
 
 //
@@ -171,16 +171,17 @@ export const trackTask = (taskId: TaskId, config: TaskTrackerConfig = {}): (() =
     });
 
     // HTTP fallback for race conditions
-    new GetTaskInfoRequest(taskId)
-        .sendAndParse()
-        .then((taskInfo: TaskInfo) => {
+    void fetchTaskInfo(taskId).match(
+        (taskInfo) => {
+            // Events win over the HTTP fallback.
             if (!hasReceivedEvents) {
                 handleTaskInfo(taskIdStr, taskInfo, config);
             }
-        })
-        .catch(() => {
-            // Ignore errors - this is just a fallback
-        });
+        },
+        () => {
+            // Errors are intentionally ignored - this is a best-effort fallback.
+        },
+    );
 
     return () => stopTracking(taskId);
 };

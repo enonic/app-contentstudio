@@ -57,13 +57,11 @@ const reloadUnpublishDialogData = async (): Promise<void> => {
 
     try {
         const ids = items.map((item) => item.getContentId());
-        const {
-            dependantIds: resolvedDependantIds,
-            inboundTargets,
-            referenceIds,
-        } = await resolveDependantsAndInbound(currentInstance, ids);
+        const resolved = await resolveDependantsAndInbound(currentInstance, ids);
 
-        if (currentInstance !== $unpublishDialog.get().instance) return;
+        if (currentInstance !== $unpublishDialog.get().instance || !resolved) return;
+
+        const { dependantIds: resolvedDependantIds, inboundTargets, referenceIds } = resolved;
 
         const dependantIds = orderDependantIdsByInbound(resolvedDependantIds, inboundTargets);
         const dependants =
@@ -102,20 +100,28 @@ const reloadUnpublishDialogDataDebounced = createDebounce(() => {
 const resolveDependantsAndInbound = async (
     currentInstance: number,
     roots: ContentId[],
-): Promise<{ dependantIds: ContentId[]; inboundTargets: ContentId[]; referenceIds: string[] }> => {
+): Promise<{ dependantIds: ContentId[]; inboundTargets: ContentId[]; referenceIds: string[] } | undefined> => {
     const result = await resolveUnpublish(roots);
 
-    if (currentInstance !== $unpublishDialog.get().instance || !result) {
-        return { dependantIds: [], inboundTargets: [], referenceIds: [] };
+    if (currentInstance !== $unpublishDialog.get().instance) {
+        return undefined;
     }
 
-    // Filter out root IDs from dependants
-    const dependantIds = result.contentIds.filter((id) => !hasContentIdInIds(id, roots));
+    if (result.isErr()) {
+        $unpublishDialog.setKey('failed', true);
+        showError(result.error.message);
+        return undefined;
+    }
 
-    const inboundTargets = result.inboundDependencies.map((dep) => dep.id);
+    const resolved = result.value;
+
+    // Filter out root IDs from dependants
+    const dependantIds = resolved.contentIds.filter((id) => !hasContentIdInIds(id, roots));
+
+    const inboundTargets = resolved.inboundDependencies.map((dep) => dep.id);
 
     // Extract IDs of content that references items (for change detection)
-    const referenceIds = result.inboundDependencies.flatMap((dep) =>
+    const referenceIds = resolved.inboundDependencies.flatMap((dep) =>
         dep.inboundDependencies.map((id) => id.toString()),
     );
 
