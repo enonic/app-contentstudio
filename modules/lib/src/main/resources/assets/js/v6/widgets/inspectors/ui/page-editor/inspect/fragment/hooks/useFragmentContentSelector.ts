@@ -1,5 +1,5 @@
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { useStore } from '@nanostores/preact';
 import { useCallback, useMemo, useState } from 'react';
 import { ContentId } from '../../../../../../../../app/content/ContentId';
@@ -7,9 +7,14 @@ import { FragmentComponent } from '../../../../../../../../app/page/region/Fragm
 import { LayoutComponent } from '../../../../../../../../app/page/region/LayoutComponent';
 import { LayoutComponentType } from '../../../../../../../../app/page/region/LayoutComponentType';
 import { GetContentByIdRequest } from '../../../../../../../../app/resource/GetContentByIdRequest';
+import { useI18n } from '../../../../../../../shared/lib/hooks/useI18n';
 import { $inspectedItem, $pageEditorLifecycle, requestSetFragmentComponent } from '../../../../../model/page-editor';
 import { $pageVersion } from '../../../../../model/page-editor/store';
-import { $fragmentOptions, $isFragmentInspectionLoading, $selectedFragmentId } from '../../../../../model/fragment-inspection.store';
+import {
+    $fragmentOptions,
+    $isFragmentInspectionLoading,
+    $selectedFragmentId,
+} from '../../../../../model/fragment-inspection.store';
 
 //
 // * Types
@@ -49,8 +54,9 @@ export function useFragmentContentSelector(): UseFragmentContentSelectorResult {
     const selectedId = useStore($selectedFragmentId);
     const isLoading = useStore($isFragmentInspectionLoading);
 
-    const noDescriptionLabel = i18n('text.noDescription');
-    const notFoundLabel = i18n('notify.fragment.component.content.notfound');
+    const noDescriptionLabel = useI18n('text.noDescription');
+    const notFoundLabel = useI18n('notify.fragment.component.content.notfound');
+    const nestedLayoutsWarning = useI18n('notify.nestedLayouts');
 
     const [searchValue, setSearchValue] = useState<string | undefined>();
 
@@ -83,7 +89,7 @@ export function useFragmentContentSelector(): UseFragmentContentSelectorResult {
             isInvalid: true,
         };
         return [placeholderOption, ...real];
-    }, [fragments, selectedId, fragment, notFoundLabel]);
+    }, [fragments, selectedId, fragment, notFoundLabel, noDescriptionLabel]);
 
     const filteredOptions = useMemo(() => {
         if (!searchValue) return options.toSorted(compareOptionsByLabel);
@@ -108,20 +114,20 @@ export function useFragmentContentSelector(): UseFragmentContentSelectorResult {
             const optionLabel = options.find((o) => o.key === newId)?.label;
 
             if (isInsideLayout) {
-                new GetContentByIdRequest(new ContentId(newId)).sendAndParse().done((content) => {
+                new GetContentByIdRequest(new ContentId(newId)).sendAndParse().then((content) => {
                     const fragmentComp = content.getPage()?.getFragment() ?? null;
 
                     if (fragmentComp?.getType() instanceof LayoutComponentType) {
-                        showWarning(i18n('notify.nestedLayouts'));
+                        showWarning(nestedLayoutsWarning);
                     } else {
                         requestSetFragmentComponent(fragment.getPath(), newId, content.getDisplayName());
                     }
-                });
+                }).catch(DefaultErrorHandler.handle);
             } else {
                 requestSetFragmentComponent(fragment.getPath(), newId, optionLabel);
             }
         },
-        [fragment, selectedId, isInsideLayout, options]
+        [fragment, selectedId, isInsideLayout, options, nestedLayoutsWarning],
     );
 
     const selection = selectedId ? [selectedId] : [];
