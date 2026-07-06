@@ -50,8 +50,16 @@ async function reloadDuplicateDialogData(): Promise<void> {
 
     try {
         const paths = rootsWithChildren.map((item) => item.getPath());
-        const ids = await getDescendantsOfContents(paths);
+        const descendants = await getDescendantsOfContents(paths);
         if (currentInstance !== $duplicateDialog.get().instance) return;
+
+        if (descendants.isErr()) {
+            $duplicateDialog.setKey('failed', true);
+            showError(descendants.error.message);
+            return;
+        }
+
+        const ids = descendants.value;
 
         const dependants = ids.length > 0 ? await fetchContentSummaries(ids) : [];
 

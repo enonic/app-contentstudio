@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { errAsync, okAsync, ResultAsync } from 'neverthrow';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
+import { AppError } from '../../../shared/api/errors';
 import { getContent, hasContent, getMissingIds } from '../model/content.store';
 import { clearAllContentCaches, clearProjectContentCache, setContent } from '../model/content.commands';
 import { $activeProject } from '../../project/activeProject.store';
@@ -36,19 +38,24 @@ import {
     resetVisibleFilterContentDataRetryState,
 } from './content-fetcher';
 
-const { mockFetchByIds, mockUpdateReadOnly, mockFetchChildrenIds } = vi.hoisted(() => ({
-    mockFetchByIds: vi.fn(),
-    mockUpdateReadOnly: vi.fn((items: unknown[]) => Promise.resolve(items)),
-    mockFetchChildrenIds: vi.fn(),
+const { mockResolveContentSummaries, mockFetchReadOnlyContentIds, mockListContentIdsByParent, mockOtherQueryApi } =
+    vi.hoisted(() => ({
+        mockResolveContentSummaries: vi.fn(),
+        mockFetchReadOnlyContentIds: vi.fn(),
+        mockListContentIdsByParent: vi.fn(),
+        mockOtherQueryApi: vi.fn(),
+    }));
+
+vi.mock('./content.api', async (importOriginal) => ({
+    ...(await importOriginal<typeof import('./content.api')>()),
+    resolveContentSummaries: mockResolveContentSummaries,
 }));
 
-vi.mock('../../../../app/resource/ContentSummaryAndCompareStatusFetcher', () => ({
-    ContentSummaryAndCompareStatusFetcher: class {
-        fetchByIds = mockFetchByIds;
-        updateReadOnly = mockUpdateReadOnly;
-        fetchChildrenIds = mockFetchChildrenIds;
-        createRootChildOrder = vi.fn(() => ({}));
-    },
+vi.mock('./contentQuery.api', () => ({
+    listContentByParent: mockOtherQueryApi,
+    queryContent: mockOtherQueryApi,
+    fetchReadOnlyContentIds: mockFetchReadOnlyContentIds,
+    listContentIdsByParent: mockListContentIdsByParent,
 }));
 
 vi.mock('../../../shared/lib/cms/content/workflow', () => ({
@@ -67,23 +74,23 @@ vi.mock('../../../shared/lib/cms/content/prettify', () => ({
 /**
  * Integration tests for content-fetcher store interactions.
  *
- * Note: The actual API calls are not tested here because they require
- * mocking the legacy ContentSummaryAndCompareStatusFetcher class which
- * uses Q.Promise and has complex dependencies.
- *
- * These tests verify the cache-first logic and store integration patterns
- * that content-fetcher.ts uses.
+ * The api layer (contentQuery.api / content.api) is mocked with Result-returning
+ * fns, so these tests focus on the cache-first logic, retry/backoff cooldowns,
+ * project-switch race gating, and store integration that content-fetcher.ts owns.
+ * The api URLs/payloads are pinned in contentQuery.api.test.ts.
  */
 
 // Create mock content factory
 function createMockContent(id: string, displayName?: string): ContentSummary {
     return {
         getId: () => id,
+        getContentId: () => ({ toString: () => id }),
         getName: () => displayName ?? `Name ${id}`,
         getDisplayName: () => displayName ?? `Content ${id}`,
         getType: () => ({ toString: () => 'base:folder' }) as unknown,
         getIconUrl: () => null,
         hasChildren: () => false,
+        setReadOnly: () => undefined,
     } as unknown as ContentSummary;
 }
 
@@ -94,9 +101,10 @@ describe('content-fetcher store integration', () => {
         resetTree();
         resetFilterTree();
         clearAllContentCaches();
-        mockFetchByIds.mockReset();
-        mockUpdateReadOnly.mockReset().mockImplementation((items: unknown[]) => Promise.resolve(items));
-        mockFetchChildrenIds.mockReset();
+        mockResolveContentSummaries.mockReset();
+        mockFetchReadOnlyContentIds.mockReset().mockReturnValue(okAsync([]));
+        mockListContentIdsByParent.mockReset();
+        mockOtherQueryApi.mockReset();
         resetVisibleContentDataRetryState();
         resetVisibleFilterContentDataRetryState();
         resetChildrenIdsRetryState();
@@ -215,20 +223,20 @@ describe('content-fetcher store integration', () => {
             addTreeNodes([{ id: 'main-offline-1', data: null, parentId: null, hasChildren: false }]);
             setTreeRootIds(['main-offline-1']);
 
-            mockFetchByIds.mockRejectedValue(new Error('offline'));
+            mockResolveContentSummaries.mockReturnValue(errAsync(new AppError('offline')));
 
             await fetchVisibleContentData(['main-offline-1']);
             await fetchVisibleContentData(['main-offline-1']);
 
-            expect(mockFetchByIds).toHaveBeenCalledTimes(1);
+            expect(mockResolveContentSummaries).toHaveBeenCalledTimes(1);
 
             vi.setSystemTime(new Date('2026-02-14T00:00:00.999Z'));
             await fetchVisibleContentData(['main-offline-1']);
-            expect(mockFetchByIds).toHaveBeenCalledTimes(1);
+            expect(mockResolveContentSummaries).toHaveBeenCalledTimes(1);
 
             vi.setSystemTime(new Date('2026-02-14T00:00:01.001Z'));
             await fetchVisibleContentData(['main-offline-1']);
-            expect(mockFetchByIds).toHaveBeenCalledTimes(2);
+            expect(mockResolveContentSummaries).toHaveBeenCalledTimes(2);
         });
 
         it('throttles immediate retries after filter tree fetch failure', async () => {
@@ -238,16 +246,16 @@ describe('content-fetcher store integration', () => {
             addFilterNodes([{ id: 'filter-offline-1', data: null, parentId: null, hasChildren: false }]);
             setFilterRootIds(['filter-offline-1']);
 
-            mockFetchByIds.mockRejectedValue(new Error('offline'));
+            mockResolveContentSummaries.mockReturnValue(errAsync(new AppError('offline')));
 
             await fetchVisibleFilterContentData(['filter-offline-1']);
             await fetchVisibleFilterContentData(['filter-offline-1']);
 
-            expect(mockFetchByIds).toHaveBeenCalledTimes(1);
+            expect(mockResolveContentSummaries).toHaveBeenCalledTimes(1);
 
             vi.setSystemTime(new Date('2026-02-14T00:00:01.001Z'));
             await fetchVisibleFilterContentData(['filter-offline-1']);
-            expect(mockFetchByIds).toHaveBeenCalledTimes(2);
+            expect(mockResolveContentSummaries).toHaveBeenCalledTimes(2);
         });
 
         it('allows 3 attempts and marks main node as failed after third failure', async () => {
@@ -256,7 +264,7 @@ describe('content-fetcher store integration', () => {
 
             addTreeNodes([{ id: 'main-failed-3x', data: null, parentId: null, hasChildren: false }]);
             setTreeRootIds(['main-failed-3x']);
-            mockFetchByIds.mockRejectedValue(new Error('offline'));
+            mockResolveContentSummaries.mockReturnValue(errAsync(new AppError('offline')));
 
             await fetchVisibleContentData(['main-failed-3x']); // attempt 1
             vi.setSystemTime(new Date('2026-02-14T00:00:01.001Z'));
@@ -264,12 +272,12 @@ describe('content-fetcher store integration', () => {
             vi.setSystemTime(new Date('2026-02-14T00:00:02.002Z'));
             await fetchVisibleContentData(['main-failed-3x']); // attempt 3
 
-            expect(mockFetchByIds).toHaveBeenCalledTimes(3);
+            expect(mockResolveContentSummaries).toHaveBeenCalledTimes(3);
             expect(isVisibleContentDataLoadFailed('main-failed-3x')).toBe(true);
 
             vi.setSystemTime(new Date('2026-02-14T00:00:03.003Z'));
             await fetchVisibleContentData(['main-failed-3x']);
-            expect(mockFetchByIds).toHaveBeenCalledTimes(3);
+            expect(mockResolveContentSummaries).toHaveBeenCalledTimes(3);
         });
 
         it('allows 3 attempts and marks filter node as failed after third failure', async () => {
@@ -278,7 +286,7 @@ describe('content-fetcher store integration', () => {
 
             addFilterNodes([{ id: 'filter-failed-3x', data: null, parentId: null, hasChildren: false }]);
             setFilterRootIds(['filter-failed-3x']);
-            mockFetchByIds.mockRejectedValue(new Error('offline'));
+            mockResolveContentSummaries.mockReturnValue(errAsync(new AppError('offline')));
 
             await fetchVisibleFilterContentData(['filter-failed-3x']); // attempt 1
             vi.setSystemTime(new Date('2026-02-14T00:00:01.001Z'));
@@ -286,7 +294,7 @@ describe('content-fetcher store integration', () => {
             vi.setSystemTime(new Date('2026-02-14T00:00:02.002Z'));
             await fetchVisibleFilterContentData(['filter-failed-3x']); // attempt 3
 
-            expect(mockFetchByIds).toHaveBeenCalledTimes(3);
+            expect(mockResolveContentSummaries).toHaveBeenCalledTimes(3);
             expect(isVisibleFilterContentDataLoadFailed('filter-failed-3x')).toBe(true);
         });
 
@@ -296,7 +304,7 @@ describe('content-fetcher store integration', () => {
 
             addTreeNodes([{ id: 'main-retry-cycle', data: null, parentId: null, hasChildren: false }]);
             setTreeRootIds(['main-retry-cycle']);
-            mockFetchByIds.mockRejectedValue(new Error('offline'));
+            mockResolveContentSummaries.mockReturnValue(errAsync(new AppError('offline')));
 
             await fetchVisibleContentData(['main-retry-cycle']);
             vi.setSystemTime(new Date('2026-02-14T00:00:01.001Z'));
@@ -309,7 +317,7 @@ describe('content-fetcher store integration', () => {
             expect(isVisibleContentDataLoadFailed('main-retry-cycle')).toBe(false);
 
             await fetchVisibleContentData(['main-retry-cycle']);
-            expect(mockFetchByIds).toHaveBeenCalledTimes(4);
+            expect(mockResolveContentSummaries).toHaveBeenCalledTimes(4);
         });
 
         it('filter retry reset allows immediate re-attempt', async () => {
@@ -318,7 +326,7 @@ describe('content-fetcher store integration', () => {
 
             addFilterNodes([{ id: 'filter-retry-cycle', data: null, parentId: null, hasChildren: false }]);
             setFilterRootIds(['filter-retry-cycle']);
-            mockFetchByIds.mockRejectedValue(new Error('offline'));
+            mockResolveContentSummaries.mockReturnValue(errAsync(new AppError('offline')));
 
             await fetchVisibleFilterContentData(['filter-retry-cycle']);
             vi.setSystemTime(new Date('2026-02-14T00:00:01.001Z'));
@@ -331,7 +339,7 @@ describe('content-fetcher store integration', () => {
             expect(isVisibleFilterContentDataLoadFailed('filter-retry-cycle')).toBe(false);
 
             await fetchVisibleFilterContentData(['filter-retry-cycle']);
-            expect(mockFetchByIds).toHaveBeenCalledTimes(4);
+            expect(mockResolveContentSummaries).toHaveBeenCalledTimes(4);
         });
 
         it('adds cooldown only for unresolved IDs on partial response', async () => {
@@ -344,12 +352,12 @@ describe('content-fetcher store integration', () => {
             ]);
             setTreeRootIds(['partial-a', 'partial-b']);
 
-            mockFetchByIds.mockImplementation((contentIds: { toString: () => string }[]) => {
+            mockResolveContentSummaries.mockImplementation((contentIds: { toString: () => string }[]) => {
                 const ids = contentIds.map((id) => id.toString());
                 if (ids.includes('partial-a') && ids.includes('partial-b')) {
-                    return Promise.resolve([createMockContent('partial-a')]);
+                    return okAsync([createMockContent('partial-a')]);
                 }
-                return Promise.resolve([createMockContent('partial-b')]);
+                return okAsync([createMockContent('partial-b')]);
             });
 
             await fetchVisibleContentData(['partial-a', 'partial-b']);
@@ -357,24 +365,24 @@ describe('content-fetcher store integration', () => {
             expect($treeState.get().nodes.get('partial-b')?.data).toBeNull();
 
             await fetchVisibleContentData(['partial-a', 'partial-b']);
-            expect(mockFetchByIds).toHaveBeenCalledTimes(1);
+            expect(mockResolveContentSummaries).toHaveBeenCalledTimes(1);
 
             vi.setSystemTime(new Date('2026-02-14T00:00:01.001Z'));
             await fetchVisibleContentData(['partial-a', 'partial-b']);
-            expect(mockFetchByIds).toHaveBeenCalledTimes(2);
+            expect(mockResolveContentSummaries).toHaveBeenCalledTimes(2);
             expect($treeState.get().nodes.get('partial-b')?.data).not.toBeNull();
         });
 
         it('does not request resolved IDs again in filter tree after success', async () => {
             addFilterNodes([{ id: 'filter-success-1', data: null, parentId: null, hasChildren: false }]);
             setFilterRootIds(['filter-success-1']);
-            mockFetchByIds.mockResolvedValue([createMockContent('filter-success-1')]);
+            mockResolveContentSummaries.mockReturnValue(okAsync([createMockContent('filter-success-1')]));
 
             await fetchVisibleFilterContentData(['filter-success-1']);
             expect($filterTreeState.get().nodes.get('filter-success-1')?.data).not.toBeNull();
 
             await fetchVisibleFilterContentData(['filter-success-1']);
-            expect(mockFetchByIds).toHaveBeenCalledTimes(1);
+            expect(mockResolveContentSummaries).toHaveBeenCalledTimes(1);
         });
 
         it('clears main retry-failure state on root reload', async () => {
@@ -383,7 +391,7 @@ describe('content-fetcher store integration', () => {
 
             addTreeNodes([{ id: 'main-reset-on-root-load', data: null, parentId: null, hasChildren: false }]);
             setTreeRootIds(['main-reset-on-root-load']);
-            mockFetchByIds.mockRejectedValue(new Error('offline'));
+            mockResolveContentSummaries.mockReturnValue(errAsync(new AppError('offline')));
 
             await fetchVisibleContentData(['main-reset-on-root-load']);
             vi.setSystemTime(new Date('2026-02-14T00:00:01.001Z'));
@@ -392,7 +400,7 @@ describe('content-fetcher store integration', () => {
             await fetchVisibleContentData(['main-reset-on-root-load']);
             expect(isVisibleContentDataLoadFailed('main-reset-on-root-load')).toBe(true);
 
-            mockFetchChildrenIds.mockResolvedValue([{ toString: () => 'new-root-id' }]);
+            mockListContentIdsByParent.mockReturnValue(okAsync([{ toString: () => 'new-root-id' }]));
             await fetchRootChildrenIdsOnly();
 
             expect(isVisibleContentDataLoadFailed('main-reset-on-root-load')).toBe(false);
@@ -404,7 +412,7 @@ describe('content-fetcher store integration', () => {
 
             addFilterNodes([{ id: 'filter-reset-on-deactivate', data: null, parentId: null, hasChildren: false }]);
             setFilterRootIds(['filter-reset-on-deactivate']);
-            mockFetchByIds.mockRejectedValue(new Error('offline'));
+            mockResolveContentSummaries.mockReturnValue(errAsync(new AppError('offline')));
 
             await fetchVisibleFilterContentData(['filter-reset-on-deactivate']);
             vi.setSystemTime(new Date('2026-02-14T00:00:01.001Z'));
@@ -426,7 +434,7 @@ describe('content-fetcher store integration', () => {
 
             addTreeNodes([{ id: 'parent-main-3x', data: null, parentId: null, hasChildren: true }]);
             setTreeRootIds(['parent-main-3x']);
-            mockFetchChildrenIds.mockRejectedValue(new Error('offline'));
+            mockListContentIdsByParent.mockReturnValue(errAsync(new AppError('offline')));
 
             await expect(fetchChildrenIdsOnly('parent-main-3x')).rejects.toThrow('offline');
             vi.setSystemTime(new Date('2026-02-14T00:00:01.001Z'));
@@ -434,15 +442,15 @@ describe('content-fetcher store integration', () => {
             vi.setSystemTime(new Date('2026-02-14T00:00:02.002Z'));
             await expect(fetchChildrenIdsOnly('parent-main-3x')).rejects.toThrow('offline');
 
-            expect(mockFetchChildrenIds).toHaveBeenCalledTimes(3);
+            expect(mockListContentIdsByParent).toHaveBeenCalledTimes(3);
             expect(isChildrenIdsLoadFailed('parent-main-3x')).toBe(true);
 
             vi.setSystemTime(new Date('2026-02-14T00:00:03.003Z'));
             await expect(fetchChildrenIdsOnly('parent-main-3x')).resolves.toEqual([]);
-            expect(mockFetchChildrenIds).toHaveBeenCalledTimes(3);
+            expect(mockListContentIdsByParent).toHaveBeenCalledTimes(3);
 
             clearChildrenIdsRetryCooldown('parent-main-3x');
-            mockFetchChildrenIds.mockResolvedValue([{ toString: () => 'child-main-ok' }]);
+            mockListContentIdsByParent.mockReturnValue(okAsync([{ toString: () => 'child-main-ok' }]));
             await expect(fetchChildrenIdsOnly('parent-main-3x')).resolves.toEqual(['child-main-ok']);
             expect(isChildrenIdsLoadFailed('parent-main-3x')).toBe(false);
         });
@@ -453,7 +461,7 @@ describe('content-fetcher store integration', () => {
 
             addFilterNodes([{ id: 'parent-filter-3x', data: null, parentId: null, hasChildren: true }]);
             setFilterRootIds(['parent-filter-3x']);
-            mockFetchChildrenIds.mockRejectedValue(new Error('offline'));
+            mockListContentIdsByParent.mockReturnValue(errAsync(new AppError('offline')));
 
             await expect(fetchFilterChildrenIdsOnly('parent-filter-3x')).rejects.toThrow('offline');
             vi.setSystemTime(new Date('2026-02-14T00:00:01.001Z'));
@@ -461,15 +469,15 @@ describe('content-fetcher store integration', () => {
             vi.setSystemTime(new Date('2026-02-14T00:00:02.002Z'));
             await expect(fetchFilterChildrenIdsOnly('parent-filter-3x')).rejects.toThrow('offline');
 
-            expect(mockFetchChildrenIds).toHaveBeenCalledTimes(3);
+            expect(mockListContentIdsByParent).toHaveBeenCalledTimes(3);
             expect(isFilterChildrenIdsLoadFailed('parent-filter-3x')).toBe(true);
 
             vi.setSystemTime(new Date('2026-02-14T00:00:03.003Z'));
             await expect(fetchFilterChildrenIdsOnly('parent-filter-3x')).resolves.toEqual([]);
-            expect(mockFetchChildrenIds).toHaveBeenCalledTimes(3);
+            expect(mockListContentIdsByParent).toHaveBeenCalledTimes(3);
 
             clearFilterChildrenIdsRetryCooldown('parent-filter-3x');
-            mockFetchChildrenIds.mockResolvedValue([{ toString: () => 'child-filter-ok' }]);
+            mockListContentIdsByParent.mockReturnValue(okAsync([{ toString: () => 'child-filter-ok' }]));
             await expect(fetchFilterChildrenIdsOnly('parent-filter-3x')).resolves.toEqual(['child-filter-ok']);
             expect(isFilterChildrenIdsLoadFailed('parent-filter-3x')).toBe(false);
         });
@@ -485,11 +493,12 @@ describe('content-fetcher store integration', () => {
             setTreeRootIds(['race-1']);
 
             let resolveFetch!: (value: ContentSummary[]) => void;
-            mockFetchByIds.mockImplementation(
-                () =>
+            mockResolveContentSummaries.mockImplementation(() =>
+                ResultAsync.fromSafePromise(
                     new Promise<ContentSummary[]>((resolve) => {
                         resolveFetch = resolve;
                     }),
+                ),
             );
 
             const pending = fetchVisibleContentData(['race-1']);
@@ -515,11 +524,12 @@ describe('content-fetcher store integration', () => {
             $activeProject.set(projectA);
 
             let resolveIds!: (value: { toString: () => string }[]) => void;
-            mockFetchChildrenIds.mockImplementation(
-                () =>
+            mockListContentIdsByParent.mockImplementation(() =>
+                ResultAsync.fromSafePromise(
                     new Promise<{ toString: () => string }[]>((resolve) => {
                         resolveIds = resolve;
                     }),
+                ),
             );
 
             const pending = fetchRootChildrenIdsOnly();
@@ -543,7 +553,7 @@ describe('content-fetcher store integration', () => {
             addTreeNodes([{ id: 'no-capture', data: null, parentId: null, hasChildren: false }]);
             setTreeRootIds(['no-capture']);
 
-            mockFetchByIds.mockResolvedValue([createMockContent('no-capture', 'still-fetched')]);
+            mockResolveContentSummaries.mockReturnValue(okAsync([createMockContent('no-capture', 'still-fetched')]));
 
             await fetchVisibleContentData(['no-capture']);
 
@@ -562,10 +572,9 @@ describe('content-fetcher store integration', () => {
             ]);
             setTreeRootIds(['sorted-parent']);
             setTreeChildren('sorted-parent', ['sorted-child-a', 'sorted-child-b']);
-            mockFetchChildrenIds.mockResolvedValue([
-                { toString: () => 'sorted-child-b' },
-                { toString: () => 'sorted-child-a' },
-            ]);
+            mockListContentIdsByParent.mockReturnValue(
+                okAsync([{ toString: () => 'sorted-child-b' }, { toString: () => 'sorted-child-a' }]),
+            );
 
             emitContentSorted([createMockContent('sorted-parent')]);
 
@@ -575,7 +584,7 @@ describe('content-fetcher store integration', () => {
                     'sorted-child-a',
                 ]);
             });
-            expect(mockFetchChildrenIds).toHaveBeenCalledTimes(1);
+            expect(mockListContentIdsByParent).toHaveBeenCalledTimes(1);
         });
 
         it('should not reload a sorted parent whose children are not loaded', () => {
@@ -584,13 +593,13 @@ describe('content-fetcher store integration', () => {
 
             emitContentSorted([createMockContent('collapsed-parent')]);
 
-            expect(mockFetchChildrenIds).not.toHaveBeenCalled();
+            expect(mockListContentIdsByParent).not.toHaveBeenCalled();
         });
 
         it('should ignore sorted content missing from the tree', () => {
             emitContentSorted([createMockContent('untracked-parent')]);
 
-            expect(mockFetchChildrenIds).not.toHaveBeenCalled();
+            expect(mockListContentIdsByParent).not.toHaveBeenCalled();
         });
 
         it('should skip child summaries of a manual sort payload', async () => {
@@ -601,10 +610,9 @@ describe('content-fetcher store integration', () => {
             ]);
             setTreeRootIds(['manual-parent']);
             setTreeChildren('manual-parent', ['manual-child-a', 'manual-child-b']);
-            mockFetchChildrenIds.mockResolvedValue([
-                { toString: () => 'manual-child-b' },
-                { toString: () => 'manual-child-a' },
-            ]);
+            mockListContentIdsByParent.mockReturnValue(
+                okAsync([{ toString: () => 'manual-child-b' }, { toString: () => 'manual-child-a' }]),
+            );
 
             emitContentSorted([
                 createMockContent('manual-parent'),
@@ -618,7 +626,7 @@ describe('content-fetcher store integration', () => {
                     'manual-child-a',
                 ]);
             });
-            expect(mockFetchChildrenIds).toHaveBeenCalledTimes(1);
+            expect(mockListContentIdsByParent).toHaveBeenCalledTimes(1);
         });
     });
 });

@@ -1,13 +1,18 @@
-import { Expand } from '@enonic/lib-admin-ui/rest/Expand';
+import { type ResultAsync } from 'neverthrow';
 import { ContentId } from '../../../../app/content/ContentId';
-import { ContentQuery } from '../../../../app/content/ContentQuery';
+import { type ContentQuery } from '../../../../app/content/ContentQuery';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
-import type { ContentSummaryJson } from '../../../../app/content/ContentSummaryJson';
-import { ContentQueryRequest } from '../../../../app/resource/ContentQueryRequest';
-import { ContentSummaryAndCompareStatusFetcher } from '../../../../app/resource/ContentSummaryAndCompareStatusFetcher';
-import { ListContentByIdRequest } from '../../../../app/resource/ListContentByIdRequest';
 import { type ChildOrder } from '../../../../app/resource/order/ChildOrder';
-import { Branch } from '../../../../app/versioning/Branch';
+import { type AppError } from '../../../shared/api/errors';
+import { resolveContentSummaries } from './content.api';
+import {
+    fetchReadOnlyContentIds,
+    listContentByParent,
+    listContentIdsByParent,
+    queryContent,
+    type QueryContentParams,
+} from './contentQuery.api';
+import { createRootChildOrder } from '../lib/childOrder';
 import { $activeProject } from '../../project';
 import { getMissingIds, getContents, getIdByPath } from '../model/content.store';
 import { setContents } from '../model/content.commands';
@@ -49,12 +54,6 @@ function isProjectStale(captured: string | undefined): boolean {
 //
 
 const DEFAULT_BATCH_SIZE = 10;
-
-//
-// * Fetcher Instance
-//
-
-const fetcher = new ContentSummaryAndCompareStatusFetcher();
 
 //
 // * Filter Query State
@@ -110,17 +109,34 @@ function toNodeOptions(content: ContentSummary, parentId: string | null): Create
     };
 }
 
-function configureContentQuery(sourceQuery: ContentQuery, offset: number, size: number): ContentQuery {
-    const configuredQuery = new ContentQuery();
-    configuredQuery
-        .setFrom(offset)
-        .setSize(size)
-        .setQueryFilters(sourceQuery.getQueryFilters())
-        .setQuery(sourceQuery.getQuery())
-        .setQuerySort(sourceQuery.getQuerySort())
-        .setContentTypeNames(sourceQuery.getContentTypes())
-        .setMustBeReferencedById(sourceQuery.getMustBeReferencedById());
-    return configuredQuery;
+/**
+ * Serializes a source ContentQuery into the query-endpoint params, mirroring the
+ * legacy configureContentQuery + ContentQueryRequest.getParams pair.
+ */
+function buildQueryParams(sourceQuery: ContentQuery, offset: number, size: number): QueryContentParams {
+    return {
+        from: offset,
+        size,
+        contentTypeNames: sourceQuery.getContentTypes().map((name) => name.toString()),
+        mustBeReferencedById: sourceQuery.getMustBeReferencedById()?.toString() ?? null,
+        aggregationQueries: [],
+        queryFilters: (sourceQuery.getQueryFilters() ?? []).map((filter) => filter.toJson()),
+        query: sourceQuery.getQuery(),
+        querySort: sourceQuery.getQuerySort(),
+    };
+}
+
+/**
+ * Fetches which of the given summaries are read-only and marks the matching ones
+ * in place. Replaces the legacy fetcher.updateReadOnly mutation.
+ */
+function enrichReadOnly(summaries: ContentSummary[]): ResultAsync<ContentSummary[], AppError> {
+    return fetchReadOnlyContentIds(summaries.map((content) => content.getContentId())).map((readOnlyIds) => {
+        readOnlyIds.forEach((id) => {
+            summaries.find((content) => content.getId() === id)?.setReadOnly(true);
+        });
+        return summaries;
+    });
 }
 
 //
@@ -155,19 +171,16 @@ export async function fetchChildren(
     setNodeLoading(parentId, true);
 
     try {
-        const parentContentId = parentId ? new ContentId(parentId) : null;
-        const response = await new ListContentByIdRequest(parentContentId)
-            .setFrom(offset)
-            .setSize(size)
-            .setOrder(childOrder)
-            .sendAndParse();
+        const parentContentId = parentId ? new ContentId(parentId) : undefined;
+        const listResult = await listContentByParent({ parentId: parentContentId, from: offset, size, childOrder });
+        if (listResult.isErr()) throw listResult.error;
 
-        const summaries = response.getContents();
-        const metadata = response.getMetadata();
-        const total = metadata.getTotalHits();
+        const summaries = listResult.value.contents;
+        const total = listResult.value.totalHits;
         const hasMore = offset + summaries.length < total;
 
-        await fetcher.updateReadOnly(summaries);
+        const readOnlyResult = await enrichReadOnly(summaries);
+        if (readOnlyResult.isErr()) throw readOnlyResult.error;
 
         setContents(summaries, projectName);
 
@@ -200,12 +213,8 @@ export async function fetchChildren(
     }
 }
 
-/**
- * Creates the default root child order.
- */
-export function createRootChildOrder(): ChildOrder {
-    return fetcher.createRootChildOrder();
-}
+// Re-exported for callers that build the default root order (pure helper in lib).
+export { createRootChildOrder };
 
 /**
  * Fetches root children with default order.
@@ -254,18 +263,15 @@ export async function fetchFilteredRootChildren(
     setNodeLoading(null, true);
 
     try {
-        const configuredQuery = configureContentQuery(query, offset, size);
-        const request = new ContentQueryRequest<ContentSummaryJson, ContentSummary>(configuredQuery)
-            .setTargetBranch(Branch.DRAFT)
-            .setExpand(Expand.SUMMARY);
+        const queryResult = await queryContent(buildQueryParams(query, offset, size));
+        if (queryResult.isErr()) throw queryResult.error;
 
-        const result = await request.sendAndParse();
-        const summaries = result.getContents();
-        const metadata = result.getMetadata();
-        const total = metadata.getTotalHits();
+        const summaries = queryResult.value.contents;
+        const total = queryResult.value.totalHits;
         const hasMore = offset + summaries.length < total;
 
-        await fetcher.updateReadOnly(summaries);
+        const readOnlyResult = await enrichReadOnly(summaries);
+        if (readOnlyResult.isErr()) throw readOnlyResult.error;
 
         setContents(summaries, projectName);
 
@@ -311,9 +317,9 @@ export async function fetchContentByIds(ids: string[]): Promise<ContentSummary[]
 
     if (missingIds.length > 0) {
         const contentIds = missingIds.map((id) => new ContentId(id));
-        const fetched = await fetcher.fetchByIds(contentIds);
-        await fetcher.updateReadOnly(fetched);
-        setContents(fetched, projectName);
+        const result = await resolveContentSummaries(contentIds).andThen(enrichReadOnly);
+        if (result.isErr()) throw result.error;
+        setContents(result.value, projectName);
     }
 
     return getContents(ids, projectName);
@@ -330,9 +336,9 @@ export async function fetchMissingContent(ids: string[]): Promise<void> {
     if (missingIds.length === 0) return;
 
     const contentIds = missingIds.map((id) => new ContentId(id));
-    const fetched = await fetcher.fetchByIds(contentIds);
-    await fetcher.updateReadOnly(fetched);
-    setContents(fetched, projectName);
+    const result = await resolveContentSummaries(contentIds).andThen(enrichReadOnly);
+    if (result.isErr()) throw result.error;
+    setContents(result.value, projectName);
 }
 
 /**
@@ -342,9 +348,11 @@ export async function refreshContent(id: string): Promise<ContentSummary | undef
     const projectName = captureActiveProjectName();
 
     const contentId = new ContentId(id);
-    const summaries = await fetcher.fetchByIds([contentId]);
+    const result = await resolveContentSummaries([contentId]).andThen(enrichReadOnly);
+    if (result.isErr()) throw result.error;
+
+    const summaries = result.value;
     if (summaries.length > 0) {
-        await fetcher.updateReadOnly(summaries);
         setContents(summaries, projectName);
         return summaries[0];
     }
@@ -360,8 +368,10 @@ export async function refreshContents(ids: string[]): Promise<ContentSummary[]> 
     const projectName = captureActiveProjectName();
 
     const contentIds = ids.map((id) => new ContentId(id));
-    const summaries = await fetcher.fetchByIds(contentIds);
-    await fetcher.updateReadOnly(summaries);
+    const result = await resolveContentSummaries(contentIds).andThen(enrichReadOnly);
+    if (result.isErr()) throw result.error;
+
+    const summaries = result.value;
     setContents(summaries, projectName);
     return summaries;
 }
@@ -412,7 +422,9 @@ export async function fetchChildrenIdsOnly(parentId: string | null, childOrder?:
 
     try {
         const parentContentId = parentId ? new ContentId(parentId) : undefined;
-        const ids = await fetcher.fetchChildrenIds(parentContentId, childOrder);
+        const result = await listContentIdsByParent({ parentId: parentContentId, childOrder });
+        if (result.isErr()) throw result.error;
+        const ids = result.value;
         clearChildrenIdsRetryCooldown(parentId);
 
         const idStrings = ids.map((id) => id.toString());
@@ -680,8 +692,9 @@ export async function fetchVisibleContentData(ids: string[]): Promise<void> {
             if (!isBatchReady(visibleDataBatchState, batch, Date.now())) continue;
             const contentIds = batch.map((id) => new ContentId(id));
             try {
-                const summaries = await fetcher.fetchByIds(contentIds);
-                await fetcher.updateReadOnly(summaries);
+                const result = await resolveContentSummaries(contentIds).andThen(enrichReadOnly);
+                if (result.isErr()) throw result.error;
+                const summaries = result.value;
                 const fetchedIds = new Set(summaries.map((content) => content.getId()));
                 const unresolvedIds = batch.filter((id) => !fetchedIds.has(id));
 
@@ -800,19 +813,15 @@ async function fetchFilteredContentForFilterTree(
 ): Promise<FetchChildrenResult> {
     const projectName = captureActiveProjectName();
 
-    const configuredQuery = configureContentQuery(query, offset, size);
+    const queryResult = await queryContent(buildQueryParams(query, offset, size));
+    if (queryResult.isErr()) throw queryResult.error;
 
-    const request = new ContentQueryRequest<ContentSummaryJson, ContentSummary>(configuredQuery)
-        .setTargetBranch(Branch.DRAFT)
-        .setExpand(Expand.SUMMARY);
-
-    const result = await request.sendAndParse();
-    const summaries = result.getContents();
-    const metadata = result.getMetadata();
-    const total = metadata.getTotalHits();
+    const summaries = queryResult.value.contents;
+    const total = queryResult.value.totalHits;
     const hasMore = offset + summaries.length < total;
 
-    await fetcher.updateReadOnly(summaries);
+    const readOnlyResult = await enrichReadOnly(summaries);
+    if (readOnlyResult.isErr()) throw readOnlyResult.error;
 
     setContents(summaries, projectName);
 
@@ -916,8 +925,9 @@ export async function fetchVisibleFilterContentData(ids: string[]): Promise<void
             if (!isBatchReady(visibleFilterDataBatchState, batch, Date.now())) continue;
             const contentIds = batch.map((id) => new ContentId(id));
             try {
-                const summaries = await fetcher.fetchByIds(contentIds);
-                await fetcher.updateReadOnly(summaries);
+                const result = await resolveContentSummaries(contentIds).andThen(enrichReadOnly);
+                if (result.isErr()) throw result.error;
+                const summaries = result.value;
                 const fetchedIds = new Set(summaries.map((content) => content.getId()));
                 const unresolvedIds = batch.filter((id) => !fetchedIds.has(id));
 
@@ -975,7 +985,9 @@ export async function fetchFilterChildrenIdsOnly(parentId: string, childOrder?: 
 
     try {
         const parentContentId = new ContentId(parentId);
-        const ids = await fetcher.fetchChildrenIds(parentContentId, childOrder);
+        const result = await listContentIdsByParent({ parentId: parentContentId, childOrder });
+        if (result.isErr()) throw result.error;
+        const ids = result.value;
         clearFilterChildrenIdsRetryCooldown(parentId);
 
         const idStrings = ids.map((id) => id.toString());

@@ -4,13 +4,12 @@ import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { computed, map } from 'nanostores';
 import { ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
-import { OrderChildContentRequest } from '../../../../app/resource/OrderChildContentRequest';
-import { OrderContentRequest } from '../../../../app/resource/OrderContentRequest';
 import { ChildOrder } from '../../../../app/resource/order/ChildOrder';
 import { FieldOrderExprBuilder } from '../../../../app/resource/order/FieldOrderExpr';
 import { OrderChildMovement } from '../../../../app/resource/order/OrderChildMovement';
 import { OrderChildMovements } from '../../../../app/resource/order/OrderChildMovements';
 import { fetchContentByIds, $contentCache, getMissingIds } from '../../../entities/content';
+import { reorderChildren, setChildOrder } from '../api/sort.api';
 import type {
     SortDialogRow,
     SortDirection,
@@ -352,28 +351,27 @@ export const submitSortDialogAction = async (): Promise<boolean> => {
 
     $sortDialog.setKey('submitting', true);
 
-    try {
-        if (selectedOptionId === 'manual') {
-            const movements = toOrderChildMovements(manualMovements);
-            await new OrderChildContentRequest()
-                .setManualOrder(true)
-                .setContentId(parent.getContentId())
-                .setChildOrder(order)
-                .setContentMovements(movements)
-                .sendAndParse();
-        } else {
-            await new OrderContentRequest().setContentId(parent.getContentId()).setChildOrder(order).sendAndParse();
-        }
+    const request =
+        selectedOptionId === 'manual'
+            ? reorderChildren({
+                  contentId: parent.getContentId(),
+                  childOrder: order,
+                  movements: toOrderChildMovements(manualMovements),
+              })
+            : setChildOrder({ contentId: parent.getContentId(), childOrder: order });
 
-        const parentDisplayName = parent.getDisplayName() || parent.getPath()?.toString() || i18n('dialog.sort');
-        showSuccess(i18n('dialog.sort.success', parentDisplayName));
-        closeSortDialog();
-        return true;
-    } catch {
+    const result = await request;
+
+    if (result.isErr()) {
         showError(i18n('dialog.sort.failed'));
         $sortDialog.setKey('submitting', false);
         return false;
     }
+
+    const parentDisplayName = parent.getDisplayName() || parent.getPath()?.toString() || i18n('dialog.sort');
+    showSuccess(i18n('dialog.sort.success', parentDisplayName));
+    closeSortDialog();
+    return true;
 };
 
 export const openSortDialog = (parent: ContentSummary): void => {

@@ -9,6 +9,7 @@ describe('buildPluginConfig', () => {
         $config.set({
             appId: '',
             appVersion: '',
+            adminUrl: '/admin',
             user: undefined,
             excludeDependencies: false,
             allowContentUpdate: false,
@@ -18,7 +19,11 @@ describe('buildPluginConfig', () => {
             requiredPublishFrom: false,
             aiEnabled: true,
             sharedSocketUrl: 'wss://shared',
+            extensionApiUrl: '',
             services: {
+                contentUrl: '',
+                stylesUrl: '',
+                importContentUrl: '',
                 aiContentOperatorWsServiceUrl: 'wss://operator',
                 aiTranslatorLicenseServiceUrl: 'https://license',
                 aiTranslatorWsServiceUrl: 'wss://translator',

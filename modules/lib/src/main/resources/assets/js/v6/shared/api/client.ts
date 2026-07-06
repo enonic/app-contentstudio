@@ -20,6 +20,27 @@ export type RequestOptions = {
 
 const toAppError = (error: unknown): AppError => (error instanceof AppError ? error : new AppError(String(error)));
 
+/** Read a server-provided error message from a failed response body, if present. */
+async function readErrorMessage(response: Response): Promise<string | undefined> {
+    try {
+        const body: unknown = await response.json();
+        if (body != null && typeof body === 'object' && 'message' in body) {
+            const { message } = body as { message?: unknown };
+            return typeof message === 'string' && message.length > 0 ? message : undefined;
+        }
+    } catch {
+        // Non-JSON or empty error body: fall back to the status text.
+    }
+    return undefined;
+}
+
+/** Build an AppError from a failed response, preferring the body message over the status text. */
+async function toResponseError(response: Response): Promise<AppError> {
+    const fallback = response.statusText || `Request failed with status ${response.status}`;
+    const message = await readErrorMessage(response);
+    return new AppError(message ?? fallback);
+}
+
 async function requestRaw(url: string, options: RequestOptions): Promise<Response> {
     const { method = 'GET', body, signal } = options;
 
@@ -33,7 +54,7 @@ async function requestRaw(url: string, options: RequestOptions): Promise<Respons
     });
 
     if (!response.ok) {
-        throw new AppError(response.statusText || `Request failed with status ${response.status}`);
+        throw await toResponseError(response);
     }
 
     return response;

@@ -9,37 +9,24 @@
  */
 import { describe, expect, it, vi } from 'vitest';
 
-// Mock all external dependencies before importing the hook
-vi.mock('../../../../app/resource/ContentTreeSelectorQueryRequest', () => ({
-    ContentTreeSelectorQueryRequest: vi.fn(() => ({
-        setFrom: vi.fn().mockReturnThis(),
-        setSize: vi.fn().mockReturnThis(),
-        setExpand: vi.fn().mockReturnThis(),
-        setParentPath: vi.fn().mockReturnThis(),
-        setChildOrder: vi.fn().mockReturnThis(),
-        sendAndParse: vi.fn().mockResolvedValue([]),
-        getMetadata: vi.fn().mockReturnValue({ getTotalHits: () => 0 }),
-    })),
-}));
+// Mock the selector-query api the hook drives, so importing the hook stays cheap.
+vi.mock('../../../entities/content/api/selectorQuery.api', async () => {
+    const { okAsync } = await import('neverthrow');
+    return {
+        contentSelectorQuery: vi.fn(() => okAsync({ contents: [], hits: 0, totalHits: 0 })),
+        contentTreeSelectorQuery: vi.fn(() => okAsync({ items: [], totalHits: 0 })),
+    };
+});
 
-vi.mock('../../../../app/resource/ContentSelectorQueryRequest', () => ({
-    ContentSelectorQueryRequest: vi.fn(() => ({
-        setFrom: vi.fn().mockReturnThis(),
-        setSize: vi.fn().mockReturnThis(),
-        setExpand: vi.fn().mockReturnThis(),
-        setSearchString: vi.fn().mockReturnThis(),
-        setAppendLoadResults: vi.fn().mockReturnThis(),
-        sendAndParse: vi.fn().mockResolvedValue([]),
-        getMetadata: vi.fn().mockReturnValue({ getTotalHits: () => 0, getHits: () => 0 }),
-    })),
-}));
-
-vi.mock('../../../../app/resource/ContentSummaryAndCompareStatusFetcher', () => ({
-    ContentSummaryAndCompareStatusFetcher: class {
-        createRootChildOrder = vi.fn(() => ({}));
-        updateReadOnly = vi.fn((items) => Promise.resolve(items));
-    },
-}));
+vi.mock('../../../entities/content/api/contentQuery.api', async () => {
+    const { okAsync } = await import('neverthrow');
+    return {
+        fetchReadOnlyContentIds: vi.fn(() => okAsync([])),
+        listContentByParent: vi.fn(() => okAsync({ contents: [], totalHits: 0 })),
+        listContentIdsByParent: vi.fn(() => okAsync([])),
+        queryContent: vi.fn(() => okAsync({ contents: [], totalHits: 0, aggregations: [] })),
+    };
+});
 
 vi.mock('../../../entities/content/model/content.commands', () => ({
     setContent: vi.fn(),
@@ -49,10 +36,6 @@ vi.mock('../../../entities/content/model/content.commands', () => ({
     clearAllContentCaches: vi.fn(),
 }));
 
-vi.mock('../../../shared/lib/cms/content/applyContentFilters', () => ({
-    applyContentFilters: vi.fn(),
-}));
-
 vi.mock('../../../shared/lib/cms/content/workflow', () => ({
     calcContentState: vi.fn(() => null),
 }));
@@ -60,14 +43,6 @@ vi.mock('../../../shared/lib/cms/content/workflow', () => ({
 vi.mock('../../../shared/lib/cms/content/prettify', () => ({
     resolveDisplayName: vi.fn((c) => c?.getDisplayName?.() ?? 'Display Name'),
     resolveSubName: vi.fn((c) => c?.getName?.() ?? 'sub-name'),
-}));
-
-vi.mock('@enonic/lib-admin-ui/rest/Expand', () => ({
-    Expand: { SUMMARY: 'summary' },
-}));
-
-vi.mock('../../../../app/resource/order/ChildOrder', () => ({
-    ChildOrder: vi.fn(),
 }));
 
 // Import types for testing

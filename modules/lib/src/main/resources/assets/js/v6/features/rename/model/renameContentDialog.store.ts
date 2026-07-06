@@ -1,7 +1,7 @@
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { computed, map } from 'nanostores';
 import { ContentPath } from '../../../../app/content/ContentPath';
-import { ContentExistsByPathRequest } from '../../../../app/resource/ContentExistsByPathRequest';
+import { contentExistsByPath } from '../../../entities/content/api/contentExists.api';
 
 export type RenameContentDialogMode = 'rename-published' | 'rename' | 'set-name';
 export type RenameContentDialogAvailabilityStatus = 'not-available' | 'checking' | 'available';
@@ -107,27 +107,14 @@ const resetRenameContentDialog = (): void => {
 };
 
 const runAvailabilityCheck = async (requestId: number, path: ContentPath): Promise<void> => {
-    try {
-        const exists = await new ContentExistsByPathRequest(path.toString()).sendAndParse();
-        if (requestId !== availabilityRequestId) {
-            return;
-        }
+    const result = await contentExistsByPath(path.toString());
 
-        const state = $renameContentDialog.get();
-        if (!state.open) {
-            return;
-        }
+    if (requestId !== availabilityRequestId) {
+        return;
+    }
 
-        $renameContentDialog.set({
-            ...state,
-            availabilityStatus: exists ? 'not-available' : 'available',
-        });
-    } catch (error) {
-        if (requestId !== availabilityRequestId) {
-            return;
-        }
-
-        DefaultErrorHandler.handle(error);
+    if (result.isErr()) {
+        DefaultErrorHandler.handle(result.error);
 
         const state = $renameContentDialog.get();
         if (!state.open) {
@@ -138,7 +125,18 @@ const runAvailabilityCheck = async (requestId: number, path: ContentPath): Promi
             ...state,
             availabilityStatus: 'not-available',
         });
+        return;
     }
+
+    const state = $renameContentDialog.get();
+    if (!state.open) {
+        return;
+    }
+
+    $renameContentDialog.set({
+        ...state,
+        availabilityStatus: result.value ? 'not-available' : 'available',
+    });
 };
 
 const scheduleAvailabilityCheck = (name: string, parentPath: ContentPath): void => {

@@ -1,6 +1,7 @@
 import { type TargetedEvent, useCallback, useMemo, useRef } from 'react';
 import { type ContentSummary } from '../../../../app/content/ContentSummary';
-import { type UploadMediaError, uploadMediaFile, type UploadMediaSuccess } from '../api/uploadMedia.api';
+import { uploadMediaFile, type UploadMediaSuccess } from '../api/uploadMedia.api';
+import { type UploadError } from '../../../shared/api';
 import { addUpload, completeUpload, failUpload, updateUploadProgress } from '../model/uploads.store';
 
 //
@@ -12,7 +13,7 @@ export type UseUploadMediaOptions = {
     onUploadStart?: (file: File) => void;
     onUploadProgress?: (mediaIdentifier: string, progress: number) => void;
     onUploadComplete?: (success: UploadMediaSuccess) => void;
-    onUploadError?: (error: UploadMediaError) => void;
+    onUploadError?: (error: UploadError) => void;
 };
 
 export type UseUploadMediaReturn = {

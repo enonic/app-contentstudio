@@ -58,12 +58,15 @@ async function fetchContextCompareStatus(content: Readonly<ContentSummary>): Pro
     try {
         const result = await compareContent([content.getId()]);
 
+        if (result.isErr()) {
+            console.error(result.error);
+            return;
+        }
+
         // Verify content hasn't changed while request was in-flight
         if ($contextContent.get()?.getId() !== content.getId()) return;
 
-        $contextCompareResult.set(result.get(content.getId()));
-    } catch (error) {
-        console.error(error);
+        $contextCompareResult.set(result.value.get(content.getId()));
     } finally {
         $contextCompareLoading.set(false);
     }

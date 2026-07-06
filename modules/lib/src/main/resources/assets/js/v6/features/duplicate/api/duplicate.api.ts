@@ -1,14 +1,13 @@
+import { ResultAsync, errAsync, okAsync } from 'neverthrow';
 import { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
 import { type TaskIdJson } from '@enonic/lib-admin-ui/task/TaskIdJson';
 import { CompareStatus } from '../../../../app/content/CompareStatus';
 import { ContentId } from '../../../../app/content/ContentId';
 import { type ContentPath } from '../../../../app/content/ContentPath';
 import { type ContentIdBaseItemJson } from '../../../../app/resource/json/ContentIdBaseItemJson';
+import { requestJson } from '../../../shared/api/client';
+import { AppError } from '../../../shared/api/errors';
 import { getCmsApiUrl } from '../../../shared/lib/url/cms';
-
-//
-// * Types
-//
 
 type DuplicateContentParamsJson = {
     contentId: string;
@@ -26,17 +25,14 @@ export type DuplicateContentParams = {
     name?: string;
 };
 
-//
-// * API
-//
-
 /**
  * Duplicate content items.
  * Returns a TaskId that can be tracked for progress.
+ * Used by: features/duplicate/model/duplicateDialog.store.
  */
-export async function duplicateContent(params: DuplicateContentParams[]): Promise<TaskId> {
+export function duplicateContent(params: DuplicateContentParams[]): ResultAsync<TaskId, AppError> {
     if (params.length === 0) {
-        throw new Error('No content to duplicate');
+        return errAsync(new AppError('No content to duplicate'));
     }
 
     const url = getCmsApiUrl('duplicate');
@@ -53,29 +49,17 @@ export async function duplicateContent(params: DuplicateContentParams[]): Promis
         ),
     };
 
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-        throw new Error(response.statusText);
-    }
-
-    const json: TaskIdJson = await response.json();
-    return TaskId.fromJson(json);
+    return requestJson<TaskIdJson>(url, { method: 'POST', body: payload }).map(TaskId.fromJson);
 }
 
 /**
  * Get all descendants of content items by their paths.
  * Optionally filter by compare statuses.
+ * Used by: features/duplicate/model/duplicateDialog.service.
  */
-export async function getDescendantsOfContents(contentPaths: ContentPath[]): Promise<ContentId[]> {
+export function getDescendantsOfContents(contentPaths: ContentPath[]): ResultAsync<ContentId[], AppError> {
     if (contentPaths.length === 0) {
-        return [];
+        return okAsync([]);
     }
 
     const url = getCmsApiUrl('getDescendantsOfContents');
@@ -84,18 +68,7 @@ export async function getDescendantsOfContents(contentPaths: ContentPath[]): Pro
         contentPaths: contentPaths.map((path) => path.toString()),
     };
 
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-        throw new Error(response.statusText);
-    }
-
-    const json: ContentIdBaseItemJson[] = await response.json();
-    return json.map((item) => new ContentId(item.id));
+    return requestJson<ContentIdBaseItemJson[]>(url, { method: 'POST', body: payload }).map((json) =>
+        json.map((item) => new ContentId(item.id)),
+    );
 }

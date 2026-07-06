@@ -1,4 +1,4 @@
-import { ResultAsync } from 'neverthrow';
+import { okAsync, ResultAsync } from 'neverthrow';
 import { type Content } from '../../../../app/content/Content';
 import { type ContentId } from '../../../../app/content/ContentId';
 import { type ContentJson } from '../../../../app/content/ContentJson';
@@ -11,9 +11,14 @@ import { requestJson, requestOptionalJson } from '../../../shared/api/client';
 import { AppError } from '../../../shared/api/errors';
 import { getCmsApiUrl } from '../../../shared/lib/url/cms';
 
-async function resolveContentSummaries(contentIds: ContentId[]): Promise<ContentSummary[]> {
+/**
+ * Resolve content summaries for the given ids via the `resolveByIds` endpoint.
+ * Empty input never hits the server.
+ * Used by: entities/content/api/content-fetcher, entities/content/lib/contentSummaries.
+ */
+export function resolveContentSummaries(contentIds: ContentId[]): ResultAsync<ContentSummary[], AppError> {
     if (contentIds.length === 0) {
-        return [];
+        return okAsync([]);
     }
 
     const url = getCmsApiUrl('resolveByIds');
@@ -22,16 +27,19 @@ async function resolveContentSummaries(contentIds: ContentId[]): Promise<Content
         contentIds: contentIds.map((id) => id.toString()),
     };
 
-    const result = await requestJson<ListContentResult<ContentSummaryJson>>(url, { method: 'POST', body: payload });
-    if (result.isErr()) {
-        throw result.error;
-    }
-
-    return ContentSummary.fromJsonArray(result.value.contents);
+    return requestJson<ListContentResult<ContentSummaryJson>>(url, { method: 'POST', body: payload }).map((result) =>
+        ContentSummary.fromJsonArray(result.contents),
+    );
 }
 
 export function fetchContentById(contentId: string, projectName?: string): ResultAsync<Content, AppError> {
     const url = `${getCmsApiUrl('', projectName)}?id=${encodeURIComponent(contentId)}`;
+
+    return requestJson<ContentJson>(url).map(parseContent);
+}
+
+export function fetchContentByPath(path: string, projectName?: string): ResultAsync<Content, AppError> {
+    const url = `${getCmsApiUrl('bypath', projectName)}?path=${encodeURIComponent(path)}`;
 
     return requestJson<ContentJson>(url).map(parseContent);
 }
@@ -43,17 +51,4 @@ export function fetchNearestSite(contentId: ContentId): ResultAsync<Site | undef
         method: 'POST',
         body: { contentId: contentId.toString() },
     }).map((json) => (json ? (parseContent(json) as Site) : undefined));
-}
-
-export async function fetchContentSummaries(contentIds: ContentId[]): Promise<ContentSummary[]> {
-    if (contentIds.length === 0) {
-        return [];
-    }
-
-    try {
-        return await resolveContentSummaries(contentIds);
-    } catch (error) {
-        console.error(error);
-        return [];
-    }
 }

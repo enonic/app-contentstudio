@@ -26,7 +26,7 @@ import { resolveDisplayNameExpression } from './displayNameExpression.utils';
 import { createDebounce } from '../../../shared/lib/timing/createDebounce';
 import { $contextContent } from '../../../widgets/context-panel/model/contextContent.store';
 import { ContentPath } from '../../../../app/content/ContentPath';
-import { ContentExistsByPathRequest } from '../../../../app/resource/ContentExistsByPathRequest';
+import { contentExistsByPath } from '../../../entities/content/api/contentExists.api';
 import { seedFormDefaults } from '../../../features/shared/form/seedFormDefaults';
 
 //
@@ -1317,14 +1317,15 @@ const debouncedPathCheck = createDebounce(async () => {
 
     $wizardContentPathExists.setKey('fetching', true);
 
-    try {
-        const exists = await new ContentExistsByPathRequest(fullPath.toString()).sendAndParse();
-        if (seq !== pathCheckSeq) return;
-        $wizardContentPathExists.set({ fetching: false, exists });
-    } catch {
-        if (seq !== pathCheckSeq) return;
+    const result = await contentExistsByPath(fullPath.toString());
+    if (seq !== pathCheckSeq) return;
+
+    if (result.isErr()) {
         $wizardContentPathExists.set({ fetching: false, exists: false });
+        return;
     }
+
+    $wizardContentPathExists.set({ fetching: false, exists: result.value });
 }, PATH_CHECK_DEBOUNCE_MS);
 
 $wizardDraftName.listen(() => {

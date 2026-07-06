@@ -25,8 +25,8 @@ export const useItemsWithUnpublishedChildren = <T extends ItemWithChildren>(
 
         setItemsWithUnpublishedChildren(null);
 
-        hasUnpublishedChildren(itemsWithChildren.map((item) => item.getContentId()))
-            .then((result) => {
+        void hasUnpublishedChildren(itemsWithChildren.map((item) => item.getContentId())).match(
+            (result) => {
                 if (requestId !== requestIdRef.current) {
                     return;
                 }
@@ -37,13 +37,14 @@ export const useItemsWithUnpublishedChildren = <T extends ItemWithChildren>(
                     }
                 }
                 setItemsWithUnpublishedChildren(set);
-            })
-            .catch((error) => {
+            },
+            (error) => {
                 console.error(error);
                 if (requestId === requestIdRef.current) {
                     setItemsWithUnpublishedChildren(null);
                 }
-            });
+            },
+        );
     }, [itemsWithChildren]);
 
     return itemsWithUnpublishedChildren;

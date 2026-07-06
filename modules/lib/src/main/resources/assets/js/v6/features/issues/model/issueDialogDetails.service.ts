@@ -3,9 +3,8 @@ import { onMount } from 'nanostores';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import type { IssueServerEvent } from '../../../../app/event/IssueServerEvent';
 import { IssueServerEventsHandler } from '../../../../app/issue/event/IssueServerEventsHandler';
-import { GetIssueRequest } from '../../../../app/issue/resource/GetIssueRequest';
-import { GetPrincipalsByKeysRequest } from '../../../../app/security/GetPrincipalsByKeysRequest';
 import { pruneDependantWindow } from '../../../entities/content/lib/dependantWindow';
+import { resolvePrincipalsByKeys } from '../../../entities/principal/api/principals.api';
 import { findContentIdsWithCreatedDescendants } from '../../../shared/lib/cms/content/paths';
 import {
     createContentIdSet,
@@ -22,6 +21,7 @@ import {
     $contentRenamed,
     $contentUpdated,
 } from '../../../shared/socket/socket.store';
+import { fetchIssue } from '../../../entities/issue/api/issues.api';
 import { $issueDialog, closeIssueDialog } from './issueDialog.store';
 import {
     $issueDialogDetails,
@@ -125,12 +125,15 @@ const fetchIssueAssignees = async (issue: Issue): Promise<IssueAssignees | undef
         return [];
     }
 
-    try {
-        return await new GetPrincipalsByKeysRequest(approvers).sendAndParse();
-    } catch (error) {
-        console.error(error);
-        return undefined;
-    }
+    const result = await resolvePrincipalsByKeys(approvers);
+
+    return result.match(
+        (principals) => principals,
+        (error) => {
+            console.error(error);
+            return undefined;
+        },
+    );
 };
 
 const reloadIssueDialogDetailsForServerEvent = async (issueId: string): Promise<void> => {
@@ -140,30 +143,32 @@ const reloadIssueDialogDetailsForServerEvent = async (issueId: string): Promise<
 
     const requestId = ++serverEventReloadRequestId;
 
-    try {
-        const issue = await new GetIssueRequest(issueId).sendAndParse();
-        if (isStaleIssueDialogDetailsReload(issueId, requestId)) {
-            return;
-        }
-
-        const assignees = await fetchIssueAssignees(issue);
-        if (isStaleIssueDialogDetailsReload(issueId, requestId)) {
-            return;
-        }
-
-        const dialogState = $issueDialog.get();
-        const issueWithAssignees = dialogState.issues.find((item) => item.getIssue().getId() === issueId);
-        applyUpdatedIssue(issue, dialogState, issueWithAssignees, {}, assignees);
-
-        await loadIssueDialogComments(issueId, { forceReload: true });
-        if (isStaleIssueDialogDetailsReload(issueId, requestId)) {
-            return;
-        }
-
-        void loadIssueDialogItems(issue, { forceReload: true });
-    } catch (error) {
-        console.error(error);
+    const issueResult = await fetchIssue(issueId);
+    if (issueResult.isErr()) {
+        console.error(issueResult.error);
+        return;
     }
+
+    const issue = issueResult.value;
+    if (isStaleIssueDialogDetailsReload(issueId, requestId)) {
+        return;
+    }
+
+    const assignees = await fetchIssueAssignees(issue);
+    if (isStaleIssueDialogDetailsReload(issueId, requestId)) {
+        return;
+    }
+
+    const dialogState = $issueDialog.get();
+    const issueWithAssignees = dialogState.issues.find((item) => item.getIssue().getId() === issueId);
+    applyUpdatedIssue(issue, dialogState, issueWithAssignees, {}, assignees);
+
+    await loadIssueDialogComments(issueId, { forceReload: true });
+    if (isStaleIssueDialogDetailsReload(issueId, requestId)) {
+        return;
+    }
+
+    void loadIssueDialogItems(issue, { forceReload: true });
 };
 
 const queueIssueDialogDetailsServerEventReload = createDebounce((issueId: string) => {

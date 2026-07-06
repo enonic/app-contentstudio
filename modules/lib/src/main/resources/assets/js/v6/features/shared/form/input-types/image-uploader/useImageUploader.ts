@@ -4,9 +4,9 @@ import { showError, showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus'
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import {
     updateImageMedia,
-    type UpdateImageMediaError,
     type UpdateImageMediaSuccess,
 } from '../../../../../entities/content/api/updateImageMedia.api';
+import { type UploadError } from '../../../../../shared/api';
 import {
     $uploads,
     addUpload,
@@ -89,7 +89,7 @@ export const useImageUploader = ({ contentId, onChange }: UseImageUploaderOption
                     onChange(attachmentName);
                     showFeedback(i18n('notify.upload.success', content.getDisplayName()));
                 },
-                (error: UpdateImageMediaError) => {
+                (error: UploadError) => {
                     failUpload(error.mediaIdentifier, error.message);
                     removeUpload(error.mediaIdentifier);
                     setUploadId(undefined);

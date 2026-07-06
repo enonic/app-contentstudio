@@ -4,9 +4,9 @@ import { okAsync, ResultAsync } from 'neverthrow';
 import type { Content } from '../../../../app/content/Content';
 import { ContentId } from '../../../../app/content/ContentId';
 import { ContentRequiresSaveEvent } from '../../../../app/event/ContentRequiresSaveEvent';
-import { GetApplicationMixinsRequest } from '../../../../app/resource/GetApplicationMixinsRequest';
-import { GetContentMixinsRequest } from '../../../../app/resource/GetContentMixinsRequest';
 import { $applications, loadApplications } from '../../../entities/application';
+import { AppError } from '../../../shared/api/errors';
+import { fetchApplicationMixins, fetchContentMixins } from '../api/mixins.api';
 import { $contextContent } from '../../../widgets/context-panel/model/contextContent.store';
 import {
     $contentType,
@@ -48,20 +48,20 @@ function buildAppSignature(): string {
 async function loadDescriptors(contentId: ContentId): Promise<void> {
     const token = ++pendingToken;
 
-    try {
-        const descriptors = await new GetContentMixinsRequest(contentId).sendAndParse();
-        if (token !== pendingToken) {
-            return;
-        }
-        setMixinsDescriptors(descriptors.slice());
-    } catch (error) {
-        if (token === pendingToken) {
-            DefaultErrorHandler.handle(error);
-        }
+    const result = await fetchContentMixins(contentId);
+    if (token !== pendingToken) {
+        return;
     }
+
+    if (result.isErr()) {
+        DefaultErrorHandler.handle(result.error);
+        return;
+    }
+
+    setMixinsDescriptors(result.value.slice());
 }
 
-function seedMixinsForApplications(applicationKeys: string[]): ResultAsync<void, Error> {
+function seedMixinsForApplications(applicationKeys: string[]): ResultAsync<void, AppError> {
     const contentType = $contentType.get();
     if (!contentType || applicationKeys.length === 0) {
         return okAsync(undefined);
@@ -70,10 +70,7 @@ function seedMixinsForApplications(applicationKeys: string[]): ResultAsync<void,
     const contentTypeName = contentType.getContentTypeName();
 
     const requests = applicationKeys.map((key) =>
-        ResultAsync.fromPromise(
-            new GetApplicationMixinsRequest(contentTypeName, ApplicationKey.fromString(key)).sendAndParse(),
-            (error) => (error instanceof Error ? error : new Error(String(error))),
-        ),
+        fetchApplicationMixins(contentTypeName, ApplicationKey.fromString(key)),
     );
 
     return ResultAsync.combine(requests).map((results) => {

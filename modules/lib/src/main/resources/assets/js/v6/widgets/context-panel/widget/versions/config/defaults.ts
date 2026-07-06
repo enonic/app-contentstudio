@@ -5,7 +5,7 @@ import {
     $versionsCacheInvalidated,
     registerCacheInvalidationHandlers,
 } from '../../../../../shared/lib/widget/versions/versionsCache';
-import { loadContentVersions } from '../../../../../shared/lib/widget/versions/versionsLoader';
+import { loadContentVersions } from '../../../../../entities/content/version';
 import { type VersionsConfig } from './VersionsConfig';
 
 let cacheHandlersRegistered = false;

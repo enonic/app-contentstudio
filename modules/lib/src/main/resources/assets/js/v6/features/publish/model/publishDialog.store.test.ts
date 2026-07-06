@@ -1,3 +1,4 @@
+import { ok } from 'neverthrow';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentId } from '../../../../app/content/ContentId';
 import {
@@ -68,7 +69,7 @@ const {
     mockCompareContent: vi.fn(),
 }));
 
-vi.mock('../../../entities/content/api/content.api', () => ({
+vi.mock('../../../entities/content/lib/contentSummaries', () => ({
     fetchContentSummaries: mockFetchContentSummaries,
 }));
 
@@ -117,9 +118,9 @@ describe('publishDialog.store', () => {
         vi.useFakeTimers();
         resetPublishDialogContext();
         mockFetchContentSummaries.mockReset().mockResolvedValue([]);
-        mockHasUnpublishedChildren.mockReset().mockResolvedValue(new Map());
-        mockCompareContent.mockReset().mockResolvedValue(new Map());
-        mockFindIdsByParents.mockReset().mockResolvedValue([]);
+        mockHasUnpublishedChildren.mockReset().mockResolvedValue(ok(new Map()));
+        mockCompareContent.mockReset().mockResolvedValue(ok(new Map()));
+        mockFindIdsByParents.mockReset().mockResolvedValue(ok([]));
         mockMarkAsReady.mockReset();
         mockPublishContent.mockReset();
         // By default treat the requested (main) items as publishable, mirroring the
@@ -493,7 +494,7 @@ describe('publishDialog.store', () => {
 
         it('should re-include auto-excluded children when "include children" is applied', async () => {
             const itemId = new ContentId('item-1');
-            mockFindIdsByParents.mockResolvedValue([imageId]);
+            mockFindIdsByParents.mockResolvedValue(ok([imageId]));
             mockFetchContentSummaries.mockResolvedValue([createMockContent('image-1')]);
             mockResolvePublishDependencies.mockImplementation(({ excludedIds = [] }: { excludedIds?: ContentId[] }) =>
                 Promise.resolve(

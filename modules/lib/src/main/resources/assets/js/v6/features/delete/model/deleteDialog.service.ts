@@ -56,9 +56,17 @@ const reloadDeleteDialogData = async (): Promise<void> => {
 
     try {
         const ids = items.map((item) => item.getContentId());
-        const result = await resolveForDelete(ids);
+        const resolved = await resolveForDelete(ids);
 
         if (currentInstance !== $deleteDialog.get().instance) return;
+
+        if (resolved.isErr()) {
+            $deleteDialog.setKey('failed', true);
+            showError(resolved.error.message);
+            return;
+        }
+
+        const result = resolved.value;
 
         const resolvedDependantIds = result.getContentIds().filter((id) => !hasContentIdInIds(id, ids));
 

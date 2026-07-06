@@ -213,44 +213,47 @@ export const executeDeleteDialogAction = async (): Promise<boolean> => {
     const pendingPrimaryName = state.items[0]?.getDisplayName() || state.items[0]?.getPath()?.toString();
     const pendingTotal = totalCount || state.items.length;
 
-    try {
-        const taskId = await archiveContent(getArchiveContentIds(state.items), state.archiveMessage);
+    const result = await archiveContent(getArchiveContentIds(state.items), state.archiveMessage);
 
-        $deleteDialog.set({
-            ...state,
-            submitting: true,
-            pendingIds,
-            pendingTotal,
-            pendingPrimaryName,
-            taskId,
-        });
+    return result.match(
+        (taskId) => {
+            $deleteDialog.set({
+                ...state,
+                submitting: true,
+                pendingIds,
+                pendingTotal,
+                pendingPrimaryName,
+                taskId,
+            });
 
-        trackTask(taskId, {
-            onComplete: (resultState, message) => {
-                if (resultState === 'SUCCESS') {
-                    const total = pendingTotal || pendingIds.length;
-                    const successMessage =
-                        total > 1
-                            ? i18n('dialog.archive.success.multiple', total)
-                            : i18n('dialog.archive.success.single', pendingPrimaryName ?? '');
-                    showSuccess(successMessage);
-                } else {
-                    showError(message);
-                }
-                resetDeleteDialogContext();
-            },
-        });
+            trackTask(taskId, {
+                onComplete: (resultState, message) => {
+                    if (resultState === 'SUCCESS') {
+                        const total = pendingTotal || pendingIds.length;
+                        const successMessage =
+                            total > 1
+                                ? i18n('dialog.archive.success.multiple', total)
+                                : i18n('dialog.archive.success.single', pendingPrimaryName ?? '');
+                        showSuccess(successMessage);
+                    } else {
+                        showError(message);
+                    }
+                    resetDeleteDialogContext();
+                },
+            });
 
-        return true;
-    } catch (error) {
-        showError(error?.message ?? String(error));
-        $deleteDialog.set({
-            ...$deleteDialog.get(),
-            submitting: false,
-            pendingIds: [],
-            pendingTotal: 0,
-            taskId: undefined,
-        });
-        return false;
-    }
+            return true;
+        },
+        (error) => {
+            showError(error.message);
+            $deleteDialog.set({
+                ...$deleteDialog.get(),
+                submitting: false,
+                pendingIds: [],
+                pendingTotal: 0,
+                taskId: undefined,
+            });
+            return false;
+        },
+    );
 };

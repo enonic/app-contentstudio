@@ -9,7 +9,7 @@ import { useStore } from '@nanostores/preact';
 import { $activeProject } from '../../../../entities/project';
 import { ContentRow } from '../shared/combobox/ContentRow';
 import { MediaSelectorItemView } from './MediaSelectorItemView';
-import { useAcceptMimeTypes } from '../../../../shared/lib/hooks/useAcceptMimeTypes';
+import { useAcceptMimeTypes } from '../../../../entities/schema';
 
 export type MediaSelectorProps = {
     /** Selected content IDs */

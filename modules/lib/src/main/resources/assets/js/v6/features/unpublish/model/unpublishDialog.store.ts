@@ -228,40 +228,43 @@ export const confirmUnpublishAction = async (selectedItems: ContentSummary[]): P
     const pendingPrimaryName = itemsToUnpublish[0]?.getDisplayName() || itemsToUnpublish[0]?.getPath()?.toString();
     const pendingTotal = $unpublishItemsCount.get() || pendingIds.length;
 
-    try {
-        const taskId = await unpublishContent({
-            contentIds: itemsToUnpublish.map((item) => item.getContentId()),
-        });
+    const result = await unpublishContent({
+        contentIds: itemsToUnpublish.map((item) => item.getContentId()),
+    });
 
-        $unpublishDialogPending.set({
-            submitting: true,
-            pendingIds,
-            pendingTotal,
-            pendingPrimaryName,
-            taskId,
-        });
+    return result.match(
+        (taskId) => {
+            $unpublishDialogPending.set({
+                submitting: true,
+                pendingIds,
+                pendingTotal,
+                pendingPrimaryName,
+                taskId,
+            });
 
-        trackTask(taskId, {
-            onComplete: (state, message) => {
-                if (state === 'SUCCESS') {
-                    const total = pendingTotal || pendingIds.length;
-                    const successMessage =
-                        total > 1
-                            ? i18n('dialog.unpublish.success.multiple', total)
-                            : i18n('dialog.unpublish.success.single', pendingPrimaryName ?? '');
-                    showSuccess(successMessage);
-                } else {
-                    showError(message);
-                }
-                resetUnpublishDialogContext();
-            },
-        });
+            trackTask(taskId, {
+                onComplete: (state, message) => {
+                    if (state === 'SUCCESS') {
+                        const total = pendingTotal || pendingIds.length;
+                        const successMessage =
+                            total > 1
+                                ? i18n('dialog.unpublish.success.multiple', total)
+                                : i18n('dialog.unpublish.success.single', pendingPrimaryName ?? '');
+                        showSuccess(successMessage);
+                    } else {
+                        showError(message);
+                    }
+                    resetUnpublishDialogContext();
+                },
+            });
 
-        return true;
-    } catch (error) {
-        showError(error?.message ?? String(error));
-        $unpublishDialogPending.set(initialPendingState);
-        $unpublishDialog.setKey('failed', true);
-        return false;
-    }
+            return true;
+        },
+        (error) => {
+            showError(error.message);
+            $unpublishDialogPending.set(initialPendingState);
+            $unpublishDialog.setKey('failed', true);
+            return false;
+        },
+    );
 };

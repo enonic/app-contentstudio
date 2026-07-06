@@ -1,8 +1,6 @@
-import { UriHelper as LibUriHelper } from '@enonic/lib-admin-ui/util/UriHelper';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Branch } from '../../../../../../app/versioning/Branch';
 import { UrlAction } from '../../../../../../app/UrlAction';
-import { UriHelper } from '../../../../../../app/rendering/UriHelper';
 import { $contextContent } from '../../../../../widgets/context-panel/model/contextContent.store';
 import { $activeProject } from '../../../../../entities/project';
 import { type CustomSelectorConfig } from './CustomSelectorConfig';
@@ -13,6 +11,7 @@ import { type SelfManagedComponentProps } from '@enonic/lib-admin-ui/form2';
 import { errAsync, okAsync, ResultAsync } from 'neverthrow';
 import { formatError } from '../../../../../shared/lib/format/error';
 import { parseNumber } from '../../../../../shared/lib/format/values';
+import { $config } from '../../../../../shared/config/config.store';
 import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
 
 const PRELOAD_KEY = 'CUSTOM_SELECTOR_PRELOAD_KEY';
@@ -264,6 +263,37 @@ export const useCustomSelector = ({
 // * Utilities
 //
 
+const DEFAULT_APP_ID = 'com.enonic.app.contentstudio';
+
+type UrlParams = Record<string, string | number | null | undefined>;
+
+/**
+ * Append query params to a URL, skipping null/undefined values and choosing the
+ * separator (`?` or `&`) based on whether the URL already carries a query string.
+ */
+function appendUrlParams(url: string, params: UrlParams): string {
+    const search = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) {
+        if (value != null) {
+            search.append(key, String(value));
+        }
+    }
+
+    const query = search.toString();
+    if (!query) return url;
+
+    return `${url}${url.includes('?') ? '&' : '?'}${query}`;
+}
+
+/**
+ * Build the site service prefix:
+ * `<adminUrl>/<appId>/site/edit/<project>/draft/<content>/_/service`.
+ */
+function getServiceBaseUrl(projectId: string, contentId: string): string {
+    const appId = CONFIG.has('appId') ? CONFIG.getString('appId') : DEFAULT_APP_ID;
+    return `${$config.get().adminUrl}/${appId}/site/${UrlAction.EDIT}/${projectId}/${Branch.DRAFT}/${contentId}/_/service`;
+}
+
 type BuildRequestUrlProps = {
     extension?: string;
     service?: string;
@@ -289,16 +319,14 @@ function buildRequestUrl({
     if (extension) {
         const extensionBaseUrl = (CONFIG.getString('extensionApiUrl') || '').replace(/\/+$/, '');
         const extensionPrefix = `${extensionBaseUrl}/${extension}/`;
-        url = LibUriHelper.appendUrlParams(extensionPrefix, params);
+        url = appendUrlParams(extensionPrefix, params);
     } else if (service) {
-        const servicePrefix = UriHelper.addSitePrefix(
-            `/${UrlAction.EDIT}/${projectId}/${Branch.DRAFT}/${contentId}/_/service`,
-        );
-        url = `${servicePrefix}/${LibUriHelper.appendUrlParams(service, params)}`;
+        const servicePrefix = getServiceBaseUrl(projectId, contentId);
+        url = `${servicePrefix}/${appendUrlParams(service, params)}`;
     } else {
         return '';
     }
-    return LibUriHelper.appendUrlParams(url, requestParams);
+    return appendUrlParams(url, requestParams);
 }
 
 function hitToItem(hit: CustomSelectorItem): CustomSelectorItem {

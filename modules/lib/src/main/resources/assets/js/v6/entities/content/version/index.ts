@@ -4,6 +4,7 @@ import { $selectedVersions as $_selectedVersionsAtom } from './versionStore';
 import { $versions as $_versionsAtom } from './versionStore';
 import { $versionsDisplayMode as $_versionsDisplayModeAtom } from './versionStore';
 
+export { loadContentVersions } from './versionsLoader';
 export {
     ContentOperation,
     getVersionConfig,

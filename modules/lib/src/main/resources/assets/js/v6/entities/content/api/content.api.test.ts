@@ -1,7 +1,8 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi, type Mock } from 'vitest';
 import type { ContentId } from '../../../../app/content/ContentId';
 import { AppError } from '../../../shared/api/errors';
-import { fetchContentById, fetchNearestSite } from './content.api';
+import { errorResponse, jsonResponse, restoreFetch, stubFetch } from '../../../shared/lib/test/fetch.test.utils';
+import { fetchContentById, fetchContentByPath, fetchNearestSite } from './content.api';
 
 const { mockParseContent } = vi.hoisted(() => ({
     mockParseContent: vi.fn((json: { id: string }) => ({ parsedId: json.id })),
@@ -11,24 +12,16 @@ vi.mock('../lib/parseContent', () => ({
     parseContent: mockParseContent,
 }));
 
-const mockFetch = vi.fn();
-
-const jsonResponse = (body: unknown, init: ResponseInit = {}): Response =>
-    new Response(JSON.stringify(body), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-        ...init,
-    });
-
 const contentId = (id: string): ContentId => ({ toString: () => id }) as ContentId;
 
+let mockFetch: Mock;
+
 beforeEach(() => {
-    vi.stubGlobal('fetch', mockFetch);
+    mockFetch = stubFetch();
 });
 
 afterEach(() => {
-    vi.unstubAllGlobals();
-    mockFetch.mockReset();
+    restoreFetch();
     mockParseContent.mockClear();
 });
 
@@ -45,9 +38,33 @@ describe('fetchContentById', () => {
     });
 
     it('should return AppError for non-ok responses', async () => {
-        mockFetch.mockResolvedValue(new Response(null, { status: 404, statusText: 'Not Found' }));
+        mockFetch.mockResolvedValue(errorResponse(404, 'Not Found'));
 
         const result = await fetchContentById('missing');
+
+        expect(result.isErr()).toBe(true);
+        expect(result._unsafeUnwrapErr()).toBeInstanceOf(AppError);
+        expect(mockParseContent).not.toHaveBeenCalled();
+    });
+});
+
+describe('fetchContentByPath', () => {
+    it('should GET the bypath endpoint with the encoded path', async () => {
+        mockFetch.mockResolvedValue(jsonResponse({ id: 'by-path' }));
+
+        const result = await fetchContentByPath('/site/page');
+
+        expect(result.isOk()).toBe(true);
+        expect(result._unsafeUnwrap()).toEqual({ parsedId: 'by-path' });
+        const [url, init] = mockFetch.mock.calls[0];
+        expect(url).toContain('/content/content/bypath?path=%2Fsite%2Fpage');
+        expect(init.method).toBe('GET');
+    });
+
+    it('should return an AppError for non-ok responses', async () => {
+        mockFetch.mockResolvedValue(errorResponse(500, 'Server Error'));
+
+        const result = await fetchContentByPath('/missing');
 
         expect(result.isErr()).toBe(true);
         expect(result._unsafeUnwrapErr()).toBeInstanceOf(AppError);
@@ -72,7 +89,7 @@ describe('fetchNearestSite', () => {
     });
 
     it('should resolve with undefined when there is no nearest site (HTTP 204)', async () => {
-        mockFetch.mockResolvedValue(new Response(null, { status: 204 }));
+        mockFetch.mockResolvedValue(errorResponse(204));
 
         const result = await fetchNearestSite(contentId('orphan'));
 

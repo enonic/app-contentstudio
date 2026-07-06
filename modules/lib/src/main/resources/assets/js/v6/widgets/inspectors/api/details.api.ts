@@ -1,4 +1,5 @@
 import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { ResultAsync, errAsync } from 'neverthrow';
 import { type Content } from '../../../../app/content/Content';
 import { type ContentId } from '../../../../app/content/ContentId';
 import { type ContentJson } from '../../../../app/content/ContentJson';
@@ -6,145 +7,88 @@ import { type PageTemplate } from '../../../../app/content/PageTemplate';
 import { type Site } from '../../../../app/content/Site';
 import { Descriptor } from '../../../../app/page/Descriptor';
 import { type DescriptorJson } from '../../../../app/page/DescriptorJson';
-import { parseContent } from '../../../entities/content/lib/parseContent';
+import { requestJson, requestOptionalJson } from '../../../shared/api/client';
+import { AppError } from '../../../shared/api/errors';
 import { getCmsApiUrl, getCmsRestUri } from '../../../shared/lib/url/cms';
+import { parseContent } from '../../../entities/content/lib/parseContent';
 
 export { parseContent };
 
 /**
  * Load page template by content ID.
+ * Used by: widgets/context-panel/widget/details/DetailsWidgetTemplateSection.
  */
-export async function loadPageTemplate(contentId: ContentId): Promise<PageTemplate | undefined> {
+export function loadPageTemplate(contentId: ContentId): ResultAsync<PageTemplate, AppError> {
     const url = `${getCmsApiUrl('page/template')}?key=${encodeURIComponent(contentId.toString())}`;
 
-    try {
-        const response = await fetch(url);
-
-        if (!response.ok) {
-            throw new Error(response.statusText);
-        }
-
-        const json: ContentJson = await response.json();
-        return parseContent(json) as PageTemplate;
-    } catch (error) {
-        console.error(error);
-        return undefined;
-    }
+    return requestJson<ContentJson>(url).map((json) => parseContent(json) as PageTemplate);
 }
 
 // Cache for component descriptors
-const descriptorCache = new Map<string, Promise<Descriptor>>();
+const descriptorCache = new Map<string, ResultAsync<Descriptor, AppError>>();
+
+function fetchComponentDescriptor(cacheKey: string, descriptorKey: string): ResultAsync<Descriptor, AppError> {
+    const url = `${getCmsRestUri('content/page/descriptor')}?key=${encodeURIComponent(descriptorKey)}`;
+
+    const request = requestJson<DescriptorJson>(url)
+        .map((json) => Descriptor.fromJson(json))
+        .orElse((error) => {
+            descriptorCache.delete(cacheKey);
+            return errAsync(error);
+        });
+
+    descriptorCache.set(cacheKey, request);
+    return request;
+}
 
 /**
  * Load component descriptor for content.
- * Results are cached by descriptor key.
+ * Results are cached by descriptor key. A failed cached request is retried
+ * once within the same call, so concurrent callers sharing a transiently
+ * failed fetch recover instead of all resolving to the same error.
+ * Used by: widgets/context-panel/widget/details/DetailsWidgetTemplateSection.
  */
-export async function loadComponentDescriptor(content: Content): Promise<Descriptor | undefined> {
+export function loadComponentDescriptor(content: Content): ResultAsync<Descriptor, AppError> {
     const descriptorKey = content.getPage().getController().toString();
     const cacheKey = `page::${descriptorKey}`;
 
-    // Return cached promise if available
-    if (descriptorCache.has(cacheKey)) {
-        try {
-            return await descriptorCache.get(cacheKey);
-        } catch {
-            // Cache entry failed, will retry below
-            descriptorCache.delete(cacheKey);
-        }
+    const cached = descriptorCache.get(cacheKey);
+    if (cached) {
+        return cached.orElse(() => fetchComponentDescriptor(cacheKey, descriptorKey));
     }
 
-    const url = `${getCmsRestUri('content/page/descriptor')}?key=${encodeURIComponent(descriptorKey)}`;
-
-    const promise = (async (): Promise<Descriptor> => {
-        const response = await fetch(url);
-
-        if (!response.ok) {
-            throw new Error(response.statusText);
-        }
-
-        const json: DescriptorJson = await response.json();
-        return Descriptor.fromJson(json);
-    })();
-
-    descriptorCache.set(cacheKey, promise);
-
-    try {
-        return await promise;
-    } catch (error) {
-        console.error(error);
-        return undefined;
-    }
+    return fetchComponentDescriptor(cacheKey, descriptorKey);
 }
 
 /**
  * Load nearest site for content ID.
+ * Used by: features/shared/hooks/useApplicationKeys,
+ * widgets/context-panel/widget/details/DetailsWidgetTemplateSection.
  */
-export async function loadNearestSite(contentId: ContentId): Promise<Site | undefined> {
+export function loadNearestSite(contentId: ContentId): ResultAsync<Site | undefined, AppError> {
     const url = getCmsApiUrl('nearestSite');
 
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ contentId: contentId.toString() }),
-        });
-
-        if (!response.ok) {
-            throw new Error(response.statusText);
-        }
-
-        if (response.status === 204) {
-            return undefined;
-        }
-
-        const json: ContentJson | null = await response.json();
-
-        if (!json) {
-            return undefined;
-        }
-
-        return parseContent(json) as Site;
-    } catch (error) {
-        console.error(error);
-        return undefined;
-    }
+    return requestOptionalJson<ContentJson>(url, {
+        method: 'POST',
+        body: { contentId: contentId.toString() },
+    }).map((json) => (json ? (parseContent(json) as Site) : undefined));
 }
 
 /**
  * Load default page template for site and content type.
+ * Used by: widgets/context-panel/widget/details/DetailsWidgetTemplateSection.
  */
-export async function loadDefaultPageTemplate(
+export function loadDefaultPageTemplate(
     siteId: ContentId,
     contentType: ContentTypeName,
-): Promise<PageTemplate | undefined> {
+): ResultAsync<PageTemplate | undefined, AppError> {
     const params = new URLSearchParams({
         siteId: siteId.toString(),
         contentTypeName: contentType.toString(),
     });
     const url = `${getCmsApiUrl('page/template/default')}?${params}`;
 
-    try {
-        const response = await fetch(url);
-
-        if (!response.ok) {
-            throw new Error(response.statusText);
-        }
-
-        if (response.status === 204) {
-            return undefined;
-        }
-
-        const json: ContentJson | null = await response.json();
-
-        if (!json) {
-            return undefined;
-        }
-
-        return parseContent(json) as PageTemplate;
-    } catch (error) {
-        console.error(error);
-        return undefined;
-    }
+    return requestOptionalJson<ContentJson>(url).map((json) =>
+        json ? (parseContent(json) as PageTemplate) : undefined,
+    );
 }

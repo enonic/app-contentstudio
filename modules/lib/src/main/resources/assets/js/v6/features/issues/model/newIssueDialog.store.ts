@@ -5,7 +5,6 @@ import { computed, map } from 'nanostores';
 import { ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { PublishRequest } from '../../../../app/issue/PublishRequest';
-import { CreateIssueRequest } from '../../../../app/issue/resource/CreateIssueRequest';
 import { fetchContentSummaries } from '../../../entities/content';
 import { resolvePublishDependencies } from '../../../entities/content/api/publish.api';
 import { buildItems, dedupeItems, getItemIds } from '../../../shared/lib/cms/content/buildItems';
@@ -18,6 +17,7 @@ import {
 import { calcDependantsSelection, nextDependantExclusions } from '../../../shared/lib/cms/content/dependantsSelection';
 import { hasContentIdInIds, uniqueIds } from '../../../shared/lib/cms/content/ids';
 import { createDebounce } from '../../../shared/lib/timing/createDebounce';
+import { createIssue } from '../../../entities/issue/api/issues.api';
 import { closeIssueDialog, openIssueDialogDetails } from './issueDialog.store';
 
 const DEPENDENCY_RELOAD_DELAY_MS = 150;
@@ -284,28 +284,30 @@ export const submitNewIssueDialog = async (): Promise<void> => {
         .addPublishRequestItems(buildItems(state.items, state.excludeChildrenIds))
         .build();
 
-    try {
-        const issue = await new CreateIssueRequest()
-            .setApprovers(approvers)
-            .setPublishRequest(publishRequest)
-            .setDescription(state.description.trim())
-            .setTitle(title)
-            .sendAndParse();
+    const result = await createIssue({
+        title,
+        description: state.description.trim(),
+        approvers,
+        publishRequest,
+    });
 
-        showSuccess(i18n('notify.issue.created'));
-        if (approvers.length > issue.getApprovers().length) {
-            showWarning(i18n('notify.issue.assignees.norights'));
-        }
-
-        resetNewIssueDialogContext();
-        openIssueDialogDetails(issue.getId());
-    } catch (error) {
-        console.error(error);
-        const message = error?.message ?? String(error);
-        showError(message);
-    } finally {
+    if (result.isErr()) {
+        console.error(result.error);
+        showError(result.error.message);
         $newIssueDialog.setKey('submitting', false);
+        return;
     }
+
+    const issue = result.value;
+
+    showSuccess(i18n('notify.issue.created'));
+    if (approvers.length > issue.getApprovers().length) {
+        showWarning(i18n('notify.issue.assignees.norights'));
+    }
+
+    resetNewIssueDialogContext();
+    openIssueDialogDetails(issue.getId());
+    $newIssueDialog.setKey('submitting', false);
 };
 
 export const loadMoreNewIssueDependants = createDependantWindowLoader($newIssueDialog, () => instanceId);
@@ -327,7 +329,7 @@ const reloadNewIssueDependencies = async (): Promise<void> => {
     });
 
     try {
-        const result = await resolvePublishDependencies({
+        const dependenciesResult = await resolvePublishDependencies({
             ids: itemIds,
             excludeChildrenIds: state.excludeChildrenIds,
         });
@@ -335,6 +337,19 @@ const reloadNewIssueDependencies = async (): Promise<void> => {
         if (currentInstance !== instanceId) {
             return;
         }
+
+        if (dependenciesResult.isErr()) {
+            console.error(dependenciesResult.error);
+            $newIssueDialog.set({
+                ...$newIssueDialog.get(),
+                loading: false,
+                failed: true,
+            });
+            showError(dependenciesResult.error.message);
+            return;
+        }
+
+        const result = dependenciesResult.value;
 
         const allDependantIds = result.getDependants().filter((id) => !hasContentIdInIds(id, itemIds));
 
