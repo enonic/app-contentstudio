@@ -1,9 +1,9 @@
 import { ApplicationEvent, ApplicationEventType } from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import { Extension, ExtensionConfig } from '@enonic/lib-admin-ui/extension/Extension';
-import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { computed, map } from 'nanostores';
 import { UrlAction } from '../../../../app/UrlAction';
+import { $config } from '../../../shared/config/config.store';
 import { fetchExtensions } from '../../../entities/extension';
 import { $noProjectMode } from '../../../entities/project/projects.store';
 
@@ -146,7 +146,7 @@ function sortWidgets(widgets: Readonly<Extension>[]): Readonly<Extension>[] {
 
 function createStudioWidget(): Readonly<Extension> {
     return Extension.create()
-        .setExtensionDescriptorKey(`${CONFIG.getString('appId')}:main`)
+        .setExtensionDescriptorKey(`${$config.get().appId}:main`)
         .setDisplayName(i18n('app.admin.widget.main'))
         .setUrl(UrlAction.BROWSE)
         .setConfig(new ExtensionConfig().setProperty('context', 'project'))

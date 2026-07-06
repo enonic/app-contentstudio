@@ -12,7 +12,7 @@ import { LegacyElement } from '../../../../shared/ui/LegacyElement';
 import { ContentLabel } from '../../../../entities/content/ui/content/ContentLabel';
 import { $contextContent } from '../../model/contextContent.store';
 import { $activeWidgetId, $isContextOpen } from '../../model/contextWidgets.store';
-import { IMPORT_CONTENT_WIDGET_KEY } from '../../../../shared/lib/widget/import-content';
+import { getImportContentWidgetKey } from '../../../../shared/lib/widget/import-content';
 import { ImportContentExportDialog } from './ImportContentExportDialog';
 import { ImportContentImportDialog } from './ImportContentImportDialog';
 
@@ -27,7 +27,7 @@ const ImportContentWidget = (): ReactElement | null => {
     const isContextOpen = useStore($isContextOpen);
     const activeWidget = useStore($activeWidgetId);
     const content = useStore($contextContent);
-    const isActiveWidget = activeWidget === IMPORT_CONTENT_WIDGET_KEY;
+    const isActiveWidget = activeWidget === getImportContentWidgetKey();
 
     const selectedSectionLabel = useI18n('widget.import.selected.label');
     const listHeadingLabel = useI18n('widget.import.list.heading');
