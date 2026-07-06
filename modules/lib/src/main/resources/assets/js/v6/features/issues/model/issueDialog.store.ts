@@ -1,12 +1,14 @@
 import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
+import { type Result, err, ok } from 'neverthrow';
 import { computed, map } from 'nanostores';
 import { IssueStatus } from '../../../../app/issue/IssueStatus';
 import { IssueType } from '../../../../app/issue/IssueType';
-import { GetIssueStatsRequest } from '../../../../app/issue/resource/GetIssueStatsRequest';
-import { ListIssuesRequest } from '../../../../app/issue/resource/ListIssuesRequest';
 import type { IssueWithAssignees } from '../../../../app/issue/IssueWithAssignees';
+import { type AppError } from '../../../shared/api/errors';
+import { fetchIssueStats } from '../../../entities/issue/api/issuesStats.api';
 import { createDebounce } from '../../../shared/lib/timing/createDebounce';
 import { $activeProject } from '../../../entities/project/activeProject.store';
+import { listIssues } from '../../../entities/issue/api/issues.api';
 
 import type {
     IssueDialogFilter,
@@ -169,23 +171,26 @@ export const loadIssueDialogList = async (): Promise<void> => {
     $issueDialog.setKey('error', false);
 
     try {
-        const [issues, totals] = await Promise.all([fetchIssues(), fetchIssueTotals()]);
+        const [issuesResult, totalsResult] = await Promise.all([fetchIssues(), fetchIssueTotals()]);
 
-        $issueDialog.set({
-            ...$issueDialog.get(),
-            issues,
-            totals,
-            loading: false,
-            error: false,
-        });
-        syncViewWithTotals();
+        if (issuesResult.isErr()) {
+            handleLoadError(issuesResult.error);
+        } else if (totalsResult.isErr()) {
+            handleLoadError(totalsResult.error);
+        } else {
+            $issueDialog.set({
+                ...$issueDialog.get(),
+                issues: issuesResult.value,
+                totals: totalsResult.value,
+                loading: false,
+                error: false,
+            });
+            syncViewWithTotals();
+        }
     } catch (error) {
-        console.error(error);
-        $issueDialog.set({
-            ...$issueDialog.get(),
-            loading: false,
-            error: true,
-        });
+        // Throws escaping the Result contract (e.g. a parse or sort failure)
+        // must not wedge the load state machine.
+        handleLoadError(error);
     } finally {
         isLoading = false;
     }
@@ -265,24 +270,36 @@ const syncViewWithTotals = (): void => {
     }
 };
 
-const fetchIssues = async (): Promise<IssueWithAssignees[]> => {
+const handleLoadError = (error: unknown): void => {
+    console.error(error);
+    $issueDialog.set({
+        ...$issueDialog.get(),
+        loading: false,
+        error: true,
+    });
+};
+
+// Pages through the list endpoint until every issue is loaded, then re-sorts by
+// modified time (the api leaves ordering to the caller).
+const fetchIssues = async (): Promise<Result<IssueWithAssignees[], AppError>> => {
     const issues: IssueWithAssignees[] = [];
     let total = 0;
     let from = 0;
 
-    const activeProject = $activeProject.get();
-
     do {
-        const request = new ListIssuesRequest().setResolveAssignees(true).setFrom(from).setSize(LIST_PAGE_SIZE);
-
-        if (activeProject) {
-            request.setRequestProject(activeProject);
+        const result = await listIssues({ from, size: LIST_PAGE_SIZE });
+        if (result.isErr()) {
+            return err(result.error);
         }
 
-        const response = await request.sendAndParse();
-        const batch = response.getIssues();
-        issues.push(...batch);
-        total = response.getMetadata().getTotalHits();
+        // An empty page while totalHits still claims more means the total is
+        // stale (issues deleted or ACL-hidden mid-pagination) — stop looping.
+        if (result.value.issues.length === 0) {
+            break;
+        }
+
+        issues.push(...result.value.issues);
+        total = result.value.totalHits;
         from = issues.length;
     } while (issues.length < total);
 
@@ -290,29 +307,33 @@ const fetchIssues = async (): Promise<IssueWithAssignees[]> => {
         return b.getIssue().getModifiedTime().getTime() - a.getIssue().getModifiedTime().getTime();
     });
 
-    return issues;
+    return ok(issues);
 };
 
-const fetchIssueTotals = async (): Promise<IssueDialogListTotals> => {
-    const activeProject = $activeProject.get();
+const fetchIssueTotals = async (): Promise<Result<IssueDialogListTotals, AppError>> => {
+    const projectName = $activeProject.get()?.getName();
 
-    const allStatsRequest = new GetIssueStatsRequest();
-    const publishRequestStatsRequest = new GetIssueStatsRequest(IssueType.PUBLISH_REQUEST);
-    const issueStatsRequest = new GetIssueStatsRequest(IssueType.STANDARD);
-
-    if (activeProject) {
-        allStatsRequest.setRequestProject(activeProject);
-        publishRequestStatsRequest.setRequestProject(activeProject);
-        issueStatsRequest.setRequestProject(activeProject);
-    }
-
-    const [allStats, publishRequestStats, issueStats] = await Promise.all([
-        allStatsRequest.sendAndParse(),
-        publishRequestStatsRequest.sendAndParse(),
-        issueStatsRequest.sendAndParse(),
+    const [allStatsResult, publishRequestStatsResult, issueStatsResult] = await Promise.all([
+        fetchIssueStats(projectName),
+        fetchIssueStats(projectName, IssueType.PUBLISH_REQUEST),
+        fetchIssueStats(projectName, IssueType.STANDARD),
     ]);
 
-    return {
+    if (allStatsResult.isErr()) {
+        return err(allStatsResult.error);
+    }
+    if (publishRequestStatsResult.isErr()) {
+        return err(publishRequestStatsResult.error);
+    }
+    if (issueStatsResult.isErr()) {
+        return err(issueStatsResult.error);
+    }
+
+    const allStats = allStatsResult.value;
+    const publishRequestStats = publishRequestStatsResult.value;
+    const issueStats = issueStatsResult.value;
+
+    return ok({
         all: {
             open: allStats.open ?? 0,
             closed: allStats.closed ?? 0,
@@ -333,7 +354,7 @@ const fetchIssueTotals = async (): Promise<IssueDialogListTotals> => {
             open: issueStats.open ?? 0,
             closed: issueStats.closed ?? 0,
         },
-    };
+    });
 };
 
 const queueReload = createDebounce(() => {

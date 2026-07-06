@@ -35,7 +35,7 @@ const { mockFetchContentSummaries, mockResolvePublishDependencies, mockShowError
         mockShowWarning: vi.fn(),
     }));
 
-vi.mock('../../../entities/content/api/content.api', () => ({
+vi.mock('../../../entities/content/lib/contentSummaries', () => ({
     fetchContentSummaries: mockFetchContentSummaries,
 }));
 

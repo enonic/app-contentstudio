@@ -10,15 +10,17 @@ import { AccessControlHelper } from '../../../../app/wizard/AccessControlHelper'
 import { AccessControlList } from '../../../../app/access/AccessControlList';
 import { AccessControlEntry } from '../../../../app/access/AccessControlEntry';
 import { loadPrincipalsByKeys } from '../../../entities/principal';
-import { GetDescendantsOfContentsRequest } from '../../../../app/resource/GetDescendantsOfContentsRequest';
-import { ApplyContentPermissionsRequest } from '../../../../app/resource/ApplyContentPermissionsRequest';
+import { fetchContentByPath } from '../../../entities/content';
 import { type ApplyPermissionsScope } from '../../../../app/dialog/permissions/PermissionsData';
 import { type ContentId } from '../../../../app/content/ContentId';
-import { GetContentByPathRequest } from '../../../../app/resource/GetContentByPathRequest';
-import { GetContentRootPermissionsRequest } from '../../../../app/resource/GetContentRootPermissionsRequest';
+import {
+    type ApplyContentPermissionsParams,
+    applyContentPermissions,
+    fetchRootPermissions,
+    getDescendantsOfContents,
+} from '../api/permissions.api';
 import { trackTask } from '../../../entities/task';
 import type { TaskResultState } from '../../../entities/task';
-import { formatError } from '../../../shared/lib/format/error';
 import { Permission } from '../../../../app/access/Permission';
 import { compareAccessControlEntries } from '../../../shared/lib/cms/permissions/accessControl';
 
@@ -108,16 +110,11 @@ export const openPermissionsDialog = (event: OpenEditPermissionsDialogEvent): vo
     const parentPath = contentPath.getParentPath();
     const isRoot = !parentPath || parentPath.isRoot();
 
-    const contentDescendants = () =>
-        ResultAsync.fromPromise(new GetDescendantsOfContentsRequest(contentPath).sendAndParse(), formatError);
+    const contentDescendants = () => getDescendantsOfContents([contentPath]);
     const parentPermissions = () =>
         isRoot
-            ? ResultAsync.fromPromise(new GetContentRootPermissionsRequest().sendAndParse(), formatError).map(
-                  (permissions) => permissions.getEntries(),
-              )
-            : ResultAsync.fromPromise(new GetContentByPathRequest(parentPath).sendAndParse(), formatError).map(
-                  (content) => content.getPermissions().getEntries(),
-              );
+            ? fetchRootPermissions().map((permissions) => permissions.getEntries())
+            : fetchContentByPath(parentPath.toString()).map((content) => content.getPermissions().getEntries());
 
     $permissionsDialog.setKey('loading', true);
     $permissionsDialog.setKey('open', true);
@@ -208,20 +205,18 @@ export const updatePermissions = (onComplete: (resultState: TaskResultState, mes
     const { contentId, initialAccessControlEntries, finalAccessControlEntries, applyTo, replaceAllChildPermissions } =
         $permissionsDialog.get();
 
-    const request = new ApplyContentPermissionsRequest().setId(contentId).setScope(applyTo);
-
+    let permissionsParams: Pick<ApplyContentPermissionsParams, 'permissions' | 'addPermissions' | 'removePermissions'>;
     if (applyTo !== 'single' && replaceAllChildPermissions) {
-        request.setPermissions(new AccessControlList(finalAccessControlEntries));
+        permissionsParams = { permissions: new AccessControlList(finalAccessControlEntries) };
     } else {
         const { added, removed } = AccessControlHelper.calcMergePermissions(
             initialAccessControlEntries,
             finalAccessControlEntries,
         );
-        request.setAddPermissions(added);
-        request.setRemovePermissions(removed);
+        permissionsParams = { addPermissions: added, removePermissions: removed };
     }
 
-    void ResultAsync.fromPromise(request.sendAndParse(), formatError)
+    void applyContentPermissions({ contentId, scope: applyTo, ...permissionsParams })
         .map((taskId) => {
             $permissionsDialog.setKey('taskId', taskId);
             trackTask(taskId, {

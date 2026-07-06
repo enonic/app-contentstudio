@@ -6,7 +6,7 @@ import { type ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { IssueType } from '../../../../app/issue/IssueType';
 import { PublishRequest } from '../../../../app/issue/PublishRequest';
-import { CreateIssueRequest } from '../../../../app/issue/resource/CreateIssueRequest';
+import { createIssue } from '../../../entities/issue/api/issues.api';
 import { fetchContentSummaries } from '../../../entities/content';
 import { markAsReady, resolvePublishDependencies } from '../../../entities/content/api/publish.api';
 import { buildItems, dedupeItems, getItemIds } from '../../../shared/lib/cms/content/buildItems';
@@ -469,13 +469,21 @@ export const submitRequestPublishDialog = async (): Promise<void> => {
         .build();
 
     try {
-        const issue = await new CreateIssueRequest()
-            .setApprovers(approvers)
-            .setPublishRequest(publishRequest)
-            .setTitle(title)
-            .setDescription(state.description.trim())
-            .setType(IssueType.PUBLISH_REQUEST)
-            .sendAndParse();
+        const result = await createIssue({
+            title,
+            description: state.description.trim(),
+            approvers,
+            publishRequest,
+            type: IssueType.PUBLISH_REQUEST,
+        });
+
+        if (result.isErr()) {
+            console.error(result.error);
+            showError(result.error.message);
+            return;
+        }
+
+        const issue = result.value;
 
         showSuccess(i18n('notify.publishRequest.created'));
         if (approvers.length > issue.getApprovers().length) {
@@ -522,7 +530,7 @@ const reloadRequestPublishDependencies = async (): Promise<void> => {
     });
 
     try {
-        const result = await resolvePublishDependencies({
+        const dependenciesResult = await resolvePublishDependencies({
             ids: itemIds,
             excludeChildrenIds: state.excludeChildrenIds,
         });
@@ -530,6 +538,19 @@ const reloadRequestPublishDependencies = async (): Promise<void> => {
         if (currentInstance !== instanceId) {
             return;
         }
+
+        if (dependenciesResult.isErr()) {
+            console.error(dependenciesResult.error);
+            $requestPublishDialog.set({
+                ...$requestPublishDialog.get(),
+                loading: false,
+                failed: true,
+            });
+            showError(dependenciesResult.error.message);
+            return;
+        }
+
+        const result = dependenciesResult.value;
 
         const allDependantIds = result.getDependants().filter((id) => !hasContentIdInIds(id, itemIds));
 
@@ -603,17 +624,20 @@ const reloadRequestPublishDependencies = async (): Promise<void> => {
 };
 
 const markIdsReady = async (ids: ContentId[]): Promise<ContentId[]> => {
-    try {
-        await markAsReady(ids);
-        const count = ids.length;
-        const message =
-            count > 1
-                ? i18n('notify.item.markedAsReady.multiple', count)
-                : i18n('notify.item.markedAsReady', ids[0].toString());
-        showFeedback(message);
-        return ids;
-    } catch (error) {
-        showError(i18n('notify.item.markedAsReady.error', ids.length));
-        return [];
-    }
+    const result = await markAsReady(ids);
+    return result.match(
+        () => {
+            const count = ids.length;
+            const message =
+                count > 1
+                    ? i18n('notify.item.markedAsReady.multiple', count)
+                    : i18n('notify.item.markedAsReady', ids[0].toString());
+            showFeedback(message);
+            return ids;
+        },
+        () => {
+            showError(i18n('notify.item.markedAsReady.error', ids.length));
+            return [];
+        },
+    );
 };

@@ -1,24 +1,12 @@
 import { act, renderHook } from '@testing-library/preact';
 import { atom, type WritableAtom } from 'nanostores';
+import { okAsync } from 'neverthrow';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-const { sendAndParseMock } = vi.hoisted(() => ({ sendAndParseMock: vi.fn() }));
-
-vi.mock('@enonic/lib-admin-ui/DefaultErrorHandler', () => ({
-    DefaultErrorHandler: { handle: vi.fn() },
-}));
+const { fetchContentByIdMock } = vi.hoisted(() => ({ fetchContentByIdMock: vi.fn() }));
 
 vi.mock('@enonic/lib-admin-ui/notify/MessageBus', () => ({
     showWarning: vi.fn(),
-}));
-
-vi.mock('../../../../../../../../app/content/ContentId', () => ({
-    ContentId: class {
-        constructor(private readonly value: string) {}
-        toString(): string {
-            return this.value;
-        }
-    },
 }));
 
 vi.mock('../../../../../../../../app/page/region/FragmentComponent', () => ({
@@ -33,10 +21,8 @@ vi.mock('../../../../../../../../app/page/region/LayoutComponentType', () => ({
     LayoutComponentType: class {},
 }));
 
-vi.mock('../../../../../../../../app/resource/GetContentByIdRequest', () => ({
-    GetContentByIdRequest: class {
-        sendAndParse = sendAndParseMock;
-    },
+vi.mock('../../../../../../../entities/content', () => ({
+    fetchContentById: fetchContentByIdMock,
 }));
 
 vi.mock('../../../../../model/page-editor', () => ({
@@ -157,10 +143,7 @@ describe('useFragmentContentSelector', () => {
         it('should pass the selected option display name to requestSetFragmentComponent', () => {
             $inspected.set(makeInspectedFragment());
             $selectedId.set('frag-a');
-            $options.set([
-                makeFragmentSummary('frag-a', 'Fragment A'),
-                makeFragmentSummary('frag-b', 'Fragment B'),
-            ]);
+            $options.set([makeFragmentSummary('frag-a', 'Fragment A'), makeFragmentSummary('frag-b', 'Fragment B')]);
 
             const { result } = renderHook(() => useFragmentContentSelector());
 
@@ -196,7 +179,7 @@ describe('useFragmentContentSelector', () => {
         it('should fetch the content and pass its display name', async () => {
             $inspected.set(makeInspectedFragment(makeLayoutParentRegion()));
             $options.set([makeFragmentSummary('frag-b', 'Stale Label')]);
-            sendAndParseMock.mockResolvedValue(makeContent('Fresh Server Name', {}));
+            fetchContentByIdMock.mockReturnValue(okAsync(makeContent('Fresh Server Name', {})));
 
             const { result } = renderHook(() => useFragmentContentSelector());
 
@@ -209,7 +192,7 @@ describe('useFragmentContentSelector', () => {
             $inspected.set(makeInspectedFragment(makeLayoutParentRegion()));
             $options.set([makeFragmentSummary('frag-b', 'Fragment B')]);
             const layoutType = Object.create(LayoutComponentType.prototype) as object;
-            sendAndParseMock.mockResolvedValue(makeContent('Nested Layout', layoutType));
+            fetchContentByIdMock.mockReturnValue(okAsync(makeContent('Nested Layout', layoutType)));
 
             const { result } = renderHook(() => useFragmentContentSelector());
 

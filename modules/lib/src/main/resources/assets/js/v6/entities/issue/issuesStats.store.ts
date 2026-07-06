@@ -1,8 +1,8 @@
 import { map } from 'nanostores';
-import { GetIssueStatsRequest } from '../../../app/issue/resource/GetIssueStatsRequest';
 import { type IssueStatsJson } from '../../../app/issue/json/IssueStatsJson';
 import { IssueServerEventsHandler } from '../../../app/issue/event/IssueServerEventsHandler';
 import { $activeProject } from '../project';
+import { fetchIssueStats } from './api/issuesStats.api';
 
 type IssuesStatsStore = {
     stats?: Readonly<IssueStatsJson>;
@@ -27,19 +27,12 @@ async function loadIssuesStats(): Promise<void> {
 
     isLoading = true;
 
+    // A nullish project name falls back to the active-project resolver in the URL builder.
     try {
-        const request = new GetIssueStatsRequest();
-
-        const activeProject = $activeProject.get();
-        if (activeProject) {
-            request.setRequestProject(activeProject);
-        } // else: get from URL path
-
-        const response = await request.sendAndParse();
-
-        $issuesStats.setKey('stats', response);
-    } catch (error) {
-        console.error(error);
+        await fetchIssueStats($activeProject.get()?.getName()).match(
+            (stats) => $issuesStats.setKey('stats', stats),
+            (error) => console.error(error),
+        );
     } finally {
         isLoading = false;
     }

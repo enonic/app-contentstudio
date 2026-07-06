@@ -1,5 +1,6 @@
 import { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
 import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { okAsync } from 'neverthrow';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentBuilder, type Content } from '../../../../app/content/Content';
 import { ContentId } from '../../../../app/content/ContentId';
@@ -23,7 +24,7 @@ import { cleanupWizardMixinsService, initWizardMixinsService } from './wizardMix
 
 const mocks = vi.hoisted(() => ({
     fire: vi.fn(),
-    getContentMixins: vi.fn(() => Promise.resolve([] as unknown[])),
+    getContentMixins: vi.fn(),
 }));
 
 vi.mock('../../../entities/application/applications.store', () => ({
@@ -44,28 +45,21 @@ vi.mock('../../../../app/event/ContentRequiresSaveEvent', () => ({
     },
 }));
 
-vi.mock('../../../../app/resource/GetContentMixinsRequest', () => ({
-    GetContentMixinsRequest: class {
-        sendAndParse(): Promise<unknown[]> {
-            return mocks.getContentMixins();
-        }
-    },
-}));
-
-vi.mock('../../../../app/resource/GetApplicationMixinsRequest', () => ({
-    GetApplicationMixinsRequest: class {
-        sendAndParse(): Promise<unknown[]> {
-            return Promise.resolve([
+vi.mock('../api/mixins.api', async () => {
+    const { okAsync: ok } = await import('neverthrow');
+    return {
+        fetchContentMixins: () => mocks.getContentMixins(),
+        fetchApplicationMixins: () =>
+            ok([
                 {
                     getName: () => 'app:meta',
                     getDisplayName: () => 'Meta',
                     isOptional: () => false,
                     toForm: () => ({ getFormItems: () => [] }),
                 },
-            ]);
-        }
-    },
-}));
+            ]),
+    };
+});
 
 function createContent({ mixins = [], id }: { mixins?: Mixin[]; id?: string } = {}): Content {
     const builder = new ContentBuilder();
@@ -86,6 +80,7 @@ describe('wizardMixins.service', () => {
         resetWizardContent();
         mocks.fire.mockClear();
         mocks.getContentMixins.mockClear();
+        mocks.getContentMixins.mockReturnValue(okAsync([]));
         initWizardMixinsService();
     });
 

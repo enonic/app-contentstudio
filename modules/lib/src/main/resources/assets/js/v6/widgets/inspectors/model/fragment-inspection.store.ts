@@ -1,8 +1,7 @@
-import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { atom, computed } from 'nanostores';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { FragmentComponent } from '../../../../app/page/region/FragmentComponent';
-import { FragmentContentSummaryRequest } from '../../../../app/resource/FragmentContentSummaryRequest';
+import { fetchFragmentSummaries } from '../api/fragments.api';
 import { $contentContext, $inspectedItem, $pageVersion } from './page-editor/store';
 
 //
@@ -40,10 +39,12 @@ export function initFragmentInspectionService(): void {
 
         void (async () => {
             try {
-                const fragments = await loadFragmentSummaries(ctx.sitePath);
-                $fragmentOptions.set(fragments);
-            } catch {
-                // Failed to load — keep empty list
+                const result = await fetchFragmentSummaries(ctx.sitePath ?? undefined);
+
+                if (result.isOk()) {
+                    $fragmentOptions.set(result.value);
+                }
+                // On error, keep the empty list.
             } finally {
                 $isFragmentInspectionLoading.set(false);
             }
@@ -58,20 +59,4 @@ export function cleanupFragmentInspection(): void {
 
     $fragmentOptions.set([]);
     $isFragmentInspectionLoading.set(false);
-}
-
-//
-// * Internal
-//
-
-async function loadFragmentSummaries(sitePath: string | null): Promise<ContentSummary[]> {
-    const request = new FragmentContentSummaryRequest();
-    request.setAllowedContentTypeNames([ContentTypeName.FRAGMENT]);
-    request.setSize(-1);
-    if (sitePath) {
-        request.setParentSitePath(sitePath);
-    }
-
-    // Q.Promise is thenable — await works directly
-    return (await request.sendAndParse()) as unknown as ContentSummary[];
 }

@@ -1,71 +1,58 @@
+import { ResultAsync, errAsync } from 'neverthrow';
 import type { ContentId } from '../../../../app/content/ContentId';
 import { Descriptor } from '../../../../app/page/Descriptor';
 import type { DescriptorJson } from '../../../../app/page/DescriptorJson';
 import { ComponentType } from '../../../../app/page/region/ComponentType';
-import { $projects } from '../../../entities/project';
-import { getCmsRestUri } from '../../../shared/lib/url/cms';
+import { requestJson } from '../../../shared/api/client';
+import { AppError } from '../../../shared/api/errors';
+import { getCmsProjectUrl, getCmsRestUri } from '../../../shared/lib/url/cms';
 
 /**
  * Load component descriptors available for a given content, filtered by component type.
  * For parts: `.../schema/filter/parts`, for layouts: `.../schema/filter/layouts`.
+ * Used by: widgets/inspectors/model/component-inspection.store.
  */
-export async function loadComponentDescriptors(componentType: string, contentId: ContentId): Promise<Descriptor[]> {
-    const project = $projects.get().activeProjectId ?? '';
+export function loadComponentDescriptors(
+    componentType: string,
+    contentId: ContentId,
+): ResultAsync<Descriptor[], AppError> {
     const params = new URLSearchParams({ contentId: contentId.toString() });
-    const url = `${getCmsRestUri(`cms/${project}/content/schema/filter/${componentType}s`)}?${params}`;
+    const url = `${getCmsProjectUrl(`content/schema/filter/${componentType}s`)}?${params}`;
 
-    try {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error(response.statusText);
-
-        const json = await response.json();
-        const descriptors: DescriptorJson[] = json.descriptors ?? [];
-        return descriptors.map((d) =>
+    return requestJson<{ descriptors?: DescriptorJson[] }>(url).map((json) =>
+        (json.descriptors ?? []).map((d) =>
             Descriptor.fromJson(d).setComponentType(ComponentType.byShortName(componentType)),
-        );
-    } catch (error) {
-        console.error(error);
-        return [];
-    }
+        ),
+    );
 }
 
-// Cache for component descriptors (same pattern as pageInspection.ts)
-const descriptorCache = new Map<string, Promise<Descriptor>>();
+// Cache for component descriptors (same pattern as pageInspection.api.ts)
+const descriptorCache = new Map<string, ResultAsync<Descriptor, AppError>>();
 
 /**
  * Load a single component descriptor by key and type.
  * Results are cached by `componentType::descriptorKey`.
+ * Used by: widgets/inspectors/model/component-inspection.store.
  */
-export async function loadComponentDescriptor(
+export function loadComponentDescriptor(
     componentType: string,
     descriptorKey: string,
-): Promise<Descriptor | undefined> {
+): ResultAsync<Descriptor, AppError> {
     const cacheKey = `${componentType}::${descriptorKey}`;
-
-    if (descriptorCache.has(cacheKey)) {
-        try {
-            return await descriptorCache.get(cacheKey);
-        } catch {
-            descriptorCache.delete(cacheKey);
-        }
+    const cached = descriptorCache.get(cacheKey);
+    if (cached) {
+        return cached;
     }
 
     const url = `${getCmsRestUri(`content/page/${componentType}/descriptor`)}?key=${encodeURIComponent(descriptorKey)}`;
 
-    const promise = (async (): Promise<Descriptor> => {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error(response.statusText);
+    const request = requestJson<DescriptorJson>(url)
+        .map((json) => Descriptor.fromJson(json).setComponentType(ComponentType.byShortName(componentType)))
+        .orElse((error) => {
+            descriptorCache.delete(cacheKey);
+            return errAsync(error);
+        });
 
-        const json: DescriptorJson = await response.json();
-        return Descriptor.fromJson(json).setComponentType(ComponentType.byShortName(componentType));
-    })();
-
-    descriptorCache.set(cacheKey, promise);
-
-    try {
-        return await promise;
-    } catch (error) {
-        console.error(error);
-        return undefined;
-    }
+    descriptorCache.set(cacheKey, request);
+    return request;
 }

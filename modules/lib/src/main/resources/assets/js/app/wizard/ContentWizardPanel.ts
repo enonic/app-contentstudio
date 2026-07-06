@@ -1668,12 +1668,10 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         const secondaryStatus = calcSecondaryStatus(publishStatus, content);
 
         if (secondaryStatus === 'modified') {
-            compareContent([contentId])
-                .then((result) => {
-                    const compareResult = result.get(contentId);
-                    this.wizardActions.setCompareResult(compareResult).refreshState();
-                })
-                .catch(DefaultErrorHandler.handle);
+            void compareContent([contentId]).match((result) => {
+                const compareResult = result.get(contentId);
+                this.wizardActions.setCompareResult(compareResult).refreshState();
+            }, DefaultErrorHandler.handle);
         }
     }
 

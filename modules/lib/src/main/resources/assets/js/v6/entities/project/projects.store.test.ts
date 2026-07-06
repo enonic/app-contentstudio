@@ -1,4 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { errAsync, okAsync } from 'neverthrow';
+import { AppError } from '../../shared/api/errors';
 
 type MockProject = {
     getName(): string;
@@ -7,19 +9,15 @@ type MockProject = {
     getParents(): string[];
 };
 
-const { createdHandlers, deletedHandlers, mockProjectListSendAndParse, mockSetProjectSelectionDialogOpen } = vi.hoisted(
-    () => ({
-        createdHandlers: [] as (() => void)[],
-        deletedHandlers: [] as ((event: { getProjectName(): string }) => void)[],
-        mockProjectListSendAndParse: vi.fn(),
-        mockSetProjectSelectionDialogOpen: vi.fn(),
-    }),
-);
+const { createdHandlers, deletedHandlers, mockListProjects, mockSetProjectSelectionDialogOpen } = vi.hoisted(() => ({
+    createdHandlers: [] as (() => void)[],
+    deletedHandlers: [] as ((event: { getProjectName(): string }) => void)[],
+    mockListProjects: vi.fn(),
+    mockSetProjectSelectionDialogOpen: vi.fn(),
+}));
 
-vi.mock('../../../app/settings/resource/ProjectListRequest', () => ({
-    ProjectListRequest: class {
-        sendAndParse = mockProjectListSendAndParse;
-    },
+vi.mock('./api/projects.api', () => ({
+    listProjects: mockListProjects,
 }));
 
 vi.mock('../../../app/settings/event/ProjectUpdatedEvent', () => ({
@@ -119,7 +117,7 @@ async function loadStore(
     vi.resetModules();
     createdHandlers.length = 0;
     deletedHandlers.length = 0;
-    mockProjectListSendAndParse.mockReset().mockResolvedValue(projects);
+    mockListProjects.mockReset().mockImplementation(() => okAsync(projects));
     mockSetProjectSelectionDialogOpen.mockReset();
     window.history.pushState({}, '', url ?? `/com.enonic.app.contentstudio/cms/${currentProjectId}/browse`);
 
@@ -239,7 +237,7 @@ describe('projects.store delete intent', () => {
             });
         });
 
-        mockProjectListSendAndParse.mockResolvedValueOnce([createdProject]);
+        mockListProjects.mockReturnValueOnce(okAsync([createdProject]));
         emitCreated();
         await flushPromises();
         unsubscribe();
@@ -258,7 +256,7 @@ describe('projects.store delete intent', () => {
         vi.resetModules();
         createdHandlers.length = 0;
         deletedHandlers.length = 0;
-        mockProjectListSendAndParse.mockReset().mockRejectedValue(new Error('Failed to load projects'));
+        mockListProjects.mockReset().mockImplementation(() => errAsync(new AppError('Failed to load projects')));
         mockSetProjectSelectionDialogOpen.mockReset();
         window.history.pushState({}, '', '/com.enonic.app.contentstudio/cms/current/browse');
         vi.spyOn(console, 'error').mockImplementation(() => undefined);

@@ -649,12 +649,26 @@ async function resolvePublishDependencies(): Promise<ResolvePublishDependenciesR
         })
         .map((item) => item.getContentId());
 
-    const childrenIds = itemsWithChildrenIds.length > 0 ? await findIdsByParents(itemsWithChildrenIds) : [];
-    const maxResult = await resolvePublishDeps({
+    let childrenIds: ContentId[] = [];
+    if (itemsWithChildrenIds.length > 0) {
+        const childrenResult = await findIdsByParents(itemsWithChildrenIds);
+        if (childrenResult.isErr()) {
+            $publishDialog.setKey('failed', true);
+            return;
+        }
+        childrenIds = childrenResult.value;
+    }
+
+    const maxResultResult = await resolvePublishDeps({
         ids: itemsIds,
         excludedIds: excludedItemsIds,
         excludeChildrenIds: allExcludedItemsWithChildrenIds,
     });
+    if (maxResultResult.isErr()) {
+        $publishDialog.setKey('failed', true);
+        return;
+    }
+    const maxResult = maxResultResult.value;
 
     const excludeNonRequired = $config.get().excludeDependencies && isCleanResolve;
     const minExcludedIds = excludeNonRequired
@@ -668,13 +682,19 @@ async function resolvePublishDependencies(): Promise<ResolvePublishDependenciesR
 
     // Skip the second request when its parameters match the first: maxResult
     // and minResult only differ when non-required dependencies are excluded.
-    const minResult = isIdsEqual(minExcludedIds, excludedItemsIds)
-        ? maxResult
-        : await resolvePublishDeps({
-              ids: itemsIds,
-              excludedIds: minExcludedIds,
-              excludeChildrenIds: allExcludedItemsWithChildrenIds,
-          });
+    let minResult = maxResult;
+    if (!isIdsEqual(minExcludedIds, excludedItemsIds)) {
+        const minResultResult = await resolvePublishDeps({
+            ids: itemsIds,
+            excludedIds: minExcludedIds,
+            excludeChildrenIds: allExcludedItemsWithChildrenIds,
+        });
+        if (minResultResult.isErr()) {
+            $publishDialog.setKey('failed', true);
+            return;
+        }
+        minResult = minResultResult.value;
+    }
 
     if (currentInstanceId !== instanceId) return;
 
@@ -777,19 +797,22 @@ async function resolvePublishDependencies(): Promise<ResolvePublishDependenciesR
 // TODO: Add mechanism to prevent conflicting requests for reload, mark as ready, and server updates
 // Right now we just lock the dialog and pray. Amen
 async function markIdsReady(ids: ContentId[]): Promise<ContentId[]> {
-    try {
-        await markAsReady(ids);
-        const count = ids.length;
-        const msg =
-            count > 1
-                ? i18n('notify.item.markedAsReady.multiple', count)
-                : i18n('notify.item.markedAsReady', ids[0].toString());
-        showFeedback(msg);
-        return ids;
-    } catch (e) {
-        showError(i18n('notify.item.markedAsReady.error', ids.length));
-        return [];
-    }
+    const result = await markAsReady(ids);
+    return result.match(
+        () => {
+            const count = ids.length;
+            const msg =
+                count > 1
+                    ? i18n('notify.item.markedAsReady.multiple', count)
+                    : i18n('notify.item.markedAsReady', ids[0].toString());
+            showFeedback(msg);
+            return ids;
+        },
+        () => {
+            showError(i18n('notify.item.markedAsReady.error', ids.length));
+            return [];
+        },
+    );
 }
 
 type PublishRequestData = {
@@ -832,18 +855,21 @@ async function sendPublishRequest(): Promise<TaskId | undefined> {
           }
         : undefined;
 
-    try {
-        return await publishContent({
-            ids: publishRequestData.ids,
-            excludedIds: publishRequestData.excludedIds,
-            excludeChildrenIds: publishRequestData.excludeChildrenIds,
-            message: message || undefined,
-            schedule: resolvedSchedule,
-        });
-    } catch (e) {
-        showError(i18n('dialog.publish.publishing.error'));
-        return undefined;
-    }
+    const result = await publishContent({
+        ids: publishRequestData.ids,
+        excludedIds: publishRequestData.excludedIds,
+        excludeChildrenIds: publishRequestData.excludeChildrenIds,
+        message: message || undefined,
+        schedule: resolvedSchedule,
+    });
+
+    return result.match(
+        (taskId) => taskId,
+        () => {
+            showError(i18n('dialog.publish.publishing.error'));
+            return undefined;
+        },
+    );
 }
 
 async function fetchHasUnpublishedChildren(items: ContentSummary[]): Promise<void> {
@@ -856,13 +882,18 @@ async function fetchHasUnpublishedChildren(items: ContentSummary[]): Promise<voi
     const ids = itemsWithChildren.map((item) => item.getContentId());
     const result = await hasUnpublishedChildren(ids);
 
-    const set = new Set<string>();
-    for (const [id, hasChildren] of result) {
-        if (hasChildren) {
-            set.add(id);
-        }
-    }
-    $hasUnpublishedChildrenIds.set(set);
+    result.match(
+        (map) => {
+            const set = new Set<string>();
+            for (const [id, hasChildren] of map) {
+                if (hasChildren) {
+                    set.add(id);
+                }
+            }
+            $hasUnpublishedChildrenIds.set(set);
+        },
+        (error) => console.error(error),
+    );
 }
 
 async function fetchCompareStatuses(allItems: ContentSummary[]): Promise<void> {
@@ -884,12 +915,16 @@ async function fetchCompareStatuses(allItems: ContentSummary[]): Promise<void> {
 
     try {
         const result = await compareContent(idsToCompare);
+
+        if (result.isErr()) {
+            if (callId !== compareInstanceId) return;
+            console.error(result.error);
+            $compareStatuses.set(new Map());
+            return;
+        }
+
         if (callId !== compareInstanceId) return;
-        $compareStatuses.set(result);
-    } catch (error) {
-        if (callId !== compareInstanceId) return;
-        console.error(error);
-        $compareStatuses.set(new Map());
+        $compareStatuses.set(result.value);
     } finally {
         if (callId === compareInstanceId) {
             $compareStatusesLoading.set(false);

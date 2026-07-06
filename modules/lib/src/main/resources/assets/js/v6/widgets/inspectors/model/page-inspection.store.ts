@@ -60,8 +60,10 @@ async function loadTemplatesAndControllers(ctx: PageEditorContentContext): Promi
         const { loadPageTemplatesByCanRender, loadPageControllers } = await import('../api/pageInspection.api');
 
         const [templates, controllers] = await Promise.all([
-            ctx.siteId ? loadPageTemplatesByCanRender(ctx.siteId, ctx.contentTypeName) : Promise.resolve([]),
-            loadPageControllers(ctx.contentId),
+            ctx.siteId
+                ? loadPageTemplatesByCanRender(ctx.siteId, ctx.contentTypeName).unwrapOr([])
+                : Promise.resolve([]),
+            loadPageControllers(ctx.contentId).unwrapOr([]),
         ]);
 
         if (!signal.aborted) {
@@ -149,7 +151,7 @@ export function initPageInspectionService(siteModel?: SiteModel | null): void {
         void (async () => {
             try {
                 const { loadPageDescriptor } = await import('../api/pageInspection.api');
-                const descriptor = await loadPageDescriptor(controllerKey);
+                const descriptor = await loadPageDescriptor(controllerKey).unwrapOr(undefined);
                 $pageConfigDescriptor.set(descriptor ?? null);
             } catch {
                 $pageConfigDescriptor.set(null);

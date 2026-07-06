@@ -1,11 +1,10 @@
-import { FindPrincipalsRequest } from '@enonic/lib-admin-ui/security/FindPrincipalsRequest';
 import { PrincipalType } from '@enonic/lib-admin-ui/security/PrincipalType';
 import { type Principal } from '@enonic/lib-admin-ui/security/Principal';
 import { computed, map } from 'nanostores';
-import { UrlHelper } from '../../../app/util/UrlHelper';
 import { ResultAsync } from 'neverthrow';
 import { type PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
-import { GetPrincipalsByKeysRequest } from '@enonic/lib-admin-ui/security/GetPrincipalsByKeysRequest';
+import { type AppError } from '../../shared/api/errors';
+import { findPrincipals, resolvePrincipalsByKeys } from './api/principals.api';
 
 type PrincipalsStore = {
     principals: Principal[];
@@ -36,14 +35,10 @@ export const rolePrincipals = computed($principals, (store) => {
 export function loadPrincipals(query: string, size: number = 10): void {
     $principals.setKey('loading', true);
 
-    const request = new FindPrincipalsRequest()
-        .setPostfixUri(UrlHelper.getCmsRestUri(''))
-        .setSearchQuery(query)
-        .setAllowedTypes([PrincipalType.USER, PrincipalType.GROUP, PrincipalType.ROLE])
-        .setSize(size);
-
-    ResultAsync.fromPromise(request.sendAndParse(), (error) => {
-        console.error('Failed to load principals:', error);
+    findPrincipals({
+        types: [PrincipalType.USER, PrincipalType.GROUP, PrincipalType.ROLE],
+        query,
+        size,
     })
         .map((principals) => {
             const seen = new Set<string>();
@@ -66,7 +61,7 @@ export function loadPrincipals(query: string, size: number = 10): void {
         });
 }
 
-export function loadPrincipalsByKeys(keys: PrincipalKey[]): ResultAsync<Principal[], Error> {
+export function loadPrincipalsByKeys(keys: PrincipalKey[]): ResultAsync<Principal[], AppError> {
     $principals.setKey('loading', true);
 
     return getPrincipalsByKeys(keys)
@@ -95,12 +90,11 @@ export function loadPrincipalsByKeys(keys: PrincipalKey[]): ResultAsync<Principa
         });
 }
 
-export function getPrincipalsByKeys(keys: PrincipalKey[]): ResultAsync<Principal[], Error> {
-    const request = new GetPrincipalsByKeysRequest(keys).setPostfixUri(UrlHelper.getCmsRestUri(''));
-
-    return ResultAsync.fromPromise(request.sendAndParse(), (error) => {
+export function getPrincipalsByKeys(keys: PrincipalKey[]): ResultAsync<Principal[], AppError> {
+    return resolvePrincipalsByKeys(keys).mapErr((error) => {
+        // Some consumers have no error arm; keep the pre-migration logging here.
         console.error('Failed to load principals by keys:', error);
-        return error instanceof Error ? error : new Error(String(error));
+        return error;
     });
 }
 

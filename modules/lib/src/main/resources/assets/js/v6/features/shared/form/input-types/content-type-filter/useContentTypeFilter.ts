@@ -6,13 +6,11 @@ import { useStore } from '@nanostores/preact';
 import { okAsync, ResultAsync } from 'neverthrow';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Site } from '../../../../../../app/content/Site';
-import { GetAllContentTypesRequest } from '../../../../../../app/resource/GetAllContentTypesRequest';
-import { GetContentTypesByContentRequest } from '../../../../../../app/resource/GetContentTypesByContentRequest';
-import { GetNearestSiteRequest } from '../../../../../../app/resource/GetNearestSiteRequest';
+import { fetchNearestSite } from '../../../../../entities/content';
+import { fetchAllContentTypes, fetchContentTypesByContent } from '../../../../../entities/schema/api/contentTypes.api';
 import { $contextContent } from '../../../../../widgets/context-panel/model/contextContent.store';
 import { $activeProject } from '../../../../../entities/project';
 import { $contentType } from '../../../../../pages/wizard/model/wizardContent.store';
-import { formatError } from '../../../../../shared/lib/format/error';
 import type { ContentTypeFilterConfig } from './ContentTypeFilterConfig';
 
 const TYPES_ALLOWED_EVERYWHERE = new Set([
@@ -51,32 +49,19 @@ export const useContentTypeFilter = ({ config, selection, query, onAdd, onRemove
 
         if (!contentId || !project) return okAsync<ContentTypeSummary[], Error>([]);
 
-        const allContentTypes = () =>
-            ResultAsync.fromPromise(new GetAllContentTypesRequest().sendAndParse(), formatError);
-        const site = () =>
-            ResultAsync.fromPromise(
-                new GetNearestSiteRequest(contentId).setRequestProject(project).sendAndParse(),
-                formatError,
-            );
-        const contentTypesByContent = () =>
-            ResultAsync.fromPromise(
-                new GetContentTypesByContentRequest(contentId).setRequestProject(project).sendAndParse(),
-                formatError,
-            );
-
         if (isPageTemplate) {
-            return ResultAsync.combine([allContentTypes(), site()])
+            return ResultAsync.combine([fetchAllContentTypes(), fetchNearestSite(contentId)])
                 .map(([types, site]) => (site ? filterForPageTemplate(types, site) : types).sort(sortByDisplayName))
                 .mapErr((error) => new Error(`Error fetching content types for page template. ${error.message}`));
         }
 
         if (config.context) {
-            return contentTypesByContent()
+            return fetchContentTypesByContent(contentId)
                 .map((types) => types.sort(sortByDisplayName))
                 .mapErr((error) => new Error(`Error fetching content types of content. ${error.message}`));
         }
 
-        return allContentTypes()
+        return fetchAllContentTypes()
             .map((types) => types.sort(sortByDisplayName))
             .mapErr((error) => new Error(`Error fetching all content types. ${error.message}`));
     }, [config, contextContent, contentType, project]);

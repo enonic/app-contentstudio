@@ -1,3 +1,4 @@
+import { ok } from 'neverthrow';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentId } from '../../../../app/content/ContentId';
 import { emitContentArchived, emitContentDeleted, emitContentUpdated } from '../../../shared/socket/socket.store';
@@ -27,7 +28,7 @@ const { mockFetchContentSummaries, mockResolveForDelete, mockArchiveContent, moc
         mockTrackTask: vi.fn(),
     }));
 
-vi.mock('../../../entities/content/api/content.api', () => ({
+vi.mock('../../../entities/content/lib/contentSummaries', () => ({
     fetchContentSummaries: mockFetchContentSummaries,
 }));
 
@@ -90,7 +91,7 @@ describe('deleteDialog.store', () => {
         mockArchiveContent.mockReset();
         mockCleanupTask.mockReset();
         mockTrackTask.mockReset();
-        mockResolveForDelete.mockReset().mockResolvedValue(createDeleteResolveResult([]));
+        mockResolveForDelete.mockReset().mockResolvedValue(ok(createDeleteResolveResult([])));
     });
 
     afterEach(() => {
@@ -106,9 +107,9 @@ describe('deleteDialog.store', () => {
 
             mockResolveForDelete
                 .mockResolvedValueOnce(
-                    createDeleteResolveResult(['item-1'], [{ target: 'item-1', sources: ['ref-1'] }]),
+                    ok(createDeleteResolveResult(['item-1'], [{ target: 'item-1', sources: ['ref-1'] }])),
                 )
-                .mockResolvedValueOnce(createDeleteResolveResult(['item-1'], []));
+                .mockResolvedValueOnce(ok(createDeleteResolveResult(['item-1'], [])));
 
             openDeleteDialog([item]);
             await flushInitialReload();
@@ -128,7 +129,7 @@ describe('deleteDialog.store', () => {
         const item = createMockContent('item-1');
 
         mockResolveForDelete.mockResolvedValue(
-            createDeleteResolveResult(['item-1'], [{ target: 'item-1', sources: ['ref-1'] }]),
+            ok(createDeleteResolveResult(['item-1'], [{ target: 'item-1', sources: ['ref-1'] }])),
         );
 
         openDeleteDialog([item]);
@@ -147,7 +148,7 @@ describe('deleteDialog.store', () => {
         const item = createMockContent('item-1');
         const dependantIds = Array.from({ length: 40 }, (_, index) => `dep-${index}`);
 
-        mockResolveForDelete.mockResolvedValue(createDeleteResolveResult(['item-1', ...dependantIds]));
+        mockResolveForDelete.mockResolvedValue(ok(createDeleteResolveResult(['item-1', ...dependantIds])));
         mockFetchContentSummaries.mockImplementation((ids: ContentId[]) =>
             Promise.resolve(ids.map((id) => createMockContent(id.toString()))),
         );

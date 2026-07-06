@@ -1,4 +1,4 @@
-import { ResultAsync } from 'neverthrow';
+import { type ResultAsync } from 'neverthrow';
 import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 import type { PropertyArrayJson } from '@enonic/lib-admin-ui/data/PropertyArrayJson';
 import { MacroDescriptor } from '@enonic/lib-admin-ui/macro/MacroDescriptor';
@@ -8,37 +8,24 @@ import type {
     MacroPreviewStringJson,
     PageContributionsJson,
 } from '../../../../app/macro/resource/MacroPreviewJson';
+import { requestJson } from '../../../shared/api/client';
 import { AppError } from '../../../shared/api/errors';
-import { getCmsRestUri } from '../../../shared/lib/url/cms';
-import { $projects } from '../../../entities/project';
+import { getCmsProjectUrl } from '../../../shared/lib/url/cms';
 
-function getMacroApiUrl(endpoint: string, projectName?: string): string {
-    const project = projectName ?? $projects.get().activeProjectId ?? '';
-    return getCmsRestUri(`cms/${project}/macro/${endpoint}`);
-}
-
+/**
+ * Fetch macro descriptors registered by the given applications.
+ * Used by: features/rich-text-inserts/ui/htmlarea-macro/HtmlAreaMacroDialogContext.
+ */
 export function fetchMacros(
     applicationKeys: ApplicationKey[],
     projectName?: string,
 ): ResultAsync<MacroDescriptor[], AppError> {
-    const url = getMacroApiUrl('getByApps', projectName);
+    const url = getCmsProjectUrl('macro/getByApps', projectName);
 
-    return ResultAsync.fromPromise(
-        fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                appKeys: applicationKeys.map((key) => key.toString()),
-            }),
-        }).then(async (response) => {
-            if (!response.ok) {
-                throw new AppError(response.statusText);
-            }
-            const json: MacrosJson = await response.json();
-            return json.macros.map((macro) => MacroDescriptor.fromJson(macro));
-        }),
-        (error): AppError => (error instanceof AppError ? error : new AppError(String(error))),
-    );
+    return requestJson<MacrosJson>(url, {
+        method: 'POST',
+        body: { appKeys: applicationKeys.map((key) => key.toString()) },
+    }).map((json) => json.macros.map((macro) => MacroDescriptor.fromJson(macro)));
 }
 
 export type MacroPreviewResult = {
@@ -47,60 +34,41 @@ export type MacroPreviewResult = {
     pageContributions: PageContributionsJson;
 };
 
+/**
+ * Fetch a rendered HTML preview of a macro for the given content path.
+ * Used by: features/rich-text-inserts/ui/htmlarea-macro/HtmlAreaMacroDialogContext.
+ */
 export function fetchMacroPreview(
     formData: PropertyArrayJson[],
     macroKey: string,
     contentPath: string,
     projectName?: string,
 ): ResultAsync<MacroPreviewResult, AppError> {
-    const url = getMacroApiUrl('preview', projectName);
+    const url = getCmsProjectUrl('macro/preview', projectName);
 
-    return ResultAsync.fromPromise(
-        fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                form: formData,
-                macroKey,
-                contentPath,
-            }),
-        }).then(async (response) => {
-            if (!response.ok) {
-                throw new AppError(response.statusText);
-            }
-            const json: MacroPreviewJson = await response.json();
-            return {
-                html: json.html,
-                macroString: json.macro,
-                pageContributions: json.pageContributions,
-            };
-        }),
-        (error): AppError => (error instanceof AppError ? error : new AppError(String(error))),
-    );
+    return requestJson<MacroPreviewJson>(url, {
+        method: 'POST',
+        body: { form: formData, macroKey, contentPath },
+    }).map((json) => ({
+        html: json.html,
+        macroString: json.macro,
+        pageContributions: json.pageContributions,
+    }));
 }
 
+/**
+ * Fetch the macro string representation built from form data.
+ * Used by: features/rich-text-inserts/ui/htmlarea-macro/HtmlAreaMacroDialogContext.
+ */
 export function fetchMacroPreviewString(
     formData: PropertyArrayJson[],
     macroKey: string,
     projectName?: string,
 ): ResultAsync<string, AppError> {
-    const url = getMacroApiUrl('previewString', projectName);
+    const url = getCmsProjectUrl('macro/previewString', projectName);
 
-    return ResultAsync.fromPromise(
-        fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                form: formData,
-                macroKey,
-            }),
-        }).then(async (response) => {
-            if (!response.ok) {
-                throw new AppError(response.statusText);
-            }
-            const json: MacroPreviewStringJson = await response.json();
-            return json.macro;
-        }),
-        (error): AppError => (error instanceof AppError ? error : new AppError(String(error))),
-    );
+    return requestJson<MacroPreviewStringJson>(url, {
+        method: 'POST',
+        body: { form: formData, macroKey },
+    }).map((json) => json.macro);
 }

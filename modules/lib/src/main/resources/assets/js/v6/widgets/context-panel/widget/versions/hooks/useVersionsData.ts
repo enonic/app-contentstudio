@@ -42,21 +42,23 @@ export const useVersionsData = (content: ContentSummary | null): UseVersionsData
             setError(null);
             setContentCreatedTime(createdDate);
 
-            loadVersions(contentId)
-                .then((result) => {
-                    if (loadIdRef.current !== id) return;
-                    setVersions(result.versions);
-                    setOnlineVersionId(result.onlineVersionId);
-                    resetVersionsSelection();
-                    setHasMore(result.hasMore);
-                    setAllVersionsLoaded(!result.hasMore);
-                    setCursor(result.cursor);
-                })
-                .catch((err) => {
-                    if (loadIdRef.current !== id) return;
-                    setError(err instanceof Error ? err : new Error('Failed to load versions'));
-                })
-                .finally(() => {
+            void loadVersions(contentId)
+                .match(
+                    (result) => {
+                        if (loadIdRef.current !== id) return;
+                        setVersions(result.versions);
+                        setOnlineVersionId(result.onlineVersionId);
+                        resetVersionsSelection();
+                        setHasMore(result.hasMore);
+                        setAllVersionsLoaded(!result.hasMore);
+                        setCursor(result.cursor);
+                    },
+                    (err) => {
+                        if (loadIdRef.current !== id) return;
+                        setError(err);
+                    },
+                )
+                .then(() => {
                     if (loadIdRef.current === id) setIsLoading(false);
                 });
         },
@@ -98,17 +100,18 @@ export const useVersionsData = (content: ContentSummary | null): UseVersionsData
         setIsLoading(true);
         setError(null);
 
-        try {
-            const result = await loadVersions(content.getContentId(), cursor);
-            appendVersions(result.versions);
-            setHasMore(result.hasMore);
-            setAllVersionsLoaded(!result.hasMore);
-            setCursor(result.cursor);
-        } catch (err) {
-            setError(err instanceof Error ? err : new Error('Failed to load more versions'));
-        } finally {
-            setIsLoading(false);
-        }
+        const result = await loadVersions(content.getContentId(), cursor);
+
+        result.match(
+            (data) => {
+                appendVersions(data.versions);
+                setHasMore(data.hasMore);
+                setAllVersionsLoaded(!data.hasMore);
+                setCursor(data.cursor);
+            },
+            (err) => setError(err),
+        );
+        setIsLoading(false);
     }, [content, cursor, hasMore, isLoading, loadVersions]);
 
     return {

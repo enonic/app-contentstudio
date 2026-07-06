@@ -5,7 +5,6 @@ import type { Content } from '../../../../../app/content/Content';
 import type { PageTemplate } from '../../../../../app/content/PageTemplate';
 import type { Descriptor } from '../../../../../app/page/Descriptor';
 import { PageMode } from '../../../../../app/page/PageMode';
-import { ContentUrlHelper } from '../../../../../app/util/ContentUrlHelper';
 import {
     loadComponentDescriptor,
     loadDefaultPageTemplate,
@@ -13,6 +12,7 @@ import {
     loadPageTemplate,
 } from '../../../inspectors/api/details.api';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { getEditContentUrl } from '../../../../shared/lib/url/navigation';
 import { TemplateIcon } from '../../../../shared/ui/icons/TemplateIcon';
 import { ItemLabel } from '../../../../shared/ui/ItemLabel';
 import { $detailsWidgetContent } from '../../model/detailsWidgets.store';
@@ -34,10 +34,10 @@ function getDisplayName(content: Content, state: State, translations: ModeTransl
 }
 
 async function attemptAutomaticMode(content: Content): Promise<State> {
-    const site = await loadNearestSite(content.getContentId());
+    const site = await loadNearestSite(content.getContentId()).unwrapOr(undefined);
 
     const defaultPageTemplate = site
-        ? await loadDefaultPageTemplate(site.getContentId(), content.getType())
+        ? await loadDefaultPageTemplate(site.getContentId(), content.getType()).unwrapOr(undefined)
         : undefined;
 
     if (defaultPageTemplate?.isPage()) {
@@ -53,7 +53,7 @@ async function getState(content: Content): Promise<State> {
     }
 
     if (content.isPage() && content.getPage().hasTemplate()) {
-        const template = await loadPageTemplate(content.getPage().getTemplate());
+        const template = await loadPageTemplate(content.getPage().getTemplate()).unwrapOr(undefined);
 
         if (template) {
             return { mode: PageMode.FORCED_TEMPLATE, template, descriptor: null };
@@ -63,7 +63,7 @@ async function getState(content: Content): Promise<State> {
     }
 
     if (content.isPage()) {
-        const descriptor = await loadComponentDescriptor(content);
+        const descriptor = await loadComponentDescriptor(content).unwrapOr(undefined);
 
         if (descriptor) {
             return { mode: PageMode.FORCED_CONTROLLER, template: null, descriptor };
@@ -110,7 +110,7 @@ export const DetailsWidgetTemplateSection = (): ReactElement => {
                             <Link
                                 target="_blank"
                                 className="text-xs text-subtle truncate"
-                                href={ContentUrlHelper.generateEditContentUrl(state.template.getContentId())}
+                                href={getEditContentUrl(state.template.getContentId().toString())}
                                 title={state.template.getDisplayName()}
                             >
                                 {state.template.getDisplayName()}

@@ -1,5 +1,7 @@
+import { okAsync, type ResultAsync } from 'neverthrow';
 import { type ContentId } from '../../../../app/content/ContentId';
 import { requestJson } from '../../../shared/api/client';
+import { type AppError } from '../../../shared/api/errors';
 import { getCmsApiUrl } from '../../../shared/lib/url/cms';
 
 type HasUnpublishedChildrenJson = {
@@ -14,32 +16,20 @@ type HasUnpublishedChildrenListJson = {
 /**
  * Check if content items have unpublished children.
  * Returns a Map of content ID to hasUnpublishedChildren boolean.
+ * Used by: features/publish/model/publishDialog.commands,
+ * entities/content/lib/useItemsWithUnpublishedChildren.
  */
-export async function hasUnpublishedChildren(contentIds: ContentId[]): Promise<Map<string, boolean>> {
-    const url = getCmsApiUrl('hasUnpublishedChildren');
+export function hasUnpublishedChildren(contentIds: ContentId[]): ResultAsync<Map<string, boolean>, AppError> {
+    if (contentIds.length === 0) {
+        return okAsync(new Map<string, boolean>());
+    }
 
     const payload = {
         contentIds: contentIds.map((id) => id.toString()),
     };
 
-    const result = await requestJson<HasUnpublishedChildrenListJson>(url, { method: 'POST', body: payload });
-    if (result.isErr()) {
-        throw result.error;
-    }
-
-    return new Map(result.value.contents.map((item) => [item.id.id, item.hasChildren]));
-}
-
-/**
- * Check if a single content item has unpublished children.
- * Returns undefined on error instead of throwing.
- */
-export async function hasUnpublishedChildrenForId(contentId: ContentId): Promise<boolean | undefined> {
-    try {
-        const result = await hasUnpublishedChildren([contentId]);
-        return result.get(contentId.toString());
-    } catch (error) {
-        console.error(error);
-        return undefined;
-    }
+    return requestJson<HasUnpublishedChildrenListJson>(getCmsApiUrl('hasUnpublishedChildren'), {
+        method: 'POST',
+        body: payload,
+    }).map((json) => new Map(json.contents.map((item) => [item.id.id, item.hasChildren])));
 }

@@ -1,3 +1,4 @@
+import { ok } from 'neverthrow';
 import { vi } from 'vitest';
 import { ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
@@ -75,7 +76,9 @@ export function createResolveResult({
     publishable = [],
     schedulable = false,
 }: ResolveResultOptions) {
-    return {
+    // Wrapped in `ok(...)`: the migrated `resolvePublishDependencies` returns a Result,
+    // so the mock must resolve to one for callers that unwrap via `.isErr()` / `.value`.
+    return ok({
         getDependants: () => dependants,
         getRequired: () => required,
         getInvalid: () => invalid,
@@ -84,7 +87,7 @@ export function createResolveResult({
         getNextDependants: () => next,
         getPublishable: () => publishable,
         isSchedulable: () => schedulable,
-    };
+    });
 }
 
 export function createDeferredPromise<T>() {

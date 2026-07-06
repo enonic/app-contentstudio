@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { okAsync } from 'neverthrow';
 import { ContentId } from '../../../../app/content/ContentId';
 import {
     emitContentArchived,
@@ -32,7 +33,7 @@ import {
 } from '../../../shared/lib/test/dialog.store.test.utils';
 
 const {
-    mockCreateIssueSendAndParse,
+    mockCreateIssue,
     mockFetchContentSummaries,
     mockMarkAsReady,
     mockResolvePublishDependencies,
@@ -41,7 +42,7 @@ const {
     mockShowSuccess,
     mockShowWarning,
 } = vi.hoisted(() => ({
-    mockCreateIssueSendAndParse: vi.fn(),
+    mockCreateIssue: vi.fn(),
     mockFetchContentSummaries: vi.fn(),
     mockMarkAsReady: vi.fn(),
     mockResolvePublishDependencies: vi.fn(),
@@ -51,7 +52,7 @@ const {
     mockShowWarning: vi.fn(),
 }));
 
-vi.mock('../../../entities/content/api/content.api', () => ({
+vi.mock('../../../entities/content/lib/contentSummaries', () => ({
     fetchContentSummaries: mockFetchContentSummaries,
 }));
 
@@ -60,32 +61,8 @@ vi.mock('../../../entities/content/api/publish.api', () => ({
     resolvePublishDependencies: mockResolvePublishDependencies,
 }));
 
-vi.mock('../../../../app/issue/resource/CreateIssueRequest', () => ({
-    CreateIssueRequest: class {
-        setApprovers(): this {
-            return this;
-        }
-
-        setPublishRequest(): this {
-            return this;
-        }
-
-        setTitle(): this {
-            return this;
-        }
-
-        setDescription(): this {
-            return this;
-        }
-
-        setType(): this {
-            return this;
-        }
-
-        sendAndParse(): Promise<never> {
-            return mockCreateIssueSendAndParse();
-        }
-    },
+vi.mock('../../../entities/issue/api/issues.api', () => ({
+    createIssue: mockCreateIssue,
 }));
 
 vi.mock('@enonic/lib-admin-ui/notify/MessageBus', () => ({
@@ -124,7 +101,7 @@ describe('requestPublishDialog.store', () => {
         vi.useFakeTimers();
         resetRequestPublishDialogContext();
         mockFetchContentSummaries.mockReset().mockResolvedValue([]);
-        mockCreateIssueSendAndParse.mockReset();
+        mockCreateIssue.mockReset().mockReturnValue(okAsync({ getApprovers: () => [] }));
         mockMarkAsReady.mockReset();
         mockResolvePublishDependencies.mockReset().mockResolvedValue(createResolveResult({}));
         mockShowError.mockReset();
@@ -360,7 +337,7 @@ describe('requestPublishDialog.store', () => {
         openRequestPublishDialog([item]);
         await flushRequestPublishReload();
 
-        mockCreateIssueSendAndParse.mockReturnValueOnce(submitRequestDeferred.promise);
+        mockCreateIssue.mockReturnValueOnce(submitRequestDeferred.promise);
 
         $requestPublishDialog.set({
             ...$requestPublishDialog.get(),
@@ -409,7 +386,7 @@ describe('requestPublishDialog.store', () => {
         openRequestPublishDialog([item]);
         await flushRequestPublishReload();
 
-        mockCreateIssueSendAndParse.mockReturnValueOnce(submitRequestDeferred.promise);
+        mockCreateIssue.mockReturnValueOnce(submitRequestDeferred.promise);
 
         $requestPublishDialog.set({
             ...$requestPublishDialog.get(),

@@ -3,8 +3,8 @@ import { Extension, ExtensionConfig } from '@enonic/lib-admin-ui/extension/Exten
 import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { computed, map } from 'nanostores';
-import { GetExtensionsByInterfaceRequest } from '../../../../app/resource/GetExtensionsByInterfaceRequest';
 import { UrlAction } from '../../../../app/UrlAction';
+import { fetchExtensions } from '../../../entities/extension';
 import { $noProjectMode } from '../../../entities/project/projects.store';
 
 type WidgetsStore = {
@@ -72,13 +72,17 @@ async function loadWidgets(): Promise<void> {
     isLoading = true;
 
     try {
-        const request = new GetExtensionsByInterfaceRequest(WIDGET_INTERFACE);
-        const response = await request.sendAndParse();
-        const widgets = [createStudioWidget(), ...response];
+        const result = await fetchExtensions(WIDGET_INTERFACE);
 
-        $sidebarWidgets.setKey('widgets', sortWidgets(widgets));
+        if (result.isErr()) {
+            console.error(result.error);
+        } else {
+            const widgets = [createStudioWidget(), ...result.value];
 
-        updateActiveWidget();
+            $sidebarWidgets.setKey('widgets', sortWidgets(widgets));
+
+            updateActiveWidget();
+        }
     } catch (error) {
         console.error(error);
     } finally {

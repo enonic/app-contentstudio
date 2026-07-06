@@ -6,7 +6,6 @@ import { SaveAsTemplateAction } from '../../../../../../app/wizard/action/SaveAs
 import { FragmentComponent } from '../../../../../../app/page/region/FragmentComponent';
 import { ComponentPath } from '../../../../../../app/page/region/ComponentPath';
 import { ComponentType } from '../../../../../../app/page/region/ComponentType';
-import { ContentUrlHelper } from '../../../../../../app/util/ContentUrlHelper';
 import { PageNavigationEvent } from '../../../../../../app/wizard/PageNavigationEvent';
 import { PageNavigationEventData } from '../../../../../../app/wizard/PageNavigationEventData';
 import { PageNavigationEventType } from '../../../../../../app/wizard/PageNavigationEventType';
@@ -14,6 +13,7 @@ import { PageNavigationMediator } from '../../../../../../app/wizard/PageNavigat
 import type { FlatNode } from '../../../../../shared/lib/tree-store';
 import { getNode } from '../../../../../shared/lib/tree-store';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { openEditContentTab } from '../../../../../shared/lib/url/navigation';
 import {
     inspectItem,
     requestComponentAdd,
@@ -123,7 +123,7 @@ export const PageComponentsContextMenu = ({ node, children }: PageComponentsCont
                             {!isEmpty && <ResetItem nodeId={node.id} label={resetLabel} />}
                             <RemoveItem nodeId={node.id} label={removeLabel} />
                             <DuplicateItem nodeId={node.id} label={duplicateLabel} />
-                            {!isFragmentComponent && !contentContext?.isPageTemplate &&(
+                            {!isFragmentComponent && !contentContext?.isPageTemplate && (
                                 <SaveAsFragmentItem nodeId={node.id} label={saveAsFragmentLabel} />
                             )}
                             {isFragmentComponent && !isEmpty && (
@@ -299,7 +299,7 @@ const EditFragmentItem = ({ nodeId, label, disabled }: MenuItemProps): ReactElem
 
     const handleSelect = useCallback(() => {
         if (fragmentId) {
-            ContentUrlHelper.openEditContentTab(fragmentId);
+            openEditContentTab(fragmentId.toString());
         }
     }, [fragmentId]);
 

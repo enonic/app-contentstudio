@@ -1,53 +1,27 @@
-import {UrlAction} from '../UrlAction';
-import {UrlHelper} from './UrlHelper';
-import {ContentAppHelper} from '../wizard/ContentAppHelper';
-import {showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {type ContentId} from '../content/ContentId';
-import {type DependencyParams} from '../browse/DependencyParams';
-import {ContentEditParams} from '../wizard/ContentEditParams';
-import {type ContentCreateParams} from '../wizard/ContentCreateParams';
+import { UrlAction } from '../UrlAction';
+import { UrlHelper } from './UrlHelper';
+import { ContentAppHelper } from '../wizard/ContentAppHelper';
+import { showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { type ContentId } from '../content/ContentId';
+import { type DependencyParams } from '../browse/DependencyParams';
+import { ContentEditParams } from '../wizard/ContentEditParams';
+import { type ContentCreateParams } from '../wizard/ContentCreateParams';
+import { openNewTab, openTabOrFocusExisting } from '../../v6/shared/lib/url/navigation';
 
 export class ContentUrlHelper {
-
-    private static openWindows: Window[] = [];
-
     private static popupBlocked(win: Window) {
         return !win || win.closed || typeof win.closed === 'undefined';
     }
 
+    // Tab tracking is delegated to the v6 registry so legacy and v6 paths
+    // dedupe each other's wizard tabs.
     static openTabOrFocusExisting(url: string, name: string): Window {
-        if (ContentUrlHelper.hasWindowWithName(name)) {
-            const existingWindow: Window = ContentUrlHelper.getWindowWithName(name);
-
-            if (existingWindow.closed) {
-                ContentUrlHelper.removeClosedWindow(existingWindow);
-            } else {
-                existingWindow.focus();
-                return existingWindow;
-            }
-        }
-
-        return ContentUrlHelper.openNewTab(url);
+        return openTabOrFocusExisting(url, name);
     }
 
     static openNewTab(url: string): Window {
-        const newWindow: Window = window.open(url);
-        ContentUrlHelper.openWindows.push(newWindow);
-
-        return newWindow;
-    }
-
-    private static removeClosedWindow(closedWindow: Window): void {
-        ContentUrlHelper.openWindows = ContentUrlHelper.openWindows.filter((window: Window) => window !== closedWindow);
-    }
-
-    private static hasWindowWithName(name: string): boolean {
-        return ContentUrlHelper.openWindows.some((window: Window) => window.name === name);
-    }
-
-    private static getWindowWithName(name: string): Window {
-        return ContentUrlHelper.openWindows.find((window: Window) => window.name === name);
+        return openNewTab(url);
     }
 
     private static makeUrlParamsString(paramsList: string[]): string {
@@ -71,19 +45,18 @@ export class ContentUrlHelper {
 
     static generateDependenciesURL(params: DependencyParams): string {
         const typePostfix: string = params.getContentType() ? `/${params.getContentType().toString()}` : '';
-        const relativeUrl: string =
-            `${params.getProjectName()}/${params.getDependencyType()}/${params.getBranch()}/${params.getContentId().toString()}${typePostfix}`;
+        const relativeUrl: string = `${params.getProjectName()}/${params.getDependencyType()}/${params.getBranch()}/${params.getContentId().toString()}${typePostfix}`;
 
         return UrlHelper.getPrefixedUrl(relativeUrl);
     }
 
     static openEditContentTab(data: ContentId | ContentEditParams): void {
-        const params: ContentEditParams = data instanceof ContentEditParams ? data : ContentEditParams.create(data).build();
+        const params: ContentEditParams =
+            data instanceof ContentEditParams ? data : ContentEditParams.create(data).build();
         const url: string = ContentUrlHelper.generateEditContentUrl(params);
         const tabName: string = `${UrlAction.EDIT}:${params.getProjectName()}:${params.getContentId().toString()}`;
 
-        const win: Window =
-            ContentUrlHelper.openTabOrFocusExisting(url, tabName);
+        const win: Window = ContentUrlHelper.openTabOrFocusExisting(url, tabName);
 
         if (ContentUrlHelper.popupBlocked(win)) {
             showWarning(i18n('notify.popupBlocker.admin'), false);
@@ -91,7 +64,8 @@ export class ContentUrlHelper {
     }
 
     static generateEditContentUrl(data: ContentId | ContentEditParams): string {
-        const params: ContentEditParams = data instanceof ContentEditParams ? data : ContentEditParams.create(data).build();
+        const params: ContentEditParams =
+            data instanceof ContentEditParams ? data : ContentEditParams.create(data).build();
         const urlParams: string = this.makeUrlParamsString(this.makeEditParams(params));
         const relativeUrl: string = `${params.getProjectName()}/${UrlAction.EDIT}/${params.getContentId().toString()}${urlParams}`;
 
@@ -115,8 +89,7 @@ export class ContentUrlHelper {
     static openNewContentTab(params: ContentCreateParams): void {
         const url: string = ContentUrlHelper.generateCreateContentUrl(params);
 
-        const win: Window =
-            ContentUrlHelper.openNewTab(url);
+        const win: Window = ContentUrlHelper.openNewTab(url);
 
         if (ContentUrlHelper.popupBlocked(win)) {
             showWarning(i18n('notify.popupBlocker.admin'), false);
@@ -125,8 +98,7 @@ export class ContentUrlHelper {
 
     static generateCreateContentUrl(params: ContentCreateParams): string {
         const parentPostfix: string = params.getParentContentId() ? `/${params.getParentContentId().toString()}` : '';
-        const relativeUrl: string =
-            `${params.getProjectName()}/${UrlAction.NEW}/${params.getContentTypeName().toString()}${parentPostfix}`;
+        const relativeUrl: string = `${params.getProjectName()}/${UrlAction.NEW}/${params.getContentTypeName().toString()}${parentPostfix}`;
 
         return UrlHelper.getPrefixedUrl(relativeUrl, '');
     }

@@ -1,15 +1,16 @@
 import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
-import { Expand } from '@enonic/lib-admin-ui/rest/Expand';
 import type { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
-import type { ContentSummaryJson } from '../../../../app/content/ContentSummaryJson';
 import type { ContentTreeSelectorItem } from '../../../../app/item/ContentTreeSelectorItem';
 import type { PublishStatus } from '../../../../app/publish/PublishStatus';
-import { ContentSelectorQueryRequest } from '../../../../app/resource/ContentSelectorQueryRequest';
-import { ContentSummaryAndCompareStatusFetcher } from '../../../../app/resource/ContentSummaryAndCompareStatusFetcher';
-import { ContentTreeSelectorQueryRequest } from '../../../../app/resource/ContentTreeSelectorQueryRequest';
-import { type ChildOrder } from '../../../../app/resource/order/ChildOrder';
+import {
+    contentSelectorQuery,
+    contentTreeSelectorQuery,
+    type ContentSelectorQueryParams,
+} from '../../../entities/content/api/selectorQuery.api';
+import { fetchReadOnlyContentIds } from '../../../entities/content/api/contentQuery.api';
+import { createRootChildOrder } from '../../../entities/content/lib/childOrder';
 import type { CreateNodeOptions, FlatNode, UseTreeStoreReturn } from '../../../shared/lib/tree-store';
 import { getLoadingNodeParentId, LOADING_NODE_PREFIX, useTreeStore } from '../../../shared/lib/tree-store';
 import { getContent, setContents } from '../../../entities/content';
@@ -25,7 +26,7 @@ import {
     $contentUnpublished,
     $contentUpdated,
 } from '../../../shared/socket/socket.store';
-import { applyContentFilters, type ContentFilterOptions } from '../../../shared/lib/cms/content/applyContentFilters';
+import { type ContentFilterOptions } from '../../../shared/lib/cms/content/contentFilterOptions';
 import type { ContentState } from '../../../../app/content/ContentState';
 import { resolveDisplayName, resolveSubName } from '../../../shared/lib/cms/content/prettify';
 import { calcContentState } from '../../../shared/lib/cms/content/workflow';
@@ -111,14 +112,71 @@ export type UseContentComboboxDataReturn = {
 const BATCH_SIZE = 50;
 
 //
-// * Fetcher Instance
-//
-
-const fetcher = new ContentSummaryAndCompareStatusFetcher();
-
-//
 // * Helpers
 //
+
+/**
+ * Marks the read-only summaries in place, mirroring the legacy
+ * ContentSummaryAndCompareStatusFetcher.updateReadOnly (rejects on error so the
+ * caller's catch arm records it).
+ */
+async function updateReadOnly(summaries: ContentSummary[]): Promise<ContentSummary[]> {
+    if (summaries.length === 0) {
+        return summaries;
+    }
+
+    const result = await fetchReadOnlyContentIds(summaries.map((summary) => summary.getContentId()));
+    if (result.isErr()) {
+        throw result.error;
+    }
+
+    result.value.forEach((id) => {
+        summaries.find((summary) => summary.getId() === id)?.setReadOnly(true);
+    });
+
+    return summaries;
+}
+
+/**
+ * Maps filter options to the shared selector-query params, matching the setter
+ * calls the legacy applyContentFilters made (context content contributes the
+ * contentId; type/path/app filters travel as-is).
+ */
+function buildFilterParams(filters: ContentFilterOptions): Partial<ContentSelectorQueryParams> {
+    return {
+        contentId: filters.contextContent?.getId(),
+        contentTypeNames: filters.contentTypeNames,
+        allowedContentPaths: filters.allowedContentPaths,
+        applicationKey: filters.applicationKey?.toString(),
+    };
+}
+
+/**
+ * Resolves the tree query's parentPath/childOrder, reproducing the legacy tree
+ * request: a loaded parent wins; otherwise the context content's parent slot is
+ * used (via its setContent side effect); otherwise the fields fall back to the
+ * endpoint defaults (null / '').
+ */
+function resolveTreeScope(
+    parentContent: ContentSummary | undefined,
+    contextContent: ContentSummary | undefined,
+): { parentPath?: string; childOrder?: string } {
+    if (parentContent) {
+        return {
+            parentPath: parentContent.getPath().toString(),
+            childOrder: parentContent.getChildOrder()?.toString(),
+        };
+    }
+
+    if (contextContent) {
+        return {
+            parentPath: contextContent.getPath().getParentPath()?.toString(),
+            childOrder: contextContent.getChildOrder()?.toString(),
+        };
+    }
+
+    return {};
+}
 
 function toNodeData(summary: ContentSummary, selectable = true): ContentComboboxNodeData {
     return {
@@ -160,10 +218,6 @@ function toNodeOptionsFromTreeItem(
         parentId,
         hasChildren: item.isExpandable(),
     };
-}
-
-function createDefaultChildOrder(): ChildOrder {
-    return fetcher.createRootChildOrder();
 }
 
 function deduplicateById<T extends { getId(): string }>(items: T[]): T[] {
@@ -250,7 +304,7 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
             }
 
             try {
-                const enriched = await fetcher.updateReadOnly(summaries);
+                const enriched = await updateReadOnly(summaries);
                 if (requestId !== treeRequestIdRef.current) {
                     return summaries;
                 }
@@ -357,17 +411,16 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
         setError(null);
 
         try {
-            const request = new ContentTreeSelectorQueryRequest<ContentTreeSelectorItem>();
-            request.setFrom(0);
-            request.setSize(BATCH_SIZE);
-            request.setExpand(Expand.SUMMARY);
-            applyContentFilters(request, filtersRef.current);
-            request.setParentPath(null);
-            request.setChildOrder(createDefaultChildOrder());
-            request.setSearchString(treeQueryRef.current);
-
-            const rawItems = await request.sendAndParse();
-            const metadata = request.getMetadata();
+            const result = await contentTreeSelectorQuery({
+                from: 0,
+                size: BATCH_SIZE,
+                searchString: treeQueryRef.current,
+                contextPath: filtersRef.current.contextContent?.getPath().toString(),
+                ...buildFilterParams(filtersRef.current),
+                childOrder: createRootChildOrder().toString(),
+            });
+            if (result.isErr()) throw result.error;
+            const { items: rawItems, totalHits } = result.value;
             const items = deduplicateById(rawItems);
 
             // Stale request check
@@ -382,7 +435,7 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
             // Server totalHits may count matching leaves, not unique parents.
             // If dedup reduced count, cap total to prevent infinite "load more".
             const hasDuplicates = items.length < rawItems.length;
-            setTotalRootChildren(hasDuplicates ? items.length : metadata.getTotalHits());
+            setTotalRootChildren(hasDuplicates ? items.length : totalHits);
             setTreeInitialized(true);
         } catch (err) {
             if (currentRequestId === treeRequestIdRef.current) {
@@ -407,16 +460,16 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
         try {
             const offset = tree.state.rootIds.length;
 
-            const request = new ContentTreeSelectorQueryRequest<ContentTreeSelectorItem>();
-            request.setFrom(offset);
-            request.setSize(BATCH_SIZE);
-            request.setExpand(Expand.SUMMARY);
-            applyContentFilters(request, filtersRef.current);
-            request.setParentPath(null);
-            request.setChildOrder(createDefaultChildOrder());
-            request.setSearchString(treeQueryRef.current);
-
-            const rawItems = await request.sendAndParse();
+            const result = await contentTreeSelectorQuery({
+                from: offset,
+                size: BATCH_SIZE,
+                searchString: treeQueryRef.current,
+                contextPath: filtersRef.current.contextContent?.getPath().toString(),
+                ...buildFilterParams(filtersRef.current),
+                childOrder: createRootChildOrder().toString(),
+            });
+            if (result.isErr()) throw result.error;
+            const rawItems = result.value.items;
             const items = deduplicateById(rawItems);
 
             // Stale request check
@@ -459,24 +512,19 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
                 const parentNode = treeGetNode(parentId);
                 const parentContent = parentNode?.data?.item;
 
-                const request = new ContentTreeSelectorQueryRequest<ContentTreeSelectorItem>();
-                request.setFrom(0);
-                request.setSize(BATCH_SIZE);
-                request.setExpand(Expand.SUMMARY);
-
-                applyContentFilters(request, filtersRef.current);
-
-                if (parentContent) {
-                    request.setParentPath(parentContent.getPath());
-                    request.setChildOrder(parentContent.getChildOrder());
-                }
-                request.setSearchString(treeQueryRef.current);
-
-                const rawItems = await request.sendAndParse();
-                const metadata = request.getMetadata();
+                const result = await contentTreeSelectorQuery({
+                    from: 0,
+                    size: BATCH_SIZE,
+                    searchString: treeQueryRef.current,
+                    contextPath: filtersRef.current.contextContent?.getPath().toString(),
+                    ...buildFilterParams(filtersRef.current),
+                    ...resolveTreeScope(parentContent, filtersRef.current.contextContent),
+                });
+                if (result.isErr()) throw result.error;
+                const { items: rawItems, totalHits } = result.value;
                 const items = deduplicateById(rawItems);
                 const hasDuplicates = items.length < rawItems.length;
-                const totalChildren = hasDuplicates ? items.length : metadata.getTotalHits();
+                const totalChildren = hasDuplicates ? items.length : totalHits;
 
                 // Stale request check
                 if (currentRequestId !== treeRequestIdRef.current) return;
@@ -521,20 +569,16 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
                 const offset = node.childIds.length;
                 const parentContent = node.data?.item;
 
-                const request = new ContentTreeSelectorQueryRequest<ContentTreeSelectorItem>();
-                request.setFrom(offset);
-                request.setSize(BATCH_SIZE);
-                request.setExpand(Expand.SUMMARY);
-
-                applyContentFilters(request, filtersRef.current);
-
-                if (parentContent) {
-                    request.setParentPath(parentContent.getPath());
-                    request.setChildOrder(parentContent.getChildOrder());
-                }
-                request.setSearchString(treeQueryRef.current);
-
-                const rawItems = await request.sendAndParse();
+                const result = await contentTreeSelectorQuery({
+                    from: offset,
+                    size: BATCH_SIZE,
+                    searchString: treeQueryRef.current,
+                    contextPath: filtersRef.current.contextContent?.getPath().toString(),
+                    ...buildFilterParams(filtersRef.current),
+                    ...resolveTreeScope(parentContent, filtersRef.current.contextContent),
+                });
+                if (result.isErr()) throw result.error;
+                const rawItems = result.value.items;
                 const items = deduplicateById(rawItems);
 
                 // Stale request check
@@ -588,21 +632,19 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
         setError(null);
 
         try {
-            const request = new ContentSelectorQueryRequest<ContentSummaryJson, ContentSummary>();
-            request.setFrom(0);
-            request.setSize(BATCH_SIZE);
-            request.setExpand(Expand.SUMMARY);
-            request.setSearchString(query);
-            request.setAppendLoadResults(false);
-            applyContentFilters(request, filtersRef.current);
-
-            const contents = await request.sendAndParse();
-            const metadata = request.getMetadata();
+            const result = await contentSelectorQuery({
+                from: 0,
+                size: BATCH_SIZE,
+                searchString: query,
+                ...buildFilterParams(filtersRef.current),
+            });
+            if (result.isErr()) throw result.error;
+            const { contents, hits, totalHits } = result.value;
 
             // Stale request check
             if (currentRequestId !== flatRequestIdRef.current) return;
 
-            const summaries = await fetcher.updateReadOnly(contents);
+            const summaries = await updateReadOnly(contents);
 
             if (currentRequestId !== flatRequestIdRef.current) return;
 
@@ -622,8 +664,8 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
                 nodeType: 'node' as const,
             }));
 
-            flatFromRef.current = metadata.getHits();
-            setFlatTotalHits(metadata.getTotalHits());
+            flatFromRef.current = hits;
+            setFlatTotalHits(totalHits);
             setFlatItems(flatNodes);
         } catch (err) {
             if (currentRequestId === flatRequestIdRef.current) {
@@ -648,21 +690,19 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
         setError(null);
 
         try {
-            const request = new ContentSelectorQueryRequest<ContentSummaryJson, ContentSummary>();
-            request.setFrom(flatFromRef.current);
-            request.setSize(BATCH_SIZE);
-            request.setExpand(Expand.SUMMARY);
-            request.setSearchString(query);
-            request.setAppendLoadResults(false);
-            applyContentFilters(request, filtersRef.current);
-
-            const contents = await request.sendAndParse();
-            const metadata = request.getMetadata();
+            const result = await contentSelectorQuery({
+                from: flatFromRef.current,
+                size: BATCH_SIZE,
+                searchString: query,
+                ...buildFilterParams(filtersRef.current),
+            });
+            if (result.isErr()) throw result.error;
+            const { contents, hits } = result.value;
 
             // Stale request check
             if (currentRequestId !== flatRequestIdRef.current) return;
 
-            const summaries = await fetcher.updateReadOnly(contents);
+            const summaries = await updateReadOnly(contents);
 
             if (currentRequestId !== flatRequestIdRef.current) return;
 
@@ -682,7 +722,7 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
                 nodeType: 'node' as const,
             }));
 
-            flatFromRef.current += metadata.getHits();
+            flatFromRef.current += hits;
             setFlatItems((prev) => [...prev.filter((n) => n.nodeType === 'node'), ...flatNodes]);
         } catch (err) {
             if (currentRequestId === flatRequestIdRef.current) {

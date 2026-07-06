@@ -1,12 +1,10 @@
-import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
 import { useStore } from '@nanostores/preact';
 import { useCallback, useMemo, useState } from 'react';
-import { ContentId } from '../../../../../../../../app/content/ContentId';
 import { FragmentComponent } from '../../../../../../../../app/page/region/FragmentComponent';
 import { LayoutComponent } from '../../../../../../../../app/page/region/LayoutComponent';
 import { LayoutComponentType } from '../../../../../../../../app/page/region/LayoutComponentType';
-import { GetContentByIdRequest } from '../../../../../../../../app/resource/GetContentByIdRequest';
+import { fetchContentById } from '../../../../../../../entities/content';
 import { useI18n } from '../../../../../../../shared/lib/hooks/useI18n';
 import { $inspectedItem, $pageEditorLifecycle, requestSetFragmentComponent } from '../../../../../model/page-editor';
 import { $pageVersion } from '../../../../../model/page-editor/store';
@@ -114,15 +112,20 @@ export function useFragmentContentSelector(): UseFragmentContentSelectorResult {
             const optionLabel = options.find((o) => o.key === newId)?.label;
 
             if (isInsideLayout) {
-                new GetContentByIdRequest(new ContentId(newId)).sendAndParse().then((content) => {
-                    const fragmentComp = content.getPage()?.getFragment() ?? null;
+                void fetchContentById(newId).match(
+                    (content) => {
+                        const fragmentComp = content.getPage()?.getFragment() ?? null;
 
-                    if (fragmentComp?.getType() instanceof LayoutComponentType) {
-                        showWarning(nestedLayoutsWarning);
-                    } else {
-                        requestSetFragmentComponent(fragment.getPath(), newId, content.getDisplayName());
-                    }
-                }).catch(DefaultErrorHandler.handle);
+                        if (fragmentComp?.getType() instanceof LayoutComponentType) {
+                            showWarning(nestedLayoutsWarning);
+                        } else {
+                            requestSetFragmentComponent(fragment.getPath(), newId, content.getDisplayName());
+                        }
+                    },
+                    (error) => {
+                        console.error(error);
+                    },
+                );
             } else {
                 requestSetFragmentComponent(fragment.getPath(), newId, optionLabel);
             }

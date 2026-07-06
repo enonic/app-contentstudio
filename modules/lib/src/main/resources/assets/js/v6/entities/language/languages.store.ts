@@ -1,7 +1,7 @@
 import type { Locale } from '@enonic/lib-admin-ui/locale/Locale';
 import { computed, map } from 'nanostores';
-import { GetLocalesRequest } from '../../../app/resource/GetLocalesRequest';
 import { LocaleViewer } from '../../../app/locale/LocaleViewer';
+import { fetchLocales } from './api/locales.api';
 
 //
 // * Types
@@ -55,27 +55,29 @@ export async function initLanguages(): Promise<void> {
 
     $languagesStore.setKey('loading', true);
 
-    try {
-        const locales = await new GetLocalesRequest().sendAndParse();
-        $languagesStore.set({
-            languages: locales.map((locale) => ({
-                id: locale.getId(),
-                label: LocaleViewer.makeDisplayName(locale),
-            })),
-            locales,
-            loading: false,
-            loaded: true,
-        });
-    } catch (error) {
-        console.error('Failed to load languages:', error);
-        // Mark loaded so downstream readiness gates don't block forever.
-        $languagesStore.set({
-            languages: [],
-            locales: [],
-            loading: false,
-            loaded: true,
-        });
-    }
+    await fetchLocales().match(
+        (locales) => {
+            $languagesStore.set({
+                languages: locales.map((locale) => ({
+                    id: locale.getId(),
+                    label: LocaleViewer.makeDisplayName(locale),
+                })),
+                locales,
+                loading: false,
+                loaded: true,
+            });
+        },
+        (error) => {
+            console.error('Failed to load languages:', error);
+            // Mark loaded so downstream readiness gates don't block forever.
+            $languagesStore.set({
+                languages: [],
+                locales: [],
+                loading: false,
+                loaded: true,
+            });
+        },
+    );
 }
 
 //

@@ -2,7 +2,8 @@ import { showError } from '@enonic/lib-admin-ui/notify/MessageBus';
 import { useStore } from '@nanostores/preact';
 import { listenKeys } from 'nanostores';
 import { type DragEvent as ReactDragEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { UploadMediaError, UploadMediaSuccess } from '../../../../../entities/content/api/uploadMedia.api';
+import type { UploadMediaSuccess } from '../../../../../entities/content/api/uploadMedia.api';
+import type { UploadError } from '../../../../../shared/api';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { useUploadMedia } from '../../../../../entities/content/lib/useUploadMedia';
 import { $contextContent } from '../../../../../widgets/context-panel/model/contextContent.store';
@@ -135,7 +136,7 @@ export const useSelectorUpload = ({
         setUploadIds((prev) => prev.filter((id) => id !== success.mediaIdentifier));
     }, []);
 
-    const onUploadError = useCallback((error: UploadMediaError) => {
+    const onUploadError = useCallback((error: UploadError) => {
         removeUpload(error.mediaIdentifier);
         setUploadIds((prev) => prev.filter((id) => id !== error.mediaIdentifier));
         showError(useI18n('notify.upload.error', error.mediaIdentifier, error.message));

@@ -6,11 +6,8 @@ import { showError, showSuccess } from '@enonic/lib-admin-ui/notify/MessageBus';
 import { type Project } from '../../../../app/settings/data/project/Project';
 import { ProjectConfigContext } from '../../../../app/settings/data/project/ProjectConfigContext';
 import { ProjectAccess } from '../../../../app/settings/access/ProjectAccess';
-import { ProjectCreateRequest } from '../../../../app/settings/resource/ProjectCreateRequest';
-import { ProjectUpdateRequest } from '../../../../app/settings/resource/ProjectUpdateRequest';
 import { ProjectReadAccess } from '../../../../app/settings/data/project/ProjectReadAccess';
 import { type ProjectReadAccessType } from '../../../../app/settings/data/project/ProjectReadAccessType';
-import { UpdateProjectPermissionsRequest } from '../../../../app/settings/resource/UpdateProjectPermissionsRequest';
 import { ProjectItemPermissionsBuilder } from '../../../../app/settings/data/project/ProjectPermissions';
 import { type Principal } from '@enonic/lib-admin-ui/security/Principal';
 import { type Application } from '@enonic/lib-admin-ui/application/Application';
@@ -20,8 +17,12 @@ import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
 import { $applications, loadApplications } from '../../../entities/application';
 import { getProjectDetailedPermissions } from '../../../shared/lib/url/projects';
 import { $principals, loadPrincipalsByKeys } from '../../../entities/principal';
-import { formatError } from '../../../shared/lib/format/error';
-import { UpdateProjectReadAccessRequest } from '../../../../app/settings/resource/UpdateProjectReadAccessRequest';
+import {
+    createProject as createProjectRequest,
+    updateProject as updateProjectRequest,
+    updateProjectPermissions,
+    updateProjectReadAccess,
+} from '../../../entities/project/api/projects.api';
 import { trackTask } from '../../../entities/task';
 import { ProjectCreatedEvent } from '../../../../app/settings/event/ProjectCreatedEvent';
 import { ProjectUpdatedEvent } from '../../../../app/settings/event/ProjectUpdatedEvent';
@@ -342,30 +343,23 @@ export const createProject = (): ResultAsync<void, Error> => {
 
     const { readAccess, applicationConfigs, projectRoles } = getDataForRequests();
 
-    // Building requests
-    const projectCreateRequest = new ProjectCreateRequest()
-        .setParents(parentProjects)
-        .setReadAccess(readAccess)
-        .setDescription(description)
-        .setName(identifier)
-        .setDisplayName(name)
-        .setLanguage(defaultLanguage)
-        .setApplicationConfigs(applicationConfigs);
-    const updateProjectPermissionsRequest = new UpdateProjectPermissionsRequest()
-        .setName(identifier)
-        .setPermissions(projectRoles)
-        .setViewers(permissions.map((p: Principal) => p.getKey()));
-
-    // Project create
-    return ResultAsync.fromPromise(projectCreateRequest.sendAndParse(), formatError)
-        .andThen((project) => {
-            const updatePermissionsResult = ResultAsync.fromPromise(
-                updateProjectPermissionsRequest.sendAndParse(),
-                formatError,
-            );
-
-            return updatePermissionsResult.map(() => project);
-        })
+    // Project create, followed by the permissions update.
+    return createProjectRequest({
+        name: identifier,
+        displayName: name,
+        description,
+        language: defaultLanguage,
+        applicationConfigs,
+        parents: parentProjects,
+        readAccess,
+    })
+        .andThen((project) =>
+            updateProjectPermissions(
+                identifier,
+                projectRoles,
+                permissions.map((p: Principal) => p.getKey()),
+            ).map(() => project),
+        )
         .map((project) => {
             $projectDialog.setKey('submitting', false);
             closeProjectDialog();
@@ -391,21 +385,6 @@ export const updateProject = (): ResultAsync<void, Error> => {
     const { readAccess, applicationConfigs, projectRoles } = getDataForRequests();
     const { updateGuard, permissionsGuard, accessGuard } = getRequestsGuards();
 
-    // Building requests
-    const projectUpdateRequest = new ProjectUpdateRequest()
-        .setDescription(description)
-        .setName(identifier)
-        .setDisplayName(name)
-        .setLanguage(defaultLanguage)
-        .setApplicationConfigs(applicationConfigs);
-    const updateProjectPermissionsRequest = new UpdateProjectPermissionsRequest()
-        .setName(identifier)
-        .setPermissions(projectRoles)
-        .setViewers(accessMode === 'custom' ? permissions.map((p: Principal) => p.getKey()) : []);
-    const updateProjectReadAccessRequest = new UpdateProjectReadAccessRequest()
-        .setName(identifier)
-        .setReadAccess(readAccess);
-
     const handleUpdateSuccess = (): void => {
         $projectDialog.setKey('submitting', false);
         $projectDialog.setKey('readAccessProgress', null);
@@ -426,7 +405,13 @@ export const updateProject = (): ResultAsync<void, Error> => {
     $projectDialog.setKey('submitting', true);
 
     const modifyResult: ResultAsync<void, Error> = updateGuard
-        ? ResultAsync.fromPromise(projectUpdateRequest.sendAndParse(), formatError)
+        ? updateProjectRequest({
+              name: identifier,
+              displayName: name,
+              description,
+              language: defaultLanguage,
+              applicationConfigs,
+          }).map(() => undefined)
         : okAsync(undefined);
 
     return modifyResult
@@ -434,15 +419,18 @@ export const updateProject = (): ResultAsync<void, Error> => {
             const requests: ResultAsync<unknown, Error>[] = [];
 
             if (permissionsGuard) {
-                requests.push(ResultAsync.fromPromise(updateProjectPermissionsRequest.sendAndParse(), formatError));
+                requests.push(
+                    updateProjectPermissions(
+                        identifier,
+                        projectRoles,
+                        accessMode === 'custom' ? permissions.map((p: Principal) => p.getKey()) : [],
+                    ),
+                );
             }
 
             if (accessGuard) {
                 $projectDialog.setKey('view', 'progress');
-                const readAccessResult = ResultAsync.fromPromise<TaskId, Error>(
-                    updateProjectReadAccessRequest.sendAndParse(),
-                    formatError,
-                );
+                const readAccessResult = updateProjectReadAccess(identifier, readAccess);
                 return ResultAsync.combine([...requests, readAccessResult]).map(
                     (results) => results[results.length - 1] as TaskId,
                 );

@@ -1,6 +1,5 @@
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
-import { UriHelper } from '@enonic/lib-admin-ui/util/UriHelper';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { type ContentSummary } from '../../../../../app/content/ContentSummary';
@@ -9,12 +8,13 @@ import { HtmlEditor } from '../../../../../app/inputtype/ui/text/HtmlEditor';
 import { type Style } from '../../../../../app/inputtype/ui/text/styles/Style';
 import { StyleHelper } from '../../../../../app/inputtype/ui/text/styles/StyleHelper';
 import { Styles } from '../../../../../app/inputtype/ui/text/styles/Styles';
-import { StylesRequest } from '../../../../../app/inputtype/ui/text/styles/StylesRequest';
 import { type Project } from '../../../../../app/settings/data/project/Project';
 import { ImageHelper } from '../../../../../app/util/ImageHelper';
-import { ImageUrlResolver } from '../../../../../app/util/ImageUrlResolver';
 import { isBlank } from '../../../../shared/lib/format/isBlank';
+import { buildImagePreviewUrl, buildImageRenderUrl } from '../../../../shared/lib/url/images';
+import { appendUrlParams, decodeUrlParams, trimUrlParams } from '../../../../shared/lib/url/params';
 import { fetchContentById } from '../../../../entities/content';
+import { fetchStyles } from '../../../../entities/content/api/styles.api';
 
 //
 // Types
@@ -260,30 +260,30 @@ function getProcessingStyle(contentId: string | undefined, styleName: string): S
     return styles.find((s) => s.getName() === styleName);
 }
 
-function createImageUrlResolver(
+function buildImageUrls(
     imageContent: ContentSummary,
     size: number,
     project?: Project,
     style?: Style,
-): ImageUrlResolver {
-    const isOriginalImage = style ? StyleHelper.isOriginalImage(style.getName()) : false;
-    const resolver = new ImageUrlResolver(null, project)
-        .setContentId(imageContent.getContentId())
-        .setTimestamp(imageContent.getModifiedTime())
-        .setScaleWidth(true);
+): { src: string; dataSrc: string } {
+    const styleName = style?.getName() ?? '';
+    // The original-image style resets scaleWidth to false and skips sizing (legacy `disableProcessing`).
+    const isOriginal = style ? StyleHelper.isOriginalImage(styleName) : false;
 
-    if (size && !isOriginalImage) {
-        resolver.setSize(size);
-    }
+    const src = buildImagePreviewUrl({
+        contentId: imageContent.getContentId().toString(),
+        projectName: project?.getName(),
+        timestamp: imageContent.getModifiedTime() ?? undefined,
+        scaleWidth: !isOriginal,
+        size: size && !isOriginal ? size : undefined,
+        source: isOriginal,
+        aspectRatio: style?.getAspectRatio(),
+        filter: style?.getFilter(),
+    });
 
-    if (style) {
-        if (isOriginalImage) {
-            resolver.disableProcessing();
-        }
-        resolver.setAspectRatio(style.getAspectRatio()).setFilter(style.getFilter());
-    }
+    const dataSrc = buildImageRenderUrl(imageContent.getContentId().toString(), styleName);
 
-    return resolver;
+    return { src, dataSrc };
 }
 
 function computeOpenState(params: OpenHtmlAreaImageDialogParams): HtmlAreaImageDialogState {
@@ -368,7 +368,7 @@ function performOpenSideEffects(params: OpenHtmlAreaImageDialogParams): void {
 
     const contentId = params.content?.getId();
     if (contentId) {
-        StylesRequest.fetchStyles(contentId);
+        void fetchStyles(contentId);
     }
 }
 
@@ -695,10 +695,7 @@ export function HtmlAreaImageDialogProvider({ children, openRef }: HtmlAreaImage
         const imageContent = s.selectedImageContent;
 
         const processingStyle = getProcessingStyle(s.contentId, s.processingStyleName);
-        const urlResolver = createImageUrlResolver(imageContent, s.editorWidth, s.project, processingStyle);
-
-        const src = urlResolver.resolveForPreview();
-        const dataSrc = urlResolver.resolveForRender(processingStyle ? processingStyle.getName() : '');
+        const { src, dataSrc } = buildImageUrls(imageContent, s.editorWidth, s.project, processingStyle);
 
         const altTextValue = s.accessibility === 'informative' ? s.altText : '';
         const noCaption = isBlank(s.caption);
@@ -754,21 +751,17 @@ export function HtmlAreaImageDialogProvider({ children, openRef }: HtmlAreaImage
             if (s.presetImageEl && !s.selectedImageContent) {
                 let imgSrcAttr = s.presetImageEl.getAttribute('src') ?? '';
                 const src = imgSrcAttr.replace(/&amp;/g, '&');
-                const params = UriHelper.decodeUrlParams(src);
+                const params = decodeUrlParams(src);
                 if (params.size) {
-                    const plainUrl = UriHelper.trimUrlParams(src);
+                    const plainUrl = trimUrlParams(src);
                     params.size = String(previewWidth);
-                    imgSrcAttr = UriHelper.appendUrlParams(plainUrl, params, false);
+                    imgSrcAttr = appendUrlParams(plainUrl, params, false);
                 }
                 const dataSrc = s.presetImageEl.getAttribute('data-src') ?? '';
                 return { src: imgSrcAttr, dataSrc };
             }
 
-            const resolver = createImageUrlResolver(imageContent, previewWidth, s.project, processingStyle);
-            return {
-                src: resolver.resolveForPreview(),
-                dataSrc: resolver.resolveForRender(processingStyle ? processingStyle.getName() : ''),
-            };
+            return buildImageUrls(imageContent, previewWidth, s.project, processingStyle);
         },
         [],
     );

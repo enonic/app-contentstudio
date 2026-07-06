@@ -2,7 +2,7 @@ import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { map } from 'nanostores';
-import { ProjectDeleteRequest } from '../../../../app/settings/resource/ProjectDeleteRequest';
+import { deleteProject } from '../../../entities/project/api/projects.api';
 import { clearPendingDeletedProject, markPendingDeletedProject } from '../../../entities/project/projects.store';
 
 type DeleteSettingsDialogStore = {
@@ -46,14 +46,14 @@ export const executeDeleteSettingsDialogAction = (): void => {
 
     markPendingDeletedProject(projectName, navigateAfterDeletion);
 
-    new ProjectDeleteRequest(projectName)
-        .sendAndParse()
-        .then(() => {
+    void deleteProject(projectName).match(
+        () => {
             closeDeleteSettingsDialog();
             showFeedback(i18n('notify.settings.project.deleted', projectName));
-        })
-        .catch((error) => {
+        },
+        (error) => {
             clearPendingDeletedProject(projectName);
             DefaultErrorHandler.handle(error);
-        });
+        },
+    );
 };

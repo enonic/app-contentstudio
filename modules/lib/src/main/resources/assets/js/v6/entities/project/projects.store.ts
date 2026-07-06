@@ -1,6 +1,5 @@
 import { atom, computed, map } from 'nanostores';
 import { type Project } from '../../../app/settings/data/project/Project';
-import { ProjectListRequest } from '../../../app/settings/resource/ProjectListRequest';
 import { ProjectUpdatedEvent } from '../../../app/settings/event/ProjectUpdatedEvent';
 import { ProjectCreatedEvent } from '../../../app/settings/event/ProjectCreatedEvent';
 import { ProjectDeletedEvent } from '../../../app/settings/event/ProjectDeletedEvent';
@@ -12,6 +11,7 @@ import {
     resolveActiveProjectIdAfterDeletion,
 } from '../../shared/lib/cms/projects/projectSelection';
 import { isWizardUrl } from '../../shared/lib/url/app';
+import { listProjects } from './api/projects.api';
 import { $activeProject, setActiveProject } from './activeProject.store';
 
 // TODO: Enonic UI - Feature: store projects as JSON objects in the sync store
@@ -187,23 +187,33 @@ async function loadProjects(): Promise<void> {
     });
 
     try {
-        const request = new ProjectListRequest(true);
-        const projects = await request.sendAndParse();
+        const result = await listProjects();
 
-        updateProjectsState({
-            projects,
-            loaded: false,
-            resolved: false,
-            loadError: false,
-        });
-        validateHostProjectId(projects);
-        refreshActiveProjectInstance();
-        updateActiveProject();
-        updateProjectsState({
-            loaded: true,
-            resolved: true,
-            loadError: false,
-        });
+        if (result.isErr()) {
+            updateProjectsState({
+                loaded: false,
+                loadError: true,
+                resolved: true,
+            });
+            console.error(result.error);
+        } else {
+            const projects = result.value;
+
+            updateProjectsState({
+                projects,
+                loaded: false,
+                resolved: false,
+                loadError: false,
+            });
+            validateHostProjectId(projects);
+            refreshActiveProjectInstance();
+            updateActiveProject();
+            updateProjectsState({
+                loaded: true,
+                resolved: true,
+                loadError: false,
+            });
+        }
     } catch (error) {
         updateProjectsState({
             loaded: false,

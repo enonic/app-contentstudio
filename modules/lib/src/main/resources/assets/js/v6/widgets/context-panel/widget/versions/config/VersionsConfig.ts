@@ -4,7 +4,7 @@ import { type ContentJson } from '../../../../../../app/content/ContentJson';
 import { type ContentVersionsLoadResult } from '../../../../../shared/lib/widget/versions/versionsCache';
 
 export type VersionsServices = {
-    loadVersions: (contentId: ContentId, cursor?: string) => Promise<ContentVersionsLoadResult>;
+    loadVersions: (contentId: ContentId, cursor?: string) => ResultAsync<ContentVersionsLoadResult, Error>;
     fetchVersion: (contentId: string, versionId: string) => ResultAsync<ContentJson, Error>;
     revert?: (contentId: ContentId, versionId: string) => ResultAsync<string, Error>;
     subscribeContentInvalidation?: (handler: (contentId: string) => void) => () => void;

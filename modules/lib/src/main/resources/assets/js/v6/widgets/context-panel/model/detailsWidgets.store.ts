@@ -3,12 +3,9 @@ import { $contextContent } from './contextContent.store';
 import { type Content } from '../../../../app/content/Content';
 import { type EffectivePermission } from '../../../../app/security/EffectivePermission';
 import { type Attachments } from '../../../../app/attachment/Attachments';
-import { ContentPath } from '../../../../app/content/ContentPath';
 import { type ContentSummary } from '../../../../app/content/ContentSummary';
-import { GetContentByIdRequest } from '../../../../app/resource/GetContentByIdRequest';
-import { GetContentAttachmentsRequest } from '../../../../app/resource/GetContentAttachmentsRequest';
-import { GetEffectivePermissionsRequest } from '../../../../app/resource/GetEffectivePermissionsRequest';
 import { type ContentId } from '../../../../app/content/ContentId';
+import { fetchContentAttachments, fetchContentById, fetchEffectivePermissions } from '../../../entities/content';
 import { type Access } from '../../../../app/security/Access';
 import { AccessControlEntryView } from '../../../../app/view/AccessControlEntryView';
 import { RoleKeys } from '@enonic/lib-admin-ui/security/RoleKeys';
@@ -113,43 +110,40 @@ function filterEffectivePermissions(content: Content, permissions: EffectivePerm
 }
 
 async function loadContent(contentSummary: Readonly<ContentSummary>): Promise<Content | undefined> {
-    try {
-        const request = new GetContentByIdRequest(contentSummary.getContentId());
+    const result = await fetchContentById(contentSummary.getContentId().toString());
 
-        const content = await request.sendAndParse();
+    return result.match(
+        (content) => content,
+        (error) => {
+            console.error(error);
 
-        return content;
-    } catch (error) {
-        console.error(error);
-
-        return undefined;
-    }
+            return undefined;
+        },
+    );
 }
 
 async function loadAttachments(contentId: ContentId): Promise<Attachments | undefined> {
-    try {
-        const request = new GetContentAttachmentsRequest(contentId).setContentRootPath(ContentPath.CONTENT_ROOT);
+    const result = await fetchContentAttachments(contentId);
 
-        const attachments = await request.sendAndParse();
+    return result.match(
+        (attachments) => attachments,
+        (error) => {
+            console.error(error);
 
-        return attachments;
-    } catch (error) {
-        console.error(error);
-
-        return undefined;
-    }
+            return undefined;
+        },
+    );
 }
 
 async function loadPermissions(contentId: ContentId): Promise<EffectivePermission[] | undefined> {
-    try {
-        const request = new GetEffectivePermissionsRequest(contentId);
+    const result = await fetchEffectivePermissions(contentId);
 
-        const permissions = await request.sendAndParse();
+    return result.match(
+        (permissions) => permissions,
+        (error) => {
+            console.error(error);
 
-        return permissions;
-    } catch (error) {
-        console.error(error);
-
-        return undefined;
-    }
+            return undefined;
+        },
+    );
 }

@@ -28,10 +28,13 @@ export {
     isVisibleFilterContentDataLoadFailed,
     reloadParentChildren,
 } from './api/content-fetcher';
-export { fetchContentById, fetchContentSummaries, fetchNearestSite } from './api/content.api';
-export { resolveDependenciesForId } from './api/dependencies.api';
+export { fetchContentById, fetchContentByPath, fetchNearestSite } from './api/content.api';
+export { fetchContentAttachments } from './api/attachments.api';
+export { fetchEffectivePermissions } from './api/effectivePermissions.api';
+export { resolveDependencies } from './api/dependencies.api';
 export { hasUnpublishedChildren } from './api/hasUnpublishedChildren.api';
 export { fetchVersion, revert } from './api/versions.api';
+export { fetchContentSummaries } from './lib/contentSummaries';
 export { formatCompareResult } from './lib/formatCompareResult';
 export { useItemsWithUnpublishedChildren } from './lib/useItemsWithUnpublishedChildren';
 export { $activeFlatNodes, $activeRawFlatNodes } from './model/active-tree.store';

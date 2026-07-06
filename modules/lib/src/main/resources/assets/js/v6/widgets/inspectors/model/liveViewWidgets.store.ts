@@ -1,6 +1,6 @@
 import { type Extension } from '@enonic/lib-admin-ui/extension/Extension';
 import { computed, map } from 'nanostores';
-import { GetExtensionsByInterfaceRequest } from '../../../../app/resource/GetExtensionsByInterfaceRequest';
+import { fetchExtensions } from '../../../entities/extension';
 import { $contentType } from '../../../pages/wizard/model/wizardContent.store';
 
 export const WIDGET_AUTO_DESCRIPTOR = 'preview-automatic';
@@ -56,10 +56,14 @@ const WIDGET_INTERFACE = 'contentstudio.liveview';
 
 async function loadWidgets(): Promise<void> {
     try {
-        const request = new GetExtensionsByInterfaceRequest(WIDGET_INTERFACE);
-        const widgets = await request.sendAndParse();
+        const result = await fetchExtensions(WIDGET_INTERFACE);
 
-        $liveViewWidgets.setKey('widgets', sortWidgets(widgets));
+        if (result.isErr()) {
+            console.error(result.error);
+            return;
+        }
+
+        $liveViewWidgets.setKey('widgets', sortWidgets(result.value));
 
         updateActiveWidget();
     } catch (error) {
