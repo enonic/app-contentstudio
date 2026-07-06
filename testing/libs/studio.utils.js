@@ -604,8 +604,8 @@ module.exports = {
             await contentWizard.waitForOpened();
             return contentWizard;
         } catch (err) {
-            await this.saveScreenshotUniqueName('err_new_content_dlg');
-            throw new Error('Error in New content dialog: ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_new_content_dlg');
+            throw new Error('Error in New content dialog, screenshot: ' + screenshot + ' ' + err);
         }
     },
     // Open delete dialog, click on 'Delete' button then type a number to delete
