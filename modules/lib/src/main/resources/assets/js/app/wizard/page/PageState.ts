@@ -389,9 +389,21 @@ export class PageStateEventHandler {
         const item: PageItem = PageState.getState().getComponentByPath(path);
         const contentId: ContentId = id ? new ContentId(id) : null;
 
-        if (item instanceof FragmentComponent) {
-            item.setFragment(contentId, name ?? null);
-            PageEventsManager.get().notifyComponentReloadRequested(path, false);
+        if (!(item instanceof FragmentComponent)) {
+            return;
         }
+
+        // Callers originating in the live edit frame cannot pass a name,
+        // so resolve it to keep the component name in sync with the fragment.
+        if (contentId && !name) {
+            new GetContentByIdRequest(contentId).sendAndParse().then((content: Content) => {
+                item.setFragment(contentId, content.getDisplayName());
+                PageEventsManager.get().notifyComponentReloadRequested(path, false);
+            }).catch(DefaultErrorHandler.handle);
+            return;
+        }
+
+        item.setFragment(contentId, name ?? null);
+        PageEventsManager.get().notifyComponentReloadRequested(path, false);
     }
 }
