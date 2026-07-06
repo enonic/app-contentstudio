@@ -1,12 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { $config } from '../../config/config.store';
 import { setActiveProjectResolver } from './cms';
 import { getEditContentUrl, getInboundReferencesUrl, openEditContentTab } from './navigation';
 
 const mockShowWarning = vi.fn();
-
-vi.mock('@enonic/lib-admin-ui/util/Config', () => ({
-    CONFIG: { getString: () => '/admin/tool' },
-}));
 
 vi.mock('@enonic/lib-admin-ui/notify/MessageBus', () => ({
     showWarning: (...args: unknown[]) => mockShowWarning(...args),
@@ -18,6 +15,7 @@ vi.mock('@enonic/lib-admin-ui/util/Messages', () => ({
 
 beforeEach(() => {
     setActiveProjectResolver(() => 'my-project');
+    $config.setKey('toolUri', '/admin/tool');
 });
 
 afterEach(() => {

@@ -1,7 +1,6 @@
 /*global CKEDITOR*/
 
 import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
-import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
 import { cn } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { useCKEditor } from 'ckeditor4-react';
@@ -53,6 +52,7 @@ import { useCKEditorConfig } from '../../../../../../features/shared/form/input-
 import { $contextContent } from '../../../../../context-panel/model/contextContent.store';
 import { requestUpdateTextComponent } from '../../../../model/page-editor';
 import { $activeProject } from '../../../../../../entities/project';
+import { $config } from '../../../../../../shared/config/config.store';
 import { useApplicationKeys } from '../../../../../../features/shared/hooks/useApplicationKeys';
 import { useInspectTextTracking } from './useInspectTextTracking';
 
@@ -74,9 +74,9 @@ const TEXT_EDITOR_NAME = 'TextEditor';
 export const TextEditor = ({ textComponent, disabled }: TextEditorProps): JSX.Element => {
     const contentSummary = useStore($contextContent);
     const activeProject = useStore($activeProject);
+    const { assetsUri } = useStore($config, { keys: ['assetsUri'] });
     const applicationKeys = useApplicationKeys();
 
-    const assetsUri = CONFIG.getString('assetsUri');
     const editorId = `text-inspection-editor-${textComponent.getPath().toString()}`;
 
     const [editableSourceCode, setEditableSourceCode] = useState<boolean | undefined>(undefined);

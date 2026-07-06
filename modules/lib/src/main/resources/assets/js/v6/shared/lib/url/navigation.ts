@@ -1,13 +1,12 @@
 import { showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
-import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { $config } from '../../config/config.store';
 import { resolveActiveProjectName } from './cms';
 
 //
 // * URL builders
 //
 
-const TOOL_URI_PROPERTY = 'toolUri';
 const EDIT_ACTION = 'edit';
 const INBOUND_ACTION = 'inbound';
 const POPUP_BLOCKED_KEY = 'notify.popupBlocker.admin';
@@ -20,7 +19,7 @@ export type InboundReferencesUrlParams = {
 };
 
 function getToolUri(): string {
-    return CONFIG.getString(TOOL_URI_PROPERTY);
+    return $config.get().toolUri;
 }
 
 /**

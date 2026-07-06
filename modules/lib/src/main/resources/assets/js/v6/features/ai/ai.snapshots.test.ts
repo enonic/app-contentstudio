@@ -10,6 +10,8 @@ describe('buildPluginConfig', () => {
             appId: '',
             appVersion: '',
             adminUrl: '/admin',
+            assetsUri: '',
+            toolUri: '',
             user: undefined,
             excludeDependencies: false,
             allowContentUpdate: false,

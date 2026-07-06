@@ -6,7 +6,7 @@ import type { ExtensionItemViewType } from '../../../../../app/view/context/Exte
 import { LegacyElement } from '../../../../shared/ui/LegacyElement';
 import { $contextContent } from '../../model/contextContent.store';
 import { $activeWidgetId, $isContextOpen } from '../../model/contextWidgets.store';
-import { DETAILS_WIDGET_KEY } from '../../../../shared/lib/widget/details';
+import { getDetailsWidgetKey } from '../../../../shared/lib/widget/details';
 import { DetailsWidgetAttachmentsSection } from './DetailsWidgetAttachmentsSection';
 import { DetailsWidgetContentSection } from './DetailsWidgetContentSection';
 import { DetailsWidgetInfoSection } from './DetailsWidgetInfoSection';
@@ -19,7 +19,7 @@ const DETAILS_WIDGET_NAME = 'DetailsWidget';
 export const DetailsWidget = (): ReactElement => {
     const isContextOpen = useStore($isContextOpen);
     const activeWidget = useStore($activeWidgetId);
-    const isActiveWidget = activeWidget === DETAILS_WIDGET_KEY;
+    const isActiveWidget = activeWidget === getDetailsWidgetKey();
     const content = useStore($contextContent);
 
     if (!isContextOpen || !isActiveWidget || !content) return null;

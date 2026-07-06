@@ -17,6 +17,8 @@ type ConfigStore = {
     appId: string;
     appVersion: string;
     adminUrl: string;
+    assetsUri: string;
+    toolUri: string;
     // Session
     user?: Principal;
     // Flags
@@ -38,6 +40,8 @@ type ConfigJson = {
     appId: unknown;
     appVersion: unknown;
     adminUrl?: unknown;
+    assetsUri?: unknown;
+    toolUri?: unknown;
     user: unknown;
     excludeDependencies?: unknown;
     allowContentUpdate?: unknown;
@@ -62,6 +66,8 @@ const DEFAULT_CONFIG: Readonly<ConfigStore> = {
     appId: '',
     appVersion: '',
     adminUrl: '/admin',
+    assetsUri: '',
+    toolUri: '',
     user: undefined,
     excludeDependencies: true,
     allowContentUpdate: false,
@@ -109,6 +115,8 @@ function parseConfig(content: string): ConfigStore | undefined {
             appId: parseString(config.appId),
             appVersion: parseString(config.appVersion),
             adminUrl: parseString(config.adminUrl) || DEFAULT_CONFIG.adminUrl,
+            assetsUri: parseString(config.assetsUri),
+            toolUri: parseString(config.toolUri),
             user: config.user ? Principal.fromJson(config.user as PrincipalJson) : undefined,
             excludeDependencies: parseBoolean(config.excludeDependencies),
             allowContentUpdate: parseBoolean(config.allowContentUpdate),

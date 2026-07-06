@@ -9,7 +9,7 @@ import { resolveDependencies } from '../../../../entities/content';
 import { LegacyElement } from '../../../../shared/ui/LegacyElement';
 import { $contextContent } from '../../model/contextContent.store';
 import { $activeWidgetId, $isContextOpen } from '../../model/contextWidgets.store';
-import { DEPENDENCIES_WIDGET_KEY } from '../../../../shared/lib/widget/dependencies';
+import { getDependenciesWidgetKey } from '../../../../shared/lib/widget/dependencies';
 import { DependenciesWidgetContentSection } from './DependenciesWidgetContentSection';
 import { DependenciesWidgetFlowSection } from './DependenciesWidgetFlowSection';
 
@@ -25,7 +25,7 @@ const DEPENDENCIES_WIDGET_NAME = 'DependenciesWidget';
 const DependenciesWidget = (): ReactElement => {
     const isContextOpen = useStore($isContextOpen);
     const activeWidget = useStore($activeWidgetId);
-    const isActiveWidget = activeWidget === DEPENDENCIES_WIDGET_KEY;
+    const isActiveWidget = activeWidget === getDependenciesWidgetKey();
     const content = useStore($contextContent);
 
     const [inboundDependencies, setInboundDependencies] = useState<DependencyItem[]>([]);
