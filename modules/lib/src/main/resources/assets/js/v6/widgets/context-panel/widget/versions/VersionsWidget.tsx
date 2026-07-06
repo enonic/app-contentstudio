@@ -6,7 +6,7 @@ import type { ExtensionItemViewType } from '../../../../../app/view/context/Exte
 import { LegacyElement } from '../../../../shared/ui/LegacyElement';
 import { $contextContent } from '../../model/contextContent.store';
 import { $activeWidgetId, $isContextOpen } from '../../model/contextWidgets.store';
-import { VERSIONS_WIDGET_KEY } from '../../../../shared/lib/widget/versions/versions';
+import { getVersionsWidgetKey } from '../../../../shared/lib/widget/versions/versions';
 import { createContentStudioDefaults } from './config/defaults';
 import { VersionsConfigProvider } from './config/VersionsConfigContext';
 import { VersionsList } from './VersionsList';
@@ -14,7 +14,7 @@ import { VersionsList } from './VersionsList';
 export const VersionsWidget = (): ReactElement | null => {
     const isContextOpen = useStore($isContextOpen);
     const activeWidget = useStore($activeWidgetId);
-    const isActiveWidget = activeWidget === VERSIONS_WIDGET_KEY;
+    const isActiveWidget = activeWidget === getVersionsWidgetKey();
     const content = useStore($contextContent);
     const config = useMemo(() => createContentStudioDefaults(), []);
 

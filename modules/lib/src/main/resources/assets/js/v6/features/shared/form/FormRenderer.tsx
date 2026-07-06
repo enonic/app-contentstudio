@@ -2,12 +2,12 @@ import type { ApplicationKey } from '@enonic/lib-admin-ui/application/Applicatio
 import type { Form } from '@enonic/lib-admin-ui/form/Form';
 import type { PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
 import { LocaleProvider } from '@enonic/lib-admin-ui/form2';
-import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
 import { useStore } from '@nanostores/preact';
 import { type ReactElement, type ReactNode, useMemo } from 'react';
 import { useApplicationKeys } from '../hooks/useApplicationKeys';
 import { $contextContent } from '../../../widgets/context-panel/model/contextContent.store';
 import { $activeProject } from '../../../entities/project';
+import { $config } from '../../../shared/config/config.store';
 import { Input } from '@enonic/lib-admin-ui/form/Input';
 import { instanceOf } from '../../../shared/lib/object/instanceOf';
 import { FormRenderProvider } from './FormRenderContext';
@@ -72,6 +72,7 @@ FormRenderer.displayName = 'FormRenderer';
 const HtmlAreaShell = ({ children }: { children: ReactNode }): ReactElement => {
     const contextContent = useStore($contextContent);
     const activeProject = useStore($activeProject);
+    const { assetsUri } = useStore($config, { keys: ['assetsUri'] });
     const applicationKeys = useApplicationKeys();
 
     return (
@@ -80,7 +81,7 @@ const HtmlAreaShell = ({ children }: { children: ReactNode }): ReactElement => {
                 contentSummary={contextContent ?? undefined}
                 project={activeProject}
                 applicationKeys={applicationKeys}
-                assetsUri={CONFIG.getString('assetsUri')}
+                assetsUri={assetsUri}
             >
                 {children}
             </HtmlAreaProvider>

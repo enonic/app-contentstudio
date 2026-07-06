@@ -2,11 +2,11 @@ import { AuthHelper } from '@enonic/lib-admin-ui/auth/AuthHelper';
 import { Extension } from '@enonic/lib-admin-ui/extension/Extension';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { FolderInput, History, Link, List, SquareChartGantt } from 'lucide-react';
-import { DEPENDENCIES_WIDGET_KEY } from '../../../v6/shared/lib/widget/dependencies';
-import { DETAILS_WIDGET_KEY } from '../../../v6/shared/lib/widget/details';
-import { IMPORT_CONTENT_WIDGET_KEY } from '../../../v6/shared/lib/widget/import-content';
-import { PAGE_EDITOR_WIDGET_KEY } from '../../../v6/shared/lib/widget/pageEditor';
-import { VERSIONS_WIDGET_KEY } from '../../../v6/shared/lib/widget/versions/versions';
+import { getDependenciesWidgetKey } from '../../../v6/shared/lib/widget/dependencies';
+import { getDetailsWidgetKey } from '../../../v6/shared/lib/widget/details';
+import { getImportContentWidgetKey } from '../../../v6/shared/lib/widget/import-content';
+import { getPageEditorWidgetKey } from '../../../v6/shared/lib/widget/pageEditor';
+import { getVersionsWidgetKey } from '../../../v6/shared/lib/widget/versions/versions';
 import { DependenciesWidgetElement } from '../../../v6/widgets/context-panel/widget/dependencies';
 import { DetailsWidgetElement } from '../../../v6/widgets/context-panel/widget/details';
 import { ImportContentWidgetElement } from '../../../v6/widgets/context-panel/widget/import-content';
@@ -56,7 +56,7 @@ export function listDefaultContextWidgets(widgets: DefaultContextWidgets): Exten
 
 function createPropertiesWidget(contextView: ContextView): ExtensionView {
     return ExtensionView.create()
-        .setExtension(Extension.create().setExtensionDescriptorKey(DETAILS_WIDGET_KEY).build())
+        .setExtension(Extension.create().setExtensionDescriptorKey(getDetailsWidgetKey()).build())
         .setName(i18n('field.contextPanel.details'))
         .setDescription(i18n('field.contextPanel.details.description'))
         .setExtensionClass('properties-widget')
@@ -69,7 +69,7 @@ function createPropertiesWidget(contextView: ContextView): ExtensionView {
 
 function createVersionsWidget(contextView: ContextView): ExtensionView {
     return ExtensionView.create()
-        .setExtension(Extension.create().setExtensionDescriptorKey(VERSIONS_WIDGET_KEY).build())
+        .setExtension(Extension.create().setExtensionDescriptorKey(getVersionsWidgetKey()).build())
         .setName(i18n('field.contextPanel.versionHistory'))
         .setDescription(i18n('field.contextPanel.versionHistory.description'))
         .setExtensionClass('versions-widget')
@@ -82,7 +82,7 @@ function createVersionsWidget(contextView: ContextView): ExtensionView {
 
 function createDependenciesWidget(contextView: ContextView): ExtensionView {
     return ExtensionView.create()
-        .setExtension(Extension.create().setExtensionDescriptorKey(DEPENDENCIES_WIDGET_KEY).build())
+        .setExtension(Extension.create().setExtensionDescriptorKey(getDependenciesWidgetKey()).build())
         .setName(i18n('field.contextPanel.dependencies'))
         .setDescription(i18n('field.contextPanel.dependencies.description'))
         .setExtensionClass('dependency-widget')
@@ -95,7 +95,7 @@ function createDependenciesWidget(contextView: ContextView): ExtensionView {
 
 function createPageEditorWidget(contextView: ContextView): ExtensionView {
     return ExtensionView.create()
-        .setExtension(Extension.create().setExtensionDescriptorKey(PAGE_EDITOR_WIDGET_KEY).build())
+        .setExtension(Extension.create().setExtensionDescriptorKey(getPageEditorWidgetKey()).build())
         .setName(i18n('field.contextPanel.pageEditor'))
         .setDescription(i18n('field.contextPanel.pageEditor.description'))
         .setIcon(SquareChartGantt)
@@ -106,7 +106,7 @@ function createPageEditorWidget(contextView: ContextView): ExtensionView {
 
 function createImportContentWidget(contextView: ContextView): ExtensionView {
     return ExtensionView.create()
-        .setExtension(Extension.create().setExtensionDescriptorKey(IMPORT_CONTENT_WIDGET_KEY).build())
+        .setExtension(Extension.create().setExtensionDescriptorKey(getImportContentWidgetKey()).build())
         .setName(i18n('widget.import.name'))
         .setDescription(i18n('widget.import.description'))
         .setExtensionClass('import-content-widget')

@@ -12,7 +12,6 @@ import { errAsync, okAsync, ResultAsync } from 'neverthrow';
 import { formatError } from '../../../../../shared/lib/format/error';
 import { parseNumber } from '../../../../../shared/lib/format/values';
 import { $config } from '../../../../../shared/config/config.store';
-import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
 
 const PRELOAD_KEY = 'CUSTOM_SELECTOR_PRELOAD_KEY';
 const DEFAULT_SIZE = 10;
@@ -290,7 +289,7 @@ function appendUrlParams(url: string, params: UrlParams): string {
  * `<adminUrl>/<appId>/site/edit/<project>/draft/<content>/_/service`.
  */
 function getServiceBaseUrl(projectId: string, contentId: string): string {
-    const appId = CONFIG.has('appId') ? CONFIG.getString('appId') : DEFAULT_APP_ID;
+    const appId = $config.get().appId || DEFAULT_APP_ID;
     return `${$config.get().adminUrl}/${appId}/site/${UrlAction.EDIT}/${projectId}/${Branch.DRAFT}/${contentId}/_/service`;
 }
 
@@ -317,7 +316,7 @@ function buildRequestUrl({
     );
     let url = '';
     if (extension) {
-        const extensionBaseUrl = (CONFIG.getString('extensionApiUrl') || '').replace(/\/+$/, '');
+        const extensionBaseUrl = $config.get().extensionApiUrl.replace(/\/+$/, '');
         const extensionPrefix = `${extensionBaseUrl}/${extension}/`;
         url = appendUrlParams(extensionPrefix, params);
     } else if (service) {

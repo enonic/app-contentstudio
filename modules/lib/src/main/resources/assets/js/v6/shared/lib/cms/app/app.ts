@@ -1,3 +1,3 @@
-import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
+import { $config } from '../../../config/config.store';
 
-export const APP_NAME = CONFIG.get('appId');
+export const getAppName = (): string => $config.get().appId;

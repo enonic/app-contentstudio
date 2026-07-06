@@ -10,7 +10,7 @@ import {
     $isInsertTabAvailable,
     $selectionEventNonce,
 } from '../../model/page-editor';
-import { PAGE_EDITOR_WIDGET_KEY } from '../../../../shared/lib/widget/pageEditor';
+import { getPageEditorWidgetKey } from '../../../../shared/lib/widget/pageEditor';
 import { usePageEditorTabs } from './hooks/usePageEditorTabs';
 import { DragPreview } from './insert/DragPreview';
 import { InsertPanel } from './insert';
@@ -37,7 +37,7 @@ export const PageEditorExtension = (): ReactElement | null => {
     const insertLabel = useI18n('action.insert');
     const inspectLabel = useI18n('action.inspect');
 
-    if (!isContextOpen || activeWidgetId !== PAGE_EDITOR_WIDGET_KEY) {
+    if (!isContextOpen || activeWidgetId !== getPageEditorWidgetKey()) {
         return dragState ? <DragPreview /> : null;
     }
 
