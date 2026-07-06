@@ -25,6 +25,7 @@ export const NewContentDialog = (): ReactElement => {
     const { open, selectedTab, inputValue, parentContent, filteredBaseContentTypes, filteredSuggestedContentTypes } =
         useStore($newContentDialog);
     const isTemplateFolder = parentContent?.getType().isTemplateFolder() ?? false;
+    const isTemplateContent = parentContent?.getType().isPageTemplate() ?? false;
     const isMediaTab = selectedTab === 'media';
     const isInputEmpty = inputValue.length === 0;
     const isInputHidden = isInputEmpty || isMediaTab;
@@ -160,7 +161,9 @@ export const NewContentDialog = (): ReactElement => {
                             <Tab.List onKeyDownCapture={handleTabListKeyDownCapture}>
                                 <Tab.Trigger value="all">{allTabLabel}</Tab.Trigger>
                                 <Tab.Trigger value="suggested">{suggestedTabLabel}</Tab.Trigger>
-                                <Tab.Trigger value="media">{mediaTabLabel}</Tab.Trigger>
+                                <Tab.Trigger value="media" disabled={isTemplateFolder || isTemplateContent}>
+                                    {mediaTabLabel}
+                                </Tab.Trigger>
                             </Tab.List>
                         </Dialog.Header>
 
