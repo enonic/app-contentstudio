@@ -63,6 +63,7 @@ const ROOT_NODE_ID = '/';
 export const PageComponentsContextMenu = ({ node, children }: PageComponentsContextMenuProps): ReactElement => {
     const data = node.data;
 
+    const contentContext = useStore($contentContext);
     const page = useStore($page);
     const fragmentOptions = useStore($fragmentOptions);
     const isFragmentLoading = useStore($isFragmentInspectionLoading);
@@ -122,7 +123,7 @@ export const PageComponentsContextMenu = ({ node, children }: PageComponentsCont
                             {!isEmpty && <ResetItem nodeId={node.id} label={resetLabel} />}
                             <RemoveItem nodeId={node.id} label={removeLabel} />
                             <DuplicateItem nodeId={node.id} label={duplicateLabel} />
-                            {!isFragmentComponent && (
+                            {!isFragmentComponent && !contentContext?.isPageTemplate &&(
                                 <SaveAsFragmentItem nodeId={node.id} label={saveAsFragmentLabel} />
                             )}
                             {isFragmentComponent && !isEmpty && (
