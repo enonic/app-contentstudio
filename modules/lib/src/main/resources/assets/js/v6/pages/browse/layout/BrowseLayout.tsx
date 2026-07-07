@@ -119,28 +119,34 @@ export const BrowseLayout = ({
             className={cn('absolute inset-x-0 bottom-0 top-15', isMobile && 'overflow-hidden', LEGACY_PANEL_OVERRIDES)}
         >
             <SplitView orientation='horizontal' storageId={storageId} className='size-full'>
-                {showFilterSplitPanel && (
-                    <>
-                        <SplitView.Panel
-                            id='filter'
-                            defaultSize='300px'
-                            minSize='300px'
-                            groupResizeBehavior='preserve-pixel-size'
-                        >
-                            <LegacyElementHost element={filterPanel} className='size-full bg-surface-neutral' />
-                        </SplitView.Panel>
-                        <SplitView.Handle id='filter-handle' variant='thin' />
-                    </>
-                )}
+                {/* Filter and grid share the left region, so opening the filter shrinks the
+                    grid — not the preview (which stays an outer sibling). Matches legacy. */}
                 <SplitView.Panel
-                    id='grid'
+                    id='grid-region'
                     defaultSize='50%'
                     minSize={isMobile ? undefined : '300px'}
                     collapsible={isMobile}
                     collapsed={gridCollapsed}
                     onResize={handlePanelResize}
                 >
-                    <LegacyElementHost element={gridPanel} className='size-full' />
+                    <SplitView orientation='horizontal' storageId={`${storageId}-grid`} className='size-full'>
+                        {showFilterSplitPanel && (
+                            <>
+                                <SplitView.Panel
+                                    id='filter'
+                                    defaultSize='300px'
+                                    minSize='300px'
+                                    groupResizeBehavior='preserve-pixel-size'
+                                >
+                                    <LegacyElementHost element={filterPanel} className='size-full bg-surface-neutral' />
+                                </SplitView.Panel>
+                                <SplitView.Handle id='filter-handle' variant='thin' />
+                            </>
+                        )}
+                        <SplitView.Panel id='grid' minSize='280px'>
+                            <LegacyElementHost element={gridPanel} className='size-full' />
+                        </SplitView.Panel>
+                    </SplitView>
                 </SplitView.Panel>
                 {!isMobile && <SplitView.Handle id='grid-preview-handle' variant='thin' />}
                 <SplitView.Panel
