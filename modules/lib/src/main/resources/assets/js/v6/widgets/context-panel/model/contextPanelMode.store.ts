@@ -30,10 +30,12 @@ export const $contextPanelMode = computed($contextLayoutMetrics, ({ totalWidth, 
 
 export const $isContextLayoutMeasured = computed($contextLayoutMetrics, ({ totalWidth }) => totalWidth > 0);
 
-// Legacy requiresCollapsedContextPanel.
+// Legacy requiresCollapsedContextPanel: the initial-collapse threshold is measured
+// against the full window width (legacy used Body width), not the sidebar-reduced
+// layout area, so the 1920 boundary is not tripped by the ~60px sidebar.
 export function shouldCollapseContextInitially(): boolean {
-    const { totalWidth } = $contextLayoutMetrics.get();
-    const belowInitialThreshold = LayoutTokens.contextPanel.initialCollapseThreshold.isFitOrSmaller(totalWidth);
+    const windowWidth = typeof window === 'undefined' ? $contextLayoutMetrics.get().totalWidth : window.innerWidth;
+    const belowInitialThreshold = LayoutTokens.contextPanel.initialCollapseThreshold.isFitOrSmaller(windowWidth);
 
     return belowInitialThreshold || $contextPanelMode.get() !== 'docked';
 }

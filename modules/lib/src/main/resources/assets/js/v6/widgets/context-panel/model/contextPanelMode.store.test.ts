@@ -42,17 +42,25 @@ describe('$contextPanelMode', () => {
 });
 
 describe('shouldCollapseContextInitially', () => {
-    it('collapses at or below the initial-collapse threshold', () => {
+    // The threshold is measured against window width (legacy Body width), not the layout metrics.
+    function setWindowWidth(width: number): void {
+        Object.defineProperty(window, 'innerWidth', { configurable: true, value: width });
+    }
+
+    it('collapses when the window is at or below the initial-collapse threshold', () => {
+        setWindowWidth(1920);
         setContextLayoutMetrics({ totalWidth: 1920, contextWidth: 360 });
         expect(shouldCollapseContextInitially()).toBe(true);
     });
 
-    it('collapses when the expected mode is not docked', () => {
+    it('collapses when the expected mode is not docked, even on a wide window', () => {
+        setWindowWidth(2200);
         setContextLayoutMetrics({ totalWidth: 1500, contextWidth: 360 });
         expect(shouldCollapseContextInitially()).toBe(true);
     });
 
-    it('stays open on wide screens in docked mode', () => {
+    it('stays open on a wide window in docked mode', () => {
+        setWindowWidth(2200);
         setContextLayoutMetrics({ totalWidth: 2200, contextWidth: 500 });
         expect(shouldCollapseContextInitially()).toBe(false);
     });
