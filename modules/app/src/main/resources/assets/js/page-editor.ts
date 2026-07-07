@@ -1,41 +1,48 @@
 import { ALLOWED_URI_REGEXP } from '@enonic/lib-contentstudio/v6/shared/lib/url/allowedUri';
-import { ComponentPath as EditorComponentPath, EditorEvent, EditorEvents, PageEditor } from '@enonic/page-editor';
+import {
+    ComponentPath as EditorComponentPath,
+    getComponentAt,
+    getContent,
+    init,
+    reloadPage,
+    renderComponent,
+    renderErrorComponent,
+    renderLoadingComponent,
+    subscribe,
+} from '@enonic/page-editor';
 import DOMPurify from 'dompurify';
 
 const scriptElement = document.currentScript as HTMLScriptElement | null;
 const project = scriptElement?.dataset.project;
 
-PageEditor.init({ editMode: true });
+init({ editMode: true });
 
-PageEditor.on(
-    EditorEvents.ComponentLoadRequest,
-    (event: EditorEvent<{ path: EditorComponentPath; isExisting: boolean }>) => {
-        const data = event.getData();
-        if (!data) return;
-        void handleComponentLoad(data.path, data.isExisting);
-    },
-);
+subscribe('component-load-request', ({ path, isExisting }) => {
+    void handleComponentLoad(path, isExisting);
+});
 
 async function handleComponentLoad(path: EditorComponentPath, isExisting: boolean): Promise<void> {
-    PageEditor.renderLoadingComponent(path);
+    renderLoadingComponent(path);
 
     try {
         const response = await fetch(resolveComponentUrl(path));
 
         if (!isExisting && needsPageReload(response.headers)) {
-            PageEditor.reloadPage();
+            reloadPage();
             return;
         }
 
         const html = sanitizeComponentHtml(await response.text(), path);
-        PageEditor.renderComponent(path, html);
+        renderComponent(path, html);
     } catch (reason) {
-        PageEditor.renderErrorComponent(path, reason instanceof Error ? reason : new Error(String(reason)));
+        renderErrorComponent(path, reason instanceof Error ? reason : new Error(String(reason)));
     }
 }
 
 function resolveComponentUrl(path: EditorComponentPath): string {
-    const contentId = PageEditor.getContent().getContentId().toString();
+    const content = getContent();
+    if (content == null) throw new Error('Cannot reload component: content is not available');
+    const contentId = content.id;
     const componentPath = path.toString().replace(/^\//, '');
     return `${getSitePathPrefix()}/${contentId}/_/component/${componentPath}`;
 }
@@ -61,7 +68,7 @@ function needsPageReload(headers: Headers): boolean {
 }
 
 function sanitizeComponentHtml(html: string, path: EditorComponentPath): string {
-    if (PageEditor.getComponentAt(path)?.type !== 'fragment') {
+    if (getComponentAt(path)?.type !== 'fragment') {
         return html;
     }
     return DOMPurify.sanitize(html, { ALLOWED_URI_REGEXP });

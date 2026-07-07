@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { PageEventsManager } from '../../../../../../app/wizard/PageEventsManager';
-import { CreateOrDestroyDraggableEvent } from '../../../../../../page-editor/event/incoming/manipulation/CreateOrDestroyDraggableEvent';
-import { SetDraggableVisibleEvent } from '../../../../../../page-editor/event/incoming/manipulation/SetDraggableVisibleEvent';
+import { getLiveEditDraggableHost } from '../../../../../../app/wizard/page/LiveEditDraggableHost';
 import { endDrag, startDrag, updateDrag, type PortalComponentType } from '../../../model/page-editor/drag';
 
 const DRAG_THRESHOLD_PX = 4;
@@ -44,7 +43,7 @@ export function useInsertableDrag({ itemType, itemLabel }: UseInsertableDragArgs
             const enterIframe = () => {
                 if (inIframe) return;
                 inIframe = true;
-                new SetDraggableVisibleEvent(itemType, true).fire();
+                getLiveEditDraggableHost()?.setDraggableVisible(itemType, true);
                 if (outerVisible) {
                     outerVisible = false;
                     endDrag();
@@ -54,7 +53,7 @@ export function useInsertableDrag({ itemType, itemLabel }: UseInsertableDragArgs
             const leaveIframe = () => {
                 if (!inIframe) return;
                 inIframe = false;
-                new SetDraggableVisibleEvent(itemType, false).fire();
+                getLiveEditDraggableHost()?.setDraggableVisible(itemType, false);
             };
 
             const onDocMouseOut = (e: MouseEvent) => {
@@ -79,8 +78,8 @@ export function useInsertableDrag({ itemType, itemLabel }: UseInsertableDragArgs
                 cursorStyleEl.textContent = '*, *::before, *::after { cursor: grabbing !important; }';
                 document.head.appendChild(cursorStyleEl);
                 iframeEl = findLiveEditIframe();
-                new CreateOrDestroyDraggableEvent(itemType, true).fire();
-                new SetDraggableVisibleEvent(itemType, false).fire();
+                getLiveEditDraggableHost()?.createDraggable(itemType);
+                getLiveEditDraggableHost()?.setDraggableVisible(itemType, false);
                 PageEventsManager.get().onComponentDragStopped(onIframeDropped);
                 iframeEl?.addEventListener('mouseenter', enterIframe);
                 iframeEl?.addEventListener('mouseleave', leaveIframe);
@@ -99,7 +98,7 @@ export function useInsertableDrag({ itemType, itemLabel }: UseInsertableDragArgs
                 iframeEl?.removeEventListener('mouseleave', leaveIframe);
                 PageEventsManager.get().unComponentDragStopped(onIframeDropped);
                 if (started) {
-                    new CreateOrDestroyDraggableEvent(itemType, false).fire();
+                    getLiveEditDraggableHost()?.destroyDraggable(itemType);
                     cursorStyleEl?.remove();
                     cursorStyleEl = null;
                 }
@@ -149,7 +148,7 @@ export function useInsertableDrag({ itemType, itemLabel }: UseInsertableDragArgs
     useEffect(
         () => () => {
             if (activeRef.current) {
-                new CreateOrDestroyDraggableEvent(itemType, false).fire();
+                getLiveEditDraggableHost()?.destroyDraggable(itemType);
                 endDrag();
             }
         },

@@ -695,7 +695,10 @@ export class PageComponentsView
     }
 
     private selectItemByPath(path: ComponentPath): Q.Promise<void> {
-        this.pageComponentsWrapper.deselectAll();
+        // Silent deselect: the transient empty selection must not spawn a
+        // DESELECT navigation event, which would echo a deselect into the
+        // live-edit iframe and clear the selection this sync is applying.
+        this.pageComponentsWrapper.deselectAll(true);
         const listElement = this.getPageComponentsListElement(path);
 
         if (listElement) {
