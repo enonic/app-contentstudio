@@ -157,8 +157,9 @@ export const BrowseLayout = ({
                         <SplitView.Handle id='context-handle' variant='thin' />
                         <SplitView.Panel
                             id='context'
-                            defaultSize={`${CONTEXT_DEFAULT_PERCENT}%`}
+                            defaultSize={`${CONTEXT_MIN_WIDTH}px`}
                             minSize={`${CONTEXT_MIN_WIDTH}px`}
+                            groupResizeBehavior='preserve-pixel-size'
                             onResize={handleContextResize}
                         >
                             <LegacyElementHost element={contextPanel} className='size-full' />
