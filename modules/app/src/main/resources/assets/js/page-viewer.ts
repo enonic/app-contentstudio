@@ -1,3 +1,3 @@
-import {PageEditor} from '@enonic/page-editor';
+import { init } from '@enonic/page-editor';
 
-PageEditor.init({editMode: false});
+init({ editMode: false });
