@@ -17,7 +17,7 @@ libRouter = "4.0.0"
 libStatic = "3.0.0"
 
 # Rest
-jacksonJrObjects = "2.22.0"
+jacksonJrObjects = "2.22.1"
 
 [libraries]
 
