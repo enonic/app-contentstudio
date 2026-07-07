@@ -9,6 +9,8 @@ import { SplitView } from '../../../../shared/ui/split-view';
 const RESIZE_NOTIFY_DELAY_MS = 200;
 // Legacy threshold: the item panel hides at <=720px and comes back above it.
 const ITEM_PANEL_HIDE_MAX = 720;
+const GRID_DEFAULT_SIZE = '38%';
+const PANEL_MIN_WIDTH = '300px';
 
 export type SettingsLayoutProps = {
     // Owned by SettingsBrowsePanel; the layout only places them.
@@ -47,13 +49,13 @@ export const SettingsLayout = ({ gridPanel, itemPanel }: SettingsLayoutProps): R
     return (
         <div ref={rootRef} data-component={SETTINGS_LAYOUT_NAME} className='absolute inset-x-0 bottom-0 top-15'>
             <SplitView orientation='horizontal' storageId='settings-layout' className='size-full'>
-                <SplitView.Panel id='grid' defaultSize='38%' minSize='300px' onResize={notifyLegacyResize}>
+                <SplitView.Panel id='grid' defaultSize={GRID_DEFAULT_SIZE} minSize={PANEL_MIN_WIDTH} onResize={notifyLegacyResize}>
                     <LegacyElementHost element={gridPanel} className='size-full' />
                 </SplitView.Panel>
                 {!itemPanelHidden && (
                     <>
                         <SplitView.Handle id='grid-item-handle' variant='thin' />
-                        <SplitView.Panel id='item' minSize='300px' onResize={notifyLegacyResize}>
+                        <SplitView.Panel id='item' minSize={PANEL_MIN_WIDTH} onResize={notifyLegacyResize}>
                             <LegacyElementHost element={itemPanel} className='size-full' />
                         </SplitView.Panel>
                     </>

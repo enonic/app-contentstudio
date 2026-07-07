@@ -18,8 +18,12 @@ import { FloatingContextPanel } from '../../../widgets/context-panel/ui/Floating
 import { $isMobilePreviewOpen } from '../model/browseLayout.store';
 
 const CONTEXT_MIN_WIDTH = LayoutTokens.contextPanel.minWidth;
-const CONTEXT_DEFAULT_PERCENT = LayoutTokens.contextPanel.dockedWidthPercent.browse;
 const RESIZE_NOTIFY_DELAY_MS = 200;
+// The grid region takes half the width (legacy getFirstPanelSize); the filter,
+// when open, comes out of it. Every hosted panel keeps a usable minimum.
+const GRID_REGION_DEFAULT = '50%';
+const PANEL_MIN_WIDTH = '300px';
+const FILTER_DEFAULT_WIDTH = '300px';
 
 export type BrowseLayoutProps = {
     // Owned by ContentBrowsePanel; the layout only places them.
@@ -57,12 +61,11 @@ export const BrowseLayout = ({
 
     const publishMetrics = useCallback(() => {
         const totalWidth = totalWidthRef.current;
-        const measured = contextWidthRef.current;
-        const contextWidth = measured > 0
-            ? measured
-            : Math.max(CONTEXT_MIN_WIDTH, (totalWidth * CONTEXT_DEFAULT_PERCENT) / 100);
+        // The docked context panel renders at its min width, so an unmeasured
+        // estimate uses the same value rather than a stale percentage.
+        const contextWidth = contextWidthRef.current > 0 ? contextWidthRef.current : CONTEXT_MIN_WIDTH;
 
-        setContextLayoutMetrics({ totalWidth, contextWidth });
+        setContextLayoutMetrics({ totalWidth, contextWidth, windowWidth: window.innerWidth });
     }, []);
 
     useEffect(() => {
@@ -123,8 +126,8 @@ export const BrowseLayout = ({
                     grid — not the preview (which stays an outer sibling). Matches legacy. */}
                 <SplitView.Panel
                     id='grid-region'
-                    defaultSize='50%'
-                    minSize={isMobile ? undefined : '300px'}
+                    defaultSize={GRID_REGION_DEFAULT}
+                    minSize={isMobile ? undefined : PANEL_MIN_WIDTH}
                     collapsible={isMobile}
                     collapsed={gridCollapsed}
                     onResize={handlePanelResize}
@@ -134,8 +137,8 @@ export const BrowseLayout = ({
                             <>
                                 <SplitView.Panel
                                     id='filter'
-                                    defaultSize='300px'
-                                    minSize='300px'
+                                    defaultSize={FILTER_DEFAULT_WIDTH}
+                                    minSize={FILTER_DEFAULT_WIDTH}
                                     groupResizeBehavior='preserve-pixel-size'
                                 >
                                     <LegacyElementHost element={filterPanel} className='size-full bg-surface-neutral' />
@@ -143,7 +146,7 @@ export const BrowseLayout = ({
                                 <SplitView.Handle id='filter-handle' variant='thin' />
                             </>
                         )}
-                        <SplitView.Panel id='grid' minSize='280px'>
+                        <SplitView.Panel id='grid' minSize={PANEL_MIN_WIDTH}>
                             <LegacyElementHost element={gridPanel} className='size-full' />
                         </SplitView.Panel>
                     </SplitView>
@@ -151,7 +154,7 @@ export const BrowseLayout = ({
                 {!isMobile && <SplitView.Handle id='grid-preview-handle' variant='thin' />}
                 <SplitView.Panel
                     id='preview'
-                    minSize={isMobile ? undefined : '300px'}
+                    minSize={isMobile ? undefined : PANEL_MIN_WIDTH}
                     collapsible={isMobile}
                     collapsed={previewCollapsed}
                     onResize={handlePanelResize}

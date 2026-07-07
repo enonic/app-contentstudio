@@ -16,6 +16,8 @@ import { $wizardContextPanelMode, $wizardViewMode, setWizardLayoutMetrics } from
 const CONTEXT_MIN_WIDTH = LayoutTokens.contextPanel.minWidth;
 // Below this the form is unusable; dragging past it collapses to the 60px rail instead.
 const FORM_MIN_WIDTH = 360;
+const MINIMIZED_RAIL_WIDTH = '60px';
+const FORM_DEFAULT_SIZE = '38%';
 const DOCKED_PERCENT = LayoutTokens.contextPanel.dockedWidthPercent;
 const FLOATING_EDITOR_PERCENT = LayoutTokens.contextPanel.floatingWidthPercent.wizardWithEditor;
 const RESIZE_NOTIFY_DELAY_MS = 200;
@@ -139,10 +141,10 @@ export const WizardLayout = ({ formPanel, livePanel, contextPanel, onResized }: 
             <SplitView orientation='horizontal' storageId='wizard-layout' className='size-full'>
                 <SplitView.Panel
                     id='form'
-                    defaultSize='38%'
+                    defaultSize={FORM_DEFAULT_SIZE}
                     minSize={isMobile ? undefined : `${FORM_MIN_WIDTH}px`}
                     collapsible
-                    collapsedSize={isMobile && viewMode === 'live' ? '0px' : '60px'}
+                    collapsedSize={isMobile && viewMode === 'live' ? '0px' : MINIMIZED_RAIL_WIDTH}
                     collapsed={formCollapsed}
                     onCollapsedChange={handleFormCollapsedChange}
                     onResize={handlePanelResize}

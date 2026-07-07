@@ -154,7 +154,7 @@ describe('BrowseLayout', () => {
         setContentFilterOpen(false);
         setMobilePreviewOpen(false);
         setFloatingContextWidth(0);
-        setContextLayoutMetrics({ totalWidth: 0, contextWidth: 0 });
+        setContextLayoutMetrics({ totalWidth: 0, contextWidth: 0, windowWidth: 0 });
     });
 
     afterEach(() => {
@@ -254,12 +254,12 @@ describe('BrowseLayout', () => {
         const previewHost = previewElement.parentElement;
         expect(previewHost).not.toBeNull();
 
-        await act(async () => setContextLayoutMetrics({ totalWidth: 700, contextWidth: 360 }));
+        await act(async () => setContextLayoutMetrics({ totalWidth: 700, contextWidth: 360, windowWidth: 700 }));
         await settle();
         expect(previewElement.parentElement).toBe(previewHost);
         expect(previewElement.isConnected).toBe(true);
 
-        await act(async () => setContextLayoutMetrics({ totalWidth: 2000, contextWidth: 360 }));
+        await act(async () => setContextLayoutMetrics({ totalWidth: 2000, contextWidth: 360, windowWidth: 2000 }));
         await settle();
         expect(previewElement.parentElement).toBe(previewHost);
         expect(previewElement.isConnected).toBe(true);
