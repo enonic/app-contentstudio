@@ -217,16 +217,38 @@ describe('WizardLayout', () => {
         expect(overlay?.querySelector('.legacy-context')).toBe(panels.contextPanel.getHTMLElement());
     });
 
-    it('renders the mobile stack below the mobile threshold', async () => {
+    it('keeps the split view mounted in mobile mode', async () => {
         layoutRootWidth = 700;
         setWizardViewMode('live');
         const panels = createPanels();
 
         await renderLayout(panels);
 
-        expect(document.querySelector('[data-group]')).toBeNull();
-        const hosts = document.querySelectorAll('[data-component="LegacyElementHost"]');
-        expect(hosts.length).toBe(2);
-        expect(document.querySelector('.legacy-live')).not.toBeNull();
+        expect(document.querySelector('[data-group]')).not.toBeNull();
+        expect(screen.getByTestId('live').querySelector('.legacy-live')).toBe(panels.livePanel.getHTMLElement());
+        expect(document.querySelector('[data-testid="form-live-handle"]')).toBeNull();
+
+        await act(async () => setContextOpen(true));
+        await settle();
+        expect(document.querySelector('[data-component="WizardLayout.MobileContext"]')).not.toBeNull();
+    });
+
+    it('keeps the live panel hosted through mode changes', async () => {
+        const panels = createPanels();
+
+        await renderLayout(panels);
+        const liveElement = panels.livePanel.getHTMLElement();
+        const liveHost = liveElement.parentElement;
+        expect(liveHost).not.toBeNull();
+
+        await act(async () => setWizardLayoutMetrics({ totalWidth: 700, contextWidth: 360 }));
+        await settle();
+        expect(liveElement.parentElement).toBe(liveHost);
+        expect(liveElement.isConnected).toBe(true);
+
+        await act(async () => setWizardLayoutMetrics({ totalWidth: 2000, contextWidth: 360 }));
+        await settle();
+        expect(liveElement.parentElement).toBe(liveHost);
+        expect(liveElement.isConnected).toBe(true);
     });
 });

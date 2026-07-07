@@ -10,10 +10,12 @@ import { LegacyElementHost } from '../../../../shared/ui/LegacyElementHost';
 import { SplitView } from '../../../../shared/ui/split-view';
 import { $isContextOpen } from '../../../../widgets/context-panel/model/contextWidgets.store';
 import { FloatingContextPanel } from '../../../../widgets/context-panel/ui/FloatingContextPanel';
-import { $isContentFormExpanded } from '../../model/wizardContent.store';
+import { $isContentFormExpanded, setContentFormExpanded } from '../../model/wizardContent.store';
 import { $wizardContextPanelMode, $wizardViewMode, setWizardLayoutMetrics } from '../../model/wizardLayout.store';
 
 const CONTEXT_MIN_WIDTH = LayoutTokens.contextPanel.minWidth;
+// Below this the form is unusable; dragging past it collapses to the 60px rail instead.
+const FORM_MIN_WIDTH = 360;
 const DOCKED_PERCENT = LayoutTokens.contextPanel.dockedWidthPercent;
 const FLOATING_EDITOR_PERCENT = LayoutTokens.contextPanel.floatingWidthPercent.wizardWithEditor;
 const RESIZE_NOTIFY_DELAY_MS = 200;
@@ -44,6 +46,7 @@ export const WizardLayout = ({ formPanel, livePanel, contextPanel, onResized }: 
     const totalWidthRef = useRef(0);
     const contextWidthRef = useRef(0);
 
+    const isMobile = mode === 'mobile';
     const editorShown = viewMode !== 'form';
     const dockedPercent = editorShown ? DOCKED_PERCENT.wizardWithEditor : DOCKED_PERCENT.wizardNoEditor;
 
@@ -63,7 +66,6 @@ export const WizardLayout = ({ formPanel, livePanel, contextPanel, onResized }: 
 
         const observer = new ResizeObserver(() => {
             const width = root.getBoundingClientRect().width;
-            // A hidden app (e.g. Archive in CS+) reports 0 and must not clobber the shared metrics.
             if (width <= 0) return;
 
             totalWidthRef.current = width;
@@ -80,10 +82,19 @@ export const WizardLayout = ({ formPanel, livePanel, contextPanel, onResized }: 
         [],
     );
 
+    // Coalesced per frame: onResized (sticky toolbar) forces a reflow per call.
+    const resizedFrameRef = useRef(0);
+    useEffect(() => () => cancelAnimationFrame(resizedFrameRef.current), []);
+    const scheduleResized = useCallback(() => {
+        if (onResized == null) return;
+        cancelAnimationFrame(resizedFrameRef.current);
+        resizedFrameRef.current = requestAnimationFrame(() => onResized());
+    }, [onResized]);
+
     const handlePanelResize = useCallback(() => {
         notifyLegacyResize();
-        onResized?.();
-    }, [notifyLegacyResize, onResized]);
+        scheduleResized();
+    }, [notifyLegacyResize, scheduleResized]);
 
     const handleContextResize = useCallback(
         (panelSize: { inPixels: number }) => {
@@ -94,48 +105,46 @@ export const WizardLayout = ({ formPanel, livePanel, contextPanel, onResized }: 
         [publishMetrics, handlePanelResize],
     );
 
+    // Drag-collapse must reach the store, or the minimize toggle desyncs.
+    const handleFormCollapsedChange = useCallback(
+        (collapsed: boolean) => {
+            if (!isMobile) setContentFormExpanded(!collapsed);
+        },
+        [isMobile],
+    );
+
     const floatingDefaultWidth = editorShown && formExpanded
         ? (totalWidthRef.current * FLOATING_EDITOR_PERCENT) / 100
         : CONTEXT_MIN_WIDTH;
 
-    // The host wrapper panel is offset below the toolbar; the layout fills it.
-    if (mode === 'mobile') {
-        return (
-            <div
-                ref={rootRef}
-                data-component={WIZARD_LAYOUT_NAME}
-                className={cn('absolute inset-0 overflow-hidden', LEGACY_PANEL_OVERRIDES)}
-            >
-                <LegacyElementHost element={formPanel} className={cn('size-full', viewMode === 'live' && 'hidden')} />
-                <LegacyElementHost element={livePanel} className={cn('size-full', viewMode !== 'live' && 'hidden')} />
-                {isContextOpen && (
-                    <div className='absolute inset-0 z-[1] bg-surface-neutral'>
-                        <LegacyElementHost element={contextPanel} className='size-full' />
-                    </div>
-                )}
-            </div>
-        );
-    }
+    // ! Form and live stay mounted through mode changes: re-parenting would reload
+    // the live-edit iframe. Mobile and view-mode visibility is collapse, not unmount.
+    const formCollapsed = !formExpanded || (isMobile && viewMode === 'live');
+    // A minimized form in mobile keeps the 60px rail and shows the live edit next
+    // to it (legacy behavior); only an expanded form claims the mobile screen.
+    const liveCollapsed = viewMode === 'form' || (isMobile && viewMode !== 'live' && formExpanded);
+    const showFormLiveHandle = !isMobile && viewMode !== 'form' && formExpanded;
 
     const showDockedContext = isContextOpen && mode === 'docked';
     const showFloatingContext = isContextOpen && mode === 'floating';
-    // Conditionally mounted (not `hidden`): RRP maps separators to panels on mount.
-    const showFormLiveHandle = viewMode !== 'form' && formExpanded;
+    const showMobileContext = isContextOpen && isMobile;
 
+    // The host wrapper panel is offset below the toolbar; the layout fills it.
     return (
         <div
             ref={rootRef}
             data-component={WIZARD_LAYOUT_NAME}
-            className={cn('absolute inset-0', LEGACY_PANEL_OVERRIDES)}
+            className={cn('absolute inset-0', isMobile && 'overflow-hidden', LEGACY_PANEL_OVERRIDES)}
         >
             <SplitView orientation='horizontal' storageId='wizard-layout' className='size-full'>
                 <SplitView.Panel
                     id='form'
                     defaultSize='38%'
-                    minSize='280px'
+                    minSize={isMobile ? undefined : `${FORM_MIN_WIDTH}px`}
                     collapsible
-                    collapsedSize='60px'
-                    collapsed={!formExpanded}
+                    collapsedSize={isMobile && viewMode === 'live' ? '0px' : '60px'}
+                    collapsed={formCollapsed}
+                    onCollapsedChange={handleFormCollapsedChange}
                     onResize={handlePanelResize}
                 >
                     <LegacyElementHost element={formPanel} className='size-full' />
@@ -144,7 +153,7 @@ export const WizardLayout = ({ formPanel, livePanel, contextPanel, onResized }: 
                 <SplitView.Panel
                     id='live'
                     collapsible
-                    collapsed={viewMode === 'form'}
+                    collapsed={liveCollapsed}
                     onResize={handlePanelResize}
                 >
                     <LegacyElementHost element={livePanel} className='size-full' />
@@ -170,6 +179,11 @@ export const WizardLayout = ({ formPanel, livePanel, contextPanel, onResized }: 
                     defaultWidth={floatingDefaultWidth}
                     onResized={handlePanelResize}
                 />
+            )}
+            {showMobileContext && (
+                <div data-component='WizardLayout.MobileContext' className='absolute inset-0 z-[1] bg-surface-neutral'>
+                    <LegacyElementHost element={contextPanel} className='size-full' />
+                </div>
             )}
         </div>
     );

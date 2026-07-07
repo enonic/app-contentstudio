@@ -48,17 +48,22 @@ export const FloatingContextPanel = ({
         const startWidth = width;
         const maxWidth = getMaxWidth(handle);
 
+        const { pointerId } = event;
         const handleMove = (moveEvent: PointerEvent): void => {
+            if (moveEvent.pointerId !== pointerId) return;
             setFloatingContextWidth(clampWidth(startWidth + (startX - moveEvent.clientX), maxWidth));
         };
-        const stopDragging = (): void => {
+        const stopDragging = (stopEvent: PointerEvent): void => {
+            if (stopEvent.pointerId !== pointerId) return;
             handle.removeEventListener('pointermove', handleMove);
+            handle.removeEventListener('pointerup', stopDragging);
+            handle.removeEventListener('pointercancel', stopDragging);
             onResized();
         };
 
         handle.addEventListener('pointermove', handleMove);
-        handle.addEventListener('pointerup', stopDragging, { once: true });
-        handle.addEventListener('pointercancel', stopDragging, { once: true });
+        handle.addEventListener('pointerup', stopDragging);
+        handle.addEventListener('pointercancel', stopDragging);
     };
 
     const handleKeyDown = (event: { key: string; currentTarget: EventTarget | null; preventDefault: () => void }) => {

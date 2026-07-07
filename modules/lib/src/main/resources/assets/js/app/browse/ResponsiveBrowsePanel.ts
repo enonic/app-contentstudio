@@ -31,6 +31,8 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
     protected dockedContextPanel: DockedContextPanel;
     protected browseLayout: BrowseLayoutElement;
 
+    private skipNextContextOpenRefresh: boolean = false;
+
     // Bypasses BrowsePanel splits: placement is owned by the v6 BrowseLayout.
     protected initElements(): void {
         this.selectableListBoxPanel = this.createListBoxPanel();
@@ -53,6 +55,7 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
             previewPanel: this.browseItemPanel,
             contextPanel: this.dockedContextPanel,
             filterPanel: this.filterPanel ?? undefined,
+            storageId: this.getLayoutStorageId(),
         });
 
         this.selectableListBoxPanel.getWrapper().setSkipFirstClickOnFocus(true);
@@ -101,6 +104,8 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
             const widgetName = event.getWidgetName();
             if (widgetName !== undefined) {
                 this.contextView.setActiveExtensionByName(widgetName, event.getWidgetApplicationKey());
+                // The activation above already loads the widget; skip the open-refresh.
+                this.skipNextContextOpenRefresh = event.isShowPanel();
             }
 
             if (event.isShowPanel()) {
@@ -125,7 +130,10 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
 
         // Custom legacy widgets still fetch through ContextView on open.
         $isContextOpen.subscribe((isOpen: boolean, wasOpen: boolean) => {
-            if (isOpen && !wasOpen && this.dockedContextPanel.getItem()) {
+            const skipRefresh = this.skipNextContextOpenRefresh;
+            this.skipNextContextOpenRefresh = false;
+
+            if (isOpen && !wasOpen && !skipRefresh && this.dockedContextPanel.getItem()) {
                 this.contextView.updateActiveExtension();
             }
         });
@@ -171,6 +179,11 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
 
     protected filterPanelIsHidden(): boolean {
         return !$isContentFilterOpen.get();
+    }
+
+    // Distinct per subclass: browse and Archive (CS+) must not share persisted layouts.
+    protected getLayoutStorageId(): string {
+        return 'browse-layout';
     }
 
     protected createToolbar(): ResponsiveToolbar {

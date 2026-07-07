@@ -7,9 +7,8 @@ import { LegacyElementHost } from '../../../../shared/ui/LegacyElementHost';
 import { SplitView } from '../../../../shared/ui/split-view';
 
 const RESIZE_NOTIFY_DELAY_MS = 200;
-// Legacy hysteresis: the item panel hides at <=720px and comes back at >=960px.
+// Legacy threshold: the item panel hides at <=720px and comes back above it.
 const ITEM_PANEL_HIDE_MAX = 720;
-const ITEM_PANEL_SHOW_MIN = 960;
 
 export type SettingsLayoutProps = {
     // Owned by SettingsBrowsePanel; the layout only places them.
@@ -31,8 +30,7 @@ export const SettingsLayout = ({ gridPanel, itemPanel }: SettingsLayoutProps): R
             const width = root.getBoundingClientRect().width;
             if (width <= 0) return;
 
-            if (width <= ITEM_PANEL_HIDE_MAX) setItemPanelHidden(true);
-            else if (width >= ITEM_PANEL_SHOW_MIN) setItemPanelHidden(false);
+            setItemPanelHidden(width <= ITEM_PANEL_HIDE_MAX);
         });
         observer.observe(root);
 

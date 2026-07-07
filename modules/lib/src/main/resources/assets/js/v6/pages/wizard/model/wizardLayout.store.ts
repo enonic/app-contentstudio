@@ -1,7 +1,6 @@
 import { atom, computed, map } from 'nanostores';
 import { LayoutTokens } from '../../../shared/ui/layout.tokens';
 import { type ContextPanelMode } from '../../../widgets/context-panel/model/contextPanelMode.store';
-import { $isPreviewPanelVisible } from '../../../widgets/preview-panel/model/previewPanel.store';
 import { $isContentFormExpanded } from './wizardContent.store';
 
 // 'live' occurs only in the mobile range; desktop uses 'form' and 'split'.
@@ -11,7 +10,6 @@ export const $wizardViewMode = atom<WizardViewMode>('form');
 
 export function setWizardViewMode(mode: WizardViewMode): void {
     $wizardViewMode.set(mode);
-    $isPreviewPanelVisible.set(mode !== 'form');
 }
 
 type WizardLayoutMetrics = {

@@ -74,16 +74,34 @@ const SplitViewRoot = forwardRef<HTMLDivElement, SplitViewRootProps>(
             panelSyncs.current.forEach((sync) => sync());
         };
 
+        const stopDraggingRef = useRef<(() => void) | undefined>(undefined);
+        useEffect(() => () => stopDraggingRef.current?.(), []);
+
         // Pointer events over an iframe never reach this document, so a drag would freeze
         // there; while dragging, a shield overlay and pointer-events lock keep them out.
-        const handlePointerDownCapture = (event: { target: EventTarget | null }): void => {
+        const handlePointerDownCapture = (event: { target: EventTarget | null; pointerId: number }): void => {
             const target = event.target;
             if (!(target instanceof Element) || target.closest('[data-separator]') == null) return;
 
+            const { pointerId } = event;
+            const stopDragging = (): void => {
+                window.removeEventListener('pointerup', handleStop);
+                window.removeEventListener('pointercancel', handleStop);
+                stopDraggingRef.current = undefined;
+                setIsDragging(false);
+            };
+            // ! Only this drag's pointer may end it: a stray pointercancel from another
+            // pointer (touch gesture, palm) must not drop the shield mid-drag.
+            const handleStop = (stopEvent: PointerEvent): void => {
+                if (stopEvent.pointerId !== pointerId) return;
+                stopDragging();
+            };
+
+            stopDraggingRef.current?.();
+            stopDraggingRef.current = stopDragging;
             setIsDragging(true);
-            const stopDragging = (): void => setIsDragging(false);
-            window.addEventListener('pointerup', stopDragging, { once: true });
-            window.addEventListener('pointercancel', stopDragging, { once: true });
+            window.addEventListener('pointerup', handleStop);
+            window.addEventListener('pointercancel', handleStop);
         };
 
         return (

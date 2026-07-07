@@ -13,7 +13,6 @@ import { Action } from '@enonic/lib-admin-ui/ui/Action';
 import { KeyBindings } from '@enonic/lib-admin-ui/ui/KeyBindings';
 import { LoadMask } from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import { Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
-import { type ResponsiveItem } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
 import { ResponsiveManager } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import { ResponsiveRanges } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
 import { type Toolbar, type ToolbarConfig } from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
@@ -23,7 +22,6 @@ import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { type ValidityChangedEvent } from '@enonic/lib-admin-ui/ValidityChangedEvent';
 import Q from 'q';
 import { LiveEditModel } from '../../page-editor/LiveEditModel';
-import { LayoutTokens } from '../../v6/shared/ui/layout.tokens';
 import { cleanupWizardMixinsService, initWizardMixinsService } from '../../v6/pages/wizard/model/wizardMixins.service';
 import {
     cleanupWizardContentSyncService,
@@ -31,7 +29,6 @@ import {
 } from '../../v6/pages/wizard/model/wizardContentSync.service';
 import { setWizardContent } from '../../v6/widgets/context-panel/model/contextContent.store';
 import { $isContextOpen, setContextOpen } from '../../v6/widgets/context-panel/model/contextWidgets.store';
-import { $isPreviewPanelVisible } from '../../v6/widgets/preview-panel/model/previewPanel.store';
 import { getActiveProject, getActiveProjectName } from '../../v6/entities/project';
 import {
     $displayNameInputFocusRequested,
@@ -116,6 +113,7 @@ import { ContentWizardActions } from './action/ContentWizardActions';
 import { WizardLayoutElement } from '../../v6/pages/wizard/ui/layout/WizardLayout';
 import {
     $isWizardLayoutMeasured,
+    $wizardContextPanelMode,
     $wizardViewMode,
     setWizardViewMode,
     shouldCollapseWizardContextInitially,
@@ -184,6 +182,8 @@ export class ContentWizardPanel extends WizardPanel<Content> {
     private minimized: boolean = false;
 
     private wizardLayout: WizardLayoutElement;
+
+    private skipNextContextOpenRefresh: boolean = false;
 
     private minimizedFromFormOnly: boolean = false;
 
@@ -479,6 +479,8 @@ export class ContentWizardPanel extends WizardPanel<Content> {
             const widgetName = event.getWidgetName();
             if (widgetName !== undefined) {
                 this.contextView.setActiveExtensionByName(widgetName, event.getWidgetApplicationKey());
+                // The activation above already loads the widget; skip the open-refresh.
+                this.skipNextContextOpenRefresh = event.isShowPanel();
             }
 
             if (event.isShowPanel()) {
@@ -488,9 +490,23 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
         // Custom legacy widgets still fetch through ContextView on open.
         $isContextOpen.subscribe((isOpen: boolean, wasOpen: boolean) => {
-            if (isOpen && !wasOpen && contextPanel.getItem()) {
+            const skipRefresh = this.skipNextContextOpenRefresh;
+            this.skipNextContextOpenRefresh = false;
+
+            if (isOpen && !wasOpen && !skipRefresh && contextPanel.getItem()) {
                 this.contextView.updateActiveExtension();
             }
+        });
+
+        $wizardContextPanelMode.subscribe((mode, prevMode) => {
+            const isMobile = mode === 'mobile';
+            if (prevMode !== undefined && isMobile === (prevMode === 'mobile')) return;
+            if (prevMode === undefined && !isMobile) {
+                this.inMobileViewMode = false;
+                return;
+            }
+
+            this.handleMobileModeChanged(isMobile);
         });
 
         // Auto-open on wide screens once the layout reports its first measurement.
@@ -699,35 +715,33 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         });
     }
 
-    private availableSizeChangedHandler(item: ResponsiveItem) {
+    private availableSizeChangedHandler() {
         if (this.isVisible()) {
             this.updateStickyToolbar();
-            if (item.isInRangeOrSmaller(ResponsiveRanges._720_960)) {
-                if (!this.inMobileViewMode) {
-                    this.restoreSplitViewAfterMobile =
-                        this.restoreSplitViewAfterMobile || this.isSplitView() || this.isLiveView();
-                }
+        }
+    }
 
-                this.inMobileViewMode = true;
+    // One mobile definition for behavior and layout: $wizardContextPanelMode.
+    private handleMobileModeChanged(isMobile: boolean): void {
+        this.inMobileViewMode = isMobile;
 
-                if (this.isSplitView() && !this.isMinimized()) {
-                    this.showForm();
-                }
-            } else {
-                if (this.inMobileViewMode) {
-                    this.inMobileViewMode = false;
+        if (isMobile) {
+            this.restoreSplitViewAfterMobile =
+                this.restoreSplitViewAfterMobile || this.isSplitView() || this.isLiveView();
 
-                    if (this.restoreSplitViewAfterMobile || this.isLiveView()) {
-                        if (this.isMinimized()) {
-                            this.minimizedFromFormOnly = false;
-                        }
-
-                        this.showLiveEdit();
-                    }
-
-                    this.restoreSplitViewAfterMobile = false;
-                }
+            if (this.isSplitView() && !this.isMinimized()) {
+                this.showForm();
             }
+        } else {
+            if (this.restoreSplitViewAfterMobile || this.isLiveView()) {
+                if (this.isMinimized()) {
+                    this.minimizedFromFormOnly = false;
+                }
+
+                this.showLiveEdit();
+            }
+
+            this.restoreSplitViewAfterMobile = false;
         }
     }
 
@@ -1357,7 +1371,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
             console.debug('ContentWizardPanel.toggleLiveEdit at ' + new Date().toISOString());
         }
 
-        if (!ResponsiveRanges._960_1200.isFitOrBigger(this.getEl().getWidth())) {
+        if ($wizardContextPanelMode.get() === 'mobile') {
             this.inMobileViewMode = true;
             this.restoreSplitViewAfterMobile = !!this.contentType;
             this.showForm();
@@ -1508,9 +1522,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         return $wizardIsMarkedAsReady.get();
     }
 
-    // `$isPreviewPanelVisible` is read by `ContentForm` to decide whether to exclude
-    // the ImageUploader input from the form (it is excluded when the preview is
-    // visible because `LiveViewImageEditor` renders it there instead).
     showForm(): void {
         this.wizardActions.getShowFormAction().execute();
     }

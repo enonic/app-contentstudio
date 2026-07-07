@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { $isPreviewPanelVisible } from '../../../widgets/preview-panel/model/previewPanel.store';
 import { setContentFormExpanded } from './wizardContent.store';
 import {
     $wizardContextPanelMode,
@@ -12,16 +11,12 @@ import {
 // below 960 (form mode), 1380 (maximized editor), 720 (minimized editor).
 
 describe('setWizardViewMode', () => {
-    it('updates the mode and derives preview visibility', () => {
+    it('updates the mode', () => {
         setWizardViewMode('split');
         expect($wizardViewMode.get()).toBe('split');
-        expect($isPreviewPanelVisible.get()).toBe(true);
-
-        setWizardViewMode('form');
-        expect($isPreviewPanelVisible.get()).toBe(false);
 
         setWizardViewMode('live');
-        expect($isPreviewPanelVisible.get()).toBe(true);
+        expect($wizardViewMode.get()).toBe('live');
     });
 });
 

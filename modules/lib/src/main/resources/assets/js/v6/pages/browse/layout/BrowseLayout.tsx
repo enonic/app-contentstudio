@@ -27,6 +27,7 @@ export type BrowseLayoutProps = {
     previewPanel: Element;
     contextPanel: Element;
     filterPanel?: Element;
+    storageId?: string;
 };
 
 const BROWSE_LAYOUT_NAME = 'BrowseLayout';
@@ -38,7 +39,13 @@ const LEGACY_PANEL_OVERRIDES = cn(
     '[&_.filter-panel]:!inset-0 [&_.filter-panel]:!w-auto',
 );
 
-export const BrowseLayout = ({ gridPanel, previewPanel, contextPanel, filterPanel }: BrowseLayoutProps): ReactElement => {
+export const BrowseLayout = ({
+    gridPanel,
+    previewPanel,
+    contextPanel,
+    filterPanel,
+    storageId = 'browse-layout',
+}: BrowseLayoutProps): ReactElement => {
     const isContextOpen = useStore($isContextOpen);
     const mode = useStore($contextPanelMode);
     const isMobilePreviewOpen = useStore($isMobilePreviewOpen);
@@ -92,52 +99,27 @@ export const BrowseLayout = ({ gridPanel, previewPanel, contextPanel, filterPane
         [publishMetrics, notifyLegacyResize],
     );
 
-    // top-15 clears the 60px legacy toolbar.
-    if (mode === 'mobile') {
-        return (
-            <div
-                ref={rootRef}
-                data-component={BROWSE_LAYOUT_NAME}
-                className={cn('absolute inset-x-0 bottom-0 top-15 overflow-hidden', LEGACY_PANEL_OVERRIDES)}
-            >
-                <LegacyElementHost element={gridPanel} className='size-full' />
-                {filterPanel != null && isFilterOpen && (
-                    <div data-component='BrowseLayout.MobileFilter' className='absolute inset-0 z-[2] bg-surface-neutral'>
-                        <LegacyElementHost element={filterPanel} className='size-full' />
-                    </div>
-                )}
-                <div
-                    data-component='BrowseLayout.MobilePreview'
-                    className={cn(
-                        'absolute inset-0 z-[1] bg-surface-neutral transition-transform duration-500',
-                        isMobilePreviewOpen ? 'translate-x-0' : 'translate-x-full',
-                    )}
-                >
-                    <LegacyElementHost element={previewPanel} className='size-full' />
-                    <div
-                        className={cn(
-                            'absolute inset-0 z-[1] transition-transform duration-500',
-                            isContextOpen ? 'translate-y-0' : 'translate-y-full',
-                        )}
-                    >
-                        <LegacyElementHost element={contextPanel} className='size-full' />
-                    </div>
-                </div>
-            </div>
-        );
-    }
+    const isMobile = mode === 'mobile';
+    // ! Grid and preview stay mounted through mode changes: re-parenting would
+    // reload the preview iframe. Mobile visibility is collapse, not unmount.
+    const gridCollapsed = isMobile && isMobilePreviewOpen;
+    const previewCollapsed = isMobile && !isMobilePreviewOpen;
 
+    const showFilterSplitPanel = filterPanel != null && isFilterOpen && !isMobile;
+    const showMobileFilter = filterPanel != null && isFilterOpen && isMobile;
     const showDockedContext = isContextOpen && mode === 'docked';
     const showFloatingContext = isContextOpen && mode === 'floating';
+    const showMobileContext = isContextOpen && isMobile;
 
+    // top-15 clears the 60px legacy toolbar.
     return (
         <div
             ref={rootRef}
             data-component={BROWSE_LAYOUT_NAME}
-            className={cn('absolute inset-x-0 bottom-0 top-15', LEGACY_PANEL_OVERRIDES)}
+            className={cn('absolute inset-x-0 bottom-0 top-15', isMobile && 'overflow-hidden', LEGACY_PANEL_OVERRIDES)}
         >
-            <SplitView orientation='horizontal' storageId='browse-layout' className='size-full'>
-                {filterPanel != null && isFilterOpen && (
+            <SplitView orientation='horizontal' storageId={storageId} className='size-full'>
+                {showFilterSplitPanel && (
                     <>
                         <SplitView.Panel
                             id='filter'
@@ -150,11 +132,24 @@ export const BrowseLayout = ({ gridPanel, previewPanel, contextPanel, filterPane
                         <SplitView.Handle id='filter-handle' variant='thin' />
                     </>
                 )}
-                <SplitView.Panel id='grid' defaultSize='50%' minSize='300px' onResize={handlePanelResize}>
+                <SplitView.Panel
+                    id='grid'
+                    defaultSize='50%'
+                    minSize={isMobile ? undefined : '300px'}
+                    collapsible={isMobile}
+                    collapsed={gridCollapsed}
+                    onResize={handlePanelResize}
+                >
                     <LegacyElementHost element={gridPanel} className='size-full' />
                 </SplitView.Panel>
-                <SplitView.Handle id='grid-preview-handle' variant='thin' />
-                <SplitView.Panel id='preview' minSize='300px' onResize={handlePanelResize}>
+                {!isMobile && <SplitView.Handle id='grid-preview-handle' variant='thin' />}
+                <SplitView.Panel
+                    id='preview'
+                    minSize={isMobile ? undefined : '300px'}
+                    collapsible={isMobile}
+                    collapsed={previewCollapsed}
+                    onResize={handlePanelResize}
+                >
                     <LegacyElementHost element={previewPanel} className='size-full' />
                 </SplitView.Panel>
                 {showDockedContext && (
@@ -177,6 +172,16 @@ export const BrowseLayout = ({ gridPanel, previewPanel, contextPanel, filterPane
                     boundsSelector='[data-component="BrowseLayout"]'
                     onResized={notifyLegacyResize}
                 />
+            )}
+            {showMobileContext && (
+                <div data-component='BrowseLayout.MobileContext' className='absolute inset-0 z-[1] bg-surface-neutral'>
+                    <LegacyElementHost element={contextPanel} className='size-full' />
+                </div>
+            )}
+            {showMobileFilter && (
+                <div data-component='BrowseLayout.MobileFilter' className='absolute inset-0 z-[2] bg-surface-neutral'>
+                    <LegacyElementHost element={filterPanel} className='size-full' />
+                </div>
             )}
         </div>
     );

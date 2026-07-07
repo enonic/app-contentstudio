@@ -228,20 +228,41 @@ describe('BrowseLayout', () => {
         expect(Number(handleAfter?.getAttribute('aria-valuenow'))).toBeGreaterThan(before);
     });
 
-    it('renders the mobile overlay stack below the mobile threshold', async () => {
+    it('keeps the split view mounted in mobile mode and overlays the context', async () => {
         layoutRootWidth = 700;
         const panels = createPanels();
 
         await renderLayout(panels);
 
-        const preview = document.querySelector('[data-component="BrowseLayout.MobilePreview"]');
-        expect(preview).not.toBeNull();
-        expect(preview?.className).toContain('translate-x-full');
-        expect(document.querySelector('[data-group]')).toBeNull();
+        expect(document.querySelector('[data-group]')).not.toBeNull();
+        expect(screen.getByTestId('grid').querySelector('.legacy-grid')).toBe(panels.gridPanel.getHTMLElement());
+        expect(screen.getByTestId('preview').querySelector('.legacy-preview')).toBe(
+            panels.previewPanel.getHTMLElement(),
+        );
+        expect(document.querySelector('[data-testid="grid-preview-handle"]')).toBeNull();
 
-        await act(async () => setMobilePreviewOpen(true));
+        await act(async () => setContextOpen(true));
         await settle();
-        expect(preview?.className).toContain('translate-x-0');
+        expect(document.querySelector('[data-component="BrowseLayout.MobileContext"]')).not.toBeNull();
+    });
+
+    it('keeps grid and preview hosted through mode changes', async () => {
+        const panels = createPanels();
+
+        await renderLayout(panels);
+        const previewElement = panels.previewPanel.getHTMLElement();
+        const previewHost = previewElement.parentElement;
+        expect(previewHost).not.toBeNull();
+
+        await act(async () => setContextLayoutMetrics({ totalWidth: 700, contextWidth: 360 }));
+        await settle();
+        expect(previewElement.parentElement).toBe(previewHost);
+        expect(previewElement.isConnected).toBe(true);
+
+        await act(async () => setContextLayoutMetrics({ totalWidth: 2000, contextWidth: 360 }));
+        await settle();
+        expect(previewElement.parentElement).toBe(previewHost);
+        expect(previewElement.isConnected).toBe(true);
     });
 
     it('mounts the filter as a resizable split panel when opened', async () => {
