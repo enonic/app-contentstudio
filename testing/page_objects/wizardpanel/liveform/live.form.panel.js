@@ -10,23 +10,23 @@ const ComponentDescriptorsDropdown = require('../../components/selectors/compone
 
 const xpath = {
     container: "//div[contains(@id,'LiveFormPanel')]",
-    fragmentComponentView: "//div[contains(@id,'FragmentComponentView')]",
+    fragmentComponentView: "//*[@data-portal-component-type='fragment']",
     itemViewContextMenu: "//div[contains(@id,'ItemViewContextMenu')]",
-    layoutComponentView: "//div[contains(@id,'LayoutComponentView')]",
+    layoutComponentView: "//*[@data-portal-component-type='layout']",
     layoutPlaceholderDiv: `//div[@data-portal-component-type='layout']`,
     fragmentPlaceHolderDiv: `//div[contains(@id,'FragmentPlaceholder')]`,
-    sectionTextComponentView: "//section[contains(@id,'TextComponentView')]",
-    textComponentView: "//*[contains(@id,'TextComponentView')]",
+    sectionTextComponentView: "//*[@data-portal-component-type='text']",
+    textComponentView: "//*[@data-portal-component-type='text']",
     textComponentType: "//*[@data-portal-component-type='text']",
     previewNotAvailableSpan: "//p[@class='no-preview-message']/span[1]",
     imageInComponent: "//figure/img",
     closeEditModeButton: "//button[contains(@class,'close-edit-mode-button icon-close')]",
     noSelectionDiv: "//div[contains(@class,'no-selection-message')]",
     pageSettingsLink: "//button[contains(@class,'page-settings-link')]",
-    editableTextComponentByText: text => `//section[contains(@id,'TextComponentView') and @contenteditable='true']//p[contains(.,'${text}')]`,
-    textComponentByText: text => `//section[contains(@id,'TextComponentView')]//p[contains(.,'${text}')]`,
-    partComponentByName: name => `//div[contains(@id,'PartComponentView') and @data-portal-component-type='part']//h2[contains(text(),'${name}')]`,
-    captionByText: text => `//section[contains(@id,'TextComponentView') ]//figcaption[contains(.,'${text}')]`
+    editableTextComponentByText: text => `//*[@data-portal-component-type='text' and @contenteditable='true']//p[contains(.,'${text}')]`,
+    textComponentByText: text => `//*[@data-portal-component-type='text']//p[contains(.,'${text}')]`,
+    partComponentByName: name => `//*[@data-portal-component-type='part']//h2[contains(text(),'${name}')]`,
+    captionByText: text => `//*[@data-portal-component-type='text']//figcaption[contains(.,'${text}')]`
 };
 
 class LiveFormPanel extends Page {
@@ -77,7 +77,7 @@ class LiveFormPanel extends Page {
 
     async getTextInPart() {
         try {
-            let selector = "//div[contains(@id,'PartComponentView')]/p";
+            let selector = "//*[@data-portal-component-type='part']//p";
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             return await this.getText(selector);
         } catch (err) {
@@ -295,7 +295,7 @@ class LiveFormPanel extends Page {
     async getLayoutColumnNumber() {
         let contentWizard = new ContentWizard();
         await contentWizard.switchToLiveEditFrame();
-        let columns = await this.getDisplayedElements(xpath.layoutComponentView + "//div[contains(@id,'RegionView')]");
+        let columns = await this.getDisplayedElements(xpath.layoutComponentView + "//*[@data-portal-region]");
         await contentWizard.switchToMainFrame();
         return columns.length;
     }
