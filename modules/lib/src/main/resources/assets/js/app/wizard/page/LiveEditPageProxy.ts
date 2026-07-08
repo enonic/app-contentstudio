@@ -426,7 +426,10 @@ export class LiveEditPageProxy implements PageNavigationHandler {
         );
 
         cleanups.push(
-            bus.on('ready', () => {
+            bus.on('ready', (payload) => {
+                eventsManager.notifyPageRenderErrors(
+                    (payload.errorPaths ?? []).map((path) => ComponentPath.fromString(path)),
+                );
                 eventsManager.notifyLiveEditPageViewReady(new LiveEditPageViewReadyEvent());
             }),
         );
