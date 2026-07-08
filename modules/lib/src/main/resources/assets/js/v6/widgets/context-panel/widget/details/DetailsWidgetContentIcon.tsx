@@ -7,7 +7,7 @@ import { setContent } from '../../../../entities/content';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import { ContentIcon } from '../../../../shared/ui/icons/ContentIcon';
 import { setWizardContent } from '../../model/contextContent.store';
-import { updateThumbnail } from '../../../../entities/content/api/updateThumbnail.api';
+import { updateContentIcon } from '../../../../entities/content/api/updateContentIcon.api';
 
 const DETAILS_WIDGET_CONTENT_ICON_NAME = 'DetailsWidgetContentIcon';
 
@@ -39,7 +39,7 @@ export const DetailsWidgetContentIcon = ({ content }: Props): ReactElement => {
         if (!file) return;
 
         setIsUploading(true);
-        await updateThumbnail({ contentId: content.getId(), file, onProgress: (_, p) => setProgress(p) }).match(
+        await updateContentIcon({ contentId: content.getId(), file, onProgress: (_, p) => setProgress(p) }).match(
             ({ content: updated }) => {
                 setContent(updated);
                 setWizardContent(updated);

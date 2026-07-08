@@ -1,11 +1,11 @@
 import { ReactElement } from 'react';
 import { ProjectViewItem } from '../../../../../app/settings/view/ProjectViewItem';
 import { ProjectHelper } from '../../../../../app/settings/data/project/ProjectHelper';
-import { ProjectIcon } from '../../../../shared/ui/icons/ProjectIcon';
 import { useProjectPrincipals } from './hooks/useProjectPrincipals';
 import { ItemHeader } from './ItemHeader';
 import { ProjectMetaBlock } from './ProjectMetaBlock';
 import { ProjectRolesBlock } from './ProjectRolesBlock';
+import { ProjectStatisticsIcon } from './ProjectStatisticsIcon';
 
 type ProjectStatisticsProps = {
     item: ProjectViewItem;
@@ -28,15 +28,7 @@ export const ProjectStatistics = ({ item }: ProjectStatisticsProps): ReactElemen
     return (
         <div data-component={PROJECT_STATISTICS_NAME} className="flex flex-col gap-5">
             <ItemHeader
-                icon={
-                    <ProjectIcon
-                        projectName={project.getName()}
-                        language={project.getLanguage()}
-                        hasIcon={!!project.getIcon()}
-                        isLayer={project.hasParents()}
-                        className="size-14"
-                    />
-                }
+                icon={<ProjectStatisticsIcon project={project} />}
                 displayName={displayName}
                 subtitle={project.getDescription()}
             />

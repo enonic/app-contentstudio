@@ -3,12 +3,17 @@ import { getCmsRestUri } from './cms';
 import { type Project } from '../../../../app/settings/data/project/Project';
 import { ProjectAccess } from '../../../../app/settings/access/ProjectAccess';
 
-export function resolveProjectIconUrl(projectName: string | undefined | null): string | undefined {
+export function resolveProjectIconUrl(
+    projectName: string | undefined | null,
+    version?: string | null,
+): string | undefined {
     if (projectName == null) {
         return undefined;
     }
 
-    return `${getCmsRestUri('project/icon/')}${encodeURIComponent(projectName)}`;
+    const url = `${getCmsRestUri('project/icon/')}${encodeURIComponent(projectName)}`;
+    
+    return version != null ? `${url}?ts=${encodeURIComponent(version)}` : url;
 }
 
 /**

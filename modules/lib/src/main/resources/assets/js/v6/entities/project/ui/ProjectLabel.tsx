@@ -30,6 +30,7 @@ export const ProjectLabel = ({
                     projectName={project.getName()}
                     language={project.getLanguage()}
                     hasIcon={!!project.getIcon()}
+                    iconHash={project.getIcon()?.getSha512()}
                     isLayer={project.hasParents()}
                 />
             }

@@ -48,7 +48,9 @@ function toXhrError(xhr: XMLHttpRequest): AppError {
  * shared `ResultAsync<T, AppError>` contract. XHR is sanctioned only here; every
  * other server call goes through the JSON client (`client.ts`).
  *
- * Used by: entities/content/api/{uploadMedia,uploadAttachment,updateImageMedia}.api.ts
+ * Used by:
+ * entities/content/api/{uploadMedia,uploadAttachment,updateImageMedia,updateContentIcon}.api.ts,
+ * entities/project/api/{updateProjectIcon}.api.ts
  */
 export function requestUploadJson<T>(url: string, options: UploadRequestOptions): ResultAsync<T, AppError> {
     const { formData, body, onProgress } = options;
@@ -73,7 +75,9 @@ export function requestUploadJson<T>(url: string, options: UploadRequestOptions)
                 if (xhr.status >= 200 && xhr.status < 300) {
                     onProgress?.(100);
                     try {
-                        resolve(JSON.parse(xhr.responseText) as T);
+                        // An empty 2xx body (e.g. a `void` endpoint) resolves as `undefined`.
+                        const text = xhr.responseText;
+                        resolve((text ? JSON.parse(text) : undefined) as T);
                     } catch {
                         reject(new AppError('Failed to parse response'));
                     }
@@ -91,6 +95,6 @@ export function requestUploadJson<T>(url: string, options: UploadRequestOptions)
                 xhr.send(formData);
             }
         }),
-        toAppError,
+        toAppError
     );
 }
