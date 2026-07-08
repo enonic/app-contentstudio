@@ -25,6 +25,13 @@ export type UploadRemoteImageOptions = {
     onProgress?: (id: string, progress: number) => void;
 };
 
+export type UpdateMediaFileOptions = {
+    id: string;
+    file: File;
+    contentId: string;
+    onProgress?: (id: string, progress: number) => void;
+};
+
 /** Used by: entities/content/lib/useUploadMedia.ts, features/new-content */
 export function uploadMediaFile({
     id,
@@ -60,6 +67,26 @@ export function uploadRemoteImage({
 
     return requestUploadJson<ContentJson>(getCmsApiUrl('createMediaFromUrl'), {
         body,
+        onProgress: (progress) => onProgress?.(id, progress),
+    })
+        .mapErr((error) => new UploadError(id, error.message, error))
+        .andThen((json) => buildContent(id, json).map((content) => ({ mediaIdentifier: id, content })));
+}
+
+/** Replaces the source binary of an existing media content. Used by: features/shared/form/input-types/media-uploader */
+export function updateMediaFile({
+    id,
+    file,
+    contentId,
+    onProgress,
+}: UpdateMediaFileOptions): ResultAsync<UploadMediaSuccess, UploadError> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('name', sanitizeName(file.name));
+    formData.append('content', contentId);
+
+    return requestUploadJson<ContentJson>(getCmsApiUrl('updateMedia'), {
+        formData,
         onProgress: (progress) => onProgress?.(id, progress),
     })
         .mapErr((error) => new UploadError(id, error.message, error))
