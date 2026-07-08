@@ -10,12 +10,20 @@ export type ProjectIconProps = {
     language?: string;
     icon?: ReactNode;
     hasIcon?: boolean;
+    iconHash?: string;
     isLayer?: boolean;
     className?: string;
 };
 
-export const ProjectIcon = ({ projectName, language, hasIcon, isLayer, className }: ProjectIconProps): ReactElement => {
-    const url = hasIcon ? resolveProjectIconUrl(projectName) : null;
+export const ProjectIcon = ({
+    projectName,
+    language,
+    hasIcon,
+    iconHash,
+    isLayer,
+    className,
+}: ProjectIconProps): ReactElement => {
+    const url = hasIcon ? resolveProjectIconUrl(projectName, iconHash) : null;
     if (url) {
         return (
             <img

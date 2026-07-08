@@ -60,6 +60,7 @@ export const BrowseSidebar = (): ReactElement => {
                     projectName={activeProject?.getName()}
                     language={activeProject?.getLanguage()}
                     hasIcon={!!activeProject?.getIcon()}
+                    iconHash={activeProject?.getIcon()?.getSha512()}
                     className="flex-shrink-0 my-1.75 ml-0"
                 />
             )}
