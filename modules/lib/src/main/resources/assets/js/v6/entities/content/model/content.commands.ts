@@ -1,4 +1,4 @@
-import type { ContentSummary } from '../../../../app/content/ContentSummary';
+import { ContentSummaryBuilder, type ContentSummary } from '../../../../app/content/ContentSummary';
 import {
     $contentCacheByProject,
     $pathToIdByProject,
@@ -52,6 +52,33 @@ export function setContents(contents: ContentSummary[], projectName?: string): v
 
     writeProjectCache(name, cacheUpdates);
     writePathIndex(name, indexUpdates);
+}
+
+export function markParentsWithChildren(children: ContentSummary[], projectName?: string): void {
+    if (children.length === 0) return;
+    const name = resolveProjectName(projectName);
+    if (!name) return;
+
+    const cache = readProjectCache(name);
+    const index = readPathIndex(name);
+
+    const patched: ProjectCache = {};
+    for (const child of children) {
+        const parentPath = child.getPath?.()?.getParentPath();
+        if (!parentPath || parentPath.isRoot()) continue;
+
+        const parentId = index[parentPath.toString()];
+        if (!parentId || parentId in patched) continue;
+
+        const parent = cache[parentId];
+        if (!parent || parent.hasChildren()) continue;
+
+        patched[parentId] = new ContentSummaryBuilder(parent).setHasChildren(true).build();
+    }
+
+    if (Object.keys(patched).length === 0) return;
+
+    writeProjectCache(name, { ...cache, ...patched });
 }
 
 export function removeContent(id: string, projectName?: string): void {

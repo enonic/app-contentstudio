@@ -13,6 +13,7 @@ import {
     setContents,
     removeContent,
     removeContents,
+    markParentsWithChildren,
     clearAllContentCaches,
     clearProjectContentCache,
 } from './content.commands';
@@ -44,10 +45,16 @@ function createMockContent(id: string, displayName?: string): ContentSummary {
 }
 
 // Mock ContentSummary with path
-function createMockContentWithPath(id: string, pathStr: string, displayName?: string): ContentSummary {
-    return {
+function createMockContentWithPath(
+    id: string,
+    pathStr: string,
+    displayName?: string,
+    hasChildren?: boolean,
+): ContentSummary {
+    const mock = {
         getId: () => id,
         getDisplayName: () => displayName ?? `Content ${id}`,
+        hasChildren: () => Boolean(hasChildren),
         getPath: () => ({
             toString: () => pathStr,
             hasParentContent: () => pathStr.split('/').filter(Boolean).length > 1,
@@ -62,7 +69,12 @@ function createMockContentWithPath(id: string, pathStr: string, displayName?: st
             isRoot: () => false,
             equals: (other: { toString: () => string }) => pathStr === other.toString(),
         }),
-    } as unknown as ContentSummary;
+    };
+
+    // ContentSummaryBuilder's copy constructor calls every getter; stub any missing one.
+    return new Proxy(mock, {
+        get: (target, prop) => (prop in target ? target[prop] : () => undefined),
+    }) as unknown as ContentSummary;
 }
 
 // Mock ContentServerChangeItem for delete/archive events
@@ -257,6 +269,57 @@ describe('content.store', () => {
 
         it('returns empty array for empty cache', () => {
             expect(getAllContentIds()).toEqual([]);
+        });
+    });
+
+    describe('markParentsWithChildren', () => {
+        it('should mark cached parent as having children', () => {
+            setContent(createMockContentWithPath('parent', '/content/parent'));
+
+            markParentsWithChildren([createMockContentWithPath('child', '/content/parent/child')]);
+
+            expect(getContent('parent')?.hasChildren()).toBe(true);
+        });
+
+        it('should preserve other parent fields', () => {
+            setContent(createMockContentWithPath('parent', '/content/parent', 'My Folder'));
+
+            markParentsWithChildren([createMockContentWithPath('child', '/content/parent/child')]);
+
+            const parent = getContent('parent');
+            expect(parent?.getDisplayName()).toBe('My Folder');
+            expect(parent?.getPath()?.toString()).toBe('/content/parent');
+        });
+
+        it('should do nothing when parent is not cached', () => {
+            markParentsWithChildren([createMockContentWithPath('child', '/content/parent/child')]);
+
+            expect(hasContent('parent')).toBe(false);
+            expect(getAllContentIds()).toEqual([]);
+        });
+
+        it('should keep the same object when parent already has children', () => {
+            const parent = createMockContentWithPath('parent', '/content/parent', undefined, true);
+            setContent(parent);
+
+            markParentsWithChildren([createMockContentWithPath('child', '/content/parent/child')]);
+
+            expect(getContent('parent')).toBe(parent);
+        });
+
+        it('should do nothing for root-level contents', () => {
+            markParentsWithChildren([createMockContentWithPath('root-item', '/content/root-item')]);
+
+            expect(getAllContentIds()).toEqual([]);
+        });
+
+        it('should mark parent when child is created via socket event', () => {
+            setContent(createMockContentWithPath('parent', '/content/parent'));
+
+            emitContentCreated([createMockContentWithPath('child', '/content/parent/child')]);
+
+            expect(getContent('parent')?.hasChildren()).toBe(true);
+            expect(hasContent('child')).toBe(true);
         });
     });
 

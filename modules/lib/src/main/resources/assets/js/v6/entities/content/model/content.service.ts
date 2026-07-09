@@ -13,7 +13,7 @@ import {
 } from '../../../shared/socket';
 import { connectContentSelectionToSocket } from './content-selection.store';
 import { connectContentTreeToSocket } from './content-tree.store';
-import { removeContents, setContents } from './content.commands';
+import { markParentsWithChildren, removeContents, setContents } from './content.commands';
 import { readPathIndex, readProjectCache, writePathIndex, writeProjectCache } from './content.store';
 import type { PathIndex, ProjectCache } from './content.types';
 import { connectFilterTreeToSocket } from './filter-tree.store';
@@ -48,6 +48,7 @@ export const start = (): void => {
         $contentCreated.subscribe((event) => {
             if (event?.data) {
                 setContents(event.data);
+                markParentsWithChildren(event.data);
             }
         }),
         $contentDeleted.subscribe((event) => {
@@ -111,6 +112,11 @@ export const start = (): void => {
 
             writeProjectCache(name, cacheUpdates);
             writePathIndex(name, indexUpdates);
+
+            markParentsWithChildren(
+                event.data.map((moved) => moved.item.getContentSummary()),
+                name,
+            );
         }),
         $contentSorted.subscribe((event) => {
             if (event?.data) {
