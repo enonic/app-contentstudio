@@ -850,22 +850,28 @@ class ContentWizardPanel extends Page {
     // Gets content status from the Item Preview toolbar
     async getContentStatusInToolbar() {
         try {
-            let result = await this.getDisplayedElements(XPATH.container + TREE_GRID.CONTENT_STATUS);
+            let locator = XPATH.container + XPATH.toolbar + TREE_GRID.CONTENT_STATUS;
+            let result = await this.getDisplayedElements(locator);
             return await result[0].getText();
         } catch (err) {
-            await this.handleError(`Tried to get the content-status from the Item Wizard Preview toolbar`, 'err_get_content_status', err);
+            await this.handleError(`Tried to get the content-status from the Item Wizard toolbar`, 'err_get_content_status', err);
+        }
+    }
+
+    async waitForContentStatusInToolbar(status) {
+        try {
+            let locator = XPATH.container + `//span[contains(@data-component,'StatusBadge') and text()='${status}']`;
+            await this.waitForElementDisplayed(locator);
+        } catch (err) {
+            await this.handleError(`Incorrect content-status in the Item Wizard toolbar`, 'err_wizard_content_status', err);
         }
     }
 
     // Waits until content status in the Item Preview toolbar equals to expectedStatus
-    async waitForContentStatus(expectedStatus) {
+    async waitForContentStatusInPreviewPanel(expectedStatus) {
         try {
-            let selector = this.previewItemToolbar +
-                           `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status') and text()='${expectedStatus}']`;
-            let message = "Element still not displayed! timeout is " + appConst.mediumTimeout + "  " + selector;
-            await this.getBrowser().waitUntil(async () => {
-                return await this.isElementDisplayed(selector);
-            }, appConst.mediumTimeout, message);
+            let locator = this.versionHistoryButton + `//span[text()='${expectedStatus}']`;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
             await this.handleError(`Waited for the content status: ${expectedStatus}`, 'err_content_status', err);
         }

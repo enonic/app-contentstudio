@@ -79,6 +79,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             await contentWizard.typeDisplayName(DATE_NAME);
             await studioUtils.saveScreenshot('date_content_to_save');
             await dateForm.typeDate(0, DATE_IN_DECEMBER);
+            await studioUtils.saveScreenshot('date_content_to_save');
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
             await studioUtils.saveScreenshot('date_content_saved');

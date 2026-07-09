@@ -25,8 +25,7 @@ describe('publish.simple.site.spec - publishes new site in wizard panel', functi
 
     //https://github.com/enonic/app-contentstudio/issues/10957
     // Incorrect behavior when publishing content in Content Wizard
-    // TODO
-    it.skip(`GIVEN wizard for new site is opened WHEN the site has been published THEN 'Online' status and Unpublish button should be displayed`,
+    it(`GIVEN wizard for new site is opened WHEN the site has been published THEN 'Online' status and Unpublish button should be displayed`,
         async () => {
             let contentWizard = new ContentWizard();
             let contentPublishDialog = new ContentPublishDialog();
@@ -60,8 +59,7 @@ describe('publish.simple.site.spec - publishes new site in wizard panel', functi
             await contentPublishDialog.waitForDialogClosed();
             await contentWizard.waitForNotificationMessage();
             // 8. Verify the status in the toolbar:
-            let actualStatus = await contentWizard.getContentStatusInToolbar()
-            assert.equal(actualStatus, appConst.CONTENT_STATUS.ONLINE, 'The content should be Online');
+            await contentWizard.waitForContentStatusInToolbar(appConst.CONTENT_STATUS.ONLINE)
             await contentWizard.waitForUnpublishButtonDisplayed();
             // 9. Click on Unpublish button
             await contentWizard.clickOnUnpublishButton();
@@ -75,8 +73,8 @@ describe('publish.simple.site.spec - publishes new site in wizard panel', functi
             await confirmValueDialog.waitForDialogClosed();
             await contentWizard.waitForNotificationMessage();
             // 12 . Verify that the status is Offline  in the wizard
-            let status = await contentWizard.getContentStatusInToolbar();
-            assert.equal(status, appConst.CONTENT_STATUS.OFFLINE, 'The content should be Offline');
+            await contentWizard.waitForContentStatusInToolbar(appConst.CONTENT_STATUS.OFFLINE);
+            await contentWizard.waitForContentStatusInPreviewPanel(appConst.CONTENT_STATUS.UNPUBLISHED);
             // 13. Verify that PUBLISH button gets visible in 'Default Action'
             await contentWizard.waitForPublishButtonDisplayed();
             // 14. Verify that Save button is disabled:

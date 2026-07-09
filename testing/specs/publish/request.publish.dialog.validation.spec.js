@@ -22,7 +22,7 @@ describe('request.publish.dialog.validation.spec - opens request publish modal d
             // expand the Publish Menu and select 'Request Publishing...' menu item
             await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
             // 2. click on 'Include children items'
-            await createRequestPublishDialog.clickOnIncludeChildItems(appConst.TEST_FOLDER_WITH_IMAGES);
+            await createRequestPublishDialog.clickOnIncludeChildItemsCheckbox(appConst.TEST_FOLDER_WITH_IMAGES);
             await studioUtils.saveScreenshot("request_publish_include_children2");
             // 3. Invalid icon should not be visible, because all the children are valid:
             await createRequestPublishDialog.waitForInvalidIconNotDisplayed();
@@ -37,7 +37,7 @@ describe('request.publish.dialog.validation.spec - opens request publish modal d
             // expand the Publish Menu and select 'Request Publishing...' menu item
             await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
             // 2. click on 'Include children items':
-            await createRequestPublishDialog.clickOnIncludeChildItems(appConst.TEST_FOLDER_2_DISPLAY_NAME);
+            await createRequestPublishDialog.clickOnIncludeChildItemsCheckbox(appConst.TEST_FOLDER_2_DISPLAY_NAME);
             await studioUtils.saveScreenshot("request_publish_include_children4");
             // 3. Invalid icon gets visible, because on of the children is not valid:
             await createRequestPublishDialog.waitForInvalidIconDisplayed();
@@ -52,7 +52,7 @@ describe('request.publish.dialog.validation.spec - opens request publish modal d
             // 2. expand the Publish Menu and select 'Request Publishing...' menu item
             await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
             // 3. Do include not valid child:
-            await createRequestPublishDialog.clickOnIncludeChildItems(appConst.TEST_FOLDER_2_DISPLAY_NAME);
+            await createRequestPublishDialog.clickOnIncludeChildItemsCheckbox(appConst.TEST_FOLDER_2_DISPLAY_NAME);
             await studioUtils.saveScreenshot("request_publish_include_children3");
             //Validation messages should appear:
             await createRequestPublishDialog.waitForInvalidIconDisplayed();
@@ -62,7 +62,7 @@ describe('request.publish.dialog.validation.spec - opens request publish modal d
             // 5. reopen the dialog with another selected folder(all the children are valid:)
             await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_NAME);
             await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
-            await createRequestPublishDialog.clickOnIncludeChildItems(appConst.TEST_FOLDER_WITH_IMAGES);
+            await createRequestPublishDialog.clickOnIncludeChildItemsCheckbox(appConst.TEST_FOLDER_WITH_IMAGES);
             // Validation messages should be reset:(invalid icon is not visible)
             await createRequestPublishDialog.waitForInvalidIconNotDisplayed();
         });
