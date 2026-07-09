@@ -18,6 +18,7 @@ describe('content.changes.metadata.updated, tests to verify the bug #7128', func
         webDriverHelper.setupBrowser();
     }
     let SITE;
+    const TEST_FOLDER = appConst.generateRandomName('xx');
     const SITE_DESCRIPTION_2 = 'Description 2';
 
     // Verify - the New content is added into the end of the tree list  #10922
@@ -30,20 +31,22 @@ describe('content.changes.metadata.updated, tests to verify the bug #7128', func
             await contentBrowsePanel.clickOnExpanderIcon(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_NAME);
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             // 2. Add new  child item:
-            let displayName = appConst.generateRandomName('xx')
-            await contentWizardPanel.typeDisplayName(displayName);
+            await contentWizardPanel.typeDisplayName(TEST_FOLDER);
             await contentWizardPanel.waitAndClickOnSave();
             await contentWizardPanel.waitForNotificationMessage();
             await studioUtils.doCloseWizardAndSwitchToGrid();
             // 3. Verify that New content is added into the top of the tree list:
             let result =  await contentBrowsePanel.getContentNamesInGrid();
-            assert.equal(result[1], displayName, "New folder should be added to the first place in the root");
+            assert.equal(result[1], TEST_FOLDER, "New folder should be added to the first place in the root");
         });
 
     it(`Precondition: published site should be added`,
         async () => {
             let contentPublishDialog = new ContentPublishDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
+            // delete content that is no longer used
+            await studioUtils.doDeleteContent(TEST_FOLDER);
+
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, null, [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES]);
             await studioUtils.doAddReadySite(SITE);
