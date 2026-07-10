@@ -157,7 +157,7 @@ export const addNewIssueItems = (items: ContentSummary[]): void => {
     const state = $newIssueDialog.get();
     const existingIds = new Set(state.items.map((item) => item.getContentId().toString()));
     const newItems = items.filter((item) => !existingIds.has(item.getContentId().toString()));
-    const nextItems = dedupeItems([...state.items, ...newItems]);
+    const nextItems = dedupeItems([...newItems, ...state.items]);
     const nextExcludeChildrenIds = uniqueIds([
         ...state.excludeChildrenIds,
         ...newItems.map((item) => item.getContentId()),
