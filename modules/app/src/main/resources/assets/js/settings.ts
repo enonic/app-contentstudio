@@ -6,6 +6,7 @@ import { CONFIG, ConfigObject } from '@enonic/lib-admin-ui/util/Config';
 import { ProjectConfigContext } from '@enonic/lib-contentstudio/app/settings/data/project/ProjectConfigContext';
 import { initConfig } from '@enonic/lib-contentstudio/v6/shared/config/config.store';
 import { initLanguages } from '@enonic/lib-contentstudio/v6/entities/language/languages.store';
+import { initPrincipals } from '@enonic/lib-contentstudio/v6/entities/principal/principals.store';
 import { initProjects } from '@enonic/lib-contentstudio/v6/entities/project/projects.store';
 import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
 import { Principal } from '@enonic/lib-admin-ui/security/Principal';
@@ -35,6 +36,7 @@ const init = async (configScriptId: string, elemId: string): Promise<void> => {
     initConfig(configScriptId);
     initProjects();
     void initLanguages();
+    initPrincipals();
     AuthContext.init(
         Principal.fromJson(CONFIG.get('user') as PrincipalJson),
         (CONFIG.get('principals') as PrincipalJson[]).map(Principal.fromJson),

@@ -12,6 +12,7 @@ import { errAsync, okAsync, ResultAsync } from 'neverthrow';
 import { formatError } from '../../../../../shared/lib/format/error';
 import { parseNumber } from '../../../../../shared/lib/format/values';
 import { $config } from '../../../../../shared/config/config.store';
+import { joinPath } from '../../../../../shared/lib/url/cms';
 
 const PRELOAD_KEY = 'CUSTOM_SELECTOR_PRELOAD_KEY';
 const DEFAULT_SIZE = 10;
@@ -290,7 +291,7 @@ function appendUrlParams(url: string, params: UrlParams): string {
  */
 function getServiceBaseUrl(projectId: string, contentId: string): string {
     const appId = $config.get().appId || DEFAULT_APP_ID;
-    return `${$config.get().adminUrl}/${appId}/site/${UrlAction.EDIT}/${projectId}/${Branch.DRAFT}/${contentId}/_/service`;
+    return joinPath('/', $config.get().adminUrl, `${appId}/site/${UrlAction.EDIT}/${projectId}/${Branch.DRAFT}/${contentId}/_/service`);
 }
 
 type BuildRequestUrlProps = {

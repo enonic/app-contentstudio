@@ -114,7 +114,7 @@ function parseConfig(content: string): ConfigStore | undefined {
         return {
             appId: parseString(config.appId),
             appVersion: parseString(config.appVersion),
-            adminUrl: parseString(config.adminUrl) || DEFAULT_CONFIG.adminUrl,
+            adminUrl: parseString(config.adminUrl ?? DEFAULT_CONFIG.adminUrl),
             assetsUri: parseString(config.assetsUri),
             toolUri: parseString(config.toolUri),
             user: config.user ? Principal.fromJson(config.user as PrincipalJson) : undefined,
