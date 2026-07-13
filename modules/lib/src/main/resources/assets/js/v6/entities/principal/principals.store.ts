@@ -102,4 +102,13 @@ export function getPrincipalsByKeys(keys: PrincipalKey[]): ResultAsync<Principal
 // * Initialization
 //
 
-void loadPrincipals('', 50);
+let initialized = false;
+
+export function initPrincipals(): void {
+    if (initialized) {
+        return;
+    }
+    initialized = true;
+
+    loadPrincipals('', 50);
+}
