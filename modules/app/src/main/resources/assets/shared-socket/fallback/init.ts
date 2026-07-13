@@ -1,28 +1,29 @@
-import {WebSocketMessage} from '../websocket/data';
-import {$isConnected, connect as connectWebSocket, sendMessage} from '../websocket/init';
-import {isInWorkerMessage, isMessageWithMetadata, OutWorkerMessage} from '../worker/data';
-import {subscribe, unsubscribe} from '../worker/subscriptions';
-import {NS} from './constants';
+import { randomId } from '@enonic/lib-contentstudio/v6/shared/lib/crypto/id';
+import { WebSocketMessage } from '../websocket/data';
+import { $isConnected, connect as connectWebSocket, sendMessage } from '../websocket/init';
+import { isInWorkerMessage, isMessageWithMetadata, OutWorkerMessage } from '../worker/data';
+import { subscribe, unsubscribe } from '../worker/subscriptions';
+import { NS } from './constants';
 
-const CLIENT_ID = crypto.randomUUID();
+const CLIENT_ID = randomId();
 
 export function initialize(): void {
     window.addEventListener(`${NS}:open`, handleOpen);
     window.addEventListener(`${NS}:close`, handleClose);
 
-    $isConnected.subscribe(connected => {
-        send({type: 'status', payload: {ready: connected}});
+    $isConnected.subscribe((connected) => {
+        send({ type: 'status', payload: { ready: connected } });
     });
 }
 
 function handleOpen(): void {
     window.addEventListener(`${NS}:message:in`, handleMessage);
-    send({type: 'connected', payload: {clientId: CLIENT_ID}});
-    send({type: 'status', payload: {ready: $isConnected.get()}});
+    send({ type: 'connected', payload: { clientId: CLIENT_ID } });
+    send({ type: 'status', payload: { ready: $isConnected.get() } });
 }
 
 function handleClose(): void {
-    send({type: 'disconnected'});
+    send({ type: 'disconnected' });
 }
 
 function handleMessage(event: Event): void {
@@ -41,7 +42,7 @@ function handleMessage(event: Event): void {
             connectWebSocket(message.payload.wsUrl, (payload: Record<string, unknown>): void => {
                 const clientId = isMessageWithMetadata(payload) ? payload.metadata.clientId : undefined;
                 if (!clientId || clientId === CLIENT_ID) {
-                    send({type: 'received', payload});
+                    send({ type: 'received', payload });
                 }
             });
             subscribe(CLIENT_ID, message.payload.wsUrl);
@@ -62,12 +63,9 @@ function handleMessage(event: Event): void {
 }
 
 function isFallbackEvent(event: Event): event is CustomEvent<unknown> {
-    return event.type.startsWith(`${NS}:message:in`) &&
-        'detail' in event &&
-        event.detail !== undefined;
+    return event.type.startsWith(`${NS}:message:in`) && 'detail' in event && event.detail !== undefined;
 }
 
-
 function send(message: OutWorkerMessage): void {
-    window.dispatchEvent(new CustomEvent(`${NS}:message:out`, {detail: message}));
+    window.dispatchEvent(new CustomEvent(`${NS}:message:out`, { detail: message }));
 }

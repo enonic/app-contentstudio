@@ -6,6 +6,7 @@ import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
 import { type Content } from '../../../../../../app/content/Content';
 import { updateMediaFile, type UploadMediaSuccess } from '../../../../../entities/content/api/uploadMedia.api';
 import { type UploadError } from '../../../../../shared/api';
+import { randomId } from '../../../../../shared/lib/crypto/id';
 import {
     $uploads,
     addUpload,
@@ -63,7 +64,7 @@ export const useMediaUploader = ({ contentId, onChange }: UseMediaUploaderOption
             if (!contentId || files.length === 0) return;
 
             const file = files[0];
-            const uploadId = `media-upload-${crypto.randomUUID()}`;
+            const uploadId = `media-upload-${randomId()}`;
 
             setUploadId(uploadId);
             addUpload(uploadId, file.name, contentId);
@@ -92,10 +93,10 @@ export const useMediaUploader = ({ contentId, onChange }: UseMediaUploaderOption
                     removeUpload(error.mediaIdentifier);
                     setUploadId(undefined);
                     showError(i18n('notify.upload.error', file.name, error.message));
-                }
+                },
             );
         },
-        [contentId, onChange]
+        [contentId, onChange],
     );
 
     return { isUploading: !!uploadId, progress, handleFiles };

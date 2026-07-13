@@ -291,7 +291,11 @@ function appendUrlParams(url: string, params: UrlParams): string {
  */
 function getServiceBaseUrl(projectId: string, contentId: string): string {
     const appId = $config.get().appId || DEFAULT_APP_ID;
-    return joinPath('/', $config.get().adminUrl, `${appId}/site/${UrlAction.EDIT}/${projectId}/${Branch.DRAFT}/${contentId}/_/service`);
+    return joinPath(
+        '/',
+        $config.get().adminUrl,
+        `${appId}/site/${UrlAction.EDIT}/${projectId}/${Branch.DRAFT}/${contentId}/_/service`,
+    );
 }
 
 type BuildRequestUrlProps = {
