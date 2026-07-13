@@ -2,6 +2,8 @@ import { useStore } from '@nanostores/preact';
 import { LayoutTemplate, type LucideIcon, SquareChartGantt, SquareCode, WandSparkles } from 'lucide-react';
 import { useMemo } from 'react';
 import type { PageTemplate } from '../../../../app/content/PageTemplate';
+import type { Descriptor } from '../../../../app/page/Descriptor';
+import type { Page } from '../../../../app/page/Page';
 import { $contentContext, $defaultPageTemplateName, usePageState } from '../model/page-editor';
 import {
     $isPageInspectionLoading,
@@ -9,10 +11,9 @@ import {
     $pageControllerOptions,
     $pageTemplateOptions,
     $selectedPageOptionKey,
+    AUTO_KEY,
 } from '../model/page-inspection.store';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
-
-export const AUTO_KEY = '__auto__';
 
 export type PageOptionType = 'auto' | 'template' | 'controller';
 
@@ -35,6 +36,48 @@ export type UsePageOptionsResult = {
 
 function getTemplateIcon(template: PageTemplate): LucideIcon {
     return template.getDisplayName() === 'Custom' ? SquareChartGantt : LayoutTemplate;
+}
+
+// Builds an option for the page's current controller/template when its descriptor
+// is not among the fetched ones, e.g. after its application was removed from the site.
+function createFallbackPageOption(
+    page: Page | null,
+    pageConfigDescriptor: Descriptor | null,
+    noDescriptionLabel: string,
+): PageOption | undefined {
+    if (page?.hasController()) {
+        const controllerKey = page.getController();
+        const controllerKeyString = controllerKey.toString();
+        const matchingDescriptor =
+            pageConfigDescriptor != null && pageConfigDescriptor.getKey().toString() === controllerKeyString
+                ? pageConfigDescriptor
+                : null;
+
+        return {
+            key: controllerKeyString,
+            label:
+                matchingDescriptor != null ? matchingDescriptor.getDisplayName() : controllerKey.getName().toString(),
+            description:
+                matchingDescriptor != null
+                    ? matchingDescriptor.getDescription() || noDescriptionLabel
+                    : controllerKeyString,
+            type: 'controller',
+            icon: SquareCode,
+        };
+    }
+
+    if (page?.hasTemplate()) {
+        const templateKey = page.getTemplate().toString();
+        return {
+            key: templateKey,
+            label: templateKey,
+            description: templateKey,
+            type: 'template',
+            icon: LayoutTemplate,
+        };
+    }
+
+    return undefined;
 }
 
 export function useSelectedPageOption(): PageOption | undefined {
@@ -88,41 +131,7 @@ export function useSelectedPageOption(): PageOption | undefined {
             }
         }
 
-        if (page?.hasController()) {
-            const controllerKey = page.getController();
-            const controllerKeyString = controllerKey.toString();
-            const matchingDescriptor =
-                pageConfigDescriptor != null && pageConfigDescriptor.getKey().toString() === controllerKeyString
-                    ? pageConfigDescriptor
-                    : null;
-
-            return {
-                key: controllerKeyString,
-                label:
-                    matchingDescriptor != null
-                        ? matchingDescriptor.getDisplayName()
-                        : controllerKey.getName().toString(),
-                description:
-                    matchingDescriptor != null
-                        ? matchingDescriptor.getDescription() || noDescriptionLabel
-                        : controllerKeyString,
-                type: 'controller',
-                icon: SquareCode,
-            };
-        }
-
-        if (page?.hasTemplate()) {
-            const templateKey = page.getTemplate().toString();
-            return {
-                key: templateKey,
-                label: templateKey,
-                description: templateKey,
-                type: 'template',
-                icon: LayoutTemplate,
-            };
-        }
-
-        return undefined;
+        return createFallbackPageOption(page, pageConfigDescriptor, noDescriptionLabel);
     }, [
         page,
         ctx,
@@ -143,6 +152,7 @@ export function usePageOptions(searchValue?: string): UsePageOptionsResult {
     const defaultTemplateName = useStore($defaultPageTemplateName);
     const templates = useStore($pageTemplateOptions);
     const controllers = useStore($pageControllerOptions);
+    const pageConfigDescriptor = useStore($pageConfigDescriptor);
     const selectedKey = useStore($selectedPageOptionKey) ?? undefined;
     const isLoading = useStore($isPageInspectionLoading);
 
@@ -187,8 +197,25 @@ export function usePageOptions(searchValue?: string): UsePageOptionsResult {
             });
         }
 
+        // Keep the page's current controller/template selectable even when its
+        // application is no longer assigned to the site.
+        if (selectedKey !== undefined && selectedKey !== AUTO_KEY && !result.some((o) => o.key === selectedKey)) {
+            const fallback = createFallbackPageOption(page, pageConfigDescriptor, noDescriptionLabel);
+            if (fallback != null) result.push(fallback);
+        }
+
         return result;
-    }, [showAutoOption, autoLabel, autoDescription, noDescriptionLabel, templates, controllers]);
+    }, [
+        showAutoOption,
+        autoLabel,
+        autoDescription,
+        noDescriptionLabel,
+        templates,
+        controllers,
+        page,
+        pageConfigDescriptor,
+        selectedKey,
+    ]);
 
     const filteredOptions = useMemo(() => {
         if (!searchValue) return options;

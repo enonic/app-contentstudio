@@ -7,6 +7,8 @@ import { $contentContext, $page, $pageEditorLifecycle, $pageVersion } from './pa
 import type { PageEditorContentContext } from './page-editor/types';
 import { $contentUpdated } from '../../../shared/socket/socket.store';
 
+export const AUTO_KEY = '__auto__';
+
 //
 // * State
 //
@@ -24,10 +26,10 @@ export const $isPageInspectionLoading = atom<boolean>(false);
 //
 
 export const $selectedPageOptionKey = computed([$page, $pageVersion], (page): string | null => {
-    if (!page) return '__auto__';
+    if (!page) return AUTO_KEY;
     if (page.hasController()) return page.getController().toString();
     if (page.hasTemplate()) return page.getTemplate().toString();
-    return '__auto__';
+    return AUTO_KEY;
 });
 
 export const $isCustomizeVisible = computed([$pageEditorLifecycle, $contentContext], (lifecycle, ctx): boolean => {
@@ -36,9 +38,10 @@ export const $isCustomizeVisible = computed([$pageEditorLifecycle, $contentConte
 });
 
 export const $isPageInspectionEmpty = computed(
-    [$pageTemplateOptions, $pageControllerOptions, $isPageInspectionLoading],
-    (templates, controllers, isLoading): boolean => {
+    [$pageTemplateOptions, $pageControllerOptions, $isPageInspectionLoading, $selectedPageOptionKey],
+    (templates, controllers, isLoading, selectedKey): boolean => {
         if (isLoading) return false;
+        if (selectedKey !== AUTO_KEY) return false;
         return templates.length === 0 && controllers.length === 0;
     },
 );
