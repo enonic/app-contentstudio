@@ -1,13 +1,9 @@
 /**
- * Created  on 21.07.2023
+ * Created  on 21.07.2023 updated on 09.07.2026
  */
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
 const {COMMON, DIALOG_ITEMS, SELECTION_STATUS_BAR} = require('./../../libs/elements');
-
-const xpath = {
-    dependentItemDiv: displayName => `//div[@data-component='ContentRow' and descendant::span[contains(.,'${displayName}')]]`,
-};
 
 class DependantsControls extends Page {
 
@@ -21,7 +17,7 @@ class DependantsControls extends Page {
     }
 
     get cancelSelectionButton() {
-        return this.container + COMMON.actionButton('Cancel');
+        return this.container + SELECTION_STATUS_BAR.BUTTON_CANCEL;
     }
 
     get showExcludedItemsButton() {
@@ -86,8 +82,7 @@ class DependantsControls extends Page {
         try {
             return await this.waitForElementDisplayed(this.dependantsBlock, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dependencies_block');
-            throw new Error(`Dependants block is not displayed, screenshot: ${screenshot} ` + err);
+            await this.handleError('Dependants block is not displayed', 'err_dependencies_block', err);
         }
     }
 
@@ -95,8 +90,7 @@ class DependantsControls extends Page {
         try {
             return await this.waitForElementNotDisplayed(this.dependantsBlock, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dependencies_block');
-            throw new Error(`Dependants block should not be displayed, screenshot: ${screenshot} ` + err);
+            await this.handleError('Dependants block should not be displayed', 'err_dependencies_block', err);
         }
     }
 
@@ -126,7 +120,7 @@ class DependantsControls extends Page {
 
     async waitForApplySelectionButtonNotDisplayed() {
         try {
-            return await this.waitForElementNotDisplayed(this.cancelSelectionButton, appConst.mediumTimeout);
+            return await this.waitForElementNotDisplayed(this.applySelectionButton, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_apply_btn');
             throw new Error(`Apply selection button should not be displayed, screenshot: ${screenshot} ` + err);
@@ -141,19 +135,17 @@ class DependantsControls extends Page {
 
     async waitForShowExcludedItemsButtonNotDisplayed() {
         try {
-            return await this.waitForElementNotDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout)
+            return await this.waitForElementNotDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_show_excluded_should_be_hidden');
-            throw new Error(`Dependants block, 'Show excluded items' button should not be visible! screenshot: ${screenshot} ` + err);
+            await this.handleError(`Dependants block, 'Show excluded items' button should not be visible!`, `err_show_excluded`, err);
         }
     }
 
     async waitForShowExcludedItemsButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout)
+            return await this.waitForElementDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_show_excluded_btn');
-            throw new Error(`Dependants block, 'Show excluded button' should be visible! screenshot: ${screenshot} ` + +err)
+            await this.handleError(`Dependants block, 'Show excluded items' button should be visible!`, `err_show_excluded_btn`, err);
         }
     }
 
@@ -174,26 +166,23 @@ class DependantsControls extends Page {
             await this.clickOnElement(this.hideExcludedItemsButton);
             return await this.pause(1000);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_hide_excluded_btn');
-            throw new Error('Dependants block, Error during clicking on Hide Excluded button, screenshot  ' + screenshot + ' ' + err);
+            await this.handleError(`Dependants block, Error during clicking on Hide Excluded button`, `err_hide_excluded_btn`, err);
         }
     }
 
     async waitForHideExcludedItemsButtonDisplayed() {
         try {
-            return this.waitForElementDisplayed(this.hideExcludedItemsButton, appConst.mediumTimeout)
+            return this.waitForElementDisplayed(this.hideExcludedItemsButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_hide_excluded_btn');
-            throw new Error(`Dependants block, 'Hide excluded items' button should be displayed! screenshot: ${screenshot} ` + +err)
+            await this.handleError(`Dependants block, 'Hide excluded items' button should be displayed!`, `err_hide_excluded_btn`, err);
         }
     }
 
     async waitForHideExcludedItemsButtonNotDisplayed() {
         try {
-            return this.waitForElementNotDisplayed(this.hideExcludedItemsButton, appConst.mediumTimeout)
+            return this.waitForElementNotDisplayed(this.hideExcludedItemsButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_hide_excluded_btn');
-            throw new Error(`Dependants block, 'Hide excluded items' button should be hidden! screenshot: ${screenshot} ` + +err)
+            await this.handleError(`Dependants block, 'Hide excluded items' button should be hidden!`, `err_hide_excluded_btn`, err);
         }
     }
 
@@ -226,11 +215,18 @@ class DependantsControls extends Page {
         return await this.getBrowser().switchWindow(displayName);
     }
 
-    async isDependantCheckboxEnabled(displayName) {
-        let itemLocator = this.container + xpath.dependentItemDiv(displayName);
-        let checkBoxInputLocator = itemLocator + DIALOG_ITEMS.contentCheckboxInputByName(displayName);
-        await this.waitForElementDisplayed(itemLocator, appConst.mediumTimeout);
-        return await this.isElementEnabled(checkBoxInputLocator);
+    async isDependantCheckboxEnabled(name) {
+        try {
+            let checkBoxLabelLocator = this.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV +
+                                       DIALOG_ITEMS.contentCheckboxLabelByName(name);
+            let checkBoxInputLocator = this.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV +
+                                       DIALOG_ITEMS.contentCheckboxInputByName(name);
+            await this.waitForElementDisplayed(checkBoxLabelLocator, appConst.mediumTimeout);
+            let ariaDisabled = await this.getAttribute(checkBoxInputLocator, 'aria-disabled');
+            return ariaDisabled !== 'true';
+        } catch (err) {
+            await this.handleError(`Dependants block, is checkbox enabled for item ${name}`, 'err_checkbox_enabled', err);
+        }
     }
 }
 

@@ -1,5 +1,5 @@
 /**
- * Created on 07.08.2019.
+ * Created on 07.08.2019.  updated on 09.07.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -26,22 +26,21 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             // 1. Open new folder-wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(FOLDER1_NAME);
-            // 2.Click on  'mark as ready' then close Publish wizard:
+            // 2. Click on  'mark as ready' then close Publish wizard:
             await contentWizard.clickOnMarkAsReadyButton();
             await contentPublishDialog.waitForDialogOpened();
             await contentPublishDialog.clickOnCloseButton();
             await contentPublishDialog.waitForDialogClosed();
-            // 3. Expand Publish Menu and select 'Request Publishing...' menu item
+            // 3. Expand Publish Menu and select 'Request Publishing' menu item
             await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             await studioUtils.saveScreenshot("wizard_publish_dialog_single_folder");
+            // 4. Verify that  the status is Offline, New
             let status = await createRequestPublishDialog.getContentStatus(FOLDER1_NAME);
-            assert.equal(status, appConst.CONTENT_STATUS.NEW, "'New' status should be displayed in the dialog");
-            // 4. Verify that Next button is displayed:
-            let isPresent = await createRequestPublishDialog.waitForNextButtonDisplayed();
-            assert.ok(isPresent, "'Next' button should be displayed");
-
-            //let isRemovable = await createRequestPublishDialog.isItemRemovable(FOLDER1_NAME);
-            //assert.ok(isRemovable === false, "One item should be displayed on the dialog and it should not be removable");
+            assert.equal(status, appConst.CONTENT_STATUS.OFFLINE_NEW, "'Offline New' status should be displayed in the dialog");
+            let isRemoveIconSDisabled = await createRequestPublishDialog.isRemoveItemIconDisabled(FOLDER1_NAME);
+            // 5. Remove icon should be disabled
+            assert.ok(isRemoveIconSDisabled, "One item should be displayed on the dialog and it should not be removable");
+            await createRequestPublishDialog.waitForCreateRequestButtonDisabled();
         });
 
     it(`GIVEN 'Request Publishing Wizard' is opened WHEN 'Include child' icon has been clicked THEN 'All' checkbox should appear`,
@@ -53,7 +52,8 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             // 2. Expand Publish Menu and select 'Request Publishing...' menu item
             await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
             // 3. click on 'Include children items'
-            await createRequestPublishDialog.clickOnIncludeChildItems(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME);
+            await createRequestPublishDialog.clickOnIncludeChildItemsCheckbox(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME);
+
             await studioUtils.saveScreenshot('request_publish_include_children');
             // 4. 'Show dependent items' link should appear, because all children are Ready for publishing
             await createRequestPublishDialog.waitForAllDependantsCheckboxDisplayed();
@@ -63,8 +63,6 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             assert.equal(result.length, 10, '10 dependent items should be present in the dialog');
         });
 
-    // Verifies https://github.com/enonic/app-contentstudio/issues/6041
-    // Disable Next button when Request Publishing dialog is in edit mode #6041
     it(`GIVEN 'Request Publishing Wizard' is opened WHEN 'All' checkbox has been unselected THEN 'Next' button should be disabled`,
         async () => {
             let createRequestPublishDialog = new CreateRequestPublishDialog();
@@ -74,15 +72,15 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             // 2. Expand Publish Menu and select 'Request Publishing...' menu item
             await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
             // 3. click on 'Include children items'
-            await createRequestPublishDialog.clickOnIncludeChildItems(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME);
+            await createRequestPublishDialog.clickOnIncludeChildItemsCheckbox(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME);
             // 4. Unselect 'All' checkbox
             await createRequestPublishDialog.clickOnAllDependantsCheckbox();
             await studioUtils.saveScreenshot('request_publish_include_all_unselected');
             // 5. Verify that 'Apply selection' button gets visible
             await createRequestPublishDialog.waitForApplySelectionButtonDisplayed();
             await createRequestPublishDialog.waitForCancelSelectionButtonDisplayed();
-            // 6. Verify that 'Next' button is disabled:
-            await createRequestPublishDialog.waitForNextButtonDisabled();
+            // 6. Verify that 'Create' button is disabled:
+            await createRequestPublishDialog.waitForCreateRequestButtonDisabled();
         });
 
     it(`GIVEN 'Request Publishing Wizard' is opened WHEN 'All' checkbox has been unselected AND 'Apply' button has been clicked THEN 'Hide excluded' button should be displaed`,
@@ -94,11 +92,11 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             // 2. Expand Publish Menu and select 'Request Publishing...' menu item
             await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
             // 3. click on 'Include children items'
-            await createRequestPublishDialog.clickOnIncludeChildItems(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME);
+            await createRequestPublishDialog.clickOnIncludeChildItemsCheckbox(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME);
             // 4. Unselect 'All' checkbox
             await createRequestPublishDialog.clickOnAllDependantsCheckbox();
             // 5. Click on 'Apply selection' button:
-            await createRequestPublishDialog.clickOnApplySelectionButton();
+            //await createRequestPublishDialog.clickOnApplySelectionButton();
             await studioUtils.saveScreenshot('request_publish_exclude_items');
             // 6. Verify that 'Hide excluded' button gets visible:
             await createRequestPublishDialog.waitForHideExcludedItemsButtonDisplayed();
@@ -107,8 +105,8 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             assert.equal(result.length, 10, 'dependant items should be shown');
             let isSelected = await createRequestPublishDialog.isAllDependantsCheckboxSelected();
             assert.ok(isSelected === false, "'All' checkbox should not be selected");
-            // 8. Verify that 'Next' button is enabled:
-            await createRequestPublishDialog.waitForNextButtonEnabled();
+            // 8. Verify that 'Create' button is enabled:
+            await createRequestPublishDialog.waitForCreateRequestButtonEnabled();
         });
 
     it(`GIVEN 'Request Publishing Wizard' is opened WHEN 'Hide excluded'  button has been clicked THEN 'Show excluded' button gets visible`,
@@ -120,7 +118,7 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             // 2. Expand Publish Menu and select 'Request Publishing...' menu item
             await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
             // 3. click on 'Include children items'
-            await createRequestPublishDialog.clickOnIncludeChildItems(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME);
+            await createRequestPublishDialog.clickOnIncludeChildItemsCheckbox(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME);
             // 4. Unselect 'All' checkbox
             await createRequestPublishDialog.clickOnAllDependantsCheckbox();
             // 5. Click on 'Apply selection' button:
@@ -130,8 +128,8 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             await createRequestPublishDialog.clickOnHideExcludedItemsButton();
             // 7. "Show excluded" button should be visible:
             await createRequestPublishDialog.waitForShowExcludedItemsButtonDisplayed();
-            // 8. Verify that 'Next' button is enabled:
-            await createRequestPublishDialog.waitForNextButtonEnabled();
+            // 8. Verify that 'Create request' button is enabled:
+            await createRequestPublishDialog.waitForCreateRequestButtonEnabled();
         });
 
     it(`GIVEN 'Request Publishing Wizard' is opened WHEN 'Exclude invalid items' has been clicked THEN 'Next' button gets enabled`,
@@ -143,19 +141,19 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             // 2. Expand Publish Menu and select 'Request Publishing...' menu item:
             await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
             // 3. Verify that Next is enabled(child items are not included)
-            await createRequestPublishDialog.waitForNextButtonEnabled();
+            await createRequestPublishDialog.waitForCreateRequestButtonEnabled();
             // 4. Click on Include children icon:
-            await createRequestPublishDialog.clickOnIncludeChildItems(appConst.TEST_DATA.SELENIUM_TESTS_FOLDER_DISPLAY_NAME);
-            // 5. Next button gets disabled now:
-            await createRequestPublishDialog.waitForNextButtonDisabled();
+            await createRequestPublishDialog.clickOnIncludeChildItemsCheckbox(appConst.TEST_DATA.SELENIUM_TESTS_FOLDER_DISPLAY_NAME);
+            // 5. Create button gets disabled now:
+            await createRequestPublishDialog.waitForCreateRequestButtonDisabled();
             // 6. click on 'Exclude invalid items' button
             await createRequestPublishDialog.clickOnExcludeInvalidItemsButton();
             await studioUtils.saveScreenshot('request_dlg_excluded_invalid_items');
-            // 7. Verify that 'Next' button gets enabled:
-            await createRequestPublishDialog.waitForNextButtonEnabled();
+            // 7. Verify that 'Create' button gets enabled:
+            await createRequestPublishDialog.waitForCreateRequestButtonEnabled();
         });
 
-    it(`GIVEN existing folder is selected AND 'Request Publishing...' menu item has been clicked  WHEN an item to publish has been clicked THEN this item should be opened in new wizard-tab`,
+    it(`GIVEN existing folder is selected AND 'Request Publishing' menu item has been clicked  WHEN an item to publish has been clicked THEN this item should be opened in new wizard-tab`,
         async () => {
             let contentWizard = new ContentWizard();
             let createRequestPublishDialog = new CreateRequestPublishDialog();
@@ -171,39 +169,6 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             await studioUtils.saveScreenshot('publish_request_dialog_item_clicked');
             let displayName = await contentWizard.getDisplayName();
             assert.equal(displayName, FOLDER1_NAME, 'Expected display name should be present in that wizard');
-        });
-
-    // verifies https://github.com/enonic/app-contentstudio/issues/867  Create request button should be disabled when required input is empty
-    it(`GIVEN folder is selected AND 'Request Publishing' dialog is opened WHEN 'Next' button has been pressed THEN new wizard page should be loaded`,
-        async () => {
-            let createRequestPublishDialog = new CreateRequestPublishDialog();
-            let contentBrowsePanel = new ContentBrowsePanel();
-            // 1.Select the content:
-            await studioUtils.findAndSelectItem(FOLDER1_NAME);
-            // 2. Expand Publish Menu and select 'Request Publishing...' menu item
-            await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
-            await createRequestPublishDialog.clickOnNextButton();
-            await studioUtils.saveScreenshot('request_publishing_next');
-            // 'Create Request' button should be disabled , because required input is empty:
-            await createRequestPublishDialog.waitForCreateRequestButtonDisabled();
-            // Previous button.
-            await createRequestPublishDialog.waitForPreviousButtonDisplayed();
-        });
-
-    it(`GIVEN the second page in 'Request Publishing' wizard is opened WHEN 'Previous' button has been pressed THEN first wizard page should be loaded`,
-        async () => {
-            let createRequestPublishDialog = new CreateRequestPublishDialog();
-            let contentBrowsePanel = new ContentBrowsePanel();
-            // 1.Select the content:
-            await studioUtils.findAndSelectItem(FOLDER1_NAME);
-            // 2. Expand 'Publish Menu' and select 'Request Publishing...' menu item
-            await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
-            // 3. Go to the second step in the wizard:
-            await createRequestPublishDialog.clickOnNextButton();
-            // 4. click on 'Previous' button
-            await createRequestPublishDialog.clickOnPreviousButton();
-            // 'Next' button should appear:
-            await createRequestPublishDialog.waitForNextButtonDisplayed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

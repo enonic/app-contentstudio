@@ -168,14 +168,14 @@ const TREE_GRID = {
     itemTreeGridListElementByName: name => {
         return `//div[@data-component='VirtualizedTreeList.Row' and descendant::small[contains(@class,'t-subtle') and contains(.,'${name}')]]`;
     },
-    GRID_LIST_ROW:`//div[@data-component='GridList']//div[@data-component='GridList.Row']`,
+    GRID_LIST_ROW: `//div[@data-component='GridList']//div[@data-component='GridList.Row']`,
 
     gridListRowByDisplayName: displayName => `//div[@data-component='GridList.Row' and descendant::div[@data-component='ItemLabel']//span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]`,
 }
 const DROPDOWN = {
     COMBOBOX_EMPTY_OPTIONS: "//div[@data-component='Combobox.Popup']//div[contains(@class,'text-subtle')]",
     COMBOBOX_SEARCH_INPUT: "//div[@data-component='Combobox.Search']/input",
-    SELECTOR_ICON:"//span[@data-component='Selector.Icon']",
+    SELECTOR_ICON: "//span[@data-component='Selector.Icon']",
     SELECTOR_TRIGGER: "//button[@role='combobox' and descendant::span[@data-component='Selector.Value']]",
     COMBOBOX_DROPDOWN_HANDLE: "//div[@data-component='Combobox.Search']/button",
     COMBOBOX_VALUE: "//button[@data-component='Combobox.Value']//span[contains(@class,'font-semibold') and contains(@class,'truncate')]",
@@ -232,7 +232,8 @@ const ISSUE = {
 const DIALOG_ITEMS = {
     PRIMARY_DATA_COMPONENT: "//div[@data-component='SplitList.Primary']",
     SECONDARY_DATA_COMPONENT_DIV: "//div[@data-component='SplitList.Secondary']",
-    INCLUDE_CHILDREN_CHECKBOX: "/following::div[contains(@id,'children') and descendant::span[contains(.,'Include children')]]//label",
+    //INCLUDE_CHILDREN_CHECKBOX: "/following::div[contains(@id,'children') and descendant::span[contains(.,'Include children')]]//label",
+    INCLUDE_CHILDREN_CHECKBOX: "//div[@data-component='Checkbox' and descendant::span[contains(.,'Include child')]]//label",
     CONTENT_ROW: "//div[@data-component='ContentRow' and (not(@aria-disabled) or @aria-disabled!='true')]",
     CONTENT_REMOVE_BUTTON: "//div[@data-component='ContentRowRemoveButton' ]//button",
     mainItemRowByName: name => `//div[@data-component='ContentRow' and descendant::div[@data-component='ContentLabel' and descendant::span[contains(.,'${name}')]]]`,
@@ -248,6 +249,7 @@ const DIALOG_ITEMS = {
 const SELECTION_STATUS_BAR = {
     COMPONENT_DIV: "//div[@data-component='SelectionStatusBar']",
     BUTTON_APPLY: "//button[@data-component='StatusBarEntryButton' and text()='Apply']",
+    BUTTON_CANCEL: "//button[@data-component='StatusBarEntryButton' and text()='Cancel']",
     buttonByLabel: (label) => `//button[@data-component='StatusBarEntryButton' and contains(.,'${label}')]`,
 
 };

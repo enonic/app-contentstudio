@@ -35,7 +35,7 @@ describe('request.publish.dialog.validation.spec - opens request publish modal d
             // expand 'Publish Menu' and select 'Request Publishing...' menu item
             await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
             // 2. click on 'Include children items'
-            await createRequestPublishDialog.clickOnIncludeChildItems(PARENT_FOLDER.displayName);
+            await createRequestPublishDialog.clickOnIncludeChildItemsCheckbox(PARENT_FOLDER.displayName);
             await studioUtils.saveScreenshot('request_publish_mark_as_ready_btn');
             // 3. Verify 'mark as ready' and 'Exclude items in progress' buttons:
             await createRequestPublishDialog.waitForMarkAsReadyButtonDisplayed();
@@ -53,7 +53,7 @@ describe('request.publish.dialog.validation.spec - opens request publish modal d
             // expand 'Publish Menu' and select 'Request Publishing...' menu item
             await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
             // 2. click on 'Include children items'
-            await createRequestPublishDialog.clickOnIncludeChildItems(PARENT_FOLDER.displayName);
+            await createRequestPublishDialog.clickOnIncludeChildItemsCheckbox(PARENT_FOLDER.displayName);
             // 3. Click on 'Exclude items in progress' button:
             await createRequestPublishDialog.clickOnExcludeItemsInProgressButton();
             await studioUtils.saveScreenshot('request_publish_items_in_progress_excluded');
@@ -73,7 +73,7 @@ describe('request.publish.dialog.validation.spec - opens request publish modal d
             // expand 'Publish Menu' and select 'Request Publishing...' menu item
             await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
             // 2. click on 'Include children items'
-            await createRequestPublishDialog.clickOnIncludeChildItems(PARENT_FOLDER.displayName);
+            await createRequestPublishDialog.clickOnIncludeChildItemsCheckbox(PARENT_FOLDER.displayName);
             // 3. Click on 'Exclude items in progress' button:
             await createRequestPublishDialog.clickOnMarkAsReadyButton();
             // 4. Notification message should appear:
@@ -81,9 +81,9 @@ describe('request.publish.dialog.validation.spec - opens request publish modal d
             // 5. Verify that 'Exclude items in progress' and 'Mark as ready' button gets not visible:
             await createRequestPublishDialog.waitForExcludeItemsInProgressButtonNotDisplayed();
             await createRequestPublishDialog.waitForMarkAsReadyButtonNotDisplayed();
-            // 6. Verify that 'Next' button gets enabled:
+            // 6. Verify that 'Create' button gets enabled:
             await studioUtils.saveScreenshot('request_publish_next_btn_enabled');
-            await createRequestPublishDialog.waitForNextButtonEnabled();
+            await createRequestPublishDialog.waitForCreateRequestButtonEnabled()
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
