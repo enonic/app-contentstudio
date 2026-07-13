@@ -83,7 +83,7 @@ describe('sort.dialog.spec, tests for sort content dialog', function () {
             assert.ok(items[1] === DISPLAY_NAME_A_Z_FIRST_ITEM);
         });
 
-    it(`GIVEN not expanded folder is selected AND dialog is opened WHEN the “Display name (A–Z)” option is clicked THEN the new order should be applied`,
+    it(`GIVEN not expanded folder is selected AND dialog is opened WHEN the “Modified date (Old to new)” option is clicked THEN the new order should be applied`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let sortContentDialog = new SortContentDialog();

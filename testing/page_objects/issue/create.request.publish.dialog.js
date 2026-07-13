@@ -191,10 +191,6 @@ class CreateRequestPublishDialog extends Page {
         await this.pause(1000);
     }
 
-    waitForNextButtonDisplayed() {
-        return this.waitForElementDisplayed(this.nextButton, appConst.mediumTimeout);
-    }
-
     async waitForInvalidIconDisplayed() {
         try {
             await this.waitForElementDisplayed(this.invalidIcon, appConst.mediumTimeout);
@@ -269,9 +265,12 @@ class CreateRequestPublishDialog extends Page {
     }
 
 
-    async clickOnIncludeChildItems(name) {
+    async clickOnIncludeChildItemsCheckbox(name) {
         try {
-            let includeIcon = DIALOG_ITEMS.mainItemDivByName(name) + DIALOG_ITEMS.INCLUDE_CHILDREN_CHECKBOX;
+            // 'Include child items' checkbox is located in the 'GridList.Row' that follows the main item's 'ContentRow'
+            let includeIcon = xpath.container + DIALOG_ITEMS.mainItemDivByName(name) +
+                              "/following-sibling::div[@data-component='GridList.Row' and contains(@id,'children')][1]" +
+                              DIALOG_ITEMS.INCLUDE_CHILDREN_CHECKBOX;
             await this.waitForElementDisplayed(includeIcon, appConst.mediumTimeout);
             await this.clickOnElement(includeIcon);
             return await this.pause(1000);
