@@ -1,1 +1,1 @@
-export { $principals, getPrincipalsByKeys, loadPrincipals, loadPrincipalsByKeys } from './principals.store';
+export { $principals, getPrincipalsByKeys, initPrincipals, loadPrincipals, loadPrincipalsByKeys } from './principals.store';

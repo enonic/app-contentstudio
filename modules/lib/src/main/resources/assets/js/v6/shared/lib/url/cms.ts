@@ -27,11 +27,11 @@ export function resolveActiveProjectName(): string | undefined {
 /**
  * Join path segments, removing duplicate slashes.
  */
-function joinPath(...paths: string[]): string {
+export function joinPath(...paths: string[]): string {
     return paths
         .filter(Boolean)
         .join('/')
-        .replace(/([^:])\/+/g, '$1/');
+        .replace(/(^|[^:])\/{2,}/g, '$1/');
 }
 
 /**
@@ -50,7 +50,7 @@ export function getCmsPath(endpoint: string, projectName?: string): string {
  * @param path - Path to append after `<adminUrl>/rest-v2/cs/`
  */
 export function getCmsRestUri(path: string): string {
-    return joinPath($config.get().adminUrl, REST_PATH, path);
+    return joinPath('/', $config.get().adminUrl, REST_PATH, path);
 }
 
 /**

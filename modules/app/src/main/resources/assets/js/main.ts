@@ -58,6 +58,7 @@ import { AppElement } from '@enonic/lib-contentstudio/v6/app/App';
 import { initAiHost } from '@enonic/lib-contentstudio/v6/features/ai';
 import { initConfig } from '@enonic/lib-contentstudio/v6/shared/config/config.store';
 import { initLanguages } from '@enonic/lib-contentstudio/v6/entities/language/languages.store';
+import { initPrincipals } from '@enonic/lib-contentstudio/v6/entities/principal/principals.store';
 import { $activeProject } from '@enonic/lib-contentstudio/v6/entities/project/activeProject.store';
 import { $projects, initProjects } from '@enonic/lib-contentstudio/v6/entities/project/projects.store';
 import $ from 'jquery';
@@ -564,6 +565,7 @@ async function startContentBrowser() {
     initConfig(configScriptId);
     initProjects();
     void initLanguages();
+    initPrincipals();
     Messages.addMessages(JSON.parse(CONFIG.getString('phrasesAsJson')) as object);
     AuthContext.init(
         Principal.fromJson(CONFIG.get('user') as PrincipalJson),
