@@ -641,6 +641,10 @@ packages:
     resolution: {integrity: sha512-tzku+6fJaZLz1v9JIGKO3L9zPbVPQgs0BxCX8nM7APp+0Wbouu/Uxcx5xtQ06U3lMUDt2EOKK0lrxZ8QYBGNEQ==}
     engines: {node: '>= 24.16.0', pnpm: '>= 11.4.0'}
 
+  '@enonic/page-editor@2.0.0-beta.1':
+    resolution: {integrity: sha512-tzku+6fJaZLz1v9JIGKO3L9zPbVPQgs0BxCX8nM7APp+0Wbouu/Uxcx5xtQ06U3lMUDt2EOKK0lrxZ8QYBGNEQ==}
+    engines: {node: '>= 24.16.0', pnpm: '>= 11.4.0'}
+
   '@enonic/ui@1.0.5':
     resolution: {integrity: sha512-TMNzJ5juqX7e0PKd0CfJBd4ESh5+/LajV7h0E0dFl76pR2ZTpSfK3bUvAVayB51nvcxxqJmXUnoxvjLByvJ+gQ==}
     engines: {node: '>=24.16.0', pnpm: '>=11.1.1'}
@@ -5938,6 +5942,10 @@ snapshots:
       '@enonic-types/core': 8.0.0
 
   '@enonic-types/lib-websocket@8.0.0': {}
+
+  '@enonic/page-editor@2.0.0-beta.1':
+    dependencies:
+      nanostores: 1.4.0
 
   '@enonic/page-editor@2.0.0-beta.1':
     dependencies:

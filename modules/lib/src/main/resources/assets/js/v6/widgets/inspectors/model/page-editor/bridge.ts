@@ -1,3 +1,4 @@
+import type { ComponentPath } from '../../../../../app/page/region/ComponentPath';
 import { PageEventsManager } from '../../../../../app/wizard/PageEventsManager';
 import type { PageNavigationEvent } from '../../../../../app/wizard/PageNavigationEvent';
 import { PageNavigationEventType } from '../../../../../app/wizard/PageNavigationEventType';
@@ -14,8 +15,11 @@ import {
     $pageEditorLifecycle,
     $pageVersion,
     $selectionEventNonce,
+    addRenderErrorComponentPath,
     bumpPageVersion,
     bumpSelectionEventNonce,
+    removeRenderErrorComponentPath,
+    setRenderErrorComponentPaths,
     syncPageFromState,
 } from './store';
 import type { InitPageEditorBridgeOptions } from './types';
@@ -55,9 +59,28 @@ export function initPageEditorBridge(options?: InitPageEditorBridgeOptions): voi
     mgr.onLiveEditPageViewReady(onReady);
     cleanups.push(() => mgr.unLiveEditPageViewReady(onReady));
 
-    const onBeforeLoad = () => $pageEditorLifecycle.setKey('isPageReady', false);
+    const onBeforeLoad = () => {
+        $pageEditorLifecycle.setKey('isPageReady', false);
+        // Drop stale render-error marks while the page reloads; the iframe
+        // re-reports them on the next ready.
+        setRenderErrorComponentPaths([]);
+    };
     mgr.onBeforeLoad(onBeforeLoad);
     cleanups.push(() => mgr.unBeforeLoad(onBeforeLoad));
+
+    const onRenderErrors = (paths: ComponentPath[]) => {
+        setRenderErrorComponentPaths(paths.map((path) => path.toString()));
+    };
+    mgr.onPageRenderErrors(onRenderErrors);
+    cleanups.push(() => mgr.unPageRenderErrors(onRenderErrors));
+
+    const onComponentLoaded = (path: ComponentPath) => removeRenderErrorComponentPath(path.toString());
+    mgr.onComponentLoaded(onComponentLoaded);
+    cleanups.push(() => mgr.unComponentLoaded(onComponentLoaded));
+
+    const onComponentLoadFailed = (path: ComponentPath) => addRenderErrorComponentPath(path.toString());
+    mgr.onComponentLoadFailed(onComponentLoadFailed);
+    cleanups.push(() => mgr.unComponentLoadFailed(onComponentLoadFailed));
 
     // Page model events from PageState.getEvents()
 
@@ -72,11 +95,20 @@ export function initPageEditorBridge(options?: InitPageEditorBridgeOptions): voi
     events.onPageReset(onPageReset);
     cleanups.push(() => events.unPageReset(onPageReset));
 
-    const onComponentAdded = () => bumpPageVersion();
+    // Render-error marks are positional snapshots from the last render; add /
+    // remove / move shift sibling indices, so drop them on structural changes.
+    // They are re-reported on the next page render.
+    const onComponentAdded = () => {
+        setRenderErrorComponentPaths([]);
+        bumpPageVersion();
+    };
     events.onComponentAdded(onComponentAdded);
     cleanups.push(() => events.unComponentAdded(onComponentAdded));
 
-    const onComponentRemoved = () => bumpPageVersion();
+    const onComponentRemoved = () => {
+        setRenderErrorComponentPaths([]);
+        bumpPageVersion();
+    };
     events.onComponentRemoved(onComponentRemoved);
     cleanups.push(() => events.unComponentRemoved(onComponentRemoved));
 
@@ -149,4 +181,5 @@ export function cleanupPageEditorBridge(): void {
     $contentContext.set(null);
     $inspectedPath.set(null);
     $selectionEventNonce.set(0);
+    setRenderErrorComponentPaths([]);
 }
