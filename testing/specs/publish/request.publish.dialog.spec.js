@@ -77,6 +77,7 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             await createRequestPublishDialog.clickOnAllDependantsCheckbox();
             await studioUtils.saveScreenshot('request_publish_include_all_unselected');
             // 5. Verify that 'Apply selection' button gets visible
+            // TODO  https://github.com/enonic/app-contentstudio/issues/11046
             await createRequestPublishDialog.waitForApplySelectionButtonDisplayed();
             await createRequestPublishDialog.waitForCancelSelectionButtonDisplayed();
             // 6. Verify that 'Create' button is disabled:

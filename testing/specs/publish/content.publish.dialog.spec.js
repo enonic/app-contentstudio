@@ -118,9 +118,16 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             assert.ok(isDisplayed, 'Include child icon should be visible');
             // 6. 'Publish Now' button should be enabled!
             await contentPublishDialog.waitForPublishNowButtonEnabled();
-            // 7. Log message link should be displayed:
-            //let isLinkDisplayed = await contentPublishDialog.isLogMessageLinkDisplayed();
-            //assert.ok(isLinkDisplayed, 'Log message link should be displayed');
+            // 7. Verify Add/Remove comment buttons:
+            await contentPublishDialog.waitForAddCommentButtonDisplayed();
+            await contentPublishDialog.clickOnAddCommentButton();
+            await contentPublishDialog.waitForRemoveCommentButtonDisplayed();
+            await contentPublishDialog.typeTextInCommentTextArea('Test comment');
+            let result =  await contentPublishDialog.getTextInCommentTextArea();
+            await contentPublishDialog.clickOnRemoveCommentButton();
+            await contentPublishDialog.waitForCommentTextAreaNotDisplayed();
+            await contentPublishDialog.waitForAddCommentButtonDisplayed();
+            assert.equal(result, 'Test comment', 'Expected text should be present in the comment text area');
         });
 
     it(`GIVEN folder with children is selected AND Publish... button ahs been pressed WHEN 'Include children' button has been clicked THEN all dependent items with checkboxes gets visible`,

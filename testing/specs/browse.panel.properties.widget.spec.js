@@ -89,7 +89,7 @@ describe('Browse panel, properties widget, language spec', function () {
                 "display name in content section should be equal to the folder display name");
 
             let statusActual = await contentSection.getStatusText();
-            assert.equal(statusActual, 'Offline New', 'Offline New status should be displayed for the content');
+            assert.equal(statusActual, appConst.CONTENT_STATUS.OFFLINE_NEW, 'Offline New status should be displayed for the content');
             let workflow = await contentSection.getWorkflowOrValidityStatus();
             assert.equal(workflow, 'Ready for publishing', 'Ready for publishing workflow icon should be displayed for the content');
 

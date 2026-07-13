@@ -110,6 +110,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             let pageTemplateWidget = new PageTemplateWidget();
             // TODO bug #11018
+            // https://github.com/enonic/app-contentstudio/issues/10804
             // 6. Verify that 'Automatic' controller type is displayed in pageTemplateWidget:
             //let actualName = await pageTemplateWidget.getControllerLink();
             //assert.equal(actualName, TEMPLATE.displayName, 'Expected template name should be displayed in the template widget');

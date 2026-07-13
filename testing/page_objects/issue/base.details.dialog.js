@@ -4,7 +4,7 @@ const appConst = require('../../libs/app_const');
 
 const XPATH = {
     container: `//div[@data-component='IssueDialogDetailsContent' and @role='dialog']`,
-    titleInput: "//div[@data-component='EditableText']//input[@aria-label='Title']",
+    titleInput: "//div[@data-component='EditableText']//input[contains(@aria-label,'Title')]",
     toIssueList: "//a[@title='To the Issue List']",
     issueNameInPlaceInput: `//div[contains(@id,'IssueDetailsInPlaceTextInput')]`,
     editIssueTitleToggle: `//h2[@class='inplace-text' and @title='Click to  edit']`,
@@ -115,7 +115,7 @@ class BaseIssueDetailsDialog extends Page {
     }
 
     async waitForIssueTitleInputNotEditable() {
-        let locator = XPATH.container + "//div[@data-component='EditableText']//input[@aria-label='Title']";
+        let locator = XPATH.container + XPATH.titleInput;
         await this.waitForElementDisabled(locator);
     }
 

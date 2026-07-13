@@ -39,16 +39,16 @@ class ContentUnpublishDialog extends Page {
     }
 
     waitForDialogOpened() {
-        return this.waitForElementDisplayed(this.unpublishButton, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.unpublishButton);
     }
 
     waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout);
+        return this.waitForElementNotDisplayed(XPATH.container);
     }
 
     async waitForUnpublishButtonEnabled() {
         try {
-            return await this.waitForElementEnabled(this.unpublishButton, appConst.mediumTimeout);
+            return await this.waitForElementEnabled(this.unpublishButton);
         } catch (err) {
             await this.handleError('Content Unpublish Dialog', 'err_unpublish_btn_enabled', err);
         }

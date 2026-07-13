@@ -493,6 +493,7 @@ module.exports = Object.freeze({
     UNNAMED_CONTENT_DISPLAY_NAME: '<unnamed>',
     CONTENT_STATUS: {
         OFFLINE_NEW: 'Offline New',
+        ONLINE_MODIFIED: 'Online Modified',
         ONLINE_MOVED:'Online Moved',
         OFFLINE_NEW_READY: 'Offline New Ready for publishing',
         OFFLINE: 'Offline',
@@ -506,6 +507,7 @@ module.exports = Object.freeze({
     },
     PUBLISH_MENU: {
         REQUEST_PUBLISH: 'Request publishing',
+        OPEN_REQUEST:'Open Request...',
         PUBLISH: 'Publish',
         PUBLISH_TREE: 'Publish tree',
         MARK_AS_READY: 'Mark as ready',

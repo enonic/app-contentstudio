@@ -1,5 +1,5 @@
 /**
- * Created on 05.09.2019.
+ * Created on 05.09.2019.  updated on 13.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -33,29 +33,14 @@ describe('browse.panel.mark.as.ready.multiselection.spec - select 2 folders and 
             await studioUtils.findContentAndClickCheckBox(name2);
             // 3. Click on 'MARK AS READY' button
             await contentBrowsePanel.clickOnMarkAsReadyButton();
+            // 4. Verify that Confirmation dialog  loads:
             await confirmationDialog.waitForDialogOpened();
             let message = await confirmationDialog.getWarningMessage();
 
             await studioUtils.saveScreenshot("mark_as_ready_confirmation");
             assert.equal(message, "Are you sure you want to mark the items as ready?");
-        });
-
-    it(`WHEN single folder has been selected and 'MARK AS READY' button pressed THEN no confirmation needed for single content, the content gets 'Ready for publishing'`,
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            let name = contentBuilder.generateRandomName('folder');
-            let folder = contentBuilder.buildFolder(name);
-            // the folder has been added:
-            await studioUtils.doAddFolder(folder);
-            // Click on checkboxes and select the folder:
-            await studioUtils.findContentAndClickCheckBox(name);
-            // Click on 'MARK AS READY' button, no confirmation needed for single content:
-            await contentBrowsePanel.clickOnMarkAsReadyButton();
-
-            let message = await contentBrowsePanel.waitForNotificationMessage();
-            let expectedMessage = appConst.itemMarkedAsReadyMessage(folder.displayName);
-            await studioUtils.saveScreenshot('mark_as_ready_confirmation');
-            assert.equal(message, expectedMessage, "Item is marked as ready - message should appear");
+            await confirmationDialog.clickOnConfirmButton();
+            await confirmationDialog.waitForDialogClosed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

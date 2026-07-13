@@ -21,8 +21,10 @@ class RenameContentDialog extends Page {
         return XPATH.container + BUTTONS.buttonAriaLabel('Rename');
     }
 
+    // The label is 'New name *' for existing content and 'Name *' for unnamed content:
     get newNameInput() {
-        return XPATH.container + "//div[@data-component='Input' and descendant::label[contains(.,'New name')]]//input";
+        return XPATH.container +
+               "//div[@data-component='Input' and descendant::label[contains(.,'New name') or contains(.,'Name')]]//input";
     }
 
     get validationPathMessage() {
@@ -46,8 +48,12 @@ class RenameContentDialog extends Page {
     }
 
     async typeInNewNameInput(text) {
-        await this.typeTextInInput(this.newNameInput, text);
-        return await this.pause(700);
+        try {
+            await this.typeTextInInput(this.newNameInput, text);
+            return await this.pause(700);
+        } catch (err) {
+            await this.handleError("Rename content dialog: Cannot type in the 'New name' input!", 'err_type_in_new_name_input', err);
+        }
     }
 
     async clickOnCloseButton() {
@@ -91,15 +97,16 @@ class RenameContentDialog extends Page {
         await this.pause(500);
     }
 
-    waitForDialogLoaded() {
-        return this.waitForElementDisplayed(this.renameButton, appConst.shortTimeout).catch(err => {
-            this.saveScreenshot('err_open_rename_content_dialog');
-            throw new Error('Rename published content Dialog should be opened!' + err);
-        });
+    async waitForDialogLoaded() {
+        try {
+            return await this.waitForElementDisplayed(this.renameButton);
+        } catch (err) {
+            await this.handleError("Rename published content Dialog should be opened!", 'err_open_rename_content_dialog', err);
+        }
     }
 
-    waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
+    async waitForDialogClosed() {
+        return await this.waitForElementNotDisplayed(XPATH.container);
     }
 
     getDialogTitle() {
