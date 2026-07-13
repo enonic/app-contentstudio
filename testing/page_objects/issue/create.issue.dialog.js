@@ -12,7 +12,7 @@ const DependantsControls = require('./dependant.controls');
 const xpath = {
     container: `//div[contains(@role,'dialog') and @data-component='NewIssueDialogContent']`,
     dialogTitle: "//h2",
-    titleInput: "//div[descendant::div[text()='Title *']]/following-sibling::div[1]//input[contains(@class,'text')]",
+    titleInput: "//div[descendant::div[contains(.,'Title')]]/following-sibling::div[1]//input[contains(@class,'text')]",
     descriptionTextArea: "//div[descendant::div[text()='Description']]/following-sibling::div/textarea",
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
     selectionItemByDisplayName:

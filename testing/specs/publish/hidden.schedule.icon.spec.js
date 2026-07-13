@@ -1,5 +1,5 @@
 /**
- * Created on 29.07.2025
+ * Created on 29.07.2025  updated on 13.07.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -9,8 +9,9 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
+const DetailsWidgetContentSection = require("../../page_objects/details_panel/details.widget.content.section");
 
-describe('hidden.schedule.icon.spec:  tests for archiving content', function () {
+describe('hidden.schedule.icon.spec:  tests for Schedule icon in Publishing Wizard', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
 
     if (typeof browser === 'undefined') {
@@ -36,9 +37,10 @@ describe('hidden.schedule.icon.spec:  tests for archiving content', function () 
             await contentPublishDialog.waitForDialogClosed();
         });
 
-    it(`WHEN a language has been selected for the 'published' folder THEN 'Unpublish' button remains visible in the wizard toolbar, only metadata was updated`,
+    it(`WHEN the language has been updated for the 'published' folder THEN 'Mark as ready' button gets visible in the wizard toolbar`,
         async () => {
             let contentWizard = new ContentWizard();
+            let contentSection = new DetailsWidgetContentSection();
             // 1. Open the published folder:
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             await contentWizard.openContextWindow();
@@ -47,8 +49,12 @@ describe('hidden.schedule.icon.spec:  tests for archiving content', function () 
             await editSettingsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
             await editSettingsDialog.clickOnApplyButton();
             await contentWizard.waitForNotificationMessage();
-            // 3. Verify that Publish button remains visible after selecting a new language(only metadata was updated):
-            await contentWizard.waitForUnpublishButtonDisplayed();
+            // 3. Verify that Mark as ready button is default action now:
+            await contentWizard.waitForMarkAsReadyButtonVisible();
+            let statusActual = await contentSection.getStatusText();
+            assert.equal(statusActual, appConst.CONTENT_STATUS.ONLINE_MODIFIED, 'Online Modified status should be displayed for the content');
+            let workflow = await contentSection.getWorkflowOrValidityStatus();
+            assert.equal(workflow, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS, 'In progress workflow icon should be displayed for the content');
         });
 
     // https://github.com/enonic/app-contentstudio/issues/8938
@@ -69,7 +75,6 @@ describe('hidden.schedule.icon.spec:  tests for archiving content', function () 
             await contentWizard.clickOnMarkAsReadyButton();
             // 4. Verify that calendar-icon is not displayed in the Publish dialog:
             await contentPublishDialog.waitForDialogOpened();
-            // TODO bug Enonic ui -
             await contentPublishDialog.waitForScheduleButtonNotDisplayed();
         });
 

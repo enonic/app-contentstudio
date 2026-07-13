@@ -29,6 +29,7 @@ const XPATH = {
     dependentItemToPublish: displayName => `//div[contains(@id,'StatusCheckableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     excludedItemsNote: "//span[@class='excluded-items-note']",
     publishChangeLogInput: "//input[contains(@placeholder,'Describe changes that will')]",
+    commentTextArea: "//div[@data-component='TextArea' and descendant::label[contains(.,'Comment')]]//textarea",
 };
 
 class ContentPublishDialog extends Page {
@@ -59,8 +60,15 @@ class ContentPublishDialog extends Page {
         return XPATH.container + BUTTONS.buttonByLabel('Hide excluded');
     }
 
-    get logMessageLink() {
-        return XPATH.container + XPATH.logMessageLink;
+    get addCommentButton() {
+        return XPATH.container + BUTTONS.buttonAriaLabel('Add comment');
+    }
+    get removeCommentButton() {
+        return XPATH.container + BUTTONS.buttonAriaLabel('Remove comment');
+    }
+
+    get commentTextArea() {
+        return XPATH.container + XPATH.commentTextArea;
     }
 
     get publishNowButton() {
@@ -408,20 +416,76 @@ class ContentPublishDialog extends Page {
         return await diffStatusBadge.getStatusText();
     }
 
-    async typeTextInChangeLog(text) {
-        await this.keys(text);
-        return await this.pause(1000);
+    async waitForAddCommentButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.addCommentButton, appConst.shortTimeout);
+        } catch (err) {
+            await this.handleError(`Publish Dialog, 'Add comment' button should be displayed, `, 'err_add_comment_button', err);
+        }
     }
 
-    async getTextInChangeLog() {
-        await this.waitForExist(this.changeLogInput, appConst.shortTimeout);
-        return await this.getTextInInput(this.changeLogInput);
+    async waitForRemoveCommentButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.removeCommentButton, appConst.shortTimeout);
+        } catch (err) {
+            await this.handleError(`Publish Dialog, 'Remove comment' button should be displayed, `, 'err_remove_comment_button', err);
+        }
     }
 
-    async isLogMessageLinkDisplayed() {
-        await this.saveScreenshotUniqueName('publish_dlg_log_message_input');
-        return await this.isElementDisplayed(this.logMessageLink, appConst.shortTimeout);
+    async clickOnAddCommentButton() {
+        try {
+            await this.waitForElementDisplayed(this.addCommentButton, appConst.mediumTimeout);
+            await this.clickOnElement(this.addCommentButton);
+            return await this.pause(300);
+        } catch (err) {
+            await this.handleError(`Publish Dialog, click on 'Add comment' button `, 'err_click_add_comment_button', err);
+        }
     }
+
+    async clickOnRemoveCommentButton() {
+        try {
+            await this.waitForElementDisplayed(this.removeCommentButton, appConst.mediumTimeout);
+            await this.clickOnElement(this.removeCommentButton);
+            return await this.pause(300);
+        } catch (err) {
+            await this.handleError(`Publish Dialog, click on 'Remove comment' button `, 'err_click_remove_comment_button', err);
+        }
+    }
+
+    async waitForCommentTextAreaDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.commentTextArea);
+        } catch (err) {
+            await this.handleError(`Publish Dialog, 'Comment' text area should be displayed, `, 'err_comment_text_area', err);
+        }
+    }
+
+    async waitForCommentTextAreaNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.commentTextArea);
+        } catch (err) {
+            await this.handleError(`Publish Dialog, 'Comment' text area should not be displayed, `, 'err_comment_text_area', err);
+        }
+    }
+
+    async typeTextInCommentTextArea(text) {
+        try {
+            await this.waitForElementDisplayed(this.commentTextArea);
+            return await this.typeTextInInput(this.commentTextArea, text);
+        } catch (err) {
+            await this.handleError(`Publish Dialog, type text in 'Comment' text area `, 'err_type_comment_text', err);
+        }
+    }
+
+    async getTextInCommentTextArea() {
+        try {
+            await this.waitForElementDisplayed(this.commentTextArea);
+            return await this.getTextInInput(this.commentTextArea);
+        } catch (err) {
+            await this.handleError(`Publish Dialog, get text in 'Comment' text area `, 'err_get_comment_text', err);
+        }
+    }
+
 
     async waitForPublishNowButtonEnabled() {
         try {

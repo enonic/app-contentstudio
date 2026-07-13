@@ -5,7 +5,7 @@ const Page = require('../page');
 const appConst = require('../../libs/app_const');
 const WidgetSelectorDropdown = require('../components/selectors/widget.selector.dropdown');
 const PageWidgetContextWindowPanel = require('../wizardpanel/liveform/page.widget.context.window');
-const {WIZARD, COMMON, DROPDOWN} = require('../../libs/elements');
+const {COMMON, DROPDOWN} = require('../../libs/elements');
 
 const xpath = {
     scheduleWidgetItem: "//div[contains(@id,'ExtensionOnlinePropertiesItemView')]",

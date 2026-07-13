@@ -12,18 +12,13 @@ exports.config = {
         path.join(__dirname, '../specs/issue/*.spec.js'),
     ],
     exclude: [
-        path.join(__dirname, '../specs/publish/browse.panel.mark.as.ready.multiselection.spec.js'),
         path.join(__dirname, '../specs/publish/change.display.name.rename.published.content.spec.js'),
         path.join(__dirname, '../specs/publish/closed.issue.dependent.items.spec.js'),
-        path.join(__dirname, '../specs/publish/content.publish.dialog.change.log.spec.js'),
-        path.join(__dirname, '../specs/publish/hidden.schedule.icon.spec.js'),
         path.join(__dirname, '../specs/publish/request.publish.dialog.spec.js'),
         path.join(__dirname, '../specs/publish/request.publish.dialog.validation.spec.js'),
         path.join(__dirname, '../specs/publish/request.publishing.dialog.mark.as.ready.spec.js'),
         path.join(__dirname, '../specs/publish/unpublish.dialog.dependent.item.scheduled.spec.js'),
         path.join(__dirname, '../specs/publish/version.items.after.publishing.spec.js'),
-        path.join(__dirname, '../specs/publish/wizard.mark.as.ready.spec.js'),
-        path.join(__dirname, '../specs/publish/wizard.publish.menu.workflow.spec.js'),
 
         path.join(__dirname, '../specs/issue/create.issue.dialog.spec.js'),
         path.join(__dirname, '../specs/issue/issue.details.dialog.items.spec.js'),
