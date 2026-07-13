@@ -1,7 +1,8 @@
-import {WebSocketMessage} from '../websocket/data';
-import {connect as connectWebSocket, sendMessage} from '../websocket/init';
-import {isInWorkerMessage, isMessageWithMetadata, OutWorkerMessage} from './data';
-import {subscribe, unsubscribe, unsubscribeAll} from './subscriptions';
+import { randomId } from '@enonic/lib-contentstudio/v6/shared/lib/crypto/id';
+import { WebSocketMessage } from '../websocket/data';
+import { connect as connectWebSocket, sendMessage } from '../websocket/init';
+import { isInWorkerMessage, isMessageWithMetadata, OutWorkerMessage } from './data';
+import { subscribe, unsubscribe, unsubscribeAll } from './subscriptions';
 
 const ports = new Map<MessagePort, string>();
 
@@ -11,7 +12,7 @@ export function addPort(port: MessagePort): string {
         return portId;
     }
 
-    const newPortId = crypto.randomUUID();
+    const newPortId = randomId();
     ports.set(port, newPortId);
     port.onmessage = (event) => handlePortMessage(port, event);
 
@@ -39,12 +40,12 @@ export function sendTo<T extends OutWorkerMessage>(port: MessagePort, message: T
 }
 
 export function sendToId<T extends OutWorkerMessage>(id: string, message: T): void {
-    const port = Array.from(ports.keys()).find(port => ports.get(port) === id);
+    const port = Array.from(ports.keys()).find((port) => ports.get(port) === id);
     port?.postMessage(message);
 }
 
 export function broadcast(message: OutWorkerMessage): void {
-    Array.from(ports.keys()).forEach(port => port.postMessage(message));
+    Array.from(ports.keys()).forEach((port) => port.postMessage(message));
 }
 
 //
@@ -67,9 +68,9 @@ function handlePortMessage(port: MessagePort, event: MessageEvent): void {
             connectWebSocket(message.payload.wsUrl, (payload: Record<string, unknown>): void => {
                 const clientId = isMessageWithMetadata(payload) ? payload.metadata.clientId : undefined;
                 if (clientId) {
-                    sendToId(clientId, {type: 'received', payload});
+                    sendToId(clientId, { type: 'received', payload });
                 } else {
-                    broadcast({type: 'received', payload});
+                    broadcast({ type: 'received', payload });
                 }
             });
             subscribe(portId, message.payload.wsUrl);
