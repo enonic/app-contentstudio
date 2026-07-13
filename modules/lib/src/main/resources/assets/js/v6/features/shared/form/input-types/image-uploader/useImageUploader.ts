@@ -7,6 +7,7 @@ import {
     type UpdateImageMediaSuccess,
 } from '../../../../../entities/content/api/updateImageMedia.api';
 import { type UploadError } from '../../../../../shared/api';
+import { randomUUID } from '../../../../../shared/lib/crypto/uuid';
 import {
     $uploads,
     addUpload,
@@ -65,7 +66,7 @@ export const useImageUploader = ({ contentId, onChange }: UseImageUploaderOption
             if (!contentId || files.length === 0) return;
 
             const file = files[0];
-            const uploadId = `image-upload-${crypto.randomUUID()}`;
+            const uploadId = `image-upload-${randomUUID()}`;
 
             setUploadId(uploadId);
             addUpload(uploadId, file.name, contentId.toString());

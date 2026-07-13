@@ -1,10 +1,11 @@
+import {randomUUID} from '@enonic/lib-contentstudio/v6/shared/lib/crypto/uuid';
 import {WebSocketMessage} from '../websocket/data';
 import {$isConnected, connect as connectWebSocket, sendMessage} from '../websocket/init';
 import {isInWorkerMessage, isMessageWithMetadata, OutWorkerMessage} from '../worker/data';
 import {subscribe, unsubscribe} from '../worker/subscriptions';
 import {NS} from './constants';
 
-const CLIENT_ID = crypto.randomUUID();
+const CLIENT_ID = randomUUID();
 
 export function initialize(): void {
     window.addEventListener(`${NS}:open`, handleOpen);

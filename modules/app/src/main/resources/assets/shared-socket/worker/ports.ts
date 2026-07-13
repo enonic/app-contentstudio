@@ -1,3 +1,4 @@
+import {randomUUID} from '@enonic/lib-contentstudio/v6/shared/lib/crypto/uuid';
 import {WebSocketMessage} from '../websocket/data';
 import {connect as connectWebSocket, sendMessage} from '../websocket/init';
 import {isInWorkerMessage, isMessageWithMetadata, OutWorkerMessage} from './data';
@@ -11,7 +12,7 @@ export function addPort(port: MessagePort): string {
         return portId;
     }
 
-    const newPortId = crypto.randomUUID();
+    const newPortId = randomUUID();
     ports.set(port, newPortId);
     port.onmessage = (event) => handlePortMessage(port, event);
 
