@@ -1,50 +1,62 @@
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
 
-
-import {type ManagedActionExecutor} from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
-import {ManagedActionManager} from '@enonic/lib-admin-ui/managedaction/ManagedActionManager';
-import {ManagedActionState} from '@enonic/lib-admin-ui/managedaction/ManagedActionState';
-import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {type Action} from '@enonic/lib-admin-ui/ui/Action';
-import {type TreeGridActions} from '@enonic/lib-admin-ui/ui/treegrid/actions/TreeGridActions';
-import {Permission} from '../access/Permission';
-import {type ContentId} from '../content/ContentId';
-import type {ContentSummary} from '../content/ContentSummary';
-import type {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {type ContentType} from '../inputtype/schema/ContentType';
-import {GetContentTypeByNameRequest} from '../resource/GetContentTypeByNameRequest';
-import {GetPermittedActionsRequest} from '../resource/GetPermittedActionsRequest';
-import {HasUnpublishedChildrenRequest} from '../resource/HasUnpublishedChildrenRequest';
-import {type HasUnpublishedChildren, type HasUnpublishedChildrenResult} from '../resource/HasUnpublishedChildrenResult';
-import {ProjectHelper} from '../settings/data/project/ProjectHelper';
-import {ArchiveContentAction} from './action/ArchiveContentAction';
-import {type ContentTreeGridAction} from './action/ContentTreeGridAction';
-import {ContentTreeGridItemsState} from './action/ContentTreeGridItemsState';
-import {CreateIssueAction} from './action/CreateIssueAction';
-import {DuplicateContentAction} from './action/DuplicateContentAction';
-import {EditContentAction} from './action/EditContentAction';
-import {MarkAsReadyContentAction} from './action/MarkAsReadyContentAction';
-import {MoveContentAction} from './action/MoveContentAction';
-import {PreviewContentAction} from './action/PreviewContentAction';
-import {PublishContentAction} from './action/PublishContentAction';
-import {PublishTreeContentAction} from './action/PublishTreeContentAction';
-import {RequestPublishContentAction} from './action/RequestPublishContentAction';
-import {ShowNewContentDialogAction} from './action/ShowNewContentDialogAction';
-import {SortContentAction} from './action/SortContentAction';
-import {ToggleSearchPanelAction} from './action/ToggleSearchPanelAction';
-import {UnpublishContentAction} from './action/UnpublishContentAction';
-import {State} from './State';
-
+import { type ManagedActionExecutor } from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
+import { ManagedActionManager } from '@enonic/lib-admin-ui/managedaction/ManagedActionManager';
+import { ManagedActionState } from '@enonic/lib-admin-ui/managedaction/ManagedActionState';
+import { NotifyManager } from '@enonic/lib-admin-ui/notify/NotifyManager';
+import { type Action } from '@enonic/lib-admin-ui/ui/Action';
+import { type TreeGridActions } from '@enonic/lib-admin-ui/ui/treegrid/actions/TreeGridActions';
+import { Permission } from '../access/Permission';
+import { type ContentId } from '../content/ContentId';
+import type { ContentSummary } from '../content/ContentSummary';
+import type { ContentSummaryAndCompareStatus } from '../content/ContentSummaryAndCompareStatus';
+import { type ContentType } from '../inputtype/schema/ContentType';
+import { GetContentTypeByNameRequest } from '../resource/GetContentTypeByNameRequest';
+import { GetPermittedActionsRequest } from '../resource/GetPermittedActionsRequest';
+import { HasUnpublishedChildrenRequest } from '../resource/HasUnpublishedChildrenRequest';
+import {
+    type HasUnpublishedChildren,
+    type HasUnpublishedChildrenResult,
+} from '../resource/HasUnpublishedChildrenResult';
+import { ProjectHelper } from '../settings/data/project/ProjectHelper';
+import { ArchiveContentAction } from './action/ArchiveContentAction';
+import { type ContentTreeGridAction } from './action/ContentTreeGridAction';
+import { ContentTreeGridItemsState } from './action/ContentTreeGridItemsState';
+import { CreateIssueAction } from './action/CreateIssueAction';
+import { DuplicateContentAction } from './action/DuplicateContentAction';
+import { EditContentAction } from './action/EditContentAction';
+import { MarkAsReadyContentAction } from './action/MarkAsReadyContentAction';
+import { MoveContentAction } from './action/MoveContentAction';
+import { PreviewContentAction } from './action/PreviewContentAction';
+import { PublishContentAction } from './action/PublishContentAction';
+import { PublishTreeContentAction } from './action/PublishTreeContentAction';
+import { RequestPublishContentAction } from './action/RequestPublishContentAction';
+import { ShowNewContentDialogAction } from './action/ShowNewContentDialogAction';
+import { SortContentAction } from './action/SortContentAction';
+import { ToggleSearchPanelAction } from './action/ToggleSearchPanelAction';
+import { UnpublishContentAction } from './action/UnpublishContentAction';
+import { State } from './State';
 
 export enum ActionName {
-    SHOW_NEW_DIALOG, PREVIEW, EDIT, ARCHIVE, DUPLICATE, MOVE, SORT, PUBLISH, PUBLISH_TREE, UNPUBLISH, MARK_AS_READY, REQUEST_PUBLISH,
-    CREATE_ISSUE, TOGGLE_SEARCH_PANEL
+    SHOW_NEW_DIALOG,
+    PREVIEW,
+    EDIT,
+    ARCHIVE,
+    DUPLICATE,
+    MOVE,
+    SORT,
+    PUBLISH,
+    PUBLISH_TREE,
+    UNPUBLISH,
+    MARK_AS_READY,
+    REQUEST_PUBLISH,
+    CREATE_ISSUE,
+    TOGGLE_SEARCH_PANEL,
 }
 
 export class ContentTreeActions implements TreeGridActions<ContentSummaryAndCompareStatus> {
-
     private actionsMap: Map<ActionName, ContentTreeGridAction> = new Map<ActionName, ContentTreeGridAction>();
 
     private beforeActionsStashedListeners: (() => void)[] = [];
@@ -134,15 +146,12 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
             this.getAction(ActionName.DUPLICATE),
             this.getAction(ActionName.MOVE),
             this.getAction(ActionName.SORT),
-            this.getAction(ActionName.PREVIEW)
+            this.getAction(ActionName.PREVIEW),
         ];
     }
 
     getPublishActions(): Action[] {
-        return [
-            this.getAction(ActionName.PUBLISH),
-            this.getAction(ActionName.UNPUBLISH)
-        ];
+        return [this.getAction(ActionName.PUBLISH), this.getAction(ActionName.UNPUBLISH)];
     }
 
     getPublishAction(): Action {
@@ -154,9 +163,7 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
     }
 
     getAllActionsNoPublish(): Action[] {
-        return [
-            ...this.getAllCommonActions()
-        ];
+        return [...this.getAllCommonActions()];
     }
 
     getEditAction(): Action {
@@ -164,10 +171,7 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
     }
 
     getAllActions(): Action[] {
-        return [
-            ...this.getAllActionsNoPublish(),
-            ...this.getPublishActions()
-        ];
+        return [...this.getAllActionsNoPublish(), ...this.getPublishActions()];
     }
 
     updateActionsEnabledState(items: ContentSummaryAndCompareStatus[]): Q.Promise<void> {
@@ -181,11 +185,11 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
             return Q<void>(null);
         }
 
-        const summaries: ContentSummary[] = items.map((item: ContentSummaryAndCompareStatus) => item.getContentSummary());
+        const summaries: ContentSummary[] = items.map((item: ContentSummaryAndCompareStatus) =>
+            item.getContentSummary(),
+        );
 
-        const parallelPromises: Q.Promise<void>[] = [
-            this.doUpdateActionsEnabledState(summaries)
-        ];
+        const parallelPromises: Q.Promise<void>[] = [this.doUpdateActionsEnabledState(summaries)];
 
         return Q.all(parallelPromises).catch(DefaultErrorHandler.handle);
     }
@@ -199,9 +203,9 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
             this.getAction(ActionName.MOVE),
             this.getAction(ActionName.SORT),
             this.getAction(ActionName.PREVIEW),
-            this.getAction(ActionName.PUBLISH)
+            this.getAction(ActionName.PUBLISH),
         ];
-        defaultActions.forEach(action => action.setVisible(true));
+        defaultActions.forEach((action) => action.setVisible(true));
     }
 
     private doUpdateActionsEnabledState(items: ContentSummary[]): Q.Promise<void> {
@@ -227,7 +231,12 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
         } else {
             const contentIds: ContentId[] = items.map((item: ContentSummary) => item.getContentId());
             request.addContentIds(...contentIds);
-            request.addPermissionsToBeChecked(Permission.CREATE, Permission.DELETE, Permission.PUBLISH, Permission.MODIFY);
+            request.addPermissionsToBeChecked(
+                Permission.CREATE,
+                Permission.DELETE,
+                Permission.PUBLISH,
+                Permission.MODIFY,
+            );
         }
 
         return request.sendAndParse();
@@ -238,7 +247,7 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
     }
 
     private toggleVisibility(state: ContentTreeGridItemsState) {
-        this.getAllCommonActions().forEach(action => action.setVisible(true));
+        this.getAllCommonActions().forEach((action) => action.setVisible(true));
         this.getAction(ActionName.UNPUBLISH).setVisible(this.getAction(ActionName.UNPUBLISH).isEnabled());
         this.getAction(ActionName.PUBLISH).setVisible(this.getAction(ActionName.PUBLISH).isEnabled());
         (this.getAction(ActionName.EDIT) as EditContentAction).updateLabel(state);
@@ -251,8 +260,7 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
     }
 
     private handleContentTypeNotFound(selectedItem: ContentSummary) {
-        NotifyManager.get().showWarning(
-            i18n('notify.contentType.notFound', selectedItem.getType().getLocalName()));
+        NotifyManager.get().showWarning(i18n('notify.contentType.notFound', selectedItem.getType().getLocalName()));
 
         this.getAction(ActionName.PUBLISH).setEnabled(false);
         this.getAction(ActionName.PUBLISH_TREE).setEnabled(false);
@@ -260,17 +268,29 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
         this.showDefaultActions();
     }
 
-    private updateDefaultActionsMultipleItemsSelected(items: ContentSummary[], state: ContentTreeGridItemsState): Q.Promise<void> {
+    private updateDefaultActionsMultipleItemsSelected(
+        items: ContentSummary[],
+        state: ContentTreeGridItemsState,
+    ): Q.Promise<void> {
         const promises: Q.Promise<void>[] = [];
 
-        if (items.length === 1 &&
-            (this.getAction(ActionName.SHOW_NEW_DIALOG).isEnabled() || this.getAction(ActionName.SORT).isEnabled())) {
-            promises.push(this.checkIsChildrenAllowedByContentType(items[0]).then((childrenAllowed: boolean) => {
-                if (!childrenAllowed) {
-                    this.getAction(ActionName.SHOW_NEW_DIALOG).setEnabled(false);
-                    this.getAction(ActionName.SORT).setEnabled(false);
-                }
-            }));
+        if (items.length === 1) {
+            const selectedItem = items[0];
+
+            if (selectedItem.getType().isPageTemplate()) {
+                this.getAction(ActionName.SHOW_NEW_DIALOG).setEnabled(false);
+            }
+
+            if (this.getAction(ActionName.SHOW_NEW_DIALOG).isEnabled() || this.getAction(ActionName.SORT).isEnabled()) {
+                promises.push(
+                    this.checkIsChildrenAllowedByContentType(selectedItem).then((childrenAllowed: boolean) => {
+                        if (!childrenAllowed) {
+                            this.getAction(ActionName.SHOW_NEW_DIALOG).setEnabled(false);
+                            this.getAction(ActionName.SORT).setEnabled(false);
+                        }
+                    }),
+                );
+            }
         }
 
         if (this.shouldCheckUnpublishedChildren(state)) {
@@ -298,14 +318,16 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
         const requestId: number = ++this.updateChildrenActionsRequestId;
 
         return new HasUnpublishedChildrenRequest(items.map((item: ContentSummary) => item.getContentId()))
-            .sendAndParse().then((hasUnpublishedChildrenResult: HasUnpublishedChildrenResult) => {
+            .sendAndParse()
+            .then((hasUnpublishedChildrenResult: HasUnpublishedChildrenResult) => {
                 // Drop stale response superseded by a newer selection.
                 if (requestId !== this.updateChildrenActionsRequestId) {
                     return;
                 }
 
-                const hasUnpublishedChildren: boolean =
-                    hasUnpublishedChildrenResult.getResult().some((item: HasUnpublishedChildren) => item.getHasChildren());
+                const hasUnpublishedChildren: boolean = hasUnpublishedChildrenResult
+                    .getResult()
+                    .some((item: HasUnpublishedChildren) => item.getHasChildren());
 
                 const publishTreeAction = this.getAction(ActionName.PUBLISH_TREE);
                 if (publishTreeAction.isEnabled()) {
@@ -315,7 +337,8 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
                 if (hasUnpublishedChildren && state.hasAllValid() && ProjectHelper.canRequestPublish()) {
                     this.getAction(ActionName.REQUEST_PUBLISH).setEnabled(true);
                 }
-            }).catch(reason => DefaultErrorHandler.handle(reason));
+            })
+            .catch((reason) => DefaultErrorHandler.handle(reason));
     }
 
     private checkIsChildrenAllowedByContentType(selectedItem: ContentSummary): Q.Promise<boolean> {
@@ -323,12 +346,8 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
 
         new GetContentTypeByNameRequest(selectedItem.getType())
             .sendAndParse()
-            .then((contentType: ContentType) =>
-                deferred.resolve(contentType && contentType.isAllowChildContent())
-            )
-            .catch(() =>
-                this.handleContentTypeNotFound(selectedItem)
-            );
+            .then((contentType: ContentType) => deferred.resolve(contentType && contentType.isAllowChildContent()))
+            .catch(() => this.handleContentTypeNotFound(selectedItem));
 
         return deferred.promise;
     }
