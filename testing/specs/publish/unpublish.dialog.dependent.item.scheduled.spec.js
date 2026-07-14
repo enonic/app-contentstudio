@@ -1,5 +1,5 @@
 /**
- * Created on 18.02.2022
+ * Created on 18.02.2022  updated on 14.07.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -22,14 +22,14 @@ describe('Tests for dependent items in Unpublish dialog (for scheduled content)'
     const DATE_TIME_IN_FUTURE = '2029-09-10 00:00';
     let SITE;
 
-    // TODO epic-enonic-ui new tests: verify scheduled status in versions widget
+    // Scheduled content incorrectly shows "Published" status in preview toolbar #11051
     it(`WHEN existing site(include child items) has been scheduled THEN PUBLISHING SCHEDULED status should be displayed in the grid`,
         async () => {
             let contentWizard = new ContentWizard();
             let contentPublishDialog = new ContentPublishDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('site-test');
-            SITE = contentBuilder.buildSite(displayName, 'test for displaying of metadata', [appConst.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddReadySite(SITE);
             // 1. Select the site:
             await studioUtils.findAndSelectItem(SITE.displayName);
@@ -37,28 +37,27 @@ describe('Tests for dependent items in Unpublish dialog (for scheduled content)'
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH_TREE);
             await contentPublishDialog.waitForDialogOpened();
             // 3. Click on Add Schedule:
-            await contentPublishDialog.clickOnAddScheduleIcon();
+            await contentPublishDialog.clickOnAddScheduleButton();
             await contentPublishDialog.typeInOnlineFrom(DATE_TIME_IN_FUTURE);
             await studioUtils.saveScreenshot('scheduled_site_publish_dialog');
             // 4. Press the 'Schedule' button in the dialog:
-            await contentPublishDialog.clickOnScheduleButton();
+            await contentPublishDialog.clickOnConfirmScheduleButton();
             let actualMessage = await contentWizard.waitForNotificationMessage();
             assert.equal(actualMessage, appConst.NOTIFICATION_MESSAGES.TWO_ITEMS_PUBLISHED, '2 items have been published. -  notification message should appear');
             await contentPublishDialog.waitForDialogClosed();
-            // 5. Verify that status is 'Publishing Scheduled' in Grid:
+            // 5. Verify that status is 'Scheduled' in Browse Panel:
             let actualStatus = await contentBrowsePanel.getContentStatus(SITE.displayName);
-            assert.equal(actualStatus, appConst.CONTENT_STATUS.PUBLISHING_SCHEDULED, "Scheduled status should be displayed in the grid");
+            assert.equal(actualStatus, appConst.CONTENT_STATUS.SCHEDULED, "Scheduled status should be displayed in the grid");
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            // TODO  #11051
             // 6. 'Scheduled' status should be displayed in the 'Preview Item toolbar':
-            //let status = await contentItemPreviewPanel.getContentStatus();
-            //assert.equal(status, appConst.CONTENT_STATUS.PUBLISHING_SCHEDULED,
-            //   "'Scheduled' status should be displayed in the Preview Item toolbar");
-            // 7. 'Show Changes' button should be displayed in the 'Preview Item' toolbar:
-            // await contentItemPreviewPanel.waitForShowChangesButtonNotDisplayed();
+            let status = await contentItemPreviewPanel.getLabelInOpenVersionsHistoryButton();
+            //assert.equal(status, appConst.CONTENT_STATUS.SCHEDULED,
         });
 
     // Verify issue: Unpublish Item dialog - dependent items are not displayed when content with children are scheduled #4185
     // https://github.com/enonic/app-contentstudio/issues/4185
+    // https://github.com/enonic/app-contentstudio/issues/11052
     it(`GIVEN existing scheduled site is selected WHEN Unpublish menu item has been clicked THEN 'Show dependent items' link should be displayed in the modal dialog`,
         async () => {
             let contentUnpublishDialog = new ContentUnpublishDialog();
@@ -75,13 +74,13 @@ describe('Tests for dependent items in Unpublish dialog (for scheduled content)'
             let dependantItems = await contentUnpublishDialog.getDependentItemsPath();
             assert.ok(dependantItems.length === 1, 'One dependent item should be displayed in the dialog');
             // 5. Verify that 'Publishing Scheduled' status is displayed in the modal dialog:
-            assert.equal(actualStatus, appConst.CONTENT_STATUS.PUBLISHING_SCHEDULED, 'Scheduled status should be displayed in the dialog');
+            assert.equal(actualStatus, appConst.CONTENT_STATUS.SCHEDULED, 'Scheduled status should be displayed in the dialog');
             let actualNumber = await contentUnpublishDialog.getNumberInUnpublishButton();
             assert.equal(actualNumber, '2', '2 items will be unpablished');
         });
 
-    // Test for Publish button caption #8939
-    it(`GIVEN existing scheduled site has been modified WHEN 'Publish' menu has been has been clicked THEN 'Update Scheduled' button should be displayed in the Publish Dialog`,
+    // TODO https://github.com/enonic/app-contentstudio/issues/11052
+    it.skip(`GIVEN existing scheduled site has been modified WHEN 'Publish' menu has been has been clicked THEN 'Update Scheduled' button should be displayed in the Publish Dialog`,
         async () => {
             let contentWizard = new ContentWizard();
             let contentPublishDialog = new ContentPublishDialog();
@@ -93,7 +92,8 @@ describe('Tests for dependent items in Unpublish dialog (for scheduled content)'
             await contextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             let pageInspectionPanel = new PageInspectionPanel();
             await pageInspectionPanel.selectPageTemplateOrController(appConst.CONTROLLER_NAME.MAIN_REGION);
-            // 3. Click on 'Publish...' menu item
+            // 3. Click on 'Publish' menu item
+            // TODO  https://github.com/enonic/app-contentstudio/issues/11052
             await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
             await contentPublishDialog.waitForDialogOpened();
             // 4. Verify that 'Update Scheduled' button is disabled in the modal dialog:

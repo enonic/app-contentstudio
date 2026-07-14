@@ -32,7 +32,8 @@ describe('site.configurator.required.input.spec: verifies wizard validation when
             // 2. Click on Edit icon and open Site Configurator Dialog:
             await siteFormPanel.openSiteConfiguratorDialog(APP_WITH_REQ_TEXT_INPUT);
             let message = await siteConfiguratorDialog.getValidationMessage();
-            assert.equal(message, appConst.VALIDATION_MESSAGE.THIS_FIELD_IS_REQUIRED, "This field is required - Validation message should be displayed");
+            assert.equal(message, appConst.VALIDATION_MESSAGE.THIS_FIELD_IS_REQUIRED,
+                "This field is required - Validation message should be displayed");
             await studioUtils.saveScreenshot('site_configurator_1');
 
             // 3. Verify that this input is focused by default( issue#427)
@@ -52,8 +53,7 @@ describe('site.configurator.required.input.spec: verifies wizard validation when
 
     //https://github.com/enonic/app-contentstudio/issues/10892
     // Missing invalid icon when required Site Configurator fields are empty
-    //TODO
-    it.skip(`GIVEN existing site with the configurator WHEN required input in the config is empty THEN the selected application-configurator option-view should be red`,
+    it(`GIVEN existing site with the configurator WHEN required input in the config is empty THEN the selected application-configurator option-view should be red`,
         async () => {
             let siteFormPanel = new SiteFormPanel();
             let contentWizard = new ContentWizard();
