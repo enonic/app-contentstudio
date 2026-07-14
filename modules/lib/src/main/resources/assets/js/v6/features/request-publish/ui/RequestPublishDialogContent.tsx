@@ -73,7 +73,7 @@ export const RequestPublishDialogContent = (): ReactElement => {
     const { allowContentUpdate } = useStore($config, { keys: ['allowContentUpdate'] });
 
     const dialogTitle = useI18n('action.requestPublish');
-    const titleLabel = useI18n('field.title');
+    const titleLabel = `${useI18n('field.title')} *`;
     const addCommentLabel = useI18n('field.comment.aria.label');
     const assigneesLabel = useI18n('dialog.requestPublish.assignees');
     const itemsLabel = useI18n('field.items');
