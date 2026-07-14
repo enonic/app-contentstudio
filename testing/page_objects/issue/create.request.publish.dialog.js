@@ -8,7 +8,7 @@ const DiffStatusBadge = require('../components/diff.status.badge');
 
 const xpath = {
     container: `//div[@data-component='RequestPublishDialogContent']`,
-    titleInput: "//div[descendant::div[text()='Title']]/following-sibling::div[1]//input[contains(@class,'text')]",
+    titleInput: "//div[descendant::div[text()='Title *']]/following-sibling::div[1]//input[contains(@class,'text')]",
     commentTextArea: "//div[descendant::div[text()='Add a comment']]/following-sibling::div[1]//textarea",
     invalidItemsDiv: "//div[@data-component='SelectionStatusBar' and descendant::span[contains(.,'Invalid items')]]",
     mainItemDivByName: name => DIALOG_ITEMS.PRIMARY_DATA_COMPONENT + DIALOG_ITEMS.mainItemRowByName(name),
