@@ -45,6 +45,7 @@ describe('Tests for dependent items in Unpublish dialog (for scheduled content)'
             let actualMessage = await contentWizard.waitForNotificationMessage();
             assert.equal(actualMessage, appConst.NOTIFICATION_MESSAGES.TWO_ITEMS_PUBLISHED, '2 items have been published. -  notification message should appear');
             await contentPublishDialog.waitForDialogClosed();
+            await contentBrowsePanel.pause(1000);
             // 5. Verify that status is 'Scheduled' in Browse Panel:
             let actualStatus = await contentBrowsePanel.getContentStatus(SITE.displayName);
             assert.equal(actualStatus, appConst.CONTENT_STATUS.SCHEDULED, "Scheduled status should be displayed in the grid");
