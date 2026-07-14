@@ -263,14 +263,21 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
     private updateDefaultActionsMultipleItemsSelected(items: ContentSummary[], state: ContentTreeGridItemsState): Q.Promise<void> {
         const promises: Q.Promise<void>[] = [];
 
-        if (items.length === 1 &&
-            (this.getAction(ActionName.SHOW_NEW_DIALOG).isEnabled() || this.getAction(ActionName.SORT).isEnabled())) {
-            promises.push(this.checkIsChildrenAllowedByContentType(items[0]).then((childrenAllowed: boolean) => {
-                if (!childrenAllowed) {
-                    this.getAction(ActionName.SHOW_NEW_DIALOG).setEnabled(false);
-                    this.getAction(ActionName.SORT).setEnabled(false);
-                }
-            }));
+        if (items.length === 1) {
+            const selectedItem = items[0];
+
+            if (selectedItem.getType().isPageTemplate()) {
+                this.getAction(ActionName.SHOW_NEW_DIALOG).setEnabled(false);
+            }
+
+            if (this.getAction(ActionName.SHOW_NEW_DIALOG).isEnabled() || this.getAction(ActionName.SORT).isEnabled()) {
+                promises.push(this.checkIsChildrenAllowedByContentType(selectedItem).then((childrenAllowed: boolean) => {
+                    if (!childrenAllowed) {
+                        this.getAction(ActionName.SHOW_NEW_DIALOG).setEnabled(false);
+                        this.getAction(ActionName.SORT).setEnabled(false);
+                    }
+                }));
+            }
         }
 
         if (this.shouldCheckUnpublishedChildren(state)) {

@@ -22,10 +22,18 @@ export const NewContentDialog = (): ReactElement => {
     const inputRef = useRef<HTMLInputElement>(null);
     const dialogContentRef = useRef<HTMLDivElement>(null);
     const shouldFocusInput = useRef(false);
-    const { open, selectedTab, inputValue, parentContent, filteredBaseContentTypes, filteredSuggestedContentTypes } =
-        useStore($newContentDialog);
+    const {
+        open,
+        selectedTab,
+        inputValue,
+        parentContent,
+        filteredBaseContentTypes,
+        filteredSuggestedContentTypes,
+        isMediaAllowed,
+    } = useStore($newContentDialog);
     const isTemplateFolder = parentContent?.getType().isTemplateFolder() ?? false;
     const isTemplateContent = parentContent?.getType().isPageTemplate() ?? false;
+    const isMediaTabDisabled = isTemplateFolder || isTemplateContent || !isMediaAllowed;
     const isMediaTab = selectedTab === 'media';
     const isInputEmpty = inputValue.length === 0;
     const isInputHidden = isInputEmpty || isMediaTab;
@@ -95,7 +103,7 @@ export const NewContentDialog = (): ReactElement => {
     };
 
     const handleDragEnter = () => {
-        if (isTemplateFolder) return;
+        if (isMediaTabDisabled) return;
         setIsDragging(true);
         setSelectedTab('media');
     };
@@ -166,7 +174,7 @@ export const NewContentDialog = (): ReactElement => {
                             <Tab.List onKeyDownCapture={handleTabListKeyDownCapture}>
                                 <Tab.Trigger value="all">{allTabLabel}</Tab.Trigger>
                                 <Tab.Trigger value="suggested">{suggestedTabLabel}</Tab.Trigger>
-                                <Tab.Trigger value="media" disabled={isTemplateFolder || isTemplateContent}>
+                                <Tab.Trigger value="media" disabled={isMediaTabDisabled}>
                                     {mediaTabLabel}
                                 </Tab.Trigger>
                             </Tab.List>
