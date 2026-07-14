@@ -561,7 +561,7 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
                 listItem.getCompareStatus(),
                 listItem.getPublishStatus(),
             );
-            list.getParentListElement().replaceItems(newContSummAndCompStatus);
+            list.getParentList().replaceItems(newContSummAndCompStatus);
         }
     }
 
