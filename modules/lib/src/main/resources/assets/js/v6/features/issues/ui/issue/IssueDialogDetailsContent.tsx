@@ -229,7 +229,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const itemsLabel = useI18n('field.items');
     const publishRequestLabel = useI18n('field.publishRequest');
     const assigneesLabel = useI18n('field.assignees');
-    const titleLabel = useI18n('field.title');
+    const titleLabel = `${useI18n('field.title')} *`;
     const dependenciesLabel = useI18n('dialog.dependencies');
     const inviteUsersLabel = useI18n('dialog.issue.inviteUsers');
     const applyLabel = useI18n('action.apply');

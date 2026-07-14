@@ -63,7 +63,7 @@ export const NewIssueDialogContent = (): ReactElement => {
     const hasMoreDependants = useStore($newIssueDialogHasMoreDependants);
     const dependantsSelection = useStore($newIssueDependantsSelection);
 
-    const titleLabel = useI18n('field.title');
+    const titleLabel = `${useI18n('field.title')} *`;
     const descriptionLabel = useI18n('field.description');
     const assigneesLabel = useI18n('field.assignees');
     const itemsLabel = useI18n('field.items');
