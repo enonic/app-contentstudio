@@ -1,11 +1,12 @@
 import { atom, computed } from 'nanostores';
+import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import type { PageTemplate } from '../../../../app/content/PageTemplate';
 import type { Descriptor } from '../../../../app/page/Descriptor';
 import type { SiteModel } from '../../../../app/site/SiteModel';
 import { createDebounce } from '../../../shared/lib/timing/createDebounce';
 import { $contentContext, $page, $pageEditorLifecycle, $pageVersion } from './page-editor/store';
 import type { PageEditorContentContext } from './page-editor/types';
-import { $contentUpdated } from '../../../shared/socket/socket.store';
+import { $contentCreated, $contentDeleted, $contentUpdated, type ContentEvent } from '../../../shared/socket/socket.store';
 
 export const AUTO_KEY = '__auto__';
 
@@ -53,6 +54,16 @@ export const $isPageInspectionEmpty = computed(
 let abortController: AbortController | null = null;
 const cleanups: (() => void)[] = [];
 
+function affectsPageInspection(summary: ContentSummary, ctx: PageEditorContentContext): boolean {
+    const id = summary.getContentId().toString();
+    if (id === ctx.contentId.toString()) return true;
+    if (ctx.siteId && id === ctx.siteId.toString()) return true;
+    if (ctx.sitePath && summary.getType().isPageTemplate()) {
+        return summary.getPath().toString().startsWith(`${ctx.sitePath}/`);
+    }
+    return false;
+}
+
 async function loadTemplatesAndControllers(ctx: PageEditorContentContext): Promise<void> {
     $isPageInspectionLoading.set(true);
     abortController?.abort();
@@ -97,31 +108,34 @@ export function initPageInspectionService(siteModel?: SiteModel | null): void {
         if (ctx) void loadTemplatesAndControllers(ctx);
     }, 300);
 
-    const unsubContentUpdated = $contentUpdated.subscribe((event) => {
+    const onContentCreatedOrUpdated = (event: ContentEvent | null): void => {
         if (!event) return;
 
         const ctx = $contentContext.get();
         if (!ctx) return;
 
-        const contentIdStr = ctx.contentId.toString();
-        const siteIdStr = ctx.siteId?.toString();
-        const sitePath = ctx.sitePath;
+        if (event.data.some((summary) => affectsPageInspection(summary, ctx))) reloadDebounced();
+    };
 
-        const shouldReload = event.data.some((summary) => {
-            const id = summary.getContentId().toString();
-            if (id === contentIdStr) return true;
-            if (siteIdStr && id === siteIdStr) return true;
-            if (sitePath && summary.getType().isPageTemplate()) {
-                return summary.getPath().toString().startsWith(`${sitePath}/`);
-            }
-            return false;
-        });
+    const unsubContentCreated = $contentCreated.subscribe(onContentCreatedOrUpdated);
+    const unsubContentUpdated = $contentUpdated.subscribe(onContentCreatedOrUpdated);
+    const unsubContentDeleted = $contentDeleted.subscribe((event) => {
+        if (!event) return;
 
-        if (shouldReload) reloadDebounced();
+        const ctx = $contentContext.get();
+
+        if (!ctx?.sitePath) return;
+
+        const isUnderSite = event.data.some((item) => item.getPath()?.toString().startsWith(`${ctx.sitePath}/`));
+
+        if (isUnderSite) reloadDebounced();
     });
+
     cleanups.push(() => {
         reloadDebounced.cancel();
+        unsubContentCreated();
         unsubContentUpdated();
+        unsubContentDeleted();
     });
 
     // Reload when applications change in the SiteConfigurator dialog before any server round-trip.
