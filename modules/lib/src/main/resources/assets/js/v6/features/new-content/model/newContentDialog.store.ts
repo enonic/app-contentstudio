@@ -39,6 +39,7 @@ type NewContentDialogStore = {
     inputValue: string;
     selectedTab: string;
     isDragging: boolean;
+    isMediaAllowed: boolean;
     // Content
     parentContent?: ContentSummary;
     baseContentTypes: ContentTypeSummary[];
@@ -54,6 +55,7 @@ const initialState: NewContentDialogStore = {
     inputValue: '',
     selectedTab: 'all',
     isDragging: false,
+    isMediaAllowed: false,
     parentContent: undefined,
     baseContentTypes: [],
     suggestedContentTypes: [],
@@ -85,7 +87,9 @@ listenKeys($newContentDialog, ['open', 'parentContent'], ({ open, parentContent 
 
         const baseContentTypes = getBaseContentTypes(allContentTypes);
         const suggestedContentTypes = getSuggestedContentTypes(allContentTypes, aggregatedContentTypes);
+        const isMediaAllowed = allContentTypes.some((type) => type.getContentTypeName().isDescendantOfMedia());
 
+        $newContentDialog.setKey('isMediaAllowed', isMediaAllowed);
         $newContentDialog.setKey('baseContentTypes', baseContentTypes);
         $newContentDialog.setKey('filteredBaseContentTypes', baseContentTypes);
         $newContentDialog.setKey('suggestedContentTypes', suggestedContentTypes);
