@@ -33,11 +33,22 @@ import { cn } from '@enonic/ui';
 
 type Props = {
     className?: string;
+    /** Content type name, e.g. `base:folder` or `com.myapp:person`. */
     contentType: string;
+    /** Server icon URL: a content's image/thumbnail or a content type's icon glyph. */
     url?: string | null;
+    /** Requested image size in px; fetched at 2x for sharpness. */
     imageSize?: number;
+    /** Crop the image to a square instead of fitting it. */
     crop?: boolean;
+    /** The content has an uploaded thumbnail, so `url` resolves to a photo. */
     hasThumbnail?: boolean;
+    /**
+     * Declares that `url` points to the content type's own icon (a monochrome glyph)
+     * rather than a content item's image or thumbnail. Known image types then render
+     * their built-in vector icon, which stays visible in dark mode.
+     */
+    typeIcon?: boolean;
 };
 
 type BuiltInIconProps = Pick<Props, 'contentType'> & React.ComponentProps<LucideIcon>;
@@ -85,7 +96,9 @@ export const ContentIcon = ({
     imageSize = 64,
     crop = false,
     hasThumbnail = false,
+    typeIcon = false,
 }: Props): React.ReactElement => {
+    // 2x size for better quality
     const src = url ? createImageUrl(url, { size: imageSize * 2, crop }) : undefined;
 
     const [isImageBroken, setImageBroken] = useState(false);
@@ -94,18 +107,18 @@ export const ContentIcon = ({
         setImageBroken(false);
     }, [src]);
 
-    const isImageType = IMAGE_CONTENT_TYPES.has(contentType);
-    const isUnknownType = !BUILT_IN_CONTENT_TYPE_ICON_MAP.has(contentType);
+    // A photo is a content's own image or uploaded thumbnail; rendered as-is, never inverted.
+    const isPhoto = !typeIcon && (IMAGE_CONTENT_TYPES.has(contentType) || hasThumbnail);
 
-    const canShowImage = (isImageType || isUnknownType || hasThumbnail) && !isImageBroken;
+    // Custom types have no built-in icon; their server glyph is monochrome, inverted in dark mode.
+    const isCustomTypeGlyph = !BUILT_IN_CONTENT_TYPE_ICON_MAP.has(contentType);
 
-    if (canShowImage && src) {
-        // 2x size for better quality
+    if (src && !isImageBroken && (isPhoto || isCustomTypeGlyph)) {
         return (
             <Image
                 className={cn(
                     'size-6 p-px object-contain',
-                    !isImageType && !hasThumbnail && 'dark:invert-100 dark:brightness-75 dark:contrast-125',
+                    !isPhoto && 'dark:invert-100 dark:brightness-75 dark:contrast-125',
                     className
                 )}
                 alt={contentType}
