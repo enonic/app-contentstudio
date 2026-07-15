@@ -111,6 +111,18 @@ describe('queryContent', () => {
         });
     });
 
+    it('should query the given branch when one is provided', async () => {
+        mockFetch.mockResolvedValue(
+            jsonResponse({ contents: [], metadata: { totalHits: 0 }, aggregations: [] }),
+        );
+
+        await queryContent({ queryExpr: '', from: 0, size: 10, branch: 'master' });
+
+        const [, init] = mockFetch.mock.calls[0];
+        const body = JSON.parse(init.body);
+        expect(body.branch).toBe('master');
+    });
+
     it('should return an AppError for non-ok responses', async () => {
         mockFetch.mockResolvedValue(errorResponse(500, 'Server Error'));
 
