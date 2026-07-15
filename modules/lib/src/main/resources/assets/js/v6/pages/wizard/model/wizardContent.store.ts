@@ -413,7 +413,7 @@ function dataTreesEqual(a: PropertyTree | null, b: PropertyTree | null): boolean
         return a === b;
     }
 
-    return ContentDiffHelper.dataEquals(a, b, false);
+    return ContentDiffHelper.dataEquivalent(a, b, Object.keys($wizardDataChangedPaths.get()));
 }
 
 function getPortalSiteConfigBaseUrl(data: PropertyTree): string | null {
@@ -480,23 +480,29 @@ function contentNamesEqual(a: ContentName | null, b: ContentName | null): boolea
     return a.equals(b);
 }
 
-function mixinsEqual(a: Mixin[], b: Mixin[]): boolean {
-    if (a.length !== b.length) {
-        return false;
+type MixinChangedPathsProvider = (mixinName: string) => string[];
+
+let mixinChangedPathsProvider: MixinChangedPathsProvider = () => [];
+
+export function setMixinChangedPathsProvider(provider: MixinChangedPathsProvider): void {
+    mixinChangedPathsProvider = provider;
+}
+
+const userToggledMixins = new Set<string>();
+
+export function markMixinsAsUserChanged(names: string[]): void {
+    for (const name of names) {
+        userToggledMixins.add(name);
     }
+}
 
-    const sortedA = [...a].sort((left, right) => left.getName().toString().localeCompare(right.getName().toString()));
-    const sortedB = [...b].sort((left, right) => left.getName().toString().localeCompare(right.getName().toString()));
+function mixinsEqual(a: Mixin[], b: Mixin[]): boolean {
+    const aByName = new Map(a.map((m) => [m.getName().toString(), m]));
+    const bByName = new Map(b.map((m) => [m.getName().toString(), m]));
+    const names = new Set([...aByName.keys(), ...bByName.keys()]);
 
-    for (let i = 0; i < sortedA.length; i += 1) {
-        const leftMixin = sortedA[i];
-        const rightMixin = sortedB[i];
-
-        if (leftMixin.getName().toString() !== rightMixin.getName().toString()) {
-            return false;
-        }
-
-        if (!ContentDiffHelper.dataEquals(leftMixin.getData(), rightMixin.getData(), false)) {
+    for (const name of names) {
+        if (isMixinDataDirty(aByName.get(name), bByName.get(name))) {
             return false;
         }
     }
@@ -695,8 +701,23 @@ function applyDataFromServer(nextPersisted: PropertyTree | null): void {
 
 function isMixinDataDirty(draftMixin: Mixin | undefined, persistedMixin: Mixin | undefined): boolean {
     if (draftMixin == null && persistedMixin == null) return false;
-    if (draftMixin == null || persistedMixin == null) return true;
-    return !ContentDiffHelper.dataEquals(draftMixin.getData(), persistedMixin.getData(), false);
+
+    if (draftMixin == null || persistedMixin == null) {
+        const presentMixin = draftMixin ?? persistedMixin;
+        const name = presentMixin.getName().toString();
+        if (userToggledMixins.has(name)) {
+            return true;
+        }
+
+        const data = presentMixin.getData();
+        return data != null && !ContentDiffHelper.dataEquivalent(data, new PropertyTree(), mixinChangedPathsProvider(name));
+    }
+
+    return !ContentDiffHelper.dataEquivalent(
+        draftMixin.getData(),
+        persistedMixin.getData(),
+        mixinChangedPathsProvider(draftMixin.getName().toString()),
+    );
 }
 
 function isMixinDirtyByName(name: string): boolean {
@@ -745,12 +766,13 @@ function applyMixinsFromServer(nextPersisted: Mixin[]): Set<string> {
         }
     }
 
-    // Locally added/enabled mixins missing on server: keep only if dirty.
+    // Locally added/enabled mixins missing on server: keep seeded ones (never
+    // persisted), and previously-persisted ones only if dirty.
     for (const draftMixin of currentDraft) {
         const name = draftMixin.getName().toString();
         if (handledNames.has(name)) continue;
 
-        if (isMixinDataDirty(draftMixin, oldPersistedByName.get(name))) {
+        if (!oldPersistedByName.has(name) || isMixinDataDirty(draftMixin, oldPersistedByName.get(name))) {
             nextDraft.push(draftMixin.clone());
         }
     }
@@ -1110,6 +1132,8 @@ export function setDraftMixinEnabled(name: string, enabled: boolean): void {
         return;
     }
 
+    userToggledMixins.add(name);
+
     const nextMixins = enabled
         ? (() => {
               const persistedMixin = $wizardPersistedMixins.get().find((mixin) => mixin.getName().toString() === name);
@@ -1388,6 +1412,7 @@ export function resetWizardContent(): void {
     $wizardMixinsVersion.set(0);
     $mixinsPendingMount.set(new Set());
     $mixinsNeedingSnapshot.set(new Set());
+    userToggledMixins.clear();
     isPersistedContentUntouched = false;
 
     $wizardPersistedPage.set(null);

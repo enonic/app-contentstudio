@@ -14,6 +14,7 @@ import {
     onMixinSeedRequested,
     onWizardPersistedContentSet,
     onWizardServerMixinsChanged,
+    markMixinsAsUserChanged,
     setMixinsDescriptors,
 } from './wizardContent.store';
 
@@ -74,12 +75,15 @@ function seedMixinsForApplications(applicationKeys: string[]): ResultAsync<void,
     );
 
     return ResultAsync.combine(requests).map((results) => {
+        const previousNames = new Set($mixinsDescriptors.get().map((descriptor) => descriptor.getName()));
         const byName = new Map($mixinsDescriptors.get().map((descriptor) => [descriptor.getName(), descriptor]));
         for (const descriptors of results) {
             for (const descriptor of descriptors) {
                 byName.set(descriptor.getName(), descriptor);
             }
         }
+
+        markMixinsAsUserChanged([...byName.keys()].filter((name) => !previousNames.has(name)));
         setMixinsDescriptors([...byName.values()]);
     });
 }
