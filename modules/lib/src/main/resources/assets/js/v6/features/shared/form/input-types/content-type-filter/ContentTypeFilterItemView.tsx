@@ -16,7 +16,7 @@ export const ContentTypeFilterItemView = ({ contentType }: ContentTypeFilterItem
 
     return (
         <ItemLabel
-            icon={<ContentIcon contentType={key} url={iconUrl} />}
+            icon={<ContentIcon contentType={key} url={iconUrl} typeIcon />}
             primary={displayName}
             secondary={key}
             className="w-full"

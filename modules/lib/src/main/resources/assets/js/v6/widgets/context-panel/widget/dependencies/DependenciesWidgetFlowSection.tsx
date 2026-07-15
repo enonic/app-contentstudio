@@ -86,7 +86,11 @@ const DependenciesList = ({ type, dependencies, contentId }: DependenciesProps) 
                         onClick={() => onDependencyClick(dependency)}
                         label={createLabel(dependency.contentType, dependency.itemCount)}
                     >
-                        <ContentIcon contentType={dependency.contentType.toString()} url={dependency.iconUrl} />
+                        <ContentIcon
+                            contentType={dependency.contentType.toString()}
+                            url={dependency.iconUrl}
+                            typeIcon
+                        />
                     </Button>
                 </li>
             ))}
