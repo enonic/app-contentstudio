@@ -57,7 +57,8 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             // 1.Open Issue List dialog:
             await studioUtils.openIssuesListDialog();
             // 2. Click on the dropdown handle and expand the selector:
-            let result = await issueListDialog.getTypeFilterOptions();
+            await issueListDialog.clickOnTypeFilterDropDownHandle();
+            let result = await issueListDialog.getOptionsFromTypeFilter();
             assert.ok(result[0].includes(csConst.ISSUE_LIST_TYPE_FILTER.ALL), "'All' option should be present");
             assert.ok(result[1].includes(csConst.ISSUE_LIST_TYPE_FILTER.ASSIGNED_TO_ME),
                 "'Assigned to Me' option should be present");
@@ -96,7 +97,7 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             assert.ok(result === false, "All' option should not be disabled in 'Type Filter' selector");
         });
 
-    it(`GIVEN Issue Details dialog is opened WHEN task has been closed THEN number in Open/Closed buttons should be updated`,
+    it(`GIVEN Issue Details dialog is opened WHEN the issue has been closed THEN number in Open/Closed buttons should be updated`,
         async () => {
             let issueListDialog = new IssueListDialog();
             let issueDetailsDialog = new IssueDetailsDialog();
@@ -104,19 +105,18 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             await studioUtils.openIssuesListDialog();
             let closedNumberBeforeClose = await issueListDialog.getNumberInClosedButton();
             let openNumberBeforeClose = await issueListDialog.getNumberInOpenButton();
-            let filterInputNumberBeforeClose = await issueListDialog.getNumberItemsInFilterCombobox();
+            let filterInputNumberBeforeClose = await issueListDialog.getNumberItemsInFilterInput();
             // 2. Click on the issue, open Issue Details dialog:
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogLoaded();
             // 3. Close the issue:
             await issueDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
             await issueDetailsDialog.clickOnBackToIssuesButton();
-            await issueListDialog.pause(2000);
+            await issueListDialog.pause(1000);
             let closedNumber = await issueListDialog.getNumberInClosedButton();
             // 4. Number of closed and Open issues should be updated:
-            await issueListDialog.isOpenButtonActive();
             let openNumber = await issueListDialog.getNumberInOpenButton();
-            let filterInputNumber = await issueListDialog.getNumberItemsInFilterCombobox();
+            let filterInputNumber = await issueListDialog.getNumberItemsInFilterInput();
             // 5. Number in 'All()' should be reduced, because 'Open' button is active:
             assert.equal(filterInputNumberBeforeClose - filterInputNumber, 1, "Number in TypeFilter should be reduced by 1");
             // 6. Number of Open issues should be reduced:
@@ -126,7 +126,7 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
         });
 
     // verifies https://github.com/enonic/app-contentstudio/issues/1233
-    it(`GIVEN Task Details dialog is opened WHEN task has been reopened THEN number in Open/Closed button should be updated`,
+    it(`GIVEN Issue Details dialog is opened WHEN task has been reopened THEN number in Open/Closed button should be updated`,
         async () => {
             let issueListDialog = new IssueListDialog();
             let issueDetailsDialog = new IssueDetailsDialog();
@@ -135,20 +135,20 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             await issueListDialog.clickOnClosedTabButton();
             let closedNumberBeforeReopen = await issueListDialog.getNumberInClosedButton();
             let openNumberBeforeReopen = await issueListDialog.getNumberInOpenButton();
-            let filterInputNumberBeforeReopen = await issueListDialog.getNumberItemsInFilterCombobox();
+            let filterInputNumberBeforeReopen = await issueListDialog.getNumberItemsInFilterInput();
             // 2. Click on 'Closed' button, load Closed-issues then click on the closed task( open 'Task Details' dialog):
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogLoaded();
-            // 3. Click on 'Reopen Task' button and reopen the task:
-            await issueDetailsDialog.clickOnReopenIssueButton();
+            // 3. Click on 'Reopen the issue':
+            await issueDetailsDialog.clickOnIssueStatusSelectorAndOpenIssue();
             // 4. Go to Issue List  dialog:
             await issueDetailsDialog.clickOnBackToIssuesButton();
-            await issueListDialog.pause(5000);
+            await issueListDialog.pause(2000);
             let closedNumber = await issueListDialog.getNumberInClosedButton();
             // 5. 'Closed()' button should be active:
             await issueListDialog.isClosedButtonActive();
             let openNumber = await issueListDialog.getNumberInOpenButton();
-            let filterInputNumber = await issueListDialog.getNumberItemsInFilterCombobox();
+            let filterInputNumber = await issueListDialog.getNumberItemsInFilterInput();
             await studioUtils.saveScreenshot('issue_list_number_in_all');
             // 6. Number in 'All()' should be reduced, because 'Closed' button is active:
             assert.equal((filterInputNumberBeforeReopen - filterInputNumber), 1, "number in 'All' should be reduced");
@@ -165,7 +165,7 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             await studioUtils.openIssuesListDialog();
             // 2. Select 'Tasks' in the filter:
             await issueListDialog.selectTypeFilterOption(csConst.ISSUE_LIST_TYPE_FILTER.ISSUES);
-            await studioUtils.saveScreenshot('typefilter_tasks');
+            await studioUtils.saveScreenshot('type_filter_issues');
             // 3. Publish request should not be present:
             await issueListDialog.waitForIssueNotPresent(PUBLISH_REQUEST_TITLE);
             // but the task should be present:

@@ -46,8 +46,8 @@ describe('create.issue.dialog.spec: Create Issue Dialog specification', function
             await createIssueDialog.waitForCreateIssueButtonDisabled();
             await createIssueDialog.typeTitle('issue');
             await createIssueDialog.waitForCreateIssueButtonEnabled();
-            //await createIssueDialog.clickOnCreateIssueButton();
-            //await createIssueDialog.waitForNotificationMessages();
+            await createIssueDialog.clickOnCreateIssueButton();
+            await createIssueDialog.waitForNotificationMessages();
 
         });
 

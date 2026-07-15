@@ -1,5 +1,5 @@
 /**
- * Created on 28.03.2023
+ * Created on 28.03.2023  updated on 15.07.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -50,14 +50,15 @@ describe('issue.details.items.tab.selector.spec: tests for items combobox', func
             await createIssueDialog.waitForNotificationMessage();
             // 3. Go to Items Tab:
             await issueDetailsDialog.clickOnItemsTabItem();
-            // 4. Expand the dropdown:
-            await issueDetailsDialogItemsTab.clickOnDropdownHandle();
+            // 4. Expand the dropdown(Switch to flat  mode):
+            await issueDetailsDialogItemsTab.clickOnContentSelectorModeTogglerButton();
+            await issueDetailsDialogItemsTab.pause(1000);
             // 5. Unselect one option:
             await issueDetailsDialogItemsTab.clickOnCheckboxInDropdown(1);
             // 6. Click on Apply button in the combobox:
             await issueDetailsDialogItemsTab.clickOnApplyButtonInCombobox();
             await studioUtils.saveScreenshot('issue_items_tab_checkbox_unselected');
-            let itemsToPublish = await issueDetailsDialogItemsTab.getItemDisplayNames();
+            let itemsToPublish = await issueDetailsDialogItemsTab.getMainItemsToPublishDisplayName();
             // 7. Verify that one selected option remains visible after unselecting the checkbox in the dropdown:
             assert.equal(itemsToPublish.length, 1, 'One item should be present in the selected options form');
         });

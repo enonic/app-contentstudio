@@ -27,60 +27,30 @@ class IssueDetailsDialogItemsTab extends BaseIssueDetailsDialog {
         return xpath.container + lib.togglerButton('Show excluded');
     }
 
-    // clicks on Publish... button and  opens 'Publishing Wizard'
-    async clickOnPublishAndOpenPublishWizard() {
-        try {
-            await this.clickOnElement(this.publishNowButton);
-            let publishContentDialog = new ContentPublishDialog();
-            await publishContentDialog.waitForDialogOpened();
-            await publishContentDialog.pause(1000);
-            return publishContentDialog;
-        } catch (err) {
-            await this.saveScreenshot('err_click_on_publish_and_close');
-            throw new Error('Error when clicking on Publish and close ' + err);
-        }
+    async clickOnContentSelectorModeTogglerButton() {
+        let imageSelector = new ContentSelectorDropdown(xpath.container);
+        await imageSelector.clickOnModeTogglerButton();
     }
-
-    isPublishButtonDisplayed() {
-        return this.isElementDisplayed(this.publishNowButton);
-    }
-
-    isPublishButtonEnabled() {
-        return this.isElementEnabled(this.publishNowButton);
-    }
-
     async clickOnDropdownHandle() {
-        let contentSelectorDropdown = new ContentSelectorDropdown();
-        await contentSelectorDropdown.clickOnDropdownHandle(xpath.container);
+        let contentSelectorDropdown = new ContentSelectorDropdown(xpath.container);
+        await contentSelectorDropdown.clickOnDropdownHandle();
         await this.pause(700);
     }
 
     async clickOnCheckboxInDropdown(index) {
-        let contentSelectorDropdown = new ContentSelectorDropdown();
-        await contentSelectorDropdown.clickOnCheckboxInDropdown(index, xpath.container);
+        let contentSelectorDropdown = new ContentSelectorDropdown(xpath.container);
+        await contentSelectorDropdown.clickOnCheckboxInDropdown(index);
     }
 
     async clickOnApplyButtonInCombobox() {
-        let contentSelectorDropdown = new ContentSelectorDropdown();
-        await contentSelectorDropdown.clickOnApplySelectionButton(xpath.container);
-    }
-
-    async waitForPublishButtonEnabled() {
-        return await this.waitForElementEnabled(this.publishNowButton);
-    }
-
-    async waitForPublishButtonDisabled() {
-        try {
-            return await this.waitForElementNotClickable(this.publishNowButton);
-        } catch (err) {
-            await this.handleError(`Items tab - 'Publish now'  should be disabled`, 'err_issue_publish_btn', err);
-        }
+        let contentSelectorDropdown = new ContentSelectorDropdown(xpath.container);
+        await contentSelectorDropdown.clickOnApplySelectionButton();
     }
 
     async waitForItemsOptionsFilterInputDisplayed() {
         try {
-            let contentSelectorDropdown = new ContentSelectorDropdown();
-            await contentSelectorDropdown.waitForOptionFilterInputDisplayed(xpath.container);
+            let contentSelectorDropdown = new ContentSelectorDropdown(xpath.container);
+            await contentSelectorDropdown.waitForOptionFilterInputDisplayed();
         } catch (err) {
             throw new Error('`Options filter input` should be displayed in Issue Details ' + err);
         }
@@ -88,8 +58,8 @@ class IssueDetailsDialogItemsTab extends BaseIssueDetailsDialog {
 
     async waitForContentOptionsFilterInputDisabled() {
         try {
-            let contentSelectorDropdown = new ContentSelectorDropdown();
-            await contentSelectorDropdown.waitForOptionFilterInputDisabled(xpath.container);
+            let contentSelectorDropdown = new ContentSelectorDropdown(xpath.container);
+            await contentSelectorDropdown.waitForOptionFilterInputDisabled();
         } catch (err) {
             throw new Error(' `Options filter input` should be disabled in Issue Details ' + err)
         }
@@ -129,13 +99,6 @@ class IssueDetailsDialogItemsTab extends BaseIssueDetailsDialog {
             await this.handleError(`Issue Details dialog, tried to select the item in Items combobox: ${displayName}`,
                 'err_select_items_combobox', err);
         }
-    }
-
-    async waitForIncludeChildrenIsOn(contentName) {
-        let locator = xpath.container + xpath.selectionItemByDisplayName(contentName) + lib.INCLUDE_CHILDREN_TOGGLER;
-        await this.waitForElementDisplayed(locator, appConst.shortTimeout);
-        let result = await this.getAttribute(locator, 'class');
-        return result.includes('include-children-toggler on');
     }
 
     // Dependants controls:
@@ -206,6 +169,18 @@ class IssueDetailsDialogItemsTab extends BaseIssueDetailsDialog {
 
     async getDisplayNameInDependentItems() {
         return await this.dependantsControls.getDisplayNameInDependentItems();
+    }
+
+    async waitForDependantItemsDisabled() {
+        return await this.dependantsControls.waitForDependantItemsDisabled();
+    }
+
+    async getDisplayNameInDisabledDependantItems() {
+        return await this.dependantsControls.getDisplayNameInDisabledDependantItems();
+    }
+
+    async waitForAllDependantsCheckboxDisabled() {
+        return await this.dependantsControls.waitForAllDependantsCheckboxDisabled();
     }
 
     async isDependantCheckboxSelected(displayName) {

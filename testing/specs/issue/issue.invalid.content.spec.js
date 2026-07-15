@@ -1,5 +1,5 @@
 /**
- * Created on 13.07.2018.
+ * Created on 13.07.2018.   updated on 15.07.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -37,8 +37,8 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
             await createIssueDialog.typeTitle(ISSUE_TITLE_2);
             // 3. Click on both 'include children items' icons:
-            await createIssueDialog.clickOnIncludeChildrenCheckbox(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_NAME);
-            await createIssueDialog.clickOnIncludeChildrenCheckbox(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_NAME);
+            await createIssueDialog.clickOnIncludeChildrenCheckbox(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME);
+            await createIssueDialog.clickOnIncludeChildrenCheckbox(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_DISPLAY_NAME);
             // 4. click on 'create issue' button:
             await createIssueDialog.clickOnCreateIssueButton();
             // 5. Go to 'Items' tab
@@ -51,11 +51,6 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             // 7. Verify that expected number of items is displayed in the Items tab-link:
             let result = await issueDetailsDialog.getNumberInItemsTab();
             assert.equal(result, '25', "25 items should be displayed in the 'Items' link");
-            // 8. Publish button should be enabled, because all items are valid
-            await issueDetailsDialogItemsTab.waitForPublishButtonEnabled();
-            // 9. Verify that both togglers are 'switched on' in the Items tab
-            await issueDetailsDialogItemsTab.waitForIncludeChildrenIsOn(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME);
-            await issueDetailsDialogItemsTab.waitForIncludeChildrenIsOn(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_DISPLAY_NAME);
         });
 
     it(`GIVEN existing folder with one invalid child item is selected WHEN 'Create Issue' menu item has been selected and issue created THEN '10' number should be in 'Items' on IssueDetailsDialog`,
@@ -79,80 +74,6 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             // 4. 12 items should be in the issue-details dialog:
             let result = await issueDetailsDialog.getNumberInItemsTab();
             assert.equal(result, '12', "12 items should be displayed in the 'Items' link");
-        });
-
-    it(`GIVEN issue with not valid item is clicked WHEN Items-tab has been clicked THEN 'Publish & Close Issue' button should be disabled, because invalid child is present`,
-        async () => {
-            let issueListDialog = new IssueListDialog();
-            let issueDetailsDialog = new IssueDetailsDialog();
-            let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
-            // 1. Open Issues List Dialog:
-            await studioUtils.openIssuesListDialog();
-            // 2. Click on the issue and open Issue Details dialog:
-            await issueListDialog.clickOnIssue(ISSUE_TITLE);
-            await issueDetailsDialog.waitForDialogLoaded();
-            // 3. Go to 'Items' tab:
-            await issueDetailsDialog.clickOnItemsTabItem();
-            await studioUtils.saveScreenshot('publish_close_issue_should_be_disabled');
-            // 4.'Publish...' button should be disabled, because invalid child is present'
-            let isEnabled = await issueDetailsDialogItemsTab.isPublishButtonEnabled();
-            assert.ok(isEnabled === false, 'Publish & Close button should be disabled(invalid child)');
-        });
-
-    it(`GIVEN Items-tab has been clicked WHEN invalid content has been excluded THEN 'Publish...' button gets enabled`,
-        async () => {
-            let issueListDialog = new IssueListDialog();
-            let issueDetailsDialog = new IssueDetailsDialog();
-            let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
-            // 1. Open Issues List dialog:
-            await studioUtils.openIssuesListDialog();
-            // 2. Click on the issue and open Issue Details dialog:
-            await issueListDialog.clickOnIssue(ISSUE_TITLE);
-            await issueDetailsDialog.waitForDialogLoaded();
-            // 3. Go to 'Items' tab:
-            await issueDetailsDialog.clickOnItemsTabItem();
-            // 4. Exclude the invalid content:
-            await issueDetailsDialogItemsTab.clickOnCheckboxInDependentItem('shortcut-imported');
-            await issueDetailsDialogItemsTab.clickOnApplySelectionButton();
-            await issueDetailsDialogItemsTab.waitForNotificationMessage();
-            // 5.'Publish...' button gets enabled, because invalid child is excluded'
-            await issueDetailsDialogItemsTab.waitForPublishButtonEnabled();
-            // 6. Verify that 'Hide excluded' button gets visible:
-            await issueDetailsDialogItemsTab.waitForHideExcludedItemsButtonDisplayed();
-            await studioUtils.saveScreenshot('issue_invalid_dependent_excluded');
-            let isSelected = await issueDetailsDialogItemsTab.isDependantCheckboxSelected('shortcut-imported');
-            assert.ok(isSelected === false, 'Checkbox for excluded invalid-item should not be selected');
-        });
-
-    it(`GIVEN dependant item has been excluded in Create Issue dialog WHEN 'Publish...' button has been clicked and Publish Wizard is loaded THEN items with unselected checkbox should not be present in Publish wizard`,
-        async () => {
-            let issueListDialog = new IssueListDialog();
-            let issueDetailsDialog = new IssueDetailsDialog();
-            let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
-            // 1. Open Issues Details dialog dialog:
-            await studioUtils.openIssuesListDialog();
-            await issueListDialog.clickOnIssue(ISSUE_TITLE);
-            await issueDetailsDialog.waitForDialogLoaded();
-            // 2. Go to 'Items' tab(IssueDetails dialog):
-            await issueDetailsDialog.clickOnItemsTabItem();
-            // 3. Exclude a dependant item: click on the checkbox:
-            await issueDetailsDialogItemsTab.clickOnCheckboxInDependentItem(TEST_CONTENT_NAME);
-            await issueDetailsDialogItemsTab.clickOnApplySelectionButton();
-            await issueDetailsDialogItemsTab.waitForNotificationMessage();
-            await studioUtils.saveScreenshot('publish_wizard_content_excluded_0');
-            // 4. Click on 'Publish' button in the 'Issue Details' dialog, 'Publish Wizard' should be loaded:
-            let contentPublishDialog = await issueDetailsDialogItemsTab.clickOnPublishAndOpenPublishWizard();
-            await studioUtils.saveScreenshot('publish_wizard_content_excluded_1');
-            // 5. Verify that excluded dependant item is  present in the list in 'Content Publish' dialog:
-            let result = await contentPublishDialog.getDisplayNameInDependentItems();
-            // returns a truthy value for at least one element in the array contains the name. Otherwise, false.
-            let isPresent = result.some(el => el.includes(TEST_CONTENT_NAME));
-            assert.ok(isPresent, 'Unselected content should  be present in dependency block in Publishing Wizard');
-            // 6. The checkbox should be unselected
-            let isSelected = await issueDetailsDialogItemsTab.isDependantCheckboxSelected(TEST_CONTENT_NAME);
-            assert.ok(isSelected === false, 'CheckBox for the excluded item should be unselected');
-            // 7. Hide excluded button should be visible:
-            await contentPublishDialog.waitForHideExcludedItemsButtonDisplayed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

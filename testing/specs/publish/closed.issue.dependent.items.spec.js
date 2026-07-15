@@ -17,6 +17,7 @@ describe('closed.issue.dependent.items.spec - tests for dependent items in close
     }
     const ISSUE_NAME = appConst.generateRandomName('issue');
     const TEST_FOLDER_NAME = appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_NAME;
+    const TEST_FOLDER_DISPLAY_NAME = appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME;
 
     // Verifies Dependencies in closed issues should not be excludable #6043
     // https://github.com/enonic/app-contentstudio/issues/6043
@@ -31,7 +32,7 @@ describe('closed.issue.dependent.items.spec - tests for dependent items in close
             // 2. Expand Publish Menu and select 'Request Publishing...' menu item
             await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
             // 3. click on 'Include children items'
-            await createIssueDialog.clickOnIncludeChildrenCheckbox(TEST_FOLDER_NAME);
+            await createIssueDialog.clickOnIncludeChildrenCheckbox(TEST_FOLDER_DISPLAY_NAME);
             await studioUtils.saveScreenshot('request_publish_include_children');
             // 4. Fill in the name input then click on 'Create Issue' button
             await createIssueDialog.typeTitle(ISSUE_NAME);
@@ -43,10 +44,14 @@ describe('closed.issue.dependent.items.spec - tests for dependent items in close
             //await issueDetailsDialogItemsTab.waitForAllDependantsCheckboxDisplayed();
             // 7. Expand the status selector  then click on "Closed" menu item:
             await issueDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
-            // 8. Verify that 'All' checkbox gets not visible in closed issue:
-            //await issueDetailsDialogItemsTab.waitForAllDependantsCheckboxNotDisplayed();
-            let items = await issueDetailsDialogItemsTab.getDisplayNameInDependentItems();
-            assert.equal(items.length, 10, '10 dependent items should be displayed in the closed issue');
+            // 8. Verify that the dependants block gets disabled in the closed issue:
+            await issueDetailsDialogItemsTab.waitForDependantItemsDisabled();
+            // 9. Verify that 'All' checkbox is displayed but disabled:
+            await issueDetailsDialogItemsTab.waitForAllDependantsCheckboxDisplayed();
+            await issueDetailsDialogItemsTab.waitForAllDependantsCheckboxDisabled();
+            // 10. Verify that all dependent items are displayed but disabled:
+            let items = await issueDetailsDialogItemsTab.getDisplayNameInDisabledDependantItems();
+            assert.equal(items.length, 10, '10 disabled dependent items should be displayed in the closed issue');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
