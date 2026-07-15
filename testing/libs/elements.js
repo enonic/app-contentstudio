@@ -16,7 +16,7 @@ const COMMON = {
     CONTEXT_WINDOW_TOGGLE_BUTTON: `//button[@aria-label='Hide Context Panel' or @aria-label='Show Context Panel']`,
     CONTENT_APP_BAR_DIV: "//div[contains(@id,'BrowseAppBarElement')]",
     SELECT_ALL_CHECKBOX_LABEL: "//label[descendant::input[@type='checkbox' and @aria-label='Select all']]",
-    menuItemByText: (text) => `//div[@role,'menuitem') and text()='${text}']`,
+    menuItemByText: (text) => `//div[@role='menuitem' and text()='${text}']`,
     WIDGET_SIDEBAR: {
         CONTAINER: "//nav[@aria-label='Sidebar']",
     },
@@ -235,6 +235,7 @@ const DIALOG_ITEMS = {
     //INCLUDE_CHILDREN_CHECKBOX: "/following::div[contains(@id,'children') and descendant::span[contains(.,'Include children')]]//label",
     INCLUDE_CHILDREN_CHECKBOX: "//div[@data-component='Checkbox' and descendant::span[contains(.,'Include child')]]//label",
     CONTENT_ROW: "//div[@data-component='ContentRow' and (not(@aria-disabled) or @aria-disabled!='true')]",
+    CONTENT_ROW_DISABLED: "//div[@data-component='ContentRow' and @aria-disabled='true']",
     CONTENT_REMOVE_BUTTON: "//div[@data-component='ContentRowRemoveButton' ]//button",
     mainItemRowByName: name => `//div[@data-component='ContentRow' and descendant::div[@data-component='ContentLabel' and descendant::span[contains(.,'${name}')]]]`,
     contentRowByName: displayName => `//div[@data-component='ContentRow' and (not(@aria-disabled) or @aria-disabled!='true') and (descendant::div[@data-component='ContentRowLabel' and descendant::span[contains(.,'${displayName}')]])]`,

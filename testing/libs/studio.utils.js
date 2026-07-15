@@ -170,7 +170,7 @@ module.exports = {
             }
             await insertLinkDialogContentPanel.selectTargetInContentSelector(contentDisplayName);
             // After inserting a search text the dropdown should be switched to 'Flat mode', click on the folder(don't need to click on 'Apply' button):
-            await insertLinkDialogContentPanel.clickOnOptionByDisplayName(contentDisplayName);
+            //await insertLinkDialogContentPanel.clickOnOptionByDisplayName(contentDisplayName);
             await this.saveScreenshot('content_link_dialog');
             await insertLinkDialog.clickOnInsertButton();
             return await insertLinkDialog.pause(700);

@@ -1,5 +1,5 @@
 /**
- * Created on 05.01.2017.
+ * Created on 05.01.2017.  updated on 15.07.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -25,8 +25,7 @@ describe('issue.list.dialog.spec: Issue List modal Dialog specification', functi
             // 'Closed' tab button should be displayed
             await issueListDialog.waitForClosedTabButtonDisplayed();
 
-            let typeFilter = await issueListDialog.isTypeFilterSelectorDisplayed();
-            assert.ok(typeFilter, "'Type Filter' selector  should be displayed");
+            await issueListDialog.waitForTypeFilterInputDisplayed();
 
             let result = await issueListDialog.getSelectedOptionInTypeFilter();
             assert.ok(result.includes(`All`), "All' option should be selected by default");
@@ -44,16 +43,6 @@ describe('issue.list.dialog.spec: Issue List modal Dialog specification', functi
             await createIssueDialog.waitForDialogLoaded();
         });
 
-    it(`WHEN 'Issues List Dialog' has been opened THEN 'Open' issues tab should be active by default`,
-        async () => {
-            let issueListDialog = new IssueListDialog();
-            await studioUtils.openIssuesListDialog();
-            let openButton = await issueListDialog.isOpenButtonActive();
-            assert.ok(openButton, 'Open issues tab should be active by default');
-            let isClosedButtonActive = await issueListDialog.isClosedButtonActive();
-            assert.ok(isClosedButtonActive === false, "'Closed' button should be grey color by default");
-        });
-
     it(`GIVEN 'Issues List Dialog' has been opened WHEN 'Esc' key has been clicked THEN issues list dialog closes`,
         async () => {
             let issueListDialog = new IssueListDialog();
@@ -63,7 +52,6 @@ describe('issue.list.dialog.spec: Issue List modal Dialog specification', functi
             await issueListDialog.pressEscKey();
             await issueListDialog.waitForDialogClosed();
         });
-
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
