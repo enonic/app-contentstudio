@@ -2,7 +2,12 @@ import type { PropertyPath } from '@enonic/lib-admin-ui/data/PropertyPath';
 import type { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
 import { type ReadableAtom, computed, map } from 'nanostores';
 import type { FormDataContextValue } from '../ui/content-wizard-tabs/FormDataContext';
-import { $wizardDraftMixins, $wizardPersistedMixins, onWizardContentReset } from './wizardContent.store';
+import {
+    $wizardDraftMixins,
+    $wizardPersistedMixins,
+    onWizardContentReset,
+    setMixinChangedPathsProvider,
+} from './wizardContent.store';
 import { addStringOccurrence, removeStringOccurrence, setStringValue } from './wizardPropertyTree.utils';
 
 type MixinDataStores = {
@@ -105,3 +110,5 @@ function resetMixinDataStores(): void {
 }
 
 onWizardContentReset(resetMixinDataStores);
+
+setMixinChangedPathsProvider((mixinName) => Object.keys(mixinDataStoresMap.get(mixinName)?.$changedPaths.get() ?? {}));

@@ -232,6 +232,24 @@ describe('wizardContent.store', () => {
         expect($wizardSectionChanges.get().data).toBe(false);
     });
 
+    it('does not mark data as changed when the draft has a null property absent from persisted data', () => {
+        const persistedData = new PropertyTree();
+        persistedData.addString('title', 'Original');
+        initializeWizardContentState(
+            createContent({ data: persistedData, touched: true }),
+            null,
+            [],
+            WorkflowState.IN_PROGRESS,
+        );
+
+        $wizardDraftData.get().getRoot().addProperty('details', ValueTypes.STRING.newNullValue());
+        setDraftStringByPath(PropertyPath.fromString('title'), 'Edited');
+        setDraftStringByPath(PropertyPath.fromString('title'), 'Original');
+
+        expect($wizardSectionChanges.get().data).toBe(false);
+        expect($wizardHasChanges.get()).toBe(false);
+    });
+
     it('clears data change after editing and clearing absent persisted field', () => {
         initializeWizardContentState(createContent({ data: new PropertyTree() }), null, [], WorkflowState.IN_PROGRESS);
         const path = PropertyPath.fromString('title');
@@ -334,6 +352,35 @@ describe('wizardContent.store', () => {
         formData.setDraftStringByPath(PropertyPath.fromString('keywords[2]'), 'c');
 
         expect($wizardSectionChanges.get().mixins).toBe(false);
+    });
+
+    it('does not mark mixins as changed when a seeded mixin absent from persisted content holds no values', () => {
+        const descriptor = createMixinDescriptor('app:menu-item', false);
+        initializeWizardContentState(
+            createContent({ mixins: [], touched: true }),
+            null,
+            [descriptor],
+            WorkflowState.IN_PROGRESS,
+        );
+
+        expect($wizardDraftMixins.get().some((m) => m.getName().toString() === 'app:menu-item')).toBe(true);
+        expect($wizardSectionChanges.get().mixins).toBe(false);
+        expect($wizardHasChanges.get()).toBe(false);
+    });
+
+    it('marks mixins as changed when the user enables an optional mixin without values', () => {
+        const descriptor = createMixinDescriptor('app:seo', true);
+        initializeWizardContentState(
+            createContent({ mixins: [], touched: true }),
+            null,
+            [descriptor],
+            WorkflowState.IN_PROGRESS,
+        );
+        expect($wizardSectionChanges.get().mixins).toBe(false);
+
+        setDraftMixinEnabled('app:seo', true);
+
+        expect($wizardSectionChanges.get().mixins).toBe(true);
     });
 
     it('should notify server-mixins-changed when the persisted mixin set changes', () => {
