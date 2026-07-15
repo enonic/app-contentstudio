@@ -114,7 +114,7 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
             await contentDuplicateDialog.clickOnDuplicateButton();
             await contentDuplicateDialog.waitForDialogClosed();
             // 3. Verify that site does not have expander icon:
-            // TODO  Verify the issue  https://github.com/enonic/app-contentstudio/issues/7071
+            // Verify the issue  https://github.com/enonic/app-contentstudio/issues/7071
             await studioUtils.findAndSelectItem(SITE.displayName + '-copy-2');
             await studioUtils.saveScreenshot('site_duplicated_no_child');
             // 4. Verify - 'Site should be displayed without expand-toggle, because the site has no child items'

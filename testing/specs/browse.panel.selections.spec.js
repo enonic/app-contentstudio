@@ -87,7 +87,8 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
         });
 
     // https://github.com/enonic/app-contentstudio/issues/9238
-    // TODO bug
+    // TODO bug 11053
+    // https://github.com/enonic/app-contentstudio/issues/11053
     it.skip("GIVEN one row is highlighted WHEN hold down 'Shift' key AND click on the 5th row in grid THEN 5 content items get checked",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -140,8 +141,7 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             assert.equal(number2, 0, "expected - no selected rows in grid");
         });
 
-    // TODO bug
-    it.skip("GIVEN existing content is selected WHEN 'Refresh' button in the grid toolbar has been clicked THEN the row remains checked",
+    it("GIVEN existing content is selected WHEN 'Refresh' button in the grid toolbar has been clicked THEN the row remains checked",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await contentBrowsePanel.pause(2000);
