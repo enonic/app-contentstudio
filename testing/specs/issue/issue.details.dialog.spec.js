@@ -1,5 +1,5 @@
 /**
- * Created on 21.02.2018.
+ * Created on 21.02.2018.  updated on 15.07.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -20,7 +20,7 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
     let ISSUE_TITLE = appConst.generateRandomName('issue');
     let newText = 'Comment is updated';
 
-    it(`WHEN new task(no items) has been created THEN expected notification should be displayed`,
+    it(`WHEN new issue(no items) has been created THEN expected notification should be displayed`,
         async () => {
             let createIssueDialog = new CreateIssueDialog();
             await studioUtils.openCreateIssueDialog();
@@ -31,7 +31,7 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
                 'The issue has been created. - notification message should appear');
         });
 
-    it(`GIVEN issues list dialog is opened WHEN existing task has been clicked THEN 'Task Details dialog' should be loaded`,
+    it(`GIVEN issues list dialog is opened WHEN existing issue has been clicked THEN 'Issue Details dialog' should be loaded`,
         async () => {
             let issueListDialog = new IssueListDialog();
             let issueDetailsDialog = new IssueDetailsDialog();
@@ -70,7 +70,7 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
         });
 
     //Verify the issue: Issue Details dialog - 'No comments yet' placeholder remains visible after adding a comment #4247
-    it(`GIVEN Task Details dialog is opened WHEN new comment has been typed AND Comment button has been pressed THEN expected notification should be shown`,
+    it(`GIVEN Issue Details dialog is opened WHEN new comment has been typed AND Comment button has been pressed THEN expected notification should be shown`,
         async () => {
             let issueListDialog = new IssueListDialog();
             let issueDetailsDialog = new IssueDetailsDialog();
@@ -96,7 +96,7 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             await commentsTab.waitForNoCommentsYetMessageNotDisplayed();
         });
 
-    it(`WHEN Task Details dialog is opened THEN just created comment should be present in the comments-list`,
+    it(`WHEN Issue Details dialog is opened THEN just created comment should be present in the comments-list`,
         async () => {
             let issueListDialog = new IssueListDialog();
             let issueDetailsDialog = new IssueDetailsDialog();
@@ -106,7 +106,7 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             // 2. Open Task Details Dialog:
             await issueDetailsDialog.waitForDialogLoaded();
-            let result = await commentsTab.isCommentPresent(MY_COMMENT);
+            let result = await commentsTab.isCommentDisplayed(MY_COMMENT);
             await studioUtils.saveScreenshot('issue_comment_added');
             assert.ok(result, 'Comment with the name should be present ');
         });
@@ -122,11 +122,11 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             await issueDetailsDialog.waitForDialogLoaded();
             // 2. Update the text in comment
             await commentsTab.clickOnEditCommentMenuItem(MY_COMMENT);
-            await commentsTab.updateComment(MY_COMMENT, newText);
+            await commentsTab.updateComment(newText);
             // 3. Click on Save Comment button
-            await commentsTab.clickOnSaveCommentButton(MY_COMMENT);
+            await commentsTab.clickOnSaveCommentButton();
             // 4. Verify that new text is displayed in the comment
-            let result = await commentsTab.isCommentPresent(newText);
+            let result = await commentsTab.isCommentDisplayed(newText);
             await studioUtils.saveScreenshot("task_comment_updated");
             assert.ok(result, 'The comment should be updated');
         });
@@ -148,7 +148,7 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             // 4. Verify that comment is not displayed
-            let result = await commentsTab.isCommentPresent(newText);
+            let result = await commentsTab.isCommentDisplayed(newText);
             await studioUtils.saveScreenshot('task_comment_deleted');
             assert.ok(result === false, 'Comment with the text should be deleted');
         });

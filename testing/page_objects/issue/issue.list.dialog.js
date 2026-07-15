@@ -64,8 +64,8 @@ class IssuesListDialog extends Page {
         }
     }
 
-    isTypeFilterSelectorDisplayed() {
-        return this.isElementDisplayed(xpath.typeFilter + "//button");
+    async waitForTypeFilterInputDisplayed() {
+        return await this.isElementDisplayed(xpath.typeFilterSelectedOption);
     }
 
     async waitForDialogClosed() {
@@ -162,10 +162,13 @@ class IssuesListDialog extends Page {
         }
     }
 
+    // clicks on the dropdown handle then checks 'aria-disabled' attribute of the option:
     async isTypeFilterOptionDisabled(option) {
         await this.clickOnElement(this.typeFilterDropDownHandle);
         let optionXpath = xpath.typeFilterOption(option);
-        return await this.waitForElementDisabled(optionXpath, appConst.shortTimeout);
+        await this.waitForElementDisplayed(optionXpath, appConst.shortTimeout);
+        let attr = await this.getAttribute(optionXpath, 'aria-disabled');
+        return attr === 'true';
     }
 
     async clickOnTypeFilterDropDownHandle() {
@@ -184,32 +187,33 @@ class IssuesListDialog extends Page {
         }
     }
 
-    async getTypeFilterOptions() {
-        let selector = xpath.container + xpath.typeFilter + "//li[contains(@id,'MenuItem')]";
-        await this.clickOnTypeFilterDropDownHandle();
-        let result = await this.getTextInElements(selector);
-        return [].concat(result);
-
+    // returns the array of options text in the expanded Type Filter, e.g. ['All (2)', 'Assigned to Me', ...]
+    async getOptionsFromTypeFilter() {
+        try {
+            let locator = `//div[@data-component='Selector.Content' and @data-state='open']` +
+                          `//div[@data-component='Selector.Item']//span[@data-component='Selector.ItemText']`;
+            await this.waitForElementDisplayed(locator, appConst.shortTimeout);
+            return await this.getTextInElements(locator);
+        } catch (err) {
+            await this.handleError('Issue List Dialog - error when getting options in Type Filter', 'err_type_filter_options', err);
+        }
     }
 
-    //Wait for state(Disable or Enabled) of the option in the Type Filter:
+    // Wait for the option in the expanded Type Filter to get disabled state:
+    // options are divs, so the state is exposed via 'aria-disabled' attribute, not the 'disabled' property
     async waitForFilterOptionDisabled(option) {
         try {
-            let optionXpath = xpath.typeFilterOption(option);
-            await this.getBrowser().waitUntil(async () => {
-                let text = await this.getAttribute(optionXpath, 'class');
-                return text.includes('disabled');
-            }, appConst.shortTimeout);
+            let optionXpath = xpath.typeFilterOption(option) + "[@aria-disabled='true']";
+            await this.waitForElementDisplayed(optionXpath, appConst.shortTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_type_filter1');
-            throw new Error(`Type Filter - menu item:` + option + ` should be disabled! screenshot: ${screenshot} ` + err);
+            await this.handleError(`Issue List Dialog, the option: ${option} in selector should be disabled`, 'err_item_disabled', err);
         }
     }
 
     async isFilterOptionDisabled(option) {
         let optionXpath = xpath.typeFilterOption(option);
-        let attr = await this.getAttribute(optionXpath, 'class');
-        return attr.includes('disabled');
+        let attr = await this.getAttribute(optionXpath, 'aria-disabled');
+        return attr === 'true';
     }
 
     isIssuePresent(issueName) {
@@ -250,7 +254,7 @@ class IssuesListDialog extends Page {
         }
         let locatorInfo = issueXpath + "//div[contains(.,'Closed by')]";
         await this.waitForElementDisplayed(locatorInfo);
-        let text =  await this.getText(locatorInfo);
+        let text = await this.getText(locatorInfo);
         const closedByMatch = text.match(/Closed by\s+(.+)/);
         return closedByMatch ? closedByMatch[1].trim() : text.trim();
     }
@@ -265,58 +269,55 @@ class IssuesListDialog extends Page {
         return await this.waitForElementDisplayed(issueXpath, appConst.shortTimeout);
     }
 
-    async isOpenButtonActive() {
-        await this.waitForOpenTabButtonDisplayed();
-        let result = await this.getAttribute(this.openButton, 'class');
-        return result.includes('active');
-    }
-
     async isClosedButtonActive() {
         await this.waitForClosedTabButtonDisplayed();
         let result = await this.getAttribute(this.closedTabButton, 'class');
         return result.includes('active');
     }
 
+    // returns the number in the counter badge of 'Closed' tab button, the badge is not displayed when there are no closed issues:
     async getNumberInClosedButton() {
         try {
-            let locator = this.closedTabButton + "/span[2]";
-            await this.waitForElementDisplayed(locator, appConst.shortTimeout);
-            let closedIssuesNumber = await this.getText(locator);
-            return closedIssuesNumber;
+            await this.waitForClosedTabButtonDisplayed();
+            return await this.getNumberInTabButton(this.closedTabButton);
         } catch (err) {
             await this.handleError(`Issue List Dialog : error when getting the number of issues in 'Closed' tab button`,
                 'err_closed_issues_number', err);
         }
     }
 
+    // returns the number in the counter badge of 'Open' tab button, the badge is not displayed when there are no open issues:
     async getNumberInOpenButton() {
         try {
-            let locator = this.openTabButton + "/span[2]";
-            await this.waitForElementDisplayed(locator, appConst.shortTimeout);
-            let openIssuesNumber = await this.getText(locator);
-            return openIssuesNumber;
+            await this.waitForOpenTabButtonDisplayed();
+            return await this.getNumberInTabButton(this.openTabButton);
         } catch (err) {
             await this.handleError(`Issue List Dialog : error when getting the number of issues in 'Open' tab button`,
                 'err_open_issues_number', err);
         }
     }
 
-    async getNumberItemsInFilterCombobox() {
+    // returns the number in the second span(counter badge) of the tab button, or 0 if the badge is absent:
+    async getNumberInTabButton(buttonLocator) {
+        let badgeElements = await this.findElements(buttonLocator + '/span[2]');
+        if (badgeElements.length === 0) {
+            return 0;
+        }
+        let text = await badgeElements[0].getText();
+        return parseInt(text, 10);
+    }
+
+    // returns the number in the label of the selected option in Type Filter, e.g. 22 for 'All (22)', or 0 if the label has no number:
+    async getNumberItemsInFilterInput() {
         try {
-            let selector = xpath.container + xpath.typeFilter + "//button/span";
+            let selector = xpath.container + "//span[@data-component='Selector.Value']";
+            await this.waitForElementDisplayed(selector, appConst.shortTimeout);
             let textInSelectedOption = await this.getText(selector);
-            let startIndex = textInSelectedOption.indexOf('(');
-            if (startIndex === -1) {
-                throw new Error("Issue List Dialog, Selected option - incorrect text in the label, '(' was not found");
-            }
-            let endIndex = textInSelectedOption.indexOf(')');
-            if (endIndex === -1) {
-                throw new Error("Issue List Dialog, Selected option - incorrect text in the label, '}' was not found");
-            }
-            return textInSelectedOption.substring(startIndex + 1, endIndex);
+            let match = textInSelectedOption.match(/\((\d+)\)/);
+            return match ? parseInt(match[1], 10) : 0;
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_issue_list');
-            throw new Error(`Issue List Dialog : error when getting the number in Selected option, screenshot:${screenshot} ` + err);
+            await this.handleError('Issue List Dialog - error when getting the number in the selected option in Type Filter',
+                'err_filter_input_number', err);
         }
     }
 }

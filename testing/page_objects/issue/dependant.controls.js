@@ -192,6 +192,27 @@ class DependantsControls extends Page {
         return await this.getTextInDisplayedElements(locator);
     }
 
+    // waits for the dependants grid to get disabled state (in the closed issue the whole block gets aria-disabled='true'):
+    async waitForDependantItemsDisabled() {
+        try {
+            let gridLocator = this.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV;
+            await this.getBrowser().waitUntil(async () => {
+                let ariaDisabled = await this.getAttribute(gridLocator, 'aria-disabled');
+                return ariaDisabled === 'true';
+            }, {timeout: appConst.shortTimeout, timeoutMsg: 'Dependants block should be disabled'});
+        } catch (err) {
+            await this.handleError('Dependants block should be disabled', 'err_dependants_disabled', err);
+        }
+    }
+
+    // returns display names of the disabled dependant items - rows with aria-disabled='true' (e.g. in the closed issue):
+    async getDisplayNameInDisabledDependantItems() {
+        let locator = this.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV + DIALOG_ITEMS.CONTENT_ROW_DISABLED +
+                      DIALOG_ITEMS.ITEMS_NAME_SPAN;
+        await this.waitForElementDisplayed(locator);
+        return await this.getTextInDisplayedElements(locator);
+    }
+
     async isDependantCheckboxSelected(name) {
         try {
 

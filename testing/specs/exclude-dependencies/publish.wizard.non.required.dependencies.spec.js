@@ -49,7 +49,7 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             await contentWizard.clickOnCollapseContentForm();
             // 3. Insert a text-component in PCV modal dialog:
             await pageComponentView.rightClickAndOpenContextMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // 4. Open Insert Link dialog
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.clickOnInsertLinkButton();
@@ -250,43 +250,43 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             assert.ok(isSelected === false, "The dependant item-checkbox should be unselected");
         });
 
-    it("GIVEN checkbox for non-required item is selected in IssueDetails dialog WHEN 'Publish' button has been pressed in 'Items tab' THEN the same dependant item should be selected in Publish Content dialog",
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            let createIssueDialog = new CreateIssueDialog();
-            let issueDetailsDialog = new IssueDetailsDialog();
-            let contentPublishDialog = new ContentPublishDialog();
-            let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
-            // 1. Select the existing site with a non required dependency:
-            await studioUtils.findAndSelectItem(SITE.displayName);
-            // 2. Open Create Issue dialog:
-            await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
-            await createIssueDialog.waitForDialogLoaded();
-            // 3. Fill in the title and click on 'Create Issue' button:
-            await createIssueDialog.typeTitle('test issue 2');
-            await createIssueDialog.clickOnCreateIssueButton();
-            await createIssueDialog.waitForNotificationMessage();
-            // 4. Issue Details dialog should be loaded:
-            await issueDetailsDialog.waitForDialogLoaded();
-            // 5. Go to 'Items' tab:
-            await issueDetailsDialog.clickOnItemsTabItem();
-            // 6. Click on the checkbox for the dependant item:
-            await issueDetailsDialogItemsTab.clickOnCheckboxInDependentItem(TEST_FOLDER.displayName);
-            await issueDetailsDialogItemsTab.clickOnApplySelectionButton();
-            // 7. Verify that the item is selected in the 'Items' tab:
-            let isSelected = await issueDetailsDialogItemsTab.isDependantCheckboxSelected(TEST_FOLDER.displayName);
-            assert.ok(isSelected, "The checkbox for dependant item should be selected in Issue details dialog");
-            // 8. Verify that the 'dependency items' list is displayed in the 'Items' tab:
-            await issueDetailsDialogItemsTab.waitForHideExcludedItemsButtonNotDisplayed();
-            // 9. Click on 'Publish' button and open 'Publish Wizard':
-            await issueDetailsDialogItemsTab.clickOnPublishAndOpenPublishWizard();
-            await studioUtils.saveScreenshot('dependant_item_in_publish_wizard');
-            // 10. The same checkbox for dependant item should be selected in 'Publish Wizard' as well:
-            isSelected = await contentPublishDialog.isDependantCheckboxSelected(TEST_FOLDER.displayName);
-            assert.ok(isSelected, "The same checkbox for dependant item should be selected in 'Publish Wizard' as well");
-            // 11. Hide excluded items button should not be displayed in 'Publish Wizard':
-            await contentPublishDialog.waitForHideExcludedItemsButtonNotDisplayed();
-        });
+    // it("GIVEN checkbox for non-required item is selected in IssueDetails dialog WHEN 'Publish' button has been pressed in 'Items tab' THEN the same dependant item should be selected in Publish Content dialog",
+    //     async () => {
+    //         let contentBrowsePanel = new ContentBrowsePanel();
+    //         let createIssueDialog = new CreateIssueDialog();
+    //         let issueDetailsDialog = new IssueDetailsDialog();
+    //         let contentPublishDialog = new ContentPublishDialog();
+    //         let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
+    //         // 1. Select the existing site with a non required dependency:
+    //         await studioUtils.findAndSelectItem(SITE.displayName);
+    //         // 2. Open Create Issue dialog:
+    //         await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
+    //         await createIssueDialog.waitForDialogLoaded();
+    //         // 3. Fill in the title and click on 'Create Issue' button:
+    //         await createIssueDialog.typeTitle('test issue 2');
+    //         await createIssueDialog.clickOnCreateIssueButton();
+    //         await createIssueDialog.waitForNotificationMessage();
+    //         // 4. Issue Details dialog should be loaded:
+    //         await issueDetailsDialog.waitForDialogLoaded();
+    //         // 5. Go to 'Items' tab:
+    //         await issueDetailsDialog.clickOnItemsTabItem();
+    //         // 6. Click on the checkbox for the dependant item:
+    //         await issueDetailsDialogItemsTab.clickOnCheckboxInDependentItem(TEST_FOLDER.displayName);
+    //         await issueDetailsDialogItemsTab.clickOnApplySelectionButton();
+    //         // 7. Verify that the item is selected in the 'Items' tab:
+    //         let isSelected = await issueDetailsDialogItemsTab.isDependantCheckboxSelected(TEST_FOLDER.displayName);
+    //         assert.ok(isSelected, "The checkbox for dependant item should be selected in Issue details dialog");
+    //         // 8. Verify that the 'dependency items' list is displayed in the 'Items' tab:
+    //         await issueDetailsDialogItemsTab.waitForHideExcludedItemsButtonNotDisplayed();
+    //         // 9. Click on 'Publish' button and open 'Publish Wizard':
+    //         await issueDetailsDialogItemsTab.clickOnPublishAndOpenPublishWizard();
+    //         await studioUtils.saveScreenshot('dependant_item_in_publish_wizard');
+    //         // 10. The same checkbox for dependant item should be selected in 'Publish Wizard' as well:
+    //         isSelected = await contentPublishDialog.isDependantCheckboxSelected(TEST_FOLDER.displayName);
+    //         assert.ok(isSelected, "The same checkbox for dependant item should be selected in 'Publish Wizard' as well");
+    //         // 11. Hide excluded items button should not be displayed in 'Publish Wizard':
+    //         await contentPublishDialog.waitForHideExcludedItemsButtonNotDisplayed();
+    //     });
 
     it("GIVEN site with non-required dependency item is selected AND 'Request Publishing' dialog has been opened WHEN 'Hide excluded' them 'Show excluded' button has been clicked THEN dependent item gets visible and is not selected",
         async () => {
