@@ -32,8 +32,7 @@ describe('Browse toolbar shortcut spec`', function () {
 
     // Enter key doesn't open content for Edit #8756
     // https://github.com/enonic/app-contentstudio/issues/8756
-    // TODO enonic ui bug
-    it.skip(`GIVEN 2 item are checked in the grid WHEN 'Enter' key has been pressed THEN both folders should be opened in new tabs`,
+    it(`GIVEN 2 item are checked in the grid WHEN 'Enter' key has been pressed THEN both folders should be opened in new tabs`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentWizard = new ContentWizard();

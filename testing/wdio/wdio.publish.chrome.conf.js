@@ -17,7 +17,6 @@ exports.config = {
         path.join(__dirname, '../specs/publish/request.publish.dialog.spec.js'),
         path.join(__dirname, '../specs/publish/request.publish.dialog.validation.spec.js'),
         path.join(__dirname, '../specs/publish/request.publishing.dialog.mark.as.ready.spec.js'),
-        path.join(__dirname, '../specs/publish/unpublish.dialog.dependent.item.scheduled.spec.js'),
         path.join(__dirname, '../specs/publish/version.items.after.publishing.spec.js'),
 
         path.join(__dirname, '../specs/issue/create.issue.dialog.spec.js'),

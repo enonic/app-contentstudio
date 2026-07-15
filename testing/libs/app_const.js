@@ -502,7 +502,7 @@ module.exports = Object.freeze({
         MODIFIED: 'Modified',
         MOVED: 'Moved',
         MOVED_MODIFIED: 'Moved, Modified',
-        PUBLISHING_SCHEDULED: 'Scheduled',
+        SCHEDULED: 'Scheduled',
         SCHEDULED_MODIFIED: 'Scheduled, Modified',
     },
     PUBLISH_MENU: {

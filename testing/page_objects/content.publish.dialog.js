@@ -268,6 +268,7 @@ class ContentPublishDialog extends Page {
     async waitForDialogClosed() {
         try {
             await this.waitForElementNotDisplayed(XPATH.container);
+            await this.pause(300);
         } catch (err) {
             await this.handleError(`Publish Dialog, wait for dialog to be closed `, 'err_close_publish_dialog', err);
         }
