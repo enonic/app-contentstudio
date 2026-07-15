@@ -53,6 +53,7 @@ export const NewContentDialogContentTypesTab = ({
                                                 url={iconUrl}
                                                 className="size-12"
                                                 imageSize={48}
+                                                typeIcon
                                             />
                                         }
                                         primary={displayName}
