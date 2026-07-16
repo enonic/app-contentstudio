@@ -2,6 +2,8 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { errAsync, okAsync, ResultAsync } from 'neverthrow';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { AppError } from '../../../shared/api/errors';
+import { Branch } from '../../../../app/versioning/Branch';
+import type { ContentQuery } from '../../../../app/content/ContentQuery';
 import { getContent, hasContent, getMissingIds } from '../model/content.store';
 import { clearAllContentCaches, clearProjectContentCache, setContent } from '../model/content.commands';
 import { $activeProject } from '../../project/activeProject.store';
@@ -22,6 +24,7 @@ import {
     clearFilterChildrenIdsRetryCooldown,
     clearVisibleContentDataRetryCooldown,
     clearVisibleFilterContentDataRetryCooldown,
+    activateFilter,
     deactivateFilter,
     fetchChildrenIdsOnly,
     fetchFilterChildrenIdsOnly,
@@ -92,6 +95,16 @@ function createMockContent(id: string, displayName?: string): ContentSummary {
         hasChildren: () => false,
         setReadOnly: () => undefined,
     } as unknown as ContentSummary;
+}
+
+function createMockQuery(queryText = 'query'): ContentQuery {
+    return {
+        getContentTypes: () => [],
+        getMustBeReferencedById: () => null,
+        getQueryFilters: () => [],
+        getQuerySort: () => null,
+        getQuery: () => queryText,
+    } as unknown as ContentQuery;
 }
 
 describe('content-fetcher store integration', () => {
@@ -560,6 +573,20 @@ describe('content-fetcher store integration', () => {
             // Tree still updates because there was no project to be stale against.
             const node = $treeState.get().nodes.get('no-capture');
             expect(node?.data).not.toBeNull();
+        });
+    });
+
+    describe('filter branch behavior', () => {
+        it('switches between master and draft branches', async () => {
+            const query = createMockQuery();
+            mockOtherQueryApi.mockReturnValue(okAsync({ contents: [], totalHits: 0 }));
+
+            await activateFilter(query, Branch.MASTER);
+            expect(mockOtherQueryApi).toHaveBeenLastCalledWith(expect.objectContaining({ branch: Branch.MASTER }));
+
+            deactivateFilter();
+            await activateFilter(query);
+            expect(mockOtherQueryApi).toHaveBeenLastCalledWith(expect.objectContaining({ branch: Branch.DRAFT }));
         });
     });
 
