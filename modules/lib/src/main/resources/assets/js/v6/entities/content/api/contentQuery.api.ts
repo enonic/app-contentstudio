@@ -14,7 +14,7 @@ import { getCmsApiUrl } from '../../../shared/lib/url/cms';
 const SUMMARY_EXPAND = 1;
 // Expand.SUMMARY string form, used by the query endpoint.
 const SUMMARY_EXPAND_STRING = 'summary';
-// Branch.DRAFT — the browse tree always queries the draft branch.
+// Branch.DRAFT — the default branch the browse tree queries.
 const DRAFT_BRANCH = 'draft';
 
 export type ListContentByParentParams = {
@@ -39,6 +39,8 @@ export type QueryContentParams = {
     queryFilters?: unknown[];
     query?: object;
     querySort?: object[];
+    // Target branch to query; defaults to draft. Set to master to see online-only content.
+    branch?: string;
 };
 
 export type QueryContentResult = {
@@ -80,8 +82,8 @@ export function listContentByParent(
 }
 
 /**
- * Run a content query on the draft branch, expanding to summaries. Aggregations
- * are passed through raw for the caller's filter machinery.
+ * Run a content query on the given branch (draft by default), expanding to
+ * summaries. Aggregations are passed through raw for the caller's filter machinery.
  * Used by: entities/content/api/content-fetcher.
  */
 export function queryContent(params: QueryContentParams): ResultAsync<QueryContentResult, AppError> {
@@ -96,7 +98,7 @@ export function queryContent(params: QueryContentParams): ResultAsync<QueryConte
         queryFilters: params.queryFilters,
         query: params.query,
         querySort: params.querySort,
-        branch: DRAFT_BRANCH,
+        branch: params.branch ?? DRAFT_BRANCH,
     };
 
     return requestJson<ContentQueryResultJson<ContentSummaryJson>>(getCmsApiUrl('query'), {

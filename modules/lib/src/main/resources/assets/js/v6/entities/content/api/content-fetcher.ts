@@ -2,6 +2,7 @@ import { type ResultAsync } from 'neverthrow';
 import { ContentId } from '../../../../app/content/ContentId';
 import { type ContentQuery } from '../../../../app/content/ContentQuery';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
+import { Branch } from '../../../../app/versioning/Branch';
 import { type ChildOrder } from '../../../../app/resource/order/ChildOrder';
 import { type AppError } from '../../../shared/api/errors';
 import { resolveContentSummaries } from './content.api';
@@ -61,6 +62,10 @@ const DEFAULT_BATCH_SIZE = 10;
 
 let filterQuery: ContentQuery | null = null;
 
+// Target branch for the active filter query. Master yields online-only results
+// (used by the unpublish "Show references" inbound view); defaults to draft.
+let filterBranch: Branch = Branch.DRAFT;
+
 /** Incremented on each filter activation to invalidate in-flight requests. */
 let filterRequestId = 0;
 
@@ -113,7 +118,12 @@ function toNodeOptions(content: ContentSummary, parentId: string | null): Create
  * Serializes a source ContentQuery into the query-endpoint params, mirroring the
  * legacy configureContentQuery + ContentQueryRequest.getParams pair.
  */
-function buildQueryParams(sourceQuery: ContentQuery, offset: number, size: number): QueryContentParams {
+function buildQueryParams(
+    sourceQuery: ContentQuery,
+    offset: number,
+    size: number,
+    branch: Branch = Branch.DRAFT,
+): QueryContentParams {
     return {
         from: offset,
         size,
@@ -123,6 +133,7 @@ function buildQueryParams(sourceQuery: ContentQuery, offset: number, size: numbe
         queryFilters: (sourceQuery.getQueryFilters() ?? []).map((filter) => filter.toJson()),
         query: sourceQuery.getQuery(),
         querySort: sourceQuery.getQuerySort(),
+        branch: branch.toString(),
     };
 }
 
@@ -263,7 +274,7 @@ export async function fetchFilteredRootChildren(
     setNodeLoading(null, true);
 
     try {
-        const queryResult = await queryContent(buildQueryParams(query, offset, size));
+        const queryResult = await queryContent(buildQueryParams(query, offset, size, filterBranch));
         if (queryResult.isErr()) throw queryResult.error;
 
         const summaries = queryResult.value.contents;
@@ -761,12 +772,16 @@ import {
  * completes, the results are discarded.
  *
  * @param query - Content query for filtering
+ * @param branch - Target branch to query; defaults to the current filter branch
+ *   so refresh-triggered reactivations preserve it. Master yields online-only
+ *   results (unpublish "Show references" inbound view).
  */
-export async function activateFilter(query: ContentQuery): Promise<void> {
+export async function activateFilter(query: ContentQuery, branch: Branch = filterBranch): Promise<void> {
     const requestId = ++filterRequestId;
 
     setFilterActiveState(true);
     filterQuery = query;
+    filterBranch = branch;
     resetVisibleFilterContentDataRetryState();
     resetFilterChildrenIdsRetryState();
     resetFilterTree();
@@ -794,6 +809,7 @@ export async function activateFilter(query: ContentQuery): Promise<void> {
 export function deactivateFilter(): void {
     filterRequestId++;
     filterQuery = null;
+    filterBranch = Branch.DRAFT;
     resetVisibleFilterContentDataRetryState();
     resetFilterChildrenIdsRetryState();
     deactivateFilterState();
@@ -813,7 +829,7 @@ async function fetchFilteredContentForFilterTree(
 ): Promise<FetchChildrenResult> {
     const projectName = captureActiveProjectName();
 
-    const queryResult = await queryContent(buildQueryParams(query, offset, size));
+    const queryResult = await queryContent(buildQueryParams(query, offset, size, filterBranch));
     if (queryResult.isErr()) throw queryResult.error;
 
     const summaries = queryResult.value.contents;

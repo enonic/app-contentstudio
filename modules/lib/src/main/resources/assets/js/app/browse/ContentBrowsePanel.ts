@@ -158,7 +158,7 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
         this.bindPreviewBus();
 
         this.filterPanel.onSearchEvent((query?: ContentQuery) => {
-            this.contentTreeList.setFilterQuery(query);
+            this.contentTreeList.setFilterQuery(query, this.filterPanel.getTargetBranch());
         });
 
         this.handleGlobalEvents();
