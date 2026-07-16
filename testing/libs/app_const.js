@@ -29,7 +29,7 @@ module.exports = Object.freeze({
     markedAsReadyMessage: function (name) {
         return `Item \"${name}\" has been marked as ready.`;
     },
-    publishRequestClosedMessage (name) {
+    publishRequestClosedMessage(name) {
         return `Publish request \"${name}\" has been closed.`;
     },
     issueClosedMessage(name) {
@@ -41,10 +41,10 @@ module.exports = Object.freeze({
     saveFailedAttempt(name) {
         return `Content \[${name}\] could not be updated. A content with that name already exists`;
     },
-    projectAccessModeCopied(projName){
+    projectAccessModeCopied(projName) {
         return `Access mode has been copied from \"${projName}\"`;
     },
-    projectRolesCopied(projName){
+    projectRolesCopied(projName) {
         return `Roles has been copied from \"${projName}\"`;
     },
     requiredValidationMessage: (occurrences) => {
@@ -92,7 +92,7 @@ module.exports = Object.freeze({
         REQUEST_CREATED_MESSAGE: 'The publish request has been created.',
         PUBLISH_REQUEST_CLOSED_MESSAGE: 'The publish request has been closed.',
         ISSUE_OPENED_MESSAGE: 'The issue has been opened.',
-        REQUEST_HAS_BEEN_CLOSED:'The publish request has been closed.',
+        REQUEST_HAS_BEEN_CLOSED: 'The publish request has been closed.',
         ISSUE_UPDATED_MESSAGE: 'The issue has been updated.',
         THIS_PUBLISH_REQUEST_OPEN: 'The publish request has been opened.',
         CONTENT_RENAMED: 'Content has been renamed',
@@ -106,7 +106,7 @@ module.exports = Object.freeze({
         permissionsAppliedNotificationMessage: (name) => {
             return `Permissions for \"${name}\" are applied.`
         },
-        fragmentCreated:(part)=>{
+        fragmentCreated: (part) => {
             return `The fragment has been created from \"${part}\"`
         }
     },
@@ -118,6 +118,7 @@ module.exports = Object.freeze({
         SELENIUM_TESTS_FOLDER_DISPLAY_NAME: "folder for selenium tests",
         SELENIUM_TESTS_FOLDER_NAME: 'selenium-tests-folder',
         IMPORTED_SITE_NAME: 'site040269',
+        IMPORTED_SITE_837567: 'site837567',
     },
     TEST_APPS_NAME: {
         APP_CONTENT_TYPES: 'All Content Types App',
@@ -485,7 +486,7 @@ module.exports = Object.freeze({
         NEW: 'NEW',
         PUBLISHED: 'PUBLISHED',
         ONLINE: 'ONLINE',
-        OFFLINE:'OFFLINE',
+        OFFLINE: 'OFFLINE',
         MODIFIED: 'MODIFIED',
         MOVED: 'MOVED',
         MOVED_MODIFIED: 'MOVED, MODIFIED',
@@ -494,10 +495,10 @@ module.exports = Object.freeze({
     CONTENT_STATUS: {
         OFFLINE_NEW: 'Offline New',
         ONLINE_MODIFIED: 'Online Modified',
-        ONLINE_MOVED:'Online Moved',
+        ONLINE_MOVED: 'Online Moved',
         OFFLINE_NEW_READY: 'Offline New Ready for publishing',
         OFFLINE: 'Offline',
-        ONLINE:'Online',
+        ONLINE: 'Online',
         UNPUBLISHED: 'Unpublished',
         MODIFIED: 'Modified',
         MOVED: 'Moved',
@@ -507,7 +508,7 @@ module.exports = Object.freeze({
     },
     PUBLISH_MENU: {
         REQUEST_PUBLISH: 'Request publishing',
-        OPEN_REQUEST:'Open Request...',
+        OPEN_REQUEST: 'Open Request...',
         PUBLISH: 'Publish',
         PUBLISH_TREE: 'Publish tree',
         MARK_AS_READY: 'Mark as ready',
@@ -543,7 +544,7 @@ module.exports = Object.freeze({
         LAST_MODIFIED_BY: 'Last Modified by',
         OWNER: 'Owner',
         LANGUAGE: 'Language',
-        IMAGE:'Image'
+        IMAGE: 'Image'
     },
     ISSUE_LIST_TYPE_FILTER: {
         ALL: 'All',

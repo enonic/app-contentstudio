@@ -17,7 +17,6 @@ describe('site.with.layout.component.spec - specification', function () {
         webDriverHelper.setupBrowser();
     }
     let IMPORTED_SITE_NAME= "simple-site984116";
-    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const LAYOUT_NAME = '3-col';
 
     it(`WHEN 3-column layout has been inserted THEN layout-component with 3 regions should be present in Live Edit`,

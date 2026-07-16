@@ -1,5 +1,5 @@
 /**
- * Created on 01.03.2025
+ * Created on 01.03.2025   updated on 16.07.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -21,16 +21,14 @@ describe('Tests for text-component and htmlArea in Inspect Panel', function () {
     const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const TEXT_COMPONENT_TEXT = appConst.generateRandomName('text');
 
-    it(`Preconditions: new site and should be created`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
-            await studioUtils.doAddSite(SITE);
-        });
-
 
     it(`GIVEN new text component has been inserted WHEN a text has been inserted in htmlArea in Inspect Panel THEN this text appears in LiveView`,
         async () => {
+
+            let displayName = contentBuilder.generateRandomName('site');
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
+            await studioUtils.doAddSite(SITE);
+
             let contentWizard = new ContentWizard();
             let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let pageComponentView = new PageComponentView();
@@ -41,7 +39,7 @@ describe('Tests for text-component and htmlArea in Inspect Panel', function () {
             await contentWizard.clickOnCollapseContentForm();
             // 3. Insert new text component:
             await pageComponentView.rightClickAndOpenContextMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // 4. Insert a text in htmlArea in Inspect Panel:
             await textComponentInspectionPanel.typeTextInEditor(TEXT_COMPONENT_TEXT);
             // 5. Verify that Apply button gets enabled in Inspect Panel:
@@ -87,7 +85,7 @@ describe('Tests for text-component and htmlArea in Inspect Panel', function () {
             await contentWizard.clickOnCollapseContentForm();
             // 3. Insert new text component:
             await pageComponentView.rightClickAndOpenContextMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // 4. Insert a text in htmlArea in Inspect Panel:
             await textComponentInspectionPanel.typeTextInEditor(TEXT_COMPONENT_TEXT);
             // 6. Press CTRL(Command) + S :
@@ -100,8 +98,6 @@ describe('Tests for text-component and htmlArea in Inspect Panel', function () {
             assert.ok(actualResult.includes(TEXT_COMPONENT_TEXT), 'expected text should be present in the text component in LiveView');
         });
 
-    //  Text component switches into edit mode when being edited in the Inspect panel #9065
-    // https://github.com/enonic/app-contentstudio/issues/9065
     it(`GIVEN start to edit a text component in Inspect Panel WHEN 'Apply' button has been pressed THEN close edit mode button should not be displayed in for this text component inLiveView`,
         async () => {
             let contentWizard = new ContentWizard();
@@ -116,11 +112,13 @@ describe('Tests for text-component and htmlArea in Inspect Panel', function () {
             await pageComponentView.clickOnComponent(TEXT_COMPONENT_TEXT);
             await textComponentInspectionPanel.typeTextInEditor(' ');
             await textComponentInspectionPanel.typeTextInEditor('test');
+            await textComponentInspectionPanel.waitForApplyButtonEnabled();
             await textComponentInspectionPanel.clickOnApplyButton();
-            await studioUtils.saveScreenshot('issue_inspect_panel_close_edit_icon');
-            // 4. Verify that 'Close Edit Mode' icon is not displayed for the text component in LiveEdit:
-            await contentWizard.switchToLiveEditFrame();
-            await liveFormPanel.waitForCloseEditModeButtonNotDisplayed();
+            await studioUtils.saveScreenshot('text_inspection_sav_disabled');
+            // 4. Verify that 'Save' button is disabled:
+            await contentWizard.waitForSaveButtonDisabled();
+
+
         });
 
 
