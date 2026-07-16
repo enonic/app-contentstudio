@@ -105,7 +105,7 @@ import { type CreateContentRequest } from '../resource/CreateContentRequest';
 import { GetPageTemplateByKeyRequest } from '../resource/GetPageTemplateByKeyRequest';
 import { Router } from '../Router';
 import { ProjectDeletedEvent } from '../settings/event/ProjectDeletedEvent';
-import { type SiteModel } from '../site/SiteModel';
+import { SiteModel } from '../site/SiteModel';
 import { UrlAction } from '../UrlAction';
 import { ContentHelper } from '../util/ContentHelper';
 import { PageHelper } from '../util/PageHelper';
@@ -410,6 +410,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
                 // for existing content it was loaded
                 // for new content it was saved in super.doLoadData()
                 const currentItem: Content = this.getCurrentItem();
+                this.initOrUpdateSiteModel(currentItem.isSite() ? (currentItem as Site) : this.site);
                 this.liveEditModel = this.initLiveEditModel(currentItem);
 
                 return this.loadAndSetPageState(currentItem.getPage()?.clone()).then(() => loadedContent);
@@ -1379,6 +1380,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
             console.debug('ContentWizardPanel.updateLiveEditModel for: ' + content.getPath().toString());
         }
 
+        this.initOrUpdateSiteModel(content.isSite() ? (content as Site) : this.site);
         this.liveEditModel = this.initLiveEditModel(content);
         this.livePanel?.setModel(this.liveEditModel);
     }
@@ -1443,6 +1445,16 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         this.siteModel.update(site);
         this.site = site;
         updateAiInstructions(this.getApplicationsConfigs());
+    }
+
+    private initOrUpdateSiteModel(site: Site): void {
+        if (!site) return;
+
+        if (this.siteModel) {
+            this.updateSiteModel(site);
+        } else {
+            this.siteModel = new SiteModel(site);
+        }
     }
 
     private initLiveEditModel(content: Content): LiveEditModel {
