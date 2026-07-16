@@ -69,7 +69,7 @@ export const MultiSelectOptionsBody = ({
                         />
                         {checked && formItems.length > 0 && optionDataSet && (
                             <ValidationVisibilityProvider visibility={optionVisibility}>
-                                <div className="flex flex-col gap-7.5">
+                                <div className="ml-1.75 flex flex-col gap-7.5 border-l border-l-bdr-soft pl-5">
                                     {formItems.map((formItem) => (
                                         <FormItemRenderer key={formItem.getName()} formItem={formItem} propertySet={optionDataSet} />
                                     ))}
