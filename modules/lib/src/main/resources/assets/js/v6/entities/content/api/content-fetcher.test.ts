@@ -97,13 +97,13 @@ function createMockContent(id: string, displayName?: string): ContentSummary {
     } as unknown as ContentSummary;
 }
 
-function createMockQuery(query = 'query'): ContentQuery {
+function createMockQuery(queryText = 'query'): ContentQuery {
     return {
         getContentTypes: () => [],
         getMustBeReferencedById: () => null,
         getQueryFilters: () => [],
         getQuerySort: () => null,
-        getQuery: () => query,
+        getQuery: () => queryText,
     } as unknown as ContentQuery;
 }
 
