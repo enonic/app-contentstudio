@@ -1283,6 +1283,11 @@ class ContentWizardPanel extends Page {
         return await this.getTextInDisplayedElements(locator);
     }
 
+    async waitForNoPreviewMessageDisplayed(){
+        let locator =  "//div[@data-component='PreviewLabel']//span[text()='No preview available']";
+        return await this.waitForElementDisplayed(locator);
+    }
+
     async getNoPreviewMessageNoController() {
         let locator = XPATH.container + lib.LIVE_VIEW.NO_CONTROLLER_NO_PREVIEW_MSG_SPAN;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);

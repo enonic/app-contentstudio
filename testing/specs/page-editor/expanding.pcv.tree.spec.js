@@ -1,5 +1,5 @@
 /**
- * Created on 10.07.2023
+ * Created on 10.07.2023  updated on 16.07.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -46,8 +46,6 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             // 2. Insert the first text component:
             await pageComponentsWizardStepForm.rightClickAndOpenContextMenu('main');
             await pageComponentsWizardStepForm.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
-            //await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
-
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.typeTextInEditor(TEXT_COMPONENT_1);
