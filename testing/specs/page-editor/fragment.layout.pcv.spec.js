@@ -29,7 +29,7 @@ describe('fragment.layout.pcv.spec - Select a layout in fragment and verify regi
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             let fragmentInspectionPanel = new FragmentInspectionPanel();
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
 
             let contentWizard = new ContentWizard();
@@ -49,6 +49,7 @@ describe('fragment.layout.pcv.spec - Select a layout in fragment and verify regi
             await fragmentInspectionPanel.clickOnEditFragmentButton();
             // 5. Switch to the new wizard and select the '3-col' layout:
             await studioUtils.doSwitchToNewWizard();
+            await contentWizard.clickOnWizardStep('Page');
             await pageComponentsWizardStepForm.clickOnComponent('Layout');
             await layoutInspectionPanel.waitForOpened();
             await layoutInspectionPanel.typeNameAndSelectLayout(LAYOUT_3_COL);

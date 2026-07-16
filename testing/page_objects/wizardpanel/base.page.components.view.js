@@ -228,13 +228,48 @@ class BasePageComponentView extends Page {
         }
     }
 
+    // Swaps two components in PCV using the keyboard-based dnd: Space picks the item up, arrow keys move it, Space drops it.
+    // Only draggable rows are collected (regions and the root have aria-disabled='true'):
     async swapComponents(sourceName, destinationName) {
-        let sourceElem = this.container + xpath.componentByName(sourceName);
-        let destinationElem = this.container + xpath.componentByName(destinationName);
-        let source = await this.findElement(sourceElem);
-        let destination = await this.findElement(destinationElem);
-        await source.dragAndDrop(destination);
-        return await this.pause(1000);
+        try {
+            const allItemsLocator = this.container +
+                "//div[@data-component='SortableList']/div[@role='button' and @aria-roledescription='sortable' and @aria-disabled='false']";
+            const allItems = await this.findElements(allItemsLocator);
+            let sourceIndex = -1;
+            let destIndex = -1;
+            for (let i = 0; i < allItems.length; i++) {
+                const text = await allItems[i].getText();
+                if (text.includes(sourceName)) {
+                    sourceIndex = i;
+                }
+                if (text.includes(destinationName)) {
+                    destIndex = i;
+                }
+            }
+            if (sourceIndex === -1 || destIndex === -1) {
+                throw new Error(`Component not found: source='${sourceName}', destination='${destinationName}'`);
+            }
+            const sourceElem = allItems[sourceIndex];
+            // focus the row without clicking - a click selects the component and the focus gets lost after re-rendering:
+            await this.getBrowser().execute(el => el.focus(), sourceElem);
+            await this.pause(200);
+            await this.keys('Space');
+            // dnd-kit sets aria-pressed='true' on the row when the item is picked up:
+            await this.getBrowser().waitUntil(async () => {
+                let ariaPressed = await sourceElem.getAttribute('aria-pressed');
+                return ariaPressed === 'true';
+            }, {timeout: appConst.shortTimeout, timeoutMsg: `DnD - the component '${sourceName}' was not picked up`});
+            const steps = destIndex - sourceIndex;
+            const arrowKey = steps > 0 ? 'ArrowDown' : 'ArrowUp';
+            for (let i = 0; i < Math.abs(steps); i++) {
+                await this.keys(arrowKey);
+                await this.pause(300);
+            }
+            await this.keys('Space');
+            return await this.pause(500);
+        } catch (err) {
+            await this.handleError(`Error during components swap: '${sourceName}' and '${destinationName}' in PCV`, 'err_swap_components', err);
+        }
     }
 
     async isItemWithDefaultIcon(partDisplayName, index) {
