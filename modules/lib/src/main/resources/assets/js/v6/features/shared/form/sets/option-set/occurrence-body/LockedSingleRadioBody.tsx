@@ -62,7 +62,7 @@ export const LockedSingleRadioBody = ({
                                 <span>{option.getLabel() || optionName}</span>
                             </RadioGroup.Item>
                             {isChecked && formItems.length > 0 && optionDataSet && (
-                                <div className="flex flex-col gap-7.5">
+                                <div className="ml-1.5 flex flex-col gap-7.5 border-l border-l-bdr-soft pl-5">
                                     {formItems.map((formItem) => (
                                         <FormItemRenderer key={formItem.getName()} formItem={formItem} propertySet={optionDataSet} />
                                     ))}
