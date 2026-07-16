@@ -577,7 +577,7 @@ describe('content-fetcher store integration', () => {
     });
 
     describe('filter branch behavior', () => {
-        it('uses master branch for master activation and resets to draft after deactivate', async () => {
+        it('switches between master and draft branches', async () => {
             const query = createMockQuery();
             mockOtherQueryApi.mockReturnValue(okAsync({ contents: [], totalHits: 0 }));
 
