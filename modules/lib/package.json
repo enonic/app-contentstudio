@@ -18,6 +18,7 @@
     "build:dev:css": "vite build --mode development --config vite.config.css.mjs",
     "check": "pnpm run /^check:.*$/",
     "check:boundaries": "depcruise --config .dependency-cruiser.cjs src/main/resources/assets/js/v6",
+    "check:devdeps": "node ../../scripts/check-dev-deps.mjs",
     "check:types": "tsc --skipLibCheck --declaration --noEmit",
     "check:lint": "oxlint -c ../../.oxlintrc.json --quiet src/main/resources/assets/js",
     "check:lint:fix": "oxlint -c ../../.oxlintrc.json --quiet --fix src/main/resources/assets/js",
