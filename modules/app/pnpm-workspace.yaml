@@ -1,6 +1,5 @@
 packages:
   - .
-  - .xp/dev/*
 
 allowBuilds:
   '@swc/core': false

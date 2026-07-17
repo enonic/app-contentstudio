@@ -13,8 +13,10 @@ updates:
       - "/modules/app"
       - "/modules/lib"
       - "/testing"
-    ignore:
-      - dependency-name: "@enonic/lib-admin-ui"
+    # Keep in sync with minimumReleaseAge in pnpm-workspace.yaml files:
+    # Dependabot must not propose versions younger than pnpm accepts.
+    cooldown:
+      default-days: 2
     groups:
       tailwindcss:
         patterns:
