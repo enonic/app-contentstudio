@@ -27,6 +27,8 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
     "@enonic/page-editor": "2.0.0-beta.1",
     "@enonic/ui": "^1.0.5",
     "@nanostores/preact": "^1.0.0",
@@ -34,14 +36,17 @@
     "class-variance-authority": "^0.7.1",
     "d3": "^7.9.0",
     "d3-dag": "^0.11.5",
+    "dayjs": "^1.11.21",
     "dompurify": "^3.3.0",
     "enonic-admin-artifacts": "^2.4.0",
+    "fine-uploader": "^5.16.2",
     "flag-icons": "^7.5.0",
     "hasher": "^1.2.0",
     "jquery-simulate": "^1.0.2",
     "jquery-ui": "^1.14.1",
     "jsondiffpatch": "^0.7.3",
     "lucide-react": "^0.577.0",
+    "mousetrap": "^1.6.5",
     "nanoid": "~5.1.5",
     "nanostores": "^0.11.4",
     "neverthrow": "^8.2.0",
@@ -57,7 +62,7 @@
     "focus-trap-react": "^11.0.0"
   },
   "devDependencies": {
-    "@enonic/lib-admin-ui": "workspace:*",
+    "@enonic/lib-admin-ui": "link:.xp/dev/lib-admin-ui",
     "@radix-ui/react-slot": "^1.2.0",
     "@rspack/cli": "^1.7.11",
     "@rspack/core": "^1.7.11",
