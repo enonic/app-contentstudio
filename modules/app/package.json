@@ -46,7 +46,7 @@
     "jquery": "^3.7.1",
     "jquery-simulate": "^1.0.2",
     "jquery-ui": "^1.14.1",
-    "jsondiffpatch": "^0.7.3",
+    "jsondiffpatch": "^0.7.6",
     "lucide-react": "^0.577.0",
     "mousetrap": "^1.6.5",
     "nanoid": "~5.1.5",
