@@ -13,8 +13,6 @@ updates:
       - "/modules/app"
       - "/modules/lib"
       - "/testing"
-    ignore:
-      - dependency-name: "@enonic/lib-admin-ui"
     groups:
       tailwindcss:
         patterns:
