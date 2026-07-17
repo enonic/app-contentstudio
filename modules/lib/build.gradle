@@ -75,6 +75,7 @@ tasks.register( 'devJar', Jar ) {
     from sourceSets.main.output
     include 'dev/**'
     exclude 'dev/lib-contentstudio/tsconfig.tsbuildinfo'
+    exclude 'dev/**/*.test.*'
     includeEmptyDirs = false
     dependsOn tasks.named( 'pnpmBuild' )
     dependsOn tasks.named( 'copyPackage' )
