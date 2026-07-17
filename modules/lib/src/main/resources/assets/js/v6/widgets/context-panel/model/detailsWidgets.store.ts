@@ -11,22 +11,17 @@ import { AccessControlEntryView } from '../../../../app/view/AccessControlEntryV
 import { RoleKeys } from '@enonic/lib-admin-ui/security/RoleKeys';
 import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
 import { type Principal } from '@enonic/lib-admin-ui/security/Principal';
-import { $contentPermissionsUpdated } from '../../../shared/socket/socket.store';
+import {
+    $contentCreated,
+    $contentDeleted,
+    $contentPermissionsUpdated,
+    $contentUpdated,
+    type ContentEvent,
+} from '../../../shared/socket/socket.store';
+import { isDeletedTemplateForContent, isTemplateEventForContent } from '../../../shared/lib/page/templateEvent';
+import { ContentServerChangeItem } from '../../../../app/event/ContentServerChangeItem';
 
 const $detailsContentRefreshSignal = atom(0);
-
-onMount($detailsContentRefreshSignal, () =>
-    $contentPermissionsUpdated.subscribe((event) => {
-        if (!event?.data) return;
-        const contextContent = $contextContent.get();
-        if (!contextContent) return;
-
-        const contentId = contextContent.getContentId();
-        if (event.data.some((id) => id.equals(contentId))) {
-            $detailsContentRefreshSignal.set(Date.now());
-        }
-    }),
-);
 
 export const $detailsWidgetContent = computed(
     [$contextContent, $detailsContentRefreshSignal],
@@ -78,7 +73,52 @@ export const $detailsWidgetEffectivePermissions = computed(
 );
 
 //
-// * Utilities
+// * Initialization
+//
+
+onMount($detailsContentRefreshSignal, () => {
+    const refresh = (): void => $detailsContentRefreshSignal.set(Date.now());
+
+    const onPermissionsUpdated = (event: Readonly<ContentEvent<ContentId[]>> | null) => {
+        if (!event?.data) return;
+        const contextContent = $contextContent.get();
+        if (!contextContent) return;
+
+        const contentId = contextContent.getContentId();
+        if (event.data.some((id) => id.equals(contentId))) refresh();
+    }
+
+    const onTemplateCreatedOrUpdated = (event: Readonly<ContentEvent<ContentSummary[]>> | null): void => {
+        if (!event?.data) return;
+        const contextContent = $contextContent.get();
+        if (!contextContent) return;
+
+        if (event.data.some((summary) => isTemplateEventForContent(summary, contextContent))) refresh();
+    };
+
+    const onTemplateDeleted = (event: Readonly<ContentEvent<ContentServerChangeItem[]>> | null) => {
+        if (!event?.data) return;
+        const contextContent = $contextContent.get();
+        if (!contextContent) return;
+
+        if (event.data.some((item) => isDeletedTemplateForContent(item.getPath(), contextContent))) refresh();
+    }
+
+    const unsubPermissionsUpdated = $contentPermissionsUpdated.subscribe(onPermissionsUpdated);
+    const unsubCreated = $contentCreated.subscribe(onTemplateCreatedOrUpdated);
+    const unsubUpdated = $contentUpdated.subscribe(onTemplateCreatedOrUpdated);
+    const unsubDeleted = $contentDeleted.subscribe(onTemplateDeleted);
+
+    return () => {
+        unsubPermissionsUpdated();
+        unsubCreated();
+        unsubUpdated();
+        unsubDeleted();
+    };
+});
+
+//
+// * Actions
 //
 
 export function getEveryoneAccess(content: Content): Access {
