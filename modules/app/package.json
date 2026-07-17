@@ -82,7 +82,7 @@
     "autoprefixer": "^10.4.22",
     "browserslist-config-enonic": "^1.0.8",
     "css-loader": "^7.1.2",
-    "cssnano": "^7.1.2",
+    "cssnano": "^8.0.2",
     "less-loader": "^12.3.0",
     "oxlint": "1.71.0",
     "postcss-loader": "^8.2.0",
