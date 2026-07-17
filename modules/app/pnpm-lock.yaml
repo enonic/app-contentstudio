@@ -122,43 +122,43 @@ importers:
     devDependencies:
       '@enonic-types/core':
         specifier: ^8
-        version: 8.0.0
+        version: 8.0.3
       '@enonic-types/global':
         specifier: ^8
-        version: 8.0.0
+        version: 8.0.3
       '@enonic-types/lib-admin':
         specifier: ^8
-        version: 8.0.0
+        version: 8.0.3
       '@enonic-types/lib-auth':
         specifier: ^8
-        version: 8.0.0
+        version: 8.0.3
       '@enonic-types/lib-common':
         specifier: ^8
-        version: 8.0.0
+        version: 8.0.3
       '@enonic-types/lib-context':
         specifier: ^8
-        version: 8.0.0
+        version: 8.0.3
       '@enonic-types/lib-event':
         specifier: ^8
-        version: 8.0.0
+        version: 8.0.3
       '@enonic-types/lib-grid':
         specifier: ^8
-        version: 8.0.0
+        version: 8.0.3
       '@enonic-types/lib-i18n':
         specifier: ^8
-        version: 8.0.0
+        version: 8.0.3
       '@enonic-types/lib-node':
         specifier: ^8
-        version: 8.0.0
+        version: 8.0.3
       '@enonic-types/lib-portal':
         specifier: ^8
-        version: 8.0.0
+        version: 8.0.3
       '@enonic-types/lib-value':
         specifier: ^8
-        version: 8.0.0
+        version: 8.0.3
       '@enonic-types/lib-websocket':
         specifier: ^8
-        version: 8.0.0
+        version: 8.0.3
       '@rspack/cli':
         specifier: ^1.7.11
         version: 1.7.11(@rspack/core@1.7.11)(@types/express@4.17.25)(tslib@2.8.1)
@@ -265,44 +265,44 @@ packages:
   '@emnapi/wasi-threads@1.2.1':
     resolution: {integrity: sha512-uTII7OYF+/Mes/MrcIOYp5yOtSMLBWSIoLPpcgwipoiKbli6k322tcoFsxoIIxPDqW01SQGAgko4EzZi2BNv2w==}
 
-  '@enonic-types/core@8.0.0':
-    resolution: {integrity: sha512-t93pLDJbyoJGRJ1Qlm+EWpRyClRo2sA5cn+mDS9zoN5687zqroUr2+kAlX0FarHx5bwnRqZq8Pdf1nRnEaVDNw==}
+  '@enonic-types/core@8.0.3':
+    resolution: {integrity: sha512-8A5loeFE6KNV/1yEtQpWK1gAc914LdTHGl4+1HbCM4qYFq1XvjSNgFUpRnPvDP6CQXpB0j4zWsUu883ULSKTjg==}
 
-  '@enonic-types/global@8.0.0':
-    resolution: {integrity: sha512-RYPrl8RN20qNnCBSUUZaiHNEnjxVTz7XSpd5INKzbTzKDXz576JkOEVxr9EKe/i1lOVlzoKl+hBRvQS2aELecg==}
+  '@enonic-types/global@8.0.3':
+    resolution: {integrity: sha512-ZHiTuBlcCVvjL7SLnJZ0or3GXEwFN5BAYaGQnG+jv3j8WBkqa/2yG9qUif/cTIY7W2/kLgy3ZoSPxM+0ekEPrA==}
 
-  '@enonic-types/lib-admin@8.0.0':
-    resolution: {integrity: sha512-LFscvHgkThco93C/fCjpt2iyyW3bpYEitUIEwk3uu2TOf/KF8rgt3An2nidnEWcnH2uEKCmtFQ0CsBxT8kXlAA==}
+  '@enonic-types/lib-admin@8.0.3':
+    resolution: {integrity: sha512-JIwcd1QgYJvtn1CvbqY9vEX8u8GoucQKGfJOmeUl42wKvCpFG+tVP1Bh8C9sQq3pMve+TfQJs+/LQ5UykK1biA==}
 
-  '@enonic-types/lib-auth@8.0.0':
-    resolution: {integrity: sha512-w9dnkqJiyzFJdAGVZ22ZPeR+3xZ9ceqt7/IiU9AC+Zk6CZNDv4aPwFrJMzQ1pgNuRzypDBz/omG8NxXbjIKSLw==}
+  '@enonic-types/lib-auth@8.0.3':
+    resolution: {integrity: sha512-4LY2TB1Y6LA5MarAhd+bU0t7TOGR2F60sulHr6ihkJ2l/eBX4orPz3GsqBsCeaKYBSR++MuDRpXDtfKz7Rm9qg==}
 
-  '@enonic-types/lib-common@8.0.0':
-    resolution: {integrity: sha512-kmsXUOmiMSMNvui/p274hX8NDn1mO1+DHdja5DAEBPY+leCFHVvMvFl6lwEAiYFEbg05LlvzVMBEqkITrw12JA==}
+  '@enonic-types/lib-common@8.0.3':
+    resolution: {integrity: sha512-kk6/Li04rQgP101LVqwPcBbsYGVAxXuH7zFYCiuubG4gbEDRrzgqHqkO2rNmAb2C530yrd370gitWF6+Duhb7A==}
 
-  '@enonic-types/lib-context@8.0.0':
-    resolution: {integrity: sha512-OHpBB4NnI7wXcLIsYh3/skauW4/06SYWZW29ZoxW5D1I9zXcEKB3LbX31wswudX5VYerhqrbruwPwNl2lVtfwg==}
+  '@enonic-types/lib-context@8.0.3':
+    resolution: {integrity: sha512-xm6bUSkK/Yq+9fv0UE3YZ2dLdo4GNIF7TngYLXaDRUcI5uwnDjlKGjwq7a0qPmo9iocy9iZblTDfi3FsKwM1fg==}
 
-  '@enonic-types/lib-event@8.0.0':
-    resolution: {integrity: sha512-ZfOpIb+mH2SUM6Fnj7Qj4UC1y/JFtXvs66N7F1uXniLl9XfaF90p5oXx3CfEvzVwIGBk1e/DvuF1mbqNihvYiQ==}
+  '@enonic-types/lib-event@8.0.3':
+    resolution: {integrity: sha512-Sv5gqe5O15Ng7RCdO26N1bgWRUj/fegsSZKOB8CRKIlFKtvgUF54dEt9bwEHmmDlo9di/yqd7hrk7qe90BL/vg==}
 
-  '@enonic-types/lib-grid@8.0.0':
-    resolution: {integrity: sha512-Xjb7cAJbgKLdv1VlaXtrkm5ZmBfBv1O1BmyVTe9hv435G+CpwUOWh36BjndjRConS28cSCaAc7tRSJKqg2bFdg==}
+  '@enonic-types/lib-grid@8.0.3':
+    resolution: {integrity: sha512-Z5SToBVifXms0BdP1ljdDuGm2wo4W+0kY98BGqDGijYxMC9eiQNSvhgO7qM0XQRVvOeeDr7HtsyT1NGbDMjbAQ==}
 
-  '@enonic-types/lib-i18n@8.0.0':
-    resolution: {integrity: sha512-KRkyrhM6Npm/KDaB/BQElIegS5rgyA6klJ9fubSUqgSa+FQ34dGHyDqFDYjjVDh0cy40BKr6caw3xjuGTHqlJg==}
+  '@enonic-types/lib-i18n@8.0.3':
+    resolution: {integrity: sha512-OGOlolt4/mDrCK1BXa1+rINCJuuWGSWzaodpbCRcJslF0wKcGraOd9Pza0/SWMh+Uz/oVYadsvkSl/C3W8aKiA==}
 
-  '@enonic-types/lib-node@8.0.0':
-    resolution: {integrity: sha512-/xBUd43EEtzmaswBRHxHf4m8cMff0kIQWw4OMsrtv+NqgWKvJ99e5jmXJjstNFPPC13yJKtygYukHiImhx7orw==}
+  '@enonic-types/lib-node@8.0.3':
+    resolution: {integrity: sha512-noCb4WFrCbjwkX+eSrNKI3vTS4VtbkmQBBhuhk7oM1virIsGkhvnBwqJV3B4UrlyjrywJBSylopyuQgu0in3pQ==}
 
-  '@enonic-types/lib-portal@8.0.0':
-    resolution: {integrity: sha512-H5UfzCfAI04/SjPSBOyBYtxctcAQZ7ocm3we0018X4T1fKEe76+gELB3jOPXsMYqfQT3/Dkn87oOqroFL3Be8g==}
+  '@enonic-types/lib-portal@8.0.3':
+    resolution: {integrity: sha512-/T0uSjJcTMwD02E7tJ5RO8tSEm9/zuBZEr4eEXQcSivLy8vjCd0ecv//32OuHyBnVAFeKsYp+xPfRFjmj/p2Ag==}
 
-  '@enonic-types/lib-value@8.0.0':
-    resolution: {integrity: sha512-nn6ouLzttSOxNJ/S1PJSi+4TsasmmY3eITIPriL9Y3moK9/RgM4ouzgSoRx8kPHz0+TgY3PXK7aGoUtN82MQpg==}
+  '@enonic-types/lib-value@8.0.3':
+    resolution: {integrity: sha512-JH8+MEOkA0jM0ozECAQz64u/iyoLvjJvV+rlI8qSft3mrfWDOI+HIf2KdFwjrUJ7A8n7RUlxlb2ezjzkE4lWvg==}
 
-  '@enonic-types/lib-websocket@8.0.0':
-    resolution: {integrity: sha512-gGR65q6SjJuykEtW2P0eVW55+N4MTMRcgywTapIrIXJccWQKWm8nHIOSM6/RzH3fBSIjP7enB3TIY+XukWnLHQ==}
+  '@enonic-types/lib-websocket@8.0.3':
+    resolution: {integrity: sha512-CQK0MPc3zAEjOLzATAg2QXfncKgEoitcvOhxzzDY+80nvF5fQxIfk3LbB7o+KXRiCVQsiLkgmZNnOQzT8pMa7w==}
 
   '@enonic/page-editor@2.0.0-beta.1':
     resolution: {integrity: sha512-tzku+6fJaZLz1v9JIGKO3L9zPbVPQgs0BxCX8nM7APp+0Wbouu/Uxcx5xtQ06U3lMUDt2EOKK0lrxZ8QYBGNEQ==}
@@ -1070,8 +1070,8 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
 
-  baseline-browser-mapping@2.10.42:
-    resolution: {integrity: sha512-c/jurFrDLyui7o1J86yLkRu4LMsTYcBohveus7/I2Hzdn9KIP2bdJPTue/lR1KH46enoPbD77GKeSYNdyPoD3Q==}
+  baseline-browser-mapping@2.10.43:
+    resolution: {integrity: sha512-AjYpR78kDWAY3Efj+cDTFH9t9SCoL7OoTp1BOb0mQV7S+6CiLwnWM3FyxhJtdPufDFKzmCSFoUncKjWgJEZTCQ==}
     engines: {node: '>=6.0.0'}
     hasBin: true
 
@@ -1149,8 +1149,8 @@ packages:
   caniuse-lite@1.0.30001791:
     resolution: {integrity: sha512-yk0l/YSrOnFZk3UROpDLQD9+kC1l4meK/wed583AXrzoarMGJcbRi2Q4RaUYbKxYAsZ8sWmaSa/DsLmdBeI1vQ==}
 
-  caniuse-lite@1.0.30001802:
-    resolution: {integrity: sha512-vmv8ub2xwTNmljSKf82mtCk5JH7hC+YgzLj3P5zotvA0tPQ9016tdNNOG8WRca1IxOnhSsivB+J0z5FeE5LOUw==}
+  caniuse-lite@1.0.30001806:
+    resolution: {integrity: sha512-72Cuvd95zbSYPKq6Fhg8eDJRlzgWDf7/mtoZv6Qe/DYNCEBdNxoA3+rZAU2ZhGCpZlns3EssFavaZomckT5Uuw==}
 
   chart.js@4.5.1:
     resolution: {integrity: sha512-GIjfiT9dbmHRiYi6Nl2yFCq7kkwdkp1W/lp2J99rX0yo9tgJGn3lKQATztIjb5tVtevcBtIdICNWqlq5+E8/Pw==}
@@ -1524,8 +1524,8 @@ packages:
   electron-to-chromium@1.5.344:
     resolution: {integrity: sha512-4MxfbmNDm+KPh066EZy+eUnkcDPcZ35wNmOWzFuh/ijvHsve6kbLTLURy88uCNK5FbpN+yk2nQY6BYh1GEt+wg==}
 
-  electron-to-chromium@1.5.387:
-    resolution: {integrity: sha512-TaxwufTFDufvPEoXdhwVrA3UdFWBeWGkYoJ1K8ldF1xe6gKfth6iRNS5lTQ5JPNOHdGQm8PT1QYKUqFLCiUefQ==}
+  electron-to-chromium@1.5.392:
+    resolution: {integrity: sha512-1yQq3VQCZRwsnYc67Oc+1fge6Lwtn0hzi6zmEVkB61Zx21kTbwJAW4dFLadl5Rc1tKhG/kSpYXnfiAhu0f0a1g==}
 
   encodeurl@2.0.0:
     resolution: {integrity: sha512-Q0n9HRi4m6JuGIV1eFlmvJB7ZEVxu93IrMyiMsGC0lrMJMWzRgx6WGquyfQgZVb31vhGgXnfmPNNXmxnOkRBrg==}
@@ -1973,6 +1973,11 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
+  nanoid@3.3.16:
+    resolution: {integrity: sha512-bzlKTyNJ7+LdGIIwy8ijFpIqEQIvafahV7eYykJ8Cvh42EdJeODoJ6gUJXpQJvej1BddH8OqTXZNE/KfbWAu8Q==}
+    engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
+    hasBin: true
+
   nanoid@5.1.16:
     resolution: {integrity: sha512-kVrnsrJqMR8+oLJnGEmSWw9BivK5mt7H3FZatVRjrc5wGqFYuBxX1yG7+A7Gi5AefkX6t/oCkizcQgpu0cY1dQ==}
     engines: {node: ^18 || >=20}
@@ -2010,8 +2015,8 @@ packages:
   node-releases@2.0.36:
     resolution: {integrity: sha512-TdC8FSgHz8Mwtw9g5L4gR/Sh9XhSP/0DEkQxfEFXOpiul5IiHgHan2VhYYb6agDSfp4KuvltmGApc8HMgUrIkA==}
 
-  node-releases@2.0.50:
-    resolution: {integrity: sha512-J6l92tKHX6w8Jy5nO1Vuc01NoIiRGi/d6qBKVxh+IQ8Cr3b6HbVNfKiF8ZpFKufTwpwxMmce2W3iQZ861ZRyTg==}
+  node-releases@2.0.51:
+    resolution: {integrity: sha512-wRNIrw4DmVLKQlbgOMdkMx27Wrpzes2hh5Jtbi2bjPd+4wJstWIqP5A+lscnqbm0xxmT5Bpg8Lec5ItEBwx6BQ==}
     engines: {node: '>=18'}
 
   normalize-path@3.0.0:
@@ -2346,6 +2351,7 @@ packages:
     engines: {node: '>=0.6.0', teleport: '>=0.2.0'}
     deprecated: |-
       You or someone you depend on is using Q, the JavaScript Promise library that gave JavaScript developers strong feelings about promises. They can almost certainly migrate to the native JavaScript promise now. Thank you literally everyone for joining me in this bet against the odds. Be excellent to each other.
+
       (For a CapTP with native promises, see @endo/eventual-send and @endo/captp)
 
   qs@6.14.2:
@@ -2618,6 +2624,7 @@ packages:
 
   uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   vary@1.1.2:
@@ -2747,49 +2754,49 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
-  '@enonic-types/core@8.0.0': {}
+  '@enonic-types/core@8.0.3': {}
 
-  '@enonic-types/global@8.0.0':
+  '@enonic-types/global@8.0.3':
     dependencies:
-      '@enonic-types/core': 8.0.0
+      '@enonic-types/core': 8.0.3
 
-  '@enonic-types/lib-admin@8.0.0':
+  '@enonic-types/lib-admin@8.0.3':
     dependencies:
-      '@enonic-types/core': 8.0.0
+      '@enonic-types/core': 8.0.3
 
-  '@enonic-types/lib-auth@8.0.0':
+  '@enonic-types/lib-auth@8.0.3':
     dependencies:
-      '@enonic-types/core': 8.0.0
+      '@enonic-types/core': 8.0.3
 
-  '@enonic-types/lib-common@8.0.0': {}
+  '@enonic-types/lib-common@8.0.3': {}
 
-  '@enonic-types/lib-context@8.0.0':
+  '@enonic-types/lib-context@8.0.3':
     dependencies:
-      '@enonic-types/core': 8.0.0
+      '@enonic-types/core': 8.0.3
 
-  '@enonic-types/lib-event@8.0.0': {}
+  '@enonic-types/lib-event@8.0.3': {}
 
-  '@enonic-types/lib-grid@8.0.0':
+  '@enonic-types/lib-grid@8.0.3':
     dependencies:
-      '@enonic-types/core': 8.0.0
+      '@enonic-types/core': 8.0.3
 
-  '@enonic-types/lib-i18n@8.0.0':
+  '@enonic-types/lib-i18n@8.0.3':
     dependencies:
-      '@enonic-types/core': 8.0.0
+      '@enonic-types/core': 8.0.3
 
-  '@enonic-types/lib-node@8.0.0':
+  '@enonic-types/lib-node@8.0.3':
     dependencies:
-      '@enonic-types/core': 8.0.0
+      '@enonic-types/core': 8.0.3
 
-  '@enonic-types/lib-portal@8.0.0':
+  '@enonic-types/lib-portal@8.0.3':
     dependencies:
-      '@enonic-types/core': 8.0.0
+      '@enonic-types/core': 8.0.3
 
-  '@enonic-types/lib-value@8.0.0':
+  '@enonic-types/lib-value@8.0.3':
     dependencies:
-      '@enonic-types/core': 8.0.0
+      '@enonic-types/core': 8.0.3
 
-  '@enonic-types/lib-websocket@8.0.0': {}
+  '@enonic-types/lib-websocket@8.0.3': {}
 
   '@enonic/page-editor@2.0.0-beta.1':
     dependencies:
@@ -3421,7 +3428,7 @@ snapshots:
 
   baseline-browser-mapping@2.10.23: {}
 
-  baseline-browser-mapping@2.10.42: {}
+  baseline-browser-mapping@2.10.43: {}
 
   baseline-browser-mapping@2.10.8: {}
 
@@ -3477,10 +3484,10 @@ snapshots:
 
   browserslist@4.28.4:
     dependencies:
-      baseline-browser-mapping: 2.10.42
-      caniuse-lite: 1.0.30001802
-      electron-to-chromium: 1.5.387
-      node-releases: 2.0.50
+      baseline-browser-mapping: 2.10.43
+      caniuse-lite: 1.0.30001806
+      electron-to-chromium: 1.5.392
+      node-releases: 2.0.51
       update-browserslist-db: 1.2.3(browserslist@4.28.4)
 
   bundle-name@4.1.0:
@@ -3512,7 +3519,7 @@ snapshots:
 
   caniuse-lite@1.0.30001791: {}
 
-  caniuse-lite@1.0.30001802: {}
+  caniuse-lite@1.0.30001806: {}
 
   chart.js@4.5.1:
     dependencies:
@@ -3923,7 +3930,7 @@ snapshots:
 
   electron-to-chromium@1.5.344: {}
 
-  electron-to-chromium@1.5.387: {}
+  electron-to-chromium@1.5.392: {}
 
   encodeurl@2.0.0: {}
 
@@ -4343,6 +4350,8 @@ snapshots:
 
   nanoid@3.3.12: {}
 
+  nanoid@3.3.16: {}
+
   nanoid@5.1.16: {}
 
   nanostores@0.11.4: {}
@@ -4367,7 +4376,7 @@ snapshots:
 
   node-releases@2.0.36: {}
 
-  node-releases@2.0.50: {}
+  node-releases@2.0.51: {}
 
   normalize-path@3.0.0: {}
 
@@ -4653,7 +4662,7 @@ snapshots:
 
   postcss@8.5.16:
     dependencies:
-      nanoid: 3.3.12
+      nanoid: 3.3.16
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
