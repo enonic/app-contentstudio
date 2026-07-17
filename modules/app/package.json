@@ -13,6 +13,7 @@
     "build:client": "rspack build",
     "build:server": "node build.server.mjs",
     "check": "pnpm run /^check:.*$/",
+    "check:devdeps": "node ../../scripts/check-dev-deps.mjs",
     "check:types": "pnpm run /^check:types:.*$/",
     "check:types:client": "tsc --pretty --skipLibCheck --noEmit",
     "check:types:server": "tsc --pretty --noEmit --project ./src/main/resources/lib/tsconfig.json",
