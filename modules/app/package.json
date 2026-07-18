@@ -33,7 +33,7 @@
     "@nanostores/preact": "^1.0.0",
     "@radix-ui/react-slot": "^1.2.3",
     "chart.js": "^4.5.1",
-    "ckeditor4-react": "4.3.0",
+    "ckeditor4-react": "5.2.1",
     "class-variance-authority": "^0.7.1",
     "d3": "^7.9.0",
     "d3-dag": "^0.11.5",
