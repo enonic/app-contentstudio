@@ -87,7 +87,7 @@
     "jquery": "^3.7.1",
     "less-loader": "^12.3.0",
     "minimist": "^1.2.8",
-    "oxlint": "1.71.0",
+    "oxlint": "1.74.0",
     "tailwindcss": "^4.3.3",
     "typescript": "7.0.2",
     "vite": "^7.3.5",
