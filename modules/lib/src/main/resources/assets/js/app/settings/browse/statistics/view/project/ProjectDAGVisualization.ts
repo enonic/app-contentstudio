@@ -1,26 +1,26 @@
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
 import * as d3 from 'd3';
 import * as d3dag from 'd3-dag';
 import type Q from 'q';
-import {Flag} from '../../../../../locale/Flag';
-import {ProjectIconUrlResolver} from '../../../../../project/ProjectIconUrlResolver';
-import {type Project} from '../../../../data/project/Project';
-import {ProjectListRequest} from '../../../../resource/ProjectListRequest';
+import { Flag } from '../../../../../locale/Flag';
+import { ProjectIconUrlResolver } from '../../../../../project/ProjectIconUrlResolver';
+import { type Project } from '../../../../data/project/Project';
+import { ProjectListRequest } from '../../../../resource/ProjectListRequest';
 
 interface DATA {
-    id: string
-    displayName: string
-    iconHTML: string,
-    language: string
-    parentIds: string[]
-    group?: string
+    id: string;
+    displayName: string;
+    iconHTML: string;
+    language: string;
+    parentIds: string[];
+    group?: string;
 }
 
 type D3SVG = d3.Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
 
 type D3SVGG = d3.Selection<SVGGElement, string, HTMLElement | SVGGElement, unknown>;
 
-export class ProjectDAGVisualization extends DivEl{
+export class ProjectDAGVisualization extends DivEl {
     private static TEXTS_LEFT = 45;
     private static NODE_MAX_WIDTH = 200;
     private static MAX_TEXT_WIDTH = ProjectDAGVisualization.NODE_MAX_WIDTH - ProjectDAGVisualization.TEXTS_LEFT;
@@ -48,13 +48,13 @@ export class ProjectDAGVisualization extends DivEl{
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.setData()
-            .then(() => {
-                this.appendChild(this.createSVGContainer());
-                this.execute(this.createSVG());
-            })
-            .catch((error) => {
-                console.log(error);
-            });
+                .then(() => {
+                    this.appendChild(this.createSVGContainer());
+                    this.execute(this.createSVG());
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
 
             return rendered;
         });
@@ -63,10 +63,10 @@ export class ProjectDAGVisualization extends DivEl{
     private execute(svgSelection: D3SVG) {
         d3.select(`#${this.svgContainerId}`).attr('style', 'visibility: hidden;');
 
-        const dag = d3dag.dagStratify()(this.data);
+        const dag = d3dag.graphStratify()(this.data);
         this.setLayout(dag);
-        const edges = this.plotEdges(svgSelection, dag.links());
-        const nodes = this.plotNodes(svgSelection, dag.descendants());
+        const edges = this.plotEdges(svgSelection, [...dag.links()]);
+        const nodes = this.plotNodes(svgSelection, [...dag.nodes()]);
         const rects = this.plotRects(nodes);
         const displayNames = this.plotProjectDisplayNames(nodes);
         const projectIds = this.plotProjectIds(nodes);
@@ -82,7 +82,6 @@ export class ProjectDAGVisualization extends DivEl{
 
             d3.select(`#${this.svgContainerId}`).attr('style', 'width: 100%; visibility: visible');
         }, 100);
-
     }
 
     private setData(): Q.Promise<void> {
@@ -111,14 +110,13 @@ export class ProjectDAGVisualization extends DivEl{
         };
 
         return this.loadAllProjects().then(() => {
-
-            this.data = this.allProjects.map(project => ({
+            this.data = this.allProjects.map((project) => ({
                 id: project.getName(),
                 displayName: project.getDisplayName(),
                 iconHTML: getIconHTML(project),
                 language: project.getLanguage() || '',
                 parentIds: project.getParents(),
-                group: project.getParents().length === 0 ? 'projects' : null
+                group: project.getParents().length === 0 ? 'projects' : null,
             }));
 
             return;
@@ -126,50 +124,50 @@ export class ProjectDAGVisualization extends DivEl{
     }
 
     private loadAllProjects(): Q.Promise<Project[]> {
-        return new ProjectListRequest(true).sendAndParse().then((projects: Project[]) => this.allProjects = projects);
+        return new ProjectListRequest(true).sendAndParse().then((projects: Project[]) => (this.allProjects = projects));
     }
 
     //
 
-    private setLayout(dag: d3dag.Dag<DATA, undefined>): {width: number, height: number} {
+    private setLayout(dag: d3dag.Graph<DATA, undefined>): { width: number; height: number } {
         const nodeSizeFn = (): [number, number] => {
-            return  [
-                1.25 * ProjectDAGVisualization.NODE_MAX_WIDTH,
-                3 * ProjectDAGVisualization.RECT_HEIGHT
-            ];
+            return [1.25 * ProjectDAGVisualization.NODE_MAX_WIDTH, 3 * ProjectDAGVisualization.RECT_HEIGHT];
         };
 
         // build and apply the layout function using dag as a parameter
-        const {width, height} = (
-            d3dag.sugiyama()
+        const { width, height } = d3dag
+            .sugiyama()
             .layering(d3dag.layeringSimplex())
             //.layering(d3dag.layeringCoffmanGraham())
             .decross(d3dag.decrossOpt())
             .coord(d3dag.coordCenter())
-            .nodeSize(nodeSizeFn)
-        )(dag);
+            .nodeSize(nodeSizeFn)(dag);
 
-        return {width, height};
+        return { width, height };
     }
 
-    private adjustSvgPlacement(svgSelection: D3SVGG, dag: d3dag.Dag<DATA, undefined>) {
-        const minXNode = dag.descendants().map((node) => node.x).sort((a,b) => a-b)?.[0] || 0;
-        const minXEdge = dag.links()
-            .map((link) => link.points.sort((a,b) => a.x - b.x)[0].x)
-            .sort((a: number,b: number) => a-b)?.[0] || 0;
-        const minYNode = dag.descendants().map((node) => node.y).sort((a,b) => a-b)?.[0] || 0;
-        const minYEdge = dag.links()
-            .map((link) => link.points.sort((a,b) => a.x - b.x)[0].x)
-            .sort((a: number,b: number) => a-b)?.[0] || 0;
+    private adjustSvgPlacement(svgSelection: D3SVGG, dag: d3dag.Graph<DATA, undefined>) {
+        const minXNode = [...dag.nodes()].map((node) => node.x).sort((a, b) => a - b)?.[0] || 0;
+        const minXEdge =
+            [...dag.links()]
+                .map((link) => link.points.sort((a, b) => a[0] - b[0])[0][0])
+                .sort((a: number, b: number) => a - b)?.[0] || 0;
+        const minYNode = [...dag.nodes()].map((node) => node.y).sort((a, b) => a - b)?.[0] || 0;
+        const minYEdge =
+            [...dag.links()]
+                .map((link) => link.points.sort((a, b) => a[0] - b[0])[0][0])
+                .sort((a: number, b: number) => a - b)?.[0] || 0;
 
-        const maxXNode = dag.descendants().map((node) => node.x).sort((a,b) => b-a)?.[0] || 0;
-        const maxXEdge = dag.links()
-            .map((link) => link.points.sort((a,b) => b.x - a.x)[0].x)
-            .sort((a: number,b: number) => b-a)?.[0] || 0;
-        const maxYNode = dag.descendants().map((node) => node.y).sort((a,b) => b-a)?.[0] || 0;
-        const maxYEdge = dag.links()
-            .map((link) => link.points.sort((a,b) => b.x - a.x)[0].x)
-            .sort((a: number,b: number) => b-a)?.[0] || 0;
+        const maxXNode = [...dag.nodes()].map((node) => node.x).sort((a, b) => b - a)?.[0] || 0;
+        const maxXEdge =
+            [...dag.links()]
+                .map((link) => link.points.sort((a, b) => b[0] - a[0])[0][0])
+                .sort((a: number, b: number) => b - a)?.[0] || 0;
+        const maxYNode = [...dag.nodes()].map((node) => node.y).sort((a, b) => b - a)?.[0] || 0;
+        const maxYEdge =
+            [...dag.links()]
+                .map((link) => link.points.sort((a, b) => b[0] - a[0])[0][0])
+                .sort((a: number, b: number) => b - a)?.[0] || 0;
 
         const minX = Math.max(0, Math.min(minXNode, minXEdge) - ProjectDAGVisualization.NODE_MAX_WIDTH);
         const maxX = Math.max(0, Math.max(maxXNode, maxXEdge) + 2 * ProjectDAGVisualization.NODE_MAX_WIDTH);
@@ -179,30 +177,32 @@ export class ProjectDAGVisualization extends DivEl{
         svgSelection.attr('viewBox', [minX, minY, maxX, maxY].join(' '));
     }
 
-    private plotEdges(svg: D3SVGG, data: d3dag.DagLink<DATA, undefined>[]): D3SVGG {
-        const strokeFn = ({source, target}) => {
+    private plotEdges(svg: D3SVGG, data: d3dag.GraphLink<DATA, undefined>[]): D3SVGG {
+        const strokeFn = ({ source, target }) => {
             return target.data.parentIds.length > 0 && target.data.parentIds[0] === source.data.id
-            ? ProjectDAGVisualization.PATH_COLOR
-            : ProjectDAGVisualization.PATH_COLOR + '50';
+                ? ProjectDAGVisualization.PATH_COLOR
+                : ProjectDAGVisualization.PATH_COLOR + '50';
         };
 
-        return svg.append('g')
+        return svg
+            .append('g')
             .selectAll('path')
             .data(data)
             .enter()
             .append('path')
-            .attr('id', ({source, target}) => encodeURIComponent(`path-${source.data.id}--${target.data.id}`))
+            .attr('id', ({ source, target }) => encodeURIComponent(`path-${source.data.id}--${target.data.id}`))
             .attr('fill', 'none')
             .attr('stroke', strokeFn);
     }
 
-    private plotNodes(svg: D3SVGG, data: d3dag.DagNode<DATA, undefined>[]): D3SVGG {
-        return svg.append('g')
+    private plotNodes(svg: D3SVGG, data: d3dag.GraphNode<DATA, undefined>[]): D3SVGG {
+        return svg
+            .append('g')
             .selectAll('g')
             .data(data)
             .enter()
             .append('g')
-            .attr('transform', ({x, y}) => `translate(${x}, ${y})`);
+            .attr('transform', ({ x, y }) => `translate(${x}, ${y})`);
     }
 
     private plotTitles(svg: D3SVGG): D3SVGG {
@@ -210,7 +210,8 @@ export class ProjectDAGVisualization extends DivEl{
     }
 
     private plotRects(svg: D3SVGG): D3SVGG {
-        return svg.append('rect')
+        return svg
+            .append('rect')
             .attr('id', (d) => encodeURIComponent(`rect-${d.data.id}`))
             .attr('height', ProjectDAGVisualization.RECT_HEIGHT)
             .attr('fill', ProjectDAGVisualization.RECT_BG_COLOR)
@@ -220,9 +221,10 @@ export class ProjectDAGVisualization extends DivEl{
 
     private plotProjectDisplayNames(svg: D3SVGG): D3SVGG {
         const left = ProjectDAGVisualization.TEXTS_LEFT;
-        const top = ProjectDAGVisualization.RECT_HEIGHT/ 2.25;
+        const top = ProjectDAGVisualization.RECT_HEIGHT / 2.25;
 
-        return svg.append('text')
+        return svg
+            .append('text')
             .text((d) => d.data.displayName + (d.data.language ? ` (${d.data.language})` : ''))
             .attr('id', (d) => encodeURIComponent(`txt-dn-${d.data.id}`))
             .attr('font-size', '14')
@@ -235,9 +237,10 @@ export class ProjectDAGVisualization extends DivEl{
 
     private plotProjectIds(svg: D3SVGG): D3SVGG {
         const left = ProjectDAGVisualization.TEXTS_LEFT;
-        const top = ProjectDAGVisualization.RECT_HEIGHT/ 2.25 + 12.5;
+        const top = ProjectDAGVisualization.RECT_HEIGHT / 2.25 + 12.5;
 
-        return svg.append('text')
+        return svg
+            .append('text')
             .text((d) => d.data.id)
             .attr('id', (d) => encodeURIComponent(`txt-id-${d.data.id}`))
             .attr('font-size', '10')
@@ -248,15 +251,16 @@ export class ProjectDAGVisualization extends DivEl{
     }
 
     private plotFlags(svg: D3SVGG): D3SVGG {
-        return svg.append('foreignObject')
-            .html(d => d.data.iconHTML)
+        return svg
+            .append('foreignObject')
+            .html((d) => d.data.iconHTML)
             .attr('class', 'project-icon-container');
     }
 
     private adjustDisplayNames(svg: D3SVGG): void {
         const nodes = svg.data();
 
-        nodes.forEach(node => {
+        nodes.forEach((node) => {
             const textId = encodeURIComponent(`txt-dn-${node.data.id}`);
 
             let textWidth = d3.select(`#${textId}`).node().getComputedTextLength();
@@ -276,7 +280,7 @@ export class ProjectDAGVisualization extends DivEl{
     private adjustIds(svg: D3SVGG): void {
         const nodes = svg.data();
 
-        nodes.forEach(node => {
+        nodes.forEach((node) => {
             const textId = encodeURIComponent(`txt-id-${node.data.id}`);
 
             let textWidth = d3.select(`#${textId}`).node().getComputedTextLength();
@@ -313,25 +317,27 @@ export class ProjectDAGVisualization extends DivEl{
             const sourceX = Math.floor(+document.getElementById(`rect-${d.source.data.id}`).getAttribute('width')) / 2;
             const targetX = Math.floor(+document.getElementById(`rect-${d.target.data.id}`).getAttribute('width')) / 2;
 
-            const points = d.points.map(({x,y}, i) => {
+            const points: [number, number][] = d.points.map(([x, y], i) => {
                 if (i === 0) {
-                return {x: x + sourceX, y: y + ProjectDAGVisualization.RECT_HEIGHT};
+                    return [x + sourceX, y + ProjectDAGVisualization.RECT_HEIGHT];
                 }
 
-                if(i === d.points.length - 1) {
-                return {x: x + targetX, y};
+                if (i === d.points.length - 1) {
+                    return [x + targetX, y];
                 }
 
-                return {x,y};
+                return [x, y];
             });
 
-            return d3
-                .line()
-                .curve(d3.curveCatmullRom)
-                //.curve(d3.curveLinear)
-                //.curve(d3.curveStepBefore)
-                .x((d) => d.x)
-                .y((d) => d.y)(points);
+            return (
+                d3
+                    .line()
+                    .curve(d3.curveCatmullRom)
+                    //.curve(d3.curveLinear)
+                    //.curve(d3.curveStepBefore)
+                    .x((d) => d[0])
+                    .y((d) => d[1])(points)
+            );
         };
 
         svg.attr('d', adjustmentFn);
