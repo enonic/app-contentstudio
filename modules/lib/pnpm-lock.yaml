@@ -31,10 +31,10 @@ importers:
         version: 2.0.0-beta.1
       '@enonic/ui':
         specifier: ^1.0.5
-        version: 1.0.5(@radix-ui/react-slot@1.2.4(@types/react@19.2.14)(react@19.2.4))(focus-trap-react@11.0.6(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(lucide-react@1.24.0(react@19.2.4))(preact@10.29.0)(react-dom@19.2.4(react@19.2.4))(react-virtuoso@4.18.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(tw-animate-css@1.4.0)
+        version: 1.0.5(@radix-ui/react-slot@1.2.4(@types/react@19.2.14)(react@19.2.4))(focus-trap-react@11.0.6(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(lucide-react@1.24.0(react@19.2.4))(preact@10.29.7)(react-dom@19.2.4(react@19.2.4))(react-virtuoso@4.18.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(tw-animate-css@1.4.0)
       '@nanostores/preact':
         specifier: ^1.0.0
-        version: 1.1.0(nanostores@1.4.0)(preact@10.29.0)
+        version: 1.1.0(nanostores@1.4.0)(preact@10.29.7)
       ckeditor4-react:
         specifier: 5.2.1
         version: 5.2.1(ckeditor4@4.25.1)(react@19.2.4)
@@ -90,8 +90,8 @@ importers:
         specifier: ^8.2.0
         version: 8.2.0
       preact:
-        specifier: ^10.29.0
-        version: 10.29.0
+        specifier: ^10.29.7
+        version: 10.29.7
       q:
         specifier: ^1.5.1
         version: 1.5.1
@@ -128,7 +128,7 @@ importers:
         version: 4.3.3(vite@7.3.5(@types/node@26.1.0)(jiti@2.7.0)(less@4.6.7)(lightningcss@1.32.0))
       '@testing-library/preact':
         specifier: ^3.2.4
-        version: 3.2.4(preact@10.29.0)
+        version: 3.2.4(preact@10.29.7)
       '@testing-library/react':
         specifier: ^16.3.1
         version: 16.3.2(@testing-library/dom@8.20.1)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -2599,8 +2599,13 @@ packages:
     resolution: {integrity: sha512-OW/rX8O/jXnm82Ey1k44pObPtdblfiuWnrd8X7GJ7emImCOstunGbXUpp7HdBrFQX6rJzn3sPT397Wp5aCwCHg==}
     engines: {node: ^10 || ^12 || >=14}
 
-  preact@10.29.0:
-    resolution: {integrity: sha512-wSAGyk2bYR1c7t3SZ3jHcM6xy0lcBcDel6lODcs9ME6Th++Dx2KU+6D3HD8wMMKGA8Wpw7OMd3/4RGzYRpzwRg==}
+  preact@10.29.7:
+    resolution: {integrity: sha512-DCHYrK/B10yUD3ZjLfhZ3WIE/9Vf9VFUODcRE2dRomTYDpJk6z6L9wecSfhfE6M9ZTHUdyQkoC46arIDhEV84Q==}
+    peerDependencies:
+      preact-render-to-string: '>=5'
+    peerDependenciesMeta:
+      preact-render-to-string:
+        optional: true
 
   pretty-format@27.5.1:
     resolution: {integrity: sha512-Qb1gy5OrP5+zDf2Bvnzdl3jsTf1qXVMazbvCoKhtKqVs4/YK4ozX4gKQJJVyNe+cajNPn0KoC0MC3FUmaHWEmQ==}
@@ -3140,7 +3145,7 @@ snapshots:
     dependencies:
       nanostores: 1.4.0
 
-  '@enonic/ui@1.0.5(@radix-ui/react-slot@1.2.4(@types/react@19.2.14)(react@19.2.4))(focus-trap-react@11.0.6(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(lucide-react@1.24.0(react@19.2.4))(preact@10.29.0)(react-dom@19.2.4(react@19.2.4))(react-virtuoso@4.18.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(tw-animate-css@1.4.0)':
+  '@enonic/ui@1.0.5(@radix-ui/react-slot@1.2.4(@types/react@19.2.14)(react@19.2.4))(focus-trap-react@11.0.6(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(lucide-react@1.24.0(react@19.2.4))(preact@10.29.7)(react-dom@19.2.4(react@19.2.4))(react-virtuoso@4.18.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(tw-animate-css@1.4.0)':
     dependencies:
       '@radix-ui/react-slot': 1.2.4(@types/react@19.2.14)(react@19.2.4)
       class-variance-authority: 0.7.1
@@ -3149,7 +3154,7 @@ snapshots:
       lucide-react: 1.24.0(react@19.2.4)
       tailwind-merge: 3.4.1
     optionalDependencies:
-      preact: 10.29.0
+      preact: 10.29.7
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
       react-virtuoso: 4.18.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -3254,10 +3259,10 @@ snapshots:
 
   '@keyv/serialize@1.1.1': {}
 
-  '@nanostores/preact@1.1.0(nanostores@1.4.0)(preact@10.29.0)':
+  '@nanostores/preact@1.1.0(nanostores@1.4.0)(preact@10.29.7)':
     dependencies:
       nanostores: 1.4.0
-      preact: 10.29.0
+      preact: 10.29.7
 
   '@napi-rs/nice-android-arm-eabi@1.1.1':
     optional: true
@@ -3715,10 +3720,10 @@ snapshots:
       lz-string: 1.5.0
       pretty-format: 27.5.1
 
-  '@testing-library/preact@3.2.4(preact@10.29.0)':
+  '@testing-library/preact@3.2.4(preact@10.29.7)':
     dependencies:
       '@testing-library/dom': 8.20.1
-      preact: 10.29.0
+      preact: 10.29.7
 
   '@testing-library/react@16.3.2(@testing-library/dom@8.20.1)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
     dependencies:
@@ -5132,7 +5137,7 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
-  preact@10.29.0: {}
+  preact@10.29.7: {}
 
   pretty-format@27.5.1:
     dependencies:
