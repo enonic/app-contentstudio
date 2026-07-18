@@ -38,7 +38,7 @@
     "d3": "^7.9.0",
     "d3-dag": "^0.11.5",
     "dayjs": "^1.11.21",
-    "dompurify": "^3.3.1",
+    "dompurify": "^3.4.12",
     "enonic-admin-artifacts": "^2.4.0",
     "fine-uploader": "^5.16.2",
     "focus-trap-react": "^11.0.4",
