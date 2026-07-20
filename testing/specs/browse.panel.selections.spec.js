@@ -47,8 +47,8 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             let status = await contentBrowsePanel.getContentStatus(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
             assert.equal(status, appConst.CONTENT_STATUS.OFFLINE);
             await contentBrowsePanel.waitForStatus(appConst.TEST_FOLDER_WITH_IMAGES_NAME, 'Offline');
-            let aa = await contentBrowsePanel.getCurrentProjectDisplayName();
-            let aaa = await contentBrowsePanel.getWorkflowStateByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
+            let currentProject = await contentBrowsePanel.getCurrentProjectDisplayName();
+            //let aaa = await contentBrowsePanel.getWorkflowStateByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
 
             // 1. Click on the checkbox:
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
@@ -67,6 +67,7 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             // 5. Verify that the  folder gets collapsed:
             isExpanded = await contentBrowsePanel.isContentExpanded(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
             assert.ok(isExpanded === false, 'The folder gets collapsed');
+            assert.equal(currentProject,'Default', "Default project should be displayed in Browse App Bar");
         });
 
     it("GIVEN one row is checked WHEN hold down 'Shift' key AND press Arrow down key 3 times THEN 3 content items get checked",

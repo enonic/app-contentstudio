@@ -196,7 +196,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     get projectViewerButton() {
-        return COMMON.CONTENT_APP_BAR_DIV + BUTTONS.buttonAriaLabel('Switch project');
+        return COMMON.CONTENT_APP_BAR_DIV + "//button[@data-component='Button' and contains(@class,'mr-auto')]";
     }
 
     async clickOnProjectViewerButton() {
@@ -944,7 +944,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async getCurrentProjectDisplayName() {
         try {
-            await this.waitForElementDisplayed(this.projectViewerButton, appConst.shortTimeout);
+            await this.waitForElementDisplayed(this.projectViewerButton);
             return await this.getText(this.projectViewerButton);
         } catch (err) {
             await this.handleError('Tried to get current project display name', 'err_get_current_project_display_name', err);
@@ -952,7 +952,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     async getContextLanguage() {
-        await this.waitForElementDisplayed(this.projectViewerButton, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.projectViewerButton);
         let result = await this.getText(this.projectViewerButton);
         let lang = result.split('(')[1].split(')')[0];
         return lang;

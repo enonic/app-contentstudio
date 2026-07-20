@@ -98,7 +98,7 @@ const BUTTONS = {
     submitButtonByLabel: (label) => `//button[@type='submit' and contains(.,'${label}')]`,
     radioButtonByLabel: (label) => `//button[@role='radio' and contains(.,'${label}')]`,
     BUTTON_MENU_POPUP: "//button[@aria-haspopup='menu']",
-    buttonAriaLabel: (ariaLabel) => `//button[contains(@type,'button') and contains(@aria-label,'${ariaLabel}') and not(ancestor::*[@aria-hidden='true']) and not(ancestor::*[contains(@class,'sm:hidden')])]`,
+    buttonAriaLabel: (ariaLabel) => `//button[@type='button' and contains(@aria-label,'${ariaLabel}') and not(ancestor::*[@aria-hidden='true']) and not(ancestor::*[contains(@class,'sm:hidden')])]`,
     toolbarButtonAriaLabel: (ariaLabel) => `//button[@data-component='Toolbar.Item' and contains(@aria-label,'${ariaLabel}') and not(ancestor::*[@aria-hidden='true']) and not(ancestor::*[contains(@class,'sm:hidden')])]`,
     toolbarTooltipButtonAriaLabel: (ariaLabel) => `//button[@data-component='Tooltip' and contains(@aria-label,'${ariaLabel}') and not(ancestor::*[@aria-hidden='true']) and not(ancestor::*[contains(@class,'sm:hidden')])]`,
     buttonStatusBar: (label) => `//button[@data-component='StatusBarEntryButton' and contains(.,'${label}')]`,
