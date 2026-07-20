@@ -53,6 +53,8 @@ export const $noProjectMode = computed($projects, (store) => {
     return !store.projects.some(isAvailableProject);
 });
 
+export const $hasMultipleProjects = computed($projects, ({projects}) => projects.length > 1);
+
 //
 // * Internal writer: applies an id to $projects map AND publishes the
 // * canonical Project instance to activeProject.store. The activeProject
