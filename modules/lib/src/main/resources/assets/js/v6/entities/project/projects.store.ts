@@ -38,8 +38,8 @@ export const $projects = map<ProjectsStore>({
 });
 
 //
-// * Last user-selected project, persisted across sessions.
-// * Written only on explicit UI selection or on deletion-driven fallback.
+// * Last active project, persisted across sessions.
+// * Written after project resolution, explicit UI selection, or deletion-driven fallback.
 // * Read in browse mode when the URL has no project; ignored on wizard URLs.
 //
 const $lastSelectedProjectId = atom<string | undefined>(undefined);
@@ -208,6 +208,7 @@ async function loadProjects(): Promise<void> {
             validateHostProjectId(projects);
             refreshActiveProjectInstance();
             updateActiveProject();
+            persistActiveProjectId();
             updateProjectsState({
                 loaded: true,
                 resolved: true,
@@ -268,6 +269,14 @@ function updateActiveProject(): void {
     clearActiveProject();
     setNoProjectMode();
     setProjectSelectionDialogOpen(true);
+}
+
+function persistActiveProjectId(): void {
+    const activeProjectId = getProjectId($activeProject.get());
+
+    if (activeProjectId) {
+        $lastSelectedProjectId.set(activeProjectId);
+    }
 }
 
 function updateActiveProjectAfterDeletion(deletedProject: Readonly<Project> | undefined): void {

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { errAsync, okAsync } from 'neverthrow';
-import { AppError } from '../../shared/api/errors';
+import {AppError} from '../../shared/api';
 
 type MockProject = {
     getName(): string;
@@ -292,6 +292,15 @@ describe('projects.store init', () => {
         localStorage.clear();
     });
 
+    it('persists the active URL project on a clean load', async () => {
+        const current = createProject('current');
+        const other = createProject('other');
+
+        await loadStore([current, other], 'current');
+
+        expect(localStorage.getItem(LAST_SELECTED_STORAGE_KEY)).toBe(JSON.stringify('current'));
+    });
+
     it('uses the URL project even when storage holds a different id', async () => {
         localStorage.setItem(LAST_SELECTED_STORAGE_KEY, JSON.stringify('saved'));
         const url = createProject('url-project');
@@ -299,6 +308,7 @@ describe('projects.store init', () => {
         const store = await loadStore([url, saved], 'url-project');
 
         expect(store.$projects.get().activeProjectId).toBe('url-project');
+        expect(localStorage.getItem(LAST_SELECTED_STORAGE_KEY)).toBe(JSON.stringify('url-project'));
     });
 
     it('falls back to the storage value in browse mode when the URL has no project', async () => {
@@ -360,6 +370,7 @@ describe('projects.store init', () => {
 
         expect(store.$projects.get().activeProjectId).toBe('other-layer');
         expect(store.getActiveProject().getName()).toBe('other-layer');
+        expect(localStorage.getItem(LAST_SELECTED_STORAGE_KEY)).toBe(JSON.stringify('other-layer'));
         expect(mockSetProjectSelectionDialogOpen).not.toHaveBeenCalledWith(true);
     });
 
@@ -373,6 +384,7 @@ describe('projects.store init', () => {
         });
 
         expect(store.$projects.get().activeProjectId).toBeUndefined();
+        expect(localStorage.getItem(LAST_SELECTED_STORAGE_KEY)).toBe(JSON.stringify('ghost'));
         expect(mockSetProjectSelectionDialogOpen).toHaveBeenCalledWith(true);
     });
 });
@@ -402,7 +414,7 @@ describe('projects.store selectProject', () => {
         expect(localStorage.getItem(LAST_SELECTED_STORAGE_KEY)).toBe(JSON.stringify('b'));
     });
 
-    it('leaves active project and storage untouched when the project is not in the store', async () => {
+    it('leaves active project and its persisted id untouched when the project is not in the store', async () => {
         const a = createProject('a');
         const stranger = createProject('stranger');
         const store = await loadStore([a], 'a');
@@ -411,7 +423,7 @@ describe('projects.store selectProject', () => {
         store.selectProject(stranger);
 
         expect(store.$projects.get().activeProjectId).toBe('a');
-        expect(localStorage.getItem(LAST_SELECTED_STORAGE_KEY)).toBeNull();
+        expect(localStorage.getItem(LAST_SELECTED_STORAGE_KEY)).toBe(JSON.stringify('a'));
     });
 });
 
@@ -470,7 +482,7 @@ describe('projects.store storage cleanup on deletion', () => {
         expect(localStorage.getItem(LAST_SELECTED_STORAGE_KEY)).toBe(JSON.stringify('current'));
     });
 
-    it('clears the last selected id when removeProject (no navigate) removes the stored value', async () => {
+    it('keeps the active project id when removeProject (no navigate) removes an unrelated project', async () => {
         localStorage.setItem(LAST_SELECTED_STORAGE_KEY, JSON.stringify('alpha'));
         const alpha = createProject('alpha');
         const beta = createProject('beta');
@@ -478,8 +490,7 @@ describe('projects.store storage cleanup on deletion', () => {
 
         store.removeProject('alpha', false);
 
-        const stored = localStorage.getItem(LAST_SELECTED_STORAGE_KEY);
-        expect(stored === null || stored === 'null').toBe(true);
+        expect(localStorage.getItem(LAST_SELECTED_STORAGE_KEY)).toBe(JSON.stringify('beta'));
     });
 });
 
