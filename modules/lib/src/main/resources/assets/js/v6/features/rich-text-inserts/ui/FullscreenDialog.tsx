@@ -1,6 +1,6 @@
 import { cn, Dialog } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import { type ReactElement, useLayoutEffect, useMemo, useRef } from 'react';
+import { type ReactElement, useCallback, useMemo, useRef } from 'react';
 import { useCkEditorFocusManager } from '../../../shared/lib/ckeditor/useCkEditorFocusManager';
 import {
     type CreateHtmlAreaDialogEvent,
@@ -42,13 +42,13 @@ export const FullscreenDialog = (): ReactElement => {
     const contentRef = useRef<HTMLDivElement | null>(null);
     const closeButtonRef = useRef<HTMLButtonElement | null>(null);
 
-    useLayoutEffect(() => {
-        if (!open || !editorContainerId) {
+    const handleTextareaRef = useCallback((el: HTMLTextAreaElement | null) => {
+        if (el == null) {
             return;
         }
 
         initializeFullscreenDialogEditor();
-    }, [open, initializing, editorContainerId]);
+    }, []);
 
     const fullscreenCkEditor = useMemo(
         () => (open && editorContainerId ? CKEDITOR.instances[editorContainerId] : undefined),
@@ -97,6 +97,7 @@ export const FullscreenDialog = (): ReactElement => {
                         >
                             <textarea
                                 key={editorContainerId}
+                                ref={handleTextareaRef}
                                 className="hidden invisible"
                                 id={editorContainerId}
                                 name={editorContainerId}
