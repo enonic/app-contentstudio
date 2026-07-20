@@ -77,7 +77,7 @@
     "@types/ckeditor": "^4.9.10",
     "@types/jquery": "^3.5.33",
     "@types/jqueryui": "^1.12.24",
-    "@types/node": "^25.7.0",
+    "@types/node": "^26.1.1",
     "@types/q": "^1.5.8",
     "autoprefixer": "^10.5.4",
     "browserslist-config-enonic": "^1.0.8",
