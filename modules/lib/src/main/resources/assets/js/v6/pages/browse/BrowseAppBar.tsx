@@ -6,7 +6,7 @@ import { ArrowLeftRight, BellDotIcon, BellIcon } from 'lucide-react';
 import type { ReactElement } from 'react';
 import { ShowIssuesDialogEvent } from '../../../app/browse/ShowIssuesDialogEvent';
 import { useI18n } from '../../shared/lib/hooks/useI18n';
-import { $activeProjectName, $noProjectMode } from '../../entities/project';
+import {$activeProjectName, $hasMultipleProjects, $noProjectMode} from '../../entities/project';
 import { setProjectSelectionDialogOpen } from '../../shared/dialogs/dialogs.store';
 import { $issuesStats } from '../../entities/issue';
 import { $activeWidget, isMainWidget } from '../../widgets/context-panel/model/sidebarWidgets.store';
@@ -32,6 +32,7 @@ function createIssuesLabelKeys(stats: Readonly<IssueStatsJson> | undefined): [`f
 export const BrowseAppBar = (): ReactElement => {
     const activeProjectName = useStore($activeProjectName);
     const noProjectMode = useStore($noProjectMode);
+    const hasMultipleProjects = useStore($hasMultipleProjects);
     const isProjectSelectorVisible = useStore($isProjectSelectorVisible);
     const activeWidget = useStore($activeWidget);
     const isIssuesButtonVisible = isMainWidget(activeWidget);
@@ -46,12 +47,13 @@ export const BrowseAppBar = (): ReactElement => {
         <header className="bg-surface-neutral h-15 px-5 py-2 pr-24 flex items-center gap-2.5 border-b border-bdr-soft">
             {!noProjectMode && isProjectSelectorVisible ? (
                 <Button
-                    className="mr-auto"
+                    className="mr-auto disabled:opacity-100"
                     size="sm"
-                    endIcon={ArrowLeftRight}
+                    endIcon={hasMultipleProjects ? ArrowLeftRight : undefined}
                     onClick={() => setProjectSelectionDialogOpen(true)}
-                    aria-label={projectAriaLabel}
+                    aria-label={hasMultipleProjects ? projectAriaLabel : undefined}
                     label={activeProjectName}
+                    disabled={!hasMultipleProjects}
                 />
             ) : (
                 <h1 className="mr-auto text-2xl font-semibold">{appName || applicationName}</h1>
