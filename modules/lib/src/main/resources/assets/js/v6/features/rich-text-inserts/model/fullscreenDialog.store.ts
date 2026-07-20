@@ -157,6 +157,10 @@ export const initializeFullscreenDialogEditor = (): void => {
         return;
     }
 
+    if (!document.getElementById(state.editorContainerId)) {
+        return;
+    }
+
     const { editorContainerId, editorParams, requestId } = state;
     const fullscreenEditorParams = buildFullscreenEditorParams(editorParams, editorContainerId);
 
