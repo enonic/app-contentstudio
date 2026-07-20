@@ -172,8 +172,8 @@ importers:
         specifier: ^3.7.1
         version: 3.7.1
       less-loader:
-        specifier: ^12.3.0
-        version: 12.3.2(@rspack/core@2.1.4)(less@4.6.7)
+        specifier: ^13.0.0
+        version: 13.0.0(@rspack/core@2.1.4)(less@4.6.7)
       minimist:
         specifier: ^1.2.8
         version: 1.2.8
@@ -1226,6 +1226,9 @@ packages:
 
   '@types/jqueryui@1.12.24':
     resolution: {integrity: sha512-E2sGULwzMhg4kAeOV+gYcXjg988RuPkviWCt09jLe6GGK9sHM7dTqS8H7JMuUWoZQBucIBzBAgM5o/ezKUFkeg==}
+
+  '@types/less@3.0.8':
+    resolution: {integrity: sha512-Gjm4+H9noDJgu5EdT3rUw5MhPBag46fiOy27BefvWkNL8mlZnKnCaVVVTLKj6RYXed9b62CPKnPav9govyQDzA==}
 
   '@types/node@26.1.0':
     resolution: {integrity: sha512-O0A1G3xPGy4w7AgQdAQYUlQ+BKk2Oovw8eRpofyp5KdBZULnbe+WqaOVNrm705SHphCiG4XHsACrSmPu1f+Kgw==}
@@ -2280,9 +2283,9 @@ packages:
     resolution: {integrity: sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==}
     engines: {node: '>=6'}
 
-  less-loader@12.3.2:
-    resolution: {integrity: sha512-uLV5c702ff2jBvO7qewpkLRzkh/I9QW07ur2NKkv8TVTrtX2lrKjEbEU/LLXAn7cgpCIBbkfyUm4qYXCQs5/+w==}
-    engines: {node: '>= 18.12.0'}
+  less-loader@13.0.0:
+    resolution: {integrity: sha512-TIa8d6znKH634Mg+7OU3jevZT6KeOhh0amW+YeMPD0GM9buUn5Y7HvtyCR5pUDdLaFfqLA8AX5PTSIHMNSexEA==}
+    engines: {node: '>= 22.11.0'}
     peerDependencies:
       '@rspack/core': 0.x || ^1.0.0 || ^2.0.0-0
       less: ^3.5.0 || ^4.0.0
@@ -2645,6 +2648,10 @@ packages:
   q@1.5.1:
     resolution: {integrity: sha512-kV/CThkXo6xyFEZUugw/+pIOywXcDbFYgSct5cT3gqlbkBE1SJdwy6UQoZvodiWF/ckQLZyDE/Bu1M6gVu5lVw==}
     engines: {node: '>=0.6.0', teleport: '>=0.2.0'}
+    deprecated: |-
+      You or someone you depend on is using Q, the JavaScript Promise library that gave JavaScript developers strong feelings about promises. They can almost certainly migrate to the native JavaScript promise now. Thank you literally everyone for joining me in this bet against the odds. Be excellent to each other.
+
+      (For a CapTP with native promises, see @endo/eventual-send and @endo/captp)
 
   quadprog@1.6.1:
     resolution: {integrity: sha512-fN5Jkcjlln/b3pJkseDKREf89JkKIyu6cKIVXisgL6ocKPQ0yTp9n6NZUAq3otEPPw78WZMG9K0o9WsfKyMWJw==}
@@ -3799,6 +3806,8 @@ snapshots:
     dependencies:
       '@types/jquery': 3.5.34
 
+  '@types/less@3.0.8': {}
+
   '@types/node@26.1.0':
     dependencies:
       undici-types: 8.3.0
@@ -4902,8 +4911,9 @@ snapshots:
 
   kleur@3.0.3: {}
 
-  less-loader@12.3.2(@rspack/core@2.1.4)(less@4.6.7):
+  less-loader@13.0.0(@rspack/core@2.1.4)(less@4.6.7):
     dependencies:
+      '@types/less': 3.0.8
       less: 4.6.7
     optionalDependencies:
       '@rspack/core': 2.1.4
