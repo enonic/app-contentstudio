@@ -9,6 +9,7 @@ export {
     onActiveProjectChanged,
 } from './activeProject.store';
 export {
+    $hasMultipleProjects,
     $projects,
     $noProjectMode,
     clearPendingDeletedProject,
