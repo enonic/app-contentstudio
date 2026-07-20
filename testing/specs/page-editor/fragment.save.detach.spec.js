@@ -10,6 +10,7 @@ const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 const appConst = require('../../libs/app_const');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
+const TextComponentInspectionPanel = require("../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel");
 
 describe('Menu Items: Save as fragment and Customize specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -19,7 +20,9 @@ describe('Menu Items: Save as fragment and Customize specification', function ()
 
     let SITE;
     let CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
-    const FRAGMENT_NAME = 'Text';
+    const TEST_TEXT='test123';
+    const FRAGMENT_NAME = TEST_TEXT;
+
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -106,6 +109,7 @@ describe('Menu Items: Save as fragment and Customize specification', function ()
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggler, expand 'Live Edit', Page Component modal dialog should be loaded:
@@ -114,13 +118,16 @@ describe('Menu Items: Save as fragment and Customize specification', function ()
             await pageComponentView.rightClickAndOpenContextMenu('main');
             // 4. Select "Insert>Text"
             await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentView.pause(300);
             // 5. Open text-component's context menu:
             await pageComponentView.rightClickAndOpenContextMenu('Text');
+            await textComponentInspectionPanel.waitForOpened();
+            await textComponentInspectionPanel.typeTextInEditor(TEST_TEXT);
             // 6. Click on 'Save as Fragment' menu item:
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
-            await pageComponentView.pause(4000);
+            await pageComponentView.pause(2500);
             // 7. Open text-component's context menu:
-            await pageComponentView.rightClickAndOpenContextMenu('Text');
+            await pageComponentView.rightClickAndOpenContextMenu(FRAGMENT_NAME);
             await studioUtils.saveScreenshot('text_saved_as_fragment');
             // Verify that "'Customize' menu item should appear in the menu
             await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.DETACH_FROM_FRAGMENT);
@@ -181,7 +188,7 @@ describe('Menu Items: Save as fragment and Customize specification', function ()
             // 1. Click on minimize-toggle, expand 'Live Edit' 'Page Component' modal dialog should be loaded:
             await contentWizard.clickOnCollapseContentForm();
             // 2. Select the fragment and open the context-menu:
-            await pageComponentView.rightClickAndOpenContextMenu('Text');
+            await pageComponentView.rightClickAndOpenContextMenu(FRAGMENT_NAME);
             // 3. Open this fragment in new browser-tab:
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.EDIT_FRAGMENT]);
             await studioUtils.doSwitchToNextTab();
@@ -202,14 +209,14 @@ describe('Menu Items: Save as fragment and Customize specification', function ()
             // 1. Click on minimize-toggle, expand 'Live Edit', Page Component modal dialog should be loaded:
             await contentWizard.clickOnCollapseContentForm();
             // 2. Click on the existing component and select it:
-            await pageComponentView.clickOnComponent('Text');
+            await pageComponentView.clickOnComponent(FRAGMENT_NAME);
             await contentWizard.clickOnExpandContentForm();
             // 3. Update the site-description and save the site:
             await siteFormPanel.typeDescription('description111');
             await contentWizard.waitAndClickOnSave();
             await contentWizard.pause(1000);
             await contentWizard.clickOnCollapseContentForm();
-            let result = await pageComponentView.isComponentSelected('Text');
+            let result = await pageComponentView.isComponentSelected(FRAGMENT_NAME);
             assert.ok(result, 'The component should be selected after changes are saved');
         });
 
@@ -221,12 +228,12 @@ describe('Menu Items: Save as fragment and Customize specification', function ()
             // 1. Click on minimize-toggle, expand 'Live Edit', Page Component modal dialog should be loaded:
             await contentWizard.clickOnCollapseContentForm();
             // 2. the fragment's context menu has been opened:
-            await pageComponentView.rightClickAndOpenContextMenu('Text');
+            await pageComponentView.rightClickAndOpenContextMenu(FRAGMENT_NAME);
             // 3. 'Customize' menu item has been clicked:
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.DETACH_FROM_FRAGMENT]);
             await pageComponentView.pause(2000);
             // 4. The text-component context menu has been opened:
-            await pageComponentView.rightClickAndOpenContextMenu('Text');
+            await pageComponentView.rightClickAndOpenContextMenu(TEST_TEXT);
             await studioUtils.saveScreenshot('text_is_detached');
             // 5. Verify that 'Save as Fragment' menu item should appear again
             await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
