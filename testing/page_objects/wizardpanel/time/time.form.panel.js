@@ -30,6 +30,7 @@ class TimeForm extends OccurrencesFormView {
         let timeElements = await this.getDisplayedElements(this.timeInput);
         for (const ch of value) {
             await timeElements[index].addValue(ch);
+            await this.pause(90);
         }
     }
 
