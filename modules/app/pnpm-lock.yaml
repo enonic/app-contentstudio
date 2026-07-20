@@ -196,8 +196,8 @@ importers:
         specifier: ^8.0.2
         version: 8.0.2(postcss@8.5.16)
       less-loader:
-        specifier: ^12.3.0
-        version: 12.3.2(@rspack/core@2.1.4)(less@4.6.7)
+        specifier: ^13.0.0
+        version: 13.0.0(@rspack/core@2.1.4)(less@4.6.7)
       oxlint:
         specifier: 1.74.0
         version: 1.74.0
@@ -687,6 +687,9 @@ packages:
 
   '@types/jqueryui@1.12.24':
     resolution: {integrity: sha512-E2sGULwzMhg4kAeOV+gYcXjg988RuPkviWCt09jLe6GGK9sHM7dTqS8H7JMuUWoZQBucIBzBAgM5o/ezKUFkeg==}
+
+  '@types/less@3.0.8':
+    resolution: {integrity: sha512-Gjm4+H9noDJgu5EdT3rUw5MhPBag46fiOy27BefvWkNL8mlZnKnCaVVVTLKj6RYXed9b62CPKnPav9govyQDzA==}
 
   '@types/node@26.1.1':
     resolution: {integrity: sha512-nxAkRSVkN1Y0JC1W8ky/fTfkGsMmcrRsbx+3XoZE+rMOX71kLYTV7fLXpqud1GpbpP5TuffXFqfX7fH2GgZREw==}
@@ -1255,9 +1258,9 @@ packages:
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
 
-  less-loader@12.3.2:
-    resolution: {integrity: sha512-uLV5c702ff2jBvO7qewpkLRzkh/I9QW07ur2NKkv8TVTrtX2lrKjEbEU/LLXAn7cgpCIBbkfyUm4qYXCQs5/+w==}
-    engines: {node: '>= 18.12.0'}
+  less-loader@13.0.0:
+    resolution: {integrity: sha512-TIa8d6znKH634Mg+7OU3jevZT6KeOhh0amW+YeMPD0GM9buUn5Y7HvtyCR5pUDdLaFfqLA8AX5PTSIHMNSexEA==}
+    engines: {node: '>= 22.11.0'}
     peerDependencies:
       '@rspack/core': 0.x || ^1.0.0 || ^2.0.0-0
       less: ^3.5.0 || ^4.0.0
@@ -2117,6 +2120,8 @@ snapshots:
     dependencies:
       '@types/jquery': 3.5.34
 
+  '@types/less@3.0.8': {}
+
   '@types/node@26.1.1':
     dependencies:
       undici-types: 8.3.0
@@ -2647,8 +2652,9 @@ snapshots:
     dependencies:
       '@dmsnell/diff-match-patch': 1.1.0
 
-  less-loader@12.3.2(@rspack/core@2.1.4)(less@4.6.7):
+  less-loader@13.0.0(@rspack/core@2.1.4)(less@4.6.7):
     dependencies:
+      '@types/less': 3.0.8
       less: 4.6.7
     optionalDependencies:
       '@rspack/core': 2.1.4
