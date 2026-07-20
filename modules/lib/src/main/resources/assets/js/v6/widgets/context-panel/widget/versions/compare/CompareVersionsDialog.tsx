@@ -1,12 +1,12 @@
 import { Dialog, Checkbox, cn } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import {create as createDiffPatcher} from 'jsondiffpatch/with-text-diffs';
-import { format, showUnchanged } from 'jsondiffpatch/formatters/html';
+import { showUnchanged } from 'jsondiffpatch/formatters/html';
 import { ReactElement, useCallback, useEffect, useId, useMemo } from 'react';
 import { ContentVersion } from '../../../../../../app/ContentVersion';
 import { fetchVersion as defaultFetchVersion } from '../../../../../entities/content';
 import { getVersionOperationTime } from '../../../../../entities/content/version';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { buildDiffHtml } from './buildDiffHtml';
 import { $compareVersionsDialog, closeCompareVersionsDialog, setCompareVersionsShowAll } from './store';
 import { SelectedVersionCard } from './SelectedVersionCard';
 import { useVersionsJson, type FetchVersionFn } from './useVersionsJson';
@@ -42,9 +42,6 @@ export const CompareVersionsDialog = ({
 
     const baseId = useId();
     const showAllCheckboxId = `${COMPARE_VERSIONS_DIALOG_NAME}-${baseId}-show-all`;
-
-    const diffPatcher = useMemo(() => createDiffPatcher(), []);
-
     const orderedVersions = useMemo(() => {
         if (!leftVersion || !rightVersion) {
             return null;
@@ -83,14 +80,8 @@ export const CompareVersionsDialog = ({
             return { diffHtml: '', isEmpty: false };
         }
 
-        const delta = diffPatcher.diff(olderVersionJson, newerVersionJson);
-
-        if (delta) {
-            return { diffHtml: format(delta, olderVersionJson), isEmpty: false };
-        }
-
-        return { diffHtml: `<h3>${versionsIdenticalLabel}</h3>`, isEmpty: true };
-    }, [open, olderVersionJson, newerVersionJson, diffPatcher, versionsIdenticalLabel]);
+        return buildDiffHtml(olderVersionJson, newerVersionJson);
+    }, [open, olderVersionJson, newerVersionJson]);
 
     useEffect(() => {
         if (open && diffHtml) {
@@ -128,11 +119,12 @@ export const CompareVersionsDialog = ({
 
                             {!isLoading && error && <div className="text-sm text-red-600">{error.message}</div>}
 
-                            {!isLoading && !error && (
-                                <div
-                                    className={deltaClasses}
-                                    dangerouslySetInnerHTML={{ __html: diffHtml }}
-                                />
+                            {!isLoading && !error && isEmpty && (
+                                <h3 className={cn('text-sm', showAllContent && 'mb-2')}>{versionsIdenticalLabel}</h3>
+                            )}
+
+                            {!isLoading && !error && (!isEmpty || showAllContent) && (
+                                <div className={deltaClasses} dangerouslySetInnerHTML={{ __html: diffHtml }} />
                             )}
                         </div>
                     </Dialog.Body>
