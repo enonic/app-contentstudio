@@ -18,7 +18,7 @@ import {
     pruneDependantWindow,
 } from '../../../entities/content/lib/dependantWindow';
 import { calcDependantsSelection, nextDependantExclusions } from '../../../shared/lib/cms/content/dependantsSelection';
-import { hasContentIdInIds, uniqueIds } from '../../../shared/lib/cms/content/ids';
+import { hasContentIdInIds, isIdsEqual, uniqueIds } from '../../../shared/lib/cms/content/ids';
 import { patchTrackedContentItems, removeTrackedContentItems } from '../../../shared/lib/cms/content/trackedItems';
 import { createDebounce } from '../../../shared/lib/timing/createDebounce';
 
@@ -37,6 +37,8 @@ type RequestPublishDialogStore = {
     publishableContentIds: ContentId[];
     excludedDependantIds: ContentId[];
     requiredDependantIds: ContentId[];
+    appliedExcludeChildrenIds: ContentId[];
+    appliedExcludedDependantIds: ContentId[];
     loading: boolean;
     failed: boolean;
     submitting: boolean;
@@ -62,6 +64,8 @@ const initialState: RequestPublishDialogStore = {
     publishableContentIds: [],
     excludedDependantIds: [],
     requiredDependantIds: [],
+    appliedExcludeChildrenIds: [],
+    appliedExcludedDependantIds: [],
     loading: false,
     failed: false,
     submitting: false,
@@ -77,6 +81,13 @@ const initialChecksState: RequestPublishChecksStore = {
 export const $requestPublishDialog = map<RequestPublishDialogStore>(structuredClone(initialState));
 
 const $requestPublishChecks = map<RequestPublishChecksStore>(structuredClone(initialChecksState));
+
+export const $isRequestPublishSelectionSynced = computed(
+    $requestPublishDialog,
+    ({ excludeChildrenIds, excludedDependantIds, appliedExcludeChildrenIds, appliedExcludedDependantIds }) =>
+        isIdsEqual(excludeChildrenIds, appliedExcludeChildrenIds) &&
+        isIdsEqual(excludedDependantIds, appliedExcludedDependantIds),
+);
 
 export const $requestPublishDialogCreateCount = computed(
     $requestPublishDialog,
@@ -130,9 +141,10 @@ export const $isRequestPublishReady = computed(
         $requestPublishDialogCreateCount,
         $requestPublishPublishableCount,
         $requestPublishDialogErrors,
+        $isRequestPublishSelectionSynced,
     ],
-    ({ loading, failed }, total, publishableCount, errors): boolean => {
-        if (loading || failed) {
+    ({ loading, failed }, total, publishableCount, errors, synced): boolean => {
+        if (loading || failed || !synced) {
             return false;
         }
         // Publish permission is intentionally not a gate: a publish request is how a
@@ -256,6 +268,7 @@ const resetDependenciesState = (state: RequestPublishDialogStore): RequestPublis
         publishableContentIds: [],
         excludedDependantIds: [],
         requiredDependantIds: [],
+        appliedExcludedDependantIds: [],
         loading: false,
         failed: false,
     };
@@ -304,6 +317,7 @@ export const setRequestPublishItems = (items: ContentSummary[], includeChildren 
                 ...$requestPublishDialog.get(),
                 items: [],
                 excludeChildrenIds: [],
+                appliedExcludeChildrenIds: [],
             }),
         );
         resetChecksState();
@@ -316,6 +330,7 @@ export const setRequestPublishItems = (items: ContentSummary[], includeChildren 
         ...$requestPublishDialog.get(),
         items: nextItems,
         excludeChildrenIds,
+        appliedExcludeChildrenIds: excludeChildrenIds,
     });
 
     reloadDependenciesDebounced();
@@ -330,14 +345,44 @@ export const setRequestPublishItemIncludeChildren = (id: ContentId, includeChild
             'excludeChildrenIds',
             state.excludeChildrenIds.filter((item) => !item.equals(id)),
         );
-        reloadDependenciesDebounced();
         return;
     }
 
     if (!includeChildren && !alreadyExcluded) {
         $requestPublishDialog.setKey('excludeChildrenIds', [...state.excludeChildrenIds, id]);
+    }
+};
+
+export const applyDraftRequestPublishDialogSelection = (): void => {
+    if ($isRequestPublishSelectionSynced.get()) {
+        return;
+    }
+
+    const state = $requestPublishDialog.get();
+    const childrenChanged = !isIdsEqual(state.excludeChildrenIds, state.appliedExcludeChildrenIds);
+
+    $requestPublishDialog.set({
+        ...state,
+        appliedExcludeChildrenIds: state.excludeChildrenIds,
+        appliedExcludedDependantIds: state.excludedDependantIds,
+    });
+
+    if (childrenChanged) {
         reloadDependenciesDebounced();
     }
+};
+
+export const cancelDraftRequestPublishDialogSelection = (): void => {
+    if ($isRequestPublishSelectionSynced.get()) {
+        return;
+    }
+
+    const state = $requestPublishDialog.get();
+    $requestPublishDialog.set({
+        ...state,
+        excludeChildrenIds: state.appliedExcludeChildrenIds,
+        excludedDependantIds: state.appliedExcludedDependantIds,
+    });
 };
 
 export const removeRequestPublishItem = (id: ContentId): void => {
@@ -349,10 +394,13 @@ export const removeRequestPublishItem = (id: ContentId): void => {
         return;
     }
 
+    const nextExcludeChildrenIds = excludeChildrenIds.filter((i) => !i.equals(id));
+
     $requestPublishDialog.set({
         ...$requestPublishDialog.get(),
         items: newItems,
-        excludeChildrenIds: excludeChildrenIds.filter((i) => !i.equals(id)),
+        excludeChildrenIds: nextExcludeChildrenIds,
+        appliedExcludeChildrenIds: nextExcludeChildrenIds,
     });
 
     reloadDependenciesDebounced();
@@ -399,7 +447,12 @@ export const excludeInvalidRequestPublishItems = (): void => {
         return;
     }
 
-    $requestPublishDialog.setKey('excludedDependantIds', uniqueIds([...excludedDependantIds, ...idsToExclude]));
+    const nextExcludedDependantIds = uniqueIds([...excludedDependantIds, ...idsToExclude]);
+    $requestPublishDialog.set({
+        ...$requestPublishDialog.get(),
+        excludedDependantIds: nextExcludedDependantIds,
+        appliedExcludedDependantIds: nextExcludedDependantIds,
+    });
 };
 
 export const excludeInProgressRequestPublishItems = (): void => {
@@ -413,7 +466,12 @@ export const excludeInProgressRequestPublishItems = (): void => {
         return;
     }
 
-    $requestPublishDialog.setKey('excludedDependantIds', uniqueIds([...excludedDependantIds, ...idsToExclude]));
+    const nextExcludedDependantIds = uniqueIds([...excludedDependantIds, ...idsToExclude]);
+    $requestPublishDialog.set({
+        ...$requestPublishDialog.get(),
+        excludedDependantIds: nextExcludedDependantIds,
+        appliedExcludedDependantIds: nextExcludedDependantIds,
+    });
 };
 
 export const markAllAsReadyInProgressRequestPublishItems = async (): Promise<void> => {
@@ -599,6 +657,8 @@ const reloadRequestPublishDependencies = async (): Promise<void> => {
             publishableContentIds: result.getPublishable(),
             requiredDependantIds,
             excludedDependantIds: nextExcludedDependantIds,
+            appliedExcludeChildrenIds: latestState.excludeChildrenIds,
+            appliedExcludedDependantIds: nextExcludedDependantIds,
             loading: false,
             failed: false,
         });
