@@ -85,7 +85,7 @@
     "focus-trap-react": "^11.0.0",
     "happy-dom": "^20.8.8",
     "jquery": "^3.7.1",
-    "less-loader": "^12.3.0",
+    "less-loader": "^13.0.0",
     "minimist": "^1.2.8",
     "oxlint": "1.74.0",
     "tailwindcss": "^4.3.3",
