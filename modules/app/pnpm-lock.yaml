@@ -36,8 +36,8 @@ importers:
         specifier: link:.xp/dev/lib-contentstudio
         version: link:.xp/dev/lib-contentstudio
       '@enonic/page-editor':
-        specifier: 2.0.0-beta.1
-        version: 2.0.0-beta.1
+        specifier: 2.0.0-beta.2
+        version: 2.0.0-beta.2
       '@enonic/ui':
         specifier: ^1.0.5
         version: 1.0.5(@radix-ui/react-slot@1.2.4(@types/react@19.2.14)(react@19.2.4))(focus-trap-react@11.0.6(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(lucide-react@1.25.0(react@19.2.4))(preact@10.29.7)(react-dom@19.2.4(react@19.2.4))(react-virtuoso@4.18.11(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(tw-animate-css@1.4.0)
@@ -303,8 +303,8 @@ packages:
   '@enonic-types/lib-websocket@8.0.3':
     resolution: {integrity: sha512-CQK0MPc3zAEjOLzATAg2QXfncKgEoitcvOhxzzDY+80nvF5fQxIfk3LbB7o+KXRiCVQsiLkgmZNnOQzT8pMa7w==}
 
-  '@enonic/page-editor@2.0.0-beta.1':
-    resolution: {integrity: sha512-tzku+6fJaZLz1v9JIGKO3L9zPbVPQgs0BxCX8nM7APp+0Wbouu/Uxcx5xtQ06U3lMUDt2EOKK0lrxZ8QYBGNEQ==}
+  '@enonic/page-editor@2.0.0-beta.2':
+    resolution: {integrity: sha512-T9AWdbjT3NtFqJy78LAYQDjuuEL5wACZeg0cbZY28ymKnG7XUIFoLIy2sFBo2rW83rh/IFWY+U+IqHkdZTAydg==}
     engines: {node: '>= 24.16.0', pnpm: '>= 11.4.0'}
 
   '@enonic/ui@1.0.5':
@@ -1876,7 +1876,7 @@ snapshots:
 
   '@enonic-types/lib-websocket@8.0.3': {}
 
-  '@enonic/page-editor@2.0.0-beta.1':
+  '@enonic/page-editor@2.0.0-beta.2':
     dependencies:
       nanostores: 1.4.0
 
