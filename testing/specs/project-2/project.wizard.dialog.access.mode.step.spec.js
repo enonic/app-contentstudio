@@ -9,6 +9,7 @@ const appConst = require('../../libs/app_const');
 const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
 const ProjectWizardDialogParentProjectStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');
 const ProjectWizardDialogAccessModeStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.access.mode.step');
+const ProjectWizardDialogNameAndIdStep = require("../../page_objects/project/project-wizard-dialog/project.wizard.name.id.step");
 
 describe('project.wizard.dialog.access.mode.step.spec - ui-tests for Access mode wizard step', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -20,15 +21,24 @@ describe('project.wizard.dialog.access.mode.step.spec - ui-tests for Access mode
     it(`GIVEN 'Default' project is selected as a parent project WHEN navigate to Access mode wizard step AND click on 'Copy from parent' THEN 'Copy from parent' button gets disabled`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let languageStep = new ProjectWizardDialogLanguageStep();
             let parentProjectStep = new ProjectWizardDialogParentProjectStep();
             let accessModeStep = new ProjectWizardDialogAccessModeStep();
+
+
+            let parentProjectAndLanguageStep = new ProjectWizardDialogParentProjectStep();
+            await parentProjectAndLanguageStep.waitForLoaded();
+            // 2. Select 'Default' project and go to 'Name/ID' step
             // 1. Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
             // 2. Select Default project and go to 'Access mode' step
             await parentProjectStep.selectParentProject(PARENT_DEFAULT);
             await parentProjectStep.clickOnNextButton();
-            await languageStep.clickOnSkipButton();
+            let nameAndIdStep = new ProjectWizardDialogNameAndIdStep();
+            await nameAndIdStep.waitForLoaded();
+            await nameAndIdStep.typeDisplayName(studioUtils.generateRandomName('proj'));
+
+
+
             // 3. Verify that 'Next' button is disabled in Access mode step:
             await accessModeStep.waitForNextButtonDisabled();
             // 4. Click on 'Copy from parent' button:

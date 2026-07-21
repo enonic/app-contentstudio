@@ -43,6 +43,8 @@ const XPATH = {
     shaderPage: "//div[@class='xp-page-editor-shader xp-page-editor-page']",
     wizardStepByTitle:
         name => `//div[@data-component='Tab.List']//button[child::span[text()='${name}']]`,
+    wizardStepWithRedIconByTitle:
+        name => `//div[@data-component='Tab.List']//button[child::span[text()='${name}'] and descendant::*[contains(@class,'text-error')]]`,
     xDataTogglerByName:
         name => `//div[contains(@id,'WizardStepsPanel')]//div[contains(@id,'ContentPanelStripHeader') and child::span[contains(.,'${name}')]]//button[contains(@class,'toggler-button')]`,
     publishMenuItemByName(name) {
@@ -296,6 +298,14 @@ class ContentWizardPanel extends Page {
         return await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
     }
 
+    async waitForRedIconInTab(stepName) {
+        try {
+            let locator = XPATH.container + XPATH.wizardStepWithRedIconByTitle(stepName);
+            return await this.waitForElementDisplayed(locator);
+        } catch (err) {
+            await this.handleError(`Red icon should be displayed in the wizard step: ${stepName}`, 'err_wizard_step_red_icon', err);
+        }
+    }
     async clickOnWizardStep(stepName) {
         try {
             let locator = XPATH.wizardStepByTitle(stepName);

@@ -57,7 +57,6 @@ describe('pdf.content.spec tests for extraction data for pdf content', function 
             await studioUtils.switchToContentTabWindow(PDF_CONTENT_DISPLAY_NAME);
             await contentWizard.waitForOpened();
 
-            //let contentWizard = await studioUtils.selectAndOpenContentInWizard(PDF_CONTENT_DISPLAY_NAME);
             // 3. Save the text in abstraction text area and create a tag:
             await pdfForm.typeTextInAbstractionTextArea(PDF_EXTRACTION_TEXT);
             await studioUtils.saveScreenshot('pdf_abstraction_text_entered');

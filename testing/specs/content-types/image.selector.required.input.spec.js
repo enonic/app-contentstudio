@@ -39,10 +39,8 @@ describe('image.selector.required.input.spec tests for validation of content wit
             await imageSelectorForm.waitForToggleIconNotDisplayed();
         });
 
-    // Verify https://github.com/enonic/app-contentstudio/issues/6026
-    // Handle unresolvable selected items in Content Selector #6026
-    // TODO Image Selector - exception thrown after removing selected options in another browser tab #10921
-    it.skip(`GIVEN an image has been selected in an image-content WHEN the image has been archived THEN 'Image is not available' should be displayed in the content-wizard`,
+    // Image Selector - exception thrown after removing selected options in another browser tab #10921
+    it(`GIVEN an image has been selected in an image-content WHEN the image has been archived THEN 'Image is not available' should be displayed in the content-wizard`,
         async () => {
             let imageSelectorForm = new ImageSelectorForm();
             let contentWizard = new ContentWizard();
@@ -67,36 +65,24 @@ describe('image.selector.required.input.spec tests for validation of content wit
             await studioUtils.switchToContentTabWindow(CONTENT_NAME_2);
             // 5. Verify that the content remains valid:
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.ok(isInvalid === false, "This content remains valid after deleting its selected option");
+            assert.ok(isInvalid === false, "The content should be valid after deleting its selected option");
             // 6. Verify that text 'Image is not available' is displayed in the single selected option:
             let items = await imageSelectorForm.waitForImageNotAvailableTextDisplayed();
             assert.equal(items, 1, "One selected option should be with 'Image is not available' text");
+            // 7. Verify that 'Edit' button is not displayed:
+            await imageSelectorForm.waitForEditButtonForNotAvailableImageNotDisplayed();
+            // 8. Remove button should be enabled:
+            await imageSelectorForm.waitForRemoveButtonForNotAvailableImageEnabled();
         });
 
-    it(`GIVEN content with unresolvable selected item is opened WHEN the unresolvable item has been clicked THEN 'Edit' button should be disabled`,
-        async () => {
-            let imageSelectorForm = new ImageSelectorForm();
-            let contentWizard = new ContentWizard();
-            // 1. Open the content with an unresolvable selected image:
-            await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME_2);
-            // 2. Click on the option:
-            await imageSelectorForm.clickOnSelectedOptionByIndex(0);
-            // 3. Verify that 'Edit' button is disabled:
-            await imageSelectorForm.waitForEditButtonDisabled();
-            // 4. Remove button should be enabled:
-            await imageSelectorForm.waitForRemoveButtonEnabled();
-            let isInvalid = await contentWizard.isContentInvalid();
-            assert.ok(isInvalid === false, "This content remains valid after deleting its selected option");
-        });
-
-    it("WHEN the content with not available required image has been filtered THEN the content should be displayed without red icon",
+    it("WHEN content with an unavailable required image is filtered THEN it should be displayed without a red invalid icon",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select existing content with one required image:
             await studioUtils.findAndSelectItem(CONTENT_NAME_2);
             // 2. Verify that the content is invalid, because the selected required image was deleted in the previous step:
             let isInvalid = await contentBrowsePanel.isRedIconDisplayed(CONTENT_NAME_2);
-            assert.ok(isInvalid === false, "This content should be valid when the selected image is not available");
+            assert.ok(isInvalid === false, "The content should be valid even if the selected image is unavailable.");
         });
 
     it("WHEN wizard for new Image Selector(1:1) has been opened THEN options filter input should be displayed AND uploader button should be enabled AND the content is invalid",
@@ -120,7 +106,7 @@ describe('image.selector.required.input.spec tests for validation of content wit
             assert.equal(record, "This field is required", "Expected validation record gets visible");
         });
 
-    it(`GIVEN existing content (image is not selected) opened WHEN an image has been selected THEN content gets valid`,
+    it(`GIVEN existing content with no image selected WHEN an image is selected, THEN the content becomes valid.`,
         async () => {
             let imageSelectorForm = new ImageSelectorForm();
             let contentWizard = new ContentWizard();
@@ -129,8 +115,7 @@ describe('image.selector.required.input.spec tests for validation of content wit
             // 2. select an image:
             await imageSelectorForm.filterOptionsAndSelectImage(IMAGE_DISPLAY_NAME1);
             // 3. Verify that the content gets valid:
-            let isInvalid = await contentWizard.isContentInvalid();
-            assert.ok(isInvalid === false, "This content should be valid, because one required image is selected");
+            await contentWizard.waitUntilInvalidIconDisappears();
             // 4. Save the content
             await contentWizard.waitAndClickOnSave();
             // 5. Verify the expected selected option:
@@ -140,39 +125,22 @@ describe('image.selector.required.input.spec tests for validation of content wit
             await imageSelectorForm.waitForOptionsFilterInputNotDisplayed();
         });
 
-    it("GIVEN existing content is opened WHEN selected image has been clicked THEN buttons 'Edit' and 'Remove' should appear in the form",
-        async () => {
-            let imageSelectorForm = new ImageSelectorForm();
-            let contentWizard = new ContentWizard();
-            // 1. Open existing not valid content:
-            await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
-            // 2. select an image:
-            await imageSelectorForm.clickOnSelectedImage(IMAGE_DISPLAY_NAME1);
-            // 3. Verify that Edit and remove button get visible:
-            await imageSelectorForm.waitForEditButtonDisplayed();
-            await imageSelectorForm.waitForRemoveButtonDisplayed();
-            // 4. Verify that default action is Mark as Ready:
-            await contentWizard.waitForMarkAsReadyButtonVisible();
-        });
-
     it("GIVEN existing content is opened WHEN selected image has been removed THEN the content gets invalid again",
         async () => {
             let imageSelectorForm = new ImageSelectorForm();
             let contentWizard = new ContentWizard();
             // 1. Open existing valid content with selected image:
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
-            // 2. click on the image:
-            await imageSelectorForm.clickOnSelectedImage(IMAGE_DISPLAY_NAME1);
-            // 3. Click on 'Remove' button:
-            await imageSelectorForm.clickOnRemoveButton();
-            // 4. Verify that the content gets invalid now:
+            // 2. Click on 'Remove' button:
+            await imageSelectorForm.clickOnRemoveButton(IMAGE_DISPLAY_NAME1);
+            // 3. Verify that the content gets invalid now:
             await contentWizard.waitUntilInvalidIconAppears();
-            // 5. Verify that default action is 'Create Issue':
+            // 4. Verify that default action is 'Create Issue':
             await contentWizard.waitForCreateIssueButtonDisplayed();
-            // 6. Validation recording gets visible now:
+            // 5. Validation recording gets visible now:
             let record = await imageSelectorForm.getSelectorValidationMessage();
             assert.equal(record, 'This field is required', "Expected validation record gets visible");
-            // 7. Remove button should be not visible:
+            // 6. Remove button should be not visible:
             await imageSelectorForm.waitForRemoveButtonNotDisplayed();
         });
 
