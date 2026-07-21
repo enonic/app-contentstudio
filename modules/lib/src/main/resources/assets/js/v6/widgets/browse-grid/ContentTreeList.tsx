@@ -36,6 +36,8 @@ import {
     collapseNode,
     expandNode,
     nodeNeedsChildrenLoad,
+    $revealScrollTarget,
+    clearRevealScroll,
 } from '../../entities/content';
 import { useI18n } from '../../shared/lib/hooks/useI18n';
 import type { FlatNode } from '../../shared/lib/tree-store';
@@ -175,6 +177,7 @@ export const ContentTreeList = ({ contextMenuActions = {} }: ContentTreeListProp
     const activeId = useStore($activeId);
     const isFilterActive = useStore($isFilterActive);
     const activeProject = useStore($activeProject);
+    const revealScrollTarget = useStore($revealScrollTarget);
     const loadFailedLabel = useI18n('field.tree.loadFailed');
     const retryLabel = useI18n('action.retry');
 
@@ -345,6 +348,17 @@ export const ContentTreeList = ({ contextMenuActions = {} }: ContentTreeListProp
     useEffect(() => {
         loadVisibleContentData();
     }, [flatNodes, loadVisibleContentData]);
+
+    // Scroll a revealed row (e.g. from in-preview navigation) into view.
+    // Re-runs on visibleItems so a row still being materialized after the signal
+    // arrives is scrolled to once it appears; then the signal is cleared.
+    useEffect(() => {
+        if (!revealScrollTarget) return;
+        const index = visibleItems.findIndex((n) => n.id === revealScrollTarget);
+        if (index < 0) return;
+        virtuosoRef.current?.scrollToIndex({ index, align: 'center' });
+        clearRevealScroll();
+    }, [revealScrollTarget, visibleItems]);
 
     // Handle expand - load child IDs first, data will load via viewport
     // Works in both main and filter mode, using respective tree stores

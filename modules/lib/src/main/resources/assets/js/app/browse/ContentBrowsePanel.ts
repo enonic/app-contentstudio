@@ -13,7 +13,7 @@ import { TreeListBoxExpandedHolder } from '@enonic/lib-admin-ui/ui/selector/list
 import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
 import type Q from 'q';
 import { $actionsNeedRefresh, clearActionsRefreshSignal } from '../../v6/app/actions.store';
-import { removeContent, setContent, hasCurrentItems, removeTreeNode } from '../../v6/entities/content';
+import { removeContent, setContent, hasCurrentItems, removeTreeNode, revealContentByPath } from '../../v6/entities/content';
 import { setContentFilterOpen } from '../../v6/features/search/model/contentFilter.store';
 import { onActiveProjectChanged } from '../../v6/entities/project/activeProject.store';
 import { onNoProjectsAvailable } from '../../v6/entities/project/projects.store';
@@ -31,7 +31,6 @@ import { EditContentEvent } from '../event/EditContentEvent';
 import { type ContentTreeSelectorItem } from '../item/ContentTreeSelectorItem';
 import { RenderingMode } from '../rendering/RenderingMode';
 import { UriHelper } from '../rendering/UriHelper';
-import { ContentExistsByPathRequest } from '../resource/ContentExistsByPathRequest';
 import { GetContentSummaryByIdRequest } from '../resource/GetContentSummaryByIdRequest';
 import { Router } from '../Router';
 import { UrlAction } from '../UrlAction';
@@ -405,66 +404,21 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
         });
     }
 
-    private selectInlinedContentInGrid(contentInlinePath: string) {
-        const path: string = this.getPathFromInlinePath(contentInlinePath);
+    private selectInlinedContentInGrid(contentInlinePath: string): void {
+        const path = this.getPathFromInlinePath(contentInlinePath);
+        if (!path) return;
 
-        if (path) {
-            new ContentExistsByPathRequest(path)
-                .sendAndParse()
-                .then((exists: boolean) => {
-                    const targetPath = ContentPath.create().fromString(path).build();
-                    this.expandToListElementByPath(this.treeListBox, targetPath.getPathAtLevel(1), targetPath);
-                })
-                .catch(DefaultErrorHandler.handle);
-        }
+        // Suppress the redundant preview reload the resulting selection change would
+        // trigger: the iframe already navigated to this content.
+        void revealContentByPath(path, {
+            onBeforeSelect: () => this.getPreviewPanel().setSkipNextSetItemCall(true),
+        });
     }
 
     private getPathFromInlinePath(contentPreviewPath: string): string {
         // if contentPreviewPath is a portal uri, get the content path from it,
         // otherwise assume it's a content path (i.e. came from 3rd party rendering engines)
         return UriHelper.getPathFromPortalInlineUri(contentPreviewPath, RenderingMode.INLINE) || contentPreviewPath;
-    }
-
-    private expandToListElementByPath(
-        list: ContentsTreeGridList,
-        itemPath: ContentPath,
-        targetPath: ContentPath,
-    ): void {
-        let loadCount = 0;
-
-        const itemFinder = () => {
-            const listElement = list.getListElementByPath(itemPath);
-
-            if (listElement) {
-                list.unItemsAdded(itemFinder);
-
-                listElement.whenRendered(() => {
-                    listElement.getHTMLElement().scrollIntoView();
-
-                    if (itemPath.equals(targetPath)) {
-                        this.selectionWrapper.deselectAll();
-                        this.selectionWrapper.select(listElement.getItem());
-                    } else {
-                        listElement.expand(); // if was loaded but the children list collapsed
-                        this.expandToListElementByPath(
-                            listElement.getList(),
-                            targetPath.getPathAtLevel(itemPath.getLevel() + 1),
-                            targetPath,
-                        );
-                    }
-                });
-            } else {
-                if (loadCount > 10) {
-                    return;
-                }
-
-                loadCount++;
-                list.load();
-            }
-        };
-
-        list.onItemsAdded(itemFinder);
-        itemFinder();
     }
 
     private subscribeOnContentEvents() {
