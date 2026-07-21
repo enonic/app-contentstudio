@@ -64,6 +64,9 @@ export {
     resetTree,
 } from './model/content-tree.store';
 export { clearProjectContentCache, removeContent, setContent, setContents } from './model/content.commands';
+export { revealContentByPath } from './model/content-reveal.service';
+export type { RevealContentByPathOptions } from './model/content-reveal.service';
+export { $revealScrollTarget, clearRevealScroll } from './model/content-reveal.store';
 export { $contentCache, getContent, getContentAsCSCS, getIdByPath, getMissingIds } from './model/content.store';
 export {
     start as startContentService,

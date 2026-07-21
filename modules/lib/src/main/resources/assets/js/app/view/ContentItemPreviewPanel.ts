@@ -87,6 +87,7 @@ export class ContentItemPreviewPanel extends Panel implements ExtensionRenderer 
 
     public isPreviewUpdateNeeded(item: ContentSummaryAndCompareStatus, force?: boolean): Q.Promise<boolean> {
         if (this.skipNextSetItemCall) {
+            this.skipNextSetItemCall = false; // consume the one-shot suppression
             return Q(false);
         }
         if (this.isItemAllowsUpdate(item, force)) {
@@ -133,6 +134,10 @@ export class ContentItemPreviewPanel extends Panel implements ExtensionRenderer 
 
     public setItem(item: ViewItem) {
         this.debouncedSetItem(item);
+    }
+
+    public setSkipNextSetItemCall(skip: boolean): void {
+        this.skipNextSetItemCall = skip;
     }
 
     private setupListeners() {
