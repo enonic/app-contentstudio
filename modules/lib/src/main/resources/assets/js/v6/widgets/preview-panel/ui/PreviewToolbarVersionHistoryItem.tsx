@@ -2,6 +2,7 @@ import { Button, Toolbar } from '@enonic/ui';
 import { History } from 'lucide-react';
 import type { ReactElement } from 'react';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
+import {PublishStatus} from '../../../../app/publish/PublishStatus';
 import { openContextWidget } from '../../context-panel/openContextWidget';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import {
@@ -19,11 +20,13 @@ export function PreviewToolbarVersionHistoryItem({
     contentSummary,
 }: PreviewToolbarVersionHistoryItemProps): ReactElement {
     const ariaLabel = useI18n('wcag.preview.toolbar.versionHistory.label');
-    const publishedLabel = useI18n('status.published');
 
-    const secondaryStatus = calcSecondaryStatus(calcTreePublishStatus(contentSummary), contentSummary);
+    const publishStatus = calcTreePublishStatus(contentSummary);
+    const primaryStatusKey = publishStatus === PublishStatus.PENDING ? 'status.scheduled' : 'status.published';
+    const primaryStatusLabel = useI18n(primaryStatusKey);
+    const secondaryStatus = calcSecondaryStatus(publishStatus, contentSummary);
     const secondaryStatusLabel = useI18n(secondaryStatus ? createSecondaryStatusKey(secondaryStatus) : '');
-    const buttonLabel = secondaryStatus ? secondaryStatusLabel : publishedLabel;
+    const buttonLabel = secondaryStatus ? secondaryStatusLabel : primaryStatusLabel;
 
     const handleShowVersionHistory = () => {
         openContextWidget(VERSIONS_WIDGET_NAME);
