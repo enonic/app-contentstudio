@@ -41,7 +41,10 @@ export const DetailsWidgetContentSection = (): ReactElement => {
     const publishStatus = calcTreePublishStatus(content);
     const secondaryStatus = calcSecondaryStatus(publishStatus, content);
     const showContentState =
-        contentState != null && !(publishStatus === PublishStatus.ONLINE && contentState === 'ready' && !secondaryStatus);
+        contentState != null &&
+        (![PublishStatus.ONLINE, PublishStatus.PENDING].includes(publishStatus) ||
+            contentState !== 'ready' ||
+            !!secondaryStatus);
 
     let secondaryOverride: string | undefined;
     if (secondaryStatus === 'modified') {
