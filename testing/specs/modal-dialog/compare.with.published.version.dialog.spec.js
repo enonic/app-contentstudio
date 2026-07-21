@@ -84,13 +84,15 @@ describe("compare.with.published.version.dialog.spec tests for 'Show changes' mo
             await contentWizard.clickOnVersionHistoryButton();
             let wizardVersionsWidget = new WizardVersionsWidget();
             await wizardVersionsWidget.waitForLoaded();
+            // 4. Check 2 checkboxes:
             await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader('Edited', 0);
             await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader('Renamed',0);
+            // 5. Click on Show Changes button
             await wizardVersionsWidget.clickOnShowChangesButton();
             await compareWithPublishedVersionDialog.waitForDialogOpened();
-            let message =  await compareWithPublishedVersionDialog.waitForVersionsIdenticalMessage();
-            assert.equal(message, 'Versions are identical', "Expected message should be displayed in the dialog");
-            // 4. Verify that language property is not displayed now :
+            // 6. Verify the 'Versions are identical' message:
+            await compareWithPublishedVersionDialog.waitForVersionsIdenticalMessage();
+            // 7. Verify that language property is not displayed in the modal dialog:
             await compareWithPublishedVersionDialog.waitForAddedPropertyNotDisplayed(appConst.COMPARE_VERSIONS_DLG_PROP.LANGUAGE);
         });
 

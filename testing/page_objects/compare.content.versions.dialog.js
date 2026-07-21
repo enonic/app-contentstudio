@@ -1,5 +1,5 @@
 /**
- * Created  on 20/11/2019 updated on 02.07.2026
+ * Created  on 20/11/2019 updated on 20.07.2026
  */
 const Page = require('./page');
 const appConst = require('../libs/app_const');
@@ -13,7 +13,7 @@ const XPATH = {
     // Version card in the dialog body - the column with 'Older' or 'Newer' label:
     versionCardByLabel: label => `//div[child::span[text()='${label}']]`,
     showEntireContentCheckboxDiv: `//div[@data-component='Checkbox' and descendant::span[text()='Show the entire content']]`,
-    versionsIdenticalDiv: `//div[contains(@class,'jsondiffpatch-delta') and contains(@class,'empty')]`,
+    versionsIdenticalMessage: `//div[@data-component='Dialog.Body']//h3[text()='Versions are identical']`,
     // Diff entries - located by the exact 'data-key' attribute ('_name', 'language', 'workflow'...):
     modifiedProperty: key => `//li[contains(@class,'jsondiffpatch-modified') and @data-key='${key}']`,
     addedProperty: key => `//li[contains(@class,'jsondiffpatch-added') and @data-key='${key}']`,
@@ -34,20 +34,19 @@ class CompareContentVersionsDialog extends Page {
 
     async waitForDialogOpened() {
         try {
-            await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout)
+            await this.waitForElementDisplayed(XPATH.container);
         } catch (err) {
             await this.handleError('CompareContentVersions Dialog', 'err_compare_content_versions_dialog_loaded', err);
         }
     }
 
-    isDialogVisible() {
-        return this.isElementDisplayed(XPATH.container);
-    }
 
-    waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout).catch(err => {
-            throw new Error("CompareContentVersions Dialog must be closed " + err);
-        })
+    async waitForDialogClosed() {
+        try {
+            return await this.waitForElementNotDisplayed(XPATH.container);
+        } catch (err) {
+            await this.handleError('CompareContentVersions Dialog', 'err_compare_content_versions_dialog_closed', err);
+        }
     }
 
     async getDialogTitle() {
@@ -89,9 +88,9 @@ class CompareContentVersionsDialog extends Page {
 
     // Returns the message that is displayed when the compared versions are identical:
     async waitForVersionsIdenticalMessage() {
-        let locator = XPATH.container + XPATH.versionsIdenticalDiv;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.getText(locator + "//h3");
+        let locator = XPATH.container + XPATH.versionsIdenticalMessage;
+        await this.waitForElementDisplayed(locator);
+        return await this.getText(locator);
     }
 
     async waitForModifiedPropertyDisplayed(propertyKey) {

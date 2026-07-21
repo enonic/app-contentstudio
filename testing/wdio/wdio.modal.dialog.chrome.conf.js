@@ -15,7 +15,6 @@ exports.config = {
     exclude: [
         path.join(__dirname, '../specs/modal-dialog/mobile.mode.preview.panel.spec.js'),
         path.join(__dirname, '../specs/modal-dialog/mobile.browse.panel.toolbar.spec.js'),
-        path.join(__dirname, '../specs/modal-dialog/wizard.compare.versions.dialog.spec.js'),
         path.join(__dirname, '../specs/permissions/apply.changes.to.children.only.and.overwrite.spec.js'),
         path.join(__dirname, '../specs/permissions/apply.changes.to.children.only.spec.js'),
         path.join(__dirname, '../specs/permissions/child.folder.edit.permissions.step.spec.js'),
