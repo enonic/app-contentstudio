@@ -123,7 +123,7 @@ export const PageComponentsContextMenu = ({ node, children }: PageComponentsCont
                             {!isEmpty && <ResetItem nodeId={node.id} label={resetLabel} />}
                             <RemoveItem nodeId={node.id} label={removeLabel} />
                             <DuplicateItem nodeId={node.id} label={duplicateLabel} />
-                            {!isFragmentComponent && !contentContext?.isPageTemplate && (
+                            {!isEmpty && !isFragmentComponent && !contentContext?.isPageTemplate && (
                                 <SaveAsFragmentItem nodeId={node.id} label={saveAsFragmentLabel} />
                             )}
                             {isFragmentComponent && !isEmpty && (
