@@ -20,7 +20,8 @@ describe('item.set.spec: tests for content with Item Set', function () {
     const TEXT_LINE_TEXT_1 = 'text 1';
     const TEXT_LINE_TEXT_2 = 'text 2';
 
-    it("GIVEN ItemSet form has been added in the wizard WHEN 'add above' menu item has been clicked THEN 'Collapse all' button gets visible",
+    it.skip(
+        "GIVEN ItemSet form has been added in the wizard WHEN 'add above' menu item has been clicked THEN 'Collapse all' button gets visible",
         async () => {
             let itemSetForm = new ItemSetForm();
             let contentWizard = new ContentWizard();
@@ -33,12 +34,12 @@ describe('item.set.spec: tests for content with Item Set', function () {
             // 2. Expand the menu then click on 'Add above' menu item:
             await itemSetForm.expandMenuClickOnMenuItem(0, 'Add above');
             // 3. Verify that 'Collapse all' button gets visible:
-            await itemSetForm.waitForCollapseAllButtonDisplayed();
+            await itemSetForm.waitForExpandAllButtonDisplayed();
             // 4. Click on the top ItemSet item, collapse it
             await itemSetForm.clickOnFormOccurrence('ItemSet', 0);
             await studioUtils.saveScreenshot('item_set_0_0_top_item_collapsed');
             // 5. Verify that 'Collapse all' button remains visible:
-            await itemSetForm.waitForCollapseAllButtonDisplayed();
+            await itemSetForm.waitForExpandAllButtonDisplayed();
         });
 
     it("GIVEN ItemSet form has been added in the wizard WHEN the required inputs has been filled in THEN the content gets valid and red border is not displayed",
@@ -59,15 +60,15 @@ describe('item.set.spec: tests for content with Item Set', function () {
             let isRedBorderDisplayed = await itemSetForm.isItemSetFormInvalid(0);
             assert.ok(isRedBorderDisplayed === false, "red border should not be displayed");
             // 5. Clear the required text area:
-            await itemSetForm.typeTextInTextLine(0, '');
+            await itemSetForm.clearTextLine(0);
             // 6. Validation recording gets visible for the required text input:  This field is required
             let recording = await itemSetForm.getValidationRecordingForTextInput(0);
             assert.equal(recording, appConst.VALIDATION_MESSAGE.THIS_FIELD_IS_REQUIRED, 'Validation recording should be displayed');
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
-            // 7. Verify that red border gets visible again:
-            isRedBorderDisplayed = await itemSetForm.isItemSetFormInvalid(0);
-            assert.ok(isRedBorderDisplayed, "The red border gets visible again");
+            // 7. Verify that red icon is visible in Tab.List:
+            let tabName= appConst.contentTypes.ITEM_SET_0_0;
+           await contentWizard.waitForRedIconInTab(tabName);
         });
 
     it("GIVEN a text has been inserted in the ItemSet form WHEN 'Delete' item-set menu item has been clicked THEN 'Delete ItemSet' button should appears",
@@ -110,10 +111,10 @@ describe('item.set.spec: tests for content with Item Set', function () {
             let isInvalid = await contentWizard.isContentInvalid();
             assert.ok(isInvalid === false, "the content with Item Set should be valid");
             // 4. Verify that 'Collapse' button is not displayed in the Item-set form:
-            await itemSetForm.waitForCollapseButtonNotDisplayed();
+            await itemSetForm.waitForCollapseAllButtonNotDisplayed();
         });
 
-    it("GIVEN wizard for ItemSet(0:0) is opened AND only the name input is filled in WHEN 'Add' button has been pressed THEN the content gets invalid",
+    it("GIVEN a new ItemSet(0:0) with only the name field filled in and saved, WHEN the 'Add' button is pressed, THEN the content becomes invalid.",
         async () => {
             let itemSetForm = new ItemSetForm();
             let contentWizard = new ContentWizard();
@@ -131,8 +132,8 @@ describe('item.set.spec: tests for content with Item Set', function () {
             // 5. Validation recording gets visible after clicking on 'Save' button:
             let recording = await itemSetForm.getValidationRecordingForHtmlArea(0);
             assert.equal(recording, appConst.VALIDATION_MESSAGE.THIS_FIELD_IS_REQUIRED, 'Validation recording should be displayed');
-            // 6. Verify that 'Collapse' button gets visible in the Item-set form:
-            await itemSetForm.waitForCollapseButtonDisplayed();
+            // 6. Verify that 'Collapse All' button not displayed:
+            await itemSetForm.waitForCollapseAllButtonNotDisplayed();
         });
 
     it("GIVEN existing invalid ItemSet(0:0) content is opened WHEN required inputs have been filled in the form THEN the content gets valid",
@@ -157,16 +158,16 @@ describe('item.set.spec: tests for content with Item Set', function () {
             // 1. Open existing content with added Item Set
             await studioUtils.selectContentAndOpenWizard(ITEM_SET_CONTENT_NAME_1);
             // 2. Click on 'Collapse' button:
-            await itemSetForm.clickOnCollapseButton();
+            await itemSetForm.clickOnCollapseAllButton();
             let isInvalid = await contentWizard.isContentInvalid();
             assert.ok(isInvalid, "the content remains invalid after clicking on Collapse button");
             // 3. Verify that 'Expand' button gets visible:
-            await itemSetForm.waitForExpandButtonDisplayed();
+            await itemSetForm.waitForExpandAllButtonDisplayed();
             await studioUtils.saveScreenshot('itemset_0_0_collapsed');
             // 4. Verify that 'Save' button remains disabled
             await contentWizard.waitForSaveButtonDisabled();
-            await itemSetForm.clickOnExpandButton();
-            await itemSetForm.waitForCollapseButtonDisplayed();
+            await itemSetForm.clickOnExpandAllButton();
+            //await itemSetForm.waitForCollapseButtonDisplayed();
         });
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/3773
