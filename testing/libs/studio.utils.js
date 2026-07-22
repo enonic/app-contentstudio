@@ -588,7 +588,7 @@ module.exports = {
         try {
             let browsePanel = new BrowsePanel();
             let newContentDialog = new NewContentDialog();
-            await this.findAndSelectItem(siteName);
+            await this.findContentAndClickCheckBox(siteName);
             await browsePanel.waitForNewButtonEnabled();
             await browsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();
