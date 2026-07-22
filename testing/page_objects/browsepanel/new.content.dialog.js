@@ -173,6 +173,21 @@ class NewContentDialog extends Page {
         return await this.waitForElementDisplayed(locator);
     }
 
+    async clearSearchInput() {
+        try {
+            await this.clearInputText(this.searchInput);
+            return await this.pause(400);
+        } catch (err) {
+            await this.handleError('New Content dialog, clear search input.', 'err_new_content_clear_search', err);
+        }
+    }
+
+    async isContentTypeByNameDisplayed(contentTypeName) {
+        let typeSelector = XPATH.container + XPATH.contentTypeByName(contentTypeName);
+        return await this.isElementDisplayed(typeSelector);
+    }
+
+
     getHeaderText() {
         return this.getText(this.title);
     }
@@ -199,7 +214,7 @@ class NewContentDialog extends Page {
     // Guards against interacting with the list before the REST load resolves.
     async waitForContentTypesLoaded() {
         try {
-            return await this.waitForElementNotDisplayed(XPATH.container + XPATH.typesLoader, appConst.longTimeout);
+            return await this.waitForElementNotDisplayed(XPATH.container + XPATH.typesLoader, appConst.mediumTimeout);
         } catch (err) {
             await this.handleError(
                 `New Content dialog, content types loading spinner:`,
@@ -223,6 +238,12 @@ class NewContentDialog extends Page {
         await this.waitForElementDisplayed(locator);
         return await this.getTextInElements(locator);
     }
+
+    async waitForItemsLoaded(){
+        let locator =  XPATH.container + "//div[@data-component='ItemLabel']//span";
+        await this.waitForElementDisplayed(locator);
+    }
+
 }
 
 module.exports = NewContentDialog;

@@ -20,6 +20,12 @@ class DateForm extends OccurrencesFormView {
         return lib.FORM_VIEW + XPATH.validationRecording;
     }
 
+    async clearDateInput(index){
+        let dateElements = await this.getDisplayedElements(this.dateInput);
+        await this.clearInputTextElement(dateElements[index]);
+        await this.pause(300);
+    }
+
     async typeDate(index, value) {
         let dateElements = await this.getDisplayedElements(this.dateInput);
         for (const ch of value) {
