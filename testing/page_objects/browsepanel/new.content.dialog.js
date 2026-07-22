@@ -147,7 +147,7 @@ class NewContentDialog extends Page {
     async waitForOpened() {
         try {
             await this.waitForElementDisplayed(this.title);
-            await this.pause(400);
+            await this.pause(500);
         } catch (err) {
             await this.handleError(`New Content dialog should be loaded:`, 'err_new_content_dialog', err);
         }
@@ -168,6 +168,20 @@ class NewContentDialog extends Page {
 
     getHeaderText() {
         return this.getText(this.title);
+    }
+
+    async clearSearchInput() {
+        try {
+            await this.clearInputText(this.searchInput);
+            return await this.pause(400);
+        } catch (err) {
+            await this.handleError('New Content dialog, clear search input.', 'err_new_content_clear_search', err);
+        }
+    }
+
+    async isContentTypeByNameDisplayed(contentTypeName) {
+        let typeSelector = XPATH.container + XPATH.contentTypeByName(contentTypeName);
+        return await this.isElementDisplayed(typeSelector);
     }
 
     // type Search Text in Hidden Input
@@ -197,9 +211,15 @@ class NewContentDialog extends Page {
     }
 
     async getItemsInAllTab() {
-        let locator = XPATH.allTabDiv+ XPATH.typesList;
+        let locator = XPATH.allTabDiv + XPATH.typesList;
         await this.waitForElementDisplayed(locator);
         return await this.getTextInElements(locator);
+    }
+
+    async waitForItemsLoaded(){
+        let locator =  XPATH.container + "//div[@data-component='ItemLabel']//span";
+        await this.waitForElementDisplayed(locator);
+        await this.pause(300);
     }
 }
 

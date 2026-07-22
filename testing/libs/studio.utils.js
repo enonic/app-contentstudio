@@ -603,7 +603,18 @@ module.exports = {
             let newContentDialog = new NewContentDialog();
             let contentWizard = new ContentWizardPanel();
             await newContentDialog.waitForOpened();
+            await newContentDialog.waitForItemsLoaded();
             await newContentDialog.typeSearchText(contentType);
+            // The search sometimes returns 'No content types found' for an existing type (transient glitch).
+            // While the required type is not shown, clear the search input and type the text again (up to 2 retries).
+            let attempts = 2;
+            while (attempts > 0 && !await newContentDialog.isContentTypeByNameDisplayed(contentType)) {
+                await newContentDialog.clearSearchInput();
+                await this.saveScreenshotUniqueName('new_content_dlg_cleared');
+                await newContentDialog.typeSearchText(contentType);
+                await this.saveScreenshotUniqueName('new_content_dlg_attempting');
+                attempts--;
+            }
             await newContentDialog.clickOnContentType(contentType);
             await this.doSwitchToNewWizard();
             await contentWizard.waitForOpened();
