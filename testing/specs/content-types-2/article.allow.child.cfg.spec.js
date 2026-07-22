@@ -36,6 +36,7 @@ describe(`article.allow.child.cfg.spec: tests for 'allow-child-content-type' in 
             await contentWizard.typeDisplayName(ARTICLE_ALLOW_ONLY_MEDIA);
             await studioUtils.saveAndCloseWizard();
             // 3. Select the article in the grid:
+            await contentBrowsePanel.clickOnResetSelectionCheckbox();
             await studioUtils.findContentAndClickCheckBox(ARTICLE_ALLOW_ONLY_MEDIA);
             // 4. Click on 'New' button in the content browse panel:
             await contentBrowsePanel.clickOnNewButton();
@@ -65,6 +66,7 @@ describe(`article.allow.child.cfg.spec: tests for 'allow-child-content-type' in 
             await contentWizard.typeDisplayName(ARTICLE_ALLOW_NON_EXISTENT);
             await studioUtils.saveAndCloseWizard();
             // 3. Select the article in the grid:
+            await contentBrowsePanel.clickOnResetSelectionCheckbox();
             await studioUtils.findContentAndClickCheckBox(ARTICLE_ALLOW_NON_EXISTENT);
             // 4. Click on 'New' button in the content browse panel:
             await contentBrowsePanel.clickOnNewButton();
@@ -91,6 +93,7 @@ describe(`article.allow.child.cfg.spec: tests for 'allow-child-content-type' in 
             await contentWizard.typeDisplayName(ARTICLE_ALLOW_MEDIA_WILD);
             await studioUtils.saveAndCloseWizard();
             // 3. Select the article in the grid:
+            await contentBrowsePanel.clickOnResetSelectionCheckbox();
             await studioUtils.findContentAndClickCheckBox(ARTICLE_ALLOW_MEDIA_WILD);
             // 4. Click on 'New' button in the content browse panel:
             await contentBrowsePanel.clickOnNewButton();
@@ -116,6 +119,7 @@ describe(`article.allow.child.cfg.spec: tests for 'allow-child-content-type' in 
             await contentWizard.typeDisplayName(ARTICLE_ALLOW_NON_MEDIA);
             await studioUtils.saveAndCloseWizard();
             // 3. Select the article in the grid:
+            await contentBrowsePanel.clickOnResetSelectionCheckbox();
             await studioUtils.findContentAndClickCheckBox(ARTICLE_ALLOW_NON_MEDIA);
             // 4. Click on 'New' button in the content browse panel:
             await contentBrowsePanel.clickOnNewButton();
