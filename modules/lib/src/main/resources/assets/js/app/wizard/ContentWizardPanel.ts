@@ -25,7 +25,6 @@ import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { type ValidityChangedEvent } from '@enonic/lib-admin-ui/ValidityChangedEvent';
 import Q from 'q';
 import { LiveEditModel } from '../../page-editor/LiveEditModel';
-import { compareContent } from '../../v6/entities/content';
 import { LayoutTokens } from '../../v6/shared/ui/layout.tokens';
 import { cleanupWizardMixinsService, initWizardMixinsService } from '../../v6/pages/wizard/model/wizardMixins.service';
 import {
@@ -35,7 +34,7 @@ import {
 import { setWizardContent } from '../../v6/widgets/context-panel/model/contextContent.store';
 import { $isContextOpen, setContextOpen } from '../../v6/widgets/context-panel/model/contextWidgets.store';
 import { $isPreviewPanelVisible } from '../../v6/widgets/preview-panel/model/previewPanel.store';
-import { getActiveProject, getActiveProjectName } from '../../v6/entities/project/activeProject.store';
+import { getActiveProject, getActiveProjectName } from '../../v6/entities/project';
 import {
     $displayNameInputFocusRequested,
     $isContentFormExpanded,
@@ -59,7 +58,6 @@ import {
     initializeValidation,
     setServerValidationErrors,
 } from '../../v6/pages/wizard/model/wizardValidation.store';
-import { calcSecondaryStatus, calcTreePublishStatus } from '../../v6/shared/lib/cms/content/status';
 import { type PreviewToolbarElement } from '../../v6/widgets/preview-panel/ui/PreviewToolbar';
 import { ContentWizardTabsToolbarElement } from '../../v6/pages/wizard/ui/content-wizard-tabs/ContentWizardTabsToolbarElement';
 import { Permission } from '../access/Permission';
@@ -1249,7 +1247,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         this.getContentWizardToolbar().setItem(updatedContent);
         this.getWidgetToolbar().setItem(updatedContent);
         this.wizardActions.setContent(updatedContent).refreshState();
-        this.fetchCompareAndRefreshActions();
 
         const isUpdatedAndRenamed = this.isContentUpdatedAndRenamed(updatedContent);
         if (!isUpdatedAndRenamed || this.isFirstUpdateAndRenameEventSkiped) {
@@ -1669,22 +1666,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         }
 
         return this.wizardActions.refreshActions();
-    }
-
-    private fetchCompareAndRefreshActions(): void {
-        const content = this.getPersistedItem();
-        if (!content) return;
-
-        const contentId = content.getContentId().toString();
-        const publishStatus = calcTreePublishStatus(content);
-        const secondaryStatus = calcSecondaryStatus(publishStatus, content);
-
-        if (secondaryStatus === 'modified') {
-            void compareContent([contentId]).match((result) => {
-                const compareResult = result.get(contentId);
-                this.wizardActions.setCompareResult(compareResult).refreshState();
-            }, DefaultErrorHandler.handle);
-        }
     }
 
     getLiveMask(): LoadMask {
