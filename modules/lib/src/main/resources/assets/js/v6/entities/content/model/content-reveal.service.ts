@@ -3,7 +3,7 @@ import { fetchContentByPath } from '../api/content.api';
 import { fetchChildrenIdsOnly, fetchContentByIds, fetchRootChildrenIdsOnly } from '../api/content-fetcher';
 import { $isFilterActive } from './active-tree.store';
 import { requestRevealScroll } from './content-reveal.store';
-import { setActive } from './content-selection.store';
+import { $activeId, $selection, clearSelection, setActive } from './content-selection.store';
 import { expandNode, hasTreeNode, nodeNeedsChildrenLoad, $treeState } from './content-tree.store';
 import { getIdByPath } from './content.store';
 
@@ -27,8 +27,17 @@ export type RevealContentByPathOptions = {
 // bridge (which builds its item from $contentCache) resolves the item. No-op when
 // the content is already cached.
 async function selectContent(id: string, onBeforeSelect?: (id: string) => void): Promise<void> {
+    // $currentIds won't emit when the id is already the sole current item,
+    // so a one-shot suppression armed via onBeforeSelect would never be consumed.
+    if ($selection.get().size === 0 && $activeId.get() === id) return;
+
     await fetchContentByIds([id]).catch(() => undefined);
     onBeforeSelect?.(id);
+
+    // Mirror a grid row click: checkbox selection gives way to the new active row.
+    if ($selection.get().size > 0) {
+        clearSelection();
+    }
     setActive(id);
 }
 
