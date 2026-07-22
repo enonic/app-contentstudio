@@ -1,5 +1,6 @@
 import { ContentTypeSummary } from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import { Button, Tab } from '@enonic/ui';
+import { Loader2 } from 'lucide-react';
 import { ReactElement } from 'react';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { NewContentEvent } from '../../../../app/create/NewContentEvent';
@@ -9,17 +10,20 @@ import { ItemLabel } from '../../../shared/ui/ItemLabel';
 import { ContentIcon } from '../../../shared/ui/icons/ContentIcon';
 
 const NEW_CONTENT_DIALOG_CONTENT_TYPES_TAB_NAME = 'NewContentDialogContentTypesTab';
+const NEW_CONTENT_DIALOG_CONTENT_TYPES_LOADER_NAME = 'NewContentDialogContentTypesLoader';
 
 type NewContentDialogContentTypesTabProps = {
     tabName: string;
     contentTypes: ContentTypeSummary[];
     parentContent: ContentSummary;
+    loading: boolean;
 };
 
 export const NewContentDialogContentTypesTab = ({
     tabName,
     contentTypes,
     parentContent,
+    loading,
 }: NewContentDialogContentTypesTabProps): ReactElement => {
     const notFoundLabel = useI18n('dialog.new.notFound');
 
@@ -29,8 +33,17 @@ export const NewContentDialogContentTypesTab = ({
     };
 
     return (
-        <Tab.Content value={tabName}>
-            {contentTypes.length > 0 && (
+        <Tab.Content value={tabName} className="mt-0 pt-2 h-full">
+            {loading && (
+                <div
+                    data-component={NEW_CONTENT_DIALOG_CONTENT_TYPES_LOADER_NAME}
+                    className="flex items-center justify-center h-full"
+                >
+                    <Loader2 className="size-12 animate-spin text-subtle" />
+                </div>
+            )}
+
+            {!loading && contentTypes.length > 0 && (
                 <ul className="grid grid-cols-2 gap-y-1.5 gap-x-7.5">
                     {contentTypes.map((contentType) => {
                         const key = contentType.getName();
@@ -67,7 +80,7 @@ export const NewContentDialogContentTypesTab = ({
                 </ul>
             )}
 
-            {contentTypes.length === 0 && <p className="text-sm text-subtle">{notFoundLabel}</p>}
+            {!loading && contentTypes.length === 0 && <p className="text-sm text-subtle">{notFoundLabel}</p>}
         </Tab.Content>
     );
 };
