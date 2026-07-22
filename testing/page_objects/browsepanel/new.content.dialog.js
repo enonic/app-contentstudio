@@ -2,7 +2,8 @@
  * Created on 1.12.2017. update on 29.04.2026
  */
 const Page = require('../page');
-const {BUTTONS} = require('../../libs/elements');
+const { BUTTONS } = require('../../libs/elements');
+const appConst = require('../../libs/app_const');
 const XPATH = {
     container: `//div[@role='dialog' and @data-state='open' and descendant::h3[contains(.,'Create content')]]`,
     dialogTitle: `//h3[contains(.,'Create content')]`,
@@ -13,6 +14,7 @@ const XPATH = {
     searchInput: `//input[@aria-label='Search']`,
     header: `//div[contains(@id,'NewContentDialogHeader')]`,
     typesList: `//ul//div[@data-component='ItemLabel']//span`,
+    typesLoader: "//div[@data-component='NewContentDialogContentTypesLoader']",
     mostPopularBlock: "//div[contains(@id,'MostPopularItemsBlock')]",
     emptyViewP: "//p[contains(.,'No content types found')]",
     contentTypeContainsName(name) {
@@ -24,7 +26,6 @@ const XPATH = {
 };
 
 class NewContentDialog extends Page {
-
     get title() {
         return XPATH.container + XPATH.dialogTitle;
     }
@@ -56,7 +57,11 @@ class NewContentDialog extends Page {
         try {
             return await this.waitForElementDisabled(this.mediaButton);
         } catch (err) {
-            await this.handleError(`New Content dialog, Media tab button should be disabled:`, 'err_media_tab_disabled', err);
+            await this.handleError(
+                `New Content dialog, Media tab button should be disabled:`,
+                'err_media_tab_disabled',
+                err,
+            );
         }
     }
 
@@ -64,7 +69,11 @@ class NewContentDialog extends Page {
         try {
             return await this.waitForElementDisabled(this.suggestedButton);
         } catch (err) {
-            await this.handleError(`New Content dialog, Suggested tab button should be disabled:`, 'err_suggested_tab_disabled', err);
+            await this.handleError(
+                `New Content dialog, Suggested tab button should be disabled:`,
+                'err_suggested_tab_disabled',
+                err,
+            );
         }
     }
 
@@ -89,19 +98,16 @@ class NewContentDialog extends Page {
         return await this.waitForElementNotDisplayed(XPATH.container + XPATH.allTabDiv);
     }
 
-
     //No content types found
     async waitForNoTypesFoundMessage(tabName) {
         const tabConfig = {
-            'All': XPATH.allTabDiv,
-            'Suggested': XPATH.suggestedTabDiv,
-            'Media': XPATH.mediaTabDiv,
+            All: XPATH.allTabDiv,
+            Suggested: XPATH.suggestedTabDiv,
+            Media: XPATH.mediaTabDiv,
         };
 
         if (!tabConfig[tabName]) {
-            throw new Error(
-                `Invalid tab name '${tabName}'. Expected: ${Object.keys(tabConfig).join(', ')}`
-            );
+            throw new Error(`Invalid tab name '${tabName}'. Expected: ${Object.keys(tabConfig).join(', ')}`);
         }
 
         try {
@@ -112,7 +118,8 @@ class NewContentDialog extends Page {
         } catch (err) {
             await this.handleError(
                 `New Content dialog, '${tabName}' tab - 'No content types found' message:`,
-                'err_no_content_types_new_content_dlg', err
+                'err_no_content_types_new_content_dlg',
+                err,
             );
         }
     }
@@ -188,7 +195,22 @@ class NewContentDialog extends Page {
         }
     }
 
+    // Wait until the content types have finished loading (spinner is gone).
+    // Guards against interacting with the list before the REST load resolves.
+    async waitForContentTypesLoaded() {
+        try {
+            return await this.waitForElementNotDisplayed(XPATH.container + XPATH.typesLoader, appConst.longTimeout);
+        } catch (err) {
+            await this.handleError(
+                `New Content dialog, content types loading spinner:`,
+                'err_new_content_types_loading',
+                err,
+            );
+        }
+    }
+
     async clickOnContentType(contentTypeName) {
+        await this.waitForContentTypesLoaded();
         let typeSelector = XPATH.contentTypeByName(contentTypeName);
         await this.waitForElementDisplayed(typeSelector);
         let elems = await this.getDisplayedElements(typeSelector);
@@ -197,7 +219,7 @@ class NewContentDialog extends Page {
     }
 
     async getItemsInAllTab() {
-        let locator = XPATH.allTabDiv+ XPATH.typesList;
+        let locator = XPATH.allTabDiv + XPATH.typesList;
         await this.waitForElementDisplayed(locator);
         return await this.getTextInElements(locator);
     }

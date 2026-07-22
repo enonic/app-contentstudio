@@ -34,8 +34,7 @@ type UploadOptions = {
 type NewContentDialogStore = {
     // Dialog state
     open: boolean;
-    //loading: boolean;
-    //failed: boolean;
+    loading: boolean;
     inputValue: string;
     selectedTab: string;
     isDragging: boolean;
@@ -48,8 +47,7 @@ type NewContentDialogStore = {
 
 const initialState: NewContentDialogStore = {
     open: false,
-    //loading: false,
-    //failed: false,
+    loading: false,
     inputValue: '',
     selectedTab: 'all',
     isDragging: false,
@@ -80,6 +78,7 @@ listenKeys($newContentDialog, ['open', 'parentContent'], ({ open, parentContent 
     if (!open || !activeProject) return;
 
     const loadId = ++loadCounter;
+    $newContentDialog.setKey('loading', true);
 
     task(async () => {
         const allContentTypes = await ContentTypesHelper.getAvailableContentTypes({
@@ -102,8 +101,14 @@ listenKeys($newContentDialog, ['open', 'parentContent'], ({ open, parentContent 
         $newContentDialog.setKey('isMediaAllowed', isMediaAllowed);
         $newContentDialog.setKey('baseContentTypes', baseContentTypes);
         $newContentDialog.setKey('suggestedContentTypes', suggestedContentTypes);
+        $newContentDialog.setKey('loading', false);
     }).catch((error) => {
         console.error(error);
+
+        // Stop the spinner only if this load is still the current one
+        if (loadId === loadCounter) {
+            $newContentDialog.setKey('loading', false);
+        }
     });
 });
 
