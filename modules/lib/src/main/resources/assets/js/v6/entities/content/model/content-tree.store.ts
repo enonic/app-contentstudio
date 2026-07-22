@@ -31,6 +31,7 @@ import {
     type CreateNodeOptions,
 } from '../../../shared/lib/tree-store';
 import { $uploads, type UploadItem } from './uploads.store';
+import { clearRevealScroll } from './content-reveal.store';
 import { $contentCache } from './content.store';
 import type { ContentData } from './ContentData';
 import type { ContentUploadData } from './ContentUploadData';
@@ -206,6 +207,8 @@ export function setNodesLoadingData(ids: string[], loading: boolean): void {
 export function resetTree(): void {
     $treeState.set(createEmptyState<ContentTreeNodeData>());
     $rootTotalChildren.set(undefined);
+    // A pending reveal-scroll target points into the discarded tree.
+    clearRevealScroll();
 }
 
 export function setRootTotalChildren(total: number): void {

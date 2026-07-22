@@ -1,21 +1,19 @@
 import type Q from 'q';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {
     TreeListBox,
     type TreeListBoxParams,
     TreeListElement,
-    type TreeListElementParams
+    type TreeListElementParams,
 } from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
-import {type ContentResponse} from '../resource/ContentResponse';
-import {ContentPath} from '../content/ContentPath';
-import {ContentTreeGridListViewer} from './ContentTreeGridListViewer';
-import {type ChildOrder} from '../resource/order/ChildOrder';
+import { ContentSummaryAndCompareStatus } from '../content/ContentSummaryAndCompareStatus';
+import { ContentSummaryAndCompareStatusFetcher } from '../resource/ContentSummaryAndCompareStatusFetcher';
+import { type ContentResponse } from '../resource/ContentResponse';
+import { ContentPath } from '../content/ContentPath';
+import { ContentTreeGridListViewer } from './ContentTreeGridListViewer';
+import { type ChildOrder } from '../resource/order/ChildOrder';
 
-export class ContentsTreeGridList
-    extends TreeListBox<ContentSummaryAndCompareStatus> {
-
+export class ContentsTreeGridList extends TreeListBox<ContentSummaryAndCompareStatus> {
     public static FETCH_SIZE: number = 10;
 
     protected readonly fetcher: ContentSummaryAndCompareStatusFetcher;
@@ -33,8 +31,11 @@ export class ContentsTreeGridList
     }
 
     protected createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): ContentsTreeGridListElement {
-        return new ContentsTreeGridListElement(item,
-            {scrollParent: this.scrollParent, parentList: this, expandedContext: this.options.expandedContext});
+        return new ContentsTreeGridListElement(item, {
+            scrollParent: this.scrollParent,
+            parentList: this,
+            expandedContext: this.options.expandedContext,
+        });
     }
 
     protected getItemId(item: ContentSummaryAndCompareStatus): string {
@@ -49,26 +50,28 @@ export class ContentsTreeGridList
         this.wasShownAndLoaded = true;
         this.loading = true;
 
-        this.fetch().then((items: ContentSummaryAndCompareStatus[]) => {
-            this.loading = false;
+        this.fetch()
+            .then((items: ContentSummaryAndCompareStatus[]) => {
+                this.loading = false;
 
-            if (items.length > 0) {
-                // first remove new items that are now to be added to avoid being shown twice
-                items.forEach((item: ContentSummaryAndCompareStatus) => {
-                   const itemId = this.getItemId(item);
+                if (items.length > 0) {
+                    // first remove new items that are now to be added to avoid being shown twice
+                    items.forEach((item: ContentSummaryAndCompareStatus) => {
+                        const itemId = this.getItemId(item);
 
-                    if (this.newItems.has(itemId)) {
-                        this.newItems.delete(itemId);
-                        this.removeItems([item], true);
-                    }
-                });
+                        if (this.newItems.has(itemId)) {
+                            this.newItems.delete(itemId);
+                            this.removeItems([item], true);
+                        }
+                    });
 
-                this.addItems(items);
-            }
-        }).catch((e) => {
-            DefaultErrorHandler.handle(e);
-            this.loading = false;
-        });
+                    this.addItems(items);
+                }
+            })
+            .catch((e) => {
+                DefaultErrorHandler.handle(e);
+                this.loading = false;
+            });
     }
 
     private fetch(): Q.Promise<ContentSummaryAndCompareStatus[]> {
@@ -88,9 +91,11 @@ export class ContentsTreeGridList
         const size: number = ContentsTreeGridList.FETCH_SIZE;
         const parent = this.getParentItem()?.getContentId();
 
-        return this.fetcher.fetchChildren(parent, from, size, order).then((data: ContentResponse<ContentSummaryAndCompareStatus>) => {
-            return data.getContents();
-        });
+        return this.fetcher
+            .fetchChildren(parent, from, size, order)
+            .then((data: ContentResponse<ContentSummaryAndCompareStatus>) => {
+                return data.getContents();
+            });
     }
 
     // new items to be shown on top of the list and must be taken into account when fetching new items, or removed on refresh
@@ -101,7 +106,8 @@ export class ContentsTreeGridList
             });
 
             this.addItems(items);
-        } else { // if parent didn't have children before then update it to show expand toggle
+        } else {
+            // if parent didn't have children before then update it to show expand toggle
             (this.options.parentListElement as ContentsTreeGridListElement)?.setContainsChildren(true);
         }
     }
@@ -116,8 +122,11 @@ export class ContentsTreeGridList
         }
     }
 
-    protected addItemView(item: ContentSummaryAndCompareStatus, readOnly?: boolean,
-                          index?: number): TreeListElement<ContentSummaryAndCompareStatus> {
+    protected addItemView(
+        item: ContentSummaryAndCompareStatus,
+        readOnly?: boolean,
+        index?: number,
+    ): TreeListElement<ContentSummaryAndCompareStatus> {
         (this.options.parentListElement as ContentsTreeGridListElement)?.setContainsChildren(true);
         return super.addItemView(item, readOnly, index);
     }
@@ -148,12 +157,12 @@ export class ContentsTreeGridList
 
     findParentLists(item: ContentSummaryAndCompareStatus | ContentPath): ContentsTreeGridList[] {
         const parents: ContentsTreeGridList[] = [];
-        const itemPath = item instanceof  ContentSummaryAndCompareStatus ? item.getPath() : item;
+        const itemPath = item instanceof ContentSummaryAndCompareStatus ? item.getPath() : item;
         const thisPath = this.getParentItem()?.getPath() || ContentPath.getRoot();
 
         if (itemPath.isDescendantOf(thisPath)) {
             // if the list is filtered then root may contain the item no matter what path is
-            if (itemPath.isChildOf(thisPath) || this.getItems().some(i => i.getPath().equals(itemPath))) {
+            if (itemPath.isChildOf(thisPath) || this.getItems().some((i) => i.getPath().equals(itemPath))) {
                 parents.push(this);
             }
 
@@ -169,11 +178,6 @@ export class ContentsTreeGridList
         return parents;
     }
 
-    getListElementByPath(path: ContentPath): ContentsTreeGridListElement | undefined {
-        return this.getItemViews().find(
-            (listElement: ContentsTreeGridListElement) => listElement.getItem().getPath().equals(path)) as ContentsTreeGridListElement;
-    }
-
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.addClass('content-tree-grid-list');
@@ -181,16 +185,17 @@ export class ContentsTreeGridList
             return rendered;
         });
     }
-
 }
 
 export class ContentsTreeGridListElement extends TreeListElement<ContentSummaryAndCompareStatus> {
-
     declare protected childrenList: ContentsTreeGridList;
 
     private containsChildren: boolean;
 
-    constructor(content: ContentSummaryAndCompareStatus, params: TreeListElementParams<ContentSummaryAndCompareStatus>) {
+    constructor(
+        content: ContentSummaryAndCompareStatus,
+        params: TreeListElementParams<ContentSummaryAndCompareStatus>,
+    ) {
         super(content, params);
     }
 
@@ -241,17 +246,14 @@ export class ContentsTreeGridListElement extends TreeListElement<ContentSummaryA
             return rendered;
         });
     }
-
 }
 
 export class ContentsTreeGridListContext {
-
     private static instance: ContentsTreeGridListContext;
 
     private filtered: boolean = false;
 
-    private constructor() {
-    }
+    private constructor() {}
 
     static get(): ContentsTreeGridListContext {
         if (!ContentsTreeGridListContext.instance) {

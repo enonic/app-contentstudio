@@ -8,7 +8,14 @@ import { $activeProject } from '../../project/activeProject.store';
 import { setFilterActive } from './active-tree.store';
 import { clearRevealScroll, $revealScrollTarget } from './content-reveal.store';
 import { $activeId, $currentItem, $selection, clearSelection } from './content-selection.store';
-import { addTreeNode, hasTreeNode, isNodeExpanded, resetTree, setTreeChildren, setTreeRootIds } from './content-tree.store';
+import {
+    addTreeNode,
+    hasTreeNode,
+    isNodeExpanded,
+    resetTree,
+    setTreeChildren,
+    setTreeRootIds,
+} from './content-tree.store';
 import { clearAllContentCaches, setContents } from './content.commands';
 
 const mocks = vi.hoisted(() => ({
@@ -202,6 +209,30 @@ describe('content-reveal.service', () => {
 
         expect(onBeforeSelect).toHaveBeenCalledTimes(1);
         expect(activeIdAtCallback).toBeNull();
+        expect($activeId.get()).toBe('c');
+    });
+
+    it('skips select and callback when the target is already the sole current item', async () => {
+        seedLoadedTree();
+        $activeId.set('c');
+        const onBeforeSelect = vi.fn();
+
+        await revealContentByPath('/a/b/c', { onBeforeSelect });
+
+        // No $currentIds emission would follow, so the suppression must not be armed.
+        expect(onBeforeSelect).not.toHaveBeenCalled();
+        expect(mocks.fetchContentByIds).not.toHaveBeenCalled();
+        expect($activeId.get()).toBe('c');
+        expect($revealScrollTarget.get()).toBe('c'); // still scrolls the row into view
+    });
+
+    it('clears checkbox selection like a grid row click', async () => {
+        seedLoadedTree();
+        $selection.set(new Set(['a', 'b']));
+
+        await revealContentByPath('/a/b/c');
+
+        expect($selection.get().size).toBe(0);
         expect($activeId.get()).toBe('c');
     });
 
