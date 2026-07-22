@@ -3,6 +3,8 @@ import { useStore } from '@nanostores/preact';
 import { type KeyboardEvent, type ReactElement, useEffect, useRef } from 'react';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import {
+    $filteredBaseContentTypes,
+    $filteredSuggestedContentTypes,
     $newContentDialog,
     closeNewContentDialog,
     setInputValue,
@@ -22,15 +24,9 @@ export const NewContentDialog = (): ReactElement => {
     const inputRef = useRef<HTMLInputElement>(null);
     const dialogContentRef = useRef<HTMLDivElement>(null);
     const shouldFocusInput = useRef(false);
-    const {
-        open,
-        selectedTab,
-        inputValue,
-        parentContent,
-        filteredBaseContentTypes,
-        filteredSuggestedContentTypes,
-        isMediaAllowed,
-    } = useStore($newContentDialog);
+    const { open, selectedTab, inputValue, parentContent, isMediaAllowed } = useStore($newContentDialog);
+    const filteredBaseContentTypes = useStore($filteredBaseContentTypes);
+    const filteredSuggestedContentTypes = useStore($filteredSuggestedContentTypes);
     const isTemplateFolder = parentContent?.getType().isTemplateFolder() ?? false;
     const isTemplateContent = parentContent?.getType().isPageTemplate() ?? false;
     const isMediaTabDisabled = isTemplateFolder || isTemplateContent || !isMediaAllowed;

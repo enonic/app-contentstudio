@@ -2,7 +2,7 @@ import { showError, showSuccess } from '@enonic/lib-admin-ui/notify/MessageBus';
 import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { type ContentTypeSummary } from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
-import { listenKeys, map, task } from 'nanostores';
+import { computed, listenKeys, map, task } from 'nanostores';
 import { errAsync } from 'neverthrow';
 import { type ContentSummary } from '../../../../app/content/ContentSummary';
 import {
@@ -44,8 +44,6 @@ type NewContentDialogStore = {
     parentContent?: ContentSummary;
     baseContentTypes: ContentTypeSummary[];
     suggestedContentTypes: ContentTypeSummary[];
-    filteredBaseContentTypes: ContentTypeSummary[];
-    filteredSuggestedContentTypes: ContentTypeSummary[];
 };
 
 const initialState: NewContentDialogStore = {
@@ -59,20 +57,29 @@ const initialState: NewContentDialogStore = {
     parentContent: undefined,
     baseContentTypes: [],
     suggestedContentTypes: [],
-    filteredBaseContentTypes: [],
-    filteredSuggestedContentTypes: [],
 };
 
 export const $newContentDialog = map<NewContentDialogStore>(structuredClone(initialState));
+export const $filteredBaseContentTypes = computed($newContentDialog, ({ baseContentTypes, inputValue }) =>
+    filterByTitle(baseContentTypes, inputValue),
+);
+
+export const $filteredSuggestedContentTypes = computed($newContentDialog, ({ suggestedContentTypes, inputValue }) =>
+    filterByTitle(suggestedContentTypes, inputValue),
+);
 
 //
 // * Listeners
 //
 
+let loadCounter = 0;
+
 listenKeys($newContentDialog, ['open', 'parentContent'], ({ open, parentContent }) => {
     const activeProject = $activeProject.get();
 
     if (!open || !activeProject) return;
+
+    const loadId = ++loadCounter;
 
     task(async () => {
         const allContentTypes = await ContentTypesHelper.getAvailableContentTypes({
@@ -85,38 +92,20 @@ listenKeys($newContentDialog, ['open', 'parentContent'], ({ open, parentContent 
             activeProject,
         );
 
+        // Discard a stale response if the dialog was closed or reopened while loading
+        if (loadId !== loadCounter || !$newContentDialog.get().open) return;
+
         const baseContentTypes = getBaseContentTypes(allContentTypes);
         const suggestedContentTypes = getSuggestedContentTypes(allContentTypes, aggregatedContentTypes);
         const isMediaAllowed = allContentTypes.some((type) => type.getContentTypeName().isDescendantOfMedia());
 
         $newContentDialog.setKey('isMediaAllowed', isMediaAllowed);
         $newContentDialog.setKey('baseContentTypes', baseContentTypes);
-        $newContentDialog.setKey('filteredBaseContentTypes', baseContentTypes);
         $newContentDialog.setKey('suggestedContentTypes', suggestedContentTypes);
-        $newContentDialog.setKey('filteredSuggestedContentTypes', suggestedContentTypes);
     }).catch((error) => {
         console.error(error);
     });
 });
-
-listenKeys($newContentDialog, ['inputValue'], ({ inputValue, baseContentTypes, suggestedContentTypes }) => {
-    if (!inputValue || inputValue.length === 0) {
-        $newContentDialog.setKey('filteredBaseContentTypes', baseContentTypes);
-        $newContentDialog.setKey('filteredSuggestedContentTypes', suggestedContentTypes);
-        return;
-    }
-
-    const filteredBaseContentTypes = baseContentTypes.filter((contentType) =>
-        contentType.getTitle().toLowerCase().includes(inputValue.toLowerCase()),
-    );
-    const filteredSuggestedContentTypes = suggestedContentTypes.filter((contentType) =>
-        contentType.getTitle().toLowerCase().includes(inputValue.toLowerCase()),
-    );
-
-    $newContentDialog.setKey('filteredBaseContentTypes', filteredBaseContentTypes);
-    $newContentDialog.setKey('filteredSuggestedContentTypes', filteredSuggestedContentTypes);
-});
-//
 
 //
 // * Public API
@@ -213,6 +202,13 @@ export async function uploadDragImages({ dataTransfer, parentContent }: UploadOp
 //
 // * Helpers
 //
+
+function filterByTitle(contentTypes: ContentTypeSummary[], searchText: string): ContentTypeSummary[] {
+    if (searchText.length === 0) return contentTypes;
+
+    const searchTextLower = searchText.toLowerCase();
+    return contentTypes.filter((contentType) => contentType.getTitle().toLowerCase().includes(searchTextLower));
+}
 
 function getBaseContentTypes(contentTypes: ContentTypeSummary[]): ContentTypeSummary[] {
     return contentTypes
