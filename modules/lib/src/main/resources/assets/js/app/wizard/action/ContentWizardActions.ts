@@ -3,9 +3,7 @@ import { type AccessControlList } from '../../access/AccessControlList';
 import { type Content } from '../../content/Content';
 import { type ContentSummaryAndCompareStatus } from '../../content/ContentSummaryAndCompareStatus';
 import { Permission } from '../../access/Permission';
-import { PublishStatus } from '../../publish/PublishStatus';
-import type { CompareResult } from '../../../v6/entities/content';
-import { calcTreePublishStatus, calcSecondaryStatus, isPublished } from '../../../v6/shared/lib/cms/content/status';
+import { isOnline, isPublished } from '../../../v6/shared/lib/cms/content/status';
 import {
     $wizardContentPathExists,
     $wizardContentState,
@@ -68,8 +66,6 @@ export class ContentWizardActions extends WizardActions<Content> {
     private contentCanBeMarkedAsReady: boolean = false;
 
     private content: ContentSummaryAndCompareStatus;
-
-    private compareResult: CompareResult | undefined;
 
     private wizardPanel: ContentWizardPanel;
 
@@ -419,17 +415,11 @@ export class ContentWizardActions extends WizardActions<Content> {
         this.hasCheckedUnpublishedChildren = false;
         this.hasUnpublishedChildren = false;
         this.content = content;
-        this.compareResult = undefined;
         return this;
     }
 
     resetUnpublishedChildrenCheck(): ContentWizardActions {
         this.hasCheckedUnpublishedChildren = false;
-        return this;
-    }
-
-    setCompareResult(result: CompareResult | undefined): ContentWizardActions {
-        this.compareResult = result;
         return this;
     }
 
@@ -584,27 +574,7 @@ export class ContentWizardActions extends WizardActions<Content> {
     }
 
     isOnline(): boolean {
-        if (!this.content) return false;
-
-        // If CSCS has compare status (e.g., locally set to NEWER on edit), use it
-        if (this.content.getCompareStatus() != null) {
-            return this.content.isOnline();
-        }
-
-        // Derive from ContentSummary publish dates + compare API result.
-        // Scheduled and expired content has a published version, so it counts
-        // as online here; only truly offline content stays publishable.
-        const summary = this.content.getContentSummary();
-        const publishStatus = calcTreePublishStatus(summary);
-        if (publishStatus === PublishStatus.OFFLINE) return false;
-
-        // If compare result available, empty diff means content is in sync
-        if (this.compareResult != null) {
-            return this.compareResult.diff.length === 0;
-        }
-
-        // Heuristic fallback: publishTime set means content matches published version
-        return calcSecondaryStatus(publishStatus, summary) == null;
+        return !!this.content && isOnline(this.content.getContentSummary());
     }
 
     onBeforeActionsStashed(listener: () => void) {
