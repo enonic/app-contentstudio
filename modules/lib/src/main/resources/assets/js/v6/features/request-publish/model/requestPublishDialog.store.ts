@@ -386,7 +386,7 @@ export const cancelDraftRequestPublishDialogSelection = (): void => {
 };
 
 export const removeRequestPublishItem = (id: ContentId): void => {
-    const { items, excludeChildrenIds } = $requestPublishDialog.get();
+    const { items, excludeChildrenIds, appliedExcludeChildrenIds } = $requestPublishDialog.get();
     const newItems = items.filter((item) => !item.getContentId().equals(id));
 
     if (newItems.length === 0) {
@@ -394,13 +394,13 @@ export const removeRequestPublishItem = (id: ContentId): void => {
         return;
     }
 
-    const nextExcludeChildrenIds = excludeChildrenIds.filter((i) => !i.equals(id));
-
+    // Drop the removed id from the draft and the applied selection independently,
+    // so staged edits on the remaining items stay staged.
     $requestPublishDialog.set({
         ...$requestPublishDialog.get(),
         items: newItems,
-        excludeChildrenIds: nextExcludeChildrenIds,
-        appliedExcludeChildrenIds: nextExcludeChildrenIds,
+        excludeChildrenIds: excludeChildrenIds.filter((i) => !i.equals(id)),
+        appliedExcludeChildrenIds: appliedExcludeChildrenIds.filter((i) => !i.equals(id)),
     });
 
     reloadDependenciesDebounced();
@@ -588,9 +588,11 @@ const reloadRequestPublishDependencies = async (): Promise<void> => {
     });
 
     try {
+        // Resolve the applied selection: reloads can fire while an edit is staged
+        // (socket events), and must neither consume nor commit the draft.
         const dependenciesResult = await resolvePublishDependencies({
             ids: itemIds,
-            excludeChildrenIds: state.excludeChildrenIds,
+            excludeChildrenIds: state.appliedExcludeChildrenIds,
         });
 
         if (currentInstance !== instanceId) {
@@ -631,9 +633,10 @@ const reloadRequestPublishDependencies = async (): Promise<void> => {
 
         const latestState = $requestPublishDialog.get();
         const requiredDependantIds = result.getRequired().filter((id) => hasContentIdInIds(id, allDependantIds));
-        const nextExcludedDependantIds = latestState.excludedDependantIds
-            .filter((id) => hasContentIdInIds(id, allDependantIds))
-            .filter((id) => !hasContentIdInIds(id, requiredDependantIds));
+        const pruneExcludedIds = (ids: ContentId[]): ContentId[] =>
+            ids
+                .filter((id) => hasContentIdInIds(id, allDependantIds))
+                .filter((id) => !hasContentIdInIds(id, requiredDependantIds));
 
         const invalidIds = result.getInvalid();
         const inProgressIds = result.getInProgress().filter((id) => !hasContentIdInIds(id, invalidIds));
@@ -656,9 +659,8 @@ const reloadRequestPublishDependencies = async (): Promise<void> => {
             dependantWindow: Math.min(DEPENDANT_LOAD_SIZE, allDependantIds.length),
             publishableContentIds: result.getPublishable(),
             requiredDependantIds,
-            excludedDependantIds: nextExcludedDependantIds,
-            appliedExcludeChildrenIds: latestState.excludeChildrenIds,
-            appliedExcludedDependantIds: nextExcludedDependantIds,
+            excludedDependantIds: pruneExcludedIds(latestState.excludedDependantIds),
+            appliedExcludedDependantIds: pruneExcludedIds(latestState.appliedExcludedDependantIds),
             loading: false,
             failed: false,
         });
