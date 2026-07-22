@@ -60,9 +60,6 @@ const initialState: NewContentDialogStore = {
 };
 
 export const $newContentDialog = map<NewContentDialogStore>(structuredClone(initialState));
-
-// Filtered lists are derived from the loaded types and the current search text,
-// so they stay consistent regardless of when the async load completes.
 export const $filteredBaseContentTypes = computed($newContentDialog, ({ baseContentTypes, inputValue }) =>
     filterByTitle(baseContentTypes, inputValue),
 );
