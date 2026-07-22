@@ -73,6 +73,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
         async () => {
             let dateForm = new DateForm();
             let contentWizard = new ContentWizard();
+            let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Open wizard for new date 1:1
             await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.DATE_1_1);
             // 2. Save a date:
@@ -86,8 +87,8 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             // 3. Reopen te content
             await studioUtils.doCloseWizardAndSwitchToGrid();
             // 4. Verify the saved date:
+            await contentBrowsePanel.clickOnResetSelectionCheckbox();
             await studioUtils.findContentAndClickCheckBox(DATE_NAME);
-            let contentBrowsePanel = new ContentBrowsePanel();
             await contentBrowsePanel.clickOnEditButton();
             await studioUtils.doSwitchToNewWizard();
             let actualDAte = await dateForm.getValueInDateInput(0);
@@ -95,8 +96,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             await contentWizard.waitUntilInvalidIconDisappears();
         });
 
-    // TODO bug versions
-    it.skip("GIVEN existing Date(1:1) content is opened AND the date has been updated WHEN the previous version has been reverted THEN expected date should appear",
+    it("GIVEN existing Date(1:1) content is opened AND the date has been updated WHEN the previous version has been reverted THEN expected date should appear",
         async () => {
             let dateForm = new DateForm();
             let contentWizard = new ContentWizard();
@@ -104,6 +104,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             // 1. existing Date(1:1) content is opened
             await studioUtils.selectAndOpenContentInWizard(DATE_NAME);
             // 2. Update the date:
+            await dateForm.clearDateInput(0);
             await dateForm.typeDate(0, DATE_IN_DECEMBER_2);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();

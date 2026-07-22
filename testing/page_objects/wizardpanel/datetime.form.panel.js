@@ -60,7 +60,8 @@ class DateTimeForm extends OccurrencesFormView {
     }
 
     async showPicker() {
-        await this.clickOnElement(this.dateTimeInput);
+        let locator =XPATH.dataComponentInput + "//div[@data-component='DatePicker.Trigger']";
+        await this.clickOnElement(locator);
         return await this.pause(300);
     }
 }

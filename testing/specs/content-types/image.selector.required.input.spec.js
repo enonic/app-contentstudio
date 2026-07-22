@@ -55,6 +55,7 @@ describe('image.selector.required.input.spec tests for validation of content wit
             await contentWizard.waitAndClickOnSave();
             await studioUtils.doSwitchToContentBrowsePanel();
             // 4. Delete the image:
+            await browsePanel.clickOnResetSelectionCheckbox();
             await studioUtils.findContentAndClickCheckBox(IMAGE_DISPLAY_NAME2);
             // Open Delete content modal  dialog:
             await browsePanel.clickOnDeleteButton();
