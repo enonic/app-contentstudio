@@ -6,6 +6,7 @@ import {
     type KeyboardEvent,
     type MouseEvent,
     type ReactElement,
+    createPortal,
     useCallback,
     useEffect,
     useRef,
@@ -261,7 +262,9 @@ export const SearchPopup = (): ReactElement | null => {
         return null;
     }
 
-    return (
+    const portalTarget = getAnchorElement()?.closest<HTMLElement>('[role="dialog"]') ?? document.body;
+
+    return createPortal(
         <div
             ref={popupRef}
             role="dialog"
@@ -393,7 +396,8 @@ export const SearchPopup = (): ReactElement | null => {
                     </div>
                 </>
             )}
-        </div>
+        </div>,
+        portalTarget,
     );
 };
 
