@@ -16,12 +16,18 @@ import {
 import { createRootChildOrder } from '../lib/childOrder';
 import { $activeProject } from '../../project';
 import { getMissingIds, getContents, getIdByPath } from '../model/content.store';
-import { setContents } from '../model/content.commands';
+import { clearProjectContentCache, setContents } from '../model/content.commands';
+import { $activeId, $selection, setActive, setSelection } from '../model/content-selection.store';
 import { $contentDuplicated, $contentMoved, $contentSorted } from '../../../shared/socket/socket.store';
 import {
+    $isReloading,
     $treeState,
     addTreeNode,
     addTreeNodes,
+    expandNode,
+    nodeNeedsChildrenLoad,
+    resetTree,
+    setReloading,
     setTreeChildren,
     setTreeRootIds,
     appendTreeChildren,
@@ -476,6 +482,116 @@ export async function fetchRootChildrenIdsOnly(): Promise<string[]> {
     return fetchChildrenIdsOnly(null, createRootChildOrder());
 }
 
+/**
+ * Re-expands nodes that were expanded before a reload. A placeholder only
+ * reappears once its parent's children load, so the set is rescanned until no
+ * node can be processed; vanished nodes are skipped, a project switch aborts.
+ */
+async function restoreExpandedNodes(
+    expandedIds: ReadonlySet<string>,
+    projectName: string | undefined,
+): Promise<void> {
+    if (expandedIds.size === 0) return;
+
+    const processed = new Set<string>();
+    let madeProgress = true;
+
+    while (madeProgress) {
+        madeProgress = false;
+
+        for (const id of expandedIds) {
+            if (processed.has(id) || !$treeState.get().nodes.has(id)) continue;
+
+            processed.add(id);
+            madeProgress = true;
+            expandNode(id);
+
+            if (nodeNeedsChildrenLoad(id)) {
+                await fetchChildrenIdsOnly(id).catch(() => undefined);
+
+                if (isProjectStale(projectName)) return;
+            }
+        }
+    }
+}
+
+/**
+ * Refetches the selected/active items after a reload cleared the cache, then
+ * reconciles: drops from the selection any id the server no longer returns and
+ * keeps the active id only if it still resolves. The caller captures the values
+ * before reset, since the tree list clobbers active/selection mid-reload.
+ */
+async function reconcileSelectionAfterReload(
+    selectedIds: ReadonlySet<string>,
+    activeId: string | null,
+    projectName: string | undefined,
+): Promise<void> {
+    const ids = new Set(selectedIds);
+    if (activeId != null) ids.add(activeId);
+    if (ids.size === 0) return;
+
+    const resolved = await fetchContentByIds([...ids]).catch((): ContentSummary[] => []);
+    if (isProjectStale(projectName)) return;
+
+    const availableIds = new Set(resolved.map((content) => content.getId()));
+
+    setSelection(new Set([...selectedIds].filter((id) => availableIds.has(id))));
+    setActive(activeId != null && availableIds.has(activeId) ? activeId : null);
+}
+
+/**
+ * Reloads the main tree from the server while keeping previously expanded
+ * nodes open. The tree is rebuilt from IDs and content data reloads lazily via
+ * the viewport, so this refreshes data without discarding navigation context.
+ */
+export async function reloadMainTreePreservingExpansion(): Promise<void> {
+    const projectName = captureActiveProjectName();
+    const expandedIds = new Set($treeState.get().expandedIds);
+    // Captured before reset — the list clobbers active/selection mid-reload.
+    const selectedIds = $selection.get();
+    const activeId = $activeId.get();
+
+    resetTree();
+    clearProjectContentCache();
+
+    await fetchRootChildrenIdsOnly();
+    if (isProjectStale(projectName)) return;
+
+    await restoreExpandedNodes(expandedIds, projectName);
+    if (isProjectStale(projectName)) return;
+
+    await reconcileSelectionAfterReload(selectedIds, activeId, projectName);
+}
+
+/**
+ * Single entry point for the reload action: refreshes data while preserving
+ * navigation context, dispatching to the filter or main tree by active mode.
+ * `$isReloading` guards re-entry and keeps the toolbar button disabled for the
+ * whole operation, so overlapping reloads cannot start.
+ */
+export async function reloadContentTree(): Promise<void> {
+    if ($isReloading.get()) return;
+    setReloading(true);
+
+    try {
+        if ($isFilterActive.get()) {
+            const projectName = captureActiveProjectName();
+            const selectedIds = $selection.get();
+            const activeId = $activeId.get();
+
+            const query = getFilterQuery();
+            if (query) await activateFilter(query);
+            if (isProjectStale(projectName)) return;
+
+            await reconcileSelectionAfterReload(selectedIds, activeId, projectName);
+        } else {
+            await reloadMainTreePreservingExpansion();
+        }
+    } finally {
+        setReloading(false);
+    }
+}
+
 // Batch size for loading content data of visible nodes
 const DATA_BATCH_SIZE = 20;
 const VISIBLE_DATA_RETRY_DELAY_MS = 1_000;
@@ -750,6 +866,7 @@ function updateTreeNodesWithData(contents: ContentSummary[]): void {
 //
 
 import {
+    $isFilterActive,
     setFilterActive as setFilterActiveState,
     deactivateFilter as deactivateFilterState,
 } from '../model/active-tree.store';
