@@ -121,6 +121,9 @@ class Page {
     async typeTextInInput(selector, text) {
         try {
             let inputElement = await this.findElement(selector);
+            // setValue clears the input first; wait until it is interactable so a not-yet-expanded
+            // panel (or in-flight animation) does not throw "element not interactable".
+            await inputElement.waitForClickable({timeout: appConst.mediumTimeout});
             await inputElement.setValue(text);
             return await this.pause(200);
         } catch (err) {
