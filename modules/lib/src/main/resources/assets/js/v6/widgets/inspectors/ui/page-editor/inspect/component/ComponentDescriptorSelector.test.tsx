@@ -23,6 +23,7 @@ vi.mock('@enonic/ui', () => {
         ),
         Toggle: passthrough('combobox-toggle'),
         Value: passthrough('combobox-value'),
+        Portal: passthrough('combobox-portal'),
         Popup: passthrough('combobox-popup'),
     };
 
