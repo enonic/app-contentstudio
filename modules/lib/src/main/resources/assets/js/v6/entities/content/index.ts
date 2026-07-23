@@ -3,7 +3,7 @@ import { $activeId as $_activeIdAtom } from './model/content-selection.store';
 import { $filterRefreshNeeded as $_filterRefreshNeededAtom } from './model/filter-tree.store';
 import { $isFilterActive as $_isFilterActiveAtom } from './model/active-tree.store';
 import { $selection as $_selectionAtom } from './model/content-selection.store';
-import { $treeState as $_treeStateAtom } from './model/content-tree.store';
+import { $isReloading as $_isReloadingAtom, $treeState as $_treeStateAtom } from './model/content-tree.store';
 
 export { compareContent } from './api/compare.api';
 export type { CompareResult } from './api/compare.api';
@@ -26,6 +26,7 @@ export {
     isFilterChildrenIdsLoadFailed,
     isVisibleContentDataLoadFailed,
     isVisibleFilterContentDataLoadFailed,
+    reloadContentTree,
     reloadParentChildren,
 } from './api/content-fetcher';
 export { fetchContentById, fetchContentByPath, fetchNearestSite } from './api/content.api';
@@ -91,5 +92,6 @@ export {
 export const $activeId = computed($_activeIdAtom, (value) => value);
 export const $filterRefreshNeeded = computed($_filterRefreshNeededAtom, (value) => value);
 export const $isFilterActive = computed($_isFilterActiveAtom, (value) => value);
+export const $isReloading = computed($_isReloadingAtom, (value) => value);
 export const $selection = computed($_selectionAtom, (value) => value);
 export const $treeState = computed($_treeStateAtom, (value) => value);

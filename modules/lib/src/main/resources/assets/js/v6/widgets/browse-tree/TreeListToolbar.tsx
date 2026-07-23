@@ -4,21 +4,14 @@ import { useStore } from '@nanostores/preact';
 import { RefreshCcw } from 'lucide-react';
 import { type ReactElement, useMemo } from 'react';
 import {
-    activateFilter,
-    fetchRootChildrenIdsOnly,
-    getFilterQuery,
-    $activeRawFlatNodes,
-    $isFilterActive,
-    clearProjectContentCache,
-    $activeId,
     $isAllLoadedSelected,
     $isNoneSelected,
+    $isReloading,
     $selectionCount,
     clearSelection,
+    reloadContentTree,
     selectAll,
-    setActive,
     $rootLoadingState,
-    resetTree,
 } from '../../entities/content';
 import { useI18n } from '../../shared/lib/hooks/useI18n';
 
@@ -26,36 +19,10 @@ type TreeListToolbarProps = {
     enabled?: boolean;
 };
 
-const restoreActiveAfterReload = (activeId: string | null): void => {
-    if (!activeId) {
-        setActive(null);
-        return;
-    }
-
-    const activeExists = $activeRawFlatNodes.get().some((node) => node.nodeType === 'node' && node.id === activeId);
-    setActive(activeExists ? activeId : null);
-};
-
-const handleReload = async (): Promise<void> => {
-    const activeId = $activeId.get();
-
-    try {
-        if ($isFilterActive.get()) {
-            const query = getFilterQuery();
-            if (query) await activateFilter(query);
-        } else {
-            resetTree();
-            clearProjectContentCache();
-            await fetchRootChildrenIdsOnly();
-        }
-    } finally {
-        restoreActiveAfterReload(activeId);
-    }
-};
-
 const TreeListToolbar = ({ enabled = true }: TreeListToolbarProps): ReactElement => {
     const loadingState = useStore($rootLoadingState);
-    const isLoading = loadingState === 'loading';
+    const isReloading = useStore($isReloading);
+    const isLoading = loadingState === 'loading' || isReloading;
     const isAllSelected = useStore($isAllLoadedSelected);
     const totalSelected = useStore($selectionCount);
     const isNoneSelected = useStore($isNoneSelected);
@@ -95,7 +62,7 @@ const TreeListToolbar = ({ enabled = true }: TreeListToolbarProps): ReactElement
                 aria-label={reloadLabel}
                 icon={RefreshCcw}
                 disabled={isLoading || !enabled}
-                onClick={handleReload}
+                onClick={() => void reloadContentTree()}
             />
         </div>
     );

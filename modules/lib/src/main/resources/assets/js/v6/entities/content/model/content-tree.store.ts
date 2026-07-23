@@ -57,6 +57,9 @@ export const $treeState = atom<ContentTreeState>(createEmptyState<ContentTreeNod
 /** Root-level total children count for pagination */
 const $rootTotalChildren = atom<number | undefined>(undefined);
 
+/** Whether a full tree reload (root fetch + expansion restore) is in progress. */
+export const $isReloading = atom<boolean>(false);
+
 //
 // * Computed Stores
 //
@@ -209,6 +212,10 @@ export function resetTree(): void {
     $rootTotalChildren.set(undefined);
     // A pending reveal-scroll target points into the discarded tree.
     clearRevealScroll();
+}
+
+export function setReloading(reloading: boolean): void {
+    $isReloading.set(reloading);
 }
 
 export function setRootTotalChildren(total: number): void {

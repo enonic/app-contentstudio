@@ -10,12 +10,14 @@ import { $activeProject } from '../../project/activeProject.store';
 import type { Project } from '../../../../app/settings/data/project/Project';
 import {
     addTreeNodes,
+    expandNode,
     hasTreeNode,
     resetTree,
     setTreeChildren,
     setTreeRootIds,
     $treeState,
 } from '../model/content-tree.store';
+import { $activeId, $selection, clearSelection, setActive, setSelection } from '../model/content-selection.store';
 import { emitContentSorted } from '../../../shared/socket/socket.store';
 import { start as startContentService } from '../model/content.service';
 import { addFilterNodes, resetFilterTree, setFilterRootIds, $filterTreeState } from '../model/filter-tree.store';
@@ -35,6 +37,8 @@ import {
     isFilterChildrenIdsLoadFailed,
     isVisibleContentDataLoadFailed,
     isVisibleFilterContentDataLoadFailed,
+    reloadContentTree,
+    reloadMainTreePreservingExpansion,
     resetChildrenIdsRetryState,
     resetFilterChildrenIdsRetryState,
     resetVisibleContentDataRetryState,
@@ -654,6 +658,209 @@ describe('content-fetcher store integration', () => {
                 ]);
             });
             expect(mockListContentIdsByParent).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    describe('reloadMainTreePreservingExpansion', () => {
+        beforeEach(() => {
+            // Ensure main mode: filter state can leak from earlier tests.
+            deactivateFilter();
+            // Selection/active are not reset by the outer beforeEach and leak.
+            clearSelection();
+            setActive(null);
+        });
+
+        function mockChildrenByParent(childrenByParent: Record<string, string[]>): void {
+            mockListContentIdsByParent.mockImplementation((params: { parentId?: { toString: () => string } }) => {
+                const key = params.parentId?.toString() ?? '__root__';
+                const ids = childrenByParent[key] ?? [];
+                return okAsync(ids.map((id) => ({ toString: () => id })));
+            });
+        }
+
+        it('re-expands previously expanded nodes and reloads their children', async () => {
+            mockChildrenByParent({
+                __root__: ['root-1'],
+                'root-1': ['child-1'],
+                'child-1': ['grandchild-1'],
+            });
+
+            addTreeNodes([
+                { id: 'root-1', data: null, parentId: null, hasChildren: true },
+                { id: 'child-1', data: null, parentId: 'root-1', hasChildren: true },
+            ]);
+            setTreeRootIds(['root-1']);
+            setTreeChildren('root-1', ['child-1']);
+            expandNode('root-1');
+            expandNode('child-1');
+
+            await reloadMainTreePreservingExpansion();
+
+            const state = $treeState.get();
+            expect(state.rootIds).toEqual(['root-1']);
+            expect(state.expandedIds.has('root-1')).toBe(true);
+            expect(state.expandedIds.has('child-1')).toBe(true);
+            expect(state.nodes.get('root-1')?.childIds).toEqual(['child-1']);
+            expect(state.nodes.get('child-1')?.childIds).toEqual(['grandchild-1']);
+        });
+
+        it('drops expansion for nodes that no longer exist after reload', async () => {
+            mockChildrenByParent({
+                __root__: ['root-1'],
+                'root-1': [],
+            });
+
+            addTreeNodes([
+                { id: 'root-1', data: null, parentId: null, hasChildren: true },
+                { id: 'gone', data: null, parentId: 'root-1', hasChildren: true },
+            ]);
+            setTreeRootIds(['root-1']);
+            setTreeChildren('root-1', ['gone']);
+            expandNode('root-1');
+            expandNode('gone');
+
+            await reloadMainTreePreservingExpansion();
+
+            const state = $treeState.get();
+            expect(state.expandedIds.has('root-1')).toBe(true);
+            expect(state.expandedIds.has('gone')).toBe(false);
+            expect(state.nodes.has('gone')).toBe(false);
+        });
+
+        it('ignores a second reload while one is already in progress', async () => {
+            mockChildrenByParent({
+                __root__: ['root-1'],
+                'root-1': ['child-1'],
+                'child-1': ['grandchild-1'],
+            });
+
+            addTreeNodes([
+                { id: 'root-1', data: null, parentId: null, hasChildren: true },
+                { id: 'child-1', data: null, parentId: 'root-1', hasChildren: true },
+            ]);
+            setTreeRootIds(['root-1']);
+            setTreeChildren('root-1', ['child-1']);
+            expandNode('root-1');
+            expandNode('child-1');
+
+            // Second call is a no-op: the guard drops it so it cannot reset mid-restore.
+            const first = reloadContentTree();
+            const second = reloadContentTree();
+            await Promise.all([first, second]);
+
+            const state = $treeState.get();
+            expect(state.expandedIds.has('root-1')).toBe(true);
+            expect(state.expandedIds.has('child-1')).toBe(true);
+            expect(state.nodes.get('child-1')?.childIds).toEqual(['grandchild-1']);
+        });
+
+        it('clears the active item when it no longer resolves on the server', async () => {
+            mockChildrenByParent({ __root__: ['root-1'] });
+            // The active item is not returned by the server anymore.
+            mockResolveContentSummaries.mockReturnValue(okAsync([]));
+
+            addTreeNodes([{ id: 'stale-active', data: null, parentId: null, hasChildren: false }]);
+            setTreeRootIds(['stale-active']);
+            setActive('stale-active');
+
+            await reloadMainTreePreservingExpansion();
+
+            expect($activeId.get()).toBeNull();
+        });
+
+        it('keeps the active item when it still resolves on the server', async () => {
+            mockChildrenByParent({ __root__: ['root-1'] });
+            mockResolveContentSummaries.mockReturnValue(okAsync([createMockContent('root-1')]));
+
+            addTreeNodes([{ id: 'root-1', data: null, parentId: null, hasChildren: false }]);
+            setTreeRootIds(['root-1']);
+            setActive('root-1');
+
+            await reloadMainTreePreservingExpansion();
+
+            expect($activeId.get()).toBe('root-1');
+        });
+
+        it('drops selected items that no longer resolve on the server', async () => {
+            mockChildrenByParent({ __root__: ['keep', 'gone'] });
+            // Only 'keep' is still returned; 'gone' was deleted.
+            mockResolveContentSummaries.mockReturnValue(okAsync([createMockContent('keep')]));
+
+            setTreeRootIds(['keep', 'gone']);
+            setSelection(['keep', 'gone']);
+
+            await reloadMainTreePreservingExpansion();
+
+            expect([...$selection.get()]).toEqual(['keep']);
+        });
+
+        it('keeps selected items that still resolve after reload', async () => {
+            mockChildrenByParent({ __root__: ['a', 'b'] });
+            mockResolveContentSummaries.mockReturnValue(
+                okAsync([createMockContent('a'), createMockContent('b')]),
+            );
+
+            setTreeRootIds(['a', 'b']);
+            setSelection(['a', 'b']);
+
+            await reloadMainTreePreservingExpansion();
+
+            expect([...$selection.get()].sort()).toEqual(['a', 'b']);
+        });
+
+        it('refetches off-screen selected items whose data is not cached', async () => {
+            mockChildrenByParent({ __root__: ['deep'] });
+            mockResolveContentSummaries.mockReturnValue(okAsync([createMockContent('deep')]));
+
+            setTreeRootIds(['deep']);
+            setSelection(['deep']);
+
+            await reloadMainTreePreservingExpansion();
+
+            // Selected ids are fetched up front, not awaited from the viewport.
+            expect(mockResolveContentSummaries).toHaveBeenCalled();
+            expect([...$selection.get()]).toEqual(['deep']);
+        });
+    });
+
+    describe('reloadContentTree in filter mode', () => {
+        beforeEach(() => {
+            clearSelection();
+            setActive(null);
+        });
+
+        it('preserves the active and selected items across a filter reload', async () => {
+            mockOtherQueryApi.mockReturnValue(
+                okAsync({ contents: [createMockContent('f-1'), createMockContent('f-2')], totalHits: 2 }),
+            );
+
+            await activateFilter(createMockQuery());
+            setActive('f-1');
+            setSelection(['f-1', 'f-2']);
+
+            mockResolveContentSummaries.mockReturnValue(
+                okAsync([createMockContent('f-1'), createMockContent('f-2')]),
+            );
+
+            await reloadContentTree();
+
+            expect($activeId.get()).toBe('f-1');
+            expect([...$selection.get()].sort()).toEqual(['f-1', 'f-2']);
+        });
+
+        it('clears the active item when it no longer resolves after a filter reload', async () => {
+            mockOtherQueryApi.mockReturnValue(
+                okAsync({ contents: [createMockContent('f-1')], totalHits: 1 }),
+            );
+
+            await activateFilter(createMockQuery());
+            setActive('f-gone');
+
+            mockResolveContentSummaries.mockReturnValue(okAsync([]));
+
+            await reloadContentTree();
+
+            expect($activeId.get()).toBeNull();
         });
     });
 });
