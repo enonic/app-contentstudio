@@ -522,7 +522,7 @@ describe('requestPublishDialog.store', () => {
             expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
         });
 
-        it('should keep counts live while a dependant edit is staged and commit on Apply without re-resolving', async () => {
+        it('should keep counts live while a dependant edit is staged and re-resolve on Apply', async () => {
             await setupWithDependants();
             expect($requestPublishDialogCreateCount.get()).toBe(3);
 
@@ -536,8 +536,44 @@ describe('requestPublishDialog.store', () => {
 
             expect($isRequestPublishSelectionSynced.get()).toBe(true);
             expect($requestPublishDialogCreateCount.get()).toBe(2);
-            // Dependant exclusions are client-side only: no extra resolve on Apply.
-            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(1);
+            // Applying a dependant exclusion re-resolves so the server can re-evaluate required items.
+            const excludedCall = mockResolvePublishDependencies.mock.calls.find(
+                ([params]) => (params.excludedIds?.length ?? 0) > 0,
+            );
+            expect(excludedCall).toBeTruthy();
+            expect(excludedCall?.[0].excludedIds.map((id: ContentId) => id.toString())).toContain('dep-1');
+        });
+
+        it('should re-evaluate required dependants after excluding and applying', async () => {
+            const dep1 = new ContentId('dep-1');
+            const dep2 = new ContentId('dep-2');
+
+            // dep-1 is required until dep-2 is excluded (dep-2 was the only reason dep-1 is pulled in).
+            mockResolvePublishDependencies.mockImplementation(({ excludedIds = [] }: { excludedIds?: ContentId[] }) => {
+                const hasExclusion = excludedIds.length > 0;
+                return createResolveResult({
+                    dependants: [dep1, dep2],
+                    publishable: [dep1, dep2],
+                    required: hasExclusion ? [] : [dep1],
+                });
+            });
+            mockFetchContentSummaries.mockImplementation((ids: ContentId[]) =>
+                ids.map((id) => createMockContent(id.toString())),
+            );
+
+            openRequestPublishDialog([createMockContent('item-1', { hasChildren: true })]);
+            await flushRequestPublishReload();
+
+            expect($requestPublishDialog.get().requiredDependantIds.map((id) => id.toString())).toEqual(['dep-1']);
+
+            setRequestPublishDependantIncluded(dep2, false);
+            applyDraftRequestPublishDialogSelection();
+            await flushRequestPublishReload();
+
+            // The excluded child freed its required parent: dep-1 is no longer required.
+            expect($requestPublishDialog.get().requiredDependantIds).toHaveLength(0);
+            // The full list stays visible so the excluded item remains re-includable.
+            expect($requestPublishDialog.get().dependantIds.map((id) => id.toString())).toEqual(['dep-1', 'dep-2']);
         });
 
         it('should restore the applied selection on Cancel', async () => {

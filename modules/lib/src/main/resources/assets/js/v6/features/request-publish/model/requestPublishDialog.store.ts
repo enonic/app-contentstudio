@@ -1,14 +1,17 @@
 import { showError, showFeedback, showSuccess, showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
 import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { err, ok, type Result } from 'neverthrow';
 import { computed, map } from 'nanostores';
 import { type ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { IssueType } from '../../../../app/issue/IssueType';
 import { PublishRequest } from '../../../../app/issue/PublishRequest';
+import { type ResolvePublishDependenciesResult } from '../../../../app/resource/ResolvePublishDependenciesResult';
 import { createIssue } from '../../../entities/issue/api/issues.api';
 import { fetchContentSummaries } from '../../../entities/content';
 import { markAsReady, resolvePublishDependencies } from '../../../entities/content/api/publish.api';
+import { type AppError } from '../../../shared/api/errors';
 import { buildItems, dedupeItems, getItemIds } from '../../../shared/lib/cms/content/buildItems';
 import {
     DEPENDANT_LOAD_SIZE,
@@ -359,7 +362,6 @@ export const applyDraftRequestPublishDialogSelection = (): void => {
     }
 
     const state = $requestPublishDialog.get();
-    const childrenChanged = !isIdsEqual(state.excludeChildrenIds, state.appliedExcludeChildrenIds);
 
     $requestPublishDialog.set({
         ...state,
@@ -367,9 +369,8 @@ export const applyDraftRequestPublishDialogSelection = (): void => {
         appliedExcludedDependantIds: state.excludedDependantIds,
     });
 
-    if (childrenChanged) {
-        reloadDependenciesDebounced();
-    }
+    // Re-resolve so the server re-evaluates the dependant tree and required items.
+    reloadDependenciesDebounced();
 };
 
 export const cancelDraftRequestPublishDialogSelection = (): void => {
@@ -588,31 +589,26 @@ const reloadRequestPublishDependencies = async (): Promise<void> => {
     });
 
     try {
-        // Resolve the applied selection: reloads can fire while an edit is staged
-        // (socket events), and must neither consume nor commit the draft.
-        const dependenciesResult = await resolvePublishDependencies({
-            ids: itemIds,
-            excludeChildrenIds: state.appliedExcludeChildrenIds,
-        });
+        const resolution = await resolveAppliedDependencies(
+            itemIds,
+            state.appliedExcludeChildrenIds,
+            state.appliedExcludedDependantIds,
+        );
 
         if (currentInstance !== instanceId) {
             return;
         }
 
-        if (dependenciesResult.isErr()) {
-            console.error(dependenciesResult.error);
-            $requestPublishDialog.set({
-                ...$requestPublishDialog.get(),
-                loading: false,
-                failed: true,
-            });
-            showError(dependenciesResult.error.message);
+        if (resolution.isErr()) {
+            console.error(resolution.error);
+            $requestPublishDialog.set({ ...$requestPublishDialog.get(), loading: false, failed: true });
+            showError(resolution.error.message);
             return;
         }
 
-        const result = dependenciesResult.value;
+        const { maxResult, minResult } = resolution.value;
 
-        const allDependantIds = result.getDependants().filter((id) => !hasContentIdInIds(id, itemIds));
+        const allDependantIds = maxResult.getDependants().filter((id) => !hasContentIdInIds(id, itemIds));
 
         const firstWindow = await fetchDependantWindowSlice(allDependantIds, 0);
 
@@ -632,14 +628,14 @@ const reloadRequestPublishDependencies = async (): Promise<void> => {
         const dependants = orderSummariesByIds(firstWindow.summaries, allDependantIds);
 
         const latestState = $requestPublishDialog.get();
-        const requiredDependantIds = result.getRequired().filter((id) => hasContentIdInIds(id, allDependantIds));
+        const requiredDependantIds = minResult.getRequired().filter((id) => hasContentIdInIds(id, allDependantIds));
         const pruneExcludedIds = (ids: ContentId[]): ContentId[] =>
             ids
                 .filter((id) => hasContentIdInIds(id, allDependantIds))
                 .filter((id) => !hasContentIdInIds(id, requiredDependantIds));
 
-        const invalidIds = result.getInvalid();
-        const inProgressIds = result.getInProgress().filter((id) => !hasContentIdInIds(id, invalidIds));
+        const invalidIds = minResult.getInvalid();
+        const inProgressIds = minResult.getInProgress().filter((id) => !hasContentIdInIds(id, invalidIds));
 
         const isExcludable = (id: ContentId): boolean => {
             return (
@@ -657,7 +653,7 @@ const reloadRequestPublishDependencies = async (): Promise<void> => {
             dependants,
             dependantIds: allDependantIds,
             dependantWindow: Math.min(DEPENDANT_LOAD_SIZE, allDependantIds.length),
-            publishableContentIds: result.getPublishable(),
+            publishableContentIds: maxResult.getPublishable(),
             requiredDependantIds,
             excludedDependantIds: pruneExcludedIds(latestState.excludedDependantIds),
             appliedExcludedDependantIds: pruneExcludedIds(latestState.appliedExcludedDependantIds),
@@ -702,4 +698,33 @@ const markIdsReady = async (ids: ContentId[]): Promise<ContentId[]> => {
             return [];
         },
     );
+};
+
+// Two-pass resolve (Publish-dialog parity): the exclusion-free pass yields the full,
+// re-includable dependant list; the excluded pass re-evaluates the required items.
+// The second request is skipped when nothing is excluded.
+const resolveAppliedDependencies = async (
+    itemIds: ContentId[],
+    excludeChildrenIds: ContentId[],
+    excludedDependantIds: ContentId[],
+): Promise<Result<Record<'maxResult' | 'minResult', ResolvePublishDependenciesResult>, AppError>> => {
+    const maxResult = await resolvePublishDependencies({ ids: itemIds, excludeChildrenIds });
+    if (maxResult.isErr()) {
+        return err(maxResult.error);
+    }
+
+    if (excludedDependantIds.length === 0) {
+        return ok({ maxResult: maxResult.value, minResult: maxResult.value });
+    }
+
+    const minResult = await resolvePublishDependencies({
+        ids: itemIds,
+        excludeChildrenIds,
+        excludedIds: excludedDependantIds,
+    });
+    if (minResult.isErr()) {
+        return err(minResult.error);
+    }
+
+    return ok({ maxResult: maxResult.value, minResult: minResult.value });
 };
