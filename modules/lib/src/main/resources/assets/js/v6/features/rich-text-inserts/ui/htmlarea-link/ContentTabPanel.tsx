@@ -6,6 +6,7 @@ import { fetchNearestSite } from '../../../../entities/content';
 import { type UploadMediaSuccess } from '../../../../entities/content/api/uploadMedia.api';
 import { type UploadError } from '../../../../shared/api';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import {isBlank} from '../../../../shared/lib/format/isBlank';
 import { useUploadMedia } from '../../../../entities/content/lib/useUploadMedia';
 import { $contextContent } from '../../../../widgets/context-panel/model/contextContent.store';
 import { useStore } from '@nanostores/preact';
@@ -228,11 +229,11 @@ export const ContentTabPanel = (): ReactElement => {
                             <span className="text-sm text-enonic-red-500">{errors.queryParams}</span>
                         )}
                         {queryParams.map((param, index) => (
-                            <div key={index} className="flex items-center gap-2">
+                            <div key={index} className="flex items-start gap-2">
                                 <Input
                                     placeholder={paramNameLabel}
                                     value={param.key}
-                                    error={!param.key ? errors.queryParams : undefined}
+                                    error={isBlank(param.key) ? errors.queryParams : undefined}
                                     onChange={(e) => setQueryParamKey(index, (e.target as HTMLInputElement).value)}
                                     className="flex-1"
                                 />
@@ -242,7 +243,7 @@ export const ContentTabPanel = (): ReactElement => {
                                     onChange={(e) => setQueryParamValue(index, (e.target as HTMLInputElement).value)}
                                     className="flex-1"
                                 />
-                                <IconButton size="sm" variant="text" icon={X} onClick={() => removeQueryParam(index)} />
+                                <IconButton className="my-1.5" size="sm" variant="text" icon={X} onClick={() => removeQueryParam(index)}/>
                             </div>
                         ))}
                     </div>
