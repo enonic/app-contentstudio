@@ -246,16 +246,12 @@ $activeRawFlatNodes.subscribe((flatNodes) => {
 // * Filter Mode Transitions
 //
 
-// When switching between views (either direction), disable select-all mode
-// Select-all is view-specific - enabling it in one view should not affect the other
-// Selection IDs are preserved, but auto-selection behavior is disabled
+// Select-all is view-specific, so disable it on any view switch. Selection and
+// active are kept: active stays the context/preview target across views, and the
+// grid highlights it only when present in the current view (see ContentTreeList).
 $isFilterActive.subscribe(() => {
     if ($selectAllMode.get()) {
         $selectAllMode.set(false);
-    }
-
-    if ($activeId.get() !== null) {
-        $activeId.set(null);
     }
 });
 
@@ -280,10 +276,6 @@ $filterTreeState.subscribe((state) => {
     if (rootsChanged && $isFilterActive.get()) {
         if ($selectAllMode.get()) {
             $selectAllMode.set(false);
-        }
-
-        if ($activeId.get() !== null) {
-            $activeId.set(null);
         }
     }
 });

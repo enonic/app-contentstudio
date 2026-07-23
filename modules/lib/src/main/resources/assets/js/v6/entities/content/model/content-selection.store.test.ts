@@ -819,7 +819,10 @@ describe('contentTreeSelection.store', () => {
         });
     });
 
-    describe('active highlight on filter transitions', () => {
+    describe('active item across filter transitions', () => {
+        // The active id is the context/preview target and stays set across view
+        // switches (matching legacy). Whether the grid highlights it is decided in
+        // ContentTreeList by node presence, not by clearing $activeId here.
         beforeEach(() => {
             addTreeNodes([
                 { id: '1', data: createMockNodeData('1') },
@@ -828,15 +831,15 @@ describe('contentTreeSelection.store', () => {
             setTreeRootIds(['1', '2']);
         });
 
-        it('clears active highlight when entering filter mode', () => {
+        it('keeps the active item when entering filter mode', () => {
             setActive('1');
 
             setFilterActive(true);
 
-            expect($activeId.get()).toBeNull();
+            expect($activeId.get()).toBe('1');
         });
 
-        it('clears active highlight when leaving filter mode', () => {
+        it('keeps the active item when leaving filter mode', () => {
             setFilterActive(true);
             addFilterNodes([{ id: 'f1', data: createMockNodeData('f1') }]);
             setFilterRootIds(['f1']);
@@ -844,10 +847,10 @@ describe('contentTreeSelection.store', () => {
 
             setFilterActive(false);
 
-            expect($activeId.get()).toBeNull();
+            expect($activeId.get()).toBe('f1');
         });
 
-        it('clears active highlight when filter results change', () => {
+        it('keeps the active item when filter results change', () => {
             setFilterActive(true);
             addFilterNodes([{ id: 'f1', data: createMockNodeData('f1') }]);
             setFilterRootIds(['f1']);
@@ -857,10 +860,10 @@ describe('contentTreeSelection.store', () => {
             addFilterNodes([{ id: 'f2', data: createMockNodeData('f2') }]);
             setFilterRootIds(['f2']);
 
-            expect($activeId.get()).toBeNull();
+            expect($activeId.get()).toBe('f1');
         });
 
-        it('keeps active highlight when filter tree expands (roots unchanged)', () => {
+        it('keeps the active item when filter tree expands (roots unchanged)', () => {
             setFilterActive(true);
             addFilterNodes([{ id: 'f1', data: createMockNodeData('f1'), childIds: ['f1-1'] }]);
             setFilterRootIds(['f1']);
