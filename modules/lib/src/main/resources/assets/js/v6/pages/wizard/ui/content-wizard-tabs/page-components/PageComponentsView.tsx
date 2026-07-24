@@ -6,10 +6,21 @@ import {
     type SortableDropHint,
     SortableList,
     type SortableListItemContext,
+    type SortableListItemProps,
 } from '@enonic/lib-admin-ui/form2/components';
 import { cn } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import { type ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+    type FocusEvent as ReactFocusEvent,
+    type KeyboardEvent as ReactKeyboardEvent,
+    type ReactElement,
+    useCallback,
+    useEffect,
+    useLayoutEffect,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
 import { ComponentPath } from '../../../../../../app/page/region/ComponentPath';
 import { PageNavigationEvent } from '../../../../../../app/wizard/PageNavigationEvent';
 import { PageNavigationEventData } from '../../../../../../app/wizard/PageNavigationEventData';
@@ -35,6 +46,14 @@ import { $invalidComponentPaths, $validationVisibility } from '../../../model/wi
 import { EditLockOverlay } from '../../../../../shared/ui/EditLockOverlay';
 import { PageComponentsContextMenu } from './PageComponentsContextMenu';
 import { calcSpacerWidth, PageComponentsItem, type PageComponentPageMetadata } from './PageComponentsItem';
+import {
+    focusPageComponentsRow,
+    getPageComponentsRow,
+    getPageComponentsRowNodeId,
+    PAGE_COMPONENTS_ROW_CLASS,
+    type PageComponentsNavigationKey,
+    resolvePageComponentsNavigation,
+} from './pageComponentsKeyboardNavigation';
 import {
     $componentsFlatNodes,
     $componentsTreeState,
@@ -62,6 +81,8 @@ export type PageComponentsViewProps = {
 
 export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProps = {}): ReactElement => {
     const containerRef = useRef<HTMLDivElement>(null);
+    const pendingFocusNodeIdRef = useRef<string | null>(null);
+    const [tabStopNodeId, setTabStopNodeId] = useState<string | null>(null);
     const componentsLabel = useI18n('field.components');
     const pageVersion = useStore($pageVersion);
     const page = useStore($page);
@@ -81,6 +102,15 @@ export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProp
     );
     const referenceLoading = isFragmentLoading || isComponentLoading;
     const [flatNodes, setFlatNodes] = useState(() => [...$componentsFlatNodes.get()]);
+    const visibleTabStopNodeId = useMemo(() => {
+        if (flatNodes.some((node) => node.id === tabStopNodeId)) {
+            return tabStopNodeId;
+        }
+        if (flatNodes.some((node) => node.id === inspectedPath)) {
+            return inspectedPath;
+        }
+        return flatNodes[0]?.id ?? null;
+    }, [flatNodes, inspectedPath, tabStopNodeId]);
     const selectedPageOption = useSelectedPageOption();
     const pageMetadata = useMemo<PageComponentPageMetadata | undefined>(() => {
         if (selectedPageOption == null) {
@@ -113,6 +143,97 @@ export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProp
         });
         return () => cancelAnimationFrame(handle);
     }, [inspectedPath]);
+
+    useEffect(() => {
+        const container = containerRef.current;
+        if (container?.contains(document.activeElement)) {
+            return;
+        }
+
+        setTabStopNodeId((currentNodeId) => {
+            if (flatNodes.some((node) => node.id === inspectedPath)) {
+                return inspectedPath;
+            }
+            if (flatNodes.some((node) => node.id === currentNodeId)) {
+                return currentNodeId;
+            }
+            return flatNodes[0]?.id ?? null;
+        });
+    }, [flatNodes, inspectedPath]);
+
+    useLayoutEffect(() => {
+        const container = containerRef.current;
+        const pendingFocusNodeId = pendingFocusNodeIdRef.current;
+        if (
+            container == null ||
+            pendingFocusNodeId == null ||
+            !flatNodes.some((node) => node.id === pendingFocusNodeId)
+        ) {
+            return;
+        }
+
+        if (focusPageComponentsRow(container, pendingFocusNodeId)) {
+            setTabStopNodeId(pendingFocusNodeId);
+            pendingFocusNodeIdRef.current = null;
+        }
+    }, [flatNodes]);
+
+    const focusNode = useCallback((nodeId: string): void => {
+        const container = containerRef.current;
+        if (container == null) {
+            return;
+        }
+
+        setTabStopNodeId(nodeId);
+        focusPageComponentsRow(container, nodeId);
+    }, []);
+
+    const handleFocusCapture = useCallback((event: ReactFocusEvent<HTMLDivElement>): void => {
+        const nodeId = getPageComponentsRowNodeId(getPageComponentsRow(event.target));
+        if (nodeId == null) {
+            return;
+        }
+
+        setTabStopNodeId(nodeId);
+    }, []);
+
+    const handleKeyDownCapture = useCallback(
+        (event: ReactKeyboardEvent<HTMLDivElement>): void => {
+            if (
+                event.defaultPrevented ||
+                event.altKey ||
+                event.ctrlKey ||
+                event.metaKey ||
+                !isPageComponentsNavigationKey(event.key) ||
+                isEditableTarget(event.target)
+            ) {
+                return;
+            }
+
+            const row = getPageComponentsRow(event.target);
+            const nodeId = getPageComponentsRowNodeId(row);
+            if (row == null || nodeId == null) {
+                return;
+            }
+
+            // Once Space starts a keyboard drag, dnd-kit owns the arrow keys until
+            // Space drops the item again.
+            if (row.dataset.dragging === 'true') {
+                return;
+            }
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            const action = resolvePageComponentsNavigation(flatNodes, nodeId, event.key);
+            if (action?.type === 'toggle') {
+                toggleComponentExpand(action.nodeId);
+            } else if (action?.type === 'focus') {
+                focusNode(action.nodeId);
+            }
+        },
+        [flatNodes, focusNode],
+    );
 
     const resolveProjection = useCallback(
         (info: SortableDragInfo): DropProjection | null => {
@@ -173,11 +294,14 @@ export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProp
                 return;
             }
 
+            const movedNodeId = computeMovedItemPath(sourceNode.id, targetComponentPath);
+            const movedPath = ComponentPath.fromString(movedNodeId);
+            pendingFocusNodeIdRef.current = movedNodeId;
+
             requestComponentMove(fromPath, toPath);
             remapExpandedIdsAfterMove(sourceNode.id, targetComponentPath);
             rebuildComponentsTree();
 
-            const movedPath = ComponentPath.fromString(computeMovedItemPath(sourceNode.id, targetComponentPath));
             inspectItem(movedPath);
             PageNavigationMediator.get().notify(
                 new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(movedPath)),
@@ -212,11 +336,23 @@ export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProp
         (context: SortableListItemContext<FlatNode<PageComponentNodeData>>): string => {
             const isSelected = context.item.id === inspectedPath;
             return cn(
+                PAGE_COMPONENTS_ROW_CLASS,
                 'w-full px-2.5 select-none cursor-pointer',
                 isSelected ? 'bg-surface-selected text-alt [&>button]:text-alt' : 'hover:bg-surface-neutral-hover',
             );
         },
         [inspectedPath],
+    );
+
+    const getItemProps = useCallback(
+        (context: SortableListItemContext<FlatNode<PageComponentNodeData>>): SortableListItemProps => ({
+            role: 'treeitem',
+            tabIndex: context.item.id === visibleTabStopNodeId ? 0 : -1,
+            'aria-expanded': context.item.hasChildren ? context.item.isExpanded : undefined,
+            'aria-level': context.item.level,
+            'aria-selected': context.item.id === inspectedPath,
+        }),
+        [inspectedPath, visibleTabStopNodeId],
     );
 
     const renderItem = useCallback(
@@ -259,7 +395,13 @@ export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProp
 
     return (
         <EditLockOverlay locked={readOnly}>
-            <div ref={containerRef} data-component={PAGE_COMPONENTS_VIEW_NAME} className="flex flex-col gap-1 py-2">
+            <div
+                ref={containerRef}
+                data-component={PAGE_COMPONENTS_VIEW_NAME}
+                className="flex flex-col gap-1 py-2"
+                onFocusCapture={handleFocusCapture}
+                onKeyDownCapture={handleKeyDownCapture}
+            >
                 {showTitle && <h3 className="text-base font-semibold">{componentsLabel}</h3>}
                 <SortableList
                     items={flatNodes}
@@ -272,6 +414,9 @@ export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProp
                     resolveDrop={resolveDrop}
                     animateLayoutChanges={animateLayoutChanges}
                     itemClassName={itemClassName}
+                    containerProps={{role: 'tree', 'aria-label': componentsLabel}}
+                    getItemProps={getItemProps}
+                    restoreFocus={false}
                     renderItem={renderItem}
                     className="flex flex-col gap-1.5"
                 />
@@ -300,4 +445,21 @@ function toDropNodes(flatNodes: FlatNode<PageComponentNodeData>[]): DropNode[] {
         });
     }
     return dropNodes;
+}
+
+function isPageComponentsNavigationKey(key: string): key is PageComponentsNavigationKey {
+    return key === 'ArrowDown' || key === 'ArrowLeft' || key === 'ArrowRight' || key === 'ArrowUp';
+}
+
+function isEditableTarget(target: EventTarget): boolean {
+    if (!(target instanceof HTMLElement)) {
+        return false;
+    }
+
+    return (
+        target.isContentEditable ||
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLSelectElement ||
+        target instanceof HTMLTextAreaElement
+    );
 }
