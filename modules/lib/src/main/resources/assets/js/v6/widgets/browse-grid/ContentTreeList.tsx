@@ -194,6 +194,13 @@ export const ContentTreeList = ({ contextMenuActions = {} }: ContentTreeListProp
         [flatNodes, isFilterActive],
     );
 
+    // Active persists across views for preview/details but may be absent here;
+    // feed it to the list only when present, else the list resets it to items[0].
+    const activePresent = useMemo(
+        () => activeId != null && flatNodes.some((node) => node.id === activeId),
+        [flatNodes, activeId],
+    );
+
     const failedNodeIdSet = useMemo(() => new Set(failedNodeIds), [failedNodeIds]);
     const hasPendingPlaceholders = useMemo(
         () => flatNodes.some((node) => node.nodeType === 'node' && node.data === null && !failedNodeIdSet.has(node.id)),
@@ -501,7 +508,7 @@ export const ContentTreeList = ({ contextMenuActions = {} }: ContentTreeListProp
             selection={selection}
             onSelectionChange={handleSelectionChange}
             selectionMode="multiple"
-            active={activeId}
+            active={activePresent ? activeId : null}
             onActiveChange={setActive}
             preserveFilteredSelection={isFilterActive}
             onExpand={handleExpand}
