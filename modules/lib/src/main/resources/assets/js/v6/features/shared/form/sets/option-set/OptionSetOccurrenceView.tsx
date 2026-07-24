@@ -144,6 +144,7 @@ export const OptionSetOccurrenceView = forwardRef<HTMLDivElement, OptionSetOccur
                 ref={ref}
                 className={cn('w-full', isNew && 'animate-in fade-in duration-500')}
                 data-component={OPTION_SET_OCCURRENCE_VIEW_NAME}
+                data-confirming={isConfirming}
             >
                 {isConfirming && <SetConfirmOverlay />}
 

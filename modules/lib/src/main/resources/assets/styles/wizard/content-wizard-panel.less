@@ -1,5 +1,9 @@
 .content-wizard-panel {
 
+  .content-wizard-form-panel:has([data-confirming='true']) {
+    z-index: @z-index-set-confirm-form;
+  }
+
   .form-panel .help-text-toggler {
     display: none;
   }
