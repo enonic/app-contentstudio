@@ -22,14 +22,16 @@ export default defineConfig({
     },
     server: {
       deps: {
-        // Inline @enonic/ui to avoid ESM/CJS interop issues with preact aliasing
-        inline: ['@enonic/ui'],
+        // Inline @enonic/ui and react-resizable-panels to avoid ESM/CJS interop issues with preact aliasing
+        inline: ['@enonic/ui', /react-resizable-panels/],
       },
     },
   },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src/main/resources/assets/js'),
+      // Force the ESM build so the react import below gets aliased (the CJS build would require() real react)
+      'react-resizable-panels': 'react-resizable-panels/dist/react-resizable-panels.js',
       // Preact compat aliases for @testing-library/react
       'react': 'preact/compat',
       'react-dom': 'preact/compat',

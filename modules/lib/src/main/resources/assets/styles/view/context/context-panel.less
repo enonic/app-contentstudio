@@ -66,15 +66,6 @@
     flex-grow: 1;
   }
 
-  .splitter {
-    position: relative;
-    width: 5px;
-    height: 100%;
-    float: left;
-    background-color: @admin-bg-light-gray;
-    cursor: ew-resize;
-    .notSelectable();
-  }
 
   .label {
     font-family: @admin-font-family;
@@ -84,20 +75,7 @@
     z-index: @z-index-mask - 2;
   }
 
-  &.dragging {
-    overflow: visible;
-  }
 
-  .ghost-dragger {
-    height: 100%;
-    background-color: @admin-dark-gray;
-    opacity: 0.5;
-    position: absolute;
-    z-index: @z-index-draggable;
-    cursor: ew-resize;
-    width: 5px;
-    .notSelectable();
-  }
 
 
   &._0-240,

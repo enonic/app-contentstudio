@@ -3,9 +3,6 @@ import { ResponsiveRanges } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveR
 export const LayoutTokens = {
     contextPanel: {
         minWidth: 360,
-        // ? Overrides SplitPanel's default thickness of 5; used only in float-size width math.
-        splitterThickness: 1,
-        animationDelayMs: 600,
         dockedWidthPercent: {
             browse: 25,
             wizardWithEditor: 16,
