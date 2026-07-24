@@ -33,8 +33,6 @@ import { type Content } from '../../content/Content';
 import { type Site } from '../../content/Site';
 import { type ContentType } from '../../inputtype/schema/ContentType';
 import { type ComponentPath } from '../../page/region/ComponentPath';
-import { type ContextPanelState } from '../../view/context/ContextPanelState';
-import { type ContextPanelMode } from '../../view/context/ContextSplitPanel';
 import { type ExtensionRenderer } from '../../view/ExtensionRenderingHandler';
 import { SaveAsTemplateAction } from '../action/SaveAsTemplateAction';
 import { type ContentWizardPanel } from '../ContentWizardPanel';
@@ -288,14 +286,6 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
         this.liveEditPageProxy?.setModifyPermissions(enabled);
     }
 
-    setContextPanelMode(mode: ContextPanelMode): void {
-        //
-    }
-
-    setContextPanelState(state: ContextPanelState): void {
-        //
-    }
-
     unloadPage(): void {
         // ! Iframe-only unload. Inspection stores stay alive so the inspect
         // ! panel keeps showing controllers while the iframe is not renderable.
@@ -316,7 +306,4 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
         return this.frameContainer;
     }
 
-    setToggleContextPanelHandler(handler: () => void) {
-        //
-    }
 }

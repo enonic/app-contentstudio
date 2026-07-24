@@ -12,10 +12,7 @@ import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/Conten
 import { Action } from '@enonic/lib-admin-ui/ui/Action';
 import { KeyBindings } from '@enonic/lib-admin-ui/ui/KeyBindings';
 import { LoadMask } from '@enonic/lib-admin-ui/ui/mask/LoadMask';
-import { type Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
-import { type SplitPanel, SplitPanelAlignment, SplitPanelBuilder } from '@enonic/lib-admin-ui/ui/panel/SplitPanel';
-import { SplitPanelSize } from '@enonic/lib-admin-ui/ui/panel/SplitPanelSize';
-import { type ResponsiveItem } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
+import { Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
 import { ResponsiveManager } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import { ResponsiveRanges } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
 import { type Toolbar, type ToolbarConfig } from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
@@ -25,7 +22,6 @@ import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { type ValidityChangedEvent } from '@enonic/lib-admin-ui/ValidityChangedEvent';
 import Q from 'q';
 import { LiveEditModel } from '../../page-editor/LiveEditModel';
-import { LayoutTokens } from '../../v6/shared/ui/layout.tokens';
 import { cleanupWizardMixinsService, initWizardMixinsService } from '../../v6/pages/wizard/model/wizardMixins.service';
 import {
     cleanupWizardContentSyncService,
@@ -33,7 +29,6 @@ import {
 } from '../../v6/pages/wizard/model/wizardContentSync.service';
 import { setWizardContent } from '../../v6/widgets/context-panel/model/contextContent.store';
 import { $isContextOpen, setContextOpen } from '../../v6/widgets/context-panel/model/contextWidgets.store';
-import { $isPreviewPanelVisible } from '../../v6/widgets/preview-panel/model/previewPanel.store';
 import { getActiveProject, getActiveProjectName } from '../../v6/entities/project';
 import {
     $displayNameInputFocusRequested,
@@ -108,9 +103,6 @@ import { UrlAction } from '../UrlAction';
 import { ContentHelper } from '../util/ContentHelper';
 import { PageHelper } from '../util/PageHelper';
 import { UrlHelper } from '../util/UrlHelper';
-import { NonMobileContextPanelToggleButton } from '../view/context/button/NonMobileContextPanelToggleButton';
-import { ContextPanelState } from '../view/context/ContextPanelState';
-import { type ContextPanelMode } from '../view/context/ContextSplitPanel';
 import { buildDefaultContextWidgets, listDefaultContextWidgets } from '../view/context/buildDefaultContextWidgets';
 import { ContextView } from '../view/context/ContextView';
 import { loadCustomContextWidgets, watchCustomContextWidgets } from '../view/context/customContextWidgets';
@@ -118,8 +110,17 @@ import { DockedContextPanel } from '../view/context/DockedContextPanel';
 import { PageEditorContextController } from '../view/context/PageEditorContextController';
 import { AccessControlHelper } from './AccessControlHelper';
 import { ContentWizardActions } from './action/ContentWizardActions';
+import { WizardLayoutElement } from '../../v6/pages/wizard/ui/layout/WizardLayout';
+import {
+    $isWizardLayoutMeasured,
+    $wizardContextPanelMode,
+    $wizardViewMode,
+    setWizardViewMode,
+    shouldCollapseWizardContextInitially,
+} from '../../v6/pages/wizard/model/wizardLayout.store';
+import { InspectEvent } from '../event/InspectEvent';
+import { getContentAsCSCS } from '../../v6/entities/content';
 import { ContentContext } from './ContentContext';
-import { ContentWizardContextSplitPanel } from './ContentWizardContextSplitPanel';
 import { ContentWizardDataLoader } from './ContentWizardDataLoader';
 import { ContentWizardHeader } from './ContentWizardHeader';
 import { type ContentWizardPanelParams } from './ContentWizardPanelParams';
@@ -138,8 +139,6 @@ import { ThumbnailUploaderEl } from './ThumbnailUploaderEl';
 import { UpdatePersistedContentWithStoreRoutine } from './UpdatePersistedContentWithStoreRoutine';
 
 export class ContentWizardPanel extends WizardPanel<Content> {
-    private contextSplitPanel: ContentWizardContextSplitPanel;
-
     private contextView: ContextView;
 
     private livePanel?: LiveFormPanel;
@@ -168,8 +167,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
     private displayNameResolver: DisplayNameResolver;
 
-    private splitPanel?: SplitPanel;
-
     private requireValid: boolean;
 
     private isContentFormValid: boolean;
@@ -184,9 +181,11 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
     private minimized: boolean = false;
 
-    private minimizedFromFormOnly: boolean = false;
+    private wizardLayout: WizardLayoutElement;
 
-    private isTogglingMinimize: boolean = false;
+    private skipNextContextOpenRefresh: boolean = false;
+
+    private minimizedFromFormOnly: boolean = false;
 
     private restoreSplitViewAfterMobile: boolean = false;
 
@@ -300,57 +299,31 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
     toggleMinimize() {
         this.minimized = !this.minimized;
-        this.splitPanel.setSplitterIsHidden(this.minimized);
         this.formPanel.toggleClass('minimized');
-        this.splitPanel.toggleClass('form-minimized', this.minimized);
+        this.formPanel.toggleClass('border-r', this.minimized);
+        this.formPanel.toggleClass('border-bdr-soft', this.minimized);
 
         new MinimizeWizardPanelEvent().fire();
 
-        this.isTogglingMinimize = true;
-
         if (this.minimized) {
-            this.formPanel.addClass('border-r border-bdr-soft');
-
-            this.minimizedFromFormOnly = this.splitPanel.hasClass('toggle-form');
+            this.minimizedFromFormOnly = $wizardViewMode.get() === 'form';
             if (this.minimizedFromFormOnly) {
                 if (this.inMobileViewMode) {
                     this.restoreSplitViewAfterMobile = true;
                 }
 
-                this.splitPanel.removeClass('toggle-form').addClass('toggle-split');
-                this.splitPanel.showSecondPanel();
-                this.syncPreviewPanelVisibility();
+                setWizardViewMode('split');
             }
-
-            this.splitPanel.savePanelSizesAndDistribute(SplitPanelSize.PIXELS(60));
-            this.splitPanel.hideSplitter();
-        } else {
-            if (this.minimizedFromFormOnly) {
-                this.splitPanel.removeClass('toggle-split').addClass('toggle-form');
-                this.splitPanel.hideSecondPanel();
-                this.minimizedFromFormOnly = false;
-                this.syncPreviewPanelVisibility();
-            }
-
-            this.splitPanel.loadPanelSizesAndDistribute();
-            this.formPanel.removeClass('border-r border-bdr-soft');
-
-            if (!this.splitPanel.isSecondPanelHidden()) {
-                this.splitPanel.showSplitter();
-            }
+        } else if (this.minimizedFromFormOnly) {
+            this.minimizedFromFormOnly = false;
+            setWizardViewMode('form');
         }
 
-        const maximized = !this.minimized;
         if (this.helpTextToggleButton) {
-            this.helpTextToggleButton.setVisible(maximized);
+            this.helpTextToggleButton.setVisible(!this.minimized);
         }
 
         setContentFormExpanded(!this.minimized);
-
-        // Reset after a tick so the debounced resize handler from distribute() is suppressed
-        setTimeout(() => {
-            this.isTogglingMinimize = false;
-        });
     }
 
     protected createWizardActions(): ContentWizardActions {
@@ -461,7 +434,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         return this.livePanel;
     }
 
-    protected createWizardAndDetailsSplitPanel(leftPanel: Panel): SplitPanel {
+    private createWizardLayoutPanel(): Panel {
         this.contextView = new ContextView();
         const editorMode = !!this.livePanel;
         const widgets = buildDefaultContextWidgets(this.contextView, { editorMode });
@@ -483,78 +456,70 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         this.contextView.setItem(this.getContent());
         setWizardContent(this.getContent().getContentSummary());
 
-        const rightPanel: DockedContextPanel = new DockedContextPanel(this.contextView);
-        const contextToggleButton = new NonMobileContextPanelToggleButton();
+        const contextPanel = new DockedContextPanel(this.contextView);
 
-        this.contextSplitPanel = ContentWizardContextSplitPanel.create(leftPanel, rightPanel)
-            .setSecondPanelSize(
-                SplitPanelSize.PERCENTS(
-                    this.livePanel
-                        ? LayoutTokens.contextPanel.dockedWidthPercent.wizardWithEditor
-                        : LayoutTokens.contextPanel.dockedWidthPercent.wizardNoEditor,
-                ),
-            )
-            .setContextView(this.contextView)
-            .setLiveFormPanel(this.getLivePanel())
-            .setWizardFormPanel(this.formPanel)
-            .setToggleButton(contextToggleButton)
-            .build();
+        setContextOpen(false);
 
-        this.contextSplitPanel.hideSecondPanel();
-
-        // Backward compatibility with legacy context panel while React toggle controls store state.
-        setContextOpen(this.contextSplitPanel.getState() === ContextPanelState.EXPANDED);
-
-        this.contextSplitPanel.onStateChanged((state: ContextPanelState) => {
-            setContextOpen(state === ContextPanelState.EXPANDED);
+        this.wizardLayout = new WizardLayoutElement({
+            formPanel: this.formPanel,
+            livePanel: this.livePanel,
+            contextPanel,
+            onResized: () => this.updateStickyToolbar(),
         });
 
+        InspectEvent.on((event: InspectEvent) => {
+            const contentId = event.getContentId();
+            if (contentId !== undefined) {
+                const item = getContentAsCSCS(contentId);
+                if (item) {
+                    void this.contextView.setItem(item);
+                }
+            }
+
+            const widgetName = event.getWidgetName();
+            if (widgetName !== undefined) {
+                this.contextView.setActiveExtensionByName(widgetName, event.getWidgetApplicationKey());
+                // The activation above already loads the widget; skip the open-refresh.
+                this.skipNextContextOpenRefresh = event.isShowPanel();
+            }
+
+            if (event.isShowPanel()) {
+                setContextOpen(true);
+            }
+        });
+
+        // Custom legacy widgets still fetch through ContextView on open.
         $isContextOpen.subscribe((isOpen: boolean, wasOpen: boolean) => {
-            if (isOpen === wasOpen) {
+            const skipRefresh = this.skipNextContextOpenRefresh;
+            this.skipNextContextOpenRefresh = false;
+
+            if (isOpen && !wasOpen && !skipRefresh && contextPanel.getItem()) {
+                this.contextView.updateActiveExtension();
+            }
+        });
+
+        $wizardContextPanelMode.subscribe((mode, prevMode) => {
+            const isMobile = mode === 'mobile';
+            if (prevMode !== undefined && isMobile === (prevMode === 'mobile')) return;
+            if (prevMode === undefined && !isMobile) {
+                this.inMobileViewMode = false;
                 return;
             }
 
-            if (isOpen) {
-                this.contextSplitPanel.showContextPanel();
-            } else {
-                this.contextSplitPanel.hideContextPanel();
-            }
+            this.handleMobileModeChanged(isMobile);
         });
 
-        if (this.livePanel) {
-            this.splitPanel.onPanelResized(() => this.updateStickyToolbar());
-            this.livePanel.setToggleContextPanelHandler(() => {
-                this.contextSplitPanel.toggleContextPanel();
-            });
+        // Auto-open on wide screens once the layout reports its first measurement.
+        let unsubscribeInitialOpen: (() => void) | undefined;
+        unsubscribeInitialOpen = $isWizardLayoutMeasured.subscribe((measured: boolean) => {
+            if (!measured) return;
+            unsubscribeInitialOpen?.();
+            unsubscribeInitialOpen = undefined;
 
-            this.contextSplitPanel.onModeChanged((mode: ContextPanelMode) => {
-                if (!this.isMinimized()) {
-                    const formPanelSizePercents: number = this.contextSplitPanel.isDockedMode() ? 46 : 38;
-                    this.splitPanel.setFirstPanelSize(SplitPanelSize.PERCENTS(formPanelSizePercents));
-                    this.splitPanel.distribute(true);
-                }
-            });
-
-            setContextOpen(this.contextSplitPanel.getState() === ContextPanelState.EXPANDED);
-
-            this.contextSplitPanel.onStateChanged((state: ContextPanelState) => {
-                setContextOpen(state === ContextPanelState.EXPANDED);
-                this.livePanel.setContextPanelState(state);
-
-                if (this.isMinimized()) {
-                    return;
-                }
-
-                if (state === ContextPanelState.COLLAPSED) {
-                    this.splitPanel.setFirstPanelSize(SplitPanelSize.PERCENTS(38));
-                    this.splitPanel.distribute(true);
-                } else {
-                    const formPanelSizePercents: number = this.contextSplitPanel.isDockedMode() ? 46 : 38;
-                    this.splitPanel.setFirstPanelSize(SplitPanelSize.PERCENTS(formPanelSizePercents));
-                    this.splitPanel.distribute(true);
-                }
-            });
-        }
+            if (!shouldCollapseWizardContextInitially() && contextPanel.getActiveExtension()) {
+                setContextOpen(true);
+            }
+        });
 
         this.contentFormExpandedUnsubscribe = $isContentFormExpanded.listen((isExpanded) => {
             if (isExpanded === this.minimized) {
@@ -562,7 +527,12 @@ export class ContentWizardPanel extends WizardPanel<Content> {
             }
         });
 
-        return this.contextSplitPanel;
+        const wrapper = new Panel('wizard-layout-panel');
+        wrapper.setDoOffset(false);
+        // Below the 60px toolbar, or the empty strip would swallow toolbar clicks.
+        wrapper.addClass('!top-15');
+        wrapper.appendChild(this.wizardLayout);
+        return wrapper;
     }
 
     private createLivePanel(): LiveFormPanel {
@@ -713,26 +683,11 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
         this.onPageStateChanged(() => this.updateTabsElement());
 
-        const leftPanel: Panel = this.createSplitFormAndLivePanel(this.formPanel, this.livePanel);
-        return this.createWizardAndDetailsSplitPanel(leftPanel);
+        return this.createWizardLayoutPanel();
     }
 
     private notifyGeneralValidationErrors(): void {
         $generalServerErrorMessages.get().forEach((message: string) => showWarning(message));
-    }
-
-    private createSplitFormAndLivePanel(firstPanel: Panel, secondPanel: Panel): SplitPanel {
-        const builder: SplitPanelBuilder = new SplitPanelBuilder(firstPanel, secondPanel)
-            .setFirstPanelMinSize(SplitPanelSize.PIXELS(280))
-            .setFirstPanelSize(SplitPanelSize.PERCENTS(38))
-            .setSplitterThickness(1)
-            .setAlignment(SplitPanelAlignment.VERTICAL);
-
-        this.splitPanel = builder.build();
-
-        this.splitPanel.addClass('wizard-and-preview');
-
-        return this.splitPanel;
     }
 
     isNew(): boolean {
@@ -760,37 +715,33 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         });
     }
 
-    private availableSizeChangedHandler(item: ResponsiveItem) {
-        if (this.isTogglingMinimize) return;
-
+    private availableSizeChangedHandler() {
         if (this.isVisible()) {
             this.updateStickyToolbar();
-            if (item.isInRangeOrSmaller(ResponsiveRanges._720_960)) {
-                if (!this.inMobileViewMode) {
-                    this.restoreSplitViewAfterMobile =
-                        this.restoreSplitViewAfterMobile || this.isSplitView() || this.isLiveView();
-                }
+        }
+    }
 
-                this.inMobileViewMode = true;
+    // One mobile definition for behavior and layout: $wizardContextPanelMode.
+    private handleMobileModeChanged(isMobile: boolean): void {
+        this.inMobileViewMode = isMobile;
 
-                if (this.isSplitView() && !this.isMinimized()) {
-                    this.showForm();
-                }
-            } else {
-                if (this.inMobileViewMode) {
-                    this.inMobileViewMode = false;
+        if (isMobile) {
+            this.restoreSplitViewAfterMobile =
+                this.restoreSplitViewAfterMobile || this.isSplitView() || this.isLiveView();
 
-                    if (this.restoreSplitViewAfterMobile || this.isLiveView()) {
-                        if (this.isMinimized()) {
-                            this.minimizedFromFormOnly = false;
-                        }
-
-                        this.showLiveEdit();
-                    }
-
-                    this.restoreSplitViewAfterMobile = false;
-                }
+            if (this.isSplitView() && !this.isMinimized()) {
+                this.showForm();
             }
+        } else {
+            if (this.restoreSplitViewAfterMobile || this.isLiveView()) {
+                if (this.isMinimized()) {
+                    this.minimizedFromFormOnly = false;
+                }
+
+                this.showLiveEdit();
+            }
+
+            this.restoreSplitViewAfterMobile = false;
         }
     }
 
@@ -1420,7 +1371,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
             console.debug('ContentWizardPanel.toggleLiveEdit at ' + new Date().toISOString());
         }
 
-        if (!ResponsiveRanges._960_1200.isFitOrBigger(this.getEl().getWidth())) {
+        if ($wizardContextPanelMode.get() === 'mobile') {
             this.inMobileViewMode = true;
             this.restoreSplitViewAfterMobile = !!this.contentType;
             this.showForm();
@@ -1571,31 +1522,22 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         return $wizardIsMarkedAsReady.get();
     }
 
-    // `$isPreviewPanelVisible` is read by `ContentForm` to decide whether to exclude
-    // the ImageUploader input from the form (it is excluded when the preview is
-    // visible because `LiveViewImageEditor` renders it there instead).
     showForm(): void {
         this.wizardActions.getShowFormAction().execute();
-        this.syncPreviewPanelVisibility();
     }
 
     showLiveEdit(): void {
         this.wizardActions.getShowLiveEditAction().execute();
-        this.syncPreviewPanelVisibility();
     }
 
-    // Derived from the splitPanel mode classes so the atom stays correct regardless
-    // of which path mutated the layout (action, minimize toggle, responsive change).
-    private syncPreviewPanelVisibility(): void {
-        $isPreviewPanelVisible.set(this.isSplitView() || this.isLiveView());
-    }
+
 
     private isSplitView(): boolean {
-        return this.splitPanel && this.splitPanel.hasClass('toggle-split');
+        return $wizardViewMode.get() === 'split';
     }
 
     private isLiveView(): boolean {
-        return this.splitPanel && this.splitPanel.hasClass('toggle-live');
+        return $wizardViewMode.get() === 'live';
     }
 
     getContentWizardToolbarPublishControls(): ContentWizardToolbarPublishControls {
@@ -1783,10 +1725,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
     isInMobileViewMode(): boolean {
         return this.inMobileViewMode;
-    }
-
-    getSplitPanel(): SplitPanel {
-        return this.splitPanel;
     }
 
     private getTemplateForCustomize(): Q.Promise<PageTemplate> {

@@ -14,7 +14,6 @@ import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
 import type Q from 'q';
 import { $actionsNeedRefresh, clearActionsRefreshSignal } from '../../v6/app/actions.store';
 import { removeContent, setContent, hasCurrentItems, removeTreeNode, revealContentByPath } from '../../v6/entities/content';
-import { setContentFilterOpen } from '../../v6/features/search/model/contentFilter.store';
 import { onActiveProjectChanged } from '../../v6/entities/project/activeProject.store';
 import { onNoProjectsAvailable } from '../../v6/entities/project/projects.store';
 import { ContentTreeListElement } from '../../v6/widgets/browse-grid/ContentTreeListElement';
@@ -135,14 +134,12 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
     private handleProjectNotSet() {
         this.getBrowseActions().setState(State.DISABLED);
         this.toggleFilterPanelAction.setEnabled(false);
-        this.contextSplitPanelToggler.setEnabled(false);
         this.setContentTreeState(State.DISABLED);
 
         let unsubscribeProjectSetHandler = () => undefined;
         const projectSetHandler = () => {
             this.getBrowseActions().setState(State.ENABLED);
             this.toggleFilterPanelAction.setEnabled(true);
-            this.contextSplitPanelToggler.setEnabled(true);
             this.setContentTreeState(State.ENABLED);
             Router.get().setHash(UrlAction.BROWSE);
             unsubscribeProjectSetHandler();
@@ -292,10 +289,6 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
         watchCustomContextWidgets(contextView);
 
         return contextView;
-    }
-
-    protected getFirstPanelSize(): number {
-        return 50;
     }
 
     doRender(): Q.Promise<boolean> {
@@ -725,7 +718,6 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
         });
 
         this.browseToolbar.addContainer(contentActionMenuButton, contentActionMenuButton.getChildControls());
-        this.browseToolbar.addElement(this.contextSplitPanelToggler);
 
         browseActions.onBeforeActionsStashed(() => {
             contentActionMenuButton.setRefreshDisabled(true);
@@ -749,10 +741,6 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
         super.updateActionsAndPreview();
     }
 
-    protected togglePreviewPanelDependingOnScreenSize(item: ResponsiveItem): void {
-        //
-    }
-
     protected updateContextView(item: ContentSummaryAndCompareStatus): Q.Promise<void> {
         return this.contextView.setItem(item?.hasContentSummary() ? item : null);
     }
@@ -769,14 +757,4 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
         }
     }
 
-    // TODO: Enonic UI - Sync layer
-    toggleFilterPanel() {
-        super.toggleFilterPanel();
-        const isFilterPanelHidden = this.filterPanelIsHidden();
-        setContentFilterOpen(!isFilterPanelHidden);
-    }
-
-    protected getSplitterThickness(): number {
-        return 1;
-    }
 }
