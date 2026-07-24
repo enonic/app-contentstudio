@@ -1,7 +1,7 @@
 .content-wizard-panel {
 
-  .content-wizard-form-panel:has([data-component='SetConfirmOverlay']) {
-    z-index: 3;
+  .content-wizard-form-panel:has([data-confirming='true']) {
+    z-index: @z-index-set-confirm-form;
   }
 
   .form-panel .help-text-toggler {
