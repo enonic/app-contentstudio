@@ -16,6 +16,7 @@ import { $wizardContextPanelMode, $wizardViewMode, setWizardLayoutMetrics } from
 const CONTEXT_MIN_WIDTH = LayoutTokens.contextPanel.minWidth;
 // Below this the form is unusable; dragging past it collapses to the 60px rail instead.
 const FORM_MIN_WIDTH = 360;
+const LIVE_MIN_WIDTH = 360;
 const MINIMIZED_RAIL_WIDTH = '60px';
 const FORM_DEFAULT_SIZE = '38%';
 const DOCKED_PERCENT = LayoutTokens.contextPanel.dockedWidthPercent;
@@ -46,7 +47,6 @@ export const WizardLayout = ({ formPanel, livePanel, contextPanel, onResized }: 
 
     const rootRef = useRef<HTMLDivElement>(null);
     const totalWidthRef = useRef(0);
-    const contextWidthRef = useRef(0);
 
     const isMobile = mode === 'mobile';
     const editorShown = viewMode !== 'form';
@@ -54,10 +54,9 @@ export const WizardLayout = ({ formPanel, livePanel, contextPanel, onResized }: 
 
     const publishMetrics = useCallback(() => {
         const totalWidth = totalWidthRef.current;
-        const measured = contextWidthRef.current;
-        const contextWidth = measured > 0
-            ? measured
-            : Math.max(CONTEXT_MIN_WIDTH, (totalWidth * dockedPercent) / 100);
+        // ! Mode uses the nominal docked width, never the live-dragged width:
+        // dragging the panel wider must not flip it to floating mid-drag.
+        const contextWidth = Math.max(CONTEXT_MIN_WIDTH, (totalWidth * dockedPercent) / 100);
 
         setWizardLayoutMetrics({ totalWidth, contextWidth });
     }, [dockedPercent]);
@@ -97,15 +96,6 @@ export const WizardLayout = ({ formPanel, livePanel, contextPanel, onResized }: 
         notifyLegacyResize();
         scheduleResized();
     }, [notifyLegacyResize, scheduleResized]);
-
-    const handleContextResize = useCallback(
-        (panelSize: { inPixels: number }) => {
-            contextWidthRef.current = panelSize.inPixels;
-            publishMetrics();
-            handlePanelResize();
-        },
-        [publishMetrics, handlePanelResize],
-    );
 
     // Drag-collapse must reach the store, or the minimize toggle desyncs.
     const handleFormCollapsedChange = useCallback(
@@ -154,6 +144,7 @@ export const WizardLayout = ({ formPanel, livePanel, contextPanel, onResized }: 
                 {showFormLiveHandle && <SplitView.Handle id='form-live-handle' variant='thin' />}
                 <SplitView.Panel
                     id='live'
+                    minSize={isMobile ? undefined : `${LIVE_MIN_WIDTH}px`}
                     collapsible
                     collapsed={liveCollapsed}
                     onResize={handlePanelResize}
@@ -167,7 +158,7 @@ export const WizardLayout = ({ formPanel, livePanel, contextPanel, onResized }: 
                             id='context'
                             defaultSize={`${dockedPercent}%`}
                             minSize={`${CONTEXT_MIN_WIDTH}px`}
-                            onResize={handleContextResize}
+                            onResize={handlePanelResize}
                         >
                             <LegacyElementHost element={contextPanel} className='size-full' />
                         </SplitView.Panel>

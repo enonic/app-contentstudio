@@ -4,18 +4,18 @@ import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
 import { cn } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { useCallback, useEffect, useMemo, useRef, type ReactElement } from 'react';
-import { $isContextOpen } from '../../../widgets/context-panel/model/contextWidgets.store';
+import { $isContextOpen } from '../../../../widgets/context-panel/model/contextWidgets.store';
 import {
     $contextPanelMode,
     setContextLayoutMetrics,
-} from '../../../widgets/context-panel/model/contextPanelMode.store';
-import { LayoutTokens } from '../../../shared/ui/layout.tokens';
-import { LegacyElement } from '../../../shared/ui/LegacyElement';
-import { LegacyElementHost } from '../../../shared/ui/LegacyElementHost';
-import { SplitView } from '../../../shared/ui/split-view';
-import { $isContentFilterOpen } from '../../../features/search/model/contentFilter.store';
-import { FloatingContextPanel } from '../../../widgets/context-panel/ui/FloatingContextPanel';
-import { $isMobilePreviewOpen } from '../model/browseLayout.store';
+} from '../../../../widgets/context-panel/model/contextPanelMode.store';
+import { LayoutTokens } from '../../../../shared/ui/layout.tokens';
+import { LegacyElement } from '../../../../shared/ui/LegacyElement';
+import { LegacyElementHost } from '../../../../shared/ui/LegacyElementHost';
+import { SplitView } from '../../../../shared/ui/split-view';
+import { $isContentFilterOpen } from '../../../../features/search/model/contentFilter.store';
+import { FloatingContextPanel } from '../../../../widgets/context-panel/ui/FloatingContextPanel';
+import { $isMobilePreviewOpen } from '../../model/browseLayout.store';
 
 const CONTEXT_MIN_WIDTH = LayoutTokens.contextPanel.minWidth;
 const RESIZE_NOTIFY_DELAY_MS = 200;
@@ -57,15 +57,12 @@ export const BrowseLayout = ({
 
     const rootRef = useRef<HTMLDivElement>(null);
     const totalWidthRef = useRef(0);
-    const contextWidthRef = useRef(0);
 
     const publishMetrics = useCallback(() => {
         const totalWidth = totalWidthRef.current;
-        // The docked context panel renders at its min width, so an unmeasured
-        // estimate uses the same value rather than a stale percentage.
-        const contextWidth = contextWidthRef.current > 0 ? contextWidthRef.current : CONTEXT_MIN_WIDTH;
-
-        setContextLayoutMetrics({ totalWidth, contextWidth, windowWidth: window.innerWidth });
+        // ! Mode uses the docked panel's min width, never the live-dragged width:
+        // dragging the panel wider must not flip it to floating mid-drag.
+        setContextLayoutMetrics({ totalWidth, contextWidth: CONTEXT_MIN_WIDTH, windowWidth: window.innerWidth });
     }, []);
 
     useEffect(() => {
@@ -92,15 +89,6 @@ export const BrowseLayout = ({
     );
 
     const handlePanelResize = useCallback(() => notifyLegacyResize(), [notifyLegacyResize]);
-
-    const handleContextResize = useCallback(
-        (panelSize: { inPixels: number }) => {
-            contextWidthRef.current = panelSize.inPixels;
-            publishMetrics();
-            notifyLegacyResize();
-        },
-        [publishMetrics, notifyLegacyResize],
-    );
 
     const isMobile = mode === 'mobile';
     // ! Grid and preview stay mounted through mode changes: re-parenting would
@@ -169,7 +157,7 @@ export const BrowseLayout = ({
                             defaultSize={`${CONTEXT_MIN_WIDTH}px`}
                             minSize={`${CONTEXT_MIN_WIDTH}px`}
                             groupResizeBehavior='preserve-pixel-size'
-                            onResize={handleContextResize}
+                            onResize={handlePanelResize}
                         >
                             <LegacyElementHost element={contextPanel} className='size-full' />
                         </SplitView.Panel>

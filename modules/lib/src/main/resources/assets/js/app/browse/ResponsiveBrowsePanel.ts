@@ -7,7 +7,7 @@ import { Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
 import { SelectionMode } from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import type Q from 'q';
-import { BrowseLayoutElement } from '../../v6/pages/browse/layout/BrowseLayout';
+import { BrowseLayoutElement } from '../../v6/pages/browse/ui/layout/BrowseLayout';
 import { setMobilePreviewOpen } from '../../v6/pages/browse/model/browseLayout.store';
 import {
     $contextPanelMode,

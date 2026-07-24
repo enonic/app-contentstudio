@@ -1,11 +1,11 @@
 import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
 import { act, render, screen } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { setContextOpen } from '../../../widgets/context-panel/model/contextWidgets.store';
-import { setContextLayoutMetrics } from '../../../widgets/context-panel/model/contextPanelMode.store';
-import { setMobilePreviewOpen } from '../model/browseLayout.store';
-import { setFloatingContextWidth } from '../../../widgets/context-panel/model/floatingContextWidth.store';
-import { setContentFilterOpen } from '../../../features/search/model/contentFilter.store';
+import { setContextOpen } from '../../../../widgets/context-panel/model/contextWidgets.store';
+import { setContextLayoutMetrics } from '../../../../widgets/context-panel/model/contextPanelMode.store';
+import { setMobilePreviewOpen } from '../../model/browseLayout.store';
+import { setFloatingContextWidth } from '../../../../widgets/context-panel/model/floatingContextWidth.store';
+import { setContentFilterOpen } from '../../../../features/search/model/contentFilter.store';
 import { BrowseLayout } from './BrowseLayout';
 
 // Layout-engine stubs (happy-dom has none); see split-view.test.tsx for details.
