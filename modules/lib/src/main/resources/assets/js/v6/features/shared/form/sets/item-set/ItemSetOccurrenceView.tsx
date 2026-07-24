@@ -108,6 +108,7 @@ export const ItemSetOccurrenceView = forwardRef<HTMLDivElement, ItemSetOccurrenc
                 ref={ref}
                 className={cn('w-full', isNew && 'animate-in fade-in duration-500')}
                 data-component={ITEM_SET_OCCURRENCE_VIEW_NAME}
+                data-confirming={confirmingDelete}
             >
                 {confirmingDelete && <SetConfirmOverlay />}
 

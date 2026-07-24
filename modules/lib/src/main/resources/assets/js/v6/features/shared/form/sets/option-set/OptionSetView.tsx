@@ -197,7 +197,7 @@ export const OptionSetView = ({ optionSet, propertySet }: OptionSetViewProps): R
     );
 
     return (
-        <div className="flex flex-col gap-3" data-component={OPTION_SET_VIEW_NAME}>
+        <div className="flex flex-col gap-3" data-component={OPTION_SET_VIEW_NAME} data-confirming={confirmingAdd}>
             {confirmingAdd && <SetConfirmOverlay />}
 
             {confirmingAdd && (
