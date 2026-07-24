@@ -1,6 +1,6 @@
 import { Tab } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import { type ReactElement } from 'react';
+import {type ReactElement, useRef} from 'react';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import { $activeWidgetId, $isContextOpen } from '../../../context-panel/model/contextWidgets.store';
 import {
@@ -19,6 +19,7 @@ import { InspectPanel } from './inspect';
 const PAGE_EDITOR_EXTENSION_NAME = 'PageEditorExtension';
 
 export const PageEditorExtension = (): ReactElement | null => {
+    const tabRootRef = useRef<HTMLDivElement>(null);
     const isContextOpen = useStore($isContextOpen);
     const activeWidgetId = useStore($activeWidgetId);
     const isInsertTabAvailable = useStore($isInsertTabAvailable);
@@ -36,6 +37,7 @@ export const PageEditorExtension = (): ReactElement | null => {
 
     const insertLabel = useI18n('action.insert');
     const inspectLabel = useI18n('action.inspect');
+    const focusTriggerOnValueChange = tabRootRef.current?.contains(document.activeElement) ?? false;
 
     if (!isContextOpen || activeWidgetId !== getPageEditorWidgetKey()) {
         return dragState ? <DragPreview /> : null;
@@ -44,9 +46,11 @@ export const PageEditorExtension = (): ReactElement | null => {
     return (
         <>
             <Tab.Root
+                ref={tabRootRef}
                 data-component={PAGE_EDITOR_EXTENSION_NAME}
                 value={activeTab}
                 onValueChange={setActiveTab}
+                focusTriggerOnValueChange={focusTriggerOnValueChange}
                 className="flex flex-col -mt-4"
             >
                 <Tab.List>

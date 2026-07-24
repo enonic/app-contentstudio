@@ -8,7 +8,6 @@ import type { Region } from '../../../../../../app/page/region/Region';
 import { TextComponent } from '../../../../../../app/page/region/TextComponent';
 import {
     type CreateNodeOptions,
-    type TreeNode,
     type TreeState,
     collapse,
     createEmptyState,
@@ -175,7 +174,6 @@ function buildTreeFromPage(
         }
     } else {
         for (const [id, node] of state.nodes) {
-            if (isNestedLayout(node)) continue;
             if (node.hasChildren || node.childIds.length > 0) {
                 expandedIds.add(id);
             }
@@ -189,10 +187,6 @@ function buildTreeFromPage(
     }
 
     return { ...state, expandedIds };
-}
-
-function isNestedLayout(node: TreeNode<PageComponentNodeData>): boolean {
-    return node.data?.nodeType === 'layout' && node.parentId !== null;
 }
 
 function collectLayouts(page: Page | null): Map<string, LayoutComponent> {
