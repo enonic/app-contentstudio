@@ -153,13 +153,14 @@ describe('datetime.config.spec: tests for datetime content ', function () {
         async () => {
             let dateTimeForm = new DateTimeForm();
             let contentWizard = new ContentWizard();
-            //1. Open wizard for new dateTime 1:1
+            await contentWizard.pause(1000);
+            // 1. Open wizard for new dateTime 1:1
             await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.DATE_TIME_1_1);
-            //2. Fill in the name input and click on Save button:
+            // 2. Fill in the name input and click on Save button:
             await contentWizard.typeDisplayName(DATE_TIME_NAME_1);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
-            //3. Verify the message 'This field is required'
+            // 3. Verify the message 'This field is required'
             let actualMessage = await dateTimeForm.getFormValidationRecording();
             assert.equal(actualMessage, appConst.VALIDATION_MESSAGE.THIS_FIELD_IS_REQUIRED, 'expected validation recording should appear');
             //4. Verify that the content is invalid:
