@@ -5,43 +5,43 @@ import {
     type InitializePayload,
     type InsertableComponentKind,
 } from '@enonic/page-editor/protocol';
-import {BeforeContentSavedEvent} from '../../event/BeforeContentSavedEvent';
-import {type ComponentAddedEvent} from '../../page/region/ComponentAddedEvent';
-import {ComponentDuplicatedEvent} from '../../page/region/ComponentDuplicatedEvent';
-import {ComponentMovedEvent} from '../../page/region/ComponentMovedEvent';
-import {ComponentPath} from '../../page/region/ComponentPath';
-import {type ComponentRemovedEvent} from '../../page/region/ComponentRemovedEvent';
-import {ComponentRemovedOnMoveEvent} from '../../page/region/ComponentRemovedOnMoveEvent';
-import {ComponentTextUpdatedEvent} from '../../page/region/ComponentTextUpdatedEvent';
-import {ComponentType} from '../../page/region/ComponentType';
-import {type ComponentUpdatedEvent} from '../../page/region/ComponentUpdatedEvent';
-import {ContentId} from '../../content/ContentId';
-import {PageEventsManager} from '../PageEventsManager';
-import {PageNavigationEvent} from '../PageNavigationEvent';
-import {PageNavigationEventData, PageNavigationEventSource} from '../PageNavigationEventData';
-import {PageNavigationEventType} from '../PageNavigationEventType';
-import {type PageNavigationHandler} from '../PageNavigationHandler';
-import {PageNavigationMediator} from '../PageNavigationMediator';
-import {PageState} from './PageState';
-import {type PageUpdatedEvent} from '../../page/event/PageUpdatedEvent';
-import {PageControllerCustomizedEvent} from '../../page/event/PageControllerCustomizedEvent';
-import {SessionStorageHelper} from '../../util/SessionStorageHelper';
-import {getActiveProject} from '../../../v6/entities/project/activeProject.store';
-import {type LiveEditModel} from '../../../page-editor/LiveEditModel';
-import {LiveEditParams} from '../../../page-editor/LiveEditParams';
-import {PageLockedEvent} from '../../../page-editor/event/outgoing/manipulation/PageLockedEvent';
-import {PageUnlockedEvent} from '../../../page-editor/event/outgoing/manipulation/PageUnlockedEvent';
-import {LiveEditPageViewReadyEvent} from '../../../page-editor/event/LiveEditPageViewReadyEvent';
-import {LiveEditPageInitializationErrorEvent} from '../../../page-editor/event/LiveEditPageInitializationErrorEvent';
-import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
-import {DragMask} from '@enonic/lib-admin-ui/ui/mask/DragMask';
-import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {ContentUrlHelper} from '../../util/ContentUrlHelper';
-import {type Extension} from '@enonic/lib-admin-ui/extension/Extension';
-import {type WizardExtensionRenderingHandler} from '../WizardExtensionRenderingHandler';
-import {setLiveEditDraggableHost} from './LiveEditDraggableHost';
-import {type PortalComponentType} from '../../../v6/widgets/inspectors/model/page-editor/drag';
+import { BeforeContentSavedEvent } from '../../event/BeforeContentSavedEvent';
+import { type ComponentAddedEvent } from '../../page/region/ComponentAddedEvent';
+import { ComponentDuplicatedEvent } from '../../page/region/ComponentDuplicatedEvent';
+import { ComponentMovedEvent } from '../../page/region/ComponentMovedEvent';
+import { ComponentPath } from '../../page/region/ComponentPath';
+import { type ComponentRemovedEvent } from '../../page/region/ComponentRemovedEvent';
+import { ComponentRemovedOnMoveEvent } from '../../page/region/ComponentRemovedOnMoveEvent';
+import { ComponentTextUpdatedEvent } from '../../page/region/ComponentTextUpdatedEvent';
+import { ComponentType } from '../../page/region/ComponentType';
+import { type ComponentUpdatedEvent } from '../../page/region/ComponentUpdatedEvent';
+import { ContentId } from '../../content/ContentId';
+import { PageEventsManager } from '../PageEventsManager';
+import { PageNavigationEvent } from '../PageNavigationEvent';
+import { PageNavigationEventData, PageNavigationEventSource } from '../PageNavigationEventData';
+import { PageNavigationEventType } from '../PageNavigationEventType';
+import { type PageNavigationHandler } from '../PageNavigationHandler';
+import { PageNavigationMediator } from '../PageNavigationMediator';
+import { PageState } from './PageState';
+import { type PageUpdatedEvent } from '../../page/event/PageUpdatedEvent';
+import { PageControllerCustomizedEvent } from '../../page/event/PageControllerCustomizedEvent';
+import { SessionStorageHelper } from '../../util/SessionStorageHelper';
+import { getActiveProject } from '../../../v6/entities/project/activeProject.store';
+import { type LiveEditModel } from '../../../page-editor/LiveEditModel';
+import { LiveEditParams } from '../../../page-editor/LiveEditParams';
+import { PageLockedEvent } from '../../../page-editor/event/outgoing/manipulation/PageLockedEvent';
+import { PageUnlockedEvent } from '../../../page-editor/event/outgoing/manipulation/PageUnlockedEvent';
+import { LiveEditPageViewReadyEvent } from '../../../page-editor/event/LiveEditPageViewReadyEvent';
+import { LiveEditPageInitializationErrorEvent } from '../../../page-editor/event/LiveEditPageInitializationErrorEvent';
+import { IFrameEl } from '@enonic/lib-admin-ui/dom/IFrameEl';
+import { DragMask } from '@enonic/lib-admin-ui/ui/mask/DragMask';
+import { WindowDOM } from '@enonic/lib-admin-ui/dom/WindowDOM';
+import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
+import { ContentUrlHelper } from '../../util/ContentUrlHelper';
+import { type Extension } from '@enonic/lib-admin-ui/extension/Extension';
+import { type WizardExtensionRenderingHandler } from '../WizardExtensionRenderingHandler';
+import { setLiveEditDraggableHost } from './LiveEditDraggableHost';
+import { type PortalComponentType } from '../../../v6/widgets/inspectors/model/page-editor/drag';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy implements PageNavigationHandler {
@@ -62,6 +62,8 @@ export class LiveEditPageProxy implements PageNavigationHandler {
     private modifyPermissions: boolean;
 
     private isPageLocked: boolean;
+
+    private isContentRenderable: boolean = false;
 
     constructor(model: LiveEditModel) {
         this.setModel(model);
@@ -193,12 +195,16 @@ export class LiveEditPageProxy implements PageNavigationHandler {
         PageEventsManager.get().notifyBeforeLoad();
 
         // load the page
-        return widgetRenderingHelper.render(this.liveEditModel.getContent(), viewWidget);
+        return widgetRenderingHelper.render(this.liveEditModel.getContent(), viewWidget).then((isRenderable) => {
+            this.isContentRenderable = !!isRenderable;
+            return isRenderable;
+        });
     }
 
     public unload(): void {
         this.liveEditIFrame?.getEl().removeAttribute('src');
         this.isPageLocked = false;
+        this.isContentRenderable = false;
 
         if (this.isFrameLoaded) {
             this.disconnect();
@@ -651,13 +657,15 @@ export class LiveEditPageProxy implements PageNavigationHandler {
     }
 
     private isLiveEditAllowed(): boolean {
-        // if content is rendered, but has no controller nor template, we should not allow live edit
+        // content rendered without controller or template (e.g. via controller mapping)
+        // gets live edit initialized in the locked mode
 
         return this.liveEditModel
             ? this.liveEditModel.getContent().isPageTemplate() ||
                   PageState.getState()?.hasController() ||
                   this.liveEditModel.getContent().getType().isFragment() ||
-                  this.liveEditModel.getDefaultModels()?.hasDefaultPageTemplate()
+                  this.liveEditModel.getDefaultModels()?.hasDefaultPageTemplate() ||
+                  this.isContentRenderable
             : false;
     }
 

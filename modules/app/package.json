@@ -28,7 +28,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@enonic/lib-admin-ui": "link:.xp/dev/lib-admin-ui",
     "@enonic/lib-contentstudio": "link:.xp/dev/lib-contentstudio",
-    "@enonic/page-editor": "2.0.0",
+    "@enonic/page-editor": "2.0.1",
     "@enonic/ui": "^1.0.5",
     "@nanostores/preact": "^1.0.0",
     "@radix-ui/react-slot": "^1.2.3",
