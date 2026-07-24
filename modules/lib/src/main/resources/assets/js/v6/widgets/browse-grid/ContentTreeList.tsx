@@ -194,6 +194,13 @@ export const ContentTreeList = ({ contextMenuActions = {} }: ContentTreeListProp
         [flatNodes, isFilterActive],
     );
 
+    // Active persists across views for preview/details but may be absent here;
+    // feed it to the list only when present, else the list resets it to items[0].
+    const activePresent = useMemo(
+        () => activeId != null && flatNodes.some((node) => node.id === activeId),
+        [flatNodes, activeId],
+    );
+
     const failedNodeIdSet = useMemo(() => new Set(failedNodeIds), [failedNodeIds]);
     const hasPendingPlaceholders = useMemo(
         () => flatNodes.some((node) => node.nodeType === 'node' && node.data === null && !failedNodeIdSet.has(node.id)),
@@ -404,6 +411,37 @@ export const ContentTreeList = ({ contextMenuActions = {} }: ContentTreeListProp
         [flatNodes],
     );
 
+    const handleRangeSelect = useCallback((clickedId: string): void => {
+        const items = visibleItemsRef.current;
+        const clickedIndex = items.findIndex((n) => n.id === clickedId);
+        if (clickedIndex < 0) return;
+
+        const currentSelection = $selection.get();
+        const currentActiveId = $activeId.get();
+
+        let anchorId: string | null = null;
+        if (currentActiveId != null && items.some((n) => n.id === currentActiveId)) {
+            anchorId = currentActiveId;
+        } else if (currentSelection.size > 0) {
+            anchorId = [...currentSelection].reverse().find((sid) => items.some((n) => n.id === sid)) ?? null;
+        }
+
+        if (anchorId == null) {
+            setSelection(new Set([clickedId]));
+            return;
+        }
+
+        const anchorIndex = items.findIndex((n) => n.id === anchorId);
+        const start = Math.min(anchorIndex, clickedIndex);
+        const end = Math.max(anchorIndex, clickedIndex);
+        const rangeIds = items
+            .slice(start, end + 1)
+            .filter((n) => n.nodeType === 'node' && hasDisplayNameData(n.data))
+            .map((n) => n.id);
+
+        setSelection(new Set([...currentSelection, ...rangeIds]));
+    }, []);
+
     // Handle selection change from VirtualizedTreeList (merge-based handling)
     // VirtualizedTreeList filters selection to only IDs in current items, which clears
     // selection from the other tree when switching views. We detect the diff and merge.
@@ -501,7 +539,7 @@ export const ContentTreeList = ({ contextMenuActions = {} }: ContentTreeListProp
             selection={selection}
             onSelectionChange={handleSelectionChange}
             selectionMode="multiple"
-            active={activeId}
+            active={activePresent ? activeId : null}
             onActiveChange={setActive}
             preserveFilteredSelection={isFilterActive}
             onExpand={handleExpand}
@@ -614,10 +652,18 @@ export const ContentTreeList = ({ contextMenuActions = {} }: ContentTreeListProp
                                             active={activeAsSelected ? false : itemProps.active}
                                             selected={showAsSelected}
                                             data-tone={showAsSelected ? 'inverse' : undefined}
+                                            onMouseDown={(e) => {
+                                                if (e.shiftKey) e.preventDefault();
+                                            }}
                                             onClick={(e) => {
                                                 // Focus tree container for keyboard navigation
                                                 const tree = e.currentTarget.closest<HTMLElement>('[role="tree"]');
                                                 tree?.focus();
+
+                                                if (e.shiftKey) {
+                                                    handleRangeSelect(id);
+                                                    return;
+                                                }
 
                                                 // Row click controls active only; selection is via checkbox
                                                 if (selection.size > 0) {
