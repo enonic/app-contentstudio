@@ -50,6 +50,18 @@ export const nextDependantExclusions = (
         : currentExcludedIds.filter((id) => !hasContentIdInIds(id, selection.selectableIds));
 };
 
+/**
+ * Drop exclusions the server no longer honours: ids that left the dependant list, and ids that
+ * became required (a required dependant cannot stay deselected).
+ */
+export const pruneExcludedDependantIds = (
+    excludedIds: readonly ContentId[],
+    shownIds: readonly ContentId[],
+    requiredIds: readonly ContentId[],
+): ContentId[] => {
+    return excludedIds.filter((id) => hasContentIdInIds(id, shownIds) && !hasContentIdInIds(id, requiredIds));
+};
+
 const calcSelectionType = (
     selectableCount: number,
     selectedCount: number,

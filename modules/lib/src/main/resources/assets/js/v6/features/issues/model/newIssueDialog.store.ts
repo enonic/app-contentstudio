@@ -6,7 +6,6 @@ import { ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { PublishRequest } from '../../../../app/issue/PublishRequest';
 import { fetchContentSummaries } from '../../../entities/content';
-import { resolvePublishDependencies } from '../../../entities/content/api/publish.api';
 import { buildItems, dedupeItems, getItemIds } from '../../../shared/lib/cms/content/buildItems';
 import {
     DEPENDANT_LOAD_SIZE,
@@ -14,7 +13,12 @@ import {
     fetchDependantWindowSlice,
     orderSummariesByIds,
 } from '../../../entities/content/lib/dependantWindow';
-import { calcDependantsSelection, nextDependantExclusions } from '../../../shared/lib/cms/content/dependantsSelection';
+import { resolveAppliedPublishDependencies } from '../../../entities/content/lib/publishDependencies';
+import {
+    calcDependantsSelection,
+    nextDependantExclusions,
+    pruneExcludedDependantIds,
+} from '../../../shared/lib/cms/content/dependantsSelection';
 import { hasContentIdInIds, isIdsEqual, uniqueIds } from '../../../shared/lib/cms/content/ids';
 import { createDebounce } from '../../../shared/lib/timing/createDebounce';
 import { createIssue } from '../../../entities/issue/api/issues.api';
@@ -261,7 +265,6 @@ export const applyDraftNewIssueDialogSelection = (): void => {
     }
 
     const state = $newIssueDialog.get();
-    const childrenChanged = !isIdsEqual(state.excludeChildrenIds, state.appliedExcludeChildrenIds);
 
     $newIssueDialog.set({
         ...state,
@@ -269,9 +272,8 @@ export const applyDraftNewIssueDialogSelection = (): void => {
         appliedExcludedDependantIds: state.excludedDependantIds,
     });
 
-    if (childrenChanged) {
-        reloadDependenciesDebounced();
-    }
+    // Re-resolve so the server re-evaluates the dependant tree and required items.
+    reloadDependenciesDebounced();
 };
 
 export const cancelDraftNewIssueDialogSelection = (): void => {
@@ -380,29 +382,31 @@ const reloadNewIssueDependencies = async (): Promise<void> => {
     try {
         // Resolve the applied selection: reloads can fire while an edit is staged
         // (socket events), and must neither consume nor commit the draft.
-        const dependenciesResult = await resolvePublishDependencies({
+        const resolution = await resolveAppliedPublishDependencies({
             ids: itemIds,
             excludeChildrenIds: state.appliedExcludeChildrenIds,
+            excludedIds: state.appliedExcludedDependantIds,
         });
 
         if (currentInstance !== instanceId) {
             return;
         }
 
-        if (dependenciesResult.isErr()) {
-            console.error(dependenciesResult.error);
+        if (resolution.isErr()) {
+            console.error(resolution.error);
             $newIssueDialog.set({
                 ...$newIssueDialog.get(),
                 loading: false,
                 failed: true,
             });
-            showError(dependenciesResult.error.message);
+            showError(resolution.error.message);
             return;
         }
 
-        const result = dependenciesResult.value;
+        const { maxResult, minResult } = resolution.value;
 
-        const allDependantIds = result.getDependants().filter((id) => !hasContentIdInIds(id, itemIds));
+        // maxResult (no dependant exclusions) keeps excluded rows visible and re-includable.
+        const allDependantIds = maxResult.getDependants().filter((id) => !hasContentIdInIds(id, itemIds));
 
         const firstWindow = await fetchDependantWindowSlice(allDependantIds, 0);
 
@@ -422,11 +426,7 @@ const reloadNewIssueDependencies = async (): Promise<void> => {
         const dependants = orderSummariesByIds(firstWindow.summaries, allDependantIds);
 
         const latestState = $newIssueDialog.get();
-        const requiredDependantIds = result.getRequired().filter((id) => hasContentIdInIds(id, allDependantIds));
-        const pruneExcludedIds = (ids: ContentId[]): ContentId[] =>
-            ids
-                .filter((id) => hasContentIdInIds(id, allDependantIds))
-                .filter((id) => !hasContentIdInIds(id, requiredDependantIds));
+        const requiredDependantIds = minResult.getRequired().filter((id) => hasContentIdInIds(id, allDependantIds));
 
         $newIssueDialog.set({
             ...latestState,
@@ -434,8 +434,16 @@ const reloadNewIssueDependencies = async (): Promise<void> => {
             dependantIds: allDependantIds,
             dependantWindow: Math.min(DEPENDANT_LOAD_SIZE, allDependantIds.length),
             requiredDependantIds,
-            excludedDependantIds: pruneExcludedIds(latestState.excludedDependantIds),
-            appliedExcludedDependantIds: pruneExcludedIds(latestState.appliedExcludedDependantIds),
+            excludedDependantIds: pruneExcludedDependantIds(
+                latestState.excludedDependantIds,
+                allDependantIds,
+                requiredDependantIds,
+            ),
+            appliedExcludedDependantIds: pruneExcludedDependantIds(
+                latestState.appliedExcludedDependantIds,
+                allDependantIds,
+                requiredDependantIds,
+            ),
             loading: false,
             failed: false,
         });

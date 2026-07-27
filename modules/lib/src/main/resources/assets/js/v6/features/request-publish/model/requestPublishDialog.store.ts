@@ -1,17 +1,14 @@
 import { showError, showFeedback, showSuccess, showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
 import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
-import { err, ok, type Result } from 'neverthrow';
 import { computed, map } from 'nanostores';
 import { type ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { IssueType } from '../../../../app/issue/IssueType';
 import { PublishRequest } from '../../../../app/issue/PublishRequest';
-import { type ResolvePublishDependenciesResult } from '../../../../app/resource/ResolvePublishDependenciesResult';
 import { createIssue } from '../../../entities/issue/api/issues.api';
 import { fetchContentSummaries } from '../../../entities/content';
-import { markAsReady, resolvePublishDependencies } from '../../../entities/content/api/publish.api';
-import { type AppError } from '../../../shared/api/errors';
+import { markAsReady } from '../../../entities/content/api/publish.api';
 import { buildItems, dedupeItems, getItemIds } from '../../../shared/lib/cms/content/buildItems';
 import {
     DEPENDANT_LOAD_SIZE,
@@ -20,7 +17,12 @@ import {
     orderSummariesByIds,
     pruneDependantWindow,
 } from '../../../entities/content/lib/dependantWindow';
-import { calcDependantsSelection, nextDependantExclusions } from '../../../shared/lib/cms/content/dependantsSelection';
+import { resolveAppliedPublishDependencies } from '../../../entities/content/lib/publishDependencies';
+import {
+    calcDependantsSelection,
+    nextDependantExclusions,
+    pruneExcludedDependantIds,
+} from '../../../shared/lib/cms/content/dependantsSelection';
 import { hasContentIdInIds, isIdsEqual, uniqueIds } from '../../../shared/lib/cms/content/ids';
 import { patchTrackedContentItems, removeTrackedContentItems } from '../../../shared/lib/cms/content/trackedItems';
 import { createDebounce } from '../../../shared/lib/timing/createDebounce';
@@ -589,11 +591,11 @@ const reloadRequestPublishDependencies = async (): Promise<void> => {
     });
 
     try {
-        const resolution = await resolveAppliedDependencies(
-            itemIds,
-            state.appliedExcludeChildrenIds,
-            state.appliedExcludedDependantIds,
-        );
+        const resolution = await resolveAppliedPublishDependencies({
+            ids: itemIds,
+            excludeChildrenIds: state.appliedExcludeChildrenIds,
+            excludedIds: state.appliedExcludedDependantIds,
+        });
 
         if (currentInstance !== instanceId) {
             return;
@@ -629,10 +631,6 @@ const reloadRequestPublishDependencies = async (): Promise<void> => {
 
         const latestState = $requestPublishDialog.get();
         const requiredDependantIds = minResult.getRequired().filter((id) => hasContentIdInIds(id, allDependantIds));
-        const pruneExcludedIds = (ids: ContentId[]): ContentId[] =>
-            ids
-                .filter((id) => hasContentIdInIds(id, allDependantIds))
-                .filter((id) => !hasContentIdInIds(id, requiredDependantIds));
 
         const invalidIds = minResult.getInvalid();
         const inProgressIds = minResult.getInProgress().filter((id) => !hasContentIdInIds(id, invalidIds));
@@ -655,8 +653,16 @@ const reloadRequestPublishDependencies = async (): Promise<void> => {
             dependantWindow: Math.min(DEPENDANT_LOAD_SIZE, allDependantIds.length),
             publishableContentIds: maxResult.getPublishable(),
             requiredDependantIds,
-            excludedDependantIds: pruneExcludedIds(latestState.excludedDependantIds),
-            appliedExcludedDependantIds: pruneExcludedIds(latestState.appliedExcludedDependantIds),
+            excludedDependantIds: pruneExcludedDependantIds(
+                latestState.excludedDependantIds,
+                allDependantIds,
+                requiredDependantIds,
+            ),
+            appliedExcludedDependantIds: pruneExcludedDependantIds(
+                latestState.appliedExcludedDependantIds,
+                allDependantIds,
+                requiredDependantIds,
+            ),
             loading: false,
             failed: false,
         });
@@ -698,33 +704,4 @@ const markIdsReady = async (ids: ContentId[]): Promise<ContentId[]> => {
             return [];
         },
     );
-};
-
-// Two-pass resolve (Publish-dialog parity): the exclusion-free pass yields the full,
-// re-includable dependant list; the excluded pass re-evaluates the required items.
-// The second request is skipped when nothing is excluded.
-const resolveAppliedDependencies = async (
-    itemIds: ContentId[],
-    excludeChildrenIds: ContentId[],
-    excludedDependantIds: ContentId[],
-): Promise<Result<Record<'maxResult' | 'minResult', ResolvePublishDependenciesResult>, AppError>> => {
-    const maxResult = await resolvePublishDependencies({ ids: itemIds, excludeChildrenIds });
-    if (maxResult.isErr()) {
-        return err(maxResult.error);
-    }
-
-    if (excludedDependantIds.length === 0) {
-        return ok({ maxResult: maxResult.value, minResult: maxResult.value });
-    }
-
-    const minResult = await resolvePublishDependencies({
-        ids: itemIds,
-        excludeChildrenIds,
-        excludedIds: excludedDependantIds,
-    });
-    if (minResult.isErr()) {
-        return err(minResult.error);
-    }
-
-    return ok({ maxResult: maxResult.value, minResult: minResult.value });
 };
