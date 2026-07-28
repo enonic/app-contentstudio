@@ -30,6 +30,7 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             let pageInspectionPanel = new PageInspectionPanel();
             // 1. Open the site
             await studioUtils.selectAndOpenContentInWizard(IMPORTED_SITE_NAME);
+            await contentWizard.openContextWindow();
             // 2. Details widget should be opened by default:
             let selectedWidgetOption = await wizardContextPanel.getSelectedOptionInWidgetSelectorDropdown();
             assert.equal(selectedWidgetOption, appConst.WIDGET_SELECTOR_OPTIONS.DETAILS, "'Details' selected option should be in the widget selector");
