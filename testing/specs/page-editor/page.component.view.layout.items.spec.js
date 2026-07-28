@@ -24,14 +24,7 @@ describe('page.component.view.layout.items.spec - tests for page component view 
     }
     let SITE;
     const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
-    const LAYOUT_NAME = '3-col';
-
-    it(`Preconditions: new site should be created`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, null, [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP], CONTROLLER_NAME);
-            await studioUtils.doAddSite(SITE);
-        });
+    const LAYOUT_3_COL = '3-col';
 
     // verifies task: issue-6485, Expand Page Components View tree to the item selected in Live Edit
     it(`GIVEN 3-column layout has been inserted in new site WHEN text has been inserted in left and center layout's regions THEN expected items should be displayed in the Page Component View`,
@@ -40,6 +33,11 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             let pageComponentView = new PageComponentView();
             let layoutInspectionPanel = new LayoutInspectionPanel();
             let textComponentInspectionPanel = new TextComponentInspectionPanel();
+
+            let displayName = contentBuilder.generateRandomName('site');
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP], CONTROLLER_NAME);
+            await studioUtils.doAddSite(SITE);
+
             // 1. reopen the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Maximize the Live Edit:
@@ -48,7 +46,7 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectContextMenuItem(['Insert', 'Layout']);
             await layoutInspectionPanel.waitForOpened();
-            await layoutInspectionPanel.typeNameAndSelectLayout(LAYOUT_NAME);
+            await layoutInspectionPanel.typeNameAndSelectLayout(LAYOUT_3_COL);
             await contentWizard.waitForNotificationMessage();
             // 4. Insert text component in the left layout's region
             await pageComponentView.rightClickAndOpenContextMenu('left');
@@ -83,20 +81,20 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             await contentWizard.clickOnCollapseContentForm();
             await pageComponentView.waitForLoaded();
             // 2. Expand the layout item:
-            await pageComponentView.expandItem(LAYOUT_NAME)
+            await pageComponentView.expandItem(LAYOUT_3_COL)
             // 3. Click on the 'left region' item in the Context Window:
             await pageComponentView.clickOnComponentByDisplayName('left');
             await studioUtils.saveScreenshot('context_win_region_tab');
             // 4. Verify that 'Region' tab bar item is loaded:
             await pageWidgetPanel.waitForTabBarItemDisplayed('Inspect');
             // 5. Click on the 'layout-component' in PCV:
-            await pageComponentView.clickOnComponentByDisplayName(LAYOUT_NAME);
+            await pageComponentView.clickOnComponentByDisplayName(LAYOUT_3_COL);
             await studioUtils.saveScreenshot('context_win_layout_tab');
             // 6. Verify that 'Layout' tab bar item is loaded in the Context Window:
             await pageWidgetPanel.waitForTabBarItemDisplayed('Inspect');
             await layoutInspectionPanel.waitForOpened();
             let actualSelectedOption = await layoutInspectionPanel.getDropdownSelectedOption();
-            assert.equal(actualSelectedOption, LAYOUT_NAME, "expected layout-display name should be present in the selected option view");
+            assert.equal(actualSelectedOption, LAYOUT_3_COL, "expected layout-display name should be present in the selected option view");
         });
 
     it(`GIVEN existing site has been opened WHEN click on the root item in PCV THEN expected inspect panel should be loaded`,
@@ -111,7 +109,7 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             await contentWizard.clickOnCollapseContentForm();
             await pageComponentView.waitForLoaded();
             // 2. Expand the layout item:
-            await pageComponentView.expandItem(LAYOUT_NAME)
+            await pageComponentView.expandItem(LAYOUT_3_COL)
             // 3. Click on the 'main region' root item in the PCV:
             await pageComponentView.clickOnComponentByDisplayName('main region');
             await studioUtils.saveScreenshot('context_win_main_region_tab');
@@ -121,13 +119,13 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             let actualController = await pageInspectionPanel.getSelectedPageController();
             assert.equal(actualController, 'main region', "Expected controller should be present in the selected option view");
             // 5. Click on the 'layout-component' in PCV:
-            await pageComponentView.clickOnComponentByDisplayName(LAYOUT_NAME);
+            await pageComponentView.clickOnComponentByDisplayName(LAYOUT_3_COL);
             await studioUtils.saveScreenshot('context_win_layout_tab');
             // 6. Verify that 'Layout' tab bar item is loaded in the Context Window:
             await pageWidgetPanel.waitForTabBarItemDisplayed('Inspect');
             await layoutInspectionPanel.waitForOpened();
             let actualSelectedOption = await layoutInspectionPanel.getDropdownSelectedOption();
-            assert.equal(actualSelectedOption, LAYOUT_NAME, "expected layout-display name should be present in the selected option view");
+            assert.equal(actualSelectedOption, LAYOUT_3_COL, "expected layout-display name should be present in the selected option view");
         });
 
     // Verify issue - Page Components view and step remain visible after reverting versions #6468

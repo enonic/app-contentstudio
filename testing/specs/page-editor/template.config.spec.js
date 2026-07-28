@@ -1,11 +1,10 @@
 /**
- * Created on 12.09.2019.  updated on 03.07.2026
+ * Created on 12.09.2019.  updated on 26.07.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const contentBuilder = require("../../libs/content.builder");
 const HomePageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/home.page.inspection.panel');
 const WizardContextWindowPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const appConst = require('../../libs/app_const');
@@ -23,33 +22,15 @@ describe('template.config.spec: template config should be displayed in the Inspe
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let SITE;
-    let TEMPLATE;
-    const SUPPORT = 'article';
-    const CONTROLLER_NAME = 'Page';
+    let IMPORTED_SITE = 'site954009';
     const TITLE_TEXT = 'My title';
     const TEST_TEXT = 'test text';
-    const ARTICLE_NAME = contentBuilder.generateRandomName('article');
-
-    it(`Preconditions: new site should be created`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, null, [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
-
-    it(`Precondition: new template(supports article) should be added`,
-        async () => {
-            let templateName = contentBuilder.generateRandomName('template');
-            TEMPLATE = contentBuilder.buildPageTemplate(templateName, SUPPORT, CONTROLLER_NAME);
-            await studioUtils.doAddPageTemplate(SITE.displayName, TEMPLATE);
-            await studioUtils.saveScreenshot('article_template');
-        });
+    const ARTICLE_NAME = appConst.generateRandomName('article');
 
     // Verify - Creating a template doesn't work from a non-site content #9183
     // https://github.com/enonic/app-contentstudio/issues/9183
-    // TODO  bug https://github.com/enonic/app-contentstudio/issues/11021
-    it(`GIVEN a controller in article-content has been set WHEN 'Save as template' menu item has been clicked in PCV THEN new page template for this content should be created`,
+    // Verifies  bug https://github.com/enonic/app-contentstudio/issues/11021
+    it(`GIVEN 'Customize' menu item has been clicked in Inspection Panel WHEN 'Save as template' menu item has been clicked in PCV THEN new page template for the content should be created`,
         async () => {
             let wizardContextWindowPanel = new WizardContextWindowPanel();
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
@@ -57,7 +38,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             let pageInspectionPanel = new PageInspectionPanel();
             let confirmationDialog = new ConfirmationDialog();
             // 1. Open new wizard for Article content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ARTICLE);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE, appConst.contentTypes.ARTICLE);
             // 2. Inspection Panel should be loaded in the Context Window:
             await wizardContextWindowPanel.waitForOpened();
             // 3. Click on 'Customize' menu item:
@@ -71,16 +52,17 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await confirmationDialog.waitForDialogClosed();
             await contentWizard.clickOnWizardStep('Page');
             await pageComponentsWizardStepForm.rightClickAndOpenContextMenu('Page');
+            // 6. Click on Save as template menu item:
             await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_TEMPLATE]);
             await studioUtils.doSwitchToNextTab();
             await studioUtils.saveScreenshot('article_support_template');
             let pageTemplateForm = new PageTemplateForm();
-            // 6. Verify that 'support' dropdown has 'article' option selected:
+            // 7. Verify that 'support' dropdown has 'article' option selected:
             let support = await pageTemplateForm.getSupportSelectedOptions() ;
             assert.equal(support[0],'article', `'article' should be selected in support dropdown`);
         });
 
-    // verifies https://github.com/enonic/xp/issues/7396 and https://github.com/enonic/app-contentstudio/issues/947
+    // verifies https://github.com/enonic/app-contentstudio/issues/947
     it(`WHEN new wizard for article has been opened THEN input from template-config should be displayed in the Inspection Panel`,
         async () => {
             let homePageInspectionPanel = new HomePageInspectionPanel();
@@ -89,7 +71,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             let pageInspectionPanel = new PageInspectionPanel();
             let confirmationDialog = new ConfirmationDialog();
             // 1. Open new wizard for Article content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ARTICLE);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE, appConst.contentTypes.ARTICLE);
             // 2. Inspection Panel should be loaded in the Context Window:
             await wizardContextWindowPanel.waitForOpened();
             // 3. Click on 'Customize' menu item:
@@ -102,13 +84,18 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             await studioUtils.saveScreenshot('article_details_panel');
-            // 4. Verify that the 'title' text input is displayed in the Page Inspection panel(config):
+            let pageWidgetPanel = new PageWidgetPanel();
+            // 6. Click on Inspect tab item:
+            await pageWidgetPanel.clickOnTabBarItem(appConst.CONTEXT_WINDOW_TABS.INSPECT);
+            // 7. Verify that the 'title' text input is displayed in the Page Inspection panel(config):
             await homePageInspectionPanel.waitForTitleInputDisplayed();
-            // 5. insert a text in the input:
+            // 8. insert a text in the input:
             await homePageInspectionPanel.typeTitle(TITLE_TEXT);
-            // 6. Click on 'Apply' button on the Inspect Panel and save the changes:
+            // 9. Click on 'Apply' button on the Inspect Panel and save the changes:
             await homePageInspectionPanel.clickOnApplyButton();
-            // 7. Verify that text is applied:
+            // 10. Verify that text is applied:
+            // TODO verify the bug:  Expanding the only checked item in a filtered grid incorrectly checks all its children #11168
+            await pageWidgetPanel.clickOnTabBarItem(appConst.CONTEXT_WINDOW_TABS.INSPECT);
             let result = await homePageInspectionPanel.getTitle();
             assert.equal(result, TITLE_TEXT, 'expected and actual title should be equal');
         });
@@ -119,36 +106,13 @@ describe('template.config.spec: template config should be displayed in the Inspe
             let pageComponentView = new PageComponentView();
             let contentWizard = new ContentWizard();
             // 1. Open new wizard for Article content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ARTICLE);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE, appConst.contentTypes.ARTICLE);
             // 2. Verify that 'Page Component wizard' step is not displayed, 'Customize' menu item is not clicked yet:
             await pageComponentsWizardStepForm.waitForNotDisplayed();
             // 3. Expand the Live Editor:
             await contentWizard.clickOnCollapseContentForm();
             // 4. Verify that 'Page Component' modal dialog is not displayed before the customization:
             await pageComponentView.waitForNotDisplayed();
-        });
-
-    it(`WHEN 'Customize Page' button has been clicked in Insert tab THEN 'Insert' tab should be visible in Components widget in Context Window`,
-        async () => {
-            let contentWizard = new ContentWizard();
-            let pageWidgetPanel = new PageWidgetPanel();
-            let pageInspectionPanel = new PageInspectionPanel();
-            let confirmationDialog = new ConfirmationDialog();
-            // 1. Open new wizard for Article content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ARTICLE);
-            await contentWizard.typeDisplayName(ARTICLE_NAME);
-            // 2. Click on 'Customize' menu item:
-            await contentWizard.unlockSiteWithTemplate();
-            await contentWizard.switchToMainFrame();
-            // 3. Click on 'Customize Page' button in the Page Inspection panel:
-            await pageInspectionPanel.clickOnCustomizePageButton();
-            await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnConfirmButton();
-            await confirmationDialog.waitForDialogClosed();
-            await contentWizard.switchToParentFrame();
-            // 4. Verify that Insert tab is displayed in the Context Window:
-            await pageWidgetPanel.waitForTabBarItemDisplayed('Insert');
-            await contentWizard.waitForSaveButtonEnabled();
         });
 
     it(`GIVEN 'Customize Page' button has been clicked in article wizard WHEN text component has been inserted in 'Page Component wizard' step THEN the text should appear in the LiveEdit frame`,
@@ -160,10 +124,10 @@ describe('template.config.spec: template config should be displayed in the Inspe
             let pageInspectionPanel = new PageInspectionPanel();
             let confirmationDialog = new ConfirmationDialog();
             // 1. Open new wizard for Article content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ARTICLE);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE, appConst.contentTypes.ARTICLE);
             await contentWizard.typeDisplayName(ARTICLE_NAME);
             // 2. Click on 'Page Settings' menu item:
-            await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
+            await contentWizard.unlockSiteWithTemplate();
             await contentWizard.switchToMainFrame();
             // 3. Click on 'Customize Page' button in the Page Inspection panel:
             await pageInspectionPanel.clickOnCustomizePageButton();
@@ -175,7 +139,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             // 4. Insert text component in Page Component wizard step
             await contentWizard.clickOnWizardStep('Page');
             await pageComponentsWizardStepForm.rightClickAndOpenContextMenu('main');
-            await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentsWizardStepForm.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.typeTextInEditor(TEST_TEXT);
@@ -220,6 +184,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             // 1. Open the existing customized Article-content:
             await studioUtils.selectAndOpenContentInWizard(ARTICLE_NAME);
             let contextWindow = await contentWizard.openContextWindow();
+            await contentWizard.clickOnWizardStep('Page');
             // 2. Click on 'Reset' menu item in the wizard step form:
             await pageComponentsWizardStepForm.rightClickAndOpenContextMenu('Page');
             await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);
@@ -232,7 +197,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await contentWizard.pause(500);
             // 4. Verify that 'Page Component wizard' step gets not visible:
             await pageComponentsWizardStepForm.waitForNotDisplayed();
-            await contentWizard.clickOnWizardStep('Page');
+            //await contentWizard.clickOnWizardStep('Page');
             // 5. Verify that 'Page' item is not displayed in the WizardStepNavigator
             await contentWizard.waitForWizardStepNotDisplayed('Page');
             // 6. Verify that 'Customize Page' button is displayed in the Inspection Panel:

@@ -1,19 +1,19 @@
 /**
- * Created on 12.09.2019.
+ * Created on 12.09.2019.  updated on 26.07.2026
  */
 const PageInspectionPanel = require('./page.inspection.panel');
-const lib = require('../../../../libs/elements-old');
 const appConst = require('../../../../libs/app_const');
 
 const xpath = {
-    container: `//div[contains(@id,'PageInspectionPanel')]`,
+    container: "//div[@data-component='PageInspectionPanel']",
+    titleInput: "//input[@aria-label='Title']",
 };
 
 //Context Window, Inspect tab for 'Home Page' controller that contains 'Title' input field
 class HomePageInspectionPanel extends PageInspectionPanel {
 
     get titleTextInput() {
-        return xpath.container + "//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Title']]" + lib.TEXT_INPUT;
+        return xpath.container + xpath.titleInput;
     }
 
     async typeTitle(text) {
@@ -41,11 +41,6 @@ class HomePageInspectionPanel extends PageInspectionPanel {
         }
     }
 
-    async clickOnApplyButton() {
-        let selector = "//div[contains(@id,'ContextWindow')]" + lib.actionButton('Apply');
-        await this.clickOnElement(selector);
-        return await this.pause(2000);
-    }
 }
 
 module.exports = HomePageInspectionPanel;

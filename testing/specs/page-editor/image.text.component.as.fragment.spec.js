@@ -22,13 +22,6 @@ describe('image.text.component.as.fragment.spec - tests for saving an image as f
     const CONTROLLER_NAME = 'main region';
     const TEST_IMAGE = appConst.TEST_IMAGES.POP_03;
 
-    it(`Preconditions: new site should be created`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP], CONTROLLER_NAME);
-            await studioUtils.doAddSite(SITE);
-        });
-
     // verifies task: Images inside Text component failed to render in a fragment #7075
     it(`GIVEN an image has been inserted in text component WHEN the component has been saved as fragment AND the page has been refreshed THEN the image should be displayed in the LiveEdit`,
         async () => {
@@ -38,6 +31,11 @@ describe('image.text.component.as.fragment.spec - tests for saving an image as f
             let liveFormPanel = new LiveFormPanel();
             let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let fragmentInspectionPanel = new FragmentInspectionPanel();
+
+            let displayName = contentBuilder.generateRandomName('site');
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP], CONTROLLER_NAME);
+            await studioUtils.doAddSite(SITE);
+
             // 1. open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Maximize the Live Edit:

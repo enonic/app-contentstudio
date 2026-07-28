@@ -25,13 +25,6 @@ describe('layout.insert.save.as.fragment.spec - tests for inserting a fragment w
     const TEST_IMAGE = appConst.TEST_IMAGES.POP_03;
     const TEST_IMAGE_2 = appConst.TEST_IMAGES.POP_02;
 
-    it(`Preconditions: new site should be created`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP], CONTROLLER_NAME);
-            await studioUtils.doAddSite(SITE);
-        });
-
     // verifies task: Images inside Text component failed to render after saving as fragment… #7082
     it(`GIVEN text has been inserted in left region in 3-column layout WHEN the layout has been saved as fragment THEN the image should be displayed in the LiveEdit`,
         async () => {
@@ -41,6 +34,9 @@ describe('layout.insert.save.as.fragment.spec - tests for inserting a fragment w
             let liveFormPanel = new LiveFormPanel();
             let layoutInspectionPanel = new LayoutInspectionPanel();
             let textComponentInspectionPanel = new TextComponentInspectionPanel();
+            let displayName = contentBuilder.generateRandomName('site');
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP], CONTROLLER_NAME);
+            await studioUtils.doAddSite(SITE);
             // 1. open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Maximize the Live Edit:
