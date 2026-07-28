@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ContentId } from '../../../../../app/content/ContentId';
-import { calcDependantsSelection, nextDependantExclusions } from './dependantsSelection';
+import { calcDependantsSelection, nextDependantExclusions, pruneExcludedDependantIds } from './dependantsSelection';
 
 const id = (value: string): ContentId => new ContentId(value);
 const ids = (...values: string[]): ContentId[] => values.map(id);
@@ -97,6 +97,32 @@ describe('dependantsSelection', () => {
             const next = nextDependantExclusions(selection, ids('x'));
 
             expect(toStrings(next)).toEqual(['a', 'b', 'x']);
+        });
+    });
+
+    describe('pruneExcludedDependantIds', () => {
+        it('keeps exclusions that are still shown and still optional', () => {
+            const next = pruneExcludedDependantIds(ids('a', 'b'), ids('a', 'b', 'c'), []);
+
+            expect(toStrings(next)).toEqual(['a', 'b']);
+        });
+
+        it('drops exclusions that left the dependant list', () => {
+            const next = pruneExcludedDependantIds(ids('a', 'gone'), ids('a', 'b'), []);
+
+            expect(toStrings(next)).toEqual(['a']);
+        });
+
+        it('drops exclusions that became required', () => {
+            const next = pruneExcludedDependantIds(ids('a', 'b'), ids('a', 'b'), ids('b'));
+
+            expect(toStrings(next)).toEqual(['a']);
+        });
+
+        it('preserves the original order', () => {
+            const next = pruneExcludedDependantIds(ids('c', 'a', 'b'), ids('a', 'b', 'c'), []);
+
+            expect(next.map((item) => item.toString())).toEqual(['c', 'a', 'b']);
         });
     });
 });

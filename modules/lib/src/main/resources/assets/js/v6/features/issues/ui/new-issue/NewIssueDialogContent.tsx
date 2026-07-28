@@ -7,11 +7,14 @@ import { ContentId } from '../../../../../app/content/ContentId';
 import { IssueType } from '../../../../../app/issue/IssueType';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import {
+    $isNewIssueSelectionSynced,
     $newIssueDependantsSelection,
     $newIssueDialog,
     $newIssueDialogCreateCount,
     $newIssueDialogHasMoreDependants,
     addNewIssueItemsByIds,
+    applyDraftNewIssueDialogSelection,
+    cancelDraftNewIssueDialogSelection,
     loadMoreNewIssueDependants,
     removeNewIssueItemsByIds,
     setNewIssueAssignees,
@@ -29,6 +32,7 @@ import { useAssigneeSearch, useAssigneeSelection } from '../../../shared/selecto
 import { ContentCombobox } from '../../../shared/selectors/content';
 import { DependantsSelectAll } from '../../../../shared/ui/dialogs/dependants/DependantsSelectAll';
 import { IssueIcon } from '../../../../entities/issue/ui/IssueIcon';
+import { SelectionStatusBar } from '../../../../shared/ui/dialogs/status-bar/SelectionStatusBar';
 
 const NEW_ISSUE_DIALOG_CONTENT_NAME = 'NewIssueDialogContent';
 
@@ -43,6 +47,7 @@ export const NewIssueDialogContent = (): ReactElement => {
         excludedDependantIds,
         requiredDependantIds,
         loading,
+        failed,
         submitting,
     } = useStore($newIssueDialog, {
         keys: [
@@ -55,6 +60,7 @@ export const NewIssueDialogContent = (): ReactElement => {
             'excludedDependantIds',
             'requiredDependantIds',
             'loading',
+            'failed',
             'submitting',
         ],
     });
@@ -62,6 +68,7 @@ export const NewIssueDialogContent = (): ReactElement => {
     const createCount = useStore($newIssueDialogCreateCount);
     const hasMoreDependants = useStore($newIssueDialogHasMoreDependants);
     const dependantsSelection = useStore($newIssueDependantsSelection);
+    const isSelectionSynced = useStore($isNewIssueSelectionSynced);
 
     const titleLabel = `${useI18n('field.title')} *`;
     const descriptionLabel = useI18n('field.description');
@@ -96,7 +103,7 @@ export const NewIssueDialogContent = (): ReactElement => {
     const isItemsDisabled = submitting || loading;
 
     const createButtonLabel = createCount > 1 ? `${createLabel} (${createCount})` : createLabel;
-    const isCreateDisabled = submitting || loading || title.trim().length === 0;
+    const isCreateDisabled = submitting || loading || !isSelectionSynced || title.trim().length === 0;
 
     const selectedIds = useMemo(() => items.map((item) => item.getContentId().toString()), [items]);
 
@@ -141,6 +148,16 @@ export const NewIssueDialogContent = (): ReactElement => {
                 </div>
                 <Dialog.DefaultClose className="self-start justify-self-end" />
             </Dialog.Header>
+
+            <SelectionStatusBar
+                className="px-5"
+                loading={loading}
+                failed={failed}
+                editing={!isSelectionSynced}
+                onApply={applyDraftNewIssueDialogSelection}
+                onCancel={cancelDraftNewIssueDialogSelection}
+            />
+
             <Dialog.Body className="min-h-0 overflow-y-auto rounded-sm outline-none focus:ring-2 focus:ring-ring/10 focus:ring-inset">
                 <div className="flex min-h-0 flex-col gap-7.5 px-5">
                     <Input

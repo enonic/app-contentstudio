@@ -6,7 +6,6 @@ import { ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { PublishRequest } from '../../../../app/issue/PublishRequest';
 import { fetchContentSummaries } from '../../../entities/content';
-import { resolvePublishDependencies } from '../../../entities/content/api/publish.api';
 import { buildItems, dedupeItems, getItemIds } from '../../../shared/lib/cms/content/buildItems';
 import {
     DEPENDANT_LOAD_SIZE,
@@ -14,8 +13,13 @@ import {
     fetchDependantWindowSlice,
     orderSummariesByIds,
 } from '../../../entities/content/lib/dependantWindow';
-import { calcDependantsSelection, nextDependantExclusions } from '../../../shared/lib/cms/content/dependantsSelection';
-import { hasContentIdInIds, uniqueIds } from '../../../shared/lib/cms/content/ids';
+import { resolveAppliedPublishDependencies } from '../../../entities/content/lib/publishDependencies';
+import {
+    calcDependantsSelection,
+    nextDependantExclusions,
+    pruneExcludedDependantIds,
+} from '../../../shared/lib/cms/content/dependantsSelection';
+import { hasContentIdInIds, isIdsEqual, uniqueIds } from '../../../shared/lib/cms/content/ids';
 import { createDebounce } from '../../../shared/lib/timing/createDebounce';
 import { createIssue } from '../../../entities/issue/api/issues.api';
 import { closeIssueDialog, openIssueDialogDetails } from './issueDialog.store';
@@ -34,6 +38,8 @@ type NewIssueDialogStore = {
     dependantWindow: number;
     excludedDependantIds: ContentId[];
     requiredDependantIds: ContentId[];
+    appliedExcludeChildrenIds: ContentId[];
+    appliedExcludedDependantIds: ContentId[];
     loading: boolean;
     failed: boolean;
     submitting: boolean;
@@ -51,12 +57,21 @@ const initialState: NewIssueDialogStore = {
     dependantWindow: 0,
     excludedDependantIds: [],
     requiredDependantIds: [],
+    appliedExcludeChildrenIds: [],
+    appliedExcludedDependantIds: [],
     loading: false,
     failed: false,
     submitting: false,
 };
 
 export const $newIssueDialog = map<NewIssueDialogStore>(structuredClone(initialState));
+
+export const $isNewIssueSelectionSynced = computed(
+    $newIssueDialog,
+    ({ excludeChildrenIds, excludedDependantIds, appliedExcludeChildrenIds, appliedExcludedDependantIds }) =>
+        isIdsEqual(excludeChildrenIds, appliedExcludeChildrenIds) &&
+        isIdsEqual(excludedDependantIds, appliedExcludedDependantIds),
+);
 
 export const $newIssueDialogCreateCount = computed($newIssueDialog, ({ items, dependantIds, excludedDependantIds }) => {
     const includedDependants = dependantIds.filter((id) => !hasContentIdInIds(id, excludedDependantIds));
@@ -90,6 +105,7 @@ export const resetDependenciesState = (state: NewIssueDialogStore): NewIssueDial
         dependantWindow: 0,
         excludedDependantIds: [],
         requiredDependantIds: [],
+        appliedExcludedDependantIds: [],
         loading: false,
         failed: false,
     };
@@ -135,15 +151,19 @@ export const setNewIssueItems = (items: ContentSummary[]): void => {
                 ...$newIssueDialog.get(),
                 items: [],
                 excludeChildrenIds: [],
+                appliedExcludeChildrenIds: [],
             }),
         );
         return;
     }
 
+    const excludeChildrenIds = getItemIds(nextItems);
+
     $newIssueDialog.set({
         ...$newIssueDialog.get(),
         items: nextItems,
-        excludeChildrenIds: getItemIds(nextItems),
+        excludeChildrenIds,
+        appliedExcludeChildrenIds: excludeChildrenIds,
     });
 
     reloadDependenciesDebounced();
@@ -158,15 +178,15 @@ export const addNewIssueItems = (items: ContentSummary[]): void => {
     const existingIds = new Set(state.items.map((item) => item.getContentId().toString()));
     const newItems = items.filter((item) => !existingIds.has(item.getContentId().toString()));
     const nextItems = dedupeItems([...newItems, ...state.items]);
-    const nextExcludeChildrenIds = uniqueIds([
-        ...state.excludeChildrenIds,
-        ...newItems.map((item) => item.getContentId()),
-    ]);
+    const newItemIds = newItems.map((item) => item.getContentId());
 
+    // Extend the draft and the applied selection independently, so staged edits
+    // on existing items stay staged.
     $newIssueDialog.set({
         ...state,
         items: nextItems,
-        excludeChildrenIds: nextExcludeChildrenIds,
+        excludeChildrenIds: uniqueIds([...state.excludeChildrenIds, ...newItemIds]),
+        appliedExcludeChildrenIds: uniqueIds([...state.appliedExcludeChildrenIds, ...newItemIds]),
     });
 
     reloadDependenciesDebounced();
@@ -197,7 +217,6 @@ export const removeNewIssueItemsByIds = (ids: ContentId[]): void => {
     const idsToRemove = new Set(ids.map((id) => id.toString()));
     const state = $newIssueDialog.get();
     const nextItems = state.items.filter((item) => !idsToRemove.has(item.getContentId().toString()));
-    const nextExcludeChildrenIds = state.excludeChildrenIds.filter((id) => !idsToRemove.has(id.toString()));
 
     if (nextItems.length === 0) {
         $newIssueDialog.set(
@@ -205,15 +224,19 @@ export const removeNewIssueItemsByIds = (ids: ContentId[]): void => {
                 ...state,
                 items: [],
                 excludeChildrenIds: [],
+                appliedExcludeChildrenIds: [],
             }),
         );
         return;
     }
 
+    // Drop the removed ids from the draft and the applied selection independently,
+    // so staged edits on the remaining items stay staged.
     $newIssueDialog.set({
         ...state,
         items: nextItems,
-        excludeChildrenIds: nextExcludeChildrenIds,
+        excludeChildrenIds: state.excludeChildrenIds.filter((id) => !idsToRemove.has(id.toString())),
+        appliedExcludeChildrenIds: state.appliedExcludeChildrenIds.filter((id) => !idsToRemove.has(id.toString())),
     });
 
     reloadDependenciesDebounced();
@@ -228,14 +251,42 @@ export const setNewIssueItemIncludeChildren = (id: ContentId, includeChildren: b
             'excludeChildrenIds',
             state.excludeChildrenIds.filter((item) => !item.equals(id)),
         );
-        reloadDependenciesDebounced();
         return;
     }
 
     if (!includeChildren && !alreadyExcluded) {
         $newIssueDialog.setKey('excludeChildrenIds', [...state.excludeChildrenIds, id]);
-        reloadDependenciesDebounced();
     }
+};
+
+export const applyDraftNewIssueDialogSelection = (): void => {
+    if ($isNewIssueSelectionSynced.get()) {
+        return;
+    }
+
+    const state = $newIssueDialog.get();
+
+    $newIssueDialog.set({
+        ...state,
+        appliedExcludeChildrenIds: state.excludeChildrenIds,
+        appliedExcludedDependantIds: state.excludedDependantIds,
+    });
+
+    // Re-resolve so the server re-evaluates the dependant tree and required items.
+    reloadDependenciesDebounced();
+};
+
+export const cancelDraftNewIssueDialogSelection = (): void => {
+    if ($isNewIssueSelectionSynced.get()) {
+        return;
+    }
+
+    const state = $newIssueDialog.get();
+    $newIssueDialog.set({
+        ...state,
+        excludeChildrenIds: state.appliedExcludeChildrenIds,
+        excludedDependantIds: state.appliedExcludedDependantIds,
+    });
 };
 
 export const setNewIssueDependantIncluded = (id: ContentId, included: boolean): void => {
@@ -272,7 +323,7 @@ export const submitNewIssueDialog = async (): Promise<void> => {
     const state = $newIssueDialog.get();
     const title = state.title.trim();
 
-    if (!title || state.submitting) {
+    if (!title || state.submitting || !$isNewIssueSelectionSynced.get()) {
         return;
     }
 
@@ -329,29 +380,33 @@ const reloadNewIssueDependencies = async (): Promise<void> => {
     });
 
     try {
-        const dependenciesResult = await resolvePublishDependencies({
+        // Resolve the applied selection: reloads can fire while an edit is staged
+        // (socket events), and must neither consume nor commit the draft.
+        const resolution = await resolveAppliedPublishDependencies({
             ids: itemIds,
-            excludeChildrenIds: state.excludeChildrenIds,
+            excludeChildrenIds: state.appliedExcludeChildrenIds,
+            excludedIds: state.appliedExcludedDependantIds,
         });
 
         if (currentInstance !== instanceId) {
             return;
         }
 
-        if (dependenciesResult.isErr()) {
-            console.error(dependenciesResult.error);
+        if (resolution.isErr()) {
+            console.error(resolution.error);
             $newIssueDialog.set({
                 ...$newIssueDialog.get(),
                 loading: false,
                 failed: true,
             });
-            showError(dependenciesResult.error.message);
+            showError(resolution.error.message);
             return;
         }
 
-        const result = dependenciesResult.value;
+        const { maxResult, minResult } = resolution.value;
 
-        const allDependantIds = result.getDependants().filter((id) => !hasContentIdInIds(id, itemIds));
+        // maxResult (no dependant exclusions) keeps excluded rows visible and re-includable.
+        const allDependantIds = maxResult.getDependants().filter((id) => !hasContentIdInIds(id, itemIds));
 
         const firstWindow = await fetchDependantWindowSlice(allDependantIds, 0);
 
@@ -371,10 +426,7 @@ const reloadNewIssueDependencies = async (): Promise<void> => {
         const dependants = orderSummariesByIds(firstWindow.summaries, allDependantIds);
 
         const latestState = $newIssueDialog.get();
-        const requiredDependantIds = result.getRequired().filter((id) => hasContentIdInIds(id, allDependantIds));
-        const nextExcludedDependantIds = latestState.excludedDependantIds
-            .filter((id) => hasContentIdInIds(id, allDependantIds))
-            .filter((id) => !hasContentIdInIds(id, requiredDependantIds));
+        const requiredDependantIds = minResult.getRequired().filter((id) => hasContentIdInIds(id, allDependantIds));
 
         $newIssueDialog.set({
             ...latestState,
@@ -382,7 +434,16 @@ const reloadNewIssueDependencies = async (): Promise<void> => {
             dependantIds: allDependantIds,
             dependantWindow: Math.min(DEPENDANT_LOAD_SIZE, allDependantIds.length),
             requiredDependantIds,
-            excludedDependantIds: nextExcludedDependantIds,
+            excludedDependantIds: pruneExcludedDependantIds(
+                latestState.excludedDependantIds,
+                allDependantIds,
+                requiredDependantIds,
+            ),
+            appliedExcludedDependantIds: pruneExcludedDependantIds(
+                latestState.appliedExcludedDependantIds,
+                allDependantIds,
+                requiredDependantIds,
+            ),
             loading: false,
             failed: false,
         });

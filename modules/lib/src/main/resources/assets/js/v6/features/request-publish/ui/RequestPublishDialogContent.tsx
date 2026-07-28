@@ -7,12 +7,15 @@ import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import { $config } from '../../../shared/config/config.store';
 import {
     $isRequestPublishReady,
+    $isRequestPublishSelectionSynced,
     $requestPublishDependantsSelection,
     $requestPublishDialog,
     $requestPublishDialogCreateCount,
     $requestPublishDialogErrors,
     $requestPublishHasMoreDependants,
     $requestPublishPublishableCount,
+    applyDraftRequestPublishDialogSelection,
+    cancelDraftRequestPublishDialogSelection,
     excludeInProgressRequestPublishItems,
     excludeInvalidRequestPublishItems,
     loadMoreRequestPublishDependants,
@@ -69,6 +72,7 @@ export const RequestPublishDialogContent = (): ReactElement => {
     const hasMoreDependants = useStore($requestPublishHasMoreDependants);
     const dependantsSelection = useStore($requestPublishDependantsSelection);
     const isPublishReady = useStore($isRequestPublishReady);
+    const isSelectionSynced = useStore($isRequestPublishSelectionSynced);
     const { invalid, inProgress } = useStore($requestPublishDialogErrors);
     const { allowContentUpdate } = useStore($config, { keys: ['allowContentUpdate'] });
 
@@ -138,9 +142,9 @@ export const RequestPublishDialogContent = (): ReactElement => {
                 failed={failed}
                 showReady={isPublishReady}
                 warningText={nothingToPublishWarning}
-                editing={false}
-                onApply={() => undefined}
-                onCancel={() => undefined}
+                editing={!isSelectionSynced}
+                onApply={applyDraftRequestPublishDialogSelection}
+                onCancel={cancelDraftRequestPublishDialogSelection}
                 errors={{
                     inProgress: {
                         ...inProgress,

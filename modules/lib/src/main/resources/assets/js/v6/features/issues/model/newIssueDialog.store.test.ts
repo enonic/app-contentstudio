@@ -10,13 +10,19 @@ import {
 } from '../../../shared/socket/socket.store';
 import { start as startNewIssueDialogService } from './newIssueDialog.service';
 import {
+    $isNewIssueSelectionSynced,
     $newIssueDependantsSelection,
     $newIssueDialog,
     $newIssueDialogCreateCount,
     $newIssueDialogHasMoreDependants,
+    applyDraftNewIssueDialogSelection,
+    cancelDraftNewIssueDialogSelection,
     loadMoreNewIssueDependants,
     openNewIssueDialog,
+    removeNewIssueItemsByIds,
     resetNewIssueDialogContext,
+    setNewIssueDependantIncluded,
+    setNewIssueItemIncludeChildren,
     toggleNewIssueDependantsSelection,
 } from './newIssueDialog.store';
 import {
@@ -266,6 +272,155 @@ describe('newIssueDialog.store', () => {
 
             expect($newIssueDialog.get().excludedDependantIds).toHaveLength(0);
             expect($newIssueDependantsSelection.get().selectionType).toBe('all');
+        });
+    });
+
+    describe('editing state (draft selection)', () => {
+        async function setupWithDependants(): Promise<void> {
+            const dependantIds = [new ContentId('dep-1'), new ContentId('dep-2')];
+
+            mockResolvePublishDependencies.mockResolvedValue(createResolveResult({ dependants: dependantIds }));
+
+            mockFetchContentSummaries.mockImplementation((ids: ContentId[]) =>
+                ids.map((id) => createMockContent(id.toString())),
+            );
+
+            openNewIssueDialog([createMockContent('item-1', { hasChildren: true })]);
+
+            await flushNewIssueReload();
+        }
+
+        it('should stay synced after opening and resolving', async () => {
+            await setupWithDependants();
+
+            expect($isNewIssueSelectionSynced.get()).toBe(true);
+        });
+
+        it('should stage an include-children toggle without re-resolving until Apply', async () => {
+            await setupWithDependants();
+            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(1);
+
+            setNewIssueItemIncludeChildren(new ContentId('item-1'), true);
+
+            expect($isNewIssueSelectionSynced.get()).toBe(false);
+            expect($newIssueDialog.get().excludeChildrenIds).toHaveLength(0);
+            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(1);
+
+            applyDraftNewIssueDialogSelection();
+            await flushNewIssueReload();
+
+            expect($isNewIssueSelectionSynced.get()).toBe(true);
+            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
+        });
+
+        it('should keep counts live while a dependant edit is staged and re-resolve on Apply', async () => {
+            await setupWithDependants();
+            expect($newIssueDialogCreateCount.get()).toBe(3);
+
+            setNewIssueDependantIncluded(new ContentId('dep-1'), false);
+
+            expect($isNewIssueSelectionSynced.get()).toBe(false);
+            expect($newIssueDialogCreateCount.get()).toBe(2);
+
+            applyDraftNewIssueDialogSelection();
+            await flushNewIssueReload();
+
+            expect($isNewIssueSelectionSynced.get()).toBe(true);
+            expect($newIssueDialogCreateCount.get()).toBe(2);
+
+            // Applying a dependant exclusion re-resolves so the server can re-evaluate required items.
+            const excludedCall = mockResolvePublishDependencies.mock.calls.find(
+                ([params]) => (params.excludedIds?.length ?? 0) > 0,
+            );
+            expect(excludedCall).toBeTruthy();
+            expect(excludedCall?.[0].excludedIds.map((id: ContentId) => id.toString())).toContain('dep-1');
+        });
+
+        it('should re-evaluate required dependants after excluding and applying', async () => {
+            const dep1 = new ContentId('dep-1');
+            const dep2 = new ContentId('dep-2');
+
+            // dep-1 is required until dep-2 is excluded (dep-2 was the only reason dep-1 is pulled in).
+            mockResolvePublishDependencies.mockImplementation(({ excludedIds = [] }: { excludedIds?: ContentId[] }) => {
+                const hasExclusion = excludedIds.length > 0;
+                return createResolveResult({
+                    dependants: [dep1, dep2],
+                    required: hasExclusion ? [] : [dep1],
+                });
+            });
+            mockFetchContentSummaries.mockImplementation((ids: ContentId[]) =>
+                ids.map((id) => createMockContent(id.toString())),
+            );
+
+            openNewIssueDialog([createMockContent('item-1', { hasChildren: true })]);
+            await flushNewIssueReload();
+
+            expect($newIssueDialog.get().requiredDependantIds.map((id) => id.toString())).toEqual(['dep-1']);
+
+            setNewIssueDependantIncluded(dep2, false);
+            applyDraftNewIssueDialogSelection();
+            await flushNewIssueReload();
+
+            // The excluded child freed its required parent: dep-1 is no longer required.
+            expect($newIssueDialog.get().requiredDependantIds).toHaveLength(0);
+            // The full list stays visible so the excluded item remains re-includable.
+            expect($newIssueDialog.get().dependantIds.map((id) => id.toString())).toEqual(['dep-1', 'dep-2']);
+        });
+
+        it('should restore the applied selection on Cancel', async () => {
+            await setupWithDependants();
+
+            setNewIssueDependantIncluded(new ContentId('dep-1'), false);
+            setNewIssueItemIncludeChildren(new ContentId('item-1'), true);
+            expect($isNewIssueSelectionSynced.get()).toBe(false);
+
+            cancelDraftNewIssueDialogSelection();
+
+            expect($isNewIssueSelectionSynced.get()).toBe(true);
+            expect($newIssueDialog.get().excludedDependantIds).toHaveLength(0);
+            expect($newIssueDialog.get().excludeChildrenIds.map((id) => id.toString())).toEqual(['item-1']);
+        });
+
+        it('should keep a staged edit when a background reload runs, resolving the applied selection', async () => {
+            await setupWithDependants();
+            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(1);
+
+            setNewIssueItemIncludeChildren(new ContentId('item-1'), true);
+            expect($isNewIssueSelectionSynced.get()).toBe(false);
+
+            emitContentUpdated([createMockContent('item-1', { hasChildren: true, displayName: 'Renamed' })]);
+            await flushNewIssueReload();
+
+            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
+            const reloadArgs = mockResolvePublishDependencies.mock.calls[1][0];
+            expect(reloadArgs.excludeChildrenIds.map((id: ContentId) => id.toString())).toEqual(['item-1']);
+            expect($newIssueDialog.get().excludeChildrenIds).toHaveLength(0);
+            expect($isNewIssueSelectionSynced.get()).toBe(false);
+        });
+
+        it('should keep staged edits on remaining items when another item is removed', async () => {
+            mockResolvePublishDependencies.mockResolvedValue(
+                createResolveResult({ dependants: [new ContentId('dep-1')] }),
+            );
+            mockFetchContentSummaries.mockImplementation((ids: ContentId[]) =>
+                ids.map((id) => createMockContent(id.toString())),
+            );
+
+            openNewIssueDialog([
+                createMockContent('item-1', { hasChildren: true }),
+                createMockContent('item-2', { hasChildren: true }),
+            ]);
+            await flushNewIssueReload();
+
+            setNewIssueItemIncludeChildren(new ContentId('item-2'), true);
+            expect($isNewIssueSelectionSynced.get()).toBe(false);
+
+            removeNewIssueItemsByIds([new ContentId('item-1')]);
+            await flushNewIssueReload();
+
+            expect($newIssueDialog.get().excludeChildrenIds).toHaveLength(0);
+            expect($newIssueDialog.get().appliedExcludeChildrenIds.map((id) => id.toString())).toEqual(['item-2']);
+            expect($isNewIssueSelectionSynced.get()).toBe(false);
         });
     });
 });

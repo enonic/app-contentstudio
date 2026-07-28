@@ -10,7 +10,6 @@ import { IssueType } from '../../../../app/issue/IssueType';
 import { PublishRequest } from '../../../../app/issue/PublishRequest';
 import { PublishRequestItem } from '../../../../app/issue/PublishRequestItem';
 import { fetchContentSummaries } from '../../../entities/content';
-import { resolvePublishDependencies } from '../../../entities/content/api/publish.api';
 import { resolvePrincipalsByKeys } from '../../../entities/principal/api/principals.api';
 import {
     createIssueComment,
@@ -26,7 +25,12 @@ import {
     fetchDependantWindowSlice,
     orderSummariesByIds,
 } from '../../../entities/content/lib/dependantWindow';
-import { calcDependantsSelection, nextDependantExclusions } from '../../../shared/lib/cms/content/dependantsSelection';
+import { resolveAppliedPublishDependencies } from '../../../entities/content/lib/publishDependencies';
+import {
+    calcDependantsSelection,
+    nextDependantExclusions,
+    pruneExcludedDependantIds,
+} from '../../../shared/lib/cms/content/dependantsSelection';
 import { hasContentIdInIds, isIdsEqual, uniqueIds } from '../../../shared/lib/cms/content/ids';
 import { $issueDialog, loadIssueDialogList } from './issueDialog.store';
 
@@ -226,28 +230,30 @@ export const loadIssueDialogItems = async (issue?: Issue, options: IssueDialogIt
             return;
         }
 
-        const dependenciesResult = await resolvePublishDependencies({
+        const resolution = await resolveAppliedPublishDependencies({
             ids: itemIds,
             excludeChildrenIds: excludeChildrenIds,
+            excludedIds: excludedDependantIds,
         });
         if (requestId !== dependenciesRequestId) {
             return;
         }
 
-        if (dependenciesResult.isErr()) {
-            console.error(dependenciesResult.error);
+        if (resolution.isErr()) {
+            console.error(resolution.error);
             $issueDialogDetails.set({
                 ...$issueDialogDetails.get(),
                 itemsLoading: false,
                 itemsError: true,
             });
-            showError(dependenciesResult.error.message);
+            showError(resolution.error.message);
             return;
         }
 
-        const result = dependenciesResult.value;
+        const { maxResult, minResult } = resolution.value;
 
-        const allDependantIds = result.getDependants().filter((id) => !hasContentIdInIds(id, itemIds));
+        // maxResult (no dependant exclusions) keeps excluded rows visible and re-includable.
+        const allDependantIds = maxResult.getDependants().filter((id) => !hasContentIdInIds(id, itemIds));
 
         const firstWindow = await fetchDependantWindowSlice(allDependantIds, 0);
         if (requestId !== dependenciesRequestId) {
@@ -265,10 +271,12 @@ export const loadIssueDialogItems = async (issue?: Issue, options: IssueDialogIt
 
         const sortedItems = canReuseItems ? items : sortByIdOrder(items, itemIds);
         const sortedDependants = orderSummariesByIds(firstWindow.summaries, allDependantIds);
-        const requiredDependantIds = result.getRequired().filter((id) => hasContentIdInIds(id, allDependantIds));
-        const nextExcludedDependantIds = excludedDependantIds
-            .filter((id) => hasContentIdInIds(id, allDependantIds))
-            .filter((id) => !hasContentIdInIds(id, requiredDependantIds));
+        const requiredDependantIds = minResult.getRequired().filter((id) => hasContentIdInIds(id, allDependantIds));
+        const nextExcludedDependantIds = pruneExcludedDependantIds(
+            excludedDependantIds,
+            allDependantIds,
+            requiredDependantIds,
+        );
 
         const latestState = $issueDialogDetails.get();
         $issueDialogDetails.set({
