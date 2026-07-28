@@ -10,7 +10,7 @@ import { ProjectIcon } from '../../shared/ui/icons/ProjectIcon';
 import { LegacyElement } from '../../shared/ui/LegacyElement';
 import { WidgetButton } from '../../shared/ui/WidgetButton';
 import { $activeProject, $noProjectMode } from '../../entities/project';
-import { $config } from '../../shared/config/config.store';
+import {$config} from '../../shared/config';
 import {
     $sidebarWidgets,
     getSettingsWidget,
@@ -50,7 +50,7 @@ export const BrowseSidebar = (): ReactElement => {
 
     return (
         <nav
-            class="bg-surface-neutral absolute h-screen w-15 flex flex-col gap-10 items-center py-2.5 px-1.75 border-r border-bdr-soft"
+            class="bg-surface-neutral absolute h-dvh w-15 flex flex-col gap-10 items-center py-2.5 px-1.75 border-r border-t-0 border-bdr-soft"
             aria-label={useI18n('wcag.sidebar.label')}
         >
             {noProjectMode ? (

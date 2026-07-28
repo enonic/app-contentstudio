@@ -35,7 +35,7 @@ export const PublishScheduleForm = ({ firstInputRef, defaultTimeValue }: Publish
         <div
             ref={containerRef}
             data-component={COMPONENT_NAME}
-            className="flex flex-wrap gap-x-6 gap-y-4 rounded-lg bg-surface-primary p-7.5"
+            className="flex flex-wrap gap-x-6 gap-y-2 md:gap-y-4 rounded-lg bg-surface-primary p-2 md:p-7.5"
         >
             <DateTimeSelector
                 label={onlineFromLabel}
