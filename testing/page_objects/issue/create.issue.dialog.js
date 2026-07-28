@@ -3,24 +3,22 @@
  */
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
-const {BUTTONS, ISSUE} = require('../../libs/elements');
+const { BUTTONS, ISSUE } = require('../../libs/elements');
 const AssigneeSelectorDropdown = require('../components/selectors/assignee.selector.dropdown');
 const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
 const DependantsControls = require('./dependant.controls');
 
-
 const xpath = {
     container: `//div[contains(@role,'dialog') and @data-component='NewIssueDialogContent']`,
-    dialogTitle: "//h2",
+    dialogTitle: '//h2',
     titleInput: "//div[descendant::div[contains(.,'Title')]]/following-sibling::div[1]//input[contains(@class,'text')]",
     descriptionTextArea: "//div[descendant::div[text()='Description']]/following-sibling::div/textarea",
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
-    selectionItemByDisplayName:
-        text => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::span[contains(@class,'display-name') and text()='${text}']]`,
+    selectionItemByDisplayName: (text) =>
+        `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::span[contains(@class,'display-name') and text()='${text}']]`,
 };
 
 class CreateIssueDialog extends Page {
-
     constructor() {
         super();
         this.dependantsControls = new DependantsControls(xpath.container);
@@ -66,7 +64,11 @@ class CreateIssueDialog extends Page {
         try {
             await this.waitForElementEnabled(this.createIssueButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError(`Create Issue dialog, 'Create Issue' button should be enabled`, 'err_create_issue_btn_enabled', err);
+            await this.handleError(
+                `Create Issue dialog, 'Create Issue' button should be enabled`,
+                'err_create_issue_btn_enabled',
+                err,
+            );
         }
     }
 
@@ -74,7 +76,11 @@ class CreateIssueDialog extends Page {
         try {
             await this.waitForElementDisabled(this.createIssueButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError(`Create Issue dialog, 'Create Issue' button should be disabled`, 'err_create_issue_btn_disabled', err);
+            await this.handleError(
+                `Create Issue dialog, 'Create Issue' button should be disabled`,
+                'err_create_issue_btn_disabled',
+                err,
+            );
         }
     }
 
@@ -88,12 +94,24 @@ class CreateIssueDialog extends Page {
         }
     }
 
+    async clickOnApplySelectionButton() {
+        return await this.dependantsControls.clickOnApplySelectionButton();
+    }
+
+    async clickOnCancelSelectionButton() {
+        return await this.dependantsControls.clickOnCancelSelectionButton();
+    }
+
     async clickOnCloseButton() {
         try {
             await this.clickOnElement(this.closeButton);
             return await this.pause(300);
         } catch (err) {
-            await this.handleError('Create Issue dialog, Error after Clicking on Close button', 'err_close_issue_dialog', err);
+            await this.handleError(
+                'Create Issue dialog, Error after Clicking on Close button',
+                'err_close_issue_dialog',
+                err,
+            );
         }
     }
 
@@ -102,7 +120,11 @@ class CreateIssueDialog extends Page {
         try {
             return await this.typeTextInInput(this.titleInput, issueName);
         } catch (err) {
-            await this.handleError('Error when typing the issue name in the Title input field', 'err_type_issue_name', err);
+            await this.handleError(
+                'Error when typing the issue name in the Title input field',
+                'err_type_issue_name',
+                err,
+            );
         }
     }
 
@@ -130,7 +152,7 @@ class CreateIssueDialog extends Page {
     // Content selector -  items to publish :
     async isItemsOptionFilterDisplayed() {
         let contentSelector = new ContentSelectorDropdown();
-        return await contentSelector.isOptionsFilterInputDisplayed(this.container)
+        return await contentSelector.isOptionsFilterInputDisplayed(this.container);
     }
 
     async isAssigneesOptionFilterDisplayed() {
@@ -144,7 +166,11 @@ class CreateIssueDialog extends Page {
             await principalComboBox.selectFilteredUser(userName);
             await principalComboBox.clickOnApplySelectionButton();
         } catch (err) {
-            await this.handleError(`Error when selecting user in Assignees combobox: ${userName}`, 'err_select_user_assignees', err);
+            await this.handleError(
+                `Error when selecting user in Assignees combobox: ${userName}`,
+                'err_select_user_assignees',
+                err,
+            );
         }
     }
 
@@ -168,7 +194,7 @@ class CreateIssueDialog extends Page {
         }
     }
 
-    async clickOnModeToggleInItemsSelector(){
+    async clickOnModeToggleInItemsSelector() {
         let contentSelectorDropdown = new ContentSelectorDropdown(this.container);
         await contentSelectorDropdown.clickOnModeTogglerButton();
     }
@@ -179,8 +205,11 @@ class CreateIssueDialog extends Page {
             let contentSelectorDropdown = new ContentSelectorDropdown(this.container);
             await contentSelectorDropdown.selectFilteredByDisplayNameContent(displayName);
         } catch (err) {
-            await this.handleError(`Create issue dialog, tried to select the item in Items combobox: ${displayName}`,
-                'err_select_items_combobox', err);
+            await this.handleError(
+                `Create issue dialog, tried to select the item in Items combobox: ${displayName}`,
+                'err_select_items_combobox',
+                err,
+            );
         }
     }
 
@@ -189,7 +218,7 @@ class CreateIssueDialog extends Page {
             return await this.waitForElementDisplayed(this.hideExcludedItemsButton);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_hide_excluded_btn');
-            throw new Error(`'Hide excluded items' button should be visible! screenshot: ${screenshot} ` + err)
+            throw new Error(`'Hide excluded items' button should be visible! screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -209,7 +238,7 @@ class CreateIssueDialog extends Page {
             return await this.waitForElementDisplayed(this.showExcludedItemsButton);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_show_excluded_btn');
-            throw new Error(`Create Issue, 'Show excluded button' should be visible! screenshot: ${screenshot} ` + err)
+            throw new Error(`Create Issue, 'Show excluded button' should be visible! screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -238,14 +267,12 @@ class CreateIssueDialog extends Page {
             return this.waitForElementNotDisplayed(this.hideExcludedItemsButton);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_hide_excluded_btn');
-            throw new Error(`'Hide excluded items' button should be hidden! screenshot: ${screenshot} ` + err)
+            throw new Error(`'Hide excluded items' button should be hidden! screenshot: ${screenshot} ` + err);
         }
     }
 
     // TODO
-    async getDisplayNameInDependentItems() {
-
-    }
+    async getDisplayNameInDependentItems() {}
 
     async isDependantCheckboxSelected(displayName) {
         return await this.dependantsControls.isDependantCheckboxSelected(displayName);
@@ -284,12 +311,17 @@ class CreateIssueDialog extends Page {
 
     async clickOnIncludeChildrenCheckbox(itemName) {
         try {
-            let includeIcon = ISSUE.contentRowByName(itemName) + "/following-sibling::div[contains(@id,'children')]//label";
+            let includeIcon =
+                ISSUE.contentRowByName(itemName) + "/following-sibling::div[contains(@id,'children')]//label";
             await this.waitForElementDisplayed(includeIcon, appConst.shortTimeout);
             await this.clickOnElement(includeIcon);
             return await this.pause(1000);
         } catch (err) {
-            await this.handleError(`Tried to click on 'include children' checkbox : ${itemName}`, 'err_include_children', err);
+            await this.handleError(
+                `Tried to click on 'include children' checkbox : ${itemName}`,
+                'err_include_children',
+                err,
+            );
         }
     }
 
@@ -299,8 +331,11 @@ class CreateIssueDialog extends Page {
             await contentSelector.clickOnDropdownHandle();
             return await this.pause(300);
         } catch (err) {
-            await this.handleError('CReate issue dialog -  tried to click on items to publish dropdown handle',
-                'err_click_items_to_publish_dropdown', err);
+            await this.handleError(
+                'CReate issue dialog -  tried to click on items to publish dropdown handle',
+                'err_click_items_to_publish_dropdown',
+                err,
+            );
         }
     }
 
@@ -309,7 +344,7 @@ class CreateIssueDialog extends Page {
         return await contentSelector.clickOnExpanderIconInOptionsList(optionName);
     }
 
-    async clickOnSelectRowCheckboxByDisplayName(contentDisplayName){
+    async clickOnSelectRowCheckboxByDisplayName(contentDisplayName) {
         let contentSelector = new ContentSelectorDropdown(xpath.container);
         return await contentSelector.clickOnSelectRowCheckboxByDisplayName(contentDisplayName);
     }

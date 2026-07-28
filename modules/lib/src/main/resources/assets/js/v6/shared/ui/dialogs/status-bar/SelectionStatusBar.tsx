@@ -16,7 +16,7 @@ type Props = {
     warningText?: string;
     onApply: () => void;
     onCancel: () => void;
-    errors: {
+    errors?: {
         inProgress: {
             count: number;
             disabled?: boolean;
@@ -57,7 +57,7 @@ function getStatus({
     if (editing) {
         return 'editing';
     }
-    if (Object.values(errors).some((entry) => (entry?.count ?? 0) > 0)) {
+    if (Object.values(errors ?? {}).some((entry) => (entry?.count ?? 0) > 0)) {
         return 'errors';
     }
     if (warningText) {

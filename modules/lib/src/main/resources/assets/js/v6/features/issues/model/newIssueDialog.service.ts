@@ -79,6 +79,7 @@ const handleRemovedNewIssueItems = (idsToRemove: Set<string>): void => {
                 ...$newIssueDialog.get(),
                 items: [],
                 excludeChildrenIds: [],
+                appliedExcludeChildrenIds: [],
             }),
         );
         return;

@@ -12,15 +12,21 @@ import {
 import { start as startRequestPublishDialogService } from './requestPublishDialog.service';
 import {
     $isRequestPublishReady,
+    $isRequestPublishSelectionSynced,
     $requestPublishDependantsSelection,
     $requestPublishDialog,
     $requestPublishDialogCreateCount,
     $requestPublishDialogErrors,
     $requestPublishHasMoreDependants,
     $requestPublishPublishableCount,
+    applyDraftRequestPublishDialogSelection,
+    cancelDraftRequestPublishDialogSelection,
     loadMoreRequestPublishDependants,
     openRequestPublishDialog,
+    removeRequestPublishItem,
     resetRequestPublishDialogContext,
+    setRequestPublishDependantIncluded,
+    setRequestPublishItemIncludeChildren,
     submitRequestPublishDialog,
     toggleRequestPublishDependantsSelection,
 } from './requestPublishDialog.store';
@@ -93,6 +99,22 @@ const requestPublishMainItemEventCases = [
 
 async function flushRequestPublishReload(): Promise<void> {
     await flushDebouncedReload(200);
+}
+
+async function setupWithDependants(): Promise<void> {
+    const dependantIds = [new ContentId('dep-1'), new ContentId('dep-2')];
+
+    mockResolvePublishDependencies.mockResolvedValue(
+        createResolveResult({ dependants: dependantIds, publishable: dependantIds }),
+    );
+
+    mockFetchContentSummaries.mockImplementation((ids: ContentId[]) =>
+        ids.map((id) => createMockContent(id.toString())),
+    );
+
+    openRequestPublishDialog([createMockContent('item-1', { hasChildren: true })]);
+
+    await flushRequestPublishReload();
 }
 
 describe('requestPublishDialog.store', () => {
@@ -471,6 +493,147 @@ describe('requestPublishDialog.store', () => {
 
             expect($requestPublishDialog.get().excludedDependantIds).toHaveLength(0);
             expect($requestPublishDependantsSelection.get().selectionType).toBe('all');
+        });
+    });
+
+    describe('editing state (draft selection)', () => {
+        it('should stay synced after opening and resolving', async () => {
+            await setupWithDependants();
+
+            expect($isRequestPublishSelectionSynced.get()).toBe(true);
+        });
+
+        it('should stage an include-children toggle without re-resolving until Apply', async () => {
+            await setupWithDependants();
+            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(1);
+
+            // Item children are excluded by default; including them stages the change.
+            setRequestPublishItemIncludeChildren(new ContentId('item-1'), true);
+
+            expect($isRequestPublishSelectionSynced.get()).toBe(false);
+            expect($isRequestPublishReady.get()).toBe(false);
+            expect($requestPublishDialog.get().excludeChildrenIds).toHaveLength(0);
+            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(1);
+
+            applyDraftRequestPublishDialogSelection();
+            await flushRequestPublishReload();
+
+            expect($isRequestPublishSelectionSynced.get()).toBe(true);
+            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
+        });
+
+        it('should keep counts live while a dependant edit is staged and re-resolve on Apply', async () => {
+            await setupWithDependants();
+            expect($requestPublishDialogCreateCount.get()).toBe(3);
+
+            setRequestPublishDependantIncluded(new ContentId('dep-1'), false);
+
+            expect($isRequestPublishSelectionSynced.get()).toBe(false);
+            expect($requestPublishDialogCreateCount.get()).toBe(2);
+
+            applyDraftRequestPublishDialogSelection();
+            await flushRequestPublishReload();
+
+            expect($isRequestPublishSelectionSynced.get()).toBe(true);
+            expect($requestPublishDialogCreateCount.get()).toBe(2);
+            // Applying a dependant exclusion re-resolves so the server can re-evaluate required items.
+            const excludedCall = mockResolvePublishDependencies.mock.calls.find(
+                ([params]) => (params.excludedIds?.length ?? 0) > 0,
+            );
+            expect(excludedCall).toBeTruthy();
+            expect(excludedCall?.[0].excludedIds.map((id: ContentId) => id.toString())).toContain('dep-1');
+        });
+
+        it('should re-evaluate required dependants after excluding and applying', async () => {
+            const dep1 = new ContentId('dep-1');
+            const dep2 = new ContentId('dep-2');
+
+            // dep-1 is required until dep-2 is excluded (dep-2 was the only reason dep-1 is pulled in).
+            mockResolvePublishDependencies.mockImplementation(({ excludedIds = [] }: { excludedIds?: ContentId[] }) => {
+                const hasExclusion = excludedIds.length > 0;
+                return createResolveResult({
+                    dependants: [dep1, dep2],
+                    publishable: [dep1, dep2],
+                    required: hasExclusion ? [] : [dep1],
+                });
+            });
+            mockFetchContentSummaries.mockImplementation((ids: ContentId[]) =>
+                ids.map((id) => createMockContent(id.toString())),
+            );
+
+            openRequestPublishDialog([createMockContent('item-1', { hasChildren: true })]);
+            await flushRequestPublishReload();
+
+            expect($requestPublishDialog.get().requiredDependantIds.map((id) => id.toString())).toEqual(['dep-1']);
+
+            setRequestPublishDependantIncluded(dep2, false);
+            applyDraftRequestPublishDialogSelection();
+            await flushRequestPublishReload();
+
+            // The excluded child freed its required parent: dep-1 is no longer required.
+            expect($requestPublishDialog.get().requiredDependantIds).toHaveLength(0);
+            // The full list stays visible so the excluded item remains re-includable.
+            expect($requestPublishDialog.get().dependantIds.map((id) => id.toString())).toEqual(['dep-1', 'dep-2']);
+        });
+
+        it('should restore the applied selection on Cancel', async () => {
+            await setupWithDependants();
+
+            setRequestPublishDependantIncluded(new ContentId('dep-1'), false);
+            setRequestPublishItemIncludeChildren(new ContentId('item-1'), true);
+            expect($isRequestPublishSelectionSynced.get()).toBe(false);
+
+            cancelDraftRequestPublishDialogSelection();
+
+            expect($isRequestPublishSelectionSynced.get()).toBe(true);
+            expect($requestPublishDialog.get().excludedDependantIds).toHaveLength(0);
+            expect($requestPublishDialog.get().excludeChildrenIds.map((id) => id.toString())).toEqual(['item-1']);
+            expect($requestPublishDialogCreateCount.get()).toBe(3);
+        });
+
+        it('should keep a staged edit when a background reload runs, resolving the applied selection', async () => {
+            await setupWithDependants();
+            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(1);
+
+            setRequestPublishItemIncludeChildren(new ContentId('item-1'), true);
+            expect($isRequestPublishSelectionSynced.get()).toBe(false);
+
+            emitContentUpdated([createMockContent('item-1', { hasChildren: true, displayName: 'Renamed' })]);
+            await flushRequestPublishReload();
+
+            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
+            const reloadArgs = mockResolvePublishDependencies.mock.calls[1][0];
+            expect(reloadArgs.excludeChildrenIds.map((id: ContentId) => id.toString())).toEqual(['item-1']);
+            expect($requestPublishDialog.get().excludeChildrenIds).toHaveLength(0);
+            expect($isRequestPublishSelectionSynced.get()).toBe(false);
+        });
+
+        it('should keep staged edits on remaining items when another item is removed', async () => {
+            const dependantIds = [new ContentId('dep-1')];
+            mockResolvePublishDependencies.mockResolvedValue(
+                createResolveResult({ dependants: dependantIds, publishable: dependantIds }),
+            );
+            mockFetchContentSummaries.mockImplementation((ids: ContentId[]) =>
+                ids.map((id) => createMockContent(id.toString())),
+            );
+
+            openRequestPublishDialog([
+                createMockContent('item-1', { hasChildren: true }),
+                createMockContent('item-2', { hasChildren: true }),
+            ]);
+            await flushRequestPublishReload();
+
+            setRequestPublishItemIncludeChildren(new ContentId('item-2'), true);
+            expect($isRequestPublishSelectionSynced.get()).toBe(false);
+
+            removeRequestPublishItem(new ContentId('item-1'));
+            await flushRequestPublishReload();
+
+            expect($requestPublishDialog.get().excludeChildrenIds).toHaveLength(0);
+            expect($requestPublishDialog.get().appliedExcludeChildrenIds.map((id) => id.toString())).toEqual([
+                'item-2',
+            ]);
+            expect($isRequestPublishSelectionSynced.get()).toBe(false);
         });
     });
 });
