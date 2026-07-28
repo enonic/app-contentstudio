@@ -19,7 +19,13 @@ import {
     nextDependantExclusions,
     pruneExcludedDependantIds,
 } from '../../../shared/lib/cms/content/dependantsSelection';
-import { hasContentIdInIds, isIdsEqual, uniqueIds } from '../../../shared/lib/cms/content/ids';
+import {
+    commitDraftSelection,
+    isDraftSelectionSynced,
+    revertDraftSelection,
+    withIdExcluded,
+} from '../../../shared/lib/cms/content/draftSelection';
+import { hasContentIdInIds, uniqueIds } from '../../../shared/lib/cms/content/ids';
 import { createDebounce } from '../../../shared/lib/timing/createDebounce';
 import { createIssue } from '../../../entities/issue/api/issues.api';
 import { closeIssueDialog, openIssueDialogDetails } from './issueDialog.store';
@@ -66,12 +72,7 @@ const initialState: NewIssueDialogStore = {
 
 export const $newIssueDialog = map<NewIssueDialogStore>(structuredClone(initialState));
 
-export const $isNewIssueSelectionSynced = computed(
-    $newIssueDialog,
-    ({ excludeChildrenIds, excludedDependantIds, appliedExcludeChildrenIds, appliedExcludedDependantIds }) =>
-        isIdsEqual(excludeChildrenIds, appliedExcludeChildrenIds) &&
-        isIdsEqual(excludedDependantIds, appliedExcludedDependantIds),
-);
+export const $isNewIssueSelectionSynced = computed($newIssueDialog, isDraftSelectionSynced);
 
 export const $newIssueDialogCreateCount = computed($newIssueDialog, ({ items, dependantIds, excludedDependantIds }) => {
     const includedDependants = dependantIds.filter((id) => !hasContentIdInIds(id, excludedDependantIds));
@@ -244,18 +245,10 @@ export const removeNewIssueItemsByIds = (ids: ContentId[]): void => {
 
 export const setNewIssueItemIncludeChildren = (id: ContentId, includeChildren: boolean): void => {
     const state = $newIssueDialog.get();
-    const alreadyExcluded = hasContentIdInIds(id, state.excludeChildrenIds);
+    const next = withIdExcluded(state.excludeChildrenIds, id, !includeChildren);
 
-    if (includeChildren && alreadyExcluded) {
-        $newIssueDialog.setKey(
-            'excludeChildrenIds',
-            state.excludeChildrenIds.filter((item) => !item.equals(id)),
-        );
-        return;
-    }
-
-    if (!includeChildren && !alreadyExcluded) {
-        $newIssueDialog.setKey('excludeChildrenIds', [...state.excludeChildrenIds, id]);
+    if (next !== state.excludeChildrenIds) {
+        $newIssueDialog.setKey('excludeChildrenIds', next);
     }
 };
 
@@ -266,11 +259,7 @@ export const applyDraftNewIssueDialogSelection = (): void => {
 
     const state = $newIssueDialog.get();
 
-    $newIssueDialog.set({
-        ...state,
-        appliedExcludeChildrenIds: state.excludeChildrenIds,
-        appliedExcludedDependantIds: state.excludedDependantIds,
-    });
+    $newIssueDialog.set({ ...state, ...commitDraftSelection(state) });
 
     // Re-resolve so the server re-evaluates the dependant tree and required items.
     reloadDependenciesDebounced();
@@ -282,11 +271,7 @@ export const cancelDraftNewIssueDialogSelection = (): void => {
     }
 
     const state = $newIssueDialog.get();
-    $newIssueDialog.set({
-        ...state,
-        excludeChildrenIds: state.appliedExcludeChildrenIds,
-        excludedDependantIds: state.appliedExcludedDependantIds,
-    });
+    $newIssueDialog.set({ ...state, ...revertDraftSelection(state) });
 };
 
 export const setNewIssueDependantIncluded = (id: ContentId, included: boolean): void => {
@@ -295,17 +280,10 @@ export const setNewIssueDependantIncluded = (id: ContentId, included: boolean): 
         return;
     }
 
-    const isExcluded = hasContentIdInIds(id, state.excludedDependantIds);
-    if (included && isExcluded) {
-        $newIssueDialog.setKey(
-            'excludedDependantIds',
-            state.excludedDependantIds.filter((item) => !item.equals(id)),
-        );
-        return;
-    }
+    const next = withIdExcluded(state.excludedDependantIds, id, !included);
 
-    if (!included && !isExcluded) {
-        $newIssueDialog.setKey('excludedDependantIds', [...state.excludedDependantIds, id]);
+    if (next !== state.excludedDependantIds) {
+        $newIssueDialog.setKey('excludedDependantIds', next);
     }
 };
 

@@ -21,142 +21,142 @@ describe('issue.details.dialog.items.spec: open issue details dialog and check c
     const ISSUE_TITLE = appConst.generateRandomName('issue');
     const EXPECTED_LABEL_CHECKBOX = 'All (13)';
 
-    it(`GIVEN existing folder with images is selected WHEN 'Create Task' menu item has been selected and issue created THEN '1' should be in 'Items' tab link`,
-        async () => {
-            let createIssueDialog = new CreateIssueDialog();
-            let contentBrowsePanel = new ContentBrowsePanel();
-            let issueDetailsDialog = new IssueDetailsDialog();
-            // 1. Select the folder(offline):
-            await studioUtils.findAndSelectItem(TEST_FOLDER_WITH_IMAGES_NAME);
-            // Publish button is getting visible, because the content is 'New' and valid
-            await contentBrowsePanel.waitForPublishButtonVisible();
-            // 2. open 'Create Task' dialog:
-            await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
-            await createIssueDialog.typeTitle(ISSUE_TITLE);
-            // 3. Click on 'Create Issue' button(new task is created):
-            await createIssueDialog.clickOnCreateIssueButton();
-            // 4. Task Details dialog should be loaded:
-            await issueDetailsDialog.waitForDialogLoaded();
-            let result = await issueDetailsDialog.getNumberInItemsTab();
-            assert.equal(result, '1', '1 should be present in the `Items` tab link');
-        });
+    it(`GIVEN existing folder with images is selected WHEN 'Create Task' menu item has been selected and issue created THEN '1' should be in 'Items' tab link`, async () => {
+        let createIssueDialog = new CreateIssueDialog();
+        let contentBrowsePanel = new ContentBrowsePanel();
+        let issueDetailsDialog = new IssueDetailsDialog();
+        // 1. Select the folder(offline):
+        await studioUtils.findAndSelectItem(TEST_FOLDER_WITH_IMAGES_NAME);
+        // Publish button is getting visible, because the content is 'New' and valid
+        await contentBrowsePanel.waitForPublishButtonVisible();
+        // 2. open 'Create Task' dialog:
+        await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
+        await createIssueDialog.typeTitle(ISSUE_TITLE);
+        // 3. Click on 'Create Issue' button(new task is created):
+        await createIssueDialog.clickOnCreateIssueButton();
+        // 4. Task Details dialog should be loaded:
+        await issueDetailsDialog.waitForDialogLoaded();
+        let result = await issueDetailsDialog.getNumberInItemsTab();
+        assert.equal(result, '1', '1 should be present in the `Items` tab link');
+    });
 
-    it(`GIVEN Task Details Dialog is opened WHEN Items-tab has been clicked THEN 'Publish...' button and Content Combobox should be displayed`,
-        async () => {
-            let issueDetailsDialog = new IssueDetailsDialog();
-            let issueListDialog = new IssueListDialog();
-            let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
-            // 1. Open Issue List dialog:
-            await studioUtils.openIssuesListDialog();
-            // 2. Click on the task and open Task Details dialog:
-            await issueListDialog.clickOnIssue(ISSUE_TITLE);
-            await issueDetailsDialog.waitForDialogLoaded();
-            // 3. Click on 'Items' tab bar item:
-            await issueDetailsDialog.clickOnItemsTabItem();
+    it(`GIVEN Task Details Dialog is opened WHEN Items-tab has been clicked THEN 'Publish...' button and Content Combobox should be displayed`, async () => {
+        let issueDetailsDialog = new IssueDetailsDialog();
+        let issueListDialog = new IssueListDialog();
+        let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
+        // 1. Open Issue List dialog:
+        await studioUtils.openIssuesListDialog();
+        // 2. Click on the task and open Task Details dialog:
+        await issueListDialog.clickOnIssue(ISSUE_TITLE);
+        await issueDetailsDialog.waitForDialogLoaded();
+        // 3. Click on 'Items' tab bar item:
+        await issueDetailsDialog.clickOnItemsTabItem();
 
-            let isActive = await issueDetailsDialog.isItemsTabItemActive();
-            assert.ok(isActive, "Items tab gets active");
-            // 4. Content(Items) option filter input should be displayed:
-            await issueDetailsDialogItemsTab.waitForItemsOptionsFilterInputDisplayed();
-            await issueDetailsDialogItemsTab.waitForBackToIssuesButtonDisplayed();
-        });
+        let isActive = await issueDetailsDialog.isItemsTabItemActive();
+        assert.ok(isActive, 'Items tab gets active');
+        // 4. Content(Items) option filter input should be displayed:
+        await issueDetailsDialogItemsTab.waitForItemsOptionsFilterInputDisplayed();
+        await issueDetailsDialogItemsTab.waitForBackToIssuesButtonDisplayed();
+    });
 
-    it(`GIVEN Items-tab has been clicked WHEN 'Include Child Items' icon has been clicked THEN List of items should be expanded AND 'All' dependant checkbox should appear`,
-        async () => {
-            let issueDetailsDialog = new IssueDetailsDialog();
-            let issueListDialog = new IssueListDialog();
-            let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
-            // 1. Click on the task and open Task Details dialog:
-            await studioUtils.openIssuesListDialog();
-            await issueListDialog.clickOnIssue(ISSUE_TITLE);
-            await issueDetailsDialog.waitForDialogLoaded();
-            // 2. Click on Items tab bar item
-            await issueDetailsDialog.clickOnItemsTabItem();
-            // 3. Click on 'Include Child' icon:
-            await issueDetailsDialogItemsTab.clickOnIncludeChildrenCheckbox(TEST_FOLDER_WITH_IMAGES_DISPLAY_NAME);
-            let message = await issueDetailsDialogItemsTab.waitForNotificationMessage();
-            assert.equal(message, appConst.NOTIFICATION_MESSAGES.ISSUE_UPDATED_MESSAGE, 'The issue has been updated. - should appear');
-            await issueDetailsDialogItemsTab.waitForAllDependantsCheckboxDisplayed();
-            let isSelected = await issueDetailsDialogItemsTab.isAllDependantsCheckboxSelected();
-            assert.ok(isSelected, "'All' checkbox should be selected");
-            let result = await issueDetailsDialog.getNumberInItemsTab();
-            assert.equal(result, '14', 'Number of items should be updated to 14');
-            //let numberInHideDepItemsLink = await issueDetailsDialogItemsTab.getNumberInAllCheckbox();
-            //assert.equal(numberInHideDepItemsLink, EXPECTED_LABEL_CHECKBOX, "Expected number should be present in the 'All'-checkbox")
-        });
+    it(`GIVEN Items-tab has been clicked WHEN 'Include Child Items' icon has been clicked THEN List of items should be expanded AND 'All' dependant checkbox should appear`, async () => {
+        let issueDetailsDialog = new IssueDetailsDialog();
+        let issueListDialog = new IssueListDialog();
+        let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
+        // 1. Click on the task and open Task Details dialog:
+        await studioUtils.openIssuesListDialog();
+        await issueListDialog.clickOnIssue(ISSUE_TITLE);
+        await issueDetailsDialog.waitForDialogLoaded();
+        // 2. Click on Items tab bar item
+        await issueDetailsDialog.clickOnItemsTabItem();
+        // 3. Click on 'Include Child' icon:
+        await issueDetailsDialogItemsTab.clickOnIncludeChildrenCheckbox(TEST_FOLDER_WITH_IMAGES_DISPLAY_NAME);
+        // 4. The selection change is staged, so it is only saved after 'Apply':
+        await issueDetailsDialogItemsTab.clickOnApplySelectionButton();
+        let message = await issueDetailsDialogItemsTab.waitForNotificationMessage();
+        assert.equal(
+            message,
+            appConst.NOTIFICATION_MESSAGES.ISSUE_UPDATED_MESSAGE,
+            'The issue has been updated. - should appear',
+        );
+        await issueDetailsDialogItemsTab.waitForAllDependantsCheckboxDisplayed();
+        let isSelected = await issueDetailsDialogItemsTab.isAllDependantsCheckboxSelected();
+        assert.ok(isSelected, "'All' checkbox should be selected");
+        let result = await issueDetailsDialog.getNumberInItemsTab();
+        assert.equal(result, '14', 'Number of items should be updated to 14');
+        //let numberInHideDepItemsLink = await issueDetailsDialogItemsTab.getNumberInAllCheckbox();
+        //assert.equal(numberInHideDepItemsLink, EXPECTED_LABEL_CHECKBOX, "Expected number should be present in the 'All'-checkbox")
+    });
 
-    it(`GIVEN existing task (child items were included) WHEN task details is opened THEN 'All' dependant checkbox should be present`,
-        async () => {
-            let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
-            let issueDetailsDialog = new IssueDetailsDialog();
-            let issueListDialog = new IssueListDialog();
-            // 1. Open Task Details dialog:
-            await studioUtils.openIssuesListDialog();
-            await issueListDialog.clickOnIssue(ISSUE_TITLE);
-            await issueDetailsDialog.waitForDialogLoaded();
-            // 2. Click on Items tab
-            await issueDetailsDialog.clickOnItemsTabItem();
-            // `All` link should be displayed
-            await issueDetailsDialogItemsTab.waitForAllDependantsCheckboxDisplayed();
-            let label = await issueDetailsDialogItemsTab.getNumberInAllCheckbox();
-            assert.equal(label, EXPECTED_LABEL_CHECKBOX, '13 should be displayed in the checkbox');
-            let result = await issueDetailsDialog.getNumberInItemsTab();
-            assert.equal(result, '14', 'Expected number of items should be displayed');
-        });
+    it(`GIVEN existing task (child items were included) WHEN task details is opened THEN 'All' dependant checkbox should be present`, async () => {
+        let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
+        let issueDetailsDialog = new IssueDetailsDialog();
+        let issueListDialog = new IssueListDialog();
+        // 1. Open Task Details dialog:
+        await studioUtils.openIssuesListDialog();
+        await issueListDialog.clickOnIssue(ISSUE_TITLE);
+        await issueDetailsDialog.waitForDialogLoaded();
+        // 2. Click on Items tab
+        await issueDetailsDialog.clickOnItemsTabItem();
+        // `All` link should be displayed
+        await issueDetailsDialogItemsTab.waitForAllDependantsCheckboxDisplayed();
+        let label = await issueDetailsDialogItemsTab.getNumberInAllCheckbox();
+        assert.equal(label, EXPECTED_LABEL_CHECKBOX, '13 should be displayed in the checkbox');
+        let result = await issueDetailsDialog.getNumberInItemsTab();
+        assert.equal(result, '14', 'Expected number of items should be displayed');
+    });
 
-    it(`GIVEN task details is opened WHEN 'All' checkbox has been unselected THEN 'Apply' selection button should appear`,
-        async () => {
-            let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
-            let issueDetailsDialog = new IssueDetailsDialog();
-            let issueListDialog = new IssueListDialog();
-            // 1. Open task details dialog(dependent items are included)
-            await studioUtils.openIssuesListDialog();
-            await issueListDialog.clickOnIssue(ISSUE_TITLE);
-            await issueDetailsDialog.waitForDialogLoaded();
-            // 2. Go to 'Items' tab:
-            await issueDetailsDialog.clickOnItemsTabItem();
-            // 3. Unselect  'All' checkbox
-            await issueDetailsDialogItemsTab.clickOnAllCheckbox();
-            // 4. Verify that 'Apply' button gets visible:
-            // TODO BUG: Request Publishing dialog: no Apply button after toggling 'Include child items'  #11046
-            //await issueDetailsDialogItemsTab.waitForApplySelectionButtonDisplayed();
-        });
+    it(`GIVEN task details is opened WHEN 'All' checkbox has been unselected THEN 'Apply' selection button should appear`, async () => {
+        let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
+        let issueDetailsDialog = new IssueDetailsDialog();
+        let issueListDialog = new IssueListDialog();
+        // 1. Open task details dialog(dependent items are included)
+        await studioUtils.openIssuesListDialog();
+        await issueListDialog.clickOnIssue(ISSUE_TITLE);
+        await issueDetailsDialog.waitForDialogLoaded();
+        // 2. Go to 'Items' tab:
+        await issueDetailsDialog.clickOnItemsTabItem();
+        // 3. Unselect  'All' checkbox
+        await issueDetailsDialogItemsTab.clickOnAllCheckbox();
+        // 4. Verify that 'Apply' button gets visible:
+        await issueDetailsDialogItemsTab.waitForApplySelectionButtonDisplayed();
+    });
 
-    it(`GIVEN issue details dialog is opened WHEN 'Exclude child items' icon has been clicked THEN number of items to publish changed to 1`,
-        async () => {
-            let issueDetailsDialog = new IssueDetailsDialog();
-            let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
-            let issueListDialog = new IssueListDialog();
-            // 1. Open Task Details dialog:
-            await studioUtils.openIssuesListDialog();
-            await issueListDialog.clickOnIssue(ISSUE_TITLE);
-            await issueDetailsDialog.waitForDialogLoaded();
-            // 2. Go to 'Items' tab:
-            await issueDetailsDialog.clickOnItemsTabItem();
-            // 3. Exclude child items(click on the toggler):
-            await issueDetailsDialogItemsTab.clickOnIncludeChildrenCheckbox(TEST_FOLDER_WITH_IMAGES_DISPLAY_NAME);
-            // 4. Verify that number of items in the tab link is changed to 1:
-            await issueDetailsDialog.waitForNumberInItemsTab(1);
-        });
+    it(`GIVEN issue details dialog is opened WHEN 'Exclude child items' icon has been clicked THEN number of items to publish changed to 1`, async () => {
+        let issueDetailsDialog = new IssueDetailsDialog();
+        let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
+        let issueListDialog = new IssueListDialog();
+        // 1. Open Task Details dialog:
+        await studioUtils.openIssuesListDialog();
+        await issueListDialog.clickOnIssue(ISSUE_TITLE);
+        await issueDetailsDialog.waitForDialogLoaded();
+        // 2. Go to 'Items' tab:
+        await issueDetailsDialog.clickOnItemsTabItem();
+        // 3. Exclude child items(click on the toggler):
+        await issueDetailsDialogItemsTab.clickOnIncludeChildrenCheckbox(TEST_FOLDER_WITH_IMAGES_DISPLAY_NAME);
+        // 4. Apply the staged selection so dependants are resolved again:
+        await issueDetailsDialogItemsTab.clickOnApplySelectionButton();
+        // 5. Verify that number of items in the tab link is changed to 1:
+        await issueDetailsDialog.waitForNumberInItemsTab(1);
+    });
 
-    it(`GIVEN existing issue is opened in Details Dialog WHEN new item has been added THEN 'Items' tab remains active`,
-        async () => {
-            let issueDetailsDialog = new IssueDetailsDialog();
-            let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
-            let issueListDialog = new IssueListDialog();
-            // 1. Open Issue Details dialog:
-            await studioUtils.openIssuesListDialog();
-            await issueListDialog.clickOnIssue(ISSUE_TITLE);
-            await issueDetailsDialog.waitForDialogLoaded();
-            // 2. Go to 'Items' tab:
-            await issueDetailsDialog.clickOnItemsTabItem();
-            // 3. Add one more item in the content combobox and click on 'Apply' button:
-            await issueDetailsDialogItemsTab.filterAndSelectItem(appConst.TEST_IMAGES.CAPE);
-            // 4. Verify that Items tab remains active:
-            await issueDetailsDialogItemsTab.pause(1000);
-            let isActive = await issueDetailsDialog.isItemsTabItemActive();
-            assert.ok(isActive, 'Items Tab should remain active after adding a item');
-        });
+    it(`GIVEN existing issue is opened in Details Dialog WHEN new item has been added THEN 'Items' tab remains active`, async () => {
+        let issueDetailsDialog = new IssueDetailsDialog();
+        let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
+        let issueListDialog = new IssueListDialog();
+        // 1. Open Issue Details dialog:
+        await studioUtils.openIssuesListDialog();
+        await issueListDialog.clickOnIssue(ISSUE_TITLE);
+        await issueDetailsDialog.waitForDialogLoaded();
+        // 2. Go to 'Items' tab:
+        await issueDetailsDialog.clickOnItemsTabItem();
+        // 3. Add one more item in the content combobox and click on 'Apply' button:
+        await issueDetailsDialogItemsTab.filterAndSelectItem(appConst.TEST_IMAGES.CAPE);
+        // 4. Verify that Items tab remains active:
+        await issueDetailsDialogItemsTab.pause(1000);
+        let isActive = await issueDetailsDialog.isItemsTabItemActive();
+        assert.ok(isActive, 'Items Tab should remain active after adding a item');
+    });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());

@@ -23,6 +23,12 @@ import {
     nextDependantExclusions,
     pruneExcludedDependantIds,
 } from '../../../shared/lib/cms/content/dependantsSelection';
+import {
+    commitDraftSelection,
+    isDraftSelectionSynced,
+    revertDraftSelection,
+    withIdExcluded,
+} from '../../../shared/lib/cms/content/draftSelection';
 import { hasContentIdInIds, isIdsEqual, uniqueIds } from '../../../shared/lib/cms/content/ids';
 import { patchTrackedContentItems, removeTrackedContentItems } from '../../../shared/lib/cms/content/trackedItems';
 import { createDebounce } from '../../../shared/lib/timing/createDebounce';
@@ -87,12 +93,7 @@ export const $requestPublishDialog = map<RequestPublishDialogStore>(structuredCl
 
 const $requestPublishChecks = map<RequestPublishChecksStore>(structuredClone(initialChecksState));
 
-export const $isRequestPublishSelectionSynced = computed(
-    $requestPublishDialog,
-    ({ excludeChildrenIds, excludedDependantIds, appliedExcludeChildrenIds, appliedExcludedDependantIds }) =>
-        isIdsEqual(excludeChildrenIds, appliedExcludeChildrenIds) &&
-        isIdsEqual(excludedDependantIds, appliedExcludedDependantIds),
-);
+export const $isRequestPublishSelectionSynced = computed($requestPublishDialog, isDraftSelectionSynced);
 
 export const $requestPublishDialogCreateCount = computed(
     $requestPublishDialog,
@@ -343,18 +344,10 @@ export const setRequestPublishItems = (items: ContentSummary[], includeChildren 
 
 export const setRequestPublishItemIncludeChildren = (id: ContentId, includeChildren: boolean): void => {
     const state = $requestPublishDialog.get();
-    const alreadyExcluded = hasContentIdInIds(id, state.excludeChildrenIds);
+    const next = withIdExcluded(state.excludeChildrenIds, id, !includeChildren);
 
-    if (includeChildren && alreadyExcluded) {
-        $requestPublishDialog.setKey(
-            'excludeChildrenIds',
-            state.excludeChildrenIds.filter((item) => !item.equals(id)),
-        );
-        return;
-    }
-
-    if (!includeChildren && !alreadyExcluded) {
-        $requestPublishDialog.setKey('excludeChildrenIds', [...state.excludeChildrenIds, id]);
+    if (next !== state.excludeChildrenIds) {
+        $requestPublishDialog.setKey('excludeChildrenIds', next);
     }
 };
 
@@ -365,11 +358,7 @@ export const applyDraftRequestPublishDialogSelection = (): void => {
 
     const state = $requestPublishDialog.get();
 
-    $requestPublishDialog.set({
-        ...state,
-        appliedExcludeChildrenIds: state.excludeChildrenIds,
-        appliedExcludedDependantIds: state.excludedDependantIds,
-    });
+    $requestPublishDialog.set({ ...state, ...commitDraftSelection(state) });
 
     // Re-resolve so the server re-evaluates the dependant tree and required items.
     reloadDependenciesDebounced();
@@ -381,11 +370,7 @@ export const cancelDraftRequestPublishDialogSelection = (): void => {
     }
 
     const state = $requestPublishDialog.get();
-    $requestPublishDialog.set({
-        ...state,
-        excludeChildrenIds: state.appliedExcludeChildrenIds,
-        excludedDependantIds: state.appliedExcludedDependantIds,
-    });
+    $requestPublishDialog.set({ ...state, ...revertDraftSelection(state) });
 };
 
 export const removeRequestPublishItem = (id: ContentId): void => {
@@ -415,17 +400,10 @@ export const setRequestPublishDependantIncluded = (id: ContentId, included: bool
         return;
     }
 
-    const isExcluded = hasContentIdInIds(id, state.excludedDependantIds);
-    if (included && isExcluded) {
-        $requestPublishDialog.setKey(
-            'excludedDependantIds',
-            state.excludedDependantIds.filter((item) => !item.equals(id)),
-        );
-        return;
-    }
+    const next = withIdExcluded(state.excludedDependantIds, id, !included);
 
-    if (!included && !isExcluded) {
-        $requestPublishDialog.setKey('excludedDependantIds', [...state.excludedDependantIds, id]);
+    if (next !== state.excludedDependantIds) {
+        $requestPublishDialog.setKey('excludedDependantIds', next);
     }
 };
 

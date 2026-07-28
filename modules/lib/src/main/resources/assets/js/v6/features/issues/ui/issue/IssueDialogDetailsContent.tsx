@@ -20,25 +20,29 @@ import { useTaskProgress } from '../../../../entities/task/useTaskProgress';
 import { $config } from '../../../../shared/config/config.store';
 import { $issueDialog, closeIssueDialog, setIssueDialogView } from '../../model/issueDialog.store';
 import {
+    $canIssueDialogDetailsEditSelection,
     $canIssueDialogDetailsPublish,
     $canIssueDialogDetailsShowSelectionStatusBar,
     $isIssueDialogDetailsClosed,
     $isIssueDialogDetailsPublishRequest,
+    $isIssueDialogDetailsSelectionSynced,
     $issueDialogDetails,
     $issueDialogDetailsDependantsSelection,
     $issueDialogDetailsHasMoreDependants,
+    applyDraftIssueDialogDetailsSelection,
+    cancelDraftIssueDialogDetailsSelection,
     loadIssueDialogItems,
     loadMoreIssueDialogDependants,
     openDeleteCommentConfirmation,
     setIssueDialogCommentText,
+    setIssueDialogDetailsItemIncludeChildren,
+    setIssueDialogDetailsDependantIncluded,
     setIssueDialogDetailsTab,
     submitIssueDialogComment,
     toggleIssueDialogDetailsDependantsSelection,
     updateIssueDialogAssignees,
     updateIssueDialogComment,
-    updateIssueDialogDependencyIncluded,
     updateIssueDialogExcludedDependants,
-    updateIssueDialogItemIncludeChildren,
     updateIssueDialogItems,
     updateIssueDialogSchedule,
     updateIssueDialogStatus,
@@ -176,6 +180,8 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         dependantIds,
         excludedDependantIds,
         requiredDependantIds,
+        appliedExcludeChildrenIds,
+        appliedExcludedDependantIds,
     } = useStore($issueDialogDetails, {
         keys: [
             'issue',
@@ -197,11 +203,15 @@ export const IssueDialogDetailsContent = (): ReactElement => {
             'dependantIds',
             'excludedDependantIds',
             'requiredDependantIds',
+            'appliedExcludeChildrenIds',
+            'appliedExcludedDependantIds',
         ],
     });
     const isPublishRequest = useStore($isIssueDialogDetailsPublishRequest);
     const isClosed = useStore($isIssueDialogDetailsClosed);
     const canShowSelectionStatusBar = useStore($canIssueDialogDetailsShowSelectionStatusBar);
+    const canEditSelection = useStore($canIssueDialogDetailsEditSelection);
+    const isSelectionSynced = useStore($isIssueDialogDetailsSelectionSynced);
     const canPublish = useStore($canIssueDialogDetailsPublish);
     const hasMoreDependants = useStore($issueDialogDetailsHasMoreDependants);
     const dependantsSelection = useStore($issueDialogDetailsDependantsSelection);
@@ -338,15 +348,17 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         }
         const schedule =
             issuePublishFrom || issuePublishTo ? { from: issuePublishFrom, to: issuePublishTo } : undefined;
+        // Keyed on the applied selection: syncPublishDialogContext resets and fully reloads the
+        // publish context, which must not happen on every staged checkbox click.
         void syncPublishDialogContext({
             items,
-            excludeChildrenIds,
-            excludedDependantIds,
+            excludeChildrenIds: appliedExcludeChildrenIds,
+            excludedDependantIds: appliedExcludedDependantIds,
             schedule,
         });
     }, [
-        excludeChildrenIds,
-        excludedDependantIds,
+        appliedExcludeChildrenIds,
+        appliedExcludedDependantIds,
         issueData,
         issuePublishFrom,
         issuePublishTo,
@@ -480,11 +492,15 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     );
 
     const handleIncludeChildrenChange = useCallback((id: ContentId, includeChildren: boolean): void => {
-        void updateIssueDialogItemIncludeChildren(id, includeChildren);
+        setIssueDialogDetailsItemIncludeChildren(id, includeChildren);
     }, []);
 
     const handleDependencyChange = useCallback((id: ContentId, included: boolean): void => {
-        void updateIssueDialogDependencyIncluded(id, included);
+        setIssueDialogDetailsDependantIncluded(id, included);
+    }, []);
+
+    const handleApplySelection = useCallback((): void => {
+        void applyDraftIssueDialogDetailsSelection();
     }, []);
 
     const handleScheduleFromChange = useCallback(
@@ -570,6 +586,12 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     }, []);
 
     const handlePublish = (): void => {
+        // Publishing uses the applied selection, so a staged edit must be resolved first. The
+        // footer button is disabled in that state, but it stays keyboard reachable.
+        if (!isSelectionSynced) {
+            return;
+        }
+
         setPublishView('progress');
 
         debouncedUpdateSchedule.flush();
@@ -581,8 +603,8 @@ export const IssueDialogDetailsContent = (): ReactElement => {
             if (schedule) {
                 void syncPublishDialogContext({
                     items,
-                    excludeChildrenIds,
-                    excludedDependantIds,
+                    excludeChildrenIds: appliedExcludeChildrenIds,
+                    excludedDependantIds: appliedExcludedDependantIds,
                     schedule,
                 });
             }
@@ -648,6 +670,9 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const hasScheduleErrors = !!scheduleFromError || !!scheduleToError;
     const isPublishDisabled =
         !isPublishReady ||
+        // $isPublishReady only tracks the publish feature's own draft, which this dialog never
+        // diverges - a staged edit here has to be gated separately.
+        !isSelectionSynced ||
         !canPublish ||
         isPublishChecking ||
         publishSubmitting ||
@@ -754,30 +779,34 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                         </Tab.Content>
 
                         <Tab.Content value="items" className="mt-0 min-h-0 flex flex-1 flex-col">
-                            {canShowSelectionStatusBar && (
+                            {canEditSelection && (
                                 <SelectionStatusBar
                                     className="mb-5"
-                                    loading={isPublishChecking}
-                                    failed={publishDialogFailed}
-                                    editing={false}
-                                    showReady={isPublishReady}
-                                    onApply={() => {}}
-                                    onCancel={() => {}}
-                                    errors={{
-                                        inProgress: {
-                                            ...inProgress,
-                                            onExclude: handleExcludeInProgress,
-                                            onMarkAsReady: handleMarkAllAsReady,
-                                        },
-                                        invalid: {
-                                            ...invalid,
-                                            onExclude: handleExcludeInvalid,
-                                        },
-                                        noPermissions: {
-                                            ...noPermissions,
-                                            onExclude: handleExcludeNotPublishable,
-                                        },
-                                    }}
+                                    loading={itemsLoading || (canShowSelectionStatusBar && isPublishChecking)}
+                                    failed={canShowSelectionStatusBar && publishDialogFailed}
+                                    editing={!isSelectionSynced}
+                                    showReady={canShowSelectionStatusBar && isPublishReady}
+                                    onApply={handleApplySelection}
+                                    onCancel={cancelDraftIssueDialogDetailsSelection}
+                                    errors={
+                                        canShowSelectionStatusBar
+                                            ? {
+                                                  inProgress: {
+                                                      ...inProgress,
+                                                      onExclude: handleExcludeInProgress,
+                                                      onMarkAsReady: handleMarkAllAsReady,
+                                                  },
+                                                  invalid: {
+                                                      ...invalid,
+                                                      onExclude: handleExcludeInvalid,
+                                                  },
+                                                  noPermissions: {
+                                                      ...noPermissions,
+                                                      onExclude: handleExcludeNotPublishable,
+                                                  },
+                                              }
+                                            : undefined
+                                    }
                                 />
                             )}
                             <div className="min-h-0 flex-1 overflow-y-auto px-1.5 -mx-1.5 rounded-sm outline-none focus:ring-2 focus:ring-ring/10 focus:ring-inset">
