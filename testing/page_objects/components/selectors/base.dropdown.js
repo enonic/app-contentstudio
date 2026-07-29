@@ -181,8 +181,10 @@ class BaseDropdown extends Page {
     async clickOnOptionByDisplayName(optionDisplayName) {
         try {
             let optionLocator = DROPDOWN.optionByDisplayName(optionDisplayName);
-            await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
-            await this.clickOnElement(optionLocator);
+            // several hidden 'Listbox.Item' elements can be present in the DOM, so click on the displayed option:
+            await this.waitUntilDisplayed(optionLocator, appConst.mediumTimeout);
+            let elements = await this.getDisplayedElements(optionLocator);
+            await elements[0].click();
         } catch (err) {
             await this.handleError(`Dropdown Selector, tried to click on filtered by display name option: ${optionDisplayName}`,
                 'err_click_filtered_option', err);

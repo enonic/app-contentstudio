@@ -2,18 +2,16 @@
  * Created on 01.03.2024
  */
 const BaseDropdown = require('./base.dropdown');
-const lib = require('../../../libs/elements-old');
+const {DROPDOWN} = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 
 const XPATH = {
-    dataComponentDiv: "//div[contains(@data-component='FragmentContentSelector']",
+    dataComponentDiv: "//div[@data-component='FragmentContentSelector']",
 }
 
 class FragmentDropdown extends BaseDropdown {
 
-
-
-    constructor(parentElementXpath) {
+    constructor(parentElementXpath = '') {
         super();
         this._container = parentElementXpath;
     }
@@ -29,22 +27,24 @@ class FragmentDropdown extends BaseDropdown {
     async selectFilteredFragment(optionName) {
         try {
             await this.doFilterItem(optionName);
-            await this.clickOnOptionByName(optionName);
+            await this.clickOnOptionByDisplayName(optionName);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error('CustomSelectorComboBox - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_fragment_dropdown');
+            throw new Error('FragmentDropdown - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);
         }
     }
 
     async getOptionsDisplayName() {
-        let locator = XPATH.container + XPATH.fragmentDropdownListUL + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM + lib.H6_DISPLAY_NAME;
+        let locator = DROPDOWN.COMBOBOX_POPUP + "//div[@role='option']//span[contains(@class,'font-semibold')]";
         await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
         await this.pause(300);
         return await this.getTextInDisplayedElements(locator);
     }
 
-    async getSelectedOptionPath(optionName) {
-        let locator = XPATH.container + lib.P_SUB_NAME;
+    // returns the display name of the selected option in the collapsed combobox('Combobox.Value' button):
+    async getSelectedOption() {
+        let locator = this.container + XPATH.dataComponentDiv + DROPDOWN.COMBOBOX_VALUE;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator);
     }
 }
