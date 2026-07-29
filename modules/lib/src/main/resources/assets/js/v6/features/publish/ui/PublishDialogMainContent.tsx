@@ -1,10 +1,10 @@
-import {Button, Checkbox, Dialog, FilledSquareCheck, GridList, IconButton, Menu, TextArea} from '@enonic/ui';
+import { Button, Checkbox, Dialog, FilledSquareCheck, GridList, IconButton, Menu, TextArea } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import {Calendar, ChevronDown, CornerDownRight, Plus, Square, X} from 'lucide-react';
+import { Calendar, ChevronDown, CornerDownRight, Plus, Square, X } from 'lucide-react';
 import { useEffect, useId, useRef, useState, type ReactElement } from 'react';
-import {useBreakpoints} from '../../../shared/lib/hooks/useBreakpoints';
+import { useBreakpoints } from '../../../shared/lib/hooks/useBreakpoints';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
-import {$config} from '../../../shared/config';
+import { $config } from '../../../shared/config';
 import {
     applyDraftPublishDialogSelection,
     cancelDraftPublishDialogSelection,
@@ -68,7 +68,7 @@ export const PublishDialogMainContent = ({
     const hasExcludedItems = useStore($hasExcludedDependantItems);
     const showExcluded = useStore($showPublishDependantsExcluded);
     const dependantsSelection = useStore($publishDependantsSelection);
-    const {md} = useBreakpoints();
+    const { md } = useBreakpoints();
 
     const isSelectionSynced = useStore($isPublishSelectionSynced);
 
@@ -174,8 +174,7 @@ export const PublishDialogMainContent = ({
                 }}
             />
 
-            <Dialog.Body
-                className="flex flex-col gap-y-2.5 md:gap-y-10 px-1.5 -mx-1.5 rounded-sm outline-none overflow-y-hidden md:overflow-y-auto focus:ring-2 focus:ring-ring/10 focus:ring-inset">
+            <Dialog.Body className="flex flex-col gap-y-2.5 md:gap-y-10 px-1.5 -mx-1.5 rounded-sm outline-none overflow-y-hidden md:overflow-y-auto focus:ring-2 focus:ring-ring/10 focus:ring-inset">
                 <div className="min-h-0 flex-1 overflow-y-auto md:contents">
                     <SplitList>
                         <SplitList.Primary
@@ -186,9 +185,14 @@ export const PublishDialogMainContent = ({
                                 const showChildrenCheckbox = item.hasUnpublishedChildren && item.content.hasChildren();
                                 return (
                                     <>
-                                        <ContentRow key={item.id} content={item.content} id={item.id} disabled={loading}>
-                                            <ContentRow.Label action="edit" variant="detailed"/>
-                                            <PublishDialogItemStatus/>
+                                        <ContentRow
+                                            key={item.id}
+                                            content={item.content}
+                                            id={item.id}
+                                            disabled={loading}
+                                        >
+                                            <ContentRow.Label action="edit" variant="detailed" />
+                                            <PublishDialogItemStatus />
                                             <ContentRow.RemoveButton
                                                 onRemove={() => removePublishDialogItem(item.content.getContentId())}
                                                 disabled={item.required || loading || mainItems.length === 1}
@@ -202,7 +206,7 @@ export const PublishDialogMainContent = ({
                                                 className="gap-3 px-2.5 -mt-1"
                                             >
                                                 <GridList.Cell className="pl-2.5 flex items-center gap-2.5">
-                                                    <CornerDownRight className="size-4 shrink-0"/>
+                                                    <CornerDownRight className="size-4 shrink-0" />
                                                     <GridList.Action>
                                                         <Checkbox
                                                             className="font-semibold"
@@ -271,8 +275,8 @@ export const PublishDialogMainContent = ({
                                                 }
                                                 disabled={item.required || loading}
                                             />
-                                            <ContentRow.Label action="edit"/>
-                                            <PublishDialogItemStatus/>
+                                            <ContentRow.Label action="edit" />
+                                            <PublishDialogItemStatus />
                                         </ContentRow>
                                     )}
                                 />
@@ -338,65 +342,65 @@ export const PublishDialogMainContent = ({
                         />
                     </>
                 ) : (
-                     <div className="ml-auto flex items-stretch">
-                         <Button
-                             className="rounded-r-none border-r-0 focus-visible:z-1"
-                             label={scheduleMode ? confirmScheduleLabel : publishLabel}
-                             variant="solid"
-                             onClick={onPublish}
-                             disabled={!isPublishReady}
-                         />
-                         <Menu>
-                             <Menu.Trigger asChild>
-                                 <IconButton
-                                     className="rounded-l-none p-0"
-                                     aria-label={moreActionsLabel}
-                                     icon={ChevronDown}
-                                     variant="solid"
-                                 />
-                             </Menu.Trigger>
-                             <Menu.Portal>
-                                 <Menu.Content align="end">
-                                     <Menu.Item
-                                         className="font-semibold text-base px-4.5 py-1 gap-2.5"
-                                         role="menuitemcheckbox"
-                                         aria-checked={showComment}
-                                         onSelect={(event) => {
-                                             event.preventDefault();
-                                             handleToggleComment();
-                                         }}
-                                     >
-                                         <span className="flex-1">{commentLabel}</span>
-                                         {showComment ? (
-                                             <FilledSquareCheck className="size-4"/>
-                                         ) : (
-                                              <Square className="size-4"/>
-                                          )}
-                                     </Menu.Item>
-                                     {showScheduleButton && (
-                                         <Menu.Item
-                                             className="font-semibold text-base px-4.5 py-1 gap-2.5"
-                                             role="menuitemcheckbox"
-                                             aria-checked={scheduleMode}
-                                             disabled={!scheduleMode && !isPublishReady}
-                                             onSelect={(event) => {
-                                                 event.preventDefault();
-                                                 handleSchedule();
-                                             }}
-                                         >
-                                             <span className="flex-1">{scheduleLabel}</span>
-                                             {scheduleMode ? (
-                                                 <FilledSquareCheck className="size-4"/>
-                                             ) : (
-                                                  <Square className="size-4"/>
-                                              )}
-                                         </Menu.Item>
-                                     )}
-                                 </Menu.Content>
-                             </Menu.Portal>
-                         </Menu>
-                     </div>
-                 )}
+                    <div className="ml-auto flex items-stretch">
+                        <Button
+                            className="rounded-r-none border-r-0 focus-visible:z-1"
+                            label={scheduleMode ? confirmScheduleLabel : publishLabel}
+                            variant="solid"
+                            onClick={onPublish}
+                            disabled={!isPublishReady}
+                        />
+                        <Menu>
+                            <Menu.Trigger asChild>
+                                <IconButton
+                                    className="rounded-l-none p-0"
+                                    aria-label={moreActionsLabel}
+                                    icon={ChevronDown}
+                                    variant="solid"
+                                />
+                            </Menu.Trigger>
+                            <Menu.Portal>
+                                <Menu.Content align="end">
+                                    <Menu.Item
+                                        className="font-semibold text-base px-4.5 py-1 gap-2.5"
+                                        role="menuitemcheckbox"
+                                        aria-checked={showComment}
+                                        onSelect={(event) => {
+                                            event.preventDefault();
+                                            handleToggleComment();
+                                        }}
+                                    >
+                                        <span className="flex-1">{commentLabel}</span>
+                                        {showComment ? (
+                                            <FilledSquareCheck className="size-4" />
+                                        ) : (
+                                            <Square className="size-4" />
+                                        )}
+                                    </Menu.Item>
+                                    {showScheduleButton && (
+                                        <Menu.Item
+                                            className="font-semibold text-base px-4.5 py-1 gap-2.5"
+                                            role="menuitemcheckbox"
+                                            aria-checked={scheduleMode}
+                                            disabled={!scheduleMode && !isPublishReady}
+                                            onSelect={(event) => {
+                                                event.preventDefault();
+                                                handleSchedule();
+                                            }}
+                                        >
+                                            <span className="flex-1">{scheduleLabel}</span>
+                                            {scheduleMode ? (
+                                                <FilledSquareCheck className="size-4" />
+                                            ) : (
+                                                <Square className="size-4" />
+                                            )}
+                                        </Menu.Item>
+                                    )}
+                                </Menu.Content>
+                            </Menu.Portal>
+                        </Menu>
+                    </div>
+                )}
             </Dialog.Footer>
         </Dialog.Content>
     );

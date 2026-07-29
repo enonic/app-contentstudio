@@ -1,6 +1,6 @@
 import { Button, DatePicker, Input, TimePicker, usePrefixedId } from '@enonic/ui';
-import {type ChangeEvent, ReactElement, type RefObject, useEffect, useRef, useState} from 'react';
-import {useBreakpoints} from '../../../../shared/lib/hooks/useBreakpoints';
+import { type ChangeEvent, ReactElement, type RefObject, useEffect, useRef, useState } from 'react';
+import { useBreakpoints } from '../../../../shared/lib/hooks/useBreakpoints';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import {
     combineDateAndTime,
@@ -37,7 +37,7 @@ export const DateTimeSelector = ({
     const inputRef = externalInputRef ?? fallbackInputRef;
     const contentRef = useRef<HTMLDivElement>(null);
     const inputWrapperRef = useRef<HTMLDivElement>(null);
-    const {md} = useBreakpoints();
+    const { md } = useBreakpoints();
     const [open, setOpen] = useState(false);
     const [valueDate, setValueDate] = useState<Date | null>(initialValue ?? null);
     const [valueTime, setValueTime] = useState<string | null>(

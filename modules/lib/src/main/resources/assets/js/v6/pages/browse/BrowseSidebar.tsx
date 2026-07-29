@@ -10,7 +10,7 @@ import { ProjectIcon } from '../../shared/ui/icons/ProjectIcon';
 import { LegacyElement } from '../../shared/ui/LegacyElement';
 import { WidgetButton } from '../../shared/ui/WidgetButton';
 import { $activeProject, $noProjectMode } from '../../entities/project';
-import {$config} from '../../shared/config';
+import { $config } from '../../shared/config';
 import {
     $sidebarWidgets,
     getSettingsWidget,
