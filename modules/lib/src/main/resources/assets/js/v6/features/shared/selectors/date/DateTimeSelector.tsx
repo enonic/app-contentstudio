@@ -1,5 +1,6 @@
 import { Button, DatePicker, Input, TimePicker, usePrefixedId } from '@enonic/ui';
-import { ReactElement, type RefObject, useEffect, useRef, useState } from 'react';
+import { type ChangeEvent, ReactElement, type RefObject, useEffect, useRef, useState } from 'react';
+import { useBreakpoints } from '../../../../shared/lib/hooks/useBreakpoints';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import {
     combineDateAndTime,
@@ -36,6 +37,7 @@ export const DateTimeSelector = ({
     const inputRef = externalInputRef ?? fallbackInputRef;
     const contentRef = useRef<HTMLDivElement>(null);
     const inputWrapperRef = useRef<HTMLDivElement>(null);
+    const { md } = useBreakpoints();
     const [open, setOpen] = useState(false);
     const [valueDate, setValueDate] = useState<Date | null>(initialValue ?? null);
     const [valueTime, setValueTime] = useState<string | null>(
@@ -116,6 +118,32 @@ export const DateTimeSelector = ({
         }
     };
 
+    const handleNativeInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
+        const nativeValue = event.currentTarget.value;
+
+        if (!nativeValue) {
+            setValueDate(null);
+            setValueTime(defaultTimeValue ?? null);
+            setDraftDate(null);
+            setDraftTime(defaultTimeValue ?? null);
+            setInputValue('');
+            onError?.(undefined);
+            onChange?.(undefined);
+            return;
+        }
+
+        const parsed = parseDateTimeInput(nativeValue.replace('T', ' '));
+        if (parsed) {
+            setValueDate(parsed.date);
+            setValueTime(parsed.time);
+            setDraftDate(parsed.date);
+            setDraftTime(parsed.time);
+            setInputValue(formatDateTimeValue(parsed.date, parsed.time));
+            onError?.(undefined);
+            onChange?.(combineDateAndTime(parsed.date, parsed.time));
+        }
+    };
+
     const handleConfirm = (): void => {
         const date = draftDate ?? new Date();
         const time = draftTime ?? getTimeFromDate(date);
@@ -136,9 +164,30 @@ export const DateTimeSelector = ({
         }
     };
 
+    if (!md) {
+        const nativeValue = formatDateTimeValue(valueDate, valueTime).replace(' ', 'T');
+
+        return (
+            <div ref={rootRef} className={`w-full ${className ?? ''}`}>
+                <Input
+                    id={inputId}
+                    ref={inputRef}
+                    aria-label={label}
+                    type="datetime-local"
+                    step={60}
+                    value={nativeValue}
+                    onChange={handleNativeInputChange}
+                    error={error}
+                    className="[&_input]:min-w-0 [&_input]:px-2"
+                />
+            </div>
+        );
+    }
+
     return (
-        <div ref={rootRef} className={`flex max-w-90 flex-1 flex-col gap-3 ${className ?? ''}`}>
+        <div ref={rootRef} className={`flex min-w-0 max-w-90 flex-1 basis-0 flex-col gap-3 ${className ?? ''}`}>
             <DatePicker
+                native={false}
                 value={draftDate}
                 onValueChange={setDraftDate}
                 open={open}

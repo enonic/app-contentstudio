@@ -1,9 +1,10 @@
-import { Button, Checkbox, Dialog, GridList, TextArea } from '@enonic/ui';
+import { Button, Checkbox, Dialog, FilledSquareCheck, GridList, IconButton, Menu, TextArea } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import { Calendar, CornerDownRight, Plus, X } from 'lucide-react';
+import { Calendar, ChevronDown, CornerDownRight, Plus, Square, X } from 'lucide-react';
 import { useEffect, useId, useRef, useState, type ReactElement } from 'react';
+import { useBreakpoints } from '../../../shared/lib/hooks/useBreakpoints';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
-import { $config } from '../../../shared/config/config.store';
+import { $config } from '../../../shared/config';
 import {
     applyDraftPublishDialogSelection,
     cancelDraftPublishDialogSelection,
@@ -67,6 +68,7 @@ export const PublishDialogMainContent = ({
     const hasExcludedItems = useStore($hasExcludedDependantItems);
     const showExcluded = useStore($showPublishDependantsExcluded);
     const dependantsSelection = useStore($publishDependantsSelection);
+    const { md } = useBreakpoints();
 
     const isSelectionSynced = useStore($isPublishSelectionSynced);
 
@@ -126,6 +128,7 @@ export const PublishDialogMainContent = ({
     const addCommentLabel = useI18n('action.comment.add');
     const removeCommentLabel = useI18n('action.comment.remove');
     const commentToggleLabel = showComment ? removeCommentLabel : addCommentLabel;
+    const moreActionsLabel = useI18n('tooltip.moreActions');
 
     const handleSchedule = () => {
         if (scheduleMode) {
@@ -140,7 +143,7 @@ export const PublishDialogMainContent = ({
 
     return (
         <Dialog.Content
-            className="w-full h-full gap-10 sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220"
+            className="w-full h-full sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220"
             data-component={componentName}
         >
             <Dialog.DefaultHeader titleId={titleId} title={title} withClose />
@@ -171,104 +174,116 @@ export const PublishDialogMainContent = ({
                 }}
             />
 
-            <Dialog.Body className="flex flex-col gap-y-10 px-1.5 -mx-1.5 rounded-sm outline-none focus:ring-2 focus:ring-ring/10 focus:ring-inset">
-                <SplitList>
-                    <SplitList.Primary
-                        items={mainItems}
-                        getItemId={(item) => item.id}
-                        disabled={loading}
-                        renderRow={(item) => {
-                            const showChildrenCheckbox = item.hasUnpublishedChildren && item.content.hasChildren();
-                            return (
-                                <>
-                                    <ContentRow key={item.id} content={item.content} id={item.id} disabled={loading}>
-                                        <ContentRow.Label action="edit" variant="detailed" />
-                                        <PublishDialogItemStatus />
-                                        <ContentRow.RemoveButton
-                                            onRemove={() => removePublishDialogItem(item.content.getContentId())}
-                                            disabled={item.required || loading || mainItems.length === 1}
-                                        />
-                                    </ContentRow>
-
-                                    {showChildrenCheckbox && (
-                                        <GridList.Row
-                                            id={`${item.id}-children`}
-                                            disabled={loading || !item.included}
-                                            className="gap-3 px-2.5 -mt-1"
+            <Dialog.Body className="flex flex-col gap-y-2.5 md:gap-y-10 px-1.5 -mx-1.5 rounded-sm outline-none overflow-y-hidden md:overflow-y-auto focus:ring-2 focus:ring-ring/10 focus:ring-inset">
+                <div className="min-h-0 flex-1 overflow-y-auto md:contents">
+                    <SplitList>
+                        <SplitList.Primary
+                            items={mainItems}
+                            getItemId={(item) => item.id}
+                            disabled={loading}
+                            renderRow={(item) => {
+                                const showChildrenCheckbox = item.hasUnpublishedChildren && item.content.hasChildren();
+                                return (
+                                    <>
+                                        <ContentRow
+                                            key={item.id}
+                                            content={item.content}
+                                            id={item.id}
+                                            disabled={loading}
                                         >
-                                            <GridList.Cell className="pl-2.5 flex items-center gap-2.5">
-                                                <CornerDownRight className="size-4 shrink-0" />
-                                                <GridList.Action>
-                                                    <Checkbox
-                                                        className="font-semibold"
-                                                        checked={item.childrenIncluded}
-                                                        onCheckedChange={(enabled) =>
-                                                            setPublishDialogItemWithChildrenSelected(
-                                                                item.content.getContentId(),
-                                                                enabled === true,
-                                                            )
-                                                        }
-                                                        disabled={item.required || loading || !item.included}
-                                                        label={includeChildrenLabel}
-                                                    />
-                                                </GridList.Action>
-                                            </GridList.Cell>
-                                        </GridList.Row>
-                                    )}
-                                </>
-                            );
-                        }}
-                    />
+                                            <ContentRow.Label action="edit" variant="detailed" />
+                                            <PublishDialogItemStatus />
+                                            <ContentRow.RemoveButton
+                                                onRemove={() => removePublishDialogItem(item.content.getContentId())}
+                                                disabled={item.required || loading || mainItems.length === 1}
+                                            />
+                                        </ContentRow>
 
-                    <SplitList.Separator hidden={!hasVisibleDependantItems && !hasExcludedItems}>
-                        <SplitList.SeparatorLabel>{separatorLabel}</SplitList.SeparatorLabel>
-                        {hasExcludedItems && isSelectionSynced && (
-                            <SplitList.SeparatorButton
-                                label={toggleExcludedLabel}
-                                onClick={togglePublishDialogShowExcluded}
-                                disabled={loading}
-                            />
-                        )}
-                    </SplitList.Separator>
+                                        {showChildrenCheckbox && (
+                                            <GridList.Row
+                                                id={`${item.id}-children`}
+                                                disabled={loading || !item.included}
+                                                className="gap-3 px-2.5 -mt-1"
+                                            >
+                                                <GridList.Cell className="pl-2.5 flex items-center gap-2.5">
+                                                    <CornerDownRight className="size-4 shrink-0" />
+                                                    <GridList.Action>
+                                                        <Checkbox
+                                                            className="font-semibold"
+                                                            checked={item.childrenIncluded}
+                                                            onCheckedChange={(enabled) =>
+                                                                setPublishDialogItemWithChildrenSelected(
+                                                                    item.content.getContentId(),
+                                                                    enabled === true,
+                                                                )
+                                                            }
+                                                            disabled={item.required || loading || !item.included}
+                                                            label={includeChildrenLabel}
+                                                        />
+                                                    </GridList.Action>
+                                                </GridList.Cell>
+                                            </GridList.Row>
+                                        )}
+                                    </>
+                                );
+                            }}
+                        />
 
-                    {(hasVisibleDependantItems || hasExcludedItems) && (
-                        <div>
-                            {dependantsSelection.count > 0 && (
-                                <DependantsSelectAll
-                                    selection={dependantsSelection}
-                                    onToggle={togglePublishDialogDependantsSelection}
+                        <SplitList.Separator hidden={!hasVisibleDependantItems && !hasExcludedItems}>
+                            <SplitList.SeparatorLabel>{separatorLabel}</SplitList.SeparatorLabel>
+                            {hasExcludedItems && isSelectionSynced && (
+                                <SplitList.SeparatorButton
+                                    label={toggleExcludedLabel}
+                                    onClick={togglePublishDialogShowExcluded}
                                     disabled={loading}
                                 />
                             )}
+                        </SplitList.Separator>
 
-                            <SplitList.Secondary
-                                items={visibleDependantItems}
-                                getItemId={(item) => item.id}
-                                emptyMessage={hasExcludedItems ? allExcludedMessage : undefined}
-                                disabled={loading}
-                                loading={loading}
-                                hasMore={hasMoreDependants}
-                                onEndReached={loadMoreDependants}
-                                renderRow={(item) => (
-                                    <ContentRow key={item.id} content={item.content} id={item.id} disabled={loading}>
-                                        <ContentRow.Checkbox
-                                            checked={item.included}
-                                            onCheckedChange={(checked) =>
-                                                setPublishDialogDependantItemSelected(
-                                                    item.content.getContentId(),
-                                                    checked,
-                                                )
-                                            }
-                                            disabled={item.required || loading}
-                                        />
-                                        <ContentRow.Label action="edit" />
-                                        <PublishDialogItemStatus />
-                                    </ContentRow>
+                        {(hasVisibleDependantItems || hasExcludedItems) && (
+                            <div>
+                                {dependantsSelection.count > 0 && (
+                                    <DependantsSelectAll
+                                        selection={dependantsSelection}
+                                        onToggle={togglePublishDialogDependantsSelection}
+                                        disabled={loading}
+                                    />
                                 )}
-                            />
-                        </div>
-                    )}
-                </SplitList>
+
+                                <SplitList.Secondary
+                                    items={visibleDependantItems}
+                                    getItemId={(item) => item.id}
+                                    emptyMessage={hasExcludedItems ? allExcludedMessage : undefined}
+                                    disabled={loading}
+                                    loading={loading}
+                                    hasMore={hasMoreDependants}
+                                    onEndReached={loadMoreDependants}
+                                    renderRow={(item) => (
+                                        <ContentRow
+                                            key={item.id}
+                                            content={item.content}
+                                            id={item.id}
+                                            disabled={loading}
+                                        >
+                                            <ContentRow.Checkbox
+                                                checked={item.included}
+                                                onCheckedChange={(checked) =>
+                                                    setPublishDialogDependantItemSelected(
+                                                        item.content.getContentId(),
+                                                        checked,
+                                                    )
+                                                }
+                                                disabled={item.required || loading}
+                                            />
+                                            <ContentRow.Label action="edit" />
+                                            <PublishDialogItemStatus />
+                                        </ContentRow>
+                                    )}
+                                />
+                            </div>
+                        )}
+                    </SplitList>
+                </div>
 
                 {showComment && (
                     <TextArea
@@ -282,44 +297,110 @@ export const PublishDialogMainContent = ({
                     />
                 )}
                 {scheduleMode && (
-                    <PublishScheduleForm
-                        firstInputRef={firstScheduleInputRef}
-                        defaultTimeValue={defaultPublishFromTime}
-                    />
+                    <div className="flex flex-col gap-2">
+                        {md && <h2 className="text-main text-base font-semibold">{scheduleLabel}</h2>}
+                        <PublishScheduleForm
+                            firstInputRef={firstScheduleInputRef}
+                            defaultTimeValue={defaultPublishFromTime}
+                        />
+                    </div>
                 )}
             </Dialog.Body>
             <Dialog.Footer>
-                <Button
-                    label={commentToggleLabel}
-                    endIcon={showComment ? X : Plus}
-                    variant="outline"
-                    onClick={handleToggleComment}
-                />
-                {showScheduleButton && (
-                    <Button
-                        className={'ml-auto'}
-                        label={scheduleMode ? cancelScheduleLabel : scheduleLabel}
-                        variant="outline"
-                        onClick={handleSchedule}
-                        onKeyDown={(event) => {
-                            if (event.key === 'Enter' || event.key === ' ') {
-                                scheduleKeyboardActivation.current = true;
-                            }
-                        }}
-                        onPointerDown={() => {
-                            scheduleKeyboardActivation.current = false;
-                        }}
-                        endIcon={!scheduleMode && Calendar}
-                        disabled={!scheduleMode && !isPublishReady}
-                    />
+                {md ? (
+                    <>
+                        <Button
+                            label={commentToggleLabel}
+                            endIcon={showComment ? X : Plus}
+                            variant="outline"
+                            onClick={handleToggleComment}
+                        />
+                        {showScheduleButton && (
+                            <Button
+                                className="ml-auto"
+                                label={scheduleMode ? cancelScheduleLabel : scheduleLabel}
+                                variant="outline"
+                                onClick={handleSchedule}
+                                onKeyDown={(event) => {
+                                    if (event.key === 'Enter' || event.key === ' ') {
+                                        scheduleKeyboardActivation.current = true;
+                                    }
+                                }}
+                                onPointerDown={() => {
+                                    scheduleKeyboardActivation.current = false;
+                                }}
+                                endIcon={!scheduleMode && Calendar}
+                                disabled={!scheduleMode && !isPublishReady}
+                            />
+                        )}
+                        <Button
+                            className={showScheduleButton ? undefined : 'ml-auto'}
+                            label={scheduleMode ? confirmScheduleLabel : publishLabel}
+                            variant="solid"
+                            onClick={onPublish}
+                            disabled={!isPublishReady}
+                        />
+                    </>
+                ) : (
+                    <div className="ml-auto flex items-stretch">
+                        <Button
+                            className="rounded-r-none border-r-0 focus-visible:z-1"
+                            label={scheduleMode ? confirmScheduleLabel : publishLabel}
+                            variant="solid"
+                            onClick={onPublish}
+                            disabled={!isPublishReady}
+                        />
+                        <Menu>
+                            <Menu.Trigger asChild>
+                                <IconButton
+                                    className="rounded-l-none p-0"
+                                    aria-label={moreActionsLabel}
+                                    icon={ChevronDown}
+                                    variant="solid"
+                                />
+                            </Menu.Trigger>
+                            <Menu.Portal>
+                                <Menu.Content align="end">
+                                    <Menu.Item
+                                        className="font-semibold text-base px-4.5 py-1 gap-2.5"
+                                        role="menuitemcheckbox"
+                                        aria-checked={showComment}
+                                        onSelect={(event) => {
+                                            event.preventDefault();
+                                            handleToggleComment();
+                                        }}
+                                    >
+                                        <span className="flex-1">{commentLabel}</span>
+                                        {showComment ? (
+                                            <FilledSquareCheck className="size-4" />
+                                        ) : (
+                                            <Square className="size-4" />
+                                        )}
+                                    </Menu.Item>
+                                    {showScheduleButton && (
+                                        <Menu.Item
+                                            className="font-semibold text-base px-4.5 py-1 gap-2.5"
+                                            role="menuitemcheckbox"
+                                            aria-checked={scheduleMode}
+                                            disabled={!scheduleMode && !isPublishReady}
+                                            onSelect={(event) => {
+                                                event.preventDefault();
+                                                handleSchedule();
+                                            }}
+                                        >
+                                            <span className="flex-1">{scheduleLabel}</span>
+                                            {scheduleMode ? (
+                                                <FilledSquareCheck className="size-4" />
+                                            ) : (
+                                                <Square className="size-4" />
+                                            )}
+                                        </Menu.Item>
+                                    )}
+                                </Menu.Content>
+                            </Menu.Portal>
+                        </Menu>
+                    </div>
                 )}
-                <Button
-                    className={showScheduleButton ? undefined : 'ml-auto'}
-                    label={scheduleMode ? confirmScheduleLabel : publishLabel}
-                    variant="solid"
-                    onClick={onPublish}
-                    disabled={!isPublishReady}
-                />
             </Dialog.Footer>
         </Dialog.Content>
     );
