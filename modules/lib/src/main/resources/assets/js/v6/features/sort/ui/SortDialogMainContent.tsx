@@ -68,8 +68,8 @@ export const SortDialogMainContent = (): ReactElement => {
         'focus-within:ring-offset-3 focus-within:ring-offset-ring-offset focus-within:border-bdr-solid rounded-sm';
 
     return (
-        <Dialog.Content className="w-full h-full gap-7.5 sm:h-fit md:min-w-184 md:max-w-220">
-            <Dialog.DefaultHeader title={title} withClose>
+        <Dialog.Content className="w-full h-full gap-3 md:gap-7.5 p-4 md:p-10 sm:h-fit md:min-w-184 md:max-w-220">
+            <Dialog.DefaultHeader title={title} className="p-1 md:p-0" withClose>
                 <SortElementSelector
                     label={sortElementLabel}
                     emptyLabel={sortElementEmptyLabel}
@@ -93,10 +93,10 @@ export const SortDialogMainContent = (): ReactElement => {
                             }
                             reorderSortDialogItems(fromIndex, toIndex);
                         }}
-                        enabled={isManualSorting}
+                        enabled
                         fullRowDraggable
                         dragLabel={reorderLabel}
-                        className="flex flex-col gap-y-2.5"
+                        className="flex flex-col gap-y-2.5 p-1 md:p-0"
                         itemClassName="[&>button]:hidden"
                         renderItem={({ item, index }) => {
                             if (item.content) {
@@ -134,7 +134,7 @@ export const SortDialogMainContent = (): ReactElement => {
                     />
                 )}
             </Dialog.Body>
-            <Dialog.Footer>
+            <Dialog.Footer className="p-1 md:p-0">
                 <Button
                     size="lg"
                     variant="solid"
