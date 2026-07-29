@@ -5,7 +5,6 @@ const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const appConst = require('../../libs/app_const');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
@@ -20,19 +19,11 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
         webDriverHelper.setupBrowser();
     }
 
-    let SITE;
-    const CONTROLLER_NAME = 'main region';
+    let IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_916528;
     const TEXT_COMPONENT_1 = 'text1';
     const TEXT_COMPONENT_2 = 'text2';
     const TEXT_LEFT_REGION = 'left region txt';
     const LAYOUT_3_COL = '3-col';
-
-    it(`Preconditions: new site should be created`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, null, [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES], CONTROLLER_NAME);
-            await studioUtils.doAddSite(SITE);
-        });
 
     it(`WHEN the first text-component has been clicked in 'Live Edit' THEN this component gets selected in PCV`,
         async () => {
@@ -41,11 +32,12 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let liveFormPanel = new LiveFormPanel();
             // 1. Open the existing site:
-            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await studioUtils.selectContentAndOpenWizard(IMPORTED_SITE_NAME);
             await contentWizard.clickOnWizardStep("Page");
             // 2. Insert the first text component:
             await pageComponentsWizardStepForm.rightClickAndOpenContextMenu('main');
-            await pageComponentsWizardStepForm.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentsWizardStepForm.selectContextMenuItem(
+                [appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.typeTextInEditor(TEXT_COMPONENT_1);
@@ -53,7 +45,8 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
 
             // 3. Insert the second text component:
             await pageComponentsWizardStepForm.rightClickAndOpenContextMenu('main');
-            await pageComponentsWizardStepForm.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentsWizardStepForm.selectContextMenuItem(
+                [appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.typeTextInEditor(TEXT_COMPONENT_2);
@@ -86,7 +79,7 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let layoutInspectionPanel = new LayoutInspectionPanel();
             // 1. Open the existing site:
-            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await studioUtils.selectContentAndOpenWizard(IMPORTED_SITE_NAME);
             // 2. Maximize the Live Edit:
             await contentWizard.clickOnCollapseContentForm();
             // 3. Insert the first text component:
@@ -114,7 +107,7 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             let liveFormPanel = new LiveFormPanel();
             let pageComponentView = new PageComponentView();
             // 1. Open the existing site with text components:
-            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await studioUtils.selectContentAndOpenWizard(IMPORTED_SITE_NAME);
             // 2. Maximize the Live Edit:
             await contentWizard.clickOnCollapseContentForm();
             await contentWizard.switchToLiveEditFrame();
@@ -137,7 +130,7 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             // 1. Open the existing site with text components:
-            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await studioUtils.selectContentAndOpenWizard(IMPORTED_SITE_NAME);
             // 2. Maximize the Live Edit:
             await contentWizard.clickOnCollapseContentForm();
             await pageComponentView.expandItem(LAYOUT_3_COL);

@@ -1,60 +1,27 @@
 /**
- * Created on 06.09.2021.
+ * Created on 06.09.2021.  updated on 26.07.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
-const TextComponentCke = require('../../page_objects/components/text.component');
 const appConst = require('../../libs/app_const');
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
-const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
 
 describe('site.reset.template.menu.item.spec - resets a site to default template', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let SITE;
+    let IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_622034;
     let CONTROLLER_NAME = 'Country Region';
     let TEST_TEXT = 'test text';
-    let TEMPLATE;
+
     const CONFIRMATION_QUESTION='This will detach the page from its template. Are you sure?'
 
-    it(`Preconditions: new site and a page template with a text component should be added`,
-        async () => {
-            let contentWizard = new ContentWizard();
-            let pageComponentView = new PageComponentView();
-            let textComponentInspectionPanel = new TextComponentInspectionPanel();
-
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.MY_FIRST_APP]);
-            await studioUtils.doAddSite(SITE);
-            // 1. Expand the site and add a template:
-            let templateName = contentBuilder.generateRandomName('template');
-            TEMPLATE = contentBuilder.buildPageTemplate(templateName, 'Site', CONTROLLER_NAME);
-            await studioUtils.doOpenPageTemplateWizard(SITE.displayName);
-            await contentWizard.typeData(TEMPLATE);
-            let pageInspectTab = new PageInspectionPanel();
-            let wizardContextWindow = await contentWizard.openContextWindow();
-            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
-            await pageInspectTab.selectPageTemplateOrController(CONTROLLER_NAME);
-            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnCollapseContentForm();
-            // 3.Click on the item and open Context Menu:
-            await pageComponentView.rightClickAndOpenContextMenu('country');
-            // 4. Insert Text Component with 'test text' and save it:
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
-            await textComponentInspectionPanel.clickInTextArea();
-            await textComponentInspectionPanel.typeTextInEditor(TEST_TEXT);
-            await contentWizard.waitAndClickOnSave();
-        });
-
-    // New test for  8607 Universal Editor
     it(`GIVEN open a site with a template WHEN Customize button has been pressed in Inspect tab THEN Confirmation modal dialog should be opened`,
         async () => {
             let contentWizard = new ContentWizard();
@@ -62,7 +29,8 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             let pageComponentView = new PageComponentView();
             let pageInspectionPanel = new PageInspectionPanel();
             // 1. Open the site
-            await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            await studioUtils.selectAndOpenContentInWizard(IMPORTED_SITE_NAME);
+            await contentWizard.openContextWindow();
             // 2. Details widget should be opened by default:
             let selectedWidgetOption = await wizardContextPanel.getSelectedOptionInWidgetSelectorDropdown();
             assert.equal(selectedWidgetOption, appConst.WIDGET_SELECTOR_OPTIONS.DETAILS, "'Details' selected option should be in the widget selector");
@@ -80,7 +48,7 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             // 7. Verify that confirmation dialog is opened with correct question:
             assert.equal(questionActual, CONFIRMATION_QUESTION, 'Confirmation dialog question is incorrect');
             // 8. Click on 'No' button in the confirmation dialog:
-            await confirmationDialog.clickOnNoButton();
+            await confirmationDialog.clickOnCancelButton();
             await confirmationDialog.waitForDialogClosed();
             await contentWizard.waitForSaveButtonDisabled();
             // 9. 'Page Component View' modal dialog should not be displayed, because the site was not customized:
@@ -93,10 +61,10 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             let pageInspectionPanel = new PageInspectionPanel();
             let pageComponentView = new PageComponentView();
             // 1. Open the site
-            await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            await studioUtils.selectAndOpenContentInWizard(IMPORTED_SITE_NAME);
             // 2. Click on Customize button and confirm the action
-            await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
-            await contentWizard.switchToMainFrame();
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageInspectionPanel.clickOnCustomizePageButton();
             let confirmationDialog = new ConfirmationDialog();
             await confirmationDialog.waitForDialogOpened();
@@ -121,9 +89,6 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             await confirmationDialog.waitForDialogOpened();
             await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
-            // 8. Click on 'Page Settings' menu item in Live Edit frame:
-            await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
-            await contentWizard.switchToMainFrame();
             // 9. Click on 'Customize' button in Inspect tab
             await pageInspectionPanel.clickOnCustomizePageButton();
             await confirmationDialog.waitForDialogOpened();

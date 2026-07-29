@@ -143,8 +143,7 @@ describe('layout.context.menu.spec: tests for layout-fragment with config', func
             // 8. Verify that only 'Inspect' menu is present in the context menu:
             assert.ok(menuItems.includes(appConst.COMPONENT_VIEW_MENU_ITEMS.INSPECT),
                 "'Inspect' menu item should be present in the context menu");
-            // TODO bug
-            //assert.equal(menuItems.length, 1, "The only one menu item should be present in the context menu");
+            assert.equal(menuItems.length, 1, "The only one menu item should be present in the context menu");
             // 9. Verify that 'Save' button should be enabled after clicking on Reset menu item:
             await contentWizard.waitForSaveButtonDisabled();
             await layoutInspectionPanel.waitForLayoutOptionsFilterInputDisplayed();
@@ -155,7 +154,7 @@ describe('layout.context.menu.spec: tests for layout-fragment with config', func
 
     // Verify X-data is not shown for fragments #7284
     // https://github.com/enonic/app-contentstudio/issues/7284
-    it.skip("WHEN fragment-layout has been opened THEN expected x-data should be displayed",
+    it("WHEN fragment-layout has been opened THEN expected x-data should be displayed",
         async () => {
             let contentWizard = new ContentWizard();
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -172,11 +171,14 @@ describe('layout.context.menu.spec: tests for layout-fragment with config', func
             await studioUtils.doSwitchToNewWizard();
             await contentWizard.waitForOpened();
             // 5. Verify that x-data toggle is displayed in the wizard:
-            await contentWizard.expandXdataMenu();
-            await contentWizard.clickOnXdataMenuItem(TEXT_AREA_X_DATA_NAME)
+            await contentWizard.clickOnXdataMenuTrigger();
+            await contentWizard.clickOnXdataMenuItemCheckbox(TEXT_AREA_X_DATA_NAME);
             await contentWizard.clickOnConfirmXdataButton();
-            await contentWizard.clickOnWizardStep(TEXT_AREA_X_DATA_NAME);
             // 6. Verify the title of x-data :
+            await contentWizard.clickOnWizardStep(TEXT_AREA_X_DATA_NAME);
+            await contentWizard.waitForRedIconInTab(TEXT_AREA_X_DATA_NAME);
+            // 7. Red icon appears in the wizard toolbar
+            await contentWizard.waitUntilInvalidIconAppears();
 
         });
 

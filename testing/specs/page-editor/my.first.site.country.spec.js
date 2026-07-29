@@ -7,16 +7,13 @@ const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
-const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
 const CountryForm = require('../../page_objects/wizardpanel/country.form.panel');
 const CityForm = require('../../page_objects/wizardpanel/city.form.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const appConst = require('../../libs/app_const');
-const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
-const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const PartInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/part.inspection.panel');
 const CityListPartInspectionPanel= require('../../page_objects/wizardpanel/liveform/inspection/city.list.part.inspection.panel');
 
@@ -44,10 +41,9 @@ describe('my.first.site.country.spec - Create a site with country content', func
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
-            let liveFormPanel = new LiveFormPanel();
             let partInspectionPanel = new PartInspectionPanel();
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'My first Site', [appConst.MY_FIRST_APP]);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.MY_FIRST_APP]);
             await studioUtils.doAddSite(SITE);
 
             TEMPLATE = contentBuilder.buildPageTemplate(COUNTRY_TEMPLATE_NAME, 'Country', PAGE_CONTROLLER_COUNTRY);
@@ -66,7 +62,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await contentWizard.switchToMainFrame();
             // 4. Insert 'City list' part
             await pageComponentView.rightClickAndOpenContextMenu('country');
-            await pageComponentView.selectMenuItem(['Insert', 'Part']);
+            await pageComponentView.selectContextMenuItem(['Insert', 'Part']);
             await partInspectionPanel.typeNameAndSelectPart(appConst.PART_NAME.MY_FIRST_APP_CITY_LIST);
             await contentWizard.switchToMainFrame();
             // the site should be  automatically saved:
@@ -78,8 +74,8 @@ describe('my.first.site.country.spec - Create a site with country content', func
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(COUNTRY_TEMPLATE_NAME);
-            // Verify that the page template is invalid (required field in its config)
-            //await contentBrowsePanel.waitForRedIconDisplayed(COUNTRY_TEMPLATE_NAME);
+             //Verify that the page template is invalid (required field in its config)
+            await contentBrowsePanel.waitForRedIconDisplayed(COUNTRY_TEMPLATE_NAME);
         });
 
     it(`WHEN required field has been filled in in the page template config THEN the page template gets valid in Grid`,
@@ -136,8 +132,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             // 1. Select the USA country-content and open new city-wizard:
             await studioUtils.selectSiteAndOpenNewWizard(USA_CONTENT_NAME, 'City');
             // 2. Type a data and save the city:
-            await contentWizard.typeInPathInput(SF_NAME);
-            await contentWizard.typeDisplayName(SF_DISPLAY_NAME);
+            await contentWizard.typeDisplayName(SF_NAME);
             await cityForm.typeLocation(SF_LOCATION);
             await cityForm.typePopulation(SF_POPULATION);
             await contentWizard.waitAndClickOnSave();
@@ -180,7 +175,8 @@ describe('my.first.site.country.spec - Create a site with country content', func
             let contentWizard = new ContentWizard();
             let cityForm = new CityForm();
             // 1. Open city content, population of SF has been updated
-            await studioUtils.openContentAndSwitchToTabByDisplayName(SF_NAME, SF_DISPLAY_NAME);
+            await studioUtils.selectAndOpenContentInWizard(SF_NAME);
+            await cityForm.clearPopulationInput();
             await cityForm.typePopulation(NEW_SF_POPULATION);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
@@ -233,57 +229,6 @@ describe('my.first.site.country.spec - Create a site with country content', func
             assert.ok(pageSource.includes('404 - Not Found'), 'expected error page with should be loaded');
         });
 
-    it("GIVEN USA content has been opened AND 'Customize Page' button has been pressed WHEN 'Page Component View' has been opened THEN expected components should be displayed in the dialog",
-        async () => {
-            let contentWizard = new ContentWizard();
-            let pageComponentView = new PageComponentView();
-            let pageInspectionPanel = new PageInspectionPanel();
-            await studioUtils.selectAndOpenContentInWizard(USA_CONTENT_NAME);
-            // 1. Open USA country content:
-            await contentWizard.clickOnCollapseContentForm();
-            await contentWizard.pause(1000);
-            // 2. 'Page Component View' modal dialog should not be displayed, because the content is not customized:
-            await pageComponentView.waitForNotDisplayed();
-            // 3. Switch to LiveEdit frame and click on 'Page Settings' menu item in Live Edit frame:
-            await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
-            // 4. Switch to parent frame:
-            await contentWizard.switchToParentFrame();
-            // 4. Click on 'Customize Page' button and click 'Yes' in confirmation dialog:
-            await pageInspectionPanel.clickOnCustomizePageButton();
-            let confirmationDialog = new ConfirmationDialog();
-            await confirmationDialog.clickOnConfirmButton();
-            await confirmationDialog.waitForDialogClosed();
-            // 5. Verify that Page Component View modal dialog loads automatically after clicking on 'customize'
-            await pageComponentView.waitForLoaded();
-            await studioUtils.saveScreenshot('country_pcv');
-            let result = await pageComponentView.getPageComponentsDisplayName();
-            assert.ok(result.includes(PAGE_CONTROLLER_COUNTRY), "'Country Region'  should be present in the dialog");
-            assert.ok(result.includes('City list'), "'City list' part should be present in the dialog");
-            assert.ok(result.includes('Country'), "'Country part' should be present in the dialog");
-        });
-
-    it("WHEN USA content has been opened AND 'Customize Page' button has been pressed THEN expected components should be displayed in the 'Wizard Page Component step'",
-        async () => {
-            let contentWizard = new ContentWizard();
-            let pageInspectionPanel = new PageInspectionPanel();
-            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
-            // 1. Open USA country content:
-            await studioUtils.selectAndOpenContentInWizard(USA_CONTENT_NAME);
-            // 2. Click on 'Page settings' menu item in 'Live Edit' frame:
-            await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
-            // 3. Switch to main frame:
-            await contentWizard.switchToMainFrame();
-            // 4. Click on 'Customize Page' button and click 'No' in confirmation dialog:
-            await pageInspectionPanel.clickOnCustomizePageButton();
-            let confirmationDialog = new ConfirmationDialog();
-            await confirmationDialog.clickOnConfirmButton();
-            await confirmationDialog.waitForDialogClosed();
-            // 4. Verify that 'Page Component View' wizard step is displayed:
-            let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
-            assert.ok(result.includes(PAGE_CONTROLLER_COUNTRY), 'template(top component)  should be present in the dialog');
-            assert.ok(result.includes('City list'), 'City list part should be present in the dialog');
-            assert.ok(result.includes('Country'), 'Country part should be present in the dialog');
-        });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());

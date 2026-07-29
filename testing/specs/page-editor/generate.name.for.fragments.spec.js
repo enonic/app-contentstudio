@@ -48,6 +48,7 @@ describe('Generate name for fragments specification', function () {
             let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let pageComponentView = new PageComponentView();
             let insertImageDialog = new InsertImageDialog();
+            let fragmentInspectionPanel = new FragmentInspectionPanel();
             let siteFormPanel = new SiteFormPanel();
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             // 1. Open existing site:
@@ -57,7 +58,6 @@ describe('Generate name for fragments specification', function () {
             // 2. Insert new text-component
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
-            await textComponentCke.switchToLiveEditFrame();
             // 3. Open 'Insert Image' dialog and insert an image in htmlArea:
             await textComponentInspectionPanel.clickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
@@ -68,6 +68,8 @@ describe('Generate name for fragments specification', function () {
             // 4. Save the text-component as fragment:
             await pageComponentView.rightClickAndOpenContextMenu('Text');
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
+            await fragmentInspectionPanel.waitForOpened();
+            await fragmentInspectionPanel.clickOnEditFragmentButton();
             await contentWizard.pause(700);
             // Switch to the tab with the fragment:
             await studioUtils.doSwitchToNewWizard();
@@ -75,6 +77,7 @@ describe('Generate name for fragments specification', function () {
             let fragmentContent = await contentWizard.getDisplayName();
             assert.equal(fragmentContent, 'Text', 'Expected display name should be generated in Fragment-Wizard');
             // 6. Verify that 'Page Component' step wizard is displayed in the fragment-wizard:
+            await contentWizard.clickOnWizardStep('Page');
             await pageComponentsWizardStepForm.waitForLoaded();
             // 7. Only one item should be present in Page Component wizard step
             let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
@@ -114,9 +117,9 @@ describe('Generate name for fragments specification', function () {
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
 
             //TODO uncomment it issue with Inbound Dependencies
-            //assert.equal(result[0], SITE.displayName, 'expected display name of dependency');
+            assert.equal(result[0], SITE.displayName, 'expected display name of dependency');
             // TODO uncomment it
-            //assert.equal(result.length, 1, 'One content should be present in the grid');
+            assert.equal(result.length, 1, 'One content should be present in the grid');
         });
 
     // Verify the bug - Content Grid displays _path instead of _name #8255
@@ -233,6 +236,7 @@ describe('Generate name for fragments specification', function () {
     it(`GIVEN an image has been inserted in new text-component WHEN 'Mark as ready' button has been pressed THEN Ready for publishing state should be displayed in the wizard`,
         async () => {
             let contentWizard = new ContentWizard();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let textComponentCke = new TextComponentCke();
             let pageComponentView = new PageComponentView();
             let insertImageDialog = new InsertImageDialog();
@@ -244,7 +248,7 @@ describe('Generate name for fragments specification', function () {
             await contentWizard.clickOnCollapseContentForm();
             // 3. Insert new text-component
             await pageComponentView.rightClickAndOpenContextMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();
             // 4. Open 'Insert Image' dialog and insert an image in htmlArea:

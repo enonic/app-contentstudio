@@ -903,10 +903,19 @@ module.exports = {
 
             const shouldKeep = keepTitles.some((keepTitle) => title.includes(keepTitle));
             if (!shouldKeep) {
+                // Closing the last remaining window would terminate the WebDriver session,
+                // so keep it open - the caller navigates it to the home page afterwards:
+                const remaining = await this.getBrowser().getWindowHandles();
+                if (remaining.length === 1) {
+                    break;
+                }
                 await this.getBrowser().closeWindow();
                 await this.getBrowser().pause(100);
             }
         }
+        // After closeWindow() the driver still points to the closed window - switch to a live one:
+        const remainingHandles = await this.getBrowser().getWindowHandles();
+        await this.getBrowser().switchToWindow(remainingHandles[remainingHandles.length - 1]);
     },
     async switchAndCheckTitle(handle, reqTitle) {
         try {

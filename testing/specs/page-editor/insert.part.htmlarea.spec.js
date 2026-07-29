@@ -31,13 +31,6 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
     const TEST_TEXT = 'Test text';
     let TEMPLATE;
 
-    it(`Preconditions: new site should be created`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, null, [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
-            await studioUtils.doAddSite(SITE);
-        });
-
     // verifies - Page Editor is not updated after content is saved #1096
     it(`GIVEN a part with html-example has been inserted WHEN text has been typed in the html-area THEN the text should appear in the Page Editor`,
         async () => {
@@ -45,6 +38,9 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             let liveFormPanel = new LiveFormPanel();
             let partInspectionPanel = new PartInspectionPanel();
+            let displayName = contentBuilder.generateRandomName('site');
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
+            await studioUtils.doAddSite(SITE);
             let htmlAreaForm = new HtmlAreaForm();
             CONTENT_NAME = contentBuilder.generateRandomName('content');
             // Open new html-area wizard, type the name and type the initial text in the html-area :
@@ -163,11 +159,10 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             // 2. Verify that Part Inspection panel loaded with expected selected option in the dropdown:
             let selectedOption = await partInspectionPanel.getDropdownSelectedOption();
             assert.equal(selectedOption, HTML_AREA_PART_NAME, 'Expected selected option should be displayed in the Part tab');
-            // TODO ??
-           // await pageComponentsWizardStepForm.clickOnComponent(HTML_AREA_PART_NAME);
-            //await studioUtils.saveScreenshot('part_fragment_wizard_inspect_panel');
-            //selectedOption = await partInspectionPanel.getDropdownSelectedOption();
-            //assert.equal(selectedOption, HTML_AREA_PART_NAME, 'Expected selected option should be displayed in the Part tab');
+            await pageComponentsWizardStepForm.clickOnComponent(HTML_AREA_PART_NAME);
+            await studioUtils.saveScreenshot('part_fragment_wizard_inspect_panel');
+            selectedOption = await partInspectionPanel.getDropdownSelectedOption();
+            assert.equal(selectedOption, HTML_AREA_PART_NAME, 'Expected selected option should be displayed in the Part tab');
         });
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/1523 Case 2
@@ -245,10 +240,10 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             // 5. Open text-component context menu:
             await pageComponentView.rightClickAndOpenContextMenu('test text');
             await studioUtils.saveScreenshot('fragment-template-context-menu');
-            // 6. Verify that 'Save as Fragment' menu item is not present in the menu:
-            // TODO bug https://github.com/enonic/app-contentstudio/issues/10943
-            //await pageComponentView.waitForMenuItemNotDisplayed(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
-            // 7. Verify that 'Save as Template' menu item is not present in the menu:
+            // 6. Verify that 'Save as Fragment' menu item is not displayed in the menu:
+            // Verified bug https://github.com/enonic/app-contentstudio/issues/10943
+            await pageComponentView.waitForMenuItemNotDisplayed(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
+            // 7. Verify that 'Save as Template' menu item is not displayed in the menu:
             await pageComponentView.waitForMenuItemNotDisplayed(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_TEMPLATE);
         });
 

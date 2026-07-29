@@ -26,7 +26,7 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
             let pageWidgetPanel = new PageWidgetPanel();
             let pageInspectionPanel = new PageInspectionPanel();
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'test site', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES], CONTROLLER_NAME);
             // 1. Open site-wizard and save new site with a controller:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizard.typeData(SITE);
@@ -65,7 +65,7 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
             assert.equal(question, EXPECTED_QUESTION, 'Expected question should be displayed in the dialog');
         });
 
-    it("GIVEN 'Page Inspection' tab is opened WHEN 'Automatic' option has been selected in Page widget THEN 'Context window' should be closed AND Details panel should be loaded",
+    it("GIVEN 'Page Inspection' tab is opened WHEN 'Automatic' option has been selected in Page widget THEN Details widget should be loaded",
         async () => {
             let pageWidgetPanel = new PageWidgetPanel();
             let contentWizard = new ContentWizard();
