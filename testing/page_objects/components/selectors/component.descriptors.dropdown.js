@@ -3,9 +3,13 @@
  */
 const BasDropdown = require('./base.dropdown');
 const {DROPDOWN} = require("../../../libs/elements");
+const appConst = require('../../../libs/app_const');
+
 const XPATH = {
     container: "//div[@data-component='ComponentDescriptorSelector']",
-    descriptorListBoxUL: "//ul[contains(@id,'DescriptorListBox')]",
+    listboxOptionByDisplayName: displayName =>
+        `//div[@role='listbox']//div[@data-component='Listbox.Item' and @role='option' and descendant::span[contains(@class,'font-semibold') and text()='${displayName}']]`,
+    LISTBOX_OPTIONS_DISPLAY_NAME: "//div[@role='listbox']//div[@data-component='Listbox.Item' and @role='option']//span[contains(@class,'font-semibold')]",
 };
 
 class ComponentDescriptorsDropdown extends BasDropdown {
@@ -20,7 +24,7 @@ class ComponentDescriptorsDropdown extends BasDropdown {
     }
 
     optionsFilterInput() {
-        return this.container  + DROPDOWN.OPTION_FILTER_DATA_COMPONENT;
+        return this.container + DROPDOWN.OPTION_FILTER_DATA_COMPONENT;
     }
 
     get container() {
@@ -36,9 +40,32 @@ class ComponentDescriptorsDropdown extends BasDropdown {
         }
     }
 
+    // clicks on an option('Listbox.Item') in the expanded listbox, hidden listboxes are filtered out:
+    async clickOnOptionByDisplayName(displayName) {
+        try {
+            let optionLocator = XPATH.listboxOptionByDisplayName(displayName);
+            await this.waitUntilDisplayed(optionLocator, appConst.mediumTimeout);
+            let elements = await this.getDisplayedElements(optionLocator);
+            await elements[0].click();
+            return await this.pause(300);
+        } catch (err) {
+            await this.handleError(`Descriptors dropdown, tried to click on the option: ${displayName}`,
+                'err_click_descriptor_option', err);
+        }
+    }
+
     async getOptionsDisplayName() {
-        const locator = DROPDOWN.COMBOBOX_POPUP + "//div[@data-component='Listbox.Item']//span[contains(@class,'font-semibold')]";
+        const locator = XPATH.LISTBOX_OPTIONS_DISPLAY_NAME;
+        await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
+        await this.pause(200);
         return await this.getTextInDisplayedElements(locator);
+    }
+
+    // returns the display name of the selected option in the collapsed combobox('Combobox.Value' button):
+    async getSelectedOption() {
+        let locator = this.container + DROPDOWN.COMBOBOX_VALUE;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
     }
 }
 
