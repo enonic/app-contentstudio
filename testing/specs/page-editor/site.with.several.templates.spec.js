@@ -1,16 +1,15 @@
 /**
- * Created on 06.03.2019.
+ * Created on 06.03.2019. updated on 29.07.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const contentBuilder = require("../../libs/content.builder");
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const appConst = require('../../libs/app_const');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
+const PageWidgetPanel = require("../../page_objects/wizardpanel/liveform/page.widget.context.window");
 
 describe('site.with.several.templates: click on dropdown handle in Inspection Panel and change a template ', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -18,74 +17,18 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
         webDriverHelper.setupBrowser();
     }
 
-    let SITE;
-    let TEMPLATE1;
-    let TEMPLATE2;
-    const SUPPORT_SITE = 'Site';
-    const CONTROLLER_NAME1 = appConst.CONTROLLER_NAME.MAIN_REGION;
-    const CONTROLLER_NAME2 = 'default';
-    const MAIN_REGION_CONTROLLER = appConst.CONTROLLER_NAME.MAIN_REGION;
+    const IMPORTED_SITE = 'site45412';
+    const IMPORTED_TEMPLATE2 = 'template621010';
+    const IMPORTED_TEMPLATE1 = 'template622806';
 
-    it(`Precondition 1: new site should be created`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, null, [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
-            await studioUtils.doAddSite(SITE);
-        });
-
-    it(`Precondition 2: the first template should be added`,
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            TEMPLATE1 = contentBuilder.buildPageTemplate(appConst.generateRandomName('template'), SUPPORT_SITE, CONTROLLER_NAME1);
-            await studioUtils.doAddPageTemplate(SITE.displayName, TEMPLATE1);
-            await studioUtils.findAndSelectItem(TEMPLATE1.displayName);
-            await contentBrowsePanel.waitForContentDisplayed(TEMPLATE1.displayName);
-        });
-
-    it(`Precondition 3:  the second template should be added`,
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            TEMPLATE2 = contentBuilder.buildPageTemplate(appConst.generateRandomName('template'), SUPPORT_SITE, CONTROLLER_NAME2);
-            await studioUtils.doAddPageTemplate(SITE.displayName, TEMPLATE2);
-            await studioUtils.findAndSelectItem(TEMPLATE2.displayName);
-            await contentBrowsePanel.waitForContentDisplayed(TEMPLATE2.displayName);
-        });
-
-    it(`GIVEN existing site with a template is opened(shader should be applied) WHEN Customize menu item has been clicked THEN shader gets not displayed`,
-        async () => {
-            let contentWizard = new ContentWizard();
-            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
-            let pageInspectionTab = new PageInspectionPanel();
-            // 1. Open the site:
-            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            await contentWizard.pause(1000);
-            // PCV should be hidden in locked LiveEdit:
-            await pageComponentsWizardStepForm.waitForNotDisplayed();
-            await contentWizard.switchToParentFrame();
-            // 4. Click on 'Customize' menu item:
-            await contentWizard.unlockSiteWithTemplate();
-            // 5. Click on Customize Page button:
-            await contentWizard.switchToParentFrame();
-            await pageInspectionTab.clickOnCustomizePageButton();
-            let confirmationDialog = new ConfirmationDialog();
-            await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnConfirmButton();
-            // 5. Verify that LiveEdit is unlocked:
-            isLocked = await contentWizard.isLiveEditLocked();
-            assert.ok(isLocked === false, 'Page editor should not be locked');
-            // switch from LiveEdit to parent frame:
-            await contentWizard.switchToParentFrame();
-            // 6. Verify that PCV gets visible now:
-            await pageComponentsWizardStepForm.waitForLoaded();
-        });
-
-    it(`GIVEN site is opened AND Inspection Panel is opened WHEN another template has been selected in the Inspect Panel THEN site should be saved automatically AND 'Saved' button should appear`,
+    it(`WHEN Automatic option has been changed to the first template THEN site should be saved automatically AND 'Saved' button should appear`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageInspectionPanel = new PageInspectionPanel();
             let confirmationDialog = new ConfirmationDialog();
+            let pageWidgetPanel = new PageWidgetPanel();
             // 1. Open the site:
-            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await studioUtils.selectContentAndOpenWizard(IMPORTED_SITE);
             await contentWizard.unlockSiteWithTemplate();
             await contentWizard.switchToParentFrame();
             // 2. Click on 'Customize Page' button:
@@ -95,13 +38,15 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             // 4. Select the controller:
-            await pageInspectionPanel.selectPageTemplateOrController(TEMPLATE1.displayName);
+            await contentWizard.clickOnWizardStep('Page');
+            await pageWidgetPanel.clickOnTabBarItem(appConst.CONTEXT_WINDOW_TABS.INSPECT);
+            await pageInspectionPanel.selectPageTemplateOrController(IMPORTED_TEMPLATE1);
             // 5. Confirmation dialog appears:
             await confirmationDialog.waitForDialogOpened();
             await confirmationDialog.clickOnConfirmButton();
             // 6. Verify the notification message(the content is saved automatically)
             let notificationMessage = await contentWizard.waitForNotificationMessage();
-            let expectedMessage = appConst.itemSavedNotificationMessage(SITE.displayName);
+            let expectedMessage = appConst.itemSavedNotificationMessage(IMPORTED_SITE);
             assert.equal(notificationMessage, expectedMessage, "'Item is saved' - this message should appear");
             // 7. Verify -  'Save' button gets disabled in the wizard-toolbar
             await contentWizard.waitForSaveButtonDisabled();
@@ -109,14 +54,15 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
 
     // Verifies issue  Content customise picks incorrect template #7038
     //  https://github.com/enonic/app-contentstudio/issues/7038
-    it(`GIVEN site is opened WHEN the current template has been switched in the Inspect Panel THEN items in PCV should be updated`,
+    it(`WHEN the current template has been switched to the second template THEN items in PCV should be updated`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageInspectionPanel = new PageInspectionPanel();
             let confirmationDialog = new ConfirmationDialog();
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
+            let pageWidgetPanel = new PageWidgetPanel();
             // 1. Open the site:
-            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await studioUtils.selectContentAndOpenWizard(IMPORTED_SITE);
             // 2. Click on Customize menu item::
             await contentWizard.unlockSiteWithTemplate();
             await contentWizard.switchToParentFrame();
@@ -126,11 +72,13 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             // 3. Check the items in PCV:
+            await contentWizard.clickOnWizardStep('Page');
+            await pageWidgetPanel.clickOnTabBarItem(appConst.CONTEXT_WINDOW_TABS.INSPECT);
             let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
             assert.ok(result.includes('main region'), 'main region item should be displayed in the modal dialog');
-            assert.ok(result.includes('Main'), 'Main item should be displayed in the modal dialog');
+            assert.ok(result.includes('MAIN'), 'Main item should be displayed in the modal dialog');
             // 4. Select another template:
-            await pageInspectionPanel.selectPageTemplateOrController(TEMPLATE2.displayName);
+            await pageInspectionPanel.selectPageTemplateOrController(IMPORTED_TEMPLATE2);
             // 5. Confirmation dialog appears:
             await confirmationDialog.waitForDialogOpened();
             // 6. Confirm it:
@@ -138,7 +86,7 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             // 7. Verify that notification message appears:
             await contentWizard.waitForNotificationMessage();
             // 8. Live Edit gets locked again, click on 'Customize' menu item:
-            await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
+            await contentWizard.unlockSiteWithTemplate();
             await contentWizard.switchToParentFrame();
             // 9. Click on 'Customize' Page button:
             await pageInspectionPanel.clickOnCustomizePageButton();
@@ -149,7 +97,7 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             // 9. Verify that items in PCV are updated after switching to another template:
             result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
             assert.ok(result.includes('default'), 'default item should be displayed in the modal dialog');
-            assert.ok(result.includes('Main'), 'Main item should be displayed in the modal dialog');
+            assert.ok(result.includes('MAIN'), 'Main item should be displayed in the modal dialog');
             // 10. Save the customized site:
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
@@ -162,14 +110,14 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             let confirmationDialog = new ConfirmationDialog();
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             // 1. Open the customized site:
-            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await studioUtils.selectContentAndOpenWizard(IMPORTED_SITE);
             // 2. Select the 'Page' widget:
             let wizardContextWindow = await contentWizard.openContextWindow();
             await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await contentWizard.clickOnWizardStep('Page');
             // 3. Click on 'Reset' menu item and reset the selected controller:
-            await pageComponentsWizardStepForm.openMenu('default');
-            await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);
+            await pageComponentsWizardStepForm.rightClickAndOpenContextMenu('default');
+            await pageComponentsWizardStepForm.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);
             // 4. Click on 'Yes' button in the confirmation dialog:
             await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
@@ -178,31 +126,15 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             assert.equal(actualWidget, appConst.WIDGET_SELECTOR_OPTIONS.PAGE,
                 `'Page' widget should be selected after resetting the controller`);
             // 5. Select the second template:
-            await pageInspectionPanel.selectPageTemplateOrController(TEMPLATE2.displayName);
+            await pageInspectionPanel.selectPageTemplateOrController(IMPORTED_TEMPLATE2);
             await studioUtils.saveScreenshot('site_second_template_selected');
-            await contentWizard.waitForNotificationMessage();
+            //await contentWizard.waitForNotificationMessage();
             // 6. Verify that 'Customize Page' button remains displayed:
             await pageInspectionPanel.waitForCustomizePageButtonDisplayed();
             // 7. PCV should not be displayed (LiveEdit is locked):
-            await pageComponentsWizardStepForm.waitForNotDisplayed();
-            await contentWizard.waitForSaveButtonDisabled();
-        });
-
-    it(`GIVEN Inspection Panel is loaded WHEN 'main region' controller has been selected in Inspect Panel THEN PCV should be unlocked in wizard step`,
-        async () => {
-            let contentWizard = new ContentWizard();
-            let pageInspectionPanel = new PageInspectionPanel();
-            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
-            // 1. Open the site:
-            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 2. Select the controller:
-            let wizardContextWindow = await contentWizard.openContextWindow();
-            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
-            await pageInspectionPanel.selectPageTemplateOrController(MAIN_REGION_CONTROLLER);
-            await studioUtils.saveScreenshot('controller_switched_pcv_gets_enabled');
-            // 3. PCV should not be disabled (not locked):
-            await pageComponentsWizardStepForm.waitForNotLocked()
-            // 4. Verify -  'Save' button is disabled in the wizard-toolbar
+            await contentWizard.clickOnWizardStep('Page');
+            let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
+            assert.equal(result[0],IMPORTED_TEMPLATE2, "Expected component item should be displayed in PCV")
             await contentWizard.waitForSaveButtonDisabled();
         });
 

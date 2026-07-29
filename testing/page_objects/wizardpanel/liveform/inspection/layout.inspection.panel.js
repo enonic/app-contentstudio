@@ -21,7 +21,7 @@ class LayoutInspectionPanel extends BaseComponentInspectionPanel {
     }
 
     get layoutDropdownHandle() {
-        return xpath.container + DROPDOWN.COMBOBOX_DROPDOWN_HANDLE;
+        return xpath.container + DROPDOWN.DROPDOWN_HANDLE;
     }
 
     async typeNameAndSelectLayout(displayName) {
@@ -43,15 +43,31 @@ class LayoutInspectionPanel extends BaseComponentInspectionPanel {
     }
 
     async clickOnLayoutDropdownHandle() {
-        await this.waitForElementDisplayed(this.layoutDropdownHandle, appConst.mediumTimeout);
-        await this.clickOnElement(this.layoutDropdownHandle);
-        return await this.pause(300);
+        try {
+            // hidden inspection panels can be present in the DOM, so click on the displayed dropdown handle:
+            await this.waitUntilDisplayed(this.layoutDropdownHandle, appConst.mediumTimeout);
+            let elements = await this.getDisplayedElements(this.layoutDropdownHandle);
+            await elements[0].click();
+            return await this.pause(300);
+        } catch (err) {
+            await this.handleError('Layout Inspection Panel, tried to click on the dropdown handle', 'err_layout_dropdown_handle', err);
+        }
     }
 
     async clickOnOptionInLayoutDropdown(optionDisplayName) {
         let componentDescriptorsDropdown = new ComponentDescriptorsDropdown(xpath.container);
         await componentDescriptorsDropdown.clickOnOptionByDisplayName(optionDisplayName);
         return await this.pause(1000);
+    }
+
+    // returns the display name of the selected option in the collapsed layout combobox:
+    async getSelectedOption() {
+        try {
+            let componentDescriptorsDropdown = new ComponentDescriptorsDropdown(xpath.container);
+            return await componentDescriptorsDropdown.getSelectedOption();
+        } catch (err) {
+            await this.handleError('Layout Inspection Panel, selected option', 'err_layout_selected_option', err);
+        }
     }
 
     async waitForApplyButtonInComponentsDescriptorNotDisplayed(optionDisplayName) {
