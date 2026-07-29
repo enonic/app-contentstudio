@@ -341,15 +341,14 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         wasScheduleMode.current = scheduleMode;
     }, [scheduleMode]);
 
-    // Sync publish dialog context with schedule data
+    // Sync publish dialog context with schedule data. Fed the applied selection, never the draft, so
+    // a staged checkbox costs nothing; syncPublishDialogContext compares its payload by value.
     useEffect(() => {
         if (!issueData) {
             return;
         }
         const schedule =
             issuePublishFrom || issuePublishTo ? { from: issuePublishFrom, to: issuePublishTo } : undefined;
-        // Keyed on the applied selection: syncPublishDialogContext resets and fully reloads the
-        // publish context, which must not happen on every staged checkbox click.
         void syncPublishDialogContext({
             items,
             excludeChildrenIds: appliedExcludeChildrenIds,

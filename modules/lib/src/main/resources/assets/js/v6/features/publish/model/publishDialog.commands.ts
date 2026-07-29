@@ -46,6 +46,7 @@ import {
     validateSchedule,
     type PublishDialogStore,
     type PublishSchedule,
+    type SyncedPublishContext,
 } from './publishDialog.store';
 
 //
@@ -67,6 +68,9 @@ let resetExclusions = false;
 
 // Guard for compare-status fetches; bumped on reset and on each new fetch
 let compareInstanceId = 0;
+
+// The context last requested through syncPublishDialogContext
+let syncedContext: SyncedPublishContext | null = null;
 
 /** Drops dependant exclusions and re-runs the auto-exclude pass on the next reload. */
 export const flagPublishExclusionsReset = (): void => {
@@ -93,6 +97,24 @@ export const setPublishDialogState = (state: Partial<Omit<PublishDialogStore, 'o
 
 // SYNC
 
+// A refetch or a socket patch always hands over new summary instances, so differing references
+// mean the tracked content may have changed.
+const isSameSummaryRefs = (previous: ContentSummary[], next: ContentSummary[]): boolean => {
+    return previous.length === next.length && previous.every((item, index) => item === next[index]);
+};
+
+const isSameSyncedContext = (previous: SyncedPublishContext | null, next: SyncedPublishContext): boolean => {
+    return (
+        previous != null &&
+        previous.message === next.message &&
+        previous.scheduleFrom === next.scheduleFrom &&
+        previous.scheduleTo === next.scheduleTo &&
+        isIdsEqual(previous.itemIds, next.itemIds) &&
+        isIdsEqual(previous.excludeChildrenIds, next.excludeChildrenIds) &&
+        isIdsEqual(previous.excludedDependantIds, next.excludedDependantIds)
+    );
+};
+
 export const syncPublishDialogContext = async ({
     items,
     excludeChildrenIds = [],
@@ -106,17 +128,46 @@ export const syncPublishDialogContext = async ({
     message?: string;
     schedule?: PublishSchedule;
 }): Promise<void> => {
-    const { open } = $publishDialog.get();
+    const current = $publishDialog.get();
     const { submitting } = $publishDialogPending.get();
-    if (open || submitting) return;
-
-    resetPublishDialogContext();
+    if (current.open || submitting) return;
 
     if (items.length === 0) {
+        // Nothing to borrow a context for; drop whatever the previous issue left behind.
+        if (syncedContext || current.items.length > 0) {
+            resetPublishDialogContext();
+        }
         return;
     }
 
+    const itemIds = items.map((item) => item.getContentId());
+    const requested: SyncedPublishContext = {
+        itemIds,
+        excludeChildrenIds,
+        excludedDependantIds,
+        message,
+        scheduleFrom: schedule?.from?.getTime(),
+        scheduleTo: schedule?.to?.getTime(),
+    };
+
+    if (!current.failed && current.items.length > 0 && isSameSyncedContext(syncedContext, requested)) {
+        // Same context, but fresh summary instances mean the content was refetched or patched -
+        // re-resolve without tearing down, since the borrowing dialog reads the context throughout.
+        if (!isSameSummaryRefs(current.items, items)) {
+            $publishDialog.setKey('items', items);
+            reloadPublishDialogDataDebounced();
+        }
+        return;
+    }
+
+    // Only an item-set change is a new context. Updating the rest in place keeps items, checks and
+    // publishable ids on screen instead of blanking the borrowing dialog until the refetch lands.
+    if (!syncedContext || !isIdsEqual(itemIds, syncedContext.itemIds)) {
+        resetPublishDialogContext();
+    }
+
     cleanLoad = true;
+    syncedContext = requested;
 
     $publishDialog.set({
         open: false,
@@ -187,6 +238,7 @@ export const resetPublishDialogContext = () => {
     compareInstanceId += 1;
     cleanLoad = false;
     resetExclusions = false;
+    syncedContext = null;
     const { taskId } = $publishDialogPending.get();
     if (taskId) {
         cleanupTask(taskId);
