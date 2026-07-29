@@ -59,8 +59,8 @@ describe('Move Fragment specification', function () {
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await studioUtils.saveScreenshot('text_saved_as_fragment2');
             // 4. Wait for the description is refreshing:
-            await contentWizard.pause(4500);
-            // 5. Go to the site-wizard and verify description of the new created fragment
+            await contentWizard.pause(3000);
+            // 5. verify the name of the new created fragment:
             let names = await pageComponentView.getPageComponentsDisplayName(TEST_TEXT_FRAGMENT);
             assert.ok(names.includes(TEST_TEXT_FRAGMENT), 'Expected text fragment should be displayed in PCV');
         });

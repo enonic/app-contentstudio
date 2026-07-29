@@ -1,43 +1,51 @@
 /**
- * Created on 23.07.2021
+ * Created on 23.07.2021. updated on 28.07.2026
  */
 const Page = require('../page');
-const lib = require('../../libs/elements-old');
-const appConst = require('../../libs/app_const');
 
 const XPATH = {
-    locationTextInput: "//input[contains(@placeholder,'latitude,longitude')]",
-    populationTextInput: "//input[contains(@name,'cityPopulation')]",
+    formRenderer: "//div[@data-component='FormRenderer']",
+    locationTextInput: "//input[@data-component='GeoPointInput' and @aria-label='Location']",
+    populationTextInput: "//input[@aria-label='Population']",
 };
 
 class CityFormPanel extends Page {
 
     get locationInput() {
-        return lib.FORM_VIEW + XPATH.locationTextInput;
+        return XPATH.formRenderer + XPATH.locationTextInput;
     }
 
     get populationInput() {
-        return lib.FORM_VIEW + XPATH.populationTextInput;
+        return XPATH.formRenderer + XPATH.populationTextInput;
     }
 
     async typeLocation(location) {
-        await this.waitForElementDisplayed(this.locationInput, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.locationInput);
         await this.typeTextInInput(this.locationInput, location);
         return await this.pause(200);
     }
 
     async typePopulation(population) {
-        await this.waitForElementDisplayed(this.populationInput, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.populationInput);
         await this.typeTextInInput(this.populationInput, population);
         return await this.pause(200);
     }
 
+    async clearPopulationInput() {
+        await this.waitForElementDisplayed(this.populationInput);
+        await this.clearInputText(this.populationInput);
+        return await this.pause(200);
+    }
+
+    async getLocation() {
+        await this.waitForElementDisplayed(this.locationInput);
+        return await this.getTextInInput(this.locationInput);
+    }
+
     async getPopulation() {
-        await this.waitForElementDisplayed(this.populationInput, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.populationInput);
         return await this.getTextInInput(this.populationInput);
     }
 }
 
 module.exports = CityFormPanel;
-
-

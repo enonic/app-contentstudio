@@ -1,16 +1,14 @@
 /**
- * Created on 14.02.2025
+ * Created on 14.02.2025  updated on 26.07.2026
  */
-const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const appConst = require('../../libs/app_const');
-const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const LayoutInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/layout.inspection.panel');
-const FragmentInspectionPanel = require("../../page_objects/wizardpanel/liveform/inspection/fragment.inspection.panel");
+
 
 describe('fragment.layout.pcv.spec - Select a layout in fragment and verify regions', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -19,15 +17,9 @@ describe('fragment.layout.pcv.spec - Select a layout in fragment and verify regi
     }
     let SITE;
     const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
-    const LAYOUT_3_COL = '3-col';
 
-    // Verifies https://github.com/enonic/app-contentstudio/issues/8027
-    // Layout regions not added when changing layout #8027
-    it(`GIVEN the empty layout-component has been saved as fragment WHEN 3-col layout has been selected in LiveView THEN 3 layout-regions should be displayed in PCV`,
+    it(`WHEN context menu has been opened for the empty layout THEN Save as Fragment should not be displayed`,
         async () => {
-
-            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
-            let fragmentInspectionPanel = new FragmentInspectionPanel();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, null, [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
@@ -43,23 +35,8 @@ describe('fragment.layout.pcv.spec - Select a layout in fragment and verify regi
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectContextMenuItem(['Insert', 'Layout']);
             await pageComponentView.rightClickAndOpenContextMenu('Layout');
-            // 4. Save the empty layout-component as fragment:
-            await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
-            await fragmentInspectionPanel.waitForOpened();
-            await fragmentInspectionPanel.clickOnEditFragmentButton();
-            // 5. Switch to the new wizard and select the '3-col' layout:
-            await studioUtils.doSwitchToNewWizard();
-            await contentWizard.clickOnWizardStep('Page');
-            await pageComponentsWizardStepForm.clickOnComponent('Layout');
-            await layoutInspectionPanel.waitForOpened();
-            await layoutInspectionPanel.typeNameAndSelectLayout(LAYOUT_3_COL);
-            // 6. Verify that 3 regions are present in the PCV:
-            await pageComponentsWizardStepForm.waitForItemDisplayed('left');
-            await pageComponentsWizardStepForm.waitForItemDisplayed('center');
-            await pageComponentsWizardStepForm.waitForItemDisplayed('right');
-            // 7. Verify that '3-col' layout is displayed in PCV:
-            let names = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
-            assert.equal(names[0], LAYOUT_3_COL, '3-col component should be displayed in PCV');
+            // 4. Save as fragment menu item should not be displayed in the context menu for the empty component:
+            await pageComponentView.waitForMenuItemNotDisplayed(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

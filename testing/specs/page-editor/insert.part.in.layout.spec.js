@@ -23,13 +23,6 @@ describe('insert.part.in.layout.spec - test for parts in a layout', function () 
     const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const LAYOUT_3_COL = appConst.LAYOUT_NAME.COL_3;
 
-    it(`Preconditions: new site should be created`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, null, [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES], CONTROLLER_NAME);
-            await studioUtils.doAddSite(SITE);
-        });
-
     // Verifies the bug - Wrong descriptor is loaded when clicking on part/layout #8241
     // https://github.com/enonic/app-contentstudio/issues/8241
     it(`GIVEN two parts have been inserted in '3-col' layout WHEN valid part component has been clicked in LiveView THEN red icon should not be displayed in the PCV `,
@@ -39,6 +32,9 @@ describe('insert.part.in.layout.spec - test for parts in a layout', function () 
             let layoutInspectionPanel = new LayoutInspectionPanel();
             let liveFormPanel = new LiveFormPanel();
             let partInspectionPanel = new PartInspectionPanel();
+            let displayName = contentBuilder.generateRandomName('site');
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES], CONTROLLER_NAME);
+            await studioUtils.doAddSite(SITE);
             // 1. Open the existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             await contentWizard.clickOnWizardStep('Page');
@@ -74,7 +70,7 @@ describe('insert.part.in.layout.spec - test for parts in a layout', function () 
             await contentWizard.switchToLiveEditFrame();
             await liveFormPanel.waitForPartWithErrorDisplayed();
             // 7. Verify that red icon is displayed beside the part in the PCV:
-            //isInvalid = await pageComponentsWizardStepForm.isComponentItemInvalid(appConst.PART_NAME.PART_WITH_ERROR);
+            //let isInvalid = await pageComponentsWizardStepForm.isComponentItemInvalid(appConst.PART_NAME.PART_WITH_ERROR);
             //assert.ok(isInvalid, 'The part should be displayed as invalid');
         });
 

@@ -23,18 +23,14 @@ describe('Menu Items: Save as fragment and Customize specification', function ()
     const TEST_TEXT='test123';
     const FRAGMENT_NAME = TEST_TEXT;
 
-
-    it(`Preconditions: new site should be created`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, null, [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
-            await studioUtils.doAddSite(SITE);
-        });
-
     it(`GIVEN existing site is opened WHEN 'Live Edit' has been expanded THEN 'Hide Page Component View' button should be displayed in Page component View modal dialog`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
+
+            let displayName = contentBuilder.generateRandomName('site');
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
+            await studioUtils.doAddSite(SITE);
             // 1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
@@ -220,7 +216,7 @@ describe('Menu Items: Save as fragment and Customize specification', function ()
             assert.ok(result, 'The component should be selected after changes are saved');
         });
 
-    it(`WHEN fragment's context menu has been opened AND 'Customize' has been clicked THEN 'Save as Fragment' menu item should appear again`,
+    it(`WHEN fragment's context menu has been opened AND 'Detach from Fragment' has been clicked THEN 'Save as Fragment' menu item should appear again`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
@@ -229,7 +225,7 @@ describe('Menu Items: Save as fragment and Customize specification', function ()
             await contentWizard.clickOnCollapseContentForm();
             // 2. the fragment's context menu has been opened:
             await pageComponentView.rightClickAndOpenContextMenu(FRAGMENT_NAME);
-            // 3. 'Customize' menu item has been clicked:
+            // 3. 'Detach from Fragment' menu item has been clicked:
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.DETACH_FROM_FRAGMENT]);
             await pageComponentView.pause(2000);
             // 4. The text-component context menu has been opened:
