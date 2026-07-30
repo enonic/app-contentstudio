@@ -26,11 +26,18 @@ import {
     orderSummariesByIds,
 } from '../../../entities/content/lib/dependantWindow';
 import { resolveAppliedPublishDependencies } from '../../../entities/content/lib/publishDependencies';
+import { buildItemsFromIds } from '../../../shared/lib/cms/content/buildItems';
 import {
     calcDependantsSelection,
     nextDependantExclusions,
     pruneExcludedDependantIds,
 } from '../../../shared/lib/cms/content/dependantsSelection';
+import {
+    commitDraftSelection,
+    isDraftSelectionSynced,
+    revertDraftSelection,
+    withIdExcluded,
+} from '../../../shared/lib/cms/content/draftSelection';
 import { hasContentIdInIds, isIdsEqual, uniqueIds } from '../../../shared/lib/cms/content/ids';
 import { $issueDialog, loadIssueDialogList } from './issueDialog.store';
 
@@ -69,6 +76,9 @@ type IssueDialogDetailsStore = {
     dependantWindow: number;
     excludedDependantIds: ContentId[];
     requiredDependantIds: ContentId[];
+    // The last selection committed to the server; the baseline a reload compares against.
+    appliedExcludeChildrenIds: ContentId[];
+    appliedExcludedDependantIds: ContentId[];
 };
 
 type DeleteCommentConfirmation = {
@@ -106,6 +116,8 @@ const initialState: IssueDialogDetailsStore = {
     dependantWindow: 0,
     excludedDependantIds: [],
     requiredDependantIds: [],
+    appliedExcludeChildrenIds: [],
+    appliedExcludedDependantIds: [],
 };
 
 export const $issueDialogDetails = map<IssueDialogDetailsStore>(structuredClone(initialState));
@@ -147,6 +159,15 @@ export const $canIssueDialogDetailsPublish = computed(
     (isPublishRequest, isClosed) => isPublishRequest && !isClosed,
 );
 
+// The items tab is editable for standard issues too, which have no publish status bar. Gate the
+// bar itself on this, and keep the publish-specific entries on the computed above.
+export const $canIssueDialogDetailsEditSelection = computed(
+    [$issueDialogDetailsIssue, $isIssueDialogDetailsClosed],
+    (issue, isClosed) => !!issue && !isClosed,
+);
+
+export const $isIssueDialogDetailsSelectionSynced = computed($issueDialogDetails, isDraftSelectionSynced);
+
 export const $issueDialogDetailsHasMoreDependants = computed(
     $issueDialogDetails,
     ({ dependantIds, dependantWindow }) => dependantWindow < dependantIds.length,
@@ -185,8 +206,8 @@ export const loadIssueDialogItems = async (issue?: Issue, options: IssueDialogIt
 
     const publishRequest = targetIssue.getPublishRequest();
     const itemIds = publishRequest?.getItemsIds() ?? [];
-    const excludeChildrenIds = publishRequest?.getExcludeChildrenIds() ?? [];
-    const excludedDependantIds = publishRequest?.getExcludeIds() ?? [];
+    const serverExcludeChildrenIds = publishRequest?.getExcludeChildrenIds() ?? [];
+    const serverExcludedDependantIds = publishRequest?.getExcludeIds() ?? [];
 
     if (itemIds.length === 0) {
         $issueDialogDetails.set({
@@ -200,6 +221,8 @@ export const loadIssueDialogItems = async (issue?: Issue, options: IssueDialogIt
             dependantWindow: 0,
             excludedDependantIds: [],
             requiredDependantIds: [],
+            appliedExcludeChildrenIds: [],
+            appliedExcludedDependantIds: [],
         });
         return;
     }
@@ -211,6 +234,16 @@ export const loadIssueDialogItems = async (issue?: Issue, options: IssueDialogIt
     const canReuseItems = isSameIssue && existingItemIds.length > 0 && isIdsEqual(existingItemIds, itemIds);
     const shouldFetchItems = !canReuseItems || forceReload;
 
+    // Compared on issueId rather than `isSameIssue`: the latter needs `currentState.issue`, which
+    // is undefined on the list-backed path.
+    const hasStagedSelection = currentState.issueId === targetIssue.getId() && !isDraftSelectionSynced(currentState);
+    // Our own save echoes back with applied === server, so the draft survives. A third-party edit
+    // does not, and wins: the alternative is an Apply that silently reverts the other editor.
+    const keepDraft =
+        hasStagedSelection &&
+        isIdsEqual(currentState.appliedExcludeChildrenIds, serverExcludeChildrenIds) &&
+        isIdsEqual(currentState.appliedExcludedDependantIds, serverExcludedDependantIds);
+
     $issueDialogDetails.set({
         ...currentState,
         itemsLoading: true,
@@ -220,8 +253,10 @@ export const loadIssueDialogItems = async (issue?: Issue, options: IssueDialogIt
         dependantIds: isSameIssue ? currentState.dependantIds : [],
         dependantWindow: isSameIssue ? currentState.dependantWindow : 0,
         requiredDependantIds: isSameIssue ? currentState.requiredDependantIds : [],
-        excludeChildrenIds,
-        excludedDependantIds,
+        excludeChildrenIds: keepDraft ? currentState.excludeChildrenIds : serverExcludeChildrenIds,
+        excludedDependantIds: keepDraft ? currentState.excludedDependantIds : serverExcludedDependantIds,
+        appliedExcludeChildrenIds: serverExcludeChildrenIds,
+        appliedExcludedDependantIds: serverExcludedDependantIds,
     });
 
     try {
@@ -232,8 +267,8 @@ export const loadIssueDialogItems = async (issue?: Issue, options: IssueDialogIt
 
         const resolution = await resolveAppliedPublishDependencies({
             ids: itemIds,
-            excludeChildrenIds: excludeChildrenIds,
-            excludedIds: excludedDependantIds,
+            excludeChildrenIds: serverExcludeChildrenIds,
+            excludedIds: serverExcludedDependantIds,
         });
         if (requestId !== dependenciesRequestId) {
             return;
@@ -272,22 +307,31 @@ export const loadIssueDialogItems = async (issue?: Issue, options: IssueDialogIt
         const sortedItems = canReuseItems ? items : sortByIdOrder(items, itemIds);
         const sortedDependants = orderSummariesByIds(firstWindow.summaries, allDependantIds);
         const requiredDependantIds = minResult.getRequired().filter((id) => hasContentIdInIds(id, allDependantIds));
-        const nextExcludedDependantIds = pruneExcludedDependantIds(
-            excludedDependantIds,
-            allDependantIds,
-            requiredDependantIds,
-        );
 
+        // Prune from the latest state rather than the captured server values: an Apply that
+        // advanced `applied*` while this reload was in flight must not be overwritten here.
         const latestState = $issueDialogDetails.get();
         $issueDialogDetails.set({
             ...latestState,
             items: sortedItems,
-            excludeChildrenIds,
             dependants: sortedDependants,
             dependantIds: allDependantIds,
             dependantWindow: Math.min(DEPENDANT_LOAD_SIZE, allDependantIds.length),
             requiredDependantIds,
-            excludedDependantIds: nextExcludedDependantIds,
+            excludeChildrenIds: latestState.excludeChildrenIds.filter((id) => hasContentIdInIds(id, itemIds)),
+            appliedExcludeChildrenIds: latestState.appliedExcludeChildrenIds.filter((id) =>
+                hasContentIdInIds(id, itemIds),
+            ),
+            excludedDependantIds: pruneExcludedDependantIds(
+                latestState.excludedDependantIds,
+                allDependantIds,
+                requiredDependantIds,
+            ),
+            appliedExcludedDependantIds: pruneExcludedDependantIds(
+                latestState.appliedExcludedDependantIds,
+                allDependantIds,
+                requiredDependantIds,
+            ),
             itemsLoading: false,
             itemsError: false,
         });
@@ -746,8 +790,18 @@ export const updateIssueDialogItems = async (nextItemIds: ContentId[]): Promise<
         return;
     }
 
-    $issueDialogDetails.setKey('itemsUpdating', true);
+    const nextIdStrings = new Set(nextUniqueIds.map((id) => id.toString()));
+    const state = $issueDialogDetails.get();
 
+    $issueDialogDetails.set({
+        ...state,
+        itemsUpdating: true,
+        excludeChildrenIds: state.excludeChildrenIds.filter((id) => nextIdStrings.has(id.toString())),
+        appliedExcludeChildrenIds: state.appliedExcludeChildrenIds.filter((id) => nextIdStrings.has(id.toString())),
+    });
+
+    // Sourced from the server request, not the draft: adding or removing an item must not
+    // silently commit a staged children toggle on the others.
     const includeChildrenById = new Map(
         (publishRequest?.getItems() ?? []).map((item) => [item.getId().toString(), item.isIncludeChildren()]),
     );
@@ -771,46 +825,33 @@ export const updateIssueDialogItems = async (nextItemIds: ContentId[]): Promise<
     });
 };
 
-export const updateIssueDialogItemIncludeChildren = async (id: ContentId, includeChildren: boolean): Promise<void> => {
-    const context = getIssueContext('itemsUpdating');
-    if (!context) {
-        return;
+export const setIssueDialogDetailsItemIncludeChildren = (id: ContentId, includeChildren: boolean): void => {
+    const state = $issueDialogDetails.get();
+    const next = withIdExcluded(state.excludeChildrenIds, id, !includeChildren);
+
+    if (next !== state.excludeChildrenIds) {
+        $issueDialogDetails.setKey('excludeChildrenIds', next);
     }
-    const { issueId, dialogState, issueWithAssignees, issue } = context;
-
-    const publishRequest = issue.getPublishRequest();
-    if (!publishRequest) {
-        return;
-    }
-
-    const nextItems = publishRequest.getItems().map((item) => {
-        if (!item.getId().equals(id)) {
-            return item;
-        }
-        return PublishRequestItem.create().setId(item.getId()).setIncludeChildren(includeChildren).build();
-    });
-
-    const sameValue = publishRequest
-        .getItems()
-        .every((item) => (item.getId().equals(id) ? item.isIncludeChildren() === includeChildren : true));
-    if (sameValue) {
-        return;
-    }
-
-    $issueDialogDetails.setKey('itemsUpdating', true);
-
-    const nextPublishRequest = PublishRequest.create(publishRequest).setPublishRequestItems(nextItems).build();
-
-    await updateIssueWithPublishRequest({
-        issueId,
-        issue,
-        dialogState,
-        issueWithAssignees,
-        nextPublishRequest,
-    });
 };
 
-export const updateIssueDialogDependencyIncluded = async (id: ContentId, included: boolean): Promise<void> => {
+export const setIssueDialogDetailsDependantIncluded = (id: ContentId, included: boolean): void => {
+    const state = $issueDialogDetails.get();
+    if (hasContentIdInIds(id, state.requiredDependantIds)) {
+        return;
+    }
+
+    const next = withIdExcluded(state.excludedDependantIds, id, !included);
+
+    if (next !== state.excludedDependantIds) {
+        $issueDialogDetails.setKey('excludedDependantIds', next);
+    }
+};
+
+export const applyDraftIssueDialogDetailsSelection = async (): Promise<void> => {
+    if ($isIssueDialogDetailsSelectionSynced.get()) {
+        return;
+    }
+
     const context = getIssueContext('itemsUpdating');
     if (!context) {
         return;
@@ -822,30 +863,49 @@ export const updateIssueDialogDependencyIncluded = async (id: ContentId, include
         return;
     }
 
-    const currentExcludeIds = publishRequest.getExcludeIds();
-    const isExcluded = hasContentIdInIds(id, currentExcludeIds);
-    if (included && !isExcluded) {
-        return;
-    }
-    if (!included && isExcluded) {
-        return;
-    }
+    const state = $issueDialogDetails.get();
+    const { excludeChildrenIds, excludedDependantIds, appliedExcludeChildrenIds, appliedExcludedDependantIds } = state;
 
-    const nextExcludeIds = included
-        ? currentExcludeIds.filter((item) => !item.equals(id))
-        : uniqueIds([...currentExcludeIds, id]);
+    // `includeChildren` is a per-item flag rather than a persisted list, so the draft exclusions
+    // are folded back into the request items on the way out. Ids come from the request, not from
+    // `state.items`: Apply changes flags, never membership.
+    const nextPublishRequest = PublishRequest.create(publishRequest)
+        .setPublishRequestItems(buildItemsFromIds(publishRequest.getItemsIds(), excludeChildrenIds))
+        .setExcludeIds(excludedDependantIds)
+        .build();
 
-    $issueDialogDetails.setKey('itemsUpdating', true);
+    // Applied advances before the PUT so the reload it triggers - and the debounced issue server
+    // event behind it - see an unchanged server baseline instead of a third-party conflict.
+    $issueDialogDetails.set({
+        ...state,
+        itemsUpdating: true,
+        ...commitDraftSelection(state),
+    });
 
-    const nextPublishRequest = PublishRequest.create(publishRequest).setExcludeIds(nextExcludeIds).build();
-
-    await updateIssueWithPublishRequest({
+    const updated = await updateIssueWithPublishRequest({
         issueId,
         issue,
         dialogState,
         issueWithAssignees,
         nextPublishRequest,
     });
+
+    if (!updated) {
+        $issueDialogDetails.set({
+            ...$issueDialogDetails.get(),
+            appliedExcludeChildrenIds,
+            appliedExcludedDependantIds,
+        });
+    }
+};
+
+export const cancelDraftIssueDialogDetailsSelection = (): void => {
+    if ($isIssueDialogDetailsSelectionSynced.get()) {
+        return;
+    }
+
+    const state = $issueDialogDetails.get();
+    $issueDialogDetails.set({ ...state, ...revertDraftSelection(state) });
 };
 
 export const updateIssueDialogExcludedDependants = async (nextExcludedIds: ContentId[]): Promise<void> => {
@@ -860,15 +920,27 @@ export const updateIssueDialogExcludedDependants = async (nextExcludedIds: Conte
         return;
     }
 
-    const nextUniqueIds = uniqueIds(nextExcludedIds);
-    const currentExcludeIds = publishRequest.getExcludeIds();
-    if (isIdsEqual(currentExcludeIds, nextUniqueIds)) {
+    const state = $issueDialogDetails.get();
+    const nextApplied = uniqueIds(nextExcludedIds);
+    // The error-bar exclusions apply immediately, so the banner never appears for them; anything
+    // the user has staged separately stays staged.
+    const nextDraft = uniqueIds([...state.excludedDependantIds, ...nextApplied]);
+
+    if (
+        isIdsEqual(state.appliedExcludedDependantIds, nextApplied) &&
+        isIdsEqual(state.excludedDependantIds, nextDraft)
+    ) {
         return;
     }
 
-    $issueDialogDetails.setKey('itemsUpdating', true);
+    $issueDialogDetails.set({
+        ...state,
+        itemsUpdating: true,
+        excludedDependantIds: nextDraft,
+        appliedExcludedDependantIds: nextApplied,
+    });
 
-    const nextPublishRequest = PublishRequest.create(publishRequest).setExcludeIds(nextUniqueIds).build();
+    const nextPublishRequest = PublishRequest.create(publishRequest).setExcludeIds(nextApplied).build();
 
     await updateIssueWithPublishRequest({
         issueId,
@@ -886,7 +958,7 @@ export const toggleIssueDialogDetailsDependantsSelection = (): void => {
         return;
     }
 
-    void updateIssueDialogExcludedDependants(nextDependantExclusions(selection, excludedDependantIds));
+    $issueDialogDetails.setKey('excludedDependantIds', nextDependantExclusions(selection, excludedDependantIds));
 };
 
 export const openDeleteCommentConfirmation = (commentId: string): void => {
@@ -1018,9 +1090,13 @@ export const applyUpdatedIssue = (
     }
 
     const latestState = $issueDialogDetails.get();
+    // A staged draft has no Apply button once the issue closes; drop it rather than strand it.
+    const isClosing = updatedIssue.getIssueStatus() === IssueStatus.CLOSED;
+
     $issueDialogDetails.set({
         ...latestState,
         issue: updatedIssue,
+        ...(isClosing && revertDraftSelection(latestState)),
         ...detailsUpdates,
     });
 };
@@ -1039,7 +1115,7 @@ const updateIssueWithPublishRequest = async ({
     issueWithAssignees?: IssueWithAssignees;
     nextPublishRequest: PublishRequest;
     forceReloadItems?: boolean;
-}): Promise<void> => {
+}): Promise<boolean> => {
     const result = await updateIssue({
         id: issueId,
         title: issue.getTitle(),
@@ -1055,7 +1131,7 @@ const updateIssueWithPublishRequest = async ({
         console.error(result.error);
         $issueDialogDetails.setKey('itemsUpdating', false);
         showError(result.error.message);
-        return;
+        return false;
     }
 
     const updatedIssue = result.value;
@@ -1067,6 +1143,8 @@ const updateIssueWithPublishRequest = async ({
     const prefix = updatedIssue.getType() === IssueType.PUBLISH_REQUEST ? 'notify.publishRequest.' : 'notify.issue.';
     showFeedback(i18n(`${prefix}updated`));
     void loadIssueDialogList();
+
+    return true;
 };
 
 const getStatusMessageKey = (issueType: IssueType, status: IssueStatus): string => {

@@ -1,6 +1,7 @@
-import { ok } from 'neverthrow';
+import { err, ok } from 'neverthrow';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentId } from '../../../../app/content/ContentId';
+import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import {
     emitContentArchived,
     emitContentCreated,
@@ -18,6 +19,7 @@ import {
     setPublishDialogDependantItemSelected,
     setPublishDialogItemWithChildrenSelected,
     setPublishSchedule,
+    syncPublishDialogContext,
     togglePublishDialogDependantsSelection,
     togglePublishDialogShowExcluded,
 } from './publishDialog.commands';
@@ -679,6 +681,149 @@ describe('publishDialog.store', () => {
 
             expect($draftPublishDialogSelection.get().excludedDependantItemsIds).toHaveLength(2);
             expect($publishDependantsSelection.get().selectionType).toBe('none');
+        });
+    });
+
+    // The issue details dialog borrows this context without opening the dialog and re-sends an equal
+    // payload on every store write: neither that nor a real change may blank it out (#11166).
+    describe('syncPublishDialogContext', () => {
+        const itemId = new ContentId('item-1');
+        const dependantId = new ContentId('dep-1');
+
+        beforeEach(() => {
+            $config.setKey('excludeDependencies', false);
+        });
+
+        async function sync(items: ContentSummary[], excludedDependantIds: ContentId[] = []): Promise<void> {
+            await syncPublishDialogContext({
+                items,
+                // Fresh instances every call, like the issue store hands over.
+                excludeChildrenIds: [new ContentId('item-1')],
+                excludedDependantIds,
+            });
+            await flushInitialReload();
+        }
+
+        it('should skip the reload when the requested context is unchanged', async () => {
+            const item = createMockContent('item-1');
+
+            await sync([item]);
+
+            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(1);
+            expect($totalPublishableItems.get()).toBe(1);
+
+            await sync([item]);
+            await flushDebouncedReload();
+
+            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(1);
+            expect($totalPublishableItems.get()).toBe(1);
+        });
+
+        it('should re-resolve without tearing the context down when the summaries were refetched', async () => {
+            const original = createMockContent('item-1', { displayName: 'Original name' });
+            const refetched = createMockContent('item-1', { displayName: 'Refetched name' });
+
+            await sync([original]);
+
+            await sync([refetched]);
+
+            // Patched in place: the count never drops to 0, so the footer does not blink.
+            expect($publishDialog.get().items[0].getDisplayName()).toBe('Refetched name');
+            expect($totalPublishableItems.get()).toBe(1);
+
+            await flushDebouncedReload();
+
+            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
+            expect($totalPublishableItems.get()).toBe(1);
+        });
+
+        it('should keep the resolved context visible while a changed selection re-resolves', async () => {
+            const item = createMockContent('item-1');
+            mockResolvePublishDependencies.mockResolvedValueOnce(
+                createResolveResult({ dependants: [dependantId], publishable: [itemId] }),
+            );
+
+            await sync([item]);
+
+            expect($totalPublishableItems.get()).toBe(1);
+
+            const pendingResolve = createDeferredPromise<ReturnType<typeof createResolveResult>>();
+            mockResolvePublishDependencies.mockReturnValueOnce(pendingResolve.promise);
+
+            void sync([item], [dependantId]);
+            await flushPromises();
+
+            // In flight: previous checks and items stay on screen instead of emptying out.
+            expect($publishDialog.get().items).toHaveLength(1);
+            expect($totalPublishableItems.get()).toBe(1);
+
+            pendingResolve.resolve(createResolveResult({ dependants: [dependantId], publishable: [itemId] }));
+            await flushPromises(10);
+
+            expect($publishDialog.get().excludedDependantItemsIds).toHaveLength(1);
+            expect($totalPublishableItems.get()).toBe(1);
+        });
+
+        it('should reset the context when the item set changes', async () => {
+            const first = createMockContent('item-1');
+            const second = createMockContent('item-2');
+
+            await sync([first]);
+
+            expect($totalPublishableItems.get()).toBe(1);
+
+            const pendingResolve = createDeferredPromise<ReturnType<typeof createResolveResult>>();
+            mockResolvePublishDependencies.mockReturnValueOnce(pendingResolve.promise);
+
+            void syncPublishDialogContext({ items: [second] });
+            await flushPromises();
+
+            // A different issue is a different context, so this one is torn down before refilling.
+            expect($totalPublishableItems.get()).toBe(0);
+
+            pendingResolve.resolve(createResolveResult({ publishable: [new ContentId('item-2')] }));
+            await flushPromises(10);
+
+            expect($publishDialog.get().items[0].getId()).toBe('item-2');
+            expect($totalPublishableItems.get()).toBe(1);
+        });
+
+        it('should tear the context down when the item set becomes empty', async () => {
+            await sync([createMockContent('item-1')]);
+
+            expect($totalPublishableItems.get()).toBe(1);
+
+            await sync([]);
+
+            expect($publishDialog.get().items).toHaveLength(0);
+            expect($totalPublishableItems.get()).toBe(0);
+        });
+
+        it('should re-sync an unchanged context after it was reset', async () => {
+            const item = createMockContent('item-1');
+
+            await sync([item]);
+
+            resetPublishDialogContext();
+            await sync([item]);
+
+            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
+            expect($totalPublishableItems.get()).toBe(1);
+        });
+
+        it('should re-sync an unchanged context after a failed load', async () => {
+            const item = createMockContent('item-1');
+            mockResolvePublishDependencies.mockResolvedValueOnce(err(new Error('resolve failed')));
+
+            await sync([item]);
+
+            expect($publishDialog.get().failed).toBe(true);
+
+            await sync([item]);
+
+            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
+            expect($publishDialog.get().failed).toBe(false);
+            expect($totalPublishableItems.get()).toBe(1);
         });
     });
 });

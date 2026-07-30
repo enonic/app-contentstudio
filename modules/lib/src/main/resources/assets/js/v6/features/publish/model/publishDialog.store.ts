@@ -104,6 +104,15 @@ type PublishDialogPendingStore = {
     taskId?: TaskId;
 };
 
+export type SyncedPublishContext = {
+    itemIds: ContentId[];
+    excludeChildrenIds: ContentId[];
+    excludedDependantIds: ContentId[];
+    message?: string;
+    scheduleFrom?: number;
+    scheduleTo?: number;
+};
+
 //
 // * Store State
 //

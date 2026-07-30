@@ -5,6 +5,7 @@ import type { IssueServerEvent } from '../../../../app/event/IssueServerEvent';
 import { IssueServerEventsHandler } from '../../../../app/issue/event/IssueServerEventsHandler';
 import { pruneDependantWindow } from '../../../entities/content/lib/dependantWindow';
 import { resolvePrincipalsByKeys } from '../../../entities/principal/api/principals.api';
+import { isIdsEqual } from '../../../shared/lib/cms/content/ids';
 import { findContentIdsWithCreatedDescendants } from '../../../shared/lib/cms/content/paths';
 import {
     createContentIdSet,
@@ -33,6 +34,7 @@ import {
 } from './issueDialogDetails.store';
 
 import type { Issue } from '../../../../app/issue/Issue';
+import type { PublishRequest } from '../../../../app/issue/PublishRequest';
 
 //
 // * Issue Dialog Details Service
@@ -119,6 +121,18 @@ const isStaleIssueDialogDetailsReload = (issueId: string, requestId: number): bo
     return requestId !== serverEventReloadRequestId || !isCurrentIssueDialogIssueId(issueId);
 };
 
+const isPublishRequestChanged = (previous?: PublishRequest, next?: PublishRequest): boolean => {
+    if (!previous || !next) {
+        return previous !== next;
+    }
+
+    return (
+        !isIdsEqual(previous.getItemsIds(), next.getItemsIds()) ||
+        !isIdsEqual(previous.getExcludeChildrenIds(), next.getExcludeChildrenIds()) ||
+        !isIdsEqual(previous.getExcludeIds(), next.getExcludeIds())
+    );
+};
+
 const fetchIssueAssignees = async (issue: Issue): Promise<IssueAssignees | undefined> => {
     const approvers = issue.getApprovers();
     if (approvers.length === 0) {
@@ -161,6 +175,7 @@ const reloadIssueDialogDetailsForServerEvent = async (issueId: string): Promise<
 
     const dialogState = $issueDialog.get();
     const issueWithAssignees = dialogState.issues.find((item) => item.getIssue().getId() === issueId);
+    const previousPublishRequest = getCurrentIssueDialogIssue()?.getPublishRequest();
     applyUpdatedIssue(issue, dialogState, issueWithAssignees, {}, assignees);
 
     await loadIssueDialogComments(issueId, { forceReload: true });
@@ -168,7 +183,11 @@ const reloadIssueDialogDetailsForServerEvent = async (issueId: string): Promise<
         return;
     }
 
-    void loadIssueDialogItems(issue, { forceReload: true });
+    // Items derive from the publish request alone: an unchanged one means a comment, a field edit, or
+    // the echo of our own save, which already reloaded. Content changes arrive over the sockets.
+    if (isPublishRequestChanged(previousPublishRequest, issue.getPublishRequest())) {
+        void loadIssueDialogItems(issue, { forceReload: true });
+    }
 };
 
 const queueIssueDialogDetailsServerEventReload = createDebounce((issueId: string) => {
