@@ -1,5 +1,6 @@
 import { cn, Dialog, Tooltip } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
+import {ChevronLeft, ChevronRight, Plus, Save} from 'lucide-react';
 import { ReactElement, useCallback, useMemo, useRef } from 'react';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import {
@@ -149,9 +150,13 @@ export const ProjectDialog = (): ReactElement => {
 
                         <Dialog.Footer className="flex flex-col">
                             <Dialog.StepIndicator
+                                buttonDisplay="responsive"
                                 previousLabel={previousLabel}
+                                previousIcon={ChevronLeft}
                                 nextLabel={nextLabel}
+                                nextIcon={ChevronRight}
                                 lastStepLabel={submitLabel}
+                                lastStepIcon={mode === 'edit' ? Save : Plus}
                                 onLastStep={handleSubmit}
                                 pending={submitting}
                                 dots

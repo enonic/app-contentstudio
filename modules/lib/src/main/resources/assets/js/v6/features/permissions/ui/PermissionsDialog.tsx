@@ -1,5 +1,6 @@
 import { showError, showSuccess, showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
 import { Dialog, Skeleton, Tooltip } from '@enonic/ui';
+import {Check, ChevronLeft, ChevronRight} from 'lucide-react';
 import { ReactElement, useCallback, useMemo } from 'react';
 import {
     $isPermissionsDialogDirty,
@@ -215,15 +216,19 @@ export const PermissionsDialog = (): ReactElement => {
 
                                 <Dialog.Footer className="flex flex-col">
                                     <Dialog.StepIndicator
-                                        dots
+                                        buttonDisplay="responsive"
                                         previousLabel={previousLabel}
+                                        previousIcon={ChevronLeft}
                                         nextLabel={nextLabel}
+                                        nextIcon={ChevronRight}
                                         lastStepLabel={
                                             replaceAllChildPermissions
                                                 ? replaceAllPermissionsLabel
                                                 : applyPermissionsLabel
                                         }
+                                        lastStepIcon={Check}
                                         onLastStep={handleSubmit}
+                                        dots
                                         renderDot={(dot, step) => (
                                             <Tooltip delay={150} side="top" value={stepsMap.get(step) ?? ''}>
                                                 {dot}
