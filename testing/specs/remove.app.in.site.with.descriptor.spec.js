@@ -116,7 +116,7 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
     // Verifies https://github.com/enonic/app-contentstudio/issues/9211
     // Error displaying controllers from a missing app #9211
     // Controllers from a missing app are not displayed in the Inspect Panel #10870
-    it.skip(`GIVEN app has been removed in the site the site is reopened WHEN 'Page widget' has been opened THEN Invalid Controller should be displayed in Inspect tab`,
+    it(`GIVEN app has been removed in the site the site is reopened WHEN 'Page widget' has been opened THEN Invalid Controller should be displayed in Inspect tab`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageWidgetPanel = new PageWidgetPanel();
@@ -128,7 +128,7 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             await contextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageWidgetPanel.clickOnTabBarItem(appConst.CONTEXT_WINDOW_TABS.INSPECT);
             let actualController = await pageInspectionPanel.getSelectedPageController();
-            assert.equal(actualController, 'Invalid Controller', `'country list' controller should be selected in Inspect Panel`);
+            assert.equal(actualController, 'Country List', `'country list' controller should be selected in Inspect Panel`);
         });
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/9201

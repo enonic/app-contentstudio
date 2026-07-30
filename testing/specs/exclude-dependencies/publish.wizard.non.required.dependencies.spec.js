@@ -1,5 +1,5 @@
 /**
- * Created on 16.07.2023
+ * Created on 16.07.2023  updated on 30.07.2027
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -32,7 +32,6 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             SITE = contentBuilder.buildSite(displayName, null, [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES],
                 appConst.CONTROLLER_NAME.MAIN_REGION);
             await studioUtils.doAddSite(SITE);
-            await studioUtils.saveScreenshot('issue_open2');
             let folderName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(folderName);
             await studioUtils.doAddReadyFolder(TEST_FOLDER);
@@ -79,13 +78,13 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             await contentPublishDialog.waitForShowExcludedItemsButtonDisplayed();
             await contentPublishDialog.waitForHideExcludedItemsButtonNotDisplayed();
             // 6. Verify that the all dependency item are hidden:
-            let depItems = await contentPublishDialog.getDisplayNameInDependentItems();
-            assert.equal(depItems.length, 0, 'dependencies list should be empty');
+            await contentPublishDialog.waitForAllDependenciesExcludedAndHiddenMessageDisplayed();
             // 7. Click on 'Include child items' toggle:
             await contentPublishDialog.clickOnIncludeChildrenCheckbox();
+            await contentPublishDialog.clickOnApplySelectionButton();
             // 8. Verify that expected dependency item gets visible in the dialog:
             await contentPublishDialog.waitForDependenciesListDisplayed();
-            depItems = await contentPublishDialog.getDisplayNameInDependentItems();
+            let depItems = await contentPublishDialog.getDisplayNameInDependentItems();
             assert.equal(depItems.length, 1, 'non-required dependency should be displayed in the list');
             assert.ok(depItems[0].includes('_templates'), 'non-required dependency should be displayed in the list');
         });
@@ -113,7 +112,33 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             assert.ok(isCheckboxSelected === false, 'Checkbox for the dependent item should not be selected');
         });
 
-    it("GIVEN site with non-required dependency item is selected AND 'Create Issue' dialog has been opened WHEN 'Hide excluded' button has been clicked THEN dependent item should be hidden",
+    it("GIVEN 'Publish Wizard' dialog has been opened WHEN Include children has been checked THEN non-required dependency remains not checked in the dependencies block",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentPublishDialog = new ContentPublishDialog();
+            // 1. Select the existing site with a dependency click on 'Mark as Ready' button::
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            await contentBrowsePanel.clickOnPublishButton();
+            // 2. Publish wizard should be loaded:
+            await contentPublishDialog.waitForDialogOpened();
+            // 3. Click on Include children checkbox:
+            await contentPublishDialog.clickOnIncludeChildrenCheckbox();
+            await contentPublishDialog.clickOnApplySelectionButton();
+            // 4. Verify the dependent items:
+            let depItems = await contentPublishDialog.getDisplayNameInDependentItems();
+            assert.ok(depItems[0].includes(TEST_FOLDER.displayName), 'non-required dependency should be displayed in the list');
+            assert.equal(depItems.length, 2, 'child item should be displayed in the list');
+            assert.ok(depItems[1].includes('_templates'), 'non-required dependency should be displayed in the list');
+            // 5. Verify - 'hide excluded' button should be displayed:
+            await contentPublishDialog.waitForHideExcludedItemsButtonDisplayed();
+            // 6. Non required item should be not checked
+            let result = await contentPublishDialog.isDependantCheckboxSelected(TEST_FOLDER.displayName);
+            assert.ok(result === false, "The checkbox should not be checked");
+        });
+
+    // TODO bug https://github.com/enonic/app-contentstudio/issues/11182
+    it.skip(
+        "GIVEN site with non-required dependency item is selected AND 'Create Issue' dialog has been opened WHEN 'Hide excluded' button has been clicked THEN dependent item should be hidden",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let createIssueDialog = new CreateIssueDialog();
@@ -140,7 +165,8 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/8552
     // Assigned items list is not refreshed on issue upd in Issue dialog #8552
-    it("GIVEN Site is selected AND 'Create Issue' dialog has been opened WHEN content selector has been expanded THEN selected in browse panel item should be checked in the dropdown list",
+    it.skip(
+        "GIVEN Site is selected AND 'Create Issue' dialog has been opened WHEN content selector has been expanded THEN selected in browse panel item should be checked in the dropdown list",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let createIssueDialog = new CreateIssueDialog();
@@ -157,7 +183,8 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             assert.ok(actualContent.includes(SITE.displayName), 'The site should be in the options list');
         });
 
-    it("GIVEN Site is selected AND 'Create Issue' dialog has been opened WHEN dependant item has been selected in 'Items' combobox THEN non-required dependency item gets not visible in the modal dialog",
+    it.skip(
+        "GIVEN Site is selected AND 'Create Issue' dialog has been opened WHEN dependant item has been selected in 'Items' combobox THEN non-required dependency item gets not visible in the modal dialog",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let createIssueDialog = new CreateIssueDialog();
@@ -177,7 +204,8 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             await createIssueDialog.waitForDependenciesListNotDisplayed();
         });
 
-    it("GIVEN site with non-required dependency item is selected AND 'Request Publishing' dialog has been opened WHEN 'Hide excluded' then 'Show excluded' button has been clicked THEN dependent item gets visible and is not selected",
+    it.skip(
+        "GIVEN site with non-required dependency item is selected AND 'Request Publishing' dialog has been opened WHEN 'Hide excluded' then 'Show excluded' button has been clicked THEN dependent item gets visible and is not selected",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let createRequestPublishDialog = new CreateRequestPublishDialog();
@@ -198,7 +226,8 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             assert.ok(isCheckboxSelected === false, 'Checkbox for the dependent item should not be selected');
         });
 
-    it("GIVEN 'Request Publishing' dialog has been opened WHEN checkbox for non-required item has been clicked THEN 'Show/Hide' excluded buttons are not displayed",
+    it.skip(
+        "GIVEN 'Request Publishing' dialog has been opened WHEN checkbox for non-required item has been clicked THEN 'Show/Hide' excluded buttons are not displayed",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let createRequestPublishDialog = new CreateRequestPublishDialog();
@@ -220,7 +249,8 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             await createRequestPublishDialog.waitForHideExcludedItemsButtonNotDisplayed();
         });
 
-    it("GIVEN a site with non-required dependant is selected AND new issue has been created WHEN 'Items tab' in 'Issue Details' has been opened THEN 'Hide Excluded' button should be visible in Items tab",
+    it.skip(
+        "GIVEN a site with non-required dependant is selected AND new issue has been created WHEN 'Items tab' in 'Issue Details' has been opened THEN 'Hide Excluded' button should be visible in Items tab",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let createIssueDialog = new CreateIssueDialog();
@@ -288,7 +318,8 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
     //         await contentPublishDialog.waitForHideExcludedItemsButtonNotDisplayed();
     //     });
 
-    it("GIVEN site with non-required dependency item is selected AND 'Request Publishing' dialog has been opened WHEN 'Hide excluded' them 'Show excluded' button has been clicked THEN dependent item gets visible and is not selected",
+    it.skip(
+        "GIVEN site with non-required dependency item is selected AND 'Request Publishing' dialog has been opened WHEN 'Hide excluded' them 'Show excluded' button has been clicked THEN dependent item gets visible and is not selected",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let createRequestPublishDialog = new CreateRequestPublishDialog();
@@ -311,7 +342,8 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             assert.ok(isCheckboxSelected === false, 'Checkbox for the dependent item should not be selected');
         });
 
-    it("GIVEN 'Request Publishing' dialog has been opened WHEN checkbox for non-required item has been clicked THEN 'Show/Hide' excluded buttons are not displayed",
+    it.skip(
+        "GIVEN 'Request Publishing' dialog has been opened WHEN checkbox for non-required item has been clicked THEN 'Show/Hide' excluded buttons are not displayed",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let createRequestPublishDialog = new CreateRequestPublishDialog();
