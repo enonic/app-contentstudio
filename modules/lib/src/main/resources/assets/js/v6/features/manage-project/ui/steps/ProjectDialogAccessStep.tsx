@@ -145,17 +145,17 @@ export const ProjectDialogAccessStepContent = ({
             >
                 <RadioGroup.Item value="public">
                     <RadioGroup.Indicator />
-                    <span className="ml-2">{publicLabel}</span>
+                    <span className="ml-2 text-start">{publicLabel}</span>
                 </RadioGroup.Item>
 
                 <RadioGroup.Item value="private">
                     <RadioGroup.Indicator />
-                    <span className="ml-2">{privateLabel}</span>
+                    <span className="ml-2 text-start">{privateLabel}</span>
                 </RadioGroup.Item>
 
                 <RadioGroup.Item value="custom">
                     <RadioGroup.Indicator />
-                    <span className="ml-2">{customLabel}</span>
+                    <span className="ml-2 text-start">{customLabel}</span>
                 </RadioGroup.Item>
             </RadioGroup.Root>
 
