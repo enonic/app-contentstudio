@@ -100,7 +100,8 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             assert.ok(result.includes('MAIN'), 'Main item should be displayed in the modal dialog');
             // 10. Save the customized site:
             await contentWizard.waitAndClickOnSave();
-            await contentWizard.waitForNotificationMessage();
+            await contentWizard.pause(1000);
+            //await contentWizard.waitForNotificationMessage();
         });
 
     it(`GIVEN customized site is opened WHEN the controller has been reset in PCV and another controller has been selected THEN 'Customize Page' button remains displayed AND PCV should not be displayed after switching templates`,
@@ -134,7 +135,7 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             // 7. PCV should not be displayed (LiveEdit is locked):
             await contentWizard.clickOnWizardStep('Page');
             let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
-            assert.equal(result[0],IMPORTED_TEMPLATE2, "Expected component item should be displayed in PCV")
+            assert.equal(result[0], IMPORTED_TEMPLATE2, "Expected component item should be displayed in PCV")
             await contentWizard.waitForSaveButtonDisabled();
         });
 

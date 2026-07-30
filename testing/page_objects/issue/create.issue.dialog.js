@@ -3,7 +3,7 @@
  */
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
-const { BUTTONS, ISSUE } = require('../../libs/elements');
+const {BUTTONS, ISSUE} = require('../../libs/elements');
 const AssigneeSelectorDropdown = require('../components/selectors/assignee.selector.dropdown');
 const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
 const DependantsControls = require('./dependant.controls');
@@ -176,11 +176,11 @@ class CreateIssueDialog extends Page {
 
     async typeContentNameInOptionsFilterInput(contentName) {
         try {
-            let contentSelector = new ContentSelectorDropdown();
-            await contentSelector.filterItem(contentName, this.container);
+            let contentSelector = new ContentSelectorDropdown(this.container);
+            await contentSelector.doFilterItem(contentName,);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_issue_dropdown_filtered');
-            throw new Error(`Error in Create issue Dialog, items selector, screenshot: ${screenshot} ` + err);
+            await this.handleError("Error when typing the content name in the Options filter input: " + contentName,
+                'err_type_content_name', err);
         }
     }
 
@@ -217,8 +217,7 @@ class CreateIssueDialog extends Page {
         try {
             return await this.waitForElementDisplayed(this.hideExcludedItemsButton);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_hide_excluded_btn');
-            throw new Error(`'Hide excluded items' button should be visible! screenshot: ${screenshot} ` + err);
+            await this.handleError("Hide excluded items should be displayed", 'err_hide_excluded_btn', err);
         }
     }
 
@@ -272,7 +271,8 @@ class CreateIssueDialog extends Page {
     }
 
     // TODO
-    async getDisplayNameInDependentItems() {}
+    async getDisplayNameInDependentItems() {
+    }
 
     async isDependantCheckboxSelected(displayName) {
         return await this.dependantsControls.isDependantCheckboxSelected(displayName);

@@ -1,5 +1,5 @@
 /**
- * Created on 05.02.2020.
+ * Created on 05.02.2020.  updated on 29.07.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -42,8 +42,8 @@ describe('Custom error handling - specification. Verify that application error p
             // 3. Verify that 'Preview' button is disabled in the Preview wizard-toolbar:
             await contentWizard.waitForPreviewButtonDisabled();
             // 4. 'Hide Page Editor' button should be visible
-            await contentWizard.waitForHidePageEditorTogglerButtonDisplayed();
-            await contentWizard.waitForMinimizeLiveEditTogglerDisplayed()
+            //await contentWizard.waitForHidePageEditorTogglerButtonDisplayed();
+           await contentWizard.waitForCollapseContentFormButtonDisplayed();
             // 5. Verify that 'Failed to render content preview' message appears in the wizard page:
             let messages = await contentWizard.getNoPreviewMessage();
             assert.ok(messages.includes(ERROR_MESSAGE_LIVE_EDIT), 'Expected message should be displayed in the LivView');

@@ -28,6 +28,8 @@ const XPATH = {
     invalidItemsSpan: "//span[contains(@class,'font-semibold') and contains(text(),'Invalid items')]",
     dependentItemToPublish: displayName => `//div[contains(@id,'StatusCheckableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     excludedItemsNote: "//span[@class='excluded-items-note']",
+    allDependenciesExcludedAndHiddenMessage: DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV +
+                                             "[contains(.,'All dependencies are excluded and hidden.')]",
     publishChangeLogInput: "//input[contains(@placeholder,'Describe changes that will')]",
     commentTextArea: "//div[@data-component='TextArea' and descendant::label[contains(.,'Comment')]]//textarea",
 };
@@ -602,6 +604,17 @@ class ContentPublishDialog extends Page {
             return await this.dependantsControls.getDisplayNameInDependentItems();
         }catch(err){
             await this.handleError(`Publish Dialog, get display name in dependent items `, 'err_dependent_items_display_name', err);
+        }
+    }
+
+    // Waits for the message 'All dependencies are excluded and hidden.' to be displayed in the dialog:
+    async waitForAllDependenciesExcludedAndHiddenMessageDisplayed() {
+        try {
+            let locator = XPATH.container + XPATH.allDependenciesExcludedAndHiddenMessage;
+            return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError(`Publish Dialog, 'All dependencies are excluded and hidden.' message should be displayed, `,
+                'err_all_dependencies_excluded_message', err);
         }
     }
 
