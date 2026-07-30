@@ -2,17 +2,17 @@
  * Created on 28.11.2018.  update on 29.06.2026
  */
 const assert = require('node:assert');
-const webDriverHelper = require('../libs/WebDriverHelper');
-const studioUtils = require('../libs/studio.utils.js');
-const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
-const contentBuilder = require("../libs/content.builder");
-const WizardContextPanel = require('../page_objects/wizardpanel/details/wizard.context.window.panel');
-const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget');
-const ImageSelectorForm = require('../page_objects/wizardpanel/imageselector.form.panel');
-const SiteFormPanel = require('../page_objects/wizardpanel/site.form.panel');
-const SiteConfiguratorDialog = require('../page_objects/wizardpanel/site.configurator.dialog');
-const InsertImageDialog = require('../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
-const appConst = require('../libs/app_const');
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const studioUtils = require('../../libs/studio.utils.js');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const contentBuilder = require("../../libs/content.builder");
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
+const WizardDependenciesWidget = require('../../page_objects/wizardpanel/details/wizard.dependencies.widget');
+const ImageSelectorForm = require('../../page_objects/wizardpanel/imageselector.form.panel');
+const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
+const SiteConfiguratorDialog = require('../../page_objects/wizardpanel/site.configurator.dialog');
+const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
+const appConst = require('../../libs/app_const');
 
 describe('Dependencies widget  - Select images and verify that Outbound dependencies are updated',
     function () {
@@ -20,7 +20,7 @@ describe('Dependencies widget  - Select images and verify that Outbound dependen
         if (typeof browser === 'undefined') {
             webDriverHelper.setupBrowser();
         }
-        const contentDisplayName = contentBuilder.generateRandomName('content');
+        const contentDisplayName = appConst.generateRandomName('content');
 
         const IMAGE_DISPLAY_NAME1 = appConst.TEST_IMAGES.POP_03;
         const IMAGE_DISPLAY_NAME2 = appConst.TEST_IMAGES.POP_02;
