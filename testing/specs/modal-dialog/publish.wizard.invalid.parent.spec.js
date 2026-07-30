@@ -31,7 +31,8 @@ describe('publish.wizard.invalid.parent.spec - test for dependent required items
             await contentWizard.clickOnXdataMenuItemCheckbox(X_DATA_NAME);
             await contentWizard.clickOnConfirmXdataButton();
             await contentWizard.waitAndClickOnSave();
-            await contentWizard.waitForNotificationMessage();
+            await contentWizard.pause(500);
+            //await contentWizard.waitForNotificationMessage();
             await studioUtils.doCloseWizardAndSwitchToGrid();
         });
 

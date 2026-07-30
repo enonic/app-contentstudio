@@ -1,9 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { okAsync } from 'neverthrow';
+import { errAsync, okAsync } from 'neverthrow';
 import { NodeServerChangeType } from '@enonic/lib-admin-ui/event/NodeServerChange';
 import { ContentId } from '../../../../app/content/ContentId';
 import type { IssueServerEvent } from '../../../../app/event/IssueServerEvent';
 import type { Issue } from '../../../../app/issue/Issue';
+import { IssueStatus } from '../../../../app/issue/IssueStatus';
 import { IssueType } from '../../../../app/issue/IssueType';
 import type { IssueWithAssignees } from '../../../../app/issue/IssueWithAssignees';
 import {
@@ -16,11 +17,20 @@ import {
 import { $issueDialog, closeIssueDialog, openIssueDialogDetails } from './issueDialog.store';
 import { start as startIssueDialogDetailsService } from './issueDialogDetails.service';
 import {
+    $isIssueDialogDetailsSelectionSynced,
     $issueDialogDetails,
     $issueDialogDetailsDependantsSelection,
     $issueDialogDetailsHasMoreDependants,
+    applyDraftIssueDialogDetailsSelection,
+    cancelDraftIssueDialogDetailsSelection,
     loadIssueDialogItems,
     loadMoreIssueDialogDependants,
+    resetIssueDialogDetails,
+    setIssueDialogDetailsDependantIncluded,
+    setIssueDialogDetailsItemIncludeChildren,
+    toggleIssueDialogDetailsDependantsSelection,
+    updateIssueDialogExcludedDependants,
+    updateIssueDialogItems,
 } from './issueDialogDetails.store';
 import {
     createMockChangeItem,
@@ -38,6 +48,7 @@ const {
     mockIssueServerEventsHandler,
     mockFetchIssue,
     mockListIssueComments,
+    mockUpdateIssue,
 } = vi.hoisted(() => ({
     mockFetchContentSummaries: vi.fn(),
     mockResolvePublishDependencies: vi.fn(),
@@ -51,6 +62,7 @@ const {
     },
     mockFetchIssue: vi.fn(),
     mockListIssueComments: vi.fn(),
+    mockUpdateIssue: vi.fn(),
 }));
 
 vi.mock('../../../entities/content/lib/contentSummaries', () => ({
@@ -71,7 +83,7 @@ vi.mock('../../../entities/issue/api/issues.api', () => ({
     fetchIssue: mockFetchIssue,
     listIssueComments: mockListIssueComments,
     listIssues: () => okAsync({ issues: [], totalHits: 0 }),
-    updateIssue: () => okAsync(undefined),
+    updateIssue: mockUpdateIssue,
     createIssueComment: () => okAsync(undefined),
     updateIssueComment: () => okAsync(undefined),
     deleteIssueComment: () => okAsync(true),
@@ -90,16 +102,36 @@ vi.mock('@enonic/lib-admin-ui/util/Messages', () => ({
     i18n: (key: string) => key,
 }));
 
-function createMockIssue(issueId: string, itemIds: ContentId[]): Issue {
+type MockIssueSelection = {
+    excludeChildrenIds?: ContentId[];
+    excludeIds?: ContentId[];
+};
+
+function createMockIssue(issueId: string, itemIds: ContentId[], selection: MockIssueSelection = {}): Issue {
+    const { excludeChildrenIds = [], excludeIds = [] } = selection;
+    const isChildrenExcluded = (id: ContentId): boolean =>
+        excludeChildrenIds.some((item) => item.toString() === id.toString());
+
     const publishRequest = {
+        getItems: () =>
+            itemIds.map((id) => ({
+                getId: () => id,
+                isIncludeChildren: () => !isChildrenExcluded(id),
+            })),
         getItemsIds: () => itemIds,
-        getExcludeChildrenIds: () => [],
-        getExcludeIds: () => [],
+        getExcludeChildrenIds: () => excludeChildrenIds,
+        getExcludeIds: () => excludeIds,
     };
 
     return {
         getId: () => issueId,
         getType: () => IssueType.PUBLISH_REQUEST,
+        getIssueStatus: () => IssueStatus.OPEN,
+        getTitle: () => 'Issue',
+        getDescription: () => '',
+        getApprovers: () => [],
+        getPublishFrom: () => undefined,
+        getPublishTo: () => undefined,
         getPublishRequest: () => publishRequest,
     } as unknown as Issue;
 }
@@ -144,6 +176,15 @@ describe('issueDialogDetails.store', () => {
         mockShowFeedback.mockReset();
         mockFetchIssue.mockReset();
         mockListIssueComments.mockReset();
+        // Echo the submitted publish request back as the updated issue, the way the server does.
+        mockUpdateIssue.mockReset().mockImplementation(({ id, publishRequest }) =>
+            okAsync(
+                createMockIssue(id, publishRequest.getItemsIds(), {
+                    excludeChildrenIds: publishRequest.getExcludeChildrenIds(),
+                    excludeIds: publishRequest.getExcludeIds(),
+                }),
+            ),
+        );
     });
 
     afterEach(() => {
@@ -292,6 +333,7 @@ describe('issueDialogDetails.store', () => {
                 getId: () => issueId,
                 getName: () => 'issue-1',
                 getType: () => IssueType.STANDARD,
+                getIssueStatus: () => IssueStatus.OPEN,
                 getApprovers: () => [],
                 getPublishRequest: () => null,
             } as unknown as Issue;
@@ -359,6 +401,189 @@ describe('issueDialogDetails.store', () => {
             const selection = $issueDialogDetailsDependantsSelection.get();
             expect(selection.selectionType).toBe('all');
             expect(selection.disabled).toBe(true);
+        });
+    });
+
+    describe('draft selection', () => {
+        const item1 = new ContentId('item-1');
+        const dep1 = new ContentId('dep-1');
+        const dep2 = new ContentId('dep-2');
+
+        async function openWithDependants(): Promise<Issue> {
+            mockResolvePublishDependencies.mockResolvedValue(createResolveResult({ dependants: [dep1, dep2] }));
+            mockFetchContentSummaries.mockImplementation((contentIds: ContentId[]) =>
+                contentIds.map((id) => createMockContent(id.toString())),
+            );
+
+            const issue = createMockIssue('issue-1', [item1]);
+            await openListBackedIssueDetails(issue);
+            await flushPromises();
+
+            return issue;
+        }
+
+        it('should stage an include-children toggle without saving', async () => {
+            await openWithDependants();
+            mockResolvePublishDependencies.mockClear();
+
+            setIssueDialogDetailsItemIncludeChildren(item1, false);
+
+            expect($isIssueDialogDetailsSelectionSynced.get()).toBe(false);
+            expect($issueDialogDetails.get().excludeChildrenIds.map((id) => id.toString())).toEqual(['item-1']);
+            expect($issueDialogDetails.get().itemsUpdating).toBe(false);
+            expect(mockUpdateIssue).not.toHaveBeenCalled();
+            expect(mockResolvePublishDependencies).not.toHaveBeenCalled();
+        });
+
+        it('should stage a dependant exclusion and update the tri-state live', async () => {
+            await openWithDependants();
+
+            setIssueDialogDetailsDependantIncluded(dep1, false);
+
+            expect($isIssueDialogDetailsSelectionSynced.get()).toBe(false);
+            expect($issueDialogDetailsDependantsSelection.get().selectionType).toBe('partial');
+            expect(mockUpdateIssue).not.toHaveBeenCalled();
+        });
+
+        it('should stage the batch dependants toggle without saving', async () => {
+            await openWithDependants();
+
+            toggleIssueDialogDetailsDependantsSelection();
+
+            expect($isIssueDialogDetailsSelectionSynced.get()).toBe(false);
+            expect($issueDialogDetails.get().excludedDependantIds).toHaveLength(2);
+            expect(mockUpdateIssue).not.toHaveBeenCalled();
+        });
+
+        it('should ignore a dependant toggle on a required dependant', async () => {
+            await openWithDependants();
+            $issueDialogDetails.setKey('requiredDependantIds', [dep1]);
+
+            setIssueDialogDetailsDependantIncluded(dep1, false);
+
+            expect($isIssueDialogDetailsSelectionSynced.get()).toBe(true);
+        });
+
+        it('should save the whole staged selection with a single request on Apply', async () => {
+            await openWithDependants();
+
+            setIssueDialogDetailsItemIncludeChildren(item1, false);
+            setIssueDialogDetailsDependantIncluded(dep1, false);
+
+            await applyDraftIssueDialogDetailsSelection();
+            await flushPromises();
+
+            // One request and one notification for the whole edit, not one per checkbox.
+            expect(mockUpdateIssue).toHaveBeenCalledTimes(1);
+            expect(mockShowFeedback).toHaveBeenCalledTimes(1);
+
+            const { publishRequest } = mockUpdateIssue.mock.calls[0][0];
+            expect(publishRequest.getExcludeChildrenIds().map((id: ContentId) => id.toString())).toEqual(['item-1']);
+            expect(publishRequest.getExcludeIds().map((id: ContentId) => id.toString())).toEqual(['dep-1']);
+            expect($isIssueDialogDetailsSelectionSynced.get()).toBe(true);
+        });
+
+        it('should keep the edit staged when Apply fails', async () => {
+            await openWithDependants();
+            mockUpdateIssue.mockReturnValue(errAsync({ message: 'boom' }));
+
+            setIssueDialogDetailsItemIncludeChildren(item1, false);
+            await applyDraftIssueDialogDetailsSelection();
+            await flushPromises();
+
+            expect($isIssueDialogDetailsSelectionSynced.get()).toBe(false);
+            expect($issueDialogDetails.get().excludeChildrenIds.map((id) => id.toString())).toEqual(['item-1']);
+            expect($issueDialogDetails.get().itemsUpdating).toBe(false);
+            expect(mockShowError).toHaveBeenCalled();
+        });
+
+        it('should revert to the applied selection on Cancel', async () => {
+            await openWithDependants();
+
+            setIssueDialogDetailsItemIncludeChildren(item1, false);
+            setIssueDialogDetailsDependantIncluded(dep1, false);
+            cancelDraftIssueDialogDetailsSelection();
+
+            expect($isIssueDialogDetailsSelectionSynced.get()).toBe(true);
+            expect($issueDialogDetails.get().excludeChildrenIds).toHaveLength(0);
+            expect($issueDialogDetails.get().excludedDependantIds).toHaveLength(0);
+            expect(mockUpdateIssue).not.toHaveBeenCalled();
+        });
+
+        it('should keep a staged edit through a background reload, resolving the applied selection', async () => {
+            await openWithDependants();
+
+            setIssueDialogDetailsItemIncludeChildren(item1, false);
+            mockResolvePublishDependencies.mockClear();
+
+            emitContentUpdated([createMockContent('item-1')]);
+            await flushPromises();
+
+            const lastCall = mockResolvePublishDependencies.mock.calls.at(-1)?.[0];
+            expect(lastCall.excludeChildrenIds).toHaveLength(0);
+            expect($issueDialogDetails.get().excludeChildrenIds.map((id) => id.toString())).toEqual(['item-1']);
+            expect($isIssueDialogDetailsSelectionSynced.get()).toBe(false);
+        });
+
+        it('should drop the staged edit when the issue changed on the server', async () => {
+            await openWithDependants();
+
+            setIssueDialogDetailsItemIncludeChildren(item1, false);
+
+            // Someone else excluded a dependant meanwhile: the server selection wins.
+            const changedIssue = createMockIssue('issue-1', [item1], { excludeIds: [dep2] });
+            await loadIssueDialogItems(changedIssue);
+            await flushPromises();
+
+            expect($isIssueDialogDetailsSelectionSynced.get()).toBe(true);
+            expect($issueDialogDetails.get().excludeChildrenIds).toHaveLength(0);
+            expect($issueDialogDetails.get().excludedDependantIds.map((id) => id.toString())).toEqual(['dep-2']);
+        });
+
+        it('should keep a staged edit on the remaining items when another item is removed', async () => {
+            const item2 = new ContentId('item-2');
+            mockResolvePublishDependencies.mockResolvedValue(createResolveResult({ dependants: [dep1] }));
+            mockFetchContentSummaries.mockImplementation((contentIds: ContentId[]) =>
+                contentIds.map((id) => createMockContent(id.toString())),
+            );
+
+            const issue = createMockIssue('issue-1', [item1, item2]);
+            await openListBackedIssueDetails(issue);
+            await flushPromises();
+
+            setIssueDialogDetailsItemIncludeChildren(item1, false);
+            await updateIssueDialogItems([item1]);
+            await flushPromises();
+
+            expect($issueDialogDetails.get().excludeChildrenIds.map((id) => id.toString())).toEqual(['item-1']);
+            expect($isIssueDialogDetailsSelectionSynced.get()).toBe(false);
+        });
+
+        it('should auto-apply an error-bar exclusion while preserving an unrelated staged toggle', async () => {
+            await openWithDependants();
+
+            setIssueDialogDetailsItemIncludeChildren(item1, false);
+            await updateIssueDialogExcludedDependants([dep1]);
+            await flushPromises();
+
+            const { publishRequest } = mockUpdateIssue.mock.calls[0][0];
+            expect(publishRequest.getExcludeIds().map((id: ContentId) => id.toString())).toEqual(['dep-1']);
+            // The exclusion committed on its own; the children toggle is still staged.
+            expect($issueDialogDetails.get().appliedExcludedDependantIds.map((id) => id.toString())).toEqual(['dep-1']);
+            expect($issueDialogDetails.get().excludeChildrenIds.map((id) => id.toString())).toEqual(['item-1']);
+            expect($isIssueDialogDetailsSelectionSynced.get()).toBe(false);
+        });
+
+        it('should clear the applied selection on reset', async () => {
+            await openWithDependants();
+            setIssueDialogDetailsItemIncludeChildren(item1, false);
+            await applyDraftIssueDialogDetailsSelection();
+            await flushPromises();
+
+            resetIssueDialogDetails();
+
+            expect($issueDialogDetails.get().appliedExcludeChildrenIds).toHaveLength(0);
+            expect($issueDialogDetails.get().appliedExcludedDependantIds).toHaveLength(0);
         });
     });
 });

@@ -16,14 +16,18 @@ export const dedupeItems = <T extends HasContentId>(items: readonly T[]): T[] =>
     return Array.from(deduped.values());
 };
 
+export const buildItemsFromIds = (
+    itemIds: readonly ContentId[],
+    excludeChildrenIds: ContentId[],
+): PublishRequestItem[] => {
+    return itemIds.map((id) =>
+        PublishRequestItem.create().setId(id).setIncludeChildren(!hasContentIdInIds(id, excludeChildrenIds)).build(),
+    );
+};
+
 export const buildItems = <T extends HasContentId>(
     items: readonly T[],
     excludeChildrenIds: ContentId[],
 ): PublishRequestItem[] => {
-    return items.map((item) =>
-        PublishRequestItem.create()
-            .setId(item.getContentId())
-            .setIncludeChildren(!hasContentIdInIds(item.getContentId(), excludeChildrenIds))
-            .build(),
-    );
+    return buildItemsFromIds(getItemIds(items), excludeChildrenIds);
 };
