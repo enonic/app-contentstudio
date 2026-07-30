@@ -29,7 +29,7 @@ export const $contentContext = atom<PageEditorContentContext | null>(null);
 
 export const $inspectedPath = atom<string | null>(null);
 
-// ? Bumps on every explicit selection event (SELECT/INSPECT/inspectItem),
+// ? Bumps on every event accepted for inspection (SELECT/INSPECT/inspectItem),
 // ? even when $inspectedPath value is unchanged. Lets consumers react to
 // ? "user reselected the same path" (e.g. tab switch) which an atom set
 // ? with an identical value would otherwise swallow.

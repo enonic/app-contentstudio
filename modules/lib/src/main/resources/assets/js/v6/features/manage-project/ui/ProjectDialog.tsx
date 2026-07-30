@@ -128,7 +128,7 @@ export const ProjectDialog = (): ReactElement => {
                 <Dialog.Overlay />
                 {view === 'main' && (
                     <Dialog.Content
-                        className="w-full h-full gap-10 sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220"
+                        className="w-full h-full sm:h-fit gap-10 p-5 md:p-10  md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220"
                         data-component={PROJECT_DIALOG_NAME}
                     >
                         <ProjectDialogSteps.ParentStep.Header />

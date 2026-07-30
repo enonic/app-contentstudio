@@ -23,7 +23,7 @@ export const ProgressDialogContent = ({
     return (
         <Dialog.Content
             className={cn(
-                'w-full h-full gap-7.5 sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220',
+                'w-full h-fit gap-7.5 md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220',
                 className,
             )}
             onEscapeKeyDown={(e) => e.preventDefault()}

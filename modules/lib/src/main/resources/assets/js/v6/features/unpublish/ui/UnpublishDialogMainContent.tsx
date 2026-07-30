@@ -67,7 +67,7 @@ export const UnpublishDialogMainContent = ({
 
     return (
         <Dialog.Content
-            className="w-full h-full gap-10 sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220"
+            className="w-full gap-2.5 md:gap-10 p-5 md:p-10 sm:h-fit md:min-w-180 md:max-w-184 h-fit md:max-h-[85vh] lg:max-w-220"
             onOpenAutoFocus={handleOpenAutoFocus}
             data-component={componentName}
         >

@@ -71,7 +71,7 @@ export const RenameContentDialog = (): ReactElement => {
             <Dialog.Portal>
                 <Dialog.Overlay />
                 <Dialog.Content
-                    className="w-full h-full gap-7.5 sm:h-fit md:min-w-180 md:max-w-184"
+                    className="w-full h-fit gap-7.5 sm:h-fit md:min-w-180 md:max-w-184"
                     data-component={RENAME_CONTENT_DIALOG_NAME}
                     onOpenAutoFocus={(event) => {
                         event.preventDefault();

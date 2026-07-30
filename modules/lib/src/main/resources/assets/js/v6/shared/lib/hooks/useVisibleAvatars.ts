@@ -12,7 +12,9 @@ export function useVisibleAvatars(containerRef: RefObject<HTMLElement>, totalCou
         const calculateVisible = () => {
             if (!containerRef.current) return;
             const containerRight = containerRef.current.getBoundingClientRect().right;
-            const children = Array.from(containerRef.current.children);
+            const children = Array.from(containerRef.current.children).filter(
+                (child) => !child.classList.contains('sr-only'),
+            );
             const visible = children.filter(
                 (child) => child.getBoundingClientRect().right <= containerRight - offset,
             ).length;
@@ -30,7 +32,7 @@ export function useVisibleAvatars(containerRef: RefObject<HTMLElement>, totalCou
             observer.disconnect();
             throttledCalc.cancel();
         };
-    }, [containerRef, offset]);
+    }, [containerRef, offset, totalCount]);
 
     return { visibleCount, extraCount: totalCount - visibleCount };
 }

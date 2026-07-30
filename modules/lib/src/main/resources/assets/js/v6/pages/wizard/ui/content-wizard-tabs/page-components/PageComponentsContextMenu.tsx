@@ -1,7 +1,14 @@
-import { ContextMenu } from '@enonic/ui';
+import { ContextMenu, getIsMobile } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { Box, Columns2, PenLine, Puzzle } from 'lucide-react';
-import { type ReactElement, type ReactNode, useCallback, useMemo } from 'react';
+import {
+    type MouseEvent as ReactMouseEvent,
+    type ReactElement,
+    type ReactNode,
+    useCallback,
+    useMemo,
+    useState,
+} from 'react';
 import { SaveAsTemplateAction } from '../../../../../../app/wizard/action/SaveAsTemplateAction';
 import { FragmentComponent } from '../../../../../../app/page/region/FragmentComponent';
 import { ComponentPath } from '../../../../../../app/page/region/ComponentPath';
@@ -15,7 +22,6 @@ import { getNode } from '../../../../../shared/lib/tree-store';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { openEditContentTab } from '../../../../../shared/lib/url/navigation';
 import {
-    inspectItem,
     requestComponentAdd,
     requestComponentCreateFragment,
     requestComponentDetachFragment,
@@ -62,6 +68,7 @@ const ROOT_NODE_ID = '/';
 
 export const PageComponentsContextMenu = ({ node, children }: PageComponentsContextMenuProps): ReactElement => {
     const data = node.data;
+    const [open, setOpen] = useState(false);
 
     const contentContext = useStore($contentContext);
     const page = useStore($page);
@@ -79,6 +86,36 @@ export const PageComponentsContextMenu = ({ node, children }: PageComponentsCont
     const editFragmentLabel = useI18n('action.editFragment');
     const saveAsTemplateLabel = useI18n('action.saveAsTemplate');
 
+    const handleClickCapture = useCallback((event: ReactMouseEvent<HTMLDivElement>): void => {
+        if (!getIsMobile() || event.button !== 0 || (event.target as Element).closest('button')) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+        event.currentTarget.dispatchEvent(
+            new MouseEvent('contextmenu', {
+                bubbles: true,
+                cancelable: true,
+                clientX: event.clientX,
+                clientY: event.clientY,
+                button: 2,
+                view: window,
+            }),
+        );
+    }, []);
+
+    const handlePointerDownOutside = useCallback((event: PointerEvent): void => {
+        if (getIsMobile()) event.preventDefault();
+    }, []);
+
+    const mobileDismissLayer = getIsMobile() ? (
+        <div
+            aria-hidden
+            className="fixed inset-0 z-40"
+            onPointerDown={(event) => event.stopPropagation()}
+            onClick={() => setOpen(false)}
+        />
+    ) : null;
+
     const fragmentRemoved = useMemo(
         () => isComponentReferenceMissing(node.id, page, fragmentOptions, [], isFragmentLoading),
         [node.id, page, fragmentOptions, isFragmentLoading],
@@ -92,10 +129,13 @@ export const PageComponentsContextMenu = ({ node, children }: PageComponentsCont
 
     if (isPageRoot) {
         return (
-            <ContextMenu data-component={PAGE_COMPONENTS_CONTEXT_MENU_NAME}>
-                <ContextMenu.Trigger className="flex-1 min-w-0">{children}</ContextMenu.Trigger>
+            <ContextMenu open={open} onOpenChange={setOpen} data-component={PAGE_COMPONENTS_CONTEXT_MENU_NAME}>
+                <ContextMenu.Trigger className="flex-1 min-w-0" onClickCapture={handleClickCapture}>
+                    {children}
+                </ContextMenu.Trigger>
                 <ContextMenu.Portal>
-                    <ContextMenu.Content className="min-w-48">
+                    {mobileDismissLayer}
+                    <ContextMenu.Content className="min-w-48" onPointerDownOutside={handlePointerDownOutside}>
                         <InspectItem nodeId={ROOT_NODE_ID} label={inspectLabel} />
                         <PageResetItem label={resetLabel} onSelect={requestPageReset} />
                         <SaveAsTemplateItem label={saveAsTemplateLabel} />
@@ -111,10 +151,13 @@ export const PageComponentsContextMenu = ({ node, children }: PageComponentsCont
     const isEmpty = isComponentEmpty(node.id);
 
     return (
-        <ContextMenu data-component={PAGE_COMPONENTS_CONTEXT_MENU_NAME}>
-            <ContextMenu.Trigger className="flex-1 min-w-0">{children}</ContextMenu.Trigger>
+        <ContextMenu open={open} onOpenChange={setOpen} data-component={PAGE_COMPONENTS_CONTEXT_MENU_NAME}>
+            <ContextMenu.Trigger className="flex-1 min-w-0" onClickCapture={handleClickCapture}>
+                {children}
+            </ContextMenu.Trigger>
             <ContextMenu.Portal>
-                <ContextMenu.Content className="min-w-48">
+                {mobileDismissLayer}
+                <ContextMenu.Content className="min-w-48" onPointerDownOutside={handlePointerDownOutside}>
                     <SelectParentItem nodeId={node.id} label={selectParentLabel} />
                     <InsertSubMenu nodeId={node.id} label={insertLabel} />
                     {isComponent && (
@@ -206,7 +249,6 @@ const SelectParentItem = ({ nodeId, label }: MenuItemProps): ReactElement | null
     const handleSelect = useCallback(() => {
         if (treeNode?.parentId != null) {
             const path = ComponentPath.fromString(treeNode.parentId);
-            inspectItem(path);
             PageNavigationMediator.get().notify(
                 new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(path)),
             );
@@ -225,9 +267,8 @@ SelectParentItem.displayName = 'SelectParentItem';
 const InspectItem = ({ nodeId, label }: MenuItemProps): ReactElement => {
     const handleSelect = useCallback(() => {
         const path = ComponentPath.fromString(nodeId);
-        inspectItem(path);
         PageNavigationMediator.get().notify(
-            new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(path)),
+            new PageNavigationEvent(PageNavigationEventType.INSPECT, new PageNavigationEventData(path)),
         );
     }, [nodeId]);
 
@@ -344,7 +385,6 @@ const InsertSubMenu = ({ nodeId, label }: MenuItemProps): ReactElement => {
             requestComponentAdd(insertPath, componentType);
             rebuildComponentsTree();
 
-            inspectItem(insertPath);
             PageNavigationMediator.get().notify(
                 new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(insertPath)),
             );

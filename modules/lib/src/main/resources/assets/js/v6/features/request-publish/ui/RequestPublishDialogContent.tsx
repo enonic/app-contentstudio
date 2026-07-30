@@ -4,7 +4,7 @@ import { CornerDownRight } from 'lucide-react';
 import { useMemo, type ReactElement } from 'react';
 import { IssueType } from '../../../../app/issue/IssueType';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
-import { $config } from '../../../shared/config/config.store';
+import { $config } from '../../../shared/config';
 import {
     $isRequestPublishReady,
     $isRequestPublishSelectionSynced,
@@ -126,7 +126,7 @@ export const RequestPublishDialogContent = (): ReactElement => {
     return (
         <Dialog.Content
             data-component={REQUEST_PUBLISH_DIALOG_CONTENT_NAME}
-            className="sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-236 gap-7.5 px-5"
+            className="h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-236 gap-5 md:gap-7.5 p-5 md:p-10 px-0 md:px-5"
         >
             <Dialog.Header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-4 px-5">
                 <div className="flex min-w-0 items-center gap-2.5">
