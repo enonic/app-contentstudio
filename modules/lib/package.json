@@ -82,7 +82,7 @@
     "@types/sortablejs": "^1.15.9",
     "@vitest/ui": "^4.1.10",
     "css-loader": "^7.1.2",
-    "dependency-cruiser": "^18.0.0",
+    "dependency-cruiser": "^18.1.0",
     "focus-trap-react": "^11.0.0",
     "happy-dom": "^20.11.1",
     "jquery": "^3.7.1",
