@@ -74,7 +74,7 @@
     "@enonic-types/lib-websocket": "^8",
     "@rspack/cli": "^2.1.7",
     "@rspack/core": "^2.1.7",
-    "@swc/core": "^1.15.46",
+    "@swc/core": "^1.15.47",
     "@types/ckeditor": "^4.9.10",
     "@types/jquery": "^3.5.33",
     "@types/jqueryui": "^1.12.24",
