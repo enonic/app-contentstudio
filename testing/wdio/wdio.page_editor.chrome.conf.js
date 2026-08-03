@@ -12,7 +12,6 @@ exports.config = {
     ],
 
     exclude: [
-        path.join(__dirname, '../specs/page-editor/generate.name.for.fragments.spec.js'),
         path.join(__dirname, '../specs/page-editor/portal.content.creating.spec.js'),
         path.join(__dirname, '../specs/page-editor/revert.site.with.components.spec.js'),
         path.join(__dirname, '../specs/page-editor/updated.text.in.preview.panel.liveview.spec.js'),

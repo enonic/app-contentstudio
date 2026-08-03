@@ -13,9 +13,12 @@ const xpath = {
     permissionSelector: `//[contains(@id,'PermissionSelector')]`,
     aceSelectedOptionsView: "//div[contains(@id,'ACESelectedOptionsView')]",
     dialogButtonRow: `//div[contains(@class,'button-container')]`,
-    permissionToggleByOperationName: name => `//a[contains(@id,'PermissionToggle') and text()='${name}']`,
     aclEntryRowByName:
         name => `//div[@role='row' and descendant::div[@data-component='ItemLabel' and (descendant::span[contains(.,'${name}')] or descendant::small[contains(.,'${name}')])]]`,
+    // row with 'Read','Create','Modify'... checkboxes, appears below the ACL entry row when 'Custom...' mode is selected:
+    customOperationsRow:
+        name => xpath.aclEntryRowByName(name) + `/following-sibling::div[@role='row' and contains(@id,'-custom')][1]`,
+    operationCheckboxLabel: operation => `//div[@data-component='Checkbox']//label[child::span[text()='${operation}']]`,
     aclEntryByDisplayName:
         displayName => `//div[contains(@id,'PrincipalContainerSelectedOptionView') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     aclOperationByValue:
@@ -58,6 +61,14 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
             return await this.clickOnElement(this.restrictedRadioButton);
         } catch (err) {
             await this.handleError('Restricted radio button', 'err_restricted_radio_button', err,);
+        }
+    }
+
+    async waitForCopyFromParentButtonNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.copyFromParentButton);
+        } catch (err) {
+            await this.handleError('Copy from parent button should not be displayed', 'err_copy_from_parent_button', err);
         }
     }
 
@@ -208,7 +219,7 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
     async showAceMenuAndSelectItem(principalName, menuItem) {
         try {
             let aclRowMenuButton = xpath.aclEntryRowByName(principalName) + `//button[@role='combobox']`;
-            let menuItemXpath =  xpath.aclEntryRowByName(principalName)+ xpath.aclOperationByValue(menuItem);
+            let menuItemXpath = xpath.aclEntryRowByName(principalName) + xpath.aclOperationByValue(menuItem);
             //  Expand the menu:
             await this.clickOnElement(aclRowMenuButton);
             await this.pause(1000);
@@ -219,34 +230,28 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
         }
     }
 
-    //Permissions Toggle appears when a selected option switched to 'custom' mode
-    //clicks on 'Read','Create', 'Modify' ....  permissions-toggles
-    async clickOnPermissionToggle(principalName, operationName,) {
+    // The row with operation-checkboxes appears when a selected option is switched to 'Custom...' mode
+    // clicks on 'Read','Create', 'Modify' .... operation-checkbox
+    async clickOnPermissionToggle(principalName, operationName) {
         try {
-            let permToggle = xpath.permissionToggleByOperationName(operationName);
-            let selector = xpath.aclEntryByName(principalName) + permToggle;
+            let selector = this.container + xpath.customOperationsRow(principalName) + xpath.operationCheckboxLabel(operationName);
             await this.waitForElementDisplayed(selector, appConst.shortTimeout);
             return await this.clickOnElement(selector);
         } catch (err) {
-            await this.handleError(`Click on Permission Toggle for principal: ${principalName}, operation: ${operationName}`,
-                'err_click_on_permission_toggle', err);
+            await this.handleError(`Click on '${operationName}' operation checkbox for principal: ${principalName}`,
+                'err_permission_toggle', err);
         }
     }
 
     async isOperationAllowed(principalName, operation) {
-        let permToggle = xpath.permissionToggleByOperationName(operation);
-        let selector = xpath.aclEntryByName(principalName) + permToggle;
-        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
-        let result = await this.getAttribute(selector, 'class');
-        return result.includes('allow');
+        let labelLocator = this.container + xpath.customOperationsRow(principalName) + xpath.operationCheckboxLabel(operation);
+        await this.waitForElementDisplayed(labelLocator, appConst.shortTimeout);
+        let ariaChecked = await this.getAttribute(labelLocator + `//input[@type='checkbox']`, 'aria-checked');
+        return ariaChecked === 'true';
     }
 
     async isOperationDenied(principalName, operation) {
-        let permToggle = xpath.permissionToggleByOperationName(operation);
-        let selector = xpath.aclEntryByName(principalName) + permToggle;
-        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
-        let result = await this.getAttribute(selector, 'class');
-        return result.includes('deny');
+        return !(await this.isOperationAllowed(principalName, operation));
     }
 
 

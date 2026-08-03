@@ -5,7 +5,6 @@ const BaseStepPermissionsDialog = require('./base.step.edit.permissions.dialog')
 
 const xpath = {
     stepDescriptionP: "//header[child::h2[contains(.,'Choose where the changes should apply')]]",
-    dialogButtonRow: `//div[contains(@class,'button-container')]`,
 };
 
 // Step 2 of 3 - Choose how to apply changes
@@ -20,7 +19,7 @@ class EditPermissionsChooseApplyChangesStep extends BaseStepPermissionsDialog {
     }
 
     get thisItemRadioButton() {
-        return this.container + `//span[contains(text(),'This item')]/parent::button[@role='radio']`;
+        return this.container + `//span[contains(text(),'This item (')]/parent::button[@role='radio']`;
     }
 
     get childrenOnlyRadioButton() {
@@ -37,7 +36,8 @@ class EditPermissionsChooseApplyChangesStep extends BaseStepPermissionsDialog {
 
     async isThisItemRadioSelected() {
         await this.waitForThisItemRadioDisplayed();
-        return await this.isSelected(this.thisItemRadioButton);
+        let ariaChecked = await this.getAttribute(this.thisItemRadioButton, 'aria-checked');
+        return ariaChecked === 'true';
     }
 
     async waitForLoaded() {
@@ -92,16 +92,16 @@ class EditPermissionsChooseApplyChangesStep extends BaseStepPermissionsDialog {
             await this.waitForElementDisplayed(this.replaceAllChildChildPermissionsCheckbox);
             await this.clickOnElement(this.replaceAllChildChildPermissionsCheckbox);
         } catch (err) {
-            await this.handleError(`Edit Permissions - Click on 'Replace existing child permissions' checkbox`, 'err_edit_perm_dialog',
-                err);
+            await this.handleError(`Edit Permissions - Click on 'Replace existing child permissions' checkbox`, 'err_perm_dialog', err);
         }
     }
 
     async isReplaceAllChildPermissionsCheckboxChecked() {
         try {
             await this.waitForElementDisplayed(this.replaceAllChildChildPermissionsCheckbox);
-            let inputLocator = this.replaceAllChildChildPermissionsCheckbox + "/following-sibling::input";
-            return await this.isSelected(inputLocator);
+            let inputLocator = this.replaceAllChildChildPermissionsCheckbox + "//input[@type='checkbox']";
+            let ariaChecked = await this.getAttribute(inputLocator, 'aria-checked');
+            return ariaChecked === 'true';
         } catch (err) {
             await this.handleError(`Edit Permissions - 'Replace all child permissions' checkbox`, 'err_edit_perm_replace_checkbox', err);
         }

@@ -7,16 +7,16 @@ const {BUTTONS, COMMON} = require('../../libs/elements');
 
 const xpath = {
     stepSummary: "//div[@role='dialog' and descendant::h2[contains(.,'Summary')]]",
-    dialogButtonRow: `//div[contains(@class,'button-container')]`,
-    sectionSummary: "//section[@clas='summary-step']",
     applyToText: "//dt[contains(.,'Apply to')]/following-sibling::dd[1]",
-    accessModeText: "//dt[contains(.,'Access mode')]/following-sibling::dd[1]",
-    accessModeUpdatedText: `//dt[contains(.,'Access mode')]/following-sibling::dd[1]/span[2]`,
-    accessModePreviousText: `//dt[contains(.,'Access mode')]/following-sibling::dd[1]/span[1]`,
+    accessModeText: "//dt[contains(.,'Access Mode')]/following-sibling::dd[1]",
+    accessModeUpdatedText: `//dt[contains(.,'Access Mode')]/following-sibling::dd[1]/span[2]`,
+    accessModePreviousText: `//dt[contains(.,'Access Mode')]/following-sibling::dd[1]/span[1]`,
     replaceChildPermissionsText: "//dt[contains(.,'Replace child permissions')]/following-sibling::dd[1]",
-    summaryDataDl: "//dl[contains(@class,'summary-data-container')]",
-    accessControlChangedItemsListUL: "//ul[contains(@class,'access-control-changed-items-list')]",
-    showHideDetailsButtonDiv: (text) => `//button[contains(@id,'ShowHideDetailsButton') and child::span[contains(.,'${text}')]]`
+    showHideDetailsButtonDiv: (text) => `//button[contains(@id,'ShowHideDetailsButton') and child::span[contains(.,'${text}')]]`,
+    // 'Added' or 'Removed' or 'Unchanged' section - display names of principals:
+    itemsInSection: (header) => `//h3[text()='${header}']/following-sibling::ul[1]//li//div[@data-component='ItemLabel']//span[contains(@class,'font-semibold') and contains(@class,'truncate')]`,
+    itemInSectionByName: (header, name) =>
+        `//h3[text()='${header}']/following-sibling::ul[1]//li[descendant::div[@data-component='ItemLabel']//span[contains(.,'${name}')]]`,
 };
 
 //2 of 3 - Choose how to apply changes
@@ -86,6 +86,17 @@ class EditPermissionsSummaryStep extends BaseStepPermissionsDialog {
             return await this.getText(locator);
         } catch (err) {
             await this.handleError(`'Access mode' text should be displayed`, 'err_access_mode_text', err);
+        }
+    }
+
+    // summary-data: 'Replace child permissions' - 'Yes' or 'No'
+    async getReplaceChildPermissionsText() {
+        try {
+            let locator = this.container + xpath.replaceChildPermissionsText;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getText(locator);
+        } catch (err) {
+            await this.handleError(`'Replace child permissions' text should be displayed`, 'err_replace_child_permissions_text', err);
         }
     }
 
@@ -167,7 +178,7 @@ class EditPermissionsSummaryStep extends BaseStepPermissionsDialog {
     async waitForHideNewPermissionsButtonDisplayed() {
         try {
             let res = await this.findElements(this.hideNewPermissionsButton);
-            await this.waitForElementDisplayed(this.hideNewPermissionsButton, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.hideNewPermissionsButton);
         } catch (err) {
             await this.handleError('Perm.Summary step - Hide new permissions button should be displayed', 'err_hide_new_permissions', err);
         }
@@ -238,15 +249,50 @@ class EditPermissionsSummaryStep extends BaseStepPermissionsDialog {
         }
     }
 
-    async getUnchangedItemsList() {
+    // Returns display names of principals in the 'Added' or 'Removed' or 'Unchanged' section:
+    async getItemsInSection(header) {
         try {
-            let locator = this.container +
-                          `//h3[text()='Unchanged']/following-sibling::ul[1]//li//span[contains(@class,'font-semibold') and contains(@class,'truncate')][1]`;
-            await this.waitForElementDisplayed(locator);
+            let locator = this.container + xpath.itemsInSection(header);
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             return await this.getTextInElements(locator);
         } catch (err) {
-            await this.handleError(`Access Control Changed Items List should be displayed`, 'err_access_control_changed_items_list', err);
+            await this.handleError(`Summary step - items in '${header}' section should be displayed`,
+                `err_summary_${header.toLowerCase()}_items`, err);
         }
+    }
+
+    async getAddedItemsList() {
+        return await this.getItemsInSection('Added');
+    }
+
+    async getRemovedItemsList() {
+        return await this.getItemsInSection('Removed');
+    }
+
+    async getUnchangedItemsList() {
+        return await this.getItemsInSection('Unchanged');
+    }
+
+    async waitForItemInSectionDisplayed(header, name) {
+        try {
+            let locator = this.container + xpath.itemInSectionByName(header, name);
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError(`Summary step - '${name}' item should be displayed in the '${header}' section`,
+                `err_summary_${header.toLowerCase()}_item`, err);
+        }
+    }
+
+    async waitForAddedDisplayed(name) {
+        return await this.waitForItemInSectionDisplayed('Added', name);
+    }
+
+    async waitForRemovedDisplayed(name) {
+        return await this.waitForItemInSectionDisplayed('Removed', name);
+    }
+
+    async waitForUnchangedDisplayed(name) {
+        return await this.waitForItemInSectionDisplayed('Unchanged', name);
     }
 
     async isOpened() {

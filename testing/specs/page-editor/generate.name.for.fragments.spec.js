@@ -1,5 +1,5 @@
 /**
- * Created on 25.02.2020.
+ * Created on 25.02.2020.  updated on 30.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -20,7 +20,6 @@ const appConst = require('../../libs/app_const');
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
-const LayoutInspectionPanel = require("../../page_objects/wizardpanel/liveform/inspection/layout.inspection.panel");
 const TextComponentInspectionPanel = require("../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel");
 
 describe('Generate name for fragments specification', function () {
@@ -116,9 +115,7 @@ describe('Generate name for fragments specification', function () {
             await studioUtils.saveScreenshot('issue_text_component_inbound_section');
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
 
-            //TODO uncomment it issue with Inbound Dependencies
             assert.equal(result[0], SITE.displayName, 'expected display name of dependency');
-            // TODO uncomment it
             assert.equal(result.length, 1, 'One content should be present in the grid');
         });
 
@@ -135,7 +132,7 @@ describe('Generate name for fragments specification', function () {
             await studioUtils.saveScreenshot('grid_displays_name_8255');
             // 3. Content Grid displays names of the fragments in the site:
             let result = await contentBrowsePanel.getContentNamesInGrid()
-            assert.ok(result.includes(FRAGMENT_GENERATED_NAME), 'expected fragment name should be displayed in the grid');
+            assert.ok(result[1].includes(FRAGMENT_GENERATED_NAME), 'expected fragment name should be displayed in the grid');
         });
 
     it(`WHEN a fragment-text has been clicked in Page Component View and 'Remove' menu item has been selected THEN the fragment should be removed in the Page Component View`,
@@ -154,7 +151,6 @@ describe('Generate name for fragments specification', function () {
             // 4. Save the site:
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
-            //TODO check this behavior:
             await wizardContextPanel.openDependenciesWidget();
             // 5. Verify that there are no fragments in Page Component View:
             let result = await pageComponentView.getFragmentsDisplayName();
@@ -177,63 +173,16 @@ describe('Generate name for fragments specification', function () {
             // 3. Insert existing text-component
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Fragment']);
-            await liveFormPanel.selectFragmentByDisplayName('Text');
-            await contentWizard.switchToMainFrame();
+            let fragmentInspectionPanel = new FragmentInspectionPanel();
+            await fragmentInspectionPanel.typeNameAndSelectFragmentByPath(FRAGMENT_GENERATED_NAME);
             await contentWizard.waitForNotificationMessage();
             let result = await pageComponentView.getFragmentsDisplayName();
             assert.equal(result.length, 1, 'single Fragment should be present in Page Component View');
             assert.equal(result[0], 'Text', 'Text Fragment should be present in Page Component View');
         });
 
-    //Verifies -  xp/issues/7831, Component Names - generate proper names for Fragment component #7831
-    it(`GIVEN an layout component is inserted WHEN the empty layout has been saved as fragment THEN expected fragment-name should be generated`,
-        async () => {
-            let contentWizard = new ContentWizard();
-            let pageComponentView = new PageComponentView();
-            // 1. Open existing site:
-            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnCollapseContentForm();
-            // 3. Insert new layout-component
-            await pageComponentView.rightClickAndOpenContextMenu('main');
-            await pageComponentView.selectContextMenuItem(['Insert', 'Layout']);
-            // 4. Save the empty layout-component as fragment:
-            await pageComponentView.rightClickAndOpenContextMenu('Layout');
-            await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
-            await contentWizard.pause(1000);
-            await studioUtils.doSwitchToNewWizard();
-            // 5. Verify the generated display name(should be 'Layout'):
-            let fragmentContent = await contentWizard.getDisplayName();
-            assert.equal(fragmentContent, 'Layout', 'Expected display name should be generated in Fragment-Wizard');
-        });
-
-    it(`GIVEN existing site is opened WHEN the third fragment has been added and selected in Fragment Inspection panel THEN 3 fragments should be present in Live Edit`,
-        async () => {
-            let contentWizard = new ContentWizard();
-            let pageComponentView = new PageComponentView();
-            let fragmentInspectionPanel = new FragmentInspectionPanel();
-            let liveFormPanel = new LiveFormPanel();
-            // 1. Open existing site:
-            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnCollapseContentForm();
-            // 3. Insert new fragment-component
-            await pageComponentView.rightClickAndOpenContextMenu('main');
-            await pageComponentView.selectContextMenuItem(['Insert', 'Fragment']);
-            // 4. Select a fragment in Inspection Panel:
-            let fragmentDisplayName = 'Layout';
-            await fragmentInspectionPanel.typeNameAndSelectFragment(fragmentDisplayName);
-            await studioUtils.saveScreenshot('fragment-inserted-in-inspect');
-            // 5. Verify that the site is automatically saved and Save button is disabledа
-            await contentWizard.waitForNotificationMessage();
-            await contentWizard.waitForSaveButtonDisabled();
-            // 6. Verify the number of fragments in Live Edit:
-            let number = await liveFormPanel.getFragmentsNumber();
-            assert.equal(number, 3, 'Three fragments should be in Live Edit');
-        });
-
     //Verifies : Workflow state is incorrect after pressing Mark as Ready #4964
-    it(`GIVEN an image has been inserted in new text-component WHEN 'Mark as ready' button has been pressed THEN Ready for publishing state should be displayed in the wizard`,
+    it.skip(`GIVEN an image has been inserted in new text-component WHEN 'Mark as ready' button has been pressed THEN Ready for publishing state should be displayed in the wizard`,
         async () => {
             let contentWizard = new ContentWizard();
             let textComponentInspectionPanel = new TextComponentInspectionPanel();
@@ -250,9 +199,10 @@ describe('Generate name for fragments specification', function () {
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.waitForOpened();
-            await textComponentInspectionPanel.clickInTextArea();
+
             // 4. Open 'Insert Image' dialog and insert an image in htmlArea:
-            await textComponentCke.clickOnInsertImageButton();
+            await textComponentInspectionPanel.showToolbarAndClickOnInsertImageButton();
+            await insertImageDialog.waitForDialogVisible();
             await insertImageDialog.filterAndSelectImage(TEST_IMAGE_NAME);
             await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();

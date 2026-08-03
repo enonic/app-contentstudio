@@ -271,6 +271,14 @@ class BaseDropdown extends Page {
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
     }
+
+    async clickOnOptionByName(name) {
+        let optionLocator = DROPDOWN.optionByName(name);
+        // several hidden 'Listbox.Item' elements can be present in the DOM, so click on the displayed option:
+        await this.waitUntilDisplayed(optionLocator);
+        let elements = await this.getDisplayedElements(optionLocator);
+        await elements[0].click();
+    }
 }
 
 module.exports = BaseDropdown;

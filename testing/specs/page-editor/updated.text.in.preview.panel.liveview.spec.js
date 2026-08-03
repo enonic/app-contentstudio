@@ -27,7 +27,7 @@ describe('updated.text.in.preview.panel.liveview.spec - verify that text is upda
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
             // the site should be with 'main region' controller:
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES],
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES],
                 appConst.CONTROLLER_NAME.MAIN_REGION);
             await studioUtils.doAddSite(SITE);
         });
@@ -64,8 +64,7 @@ describe('updated.text.in.preview.panel.liveview.spec - verify that text is upda
             // 8. Switch to the site again:
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             // 9. Update the text in text-component:
-            await pageComponentView.rightClickAndOpenContextMenu(TEST_TEXT_1);
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.EDIT]);
+            await pageComponentView.clickOnComponent(TEST_TEXT_1);
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.setTextInEditor(TEST_TEXT_2);
