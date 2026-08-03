@@ -197,6 +197,7 @@ const DROPDOWN = {
     imageItemView: (imageDisplayName) => `//div[@data-component='ImageSelectorItemView' and descendant::span[contains(text(),'${imageDisplayName}')]]`,
     listboxOptionByText: (text) => `//div[contains(@role,'option')  and descendant::span[text()='${text}']]`,
     optionByDisplayName: (displayName) => `//div[@data-component='Listbox.Item' and descendant::span[contains(.,'${displayName}')]]`,
+    optionByName: (displayName) => `//div[@data-component='Listbox.Item' and descendant::small[contains(.,'${displayName}')]]`,
     listboxItemByDisplayName: (displayName) => `//div[@data-component='Listbox.Item' and descendant::div[@data-component='ItemLabel']//span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]`,
     LISTBOX_ITEM_CHECKBOX_LABEL: "//div[@data-component='Listbox.Item']//div[@data-component='Checkbox']//label",
     listboxItemCheckboxByDisplayName: (displayName) => `//div[@data-component='Listbox.Item' and descendant::div[@data-component='ItemLabel']//span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]//div[@data-component='Checkbox']//label`,

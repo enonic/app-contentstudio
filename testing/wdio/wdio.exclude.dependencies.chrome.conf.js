@@ -12,6 +12,7 @@ exports.config = {
     specs: [
         path.join(__dirname, '../specs/exclude-dependencies/*.spec.js'),
         path.join(__dirname, '../specs/misc2/*.spec.js'),
+        path.join(__dirname, '../specs/permissions/*.spec.js')
     ],
     exclude: [
         path.join(__dirname, '../specs/exclude-dependencies/project.not.available.dialog.spec.js'),

@@ -34,6 +34,16 @@ class FragmentDropdown extends BaseDropdown {
         }
     }
 
+    async selectFilteredFragmentByPath(fragmentName) {
+        try {
+            await this.doFilterItem(fragmentName);
+            await this.clickOnOptionByName(fragmentName);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_fragment_dropdown');
+            throw new Error('FragmentDropdown - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);
+        }
+    }
+
     async getOptionsDisplayName() {
         let locator = DROPDOWN.COMBOBOX_POPUP + "//div[@role='option']//span[contains(@class,'font-semibold')]";
         await this.waitUntilDisplayed(locator, appConst.mediumTimeout);

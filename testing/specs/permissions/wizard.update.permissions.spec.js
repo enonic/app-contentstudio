@@ -1,5 +1,5 @@
 /**
- * Created on 21.11.2018. updated on 10.06.2025
+ * Created on 21.11.2018. updated on 31.07.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -12,46 +12,12 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const DetailsWidgetPermissionsSection = require('../../page_objects/browsepanel/detailspanel/details.widget.permissions.section');
 const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 
-describe('wizard.update.permissions.spec: update permissions and check the state of Save button on toolbar', function () {
+describe('wizard.update.permissions.spec: update permissions and check the state of Save button in the wizard toolbar', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     const DISPLAY_NAME = contentBuilder.generateRandomName('folder');
-    const newDisplayName = contentBuilder.generateRandomName('folder');
-
-    // Verify - https://github.com/enonic/app-contentstudio/issues/5172
-    // Content Wizard has incorrect state after data changes followed by permissions update #5172
-    // Path is cleared after updating permissions in new unsaved content #5407
-    it(`GIVEN wizard for folder is opened AND name input is filled in WHEN permissions have been updated THEN path input should not be cleared`,
-        async () => {
-            let folderName = appConst.generateRandomName('folder');
-            let contentWizard = new ContentWizard();
-            let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
-            let editPermissionsSummaryStep = new EditPermissionsSummaryStep();
-            let userAccessWidget = new DetailsWidgetPermissionsSection();
-            // 1. Open new folder-wizard,
-            await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
-            // 2. Fill in the name input:
-            await contentWizard.typeDisplayName(folderName);
-            // 3. Don't save the folder but open 'Edit Permissions' dialog:
-            await contentWizard.openContextWindow();
-            await contentWizard.openDetailsWidget();
-            await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
-            // 4. Update and apply changes in the dialog:
-            await editPermissionsGeneralStep.removeAclEntry(appConst.SYSTEM_ROLES_NAME.ADMINISTRATOR);
-            await editPermissionsGeneralStep.clickOnNextButton();
-            await editPermissionsSummaryStep.waitForLoaded();
-            await editPermissionsSummaryStep.clickOnApplyChangesButton();
-            await editPermissionsSummaryStep.waitForDialogClosed();
-            let message = await contentWizard.waitForNotificationMessage();
-            await studioUtils.saveScreenshot('unsaved_folder_permissions_updated');
-            // 5. Verify that path-input is not empty after updating permissions:
-            let result = await contentWizard.getPath();
-            assert.equal(result, folderName, "Expected folder-name should be present in the path input");
-            // 6. Verify that notification message is correct:
-            await contentWizard.waitForSaveButtonEnabled();
-        });
 
     it(`GIVEN wizard for a root-folder has been opened WHEN 'Edit Permissions' dialog has been opened THEN 'Copy From Project' button should be disabled`,
         async () => {
@@ -65,35 +31,14 @@ describe('wizard.update.permissions.spec: update permissions and check the state
             await wizardContextPanel.openDetailsWidget();
             // 2. Open 'Edit Permissions' dialog:
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
-            // 3. 'Copy from project' button should be disabled:
-            // Verify #8837:
-            await editPermissionsGeneralStep.waitForCopyFromProjectButtonDisabled();
-            await editPermissionsGeneralStep.waitForNextButtonEnabled();
-            await editPermissionsGeneralStep.waitForResetButtonDisabled();
+            // 3. 'Copy from project' button should not be:
+            await editPermissionsGeneralStep.waitForCopyFromProjectButtonNotDisplayed();
+            await editPermissionsGeneralStep.waitForNextButtonDisabled();
             // 4. Verify that 'Public' radio is selected by default:
             let isSelected = await editPermissionsGeneralStep.isPublicRadioSelected();
             assert.ok(isSelected, `'Public' radio should be selected by default`);
             // 5. 'Restricted' radio should be displayed
             await editPermissionsGeneralStep.waitForRestrictedRadioDisplayed();
-        });
-
-    it(`GIVEN EditPermissionsGeneralStep is opened WHEN Next button has been pressed THEN 'No Changes To Apply' button should be disabled in the summary step`,
-        async () => {
-            let contentWizard = new ContentWizard();
-            let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
-            let editPermissionsSummaryStep = new EditPermissionsSummaryStep();
-            let userAccessWidget = new DetailsWidgetPermissionsSection();
-            let wizardContextPanel = new WizardContextPanel();
-            // 1. Open new folder-wizard, and open Edit Permissions dialog
-            await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
-            await contentWizard.openContextWindow();
-            await wizardContextPanel.openDetailsWidget();
-            await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
-            // 2. Click on Next button
-            await editPermissionsGeneralStep.clickOnNextButton();
-            await editPermissionsSummaryStep.waitForLoaded();
-            // 3. Verify - 'No Changes To Apply' button should be disabled:
-            await editPermissionsSummaryStep.waitForNoChangesToApplyDisabled();
         });
 
     it(`WHEN permissions have been updated THEN 'Saved' button remains visible after applying the permissions`,

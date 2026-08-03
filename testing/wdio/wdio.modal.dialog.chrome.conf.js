@@ -9,17 +9,12 @@ exports.config = {
 
     specs: [
         path.join(__dirname, '../specs/modal-dialog/*.spec.js'),
-        path.join(__dirname, '../specs/permissions/*.spec.js')
+        //path.join(__dirname, '../specs/permissions/*.spec.js')
 
     ],
     exclude: [
         path.join(__dirname, '../specs/modal-dialog/mobile.mode.preview.panel.spec.js'),
         path.join(__dirname, '../specs/modal-dialog/mobile.browse.panel.toolbar.spec.js'),
-        path.join(__dirname, '../specs/permissions/apply.changes.to.children.only.and.overwrite.spec.js'),
-        path.join(__dirname, '../specs/permissions/apply.changes.to.children.only.spec.js'),
-        path.join(__dirname, '../specs/permissions/child.folder.edit.permissions.step.spec.js'),
-        path.join(__dirname, '../specs/permissions/edit.permissions.dialog.access.selector.spec.js'),
-        path.join(__dirname, '../specs/permissions/wizard.update.permissions.spec.js'),
     ],
     maxInstances: 1,
 
