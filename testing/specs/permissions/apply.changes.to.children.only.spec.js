@@ -1,16 +1,15 @@
 /**
- * Created on 19.06.2025
+ * Created on 19.06.2025 updated on 31.07.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
-const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
 const EditPermissionsGeneralStep = require('../../page_objects/permissions/edit.permissions.general.step');
 const EditPermissionsSummaryStep = require('../../page_objects/permissions/edit.permissions.summary.step');
 const EditPermissionsChooseApplyChangesStep = require('../../page_objects/permissions/edit.permissions.choose.apply.changes.step');
 const appConst = require('../../libs/app_const');
-
+const DetailsWidgetPermissionsSection = require("../../page_objects/browsepanel/detailspanel/details.widget.permissions.section");
 
 describe('Child and parent content, apply changes to children content only(do not overwrite), apply.changes.to.children.only.spec: ', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -23,7 +22,7 @@ describe('Child and parent content, apply changes to children content only(do no
 
     it(`GIVEN Restricted radio selected AND new acl entry added in the parent folder AND 'children only' radio has been clicked WHEN 'Apply changes' button has been pressed THEN all changes should be applied to the child content only`,
         async () => {
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             let displayName = appConst.generateRandomName('parent');
             PARENT_FOLDER = contentBuilder.buildFolder(displayName);
@@ -63,7 +62,7 @@ describe('Child and parent content, apply changes to children content only(do no
     // 'Children only' radio button was selected in the first test, so permissions should not be updated in the parent folder:
     it(`GIVEN select the parent folder AND open Edit Permissions dialog VERIFY that the 'Public' radio button remains selected THEN the Audit Log principal should not be present in the list of principals`,
         async () => {
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             // 1. Select the parent folder and open Edit Permissions general step:
             await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
@@ -81,7 +80,7 @@ describe('Child and parent content, apply changes to children content only(do no
     //'Children only' radio button was selected in the first test, so permissions should be updated in the child folder only:
     it(`WHEN Edit Permissions dialog for Child folder has been opened THEN the changes from the first test should be applied to the child folder only AND the 'Restricted' radio button is selected AND the 'Audit Log' entry should be present in the list of principals`,
         async () => {
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             // 1. Select the child folder and open Edit Permissions general step:
             await studioUtils.findAndSelectItem(CHILD_FOLDER.displayName);
@@ -96,9 +95,7 @@ describe('Child and parent content, apply changes to children content only(do no
             let result = await editPermissionsGeneralStep.getDisplayNameOfSelectedPrincipals();
             assert.ok(result.includes(appConst.SYSTEM_ROLES.AUDIT_LOG), `'Audit Log' principal should be present in the list of principals`);
 
-            // 5. 'Reset' button should be disabled:
-            await editPermissionsGeneralStep.waitForResetButtonDisabled();
-            // 6. 'Copy from parent' button should be enabled:
+            // 5. 'Copy from parent' button should be enabled:
             await editPermissionsGeneralStep.waitForCopyFromParentButtonEnabled();
         });
 

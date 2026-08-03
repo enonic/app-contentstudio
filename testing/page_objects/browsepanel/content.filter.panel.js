@@ -4,6 +4,7 @@
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
 const {BUTTONS} = require('../../libs/elements');
+const ContentBrowsePanel = require("./content.browse.panel");
 const XPATH = {
     container: "//div[contains(@id,'ContentBrowseFilterPanel')]",
     clearFilterLink: "//a[contains(@id,'ClearFilterButton')]",
@@ -60,6 +61,12 @@ class BrowseFilterPanel extends Page {
 
     async typeSearchText(text) {
         try {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let result = await this.isPanelVisible();
+            if (!result) {
+                await contentBrowsePanel.clickOnSearchButton();
+                await this.waitForOpened();
+            }
             await this.typeTextInInput(this.searchTextInput, text);
             return await this.pause(500);
         } catch (err) {

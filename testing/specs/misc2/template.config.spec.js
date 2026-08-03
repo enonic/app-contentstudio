@@ -22,7 +22,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let IMPORTED_SITE = 'site954009';
+    let IMPORTED_SITE =appConst.TEST_DATA.IMPORTED_SITE_954009;
     const TITLE_TEXT = 'My title';
     const TEST_TEXT = 'test text';
     const ARTICLE_NAME = appConst.generateRandomName('article');
