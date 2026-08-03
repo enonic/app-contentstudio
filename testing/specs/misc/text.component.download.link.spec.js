@@ -1,5 +1,5 @@
 /**
- * Created on 14.05.2018.
+ * Created on 14.05.2018.  updated on 03.08.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -8,16 +8,12 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
-const TextComponentCke = require('../../page_objects/components/text.component');
 const InsertLinkDialog = require('../../page_objects/wizardpanel/html-area/insert.link.modal.dialog.cke');
 const MoveContentDialog = require('../../page_objects/browsepanel/move.content.dialog');
-const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
-const CompareContentVersionsDialog = require('../../page_objects/compare.content.versions.dialog');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const InsertLinkDialogContentPanel = require('../../page_objects/wizardpanel/html-area/insert.link.modal.dialog.content.panel');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
-const LiveFormPanel = require('../../page_objects/wizardpanel/liveform/live.form.panel');
 const PageInspectionPanel = require("../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel");
 
 describe('Text Component with CKE - insert download-link specification', function () {
@@ -28,7 +24,7 @@ describe('Text Component with CKE - insert download-link specification', functio
     }
 
     let IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_954009;
-    const IMPORTED_CHILD_CONTENT_DISPLAY_NAME = 'start';
+    const IMPORTED_CHILD_CONTENT_DISPLAY_NAME = 'command';
     const EXPECTED_SRC = '<p><a href="media://download/';
     const LINK_TEXT = 'test';
 
@@ -118,8 +114,6 @@ describe('Text Component with CKE - insert download-link specification', functio
             assert.ok(isDisplayed, 'download link should be present on the page');
         });
 
-
-
     it(`GIVEN existing child content has been selected WHEN Move button has been pressed THEN Confirmation dialog should be loaded`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -133,6 +127,7 @@ describe('Text Component with CKE - insert download-link specification', functio
             await moveContentDialog.clickOnDropdownHandle();
             await moveContentDialog.clickOnOptionInDropdown('Project root');
             await moveContentDialog.clickOnMoveButton();
+            // 3. Confirmation  dialog  should be loaded in this case!
             await confirmationDialog.waitForDialogOpened();
             await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();

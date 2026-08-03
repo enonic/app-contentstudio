@@ -97,6 +97,7 @@ class MoveContentDialog extends Page {
         try {
             let contentMoveComboBox = new ContentMoveComboBox(XPATH.container);
             await contentMoveComboBox.clickOnOptionByDisplayName(displayName);
+            await contentMoveComboBox.pause(500);
         } catch (err) {
             await this.handleError('Move Dialog - Tried to click on the option in dropdown', 'err_move_dialog_click_option', err);
         }
