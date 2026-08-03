@@ -1,5 +1,5 @@
 /**
- * Created on 16.05.2018.
+ * Created on 16.05.2018. updated on 03.08.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -28,7 +28,7 @@ describe('Text Component with CKE - insert content-link specification', function
     it(`Precondition: new site should be added`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(displayName, null, ['All Content Types App'], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -73,16 +73,7 @@ describe('Text Component with CKE - insert content-link specification', function
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => {
-        let insertLinkDialog = new InsertLinkDialog();
-        return insertLinkDialog.isDialogOpened().then(result => {
-            if (result) {
-                return insertLinkDialog.clickOnCancelButton();
-            }
-        }).then(() => {
-            return studioUtils.doCloseAllWindowTabsAndNavigateToHome();
-        })
-    });
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

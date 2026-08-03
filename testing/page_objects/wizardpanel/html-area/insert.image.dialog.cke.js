@@ -1,3 +1,6 @@
+/**
+ * Updated on 03.08.2026
+ */
 const Page = require('../../page');
 const {BUTTONS, DROPDOWN} = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
@@ -12,7 +15,7 @@ const XPATH = {
     alignJustifyButton: "//button[@aria-label='Justify']",
     alignLeftButton: "//button[@aria-label='Left']",
     alignCenterButton: "//button[@aria-label='Center']",
-    alignRightButton: "//button[@@aria-label='Right']",
+    alignRightButton: "//button[@aria-label='Right']",
     customWidthDiv: "//div[@data-component='Checkbox' and descendant::span[text()='Custom width']]",
     imageRangeValue: "//input[@type='range']/following-sibling::span",
     accessibilityRadioGroup: "//div[@role='radiogroup']",

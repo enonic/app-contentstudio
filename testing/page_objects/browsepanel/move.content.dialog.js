@@ -46,10 +46,10 @@ class MoveContentDialog extends Page {
 
     async clickOnDropdownHandle() {
         try {
-            await this.clickOnElement(this.dropDownHandle);
             await this.pause(300);
-            await this.waitForSpinnerNotVisible(appConst.mediumTimeout);
-            await this.pause(500);
+            await this.clickOnElement(this.dropDownHandle);
+            await this.waitForSpinnerNotVisible();
+            await this.pause(300);
         } catch (err) {
             await this.handleError('Move Dialog - Tried to click on dropdown handle', 'err_move_dialog_dropdown_handle', err);
         }
