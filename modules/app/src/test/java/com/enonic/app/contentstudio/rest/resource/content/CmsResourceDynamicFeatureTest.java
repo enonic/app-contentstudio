@@ -10,6 +10,7 @@ import jakarta.ws.rs.core.UriInfo;
 
 import com.enonic.xp.content.ContentConstants;
 import com.enonic.xp.context.ContextAccessor;
+import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.project.ProjectName;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,9 +28,6 @@ public class CmsResourceDynamicFeatureTest
     {
         this.context = mock( ContainerRequestContext.class );
         this.filter = new CmsResourceFilter();
-
-        ContextAccessor.current().getLocalScope().setAttribute( ProjectName.from( "myproject" ).getRepoId() );
-        ContextAccessor.current().getLocalScope().setAttribute( ContentConstants.BRANCH_DRAFT );
     }
 
     @Test
@@ -40,9 +38,12 @@ public class CmsResourceDynamicFeatureTest
         when( uriInfo.getPath() ).thenReturn( "/admin/rest-v2/cs/content/update" );
 
         when( context.getUriInfo() ).thenReturn( uriInfo );
-        this.filter.filter( context );
 
-        assertEquals( "com.enonic.cms.myproject", ContextAccessor.current().getRepositoryId().toString() );
+        runInContext( () -> {
+            this.filter.filter( context );
+
+            assertEquals( "com.enonic.cms.myproject", ContextAccessor.current().getRepositoryId().toString() );
+        } );
     }
 
     @Test
@@ -53,8 +54,30 @@ public class CmsResourceDynamicFeatureTest
         when( uriInfo.getPath() ).thenReturn( "/admin/rest-v2/cs/cms/project1/layer1/update" );
 
         when( context.getUriInfo() ).thenReturn( uriInfo );
-        this.filter.filter( context );
 
-        assertEquals( "com.enonic.cms.project1", ContextAccessor.current().getRepositoryId().toString() );
+        runInContext( () -> {
+            this.filter.filter( context );
+
+            assertEquals( "com.enonic.cms.project1", ContextAccessor.current().getRepositoryId().toString() );
+        } );
+    }
+
+    // The filter mutates the current context's local scope, so a context must be bound around it.
+    private void runInContext( final ThrowingRunnable runnable )
+    {
+        ContextBuilder.create().build().callWith( () -> {
+            ContextAccessor.current().getLocalScope().setAttribute( ProjectName.from( "myproject" ).getRepoId() );
+            ContextAccessor.current().getLocalScope().setAttribute( ContentConstants.BRANCH_DRAFT );
+
+            runnable.run();
+            return null;
+        } );
+    }
+
+    @FunctionalInterface
+    private interface ThrowingRunnable
+    {
+        void run()
+            throws Exception;
     }
 }
