@@ -6,8 +6,10 @@ export {
     type ContentRowStatusProps,
     type ContentRowCellProps,
 } from './content-row';
-export {SplitList} from './split-list';
-export {virtuosoComponents} from './virtuoso-components';
+export { DependantsSeparator } from './dependants-separator';
+export type { DependantsSeparatorProps } from './dependants-separator';
+export { SplitList } from './split-list';
+export { virtuosoComponents } from './virtuoso-components';
 export type {
     SplitListPrimaryProps,
     SplitListProps,

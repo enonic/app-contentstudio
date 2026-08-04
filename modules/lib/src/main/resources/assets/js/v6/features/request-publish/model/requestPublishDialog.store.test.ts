@@ -17,8 +17,10 @@ import {
     $requestPublishDialog,
     $requestPublishDialogCreateCount,
     $requestPublishDialogErrors,
+    $requestPublishHasExcludedDependants,
     $requestPublishHasMoreDependants,
     $requestPublishPublishableCount,
+    $showRequestPublishExcludedDependants,
     applyDraftRequestPublishDialogSelection,
     cancelDraftRequestPublishDialogSelection,
     loadMoreRequestPublishDependants,
@@ -29,6 +31,7 @@ import {
     setRequestPublishItemIncludeChildren,
     submitRequestPublishDialog,
     toggleRequestPublishDependantsSelection,
+    toggleRequestPublishShowExcludedDependants,
 } from './requestPublishDialog.store';
 import {
     createDeferredPromise,
@@ -634,6 +637,79 @@ describe('requestPublishDialog.store', () => {
                 'item-2',
             ]);
             expect($isRequestPublishSelectionSynced.get()).toBe(false);
+        });
+    });
+
+    describe('excluded dependants visibility', () => {
+        async function excludeDep1AndApply(): Promise<void> {
+            await setupWithDependants();
+
+            setRequestPublishDependantIncluded(new ContentId('dep-1'), false);
+            applyDraftRequestPublishDialogSelection();
+            await flushRequestPublishReload();
+        }
+
+        it('should offer nothing to hide until an exclusion is applied', async () => {
+            await setupWithDependants();
+
+            expect($requestPublishHasExcludedDependants.get()).toBe(false);
+
+            setRequestPublishDependantIncluded(new ContentId('dep-1'), false);
+
+            expect($requestPublishHasExcludedDependants.get()).toBe(false);
+
+            applyDraftRequestPublishDialogSelection();
+            await flushRequestPublishReload();
+
+            expect($requestPublishHasExcludedDependants.get()).toBe(true);
+        });
+
+        it('should flip the toggle and restore it on reset', async () => {
+            await excludeDep1AndApply();
+            expect($showRequestPublishExcludedDependants.get()).toBe(true);
+
+            toggleRequestPublishShowExcludedDependants();
+            expect($showRequestPublishExcludedDependants.get()).toBe(false);
+
+            resetRequestPublishDialogContext();
+            expect($showRequestPublishExcludedDependants.get()).toBe(true);
+        });
+
+        it('should count only the shown dependants while excluded ones are hidden', async () => {
+            await excludeDep1AndApply();
+            expect($requestPublishDependantsSelection.get().count).toBe(2);
+
+            toggleRequestPublishShowExcludedDependants();
+
+            const selection = $requestPublishDependantsSelection.get();
+            expect(selection.count).toBe(1);
+            expect(selection.selectionType).toBe('all');
+            expect(selection.selectableIds.map((id) => id.toString())).toEqual(['dep-2']);
+        });
+
+        it('should keep a staged exclusion visible, hiding only the applied ones', async () => {
+            await excludeDep1AndApply();
+            toggleRequestPublishShowExcludedDependants();
+
+            setRequestPublishDependantIncluded(new ContentId('dep-2'), false);
+
+            // dep-2 is excluded in the draft only, so its row stays until Apply.
+            const selection = $requestPublishDependantsSelection.get();
+            expect(selection.count).toBe(1);
+            expect(selection.selectionType).toBe('none');
+        });
+
+        it('should snap back to shown once the last exclusion is re-included', async () => {
+            await excludeDep1AndApply();
+            toggleRequestPublishShowExcludedDependants();
+            expect($showRequestPublishExcludedDependants.get()).toBe(false);
+
+            setRequestPublishDependantIncluded(new ContentId('dep-1'), true);
+            applyDraftRequestPublishDialogSelection();
+            await flushRequestPublishReload();
+
+            expect($requestPublishHasExcludedDependants.get()).toBe(false);
+            expect($showRequestPublishExcludedDependants.get()).toBe(true);
         });
     });
 });

@@ -140,13 +140,17 @@ function SplitListSecondary<T>({
         if (!emptyMessage) {
             return null;
         }
+        // Sentinel also here: with every loaded item filtered out, lazy-loading would stall.
         return (
-            <div
-                data-component={SPLIT_LIST_SECONDARY_NAME}
-                className={cn('py-2 text-sm text-subtle italic', className)}
-            >
-                {emptyMessage}
-            </div>
+            <>
+                <div
+                    data-component={SPLIT_LIST_SECONDARY_NAME}
+                    className={cn('py-2 text-sm text-subtle italic', className)}
+                >
+                    {emptyMessage}
+                </div>
+                {hasMore && <div ref={sentinelRef} aria-hidden className="h-px w-full" />}
+            </>
         );
     }
 

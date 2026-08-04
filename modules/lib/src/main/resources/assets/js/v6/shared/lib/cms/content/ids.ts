@@ -1,6 +1,6 @@
 import { ContentId } from '../../../../../app/content/ContentId';
 
-type HasContentId = {
+export type HasContentId = {
     getContentId(): ContentId;
 };
 

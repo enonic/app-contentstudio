@@ -20,7 +20,9 @@ import {
     $isIssueDialogDetailsSelectionSynced,
     $issueDialogDetails,
     $issueDialogDetailsDependantsSelection,
+    $issueDialogDetailsHasExcludedDependants,
     $issueDialogDetailsHasMoreDependants,
+    $showIssueDialogDetailsExcludedDependants,
     applyDraftIssueDialogDetailsSelection,
     cancelDraftIssueDialogDetailsSelection,
     loadIssueDialogItems,
@@ -29,6 +31,7 @@ import {
     setIssueDialogDetailsDependantIncluded,
     setIssueDialogDetailsItemIncludeChildren,
     toggleIssueDialogDetailsDependantsSelection,
+    toggleIssueDialogDetailsShowExcludedDependants,
     updateIssueDialogExcludedDependants,
     updateIssueDialogItems,
 } from './issueDialogDetails.store';
@@ -584,6 +587,94 @@ describe('issueDialogDetails.store', () => {
 
             expect($issueDialogDetails.get().appliedExcludeChildrenIds).toHaveLength(0);
             expect($issueDialogDetails.get().appliedExcludedDependantIds).toHaveLength(0);
+        });
+    });
+
+    describe('excluded dependants visibility', () => {
+        const item1 = new ContentId('item-1');
+        const dep1 = new ContentId('dep-1');
+        const dep2 = new ContentId('dep-2');
+
+        async function excludeDep1AndApply(): Promise<void> {
+            mockResolvePublishDependencies.mockResolvedValue(createResolveResult({ dependants: [dep1, dep2] }));
+            mockFetchContentSummaries.mockImplementation((contentIds: ContentId[]) =>
+                contentIds.map((id) => createMockContent(id.toString())),
+            );
+
+            await openListBackedIssueDetails(createMockIssue('issue-1', [item1]));
+            await flushPromises();
+
+            setIssueDialogDetailsDependantIncluded(dep1, false);
+            await applyDraftIssueDialogDetailsSelection();
+            await flushPromises();
+        }
+
+        it('should offer nothing to hide until an exclusion is applied', async () => {
+            mockResolvePublishDependencies.mockResolvedValue(createResolveResult({ dependants: [dep1, dep2] }));
+            mockFetchContentSummaries.mockImplementation((contentIds: ContentId[]) =>
+                contentIds.map((id) => createMockContent(id.toString())),
+            );
+
+            await openListBackedIssueDetails(createMockIssue('issue-1', [item1]));
+            await flushPromises();
+
+            expect($issueDialogDetailsHasExcludedDependants.get()).toBe(false);
+
+            setIssueDialogDetailsDependantIncluded(dep1, false);
+
+            expect($issueDialogDetailsHasExcludedDependants.get()).toBe(false);
+
+            await applyDraftIssueDialogDetailsSelection();
+            await flushPromises();
+
+            expect($issueDialogDetailsHasExcludedDependants.get()).toBe(true);
+        });
+
+        it('should flip the toggle and restore it on reset', async () => {
+            await excludeDep1AndApply();
+            expect($showIssueDialogDetailsExcludedDependants.get()).toBe(true);
+
+            toggleIssueDialogDetailsShowExcludedDependants();
+            expect($showIssueDialogDetailsExcludedDependants.get()).toBe(false);
+
+            resetIssueDialogDetails();
+            expect($showIssueDialogDetailsExcludedDependants.get()).toBe(true);
+        });
+
+        it('should count only the shown dependants while excluded ones are hidden', async () => {
+            await excludeDep1AndApply();
+            expect($issueDialogDetailsDependantsSelection.get().count).toBe(2);
+
+            toggleIssueDialogDetailsShowExcludedDependants();
+
+            const selection = $issueDialogDetailsDependantsSelection.get();
+            expect(selection.count).toBe(1);
+            expect(selection.selectionType).toBe('all');
+            expect(selection.selectableIds.map((id) => id.toString())).toEqual(['dep-2']);
+        });
+
+        it('should keep a staged exclusion visible, hiding only the applied ones', async () => {
+            await excludeDep1AndApply();
+            toggleIssueDialogDetailsShowExcludedDependants();
+
+            setIssueDialogDetailsDependantIncluded(dep2, false);
+
+            const selection = $issueDialogDetailsDependantsSelection.get();
+            expect(selection.count).toBe(1);
+            expect(selection.selectionType).toBe('none');
+        });
+
+        it('should snap back to shown once the last exclusion is re-included', async () => {
+            await excludeDep1AndApply();
+            toggleIssueDialogDetailsShowExcludedDependants();
+            expect($showIssueDialogDetailsExcludedDependants.get()).toBe(false);
+
+            setIssueDialogDetailsDependantIncluded(dep1, true);
+            await applyDraftIssueDialogDetailsSelection();
+            await flushPromises();
+
+            expect($issueDialogDetailsHasExcludedDependants.get()).toBe(false);
+            expect($showIssueDialogDetailsExcludedDependants.get()).toBe(true);
         });
     });
 });

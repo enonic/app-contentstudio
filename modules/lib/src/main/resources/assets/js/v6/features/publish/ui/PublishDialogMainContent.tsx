@@ -37,7 +37,7 @@ import {
     $showPublishDependantsExcluded,
     $totalPublishableItems,
 } from '../model/publishDialog.store';
-import { ContentRow, SplitList } from '../../shared/lists';
+import { ContentRow, DependantsSeparator, SplitList } from '../../shared/lists';
 import { DependantsSelectAll } from '../../../shared/ui/dialogs/dependants/DependantsSelectAll';
 import { SelectionStatusBar } from '../../../shared/ui/dialogs/status-bar/SelectionStatusBar';
 import { PublishDialogItemStatus } from './PublishDialogItemStatus';
@@ -87,9 +87,6 @@ export const PublishDialogMainContent = ({
         (item) => !item.hidden && (showExcluded || !item.excludedByDefault),
     );
     const hasVisibleDependantItems = visibleDependantItems.length > 0;
-    const showExcludedLabel = useI18n('dialog.publish.excluded.show');
-    const hideExcludedLabel = useI18n('dialog.publish.excluded.hide');
-    const toggleExcludedLabel = showExcluded ? hideExcludedLabel : showExcludedLabel;
 
     useEffect(() => {
         if (scheduleMode && !wasScheduleMode.current && scheduleKeyboardActivation.current) {
@@ -229,16 +226,14 @@ export const PublishDialogMainContent = ({
                             }}
                         />
 
-                        <SplitList.Separator hidden={!hasVisibleDependantItems && !hasExcludedItems}>
-                            <SplitList.SeparatorLabel>{separatorLabel}</SplitList.SeparatorLabel>
-                            {hasExcludedItems && isSelectionSynced && (
-                                <SplitList.SeparatorButton
-                                    label={toggleExcludedLabel}
-                                    onClick={togglePublishDialogShowExcluded}
-                                    disabled={loading}
-                                />
-                            )}
-                        </SplitList.Separator>
+                        <DependantsSeparator
+                            label={separatorLabel}
+                            hasExcluded={hasExcludedItems && isSelectionSynced}
+                            showExcluded={showExcluded}
+                            onToggleExcluded={togglePublishDialogShowExcluded}
+                            hidden={!hasVisibleDependantItems && !hasExcludedItems}
+                            disabled={loading}
+                        />
 
                         {(hasVisibleDependantItems || hasExcludedItems) && (
                             <div>

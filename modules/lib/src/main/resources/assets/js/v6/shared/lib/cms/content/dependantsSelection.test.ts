@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { ContentId } from '../../../../../app/content/ContentId';
-import { calcDependantsSelection, nextDependantExclusions, pruneExcludedDependantIds } from './dependantsSelection';
+import {
+    calcDependantsSelection,
+    filterShownDependantIds,
+    filterShownDependants,
+    hasHideableExcludedDependants,
+    nextDependantExclusions,
+    pruneExcludedDependantIds,
+} from './dependantsSelection';
 
 const id = (value: string): ContentId => new ContentId(value);
 const ids = (...values: string[]): ContentId[] => values.map(id);
@@ -123,6 +130,56 @@ describe('dependantsSelection', () => {
             const next = pruneExcludedDependantIds(ids('c', 'a', 'b'), ids('a', 'b', 'c'), []);
 
             expect(next.map((item) => item.toString())).toEqual(['c', 'a', 'b']);
+        });
+    });
+
+    describe('hasHideableExcludedDependants', () => {
+        it('reports nothing to hide when no dependant is excluded', () => {
+            expect(hasHideableExcludedDependants(ids('a', 'b'), [])).toBe(false);
+        });
+
+        it('reports something to hide when a dependant is excluded', () => {
+            expect(hasHideableExcludedDependants(ids('a', 'b'), ids('b'))).toBe(true);
+        });
+
+        it('ignores exclusions that are no longer in the dependant list', () => {
+            expect(hasHideableExcludedDependants(ids('a', 'b'), ids('gone'))).toBe(false);
+        });
+    });
+
+    describe('filterShownDependantIds', () => {
+        it('returns the same array reference when excluded dependants are shown', () => {
+            const dependantIds = ids('a', 'b');
+
+            expect(filterShownDependantIds(dependantIds, ids('b'), true)).toBe(dependantIds);
+        });
+
+        it('drops the excluded dependants when they are hidden', () => {
+            const next = filterShownDependantIds(ids('a', 'b', 'c'), ids('b'), false);
+
+            expect(toStrings(next)).toEqual(['a', 'c']);
+        });
+
+        it('keeps every dependant when nothing is excluded', () => {
+            const next = filterShownDependantIds(ids('a', 'b'), [], false);
+
+            expect(toStrings(next)).toEqual(['a', 'b']);
+        });
+    });
+
+    describe('filterShownDependants', () => {
+        const summary = (value: string): { getContentId: () => ContentId } => ({ getContentId: () => id(value) });
+
+        it('returns the same array reference when excluded dependants are shown', () => {
+            const dependants = [summary('a'), summary('b')];
+
+            expect(filterShownDependants(dependants, ids('b'), true)).toBe(dependants);
+        });
+
+        it('drops the excluded dependants when they are hidden', () => {
+            const next = filterShownDependants([summary('a'), summary('b')], ids('b'), false);
+
+            expect(next.map((item) => item.getContentId().toString())).toEqual(['a']);
         });
     });
 });
