@@ -3,10 +3,9 @@
  */
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
-const {COMMON, DIALOG_ITEMS, SELECTION_STATUS_BAR} = require('./../../libs/elements');
+const { BUTTONS, DIALOG_ITEMS, SELECTION_STATUS_BAR } = require('./../../libs/elements');
 
 class DependantsControls extends Page {
-
     constructor(container) {
         super();
         this.container = container;
@@ -20,12 +19,13 @@ class DependantsControls extends Page {
         return this.container + SELECTION_STATUS_BAR.BUTTON_CANCEL;
     }
 
+    // The toggle sits in the 'Dependencies' separator row, not inside the dependants list.
     get showExcludedItemsButton() {
-        return this.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV + COMMON.togglerButton('Show excluded');
+        return this.container + BUTTONS.buttonByLabel('Show excluded');
     }
 
     get hideExcludedItemsButton() {
-        return this.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV + COMMON.togglerButton('Hide excluded');
+        return this.container + BUTTONS.buttonByLabel('Hide excluded');
     }
 
     get dependantsBlock() {
@@ -60,18 +60,24 @@ class DependantsControls extends Page {
 
     async waitForAllDependantsCheckboxDisabled() {
         let selector = this.allDependantsCheckboxInput;
-        await this.getBrowser().waitUntil(async () => {
-            let ariaDisabled = await this.getAttribute(selector, 'aria-disabled');
-            return ariaDisabled === 'true';
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "'All' checkbox should be disabled"});
+        await this.getBrowser().waitUntil(
+            async () => {
+                let ariaDisabled = await this.getAttribute(selector, 'aria-disabled');
+                return ariaDisabled === 'true';
+            },
+            { timeout: appConst.shortTimeout, timeoutMsg: "'All' checkbox should be disabled" },
+        );
     }
 
     async waitForAllDependantsCheckboxEnabled() {
         let selector = this.allDependantsCheckboxInput;
-        await this.getBrowser().waitUntil(async () => {
-            let ariaDisabled = await this.getAttribute(selector, 'aria-disabled');
-            return ariaDisabled === 'false';
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "'All' checkbox should be enabled"});
+        await this.getBrowser().waitUntil(
+            async () => {
+                let ariaDisabled = await this.getAttribute(selector, 'aria-disabled');
+                return ariaDisabled === 'false';
+            },
+            { timeout: appConst.shortTimeout, timeoutMsg: "'All' checkbox should be enabled" },
+        );
     }
 
     async getNumberInAllCheckbox() {
@@ -99,7 +105,9 @@ class DependantsControls extends Page {
             return await this.waitForElementDisplayed(this.applySelectionButton, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_apply_btn');
-            throw new Error(`Dependants block - 'Apply selection' button is not displayed, screenshot: ${screenshot} ` + err);
+            throw new Error(
+                `Dependants block - 'Apply selection' button is not displayed, screenshot: ${screenshot} ` + err,
+            );
         }
     }
 
@@ -137,7 +145,11 @@ class DependantsControls extends Page {
         try {
             return await this.waitForElementNotDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError(`Dependants block, 'Show excluded items' button should not be visible!`, `err_show_excluded`, err);
+            await this.handleError(
+                `Dependants block, 'Show excluded items' button should not be visible!`,
+                `err_show_excluded`,
+                err,
+            );
         }
     }
 
@@ -145,7 +157,11 @@ class DependantsControls extends Page {
         try {
             return await this.waitForElementDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError(`Dependants block, 'Show excluded items' button should be visible!`, `err_show_excluded_btn`, err);
+            await this.handleError(
+                `Dependants block, 'Show excluded items' button should be visible!`,
+                `err_show_excluded_btn`,
+                err,
+            );
         }
     }
 
@@ -156,7 +172,12 @@ class DependantsControls extends Page {
             await this.pause(900);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_show_excluded_btn');
-            throw new Error('Dependants block, Error during clicking on Show Excluded button, screenshot  ' + screenshot + ' ' + err);
+            throw new Error(
+                'Dependants block, Error during clicking on Show Excluded button, screenshot  ' +
+                    screenshot +
+                    ' ' +
+                    err,
+            );
         }
     }
 
@@ -166,7 +187,11 @@ class DependantsControls extends Page {
             await this.clickOnElement(this.hideExcludedItemsButton);
             return await this.pause(1000);
         } catch (err) {
-            await this.handleError(`Dependants block, Error during clicking on Hide Excluded button`, `err_hide_excluded_btn`, err);
+            await this.handleError(
+                `Dependants block, Error during clicking on Hide Excluded button`,
+                `err_hide_excluded_btn`,
+                err,
+            );
         }
     }
 
@@ -174,7 +199,11 @@ class DependantsControls extends Page {
         try {
             return this.waitForElementDisplayed(this.hideExcludedItemsButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError(`Dependants block, 'Hide excluded items' button should be displayed!`, `err_hide_excluded_btn`, err);
+            await this.handleError(
+                `Dependants block, 'Hide excluded items' button should be displayed!`,
+                `err_hide_excluded_btn`,
+                err,
+            );
         }
     }
 
@@ -182,12 +211,20 @@ class DependantsControls extends Page {
         try {
             return this.waitForElementNotDisplayed(this.hideExcludedItemsButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError(`Dependants block, 'Hide excluded items' button should be hidden!`, `err_hide_excluded_btn`, err);
+            await this.handleError(
+                `Dependants block, 'Hide excluded items' button should be hidden!`,
+                `err_hide_excluded_btn`,
+                err,
+            );
         }
     }
 
     async getDisplayNameInDependentItems() {
-        let locator = this.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV + DIALOG_ITEMS.CONTENT_ROW + DIALOG_ITEMS.ITEMS_NAME_SPAN;
+        let locator =
+            this.container +
+            DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV +
+            DIALOG_ITEMS.CONTENT_ROW +
+            DIALOG_ITEMS.ITEMS_NAME_SPAN;
         await this.waitForElementDisplayed(locator);
         return await this.getTextInDisplayedElements(locator);
     }
@@ -196,10 +233,13 @@ class DependantsControls extends Page {
     async waitForDependantItemsDisabled() {
         try {
             let gridLocator = this.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV;
-            await this.getBrowser().waitUntil(async () => {
-                let ariaDisabled = await this.getAttribute(gridLocator, 'aria-disabled');
-                return ariaDisabled === 'true';
-            }, {timeout: appConst.shortTimeout, timeoutMsg: 'Dependants block should be disabled'});
+            await this.getBrowser().waitUntil(
+                async () => {
+                    let ariaDisabled = await this.getAttribute(gridLocator, 'aria-disabled');
+                    return ariaDisabled === 'true';
+                },
+                { timeout: appConst.shortTimeout, timeoutMsg: 'Dependants block should be disabled' },
+            );
         } catch (err) {
             await this.handleError('Dependants block should be disabled', 'err_dependants_disabled', err);
         }
@@ -207,25 +247,34 @@ class DependantsControls extends Page {
 
     // returns display names of the disabled dependant items - rows with aria-disabled='true' (e.g. in the closed issue):
     async getDisplayNameInDisabledDependantItems() {
-        let locator = this.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV + DIALOG_ITEMS.CONTENT_ROW_DISABLED +
-                      DIALOG_ITEMS.ITEMS_NAME_SPAN;
+        let locator =
+            this.container +
+            DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV +
+            DIALOG_ITEMS.CONTENT_ROW_DISABLED +
+            DIALOG_ITEMS.ITEMS_NAME_SPAN;
         await this.waitForElementDisplayed(locator);
         return await this.getTextInDisplayedElements(locator);
     }
 
     async isDependantCheckboxSelected(name) {
         try {
-
             let checkBoxInputLocator = this.container + DIALOG_ITEMS.contentCheckboxInputByName(name);
             await this.waitForElementDisplayed(this.container + DIALOG_ITEMS.contentCheckboxLabelByName(name));
             return await this.isSelected(checkBoxInputLocator);
         } catch (err) {
-            await this.handleError(`Dependants block, is checkbox selected for item ${name}`, `err_checkbox_selected`, err);
+            await this.handleError(
+                `Dependants block, is checkbox selected for item ${name}`,
+                `err_checkbox_selected`,
+                err,
+            );
         }
     }
 
     async clickOnCheckboxInDependentItem(displayName) {
-        let selector = this.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV + DIALOG_ITEMS.contentCheckboxLabelByName(displayName);
+        let selector =
+            this.container +
+            DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV +
+            DIALOG_ITEMS.contentCheckboxLabelByName(displayName);
         await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         await this.clickOnElement(selector);
         return await this.pause(400);
@@ -238,18 +287,25 @@ class DependantsControls extends Page {
 
     async isDependantCheckboxEnabled(name) {
         try {
-            let checkBoxLabelLocator = this.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV +
-                                       DIALOG_ITEMS.contentCheckboxLabelByName(name);
-            let checkBoxInputLocator = this.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV +
-                                       DIALOG_ITEMS.contentCheckboxInputByName(name);
+            let checkBoxLabelLocator =
+                this.container +
+                DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV +
+                DIALOG_ITEMS.contentCheckboxLabelByName(name);
+            let checkBoxInputLocator =
+                this.container +
+                DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV +
+                DIALOG_ITEMS.contentCheckboxInputByName(name);
             await this.waitForElementDisplayed(checkBoxLabelLocator, appConst.mediumTimeout);
             let ariaDisabled = await this.getAttribute(checkBoxInputLocator, 'aria-disabled');
             return ariaDisabled !== 'true';
         } catch (err) {
-            await this.handleError(`Dependants block, is checkbox enabled for item ${name}`, 'err_checkbox_enabled', err);
+            await this.handleError(
+                `Dependants block, is checkbox enabled for item ${name}`,
+                'err_checkbox_enabled',
+                err,
+            );
         }
     }
 }
 
 module.exports = DependantsControls;
-

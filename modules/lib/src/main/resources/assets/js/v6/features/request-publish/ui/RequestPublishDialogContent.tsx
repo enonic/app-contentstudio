@@ -12,8 +12,10 @@ import {
     $requestPublishDialog,
     $requestPublishDialogCreateCount,
     $requestPublishDialogErrors,
+    $requestPublishHasExcludedDependants,
     $requestPublishHasMoreDependants,
     $requestPublishPublishableCount,
+    $showRequestPublishExcludedDependants,
     applyDraftRequestPublishDialogSelection,
     cancelDraftRequestPublishDialogSelection,
     excludeInProgressRequestPublishItems,
@@ -28,9 +30,11 @@ import {
     setRequestPublishTitle,
     submitRequestPublishDialog,
     toggleRequestPublishDependantsSelection,
+    toggleRequestPublishShowExcludedDependants,
 } from '../model/requestPublishDialog.store';
 import { useItemsWithUnpublishedChildren } from '../../../entities/content';
-import { ContentRow, SplitList } from '../../shared/lists';
+import { filterShownDependants } from '../../../shared/lib/cms/content/dependantsSelection';
+import { ContentRow, DependantsSeparator, SplitList } from '../../shared/lists';
 import { AssigneeSelector } from '../../shared/selectors/assignee/AssigneeSelector';
 import { useAssigneeSearch, useAssigneeSelection } from '../../shared/selectors/assignee/hooks/useAssigneeSearch';
 import { DependantsSelectAll } from '../../../shared/ui/dialogs/dependants/DependantsSelectAll';
@@ -49,6 +53,7 @@ export const RequestPublishDialogContent = (): ReactElement => {
         dependants,
         excludedDependantIds,
         requiredDependantIds,
+        appliedExcludedDependantIds,
         loading,
         failed,
         submitting,
@@ -62,6 +67,7 @@ export const RequestPublishDialogContent = (): ReactElement => {
             'dependants',
             'excludedDependantIds',
             'requiredDependantIds',
+            'appliedExcludedDependantIds',
             'loading',
             'failed',
             'submitting',
@@ -70,6 +76,8 @@ export const RequestPublishDialogContent = (): ReactElement => {
     const createCount = useStore($requestPublishDialogCreateCount);
     const publishableCount = useStore($requestPublishPublishableCount);
     const hasMoreDependants = useStore($requestPublishHasMoreDependants);
+    const hasExcludedDependants = useStore($requestPublishHasExcludedDependants);
+    const showExcludedDependants = useStore($showRequestPublishExcludedDependants);
     const dependantsSelection = useStore($requestPublishDependantsSelection);
     const isPublishReady = useStore($isRequestPublishReady);
     const isSelectionSynced = useStore($isRequestPublishSelectionSynced);
@@ -82,6 +90,7 @@ export const RequestPublishDialogContent = (): ReactElement => {
     const assigneesLabel = useI18n('dialog.requestPublish.assignees');
     const itemsLabel = useI18n('field.items');
     const dependenciesLabel = useI18n('dialog.dependencies');
+    const allExcludedMessage = useI18n('dialog.dependencies.allExcluded');
     const createLabel = useI18n('action.createRequest');
     const applyLabel = useI18n('action.apply');
     const noResultsLabel = useI18n('dialog.search.result.noResults');
@@ -100,6 +109,11 @@ export const RequestPublishDialogContent = (): ReactElement => {
     const requiredDependantSet = useMemo(
         () => new Set(requiredDependantIds.map((id) => id.toString())),
         [requiredDependantIds],
+    );
+
+    const visibleDependants = useMemo(
+        () => filterShownDependants(dependants, appliedExcludedDependantIds, showExcludedDependants),
+        [appliedExcludedDependantIds, dependants, showExcludedDependants],
     );
 
     const { options: assigneeOptions, handleSearchChange } = useAssigneeSearch();
@@ -254,11 +268,16 @@ export const RequestPublishDialogContent = (): ReactElement => {
                                 }}
                             />
                         </div>
-                        <SplitList.Separator hidden={dependants.length === 0}>
-                            <SplitList.SeparatorLabel>{dependenciesLabel}</SplitList.SeparatorLabel>
-                        </SplitList.Separator>
+                        <DependantsSeparator
+                            label={dependenciesLabel}
+                            hasExcluded={hasExcludedDependants && isSelectionSynced}
+                            showExcluded={showExcludedDependants}
+                            onToggleExcluded={toggleRequestPublishShowExcludedDependants}
+                            hidden={visibleDependants.length === 0 && !hasExcludedDependants}
+                            disabled={isItemsDisabled}
+                        />
 
-                        {dependants.length > 0 && (
+                        {(visibleDependants.length > 0 || hasExcludedDependants) && (
                             <div>
                                 {dependantsSelection.count > 0 && (
                                     <DependantsSelectAll
@@ -269,8 +288,9 @@ export const RequestPublishDialogContent = (): ReactElement => {
                                 )}
 
                                 <SplitList.Secondary
-                                    items={dependants}
+                                    items={visibleDependants}
                                     getItemId={(item) => item.getId()}
+                                    emptyMessage={hasExcludedDependants ? allExcludedMessage : undefined}
                                     disabled={isItemsDisabled}
                                     loading={loading}
                                     hasMore={hasMoreDependants}

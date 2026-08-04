@@ -18,7 +18,13 @@ import {
     $contentRenamed,
     $contentUpdated,
 } from '../../../shared/socket/socket.store';
-import { $newIssueDialog, reloadDependenciesDebounced, resetDependenciesState } from './newIssueDialog.store';
+import {
+    $newIssueDialog,
+    $newIssueHasExcludedDependants,
+    $showNewIssueExcludedDependants,
+    reloadDependenciesDebounced,
+    resetDependenciesState,
+} from './newIssueDialog.store';
 
 //
 // * New Issue Dialog Service
@@ -116,6 +122,12 @@ export const start = (): void => {
     }
 
     unsubscribers = [
+        // Snap back to "show excluded" once nothing is excluded, so the toggle never lingers hidden.
+        $newIssueHasExcludedDependants.subscribe((hasExcluded) => {
+            if (!hasExcluded) {
+                $showNewIssueExcludedDependants.set(true);
+            }
+        }),
         $contentCreated.subscribe(
             onNewIssueSocketEvent((event) => {
                 const matched = findContentIdsWithCreatedDescendants($newIssueDialog.get().items, event.data);

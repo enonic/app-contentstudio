@@ -12,6 +12,8 @@ import {
     $newIssueDialog,
     $newIssueDialogCreateCount,
     $newIssueDialogHasMoreDependants,
+    $newIssueHasExcludedDependants,
+    $showNewIssueExcludedDependants,
     addNewIssueItemsByIds,
     applyDraftNewIssueDialogSelection,
     cancelDraftNewIssueDialogSelection,
@@ -24,9 +26,11 @@ import {
     setNewIssueTitle,
     submitNewIssueDialog,
     toggleNewIssueDependantsSelection,
+    toggleNewIssueShowExcludedDependants,
 } from '../../model/newIssueDialog.store';
 import { useItemsWithUnpublishedChildren } from '../../../../entities/content';
-import { ContentRow, SplitList } from '../../../shared/lists';
+import { filterShownDependants } from '../../../../shared/lib/cms/content/dependantsSelection';
+import { ContentRow, DependantsSeparator, SplitList } from '../../../shared/lists';
 import { AssigneeSelector } from '../../../shared/selectors/assignee/AssigneeSelector';
 import { useAssigneeSearch, useAssigneeSelection } from '../../../shared/selectors/assignee/hooks/useAssigneeSearch';
 import { ContentCombobox } from '../../../shared/selectors/content';
@@ -46,6 +50,7 @@ export const NewIssueDialogContent = (): ReactElement => {
         dependants,
         excludedDependantIds,
         requiredDependantIds,
+        appliedExcludedDependantIds,
         loading,
         failed,
         submitting,
@@ -59,6 +64,7 @@ export const NewIssueDialogContent = (): ReactElement => {
             'dependants',
             'excludedDependantIds',
             'requiredDependantIds',
+            'appliedExcludedDependantIds',
             'loading',
             'failed',
             'submitting',
@@ -67,6 +73,8 @@ export const NewIssueDialogContent = (): ReactElement => {
 
     const createCount = useStore($newIssueDialogCreateCount);
     const hasMoreDependants = useStore($newIssueDialogHasMoreDependants);
+    const hasExcludedDependants = useStore($newIssueHasExcludedDependants);
+    const showExcludedDependants = useStore($showNewIssueExcludedDependants);
     const dependantsSelection = useStore($newIssueDependantsSelection);
     const isSelectionSynced = useStore($isNewIssueSelectionSynced);
 
@@ -75,6 +83,7 @@ export const NewIssueDialogContent = (): ReactElement => {
     const assigneesLabel = useI18n('field.assignees');
     const itemsLabel = useI18n('field.items');
     const dependenciesLabel = useI18n('dialog.dependencies');
+    const allExcludedMessage = useI18n('dialog.dependencies.allExcluded');
     const createLabel = useI18n('action.createIssue');
     const applyLabel = useI18n('action.apply');
     const dialogTitle = useI18n('text.newIssue');
@@ -93,6 +102,11 @@ export const NewIssueDialogContent = (): ReactElement => {
     const requiredDependantSet = useMemo(
         () => new Set(requiredDependantIds.map((id) => id.toString())),
         [requiredDependantIds],
+    );
+
+    const visibleDependants = useMemo(
+        () => filterShownDependants(dependants, appliedExcludedDependantIds, showExcludedDependants),
+        [appliedExcludedDependantIds, dependants, showExcludedDependants],
     );
 
     const { options: assigneeOptions, handleSearchChange } = useAssigneeSearch();
@@ -255,11 +269,16 @@ export const NewIssueDialogContent = (): ReactElement => {
                                     );
                                 }}
                             />
-                            <SplitList.Separator hidden={dependants.length === 0}>
-                                <SplitList.SeparatorLabel>{dependenciesLabel}</SplitList.SeparatorLabel>
-                            </SplitList.Separator>
+                            <DependantsSeparator
+                                label={dependenciesLabel}
+                                hasExcluded={hasExcludedDependants && isSelectionSynced}
+                                showExcluded={showExcludedDependants}
+                                onToggleExcluded={toggleNewIssueShowExcludedDependants}
+                                hidden={visibleDependants.length === 0 && !hasExcludedDependants}
+                                disabled={isItemsDisabled}
+                            />
 
-                            {dependants.length > 0 && (
+                            {(visibleDependants.length > 0 || hasExcludedDependants) && (
                                 <div>
                                     {dependantsSelection.count > 0 && (
                                         <DependantsSelectAll
@@ -270,8 +289,9 @@ export const NewIssueDialogContent = (): ReactElement => {
                                     )}
 
                                     <SplitList.Secondary
-                                        items={dependants}
+                                        items={visibleDependants}
                                         getItemId={(item) => item.getId()}
+                                        emptyMessage={hasExcludedDependants ? allExcludedMessage : undefined}
                                         disabled={isItemsDisabled}
                                         loading={loading}
                                         hasMore={hasMoreDependants}

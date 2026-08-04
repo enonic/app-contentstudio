@@ -1,7 +1,7 @@
 import { showError, showSuccess, showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
 import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
-import { computed, map } from 'nanostores';
+import { atom, computed, map } from 'nanostores';
 import { ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { PublishRequest } from '../../../../app/issue/PublishRequest';
@@ -16,6 +16,8 @@ import {
 import { resolveAppliedPublishDependencies } from '../../../entities/content/lib/publishDependencies';
 import {
     calcDependantsSelection,
+    filterShownDependantIds,
+    hasHideableExcludedDependants,
     nextDependantExclusions,
     pruneExcludedDependantIds,
 } from '../../../shared/lib/cms/content/dependantsSelection';
@@ -72,7 +74,16 @@ const initialState: NewIssueDialogStore = {
 
 export const $newIssueDialog = map<NewIssueDialogStore>(structuredClone(initialState));
 
+// Whether applied dependant exclusions are shown in the list ("Show/Hide excluded" toggle).
+export const $showNewIssueExcludedDependants = atom<boolean>(true);
+
 export const $isNewIssueSelectionSynced = computed($newIssueDialog, isDraftSelectionSynced);
+
+export const $newIssueHasExcludedDependants = computed(
+    $newIssueDialog,
+    ({ dependantIds, appliedExcludedDependantIds }) =>
+        hasHideableExcludedDependants(dependantIds, appliedExcludedDependantIds),
+);
 
 export const $newIssueDialogCreateCount = computed($newIssueDialog, ({ items, dependantIds, excludedDependantIds }) => {
     const includedDependants = dependantIds.filter((id) => !hasContentIdInIds(id, excludedDependantIds));
@@ -84,10 +95,15 @@ export const $newIssueDialogHasMoreDependants = computed(
     ({ dependantIds, dependantWindow }) => dependantWindow < dependantIds.length,
 );
 
+// From the full id set, not the loaded window, and filtered by the "show excluded" toggle.
 export const $newIssueDependantsSelection = computed(
-    $newIssueDialog,
-    ({ dependantIds, requiredDependantIds, excludedDependantIds }) =>
-        calcDependantsSelection(dependantIds, requiredDependantIds, excludedDependantIds),
+    [$newIssueDialog, $showNewIssueExcludedDependants],
+    ({ dependantIds, requiredDependantIds, excludedDependantIds, appliedExcludedDependantIds }, showExcluded) =>
+        calcDependantsSelection(
+            filterShownDependantIds(dependantIds, appliedExcludedDependantIds, showExcluded),
+            requiredDependantIds,
+            excludedDependantIds,
+        ),
 );
 
 let instanceId = 0;
@@ -116,6 +132,7 @@ export const resetNewIssueDialogContext = (): void => {
     instanceId += 1;
     reloadDependenciesDebounced.cancel();
     $newIssueDialog.set(structuredClone(initialState));
+    $showNewIssueExcludedDependants.set(true);
 };
 
 export const openNewIssueDialog = (items?: ContentSummary[]): void => {
@@ -287,13 +304,18 @@ export const setNewIssueDependantIncluded = (id: ContentId, included: boolean): 
     }
 };
 
+export const toggleNewIssueShowExcludedDependants = (): void => {
+    $showNewIssueExcludedDependants.set(!$showNewIssueExcludedDependants.get());
+};
+
 export const toggleNewIssueDependantsSelection = (): void => {
-    const { dependantIds, requiredDependantIds, excludedDependantIds } = $newIssueDialog.get();
-    const selection = calcDependantsSelection(dependantIds, requiredDependantIds, excludedDependantIds);
+    // Read the computed: it defines the rows on screen, so a batch toggle skips hidden ones.
+    const selection = $newIssueDependantsSelection.get();
     if (selection.selectableIds.length === 0) {
         return;
     }
 
+    const { excludedDependantIds } = $newIssueDialog.get();
     $newIssueDialog.setKey('excludedDependantIds', nextDependantExclusions(selection, excludedDependantIds));
 };
 

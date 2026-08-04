@@ -2,7 +2,7 @@ import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
 import { showError, showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
 import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
-import { computed, map } from 'nanostores';
+import { atom, computed, map } from 'nanostores';
 import { type ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { IssueStatus } from '../../../../app/issue/IssueStatus';
@@ -29,6 +29,8 @@ import { resolveAppliedPublishDependencies } from '../../../entities/content/lib
 import { buildItemsFromIds } from '../../../shared/lib/cms/content/buildItems';
 import {
     calcDependantsSelection,
+    filterShownDependantIds,
+    hasHideableExcludedDependants,
     nextDependantExclusions,
     pruneExcludedDependantIds,
 } from '../../../shared/lib/cms/content/dependantsSelection';
@@ -122,6 +124,9 @@ const initialState: IssueDialogDetailsStore = {
 
 export const $issueDialogDetails = map<IssueDialogDetailsStore>(structuredClone(initialState));
 
+// Whether applied dependant exclusions are shown in the list ("Show/Hide excluded" toggle).
+export const $showIssueDialogDetailsExcludedDependants = atom<boolean>(true);
+
 export const $deleteCommentConfirmation = map<DeleteCommentConfirmation>({
     open: false,
     commentId: undefined,
@@ -173,15 +178,38 @@ export const $issueDialogDetailsHasMoreDependants = computed(
     ({ dependantIds, dependantWindow }) => dependantWindow < dependantIds.length,
 );
 
-export const $issueDialogDetailsDependantsSelection = computed(
+export const $issueDialogDetailsHasExcludedDependants = computed(
     $issueDialogDetails,
-    ({ dependantIds, requiredDependantIds, excludedDependantIds }) =>
-        calcDependantsSelection(dependantIds, requiredDependantIds, excludedDependantIds),
+    ({ dependantIds, appliedExcludedDependantIds }) =>
+        hasHideableExcludedDependants(dependantIds, appliedExcludedDependantIds),
+);
+
+// From the full id set, not the loaded window, and filtered by the "show excluded" toggle.
+export const $issueDialogDetailsDependantsSelection = computed(
+    [$issueDialogDetails, $showIssueDialogDetailsExcludedDependants],
+    ({ dependantIds, requiredDependantIds, excludedDependantIds, appliedExcludedDependantIds }, showExcluded) =>
+        calcDependantsSelection(
+            filterShownDependantIds(dependantIds, appliedExcludedDependantIds, showExcluded),
+            requiredDependantIds,
+            excludedDependantIds,
+        ),
 );
 
 //
 // * Public API
 //
+
+/**
+ * Snap back to "show excluded" once nothing is excluded, so the toggle never lingers hidden.
+ * Written here, not subscribed in the service: a listener would pin `$issueDialogDetails` mounted.
+ */
+const syncShowExcludedDependants = (): void => {
+    const { dependantIds, appliedExcludedDependantIds } = $issueDialogDetails.get();
+
+    if (!hasHideableExcludedDependants(dependantIds, appliedExcludedDependantIds)) {
+        $showIssueDialogDetailsExcludedDependants.set(true);
+    }
+};
 
 export const setIssueDialogDetailsTab = (detailsTab: IssueDialogDetailsTab): void => {
     $issueDialogDetails.setKey('detailsTab', detailsTab);
@@ -224,6 +252,7 @@ export const loadIssueDialogItems = async (issue?: Issue, options: IssueDialogIt
             appliedExcludeChildrenIds: [],
             appliedExcludedDependantIds: [],
         });
+        syncShowExcludedDependants();
         return;
     }
 
@@ -258,6 +287,7 @@ export const loadIssueDialogItems = async (issue?: Issue, options: IssueDialogIt
         appliedExcludeChildrenIds: serverExcludeChildrenIds,
         appliedExcludedDependantIds: serverExcludedDependantIds,
     });
+    syncShowExcludedDependants();
 
     try {
         const items = shouldFetchItems ? await fetchContentSummaries(itemIds) : currentState.items;
@@ -335,6 +365,7 @@ export const loadIssueDialogItems = async (issue?: Issue, options: IssueDialogIt
             itemsLoading: false,
             itemsError: false,
         });
+        syncShowExcludedDependants();
     } catch (error) {
         if (requestId !== dependenciesRequestId) {
             return;
@@ -881,6 +912,7 @@ export const applyDraftIssueDialogDetailsSelection = async (): Promise<void> => 
         itemsUpdating: true,
         ...commitDraftSelection(state),
     });
+    syncShowExcludedDependants();
 
     const updated = await updateIssueWithPublishRequest({
         issueId,
@@ -951,13 +983,18 @@ export const updateIssueDialogExcludedDependants = async (nextExcludedIds: Conte
     });
 };
 
+export const toggleIssueDialogDetailsShowExcludedDependants = (): void => {
+    $showIssueDialogDetailsExcludedDependants.set(!$showIssueDialogDetailsExcludedDependants.get());
+};
+
 export const toggleIssueDialogDetailsDependantsSelection = (): void => {
-    const { dependantIds, requiredDependantIds, excludedDependantIds } = $issueDialogDetails.get();
-    const selection = calcDependantsSelection(dependantIds, requiredDependantIds, excludedDependantIds);
+    // Read the computed: it defines the rows on screen, so a batch toggle skips hidden ones.
+    const selection = $issueDialogDetailsDependantsSelection.get();
     if (selection.selectableIds.length === 0) {
         return;
     }
 
+    const { excludedDependantIds } = $issueDialogDetails.get();
     $issueDialogDetails.setKey('excludedDependantIds', nextDependantExclusions(selection, excludedDependantIds));
 };
 
@@ -1196,5 +1233,6 @@ export const resetIssueDialogDetails = (issueId?: string): void => {
         issueId,
         detailsTab: resolveDefaultDetailsTab(issueId),
     });
+    $showIssueDialogDetailsExcludedDependants.set(true);
     $deleteCommentConfirmation.set({ open: false, commentId: undefined });
 };
