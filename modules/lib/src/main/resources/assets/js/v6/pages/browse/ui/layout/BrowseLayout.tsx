@@ -1,9 +1,8 @@
 import { type Element } from '@enonic/lib-admin-ui/dom/Element';
 import { ResponsiveManager } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
 import { cn } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import { useCallback, useEffect, useMemo, useRef, type ReactElement } from 'react';
+import { useCallback, useEffect, useRef, type ReactElement } from 'react';
 import { $isContextOpen } from '../../../../widgets/context-panel/model/contextWidgets.store';
 import {
     $contextPanelMode,
@@ -83,12 +82,16 @@ export const BrowseLayout = ({
     }, [publishMetrics]);
 
     // Hosted legacy content re-measures only on ResponsiveManager events.
-    const notifyLegacyResize = useMemo(
-        () => AppHelper.debounce(() => ResponsiveManager.fireResizeEvent(), RESIZE_NOTIFY_DELAY_MS),
-        [],
-    );
+    // ? The timer is owned here instead of AppHelper.debounce, which returns
+    // no handle to cancel a pending fire before unmount.
+    const resizeTimerRef = useRef<number>();
 
-    const handlePanelResize = useCallback(() => notifyLegacyResize(), [notifyLegacyResize]);
+    useEffect(() => () => window.clearTimeout(resizeTimerRef.current), []);
+
+    const handlePanelResize = useCallback(() => {
+        window.clearTimeout(resizeTimerRef.current);
+        resizeTimerRef.current = window.setTimeout(() => ResponsiveManager.fireResizeEvent(), RESIZE_NOTIFY_DELAY_MS);
+    }, []);
 
     const isMobile = mode === 'mobile';
     // ! Grid and preview stay mounted through mode changes: re-parenting would
@@ -109,57 +112,57 @@ export const BrowseLayout = ({
             data-component={BROWSE_LAYOUT_NAME}
             className={cn('absolute inset-x-0 bottom-0 top-15', isMobile && 'overflow-hidden', LEGACY_PANEL_OVERRIDES)}
         >
-            <SplitView orientation='horizontal' storageId={storageId} className='size-full'>
+            <SplitView orientation="horizontal" storageId={storageId} className="size-full">
                 {/* Filter and grid share the left region, so opening the filter shrinks the
                     grid — not the preview (which stays an outer sibling). Matches legacy. */}
                 <SplitView.Panel
-                    id='grid-region'
+                    id="grid-region"
                     defaultSize={GRID_REGION_DEFAULT}
                     minSize={isMobile ? undefined : PANEL_MIN_WIDTH}
                     collapsible={isMobile}
                     collapsed={gridCollapsed}
                     onResize={handlePanelResize}
                 >
-                    <SplitView orientation='horizontal' storageId={`${storageId}-grid`} className='size-full'>
+                    <SplitView orientation="horizontal" storageId={`${storageId}-grid`} className="size-full">
                         {showFilterSplitPanel && (
                             <>
                                 <SplitView.Panel
-                                    id='filter'
+                                    id="filter"
                                     defaultSize={FILTER_DEFAULT_WIDTH}
                                     minSize={FILTER_DEFAULT_WIDTH}
-                                    groupResizeBehavior='preserve-pixel-size'
+                                    groupResizeBehavior="preserve-pixel-size"
                                 >
-                                    <LegacyElementHost element={filterPanel} className='size-full bg-surface-neutral' />
+                                    <LegacyElementHost element={filterPanel} className="size-full bg-surface-neutral" />
                                 </SplitView.Panel>
-                                <SplitView.Handle id='filter-handle' variant='thin' />
+                                <SplitView.Handle id="filter-handle" variant="thin" />
                             </>
                         )}
-                        <SplitView.Panel id='grid' minSize={PANEL_MIN_WIDTH}>
-                            <LegacyElementHost element={gridPanel} className='size-full' />
+                        <SplitView.Panel id="grid" minSize={PANEL_MIN_WIDTH}>
+                            <LegacyElementHost element={gridPanel} className="size-full" />
                         </SplitView.Panel>
                     </SplitView>
                 </SplitView.Panel>
-                {!isMobile && <SplitView.Handle id='grid-preview-handle' variant='thin' />}
+                {!isMobile && <SplitView.Handle id="grid-preview-handle" variant="thin" />}
                 <SplitView.Panel
-                    id='preview'
+                    id="preview"
                     minSize={isMobile ? undefined : PANEL_MIN_WIDTH}
                     collapsible={isMobile}
                     collapsed={previewCollapsed}
                     onResize={handlePanelResize}
                 >
-                    <LegacyElementHost element={previewPanel} className='size-full' />
+                    <LegacyElementHost element={previewPanel} className="size-full" />
                 </SplitView.Panel>
                 {showDockedContext && (
                     <>
-                        <SplitView.Handle id='context-handle' variant='thin' />
+                        <SplitView.Handle id="context-handle" variant="thin" />
                         <SplitView.Panel
-                            id='context'
+                            id="context"
                             defaultSize={`${CONTEXT_MIN_WIDTH}px`}
                             minSize={`${CONTEXT_MIN_WIDTH}px`}
-                            groupResizeBehavior='preserve-pixel-size'
+                            groupResizeBehavior="preserve-pixel-size"
                             onResize={handlePanelResize}
                         >
-                            <LegacyElementHost element={contextPanel} className='size-full' />
+                            <LegacyElementHost element={contextPanel} className="size-full" />
                         </SplitView.Panel>
                     </>
                 )}
@@ -168,17 +171,17 @@ export const BrowseLayout = ({
                 <FloatingContextPanel
                     element={contextPanel}
                     boundsSelector='[data-component="BrowseLayout"]'
-                    onResized={notifyLegacyResize}
+                    onResized={handlePanelResize}
                 />
             )}
             {showMobileContext && (
-                <div data-component='BrowseLayout.MobileContext' className='absolute inset-0 z-[1] bg-surface-neutral'>
-                    <LegacyElementHost element={contextPanel} className='size-full' />
+                <div data-component="BrowseLayout.MobileContext" className="absolute inset-0 z-[1] bg-surface-neutral">
+                    <LegacyElementHost element={contextPanel} className="size-full" />
                 </div>
             )}
             {showMobileFilter && (
-                <div data-component='BrowseLayout.MobileFilter' className='absolute inset-0 z-[2] bg-surface-neutral'>
-                    <LegacyElementHost element={filterPanel} className='size-full' />
+                <div data-component="BrowseLayout.MobileFilter" className="absolute inset-0 z-[2] bg-surface-neutral">
+                    <LegacyElementHost element={filterPanel} className="size-full" />
                 </div>
             )}
         </div>
