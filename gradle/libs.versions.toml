@@ -3,9 +3,8 @@
 junit = "6.1.2"
 mockito = "5.23.0"
 assertj = "3.27.7"
-graalvm = "25.0.3"
 enonicDefaults = "2.1.7"
-xpApp = "4.1.0"
+xpApp = "4.2.0"
 
 nodeGradle = "7.1.0"
 
@@ -31,8 +30,6 @@ mockito-core = { module = "org.mockito:mockito-core" }
 mockito-jupiter = { module = "org.mockito:mockito-junit-jupiter" }
 
 assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
-
-graalvm-js = { module = "org.graalvm.polyglot:js", version.ref = "graalvm" }
 
 # App
 commons-text = { module = "org.apache.commons:commons-text", version.ref = "commonsText" }
