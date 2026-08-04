@@ -1,3 +1,6 @@
+/**
+ * Updated on 03.08.2026
+ */
 const Page = require('../../page');
 const {BUTTONS, DROPDOWN} = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
@@ -12,8 +15,9 @@ const XPATH = {
     alignJustifyButton: "//button[@aria-label='Justify']",
     alignLeftButton: "//button[@aria-label='Left']",
     alignCenterButton: "//button[@aria-label='Center']",
-    alignRightButton: "//button[@@aria-label='Right']",
+    alignRightButton: "//button[@aria-label='Right']",
     customWidthDiv: "//div[@data-component='Checkbox' and descendant::span[text()='Custom width']]",
+    imageRangeInput: "//input[@type='range']",
     imageRangeValue: "//input[@type='range']/following-sibling::span",
     accessibilityRadioGroup: "//div[@role='radiogroup']",
     altTextInput: "//input[@placeholder='Describe image content']",
@@ -59,6 +63,11 @@ class InsertImageDialog extends Page {
 
     get customWidthCheckbox() {
         return XPATH.container + XPATH.customWidthDiv + "//input[@type='checkbox']";
+    }
+
+    // The checkbox input is visually hidden (sr-only), clicks should be performed on the label
+    get customWidthCheckboxLabel() {
+        return XPATH.container + XPATH.customWidthDiv + '//label';
     }
 
     get closeButton() {
@@ -175,17 +184,17 @@ class InsertImageDialog extends Page {
 
     async clickOnCustomWidthCheckBox() {
         try {
-            await this.waitForElementDisplayed(this.customWidthCheckbox, appConst.shortTimeout);
-            await this.clickOnElement(this.customWidthCheckbox);
+            await this.waitForElementDisplayed(this.customWidthCheckboxLabel, appConst.shortTimeout);
+            await this.clickOnElement(this.customWidthCheckboxLabel);
             return await this.pause(200);
         } catch (err) {
-            await this.handleError(`Insert Image Dialog`, 'err_clicking_on_custom_width_checkbox', err);
+            await this.handleError(`Insert Image Dialog, Custom width checkbox`, 'err_clicking_on_custom_width_checkbox', err);
         }
     }
 
     async isCustomWidthCheckBoxSelected() {
         try {
-            await this.waitForElementDisplayed(this.customWidthCheckbox, appConst.shortTimeout);
+            await this.waitForElementDisplayed(this.customWidthCheckboxLabel, appConst.shortTimeout);
             let attr = await this.getAttribute(this.customWidthCheckbox, 'aria-checked');
             return attr === 'true';
         } catch (err) {
@@ -257,17 +266,19 @@ class InsertImageDialog extends Page {
         }
     }
 
+    // Returns the text in the span next to the range input, for example '100%'
     async waitForImageRangeValue() {
         try {
-            await this.waitForElementDisplayed(XPATH.container + XPATH.imageRangeValue, appConst.mediumTimeout);
-            return await this.getText(XPATH.container + XPATH.imageRangeValue);
+            await this.waitForElementDisplayed(XPATH.container + XPATH.imageRangeInput, appConst.mediumTimeout);
+            let value = await this.getText(XPATH.container + XPATH.imageRangeValue);
+            return value.trim();
         } catch (err) {
-            await this.handleError(`Insert Image Dialog`, 'err_wait_for_image_range_value', err);
+            await this.handleError(`Insert Image Dialog, image range value`, 'err_wait_for_image_range_value', err);
         }
     }
 
     waitForImageRangeNotVisible() {
-        return this.waitForElementNotDisplayed(XPATH.container + XPATH.imageRangeValue, appConst.mediumTimeout);
+        return this.waitForElementNotDisplayed(XPATH.container + XPATH.imageRangeInput, appConst.mediumTimeout);
     }
 
     async clickOnImageSelectorModeTogglerButton() {

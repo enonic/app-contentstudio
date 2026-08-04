@@ -86,6 +86,13 @@ class CompareContentVersionsDialog extends Page {
         return await this.getText(locator);
     }
 
+    async getPathProperty() {
+        let locator = XPATH.container + "//li[@data-key='_path']/div[contains(@class,'right-value')]//pre";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        let text = await this.getText(locator);
+        return text.replace(/^"|"$/g, '');
+    }
+
     // Returns the message that is displayed when the compared versions are identical:
     async waitForVersionsIdenticalMessage() {
         let locator = XPATH.container + XPATH.versionsIdenticalMessage;

@@ -14,7 +14,6 @@ exports.config = {
     ],
 
     exclude: [
-        path.join(__dirname, '../specs/misc/attachments.widget.spec.js'),
         path.join(__dirname, '../specs/misc/content.xdata.outbound.dependency.spec.js'),
         path.join(__dirname, '../specs/misc/content.xdata.textarea.spec.js'),
         path.join(__dirname, '../specs/misc/filtering.by.modifier.spec.js'),
@@ -26,13 +25,8 @@ exports.config = {
         path.join(__dirname, '../specs/misc/image.properties.photo.location.spec.js'),
         path.join(__dirname, '../specs/misc/image.wizard.photo.properties.spec.js'),
         path.join(__dirname, '../specs/misc/insert.image.dlg.custom.width.spec.js'),
-        path.join(__dirname, '../specs/misc/insert.image.dlg.style.selector.spec.js'),
-        path.join(__dirname, '../specs/misc/moved.modified.content.spec.js'),
         path.join(__dirname, '../specs/misc/publish.request.dialog.add.items.spec.js'),
         path.join(__dirname, '../specs/misc/revert.published.content.spec.js'),
-        path.join(__dirname, '../specs/misc/text.component.content.link.spec.js'),
-        path.join(__dirname, '../specs/misc/text.component.download.link.spec.js'),
-        path.join(__dirname, '../specs/misc/text.component.image.outbound.spec.js'),
         path.join(__dirname, '../specs/misc/update.path.spec.js'),
         path.join(__dirname, '../specs/misc/versions.widget.check.status.spec.js'),
     ],
