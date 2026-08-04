@@ -13,6 +13,8 @@ import {
 } from '../../../shared/socket/socket.store';
 import {
     $requestPublishDialog,
+    $requestPublishHasExcludedDependants,
+    $showRequestPublishExcludedDependants,
     hasOpenRequestPublishDialog,
     patchTrackedRequestPublishItems,
     queueRequestPublishSocketChanges,
@@ -106,6 +108,12 @@ export const start = (): void => {
     }
 
     unsubscribers = [
+        // Snap back to "show excluded" once nothing is excluded, so the toggle never lingers hidden.
+        $requestPublishHasExcludedDependants.subscribe((hasExcluded) => {
+            if (!hasExcluded) {
+                $showRequestPublishExcludedDependants.set(true);
+            }
+        }),
         $contentCreated.subscribe(
             onRequestPublishSocketEvent((event) => {
                 const mainItemIds = findContentIdsWithCreatedDescendants($requestPublishDialog.get().items, event.data);

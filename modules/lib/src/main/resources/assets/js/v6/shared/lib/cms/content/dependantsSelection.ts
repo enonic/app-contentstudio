@@ -1,5 +1,5 @@
 import { type ContentId } from '../../../../../app/content/ContentId';
-import { hasContentIdInIds, uniqueIds } from './ids';
+import { hasContentIdInIds, type HasContentId, uniqueIds } from './ids';
 
 // Tri-state of a dependants list's batch "select all" checkbox (legacy `SelectionType`).
 export type DependantsSelectionType = 'all' | 'none' | 'partial';
@@ -60,6 +60,39 @@ export const pruneExcludedDependantIds = (
     requiredIds: readonly ContentId[],
 ): ContentId[] => {
     return excludedIds.filter((id) => hasContentIdInIds(id, shownIds) && !hasContentIdInIds(id, requiredIds));
+};
+
+/** True when at least one dependant is applied-excluded, so the toggle has something to hide. */
+export const hasHideableExcludedDependants = (
+    dependantIds: readonly ContentId[],
+    appliedExcludedIds: readonly ContentId[],
+): boolean => {
+    return dependantIds.some((id) => hasContentIdInIds(id, appliedExcludedIds));
+};
+
+/**
+ * The dependant ids left in the list while "Hide excluded" is active. Keyed on the applied
+ * exclusions, never the draft: a staged exclusion must not hide a row while Apply is still up.
+ */
+export const filterShownDependantIds = (
+    dependantIds: ContentId[],
+    appliedExcludedIds: readonly ContentId[],
+    showExcluded: boolean,
+): ContentId[] => {
+    if (showExcluded) return dependantIds;
+
+    return dependantIds.filter((id) => !hasContentIdInIds(id, appliedExcludedIds));
+};
+
+/** {@link filterShownDependantIds} for the loaded summary window. */
+export const filterShownDependants = <T extends HasContentId>(
+    dependants: T[],
+    appliedExcludedIds: readonly ContentId[],
+    showExcluded: boolean,
+): T[] => {
+    if (showExcluded) return dependants;
+
+    return dependants.filter((item) => !hasContentIdInIds(item.getContentId(), appliedExcludedIds));
 };
 
 const calcSelectionType = (

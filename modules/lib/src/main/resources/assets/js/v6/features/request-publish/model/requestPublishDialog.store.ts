@@ -1,7 +1,7 @@
 import { showError, showFeedback, showSuccess, showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
 import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
-import { computed, map } from 'nanostores';
+import { atom, computed, map } from 'nanostores';
 import { type ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { IssueType } from '../../../../app/issue/IssueType';
@@ -20,6 +20,8 @@ import {
 import { resolveAppliedPublishDependencies } from '../../../entities/content/lib/publishDependencies';
 import {
     calcDependantsSelection,
+    filterShownDependantIds,
+    hasHideableExcludedDependants,
     nextDependantExclusions,
     pruneExcludedDependantIds,
 } from '../../../shared/lib/cms/content/dependantsSelection';
@@ -93,7 +95,16 @@ export const $requestPublishDialog = map<RequestPublishDialogStore>(structuredCl
 
 const $requestPublishChecks = map<RequestPublishChecksStore>(structuredClone(initialChecksState));
 
+// Whether applied dependant exclusions are shown in the list ("Show/Hide excluded" toggle).
+export const $showRequestPublishExcludedDependants = atom<boolean>(true);
+
 export const $isRequestPublishSelectionSynced = computed($requestPublishDialog, isDraftSelectionSynced);
+
+export const $requestPublishHasExcludedDependants = computed(
+    $requestPublishDialog,
+    ({ dependantIds, appliedExcludedDependantIds }) =>
+        hasHideableExcludedDependants(dependantIds, appliedExcludedDependantIds),
+);
 
 export const $requestPublishDialogCreateCount = computed(
     $requestPublishDialog,
@@ -108,10 +119,15 @@ export const $requestPublishHasMoreDependants = computed(
     ({ dependantIds, dependantWindow }) => dependantWindow < dependantIds.length,
 );
 
+// From the full id set, not the loaded window, and filtered by the "show excluded" toggle.
 export const $requestPublishDependantsSelection = computed(
-    $requestPublishDialog,
-    ({ dependantIds, requiredDependantIds, excludedDependantIds }) =>
-        calcDependantsSelection(dependantIds, requiredDependantIds, excludedDependantIds),
+    [$requestPublishDialog, $showRequestPublishExcludedDependants],
+    ({ dependantIds, requiredDependantIds, excludedDependantIds, appliedExcludedDependantIds }, showExcluded) =>
+        calcDependantsSelection(
+            filterShownDependantIds(dependantIds, appliedExcludedDependantIds, showExcluded),
+            requiredDependantIds,
+            excludedDependantIds,
+        ),
 );
 
 export const $requestPublishDialogErrors = computed(
@@ -289,6 +305,7 @@ export const resetRequestPublishDialogContext = (): void => {
     reloadDependenciesDebounced.cancel();
     clearQueuedRequestPublishSocketChanges();
     $requestPublishDialog.set(structuredClone(initialState));
+    $showRequestPublishExcludedDependants.set(true);
     resetChecksState();
 };
 
@@ -407,13 +424,18 @@ export const setRequestPublishDependantIncluded = (id: ContentId, included: bool
     }
 };
 
+export const toggleRequestPublishShowExcludedDependants = (): void => {
+    $showRequestPublishExcludedDependants.set(!$showRequestPublishExcludedDependants.get());
+};
+
 export const toggleRequestPublishDependantsSelection = (): void => {
-    const { dependantIds, requiredDependantIds, excludedDependantIds } = $requestPublishDialog.get();
-    const selection = calcDependantsSelection(dependantIds, requiredDependantIds, excludedDependantIds);
+    // Read the computed: it defines the rows on screen, so a batch toggle skips hidden ones.
+    const selection = $requestPublishDependantsSelection.get();
     if (selection.selectableIds.length === 0) {
         return;
     }
 
+    const { excludedDependantIds } = $requestPublishDialog.get();
     $requestPublishDialog.setKey('excludedDependantIds', nextDependantExclusions(selection, excludedDependantIds));
 };
 
