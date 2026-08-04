@@ -2,7 +2,7 @@
  * Created on 14.12.2017.
  */
 const Page = require('../page');
-const {COMMON} = require('../../libs/elements');
+const {COMMON, DROPDOWN} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const SiteConfiguratorComboBox = require('../components/selectors/site.configurator.combobox');
 const SiteConfigDialog = require('./site.configurator.dialog');
@@ -11,7 +11,7 @@ const XPATH = {
     wizardSteps: `//div[contains(@id,'ContentWizardTabsToolbar')]`,
     editIcon: `//button[.//*[name()='svg' and contains(@class,'lucide-pencil')]]`,
     descriptionInput: `//textarea[contains(@name,'description')]`,
-    siteConfigComboboxDiv: "//div[contains(@id,'SiteConfiguratorComboBox')]",
+    siteConfiguratorInputDiv: "//div[@data-component='SiteConfiguratorInput']",
     removeAppIcon: `//button[.//*[name()='svg' and contains(@class,'lucide-x')]]`,
     // Selected application row in the SortableGridList (ItemLabel with the bold display-name span):
     selectedAppByDisplayName: (displayName) => {
@@ -26,11 +26,11 @@ const XPATH = {
 class SiteForm extends Page {
 
     get applicationsOptionsFilterInput() {
-        return XPATH.wizardSteps + lib.FORM_VIEW + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
+        return XPATH.wizardSteps + XPATH.siteConfiguratorInputDiv + DROPDOWN.OPTION_FILTER_INPUT;
     }
 
     get dropdownHandle() {
-        return XPATH.wizardSteps + XPATH.siteConfigComboboxDiv + lib.DROP_DOWN_HANDLE;
+        return XPATH.wizardSteps + XPATH.siteConfiguratorInputDiv + DROPDOWN.DROPDOWN_HANDLE;
     }
 
     get descriptionInput() {
@@ -124,8 +124,8 @@ class SiteForm extends Page {
     }
 
     async clickOnCheckboxInDropdownByDisplayName(displayName) {
-        let siteConfiguratorComboBox = new SiteConfiguratorComboBox();
-        await siteConfiguratorComboBox.clickOnCheckboxInDropdownByDisplayName(displayName, XPATH.siteConfigComboboxDiv);
+        let siteConfiguratorComboBox = new SiteConfiguratorComboBox(XPATH.wizardSteps);
+        await siteConfiguratorComboBox.clickOnCheckboxInDropdownByDisplayName(displayName);
     }
 
     async waitForApplyAppSelectionButtonDisplayed() {

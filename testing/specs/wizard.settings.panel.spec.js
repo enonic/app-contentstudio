@@ -51,7 +51,7 @@ describe('wizard.setting.panel.spec:  test for Owner and Language selectors', fu
             await contentWizard.waitForNotificationMessage();
             await contentWizard.pause(300);
             // 4. Click on 'Save' button:
-            // TODO bug in Enonic ui
+            // TODO ?? bug in Enonic ui
             //await contentWizard.waitAndClickOnSave();
             // 3. Verify that expected language should be displayed in Details Panel
             let actualLanguage = await detailsWidgetInfoSection.getLanguage();

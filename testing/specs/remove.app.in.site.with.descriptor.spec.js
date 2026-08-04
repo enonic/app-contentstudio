@@ -12,7 +12,7 @@ const PageComponentsWizardStepForm = require('../page_objects/wizardpanel/wizard
 const PageInspectionPanel = require('../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 const ConfirmationDialog = require('../page_objects/confirmation.dialog');
 const PageWidgetPanel = require('../page_objects/wizardpanel/liveform/page.widget.context.window');
-const allureReporter = require('@wdio/allure-reporter');
+const ContentBrowsePanel = require("../page_objects/browsepanel/content.browse.panel");
 
 describe('remove_app.in.site.with.descriptor.spec: replace an application and check the selected controller', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -27,14 +27,12 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
     const CONTROLLER_APP_2 = 'Country List';
     const NO_SELECTED_CONTROLLER_MSG = appConst.PAGE_WIDGET.NO_SELECTED_CONTROLLER_MSG;
 
-    it("Precondition",
+    it(`Precondition: new site should be added`,
         async () => {
-            await allureReporter.step('new site with a page controller should be added', async () => {
-                let applications = [APP_1];
-                let displayName = appConst.generateRandomName('site');
-                SITE = contentBuilder.buildSite(displayName, null, applications, CONTROLLER_APP_1);
-                await studioUtils.doAddSite(SITE);
-            });
+            let applications = [APP_1];
+            let displayName = appConst.generateRandomName('site');
+            SITE = contentBuilder.buildSite(displayName, null, applications, CONTROLLER_APP_1);
+            await studioUtils.doAddSite(SITE);
         });
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/9201

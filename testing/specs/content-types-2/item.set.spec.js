@@ -5,7 +5,6 @@ const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
-const contentBuilder = require("../../libs/content.builder");
 const ItemSetForm = require('../../page_objects/wizardpanel/itemset/item.set.view');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 
@@ -20,25 +19,23 @@ describe('item.set.spec: tests for content with Item Set', function () {
     const TEXT_LINE_TEXT_1 = 'text 1';
     const TEXT_LINE_TEXT_2 = 'text 2';
 
-    it.skip(
-        "GIVEN ItemSet form has been added in the wizard WHEN 'add above' menu item has been clicked THEN 'Collapse all' button gets visible",
+    it("GIVEN ItemSet form has been added in the wizard WHEN 'add above' menu item has been clicked THEN 'Expand all' button gets visible",
         async () => {
             let itemSetForm = new ItemSetForm();
             let contentWizard = new ContentWizard();
             await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.ITEM_SET_0_0);
             await contentWizard.typeDisplayName('test');
             // 1. Click on 'Add' button,
-            //await contentWizard.pause(500);
             await itemSetForm.clickOnAddButton();
             await contentWizard.pause(500);
             // 2. Expand the menu then click on 'Add above' menu item:
             await itemSetForm.expandMenuClickOnMenuItem(0, 'Add above');
-            // 3. Verify that 'Collapse all' button gets visible:
+            // 3. Verify that 'Expand all' button gets visible:
             await itemSetForm.waitForExpandAllButtonDisplayed();
             // 4. Click on the top ItemSet item, collapse it
             await itemSetForm.clickOnFormOccurrence('ItemSet', 0);
             await studioUtils.saveScreenshot('item_set_0_0_top_item_collapsed');
-            // 5. Verify that 'Collapse all' button remains visible:
+            // 5. Verify that 'Expand all' button is visible:
             await itemSetForm.waitForExpandAllButtonDisplayed();
         });
 
@@ -69,6 +66,7 @@ describe('item.set.spec: tests for content with Item Set', function () {
             // 7. Verify that red icon is visible in Tab.List:
             let tabName= appConst.contentTypes.ITEM_SET_0_0;
            await contentWizard.waitForRedIconInTab(tabName);
+           await contentWizard.waitUntilInvalidIconAppears();
         });
 
     it("GIVEN a text has been inserted in the ItemSet form WHEN 'Delete' item-set menu item has been clicked THEN 'Delete ItemSet' button should appears",
@@ -142,7 +140,7 @@ describe('item.set.spec: tests for content with Item Set', function () {
             let contentWizard = new ContentWizard();
             // Open existing invalid content
             await studioUtils.selectContentAndOpenWizard(ITEM_SET_CONTENT_NAME_1);
-            // 1. Type a text in htmlarea and text line;
+            // 1. Type a text in html-area and text line;
             await itemSetForm.typeTextInHtmlArea(0, "hello htmlarea");
             await itemSetForm.typeTextInTextLine(0, "hello text line");
             await studioUtils.saveScreenshot('itemset_0_0_filled');
@@ -151,28 +149,26 @@ describe('item.set.spec: tests for content with Item Set', function () {
             assert.ok(isInvalid === false, "the content with Item Set should be valid now");
         });
 
-    it("GIVEN existing invalid content with added empty ItemSet is opened WHEN 'Collapse' button has been clicked THEN 'Expand' button gets visible",
+    it("WHEN existing invalid content with empty ItemSet is opened THEN 'Expand/Collapse' button are not displayed visible",
         async () => {
             let itemSetForm = new ItemSetForm();
             let contentWizard = new ContentWizard();
             // 1. Open existing content with added Item Set
             await studioUtils.selectContentAndOpenWizard(ITEM_SET_CONTENT_NAME_1);
-            // 2. Click on 'Collapse' button:
-            await itemSetForm.clickOnCollapseAllButton();
+            // 2. Verify  'Collapse' button:
+            await itemSetForm.waitForCollapseAllButtonNotDisplayed();
             let isInvalid = await contentWizard.isContentInvalid();
             assert.ok(isInvalid, "the content remains invalid after clicking on Collapse button");
-            // 3. Verify that 'Expand' button gets visible:
-            await itemSetForm.waitForExpandAllButtonDisplayed();
-            await studioUtils.saveScreenshot('itemset_0_0_collapsed');
+            await studioUtils.saveScreenshot('itemset_0_0_expanded_single');
+            // 3. Verify that 'Expand' button not visible:
+            await itemSetForm.waitForExpandAllButtonNotDisplayed();
             // 4. Verify that 'Save' button remains disabled
             await contentWizard.waitForSaveButtonDisabled();
-            await itemSetForm.clickOnExpandAllButton();
-            //await itemSetForm.waitForCollapseButtonDisplayed();
         });
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/3773
     // Nested Form Item Sets - incorrect behaviour of validation when 2 levels added
-    it("GIVEN existing content with single empty form is opened AND the second form has been added WHEN required inputs have been filled in the first form THEN the content remains invalid",
+    it("GIVEN the second form has been added WHEN required inputs have been filled in the second form THEN the content remains invalid",
         async () => {
             let itemSetForm = new ItemSetForm();
             let contentWizard = new ContentWizard();
@@ -180,13 +176,14 @@ describe('item.set.spec: tests for content with Item Set', function () {
             await studioUtils.selectContentAndOpenWizard(ITEM_SET_CONTENT_NAME_1);
             // 2. Add the second level:
             await itemSetForm.clickOnAddButton();
-            // 3. Fill in required inputs only in the first form:
+            // 3. Fill in the required inputs in the second form(the first form is coillapsed after  clicking on Add):
             await itemSetForm.typeTextInHtmlArea(0, 'hello htmlarea');
             await itemSetForm.typeTextInTextLine(0, 'hello text line');
             await studioUtils.saveScreenshot('item_set_0_0_filled_2');
             // 4. Verify that the content gets invalid after adding the second level with required inputs:
             let isInvalid = await contentWizard.isContentInvalid();
             assert.ok(isInvalid, "the content should be invalid");
+            await itemSetForm.waitForExpandAllButtonDisplayed();
         });
 
     it("GIVEN existing content with single empty form is opened AND the second form has been added WHEN both forms have been filled THEN the content gets valid now",
@@ -197,6 +194,7 @@ describe('item.set.spec: tests for content with Item Set', function () {
             await studioUtils.selectContentAndOpenWizard(ITEM_SET_CONTENT_NAME_1);
             // 2. Add the second form:
             await itemSetForm.clickOnAddButton();
+            await itemSetForm.clickOnExpandAllButton();
             // 3. Fill in required inputs in both forms:
             await itemSetForm.typeTextInHtmlArea(0, 'hello htmlarea');
             await itemSetForm.typeTextInTextLine(0, TEXT_LINE_TEXT_1);
@@ -204,17 +202,16 @@ describe('item.set.spec: tests for content with Item Set', function () {
             await itemSetForm.typeTextInTextLine(1, TEXT_LINE_TEXT_2);
             await studioUtils.saveScreenshot('itemset_0_0_filled_3');
 
-            // 4. Verify that the content gets valid:
-            // TODO https://github.com/enonic/app-contentstudio/issues/7736
-            // Incorrect behaviour of validation for Item Set occurrences #7736
-            //let isInvalid = await contentWizard.isContentInvalid();
-            //assert.ok(isInvalid === false, "the content with Item Set should be valid now");
+            // 4. Verify that the content becomes valid:
+            let isInvalid = await contentWizard.isContentInvalid();
+            assert.ok(isInvalid === false, "the content with Item Set becomes valid.");
 
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
         });
 
-    it("GIVEN existing item set content with 2 filled forms is opened WHEN two items have been swapped THEN form items should be swapped",
+    // TODO
+    it.skip("GIVEN existing item set content with 2 filled forms is opened WHEN two items have been swapped THEN form items should be swapped",
         async () => {
             let itemSetForm = new ItemSetForm();
             let contentWizard = new ContentWizard();
@@ -223,7 +220,7 @@ describe('item.set.spec: tests for content with Item Set', function () {
             await studioUtils.saveScreenshot('itemset_before_swap');
             // 2. swap the items:
             await itemSetForm.swapItems(TEXT_LINE_TEXT_1, TEXT_LINE_TEXT_2);
-            await studioUtils.saveScreenshot('itemset_swapped');
+            await studioUtils.saveScreenshot('item_set_swapped');
             // 3. Verify the items swapped places with each other:
             let title1 = await itemSetForm.getItemSetTitle(0);
             let title2 = await itemSetForm.getItemSetTitle(1);

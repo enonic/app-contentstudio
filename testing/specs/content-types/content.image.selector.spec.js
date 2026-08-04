@@ -82,8 +82,6 @@ describe('content.image.selector: Image selector dropdown specification', functi
             let contentWizard = new ContentWizard();
             // 1. Open wizard with Image Selector:
             await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.IMG_SELECTOR_2_4);
-            // TODO remove the row with the code:
-            await contentWizard.typeDisplayName(appConst.generateRandomName('test'));
             // 2. Switch the selector to Tree-mode and expand the test folder:
             await imageSelectorForm.clickOnModeTogglerButton();
             // 3. Expand a folder with images:

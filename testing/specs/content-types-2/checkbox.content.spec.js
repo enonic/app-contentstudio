@@ -70,11 +70,9 @@ describe('checkbox.content.spec: tests for content with checkbox', function () {
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('checkbox_required_1');
             await contentWizard.waitForNotificationMessage();
-            // 3. Verify that the validation recording gets visible
-            // TODO
-            //let recording = await checkBoxForm.getFormValidationRecording();
-            //assert.equal(recording, appConst.THIS_FIELD_IS_REQUIRED, "Expected validation message should be displayed");
-
+            // 3. Verify that the validation recording is displayed
+            let recording = await checkBoxForm.getFormValidationRecording();
+            assert.equal(recording, appConst.THIS_FIELD_IS_REQUIRED, "Expected validation message should be displayed");
             // 4. Select the checkbox:
             await checkBoxForm.clickOnCheckbox();
             await studioUtils.saveScreenshot('checkbox_required_2');
@@ -101,7 +99,7 @@ describe('checkbox.content.spec: tests for content with checkbox', function () {
             // 3. Verify that the checkbox is not selected now:
             await studioUtils.saveScreenshot('checkbox_unselected_2');
             let isSelected = await checkBoxForm.isCheckBoxSelected();
-            assert.ok(isSelected === false, "CheckBox should be unselected");
+            assert.ok(isSelected === false, "CheckBox should not be selected");
             // 4. The content gets invalid now:
             await contentWizard.waitUntilInvalidIconAppears();
             // 5. Save the invalid content and close the wizard:

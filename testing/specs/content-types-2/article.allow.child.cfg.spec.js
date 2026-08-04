@@ -72,9 +72,8 @@ describe(`article.allow.child.cfg.spec: tests for 'allow-child-content-type' in 
             await contentBrowsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();
             await studioUtils.saveScreenshot('article_allow_non_existent');
-            // TODO BUG https://github.com/enonic/app-contentstudio/issues/10363
-            //await newContentDialog.waitForMediaTabButtonDisabled();
-            //await newContentDialog.waitForSuggestedTabButtonDisabled()
+            // Verify BUG https://github.com/enonic/app-contentstudio/issues/10363
+            await newContentDialog.waitForMediaTabButtonDisabled();
 
             let actualTxt = await newContentDialog.waitForNoTypesFoundMessage('All');
             assert.equal(actualTxt, 'No content types found', 'Expected text in empty view is not displayed as expected');

@@ -46,8 +46,7 @@ describe('wizard.toolbar.shortcut.spec Wizard toolbar - tests for shortcuts for 
         });
 
     // verifies:https://github.com/enonic/app-contentstudio/issues/127
-    // TODO
-    it.skip(`GIVEN folder-wizard is opened WHEN 'Ctrl+Alt+p' have been pressed THEN 'Publish Dialog' should appear`,
+    it(`GIVEN folder-wizard is opened WHEN 'Ctrl+Alt+p' have been pressed THEN 'Publish Dialog' should appear`,
         async () => {
             let contentWizard = new ContentWizard();
             let contentPublishDialog = new ContentPublishDialog();

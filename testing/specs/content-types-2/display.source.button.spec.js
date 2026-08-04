@@ -89,9 +89,7 @@ describe('display.source.button.spec - tests for user with Content Manager Exper
     // Verifies issue Edit/Delete icons in the Site configurator should be hidden for non-admin users #3496
     // https://github.com/enonic/app-contentstudio/issues/3496
     //https://github.com/enonic/app-contentstudio/issues/10828
-    // TODO
-    it.skip(
-        "GIVEN user with roles 'Author' and 'Content Manager Expert' is signing in WHEN existing site has been opened THEN 'Edit configurator' and 'remove application' icons should be hidden",
+    it("GIVEN user with roles 'Author' and 'Content Manager Expert' is signing in WHEN existing site has been opened THEN 'Edit configurator' and 'remove application' icons should be hidden",
         async () => {
             let siteFormPanel = new SiteFormPanel();
             await studioUtils.navigateToContentStudioApp(USER.displayName, appConst.PASSWORD.MEDIUM);

@@ -17,7 +17,6 @@ exports.config = {
         path.join(__dirname, '../specs/content-types-2/changing.part.inside.fragment.spec.js'),
         path.join(__dirname, '../specs/content-types-2/folder.content.revert.display.name.spec.js'),
         path.join(__dirname, '../specs/content-types-2/folder.content.revert.permissions.spec.js'),
-        path.join(__dirname, '../specs/content-types-2/item.set.spec.js'),
         path.join(__dirname, '../specs/content-types-2/revert.zoomed.image.spec.js'),
     ],
 

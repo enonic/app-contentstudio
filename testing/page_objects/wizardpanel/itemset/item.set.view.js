@@ -4,16 +4,12 @@
 const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
 const {BUTTONS, COMMON} = require('../../../libs/elements');
-const HtmlAreaForm = require('../htmlarea.form.panel');
 const {Key} = require("webdriverio");
 
 const xpath = {
     itemSet: "//div[@data-component='ItemSetView']",
     occurrenceView: "//div[@data-component='ItemSetOccurrenceView']",
     contextMenuTrigger: "//div[@data-component='ContextMenu.Trigger']",
-    typeTextInHtmlArea: (id, text) => {
-        return `CKEDITOR.instances['${id}'].setData('${text}')`;
-    },
     occurrenceByText: (text) => `//div[contains(@id,'FormOccurrenceDraggableLabel') and contains(.,'${text}')]//div[contains(@class, 'drag-control')]`,
     // The clickable label button that expands/collapses an occurrence:
     occurrenceLabelButton: (text) =>
@@ -39,7 +35,7 @@ class ItemSetFormView extends Page {
     }
 
     get deleteItemSetButton() {
-        return "//div[contains(@data-component,'Button') and @aria-label='Delete']";
+        return "//button[@data-component='Button' and @aria-label='Delete']";
     }
 
     get expandAllButton() {
@@ -63,11 +59,23 @@ class ItemSetFormView extends Page {
         await this.clickOnElement(this.deleteItemSetButton);
     }
 
-    // Types the required text in the option filter input and select an option:
+    // CKEditor ids are not unique across ItemSet occurrences (all get 'htmlarea-<name>-0'),
+    // so CKEDITOR.instances[id] always resolves to the same editor. Type the text with real
+    // keyboard input inside the occurrence's iframe instead of the CKEDITOR API:
     async typeTextInHtmlArea(index, text) {
-        let htmlAreaForm = new HtmlAreaForm();
-        let ids = await htmlAreaForm.getIdOfHtmlAreas();
-        await this.execute(xpath.typeTextInHtmlArea([].concat(ids)[index], text));
+        let frameLocator = xpath.occurrenceView + "//div[@data-name='CKEditorWrapper']//iframe";
+        await this.waitForElementDisplayed(frameLocator, appConst.mediumTimeout);
+        let frames = await this.findElements(frameLocator);
+        if (index >= frames.length) {
+            throw new Error(`ItemSet form - html area with index ${index} was not found, total areas: ${frames.length}`);
+        }
+        await this.getBrowser().switchFrame(frames[index]);
+        try {
+            await this.clickOnElement('//body');
+            await this.browser.keys(text);
+        } finally {
+            await this.switchToParentFrame();
+        }
         return await this.pause(200);
     }
 
@@ -124,6 +132,7 @@ class ItemSetFormView extends Page {
     async clickOnExpandAllButton() {
         await this.waitForExpandAllButtonDisplayed();
         await this.clickOnElement(this.expandAllButton);
+        await this.pause(500);
     }
 
     async waitForCollapseAllButtonNotDisplayed() {

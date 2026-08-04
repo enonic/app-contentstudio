@@ -155,7 +155,6 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             await contextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await contentWizard.clickOnWizardStep('Page');
             await pageComponentsWizardStepForm.clickOnComponent(HTML_AREA_PART_NAME);
-
             // 2. Verify that Part Inspection panel loaded with expected selected option in the dropdown:
             let selectedOption = await partInspectionPanel.getDropdownSelectedOption();
             assert.equal(selectedOption, HTML_AREA_PART_NAME, 'Expected selected option should be displayed in the Part tab');

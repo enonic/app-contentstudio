@@ -1,5 +1,5 @@
 /**
- * Created on 02.01.2019.
+ * Created on 02.01.2019. updated on 03.08.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -18,23 +18,16 @@ describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkb
         webDriverHelper.setupBrowser();
     }
 
-    let SITE;
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
     let HTML_AREA_CONTENT_NAME = contentBuilder.generateRandomName('hrtmlarea');
     let IMAGE_DISPLAY_NAME = appConst.TEST_IMAGES.POP_03;
-
-    it(`Preconditions: new site should be added`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
 
     it(`GIVEN htmlarea-content, 'Insert Image' dialog is opened AND an image is selected WHEN 'Custom width' checkbox should be unchecked by default`,
         async () => {
             let insertImageDialog = new InsertImageDialog();
             let htmlAreaForm = new HtmlAreaForm();
             // 1. Open new wizard and open Insert Image dialog:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, 'htmlarea0_1');
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
             // 2. Select the image:
@@ -57,7 +50,7 @@ describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkb
             let insertImageDialog = new InsertImageDialog();
             let htmlAreaForm = new HtmlAreaForm();
             // 1. Open new wizard and open Insert Image dialog:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
             // 2. Select the image in the modal dialog:
@@ -76,7 +69,7 @@ describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkb
             let htmlAreaForm = new HtmlAreaForm();
             let contentWizard = new ContentWizard();
             // 1. Open new wizard and open Insert Image dialog:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await contentWizard.typeDisplayName(HTML_AREA_CONTENT_NAME);
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
@@ -146,7 +139,7 @@ describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkb
             await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT_NAME);
             await contentWizard.openContextWindow();
             await wizardContextWindow.openVersionHistory();
-            await versionsWidget.waitForVersionsLoaded();
+            await versionsWidget.waitForLoaded();
             // 2. Revert the previous version:
             await versionsWidget.clickAndExpandVersion(1);
             // revert the version with 'Custom Width'

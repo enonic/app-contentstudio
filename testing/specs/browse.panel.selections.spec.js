@@ -88,9 +88,8 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
         });
 
     // https://github.com/enonic/app-contentstudio/issues/9238
-    // TODO bug 11053
     // https://github.com/enonic/app-contentstudio/issues/11053
-    it.skip("GIVEN one row is highlighted WHEN hold down 'Shift' key AND click on the 5th row in grid THEN 5 content items get checked",
+    it("GIVEN one row is highlighted WHEN hold down 'Shift' key AND click on the 5th row in grid THEN 5 content items get checked",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentFilterPanel = new ContentFilterPanel();

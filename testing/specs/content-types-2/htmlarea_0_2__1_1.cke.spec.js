@@ -156,8 +156,6 @@ describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () 
             // 1. Open new wizard:
             await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_2);
             await contentWizard.pause(1000);
-            // TODO
-            await contentWizard.typeDisplayName(contentBuilder.generateRandomName('area'));
             // 2. Click on Add button
             await htmlAreaForm.clickOnAddButton();
             // 3 . Verify that Add button is not visible now:
