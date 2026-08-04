@@ -1,0 +1,44 @@
+name: Format
+
+on: pull_request
+
+jobs:
+  changed-files:
+    name: Changed files
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Check formatting of changed files
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          version=$(node -p "require('./modules/lib/package.json').devDependencies.oxfmt")
+          base=$(git merge-base "origin/$BASE_REF" HEAD)
+
+          files=$(git diff --name-only --diff-filter=ACMR "$base" HEAD \
+            -- '*.ts' '*.tsx' '*.mts' '*.cts' '*.js' '*.jsx' '*.mjs' '*.cjs')
+
+          if [ -z "$files" ]; then
+            echo "No JS/TS files changed."
+            exit 0
+          fi
+
+          printf 'Checking %s changed file(s):\n' "$(printf '%s\n' "$files" | wc -l | tr -d ' ')"
+          printf '%s\n' "$files" | sed 's/^/  /'
+
+          status=0
+          out=$(printf '%s\n' "$files" | tr '\n' '\0' \
+            | xargs -0 npx --yes "oxfmt@$version" -c .oxfmtrc.json --check 2>&1) || status=$?
+          echo "$out"
+
+          # oxfmt exits non-zero when every changed file is excluded by ignore rules (e.g. only *.d.ts).
+          if [ "$status" -ne 0 ] && echo "$out" | grep -q 'Expected at least one target file'; then
+            echo "All changed files are excluded from formatting."
+            exit 0
+          fi
+
+          exit "$status"
