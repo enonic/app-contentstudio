@@ -63,7 +63,7 @@ describe('attachments.wizard.spec: tests for attachments content', function () {
             // 1. open the existing imported attachment(2:4) content:
             await studioUtils.selectAndOpenContentInWizard(IMPORTED_ATTACHMENT_2_4);
             await contentWizard.openContextWindow();
-            await wizardAttachmentsItemWidget.waitForWidgetLoaded();
+            await wizardAttachmentsItemWidget.waitForLoaded();
             let result = await wizardAttachmentsItemWidget.getAttachmentsName();
             assert.equal(result.length, 2, '2 attachment items should be displayed in the widget')
             // 2. Remove one attachment item:

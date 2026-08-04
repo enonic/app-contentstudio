@@ -4,7 +4,7 @@
 const BaseAttachmentsWidgetItemView = require('../../details_panel/base.attachments.items.widget');
 
 const xpath = {
-    widget: "//div[contains(@id,'ContentWizardPanel')]//div[@data-component='DetailsWidgetAttachmentsSection']",
+    widget: "//div[contains(@id,'ContentWizardPanel')]//section[@data-component='DetailsWidgetAttachmentsSection']",
 };
 
 class WizardAttachmentsItemWidget extends BaseAttachmentsWidgetItemView {

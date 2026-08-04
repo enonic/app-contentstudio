@@ -144,6 +144,10 @@ class DetailsWidgetContentSection extends Page {
             timeoutMsg: 'Workflow status should wrap to the next line in DetailsWidgetContentSection',
         });
     }
+
+    async waitForDisplayed(){
+        await this.waitForElementDisplayed(xpath.container);
+    }
 }
 
 module.exports = DetailsWidgetContentSection;

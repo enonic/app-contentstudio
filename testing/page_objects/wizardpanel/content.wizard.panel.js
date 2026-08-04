@@ -647,7 +647,7 @@ class ContentWizardPanel extends Page {
     }
 
     // Opens the preview context menu and clicks on 'Page settings' item
-    async openLockedSiteContextMenuClickOnPageSettings() {
+    async openContextMenuClickOnPageSettings() {
         await this.doOpenItemViewContextMenu();
         await this.saveScreenshot(appConst.generateRandomName('unlock_context_menu'));
         return await this.clickOnPageSettingsMenuItem();

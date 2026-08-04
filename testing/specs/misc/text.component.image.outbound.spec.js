@@ -1,5 +1,5 @@
 /**
- * Created on 01.02.2019.
+ * Created on 01.02.2019.  updated on 03.08.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -26,7 +26,7 @@ describe("text.component.image.outbound.spec: Inserts a text component with an i
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -62,13 +62,11 @@ describe("text.component.image.outbound.spec: Inserts a text component with an i
             await studioUtils.doSwitchToNextTab();
             // 7. 'Dependencies Section' should be present, in the filter panel'
             await contentFilterPanel.waitForDependenciesSectionVisible();
-            await studioUtils.saveScreenshot('issue_text_component_outbound');
             await contentBrowsePanel.waitForSpinnerNotVisible();
+            await studioUtils.saveScreenshot('issue_text_component_outbound');
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
-
-            // TODO uncomment it, issue with counting of dependencies
-            //assert.equal(result[0], IMAGE_DISPLAY_NAME, 'expected image should be filtered');
-            //assert.equal(result.length, 1, 'One content should be present in the grid');
+            assert.equal(result[0], IMAGE_DISPLAY_NAME, 'expected image should be filtered');
+            assert.equal(result.length, 1, 'One content should be present in the grid');
         });
 
     it(`GIVEN existing site with outbound dependency WHEN 'Show all outgoing' button has been pressed THEN the dependencies section should load no later than 3 seconds`,
@@ -86,8 +84,7 @@ describe("text.component.image.outbound.spec: Inserts a text component with an i
             await contentFilterPanel.waitForDependenciesSectionVisible(appConst.shortTimeout);
             await studioUtils.saveScreenshot('text_component_outbound_2');
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
-            //TODO uncomment tests for dependencies
-            //assert.equal(result[0], IMAGE_DISPLAY_NAME, 'expected image should be filtered');
+            assert.equal(result[0], IMAGE_DISPLAY_NAME, 'expected image should be filtered');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
