@@ -21,7 +21,9 @@
     "check:lint": "oxlint -c ../../.oxlintrc.json --quiet src/main/resources/assets/js",
     "check:lint:fix": "oxlint -c ../../.oxlintrc.json --quiet --fix src/main/resources/assets/js",
     "test": "echo 'No tests yet'",
-    "test:run": "echo 'No tests yet'"
+    "test:run": "echo 'No tests yet'",
+    "format": "oxfmt -c ../../.oxfmtrc.json --write \"src/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}\"",
+    "format:check": "oxfmt -c ../../.oxfmtrc.json --check \"src/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}\""
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -85,6 +87,7 @@
     "css-loader": "^7.1.2",
     "cssnano": "^8.0.2",
     "less-loader": "^13.0.0",
+    "oxfmt": "0.56.0",
     "oxlint": "1.76.0",
     "postcss-loader": "^8.2.0",
     "postcss-normalize": "^13.0.1",
