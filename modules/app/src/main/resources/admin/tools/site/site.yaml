@@ -1,0 +1,10 @@
+kind: "AdminTool"
+title: "Content Studio Site Tool"
+description: "Content Studio Site Tool"
+allow:
+  - "role:system.authenticated"
+apis:
+  - "media:image"
+  - "media:attachment"
+config:
+  hideFromMenu: true
