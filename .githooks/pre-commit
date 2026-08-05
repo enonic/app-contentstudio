@@ -1,6 +1,10 @@
 #!/bin/sh
 bin="$(git rev-parse --show-toplevel)/modules/lib/node_modules/.bin"
 
+# On Windows, git returns a C:/-style path; a colon inside a PATH entry breaks
+# POSIX PATH parsing, so convert it to the /c/-style form.
+command -v cygpath >/dev/null 2>&1 && bin="$(cygpath -u "$bin")"
+
 if [ ! -x "$bin/nano-staged" ]; then
     echo "pre-commit: skipped, run './gradlew build' or 'pnpm -C modules/lib install' first." >&2
     exit 0
