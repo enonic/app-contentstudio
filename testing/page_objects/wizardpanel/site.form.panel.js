@@ -2,7 +2,7 @@
  * Created on 14.12.2017.
  */
 const Page = require('../page');
-const {COMMON} = require('../../libs/elements');
+const { COMMON, DROPDOWN } = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const SiteConfiguratorComboBox = require('../components/selectors/site.configurator.combobox');
 const SiteConfigDialog = require('./site.configurator.dialog');
@@ -11,11 +11,11 @@ const XPATH = {
     wizardSteps: `//div[contains(@id,'ContentWizardTabsToolbar')]`,
     editIcon: `//button[.//*[name()='svg' and contains(@class,'lucide-pencil')]]`,
     descriptionInput: `//textarea[contains(@name,'description')]`,
-    siteConfigComboboxDiv: "//div[contains(@id,'SiteConfiguratorComboBox')]",
+    siteConfiguratorInputDiv: "//div[@data-component='SiteConfiguratorInput']",
     removeAppIcon: `//button[.//*[name()='svg' and contains(@class,'lucide-x')]]`,
     // Selected application row in the SortableGridList (ItemLabel with the bold display-name span):
     selectedAppByDisplayName: (displayName) => {
-        return `//div[@data-component='SiteConfiguratorInput']//div[@data-component='SortableGridList']/div[descendant::span[contains(@class,'font-semibold') and text()='${displayName}']]`
+        return `//div[@data-component='SiteConfiguratorInput']//div[@data-component='SortableGridList']/div[descendant::span[contains(@class,'font-semibold') and text()='${displayName}']]`;
     },
     // FieldError shown below the SortableGridList when the app config is invalid:
     siteConfiguratorFieldError: (displayName) => {
@@ -24,31 +24,34 @@ const XPATH = {
 };
 
 class SiteForm extends Page {
-
     get applicationsOptionsFilterInput() {
-        return XPATH.wizardSteps + lib.FORM_VIEW + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
+        return XPATH.wizardSteps + XPATH.siteConfiguratorInputDiv + DROPDOWN.OPTION_FILTER_INPUT;
     }
 
     get dropdownHandle() {
-        return XPATH.wizardSteps + XPATH.siteConfigComboboxDiv + lib.DROP_DOWN_HANDLE;
+        return XPATH.wizardSteps + XPATH.siteConfiguratorInputDiv + DROPDOWN.DROPDOWN_HANDLE;
     }
 
     get descriptionInput() {
-        return COMMON.INPUTS.inputFieldByLabel('Description') + "//textarea";
+        return COMMON.INPUTS.inputFieldByLabel('Description') + '//textarea';
     }
 
     get baseUrlInput() {
-        return COMMON.INPUTS.inputFieldByLabel('Base URL') + "//input";
+        return COMMON.INPUTS.inputFieldByLabel('Base URL') + '//input';
     }
 
     get helpTextInBaseUrlInput() {
-        return COMMON.INPUTS.inputFieldByLabel('Base URL') +
-               "//div[@data-component='InputLabel']//div[contains(@class,'text-subtle')]";
+        return (
+            COMMON.INPUTS.inputFieldByLabel('Base URL') +
+            "//div[@data-component='InputLabel']//div[contains(@class,'text-subtle')]"
+        );
     }
 
     get helpTextInApplicationsSelector() {
-        return COMMON.INPUTS.inputFieldByLabel('Applications') +
-               "//div[@data-component='InputLabel']//div[contains(@class,'text-subtle')]";
+        return (
+            COMMON.INPUTS.inputFieldByLabel('Applications') +
+            "//div[@data-component='InputLabel']//div[contains(@class,'text-subtle')]"
+        );
     }
 
     async type(siteData) {
@@ -62,7 +65,7 @@ class SiteForm extends Page {
                 // await this.waitForNotificationMessage();
             }
         } catch (err) {
-            throw new Error("Error in Site form panel!" + err);
+            throw new Error('Error in Site form panel!' + err);
         }
     }
 
@@ -71,7 +74,7 @@ class SiteForm extends Page {
             await this.waitForElementDisplayed(this.descriptionInput);
             return await this.typeChars(this.descriptionInput, description);
         } catch (err) {
-            await this.handleError("Error occurred in Site wizard, description text area", 'err_site_description', err);
+            await this.handleError('Error occurred in Site wizard, description text area', 'err_site_description', err);
         }
     }
 
@@ -80,7 +83,7 @@ class SiteForm extends Page {
             await this.waitForElementDisplayed(this.descriptionInput);
             return await this.getTextInInput(this.descriptionInput);
         } catch (err) {
-            await this.handleError("Error occurred in Site wizard, description text area", 'err_site_description', err);
+            await this.handleError('Error occurred in Site wizard, description text area', 'err_site_description', err);
         }
     }
 
@@ -89,7 +92,7 @@ class SiteForm extends Page {
             await this.waitForElementDisplayed(this.baseUrlInput);
             return await this.typeChars(this.baseUrlInput, baseUrl);
         } catch (err) {
-            await this.handleError("Error occurred in Site wizard, base URL input", 'err_site_base_url', err);
+            await this.handleError('Error occurred in Site wizard, base URL input', 'err_site_base_url', err);
         }
     }
 
@@ -98,7 +101,7 @@ class SiteForm extends Page {
             await this.waitForElementDisplayed(this.baseUrlInput);
             return await this.getTextInInput(this.baseUrlInput);
         } catch (err) {
-            await this.handleError("Error occurred in Site wizard, base URL input", 'err_site_base_url', err);
+            await this.handleError('Error occurred in Site wizard, base URL input', 'err_site_base_url', err);
         }
     }
 
@@ -106,7 +109,7 @@ class SiteForm extends Page {
         let result = Promise.resolve();
         appDisplayNames.forEach((displayName) => {
             result = result.then(() => {
-                return this.filterOptionsAndSelectApplication(displayName)
+                return this.filterOptionsAndSelectApplication(displayName);
             });
         });
         return result;
@@ -115,7 +118,7 @@ class SiteForm extends Page {
     // Click on the dropdown handler in app-selector
     async clickOnDropdownHandle() {
         let siteConfiguratorComboBox = new SiteConfiguratorComboBox(XPATH.wizardSteps);
-        await siteConfiguratorComboBox.clickOnDropdownHandle()
+        await siteConfiguratorComboBox.clickOnDropdownHandle();
     }
 
     async clickOnCheckboxInDropdown(index) {
@@ -124,8 +127,8 @@ class SiteForm extends Page {
     }
 
     async clickOnCheckboxInDropdownByDisplayName(displayName) {
-        let siteConfiguratorComboBox = new SiteConfiguratorComboBox();
-        await siteConfiguratorComboBox.clickOnCheckboxInDropdownByDisplayName(displayName, XPATH.siteConfigComboboxDiv);
+        let siteConfiguratorComboBox = new SiteConfiguratorComboBox(XPATH.wizardSteps);
+        await siteConfiguratorComboBox.clickOnCheckboxInDropdownByDisplayName(displayName);
     }
 
     async waitForApplyAppSelectionButtonDisplayed() {
@@ -142,10 +145,14 @@ class SiteForm extends Page {
     async filterOptionsAndSelectApplication(displayName) {
         try {
             let siteConfiguratorComboBox = new SiteConfiguratorComboBox(XPATH.wizardSteps);
-            await siteConfiguratorComboBox.selectFilteredApplicationAndClickOnApply(displayName );
+            await siteConfiguratorComboBox.selectFilteredApplicationAndClickOnApply(displayName);
             await this.pause(100);
         } catch (err) {
-            await this.handleError(`Site wizard, application selector, tried to select application: ${displayName}`, 'err_select_app', err);
+            await this.handleError(
+                `Site wizard, application selector, tried to select application: ${displayName}`,
+                'err_select_app',
+                err,
+            );
         }
     }
 
@@ -192,7 +199,9 @@ class SiteForm extends Page {
             return await siteConfigDialog.pause(1000);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_open_site_configurator_dialog');
-            throw new Error(`Error occurred in Site wizard, site configurator dialog, screenshot: ${screenshot} ` + err);
+            throw new Error(
+                `Error occurred in Site wizard, site configurator dialog, screenshot: ${screenshot} ` + err,
+            );
         }
     }
 
@@ -227,7 +236,9 @@ class SiteForm extends Page {
                 }
             }
             if (sourceIndex === -1 || destIndex === -1) {
-                throw new Error(`Application not found: source='${sourceAppName}', destination='${destinationAppName}'`);
+                throw new Error(
+                    `Application not found: source='${sourceAppName}', destination='${destinationAppName}'`,
+                );
             }
             await allItems[sourceIndex].click();
             await this.pause(200);

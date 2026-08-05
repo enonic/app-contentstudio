@@ -3,29 +3,27 @@
  */
 const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
-const {BUTTONS, COMMON} = require('../../../libs/elements');
-const HtmlAreaForm = require('../htmlarea.form.panel');
-const {Key} = require("webdriverio");
+const { BUTTONS, COMMON } = require('../../../libs/elements');
+const { Key } = require('webdriverio');
 
 const xpath = {
     itemSet: "//div[@data-component='ItemSetView']",
     occurrenceView: "//div[@data-component='ItemSetOccurrenceView']",
     contextMenuTrigger: "//div[@data-component='ContextMenu.Trigger']",
-    typeTextInHtmlArea: (id, text) => {
-        return `CKEDITOR.instances['${id}'].setData('${text}')`;
-    },
-    occurrenceByText: (text) => `//div[contains(@id,'FormOccurrenceDraggableLabel') and contains(.,'${text}')]//div[contains(@class, 'drag-control')]`,
+    occurrenceByText: (text) =>
+        `//div[contains(@id,'FormOccurrenceDraggableLabel') and contains(.,'${text}')]//div[contains(@class, 'drag-control')]`,
     // The clickable label button that expands/collapses an occurrence:
     occurrenceLabelButton: (text) =>
         `//div[@data-component='ItemSetOccurrenceView']//button[descendant::span[contains(@class,'font-semibold') and contains(.,'${text}')]]`,
     // Validation message for the TextLine input inside an occurrence:
-    textLineValidationRecording: "//div[@data-component='InputField' and descendant::input[@aria-label='TextLine']]//div[contains(@class,'text-error')]",
+    textLineValidationRecording:
+        "//div[@data-component='InputField' and descendant::input[@aria-label='TextLine']]//div[contains(@class,'text-error')]",
     // Validation message for the HtmlArea input inside an occurrence:
-    htmlAreaValidationRecording: "//div[@data-component='InputField' and descendant::div[@data-name='CKEditorWrapper']]//div[contains(@class,'text-error')]",
+    htmlAreaValidationRecording:
+        "//div[@data-component='InputField' and descendant::div[@data-name='CKEditorWrapper']]//div[contains(@class,'text-error')]",
 };
 
 class ItemSetFormView extends Page {
-
     get addItemSetButton() {
         return xpath.itemSet + BUTTONS.buttonAriaLabel('Add');
     }
@@ -39,7 +37,7 @@ class ItemSetFormView extends Page {
     }
 
     get deleteItemSetButton() {
-        return "//div[contains(@data-component,'Button') and @aria-label='Delete']";
+        return "//button[@data-component='Button' and @aria-label='Delete']";
     }
 
     get expandAllButton() {
@@ -63,22 +61,36 @@ class ItemSetFormView extends Page {
         await this.clickOnElement(this.deleteItemSetButton);
     }
 
-    // Types the required text in the option filter input and select an option:
+    // CKEditor ids are not unique across ItemSet occurrences (all get 'htmlarea-<name>-0'),
+    // so CKEDITOR.instances[id] always resolves to the same editor. Type the text with real
+    // keyboard input inside the occurrence's iframe instead of the CKEDITOR API:
     async typeTextInHtmlArea(index, text) {
-        let htmlAreaForm = new HtmlAreaForm();
-        let ids = await htmlAreaForm.getIdOfHtmlAreas();
-        await this.execute(xpath.typeTextInHtmlArea([].concat(ids)[index], text));
+        let frameLocator = xpath.occurrenceView + "//div[@data-name='CKEditorWrapper']//iframe";
+        await this.waitForElementDisplayed(frameLocator, appConst.mediumTimeout);
+        let frames = await this.findElements(frameLocator);
+        if (index >= frames.length) {
+            throw new Error(
+                `ItemSet form - html area with index ${index} was not found, total areas: ${frames.length}`,
+            );
+        }
+        await this.getBrowser().switchFrame(frames[index]);
+        try {
+            await this.clickOnElement('//body');
+            await this.browser.keys(text);
+        } finally {
+            await this.switchToParentFrame();
+        }
         return await this.pause(200);
     }
 
     async typeTextInTextLine(index, text) {
-        let locator = xpath.itemSet + COMMON.INPUTS.DATA_COMPONENT_INPUT + "//input";
+        let locator = xpath.itemSet + COMMON.INPUTS.DATA_COMPONENT_INPUT + '//input';
         let elements = this.findElements(locator);
         await elements[index].setValue(text);
         return await this.pause(300);
     }
     async clearTextLine(index) {
-        let locator = xpath.itemSet + COMMON.INPUTS.DATA_COMPONENT_INPUT + "//input";
+        let locator = xpath.itemSet + COMMON.INPUTS.DATA_COMPONENT_INPUT + '//input';
         let elements = this.findElements(locator);
         await elements[index].click();
         await this.browser.keys([Key.Ctrl, 'a']);
@@ -124,6 +136,7 @@ class ItemSetFormView extends Page {
     async clickOnExpandAllButton() {
         await this.waitForExpandAllButtonDisplayed();
         await this.clickOnElement(this.expandAllButton);
+        await this.pause(500);
     }
 
     async waitForCollapseAllButtonNotDisplayed() {
@@ -170,9 +183,11 @@ class ItemSetFormView extends Page {
         await this.doRightClickOnElement(menuButtons[index]);
         //await menuButtons[index].click();
         await this.pause(400);
-        let res = await this.getDisplayedElements(
-            `//div[@role='menuitem' and child::span[text()='${menuItem}']]`);
-        await res[0].waitForEnabled({timeout: appConst.shortTimeout, timeoutMsg: "Option Set - Delete menu item should be enabled!"});
+        let res = await this.getDisplayedElements(`//div[@role='menuitem' and child::span[text()='${menuItem}']]`);
+        await res[0].waitForEnabled({
+            timeout: appConst.shortTimeout,
+            timeoutMsg: 'Option Set - Delete menu item should be enabled!',
+        });
         await res[0].click();
         return await this.pause(300);
     }
@@ -190,7 +205,7 @@ class ItemSetFormView extends Page {
         let locator = xpath.itemSet + "//div[contains(@id,'FormOccurrenceDraggableLabel')]";
         let elements = await this.findElements(locator);
         let result = await elements[index].getText(locator);
-        let tittle = result.split("\n");
+        let tittle = result.split('\n');
         return tittle[0].trim();
     }
 
