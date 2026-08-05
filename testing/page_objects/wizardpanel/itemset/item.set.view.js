@@ -3,25 +3,27 @@
  */
 const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
-const {BUTTONS, COMMON} = require('../../../libs/elements');
-const {Key} = require("webdriverio");
+const { BUTTONS, COMMON } = require('../../../libs/elements');
+const { Key } = require('webdriverio');
 
 const xpath = {
     itemSet: "//div[@data-component='ItemSetView']",
     occurrenceView: "//div[@data-component='ItemSetOccurrenceView']",
     contextMenuTrigger: "//div[@data-component='ContextMenu.Trigger']",
-    occurrenceByText: (text) => `//div[contains(@id,'FormOccurrenceDraggableLabel') and contains(.,'${text}')]//div[contains(@class, 'drag-control')]`,
+    occurrenceByText: (text) =>
+        `//div[contains(@id,'FormOccurrenceDraggableLabel') and contains(.,'${text}')]//div[contains(@class, 'drag-control')]`,
     // The clickable label button that expands/collapses an occurrence:
     occurrenceLabelButton: (text) =>
         `//div[@data-component='ItemSetOccurrenceView']//button[descendant::span[contains(@class,'font-semibold') and contains(.,'${text}')]]`,
     // Validation message for the TextLine input inside an occurrence:
-    textLineValidationRecording: "//div[@data-component='InputField' and descendant::input[@aria-label='TextLine']]//div[contains(@class,'text-error')]",
+    textLineValidationRecording:
+        "//div[@data-component='InputField' and descendant::input[@aria-label='TextLine']]//div[contains(@class,'text-error')]",
     // Validation message for the HtmlArea input inside an occurrence:
-    htmlAreaValidationRecording: "//div[@data-component='InputField' and descendant::div[@data-name='CKEditorWrapper']]//div[contains(@class,'text-error')]",
+    htmlAreaValidationRecording:
+        "//div[@data-component='InputField' and descendant::div[@data-name='CKEditorWrapper']]//div[contains(@class,'text-error')]",
 };
 
 class ItemSetFormView extends Page {
-
     get addItemSetButton() {
         return xpath.itemSet + BUTTONS.buttonAriaLabel('Add');
     }
@@ -67,7 +69,9 @@ class ItemSetFormView extends Page {
         await this.waitForElementDisplayed(frameLocator, appConst.mediumTimeout);
         let frames = await this.findElements(frameLocator);
         if (index >= frames.length) {
-            throw new Error(`ItemSet form - html area with index ${index} was not found, total areas: ${frames.length}`);
+            throw new Error(
+                `ItemSet form - html area with index ${index} was not found, total areas: ${frames.length}`,
+            );
         }
         await this.getBrowser().switchFrame(frames[index]);
         try {
@@ -80,13 +84,13 @@ class ItemSetFormView extends Page {
     }
 
     async typeTextInTextLine(index, text) {
-        let locator = xpath.itemSet + COMMON.INPUTS.DATA_COMPONENT_INPUT + "//input";
+        let locator = xpath.itemSet + COMMON.INPUTS.DATA_COMPONENT_INPUT + '//input';
         let elements = this.findElements(locator);
         await elements[index].setValue(text);
         return await this.pause(300);
     }
     async clearTextLine(index) {
-        let locator = xpath.itemSet + COMMON.INPUTS.DATA_COMPONENT_INPUT + "//input";
+        let locator = xpath.itemSet + COMMON.INPUTS.DATA_COMPONENT_INPUT + '//input';
         let elements = this.findElements(locator);
         await elements[index].click();
         await this.browser.keys([Key.Ctrl, 'a']);
@@ -179,9 +183,11 @@ class ItemSetFormView extends Page {
         await this.doRightClickOnElement(menuButtons[index]);
         //await menuButtons[index].click();
         await this.pause(400);
-        let res = await this.getDisplayedElements(
-            `//div[@role='menuitem' and child::span[text()='${menuItem}']]`);
-        await res[0].waitForEnabled({timeout: appConst.shortTimeout, timeoutMsg: "Option Set - Delete menu item should be enabled!"});
+        let res = await this.getDisplayedElements(`//div[@role='menuitem' and child::span[text()='${menuItem}']]`);
+        await res[0].waitForEnabled({
+            timeout: appConst.shortTimeout,
+            timeoutMsg: 'Option Set - Delete menu item should be enabled!',
+        });
         await res[0].click();
         return await this.pause(300);
     }
@@ -199,7 +205,7 @@ class ItemSetFormView extends Page {
         let locator = xpath.itemSet + "//div[contains(@id,'FormOccurrenceDraggableLabel')]";
         let elements = await this.findElements(locator);
         let result = await elements[index].getText(locator);
-        let tittle = result.split("\n");
+        let tittle = result.split('\n');
         return tittle[0].trim();
     }
 

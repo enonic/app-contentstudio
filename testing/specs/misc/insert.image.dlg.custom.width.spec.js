@@ -1,35 +1,32 @@
 /**
  * Created on 02.01.2019. updated on 03.08.2026
  */
-const assert = require("node:assert");
-const webDriverHelper = require("../../libs/WebDriverHelper");
-const studioUtils = require("../../libs/studio.utils.js");
-const contentBuilder = require("../../libs/content.builder");
-const HtmlAreaForm = require("../../page_objects/wizardpanel/htmlarea.form.panel");
-const ContentWizard = require("../../page_objects/wizardpanel/content.wizard.panel");
-const InsertImageDialog = require("../../page_objects/wizardpanel/html-area/insert.image.dialog.cke");
-const WizardContextWindow = require("../../page_objects/wizardpanel/details/wizard.context.window.panel");
-const VersionsWidget = require("../../page_objects/wizardpanel/details/wizard.versions.widget");
-const appConst = require("../../libs/app_const");
+const assert = require('node:assert');
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const studioUtils = require('../../libs/studio.utils.js');
+const contentBuilder = require('../../libs/content.builder');
+const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
+const WizardContextWindow = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
+const VersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
+const appConst = require('../../libs/app_const');
 
-describe("insert.image.dlg.custom.width.spec: click on the `custom width` checkbox and check `image range value`", function () {
+describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkbox and check `image range value`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
     const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
-    let HTML_AREA_CONTENT_NAME = contentBuilder.generateRandomName("hrtmlarea");
+    let HTML_AREA_CONTENT_NAME = contentBuilder.generateRandomName('hrtmlarea');
     let IMAGE_DISPLAY_NAME = appConst.TEST_IMAGES.POP_03;
 
     it(`GIVEN htmlarea-content, 'Insert Image' dialog is opened AND an image is selected WHEN 'Custom width' checkbox should be unchecked by default`, async () => {
         let insertImageDialog = new InsertImageDialog();
         let htmlAreaForm = new HtmlAreaForm();
         // 1. Open new wizard and open Insert Image dialog:
-        await studioUtils.selectSiteAndOpenNewWizard(
-            IMPORTED_SITE_NAME,
-            "htmlarea0_1",
-        );
+        await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, 'htmlarea0_1');
         await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
         await insertImageDialog.waitForDialogVisible();
         // 2. Select the image:
@@ -38,13 +35,8 @@ describe("insert.image.dlg.custom.width.spec: click on the `custom width` checkb
         await insertImageDialog.waitForStyleSelectorVisible();
 
         let isChecked = await insertImageDialog.isCustomWidthCheckBoxSelected();
-        await studioUtils.saveScreenshot(
-            "image_dialog_custom_width_default_value",
-        );
-        assert.ok(
-            isChecked === false,
-            "'Custom width' checkbox should be unchecked by default",
-        );
+        await studioUtils.saveScreenshot('image_dialog_custom_width_default_value');
+        assert.ok(isChecked === false, "'Custom width' checkbox should be unchecked by default");
         // 4. Verify the alignment buttons:
         await insertImageDialog.waitForAlignRightButtonDisplayed();
         await insertImageDialog.waitForAlignLeftButtonDisplayed();
@@ -56,10 +48,7 @@ describe("insert.image.dlg.custom.width.spec: click on the `custom width` checkb
         let insertImageDialog = new InsertImageDialog();
         let htmlAreaForm = new HtmlAreaForm();
         // 1. Open new wizard and open Insert Image dialog:
-        await studioUtils.selectSiteAndOpenNewWizard(
-            IMPORTED_SITE_NAME,
-            appConst.contentTypes.HTML_AREA_0_1,
-        );
+        await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
         await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
         await insertImageDialog.waitForDialogVisible();
         // 2. Select the image in the modal dialog:
@@ -68,8 +57,8 @@ describe("insert.image.dlg.custom.width.spec: click on the `custom width` checkb
         await insertImageDialog.clickOnCustomWidthCheckBox();
         // 4. Verify -  range of the image should be 100% (default value)
         let actualValue = await insertImageDialog.waitForImageRangeValue();
-        await studioUtils.saveScreenshot("image_dialog_custom_width_clicked");
-        assert.equal(actualValue, "100%", "Range should be 100%");
+        await studioUtils.saveScreenshot('image_dialog_custom_width_clicked');
+        assert.equal(actualValue, '100%', 'Range should be 100%');
     });
 
     it(`GIVEN image withs custom width is inserted WHEN Save button has been pressed THEN content is saving`, async () => {
@@ -77,10 +66,7 @@ describe("insert.image.dlg.custom.width.spec: click on the `custom width` checkb
         let htmlAreaForm = new HtmlAreaForm();
         let contentWizard = new ContentWizard();
         // 1. Open new wizard and open Insert Image dialog:
-        await studioUtils.selectSiteAndOpenNewWizard(
-            IMPORTED_SITE_NAME,
-            appConst.contentTypes.HTML_AREA_0_1,
-        );
+        await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
         await contentWizard.typeDisplayName(HTML_AREA_CONTENT_NAME);
         await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
         await insertImageDialog.waitForDialogVisible();
@@ -106,14 +92,8 @@ describe("insert.image.dlg.custom.width.spec: click on the `custom width` checkb
         await insertImageDialog.waitForDialogVisible();
         // 2. Get and verify the range value:
         let rangeValue = await insertImageDialog.waitForImageRangeValue();
-        await studioUtils.saveScreenshot(
-            "image_dialog_custom_width_clicked_saved",
-        );
-        assert.equal(
-            rangeValue,
-            "100%",
-            "Expected range should be in the dialog",
-        );
+        await studioUtils.saveScreenshot('image_dialog_custom_width_clicked_saved');
+        assert.equal(rangeValue, '100%', 'Expected range should be in the dialog');
         // 3. 'Custom Width' checkbox should be checked:
         let isChecked = await insertImageDialog.isCustomWidthCheckBoxSelected();
         assert.ok(isChecked, "'Custom Width' Checkbox should be selected");
@@ -135,7 +115,7 @@ describe("insert.image.dlg.custom.width.spec: click on the `custom width` checkb
         await insertImageDialog.waitForImageRangeNotVisible();
         // 5. Verify that `Custom Width` checkbox is unchecked
         let isChecked = await insertImageDialog.isCustomWidthCheckBoxSelected();
-        assert.ok(isChecked === false, "Custom Width should be unchecked");
+        assert.ok(isChecked === false, 'Custom Width should be unchecked');
         // just save the changes and create new version
         await insertImageDialog.clickOnUpdateButton();
         await contentWizard.waitAndClickOnSave();
@@ -159,11 +139,11 @@ describe("insert.image.dlg.custom.width.spec: click on the `custom width` checkb
         // revert the version with 'Custom Width'
         await versionsWidget.clickOnRestoreButton();
         await contentWizard.waitForNotificationMessage();
-        await studioUtils.saveScreenshot("image_range_version_reverted");
+        await studioUtils.saveScreenshot('image_range_version_reverted');
         // 3. Open 'Insert Image Dialog'
         await htmlAreaForm.doubleClickOnHtmlArea();
         await insertImageDialog.waitForDialogVisible();
-        await studioUtils.saveScreenshot("image_dialog_custom_width_reverted");
+        await studioUtils.saveScreenshot('image_dialog_custom_width_reverted');
         // 4. Verify that image-range is visible again(default value)
         //TODO uncomment this code when issue with content reverting will be fixed
         //let rangeValue = await insertImageDialog.waitForImageRangeValue();
@@ -176,11 +156,9 @@ describe("insert.image.dlg.custom.width.spec: click on the `custom width` checkb
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
-            await studioUtils
-                .getBrowser()
-                .setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        if (typeof browser !== 'undefined') {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
-        return console.log("specification starting: " + this.title);
+        return console.log('specification starting: ' + this.title);
     });
 });

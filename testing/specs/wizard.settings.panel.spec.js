@@ -1,19 +1,19 @@
 /**
  * Created on 18.10.2021
  */
-const assert = require("node:assert");
-const webDriverHelper = require("../libs/WebDriverHelper");
-const ContentWizard = require("../page_objects/wizardpanel/content.wizard.panel");
-const studioUtils = require("../libs/studio.utils.js");
-const appConst = require("../libs/app_const");
-const DetailsWidgetInfoSection = require("../page_objects/browsepanel/detailspanel/details.widget.info.section");
+const assert = require('node:assert');
+const webDriverHelper = require('../libs/WebDriverHelper');
+const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+const studioUtils = require('../libs/studio.utils.js');
+const appConst = require('../libs/app_const');
+const DetailsWidgetInfoSection = require('../page_objects/browsepanel/detailspanel/details.widget.info.section');
 
-describe("wizard.setting.panel.spec:  test for Owner and Language selectors", function () {
+describe('wizard.setting.panel.spec:  test for Owner and Language selectors', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    const FOLDER_DISPLAY_NAME = appConst.generateRandomName("folder");
+    const FOLDER_DISPLAY_NAME = appConst.generateRandomName('folder');
 
     it(`WHEN folder-wizard is opened THEN the owner should be 'Super User' and a language should not be selected`, async () => {
         // 1. Open new wizard for folder:
@@ -25,11 +25,7 @@ describe("wizard.setting.panel.spec:  test for Owner and Language selectors", fu
         let editSettingsDialog = await studioUtils.openEditSettingDialog();
         let actualOwner = await editSettingsDialog.getSelectedOwner();
         // 3. Verify that owner is 'Super User' and a language is not selected
-        assert.equal(
-            actualOwner,
-            appConst.systemUsersDisplayName.SUPER_USER,
-            "Expected owner should be present",
-        );
+        assert.equal(actualOwner, appConst.systemUsersDisplayName.SUPER_USER, 'Expected owner should be present');
         // 4. Language filter input should be displayed:
         await editSettingsDialog.waitForLanguageOptionsFilterDisplayed();
         await editSettingsDialog.clickOnCloseButton();
@@ -48,9 +44,7 @@ describe("wizard.setting.panel.spec:  test for Owner and Language selectors", fu
         // 2. Open 'Edit Settings' modal dialog and select the language:
         let editSettingsDialog = await studioUtils.openEditSettingDialog();
         // 3. Select the language then click on Apply button and close the dialog:
-        await editSettingsDialog.filterOptionsAndSelectLanguage(
-            appConst.LANGUAGES.EN,
-        );
+        await editSettingsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
         await editSettingsDialog.clickOnApplyButton();
         await contentWizard.waitForNotificationMessage();
         await contentWizard.pause(300);
@@ -59,11 +53,7 @@ describe("wizard.setting.panel.spec:  test for Owner and Language selectors", fu
         //await contentWizard.waitAndClickOnSave();
         // 3. Verify that expected language should be displayed in Details Panel
         let actualLanguage = await detailsWidgetInfoSection.getLanguage();
-        assert.equal(
-            actualLanguage,
-            "en",
-            "expected language should be present in the widget",
-        );
+        assert.equal(actualLanguage, 'en', 'expected language should be present in the widget');
     });
 
     // Verify the bug - https://github.com/enonic/lib-admin-ui/issues/3950
@@ -76,21 +66,15 @@ describe("wizard.setting.panel.spec:  test for Owner and Language selectors", fu
         let editSettingsDialog = await studioUtils.openEditSettingDialog();
         // 3. Remove then Select de-language, click on Apply button and close the dialog:
         await editSettingsDialog.clickOnRemoveLanguage();
-        await editSettingsDialog.filterOptionsAndSelectLanguage(
-            appConst.LANGUAGES.DEUTSCH_DE,
-        );
+        await editSettingsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.DEUTSCH_DE);
         await editSettingsDialog.clickOnApplyButton();
         await editSettingsDialog.waitForNotificationMessage();
         await editSettingsDialog.waitForClosed();
         await editSettingsDialog.removeNotificationMessage();
-        await studioUtils.saveScreenshot("language_updated_properties_widget");
+        await studioUtils.saveScreenshot('language_updated_properties_widget');
         // 3. Verify that expected language should be displayed in Browse Details Panel
         let actualLanguage = await detailsWidgetInfoSection.getLanguage();
-        assert.equal(
-            actualLanguage,
-            "de",
-            "expected language should be present in the widget",
-        );
+        assert.equal(actualLanguage, 'de', 'expected language should be present in the widget');
     });
 
     it(`WHEN existing folder is opened WHEN the selected language has been removed THEN the language should not be displayed in the properties widget`, async () => {
@@ -128,11 +112,9 @@ describe("wizard.setting.panel.spec:  test for Owner and Language selectors", fu
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
-            await studioUtils
-                .getBrowser()
-                .setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        if (typeof browser !== 'undefined') {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
-        return console.log("specification starting: " + this.title);
+        return console.log('specification starting: ' + this.title);
     });
 });

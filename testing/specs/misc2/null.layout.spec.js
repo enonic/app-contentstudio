@@ -1,40 +1,37 @@
 /**
  * Created on 15.04.2024  updated on 20.06.2026
  */
-const assert = require("node:assert");
-const webDriverHelper = require("../../libs/WebDriverHelper");
-const studioUtils = require("../../libs/studio.utils.js");
-const ContentWizard = require("../../page_objects/wizardpanel/content.wizard.panel");
-const contentBuilder = require("../../libs/content.builder");
-const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
-const appConst = require("../../libs/app_const");
-const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
-const CityListPartInspectionPanel = require("../../page_objects/wizardpanel/liveform/inspection/city.list.part.inspection.panel");
-const LayoutInspectionPanel = require("../../page_objects/wizardpanel/liveform/inspection/layout.inspection.panel");
-const FragmentInspectionPanel = require("../../page_objects/wizardpanel/liveform/inspection/fragment.inspection.panel");
+const assert = require('node:assert');
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const studioUtils = require('../../libs/studio.utils.js');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const contentBuilder = require('../../libs/content.builder');
+const PageComponentView = require('../../page_objects/wizardpanel/liveform/page.components.view');
+const appConst = require('../../libs/app_const');
+const LiveFormPanel = require('../../page_objects/wizardpanel/liveform/live.form.panel');
+const CityListPartInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/city.list.part.inspection.panel');
+const LayoutInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/layout.inspection.panel');
+const FragmentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/fragment.inspection.panel');
 
-describe("null.layout.spec - test for layout-controller that returns null ", function () {
+describe('null.layout.spec - test for layout-controller that returns null ', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
 
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
     let SITE;
     const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
-    const LAYOUT_NULL = "Layout Null";
-    const TEST_TEXT = "test1";
+    const LAYOUT_NULL = 'Layout Null';
+    const TEST_TEXT = 'test1';
     const PART_WITH_CONFIG = appConst.PART_NAME.MY_FIRST_APP_CITY_LIST;
 
     it(`Preconditions: new site should be created`, async () => {
-        let displayName = contentBuilder.generateRandomName("site");
+        let displayName = contentBuilder.generateRandomName('site');
         SITE = contentBuilder.buildSite(
             displayName,
             null,
-            [
-                appConst.TEST_APPS_NAME.APP_CONTENT_TYPES,
-                appConst.TEST_APPS_NAME.MY_FIRST_APP,
-            ],
+            [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES, appConst.TEST_APPS_NAME.MY_FIRST_APP],
             CONTROLLER_NAME,
         );
         await studioUtils.doAddSite(SITE);
@@ -50,18 +47,14 @@ describe("null.layout.spec - test for layout-controller that returns null ", fun
         // 2. Maximize the Live Edit:
         await contentWizard.clickOnCollapseContentForm();
         // 3. Insert the layout with controller that returns null:
-        await pageComponentView.rightClickAndOpenContextMenu("main");
-        await pageComponentView.selectContextMenuItem(["Insert", "Layout"]);
+        await pageComponentView.rightClickAndOpenContextMenu('main');
+        await pageComponentView.selectContextMenuItem(['Insert', 'Layout']);
         await layoutInspectionPanel.waitForOpened();
         await layoutInspectionPanel.typeNameAndSelectLayout(LAYOUT_NULL);
         await contentWizard.waitForNotificationMessage();
         // 4. Verify the text in the Live Edit:
         let option = await layoutInspectionPanel.getDropdownSelectedOption();
-        assert.equal(
-            option,
-            "Layout Null",
-            "Layout Null should be selected in Layout Inspection Panel",
-        );
+        assert.equal(option, 'Layout Null', 'Layout Null should be selected in Layout Inspection Panel');
     });
 
     // Verify  https://github.com/enonic/app-contentstudio/issues/7676
@@ -76,16 +69,14 @@ describe("null.layout.spec - test for layout-controller that returns null ", fun
         // 2. Maximize the Live Edit:
         await contentWizard.clickOnCollapseContentForm();
         // 3. Insert 'City List' part with the config:
-        await pageComponentView.rightClickAndOpenContextMenu("main");
-        await pageComponentView.selectContextMenuItem(["Insert", "Part"]);
+        await pageComponentView.rightClickAndOpenContextMenu('main');
+        await pageComponentView.selectContextMenuItem(['Insert', 'Part']);
         await partInspectionPanel.waitForLoaded();
         await partInspectionPanel.typeNameAndSelectPart(PART_WITH_CONFIG);
         await contentWizard.switchToMainFrame();
         // 4. Click on 'Save as Fragment' menu item. (Save the part as fragment)
         await pageComponentView.rightClickAndOpenContextMenu(PART_WITH_CONFIG);
-        await pageComponentView.clickOnMenuItem(
-            appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT,
-        );
+        await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
         await contentWizard.waitForNotificationMessage();
         await fragmentInspectionPanel.waitForOpened();
         await fragmentInspectionPanel.clickOnEditFragmentButton();
@@ -93,45 +84,37 @@ describe("null.layout.spec - test for layout-controller that returns null ", fun
         // 5. Switch to the new wizard that has been opened and open Page Widget:
         await studioUtils.doSwitchToNewWizard();
         let wizardContextWindow = await contentWizard.openContextWindow();
-        await wizardContextWindow.selectItemInWidgetSelector(
-            appConst.WIDGET_SELECTOR_OPTIONS.PAGE,
-        );
+        await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
         // 6. Verify that Part Inspection Panel for 'City List' part is loaded:
         await contentWizard.clickOnCollapseContentForm();
         await pageComponentView.clickOnComponent(PART_WITH_CONFIG);
         await partInspectionPanel.waitForLoaded();
-        await studioUtils.saveScreenshot("fragment_inspect_issue_7676_0");
+        await studioUtils.saveScreenshot('fragment_inspect_issue_7676_0');
         // 7. Type a text in the config in 'City List' Part Inspect Panel
         await partInspectionPanel.typeTextInZoomLevelInput(TEST_TEXT);
-        await studioUtils.saveScreenshot("fragment_inspect_issue_7676_1");
+        await studioUtils.saveScreenshot('fragment_inspect_issue_7676_1');
         // 8. Verify that Save button gets enabled:
         await contentWizard.waitForSaveButtonEnabled();
         await contentWizard.waitAndClickOnSave();
-        await studioUtils.saveScreenshot("fragment_inspect_issue_7676_3");
+        await studioUtils.saveScreenshot('fragment_inspect_issue_7676_3');
         // 9. Verify the saved text:
         let result = await partInspectionPanel.getTextInZoomLevelInput();
         assert.equal(
             result,
             TEST_TEXT,
-            "Expected text should be displayed in the input in Fragment(Part) Inspection Panel",
+            'Expected text should be displayed in the input in Fragment(Part) Inspection Panel',
         );
 
-        let isInvalid =
-            await pageComponentView.isComponentInvalid(PART_WITH_CONFIG);
-        assert.ok(
-            isInvalid,
-            "The component should be invalid because the required input in the config is empty",
-        );
+        let isInvalid = await pageComponentView.isComponentInvalid(PART_WITH_CONFIG);
+        assert.ok(isInvalid, 'The component should be invalid because the required input in the config is empty');
     });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
-            await studioUtils
-                .getBrowser()
-                .setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        if (typeof browser !== 'undefined') {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
-        return console.log("specification starting: " + this.title);
+        return console.log('specification starting: ' + this.title);
     });
 });

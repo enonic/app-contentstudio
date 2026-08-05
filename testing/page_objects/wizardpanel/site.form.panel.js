@@ -1,11 +1,11 @@
 /**
  * Created on 14.12.2017.
  */
-const Page = require("../page");
-const { COMMON, DROPDOWN } = require("../../libs/elements");
-const appConst = require("../../libs/app_const");
-const SiteConfiguratorComboBox = require("../components/selectors/site.configurator.combobox");
-const SiteConfigDialog = require("./site.configurator.dialog");
+const Page = require('../page');
+const { COMMON, DROPDOWN } = require('../../libs/elements');
+const appConst = require('../../libs/app_const');
+const SiteConfiguratorComboBox = require('../components/selectors/site.configurator.combobox');
+const SiteConfigDialog = require('./site.configurator.dialog');
 
 const XPATH = {
     wizardSteps: `//div[contains(@id,'ContentWizardTabsToolbar')]`,
@@ -25,39 +25,31 @@ const XPATH = {
 
 class SiteForm extends Page {
     get applicationsOptionsFilterInput() {
-        return (
-            XPATH.wizardSteps +
-            XPATH.siteConfiguratorInputDiv +
-            DROPDOWN.OPTION_FILTER_INPUT
-        );
+        return XPATH.wizardSteps + XPATH.siteConfiguratorInputDiv + DROPDOWN.OPTION_FILTER_INPUT;
     }
 
     get dropdownHandle() {
-        return (
-            XPATH.wizardSteps +
-            XPATH.siteConfiguratorInputDiv +
-            DROPDOWN.DROPDOWN_HANDLE
-        );
+        return XPATH.wizardSteps + XPATH.siteConfiguratorInputDiv + DROPDOWN.DROPDOWN_HANDLE;
     }
 
     get descriptionInput() {
-        return COMMON.INPUTS.inputFieldByLabel("Description") + "//textarea";
+        return COMMON.INPUTS.inputFieldByLabel('Description') + '//textarea';
     }
 
     get baseUrlInput() {
-        return COMMON.INPUTS.inputFieldByLabel("Base URL") + "//input";
+        return COMMON.INPUTS.inputFieldByLabel('Base URL') + '//input';
     }
 
     get helpTextInBaseUrlInput() {
         return (
-            COMMON.INPUTS.inputFieldByLabel("Base URL") +
+            COMMON.INPUTS.inputFieldByLabel('Base URL') +
             "//div[@data-component='InputLabel']//div[contains(@class,'text-subtle')]"
         );
     }
 
     get helpTextInApplicationsSelector() {
         return (
-            COMMON.INPUTS.inputFieldByLabel("Applications") +
+            COMMON.INPUTS.inputFieldByLabel('Applications') +
             "//div[@data-component='InputLabel']//div[contains(@class,'text-subtle')]"
         );
     }
@@ -73,7 +65,7 @@ class SiteForm extends Page {
                 // await this.waitForNotificationMessage();
             }
         } catch (err) {
-            throw new Error("Error in Site form panel!" + err);
+            throw new Error('Error in Site form panel!' + err);
         }
     }
 
@@ -82,11 +74,7 @@ class SiteForm extends Page {
             await this.waitForElementDisplayed(this.descriptionInput);
             return await this.typeChars(this.descriptionInput, description);
         } catch (err) {
-            await this.handleError(
-                "Error occurred in Site wizard, description text area",
-                "err_site_description",
-                err,
-            );
+            await this.handleError('Error occurred in Site wizard, description text area', 'err_site_description', err);
         }
     }
 
@@ -95,11 +83,7 @@ class SiteForm extends Page {
             await this.waitForElementDisplayed(this.descriptionInput);
             return await this.getTextInInput(this.descriptionInput);
         } catch (err) {
-            await this.handleError(
-                "Error occurred in Site wizard, description text area",
-                "err_site_description",
-                err,
-            );
+            await this.handleError('Error occurred in Site wizard, description text area', 'err_site_description', err);
         }
     }
 
@@ -108,11 +92,7 @@ class SiteForm extends Page {
             await this.waitForElementDisplayed(this.baseUrlInput);
             return await this.typeChars(this.baseUrlInput, baseUrl);
         } catch (err) {
-            await this.handleError(
-                "Error occurred in Site wizard, base URL input",
-                "err_site_base_url",
-                err,
-            );
+            await this.handleError('Error occurred in Site wizard, base URL input', 'err_site_base_url', err);
         }
     }
 
@@ -121,11 +101,7 @@ class SiteForm extends Page {
             await this.waitForElementDisplayed(this.baseUrlInput);
             return await this.getTextInInput(this.baseUrlInput);
         } catch (err) {
-            await this.handleError(
-                "Error occurred in Site wizard, base URL input",
-                "err_site_base_url",
-                err,
-            );
+            await this.handleError('Error occurred in Site wizard, base URL input', 'err_site_base_url', err);
         }
     }
 
@@ -141,124 +117,90 @@ class SiteForm extends Page {
 
     // Click on the dropdown handler in app-selector
     async clickOnDropdownHandle() {
-        let siteConfiguratorComboBox = new SiteConfiguratorComboBox(
-            XPATH.wizardSteps,
-        );
+        let siteConfiguratorComboBox = new SiteConfiguratorComboBox(XPATH.wizardSteps);
         await siteConfiguratorComboBox.clickOnDropdownHandle();
     }
 
     async clickOnCheckboxInDropdown(index) {
-        let siteConfiguratorComboBox = new SiteConfiguratorComboBox(
-            XPATH.wizardSteps,
-        );
+        let siteConfiguratorComboBox = new SiteConfiguratorComboBox(XPATH.wizardSteps);
         await siteConfiguratorComboBox.clickOnCheckboxInDropdown(index);
     }
 
     async clickOnCheckboxInDropdownByDisplayName(displayName) {
-        let siteConfiguratorComboBox = new SiteConfiguratorComboBox(
-            XPATH.wizardSteps,
-        );
-        await siteConfiguratorComboBox.clickOnCheckboxInDropdownByDisplayName(
-            displayName,
-        );
+        let siteConfiguratorComboBox = new SiteConfiguratorComboBox(XPATH.wizardSteps);
+        await siteConfiguratorComboBox.clickOnCheckboxInDropdownByDisplayName(displayName);
     }
 
     async waitForApplyAppSelectionButtonDisplayed() {
-        let siteConfiguratorComboBox = new SiteConfiguratorComboBox(
-            XPATH.wizardSteps,
-        );
+        let siteConfiguratorComboBox = new SiteConfiguratorComboBox(XPATH.wizardSteps);
         await siteConfiguratorComboBox.waitForApplySelectionButtonDisplayed();
     }
 
     // Click on Apply selected applications:
     async clickOnApplySelectionButtonInApplications() {
-        let siteConfiguratorComboBox = new SiteConfiguratorComboBox(
-            XPATH.wizardSteps,
-        );
+        let siteConfiguratorComboBox = new SiteConfiguratorComboBox(XPATH.wizardSteps);
         await siteConfiguratorComboBox.clickOnApplySelectionButton();
     }
 
     async filterOptionsAndSelectApplication(displayName) {
         try {
-            let siteConfiguratorComboBox = new SiteConfiguratorComboBox(
-                XPATH.wizardSteps,
-            );
-            await siteConfiguratorComboBox.selectFilteredApplicationAndClickOnApply(
-                displayName,
-            );
+            let siteConfiguratorComboBox = new SiteConfiguratorComboBox(XPATH.wizardSteps);
+            await siteConfiguratorComboBox.selectFilteredApplicationAndClickOnApply(displayName);
             await this.pause(100);
         } catch (err) {
             await this.handleError(
                 `Site wizard, application selector, tried to select application: ${displayName}`,
-                "err_select_app",
+                'err_select_app',
                 err,
             );
         }
     }
 
     async getSelectedAppDisplayNames() {
-        let siteConfiguratorComboBox = new SiteConfiguratorComboBox(
-            XPATH.wizardSteps,
-        );
+        let siteConfiguratorComboBox = new SiteConfiguratorComboBox(XPATH.wizardSteps);
         return await siteConfiguratorComboBox.getSelectedOptionsDisplayName();
     }
 
     async removeApplication(displayName) {
         try {
-            let locator =
-                XPATH.selectedAppByDisplayName(displayName) +
-                XPATH.removeAppIcon;
+            let locator = XPATH.selectedAppByDisplayName(displayName) + XPATH.removeAppIcon;
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             await this.clickOnElement(locator);
             return await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName(
-                "err_app_remove_icon",
-            );
-            throw new Error(
-                `Site wizard, application remove icon, screenshot :${screenshot}` +
-                    err,
-            );
+            let screenshot = await this.saveScreenshotUniqueName('err_app_remove_icon');
+            throw new Error(`Site wizard, application remove icon, screenshot :${screenshot}` + err);
         }
     }
 
     waitForEditApplicationIconNotDisplayed(displayName) {
-        let locator =
-            XPATH.selectedAppByDisplayName(displayName) + XPATH.editIcon;
+        let locator = XPATH.selectedAppByDisplayName(displayName) + XPATH.editIcon;
         return this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
     }
 
     async isApplicationUninstalled(displayName) {
         let locator = XPATH.selectedAppByDisplayName(displayName);
-        let attr = await this.getAttribute(locator, "class");
-        return attr.includes("uninstalled");
+        let attr = await this.getAttribute(locator, 'class');
+        return attr.includes('uninstalled');
     }
 
     waitForRemoveApplicationIconNotDisplayed(displayName) {
-        let locator =
-            XPATH.selectedAppByDisplayName(displayName) + XPATH.removeAppIcon;
+        let locator = XPATH.selectedAppByDisplayName(displayName) + XPATH.removeAppIcon;
         return this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
     }
 
     async openSiteConfiguratorDialog(displayName) {
         try {
-            let selector =
-                XPATH.selectedAppByDisplayName(displayName) + XPATH.editIcon;
-            await this.waitForElementDisplayed(
-                selector,
-                appConst.mediumTimeout,
-            );
+            let selector = XPATH.selectedAppByDisplayName(displayName) + XPATH.editIcon;
+            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             await this.clickOnElement(selector);
             let siteConfigDialog = new SiteConfigDialog();
             await siteConfigDialog.waitForDialogOpened();
             return await siteConfigDialog.pause(1000);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName(
-                "err_open_site_configurator_dialog",
-            );
+            let screenshot = await this.saveScreenshotUniqueName('err_open_site_configurator_dialog');
             throw new Error(
-                `Error occurred in Site wizard, site configurator dialog, screenshot: ${screenshot} ` +
-                    err,
+                `Error occurred in Site wizard, site configurator dialog, screenshot: ${screenshot} ` + err,
             );
         }
     }
@@ -268,16 +210,13 @@ class SiteForm extends Page {
             let selector = XPATH.siteConfiguratorFieldError(displayName);
             return await this.isElementDisplayed(selector);
         } catch (err) {
-            throw new Error("error, site configurator validation " + err);
+            throw new Error('error, site configurator validation ' + err);
         }
     }
 
     waitUntilSiteConfiguratorViewValid(displayName) {
         let selector = XPATH.siteConfiguratorFieldError(displayName);
-        return this.waitForElementNotDisplayed(
-            selector,
-            appConst.mediumTimeout,
-        );
+        return this.waitForElementNotDisplayed(selector, appConst.mediumTimeout);
     }
 
     async swapApplications(sourceAppName, destinationAppName) {
@@ -303,51 +242,38 @@ class SiteForm extends Page {
             }
             await allItems[sourceIndex].click();
             await this.pause(200);
-            await this.keys(" ");
+            await this.keys(' ');
             await this.pause(300);
             const steps = destIndex - sourceIndex;
-            const arrowKey = steps > 0 ? "ArrowDown" : "ArrowUp";
+            const arrowKey = steps > 0 ? 'ArrowDown' : 'ArrowUp';
             for (let i = 0; i < Math.abs(steps); i++) {
                 await this.keys(arrowKey);
                 await this.pause(100);
             }
-            await this.keys(" ");
+            await this.keys(' ');
             return await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName(
-                "err_swap_applications",
-            );
-            throw new Error(
-                `Error during applications swap, screenshot: ${screenshot}. ` +
-                    err,
-            );
+            let screenshot = await this.saveScreenshotUniqueName('err_swap_applications');
+            throw new Error(`Error during applications swap, screenshot: ${screenshot}. ` + err);
         }
     }
 
     async getHelpTextsInApplicationsSelector() {
         await this.waitForElementDisplayed(this.helpTextInApplicationsSelector);
-        return await this.getTextInDisplayedElements(
-            this.helpTextInApplicationsSelector,
-        );
+        return await this.getTextInDisplayedElements(this.helpTextInApplicationsSelector);
     }
 
     async getHelpTextsInBaseUrl() {
         await this.waitForElementDisplayed(this.helpTextInBaseUrlInput);
-        return await this.getTextInDisplayedElements(
-            this.helpTextInBaseUrlInput,
-        );
+        return await this.getTextInDisplayedElements(this.helpTextInBaseUrlInput);
     }
 
     waitForHelpTextInApplicationsSelectorNotDisplayed() {
-        return this.waitForElementNotDisplayed(
-            this.helpTextInApplicationsSelector,
-        );
+        return this.waitForElementNotDisplayed(this.helpTextInApplicationsSelector);
     }
 
     async waitForSiteConfiguratorSelectorDisabled() {
-        return await this.waitForElementDisabled(
-            this.applicationsOptionsFilterInput,
-        );
+        return await this.waitForElementDisabled(this.applicationsOptionsFilterInput);
     }
 }
 
