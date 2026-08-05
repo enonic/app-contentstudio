@@ -67,6 +67,10 @@ dependencies {
     testImplementation( testFixtures( "com.enonic.xp:core-content:${xpVersion}" ) )
 }
 
+xp {
+    scriptEngines = ['Nashorn', 'GraalJS']
+}
+
 // Use task configuration avoidance
 tasks.named( 'copyDevResources' ).configure {
     dependsOn project(':lib-contentstudio').tasks.named('devJar')
@@ -166,5 +170,6 @@ tasks.register( 'yolo' ) {
     checkLint.enabled = false
     check.enabled = false
     test.enabled = false
+    tasks.named( 'testGraalJS' ).configure { enabled = false }
     compileTestJava.enabled = false
 }
