@@ -1,285 +1,344 @@
 /**
  * Created on 28.05.2018.  updated on 06.05.2026
  */
-const assert = require('node:assert');
-const webDriverHelper = require('../libs/WebDriverHelper');
-const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
-const studioUtils = require('../libs/studio.utils.js');
-const appConst = require('../libs/app_const');
-const DeleteContentDialog = require('../page_objects/delete.content.dialog');
-const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialog');
-const ContentItemPreviewPanel = require('../page_objects/browsepanel/contentItem.preview.panel');
-const ContentFilterPanel = require('../page_objects/browsepanel/content.filter.panel');
+const assert = require("node:assert");
+const webDriverHelper = require("../libs/WebDriverHelper");
+const ContentBrowsePanel = require("../page_objects/browsepanel/content.browse.panel");
+const studioUtils = require("../libs/studio.utils.js");
+const appConst = require("../libs/app_const");
+const DeleteContentDialog = require("../page_objects/delete.content.dialog");
+const ConfirmValueDialog = require("../page_objects/confirm.content.delete.dialog");
+const ContentItemPreviewPanel = require("../page_objects/browsepanel/contentItem.preview.panel");
+const ContentFilterPanel = require("../page_objects/browsepanel/content.filter.panel");
 
-describe('browse.panel.selections.spec - tests for selection items in Browse Panel', function () {
+describe("browse.panel.selections.spec - tests for selection items in Browse Panel", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === 'undefined') {
+    if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
 
-    it("GIVEN unnamed content are selected WHEN the content have been deleted THEN modal dialog should be closed",
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            let deleteContentDialog = new DeleteContentDialog();
-            let confirmValueDialog = new ConfirmValueDialog();
-            await studioUtils.typeNameInFilterPanel('unnamed');
-            let result = await contentBrowsePanel.getDisplayNamesInGrid();
-            if (result.length <= 1) {
-                return;
-            }
-            await contentBrowsePanel.clickOnSelectAllCheckbox();
-            await contentBrowsePanel.clickOnDeleteButton();
-            await deleteContentDialog.waitForDialogOpened();
-            await deleteContentDialog.clickOnDeleteButton();
-            await confirmValueDialog.waitForDialogOpened();
-            let number = await confirmValueDialog.getSuggestedNumberToDelete();
-            await confirmValueDialog.typeNumberOrName(number);
-            await confirmValueDialog.clickOnConfirmButton();
-            await confirmValueDialog.waitForDialogClosed();
-        });
+    it("GIVEN unnamed content are selected WHEN the content have been deleted THEN modal dialog should be closed", async () => {
+        let contentBrowsePanel = new ContentBrowsePanel();
+        let deleteContentDialog = new DeleteContentDialog();
+        let confirmValueDialog = new ConfirmValueDialog();
+        await studioUtils.typeNameInFilterPanel("unnamed");
+        let result = await contentBrowsePanel.getDisplayNamesInGrid();
+        if (result.length <= 1) {
+            return;
+        }
+        await contentBrowsePanel.clickOnSelectAllCheckbox();
+        await contentBrowsePanel.clickOnDeleteButton();
+        await deleteContentDialog.waitForDialogOpened();
+        await deleteContentDialog.clickOnDeleteButton();
+        await confirmValueDialog.waitForDialogOpened();
+        let number = await confirmValueDialog.getSuggestedNumberToDelete();
+        await confirmValueDialog.typeNumberOrName(number);
+        await confirmValueDialog.clickOnConfirmButton();
+        await confirmValueDialog.waitForDialogClosed();
+    });
 
-    it("GIVEN folder with child items is checked WHEN 'Arrow Right'/Arrow Left key has been pressed THEN the folder gets expanded/collapsed",
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            await contentBrowsePanel.pause(1000);
-            await studioUtils.typeNameInFilterPanel(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
+    it("GIVEN folder with child items is checked WHEN 'Arrow Right'/Arrow Left key has been pressed THEN the folder gets expanded/collapsed", async () => {
+        let contentBrowsePanel = new ContentBrowsePanel();
+        await contentBrowsePanel.pause(1000);
+        await studioUtils.typeNameInFilterPanel(
+            appConst.TEST_FOLDER_WITH_IMAGES_NAME,
+        );
 
-            let status = await contentBrowsePanel.getContentStatus(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
-            assert.equal(status, appConst.CONTENT_STATUS.OFFLINE);
-            await contentBrowsePanel.waitForStatus(appConst.TEST_FOLDER_WITH_IMAGES_NAME, 'Offline');
-            let currentProject = await contentBrowsePanel.getCurrentProjectDisplayName();
-            //let aaa = await contentBrowsePanel.getWorkflowStateByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
+        let status = await contentBrowsePanel.getContentStatus(
+            appConst.TEST_FOLDER_WITH_IMAGES_NAME,
+        );
+        assert.equal(status, appConst.CONTENT_STATUS.OFFLINE);
+        await contentBrowsePanel.waitForStatus(
+            appConst.TEST_FOLDER_WITH_IMAGES_NAME,
+            "Offline",
+        );
+        let currentProject =
+            await contentBrowsePanel.getCurrentProjectDisplayName();
+        //let aaa = await contentBrowsePanel.getWorkflowStateByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
 
-            // 1. Click on the checkbox:
-            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
-            await studioUtils.saveScreenshot('before_arrow_right');
-            let isExpanded = await contentBrowsePanel.isContentExpanded(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
-            assert.ok(isExpanded === false, "The folder should be collapsed");
-            // 2. Press the 'Arrow Right' key
-            await contentBrowsePanel.pressArrowRight();
-            await studioUtils.saveScreenshot('after_arrow_right');
-            // 3. Verify that the  folder gets expanded:
-            isExpanded = await contentBrowsePanel.isContentExpanded(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
-            assert.ok(isExpanded === true, 'The folder gets expanded');
-            // 4. Press the 'Arrow Left' key:
-            await contentBrowsePanel.pressArrowLeft();
-            await studioUtils.saveScreenshot('after_arrow_left');
-            // 5. Verify that the  folder gets collapsed:
-            isExpanded = await contentBrowsePanel.isContentExpanded(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
-            assert.ok(isExpanded === false, 'The folder gets collapsed');
-            assert.equal(currentProject,'Default', "Default project should be displayed in Browse App Bar");
-        });
+        // 1. Click on the checkbox:
+        await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(
+            appConst.TEST_FOLDER_WITH_IMAGES_NAME,
+        );
+        await studioUtils.saveScreenshot("before_arrow_right");
+        let isExpanded = await contentBrowsePanel.isContentExpanded(
+            appConst.TEST_FOLDER_WITH_IMAGES_NAME,
+        );
+        assert.ok(isExpanded === false, "The folder should be collapsed");
+        // 2. Press the 'Arrow Right' key
+        await contentBrowsePanel.pressArrowRight();
+        await studioUtils.saveScreenshot("after_arrow_right");
+        // 3. Verify that the  folder gets expanded:
+        isExpanded = await contentBrowsePanel.isContentExpanded(
+            appConst.TEST_FOLDER_WITH_IMAGES_NAME,
+        );
+        assert.ok(isExpanded === true, "The folder gets expanded");
+        // 4. Press the 'Arrow Left' key:
+        await contentBrowsePanel.pressArrowLeft();
+        await studioUtils.saveScreenshot("after_arrow_left");
+        // 5. Verify that the  folder gets collapsed:
+        isExpanded = await contentBrowsePanel.isContentExpanded(
+            appConst.TEST_FOLDER_WITH_IMAGES_NAME,
+        );
+        assert.ok(isExpanded === false, "The folder gets collapsed");
+        assert.equal(
+            currentProject,
+            "Default",
+            "Default project should be displayed in Browse App Bar",
+        );
+    });
 
-    it("GIVEN one row is checked WHEN hold down 'Shift' key AND press Arrow down key 3 times THEN 3 content items get checked",
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            let contentFilterPanel = new ContentFilterPanel();
-            // 1. Open Filter Panel and filter by 'Images' content type:
-            await studioUtils.openFilterPanel();
-            await contentFilterPanel.clickOnCheckboxInContentTypesBlock(appConst.FILTER_PANEL_AGGREGATION_BLOCK.IMAGE);
-            // 2. Click on the first row - highlight the first item
-            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_IMAGES.BOOK);
-            // 3. hold down Shift key and press Arrow down key 3 times:
-            await contentBrowsePanel.holdDownShiftAndPressArrowDown(3);
-            await studioUtils.saveScreenshot('hold_down_shift_and_click');
-            // 4. Verify that 5 content items get checked:
-            let numberCheckedRows = await contentBrowsePanel.getNumberOfCheckedRows();
-            assert.equal(numberCheckedRows, 3, '3 rows should be checked in Browse Panel');
-        });
+    it("GIVEN one row is checked WHEN hold down 'Shift' key AND press Arrow down key 3 times THEN 3 content items get checked", async () => {
+        let contentBrowsePanel = new ContentBrowsePanel();
+        let contentFilterPanel = new ContentFilterPanel();
+        // 1. Open Filter Panel and filter by 'Images' content type:
+        await studioUtils.openFilterPanel();
+        await contentFilterPanel.clickOnCheckboxInContentTypesBlock(
+            appConst.FILTER_PANEL_AGGREGATION_BLOCK.IMAGE,
+        );
+        // 2. Click on the first row - highlight the first item
+        await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(
+            appConst.TEST_IMAGES.BOOK,
+        );
+        // 3. hold down Shift key and press Arrow down key 3 times:
+        await contentBrowsePanel.holdDownShiftAndPressArrowDown(3);
+        await studioUtils.saveScreenshot("hold_down_shift_and_click");
+        // 4. Verify that 5 content items get checked:
+        let numberCheckedRows =
+            await contentBrowsePanel.getNumberOfCheckedRows();
+        assert.equal(
+            numberCheckedRows,
+            3,
+            "3 rows should be checked in Browse Panel",
+        );
+    });
 
     // https://github.com/enonic/app-contentstudio/issues/9238
     // https://github.com/enonic/app-contentstudio/issues/11053
-    it("GIVEN one row is highlighted WHEN hold down 'Shift' key AND click on the 5th row in grid THEN 5 content items get checked",
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            let contentFilterPanel = new ContentFilterPanel();
-            // 1. Open Filter Panel and filter by 'Images' content type:
-            await studioUtils.openFilterPanel();
-            await contentFilterPanel.clickOnCheckboxInContentTypesBlock(appConst.FILTER_PANEL_AGGREGATION_BLOCK.IMAGE);
-            // 2. Click on the first row - highlight the first item
-            await contentBrowsePanel.clickOnRowByIndex(0);
-            // 3. hold down Shift key and click on the 5th row in the grid:
-            await contentBrowsePanel.holdDownShiftKeyAndClickOnRowByIndex(4);
-            await studioUtils.saveScreenshot('hold_down_shift_and_click');
-            // 4. Verify that 5 content items get checked:
-            let numberCheckedRows = await contentBrowsePanel.getNumberOfCheckedRows();
-            assert.equal(numberCheckedRows, 5, '5 rows should be checked in Browse Panel');
-        });
+    it("GIVEN one row is highlighted WHEN hold down 'Shift' key AND click on the 5th row in grid THEN 5 content items get checked", async () => {
+        let contentBrowsePanel = new ContentBrowsePanel();
+        let contentFilterPanel = new ContentFilterPanel();
+        // 1. Open Filter Panel and filter by 'Images' content type:
+        await studioUtils.openFilterPanel();
+        await contentFilterPanel.clickOnCheckboxInContentTypesBlock(
+            appConst.FILTER_PANEL_AGGREGATION_BLOCK.IMAGE,
+        );
+        // 2. Click on the first row - highlight the first item
+        await contentBrowsePanel.clickOnRowByIndex(0);
+        // 3. hold down Shift key and click on the 5th row in the grid:
+        await contentBrowsePanel.holdDownShiftKeyAndClickOnRowByIndex(4);
+        await studioUtils.saveScreenshot("hold_down_shift_and_click");
+        // 4. Verify that 5 content items get checked:
+        let numberCheckedRows =
+            await contentBrowsePanel.getNumberOfCheckedRows();
+        assert.equal(
+            numberCheckedRows,
+            5,
+            "5 rows should be checked in Browse Panel",
+        );
+    });
 
-    it("GIVEN one row is highlighted WHEN 'Arrow Down' key has been pressed THEN the next row should be highlighted",
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            await contentBrowsePanel.pause(1500);
-            // 1. Click on the row(row gets highlighted)
-            await contentBrowsePanel.clickOnRowByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
-            await studioUtils.saveScreenshot('before_arrow_down');
-            await contentBrowsePanel.pause(1000);
-            let displayName1 = await contentBrowsePanel.getNameInHighlightedRow();
-            // 2. Press the 'Arrow Down' key
-            await contentBrowsePanel.pressArrowDown();
-            await studioUtils.saveScreenshot('after_arrow_down');
-            // 3. Verify that the next content is highlighted:
-            let displayName2 = await contentBrowsePanel.getNameInHighlightedRow();
-            assert.notEqual(displayName1, displayName2, "Highlighted item should be updated");
-        });
+    it("GIVEN one row is highlighted WHEN 'Arrow Down' key has been pressed THEN the next row should be highlighted", async () => {
+        let contentBrowsePanel = new ContentBrowsePanel();
+        await contentBrowsePanel.pause(1500);
+        // 1. Click on the row(row gets highlighted)
+        await contentBrowsePanel.clickOnRowByDisplayName(
+            appConst.TEST_FOLDER_WITH_IMAGES,
+        );
+        await studioUtils.saveScreenshot("before_arrow_down");
+        await contentBrowsePanel.pause(1000);
+        let displayName1 = await contentBrowsePanel.getNameInHighlightedRow();
+        // 2. Press the 'Arrow Down' key
+        await contentBrowsePanel.pressArrowDown();
+        await studioUtils.saveScreenshot("after_arrow_down");
+        // 3. Verify that the next content is highlighted:
+        let displayName2 = await contentBrowsePanel.getNameInHighlightedRow();
+        assert.notEqual(
+            displayName1,
+            displayName2,
+            "Highlighted item should be updated",
+        );
+    });
 
-    it("GIVEN one checkbox has been clicked in the grid WHEN 'white space' key has been pressed THEN the row gets unselected",
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            // 1. Click on the checkbox and select the row
-            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
-            await studioUtils.saveScreenshot('before_white_space');
-            await contentBrowsePanel.pause(1000);
-            // 2. Verify that only one row is selected:
-            let number1 = await contentBrowsePanel.getNumberOfCheckedRows();
-            assert.equal(number1, 1, 'One row should be selected');
-            // 3. Click on 'white space' key:
-            await contentBrowsePanel.pressWhiteSpace();
-            await studioUtils.saveScreenshot('after_white_space');
-            // 2. Verify that no selected rows now: (the row gets unselected)
-            let number2 = await contentBrowsePanel.getNumberOfCheckedRows();
-            assert.equal(number2, 0, "expected - no selected rows in grid");
-        });
+    it("GIVEN one checkbox has been clicked in the grid WHEN 'white space' key has been pressed THEN the row gets unselected", async () => {
+        let contentBrowsePanel = new ContentBrowsePanel();
+        // 1. Click on the checkbox and select the row
+        await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(
+            appConst.TEST_FOLDER_WITH_IMAGES_NAME,
+        );
+        await studioUtils.saveScreenshot("before_white_space");
+        await contentBrowsePanel.pause(1000);
+        // 2. Verify that only one row is selected:
+        let number1 = await contentBrowsePanel.getNumberOfCheckedRows();
+        assert.equal(number1, 1, "One row should be selected");
+        // 3. Click on 'white space' key:
+        await contentBrowsePanel.pressWhiteSpace();
+        await studioUtils.saveScreenshot("after_white_space");
+        // 2. Verify that no selected rows now: (the row gets unselected)
+        let number2 = await contentBrowsePanel.getNumberOfCheckedRows();
+        assert.equal(number2, 0, "expected - no selected rows in grid");
+    });
 
-    it("GIVEN existing content is selected WHEN 'Refresh' button in the grid toolbar has been clicked THEN the row remains checked",
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            await contentBrowsePanel.pause(2000);
-            // 1. Click on the checkbox and select the row
-            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
-            await studioUtils.saveScreenshot('before_refresh');
-            await contentBrowsePanel.pause(1000);
-            // 2. Click on Refresh button on the grid toolbar:
-            await contentBrowsePanel.clickOnRefreshButton();
-            await studioUtils.saveScreenshot('after_refresh');
-            // 3. Verify that the row remains selected:
-            let number = await contentBrowsePanel.getNumberOfCheckedRows();
-            assert.equal(number, 1, 'One row should be selected');
-        });
+    it("GIVEN existing content is selected WHEN 'Refresh' button in the grid toolbar has been clicked THEN the row remains checked", async () => {
+        let contentBrowsePanel = new ContentBrowsePanel();
+        await contentBrowsePanel.pause(2000);
+        // 1. Click on the checkbox and select the row
+        await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(
+            appConst.TEST_FOLDER_WITH_IMAGES_NAME,
+        );
+        await studioUtils.saveScreenshot("before_refresh");
+        await contentBrowsePanel.pause(1000);
+        // 2. Click on Refresh button on the grid toolbar:
+        await contentBrowsePanel.clickOnRefreshButton();
+        await studioUtils.saveScreenshot("after_refresh");
+        // 3. Verify that the row remains selected:
+        let number = await contentBrowsePanel.getNumberOfCheckedRows();
+        assert.equal(number, 1, "One row should be selected");
+    });
 
-    it("GIVEN one checkbox has been clicked in the grid WHEN 'Selection Controller' checkbox has been clicked THEN the row gets unselected",
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            await contentBrowsePanel.pause(2000);
-            // 1. Click on the checkbox and select the row
-            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
-            await studioUtils.saveScreenshot('before_sel_controller');
-            await contentBrowsePanel.pause(1000);
-            // 2. Verify that only one row is selected:
-            let number1 = await contentBrowsePanel.getNumberOfCheckedRows();
-            assert.equal(number1, 1, 'One row should be selected');
-            // 3. Click on 'Reset Selection' checkbox:
-            await contentBrowsePanel.clickOnResetSelectionCheckbox();
-            await studioUtils.saveScreenshot('after_sel_controller');
-            // 4. Verify that there are no selected rows in the browse panel at the moment. : (the row gets unselected)
-            let number2 = await contentBrowsePanel.getNumberOfCheckedRows();
-            assert.equal(number2, 0, 'There should be no selected rows');
-        });
+    it("GIVEN one checkbox has been clicked in the grid WHEN 'Selection Controller' checkbox has been clicked THEN the row gets unselected", async () => {
+        let contentBrowsePanel = new ContentBrowsePanel();
+        await contentBrowsePanel.pause(2000);
+        // 1. Click on the checkbox and select the row
+        await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(
+            appConst.TEST_FOLDER_WITH_IMAGES_NAME,
+        );
+        await studioUtils.saveScreenshot("before_sel_controller");
+        await contentBrowsePanel.pause(1000);
+        // 2. Verify that only one row is selected:
+        let number1 = await contentBrowsePanel.getNumberOfCheckedRows();
+        assert.equal(number1, 1, "One row should be selected");
+        // 3. Click on 'Reset Selection' checkbox:
+        await contentBrowsePanel.clickOnResetSelectionCheckbox();
+        await studioUtils.saveScreenshot("after_sel_controller");
+        // 4. Verify that there are no selected rows in the browse panel at the moment. : (the row gets unselected)
+        let number2 = await contentBrowsePanel.getNumberOfCheckedRows();
+        assert.equal(number2, 0, "There should be no selected rows");
+    });
 
-    it("GIVEN a content is highlighted WHEN the content unhighlighted THEN grid toolbar returns to the initial state",
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            let contentItemPreviewPanel = new ContentItemPreviewPanel();
-            await contentBrowsePanel.pause(2000);
-            // 1. The folder is highlighted:
-            await contentBrowsePanel.clickOnRowByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
-            await studioUtils.saveScreenshot('folder_highlighted_1');
-            // 2. Click on the row again
-            await contentBrowsePanel.clickOnRowByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
-            // 3. Verify that grid toolbar returns to the initial state
-            await contentBrowsePanel.waitForNewButtonEnabled();
-            await contentBrowsePanel.waitForDeleteButtonDisabled();
-            await contentBrowsePanel.waitForDuplicateButtonDisabled();
-            // 4 . Verify that PreviewPanel toolbar gets not visible!
-            await contentItemPreviewPanel.waitForPreviewToolbarNotDisplayed();
-            await contentBrowsePanel.waitForSortButtonDisabled();
-            await contentBrowsePanel.waitForMoveButtonDisabled();
-            await contentBrowsePanel.waitForEditButtonDisabled();
-        });
+    it("GIVEN a content is highlighted WHEN the content unhighlighted THEN grid toolbar returns to the initial state", async () => {
+        let contentBrowsePanel = new ContentBrowsePanel();
+        let contentItemPreviewPanel = new ContentItemPreviewPanel();
+        await contentBrowsePanel.pause(2000);
+        // 1. The folder is highlighted:
+        await contentBrowsePanel.clickOnRowByDisplayName(
+            appConst.TEST_FOLDER_WITH_IMAGES,
+        );
+        await studioUtils.saveScreenshot("folder_highlighted_1");
+        // 2. Click on the row again
+        await contentBrowsePanel.clickOnRowByDisplayName(
+            appConst.TEST_FOLDER_WITH_IMAGES,
+        );
+        // 3. Verify that grid toolbar returns to the initial state
+        await contentBrowsePanel.waitForNewButtonEnabled();
+        await contentBrowsePanel.waitForDeleteButtonDisabled();
+        await contentBrowsePanel.waitForDuplicateButtonDisabled();
+        // 4 . Verify that PreviewPanel toolbar gets not visible!
+        await contentItemPreviewPanel.waitForPreviewToolbarNotDisplayed();
+        await contentBrowsePanel.waitForSortButtonDisabled();
+        await contentBrowsePanel.waitForMoveButtonDisabled();
+        await contentBrowsePanel.waitForEditButtonDisabled();
+    });
 
-    it("WHEN 'Select All' checkbox has been clicked THEN 'New' button should be disabled and 'Archive', 'Duplicate' are enabled",
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            await contentBrowsePanel.pause(2000);
-            // 1. Click on Selection Controller checkbox:
-            await contentBrowsePanel.clickOnSelectAllCheckbox();
-            await studioUtils.saveScreenshot('all_grid_items_selected');
-            // 2. Verify that New button is disabled and Archive, Duplicate are enabled:
-            await contentBrowsePanel.waitForNewButtonDisabled();
-            await contentBrowsePanel.waitForDeleteButtonEnabled();
-            await contentBrowsePanel.waitForDuplicateButtonEnabled();
-        });
+    it("WHEN 'Select All' checkbox has been clicked THEN 'New' button should be disabled and 'Archive', 'Duplicate' are enabled", async () => {
+        let contentBrowsePanel = new ContentBrowsePanel();
+        await contentBrowsePanel.pause(2000);
+        // 1. Click on Selection Controller checkbox:
+        await contentBrowsePanel.clickOnSelectAllCheckbox();
+        await studioUtils.saveScreenshot("all_grid_items_selected");
+        // 2. Verify that New button is disabled and Archive, Duplicate are enabled:
+        await contentBrowsePanel.waitForNewButtonDisabled();
+        await contentBrowsePanel.waitForDeleteButtonEnabled();
+        await contentBrowsePanel.waitForDuplicateButtonEnabled();
+    });
 
-    it("WHEN one row with content has been clicked THEN the row gets highlighted AND 'Selection Toggler' should not be visible",
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            await contentBrowsePanel.pause(1500);
-            // 1. click on existing folder(the row gets highlighted):
-            await contentBrowsePanel.clickOnRowByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
-            await contentBrowsePanel.pause(700);
-            await studioUtils.saveScreenshot('row_clicked_1');
-            let actualName = await contentBrowsePanel.getNameInHighlightedRow();
-            // 2. expected content should be highlighted:
-            assert.equal(actualName, appConst.TEST_FOLDER_WITH_IMAGES, "expected content should be highlighted");
-            // 3. But there are no any checked rows:
-            let number2 = await contentBrowsePanel.getNumberOfCheckedRows();
-            assert.equal(number2, 0, 'The number of checked rows is 0');
-        });
+    it("WHEN one row with content has been clicked THEN the row gets highlighted AND 'Selection Toggler' should not be visible", async () => {
+        let contentBrowsePanel = new ContentBrowsePanel();
+        await contentBrowsePanel.pause(1500);
+        // 1. click on existing folder(the row gets highlighted):
+        await contentBrowsePanel.clickOnRowByDisplayName(
+            appConst.TEST_FOLDER_WITH_IMAGES,
+        );
+        await contentBrowsePanel.pause(700);
+        await studioUtils.saveScreenshot("row_clicked_1");
+        let actualName = await contentBrowsePanel.getNameInHighlightedRow();
+        // 2. expected content should be highlighted:
+        assert.equal(
+            actualName,
+            appConst.TEST_FOLDER_WITH_IMAGES,
+            "expected content should be highlighted",
+        );
+        // 3. But there are no any checked rows:
+        let number2 = await contentBrowsePanel.getNumberOfCheckedRows();
+        assert.equal(number2, 0, "The number of checked rows is 0");
+    });
 
-    it("WHEN one row with content has been checked THEN the row gets checked AND 'Selection Toggler' gets visible",
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            await contentBrowsePanel.pause(1000);
-            let testContentDisplayName = appConst.TEST_FOLDER_WITH_IMAGES;
-            // 1. Click on the checkbox and select the row:
-            await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(testContentDisplayName);
-            let result = await contentBrowsePanel.getNameInHighlightedRow();
-            await studioUtils.saveScreenshot('one_row_checked');
-            assert.equal(result, '', 'no one row should be highlighted');
-            result = await contentBrowsePanel.getNumberOfCheckedRows();
-            assert.equal(result, 1, 'One row should be checked');
-            await contentBrowsePanel.waitForClearSelectionCheckboxDisplayed();
+    it("WHEN one row with content has been checked THEN the row gets checked AND 'Selection Toggler' gets visible", async () => {
+        let contentBrowsePanel = new ContentBrowsePanel();
+        await contentBrowsePanel.pause(1000);
+        let testContentDisplayName = appConst.TEST_FOLDER_WITH_IMAGES;
+        // 1. Click on the checkbox and select the row:
+        await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(
+            testContentDisplayName,
+        );
+        let result = await contentBrowsePanel.getNameInHighlightedRow();
+        await studioUtils.saveScreenshot("one_row_checked");
+        assert.equal(result, "", "no one row should be highlighted");
+        result = await contentBrowsePanel.getNumberOfCheckedRows();
+        assert.equal(result, 1, "One row should be checked");
+        await contentBrowsePanel.waitForClearSelectionCheckboxDisplayed();
+    });
 
-        });
+    it("GIVEN one row is checked WHEN one more row has been checked THEN 2 rows should be checked AND 0 rows should be highlighted", async () => {
+        let contentBrowsePanel = new ContentBrowsePanel();
+        await contentBrowsePanel.pause(1500);
+        // 1. Click on two checkboxes:
+        await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(
+            appConst.TEST_FOLDER_WITH_IMAGES,
+        );
+        await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(
+            appConst.TEST_FOLDER_WITH_IMAGES_2,
+        );
+        await contentBrowsePanel.pause(500);
+        let result = await contentBrowsePanel.getNameInHighlightedRow();
+        await studioUtils.saveScreenshot("two_rows_checked");
+        assert.equal(result, "", "There is no highlighted row in the grid");
+        let number2 = await contentBrowsePanel.getNumberOfCheckedRows();
+        assert.equal(number2, 2, "Two rows should be checked");
+    });
 
-    it("GIVEN one row is checked WHEN one more row has been checked THEN 2 rows should be checked AND 0 rows should be highlighted",
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            await contentBrowsePanel.pause(1500);
-            // 1. Click on two checkboxes:
-            await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
-            await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES_2);
-            await contentBrowsePanel.pause(500);
-            let result = await contentBrowsePanel.getNameInHighlightedRow();
-            await studioUtils.saveScreenshot('two_rows_checked');
-            assert.equal(result, '', 'There is no highlighted row in the grid');
-            let number2 = await contentBrowsePanel.getNumberOfCheckedRows();
-            assert.equal(number2, 2, 'Two rows should be checked');
-        });
-
-    it("GIVEN one row is highlighted WHEN the row has been clicked THEN the row gets unselected",
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            await contentBrowsePanel.pause(1500);
-            // 1. Click on the row(row gets highlighted)
-            await contentBrowsePanel.clickOnRowByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
-            await contentBrowsePanel.pause(700);
-            // 2. Click on the row again:
-            await contentBrowsePanel.clickOnRowByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
-            await contentBrowsePanel.pause(1000);
-            let result = await contentBrowsePanel.getNameInHighlightedRow();
-            await studioUtils.saveScreenshot('check_row_unselected');
-            assert.equal(result, '', 'There is no highlighted row in the grid');
-            let numberOfChecked = await contentBrowsePanel.getNumberOfCheckedRows();
-            assert.equal(numberOfChecked, 0, 'The number of checked rows should be 0');
-        });
+    it("GIVEN one row is highlighted WHEN the row has been clicked THEN the row gets unselected", async () => {
+        let contentBrowsePanel = new ContentBrowsePanel();
+        await contentBrowsePanel.pause(1500);
+        // 1. Click on the row(row gets highlighted)
+        await contentBrowsePanel.clickOnRowByDisplayName(
+            appConst.TEST_FOLDER_WITH_IMAGES,
+        );
+        await contentBrowsePanel.pause(700);
+        // 2. Click on the row again:
+        await contentBrowsePanel.clickOnRowByDisplayName(
+            appConst.TEST_FOLDER_WITH_IMAGES,
+        );
+        await contentBrowsePanel.pause(1000);
+        let result = await contentBrowsePanel.getNameInHighlightedRow();
+        await studioUtils.saveScreenshot("check_row_unselected");
+        assert.equal(result, "", "There is no highlighted row in the grid");
+        let numberOfChecked = await contentBrowsePanel.getNumberOfCheckedRows();
+        assert.equal(
+            numberOfChecked,
+            0,
+            "The number of checked rows should be 0",
+        );
+    });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
-        if (typeof browser !== 'undefined') {
-            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        if (typeof browser !== "undefined") {
+            await studioUtils
+                .getBrowser()
+                .setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
-        return console.log('specification starting: ' + this.title);
+        return console.log("specification starting: " + this.title);
     });
 });
