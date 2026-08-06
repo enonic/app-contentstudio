@@ -48,6 +48,7 @@ describe('Tests for dependent items in Unpublish dialog (for scheduled content)'
             '2 items have been published. -  notification message should appear',
         );
         await contentPublishDialog.waitForDialogClosed();
+        await studioUtils.saveScreenshot('scheduled_site_status');
         // 5. Verify that status is 'Scheduled' in Browse Panel:
         let actualStatus = await contentBrowsePanel.getContentStatus(SITE.displayName);
         assert.equal(
@@ -58,8 +59,9 @@ describe('Tests for dependent items in Unpublish dialog (for scheduled content)'
         let contentItemPreviewPanel = new ContentItemPreviewPanel();
         // Verifies the bug  #11051
         // 6. 'Scheduled' status should be displayed in the 'Preview Item toolbar':
+        await contentItemPreviewPanel.pause(300);
         let status = await contentItemPreviewPanel.getLabelInOpenVersionsHistoryButton();
-        assert.equal(status, appConst.CONTENT_STATUS.SCHEDULED, '');
+        assert.equal(status, appConst.CONTENT_STATUS.SCHEDULED, 'Scheduled status should be the Open Versions button');
     });
 
     // Verify issue: Unpublish Item dialog - dependent items are not displayed when content with children are scheduled #4185
