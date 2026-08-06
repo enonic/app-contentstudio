@@ -1,6 +1,6 @@
 import { cn, Link, type LinkProps } from '@enonic/ui';
 import { forwardRef, useMemo } from 'react';
-
+import { Link as LinkIcon } from 'lucide-react';
 import type { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { useStore } from '@nanostores/preact';
 import { type Branch } from '../../../app/versioning/Branch';
@@ -32,7 +32,6 @@ export const ContentReferencesLink = forwardRef<HTMLAnchorElement, ContentRefere
         const label = useI18n('action.showReferences');
         const projectName = useStore($activeProject)?.getName();
         const contentType = contentTypeName?.toString();
-
         const href = useMemo(
             () => getInboundReferencesUrl({ contentId, branch, project: projectName, contentType }),
             [projectName, branch, contentType, contentId],
@@ -46,11 +45,13 @@ export const ContentReferencesLink = forwardRef<HTMLAnchorElement, ContentRefere
                     'self-stretch px-2 visited:text-main active:bg-transparent data-[active=true]:bg-transparent',
                 )}
                 href={href}
+                aria-label={label}
                 newTab
                 data-component={componentName}
                 {...props}
             >
-                {label}
+                <span className="hidden md:inline">{label}</span>
+                <LinkIcon className="size-3.5 md:hidden" aria-hidden />
             </Link>
         );
     },

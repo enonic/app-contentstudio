@@ -50,7 +50,7 @@ export const ProjectSelectionDialog = (): ReactElement => {
                 <ConfirmationDialog.Overlay />
                 <ConfirmationDialog.Content
                     className={cn(
-                        'w-full h-full max-w-full max-h-full sm:w-auto sm:h-fit gap-7.5',
+                        'w-full h-fit max-w-full max-h-full sm:w-auto gap-5 md:gap-7.5',
                         hasAvailableProjects ? 'md:max-w-180 md:max-h-[85vh] lg:max-w-220' : 'max-w-160',
                     )}
                     data-component={PROJECT_SELECTION_DIALOG_NAME}

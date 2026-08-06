@@ -1,3 +1,4 @@
+import { getIsMobile } from '@enonic/ui';
 import { PageEventsManager } from '../../../../../app/wizard/PageEventsManager';
 import type { PageNavigationEvent } from '../../../../../app/wizard/PageNavigationEvent';
 import { PageNavigationEventType } from '../../../../../app/wizard/PageNavigationEventType';
@@ -94,14 +95,16 @@ export function initPageEditorBridge(options?: InitPageEditorBridgeOptions): voi
     const navigationHandler: PageNavigationHandler = {
         handle(event: PageNavigationEvent): void {
             const type = event.getType();
-            if (type === PageNavigationEventType.SELECT || type === PageNavigationEventType.INSPECT) {
+            const isMobile = getIsMobile();
+
+            if (type === PageNavigationEventType.INSPECT || (type === PageNavigationEventType.SELECT && !isMobile)) {
                 const path = event.getData().getPath();
                 $inspectedPath.set(path?.toString() ?? null);
                 bumpSelectionEventNonce();
                 setContextOpen(true);
                 return;
             }
-            if (type === PageNavigationEventType.DESELECT) {
+            if (type === PageNavigationEventType.DESELECT && !isMobile) {
                 $inspectedPath.set(null);
                 bumpSelectionEventNonce();
             }

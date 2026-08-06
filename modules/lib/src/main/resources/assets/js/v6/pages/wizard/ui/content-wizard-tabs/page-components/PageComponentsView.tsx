@@ -7,7 +7,7 @@ import {
     SortableList,
     type SortableListItemContext,
 } from '@enonic/lib-admin-ui/form2/components';
-import { cn } from '@enonic/ui';
+import { cn, getIsMobile } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { type ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ComponentPath } from '../../../../../../app/page/region/ComponentPath';
@@ -18,7 +18,7 @@ import { PageNavigationMediator } from '../../../../../../app/wizard/PageNavigat
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { useSelectedPageOption } from '../../../../../widgets/inspectors/lib/usePageOptions';
 import type { FlatNode } from '../../../../../shared/lib/tree-store';
-import { inspectItem, requestComponentMove } from '../../../../../widgets/inspectors/model/page-editor';
+import { requestComponentMove } from '../../../../../widgets/inspectors/model/page-editor';
 import {
     $fragmentOptions,
     $isFragmentInspectionLoading,
@@ -63,6 +63,7 @@ export type PageComponentsViewProps = {
 export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProps = {}): ReactElement => {
     const containerRef = useRef<HTMLDivElement>(null);
     const componentsLabel = useI18n('field.components');
+    const moveLabel = useI18n('action.move');
     const pageVersion = useStore($pageVersion);
     const page = useStore($page);
     const fragmentOptions = useStore($fragmentOptions);
@@ -178,7 +179,6 @@ export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProp
             rebuildComponentsTree();
 
             const movedPath = ComponentPath.fromString(computeMovedItemPath(sourceNode.id, targetComponentPath));
-            inspectItem(movedPath);
             PageNavigationMediator.get().notify(
                 new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(movedPath)),
             );
@@ -198,7 +198,6 @@ export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProp
 
     const handleSelect = useCallback((nodeId: string): void => {
         const path = ComponentPath.fromString(nodeId);
-        inspectItem(path);
         PageNavigationMediator.get().notify(
             new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(path)),
         );
@@ -267,7 +266,8 @@ export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProp
                     onDragStart={handleDragStart}
                     onMove={handleMove}
                     enabled={flatNodes.length > 1}
-                    fullRowDraggable
+                    fullRowDraggable={!getIsMobile()}
+                    dragLabel={moveLabel}
                     isItemMovable={isItemMovable}
                     resolveDrop={resolveDrop}
                     animateLayoutChanges={animateLayoutChanges}

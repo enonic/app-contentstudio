@@ -1,4 +1,5 @@
 import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {getIsMobile} from '@enonic/ui';
 import {InspectEvent} from '../../event/InspectEvent';
 import {PageEventsManager} from '../../wizard/PageEventsManager';
 import {type PageNavigationEvent} from '../../wizard/PageNavigationEvent';
@@ -39,7 +40,8 @@ export class PageEditorContextController implements PageNavigationHandler {
 
     handle(event: PageNavigationEvent): void {
         const type = event.getType();
-        if (type === PageNavigationEventType.SELECT || type === PageNavigationEventType.INSPECT) {
+        if (type === PageNavigationEventType.INSPECT ||
+            (type === PageNavigationEventType.SELECT && !getIsMobile())) {
             this.activatePageEditor();
         }
     }
