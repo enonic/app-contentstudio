@@ -1,6 +1,6 @@
 const Page = require('./page');
 const appConst = require('../libs/app_const');
-const {BUTTONS, DIALOG_ITEMS, COMMON, LIVE_VIEW, WIZARD} = require('../libs/elements');
+const { BUTTONS, DIALOG_ITEMS, COMMON, LIVE_VIEW, WIZARD } = require('../libs/elements');
 const DateTimeRange = require('../page_objects/components/datetime.range');
 const DependantsControls = require('./issue/dependant.controls');
 const DateTimePickerPopup = require('../page_objects/wizardpanel/time/date.time.picker.popup');
@@ -12,30 +12,33 @@ const XPATH = {
     dialogStateBarDiv: "//div[contains(@id,'DialogStateBar')]",
     logMessageLink: "//div[contains(@class,'content-dialog-sub-title')]/a",
     publishScheduleForm: "//div[@data-component='PublishScheduleForm']",
-    includeChildrenCheckbox: DIALOG_ITEMS.PRIMARY_DATA_COMPONENT +
-                             "//div[@data-component='Checkbox' and descendant::span[contains(.,'Include child')]]//label",
+    includeChildrenCheckbox:
+        DIALOG_ITEMS.PRIMARY_DATA_COMPONENT +
+        "//div[@data-component='Checkbox' and descendant::span[contains(.,'Include child')]]//label",
     checkableDependentItemDiv: `//div[contains(@id,'StatusCheckableItem')`,
     removeItemIcon: `//div[contains(@class,'icon remove')]`,
     publishItemList: "//ul[contains(@id,'PublishDialogItemList')]",
     changeLogInput: "//input[contains(@id,'AutosizeTextInput')]",
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
     readyForPublishingText: "//div[@data-component='StatusBarEntry']//span[text()='Content is ready for publishing']",
-    mainItemDivByName: name => DIALOG_ITEMS.PRIMARY_DATA_COMPONENT + DIALOG_ITEMS.mainItemRowByName(name),
+    mainItemDivByName: (name) => DIALOG_ITEMS.PRIMARY_DATA_COMPONENT + DIALOG_ITEMS.mainItemRowByName(name),
     selectionStatusBar: "//div[@data-component='SelectionStatusBar']",
-    inProgressStateEntryDiv: "//div[@data-component='SelectionStatusBar']//div[@data-component='StatusBarErrorEntry' and descendant::*[@data-component='StatusIcon' and @aria-label='in-progress']]",
-    invalidStateEntryDiv: "//div[@data-component='SelectionStatusBar']//div[@data-component='StatusBarErrorEntry' and descendant::*[@data-component='StatusIcon' and @aria-label='invalid']]",
+    inProgressStateEntryDiv:
+        "//div[@data-component='SelectionStatusBar']//div[@data-component='StatusBarErrorEntry' and descendant::*[@data-component='StatusIcon' and @aria-label='in-progress']]",
+    invalidStateEntryDiv:
+        "//div[@data-component='SelectionStatusBar']//div[@data-component='StatusBarErrorEntry' and descendant::*[@data-component='StatusIcon' and @aria-label='invalid']]",
     inProgressSpan: "//span[contains(@class,'font-semibold') and contains(text(),'In progress')]",
     invalidItemsSpan: "//span[contains(@class,'font-semibold') and contains(text(),'Invalid items')]",
-    dependentItemToPublish: displayName => `//div[contains(@id,'StatusCheckableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
+    dependentItemToPublish: (displayName) =>
+        `//div[contains(@id,'StatusCheckableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     excludedItemsNote: "//span[@class='excluded-items-note']",
-    allDependenciesExcludedAndHiddenMessage: DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV +
-                                             "[contains(.,'All dependencies are excluded and hidden.')]",
+    allDependenciesExcludedAndHiddenMessage:
+        DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV + "[contains(.,'All dependencies are excluded and hidden.')]",
     publishChangeLogInput: "//input[contains(@placeholder,'Describe changes that will')]",
     commentTextArea: "//div[@data-component='TextArea' and descendant::label[contains(.,'Comment')]]//textarea",
 };
 
 class ContentPublishDialog extends Page {
-
     constructor() {
         super();
         this.dependantsControls = new DependantsControls(XPATH.container);
@@ -48,7 +51,6 @@ class ContentPublishDialog extends Page {
     get closeButton() {
         return XPATH.container + BUTTONS.buttonAriaLabel('Close');
     }
-
 
     get changeLogInput() {
         return XPATH.container + XPATH.changeLogInput;
@@ -99,12 +101,20 @@ class ContentPublishDialog extends Page {
 
     // Invalid item(s) Exclude button:
     get excludeInvalidItemsButton() {
-        return XPATH.container + XPATH.invalidStateEntryDiv + "//button[@data-component='StatusBarEntryButton' and text()='Exclude']";
+        return (
+            XPATH.container +
+            XPATH.invalidStateEntryDiv +
+            "//button[@data-component='StatusBarEntryButton' and text()='Exclude']"
+        );
     }
 
     // In progress() Exclude button:
     get excludeItemsInProgressButton() {
-        return XPATH.container + XPATH.inProgressStateEntryDiv + "//button[@data-component='StatusBarEntryButton' and text()='Exclude']";
+        return (
+            XPATH.container +
+            XPATH.inProgressStateEntryDiv +
+            "//button[@data-component='StatusBarEntryButton' and text()='Exclude']"
+        );
     }
 
     get applyButton() {
@@ -112,15 +122,15 @@ class ContentPublishDialog extends Page {
     }
 
     get cancelButton() {
-        return XPATH.container  + "//button[@data-component='StatusBarEntryButton' and text()='Cancel']";
+        return XPATH.container + "//button[@data-component='StatusBarEntryButton' and text()='Cancel']";
     }
 
-    async clickOnApplyButton(){
+    async clickOnApplyButton() {
         try {
             await this.waitForElementDisplayed(this.applyButton);
             await this.clickOnElement(this.applyButton);
             await this.pause(1000);
-        }catch (err) {
+        } catch (err) {
             await this.handleError(`Publish Dialog, click on 'Apply' button `, 'err_apply_button', err);
         }
     }
@@ -160,8 +170,11 @@ class ContentPublishDialog extends Page {
         try {
             return await this.waitForElementNotDisplayed(this.excludeItemsInProgressButton);
         } catch (err) {
-            await this.handleError(`Publish Dialog, 'Exclude items in progress' button should not be displayed, `,
-                'err_exclude_items_in_progress_button', err);
+            await this.handleError(
+                `Publish Dialog, 'Exclude items in progress' button should not be displayed, `,
+                'err_exclude_items_in_progress_button',
+                err,
+            );
         }
     }
 
@@ -229,7 +242,11 @@ class ContentPublishDialog extends Page {
         try {
             return await this.waitForElementDisplayed(this.markAsReadyButton);
         } catch (err) {
-            await this.handleError(`Publish Dialog, 'Mark as ready' button should be displayed, `, 'err_mark_as_ready_btn', err);
+            await this.handleError(
+                `Publish Dialog, 'Mark as ready' button should be displayed, `,
+                'err_mark_as_ready_btn',
+                err,
+            );
         }
     }
 
@@ -240,21 +257,29 @@ class ContentPublishDialog extends Page {
             await this.clickOnElement(this.markAsReadyButton);
             return await this.pause(700);
         } catch (err) {
-            await this.handleError(`Publish Dialog, click on 'Mark as ready' button `, 'err_click_mark_as_ready_btn', err);
+            await this.handleError(
+                `Publish Dialog, click on 'Mark as ready' button `,
+                'err_click_mark_as_ready_btn',
+                err,
+            );
         }
     }
 
     async waitForMarkAsReadyButtonNotDisplayed() {
         try {
-            return await this.waitForElementNotDisplayed(this.markAsReadyButton, appConst.mediumTimeout);
+            return await this.waitForElementNotDisplayed(this.markAsReadyButton);
         } catch (err) {
-            await this.handleError(`Publish Dialog, 'Mark as ready' button should not be displayed, `, 'err_mark_as_ready_btn', err);
+            await this.handleError(
+                `Publish Dialog, 'Mark as ready' button should not be displayed, `,
+                'err_mark_as_ready_btn',
+                err,
+            );
         }
     }
 
     async markAsReadyButtonDisplayed() {
-        await this.waitForElementDisplayed(this.markAsReadyButton, appConst.mediumTimeout);
-        return await this.waitForElementEnabled(this.markAsReadyButton, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.markAsReadyButton);
+        return await this.waitForElementEnabled(this.markAsReadyButton);
     }
 
     async waitForDialogOpened() {
@@ -283,7 +308,11 @@ class ContentPublishDialog extends Page {
             await this.clickOnElement(this.publishNowButton);
             return await this.pause(500);
         } catch (err) {
-            await this.handleError(`Publish Dialog, click on 'Publish Now' button `, 'err_click_on_publish_now_button', err);
+            await this.handleError(
+                `Publish Dialog, click on 'Publish Now' button `,
+                'err_click_on_publish_now_button',
+                err,
+            );
         }
     }
 
@@ -298,7 +327,11 @@ class ContentPublishDialog extends Page {
             await this.clickOnElement(this.addScheduleButton);
             return await this.pause(500);
         } catch (err) {
-            await this.handleError(`Publish Dialog, click on 'Add Schedule' icon-button `, 'err_publish_dialog_schedule_button', err);
+            await this.handleError(
+                `Publish Dialog, click on 'Add Schedule' icon-button `,
+                'err_publish_dialog_schedule_button',
+                err,
+            );
         }
     }
 
@@ -317,7 +350,7 @@ class ContentPublishDialog extends Page {
         return this.waitForElementEnabled(this.confirmScheduleButton);
     }
 
-    waitForScheduleButtonNotDisplayed(){
+    waitForScheduleButtonNotDisplayed() {
         return this.waitForElementNotDisplayed(this.addScheduleButton);
     }
     waitForScheduleButtonEnabled() {
@@ -342,7 +375,11 @@ class ContentPublishDialog extends Page {
             await this.clickOnElement(this.showExcludedItemsButton);
             await this.pause(400);
         } catch (err) {
-            await this.handleError(`Publish Dialog, click on Show Excluded dependent items button `, 'err_show_excluded_btn', err);
+            await this.handleError(
+                `Publish Dialog, click on Show Excluded dependent items button `,
+                'err_show_excluded_btn',
+                err,
+            );
         }
     }
 
@@ -352,7 +389,11 @@ class ContentPublishDialog extends Page {
             await this.clickOnElement(this.hideExcludedItemsButton);
             return await this.pause(1000);
         } catch (err) {
-            await this.handleError(`Publish Dialog, click on Hide Excluded dependent items button `, 'err_hide_excluded_btn', err);
+            await this.handleError(
+                `Publish Dialog, click on Hide Excluded dependent items button `,
+                'err_hide_excluded_btn',
+                err,
+            );
         }
     }
 
@@ -360,7 +401,11 @@ class ContentPublishDialog extends Page {
         try {
             return await this.waitForElementDisplayed(this.showExcludedItemsButton);
         } catch (err) {
-            await this.handleError(`Publish Dialog, 'Show excluded items' button should be visible, `, 'err_show_excluded_btn', err);
+            await this.handleError(
+                `Publish Dialog, 'Show excluded items' button should be visible, `,
+                'err_show_excluded_btn',
+                err,
+            );
         }
     }
 
@@ -368,7 +413,11 @@ class ContentPublishDialog extends Page {
         try {
             return await this.waitForElementNotDisplayed(this.showExcludedItemsButton);
         } catch (err) {
-            await this.handleError(`Publish Dialog, 'Show excluded items' button should not be displayed, `, 'err_show_excluded_btn', err);
+            await this.handleError(
+                `Publish Dialog, 'Show excluded items' button should not be displayed, `,
+                'err_show_excluded_btn',
+                err,
+            );
         }
     }
 
@@ -376,7 +425,11 @@ class ContentPublishDialog extends Page {
         try {
             return await this.waitForElementDisplayed(this.hideExcludedItemsButton);
         } catch (err) {
-            await this.handleError(`Publish Dialog, 'Hide excluded items' button should be displayed, `, 'err_hide_excluded_btn', err);
+            await this.handleError(
+                `Publish Dialog, 'Hide excluded items' button should be displayed, `,
+                'err_hide_excluded_btn',
+                err,
+            );
         }
     }
 
@@ -384,7 +437,11 @@ class ContentPublishDialog extends Page {
         try {
             return this.waitForElementNotDisplayed(this.hideExcludedItemsButton);
         } catch (err) {
-            await this.handleError(`Publish Dialog, 'Hide excluded items' button should not be displayed, `, 'err_hide_excluded_btn', err);
+            await this.handleError(
+                `Publish Dialog, 'Hide excluded items' button should not be displayed, `,
+                'err_hide_excluded_btn',
+                err,
+            );
         }
     }
 
@@ -394,7 +451,11 @@ class ContentPublishDialog extends Page {
             await this.clickOnElement(this.includeChildrenCheckbox);
             return await this.pause(700);
         } catch (err) {
-            await this.handleError(`Publish Dialog, click on Include Children toggle `, 'err_include_children_toggle', err);
+            await this.handleError(
+                `Publish Dialog, click on Include Children toggle `,
+                'err_include_children_toggle',
+                err,
+            );
         }
     }
 
@@ -413,8 +474,8 @@ class ContentPublishDialog extends Page {
     }
 
     async getDependantWorkflowState(contentName) {
-        const rowXpath = XPATH.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV +
-                         DIALOG_ITEMS.contentRowByName(contentName);
+        const rowXpath =
+            XPATH.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV + DIALOG_ITEMS.contentRowByName(contentName);
         const diffStatusBadge = new DiffStatusBadge(rowXpath);
         return await diffStatusBadge.getStatusText();
     }
@@ -423,7 +484,11 @@ class ContentPublishDialog extends Page {
         try {
             return await this.waitForElementDisplayed(this.addCommentButton, appConst.shortTimeout);
         } catch (err) {
-            await this.handleError(`Publish Dialog, 'Add comment' button should be displayed, `, 'err_add_comment_button', err);
+            await this.handleError(
+                `Publish Dialog, 'Add comment' button should be displayed, `,
+                'err_add_comment_button',
+                err,
+            );
         }
     }
 
@@ -431,7 +496,11 @@ class ContentPublishDialog extends Page {
         try {
             return await this.waitForElementDisplayed(this.removeCommentButton, appConst.shortTimeout);
         } catch (err) {
-            await this.handleError(`Publish Dialog, 'Remove comment' button should be displayed, `, 'err_remove_comment_button', err);
+            await this.handleError(
+                `Publish Dialog, 'Remove comment' button should be displayed, `,
+                'err_remove_comment_button',
+                err,
+            );
         }
     }
 
@@ -441,7 +510,11 @@ class ContentPublishDialog extends Page {
             await this.clickOnElement(this.addCommentButton);
             return await this.pause(300);
         } catch (err) {
-            await this.handleError(`Publish Dialog, click on 'Add comment' button `, 'err_click_add_comment_button', err);
+            await this.handleError(
+                `Publish Dialog, click on 'Add comment' button `,
+                'err_click_add_comment_button',
+                err,
+            );
         }
     }
 
@@ -451,7 +524,11 @@ class ContentPublishDialog extends Page {
             await this.clickOnElement(this.removeCommentButton);
             return await this.pause(300);
         } catch (err) {
-            await this.handleError(`Publish Dialog, click on 'Remove comment' button `, 'err_click_remove_comment_button', err);
+            await this.handleError(
+                `Publish Dialog, click on 'Remove comment' button `,
+                'err_click_remove_comment_button',
+                err,
+            );
         }
     }
 
@@ -459,7 +536,11 @@ class ContentPublishDialog extends Page {
         try {
             return await this.waitForElementDisplayed(this.commentTextArea);
         } catch (err) {
-            await this.handleError(`Publish Dialog, 'Comment' text area should be displayed, `, 'err_comment_text_area', err);
+            await this.handleError(
+                `Publish Dialog, 'Comment' text area should be displayed, `,
+                'err_comment_text_area',
+                err,
+            );
         }
     }
 
@@ -467,7 +548,11 @@ class ContentPublishDialog extends Page {
         try {
             return await this.waitForElementNotDisplayed(this.commentTextArea);
         } catch (err) {
-            await this.handleError(`Publish Dialog, 'Comment' text area should not be displayed, `, 'err_comment_text_area', err);
+            await this.handleError(
+                `Publish Dialog, 'Comment' text area should not be displayed, `,
+                'err_comment_text_area',
+                err,
+            );
         }
     }
 
@@ -489,13 +574,16 @@ class ContentPublishDialog extends Page {
         }
     }
 
-
     async waitForPublishNowButtonEnabled() {
         try {
             await this.waitForElementDisplayed(this.publishNowButton);
             return await this.waitForElementEnabled(this.publishNowButton);
         } catch (err) {
-            await this.handleError(`Publish Wizard, 'Publish Now' button should be enabled, `, 'err_publish_now_button_enabled', err);
+            await this.handleError(
+                `Publish Wizard, 'Publish Now' button should be enabled, `,
+                'err_publish_now_button_enabled',
+                err,
+            );
         }
     }
 
@@ -510,7 +598,11 @@ class ContentPublishDialog extends Page {
             let attr = await this.getAttribute(locator, 'aria-disabled');
             return attr;
         } catch (err) {
-            await this.handleError(`Publish Dialog, tried to check the remove icon for item ${name} `, 'err_remove_item_icon', err);
+            await this.handleError(
+                `Publish Dialog, tried to check the remove icon for item ${name} `,
+                'err_remove_item_icon',
+                err,
+            );
         }
     }
 
@@ -579,10 +671,15 @@ class ContentPublishDialog extends Page {
         return await this.dependantsControls.clickOnCheckboxInDependentItem(displayName);
     }
 
-    async getItemsToPublish() {
-        //let selector = XPATH.container + XPATH.publishItemList + lib.H6_DISPLAY_NAME;
-        let result = await this.getTextInElements(selector);
-        return [].concat(result);
+    // returns display names of the main items in the Publishing Wizard ('SplitList.Primary' grid):
+    async getMainItemsToPublish() {
+        let locator =
+            XPATH.container +
+            DIALOG_ITEMS.PRIMARY_DATA_COMPONENT +
+            DIALOG_ITEMS.CONTENT_ROW +
+            DIALOG_ITEMS.ITEMS_NAME_SPAN;
+        await this.waitForElementDisplayed(locator);
+        return await this.getTextInDisplayedElements(locator);
     }
 
     async clickOnMainItemAndSwitchToWizard(displayName) {
@@ -602,8 +699,12 @@ class ContentPublishDialog extends Page {
     async getDisplayNameInDependentItems() {
         try {
             return await this.dependantsControls.getDisplayNameInDependentItems();
-        }catch(err){
-            await this.handleError(`Publish Dialog, get display name in dependent items `, 'err_dependent_items_display_name', err);
+        } catch (err) {
+            await this.handleError(
+                `Publish Dialog, get display name in dependent items `,
+                'err_dependent_items_display_name',
+                err,
+            );
         }
     }
 
@@ -611,10 +712,13 @@ class ContentPublishDialog extends Page {
     async waitForAllDependenciesExcludedAndHiddenMessageDisplayed() {
         try {
             let locator = XPATH.container + XPATH.allDependenciesExcludedAndHiddenMessage;
-            return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(locator);
         } catch (err) {
-            await this.handleError(`Publish Dialog, 'All dependencies are excluded and hidden.' message should be displayed, `,
-                'err_all_dependencies_excluded_message', err);
+            await this.handleError(
+                `Publish Dialog, 'All dependencies are excluded and hidden.' message should be displayed, `,
+                'err_all_dependencies_excluded_message',
+                err,
+            );
         }
     }
 
@@ -648,7 +752,10 @@ class ContentPublishDialog extends Page {
     }
 
     async getSelectionStatusBarText() {
-        let locator = XPATH.container + XPATH.selectionStatusBar + "//div[@data-component='StatusBarEntry']//span[contains(@class,'font-semibold')]";
+        let locator =
+            XPATH.container +
+            XPATH.selectionStatusBar +
+            "//div[@data-component='StatusBarEntry']//span[contains(@class,'font-semibold')]";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator);
     }
@@ -698,7 +805,11 @@ class ContentPublishDialog extends Page {
             let dateTimeRange = new DateTimeRange(XPATH.container);
             return await dateTimeRange.waitForOnlineToValidationRecording();
         } catch (err) {
-            await this.handleError(`Publish Dialog, schedule validation message should be displayed `, 'err_schedule_val_message', err);
+            await this.handleError(
+                `Publish Dialog, schedule validation message should be displayed `,
+                'err_schedule_val_message',
+                err,
+            );
         }
     }
     async waitForOnlineFromScheduleValidationMessageDisplayed() {
@@ -706,7 +817,11 @@ class ContentPublishDialog extends Page {
             let dateTimeRange = new DateTimeRange(XPATH.container);
             return await dateTimeRange.waitForOnlineFromValidationRecording();
         } catch (err) {
-            await this.handleError(`Publish Dialog, schedule validation message should be displayed `, 'err_schedule_val_message', err);
+            await this.handleError(
+                `Publish Dialog, schedule validation message should be displayed `,
+                'err_schedule_val_message',
+                err,
+            );
         }
     }
 
@@ -718,7 +833,11 @@ class ContentPublishDialog extends Page {
         try {
             await this.waitForElementEnabled(this.updateScheduledButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError(`Publish Dialog, 'Update Scheduled' button should be enabled, `, 'err_update_scheduled_button', err);
+            await this.handleError(
+                `Publish Dialog, 'Update Scheduled' button should be enabled, `,
+                'err_update_scheduled_button',
+                err,
+            );
         }
     }
 
@@ -726,7 +845,11 @@ class ContentPublishDialog extends Page {
         try {
             await this.waitForElementDisabled(this.updateScheduledButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError(`Publish Dialog, 'Update Scheduled' button should be disabled, `, 'err_update_scheduled_button', err);
+            await this.handleError(
+                `Publish Dialog, 'Update Scheduled' button should be disabled, `,
+                'err_update_scheduled_button',
+                err,
+            );
         }
     }
 
@@ -735,7 +858,11 @@ class ContentPublishDialog extends Page {
             await this.clickOnElement(this.updateScheduledButton);
             return await this.pause(300);
         } catch (err) {
-            await this.handleError(`Publish Dialog, click on 'Update Scheduled' button `, 'err_click_update_scheduled_button', err);
+            await this.handleError(
+                `Publish Dialog, click on 'Update Scheduled' button `,
+                'err_click_update_scheduled_button',
+                err,
+            );
         }
     }
 

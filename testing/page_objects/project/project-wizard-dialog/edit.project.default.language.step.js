@@ -2,8 +2,8 @@
  * Created on 22.05.2026
  */
 const appConst = require('../../../libs/app_const');
-const LocaleSelectorDropdown = require("../../components/selectors/locale.selector.dropdown");
-const ProjectWizardDialog = require("./project.wizard.dialog");
+const LocaleSelectorDropdown = require('../../components/selectors/locale.selector.dropdown');
+const ProjectWizardDialog = require('./project.wizard.dialog');
 
 const XPATH = {
     container: "//div[@role='dialog' and descendant::h2[contains(.,'Default language for project content')]]",
@@ -11,11 +11,14 @@ const XPATH = {
     selectedLanguageSpan:
         "//div[@data-component='LanguageSelector']/following-sibling::div[@data-component='GridList']" +
         "//div[@data-component='GridList.Row']//div[@data-component='GridList.Cell'][1]//span",
+    // Remove (X) IconButton in the row with the selected language:
+    removeSelectedLanguageIcon:
+        "//div[@data-component='LanguageSelector']/following-sibling::div[@data-component='GridList']" +
+        "//div[@data-component='GridList.Row']//button[@data-component='IconButton']",
 };
-const TITLE = "Default language for project content";
+const TITLE = 'Default language for project content';
 
 class EditProjectDefaultLanguageStep extends ProjectWizardDialog {
-
     get container() {
         return XPATH.container;
     }
@@ -54,7 +57,22 @@ class EditProjectDefaultLanguageStep extends ProjectWizardDialog {
         console.log('Project Wizard, language is selected: ' + language);
         return await this.pause(300);
     }
+
+    // Clicks on the remove (X) icon and removes the selected language:
+    async clickOnRemoveSelectedLanguageIcon() {
+        try {
+            const locator = XPATH.container + XPATH.removeSelectedLanguageIcon;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.clickOnElement(locator);
+            await this.pause(300);
+        } catch (err) {
+            await this.handleError(
+                'Default language step, tried to remove the selected language',
+                'err_remove_language',
+                err,
+            );
+        }
+    }
 }
 
 module.exports = EditProjectDefaultLanguageStep;
-

@@ -1,34 +1,49 @@
 const path = require('path');
 const propertiesReaderModule = require('properties-reader');
-const propertiesReader = propertiesReaderModule.propertiesReader || propertiesReaderModule.default || propertiesReaderModule;
+const propertiesReader =
+    propertiesReaderModule.propertiesReader || propertiesReaderModule.default || propertiesReaderModule;
 const file = path.join(__dirname, '/../browser.properties');
 const properties = propertiesReader({ sourceFile: file });
 const browser_version = properties.get('browser.version');
 
 exports.config = {
+    specs: [path.join(__dirname, '../specs/project/*.spec.js')],
 
-    specs: [
-        //path.join(__dirname, '../specs/project/*.spec.js')
-        path.join(__dirname, '../specs/project/settings.browse.panel.context.menu.spec.js'),
-        path.join(__dirname, '../specs/project/settings.browse.panel.toolbar.spec.js'),
-
+    exclude: [
+        path.join(__dirname, '../specs/project/layer.owner.spec.js'),
+        path.join(__dirname, '../specs/project/layers.content.tree.dialog.spec.js'),
+        path.join(__dirname, '../specs/project/localize.inherited.site.spec.js'),
+        path.join(__dirname, '../specs/project/project.author.spec.js'),
+        path.join(__dirname, '../specs/project/project.contributor.spec.js'),
+        path.join(__dirname, '../specs/project/project.create.roles.in.users.app.spec.js'),
+        path.join(__dirname, '../specs/project/project.editor.spec.js'),
+        path.join(__dirname, '../specs/project/project.layer.delete.spec.js'),
+        path.join(__dirname, '../specs/project/project.owner.spec.js'),
+        path.join(__dirname, '../specs/project/project.viewer.spec.js'),
+        path.join(__dirname, '../specs/project/project.wizard.dialog.select.parent.lower.case.spec.js'),
+        path.join(__dirname, '../specs/project/settings.item.statistics.panel.spec.js'),
+        path.join(__dirname, '../specs/project/user.content.manager.expert.spec.js'),
     ],
 
     maxInstances: 1,
 
-    capabilities: [{
-        browserName: 'chrome',
-        browserVersion: browser_version,
-        "wdio:enforceWebDriverClassic": true,
-        'goog:chromeOptions': {
-            "args": [
-                "--headless", "--disable-gpu", "--no-sandbox",
-                "--lang=en",
-                '--disable-extensions',
-                'window-size=1970,1000'
-            ]
-        }
-    }],
+    capabilities: [
+        {
+            browserName: 'chrome',
+            browserVersion: browser_version,
+            'wdio:enforceWebDriverClassic': true,
+            'goog:chromeOptions': {
+                args: [
+                    '--headless',
+                    '--disable-gpu',
+                    '--no-sandbox',
+                    '--lang=en',
+                    '--disable-extensions',
+                    'window-size=1970,1000',
+                ],
+            },
+        },
+    ],
     logLevel: 'info',
     //
     // Enables colors for log output.
@@ -49,16 +64,26 @@ exports.config = {
     framework: 'mocha',
     mochaOpts: {
         ui: 'bdd',
-        timeout: 160000
+        timeout: 160000,
     },
     // Set directory to store all logs into
-    outputDir: "./build/reports/logs/",
+    outputDir: './build/reports/logs/',
 
-    reporters: [['spec', {
-        color: true
-    }],
-        ['allure',
-            {outputDir: './build/reports/allure', disableWebdriverStepsReporting: true, disableWebdriverScreenshotsReporting: true}]
+    reporters: [
+        [
+            'spec',
+            {
+                color: true,
+            },
+        ],
+        [
+            'allure',
+            {
+                outputDir: './build/reports/allure',
+                disableWebdriverStepsReporting: true,
+                disableWebdriverScreenshotsReporting: true,
+            },
+        ],
     ],
 
     // Hook that gets executed before the suite starts
