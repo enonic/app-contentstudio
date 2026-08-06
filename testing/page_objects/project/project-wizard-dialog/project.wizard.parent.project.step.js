@@ -4,35 +4,39 @@
 const appConst = require('../../../libs/app_const');
 const ProjectsComboBox = require('../../components/projects/projects.combobox');
 const ProjectWizardDialog = require('./project.wizard.dialog');
-const LocaleSelectorDropdown = require("../../components/selectors/locale.selector.dropdown");
+const LocaleSelectorDropdown = require('../../components/selectors/locale.selector.dropdown');
 
 const XPATH = {
     container: "//div[@role='dialog' and descendant::h2[contains(.,'Language and content layering')]]",
     projectSelectedOptionView: "//div[contains(@id,'ProjectSelectedOptionView')]",
     parentProjectComboboxDiv: "//div[contains(@id,'ProjectsSelector')]",
     selectedProjectDisplayNameSpans:
-        "(" +
+        '(' +
         "//div[@role='dialog' and descendant::h2[contains(.,'Language and content layering')]]//div[@data-component='SortableGridList']//div[@data-component='ProjectLabel']//span[contains(@class,'font-semibold')]" +
-        " | " +
+        ' | ' +
         "//div[@role='dialog' and descendant::h2[contains(.,'Language and content layering')]]//div[@data-component='GridList']//div[@data-component='GridList.Row']//div[@data-component='ProjectLabel']//span[contains(@class,'font-semibold')]" +
-        ")",
+        ')',
     // Remove (X) IconButton for a selected parent project. The project renders either as a ListItem
     // (multi-inheritance SortableGridList) or a GridList.Row (single selection / edit mode).
     // Empty aria-label means we key on data-component.
-    removeSelectedProjectIcon: displayName =>
-        "(" +
+    removeSelectedProjectIcon: (displayName) =>
+        '(' +
         XPATH.container +
         `//div[@data-component='ListItem' and descendant::div[@data-component='ProjectLabel']//span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]//button[@data-component='IconButton']` +
-        " | " +
+        ' | ' +
         XPATH.container +
         `//div[@data-component='GridList.Row' and descendant::div[@data-component='ProjectLabel']//span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]//button[@data-component='IconButton']` +
-        ")",
-}
+        ')',
+    // Remove (X) IconButton in the row with the selected language. Scoped to the GridList that follows
+    // the LanguageSelector, so it does not match the remove icon of a selected parent project:
+    removeSelectedLanguageIcon:
+        "//div[@data-component='LanguageSelector']/following-sibling::div[@data-component='GridList']" +
+        "//div[@data-component='GridList.Row']//button[@data-component='IconButton']",
+};
 
-const DESCRIPTION = "To set up synchronization of a content with another project, select it here (optional)";
+const DESCRIPTION = 'To set up synchronization of a content with another project, select it here (optional)';
 
 class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
-
     get container() {
         return XPATH.container;
     }
@@ -60,7 +64,9 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
         } catch (err) {
             await this.handleError(
                 `Parent project step, search text: ${text} , error occurred during selecting a parent project: ${projectDisplayName}`,
-                'err_select_parent_project', err);
+                'err_select_parent_project',
+                err,
+            );
         }
     }
 
@@ -69,14 +75,14 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
         let projectsComboBox = new ProjectsComboBox(XPATH.container);
         await projectsComboBox.typeTextInSearchInput(projectDisplayName);
         await projectsComboBox.clickOnOptionByDisplayName(projectDisplayName);
-        console.log("Project Wizard, parent project is selected: " + projectDisplayName);
+        console.log('Project Wizard, parent project is selected: ' + projectDisplayName);
         return await this.pause(400);
     }
 
     async selectParentProjectMulti(projectDisplayName) {
         let projectsComboBox = new ProjectsComboBox(XPATH.container);
         await projectsComboBox.selectFilteredByDisplayNameAndClickOnApply(projectDisplayName);
-        console.log("Project Wizard, parent project is selected: " + projectDisplayName);
+        console.log('Project Wizard, parent project is selected: ' + projectDisplayName);
         return await this.pause(1000);
     }
 
@@ -90,11 +96,14 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
 
             const texts = await this.getTextInDisplayedElements(locator);
 
-            return [...new Set([]
-                .concat(texts || [])
-                .map(item => String(item).trim())
-                .filter(Boolean)
-            )];
+            return [
+                ...new Set(
+                    []
+                        .concat(texts || [])
+                        .map((item) => String(item).trim())
+                        .filter(Boolean),
+                ),
+            ];
         } catch (err) {
             const screenshot = await this.saveScreenshotUniqueName('err_proj_parent_step_selected_items');
             throw new Error(`Project Wizard, parent step, screenshot:${screenshot} ` + err);
@@ -111,12 +120,18 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
     async clickOnFilteredProjectsOption(projectDisplayName) {
         try {
             let projectsComboBox = new ProjectsComboBox(XPATH.container);
-            let optionLocator = projectsComboBox.buildLocatorForOptionByDisplayName(projectDisplayName, XPATH.container);
+            let optionLocator = projectsComboBox.buildLocatorForOptionByDisplayName(
+                projectDisplayName,
+                XPATH.container,
+            );
             await projectsComboBox.selectFilteredByDisplayNameAndClickOnApply(optionLocator);
             return await this.pause(400);
         } catch (err) {
-            await this.handleError(`Error occurred in Projects Combobox, during clicking on the filtered option: ${projectDisplayName}`,
-                'err_click_filtered_option', err);
+            await this.handleError(
+                `Error occurred in Projects Combobox, during clicking on the filtered option: ${projectDisplayName}`,
+                'err_click_filtered_option',
+                err,
+            );
         }
     }
 
@@ -138,7 +153,11 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
             await this.clickOnElement(locator);
             await this.pause(300);
         } catch (err) {
-            await this.handleError(`Parent project step, tried to remove the selected project: ${displayName}`, 'err_remove_parent_project', err);
+            await this.handleError(
+                `Parent project step, tried to remove the selected project: ${displayName}`,
+                'err_remove_parent_project',
+                err,
+            );
         }
     }
 
@@ -153,7 +172,11 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
             await this.waitForElementDisplayed(XPATH.container);
             await this.pause(1000);
         } catch (err) {
-            await this.handleError('Project Wizard Dialog, parent project step was not loaded', 'err_parent_proj_step', err);
+            await this.handleError(
+                'Project Wizard Dialog, parent project step was not loaded',
+                'err_parent_proj_step',
+                err,
+            );
         }
     }
 
@@ -171,7 +194,11 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
             console.log('Project Wizard, language is selected: ' + language);
             return await this.pause(300);
         } catch (err) {
-            await this.handleError('Error occurred during selecting a language in parent project step', 'err_select_language', err);
+            await this.handleError(
+                'Error occurred during selecting a language in parent project step',
+                'err_select_language',
+                err,
+            );
         }
     }
 
@@ -179,7 +206,22 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
         let localeSelectorDropdown = new LocaleSelectorDropdown(XPATH.container);
         return await localeSelectorDropdown.waitForOptionFilterInputDisplayed();
     }
+
+    // Clicks on the remove (X) icon and removes the selected language:
+    async clickOnRemoveSelectedLanguageIcon() {
+        try {
+            const locator = XPATH.container + XPATH.removeSelectedLanguageIcon;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.clickOnElement(locator);
+            await this.pause(300);
+        } catch (err) {
+            await this.handleError(
+                'Parent project step, tried to remove the selected language',
+                'err_remove_language',
+                err,
+            );
+        }
+    }
 }
 
 module.exports = ProjectWizardDialogParentProjectStep;
-

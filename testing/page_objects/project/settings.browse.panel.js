@@ -1,7 +1,7 @@
 /**
  * Created on 5/03/2020.
  */
-const {BUTTONS, TREE_GRID} = require('../../libs/elements');
+const { BUTTONS, TREE_GRID, COMMON } = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const BaseBrowsePanel = require('../../page_objects/base.browse.panel');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
@@ -16,32 +16,27 @@ const XPATH = {
     toolbarDiv: `//div[@data-component='Toolbar.Container'  and @aria-label='Project settings menu bar']`,
     itemsTreeGrid: `//div[contains(@id,'SettingsItemsTreeGrid')]`,
     settingsTreeListDataComponent: `//div[@data-component='SettingsTreeList']`,
-    listBoxToolbarDiv: `//div[contains(@id,'ListBoxToolbar')]`,
-    listSelectionControllerDiv: `//div[contains(@id,'ListSelectionController')]`,
-    numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
+    treeListToolbarDiv: `//div[@id='SettingsTreeListToolbarElement']`,
 
-    projectItemByDisplayName: displayName =>
+    projectItemByDisplayName: (displayName) =>
         `//div[@data-component='VirtualizedTreeList.Row' and descendant::div[@data-component='ProjectLabel']//span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]`,
 
-    projectsFolderRow:
-        `//div[@data-component='VirtualizedTreeList.Row' and descendant::div[@data-component='ItemLabel']//span[contains(@class,'font-semibold') and text()='Projects']]`,
+    projectsFolderRow: `//div[@data-component='VirtualizedTreeList.Row' and descendant::div[@data-component='ItemLabel']//span[contains(@class,'font-semibold') and text()='Projects']]`,
 
-    projectCheckboxByName: name =>
+    projectCheckboxByName: (name) =>
         `//div[@data-component='VirtualizedTreeList.Row' and descendant::div[@data-component='ProjectLabel']//span[contains(@class,'font-semibold') and contains(.,'${name}')]]` +
         `//div[@data-component='VirtualizedTreeList.RowSelectionControl']`,
 
-    projectCheckboxByIdentifier: id => {
-        return `//div[contains(@id,'ProjectItemViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${id}')]]/..//..//div[contains(@id,'Checkbox')]/label`
+    projectCheckboxByIdentifier: (id) => {
+        return `//div[contains(@id,'ProjectItemViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${id}')]]/..//..//div[contains(@id,'Checkbox')]/label`;
     },
 
-    expanderIconByName: name => `${lib.PROJECTS.projectByName(name)}/..//div[contains(@class,'toggle icon-arrow_drop_up')]`,
-
-    tabCloseIcon: projectDisplayName => XPATH.appBarTabMenu +
-                                        `//li[contains(@id,'AppBarTabMenuItem') and descendant::a[contains(.,'${projectDisplayName}')]]/button`
-}
+    tabCloseIcon: (projectDisplayName) =>
+        XPATH.appBarTabMenu +
+        `//li[contains(@id,'AppBarTabMenuItem') and descendant::a[contains(.,'${projectDisplayName}')]]/button`,
+};
 
 class SettingsBrowsePanel extends BaseBrowsePanel {
-
     get toolbar() {
         return XPATH.container + XPATH.toolbarDiv;
     }
@@ -74,38 +69,39 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         return XPATH.container + XPATH.toolbarDiv;
     }
 
-    get selectionControllerCheckBox() {
-        return XPATH.container + XPATH.listBoxToolbarDiv + XPATH.listSelectionControllerDiv;
+    get selectAllCheckboxLabel() {
+        return XPATH.treeListToolbarDiv + COMMON.SELECT_ALL_CHECKBOX_LABEL;
     }
 
-    get selectionPanelToggler() {
-        return `${XPATH.container}${XPATH.listBoxToolbarDiv}${lib.SELECTION_PANEL_TOGGLER}`;
+    // 'Select all' checkbox turns into 'Clear selection (N)' when rows are selected in the tree list:
+    get clearSelectionCheckboxLabel() {
+        return XPATH.treeListToolbarDiv + COMMON.CLEAR_SELECTION_CHECKBOX_LABEL;
     }
 
-    get numberInToggler() {
-        return XPATH.listBoxToolbarDiv + XPATH.numberInSelectionToggler;
-    }
-
+    // Bold display-name spans of all rows in the tree list ('Projects' folder, projects and layers).
+    // Note: the returned text includes the language suffix when present, e.g. 'Features (en)'.
     get displayNames() {
-        return XPATH.settingsTreeListDataComponent + lib.H6_DISPLAY_NAME;
-    }
-
-    // returns array with displayName of all items in the Settings Browse Panel
-    getDisplayNames() {
-        let selector = this.treeGrid + lib.H6_DISPLAY_NAME + "/span[@class='display-name']";
-        return this.getTextInElements(selector);
+        return (
+            XPATH.settingsTreeListDataComponent +
+            `//div[@data-component='TreeList.RowContent']//span[contains(@class,'font-semibold')]`
+        );
     }
 
     async clickOnExpanderIcon(name) {
         try {
-            let expanderIcon = XPATH.settingsTreeListDataComponent +
-                               TREE_GRID.itemByDisplayName(name) +
-                               `//button[@data-component='VirtualizedTreeList.RowExpandControl']`;
+            let expanderIcon =
+                XPATH.settingsTreeListDataComponent +
+                TREE_GRID.itemByDisplayName(name) +
+                `//button[@data-component='VirtualizedTreeList.RowExpandControl']`;
             await this.waitForElementDisplayed(expanderIcon, appConst.mediumTimeout);
             await this.clickOnElement(expanderIcon);
             return await this.pause(500);
         } catch (err) {
-            await this.handleError(`Error occurred after clicking on expander-icon: ${name}`, 'err_click_on_expander', err);
+            await this.handleError(
+                `Error occurred after clicking on expander-icon: ${name}`,
+                'err_click_on_expander',
+                err,
+            );
         }
     }
 
@@ -123,17 +119,28 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             let selector = XPATH.settingsTreeListDataComponent + TREE_GRID.itemByDisplayName(displayName);
             return await this.waitForElementDisplayed(selector, appConst.longTimeout);
         } catch (err) {
-            await this.handleError(`Settings: project item with the display name was not found: ${displayName}`, 'err_find_item', err);
+            await this.handleError(
+                `Settings: project item with the display name was not found: ${displayName}`,
+                'err_find_item',
+                err,
+            );
         }
     }
 
     async waitForLanguageIconDisplayed(displayName) {
         try {
-            let locatorIcon = XPATH.settingsTreeListDataComponent + lib.PROJECTS.projectByName(displayName) + "//div[contains(@id,'Flag')]";
+            let locatorIcon =
+                XPATH.settingsTreeListDataComponent +
+                lib.PROJECTS.projectByName(displayName) +
+                "//div[contains(@id,'Flag')]";
             await this.waitForElementDisplayed(locatorIcon, appConst.longTimeout);
             return await this.getAttribute(locatorIcon, 'data-code');
         } catch (err) {
-            await this.handleError(`Settings: language icon was not found for: ${displayName}`, 'err_language_icon', err);
+            await this.handleError(
+                `Settings: language icon was not found for: ${displayName}`,
+                'err_language_icon',
+                err,
+            );
         }
     }
 
@@ -142,7 +149,11 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             let locator = XPATH.settingsTreeListDataComponent + TREE_GRID.itemByDisplayName(projectDisplayName);
             return await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError(`Project is still displayed: ${projectDisplayName}`, 'err_project_not_displayed', err);
+            await this.handleError(
+                `Project is still displayed: ${projectDisplayName}`,
+                'err_project_not_displayed',
+                err,
+            );
         }
     }
 
@@ -158,7 +169,11 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementDisplayed(nameXpath);
             await this.clickOnElement(nameXpath);
         } catch (err) {
-            await this.handleError(`Error occurred after clicking on the row with display name: ${displayName}`, 'err_click_row', err);
+            await this.handleError(
+                `Error occurred after clicking on the row with display name: ${displayName}`,
+                'err_click_row',
+                err,
+            );
         }
     }
 
@@ -194,13 +209,19 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async clickOnProjectsFolderCheckbox() {
         try {
-            let locator = XPATH.settingsTreeListDataComponent + XPATH.projectsFolderRow +
-                          `//div[@data-component='VirtualizedTreeList.RowSelectionControl']`;
+            let locator =
+                XPATH.settingsTreeListDataComponent +
+                XPATH.projectsFolderRow +
+                `//div[@data-component='VirtualizedTreeList.RowSelectionControl']`;
             await this.waitForElementDisplayed(locator, appConst.shortTimeout);
             await this.clickOnElement(locator);
             return await this.pause(300);
         } catch (err) {
-            await this.handleError('Error occurred after clicking on Projects folder checkbox', 'err_projects_folder_checkbox', err);
+            await this.handleError(
+                'Error occurred after clicking on Projects folder checkbox',
+                'err_projects_folder_checkbox',
+                err,
+            );
         }
     }
 
@@ -215,12 +236,96 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    isExpanderIconPresent(name) {
-        let expanderIcon = XPATH.settingsTreeListDataComponent + XPATH.expanderIconByName(name);
-        return this.waitForElementDisplayed(expanderIcon).catch(err => {
-            this.saveScreenshot('expander_not_exists ' + name);
+    async isExpanderIconPresent(name) {
+        try {
+            let expanderIcon =
+                XPATH.settingsTreeListDataComponent +
+                TREE_GRID.itemByDisplayName(name) +
+                `//button[@data-component='VirtualizedTreeList.RowExpandControl']`;
+            await this.waitForElementDisplayed(expanderIcon, appConst.shortTimeout);
+            return true;
+        } catch (err) {
+            await this.saveScreenshotUniqueName('expander_not_displayed');
             return false;
-        })
+        }
+    }
+
+    async waitForSelectAllCheckboxDisplayed() {
+        try {
+            await this.waitForElementDisplayed(this.selectAllCheckboxLabel, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError(
+                `'Select all' checkbox should be displayed in the tree list toolbar`,
+                'err_select_all_checkbox',
+                err,
+            );
+        }
+    }
+
+    // Returns the state of 'Select all' checkbox input: true when all rows are selected
+    async isSelectAllCheckboxSelected() {
+        let locator = this.selectAllCheckboxLabel + `//input[@type='checkbox']`;
+        await this.waitForElementDisplayed(this.selectAllCheckboxLabel, appConst.mediumTimeout);
+        let state = await this.getAttribute(locator, 'data-state');
+        return state === 'checked';
+    }
+
+    // The old 'Selection Controller' checkbox is replaced with the 'Select all' checkbox in the tree list toolbar:
+    async clickOnSelectionControllerCheckbox() {
+        return await this.clickOnSelectAllCheckbox();
+    }
+
+    async waitForClearSelectionCheckboxDisplayed() {
+        try {
+            await this.waitForElementDisplayed(this.clearSelectionCheckboxLabel, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError(
+                `'Clear selection' checkbox should be displayed in the tree list toolbar`,
+                'err_clear_selection_checkbox',
+                err,
+            );
+        }
+    }
+
+    async waitForClearSelectionCheckboxNotDisplayed() {
+        try {
+            await this.waitForElementNotDisplayed(this.clearSelectionCheckboxLabel, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError(
+                `'Clear selection' checkbox should not be displayed in the tree list toolbar`,
+                'err_clear_selection_checkbox',
+                err,
+            );
+        }
+    }
+
+    async clickOnClearSelectionCheckbox() {
+        try {
+            await this.waitForElementDisplayed(this.clearSelectionCheckboxLabel, appConst.mediumTimeout);
+            await this.clickOnElement(this.clearSelectionCheckboxLabel);
+            return await this.pause(300);
+        } catch (err) {
+            await this.handleError(`Tried to click on 'Clear selection' checkbox`, 'err_clear_selection_checkbox', err);
+        }
+    }
+
+    // Returns the number of selected rows shown in the 'Clear selection (N)' label:
+    async getNumberInClearSelectionCheckbox() {
+        try {
+            await this.waitForElementDisplayed(this.clearSelectionCheckboxLabel, appConst.mediumTimeout);
+            let text = await this.getText(this.clearSelectionCheckboxLabel);
+            let result = text.match(/\((\d+)\)/);
+            if (result === null) {
+                throw new Error(`Number of selected items was not found in the label: '${text}'`);
+            }
+            return result[1];
+        } catch (err) {
+            await this.handleError(
+                `'Clear selection' checkbox, tried to get the number of selected items`,
+                'err_clear_selection_number',
+                err,
+            );
+        }
     }
 
     async openProjectWizardDialog() {
@@ -296,9 +401,10 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     // Looks up a project row by its display name and returns the identifier shown in <small>.
     async getProjectIdentifier(displayName) {
-        const identifierLocator = XPATH.settingsTreeListDataComponent +
-                                  TREE_GRID.itemByDisplayName(displayName) +
-                                  TREE_GRID.PROJECT_LABEL_IDENTIFIER_SMALL;
+        const identifierLocator =
+            XPATH.settingsTreeListDataComponent +
+            TREE_GRID.itemByDisplayName(displayName) +
+            TREE_GRID.PROJECT_LABEL_IDENTIFIER_SMALL;
         await this.waitForElementDisplayed(identifierLocator, appConst.mediumTimeout);
         return await this.getText(identifierLocator);
     }
@@ -344,7 +450,11 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             await this.waitForSyncButtonEnabled();
             return await this.clickOnElement(this.syncButton);
         } catch (err) {
-            await this.handleError(`Error occurred after clicking on 'Sync' button`, 'err_browsepanel_sync_button', err);
+            await this.handleError(
+                `Error occurred after clicking on 'Sync' button`,
+                'err_browsepanel_sync_button',
+                err,
+            );
         }
     }
 
@@ -353,13 +463,17 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementEnabled(this.deleteButton, appConst.shortTimeout);
             return await this.clickOnElement(this.deleteButton);
         } catch (err) {
-            await this.handleError(`Error occurred after clicking on 'Delete' button`, 'err_browsepanel_delete_button', err);
+            await this.handleError(
+                `Error occurred after clicking on 'Delete' button`,
+                'err_browsepanel_delete_button',
+                err,
+            );
         }
     }
 
     async waitForDeleteButtonDisabled() {
         try {
-            await this.waitForElementDisabled(this.deleteButton, appConst.mediumTimeout);
+            await this.waitForElementDisabled(this.deleteButton);
         } catch (err) {
             await this.handleError('Delete button is not disabled', 'err_delete_button', err);
         }

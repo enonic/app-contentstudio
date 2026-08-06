@@ -3,13 +3,10 @@
  */
 const Page = require('./page');
 const appConst = require('../libs/app_const');
-const {TREE_GRID} = require('../libs/elements');
-const {Key} = require('webdriverio');
-
+const { TREE_GRID } = require('../libs/elements');
+const { Key } = require('webdriverio');
 
 class BaseBrowsePanel extends Page {
-
-
     async waitForGridLoaded(ms) {
         try {
             let timeout = typeof ms !== 'undefined' ? ms : appConst.mediumTimeout;
@@ -41,16 +38,23 @@ class BaseBrowsePanel extends Page {
             await this.clickOnElement(this.selectAllCheckboxLabel);
             return await this.pause(300);
         } catch (err) {
-            await this.handleError('Browse Panel, tried to click on Select all checkbox. ', 'err_click_on_select_all', err);
+            await this.handleError(
+                'Browse Panel, tried to click on Select all checkbox. ',
+                'err_click_on_select_all',
+                err,
+            );
         }
     }
 
     async waitforSelectAllCheckboxDisplayed() {
         try {
-            await this.clickOnElement(this.selectAllCheckboxLabel);
-            return await this.pause(300);
+            await this.waitForElementDisplayed(this.selectAllCheckboxLabel, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError('Browse Panel, tried to click on Select all checkbox. ', 'err_click_on_select_all', err);
+            await this.handleError(
+                `Browse Panel, 'Select all' checkbox should be displayed. `,
+                'err_select_all_checkbox',
+                err,
+            );
         }
     }
 
@@ -69,26 +73,37 @@ class BaseBrowsePanel extends Page {
         try {
             await this.waitForElementNotDisplayed(this.selectionPanelToggler, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError('Selection toggle should not be visible. ', 'err_selection_toggler_should_not_visible', err);
+            await this.handleError(
+                'Selection toggle should not be visible. ',
+                'err_selection_toggler_should_not_visible',
+                err,
+            );
         }
     }
 
     //Clicks on 'circle' (Show Selection tooltip)with a number and filters items in the grid:
     async clickOnSelectionToggler() {
         await this.waitForSelectionTogglerVisible();
-        await this.waitForElementDisplayed(this.selectionPanelToggler + "/div[@data-label='selected']", appConst.mediumTimeout);
-        await this.clickOnElement(this.selectionPanelToggler)
-            .catch(err => this.handleError('Tried to click on Selection Toggle...', 'err_clicking_selection_toggle', err));
+        await this.waitForElementDisplayed(
+            this.selectionPanelToggler + "/div[@data-label='selected']",
+            appConst.mediumTimeout,
+        );
+        await this.clickOnElement(this.selectionPanelToggler).catch((err) =>
+            this.handleError('Tried to click on Selection Toggle...', 'err_clicking_selection_toggle', err),
+        );
         return await this.pause(400);
     }
 
     //Wait for Selection Controller checkBox gets 'partial', then returns true, otherwise exception will be thrown
     async waitForSelectionControllerPartial() {
         let selector = this.selectionControllerCheckBox + "//input[@type='checkbox']";
-        await this.getBrowser().waitUntil(async () => {
-            let text = await this.getAttribute(selector, 'class');
-            return text.includes('partial');
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "Selection Controller checkBox should displayed as partial"});
+        await this.getBrowser().waitUntil(
+            async () => {
+                let text = await this.getAttribute(selector, 'class');
+                return text.includes('partial');
+            },
+            { timeout: appConst.shortTimeout, timeoutMsg: 'Selection Controller checkBox should displayed as partial' },
+        );
     }
 
     async isSelectionControllerPartial() {
@@ -130,7 +145,7 @@ class BaseBrowsePanel extends Page {
 
     async waitForEditButtonDisabled() {
         try {
-            await this.waitForElementDisabled(this.editButton, appConst.mediumTimeout)
+            await this.waitForElementDisabled(this.editButton, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_edit_disabled_button');
             throw Error(`Edit button should be disabled screenshot: ${screenshot} ` + err);
@@ -208,18 +223,26 @@ class BaseBrowsePanel extends Page {
         // get the checkbox input for the last 'ContentsTreeGridListElement' element
         let checkboxElement = await listElement.$('.' + TREE_GRID.TREE_LIST_ITEM_CHECKBOX_LABEL);
 
-        await this.getBrowser().waitUntil(async () => {
-            let isChecked = await checkboxElement.getAttribute('aria-checked');
-            return isChecked;
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: "The Checkbox was not selected"});
+        await this.getBrowser().waitUntil(
+            async () => {
+                let isChecked = await checkboxElement.getAttribute('aria-checked');
+                return isChecked;
+            },
+            { timeout: appConst.mediumTimeout, timeoutMsg: 'The Checkbox was not selected' },
+        );
     }
 
-
     async waitForContextMenuDisplayed() {
-        await this.getBrowser().waitUntil(async () => {
-            let result = await this.getDisplayedElements(TREE_GRID.CONTENT_ITEM_CONTEXT_MENU);
-            return result.length > 0;
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Tree grid - Context menu was not loaded for the content item"});
+        await this.getBrowser().waitUntil(
+            async () => {
+                let result = await this.getDisplayedElements(TREE_GRID.CONTENT_ITEM_CONTEXT_MENU);
+                return result.length > 0;
+            },
+            {
+                timeout: appConst.mediumTimeout,
+                timeoutMsg: 'Tree grid - Context menu was not loaded for the content item',
+            },
+        );
     }
 
     async waitForContextMenuItemNotDisplayed(menuItem) {
@@ -232,14 +255,21 @@ class BaseBrowsePanel extends Page {
             let menuItemSelector = TREE_GRID.itemContextMenuItemByName(menuItem);
             let el = await this.getDisplayedElements(menuItemSelector);
             if (el.length === 0) {
-                throw new Error("Tree Grid, Context Menu item is not displayed: " + menuItem);
+                throw new Error('Tree Grid, Context Menu item is not displayed: ' + menuItem);
             }
-            return await this.browser.waitUntil(async () => {
-                let result = await el[0].getAttribute('aria-disabled');
-                return result === null;
-            }, {timeout: appConst.mediumTimeout, timeoutMsg: "context menu item is not enabled in 3000 ms"});
+            return await this.browser.waitUntil(
+                async () => {
+                    let result = await el[0].getAttribute('aria-disabled');
+                    return result === null;
+                },
+                { timeout: appConst.mediumTimeout, timeoutMsg: 'context menu item is not enabled in 3000 ms' },
+            );
         } catch (err) {
-            await this.handleError(`Browse Panel, the context menu item '${menuItem}' should be enabled: `, 'err_context_menu_item_', err);
+            await this.handleError(
+                `Browse Panel, the context menu item '${menuItem}' should be enabled: `,
+                'err_context_menu_item_',
+                err,
+            );
         }
     }
 
@@ -247,12 +277,15 @@ class BaseBrowsePanel extends Page {
         let menuItemSelector = TREE_GRID.itemContextMenuItemByName(menuItem);
         let el = await this.getDisplayedElements(menuItemSelector);
         if (el.length === 0) {
-            throw new Error("Menu item is not displayed: " + menuItem);
+            throw new Error('Menu item is not displayed: ' + menuItem);
         }
-        return await this.browser.waitUntil(async () => {
-            let result = await el[0].getAttribute('aria-disabled');
-            return result === 'true';
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: "context menu item should be disabled"});
+        return await this.browser.waitUntil(
+            async () => {
+                let result = await el[0].getAttribute('aria-disabled');
+                return result === 'true';
+            },
+            { timeout: appConst.mediumTimeout, timeoutMsg: 'context menu item should be disabled' },
+        );
     }
 
     async clickOnMenuItem(menuItem) {
@@ -272,7 +305,11 @@ class BaseBrowsePanel extends Page {
             await this.doDoubleClick(nameXpath);
             return await this.pause(1000);
         } catch (err) {
-            await this.handleError('Browse Panel, double click on row by displayName: ', 'err_double_click_on_row', err)
+            await this.handleError(
+                'Browse Panel, double click on row by displayName: ',
+                'err_double_click_on_row',
+                err,
+            );
         }
     }
 
