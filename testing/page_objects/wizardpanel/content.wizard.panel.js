@@ -2,12 +2,12 @@
  * Created on 5/30/2017.
  */
 const Page = require('../page');
-const {BUTTONS, DROPDOWN, LIVE_VIEW, WIZARD, COMMON, TREE_GRID} = require('../../libs/elements');
+const { BUTTONS, DROPDOWN, LIVE_VIEW, WIZARD, COMMON, TREE_GRID } = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ContentStepForm = require('./content.wizard.step.form');
 const WizardContextPanel = require('./details/wizard.context.window.panel');
-const ConfirmationDialog = require("../../page_objects/confirmation.dialog");
-const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
+const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
+const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 const VersionsWidget = require('./details/wizard.versions.widget');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
 const BrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
@@ -16,7 +16,7 @@ const ContentUnpublishDialog = require('../content.unpublish.dialog');
 const DetailsWidgetInfoSection = require('../browsepanel/detailspanel/details.widget.info.section');
 const EditSettingsDialog = require('../details_panel/edit.settings.dialog');
 const PageDescriptorDropdown = require('../components/selectors/page.descriptor.dropdown');
-const {Key} = require('webdriverio');
+const { Key } = require('webdriverio');
 
 const XPATH = {
     container: `//div[contains(@id,'ContentWizardPanel')]`,
@@ -41,30 +41,30 @@ const XPATH = {
     stepNavigatorToolbar: `//ul[contains(@id,'WizardStepNavigator')]`,
     wizardStepNavigatorAndToolbar: "//div[contains(@id,'WizardStepNavigatorAndToolbar')]",
     shaderPage: "//div[@class='xp-page-editor-shader xp-page-editor-page']",
-    wizardStepByTitle:
-        name => `//div[@data-component='Tab.List']//button[child::span[text()='${name}']]`,
-    wizardStepWithRedIconByTitle:
-        name => `//div[@data-component='Tab.List']//button[child::span[text()='${name}'] and descendant::*[contains(@class,'text-error')]]`,
-    xDataTogglerByName:
-        name => `//div[contains(@id,'WizardStepsPanel')]//div[contains(@id,'ContentPanelStripHeader') and child::span[contains(.,'${name}')]]//button[contains(@class,'toggler-button')]`,
+    wizardStepByTitle: (name) => `//div[@data-component='Tab.List']//button[child::span[text()='${name}']]`,
+    wizardStepWithRedIconByTitle: (name) =>
+        `//div[@data-component='Tab.List']//button[child::span[text()='${name}'] and descendant::*[contains(@class,'text-error')]]`,
+    xDataTogglerByName: (name) =>
+        `//div[contains(@id,'WizardStepsPanel')]//div[contains(@id,'ContentPanelStripHeader') and child::span[contains(.,'${name}')]]//button[contains(@class,'toggler-button')]`,
     publishMenuItemByName(name) {
         return `//div[contains(@id,'ContentWizardToolbar') and @role='menu']//div[@role='menuitem' and .//span[text()='${name}']]`;
     },
     previewToolbarMenuItem: (optionName) => {
-        return `//div[contains(@id,'PreviewToolbar') and @role='menu']//div[@role='menuitemradio' and descendant::span[text()='${optionName}']]`
+        return `//div[contains(@id,'PreviewToolbar') and @role='menu']//div[@role='menuitemradio' and descendant::span[text()='${optionName}']]`;
     },
-    openRenameDialogButton: name => `//button[@data-component='Tooltip' and child::span[text()='${name}']]`,
+    openRenameDialogButton: (name) => `//button[@data-component='Tooltip' and child::span[text()='${name}']]`,
     nameInToolbarButton: `//button[@data-component='Tooltip' and contains(@id,'toolbar-item')]/span`,
     publishMenuItemByName(name) {
         return `//div[@data-component='Menu.Item' and child::span[text()='${name}']]`;
     },
+    editLockOverlay: `//div[@data-component='EditLockOverlay']`,
     xDataMenuTrigger: `//button[@data-component='Menu.Trigger' and @aria-label='Toggle mixin']`,
-    xDataMenuItem: (name) => `//div[@data-component='Menu.Content']//div[@data-component='Menu.Item' and child::span[text()='${name}']]`,
+    xDataMenuItem: (name) =>
+        `//div[@data-component='Menu.Content']//div[@data-component='Menu.Item' and child::span[text()='${name}']]`,
     xDataMenuConfirmButton: `//div[@data-component='Menu.Content']//button[@aria-label='Confirm']`,
 };
 
 class ContentWizardPanel extends Page {
-
     get previewItemToolbar() {
         return XPATH.container + XPATH.contentItemPreviewToolbar;
     }
@@ -133,6 +133,10 @@ class ContentWizardPanel extends Page {
         return XPATH.container + XPATH.toolbar + BUTTONS.toolbarButtonAriaLabel('Saved');
     }
 
+    get moveButton() {
+        return XPATH.container + XPATH.toolbar + BUTTONS.toolbarButtonAriaLabel('Move');
+    }
+
     get savingButton() {
         return XPATH.container + XPATH.toolbar + BUTTONS.toolbarButtonAriaLabel('Saving...');
     }
@@ -198,7 +202,33 @@ class ContentWizardPanel extends Page {
         try {
             return await this.waitForElementDisplayed(this.wizardToolbarHelpButton);
         } catch (err) {
-            await this.handleError(`'Help texts' toggle button is not displayed in the Content Wizard`, 'err_help_text_button', err);
+            await this.handleError(
+                `'Help texts' toggle button is not displayed in the Content Wizard`,
+                'err_help_text_button',
+                err,
+            );
+        }
+    }
+
+    async waitForMoveButtonEnabled() {
+        try {
+            await this.waitForElementDisplayed(this.move);
+            return await this.waitForElementEnabled(this.moveButton);
+        } catch (err) {
+            await this.handleError(`Move button is not enabled in the Content Wizard`, 'err_move_button_enabled', err);
+        }
+    }
+
+    async waitForMoveButtonDisabled() {
+        try {
+            await this.waitForElementDisplayed(this.move);
+            return await this.waitForElementDisabled(this.moveButton);
+        } catch (err) {
+            await this.handleError(
+                `Move button is not disabled in the Content Wizard`,
+                'err_move_button_disabled',
+                err,
+            );
         }
     }
 
@@ -207,7 +237,11 @@ class ContentWizardPanel extends Page {
             await this.waitForElementDisplayed(this.localizeButton);
             return await this.waitForElementEnabled(this.localizeButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError(`'Localize' button is not enabled in the Content Wizard`, 'err_localize_button_enabled', err);
+            await this.handleError(
+                `'Localize' button is not enabled in the Content Wizard`,
+                'err_localize_button_enabled',
+                err,
+            );
         }
     }
 
@@ -222,7 +256,7 @@ class ContentWizardPanel extends Page {
     }
 
     waitForShaderDisplayed() {
-        return this.waitForElementDisplayed(XPATH.shaderPage, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(XPATH.shaderPage);
     }
 
     // opens 'Context Window' if it is not loaded
@@ -247,7 +281,11 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(this.detailsPanelToggleButton);
             return await this.pause(500);
         } catch (err) {
-            await this.handleError('Content Wizard- Context Window Panel toggle button', 'err_click_context_win_toggle', err);
+            await this.handleError(
+                'Content Wizard- Context Window Panel toggle button',
+                'err_click_context_win_toggle',
+                err,
+            );
         }
     }
 
@@ -303,7 +341,11 @@ class ContentWizardPanel extends Page {
             let locator = XPATH.container + XPATH.wizardStepWithRedIconByTitle(stepName);
             return await this.waitForElementDisplayed(locator);
         } catch (err) {
-            await this.handleError(`Red icon should be displayed in the wizard step: ${stepName}`, 'err_wizard_step_red_icon', err);
+            await this.handleError(
+                `Red icon should be displayed in the wizard step: ${stepName}`,
+                'err_wizard_step_red_icon',
+                err,
+            );
         }
     }
     async clickOnWizardStep(stepName) {
@@ -322,7 +364,7 @@ class ContentWizardPanel extends Page {
             let stepXpath = XPATH.wizardStepByTitle(title);
             return await this.waitForElementNotDisplayed(stepXpath, appConst.shortTimeout);
         } catch (err) {
-            console.log("Wizard step is not visible: " + title);
+            console.log('Wizard step is not visible: ' + title);
             return false;
         }
     }
@@ -368,7 +410,7 @@ class ContentWizardPanel extends Page {
             console.log('testUtils:switching to Content Browse panel...');
             let browsePanel = new BrowsePanel();
             await this.getBrowser().switchWindow('Content Studio - Enonic XP Admin');
-            console.log("switched to content browse panel...");
+            console.log('switched to content browse panel...');
             return await browsePanel.waitForGridLoaded(appConst.longTimeout);
         } catch (err) {
             await this.handleError(`Tried to switch to Content Browse panel`, 'err_switch_browse_panel', err);
@@ -379,7 +421,11 @@ class ContentWizardPanel extends Page {
         try {
             return await this.waitForElementDisplayed(this.detailsPanelToggleButton);
         } catch (err) {
-            await this.handleError('Context Window toggle button should be displayed', 'err_context_window_toggle_button', err);
+            await this.handleError(
+                'Context Window toggle button should be displayed',
+                'err_context_window_toggle_button',
+                err,
+            );
         }
     }
 
@@ -387,7 +433,11 @@ class ContentWizardPanel extends Page {
         try {
             return await this.waitForElementDisplayed(this.detailsPanelToggleButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError('Context Window toggle button should be displayed', 'err_context_window_toggle_button', err);
+            await this.handleError(
+                'Context Window toggle button should be displayed',
+                'err_context_window_toggle_button',
+                err,
+            );
         }
     }
 
@@ -395,7 +445,11 @@ class ContentWizardPanel extends Page {
         try {
             return await this.waitForElementDisplayed(LIVE_VIEW.HIDE_PAGE_EDITOR_BUTTON, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError(`'Hide Page Editor' button is not displayed in the Content Wizard`, 'err_hide_page_editor_button', err);
+            await this.handleError(
+                `'Hide Page Editor' button is not displayed in the Content Wizard`,
+                'err_hide_page_editor_button',
+                err,
+            );
         }
     }
 
@@ -413,9 +467,13 @@ class ContentWizardPanel extends Page {
         try {
             await this.waitForSaveButtonVisible();
             let elements = await this.getDisplayedElements(this.saveButton);
-            await elements[0].waitForEnabled({timeout: appConst.shortTimeout});
+            await elements[0].waitForEnabled({ timeout: appConst.shortTimeout });
         } catch (err) {
-            await this.handleError(`'Save' button should be enabled in the Content Wizard`, 'err_save_button_enabled', err);
+            await this.handleError(
+                `'Save' button should be enabled in the Content Wizard`,
+                'err_save_button_enabled',
+                err,
+            );
         }
     }
 
@@ -423,23 +481,35 @@ class ContentWizardPanel extends Page {
         try {
             await this.waitForElementDisabled(this.saveButton);
         } catch (err) {
-            await this.handleError(`'Save' button should be disabled in the Content Wizard`, 'err_save_button_disabled', err);
+            await this.handleError(
+                `'Save' button should be disabled in the Content Wizard`,
+                'err_save_button_disabled',
+                err,
+            );
         }
     }
 
     async waitForSaveButtonVisible() {
         try {
-            return await this.waitForElementDisplayed(this.saveButton, appConst.mediumTimeout)
+            return await this.waitForElementDisplayed(this.saveButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError(`'Save' button is not visible in the Content Wizard`, 'err_save_button_not_visible', err);
+            await this.handleError(
+                `'Save' button is not visible in the Content Wizard`,
+                'err_save_button_not_visible',
+                err,
+            );
         }
     }
 
     async waitForSaveButtonNotDisplayed() {
         try {
-            return await this.waitForElementNotDisplayed(this.saveButton, appConst.mediumTimeout)
+            return await this.waitForElementNotDisplayed(this.saveButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError(`'Save' button is still visible in the Content Wizard`, 'err_save_button_visible', err);
+            await this.handleError(
+                `'Save' button is still visible in the Content Wizard`,
+                'err_save_button_visible',
+                err,
+            );
         }
     }
 
@@ -448,7 +518,11 @@ class ContentWizardPanel extends Page {
             await this.waitForElementDisplayed(this.savedButton);
             return await this.waitForElementDisabled(this.savedButton);
         } catch (err) {
-            await this.handleError(`'Saved' button is not visible or it is not disabled`, 'err_saved_button_not_visible', err);
+            await this.handleError(
+                `'Saved' button is not visible or it is not disabled`,
+                'err_saved_button_not_visible',
+                err,
+            );
         }
     }
 
@@ -468,7 +542,7 @@ class ContentWizardPanel extends Page {
         let el = await this.findElement(LIVE_VIEW.LIVE_EDIT_FRAME);
         let xValue = parseInt(await el.getLocation('x'));
         let yValue = parseInt(await el.getLocation('y'));
-        return {x: xValue, y: yValue};
+        return { x: xValue, y: yValue };
     }
 
     async typeDisplayName(displayName) {
@@ -486,7 +560,11 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(this.displayNameControl);
             await this.waitForElementDisplayed(this.displayNameInput);
         } catch (err) {
-            await this.handleError('Error when trying to open display name editor', 'err_open_display_name_editor', err);
+            await this.handleError(
+                'Error when trying to open display name editor',
+                'err_open_display_name_editor',
+                err,
+            );
         }
     }
 
@@ -570,7 +648,6 @@ class ContentWizardPanel extends Page {
         await this.waitForElementDisabled(this.publishDropDownHandle);
     }
 
-
     async waitForReadOnlyMode() {
         try {
             let locator = XPATH.container;
@@ -590,25 +667,68 @@ class ContentWizardPanel extends Page {
         }
     }
 
+    // v6: in read-only mode the wizard form is wrapped in 'EditLockOverlay' and its content gets the 'inert' attribute,
+    // so all inputs in the form (description, base url, applications selector, etc.) are not interactive:
+    async waitForContentFormLocked() {
+        try {
+            let locator = XPATH.container + XPATH.editLockOverlay + '/div[@inert]';
+            await this.waitForElementDisplayed(locator);
+        } catch (err) {
+            await this.handleError(
+                `Content form should be locked for editing ('inert' attribute)`,
+                'err_form_locked',
+                err,
+            );
+        }
+    }
+
+    async waitForContentFormNotLocked() {
+        try {
+            let locator = XPATH.container + XPATH.editLockOverlay + '/div[not(@inert)]';
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError(`Content form should not be locked for editing`, 'err_form_not_locked', err);
+        }
+    }
+
+    // v6: in read-only mode 'DisplayNameInput' is rendered as a disabled button:
+    async waitForDisplayNameInputDisabled() {
+        try {
+            await this.waitForElementDisabled(this.displayNameControl);
+        } catch (err) {
+            await this.handleError(
+                `Display name input should be disabled in the Content Wizard`,
+                'err_display_name_disabled',
+                err,
+            );
+        }
+    }
+
     async waitForPublishMenuItemEnabled(menuItem) {
         let selector = XPATH.publishMenuItemByName(menuItem);
-        return await this.getBrowser().waitUntil(async () => {
-            let ariaDisabled = await this.getAttribute(selector, 'aria-disabled');
-            return !ariaDisabled || ariaDisabled !== 'true';
-        }, {timeout: appConst.shortTimeout, timeoutMsg: `Menu item "${menuItem}" should be enabled`});
+        return await this.getBrowser().waitUntil(
+            async () => {
+                let ariaDisabled = await this.getAttribute(selector, 'aria-disabled');
+                return !ariaDisabled || ariaDisabled !== 'true';
+            },
+            { timeout: appConst.shortTimeout, timeoutMsg: `Menu item "${menuItem}" should be enabled` },
+        );
     }
 
     async waitForPublishMenuItemDisabled(menuItem) {
         let selector = XPATH.publishMenuItemByName(menuItem);
-        return await this.getBrowser().waitUntil(async () => {
-            let ariaDisabled = await this.getAttribute(selector, 'aria-disabled');
-            return ariaDisabled === 'true';
-        }, {timeout: appConst.shortTimeout, timeoutMsg: `Menu item "${menuItem}" should be disabled`});
+        return await this.getBrowser().waitUntil(
+            async () => {
+                let ariaDisabled = await this.getAttribute(selector, 'aria-disabled');
+                return ariaDisabled === 'true';
+            },
+            { timeout: appConst.shortTimeout, timeoutMsg: `Menu item "${menuItem}" should be disabled` },
+        );
     }
 
     async isContentInvalid() {
         try {
-            return await this.getContentWorkflowState() === 'invalid';
+            return (await this.getContentWorkflowState()) === 'invalid';
         } catch (err) {
             await this.handleError(`Error when trying to check if content is invalid`, 'err_wizard_validation', err);
         }
@@ -617,21 +737,31 @@ class ContentWizardPanel extends Page {
     async waitUntilInvalidIconAppears() {
         try {
             const locator = XPATH.container + XPATH.toolbar + "//*[@data-component='StatusIcon']";
-            await this.getBrowser().waitUntil(async () => {
-                let text = await this.getAttribute(locator, 'aria-label');
-                return text === 'invalid';
-            }, {timeout: appConst.shortTimeout, timeoutMsg: "Content wizard - invalid icon should appear"});
+            await this.getBrowser().waitUntil(
+                async () => {
+                    let text = await this.getAttribute(locator, 'aria-label');
+                    return text === 'invalid';
+                },
+                { timeout: appConst.shortTimeout, timeoutMsg: 'Content wizard - invalid icon should appear' },
+            );
         } catch (err) {
-            await this.handleError('Validation Error: invalid-icon did not appear in content-wizard', 'err_wizard_validation', err);
+            await this.handleError(
+                'Validation Error: invalid-icon did not appear in content-wizard',
+                'err_wizard_validation',
+                err,
+            );
         }
     }
 
     async waitUntilInvalidIconDisappears() {
         const locator = XPATH.container + XPATH.toolbar + "//*[@data-component='StatusIcon']";
-        await this.getBrowser().waitUntil(async () => {
-            let text = await this.getAttribute(locator, 'aria-label');
-            return text !== 'invalid';
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "Content wizard - invalid icon should disappear"});
+        await this.getBrowser().waitUntil(
+            async () => {
+                let text = await this.getAttribute(locator, 'aria-label');
+                return text !== 'invalid';
+            },
+            { timeout: appConst.shortTimeout, timeoutMsg: 'Content wizard - invalid icon should disappear' },
+        );
     }
 
     async typeSettings(settings) {
@@ -657,11 +787,17 @@ class ContentWizardPanel extends Page {
     async doOpenPageViewContextMenu(contentName) {
         try {
             await this.doOpenItemViewContextMenu();
-            let menuLocator = XPATH.itemViewContextMenu + `[descendant::span[contains(@class,'truncate') and text()='${contentName}']]`;
+            let menuLocator =
+                XPATH.itemViewContextMenu +
+                `[descendant::span[contains(@class,'truncate') and text()='${contentName}']]`;
             await this.waitForElementDisplayed(menuLocator, appConst.mediumTimeout);
             return await this.pause(300);
         } catch (err) {
-            await this.handleError('Content wizard, tried to open Page View Context Menu(Page Setting)', 'err_page_view_context_menu', err);
+            await this.handleError(
+                'Content wizard, tried to open Page View Context Menu(Page Setting)',
+                'err_page_view_context_menu',
+                err,
+            );
         }
     }
 
@@ -672,15 +808,25 @@ class ContentWizardPanel extends Page {
             // in the main document, so no switching to the live edit frame here.
             // Both empty- and error-preview placeholders contain a trigger, click the visible one:
             let triggerElements = [];
-            await this.getBrowser().waitUntil(async () => {
-                triggerElements = await this.getDisplayedElements(XPATH.previewContextMenuTrigger);
-                return triggerElements.length > 0;
-            }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Preview placeholder with context menu trigger should be displayed'});
+            await this.getBrowser().waitUntil(
+                async () => {
+                    triggerElements = await this.getDisplayedElements(XPATH.previewContextMenuTrigger);
+                    return triggerElements.length > 0;
+                },
+                {
+                    timeout: appConst.mediumTimeout,
+                    timeoutMsg: 'Preview placeholder with context menu trigger should be displayed',
+                },
+            );
             await triggerElements[0].click();
             await this.waitForElementDisplayed(XPATH.itemViewContextMenu, appConst.mediumTimeout);
             return await this.pause(300);
         } catch (err) {
-            await this.handleError('Content wizard, tried to open Item View Context Menu', 'err_item_view_context_menu', err);
+            await this.handleError(
+                'Content wizard, tried to open Item View Context Menu',
+                'err_item_view_context_menu',
+                err,
+            );
         }
     }
 
@@ -697,7 +843,11 @@ class ContentWizardPanel extends Page {
             let locator = XPATH.itemViewContextMenu + XPATH.pageSettingsMenuItem;
             return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError('Universal Editor - Page settings menu item is not displayed', 'err_page_settings_menu_item', err);
+            await this.handleError(
+                'Universal Editor - Page settings menu item is not displayed',
+                'err_page_settings_menu_item',
+                err,
+            );
         }
     }
 
@@ -705,7 +855,7 @@ class ContentWizardPanel extends Page {
     // // TODO 8607
     async selectPageDescriptor(pageControllerDisplayName, checkContextPanel) {
         let pageDescriptorDropdown = new PageDescriptorDropdown();
-        await pageDescriptorDropdown.selectFilteredControllerAndClickOnOk(pageControllerDisplayName)
+        await pageDescriptorDropdown.selectFilteredControllerAndClickOnOk(pageControllerDisplayName);
         if (typeof checkContextPanel === 'undefined' || checkContextPanel) {
             //await this.waitForContextWindowVisible();
         }
@@ -736,11 +886,10 @@ class ContentWizardPanel extends Page {
                 await contentStepForm.type(content.data, content.contentType);
             }
             // 4. Type settings if present
-            if (content.settings &&
-                (content.settings.language !== undefined || content.settings.owner !== undefined)) {
+            if (content.settings && (content.settings.language !== undefined || content.settings.owner !== undefined)) {
                 // TODO change it Enonic ui
-                await this.waitAndClickOnSave();//
-                await this.waitForNotificationMessage();//
+                await this.waitAndClickOnSave(); //
+                await this.waitForNotificationMessage(); //
                 const wizardContextPanel = new WizardContextPanel();
                 await this.openContextWindow();
                 // Ensure context panel is open and 'Details' widget is selected
@@ -756,7 +905,6 @@ class ContentWizardPanel extends Page {
         }
     }
 
-
     async openPublishMenu() {
         await this.clickOnElement(this.showPublishMenuButton);
         return await this.pause(500);
@@ -768,7 +916,11 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(this.publishDropDownHandle);
             return await this.pause(300);
         } catch (err) {
-            await this.handleError('Content wizard, tried to click on Publish menu dropdown handle', 'err_click_on_dropdown', err);
+            await this.handleError(
+                'Content wizard, tried to click on Publish menu dropdown handle',
+                'err_click_on_dropdown',
+                err,
+            );
         }
     }
 
@@ -779,7 +931,11 @@ class ContentWizardPanel extends Page {
             await this.waitForElementDisplayed(locator);
             await this.clickOnElement(locator);
         } catch (err) {
-            await this.handleError('Content wizard, tried to click on unpublish menu item', 'err_unpublish_menu_item', err);
+            await this.handleError(
+                'Content wizard, tried to click on unpublish menu item',
+                'err_unpublish_menu_item',
+                err,
+            );
         }
     }
 
@@ -799,7 +955,11 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(this.collapseContentFormButton);
             await this.pause(400);
         } catch (err) {
-            await this.handleError('Content wizard, tried to click on minimize live edit toggle', 'err_minimize_icon', err);
+            await this.handleError(
+                'Content wizard, tried to click on minimize live edit toggle',
+                'err_minimize_icon',
+                err,
+            );
         }
     }
 
@@ -809,7 +969,11 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(this.expandContentFormButton);
             await this.pause(400);
         } catch (err) {
-            await this.handleError('Content wizard, tried to click on minimize live edit toggle', 'err_minimize_icon', err);
+            await this.handleError(
+                'Content wizard, tried to click on minimize live edit toggle',
+                'err_minimize_icon',
+                err,
+            );
         }
     }
 
@@ -835,7 +999,11 @@ class ContentWizardPanel extends Page {
         try {
             return await this.waitForElementDisplayed(this.publishDropDownHandle);
         } catch (err) {
-            await this.handleError('Wizard Publish Menu- drop down handle is not visible', 'err_publish_menu_dropdown_handle', err);
+            await this.handleError(
+                'Wizard Publish Menu- drop down handle is not visible',
+                'err_publish_menu_dropdown_handle',
+                err,
+            );
         }
     }
 
@@ -864,7 +1032,11 @@ class ContentWizardPanel extends Page {
             let result = await this.getDisplayedElements(locator);
             return await result[0].getText();
         } catch (err) {
-            await this.handleError(`Tried to get the content-status from the Item Wizard toolbar`, 'err_get_content_status', err);
+            await this.handleError(
+                `Tried to get the content-status from the Item Wizard toolbar`,
+                'err_get_content_status',
+                err,
+            );
         }
     }
 
@@ -873,7 +1045,11 @@ class ContentWizardPanel extends Page {
             let locator = XPATH.container + `//span[contains(@data-component,'StatusBadge') and text()='${status}']`;
             await this.waitForElementDisplayed(locator);
         } catch (err) {
-            await this.handleError(`Incorrect content-status in the Item Wizard toolbar`, 'err_wizard_content_status', err);
+            await this.handleError(
+                `Incorrect content-status in the Item Wizard toolbar`,
+                'err_wizard_content_status',
+                err,
+            );
         }
     }
 
@@ -896,7 +1072,11 @@ class ContentWizardPanel extends Page {
             let result = await this.findElements(selector);
             return result.length > 0;
         } catch (err) {
-            await this.handleError(`Tried to check if publish menu item is present: ${menuItem}`, 'err_publish_menu_item', err);
+            await this.handleError(
+                `Tried to check if publish menu item is present: ${menuItem}`,
+                'err_publish_menu_item',
+                err,
+            );
         }
     }
 
@@ -914,7 +1094,11 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(selector);
             return await this.pause(300);
         } catch (err) {
-            await this.handleError(`Tried to open Publish menu and select item: ${menuItem}`, 'err_click_publish_menu_item', err);
+            await this.handleError(
+                `Tried to open Publish menu and select item: ${menuItem}`,
+                'err_click_publish_menu_item',
+                err,
+            );
         }
     }
 
@@ -989,7 +1173,11 @@ class ContentWizardPanel extends Page {
         try {
             return await this.waitForElementDisplayed(this.publishButton, appConst.shortTimeout);
         } catch (err) {
-            await this.handleError(`'Publish...' button should be displayed in the Content Wizard`, 'err_publish_button_displayed', err);
+            await this.handleError(
+                `'Publish...' button should be displayed in the Content Wizard`,
+                'err_publish_button_displayed',
+                err,
+            );
         }
     }
 
@@ -999,7 +1187,11 @@ class ContentWizardPanel extends Page {
             await this.waitForElementDisplayed(this.createIssueButton, appConst.shortTimeout);
             await this.waitForElementEnabled(this.createIssueButton, appConst.shortTimeout);
         } catch (err) {
-            await this.handleError(`'Create Issue...' button should be displayed as default action`, 'err_publish_menu_def_action', err);
+            await this.handleError(
+                `'Create Issue...' button should be displayed as default action`,
+                'err_publish_menu_def_action',
+                err,
+            );
         }
     }
 
@@ -1022,7 +1214,11 @@ class ContentWizardPanel extends Page {
             let value = await result[0].getAttribute('aria-label');
             return value;
         } catch (err) {
-            await this.handleError(`Tried to get content workflow state from the toolbar`, 'err_get_workflow_state', err);
+            await this.handleError(
+                `Tried to get content workflow state from the toolbar`,
+                'err_get_workflow_state',
+                err,
+            );
         }
     }
 
@@ -1060,7 +1256,11 @@ class ContentWizardPanel extends Page {
             await this.waitForElementDisplayed(this.duplicateButton, appConst.mediumTimeout);
             return await this.waitForElementDisabled(this.duplicateButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError(`'Duplicate' button should be disabled in the Content Wizard`, 'err_duplicate_button_disabled', err);
+            await this.handleError(
+                `'Duplicate' button should be disabled in the Content Wizard`,
+                'err_duplicate_button_disabled',
+                err,
+            );
         }
     }
 
@@ -1093,7 +1293,11 @@ class ContentWizardPanel extends Page {
         try {
             return await this.waitForElementEnabled(this.previewButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError(`Preview button should be enabled in the Wizard previewItemToolbar`, 'err_preview_button_enabled', err);
+            await this.handleError(
+                `Preview button should be enabled in the Wizard previewItemToolbar`,
+                'err_preview_button_enabled',
+                err,
+            );
         }
     }
 
@@ -1132,10 +1336,16 @@ class ContentWizardPanel extends Page {
     async waitForModifyPathTooltipDisplayed() {
         try {
             let locator = XPATH.wizardHeader + `//span[contains(@class,'path')]`;
-            await this.getBrowser().waitUntil(async () => {
-                let text = await this.getAttribute(locator, 'class');
-                return text.includes('tooltip_ON');
-            }, {timeout: appConst.mediumTimeout, timeoutMsg: `'Click to rename the content' tooltip should be displayed`});
+            await this.getBrowser().waitUntil(
+                async () => {
+                    let text = await this.getAttribute(locator, 'class');
+                    return text.includes('tooltip_ON');
+                },
+                {
+                    timeout: appConst.mediumTimeout,
+                    timeoutMsg: `'Click to rename the content' tooltip should be displayed`,
+                },
+            );
         } catch (err) {
             await this.handleError(`Verify tooltip in the Content Wizard`, 'err_path_input_tooltip', err);
         }
@@ -1158,7 +1368,11 @@ class ContentWizardPanel extends Page {
         try {
             return this.waitForElementDisplayed(this.resetButton, appConst.longTimeout);
         } catch (err) {
-            await this.handleError(`'Reset' button should be displayed in the Content Wizard`, 'err_reset_button_not_displayed', err);
+            await this.handleError(
+                `'Reset' button should be displayed in the Content Wizard`,
+                'err_reset_button_not_displayed',
+                err,
+            );
         }
     }
 
@@ -1192,9 +1406,12 @@ class ContentWizardPanel extends Page {
     async waitForDisplayNameInputFocused() {
         try {
             let message = 'Display Name input is not focused in ' + appConst.mediumTimeout;
-            await this.getBrowser().waitUntil(async () => {
-                return await this.isFocused(this.displayNameInput);
-            }, {timeout: appConst.mediumTimeout, timeoutMsg: message});
+            await this.getBrowser().waitUntil(
+                async () => {
+                    return await this.isFocused(this.displayNameInput);
+                },
+                { timeout: appConst.mediumTimeout, timeoutMsg: message },
+            );
         } catch (err) {
             await this.handleError(`Verify if Display Name input is focused`, 'err_display_name_focused', err);
         }
@@ -1210,11 +1427,17 @@ class ContentWizardPanel extends Page {
 
     async getCollaborationUserCompactName() {
         try {
-            let locator = XPATH.toolbar + `//div[contains(@id,'CollaborationEl')]//div[contains(@id,'PrincipalViewerCompact')]/span`;
+            let locator =
+                XPATH.toolbar +
+                `//div[contains(@id,'CollaborationEl')]//div[contains(@id,'PrincipalViewerCompact')]/span`;
             await this.waitForElementDisplayed(locator);
             return await this.getTextInElements(locator);
         } catch (err) {
-            await this.handleError('Collaboration element should be displayed in the wizard toolbar', 'err_collaboration_icon', err);
+            await this.handleError(
+                'Collaboration element should be displayed in the wizard toolbar',
+                'err_collaboration_icon',
+                err,
+            );
         }
     }
 
@@ -1223,7 +1446,11 @@ class ContentWizardPanel extends Page {
             await this.waitForVersionHistoryButtonDisplayed();
             await this.clickOnElement(this.versionHistoryButton);
         } catch (err) {
-            await this.handleError('Tried to click on Version history in wizard preview toolbar button', 'err_version_history_btn', err);
+            await this.handleError(
+                'Tried to click on Version history in wizard preview toolbar button',
+                'err_version_history_btn',
+                err,
+            );
         }
     }
 
@@ -1250,7 +1477,11 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(optionSelector);
             await this.pause(200);
         } catch (err) {
-            await this.handleError(`Preview Widget, tried to select the widget: ${optionName}`, 'err_preview_widget', err);
+            await this.handleError(
+                `Preview Widget, tried to select the widget: ${optionName}`,
+                'err_preview_widget',
+                err,
+            );
         }
     }
 
@@ -1262,7 +1493,11 @@ class ContentWizardPanel extends Page {
             await this.waitForElementDisplayed(locator);
             return await this.getText(locator);
         } catch (err) {
-            await this.handleError(`Content Wizard, Tried to get the selected option in Preview Widget`, 'err_prev_widget_dropdown', err);
+            await this.handleError(
+                `Content Wizard, Tried to get the selected option in Preview Widget`,
+                'err_prev_widget_dropdown',
+                err,
+            );
         }
     }
 
@@ -1271,7 +1506,11 @@ class ContentWizardPanel extends Page {
             await this.waitForPreviewButtonDisplayed();
             await this.waitForElementDisabled(this.previewButton);
         } catch (err) {
-            await this.handleError(`Preview button should be displayed and disabled in the Wizard`, 'err_preview_btn_disabled', err);
+            await this.handleError(
+                `Preview button should be displayed and disabled in the Wizard`,
+                'err_preview_btn_disabled',
+                err,
+            );
         }
     }
 
@@ -1283,7 +1522,10 @@ class ContentWizardPanel extends Page {
             await this.waitForElementDisplayed(locator);
             return await this.getText(locator);
         } catch (err) {
-            await this.handleError(`Error during getting the selected option in Emulator dropdown`, 'err_emulator_dropdown');
+            await this.handleError(
+                `Error during getting the selected option in Emulator dropdown`,
+                'err_emulator_dropdown',
+            );
         }
     }
 
@@ -1293,8 +1535,8 @@ class ContentWizardPanel extends Page {
         return await this.getTextInDisplayedElements(locator);
     }
 
-    async waitForNoPreviewMessageDisplayed(){
-        let locator =  "//div[@data-component='PreviewLabel']//span[text()='No preview available']";
+    async waitForNoPreviewMessageDisplayed() {
+        let locator = "//div[@data-component='PreviewLabel']//span[text()='No preview available']";
         return await this.waitForElementDisplayed(locator);
     }
 
@@ -1317,20 +1559,24 @@ class ContentWizardPanel extends Page {
             return await wizardContextPanel.getSelectedOptionInWidgetSelectorDropdown();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_selected_widget');
-            throw new Error(`Error when trying to get selected widget in Context Window, screenshot: ${screenshot} ` + err);
+            throw new Error(
+                `Error when trying to get selected widget in Context Window, screenshot: ${screenshot} ` + err,
+            );
         }
     }
 
     async clickOnNavigateToBrowsePanelButton(projectName) {
-        let locator =
-            XPATH.container + `//div[@role='toolbar']//button[@aria-label='${projectName}']`;
+        let locator = XPATH.container + `//div[@role='toolbar']//button[@aria-label='${projectName}']`;
         try {
             await this.waitForElementDisplayed(locator);
             await this.clickOnElement(locator);
             return await this.pause(300);
         } catch (err) {
-            await this.handleError(`Tried to click on 'Navigate to Browse Panel' button with project name: ${projectName}`,
-                'err_navigate_to_browse_panel', err);
+            await this.handleError(
+                `Tried to click on 'Navigate to Browse Panel' button with project name: ${projectName}`,
+                'err_navigate_to_browse_panel',
+                err,
+            );
         }
     }
 
@@ -1352,7 +1598,7 @@ class ContentWizardPanel extends Page {
 
     async getPageEditorOverlayShadowHost() {
         const host = await this.findElement(COMMON.SHADOW_SELECTORS.PAGE_EDITOR_OVERLAY_HOST);
-        await host.waitForExist({timeout: appConst.mediumTimeout});
+        await host.waitForExist({ timeout: appConst.mediumTimeout });
         return host;
     }
 
@@ -1381,8 +1627,7 @@ class ContentWizardPanel extends Page {
         try {
             await this.waitForElementDisplayed(XPATH.xDataMenuTrigger, appConst.mediumTimeout);
             await this.clickOnElement(XPATH.xDataMenuTrigger);
-            await this.waitForElementDisplayed(XPATH.xDataMenuItem(''), appConst.shortTimeout).catch(() => {
-            });
+            await this.waitForElementDisplayed(XPATH.xDataMenuItem(''), appConst.shortTimeout).catch(() => {});
         } catch (err) {
             await this.handleError('Content Wizard, xdata menu trigger', 'err_xdata_menu_trigger', err);
         }
