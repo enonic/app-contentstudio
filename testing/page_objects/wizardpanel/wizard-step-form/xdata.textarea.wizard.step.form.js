@@ -1,26 +1,26 @@
 /**
- * Created on 24.09.2018.
+ * Created on 24.09.2018. updated on 07.08.2026
  */
-const Page = require('../../page');
+const OccurrencesFormView = require('../occurrences.form.view');
 const appConst = require('../../../libs/app_const');
-const lib = require('../../../libs/elements-old');
+const { COMMON } = require('../../../libs/elements');
+
 const XPATH = {
-    container: `//div[contains(@id,'XDataWizardStepForm')]`,
-    textArea: `//div[contains(@id,'InputOccurrenceView')]//textarea`,
+    container: "//div[@data-component='Tab.Content' and contains(@id,'contenttypes:text-area')]",
+    textArea: "//div[@data-component='TextArea']//textarea",
 };
 
-class XDataTextArea extends Page {
-
+class XDataTextArea extends OccurrencesFormView {
     get textAreaInput() {
         return XPATH.container + XPATH.textArea;
     }
 
-    typeText(value) {
-        return this.typeTextInInput(this.textAreaInput, value);
+    get validationRecord() {
+        return XPATH.container + COMMON.INPUTS.VALIDATION_RECORDING;
     }
 
-    get validationRecord() {
-        return XPATH.container + lib.FORM_VIEW + lib.INPUT_VALIDATION_VIEW;
+    typeText(value) {
+        return this.typeTextInInput(this.textAreaInput, value);
     }
 
     getTextInTextArea() {

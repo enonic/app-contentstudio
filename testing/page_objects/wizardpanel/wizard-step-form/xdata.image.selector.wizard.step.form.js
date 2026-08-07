@@ -1,23 +1,26 @@
 /**
- * Created on 20.11.2018.
+ * Created on 20.11.2018. updated on 07.08.2026
  */
 const Page = require('../../page');
-const lib = require('../../../libs/elements-old');
 const appConst = require('../../../libs/app_const');
+const { DROPDOWN } = require('../../../libs/elements');
 const ImageSelectorDropdown = require('../../components/selectors/image.selector.dropdown');
 
 const XPATH = {
-    container: `//div[contains(@id,'XDataWizardStepForm')]`,
+    container: "//div[@data-component='Tab.Content' and contains(@id,'contenttypes:image-selector')]",
+    imageSelector: "//div[@data-component='ImageSelector']",
+    selectedImageItem:
+        "//div[@data-component='SelectorSelectionItem' and descendant::div[@data-component='ImageSelectorItemView']]",
 };
 
 class XDataImageSelector extends Page {
-
     get imageOptionsFilterInput() {
-        return XPATH.container + "//div[contains(@id,'ImageSelectorDropdown')]" + lib.OPTION_FILTER_INPUT;
+        return XPATH.container + XPATH.imageSelector + DROPDOWN.OPTION_FILTER_DATA_COMPONENT;
     }
 
     async filterOptionsAndSelectImage(displayName) {
         let imageSelectorDropdown = new ImageSelectorDropdown();
+        await imageSelectorDropdown.doFilterItem(displayName);
         await imageSelectorDropdown.selectFilteredImageInFlatMode(displayName);
     }
 
@@ -27,14 +30,28 @@ class XDataImageSelector extends Page {
     }
 
     async waitForImageSelected() {
-        let selector = XPATH.container + "//div[contains (@id,'ImageSelectorSelectedOptionView')]";
-        return await this.waitForElementDisplayed(selector, appConst.shortTimeout);
+        try {
+            let locator = XPATH.container + XPATH.selectedImageItem;
+            return await this.waitForElementDisplayed(locator, appConst.shortTimeout);
+        } catch (err) {
+            await this.handleError(
+                'x-data with Image Selector - selected image should be displayed',
+                'err_xdata_image_selected',
+                err,
+            );
+        }
     }
 
-    waitForImageOptionsFilterInputVisible() {
-        return this.waitForElementDisplayed(this.imageOptionsFilterInput, appConst.shortTimeout).catch(err => {
-            throw new Error("x-data with Image Selector - image options filter input is not visible! " + err);
-        });
+    async waitForImageOptionsFilterInputVisible() {
+        try {
+            return await this.waitForElementDisplayed(this.imageOptionsFilterInput, appConst.shortTimeout);
+        } catch (err) {
+            await this.handleError(
+                'x-data with Image Selector - options filter input should be visible',
+                'err_xdata_image_filter_input',
+                err,
+            );
+        }
     }
 }
 

@@ -12,10 +12,6 @@ exports.config = {
     specs: [path.join(__dirname, '../specs/misc/*.spec.js')],
 
     exclude: [
-        path.join(__dirname, '../specs/misc/content.xdata.outbound.dependency.spec.js'),
-        path.join(__dirname, '../specs/misc/content.xdata.textarea.spec.js'),
-        path.join(__dirname, '../specs/misc/filtering.by.modifier.spec.js'),
-        path.join(__dirname, '../specs/misc/filtering.by.owner.spec.js'),
         path.join(__dirname, '../specs/misc/filtering.by.workflow.spec.js'),
         path.join(__dirname, '../specs/misc/image.content.flip.rotate.spec.js'),
         path.join(__dirname, '../specs/misc/image.editor.crop.zoom.spec.js'),

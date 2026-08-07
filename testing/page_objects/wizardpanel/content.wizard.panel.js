@@ -1427,9 +1427,7 @@ class ContentWizardPanel extends Page {
 
     async getCollaborationUserCompactName() {
         try {
-            let locator =
-                XPATH.toolbar +
-                `//div[contains(@id,'CollaborationEl')]//div[contains(@id,'PrincipalViewerCompact')]/span`;
+            let locator = XPATH.toolbar + `//span[@data-component='Avatar.Fallback']/span`;
             await this.waitForElementDisplayed(locator);
             return await this.getTextInElements(locator);
         } catch (err) {
