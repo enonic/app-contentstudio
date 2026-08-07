@@ -10,7 +10,6 @@ exports.config = {
     specs: [path.join(__dirname, '../specs/project/*.spec.js')],
 
     exclude: [
-        path.join(__dirname, '../specs/project/layer.owner.spec.js'),
         path.join(__dirname, '../specs/project/layers.content.tree.dialog.spec.js'),
         path.join(__dirname, '../specs/project/localize.inherited.site.spec.js'),
         path.join(__dirname, '../specs/project/project.author.spec.js'),

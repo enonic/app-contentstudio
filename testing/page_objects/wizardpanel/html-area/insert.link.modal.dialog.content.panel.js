@@ -1,19 +1,18 @@
 const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
 const ContentSelectorDropdown = require('../../components/selectors/content.selector.dropdown');
-const {DROPDOWN, BUTTONS} = require("../../../libs/elements");
+const { DROPDOWN, BUTTONS } = require('../../../libs/elements');
 
 const XPATH = {
     container: `//div[@role='dialog' and @data-component='HtmlAreaLinkDialog']`,
     contentPanel: "//div[@data-component='ContentTabPanel']",
-    checkboxByLabel: label => `//div[child::label[contains(.,'${label}')]]`,
-    radioButtonByLabel: label => `//button[@role='radio' and contains(.,'${label}')]`,
+    checkboxByLabel: (label) => `//div[child::label[contains(.,'${label}')]]`,
+    radioButtonByLabel: (label) => `//button[@role='radio' and contains(.,'${label}')]`,
     contentSelectionByDisplayName: (displayName) =>
         `//div[@data-component='ContentSelection' and descendant::span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]`,
 };
 
 class InsertLinkDialogContentPanel extends Page {
-
     get showContentFromEntireProjectCheckbox() {
         return XPATH.container + XPATH.contentPanel + XPATH.checkboxByLabel('Show content from the entire');
     }
@@ -39,8 +38,11 @@ class InsertLinkDialogContentPanel extends Page {
     }
 
     get parametersFormValidationMessage() {
-        return XPATH.container + XPATH.contentPanel +
-               "//span[contains(.,'Parameters')]/../following-sibling::span[contains(@class,'text-enonic-red-500')]";
+        return (
+            XPATH.container +
+            XPATH.contentPanel +
+            "//span[contains(.,'Parameters')]/../following-sibling::span[contains(@class,'text-enonic-red-500')]"
+        );
     }
 
     get contentSelectorInput() {
@@ -53,8 +55,11 @@ class InsertLinkDialogContentPanel extends Page {
             await this.typeTextInInput(this.contentSelectorInput, text);
             return await this.pause(1000);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_filter_input');
-            throw new Error(`Error occurred in Insert Link modal dialog! screenshot:${screenshot} ` + err);
+            await this.handleError(
+                `Error occurred while typing in the content options filter input!`,
+                'err_filter_input',
+                err,
+            );
         }
     }
 
@@ -66,7 +71,11 @@ class InsertLinkDialogContentPanel extends Page {
         try {
             return await this.waitForElementDisplayed(this.openInNewTabCheckbox);
         } catch (err) {
-            await this.handleError(`'Open In New Tab' checkbox should be displayed!`, 'err_open_in_new_tab_checkbox', err);
+            await this.handleError(
+                `'Open In New Tab' checkbox should be displayed!`,
+                'err_open_in_new_tab_checkbox',
+                err,
+            );
         }
     }
 
@@ -84,8 +93,11 @@ class InsertLinkDialogContentPanel extends Page {
         try {
             return await this.waitForElementNotDisplayed(this.showContentFromEntireProjectCheckbox);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_show_checkbox');
-            throw new Error(`Show Content From Entire Project Checkbox should not be displayed! screenshot: ${screenshot} ` + err);
+            await this.handleError(
+                `Show Content From Entire Project Checkbox should not be displayed!`,
+                'err_show_checkbox',
+                err,
+            );
         }
     }
 
@@ -112,31 +124,29 @@ class InsertLinkDialogContentPanel extends Page {
     }
 
     async clickOnOpenInNewTabCheckbox() {
-        await this.waitForElementDisplayed(this.openInNewTabCheckbox, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.openInNewTabCheckbox);
         await this.clickOnElement(this.openInNewTabCheckbox);
     }
 
     async waitForAddParametersButtonDisplayed() {
         try {
-            return this.waitForElementDisplayed(this.addParametersButton, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(this.addParametersButton);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_add_param_btn');
-            throw new Error(`Add parameters button should be displayed! screenshot:${screenshot} ` + err);
+            await this.handleError(`Add parameters button should be displayed!`, 'err_add_param_btn', err);
         }
     }
 
     async waitForAddAnchorButtonDisplayed() {
         try {
-            return this.waitForElementDisplayed(this.addAnchorButton, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(this.addAnchorButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_anchor_btn');
-            throw new Error(`Add Anchor button should be displayed! screenshot: ${screenshot} ` + err);
+            await this.handleError(`Add Anchor button should be displayed!`, 'err_anchor_btn', err);
         }
     }
 
     async waitForAddAnchorButtonNotDisplayed() {
         try {
-            return this.waitForElementNotDisplayed(this.addAnchorButton, appConst.mediumTimeout);
+            return await this.waitForElementNotDisplayed(this.addAnchorButton, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_anchor_btn');
             throw new Error(`Add Anchor button should not be displayed! screenshot: ${screenshot} ` + err);
@@ -148,14 +158,18 @@ class InsertLinkDialogContentPanel extends Page {
             let contentSelector = new ContentSelectorDropdown(XPATH.container);
             await contentSelector.doFilterItem(targetDisplayName);
             await contentSelector.clickOnTreeItemOptionByDisplayName(targetDisplayName);
-            await this.pause(500);
+            await this.pause(400);
         } catch (err) {
-            await this.handleError(`Content selector, tried to click on the filtered option, ${targetDisplayName} `, 'err_content_sel', err);
+            await this.handleError(
+                `Content selector, tried to click on the filtered option, ${targetDisplayName} `,
+                'err_content_sel',
+                err,
+            );
         }
     }
 
     async clickOnRemoveSelectedOptionIcon(displayName) {
-        let locator = XPATH.container+ XPATH.contentSelectionByDisplayName(displayName) + BUTTONS.BUTTON_REMOVE_ICON;
+        let locator = XPATH.container + XPATH.contentSelectionByDisplayName(displayName) + BUTTONS.BUTTON_REMOVE_ICON;
         await this.waitForElementDisplayed(locator);
         await this.clickOnElement(locator);
         return await this.pause(500);
@@ -167,7 +181,9 @@ class InsertLinkDialogContentPanel extends Page {
     }
 
     async getSelectedOptionDisplayName() {
-        let locator = XPATH.container+ "//div[@data-component='ContentSelection']//div[@data-component='ContentLabel']//span[contains(@class,'font-semibold')]"
+        let locator =
+            XPATH.container +
+            "//div[@data-component='ContentSelection']//div[@data-component='ContentLabel']//span[contains(@class,'font-semibold')]";
         return await this.getText(locator);
     }
 
@@ -178,7 +194,7 @@ class InsertLinkDialogContentPanel extends Page {
 
     async clickOnOptionByDisplayName(optionDisplayName) {
         let contentSelector = new ContentSelectorDropdown(XPATH.container);
-        return await contentSelector.clickOnOptionByDisplayName(optionDisplayName );
+        return await contentSelector.clickOnOptionByDisplayName(optionDisplayName);
     }
 
     // Click on a radio in Media options:
@@ -220,7 +236,8 @@ class InsertLinkDialogContentPanel extends Page {
 
     async typeInParameterNameInput(value, index) {
         index = typeof index !== 'undefined' ? index : 0;
-        let locator = XPATH.container + XPATH.contentPanel + "//input[@placeholder='Name' or contains(@placeholder,'name')]";
+        let locator =
+            XPATH.container + XPATH.contentPanel + "//input[@placeholder='Name' or contains(@placeholder,'name')]";
         let inputElements = await this.getDisplayedElements(locator);
         if (inputElements.length === 0) {
             throw new Error('Parameter name input was not found in the Insert Link modal dialog');
@@ -231,21 +248,24 @@ class InsertLinkDialogContentPanel extends Page {
 
     async getTextInParameterNameInput(index) {
         index = typeof index !== 'undefined' ? index : 0;
-        let locator = XPATH.container + XPATH.contentPanel + "//input[@placeholder='Name' or contains(@placeholder,'name')]";
+        let locator =
+            XPATH.container + XPATH.contentPanel + "//input[@placeholder='Name' or contains(@placeholder,'name')]";
         let inputElements = await this.getDisplayedElements(locator);
         return await inputElements[index].getValue();
     }
 
     async typeInParameterValueInput(value, index) {
         index = typeof index !== 'undefined' ? index : 0;
-        let locator = XPATH.container + XPATH.contentPanel + "//input[@placeholder='Value' or contains(@placeholder,'value')]";
+        let locator =
+            XPATH.container + XPATH.contentPanel + "//input[@placeholder='Value' or contains(@placeholder,'value')]";
         let inputElements = await this.getDisplayedElements(locator);
         await inputElements[index].setValue(value);
         return await this.pause(300);
     }
 
     waitForUploadContentButtonDisplayed() {
-        let locator = XPATH.container + XPATH.contentPanel + "//button[descendant::*[contains(@class,'lucide-upload')]]";
+        let locator =
+            XPATH.container + XPATH.contentPanel + "//button[descendant::*[contains(@class,'lucide-upload')]]";
         return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
 }

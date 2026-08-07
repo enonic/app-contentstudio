@@ -1,56 +1,65 @@
 /**
- * Created on 04.04.2022
+ * Created on 04.04.2022 updated on 07.08.2026
  */
 const Page = require('../../page');
-const lib = require('../../../libs/elements-old');
 const appConst = require('../../../libs/app_const');
+const { DROPDOWN } = require('../../../libs/elements');
 const ContentSelectorDropdown = require('../../components/selectors/content.selector.dropdown');
 
 const XPATH = {
-    container: `//div[contains(@id,'XDataWizardStepForm')]`,
-    selectedOptionByName: option => {
-        return `//div[contains(@id,'ContentSelectedOptionView') and descendant::h6[contains(@class,'main-name') and text()='${option}']]`
-    },
+    container: "//div[@data-component='Tab.Content' and contains(@id,'contenttypes:content-selector')]",
+    contentCombobox: "//div[@data-component='ContentCombobox']",
+    selectedOptionItem: "//div[@data-component='SelectorSelectionItem']",
+    selectedOptionDisplayNameSpan:
+        "//div[@data-component='SelectorSelectionItem']//span[contains(@class,'font-semibold')]",
 };
 
 class XDataContentSelector extends Page {
-
     get contentOptionsFilterInput() {
-        return XPATH.container +  "//div[contains(@id,'ContentTreeSelectorDropdown')]" + lib.OPTION_FILTER_INPUT;
+        return XPATH.container + XPATH.contentCombobox + DROPDOWN.OPTION_FILTER_DATA_COMPONENT;
     }
 
     async filterOptionsAndSelectContent(displayName) {
         try {
             let contentSelectorDropdown = new ContentSelectorDropdown();
-            await contentSelectorDropdown.selectFilteredByDisplayNameContent(displayName);
-            return await this.pause(500);
+            await contentSelectorDropdown.doFilterItem(displayName);
+            await contentSelectorDropdown.clickOnTreeItemOptionByDisplayName(displayName);
+            return await this.pause(200);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_xdata_content_selector"));
-            throw new Error("X-data, content selector - " + err);
+            await this.handleError(
+                'X-data, content selector - tried to select the option',
+                'err_xdata_content_selector',
+                err,
+            );
         }
     }
 
     async waitForSelectedOptionDisplayed() {
-        let selector = XPATH.container + "//div[contains (@id,'ContentSelectedOptionView')]";
-        return await this.waitForElementDisplayed(selector, appConst.shortTimeout);
+        let locator = XPATH.container + XPATH.selectedOptionItem;
+        return await this.waitForElementDisplayed(locator, appConst.shortTimeout);
     }
 
     async removeSelectedOption(option) {
-        let locator = XPATH.selectedOptionByName(option) + lib.REMOVE_ICON;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.clickOnElement(locator);
-        return await this.pause(500);
+        let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
+        await contentSelectorDropdown.removeSelectedOption(option);
     }
 
-    waitForContentOptionsFilterInputDisplayed() {
-        return this.waitForElementDisplayed(this.contentOptionsFilterInput, appConst.shortTimeout).catch(err => {
-            throw new Error("x-data, Content Selector - options filter input is not visible! " + err);
-        });
+    async waitForContentOptionsFilterInputDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.contentOptionsFilterInput, appConst.shortTimeout);
+        } catch (err) {
+            await this.handleError(
+                'x-data, Content Selector - options filter input should be visible',
+                'err_xdata_content_filter_input',
+                err,
+            );
+        }
     }
 
-    getSelectedOptions() {
-        let locator = "//div[contains(@id,'ContentSelectedOptionView')]//h6[contains(@class,'main-name')]";
-        return this.getTextInElements(locator);
+    async getSelectedOptions() {
+        let locator = XPATH.container + XPATH.selectedOptionDisplayNameSpan;
+        await this.waitForElementDisplayed(locator, appConst.shortTimeout);
+        return await this.getTextInDisplayedElements(locator);
     }
 }
 

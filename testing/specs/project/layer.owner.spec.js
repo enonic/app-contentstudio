@@ -13,8 +13,7 @@ const appConst = require('../../libs/app_const');
 const ProjectWizardDialogApplicationsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.applications.step');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const ProjectWizardDialogParentProjectStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');
-const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
+const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
 const ProjectWizardDialogAccessModeStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.access.mode.step');
 const ProjectWizardDialogPermissionsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.permissions.step');
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
@@ -23,14 +22,17 @@ const PageComponentView = require('../../page_objects/wizardpanel/liveform/page.
 const TextComponentCke = require('../../page_objects/components/text.component');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
+const LanguageAndParentProjectStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');
+const ProjectWizardDialogNameAndIdStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.name.id.step');
+const ProjectWizardDialogSummaryStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.summary.step');
 
-describe.skip('layer.owner.spec - ui-tests for user with layer-Owner role ', function () {
+describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
-    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
+    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('proj');
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName('layer');
     const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const SITE_NAME = contentBuilder.generateRandomName('site');
@@ -53,7 +55,11 @@ describe.skip('layer.owner.spec - ui-tests for user with layer-Owner role ', fun
         await studioUtils.navigateToContentStudioApp();
         await studioUtils.openSettingsPanel();
         // 2. Save new project (mode access is Private):
-        await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME);
+        //await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME);
+        await projectUtils.saveTestProject({
+            name: PROJECT_DISPLAY_NAME,
+            accessMode: appConst.PROJECT_ACCESS_MODE.PRIVATE,
+        });
     });
 
     it('Precondition 3: new site should be created by the SU in the parent project', async () => {
@@ -70,18 +76,20 @@ describe.skip('layer.owner.spec - ui-tests for user with layer-Owner role ', fun
     it('Precondition 4: new layer should be created in the existing project', async () => {
         let settingsBrowsePanel = new SettingsBrowsePanel();
         let applicationsStep = new ProjectWizardDialogApplicationsStep();
-        let parentStep = new ProjectWizardDialogParentProjectStep();
         // 1. Do Log in with 'SU':
         await studioUtils.navigateToContentStudioApp();
         await studioUtils.openSettingsPanel();
         // 2. Open Project Wizard Dialog:
         await projectUtils.selectParentAndOpenProjectWizardDialog(PROJECT_DISPLAY_NAME);
-        await parentStep.clickOnNextButton();
-        // 3. Click on Skip button in language step:
-        let languageStep = new ProjectWizardDialogLanguageStep();
-        await languageStep.waitForLoaded();
-        await languageStep.clickOnSkipButton();
+        let languageAndParentProjectStep = new LanguageAndParentProjectStep();
+        await languageAndParentProjectStep.waitForLoaded();
+        await languageAndParentProjectStep.clickOnNextButton();
+        let nameAndIdStep = new ProjectWizardDialogNameAndIdStep();
+        await nameAndIdStep.waitForLoaded();
+        await nameAndIdStep.typeDisplayName(LAYER_DISPLAY_NAME);
+        await nameAndIdStep.clickOnNextButton();
         let accessModeStep = new ProjectWizardDialogAccessModeStep();
+        await accessModeStep.waitForLoaded();
         // 4. Select 'Private' access mode in the fours step:
         await accessModeStep.clickOnAccessModeRadio('Private');
         await accessModeStep.clickOnNextButton();
@@ -94,9 +102,9 @@ describe.skip('layer.owner.spec - ui-tests for user with layer-Owner role ', fun
         // 8. Click on Next button
         await permissionsStep.clickOnNextButton();
         if (await applicationsStep.isLoaded()) {
-            await applicationsStep.clickOnSkipButton();
+            await applicationsStep.clickOnNextButton();
         }
-        let summaryStep = await projectUtils.fillNameAndDescriptionStep(LAYER_DISPLAY_NAME);
+        let summaryStep = new ProjectWizardDialogSummaryStep();
         await summaryStep.waitForLoaded();
         await summaryStep.clickOnCreateProjectButton();
         await summaryStep.waitForDialogClosed();
@@ -106,8 +114,6 @@ describe.skip('layer.owner.spec - ui-tests for user with layer-Owner role ', fun
         await studioUtils.doLogout();
     });
 
-    // Verifies - https://github.com/enonic/app-contentstudio/issues/2144
-    // Localize button should be displayed in browse toolbar after selecting a content in a layer
     it("GIVEN user with 'Owner'-layer role is logged in WHEN 'inherited' site has been selected THEN 'Localize' button should appear in the browse toolbar", async () => {
         let contentBrowsePanel = new ContentBrowsePanel();
         let contentItemPreviewPanel = new ContentItemPreviewPanel();
@@ -118,7 +124,7 @@ describe.skip('layer.owner.spec - ui-tests for user with layer-Owner role ', fun
         // 2. Select the site:
         await studioUtils.findAndSelectItem(SITE_NAME);
         // 3. Verify that 'Localize' button appears in the browse toolbar:
-        await contentBrowsePanel.waitForLocalizeButtonEnabled();
+        await contentBrowsePanel.waitForEditButtonEnabled();
         // 4. Verify that workflow state the same as in the parent project:
         let actualWorkflow = await contentBrowsePanel.getWorkflowStateByName(SITE_NAME);
         assert.equal(actualWorkflow, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
@@ -182,7 +188,7 @@ describe.skip('layer.owner.spec - ui-tests for user with layer-Owner role ', fun
         // 2. Select the site:
         await studioUtils.findAndSelectItem(SITE_NAME);
         // 3. Verify that 'Localize' button appears in the browse toolbar:
-        await contentBrowsePanel.waitForLocalizeButtonEnabled();
+        await contentBrowsePanel.waitForEditButtonEnabled();
         // 4. Verify that workflow state the same as in the parent project:
         let actualWorkflow = await contentBrowsePanel.getWorkflowStateByName(SITE_NAME);
         assert.equal(actualWorkflow, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
@@ -216,15 +222,15 @@ describe.skip('layer.owner.spec - ui-tests for user with layer-Owner role ', fun
         await contentBrowsePanel.doubleClickOnRowByDisplayName(SITE.displayName);
         await studioUtils.doSwitchToNewWizard();
         await contentWizard.waitForOpened();
+        //await contentWizard.clickOnWizardStep('Page');
         // 3. Verify that PCV is disabled:
-        await pageComponentsWizardStepForm.waitForLoaded();
-        await pageComponentsWizardStepForm.waitForLocked();
+        await contentWizard.waitForContentFormLocked();
         // 4. Click on Localize button in the wizard-toolbar:
         await contentWizard.clickOnLocalizeButton();
         await studioUtils.saveScreenshot('localized_site_pcv');
+        await contentWizard.waitForContentFormNotLocked();
         // 5. Verify the message:
         let message = await contentWizard.waitForNotificationMessage();
-        await pageComponentsWizardStepForm.waitForNotLocked();
         assert.equal(
             message,
             appConst.NOTIFICATION_MESSAGES.INHERITED_CONTENT_LOCALIZED,
@@ -268,13 +274,12 @@ describe.skip('layer.owner.spec - ui-tests for user with layer-Owner role ', fun
     it("GIVEN user with 'Owner'-layer role is logged in WHEN new text component has been inserted THEN 'Source' button should be displayed in the htmlArea toolbar", async () => {
         let contentBrowsePanel = new ContentBrowsePanel();
         let contentWizard = new ContentWizard();
-        let textComponentCke = new TextComponentCke();
+        let textComponentInspectionPanel = new TextComponentInspectionPanel();
         let pageComponentView = new PageComponentView();
         // 1. Do log in with the user-owner and navigate to Content Browse Panel:
         await studioUtils.navigateToContentStudioCloseProjectSelectionDialog(USER.displayName, PASSWORD);
-        let htmlAreaForm = new HtmlAreaForm();
         let sourceCodeDialog = new SourceCodeDialog();
-        // 2. Click on Localise , Open the site:
+        // 2. Click on Edit , Open the site:
         await studioUtils.findAndSelectItem(SITE.displayName);
         await contentBrowsePanel.clickOnEditButton();
         await studioUtils.doSwitchToNextTab();
@@ -287,10 +292,12 @@ describe.skip('layer.owner.spec - ui-tests for user with layer-Owner role ', fun
             appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT,
             appConst.PCV_MENU_ITEM.TEXT,
         ]);
-        await textComponentCke.switchToLiveEditFrame();
+
         // 5. Verify that Source button is clickable on the toolbar:
-        await textComponentCke.clickOnSourceButton();
-        await textComponentCke.switchToParentFrame();
+        await textComponentInspectionPanel.waitForOpened();
+        await textComponentInspectionPanel.clickInTextArea();
+        await textComponentInspectionPanel.clickOnSourceButton();
+
         await sourceCodeDialog.waitForDialogLoaded();
         await sourceCodeDialog.clickOnCancelButton();
     });

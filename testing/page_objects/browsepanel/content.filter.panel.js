@@ -3,8 +3,8 @@
  */
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
-const {BUTTONS} = require('../../libs/elements');
-const ContentBrowsePanel = require("./content.browse.panel");
+const { BUTTONS } = require('../../libs/elements');
+const ContentBrowsePanel = require('./content.browse.panel');
 const XPATH = {
     container: "//div[contains(@id,'ContentBrowseFilterPanel')]",
     clearFilterLink: "//a[contains(@id,'ClearFilterButton')]",
@@ -15,19 +15,20 @@ const XPATH = {
     showLessButton: "//button[child::span[text()='Show less']]",
     selectorOptionCheckbox: "//ul[contains(@id,'BucketListBox')]//div[contains(@id,'Checkbox')]",
     selectorOptionItem: "//ul[contains(@id,'BucketListBox')]//div[contains(@class,'item-view-wrapper')]",
-    ownerAggregationGroupView: "//div[child::div[text()='Owner'] and descendant::*[@data-component='Combobox.Content']]",
-    lastModifiedByAggregationGroupView: "//div[child::div[text()='Last Modified by'] and descendant::*[@data-component='Combobox.Content']]",
+    ownerAggregationGroupView:
+        "//div[child::div[text()='Owner'] and descendant::*[@data-component='Combobox.Content']]",
+    lastModifiedByAggregationGroupView:
+        "//div[child::div[text()='Last Modified by'] and descendant::*[@data-component='Combobox.Content']]",
     comboboxToggle: "//button[@data-component='Combobox.Toggle']",
     comboboxInput: "//input[@data-component='Combobox.Input']",
-    comboboxOption: name => `//li[@role='option' and contains(.,'${name}')]`,
-    checkboxInputByLabel: name => `//label[descendant::span[contains(.,'${name}')]]/input[@type='checkbox']`,
+    checkboxInputByLabel: (name) => `//label[descendant::span[contains(.,'${name}')]]/input[@type='checkbox']`,
     checkboxLabelText: "//div[@data-component='Checkbox']//span[contains(@class,'text-main')]",
-    aggregationGroupByName: name => `//div[child::h4[text()='${name}'] or child::div[text()='${name}']]`,
-    aggregationLabelByName: name => `//label[child::input[@type='checkbox'] and descendant::span[contains(.,'${name}')]]`,
+    aggregationGroupByName: (name) => `//div[child::h4[text()='${name}'] or child::div[text()='${name}']]`,
+    aggregationLabelByName: (name) =>
+        `//label[child::input[@type='checkbox'] and descendant::span[contains(.,'${name}')]]`,
 };
 
 class BrowseFilterPanel extends Page {
-
     get clearFilterLink() {
         return XPATH.container + BUTTONS.buttonAriaLabel('Clear');
     }
@@ -43,7 +44,6 @@ class BrowseFilterPanel extends Page {
     get showLessButton() {
         return `${XPATH.container}//div[child::h4[text()='Content Types']]${BUTTONS.buttonAriaLabel('Show less')}`;
     }
-
 
     get closeDependenciesSectionButtonLocator() {
         return XPATH.dependenciesSection + "//button[@data-component='IconButton']";
@@ -86,7 +86,11 @@ class BrowseFilterPanel extends Page {
         try {
             return await this.waitForElementNotDisplayed(this.exportButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError('Filter Panel: Export Button should not be displayed', 'err_export_btn_not_displayed', err);
+            await this.handleError(
+                'Filter Panel: Export Button should not be displayed',
+                'err_export_btn_not_displayed',
+                err,
+            );
         }
     }
 
@@ -128,7 +132,7 @@ class BrowseFilterPanel extends Page {
     }
 
     isShowMoreButtonDisplayed() {
-        return this.isElementDisplayed(this.showMoreButton)
+        return this.isElementDisplayed(this.showMoreButton);
     }
 
     waitForShowLessButtonDisplayed() {
@@ -144,7 +148,11 @@ class BrowseFilterPanel extends Page {
             let el = await this.findElements(this.closeDependenciesSectionButtonLocator);
             return await this.waitForElementDisplayed(this.closeDependenciesSectionButtonLocator);
         } catch (err) {
-            await this.handleError('Filter Panel: Close dependencies section button should be displayed', 'err_close_dependencies_section_btn', err);
+            await this.handleError(
+                'Filter Panel: Close dependencies section button should be displayed',
+                'err_close_dependencies_section_btn',
+                err,
+            );
         }
     }
 
@@ -153,24 +161,28 @@ class BrowseFilterPanel extends Page {
     }
 
     waitForClearLinkDisplayed() {
-        return this.waitForElementDisplayed(this.clearFilterLink, appConst.mediumTimeout)
+        return this.waitForElementDisplayed(this.clearFilterLink, appConst.mediumTimeout);
     }
 
     waitForClearLinkNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.clearFilterLink, appConst.mediumTimeout)
+        return this.waitForElementNotDisplayed(this.clearFilterLink, appConst.mediumTimeout);
     }
 
     async waitForDependenciesSectionVisible(ms = appConst.mediumTimeout) {
         try {
             return await this.waitForElementDisplayed(XPATH.container + XPATH.dependenciesSection, ms);
         } catch (err) {
-            await this.handleError('Filter Panel: Dependencies section should be visible', 'err_dependencies_section', err);
+            await this.handleError(
+                'Filter Panel: Dependencies section should be visible',
+                'err_dependencies_section',
+                err,
+            );
         }
     }
 
     async clickOnClearButton() {
         await this.waitForClearLinkDisplayed();
-        await this.clickOnElement(this.clearFilterLink)
+        await this.clickOnElement(this.clearFilterLink);
         await this.pause(1000);
     }
 
@@ -196,7 +208,11 @@ class BrowseFilterPanel extends Page {
             await this.clickOnElement(selector);
             return await this.pause(700);
         } catch (err) {
-            await this.handleError('Filter Panel: Tried to click on checkbox in  aggregation block', 'err_click_checkbox', err);
+            await this.handleError(
+                'Filter Panel: Tried to click on checkbox in  aggregation block',
+                'err_click_checkbox',
+                err,
+            );
         }
     }
 
@@ -205,7 +221,11 @@ class BrowseFilterPanel extends Page {
             let selector = XPATH.aggregationGroupByName(blockName) + XPATH.aggregationLabelByName(label);
             return await this.waitForElementDisplayed(selector);
         } catch (err) {
-            await this.handleError(`Filter Panel: checkbox '${label}' in '${blockName}' should be displayed`, 'err_checkbox_displayed', err);
+            await this.handleError(
+                `Filter Panel: checkbox '${label}' in '${blockName}' should be displayed`,
+                'err_checkbox_displayed',
+                err,
+            );
         }
     }
 
@@ -214,33 +234,39 @@ class BrowseFilterPanel extends Page {
             let selector = XPATH.aggregationGroupByName(blockName) + XPATH.aggregationLabelByName(checkBoxLabel);
             return await this.waitForElementNotDisplayed(selector, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError(`Filter Panel: checkbox '${checkBoxLabel}' in '${blockName}' should not be displayed`, 'err_checkbox_not_displayed', err);
+            await this.handleError(
+                `Filter Panel: checkbox '${checkBoxLabel}' in '${blockName}' should not be displayed`,
+                'err_checkbox_not_displayed',
+                err,
+            );
         }
     }
 
     // clicks on a checkbox in Workflow aggregation block
     async clickOnCheckboxInWorkflowBlock(checkBoxLabel) {
         try {
-            let selector = XPATH.aggregationGroupByName(appConst.FILTER_PANEL_AGGREGATION_BLOCK.WORKFLOW) +
-                           XPATH.aggregationLabelByName(checkBoxLabel);
+            let selector =
+                XPATH.aggregationGroupByName(appConst.FILTER_PANEL_AGGREGATION_BLOCK.WORKFLOW) +
+                XPATH.aggregationLabelByName(checkBoxLabel);
             await this.waitForElementDisplayed(selector, appConst.shortTimeout);
             await this.clickOnElement(selector);
             return await this.pause(1200);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_click_on_aggregation"));
-            throw new Error("Error when click on the aggregation checkbox: " + err);
+            await this.saveScreenshot(appConst.generateRandomName('err_click_on_aggregation'));
+            throw new Error('Error when click on the aggregation checkbox: ' + err);
         }
     }
 
     async clickOnCheckboxInLanguageBlock(checkBoxLabel) {
         try {
-            let selector = XPATH.aggregationGroupByName(appConst.FILTER_PANEL_AGGREGATION_BLOCK.LANGUAGE) +
-                           XPATH.aggregationLabelByName(checkBoxLabel);
+            let selector =
+                XPATH.aggregationGroupByName(appConst.FILTER_PANEL_AGGREGATION_BLOCK.LANGUAGE) +
+                XPATH.aggregationLabelByName(checkBoxLabel);
             await this.waitForElementDisplayed(selector, appConst.shortTimeout);
             await this.clickOnElement(selector);
             return await this.pause(1200);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_click_on_aggregation"));
+            await this.saveScreenshot(appConst.generateRandomName('err_click_on_aggregation'));
             throw new Error('Error when click on the aggregation checkbox: ' + err);
         }
     }
@@ -248,7 +274,7 @@ class BrowseFilterPanel extends Page {
     // gets a number of items from a checkbox label in an aggregation block(Workflow,modifier)
     async getNumberOfItemsInAggregationView(blockName, checkboxLabel, showMore) {
         if (typeof showMore !== 'undefined') {
-            if (showMore && await this.isShowMoreButtonDisplayed()) {
+            if (showMore && (await this.isShowMoreButtonDisplayed())) {
                 await this.clickOnShowMoreButton();
             }
         }
@@ -260,7 +286,11 @@ class BrowseFilterPanel extends Page {
             let endIndex = label.indexOf(')');
             return label.substring(startIndex + 1, endIndex);
         } catch (err) {
-            await this.handleError('Filter Panel: Tried to get the number in aggregation', 'err_numb_in_aggregation', err);
+            await this.handleError(
+                'Filter Panel: Tried to get the number in aggregation',
+                'err_numb_in_aggregation',
+                err,
+            );
         }
     }
 
@@ -274,7 +304,7 @@ class BrowseFilterPanel extends Page {
         let locator = XPATH.aggregationGroupByName('Content Types') + "//label[child::input[@type='checkbox']]";
         await this.waitForElementDisplayed(locator);
         let labels = await this.getTextInDisplayedElements(locator);
-        return labels.map(item => item.substring(0, item.indexOf('(')).trim());
+        return labels.map((item) => item.substring(0, item.indexOf('(')).trim());
     }
 
     // Gets the count from a label in 'Last Modified' aggregation block (e.g. "< 1 week (41)" → "41")
@@ -306,15 +336,16 @@ class BrowseFilterPanel extends Page {
         return owners;
     }
 
-    // Selects an option in 'Owner' combobox: types the name in the filter input and clicks on the option
+    // Selects an option in 'Owner' combobox: types the name in the filter input and clicks on the option checkbox
     async filterAndSelectOwnerOption(ownerName) {
         try {
             let inputLocator = XPATH.container + XPATH.ownerAggregationGroupView + XPATH.comboboxInput;
-            await this.waitForElementDisplayed(inputLocator, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(inputLocator);
             await this.typeTextInInput(inputLocator, ownerName);
             await this.pause(300);
-            let optionLocator = XPATH.container + XPATH.ownerAggregationGroupView + XPATH.comboboxOption(ownerName);
-            await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
+            let optionLocator =
+                XPATH.container + XPATH.ownerAggregationGroupView + XPATH.aggregationLabelByName(ownerName);
+            await this.waitForElementDisplayed(optionLocator);
             await this.clickOnElement(optionLocator);
         } catch (err) {
             await this.handleError('Filter Panel: Owner Selector', 'err_filter_owner', err);
@@ -329,7 +360,11 @@ class BrowseFilterPanel extends Page {
             await this.clickOnElement(locator);
             return await this.pause(500);
         } catch (err) {
-            await this.handleError('Filter Panel: Last Modified By combobox toggle', 'err_last_modified_by_toggle', err);
+            await this.handleError(
+                'Filter Panel: Last Modified By combobox toggle',
+                'err_last_modified_by_toggle',
+                err,
+            );
         }
     }
 
@@ -342,23 +377,29 @@ class BrowseFilterPanel extends Page {
 
     async uncheckItemInLastModifiedByListBox(userName) {
         try {
-            let locator = XPATH.container + XPATH.lastModifiedByAggregationGroupView + XPATH.checkboxInputByLabel(userName);
-            let chElement = await this.findElement(locator);
-            await chElement.click();
+            let locator =
+                XPATH.container + XPATH.lastModifiedByAggregationGroupView + XPATH.aggregationLabelByName(userName);
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.clickOnElement(locator);
             return await this.pause(500);
         } catch (err) {
-            await this.handleError('Filter Panel: uncheck item in Last Modified By', 'err_uncheck_last_modified_by', err);
+            await this.handleError(
+                'Filter Panel: uncheck item in Last Modified By',
+                'err_uncheck_last_modified_by',
+                err,
+            );
         }
     }
 
-    // Selects an option in 'Last Modified By' combobox: types the name in the filter input and clicks on the option
+    // Selects an option in 'Last Modified By' combobox: types the name in the filter input and clicks on the option checkbox
     async filterAndSelectLastModifiedByOption(userName) {
         try {
             let inputLocator = XPATH.container + XPATH.lastModifiedByAggregationGroupView + XPATH.comboboxInput;
             await this.waitForElementDisplayed(inputLocator, appConst.mediumTimeout);
             await this.typeTextInInput(inputLocator, userName);
             await this.pause(300);
-            let optionLocator = XPATH.container + XPATH.lastModifiedByAggregationGroupView + XPATH.comboboxOption(userName);
+            let optionLocator =
+                XPATH.container + XPATH.lastModifiedByAggregationGroupView + XPATH.aggregationLabelByName(userName);
             await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
             await this.clickOnElement(optionLocator);
         } catch (err) {
