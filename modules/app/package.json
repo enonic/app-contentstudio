@@ -40,7 +40,7 @@
     "d3": "^7.9.0",
     "d3-dag": "^1.2.2",
     "dayjs": "^1.11.21",
-    "dompurify": "^3.4.12",
+    "dompurify": "^3.4.13",
     "enonic-admin-artifacts": "^2.4.0",
     "fine-uploader": "^5.16.2",
     "focus-trap-react": "^11.0.4",
