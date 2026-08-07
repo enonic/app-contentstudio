@@ -1,24 +1,25 @@
 /**
  * Created on 08.01.2024 updated on 11.02.2026
  */
-const {COMMON, BUTTONS, DROPDOWN} = require('../../../libs/elements');
+const { COMMON, BUTTONS, DROPDOWN } = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const Page = require('../../page');
 
 const XPATH = {
     rightCheckBoxDiv: "//li[contains(@class,'checkbox-right')]//div[contains(@id,'Checkbox')]",
-    rightCheckboxByDisplayName: displayName => `//li[contains(@class,'checkbox-right') and descendant::h6[contains(@class,'main-name') and text()='${displayName}']]//div[contains(@id,'Checkbox')]`,
-    expanderIconByName: name => {
-        return `//div[contains(@id,'NamesView') and child::p[contains(@class,'sub-name') and contains(.,'${name}')]]` +
-               `//ancestor::li[contains(@id,'ContentListElement')]//div[contains(@class,'toggle icon-arrow_drop_up')]`;
+    rightCheckboxByDisplayName: (displayName) =>
+        `//li[contains(@class,'checkbox-right') and descendant::h6[contains(@class,'main-name') and text()='${displayName}']]//div[contains(@id,'Checkbox')]`,
+    expanderIconByName: (name) => {
+        return (
+            `//div[contains(@id,'NamesView') and child::p[contains(@class,'sub-name') and contains(.,'${name}')]]` +
+            `//ancestor::li[contains(@id,'ContentListElement')]//div[contains(@class,'toggle icon-arrow_drop_up')]`
+        );
     },
     // v6: text span inside each selected option row in SortableGridList
-    sortableGridListSelectedOptionText:
-        `//div[@data-component='SortableGridList']/div//span[contains(@class,'truncate')]`,
-}
+    sortableGridListSelectedOptionText: `//div[@data-component='SortableGridList']/div//span[contains(@class,'truncate')]`,
+};
 
 class BaseDropdown extends Page {
-
     get modeTogglerButton() {
         const base = this.dataComponentDiv ? this.container + this.dataComponentDiv : this.container;
         return base + DROPDOWN.MODE_TOGGLE;
@@ -51,10 +52,13 @@ class BaseDropdown extends Page {
     }
 
     async waitForOptionFilterInputDisabled(parentLocator = '') {
-        await this.getBrowser().waitUntil(async () => {
-            let result = await this.getAttribute(parentLocator + this.optionsFilterInput(), 'class');
-            return result.includes('disabled');
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Options Filter input should be disabled'});
+        await this.getBrowser().waitUntil(
+            async () => {
+                let result = await this.getAttribute(parentLocator + this.optionsFilterInput(), 'class');
+                return result.includes('disabled');
+            },
+            { timeout: appConst.mediumTimeout, timeoutMsg: 'Options Filter input should be disabled' },
+        );
     }
 
     async clickOnModeTogglerButton() {
@@ -78,7 +82,7 @@ class BaseDropdown extends Page {
 
     async waitForToggleIconDisplayed(parentElement) {
         try {
-            return await this.waitForElementDisplayed(parentElement + this.modeTogglerButton, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(parentElement + this.modeTogglerButton);
         } catch (err) {
             await this.handleError('Dropdown,  mode-toggle icon should be displayed.', 'err_toggle_mode_icon', err);
         }
@@ -101,7 +105,11 @@ class BaseDropdown extends Page {
             await this.waitForElementNotDisplayed(this.applySelectionButton);
         } catch (error) {
             // Handle errors gracefully and log the issue
-            await this.handleError('Failed to wait for Apply Selection button to disappear.', 'err_wait_apply_button', error);
+            await this.handleError(
+                'Failed to wait for Apply Selection button to disappear.',
+                'err_wait_apply_button',
+                error,
+            );
         }
     }
 
@@ -111,7 +119,11 @@ class BaseDropdown extends Page {
             await this.clickOnElement(this.applySelectionButton);
             await this.pause(1000);
         } catch (err) {
-            await this.handleError('Dropdown, tried to click on Apply Selection button.', 'err_click_apply_button', err);
+            await this.handleError(
+                'Dropdown, tried to click on Apply Selection button.',
+                'err_click_apply_button',
+                err,
+            );
         }
     }
 
@@ -120,7 +132,7 @@ class BaseDropdown extends Page {
         await this.waitUntilDisplayed(optionsFilterLocator);
         let elements = await this.getDisplayedElements(optionsFilterLocator);
         await elements[0].setValue(text);
-        return await this.pause(300);
+        return await this.pause(500);
     }
 
     async clearOptionsFilterInput() {
@@ -146,8 +158,11 @@ class BaseDropdown extends Page {
             await this.clickOnElement(locator);
             return await this.pause(400);
         } catch (err) {
-            await this.handleError(`Dropdown, tried to click on expander icon for list item: ${listItemName}`, 'err_click_expander_icon',
-                err);
+            await this.handleError(
+                `Dropdown, tried to click on expander icon for list item: ${listItemName}`,
+                'err_click_expander_icon',
+                err,
+            );
         }
     }
 
@@ -161,19 +176,21 @@ class BaseDropdown extends Page {
     }
 
     // Gets all displayName values in tree mode dropdown
-// Returns array of display names from all visible tree items
+    // Returns array of display names from all visible tree items
     async getOptionsDisplayNameInTreeMode() {
-        const locator = DROPDOWN.COMBOBOX_POPUP +
-                        "//div[@data-component='VirtualizedTreeList.Row' and @aria-level>'0']//div[@data-component='ContentLabel']//span[contains(@class,'font-semibold')]";
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        const locator =
+            DROPDOWN.COMBOBOX_POPUP +
+            "//div[@data-component='VirtualizedTreeList.Row' and @aria-level>'0']//div[@data-component='ContentLabel']//span[contains(@class,'font-semibold')]";
+        await this.waitForElementDisplayed(locator);
         await this.pause(500);
         return await this.getTextInDisplayedElements(locator);
     }
 
     async getOptionsDisplayNameInFlatMode() {
-        const locator = DROPDOWN.COMBOBOX_POPUP +
-                        "//div[@data-component='VirtualizedTreeList.Row']//div[@data-component='ContentLabel']//span[contains(@class,'font-semibold')]";
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        const locator =
+            DROPDOWN.COMBOBOX_POPUP +
+            "//div[@data-component='VirtualizedTreeList.Row']//div[@data-component='ContentLabel']//span[contains(@class,'font-semibold')]";
+        await this.waitForElementDisplayed(locator);
         await this.pause(200);
         return await this.getTextInDisplayedElements(locator);
     }
@@ -182,12 +199,15 @@ class BaseDropdown extends Page {
         try {
             let optionLocator = DROPDOWN.optionByDisplayName(optionDisplayName);
             // several hidden 'Listbox.Item' elements can be present in the DOM, so click on the displayed option:
-            await this.waitUntilDisplayed(optionLocator, appConst.mediumTimeout);
+            await this.waitUntilDisplayed(optionLocator);
             let elements = await this.getDisplayedElements(optionLocator);
             await elements[0].click();
         } catch (err) {
-            await this.handleError(`Dropdown Selector, tried to click on filtered by display name option: ${optionDisplayName}`,
-                'err_click_filtered_option', err);
+            await this.handleError(
+                `Dropdown Selector, tried to click on filtered by display name option: ${optionDisplayName}`,
+                'err_click_filtered_option',
+                err,
+            );
         }
     }
 
@@ -197,15 +217,19 @@ class BaseDropdown extends Page {
             await this.waitForElementDisplayed(optionLocator);
             await this.clickOnElement(optionLocator);
         } catch (err) {
-            await this.handleError(`Dropdown Selector, tried to click on filtered by display name option: ${optionDisplayName}`,
-                'err_click_filtered_option', err);
+            await this.handleError(
+                `Dropdown Selector, tried to click on filtered by display name option: ${optionDisplayName}`,
+                'err_click_filtered_option',
+                err,
+            );
         }
     }
 
     async clickOnOptionByDisplayNameInTreeMode(displayName) {
         try {
-            let locator = DROPDOWN.COMBOBOX_POPUP +
-                          `//div[@data-component='VirtualizedTreeList.Row' and @aria-level>'0' and descendant::div[@data-component='ContentLabel']//span[contains(@class,'font-semibold') and text()='${displayName}']]`;
+            let locator =
+                DROPDOWN.COMBOBOX_POPUP +
+                `//div[@data-component='VirtualizedTreeList.Row' and @aria-level>'0' and descendant::div[@data-component='ContentLabel']//span[contains(@class,'font-semibold') and text()='${displayName}']]`;
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             await this.clickOnElement(locator);
             return await this.pause(300);
@@ -217,11 +241,14 @@ class BaseDropdown extends Page {
     async clickOnTreeItemOptionByDisplayName(optionDisplayName) {
         try {
             let optionLocator = DROPDOWN.COMBOBOX_POPUP + DROPDOWN.treeItemByDisplayName(optionDisplayName);
-            await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(optionLocator);
             await this.clickOnElement(optionLocator);
         } catch (err) {
-            await this.handleError(`Dropdown Selector, tried to click on filtered by display name option: ${optionDisplayName}`,
-                'err_click_filtered_option', err);
+            await this.handleError(
+                `Dropdown Selector, tried to click on filtered by display name option: ${optionDisplayName}`,
+                'err_click_filtered_option',
+                err,
+            );
         }
     }
 
@@ -265,10 +292,11 @@ class BaseDropdown extends Page {
     }
 
     async getCheckedOptionsDisplayNameInDropdownList() {
-        let locator = DROPDOWN.COMBOBOX_POPUP +
-                      "//div[@data-component='VirtualizedTreeList.Row' and descendant::div[@data-component='VirtualizedTreeList.RowSelectionControl' and @aria-checked='true']]" +
-                      "//div[@data-component='ContentLabel']//span[contains(@class,'font-semibold')]";
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        let locator =
+            DROPDOWN.COMBOBOX_POPUP +
+            "//div[@data-component='VirtualizedTreeList.Row' and descendant::div[@data-component='VirtualizedTreeList.RowSelectionControl' and @aria-checked='true']]" +
+            "//div[@data-component='ContentLabel']//span[contains(@class,'font-semibold')]";
+        await this.waitForElementDisplayed(locator);
         return await this.getTextInDisplayedElements(locator);
     }
 
