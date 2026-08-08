@@ -51,7 +51,7 @@
     "jsondiffpatch": "^0.7.6",
     "lucide-react": "^1.27.0",
     "mousetrap": "^1.6.5",
-    "nanoid": "~6.0.0",
+    "nanoid": "~6.0.1",
     "nanostores": "^1.4.2",
     "neverthrow": "^8.2.0",
     "preact": "^10.29.8",
