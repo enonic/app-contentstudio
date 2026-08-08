@@ -54,7 +54,7 @@
     "nanoid": "~6.0.1",
     "nanostores": "^1.4.2",
     "neverthrow": "^8.2.0",
-    "preact": "^10.29.7",
+    "preact": "^10.29.8",
     "q": "^1.5.1",
     "react-resizable-panels": "4.12.2",
     "react-virtuoso": "^4.18.11",
