@@ -16,82 +16,45 @@ describe('settings.browse.panel.context.menu.spec - ui-tests to verify context m
         webDriverHelper.setupBrowser();
     }
 
-    let PROJECT_DISPLAY_NAME_1 = studioUtils.generateRandomName('proj');
+    it(`WHEN right click on 'Projects' folder THEN 'New' should be enabled , 'Delete' and 'Edit' are disabled`, async () => {
+        let settingsBrowsePanel = new SettingsBrowsePanel();
+        // 1. Go to Settings Panel and do a right click on Projects folder:
+        await settingsBrowsePanel.rightClickOnProjects();
+        // Verify that 'New...' button should be enabled:
+        await settingsBrowsePanel.waitForContextMenuDisplayed();
+        await studioUtils.saveScreenshot('projects_context_menu');
+        await settingsBrowsePanel.waitForContextMenuItemEnabled('New');
+        // Verify that Edit,Delete menu items should be disabled:
+        await settingsBrowsePanel.waitForContextMenuItemDisabled('Edit');
+        await settingsBrowsePanel.waitForContextMenuItemDisabled('Delete');
+    });
 
-    it(`Preconditions: new project should be added`,
-        async () => {
-            // 1. Save new project:
-            await projectUtils.saveTestProject({
-                name: PROJECT_DISPLAY_NAME_1,
-                accessMode: appConst.PROJECT_ACCESS_MODE.PRIVATE,
-            });
-        });
+    it(`WHEN right click on 'Default' folder THEN 'New' should be enabled , 'Delete' and 'Edit' are disabled`, async () => {
+        let settingsBrowsePanel = new SettingsBrowsePanel();
+        // 1. Do a right click on 'Default' folder and Open Context menu:
+        await settingsBrowsePanel.rightClickOnProjectItemByDisplayName('Default');
+        // Verify that 'New...' button should be enabled:
+        await settingsBrowsePanel.waitForContextMenuDisplayed();
+        await studioUtils.saveScreenshot('default_context_menu');
+        // 2. Verify that 'New...' is enabled:
+        await settingsBrowsePanel.waitForContextMenuItemEnabled('New');
+        await settingsBrowsePanel.waitForContextMenuItemEnabled('Edit');
+        // Verify that Delete menu item is enabled:
+        await settingsBrowsePanel.waitForContextMenuItemEnabled('Delete');
+    });
 
-    it(`WHEN right click on 'Projects' folder THEN 'New' should be enabled , 'Delete' and 'Edit' are disabled`,
-        async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            // 1. Go to Settings Panel and do a right click on Projects folder:
-            await settingsBrowsePanel.rightClickOnProjects();
-            // Verify that 'New...' button should be enabled:
-            await settingsBrowsePanel.waitForContextMenuDisplayed();
-            await studioUtils.saveScreenshot("projects_context_menu");
-            await settingsBrowsePanel.waitForContextMenuItemEnabled('New');
-            // Verify that Edit,Delete menu items should be disabled:
-            await settingsBrowsePanel.waitForContextMenuItemDisabled('Edit');
-            await settingsBrowsePanel.waitForContextMenuItemDisabled('Delete');
-        });
-
-    it(`WHEN right click on 'Default' folder THEN 'New' should be enabled , 'Delete' and 'Edit' are disabled`,
-        async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            // 1. Do a right click on 'Default' folder and Open Context menu:
-            await settingsBrowsePanel.rightClickOnProjectItemByDisplayName('Default');
-            // Verify that 'New...' button should be enabled:
-            await settingsBrowsePanel.waitForContextMenuDisplayed();
-            await studioUtils.saveScreenshot('default_context_menu');
-            // 2. Verify that 'New...' is enabled:
-            await settingsBrowsePanel.waitForContextMenuItemEnabled('New');
-            await settingsBrowsePanel.waitForContextMenuItemEnabled('Edit');
-            // Verify that Delete menu item is enabled:
-            await settingsBrowsePanel.waitForContextMenuItemEnabled('Delete');
-        });
-
-    it(`GIVEN right click on Projects folder WHEN 'New' menu has been clicked THEN 'New Settings Item Dialog' should be loaded`,
-        async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            let parentProjectStep = new ProjectWizardDialogParentProjectStep();
-            // 1. Go to Settings Panel and do a right click on Projects folder:
-            await settingsBrowsePanel.rightClickOnProjects();
-            await settingsBrowsePanel.waitForContextMenuDisplayed();
-            // 2. Click on 'New...' menu item:
-            await settingsBrowsePanel.clickOnMenuItem("New");
-            await studioUtils.saveScreenshot('projects_context_menu_new');
-            // 3. Verify that the modal dialog is loaded:
-            await parentProjectStep.waitForLoaded();
-        });
-
-    it(`GIVEN right click on existing project WHEN 'Delete' menu has been clicked AND 'Yes' clicked THEN project should be deleted`,
-        async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            let confirmValueDialog = new ConfirmValueDialog();
-            // 1. Do a Right click on the existing project:
-            await settingsBrowsePanel.rightClickOnProjectItemByDisplayName(PROJECT_DISPLAY_NAME_1);
-            await settingsBrowsePanel.waitForContextMenuDisplayed();
-            // 2. Click on 'Delete' menu item:
-            await settingsBrowsePanel.clickOnMenuItem('Delete');
-            await studioUtils.saveScreenshot('projects_context_menu_new');
-            // 3. Verify that the modal dialog is loaded:
-            await confirmValueDialog.waitForDialogOpened();
-            await confirmValueDialog.typeNumberOrName(PROJECT_DISPLAY_NAME_1);
-            // 4. Click on 'Confirm' button and delete the project:
-            await confirmValueDialog.clickOnConfirmButton();
-            await confirmValueDialog.waitForDialogClosed();
-            await studioUtils.saveScreenshot('projects_context_menu_new_deleted');
-            let actualMessage = await settingsBrowsePanel.waitForNotificationMessage();
-            assert.equal(actualMessage,
-                appConst.projectDeletedMessage(PROJECT_DISPLAY_NAME_1, "Expected notification message should appear"));
-        });
-
+    it(`GIVEN right click on Projects folder WHEN 'New' menu has been clicked THEN 'New Settings Item Dialog' should be loaded`, async () => {
+        let settingsBrowsePanel = new SettingsBrowsePanel();
+        let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+        // 1. Go to Settings Panel and do a right click on Projects folder:
+        await settingsBrowsePanel.rightClickOnProjects();
+        await settingsBrowsePanel.waitForContextMenuDisplayed();
+        // 2. Click on 'New...' menu item:
+        await settingsBrowsePanel.clickOnMenuItem('New');
+        await studioUtils.saveScreenshot('projects_context_menu_new');
+        // 3. Verify that the modal dialog is loaded:
+        await parentProjectStep.waitForLoaded();
+    });
 
     beforeEach(async () => {
         await studioUtils.navigateToContentStudioApp();

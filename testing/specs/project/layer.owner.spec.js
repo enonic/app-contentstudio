@@ -1,5 +1,5 @@
 /**
- * Created on 14.08.2020.
+ * Created on 14.08.2020.  updated on 10.08.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -19,7 +19,6 @@ const ProjectWizardDialogPermissionsStep = require('../../page_objects/project/p
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
 const SourceCodeDialog = require('../../page_objects/wizardpanel/html.source.code.dialog');
 const PageComponentView = require('../../page_objects/wizardpanel/liveform/page.components.view');
-const TextComponentCke = require('../../page_objects/components/text.component');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const LanguageAndParentProjectStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');

@@ -6,26 +6,26 @@ module.exports = Object.freeze({
         return part + Math.round(Math.random() * 1000000);
     },
     itemMarkedAsReadyMessage(name) {
-        return `Item \"${name}\" has been marked as ready.`
+        return `Item \"${name}\" has been marked as ready.`;
     },
     itemIsArchived(name) {
-        return `Item \"${name}\" has been archived.`
+        return `Item \"${name}\" has been archived.`;
     },
 
     itemSavedNotificationMessage(name) {
-        return `Item \"${name}\" has been saved.`
+        return `Item \"${name}\" has been saved.`;
     },
-    languageCopiedNotification: parent => `Language has been copied from \"${parent}\"`,
+    languageCopiedNotification: (parent) => `Language has been copied from \"${parent}\"`,
     itemPublishedNotificationMessage: (name) => {
-        return `Item \"${name}\" has been published.`
+        return `Item \"${name}\" has been published.`;
     },
     issueClosedNotificationMessage(name) {
-        return `Issue \"${name}\" has been closed.`
+        return `Issue \"${name}\" has been closed.`;
     },
     sortOrderTitle(by, order) {
-        return `Sorted by \"${by}\" in ${order} order`
+        return `Sorted by \"${by}\" in ${order} order`;
     },
-    projectModifiedMessage: displayName => `Project \"${displayName}\" has been modified.`,
+    projectModifiedMessage: (displayName) => `Project \"${displayName}\" has been modified.`,
     markedAsReadyMessage: function (name) {
         return `Item \"${name}\" has been marked as ready.`;
     },
@@ -36,7 +36,7 @@ module.exports = Object.freeze({
         return `Issue \"${name}\" has been closed.`;
     },
     contentSettingsUpdated(displayName) {
-        return `Settings for \"${displayName}\" have been updated.`
+        return `Settings for \"${displayName}\" have been updated.`;
     },
     saveFailedAttempt(name) {
         return `Content \[${name}\] could not be updated. A content with that name already exists`;
@@ -50,12 +50,12 @@ module.exports = Object.freeze({
     requiredValidationMessage: (occurrences) => {
         return `Min ${occurrences} valid occurrence(s) required`;
     },
-    issueClosedBy: userName => {
-        return `Closed by user:system:${userName}`
+    issueClosedBy: (userName) => {
+        return `Closed by user:system:${userName}`;
     },
-    projectCreatedMessage: name => `Project \"${name}\" has been created.`,
-    projectNameAlreadyExistsMessage: name => `Project with name [${name}] already exists`,
-    projectDeletedMessage: name => `Project \"${name}\" has been deleted.`,
+    projectCreatedMessage: (name) => `Project \"${name}\" has been created.`,
+    projectNameAlreadyExistsMessage: (name) => `Project with name [${name}] already exists`,
+    projectDeletedMessage: (name) => `Project \"${name}\" has been deleted.`,
 
     TEST_FOLDER_WITH_IMAGES: 'All Content types images',
     TEST_FOLDER_WITH_IMAGES_NAME: 'all-content-types-images',
@@ -67,8 +67,8 @@ module.exports = Object.freeze({
     APP_CONTENT_TYPES: 'All Content Types App',
     MY_FIRST_APP: 'My First App',
     THIS_FIELD_IS_REQUIRED: 'This field is required',
-    PROJECT_UNSAVED_CHANGES_MESSAGE: "There are unsaved changes, do you want to save them before closing?",
-    TAB_TITLE_PART: "/ Content",
+    PROJECT_UNSAVED_CHANGES_MESSAGE: 'There are unsaved changes, do you want to save them before closing?',
+    TAB_TITLE_PART: '/ Content',
     CONTENT_STUDIO_TITLE: 'Content Studio',
     ACCESSIBILITY_ATTRIBUTES: {
         ROLE: 'role',
@@ -79,15 +79,14 @@ module.exports = Object.freeze({
         CONTENT_STUDIO: 'Content Studio - Enonic XP Admin',
         XP_HOME: 'Enonic XP Home',
         APPLICATIONS_TITLE: `Applications - Enonic XP Admin`,
-
     },
     NOTIFICATION_MESSAGES: {
         PERMISSIONS_APPLIED: 'Permissions have been applied.',
         YOUR_COMMENT_ADDED: 'A comment has been added to the issue.',
         LOCALIZED_MESSAGE_1: 'Language was copied from current project.',
         LOCALIZED_MESSAGE_2: 'Inherited content has been localized',
-        NO_CHANGES_TO_REVERT_MESSAGE: "No changes to revert.",
-        ISSUE_CREATED_MESSAGE: "The issue has been created.",
+        NO_CHANGES_TO_REVERT_MESSAGE: 'No changes to revert.',
+        ISSUE_CREATED_MESSAGE: 'The issue has been created.',
         ISSUE_CLOSED_MESSAGE: 'The issue has been closed.',
         REQUEST_CREATED_MESSAGE: 'The publish request has been created.',
         PUBLISH_REQUEST_CLOSED_MESSAGE: 'The publish request has been closed.',
@@ -101,21 +100,21 @@ module.exports = Object.freeze({
         CONTENT_REVERTED: 'The content has been reverted',
         INHERITED_CONTENT_LOCALIZED: 'The inherited content has been localized.',
         applicationsCopiedFromParent: (name) => {
-            return `Applications successfully copied from \"${name}\"`
+            return `Applications successfully copied from \"${name}\"`;
         },
         permissionsAppliedNotificationMessage: (name) => {
-            return `Permissions for \"${name}\" are applied.`
+            return `Permissions for \"${name}\" are applied.`;
         },
         fragmentCreated: (part) => {
-            return `The fragment has been created from \"${part}\"`
-        }
+            return `The fragment has been created from \"${part}\"`;
+        },
     },
     TEST_DATA: {
         TEST_FOLDER_IMAGES_1_DISPLAY_NAME: 'All Content types images',
         TEST_FOLDER_IMAGES_1_NAME: 'all-content-types-images',
         FOLDER_WITH_IMAGES_2_DISPLAY_NAME: 'Images for simple page',
         FOLDER_WITH_IMAGES_2_NAME: 'imagearchive',
-        SELENIUM_TESTS_FOLDER_DISPLAY_NAME: "folder for selenium tests",
+        SELENIUM_TESTS_FOLDER_DISPLAY_NAME: 'folder for selenium tests',
         SELENIUM_TESTS_FOLDER_NAME: 'selenium-tests-folder',
         IMPORTED_SITE_NAME: 'site040269',
         IMPORTED_SITE_837567: 'site837567',
@@ -140,22 +139,22 @@ module.exports = Object.freeze({
         PUBLISHED: 'Published',
         CHANGED: 'Changed',
         MOVED: 'Moved',
-        RENAMED: 'Renamed'
+        RENAMED: 'Renamed',
     },
 
     COMPARE_VERSIONS_DLG_PROP: {
         LANGUAGE: 'language',
         MODIFIED_TIME: 'modifiedTime',
         INHERIT_PERM: 'inheritPermissions',
-        WORKFLOW: 'workflow'
+        WORKFLOW: 'workflow',
     },
     ACCESS_WIDGET_HEADER: {
         RESTRICTED_ACCESS: 'Restricted access to item',
-        EVERYONE_CAN_READ: 'Everyone can read this item'
+        EVERYONE_CAN_READ: 'Everyone can read this item',
     },
     PROJECT_SYNC: {
         STARTED: 'Content synchronization job has started',
-        FINISHED: 'Content synchronization job has finished'
+        FINISHED: 'Content synchronization job has finished',
     },
     PASSWORD: {
         MEDIUM: 'AUserA567$',
@@ -165,27 +164,27 @@ module.exports = Object.freeze({
     LAST_MODIFIED_ENTRY: {
         WEEK: 'week',
         DAY: 'day',
-        HOUR: 'hour'
+        HOUR: 'hour',
     },
     URL_TYPE_OPTION: {
         HTTPS: 'Https',
         HTTP: 'Http',
         FTP: 'Ftp',
         TEL: 'Tel',
-        RELATIVE: 'Relative'
+        RELATIVE: 'Relative',
     },
     LIVE_EDIT: {
-        REGION_MAIN_DISPLAY_NAME: 'MAIN'
+        REGION_MAIN_DISPLAY_NAME: 'MAIN',
     },
 
     VALIDATION_MESSAGE: {
         TEXT_IS_TOO_LONG: 'Text is too long',
         INVALID_VALUE_ENTERED: 'Invalid value entered',
-        SCHEDULE_FORM_ONLINE_PAST: "Online To cannot be in the past",
-        SCHEDULE_FORM_ONLINE_FROM_EMPTY: "Online to cannot be set without Online from",
+        SCHEDULE_FORM_ONLINE_PAST: 'Online To cannot be in the past',
+        SCHEDULE_FORM_ONLINE_FROM_EMPTY: 'Online to cannot be set without Online from',
         THIS_FIELD_IS_REQUIRED: 'This field is required',
-        SINGLE_SELECTION_OPTION_SET: "At least one option must be selected",
-        LINK_PARAMETERS: "All parameters must have a name",
+        SINGLE_SELECTION_OPTION_SET: 'At least one option must be selected',
+        LINK_PARAMETERS: 'All parameters must have a name',
         PROJECT_IS_OCCUPIED: 'This project identifier is occupied',
     },
     ISSUES: {
@@ -196,7 +195,7 @@ module.exports = Object.freeze({
     PROJECT_ACCESS_MODE: {
         PRIVATE: 'Private',
         PUBLIC: 'Public',
-        CUSTOM: 'Custom'
+        CUSTOM: 'Custom',
     },
     //waitForTimeout
     mediumTimeout: 4000,
@@ -222,14 +221,14 @@ module.exports = Object.freeze({
         LAYERS: 'Layers',
         EMULATOR: 'Emulator',
         PAGE: 'Page',
-        DETAILS: 'Details'
+        DETAILS: 'Details',
     },
     PAGE_WIDGET: {
-        NO_SELECTED_CONTROLLER_MSG: 'No page templates or components available'
+        NO_SELECTED_CONTROLLER_MSG: 'No page templates or components available',
     },
     CONTEXT_WINDOW_TABS: {
         INSPECT: 'Inspect',
-        INSERT: 'INSERT'
+        INSERT: 'INSERT',
     },
     CONTROLLER_NAME: {
         DEFAULT: 'default',
@@ -270,9 +269,9 @@ module.exports = Object.freeze({
         MEDIUM_PHONE: 'Medium Phone',
         LARGE_PHONE: 'Large Phone',
         TABLET: 'Tablet',
-        NOTEBOOK_13: "13\" Notebook",
+        NOTEBOOK_13: '13" Notebook',
         SMALL_PHONE: 'Small Phone',
-        NOTEBOOK_15: "15\" Notebook",
+        NOTEBOOK_15: '15" Notebook',
     },
     EMULATOR_RESOLUTION_VALUE: {
         FULL_SIZE: '100%',
@@ -286,14 +285,15 @@ module.exports = Object.freeze({
     ACCESS_MENU_ITEM: {
         CUSTOM: 'Custom...',
         CAN_PUBLISH: 'Can Publish',
-        FULL_ACCESS: 'Full Access'
+        FULL_ACCESS: 'Full Access',
     },
     TEMPLATE_SUPPORT: {
         SITE: 'Site',
     },
     SORTING_ORDER: {
-        MODIFIED_DATE_OLD_TO_NEW: "Modified date (Old to new)",
-        DISPLAY_NAME_A_Z: "Display name (A-Z)",
+        MODIFIED_DATE_OLD_TO_NEW: 'Modified date (Old to new)',
+        DISPLAY_NAME_A_Z: 'Display name (A-Z)',
+        MANUALLY_SORTED: 'Manually sorted',
     },
     TEST_IMAGES: {
         HAND: 'hand',
@@ -331,35 +331,35 @@ module.exports = Object.freeze({
         EDIT: 'Edit',
         EDIT_FRAGMENT: 'Edit Fragment',
         SELECT_PARENT: 'Select parent',
-        RESET: 'Reset'
+        RESET: 'Reset',
     },
     PROJECTS: {
         ROOT_FOLDER: 'Projects',
         ROOT_FOLDER_DESCRIPTION: 'Manage projects and layers',
-        DEFAULT_PROJECT_NAME: 'Default'
+        DEFAULT_PROJECT_NAME: 'Default',
     },
     PROJECT_ROLES: {
         CONTRIBUTOR: 'Contributor',
         AUTHOR: 'Author',
         EDITOR: 'Editor',
         OWNER: 'Owner',
-        VIEWER: 'Viewer'
+        VIEWER: 'Viewer',
     },
     SHOW_ISSUES_BUTTON_LABEL: {
         NO_OPEN_ISSUES: 'No open issues',
-        OPEN_ISSUES: 'Open Issues'
+        OPEN_ISSUES: 'Open Issues',
     },
 
     LANGUAGES: {
         EN: 'English (en)',
         NORSK_NORGE: 'norsk (Norge) (no-NO)',
         NORSK_NO: 'norsk (no)',
-        DEUTSCH_DE: 'Deutsch (de)'
+        DEUTSCH_DE: 'Deutsch (de)',
     },
     RADIO_OPTION: {
-        OPTION_A: "option A",
-        OPTION_B: "option B",
-        OPTION_C: "option C",
+        OPTION_A: 'option A',
+        OPTION_B: 'option B',
+        OPTION_C: 'option C',
     },
     contentTypes: {
         SHORTCUT: 'Shortcut',
@@ -381,7 +381,7 @@ module.exports = Object.freeze({
         DOUBLE_DEFAULT_2_4: 'double2_4_def',
         DOUBLE_0_1: 'double0_1',
         DOUBLE_0_0: 'double0_0',
-        DOUBLE_1_1_X_DATA: "double1_1",
+        DOUBLE_1_1_X_DATA: 'double1_1',
         DOUBLE_2_4: 'double2_4',
         LONG_MIN_MAX: 'long_max',
         TEXTAREA_MAX_LENGTH: 'textarea_conf',
@@ -442,7 +442,7 @@ module.exports = Object.freeze({
         CUSTOM: 'Custom...',
         CAN_PUBLISH: 'Can Publish',
         CAN_READ: 'Can Read',
-        CAN_WRITE: 'Can Write'
+        CAN_WRITE: 'Can Write',
     },
     permissionOperation: {
         READ: 'Read',
@@ -455,7 +455,7 @@ module.exports = Object.freeze({
     },
     roleName: {
         ADMINISTRATOR: 'system.admin',
-        CM_ADMIN: 'cms.admin'
+        CM_ADMIN: 'cms.admin',
     },
     roleDisplayName: {
         CONTENT_MANAGER_APP: 'Content Manager App',
@@ -479,11 +479,10 @@ module.exports = Object.freeze({
             MANUALLY_SORTED: 'Manually sorted',
             MODIFIED_DATE: 'Modified date',
             CREATED_DATE: 'Created date',
-            PUBLISHED_DATE: "Published date",
+            PUBLISHED_DATE: 'Published date',
         },
         ASCENDING: 'ascending',
-        DESCENDING: 'descending'
-
+        DESCENDING: 'descending',
     },
     STATUS_WIDGET: {
         NEW: 'NEW',
@@ -517,7 +516,7 @@ module.exports = Object.freeze({
         PUBLISH_TREE: 'Publish tree',
         MARK_AS_READY: 'Mark as ready',
         UNPUBLISH: 'Unpublish',
-        CREATE_ISSUE: 'Create issue'
+        CREATE_ISSUE: 'Create issue',
     },
     GRID_CONTEXT_MENU: {
         NEW: 'New',
@@ -529,17 +528,17 @@ module.exports = Object.freeze({
         RESTORE: 'Restore',
         PREVIEW: 'Preview',
         PUBLISH: 'Publish',
-        UNPUBLISH: 'Unpublish'
+        UNPUBLISH: 'Unpublish',
     },
     ICON_WORKFLOW_STATE: {
         IN_PROGRESS: 'in-progress',
         READY_FOR_PUBLISHING: 'ready',
-        INVALID: 'invalid'
+        INVALID: 'invalid',
     },
     WORKFLOW_STATE: {
         WORK_IN_PROGRESS: 'In progress',
         READY_FOR_PUBLISHING: 'Ready for publishing',
-        PUBLISHED: 'Published'
+        PUBLISHED: 'Published',
     },
     FILTER_PANEL_AGGREGATION_BLOCK: {
         CONTENT_TYPES: 'Content Types',
@@ -548,7 +547,7 @@ module.exports = Object.freeze({
         LAST_MODIFIED_BY: 'Last Modified by',
         OWNER: 'Owner',
         LANGUAGE: 'Language',
-        IMAGE: 'Image'
+        IMAGE: 'Image',
     },
     ISSUE_LIST_TYPE_FILTER: {
         ALL: 'All',
@@ -577,7 +576,7 @@ module.exports = Object.freeze({
         AUTOMATIC: 'Automatic',
         ENONIC_RENDERING: 'Standard',
         MEDIA: 'Media',
-        JSON: 'JSON'
+        JSON: 'JSON',
     },
     INSPECT_PANEL_TEMPLATE_CONTROLLER: {
         AUTOMATIC: 'Automatic',
@@ -597,12 +596,12 @@ module.exports = Object.freeze({
         CAN_NOT_RENDER_NON_MEDIA: 'Can not render non-media content',
         PREVIEW_NOT_AVAILABLE: 'No preview available',
         CAN_NOT_RENDER_WITH_SITE_ENGINE: 'Can not render with site engine',
-        PREVIEW_NOT_AVAILABLE_ADD_APP: 'Please add an application to your site to enable preview'
+        PREVIEW_NOT_AVAILABLE_ADD_APP: 'Please add an application to your site to enable preview',
     },
     X_DATA_NAME: {
         TEXT_AREA_X_DATA_NAME: 'Text Area x-data',
         HTML_AREA_X_DATA_NAME: 'Html Area x-data',
-        IMAGE_X_DATA_NAME: 'X-data (image selector)'
+        IMAGE_X_DATA_NAME: 'X-data (image selector)',
     },
     PERMISSIONS_DIALOG: {
         APPLY_TO: {
@@ -612,6 +611,6 @@ module.exports = Object.freeze({
         ACCESS_MODE: {
             RESTRICTED: 'Restricted',
             PUBLIC: 'Public',
-        }
-    }
+        },
+    },
 });
