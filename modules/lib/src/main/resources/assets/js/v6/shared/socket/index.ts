@@ -20,6 +20,7 @@ export {
     stop as stopSocketService,
     isRunning as isSocketServiceRunning,
 } from './socket.service';
+export { useContentUpdateListener } from './useContentUpdateListener';
 
 //
 // * Read-only views
