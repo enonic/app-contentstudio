@@ -1,7 +1,7 @@
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { type ContentSummary } from '../../../../../app/content/ContentSummary';
 import { HTMLAreaHelper } from '../../../../../app/inputtype/ui/text/HTMLAreaHelper';
 import { HtmlEditor } from '../../../../../app/inputtype/ui/text/HtmlEditor';
@@ -11,6 +11,7 @@ import { Styles } from '../../../../../app/inputtype/ui/text/styles/Styles';
 import { type Project } from '../../../../../app/settings/data/project/Project';
 import { ImageHelper } from '../../../../../app/util/ImageHelper';
 import { isBlank } from '../../../../shared/lib/format/isBlank';
+import { useContentUpdateListener } from '../../../../shared/socket';
 import { buildImagePreviewUrl, buildImageRenderUrl } from '../../../../shared/lib/url/images';
 import { appendUrlParams, decodeUrlParams, trimUrlParams } from '../../../../shared/lib/url/params';
 import { fetchContentById } from '../../../../entities/content';
@@ -121,6 +122,13 @@ function getAlignmentWidth(alignment: Alignment): number {
         default:
             return 100;
     }
+}
+
+// A fetch that resolved out of order must not roll back fresher content.
+function isStaleFetch(fetched: ContentSummary, known: ContentSummary | undefined): boolean {
+    const fetchedMs = fetched.getModifiedTime()?.getTime();
+    const knownMs = known?.getModifiedTime()?.getTime();
+    return fetchedMs != null && knownMs != null && fetchedMs < knownMs;
 }
 
 function computeValidationErrors(state: HtmlAreaImageDialogState): Record<string, string> {
@@ -470,6 +478,9 @@ export function HtmlAreaImageDialogProvider({ children, openRef }: HtmlAreaImage
                     if (!prev.open || prev.selectedImageId !== imageId) {
                         return prev;
                     }
+                    if (isStaleFetch(imageContent, prev.selectedImageContent)) {
+                        return prev;
+                    }
                     return { ...prev, selectedImageContent: imageContent };
                 });
             },
@@ -479,18 +490,31 @@ export function HtmlAreaImageDialogProvider({ children, openRef }: HtmlAreaImage
         );
     }, []);
 
-    const loadImageContentById = useCallback((imageId: string) => {
+    const loadImageContentById = useCallback((imageId: string, options?: { fromServerEvent?: boolean }) => {
         fetchContentById(imageId, stateRef.current.project?.getName()).match(
             (content) => {
                 setState((prev) => {
                     if (!prev.open || prev.selectedImageId !== imageId) {
                         return prev;
                     }
+                    if (isStaleFetch(content, prev.selectedImageContent)) {
+                        return prev;
+                    }
+
+                    const serverAltText = ImageHelper.getImageAltText(content) || '';
+
+                    const switchToInformative =
+                        (options?.fromServerEvent ?? false) &&
+                        prev.accessibility === '' &&
+                        isBlank(prev.altText) &&
+                        !isBlank(serverAltText);
+
                     return {
                         ...prev,
                         selectedImageContent: content,
-                        altText: prev.altText || ImageHelper.getImageAltText(content) || '',
+                        altText: prev.altText || serverAltText,
                         caption: prev.caption || ImageHelper.getImageCaption(content) || '',
+                        accessibility: switchToInformative ? 'informative' : prev.accessibility,
                     };
                 });
             },
@@ -522,6 +546,27 @@ export function HtmlAreaImageDialogProvider({ children, openRef }: HtmlAreaImage
         );
     }, []);
 
+    // Refresh the selected image when another user or process updates it on the server.
+
+    const handleImageServerUpdate = useCallback(
+        (summary: ContentSummary) => {
+            const s = stateRef.current;
+            if (s.uploading) {
+                return;
+            }
+
+            // Echo/stale guard: our state already carries this or a newer modifiedTime.
+            const knownMs = s.selectedImageContent?.getModifiedTime()?.getTime();
+            const eventMs = summary.getModifiedTime()?.getTime();
+            if (knownMs != null && eventMs != null && eventMs <= knownMs) {
+                return;
+            }
+
+            loadImageContentById(summary.getId(), { fromServerEvent: true });
+        },
+        [loadImageContentById],
+    );
+
     // Load preset image content when opening with an existing image
 
     useEffect(() => {
@@ -537,6 +582,8 @@ export function HtmlAreaImageDialogProvider({ children, openRef }: HtmlAreaImage
         state.project,
         loadPresetImageContent,
     ]);
+
+    useContentUpdateListener(state.open ? state.selectedImageId : undefined, handleImageServerUpdate);
 
     // Actions
 
