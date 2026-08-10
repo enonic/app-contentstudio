@@ -212,7 +212,7 @@ const DROPDOWN = {
         "//div[@role='treeitem' and @aria-level='0']//div[@data-component='ContentLabel']/div[2]/span",
     COMBOBOX_POPUP: "//div[@data-component='Combobox.Popup' and (@data-combobox-popup='' or @data-combobox-popup)]",
     buttonComboboxByLabel: (label) => `//span[contains(.,'${label}')]/following-sibling::button[@role='combobox']`,
-    CONTENT_COMBOBOX: "//div[@data-component='ContentCombobox')]",
+    CONTENT_COMBOBOX: "//div[@data-component='ContentCombobox']",
     DROPDOWN_HANDLE: "//button[@aria-label='Toggle']",
     LISTBOX_OPTIONS_DIV: "//div[contains(@role,'listbox')]",
     imageItemView: (imageDisplayName) =>

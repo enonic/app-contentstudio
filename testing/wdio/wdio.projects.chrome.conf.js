@@ -11,17 +11,12 @@ exports.config = {
 
     exclude: [
         path.join(__dirname, '../specs/project/layers.content.tree.dialog.spec.js'),
-        path.join(__dirname, '../specs/project/localize.inherited.site.spec.js'),
         path.join(__dirname, '../specs/project/project.author.spec.js'),
         path.join(__dirname, '../specs/project/project.contributor.spec.js'),
         path.join(__dirname, '../specs/project/project.create.roles.in.users.app.spec.js'),
-        path.join(__dirname, '../specs/project/project.editor.spec.js'),
         path.join(__dirname, '../specs/project/project.layer.delete.spec.js'),
-        path.join(__dirname, '../specs/project/project.owner.spec.js'),
-        path.join(__dirname, '../specs/project/project.viewer.spec.js'),
         path.join(__dirname, '../specs/project/project.wizard.dialog.select.parent.lower.case.spec.js'),
         path.join(__dirname, '../specs/project/settings.item.statistics.panel.spec.js'),
-        path.join(__dirname, '../specs/project/user.content.manager.expert.spec.js'),
     ],
 
     maxInstances: 1,

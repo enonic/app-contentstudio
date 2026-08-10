@@ -1,28 +1,26 @@
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
-const {BUTTONS, DROPDOWN} = require('../../libs/elements');
+const { BUTTONS, DROPDOWN } = require('../../libs/elements');
 const XPATH = {
     container: `//div[@data-component='Dialog.Content' and descendant::h2[text()='Sort items']]`,
     sortElementSelector: "//div[@data-component='SortElementSelector']",
     sortElementSelectedValue: "//span[@data-component='Selector.Value']",
     cancelButton: "//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]",
     menuButton: "//div[contains(@id,'SortContentTabMenu')]//div[contains(@id,'TabMenuButton')]",
-    sortMenuItem:
-        by => `//li[contains(@id,'SortContentTabMenuItem') and child::a[text()='${by}']]`,
+    sortMenuItem: (by) => `//li[contains(@id,'SortContentTabMenuItem') and child::a[text()='${by}']]`,
     contentListItemDisplayName: "//div[@data-component='SortContentListItem']//span[contains(@class,'font-semibold')]",
-    contentListItemByName:
-        name => `//div[@data-component='SortContentListItem' and descendant::span[contains(@class,'font-semibold') and text()='${name}']]`,
+    contentListItemByName: (name) =>
+        `//div[@data-component='SortContentListItem' and descendant::span[contains(@class,'font-semibold') and text()='${name}']]`,
     // The dnd-kit sortable wrapper (carries the drag listeners and keyboard sensor focus):
-    draggableItemByName:
-        name => `//div[@role='button' and @aria-roledescription='sortable' and descendant::span[contains(@class,'font-semibold') and text()='${name}']]`,
+    draggableItemByName: (name) =>
+        `//div[@role='button' and @aria-roledescription='sortable' and descendant::span[contains(@class,'font-semibold') and text()='${name}']]`,
     // Sort-element dropdown options are rendered in a portal (Selector.Content), outside the dialog container:
     sortElementOption: "//div[@data-component='Selector.Content']//span[@data-component='Selector.ItemText']",
-    sortElementOptionByText:
-        option => `//div[@data-component='Selector.Content']//div[@data-component='Selector.Item' and descendant::span[@data-component='Selector.ItemText' and text()='${option}']]`,
+    sortElementOptionByText: (option) =>
+        `//div[@data-component='Selector.Content']//div[@data-component='Selector.Item' and descendant::span[@data-component='Selector.ItemText' and text()='${option}']]`,
 };
 
 class SortContentDialog extends Page {
-
     get closeButton() {
         return XPATH.container + BUTTONS.buttonAriaLabel('Close');
     }
@@ -43,7 +41,11 @@ class SortContentDialog extends Page {
             await this.waitForDialogClosed();
             return await this.pause(1200);
         } catch (err) {
-            await this.handleError('Sort Content Dialog, error on clicking Save button: ', 'err_click_sort_save_button', err);
+            await this.handleError(
+                'Sort Content Dialog, error on clicking Save button: ',
+                'err_click_sort_save_button',
+                err,
+            );
         }
     }
 
@@ -61,35 +63,18 @@ class SortContentDialog extends Page {
 
     async waitForDialogClosed() {
         try {
-            await this.waitForElementNotDisplayed(XPATH.container, appConst.longTimeout)
+            await this.waitForElementNotDisplayed(XPATH.container, appConst.longTimeout);
         } catch (err) {
-            await this.handleError('Sort Content Dialog, error on waiting for dialog closed: ', 'err_wait_for_sort_dialog_closed', err);
+            await this.handleError(
+                'Sort Content Dialog, error on waiting for dialog closed: ',
+                'err_wait_for_sort_dialog_closed',
+                err,
+            );
         }
     }
 
     clickOnCloseButton() {
         return this.clickOnElement(this.closeButton);
-    }
-
-    //expand menu-options('Modified date', 'Display name'...)
-    async clickOnMenuButton() {
-        //await this.waitForElementDisplayed(this.menuButton,appConst.TIMEOUT_4);
-        await this.clickOnElement(this.menuButton);
-        return await this.pause(500);
-    }
-
-    async selectSortMenuItem(by, order) {
-        let menuItemXpath = XPATH.container + XPATH.sortMenuItem(by);
-        let fullSelector;
-        if (order === 'ascending') {
-            fullSelector = menuItemXpath + "//button[@title='Sort in ascending order']"
-        } else if (order === 'descending') {
-            fullSelector = menuItemXpath + "//button[@title='Sort in descending order']"
-        } else {
-            fullSelector = menuItemXpath;
-        }
-        await this.clickOnElement(fullSelector);
-        return await this.pause(300);
     }
 
     async getMenuItems() {
@@ -113,7 +98,9 @@ class SortContentDialog extends Page {
             let sourceIndex = names.indexOf(sourceContentName);
             let destinationIndex = names.indexOf(destinationContentName);
             if (sourceIndex === -1 || destinationIndex === -1) {
-                throw new Error(`Item not found - source: '${sourceContentName}' (${sourceIndex}), destination: '${destinationContentName}' (${destinationIndex})`);
+                throw new Error(
+                    `Item not found - source: '${sourceContentName}' (${sourceIndex}), destination: '${destinationContentName}' (${destinationIndex})`,
+                );
             }
             // Focus the sortable wrapper of the source item:
             let source = await this.findElement(XPATH.container + XPATH.draggableItemByName(sourceContentName));
@@ -164,4 +151,3 @@ class SortContentDialog extends Page {
 }
 
 module.exports = SortContentDialog;
-

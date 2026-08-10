@@ -248,6 +248,7 @@ class ContentWizardPanel extends Page {
     async clickOnLocalizeButton() {
         await this.waitForLocalizeButtonEnabled();
         await this.clickOnElement(this.localizeButton);
+        await this.pause(500);
     }
 
     async clickOnHelpTextsToggler() {
