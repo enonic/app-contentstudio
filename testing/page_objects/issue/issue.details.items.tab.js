@@ -1,30 +1,21 @@
 const BaseIssueDetailsDialog = require('./base.details.dialog');
-const {DROPDOWN, COMMON, BUTTONS, ISSUE, DIALOG_ITEMS, TREE_GRID} = require('../../libs/elements');
-const appConst = require('../../libs/app_const');
-const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
+const { DROPDOWN, BUTTONS, DIALOG_ITEMS } = require('../../libs/elements');
 const DependantsControls = require('./dependant.controls');
 const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
-const DiffStatusBadge = require("../components/diff.status.badge");
+const DiffStatusBadge = require('../components/diff.status.badge');
 
 const xpath = {
     container: `//div[@data-component='IssueDialogDetailsContent' and @role='dialog']`,
-    mainItemDivByName: name => DIALOG_ITEMS.PRIMARY_DATA_COMPONENT + DIALOG_ITEMS.mainItemRowByName(name),
-    includeChildrenToggler: `//div[contains(@id,'IncludeChildrenToggler')]`,
 };
 
 class IssueDetailsDialogItemsTab extends BaseIssueDetailsDialog {
-
     constructor() {
         super();
         this.dependantsControls = new DependantsControls(xpath.container);
     }
 
     get itemsComboboxDropdownHandle() {
-        return xpath.container + DROPDOWN.CONTENT_COMBOBOX + DROPDOWN.DROP_DOWN_HANDLE;
-    }
-
-    get showExcludedItemsButton() {
-        return xpath.container + lib.togglerButton('Show excluded');
+        return xpath.container + DROPDOWN.CONTENT_COMBOBOX + DROPDOWN.DROPDOWN_HANDLE;
     }
 
     async clickOnContentSelectorModeTogglerButton() {
@@ -61,7 +52,7 @@ class IssueDetailsDialogItemsTab extends BaseIssueDetailsDialog {
             let contentSelectorDropdown = new ContentSelectorDropdown(xpath.container);
             await contentSelectorDropdown.waitForOptionFilterInputDisabled();
         } catch (err) {
-            throw new Error(' `Options filter input` should be disabled in Issue Details ' + err)
+            throw new Error(' `Options filter input` should be disabled in Issue Details ' + err);
         }
     }
 
@@ -82,28 +73,32 @@ class IssueDetailsDialogItemsTab extends BaseIssueDetailsDialog {
         return await diffStatusBadge.getStatusText();
     }
 
-
     async excludeMainItem(name) {
-        const locator = xpath.container + DIALOG_ITEMS.PRIMARY_DATA_COMPONENT +
-            DIALOG_ITEMS.mainItemRowByName(name) + BUTTONS.buttonAriaLabel('Remove from list');
+        const locator =
+            xpath.container +
+            DIALOG_ITEMS.PRIMARY_DATA_COMPONENT +
+            DIALOG_ITEMS.mainItemRowByName(name) +
+            BUTTONS.buttonAriaLabel('Remove from list');
         await this.clickOnElement(locator);
         return await this.pause(300);
     }
-
 
     async filterAndSelectItem(displayName) {
         try {
             let contentSelectorDropdown = new ContentSelectorDropdown(xpath.container);
             await contentSelectorDropdown.selectFilteredByDisplayNameContent(displayName);
         } catch (err) {
-            await this.handleError(`Issue Details dialog, tried to select the item in Items combobox: ${displayName}`,
-                'err_select_items_combobox', err);
+            await this.handleError(
+                `Issue Details dialog, tried to select the item in Items combobox: ${displayName}`,
+                'err_select_items_combobox',
+                err,
+            );
         }
     }
 
     // Dependants controls:
     async clickOnAllCheckbox() {
-        return await this.dependantsControls.clickOnAllDependantsCheckbox()
+        return await this.dependantsControls.clickOnAllDependantsCheckbox();
     }
 
     async waitForHideExcludedItemsButtonDisplayed() {
@@ -132,7 +127,7 @@ class IssueDetailsDialogItemsTab extends BaseIssueDetailsDialog {
     }
 
     async waitForShowExcludedItemsButtonDisplayed() {
-        return await this.dependantsControls.waitForShowExcludedItemsButtonDisplayed()
+        return await this.dependantsControls.waitForShowExcludedItemsButtonDisplayed();
     }
 
     async waitForShowExcludedItemsButtonNotDisplayed() {

@@ -1,41 +1,25 @@
 const Page = require('../page');
-const {BUTTONS, COMMON} = require('../../libs/elements');
+const { BUTTONS, COMMON } = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
 const XPATH = {
     container: `//div[@data-component='IssueDialogDetailsContent']`,
-    commentAndCloseRequestButton: `//button[contains(@id,'DialogButton') and child::span[text()='Comment & Close Request']]`,
-    commentAndCloseIssueButton: `//button[contains(@id,'DialogButton') and child::span[text()='Comment & Close Issue']]`,
     commentsPanelDiv: `//div[@role='tabpanel' and contains(@id,'comments')]`,
     noCommentsMessage: "//div[text()='No comments yet']",
-    reopenRequestButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Request']]`,
     commentsListDiv: "//div[@data-component='IssueCommentsList']",
-    issueCommentsListItemByText:
-        text => XPATH.commentsListDiv + `//div[@data-component='IssueCommentItem' and descendant::div[text()='${text}']]`,
+    issueCommentsListItemByText: (text) =>
+        XPATH.commentsListDiv + `//div[@data-component='IssueCommentItem' and descendant::div[text()='${text}']]`,
     // in the edit mode the comment text is shown in the textarea, so the item can not be located by its text:
     commentItemInEditMode: "//div[@data-component='IssueCommentItem' and descendant::textarea[@aria-label='Comment']]",
 };
 
 class IssueDetailsDialogCommentsTab extends Page {
-
-    get reopenRequestButton() {
-        return XPATH.container + XPATH.reopenRequestButton;
-    }
-
     get issueCommentTextArea() {
         return XPATH.container + XPATH.commentsPanelDiv + COMMON.INPUTS.textAreaByName('comment');
     }
 
     get commentButton() {
         return XPATH.container + COMMON.FOOTER_ELEMENT + BUTTONS.buttonByLabel('Comment');
-    }
-
-    get commentAndCloseRequestButton() {
-        return XPATH.container + XPATH.commentAndCloseRequestButton;
-    }
-
-    get commentAndCloseIssueButton() {
-        return XPATH.container + XPATH.commentAndCloseIssueButton;
     }
 
     isCommentTextAreaDisplayed() {
@@ -48,7 +32,7 @@ class IssueDetailsDialogCommentsTab extends Page {
 
     async waitForCommentButtonEnabled() {
         try {
-            await this.waitForElementEnabled(this.commentButton, appConst.mediumTimeout)
+            await this.waitForElementEnabled(this.commentButton, appConst.mediumTimeout);
         } catch (err) {
             throw new Error('Issue Details Dialog,Comments tab  ' + err);
         }
@@ -92,7 +76,11 @@ class IssueDetailsDialogCommentsTab extends Page {
             await this.clickOnElement(saveButton);
             return await this.pause(300);
         } catch (err) {
-            await this.handleError(`Comments Tab - error when clicking on 'Save' button in the comment`, 'err_save_comment', err);
+            await this.handleError(
+                `Comments Tab - error when clicking on 'Save' button in the comment`,
+                'err_save_comment',
+                err,
+            );
         }
     }
 
@@ -120,31 +108,11 @@ class IssueDetailsDialogCommentsTab extends Page {
         await this.pause(300);
     }
 
-    waitForCommentAndCloseRequestButtonDisplayed() {
-        return this.waitForElementDisplayed(this.commentAndCloseRequestButton, appConst.shortTimeout).catch(err => {
-            throw new Error('Comments Tab   ' + err);
-        })
-    }
-
-    async clickOnCommentAndCloseRequestButton() {
-        await this.clickOnElement(this.commentAndCloseRequestButton);
-        return await this.pause(500);
-    }
-
-    async waitForReopenRequestButtonDisplayed() {
-        try {
-            return await this.waitForElementDisplayed(this.reopenRequestButton, appConst.mediumTimeout);
-        } catch (err) {
-            let screenshot = await this.saveScreenshot('err_reopen_request_button');
-            throw new Error(`Reopen Request button is not displayed, screenshot ${screenshot} ` + err);
-        }
-    }
-
     async waitForCommentButtonDisabled() {
         try {
-            return await this.waitForElementDisabled(this.commentButton, appConst.shortTimeout)
+            return await this.waitForElementDisabled(this.commentButton, appConst.shortTimeout);
         } catch (err) {
-          await this.handleError('Comments Tab, Comment button should be disabled', 'err_comment_btn_disabled', err);
+            await this.handleError('Comments Tab, Comment button should be disabled', 'err_comment_btn_disabled', err);
         }
     }
 
@@ -153,7 +121,11 @@ class IssueDetailsDialogCommentsTab extends Page {
             let locator = XPATH.commentsListDiv + XPATH.noCommentsMessage;
             return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError('Comments Tab, wait for "No comments yet" message displayed', 'err_no_comments_message', err);
+            await this.handleError(
+                'Comments Tab, wait for "No comments yet" message displayed',
+                'err_no_comments_message',
+                err,
+            );
         }
     }
 
@@ -162,7 +134,11 @@ class IssueDetailsDialogCommentsTab extends Page {
             let locator = XPATH.commentsListDiv + XPATH.noCommentsMessage;
             return this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError('Comments Tab, wait for "No comments yet" message not displayed', 'err_no_comments_msg', err);
+            await this.handleError(
+                'Comments Tab, wait for "No comments yet" message not displayed',
+                'err_no_comments_msg',
+                err,
+            );
         }
     }
 }
