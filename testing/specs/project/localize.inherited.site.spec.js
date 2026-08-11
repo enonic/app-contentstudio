@@ -61,7 +61,7 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
         await studioUtils.saveScreenshot('inherited_site_order');
         // 3. Verify that 'Inherited' order is selected and Save button is disabled:
         let actualOrder = await sortContentDialog.getSelectedOrder();
-        // TODO
+        // TODO verify the bug https://github.com/enonic/app-contentstudio/issues/11257
         //assert.equal(actualOrder, EXPECTED_ORDER, "Inherited order should be selected in the modal dialog");
         await sortContentDialog.waitForSaveButtonDisabled();
     });

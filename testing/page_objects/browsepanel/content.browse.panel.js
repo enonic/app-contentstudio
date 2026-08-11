@@ -931,6 +931,11 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return await this.waitForElementDisplayed(this.requestPublishingButton);
     }
 
+    async clickOnRequestPublishingButton() {
+        await this.waitForRequestPublishingButtonDisplayed();
+        await this.clickOnElement(this.requestPublishingButton);
+    }
+
     async openPublishMenu() {
         await this.clickOnElement(this.showPublishMenuButton);
         return await this.pause(500);

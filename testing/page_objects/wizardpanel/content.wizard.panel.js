@@ -186,8 +186,8 @@ class ContentWizardPanel extends Page {
         return XPATH.wizardStepNavigatorAndToolbar + lib.HELP_TEXT.BUTTON;
     }
 
-    get goToGridButton() {
-        return XPATH.toolbar + XPATH.goToGridButton;
+    get requestPublishingButton() {
+        return XPATH.container + XPATH.toolbar + BUTTONS.buttonAriaLabel('Request publishing');
     }
 
     get versionHistoryButton() {
@@ -1010,6 +1010,14 @@ class ContentWizardPanel extends Page {
 
     async waitForMarkAsReadyButtonVisible() {
         return await this.waitForElementDisplayed(this.markAsReadyButton, appConst.mediumTimeout);
+    }
+
+    async clickOnRequestPublishingButton() {
+        await this.waitForRequestPublishingButtonDisplayed();
+        await this.clickOnElement(this.requestPublishingButton);
+    }
+    async waitForRequestPublishingButtonDisplayed() {
+        return await this.waitForElementDisplayed(this.requestPublishingButton);
     }
 
     async waitForOpenRequestButtonVisible() {

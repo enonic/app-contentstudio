@@ -1,5 +1,5 @@
 /**
- * Created on 11.06.2020.
+ * Created on 11.06.2020. updated on 11.08.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -96,7 +96,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
         // 2. Select the user's context:
         await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
         // 3. SU adds new site:
-        SITE = contentBuilder.buildSite(SITE_NAME, 'description', [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
+        SITE = contentBuilder.buildSite(SITE_NAME, null, [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
         await studioUtils.doAddSite(SITE);
         // Do log out:
         await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
@@ -132,6 +132,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
     });
 
     it("WHEN user with 'Author' role opened the site THEN Edit icon in applications selector should not be displayed, PCV should not be locked", async () => {
+        let contentWizard = new ContentWizard();
         let siteFormPanel = new SiteFormPanel();
         let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
         // 1. Do log in with the user-author and navigate to Content Browse Panel:
@@ -141,7 +142,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
         // 3. Verify that Edit icon for Site Configurator is not displayed
         await siteFormPanel.waitForEditApplicationIconNotDisplayed(appConst.APP_CONTENT_TYPES);
         // 4. PCV is not locked in the wizard step form:
-        await pageComponentsWizardStepForm.waitForNotLocked();
+        await contentWizard.waitForContentFormNotLocked();
     });
 
     it('GIVEN user with Author role is logged in WHEN New Content dialog is opened THEN creating of Folder and Shortcut are allowed for Author role', async () => {
@@ -176,7 +177,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
         // 3. Verify that 'Mark as Ready' button is available in the wizard:
         await contentWizard.waitForMarkAsReadyButtonVisible();
         // Verify that 'Edit Settings' button is not visible for users with 'Author' role:
-        await propertiesWidget.waitForEditSettingsButtonNotDisplayed();
+        await propertiesWidget.waitForEditSettingsButtonDisabled();
     });
 
     // Verify that 'Author' can not publish content:
@@ -193,9 +194,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
         await studioUtils.saveScreenshot('project_author_7');
         // 4. Verify that Create Issue and Request Publishing menu items are enabled for Author role:
         await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
-        await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
-        // 5. Verify that Publish menu item is disabled:
-        await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.PUBLISH);
+        await contentBrowsePanel.waitForRequestPublishingButtonDisplayed();
     });
 
     // Verifies - issue#1920 User with author role - Last stage in publishing workflow for Project gives user option to "Publish Now"
@@ -209,7 +208,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
         await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
         // 2. Select the folder and open Request wizard:
         await studioUtils.findAndSelectItem(FOLDER_NAME);
-        await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
+        await contentBrowsePanel.clickOnRequestPublishingButton();
         await createRequestPublishDialog.waitForDialogLoaded();
         await createRequestPublishDialog.typeInTitleInput('author request');
         // 3. Click on 'Create Request' button:

@@ -1,41 +1,42 @@
 const path = require('path');
 const propertiesReaderModule = require('properties-reader');
-const propertiesReader = propertiesReaderModule.propertiesReader || propertiesReaderModule.default || propertiesReaderModule;
+const propertiesReader =
+    propertiesReaderModule.propertiesReader || propertiesReaderModule.default || propertiesReaderModule;
 const file = path.join(__dirname, '/../browser.properties');
-const properties = propertiesReader({sourceFile: file});
+const properties = propertiesReader({ sourceFile: file });
 const browser_version = properties.get('browser.version');
 
 exports.config = {
+    specs: [path.join(__dirname, '../specs/project-2/*.spec.js')],
 
-    specs: [
-        path.join(__dirname, '../specs/project-2/edit.project.spec.js'),
-        path.join(__dirname, '../specs/project-2/parent.project.dialog.step.spec.js'),
-        path.join(__dirname, '../specs/project-2/project.wizard.applications.step.spec.js'),
-        path.join(__dirname, '../specs/project-2/project.wizard.dialog.permissions.step.spec.js'),
-        path.join(__dirname, '../specs/project-2/project.wizard.dialog.name.step.spec.js'),
-        path.join(__dirname, '../specs/project-2/project.wizard.dialog.summary.step.spec.js'),
-        path.join(__dirname, '../specs/project-2/edit.project.wizard.access.roles.spec.js'),
-        path.join(__dirname, '../specs/project-2/project.wizard.two.apps.spec.js'),
-        path.join(__dirname, '../specs/project-2/change.access.mode.spec.js'),
-        path.join(__dirname, '../specs/project-2/create.content.in.project.spec.js'),
+    exclude: [
+        path.join(__dirname, '../specs/project-2/duplicate.inherited.content.spec.js'),
+        path.join(__dirname, '../specs/project-2/layer.with.app.spec.js'),
+        path.join(__dirname, '../specs/project-2/layer.wizard.unsaved.changes.spec.js'),
+        path.join(__dirname, '../specs/project-2/project.wizard.custom.read.access.user.deleted.spec.js'),
+        path.join(__dirname, '../specs/project-2/project.wizard.dialog.access.mode.step.spec.js'),
+        path.join(__dirname, '../specs/project-2/project.wizard.panel.select.app.spec.js'),
     ],
 
     maxInstances: 1,
 
-    capabilities: [{
-        browserName: 'chrome',
-        "wdio:enforceWebDriverClassic": true,
-        'goog:chromeOptions': {
-            "args": [
-                "--disable-gpu", "--no-sandbox",
-                "--lang=en",
-                "--headless=new",
-                '--disable-extensions',
-                '--disable-dev-shm-usage',
-                '--window-size=1970,1000'
-            ]
-        }
-    }],
+    capabilities: [
+        {
+            browserName: 'chrome',
+            'wdio:enforceWebDriverClassic': true,
+            'goog:chromeOptions': {
+                args: [
+                    '--disable-gpu',
+                    '--no-sandbox',
+                    '--lang=en',
+                    '--headless=new',
+                    '--disable-extensions',
+                    '--disable-dev-shm-usage',
+                    '--window-size=1970,1000',
+                ],
+            },
+        },
+    ],
     logLevel: 'info',
     //
     // Enables colors for log output.
@@ -56,16 +57,26 @@ exports.config = {
     framework: 'mocha',
     mochaOpts: {
         ui: 'bdd',
-        timeout: 150000
+        timeout: 150000,
     },
     // Set directory to store all logs into
-    outputDir: "./build/reports/logs/",
+    outputDir: './build/reports/logs/',
 
-    reporters: [['spec', {
-        color: true
-    }],
-        ['allure',
-            {outputDir: './build/reports/allure', disableWebdriverStepsReporting: true, disableWebdriverScreenshotsReporting: true}]
+    reporters: [
+        [
+            'spec',
+            {
+                color: true,
+            },
+        ],
+        [
+            'allure',
+            {
+                outputDir: './build/reports/allure',
+                disableWebdriverStepsReporting: true,
+                disableWebdriverScreenshotsReporting: true,
+            },
+        ],
     ],
 
     // Hook that gets executed before the suite starts
