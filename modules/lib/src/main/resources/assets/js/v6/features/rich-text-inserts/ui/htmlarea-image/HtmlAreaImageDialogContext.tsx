@@ -2,6 +2,7 @@ import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import type { ReactNode } from 'react';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { type Content } from '../../../../../app/content/Content';
 import { type ContentSummary } from '../../../../../app/content/ContentSummary';
 import { HTMLAreaHelper } from '../../../../../app/inputtype/ui/text/HTMLAreaHelper';
 import { HtmlEditor } from '../../../../../app/inputtype/ui/text/HtmlEditor';
@@ -129,6 +130,20 @@ function isStaleFetch(fetched: ContentSummary, known: ContentSummary | undefined
     const fetchedMs = fetched.getModifiedTime()?.getTime();
     const knownMs = known?.getModifiedTime()?.getTime();
     return fetchedMs != null && knownMs != null && fetchedMs < knownMs;
+}
+
+// Fills blank alt text and caption from the image content metadata; local edits win.
+// A present alt text answers the pending accessibility choice with 'informative',
+// but an explicit 'decorative' or 'informative' selection is never overridden.
+function mergeImageMetadata(
+    prev: HtmlAreaImageDialogState,
+    content: Content,
+): Pick<HtmlAreaImageDialogState, 'altText' | 'caption' | 'accessibility'> {
+    const altText = prev.altText || ImageHelper.getImageAltText(content) || '';
+    const caption = prev.caption || ImageHelper.getImageCaption(content) || '';
+    const accessibility = prev.accessibility === '' && !isBlank(altText) ? 'informative' : prev.accessibility;
+
+    return { altText, caption, accessibility };
 }
 
 function computeValidationErrors(state: HtmlAreaImageDialogState): Record<string, string> {
@@ -490,7 +505,7 @@ export function HtmlAreaImageDialogProvider({ children, openRef }: HtmlAreaImage
         );
     }, []);
 
-    const loadImageContentById = useCallback((imageId: string, options?: { fromServerEvent?: boolean }) => {
+    const loadImageContentById = useCallback((imageId: string) => {
         fetchContentById(imageId, stateRef.current.project?.getName()).match(
             (content) => {
                 setState((prev) => {
@@ -500,21 +515,10 @@ export function HtmlAreaImageDialogProvider({ children, openRef }: HtmlAreaImage
                     if (isStaleFetch(content, prev.selectedImageContent)) {
                         return prev;
                     }
-
-                    const serverAltText = ImageHelper.getImageAltText(content) || '';
-
-                    const switchToInformative =
-                        (options?.fromServerEvent ?? false) &&
-                        prev.accessibility === '' &&
-                        isBlank(prev.altText) &&
-                        !isBlank(serverAltText);
-
                     return {
                         ...prev,
                         selectedImageContent: content,
-                        altText: prev.altText || serverAltText,
-                        caption: prev.caption || ImageHelper.getImageCaption(content) || '',
-                        accessibility: switchToInformative ? 'informative' : prev.accessibility,
+                        ...mergeImageMetadata(prev, content),
                     };
                 });
             },
@@ -535,8 +539,7 @@ export function HtmlAreaImageDialogProvider({ children, openRef }: HtmlAreaImage
                     }
                     return {
                         ...prev,
-                        altText: prev.altText || ImageHelper.getImageAltText(content) || '',
-                        caption: prev.caption || ImageHelper.getImageCaption(content) || '',
+                        ...mergeImageMetadata(prev, content),
                     };
                 });
             },
@@ -562,7 +565,7 @@ export function HtmlAreaImageDialogProvider({ children, openRef }: HtmlAreaImage
                 return;
             }
 
-            loadImageContentById(summary.getId(), { fromServerEvent: true });
+            loadImageContentById(summary.getId());
         },
         [loadImageContentById],
     );
