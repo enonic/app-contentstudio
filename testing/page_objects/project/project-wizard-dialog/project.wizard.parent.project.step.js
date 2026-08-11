@@ -59,7 +59,7 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
             let projectsComboBox = new ProjectsComboBox(XPATH.container);
             await projectsComboBox.typeTextInSearchInput(text);
             await projectsComboBox.clickOnOptionByDisplayName(projectDisplayName);
-            await projectsComboBox.clickOnApplySelectionButton();
+            // await projectsComboBox.clickOnApplySelectionButton();
             return await this.pause(400);
         } catch (err) {
             await this.handleError(

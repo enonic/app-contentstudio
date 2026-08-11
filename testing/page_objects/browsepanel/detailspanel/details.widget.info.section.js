@@ -3,7 +3,7 @@
  */
 const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
-const {BUTTONS} = require('../../../libs/elements');
+const { BUTTONS } = require('../../../libs/elements');
 
 const xpath = {
     container: `//section[@data-component='DetailsWidgetInfoSection']`,
@@ -27,7 +27,6 @@ Last Modified 2026-03-19 16:45:18 by Super User
 Owner Super User
  */
 class DetailsWidgetInfoSection extends Page {
-
     get applicationProperty() {
         return xpath.container + xpath.applicationProperty;
     }
@@ -65,11 +64,19 @@ class DetailsWidgetInfoSection extends Page {
     }
 
     async waitForEditSettingsButtonDisplayed() {
-        return await this.waitForElementDisplayed(this.editSettingsButton, appConst.mediumTimeout);
+        return await this.waitForElementDisplayed(this.editSettingsButton);
     }
 
     waitForEditSettingsButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.editSettingsButton, appConst.mediumTimeout);
+        return this.waitForElementNotDisplayed(this.editSettingsButton);
+    }
+
+    waitForEditSettingsButtonDisabled() {
+        try {
+            return this.waitForElementDisabled(this.editSettingsButton);
+        } catch (err) {
+            throw new Error('Edit Settings button should be disabled in the Widget Info Section! ' + err);
+        }
     }
 
     async clickOnEditSettingsButton() {
@@ -77,7 +84,11 @@ class DetailsWidgetInfoSection extends Page {
             await this.waitForEditSettingsButtonDisplayed();
             await this.clickOnElement(this.editSettingsButton);
         } catch (err) {
-            await this.handleError('Details Widget Info Section, Edit Settings button was not displayed', 'err_click_edit_settings', err,);
+            await this.handleError(
+                'Details Widget Info Section, Edit Settings button was not displayed',
+                'err_click_edit_settings',
+                err,
+            );
         }
     }
 
@@ -99,7 +110,7 @@ class DetailsWidgetInfoSection extends Page {
 
     async waitForOwnerNotVisible() {
         try {
-            return await this.waitForElementNotDisplayed(this.ownerProperty, appConst.shortTimeout)
+            return await this.waitForElementNotDisplayed(this.ownerProperty, appConst.shortTimeout);
         } catch (err) {
             throw new Error('Owner should not be displayed in the Widget Info Section! ' + err);
         }
@@ -134,7 +145,7 @@ class DetailsWidgetInfoSection extends Page {
         try {
             await this.waitForElementDisplayed(this.ownerProperty);
         } catch (err) {
-            await this.handleError('Properties Widget, owner is not displayed', 'err_owner_displayed', err,);
+            await this.handleError('Properties Widget, owner is not displayed', 'err_owner_displayed', err);
         }
     }
 
@@ -150,11 +161,11 @@ class DetailsWidgetInfoSection extends Page {
     waitForFirstPublishedDateDisplayed() {
         return this.waitForElementDisplayed(this.firstPublishedProperty, appConst.shortTimeout);
     }
-    async waitForDisplayed(){
+    async waitForDisplayed() {
         await this.waitForElementDisplayed(xpath.container);
     }
 
-    async waitForNotDisplayed(){
+    async waitForNotDisplayed() {
         await this.waitForElementNotDisplayed(xpath.container);
     }
 }
