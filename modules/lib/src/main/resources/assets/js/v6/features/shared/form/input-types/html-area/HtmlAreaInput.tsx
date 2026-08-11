@@ -28,7 +28,7 @@ import {
     createImageDialogOverride,
     HtmlAreaImageDialog,
 } from '../../../../rich-text-inserts/ui/htmlarea-image/HtmlAreaImageDialog';
-import type { OpenHtmlAreaImageDialogParams } from '../../../../rich-text-inserts/ui/htmlarea-image/HtmlAreaImageDialogContext';
+import type { OpenHtmlAreaImageDialogParams } from '../../../../rich-text-inserts/model/htmlAreaImageDialog.types';
 import {
     createLinkDialogOverride,
     HtmlAreaLinkDialog,

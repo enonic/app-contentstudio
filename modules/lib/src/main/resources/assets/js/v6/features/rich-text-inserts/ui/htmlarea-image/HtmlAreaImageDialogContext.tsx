@@ -2,7 +2,6 @@ import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import type { ReactNode } from 'react';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { type Content } from '../../../../../app/content/Content';
 import { type ContentSummary } from '../../../../../app/content/ContentSummary';
 import { HTMLAreaHelper } from '../../../../../app/inputtype/ui/text/HTMLAreaHelper';
 import { HtmlEditor } from '../../../../../app/inputtype/ui/text/HtmlEditor';
@@ -10,52 +9,18 @@ import { type Style } from '../../../../../app/inputtype/ui/text/styles/Style';
 import { StyleHelper } from '../../../../../app/inputtype/ui/text/styles/StyleHelper';
 import { Styles } from '../../../../../app/inputtype/ui/text/styles/Styles';
 import { type Project } from '../../../../../app/settings/data/project/Project';
-import { ImageHelper } from '../../../../../app/util/ImageHelper';
 import { isBlank } from '../../../../shared/lib/format/isBlank';
-import { useContentUpdateListener } from '../../../../shared/socket';
 import { buildImagePreviewUrl, buildImageRenderUrl } from '../../../../shared/lib/url/images';
 import { appendUrlParams, decodeUrlParams, trimUrlParams } from '../../../../shared/lib/url/params';
 import { fetchContentById } from '../../../../entities/content';
 import { fetchStyles } from '../../../../entities/content/api/styles.api';
-
-//
-// Types
-//
-
-export type Alignment = 'justify' | 'left' | 'center' | 'right';
-
-export type HtmlAreaImageDialogState = {
-    open: boolean;
-    ckeDialog: CKEDITOR.dialog | undefined;
-    ckeEditor: CKEDITOR.editor | undefined;
-    editorWidth: number;
-    contentId: string | undefined;
-    parentContent: ContentSummary | undefined;
-    project: Project | undefined;
-    selectedImageId: string | undefined;
-    selectedImageContent: ContentSummary | undefined;
-    presetImageEl: HTMLElement | undefined;
-    alignment: Alignment;
-    processingStyleName: string;
-    customWidthEnabled: boolean;
-    customWidthPercent: number;
-    caption: string;
-    accessibility: 'decorative' | 'informative' | '';
-    altText: string;
-    uploading: boolean;
-    uploadProgress: number;
-    uploadError: string | undefined;
-    showValidation: boolean;
-    previewLoading: boolean;
-};
-
-export type OpenHtmlAreaImageDialogParams = {
-    ckeDialog: CKEDITOR.dialog;
-    ckeEditor: CKEDITOR.editor;
-    editorWidth: number;
-    content?: ContentSummary;
-    project?: Project;
-};
+import { type ImageContentMergeMode, isEchoUpdate, mergeFetchedImageContent } from '../../lib/imageContentMerge';
+import { useOnContentUpdated } from '../../lib/useOnContentUpdated';
+import {
+    type Alignment,
+    type HtmlAreaImageDialogState,
+    type OpenHtmlAreaImageDialogParams,
+} from '../../model/htmlAreaImageDialog.types';
 
 const CLOSED_STATE: HtmlAreaImageDialogState = {
     open: false,
@@ -123,27 +88,6 @@ function getAlignmentWidth(alignment: Alignment): number {
         default:
             return 100;
     }
-}
-
-// A fetch that resolved out of order must not roll back fresher content.
-function isStaleFetch(fetched: ContentSummary, known: ContentSummary | undefined): boolean {
-    const fetchedMs = fetched.getModifiedTime()?.getTime();
-    const knownMs = known?.getModifiedTime()?.getTime();
-    return fetchedMs != null && knownMs != null && fetchedMs < knownMs;
-}
-
-// Fills blank alt text and caption from the image content metadata; local edits win.
-// A present alt text answers the pending accessibility choice with 'informative',
-// but an explicit 'decorative' or 'informative' selection is never overridden.
-function mergeImageMetadata(
-    prev: HtmlAreaImageDialogState,
-    content: Content,
-): Pick<HtmlAreaImageDialogState, 'altText' | 'caption' | 'accessibility'> {
-    const altText = prev.altText || ImageHelper.getImageAltText(content) || '';
-    const caption = prev.caption || ImageHelper.getImageCaption(content) || '';
-    const accessibility = prev.accessibility === '' && !isBlank(altText) ? 'informative' : prev.accessibility;
-
-    return { altText, caption, accessibility };
 }
 
 function computeValidationErrors(state: HtmlAreaImageDialogState): Record<string, string> {
@@ -486,62 +430,10 @@ export function HtmlAreaImageDialogProvider({ children, openRef }: HtmlAreaImage
 
     // Async loaders
 
-    const loadPresetImageContent = useCallback((imageId: string, project?: Project) => {
-        fetchContentById(imageId, project?.getName()).match(
-            (imageContent) => {
-                setState((prev) => {
-                    if (!prev.open || prev.selectedImageId !== imageId) {
-                        return prev;
-                    }
-                    if (isStaleFetch(imageContent, prev.selectedImageContent)) {
-                        return prev;
-                    }
-                    return { ...prev, selectedImageContent: imageContent };
-                });
-            },
-            (error) => {
-                DefaultErrorHandler.handle(error);
-            },
-        );
-    }, []);
-
-    const loadImageContentById = useCallback((imageId: string) => {
+    const loadImageContent = useCallback((imageId: string, mode: ImageContentMergeMode) => {
         fetchContentById(imageId, stateRef.current.project?.getName()).match(
             (content) => {
-                setState((prev) => {
-                    if (!prev.open || prev.selectedImageId !== imageId) {
-                        return prev;
-                    }
-                    if (isStaleFetch(content, prev.selectedImageContent)) {
-                        return prev;
-                    }
-                    return {
-                        ...prev,
-                        selectedImageContent: content,
-                        ...mergeImageMetadata(prev, content),
-                    };
-                });
-            },
-            (error) => {
-                DefaultErrorHandler.handle(error);
-            },
-        );
-    }, []);
-
-    const loadImageMetadata = useCallback((imageSummary: ContentSummary) => {
-        const imageId = imageSummary.getContentId().toString();
-
-        fetchContentById(imageId, stateRef.current.project?.getName()).match(
-            (content) => {
-                setState((prev) => {
-                    if (!prev.open || prev.selectedImageId !== imageId) {
-                        return prev;
-                    }
-                    return {
-                        ...prev,
-                        ...mergeImageMetadata(prev, content),
-                    };
-                });
+                setState((prev) => mergeFetchedImageContent(prev, imageId, content, mode));
             },
             (error) => {
                 DefaultErrorHandler.handle(error);
@@ -554,20 +446,19 @@ export function HtmlAreaImageDialogProvider({ children, openRef }: HtmlAreaImage
     const handleImageServerUpdate = useCallback(
         (summary: ContentSummary) => {
             const s = stateRef.current;
+
+            // An upload in flight refreshes the dialog itself once it settles.
             if (s.uploading) {
                 return;
             }
 
-            // Echo/stale guard: our state already carries this or a newer modifiedTime.
-            const knownMs = s.selectedImageContent?.getModifiedTime()?.getTime();
-            const eventMs = summary.getModifiedTime()?.getTime();
-            if (knownMs != null && eventMs != null && eventMs <= knownMs) {
+            if (isEchoUpdate(summary, s.selectedImageContent)) {
                 return;
             }
 
-            loadImageContentById(summary.getId());
+            loadImageContent(summary.getId(), 'seed');
         },
-        [loadImageContentById],
+        [loadImageContent],
     );
 
     // Load preset image content when opening with an existing image
@@ -576,17 +467,10 @@ export function HtmlAreaImageDialogProvider({ children, openRef }: HtmlAreaImage
         if (!state.open || !state.selectedImageId || !state.presetImageEl || state.selectedImageContent) {
             return;
         }
-        loadPresetImageContent(state.selectedImageId, state.project);
-    }, [
-        state.open,
-        state.selectedImageId,
-        state.presetImageEl,
-        state.selectedImageContent,
-        state.project,
-        loadPresetImageContent,
-    ]);
+        loadImageContent(state.selectedImageId, 'attach');
+    }, [state.open, state.selectedImageId, state.presetImageEl, state.selectedImageContent, loadImageContent]);
 
-    useContentUpdateListener(state.open ? state.selectedImageId : undefined, handleImageServerUpdate);
+    useOnContentUpdated(state.open ? state.selectedImageId : undefined, handleImageServerUpdate);
 
     // Actions
 
@@ -614,9 +498,9 @@ export function HtmlAreaImageDialogProvider({ children, openRef }: HtmlAreaImage
                     uploadError: undefined,
                 };
             });
-            loadImageMetadata(imageContent);
+            loadImageContent(imageContent.getContentId().toString(), 'metadata');
         },
-        [loadImageMetadata],
+        [loadImageContent],
     );
 
     const selectImageById = useCallback(
@@ -635,9 +519,9 @@ export function HtmlAreaImageDialogProvider({ children, openRef }: HtmlAreaImage
                     uploadError: undefined,
                 };
             });
-            loadImageContentById(imageId);
+            loadImageContent(imageId, 'seed');
         },
-        [loadImageContentById],
+        [loadImageContent],
     );
 
     const deselectImage = useCallback(() => {
