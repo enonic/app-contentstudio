@@ -8,11 +8,8 @@ import {
 } from '../../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import type { DialogOverrides } from '../../../shared/form/input-types/html-area/setupEditor';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
-import {
-    HtmlAreaImageDialogProvider,
-    type OpenHtmlAreaImageDialogParams,
-    useHtmlAreaImageDialogContext,
-} from './HtmlAreaImageDialogContext';
+import { type OpenHtmlAreaImageDialogParams } from '../../model/htmlAreaImageDialog.types';
+import { HtmlAreaImageDialogProvider, useHtmlAreaImageDialogContext } from './HtmlAreaImageDialogContext';
 import { HtmlAreaImageDialogContent } from './HtmlAreaImageDialogContent';
 
 const DIALOG_NAME = 'HtmlAreaImageDialog';
