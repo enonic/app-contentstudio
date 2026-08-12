@@ -18,7 +18,7 @@ describe('layer.with.app.spec - tests for layer with applications', function () 
     }
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName('layer');
     const IMPORTED_SITE = appConst.TEST_DATA.IMPORTED_SITE_NAME;
-    const EXPECTED_ORDER = 'Display name (Z-A)';
+    const EXPECTED_ORDER = 'Modified date (Old to new)';
 
     it("Precondition 1 - new layer in 'Default' project should be added by SU", async () => {
         await studioUtils.closeProjectSelectionDialog();
