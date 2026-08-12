@@ -39,8 +39,8 @@ importers:
         specifier: 2.0.1
         version: 2.0.1
       '@enonic/ui':
-        specifier: ^1.0.5
-        version: 1.0.5(@radix-ui/react-slot@1.3.3(@types/react@19.2.14)(react@19.2.4))(focus-trap-react@11.0.6(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(lucide-react@1.28.0(react@19.2.4))(preact@10.29.8)(react-dom@19.2.4(react@19.2.4))(react-virtuoso@4.18.11(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(tw-animate-css@1.4.0)
+        specifier: ^1.1.0
+        version: 1.1.0(@radix-ui/react-slot@1.3.3(@types/react@19.2.14)(react@19.2.4))(focus-trap-react@12.0.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(preact@10.29.8)(react-dom@19.2.4(react@19.2.4))(react-virtuoso@4.18.11(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(tw-animate-css@1.4.0)
       '@nanostores/preact':
         specifier: ^1.0.0
         version: 1.1.0(nanostores@1.4.2)(preact@10.29.8)
@@ -75,8 +75,8 @@ importers:
         specifier: ^5.16.2
         version: 5.16.2
       focus-trap-react:
-        specifier: ^11.0.4
-        version: 11.0.6(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        specifier: ^12.0.3
+        version: 12.0.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       hasher:
         specifier: ^1.2.0
         version: 1.2.0
@@ -313,19 +313,20 @@ packages:
     resolution: {integrity: sha512-ww7g5mym0HS51OUp+sUFJUkIRWFVXqBKTSgMG8Ejo2VyWO1EOwrV1cljnolWugkxt8RZ58X1LZu0KurDfz5stQ==}
     engines: {node: '>= 24.16.0', pnpm: '>= 11.4.0'}
 
-  '@enonic/ui@1.0.5':
-    resolution: {integrity: sha512-TMNzJ5juqX7e0PKd0CfJBd4ESh5+/LajV7h0E0dFl76pR2ZTpSfK3bUvAVayB51nvcxxqJmXUnoxvjLByvJ+gQ==}
-    engines: {node: '>=24.16.0', pnpm: '>=11.1.1'}
+  '@enonic/ui@1.1.0':
+    resolution: {integrity: sha512-Oe21eIk44UONRi2Oeg+vFiurU1xwwaSDwmqAzg6aam8PhvhAtSyHSF+/ysdVxIKfVsLTY5zsNO4X6H7LVY81fA==}
+    engines: {node: '>=24.16.0', pnpm: '>=11.4.0'}
     peerDependencies:
       '@radix-ui/react-slot': ^1.2.0
-      focus-trap-react: ^11.0.0
-      lucide-react: '>=0.500.0'
+      focus-trap-react: ^12.0.0
       preact: '>=10.0.0'
       react: ^19.0.0
       react-dom: ^19.0.0
       react-virtuoso: ^4.0.0
-      tw-animate-css: ^1.0.0
+      tw-animate-css: ^1.4.0
     peerDependenciesMeta:
+      focus-trap-react:
+        optional: true
       preact:
         optional: true
       react:
@@ -1281,16 +1282,16 @@ packages:
   fine-uploader@5.16.2:
     resolution: {integrity: sha512-y8giOn50k7rwMj/Y50Q/Sph8/DqZIao9YE7eOTrvwPfY7FpQwiNeqIOIsaP9CNPkXVNpUKGxZb0D1JvYSwrJZg==}
 
-  focus-trap-react@11.0.6:
-    resolution: {integrity: sha512-8YbWR8kDf2pQ8G9LT11p39VY4T7eWVrj00Fhp1HUSdv5uW9q6+WK8OMAdy9Ui7vGb1zNouFDzwBIqJwt82rIYQ==}
+  focus-trap-react@12.0.3:
+    resolution: {integrity: sha512-4eXtzhRTtFrxle9Tkl0Wkj8SFJnWz3i3yb5e53Mdn4E8XZQ/Lzqom9U4uUAJ8wd7yDmyGVP96dxwQZXLXd4sbg==}
     peerDependencies:
       '@types/react': ^18.0.0 || ^19.0.0
       '@types/react-dom': ^18.0.0 || ^19.0.0
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
 
-  focus-trap@7.8.0:
-    resolution: {integrity: sha512-/yNdlIkpWbM0ptxno3ONTuf+2g318kh2ez3KSeZN5dZ8YC6AAmgeWz+GasYYiBJPFaYcSAPeu4GfhUaChzIJXA==}
+  focus-trap@8.2.2:
+    resolution: {integrity: sha512-qV0g8hRYBqgACcFOH3f9wXc4zPKhr/0z9RI2a6ZijZ72EeBi4g8oBy8zAWuUR1TsMpOzwpUMFvjdasrC41Joug==}
 
   fraction.js@5.3.4:
     resolution: {integrity: sha512-1X1NTtiJphryn/uLQz3whtY6jK3fTqoE3ohKs0tT+Ujr1W59oopxmoEh7Lu5p6vBaPbgoM0bzveAW4Qi5RyWDQ==}
@@ -1886,11 +1887,11 @@ packages:
     engines: {node: '>=16'}
     hasBin: true
 
-  tabbable@6.4.0:
-    resolution: {integrity: sha512-05PUHKSNE8ou2dwIxTngl4EzcnsCDZGJ/iCLtDflR/SHB/ny14rXc+qU5P4mG9JkusiV7EivzY9Mhm55AzAvCg==}
+  tabbable@6.5.0:
+    resolution: {integrity: sha512-wieBHXygIm7OyQOu5hQlkk62/WyCFYGlWg7L6/ZCUZwx0o398Zkn4pVmMyfYhfMG8kGrj/Krt8eIk6UKC6VzwA==}
 
-  tailwind-merge@3.4.1:
-    resolution: {integrity: sha512-2OA0rFqWOkITEAOFWSBSApYkDeH9t2B3XSJuI4YztKBzK3mX0737A2qtxDZ7xkw9Zfh0bWl+r34sF3HXV+Ig7Q==}
+  tailwind-merge@3.6.0:
+    resolution: {integrity: sha512-uxL7qAVQriqRQPAyK3pj66VqskWqoZ37PW94jwOTwNfq/z9oyu1V+eqrZqtR2+fCiXdYOZe/Modt8GtvqNzu+w==}
 
   time-span@5.1.0:
     resolution: {integrity: sha512-75voc/9G4rDIJleOo4jPvN4/YC4GRZrY8yy1uU4lwrB3XEQbWve8zXoO5No4eFrGcTAMYyoY67p8jRQdtA1HbA==}
@@ -2035,15 +2036,15 @@ snapshots:
     dependencies:
       nanostores: 1.4.2
 
-  '@enonic/ui@1.0.5(@radix-ui/react-slot@1.3.3(@types/react@19.2.14)(react@19.2.4))(focus-trap-react@11.0.6(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(lucide-react@1.28.0(react@19.2.4))(preact@10.29.8)(react-dom@19.2.4(react@19.2.4))(react-virtuoso@4.18.11(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(tw-animate-css@1.4.0)':
+  '@enonic/ui@1.1.0(@radix-ui/react-slot@1.3.3(@types/react@19.2.14)(react@19.2.4))(focus-trap-react@12.0.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(preact@10.29.8)(react-dom@19.2.4(react@19.2.4))(react-virtuoso@4.18.11(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(tw-animate-css@1.4.0)':
     dependencies:
       '@radix-ui/react-slot': 1.3.3(@types/react@19.2.14)(react@19.2.4)
       class-variance-authority: 0.7.1
       clsx: 2.1.1
-      focus-trap-react: 11.0.6(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       lucide-react: 1.28.0(react@19.2.4)
-      tailwind-merge: 3.4.1
+      tailwind-merge: 3.6.0
     optionalDependencies:
+      focus-trap-react: 12.0.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       preact: 10.29.8
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
@@ -2779,18 +2780,18 @@ snapshots:
 
   fine-uploader@5.16.2: {}
 
-  focus-trap-react@11.0.6(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+  focus-trap-react@12.0.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
     dependencies:
       '@types/react': 19.2.14
       '@types/react-dom': 19.2.3(@types/react@19.2.14)
-      focus-trap: 7.8.0
+      focus-trap: 8.2.2
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
-      tabbable: 6.4.0
+      tabbable: 6.5.0
 
-  focus-trap@7.8.0:
+  focus-trap@8.2.2:
     dependencies:
-      tabbable: 6.4.0
+      tabbable: 6.5.0
 
   fraction.js@5.3.4: {}
 
@@ -3325,9 +3326,9 @@ snapshots:
       picocolors: 1.1.1
       sax: 1.6.0
 
-  tabbable@6.4.0: {}
+  tabbable@6.5.0: {}
 
-  tailwind-merge@3.4.1: {}
+  tailwind-merge@3.6.0: {}
 
   time-span@5.1.0:
     dependencies:
