@@ -18,9 +18,11 @@ import {
     $contentArchived,
     $contentCreated,
     $contentDeleted,
+    $contentDuplicated,
     $contentPublished,
     $contentRenamed,
     $contentUpdated,
+    type ContentEvent,
 } from '../../../shared/socket/socket.store';
 import { fetchIssue } from '../../../entities/issue/api/issues.api';
 import { $issueDialog, closeIssueDialog } from './issueDialog.store';
@@ -216,6 +218,14 @@ const reloadIssueDialogItemsForCurrentIssue = (): void => {
     void loadIssueDialogItems(issue, { forceReload: true });
 };
 
+const handleCreatedContent = (event: ContentEvent): void => {
+    const matched = findContentIdsWithCreatedDescendants($issueDialogDetails.get().items, event.data);
+    if (matched.length === 0) {
+        return;
+    }
+    reloadIssueDialogItemsForCurrentIssue();
+};
+
 const handleIssueDialogDetailsIssueChanged = (issueIds: string[], event: IssueServerEvent): void => {
     const currentIssueId = getCurrentIssueDialogIssueId();
     if (!currentIssueId || !isCurrentIssueDialogServerEvent(issueIds)) {
@@ -251,15 +261,8 @@ export const start = (): void => {
     }
 
     unsubscribers = [
-        $contentCreated.subscribe(
-            onIssueDialogDetailsSocketEvent((event) => {
-                const matched = findContentIdsWithCreatedDescendants($issueDialogDetails.get().items, event.data);
-                if (matched.length === 0) {
-                    return;
-                }
-                reloadIssueDialogItemsForCurrentIssue();
-            }),
-        ),
+        $contentCreated.subscribe(onIssueDialogDetailsSocketEvent(handleCreatedContent)),
+        $contentDuplicated.subscribe(onIssueDialogDetailsSocketEvent(handleCreatedContent)),
         $contentUpdated.subscribe(
             onIssueDialogDetailsSocketEvent((event) => {
                 const { updatedMain, updatedDependants } = patchTrackedIssueDialogItems(event.data);

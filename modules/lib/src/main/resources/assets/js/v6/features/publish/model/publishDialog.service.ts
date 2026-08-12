@@ -13,9 +13,11 @@ import {
     $contentArchived,
     $contentCreated,
     $contentDeleted,
+    $contentDuplicated,
     $contentPublished,
     $contentRenamed,
     $contentUpdated,
+    type ContentEvent,
 } from '../../../shared/socket/socket.store';
 import {
     flagPublishExclusionsReset,
@@ -152,6 +154,15 @@ const refreshPublishDialogMainItems = async (ids: ContentId[]): Promise<void> =>
     }
 };
 
+const handleCreatedContent = (event: ContentEvent): void => {
+    const mainItemIds = findContentIdsWithCreatedDescendants($publishDialog.get().items, event.data);
+    if (mainItemIds.length === 0) return;
+
+    void refreshPublishDialogMainItems(mainItemIds).finally(() => {
+        reloadPublishDialogDataDebounced();
+    });
+};
+
 //
 // * Service Lifecycle
 //
@@ -211,16 +222,8 @@ export const start = (): void => {
             }
         }),
         // Handle content created: reload dependencies as new content might be a child or dependency
-        $contentCreated.subscribe(
-            onPublishSocketEvent((event) => {
-                const mainItemIds = findContentIdsWithCreatedDescendants($publishDialog.get().items, event.data);
-                if (mainItemIds.length === 0) return;
-
-                void refreshPublishDialogMainItems(mainItemIds).finally(() => {
-                    reloadPublishDialogDataDebounced();
-                });
-            }),
-        ),
+        $contentCreated.subscribe(onPublishSocketEvent(handleCreatedContent)),
+        $contentDuplicated.subscribe(onPublishSocketEvent(handleCreatedContent)),
         // Handle content updates: patch visible items and reload checks if tracked content changed
         $contentUpdated.subscribe(
             onPublishSocketEvent((event) => {
