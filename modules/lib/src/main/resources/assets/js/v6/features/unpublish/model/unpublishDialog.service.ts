@@ -8,8 +8,10 @@ import {
     $contentArchived,
     $contentCreated,
     $contentDeleted,
+    $contentDuplicated,
     $contentUnpublished,
     $contentUpdated,
+    type ContentEvent,
 } from '../../../shared/socket/socket.store';
 import { resolveUnpublish } from '../api/unpublish.api';
 import {
@@ -187,6 +189,13 @@ const isDialogActive = (): boolean => {
     return open && items.length > 0 && !$unpublishDialogPending.get().submitting;
 };
 
+const handleCreatedContent = (event: ContentEvent | null): void => {
+    if (!event || !isDialogActive()) {
+        return;
+    }
+    reloadUnpublishDialogDataDebounced();
+};
+
 //
 // * Completion handling
 //
@@ -232,12 +241,8 @@ export const start = (): void => {
             }
             void reloadUnpublishDialogData();
         }),
-        $contentCreated.subscribe((event) => {
-            if (!event || !isDialogActive()) {
-                return;
-            }
-            reloadUnpublishDialogDataDebounced();
-        }),
+        $contentCreated.subscribe(handleCreatedContent),
+        $contentDuplicated.subscribe(handleCreatedContent),
         $contentUpdated.subscribe((event) => {
             if (!event || !isDialogActive()) {
                 return;

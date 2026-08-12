@@ -14,9 +14,11 @@ import {
     $contentArchived,
     $contentCreated,
     $contentDeleted,
+    $contentDuplicated,
     $contentPublished,
     $contentRenamed,
     $contentUpdated,
+    type ContentEvent,
 } from '../../../shared/socket/socket.store';
 import {
     $newIssueDialog,
@@ -108,6 +110,17 @@ const refreshNewIssueMainItems = async (ids: ContentId[]): Promise<void> => {
     }
 };
 
+const handleCreatedContent = (event: ContentEvent): void => {
+    const matched = findContentIdsWithCreatedDescendants($newIssueDialog.get().items, event.data);
+    if (matched.length === 0) {
+        return;
+    }
+
+    void refreshNewIssueMainItems(matched).finally(() => {
+        reloadDependenciesDebounced();
+    });
+};
+
 //
 // * Service Lifecycle
 //
@@ -128,18 +141,8 @@ export const start = (): void => {
                 $showNewIssueExcludedDependants.set(true);
             }
         }),
-        $contentCreated.subscribe(
-            onNewIssueSocketEvent((event) => {
-                const matched = findContentIdsWithCreatedDescendants($newIssueDialog.get().items, event.data);
-                if (matched.length === 0) {
-                    return;
-                }
-
-                void refreshNewIssueMainItems(matched).finally(() => {
-                    reloadDependenciesDebounced();
-                });
-            }),
-        ),
+        $contentCreated.subscribe(onNewIssueSocketEvent(handleCreatedContent)),
+        $contentDuplicated.subscribe(onNewIssueSocketEvent(handleCreatedContent)),
         $contentUpdated.subscribe(
             onNewIssueSocketEvent((event) => {
                 const { updatedMain, updatedDependants } = patchTrackedNewIssueItems(event.data);
