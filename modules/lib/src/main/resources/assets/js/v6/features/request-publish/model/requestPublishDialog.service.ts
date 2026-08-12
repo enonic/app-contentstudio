@@ -7,9 +7,11 @@ import {
     $contentArchived,
     $contentCreated,
     $contentDeleted,
+    $contentDuplicated,
     $contentPublished,
     $contentRenamed,
     $contentUpdated,
+    type ContentEvent,
 } from '../../../shared/socket/socket.store';
 import {
     $requestPublishDialog,
@@ -81,6 +83,17 @@ const refreshRequestPublishMainItems = async (ids: ContentId[]): Promise<void> =
     }
 };
 
+const handleCreatedContent = (event: ContentEvent): void => {
+    const mainItemIds = findContentIdsWithCreatedDescendants($requestPublishDialog.get().items, event.data);
+    if (mainItemIds.length === 0) {
+        return;
+    }
+
+    void refreshRequestPublishMainItems(mainItemIds).finally(() => {
+        reloadDependenciesDebounced();
+    });
+};
+
 const handleRemovedRequestPublishItems = (idsToRemove: Set<string>): void => {
     const { removedMain, removedDependants } = removeTrackedRequestPublishItems(idsToRemove);
 
@@ -114,18 +127,8 @@ export const start = (): void => {
                 $showRequestPublishExcludedDependants.set(true);
             }
         }),
-        $contentCreated.subscribe(
-            onRequestPublishSocketEvent((event) => {
-                const mainItemIds = findContentIdsWithCreatedDescendants($requestPublishDialog.get().items, event.data);
-                if (mainItemIds.length === 0) {
-                    return;
-                }
-
-                void refreshRequestPublishMainItems(mainItemIds).finally(() => {
-                    reloadDependenciesDebounced();
-                });
-            }),
-        ),
+        $contentCreated.subscribe(onRequestPublishSocketEvent(handleCreatedContent)),
+        $contentDuplicated.subscribe(onRequestPublishSocketEvent(handleCreatedContent)),
         $contentUpdated.subscribe(
             onRequestPublishSocketEvent((event) => {
                 const { updatedMain, updatedDependants } = patchTrackedRequestPublishItems(event.data);

@@ -81,6 +81,7 @@ export const start = (): void => {
         $contentDuplicated.subscribe((event) => {
             if (event?.data) {
                 setContents(event.data);
+                markParentsWithChildren(event.data);
             }
         }),
         // $contentMoved is the only event for cross-parent moves; delete/create are not emitted.

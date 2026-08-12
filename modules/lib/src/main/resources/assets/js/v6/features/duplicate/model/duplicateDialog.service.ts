@@ -7,7 +7,9 @@ import {
     $contentArchived,
     $contentCreated,
     $contentDeleted,
+    $contentDuplicated,
     $contentUpdated,
+    type ContentEvent,
 } from '../../../shared/socket/socket.store';
 import { getDescendantsOfContents } from '../api/duplicate.api';
 import { $duplicateDialog, resetDuplicateDialogContext } from './duplicateDialog.store';
@@ -95,6 +97,13 @@ const isDialogActive = (): boolean => {
     return open && items.length > 0;
 };
 
+const handleCreatedContent = (event: ContentEvent | null): void => {
+    if (!event || !isDialogActive()) {
+        return;
+    }
+    reloadDuplicateDialogDataDebounced();
+};
+
 /** Remove items by IDs from both main items and dependant items */
 const removeItemsByIds = (ids: Set<string>): { removedMain: boolean; removedDependant: boolean } => {
     const { items, dependants } = $duplicateDialog.get();
@@ -176,12 +185,8 @@ export const start = (): void => {
             }
         }),
         // Handle content created: reload dependencies as new content might be a child
-        $contentCreated.subscribe((event) => {
-            if (!event || !isDialogActive()) {
-                return;
-            }
-            reloadDuplicateDialogDataDebounced();
-        }),
+        $contentCreated.subscribe(handleCreatedContent),
+        $contentDuplicated.subscribe(handleCreatedContent),
         // Handle content updates: patch main items, reload if dependants affected
         $contentUpdated.subscribe((event) => {
             if (!event || !isDialogActive()) {

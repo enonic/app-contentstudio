@@ -9,7 +9,9 @@ import {
     $contentArchived,
     $contentCreated,
     $contentDeleted,
+    $contentDuplicated,
     $contentUpdated,
+    type ContentEvent,
 } from '../../../shared/socket/socket.store';
 import { resolveForDelete } from '../api/delete.api';
 import {
@@ -183,6 +185,13 @@ const isDialogActive = (): boolean => {
     return open && !submitting && items.length > 0;
 };
 
+const handleCreatedContent = (event: ContentEvent | null): void => {
+    if (!event || !isDialogActive()) return;
+
+    // New content could be a child of items being deleted
+    reloadDeleteDialogDataDebounced();
+};
+
 //
 // * Service Lifecycle
 //
@@ -204,12 +213,8 @@ export const start = (): void => {
             void reloadDeleteDialogData();
         }),
         // Handle content created: reload dependencies as new content might be a child or dependency
-        $contentCreated.subscribe((event) => {
-            if (!event || !isDialogActive()) return;
-
-            // New content could be a child of items being deleted
-            reloadDeleteDialogDataDebounced();
-        }),
+        $contentCreated.subscribe(handleCreatedContent),
+        $contentDuplicated.subscribe(handleCreatedContent),
         // Handle content updates: patch main items, reload if dependants affected
         $contentUpdated.subscribe((event) => {
             if (!event || !isDialogActive()) return;
