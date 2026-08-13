@@ -1,13 +1,11 @@
-import type {FlatNode} from '../../../../../shared/lib/tree-store';
-import type {PageComponentNodeData} from './types';
+import type { FlatNode } from '../../../../../shared/lib/tree-store';
+import type { PageComponentNodeData } from './types';
 
 export const PAGE_COMPONENTS_ROW_CLASS = 'page-components-list-item';
 
 export type PageComponentsNavigationKey = 'ArrowDown' | 'ArrowLeft' | 'ArrowRight' | 'ArrowUp';
 
-export type PageComponentsNavigationAction =
-    | { type: 'focus'; nodeId: string }
-    | { type: 'toggle'; nodeId: string };
+export type PageComponentsNavigationAction = { type: 'focus'; nodeId: string } | { type: 'toggle'; nodeId: string };
 
 export function resolvePageComponentsNavigation(
     nodes: FlatNode<PageComponentNodeData>[],
@@ -23,12 +21,12 @@ export function resolvePageComponentsNavigation(
 
     if (key === 'ArrowUp') {
         const previousNode = nodes[currentIndex - 1];
-        return previousNode == null ? null : {type: 'focus', nodeId: previousNode.id};
+        return previousNode == null ? null : { type: 'focus', nodeId: previousNode.id };
     }
 
     if (key === 'ArrowDown') {
         const nextNode = nodes[currentIndex + 1];
-        return nextNode == null ? null : {type: 'focus', nodeId: nextNode.id};
+        return nextNode == null ? null : { type: 'focus', nodeId: nextNode.id };
     }
 
     if (key === 'ArrowRight') {
@@ -37,18 +35,18 @@ export function resolvePageComponentsNavigation(
         }
 
         if (!currentNode.isExpanded) {
-            return {type: 'toggle', nodeId: currentNode.id};
+            return { type: 'toggle', nodeId: currentNode.id };
         }
 
         const firstChild = nodes[currentIndex + 1];
-        return firstChild?.parentId === currentNode.id ? {type: 'focus', nodeId: firstChild.id} : null;
+        return firstChild?.parentId === currentNode.id ? { type: 'focus', nodeId: firstChild.id } : null;
     }
 
     if (currentNode.hasChildren && currentNode.isExpanded) {
-        return {type: 'toggle', nodeId: currentNode.id};
+        return { type: 'toggle', nodeId: currentNode.id };
     }
 
-    return currentNode.parentId == null ? null : {type: 'focus', nodeId: currentNode.parentId};
+    return currentNode.parentId == null ? null : { type: 'focus', nodeId: currentNode.parentId };
 }
 
 export function getPageComponentsRow(target: EventTarget | null): HTMLElement | null {

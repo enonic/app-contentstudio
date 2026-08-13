@@ -1,6 +1,6 @@
 import { Tab } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import {type ReactElement, useRef} from 'react';
+import { type ReactElement, useRef } from 'react';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import { $activeWidgetId, $isContextOpen } from '../../../context-panel/model/contextWidgets.store';
 import {

@@ -414,7 +414,7 @@ export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProp
                     resolveDrop={resolveDrop}
                     animateLayoutChanges={animateLayoutChanges}
                     itemClassName={itemClassName}
-                    containerProps={{role: 'tree', 'aria-label': componentsLabel}}
+                    containerProps={{ role: 'tree', 'aria-label': componentsLabel }}
                     getItemProps={getItemProps}
                     restoreFocus={false}
                     renderItem={renderItem}
