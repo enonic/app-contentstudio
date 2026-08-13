@@ -7,7 +7,7 @@
 - [x] P3 — Positioned, unstyled cards
 - [x] P4 — Edges
 - [x] P5 — Styling
-- [ ] P6 — Zoom controls + drag pan
+- [x] P6 — Zoom controls + drag pan
 - [ ] P7 — Wheel + keyboard
 
 ## Context
@@ -40,8 +40,9 @@ full `d3` dependency is removed.
   divs (Tailwind + existing `ProjectIcon`) over an SVG edge layer, both inside one
   `transform: translate(x,y) scale(k)` wrapper. Hand-rolled pan/zoom.
 - **Card size**: fixed (`248 × 56`), CSS truncation — no text measuring.
-- **Viewport**: bounded frame, height `clamp(graph height + 48, 240, 720)` (revised in P5 —
-  a flat `60vh` left a large void under shallow graphs).
+- **Viewport**: fixed stage, `h-[60vh] min-h-90 max-h-[720px]`. (P5 briefly derived the height
+  from the graph; that put the controls right under the lowest card, so P6 went back to a
+  fixed stage — the graph is centered in it by `fitTransform` anyway.)
 - **Zoom input**: buttons + drag-pan + plain wheel pan + ctrl/⌘+wheel zoom. **No pinch.**
 - **Interaction**: read-only nodes — no click, no hover highlight, no active-project accent,
   **no tooltips** (not even native `title`, which the legacy version had as an SVG `<title>`).
@@ -226,9 +227,10 @@ Token corrections after the first visual pass (both themes were wrong):
   that token is black in light mode, so the frame came out near-black with white cards.
 - Edges use `text-subtle` (grey-800 / grey-400), not `text-bdr-strong` (pure black/white):
   softer, and close to the legacy `#343434`.
-- Frame height now follows the graph (`clamp(height + 48, 240, 720)`) instead of a flat
-  `60vh`, so a two-layer graph no longer leaves a large empty canvas. **This replaces the
-  `h-[60vh] min-h-80 max-h-[720px]` decision recorded above.**
+- Frame height briefly followed the graph (`clamp(height + 48, 240, 720)`) to avoid an empty
+  canvas. **Reverted in P6**: a content-sized frame puts the zoom controls immediately below
+  the lowest card. The stage is fixed again (`h-[60vh] min-h-90 max-h-[720px]`) and the graph
+  is centered inside it.
 - Canvas is wrapped in a `w-max min-w-full p-6` block and centered with `mx-auto`, which pads
   the graph and centers it while it fits, without the flex-`justify-center` scroll clipping.
 
@@ -256,6 +258,31 @@ Token corrections after the first visual pass (both themes were wrong):
 fit scales down only to the 0.25 floor and never to unreadable; reset returns to 100 %;
 drag pans; % readout tracks; resizing the browse/detail splitter refits without distortion;
 create/rename/delete a project updates the graph live (new behaviour).
+
+**Done.** Implementation notes that differ from the sketch above:
+
+- The frame switched from `overflow-auto` to `overflow-hidden`; the graph is now reachable
+  only through the transform, and `fitTransform` runs on mount so it always starts visible.
+  The P5 `w-max min-w-full p-6` + `mx-auto` centering is gone — centering is part of
+  `fitTransform`/`centerTransform` (padding lives in `VIEWPORT_PADDING`, shared with the
+  frame-height clamp).
+- Exported helpers: `clampScale`, `fitTransform`, `centerTransform`, `zoomAt` (8 tests).
+  `reset` = natural size centered; `fit` = scaled to the padded container, never above 1.
+- The pan layer carries `touch-none` and `cursor-grab`/`cursor-grabbing`; pointer move/up
+  listeners are attached natively in an effect while `pointerdown` comes from React, with
+  `setPointerCapture` so a drag survives leaving the frame.
+- Zoom buttons disable at the scale limits (`canZoomIn`/`canZoomOut`).
+- i18n added: `settings.statistics.projects.graph.{zoomIn,zoomOut,fit,reset}`. No
+  `…graph.label` key yet — the viewport `aria-label` lands with the keyboard support in P7.
+- `VIEWPORT_PADDING` is asymmetric (`{ x: 24, top: 24, bottom: 68 }`): fit and center place
+  the graph inside that band so it never sits under the controls, and the frame-height clamp
+  uses `top + bottom`. Both helpers take the padding object as their last argument.
+- The controls sit at `opacity-50` and go opaque on `hover` / `focus-within`, so they stay
+  out of the way while reading the graph.
+- `will-change-transform` is applied **only while panning**. A permanently promoted layer is
+  rasterized once at its initial scale, which made card text blurry above 100 % zoom.
+  Panning is a pure translate, so promoting during the drag costs no sharpness.
+- The pan layer is `select-none` — dragging across cards used to select their text.
 
 ## Phase 7 — Wheel + keyboard
 
