@@ -17,7 +17,7 @@ const XPATH = {
     hourSelect: `//button[@data-component='TimePicker.HourSelect']`,
     minuteSelect: `//button[@data-component='TimePicker.MinuteSelect']`,
     selectorValue: `//span[@data-component='Selector.Value']`,
-    okButton: `//button[@data-component='Button' and normalize-space(.)='OK']`,
+    okButton: `//button[@data-component='Button' and translate(normalize-space(.),'ok','OK')='OK']`,
     timezone: `//div[@data-component='TimePicker.Root']//span[starts-with(normalize-space(.),'UTC')]`,
 };
 
@@ -47,16 +47,16 @@ class DateTimePickerPopup extends Page {
     }
 
     async waitForLoaded() {
-        await this.waitForElementDisplayed(XPATH.datePickerContent, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(XPATH.datePickerContent);
         return await this.pause(200);
     }
 
     async waitForClosed() {
-        return await this.waitForElementNotDisplayed(XPATH.datePickerContent, appConst.mediumTimeout);
+        return await this.waitForElementNotDisplayed(XPATH.datePickerContent);
     }
 
     async waitForTimeZoneDisplayed() {
-        return await this.waitForElementDisplayed(this.timezone, appConst.mediumTimeout);
+        return await this.waitForElementDisplayed(this.timezone);
     }
 
     // Returns the timezone label, e.g. 'UTC+02:00':
@@ -72,8 +72,8 @@ class DateTimePickerPopup extends Page {
     // 'OK' button is disabled until a date or time is changed in the popup:
     async waitForOkButtonEnabled() {
         try {
-            await this.waitForElementDisplayed(this.okButton, appConst.mediumTimeout);
-            return await this.waitForElementEnabled(this.okButton, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.okButton);
+            return await this.waitForElementEnabled(this.okButton);
         } catch (err) {
             await this.handleError('DateTimePickerPopup - OK button should be enabled', 'err_ok_button_enabled', err);
         }
@@ -81,8 +81,8 @@ class DateTimePickerPopup extends Page {
 
     async waitForOkButtonDisabled() {
         try {
-            await this.waitForElementDisplayed(this.okButton, appConst.mediumTimeout);
-            return await this.waitForElementDisabled(this.okButton, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.okButton);
+            return await this.waitForElementDisabled(this.okButton);
         } catch (err) {
             await this.handleError('DateTimePickerPopup - OK button should be disabled', 'err_ok_button_disabled', err);
         }
@@ -118,7 +118,7 @@ class DateTimePickerPopup extends Page {
     async clickOnPrevMonthButton() {
         try {
             let selector = XPATH.datePickerContent + XPATH.prevMonthButton;
-            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(selector);
             await this.clickOnElement(selector);
             return await this.pause(300);
         } catch (err) {
@@ -134,7 +134,7 @@ class DateTimePickerPopup extends Page {
     async clickOnDayInCalendar(day) {
         try {
             let selector = XPATH.datePickerContent + XPATH.dayByNumber(day);
-            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(selector);
             await this.clickOnElement(selector);
             return await this.pause(300);
         } catch (err) {
@@ -150,7 +150,7 @@ class DateTimePickerPopup extends Page {
     async getMonth() {
         try {
             let locator = this.monthSelect + XPATH.selectorValue;
-            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(locator);
             return await this.getText(locator);
         } catch (err) {
             await this.handleError('DateTimePickerPopup - get month', 'err_get_month', err);
@@ -161,7 +161,7 @@ class DateTimePickerPopup extends Page {
     async getYear() {
         try {
             let locator = this.yearSelect + XPATH.selectorValue;
-            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(locator);
             return await this.getText(locator);
         } catch (err) {
             await this.handleError('DateTimePickerPopup - get year', 'err_get_year', err);
@@ -172,7 +172,7 @@ class DateTimePickerPopup extends Page {
     async getHours() {
         try {
             let locator = this.hourSelect + XPATH.selectorValue;
-            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(locator);
             return await this.getText(locator);
         } catch (err) {
             await this.handleError('DateTimePickerPopup - get hours', 'err_get_hours', err);
@@ -183,7 +183,7 @@ class DateTimePickerPopup extends Page {
     async getMinutes() {
         try {
             let locator = this.minuteSelect + XPATH.selectorValue;
-            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(locator);
             return await this.getText(locator);
         } catch (err) {
             await this.handleError('DateTimePickerPopup - get minutes', 'err_get_minutes', err);
