@@ -3,7 +3,7 @@
 ## Progress
 
 - [x] P1 — Delete legacy, render an empty frame
-- [ ] P2 — Pure layout model (+ tests)
+- [x] P2 — Pure layout model (+ tests)
 - [ ] P3 — Positioned, unstyled cards
 - [ ] P4 — Edges
 - [ ] P5 — Styling
@@ -127,12 +127,22 @@ const DAG_GAP: readonly [number, number] = [32, 56];
 const { width, height } = sugiyama()
     .nodeSize(NODE_SIZE)
     .gap(DAG_GAP)
-    .tweaks([tweakSugiyama(NODE_SIZE), tweakShape(NODE_SIZE, shapeTopBottom)])(graph);
+    .tweaks([tweakShape<ProjectDagDatum, undefined>(NODE_SIZE, shapeTopBottom)])(graph);
 ```
 
-`tweakSugiyama` keeps long edges off node boxes; `tweakShape(…, shapeTopBottom)` clips edge
-endpoints to each card's top/bottom border — together they replace `adjustRects` +
-`adjustEdges`.
+`tweakShape(…, shapeTopBottom)` clips edge endpoints to each card's top/bottom border,
+replacing `adjustRects` + `adjustEdges`.
+
+Two d3-dag gotchas found while implementing:
+
+- `tweakSugiyama` **cannot** be combined with `tweakShape` (the plan originally used both):
+  it adds a control point exactly on the node border, so the shape truncation becomes
+  degenerate and the layout throws
+  `line from [[280, 140]] -> [[241, 112]] ended too close …`. Dropped; `shapeTopBottom`
+  alone gives the desired top/bottom attachment.
+- `tweakShape` needs its generics spelled out (`<ProjectDagDatum, undefined>`), otherwise the
+  operator's data type infers as `never` and the final `(graph)` call fails to typecheck —
+  the `never`-inference caveat the d3-dag docs warn about.
 
 3. Node view models: d3-dag v1 `node.x/y` are **centers**, so store
    `left = x - DAG_NODE_WIDTH / 2`, `top = y - DAG_NODE_HEIGHT / 2`.
@@ -142,7 +152,10 @@ endpoints to each card's top/bottom border — together they replace `adjustRect
 5. Local `buildEdgePath(points)`: chained cubic béziers with control points at each segment's
    vertical midpoint — replaces `d3.line().curve(d3.curveCatmullRom)` (that is what lets the
    `d3` dep go).
-6. Empty input → `{ nodes: [], edges: [], width: 0, height: 0 }`.
+6. Empty input → `{ nodes: [], edges: [], width: 0, height: 0 }`. The whole layout is wrapped
+   in `try/catch` → empty layout + `console.error`, so a bad graph can never crash the
+   statistics panel from inside render (`graphStratify` throws on duplicate ids).
+   `getParents()` can be `undefined` on a `Project`, so it is `?? []`-guarded.
 
 `ProjectDag.tsx` gets `const layout = useMemo(() => buildProjectDagLayout(projects), [projects])`
 and the temporary debug block prints, per node, `id / layer y / left,top` plus the edge list.
@@ -151,6 +164,11 @@ and the temporary debug block prints, per node, `id / layer y / left,top` plus t
 layer (one solid + one dashed edge), unknown parent id dropped instead of throwing, finite
 coordinates, `width/height > 0`. In the app, the debug text should show sane increasing y per
 layer and one edge per parent relation.
+
+**Done.** 8 tests, built from real `Project.create()…build()` instances (no casts). `check:types`,
+`check:lint` and the full suite (137 files / 1723 tests) pass; deploy is green. Note: d3-dag
+lays out a **cyclic** parent relation without throwing, so that case is asserted as a
+successful layout rather than a caught error.
 
 ## Phase 3 — Positioned, unstyled cards
 
