@@ -31,7 +31,7 @@
     "@enonic/lib-admin-ui": "link:.xp/dev/lib-admin-ui",
     "@enonic/lib-contentstudio": "link:.xp/dev/lib-contentstudio",
     "@enonic/page-editor": "2.0.1",
-    "@enonic/ui": "^1.0.5",
+    "@enonic/ui": "^1.1.1",
     "@nanostores/preact": "^1.0.0",
     "@radix-ui/react-slot": "^1.3.3",
     "chart.js": "^4.5.1",
