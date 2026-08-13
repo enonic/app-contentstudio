@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { centerTransform, clampScale, fitTransform, MAX_SCALE, MIN_SCALE, zoomAt } from './useDagViewport';
+import {
+    centerTransform,
+    clampScale,
+    fitTransform,
+    MAX_SCALE,
+    MIN_SCALE,
+    wheelZoomFactor,
+    zoomAt,
+} from './useDagViewport';
 
 describe('clampScale', () => {
     it('should keep a scale inside the allowed range', () => {
@@ -56,6 +64,18 @@ describe('centerTransform', () => {
             y: 150,
             k: 1,
         });
+    });
+});
+
+describe('wheelZoomFactor', () => {
+    it('should zoom in on a negative delta and out on a positive one', () => {
+        expect(wheelZoomFactor(-100)).toBeGreaterThan(1);
+        expect(wheelZoomFactor(100)).toBeLessThan(1);
+        expect(wheelZoomFactor(0)).toBe(1);
+    });
+
+    it('should be symmetric so opposite scrolls cancel out', () => {
+        expect(wheelZoomFactor(120) * wheelZoomFactor(-120)).toBeCloseTo(1);
     });
 });
 

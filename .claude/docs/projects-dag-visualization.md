@@ -8,7 +8,8 @@
 - [x] P4 — Edges
 - [x] P5 — Styling
 - [x] P6 — Zoom controls + drag pan
-- [ ] P7 — Wheel + keyboard
+- [x] P7 — Wheel + keyboard
+- [ ] P8 — Faster wheel zoom + shortcut hint strip
 
 ## Context
 
@@ -296,6 +297,60 @@ create/rename/delete a project updates the graph live (new behaviour).
 **Test locally**: ctrl/⌘+wheel and trackpad pinch zoom toward the cursor, not the corner;
 plain two-finger scroll pans without scrolling the settings panel behind it; keyboard shortcuts
 work when the viewport is focused; no zoom-past-clamp.
+
+**Done.** Details:
+
+- Zoom factor is exponential (`wheelZoomFactor`, `Math.exp(-deltaY * 0.002)`) so each notch
+  scales by a constant ratio and opposite scrolls cancel out (both asserted in tests).
+- Plain wheel pans **only while the graph overflows the viewport** at the current scale;
+  otherwise the event is left alone so the statistics panel keeps scrolling normally. This is
+  the one deviation from "plain wheel → pan" in the sketch above.
+- The wheel handler reads `transformRef`/`contentRef`, so the listener attaches once instead
+  of re-binding on every transform change.
+- Keys on the focused viewport: `+`/`=` in, `-`/`_` out, `0` reset, `f` fit. The viewport is
+  `tabIndex={0}` with `aria-label` from the new `settings.statistics.projects.graph.label`
+  phrase and a `focus-visible` ring.
+
+## Phase 8 — Faster wheel zoom + shortcut hint strip
+
+**Zoom speed**: `WHEEL_ZOOM_SENSITIVITY` 0.002 → 0.005 in `useDagViewport.ts`. A Chrome wheel
+notch (`deltaY ≈ 100`) then scales ×1.65 instead of ×1.22; trackpad deltas are much smaller so
+two-finger zoom stays smooth. `wheelZoomFactor` tests assert direction and symmetry, not
+magnitude, so they stay valid.
+
+**Hint strip instead of per-button tooltips.** Tooltips on four adjacent icon buttons pop up
+constantly while aiming at them. One passive strip in the opposite corner teaches the same
+thing without interrupting: `aria-label`s stay on the buttons for screen readers.
+
+New `ProjectDagShortcuts.tsx`, bottom-left of the frame, mirroring the controls:
+
+```
+⌘ + scroll  Zoom     drag  Pan     F  Fit to view     0  Reset zoom
+```
+
+- Reveal on interaction, not always on: the frame gets `group`, the strip is `opacity-0
+  group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity`. The controls move
+  from their own `hover:` to the same `group-*` triggers, so pointing anywhere at the graph
+  brings up both. Keeps the resting state clean.
+- `text-xs text-subtle`, `flex flex-wrap gap-x-3 gap-y-1`, `pointer-events-none select-none` so
+  it never blocks a drag.
+- `kbd` chips: `rounded border border-bdr-soft bg-surface-neutral px-1 font-mono text-[10px]`.
+  There is no existing `<kbd>` in the codebase to follow.
+- Modifier symbol from `BrowserHelper.isOSX() || isIOS()` (the convention in
+  `v6/shared/lib/format/shortcuts.ts` and `html-area/setupEditor.ts`) → `⌘` vs `Ctrl`.
+- The bottom-left corner is inside the graph's `VIEWPORT_PADDING.bottom` band, so the strip
+  never sits on a card — same guarantee the controls already have.
+- Phrases: reuse `…graph.fit` / `…graph.reset` for their labels; add four small ones —
+  `…graph.hint.zoom=Zoom`, `…graph.hint.pan=Pan`, `…graph.hint.scroll=scroll`,
+  `…graph.hint.drag=drag` (the last two are gesture words shown inside `kbd`).
+
+Files: `ProjectDagShortcuts.tsx` (new), `ProjectDagControls.tsx`, `ProjectDag.tsx`,
+`useDagViewport.ts`, `i18n/phrases.properties`. No new tests — presentational plus one constant.
+
+**Test locally**: ctrl/⌘+wheel feels noticeably faster but not jumpy; trackpad pinch still
+smooth; the strip appears only while the pointer is over the graph (or it is focused), shows
+`⌘` on macOS, wraps instead of overlapping the controls in a narrow panel, and never swallows a
+drag.
 
 ---
 

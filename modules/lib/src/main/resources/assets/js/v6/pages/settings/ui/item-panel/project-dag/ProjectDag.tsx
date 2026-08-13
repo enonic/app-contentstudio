@@ -2,6 +2,7 @@ import { cn, Skeleton } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { type ReactElement, useMemo } from 'react';
 import { $projects } from '../../../../../entities/project';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { ProjectDagCard } from './ProjectDagCard';
 import { ProjectDagControls } from './ProjectDagControls';
 import { ProjectDagEdges } from './ProjectDagEdges';
@@ -20,6 +21,7 @@ export const ProjectDag = (): ReactElement | null => {
     const layout = useMemo(() => buildProjectDagLayout(projects), [projects]);
     const content = useMemo(() => ({ width: layout.width, height: layout.height }), [layout]);
     const viewport = useDagViewport(content);
+    const graphLabel = useI18n('settings.statistics.projects.graph.label');
 
     if (!loaded) {
         return (
@@ -37,9 +39,12 @@ export const ProjectDag = (): ReactElement | null => {
         <div data-component={PROJECT_DAG_NAME} className={FRAME_CLASSES}>
             <div
                 ref={viewport.viewportRef}
+                tabIndex={0}
+                aria-label={graphLabel}
                 onPointerDown={viewport.startPan}
+                onKeyDown={viewport.handleKeyDown}
                 className={cn(
-                    'size-full touch-none select-none',
+                    'size-full touch-none select-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring',
                     viewport.isPanning ? 'cursor-grabbing' : 'cursor-grab',
                 )}
             >

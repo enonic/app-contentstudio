@@ -1,4 +1,5 @@
 import {
+    type KeyboardEvent as ReactKeyboardEvent,
     type PointerEvent as ReactPointerEvent,
     type RefObject,
     useCallback,
@@ -10,6 +11,7 @@ import {
 export const MIN_SCALE = 0.25;
 export const MAX_SCALE = 2;
 export const ZOOM_STEP = 1.25;
+const WHEEL_ZOOM_SENSITIVITY = 0.002;
 
 export type ViewportPadding = {
     x: number;
@@ -42,6 +44,7 @@ export type DagViewport = {
     reset: () => void;
     fitToView: () => void;
     startPan: (event: ReactPointerEvent<HTMLDivElement>) => void;
+    handleKeyDown: (event: ReactKeyboardEvent<HTMLDivElement>) => void;
 };
 
 const IDENTITY: DagTransform = { x: 0, y: 0, k: 1 };
@@ -83,6 +86,11 @@ export function centerTransform(
     };
 }
 
+/** Exponential zoom factor for a wheel delta, so every notch scales by the same ratio. */
+export function wheelZoomFactor(deltaY: number): number {
+    return Math.exp(-deltaY * WHEEL_ZOOM_SENSITIVITY);
+}
+
 /** Scales around a point in container coordinates so it stays put on screen. */
 export function zoomAt(transform: DagTransform, factor: number, point: { x: number; y: number }): DagTransform {
     const k = clampScale(transform.k * factor);
@@ -101,11 +109,13 @@ export function useDagViewport(content: DagSize): DagViewport {
     // ? While untouched the viewport keeps refitting on resize; any manual zoom/pan stops that.
     const isAdjustedRef = useRef(false);
     const transformRef = useRef<DagTransform>(IDENTITY);
+    const contentRef = useRef<DagSize>(content);
 
     const [transform, setTransform] = useState<DagTransform>(IDENTITY);
     const [isPanning, setIsPanning] = useState(false);
 
     transformRef.current = transform;
+    contentRef.current = content;
 
     const getContainerSize = useCallback((): DagSize => {
         const element = viewportRef.current;
@@ -146,6 +156,65 @@ export function useDagViewport(content: DagSize): DagViewport {
         isAdjustedRef.current = true;
         setIsPanning(true);
         event.currentTarget.setPointerCapture(event.pointerId);
+    }, []);
+
+    const handleKeyDown = useCallback(
+        (event: ReactKeyboardEvent<HTMLDivElement>): void => {
+            switch (event.key) {
+                case '+':
+                case '=':
+                    zoomIn();
+                    break;
+                case '-':
+                case '_':
+                    zoomOut();
+                    break;
+                case '0':
+                    reset();
+                    break;
+                case 'f':
+                case 'F':
+                    fitToView();
+                    break;
+                default:
+                    return;
+            }
+
+            event.preventDefault();
+        },
+        [zoomIn, zoomOut, reset, fitToView],
+    );
+
+    // ! React registers wheel passively on the root, so preventDefault only works natively.
+    useEffect(() => {
+        const element = viewportRef.current;
+        if (!element) return;
+
+        const handleWheel = (event: WheelEvent): void => {
+            const rect = element.getBoundingClientRect();
+            const current = transformRef.current;
+            isAdjustedRef.current = true;
+
+            if (event.ctrlKey || event.metaKey) {
+                event.preventDefault();
+                const point = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+                setTransform(zoomAt(current, wheelZoomFactor(event.deltaY), point));
+                return;
+            }
+
+            // ? Claim the wheel for panning only while the graph overflows, so an
+            // ? already visible graph does not trap the statistics panel's scroll.
+            const { width, height } = contentRef.current;
+            const overflows = width * current.k > rect.width || height * current.k > rect.height;
+            if (!overflows) return;
+
+            event.preventDefault();
+            setTransform({ x: current.x - event.deltaX, y: current.y - event.deltaY, k: current.k });
+        };
+
+        element.addEventListener('wheel', handleWheel, { passive: false });
+
+        return () => element.removeEventListener('wheel', handleWheel);
     }, []);
 
     useEffect(() => {
@@ -208,5 +277,6 @@ export function useDagViewport(content: DagSize): DagViewport {
         reset,
         fitToView,
         startPan,
+        handleKeyDown,
     };
 }
