@@ -289,11 +289,10 @@ class BasePageComponentView extends Page {
             await this.getBrowser().execute((el) => el.focus(), sourceElem);
             await this.pause(200);
             await this.keys('Space');
-            // dnd-kit sets aria-pressed='true' on the row when the item is picked up:
             await this.getBrowser().waitUntil(
                 async () => {
-                    let ariaPressed = await sourceElem.getAttribute('aria-pressed');
-                    return ariaPressed === 'true';
+                    let dragging = await sourceElem.getAttribute('data-dragging');
+                    return dragging === 'true';
                 },
                 { timeout: appConst.shortTimeout, timeoutMsg: `DnD - the component '${sourceName}' was not picked up` },
             );
