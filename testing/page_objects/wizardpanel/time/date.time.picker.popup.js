@@ -1,24 +1,27 @@
 /**
- * Created on 11.10.2021
+ * Created on 11.10.2021 updated on 13.08.2026
  */
 const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
 
 const XPATH = {
-    container: `//div[contains(@id,'DateTimePickerPopup')]`,
+    container: `//div[@data-component='DatePicker.Content']`,
     datePickerContent: `//div[@data-component='DatePicker.Content' and @data-state='open']`,
     nextMonthButton: `//button[@data-component='IconButton' and @aria-label='Next month']`,
     prevMonthButton: `//button[@data-component='IconButton' and @aria-label='Previous month']`,
+    monthSelect: `//button[@data-component='DatePicker.MonthSelect']`,
+    yearSelect: `//button[@data-component='DatePicker.YearSelect']`,
     // Day cell of the currently displayed month (trailing days of adjacent months carry 'text-subtle'):
-    dayByNumber: day => `//button[@data-component='DatePicker.Day' and not(contains(@class,'text-subtle')) and normalize-space(.)='${day}']`,
-    timezone: "//li[@class='timezone']",
-    okButton: `//button[@data-component='Button' and normalize-space(.)='Ok']`,
-    onlineFromPickerPopup: "//div[contains(@id,'DateTimePicker') and preceding-sibling::label[child::span[text()='Online from']]]//div[contains(@id,'DateTimePickerPopup')]",
-    onlineToPickerPopup: "//div[contains(@id,'DateTimePicker') and preceding-sibling::label[child::span[text()='Online to']]]//div[contains(@id,'DateTimePickerPopup')]",
+    dayByNumber: (day) =>
+        `//button[@data-component='DatePicker.Day' and not(contains(@class,'text-subtle')) and normalize-space(.)='${day}']`,
+    hourSelect: `//button[@data-component='TimePicker.HourSelect']`,
+    minuteSelect: `//button[@data-component='TimePicker.MinuteSelect']`,
+    selectorValue: `//span[@data-component='Selector.Value']`,
+    okButton: `//button[@data-component='Button' and normalize-space(.)='OK']`,
+    timezone: `//div[@data-component='TimePicker.Root']//span[starts-with(normalize-space(.),'UTC')]`,
 };
 
 class DateTimePickerPopup extends Page {
-
     get timezone() {
         return XPATH.container + XPATH.timezone;
     }
@@ -27,46 +30,71 @@ class DateTimePickerPopup extends Page {
         return XPATH.datePickerContent + XPATH.okButton;
     }
 
+    get monthSelect() {
+        return XPATH.datePickerContent + XPATH.monthSelect;
+    }
+
+    get yearSelect() {
+        return XPATH.datePickerContent + XPATH.yearSelect;
+    }
+
+    get hourSelect() {
+        return XPATH.datePickerContent + XPATH.hourSelect;
+    }
+
+    get minuteSelect() {
+        return XPATH.datePickerContent + XPATH.minuteSelect;
+    }
+
     async waitForLoaded() {
-        await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(XPATH.datePickerContent, appConst.mediumTimeout);
         return await this.pause(200);
     }
 
+    async waitForClosed() {
+        return await this.waitForElementNotDisplayed(XPATH.datePickerContent, appConst.mediumTimeout);
+    }
+
     async waitForTimeZoneDisplayed() {
-        return await this.waitForElementDisplayed(XPATH.timezone, appConst.mediumTimeout);
+        return await this.waitForElementDisplayed(this.timezone, appConst.mediumTimeout);
+    }
+
+    // Returns the timezone label, e.g. 'UTC+02:00':
+    async getTimezone() {
+        try {
+            await this.waitForTimeZoneDisplayed();
+            return await this.getText(this.timezone);
+        } catch (err) {
+            await this.handleError('DateTimePickerPopup - get timezone', 'err_get_timezone', err);
+        }
+    }
+
+    // 'OK' button is disabled until a date or time is changed in the popup:
+    async waitForOkButtonEnabled() {
+        try {
+            await this.waitForElementDisplayed(this.okButton, appConst.mediumTimeout);
+            return await this.waitForElementEnabled(this.okButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError('DateTimePickerPopup - OK button should be enabled', 'err_ok_button_enabled', err);
+        }
+    }
+
+    async waitForOkButtonDisabled() {
+        try {
+            await this.waitForElementDisplayed(this.okButton, appConst.mediumTimeout);
+            return await this.waitForElementDisabled(this.okButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError('DateTimePickerPopup - OK button should be disabled', 'err_ok_button_disabled', err);
+        }
     }
 
     async clickOnOkButton() {
         try {
-            await this.waitForElementDisplayed(this.okButton, appConst.mediumTimeout);
+            await this.waitForOkButtonEnabled();
             await this.clickOnElement(this.okButton);
             return await this.pause(300);
         } catch (err) {
             await this.handleError('DateTimePickerPopup - click on OK button', 'err_click_on_ok_button', err);
-        }
-    }
-
-    // Click on 'Next' (arrow-up) icon in Online To Data Picker and set a date/time in the input
-    async clickOnHoursArrowUp() {
-        try {
-            //let selector = XPATH.container + "//a[@class='next']/span";
-            let elems = await this.findElements(selector);
-            await elems[0].click();
-            return await this.pause(300);
-        }catch (err){
-            await this.handleError('DateTimePickerPopup - click hour ArrowUp icon', 'err_click_on_hours_arrow_next', err);
-        }
-    }
-
-    // Click on 'Prev' (arrow-down) icon in Online To Data Picker and set a date/time in the input
-    async clickOnHoursArrowDown() {
-        try {
-            let selector = XPATH.container + "//a[@class='prev']/span";
-            let elems = await this.findElements(selector);
-            await elems[0].click();
-            return await this.pause(300);
-        } catch (err) {
-            await this.handleError('DateTimePickerPopup - click ArrowPrev In Online To', 'err_click_on_hours_arrow_prev', err);
         }
     }
 
@@ -78,7 +106,11 @@ class DateTimePickerPopup extends Page {
             await this.clickOnElement(selector);
             return await this.pause(300);
         } catch (err) {
-            await this.handleError('DateTimePickerPopup - click on Next month button', 'err_click_on_next_month_button', err);
+            await this.handleError(
+                'DateTimePickerPopup - click on Next month button',
+                'err_click_on_next_month_button',
+                err,
+            );
         }
     }
 
@@ -90,7 +122,11 @@ class DateTimePickerPopup extends Page {
             await this.clickOnElement(selector);
             return await this.pause(300);
         } catch (err) {
-            await this.handleError('DateTimePickerPopup - click on Previous month button', 'err_click_on_prev_month_button', err);
+            await this.handleError(
+                'DateTimePickerPopup - click on Previous month button',
+                'err_click_on_prev_month_button',
+                err,
+            );
         }
     }
 
@@ -102,20 +138,70 @@ class DateTimePickerPopup extends Page {
             await this.clickOnElement(selector);
             return await this.pause(300);
         } catch (err) {
-            await this.handleError(`DateTimePickerPopup - click on day '${day}' in calendar`, 'err_click_on_day_in_calendar', err);
+            await this.handleError(
+                `DateTimePickerPopup - click on day '${day}' in calendar`,
+                'err_click_on_day_in_calendar',
+                err,
+            );
         }
     }
 
+    // Returns the month displayed in the 'Month' dropdown selector (locale-dependent, e.g. 'Aug'):
+    async getMonth() {
+        try {
+            let locator = this.monthSelect + XPATH.selectorValue;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getText(locator);
+        } catch (err) {
+            await this.handleError('DateTimePickerPopup - get month', 'err_get_month', err);
+        }
+    }
+
+    // Returns the year displayed in the 'Year' dropdown selector:
+    async getYear() {
+        try {
+            let locator = this.yearSelect + XPATH.selectorValue;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getText(locator);
+        } catch (err) {
+            await this.handleError('DateTimePickerPopup - get year', 'err_get_year', err);
+        }
+    }
+
+    // Returns the value displayed in the 'Hour' dropdown selector:
+    async getHours() {
+        try {
+            let locator = this.hourSelect + XPATH.selectorValue;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getText(locator);
+        } catch (err) {
+            await this.handleError('DateTimePickerPopup - get hours', 'err_get_hours', err);
+        }
+    }
+
+    // Returns the value displayed in the 'Minute' dropdown selector:
+    async getMinutes() {
+        try {
+            let locator = this.minuteSelect + XPATH.selectorValue;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getText(locator);
+        } catch (err) {
+            await this.handleError('DateTimePickerPopup - get minutes', 'err_get_minutes', err);
+        }
+    }
+
+    // Returns the time displayed in the TimePicker selectors as 'hh:mm':
+    async getTime() {
+        let hours = await this.getHours();
+        let minutes = await this.getMinutes();
+        return hours + ':' + minutes;
+    }
+
+    // Only one picker popup is open at a time in the new UI, so the time
+    // is read from the TimePicker selectors of the currently open popup:
     async getTimeInOnlineFrom() {
         try {
-            let locator = XPATH.onlineFromPickerPopup + "//ul[contains(@id,'TimePickerPopup')]/li/span[1]";
-            let elements = await this.findElements(locator);
-            if (elements.length !== 2) {
-                throw new Error('Error occurred during getting time in  TimePickerPopup');
-            }
-            let h = await elements[0].getText();
-            let min = await elements[1].getText();
-            return h + ':' + min;
+            return await this.getTime();
         } catch (err) {
             await this.handleError('DateTimePickerPopup - getTime In Online From', 'err_get_time_in_online_from', err);
         }
@@ -123,5 +209,3 @@ class DateTimePickerPopup extends Page {
 }
 
 module.exports = DateTimePickerPopup;
-
-

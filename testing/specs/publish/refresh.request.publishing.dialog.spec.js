@@ -1,12 +1,12 @@
 /**
- * Created on 12.08.2019. updated on 23.03.2026 for epic-enonic-ui
+ * Created on 12.08.2019. updated on 23.03.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
-const contentBuilder = require("../../libs/content.builder");
+const contentBuilder = require('../../libs/content.builder');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 
@@ -18,45 +18,47 @@ describe('refresh.request.publish.dialog.spec - opens request publish modal dial
     let FOLDER1;
     let FOLDER2;
 
-    it(`GIVEN new folder ('Work in progress') is selected AND Publish dialog has been opened WHEN this folder has been clicked in the dialog and 'Marked as ready' has been done in the wizard THEN Publish Wizard should be updated`,
-        async () => {
-            let contentWizard = new ContentWizard();
-            let contentBrowsePanel = new ContentBrowsePanel();
-            let createRequestPublishDialog = new CreateRequestPublishDialog();
-            let folderName1 = contentBuilder.generateRandomName('folder');
-            let folderName2 = contentBuilder.generateRandomName('folder');
-            FOLDER1 = contentBuilder.buildFolder(folderName1);
-            FOLDER2 = contentBuilder.buildFolder(folderName2);
-            // 1. New folder has been added
-            await studioUtils.doAddFolder(FOLDER1);
-            await studioUtils.doAddReadyFolder(FOLDER2);
-            await studioUtils.findContentAndClickCheckBox(FOLDER1.displayName);
-            await studioUtils.findContentAndClickCheckBox(FOLDER2.displayName);
-            // 2. expand the 'Publish Menu' and select 'Request Publishing...' menu item, Request Publishing Wizard gets visible:
-            await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
-            await createRequestPublishDialog.waitForDialogLoaded();
-            await createRequestPublishDialog.typeInTitleInput('test title');
-            // 3. click on the folder-name in the modal dialog and switch to new wizard-tab:
-            await createRequestPublishDialog.clickOnMainItemAndSwitchToWizard(FOLDER1.displayName);
-            // 4. Click on 'Mark as Ready' button and this content gets "Ready for Publishing" in its wizard-page
-            await contentWizard.clickOnMarkAsReadyButton();
-            await studioUtils.doCloseWizardAndSwitchToGrid();
-            // 5. Switch to the modal dialog and check that the state of the content gets updated in the dialog:
-            // TODO: Enonic ui bug
-            //await createRequestPublishDialog.waitForCreateRequestButtonEnabled();
-            let contentStatus = await createRequestPublishDialog.getContentStatus(FOLDER1.displayName);
-            assert.equal(contentStatus, appConst.CONTENT_STATUS.OFFLINE_NEW,
-                "'Ready for publishing' status should be in the modal dialog");
-            let workflow = await createRequestPublishDialog.getWorkflowIconState(FOLDER1.displayName);
-            // TODO: Enonic ui bug
-            //assert.equal(workflow, 'ready',`ready workflow icon should be displayed for the content in the modal dialog`);
-            // Check the warning in the title:
-            //let isDisplayed = await createRequestPublishDialog.isWarningMessageDisplayed();
-            //assert.ok(isDisplayed === false, "Work in progress! message gets not visible now")
-        });
+    it(`GIVEN new folder ('Work in progress') is selected AND Publish dialog has been opened WHEN this folder has been clicked in the dialog and 'Marked as ready' has been done in the wizard THEN Publish Wizard should be updated`, async () => {
+        let contentWizard = new ContentWizard();
+        let contentBrowsePanel = new ContentBrowsePanel();
+        let createRequestPublishDialog = new CreateRequestPublishDialog();
+        let folderName1 = contentBuilder.generateRandomName('folder');
+        let folderName2 = contentBuilder.generateRandomName('folder');
+        FOLDER1 = contentBuilder.buildFolder(folderName1);
+        FOLDER2 = contentBuilder.buildFolder(folderName2);
+        // 1. New folder has been added
+        await studioUtils.doAddFolder(FOLDER1);
+        await studioUtils.doAddReadyFolder(FOLDER2);
+        await studioUtils.findContentAndClickCheckBox(FOLDER1.displayName);
+        await studioUtils.findContentAndClickCheckBox(FOLDER2.displayName);
+        // 2. expand the 'Publish Menu' and select 'Request Publishing...' menu item, Request Publishing Wizard gets visible:
+        await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
+        await createRequestPublishDialog.waitForDialogLoaded();
+        await createRequestPublishDialog.typeInTitleInput('test title');
+        // 3. click on the folder-name in the modal dialog and switch to new wizard-tab:
+        await createRequestPublishDialog.clickOnMainItemAndSwitchToWizard(FOLDER1.displayName);
+        // 4. Click on 'Mark as Ready' button and this content gets "Ready for Publishing" in its wizard-page
+        await contentWizard.clickOnMarkAsReadyButton();
+        await studioUtils.doCloseWizardAndSwitchToGrid();
+        // Verifies https://github.com/enonic/app-contentstudio/issues/10110
+        // Publish Request dialog is not updated after server-side changes
+        // 5. Switch to the modal dialog and check that the state of the content gets updated in the dialog:
+        await createRequestPublishDialog.waitForCreateRequestButtonEnabled();
+        let contentStatus = await createRequestPublishDialog.getContentStatus(FOLDER1.displayName);
+        assert.equal(
+            contentStatus,
+            appConst.CONTENT_STATUS.OFFLINE_NEW,
+            "'Ready for publishing' status should be in the modal dialog",
+        );
+        let workflow = await createRequestPublishDialog.getWorkflowIconState(FOLDER1.displayName);
+        assert.equal(workflow, 'ready', `ready workflow icon should be displayed for the content in the modal dialog`);
+        // Check the warning in the title:
+        let isDisplayed = await createRequestPublishDialog.isWarningMessageDisplayed();
+        assert.ok(isDisplayed === false, 'Work in progress! message gets not visible now');
+    });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(async() => {
+    afterEach(async () => {
         await studioUtils.doPressEscape();
         await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
     });
