@@ -63,10 +63,10 @@ export class WidgetsSidebar
         const appVersion: string = CONFIG.getString('appVersion');
         const cleanVersion: string = StringHelper.cleanVersion(appVersion);
         const appVersionSpan: DivEl = new DivEl('app-version');
-        appVersionSpan.setHtml(`v${cleanVersion}`);
+        appVersionSpan.setHtml(cleanVersion);
 
         if (appVersion !== cleanVersion) {
-            appVersionSpan.setTitle(`v${appVersion}`);
+            appVersionSpan.setTitle(appVersion);
         }
 
         return appVersionSpan;
