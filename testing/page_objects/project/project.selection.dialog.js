@@ -124,6 +124,10 @@ class ProjectSelectionDialog extends Page {
     press_Shift_Tab() {
         return this.browser.keys([Key.Shift, Key.Tab]);
     }
+
+    async press_Tab() {
+        return await this.browser.keys([Key.Tab]);
+    }
 }
 
 module.exports = ProjectSelectionDialog;
