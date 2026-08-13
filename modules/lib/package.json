@@ -38,7 +38,6 @@
     "@nanostores/preact": "^1.0.0",
     "ckeditor4-react": "5.2.1",
     "class-variance-authority": "^0.7.1",
-    "d3": "^7.9.0",
     "d3-dag": "^1.2.2",
     "dayjs": "^1.11.21",
     "dompurify": "^3.4.13",
