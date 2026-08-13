@@ -9,14 +9,7 @@ const browser_version = properties.get('browser.version');
 exports.config = {
     specs: [path.join(__dirname, '../specs/project-2/*.spec.js')],
 
-    exclude: [
-        path.join(__dirname, '../specs/project-2/duplicate.inherited.content.spec.js'),
-        path.join(__dirname, '../specs/project-2/layer.with.app.spec.js'),
-        path.join(__dirname, '../specs/project-2/layer.wizard.unsaved.changes.spec.js'),
-        path.join(__dirname, '../specs/project-2/project.wizard.custom.read.access.user.deleted.spec.js'),
-        path.join(__dirname, '../specs/project-2/project.wizard.dialog.access.mode.step.spec.js'),
-        path.join(__dirname, '../specs/project-2/project.wizard.panel.select.app.spec.js'),
-    ],
+    exclude: [path.join(__dirname, '../specs/project-2/project.wizard.custom.read.access.user.deleted.spec.js')],
 
     maxInstances: 1,
 
