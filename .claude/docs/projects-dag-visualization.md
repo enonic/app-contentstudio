@@ -4,9 +4,9 @@
 
 - [x] P1 — Delete legacy, render an empty frame
 - [x] P2 — Pure layout model (+ tests)
-- [ ] P3 — Positioned, unstyled cards
-- [ ] P4 — Edges
-- [ ] P5 — Styling
+- [x] P3 — Positioned, unstyled cards
+- [x] P4 — Edges
+- [x] P5 — Styling
 - [ ] P6 — Zoom controls + drag pan
 - [ ] P7 — Wheel + keyboard
 
@@ -40,7 +40,8 @@ full `d3` dependency is removed.
   divs (Tailwind + existing `ProjectIcon`) over an SVG edge layer, both inside one
   `transform: translate(x,y) scale(k)` wrapper. Hand-rolled pan/zoom.
 - **Card size**: fixed (`248 × 56`), CSS truncation — no text measuring.
-- **Viewport**: bounded frame, `h-[60vh] min-h-80 max-h-[720px]`.
+- **Viewport**: bounded frame, height `clamp(graph height + 48, 240, 720)` (revised in P5 —
+  a flat `60vh` left a large void under shallow graphs).
 - **Zoom input**: buttons + drag-pan + plain wheel pan + ctrl/⌘+wheel zoom. **No pinch.**
 - **Interaction**: read-only nodes — no click, no hover highlight, no active-project accent,
   **no tooltips** (not even native `title`, which the legacy version had as an SVG `<title>`).
@@ -181,6 +182,11 @@ successful layout rather than a caught error.
 the frame when large (expected — panning arrives in P6). Deep-layer project trees still lay
 out fast (this is where `decrossTwoLayer` replaces `decrossOpt`).
 
+**Done.** The frame keeps `overflow-auto` until P6 replaces it with pan/zoom, so an
+oversized graph is still reachable by scrolling in the meantime. `ProjectDag` returns
+`ReactElement | null` and renders nothing while the layout is empty. `check:types`,
+`check:lint`, full suite (137 files / 1723 tests) and deploy are green.
+
 ## Phase 4 — Edges
 
 - `ProjectDagEdges.tsx`: one `<svg>` sized to the layout,
@@ -189,6 +195,9 @@ out fast (this is where `decrossTwoLayer` replaces `decrossOpt`).
 
 **Test locally**: every parent relation has a curve; curves start/end exactly at card
 top/bottom borders; long edges spanning layers don't cut through cards.
+
+**Done** (shipped together with P5). The svg also carries `pointer-events-none` so it can
+never intercept the drag-pan added in P6.
 
 ## Phase 5 — Styling
 
@@ -206,6 +215,22 @@ top/bottom borders; long edges spanning layers don't cut through cards.
 **Test locally**: light and dark theme both legible; long display names and long ids truncate
 with ellipsis; custom project icons, flags, layer icon and default icon all render; visual
 parity-or-better vs the old white cards.
+
+**Done.** Second card line is `name (language)` — the legacy layout put the language on the
+display-name line, but the icon already carries the flag, so it reads better on the subtle
+line. `check:types`, `check:lint`, full suite (137 files / 1723 tests) and deploy are green.
+
+Token corrections after the first visual pass (both themes were wrong):
+
+- Canvas is `bg-surface-neutral-hover` (grey-50 / grey-900), **not** `bg-surface-secondary` —
+  that token is black in light mode, so the frame came out near-black with white cards.
+- Edges use `text-subtle` (grey-800 / grey-400), not `text-bdr-strong` (pure black/white):
+  softer, and close to the legacy `#343434`.
+- Frame height now follows the graph (`clamp(height + 48, 240, 720)`) instead of a flat
+  `60vh`, so a two-layer graph no longer leaves a large empty canvas. **This replaces the
+  `h-[60vh] min-h-80 max-h-[720px]` decision recorded above.**
+- Canvas is wrapped in a `w-max min-w-full p-6` block and centered with `mx-auto`, which pads
+  the graph and centers it while it fits, without the flex-`justify-center` scroll clipping.
 
 ## Phase 6 — Zoom controls + drag pan
 
