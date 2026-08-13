@@ -345,11 +345,14 @@ export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProp
     );
 
     const getItemProps = useCallback(
+        // ? The custom role drops dnd-kit's drag ARIA, so the drag state is restated here.
         (context: SortableListItemContext<FlatNode<PageComponentNodeData>>): SortableListItemProps => ({
             role: 'treeitem',
             tabIndex: context.item.id === visibleTabStopNodeId ? 0 : -1,
+            'aria-disabled': !context.isMovable,
             'aria-expanded': context.item.hasChildren ? context.item.isExpanded : undefined,
             'aria-level': context.item.level,
+            'aria-roledescription': context.isMovable ? 'sortable' : undefined,
             'aria-selected': context.item.id === inspectedPath,
         }),
         [inspectedPath, visibleTabStopNodeId],
