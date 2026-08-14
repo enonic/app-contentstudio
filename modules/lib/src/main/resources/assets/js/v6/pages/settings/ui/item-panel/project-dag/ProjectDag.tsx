@@ -6,6 +6,7 @@ import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { ProjectDagCard } from './ProjectDagCard';
 import { ProjectDagControls } from './ProjectDagControls';
 import { ProjectDagEdges } from './ProjectDagEdges';
+import { ProjectDagShortcuts } from './ProjectDagShortcuts';
 import { buildProjectDagLayout } from './projectDag.layout';
 import { useDagViewport } from './useDagViewport';
 
@@ -13,7 +14,7 @@ const PROJECT_DAG_NAME = 'ProjectDag';
 
 // ? A fixed stage keeps zooming predictable and leaves the controls clear of the graph.
 const FRAME_CLASSES =
-    'relative h-[60vh] max-h-[720px] min-h-90 w-full overflow-hidden rounded-md border border-bdr-soft bg-surface-neutral-hover';
+    'group relative h-[60vh] max-h-[720px] min-h-90 w-full overflow-hidden rounded-md border border-bdr-soft bg-surface-neutral-hover';
 
 export const ProjectDag = (): ReactElement | null => {
     const { projects, loaded } = useStore($projects, { keys: ['projects', 'loaded'] });
@@ -65,6 +66,8 @@ export const ProjectDag = (): ReactElement | null => {
                     ))}
                 </div>
             </div>
+
+            <ProjectDagShortcuts />
 
             <ProjectDagControls
                 scale={transform.k}

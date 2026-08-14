@@ -11,7 +11,7 @@ import {
 export const MIN_SCALE = 0.25;
 export const MAX_SCALE = 2;
 export const ZOOM_STEP = 1.25;
-const WHEEL_ZOOM_SENSITIVITY = 0.002;
+const WHEEL_ZOOM_SENSITIVITY = 0.005;
 
 export type ViewportPadding = {
     x: number;
@@ -170,6 +170,7 @@ export function useDagViewport(content: DagSize): DagViewport {
                     zoomOut();
                     break;
                 case '0':
+                    if (!event.ctrlKey && !event.metaKey) return;
                     reset();
                     break;
                 case 'f':

@@ -9,7 +9,7 @@
 - [x] P5 — Styling
 - [x] P6 — Zoom controls + drag pan
 - [x] P7 — Wheel + keyboard
-- [ ] P8 — Faster wheel zoom + shortcut hint strip
+- [x] P8 — Faster wheel zoom + shortcut hint strip
 
 ## Context
 
@@ -325,7 +325,7 @@ thing without interrupting: `aria-label`s stay on the buttons for screen readers
 New `ProjectDagShortcuts.tsx`, bottom-left of the frame, mirroring the controls:
 
 ```
-⌘ + scroll  Zoom     drag  Pan     F  Fit to view     0  Reset zoom
+⌘ scroll  Zoom     + -  Zoom     F  Fit to view     ⌘ 0  Reset zoom
 ```
 
 - Reveal on interaction, not always on: the frame gets `group`, the strip is `opacity-0
@@ -340,9 +340,11 @@ New `ProjectDagShortcuts.tsx`, bottom-left of the frame, mirroring the controls:
   `v6/shared/lib/format/shortcuts.ts` and `html-area/setupEditor.ts`) → `⌘` vs `Ctrl`.
 - The bottom-left corner is inside the graph's `VIEWPORT_PADDING.bottom` band, so the strip
   never sits on a card — same guarantee the controls already have.
-- Phrases: reuse `…graph.fit` / `…graph.reset` for their labels; add four small ones —
-  `…graph.hint.zoom=Zoom`, `…graph.hint.pan=Pan`, `…graph.hint.scroll=scroll`,
-  `…graph.hint.drag=drag` (the last two are gesture words shown inside `kbd`).
+- Phrases: reuse `…graph.fit` / `…graph.reset` for their labels; add `…graph.hint.zoom=Zoom`
+  and `…graph.hint.scroll=scroll` (the gesture word shown inside `kbd`).
+- Reset is `mod+0`, not bare `0`, and drag-to-pan is not advertised (it is the obvious
+  gesture). `preventDefault` on `mod+0` may not suppress the browser's own zoom reset, since
+  that combination is reserved in some browsers.
 
 Files: `ProjectDagShortcuts.tsx` (new), `ProjectDagControls.tsx`, `ProjectDag.tsx`,
 `useDagViewport.ts`, `i18n/phrases.properties`. No new tests — presentational plus one constant.
@@ -351,6 +353,10 @@ Files: `ProjectDagShortcuts.tsx` (new), `ProjectDagControls.tsx`, `ProjectDag.ts
 smooth; the strip appears only while the pointer is over the graph (or it is focused), shows
 `⌘` on macOS, wraps instead of overlapping the controls in a narrow panel, and never swallows a
 drag.
+
+**Done.** The strip is `aria-hidden` — the buttons already carry the same information in their
+`aria-label`s, so exposing decorative `kbd` chips would only duplicate it. Implemented as
+planned otherwise.
 
 ---
 

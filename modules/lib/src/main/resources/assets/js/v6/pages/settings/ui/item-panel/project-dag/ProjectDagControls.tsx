@@ -32,7 +32,7 @@ export const ProjectDagControls = ({
     return (
         <div
             data-component={PROJECT_DAG_CONTROLS_NAME}
-            className="absolute right-3 bottom-3 flex items-center gap-1 rounded-md border border-bdr-soft bg-surface-neutral p-1 opacity-50 shadow-sm transition-opacity hover:opacity-100 focus-within:opacity-100"
+            className="absolute right-3 bottom-3 flex items-center gap-1 rounded-md border border-bdr-soft bg-surface-neutral p-1 opacity-50 shadow-sm transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
         >
             <IconButton
                 icon={ZoomOut}
