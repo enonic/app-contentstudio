@@ -62,6 +62,17 @@ export function selectAll(): void {
     $selection.set(new Set(allIds));
 }
 
+// ? Signal consumed by the tree to scroll a row into view; cleared right after.
+export const $revealId = atom<string | null>(null);
+
+export function revealSettingsItem(id: string): void {
+    $revealId.set(id);
+}
+
+export function consumeRevealedItem(): void {
+    $revealId.set(null);
+}
+
 export function getCurrentItems(): readonly SettingsViewItem[] {
     return $currentItems.get();
 }

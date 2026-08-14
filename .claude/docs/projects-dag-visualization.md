@@ -11,7 +11,7 @@
 - [x] P7 — Wheel + keyboard
 - [x] P8 — Faster wheel zoom + shortcut hint strip
 - [x] P9 — Hover highlights the lineage, dims the rest
-- [ ] P10 — Click a card to select the project in the tree
+- [x] P10 — Click a card to select the project in the tree
 
 ## Context
 
@@ -399,11 +399,11 @@ intended behaviour.
   `wasDragged(): boolean` (threshold ~4 px). Without it, every pan ends in a click on whatever
   card sat under the pointer.
 - `pages/settings/model/settingsTreeSelection.store.ts`:
-  - `selectSettingsItem(id)` — `clearSelection()` + `setActive(id)`, mirroring
-    `SettingsTreeList`'s own row click (a plain row click sets the *active* id, not the
-    selection set; `$currentIds` falls back to `$activeId`).
   - reveal signal: `$revealId` atom + `revealSettingsItem(id)` command, consumed and cleared by
     the tree (signal store per `.claude/rules/stores.md`).
+  - selection reuses the existing `clearSelection()` + `setActive(id)` pair, exactly what
+    `SettingsTreeList`'s own row click does (a plain row click sets the *active* id, not the
+    selection set; `$currentIds` falls back to `$activeId`). No new wrapper command.
 - `pages/settings/model/settings-tree.store.ts`: `expandSettingsAncestors(id)` walking the
   `parentId` chain, so a collapsed branch opens before the reveal.
 - `pages/settings/ui/SettingsTreeList.tsx`: effect on `$revealId` → find the index in
@@ -414,12 +414,18 @@ intended behaviour.
   **`tabIndex={-1}` on purpose**: focusing an element inside the `overflow-hidden` viewport makes
   the browser scroll it into view, which silently shifts `scrollLeft`/`scrollTop` and desyncs the
   transform math. The tree stays the keyboard path to select a project.
-- Click order in the handler: expand ancestors → `selectSettingsItem` → `revealSettingsItem`.
+- Click order in the handler: expand ancestors → `clearSelection` + `setActive` →
+  `revealSettingsItem`.
 
 **Test locally**: clicking a card selects that project, the panel switches to its statistics and
 the tree row is selected and scrolled into view; panning across cards never selects anything;
 right-click and middle-click do nothing; collapsing the Projects branch first still reveals the
 row.
+
+**Done.** One change forced by the browser event model: the drag no longer uses
+`setPointerCapture`. Capture retargets `pointerup` **and its compatibility `click`** to the pan
+layer, so the card's `onClick` would never fire. `pointermove`/`up`/`cancel` are attached to
+`window` instead — a drag still survives leaving the frame, and card clicks reach the button.
 
 ---
 

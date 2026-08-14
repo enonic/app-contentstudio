@@ -1,8 +1,10 @@
 import { cn, Skeleton } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import { type ReactElement, useMemo, useState } from 'react';
+import { type ReactElement, useCallback, useMemo, useState } from 'react';
 import { $projects } from '../../../../../entities/project';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { expandSettingsAncestors } from '../../../model/settings-tree.store';
+import { revealSettingsItem, clearSelection, setActive } from '../../../model/settingsTreeSelection.store';
 import { ProjectDagCard } from './ProjectDagCard';
 import { ProjectDagControls } from './ProjectDagControls';
 import { ProjectDagEdges } from './ProjectDagEdges';
@@ -33,6 +35,18 @@ export const ProjectDag = (): ReactElement | null => {
     const lineage = useMemo(
         () => (highlightedId ? collectLineage(adjacency, highlightedId) : undefined),
         [adjacency, highlightedId],
+    );
+
+    const handleSelect = useCallback(
+        (id: string): void => {
+            if (viewport.wasDragged()) return;
+
+            expandSettingsAncestors(id);
+            clearSelection();
+            setActive(id);
+            revealSettingsItem(id);
+        },
+        [viewport],
     );
 
     if (!loaded) {
@@ -82,6 +96,7 @@ export const ProjectDag = (): ReactElement | null => {
                             key={node.id}
                             node={node}
                             dimmed={lineage != null && !lineage.has(node.id)}
+                            onSelect={() => handleSelect(node.id)}
                             onPointerEnter={() => setHoveredId(node.id)}
                             onPointerLeave={() => setHoveredId(undefined)}
                         />

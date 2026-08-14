@@ -12,6 +12,8 @@ export const MIN_SCALE = 0.25;
 export const MAX_SCALE = 2;
 export const ZOOM_STEP = 1.25;
 const WHEEL_ZOOM_SENSITIVITY = 0.005;
+// ? Pointer travel above this counts as a drag, so the closing click is not a node click.
+const DRAG_THRESHOLD = 4;
 
 export type ViewportPadding = {
     x: number;
@@ -45,6 +47,7 @@ export type DagViewport = {
     fitToView: () => void;
     startPan: (event: ReactPointerEvent<HTMLDivElement>) => void;
     handleKeyDown: (event: ReactKeyboardEvent<HTMLDivElement>) => void;
+    wasDragged: () => boolean;
 };
 
 const IDENTITY: DagTransform = { x: 0, y: 0, k: 1 };
@@ -110,6 +113,7 @@ export function useDagViewport(content: DagSize): DagViewport {
     const isAdjustedRef = useRef(false);
     const transformRef = useRef<DagTransform>(IDENTITY);
     const contentRef = useRef<DagSize>(content);
+    const draggedRef = useRef(false);
 
     const [transform, setTransform] = useState<DagTransform>(IDENTITY);
     const [isPanning, setIsPanning] = useState(false);
@@ -153,10 +157,12 @@ export function useDagViewport(content: DagSize): DagViewport {
             startY: event.clientY,
             transform: transformRef.current,
         };
+        draggedRef.current = false;
         isAdjustedRef.current = true;
         setIsPanning(true);
-        event.currentTarget.setPointerCapture(event.pointerId);
     }, []);
+
+    const wasDragged = useCallback((): boolean => draggedRef.current, []);
 
     const handleKeyDown = useCallback(
         (event: ReactKeyboardEvent<HTMLDivElement>): void => {
@@ -218,17 +224,23 @@ export function useDagViewport(content: DagSize): DagViewport {
         return () => element.removeEventListener('wheel', handleWheel);
     }, []);
 
+    // ! Listen on window, not via setPointerCapture: capture retargets pointerup and
+    // ! its compat click to the pan layer, which would swallow clicks on the cards.
     useEffect(() => {
-        const element = viewportRef.current;
-        if (!element) return;
-
         const handleMove = (event: PointerEvent): void => {
             const pan = panRef.current;
             if (!pan || pan.pointerId !== event.pointerId) return;
 
+            const deltaX = event.clientX - pan.startX;
+            const deltaY = event.clientY - pan.startY;
+
+            if (Math.abs(deltaX) > DRAG_THRESHOLD || Math.abs(deltaY) > DRAG_THRESHOLD) {
+                draggedRef.current = true;
+            }
+
             setTransform({
-                x: pan.transform.x + (event.clientX - pan.startX),
-                y: pan.transform.y + (event.clientY - pan.startY),
+                x: pan.transform.x + deltaX,
+                y: pan.transform.y + deltaY,
                 k: pan.transform.k,
             });
         };
@@ -239,14 +251,14 @@ export function useDagViewport(content: DagSize): DagViewport {
             setIsPanning(false);
         };
 
-        element.addEventListener('pointermove', handleMove);
-        element.addEventListener('pointerup', handleEnd);
-        element.addEventListener('pointercancel', handleEnd);
+        window.addEventListener('pointermove', handleMove);
+        window.addEventListener('pointerup', handleEnd);
+        window.addEventListener('pointercancel', handleEnd);
 
         return () => {
-            element.removeEventListener('pointermove', handleMove);
-            element.removeEventListener('pointerup', handleEnd);
-            element.removeEventListener('pointercancel', handleEnd);
+            window.removeEventListener('pointermove', handleMove);
+            window.removeEventListener('pointerup', handleEnd);
+            window.removeEventListener('pointercancel', handleEnd);
         };
     }, []);
 
@@ -279,5 +291,6 @@ export function useDagViewport(content: DagSize): DagViewport {
         fitToView,
         startPan,
         handleKeyDown,
+        wasDragged,
     };
 }

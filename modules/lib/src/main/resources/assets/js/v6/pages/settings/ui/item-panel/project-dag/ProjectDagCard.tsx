@@ -7,18 +7,31 @@ const PROJECT_DAG_CARD_NAME = 'ProjectDagCard';
 type ProjectDagCardProps = {
     node: ProjectDagNode;
     dimmed?: boolean;
+    onSelect?: () => void;
     onPointerEnter?: () => void;
     onPointerLeave?: () => void;
 };
 
-export const ProjectDagCard = ({ node, dimmed, onPointerEnter, onPointerLeave }: ProjectDagCardProps): ReactElement => {
+export const ProjectDagCard = ({
+    node,
+    dimmed,
+    onSelect,
+    onPointerEnter,
+    onPointerLeave,
+}: ProjectDagCardProps): ReactElement => {
     return (
-        <div
+        <button
+            type="button"
+            // ! Focus inside the overflow-hidden viewport scrolls it and desyncs the
+            // ! transform, so the tree stays the keyboard path to a project.
+            tabIndex={-1}
             data-component={PROJECT_DAG_CARD_NAME}
             data-dimmed={dimmed}
+            aria-label={`${node.displayName} (${node.id})`}
+            onClick={onSelect}
             onPointerEnter={onPointerEnter}
             onPointerLeave={onPointerLeave}
-            className="absolute flex items-center gap-3 overflow-hidden rounded-md border border-bdr-soft bg-surface-neutral px-3 shadow-sm transition-opacity data-[dimmed=true]:opacity-30"
+            className="absolute flex cursor-pointer items-center gap-3 overflow-hidden rounded-md border border-bdr-soft bg-surface-neutral px-3 text-left shadow-sm transition-opacity data-[dimmed=true]:opacity-30"
             style={{
                 left: node.left,
                 top: node.top,
@@ -40,7 +53,7 @@ export const ProjectDagCard = ({ node, dimmed, onPointerEnter, onPointerLeave }:
                     {node.language ? `${node.id} (${node.language})` : node.id}
                 </span>
             </div>
-        </div>
+        </button>
     );
 };
 
