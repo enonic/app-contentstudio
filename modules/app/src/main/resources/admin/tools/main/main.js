@@ -67,21 +67,26 @@ function applySecurityPolicy(isBrowseMode) {
 exports.getParams = function (path, locales) {
     const isBrowseMode = path === admin.getToolUrl(app.name, 'main');
 
-    const isAiContentOperatorEnabled = !isBrowseMode && aiLib.aiContentOperatorRunning();
+    const isAiContentOperatorEnabled = aiLib.aiContentOperatorRunning();
     const isAiTranslatorEnabled = !isBrowseMode && aiLib.aiTranslatorRunning();
     const isAiEnabled = isAiContentOperatorEnabled || isAiTranslatorEnabled;
+    const config = configLib.getConfig(locales, isAiEnabled, isBrowseMode);
 
     return {
-        assetsUri: portal.assetUrl({path: ''}),
+        assetsUri: portal.assetUrl({ path: '' }),
         appName: i18n.localize({
             key: 'admin.tool.displayName',
             bundles: ['i18n/phrases'],
-            locale: locales
+            locale: locales,
         }),
-        aiContentOperatorAssetsUrl: isAiContentOperatorEnabled ? portal.assetUrl({path: '', application: AI_CONTENT_OPERATOR_APP_KEY}) : undefined,
-        aiTranslatorAssetsUrl: isAiTranslatorEnabled ? portal.assetUrl({path: '', application: AI_TRANSLATOR_APP_KEY}) : undefined,
+        aiContentOperatorAssetsUrl: isAiContentOperatorEnabled
+            ? portal.assetUrl({ path: '', application: AI_CONTENT_OPERATOR_APP_KEY })
+            : undefined,
+        aiTranslatorAssetsUrl: isAiTranslatorEnabled
+            ? portal.assetUrl({ path: '', application: AI_TRANSLATOR_APP_KEY })
+            : undefined,
         configScriptId: configLib.configJsonId,
-        configAsJson: JSON.stringify(configLib.getConfig(locales, isAiEnabled), null, 4).replace(/<(\/?script|!--)/gi, "\\u003C$1"),
+        configAsJson: JSON.stringify(config, null, 4).replace(/<(\/?script|!--)/gi, '\\u003C$1'),
         isBrowseMode: isBrowseMode,
         isAiEnabled: isAiEnabled,
         aiLocales: locales ? locales.join(',') : '',

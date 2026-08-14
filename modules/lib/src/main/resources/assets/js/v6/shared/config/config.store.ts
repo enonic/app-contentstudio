@@ -31,6 +31,8 @@ type ConfigStore = {
     // AI
     aiEnabled: boolean;
     sharedSocketUrl: string;
+    // True on the browse page, false on the wizard page
+    browseMode: boolean;
     // Services
     extensionApiUrl: string;
     services: ConfigServices;
@@ -51,6 +53,7 @@ type ConfigJson = {
     requiredPublishFrom?: unknown;
     aiEnabled?: unknown;
     sharedSocketUrl?: unknown;
+    browseMode?: unknown;
     extensionApiUrl?: unknown;
     services?: {
         contentUrl?: unknown;
@@ -77,6 +80,7 @@ const DEFAULT_CONFIG: Readonly<ConfigStore> = {
     requiredPublishFrom: false,
     aiEnabled: false,
     sharedSocketUrl: '',
+    browseMode: false,
     extensionApiUrl: '',
     services: {
         contentUrl: '',
@@ -126,6 +130,7 @@ function parseConfig(content: string): ConfigStore | undefined {
             requiredPublishFrom: parseBoolean(config.requiredPublishFrom),
             aiEnabled: parseBoolean(config.aiEnabled),
             sharedSocketUrl: parseString(config.sharedSocketUrl),
+            browseMode: parseBoolean(config.browseMode),
             extensionApiUrl: parseString(config.extensionApiUrl),
             services: {
                 contentUrl: parseString(config.services?.contentUrl),

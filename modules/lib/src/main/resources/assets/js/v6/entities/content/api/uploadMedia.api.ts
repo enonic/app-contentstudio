@@ -8,6 +8,7 @@ import { requestUploadJson } from '../../../shared/api/upload';
 import { generateUniqueName } from '../../../shared/lib/image/generateUniqueName';
 import { getCmsApiUrl } from '../../../shared/lib/url/cms';
 import { sanitizeName } from '../../../shared/lib/upload/upload';
+import { emitMediaUploaded } from '../model/uploads.store';
 
 export type UploadMediaSuccess = { mediaIdentifier: string; content: Content };
 
@@ -49,7 +50,8 @@ export function uploadMediaFile({
         onProgress: (progress) => onProgress?.(id, progress),
     })
         .mapErr((error) => new UploadError(id, error.message, error))
-        .andThen((json) => buildContent(id, json).map((content) => ({ mediaIdentifier: id, content })));
+        .andThen((json) => buildContent(id, json).map((content) => ({ mediaIdentifier: id, content })))
+        .andTee(({ content }) => emitMediaUploaded(content));
 }
 
 /** Used by: features/new-content */
@@ -70,7 +72,8 @@ export function uploadRemoteImage({
         onProgress: (progress) => onProgress?.(id, progress),
     })
         .mapErr((error) => new UploadError(id, error.message, error))
-        .andThen((json) => buildContent(id, json).map((content) => ({ mediaIdentifier: id, content })));
+        .andThen((json) => buildContent(id, json).map((content) => ({ mediaIdentifier: id, content })))
+        .andTee(({ content }) => emitMediaUploaded(content));
 }
 
 /** Replaces the source binary of an existing media content. Used by: features/shared/form/input-types/media-uploader */
@@ -90,7 +93,8 @@ export function updateMediaFile({
         onProgress: (progress) => onProgress?.(id, progress),
     })
         .mapErr((error) => new UploadError(id, error.message, error))
-        .andThen((json) => buildContent(id, json).map((content) => ({ mediaIdentifier: id, content })));
+        .andThen((json) => buildContent(id, json).map((content) => ({ mediaIdentifier: id, content })))
+        .andTee(({ content }) => emitMediaUploaded(content));
 }
 
 /** Build the domain content, keeping a builder throw as a parse failure. */

@@ -86,9 +86,18 @@ export const $aiWizardBridge = atom<AiWizardBridge | null>(null);
 // * Derived
 //
 
+// The browse page has no wizard, yet plugins must still mount and receive
+// commands there (e.g. `image:uploaded`); the wizard-state conditions apply
+// only where a wizard can exist.
 export const $aiReady = computed(
     [$config, $aiContent, $aiContentType, $aiInstructions, $languagesLoaded],
     (config, content, contentType, instructions, languagesLoaded): boolean => {
-        return config.aiEnabled && content != null && contentType != null && instructions != null && languagesLoaded;
+        if (!config.aiEnabled || !languagesLoaded) {
+            return false;
+        }
+        if (config.browseMode) {
+            return true;
+        }
+        return content != null && contentType != null && instructions != null;
     },
 );

@@ -1,3 +1,6 @@
+import type { Content } from '../../../app/content/Content';
+import { $mediaUploaded } from '../../entities/content/model/uploads.store';
+import { $activeProject } from '../../entities/project/activeProject.store';
 import type { AiHost, AiPlugin, AiPluginId, AiPluginContext, AiPluginInstance } from './ai-protocol';
 import { getAiFieldRegistry } from './ai.field-registry';
 import { createPluginApi, emitToPlugin, type PluginApiHandle } from './ai.plugin-api';
@@ -180,6 +183,30 @@ export function sendPluginContext(id: AiPluginId, context: string | null): void 
     emitToPlugin(registration.handle, 'context:set', context);
 }
 
+// Sends the `image:uploaded` command to every registered plugin declaring it.
+export function notifyImageUploaded(contentId: string, project: string): void {
+    registry.forEach((registration) => {
+        if (registration.plugin.commands?.includes('image:uploaded') !== true) {
+            return;
+        }
+        emitToPlugin(registration.handle, 'image:uploaded', { contentId, project });
+    });
+}
+
+// Uploads always target the active project; it travels with the command so the
+// plugin's backend can resolve the cms repo without a request-scoped context.
+export function handleMediaUploaded(content: Readonly<Content> | null): void {
+    const type = content?.getType();
+    if (type == null || !(type.isImage() || type.isVectorMedia())) {
+        return;
+    }
+    const project = $activeProject.get()?.getName();
+    if (project == null) {
+        return;
+    }
+    notifyImageUploaded(content.getId(), project);
+}
+
 //
 // * Content Operator context bridge
 //
@@ -260,6 +287,7 @@ export function initAiHost(): void {
     $aiContentType.subscribe(() => fanOutSchema());
     $aiContentLanguage.subscribe(() => fanOutLanguage());
     $aiInstructions.subscribe(() => fanOutConfig());
+    $mediaUploaded.subscribe((content) => handleMediaUploaded(content));
 
     getAiFieldRegistry('data').subscribeActivePath(handleDataActivePath);
 }

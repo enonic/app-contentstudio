@@ -3,7 +3,8 @@ import { type ContentSummary } from '../../../../app/content/ContentSummary';
 import { UploadError } from '../../../shared/api/errors';
 import { setActiveProjectResolver } from '../../../shared/lib/url/cms';
 import { restoreXhr, stubXhr, type XhrStub } from '../../../shared/lib/test/xhr.test.utils';
-import { uploadMediaFile, uploadRemoteImage } from './uploadMedia.api';
+import { $mediaUploaded } from '../model/uploads.store';
+import { updateMediaFile, uploadMediaFile, uploadRemoteImage } from './uploadMedia.api';
 
 vi.mock('../../../../app/content/Content', () => ({
     ContentBuilder: class {
@@ -25,6 +26,7 @@ let xhrs: XhrStub[];
 beforeEach(() => {
     xhrs = stubXhr();
     setActiveProjectResolver(() => 'test-project');
+    $mediaUploaded.set(null);
 });
 
 afterEach(() => {
@@ -82,6 +84,24 @@ describe('uploadMediaFile', () => {
         expect(onProgress).toHaveBeenLastCalledWith('u-1', 100);
     });
 
+    it('should publish the created content to $mediaUploaded on success', async () => {
+        const resultPromise = uploadMediaFile({ id: 'u-1', file });
+
+        xhrs[0].respond(200, { id: 'c-1' });
+        const result = await resultPromise;
+
+        expect($mediaUploaded.get()).toBe(result._unsafeUnwrap().content);
+    });
+
+    it('should not publish to $mediaUploaded when the upload fails', async () => {
+        const resultPromise = uploadMediaFile({ id: 'u-1', file });
+
+        xhrs[0].respond(500, { message: 'Disk full' }, 'Server Error');
+        await resultPromise;
+
+        expect($mediaUploaded.get()).toBeNull();
+    });
+
     it('should surface the server error message with the media identifier for non-2xx responses', async () => {
         const resultPromise = uploadMediaFile({ id: 'u-1', file });
 
@@ -132,6 +152,28 @@ describe('uploadMediaFile', () => {
     });
 });
 
+describe('updateMediaFile', () => {
+    const file = new File(['bits'], 'replacement.png');
+
+    it('should publish the updated content to $mediaUploaded on success', async () => {
+        const resultPromise = updateMediaFile({ id: 'm-1', file, contentId: 'content-1' });
+
+        xhrs[0].respond(200, { id: 'c-1' });
+        const result = await resultPromise;
+
+        expect($mediaUploaded.get()).toBe(result._unsafeUnwrap().content);
+    });
+
+    it('should not publish to $mediaUploaded when the upload fails', async () => {
+        const resultPromise = updateMediaFile({ id: 'm-1', file, contentId: 'content-1' });
+
+        xhrs[0].respond(500, { message: 'Disk full' }, 'Server Error');
+        await resultPromise;
+
+        expect($mediaUploaded.get()).toBeNull();
+    });
+});
+
 describe('uploadRemoteImage', () => {
     it('should POST a JSON payload to the createMediaFromUrl endpoint', async () => {
         const resultPromise = uploadRemoteImage({ id: 'r-1', imageSource: 'https://example.com/pic' });
@@ -151,6 +193,7 @@ describe('uploadRemoteImage', () => {
 
         expect(result.isOk()).toBe(true);
         expect(result._unsafeUnwrap()).toEqual({ mediaIdentifier: 'r-1', content: { builtFrom: { id: 'c-2' } } });
+        expect($mediaUploaded.get()).toBe(result._unsafeUnwrap().content);
     });
 
     it('should surface the server error message with the media identifier for non-2xx responses', async () => {

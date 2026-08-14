@@ -21,6 +21,7 @@ describe('buildPluginConfig', () => {
             requiredPublishFrom: false,
             aiEnabled: true,
             sharedSocketUrl: 'wss://shared',
+            browseMode: false,
             extensionApiUrl: '',
             services: {
                 contentUrl: '',
