@@ -91,8 +91,8 @@ describe('Tests for dependent items in Unpublish dialog (for scheduled content)'
         assert.equal(actualNumber, '2', '2 items will be unpublished');
     });
 
-    // TODO https://github.com/enonic/app-contentstudio/issues/11052
-    // https://github.com/enonic/app-contentstudio/issues/11229
+    // verified https://github.com/enonic/app-contentstudio/issues/11052
+    // TODO https://github.com/enonic/app-contentstudio/issues/11229
     it.skip(`GIVEN existing scheduled site has been modified WHEN 'Publish' menu has been has been clicked THEN 'Update Scheduled' button should be displayed in the Publish Dialog`, async () => {
         let contentWizard = new ContentWizard();
         let contentPublishDialog = new ContentPublishDialog();
@@ -105,10 +105,10 @@ describe('Tests for dependent items in Unpublish dialog (for scheduled content)'
         let pageInspectionPanel = new PageInspectionPanel();
         await pageInspectionPanel.selectPageTemplateOrController(appConst.CONTROLLER_NAME.MAIN_REGION);
         // 3. Click on 'Publish' menu item
-        // TODO  https://github.com/enonic/app-contentstudio/issues/11052
+        // verified  https://github.com/enonic/app-contentstudio/issues/11052
         await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
         await contentPublishDialog.waitForDialogOpened();
-        // 4. Verify that 'Update Scheduled' button is disabled in the modal dialog:
+        // 4. Verify that 'Update Scheduled' button is disabled in the modal dialog: bug #11229
         await contentPublishDialog.waitForUpdateScheduledButtonDisabled();
         // 5. Click on Mark as Ready button in the modal dialog:
         await contentPublishDialog.clickOnMarkAsReadyButton();

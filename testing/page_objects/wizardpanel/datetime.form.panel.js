@@ -3,20 +3,16 @@
  */
 
 const OccurrencesFormView = require('../wizardpanel/occurrences.form.view');
-const {COMMON} = require('../../libs/elements');
+const { COMMON } = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
 const XPATH = {
     dataComponentInput: "//div[@data-component='InstantInput' or @data-component='DateTimeInput']",
+    datePickerTrigger: "//button[@data-component='DatePicker.Trigger']",
     validationRecording: `//div[contains(@id,'ValidationRecordingViewer')]//li`,
 };
 
 class DateTimeForm extends OccurrencesFormView {
-
-    get dataComponentContainer() {
-        return XPATH.dataComponentInstantInputInput;
-    }
-
     get dateTimeInput() {
         return COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + XPATH.dataComponentInput + COMMON.INPUTS.INPUT;
     }
@@ -41,7 +37,7 @@ class DateTimeForm extends OccurrencesFormView {
         let values = [];
         let dateTimeElements = await this.findElements(this.dateTimeInput);
         if (dateTimeElements.length === 0) {
-            throw new Error("Date time Form - DateTime inputs were not found!");
+            throw new Error('Date time Form - DateTime inputs were not found!');
         }
         for (const item of dateTimeElements) {
             values.push(await item.getValue());
@@ -59,10 +55,22 @@ class DateTimeForm extends OccurrencesFormView {
         return this.waitForElementDisplayed(this.validationRecord, appConst.shortTimeout);
     }
 
-    async showPicker() {
-        let locator =XPATH.dataComponentInput + "//div[@data-component='DatePicker.Trigger']";
-        await this.clickOnElement(locator);
-        return await this.pause(300);
+    async showPicker(index = 0) {
+        try {
+            let locator = XPATH.dataComponentInput + XPATH.datePickerTrigger;
+            let triggerElements = await this.getDisplayedElements(locator);
+            if (triggerElements.length === 0) {
+                throw new Error('DateTime Form - DatePicker.Trigger button was not found!');
+            }
+            await triggerElements[index].click();
+            return await this.pause(300);
+        } catch (err) {
+            await this.handleError(
+                'DateTime Form - click on DatePicker.Trigger button',
+                'err_click_on_picker_trigger',
+                err,
+            );
+        }
     }
 }
 
