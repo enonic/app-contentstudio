@@ -43,7 +43,7 @@
     "dompurify": "^3.4.13",
     "enonic-admin-artifacts": "^2.4.0",
     "fine-uploader": "^5.16.2",
-    "focus-trap-react": "^11.0.4",
+    "focus-trap-react": "^12.0.3",
     "hasher": "^1.2.0",
     "jquery": "^3.7.1",
     "jquery-simulate": "^1.0.2",
