@@ -10,6 +10,8 @@
 - [x] P6 — Zoom controls + drag pan
 - [x] P7 — Wheel + keyboard
 - [x] P8 — Faster wheel zoom + shortcut hint strip
+- [x] P9 — Hover highlights the lineage, dims the rest
+- [ ] P10 — Click a card to select the project in the tree
 
 ## Context
 
@@ -357,6 +359,67 @@ drag.
 **Done.** The strip is `aria-hidden` — the buttons already carry the same information in their
 `aria-label`s, so exposing decorative `kbd` chips would only duplicate it. Implemented as
 planned otherwise.
+
+## Phase 9 — Hover highlights the lineage, dims the rest
+
+Hovering a card keeps its **ancestors and descendants** (transitively) at full strength and drops
+everything else to ~30 %. Siblings that merely share a parent stay dimmed — the highlight answers
+"where does this layer come from and what inherits from it". No accent on the hovered card
+itself; dimming alone carries the message.
+
+- `projectDag.layout.ts`: add `sourceId` / `targetId` to `ProjectDagEdge` (the edge model
+  currently only carries `id` + `isMainParent`). Existing layout tests get the two new fields.
+- New `projectDag.lineage.ts` (+ test):
+  - `buildAdjacency(edges)` → `{ parents: Map<string, string[]>, children: Map<string, string[]> }`
+  - `collectLineage(adjacency, id)` → `Set<string>` with the node, all ancestors and all
+    descendants; walks with a visited set so a cyclic parent relation cannot loop.
+- `ProjectDag.tsx`: `hoveredId` in `useState`; `adjacency` and `lineage` in `useMemo`.
+  Hover is ignored while `viewport.isPanning` so dragging across cards does not flicker.
+- `ProjectDagCard.tsx`: `onPointerEnter` / `onPointerLeave` props, `data-dimmed={…}` and
+  `transition-opacity data-[dimmed=true]:opacity-30` (data-attribute styling per
+  `.claude/rules/tailwind.md`).
+- `ProjectDagEdges.tsx`: an edge dims unless **both** endpoints are in the lineage set, so the
+  whole inheritance path stays lit. Same `data-dimmed` treatment.
+
+**Test locally**: hovering a root lights its whole subtree; hovering a deep layer lights the
+chain up to the root plus anything below it; unrelated trees dim; dragging to pan does not
+trigger highlight churn; dimming is legible in both themes.
+
+**Done.** 7 lineage tests. A dimmed secondary edge lands on `opacity-30` rather than
+`0.4 × 0.3`: the `data-[dimmed=true]` variant sorts after the plain `opacity-40` utility, so it
+simply wins — still fainter than its undimmed state, which is all the dimming needs.
+
+## Phase 10 — Click a card to select the project in the tree
+
+A click selects that project in the settings tree exactly as clicking the tree row does, which
+means the item panel follows and the DAG is replaced by that project's statistics. That is the
+intended behaviour.
+
+- `useDagViewport.ts`: track the pointer travel of the current drag and expose
+  `wasDragged(): boolean` (threshold ~4 px). Without it, every pan ends in a click on whatever
+  card sat under the pointer.
+- `pages/settings/model/settingsTreeSelection.store.ts`:
+  - `selectSettingsItem(id)` — `clearSelection()` + `setActive(id)`, mirroring
+    `SettingsTreeList`'s own row click (a plain row click sets the *active* id, not the
+    selection set; `$currentIds` falls back to `$activeId`).
+  - reveal signal: `$revealId` atom + `revealSettingsItem(id)` command, consumed and cleared by
+    the tree (signal store per `.claude/rules/stores.md`).
+- `pages/settings/model/settings-tree.store.ts`: `expandSettingsAncestors(id)` walking the
+  `parentId` chain, so a collapsed branch opens before the reveal.
+- `pages/settings/ui/SettingsTreeList.tsx`: effect on `$revealId` → find the index in
+  `$settingsFlatNodes` → `virtuosoRef.current?.scrollToIndex({ index, align: 'center' })` →
+  clear the signal.
+- `ProjectDagCard.tsx`: becomes a `<button type="button">` with `aria-label` = display name +
+  project id, `cursor-pointer`, and an `onClick` that bails when `wasDragged()`.
+  **`tabIndex={-1}` on purpose**: focusing an element inside the `overflow-hidden` viewport makes
+  the browser scroll it into view, which silently shifts `scrollLeft`/`scrollTop` and desyncs the
+  transform math. The tree stays the keyboard path to select a project.
+- Click order in the handler: expand ancestors → `selectSettingsItem` → `revealSettingsItem`.
+
+**Test locally**: clicking a card selects that project, the panel switches to its statistics and
+the tree row is selected and scrolled into view; panning across cards never selects anything;
+right-click and middle-click do nothing; collapsing the Projects branch first still reveals the
+row.
 
 ---
 

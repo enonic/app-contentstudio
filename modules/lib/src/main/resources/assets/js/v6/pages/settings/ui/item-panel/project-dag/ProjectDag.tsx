@@ -1,6 +1,6 @@
 import { cn, Skeleton } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import { type ReactElement, useMemo } from 'react';
+import { type ReactElement, useMemo, useState } from 'react';
 import { $projects } from '../../../../../entities/project';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { ProjectDagCard } from './ProjectDagCard';
@@ -8,6 +8,7 @@ import { ProjectDagControls } from './ProjectDagControls';
 import { ProjectDagEdges } from './ProjectDagEdges';
 import { ProjectDagShortcuts } from './ProjectDagShortcuts';
 import { buildProjectDagLayout } from './projectDag.layout';
+import { buildAdjacency, collectLineage } from './projectDag.lineage';
 import { useDagViewport } from './useDagViewport';
 
 const PROJECT_DAG_NAME = 'ProjectDag';
@@ -23,6 +24,16 @@ export const ProjectDag = (): ReactElement | null => {
     const content = useMemo(() => ({ width: layout.width, height: layout.height }), [layout]);
     const viewport = useDagViewport(content);
     const graphLabel = useI18n('settings.statistics.projects.graph.label');
+
+    const [hoveredId, setHoveredId] = useState<string | undefined>(undefined);
+
+    const adjacency = useMemo(() => buildAdjacency(layout.edges), [layout.edges]);
+    // Dragging over cards must not churn the highlight.
+    const highlightedId = viewport.isPanning ? undefined : hoveredId;
+    const lineage = useMemo(
+        () => (highlightedId ? collectLineage(adjacency, highlightedId) : undefined),
+        [adjacency, highlightedId],
+    );
 
     if (!loaded) {
         return (
@@ -60,9 +71,20 @@ export const ProjectDag = (): ReactElement | null => {
                         transformOrigin: '0 0',
                     }}
                 >
-                    <ProjectDagEdges edges={layout.edges} width={layout.width} height={layout.height} />
+                    <ProjectDagEdges
+                        edges={layout.edges}
+                        width={layout.width}
+                        height={layout.height}
+                        lineage={lineage}
+                    />
                     {layout.nodes.map((node) => (
-                        <ProjectDagCard key={node.id} node={node} />
+                        <ProjectDagCard
+                            key={node.id}
+                            node={node}
+                            dimmed={lineage != null && !lineage.has(node.id)}
+                            onPointerEnter={() => setHoveredId(node.id)}
+                            onPointerLeave={() => setHoveredId(undefined)}
+                        />
                     ))}
                 </div>
             </div>

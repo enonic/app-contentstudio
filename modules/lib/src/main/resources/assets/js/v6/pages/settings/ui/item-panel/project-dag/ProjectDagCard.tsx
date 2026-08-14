@@ -6,13 +6,19 @@ const PROJECT_DAG_CARD_NAME = 'ProjectDagCard';
 
 type ProjectDagCardProps = {
     node: ProjectDagNode;
+    dimmed?: boolean;
+    onPointerEnter?: () => void;
+    onPointerLeave?: () => void;
 };
 
-export const ProjectDagCard = ({ node }: ProjectDagCardProps): ReactElement => {
+export const ProjectDagCard = ({ node, dimmed, onPointerEnter, onPointerLeave }: ProjectDagCardProps): ReactElement => {
     return (
         <div
             data-component={PROJECT_DAG_CARD_NAME}
-            className="absolute flex items-center gap-3 overflow-hidden rounded-md border border-bdr-soft bg-surface-neutral px-3 shadow-sm"
+            data-dimmed={dimmed}
+            onPointerEnter={onPointerEnter}
+            onPointerLeave={onPointerLeave}
+            className="absolute flex items-center gap-3 overflow-hidden rounded-md border border-bdr-soft bg-surface-neutral px-3 shadow-sm transition-opacity data-[dimmed=true]:opacity-30"
             style={{
                 left: node.left,
                 top: node.top,

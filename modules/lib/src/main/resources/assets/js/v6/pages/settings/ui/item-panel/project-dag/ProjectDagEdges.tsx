@@ -1,3 +1,4 @@
+import { cn } from '@enonic/ui';
 import { type ReactElement } from 'react';
 import { type ProjectDagEdge } from './projectDag.layout';
 
@@ -7,9 +8,14 @@ type ProjectDagEdgesProps = {
     edges: ProjectDagEdge[];
     width: number;
     height: number;
+    lineage?: ReadonlySet<string>;
 };
 
-export const ProjectDagEdges = ({ edges, width, height }: ProjectDagEdgesProps): ReactElement => {
+export const ProjectDagEdges = ({ edges, width, height, lineage }: ProjectDagEdgesProps): ReactElement => {
+    // An edge stays lit only when both of its endpoints belong to the lineage.
+    const isDimmed = (edge: ProjectDagEdge): boolean =>
+        lineage != null && !(lineage.has(edge.sourceId) && lineage.has(edge.targetId));
+
     return (
         <svg
             data-component={PROJECT_DAG_EDGES_NAME}
@@ -26,7 +32,11 @@ export const ProjectDagEdges = ({ edges, width, height }: ProjectDagEdgesProps):
                     stroke="currentColor"
                     strokeWidth={1.5}
                     strokeDasharray={edge.isMainParent ? undefined : '4 4'}
-                    className={edge.isMainParent ? undefined : 'opacity-40'}
+                    data-dimmed={isDimmed(edge)}
+                    className={cn(
+                        'transition-opacity data-[dimmed=true]:opacity-30',
+                        !edge.isMainParent && 'opacity-40',
+                    )}
                 />
             ))}
         </svg>

@@ -47,7 +47,14 @@ describe('buildProjectDagLayout', () => {
 
         expect(nodeById(layout, 'layer').top).toBeGreaterThan(nodeById(layout, 'default').top);
         expect(nodeById(layout, 'layer').isLayer).toBe(true);
-        expect(layout.edges).toEqual([expect.objectContaining({ id: 'default--layer', isMainParent: true })]);
+        expect(layout.edges).toEqual([
+            expect.objectContaining({
+                id: 'default--layer',
+                sourceId: 'default',
+                targetId: 'layer',
+                isMainParent: true,
+            }),
+        ]);
         expect(layout.edges[0].path).toMatch(/^M[\d.-]+,[\d.-]+ C/);
     });
 

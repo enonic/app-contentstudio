@@ -20,6 +20,8 @@ export type ProjectDagNode = {
 
 export type ProjectDagEdge = {
     id: string;
+    sourceId: string;
+    targetId: string;
     path: string;
     isMainParent: boolean;
 };
@@ -77,6 +79,8 @@ export function buildProjectDagLayout(projects: readonly Readonly<Project>[]): P
 
         const edges = [...graph.links()].map(({ source, target, points }) => ({
             id: `${source.data.id}--${target.data.id}`,
+            sourceId: source.data.id,
+            targetId: target.data.id,
             path: buildEdgePath(points),
             isMainParent: target.data.parentIds[0] === source.data.id,
         }));
