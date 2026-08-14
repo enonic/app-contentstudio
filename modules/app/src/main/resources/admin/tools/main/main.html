@@ -68,7 +68,7 @@
 
     {{#isAiEnabled}}
     <!-- Seed window.Enonic.AI so async plugin bundles can register before initAiHost() runs -->
-    <script>
+    <script{{#nonce}} nonce="{{nonce}}"{{/nonce}}>
         (function () {
             window.Enonic = window.Enonic || {};
             var ai = window.Enonic.AI = window.Enonic.AI || {};
@@ -81,13 +81,13 @@
     {{#aiContentOperatorAssetsUrl}}
     <!-- Append AI Content Operator -->
     <script type="text/javascript" src="{{aiContentOperatorAssetsUrl}}/index.js" data-locales="{{aiLocales}}"
-            data-asset-url="{{aiContentOperatorAssetsUrl}}" async></script>
+            data-asset-url="{{aiContentOperatorAssetsUrl}}"{{#nonce}} nonce="{{nonce}}"{{/nonce}} async></script>
     {{/aiContentOperatorAssetsUrl}}
 
     {{#aiTranslatorAssetsUrl}}
     <!-- Append AI Translator -->
     <script type="text/javascript" src="{{aiTranslatorAssetsUrl}}/index.js" data-locales="{{aiLocales}}"
-            data-asset-url="{{aiTranslatorAssetsUrl}}" async></script>
+            data-asset-url="{{aiTranslatorAssetsUrl}}"{{#nonce}} nonce="{{nonce}}"{{/nonce}} async></script>
     {{/aiTranslatorAssetsUrl}}
 </head>
 <body>

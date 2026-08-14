@@ -1,4 +1,5 @@
-import { map } from 'nanostores';
+import { atom, map } from 'nanostores';
+import type { Content } from '../../../../app/content/Content';
 
 //
 // * Types
@@ -32,9 +33,19 @@ type UploadsState = Record<string, UploadItem>;
 /** Uploads tracking store */
 export const $uploads = map<UploadsState>({});
 
+/** Media content created or replaced by a completed upload */
+export const $mediaUploaded = atom<Content | null>(null);
+
 //
 // * Actions
 //
+
+/**
+ * Publishes the content created by a completed media upload.
+ */
+export function emitMediaUploaded(content: Content): void {
+    $mediaUploaded.set(content);
+}
 
 /**
  * Adds a new upload item.

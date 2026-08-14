@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { UploadError } from '../../../shared/api/errors';
 import { setActiveProjectResolver } from '../../../shared/lib/url/cms';
 import { restoreXhr, stubXhr, type XhrStub } from '../../../shared/lib/test/xhr.test.utils';
+import { $mediaUploaded } from '../model/uploads.store';
 import { updateImageMedia } from './updateImageMedia.api';
 
 vi.mock('../../../../app/content/Content', () => ({
@@ -22,6 +23,7 @@ let xhrs: XhrStub[];
 beforeEach(() => {
     xhrs = stubXhr();
     setActiveProjectResolver(() => 'test-project');
+    $mediaUploaded.set(null);
 });
 
 afterEach(() => {
@@ -64,6 +66,24 @@ describe('updateImageMedia', () => {
         await resultPromise;
 
         expect(onProgress).toHaveBeenLastCalledWith('i-1', 100);
+    });
+
+    it('should publish the updated content to $mediaUploaded on success', async () => {
+        const resultPromise = updateImageMedia({ id: 'i-1', file, contentId: 'content-1' });
+
+        xhrs[0].respond(200, { id: 'c-1' });
+        const result = await resultPromise;
+
+        expect($mediaUploaded.get()).toBe(result._unsafeUnwrap().content);
+    });
+
+    it('should not publish to $mediaUploaded when the upload fails', async () => {
+        const resultPromise = updateImageMedia({ id: 'i-1', file, contentId: 'content-1' });
+
+        xhrs[0].respond(500, { message: 'Not an image' }, 'Server Error');
+        await resultPromise;
+
+        expect($mediaUploaded.get()).toBeNull();
     });
 
     it('should surface the server error message with the media identifier for non-2xx responses', async () => {

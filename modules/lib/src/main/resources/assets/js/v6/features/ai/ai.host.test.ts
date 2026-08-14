@@ -1,7 +1,20 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Content } from '../../../app/content/Content';
+import type { Project } from '../../../app/settings/data/project/Project';
+import { $activeProject } from '../../entities/project/activeProject.store';
 import type { AiPlugin, AiPluginContext, AiPluginInstance } from './ai-protocol';
-import { __resetAiHostForTest, getAiHost, handleDataActivePath, mountReadyPlugins, openPluginDialog } from './ai.host';
-import { $aiPluginDialogOpen, $aiReady } from './ai.store';
+import {
+    __resetAiHostForTest,
+    getAiHost,
+    handleDataActivePath,
+    handleMediaUploaded,
+    mountReadyPlugins,
+    notifyImageUploaded,
+    openPluginDialog,
+} from './ai.host';
+import { $languagesStore } from '../../entities/language/languages.store';
+import { $config } from '../../shared/config/config.store';
+import { $aiPluginDialogOpen } from './ai.store';
 
 function fakePlugin(overrides: Partial<AiPlugin> = {}): {
     plugin: AiPlugin;
@@ -40,10 +53,25 @@ describe('AiHost', () => {
         __resetAiHostForTest();
     });
 
-    it('does not mount a plugin while CS is not ready', () => {
+    it('does not mount a plugin while AI is disabled', () => {
         const { plugin, mount } = fakePlugin();
         getAiHost().register(plugin);
         expect(mount).not.toHaveBeenCalled();
+    });
+
+    it('mounts a registering plugin immediately when the browse page is AI-ready', () => {
+        $config.setKey('aiEnabled', true);
+        $config.setKey('browseMode', true);
+        $languagesStore.setKey('loaded', true);
+        try {
+            const { plugin, mount } = fakePlugin();
+            getAiHost().register(plugin);
+            expect(mount).toHaveBeenCalledTimes(1);
+        } finally {
+            $config.setKey('aiEnabled', false);
+            $config.setKey('browseMode', false);
+            $languagesStore.setKey('loaded', false);
+        }
     });
 
     it('mounts a registered plugin once CS becomes ready', () => {
@@ -115,5 +143,87 @@ describe('Content Operator context', () => {
         openPluginDialog('ai.contentOperator');
 
         expect(operator.received).toEqual([]);
+    });
+});
+
+describe('image upload notification', () => {
+    beforeEach(() => {
+        __resetAiHostForTest();
+        $activeProject.set({ getName: () => 'test-project', getLanguage: () => 'en' } as unknown as Project);
+    });
+
+    afterEach(() => {
+        $activeProject.set(undefined);
+    });
+
+    // Mounts a plugin that records every image:uploaded payload.
+    function mountImageListener(commands: AiPlugin['commands']): { received: { contentId: string }[] } {
+        const received: { contentId: string }[] = [];
+        getAiHost().register({
+            id: 'ai.contentOperator',
+            version: '1.0.0',
+            commands,
+            mount: vi.fn((_c: HTMLElement, ctx: AiPluginContext) => {
+                ctx.api.on('image:uploaded', (payload) => received.push(payload));
+                return { dispose: vi.fn() };
+            }),
+        });
+        mountReadyPlugins();
+        return { received };
+    }
+
+    function fakeUploadedContent(id: string, isImage: boolean, isVector = false): Content {
+        return {
+            getId: () => id,
+            getType: () => ({ isImage: () => isImage, isVectorMedia: () => isVector }),
+        } as unknown as Content;
+    }
+
+    it('sends image:uploaded to a plugin declaring the command', () => {
+        const { received } = mountImageListener(['image:uploaded']);
+
+        notifyImageUploaded('content-1', 'test-project');
+
+        expect(received).toEqual([{ contentId: 'content-1', project: 'test-project' }]);
+    });
+
+    it('does not send image:uploaded to a plugin not declaring the command', () => {
+        const { received } = mountImageListener(['dialog:open']);
+
+        notifyImageUploaded('content-1', 'test-project');
+
+        expect(received).toEqual([]);
+    });
+
+    it('notifies for uploaded image content', () => {
+        const { received } = mountImageListener(['image:uploaded']);
+
+        handleMediaUploaded(fakeUploadedContent('image-1', true));
+
+        expect(received).toEqual([{ contentId: 'image-1', project: 'test-project' }]);
+    });
+
+    it('notifies for uploaded vector content', () => {
+        const { received } = mountImageListener(['image:uploaded']);
+
+        handleMediaUploaded(fakeUploadedContent('vector-1', false, true));
+
+        expect(received).toEqual([{ contentId: 'vector-1', project: 'test-project' }]);
+    });
+
+    it('ignores uploaded non-image media', () => {
+        const { received } = mountImageListener(['image:uploaded']);
+
+        handleMediaUploaded(fakeUploadedContent('doc-1', false));
+
+        expect(received).toEqual([]);
+    });
+
+    it('ignores a null upload event', () => {
+        const { received } = mountImageListener(['image:uploaded']);
+
+        handleMediaUploaded(null);
+
+        expect(received).toEqual([]);
     });
 });

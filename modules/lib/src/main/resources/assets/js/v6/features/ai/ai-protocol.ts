@@ -93,6 +93,7 @@ export type AiCommands = {
     'dialog:open': void;
     'dialog:close': void;
     'context:set': string | null;
+    'image:uploaded': { contentId: string; project: string };
 };
 
 // ---- Host API (plugin -> CS) ------------------------------------------------

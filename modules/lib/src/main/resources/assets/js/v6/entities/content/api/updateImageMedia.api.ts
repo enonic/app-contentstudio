@@ -4,6 +4,7 @@ import { type ContentJson } from '../../../../app/content/ContentJson';
 import { UploadError } from '../../../shared/api/errors';
 import { requestUploadJson } from '../../../shared/api/upload';
 import { getCmsApiUrl } from '../../../shared/lib/url/cms';
+import { emitMediaUploaded } from '../model/uploads.store';
 
 export type UpdateImageMediaSuccess = {
     mediaIdentifier: string;
@@ -34,7 +35,8 @@ export function updateImageMedia({
         onProgress: (progress) => onProgress?.(id, progress),
     })
         .mapErr((error) => new UploadError(id, error.message, error))
-        .andThen((json) => buildContent(id, json).map((content) => ({ mediaIdentifier: id, content })));
+        .andThen((json) => buildContent(id, json).map((content) => ({ mediaIdentifier: id, content })))
+        .andTee(({ content }) => emitMediaUploaded(content));
 }
 
 /** Build the domain content, keeping a builder throw as a parse failure. */
