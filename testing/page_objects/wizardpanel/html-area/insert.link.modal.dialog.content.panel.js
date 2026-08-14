@@ -233,6 +233,24 @@ class InsertLinkDialogContentPanel extends Page {
         await this.waitForElementDisplayed(this.parametersFormValidationMessage);
         return await this.getText(this.parametersFormValidationMessage);
     }
+    async clearParameterNameInput(index) {
+        index = typeof index !== 'undefined' ? index : 0;
+        try {
+            let locator =
+                XPATH.container + XPATH.contentPanel + "//input[@placeholder='Name' or contains(@placeholder,'name')]";
+            let inputElements = await this.getDisplayedElements(locator);
+            if (inputElements.length === 0) {
+                throw new Error('Parameter name input was not found in the Insert Link modal dialog');
+            }
+            return await this.clearInputTextElement(inputElements[index]);
+        } catch (err) {
+            await this.handleError(
+                `Insert Link dialog, clear the parameter name input, index: ${index}`,
+                'err_clear_param_name',
+                err,
+            );
+        }
+    }
 
     async typeInParameterNameInput(value, index) {
         index = typeof index !== 'undefined' ? index : 0;

@@ -1,13 +1,13 @@
 /**
  * Created on 05.08.2022 updated on 27.05.2026
  */
-const {BUTTONS} = require('../../../libs/elements');
+const { BUTTONS } = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const ProjectWizardDialog = require('./project.wizard.dialog');
 
 // Each summary field is rendered as <div class="contents"><dt>Label</dt><dd>Value</dd></div>
 // inside a <dl>. Scope to <dl> so we don't accidentally match the same pattern elsewhere.
-const SUMMARY_DD_BY_LABEL = label =>
+const SUMMARY_DD_BY_LABEL = (label) =>
     `//dl//div[contains(@class,'contents') and child::dt[contains(.,'${label}')]]/dd`;
 
 const XPATH = {
@@ -18,17 +18,16 @@ const XPATH = {
     parentProjectNameXpath: SUMMARY_DD_BY_LABEL('Parent project'),
     // Target the <span> directly: the dd also contains a flag icon with an aria-hidden 'en'
     // fallback label that would otherwise leak into getText() output.
-    defaultLanguageXpath: SUMMARY_DD_BY_LABEL('Language') + "/span",
+    defaultLanguageXpath: SUMMARY_DD_BY_LABEL('Language') + '/span',
     // Multi-value rows: each value is a direct <span> child of the inner <div class="contents">.
     applications: SUMMARY_DD_BY_LABEL('Applications') + "/div[contains(@class,'contents')]/span",
     permissions: SUMMARY_DD_BY_LABEL('Permissions') + "/div[contains(@class,'contents')]/span",
-    description: SUMMARY_DD_BY_LABEL('Description') + "/div[contains(@class,'contents')]/span",
+    // Single-value row: the text is rendered directly inside the <dd> element.
+    description: SUMMARY_DD_BY_LABEL('Description'),
 };
 const DESCRIPTION = 'View summary of a new project';
 
-
 class ProjectWizardDialogSummaryStep extends ProjectWizardDialog {
-
     get container() {
         return XPATH.container;
     }
@@ -84,7 +83,7 @@ class ProjectWizardDialogSummaryStep extends ProjectWizardDialog {
             await this.waitForElementDisplayed(this.accessMode);
             return await this.getText(this.accessMode);
         } catch (err) {
-            await this.handleError("Summary step, access mode", 'err_summary_step', err);
+            await this.handleError('Summary step, access mode', 'err_summary_step', err);
         }
     }
 
@@ -93,7 +92,7 @@ class ProjectWizardDialogSummaryStep extends ProjectWizardDialog {
             await this.waitForElementDisplayed(this.parentProjectName, appConst.mediumTimeout);
             return await this.getText(this.parentProjectName);
         } catch (err) {
-            await this.handleError("Summary step, Parent project", 'err_summary_step', err);
+            await this.handleError('Summary step, Parent project', 'err_summary_step', err);
         }
     }
 
@@ -102,7 +101,7 @@ class ProjectWizardDialogSummaryStep extends ProjectWizardDialog {
             await this.waitForElementDisplayed(this.defaultLanguage);
             return await this.getText(this.defaultLanguage);
         } catch (err) {
-            await this.handleError("Summary step, default language", 'err_summary_step', err);
+            await this.handleError('Summary step, default language', 'err_summary_step', err);
         }
     }
 
@@ -119,16 +118,20 @@ class ProjectWizardDialogSummaryStep extends ProjectWizardDialog {
     }
 
     async getDescription() {
-        return await this.getTextInDisplayedElements(this.description);
+        try {
+            await this.waitForElementDisplayed(this.description, appConst.mediumTimeout);
+            return await this.getText(this.description);
+        } catch (err) {
+            await this.handleError('Summary step, description', 'err_summary_step', err);
+        }
     }
-
 
     async getProjectName() {
         try {
             await this.waitForElementDisplayed(this.projectName, appConst.mediumTimeout);
             return await this.getText(this.projectName);
         } catch (err) {
-            await this.handleError("Summary step, project name", 'err_summary_step', err);
+            await this.handleError('Summary step, project name', 'err_summary_step', err);
         }
     }
 
@@ -136,7 +139,7 @@ class ProjectWizardDialogSummaryStep extends ProjectWizardDialog {
         try {
             await this.waitForElementDisplayed(XPATH.container);
         } catch (err) {
-            await this.handleError("Project Wizard Dialog, Summary step was not loaded", 'err_name_step', err);
+            await this.handleError('Project Wizard Dialog, Summary step was not loaded', 'err_name_step', err);
         }
     }
 }
