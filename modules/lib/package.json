@@ -87,7 +87,7 @@
     "css-loader": "^7.1.2",
     "dependency-cruiser": "^18.1.1",
     "focus-trap-react": "^11.0.0",
-    "happy-dom": "^20.11.1",
+    "happy-dom": "^20.11.2",
     "jquery": "^3.7.1",
     "less-loader": "^13.0.0",
     "minimist": "^1.2.8",
