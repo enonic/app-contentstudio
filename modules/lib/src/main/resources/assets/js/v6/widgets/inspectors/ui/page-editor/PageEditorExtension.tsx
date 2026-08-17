@@ -47,6 +47,9 @@ export const PageEditorExtension = (): ReactElement | null => {
                 data-component={PAGE_EDITOR_EXTENSION_NAME}
                 value={activeTab}
                 onValueChange={setActiveTab}
+                // ? The tab value is driven by external selection, which must not pull focus
+                //   out of the components list. Arrow navigation inside the list is unaffected.
+                autoFocusTrigger={false}
                 className="flex flex-col -mt-4"
             >
                 <Tab.List>

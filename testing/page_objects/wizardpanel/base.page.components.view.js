@@ -3,40 +3,40 @@
  */
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
-const {COMMON} = require('../../libs/elements');
+const { COMMON } = require('../../libs/elements');
 
 const xpath = {
     parentListElement: "//ancestor::div[contains(@class,'item-view-wrapper')]",
     pageComponentsItemName: "//div[@data-component='ContextMenu.Trigger']//span[text()]",
-    fragmentsName: "//div[@data-component='ContextMenu.Trigger'][.//*[contains(@class,'lucide-puzzle')]]//span[contains(@class,'truncate')]",
+    fragmentsName:
+        "//div[@data-component='ContextMenu.Trigger'][.//*[contains(@class,'lucide-puzzle')]]//span[contains(@class,'truncate')]",
     pageComponentsItemViewer: "//div[contains(@id,'PageComponentsItemViewer')]",
-    contextMenuItems:"//div[@data-component='ContextMenu.Content']//div[@data-component='ContextMenu.Item']",
+    contextMenuItems: "//div[@data-component='ContextMenu.Content']//div[@data-component='ContextMenu.Item']",
     pageComponentsItemViewerByType(componentType) {
-        return `//div[contains(@id,'PageComponentsItemViewer') and contains(@class,'${componentType}')]`
+        return `//div[contains(@id,'PageComponentsItemViewer') and contains(@class,'${componentType}')]`;
     },
     pageComponentsTreeGrid: `//div[contains(@id,'PageComponentsTreeGrid')]`,
     contextMenuTrigger(name) {
-        return `//div[@data-component='ContextMenu.Trigger']//span[@class and contains(@class, 'truncate') and text()='${name}']`
+        return `//div[@data-component='ContextMenu.Trigger']//span[@class and contains(@class, 'truncate') and text()='${name}']`;
     },
     contextMenuItemByName(name) {
-        return `//div[@data-component='ContextMenu.Content']//div[@data-component='ContextMenu.Item' and text()='${name}']`
+        return `//div[@data-component='ContextMenu.Content']//div[@data-component='ContextMenu.Item' and text()='${name}']`;
     },
     // Matches Item or SubTrigger in the top-level menu (text only, no SVG children at this level)
     contextMenuTopLevelItemByName(name) {
-        return `//div[@data-component='ContextMenu.Content']//*[(@data-component='ContextMenu.Item' or @data-component='ContextMenu.SubTrigger') and normalize-space(text())='${name}']`
+        return `//div[@data-component='ContextMenu.Content']//*[(@data-component='ContextMenu.Item' or @data-component='ContextMenu.SubTrigger') and normalize-space(text())='${name}']`;
     },
     // Matches Item inside a SubContent panel (icon + text node)
     contextSubMenuItemByName(name) {
-        return `//div[@data-component='ContextMenu.SubContent']//div[@data-component='ContextMenu.Item' and normalize-space(.)='${name}']`
+        return `//div[@data-component='ContextMenu.SubContent']//div[@data-component='ContextMenu.Item' and normalize-space(.)='${name}']`;
     },
     // Expand/collapse button inside the ContextMenu.Trigger row for the given component name
     rowExpanderButton(name) {
-        return `//div[@data-component='ContextMenu.Trigger' and .//span[contains(@class,'truncate') and text()='${name}']]//button`
+        return `//div[@data-component='ContextMenu.Trigger' and .//span[contains(@class,'truncate') and text()='${name}']]//button`;
     },
 };
 
 class BasePageComponentView extends Page {
-
     async rightClickAndOpenContextMenu(name) {
         try {
             let contextMenuTrigger = this.container + xpath.contextMenuTrigger(name);
@@ -44,13 +44,17 @@ class BasePageComponentView extends Page {
             await this.pause(300);
             // Perform right click
             let element = await this.findElement(contextMenuTrigger);
-            await element.click({button: 2});
+            await element.click({ button: 2 });
             // Wait for context menu to appear
             let locator = COMMON.PCV.contextMenuDiv;
             await this.waitForElementDisplayed(locator);
             return await this.pause(500);
         } catch (err) {
-            await this.handleError(`Error when right-clicking on context menu trigger: ${name} in PCV`, 'err_right_click_menu', err);
+            await this.handleError(
+                `Error when right-clicking on context menu trigger: ${name} in PCV`,
+                'err_right_click_menu',
+                err,
+            );
         }
     }
 
@@ -61,15 +65,20 @@ class BasePageComponentView extends Page {
             await this.clickOnElement(selector);
             return await this.pause(700);
         } catch (err) {
-            await this.handleError(`Error when clicking on the menu item: ${menuItem} in PCV`, 'err_click_menu_item', err);
+            await this.handleError(
+                `Error when clicking on the menu item: ${menuItem} in PCV`,
+                'err_click_menu_item',
+                err,
+            );
         }
     }
 
     async isComponentSelected(displayName) {
         try {
-            let locator = this.container +
-                          `//div[@data-component='ContextMenu.Trigger']//span[contains(@class,'truncate') and text()='${displayName}']` +
-                          `/ancestor::div[@role='button']`;
+            let locator =
+                this.container +
+                `//div[@data-component='ContextMenu.Trigger']//span[contains(@class,'truncate') and text()='${displayName}']` +
+                `/ancestor::div[@role='treeitem']`;
             await this.waitForElementDisplayed(locator, appConst.shortTimeout);
             let attr = await this.getAttribute(locator, 'class');
             return attr.includes('bg-surface-selected');
@@ -80,41 +89,53 @@ class BasePageComponentView extends Page {
     }
 
     async waitForItemSelected(displayName) {
-        let locator = this.container +
-                      `//div[@data-component='ContextMenu.Trigger']//span[contains(@class,'truncate') and text()='${displayName}']` +
-                      `/ancestor::div[@role='button']`;
-        await this.getBrowser().waitUntil(async () => {
-            let result = await this.getAttribute(locator, 'class');
-            return result.includes('bg-surface-selected');
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: `PCV item '${displayName}' should be selected`});
+        let locator =
+            this.container +
+            `//div[@data-component='ContextMenu.Trigger']//span[contains(@class,'truncate') and text()='${displayName}']` +
+            `/ancestor::div[@role='treeitem']`;
+        await this.getBrowser().waitUntil(
+            async () => {
+                let result = await this.getAttribute(locator, 'class');
+                return result.includes('bg-surface-selected');
+            },
+            { timeout: appConst.mediumTimeout, timeoutMsg: `PCV item '${displayName}' should be selected` },
+        );
     }
 
     async waitForItemNotSelected(displayName) {
-        let locator = this.container +
-                      `//div[@data-component='ContextMenu.Trigger']//span[contains(@class,'truncate') and text()='${displayName}']` +
-                      `/ancestor::div[@role='button']`;
-        await this.getBrowser().waitUntil(async () => {
-            let result = await this.getAttribute(locator, 'class');
-            return !result.includes('bg-surface-selected');
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: `PCV item '${displayName}' should not be selected`});
+        let locator =
+            this.container +
+            `//div[@data-component='ContextMenu.Trigger']//span[contains(@class,'truncate') and text()='${displayName}']` +
+            `/ancestor::div[@role='treeitem']`;
+        await this.getBrowser().waitUntil(
+            async () => {
+                let result = await this.getAttribute(locator, 'class');
+                return !result.includes('bg-surface-selected');
+            },
+            { timeout: appConst.mediumTimeout, timeoutMsg: `PCV item '${displayName}' should not be selected` },
+        );
     }
 
     async waitForComponentItemDisplayed(displayName) {
-        let selector = this.container +
-                       `//div[@data-component='ContextMenu.Trigger']//span[contains(@class,'truncate') and text()='${displayName}']`;
+        let selector =
+            this.container +
+            `//div[@data-component='ContextMenu.Trigger']//span[contains(@class,'truncate') and text()='${displayName}']`;
         return await this.waitForElementDisplayed(selector);
     }
 
     async clickOnComponentByDisplayName(displayName) {
         try {
-            let selector = this.container +
-                           `//div[@data-component='ContextMenu.Trigger']//span[contains(@class,'truncate') and text()='${displayName}']`;
+            let selector =
+                this.container +
+                `//div[@data-component='ContextMenu.Trigger']//span[contains(@class,'truncate') and text()='${displayName}']`;
             await this.waitForElementDisplayed(selector);
             await this.clickOnElement(selector);
             return await this.pause(400);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_component_click');
-            throw new Error(`Page Component View - Error occurred after clicking on the component, screenshot${screenshot}: ` + err);
+            throw new Error(
+                `Page Component View - Error occurred after clicking on the component, screenshot${screenshot}: ` + err,
+            );
         }
     }
 
@@ -143,7 +164,6 @@ class BasePageComponentView extends Page {
             throw new Error(`PCV, Error clicking row expander for '${componentName}', screenshot:${screenshot} ` + err);
         }
     }
-
 
     async getContextMenuItems() {
         let locator = xpath.contextMenuItems;
@@ -186,7 +206,9 @@ class BasePageComponentView extends Page {
             return await this.pause(300);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_select_context_menu');
-            throw new Error(`Error selecting context menu items: ${items.join(' → ')}, screenshot:${screenshot} ` + err);
+            throw new Error(
+                `Error selecting context menu items: ${items.join(' → ')}, screenshot:${screenshot} ` + err,
+            );
         }
     }
 
@@ -197,7 +219,9 @@ class BasePageComponentView extends Page {
             return this.waitForElementDisplayed(selector, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_pcv_item');
-            throw new Error(`Page Component View - the context menu item is not displayed, screenshot: ${screenshot}  ` + err);
+            throw new Error(
+                `Page Component View - the context menu item is not displayed, screenshot: ${screenshot}  ` + err,
+            );
         }
     }
 
@@ -205,35 +229,46 @@ class BasePageComponentView extends Page {
     async waitForContextMenuItemDisabled(menuItem) {
         try {
             let locator = xpath.contextMenuItemByName(menuItem);
-            await this.getBrowser().waitUntil(async () => {
-                let atr = await this.getAttribute(locator, 'class');
-                return atr.includes('disabled');
-            }, {timeout: appConst.mediumTimeout, timeoutMsg: 'The context menu item is not disabled!'});
+            await this.getBrowser().waitUntil(
+                async () => {
+                    let atr = await this.getAttribute(locator, 'class');
+                    return atr.includes('disabled');
+                },
+                { timeout: appConst.mediumTimeout, timeoutMsg: 'The context menu item is not disabled!' },
+            );
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_pcv_context_menu');
-            throw new Error(`Page Component View - the context menu item is not disabled, screenshot: ${screenshot}  ` + err);
+            throw new Error(
+                `Page Component View - the context menu item is not disabled, screenshot: ${screenshot}  ` + err,
+            );
         }
     }
 
     async waitForContextMenuItemEnabled(menuItem) {
         try {
             let locator = xpath.contextMenuItemByName(menuItem);
-            await this.getBrowser().waitUntil(async () => {
-                let atr = await this.getAttribute(locator, 'class');
-                return !atr.includes('disabled');
-            }, {timeout: appConst.mediumTimeout, timeoutMsg: 'The context menu item is not enabled'});
+            await this.getBrowser().waitUntil(
+                async () => {
+                    let atr = await this.getAttribute(locator, 'class');
+                    return !atr.includes('disabled');
+                },
+                { timeout: appConst.mediumTimeout, timeoutMsg: 'The context menu item is not enabled' },
+            );
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_pcv_context_menu');
-            throw new Error(`Page Component View - the context menu item is not enabled, screenshot: ${screenshot}  ` + err);
+            throw new Error(
+                `Page Component View - the context menu item is not enabled, screenshot: ${screenshot}  ` + err,
+            );
         }
     }
 
     // Swaps two components in PCV using the keyboard-based dnd: Space picks the item up, arrow keys move it, Space drops it.
-    // Only draggable rows are collected (regions and the root have aria-disabled='true'):
+    // Only draggable rows are collected (regions and the root carry no aria-roledescription):
     async swapComponents(sourceName, destinationName) {
         try {
-            const allItemsLocator = this.container +
-                "//div[@data-component='SortableList']/div[@role='button' and @aria-roledescription='sortable' and @aria-disabled='false']";
+            const allItemsLocator =
+                this.container +
+                "//div[@data-component='SortableList']/div[@role='treeitem' and @aria-roledescription='sortable tree item']";
             const allItems = await this.findElements(allItemsLocator);
             let sourceIndex = -1;
             let destIndex = -1;
@@ -251,14 +286,16 @@ class BasePageComponentView extends Page {
             }
             const sourceElem = allItems[sourceIndex];
             // focus the row without clicking - a click selects the component and the focus gets lost after re-rendering:
-            await this.getBrowser().execute(el => el.focus(), sourceElem);
+            await this.getBrowser().execute((el) => el.focus(), sourceElem);
             await this.pause(200);
             await this.keys('Space');
-            // dnd-kit sets aria-pressed='true' on the row when the item is picked up:
-            await this.getBrowser().waitUntil(async () => {
-                let ariaPressed = await sourceElem.getAttribute('aria-pressed');
-                return ariaPressed === 'true';
-            }, {timeout: appConst.shortTimeout, timeoutMsg: `DnD - the component '${sourceName}' was not picked up`});
+            await this.getBrowser().waitUntil(
+                async () => {
+                    let dragging = await sourceElem.getAttribute('data-dragging');
+                    return dragging === 'true';
+                },
+                { timeout: appConst.shortTimeout, timeoutMsg: `DnD - the component '${sourceName}' was not picked up` },
+            );
             const steps = destIndex - sourceIndex;
             const arrowKey = steps > 0 ? 'ArrowDown' : 'ArrowUp';
             for (let i = 0; i < Math.abs(steps); i++) {
@@ -268,17 +305,23 @@ class BasePageComponentView extends Page {
             await this.keys('Space');
             return await this.pause(500);
         } catch (err) {
-            await this.handleError(`Error during components swap: '${sourceName}' and '${destinationName}' in PCV`, 'err_swap_components', err);
+            await this.handleError(
+                `Error during components swap: '${sourceName}' and '${destinationName}' in PCV`,
+                'err_swap_components',
+                err,
+            );
         }
     }
 
     async isItemWithDefaultIcon(partDisplayName, index) {
-        let selector = this.container + xpath.componentByName(partDisplayName) +
-                       "//div[contains(@id,'NamesAndIconView')]//div[contains(@class,'xp-admin-common-wrapper')]" +
-                       "//div[contains(@class,'font-icon-default')]";
+        let selector =
+            this.container +
+            xpath.componentByName(partDisplayName) +
+            "//div[contains(@id,'NamesAndIconView')]//div[contains(@class,'xp-admin-common-wrapper')]" +
+            "//div[contains(@class,'font-icon-default')]";
         let items = await this.findElements(selector);
         if (!items.length) {
-            throw new Error("Component-item with an icon was not found! " + partDisplayName);
+            throw new Error('Component-item with an icon was not found! ' + partDisplayName);
         }
         if (typeof index === 'undefined' || index === null) {
             return await items[0].isDisplayed();
@@ -297,37 +340,49 @@ class BasePageComponentView extends Page {
     }
 
     async getTextComponentsDisplayName() {
-        let locator = this.container +
-                      `//div[@data-component='ContextMenu.Trigger'][.//*[contains(@class,'lucide-pen-line')]]` +
-                      `//span[contains(@class,'truncate')]`;
+        let locator =
+            this.container +
+            `//div[@data-component='ContextMenu.Trigger'][.//*[contains(@class,'lucide-pen-line')]]` +
+            `//span[contains(@class,'truncate')]`;
         return await this.getTextInDisplayedElements(locator);
     }
 
     async waitForItemDisplayed(itemDisplayName) {
         try {
-            let locator = this.container +
-                          `//div[@data-component='ContextMenu.Trigger']//span[contains(@class,'truncate') and text()='${itemDisplayName}']`;
+            let locator =
+                this.container +
+                `//div[@data-component='ContextMenu.Trigger']//span[contains(@class,'truncate') and text()='${itemDisplayName}']`;
             return await this.waitForElementDisplayed(locator);
         } catch (err) {
-            await this.handleError(`Page Component View - item '${itemDisplayName}' should be displayed`, 'err_pcv_item_displayed', err);
+            await this.handleError(
+                `Page Component View - item '${itemDisplayName}' should be displayed`,
+                'err_pcv_item_displayed',
+                err,
+            );
         }
     }
 
     async isComponentInvalid(name) {
         try {
-            let locator = this.container +
-                          `//div[@data-component='ContextMenu.Trigger' and descendant::span[contains(@class,'truncate') and text()='${name}']]` +
-                          `//*[contains(@class,'lucide-octagon-alert')]`;
+            let locator =
+                this.container +
+                `//div[@data-component='ContextMenu.Trigger' and descendant::span[contains(@class,'truncate') and text()='${name}']]` +
+                `//*[contains(@class,'lucide-octagon-alert')]`;
             return await this.isElementDisplayed(locator);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_pcv_component_invalid');
-            throw new Error(`Error checking invalid state for component '${name}' in PCV, screenshot:${screenshot} ` + err);
+            throw new Error(
+                `Error checking invalid state for component '${name}' in PCV, screenshot:${screenshot} ` + err,
+            );
         }
     }
 
     async isComponentItemInvalid(itemDisplayName) {
         try {
-            let locator = this.container + xpath.componentByName(itemDisplayName) + "//div[contains(@class,'xp-admin-common-wrapper')]";  //div[contains(@class,'xp-admin-common-wrapper')]
+            let locator =
+                this.container +
+                xpath.componentByName(itemDisplayName) +
+                "//div[contains(@class,'xp-admin-common-wrapper')]"; //div[contains(@class,'xp-admin-common-wrapper')]
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             let attr = await this.getAttribute(locator, 'class');
             return attr.includes('icon-state-invalid');
