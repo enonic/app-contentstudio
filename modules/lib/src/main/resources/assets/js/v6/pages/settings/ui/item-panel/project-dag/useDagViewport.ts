@@ -7,12 +7,13 @@ import {
     useRef,
     useState,
 } from 'react';
+import { DAG_NODE_HEIGHT, DAG_NODE_WIDTH } from './projectDag.layout';
 
 export const MIN_SCALE = 0.25;
 export const MAX_SCALE = 2;
 export const ZOOM_STEP = 1.25;
+export const MIN_READABLE_SCALE = 0.85;
 const WHEEL_ZOOM_SENSITIVITY = 0.005;
-// ? Pointer travel above this counts as a drag, so the closing click is not a node click.
 const DRAG_THRESHOLD = 4;
 
 export type ViewportPadding = {
@@ -23,6 +24,12 @@ export type ViewportPadding = {
 
 // ? The bottom band keeps the graph clear of the zoom controls.
 export const VIEWPORT_PADDING: ViewportPadding = { x: 24, top: 24, bottom: 68 };
+
+export const PAN_MARGIN: ViewportPadding = {
+    x: DAG_NODE_WIDTH,
+    top: DAG_NODE_HEIGHT,
+    bottom: DAG_NODE_HEIGHT + VIEWPORT_PADDING.bottom,
+};
 
 export type DagSize = {
     width: number;
@@ -89,6 +96,60 @@ export function centerTransform(
     };
 }
 
+/** Fits while the graph stays legible; past that, shows the first cards at a readable scale. */
+export function initialTransform(
+    content: DagSize,
+    container: DagSize,
+    padding: ViewportPadding = VIEWPORT_PADDING,
+): DagTransform {
+    const fitted = fitTransform(content, container, padding);
+    if (fitted.k >= MIN_READABLE_SCALE) {
+        return fitted;
+    }
+
+    // ? Anchor the overflowing axes on the first card, which d3-dag lays out at the
+    // ? origin, and center the axes that still fit.
+    const centered = centerTransform(content, container, MIN_READABLE_SCALE, padding);
+    const overflowsX = content.width * MIN_READABLE_SCALE > container.width - 2 * padding.x;
+    const overflowsY = content.height * MIN_READABLE_SCALE > container.height - padding.top - padding.bottom;
+
+    return clampTransform(
+        {
+            x: overflowsX ? padding.x : centered.x,
+            y: overflowsY ? padding.top : centered.y,
+            k: MIN_READABLE_SCALE,
+        },
+        content,
+        container,
+    );
+}
+
+/** Keeps the translation inside the pan bounds, so the graph cannot be pushed off-stage. */
+export function clampTransform(
+    transform: DagTransform,
+    content: DagSize,
+    container: DagSize,
+    margin: ViewportPadding = PAN_MARGIN,
+): DagTransform {
+    if (container.width <= 0 || container.height <= 0) {
+        return transform;
+    }
+
+    return {
+        x: clampAxis(transform.x, content.width * transform.k, container.width, margin.x, margin.x),
+        y: clampAxis(transform.y, content.height * transform.k, container.height, margin.top, margin.bottom),
+        k: transform.k,
+    };
+}
+
+// ? The bounds swap once the content outgrows the container: below that it must stay
+// ? inside the margins, above it the margins cap how far each edge may travel inwards.
+function clampAxis(value: number, content: number, container: number, lead: number, trail: number): number {
+    const bounds = [lead, container - trail - content];
+
+    return Math.min(Math.max(value, Math.min(...bounds)), Math.max(...bounds));
+}
+
 /** Exponential zoom factor for a wheel delta, so every notch scales by the same ratio. */
 export function wheelZoomFactor(deltaY: number): number {
     return Math.exp(-deltaY * WHEEL_ZOOM_SENSITIVITY);
@@ -111,6 +172,8 @@ export function useDagViewport(content: DagSize): DagViewport {
     const panRef = useRef<{ pointerId: number; startX: number; startY: number; transform: DagTransform } | null>(null);
     // ? While untouched the viewport keeps refitting on resize; any manual zoom/pan stops that.
     const isAdjustedRef = useRef(false);
+    // ? Which auto view a resize should reapply: the readable start or an explicit fit.
+    const autoModeRef = useRef<'initial' | 'fit'>('initial');
     const transformRef = useRef<DagTransform>(IDENTITY);
     const contentRef = useRef<DagSize>(content);
     const draggedRef = useRef(false);
@@ -128,6 +191,7 @@ export function useDagViewport(content: DagSize): DagViewport {
 
     const fitToView = useCallback(() => {
         isAdjustedRef.current = false;
+        autoModeRef.current = 'fit';
         setTransform(fitTransform(content, getContainerSize()));
     }, [content, getContainerSize]);
 
@@ -138,9 +202,15 @@ export function useDagViewport(content: DagSize): DagViewport {
 
     const zoomBy = useCallback(
         (factor: number) => {
-            const { width, height } = getContainerSize();
+            const container = getContainerSize();
             isAdjustedRef.current = true;
-            setTransform((current) => zoomAt(current, factor, { x: width / 2, y: height / 2 }));
+            setTransform((current) =>
+                clampTransform(
+                    zoomAt(current, factor, { x: container.width / 2, y: container.height / 2 }),
+                    contentRef.current,
+                    container,
+                ),
+            );
         },
         [getContainerSize],
     );
@@ -199,13 +269,15 @@ export function useDagViewport(content: DagSize): DagViewport {
 
         const handleWheel = (event: WheelEvent): void => {
             const rect = element.getBoundingClientRect();
+            const container = { width: rect.width, height: rect.height };
             const current = transformRef.current;
-            isAdjustedRef.current = true;
 
             if (event.ctrlKey || event.metaKey) {
                 event.preventDefault();
+                isAdjustedRef.current = true;
                 const point = { x: event.clientX - rect.left, y: event.clientY - rect.top };
-                setTransform(zoomAt(current, wheelZoomFactor(event.deltaY), point));
+                const zoomed = zoomAt(current, wheelZoomFactor(event.deltaY), point);
+                setTransform(clampTransform(zoomed, contentRef.current, container));
                 return;
             }
 
@@ -216,7 +288,9 @@ export function useDagViewport(content: DagSize): DagViewport {
             if (!overflows) return;
 
             event.preventDefault();
-            setTransform({ x: current.x - event.deltaX, y: current.y - event.deltaY, k: current.k });
+            isAdjustedRef.current = true;
+            const panned = { x: current.x - event.deltaX, y: current.y - event.deltaY, k: current.k };
+            setTransform(clampTransform(panned, contentRef.current, container));
         };
 
         element.addEventListener('wheel', handleWheel, { passive: false });
@@ -238,11 +312,13 @@ export function useDagViewport(content: DagSize): DagViewport {
                 draggedRef.current = true;
             }
 
-            setTransform({
+            const panned = {
                 x: pan.transform.x + deltaX,
                 y: pan.transform.y + deltaY,
                 k: pan.transform.k,
-            });
+            };
+
+            setTransform(clampTransform(panned, contentRef.current, getContainerSize()));
         };
 
         const handleEnd = (event: PointerEvent): void => {
@@ -260,7 +336,7 @@ export function useDagViewport(content: DagSize): DagViewport {
             window.removeEventListener('pointerup', handleEnd);
             window.removeEventListener('pointercancel', handleEnd);
         };
-    }, []);
+    }, [getContainerSize]);
 
     // Refit on content change and on container resize, until the user takes over.
     useEffect(() => {
@@ -268,11 +344,14 @@ export function useDagViewport(content: DagSize): DagViewport {
         if (!element) return;
 
         isAdjustedRef.current = false;
-        setTransform(fitTransform(content, getContainerSize()));
+        autoModeRef.current = 'initial';
+        setTransform(initialTransform(content, getContainerSize()));
 
         const observer = new ResizeObserver(() => {
             if (isAdjustedRef.current) return;
-            setTransform(fitTransform(content, getContainerSize()));
+
+            const apply = autoModeRef.current === 'fit' ? fitTransform : initialTransform;
+            setTransform(apply(content, getContainerSize()));
         });
         observer.observe(element);
 

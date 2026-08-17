@@ -14,6 +14,7 @@ export type ProjectDagNode = {
     hasIcon: boolean;
     iconHash: string | undefined;
     isLayer: boolean;
+    isAvailable: boolean;
     left: number;
     top: number;
 };
@@ -40,6 +41,7 @@ type ProjectDagDatum = {
     hasIcon: boolean;
     iconHash: string | undefined;
     isLayer: boolean;
+    isAvailable: boolean;
     parentIds: string[];
 };
 
@@ -73,6 +75,7 @@ export function buildProjectDagLayout(projects: readonly Readonly<Project>[]): P
             hasIcon: data.hasIcon,
             iconHash: data.iconHash,
             isLayer: data.isLayer,
+            isAvailable: data.isAvailable,
             left: round(x - DAG_NODE_WIDTH / 2),
             top: round(y - DAG_NODE_HEIGHT / 2),
         }));
@@ -107,8 +110,14 @@ function toDatum(project: Readonly<Project>, knownIds: ReadonlySet<string>): Pro
         hasIcon: !!icon,
         iconHash: icon?.getSha512(),
         isLayer: parents.length > 0,
+        isAvailable: isAvailableProject(project),
         parentIds: parents.filter((parentId) => knownIds.has(parentId)),
     };
+}
+
+// ? Projects the user cannot read come back as name-only stubs from the list endpoint.
+function isAvailableProject(project: Readonly<Project>): boolean {
+    return !!project.getDisplayName();
 }
 
 function round(value: number): number {

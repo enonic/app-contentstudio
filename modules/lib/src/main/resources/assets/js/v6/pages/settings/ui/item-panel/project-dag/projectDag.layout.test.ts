@@ -39,7 +39,18 @@ describe('buildProjectDagLayout', () => {
             language: 'en',
             hasIcon: false,
             isLayer: false,
+            isAvailable: true,
         });
+    });
+
+    it('should mark a project without a display name as unavailable', () => {
+        const layout = buildProjectDagLayout([
+            project('parent-a', { displayName: '' }),
+            project('parent-b', { parents: ['parent-a'] }),
+        ]);
+
+        expect(nodeById(layout, 'parent-a')).toMatchObject({ displayName: 'parent-a', isAvailable: false });
+        expect(nodeById(layout, 'parent-b').isAvailable).toBe(true);
     });
 
     it('should place a child below its parent and connect them', () => {

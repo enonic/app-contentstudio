@@ -9,6 +9,8 @@ const PROJECT_DAG_SHORTCUTS_NAME = 'ProjectDagShortcuts';
 export const ProjectDagShortcuts = (): ReactElement => {
     const zoomLabel = useI18n('settings.statistics.projects.graph.hint.zoom');
     const scrollKey = useI18n('settings.statistics.projects.graph.hint.scroll');
+    const clickKey = useI18n('settings.statistics.projects.graph.hint.click');
+    const selectLabel = useI18n('settings.statistics.projects.graph.hint.select');
     const fitLabel = useI18n('settings.statistics.projects.graph.fit');
     const resetLabel = useI18n('settings.statistics.projects.graph.reset');
 
@@ -16,11 +18,13 @@ export const ProjectDagShortcuts = (): ReactElement => {
         <div
             data-component={PROJECT_DAG_SHORTCUTS_NAME}
             aria-hidden
-            className="pointer-events-none absolute bottom-3 left-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-subtle opacity-0 transition-opacity select-none group-hover:opacity-100 group-focus-within:opacity-100"
+            // ? Column while narrow: a single row would crowd the zoom controls.
+            className="pointer-events-none absolute bottom-3 left-3 flex flex-col items-start gap-x-3 gap-y-1 text-xs text-subtle opacity-0 transition-opacity select-none group-hover:opacity-100 group-focus-within:opacity-100 @3xl:flex-row @3xl:flex-wrap @3xl:items-center"
         >
-            <Hint keys={[MODIFIER_KEY, scrollKey]} label={zoomLabel} />
-            <Hint keys={['+', '-']} label={zoomLabel} />
+            <Hint keys={[clickKey]} label={selectLabel} />
             <Hint keys={['F']} label={fitLabel} />
+            <Hint keys={['+', '-']} label={zoomLabel} />
+            <Hint keys={[MODIFIER_KEY, scrollKey]} label={zoomLabel} />
             <Hint keys={[MODIFIER_KEY, '0']} label={resetLabel} />
         </div>
     );

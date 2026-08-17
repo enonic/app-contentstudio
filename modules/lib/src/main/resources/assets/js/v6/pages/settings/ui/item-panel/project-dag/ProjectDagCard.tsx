@@ -1,3 +1,4 @@
+import { cn } from '@enonic/ui';
 import { type ReactElement } from 'react';
 import { ProjectIcon } from '../../../../../shared/ui/icons/ProjectIcon';
 import { DAG_NODE_HEIGHT, DAG_NODE_WIDTH, type ProjectDagNode } from './projectDag.layout';
@@ -28,10 +29,14 @@ export const ProjectDagCard = ({
             data-component={PROJECT_DAG_CARD_NAME}
             data-dimmed={dimmed}
             aria-label={`${node.displayName} (${node.id})`}
+            onMouseDown={(event) => event.preventDefault()}
             onClick={onSelect}
             onPointerEnter={onPointerEnter}
             onPointerLeave={onPointerLeave}
-            className="absolute flex cursor-pointer items-center gap-3 overflow-hidden rounded-md border border-bdr-soft bg-surface-neutral px-3 text-left shadow-sm transition-opacity data-[dimmed=true]:opacity-30"
+            className={cn(
+                'absolute flex cursor-pointer items-center gap-3 overflow-hidden rounded-md border border-bdr-soft bg-surface-neutral px-3 text-left shadow-sm transition-opacity data-[dimmed=true]:opacity-30',
+                !node.isAvailable && 'opacity-50',
+            )}
             style={{
                 left: node.left,
                 top: node.top,

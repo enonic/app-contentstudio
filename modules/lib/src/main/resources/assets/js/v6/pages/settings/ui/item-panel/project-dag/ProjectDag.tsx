@@ -17,7 +17,7 @@ const PROJECT_DAG_NAME = 'ProjectDag';
 
 // ? A fixed stage keeps zooming predictable and leaves the controls clear of the graph.
 const FRAME_CLASSES =
-    'group relative h-[60vh] max-h-[720px] min-h-90 w-full overflow-hidden rounded-md border border-bdr-soft bg-surface-neutral-hover';
+    'group @container relative h-[60vh] max-h-[720px] min-h-90 w-full overflow-hidden rounded-md border border-bdr-soft bg-surface-neutral-hover';
 
 export const ProjectDag = (): ReactElement | null => {
     const { projects, loaded } = useStore($projects, { keys: ['projects', 'loaded'] });
@@ -37,29 +37,21 @@ export const ProjectDag = (): ReactElement | null => {
         [adjacency, highlightedId],
     );
 
+    const { transform, wasDragged } = viewport;
+
     const handleSelect = useCallback(
         (id: string): void => {
-            if (viewport.wasDragged()) return;
+            if (wasDragged()) return;
 
             expandSettingsAncestors(id);
             clearSelection();
             setActive(id);
             revealSettingsItem(id);
         },
-        [viewport],
+        [wasDragged],
     );
 
-    if (!loaded) {
-        return (
-            <div data-component={PROJECT_DAG_NAME} className={FRAME_CLASSES}>
-                <Skeleton className="size-full" />
-            </div>
-        );
-    }
-
-    if (layout.nodes.length === 0) return null;
-
-    const { transform } = viewport;
+    if (loaded && layout.nodes.length === 0) return null;
 
     return (
         <div data-component={PROJECT_DAG_NAME} className={FRAME_CLASSES}>
@@ -104,17 +96,23 @@ export const ProjectDag = (): ReactElement | null => {
                 </div>
             </div>
 
-            <ProjectDagShortcuts />
+            {!loaded && <Skeleton className="absolute inset-0 size-full" />}
 
-            <ProjectDagControls
-                scale={transform.k}
-                canZoomIn={viewport.canZoomIn}
-                canZoomOut={viewport.canZoomOut}
-                onZoomIn={viewport.zoomIn}
-                onZoomOut={viewport.zoomOut}
-                onFit={viewport.fitToView}
-                onReset={viewport.reset}
-            />
+            {loaded && (
+                <>
+                    <ProjectDagShortcuts />
+
+                    <ProjectDagControls
+                        scale={transform.k}
+                        canZoomIn={viewport.canZoomIn}
+                        canZoomOut={viewport.canZoomOut}
+                        onZoomIn={viewport.zoomIn}
+                        onZoomOut={viewport.zoomOut}
+                        onFit={viewport.fitToView}
+                        onReset={viewport.reset}
+                    />
+                </>
+            )}
         </div>
     );
 };
