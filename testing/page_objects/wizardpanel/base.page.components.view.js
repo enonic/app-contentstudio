@@ -263,12 +263,12 @@ class BasePageComponentView extends Page {
     }
 
     // Swaps two components in PCV using the keyboard-based dnd: Space picks the item up, arrow keys move it, Space drops it.
-    // Only draggable rows are collected (regions and the root have aria-disabled='true'):
+    // Only draggable rows are collected (regions and the root carry no aria-roledescription):
     async swapComponents(sourceName, destinationName) {
         try {
             const allItemsLocator =
                 this.container +
-                "//div[@data-component='SortableList']/div[@role='treeitem' and @aria-roledescription='sortable' and @aria-disabled='false']";
+                "//div[@data-component='SortableList']/div[@role='treeitem' and @aria-roledescription='sortable tree item']";
             const allItems = await this.findElements(allItemsLocator);
             let sourceIndex = -1;
             let destIndex = -1;
