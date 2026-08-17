@@ -1,10 +1,10 @@
 /**
  * Created on 09.07.2020.  updated on 02.07.2026
  */
-const {BUTTONS} = require('../../libs/elements');
+const { BUTTONS } = require('../../libs/elements');
 const BaseSelectorForm = require('./base.selector.form');
 const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
-const {Key} = require('webdriverio');
+const { Key } = require('webdriverio');
 
 const XPATH = {
     container: "//div[@data-component='FormRenderer']",
@@ -14,13 +14,12 @@ const XPATH = {
 };
 
 class ContentSelectorForm extends BaseSelectorForm {
-
     get optionsFilterInput() {
         let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
         return contentSelectorDropdown.optionsFilterInput();
     }
 
-    async typeTextInOptionsFilterInput( text){
+    async typeTextInOptionsFilterInput(text) {
         await this.typeTextInInput(this.optionsFilterInput, text);
     }
 
@@ -48,14 +47,18 @@ class ContentSelectorForm extends BaseSelectorForm {
     }
 
     selectedOptionByDisplayName(displayName) {
-        return XPATH.selectorSelectionDiv +
-               `/div[@role='button' and @aria-roledescription='sortable' and descendant::span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]`;
+        return (
+            XPATH.selectorSelectionDiv +
+            `/div[@role='button' and @aria-roledescription='sortable' and descendant::span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]`
+        );
     }
 
     async swapOptions(sourceName, destinationName) {
         try {
-            const sortableLocator = XPATH.container + XPATH.selectorSelectionDiv +
-                                    "/div[@role='button' and @aria-roledescription='sortable']";
+            const sortableLocator =
+                XPATH.container +
+                XPATH.selectorSelectionDiv +
+                "/div[@role='button' and @aria-roledescription='sortable']";
             const items = await this.findElements(sortableLocator);
             let sourceIndex = -1;
             let destinationIndex = -1;
@@ -66,7 +69,8 @@ class ContentSelectorForm extends BaseSelectorForm {
             }
             if (sourceIndex === -1 || destinationIndex === -1) {
                 throw new Error(
-                    `Sortable item not found: source='${sourceName}'(${sourceIndex}), destination='${destinationName}'(${destinationIndex})`);
+                    `Sortable item not found: source='${sourceName}'(${sourceIndex}), destination='${destinationName}'(${destinationIndex})`,
+                );
             }
             if (sourceIndex === destinationIndex) {
                 return;
@@ -86,7 +90,10 @@ class ContentSelectorForm extends BaseSelectorForm {
             return await this.pause(1000);
         } catch (err) {
             await this.handleError(
-                `Content selector form, tried to swap options: '${sourceName}' <-> '${destinationName}'`, 'err_swap_options', err);
+                `Content selector form, tried to swap options: '${sourceName}' <-> '${destinationName}'`,
+                'err_swap_options',
+                err,
+            );
         }
     }
 
@@ -110,7 +117,11 @@ class ContentSelectorForm extends BaseSelectorForm {
             let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
             await contentSelectorDropdown.waitForAddNewContentButtonNotDisplayed();
         } catch (err) {
-            await this.handleError(`Content selector, 'Add new' button should not be displayed`, 'err_add_new_btn', err);
+            await this.handleError(
+                `Content selector, 'Add new' button should not be displayed`,
+                'err_add_new_btn',
+                err,
+            );
         }
     }
 
@@ -128,7 +139,10 @@ class ContentSelectorForm extends BaseSelectorForm {
             await contentSelectorDropdown.clickOnApplySelectionButton();
         } catch (err) {
             await this.handleError(
-                `Content selector, tried to click on the option: ${optionDisplayName} and click on Apply button`, 'err_combobox', err);
+                `Content selector, tried to click on the option: ${optionDisplayName} and click on Apply button`,
+                'err_combobox',
+                err,
+            );
         }
     }
 
@@ -148,7 +162,10 @@ class ContentSelectorForm extends BaseSelectorForm {
             return await contentSelectorDropdown.clickOnApplySelectionButton();
         } catch (err) {
             await this.handleError(
-                `Content selector, tried to select: ${optionDisplayName} in tree mode and Apply`, 'err_combobox_tree_mode', err);
+                `Content selector, tried to select: ${optionDisplayName} in tree mode and Apply`,
+                'err_combobox_tree_mode',
+                err,
+            );
         }
     }
 
@@ -166,7 +183,11 @@ class ContentSelectorForm extends BaseSelectorForm {
             let contentSelector = new ContentSelectorDropdown(XPATH.container);
             return await contentSelector.getOptionsDisplayNameInTreeMode();
         } catch (err) {
-            await this.handleError(`Content selector, tried to get options display name in tree mode`, 'err_get_options_tree_mode', err)
+            await this.handleError(
+                `Content selector, tried to get options display name in tree mode`,
+                'err_get_options_tree_mode',
+                err,
+            );
         }
     }
 
@@ -175,7 +196,11 @@ class ContentSelectorForm extends BaseSelectorForm {
             let contentSelector = new ContentSelectorDropdown(XPATH.container);
             return await contentSelector.getOptionsDisplayNameInFlatMode();
         } catch (err) {
-            await this.handleError(`Content selector, tried to get options display name in flat mode`, 'err_get_options_flat_mode', err)
+            await this.handleError(
+                `Content selector, tried to get options display name in flat mode`,
+                'err_get_options_flat_mode',
+                err,
+            );
         }
     }
 
@@ -187,7 +212,10 @@ class ContentSelectorForm extends BaseSelectorForm {
             return await this.pause(500);
         } catch (err) {
             await this.handleError(
-                `Content selector form, tried to remove the selected option: ${displayName}`, 'err_remove_option', err);
+                `Content selector form, tried to remove the selected option: ${displayName}`,
+                'err_remove_option',
+                err,
+            );
         }
     }
 
@@ -199,7 +227,10 @@ class ContentSelectorForm extends BaseSelectorForm {
             return await this.pause(500);
         } catch (err) {
             await this.handleError(
-                `Content selector , tried to edit the selected option: ${displayName}`, 'err_edit_option', err);
+                `Content selector , tried to edit the selected option: ${displayName}`,
+                'err_edit_option',
+                err,
+            );
         }
     }
 

@@ -8,17 +8,15 @@ const studioUtils = require('../../libs/studio.utils.js');
 const ContentSelectorForm = require('../../page_objects/wizardpanel/content.selector.form');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 
-
 describe('content.selector.config.spec: tests for content-selector with config', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
-    const ARTICLE_NAME_1 = 'article1';// This content is in :- "${site}/articles*/"
-    const ARTICLE_NAME_2 = 'article2';// This content is in :- "${site}/"
+    const ARTICLE_NAME_1 = 'article1'; // This content is in :- "${site}/articles*/"
+    const ARTICLE_NAME_2 = 'article2'; // This content is in :- "${site}/"
     const CONTENT_NAME = appConst.generateRandomName('cs');
-
 
     //  allowContentType:- "article"
     //   allowPath:- "${site}/articles*/"

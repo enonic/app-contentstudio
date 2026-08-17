@@ -2,23 +2,25 @@
  * Created on 23.01.2019. Updated on 17.06.2026
  */
 const Page = require('../../page');
-const {COMMON} = require('../../../libs/elements');
+const { COMMON } = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 
 const xpath = {
-    addItemSetButton: "//div[@data-component='OptionSetOccurrenceBody']//button[@data-component='Button' and @aria-label='Add']",
+    addItemSetButton:
+        "//div[@data-component='OptionSetOccurrenceBody']//button[@data-component='Button' and @aria-label='Add']",
     itemSetOccurrenceMenuButton: "//div[@data-component='ItemSetOccurrenceView']//button[@aria-label='More actions']",
     optionSetMoreMenuButton: "//div[@data-component='OptionSetOccurrenceView']//button[@aria-label='More actions']",
     labelInput: "//div[@data-component='ItemSetOccurrenceView']//input[@aria-label='Label']",
     itemSetOccurrenceMenuItems: "//div[@data-component='ContextMenu.Content']//div[@data-component='ContextMenu.Item']",
-    contextMenuItem: (text) => `//div[@data-component='ContextMenu.Content']//div[@data-component='ContextMenu.Item' and child::span[text()='${text}']]`,
-    itemSetOccurrenceHeaderName: "//div[@data-component='ItemSetOccurrenceView']//button[@aria-expanded]/span[contains(@class,'font-semibold')]",
+    contextMenuItem: (text) =>
+        `//div[@data-component='ContextMenu.Content']//div[@data-component='ContextMenu.Item' and child::span[text()='${text}']]`,
+    itemSetOccurrenceHeaderName:
+        "//div[@data-component='ItemSetOccurrenceView']//button[@aria-expanded]/span[contains(@class,'font-semibold')]",
     setHeader: "//div[@data-component='SetHeader']",
     occurrenceBody: "//div[@data-component='OptionSetOccurrenceBody']",
 };
 
 class SingleSelectionOptionSet extends Page {
-
     constructor(label = 'Single selection') {
         super();
         this._container = `//div[@data-component='OptionSetView' and child::div[@data-component='SetHeader']//span[text()='${label}']]`;
@@ -76,11 +78,17 @@ class SingleSelectionOptionSet extends Page {
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             let items = await this.findElements(locator);
             if (index >= items.length) {
-                throw new Error(`Item Set occurrence with index ${index} was not found, total occurrences: ${items.length}`);
+                throw new Error(
+                    `Item Set occurrence with index ${index} was not found, total occurrences: ${items.length}`,
+                );
             }
             return await items[index].getText();
         } catch (err) {
-            await this.handleError('Single Selection Option Set - get Item Set occurrence name', 'err_item_set_name', err);
+            await this.handleError(
+                'Single Selection Option Set - get Item Set occurrence name',
+                'err_item_set_name',
+                err,
+            );
         }
     }
 
@@ -94,7 +102,10 @@ class SingleSelectionOptionSet extends Page {
         await this.getBrowser().elementClick(menuButtons[index].elementId);
         await this.pause(400);
         let res = await this.getDisplayedElements(xpath.contextMenuItem('Delete'));
-        await res[0].waitForEnabled({timeout: appConst.shortTimeout, timeoutMsg: 'Option Set - Delete menu item should be enabled!'});
+        await res[0].waitForEnabled({
+            timeout: appConst.shortTimeout,
+            timeoutMsg: 'Option Set - Delete menu item should be enabled!',
+        });
         await res[0].click();
         return await this.pause(300);
     }
@@ -131,7 +142,6 @@ class SingleSelectionOptionSet extends Page {
             await this.handleError('Single Selection option set:', 'err_optionset', err);
         }
     }
-
 
     async isDeleteSetMenuItemDisabled() {
         let menuItemElements = await this.getDisplayedElements(xpath.contextMenuItem('Delete'));
@@ -171,7 +181,11 @@ class SingleSelectionOptionSet extends Page {
             await this.waitForElementDisplayed(locator);
             return await this.getText(locator);
         } catch (err) {
-            await this.handleError('Single Selection Option Set - validation recording', 'err_validation_recording', err);
+            await this.handleError(
+                'Single Selection Option Set - validation recording',
+                'err_validation_recording',
+                err,
+            );
         }
     }
 
