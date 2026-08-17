@@ -12,6 +12,7 @@ const xpath = {
     labelInput: "//div[@data-component='ItemSetOccurrenceView']//input[@aria-label='Label']",
     itemSetOccurrenceMenuItems: "//div[@data-component='ContextMenu.Content']//div[@data-component='ContextMenu.Item']",
     contextMenuItem: (text) => `//div[@data-component='ContextMenu.Content']//div[@data-component='ContextMenu.Item' and child::span[text()='${text}']]`,
+    itemSetOccurrenceHeaderName: "//div[@data-component='ItemSetOccurrenceView']//button[@aria-expanded]/span[contains(@class,'font-semibold')]",
     setHeader: "//div[@data-component='SetHeader']",
     occurrenceBody: "//div[@data-component='OptionSetOccurrenceBody']",
 };
@@ -67,6 +68,25 @@ class SingleSelectionOptionSet extends Page {
         let items = await this.findElements(locator);
         await items[index].click();
         return await this.pause(300);
+    }
+
+    async getItemSetOccurrenceName(index = 0) {
+        try {
+            let locator = this.container + xpath.itemSetOccurrenceHeaderName;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            let items = await this.findElements(locator);
+            if (index >= items.length) {
+                throw new Error(`Item Set occurrence with index ${index} was not found, total occurrences: ${items.length}`);
+            }
+            return await items[index].getText();
+        } catch (err) {
+            await this.handleError('Single Selection Option Set - get Item Set occurrence name', 'err_item_set_name', err);
+        }
+    }
+
+    async getItemSetOccurrenceNames() {
+        let locator = this.container + xpath.itemSetOccurrenceHeaderName;
+        return await this.getTextInElements(locator);
     }
 
     async expandMenuClickOnDelete(index) {
@@ -148,7 +168,7 @@ class SingleSelectionOptionSet extends Page {
     async getValidationRecording() {
         try {
             let locator = this.container + xpath.occurrenceBody + "//div[contains(@class,'text-error')]";
-            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(locator);
             return await this.getText(locator);
         } catch (err) {
             await this.handleError('Single Selection Option Set - validation recording', 'err_validation_recording', err);
@@ -157,7 +177,7 @@ class SingleSelectionOptionSet extends Page {
 
     waitForValidationRecordingNotDisplayed() {
         let locator = this.container + xpath.occurrenceBody + "//div[contains(@class,'text-error')]";
-        return this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
+        return this.waitForElementNotDisplayed(locator);
     }
 }
 

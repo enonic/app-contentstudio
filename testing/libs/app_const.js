@@ -414,6 +414,7 @@ module.exports = Object.freeze({
         RADIOBUTTON_0_1: 'radiobutton0_1',
         TAG_2_5: 'tag2_5',
         TAG_0_5: 'tag0_5',
+        CONTENT_SELECTOR_CONF:'content-sel-conf1',
         CUSTOM_SELECTOR_0_2: 'custom-selector0_2',
         CUSTOM_SELECTOR_1_1: 'custom-selector1_1',
         CONTENT_SELECTOR_2_8: 'content-selector2_8',
