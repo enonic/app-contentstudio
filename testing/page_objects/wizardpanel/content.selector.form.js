@@ -19,10 +19,6 @@ class ContentSelectorForm extends BaseSelectorForm {
         return contentSelectorDropdown.optionsFilterInput();
     }
 
-    async typeTextInOptionsFilterInput(text) {
-        await this.typeTextInInput(this.optionsFilterInput, text);
-    }
-
     async waitForOptionFilterInputDisplayed() {
         let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
         return await contentSelectorDropdown.waitForOptionFilterInputDisplayed();

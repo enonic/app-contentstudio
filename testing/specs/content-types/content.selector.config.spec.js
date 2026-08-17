@@ -14,8 +14,8 @@ describe('content.selector.config.spec: tests for content-selector with config',
         webDriverHelper.setupBrowser();
     }
     const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
-    const ARTICLE_NAME_1 = 'article1'; // This content is in :- "${site}/articles*/"
-    const ARTICLE_NAME_2 = 'article2'; // This content is in :- "${site}/"
+    const ARTICLE_NAME_1 = appConst.TEST_DATA.IMPORTED_ARTICLE_1; // This content is in :- "${site}/articles*/"
+    const ARTICLE_NAME_2 = appConst.TEST_DATA.IMPORTED_ARTICLE_2; // This content is in :- "${site}/"
     const CONTENT_NAME = appConst.generateRandomName('cs');
 
     //  allowContentType:- "article"
