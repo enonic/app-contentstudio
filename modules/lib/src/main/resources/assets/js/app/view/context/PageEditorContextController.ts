@@ -1,16 +1,15 @@
-import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {getIsMobile} from '@enonic/ui';
-import {InspectEvent} from '../../event/InspectEvent';
-import {PageEventsManager} from '../../wizard/PageEventsManager';
-import {type PageNavigationEvent} from '../../wizard/PageNavigationEvent';
-import {PageNavigationEventType} from '../../wizard/PageNavigationEventType';
-import {type PageNavigationHandler} from '../../wizard/PageNavigationHandler';
-import {PageNavigationMediator} from '../../wizard/PageNavigationMediator';
-import {type ContextView} from './ContextView';
-import {type ExtensionView} from './ExtensionView';
+import { type ContentSummaryAndCompareStatus } from '../../content/ContentSummaryAndCompareStatus';
+import { getIsMobile } from '@enonic/ui';
+import { InspectEvent } from '../../event/InspectEvent';
+import { PageEventsManager } from '../../wizard/PageEventsManager';
+import { type PageNavigationEvent } from '../../wizard/PageNavigationEvent';
+import { PageNavigationEventType } from '../../wizard/PageNavigationEventType';
+import { type PageNavigationHandler } from '../../wizard/PageNavigationHandler';
+import { PageNavigationMediator } from '../../wizard/PageNavigationMediator';
+import { type ContextView } from './ContextView';
+import { type ExtensionView } from './ExtensionView';
 
 export class PageEditorContextController implements PageNavigationHandler {
-
     private readonly contextView: ContextView;
     private readonly pageEditorWidget: ExtensionView;
     private readonly fallbackWidget: ExtensionView;
@@ -40,16 +39,15 @@ export class PageEditorContextController implements PageNavigationHandler {
 
     handle(event: PageNavigationEvent): void {
         const type = event.getType();
-        if (type === PageNavigationEventType.INSPECT ||
-            (type === PageNavigationEventType.SELECT && !getIsMobile())) {
+        if (type === PageNavigationEventType.INSPECT || (type === PageNavigationEventType.SELECT && !getIsMobile())) {
             this.activatePageEditor();
         }
     }
 
     private refresh(): void {
         const item = this.getItem();
-        const shouldActivate = (this.isPageRenderable && !item?.getType()?.isShortcut())
-            || item?.getContentSummary()?.isPage();
+        const shouldActivate =
+            (this.isPageRenderable && !item?.getType()?.isShortcut()) || item?.getContentSummary()?.isPage();
 
         if (shouldActivate) {
             this.activatePageEditor();
