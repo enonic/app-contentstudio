@@ -1,7 +1,7 @@
 import { cn, VirtualizedTreeList } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { Folder, FolderOpen } from 'lucide-react';
-import { type ReactElement, useCallback, useMemo, useRef } from 'react';
+import { type ReactElement, useCallback, useEffect, useMemo, useRef } from 'react';
 import type { ListRange, VirtuosoHandle } from 'react-virtuoso';
 import { Virtuoso } from 'react-virtuoso';
 import { EditSettingsItemEvent } from '../../../../app/settings/event/EditSettingsItemEvent';
@@ -14,7 +14,15 @@ import { ItemLabel } from '../../../shared/ui/ItemLabel';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import type { FlatNode } from '../../../shared/lib/tree-store';
 import { $settingsFlatNodes, collapseSettingsNode, expandSettingsNode } from '../model/settings-tree.store';
-import { $activeId, $selection, clearSelection, setActive, setSelection } from '../model/settingsTreeSelection.store';
+import {
+    $activeId,
+    $revealId,
+    $selection,
+    clearSelection,
+    consumeRevealedItem,
+    setActive,
+    setSelection,
+} from '../model/settingsTreeSelection.store';
 import { SettingsTreeContextMenu, type SettingsTreeContextMenuProps } from './SettingsTreeContextMenu';
 import { ProjectViewItem } from '../../../../app/settings/view/ProjectViewItem';
 
@@ -35,6 +43,7 @@ export const SettingsTreeList = ({ contextMenuActions = [] }: SettingsTreeListPr
     const flatNodes = useStore($settingsFlatNodes);
     const selection = useStore($selection);
     const activeId = useStore($activeId);
+    const revealId = useStore($revealId);
     const noDescription = useI18n('text.noDescription');
 
     const handleExpand = useCallback((id: string) => {
@@ -74,6 +83,17 @@ export const SettingsTreeList = ({ contextMenuActions = [] }: SettingsTreeListPr
     const handleRangeChange = useCallback((_range: ListRange) => {
         // no-op for now
     }, []);
+
+    useEffect(() => {
+        if (!revealId) return;
+
+        const index = flatNodes.findIndex((node) => node.id === revealId);
+        if (index >= 0) {
+            virtuosoRef.current?.scrollToIndex({ index, align: 'center' });
+        }
+
+        consumeRevealedItem();
+    }, [revealId, flatNodes]);
 
     return (
         <VirtualizedTreeList

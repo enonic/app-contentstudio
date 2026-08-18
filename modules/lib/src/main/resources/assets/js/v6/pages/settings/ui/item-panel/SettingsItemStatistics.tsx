@@ -5,7 +5,7 @@ import { ProjectViewItem } from '../../../../../app/settings/view/ProjectViewIte
 import { SettingsViewItem } from '../../../../../app/settings/view/SettingsViewItem';
 import { SETTINGS_PROJECTS_FOLDER_ID } from '../../model/settings-tree.store';
 import { FolderStatistics } from './FolderStatistics';
-import { ProjectDAGWrapper } from './ProjectDAGWrapper';
+import { ProjectDag } from './project-dag/ProjectDag';
 import { ProjectStatistics } from './ProjectStatistics';
 
 type SettingsItemStatisticsProps = {
@@ -23,7 +23,7 @@ export const SettingsItemStatistics = ({ item }: SettingsItemStatisticsProps): R
         <div data-component={SETTINGS_ITEM_STATISTICS_NAME} className="flex flex-col gap-7">
             {isProjectViewItem && <ProjectStatistics item={item as ProjectViewItem} />}
             {isFolderViewItem && <FolderStatistics item={item as FolderViewItem} />}
-            {showDAG && <ProjectDAGWrapper itemId={item.getId()} />}
+            {showDAG && <ProjectDag />}
         </div>
     );
 };

@@ -41,6 +41,25 @@ export function expandSettingsNode(id: string): void {
     });
 }
 
+/** Opens every ancestor of the node so its row exists in the flattened tree. */
+export function expandSettingsAncestors(id: string): void {
+    const current = $settingsTreeState.get();
+    const next = new Set(current.expandedIds);
+
+    let parentId = current.nodes.get(id)?.parentId;
+    while (parentId) {
+        next.add(parentId);
+        parentId = current.nodes.get(parentId)?.parentId;
+    }
+
+    if (next.size === current.expandedIds.size) return;
+
+    $settingsTreeState.set({
+        ...current,
+        expandedIds: next,
+    });
+}
+
 export function collapseSettingsNode(id: string): void {
     const current = $settingsTreeState.get();
     if (!current.expandedIds.has(id)) return;
