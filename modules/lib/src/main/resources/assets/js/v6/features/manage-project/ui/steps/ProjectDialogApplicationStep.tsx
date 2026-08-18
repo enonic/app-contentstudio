@@ -139,7 +139,7 @@ export const ProjectDialogApplicationStepContent = ({
                             <ListItem className="pl-0 py-0 flex-1 bg-unset">
                                 <ListItem.Content className="flex items-center gap-2.5 p-1.5 rounded cursor-move">
                                     <ItemLabel
-                                        icon={<ApplicationIcon application={application} />}
+                                        icon={application ? <ApplicationIcon application={application} /> : null}
                                         primary={name}
                                         secondary={description}
                                         className="flex-1 self-stretch"
