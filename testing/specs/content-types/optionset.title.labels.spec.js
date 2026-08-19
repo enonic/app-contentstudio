@@ -74,10 +74,10 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
         // 1. Open the new wizard:
         await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.OPTION_SET);
         await contentWizard.typeDisplayName(OPTION_SET_NAME1);
-        // 2. Verify tah 'Option 2' is selected by default:
+        // 2. Verify that 'Option 2' is selected by default:
         let isSelected = await multiSelectionOptionSet.isCheckboxSelected('Option 2');
         assert.ok(isSelected, "'Option 2' should be selected by default");
-        // 3. Unselect the default 'option 2:
+        // 3. Unselect the default 'option' 2:
         await multiSelectionOptionSet.clickOnOption('Option 2');
         // 4. Verify that 'Option 2' is not selected
         isSelected = await multiSelectionOptionSet.isCheckboxSelected('Option 2');
@@ -119,11 +119,12 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
         await singleSelectionOptionSet.selectOption('Option 1');
         // 3. Verify that the title is equal to text in 'Name' input
         await singleSelectionOptionSet.typeInLabelInput(SINGLE_SELECTION_NOTE1, 0);
+        // 4. Verify that title of ItemSet occurrence should be updated dynamically:
         let subtitle = await singleSelectionOptionSet.getItemSetOccurrenceName();
         assert.equal(subtitle, SINGLE_SELECTION_NOTE1, 'Expected label should be displayed');
-        // 4. Update the text in input:
+        // 5. Update the text in input:
         await singleSelectionOptionSet.typeTextInOptionNameInput(SINGLE_SELECTION_NOTE2);
-        // 5. Verify that title is updated dynamically:
+        // 6. Verify the subtitle of Single Selection :
         let title = await singleSelectionOptionSet.getSingleSelectionSubtitle();
         assert.equal(title, 'Single selection radio option set', 'Expected subheader should be displayed');
     });
