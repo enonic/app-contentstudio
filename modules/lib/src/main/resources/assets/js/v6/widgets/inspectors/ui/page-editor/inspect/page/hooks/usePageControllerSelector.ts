@@ -33,13 +33,18 @@ export function usePageControllerSelector(): UsePageControllerSelectorResult {
 
     const [searchValue, setSearchValue] = useState<string | undefined>();
     const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null);
-    const { options, filteredOptions, selectedOption, selectedKey, selection, isLoading } = usePageOptions(searchValue);
+    const { options, filteredOptions, selectedOption, selectedKey, isTemplateMissing, selection, isLoading } =
+        usePageOptions(searchValue);
 
     const getOptionType = useCallback(
         (key: string): PageOptionType | undefined => {
+            // A dead template reference has no option of its own, but it is still a
+            // template as far as the reset confirmation is concerned.
+            if (isTemplateMissing && key === selectedKey) return 'template';
+
             return options.find((o) => o.key === key)?.type;
         },
-        [options],
+        [options, isTemplateMissing, selectedKey],
     );
 
     const executeSelection = useCallback(

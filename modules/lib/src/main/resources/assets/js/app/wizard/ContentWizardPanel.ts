@@ -120,6 +120,7 @@ import {
 } from '../../v6/pages/wizard/model/wizardLayout.store';
 import { InspectEvent } from '../event/InspectEvent';
 import { getContentAsCSCS } from '../../v6/entities/content';
+import { isDeletedTemplateForContent } from '../../v6/shared/lib/page/templateEvent';
 import { ContentContext } from './ContentContext';
 import { ContentWizardDataLoader } from './ContentWizardDataLoader';
 import { ContentWizardHeader } from './ContentWizardHeader';
@@ -911,7 +912,9 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         PageEventsManager.get().onCustomizePageRequested(() => {
             this.getTemplateForCustomize()
                 .then((template: PageTemplate) => {
-                    PageEventsManager.get().notifySetCustomizedPageRequested(template);
+                    if (template) {
+                        PageEventsManager.get().notifySetCustomizedPageRequested(template);
+                    }
                 })
                 .catch(DefaultErrorHandler.handle);
         });
@@ -975,9 +978,11 @@ export class ContentWizardPanel extends WizardPanel<Content> {
                     this.contentDeleted = true;
                     this.close();
                     break;
-                } else if (this.isCurrentTemplateId(item.getContentId())) {
-                    // if template is deleted, just reload the page
-                    this.debouncedEditorReload(false, true, false);
+                } else if (
+                    this.getPersistedItem() &&
+                    isDeletedTemplateForContent(item.getPath(), this.getPersistedItem())
+                ) {
+                    this.handleTemplateDelete(item.getContentId());
                 }
             }
         };
@@ -1296,6 +1301,40 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         }
     }
 
+    /*
+     * Callback on page template deleted server event, for a template under the
+     * same root as the current content. The deleted template may be the selected
+     * one, or the one an automatically rendered page resolves to, so the default
+     * models are reloaded and the editor follows when either is affected.
+     * */
+    private handleTemplateDelete(deletedId: ContentId): void {
+        const isCurrentTemplate: boolean = this.isCurrentTemplateId(deletedId);
+        const previousTemplateId: string = this.defaultModels?.getDefaultPageTemplate()?.getId() ?? null;
+
+        ContentWizardDataLoader.loadDefaultModels(this.site, this.getPersistedItem().getType())
+            .then((defaultModels: DefaultModels) => {
+                const templateId: string = defaultModels?.getDefaultPageTemplate()?.getId() ?? null;
+                const hasDefaultChanged: boolean = templateId !== previousTemplateId;
+
+                if (hasDefaultChanged) {
+                    this.defaultModels = defaultModels;
+
+                    // defaultModels is part of liveEditModel so need to update it
+                    const modelTemplateId: string =
+                        this.liveEditModel?.getDefaultModels()?.getDefaultPageTemplate()?.getId() ?? null;
+
+                    if (this.liveEditModel && modelTemplateId !== templateId) {
+                        this.updateLiveEditModel(this.getPersistedItem());
+                    }
+                }
+
+                if (isCurrentTemplate || hasDefaultChanged) {
+                    this.debouncedEditorReload(false, true, true);
+                }
+            })
+            .catch(DefaultErrorHandler.handle);
+    }
+
     private isSameRootWithPersisted(item: ContentSummaryAndCompareStatus): boolean {
         return item.getPath().getRootElement() === this.getPersistedItem().getPath().getRootElement();
     }
@@ -1530,8 +1569,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         this.wizardActions.getShowLiveEditAction().execute();
     }
 
-
-
     private isSplitView(): boolean {
         return $wizardViewMode.get() === 'split';
     }
@@ -1728,13 +1765,20 @@ export class ContentWizardPanel extends WizardPanel<Content> {
     }
 
     private getTemplateForCustomize(): Q.Promise<PageTemplate> {
-        const currentTemplateKey = PageState.getState()?.getTemplate();
+        const page = PageState.getState();
 
-        if (currentTemplateKey && !currentTemplateKey.equals(this.defaultModels.getDefaultPageTemplate()?.getKey())) {
+        // A page with its own controller is already detached from any template.
+        if (page?.hasController()) {
+            return Q.resolve(null);
+        }
+
+        const currentTemplateKey = page?.getTemplate();
+
+        if (currentTemplateKey && !currentTemplateKey.equals(this.defaultModels?.getDefaultPageTemplate()?.getKey())) {
             return new GetPageTemplateByKeyRequest(currentTemplateKey).sendAndParse();
         }
 
-        return Q.resolve(this.defaultModels.getDefaultPageTemplate());
+        return Q.resolve(this.defaultModels?.getDefaultPageTemplate());
     }
 
     protected createWizardStepsPanel(): WizardStepsPanel {
