@@ -1,21 +1,19 @@
 /**
  * Created on 15.02.2018. updated on 08.05.2026
  */
-const {COMMON, BUTTONS} = require('../../../../libs/elements');
-const appConst = require('../../../../libs/app_const');
+const { COMMON, BUTTONS } = require('../../../../libs/elements');
 const InspectPanelControllerSelector = require('../../../../page_objects/components/selectors/inspect.panel.controller.selector');
 const BaseComponentInspectionPanel = require('./base.component.inspection.panel');
 
 const xpath = {
     container: "//div[@data-component='PageEditorExtension']",
-    pageInspectionDataComponent:"//div[@data-component='PageInspectionPanel']",
+    pageInspectionDataComponent: "//div[@data-component='PageInspectionPanel']",
     pageTemplateSelector: `//div[contains(@id,'PageTemplateAndControllerSelector')]`,
     noControllerMessage: `//p[@class='no-controller-message']`,
 };
 
 // Inspect tab for controller and template of a Page
 class PageInspectionPanel extends BaseComponentInspectionPanel {
-
     get customizePageButton() {
         return xpath.container + xpath.pageInspectionDataComponent + BUTTONS.buttonAriaLabel('Customize Page');
     }
@@ -30,7 +28,11 @@ class PageInspectionPanel extends BaseComponentInspectionPanel {
             await inspectPanelControllerSelector.clickOnDropdownHandle();
             return await this.pause(700);
         } catch (err) {
-            await this.handleError('Page Inspection, tried to click on page template dropdown handle', 'err_page_inspection_dropdown', err);
+            await this.handleError(
+                'Page Inspection, tried to click on page template dropdown handle',
+                'err_page_inspection_dropdown',
+                err,
+            );
         }
     }
 
@@ -67,12 +69,16 @@ class PageInspectionPanel extends BaseComponentInspectionPanel {
             let inspectPanelControllerSelector = new InspectPanelControllerSelector(xpath.container);
             return await inspectPanelControllerSelector.getSelectedOption();
         } catch (err) {
-            await this.handleError('Page Inspection Panel, selected controller in the controller-dropdown', 'err_selected_controller', err);
+            await this.handleError(
+                'Page Inspection Panel, selected controller in the controller-dropdown',
+                'err_selected_controller',
+                err,
+            );
         }
     }
 
     async waitForNotDisplayed() {
-        return await  this.waitForElementNotDisplayed(xpath.container);
+        return await this.waitForElementNotDisplayed(xpath.container);
     }
 
     async waitForPageTemplateAndControllerSelectorDisabled() {
@@ -84,7 +90,11 @@ class PageInspectionPanel extends BaseComponentInspectionPanel {
         try {
             return await this.waitForElementNotDisplayed(this.customizePageButton);
         } catch (err) {
-            await this.handleError('Page Inspection Tab, Customize button is still displayed', 'err_customize_button_displayed', err);
+            await this.handleError(
+                'Page Inspection Tab, Customize button is still displayed',
+                'err_customize_button_displayed',
+                err,
+            );
         }
     }
 
@@ -102,7 +112,11 @@ class PageInspectionPanel extends BaseComponentInspectionPanel {
         try {
             return await this.waitForElementDisplayed(this.customizePageButton);
         } catch (err) {
-            await this.handleError('Page Inspection Tab, Customize button was not displayed', 'err_customize_button_not_displayed', err);
+            await this.handleError(
+                'Page Inspection Tab, Customize button was not displayed',
+                'err_customize_button_not_displayed',
+                err,
+            );
         }
     }
 
@@ -110,7 +124,11 @@ class PageInspectionPanel extends BaseComponentInspectionPanel {
         try {
             return await this.waitForElementEnabled(this.customizePageButton);
         } catch (err) {
-            await this.handleError('Page Inspection Tab, Customize button should be enabled', 'err_customize_button', err);
+            await this.handleError(
+                'Page Inspection Tab, Customize button should be enabled',
+                'err_customize_button',
+                err,
+            );
         }
     }
 
@@ -119,8 +137,11 @@ class PageInspectionPanel extends BaseComponentInspectionPanel {
             await this.waitForElementDisplayed(this.noControllerMessage);
             return await this.getText(this.noControllerMessage);
         } catch (err) {
-            await this.handleError(`Page Inspection Tab, 'No page templates or page blocks available' - should be displayed`,
-                'err_no_controller_message', err);
+            await this.handleError(
+                `Page Inspection Tab, 'No page templates or page blocks available' - should be displayed`,
+                'err_no_controller_message',
+                err,
+            );
         }
     }
 }

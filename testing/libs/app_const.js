@@ -121,6 +121,7 @@ module.exports = Object.freeze({
         IMPORTED_SITE_622034: 'site622034',
         IMPORTED_SITE_916528: 'site916528',
         IMPORTED_SITE_954009: 'site954009',
+        IMPORTED_SITE_579992: 'site579992',
         IMPORTED_ARTICLE_1: 'article1',
         IMPORTED_ARTICLE_2: 'article2',
     },

@@ -46,9 +46,6 @@ const XPATH = {
         `//div[@data-component='Tab.List']//button[child::span[text()='${name}'] and descendant::*[contains(@class,'text-error')]]`,
     xDataTogglerByName: (name) =>
         `//div[contains(@id,'WizardStepsPanel')]//div[contains(@id,'ContentPanelStripHeader') and child::span[contains(.,'${name}')]]//button[contains(@class,'toggler-button')]`,
-    publishMenuItemByName(name) {
-        return `//div[contains(@id,'ContentWizardToolbar') and @role='menu']//div[@role='menuitem' and .//span[text()='${name}']]`;
-    },
     previewToolbarMenuItem: (optionName) => {
         return `//div[contains(@id,'PreviewToolbar') and @role='menu']//div[@role='menuitemradio' and descendant::span[text()='${optionName}']]`;
     },
@@ -703,17 +700,6 @@ class ContentWizardPanel extends Page {
                 err,
             );
         }
-    }
-
-    async waitForPublishMenuItemEnabled(menuItem) {
-        let selector = XPATH.publishMenuItemByName(menuItem);
-        return await this.getBrowser().waitUntil(
-            async () => {
-                let ariaDisabled = await this.getAttribute(selector, 'aria-disabled');
-                return !ariaDisabled || ariaDisabled !== 'true';
-            },
-            { timeout: appConst.shortTimeout, timeoutMsg: `Menu item "${menuItem}" should be enabled` },
-        );
     }
 
     async waitForPublishMenuItemDisabled(menuItem) {
