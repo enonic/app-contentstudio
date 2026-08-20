@@ -48,7 +48,7 @@ class BaseBrowsePanel extends Page {
 
     async waitforSelectAllCheckboxDisplayed() {
         try {
-            await this.waitForElementDisplayed(this.selectAllCheckboxLabel, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.selectAllCheckboxLabel);
         } catch (err) {
             await this.handleError(
                 `Browse Panel, 'Select all' checkbox should be displayed. `,
@@ -61,7 +61,7 @@ class BaseBrowsePanel extends Page {
     // wait for the "Show Selection" circle appears in the toolbar
     async waitForSelectionTogglerVisible() {
         try {
-            await this.waitForElementDisplayed(this.selectionPanelToggler, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.selectionPanelToggler);
             let attr = await this.getAttribute(this.selectionPanelToggler, 'class');
             return attr.includes('any-selected');
         } catch (err) {
@@ -71,7 +71,7 @@ class BaseBrowsePanel extends Page {
 
     async waitForSelectionTogglerNotVisible() {
         try {
-            await this.waitForElementNotDisplayed(this.selectionPanelToggler, appConst.mediumTimeout);
+            await this.waitForElementNotDisplayed(this.selectionPanelToggler);
         } catch (err) {
             await this.handleError(
                 'Selection toggle should not be visible. ',
@@ -129,7 +129,7 @@ class BaseBrowsePanel extends Page {
 
     async waitForNewButtonDisabled() {
         try {
-            return await this.waitForElementDisabled(this.newButton, appConst.mediumTimeout);
+            return await this.waitForElementDisabled(this.newButton);
         } catch (err) {
             await this.handleError('Browse Panel, New button should be disabled. ', 'err_new_button_disabled', err);
         }
@@ -137,7 +137,7 @@ class BaseBrowsePanel extends Page {
 
     async waitForNewButtonEnabled() {
         try {
-            await this.waitForElementEnabled(this.newButton, appConst.mediumTimeout);
+            await this.waitForElementEnabled(this.newButton);
         } catch (err) {
             await this.handleError('Browse Panel, New button should be enabled. ', 'err_new_button_enabled', err);
         }
@@ -145,7 +145,7 @@ class BaseBrowsePanel extends Page {
 
     async waitForEditButtonDisabled() {
         try {
-            await this.waitForElementDisabled(this.editButton, appConst.mediumTimeout);
+            await this.waitForElementDisabled(this.editButton);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_edit_disabled_button');
             throw Error(`Edit button should be disabled screenshot: ${screenshot} ` + err);

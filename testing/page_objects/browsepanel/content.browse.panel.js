@@ -255,7 +255,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     // Wait for `Publish Menu` Button gets 'Mark as ready'
     async waitForMarkAsReadyButtonVisible() {
         try {
-            await this.waitForElementDisplayed(this.markAsReadyButton, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.markAsReadyButton);
             await this.pause(300);
         } catch (err) {
             await this.handleError('Mark as Ready button should be visible', 'err_mark_as_ready_button', err);
@@ -265,7 +265,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     // Wait for `Publish Menu` Button gets 'Unpublish'
     async waitForUnPublishButtonVisible() {
         try {
-            return await this.waitForElementDisplayed(this.unpublishButton, appConst.shortTimeout);
+            return await this.waitForElementDisplayed(this.unpublishButton);
         } catch (err) {
             await this.handleError('Unpublish button should be visible', 'err_unpublish_button', err);
         }
@@ -274,7 +274,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     // Wait for `Publish Menu` Button gets 'Publish Tree...'
     async waitForPublishTreeButtonVisible() {
         try {
-            return await this.waitForElementDisplayed(this.publishTreeButton, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(this.publishTreeButton);
         } catch (err) {
             await this.handleError('Publish Tree button should be visible', 'err_publish_tree_button', err);
         }
@@ -331,14 +331,14 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     async clickOnSortButton() {
-        await this.waitForElementEnabled(this.sortButton, appConst.mediumTimeout);
+        await this.waitForElementEnabled(this.sortButton);
         await this.pause(200);
         await this.clickOnElement(this.sortButton);
     }
 
     async clickOnDuplicateButton() {
         try {
-            await this.waitForElementDisplayed(this.duplicateButton, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.duplicateButton);
             await this.clickOnElement(this.duplicateButton);
         } catch (err) {
             throw new Error('Clicked on the Duplicate button ' + err);
@@ -1207,12 +1207,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     async waitForDeleteButtonDisabled() {
         await this.waitForDeleteButtonDisplayed();
         return await this.waitForElementDisabled(this.deleteButton, appConst.mediumTimeout);
-    }
-
-    async clickOnDeleteButton() {
-        await this.waitForDeleteButtonEnabled();
-        await this.clickOnElement(this.deleteButton);
-        return await this.pause(500);
     }
 
     async clickOnDeleteButton() {
