@@ -171,10 +171,6 @@ class SingleSelectionOptionSet extends Page {
         return await this.getText(locator);
     }
 
-    collapseForm() {
-        return this.clickOnElement(this.container + xpath.setHeader + "//span[contains(@class,'font-semibold')]");
-    }
-
     async getValidationRecording() {
         try {
             let locator = this.container + xpath.occurrenceBody + "//div[contains(@class,'text-error')]";

@@ -3,14 +3,14 @@
  */
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
-const {BUTTONS} = require('../../libs/elements');
+const { BUTTONS } = require('../../libs/elements');
 
 const xpath = {
     extensionViewDiv: "//div[contains(@id,'ExtensionView') and contains (@class,'versions-widget')]",
     versionsListComponent: "//div[@data-component='VersionsListContent']",
     versionsListItemComponent: "//div[@data-component='VersionsListItem']",
-    versionsListItemByName: name => {
-       return  `//div[@data-component='VersionsListItem' and descendant::span[contains(.,'${name}')]]`
+    versionsListItemByName: (name) => {
+        return `//div[@data-component='VersionsListItem' and descendant::span[contains(.,'${name}')]]`;
     },
     versionItemExpanded: "//div[@data-component='VersionsListItem' and descendant::button[@aria-label='Restore']]",
     publishMessageDiv: "//div[contains(@class, 'publish-message')]",
@@ -20,13 +20,8 @@ const xpath = {
 };
 
 class BaseVersionsWidget extends Page {
-
     get extensionView() {
         return this._parentElement + xpath.extensionViewDiv;
-    }
-
-    get showChangesButton() {
-        return this.extensionView + BUTTONS.buttonByLabel('Show changes');
     }
 
     get versionItems() {
@@ -94,7 +89,11 @@ class BaseVersionsWidget extends Page {
         try {
             await this.waitForElementDisplayed(this.permissionsUpdatedItems);
         } catch (err) {
-            await this.handleError(`'Permissions updated' items are not displayed in the widget`, 'err_perm_updated', err);
+            await this.handleError(
+                `'Permissions updated' items are not displayed in the widget`,
+                'err_perm_updated',
+                err,
+            );
         }
     }
 
@@ -182,7 +181,11 @@ class BaseVersionsWidget extends Page {
             await this.getBrowser().elementClick(items[index].elementId);
             return await this.pause(300);
         } catch (err) {
-            await this.handleError(`Version Widget - error during expanding version item at index: ${index}`, 'err_expand_version', err);
+            await this.handleError(
+                `Version Widget - error during expanding version item at index: ${index}`,
+                'err_expand_version',
+                err,
+            );
         }
     }
 
@@ -199,7 +202,11 @@ class BaseVersionsWidget extends Page {
             await items[i].click();
             return await this.pause(300);
         } catch (err) {
-            await this.handleError(`Version Widget - error during clicking on the version : ${versionHeader}`, 'err_expand_version', err);
+            await this.handleError(
+                `Version Widget - error during clicking on the version : ${versionHeader}`,
+                'err_expand_version',
+                err,
+            );
         }
     }
 
@@ -222,7 +229,11 @@ class BaseVersionsWidget extends Page {
             await items[i].click();
             return await this.pause(300);
         } catch (err) {
-            await this.handleError(`Version Widget - Version iten has been clicked : ${versionHeader}`, 'err_expand_version', err);
+            await this.handleError(
+                `Version Widget - Version iten has been clicked : ${versionHeader}`,
+                'err_expand_version',
+                err,
+            );
         }
     }
 
@@ -274,7 +285,7 @@ class BaseVersionsWidget extends Page {
     async waitForRestoreButtonDisabled() {
         try {
             let res = await this.getDisplayedElements(this.restoreButton);
-            await res[0].waitForEnabled({timeout: 2000, reverse: true});
+            await res[0].waitForEnabled({ timeout: 2000, reverse: true });
             return await this.pause(appConst.mediumTimeout);
         } catch (err) {
             await this.handleError('Version Widget - Restore button should be disabled', 'err_restore_button', err);
@@ -305,7 +316,11 @@ class BaseVersionsWidget extends Page {
             await this.doPerformMoveToAction(versionItems[i]);
             return await this.pause(200);
         } catch (err) {
-            await this.handleError(`Version Widget - moving cursor to version item: ${itemHeader}`, 'err_move_cursor_to_version', err);
+            await this.handleError(
+                `Version Widget - moving cursor to version item: ${itemHeader}`,
+                'err_move_cursor_to_version',
+                err,
+            );
         }
     }
 
@@ -319,10 +334,13 @@ class BaseVersionsWidget extends Page {
             if (checkboxElements.length === 0) {
                 throw new Error(`No 'compare changes' checkbox found for itemHeader: ${itemHeader} at index: ${i}`);
             }
-            await checkboxElements[0].waitForDisplayed({timeout: appConst.shortTimeout});
+            await checkboxElements[0].waitForDisplayed({ timeout: appConst.shortTimeout });
         } catch (err) {
-            await this.handleError(`Version Widget - compare changes checkbox should be displayed: ${itemHeader}`,
-                'err_compare_ch_checkbox', err);
+            await this.handleError(
+                `Version Widget - compare changes checkbox should be displayed: ${itemHeader}`,
+                'err_compare_ch_checkbox',
+                err,
+            );
         }
     }
 
@@ -340,7 +358,11 @@ class BaseVersionsWidget extends Page {
             await labelElements[0].click();
             return await this.pause(200);
         } catch (err) {
-            await this.handleError('Versions Widget, tried to click on the compare changes checkbox...', 'err_click_on_show_changes', err);
+            await this.handleError(
+                'Versions Widget, tried to click on the compare changes checkbox...',
+                'err_click_on_show_changes',
+                err,
+            );
         }
     }
 
@@ -355,8 +377,11 @@ class BaseVersionsWidget extends Page {
             }
             return await checkboxElements[0].isSelected();
         } catch (err) {
-            await this.handleError('Versions Widget, tried to check if the compare changes checkbox is selected...',
-                'err_check_show_changes_selected', err);
+            await this.handleError(
+                'Versions Widget, tried to check if the compare changes checkbox is selected...',
+                'err_check_show_changes_selected',
+                err,
+            );
         }
     }
 
@@ -415,7 +440,11 @@ class BaseVersionsWidget extends Page {
             await this.waitForElementDisplayed(this.cancelSelectionButton);
             return await this.clickOnElement(this.cancelSelectionButton);
         } catch (err) {
-            await this.handleError('Version Widget - Reset Compare versions button', 'err_cancel_selection_versions_button', err);
+            await this.handleError(
+                'Version Widget - Reset Compare versions button',
+                'err_cancel_selection_versions_button',
+                err,
+            );
         }
     }
 }
