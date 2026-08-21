@@ -99,7 +99,6 @@ describe('checkbox.content.spec: tests for content with checkbox', function () {
         await contentWizard.waitUntilInvalidIconAppears();
         // 5. Save the invalid content and close the wizard:
         await studioUtils.saveAndCloseWizard();
-        await contentBrowsePanel.pause(1000);
         // 6. Verify that the content is invalid in the grid:
         await studioUtils.findAndSelectItem(CHECKBOX_NAME_2);
         await studioUtils.saveScreenshot('checkbox_content_invalid');

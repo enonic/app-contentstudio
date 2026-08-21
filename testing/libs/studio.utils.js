@@ -639,6 +639,7 @@ module.exports = {
             let filterPanel = new FilterPanel();
             let result = await filterPanel.isPanelVisible();
             if (!result) {
+                console.log(`The Filter panel is closed, click on 'Search Panel' button`);
                 await browsePanel.clickOnSearchButton();
                 await filterPanel.waitForOpened();
             }
@@ -795,7 +796,7 @@ module.exports = {
     async saveAndCloseWizard() {
         let contentWizardPanel = new ContentWizardPanel();
         await contentWizardPanel.waitAndClickOnSave();
-        await contentWizardPanel.pause(300);
+        await contentWizardPanel.pause(500);
         return await this.doCloseWindowTabAndSwitchToBrowsePanel();
     },
 

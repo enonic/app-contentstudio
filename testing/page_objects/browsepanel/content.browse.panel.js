@@ -387,7 +387,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     // Opens Filter Panel:
     async clickOnSearchButton() {
         await this.waitForSearchButtonDisplayed();
-        return await this.clickOnElement(this.searchButton);
+        await this.clickOnElement(this.searchButton);
+        await this.pause(200);
     }
 
     async clickOnHideSearchPanelButton() {
