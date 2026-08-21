@@ -1,52 +1,51 @@
-import {Page, PageBuilder} from '../../page/Page';
-import {type ComponentPath} from '../../page/region/ComponentPath';
-import {type ComponentType} from '../../page/region/ComponentType';
-import {PageEventsManager} from '../PageEventsManager';
-import {type ComponentAddedEvent} from '../../page/region/ComponentAddedEvent';
-import {type ComponentRemovedEvent} from '../../page/region/ComponentRemovedEvent';
-import {type PageItem} from '../../page/region/PageItem';
-import {Region} from '../../page/region/Region';
+import { Page, PageBuilder } from '../../page/Page';
+import { type ComponentPath } from '../../page/region/ComponentPath';
+import { type ComponentType } from '../../page/region/ComponentType';
+import { PageEventsManager } from '../PageEventsManager';
+import { type ComponentAddedEvent } from '../../page/region/ComponentAddedEvent';
+import { type ComponentRemovedEvent } from '../../page/region/ComponentRemovedEvent';
+import { type PageItem } from '../../page/region/PageItem';
+import { Region } from '../../page/region/Region';
 import {
     Component,
     type ComponentAddedEventHandler,
     type ComponentRemovedEventHandler,
-    type ComponentUpdatedEventHandler
+    type ComponentUpdatedEventHandler,
 } from '../../page/region/Component';
-import {ComponentFactory} from '../../page/region/ComponentFactory';
-import {FragmentComponent, FragmentComponentBuilder} from '../../page/region/FragmentComponent';
-import {ContentId} from '../../content/ContentId';
-import {PageEventsHolder} from './PageEventsHolder';
-import {PageEventsWrapper} from './PageEventsWrapper';
-import {type PageTemplateKey} from '../../page/PageTemplateKey';
-import {type DescriptorKey} from '../../page/DescriptorKey';
-import {DescriptorBasedComponent} from '../../page/region/DescriptorBasedComponent';
-import {TextComponent} from '../../page/region/TextComponent';
-import {GetComponentDescriptorRequest} from '../../resource/GetComponentDescriptorRequest';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {showSuccess} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {type Descriptor} from '../../page/Descriptor';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {PageHelper} from '../../util/PageHelper';
-import {PageControllerUpdatedEvent} from '../../page/event/PageControllerUpdatedEvent';
-import {PageTemplateUpdatedEvent} from '../../page/event/PageTemplateUpdatedEvent';
-import {PageControllerCustomizedEvent} from '../../page/event/PageControllerCustomizedEvent';
-import {type Content} from '../../content/Content';
-import {GetContentByIdRequest} from '../../resource/GetContentByIdRequest';
-import {ComponentDetachedEvent} from '../../page/region/ComponentDetachedEvent';
-import {ComponentDuplicatedEvent} from '../../page/region/ComponentDuplicatedEvent';
-import {ComponentName} from '../../page/region/ComponentName';
-import {ComponentFragmentCreatedEvent} from '../../page/region/ComponentFragmentCreatedEvent';
-import {ComponentMovedEvent} from '../../page/region/ComponentMovedEvent';
-import {ComponentRemovedOnMoveEvent} from '../../page/region/ComponentRemovedOnMoveEvent';
-import {type PageTemplate} from '../../content/PageTemplate';
-import {LayoutComponent} from '../../page/region/LayoutComponent';
+import { ComponentFactory } from '../../page/region/ComponentFactory';
+import { FragmentComponent, FragmentComponentBuilder } from '../../page/region/FragmentComponent';
+import { ContentId } from '../../content/ContentId';
+import { PageEventsHolder } from './PageEventsHolder';
+import { PageEventsWrapper } from './PageEventsWrapper';
+import { type PageTemplateKey } from '../../page/PageTemplateKey';
+import { type DescriptorKey } from '../../page/DescriptorKey';
+import { DescriptorBasedComponent } from '../../page/region/DescriptorBasedComponent';
+import { TextComponent } from '../../page/region/TextComponent';
+import { GetComponentDescriptorRequest } from '../../resource/GetComponentDescriptorRequest';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { showSuccess } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { type Descriptor } from '../../page/Descriptor';
+import { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import { PageHelper } from '../../util/PageHelper';
+import { PageControllerUpdatedEvent } from '../../page/event/PageControllerUpdatedEvent';
+import { PageTemplateUpdatedEvent } from '../../page/event/PageTemplateUpdatedEvent';
+import { PageControllerCustomizedEvent } from '../../page/event/PageControllerCustomizedEvent';
+import { type Content } from '../../content/Content';
+import { GetContentByIdRequest } from '../../resource/GetContentByIdRequest';
+import { ComponentDetachedEvent } from '../../page/region/ComponentDetachedEvent';
+import { ComponentDuplicatedEvent } from '../../page/region/ComponentDuplicatedEvent';
+import { ComponentName } from '../../page/region/ComponentName';
+import { ComponentFragmentCreatedEvent } from '../../page/region/ComponentFragmentCreatedEvent';
+import { ComponentMovedEvent } from '../../page/region/ComponentMovedEvent';
+import { ComponentRemovedOnMoveEvent } from '../../page/region/ComponentRemovedOnMoveEvent';
+import { type PageTemplate } from '../../content/PageTemplate';
+import { LayoutComponent } from '../../page/region/LayoutComponent';
 import Q from 'q';
-import {type ComponentTextUpdatedOrigin} from '../../page/region/ComponentTextUpdatedOrigin';
-import {PageStateEvent} from '../../../page-editor/event/incoming/common/PageStateEvent';
+import { type ComponentTextUpdatedOrigin } from '../../page/region/ComponentTextUpdatedOrigin';
+import { PageStateEvent } from '../../../page-editor/event/incoming/common/PageStateEvent';
 
 export class PageState {
-
     private static INSTANCE: PageState = null;
 
     private state: Page;
@@ -71,8 +70,10 @@ export class PageState {
 
     private initListeners(): void {
         this.componentAddedNotifier = (event: ComponentAddedEvent) => this.pageEventsHolder.notifyComponentAdded(event);
-        this.componentRemovedNotifier = (event: ComponentRemovedEvent) => this.pageEventsHolder.notifyComponentRemoved(event);
-        this.componentUpdatedNotifier = (event: ComponentRemovedEvent) => this.pageEventsHolder.notifyComponentUpdated(event);
+        this.componentRemovedNotifier = (event: ComponentRemovedEvent) =>
+            this.pageEventsHolder.notifyComponentRemoved(event);
+        this.componentUpdatedNotifier = (event: ComponentRemovedEvent) =>
+            this.pageEventsHolder.notifyComponentUpdated(event);
         this.pageConfigUpdatedNotifier = () => this.pageEventsHolder.notifyPageConfigUpdated();
     }
 
@@ -130,7 +131,6 @@ export class PageState {
 }
 
 export class PageStateEventHandler {
-
     private readonly pageEventsHolder: PageEventsHolder;
 
     constructor(pageEventsHolder: PageEventsHolder) {
@@ -220,14 +220,21 @@ export class PageStateEventHandler {
             const oldValue: DescriptorKey = PageState.getState()?.getController();
             const newPage: Page = new Page(new PageBuilder().setController(controller).setConfig(new PropertyTree()));
 
-            PageHelper.injectEmptyRegionsIntoPage(newPage).then((fullPage: Page) => {
-                PageState.setState(fullPage);
-                new PageStateEvent(fullPage.toJson()).fire();
-                this.pageEventsHolder.notifyPageUpdated(new PageControllerUpdatedEvent(controller, oldValue));
-            }).catch(DefaultErrorHandler.handle);
+            PageHelper.injectEmptyRegionsIntoPage(newPage)
+                .then((fullPage: Page) => {
+                    PageState.setState(fullPage);
+                    new PageStateEvent(fullPage.toJson()).fire();
+                    this.pageEventsHolder.notifyPageUpdated(new PageControllerUpdatedEvent(controller, oldValue));
+                })
+                .catch(DefaultErrorHandler.handle);
         });
 
         PageEventsManager.get().onSetCustomizedPageRequested((pageTemplate: PageTemplate) => {
+            if (!pageTemplate) {
+                console.warn('Unable to customize the page: no page template available');
+                return;
+            }
+
             const oldValue: DescriptorKey = PageState.getState()?.getController();
             const newValue: DescriptorKey = pageTemplate.getController();
 
@@ -241,46 +248,49 @@ export class PageStateEventHandler {
         // ! Page reset confirmation is owned by the v6 PageResetDialog which
         // ! listens for `onPageResetRequested` and calls `executePageReset`.
 
-        PageEventsManager.get().onComponentDescriptorSetRequested((path: ComponentPath, descriptorKey: DescriptorKey) => {
-            if (!PageState.getState()) {
-                console.warn('Unable to set a component descriptor: Page is not set');
-                return;
-            }
-
-            const item: PageItem = PageState.getState().getComponentByPath(path);
-
-            if (item instanceof DescriptorBasedComponent) {
-                // ! existing=false so the iframe-side handler can check the
-                // ! X-Has-Contributions response header and reload the page
-                // ! when the new descriptor brings contributions that must be
-                // ! injected into <head>/<body>.
-                const notifyReload = () => PageEventsManager.get().notifyComponentReloadRequested(path, false);
-                if (descriptorKey) {
-                    new GetComponentDescriptorRequest(descriptorKey.toString(), item.getType()).sendAndParse()
-                        .then((descriptor: Descriptor) => item.setDescriptor(descriptor))
-                        .then(notifyReload)
-                        .catch(DefaultErrorHandler.handle);
-                } else {
-                    item.setDescriptor(null)
-                        .then(notifyReload)
-                        .catch(DefaultErrorHandler.handle);
+        PageEventsManager.get().onComponentDescriptorSetRequested(
+            (path: ComponentPath, descriptorKey: DescriptorKey) => {
+                if (!PageState.getState()) {
+                    console.warn('Unable to set a component descriptor: Page is not set');
+                    return;
                 }
-            }
-        });
 
-        PageEventsManager.get().onTextComponentUpdateRequested((path: ComponentPath, text: string, origin?: ComponentTextUpdatedOrigin) => {
-            if (!PageState.getState()) {
-                console.warn('Unable to update text component: Page is not set');
-                return;
-            }
+                const item: PageItem = PageState.getState().getComponentByPath(path);
 
-            const item: PageItem = PageState.getState().getComponentByPath(path);
+                if (item instanceof DescriptorBasedComponent) {
+                    // ! existing=false so the iframe-side handler can check the
+                    // ! X-Has-Contributions response header and reload the page
+                    // ! when the new descriptor brings contributions that must be
+                    // ! injected into <head>/<body>.
+                    const notifyReload = () => PageEventsManager.get().notifyComponentReloadRequested(path, false);
+                    if (descriptorKey) {
+                        new GetComponentDescriptorRequest(descriptorKey.toString(), item.getType())
+                            .sendAndParse()
+                            .then((descriptor: Descriptor) => item.setDescriptor(descriptor))
+                            .then(notifyReload)
+                            .catch(DefaultErrorHandler.handle);
+                    } else {
+                        item.setDescriptor(null).then(notifyReload).catch(DefaultErrorHandler.handle);
+                    }
+                }
+            },
+        );
 
-            // updating text component only if text differs
-            if (item instanceof TextComponent && !PageHelper.stringEqualsIgnoreEmpty(item.getText(), text)) {
-                item.setText(text, false, origin);
-            }
-        });
+        PageEventsManager.get().onTextComponentUpdateRequested(
+            (path: ComponentPath, text: string, origin?: ComponentTextUpdatedOrigin) => {
+                if (!PageState.getState()) {
+                    console.warn('Unable to update text component: Page is not set');
+                    return;
+                }
+
+                const item: PageItem = PageState.getState().getComponentByPath(path);
+
+                // updating text component only if text differs
+                if (item instanceof TextComponent && !PageHelper.stringEqualsIgnoreEmpty(item.getText(), text)) {
+                    item.setText(text, false, origin);
+                }
+            },
+        );
 
         PageEventsManager.get().onComponentMoveRequested((oldPath: ComponentPath, newPath: ComponentPath): void => {
             const oldParentItem: PageItem = PageState.getState().getComponentByPath(oldPath.getParentPath());
@@ -288,7 +298,9 @@ export class PageStateEventHandler {
 
             if (oldParentItem instanceof Region && newParentItem instanceof Region) {
                 const item = oldParentItem.removeComponentViaEvent(new ComponentRemovedOnMoveEvent(oldPath));
-                newParentItem.addComponentViaEvent(new ComponentMovedEvent(item, oldPath, newPath, newPath.getPath() as number));
+                newParentItem.addComponentViaEvent(
+                    new ComponentMovedEvent(item, oldPath, newPath, newPath.getPath() as number),
+                );
             }
         });
 
@@ -302,25 +314,31 @@ export class PageStateEventHandler {
             const parentItem: PageItem = PageState.getState().getComponentByPath(path.getParentPath());
 
             if (item instanceof Component && parentItem instanceof Region) {
-                PageHelper.createFragmentFromComponent(item).then((fragmentContent: Content) => {
-                    this.removeComponent(path);
+                PageHelper.createFragmentFromComponent(item)
+                    .then((fragmentContent: Content) => {
+                        this.removeComponent(path);
 
-                    const fragmentComponent = new FragmentComponentBuilder()
-                        .setParent(parentItem)
-                        .setFragment(fragmentContent.getContentId())
-                        .setName(new ComponentName(fragmentContent.getDisplayName()))
-                        .build();
+                        const fragmentComponent = new FragmentComponentBuilder()
+                            .setParent(parentItem)
+                            .setFragment(fragmentContent.getContentId())
+                            .setName(new ComponentName(fragmentContent.getDisplayName()))
+                            .build();
 
-                    const event = new ComponentFragmentCreatedEvent(fragmentComponent, fragmentContent, path.getPath() as number);
+                        const event = new ComponentFragmentCreatedEvent(
+                            fragmentComponent,
+                            fragmentContent,
+                            path.getPath() as number,
+                        );
 
-                    parentItem.addComponentViaEvent(event);
+                        parentItem.addComponentViaEvent(event);
 
-                    const fragmentName = fragmentComponent.getName().toString();
-                    const fragmentType = fragmentContent.getPage()?.getFragment()?.getType().getShortName();
-                    showSuccess(i18n('notify.fragment.created', fragmentName, fragmentType));
+                        const fragmentName = fragmentComponent.getName().toString();
+                        const fragmentType = fragmentContent.getPage()?.getFragment()?.getType().getShortName();
+                        showSuccess(i18n('notify.fragment.created', fragmentName, fragmentType));
 
-                    PageEventsManager.get().notifyComponentReloadRequested(path, false);
-                }).catch(DefaultErrorHandler.handle);
+                        PageEventsManager.get().notifyComponentReloadRequested(path, false);
+                    })
+                    .catch(DefaultErrorHandler.handle);
             }
         });
 
@@ -334,24 +352,32 @@ export class PageStateEventHandler {
             const parentItem: PageItem = PageState.getState().getComponentByPath(path.getParentPath());
 
             if (parentItem instanceof Region && item instanceof FragmentComponent && item.getFragment()) {
-                new GetContentByIdRequest(item.getFragment()).sendAndParse().then((content: Content) => {
-                    this.removeComponent(path);
-                    const detachedComponent = content.getPage()?.getFragment();
+                new GetContentByIdRequest(item.getFragment())
+                    .sendAndParse()
+                    .then((content: Content) => {
+                        this.removeComponent(path);
+                        const detachedComponent = content.getPage()?.getFragment();
 
-                    if (detachedComponent) {
-                        const resolvePromise = detachedComponent instanceof LayoutComponent ? PageHelper.fetchAndInjectLayoutRegions(
-                            detachedComponent) : Q.resolve();
+                        if (detachedComponent) {
+                            const resolvePromise =
+                                detachedComponent instanceof LayoutComponent
+                                    ? PageHelper.fetchAndInjectLayoutRegions(detachedComponent)
+                                    : Q.resolve();
 
-                        return resolvePromise.then(() => {
-                            const event = new ComponentDetachedEvent(detachedComponent, content.getDisplayName(), path.getPath() as number);
-                            parentItem.addComponentViaEvent(event);
+                            return resolvePromise.then(() => {
+                                const event = new ComponentDetachedEvent(
+                                    detachedComponent,
+                                    content.getDisplayName(),
+                                    path.getPath() as number,
+                                );
+                                parentItem.addComponentViaEvent(event);
 
-                            showSuccess(i18n('notify.component.detached', content.getDisplayName()));
-                            PageEventsManager.get().notifyComponentReloadRequested(path, false);
-                        });
-                    }
-
-                }).catch(DefaultErrorHandler.handle);
+                                showSuccess(i18n('notify.component.detached', content.getDisplayName()));
+                                PageEventsManager.get().notifyComponentReloadRequested(path, false);
+                            });
+                        }
+                    })
+                    .catch(DefaultErrorHandler.handle);
             }
         });
     }
@@ -396,10 +422,13 @@ export class PageStateEventHandler {
         // Callers originating in the live edit frame cannot pass a name,
         // so resolve it to keep the component name in sync with the fragment.
         if (contentId && !name) {
-            new GetContentByIdRequest(contentId).sendAndParse().then((content: Content) => {
-                item.setFragment(contentId, content.getDisplayName());
-                PageEventsManager.get().notifyComponentReloadRequested(path, false);
-            }).catch(DefaultErrorHandler.handle);
+            new GetContentByIdRequest(contentId)
+                .sendAndParse()
+                .then((content: Content) => {
+                    item.setFragment(contentId, content.getDisplayName());
+                    PageEventsManager.get().notifyComponentReloadRequested(path, false);
+                })
+                .catch(DefaultErrorHandler.handle);
             return;
         }
 

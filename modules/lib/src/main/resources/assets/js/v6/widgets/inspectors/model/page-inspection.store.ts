@@ -4,9 +4,20 @@ import type { PageTemplate } from '../../../../app/content/PageTemplate';
 import type { Descriptor } from '../../../../app/page/Descriptor';
 import type { SiteModel } from '../../../../app/site/SiteModel';
 import { createDebounce } from '../../../shared/lib/timing/createDebounce';
-import { $contentContext, $page, $pageEditorLifecycle, $pageVersion } from './page-editor/store';
+import {
+    $contentContext,
+    $hasDefaultPageTemplate,
+    $page,
+    $pageEditorLifecycle,
+    $pageVersion,
+} from './page-editor/store';
 import type { PageEditorContentContext } from './page-editor/types';
-import { $contentCreated, $contentDeleted, $contentUpdated, type ContentEvent } from '../../../shared/socket/socket.store';
+import {
+    $contentCreated,
+    $contentDeleted,
+    $contentUpdated,
+    type ContentEvent,
+} from '../../../shared/socket/socket.store';
 
 export const AUTO_KEY = '__auto__';
 
@@ -33,10 +44,30 @@ export const $selectedPageOptionKey = computed([$page, $pageVersion], (page): st
     return AUTO_KEY;
 });
 
-export const $isCustomizeVisible = computed([$pageEditorLifecycle, $contentContext], (lifecycle, ctx): boolean => {
-    if (!ctx || !lifecycle.isPageLocked || !lifecycle.isPageRenderable) return false;
-    return !ctx.isInherited || !ctx.isDataInherited;
-});
+// A template outside the loaded options was deleted, or its application is no
+// longer assigned to the site. Either way the reference is dead.
+export const $isSelectedTemplateMissing = computed(
+    [$page, $pageVersion, $selectedPageOptionKey, $pageTemplateOptions, $isPageInspectionLoading],
+    (page, _version, selectedKey, templates, isLoading): boolean => {
+        if (isLoading) return false;
+        if (selectedKey == null || selectedKey === AUTO_KEY) return false;
+        if (page?.hasController() || !page?.hasTemplate()) return false;
+
+        return !templates.some((template) => template.getKey().toString() === selectedKey);
+    },
+);
+
+export const $isCustomizeVisible = computed(
+    [$pageEditorLifecycle, $contentContext, $page, $pageVersion, $hasDefaultPageTemplate, $isSelectedTemplateMissing],
+    (lifecycle, ctx, page, _version, hasDefaultTemplate, isTemplateMissing): boolean => {
+        if (!ctx || !lifecycle.isPageLocked || !lifecycle.isPageRenderable) return false;
+        // Only a template-driven page can be detached from its template.
+        if (page?.hasController() || isTemplateMissing) return false;
+        if (!hasDefaultTemplate && !page?.hasTemplate()) return false;
+
+        return !ctx.isInherited || !ctx.isDataInherited;
+    },
+);
 
 export const $isPageInspectionEmpty = computed(
     [$pageTemplateOptions, $pageControllerOptions, $isPageInspectionLoading, $selectedPageOptionKey],
