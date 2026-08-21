@@ -387,7 +387,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     // Opens Filter Panel:
     async clickOnSearchButton() {
         await this.waitForSearchButtonDisplayed();
-        return await this.clickOnElement(this.searchButton);
+        await this.clickOnElement(this.searchButton);
+        await this.pause(200);
     }
 
     async clickOnHideSearchPanelButton() {
@@ -655,7 +656,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             let nameXpath = XPATH.contentsTreeListDiv + TREE_GRID.itemByName(name);
             await this.waitForElementDisplayed(nameXpath, appConst.longTimeout);
         } catch (err) {
-            await this.handleError(`Content was not found by name: ${name}`, 'err_find_content', err);
+            await this.handleError(`Content was not found by name: ${name}`, 'err_content_visible', err);
         }
     }
 
@@ -664,7 +665,11 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             let treeItemXpath = TREE_GRID.TREE_LIST_DIV + TREE_GRID.itemByDisplayName(displayName);
             await this.waitForElementDisplayed(treeItemXpath);
         } catch (err) {
-            await this.handleError(`Content was not found by displayName: ${displayName}`, 'err_find_content', err);
+            await this.handleError(
+                `Content was not found by displayName: ${displayName}`,
+                'err_content_visible_displayname',
+                err,
+            );
         }
     }
 
