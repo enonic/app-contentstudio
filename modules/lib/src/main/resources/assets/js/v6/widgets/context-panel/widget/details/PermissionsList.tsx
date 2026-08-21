@@ -29,9 +29,10 @@ const PermissionItem = ({ permission }: { permission: EffectivePermission }): Re
     const status = accessLabelMap.get(permission.getAccess());
     const principals = sortPrincipals(permission.getMembers().map((epm) => epm.toPrincipal()));
     const currentUser = AuthContext.get().getUser();
-    const { visibleCount, extraCount } = useVisibleAvatars(listRef, principals.length, AVATAR_OVERFLOW_OFFSET);
+    const { visibleCount } = useVisibleAvatars(listRef, principals.length, AVATAR_OVERFLOW_OFFSET);
     // +N avatar takes space of a regular avatar, render regular instead
     const maxVisibleCount = visibleCount + 1;
+    const hiddenCount = Math.max(principals.length - maxVisibleCount, 0);
 
     if (!status) return null;
 
@@ -59,10 +60,9 @@ const PermissionItem = ({ permission }: { permission: EffectivePermission }): Re
                         </Tooltip>
                     );
                 })}
-                {/* Render +N only when there are more than 2 extra avatars to hide */}
-                {extraCount >= 2 && (
+                {hiddenCount > 0 && (
                     <Avatar className="border-2 border-surface-neutral text-alt font-semibold">
-                        <Avatar.Fallback>+{extraCount}</Avatar.Fallback>
+                        <Avatar.Fallback>+{hiddenCount}</Avatar.Fallback>
                     </Avatar>
                 )}
             </div>

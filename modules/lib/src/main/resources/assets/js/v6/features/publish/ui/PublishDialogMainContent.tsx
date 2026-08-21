@@ -140,7 +140,7 @@ export const PublishDialogMainContent = ({
 
     return (
         <Dialog.Content
-            className="w-full h-full sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220"
+            className="w-full h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220"
             data-component={componentName}
         >
             <Dialog.DefaultHeader titleId={titleId} title={title} withClose />

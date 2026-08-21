@@ -1,14 +1,61 @@
 import type { Principal } from '@enonic/lib-admin-ui/security/Principal';
-import { Avatar, Dialog, Tooltip } from '@enonic/ui';
+import { Avatar, cn, Dialog, Tooltip } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import type { ReactElement } from 'react';
+import { type ReactElement, useRef } from 'react';
 import { ProjectAccess } from '../../../../../app/settings/access/ProjectAccess';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import { $projectDialog } from '../../model/projectDialog.store';
 import { $languages } from '../../../../entities/language';
 import { getInitials } from '../../../../shared/lib/format/initials';
+import { useVisibleAvatars } from '../../../../shared/lib/hooks/useVisibleAvatars';
 import { ApplicationIcon } from '../../../../shared/ui/icons/ApplicationIcon';
 import { FlagIcon } from '../../../../shared/ui/icons/FlagIcon';
+
+const PermissionAvatars = ({ principals }: { principals: Principal[] }): ReactElement => {
+    const listRef = useRef<HTMLDivElement>(null);
+    const { visibleCount } = useVisibleAvatars(listRef, principals.length, 0);
+    const maxVisiblePermissionAvatars =
+        principals.length > visibleCount ? Math.max(visibleCount - 1, 0) : principals.length;
+    const hiddenPrincipals = principals.slice(maxVisiblePermissionAvatars);
+
+    return (
+        <div ref={listRef} className="flex min-w-0 gap-2.5">
+            {principals.map((principal, index) => {
+                const principalDisplayName = principal.getDisplayName();
+                const principalKey = principal.getKey().toString();
+
+                return (
+                    <Tooltip delay={150} key={principalKey} value={principalDisplayName}>
+                        <Avatar
+                            size="sm"
+                            className={cn(
+                                'size-6 -my-0.5',
+                                index >= maxVisiblePermissionAvatars && 'invisible order-last',
+                            )}
+                        >
+                            <Avatar.Fallback className="text-alt font-semibold">
+                                {getInitials(principalDisplayName)}
+                            </Avatar.Fallback>
+                        </Avatar>
+                    </Tooltip>
+                );
+            })}
+            {hiddenPrincipals.length > 0 && (
+                <Tooltip
+                    delay={150}
+                    className="whitespace-pre-line"
+                    value={hiddenPrincipals.map((principal) => principal.getDisplayName()).join('\n')}
+                >
+                    <Avatar size="sm" className="size-6 -my-0.5 text-alt font-semibold">
+                        <Avatar.Fallback>+{hiddenPrincipals.length}</Avatar.Fallback>
+                    </Avatar>
+                </Tooltip>
+            )}
+        </div>
+    );
+};
+
+PermissionAvatars.displayName = 'PermissionAvatars';
 
 export const ProjectDialogSummaryStepHeader = (): ReactElement => {
     const { mode, title } = useStore($projectDialog, { keys: ['mode', 'title'] });
@@ -115,7 +162,7 @@ export const ProjectDialogSummaryStepContent = ({
 
     return (
         <Dialog.StepContent step="step-summary" locked={locked}>
-            <dl className="grid grid-cols-[auto_1fr] gap-x-7.5 gap-y-5 bg-surface-primary p-5 rounded-md text-sm">
+            <dl className="grid grid-cols-[auto_1fr] gap-x-3.5 md:gap-x-7.5 gap-y-2.5 md:gap-y-5 bg-surface-primary p-2.5 md:p-5 rounded-md overflow-hidden text-sm">
                 {parentProjects.length > 0 && (
                     <div className="contents">
                         <dt className="font-semibold">
@@ -154,21 +201,7 @@ export const ProjectDialogSummaryStepContent = ({
                         <dt className="font-semibold">{accessModeLabel}</dt>
                         <dd className="flex gap-2.5">
                             <span>{selectedAccessModeLabel}</span>
-                            {accessMode === 'custom' &&
-                                permissions.map((p) => {
-                                    const principalDisplayName = p.getDisplayName();
-                                    const principalKey = p.getKey().toString();
-
-                                    return (
-                                        <Tooltip delay={150} key={principalKey} value={principalDisplayName}>
-                                            <Avatar size="sm" className="size-6 -my-0.5">
-                                                <Avatar.Fallback className="text-alt font-semibold">
-                                                    {getInitials(principalDisplayName)}
-                                                </Avatar.Fallback>
-                                            </Avatar>
-                                        </Tooltip>
-                                    );
-                                })}
+                            {accessMode === 'custom' && <PermissionAvatars principals={permissions} />}
                         </dd>
                     </div>
                 )}
@@ -180,22 +213,7 @@ export const ProjectDialogSummaryStepContent = ({
                             {Array.from(principalsByRole.entries()).map(([label, principals]) => (
                                 <div className="contents" key={label}>
                                     <span>{label}</span>
-                                    <div className="flex gap-2.5">
-                                        {principals.map((p) => {
-                                            const principalDisplayName = p.getDisplayName();
-                                            const principalKey = p.getKey().toString();
-
-                                            return (
-                                                <Tooltip delay={150} key={principalKey} value={principalDisplayName}>
-                                                    <Avatar size="sm" className="size-6 -my-0.5">
-                                                        <Avatar.Fallback className="text-alt font-semibold">
-                                                            {getInitials(principalDisplayName)}
-                                                        </Avatar.Fallback>
-                                                    </Avatar>
-                                                </Tooltip>
-                                            );
-                                        })}
-                                    </div>
+                                    <PermissionAvatars principals={principals} />
                                 </div>
                             ))}
                         </dd>

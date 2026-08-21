@@ -12,7 +12,7 @@ export const StatusBarEntryButton = ({
     return (
         <Button
             data-component={STATUS_BAR_ENTRY_BUTTON_NAME}
-            className={cn('bg-transparent hover:bg-btn-primary-hover/50', className)}
+            className={cn('col-span-full md:col-auto', 'bg-transparent hover:bg-btn-primary-hover/50', className)}
             variant="outline"
             size="sm"
             {...props}
