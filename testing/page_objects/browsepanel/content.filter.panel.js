@@ -8,7 +8,7 @@ const ContentBrowsePanel = require('./content.browse.panel');
 const XPATH = {
     container: "//div[contains(@id,'ContentBrowseFilterPanel')]",
     clearFilterLink: "//a[contains(@id,'ClearFilterButton')]",
-    searchInput: "//input[contains(@aria-label,'Search')]",
+    searchInput: "//div[contains(@id,'BrowseFilterElement')]//input[@data-component='SearchField.Input']",
     dependenciesSection: "//div[@data-component='BrowseDependencies']",
     showResultsButton: "//span[contains(@class,'show-filter-results')]",
     showMoreButton: "//button[child::span[text()='Show more']]",
@@ -54,6 +54,7 @@ class BrowseFilterPanel extends Page {
     }
 
     async clearSearchInput() {
+        await this.waitForElementDisplayed(this.searchTextInput);
         let input = await this.findElement(this.searchTextInput);
         await input.click();
         await this.clearInputTextElement(input);
@@ -67,6 +68,7 @@ class BrowseFilterPanel extends Page {
                 await contentBrowsePanel.clickOnSearchButton();
                 await this.waitForOpened();
             }
+            await this.waitForElementDisplayed(this.searchTextInput);
             await this.typeTextInInput(this.searchTextInput, text);
             return await this.pause(500);
         } catch (err) {
@@ -157,7 +159,7 @@ class BrowseFilterPanel extends Page {
     }
 
     isPanelVisible() {
-        return this.isElementDisplayed(XPATH.container);
+        return this.isElementDisplayed(this.searchTextInput);
     }
 
     waitForClearLinkDisplayed() {
