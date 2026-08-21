@@ -17,7 +17,7 @@ export const StatusBarEntry = ({
         <div
             data-component={dataComponent}
             className={cn(
-                'grid grid-flow-col auto-cols-max grid-cols-[max-content_1fr] items-center gap-2 md:min-h-19 p-2.5 sm:p-5 rounded-lg',
+                'grid grid-cols-[max-content_1fr] md:grid-flow-col md:auto-cols-max items-center gap-2 md:min-h-19 p-5 rounded-lg',
                 className,
             )}
         >

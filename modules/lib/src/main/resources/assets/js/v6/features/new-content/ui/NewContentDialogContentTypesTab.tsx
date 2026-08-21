@@ -44,7 +44,7 @@ export const NewContentDialogContentTypesTab = ({
             )}
 
             {!loading && contentTypes.length > 0 && (
-                <ul className="grid grid-cols-2 gap-y-1.5 gap-x-7.5">
+                <ul className="grid grid-cols-1 md:grid-cols-2 gap-y-1.5 gap-x-7.5">
                     {contentTypes.map((contentType) => {
                         const key = contentType.getName();
                         const displayName = contentType.getTitle();
@@ -56,7 +56,7 @@ export const NewContentDialogContentTypesTab = ({
                             <li key={key}>
                                 <Button
                                     variant="text"
-                                    className="w-full h-auto py-1.5 px-2 flex justify-start font-normal"
+                                    className="w-full h-auto py-1.5 px-0 md:px-2 flex justify-start font-normal"
                                     onClick={() => handleContentTypeSelected(contentType)}
                                 >
                                     <ItemLabel
@@ -71,7 +71,7 @@ export const NewContentDialogContentTypesTab = ({
                                         }
                                         primary={displayName}
                                         secondary={description}
-                                        className="[&>*:first-child]:size-12 ml-1.5 gap-4"
+                                        className="[&>*:first-child]:size-12 md:ml-1.5 gap-4"
                                     />
                                 </Button>
                             </li>

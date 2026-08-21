@@ -1,4 +1,4 @@
-import { cn, Dialog, Tab } from '@enonic/ui';
+import { cn, Dialog, getIsMobile, Tab } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { type KeyboardEvent, type ReactElement, useEffect, useRef } from 'react';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
@@ -31,8 +31,10 @@ export const NewContentDialog = (): ReactElement => {
     const isTemplateContent = parentContent?.getType().isPageTemplate() ?? false;
     const isMediaTabDisabled = isTemplateFolder || isTemplateContent || !isMediaAllowed;
     const isMediaTab = selectedTab === 'media';
+    const isMobile = getIsMobile();
     const isInputEmpty = inputValue.length === 0;
-    const isInputHidden = isInputEmpty || isMediaTab;
+    const isInputHidden = isMediaTab || (isInputEmpty && !isMobile);
+    const isFooterHidden = !isInputEmpty || isMediaTab || isMobile;
 
     const titleLabel = useI18n('dialog.new.title');
     const allTabLabel = useI18n('dialog.new.tab.all');
@@ -145,7 +147,7 @@ export const NewContentDialog = (): ReactElement => {
                 <Dialog.Overlay />
                 <Dialog.Content
                     ref={dialogContentRef}
-                    className="h-178 w-200 max-w-auto"
+                    className="p-5 md:p-10 gap-5 md:gap-10 h-178 w-200 max-w-auto"
                     onKeyDown={handleKeyDown}
                     onDragEnter={handleDragEnter}
                     onDragLeave={handleDragLeave}
@@ -216,7 +218,7 @@ export const NewContentDialog = (): ReactElement => {
                             </div>
                         </Dialog.Body>
 
-                        {isInputEmpty && !isMediaTab && (
+                        {!isFooterHidden && (
                             <Dialog.Footer className="flex justify-center mt-5">
                                 <p className="text-sm text-subtle">{hintLabel}</p>
                             </Dialog.Footer>
