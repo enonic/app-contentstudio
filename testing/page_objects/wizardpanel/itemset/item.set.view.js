@@ -147,15 +147,6 @@ class ItemSetFormView extends Page {
         }
     }
 
-    async waitForExpandAllButtonDisplayed() {
-        try {
-            return await this.waitForElementDisplayed(this.expandAllButton);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('item_set_expand_button');
-            throw new Error(`Expand button is not displayed! Screenshot: ${screenshot}` + err);
-        }
-    }
-
     async waitForExpandAllButtonNotDisplayed() {
         try {
             return await this.waitForElementNotDisplayed(this.expandAllButton);

@@ -644,7 +644,7 @@ module.exports = {
             }
             let isDisplayed = await filterPanel.isClearButtonDisplayed();
             if (isDisplayed) {
-                await filterPanel.clickOnClearButton();
+                await filterPanel.clearSearchInput();
             }
             await filterPanel.typeSearchText(name);
             await browsePanel.waitForSpinnerNotVisible(appConst.longTimeout);
