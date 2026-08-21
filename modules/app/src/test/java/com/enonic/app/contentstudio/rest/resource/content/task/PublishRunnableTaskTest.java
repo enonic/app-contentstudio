@@ -8,10 +8,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.enonic.app.contentstudio.rest.resource.content.json.PublishContentJson;
+import com.enonic.xp.content.CompareContentResults;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.PublishContentResult;
 import com.enonic.xp.content.PushContentParams;
+import com.enonic.xp.content.ResolvePublishDependenciesParams;
+import com.enonic.xp.page.PageTemplateService;
 import com.enonic.xp.task.SubmitLocalTaskParams;
 import com.enonic.xp.task.TaskId;
 
@@ -23,18 +26,26 @@ public class PublishRunnableTaskTest
 {
     private PublishContentJson params;
 
+    private PageTemplateService pageTemplateService;
+
     @BeforeEach
     public void setUp()
         throws Exception
     {
         this.params = Mockito.mock( PublishContentJson.class );
+        this.pageTemplateService = Mockito.mock( PageTemplateService.class );
     }
 
     @Override
     protected PublishRunnableTask createAndRunTask()
     {
+        // the task resolves the publish set up front to find the templates the contents render with
+        Mockito.when( contentService.resolvePublishDependencies( Mockito.isA( ResolvePublishDependenciesParams.class ) ) )
+            .thenReturn( CompareContentResults.create().build() );
+
         final PublishRunnableTask task = PublishRunnableTask.create().
             params( params ).
+            pageTemplateService( pageTemplateService ).
             description( "Publish content" ).
             taskService( taskService ).
             contentService( contentService ).

@@ -1,5 +1,6 @@
 package com.enonic.app.contentstudio.rest.resource.content.task;
 
+import com.enonic.app.contentstudio.rest.resource.content.DefaultPageTemplateResolver;
 import com.enonic.app.contentstudio.rest.resource.content.PublishContentProgressListener;
 import com.enonic.app.contentstudio.rest.resource.content.json.PublishContentJson;
 import com.enonic.xp.content.ContentId;
@@ -7,7 +8,9 @@ import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.PublishContentResult;
 import com.enonic.xp.content.PushContentParams;
+import com.enonic.xp.content.ResolvePublishDependenciesParams;
 import com.enonic.app.contentstudio.json.task.AbstractRunnableTask;
+import com.enonic.xp.page.PageTemplateService;
 import com.enonic.xp.task.ProgressReporter;
 import com.enonic.xp.task.TaskId;
 import com.enonic.xp.task.TaskService;
@@ -17,10 +20,13 @@ public class PublishRunnableTask
 {
     private final PublishContentJson params;
 
+    private final PageTemplateService pageTemplateService;
+
     private PublishRunnableTask( Builder builder )
     {
         super( builder );
         this.params = builder.params;
+        this.pageTemplateService = builder.pageTemplateService;
     }
 
 
@@ -42,10 +48,14 @@ public class PublishRunnableTask
 
         try
         {
+            // the templates the contents render with are not reachable from their data, so they have to be named explicitly
+            final ContentIds templateIds = resolveDefaultPageTemplates( contentIds, excludeContentIds, excludeDescendantsOf );
+
             final PushContentParams.Builder builder = PushContentParams.create()
-                .contentIds( contentIds )
+                .contentIds( ContentIds.create().addAll( contentIds ).addAll( templateIds ).build() )
                 .excludedContentIds( excludeContentIds )
-                .excludeDescendantsOf( excludeDescendantsOf )
+                // a template is published for itself, never for its children
+                .excludeDescendantsOf( ContentIds.create().addAll( excludeDescendantsOf ).addAll( templateIds ).build() )
                 .includeDependencies( true )
                 .pushListener( new PublishContentProgressListener( progressReporter ) )
                 .message( message );
@@ -84,6 +94,25 @@ public class PublishRunnableTask
         progressReporter.info( resultBuilder.build().toJson() );
     }
 
+    /**
+     * The publish dialog sends the selected contents only; children and dependencies are expanded again inside the publish itself. The
+     * templates have to be resolved against that expanded set, so the resolution is repeated here to find them.
+     */
+    private ContentIds resolveDefaultPageTemplates( final ContentIds contentIds, final ContentIds excludeContentIds,
+                                                    final ContentIds excludeDescendantsOf )
+    {
+        final ContentIds resolved = contentService.resolvePublishDependencies( ResolvePublishDependenciesParams.create()
+                                                                                  .contentIds( contentIds )
+                                                                                  .excludedContentIds( excludeContentIds )
+                                                                                  .excludeDescendantsOf( excludeDescendantsOf )
+                                                                                  .build() ).contentIds();
+
+        return new DefaultPageTemplateResolver( contentService, pageTemplateService ).resolve( resolved )
+            .stream()
+            .filter( id -> !excludeContentIds.contains( id ) )
+            .collect( ContentIds.collector() );
+    }
+
     public static Builder create()
     {
         return new Builder();
@@ -94,9 +123,17 @@ public class PublishRunnableTask
     {
         private PublishContentJson params;
 
+        private PageTemplateService pageTemplateService;
+
         public Builder params( PublishContentJson params )
         {
             this.params = params;
+            return this;
+        }
+
+        public Builder pageTemplateService( PageTemplateService pageTemplateService )
+        {
+            this.pageTemplateService = pageTemplateService;
             return this;
         }
 

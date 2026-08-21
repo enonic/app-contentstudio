@@ -150,8 +150,11 @@ import com.enonic.xp.form.Form;
 import com.enonic.xp.icon.Icon;
 import com.enonic.xp.index.ChildOrder;
 import com.enonic.xp.jaxrs.impl.MockRestResponse;
+import com.enonic.xp.page.GetDefaultPageTemplateParams;
 import com.enonic.xp.page.Page;
+import com.enonic.xp.page.PageTemplate;
 import com.enonic.xp.page.PageTemplateKey;
+import com.enonic.xp.page.PageTemplateService;
 import com.enonic.xp.portal.url.PortalUrlGeneratorService;
 import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.project.ProjectService;
@@ -255,6 +258,8 @@ public class ContentResourceTest
 
     private ProjectService projectService;
 
+    private PageTemplateService pageTemplateService;
+
     private PortalUrlGeneratorService portalUrlGeneratorService;
 
     private HttpServletRequest request;
@@ -296,6 +301,9 @@ public class ContentResourceTest
 
         projectService = mock( ProjectService.class );
         resource.setProjectService( projectService );
+
+        pageTemplateService = mock( PageTemplateService.class );
+        resource.setPageTemplateService( pageTemplateService );
 
         final ComponentDisplayNameResolverImpl componentNameResolver = new ComponentDisplayNameResolverImpl();
         componentNameResolver.setContentService( contentService );
@@ -1163,6 +1171,7 @@ public class ContentResourceTest
         final ContentId nextId = ContentId.from( "next-content-id" );
         final Content nextContent = mock( Content.class );
         when( nextContent.getId() ).thenReturn( nextId );
+        when( nextContent.getType() ).thenReturn( ContentTypeName.folder() );
         when( nextContent.getPermissions() ).thenReturn( AccessControlList.empty() );
         final ContentIds outboundIds = ContentIds.from( nextId, nextMissingId );
 
@@ -1215,6 +1224,7 @@ public class ContentResourceTest
             ContentIds.empty() );
         when( contentService.compare( isA( CompareContentsParams.class ) ) ).thenReturn( CompareContentResults.create().build() );
         when( contentService.getById( isA( ContentId.class ) ) ).thenReturn( content );
+        when( contentService.getByIds( isA( GetContentByIdsParams.class ) ) ).thenReturn( Contents.empty() );
         when( contentService.getOutboundDependencies( isA( ContentId.class ) ) ).thenReturn( ContentIds.empty() );
         // No NEW items -> schedulable falls back to the expired query, which finds nothing here
         when( contentService.find( isA( ContentQuery.class ) ) ).thenReturn(
@@ -1252,6 +1262,7 @@ public class ContentResourceTest
             ContentIds.empty() );
         when( contentService.compare( isA( CompareContentsParams.class ) ) ).thenReturn( CompareContentResults.create().build() );
         when( contentService.getById( isA( ContentId.class ) ) ).thenReturn( content );
+        when( contentService.getByIds( isA( GetContentByIdsParams.class ) ) ).thenReturn( Contents.empty() );
         when( contentService.getOutboundDependencies( isA( ContentId.class ) ) ).thenReturn( ContentIds.empty() );
         // The expired query (publish.to < now) matches at least one content
         when( contentService.find( isA( ContentQuery.class ) ) ).thenReturn(
@@ -1263,6 +1274,57 @@ public class ContentResourceTest
             createResolveParams( requestedId.toString() ) );
 
         assertTrue( result.isSchedulable() );
+    }
+
+    @Test
+    public void resolve_publish_content_includes_default_page_template()
+    {
+        final ContentResource contentResource = getResourceInstance();
+
+        final ContentId requestedId = ContentId.from( "requested-content-id" );
+        final ContentId templateId = ContentId.from( "template-content-id" );
+
+        // a content with no page of its own: it renders with the default template of its site
+        final Content requestedContent = mock( Content.class );
+        when( requestedContent.getId() ).thenReturn( requestedId );
+        when( requestedContent.getType() ).thenReturn( ContentTypeName.folder() );
+        when( requestedContent.getPermissions() ).thenReturn( AccessControlList.empty() );
+
+        final Site site = mock( Site.class );
+        when( site.getId() ).thenReturn( ContentId.from( "site-content-id" ) );
+        when( site.getPath() ).thenReturn( ContentPath.from( "/mysite" ) );
+        when( contentService.getNearestSite( requestedId ) ).thenReturn( site );
+
+        final PageTemplate template = mock( PageTemplate.class );
+        when( template.getId() ).thenReturn( templateId );
+        when( pageTemplateService.getDefault( isA( GetDefaultPageTemplateParams.class ) ) ).thenReturn( template );
+
+        // the template only shows up once it is fed back in as a root, so the second resolution returns it
+        when( contentService.resolvePublishDependencies( isA( ResolvePublishDependenciesParams.class ) ) ).thenReturn(
+            CompareContentResults.create().add( new CompareContentResult( CompareStatus.NEW, requestedId ) ).build() ).thenReturn(
+            CompareContentResults.create()
+                .add( new CompareContentResult( CompareStatus.NEW, requestedId ) )
+                .add( new CompareContentResult( CompareStatus.NEW, templateId ) )
+                .build() );
+
+        when( contentService.getByIds( isA( GetContentByIdsParams.class ) ) ).thenReturn( Contents.from( requestedContent ) )
+            .thenReturn( Contents.empty() );
+        when( contentService.resolveRequiredDependencies( isA( ResolveRequiredDependenciesParams.class ) ) ).thenReturn(
+            ContentIds.empty() );
+        when( contentService.compare( isA( CompareContentsParams.class ) ) ).thenReturn( CompareContentResults.create().build() );
+        when( contentService.getById( isA( ContentId.class ) ) ).thenReturn( requestedContent );
+        when( contentService.getOutboundDependencies( isA( ContentId.class ) ) ).thenReturn( ContentIds.empty() );
+        when( contentService.find( isA( ContentQuery.class ) ) ).thenReturn(
+            FindContentIdsByQueryResult.create().contents( ContentIds.from( templateId ) ).totalHits( 1L ).build() );
+        doReturn( ContentValidityResult.create().build() ).when( this.contentService ).getContentValidity(
+            isA( ContentValidityParams.class ) );
+
+        final ResolvePublishContentResultJson result =
+            contentResource.resolvePublishContent( createResolveParams( requestedId.toString() ) );
+
+        final List<String> dependants = result.getDependentContents().stream().map( ContentIdJson::getId ).toList();
+        assertTrue( dependants.contains( templateId.toString() ),
+                    "the template the content renders with has to be listed as a dependency" );
     }
 
     @Test

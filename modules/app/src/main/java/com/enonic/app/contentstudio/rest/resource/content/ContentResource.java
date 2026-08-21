@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -162,6 +163,7 @@ import com.enonic.xp.content.MoveContentParams;
 import com.enonic.xp.content.MoveContentsResult;
 import com.enonic.xp.content.ReorderChildContentParams;
 import com.enonic.xp.content.ResolvePublishDependenciesParams;
+import com.enonic.xp.page.PageTemplateService;
 import com.enonic.xp.content.ResolveRequiredDependenciesParams;
 import com.enonic.xp.content.SortContentParams;
 import com.enonic.xp.content.SortContentResult;
@@ -247,6 +249,8 @@ public final class ContentResource
     private static final Logger LOG = LoggerFactory.getLogger( ContentResource.class );
 
     private ContentService contentService;
+
+    private PageTemplateService pageTemplateService;
 
     private ProjectService projectService;
 
@@ -623,6 +627,7 @@ public final class ContentResource
     {
         return PublishRunnableTask.create()
             .params( params )
+            .pageTemplateService( pageTemplateService )
             .description( "Publish content" )
             .taskService( taskService )
             .contentService( contentService )
@@ -715,13 +720,9 @@ public final class ContentResource
         final ContentIds excludeContentIds = params.getExcludedIds().stream().map( ContentId::from ).collect( ContentIds.collector() );
         final ContentIds excludeDescendantsOf = params.getExcludeChildrenIds().stream().map( ContentId::from ).collect( ContentIds.collector() );
 
-        //Resolves publish dependencies
-        final ResolvePublishDependenciesParams resolveParams = ResolvePublishDependenciesParams.create()
-            .contentIds( requestedContentIds )
-            .excludedContentIds( excludeContentIds )
-            .excludeDescendantsOf( excludeDescendantsOf )
-            .build();
-        final CompareContentResults compareResults = contentService.resolvePublishDependencies( resolveParams );
+        //Resolves publish dependencies, including the templates the contents render with
+        final CompareContentResults compareResults =
+            resolvePublishDependencies( requestedContentIds, excludeContentIds, excludeDescendantsOf );
 
         //Resolved the dependent ContentPublishItem
         final List<ContentId> contentIds = compareResults.contentIds()
@@ -794,6 +795,63 @@ public final class ContentResource
             .setNextDependentContents( outboundDependenciesIds.getExistingOutboundIds() )
             .setNotFoundOutboundContents( outboundDependenciesIds.getNonExistingOutboundIds() )
             .build();
+    }
+
+    /**
+     * Publish dependency resolution, extended with the page templates the contents render with. A content with no page of its own falls
+     * back to the default template of its site and nothing on the content records that, so the reference walk behind the resolution never
+     * reaches the template. The templates found are fed back in as roots, which brings their own dependencies and parents along; a
+     * template can pull in contents that fall back to a template of their own, so this repeats until nothing new turns up.
+     */
+    private CompareContentResults resolvePublishDependencies( final ContentIds requestedContentIds, final ContentIds excludeContentIds,
+                                                              final ContentIds excludeDescendantsOf )
+    {
+        final DefaultPageTemplateResolver templateResolver =
+            new DefaultPageTemplateResolver( this.contentService, this.pageTemplateService );
+
+        final Set<ContentId> templateIds = new LinkedHashSet<>();
+
+        ContentIds roots = requestedContentIds;
+        CompareContentResults results = doResolvePublishDependencies( roots, excludeContentIds, excludeDescendantsOf );
+
+        while ( true )
+        {
+            final ContentIds.Builder found = ContentIds.create();
+            boolean foundAny = false;
+
+            for ( final ContentId templateId : templateResolver.resolve( results.contentIds() ) )
+            {
+                if ( !excludeContentIds.contains( templateId ) && templateIds.add( templateId ) )
+                {
+                    found.add( templateId );
+                    foundAny = true;
+                }
+            }
+
+            if ( !foundAny )
+            {
+                return results;
+            }
+
+            roots = ContentIds.create().addAll( roots ).addAll( found.build() ).build();
+
+            // a template is pulled in for itself, never for its children
+            results = doResolvePublishDependencies( roots, excludeContentIds,
+                                                    ContentIds.create()
+                                                        .addAll( excludeDescendantsOf )
+                                                        .addAll( templateIds )
+                                                        .build() );
+        }
+    }
+
+    private CompareContentResults doResolvePublishDependencies( final ContentIds contentIds, final ContentIds excludeContentIds,
+                                                                final ContentIds excludeDescendantsOf )
+    {
+        return contentService.resolvePublishDependencies( ResolvePublishDependenciesParams.create()
+                                                              .contentIds( contentIds )
+                                                              .excludedContentIds( excludeContentIds )
+                                                              .excludeDescendantsOf( excludeDescendantsOf )
+                                                              .build() );
     }
 
     private OutboundDependenciesIds getOutboundDependenciesIds( final ContentIds contentIds )
@@ -1916,5 +1974,11 @@ public final class ContentResource
     public void setProjectService( final ProjectService projectService )
     {
         this.projectService = projectService;
+    }
+
+    @Reference
+    public void setPageTemplateService( final PageTemplateService pageTemplateService )
+    {
+        this.pageTemplateService = pageTemplateService;
     }
 }
