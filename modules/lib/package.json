@@ -39,7 +39,7 @@
     "ckeditor4-react": "5.2.1",
     "class-variance-authority": "^0.7.1",
     "d3-dag": "^1.2.2",
-    "dayjs": "^1.11.21",
+    "dayjs": "^1.11.23",
     "dompurify": "^3.4.13",
     "enonic-admin-artifacts": "^2.4.0",
     "fine-uploader": "^5.16.2",
