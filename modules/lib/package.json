@@ -71,7 +71,7 @@
     "@rspack/cli": "^2.1.10",
     "@rspack/core": "^2.1.10",
     "@swc/cli": "^0.8.1",
-    "@swc/core": "^1.15.47",
+    "@swc/core": "^1.16.1",
     "@tailwindcss/vite": "^4.3.3",
     "@testing-library/preact": "^3.2.4",
     "@testing-library/react": "^16.3.1",
