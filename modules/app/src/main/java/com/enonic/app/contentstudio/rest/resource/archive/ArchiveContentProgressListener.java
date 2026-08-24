@@ -37,7 +37,7 @@ public final class ArchiveContentProgressListener
     }
 
     @Override
-    public void contentResolved( final int count )
+    public void resolved( final int count )
     {
         // Total spans both the unpublish and archive phases and is set via setTotal
     }
