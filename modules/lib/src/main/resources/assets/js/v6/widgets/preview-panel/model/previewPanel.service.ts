@@ -14,9 +14,8 @@ import { requestPreviewRefresh } from './previewPanel.store';
 let unsubscribers: (() => void)[] = [];
 
 // Wizard mode is excluded: the wizard reloads its own live edit on template
-// events (ContentWizardPanel.handleTemplateUpdate).
-const getBrowseContextContent = (): ContentSummary | null =>
-    $mode.get() === 'browser' ? $currentItem.get() : null;
+// events (ContentWizardPanel.handleTemplateUpdate / handleTemplateDelete).
+const getBrowseContextContent = (): ContentSummary | null => ($mode.get() === 'browser' ? $currentItem.get() : null);
 
 export const start = (): void => {
     if (unsubscribers.length > 0) return;
@@ -25,7 +24,7 @@ export const start = (): void => {
 
     const onTemplateEvent = (event: ContentEvent | null): void => {
         if (!event?.data) return;
-        
+
         const content = getBrowseContextContent();
 
         if (!content) return;
@@ -38,7 +37,7 @@ export const start = (): void => {
         $contentUpdated.subscribe(onTemplateEvent),
         $contentDeleted.subscribe((event) => {
             if (!event?.data) return;
-            
+
             const content = getBrowseContextContent();
 
             if (!content) return;

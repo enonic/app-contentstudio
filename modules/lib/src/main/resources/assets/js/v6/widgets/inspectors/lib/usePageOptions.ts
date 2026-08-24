@@ -7,6 +7,7 @@ import type { Page } from '../../../../app/page/Page';
 import { $contentContext, $defaultPageTemplateName, usePageState } from '../model/page-editor';
 import {
     $isPageInspectionLoading,
+    $isSelectedTemplateMissing,
     $pageConfigDescriptor,
     $pageControllerOptions,
     $pageTemplateOptions,
@@ -30,6 +31,7 @@ export type UsePageOptionsResult = {
     filteredOptions: PageOption[];
     selectedOption: PageOption | undefined;
     selectedKey: string | undefined;
+    isTemplateMissing: boolean;
     selection: string[];
     isLoading: boolean;
 };
@@ -38,8 +40,8 @@ function getTemplateIcon(template: PageTemplate): LucideIcon {
     return template.getDisplayName() === 'Custom' ? SquareChartGantt : LayoutTemplate;
 }
 
-// Builds an option for the page's current controller/template when its descriptor
-// is not among the fetched ones, e.g. after its application was removed from the site.
+// Builds an option for the page's current controller when its descriptor is not
+// among the fetched ones, e.g. after its application was removed from the site.
 function createFallbackPageOption(
     page: Page | null,
     pageConfigDescriptor: Descriptor | null,
@@ -66,17 +68,6 @@ function createFallbackPageOption(
         };
     }
 
-    if (page?.hasTemplate()) {
-        const templateKey = page.getTemplate().toString();
-        return {
-            key: templateKey,
-            label: templateKey,
-            description: templateKey,
-            type: 'template',
-            icon: LayoutTemplate,
-        };
-    }
-
     return undefined;
 }
 
@@ -88,13 +79,14 @@ export function useSelectedPageOption(): PageOption | undefined {
     const controllers = useStore($pageControllerOptions);
     const pageConfigDescriptor = useStore($pageConfigDescriptor);
     const selectedKey = useStore($selectedPageOptionKey) ?? undefined;
+    const isTemplateMissing = useStore($isSelectedTemplateMissing);
 
     const autoLabel = useI18n('widget.pagetemplate.automatic');
     const noDefaultLabel = useI18n('field.page.template.noDefault');
     const noDescriptionLabel = useI18n('text.noDescription');
 
     return useMemo((): PageOption | undefined => {
-        if (selectedKey === AUTO_KEY) {
+        if (selectedKey === AUTO_KEY || isTemplateMissing) {
             const isFragment = page?.isFragment() ?? false;
             const showAutoOption = ctx != null && !ctx.isPageTemplate && !isFragment;
             if (!showAutoOption) return undefined;
@@ -140,6 +132,7 @@ export function useSelectedPageOption(): PageOption | undefined {
         controllers,
         pageConfigDescriptor,
         selectedKey,
+        isTemplateMissing,
         autoLabel,
         noDefaultLabel,
         noDescriptionLabel,
@@ -155,6 +148,7 @@ export function usePageOptions(searchValue?: string): UsePageOptionsResult {
     const pageConfigDescriptor = useStore($pageConfigDescriptor);
     const selectedKey = useStore($selectedPageOptionKey) ?? undefined;
     const isLoading = useStore($isPageInspectionLoading);
+    const isTemplateMissing = useStore($isSelectedTemplateMissing);
 
     const autoLabel = useI18n('widget.pagetemplate.automatic');
     const noDefaultLabel = useI18n('field.page.template.noDefault');
@@ -197,7 +191,7 @@ export function usePageOptions(searchValue?: string): UsePageOptionsResult {
             });
         }
 
-        // Keep the page's current controller/template selectable even when its
+        // Keep the page's current controller selectable even when its
         // application is no longer assigned to the site.
         if (selectedKey !== undefined && selectedKey !== AUTO_KEY && !result.some((o) => o.key === selectedKey)) {
             const fallback = createFallbackPageOption(page, pageConfigDescriptor, noDescriptionLabel);
@@ -225,12 +219,17 @@ export function usePageOptions(searchValue?: string): UsePageOptionsResult {
 
     const selectedOption = useSelectedPageOption();
 
+    // A dead template reference is presented as automatic, but `selectedKey` keeps
+    // pointing at it so that picking automatic still runs an actual page reset.
+    const highlightedKey = isTemplateMissing ? AUTO_KEY : selectedKey;
+
     return {
         options,
         filteredOptions,
         selectedOption,
         selectedKey,
-        selection: selectedKey !== undefined ? [selectedKey] : [],
+        isTemplateMissing,
+        selection: highlightedKey !== undefined ? [highlightedKey] : [],
         isLoading,
     };
 }
