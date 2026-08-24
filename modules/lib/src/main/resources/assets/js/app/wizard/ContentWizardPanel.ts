@@ -973,17 +973,22 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         const serverEvents: ContentServerEventsHandler = ContentServerEventsHandler.getInstance();
 
         const deleteHandler = (items: ContentServerChangeItem[]) => {
+            const deletedTemplateIds: ContentId[] = [];
+
             for (const item of items) {
                 if (this.isCurrentContentId(item.getContentId())) {
                     this.contentDeleted = true;
                     this.close();
-                    break;
-                } else if (
-                    this.getPersistedItem() &&
-                    isDeletedTemplateForContent(item.getPath(), this.getPersistedItem())
-                ) {
-                    this.handleTemplateDelete(item.getContentId());
+                    return;
                 }
+
+                if (this.getPersistedItem() && isDeletedTemplateForContent(item.getPath(), this.getPersistedItem())) {
+                    deletedTemplateIds.push(item.getContentId());
+                }
+            }
+
+            if (deletedTemplateIds.length > 0) {
+                this.handleTemplateDelete(deletedTemplateIds);
             }
         };
 
@@ -1307,8 +1312,8 @@ export class ContentWizardPanel extends WizardPanel<Content> {
      * one, or the one an automatically rendered page resolves to, so the default
      * models are reloaded and the editor follows when either is affected.
      * */
-    private handleTemplateDelete(deletedId: ContentId): void {
-        const isCurrentTemplate: boolean = this.isCurrentTemplateId(deletedId);
+    private handleTemplateDelete(deletedIds: ContentId[]): void {
+        const isCurrentTemplate: boolean = deletedIds.some((id: ContentId) => this.isCurrentTemplateId(id));
         const previousTemplateId: string = this.defaultModels?.getDefaultPageTemplate()?.getId() ?? null;
 
         ContentWizardDataLoader.loadDefaultModels(this.site, this.getPersistedItem().getType())
@@ -1332,7 +1337,13 @@ export class ContentWizardPanel extends WizardPanel<Content> {
                     this.debouncedEditorReload(false, true, true);
                 }
             })
-            .catch(DefaultErrorHandler.handle);
+            .catch((error: unknown) => {
+                if (isCurrentTemplate) {
+                    this.debouncedEditorReload(false, true, true);
+                }
+
+                DefaultErrorHandler.handle(error);
+            });
     }
 
     private isSameRootWithPersisted(item: ContentSummaryAndCompareStatus): boolean {

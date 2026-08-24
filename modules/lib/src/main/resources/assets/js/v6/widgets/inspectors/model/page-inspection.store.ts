@@ -33,6 +33,8 @@ export const $pageConfigDescriptor = atom<Descriptor | null>(null);
 
 export const $isPageInspectionLoading = atom<boolean>(false);
 
+export const $arePageTemplatesResolved = atom<boolean>(false);
+
 //
 // * Computed
 //
@@ -47,9 +49,16 @@ export const $selectedPageOptionKey = computed([$page, $pageVersion], (page): st
 // A template outside the loaded options was deleted, or its application is no
 // longer assigned to the site. Either way the reference is dead.
 export const $isSelectedTemplateMissing = computed(
-    [$page, $pageVersion, $selectedPageOptionKey, $pageTemplateOptions, $isPageInspectionLoading],
-    (page, _version, selectedKey, templates, isLoading): boolean => {
-        if (isLoading) return false;
+    [
+        $page,
+        $pageVersion,
+        $selectedPageOptionKey,
+        $pageTemplateOptions,
+        $arePageTemplatesResolved,
+        $isPageInspectionLoading,
+    ],
+    (page, _version, selectedKey, templates, isResolved, isLoading): boolean => {
+        if (isLoading || !isResolved) return false;
         if (selectedKey == null || selectedKey === AUTO_KEY) return false;
         if (page?.hasController() || !page?.hasTemplate()) return false;
 
@@ -95,6 +104,15 @@ function affectsPageInspection(summary: ContentSummary, ctx: PageEditorContentCo
     return false;
 }
 
+type ResolvedTemplates = {
+    templates: PageTemplate[];
+    resolved: boolean;
+};
+
+const TEMPLATES_LOAD_FAILED: ResolvedTemplates = { templates: [], resolved: false };
+
+const NO_TEMPLATES: ResolvedTemplates = { templates: [], resolved: true };
+
 async function loadTemplatesAndControllers(ctx: PageEditorContentContext): Promise<void> {
     $isPageInspectionLoading.set(true);
     abortController?.abort();
@@ -104,19 +122,25 @@ async function loadTemplatesAndControllers(ctx: PageEditorContentContext): Promi
     try {
         const { loadPageTemplatesByCanRender, loadPageControllers } = await import('../api/pageInspection.api');
 
-        const [templates, controllers] = await Promise.all([
+        const [templateResult, controllers] = await Promise.all([
             ctx.siteId
-                ? loadPageTemplatesByCanRender(ctx.siteId, ctx.contentTypeName).unwrapOr([])
-                : Promise.resolve([]),
+                ? loadPageTemplatesByCanRender(ctx.siteId, ctx.contentTypeName).match<ResolvedTemplates>(
+                      (templates) => ({ templates, resolved: true }),
+                      () => TEMPLATES_LOAD_FAILED,
+                  )
+                : Promise.resolve(NO_TEMPLATES),
             loadPageControllers(ctx.contentId).unwrapOr([]),
         ]);
 
         if (!signal.aborted) {
-            $pageTemplateOptions.set(templates);
+            $pageTemplateOptions.set(templateResult.templates);
+            $arePageTemplatesResolved.set(templateResult.resolved);
             $pageControllerOptions.set(controllers);
         }
     } catch {
-        // Aborted or failed
+        if (!signal.aborted) {
+            $arePageTemplatesResolved.set(false);
+        }
     } finally {
         if (!signal.aborted) {
             $isPageInspectionLoading.set(false);
@@ -217,6 +241,7 @@ export function cleanupPageInspection(): void {
     abortController = null;
 
     $pageTemplateOptions.set([]);
+    $arePageTemplatesResolved.set(false);
     $pageControllerOptions.set([]);
     $pageConfigDescriptor.set(null);
     $isPageInspectionLoading.set(false);

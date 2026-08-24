@@ -73,8 +73,10 @@ export function usePageControllerSelector(): UsePageControllerSelectorResult {
 
     const handleSelectionChange = useCallback(
         (selection: readonly string[]): void => {
-            // Prevent deselect
-            if (selection.length === 0) return;
+            if (selection.length === 0) {
+                if (isTemplateMissing) requestPageReset();
+                return;
+            }
 
             const newKey = selection[0];
             if (newKey === selectedKey) return;
@@ -102,7 +104,14 @@ export function usePageControllerSelector(): UsePageControllerSelectorResult {
                 executeSelection(newKey);
             }
         },
-        [selectedKey, getOptionType, executeSelection, templateChangeQuestion, controllerChangeQuestion],
+        [
+            selectedKey,
+            isTemplateMissing,
+            getOptionType,
+            executeSelection,
+            templateChangeQuestion,
+            controllerChangeQuestion,
+        ],
     );
 
     return {
