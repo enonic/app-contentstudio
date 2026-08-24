@@ -15,6 +15,7 @@ export const ImageUploaderInputCropButton = (): ReactElement => {
                 onClick={() => setMode('crop')}
                 disabled={!enabled || mode !== 'ready'}
                 icon={Crop}
+                aria-label={label}
             />
         </Tooltip>
     );

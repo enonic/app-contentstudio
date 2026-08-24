@@ -18,7 +18,12 @@ export const ImageUploaderInputRotateButton = (): ReactElement => {
 
     return (
         <Tooltip value={label} delay={300}>
-            <IconButton onClick={handleRotate} disabled={!enabled || mode !== 'ready'} icon={RotateCw} />
+            <IconButton
+                onClick={handleRotate}
+                disabled={!enabled || mode !== 'ready'}
+                icon={RotateCw}
+                aria-label={label}
+            />
         </Tooltip>
     );
 };
