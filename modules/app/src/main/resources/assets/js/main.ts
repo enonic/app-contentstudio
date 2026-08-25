@@ -56,6 +56,7 @@ import { ContentAppHelper } from '@enonic/lib-contentstudio/app/wizard/ContentAp
 import { ContentWizardPanelParams } from '@enonic/lib-contentstudio/app/wizard/ContentWizardPanelParams';
 import { AppElement } from '@enonic/lib-contentstudio/v6/app/App';
 import { initAiHost } from '@enonic/lib-contentstudio/v6/features/ai';
+import { $isBrowseSidebarOpen } from '@enonic/lib-contentstudio/v6/pages/browse/model/browseSidebar.store';
 import { initConfig } from '@enonic/lib-contentstudio/v6/shared/config/config.store';
 import { initLanguages } from '@enonic/lib-contentstudio/v6/entities/language/languages.store';
 import { initPrincipals } from '@enonic/lib-contentstudio/v6/entities/principal/principals.store';
@@ -474,6 +475,9 @@ function appendMenuPanel(): void {
         throw new Error('Menu URL is not defined');
     }
     const menuElement = CustomElement.create('xp-menu');
+    $isBrowseSidebarOpen.subscribe((isOpen) => {
+        menuElement.inert = isOpen;
+    });
     document.body.appendChild(menuElement);
     fetch(menuUrl)
         .then((response) => response.text())

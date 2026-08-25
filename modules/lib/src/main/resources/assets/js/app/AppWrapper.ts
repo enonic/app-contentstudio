@@ -18,6 +18,7 @@ import {
 import { $noProjectMode } from '../v6/entities/project/projects.store';
 import { BrowseAppBarElement } from '../v6/pages/browse/BrowseAppBar';
 import { BrowseSidebarElement } from '../v6/pages/browse/BrowseSidebar';
+import { $isBrowseSidebarOpen } from '../v6/pages/browse/model/browseSidebar.store';
 import { ContentAppContainer } from './ContentAppContainer';
 import { Router } from './Router';
 import { UrlAction } from './UrlAction';
@@ -86,6 +87,10 @@ export class AppWrapper extends DivEl {
                 this.setNoProjectMode(value);
             }
         });
+
+        $isBrowseSidebarOpen.subscribe((isOpen) => {
+            this.extensionsBlock.getHTMLElement().inert = isOpen;
+        });
     }
 
     private createStudioWidgetEl(): Element {
@@ -114,16 +119,6 @@ export class AppWrapper extends DivEl {
         } else {
             this.fetchAndAppendWidget(extension);
         }
-
-        const isProjectSelectorShown: boolean = extension.getConfig().getProperty('context') === 'project';
-
-        if (isProjectSelectorShown) {
-            this.appBar.showProjectSelector();
-        } else {
-            this.appBar.hideProjectSelector();
-        }
-
-        this.appBar.setAppName(extension.getDisplayName());
     }
 
     private updateUrl(extension: Readonly<Extension>): void {

@@ -1,22 +1,37 @@
 import { IconButton, Tooltip, Button, cn } from '@enonic/ui';
 import { CircleQuestionMark, LucideIcon } from 'lucide-react';
-import { ComponentPropsWithoutRef } from 'preact/compat';
+import type { ComponentPropsWithoutRef } from 'react';
 
 type Props = {
     label: string;
     icon?: LucideIcon;
     iconUrl?: string;
     active?: boolean;
-} & ComponentPropsWithoutRef<'button'>;
+    tooltipClassName?: string;
+    disabled?: boolean;
+} & Omit<ComponentPropsWithoutRef<'button'>, 'disabled'>;
 
-export const WidgetButton = ({ label, icon, iconUrl, active, onClick }: Props): React.ReactElement => {
+export const WidgetButton = ({
+    label,
+    icon,
+    iconUrl,
+    active,
+    className,
+    tooltipClassName,
+    'aria-label': ariaLabel,
+    ...buttonProps
+}: Props): React.ReactElement => {
     if (!icon && iconUrl) {
         return (
-            <Tooltip delay={300} value={label} side="right">
+            <Tooltip delay={300} value={label} side="right" className={tooltipClassName}>
                 <Button
-                    className={cn('size-10 p-1', active && 'bg-surface-selected hover:bg-surface-selected-hover')}
-                    aria-label={label}
-                    onClick={onClick}
+                    {...buttonProps}
+                    className={cn(
+                        'size-10 shrink-0 p-1',
+                        active && 'bg-surface-selected hover:bg-surface-selected-hover',
+                        className,
+                    )}
+                    aria-label={ariaLabel ?? label}
                 >
                     <img
                         className={cn('w-6 invert-100 dark:invert-0 active:invert-0', active && 'invert-0')}
@@ -29,14 +44,14 @@ export const WidgetButton = ({ label, icon, iconUrl, active, onClick }: Props): 
     }
 
     return (
-        <Tooltip delay={300} value={label} side="right">
+        <Tooltip delay={300} value={label} side="right" className={tooltipClassName}>
             <IconButton
-                className="size-10"
+                {...buttonProps}
+                className={cn('size-10 shrink-0', className)}
                 icon={icon || CircleQuestionMark}
                 iconSize={24}
-                aria-label={label}
+                aria-label={ariaLabel ?? label}
                 data-active={active}
-                onClick={onClick}
             />
         </Tooltip>
     );
