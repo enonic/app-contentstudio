@@ -13,11 +13,8 @@ exports.config = {
 
     exclude: [
         path.join(__dirname, '../specs/misc/filtering.by.workflow.spec.js'),
-        path.join(__dirname, '../specs/misc/image.content.flip.rotate.spec.js'),
-        path.join(__dirname, '../specs/misc/image.editor.crop.zoom.spec.js'),
         path.join(__dirname, '../specs/misc/image.properties.photo.location.spec.js'),
         path.join(__dirname, '../specs/misc/image.wizard.photo.properties.spec.js'),
-        path.join(__dirname, '../specs/misc/publish.request.dialog.add.items.spec.js'),
         path.join(__dirname, '../specs/misc/revert.published.content.spec.js'),
         path.join(__dirname, '../specs/misc/update.path.spec.js'),
         path.join(__dirname, '../specs/misc/versions.widget.check.status.spec.js'),
