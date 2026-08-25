@@ -1,7 +1,6 @@
 /**
  * Created on 21.09.2021 updated on 24.08.2026
  */
-const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');

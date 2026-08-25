@@ -14,15 +14,12 @@ const xpath = {
     copyrightInput: "//input[@aria-label='Copyright']",
     imageEditorComponent: "//div[@data-component='LiveViewImageEditor']",
     imageCanvas: "//div[contains(@id,'ImageEditor')]//div[contains(@class,'image-canvas')]",
-    // Editor toolbar buttons are wrapped in a tooltip, so they are located by the lucide icon they contain:
-    imageEditorCropButton:
-        "//div[@data-component='LiveViewImageEditor']//button[descendant::*[name()='svg' and contains(@class,'lucide-crop')]]",
-    imageEditorAutofocusButton:
-        "//div[@data-component='LiveViewImageEditor']//button[descendant::*[name()='svg' and contains(@class,'lucide-focus')]]",
-    imageEditorRotateButton:
-        "//div[@data-component='LiveViewImageEditor']//button[descendant::*[name()='svg' and contains(@class,'lucide-rotate-cw')]]",
-    imageEditorFlipButton:
-        "//div[@data-component='LiveViewImageEditor']//button[descendant::*[name()='svg' and contains(@class,'lucide-square-centerline-dashed-horizontal')]]",
+    // Editor toolbar buttons are wrapped in a tooltip that overwrites their data-component,
+    // so they are located by 'aria-label' (lucide icon names change between versions):
+    imageEditorCropButton: "//div[@data-component='LiveViewImageEditor']//button[@aria-label='Crop Image']",
+    imageEditorAutofocusButton: "//div[@data-component='LiveViewImageEditor']//button[@aria-label='Set Autofocus']",
+    imageEditorRotateButton: "//div[@data-component='LiveViewImageEditor']//button[@aria-label='Rotate clockwise']",
+    imageEditorFlipButton: "//div[@data-component='LiveViewImageEditor']//button[@aria-label='Flip']",
     artistsTagInput:
         "//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Artist']]//input[@type='text']",
     tagsInput:

@@ -20,13 +20,19 @@ class WidgetSelectorDropdown extends Page {
         return this.container;
     }
 
+    async typeTextInSearchInput(widgetName) {
+        let selector = COMMON.CONTEXT_WINDOW_WIDGET_SELECTOR_SEARCH_INPUT;
+        await this.waitForElementDisplayed(selector);
+        return await this.typeTextInInput(selector,widgetName);
+    }
+
     async getSelectedOption(parent = '') {
         let selector = parent + COMMON.CONTEXT_WINDOW_WIDGET_SELECTOR_SEARCH_INPUT;
         await this.waitForElementDisplayed(selector);
         return await this.getTextInInput(selector);
     }
 
-    async clickOnOptionByDisplayName(optionDisplayName, parentLocator = '') {
+    async clickOnOptionByDisplayName(optionDisplayName) {
         let optionLocator = DROPDOWN.selectorListOptionByName(optionDisplayName);
         //  Wait for the required option is displayed:
         await this.waitForElementDisplayed(optionLocator);

@@ -10,13 +10,16 @@ const xpath = {
     imageEditor: "//div[@data-component='ImageUploaderInput']",
     imageContainer: "//div[@data-component='ImageUploaderInputImage']",
     buttonReset: "//button[@data-component='Button' and contains(.,'Reset')]",
-    buttonRotate: "//button[descendant::*[name()='svg' and contains(@class,'lucide-rotate-cw')]]",
-    buttonFlip:
-        "//button[descendant::*[name()='svg' and contains(@class,'lucide-square-centerline-dashed-horizontal')]]",
-    buttonCrop: "//button[descendant::*[name()='svg' and contains(@class,'lucide-crop')]]",
-    buttonFocus: "//button[descendant::*[name()='svg' and contains(@class,'lucide-focus')]]",
-    // 'Upload' is displayed in 'ready' mode only, in 'crop'/'focus' mode it is replaced with 'Apply' and 'Cancel':
-    buttonUpload: "//button[descendant::*[name()='svg' and contains(@class,'lucide-upload')]]",
+    // Toolbar buttons are located by 'aria-label': 'Tooltip' wraps them with 'asChild' and overwrites
+    // data-component with 'Tooltip', and lucide icon names are not stable between versions
+    // ('FlipHorizontal' is an alias and renders as 'lucide-square-centerline-dashed-horizontal'):
+    buttonRotate: "//button[@aria-label='Rotate clockwise']",
+    buttonFlip: "//button[@aria-label='Flip']",
+    buttonCrop: "//button[@aria-label='Crop Image']",
+    buttonFocus: "//button[@aria-label='Set Autofocus']",
+    // 'Upload' is displayed in 'ready' mode only, in 'crop'/'focus' mode it is replaced with 'Apply' and 'Cancel'.
+    // The hidden file input has the same aria-label, so the button node is required here:
+    buttonUpload: "//button[@aria-label='Upload image']",
     // TODO: zoom slider is not present in the new Image Editor (v6) - update after UX is clarified:
     zoomContainer: "//div[@class='zoom-container']",
     zoomLine: "//div[@class='zoom-line']",
@@ -24,9 +27,7 @@ const xpath = {
     // Single contextual 'Reset' button replaces 'Reset filters', 'Reset Mask' and 'Reset Autofocus':
     resetAutofocusButton: "//button[@data-component='Button' and contains(.,'Reset')]",
     resetMaskButton: "//button[@data-component='Button' and contains(.,'Reset')]",
-    // 'Tooltip' wraps this button with 'asChild' and overwrites its data-component with 'Tooltip',
-    // so the icon class is the only stable marker here:
-    closeEditModeButton: "//button[descendant::*[name()='svg' and contains(@class,'lucide-x')]]",
+    closeEditModeButton: "//button[@aria-label='Cancel']",
     buttonApply: "//button[@data-component='Button' and contains(.,'Apply')]",
     // TODO: crop has no drag handles in the new editor (area is drawn with two clicks) - update doCropImage:
     cropHandle: "//*[name()='svg' and contains(@id,'ImageEditor-dragHandle')]//*[name()='circle']",

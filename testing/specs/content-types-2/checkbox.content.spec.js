@@ -83,7 +83,7 @@ describe('checkbox.content.spec: tests for content with checkbox', function () {
 
     // Verifies https://github.com/enonic/lib-admin-ui/issues/2391
     // Content with required checkbox remains valid in grid after unselecting this checkbox #2391
-    it("GIVEN existing 'checkbox' content is reopened WHEN checkbox has been unchecked THEN the content should be invalid in the grid", async () => {
+    it('WHEN checkbox has been unchecked THEN the content should be invalid in the grid', async () => {
         let checkBoxForm = new CheckBoxForm();
         let contentWizard = new ContentWizard();
         let contentBrowsePanel = new ContentBrowsePanel();
@@ -99,7 +99,11 @@ describe('checkbox.content.spec: tests for content with checkbox', function () {
         await contentWizard.waitUntilInvalidIconAppears();
         // 5. Save the invalid content and close the wizard:
         await studioUtils.saveAndCloseWizard();
-        // 6. Verify that the content is invalid in the grid:
+    });
+
+    it("GIVEN existing 'checkbox' content(not checked) has been selected THEN the content should be invalid in the grid", async () => {
+        let contentBrowsePanel = new ContentBrowsePanel();
+        //  Verify that the content is invalid in the grid:
         await studioUtils.findAndSelectItem(CHECKBOX_NAME_2);
         await studioUtils.saveScreenshot('checkbox_content_invalid');
         // Verify the red icon in the grid
