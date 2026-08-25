@@ -6,22 +6,31 @@ const appConst = require('../../libs/app_const');
 const xpath = {
     wizardTabs: "//div[@data-component='ContentWizardTabs']",
     // Tab trigger in the wizard tab-bar ('Image', 'Properties', 'Photo', 'Location'):
-    tabTriggerByName: name => `//button[@role='tab' and descendant::span[text()='${name}']]`,
+    tabTriggerByName: (name) => `//button[@role='tab' and descendant::span[text()='${name}']]`,
     // The main content tab panel (caption, alt-text, artist, tags, copyright):
     contentTabPanel: "//div[@data-component='Tab.Content' and contains(@id,'-panel-content')]",
     captionTextArea: "//textarea[@aria-label='Caption']",
     alternativeText: "//input[@aria-label='Alternative text']",
     copyrightInput: "//input[@aria-label='Copyright']",
-    // The 'Tag' input type is not migrated to v6 yet - legacy locators:
-    imageEditor: "//div[contains(@id,'ImageEditor')]",
-    artistsTagInput: "//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Artist']]//input[@type='text']",
-    tagsInput: "//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Tags']]//input[@type='text']",
-    addedArtistTag: "//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Artist']]//ul/li[contains(@id,'Tag')]/span",
-    addedTags: "//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Tags']]//ul/li[contains(@id,'Tag')]/span",
+    imageEditorComponent: "//div[@data-component='LiveViewImageEditor']",
+    imageCanvas: "//div[contains(@id,'ImageEditor')]//div[contains(@class,'image-canvas')]",
+    // Editor toolbar buttons are wrapped in a tooltip that overwrites their data-component,
+    // so they are located by 'aria-label' (lucide icon names change between versions):
+    imageEditorCropButton: "//div[@data-component='LiveViewImageEditor']//button[@aria-label='Crop Image']",
+    imageEditorAutofocusButton: "//div[@data-component='LiveViewImageEditor']//button[@aria-label='Set Autofocus']",
+    imageEditorRotateButton: "//div[@data-component='LiveViewImageEditor']//button[@aria-label='Rotate clockwise']",
+    imageEditorFlipButton: "//div[@data-component='LiveViewImageEditor']//button[@aria-label='Flip']",
+    artistsTagInput:
+        "//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Artist']]//input[@type='text']",
+    tagsInput:
+        "//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Tags']]//input[@type='text']",
+    addedArtistTag:
+        "//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Artist']]//ul/li[contains(@id,'Tag')]/span",
+    addedTags:
+        "//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Tags']]//ul/li[contains(@id,'Tag')]/span",
 };
 
 class ImageFormPanel extends Page {
-
     get photoWizardStep() {
         return xpath.wizardTabs + xpath.tabTriggerByName('Photo');
     }
@@ -44,6 +53,22 @@ class ImageFormPanel extends Page {
 
     get alternativeText() {
         return xpath.alternativeText;
+    }
+
+    get imageEditorCropButton() {
+        return xpath.imageEditorCropButton;
+    }
+
+    get imageEditorAutofocusButton() {
+        return xpath.imageEditorAutofocusButton;
+    }
+
+    get imageEditorRotateButton() {
+        return xpath.imageEditorRotateButton;
+    }
+
+    get imageEditorFlipButton() {
+        return xpath.imageEditorFlipButton;
     }
 
     // Clicks on a tab in the wizard tab-bar ('Image', 'Properties', 'Photo', 'Location'):
@@ -88,9 +113,9 @@ class ImageFormPanel extends Page {
     }
 
     getCaption() {
-        return this.getTextInInput(this.captionTextArea).catch(err => {
+        return this.getTextInInput(this.captionTextArea).catch((err) => {
             throw new Error('getting Caption text: ' + err);
-        })
+        });
     }
 
     async addArtistsTag(text) {
@@ -106,10 +131,10 @@ class ImageFormPanel extends Page {
     }
 
     async waitForImageLoaded(ms) {
+        let timeout = ms === undefined ? appConst.longTimeout : ms;
         try {
-            let timeout = ms === undefined ? appConst.longTimeout : ms;
-            let locator = xpath.imageEditor + "//div[@class='image-canvas']";
-            return await this.waitForElementDisplayed(locator, timeout);
+            await this.waitForElementDisplayed(xpath.imageEditorComponent, timeout);
+            return await this.waitForElementEnabled(xpath.imageEditorCropButton, timeout);
         } catch (err) {
             await this.handleError('Image loading failed', 'err_image_load', err);
         }
