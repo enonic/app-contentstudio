@@ -66,6 +66,7 @@
 
   .header-widgets-block {
     margin-left: 60px;
+
     .app-container {
       position: absolute;
       top: 60px; //@app-header-height;
@@ -84,6 +85,16 @@
             display: none;
           }
         }
+      }
+    }
+  }
+
+  @media not all and (min-width: 40rem) {
+    .header-widgets-block {
+      margin-left: 0;
+
+      .app-container {
+        left: 0;
       }
     }
   }
