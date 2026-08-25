@@ -2,16 +2,15 @@
  * Created on 27.08.2024
  */
 const Page = require('../../page');
-const {DROPDOWN, COMMON} = require('../../../libs/elements');
+const { DROPDOWN, COMMON } = require('../../../libs/elements');
 
 const XPATH = {
     container: "//button[contains(@id,'WidgetSelector') and @role='combobox']",
     widgetSelectorListbox: "//div[contains(@id,'WidgetsSelector') and @role='listbox']",
     optionsNameSpan: "//div[contains(@role,'option')]//span",
-}
+};
 
 class WidgetSelectorDropdown extends Page {
-
     get container() {
         return XPATH.container;
     }
@@ -23,7 +22,7 @@ class WidgetSelectorDropdown extends Page {
     async typeTextInSearchInput(widgetName) {
         let selector = COMMON.CONTEXT_WINDOW_WIDGET_SELECTOR_SEARCH_INPUT;
         await this.waitForElementDisplayed(selector);
-        return await this.typeTextInInput(selector,widgetName);
+        return await this.typeTextInInput(selector, widgetName);
     }
 
     async getSelectedOption(parent = '') {
@@ -48,9 +47,10 @@ class WidgetSelectorDropdown extends Page {
     }
 
     async getSelectedOptionsInListOptions() {
-        let locator = DROPDOWN.COMBOBOX_POPUP +
-                      `//div[@data-component='Listbox.Item' and @aria-selected='true']` +
-                      `//span[contains(@class,'font-semibold')]`;
+        let locator =
+            DROPDOWN.COMBOBOX_POPUP +
+            `//div[@data-component='Listbox.Item' and @aria-selected='true']` +
+            `//span[contains(@class,'font-semibold')]`;
         await this.waitForElementDisplayed(locator);
         return await this.getTextInDisplayedElements(locator);
     }
