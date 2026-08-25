@@ -40,7 +40,7 @@ export const ImageUploaderInputCancelButton = (): ReactElement => {
 
     return (
         <Tooltip value={label} delay={300}>
-            <IconButton icon={X} onClick={handleCancel} />
+            <IconButton icon={X} onClick={handleCancel} aria-label={label} />
         </Tooltip>
     );
 };

@@ -15,6 +15,7 @@ export const ImageUploaderInputFocusButton = (): ReactElement => {
                 onClick={() => setMode('focus')}
                 disabled={!enabled || mode !== 'ready'}
                 icon={Focus}
+                aria-label={label}
             />
         </Tooltip>
     );

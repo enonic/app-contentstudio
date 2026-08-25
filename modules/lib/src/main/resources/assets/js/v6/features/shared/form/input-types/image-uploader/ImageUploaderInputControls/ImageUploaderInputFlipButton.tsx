@@ -18,7 +18,12 @@ export const ImageUploaderInputFlipButton = (): ReactElement => {
 
     return (
         <Tooltip value={label} delay={300}>
-            <IconButton onClick={handleFlip} disabled={!enabled || mode !== 'ready'} icon={FlipHorizontal} />
+            <IconButton
+                onClick={handleFlip}
+                disabled={!enabled || mode !== 'ready'}
+                icon={FlipHorizontal}
+                aria-label={label}
+            />
         </Tooltip>
     );
 };

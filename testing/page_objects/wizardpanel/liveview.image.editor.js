@@ -8,11 +8,18 @@ const xpath = {
     captionTextArea: "//textarea[contains(@name,'caption')]",
     alternativeText: `//input[contains(@name,'altText')]`,
     imageEditor: "//div[@data-component='ImageUploaderInput']",
+    imageContainer: "//div[@data-component='ImageUploaderInputImage']",
     buttonReset: "//button[@data-component='Button' and contains(.,'Reset')]",
-    buttonRotate: "//button[@data-component='IconButton' and descendant::*[name()='svg' and contains(@class,'lucide-rotate-cw')]]",
-    buttonFlip: "//button[@data-component='IconButton' and descendant::*[name()='svg' and contains(@class,'lucide-flip-horizontal')]]",
-    buttonCrop: "//button[@data-component='IconButton' and descendant::*[name()='svg' and contains(@class,'lucide-crop')]]",
-    buttonFocus: "//button[@data-component='IconButton' and descendant::*[name()='svg' and contains(@class,'lucide-focus')]]",
+    // Toolbar buttons are located by 'aria-label': 'Tooltip' wraps them with 'asChild' and overwrites
+    // data-component with 'Tooltip', and lucide icon names are not stable between versions
+    // ('FlipHorizontal' is an alias and renders as 'lucide-square-centerline-dashed-horizontal'):
+    buttonRotate: "//button[@aria-label='Rotate clockwise']",
+    buttonFlip: "//button[@aria-label='Flip']",
+    buttonCrop: "//button[@aria-label='Crop Image']",
+    buttonFocus: "//button[@aria-label='Set Autofocus']",
+    // 'Upload' is displayed in 'ready' mode only, in 'crop'/'focus' mode it is replaced with 'Apply' and 'Cancel'.
+    // The hidden file input has the same aria-label, so the button node is required here:
+    buttonUpload: "//button[@aria-label='Upload image']",
     // TODO: zoom slider is not present in the new Image Editor (v6) - update after UX is clarified:
     zoomContainer: "//div[@class='zoom-container']",
     zoomLine: "//div[@class='zoom-line']",
@@ -20,15 +27,14 @@ const xpath = {
     // Single contextual 'Reset' button replaces 'Reset filters', 'Reset Mask' and 'Reset Autofocus':
     resetAutofocusButton: "//button[@data-component='Button' and contains(.,'Reset')]",
     resetMaskButton: "//button[@data-component='Button' and contains(.,'Reset')]",
-    closeEditModeButton: "//button[@data-component='IconButton' and descendant::*[name()='svg' and contains(@class,'lucide-x')]]",
+    closeEditModeButton: "//button[@aria-label='Cancel']",
     buttonApply: "//button[@data-component='Button' and contains(.,'Apply')]",
     // TODO: crop has no drag handles in the new editor (area is drawn with two clicks) - update doCropImage:
     cropHandle: "//*[name()='svg' and contains(@id,'ImageEditor-dragHandle')]//*[name()='circle']",
     focusCircle: "//*[name()='svg']//*[name()='circle' and @fill='none' and @stroke='red']",
 };
 
-class ImageEditor extends Page {
-
+class LiveViewImageEditor extends Page {
     get buttonResetFilters() {
         return xpath.imageEditor + xpath.buttonReset;
     }
@@ -57,6 +63,10 @@ class ImageEditor extends Page {
         return xpath.imageEditor + xpath.buttonApply;
     }
 
+    get buttonUpload() {
+        return xpath.imageEditor + xpath.buttonUpload;
+    }
+
     get resetAutofocusButton() {
         return xpath.imageEditor + xpath.resetAutofocusButton;
     }
@@ -73,8 +83,12 @@ class ImageEditor extends Page {
         return xpath.imageEditor + xpath.cropHandle;
     }
 
+    get imageContainer() {
+        return xpath.imageEditor + xpath.imageContainer;
+    }
+
     get focusCircle() {
-        return xpath.imageEditor + xpath.focusCircle;
+        return xpath.imageEditor + xpath.imageContainer + xpath.focusCircle;
     }
 
     waitForZoomKnobDisplayed() {
@@ -111,9 +125,9 @@ class ImageEditor extends Page {
         }
     }
 
-    async clickOnResetFiltersButton() {
+    async clickOnResetButton() {
         try {
-            await this.waitForElementEnabled(this.buttonResetFilters, appConst.mediumTimeout);
+            await this.waitForElementEnabled(this.buttonResetFilters);
             await this.clickOnElement(this.buttonResetFilters);
             return await this.pause(500);
         } catch (err) {
@@ -121,56 +135,59 @@ class ImageEditor extends Page {
         }
     }
 
-    waitForResetFilterNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.buttonResetFilters, appConst.shortTimeout);
+    waitForResetButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.buttonResetFilters);
     }
 
-    async waitForResetFiltersDisplayed() {
+    async waitForResetButtonDisplayed() {
         try {
-            await this.waitForElementDisplayed(this.buttonResetFilters, appConst.shortTimeout);
+            await this.waitForElementDisplayed(this.buttonResetFilters);
         } catch (err) {
             await this.handleError('Image Editor, button reset filters', 'err_wait_for_reset_filters_displayed', err);
         }
     }
 
-    async waitForResetFiltersNotDisplayed() {
+    async waitForResetButtonNotDisplayed() {
         try {
-            await this.waitForElementNotDisplayed(this.buttonResetFilters, appConst.shortTimeout);
+            await this.waitForElementNotDisplayed(this.buttonResetFilters);
         } catch (err) {
-            await this.handleError('Image Editor, button reset filters not displayed', 'err_wait_for_reset_filters_not_displayed', err);
+            await this.handleError(
+                'Image Editor, button reset filters not displayed',
+                'err_wait_for_reset_filters_not_displayed',
+                err,
+            );
         }
     }
 
     waitForCropButtonDisplayed() {
-        return this.waitForElementDisplayed(this.buttonCrop, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.buttonCrop);
     }
 
     async clickOnCropButton() {
         await this.waitForCropButtonDisplayed();
-        await this.waitForElementEnabled(this.buttonCrop, appConst.mediumTimeout);
+        await this.waitForElementEnabled(this.buttonCrop);
         return await this.clickOnElement(this.buttonCrop);
     }
 
     waitForFocusButtonDisplayed() {
-        return this.waitForElementDisplayed(this.buttonFocus, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.buttonFocus);
     }
 
     waitForFlipButtonDisplayed() {
-        return this.waitForElementDisplayed(this.buttonFlip, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.buttonFlip);
     }
 
     async clickOnFocusButton() {
-        await this.waitForElementDisplayed(this.buttonFocus, appConst.mediumTimeout);
-        await this.waitForElementEnabled(this.buttonFocus, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.buttonFocus);
+        await this.waitForElementEnabled(this.buttonFocus);
         return await this.clickOnElement(this.buttonFocus);
     }
 
     async waitForFocusCircleDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.focusCircle, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(this.focusCircle);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_focus_circle_displayed');
-            throw new Error(`Focus circle is not displayed, screenshot: ${screenshot} ` + err);
+            await this.handleError('Image Editor, focus circle displayed', 'err_focus_circle_displayed', err);
         }
     }
 
@@ -192,6 +209,22 @@ class ImageEditor extends Page {
 
     waitForApplyButtonNotDisplayed() {
         return this.waitForElementNotDisplayed(this.buttonApply, appConst.mediumTimeout);
+    }
+
+    async waitForUploadButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.buttonUpload, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError('Image Editor, upload button displayed', 'err_upload_button_displayed', err);
+        }
+    }
+
+    async waitForUploadButtonNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.buttonUpload, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError('Image Editor, upload button not displayed', 'err_upload_button_not_displayed', err);
+        }
     }
 
     waitForCloseButtonNotDisplayed() {
@@ -230,7 +263,7 @@ class ImageEditor extends Page {
         let xValue = await el.getLocation('x');
         let y = parseInt(yValue);
         let x = parseInt(xValue) + offset;
-        await el.dragAndDrop({x: x, y: y});
+        await el.dragAndDrop({ x: x, y: y });
         return await this.pause(500);
     }
 
@@ -241,17 +274,82 @@ class ImageEditor extends Page {
             let xValue = await el.getAttribute('cx');
             let y1 = parseInt(yValue) + offset;
             let x1 = parseInt(xValue);
-            await el.dragAndDrop({x: x1, y: y1});
+            await el.dragAndDrop({ x: x1, y: y1 });
             return await this.pause(500);
-        }catch(err){
+        } catch (err) {
             await this.handleError('Image Editor, do crop image', 'err_do_crop_image', err);
         }
     }
 
-    async doDragFocus(cx, cy) {
-        let circle = await this.findElement(this.focusCircle);
-        await circle.dragAndDrop({x: cx, y: cy});
-        return await this.pause(500);
+    async doDragFocus(offsetX, offsetY) {
+        try {
+            await this.waitForFocusCircleDisplayed();
+            let container = await this.findElement(this.imageContainer);
+            let containerLocation = await container.getLocation();
+            let containerSize = await container.getSize();
+            let circle = await this.findElement(this.focusCircle);
+            let circleLocation = await circle.getLocation();
+            let circleSize = await circle.getSize();
+            // the drag starts in the centre of the circle:
+            let startX = Math.round(circleLocation.x + circleSize.width / 2);
+            let startY = Math.round(circleLocation.y + circleSize.height / 2);
+            let endX = this.getPointInsideRange(
+                startX + offsetX,
+                containerLocation.x,
+                containerLocation.x + containerSize.width,
+            );
+            let endY = this.getPointInsideRange(
+                startY + offsetY,
+                containerLocation.y,
+                containerLocation.y + containerSize.height,
+            );
+            let steps = 4;
+            let moveActions = [];
+            for (let i = 1; i <= steps; i++) {
+                moveActions.push({
+                    type: 'pointerMove',
+                    duration: 100,
+                    origin: 'viewport',
+                    x: Math.round(startX + ((endX - startX) * i) / steps),
+                    y: Math.round(startY + ((endY - startY) * i) / steps),
+                });
+            }
+            await this.getBrowser().performActions([
+                {
+                    type: 'pointer',
+                    id: 'pointer1',
+                    parameters: { pointerType: 'mouse' },
+                    actions: [
+                        { type: 'pointerMove', duration: 0, origin: 'viewport', x: startX, y: startY },
+                        { type: 'pointerDown', button: 0 },
+                        // the editor subscribes to the window 'mousemove' after 'mousedown', give it time:
+                        { type: 'pause', duration: 200 },
+                        ...moveActions,
+                        { type: 'pause', duration: 200 },
+                        { type: 'pointerUp', button: 0 },
+                    ],
+                },
+            ]);
+            await this.getBrowser().releaseActions();
+            return await this.pause(500);
+        } catch (err) {
+            await this.handleError('Image Editor, drag the focus circle', 'err_drag_focus_circle', err);
+        }
+    }
+
+    // Keeps the drop point inside the container, the 1px inset guarantees that the pointer stays over the image:
+    getPointInsideRange(value, min, max) {
+        return Math.round(Math.min(Math.max(value, min + 1), max - 1));
+    }
+
+    async waitForFocusCircleLoaded() {
+        try {
+            await this.waitForElementDisplayed(this.focusCircle);
+            let circle = await this.findElement(this.focusCircle);
+            await this.waitForElementEnabled(circle);
+        } catch (e) {
+            await this.handleError('Image Editor, wait for focus circle loaded', 'err_wait_for_focus_circle_loaded', e);
+        }
     }
 
     async getZoomKnobValue() {
@@ -261,6 +359,32 @@ class ImageEditor extends Page {
 
         let endIndex = value.indexOf('px');
         return value.substring(0, endIndex);
+    }
+
+    async waitForCropButtonDisabled() {
+        await this.waitForElementDisabled(this.buttonCrop);
+    }
+
+    async waitForFlipButtonDisabled() {
+        await this.waitForElementDisabled(this.buttonFlip);
+    }
+    async waitForRotateButtonDisabled() {
+        await this.waitForElementDisabled(this.buttonRotate);
+    }
+
+    async waitForFlipButtonEnabled() {
+        await this.waitForElementEnabled(this.buttonFlip);
+    }
+
+    async waitForFocusButtonEnabled() {
+        await this.waitForElementEnabled(this.buttonFocus);
+    }
+    async waitForRotateButtonEnabled() {
+        await this.waitForElementEnabled(this.buttonRotate);
+    }
+
+    async waitForCropButtonEnabled() {
+        await this.waitForElementEnabled(this.buttonCrop);
     }
 
     async clickOnApplyButton() {
@@ -280,6 +404,19 @@ class ImageEditor extends Page {
         await this.clickOnElement(this.buttonClose);
         return await this.pause(500);
     }
+
+    async clickOnCancelButton() {
+        try {
+            await this.waitForElementDisplayed(this.buttonClose, appConst.mediumTimeout);
+            await this.waitForElementEnabled(this.buttonClose, appConst.mediumTimeout);
+            await this.clickOnElement(this.buttonClose);
+            // the editor returns to 'ready' mode, 'Cancel' gets not displayed:
+            await this.waitForElementNotDisplayed(this.buttonClose, appConst.mediumTimeout);
+            return await this.pause(300);
+        } catch (err) {
+            await this.handleError('Image Editor, button cancel', 'err_click_on_cancel_button', err);
+        }
+    }
 }
 
-module.exports = ImageEditor;
+module.exports = LiveViewImageEditor;
