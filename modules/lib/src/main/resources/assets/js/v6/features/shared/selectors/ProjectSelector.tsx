@@ -16,6 +16,7 @@ import type { Project } from '../../../../app/settings/data/project/Project';
 import { $projects } from '../../../entities/project';
 import { projectsToTreeListItems } from '../../../shared/lib/url/projects';
 import { ProjectLabel } from '../../../entities/project/ui/ProjectLabel';
+import { useComboboxCollapse } from './shared/useComboboxCollapse';
 
 type ProjectSelectorProps = {
     selection: readonly string[];
@@ -51,6 +52,9 @@ export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
     const [searchValue, setSearchValue] = useState<string | undefined>();
     const [expanded, setExpanded] = useState<string[]>([]);
     const virtuosoRef = useRef<VirtuosoHandle>(null);
+    const hideCombobox =
+        selectionMode === 'single' && selection.some((name) => projects.some((p) => p.getName() === name));
+    const { rootRef, inputRef } = useComboboxCollapse(hideCombobox);
 
     // Items
     const items = useMemo(() => projectsToTreeListItems(projects, expanded), [projects, expanded]);
@@ -71,51 +75,64 @@ export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
     const handleCollapse = (id: string): void => {
         setExpanded((prev) => prev.filter((idd) => idd !== id));
     };
+    const handleSelectionChange = (next: readonly string[]): void => {
+        if (selectionMode === 'single') {
+            setSearchValue(undefined);
+        }
+        onSelectionChange(next);
+    };
 
     return (
-        <div data-component={PROJECT_SELECTOR_NAME} className={cn('flex flex-col gap-2', className)}>
+        <div
+            ref={rootRef}
+            tabIndex={-1}
+            data-component={PROJECT_SELECTOR_NAME}
+            className={cn('flex flex-col gap-2 focus:outline-none', className)}
+        >
             {(label || description) && (
                 <div className="flex flex-col gap-1">
                     {label && (
-                        <label htmlFor={inputId} className="font-semibold">
+                        <label htmlFor={hideCombobox ? undefined : inputId} className="font-semibold">
                             {label}
                         </label>
                     )}
                     {description && <div className="text-sm text-subtle">{description}</div>}
                 </div>
             )}
-            <Combobox.Root
-                value={searchValue}
-                onChange={setSearchValue}
-                selection={selection}
-                onSelectionChange={onSelectionChange}
-                contentType="tree"
-                selectionMode={selectionMode}
-                closeOnBlur={closeOnBlur}
-            >
-                <Combobox.Content>
-                    <Combobox.Control>
-                        <Combobox.Search>
-                            <Combobox.SearchIcon />
-                            <Combobox.Input id={inputId} placeholder={placeholder} />
-                            <Combobox.Apply />
-                            <Combobox.Toggle />
-                        </Combobox.Search>
-                    </Combobox.Control>
-                    <Combobox.Portal>
-                        <Combobox.Popup className="mt-1.5">
-                            <ProjectSelectorTreeContent
-                                items={filteredItems}
-                                handleExpand={handleExpand}
-                                handleCollapse={handleCollapse}
-                                selectionMode={selectionMode}
-                                emptyLabel={emptyLabel}
-                                virtuosoRef={virtuosoRef}
-                            />
-                        </Combobox.Popup>
-                    </Combobox.Portal>
-                </Combobox.Content>
-            </Combobox.Root>
+            {!hideCombobox && (
+                <Combobox.Root
+                    value={searchValue}
+                    onChange={setSearchValue}
+                    selection={selection}
+                    onSelectionChange={handleSelectionChange}
+                    contentType="tree"
+                    selectionMode={selectionMode}
+                    closeOnBlur={closeOnBlur}
+                >
+                    <Combobox.Content>
+                        <Combobox.Control>
+                            <Combobox.Search>
+                                <Combobox.SearchIcon />
+                                <Combobox.Input ref={inputRef} id={inputId} placeholder={placeholder} />
+                                <Combobox.Apply />
+                                <Combobox.Toggle />
+                            </Combobox.Search>
+                        </Combobox.Control>
+                        <Combobox.Portal>
+                            <Combobox.Popup className="mt-1.5">
+                                <ProjectSelectorTreeContent
+                                    items={filteredItems}
+                                    handleExpand={handleExpand}
+                                    handleCollapse={handleCollapse}
+                                    selectionMode={selectionMode}
+                                    emptyLabel={emptyLabel}
+                                    virtuosoRef={virtuosoRef}
+                                />
+                            </Combobox.Popup>
+                        </Combobox.Portal>
+                    </Combobox.Content>
+                </Combobox.Root>
+            )}
         </div>
     );
 };

@@ -3,6 +3,7 @@ import { forwardRef, useEffect, useId, useMemo, useRef, useState, type HTMLAttri
 import type { VirtuosoHandle } from 'react-virtuoso';
 import { Virtuoso } from 'react-virtuoso';
 import { buildKey } from '../../../shared/lib/format/keys';
+import { useComboboxCollapse } from './shared/useComboboxCollapse';
 
 //
 // * Types
@@ -107,6 +108,8 @@ export const LanguageSelector = ({
 
     const selectedIds = selection ?? [];
     const safeSelection = useMemo(() => new Set(selectedIds.map(toOptionKey)), [selectedIds]);
+    const hideCombobox = selectedIds.some((id) => options.some((option) => option.id === id));
+    const { rootRef, inputRef } = useComboboxCollapse(hideCombobox);
 
     const optionKeyMap = useMemo(() => {
         return new Map(options.map((option) => [toOptionKey(option.id), option.id]));
@@ -179,81 +182,89 @@ export const LanguageSelector = ({
     };
 
     return (
-        <div data-component={LANGUAGE_SELECTOR_NAME} className={cn('flex flex-col gap-2', className)}>
+        <div
+            ref={rootRef}
+            tabIndex={-1}
+            data-component={LANGUAGE_SELECTOR_NAME}
+            className={cn('flex flex-col gap-2 focus:outline-none', className)}
+        >
             {label && (
-                <label htmlFor={inputId} className="font-semibold">
+                <label htmlFor={hideCombobox ? undefined : inputId} className="font-semibold">
                     {label}
                 </label>
             )}
-            <Combobox.Root
-                open={open}
-                onOpenChange={handleOpenChange}
-                value={inputValue}
-                onChange={setInputValue}
-                contentType="tree"
-                disabled={disabled}
-                closeOnBlur={closeOnBlur}
-            >
-                <Combobox.Content>
-                    <Combobox.Control>
-                        <Combobox.Search>
-                            <Combobox.SearchIcon />
-                            <Combobox.Input
-                                id={inputId}
-                                placeholder={searchPlaceholder ?? placeholder}
-                                aria-label={label}
-                            />
-                            <Combobox.Toggle />
-                        </Combobox.Search>
-                    </Combobox.Control>
-                    <Combobox.Portal>
-                        <Combobox.Popup>
-                            {flatNodes.length === 0 && emptyLabel ? (
-                                <div className="px-4.5 py-2 text-sm text-subtle">{emptyLabel}</div>
-                            ) : (
-                                <Combobox.TreeContent style={{ height: treeHeight }}>
-                                    <VirtualizedTreeList
-                                        items={flatNodes}
-                                        preserveFilteredSelection
-                                        clearSelectionOnEscape={false}
-                                        selection={safeSelection}
-                                        onSelectionChange={handleSelectionChange}
-                                        selectionMode="single"
-                                        rowClickSelection="toggle"
-                                        active={activeId}
-                                        onActiveChange={setActiveId}
-                                        virtuosoRef={virtuosoRef}
-                                        aria-label={label}
-                                        className="h-full"
-                                    >
-                                        {({ items, getItemProps, containerProps }) => (
-                                            <Virtuoso<LanguageFlatNode>
-                                                ref={virtuosoRef}
-                                                data={items as LanguageFlatNode[]}
-                                                components={virtuosoComponents}
-                                                {...containerProps}
-                                                className={cn('h-full', containerProps.className)}
-                                                itemContent={(index, node) => {
-                                                    const itemProps = getItemProps(index, node);
-                                                    return (
-                                                        <VirtualizedTreeList.Row {...itemProps}>
-                                                            <VirtualizedTreeList.RowContent>
-                                                                <span className="text-sm font-medium group-data-[tone=inverse]:text-alt">
-                                                                    {node.data.label}
-                                                                </span>
-                                                            </VirtualizedTreeList.RowContent>
-                                                        </VirtualizedTreeList.Row>
-                                                    );
-                                                }}
-                                            />
-                                        )}
-                                    </VirtualizedTreeList>
-                                </Combobox.TreeContent>
-                            )}
-                        </Combobox.Popup>
-                    </Combobox.Portal>
-                </Combobox.Content>
-            </Combobox.Root>
+            {!hideCombobox && (
+                <Combobox.Root
+                    open={open}
+                    onOpenChange={handleOpenChange}
+                    value={inputValue}
+                    onChange={setInputValue}
+                    contentType="tree"
+                    disabled={disabled}
+                    closeOnBlur={closeOnBlur}
+                >
+                    <Combobox.Content>
+                        <Combobox.Control>
+                            <Combobox.Search>
+                                <Combobox.SearchIcon />
+                                <Combobox.Input
+                                    ref={inputRef}
+                                    id={inputId}
+                                    placeholder={searchPlaceholder ?? placeholder}
+                                    aria-label={label}
+                                />
+                                <Combobox.Toggle />
+                            </Combobox.Search>
+                        </Combobox.Control>
+                        <Combobox.Portal>
+                            <Combobox.Popup>
+                                {flatNodes.length === 0 && emptyLabel ? (
+                                    <div className="px-4.5 py-2 text-sm text-subtle">{emptyLabel}</div>
+                                ) : (
+                                    <Combobox.TreeContent style={{ height: treeHeight }}>
+                                        <VirtualizedTreeList
+                                            items={flatNodes}
+                                            preserveFilteredSelection
+                                            clearSelectionOnEscape={false}
+                                            selection={safeSelection}
+                                            onSelectionChange={handleSelectionChange}
+                                            selectionMode="single"
+                                            rowClickSelection="toggle"
+                                            active={activeId}
+                                            onActiveChange={setActiveId}
+                                            virtuosoRef={virtuosoRef}
+                                            aria-label={label}
+                                            className="h-full"
+                                        >
+                                            {({ items, getItemProps, containerProps }) => (
+                                                <Virtuoso<LanguageFlatNode>
+                                                    ref={virtuosoRef}
+                                                    data={items as LanguageFlatNode[]}
+                                                    components={virtuosoComponents}
+                                                    {...containerProps}
+                                                    className={cn('h-full', containerProps.className)}
+                                                    itemContent={(index, node) => {
+                                                        const itemProps = getItemProps(index, node);
+                                                        return (
+                                                            <VirtualizedTreeList.Row {...itemProps}>
+                                                                <VirtualizedTreeList.RowContent>
+                                                                    <span className="text-sm font-medium group-data-[tone=inverse]:text-alt">
+                                                                        {node.data.label}
+                                                                    </span>
+                                                                </VirtualizedTreeList.RowContent>
+                                                            </VirtualizedTreeList.Row>
+                                                        );
+                                                    }}
+                                                />
+                                            )}
+                                        </VirtualizedTreeList>
+                                    </Combobox.TreeContent>
+                                )}
+                            </Combobox.Popup>
+                        </Combobox.Portal>
+                    </Combobox.Content>
+                </Combobox.Root>
+            )}
         </div>
     );
 };
