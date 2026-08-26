@@ -6,6 +6,7 @@ import { useEffect, useId, useMemo, useState, type ReactElement } from 'react';
 import { $principals, loadPrincipals } from '../../../entities/principal';
 import { useDebouncedCallback } from '../../../shared/lib/hooks/useDebouncedCallback';
 import { PrincipalLabel } from '../../../shared/ui/PrincipalLabel';
+import { useComboboxCollapse } from './shared/useComboboxCollapse';
 
 const PRINCIPAL_SELECTOR_NAME = 'PrincipalSelector';
 const DEFAULT_DEBOUNCE = 500;
@@ -24,15 +25,6 @@ type PrincipalSelectorProps = {
     className?: string;
 };
 
-/**
- * Combobox for picking principals.
- *
- * For single selection mode: hides the combobox once the selected principal resolves,
- * leaving the label in place. The caller is expected to render the selected principal
- * along with a way to remove it, which brings the combobox back.
- *
- * For staged/multiple selection mode: the combobox stays so more principals can be added.
- */
 export const PrincipalSelector = ({
     selection,
     onSelectionChange,
@@ -55,6 +47,7 @@ export const PrincipalSelector = ({
     const hideCombobox =
         selectionMode === 'single' &&
         selection.some((key) => principals.some((principal) => principal.getKey().toString() === key));
+    const { rootRef, inputRef } = useComboboxCollapse(hideCombobox);
 
     const allowedPrincipals = useMemo(() => {
         return principals.filter((principal) => allowedTypes.includes(principal.getType()) && customFilter(principal));
@@ -76,8 +69,20 @@ export const PrincipalSelector = ({
         void debouncedLoadPrincipals(searchValue);
     }, [searchValue, debouncedLoadPrincipals]);
 
+    const handleSelectionChange = (next: readonly string[]): void => {
+        if (selectionMode === 'single') {
+            setSearchValue('');
+        }
+        onSelectionChange([...next]);
+    };
+
     return (
-        <div data-component={PRINCIPAL_SELECTOR_NAME} className={cn('flex flex-col gap-2', className)}>
+        <div
+            ref={rootRef}
+            tabIndex={-1}
+            data-component={PRINCIPAL_SELECTOR_NAME}
+            className={cn('flex flex-col gap-2 focus:outline-none', className)}
+        >
             {label && (
                 <label htmlFor={hideCombobox ? undefined : inputId} className="font-semibold">
                     {label}
@@ -88,7 +93,7 @@ export const PrincipalSelector = ({
                     value={searchValue}
                     onChange={setSearchValue}
                     selection={selection}
-                    onSelectionChange={onSelectionChange}
+                    onSelectionChange={handleSelectionChange}
                     selectionMode={selectionMode}
                     closeOnBlur={closeOnBlur}
                     disabled={disabled}
@@ -98,7 +103,7 @@ export const PrincipalSelector = ({
                         <Combobox.Control>
                             <Combobox.Search>
                                 <Combobox.SearchIcon />
-                                <Combobox.Input id={inputId} placeholder={placeholder} />
+                                <Combobox.Input ref={inputRef} id={inputId} placeholder={placeholder} />
                                 {selectionMode === 'staged' && <Combobox.Apply />}
                                 <Combobox.Toggle />
                             </Combobox.Search>

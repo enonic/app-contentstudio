@@ -3,6 +3,7 @@ import { forwardRef, useEffect, useId, useMemo, useRef, useState, type HTMLAttri
 import type { VirtuosoHandle } from 'react-virtuoso';
 import { Virtuoso } from 'react-virtuoso';
 import { buildKey } from '../../../shared/lib/format/keys';
+import { useComboboxCollapse } from './shared/useComboboxCollapse';
 
 //
 // * Types
@@ -86,13 +87,6 @@ const matchesQuery = (option: LanguageSelectorOption, normalizedQuery: string): 
 // * Component
 //
 
-/**
- * Combobox for picking a language. Single selection only.
- *
- * Hides the combobox once the selected language resolves against the options, leaving
- * the label in place. The caller is expected to render the selected language along with
- * a way to remove it, which brings the combobox back.
- */
 export const LanguageSelector = ({
     label,
     options,
@@ -115,6 +109,7 @@ export const LanguageSelector = ({
     const selectedIds = selection ?? [];
     const safeSelection = useMemo(() => new Set(selectedIds.map(toOptionKey)), [selectedIds]);
     const hideCombobox = selectedIds.some((id) => options.some((option) => option.id === id));
+    const { rootRef, inputRef } = useComboboxCollapse(hideCombobox);
 
     const optionKeyMap = useMemo(() => {
         return new Map(options.map((option) => [toOptionKey(option.id), option.id]));
@@ -187,7 +182,12 @@ export const LanguageSelector = ({
     };
 
     return (
-        <div data-component={LANGUAGE_SELECTOR_NAME} className={cn('flex flex-col gap-2', className)}>
+        <div
+            ref={rootRef}
+            tabIndex={-1}
+            data-component={LANGUAGE_SELECTOR_NAME}
+            className={cn('flex flex-col gap-2 focus:outline-none', className)}
+        >
             {label && (
                 <label htmlFor={hideCombobox ? undefined : inputId} className="font-semibold">
                     {label}
@@ -208,6 +208,7 @@ export const LanguageSelector = ({
                             <Combobox.Search>
                                 <Combobox.SearchIcon />
                                 <Combobox.Input
+                                    ref={inputRef}
                                     id={inputId}
                                     placeholder={searchPlaceholder ?? placeholder}
                                     aria-label={label}

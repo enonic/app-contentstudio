@@ -16,6 +16,7 @@ import type { Project } from '../../../../app/settings/data/project/Project';
 import { $projects } from '../../../entities/project';
 import { projectsToTreeListItems } from '../../../shared/lib/url/projects';
 import { ProjectLabel } from '../../../entities/project/ui/ProjectLabel';
+import { useComboboxCollapse } from './shared/useComboboxCollapse';
 
 type ProjectSelectorProps = {
     selection: readonly string[];
@@ -31,15 +32,6 @@ type ProjectSelectorProps = {
 
 const PROJECT_SELECTOR_NAME = 'ProjectSelector';
 
-/**
- * Combobox for picking projects, rendered as a tree.
- *
- * For single selection mode: hides the combobox once the selected project resolves,
- * leaving the label in place. The caller is expected to render the selected project
- * along with a way to remove it, which brings the combobox back.
- *
- * For staged/multiple selection mode: the combobox stays so more projects can be added.
- */
 export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
     const {
         selection,
@@ -62,6 +54,7 @@ export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
     const virtuosoRef = useRef<VirtuosoHandle>(null);
     const hideCombobox =
         selectionMode === 'single' && selection.some((name) => projects.some((p) => p.getName() === name));
+    const { rootRef, inputRef } = useComboboxCollapse(hideCombobox);
 
     // Items
     const items = useMemo(() => projectsToTreeListItems(projects, expanded), [projects, expanded]);
@@ -82,9 +75,20 @@ export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
     const handleCollapse = (id: string): void => {
         setExpanded((prev) => prev.filter((idd) => idd !== id));
     };
+    const handleSelectionChange = (next: readonly string[]): void => {
+        if (selectionMode === 'single') {
+            setSearchValue(undefined);
+        }
+        onSelectionChange(next);
+    };
 
     return (
-        <div data-component={PROJECT_SELECTOR_NAME} className={cn('flex flex-col gap-2', className)}>
+        <div
+            ref={rootRef}
+            tabIndex={-1}
+            data-component={PROJECT_SELECTOR_NAME}
+            className={cn('flex flex-col gap-2 focus:outline-none', className)}
+        >
             {(label || description) && (
                 <div className="flex flex-col gap-1">
                     {label && (
@@ -100,7 +104,7 @@ export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
                     value={searchValue}
                     onChange={setSearchValue}
                     selection={selection}
-                    onSelectionChange={onSelectionChange}
+                    onSelectionChange={handleSelectionChange}
                     contentType="tree"
                     selectionMode={selectionMode}
                     closeOnBlur={closeOnBlur}
@@ -109,7 +113,7 @@ export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
                         <Combobox.Control>
                             <Combobox.Search>
                                 <Combobox.SearchIcon />
-                                <Combobox.Input id={inputId} placeholder={placeholder} />
+                                <Combobox.Input ref={inputRef} id={inputId} placeholder={placeholder} />
                                 <Combobox.Apply />
                                 <Combobox.Toggle />
                             </Combobox.Search>
