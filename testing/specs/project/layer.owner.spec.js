@@ -299,6 +299,15 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
 
         await sourceCodeDialog.waitForDialogLoaded();
         await sourceCodeDialog.clickOnCancelButton();
+        await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
+        await studioUtils.doLogout();
+    });
+
+    it('Post conditions: the layer should be deleted', async () => {
+        await studioUtils.navigateToContentStudioApp();
+        await studioUtils.openSettingsPanel();
+        await projectUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
+        await projectUtils.selectAndDeleteProject(PROJECT_DISPLAY_NAME);
     });
 
     afterEach(async () => {

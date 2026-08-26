@@ -17,6 +17,14 @@ const xpath = {
     selectionToolbar: "//div[@data-component='VersionSelectionToolbar']",
     // Compare checkbox inside a version item (relative locator, the input itself is hidden):
     compareCheckboxDiv: ".//div[@data-component='Checkbox']",
+    showAllActivitiesSection: "//div[@data-component='VersionsShowAllActivitiesSection']",
+    // The checkbox input is visually hidden ('sr-only'), so it can be clicked only through its label:
+    checkboxLabel: "//div[@data-component='Checkbox']//label",
+    // Publish status of a version item, the only text in the item that is truncated
+    // ('Online', 'Expired' or 'Scheduled', see VersionItemPublishStatus.tsx):
+    versionItemStatusDiv: ".//div[contains(@class,'truncate')]",
+    // A version that is published but is not the online one gets this icon instead of the text status:
+    versionItemStatusIcon: ".//*[name()='svg' and contains(@class,'lucide-cloud')]",
 };
 
 class BaseVersionsWidget extends Page {
@@ -67,6 +75,11 @@ class BaseVersionsWidget extends Page {
 
     get restoreButton() {
         return this.extensionView + xpath.versionItemExpanded + BUTTONS.buttonByLabel('Restore');
+    }
+
+    // Label of the 'Show all activities' checkbox above the list of versions:
+    get showAllActivitiesCheckbox() {
+        return this.extensionView + xpath.showAllActivitiesSection + xpath.checkboxLabel;
     }
 
     // 'Show changes' button in the selection toolbar (gets visible when versions are selected for comparing):
@@ -424,6 +437,85 @@ class BaseVersionsWidget extends Page {
             return false;
         }
         return await checkboxElements[0].isDisplayed();
+    }
+
+    // Toggles the 'Show all activities' checkbox: switches the widget between the 'full' display mode
+    // (every activity) and the 'standard' one (data changes only):
+    async clickOnShowAllActiviesCheckbox() {
+        try {
+            await this.waitForElementDisplayed(this.showAllActivitiesCheckbox, appConst.mediumTimeout);
+            await this.clickOnElement(this.showAllActivitiesCheckbox);
+            return await this.pause(500);
+        } catch (err) {
+            await this.handleError(
+                `Versions Widget - clicked on 'Show all activities' checkbox`,
+                'err_click_on_show_all_activities',
+                err,
+            );
+        }
+    }
+
+    async isShowAllActiviesCheckboxSelected() {
+        try {
+            let locator =
+                this.extensionView + xpath.showAllActivitiesSection + xpath.checkboxLabel + "//input[@type='checkbox']";
+            await this.waitForExist(locator, appConst.mediumTimeout);
+            let checkbox = await this.findElement(locator);
+            return await checkbox.isSelected();
+        } catch (err) {
+            await this.handleError(
+                `Versions Widget - 'Show all activities' checkbox state`,
+                'err_show_all_activities_checkbox',
+                err,
+            );
+        }
+    }
+
+    // Returns the publish status in the version item ('Online', 'Expired' or 'Scheduled'), the top item by default.
+    // Only the online version has a text status, other published versions get the 'cloud' icon instead,
+    // so an empty string is returned for them - use isStatusIconDisplayedInVersionItem() in that case.
+    async getContentStatusInTopItem(index) {
+        try {
+            let i = index === undefined ? 0 : index;
+            let versionItem = await this.getVersionItem(i);
+            let statusElements = await versionItem.$$(xpath.versionItemStatusDiv);
+            if (statusElements.length === 0) {
+                return '';
+            }
+            return await statusElements[0].getText();
+        } catch (err) {
+            await this.handleError(
+                'Versions Widget - getting the status in the version item',
+                'err_version_status',
+                err,
+            );
+        }
+    }
+
+    // The 'cloud' icon replaces the text status in a version that is published but is not online any more,
+    // e.g. after 'Unpublish' or after a newer version has been published:
+    async isStatusIconDisplayedInVersionItem(index) {
+        try {
+            let i = index === undefined ? 0 : index;
+            let versionItem = await this.getVersionItem(i);
+            let icons = await versionItem.$$(xpath.versionItemStatusIcon);
+            return icons.length > 0 && (await icons[0].isDisplayed());
+        } catch (err) {
+            await this.handleError(
+                'Versions Widget - getting the status icon in the version item',
+                'err_version_status_icon',
+                err,
+            );
+        }
+    }
+
+    async getVersionItem(index) {
+        await this.waitForElementDisplayed(this.versionItems, appConst.mediumTimeout);
+        let items = await this.findElements(this.versionItems);
+        if (items[index] === undefined) {
+            throw new Error(`No version item found at index: ${index}, total items: ${items.length}`);
+        }
+        return items[index];
     }
 
     async clickOnShowChangesButton() {
