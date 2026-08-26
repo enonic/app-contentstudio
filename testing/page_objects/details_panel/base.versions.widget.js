@@ -441,7 +441,7 @@ class BaseVersionsWidget extends Page {
 
     // Toggles the 'Show all activities' checkbox: switches the widget between the 'full' display mode
     // (every activity) and the 'standard' one (data changes only):
-    async clickOnShowAllActiviesCheckbox() {
+    async clickOnShowAllActivitiesCheckbox() {
         try {
             await this.waitForElementDisplayed(this.showAllActivitiesCheckbox, appConst.mediumTimeout);
             await this.clickOnElement(this.showAllActivitiesCheckbox);
@@ -455,7 +455,7 @@ class BaseVersionsWidget extends Page {
         }
     }
 
-    async isShowAllActiviesCheckboxSelected() {
+    async isShowAllActivitiesCheckboxSelected() {
         try {
             let locator =
                 this.extensionView + xpath.showAllActivitiesSection + xpath.checkboxLabel + "//input[@type='checkbox']";

@@ -40,13 +40,13 @@ describe('versions.widget.check.status.spec - check content status in Versions P
         await contentBrowsePanel.openContextWindow();
         await contentBrowseDetailsPanel.openVersionHistory();
         await browseVersionsWidget.waitForLoaded();
-        await browseVersionsWidget.clickOnShowAllActiviesCheckbox();
+        await browseVersionsWidget.clickOnShowAllActivitiesCheckbox();
         // 5. Verify that 'Published' list-item appears in the widget:
         let markAsReadyItems = await browseVersionsWidget.countMarkedAsReadyItems();
         assert.equal(markAsReadyItems, 1, `'markAsReady' version item should appear in the widget`);
         let result = await browseVersionsWidget.countPublishedItems();
         assert.equal(result, 1, `'Published' version item should appear in the widget`);
-        await browseVersionsWidget.clickOnShowAllActiviesCheckbox();
+        await browseVersionsWidget.clickOnShowAllActivitiesCheckbox();
         let status = await browseVersionsWidget.getContentStatusInTopItem();
         assert.equal(status, appConst.CONTENT_STATUS.ONLINE, `'Online' status should be in the top version item`);
     });
