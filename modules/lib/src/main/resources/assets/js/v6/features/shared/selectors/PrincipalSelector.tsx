@@ -24,6 +24,15 @@ type PrincipalSelectorProps = {
     className?: string;
 };
 
+/**
+ * Combobox for picking principals.
+ *
+ * For single selection mode: hides the combobox once the selected principal resolves,
+ * leaving the label in place. The caller is expected to render the selected principal
+ * along with a way to remove it, which brings the combobox back.
+ *
+ * For staged/multiple selection mode: the combobox stays so more principals can be added.
+ */
 export const PrincipalSelector = ({
     selection,
     onSelectionChange,
@@ -42,6 +51,10 @@ export const PrincipalSelector = ({
     const inputId = `${PRINCIPAL_SELECTOR_NAME}-${baseId}-input`;
     const [searchValue, setSearchValue] = useState('');
     const allowedTypesKey = allowedTypes.join(','); // Serialize array for stable comparison in useEffect dependencies
+
+    const hideCombobox =
+        selectionMode === 'single' &&
+        selection.some((key) => principals.some((principal) => principal.getKey().toString() === key));
 
     const allowedPrincipals = useMemo(() => {
         return principals.filter((principal) => allowedTypes.includes(principal.getType()) && customFilter(principal));
@@ -66,40 +79,42 @@ export const PrincipalSelector = ({
     return (
         <div data-component={PRINCIPAL_SELECTOR_NAME} className={cn('flex flex-col gap-2', className)}>
             {label && (
-                <label htmlFor={inputId} className="font-semibold">
+                <label htmlFor={hideCombobox ? undefined : inputId} className="font-semibold">
                     {label}
                 </label>
             )}
-            <Combobox.Root
-                value={searchValue}
-                onChange={setSearchValue}
-                selection={selection}
-                onSelectionChange={onSelectionChange}
-                selectionMode={selectionMode}
-                closeOnBlur={closeOnBlur}
-                disabled={disabled}
-                contentType="listbox"
-            >
-                <Combobox.Content>
-                    <Combobox.Control>
-                        <Combobox.Search>
-                            <Combobox.SearchIcon />
-                            <Combobox.Input id={inputId} placeholder={placeholder} />
-                            {selectionMode === 'staged' && <Combobox.Apply />}
-                            <Combobox.Toggle />
-                        </Combobox.Search>
-                    </Combobox.Control>
-                    <Combobox.Portal>
-                        <Combobox.Popup>
-                            <PrincipalSelectorList
-                                items={filtered}
-                                selectionMode={selectionMode}
-                                emptyLabel={emptyLabel}
-                            />
-                        </Combobox.Popup>
-                    </Combobox.Portal>
-                </Combobox.Content>
-            </Combobox.Root>
+            {!hideCombobox && (
+                <Combobox.Root
+                    value={searchValue}
+                    onChange={setSearchValue}
+                    selection={selection}
+                    onSelectionChange={onSelectionChange}
+                    selectionMode={selectionMode}
+                    closeOnBlur={closeOnBlur}
+                    disabled={disabled}
+                    contentType="listbox"
+                >
+                    <Combobox.Content>
+                        <Combobox.Control>
+                            <Combobox.Search>
+                                <Combobox.SearchIcon />
+                                <Combobox.Input id={inputId} placeholder={placeholder} />
+                                {selectionMode === 'staged' && <Combobox.Apply />}
+                                <Combobox.Toggle />
+                            </Combobox.Search>
+                        </Combobox.Control>
+                        <Combobox.Portal>
+                            <Combobox.Popup>
+                                <PrincipalSelectorList
+                                    items={filtered}
+                                    selectionMode={selectionMode}
+                                    emptyLabel={emptyLabel}
+                                />
+                            </Combobox.Popup>
+                        </Combobox.Portal>
+                    </Combobox.Content>
+                </Combobox.Root>
+            )}
         </div>
     );
 };
