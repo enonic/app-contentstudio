@@ -10,15 +10,10 @@ const xpath = {
     imageEditor: "//div[@data-component='ImageUploaderInput']",
     imageContainer: "//div[@data-component='ImageUploaderInputImage']",
     buttonReset: "//button[@data-component='Button' and contains(.,'Reset')]",
-    // Toolbar buttons are located by 'aria-label': 'Tooltip' wraps them with 'asChild' and overwrites
-    // data-component with 'Tooltip', and lucide icon names are not stable between versions
-    // ('FlipHorizontal' is an alias and renders as 'lucide-square-centerline-dashed-horizontal'):
     buttonRotate: "//button[@aria-label='Rotate clockwise']",
     buttonFlip: "//button[@aria-label='Flip']",
     buttonCrop: "//button[@aria-label='Crop Image']",
     buttonFocus: "//button[@aria-label='Set Autofocus']",
-    // 'Upload' is displayed in 'ready' mode only, in 'crop'/'focus' mode it is replaced with 'Apply' and 'Cancel'.
-    // The hidden file input has the same aria-label, so the button node is required here:
     buttonUpload: "//button[@aria-label='Upload image']",
     // TODO: zoom slider is not present in the new Image Editor (v6) - update after UX is clarified:
     zoomContainer: "//div[@class='zoom-container']",
@@ -26,19 +21,32 @@ const xpath = {
     zoomKnob: "//span[@class='zoom-knob']",
     // Single contextual 'Reset' button replaces 'Reset filters', 'Reset Mask' and 'Reset Autofocus':
     resetAutofocusButton: "//button[@data-component='Button' and contains(.,'Reset')]",
-    resetMaskButton: "//button[@data-component='Button' and contains(.,'Reset')]",
     closeEditModeButton: "//button[@aria-label='Cancel']",
     buttonApply: "//button[@data-component='Button' and contains(.,'Apply')]",
-    // TODO: crop has no drag handles in the new editor (area is drawn with two clicks) - update doCropImage:
-    cropHandle: "//*[name()='svg' and contains(@id,'ImageEditor-dragHandle')]//*[name()='circle']",
+    // Transparent hit area of a crop handle. The handles have no id, so the resize cursor is the only marker:
+    cropHandle: (cursor) => `//*[name()='rect' and @fill='transparent' and contains(@style,'${cursor}')]`,
     focusCircle: "//*[name()='svg']//*[name()='circle' and @fill='none' and @stroke='red']",
 };
 
+// Cursor of every crop handle, see HANDLE_CURSOR in the image-uploader 'lib/crop.ts':
+const CROP_HANDLE_CURSOR = {
+    tl: 'nw-resize',
+    tr: 'ne-resize',
+    bl: 'sw-resize',
+    br: 'se-resize',
+    tm: 'row-resize',
+    bm: 'row-resize',
+    ml: 'col-resize',
+    mr: 'col-resize',
+};
+
+// Order in the DOM for the handles that share a cursor with another handle:
+const CROP_HANDLE_INDEX = { tm: 1, bm: 2, ml: 1, mr: 2 };
+
 class LiveViewImageEditor extends Page {
-    get buttonResetFilters() {
+    get buttonReset() {
         return xpath.imageEditor + xpath.buttonReset;
     }
-
     get buttonRotate() {
         return xpath.imageEditor + xpath.buttonRotate;
     }
@@ -51,7 +59,7 @@ class LiveViewImageEditor extends Page {
         return xpath.imageEditor + xpath.buttonCrop;
     }
 
-    get buttonClose() {
+    get buttonCancel() {
         return xpath.imageEditor + xpath.closeEditModeButton;
     }
 
@@ -67,20 +75,16 @@ class LiveViewImageEditor extends Page {
         return xpath.imageEditor + xpath.buttonUpload;
     }
 
-    get resetAutofocusButton() {
-        return xpath.imageEditor + xpath.resetAutofocusButton;
-    }
-
-    get resetMaskButton() {
-        return xpath.imageEditor + xpath.resetMaskButton;
-    }
-
-    get zoomKnob() {
-        return xpath.imageEditor + xpath.zoomKnob;
-    }
-
-    get cropHandle() {
-        return xpath.imageEditor + xpath.cropHandle;
+    // Locator of one of the 8 handles of the crop rectangle: 'tl', 'tm', 'tr', 'ml', 'mr', 'bl', 'bm', 'br'.
+    // 'tm'/'bm' and 'ml'/'mr' share a cursor, so they are told apart by their order in the DOM.
+    getCropHandleLocator(handle) {
+        const cursor = CROP_HANDLE_CURSOR[handle];
+        if (!cursor) {
+            throw new Error(`Unknown crop handle: '${handle}', expected one of ${Object.keys(CROP_HANDLE_CURSOR)}`);
+        }
+        const locator = xpath.imageEditor + xpath.imageContainer + xpath.cropHandle(cursor);
+        const index = CROP_HANDLE_INDEX[handle];
+        return index ? `(${locator})[${index}]` : locator;
     }
 
     get imageContainer() {
@@ -91,21 +95,13 @@ class LiveViewImageEditor extends Page {
         return xpath.imageEditor + xpath.imageContainer + xpath.focusCircle;
     }
 
-    waitForZoomKnobDisplayed() {
-        return this.waitForElementDisplayed(this.zoomKnob, appConst.mediumTimeout);
-    }
-
-    waitForZoomKnobNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.zoomKnob, appConst.mediumTimeout);
-    }
-
     async clickOnFlipButton() {
         try {
-            await this.waitForElementDisplayed(this.buttonFlip, appConst.mediumTimeout);
-            await this.waitForElementEnabled(this.buttonFlip, appConst.longTimeout);
+            await this.waitForElementDisplayed(this.buttonFlip);
+            await this.waitForElementEnabled(this.buttonFlip);
             await this.clickOnElement(this.buttonFlip);
             // flip switches the editor to 'loading' mode, wait for 'ready' mode again:
-            await this.waitForElementEnabled(this.buttonFlip, appConst.longTimeout);
+            await this.waitForElementEnabled(this.buttonFlip);
             return await this.pause(300);
         } catch (err) {
             await this.handleError('Image Editor, button flip', 'err_click_on_flip_button', err);
@@ -114,11 +110,11 @@ class LiveViewImageEditor extends Page {
 
     async clickOnRotateButton() {
         try {
-            await this.waitForElementDisplayed(this.buttonRotate, appConst.mediumTimeout);
-            await this.waitForElementEnabled(this.buttonRotate, appConst.longTimeout);
+            await this.waitForElementDisplayed(this.buttonRotate);
+            await this.waitForElementEnabled(this.buttonRotate);
             await this.clickOnElement(this.buttonRotate);
             // rotate switches the editor to 'loading' mode, wait for 'ready' mode again:
-            await this.waitForElementEnabled(this.buttonRotate, appConst.longTimeout);
+            await this.waitForElementEnabled(this.buttonRotate);
             return await this.pause(300);
         } catch (err) {
             await this.handleError('Image Editor, button rotate', 'err_click_on_rotate_button', err);
@@ -127,33 +123,29 @@ class LiveViewImageEditor extends Page {
 
     async clickOnResetButton() {
         try {
-            await this.waitForElementEnabled(this.buttonResetFilters);
-            await this.clickOnElement(this.buttonResetFilters);
+            await this.waitForElementEnabled(this.buttonReset);
+            await this.clickOnElement(this.buttonReset);
             return await this.pause(500);
         } catch (err) {
-            await this.handleError('Image Editor, button reset filters', 'err_click_on_reset_filters_button', err);
+            await this.handleError('Image Editor, button reset filters', 'err_click_on_reset_button', err);
         }
-    }
-
-    waitForResetButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.buttonResetFilters);
     }
 
     async waitForResetButtonDisplayed() {
         try {
-            await this.waitForElementDisplayed(this.buttonResetFilters);
+            await this.waitForElementDisplayed(this.buttonReset);
         } catch (err) {
-            await this.handleError('Image Editor, button reset filters', 'err_wait_for_reset_filters_displayed', err);
+            await this.handleError('Image Editor, button reset', 'err_wait_for_reset_displayed', err);
         }
     }
 
     async waitForResetButtonNotDisplayed() {
         try {
-            await this.waitForElementNotDisplayed(this.buttonResetFilters);
+            await this.waitForElementNotDisplayed(this.buttonReset);
         } catch (err) {
             await this.handleError(
-                'Image Editor, button reset filters not displayed',
-                'err_wait_for_reset_filters_not_displayed',
+                'Image Editor, button reset filters should not be displayed',
+                'err_wait_for_reset_not_displayed',
                 err,
             );
         }
@@ -193,7 +185,7 @@ class LiveViewImageEditor extends Page {
 
     async waitForFocusCircleNotDisplayed() {
         try {
-            return await this.waitUntilElementNotVisible(this.focusCircle, appConst.mediumTimeout);
+            return await this.waitUntilElementNotVisible(this.focusCircle);
         } catch (err) {
             await this.handleError('Image Editor, focus circle not displayed', 'err_focus_circle_displayed', err);
         }
@@ -201,19 +193,19 @@ class LiveViewImageEditor extends Page {
 
     async waitForApplyButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.buttonApply, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(this.buttonApply);
         } catch (err) {
             await this.handleError('Image Editor, apply button displayed', 'err_apply_button_displayed', err);
         }
     }
 
     waitForApplyButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.buttonApply, appConst.mediumTimeout);
+        return this.waitForElementNotDisplayed(this.buttonApply);
     }
 
     async waitForUploadButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.buttonUpload, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(this.buttonUpload);
         } catch (err) {
             await this.handleError('Image Editor, upload button displayed', 'err_upload_button_displayed', err);
         }
@@ -221,120 +213,96 @@ class LiveViewImageEditor extends Page {
 
     async waitForUploadButtonNotDisplayed() {
         try {
-            return await this.waitForElementNotDisplayed(this.buttonUpload, appConst.mediumTimeout);
+            return await this.waitForElementNotDisplayed(this.buttonUpload);
         } catch (err) {
             await this.handleError('Image Editor, upload button not displayed', 'err_upload_button_not_displayed', err);
         }
     }
 
-    waitForCloseButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.buttonClose, appConst.mediumTimeout);
+    waitForCancelEditModeButtonDisplayed() {
+        return this.waitForElementDisplayed(this.buttonCancel);
     }
 
-    waitForCloseEditModeButtonDisplayed() {
-        return this.waitForElementDisplayed(this.buttonClose, appConst.mediumTimeout);
+    waitForCancelEditModeButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.buttonCancel);
     }
 
-    waitForCloseEditModeButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.buttonClose, appConst.mediumTimeout);
-    }
-
-    waitForResetMaskButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.resetMaskButton, appConst.mediumTimeout);
-    }
-
-    waitForResetMaskButtonDisplayed() {
-        return this.waitForElementDisplayed(this.resetMaskButton, appConst.mediumTimeout);
-    }
-
-    waitForResetAutofocusButtonDisplayed() {
-        return this.waitForElementDisplayed(this.resetAutofocusButton, appConst.mediumTimeout);
-    }
-
-    async clickOnResetAutofocusButton() {
-        await this.waitForResetAutofocusButtonDisplayed();
-        await this.clickOnElement(this.resetAutofocusButton);
-        return this.pause(300);
-    }
-
-    async doZoomImage(offset) {
-        let el = await this.findElement(this.zoomKnob);
-        let yValue = await el.getLocation('y');
-        let xValue = await el.getLocation('x');
-        let y = parseInt(yValue);
-        let x = parseInt(xValue) + offset;
-        await el.dragAndDrop({ x: x, y: y });
-        return await this.pause(500);
-    }
-
-    async doCropImage(offset) {
+    // Resizes the crop area: drags one of the handles of the crop rectangle by the given offset in pixels.
+    // 'handle' is one of 'tl', 'tm', 'tr', 'ml', 'mr', 'bl', 'bm', 'br', the bottom right corner by default.
+    // 'offsetY' defaults to 'offsetX', so doCropImage(-100) drags the corner 100px up and to the left.
+    async doCropImage(offsetX, offsetY = offsetX, handle = 'br') {
         try {
-            let el = await this.findElement(this.cropHandle);
-            let yValue = await el.getAttribute('cy');
-            let xValue = await el.getAttribute('cx');
-            let y1 = parseInt(yValue) + offset;
-            let x1 = parseInt(xValue);
-            await el.dragAndDrop({ x: x1, y: y1 });
-            return await this.pause(500);
+            let locator = this.getCropHandleLocator(handle);
+            // the hit area is transparent by design, so only its presence can be verified:
+            await this.waitForExist(locator, appConst.mediumTimeout);
+            let cropHandle = await this.findElement(locator);
+            return await this.dragElementInsideImage(cropHandle, offsetX, offsetY);
         } catch (err) {
-            await this.handleError('Image Editor, do crop image', 'err_do_crop_image', err);
+            await this.handleError(`Image Editor, do crop image, handle '${handle}'`, 'err_do_crop_image', err);
         }
     }
 
     async doDragFocus(offsetX, offsetY) {
         try {
             await this.waitForFocusCircleDisplayed();
-            let container = await this.findElement(this.imageContainer);
-            let containerLocation = await container.getLocation();
-            let containerSize = await container.getSize();
             let circle = await this.findElement(this.focusCircle);
-            let circleLocation = await circle.getLocation();
-            let circleSize = await circle.getSize();
-            // the drag starts in the centre of the circle:
-            let startX = Math.round(circleLocation.x + circleSize.width / 2);
-            let startY = Math.round(circleLocation.y + circleSize.height / 2);
-            let endX = this.getPointInsideRange(
-                startX + offsetX,
-                containerLocation.x,
-                containerLocation.x + containerSize.width,
-            );
-            let endY = this.getPointInsideRange(
-                startY + offsetY,
-                containerLocation.y,
-                containerLocation.y + containerSize.height,
-            );
-            let steps = 4;
-            let moveActions = [];
-            for (let i = 1; i <= steps; i++) {
-                moveActions.push({
-                    type: 'pointerMove',
-                    duration: 100,
-                    origin: 'viewport',
-                    x: Math.round(startX + ((endX - startX) * i) / steps),
-                    y: Math.round(startY + ((endY - startY) * i) / steps),
-                });
-            }
-            await this.getBrowser().performActions([
-                {
-                    type: 'pointer',
-                    id: 'pointer1',
-                    parameters: { pointerType: 'mouse' },
-                    actions: [
-                        { type: 'pointerMove', duration: 0, origin: 'viewport', x: startX, y: startY },
-                        { type: 'pointerDown', button: 0 },
-                        // the editor subscribes to the window 'mousemove' after 'mousedown', give it time:
-                        { type: 'pause', duration: 200 },
-                        ...moveActions,
-                        { type: 'pause', duration: 200 },
-                        { type: 'pointerUp', button: 0 },
-                    ],
-                },
-            ]);
-            await this.getBrowser().releaseActions();
-            return await this.pause(500);
+            return await this.dragElementInsideImage(circle, offsetX, offsetY);
         } catch (err) {
             await this.handleError('Image Editor, drag the focus circle', 'err_drag_focus_circle', err);
         }
+    }
+
+    // Drags an element (the focus circle, a crop handle) inside the 'ImageUploaderInputImage' container:
+    // the drag starts in the centre of the element and the drop point is clamped to the container's bounds.
+    // 'dragAndDrop' is not used here, because the editor starts the drag on 'mousedown' and then tracks
+    // 'mousemove' on the window - the pointer has to be pressed, paused and then moved in several steps.
+    async dragElementInsideImage(element, offsetX, offsetY) {
+        let container = await this.findElement(this.imageContainer);
+        let containerLocation = await container.getLocation();
+        let containerSize = await container.getSize();
+        let elementLocation = await element.getLocation();
+        let elementSize = await element.getSize();
+        let startX = Math.round(elementLocation.x + elementSize.width / 2);
+        let startY = Math.round(elementLocation.y + elementSize.height / 2);
+        let endX = this.getPointInsideRange(
+            startX + offsetX,
+            containerLocation.x,
+            containerLocation.x + containerSize.width,
+        );
+        let endY = this.getPointInsideRange(
+            startY + offsetY,
+            containerLocation.y,
+            containerLocation.y + containerSize.height,
+        );
+        let steps = 4;
+        let moveActions = [];
+        for (let i = 1; i <= steps; i++) {
+            moveActions.push({
+                type: 'pointerMove',
+                duration: 100,
+                origin: 'viewport',
+                x: Math.round(startX + ((endX - startX) * i) / steps),
+                y: Math.round(startY + ((endY - startY) * i) / steps),
+            });
+        }
+        await this.getBrowser().performActions([
+            {
+                type: 'pointer',
+                id: 'pointer1',
+                parameters: { pointerType: 'mouse' },
+                actions: [
+                    { type: 'pointerMove', duration: 0, origin: 'viewport', x: startX, y: startY },
+                    { type: 'pointerDown', button: 0 },
+                    // the editor subscribes to the window 'mousemove' after 'mousedown', give it time:
+                    { type: 'pause', duration: 200 },
+                    ...moveActions,
+                    { type: 'pause', duration: 200 },
+                    { type: 'pointerUp', button: 0 },
+                ],
+            },
+        ]);
+        await this.getBrowser().releaseActions();
+        return await this.pause(500);
     }
 
     // Keeps the drop point inside the container, the 1px inset guarantees that the pointer stays over the image:
@@ -352,22 +320,18 @@ class LiveViewImageEditor extends Page {
         }
     }
 
-    async getZoomKnobValue() {
-        let elem = await this.findElement(this.zoomKnob);
-        let left = await elem.getCSSProperty('left');
-        let value = left.value;
-
-        let endIndex = value.indexOf('px');
-        return value.substring(0, endIndex);
-    }
-
     async waitForCropButtonDisabled() {
         await this.waitForElementDisabled(this.buttonCrop);
+    }
+
+    waitForFocusButtonDisabled() {
+        return this.waitForElementDisabled(this.buttonFocus);
     }
 
     async waitForFlipButtonDisabled() {
         await this.waitForElementDisabled(this.buttonFlip);
     }
+
     async waitForRotateButtonDisabled() {
         await this.waitForElementDisabled(this.buttonRotate);
     }
@@ -379,6 +343,7 @@ class LiveViewImageEditor extends Page {
     async waitForFocusButtonEnabled() {
         await this.waitForElementEnabled(this.buttonFocus);
     }
+
     async waitForRotateButtonEnabled() {
         await this.waitForElementEnabled(this.buttonRotate);
     }
@@ -393,25 +358,13 @@ class LiveViewImageEditor extends Page {
         return await this.pause(500);
     }
 
-    async clickOnResetMaskButton() {
-        await this.waitForResetMaskButtonDisplayed();
-        await this.clickOnElement(this.resetMaskButton);
-        return await this.pause(500);
-    }
-
-    async clickOnCloseEditModeButton() {
-        await this.waitForCloseEditModeButtonDisplayed();
-        await this.clickOnElement(this.buttonClose);
-        return await this.pause(500);
-    }
-
     async clickOnCancelButton() {
         try {
-            await this.waitForElementDisplayed(this.buttonClose, appConst.mediumTimeout);
-            await this.waitForElementEnabled(this.buttonClose, appConst.mediumTimeout);
-            await this.clickOnElement(this.buttonClose);
+            await this.waitForElementDisplayed(this.buttonCancel);
+            await this.waitForElementEnabled(this.buttonCancel);
+            await this.clickOnElement(this.buttonCancel);
             // the editor returns to 'ready' mode, 'Cancel' gets not displayed:
-            await this.waitForElementNotDisplayed(this.buttonClose, appConst.mediumTimeout);
+            await this.waitForElementNotDisplayed(this.buttonCancel);
             return await this.pause(300);
         } catch (err) {
             await this.handleError('Image Editor, button cancel', 'err_click_on_cancel_button', err);
