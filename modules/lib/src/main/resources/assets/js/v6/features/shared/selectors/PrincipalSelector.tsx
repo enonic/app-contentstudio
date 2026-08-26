@@ -6,6 +6,7 @@ import { useEffect, useId, useMemo, useState, type ReactElement } from 'react';
 import { $principals, loadPrincipals } from '../../../entities/principal';
 import { useDebouncedCallback } from '../../../shared/lib/hooks/useDebouncedCallback';
 import { PrincipalLabel } from '../../../shared/ui/PrincipalLabel';
+import { useComboboxCollapse } from './shared/useComboboxCollapse';
 
 const PRINCIPAL_SELECTOR_NAME = 'PrincipalSelector';
 const DEFAULT_DEBOUNCE = 500;
@@ -43,6 +44,11 @@ export const PrincipalSelector = ({
     const [searchValue, setSearchValue] = useState('');
     const allowedTypesKey = allowedTypes.join(','); // Serialize array for stable comparison in useEffect dependencies
 
+    const hideCombobox =
+        selectionMode === 'single' &&
+        selection.some((key) => principals.some((principal) => principal.getKey().toString() === key));
+    const { rootRef, inputRef } = useComboboxCollapse(hideCombobox);
+
     const allowedPrincipals = useMemo(() => {
         return principals.filter((principal) => allowedTypes.includes(principal.getType()) && customFilter(principal));
     }, [principals, allowedTypesKey]);
@@ -63,43 +69,57 @@ export const PrincipalSelector = ({
         void debouncedLoadPrincipals(searchValue);
     }, [searchValue, debouncedLoadPrincipals]);
 
+    const handleSelectionChange = (next: readonly string[]): void => {
+        if (selectionMode === 'single') {
+            setSearchValue('');
+        }
+        onSelectionChange([...next]);
+    };
+
     return (
-        <div data-component={PRINCIPAL_SELECTOR_NAME} className={cn('flex flex-col gap-2', className)}>
+        <div
+            ref={rootRef}
+            tabIndex={-1}
+            data-component={PRINCIPAL_SELECTOR_NAME}
+            className={cn('flex flex-col gap-2 focus:outline-none', className)}
+        >
             {label && (
-                <label htmlFor={inputId} className="font-semibold">
+                <label htmlFor={hideCombobox ? undefined : inputId} className="font-semibold">
                     {label}
                 </label>
             )}
-            <Combobox.Root
-                value={searchValue}
-                onChange={setSearchValue}
-                selection={selection}
-                onSelectionChange={onSelectionChange}
-                selectionMode={selectionMode}
-                closeOnBlur={closeOnBlur}
-                disabled={disabled}
-                contentType="listbox"
-            >
-                <Combobox.Content>
-                    <Combobox.Control>
-                        <Combobox.Search>
-                            <Combobox.SearchIcon />
-                            <Combobox.Input id={inputId} placeholder={placeholder} />
-                            {selectionMode === 'staged' && <Combobox.Apply />}
-                            <Combobox.Toggle />
-                        </Combobox.Search>
-                    </Combobox.Control>
-                    <Combobox.Portal>
-                        <Combobox.Popup>
-                            <PrincipalSelectorList
-                                items={filtered}
-                                selectionMode={selectionMode}
-                                emptyLabel={emptyLabel}
-                            />
-                        </Combobox.Popup>
-                    </Combobox.Portal>
-                </Combobox.Content>
-            </Combobox.Root>
+            {!hideCombobox && (
+                <Combobox.Root
+                    value={searchValue}
+                    onChange={setSearchValue}
+                    selection={selection}
+                    onSelectionChange={handleSelectionChange}
+                    selectionMode={selectionMode}
+                    closeOnBlur={closeOnBlur}
+                    disabled={disabled}
+                    contentType="listbox"
+                >
+                    <Combobox.Content>
+                        <Combobox.Control>
+                            <Combobox.Search>
+                                <Combobox.SearchIcon />
+                                <Combobox.Input ref={inputRef} id={inputId} placeholder={placeholder} />
+                                {selectionMode === 'staged' && <Combobox.Apply />}
+                                <Combobox.Toggle />
+                            </Combobox.Search>
+                        </Combobox.Control>
+                        <Combobox.Portal>
+                            <Combobox.Popup>
+                                <PrincipalSelectorList
+                                    items={filtered}
+                                    selectionMode={selectionMode}
+                                    emptyLabel={emptyLabel}
+                                />
+                            </Combobox.Popup>
+                        </Combobox.Portal>
+                    </Combobox.Content>
+                </Combobox.Root>
+            )}
         </div>
     );
 };
