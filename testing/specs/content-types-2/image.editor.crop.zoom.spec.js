@@ -115,7 +115,7 @@ describe('image.content.crop.spec: tests for crop button', function () {
         await imageEditor.waitForResetButtonNotDisplayed();
     });
 
-    it.skip(`GIVEN existing image is opened WHEN the cropped version hase been reverted THEN 'Reset' get visible in Image Editor`, async () => {
+    it.skip(`GIVEN existing image is opened WHEN the cropped version has been reverted THEN 'Reset' get visible in Image Editor`, async () => {
         let imageEditor = new LiveViewImageEditor();
         let imageFormPanel = new ImageFormPanel();
         let contentWizard = new ContentWizard();

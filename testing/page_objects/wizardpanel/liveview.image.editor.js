@@ -121,10 +121,6 @@ class LiveViewImageEditor extends Page {
         }
     }
 
-    async waitForResetButtonNotDisplayed() {
-        await this.waitForElementNotDisplayed(this.buttonReset);
-    }
-
     async clickOnResetButton() {
         try {
             await this.waitForElementEnabled(this.buttonReset);

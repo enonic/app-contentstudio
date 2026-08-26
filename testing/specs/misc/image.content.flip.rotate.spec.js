@@ -17,7 +17,7 @@ describe('image.content.flip.rotate.spec: Open an image and flip and rotate it',
         webDriverHelper.setupBrowser();
     }
 
-    it(`WHEN existing image is opened THEN 'Preview' button should be enabled`, async () => {
+    it(`WHEN existing image is opened THEN 'Preview' button should be enabled AND Automatic should be selected in Preview widget`, async () => {
         let contentItemPreviewPanel = new ContentItemPreviewPanel();
         let contentWizard = new ContentWizard();
         await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.NORD);
@@ -93,7 +93,7 @@ describe('image.content.flip.rotate.spec: Open an image and flip and rotate it',
     });
 
     // verifies https://github.com/enonic/app-contentstudio/issues/1365 Save button gets enabled after reverting changes (rotated or flipped)
-    it.skip(`GIVEN existing image is rotated WHEN previous version has been reverted THEN 'Reset filters' gets not visible and Saved button should be disabled`, async () => {
+    it.skip(`GIVEN existing image is rotated WHEN previous version has been reverted THEN 'Reset' gets not visible and Saved button should be disabled`, async () => {
         let imageEditor = new LiveViewImageEditor();
         let imageFormPanel = new ImageFormPanel();
         let contentWizard = new ContentWizard();
@@ -111,8 +111,8 @@ describe('image.content.flip.rotate.spec: Open an image and flip and rotate it',
         await wizardVersionsWidget.clickAndExpandVersion(1);
         await wizardVersionsWidget.clickOnRestoreButton();
         await studioUtils.saveScreenshot('rotated_image_reverted');
-        // 5. Verify that 'Reset filters' gets not visible and Saved button is disabled:
-        await imageEditor.waitForResetButtonDisplayed();
+        // 5. Verify that 'Reset' gets not visible and Saved button is disabled:
+        await imageEditor.waitForResetButtonNotDisplayed();
         await contentWizard.waitForSavedButtonVisible();
     });
 
