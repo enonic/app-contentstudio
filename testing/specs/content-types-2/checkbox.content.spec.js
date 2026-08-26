@@ -88,7 +88,10 @@ describe('checkbox.content.spec: tests for content with checkbox', function () {
         let contentWizard = new ContentWizard();
         let contentBrowsePanel = new ContentBrowsePanel();
         // 1. open existing checkbox content:
-        await studioUtils.selectAndOpenContentInWizard(CHECKBOX_NAME_2);
+        await studioUtils.findContentAndClickCheckBox(CHECKBOX_NAME_2);
+        await contentBrowsePanel.clickOnEditButton();
+        await studioUtils.switchToContentTabWindow(CHECKBOX_NAME_2);
+        await contentWizard.waitForOpened();
         // 2. unselect the required checkbox
         await checkBoxForm.clickOnCheckbox();
         // 3. Verify that the checkbox is not selected now:
@@ -104,7 +107,7 @@ describe('checkbox.content.spec: tests for content with checkbox', function () {
     it("GIVEN existing 'checkbox' content(not checked) has been selected THEN the content should be invalid in the grid", async () => {
         let contentBrowsePanel = new ContentBrowsePanel();
         //  Verify that the content is invalid in the grid:
-        await studioUtils.findAndSelectItem(CHECKBOX_NAME_2);
+        await studioUtils.findContentAndClickCheckBox(CHECKBOX_NAME_2);
         await studioUtils.saveScreenshot('checkbox_content_invalid');
         // Verify the red icon in the grid
         await contentBrowsePanel.waitForRedIconDisplayed(CHECKBOX_NAME_2);

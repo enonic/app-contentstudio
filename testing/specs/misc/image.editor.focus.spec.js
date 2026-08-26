@@ -102,7 +102,7 @@ describe('image.editor.focus.spec: tests for focus button', function () {
         // 4. Drag the red circle in edit mode:
         await imageEditor.doDragFocus(CIRCLE_CX, CIRCLE_CY);
         // 5. Verify that 'Reset Autofocus' button gets visible in the edit mode:
-        await imageEditor.waitForResetAutofocusButtonDisplayed();
+        await imageEditor.waitForResetButtonDisplayed();
         // 6. Click on 'Apply' button and close the edit mode:
         await imageEditor.clickOnApplyButton();
         // 7. Verify that red circle is displayed in the Image Editor:
