@@ -1,5 +1,5 @@
 /**
- * Created on 29.03.2021. updated on 02.04.2026
+ * Created on 29.03.2021. updated on 21.08.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -21,6 +21,8 @@ describe('datetime.config.spec: tests for datetime content ', function () {
     }
 
     const VALID_DATE_TIME1 = '2021-02-19 19:01';
+    // DateTime inputs are minute-granular: 'YYYY-MM-DD hh:mm' without seconds or milliseconds
+    const DATE_TIME_IN_MINUTES = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
     const NOT_VALID_DATE_TIME1 = '2015-42-28 19:01';
     const DATE_TIME_NAME_1 = contentBuilder.generateRandomName('datetime');
     const DATE_TIME_NAME_2 = contentBuilder.generateRandomName('datetime');
@@ -35,7 +37,8 @@ describe('datetime.config.spec: tests for datetime content ', function () {
 
     const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
 
-    it("GIVEN 'now' value is configured in 'dateTime 2:4' WHEN the wizard is opened THEN current DateTime should be displayed in the both inputs", async () => {
+    // Verifies the bug - DateTime field should be truncated to minutes lib-admin-ui#4645
+    it("GIVEN dateTime 2:4 with 'now' config is opened WHEN wizard loads THEN current time truncated to minutes should appear in both inputs", async () => {
         let dateTimeForm = new DateTimeForm();
         // 1. Open wizard for new dateTime 2:4 with configuration:
         await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.DATE_TIME_NOW_CONFIG);
@@ -47,9 +50,18 @@ describe('datetime.config.spec: tests for datetime content ', function () {
         assert.ok(values.length === 2, 'Two dateTime values should be present in the wizard page');
         assert.equal(values[0], values[1], 'Both values must be the same');
         assert.ok(values[0].includes(expectedDate), 'Expected date time should be displayed');
+        // 4. Verify that seconds and milliseconds are not displayed in the both inputs:
+        assert.ok(
+            DATE_TIME_IN_MINUTES.test(values[0]),
+            `DateTime should be truncated to minutes ('YYYY-MM-DD hh:mm') but was '${values[0]}' in the first input`,
+        );
+        assert.ok(
+            DATE_TIME_IN_MINUTES.test(values[1]),
+            `DateTime should be truncated to minutes ('YYYY-MM-DD hh:mm') but was '${values[1]}' in the second input`,
+        );
     });
 
-    it("GIVEN wizard for new DateTime(1:1) opened WHEN name and valid date time have been typed in AND 'Save' button has been pressed THEN the content should be valid", async () => {
+    it('GIVEN DateTime(1:1) wizard is opened WHEN valid datetime is saved THEN content should be valid', async () => {
         let dateTimeForm = new DateTimeForm();
         let contentWizard = new ContentWizard();
         // 1. Open wizard for new dateTime 1:1
@@ -67,13 +79,13 @@ describe('datetime.config.spec: tests for datetime content ', function () {
         await contentWizard.waitForMarkAsReadyButtonVisible();
     });
 
-    it('GIVEN wizard for new Date(1:1) is opened AND date in december has been saved WHEN the content has been reopened THEN expected date should be present', async () => {
+    it('GIVEN saved Date(1:1) content WHEN reopened THEN date value should persist', async () => {
         let dateForm = new DateForm();
         let contentWizard = new ContentWizard();
         let contentBrowsePanel = new ContentBrowsePanel();
         // 1. Open wizard for new date 1:1
         await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.DATE_1_1);
-        // 2. Save a date:
+        // 2. Save the date:
         await contentWizard.typeDisplayName(DATE_NAME);
         await studioUtils.saveScreenshot('date_content_to_save');
         await dateForm.typeDate(0, DATE_IN_DECEMBER);
@@ -93,7 +105,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
         await contentWizard.waitUntilInvalidIconDisappears();
     });
 
-    it('GIVEN existing Date(1:1) content is opened AND the date has been updated WHEN the previous version has been reverted THEN expected date should appear', async () => {
+    it('GIVEN Date(1:1) content with updated date WHEN previous version is restored THEN original date should appear', async () => {
         let dateForm = new DateForm();
         let contentWizard = new ContentWizard();
         let versionsWidget = new VersionsWidget();
@@ -132,7 +144,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
         );
     });
 
-    it('GIVEN wizard for new DateTime(1:1) with timezone is opened WHEN date time input has been clicked THEN date time picker popup dialog with timezone gets visible', async () => {
+    it('GIVEN DateTime(1:1) wizard WHEN datetime input clicked THEN picker with timezone should appear', async () => {
         let dateTimeForm = new DateTimeForm();
         let dateTimePickerPopup = new DateTimePickerPopup();
         // 1. Open wizard for new dateTime 1:1
@@ -174,7 +186,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
         await dateTimePickerPopup.waitForOkButtonEnabled();
     });
 
-    it('GIVEN wizard for new DateTime(1:1) opened WHEN only name input is filled in AND Save button has been pressed THEN the content should not be valid', async () => {
+    it('GIVEN DateTime(1:1) wizard WHEN saved with empty required field THEN content should be invalid', async () => {
         let dateTimeForm = new DateTimeForm();
         let contentWizard = new ContentWizard();
         await contentWizard.pause(1000);
@@ -218,7 +230,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
         await contentWizard.waitForMarkAsReadyButtonVisible();
     });
 
-    it('GIVEN wizard for new DateTime(1:1) with tz is opened WHEN not valid date time has been typed THEN red border appears in the input AND the content should be not valid', async () => {
+    it('GIVEN DateTime(1:1) wizard WHEN invalid datetime entered THEN content should be invalid', async () => {
         let dateTimeForm = new DateTimeForm();
         let contentWizard = new ContentWizard();
         // 1. Open wizard for new dateTime 1:1
@@ -235,7 +247,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
         await contentWizard.waitUntilInvalidIconAppears();
     });
 
-    it("GIVEN wizard for not required 'Time 0:1' is opened WHEN time in incorrect format has been typed THEN 'Publish' menu item should be enabled, because the input is not required", async () => {
+    it('GIVEN Time(0:1) wizard WHEN invalid time in optional field THEN content should stay valid', async () => {
         let timeForm = new TimeForm();
         let contentWizard = new ContentWizard();
         // 1. Open wizard for new not required Time 0:1

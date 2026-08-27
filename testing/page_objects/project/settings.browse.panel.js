@@ -368,16 +368,13 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         return await projectWizard.waitForLoaded();
     }
 
-    async checkAndOpenProjectByDisplayName(displayName) {
+    async checkProjectAndClickOnEditButton(displayName) {
         let projectWizard = new ProjectWizard();
         // the root folder(Projects) should be expanded:
         // 1. check the project:
         await this.clickOnCheckboxAndSelectRowByName(displayName);
         // 2. wait for Edit button gets enabled:
         await this.clickOnEditButton();
-        // 3. wait for Project is loaded:
-        await projectWizard.waitForLoaded();
-        return projectWizard;
     }
 
     // Looks up a project row by its identifier (the <small> sub-name) and returns the bold display name
