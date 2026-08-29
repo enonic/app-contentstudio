@@ -91,7 +91,7 @@
     "less-loader": "^13.0.0",
     "minimist": "^1.2.8",
     "nano-staged": "1.0.2",
-    "oxfmt": "0.64.0",
+    "oxfmt": "0.65.0",
     "oxlint": "1.80.0",
     "tailwindcss": "^4.3.3",
     "typescript": "7.0.2",
