@@ -87,7 +87,7 @@
     "cssnano": "^8.0.2",
     "less-loader": "^13.0.0",
     "oxfmt": "0.65.0",
-    "oxlint": "1.79.0",
+    "oxlint": "1.80.0",
     "postcss-loader": "^8.2.0",
     "postcss-normalize": "^13.0.1",
     "postcss-sort-media-queries": "^6.6.2",
