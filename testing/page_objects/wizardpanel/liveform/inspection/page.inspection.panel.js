@@ -2,6 +2,7 @@
  * Created on 15.02.2018. updated on 08.05.2026
  */
 const { COMMON, BUTTONS } = require('../../../../libs/elements');
+const appConst = require('../../../../libs/app_const');
 const InspectPanelControllerSelector = require('../../../../page_objects/components/selectors/inspect.panel.controller.selector');
 const BaseComponentInspectionPanel = require('./base.component.inspection.panel');
 
@@ -52,7 +53,7 @@ class PageInspectionPanel extends BaseComponentInspectionPanel {
     async selectPageTemplateOrController(displayName) {
         try {
             let inspectPanelControllerSelector = new InspectPanelControllerSelector(xpath.container);
-            await inspectPanelControllerSelector.clickOnDropdownHandle();
+            await inspectPanelControllerSelector.clickOnDropdownHandle(appConst.longTimeout);
             await inspectPanelControllerSelector.clickOnOptionByDisplayName(displayName);
             return await this.pause(1000);
         } catch (err) {

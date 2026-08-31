@@ -1,11 +1,10 @@
 import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
 import { act, render, screen } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { setContextOpen } from '../../../../widgets/context-panel/model/contextWidgets.store';
-import { setContextLayoutMetrics } from '../../../../widgets/context-panel/model/contextPanelMode.store';
+import { setContextLayoutMetrics, setContextOpen } from '../../../../shared/app-state/browsePanels.store';
 import { setMobilePreviewOpen } from '../../model/browseLayout.store';
 import { setFloatingContextWidth } from '../../../../widgets/context-panel/model/floatingContextWidth.store';
-import { setContentFilterOpen } from '../../../../features/search/model/contentFilter.store';
+import { $isContentFilterOpen, setContentFilterOpen } from '../../../../features/search/model/contentFilter.store';
 import { BrowseLayout } from './BrowseLayout';
 
 // Layout-engine stubs (happy-dom has none); see split-view.test.tsx for details.
@@ -106,7 +105,10 @@ function stubLayout(): void {
         });
     }
 
-    for (const [property, axis] of [['offsetLeft', 'x'], ['offsetTop', 'y']] as const) {
+    for (const [property, axis] of [
+        ['offsetLeft', 'x'],
+        ['offsetTop', 'y'],
+    ] as const) {
         Object.defineProperty(HTMLElement.prototype, property, {
             configurable: true,
             get(this: HTMLElement) {
@@ -222,9 +224,7 @@ describe('BrowseLayout', () => {
         });
         await settle();
 
-        const handleAfter = document.querySelector(
-            '[data-component="FloatingContextPanel"] [role="separator"]',
-        );
+        const handleAfter = document.querySelector('[data-component="FloatingContextPanel"] [role="separator"]');
         expect(Number(handleAfter?.getAttribute('aria-valuenow'))).toBeGreaterThan(before);
     });
 
@@ -274,9 +274,7 @@ describe('BrowseLayout', () => {
         await act(async () => setContentFilterOpen(true));
         await settle();
 
-        expect(screen.getByTestId('filter').querySelector('.legacy-filter')).toBe(
-            panels.filterPanel.getHTMLElement(),
-        );
+        expect(screen.getByTestId('filter').querySelector('.legacy-filter')).toBe(panels.filterPanel.getHTMLElement());
         expect(document.querySelector('[data-testid="filter-handle"]')).not.toBeNull();
 
         await act(async () => setContentFilterOpen(false));
@@ -294,6 +292,32 @@ describe('BrowseLayout', () => {
         const overlay = document.querySelector('[data-component="BrowseLayout.MobileFilter"]');
         expect(overlay).not.toBeNull();
         expect(overlay?.querySelector('.legacy-filter')).toBe(panels.filterPanel.getHTMLElement());
+    });
+
+    it('closes the mobile filter when the context or preview panel opens', async () => {
+        layoutRootWidth = 700;
+        const panels = createPanels();
+        setContentFilterOpen(true);
+
+        await renderLayout(panels);
+        expect(document.querySelector('[data-component="BrowseLayout.MobileFilter"]')).not.toBeNull();
+
+        await act(async () => setContextOpen(true));
+        await settle();
+        expect(document.querySelector('[data-component="BrowseLayout.MobileFilter"]')).toBeNull();
+        expect($isContentFilterOpen.get()).toBe(false);
+
+        await act(async () => {
+            setContextOpen(false);
+            setContentFilterOpen(true);
+        });
+        await settle();
+        expect(document.querySelector('[data-component="BrowseLayout.MobileFilter"]')).not.toBeNull();
+
+        await act(async () => setMobilePreviewOpen(true));
+        await settle();
+        expect(document.querySelector('[data-component="BrowseLayout.MobileFilter"]')).toBeNull();
+        expect($isContentFilterOpen.get()).toBe(false);
     });
 
     it('reacts to context open toggling', async () => {

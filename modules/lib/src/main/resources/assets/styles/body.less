@@ -22,19 +22,6 @@ body {
     }
   }
 
-  &.mobile-mode {
-    .content-app-panel {
-      transition: top 0.5s ease-in-out;
-    }
-
-    &.mobile-preview-on {
-      .content-app-panel {
-        top: 0 !important;
-        z-index: 1;
-      }
-    }
-  }
-
   &.blurred {
     > .live-load-mask {
       z-index: @z-index-mask;

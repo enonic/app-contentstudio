@@ -21,20 +21,12 @@
     }
   }
 
-  :not(.mobile-preview-on) {
-    .fold-button,
-    .@{_COMMON_PREFIX}button {
-      span,
-      &::before,
-      &::after {
-        color: @admin-dark-gray;
-      }
-    }
-  }
-
-  &.mobile-preview-on {
-    .content-publish-menu {
-      display: none;
+  .fold-button,
+  .@{_COMMON_PREFIX}button {
+    span,
+    &::before,
+    &::after {
+      color: @admin-dark-gray;
     }
   }
 }

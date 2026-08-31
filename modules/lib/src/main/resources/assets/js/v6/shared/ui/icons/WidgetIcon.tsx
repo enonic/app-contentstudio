@@ -6,6 +6,7 @@ type WidgetIconProps = {
     widgetView: ExtensionView;
     size?: 'sm' | 'md' | 'lg';
     className?: string;
+    strokeWidth?: number;
 };
 
 const SIZE_MAP = {
@@ -14,7 +15,7 @@ const SIZE_MAP = {
     lg: { className: 'size-8', number: 8 },
 } as const;
 
-export function WidgetIcon({ widgetView, size = 'md', className }: WidgetIconProps): ReactElement {
+export function WidgetIcon({ widgetView, size = 'md', className, strokeWidth }: WidgetIconProps): ReactElement {
     if (!widgetView) return null;
 
     const { className: sizeClass, number: sizeNumber } = SIZE_MAP[size];
@@ -32,7 +33,7 @@ export function WidgetIcon({ widgetView, size = 'md', className }: WidgetIconPro
     if (widgetView.getExtensionIcon()) {
         const Icon = widgetView.getExtensionIcon();
 
-        return <Icon size={sizeNumber} className={cn(sizeClass, className)} />;
+        return <Icon size={sizeNumber} strokeWidth={strokeWidth} className={cn(sizeClass, className)} />;
     }
 
     if (widgetView.getExtensionIconClass()) {

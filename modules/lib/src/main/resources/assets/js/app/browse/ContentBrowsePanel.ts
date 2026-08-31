@@ -12,12 +12,20 @@ import { type SelectableTreeListBoxKeyNavigator } from '@enonic/lib-admin-ui/ui/
 import { TreeListBoxExpandedHolder } from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
 import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
 import type Q from 'q';
+import { createElement } from 'react';
 import { $actionsNeedRefresh, clearActionsRefreshSignal } from '../../v6/app/actions.store';
-import { removeContent, setContent, hasCurrentItems, removeTreeNode, revealContentByPath } from '../../v6/entities/content';
-import { onActiveProjectChanged } from '../../v6/entities/project/activeProject.store';
-import { onNoProjectsAvailable } from '../../v6/entities/project/projects.store';
+import {
+    removeContent,
+    setContent,
+    hasCurrentItems,
+    removeTreeNode,
+    revealContentByPath,
+} from '../../v6/entities/content';
+import { onActiveProjectChanged, onNoProjectsAvailable } from '../../v6/entities/project';
 import { ContentTreeListElement } from '../../v6/widgets/browse-grid/ContentTreeListElement';
 import { BrowseToolbarElement } from '../../v6/widgets/browse-toolbar/BrowseToolbar';
+import { CurrentPreviewToolbarVersionHistoryItem } from '../../v6/widgets/preview-panel/ui/PreviewToolbarVersionHistoryItem';
+import { PreviewToolbarWidgetSelector } from '../../v6/widgets/preview-panel/ui/PreviewToolbarWidgetSelector';
 import { type ContentId } from '../content/ContentId';
 import { ContentPath } from '../content/ContentPath';
 import { type ContentQuery } from '../content/ContentQuery';
@@ -101,6 +109,10 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
                 markAsReadyAction: browseActions.getAction(ActionName.MARK_AS_READY),
                 requestPublishAction: browseActions.getAction(ActionName.REQUEST_PUBLISH),
                 createIssueAction: browseActions.getAction(ActionName.CREATE_ISSUE),
+                mobileContextWidgetSelectorTargetRef: (target) =>
+                    this.contextView.setMobileWidgetSelectorTarget(target ?? undefined),
+                mobilePreviewVersionHistoryButton: createElement(CurrentPreviewToolbarVersionHistoryItem, {}),
+                mobilePreviewWidgetSelector: createElement(PreviewToolbarWidgetSelector, { compact: true }),
             }),
         );
 
@@ -243,7 +255,7 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
     }
 
     protected createToolbar(): ContentBrowseToolbar {
-        return new ContentBrowseToolbar(this.getBrowseActions().getPublishAction());
+        return new ContentBrowseToolbar();
     }
 
     protected createBrowseItemPanel(): ContentBrowseItemPanel {
@@ -756,5 +768,4 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
             this.keyNavigator.disableKeys();
         }
     }
-
 }

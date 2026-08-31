@@ -13,6 +13,7 @@ vi.mock('@enonic/ui', () => {
         pressed?: boolean;
         onPressedChange?: (pressed: boolean) => void;
         startIcon?: unknown;
+        startIconClassName?: string;
         iconStrokeWidth?: number;
         size?: string;
         className?: string;
@@ -24,6 +25,7 @@ vi.mock('@enonic/ui', () => {
                 pressed,
                 onPressedChange,
                 startIcon,
+                startIconClassName: _startIconClassName,
                 iconStrokeWidth: _iconStrokeWidth,
                 size: _size,
                 className,
