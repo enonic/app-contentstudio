@@ -1,5 +1,5 @@
 import type { Extension } from '@enonic/lib-admin-ui/extension/Extension';
-import { Button, Menu, Toolbar } from '@enonic/ui';
+import { Button, cn, Menu, Toolbar } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { type ReactElement, useCallback, useEffect, useRef, useState } from 'react';
@@ -9,11 +9,15 @@ import { $activeWidget, $liveViewWidgets, setActiveWidget } from '../../inspecto
 
 const COMPONENT_NAME = 'PreviewToolbarWidgetSelector';
 
+type Props = {
+    compact?: boolean;
+};
+
 function getWidgetKey(widget: Extension): string | undefined {
     return widget.getDescriptorKey().toString();
 }
 
-export const PreviewToolbarWidgetSelector = (): ReactElement => {
+export const PreviewToolbarWidgetSelector = ({ compact = false }: Props): ReactElement => {
     const activeWidget = useStore($activeWidget);
     const { widgets } = useStore($liveViewWidgets, { keys: ['widgets'] });
     const [isOpen, setIsOpen] = useState(false);
@@ -47,17 +51,21 @@ export const PreviewToolbarWidgetSelector = (): ReactElement => {
             <Toolbar.Item asChild>
                 <Menu.Trigger asChild>
                     <Button
-                        className="group"
+                        className={cn('group', compact && 'h-7.5')}
                         endIcon={isOpen ? ChevronUp : ChevronDown}
+                        endIconClassName={compact ? 'size-4 shrink-0' : undefined}
                         size="sm"
                         aria-label={widgetSelectorLabel}
                     >
                         <img
-                            className="size-3.5 @sm:hidden group-data-[active=true]:invert-100 dark:invert-100"
+                            className={cn(
+                                'size-3.5 group-data-[active=true]:invert-100 dark:invert-100',
+                                !compact && '@sm:hidden',
+                            )}
                             src={activeWidget.getFullIconUrl()}
                             alt={activeWidget.getDisplayName()}
                         />
-                        <span className="hidden @sm:inline">{activeWidget?.getDisplayName()}</span>
+                        {!compact && <span className="hidden @sm:inline">{activeWidget.getDisplayName()}</span>}
                     </Button>
                 </Menu.Trigger>
             </Toolbar.Item>

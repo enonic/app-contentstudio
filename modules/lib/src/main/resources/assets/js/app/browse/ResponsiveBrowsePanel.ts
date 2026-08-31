@@ -4,29 +4,28 @@ import { type ViewItem } from '@enonic/lib-admin-ui/app/view/ViewItem';
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { Body } from '@enonic/lib-admin-ui/dom/Body';
 import { Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
-import { SelectionMode } from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
+import { Toolbar, type ToolbarConfig } from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import type Q from 'q';
 import { BrowseLayoutElement } from '../../v6/pages/browse/ui/layout/BrowseLayout';
-import { setMobilePreviewOpen } from '../../v6/pages/browse/model/browseLayout.store';
 import {
     $contextPanelMode,
     $isContextLayoutMeasured,
+    $isContextOpen,
+    setContextOpen,
+    setMobilePreviewOpen,
     shouldCollapseContextInitially,
-} from '../../v6/widgets/context-panel/model/contextPanelMode.store';
-import { $isContextOpen, setContextOpen } from '../../v6/widgets/context-panel/model/contextWidgets.store';
+} from '../../v6/shared/app-state/browsePanels.store';
 import { $isContentFilterOpen, setContentFilterOpen } from '../../v6/features/search/model/contentFilter.store';
 import { getContentAsCSCS } from '../../v6/entities/content';
 import { InspectEvent } from '../event/InspectEvent';
 import { type ContextView } from '../view/context/ContextView';
 import { DockedContextPanel } from '../view/context/DockedContextPanel';
-import { ResponsiveToolbar } from './ResponsiveToolbar';
 
 export abstract class ResponsiveBrowsePanel extends BrowsePanel {
     static MOBILE_MODE_CLASS = 'mobile-mode';
-    static MOBILE_PREVIEW_CLASS = 'mobile-preview-on';
 
-    declare protected browseToolbar: ResponsiveToolbar;
+    declare protected browseToolbar: Toolbar<ToolbarConfig>;
     protected contextView: ContextView;
     protected dockedContextPanel: DockedContextPanel;
     protected browseLayout: BrowseLayoutElement;
@@ -69,27 +68,12 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
             if (prevMode !== undefined && isMobile === (prevMode === 'mobile')) return;
 
             if (!isMobile) {
-                this.toggleMobilePreviewMode(false);
+                setMobilePreviewOpen(false);
             }
 
             Body.get().toggleClass(ResponsiveBrowsePanel.MOBILE_MODE_CLASS, isMobile);
             this.toggleClass(ResponsiveBrowsePanel.MOBILE_MODE_CLASS, isMobile);
             this.selectableListBoxPanel.toggleClass(ResponsiveBrowsePanel.MOBILE_MODE_CLASS, isMobile);
-        });
-
-        this.browseToolbar.onFoldClicked(() => {
-            setContextOpen(false);
-            this.toggleMobilePreviewMode(false);
-        });
-
-        this.selectableListBoxPanel.onSelectionChanged(() => {
-            if (
-                this.selectableListBoxPanel.getSelectedItems().length > 0 &&
-                this.selectableListBoxPanel.getSelectionMode() === SelectionMode.HIGHLIGHT &&
-                $contextPanelMode.get() === 'mobile'
-            ) {
-                this.toggleMobilePreviewMode(true);
-            }
         });
 
         InspectEvent.on((event: InspectEvent) => {
@@ -186,8 +170,8 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
         return 'browse-layout';
     }
 
-    protected createToolbar(): ResponsiveToolbar {
-        return new ResponsiveToolbar();
+    protected createToolbar(): Toolbar<ToolbarConfig> {
+        return new Toolbar();
     }
 
     protected abstract createContextView(): ContextView;
@@ -201,23 +185,6 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
 
         const item: ViewItem = this.selectableListBoxPanel.getLastSelectedItem();
         this.updateContextView(item).catch(DefaultErrorHandler.handle);
-    }
-
-    private toggleMobilePreviewMode(isMobile: boolean): void {
-        setMobilePreviewOpen(isMobile);
-
-        Body.get().toggleClass(ResponsiveBrowsePanel.MOBILE_PREVIEW_CLASS, isMobile);
-        this.toggleClass(ResponsiveBrowsePanel.MOBILE_PREVIEW_CLASS, isMobile);
-        this.browseToolbar.toggleClass(ResponsiveBrowsePanel.MOBILE_PREVIEW_CLASS, isMobile);
-
-        if (isMobile) {
-            this.browseToolbar.enableMobileMode();
-            const lastItem = this.selectableListBoxPanel.getLastSelectedItem();
-            if (lastItem) this.browseToolbar.setFoldButtonLabel(lastItem.getDisplayName());
-        } else {
-            this.browseToolbar.disableMobileMode();
-            this.browseToolbar.updateFoldButtonLabel();
-        }
     }
 
     protected abstract updateContextView(item: ViewItem): Q.Promise<void>;

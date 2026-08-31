@@ -88,9 +88,9 @@ class BaseDropdown extends Page {
         }
     }
 
-    async clickOnDropdownHandle() {
+    async clickOnDropdownHandle(timeout = appConst.mediumTimeout) {
         let locator = this.dropdownHandle;
-        await this.waitForElementDisplayed(locator);
+        await this.waitForElementDisplayed(locator, timeout);
         return await this.clickOnElement(locator);
     }
 

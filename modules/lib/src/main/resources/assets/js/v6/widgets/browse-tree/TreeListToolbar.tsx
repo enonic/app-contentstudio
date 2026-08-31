@@ -46,7 +46,7 @@ const TreeListToolbar = ({ enabled = true }: TreeListToolbarProps): ReactElement
     };
 
     return (
-        <div className="bg-surface-neutral flex items-center justify-between px-5 py-2.5 gap-2">
+        <div className="bg-surface-neutral flex items-center justify-between max-sm:px-3.5 px-5 py-2.5 gap-2">
             <div className="ml-2.5 flex items-center gap-2.5">
                 <Checkbox
                     aria-label={selectAllLabel}
