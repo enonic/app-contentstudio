@@ -1,11 +1,12 @@
 import { type Action } from '@enonic/lib-admin-ui/ui/Action';
 import { cn, Toggle, Toolbar, Tooltip } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import { Search } from 'lucide-react';
+import { Search, SearchCheck } from 'lucide-react';
 import { type ReactElement, useEffect, useRef } from 'react';
 import { useAction } from '../../shared/lib/hooks/useAction';
+import { useBreakpoints } from '../../shared/lib/hooks/useBreakpoints';
 import { useI18n } from '../../shared/lib/hooks/useI18n';
-import { $isContentFilterOpen } from '../../features/search/model/contentFilter.store';
+import { $isContentFilterOpen, $isContentFilterDirty } from '../../features/search/model/contentFilter.store';
 
 type Props = {
     action: Action;
@@ -16,12 +17,14 @@ export const SearchToggle = ({ action, className }: Props): ReactElement => {
     const toggleRef = useRef<HTMLButtonElement>(null);
     const isContentFilterOpen = useStore($isContentFilterOpen);
     const wasContentFilterOpen = useRef(isContentFilterOpen);
-
+    const isFilterDirty = useStore($isContentFilterDirty);
     const { label, enabled, execute } = useAction(action);
 
     const showReachLabel = useI18n('tooltip.filterPanel.show');
     const hideReachLabel = useI18n('tooltip.filterPanel.hide');
     const searchLabel = label || (isContentFilterOpen ? hideReachLabel : showReachLabel);
+
+    const { sm } = useBreakpoints();
 
     // Closing the filter panel hides the focused search input, so focus returns here
     useEffect(() => {
@@ -32,7 +35,7 @@ export const SearchToggle = ({ action, className }: Props): ReactElement => {
     }, [isContentFilterOpen]);
 
     return (
-        <Tooltip delay={300} value={searchLabel} asChild>
+        <Tooltip side={sm ? 'bottom' : 'right'} delay={300} value={searchLabel} asChild>
             <Toolbar.Item asChild disabled={!enabled}>
                 <Toggle
                     ref={toggleRef}
@@ -40,7 +43,7 @@ export const SearchToggle = ({ action, className }: Props): ReactElement => {
                     size="sm"
                     iconStrokeWidth={2}
                     aria-label={searchLabel}
-                    startIcon={Search}
+                    startIcon={isFilterDirty ? SearchCheck : Search}
                     pressed={isContentFilterOpen}
                     onPressedChange={() => execute()}
                 />

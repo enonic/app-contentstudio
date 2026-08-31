@@ -2,7 +2,11 @@ import { act, render, screen } from '@testing-library/preact';
 import { cloneElement, forwardRef, isValidElement, type ReactElement, type ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Action } from '@enonic/lib-admin-ui/ui/Action';
-import { setContentFilterOpen } from '../../features/search/model/contentFilter.store';
+import {
+    resetContentFilter,
+    setContentFilterOpen,
+    setContentFilterValue,
+} from '../../features/search/model/contentFilter.store';
 
 vi.mock('@enonic/ui', () => {
     type MockToggleProps = {
@@ -19,7 +23,7 @@ vi.mock('@enonic/ui', () => {
             {
                 pressed,
                 onPressedChange,
-                startIcon: _startIcon,
+                startIcon,
                 iconStrokeWidth: _iconStrokeWidth,
                 size: _size,
                 className,
@@ -32,6 +36,7 @@ vi.mock('@enonic/ui', () => {
                 type="button"
                 aria-pressed={pressed}
                 className={className}
+                data-icon={(startIcon as { displayName?: string })?.displayName}
                 onClick={() => onPressedChange?.(!pressed)}
                 {...props}
             />
@@ -68,7 +73,8 @@ vi.mock('../../shared/lib/hooks/useI18n', () => ({
 }));
 
 vi.mock('lucide-react', () => ({
-    Search: () => null,
+    Search: Object.assign(() => null, { displayName: 'Search' }),
+    SearchCheck: Object.assign(() => null, { displayName: 'SearchCheck' }),
 }));
 
 import { SearchToggle } from './SearchToggle';
@@ -90,6 +96,7 @@ const flushStoreUpdates = async () => {
 describe('SearchToggle', () => {
     beforeEach(() => {
         setContentFilterOpen(false);
+        resetContentFilter();
     });
 
     afterEach(() => {
@@ -137,6 +144,22 @@ describe('SearchToggle', () => {
         await flushStoreUpdates();
 
         expect(document.activeElement).toBe(toggle);
+    });
+
+    it('should show the plain search icon while the filter is untouched', async () => {
+        render(<SearchToggle action={createAction()} />);
+        await flushStoreUpdates();
+
+        expect(screen.getByRole('button').getAttribute('data-icon')).toBe('Search');
+    });
+
+    it('should show the search-check icon once the filter is applied', async () => {
+        render(<SearchToggle action={createAction()} />);
+
+        setContentFilterValue('query');
+        await flushStoreUpdates();
+
+        expect(screen.getByRole('button').getAttribute('data-icon')).toBe('SearchCheck');
     });
 
     it('should not focus the toggle button when the panel was never open', async () => {
