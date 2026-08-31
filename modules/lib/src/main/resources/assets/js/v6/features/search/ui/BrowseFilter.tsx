@@ -5,11 +5,13 @@ import { Button, SearchField } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { Download } from 'lucide-react';
 import { useEffect, useMemo, useRef } from 'react';
+import { useBreakpoints } from '../../../shared/lib/hooks/useBreakpoints';
 import {
     $contentFilterState,
     $isContentFilterDirty,
     $isContentFilterOpen,
     resetContentFilter,
+    setContentFilterOpen,
     setContentFilterSelection,
     setContentFilterValue,
 } from '../model/contentFilter.store';
@@ -48,6 +50,9 @@ export const BrowseFilter = ({
     const clearLabel = useI18n('panel.filter.clear');
     const exportFallbackLabel = useI18n('action.export');
     const resultsLabel = useI18n('field.search.results', hits);
+    const showResultsLabel = useI18n('field.search.show.results', hits);
+    const { sm } = useBreakpoints();
+    const showResultsButton = !sm && isFilterDirty && hits > 0;
 
     const exportAction = exportOptions?.action;
     const exportLabel = exportOptions?.label ?? exportFallbackLabel;
@@ -103,12 +108,29 @@ export const BrowseFilter = ({
                 <SearchField.Clear />
             </SearchField.Root>
 
-            <div className="flex mt-2 mb-7.5 items-center">
+            <div className="flex mt-2 mb-7.5 items-center max-sm:min-h-10">
                 <div className="grow">
-                    <span className="text-lg pl-4.5 pr-4.5">{resultsLabel}</span>
+                    {showResultsButton ? (
+                        <Button
+                            variant="text"
+                            onClick={() => setContentFilterOpen(false)}
+                            className="text-lg pl-4.5 pr-4.5 underline underline-offset-4"
+                        >
+                            {showResultsLabel}
+                        </Button>
+                    ) : (
+                        <span className="text-lg pl-4.5 pr-4.5">{resultsLabel}</span>
+                    )}
                 </div>
                 {exportAction && hits > 0 && (
-                    <Button size="sm" label={exportLabel} variant="outline" endIcon={Download} onClick={exportAction} />
+                    <Button
+                        className="max-sm:hidden"
+                        size="sm"
+                        label={exportLabel}
+                        variant="outline"
+                        endIcon={Download}
+                        onClick={exportAction}
+                    />
                 )}
             </div>
             <div className="flex flex-col gap-7.5">
