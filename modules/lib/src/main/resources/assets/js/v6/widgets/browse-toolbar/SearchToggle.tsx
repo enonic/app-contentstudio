@@ -42,6 +42,7 @@ export const SearchToggle = ({ action, className }: Props): ReactElement => {
                     className={cn('size-9 p-0', className)}
                     size="sm"
                     iconStrokeWidth={2}
+                    startIconClassName="max-sm:size-5 max-sm:translate-x-1.5 max-sm:[stroke-width:1.5]"
                     aria-label={searchLabel}
                     startIcon={isFilterDirty ? SearchCheck : Search}
                     pressed={isContentFilterOpen}

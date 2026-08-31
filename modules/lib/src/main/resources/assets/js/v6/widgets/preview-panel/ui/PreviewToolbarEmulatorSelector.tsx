@@ -31,20 +31,17 @@ export const PreviewToolbarEmulatorSelector = (): ReactElement => {
         EmulatedDeviceEvent.dispatch(device);
     }, []);
 
-    const SelectedIcon = selectedDevice.getIcon();
-
     return (
         <Menu open={isOpen} onOpenChange={setIsOpen}>
             <Toolbar.Item asChild>
                 <Menu.Trigger asChild>
                     <Button
-                        className="group"
+                        className="hidden @sm:inline-flex"
                         endIcon={isOpen ? ChevronUp : ChevronDown}
                         size="sm"
                         aria-label={useI18n('wcag.preview.toolbar.emulatorSelector.label')}
                     >
-                        <SelectedIcon className="size-3.5 text-main group-data-[active=true]:text-alt @sm:hidden" />
-                        <span className="hidden @sm:inline">{selectedDevice.getWidthWithUnits()}</span>
+                        <span>{selectedDevice.getWidthWithUnits()}</span>
                     </Button>
                 </Menu.Trigger>
             </Toolbar.Item>
