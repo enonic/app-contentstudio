@@ -3,18 +3,18 @@ import { ResponsiveManager } from '@enonic/lib-admin-ui/ui/responsive/Responsive
 import { cn } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { useCallback, useEffect, useRef, type ReactElement } from 'react';
-import { $isContextOpen } from '../../../../widgets/context-panel/model/contextWidgets.store';
 import {
     $contextPanelMode,
+    $isContextOpen,
+    $isMobilePreviewOpen,
     setContextLayoutMetrics,
-} from '../../../../widgets/context-panel/model/contextPanelMode.store';
+} from '../../../../shared/app-state/browsePanels.store';
 import { LayoutTokens } from '../../../../shared/ui/layout.tokens';
 import { LegacyElement } from '../../../../shared/ui/LegacyElement';
 import { LegacyElementHost } from '../../../../shared/ui/LegacyElementHost';
 import { SplitView } from '../../../../shared/ui/split-view';
 import { $isContentFilterOpen } from '../../../../features/search/model/contentFilter.store';
 import { FloatingContextPanel } from '../../../../widgets/context-panel/ui/FloatingContextPanel';
-import { $isMobilePreviewOpen } from '../../model/browseLayout.store';
 
 const CONTEXT_MIN_WIDTH = LayoutTokens.contextPanel.minWidth;
 const RESIZE_NOTIFY_DELAY_MS = 200;
@@ -94,6 +94,7 @@ export const BrowseLayout = ({
     }, []);
 
     const isMobile = mode === 'mobile';
+
     // ! Grid and preview stay mounted through mode changes: re-parenting would
     // reload the preview iframe. Mobile visibility is collapse, not unmount.
     const gridCollapsed = isMobile && isMobilePreviewOpen;

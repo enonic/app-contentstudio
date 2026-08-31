@@ -9,9 +9,17 @@ vi.mock('@enonic/ui', () => {
         children?: ReactNode;
         disabled?: boolean;
         onClick?: () => void;
+        endIconClassName?: string;
     } & Record<string, unknown>;
 
-    const Button = ({ label, children, disabled, onClick, ...props }: MockButtonProps) => (
+    const Button = ({
+        label,
+        children,
+        disabled,
+        onClick,
+        endIconClassName: _endIconClassName,
+        ...props
+    }: MockButtonProps) => (
         <button type="button" disabled={disabled} onClick={onClick} {...props}>
             {label ?? children}
         </button>
@@ -214,5 +222,18 @@ describe('SplitActionButton', () => {
 
         expect(dropdownButton.disabled).toBe(false);
         expect(menuItems.every((item) => item.disabled)).toBe(true);
+    });
+
+    it('renders every action in one menu when configured as menu-only', () => {
+        const primary = createAction({ label: 'Primary' });
+        const secondary = createAction({ label: 'Secondary' });
+
+        render(<SplitActionButton actions={[[primary, secondary]]} menuOnlyLabel="Actions" />);
+
+        expect(screen.getByRole('button', { name: 'Actions' })).toBeDefined();
+        expect(screen.getAllByRole('menuitem').map((item) => item.textContent?.trim())).toEqual([
+            'Primary',
+            'Secondary',
+        ]);
     });
 });

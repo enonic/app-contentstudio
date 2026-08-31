@@ -9,6 +9,8 @@ type Props = {
     actions: Action[][];
     className?: string;
     disabled?: boolean;
+    /** Render one button that opens every action instead of executing a primary action. */
+    menuOnlyLabel?: string;
     /**
      * Which action becomes the primary button.
      * - `firstEnabled`: the first enabled visible action (default).
@@ -53,6 +55,7 @@ export const SplitActionButton = ({
     actions,
     className,
     disabled = false,
+    menuOnlyLabel,
     primaryActionStrategy = 'firstEnabled',
     disableMenuWhenAllMenuActionsDisabled = true,
 }: Props): ReactElement | null => {
@@ -74,7 +77,7 @@ export const SplitActionButton = ({
         return firstEnabledIndex !== -1 ? firstEnabledIndex : 0;
     }, [actionStates, primaryActionStrategy]);
 
-    const primaryState = actionStates[primaryIndex];
+    const primaryState = menuOnlyLabel ? undefined : actionStates[primaryIndex];
     const menuActionGroups = useMemo(
         () =>
             actions
@@ -91,13 +94,60 @@ export const SplitActionButton = ({
     const hasMenuActions = menuStates.length > 0;
     const areAllMenuActionsDisabled = menuStates.every(({ enabled }) => !enabled);
 
-    if (!primaryState || observedActions.length === 0) {
+    if (actionStates.length === 0) {
+        return null;
+    }
+
+    const isDropdownDisabled =
+        disabled || !hasMenuActions || (disableMenuWhenAllMenuActionsDisabled && areAllMenuActionsDisabled);
+
+    const menuContent = (
+        <Menu.Portal>
+            <Menu.Content align="end">
+                {menuActionGroups.map((group, groupIndex) => (
+                    <Fragment key={groupIndex}>
+                        {groupIndex > 0 && <Menu.Separator className="my-0 w-full" />}
+                        {group.map(({ enabled, label, action }, index) => (
+                            <Menu.Item
+                                key={`${groupIndex}-${index}`}
+                                disabled={!enabled}
+                                onSelect={() => action.execute()}
+                            >
+                                <span className="font-semibold">{label}</span>
+                            </Menu.Item>
+                        ))}
+                    </Fragment>
+                ))}
+            </Menu.Content>
+        </Menu.Portal>
+    );
+
+    if (menuOnlyLabel) {
+        return (
+            <Menu>
+                <Toolbar.Item asChild disabled={isDropdownDisabled}>
+                    <Menu.Trigger asChild>
+                        <Button
+                            className={className}
+                            size="sm"
+                            endIcon={ChevronDown}
+                            iconStrokeWidth={2}
+                            endIconClassName="max-sm:size-5 max-sm:[stroke-width:1.5]"
+                            aria-label={menuOnlyLabel}
+                            label={menuOnlyLabel}
+                        />
+                    </Menu.Trigger>
+                </Toolbar.Item>
+                {menuContent}
+            </Menu>
+        );
+    }
+
+    if (!primaryState) {
         return null;
     }
 
     const isPrimaryDisabled = disabled || !primaryState.enabled;
-    const isDropdownDisabled =
-        disabled || !hasMenuActions || (disableMenuWhenAllMenuActionsDisabled && areAllMenuActionsDisabled);
 
     return (
         <div className={cn('flex items-stretch min-w-fit', className)} data-component={SPLIT_ACTION_BUTTON_NAME}>
@@ -129,24 +179,7 @@ export const SplitActionButton = ({
                         </Menu.Trigger>
                     </Toolbar.Item>
                 </Tooltip>
-                <Menu.Portal>
-                    <Menu.Content align="end">
-                        {menuActionGroups.map((group, groupIndex) => (
-                            <Fragment key={groupIndex}>
-                                {groupIndex > 0 && <Menu.Separator className="my-0 w-full" />}
-                                {group.map(({ enabled, label, action }, index) => (
-                                    <Menu.Item
-                                        key={`${groupIndex}-${index}`}
-                                        disabled={!enabled}
-                                        onSelect={() => action.execute()}
-                                    >
-                                        <span className="font-semibold">{label}</span>
-                                    </Menu.Item>
-                                ))}
-                            </Fragment>
-                        ))}
-                    </Menu.Content>
-                </Menu.Portal>
+                {menuContent}
             </Menu>
         </div>
     );

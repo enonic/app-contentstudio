@@ -2,11 +2,7 @@ import { atom, computed } from 'nanostores';
 
 export const $isWidgetRenderable = atom<boolean>(false);
 
-export const $isContextOpen = atom<boolean>(false);
-
-export function setContextOpen(isOpen: boolean): void {
-    $isContextOpen.set(isOpen);
-}
+export { $isContextOpen, setContextOpen } from '../../../shared/app-state/browsePanels.store';
 
 export const $activeWidgetId = atom<string | undefined>(undefined);
 
