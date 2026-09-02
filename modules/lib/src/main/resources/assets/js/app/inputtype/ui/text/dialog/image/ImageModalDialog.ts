@@ -524,7 +524,7 @@ export class ImageModalDialog
         const params = UriHelper.decodeUrlParams(src);
         if (params.size) {
             const plainUrl = UriHelper.trimUrlParams(src);
-            params.size = this.imagePreviewContainer.getEl().getWidth().toString();
+            params.size = Math.floor(this.imagePreviewContainer.getEl().getWidth()).toString();
             imgSrcAttr = UriHelper.appendUrlParams(plainUrl, params, false);
         }
 
