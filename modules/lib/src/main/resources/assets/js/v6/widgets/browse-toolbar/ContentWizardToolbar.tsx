@@ -1,7 +1,7 @@
 import { type Action } from '@enonic/lib-admin-ui/ui/Action';
 import { Avatar, Button, cn, IconButton, Toggle, Toolbar, Tooltip } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import { ArrowLeft, Link2 } from 'lucide-react';
+import { Link2 } from 'lucide-react';
 import { type ReactElement, useEffect, useMemo, useState } from 'react';
 import { useI18n } from '../../shared/lib/hooks/useI18n';
 import { LegacyElement } from '../../shared/ui/LegacyElement';
@@ -187,7 +187,7 @@ export const ContentWizardToolbar = ({
             <Toolbar.Container
                 aria-label={toolbarLabel}
                 className={cn(
-                    'content-wizard-toolbar w-full h-15 px-2 md:pl-2 md:pr-5 py-1.75 flex items-center border-b border-bdr-soft bg-surface-neutral',
+                    'content-wizard-toolbar w-full h-15 pl-3.5 pr-2 sm:pl-2 md:pr-5 py-1.75 flex items-center border-b border-bdr-soft bg-surface-neutral',
                     className,
                 )}
             >
@@ -196,9 +196,8 @@ export const ContentWizardToolbar = ({
                         <Button
                             size="sm"
                             variant="text"
-                            startIcon={ArrowLeft}
                             onClick={onProjectBack}
-                            className="min-w-fit pr-2.75 sm:pr-3.5"
+                            className="size-9 min-w-fit p-0 sm:w-auto sm:px-3.5"
                             aria-label={projectViewLabel}
                         >
                             <ProjectIcon
@@ -206,7 +205,7 @@ export const ContentWizardToolbar = ({
                                 language={projectLanguage || undefined}
                                 hasIcon={projectHasIcon}
                                 isLayer={isLayerProject}
-                                className="w-6 shrink-0 flex lg:hidden"
+                                className="size-6 shrink-0"
                             />
                             <span className="hidden lg:flex">{projectViewLabel}</span>
                         </Button>
