@@ -147,6 +147,7 @@ import com.enonic.xp.content.ContentValidityResult;
 import com.enonic.xp.content.ContentVersion;
 import com.enonic.xp.content.ContentVersionId;
 import com.enonic.xp.content.Contents;
+import com.enonic.xp.content.CreateContentParams;
 import com.enonic.xp.content.CreateMediaParams;
 import com.enonic.xp.content.FindContentByParentParams;
 import com.enonic.xp.content.FindContentByParentResult;
@@ -179,6 +180,10 @@ import com.enonic.xp.extractor.ExtractedData;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.index.ChildOrder;
 import com.enonic.xp.jaxrs.JaxRsComponent;
+import com.enonic.xp.page.GetDefaultPageTemplateParams;
+import com.enonic.xp.page.Page;
+import com.enonic.xp.page.PageTemplate;
+import com.enonic.xp.page.PageTemplateService;
 import com.enonic.xp.query.expr.CompareExpr;
 import com.enonic.xp.query.expr.FieldExpr;
 import com.enonic.xp.query.expr.FieldOrderExpr;
@@ -192,7 +197,9 @@ import com.enonic.xp.project.ProjectService;
 import com.enonic.xp.query.parser.QueryParser;
 import com.enonic.xp.repository.IndexException;
 import com.enonic.xp.repository.RepositoryId;
+import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeService;
+import com.enonic.xp.schema.content.GetContentTypeParams;
 import com.enonic.xp.security.Principal;
 import com.enonic.xp.security.PrincipalKey;
 import com.enonic.xp.security.PrincipalKeys;
@@ -204,10 +211,12 @@ import com.enonic.xp.security.acl.AccessControlEntry;
 import com.enonic.xp.security.acl.AccessControlList;
 import com.enonic.xp.security.acl.Permission;
 import com.enonic.xp.security.auth.AuthenticationInfo;
+import com.enonic.xp.site.Site;
 import com.enonic.xp.task.TaskService;
 import com.enonic.xp.util.BinaryReference;
 import com.enonic.xp.util.ByteSizeParser;
 import com.enonic.xp.util.Exceptions;
+import com.enonic.xp.util.GenericValue;
 import com.enonic.xp.web.multipart.MultipartForm;
 import com.enonic.xp.web.multipart.MultipartItem;
 
@@ -262,6 +271,8 @@ public final class ContentResource
 
     private ContentTypeService contentTypeService;
 
+    private PageTemplateService pageTemplateService;
+
     private LocaleService localeService;
 
     private SyncContentService syncContentService;
@@ -281,8 +292,34 @@ public final class ContentResource
     @Path("create")
     public ContentJson create( final CreateContentJson params, @Context HttpServletRequest request )
     {
-        final Content persistedContent = contentService.create( params.getCreateContent() );
+        final Content persistedContent = contentService.create( customizeOnCreate( params.getCreateContent() ) );
         return jsonObjectsFactory.createContentJson( persistedContent, request );
+    }
+
+    private CreateContentParams customizeOnCreate( final CreateContentParams params )
+    {
+        final ContentType contentType = contentTypeService.getByName( GetContentTypeParams.from( params.getType() ) );
+        final boolean customizeOnCreate = contentType != null &&
+            contentType.getSchemaConfig().optional( "customizeOnCreate" ).map( GenericValue::asBoolean ).orElse( Boolean.FALSE );
+        if ( !customizeOnCreate )
+        {
+            return params;
+        }
+
+        final Site site = contentService.findNearestSiteByPath( params.getParent() );
+        if ( site == null )
+        {
+            return params;
+        }
+
+        final PageTemplate pageTemplate = pageTemplateService.getDefault(
+            GetDefaultPageTemplateParams.create().sitePath( site.getPath() ).contentType( params.getType() ).build() );
+        if ( pageTemplate == null || pageTemplate.getPage() == null )
+        {
+            return params;
+        }
+
+        return CreateContentParams.create( params ).page( Page.create( pageTemplate.getPage() ).build() ).build();
     }
 
     @POST
@@ -1873,6 +1910,12 @@ public final class ContentResource
     public void setContentTypeService( final ContentTypeService contentTypeService )
     {
         this.contentTypeService = contentTypeService;
+    }
+
+    @Reference
+    public void setPageTemplateService( final PageTemplateService pageTemplateService )
+    {
+        this.pageTemplateService = pageTemplateService;
     }
 
     @Reference
