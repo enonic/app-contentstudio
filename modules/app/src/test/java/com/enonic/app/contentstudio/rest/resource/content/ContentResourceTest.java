@@ -151,7 +151,9 @@ import com.enonic.xp.icon.Icon;
 import com.enonic.xp.index.ChildOrder;
 import com.enonic.xp.jaxrs.impl.MockRestResponse;
 import com.enonic.xp.page.Page;
+import com.enonic.xp.page.PageTemplate;
 import com.enonic.xp.page.PageTemplateKey;
+import com.enonic.xp.page.PageTemplateService;
 import com.enonic.xp.portal.url.PortalUrlGeneratorService;
 import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.project.ProjectService;
@@ -164,6 +166,7 @@ import com.enonic.xp.region.Regions;
 import com.enonic.xp.repository.RepositoryId;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
+import com.enonic.xp.schema.content.ContentTypeNames;
 import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.schema.content.GetContentTypeParams;
 import com.enonic.xp.schema.mixin.MixinName;
@@ -186,6 +189,7 @@ import com.enonic.xp.site.Site;
 import com.enonic.xp.site.SiteConfig;
 import com.enonic.xp.site.SiteConfigs;
 import com.enonic.xp.site.SiteConfigsDataSerializer;
+import com.enonic.xp.util.GenericValue;
 import com.enonic.xp.task.SubmitLocalTaskParams;
 import com.enonic.xp.task.TaskId;
 import com.enonic.xp.task.TaskService;
@@ -255,6 +259,8 @@ public class ContentResourceTest
 
     private ProjectService projectService;
 
+    private PageTemplateService pageTemplateService;
+
     private PortalUrlGeneratorService portalUrlGeneratorService;
 
     private HttpServletRequest request;
@@ -296,6 +302,9 @@ public class ContentResourceTest
 
         projectService = mock( ProjectService.class );
         resource.setProjectService( projectService );
+
+        pageTemplateService = mock( PageTemplateService.class );
+        resource.setPageTemplateService( pageTemplateService );
 
         final ComponentDisplayNameResolverImpl componentNameResolver = new ComponentDisplayNameResolverImpl();
         componentNameResolver.setContentService( contentService );
@@ -724,6 +733,96 @@ public class ContentResourceTest
             .getAsString();
 
         assertJson( "create_content_inherit_success.json", jsonString );
+    }
+
+    @Test
+    public void create_content_customize_on_create()
+        throws Exception
+    {
+        final ContentType contentType = ContentType.create()
+            .superType( ContentTypeName.structured() )
+            .schemaConfig( GenericValue.newObject().put( "customizeOnCreate", true ).build() )
+            .title( "My type" )
+            .name( "myapplication:my-type" )
+            .build();
+        knownContentTypes.add( contentType );
+
+        final Site site = createSite( "site-id", "site", SiteConfigs.empty() );
+        when( contentService.findNearestSiteByPath( ContentPath.from( "/parent-path:/" ) ) ).thenReturn( site );
+
+        final DescriptorKey controller = DescriptorKey.from( "myapplication:my-page" );
+        final PageTemplate pageTemplate = createPageTemplate( site, "my-template", contentType.getName(), controller );
+        when( pageTemplateService.getDefault(
+            argThat( params -> site.getPath().equals( params.getSitePath() ) && contentType.getName().equals( params.getContentType() ) ) ) )
+            .thenReturn( pageTemplate );
+
+        final Content content = createContent( "content-id", "content-path", "myapplication:content-type" );
+        when( contentService.create( isA( CreateContentParams.class ) ) ).thenReturn( content );
+        when( contentService.findIdsByParent( any() ) ).thenReturn( FindContentIdsByParentResult.create().build() );
+
+        request().path( "content/create" )
+            .entity( readFromFile( "create_content_params.json" ), MediaType.APPLICATION_JSON_TYPE )
+            .post();
+
+        final ArgumentCaptor<CreateContentParams> captor = ArgumentCaptor.forClass( CreateContentParams.class );
+        verify( contentService ).create( captor.capture() );
+
+        final Page page = captor.getValue().getPage();
+        assertNotNull( page );
+        assertEquals( controller, page.getDescriptor() );
+        assertNull( page.getTemplate() );
+        assertEquals( pageTemplate.getPage().getRegions(), page.getRegions() );
+    }
+
+    @Test
+    public void create_content_customize_on_create_without_config()
+        throws Exception
+    {
+        knownContentTypes.add( createContentType( "myapplication:my-type" ) );
+
+        final Content content = createContent( "content-id", "content-path", "myapplication:content-type" );
+        when( contentService.create( isA( CreateContentParams.class ) ) ).thenReturn( content );
+        when( contentService.findIdsByParent( any() ) ).thenReturn( FindContentIdsByParentResult.create().build() );
+
+        request().path( "content/create" )
+            .entity( readFromFile( "create_content_params.json" ), MediaType.APPLICATION_JSON_TYPE )
+            .post();
+
+        final ArgumentCaptor<CreateContentParams> captor = ArgumentCaptor.forClass( CreateContentParams.class );
+        verify( contentService ).create( captor.capture() );
+
+        assertNull( captor.getValue().getPage() );
+        verify( pageTemplateService, never() ).getDefault( any() );
+    }
+
+    @Test
+    public void create_content_customize_on_create_no_template()
+        throws Exception
+    {
+        final ContentType contentType = ContentType.create()
+            .superType( ContentTypeName.structured() )
+            .schemaConfig( GenericValue.newObject().put( "customizeOnCreate", true ).build() )
+            .title( "My type" )
+            .name( "myapplication:my-type" )
+            .build();
+        knownContentTypes.add( contentType );
+
+        final Site site = createSite( "site-id", "site", SiteConfigs.empty() );
+        when( contentService.findNearestSiteByPath( any() ) ).thenReturn( site );
+        when( pageTemplateService.getDefault( any() ) ).thenReturn( null );
+
+        final Content content = createContent( "content-id", "content-path", "myapplication:content-type" );
+        when( contentService.create( isA( CreateContentParams.class ) ) ).thenReturn( content );
+        when( contentService.findIdsByParent( any() ) ).thenReturn( FindContentIdsByParentResult.create().build() );
+
+        request().path( "content/create" )
+            .entity( readFromFile( "create_content_params.json" ), MediaType.APPLICATION_JSON_TYPE )
+            .post();
+
+        final ArgumentCaptor<CreateContentParams> captor = ArgumentCaptor.forClass( CreateContentParams.class );
+        verify( contentService ).create( captor.capture() );
+
+        assertNull( captor.getValue().getPage() );
     }
 
     @Test
@@ -2917,6 +3016,36 @@ public class ContentResourceTest
             .displayName( "My Site" )
             .modifiedTime( this.fixedTime )
             .modifier( PrincipalKey.from( "user:system:admin" ) )
+            .build();
+    }
+
+    private PageTemplate createPageTemplate( final Site site, final String name, final ContentTypeName canRender,
+                                             final DescriptorKey controller )
+    {
+        final PropertyTree data = new PropertyTree();
+        data.addString( "supports", canRender.toString() );
+
+        final Region region = Region.create()
+            .name( "main" )
+            .add( PartComponent.create().descriptor( DescriptorKey.from( "myapplication:my-part" ) ).build() )
+            .build();
+
+        final Page page = Page.create()
+            .descriptor( controller )
+            .config( new PropertyTree() )
+            .regions( Regions.create().add( region ).build() )
+            .build();
+
+        return PageTemplate.newPageTemplate()
+            .canRender( ContentTypeNames.from( canRender ) )
+            .id( ContentId.from( "template-id" ) )
+            .name( name )
+            .displayName( "My page template" )
+            .owner( PrincipalKey.from( "user:myStore:me" ) )
+            .data( data )
+            .type( ContentTypeName.pageTemplate() )
+            .parentPath( ContentPath.from( site.getPath(), "_templates" ) )
+            .page( page )
             .build();
     }
 
