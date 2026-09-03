@@ -13,7 +13,6 @@ import { $issuesStats } from '../../entities/issue';
 import { $activeWidget, isMainWidget } from '../../widgets/context-panel/model/sidebarWidgets.store';
 import type { IssueStatsJson } from '../../../app/issue/json/IssueStatsJson';
 import { LegacyElement } from '../../shared/ui/LegacyElement';
-import { ThemeSwitcher } from '../../features/shared/ThemeSwitcher';
 import { BROWSE_SIDEBAR_ID, BROWSE_SIDEBAR_TOGGLE_ID } from './browseSidebar.constants';
 import { $isBrowseSidebarOpen, setBrowseSidebarOpen } from './model/browseSidebar.store';
 
@@ -104,8 +103,6 @@ export const BrowseAppBar = (): ReactElement => {
                         label={issuesStatsLabel}
                     />
                 )}
-
-                {!noProjectMode && <ThemeSwitcher />}
             </div>
         </header>
     );

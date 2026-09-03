@@ -6,4 +6,4 @@ config:
   width: "small"
   height: "small"
   order: 1
-  header: false
+
