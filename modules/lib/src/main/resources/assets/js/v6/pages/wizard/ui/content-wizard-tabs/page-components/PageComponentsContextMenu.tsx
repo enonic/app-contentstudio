@@ -1,14 +1,7 @@
 import { ContextMenu, getIsMobile } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { Box, Columns2, PenLine, Puzzle } from 'lucide-react';
-import {
-    type MouseEvent as ReactMouseEvent,
-    type ReactElement,
-    type ReactNode,
-    useCallback,
-    useMemo,
-    useState,
-} from 'react';
+import { type ReactElement, type ReactNode, useCallback, useMemo, useState } from 'react';
 import { SaveAsTemplateAction } from '../../../../../../app/wizard/action/SaveAsTemplateAction';
 import { FragmentComponent } from '../../../../../../app/page/region/FragmentComponent';
 import { ComponentPath } from '../../../../../../app/page/region/ComponentPath';
@@ -86,30 +79,6 @@ export const PageComponentsContextMenu = ({ node, children }: PageComponentsCont
     const editFragmentLabel = useI18n('action.editFragment');
     const saveAsTemplateLabel = useI18n('action.saveAsTemplate');
 
-    const handleClickCapture = useCallback((event: ReactMouseEvent<HTMLDivElement>): void => {
-        if (!getIsMobile() || event.button !== 0 || (event.target as Element).closest('button')) return;
-
-        event.preventDefault();
-        event.stopPropagation();
-        event.currentTarget.dispatchEvent(
-            new MouseEvent('contextmenu', {
-                bubbles: true,
-                cancelable: true,
-                clientX: event.clientX,
-                clientY: event.clientY,
-                button: 2,
-                view: window,
-            }),
-        );
-    }, []);
-
-    const handleContextMenuCapture = useCallback((event: ReactMouseEvent<HTMLDivElement>): void => {
-        if (!getIsMobile() || !event.isTrusted) return;
-
-        event.preventDefault();
-        event.stopPropagation();
-    }, []);
-
     const handlePointerDownOutside = useCallback((event: PointerEvent): void => {
         if (getIsMobile()) event.preventDefault();
     }, []);
@@ -137,13 +106,7 @@ export const PageComponentsContextMenu = ({ node, children }: PageComponentsCont
     if (isPageRoot) {
         return (
             <ContextMenu open={open} onOpenChange={setOpen} data-component={PAGE_COMPONENTS_CONTEXT_MENU_NAME}>
-                <ContextMenu.Trigger
-                    className="flex-1 min-w-0"
-                    onClickCapture={handleClickCapture}
-                    onContextMenuCapture={handleContextMenuCapture}
-                >
-                    {children}
-                </ContextMenu.Trigger>
+                <ContextMenu.Trigger className="flex-1 min-w-0">{children}</ContextMenu.Trigger>
                 <ContextMenu.Portal>
                     {mobileDismissLayer}
                     <ContextMenu.Content className="min-w-48" onPointerDownOutside={handlePointerDownOutside}>
@@ -163,13 +126,7 @@ export const PageComponentsContextMenu = ({ node, children }: PageComponentsCont
 
     return (
         <ContextMenu open={open} onOpenChange={setOpen} data-component={PAGE_COMPONENTS_CONTEXT_MENU_NAME}>
-            <ContextMenu.Trigger
-                className="flex-1 min-w-0"
-                onClickCapture={handleClickCapture}
-                onContextMenuCapture={handleContextMenuCapture}
-            >
-                {children}
-            </ContextMenu.Trigger>
+            <ContextMenu.Trigger className="flex-1 min-w-0">{children}</ContextMenu.Trigger>
             <ContextMenu.Portal>
                 {mobileDismissLayer}
                 <ContextMenu.Content className="min-w-48" onPointerDownOutside={handlePointerDownOutside}>
