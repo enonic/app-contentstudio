@@ -195,12 +195,17 @@ export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProp
         setFocusedNodeId(null);
     }, []);
 
-    const handleSelect = useCallback((nodeId: string): void => {
-        const path = ComponentPath.fromString(nodeId);
-        PageNavigationMediator.get().notify(
-            new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(path)),
-        );
-    }, []);
+    const handleSelect = useCallback(
+        (nodeId: string): void => {
+            const path = ComponentPath.fromString(nodeId);
+            const eventType =
+                getIsMobile() && inspectedPath === nodeId
+                    ? PageNavigationEventType.DESELECT
+                    : PageNavigationEventType.SELECT;
+            PageNavigationMediator.get().notify(new PageNavigationEvent(eventType, new PageNavigationEventData(path)));
+        },
+        [inspectedPath],
+    );
 
     const handleKeyDownCapture = useCallback(
         (event: ReactKeyboardEvent<HTMLDivElement>): void => {
