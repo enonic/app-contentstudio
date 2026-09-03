@@ -97,14 +97,16 @@ export function initPageEditorBridge(options?: InitPageEditorBridgeOptions): voi
             const type = event.getType();
             const isMobile = getIsMobile();
 
-            if (type === PageNavigationEventType.INSPECT || (type === PageNavigationEventType.SELECT && !isMobile)) {
+            if (type === PageNavigationEventType.INSPECT || type === PageNavigationEventType.SELECT) {
                 const path = event.getData().getPath();
                 $inspectedPath.set(path?.toString() ?? null);
                 bumpSelectionEventNonce();
-                setContextOpen(true);
+                if (type === PageNavigationEventType.INSPECT || !isMobile) {
+                    setContextOpen(true);
+                }
                 return;
             }
-            if (type === PageNavigationEventType.DESELECT && !isMobile) {
+            if (type === PageNavigationEventType.DESELECT) {
                 $inspectedPath.set(null);
                 bumpSelectionEventNonce();
             }
