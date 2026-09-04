@@ -83,7 +83,7 @@
     "@types/q": "^1.5.8",
     "autoprefixer": "^10.5.4",
     "browserslist-config-enonic": "^1.0.8",
-    "css-loader": "^7.1.2",
+    "css-loader": "^7.1.5",
     "cssnano": "^8.0.2",
     "less-loader": "^13.0.0",
     "oxfmt": "0.66.0",
