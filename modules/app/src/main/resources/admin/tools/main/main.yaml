@@ -16,6 +16,7 @@ apis:
   - "import-content"
   - "media:image"
   - "styles"
+  - "admin:events"
   - "admin:extension"
   - "admin:status"
   - "com.enonic.app.contentstudio.plus:license"
