@@ -1,7 +1,9 @@
 import { ResponsiveManager } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import { Toolbar } from '@enonic/ui';
+import { cn, Toolbar } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
 import type { ReactElement } from 'react';
 import type { ContentSummaryAndCompareStatus } from '../../../../app/content/ContentSummaryAndCompareStatus';
+import { $contextPanelMode } from '../../../shared/app-state/browsePanels.store';
 import { LegacyElement } from '../../../shared/ui/LegacyElement';
 import { PreviewToolbarEmulatorSelector } from './PreviewToolbarEmulatorSelector';
 import { PreviewToolbarRefreshItem } from './PreviewToolbarRefreshItem';
@@ -11,16 +13,26 @@ import { PreviewToolbarWidgetSelector } from './PreviewToolbarWidgetSelector';
 type PreviewToolbarProps = {
     item?: ContentSummaryAndCompareStatus | null;
     onRefresh?: () => void;
+    hideInMobileMode?: boolean;
 };
 
-const PreviewToolbar = ({ item = null, onRefresh }: PreviewToolbarProps): ReactElement | null => {
+const PreviewToolbar = ({
+    item = null,
+    onRefresh,
+    hideInMobileMode = false,
+}: PreviewToolbarProps): ReactElement | null => {
+    const mode = useStore($contextPanelMode);
+
     if (!item) return null;
 
     return (
         <Toolbar>
             <Toolbar.Container
                 aria-label="Preview toolbar"
-                className="@container bg-surface-neutral h-15 px-5 py-3.75 flex items-center justify-between border-b border-bdr-soft"
+                className={cn(
+                    '@container bg-surface-neutral h-15 px-5 py-3.75 flex items-center justify-between border-b border-bdr-soft',
+                    hideInMobileMode && mode === 'mobile' && 'hidden',
+                )}
             >
                 <PreviewToolbarVersionHistoryItem contentSummary={item.getContentSummary()} />
 
@@ -38,8 +50,8 @@ const PreviewToolbar = ({ item = null, onRefresh }: PreviewToolbarProps): ReactE
 PreviewToolbar.displayName = 'PreviewToolbar';
 
 export class PreviewToolbarElement extends LegacyElement<typeof PreviewToolbar, PreviewToolbarProps> {
-    constructor() {
-        super({}, PreviewToolbar);
+    constructor(props: Pick<PreviewToolbarProps, 'hideInMobileMode'> = {}) {
+        super(props, PreviewToolbar);
     }
 
     public getItem(): ContentSummaryAndCompareStatus | null {

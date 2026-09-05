@@ -155,7 +155,7 @@ export class ContentItemPreviewPanel extends Panel implements ExtensionRenderer 
     }
 
     createToolbar(): PreviewToolbarElement {
-        return new PreviewToolbarElement();
+        return new PreviewToolbarElement({ hideInMobileMode: true });
     }
 
     public getIFrameEl(): IFrameEl {

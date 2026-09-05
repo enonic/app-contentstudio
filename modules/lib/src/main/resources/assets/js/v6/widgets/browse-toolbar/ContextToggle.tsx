@@ -2,14 +2,15 @@ import { cn, Toggle, Toolbar, Tooltip } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { PanelRightClose, PanelRightOpen } from 'lucide-react';
 import { ReactElement } from 'react';
+import { $isContextOpen, setContextOpen } from '../../shared/app-state/browsePanels.store';
 import { useI18n } from '../../shared/lib/hooks/useI18n';
-import { $isContextOpen, setContextOpen } from '../context-panel/model/contextWidgets.store';
 
 type Props = {
     className?: string;
+    tooltipClassName?: string;
 };
 
-export const ContextToggle = ({ className }: Props): ReactElement => {
+export const ContextToggle = ({ className, tooltipClassName }: Props): ReactElement => {
     const isContextOpen = useStore($isContextOpen);
 
     const showReachLabel = useI18n('tooltip.contextPanel.show');
@@ -18,7 +19,7 @@ export const ContextToggle = ({ className }: Props): ReactElement => {
     const ContextIcon = isContextOpen ? PanelRightClose : PanelRightOpen;
 
     return (
-        <Tooltip delay={300} side="left" value={contextLabel} asChild>
+        <Tooltip delay={300} side="left" value={contextLabel} className={tooltipClassName} asChild>
             <Toolbar.Item asChild>
                 <Toggle
                     className={cn('size-9 p-0', className)}

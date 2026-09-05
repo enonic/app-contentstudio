@@ -251,6 +251,10 @@ export class ContextView extends DivEl {
         return this.contextContainer;
     }
 
+    setMobileWidgetSelectorTarget(target?: HTMLElement): void {
+        this.widgetsSelector.setMobileToolbarTarget(target);
+    }
+
     private initDivForNoSelection(): void {
         this.divForNoSelection = new DivEl('no-selection-message bg-surface-primary');
         const label = new PreviewLabelElement({
