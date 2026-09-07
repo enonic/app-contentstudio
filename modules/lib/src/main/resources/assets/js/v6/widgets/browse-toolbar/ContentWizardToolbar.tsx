@@ -123,6 +123,7 @@ export const ContentWizardToolbar = ({
     const nameFieldLabel = useI18n('field.name');
     const unnamedFieldLabel = useI18n('field.unnamed');
     const aiAssistantLabel = useI18n('tooltip.ai.assistant');
+    const actionsLabel = useI18n('action.actions');
     const pathExistsLabel = useI18n('notify.path.not.available');
     const projectViewLabel = projectLabel || projectRoot;
     const unnamedPathLabel = `<${unnamedFieldLabel}>`;
@@ -214,6 +215,7 @@ export const ContentWizardToolbar = ({
                         <SplitActionButton
                             actions={mobileSplitActions}
                             disabled={!isMobileActionsSplitVisible || isPathFetchingDelayed}
+                            menuOnlyLabel={actionsLabel}
                         />
                     </div>
                     <OverflowActionRow actions={toolbarActions} className="hidden sm:flex min-w-0 flex-1" />

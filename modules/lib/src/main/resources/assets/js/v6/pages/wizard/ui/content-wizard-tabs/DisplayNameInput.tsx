@@ -190,7 +190,7 @@ export const DisplayNameInput = (): ReactElement => {
                     onClick={startEditing}
                     onFocus={startEditing}
                     className={cn(
-                        'block w-full min-w-64 border-0 border-l-1 bg-transparent text-left text-[2rem] font-semibold',
+                        'block w-full min-w-64 border-0 border-l-1 bg-transparent text-left text-[1.5rem] sm:text-[2rem] font-semibold',
                         'px-2.5 py-1 pl-4.5 rounded-none',
                         'hover:not-disabled:border-l-4 hover:not-disabled:pl-3.75',
                         'focus:outline-none focus:ring-0 focus:ring-offset-0',
@@ -222,7 +222,7 @@ export const DisplayNameInput = (): ReactElement => {
                     disabled={readOnly}
                     className={cn(
                         'block w-full min-w-64 resize-none overflow-hidden whitespace-pre-wrap break-words bg-transparent',
-                        'border-0 border-l-1 text-[2rem] font-semibold px-2.5 py-1 pl-4.5',
+                        'border-0 border-l-1 text-[1.5rem] sm:text-[2rem] font-semibold px-2.5 py-1 pl-4.5',
                         '[&:hover,&:focus]:border-l-4 [&:hover,&:focus]:pl-3.75 placeholder:text-subtle/50 rounded-none',
                         'transition-highlight focus:outline-none disabled:select-none disabled:cursor-not-allowed',
                         'focus:ring-0 focus:ring-offset-0 focus:border-transparent',

@@ -14,12 +14,14 @@ type PreviewToolbarProps = {
     item?: ContentSummaryAndCompareStatus | null;
     onRefresh?: () => void;
     hideInMobileMode?: boolean;
+    editorLayout?: boolean;
 };
 
 const PreviewToolbar = ({
     item = null,
     onRefresh,
     hideInMobileMode = false,
+    editorLayout = false,
 }: PreviewToolbarProps): ReactElement | null => {
     const mode = useStore($contextPanelMode);
 
@@ -30,18 +32,31 @@ const PreviewToolbar = ({
             <Toolbar.Container
                 aria-label="Preview toolbar"
                 className={cn(
-                    '@container bg-surface-neutral h-15 px-5 py-3.75 flex items-center justify-between border-b border-bdr-soft',
+                    '@container bg-surface-neutral h-15 py-3.75 flex items-center justify-between border-b border-bdr-soft',
+                    editorLayout ? 'px-2' : 'px-5',
                     hideInMobileMode && mode === 'mobile' && 'hidden',
                 )}
             >
-                <PreviewToolbarVersionHistoryItem contentSummary={item.getContentSummary()} />
+                <PreviewToolbarVersionHistoryItem contentSummary={item.getContentSummary()} showStatus={editorLayout} />
 
-                <div className="flex gap-2 @md:gap-5 flex-nowrap shrink-0">
-                    <PreviewToolbarEmulatorSelector />
-                    <PreviewToolbarWidgetSelector />
-                </div>
+                {editorLayout ? (
+                    <>
+                        <PreviewToolbarEmulatorSelector />
+                        <div className="flex items-center gap-2 flex-nowrap shrink-0">
+                            <PreviewToolbarWidgetSelector />
+                            <PreviewToolbarRefreshItem onRefresh={onRefresh} />
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        <div className="flex gap-2 @md:gap-5 flex-nowrap shrink-0">
+                            <PreviewToolbarEmulatorSelector />
+                            <PreviewToolbarWidgetSelector />
+                        </div>
 
-                <PreviewToolbarRefreshItem onRefresh={onRefresh} />
+                        <PreviewToolbarRefreshItem onRefresh={onRefresh} />
+                    </>
+                )}
             </Toolbar.Container>
         </Toolbar>
     );
@@ -50,7 +65,7 @@ const PreviewToolbar = ({
 PreviewToolbar.displayName = 'PreviewToolbar';
 
 export class PreviewToolbarElement extends LegacyElement<typeof PreviewToolbar, PreviewToolbarProps> {
-    constructor(props: Pick<PreviewToolbarProps, 'hideInMobileMode'> = {}) {
+    constructor(props: Pick<PreviewToolbarProps, 'hideInMobileMode' | 'editorLayout'> = {}) {
         super(props, PreviewToolbar);
     }
 
