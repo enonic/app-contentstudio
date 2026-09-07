@@ -224,13 +224,15 @@ describe('SplitActionButton', () => {
         expect(menuItems.every((item) => item.disabled)).toBe(true);
     });
 
-    it('renders every action in one menu when configured as menu-only', () => {
+    it('renders every visible action in one menu when configured as menu-only', () => {
         const primary = createAction({ label: 'Primary' });
         const secondary = createAction({ label: 'Secondary' });
+        const hidden = createAction({ label: 'Hidden', visible: false });
 
-        render(<SplitActionButton actions={[[primary, secondary]]} menuOnlyLabel="Actions" />);
+        render(<SplitActionButton actions={[[primary, secondary, hidden]]} menuOnlyLabel="Actions" />);
 
         expect(screen.getByRole('button', { name: 'Actions' })).toBeDefined();
+        expect(screen.queryByRole('button', { name: 'Primary' })).toBeNull();
         expect(screen.getAllByRole('menuitem').map((item) => item.textContent?.trim())).toEqual([
             'Primary',
             'Secondary',

@@ -23,7 +23,7 @@ export class FrameContainer extends Panel {
         this.setDoOffset(false);
 
         this.proxy = config.proxy;
-        this.toolbar = new PreviewToolbarElement();
+        this.toolbar = new PreviewToolbarElement({ editorLayout: true });
         this.imageEditor = new LiveViewImageEditorElement();
 
         this.wrapper = new DivEl('wrapper');

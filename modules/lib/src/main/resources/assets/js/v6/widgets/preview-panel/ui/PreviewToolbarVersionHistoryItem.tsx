@@ -17,11 +17,13 @@ import { VERSIONS_WIDGET_NAME } from '../../../shared/lib/widget/versions/versio
 type PreviewToolbarVersionHistoryItemProps = {
     contentSummary: ContentSummary;
     mobile?: boolean;
+    showStatus?: boolean;
 };
 
 export function PreviewToolbarVersionHistoryItem({
     contentSummary,
     mobile = false,
+    showStatus = false,
 }: PreviewToolbarVersionHistoryItemProps): ReactElement {
     const ariaLabel = useI18n('wcag.preview.toolbar.versionHistory.label');
 
@@ -43,13 +45,15 @@ export function PreviewToolbarVersionHistoryItem({
         <Toolbar.Item asChild>
             <Button
                 size="sm"
-                className={mobile ? 'min-w-9 flex-shrink-0' : 'min-w-9 @max-sm:p-0 flex-shrink-0'}
+                className={mobile ? 'min-w-9 shrink-0' : showStatus ? 'min-w-0 shrink' : 'min-w-9 @max-sm:p-0 shrink-0'}
                 aria-label={ariaLabel}
                 startIcon={History}
-                startIconClassName={mobile ? 'size-5' : undefined}
+                startIconClassName={mobile ? 'size-5 shrink-0' : 'shrink-0'}
                 onClick={handleShowVersionHistory}
             >
-                <span className={mobile ? 'inline' : 'hidden @sm:inline'}>{buttonLabel}</span>
+                <span className={mobile ? 'inline' : showStatus ? 'min-w-0 truncate' : 'hidden @sm:inline'}>
+                    {buttonLabel}
+                </span>
             </Button>
         </Toolbar.Item>
     );
