@@ -4,6 +4,7 @@ Content Studio - Authoring interface for Enonic XP
 [![Actions Status](https://github.com/enonic/app-contentstudio/workflows/Gradle%20Build/badge.svg)](https://github.com/enonic/app-contentstudio/actions)
 [![License][license-image]][license-url]
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/058e2e1b329b41e38a00769827b7912b)](https://www.codacy.com/gh/enonic/app-contentstudio/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=enonic/app-contentstudio&amp;utm_campaign=Badge_Grade)
+[![Enonic XP 8](https://market.enonic.com/badges/xp8.svg)](https://market.enonic.com/vendors/enonic/content-studio)
 
 Manage your content stored in [Enonic XP](https://github.com/enonic/xp). The documentation can be found [here](https://developer.enonic.com/docs/content-studio/stable).
 
