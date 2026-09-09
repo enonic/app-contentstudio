@@ -1,4 +1,4 @@
-import { GridList, IconButton } from '@enonic/ui';
+import { cn, GridList, IconButton } from '@enonic/ui';
 import { X } from 'lucide-react';
 import type { ReactElement } from 'react';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
@@ -13,15 +13,21 @@ export const ContentRowRemoveButton = ({
     title,
     className,
 }: ContentRowRemoveButtonProps): ReactElement => {
-    const { disabled: contextDisabled } = useContentRow();
+    const { disabled: contextDisabled, mainItemButtonLayoutBelowSm } = useContentRow();
     const isDisabled = disabled ?? contextDisabled;
     const removeLabel = useI18n('action.removeFromList');
 
     return (
-        <GridList.Cell data-component={CONTENT_ROW_REMOVE_BUTTON_NAME} className={className ?? 'shrink-0 ml-auto'}>
+        <GridList.Cell
+            data-component={CONTENT_ROW_REMOVE_BUTTON_NAME}
+            className={cn(
+                className ?? 'shrink-0 ml-auto',
+                mainItemButtonLayoutBelowSm && 'max-sm:col-start-2 max-sm:row-start-1 max-sm:self-start',
+            )}
+        >
             <GridList.Action>
                 <IconButton
-                    className="size-8"
+                    className={cn('size-8', mainItemButtonLayoutBelowSm && 'max-sm:size-6')}
                     icon={X}
                     variant="text"
                     size="sm"

@@ -93,6 +93,7 @@ export const UnpublishDialogMainContent = ({
                     isInbound={isInbound}
                     label={title}
                     dependantVariant="compact"
+                    mobileLayoutBelowSm
                     hasMore={hasMoreDependants}
                     onEndReached={loadMoreUnpublishDependants}
                 />

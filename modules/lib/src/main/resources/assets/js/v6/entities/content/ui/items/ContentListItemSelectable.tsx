@@ -15,6 +15,7 @@ export type ContentListItemSelectableProps = {
      * Set to -1 when used inside TreeList to enable F2 action mode navigation.
      */
     tabIndex?: number;
+    statusBelowLabelBelowSm?: boolean;
 } & Pick<CheckboxProps, 'className' | 'readOnly' | 'checked' | 'defaultChecked' | 'onCheckedChange'> & {
         checked?: boolean;
         defaultChecked?: boolean;
@@ -33,6 +34,7 @@ export const ContentListItemSelectable = ({
     onCheckedChange,
     readOnly,
     tabIndex,
+    statusBelowLabelBelowSm = false,
     ...props
 }: ContentListItemSelectableProps): React.ReactElement => {
     const checkboxId = `${CONTENT_LIST_ITEM_SELECTABLE_NAME}-${id || content.getId()}-checkbox`;
@@ -42,8 +44,18 @@ export const ContentListItemSelectable = ({
     };
 
     return (
-        <ListItem role="row" className={cn('py-0', className)} aria-selected={checked} {...props}>
-            <ListItem.Left>
+        <ListItem
+            role="row"
+            className={cn(
+                'py-0',
+                statusBelowLabelBelowSm &&
+                    'max-sm:grid max-sm:grid-cols-[auto_minmax(0,1fr)] max-sm:gap-x-2.5 max-sm:gap-y-0',
+                className,
+            )}
+            aria-selected={checked}
+            {...props}
+        >
+            <ListItem.Left className={cn(statusBelowLabelBelowSm && 'max-sm:col-start-1 max-sm:row-start-1')}>
                 <Checkbox
                     id={checkboxId}
                     checked={checked}
@@ -53,7 +65,9 @@ export const ContentListItemSelectable = ({
                     tabIndex={tabIndex}
                 />
             </ListItem.Left>
-            <ListItem.Content className="flex">
+            <ListItem.Content
+                className={cn('flex', statusBelowLabelBelowSm && 'max-sm:col-start-2 max-sm:row-start-1')}
+            >
                 <Button
                     onClick={handleClick}
                     tabIndex={tabIndex}
@@ -62,7 +76,14 @@ export const ContentListItemSelectable = ({
                     <ContentLabel content={content} variant="compact" />
                 </Button>
             </ListItem.Content>
-            <ListItem.Right>{status && <DiffStatusBadge contentSummary={content} />}</ListItem.Right>
+            <ListItem.Right
+                className={cn(
+                    statusBelowLabelBelowSm &&
+                        'max-sm:col-start-2 max-sm:row-start-2 max-sm:ml-8.5 max-sm:justify-start',
+                )}
+            >
+                {status && <DiffStatusBadge contentSummary={content} />}
+            </ListItem.Right>
         </ListItem>
     );
 };

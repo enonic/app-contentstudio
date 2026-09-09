@@ -43,6 +43,7 @@ export class PublishDialogDependantList extends DialogDependantItemsList {
             className,
             readOnly: readOnly || !this.isItemExcludable(content),
             checked: this.mustSelectItem(content),
+            statusBelowLabelBelowSm: true,
             onCheckedChange: () => this.handleSelectionChange(),
         });
     }

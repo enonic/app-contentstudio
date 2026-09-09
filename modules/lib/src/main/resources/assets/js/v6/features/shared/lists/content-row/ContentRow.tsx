@@ -1,12 +1,12 @@
-import {GridList} from '@enonic/ui';
-import type {ReactElement} from 'react';
-import {useMemo} from 'react';
-import {ContentRowCell} from './ContentRowCell';
-import {ContentRowCheckbox} from './ContentRowCheckbox';
-import {ContentRowContext} from './ContentRowContext';
-import {ContentRowLabel} from './ContentRowLabel';
-import {ContentRowRemoveButton} from './ContentRowRemoveButton';
-import {ContentRowStatus} from './ContentRowStatus';
+import { cn, GridList } from '@enonic/ui';
+import type { ReactElement } from 'react';
+import { useMemo } from 'react';
+import { ContentRowCell } from './ContentRowCell';
+import { ContentRowCheckbox } from './ContentRowCheckbox';
+import { ContentRowContext } from './ContentRowContext';
+import { ContentRowLabel } from './ContentRowLabel';
+import { ContentRowRemoveButton } from './ContentRowRemoveButton';
+import { ContentRowStatus } from './ContentRowStatus';
 import type {
     ContentRowCellProps,
     ContentRowCheckboxProps,
@@ -20,10 +20,15 @@ const ContentRowRoot = ({
     content,
     id,
     disabled = false,
+    statusBelowLabelBelowSm = false,
+    mainItemButtonLayoutBelowSm = false,
     className,
     children,
 }: ContentRowProps): ReactElement => {
-    const contextValue = useMemo(() => ({content, disabled}), [content, disabled]);
+    const contextValue = useMemo(
+        () => ({ content, disabled, statusBelowLabelBelowSm, mainItemButtonLayoutBelowSm }),
+        [content, disabled, statusBelowLabelBelowSm, mainItemButtonLayoutBelowSm],
+    );
 
     return (
         <ContentRowContext.Provider value={contextValue}>
@@ -31,7 +36,12 @@ const ContentRowRoot = ({
                 data-component="ContentRow"
                 id={id}
                 disabled={disabled}
-                className={className ?? 'gap-3 px-2.5'}
+                className={cn(
+                    className ?? 'gap-3 px-2.5',
+                    statusBelowLabelBelowSm && 'max-sm:grid max-sm:grid-cols-[auto_minmax(0,1fr)] max-sm:gap-y-0',
+                    mainItemButtonLayoutBelowSm &&
+                        'max-sm:grid max-sm:grid-cols-[minmax(0,1fr)_auto] max-sm:gap-x-1 max-sm:gap-y-0',
+                )}
             >
                 {children}
             </GridList.Row>

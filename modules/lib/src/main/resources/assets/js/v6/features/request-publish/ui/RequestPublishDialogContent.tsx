@@ -229,6 +229,7 @@ export const RequestPublishDialogContent = (): ReactElement => {
                                                 content={item}
                                                 id={`main-${item.getId()}`}
                                                 disabled={isItemsDisabled}
+                                                mainItemButtonLayoutBelowSm
                                             >
                                                 <ContentRow.Label action="edit" variant="detailed" />
                                                 <ContentRow.Status />
@@ -306,6 +307,7 @@ export const RequestPublishDialogContent = (): ReactElement => {
                                                 content={item}
                                                 id={item.getId()}
                                                 disabled={isItemsDisabled}
+                                                statusBelowLabelBelowSm
                                             >
                                                 <ContentRow.Checkbox
                                                     checked={included}

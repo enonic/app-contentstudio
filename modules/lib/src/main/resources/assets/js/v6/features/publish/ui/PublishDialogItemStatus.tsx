@@ -1,4 +1,4 @@
-import { GridList } from '@enonic/ui';
+import { cn, GridList } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { type ReactElement, useMemo } from 'react';
 import { DiffStatusBadge } from '../../shared/status/DiffStatusBadge';
@@ -11,7 +11,7 @@ import { useI18n } from '../../../shared/lib/hooks/useI18n';
 const COMPONENT_NAME = 'PublishDialogItemStatus';
 
 export const PublishDialogItemStatus = (): ReactElement => {
-    const { content } = useContentRow();
+    const { content, statusBelowLabelBelowSm, mainItemButtonLayoutBelowSm } = useContentRow();
     const compareStatuses = useStore($publishCompareStatuses);
     const compareLoading = useStore($isCompareStatusesLoading);
 
@@ -37,7 +37,16 @@ export const PublishDialogItemStatus = (): ReactElement => {
     }
 
     return (
-        <GridList.Cell data-component={COMPONENT_NAME} interactive={false} className="shrink-0">
+        <GridList.Cell
+            data-component={COMPONENT_NAME}
+            interactive={false}
+            className={cn(
+                'shrink-0',
+                statusBelowLabelBelowSm && 'max-sm:col-start-2 max-sm:row-start-2 max-sm:ml-8.5 max-sm:justify-start',
+                mainItemButtonLayoutBelowSm &&
+                    'max-sm:col-start-1 max-sm:row-start-2 max-sm:ml-8.5 max-sm:justify-start',
+            )}
+        >
             <DiffStatusBadge contentSummary={content} secondaryStatusOverride={secondaryOverride} />
         </GridList.Cell>
     );
