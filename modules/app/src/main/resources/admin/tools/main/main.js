@@ -37,7 +37,8 @@ function applySecurityPolicy(isBrowseMode) {
         .fontSrc(portal.CspSource.SELF, portal.CspSource.DATA)
         .objectSrc(portal.CspSource.NONE)
         .formAction(portal.CspSource.SELF)
-        .frameAncestors(portal.CspSource.SELF);
+        .frameAncestors(portal.CspSource.SELF)
+        .frameSrc(portal.CspSource.SELF);
 
     if (baseMarketUrl) {
         csp.connectSrc(portal.CspSource.SELF, baseMarketUrl);
