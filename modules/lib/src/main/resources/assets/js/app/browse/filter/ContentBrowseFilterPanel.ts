@@ -102,7 +102,9 @@ export class ContentBrowseFilterPanel<
         });
 
         const debouncedSearch = AppHelper.debounce(() => {
-            this.search();
+            if (this.isRendered()) {
+                this.search();
+            }
         }, 300);
 
         const unsubscribe = $contentFilterState.listen(() => {
