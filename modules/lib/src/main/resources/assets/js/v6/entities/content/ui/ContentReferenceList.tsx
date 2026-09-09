@@ -44,6 +44,7 @@ export type ContentReferenceListProps = {
     mainListClassName?: string;
     dependantListClassName?: string;
     dependantSectionClassName?: string;
+    mobileLayoutBelowSm?: boolean;
     /** When true, more dependants can be lazy-loaded as the user scrolls to the end. */
     hasMore?: boolean;
     /** Invoked when the end of the dependant list is scrolled into view. */
@@ -112,6 +113,7 @@ export const ContentReferenceList = ({
     mainListClassName,
     dependantListClassName,
     dependantSectionClassName,
+    mobileLayoutBelowSm = false,
     hasMore = false,
     onEndReached,
     'data-component': componentName = CONTENT_REFERENCE_LIST_NAME,
@@ -303,6 +305,11 @@ export const ContentReferenceList = ({
             role="row"
             aria-rowindex={row.rowIndex + 1}
             variant={row.variant}
+            statusBelowLabelBelowSm={
+                mobileLayoutBelowSm &&
+                (row.section === 'main' || (row.section === 'dependant' && row.variant === 'compact'))
+            }
+            rightSlotAfterStatusBelowSm={mobileLayoutBelowSm}
             content={row.content}
             branch={branch}
             hasInbound={row.hasInbound}
@@ -318,6 +325,7 @@ export const ContentReferenceList = ({
             referenceLinkProps={{
                 id: getActionId(baseId, row.rowIndex, 'reference'),
                 tabIndex: -1,
+                compactIconBelowSm: mobileLayoutBelowSm,
                 'data-active': isActionActive(row.rowIndex, 'reference') || undefined,
                 className: ACTIVE_REFERENCE_LINK_CLASS,
                 onMouseDown: (event) => handleActionMouseDown(event, row.rowIndex, 'reference'),

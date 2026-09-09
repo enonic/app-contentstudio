@@ -96,6 +96,7 @@ export const DeleteDialogMainContent = ({
                     isInbound={isInbound}
                     label={title}
                     dependantVariant="compact"
+                    mobileLayoutBelowSm
                     hasMore={hasMoreDependants}
                     onEndReached={loadMoreDeleteDependants}
                 />

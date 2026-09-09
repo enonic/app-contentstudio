@@ -1,10 +1,12 @@
-import type {ReactNode} from 'react';
-import type {ContentSummary} from '../../../../../app/content/ContentSummary';
+import type { ReactNode } from 'react';
+import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 
 export type ContentRowProps = {
     content: ContentSummary;
     id: string;
     disabled?: boolean;
+    statusBelowLabelBelowSm?: boolean;
+    mainItemButtonLayoutBelowSm?: boolean;
     className?: string;
     children: ReactNode;
 };
@@ -12,6 +14,8 @@ export type ContentRowProps = {
 export type ContentRowContextValue = {
     content: ContentSummary;
     disabled: boolean;
+    statusBelowLabelBelowSm: boolean;
+    mainItemButtonLayoutBelowSm: boolean;
 };
 
 export type ContentRowCheckboxProps = {

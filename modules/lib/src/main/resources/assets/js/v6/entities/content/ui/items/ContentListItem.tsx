@@ -13,6 +13,8 @@ export type ContentButtonProps = Omit<ButtonProps, 'children'> & {
 export type ContentItemProps = {
     content: ContentSummary;
     variant?: ContentLabelVariant;
+    statusBelowLabelBelowSm?: boolean;
+    rightSlotAfterStatusBelowSm?: boolean;
     rightSlotOrder?: 'before-status' | 'after-status';
     contentButtonProps?: ContentButtonProps;
     contentButtonRef?: Ref<HTMLButtonElement>;
@@ -25,6 +27,8 @@ const CONTENT_LIST_ITEM_NAME = 'ContentListItem';
 export const ContentListItem = ({
     content,
     variant,
+    statusBelowLabelBelowSm = false,
+    rightSlotAfterStatusBelowSm = false,
     rightSlotOrder = 'before-status',
     selected = false,
     className,
@@ -50,7 +54,16 @@ export const ContentListItem = ({
     };
 
     return (
-        <ListItem selected={selected} data-component={componentName} className={cn('pl-0 py-0', className)} {...props}>
+        <ListItem
+            selected={selected}
+            data-component={componentName}
+            className={cn(
+                'pl-0 py-0',
+                statusBelowLabelBelowSm && 'max-sm:grid max-sm:grid-cols-1 max-sm:gap-0',
+                className,
+            )}
+            {...props}
+        >
             <ListItem.Content className="flex">
                 <Button
                     ref={contentButtonRef}
@@ -66,10 +79,22 @@ export const ContentListItem = ({
                     <ContentLabel content={content} variant={variant} />
                 </Button>
             </ListItem.Content>
-            <ListItem.Right className="self-stretch">
-                {rightSlotOrder === 'before-status' && children}
-                <DiffStatusBadge contentSummary={content} />
-                {rightSlotOrder === 'after-status' && children}
+            <ListItem.Right
+                className={cn(
+                    'self-stretch',
+                    statusBelowLabelBelowSm &&
+                        'max-sm:ml-11 max-sm:min-w-0 max-sm:gap-2.5 max-sm:justify-start max-sm:self-auto max-sm:pr-2.5 max-sm:pb-1',
+                )}
+            >
+                {rightSlotOrder === 'before-status' && children && (
+                    <div className={cn('contents', rightSlotAfterStatusBelowSm && 'max-sm:order-2 max-sm:flex')}>
+                        {children}
+                    </div>
+                )}
+                <div className={cn('contents', rightSlotAfterStatusBelowSm && 'max-sm:order-1 max-sm:flex')}>
+                    <DiffStatusBadge contentSummary={content} />
+                </div>
+                {rightSlotOrder === 'after-status' && children && <div className="contents">{children}</div>}
             </ListItem.Right>
         </ListItem>
     );
