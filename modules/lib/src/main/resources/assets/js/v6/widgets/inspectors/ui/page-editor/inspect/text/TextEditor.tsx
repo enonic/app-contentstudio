@@ -41,6 +41,7 @@ import {
 } from '../../../../../../features/rich-text-inserts/ui/htmlarea-macro/HtmlAreaMacroDialog';
 import type { OpenHtmlAreaMacroDialogParams } from '../../../../../../features/rich-text-inserts/ui/htmlarea-macro/HtmlAreaMacroDialogContext';
 import type { HtmlAreaConfig } from '../../../../../../features/shared/form/input-types/html-area/HtmlAreaConfig';
+import { HtmlAreaProvider } from '../../../../../../features/shared/form/input-types/html-area/HtmlAreaContext';
 import {
     createContentSaveHandler,
     getCursorPosition,
@@ -542,7 +543,14 @@ const TextEditorInner = ({
             </div>
             <HtmlAreaImageDialog openRef={openImageDialogRef} />
             <HtmlAreaLinkDialog openRef={openLinkDialogRef} />
-            <HtmlAreaMacroDialog openRef={openMacroDialogRef} />
+            <HtmlAreaProvider
+                contentSummary={contentSummary}
+                project={project}
+                applicationKeys={applicationKeys}
+                assetsUri={assetsUri}
+            >
+                <HtmlAreaMacroDialog openRef={openMacroDialogRef} />
+            </HtmlAreaProvider>
             <HtmlAreaDialogs editorId={editorId} />
         </>
     );

@@ -1,3 +1,4 @@
+import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import type { PropertyArrayJson } from '@enonic/lib-admin-ui/data/PropertyArrayJson';
 import { PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
@@ -48,6 +49,8 @@ export type HtmlAreaMacroDialogState = {
     touchedFields: Readonly<Record<string, true>>;
     dataVersion: number;
 };
+
+const NO_APPLICATION_KEYS: ApplicationKey[] = [];
 
 export type OpenHtmlAreaMacroDialogParams = {
     ckeEditor: CKEDITOR.editor;
@@ -277,7 +280,7 @@ export function HtmlAreaMacroDialogProvider({ children, openRef }: HtmlAreaMacro
     const stateRef = useRef(state);
     stateRef.current = state;
 
-    const applicationKeys = useOptionalHtmlAreaContext()?.applicationKeys ?? [];
+    const applicationKeys = useOptionalHtmlAreaContext()?.applicationKeys ?? NO_APPLICATION_KEYS;
 
     // Session counter to reject async responses from a previous open/close cycle
     const sessionIdRef = useRef(0);
