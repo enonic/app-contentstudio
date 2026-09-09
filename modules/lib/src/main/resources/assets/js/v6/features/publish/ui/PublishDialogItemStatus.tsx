@@ -37,7 +37,7 @@ export const PublishDialogItemStatus = (): ReactElement => {
     }
 
     return (
-        <GridList.Cell data-component={COMPONENT_NAME} interactive={false} className="shrink-0">
+        <GridList.Cell data-component={COMPONENT_NAME} data-slot="status" interactive={false} className="shrink-0">
             <DiffStatusBadge contentSummary={content} secondaryStatusOverride={secondaryOverride} />
         </GridList.Cell>
     );

@@ -13,7 +13,8 @@ export type ContentButtonProps = Omit<ButtonProps, 'children'> & {
 export type ContentItemProps = {
     content: ContentSummary;
     variant?: ContentLabelVariant;
-    rightSlotOrder?: 'before-status' | 'after-status';
+    layout?: 'default' | 'mobile-status-below';
+    slotsOrder?: 'actions-first' | 'status-first' | 'status-first-on-mobile';
     contentButtonProps?: ContentButtonProps;
     contentButtonRef?: Ref<HTMLButtonElement>;
     'data-component'?: string;
@@ -25,7 +26,8 @@ const CONTENT_LIST_ITEM_NAME = 'ContentListItem';
 export const ContentListItem = ({
     content,
     variant,
-    rightSlotOrder = 'before-status',
+    layout = 'default',
+    slotsOrder = 'actions-first',
     selected = false,
     className,
     contentButtonProps,
@@ -35,6 +37,8 @@ export const ContentListItem = ({
     ...props
 }: ContentItemProps): React.ReactElement => {
     const isCompact = variant === 'compact';
+    const statusFirst = slotsOrder === 'status-first';
+    const statusFirstOnMobile = slotsOrder === 'status-first-on-mobile';
     const {
         className: contentButtonClassName,
         onClick: onContentButtonClick,
@@ -49,8 +53,26 @@ export const ContentListItem = ({
         new EditContentEvent([content]).fire();
     };
 
+    const actions = children ? (
+        <div className={cn('contents', statusFirstOnMobile && 'max-sm:order-2 max-sm:flex')}>{children}</div>
+    ) : null;
+    const status = (
+        <div className={cn('contents', statusFirstOnMobile && 'max-sm:order-1 max-sm:flex')}>
+            <DiffStatusBadge contentSummary={content} />
+        </div>
+    );
+
     return (
-        <ListItem selected={selected} data-component={componentName} className={cn('pl-0 py-0', className)} {...props}>
+        <ListItem
+            selected={selected}
+            data-component={componentName}
+            className={cn(
+                'pl-0 py-0',
+                layout === 'mobile-status-below' && 'max-sm:grid max-sm:grid-cols-1 max-sm:gap-0',
+                className,
+            )}
+            {...props}
+        >
             <ListItem.Content className="flex">
                 <Button
                     ref={contentButtonRef}
@@ -66,10 +88,15 @@ export const ContentListItem = ({
                     <ContentLabel content={content} variant={variant} />
                 </Button>
             </ListItem.Content>
-            <ListItem.Right className="self-stretch">
-                {rightSlotOrder === 'before-status' && children}
-                <DiffStatusBadge contentSummary={content} />
-                {rightSlotOrder === 'after-status' && children}
+            <ListItem.Right
+                className={cn(
+                    'self-stretch',
+                    layout === 'mobile-status-below' &&
+                        'max-sm:ml-11 max-sm:min-w-0 max-sm:gap-2.5 max-sm:justify-start max-sm:self-auto max-sm:pr-2.5 max-sm:pb-1',
+                )}
+            >
+                {statusFirst ? status : actions}
+                {statusFirst ? actions : status}
             </ListItem.Right>
         </ListItem>
     );

@@ -32,6 +32,7 @@ export const ContentListItemSelectableWithChildren = ({
     showIncludeChildren = true,
     className,
     tabIndex,
+    layout,
 }: ContentListItemSelectableWithChildrenProps): ReactElement => {
     const includeChildrenLabel = useI18n('dialog.includeChildren');
     const hasChildren = content.hasChildren();
@@ -50,6 +51,7 @@ export const ContentListItemSelectableWithChildren = ({
                 onCheckedChange={onCheckedChange}
                 readOnly={readOnly}
                 tabIndex={tabIndex}
+                layout={layout}
             />
             {showIncludeChildrenCheckbox && (
                 <div className="flex items-center gap-2.5 h-8 pl-5">

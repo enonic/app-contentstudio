@@ -187,6 +187,7 @@ export const PublishDialogMainContent = ({
                                             content={item.content}
                                             id={item.id}
                                             disabled={loading}
+                                            layout="mobile-status-below"
                                         >
                                             <ContentRow.Label action="edit" variant="detailed" />
                                             <PublishDialogItemStatus />
@@ -259,6 +260,7 @@ export const PublishDialogMainContent = ({
                                             content={item.content}
                                             id={item.id}
                                             disabled={loading}
+                                            layout="mobile-selectable-status-below"
                                         >
                                             <ContentRow.Checkbox
                                                 checked={item.included}

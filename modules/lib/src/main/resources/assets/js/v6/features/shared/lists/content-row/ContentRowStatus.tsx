@@ -17,7 +17,12 @@ export const ContentRowStatus = ({ variant = 'diff', className }: ContentRowStat
     }
 
     return (
-        <GridList.Cell data-component={CONTENT_ROW_STATUS_NAME} interactive={false} className={className ?? 'shrink-0'}>
+        <GridList.Cell
+            data-component={CONTENT_ROW_STATUS_NAME}
+            data-slot="status"
+            interactive={false}
+            className={className ?? 'shrink-0'}
+        >
             {variant === 'diff' ? <DiffStatusBadge contentSummary={content} /> : <StatusBadge status={publishStatus} />}
         </GridList.Cell>
     );
