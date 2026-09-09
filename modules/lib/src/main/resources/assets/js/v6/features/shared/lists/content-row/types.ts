@@ -1,10 +1,11 @@
-import type {ReactNode} from 'react';
-import type {ContentSummary} from '../../../../../app/content/ContentSummary';
+import type { ReactNode } from 'react';
+import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 
 export type ContentRowProps = {
     content: ContentSummary;
     id: string;
     disabled?: boolean;
+    layout?: 'default' | 'mobile-status-below' | 'mobile-selectable-status-below';
     className?: string;
     children: ReactNode;
 };

@@ -233,6 +233,7 @@ export const NewIssueDialogContent = (): ReactElement => {
                                                 content={item}
                                                 id={`main-${item.getId()}`}
                                                 disabled={isItemsDisabled}
+                                                layout="mobile-status-below"
                                             >
                                                 <ContentRow.Label action="edit" variant="detailed" />
                                                 <ContentRow.Status />
@@ -306,6 +307,7 @@ export const NewIssueDialogContent = (): ReactElement => {
                                                     content={item}
                                                     id={item.getId()}
                                                     disabled={isItemsDisabled}
+                                                    layout="mobile-selectable-status-below"
                                                 >
                                                     <ContentRow.Checkbox
                                                         checked={included}

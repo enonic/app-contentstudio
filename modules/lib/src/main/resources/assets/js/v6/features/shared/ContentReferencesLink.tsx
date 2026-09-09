@@ -41,8 +41,9 @@ export const ContentReferencesLink = forwardRef<HTMLAnchorElement, ContentRefere
             <Link
                 ref={ref}
                 className={cn(
+                    'text-main self-stretch justify-center px-2 active:bg-transparent',
                     className,
-                    'self-stretch px-2 visited:text-main active:bg-transparent data-[active=true]:bg-transparent',
+                    'data-[active=true]:bg-transparent md:px-1',
                 )}
                 href={href}
                 aria-label={label}
