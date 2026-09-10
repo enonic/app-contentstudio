@@ -4,7 +4,6 @@
 const { BUTTONS, TREE_GRID, COMMON } = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const BaseBrowsePanel = require('../../page_objects/base.browse.panel');
-const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 const ProjectWizardDialogParentProjectStep = require('./project-wizard-dialog/project.wizard.parent.project.step');
 
 const XPATH = {
@@ -111,19 +110,6 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
         } catch (err) {
             await this.handleError(`Project is not displayed: ${projectName}`, 'err_browse_panel', err);
-        }
-    }
-
-    async waitForItemByDisplayNameDisplayed(displayName) {
-        try {
-            let selector = XPATH.settingsTreeListDataComponent + TREE_GRID.itemByDisplayName(displayName);
-            return await this.waitForElementDisplayed(selector, appConst.longTimeout);
-        } catch (err) {
-            await this.handleError(
-                `Settings: project item with the display name was not found: ${displayName}`,
-                'err_find_item',
-                err,
-            );
         }
     }
 
@@ -277,7 +263,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async waitForClearSelectionCheckboxDisplayed() {
         try {
-            await this.waitForElementDisplayed(this.clearSelectionCheckboxLabel, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.clearSelectionCheckboxLabel);
         } catch (err) {
             await this.handleError(
                 `'Clear selection' checkbox should be displayed in the tree list toolbar`,
@@ -289,7 +275,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async waitForClearSelectionCheckboxNotDisplayed() {
         try {
-            await this.waitForElementNotDisplayed(this.clearSelectionCheckboxLabel, appConst.mediumTimeout);
+            await this.waitForElementNotDisplayed(this.clearSelectionCheckboxLabel);
         } catch (err) {
             await this.handleError(
                 `'Clear selection' checkbox should not be displayed in the tree list toolbar`,
@@ -301,7 +287,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async clickOnClearSelectionCheckbox() {
         try {
-            await this.waitForElementDisplayed(this.clearSelectionCheckboxLabel, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.clearSelectionCheckboxLabel);
             await this.clickOnElement(this.clearSelectionCheckboxLabel);
             return await this.pause(300);
         } catch (err) {
@@ -312,7 +298,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     // Returns the number of selected rows shown in the 'Clear selection (N)' label:
     async getNumberInClearSelectionCheckbox() {
         try {
-            await this.waitForElementDisplayed(this.clearSelectionCheckboxLabel, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.clearSelectionCheckboxLabel);
             let text = await this.getText(this.clearSelectionCheckboxLabel);
             let result = text.match(/\((\d+)\)/);
             if (result === null) {
@@ -340,7 +326,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     async rightClickOnProjects() {
         try {
             const nameXpath = XPATH.settingsTreeListDataComponent + XPATH.projectsFolderRow;
-            await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(nameXpath);
             return await this.doRightClick(nameXpath);
         } catch (err) {
             await this.handleError('Error occurred after right click on Projects row', 'err_rightClick_projects', err);
@@ -357,19 +343,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    async openProjectByDisplayName(displayName) {
-        let projectWizard = new ProjectWizard();
-        // the root folder(Projects) should be expanded:
-        // 1. click on the project:
-        await this.clickOnRowByDisplayName(displayName);
-        // 2. wait for Edit button gets enabled:
-        await this.clickOnEditButton();
-        // 3. wait for Project is loaded in the wizard page:
-        return await projectWizard.waitForLoaded();
-    }
-
     async checkProjectAndClickOnEditButton(displayName) {
-        let projectWizard = new ProjectWizard();
         // the root folder(Projects) should be expanded:
         // 1. check the project:
         await this.clickOnCheckboxAndSelectRowByName(displayName);
@@ -402,25 +376,13 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             XPATH.settingsTreeListDataComponent +
             TREE_GRID.itemByDisplayName(displayName) +
             TREE_GRID.PROJECT_LABEL_IDENTIFIER_SMALL;
-        await this.waitForElementDisplayed(identifierLocator, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(identifierLocator);
         return await this.getText(identifierLocator);
-    }
-
-    async clickOnCloseIcon(displayName) {
-        let selector = XPATH.tabCloseIcon(displayName);
-        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
-        return await this.clickOnElement(selector);
-    }
-
-    async getNumberOpenedTabItems() {
-        let selector = XPATH.settingsAppContainer + "//li[contains(@id,'AppBarTabMenuItem')]";
-        let result = await this.getDisplayedElements(selector);
-        return result.length;
     }
 
     async waitForSyncButtonEnabled() {
         try {
-            await this.waitForElementEnabled(this.syncButton, appConst.mediumTimeout);
+            await this.waitForElementEnabled(this.syncButton);
         } catch (err) {
             await this.handleError('Sync button should be enabled', 'err_sync_disabled_button', err);
         }
@@ -428,7 +390,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async waitForSyncButtonDisplayed() {
         try {
-            await this.waitForElementDisplayed(this.syncButton, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.syncButton);
         } catch (err) {
             await this.handleError('Sync button should be enabled', 'err_sync_disabled_button', err);
         }
@@ -436,7 +398,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async waitForSyncButtonNotDisplayed() {
         try {
-            await this.waitForElementNotDisplayed(this.syncButton, appConst.mediumTimeout);
+            await this.waitForElementNotDisplayed(this.syncButton);
         } catch (err) {
             await this.handleError('Sync button should not be displayed', 'err_sync_displayed_button', err);
         }
@@ -457,12 +419,12 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async clickOnDeleteButton() {
         try {
-            await this.waitForElementEnabled(this.deleteButton, appConst.shortTimeout);
+            await this.waitForElementEnabled(this.deleteButton);
             return await this.clickOnElement(this.deleteButton);
         } catch (err) {
             await this.handleError(
                 `Error occurred after clicking on 'Delete' button`,
-                'err_browsepanel_delete_button',
+                'err_settings_delete_button',
                 err,
             );
         }
@@ -478,7 +440,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async waitForDeleteButtonEnabled() {
         try {
-            await this.waitForElementEnabled(this.deleteButton, appConst.mediumTimeout);
+            await this.waitForElementEnabled(this.deleteButton);
         } catch (err) {
             await this.handleError('Delete button is not enabled', 'err_delete_button', err);
         }

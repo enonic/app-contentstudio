@@ -6,7 +6,6 @@ const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const builder = require('../../libs/content.builder');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
-const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 const contentBuilder = require('../../libs/content.builder');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
@@ -47,7 +46,6 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
 
     it('GIVEN new project wizard dialog is opened WHEN existing user has been added as contributor THEN expected user should be selected in Project Roles form', async () => {
         let settingsBrowsePanel = new SettingsBrowsePanel();
-        let projectWizard = new ProjectWizard();
         // 1. Do Log in with 'SU' and navigate to 'Settings':
         await studioUtils.navigateToContentStudioApp();
         await studioUtils.openSettingsPanel();
@@ -61,7 +59,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             PROJECT_DISPLAY_NAME,
         );
         await projectUtils.fillFormsWizardAndClickOnCreateButton(project);
-        await projectWizard.waitForNotificationMessage(PROJECT_DISPLAY_NAME);
+        await settingsBrowsePanel.waitForNotificationMessage(PROJECT_DISPLAY_NAME);
         await studioUtils.saveScreenshot('project_contributor_created_1');
         // 3. Select the project and click on Edit button:
         await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);

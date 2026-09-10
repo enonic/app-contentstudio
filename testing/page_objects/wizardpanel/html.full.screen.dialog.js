@@ -1,15 +1,13 @@
 const Page = require('../page');
-const {COMMON, BUTTONS} = require('../../libs/elements');
+const { COMMON, BUTTONS } = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const HtmlAreaForm = require('./htmlarea.form.panel');
-
 
 const xpath = {
     container: `//div[@data-component='FullscreenDialog']`,
 };
 
 class HtmlFullScreenDialog extends Page {
-
     get cancelButtonTop() {
         return xpath.container + BUTTONS.buttonAriaLabel('Close');
     }
@@ -83,7 +81,7 @@ class HtmlFullScreenDialog extends Page {
     }
 
     get unlinkButton() {
-        return xpath.container + COMMON.CKE.unlinkButton
+        return xpath.container + COMMON.CKE.unlinkButton;
     }
 
     get insertTableButton() {
@@ -107,7 +105,7 @@ class HtmlFullScreenDialog extends Page {
     }
 
     waitForDialogLoaded() {
-        return this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout).catch(err => {
+        return this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout).catch((err) => {
             this.saveScreenshot('err_open_full_screen_dialog');
             throw new Error('Full Screen Dialog must be opened!' + err);
         });
@@ -117,7 +115,7 @@ class HtmlFullScreenDialog extends Page {
         try {
             return await this.waitForElementNotDisplayed(xpath.container, appConst.shortTimeout);
         } catch (err) {
-            throw new Error("Full Screen dialog should be closed!: " + err);
+            throw new Error('Full Screen dialog should be closed!: ' + err);
         }
     }
 
@@ -132,11 +130,11 @@ class HtmlFullScreenDialog extends Page {
     }
 
     async waitForDecreaseIndentButtonDisplayed() {
-        return await this.waitForElementDisplayed(this.decreaseIndentButton());
+        return await this.waitForElementDisplayed(this.decreaseIndentButton);
     }
 
     async waitForIncreaseIndentButtonDisplayed() {
-        return await this.waitForElementDisplayed(this.increaseIndentButton());
+        return await this.waitForElementDisplayed(this.increaseIndentButton);
     }
 
     waitForBoldButtonDisplayed() {
@@ -160,17 +158,23 @@ class HtmlFullScreenDialog extends Page {
     }
 
     async waitForDecreaseIndentButtonDisabled() {
-        await this.getBrowser().waitUntil(async () => {
-            let attrClass = await this.getAttribute(this.decreaseIndentButton, 'class');
-            return attrClass.includes('cke_button_disabled');
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Increase Indent button should be disabled "});
+        await this.getBrowser().waitUntil(
+            async () => {
+                let attrClass = await this.getAttribute(this.decreaseIndentButton, 'class');
+                return attrClass.includes('cke_button_disabled');
+            },
+            { timeout: appConst.mediumTimeout, timeoutMsg: 'Increase Indent button should be disabled ' },
+        );
     }
 
     async waitForDecreaseIndentButtonEnabled() {
-        await this.getBrowser().waitUntil(async () => {
-            let attrClass = await this.getAttribute(this.decreaseIndentButton, 'class');
-            return !attrClass.includes('cke_button_disabled');
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Increase Indent button should be enabled "});
+        await this.getBrowser().waitUntil(
+            async () => {
+                let attrClass = await this.getAttribute(this.decreaseIndentButton, 'class');
+                return !attrClass.includes('cke_button_disabled');
+            },
+            { timeout: appConst.mediumTimeout, timeoutMsg: 'Increase Indent button should be enabled ' },
+        );
     }
 
     waitForIncreaseIndentButtonEnabled() {
@@ -261,4 +265,3 @@ class HtmlFullScreenDialog extends Page {
 }
 
 module.exports = HtmlFullScreenDialog;
-

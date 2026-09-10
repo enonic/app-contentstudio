@@ -44,10 +44,6 @@ class ContentPublishDialog extends Page {
         this.dependantsControls = new DependantsControls(XPATH.container);
     }
 
-    get cancelSelectionButton() {
-        return XPATH.container + lib.DEPENDANTS.EDIT_ENTRY + lib.actionButton('Cancel');
-    }
-
     get closeButton() {
         return XPATH.container + BUTTONS.buttonAriaLabel('Close');
     }

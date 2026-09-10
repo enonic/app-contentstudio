@@ -2,7 +2,7 @@
  * Created on 04/07/2018.
  */
 const Page = require('../page');
-const {BUTTONS} = require('../../libs/elements');
+const { BUTTONS } = require('../../libs/elements');
 
 const xpath = {
     container: `//section[@data-component='DetailsWidgetContentSection']`,
@@ -23,7 +23,6 @@ Display Name
 Path
  */
 class DetailsWidgetContentSection extends Page {
-
     get pathProperty() {
         return xpath.container + xpath.pathProperty;
     }
@@ -36,7 +35,11 @@ class DetailsWidgetContentSection extends Page {
         try {
             await this.waitForElementDisplayed(this.pathProperty);
         } catch (err) {
-            await this.handleError('DetailsWidgetContentSection, path was not displayed', 'err_content_section_path', err);
+            await this.handleError(
+                'DetailsWidgetContentSection, path was not displayed',
+                'err_content_section_path',
+                err,
+            );
         }
     }
 
@@ -44,7 +47,11 @@ class DetailsWidgetContentSection extends Page {
         try {
             await this.waitForElementDisplayed(this.displayNameProperty);
         } catch (err) {
-            await this.handleError('DetailsWidgetContentSection, display name was not displayed', 'err_content_section_display_name', err);
+            await this.handleError(
+                'DetailsWidgetContentSection, display name was not displayed',
+                'err_content_section_display_name',
+                err,
+            );
         }
     }
 
@@ -53,7 +60,11 @@ class DetailsWidgetContentSection extends Page {
             await this.waitForPathPropertyDisplayed();
             return await this.getText(this.pathProperty);
         } catch (err) {
-            await this.handleError('Cannot get text in path field of WidgetContentSection', 'err_get_text_path_field', err);
+            await this.handleError(
+                'Cannot get text in path field of WidgetContentSection',
+                'err_get_text_path_field',
+                err,
+            );
         }
     }
 
@@ -83,22 +94,12 @@ class DetailsWidgetContentSection extends Page {
         return xpath.container + xpath.statusValidity;
     }
 
-    async getTextInDisplayNameField() {
-        await this.waitForDisplayNamePropertyDisplayed();
-        return await this.getText(this.displayNameProperty);
-    }
-
-    async getTextInPathField() {
-        await this.waitForPathPropertyDisplayed();
-        return await this.getText(this.pathProperty);
-    }
-
     async getStatusText() {
         await this.waitForElementDisplayed(this.publishStatus);
         const publishStatus = await this.getText(this.publishStatus);
         const diffStatusElements = await this.findElements(this.statusDiffStatus);
         const diffStatus = diffStatusElements.length > 0 ? await diffStatusElements[0].getText() : '';
-        return [publishStatus, diffStatus].filter(t => t).join(' ');
+        return [publishStatus, diffStatus].filter((t) => t).join(' ');
     }
 
     async getWorkflowOrValidityStatus() {
@@ -106,16 +107,24 @@ class DetailsWidgetContentSection extends Page {
             await this.waitForElementDisplayed(this.statusValidity);
             return await this.getText(this.statusValidity);
         } catch (err) {
-            await this.handleError('Cannot get workflow or validity status text of WidgetContentSection', 'err_get_workflow_status', err);
+            await this.handleError(
+                'Cannot get workflow or validity status text of WidgetContentSection',
+                'err_get_workflow_status',
+                err,
+            );
         }
     }
 
     async setStatusWidth(widthPx) {
         const statusProperty = await this.findElement(this.statusProperty);
-        await this.getBrowser().execute((element, width) => {
-            element.style.width = width;
-            element.style.maxWidth = width;
-        }, statusProperty, `${widthPx}px`);
+        await this.getBrowser().execute(
+            (element, width) => {
+                element.style.width = width;
+                element.style.maxWidth = width;
+            },
+            statusProperty,
+            `${widthPx}px`,
+        );
     }
 
     async clearStatusWidth() {
@@ -137,15 +146,18 @@ class DetailsWidgetContentSection extends Page {
     }
 
     async waitForWorkflowStatusWrapped() {
-        await this.getBrowser().waitUntil(async () => {
-            return await this.isWorkflowStatusWrapped();
-        }, {
-            timeout: 4000,
-            timeoutMsg: 'Workflow status should wrap to the next line in DetailsWidgetContentSection',
-        });
+        await this.getBrowser().waitUntil(
+            async () => {
+                return await this.isWorkflowStatusWrapped();
+            },
+            {
+                timeout: 4000,
+                timeoutMsg: 'Workflow status should wrap to the next line in DetailsWidgetContentSection',
+            },
+        );
     }
 
-    async waitForDisplayed(){
+    async waitForDisplayed() {
         await this.waitForElementDisplayed(xpath.container);
     }
 }

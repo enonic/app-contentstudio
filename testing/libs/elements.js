@@ -3,6 +3,14 @@ const COMMON = {
         XP_MENU_BUTTON: `button#menu-button`,
         PAGE_EDITOR_OVERLAY_HOST: `#pe-overlay-host`,
         CONTEXT_MENU_ITEM: `[data-component="ContextMenu.Item"]`,
+        // Live Edit context menu (rendered inside the '#pe-overlay-host' shadow root):
+        PAGE_EDITOR_CONTEXT_MENU: `[data-component="ContextMenu"]`,
+        // Top level items only - 'Insert' is rendered as 'ContextMenu.SubTrigger', the rest as 'ContextMenu.Item'
+        PAGE_EDITOR_CONTEXT_MENU_ITEMS:
+            `[data-component="ContextMenu"] [data-component="ContextMenu.Item"],` +
+            `[data-component="ContextMenu"] [data-component="ContextMenu.SubTrigger"]`,
+        // Items in the top level menu and in the opened submenu ('ContextMenu.SubContent')
+        PAGE_EDITOR_CONTEXT_MENU_ANY_ITEM: `[data-component="ContextMenu.Item"],[data-component="ContextMenu.SubTrigger"]`,
     },
     DISPLAY_NAME_INPUT: "//input[@name='displayName']",
     CONTENT_WIZARD_DATA_COMPONENT: "//div[@data-component='ContentWizardTabs']",

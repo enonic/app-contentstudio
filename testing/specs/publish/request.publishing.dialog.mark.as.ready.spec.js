@@ -16,75 +16,75 @@ describe('request.publish.dialog.validation.spec - opens request publish modal d
 
     let PARENT_FOLDER;
     let CHILD_FOLDER;
-    it("Precondition: two 'work in progress' folders should be added",
-        async () => {
-            PARENT_FOLDER = contentBuilder.buildFolder(appConst.generateRandomName('parent'));
-            CHILD_FOLDER = contentBuilder.buildFolder(appConst.generateRandomName('child'));
-            await studioUtils.doAddFolder(PARENT_FOLDER);
-            await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
-            // 1. Select the parent folder and add a child folder:
-            await studioUtils.doAddFolder(CHILD_FOLDER);
-        });
+    it("Precondition: two 'work in progress' folders should be added", async () => {
+        PARENT_FOLDER = contentBuilder.buildFolder(appConst.generateRandomName('parent'));
+        CHILD_FOLDER = contentBuilder.buildFolder(appConst.generateRandomName('child'));
+        await studioUtils.doAddFolder(PARENT_FOLDER);
+        await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
+        // 1. Select the parent folder and add a child folder:
+        await studioUtils.doAddFolder(CHILD_FOLDER);
+    });
 
-    it("GIVEN the parent folder is selected AND 'Request Publishing...' menu item has been clicked WHEN 'Include child' icon has been clicked THEN 'mark as ready' and 'Exclude items in progress' buttons should be visible",
-        async () => {
-            let createRequestPublishDialog = new CreateRequestPublishDialog();
-            let contentBrowsePanel = new ContentBrowsePanel();
-            // 1. parent folder with children is selected:
-            await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
-            // expand 'Publish Menu' and select 'Request Publishing...' menu item
-            await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
-            // 2. click on 'Include children items'
-            await createRequestPublishDialog.clickOnIncludeChildItemsCheckbox(PARENT_FOLDER.displayName);
-            await studioUtils.saveScreenshot('request_publish_mark_as_ready_btn');
-            // 3. Verify 'mark as ready' and 'Exclude items in progress' buttons:
-            await createRequestPublishDialog.waitForMarkAsReadyButtonDisplayed();
-            await createRequestPublishDialog.waitForExcludeItemsInProgressButtonDisplayed();
-            // 4. Verify that Next button is disabled
-            await createRequestPublishDialog.waitForNextButtonDisabled();
-        });
+    it("GIVEN the parent folder is selected AND 'Request Publishing' menu item has been clicked WHEN 'Include child' icon has been clicked THEN 'mark as ready' and 'Exclude items in progress' buttons should be visible", async () => {
+        let createRequestPublishDialog = new CreateRequestPublishDialog();
+        let contentBrowsePanel = new ContentBrowsePanel();
+        // 1. parent folder with children is selected:
+        await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
+        // expand 'Publish Menu' and select 'Request Publishing...' menu item
+        await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
+        // 2. click on 'Include children items'
+        await createRequestPublishDialog.clickOnIncludeChildItemsCheckbox(PARENT_FOLDER.displayName);
+        await studioUtils.saveScreenshot('request_publish_mark_as_ready_btn');
+        // 3. Verify 'mark as ready' and 'Exclude items in progress' buttons:
+        await createRequestPublishDialog.clickOnApplySelectionButton();
+        await createRequestPublishDialog.waitForMarkAsReadyButtonDisplayed();
+        await createRequestPublishDialog.waitForExcludeItemsInProgressButtonDisplayed();
+        // 4. Verify that Next button is disabled
+        await createRequestPublishDialog.waitForCreateRequestButtonDisabled();
+    });
 
-    it("GIVEN  'Request Publishing' modal dialog is opened WHEN 'Exclude items in progress' icon has been clicked THEN 'mark as ready' button remains visible",
-        async () => {
-            let createRequestPublishDialog = new CreateRequestPublishDialog();
-            let contentBrowsePanel = new ContentBrowsePanel();
-            // 1. parent folder with children is selected:
-            await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
-            // expand 'Publish Menu' and select 'Request Publishing...' menu item
-            await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
-            // 2. click on 'Include children items'
-            await createRequestPublishDialog.clickOnIncludeChildItemsCheckbox(PARENT_FOLDER.displayName);
-            // 3. Click on 'Exclude items in progress' button:
-            await createRequestPublishDialog.clickOnExcludeItemsInProgressButton();
-            await studioUtils.saveScreenshot('request_publish_items_in_progress_excluded');
-            // 4. Verify that only 'Mark as ready' button is displayed:
-            await createRequestPublishDialog.waitForExcludeItemsInProgressButtonNotDisplayed();
-            await createRequestPublishDialog.waitForMarkAsReadyButtonDisplayed();
-            // 5. Verify that 'Next' button remains disabled
-            await createRequestPublishDialog.waitForNextButtonDisabled();
-        });
+    it("GIVEN  'Request Publishing' modal dialog is opened WHEN 'Exclude items in progress' icon has been clicked THEN 'mark as ready' button remains visible", async () => {
+        let createRequestPublishDialog = new CreateRequestPublishDialog();
+        let contentBrowsePanel = new ContentBrowsePanel();
+        // 1. parent folder with children is selected:
+        await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
+        // expand 'Publish Menu' and select 'Request Publishing...' menu item
+        await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
+        // 2. click on 'Include children items'
+        await createRequestPublishDialog.clickOnIncludeChildItemsCheckbox(PARENT_FOLDER.displayName);
+        await createRequestPublishDialog.clickOnApplySelectionButton();
+        // 3. Click on 'Exclude items in progress' button:
+        await createRequestPublishDialog.clickOnExcludeItemsInProgressButton();
+        await studioUtils.saveScreenshot('request_publish_items_in_progress_excluded');
+        // 4. Verify that only 'Mark as ready' button is displayed:
+        await createRequestPublishDialog.waitForExcludeItemsInProgressButtonNotDisplayed();
+        await createRequestPublishDialog.waitForMarkAsReadyButtonDisplayed();
+        // 5. Verify that 'Next' button remains disabled
+        await createRequestPublishDialog.waitForCreateRequestButtonDisabled();
+    });
 
-    it("GIVEN 'Include child' icon has been clicked in 'Request Publishing' modal dialog WHEN 'mark as ready button' and has been clicked THEN 'Next' button gets enabled",
-        async () => {
-            let createRequestPublishDialog = new CreateRequestPublishDialog();
-            let contentBrowsePanel = new ContentBrowsePanel();
-            // 1. parent folder with children is selected:
-            await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
-            // expand 'Publish Menu' and select 'Request Publishing...' menu item
-            await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
-            // 2. click on 'Include children items'
-            await createRequestPublishDialog.clickOnIncludeChildItemsCheckbox(PARENT_FOLDER.displayName);
-            // 3. Click on 'Exclude items in progress' button:
-            await createRequestPublishDialog.clickOnMarkAsReadyButton();
-            // 4. Notification message should appear:
-            await contentBrowsePanel.waitForNotificationMessage();
-            // 5. Verify that 'Exclude items in progress' and 'Mark as ready' button gets not visible:
-            await createRequestPublishDialog.waitForExcludeItemsInProgressButtonNotDisplayed();
-            await createRequestPublishDialog.waitForMarkAsReadyButtonNotDisplayed();
-            // 6. Verify that 'Create' button gets enabled:
-            await studioUtils.saveScreenshot('request_publish_next_btn_enabled');
-            await createRequestPublishDialog.waitForCreateRequestButtonEnabled()
-        });
+    it("GIVEN 'Include child' icon has been clicked in 'Request Publishing' modal dialog WHEN 'mark as ready button' and has been clicked THEN 'Next' button gets enabled", async () => {
+        let createRequestPublishDialog = new CreateRequestPublishDialog();
+        let contentBrowsePanel = new ContentBrowsePanel();
+        // 1. parent folder with children is selected:
+        await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
+        // expand 'Publish Menu' and select 'Request Publishing...' menu item
+        await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
+        // 2. click on 'Include children items'
+        await createRequestPublishDialog.clickOnIncludeChildItemsCheckbox(PARENT_FOLDER.displayName);
+        await createRequestPublishDialog.clickOnApplySelectionButton();
+        await createRequestPublishDialog.typeInTitleInput(appConst.generateRandomName('request'));
+        // 3. Click on 'Exclude items in progress' button:
+        await createRequestPublishDialog.clickOnMarkAsReadyButton();
+        // 4. Notification message should appear:
+        await contentBrowsePanel.waitForNotificationMessage();
+        // 5. Verify that 'Exclude items in progress' and 'Mark as ready' button gets not visible:
+        await createRequestPublishDialog.waitForExcludeItemsInProgressButtonNotDisplayed();
+        await createRequestPublishDialog.waitForMarkAsReadyButtonNotDisplayed();
+        // 6. Verify that 'Create' button gets enabled:
+        await studioUtils.saveScreenshot('request_publish_next_btn_enabled');
+        await createRequestPublishDialog.waitForCreateRequestButtonEnabled();
+    });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());

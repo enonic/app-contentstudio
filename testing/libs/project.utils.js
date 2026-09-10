@@ -4,13 +4,12 @@
 const SettingsBrowsePanel = require('../page_objects/project/settings.browse.panel');
 const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialog');
 const LanguageAndParentProjectStep = require('../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');
-const ProjectWizardDialogLanguageStep = require('../page_objects/project/project-wizard-dialog/project.wizard.language.step');
 const ProjectWizardDialogAccessModeStep = require('../page_objects/project/project-wizard-dialog/project.wizard.access.mode.step');
 const ProjectWizardDialogPermissionsStep = require('../page_objects/project/project-wizard-dialog/project.wizard.permissions.step');
 const ProjectWizardDialogApplicationsStep = require('../page_objects/project/project-wizard-dialog/project.wizard.applications.step');
 const ProjectWizardDialogNameAndIdStep = require('../page_objects/project/project-wizard-dialog/project.wizard.name.id.step');
 const ProjectWizardDialogSummaryStep = require('../page_objects/project/project-wizard-dialog/project.wizard.summary.step');
-const appConst = require("./app_const");
+const appConst = require('./app_const');
 const path = require('path');
 const fs = require('fs');
 const webDriverHelper = require('./WebDriverHelper');
@@ -33,14 +32,14 @@ module.exports = {
                 accessMode = null,
                 applications = null,
                 identifier = null,
-                parents = null
+                parents = null,
             } = args[0];
 
             if (!name) {
                 throw new Error('saveTestProject: `name` is required');
             }
 
-            return {name, description, language, permissions, accessMode, applications, identifier, parents};
+            return { name, description, language, permissions, accessMode, applications, identifier, parents };
         }
 
         const [name, description, language, permissions, accessMode, applications, identifier, parents] = args;
@@ -49,7 +48,7 @@ module.exports = {
             throw new Error('saveTestProject: `name` is required');
         }
 
-        return {name, description, language, permissions, accessMode, applications, identifier};
+        return { name, description, language, permissions, accessMode, applications, identifier };
     },
     async saveTestProject(...args) {
         const options = this.normalizeSaveProjectArgs(...args);
@@ -65,7 +64,7 @@ module.exports = {
             options.name,
             options.identifier,
             options.description,
-            options.parents
+            options.parents,
         );
         //await this.fillFormsWizard(project);
 
@@ -163,7 +162,7 @@ module.exports = {
         }
         return new ProjectWizardDialogNameAndIdStep();
     },
-    async fillNameAndDescriptionStep(name, identifier, description,) {
+    async fillNameAndDescriptionStep(name, identifier, description) {
         try {
             let nameAndIdStep = new ProjectWizardDialogNameAndIdStep();
             if (name) {
@@ -173,7 +172,7 @@ module.exports = {
                 await nameAndIdStep.typeDescription(description);
             }
             if (identifier) {
-                await nameAndIdStep.clearIdInput()
+                await nameAndIdStep.clearIdInput();
                 await nameAndIdStep.typeTextInProjectIdentifierInput(identifier);
             }
             await nameAndIdStep.pause(500);
@@ -205,12 +204,11 @@ module.exports = {
                     selectedNormalized.push(this.normalizeSelectedProjectName(target));
                 }
             }
-
         } catch (err) {
             await this.handleError(
                 'Tried to fill in the Language and Parent Project step',
                 'err_multi_parent_step',
-                err
+                err,
             );
         }
     },
@@ -243,7 +241,7 @@ module.exports = {
             await this.handleError(
                 'Tried to fill in the Language and Parent Project step',
                 'err_lang_parent_step',
-                err
+                err,
             );
         }
     },
@@ -253,13 +251,13 @@ module.exports = {
             return [];
         }
 
-        return (Array.isArray(parents) ? parents : [parents])
-            .map((item) => String(item).trim())
-            .filter(Boolean);
+        return (Array.isArray(parents) ? parents : [parents]).map((item) => String(item).trim()).filter(Boolean);
     },
 
     normalizeSelectedProjectName(name) {
-        return String(name).replace(/\s*\([^)]*\)\s*$/, '').trim();
+        return String(name)
+            .replace(/\s*\([^)]*\)\s*$/, '')
+            .trim();
     },
 
     hasSelectedProject(selectedList, targetName) {
@@ -299,7 +297,6 @@ module.exports = {
             let projectWizardDialogSummaryStep = new ProjectWizardDialogSummaryStep();
             await projectWizardDialogSummaryStep.waitForLoaded();
             await projectWizardDialogSummaryStep.pause(1000);
-
         } catch (err) {
             if (err && err.isHandledError) {
                 throw err;
@@ -369,7 +366,7 @@ module.exports = {
         try {
             let screenshotsDir = path.join(__dirname, '/../build/reports/screenshots/');
             if (!fs.existsSync(screenshotsDir)) {
-                fs.mkdirSync(screenshotsDir, {recursive: true});
+                fs.mkdirSync(screenshotsDir, { recursive: true });
             }
             await this.getBrowser().saveScreenshot(screenshotsDir + name + '.png');
             console.log('screenshot is saved ' + name);
@@ -385,7 +382,7 @@ module.exports = {
             name: name,
             identifier: identifier,
             description: description,
-            principalsToAccess: principalsToAccess
+            principalsToAccess: principalsToAccess,
         };
     },
     buildLayer(parents, language, accessMode, principalsToAccess, applications, name, identifier, description) {
@@ -397,7 +394,7 @@ module.exports = {
             name: name,
             identifier: identifier,
             description: description,
-            principalsToAccess: principalsToAccess
+            principalsToAccess: principalsToAccess,
         };
     },
 };

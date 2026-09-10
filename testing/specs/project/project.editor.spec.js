@@ -15,7 +15,6 @@ const ProjectWizardDialogApplicationsStep = require('../../page_objects/project/
 const contentBuilder = require('../../libs/content.builder');
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
 const SourceCodeDialog = require('../../page_objects/wizardpanel/html.source.code.dialog');
-const TextComponentCke = require('../../page_objects/components/text.component');
 const PageComponentView = require('../../page_objects/wizardpanel/liveform/page.components.view');
 const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
 const LanguageAndParentProjectStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');
@@ -210,7 +209,6 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
     it("GIVEN user with 'Editor' role is logged in WHEN new text component has been inserted THEN 'Source' button should be displayed in the htmlArea toolbar", async () => {
         let contentBrowsePanel = new ContentBrowsePanel();
         let contentWizard = new ContentWizard();
-        let textComponentCke = new TextComponentCke();
         let textComponentInspectionPanel = new TextComponentInspectionPanel();
         let pageComponentView = new PageComponentView();
         // 1. Do log in with the user-owner and navigate to Content Browse Panel:

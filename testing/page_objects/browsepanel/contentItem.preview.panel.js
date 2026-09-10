@@ -2,9 +2,8 @@
  * Created on 20/06/2018.  updated on 11.05.2026
  */
 const Page = require('../page');
-const {BUTTONS} = require('../../libs/elements');
+const { BUTTONS } = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-
 
 const xpath = {
     container: "//div[contains(@id,'ContentItemPreviewPanel')]",
@@ -14,19 +13,19 @@ const xpath = {
     issueMenuButton: `//div[contains(@id,'MenuButton')]`,
     showChangesButtonToolbar: "//button[contains(@class,'show-changes') and @title='Show changes']",
     previewNotAvailableSpan: "//div[@class='no-preview-message']//span[text()='Preview not available']",
-    noPreviewMessageSpan: "//div[@data-component='PreviewLabel'][.//*[name()='svg' and contains(@class,'lucide-eye-off')]]//span",
+    noPreviewMessageSpan:
+        "//div[@data-component='PreviewLabel'][.//*[name()='svg' and contains(@class,'lucide-eye-off')]]//span",
     iframe: "//iframe[contains(@src,'contentstudio/site/')]",
     previewToolbarMenuItem: (optionName) => {
-        return `//div[contains(@id,'PreviewToolbar') and @role='menu']//div[@role='menuitemradio' and descendant::span[text()='${optionName}']]`
+        return `//div[contains(@id,'PreviewToolbar') and @role='menu']//div[@role='menuitemradio' and descendant::span[text()='${optionName}']]`;
     },
-    emulatorMenuItem:`//div[contains(@id,'PreviewToolbar')]//div[@role='group']//div[@role='menuitemradio']//p/span[1]`,
+    emulatorMenuItem: `//div[contains(@id,'PreviewToolbar')]//div[@role='group']//div[@role='menuitemradio']//p/span[1]`,
 };
 
 // Browse Panel -> Content Item Preview Panel
 class ContentItemPreviewPanel extends Page {
-
     get liveViewFrame() {
-        return xpath.container + "//iframe";
+        return xpath.container + '//iframe';
     }
 
     get emulatorDropdown() {
@@ -47,7 +46,7 @@ class ContentItemPreviewPanel extends Page {
 
     async waitForPreviewToolbarNotDisplayed() {
         let element = await this.findElement(xpath.container + xpath.toolbar);
-        await element.waitForDisplayed({reverse: true, timeout: appConst.mediumTimeout});
+        await element.waitForDisplayed({ reverse: true, timeout: appConst.mediumTimeout });
     }
 
     async waitForVersionHistoryButtonDisplayed() {
@@ -56,7 +55,7 @@ class ContentItemPreviewPanel extends Page {
 
     async waitForVersionHistoryButtonNotDisplayed() {
         let element = await this.findElement(this.versionHistoryButton);
-        await element.waitForDisplayed({reverse: true, timeout: appConst.mediumTimeout});
+        await element.waitForDisplayed({ reverse: true, timeout: appConst.mediumTimeout });
     }
 
     async clickOnOpenVersionHistoryButton() {
@@ -64,7 +63,11 @@ class ContentItemPreviewPanel extends Page {
             await this.waitForVersionHistoryButtonDisplayed();
             return await this.clickOnElement(this.versionHistoryButton);
         } catch (err) {
-            await this.handleError(`Tried to click on 'Version History' button in the Preview Toolbar: `, 'err_version_history_btn', err);
+            await this.handleError(
+                `Tried to click on 'Version History' button in the Preview Toolbar: `,
+                'err_version_history_btn',
+                err,
+            );
         }
     }
 
@@ -78,10 +81,13 @@ class ContentItemPreviewPanel extends Page {
 
     async waitForPreviewIframeClass(value) {
         let locator = xpath.container + '//iframe';
-        await this.getBrowser().waitUntil(async () => {
-            let text = await this.getAttribute(locator, 'class');
-            return text === value;
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "Iframe should be with class 'application' attribute"});
+        await this.getBrowser().waitUntil(
+            async () => {
+                let text = await this.getAttribute(locator, 'class');
+                return text === value;
+            },
+            { timeout: appConst.shortTimeout, timeoutMsg: "Iframe should be with class 'application' attribute" },
+        );
     }
 
     // Waits for the image to be displayed in the iframe(Live View)
@@ -93,10 +99,6 @@ class ContentItemPreviewPanel extends Page {
         } catch (err) {
             await this.handleError(`Image element should be displayed in the iframe.`, 'err_image_element', err);
         }
-    }
-
-    async switchToLiveViewFrameByClass(className) {
-        return await this.switchToFrame(xpath.container + `//iframe[@class='${className}']`);
     }
 
     async switchToLiveViewFrame() {
@@ -119,15 +121,15 @@ class ContentItemPreviewPanel extends Page {
     }
 
     waitForPanelVisible() {
-        return this.waitForElementDisplayed(xpath.container, appConst.shortTimeout).catch(err => {
+        return this.waitForElementDisplayed(xpath.container, appConst.shortTimeout).catch((err) => {
             throw new Error('Content Item preview toolbar was not loaded ' + err);
         });
     }
 
     async getLabelInOpenVersionsHistoryButton() {
-        let result = await this.getDisplayedElements(this.versionHistoryButton + "//span");
+        let result = await this.getDisplayedElements(this.versionHistoryButton + '//span');
         if (result.length === 0) {
-            throw new Error("Content status is not displayed: ");
+            throw new Error('Content status is not displayed: ');
         }
         return await result[0].getText();
     }
@@ -141,7 +143,11 @@ class ContentItemPreviewPanel extends Page {
             return result;
         } catch (err) {
             await this.switchToParentFrame();
-            await this.handleError(`Element should be displayed in the iframe: ${selector}`, 'err_element_in_frame', err);
+            await this.handleError(
+                `Element should be displayed in the iframe: ${selector}`,
+                'err_element_in_frame',
+                err,
+            );
         }
     }
 
@@ -186,7 +192,7 @@ class ContentItemPreviewPanel extends Page {
             await this.waitForElementDisplayed(textLocator);
             return await this.getText(textLocator);
         } catch (err) {
-            await this.handleError(`Tried to get the text in attachment preview: `, 'err_attachment_preview', err)
+            await this.handleError(`Tried to get the text in attachment preview: `, 'err_attachment_preview', err);
         }
     }
 
@@ -196,7 +202,11 @@ class ContentItemPreviewPanel extends Page {
             await this.waitForElementDisplayed(locator);
             return await this.getTextInDisplayedElements(locator);
         } catch (err) {
-            await this.handleError(`Tried to get the 'No preview available' message in Preview Panel: `, 'err_no_preview_msg', err)
+            await this.handleError(
+                `Tried to get the 'No preview available' message in Preview Panel: `,
+                'err_no_preview_msg',
+                err,
+            );
         }
     }
 
@@ -208,19 +218,31 @@ class ContentItemPreviewPanel extends Page {
 
     async waitForToolbarRoleAttribute(expectedRole) {
         let locator = xpath.toolbar;
-        await this.getBrowser().waitUntil(async () => {
-            let text = await this.getAttribute(locator, 'role');
-            return text === expectedRole;
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "Content Item preview toolbar should be with 'role=toolbar' attribute"});
+        await this.getBrowser().waitUntil(
+            async () => {
+                let text = await this.getAttribute(locator, 'role');
+                return text === expectedRole;
+            },
+            {
+                timeout: appConst.shortTimeout,
+                timeoutMsg: "Content Item preview toolbar should be with 'role=toolbar' attribute",
+            },
+        );
     }
 
     // check for Accessibility attributes: aria-label
     async waitForBrowseToolbarAriaLabelAttribute(expectedValue) {
         let locator = xpath.toolbar;
-        await this.getBrowser().waitUntil(async () => {
-            let text = await this.getAttribute(locator, 'aria-label');
-            return text === expectedValue;
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "Content Item preview toolbar should contain expected 'aria-label' attribute"});
+        await this.getBrowser().waitUntil(
+            async () => {
+                let text = await this.getAttribute(locator, 'aria-label');
+                return text === expectedValue;
+            },
+            {
+                timeout: appConst.shortTimeout,
+                timeoutMsg: "Content Item preview toolbar should contain expected 'aria-label' attribute",
+            },
+        );
     }
 
     // returns the selected option in the 'Emulator dropdown' '100%', '375px', etc.
@@ -230,7 +252,11 @@ class ContentItemPreviewPanel extends Page {
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             return await this.getText(locator);
         } catch (err) {
-            await this.handleError(`Tried to get the selected option in Emulator dropdown.`, 'err_emulator_dropdown', err);
+            await this.handleError(
+                `Tried to get the selected option in Emulator dropdown.`,
+                'err_emulator_dropdown',
+                err,
+            );
         }
     }
 
@@ -266,7 +292,11 @@ class ContentItemPreviewPanel extends Page {
             await this.clickOnElement(optionSelector);
             await this.pause(200);
         } catch (err) {
-            await this.handleError(`Tried to select option in Preview Widget: ${optionName}`, 'err_preview_widget', err);
+            await this.handleError(
+                `Tried to select option in Preview Widget: ${optionName}`,
+                'err_preview_widget',
+                err,
+            );
         }
     }
 
@@ -288,7 +318,7 @@ class ContentItemPreviewPanel extends Page {
 
     // style for the iframe in the preview panel
     async getPreviewIframeStyle() {
-        let locator = xpath.container + "//iframe";
+        let locator = xpath.container + '//iframe';
         let classValue = await this.getAttribute(locator, 'style');
         return classValue;
     }
@@ -301,14 +331,17 @@ class ContentItemPreviewPanel extends Page {
         return await this.getTextInDisplayedElements(locator);
     }
 
-
     // Waits for a text-component is displayed in iframe in Preview Panel
     async waitForTextComponentDisplayed() {
         try {
             let locator = "//section[@data-portal-component-type='text']/p";
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError(`Text component should be displayed in Live View in Preview Panel: `, 'err_text_component_prev', err);
+            await this.handleError(
+                `Text component should be displayed in Live View in Preview Panel: `,
+                'err_text_component_prev',
+                err,
+            );
         }
     }
 
@@ -320,7 +353,11 @@ class ContentItemPreviewPanel extends Page {
             let txtComponents = await this.findElements(locator);
             return await txtComponents[index].getText();
         } catch (err) {
-            await this.handleError(`Tried to get a text from the text component in Preview Panel: `, 'err_text_component_live_view', err)
+            await this.handleError(
+                `Tried to get a text from the text component in Preview Panel: `,
+                'err_text_component_live_view',
+                err,
+            );
         }
     }
 }
