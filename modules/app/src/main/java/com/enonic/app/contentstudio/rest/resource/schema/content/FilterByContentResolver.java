@@ -1,5 +1,6 @@
 package com.enonic.app.contentstudio.rest.resource.schema.content;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -97,7 +98,7 @@ public class FilterByContentResolver
     {
         if ( contentId == null )
         {
-            return Stream.concat( mapToContentTypes( DEFAULT_CONTENT_TYPE_NAMES ), getProjectContentTypes() );
+            return Stream.concat( mapToContentTypes( DEFAULT_CONTENT_TYPE_NAMES ), getProjectContentTypes() ).filter( distinctByName() );
         }
 
         final Content content = contentService.getById( contentId );
@@ -136,6 +137,7 @@ public class FilterByContentResolver
 
             return Stream.of( defaultContentTypes, siteContentTypes, projectContentTypes )
                 .flatMap( s -> s )
+                .filter( distinctByName() )
                 .filter( type -> allowChildContentTypePredicate.test( type.getName() ) )
                 .filter( type -> allowedContentTypesPredicate.test( type.getName() ) );
         }
@@ -146,9 +148,8 @@ public class FilterByContentResolver
         final RepositoryId repositoryId = ContextAccessor.current().getRepositoryId();
         return Optional.ofNullable( repositoryId != null ? ProjectName.from( repositoryId ) : null )
             .map( projectName -> projectService.get( projectName ) )
-            .map( project -> project.getSiteConfigs()
+            .map( project -> getSiteConfigsApplicationKeys( project.getSiteConfigs() )
                 .stream()
-                .map( SiteConfig::getApplicationKey )
                 .map( this.contentTypeService::getByApplication )
                 .flatMap( ContentTypes::stream )
                 .filter( Predicate.not( ContentType::isAbstract ) )
@@ -210,7 +211,16 @@ public class FilterByContentResolver
 
     private Set<ApplicationKey> getSiteConfigsApplicationKeys( final SiteConfigs siteConfigs)
     {
-        return siteConfigs.stream().map( SiteConfig::getApplicationKey ).collect( Collectors.toSet() );
+        return siteConfigs.stream()
+            .map( SiteConfig::getApplicationKey )
+            .filter( Predicate.not( ApplicationKey.SYSTEM_RESERVED_APPLICATION_KEYS::contains ) )
+            .collect( Collectors.toSet() );
+    }
+
+    private static Predicate<ContentType> distinctByName()
+    {
+        final Set<ContentTypeName> seen = new HashSet<>();
+        return type -> seen.add( type.getName() );
     }
 
     private Stream<ContentType> mapToContentTypes( final List<ContentTypeName> contentTypeNames )
