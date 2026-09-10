@@ -8,10 +8,9 @@ const projectUtils = require('../../libs/project.utils.js');
 const builder = require('../../libs/content.builder');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
-const contentBuilder = require("../../libs/content.builder");
+const contentBuilder = require('../../libs/content.builder');
 const appConst = require('../../libs/app_const');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 
 describe('layer.contributor.multi.inheritance.spec - ui-tests for user with layer-contributor role', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -28,162 +27,167 @@ describe('layer.contributor.multi.inheritance.spec - ui-tests for user with laye
     const PASSWORD = appConst.PASSWORD.MEDIUM;
     const MULTI_PROJECTS = [PROJECT_DISPLAY_NAME, 'Default'];
 
-    it(`Precondition 1: new system user should be created`,
-        async () => {
-            // Do Log in with 'SU', navigate to 'Users' and create new user:
-            await studioUtils.navigateToUsersApp();
-            let userName = builder.generateRandomName('layer-contributor');
-            let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
-            USER = builder.buildUser(userName, PASSWORD, builder.generateEmail(userName), roles);
-            await studioUtils.addSystemUser(USER);
-            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
-        });
+    it(`Precondition 1: new system user should be created`, async () => {
+        // Do Log in with 'SU', navigate to 'Users' and create new user:
+        await studioUtils.navigateToUsersApp();
+        let userName = builder.generateRandomName('layer-contributor');
+        let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
+        USER = builder.buildUser(userName, PASSWORD, builder.generateEmail(userName), roles);
+        await studioUtils.addSystemUser(USER);
+        await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
+    });
 
-    it(`Precondition 2 - parent project with private access mode should be created`,
-        async () => {
-            // 1. Navigate to Settings Panel:
-            await studioUtils.navigateToContentStudioApp();
-            await studioUtils.closeProjectSelectionDialog();
-            await studioUtils.openSettingsPanel();
-            // 2. Save the new project (mode access is Private):
-            await projectUtils.saveTestProject({
-                name: PROJECT_DISPLAY_NAME,
-                accessMode: appConst.PROJECT_ACCESS_MODE.PRIVATE,
-                applications: appConst.APP_CONTENT_TYPES
-            });
+    it(`Precondition 2 - parent project with private access mode should be created`, async () => {
+        // 1. Navigate to Settings Panel:
+        await studioUtils.navigateToContentStudioApp();
+        await studioUtils.closeProjectSelectionDialog();
+        await studioUtils.openSettingsPanel();
+        // 2. Save the new project (mode access is Private):
+        await projectUtils.saveTestProject({
+            name: PROJECT_DISPLAY_NAME,
+            accessMode: appConst.PROJECT_ACCESS_MODE.PRIVATE,
+            applications: appConst.APP_CONTENT_TYPES,
         });
+    });
 
-    it('Precondition 3: new site should be created in the parent project',
-        async () => {
-            // 1. Do Log in with 'SU':
-            await studioUtils.navigateToContentStudioApp();
-            // 2. Select the new user context:
-            await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
-            // 3. SU adds new site:
-            SITE = contentBuilder.buildSite(SITE_NAME, 'description', [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
-            await studioUtils.doAddSite(SITE);
-        });
+    it('Precondition 3: new site should be created in the parent project', async () => {
+        // 1. Do Log in with 'SU':
+        await studioUtils.navigateToContentStudioApp();
+        // 2. Select the new user context:
+        await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
+        // 3. SU adds new site:
+        SITE = contentBuilder.buildSite(SITE_NAME, 'description', [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
+        await studioUtils.doAddSite(SITE);
+    });
 
-    it("Precondition 4: new layer with 2 parent projects should be added, 'Default' is the secondary inherited project",
-        async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            // 1. Do Log in with 'SU':
-            await studioUtils.navigateToContentStudioApp();
-            await studioUtils.openSettingsPanel();
-            await settingsBrowsePanel.openProjectWizardDialog();
-            let layer = projectUtils.buildLayer(MULTI_PROJECTS, null, appConst.PROJECT_ACCESS_MODE.PRIVATE, USER.displayName, null,
-                LAYER_DISPLAY_NAME, null, null);
-            await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
-            await settingsBrowsePanel.waitForNotificationMessage();
-            // Do log out:
-            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
-            await studioUtils.doLogout();
-        });
+    it("Precondition 4: new layer with 2 parent projects should be added, 'Default' is the secondary inherited project", async () => {
+        let settingsBrowsePanel = new SettingsBrowsePanel();
+        // 1. Do Log in with 'SU':
+        await studioUtils.navigateToContentStudioApp();
+        await studioUtils.openSettingsPanel();
+        await settingsBrowsePanel.openProjectWizardDialog();
+        let layer = projectUtils.buildLayer(
+            MULTI_PROJECTS,
+            null,
+            appConst.PROJECT_ACCESS_MODE.PRIVATE,
+            USER.displayName,
+            null,
+            LAYER_DISPLAY_NAME,
+            null,
+            null,
+        );
+        await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
+        await settingsBrowsePanel.waitForNotificationMessage();
+        // Do log out:
+        await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
+        await studioUtils.doLogout();
+    });
 
     // Settings Panel - layers are not shown to users who have access to these layers #7225
     // https://github.com/enonic/app-contentstudio/issues/7225
-    it("GIVEN user with 'Contributor'-layer role is logged in WHEN navigated to 'Settings' panel AND click on the layer THEN 'Edit' button should be disabled in the browse toolbar",
-        async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            // 1. Do log in with the user-contributor and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
-            await studioUtils.closeProjectSelectionDialog();
-            // 2. Go to Settings Browse Panel:
-            await studioUtils.openSettingsPanel();
-            // 3. Select the user's layer:
-            await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
-            // 4. Verify that 'Edit' button is disabled, because the user has contributor role
-            await settingsBrowsePanel.waitForEditButtonDisabled();
-        });
+    it("GIVEN user with 'Contributor'-layer role is logged in WHEN navigated to 'Settings' panel AND click on the layer THEN 'Edit' button should be disabled in the browse toolbar", async () => {
+        let settingsBrowsePanel = new SettingsBrowsePanel();
+        // 1. Do log in with the user-contributor and navigate to Content Browse Panel:
+        await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+        await studioUtils.closeProjectSelectionDialog();
+        // 2. Go to Settings Browse Panel:
+        await studioUtils.openSettingsPanel();
+        // 3. Select the user's layer:
+        await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
+        // 4. Verify that 'Edit' button is disabled, because the user has contributor role
+        await settingsBrowsePanel.waitForEditButtonDisabled();
+    });
 
-    it("GIVEN user with 'Contributor'-layer role is logged in WHEN site that is 'inherited' from the primary project has been selected THEN 'Open' button should be enabled in the browse toolbar",
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            let contentWizard = new ContentWizard();
-            // 1. Do log in with the user-owner and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
-            // Verify that Project Selection dialog is loaded, then close it
-            await studioUtils.closeProjectSelectionDialog();
-            // 2. Select the site from the primary-inherited project:
-            await studioUtils.findAndSelectItem(SITE_NAME);
-            // 3. Verify that 'Open' button gets visible and enabled :
-            await contentBrowsePanel.waitForOpenButtonEnabled();
-            // 4. Verify the issue
-            // #6767 Layer-contributor user - error after clicking on Open button in Browse panel
-            await contentBrowsePanel.clickOnOpenButton();
-            //await studioUtils.doSwitchToNextTab();
-            //await contentWizard.waitForOpened();
-        });
+    it("GIVEN user with 'Contributor'-layer role is logged in WHEN site that is 'inherited' from the primary project has been selected THEN 'Open' button should be enabled in the browse toolbar", async () => {
+        let contentBrowsePanel = new ContentBrowsePanel();
+        let contentWizard = new ContentWizard();
+        // 1. Do log in with the user-owner and navigate to Content Browse Panel:
+        await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+        // Verify that Project Selection dialog is loaded, then close it
+        await studioUtils.closeProjectSelectionDialog();
+        // 2. Select the site from the primary-inherited project:
+        await studioUtils.findAndSelectItem(SITE_NAME);
+        // 3. Verify that 'Open' button gets visible and enabled :
+        await contentBrowsePanel.waitForOpenButtonEnabled();
+        // 4. Verify the issue
+        // #6767 Layer-contributor user - error after clicking on Open button in Browse panel
+        await contentBrowsePanel.clickOnOpenButton();
+        //await studioUtils.doSwitchToNextTab();
+        //await contentWizard.waitForOpened();
+    });
 
-    it("GIVEN user with 'Contributor'-layer role is logged in WHEN content that is 'inherited' from the secondary project has been selected THEN 'Open' button should be enabled in the browse toolbar",
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            let contentWizard = new ContentWizard()
-            // 1. Do log in with the user-owner and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
-            // Verify that Project Selection dialog is loaded, then close it
-            //await studioUtils.closeProjectSelectionDialog();
-            // 2. Select the content from the secondary-inherited project:
-            await studioUtils.findAndSelectItem(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_NAME);
-            // 3. Verify that 'Open' button gets visible and enabled :
-            await contentBrowsePanel.waitForOpenButtonEnabled();
-            // 4. Verify the issue
-            // #6767 Layer-contributor user - error after clicking on Open button in Browse panel
-            await contentBrowsePanel.clickOnOpenButton();
-            //await studioUtils.doSwitchToNextTab();
-            //await contentWizard.waitForOpened();
-        });
+    it("GIVEN user with 'Contributor'-layer role is logged in WHEN content that is 'inherited' from the secondary project has been selected THEN 'Open' button should be enabled in the browse toolbar", async () => {
+        let contentBrowsePanel = new ContentBrowsePanel();
+        let contentWizard = new ContentWizard();
+        // 1. Do log in with the user-owner and navigate to Content Browse Panel:
+        await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+        // Verify that Project Selection dialog is loaded, then close it
+        //await studioUtils.closeProjectSelectionDialog();
+        // 2. Select the content from the secondary-inherited project:
+        await studioUtils.findAndSelectItem(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_NAME);
+        // 3. Verify that 'Open' button gets visible and enabled :
+        await contentBrowsePanel.waitForOpenButtonEnabled();
+        // 4. Verify the issue
+        // #6767 Layer-contributor user - error after clicking on Open button in Browse panel
+        await contentBrowsePanel.clickOnOpenButton();
+        //await studioUtils.doSwitchToNextTab();
+        //await contentWizard.waitForOpened();
+    });
 
-    it("WHEN user-contributor navigated to 'Settings Panel' THEN parent project and its layer should be visible",
-        async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
-            await studioUtils.openSettingsPanel();
-            // 1.Verify that the layer is visible in the grid:
-            await settingsBrowsePanel.waitForItemDisplayed(LAYER_DISPLAY_NAME);
-            // 2. Verify that parent project is displayed:
-            await settingsBrowsePanel.waitForItemDisplayed(PROJECT_DISPLAY_NAME);
-            // 3.Verify that the Default project is not visible for the user with contributor role:
-            await settingsBrowsePanel.waitForProjectNotDisplayed('Default');
-            // Do log out:
-            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
-            await studioUtils.doLogout();
-        });
+    it("WHEN user-contributor navigated to 'Settings Panel' THEN parent project and its layer should be visible", async () => {
+        let settingsBrowsePanel = new SettingsBrowsePanel();
+        await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+        await studioUtils.openSettingsPanel();
+        // 1.Verify that the layer is visible in the grid:
+        await settingsBrowsePanel.waitForItemDisplayed(LAYER_DISPLAY_NAME);
+        // 2. Verify that parent project is displayed:
+        await settingsBrowsePanel.waitForItemDisplayed(PROJECT_DISPLAY_NAME);
+        // 3.Verify that the Default project is not visible for the user with contributor role:
+        await settingsBrowsePanel.waitForProjectNotDisplayed('Default');
+        // Do log out:
+        await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
+        await studioUtils.doLogout();
+    });
 
-    it(`WHEN existing layer is opened THEN 2 parent projects should be displayed in the selected options`,
-        async () => {
-            await studioUtils.navigateToContentStudioApp('su', 'password');
-            await studioUtils.openSettingsPanel();
+    it(`WHEN existing layer is opened THEN 2 parent projects should be displayed in the selected options`, async () => {
+        await studioUtils.navigateToContentStudioApp('su', 'password');
+        await studioUtils.openSettingsPanel();
 
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            let projectWizard = new ProjectWizard();
-            // 1. Click on the layer and press 'Edit' button:
-            await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
-            await settingsBrowsePanel.clickOnEditButton();
-            await projectWizard.waitForLoaded();
-            let tabTitle = await projectWizard.getTabTitle();
-            assert.equal(tabTitle, LAYER_DISPLAY_NAME, "Layer's name should be displayed in the tab-title");
-            // 2. Verify selected parent projects:
-            let actualResult = await projectWizard.getSelectedParentProjectsDisplayName();
-            assert.equal(actualResult.length, 2, '2 parent projects should be displayed in the form');
-            assert.ok(actualResult.includes(PROJECT_DISPLAY_NAME), "Expected project should be displayed in the selected options");
-            assert.ok(actualResult.includes('Default'), "'Default' project should be displayed in the selected options");
-        });
+        let settingsBrowsePanel = new SettingsBrowsePanel();
+        let projectWizard = new ProjectWizard();
+        // 1. Click on the layer and press 'Edit' button:
+        await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
+        await settingsBrowsePanel.clickOnEditButton();
+        await projectWizard.waitForLoaded();
+        let tabTitle = await projectWizard.getTabTitle();
+        assert.equal(tabTitle, LAYER_DISPLAY_NAME, "Layer's name should be displayed in the tab-title");
+        // 2. Verify selected parent projects:
+        let actualResult = await projectWizard.getSelectedParentProjectsDisplayName();
+        assert.equal(actualResult.length, 2, '2 parent projects should be displayed in the form');
+        assert.ok(
+            actualResult.includes(PROJECT_DISPLAY_NAME),
+            'Expected project should be displayed in the selected options',
+        );
+        assert.ok(actualResult.includes('Default'), "'Default' project should be displayed in the selected options");
+    });
 
-    it('Post conditions: the layer should be deleted',
-        async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            await studioUtils.navigateToContentStudioApp('su', 'password');
-            await studioUtils.openSettingsPanel();
-            // 1. Select and delete the layer:
-            await projectUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
-            await settingsBrowsePanel.pause(1000);
-            await projectUtils.selectAndDeleteProject(PROJECT_DISPLAY_NAME);
-        });
+    it('Post conditions: the layer should be deleted', async () => {
+        let settingsBrowsePanel = new SettingsBrowsePanel();
+        await studioUtils.navigateToContentStudioApp('su', 'password');
+        await studioUtils.openSettingsPanel();
+        // 1. Select and delete the layer:
+        await projectUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
+        await settingsBrowsePanel.pause(1000);
+        await projectUtils.selectAndDeleteProject(PROJECT_DISPLAY_NAME);
+    });
 
     afterEach(async () => {
         let title = await studioUtils.getBrowser().getTitle();
-        if (title.includes(appConst.CONTENT_STUDIO_TITLE) || title.includes('Users') || title.includes(appConst.TAB_TITLE_PART)) {
+        if (
+            title.includes(appConst.CONTENT_STUDIO_TITLE) ||
+            title.includes('Users') ||
+            title.includes(appConst.TAB_TITLE_PART)
+        ) {
             return await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         }
     });

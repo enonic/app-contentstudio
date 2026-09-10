@@ -16,8 +16,6 @@ describe(`article.allow.child.cfg.spec: tests for 'allow-child-content-type' in 
     }
 
     const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
-    const DROP_MEDIA_MSG = 'Drop media content here or use the Upload button';
-    const NO_CONTENT_TYPES_ALLOWED = 'No content types allowed for a new content';
     const ARTICLE_ALLOW_ONLY_MEDIA = appConst.generateRandomName('amedia');
     const ARTICLE_ALLOW_NON_EXISTENT = appConst.generateRandomName('anonexistent');
     const ARTICLE_ALLOW_MEDIA_WILD = appConst.generateRandomName('amediawild');
@@ -95,6 +93,7 @@ describe(`article.allow.child.cfg.spec: tests for 'allow-child-content-type' in 
         // 4. Click on 'New' button in the content browse panel:
         await contentBrowsePanel.clickOnNewButton();
         await newContentDialog.waitForOpened();
+        await newContentDialog.waitForMediaTabButtonEnabled();
         await newContentDialog.clickOnMediaButton();
         // 5. Verify that the 'Upload' button is displayed:
         await newContentDialog.waitForDropZoneDisplayed();
@@ -105,7 +104,7 @@ describe(`article.allow.child.cfg.spec: tests for 'allow-child-content-type' in 
     });
 
     // Only a specific, non-media type is allowed:
-    it(`GIVEN article with 'Only a specific, non-media type is allowed' in cfg is selected WHEN 'New content' modal dialog has been opened THEN 'Upload' button should not be displayed`, async () => {
+    it(`GIVEN article with 'Only a specific, non-media type is allowed' in cfg is selected WHEN 'New content' modal dialog has been opened THEN 'Media' tab should be disabled`, async () => {
         let contentWizard = new ContentWizard();
         let contentBrowsePanel = new ContentBrowsePanel();
         let newContentDialog = new NewContentDialog();
@@ -121,7 +120,7 @@ describe(`article.allow.child.cfg.spec: tests for 'allow-child-content-type' in 
         await contentBrowsePanel.clickOnNewButton();
         await newContentDialog.waitForOpened();
         // 5. 'Media' tab should be disabled
-        //await newContentDialog.waitForMediaTabButtonDisabled();
+        await newContentDialog.waitForMediaTabButtonDisabled();
         // 6. Verify that the only one item should be displayed in the list of items:
         let items = await newContentDialog.getItemsInAllTab();
         assert.ok(items.length === 1, 'Expected no items in the list, but found: ' + items.length);

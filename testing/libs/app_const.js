@@ -124,6 +124,10 @@ module.exports = Object.freeze({
         IMPORTED_SITE_579992: 'site579992',
         IMPORTED_ARTICLE_1: 'article1',
         IMPORTED_ARTICLE_2: 'article2',
+        PARENT_FOLDER_498088: 'parent498088',
+        CHILD_FOLDER_431583: 'child431583',
+        PARENT_FOLDER_273049: 'folder273049',
+        CHILD_FOLDER_865739: 'child865739',
     },
     TEST_APPS_NAME: {
         APP_CONTENT_TYPES: 'All Content Types App',

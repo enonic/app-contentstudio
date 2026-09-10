@@ -65,6 +65,14 @@ class NewContentDialog extends Page {
         }
     }
 
+    async waitForMediaTabButtonEnabled() {
+        try {
+            return await this.waitForElementEnabled(this.mediaButton);
+        } catch (err) {
+            await this.handleError(`New Content dialog, Media tab button should be enabled:`, 'err_media_tab', err);
+        }
+    }
+
     async waitForSuggestedTabButtonDisabled() {
         try {
             return await this.waitForElementDisabled(this.suggestedButton);
@@ -187,7 +195,6 @@ class NewContentDialog extends Page {
         return await this.isElementDisplayed(typeSelector);
     }
 
-
     getHeaderText() {
         return this.getText(this.title);
     }
@@ -239,11 +246,10 @@ class NewContentDialog extends Page {
         return await this.getTextInElements(locator);
     }
 
-    async waitForItemsLoaded(){
-        let locator =  XPATH.container + "//div[@data-component='ItemLabel']//span";
+    async waitForItemsLoaded() {
+        let locator = XPATH.container + "//div[@data-component='ItemLabel']//span";
         await this.waitForElementDisplayed(locator);
     }
-
 }
 
 module.exports = NewContentDialog;

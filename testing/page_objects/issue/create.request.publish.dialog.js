@@ -15,7 +15,6 @@ const xpath = {
     dependantItemDivByName: (name) => DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV + DIALOG_ITEMS.mainItemRowByName(name),
     warningMessagePart1: "//div[contains(@id,'PublishIssuesStateBar')]/span[@class='part1']",
     warningMessagePart2: "//div[contains(@id,'PublishIssuesStateBar')]/span[@class='part2']",
-    invalidIcon: "//span[contains(@class,'icon-state-invalid')]",
     errorEntry: "//div[contains(@id,'DialogStateEntry') and contains(@class,'error-entry')]",
     inProgressEntryDiv:
         "//div[contains(@id,'DialogStateEntry') and descendant::span[contains(@class,'icon-state-in-progress')]]",
@@ -36,10 +35,6 @@ class CreateRequestPublishDialog extends Page {
 
     get dependantsBlock() {
         return xpath.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV;
-    }
-
-    get invalidIcon() {
-        return xpath.container + xpath.invalidEntryDiv + xpath.invalidIcon;
     }
 
     get closeButton() {
@@ -137,6 +132,30 @@ class CreateRequestPublishDialog extends Page {
     }
 
     // dialog-state-bar
+    async waitForExcludeInvalidItemsButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.excludeInvalidItemsButton);
+        } catch (err) {
+            await this.handleError(
+                `Request Publishing dialog, 'Exclude' button for invalid items should be displayed`,
+                'err_exclude_invalid_items_btn',
+                err,
+            );
+        }
+    }
+    async waitForExcludeInvalidItemsButtonNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.excludeInvalidItemsButton);
+        } catch (err) {
+            await this.handleError(
+                `Request Publishing dialog, 'Exclude' button for invalid items should not be displayed`,
+                'err_exclude_invalid_items_btn',
+                err,
+            );
+        }
+    }
+
+    // dialog-state-bar
     async clickOnExcludeItemsInProgressButton() {
         await this.waitForElementDisplayed(this.excludeItemsInProgressButton);
         await this.clickOnElement(this.excludeItemsInProgressButton);
@@ -203,30 +222,6 @@ class CreateRequestPublishDialog extends Page {
     async waitForDialogLoaded() {
         await this.waitForElementDisplayed(xpath.container);
         await this.pause(1000);
-    }
-
-    async waitForInvalidIconDisplayed() {
-        try {
-            await this.waitForElementDisplayed(this.invalidIcon);
-        } catch (err) {
-            await this.handleError(
-                `Request Publishing dialog:  'invalid' icon should be visible`,
-                'err_request_publish_dialog_invalid_icon',
-                err,
-            );
-        }
-    }
-
-    async waitForInvalidIconNotDisplayed() {
-        try {
-            await this.waitForElementNotDisplayed(this.invalidIcon, appConst.mediumTimeout);
-        } catch (err) {
-            await this.handleError(
-                `Request Publishing dialog:  'invalid' icon should be not visible`,
-                'err_request_publish_dialog_invalid_icon',
-                err,
-            );
-        }
     }
 
     async waitForDialogClosed() {

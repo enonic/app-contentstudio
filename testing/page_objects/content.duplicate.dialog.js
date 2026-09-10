@@ -1,19 +1,20 @@
 const Page = require('./page');
 const appConst = require('../libs/app_const');
-const {BUTTONS} = require('../libs/elements');
+const { BUTTONS } = require('../libs/elements');
 
 const XPATH = {
     container: `//div[@role='dialog' and @data-component='DuplicateDialogMainContent']`,
-    listItemByDisplayName: displayName => `//div[@role='listitem' and (descendant::div[@data-component='ContentLabel' and descendant::span[contains(.,'${displayName}')]])]`,
-    mainListItemsDisplayName:`//div[@role='separator']/preceding::div[@role='listitem'][ancestor::div[@role='dialog' and @data-component='DuplicateDialogMainContent']]//div[@data-component='ContentLabel']//span[following-sibling::small]`,
-    dependantListItemDisplayName:`//div[@role='separator']/following::div[@role='listitem'][ancestor::div[@role='dialog' and @data-component='DuplicateDialogMainContent']]//div[@data-component='ContentLabel']//span[not(*)]`,
-    includeChildCheckboxByDisplayName: displayName => XPATH.listItemByDisplayName(displayName) + "/following-sibling::div//label",
+    listItemByDisplayName: (displayName) =>
+        `//div[@role='listitem' and (descendant::div[@data-component='ContentLabel' and descendant::span[contains(.,'${displayName}')]])]`,
+    mainListItemsDisplayName: `//div[@role='separator']/preceding::div[@role='listitem'][ancestor::div[@role='dialog' and @data-component='DuplicateDialogMainContent']]//div[@data-component='ContentLabel']//span[following-sibling::small]`,
+    dependantListItemDisplayName: `//div[@role='separator']/following::div[@role='listitem'][ancestor::div[@role='dialog' and @data-component='DuplicateDialogMainContent']]//div[@data-component='ContentLabel']//span[not(*)]`,
+    includeChildCheckboxByDisplayName: (displayName) =>
+        XPATH.listItemByDisplayName(displayName) + '/following-sibling::div//label',
     dependantsHeader: "//div[@role='separator']/span",
-    separatorDiv:"//div[@role='separator']",
+    separatorDiv: "//div[@role='separator']",
 };
 
 class ContentDuplicateDialog extends Page {
-
     get dependentsHeader() {
         return XPATH.container + XPATH.dependantsHeader;
     }
@@ -29,7 +30,7 @@ class ContentDuplicateDialog extends Page {
     async waitForDuplicateButtonDisplayed() {
         await this.waitForElementDisplayed(this.duplicateButton, appConst.mediumTimeout);
     }
-    async waitForDuplicateButtonEnabled(){
+    async waitForDuplicateButtonEnabled() {
         await this.waitForElementEnabled(this.duplicateButton, appConst.mediumTimeout);
     }
 
@@ -39,9 +40,10 @@ class ContentDuplicateDialog extends Page {
     }
 
     async isIncludeCheckboxSelected(displayName) {
-        let locator = XPATH.container + XPATH.includeChildCheckboxByDisplayName(displayName) + "/input[@type='checkbox']";
-        let checkboxEl = await this.findElements(locator);
-        return checkboxEl[0].isSelected(locator);
+        let locator =
+            XPATH.container + XPATH.includeChildCheckboxByDisplayName(displayName) + "/input[@type='checkbox']";
+        let checkboxEls = await this.findElements(locator);
+        return checkboxEls.length > 0 ? await checkboxEls[0].isSelected() : false;
     }
 
     async waitForCloseButtonDisplayed() {
@@ -101,10 +103,13 @@ class ContentDuplicateDialog extends Page {
     //gets number in `Duplicate` button, It is total number of items to duplicate
     async getNumberItemsInDuplicateButton() {
         try {
-            await this.getBrowser().waitUntil(async () => {
-                let text = await this.getText(this.duplicateButton);
-                return text.includes('(');
-            }, {timeout: appConst.mediumTimeout});
+            await this.getBrowser().waitUntil(
+                async () => {
+                    let text = await this.getText(this.duplicateButton);
+                    return text.includes('(');
+                },
+                { timeout: appConst.mediumTimeout },
+            );
             let result = await this.getText(this.duplicateButton);
             let startIndex = result.indexOf('(');
             let endIndex = result.indexOf(')');

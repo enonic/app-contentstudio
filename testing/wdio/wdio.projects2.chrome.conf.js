@@ -9,8 +9,6 @@ const browser_version = properties.get('browser.version');
 exports.config = {
     specs: [path.join(__dirname, '../specs/project-2/*.spec.js')],
 
-    exclude: [path.join(__dirname, '../specs/project-2/project.wizard.custom.read.access.user.deleted.spec.js')],
-
     maxInstances: 1,
 
     capabilities: [

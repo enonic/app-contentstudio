@@ -1174,15 +1174,7 @@ module.exports = {
     loadUrl(url) {
         return this.getBrowser().url(url);
     },
-    async getIdOfHtmlAreas() {
-        let selector = lib.FORM_VIEW + lib.TEXT_AREA;
-        let elems = await this.getBrowser().$$(selector);
-        let ids = [];
-        for (const item of elems) {
-            ids.push(await item.getAttribute('id'));
-        }
-        return ids;
-    },
+
     async openEditSettingDialog() {
         let detailsWidgetInfoSection = new DetailsWidgetInfoSection();
         let editSettingsDialog = new EditSettingDialog();

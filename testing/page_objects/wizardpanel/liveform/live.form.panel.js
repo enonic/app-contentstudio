@@ -3,12 +3,12 @@
  */
 const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
+const { COMMON } = require('../../../libs/elements');
 const ContentWizard = require('../content.wizard.panel');
 
 const xpath = {
     container: "//div[contains(@id,'LiveFormPanel')]",
     fragmentComponentView: "//*[@data-portal-component-type='fragment']",
-    itemViewContextMenu: "//div[contains(@id,'ItemViewContextMenu')]",
     layoutComponentView: "//*[@data-portal-component-type='layout']",
     layoutPlaceholderDiv: `//div[@data-portal-component-type='layout']`,
     fragmentPlaceHolderDiv: `//div[contains(@id,'FragmentPlaceholder')]`,
@@ -21,6 +21,8 @@ const xpath = {
     editableTextComponentByText: (text) =>
         `//*[@data-portal-component-type='text' and @contenteditable='true']//p[contains(.,'${text}')]`,
     textComponentByText: (text) => `//*[@data-portal-component-type='text']//p[contains(.,'${text}')]`,
+    // The text component itself - the text can be wrapped in any element ('p', 'pre', 'figcaption' etc.)
+    textComponentContainingText: (text) => `//*[@data-portal-component-type='text'][contains(.,'${text}')]`,
     partComponentByName: (name) => `//*[@data-portal-component-type='part']//h2[contains(text(),'${name}')]`,
     captionByText: (text) => `//*[@data-portal-component-type='text']//figcaption[contains(.,'${text}')]`,
 };
@@ -128,27 +130,16 @@ class LiveFormPanel extends Page {
         }
     }
 
-    async waitForEditableTextComponentDisplayed(text) {
+    // Opens the context menu for the text component with the given text.
+    // Switch to the Live Edit frame before calling this method.
+    async doRightClickOnTextComponent(text) {
         try {
-            let selector = xpath.editableTextComponentByText(text);
-            return await this.waitForElementDisplayed(selector);
-        } catch (err) {
-            await this.handleError(
-                `Editable text component should be visible in Live Editor!`,
-                'err_txt_comp_edit',
-                err,
-            );
-        }
-    }
-
-    async doRightClickOnTextComponent(text, liveFrameX, liveFrameY) {
-        try {
-            if (isNaN(liveFrameX) || isNaN(liveFrameY)) {
-                throw new Error('Error when clicking on Image Component  in Live Frame!');
-            }
-            let selector = xpath.textComponentByText(text);
-            await this.doRightClickWithOffset(selector, liveFrameX + 35, liveFrameY + 15);
-            return await this.pause(700);
+            let selector = xpath.textComponentContainingText(text);
+            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+            let element = await this.findElement(selector);
+            await element.click({ button: 2 });
+            await this.waitForItemViewContextMenu();
+            return await this.pause(300);
         } catch (err) {
             await this.handleError(
                 `Try to open the context menu for text component`,
@@ -168,10 +159,19 @@ class LiveFormPanel extends Page {
         }
     }
 
+    // The page-editor overlay (context menus, highlighters) is rendered inside the shadow root of
+    // '#pe-overlay-host' in the Live Edit frame, so its content is not reachable by xpath.
+    async getPageEditorOverlayShadowHost() {
+        let host = await this.findElement(COMMON.SHADOW_SELECTORS.PAGE_EDITOR_OVERLAY_HOST);
+        await host.waitForExist({ timeout: appConst.mediumTimeout });
+        return host;
+    }
+
     async waitForItemViewContextMenu() {
         try {
-            let selector = xpath.itemViewContextMenu;
-            return await this.waitForElementDisplayed(selector);
+            let host = await this.getPageEditorOverlayShadowHost();
+            let menu = await host.shadow$(COMMON.SHADOW_SELECTORS.PAGE_EDITOR_CONTEXT_MENU);
+            return await menu.waitForDisplayed({ timeout: appConst.mediumTimeout });
         } catch (err) {
             await this.handleError(
                 `Item View Context Menu should be displayed in Live Editor!`,
@@ -181,10 +181,79 @@ class LiveFormPanel extends Page {
         }
     }
 
+    async waitForItemViewContextMenuNotDisplayed() {
+        try {
+            let host = await this.getPageEditorOverlayShadowHost();
+            let menu = await host.shadow$(COMMON.SHADOW_SELECTORS.PAGE_EDITOR_CONTEXT_MENU);
+            return await menu.waitForDisplayed({ timeout: appConst.mediumTimeout, reverse: true });
+        } catch (err) {
+            await this.handleError(
+                `Item View Context Menu should not be displayed in Live Editor!`,
+                'err_liveview_view_context_menu',
+                err,
+            );
+        }
+    }
+
+    // Returns the labels of the top level items in the Live Editor context menu
     async getItemViewContextMenuItems() {
-        let selector = "//dt[contains(@id,'TreeMenuItem')]";
+        try {
+            let items = await this.getItemViewContextMenuItemElements(
+                COMMON.SHADOW_SELECTORS.PAGE_EDITOR_CONTEXT_MENU_ITEMS,
+            );
+            let labels = [];
+            for (const item of items) {
+                let text = await item.getText();
+                labels.push(text.trim());
+            }
+            return labels;
+        } catch (err) {
+            await this.handleError(
+                `Error when getting menu items in Live Editor context menu`,
+                'err_liveview_view_context_menu_items',
+                err,
+            );
+        }
+    }
+
+    // Clicks on the menu item with the given label in the Live Editor context menu.
+    // Items in the opened submenu ('Insert' -> 'Text' etc.) are found as well.
+    async clickOnLiveViewContextMenuItem(itemName) {
+        try {
+            let items = await this.getItemViewContextMenuItemElements(
+                COMMON.SHADOW_SELECTORS.PAGE_EDITOR_CONTEXT_MENU_ANY_ITEM,
+            );
+            for (const item of items) {
+                let text = await item.getText();
+                if (text.trim() === itemName) {
+                    await item.click();
+                    return await this.pause(700);
+                }
+            }
+            throw new Error(`Menu item '${itemName}' was not found in the context menu`);
+        } catch (err) {
+            await this.handleError(
+                `Error when clicking on '${itemName}' in Live Editor context menu`,
+                'err_liveview_view_context_menu_item',
+                err,
+            );
+        }
+    }
+
+    async getItemViewContextMenuItemElements(itemsSelector) {
         await this.waitForItemViewContextMenu();
-        return await this.getTextInElements(selector);
+        let host = await this.getPageEditorOverlayShadowHost();
+        await this.getBrowser().waitUntil(
+            async () => {
+                let items = await host.shadow$$(itemsSelector);
+                return items.length > 0;
+            },
+            {
+                timeout: appConst.mediumTimeout,
+                timeoutMsg: 'Live Editor - items in the context menu were not displayed',
+            },
+        );
+        return await host.shadow$$(itemsSelector);
     }
 
     async waitForCaptionDisplayed(text) {

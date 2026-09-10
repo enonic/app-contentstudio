@@ -6,7 +6,6 @@ const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const projectUtils = require('../../libs/project.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
-const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
 const appConst = require('../../libs/app_const');
 const EditProjectAndLanguageStep = require('../../page_objects/project/project-wizard-dialog/edit.project.default.language.step');
@@ -27,7 +26,6 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
 
     it(`Preconditions: new project(with Norsk (no) language) and 'Private' access mode should be added`, async () => {
         //1. Save new project (Public access mode):
-        //await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, TEST_DESCRIPTION, appConst.LANGUAGES.NORSK_NO, null, "Public");
         await projectUtils.saveTestProject({
             name: PROJECT_DISPLAY_NAME,
             language: appConst.LANGUAGES.NORSK_NO,
