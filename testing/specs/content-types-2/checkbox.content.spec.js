@@ -9,6 +9,7 @@ const contentBuilder = require('../../libs/content.builder');
 const CheckBoxForm = require('../../page_objects/wizardpanel/checkbox.fom.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const BrowsePanel = require("../../page_objects/browsepanel/content.browse.panel");
 
 describe('checkbox.content.spec: tests for content with checkbox', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -88,7 +89,15 @@ describe('checkbox.content.spec: tests for content with checkbox', function () {
         let contentWizard = new ContentWizard();
         let contentBrowsePanel = new ContentBrowsePanel();
         // 1. open existing checkbox content:
-        await studioUtils.findContentAndClickCheckBox(CHECKBOX_NAME_2);
+        //await studioUtils.findContentAndClickCheckBox(CHECKBOX_NAME_2);
+        let browsePanel = new BrowsePanel();
+        await studioUtils.typeNameInFilterPanel(CHECKBOX_NAME_2);
+        await studioUtils.saveScreenshot('issue_checkbox_content_in_grid_0');
+        await browsePanel.pause(1000);
+        await studioUtils.saveScreenshot('issue_checkbox_content_in_grid');
+        await browsePanel.waitForContentByDisplayNameVisible(CHECKBOX_NAME_2);
+        await browsePanel.clickCheckboxAndSelectRowByDisplayName(CHECKBOX_NAME_2);
+        await studioUtils.saveScreenshot('issue_checkbox_content_in_grid_2');
         await contentBrowsePanel.clickOnEditButton();
         await studioUtils.switchToContentTabWindow(CHECKBOX_NAME_2);
         await contentWizard.waitForOpened();
