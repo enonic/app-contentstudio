@@ -3,9 +3,11 @@ import { atom, computed } from 'nanostores';
 import type { Page } from '../../../../../../app/page/Page';
 import type { Component } from '../../../../../../app/page/region/Component';
 import { DescriptorBasedComponent } from '../../../../../../app/page/region/DescriptorBasedComponent';
+import { FragmentComponent } from '../../../../../../app/page/region/FragmentComponent';
 import { LayoutComponent } from '../../../../../../app/page/region/LayoutComponent';
 import type { Region } from '../../../../../../app/page/region/Region';
 import { TextComponent } from '../../../../../../app/page/region/TextComponent';
+import { fetchContentById } from '../../../../../entities/content';
 import {
     type CreateNodeOptions,
     type TreeNode,
@@ -20,6 +22,7 @@ import {
     setNodes,
     setRootIds,
     toggle,
+    updateNodeData,
 } from '../../../../../shared/lib/tree-store';
 import { $page, $pageVersion } from '../../../../../widgets/inspectors/model/page-editor/store';
 import type { PageComponentNodeData, PageComponentNodeType } from './types';
@@ -42,6 +45,7 @@ export const $componentsFlatNodes = computed($componentsTreeState, flattenTree);
 
 let lastRebuildVersion = -1;
 let lastLayoutsByPath = new Map<string, LayoutComponent>();
+let layoutFragmentResolutionId = 0;
 
 export function rebuildComponentsTree(preserveExpanded = true): void {
     const currentVersion = $pageVersion.get();
@@ -51,6 +55,7 @@ export function rebuildComponentsTree(preserveExpanded = true): void {
     const page = $page.get();
     const currentState = $componentsTreeState.get();
     const isRebuild = preserveExpanded && currentState.nodes.size > 0;
+    const resolutionId = ++layoutFragmentResolutionId;
 
     const layoutsByPath = collectLayouts(page);
     const layoutDiff = isRebuild ? diffLayouts(lastLayoutsByPath, layoutsByPath) : EMPTY_LAYOUT_DIFF;
@@ -61,6 +66,10 @@ export function rebuildComponentsTree(preserveExpanded = true): void {
 
     const newState = buildTreeFromPage(page, expandedIds, isRebuild, layoutDiff.added);
     $componentsTreeState.set(newState);
+
+    if (page != null) {
+        resolveLayoutFragments(page, resolutionId);
+    }
 }
 
 export function toggleComponentExpand(id: string): void {
@@ -386,6 +395,7 @@ function buildComponentNodes(
     const componentId = buildComponentPath(regionPath, index);
     const nodeType = getComponentNodeType(component);
     const isLayout = component instanceof LayoutComponent;
+    const isReferencedFragment = component instanceof FragmentComponent && component.hasFragment();
     const regions = isLayout ? (component.getRegions()?.getRegions() ?? []) : [];
     const childIds = regions.map((r) => buildRegionPath(componentId, r.getName()));
 
@@ -401,7 +411,9 @@ function buildComponentNodes(
             displayName,
             nodeType,
             draggable: true,
-            layoutFragment: false,
+            // Referenced fragments are treated as layouts until their content is resolved. This
+            // keeps a fast drag from nesting an unresolved layout fragment inside another layout.
+            layoutFragment: isReferencedFragment,
             hasDescriptor: componentHasDescriptor,
         },
         parentId: regionPath,
@@ -412,6 +424,73 @@ function buildComponentNodes(
     for (const region of regions) {
         buildRegionNodes(region, componentId, nodes);
     }
+}
+
+function resolveLayoutFragments(page: Page, resolutionId: number): void {
+    const fragmentPathsById = collectReferencedFragments(page);
+
+    for (const [fragmentId, paths] of fragmentPathsById) {
+        void fetchContentById(fragmentId).match(
+            (content) => {
+                if (resolutionId !== layoutFragmentResolutionId) {
+                    return;
+                }
+
+                const isLayoutFragment = content.getPage()?.getFragment() instanceof LayoutComponent;
+                let state = $componentsTreeState.get();
+
+                for (const path of paths) {
+                    state = updateNodeData(state, path, { layoutFragment: isLayoutFragment });
+                }
+
+                $componentsTreeState.set(state);
+            },
+            () => undefined,
+        );
+    }
+}
+
+function collectReferencedFragments(page: Page): Map<string, string[]> {
+    const pathsById = new Map<string, string[]>();
+    let rootRegions: Region[];
+
+    if (page.isFragment()) {
+        const fragment = page.getFragment();
+        rootRegions = fragment instanceof LayoutComponent ? (fragment.getRegions()?.getRegions() ?? []) : [];
+    } else {
+        rootRegions = page.getRegions()?.getRegions() ?? [];
+    }
+
+    for (const region of rootRegions) {
+        collectReferencedFragmentsFromRegion(region, PAGE_ROOT_ID, pathsById);
+    }
+
+    return pathsById;
+}
+
+function collectReferencedFragmentsFromRegion(
+    region: Region,
+    parentPath: string,
+    pathsById: Map<string, string[]>,
+): void {
+    const regionPath = buildRegionPath(parentPath, region.getName());
+
+    region.getComponents().forEach((component, index) => {
+        const componentPath = buildComponentPath(regionPath, index);
+
+        if (component instanceof FragmentComponent && component.hasFragment()) {
+            const fragmentId = component.getFragment().toString();
+            const paths = pathsById.get(fragmentId) ?? [];
+            paths.push(componentPath);
+            pathsById.set(fragmentId, paths);
+        }
+
+        if (component instanceof LayoutComponent) {
+            for (const innerRegion of component.getRegions()?.getRegions() ?? []) {
+                collectReferencedFragmentsFromRegion(innerRegion, componentPath, pathsById);
+            }
+        }
+    });
 }
 
 function buildRegionPath(parentPath: string, regionName: string): string {
