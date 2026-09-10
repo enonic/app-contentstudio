@@ -9,9 +9,7 @@ const browser_version = properties.get('browser.version');
 exports.config = {
     specs: [path.join(__dirname, '../specs/project/*.spec.js')],
 
-    exclude: [
-        path.join(__dirname, '../specs/project/layers.content.tree.dialog.spec.js'),
-    ],
+    exclude: [path.join(__dirname, '../specs/project/layers.content.tree.dialog.spec.js')],
 
     maxInstances: 1,
 
