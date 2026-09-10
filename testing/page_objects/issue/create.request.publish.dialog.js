@@ -148,7 +148,7 @@ class CreateRequestPublishDialog extends Page {
             return await this.waitForElementNotDisplayed(this.excludeInvalidItemsButton);
         } catch (err) {
             await this.handleError(
-                `Request Publishing dialog, 'Exclude' button for invalid items should be displayed`,
+                `Request Publishing dialog, 'Exclude' button for invalid items should not be displayed`,
                 'err_exclude_invalid_items_btn',
                 err,
             );

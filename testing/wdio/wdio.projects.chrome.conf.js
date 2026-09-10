@@ -11,7 +11,6 @@ exports.config = {
 
     exclude: [
         path.join(__dirname, '../specs/project/layers.content.tree.dialog.spec.js'),
-        path.join(__dirname, '../specs/project/project.layer.delete.spec.js'),
     ],
 
     maxInstances: 1,

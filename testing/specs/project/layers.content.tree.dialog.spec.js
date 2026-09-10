@@ -16,7 +16,7 @@ describe('layers.content.tree.dialog.spec - tests for Layers Content Tree modal 
         webDriverHelper.setupBrowser();
     }
     const TEST_FOLDER_DISPLAY_NAME = studioUtils.generateRandomName('folder');
-    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
+    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('proj');
     const LAYER1_DISPLAY_NAME = studioUtils.generateRandomName('layer');
     const LAYER2_DISPLAY_NAME = studioUtils.generateRandomName('layer');
 

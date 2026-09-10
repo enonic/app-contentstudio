@@ -19,7 +19,7 @@ describe('article.customize.on.create.config.spec: UI test for automatic content
     const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_579992;
     const EXPECTED_CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
 
-    it(`WHEN wizard for article whose schema has customizeOnCreate: true is opened THEN 'Customize page' button is not displayed in the Inspect tab but 'Page' step is displayed`, async () => {
+    it(`WHEN wizard for article whose schema has 'customizeOnCreate: true' is opened THEN 'Customize page' button is not displayed in the Inspect tab but 'Page' step is displayed`, async () => {
         let contentWizard = new ContentWizard();
         // 1. Open wizard for new article whose schema has customizeOnCreate: true
         await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.ARTICLE_ALLOW_NON_MEDIA);
@@ -55,7 +55,7 @@ describe('article.customize.on.create.config.spec: UI test for automatic content
         assert.equal(result[6], 'Edit');
     });
 
-    it(`WHEN wizard for article whose schema has customizeOnCreate: false is opened THEN 'Customize page' button is not displayed in the Inspect tab but 'Page' step is displayed`, async () => {
+    it(`WHEN wizard for article whose schema has 'customizeOnCreate: false' is opened THEN 'Customize page' button is displayed in the Inspect tab and 'Page' wizard-step is not displayed`, async () => {
         let contentWizard = new ContentWizard();
         // 1. Open wizard for new article:
         await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.ARTICLE);
@@ -65,7 +65,7 @@ describe('article.customize.on.create.config.spec: UI test for automatic content
         let pageEditorExtension = new PageWidgetPanel();
         // 2. 'Inspect' tab item should be activated by default:
         await pageEditorExtension.waitForTabActive(appConst.CONTEXT_WINDOW_TABS.INSPECT);
-        // 3. Verify that 'Customize page' button is not displayed
+        // 3. Verify that 'Customize page' button is displayed
         await pageInspectTab.waitForCustomizePageButtonDisplayed();
         let actualController = await pageInspectTab.getSelectedPageController();
         assert.equal(actualController, 'Automatic', 'Automatic controller should be displayed in the selector');
