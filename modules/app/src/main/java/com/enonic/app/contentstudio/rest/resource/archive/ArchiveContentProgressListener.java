@@ -42,6 +42,11 @@ public final class ArchiveContentProgressListener
         // Total spans both the unpublish and archive phases and is set via setTotal
     }
 
+    public void resolved( final int count )
+    {
+        contentResolved( count );
+    }
+
     private void advance( final int count )
     {
         progressCount = progressCount + count;
