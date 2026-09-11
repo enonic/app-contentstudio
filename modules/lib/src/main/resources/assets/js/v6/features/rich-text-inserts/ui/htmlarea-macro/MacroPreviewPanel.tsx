@@ -110,7 +110,7 @@ const PreviewIframe = ({ html, pageContributions, title }: PreviewIframeProps): 
         };
     }, []);
 
-    const handleLoad = useCallback(() => {
+    useEffect(() => {
         const iframe = iframeRef.current;
         if (!iframe) return;
 
@@ -143,15 +143,7 @@ const PreviewIframe = ({ html, pageContributions, title }: PreviewIframeProps): 
         }
     }, [html, pageContributions, debouncedAdjustHeight]);
 
-    return (
-        <iframe
-            ref={iframeRef}
-            className="w-full border-0"
-            style={{ height: `${height}px` }}
-            onLoad={handleLoad}
-            title={title}
-        />
-    );
+    return <iframe ref={iframeRef} className="w-full border-0" style={{ height: `${height}px` }} title={title} />;
 };
 
 PreviewIframe.displayName = 'PreviewIframe';
