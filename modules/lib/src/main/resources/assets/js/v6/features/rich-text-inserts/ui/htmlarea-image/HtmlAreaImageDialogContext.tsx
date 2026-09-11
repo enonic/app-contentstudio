@@ -618,6 +618,11 @@ export function HtmlAreaImageDialogProvider({ children, openRef }: HtmlAreaImage
             return;
         }
 
+        if (s.ckeEditor['destroyed']) {
+            setState(CLOSED_STATE);
+            return;
+        }
+
         const errors = computeValidationErrors(s);
         if (Object.keys(errors).length > 0) {
             setState((prev) => ({ ...prev, showValidation: true }));

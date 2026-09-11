@@ -16,6 +16,7 @@ import {
     initializeFullscreenDialogEditor,
     openFullscreenDialog,
 } from '../model/fullscreenDialog.store';
+import { isHtmlAreaContextDialogOpen } from '../model/htmlAreaModal.store';
 import { $searchPopup } from '../model/searchPopup.store';
 import { $specialCharDialog } from '../model/specialCharDialog.store';
 import { $tableDialog } from '../model/tableDialog.store';
@@ -31,6 +32,7 @@ const isOtherHtmlAreaDialogOpen = (): boolean => {
         $specialCharDialog.get().open ||
         $tableDialog.get().open ||
         $tableQuicktablePopup.get().open ||
+        isHtmlAreaContextDialogOpen() ||
         !!document.querySelector('.html-area-modal-dialog')
     );
 };
