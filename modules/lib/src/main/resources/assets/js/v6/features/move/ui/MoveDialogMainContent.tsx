@@ -1,6 +1,6 @@
 import { Button, Dialog } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import { type ReactElement } from 'react';
+import { useRef, type ReactElement } from 'react';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import {
     $moveDialog,
@@ -42,9 +42,17 @@ export const MoveDialogMainContent = ({
     const moveButtonLabel = total > 1 ? `${moveLabel} (${total})` : moveLabel;
     const selectedId = destinationId ?? null;
 
+    const destinationInputRef = useRef<HTMLInputElement>(null);
+
+    const handleOpenAutoFocus = (event: Event): void => {
+        event.preventDefault();
+        destinationInputRef.current?.focus();
+    };
+
     return (
         <Dialog.Content
             className="w-full h-full gap-10 sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-220"
+            onOpenAutoFocus={handleOpenAutoFocus}
             data-component={componentName}
         >
             <Dialog.DefaultHeader title={title} description={description} withClose />
@@ -53,6 +61,7 @@ export const MoveDialogMainContent = ({
                     <span className="text-md font-semibold">{destinationLabel}</span>
                     <PathSelector
                         label={destinationLabel}
+                        inputRef={destinationInputRef}
                         selectedId={selectedId}
                         excludedIds={excludedIds}
                         hideRoot={hasRootLevelSelection}
