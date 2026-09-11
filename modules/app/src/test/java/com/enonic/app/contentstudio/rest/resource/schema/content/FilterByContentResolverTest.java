@@ -125,7 +125,7 @@ class FilterByContentResolverTest
         when( contentTypeService.getByApplication( ApplicationKey.from( "application" ) ) ).thenReturn( ContentTypes.from( contentType ) );
 
         final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of() );
-        assertThat( contentTypes.map( ContentType::getName ) ).contains(ContentTypeName.folder(),
+        assertThat( contentTypes.map( ContentType::getName ) ).doesNotHaveDuplicates().contains(ContentTypeName.folder(),
                                                                         ContentTypeName.site(),
                                                                         ContentTypeName.shortcut(),
                                                                         ContentTypeName.imageMedia(),
@@ -185,7 +185,7 @@ class FilterByContentResolverTest
         final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( null, Set.of() );
 
         verify( contentService, never() ).getById( any() );
-        assertThat( contentTypes.map( ContentType::getName ) ).contains( ContentTypeName.folder(),
+        assertThat( contentTypes.map( ContentType::getName ) ).doesNotHaveDuplicates().contains( ContentTypeName.folder(),
                                                                         ContentTypeName.site(),
                                                                         ContentTypeName.imageMedia(),
                                                                         ContentTypeName.shortcut() );
@@ -326,12 +326,69 @@ class FilterByContentResolverTest
 
         assertThat( contentTypes
                     .map( ContentType::getName ) )
+                    .doesNotHaveDuplicates()
                     .contains( ContentTypeName.folder(),
                                ContentTypeName.site(),
                                ContentTypeName.shortcut(),
                                ContentTypeName.imageMedia(),
                                ContentTypeName.from( "application2:test-type")
                              );
+    }
+
+    @Test
+    void contentTypes_system_apps_in_site_config_ignored()
+    {
+        final ContentType contentType = ContentType.create()
+            .superType( ContentTypeName.structured() )
+            .allowChildContent( true )
+            .title( "My type" )
+            .name( "application:test-type" )
+            .icon( Icon.from( new byte[]{123}, "image/gif", Instant.now() ) )
+            .build();
+
+        knownContentTypes.add( contentType );
+
+        when( contentService.getById( ContentId.from( "test" ) ) ).thenReturn( someContent( ContentTypeName.site() ) );
+        when( contentService.getNearestSite( ContentId.from( "test" ) ) ).thenReturn(
+            someSite( ApplicationKey.PORTAL, ApplicationKey.BASE, ApplicationKey.MEDIA_MOD, ApplicationKey.SYSTEM,
+                      ApplicationKey.from( "application" ) ) );
+
+        when( contentTypeService.getByApplication( ApplicationKey.from( "application" ) ) ).thenReturn( ContentTypes.from( contentType ) );
+
+        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of() );
+        assertThat( contentTypes.map( ContentType::getName ) ).doesNotHaveDuplicates()
+            .containsOnlyOnce( ContentTypeName.site(), ContentTypeName.templateFolder(), ContentTypeName.folder(),
+                               ContentTypeName.shortcut(), ContentTypeName.from( "application:test-type" ) )
+            .doesNotContain( ContentTypeName.pageTemplate(), ContentTypeName.fragment() );
+
+        verify( contentTypeService, never() ).getByApplication( ApplicationKey.PORTAL );
+        verify( contentTypeService, never() ).getByApplication( ApplicationKey.BASE );
+        verify( contentTypeService, never() ).getByApplication( ApplicationKey.MEDIA_MOD );
+        verify( contentTypeService, never() ).getByApplication( ApplicationKey.SYSTEM );
+    }
+
+    @Test
+    void contentTypes_root_system_apps_in_project_config_ignored()
+    {
+        final Project.Builder builder = Project.create();
+        builder.name( ProjectName.from( "default" ) );
+        builder.displayName( "Default" );
+        builder.addSiteConfig( SiteConfig.create().application( ApplicationKey.PORTAL ).config( new PropertyTree() ).build() );
+        builder.addSiteConfig( SiteConfig.create().application( ApplicationKey.BASE ).config( new PropertyTree() ).build() );
+
+        final Project project = builder.build();
+
+        when( projectService.get( ProjectName.from( "default" ) ) ).thenReturn( project );
+
+        final Stream<ContentType> contentTypes =
+            ContextBuilder.from( ContextAccessor.current() ).repositoryId( project.getName().getRepoId() ).build().callWith(
+                () -> filterByContentResolver.contentTypes( null, Set.of() ) );
+
+        assertThat( contentTypes.map( ContentType::getName ) ).doesNotHaveDuplicates()
+            .containsOnlyOnce( ContentTypeName.site(), ContentTypeName.folder() )
+            .doesNotContain( ContentTypeName.templateFolder(), ContentTypeName.pageTemplate(), ContentTypeName.fragment() );
+
+        verify( contentTypeService, never() ).getByApplication( any() );
     }
 
     @Test
@@ -486,13 +543,19 @@ class FilterByContentResolverTest
 
     private Site someSite()
     {
+        return someSite( ApplicationKey.from( "application" ) );
+    }
+
+    private Site someSite( final ApplicationKey... applicationKeys )
+    {
+        final SiteConfigs.Builder siteConfigs = SiteConfigs.create();
+        for ( final ApplicationKey applicationKey : applicationKeys )
+        {
+            siteConfigs.add( SiteConfig.create().config( new PropertyTree() ).application( applicationKey ).build() );
+        }
+
         final PropertyTree dataSet = new PropertyTree();
-        SiteConfigsDataSerializer.toData( SiteConfigs.create()
-                                              .add( SiteConfig.create()
-                                                        .config( new PropertyTree() )
-                                                        .application( ApplicationKey.from( "application" ) )
-                                                        .build() )
-                                              .build(), dataSet.getRoot() );
+        SiteConfigsDataSerializer.toData( siteConfigs.build(), dataSet.getRoot() );
 
         final Site.Builder builder = Site.create();
 
