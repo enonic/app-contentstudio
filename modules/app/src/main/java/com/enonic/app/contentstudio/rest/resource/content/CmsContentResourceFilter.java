@@ -9,6 +9,7 @@ import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.ext.Provider;
 
 import com.enonic.app.contentstudio.rest.resource.ResourceConstants;
+import com.enonic.xp.archive.ArchiveConstants;
 import com.enonic.xp.content.ContentConstants;
 import com.enonic.xp.context.Context;
 import com.enonic.xp.context.ContextAccessor;
@@ -30,8 +31,12 @@ public final class CmsContentResourceFilter
             final String contentRootPath = matcher.group( 2 );
             final Context context = ContextAccessor.current();
             context.getLocalScope().setAttribute( ContentConstants.BRANCH_DRAFT );
-            context.getLocalScope()
-                .setAttribute( "contentRootPath", NodePath.create( NodePath.ROOT ).addElement( contentRootPath ).build() );
+            if ( ContentConstants.CONTENT_ROOT_NAME.equals( contentRootPath ) ||
+                ArchiveConstants.ARCHIVE_ROOT_NAME.equals( contentRootPath ) )
+            {
+                context.getLocalScope()
+                    .setAttribute( "contentRootPath", NodePath.create( NodePath.ROOT ).addElement( contentRootPath ).build() );
+            }
         }
     }
 }

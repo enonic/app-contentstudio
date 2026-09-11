@@ -33,6 +33,7 @@ import com.enonic.app.contentstudio.rest.resource.macro.json.PreviewMacroStringR
 import com.enonic.app.contentstudio.rest.resource.macro.json.PreviewStringMacroJson;
 import com.enonic.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.app.contentstudio.rest.resource.schema.mixin.CmsFormFragmentResolver;
+import com.enonic.app.contentstudio.site.AdminSiteHandler;
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.ApplicationKeys;
 import com.enonic.xp.content.Content;
@@ -163,7 +164,7 @@ public final class MacroResource
                                                final String projectName )
     {
         final PortalRequest portalRequest = new PortalRequest();
-        final String baseUri = "/admin/site/" + RenderMode.EDIT;
+        final String baseUri = AdminSiteHandler.ADMIN_SITE_PREFIX + RenderMode.EDIT;
         final RepositoryId repositoryId = ProjectName.from( projectName ).getRepoId();
 
         portalRequest.setRawRequest( req );
