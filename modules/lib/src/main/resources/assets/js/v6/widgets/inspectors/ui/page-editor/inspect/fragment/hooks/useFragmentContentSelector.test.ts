@@ -56,11 +56,13 @@ import { LayoutComponent } from '../../../../../../../../app/page/region/LayoutC
 import { LayoutComponentType } from '../../../../../../../../app/page/region/LayoutComponentType';
 import * as fragmentInspectionStore from '../../../../../model/fragment-inspection.store';
 import { $inspectedItem, requestSetFragmentComponent } from '../../../../../model/page-editor';
+import { $pageVersion } from '../../../../../model/page-editor/store';
 import { useFragmentContentSelector } from './useFragmentContentSelector';
 
 const $inspected = $inspectedItem as unknown as WritableAtom<unknown>;
 const $options = fragmentInspectionStore.$fragmentOptions as unknown as WritableAtom<unknown[]>;
 const $selectedId = fragmentInspectionStore.$selectedFragmentId as unknown as WritableAtom<string | null>;
+const $version = $pageVersion as WritableAtom<number>;
 
 function makeFragmentSummary(id: string, displayName: string, path = `/fragments/${id}`): unknown {
     return {
@@ -75,6 +77,16 @@ function makeInspectedFragment(parent: unknown = null): unknown {
 
     return Object.assign(fragment, {
         getParent: () => parent,
+        getPath: () => 'fragment-path',
+        getName: () => null,
+    });
+}
+
+function makeMovedFragment(parent: { current: unknown }): unknown {
+    const fragment = Object.create(FragmentComponent.prototype) as object;
+
+    return Object.assign(fragment, {
+        getParent: () => parent.current,
         getPath: () => 'fragment-path',
         getName: () => null,
     });
@@ -100,6 +112,7 @@ describe('useFragmentContentSelector', () => {
         $inspected.set(null);
         $options.set([]);
         $selectedId.set(null);
+        $version.set(0);
         vi.clearAllMocks();
     });
 
@@ -200,6 +213,24 @@ describe('useFragmentContentSelector', () => {
 
             expect(showWarning).toHaveBeenCalledWith('Nested layouts are not allowed');
             expect(requestSetFragmentComponent).not.toHaveBeenCalled();
+        });
+
+        it('should allow a layout fragment after the empty fragment is moved out of a layout', async () => {
+            const parent = { current: makeLayoutParentRegion() };
+            $inspected.set(makeMovedFragment(parent));
+            $options.set([makeFragmentSummary('frag-b', 'Layout Fragment')]);
+
+            const { result } = renderHook(() => useFragmentContentSelector());
+
+            parent.current = { getParent: () => null };
+            await act(async () => {
+                $version.set(1);
+                await new Promise((resolve) => setTimeout(resolve, 0));
+            });
+            act(() => result.current.handleSelectionChange(['frag-b']));
+
+            expect(fetchContentByIdMock).not.toHaveBeenCalled();
+            expect(requestSetFragmentComponent).toHaveBeenCalledWith('fragment-path', 'frag-b', 'Layout Fragment');
         });
     });
 });

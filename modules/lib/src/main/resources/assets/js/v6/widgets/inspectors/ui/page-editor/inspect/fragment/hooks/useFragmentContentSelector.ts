@@ -61,12 +61,7 @@ export function useFragmentContentSelector(): UseFragmentContentSelectorResult {
     const fragment = item instanceof FragmentComponent ? item : null;
     const disabled = lifecycle.isPageLocked;
 
-    const isInsideLayout = useMemo((): boolean => {
-        if (!fragment) return false;
-        const parentRegion = fragment.getParent();
-        if (!parentRegion) return false;
-        return parentRegion.getParent() instanceof LayoutComponent;
-    }, [fragment]);
+    const isInsideLayout = fragment?.getParent()?.getParent() instanceof LayoutComponent;
 
     const options = useMemo((): FragmentOption[] => {
         const real = fragments.map((f) => ({
