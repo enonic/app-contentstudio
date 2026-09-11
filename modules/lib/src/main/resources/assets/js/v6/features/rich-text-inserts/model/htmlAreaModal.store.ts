@@ -16,6 +16,13 @@ export function registerHtmlAreaContextDialogOpen(): () => void {
     return () => $contextDialogOpenCount.set(Math.max(0, $contextDialogOpenCount.get() - 1));
 }
 
+/**
+ * True while an image/link/macro dialog is open on top of the HtmlArea.
+ */
+export function isHtmlAreaContextDialogOpen(): boolean {
+    return $contextDialogOpenCount.get() > 0;
+}
+
 export const $isHtmlAreaModalDialogOpen = computed(
     [
         $anchorDialog,
