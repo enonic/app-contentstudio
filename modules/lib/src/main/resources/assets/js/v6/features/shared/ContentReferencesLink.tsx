@@ -12,6 +12,7 @@ export type ContentReferencesLinkProps = {
     contentId: string;
     branch: Branch;
     contentTypeName?: ContentTypeName;
+    compactIconBelowSm?: boolean;
     'data-active'?: boolean;
     'data-component'?: string;
 } & Omit<LinkProps, 'href' | 'newTab'>;
@@ -23,6 +24,7 @@ export const ContentReferencesLink = forwardRef<HTMLAnchorElement, ContentRefere
             contentId,
             branch,
             contentTypeName,
+            compactIconBelowSm = false,
             className,
             'data-component': componentName = CONTENT_REFERENCES_LINK_NAME,
             ...props
@@ -42,7 +44,8 @@ export const ContentReferencesLink = forwardRef<HTMLAnchorElement, ContentRefere
                 ref={ref}
                 className={cn(
                     className,
-                    'self-stretch px-2 visited:text-main active:bg-transparent data-[active=true]:bg-transparent',
+                    'self-stretch justify-center px-2 text-alt [--color-link-visited:var(--color-blue)] active:bg-transparent data-[active=true]:bg-transparent',
+                    compactIconBelowSm && 'max-sm:size-6 max-sm:self-start max-sm:p-0',
                 )}
                 href={href}
                 aria-label={label}
@@ -51,7 +54,7 @@ export const ContentReferencesLink = forwardRef<HTMLAnchorElement, ContentRefere
                 {...props}
             >
                 <span className="hidden md:inline">{label}</span>
-                <LinkIcon className="size-3.5 md:hidden" aria-hidden />
+                <LinkIcon className={cn('size-3.5 md:hidden', compactIconBelowSm && 'max-sm:size-4')} aria-hidden />
             </Link>
         );
     },

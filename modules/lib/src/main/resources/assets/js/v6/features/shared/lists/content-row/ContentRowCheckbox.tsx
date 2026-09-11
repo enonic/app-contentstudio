@@ -1,7 +1,7 @@
-import {Checkbox, GridList} from '@enonic/ui';
-import type {ReactElement} from 'react';
-import {useContentRow} from './ContentRowContext';
-import type {ContentRowCheckboxProps} from './types';
+import { Checkbox, cn, GridList } from '@enonic/ui';
+import type { ReactElement } from 'react';
+import { useContentRow } from './ContentRowContext';
+import type { ContentRowCheckboxProps } from './types';
 
 const CONTENT_ROW_CHECKBOX_NAME = 'ContentRowCheckbox';
 
@@ -11,17 +11,16 @@ export const ContentRowCheckbox = ({
     disabled,
     className,
 }: ContentRowCheckboxProps): ReactElement => {
-    const {disabled: contextDisabled} = useContentRow();
+    const { disabled: contextDisabled, statusBelowLabelBelowSm } = useContentRow();
     const isDisabled = disabled ?? contextDisabled;
 
     return (
-        <GridList.Cell data-component={CONTENT_ROW_CHECKBOX_NAME} className={className ?? 'shrink-0'}>
+        <GridList.Cell
+            data-component={CONTENT_ROW_CHECKBOX_NAME}
+            className={cn(className ?? 'shrink-0', statusBelowLabelBelowSm && 'max-sm:col-start-1 max-sm:row-start-1')}
+        >
             <GridList.Action>
-                <Checkbox
-                    checked={checked}
-                    onCheckedChange={onCheckedChange}
-                    disabled={isDisabled}
-                />
+                <Checkbox checked={checked} onCheckedChange={onCheckedChange} disabled={isDisabled} />
             </GridList.Action>
         </GridList.Cell>
     );

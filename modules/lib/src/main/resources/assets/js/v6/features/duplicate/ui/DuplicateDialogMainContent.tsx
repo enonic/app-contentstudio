@@ -91,6 +91,7 @@ export const DuplicateDialogMainContent = ({
                                 key={`main-${item.getId()}`}
                                 id={`main-${item.getId()}`}
                                 content={item}
+                                statusBelowLabelBelowSm
                                 readOnly={loading}
                                 includeChildren={includeChildren}
                                 defaultIncludeChildren={hasChildren}
@@ -111,6 +112,7 @@ export const DuplicateDialogMainContent = ({
                                 key={`dep-${item.getId()}`}
                                 content={item}
                                 variant="compact"
+                                statusBelowLabelBelowSm
                                 aria-label={item.getDisplayName()}
                             />
                         ))}

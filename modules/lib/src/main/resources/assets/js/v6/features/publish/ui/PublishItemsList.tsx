@@ -3,7 +3,7 @@ import { atom, WritableAtom } from 'nanostores';
 import { ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import type { ContentSummaryAndCompareStatus } from '../../../../app/content/ContentSummaryAndCompareStatus';
-import { ContentListItemSelectableWithChildren } from '../../../entities/content/ui/items/ContentListItemSelectableWithChildren';
+import { ContentListItemSelectableWithChildren } from '../../../entities/content/ui/items';
 import { LegacyElement } from '../../../shared/ui/LegacyElement';
 
 type ContentSummaryInput = ContentSummary | ContentSummaryAndCompareStatus;
@@ -35,6 +35,7 @@ const PublishItemsList = ({
                 <li key={item.getContentId().toString()}>
                     <ContentListItemSelectableWithChildren
                         content={item}
+                        statusBelowLabelBelowSm
                         defaultChecked={true}
                         onCheckedChange={(enabled) => onCheckedChange(item.getContentId(), enabled)}
                         // TODO: Enonic UI - Set to calculated state includeChildren + excludeChildrenIds after moving outside legacy wrapper
