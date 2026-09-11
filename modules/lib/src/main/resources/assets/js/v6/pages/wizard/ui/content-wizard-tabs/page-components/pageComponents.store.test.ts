@@ -79,6 +79,58 @@ describe('pageComponents.store layout fragments', () => {
         expect(fetchContentByIdMock).toHaveBeenCalledWith('shared-fragment');
     });
 
+    it('reuses resolved fragment kind while rebuilding the same page', async () => {
+        fetchContentByIdMock.mockReturnValue(okAsync(makeFragmentContent(false)));
+        const page = makePage('fragment-id');
+
+        rebuild(page);
+        await vi.waitFor(() => {
+            expect(getLayoutFragment('/main/0')).toBe(false);
+        });
+
+        rebuild(page);
+        expect(getLayoutFragment('/main/0')).toBe(false);
+
+        expect(fetchContentByIdMock).toHaveBeenCalledOnce();
+    });
+
+    it('resets resolved fragment kinds when the page changes', async () => {
+        fetchContentByIdMock
+            .mockReturnValueOnce(okAsync(makeFragmentContent(false)))
+            .mockReturnValueOnce(okAsync(makeFragmentContent(true)));
+
+        rebuild(makePage('fragment-id'));
+        await vi.waitFor(() => {
+            expect(getLayoutFragment('/main/0')).toBe(false);
+        });
+
+        rebuild(makePage('fragment-id'));
+
+        expect(fetchContentByIdMock).toHaveBeenCalledTimes(2);
+        await vi.waitFor(() => {
+            expect(getLayoutFragment('/main/0')).toBe(true);
+        });
+    });
+
+    it('deduplicates fragment kind requests across rebuilds', async () => {
+        let resolveRequest: (content: unknown) => void;
+        const response = new Promise<unknown>((resolve) => {
+            resolveRequest = resolve;
+        });
+        fetchContentByIdMock.mockReturnValue(ResultAsync.fromPromise(response, (error) => error));
+        const page = makePage('fragment-id');
+
+        rebuild(page);
+        rebuild(page);
+
+        expect(fetchContentByIdMock).toHaveBeenCalledOnce();
+
+        resolveRequest!(makeFragmentContent(false));
+        await vi.waitFor(() => {
+            expect(getLayoutFragment('/main/0')).toBe(false);
+        });
+    });
+
     it('resolves referenced fragments inside a detached layout component', async () => {
         fetchContentByIdMock.mockReturnValue(okAsync(makeFragmentContent(false)));
 
@@ -119,6 +171,7 @@ describe('pageComponents.store layout fragments', () => {
 
         resolveFirstRequest!(makeFragmentContent(true));
         await firstResult;
+        await new Promise((resolve) => setTimeout(resolve, 0));
 
         expect(getLayoutFragment('/main/0')).toBe(false);
     });
