@@ -46,6 +46,7 @@ export const $componentsFlatNodes = computed($componentsTreeState, flattenTree);
 let lastRebuildVersion = -1;
 let lastLayoutsByPath = new Map<string, LayoutComponent>();
 let layoutFragmentResolutionId = 0;
+let layoutFragmentKindCache = createLayoutFragmentKindCache(null);
 
 export function rebuildComponentsTree(preserveExpanded = true): void {
     const currentVersion = $pageVersion.get();
@@ -53,6 +54,10 @@ export function rebuildComponentsTree(preserveExpanded = true): void {
     lastRebuildVersion = currentVersion;
 
     const page = $page.get();
+    if (layoutFragmentKindCache.page !== page) {
+        layoutFragmentKindCache = createLayoutFragmentKindCache(page);
+    }
+
     const currentState = $componentsTreeState.get();
     const isRebuild = preserveExpanded && currentState.nodes.size > 0;
     const resolutionId = ++layoutFragmentResolutionId;
@@ -395,7 +400,8 @@ function buildComponentNodes(
     const componentId = buildComponentPath(regionPath, index);
     const nodeType = getComponentNodeType(component);
     const isLayout = component instanceof LayoutComponent;
-    const isReferencedFragment = component instanceof FragmentComponent && component.hasFragment();
+    const fragmentId =
+        component instanceof FragmentComponent && component.hasFragment() ? component.getFragment().toString() : null;
     const regions = isLayout ? (component.getRegions()?.getRegions() ?? []) : [];
     const childIds = regions.map((r) => buildRegionPath(componentId, r.getName()));
 
@@ -413,7 +419,7 @@ function buildComponentNodes(
             draggable: true,
             // Referenced fragments are treated as layouts until their content is resolved. This
             // keeps a fast drag from nesting an unresolved layout fragment inside another layout.
-            layoutFragment: isReferencedFragment,
+            layoutFragment: fragmentId == null ? false : (layoutFragmentKindCache.resolved.get(fragmentId) ?? true),
             hasDescriptor: componentHasDescriptor,
         },
         parentId: regionPath,
@@ -430,24 +436,59 @@ function resolveLayoutFragments(page: Page, resolutionId: number): void {
     const fragmentPathsById = collectReferencedFragments(page);
 
     for (const [fragmentId, paths] of fragmentPathsById) {
-        void fetchContentById(fragmentId).match(
-            (content) => {
-                if (resolutionId !== layoutFragmentResolutionId) {
-                    return;
-                }
+        void resolveLayoutFragmentKind(fragmentId).then((isLayoutFragment) => {
+            if (isLayoutFragment == null || resolutionId !== layoutFragmentResolutionId) {
+                return;
+            }
 
-                const isLayoutFragment = content.getPage()?.getFragment() instanceof LayoutComponent;
-                let state = $componentsTreeState.get();
+            let state = $componentsTreeState.get();
 
-                for (const path of paths) {
-                    state = updateNodeData(state, path, { layoutFragment: isLayoutFragment });
-                }
+            for (const path of paths) {
+                state = updateNodeData(state, path, { layoutFragment: isLayoutFragment });
+            }
 
-                $componentsTreeState.set(state);
-            },
-            () => undefined,
-        );
+            $componentsTreeState.set(state);
+        });
     }
+}
+
+type LayoutFragmentKindCache = {
+    page: Page | null;
+    resolved: Map<string, boolean>;
+    pending: Map<string, Promise<boolean | undefined>>;
+};
+
+function createLayoutFragmentKindCache(page: Page | null): LayoutFragmentKindCache {
+    return { page, resolved: new Map(), pending: new Map() };
+}
+
+function resolveLayoutFragmentKind(fragmentId: string): Promise<boolean | undefined> {
+    const cache = layoutFragmentKindCache;
+    const resolved = cache.resolved.get(fragmentId);
+    if (resolved != null) {
+        return Promise.resolve(resolved);
+    }
+
+    const pending = cache.pending.get(fragmentId);
+    if (pending != null) {
+        return pending;
+    }
+
+    const request = fetchContentById(fragmentId)
+        .match(
+            (content) => content.getPage()?.getFragment() instanceof LayoutComponent,
+            () => undefined,
+        )
+        .then((kind) => {
+            cache.pending.delete(fragmentId);
+            if (kind != null) {
+                cache.resolved.set(fragmentId, kind);
+            }
+            return kind;
+        });
+
+    cache.pending.set(fragmentId, request);
+    return request;
 }
 
 function collectReferencedFragments(page: Page): Map<string, string[]> {
