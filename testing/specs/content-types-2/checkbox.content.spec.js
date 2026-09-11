@@ -10,6 +10,7 @@ const CheckBoxForm = require('../../page_objects/wizardpanel/checkbox.fom.panel'
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const BrowsePanel = require("../../page_objects/browsepanel/content.browse.panel");
+const FilterPanel = require("../../page_objects/browsepanel/content.filter.panel");
 
 describe('checkbox.content.spec: tests for content with checkbox', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -19,7 +20,7 @@ describe('checkbox.content.spec: tests for content with checkbox', function () {
 
     const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
     const CHECKBOX_NAME = contentBuilder.generateRandomName('checkbox');
-    const CHECKBOX_NAME_2 = contentBuilder.generateRandomName('checkbox');
+    const CHECKBOX_NAME_2 = contentBuilder.generateRandomName('content');
 
     it("GIVEN wizard for new 'checkbox(0:1)' content is opened WHEN the checkbox has been clicked THEN should be checked after clicking on it", async () => {
         let checkBoxForm = new CheckBoxForm();
@@ -88,15 +89,16 @@ describe('checkbox.content.spec: tests for content with checkbox', function () {
         let checkBoxForm = new CheckBoxForm();
         let contentWizard = new ContentWizard();
         let contentBrowsePanel = new ContentBrowsePanel();
+        let filterPanel = new FilterPanel();
         // 1. open existing checkbox content:
-        //await studioUtils.findContentAndClickCheckBox(CHECKBOX_NAME_2);
-        let browsePanel = new BrowsePanel();
-        await studioUtils.typeNameInFilterPanel(CHECKBOX_NAME_2);
+        await contentBrowsePanel.clickOnSearchButton();
+        await filterPanel.waitForOpened();
         await studioUtils.saveScreenshot('issue_checkbox_content_in_grid_0');
-        await browsePanel.pause(1000);
-        await studioUtils.saveScreenshot('issue_checkbox_content_in_grid');
-        await browsePanel.waitForContentByDisplayNameVisible(CHECKBOX_NAME_2);
-        await browsePanel.clickCheckboxAndSelectRowByDisplayName(CHECKBOX_NAME_2);
+        await filterPanel.typeSearchText(CHECKBOX_NAME_2);
+        await studioUtils.saveScreenshot('issue_checkbox_content_in_grid_1');
+        await contentBrowsePanel.pause(1000);
+        await contentBrowsePanel.waitForContentByDisplayNameVisible(CHECKBOX_NAME_2);
+        await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(CHECKBOX_NAME_2);
         await studioUtils.saveScreenshot('issue_checkbox_content_in_grid_2');
         await contentBrowsePanel.clickOnEditButton();
         await studioUtils.switchToContentTabWindow(CHECKBOX_NAME_2);
