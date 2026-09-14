@@ -41,8 +41,8 @@ export function isDefaultWidget(widget: Readonly<Extension>): boolean {
     return firstWidget != null && getWidgetKey(firstWidget) === getWidgetKey(widget);
 }
 
-export function isMainWidget(widget: Readonly<Extension> | undefined): boolean {
-    return getWidgetKey(widget)?.endsWith('studio:main') ?? false;
+export function isContentBrowseWidget(widget: Readonly<Extension> | undefined): boolean {
+    return getWidgetKey(widget) === `${$config.get().appId}:main`;
 }
 
 export function isSettingsWidget(widget: Readonly<Extension> | undefined): boolean {
@@ -122,17 +122,16 @@ function updateActiveWidget(): void {
 }
 
 function sortWidgets(widgets: Readonly<Extension>[]): Readonly<Extension>[] {
-    const MAIN_APP_ENDING: string = 'studio:main';
     const ARCHIVE_APP_ENDING: string = 'plus:archive';
     const SETTINGS_APP_ENDING: string = 'studio:settings';
 
-    const mainWidget = widgets.find((w) => w.getDescriptorKey().toString().endsWith(MAIN_APP_ENDING));
+    const mainWidget = widgets.find(isContentBrowseWidget);
     const archiveWidget = widgets.find((w) => w.getDescriptorKey().toString().endsWith(ARCHIVE_APP_ENDING));
     const settingsWidget = widgets.find((w) => w.getDescriptorKey().toString().endsWith(SETTINGS_APP_ENDING));
     const defaultWidgets = widgets.filter((w) => {
         const widgetKey = getWidgetKey(w);
         return (
-            !widgetKey.endsWith(MAIN_APP_ENDING) &&
+            !isContentBrowseWidget(w) &&
             !widgetKey.endsWith(ARCHIVE_APP_ENDING) &&
             !widgetKey.endsWith(SETTINGS_APP_ENDING)
         );
