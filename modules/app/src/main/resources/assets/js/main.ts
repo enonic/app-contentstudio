@@ -182,12 +182,21 @@ let invalidEditUrlNotificationPending: boolean = false;
 
 let wizardParams: ContentWizardPanelParams | undefined;
 
+let detachedSvgFavicon: HTMLElement | undefined;
+
 function clearFavicon() {
     // save current favicon hrefs
     $('link[rel*=icon][sizes]').each((index, link: HTMLElement) => {
         let href = link.getAttribute('href');
         faviconCache[href] = link;
         link.setAttribute('href', ImgEl.PLACEHOLDER);
+    });
+
+    // Chrome picks the svg favicon over the png ones, so it has to leave the document entirely
+    // while the tab shows the content icon
+    $('link[rel*=icon][type="image/svg+xml"]').each((index, link: HTMLElement) => {
+        detachedSvgFavicon = link;
+        link.remove();
     });
 }
 
@@ -212,6 +221,11 @@ function updateFavicon(content: ContentSummary) {
             }
             delete faviconCache[href];
         }
+    }
+
+    if (detachedSvgFavicon && !shouldUpdate) {
+        document.head.appendChild(detachedSvgFavicon);
+        detachedSvgFavicon = undefined;
     }
 }
 
