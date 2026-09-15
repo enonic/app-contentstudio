@@ -182,6 +182,11 @@ let invalidEditUrlNotificationPending: boolean = false;
 
 let wizardParams: ContentWizardPanelParams | undefined;
 
+const svgFaviconLink = document.querySelector('link[rel~="icon"][type="image/svg+xml"]');
+
+// the svg favicon outranks the png ones, so it is put back exactly where it was declared
+const firstRasterFaviconLink = document.querySelector('link[rel~="icon"][type="image/png"]');
+
 function clearFavicon() {
     // save current favicon hrefs
     $('link[rel*=icon][sizes]').each((index, link: HTMLElement) => {
@@ -189,6 +194,10 @@ function clearFavicon() {
         faviconCache[href] = link;
         link.setAttribute('href', ImgEl.PLACEHOLDER);
     });
+
+    // a png href cannot override the svg favicon, so it has to leave the document entirely
+    // while the tab shows the content icon
+    svgFaviconLink?.remove();
 }
 
 function updateFavicon(content: ContentSummary) {
@@ -212,6 +221,10 @@ function updateFavicon(content: ContentSummary) {
             }
             delete faviconCache[href];
         }
+    }
+
+    if (svgFaviconLink && !svgFaviconLink.isConnected && !shouldUpdate) {
+        document.head.insertBefore(svgFaviconLink, firstRasterFaviconLink);
     }
 }
 
