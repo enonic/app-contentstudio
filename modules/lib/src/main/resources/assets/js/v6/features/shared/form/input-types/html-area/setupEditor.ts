@@ -859,11 +859,13 @@ function moveSourceButtonToBottomBar(editor: CKEDITOR.editor): void {
     if (!container) return;
 
     const sourceButton = container.querySelector('.cke_button__sourcedialog');
-    const bottomBar = container.querySelector('.cke_bottom');
+    const bottomBar = container.querySelector<HTMLElement>('.cke_bottom');
 
-    if (sourceButton && bottomBar) {
-        bottomBar.appendChild(sourceButton);
-    }
+    if (!sourceButton || !bottomBar) return;
+
+    bottomBar.appendChild(sourceButton);
+
+    editor.focusManager.add(new CKEDITOR.dom.element(bottomBar), true);
 }
 
 export function setupEditor(editor: CKEDITOR.editor, params: SetupEditorParams): void {
