@@ -14,6 +14,7 @@ import {
     useHtmlAreaLinkDialogContext,
 } from './HtmlAreaLinkDialogContext';
 import { HtmlAreaLinkDialogContent } from './HtmlAreaLinkDialogContent';
+import { HtmlAreaDialogOverlay } from '../HtmlAreaDialogOverlay';
 
 const DIALOG_NAME = 'HtmlAreaLinkDialog';
 
@@ -49,7 +50,7 @@ const HtmlAreaLinkDialogInner = (): ReactElement => {
                     (ContentWizardTabsToolbarElement) which causes ID collisions in portaled content.
                     Remove when ContentWizardTabsToolbar no longer uses LegacyElement. */}
                 <IdProvider prefix={DIALOG_NAME}>
-                    <Dialog.Overlay />
+                    <HtmlAreaDialogOverlay />
                     <Dialog.Content
                         className="w-full h-full gap-10 sm:h-fit md:min-w-160 md:max-w-200 md:max-h-[85vh]"
                         data-component={DIALOG_NAME}

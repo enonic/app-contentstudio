@@ -18,6 +18,7 @@ import {
     submitAnchorDialog,
     validateAnchorDialog,
 } from '../model/anchorDialog.store';
+import { HtmlAreaDialogOverlay } from './HtmlAreaDialogOverlay';
 
 const ANCHOR_DIALOG_NAME = 'AnchorDialog';
 
@@ -61,7 +62,7 @@ export const AnchorDialog = (): ReactElement => {
     return (
         <Dialog.Root open={open} onOpenChange={handleOpenChange}>
             <Dialog.Portal>
-                <Dialog.Overlay />
+                <HtmlAreaDialogOverlay />
                 <Dialog.Content
                     ref={contentRef}
                     onOpenAutoFocus={preventOpenAutoFocus}

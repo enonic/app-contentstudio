@@ -32,6 +32,7 @@ import {
     toTableDialogLongInputValue,
     validateTableDialogField,
 } from '../model/tableDialog.store';
+import { HtmlAreaDialogOverlay } from './HtmlAreaDialogOverlay';
 
 const TABLE_DIALOG_NAME = 'TableDialog';
 
@@ -142,7 +143,7 @@ export const TableDialog = (): ReactElement => {
     return (
         <Dialog.Root open={open} onOpenChange={handleOpenChange}>
             <Dialog.Portal>
-                <Dialog.Overlay />
+                <HtmlAreaDialogOverlay />
                 <Dialog.Content
                     ref={contentRef}
                     onOpenAutoFocus={preventOpenAutoFocus}

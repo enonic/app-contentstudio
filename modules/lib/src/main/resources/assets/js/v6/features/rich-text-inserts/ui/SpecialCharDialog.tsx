@@ -15,6 +15,7 @@ import {
     openSpecialCharDialog,
     submitSpecialCharDialog,
 } from '../model/specialCharDialog.store';
+import { HtmlAreaDialogOverlay } from './HtmlAreaDialogOverlay';
 
 const SPECIAL_CHAR_DIALOG_NAME = 'SpecialCharDialog';
 
@@ -119,7 +120,7 @@ export const SpecialCharDialog = (): ReactElement => {
     return (
         <Dialog.Root open={open} onOpenChange={handleOpenChange}>
             <Dialog.Portal>
-                <Dialog.Overlay />
+                <HtmlAreaDialogOverlay />
                 <Dialog.Content
                     ref={contentRef}
                     onOpenAutoFocus={preventOpenAutoFocus}

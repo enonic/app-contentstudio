@@ -17,6 +17,7 @@ import {
     submitBulletedListDialog,
     type BulletedListDialogType,
 } from '../model/bulletedListDialog.store';
+import { HtmlAreaDialogOverlay } from './HtmlAreaDialogOverlay';
 
 const BULLETED_LIST_DIALOG_NAME = 'BulletedListDialog';
 
@@ -60,7 +61,7 @@ export const BulletedListDialog = (): ReactElement => {
     return (
         <Dialog.Root open={open} onOpenChange={handleOpenChange}>
             <Dialog.Portal>
-                <Dialog.Overlay />
+                <HtmlAreaDialogOverlay />
                 <Dialog.Content
                     ref={contentRef}
                     onOpenAutoFocus={preventOpenAutoFocus}
