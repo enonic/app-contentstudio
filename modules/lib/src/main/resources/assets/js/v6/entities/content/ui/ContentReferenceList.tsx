@@ -303,6 +303,12 @@ export const ContentReferenceList = ({
             role="row"
             aria-rowindex={row.rowIndex + 1}
             variant={row.variant}
+            layout={
+                row.section === 'main' || (row.section === 'dependant' && row.variant === 'compact')
+                    ? 'mobile-status-below'
+                    : 'default'
+            }
+            slotsOrder="status-first-on-mobile"
             content={row.content}
             branch={branch}
             hasInbound={row.hasInbound}
@@ -319,7 +325,10 @@ export const ContentReferenceList = ({
                 id: getActionId(baseId, row.rowIndex, 'reference'),
                 tabIndex: -1,
                 'data-active': isActionActive(row.rowIndex, 'reference') || undefined,
-                className: ACTIVE_REFERENCE_LINK_CLASS,
+                className: cn(
+                    ACTIVE_REFERENCE_LINK_CLASS,
+                    'max-sm:size-6 max-sm:self-start max-sm:p-0 max-sm:[&_svg]:size-4',
+                ),
                 onMouseDown: (event) => handleActionMouseDown(event, row.rowIndex, 'reference'),
             }}
         />

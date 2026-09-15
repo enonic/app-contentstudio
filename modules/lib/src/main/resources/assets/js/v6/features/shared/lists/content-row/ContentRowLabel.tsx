@@ -16,7 +16,11 @@ export const ContentRowLabel = ({
     const labelVariant = variant === 'default' ? 'normal' : variant;
 
     return (
-        <GridList.Cell data-component={CONTENT_ROW_LABEL_NAME} className={className ?? 'flex-1 min-w-0'}>
+        <GridList.Cell
+            data-component={CONTENT_ROW_LABEL_NAME}
+            data-slot="label"
+            className={className ?? 'flex-1 min-w-0'}
+        >
             {action === 'edit' ? (
                 <GridList.Action>
                     <ContentButton content={content} disabled={disabled} labelVariant={labelVariant} />

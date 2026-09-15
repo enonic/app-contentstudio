@@ -18,7 +18,11 @@ export const ContentRowRemoveButton = ({
     const removeLabel = useI18n('action.removeFromList');
 
     return (
-        <GridList.Cell data-component={CONTENT_ROW_REMOVE_BUTTON_NAME} className={className ?? 'shrink-0 ml-auto'}>
+        <GridList.Cell
+            data-component={CONTENT_ROW_REMOVE_BUTTON_NAME}
+            data-slot="action"
+            className={className ?? 'shrink-0 ml-auto'}
+        >
             <GridList.Action>
                 <IconButton
                     className="size-8"
