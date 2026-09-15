@@ -1,6 +1,6 @@
 import { cn, Dialog } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import { type ReactElement, useCallback, useMemo, useRef } from 'react';
+import { type ReactElement, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useCkEditorFocusManager } from '../../../shared/lib/ckeditor/useCkEditorFocusManager';
 import {
     type CreateHtmlAreaDialogEvent,
@@ -8,39 +8,28 @@ import {
 } from '../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import type { FullScreenDialogParams } from '../../../../app/inputtype/ui/text/HtmlEditorTypes';
 import type { DialogOverrides } from '../../shared/form/input-types/html-area/setupEditor';
-import { $anchorDialog } from '../model/anchorDialog.store';
-import { $codeDialog } from '../model/codeDialog.store';
 import {
     $fullscreenDialog,
     closeFullscreenDialog,
     initializeFullscreenDialogEditor,
     openFullscreenDialog,
 } from '../model/fullscreenDialog.store';
-import { $searchPopup } from '../model/searchPopup.store';
-import { $specialCharDialog } from '../model/specialCharDialog.store';
-import { $tableDialog } from '../model/tableDialog.store';
-import { $tableQuicktablePopup } from '../model/tableQuicktablePopup.store';
+import { $isHtmlAreaChildModalOpen, $isHtmlAreaChildOverlayOpen } from '../model/htmlAreaModal.store';
 
 const FULLSCREEN_DIALOG_NAME = 'FullscreenDialog';
 
 const isOtherHtmlAreaDialogOpen = (): boolean => {
-    return (
-        $anchorDialog.get().open ||
-        $codeDialog.get().open ||
-        $searchPopup.get().open ||
-        $specialCharDialog.get().open ||
-        $tableDialog.get().open ||
-        $tableQuicktablePopup.get().open ||
-        !!document.querySelector('.html-area-modal-dialog')
-    );
+    return $isHtmlAreaChildOverlayOpen.get() || !!document.querySelector('.html-area-modal-dialog');
 };
 
 export const FullscreenDialog = (): ReactElement => {
     const { open, initializing, editorContainerId, hideBold, hideItalic, hideUnderline } = useStore($fullscreenDialog, {
         keys: ['open', 'initializing', 'editorContainerId', 'hideBold', 'hideItalic', 'hideUnderline'],
     });
+    const childModalOpen = useStore($isHtmlAreaChildModalOpen);
     const contentRef = useRef<HTMLDivElement | null>(null);
     const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+    const stackedDialogAtInputRef = useRef(false);
 
     const handleTextareaRef = useCallback((el: HTMLTextAreaElement | null) => {
         if (el == null) {
@@ -57,14 +46,36 @@ export const FullscreenDialog = (): ReactElement => {
 
     useCkEditorFocusManager(fullscreenCkEditor, [contentRef, closeButtonRef], [open, initializing, editorContainerId]);
 
-    const handleOpenChange = (nextOpen: boolean): void => {
-        if (!nextOpen && isOtherHtmlAreaDialogOpen()) {
+    useEffect(() => {
+        if (!open) {
             return;
         }
 
-        if (!nextOpen) {
-            closeFullscreenDialog();
+        stackedDialogAtInputRef.current = false;
+
+        const captureStackedDialogState = (): void => {
+            stackedDialogAtInputRef.current = isOtherHtmlAreaDialogOpen();
+        };
+
+        document.addEventListener('pointerdown', captureStackedDialogState, true);
+        document.addEventListener('keydown', captureStackedDialogState, true);
+
+        return () => {
+            document.removeEventListener('pointerdown', captureStackedDialogState, true);
+            document.removeEventListener('keydown', captureStackedDialogState, true);
+        };
+    }, [open]);
+
+    const handleOpenChange = (nextOpen: boolean): void => {
+        if (nextOpen) {
+            return;
         }
+
+        if (stackedDialogAtInputRef.current || isOtherHtmlAreaDialogOpen()) {
+            return;
+        }
+
+        closeFullscreenDialog();
     };
 
     const preventAutoFocus = (event: Event): void => {
@@ -74,7 +85,7 @@ export const FullscreenDialog = (): ReactElement => {
     return (
         <Dialog.Root open={open} onOpenChange={handleOpenChange}>
             <Dialog.Portal>
-                <Dialog.Overlay />
+                <Dialog.Overlay className={cn(childModalOpen && 'opacity-0')} />
                 <Dialog.Content
                     ref={contentRef}
                     onOpenAutoFocus={preventAutoFocus}
@@ -84,7 +95,7 @@ export const FullscreenDialog = (): ReactElement => {
                 >
                     <Dialog.DefaultClose
                         ref={closeButtonRef}
-                        className="absolute top-1.75 right-1.75 z-20 self-start justify-self-end size-6"
+                        className="absolute top-1.75 right-1.75 z-20 size-9 self-start justify-self-end [&_svg]:size-7"
                     />
                     <Dialog.Body className="flex h-full min-h-0 flex-col overflow-hidden p-0">
                         <div

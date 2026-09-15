@@ -17,6 +17,7 @@ import {
     setCodeDialogValue,
     submitCodeDialog,
 } from '../model/codeDialog.store';
+import { HtmlAreaDialogOverlay } from './HtmlAreaDialogOverlay';
 
 const CODE_DIALOG_NAME = 'CodeDialog';
 
@@ -58,7 +59,7 @@ export const CodeDialog = (): ReactElement => {
     return (
         <Dialog.Root open={open} onOpenChange={handleOpenChange}>
             <Dialog.Portal>
-                <Dialog.Overlay />
+                <HtmlAreaDialogOverlay />
                 <Dialog.Content
                     ref={contentRef}
                     onOpenAutoFocus={preventOpenAutoFocus}

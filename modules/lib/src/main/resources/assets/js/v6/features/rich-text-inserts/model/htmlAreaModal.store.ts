@@ -16,29 +16,31 @@ export function registerHtmlAreaContextDialogOpen(): () => void {
     return () => $contextDialogOpenCount.set(Math.max(0, $contextDialogOpenCount.get() - 1));
 }
 
-export const $isHtmlAreaModalDialogOpen = computed(
+export const $isHtmlAreaChildModalOpen = computed(
     [
         $anchorDialog,
         $bulletedListDialog,
         $codeDialog,
-        $fullscreenDialog,
         $numberedListDialog,
         $specialCharDialog,
         $tableDialog,
         $contextDialogOpenCount,
     ],
-    (anchor, bulleted, code, fullscreen, numbered, special, table, contextCount) =>
-        contextCount > 0 ||
-        anchor.open ||
-        bulleted.open ||
-        code.open ||
-        fullscreen.open ||
-        numbered.open ||
-        special.open ||
-        table.open,
+    (anchor, bulleted, code, numbered, special, table, contextCount) =>
+        contextCount > 0 || anchor.open || bulleted.open || code.open || numbered.open || special.open || table.open,
+);
+
+export const $isHtmlAreaChildOverlayOpen = computed(
+    [$isHtmlAreaChildModalOpen, $searchPopup, $tableQuicktablePopup],
+    (modalOpen, search, quicktable) => modalOpen || search.open || quicktable.open,
+);
+
+export const $isHtmlAreaModalDialogOpen = computed(
+    [$isHtmlAreaChildModalOpen, $fullscreenDialog],
+    (childOpen, fullscreen) => childOpen || fullscreen.open,
 );
 
 export const $isHtmlAreaOverlayOpen = computed(
-    [$isHtmlAreaModalDialogOpen, $searchPopup, $tableQuicktablePopup],
-    (modalOpen, search, quicktable) => modalOpen || search.open || quicktable.open,
+    [$isHtmlAreaChildOverlayOpen, $fullscreenDialog],
+    (childOpen, fullscreen) => childOpen || fullscreen.open,
 );

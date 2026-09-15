@@ -32,24 +32,32 @@ export const HtmlAreaDialogs = ({ editorId }: HtmlAreaDialogsProps): ReactElemen
     const anchorEditor = useStore($anchorDialog, { keys: ['editor'] }).editor;
     const bulletedEditor = useStore($bulletedListDialog, { keys: ['editor'] }).editor;
     const codeEditor = useStore($codeDialog, { keys: ['editor'] }).editor;
-    const fullscreenEditor = useStore($fullscreenDialog, { keys: ['editor'] }).editor;
+    const { editor: fullscreenEditor, editorContainerId: fullscreenEditorId } = useStore($fullscreenDialog, {
+        keys: ['editor', 'editorContainerId'],
+    });
     const numberedEditor = useStore($numberedListDialog, { keys: ['editor'] }).editor;
     const searchEditor = useStore($searchPopup, { keys: ['editor'] }).editor;
     const specialCharEditor = useStore($specialCharDialog, { keys: ['editor'] }).editor;
     const tableEditor = useStore($tableDialog, { keys: ['editor'] }).editor;
     const quicktableEditor = useStore($tableQuicktablePopup, { keys: ['editor'] }).editor;
 
+    const ownedFullscreenEditorId = fullscreenEditor?.name === editorId ? fullscreenEditorId : undefined;
+
+    const isOwnEditor = (editor?: CKEDITOR.editor): boolean =>
+        !!editor &&
+        (editor.name === editorId || (!!ownedFullscreenEditorId && editor.name === ownedFullscreenEditorId));
+
     return (
         <>
-            {anchorEditor?.name === editorId && <AnchorDialog />}
-            {bulletedEditor?.name === editorId && <BulletedListDialog />}
-            {codeEditor?.name === editorId && <CodeDialog />}
+            {isOwnEditor(anchorEditor) && <AnchorDialog />}
+            {isOwnEditor(bulletedEditor) && <BulletedListDialog />}
+            {isOwnEditor(codeEditor) && <CodeDialog />}
             {fullscreenEditor?.name === editorId && <FullscreenDialog />}
-            {numberedEditor?.name === editorId && <NumberedListDialog />}
-            {searchEditor?.name === editorId && <SearchPopup />}
-            {specialCharEditor?.name === editorId && <SpecialCharDialog />}
-            {tableEditor?.name === editorId && <TableDialog />}
-            {quicktableEditor?.name === editorId && <TableQuicktablePopup />}
+            {isOwnEditor(numberedEditor) && <NumberedListDialog />}
+            {isOwnEditor(searchEditor) && <SearchPopup />}
+            {isOwnEditor(specialCharEditor) && <SpecialCharDialog />}
+            {isOwnEditor(tableEditor) && <TableDialog />}
+            {isOwnEditor(quicktableEditor) && <TableQuicktablePopup />}
         </>
     );
 };

@@ -15,6 +15,7 @@ import {
     useHtmlAreaMacroDialogContext,
 } from './HtmlAreaMacroDialogContext';
 import { HtmlAreaMacroDialogContent } from './HtmlAreaMacroDialogContent';
+import { HtmlAreaDialogOverlay } from '../HtmlAreaDialogOverlay';
 
 const DIALOG_NAME = 'HtmlAreaMacroDialog';
 
@@ -46,7 +47,7 @@ const HtmlAreaMacroDialogInner = (): ReactElement => {
             }}
         >
             <Dialog.Portal>
-                <Dialog.Overlay />
+                <HtmlAreaDialogOverlay />
                 <Dialog.Content
                     className="w-full h-full gap-10 sm:h-fit md:min-w-180 md:max-w-220 md:max-h-[85vh]"
                     data-component={DIALOG_NAME}

@@ -19,6 +19,7 @@ import {
     type NumberedListDialogType,
     validateNumberedListDialog,
 } from '../model/numberedListDialog.store';
+import { HtmlAreaDialogOverlay } from './HtmlAreaDialogOverlay';
 
 const NUMBERED_LIST_DIALOG_NAME = 'NumberedListDialog';
 
@@ -70,7 +71,7 @@ export const NumberedListDialog = (): ReactElement => {
     return (
         <Dialog.Root open={open} onOpenChange={handleOpenChange}>
             <Dialog.Portal>
-                <Dialog.Overlay />
+                <HtmlAreaDialogOverlay />
                 <Dialog.Content
                     ref={contentRef}
                     onOpenAutoFocus={preventOpenAutoFocus}

@@ -1,40 +1,32 @@
-import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Store} from '@enonic/lib-admin-ui/store/Store';
-// get jQuery from the global scope
-var $ = Store.instance().get('$');
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 
 CKEDITOR.plugins.add('pasteModeSwitcher', {
     init: function (editor) {
-
         var pasteTextOnly = false;
         var skipNextBeforePasteEvent = false;
 
         editor.addCommand('switchPasteMode', {
             exec: function (editor) {
                 pasteTextOnly = !pasteTextOnly;
-                editor.getCommand('switchPasteMode').setState(pasteTextOnly ? CKEDITOR.TRISTATE_ON : CKEDITOR.TRISTATE_OFF);
-                var tooltipText = pasteTextOnly ? i18n('tooltip.editor.pastemode.plain') :
-                                  i18n('tooltip.editor.pastemode.formatted');
+                editor
+                    .getCommand('switchPasteMode')
+                    .setState(pasteTextOnly ? CKEDITOR.TRISTATE_ON : CKEDITOR.TRISTATE_OFF);
+                var tooltipText = pasteTextOnly
+                    ? i18n('tooltip.editor.pastemode.plain')
+                    : i18n('tooltip.editor.pastemode.formatted');
                 replaceTooltip(tooltipText);
 
                 return true;
             },
-            contextSensitive: false
+            contextSensitive: false,
         });
 
         function replaceTooltip(tooltipText) {
-            var toolbarButton = document.getElementById(editor.getCommand('switchPasteMode').uiItems[0]._.id);
+            var uiItem = editor.getCommand('switchPasteMode').uiItems[0];
+            var toolbarButton = uiItem ? document.getElementById(uiItem._.id) : null;
 
-            if (toolbarButton.title) {
+            if (toolbarButton && toolbarButton.title) {
                 toolbarButton.title = tooltipText;
-            }
-
-            var tooltipId = '#' + StyleHelper.getCls('tooltip', StyleHelper.COMMON_PREFIX);
-
-            if ($(tooltipId).length > 0) {
-                $(toolbarButton).data('_tooltip', tooltipText);
-                $(tooltipId).text(tooltipText);
             }
         }
 
@@ -42,7 +34,7 @@ CKEDITOR.plugins.add('pasteModeSwitcher', {
             label: i18n('tooltip.editor.pastemode.formatted'),
             toolbar: 'tools,10',
             command: 'switchPasteMode',
-            icon: 'pastetext'
+            icon: 'pastetext',
         });
 
         function isFilePasted(evt) {
@@ -60,7 +52,6 @@ CKEDITOR.plugins.add('pasteModeSwitcher', {
                     skipNextBeforePasteEvent = false;
                 }
             }
-
         });
-    }
+    },
 });

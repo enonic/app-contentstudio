@@ -4,12 +4,16 @@
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
-const contentBuilder = require("../../libs/content.builder");
+const contentBuilder = require('../../libs/content.builder');
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const FullScreenDialog = require('../../page_objects/wizardpanel/html.full.screen.dialog');
 const SourceCodeDialog = require('../../page_objects/wizardpanel/html.source.code.dialog');
 const appConst = require('../../libs/app_const');
+const InsertAnchorDialog = require('../../page_objects/wizardpanel/html-area/insert.anchor.dialog.cke');
+const InsertLinkDialog = require('../../page_objects/wizardpanel/html-area/insert.link.modal.dialog.cke');
+const InsertSpecialDialog = require('../../page_objects/wizardpanel/html-area/insert.special.character.dialog.cke');
+const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
 
 describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -17,200 +21,261 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
         webDriverHelper.setupBrowser();
     }
     const EXPECTED_TEXT_TEXT1 = '<p>test text</p>';
-    const TEXT_TO_TYPE = "test text";
+    const TEXT_TO_TYPE = 'test text';
     let HTML_AREA_CONTENT;
     const CONTENT_NAME_1 = contentBuilder.generateRandomName('area');
     const CONTENT_NAME_2 = contentBuilder.generateRandomName('area');
     const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
 
-    it(`WHEN wizard for 'htmlArea 0:1' is opened THEN single htmlarea should be present by default`,
-        async () => {
-            let htmlAreaForm = new HtmlAreaForm();
-            let contentWizard = new ContentWizard();
-            // 1. Open new wizard for htmlArea 0:1
-            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
-            await contentWizard.typeDisplayName(CONTENT_NAME_1);
-            //await contentWizard.waitAndClickOnSave();
-            // 2. Verify that only one area is displayed:
-            let ids = await htmlAreaForm.getIdOfHtmlAreas();
-            assert.equal(ids.length, 1, 'Single html area should be displayed by default');
-            // 3. Verify that the toolbar is not visible in the htmlArea:
-            let isToolbarVisible = await htmlAreaForm.isEditorToolbarVisible(0);
-            assert.ok(isToolbarVisible === false, 'Html Area toolbar should be hidden by default');
-            // 4. Verify that 'Add' button is not present:
-            await htmlAreaForm.waitForAddButtonNotDisplayed();
-            // 5. Verify that 'Mark as ready' button is displayed in the wizard toolbar:
-            await contentWizard.waitForMarkAsReadyButtonVisible();
-        });
+    it("GIVEN 'fullscreen' button has been pressed WHEN 'Insert Image' button has been pressed THEN Insert image modal dialog loads", async () => {
+        let htmlAreaForm = new HtmlAreaForm();
+        let insertImageDialog = new InsertImageDialog();
+        let fullScreenDialog = new FullScreenDialog();
+        await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
+        // 1. Open Full Screen dialog:
+        await htmlAreaForm.clickOnFullScreenButton();
+        await fullScreenDialog.waitForDialogLoaded();
+        // 2. Click on 'Insert Image' button:
+        await fullScreenDialog.clickOnInsertImageButton();
+        // 3. Verify that the dialog  is loaded
+        await insertImageDialog.waitForDialogVisible();
+        await studioUtils.saveScreenshot('fullscreen_mode_insert_image');
+        // 4. Click on 'Close' button
+        await insertImageDialog.clickOnCloseButton();
+        await insertImageDialog.waitForDialogClosed();
+    });
 
-    it(`GIVEN wizard for new 'htmlArea 0:1' is opened WHEN content has been saved THEN red icon should not be present, because the input is not required`,
-        async () => {
-            let contentWizard = new ContentWizard();
-            let htmlAreaForm = new HtmlAreaForm();
-            // 1. Open new wizard for htmlArea 0:1
-            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
-            await contentWizard.typeDisplayName(CONTENT_NAME_2);
-            await contentWizard.waitAndClickOnSave();
-            // 2. The content should be valid(htmlArea is not required input)
-            let isInvalid = await contentWizard.isContentInvalid();
-            await studioUtils.saveScreenshot('cke_htmlarea_should_be_valid');
-            assert.ok(isInvalid === false, 'the content should be valid, because the input is not required');
-            // 3. The htmlArea should be empty:
-            let actualResult = await htmlAreaForm.getTextFromHtmlArea();
-            assert.equal(actualResult[0], '', "Html Area should be empty");
-        });
+    it("GIVEN 'fullscreen' button has been pressed WHEN 'Insert Spec characters' button has been pressed THEN Special characters modal dialog loads", async () => {
+        let htmlAreaForm = new HtmlAreaForm();
+        let insertSpecialDialog = new InsertSpecialDialog();
+        let fullScreenDialog = new FullScreenDialog();
+        await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
+        // 1. Open Full Screen dialog:
+        await htmlAreaForm.clickOnFullScreenButton();
+        await fullScreenDialog.waitForDialogLoaded();
+        // 2. Click on 'Insert Special characters' button:
+        await fullScreenDialog.clickOnInsertSpecialCharactersButton();
+        // 3. Verify that the dialog  is loaded
+        await insertSpecialDialog.waitForDialogLoaded();
+        await studioUtils.saveScreenshot('fullscreen_mode_spec_char');
+        // 4. Click on 'Close' button
+        await insertSpecialDialog.clickOnCloseButton();
+        await insertSpecialDialog.waitForClosed();
+    });
 
-    it(`GIVEN wizard for new 'htmlArea 0:1' is opened WHEN text has been typed THEN expected text should appear in the area`,
-        async () => {
-            let htmlAreaForm = new HtmlAreaForm();
-            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
-            await htmlAreaForm.insertTextInHtmlArea(0, TEXT_TO_TYPE);
-            let result = await htmlAreaForm.getTextFromHtmlArea();
-            await studioUtils.saveScreenshot('cke_htmlarea_0_1');
-            assert.equal(result[0], EXPECTED_TEXT_TEXT1, 'expected and actual value should be equals');
-        });
+    it("GIVEN 'fullscreen' button has been pressed WHEN 'Insert Anchor' button has been pressed THEN InsertAnchor modal dialog loads", async () => {
+        let htmlAreaForm = new HtmlAreaForm();
+        let insertAnchorDialog = new InsertAnchorDialog();
+        let fullScreenDialog = new FullScreenDialog();
+        await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
+        // 1. Open Full Screen dialog:
+        await htmlAreaForm.clickOnFullScreenButton();
+        await fullScreenDialog.waitForDialogLoaded();
+        // 2. Click on Insert anchor button:
+        await fullScreenDialog.clickOnInsertAnchorButton();
+        await insertAnchorDialog.waitForDialogLoaded();
+        await studioUtils.saveScreenshot('fullscreen_mode_increased');
+        // 3. enter the text
+        await insertAnchorDialog.typeInTextInput('test');
+        await studioUtils.saveScreenshot('anchor_text_typed');
+        // 4. Click on 'Insert' button and close the dialog:
+        await insertAnchorDialog.clickOnInsertButtonAndWaitForClosed();
+    });
 
-    it(`GIVEN wizard for 'htmlArea 0:1' is opened WHEN all data has been typed and saved THEN expected notification message should be displayed`,
-        async () => {
-            let contentWizard = new ContentWizard();
-            let displayName = contentBuilder.generateRandomName('htmlarea');
-            HTML_AREA_CONTENT = contentBuilder.buildHtmlArea(displayName, 'htmlarea0_1', [TEXT_TO_TYPE]);
-            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
-            await contentWizard.pause(1000);
-            await contentWizard.typeData(HTML_AREA_CONTENT);
-            await contentWizard.waitAndClickOnSave();
-            let expectedMessage = appConst.itemSavedNotificationMessage(HTML_AREA_CONTENT.displayName);
-            await contentWizard.waitForExpectedNotificationMessage(expectedMessage);
-        });
+    it("GIVEN 'fullscreen' button has been pressed WHEN 'Insert Link' button has been pressed THEN Insert Link modal dialog loads", async () => {
+        let htmlAreaForm = new HtmlAreaForm();
+        let insertLinkDialog = new InsertLinkDialog();
+        let fullScreenDialog = new FullScreenDialog();
+        await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
+        // 1. Open Full Screen dialog:
+        await htmlAreaForm.clickOnFullScreenButton();
+        await fullScreenDialog.waitForDialogLoaded();
+        // 2. Click on Insert Link button:
+        await fullScreenDialog.clickOnInsertLinkButton();
+        // 3. Verify that thr dialog  is loaded:
+        await insertLinkDialog.waitForDialogLoaded();
+        await studioUtils.saveScreenshot('fullscreen_mode_insert_link');
+        // 4. Click on 'Close' button
+        await insertLinkDialog.clickOnCloseButton();
+        await insertLinkDialog.waitForDialogClosed();
+    });
 
-    it(`GIVEN existing 'htmlArea 0:1' WHEN it has been reopened THEN expected text should be displayed in the area`,
-        async () => {
-            let htmlAreaForm = new HtmlAreaForm();
-            await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT.displayName);
-            let result = await htmlAreaForm.getTextFromHtmlArea();
-            await studioUtils.saveScreenshot('htmlarea_0_1_check_value');
-            assert.equal(result[0], EXPECTED_TEXT_TEXT1, 'expected and actual strings should be equal');
-        });
+    it(`WHEN wizard for 'htmlArea 0:1' is opened THEN single htmlarea should be present by default`, async () => {
+        let htmlAreaForm = new HtmlAreaForm();
+        let contentWizard = new ContentWizard();
+        // 1. Open new wizard for htmlArea 0:1
+        await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
+        await contentWizard.typeDisplayName(CONTENT_NAME_1);
+        //await contentWizard.waitAndClickOnSave();
+        // 2. Verify that only one area is displayed:
+        let ids = await htmlAreaForm.getIdOfHtmlAreas();
+        assert.equal(ids.length, 1, 'Single html area should be displayed by default');
+        // 3. Verify that the toolbar is not visible in the htmlArea:
+        let isToolbarVisible = await htmlAreaForm.isEditorToolbarVisible(0);
+        assert.ok(isToolbarVisible === false, 'Html Area toolbar should be hidden by default');
+        // 4. Verify that 'Add' button is not present:
+        await htmlAreaForm.waitForAddButtonNotDisplayed();
+        // 5. Verify that 'Mark as ready' button is displayed in the wizard toolbar:
+        await contentWizard.waitForMarkAsReadyButtonVisible();
+    });
 
-    it(`GIVEN existing 'htmlArea 0:1' is opened WHEN 'fullscreen' button has been pressed THEN expected text should be present in the full screen`,
-        async () => {
-            let htmlAreaForm = new HtmlAreaForm();
-            let fullScreenDialog = new FullScreenDialog();
-            await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT.displayName);
-            await htmlAreaForm.clickOnFullScreenButton();
-            await fullScreenDialog.waitForDialogLoaded();
-            let result = await fullScreenDialog.getTextFromHtmlArea();
-            await studioUtils.saveScreenshot('htmlarea_0_1_full_screen_mode');
-            assert.equal(result[0], EXPECTED_TEXT_TEXT1, "expected text should be present in 'full screen' dialog");
-        });
+    it(`GIVEN wizard for new 'htmlArea 0:1' is opened WHEN content has been saved THEN red icon should not be present, because the input is not required`, async () => {
+        let contentWizard = new ContentWizard();
+        let htmlAreaForm = new HtmlAreaForm();
+        // 1. Open new wizard for htmlArea 0:1
+        await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
+        await contentWizard.typeDisplayName(CONTENT_NAME_2);
+        await contentWizard.waitAndClickOnSave();
+        // 2. The content should be valid(htmlArea is not required input)
+        let isInvalid = await contentWizard.isContentInvalid();
+        await studioUtils.saveScreenshot('cke_htmlarea_should_be_valid');
+        assert.ok(isInvalid === false, 'the content should be valid, because the input is not required');
+        // 3. The htmlArea should be empty:
+        let actualResult = await htmlAreaForm.getTextFromHtmlArea();
+        assert.equal(actualResult[0], '', 'Html Area should be empty');
+    });
 
-    it("'fullscreen' button has been pressed THEN expected buttons should be in the toolbar",
-        async () => {
-            let htmlAreaForm = new HtmlAreaForm();
-            let fullScreenDialog = new FullScreenDialog();
-            await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT.displayName);
-            await htmlAreaForm.clickOnFullScreenButton();
-            await fullScreenDialog.waitForDialogLoaded();
-            let numberOfButtons = await fullScreenDialog.getNumberOfToolbarButtons();
-            await studioUtils.saveScreenshot('full_screen_buttons');
-            await fullScreenDialog.waitForBoldButtonDisplayed();
-            await fullScreenDialog.waitForItalicButtonDisplayed();
-            await fullScreenDialog.waitForUnderlineButtonDisplayed();
-            await fullScreenDialog.waitForJustifyButtonDisplayed();
-            await fullScreenDialog.waitForAlignRightButtonDisplayed();
-            await fullScreenDialog.waitForAlignCenterButtonDisplayed();
-            await fullScreenDialog.waitForAlignLeftButtonDisplayed();
-            await fullScreenDialog.waitForDecreaseIndentButtonDisabled();
-            await fullScreenDialog.waitForIncreaseIndentButtonEnabled();
-            await fullScreenDialog.waitForInsertRemoveBulletedListButtonEnabled();
-            await fullScreenDialog.waitForInsertRemoveNumberedListButtonEnabled();
+    it(`GIVEN wizard for new 'htmlArea 0:1' is opened WHEN text has been typed THEN expected text should appear in the area`, async () => {
+        let htmlAreaForm = new HtmlAreaForm();
+        await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
+        await htmlAreaForm.insertTextInHtmlArea(0, TEXT_TO_TYPE);
+        let result = await htmlAreaForm.getTextFromHtmlArea();
+        await studioUtils.saveScreenshot('cke_htmlarea_0_1');
+        assert.equal(result[0], EXPECTED_TEXT_TEXT1, 'expected and actual value should be equals');
+    });
 
-            await fullScreenDialog.waitForFindAndReplaceButtonEnabled();
-            await fullScreenDialog.waitForSpecialCharactersButtonEnabled();
-            await fullScreenDialog.waitForInsertAnchorButtonDisplayed();
-            await fullScreenDialog.waitForInsertImageButtonDisplayed();
-            await fullScreenDialog.waitForInsertMacroButtonDisplayed();
-            await fullScreenDialog.waitForInsertLinkButtonDisplayed();
-            await fullScreenDialog.waitForUnlinkButtonDisplayed();
-            await fullScreenDialog.waitForInsertTableButtonDisplayed();
-            await fullScreenDialog.waitForPasteModeButtonDisplayed();
-            await fullScreenDialog.waitForSourceButtonDisplayed();
-        });
+    it(`GIVEN wizard for 'htmlArea 0:1' is opened WHEN all data has been typed and saved THEN expected notification message should be displayed`, async () => {
+        let contentWizard = new ContentWizard();
+        let displayName = contentBuilder.generateRandomName('htmlarea');
+        HTML_AREA_CONTENT = contentBuilder.buildHtmlArea(displayName, 'htmlarea0_1', [TEXT_TO_TYPE]);
+        await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
+        await contentWizard.pause(1000);
+        await contentWizard.typeData(HTML_AREA_CONTENT);
+        await contentWizard.waitAndClickOnSave();
+        let expectedMessage = appConst.itemSavedNotificationMessage(HTML_AREA_CONTENT.displayName);
+        await contentWizard.waitForExpectedNotificationMessage(expectedMessage);
+    });
 
-    it(`GIVEN existing 'htmlArea 0:1' is opened WHEN 'Source Code' button has been pressed THEN source dialog should appear with expected text`,
-        async () => {
-            let htmlAreaForm = new HtmlAreaForm();
-            let sourceCodeDialog = new SourceCodeDialog();
-            await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT.displayName);
-            await htmlAreaForm.clickOnSourceButton();
-            await sourceCodeDialog.waitForDialogLoaded();
-            let result = await sourceCodeDialog.getText();
-            await studioUtils.saveScreenshot('htmlarea_0_1_source_code_dialog');
-            assert.equal(result.trim(), EXPECTED_TEXT_TEXT1, 'expected text should be present in `full screen` dialog');
-        });
+    it(`GIVEN existing 'htmlArea 0:1' WHEN it has been reopened THEN expected text should be displayed in the area`, async () => {
+        let htmlAreaForm = new HtmlAreaForm();
+        await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT.displayName);
+        let result = await htmlAreaForm.getTextFromHtmlArea();
+        await studioUtils.saveScreenshot('htmlarea_0_1_check_value');
+        assert.equal(result[0], EXPECTED_TEXT_TEXT1, 'expected and actual strings should be equal');
+    });
 
-    it("GIVEN 'fullscreen' button has been pressed WHEN 'Increase indent' button has been pressed THEN 'Decrease indent' button gets enabled",
-        async () => {
-            let htmlAreaForm = new HtmlAreaForm();
-            let fullScreenDialog = new FullScreenDialog();
-            await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT.displayName);
-            // 1. Open Full Screen dialog:
-            await htmlAreaForm.clickOnFullScreenButton();
-            await fullScreenDialog.waitForDialogLoaded();
-            // 2. Verify that Decrease Indent button is disabled:
-            await fullScreenDialog.waitForDecreaseIndentButtonDisabled();
-            // 3. Click on 'Increase Indent' button
-            await fullScreenDialog.clickOnIncreaseIndentButton();
-            await studioUtils.saveScreenshot('fullscreen_mode_increased');
-            // 4. Verify that Decrease Indent button gets enabled
-            await fullScreenDialog.waitForDecreaseIndentButtonEnabled();
-        });
+    it(`GIVEN existing 'htmlArea 0:1' is opened WHEN 'fullscreen' button has been pressed THEN expected text should be present in the full screen`, async () => {
+        let htmlAreaForm = new HtmlAreaForm();
+        let fullScreenDialog = new FullScreenDialog();
+        await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT.displayName);
+        await htmlAreaForm.clickOnFullScreenButton();
+        await fullScreenDialog.waitForDialogLoaded();
+        let result = await fullScreenDialog.getTextFromHtmlArea();
+        await studioUtils.saveScreenshot('htmlarea_0_1_full_screen_mode');
+        assert.equal(result[0], EXPECTED_TEXT_TEXT1, "expected text should be present in 'full screen' dialog");
+    });
 
-    it(`GIVEN 'Source Code' dialog is opened WHEN text has been cleared THEN htmlArea should be cleared as well`,
-        async () => {
-            let sourceCodeDialog = new SourceCodeDialog();
-            let htmlAreaForm = new HtmlAreaForm();
-            await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT.displayName);
-            await htmlAreaForm.clickOnSourceButton();
-            await sourceCodeDialog.waitForDialogLoaded();
-            await sourceCodeDialog.clearTextArea();
-            await sourceCodeDialog.clickOnOkButton();
-            let result = await htmlAreaForm.getTextFromHtmlArea();
-            await studioUtils.saveScreenshot('htmlarea_0_1_cleared');
-            assert.equal(result[0], "", 'htmlArea should be cleared as well');
-        });
+    it("'fullscreen' button has been pressed THEN expected buttons should be in the toolbar", async () => {
+        let htmlAreaForm = new HtmlAreaForm();
+        let fullScreenDialog = new FullScreenDialog();
+        await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT.displayName);
+        await htmlAreaForm.clickOnFullScreenButton();
+        await fullScreenDialog.waitForDialogLoaded();
+        let numberOfButtons = await fullScreenDialog.getNumberOfToolbarButtons();
+        await studioUtils.saveScreenshot('full_screen_buttons');
+        await fullScreenDialog.waitForBoldButtonDisplayed();
+        await fullScreenDialog.waitForItalicButtonDisplayed();
+        await fullScreenDialog.waitForUnderlineButtonDisplayed();
+        await fullScreenDialog.waitForJustifyButtonDisplayed();
+        await fullScreenDialog.waitForAlignRightButtonDisplayed();
+        await fullScreenDialog.waitForAlignCenterButtonDisplayed();
+        await fullScreenDialog.waitForAlignLeftButtonDisplayed();
+        await fullScreenDialog.waitForDecreaseIndentButtonDisabled();
+        await fullScreenDialog.waitForIncreaseIndentButtonEnabled();
+        await fullScreenDialog.waitForInsertRemoveBulletedListButtonEnabled();
+        await fullScreenDialog.waitForInsertRemoveNumberedListButtonEnabled();
 
-    it(`GIVEN existing 'htmlArea 0:1' in full screen mode is opened WHEN 'Esc' key has been pressed THEN 'fullscreen'-dialog should be closed`,
-        async () => {
-            let fullScreenDialog = new FullScreenDialog();
-            let htmlAreaForm = new HtmlAreaForm();
-            await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT.displayName);
-            await htmlAreaForm.clickOnFullScreenButton();
-            await fullScreenDialog.waitForDialogLoaded();
-            await studioUtils.saveScreenshot('htmlarea_full_screen_opened');
-            // click on ESC key:
-            await fullScreenDialog.pressEscKey();
-            await studioUtils.saveScreenshot('htmlarea_full_screen_closed');
-            // 'full screen' dialog should be closed:
-            await fullScreenDialog.waitForDialogClosed();
-        });
+        await fullScreenDialog.waitForFindAndReplaceButtonEnabled();
+        await fullScreenDialog.waitForSpecialCharactersButtonEnabled();
+        await fullScreenDialog.waitForInsertAnchorButtonDisplayed();
+        await fullScreenDialog.waitForInsertImageButtonDisplayed();
+        await fullScreenDialog.waitForInsertMacroButtonDisplayed();
+        await fullScreenDialog.waitForInsertLinkButtonDisplayed();
+        await fullScreenDialog.waitForUnlinkButtonDisplayed();
+        await fullScreenDialog.waitForInsertTableButtonDisplayed();
+        await fullScreenDialog.waitForPasteModeButtonDisplayed();
+        await fullScreenDialog.waitForSourceButtonDisplayed();
+    });
 
-    it(`GIVEN JustifyLeft JustifyRight | Bold Italic included only WHEN Full screen dialog opened THEN only 6 buttons should be present in the dialog`,
-        async () => {
-            let fullScreenDialog = new FullScreenDialog();
-            let htmlAreaForm = new HtmlAreaForm();
-            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, 'htmlarea_conf');
-            // 1. Open full screen dialog
-            await htmlAreaForm.clickOnFullScreenButton();
-            await fullScreenDialog.waitForDialogLoaded();
-            await studioUtils.saveScreenshot('htmlarea_full_screen_conf');
-            // 2. Verify that only 6 buttons are present in the toolbar - JustifyLeft JustifyRight | Bold Italic + 'Source' + Fullscreen buttons
-            let numberOfButtons = await fullScreenDialog.getNumberOfToolbarButtons();
-            await fullScreenDialog.waitForBoldButtonDisplayed();
-            await fullScreenDialog.waitForItalicButtonDisplayed();
-            assert.equal(numberOfButtons, 5, '5 buttons should be present in toolbar in Full screen mode');
-            await fullScreenDialog.waitForUnderlineButtonNotDisplayed();
-        });
+    it(`GIVEN existing 'htmlArea 0:1' is opened WHEN 'Source Code' button has been pressed THEN source dialog should appear with expected text`, async () => {
+        let htmlAreaForm = new HtmlAreaForm();
+        let sourceCodeDialog = new SourceCodeDialog();
+        await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT.displayName);
+        await htmlAreaForm.clickOnSourceButton();
+        await sourceCodeDialog.waitForDialogLoaded();
+        let result = await sourceCodeDialog.getText();
+        await studioUtils.saveScreenshot('htmlarea_0_1_source_code_dialog');
+        assert.equal(result.trim(), EXPECTED_TEXT_TEXT1, 'expected text should be present in `full screen` dialog');
+    });
+
+    it("GIVEN 'fullscreen' button has been pressed WHEN 'Increase indent' button has been pressed THEN 'Decrease indent' button gets enabled", async () => {
+        let htmlAreaForm = new HtmlAreaForm();
+        let fullScreenDialog = new FullScreenDialog();
+        await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT.displayName);
+        // 1. Open Full Screen dialog:
+        await htmlAreaForm.clickOnFullScreenButton();
+        await fullScreenDialog.waitForDialogLoaded();
+        // 2. Verify that Decrease Indent button is disabled:
+        await fullScreenDialog.waitForDecreaseIndentButtonDisabled();
+        // 3. Click on 'Increase Indent' button
+        await fullScreenDialog.clickOnIncreaseIndentButton();
+        await studioUtils.saveScreenshot('fullscreen_mode_increased');
+        // 4. Verify that Decrease Indent button gets enabled
+        await fullScreenDialog.waitForDecreaseIndentButtonEnabled();
+    });
+
+    it(`GIVEN 'Source Code' dialog is opened WHEN text has been cleared THEN htmlArea should be cleared as well`, async () => {
+        let sourceCodeDialog = new SourceCodeDialog();
+        let htmlAreaForm = new HtmlAreaForm();
+        await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT.displayName);
+        await htmlAreaForm.clickOnSourceButton();
+        await sourceCodeDialog.waitForDialogLoaded();
+        await sourceCodeDialog.clearTextArea();
+        await sourceCodeDialog.clickOnOkButton();
+        let result = await htmlAreaForm.getTextFromHtmlArea();
+        await studioUtils.saveScreenshot('htmlarea_0_1_cleared');
+        assert.equal(result[0], '', 'htmlArea should be cleared as well');
+    });
+
+    it(`GIVEN existing 'htmlArea 0:1' in full screen mode is opened WHEN 'Esc' key has been pressed THEN 'fullscreen'-dialog should be closed`, async () => {
+        let fullScreenDialog = new FullScreenDialog();
+        let htmlAreaForm = new HtmlAreaForm();
+        await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT.displayName);
+        await htmlAreaForm.clickOnFullScreenButton();
+        await fullScreenDialog.waitForDialogLoaded();
+        await studioUtils.saveScreenshot('htmlarea_full_screen_opened');
+        // click on ESC key:
+        await fullScreenDialog.pressEscKey();
+        await studioUtils.saveScreenshot('htmlarea_full_screen_closed');
+        // 'full screen' dialog should be closed:
+        await fullScreenDialog.waitForDialogClosed();
+    });
+
+    it(`GIVEN JustifyLeft JustifyRight | Bold Italic included only WHEN Full screen dialog opened THEN only 6 buttons should be present in the dialog`, async () => {
+        let fullScreenDialog = new FullScreenDialog();
+        let htmlAreaForm = new HtmlAreaForm();
+        await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, 'htmlarea_conf');
+        // 1. Open full screen dialog
+        await htmlAreaForm.clickOnFullScreenButton();
+        await fullScreenDialog.waitForDialogLoaded();
+        await studioUtils.saveScreenshot('htmlarea_full_screen_conf');
+        // 2. Verify that only 6 buttons are present in the toolbar - JustifyLeft JustifyRight | Bold Italic + 'Source' + Fullscreen buttons
+        let numberOfButtons = await fullScreenDialog.getNumberOfToolbarButtons();
+        await fullScreenDialog.waitForBoldButtonDisplayed();
+        await fullScreenDialog.waitForItalicButtonDisplayed();
+        assert.equal(numberOfButtons, 5, '5 buttons should be present in toolbar in Full screen mode');
+        await fullScreenDialog.waitForUnderlineButtonNotDisplayed();
+    });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());

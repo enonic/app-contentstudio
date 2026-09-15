@@ -11,6 +11,7 @@ import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import { type OpenHtmlAreaImageDialogParams } from '../../model/htmlAreaImageDialog.types';
 import { HtmlAreaImageDialogProvider, useHtmlAreaImageDialogContext } from './HtmlAreaImageDialogContext';
 import { HtmlAreaImageDialogContent } from './HtmlAreaImageDialogContent';
+import { HtmlAreaDialogOverlay } from '../HtmlAreaDialogOverlay';
 
 const DIALOG_NAME = 'HtmlAreaImageDialog';
 
@@ -41,7 +42,7 @@ const HtmlAreaImageDialogInner = (): ReactElement => {
             }}
         >
             <Dialog.Portal>
-                <Dialog.Overlay />
+                <HtmlAreaDialogOverlay />
                 <Dialog.Content
                     className="w-full h-full gap-10 sm:h-fit md:min-w-180 md:max-w-220 md:max-h-[85vh]"
                     data-component={DIALOG_NAME}

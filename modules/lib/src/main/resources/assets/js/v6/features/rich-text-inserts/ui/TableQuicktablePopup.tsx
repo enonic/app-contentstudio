@@ -5,6 +5,7 @@ import {
     type KeyboardEvent,
     type MouseEvent,
     type ReactElement,
+    createPortal,
     useCallback,
     useEffect,
     useRef,
@@ -179,7 +180,9 @@ export const TableQuicktablePopup = (): ReactElement | null => {
         return null;
     }
 
-    return (
+    const portalTarget = getAnchorElement()?.closest<HTMLElement>('[role="dialog"]') ?? document.body;
+
+    return createPortal(
         <div
             ref={popupRef}
             role="dialog"
@@ -248,7 +251,8 @@ export const TableQuicktablePopup = (): ReactElement | null => {
             >
                 {moreLabel}
             </button>
-        </div>
+        </div>,
+        portalTarget,
     );
 };
 

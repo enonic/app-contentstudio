@@ -1,16 +1,15 @@
 const Page = require('../../page');
-const {BUTTONS} = require('../../../libs/elements');
+const { BUTTONS } = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 
 const XPATH = {
     container: `//div[@role='dialog' and @data-component='HtmlAreaLinkDialog']`,
     emailPanel: "//div[@data-component='EmailTabPanel']",
-    tabTriggerByName: name => `//button[@role='tab' and child::span[contains(.,'${name}')]]`,
+    tabTriggerByName: (name) => `//button[@role='tab' and child::span[contains(.,'${name}')]]`,
     errorMessage: "//div[contains(@class,'text-error')]",
 };
 
 class InsertLinkDialog extends Page {
-
     get linkTextInput() {
         return XPATH.container + "//label[contains(.,'Text')]/ancestor::div[2]//input";
     }
@@ -19,7 +18,7 @@ class InsertLinkDialog extends Page {
         return XPATH.container + "//label[contains(.,'Tooltip')]/ancestor::div[2]//input";
     }
 
-    get cancelButtonTop() {
+    get closeButton() {
         return XPATH.container + "//button[@aria-label='Close']";
     }
 
@@ -37,7 +36,11 @@ class InsertLinkDialog extends Page {
             await this.waitForElementDisplayed(this.linkTextInput);
             await this.typeTextInInput(this.linkTextInput, text);
         } catch (err) {
-            await this.handleError('Insert Link Dialog- error when type text in link-text input', 'err_type_link_text', err);
+            await this.handleError(
+                'Insert Link Dialog- error when type text in link-text input',
+                'err_type_link_text',
+                err,
+            );
         }
     }
 
@@ -47,7 +50,11 @@ class InsertLinkDialog extends Page {
             await this.waitForElementDisplayed(this.linkTooltipInput);
             return await this.typeTextInInput(this.linkTooltipInput, text);
         } catch (err) {
-            await this.handleError('Insert Link Dialog- error when type text in link-tooltip input', 'err_type_link_tooltip', err);
+            await this.handleError(
+                'Insert Link Dialog- error when type text in link-tooltip input',
+                'err_type_link_tooltip',
+                err,
+            );
         }
     }
 
@@ -55,8 +62,8 @@ class InsertLinkDialog extends Page {
         return this.getTextInInput(this.linkTooltipInput);
     }
 
-    async clickOnCancelButton() {
-        await this.clickOnElement(this.cancelButtonTop);
+    async clickOnCloseButton() {
+        await this.clickOnElement(this.closeButton);
         return await this.pause(300);
     }
 
@@ -85,8 +92,8 @@ class InsertLinkDialog extends Page {
 
     async waitForDialogLoaded() {
         try {
-             await this.waitForElementDisplayed(XPATH.container);
-             await this.pause(300);
+            await this.waitForElementDisplayed(XPATH.container);
+            await this.pause(300);
         } catch (err) {
             await this.handleError('Insert Link Dialog should be open!', 'err_open_insert_link_dialog', err);
         }
@@ -130,7 +137,11 @@ class InsertLinkDialog extends Page {
             await this.waitForElementDisplayed(this.emailInput);
             await this.typeTextInInput(this.emailInput, email);
         } catch (err) {
-            await this.handleError('Insert Link Dialog- error when type text in email input', 'err_type_email_input', err);
+            await this.handleError(
+                'Insert Link Dialog- error when type text in email input',
+                'err_type_email_input',
+                err,
+            );
         }
     }
 
@@ -144,14 +155,16 @@ class InsertLinkDialog extends Page {
     }
 
     async waitForValidationMessageForTextInputDisplayed() {
-        let locator = XPATH.container + "//label[contains(.,'Text')]/ancestor::div[2]//div[contains(@class,'text-error')]";
+        let locator =
+            XPATH.container + "//label[contains(.,'Text')]/ancestor::div[2]//div[contains(@class,'text-error')]";
         return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
 
     // TODO
     async getTextInputValidationMessage() {
         await this.waitForValidationMessageForTextInputDisplayed();
-        let locator = XPATH.container + "//label[contains(.,'Text')]/ancestor::div[2]//div[contains(@class,'text-error')]";
+        let locator =
+            XPATH.container + "//label[contains(.,'Text')]/ancestor::div[2]//div[contains(@class,'text-error')]";
         return await this.getText(locator);
     }
 }

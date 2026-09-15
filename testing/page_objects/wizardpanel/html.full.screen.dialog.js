@@ -262,6 +262,30 @@ class HtmlFullScreenDialog extends Page {
     clickOnIncreaseIndentButton() {
         return this.clickOnElement(this.increaseIndentButton);
     }
+
+    async clickOnInsertAnchorButton() {
+        await this.waitForElementDisplayed(this.insertAnchorButton);
+        await this.clickOnElement(this.insertAnchorButton);
+        return await this.pause(300);
+    }
+
+    async clickOnInsertLinkButton() {
+        await this.waitForElementDisplayed(this.insertLinkButton);
+        await this.clickOnElement(this.insertLinkButton);
+        return await this.pause(300);
+    }
+
+    async clickOnInsertImageButton() {
+        await this.waitForElementDisplayed(this.insertImageButton);
+        await this.clickOnElement(this.insertImageButton);
+        return await this.pause(300);
+    }
+
+    async clickOnInsertSpecialCharactersButton() {
+        await this.waitForElementDisplayed(this.insertSpecialCharacterButton);
+        await this.clickOnElement(this.insertSpecialCharacterButton);
+        return await this.pause(300);
+    }
 }
 
 module.exports = HtmlFullScreenDialog;
