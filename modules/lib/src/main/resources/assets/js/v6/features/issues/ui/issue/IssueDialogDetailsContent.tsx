@@ -73,8 +73,7 @@ import { filterShownDependants } from '../../../../shared/lib/cms/content/depend
 import { createDebounce } from '../../../../shared/lib/timing/createDebounce';
 import { ContentRow, DependantsSeparator, SplitList } from '../../../shared/lists';
 import { EditableText } from '../../../../shared/ui/primitives/EditableText';
-import { AssigneeSelector } from '../../../shared/selectors/assignee/AssigneeSelector';
-import { useAssigneeSearch, useAssigneeSelection } from '../../../shared/selectors/assignee/hooks/useAssigneeSearch';
+import { PrincipalSelector, usePrincipalSearch, usePrincipalSelection } from '../../../shared/selectors/principal';
 import { ContentCombobox } from '../../../shared/selectors/content';
 import { IssueStatusBadge } from '../../../shared/status/IssueStatusBadge';
 import { DependantsSelectAll } from '../../../../shared/ui/dialogs/dependants/DependantsSelectAll';
@@ -322,7 +321,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         requestAnimationFrame(() => backButtonRef.current?.focus());
     }, []);
 
-    const { options: assigneeOptions, handleSearchChange } = useAssigneeSearch();
+    const { options: assigneeOptions, handleSearchChange } = usePrincipalSearch();
 
     useIssueDialogData(issueId, !!issueData);
 
@@ -399,9 +398,9 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     );
     const itemsWithUnpublishedChildren = useItemsWithUnpublishedChildren(items);
 
-    const selectedAssigneeOptions = useAssigneeSelection({
-        assigneeIds,
-        assignees: issueWithAssignees?.getAssignees(),
+    const selectedAssigneeOptions = usePrincipalSelection({
+        principalIds: assigneeIds,
+        principals: issueWithAssignees?.getAssignees(),
         filterSystem: true,
     });
 
@@ -970,8 +969,8 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                         </Tab.Content>
 
                         <Tab.Content value="assignees" className="mt-0 min-h-0 flex flex-1 flex-col">
-                            <AssigneeSelector
-                                label={assigneesLabel}
+                            <PrincipalSelector
+                                ariaLabel={assigneesLabel}
                                 options={assigneeOptions}
                                 selectedOptions={selectedAssigneeOptions}
                                 selection={assigneeIds}

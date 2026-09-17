@@ -3,15 +3,17 @@ import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
 import { PrincipalType } from '@enonic/lib-admin-ui/security/PrincipalType';
 import type { Principal } from '@enonic/lib-admin-ui/security/Principal';
 import { findPrincipals, resolvePrincipalsByKeys } from '../../../../../entities/principal/api/principals.api';
-import type { AssigneeSelectorOption } from '../assignee.types';
+import type { PrincipalOption } from '../principal.types';
 
-export const buildAssigneeOption = (principal: Principal): AssigneeSelectorOption => {
-    const label = principal.getDisplayName() || principal.getKey().toString();
-    const description = principal.getDescription() || principal.getKey().toString();
+export const buildPrincipalOption = (principal: Principal): PrincipalOption => {
+    const key = principal.getKey().toString();
+    const label = principal.getDisplayName() || key;
+    const description = principal.getDescription() || key;
     return {
-        id: principal.getKey().toString(),
+        id: key,
         label,
         description: description !== label ? description : undefined,
+        principal,
     };
 };
 
@@ -20,17 +22,17 @@ export const shouldSkipPrincipal = (principal: Principal): boolean => {
     return key.equals(PrincipalKey.ofAnonymous()) || key.equals(PrincipalKey.ofSU());
 };
 
-export type UseAssigneeSearchResult = {
-    options: AssigneeSelectorOption[];
-    loadAssignees: (query: string) => Promise<void>;
+export type UsePrincipalSearchResult = {
+    options: PrincipalOption[];
+    loadOptions: (query: string) => Promise<void>;
     handleSearchChange: (value: string) => void;
 };
 
-export const useAssigneeSearch = (): UseAssigneeSearchResult => {
-    const [options, setOptions] = useState<AssigneeSelectorOption[]>([]);
+export const usePrincipalSearch = (): UsePrincipalSearchResult => {
+    const [options, setOptions] = useState<PrincipalOption[]>([]);
     const requestIdRef = useRef(0);
 
-    const loadAssignees = useCallback(async (query: string): Promise<void> => {
+    const loadOptions = useCallback(async (query: string): Promise<void> => {
         const requestId = ++requestIdRef.current;
 
         const result = await findPrincipals({ types: [PrincipalType.USER], query, size: 20 });
@@ -49,64 +51,64 @@ export const useAssigneeSearch = (): UseAssigneeSearchResult => {
 
         const nextOptions = result.value
             .filter((principal) => !shouldSkipPrincipal(principal))
-            .map(buildAssigneeOption);
+            .map(buildPrincipalOption);
 
         setOptions(nextOptions);
     }, []);
 
     useEffect(() => {
-        void loadAssignees('');
-    }, [loadAssignees]);
+        void loadOptions('');
+    }, [loadOptions]);
 
     const handleSearchChange = useCallback(
         (value: string): void => {
-            void loadAssignees(value);
+            void loadOptions(value);
         },
-        [loadAssignees],
+        [loadOptions],
     );
 
-    return { options, loadAssignees, handleSearchChange };
+    return { options, loadOptions, handleSearchChange };
 };
 
-export type UseAssigneeSelectionParams = {
-    assigneeIds: string[];
-    assignees?: Principal[] | null;
+export type UsePrincipalSelectionParams = {
+    principalIds: string[];
+    principals?: Principal[] | null;
     filterSystem?: boolean;
 };
 
-export const useAssigneeSelection = ({
-    assigneeIds,
-    assignees,
+export const usePrincipalSelection = ({
+    principalIds,
+    principals,
     filterSystem = false,
-}: UseAssigneeSelectionParams): AssigneeSelectorOption[] => {
-    const [selectedOptions, setSelectedOptions] = useState<AssigneeSelectorOption[]>([]);
+}: UsePrincipalSelectionParams): PrincipalOption[] => {
+    const [selectedOptions, setSelectedOptions] = useState<PrincipalOption[]>([]);
     const requestIdRef = useRef(0);
 
     useEffect(() => {
         const requestId = ++requestIdRef.current;
-        if (assigneeIds.length === 0) {
+        if (principalIds.length === 0) {
             setSelectedOptions([]);
             return;
         }
 
-        if (assignees && assignees.length > 0) {
+        if (principals && principals.length > 0) {
             const filtered = filterSystem
-                ? assignees.filter((principal) => !shouldSkipPrincipal(principal))
-                : assignees;
-            setSelectedOptions(filtered.map(buildAssigneeOption));
+                ? principals.filter((principal) => !shouldSkipPrincipal(principal))
+                : principals;
+            setSelectedOptions(filtered.map(buildPrincipalOption));
             return;
         }
 
-        const keys = assigneeIds.map((id) => PrincipalKey.fromString(id));
+        const keys = principalIds.map((id) => PrincipalKey.fromString(id));
         void resolvePrincipalsByKeys(keys).match(
-            (principals) => {
+            (resolved) => {
                 if (requestId !== requestIdRef.current) {
                     return;
                 }
                 const filtered = filterSystem
-                    ? principals.filter((principal) => !shouldSkipPrincipal(principal))
-                    : principals;
-                setSelectedOptions(filtered.map(buildAssigneeOption));
+                    ? resolved.filter((principal) => !shouldSkipPrincipal(principal))
+                    : resolved;
+                setSelectedOptions(filtered.map(buildPrincipalOption));
             },
             (error) => {
                 console.error(error);
@@ -115,7 +117,7 @@ export const useAssigneeSelection = ({
                 }
             },
         );
-    }, [assigneeIds, assignees, filterSystem]);
+    }, [principalIds, principals, filterSystem]);
 
     return selectedOptions;
 };

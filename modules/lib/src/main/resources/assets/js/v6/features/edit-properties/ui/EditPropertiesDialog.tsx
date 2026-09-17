@@ -3,7 +3,7 @@ import { useStore } from '@nanostores/preact';
 import { useMemo, type ReactElement } from 'react';
 import { PrincipalType } from '@enonic/lib-admin-ui/security/PrincipalType';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
-import { PrincipalSelector } from '../../shared/selectors/PrincipalSelector';
+import { PrincipalLabelOption, PrincipalSelector } from '../../shared/selectors/principal';
 import {
     $editPropertiesDialog,
     applyEditPropertiesDialog,
@@ -13,11 +13,14 @@ import {
 } from '../model/editPropertiesDialog.store';
 import { $languages } from '../../../entities/language';
 import type { LanguageOption } from '../../../entities/language';
-import { $principals } from '../../../entities/principal';
+import { $principals, usePrincipalOptions } from '../../../entities/principal';
 import { FlagIcon } from '../../../shared/ui/icons/FlagIcon';
 import { PrincipalLabel } from '../../../shared/ui/PrincipalLabel';
 import { LanguageSelector } from '../../shared/selectors/LanguageSelector';
 import { X } from 'lucide-react';
+
+const OWNER_TYPES = [PrincipalType.USER];
+const PRINCIPAL_SEARCH_DEBOUNCE_MS = 500;
 
 const EDIT_PROPERTIES_DIALOG_NAME = 'EditPropertiesDialog';
 
@@ -54,6 +57,10 @@ export const EditPropertiesDialog = (): ReactElement => {
                 : undefined,
         [languageSelection, languages],
     );
+
+    const { options: ownerOptions, onSearchChange: onOwnerSearchChange } = usePrincipalOptions({
+        allowedTypes: OWNER_TYPES,
+    });
 
     const selectedOwnerPrincipal = useMemo(
         () =>
@@ -129,11 +136,18 @@ export const EditPropertiesDialog = (): ReactElement => {
                         {/* Owner selector */}
                         <div>
                             <PrincipalSelector
+                                ariaLabel={ownerLabel}
                                 label={ownerLabel}
-                                allowedTypes={[PrincipalType.USER]}
+                                options={ownerOptions}
                                 selectionMode="single"
                                 selection={ownerSelection}
                                 onSelectionChange={setEditPropertiesDialogOwnerSelection}
+                                onSearchChange={onOwnerSearchChange}
+                                renderOption={(option) => <PrincipalLabelOption option={option} showCheckbox={false} />}
+                                showSelection={false}
+                                filterOptions
+                                debounceMs={PRINCIPAL_SEARCH_DEBOUNCE_MS}
+                                listClassName="max-h-60 rounded-sm"
                                 placeholder={searchPlaceholder}
                                 emptyLabel={noOwnersFoundLabel}
                                 disabled={saving}

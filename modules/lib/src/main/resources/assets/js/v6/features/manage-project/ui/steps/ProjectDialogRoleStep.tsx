@@ -7,13 +7,15 @@ import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { ProjectAccess } from '../../../../../app/settings/access/ProjectAccess';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import { $projectDialog, setProjectDialogRolePrincipals, setProjectDialogRoles } from '../../model/projectDialog.store';
-import { $principals } from '../../../../entities/principal';
+import { $principals, usePrincipalOptions } from '../../../../entities/principal';
 import { InlineButton } from '../../../../shared/ui/InlineButton';
-import { PrincipalSelector } from '../../../shared/selectors/PrincipalSelector';
+import { PrincipalLabelOption, PrincipalSelector } from '../../../shared/selectors/principal';
 import { getProjectDetailedPermissions } from '../../../../shared/lib/url/projects';
 import { PrincipalLabel } from '../../../../shared/ui/PrincipalLabel';
 
 const filterAnonymousUserOut = (principal: Principal) => !principal.getKey().isAnonymous();
+const ROLE_PRINCIPAL_TYPES = [PrincipalType.USER, PrincipalType.GROUP];
+const PRINCIPAL_SEARCH_DEBOUNCE_MS = 500;
 
 export const ProjectDialogRoleStepHeader = (): ReactElement => {
     const { mode, title } = useStore($projectDialog, { keys: ['mode', 'title'] });
@@ -44,6 +46,11 @@ export const ProjectDialogRoleStepContent = ({ locked = false }: ProjectDialogRo
         keys: ['parentProjects', 'roles'],
     });
     const [selection, setSelection] = useState<string[]>(Object.keys(roles));
+    const { options: principalOptions, onSearchChange: onPrincipalSearchChange } = usePrincipalOptions({
+        allowedTypes: ROLE_PRINCIPAL_TYPES,
+        customFilter: filterAnonymousUserOut,
+    });
+
     const selectedPrincipals = useMemo(
         () => principals.filter((principal) => selection.includes(principal.getKey().toString())),
         [principals, selection],
@@ -145,13 +152,19 @@ export const ProjectDialogRoleStepContent = ({ locked = false }: ProjectDialogRo
             </div>
 
             <PrincipalSelector
+                ariaLabel={label}
+                options={principalOptions}
                 selection={selection}
-                onSelectionChange={setSelection}
+                onSelectionChange={(next) => setSelection([...next])}
                 selectionMode="staged"
-                allowedTypes={[PrincipalType.USER, PrincipalType.GROUP]}
+                onSearchChange={onPrincipalSearchChange}
+                renderOption={(option) => <PrincipalLabelOption option={option} />}
+                showSelection={false}
+                filterOptions
+                debounceMs={PRINCIPAL_SEARCH_DEBOUNCE_MS}
+                listClassName="max-h-60 rounded-sm"
                 placeholder={typeToSearchLabel}
                 emptyLabel={noRolesFoundLabel}
-                customFilter={filterAnonymousUserOut}
                 closeOnBlur
             />
 

@@ -10,12 +10,14 @@ import {
     setProjectDialogAccessMode,
     setProjectDialogPermissions,
 } from '../../model/projectDialog.store';
-import { $principals, getPrincipalsByKeys } from '../../../../entities/principal';
+import { $principals, getPrincipalsByKeys, usePrincipalOptions } from '../../../../entities/principal';
 import { InlineButton } from '../../../../shared/ui/InlineButton';
 import { ItemLabel } from '../../../../shared/ui/ItemLabel';
-import { PrincipalSelector } from '../../../shared/selectors/PrincipalSelector';
+import { PrincipalLabelOption, PrincipalSelector } from '../../../shared/selectors/principal';
 
 const filterAnonymousUserOut = (principal: Principal) => !principal.getKey().isAnonymous();
+const ACCESS_PRINCIPAL_TYPES = [PrincipalType.USER, PrincipalType.GROUP];
+const PRINCIPAL_SEARCH_DEBOUNCE_MS = 500;
 
 export const ProjectDialogAccessStepHeader = (): ReactElement => {
     const { mode, title } = useStore($projectDialog, { keys: ['mode', 'title'] });
@@ -49,6 +51,11 @@ export const ProjectDialogAccessStepContent = ({
     });
     const [selection, setSelection] = useState<string[]>(permissions.map((principal) => principal.getKey().toString()));
     const [accessModeValue, setAccessModeValue] = useState(accessMode || '');
+    const { options: principalOptions, onSearchChange: onPrincipalSearchChange } = usePrincipalOptions({
+        allowedTypes: ACCESS_PRINCIPAL_TYPES,
+        customFilter: filterAnonymousUserOut,
+    });
+
     const selectedPrincipals = useMemo(
         () => principals.filter((principal) => selection.includes(principal.getKey().toString())),
         [principals, selection],
@@ -162,14 +169,20 @@ export const ProjectDialogAccessStepContent = ({
             {accessModeValue === 'custom' && (
                 <div className="mt-7.5">
                     <PrincipalSelector
+                        ariaLabel={permissionsLabel}
                         label={permissionsLabel}
+                        options={principalOptions}
                         selection={selection}
-                        onSelectionChange={setSelection}
+                        onSelectionChange={(next) => setSelection([...next])}
                         selectionMode="staged"
-                        allowedTypes={[PrincipalType.USER, PrincipalType.GROUP]}
+                        onSearchChange={onPrincipalSearchChange}
+                        renderOption={(option) => <PrincipalLabelOption option={option} />}
+                        showSelection={false}
+                        filterOptions
+                        debounceMs={PRINCIPAL_SEARCH_DEBOUNCE_MS}
+                        listClassName="max-h-60 rounded-sm"
                         placeholder={typeToSearchLabel}
                         emptyLabel={noPrincipalsFoundLabel}
-                        customFilter={filterAnonymousUserOut}
                         closeOnBlur
                     />
 

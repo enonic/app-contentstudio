@@ -6,7 +6,7 @@ const AssigneeSelectorDropdown = require('../components/selectors/assignee.selec
 const XPATH = {
     container: `//div[@data-component='IssueDialogDetailsContent' and @role='dialog']`,
     assigneesTabPanel: `//div[@role='tabpanel' and contains(@id,'assignees')]`,
-    assigneeSelectorDiv: `//div[@data-component='AssigneeSelector']`,
+    assigneeSelectorDiv: `//div[@data-component='PrincipalSelector']`,
     selectedAssigneeListItem: `//div[@data-component='ListItem' and @role='listitem']`,
     assigneeDisplayNameSpan: `//div[contains(@class,'flex-col')]/span[contains(@class,'font-medium')]`,
     selectedAssigneeItemByDisplayName: (displayName) =>
