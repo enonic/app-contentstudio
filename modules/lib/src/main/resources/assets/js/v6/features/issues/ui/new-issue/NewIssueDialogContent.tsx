@@ -31,8 +31,7 @@ import {
 import { useItemsWithUnpublishedChildren } from '../../../../entities/content';
 import { filterShownDependants } from '../../../../shared/lib/cms/content/dependantsSelection';
 import { ContentRow, DependantsSeparator, SplitList } from '../../../shared/lists';
-import { AssigneeSelector } from '../../../shared/selectors/assignee/AssigneeSelector';
-import { useAssigneeSearch, useAssigneeSelection } from '../../../shared/selectors/assignee/hooks/useAssigneeSearch';
+import { PrincipalSelector, usePrincipalSearch, usePrincipalSelection } from '../../../shared/selectors/principal';
 import { ContentCombobox } from '../../../shared/selectors/content';
 import { DependantsSelectAll } from '../../../../shared/ui/dialogs/dependants/DependantsSelectAll';
 import { IssueIcon } from '../../../../entities/issue/ui/IssueIcon';
@@ -109,8 +108,8 @@ export const NewIssueDialogContent = (): ReactElement => {
         [appliedExcludedDependantIds, dependants, showExcludedDependants],
     );
 
-    const { options: assigneeOptions, handleSearchChange } = useAssigneeSearch();
-    const selectedAssigneeOptions = useAssigneeSelection({ assigneeIds });
+    const { options: assigneeOptions, handleSearchChange } = usePrincipalSearch();
+    const selectedAssigneeOptions = usePrincipalSelection({ principalIds: assigneeIds });
 
     const itemsWithUnpublishedChildren = useItemsWithUnpublishedChildren(items);
 
@@ -191,8 +190,8 @@ export const NewIssueDialogContent = (): ReactElement => {
                     />
                     <div className="flex flex-col gap-2.5">
                         <span className="text-md font-semibold">{assigneesLabel}</span>
-                        <AssigneeSelector
-                            label={assigneesLabel}
+                        <PrincipalSelector
+                            ariaLabel={assigneesLabel}
                             options={assigneeOptions}
                             selectedOptions={selectedAssigneeOptions}
                             selection={assigneeIds}

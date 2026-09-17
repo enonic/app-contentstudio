@@ -1,15 +1,15 @@
 import { Avatar } from '@enonic/ui';
 import { type ReactElement } from 'react';
 import { getInitials } from '../../../../shared/lib/format/initials';
-import type { AssigneeSelectorOption } from './assignee.types';
+import type { PrincipalOption } from './principal.types';
 
-export type AssigneeOptionRowProps = {
-    option: AssigneeSelectorOption;
+export type PrincipalOptionRowProps = {
+    option: PrincipalOption;
 };
 
-const ASSIGNEE_OPTION_ROW_NAME = 'AssigneeOptionRow';
+const PRINCIPAL_OPTION_ROW_NAME = 'PrincipalOptionRow';
 
-export const AssigneeOptionRow = ({ option }: AssigneeOptionRowProps): ReactElement => {
+export const PrincipalOptionRow = ({ option }: PrincipalOptionRowProps): ReactElement => {
     return (
         <>
             <Avatar size="md" className="mr-2.5">
@@ -25,4 +25,4 @@ export const AssigneeOptionRow = ({ option }: AssigneeOptionRowProps): ReactElem
     );
 };
 
-AssigneeOptionRow.displayName = ASSIGNEE_OPTION_ROW_NAME;
+PrincipalOptionRow.displayName = PRINCIPAL_OPTION_ROW_NAME;

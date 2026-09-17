@@ -16,7 +16,7 @@ export type FindPrincipalsParams = {
 
 /**
  * Search principals by type, query and size.
- * Used by: entities/principal/principals.store, features/shared/selectors/assignee.
+ * Used by: entities/principal/principals.store, features/shared/selectors/principal.
  */
 export function findPrincipals(params: FindPrincipalsParams): ResultAsync<Principal[], AppError> {
     const query = new URLSearchParams();
@@ -35,7 +35,7 @@ export function findPrincipals(params: FindPrincipalsParams): ResultAsync<Princi
 
 /**
  * Resolve principals by their keys.
- * Used by: entities/principal/principals.store, features/shared/selectors/assignee, features/issues.
+ * Used by: entities/principal/principals.store, features/shared/selectors/principal, features/issues.
  */
 export function resolvePrincipalsByKeys(keys: PrincipalKey[]): ResultAsync<Principal[], AppError> {
     if (keys.length === 0) {

@@ -3,15 +3,14 @@
  */
 const BasDropdown = require('./base.dropdown');
 const appConst = require('../../../libs/app_const');
-const {DROPDOWN} = require('../../../libs/elements');
+const { DROPDOWN } = require('../../../libs/elements');
 const XPATH = {
     listBoxUL: "//ul[contains(@id,'PrincipalsListBox')]",
     principalViewerDiv: "//div[contains(@id,'PrincipalViewer')]",
 };
 
 class AssigneeSelector extends BasDropdown {
-
-    constructor(parentElementXpath='') {
+    constructor(parentElementXpath = '') {
         super();
         this._container = parentElementXpath;
     }
@@ -25,7 +24,7 @@ class AssigneeSelector extends BasDropdown {
     }
 
     get dataComponentDiv() {
-        return "//div[contains(@data-component,'AssigneeSelector')]";
+        return "//div[contains(@data-component,'PrincipalSelector')]";
     }
 
     async selectFilteredUser(userDisplayName) {
@@ -33,7 +32,11 @@ class AssigneeSelector extends BasDropdown {
             await this.typeCharsInFilterItem(userDisplayName);
             await this.clickOnOptionByDisplayName(userDisplayName);
         } catch (err) {
-            await this.handleError(`Principal Selector, tried to click on the option, ${userDisplayName} `, 'err_principal_sel', err);
+            await this.handleError(
+                `Principal Selector, tried to click on the option, ${userDisplayName} `,
+                'err_principal_sel',
+                err,
+            );
         }
     }
 

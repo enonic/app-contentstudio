@@ -35,8 +35,7 @@ import {
 import { useItemsWithUnpublishedChildren } from '../../../entities/content';
 import { filterShownDependants } from '../../../shared/lib/cms/content/dependantsSelection';
 import { ContentRow, DependantsSeparator, SplitList } from '../../shared/lists';
-import { AssigneeSelector } from '../../shared/selectors/assignee/AssigneeSelector';
-import { useAssigneeSearch, useAssigneeSelection } from '../../shared/selectors/assignee/hooks/useAssigneeSearch';
+import { PrincipalSelector, usePrincipalSearch, usePrincipalSelection } from '../../shared/selectors/principal';
 import { DependantsSelectAll } from '../../../shared/ui/dialogs/dependants/DependantsSelectAll';
 import { IssueIcon } from '../../../entities/issue/ui/IssueIcon';
 import { SelectionStatusBar } from '../../../shared/ui/dialogs/status-bar/SelectionStatusBar';
@@ -116,8 +115,8 @@ export const RequestPublishDialogContent = (): ReactElement => {
         [appliedExcludedDependantIds, dependants, showExcludedDependants],
     );
 
-    const { options: assigneeOptions, handleSearchChange } = useAssigneeSearch();
-    const selectedAssigneeOptions = useAssigneeSelection({ assigneeIds });
+    const { options: assigneeOptions, handleSearchChange } = usePrincipalSearch();
+    const selectedAssigneeOptions = usePrincipalSelection({ principalIds: assigneeIds });
 
     const itemsWithUnpublishedChildren = useItemsWithUnpublishedChildren(items);
 
@@ -194,8 +193,8 @@ export const RequestPublishDialogContent = (): ReactElement => {
 
                     <div className="flex flex-col gap-2.5">
                         <span className="text-md font-semibold">{assigneesLabel}</span>
-                        <AssigneeSelector
-                            label={assigneesLabel}
+                        <PrincipalSelector
+                            ariaLabel={assigneesLabel}
                             options={assigneeOptions}
                             selectedOptions={selectedAssigneeOptions}
                             selection={assigneeIds}

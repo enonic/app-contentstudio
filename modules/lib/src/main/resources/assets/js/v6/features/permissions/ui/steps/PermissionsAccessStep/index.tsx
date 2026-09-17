@@ -15,19 +15,23 @@ import {
     setPermissionsDialogAccessControlEntries,
     setPermissionsDialogAccessMode,
 } from '../../../model/permissionsDialog.store';
-import { $principals } from '../../../../../entities/principal';
+import { $principals, usePrincipalOptions } from '../../../../../entities/principal';
 import {
     accessControlEntriesToPrincipalKeys,
     areAccessControlEntriesEqual,
     getPrincipalsInCustomAccess,
 } from '../../../../../shared/lib/cms/permissions/accessControl';
 import { InlineButton } from '../../../../../shared/ui/InlineButton';
-import { PrincipalSelector } from '../../../../shared/selectors/PrincipalSelector';
+import { PrincipalLabelOption, PrincipalSelector } from '../../../../shared/selectors/principal';
 import { AccessControlRow } from './AccessControlRow';
 import { CustomPermissionsRow } from './CustomPermissionsRow';
 
 const filterAnonymousUserOut = (principal: Principal) => !principal.getKey().isAnonymous();
 const filterEveryonePrincipalOut = (principal: Principal) => !principal.getKey().equals(RoleKeys.EVERYONE);
+const filterSelectablePrincipals = (principal: Principal): boolean =>
+    filterEveryonePrincipalOut(principal) && filterAnonymousUserOut(principal);
+const ACCESS_PRINCIPAL_TYPES = [PrincipalType.USER, PrincipalType.GROUP, PrincipalType.ROLE];
+const PRINCIPAL_SEARCH_DEBOUNCE_MS = 500;
 
 export const PermissionsDialogAccessStepHeader = (): ReactElement => {
     const { contentDisplayName } = useStore($permissionsDialog, { keys: ['contentDisplayName'] });
@@ -55,6 +59,11 @@ export const PermissionsDialogAccessStepContent = (): ReactElement => {
     const [principalsInCustomAccess, setPrincipalsInCustomAccess] = useState<string[]>(
         getPrincipalsInCustomAccess(accessControlEntries),
     );
+
+    const { options: principalOptions, onSearchChange: onPrincipalSearchChange } = usePrincipalOptions({
+        allowedTypes: ACCESS_PRINCIPAL_TYPES,
+        customFilter: filterSelectablePrincipals,
+    });
 
     // Memoized values. Make sure Everyone principal is not included.
     const selectedPrincipals = useMemo(
@@ -183,11 +192,17 @@ export const PermissionsDialogAccessStepContent = (): ReactElement => {
             </div>
 
             <PrincipalSelector
+                ariaLabel={permissionsLabel}
+                options={principalOptions}
                 selection={selection}
                 onSelectionChange={handleSelect}
                 selectionMode="staged"
-                allowedTypes={[PrincipalType.USER, PrincipalType.GROUP, PrincipalType.ROLE]}
-                customFilter={(principal) => filterEveryonePrincipalOut(principal) && filterAnonymousUserOut(principal)}
+                onSearchChange={onPrincipalSearchChange}
+                renderOption={(option) => <PrincipalLabelOption option={option} />}
+                showSelection={false}
+                filterOptions
+                debounceMs={PRINCIPAL_SEARCH_DEBOUNCE_MS}
+                listClassName="max-h-60 rounded-sm"
                 placeholder={typeToSearchLabel}
                 emptyLabel={notFoundLabel}
                 closeOnBlur
