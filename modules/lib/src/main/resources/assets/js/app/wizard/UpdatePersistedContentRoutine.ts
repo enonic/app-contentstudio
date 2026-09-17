@@ -8,6 +8,7 @@ import { UpdateContentRequest } from '../resource/UpdateContentRequest';
 import { UpdatePageRequest } from '../resource/UpdatePageRequest';
 import { UpdateWorkflowRequest } from '../resource/UpdateWorkflowRequest';
 import { ContentDiffHelper } from '../util/ContentDiffHelper';
+import { PageHelper } from '../util/PageHelper';
 import { $wizardDraftWorkflowState } from '../../v6/pages/wizard/model/wizardContent.store';
 import { type ContentWizardPanel } from './ContentWizardPanel';
 import { CreatePageRequest } from './CreatePageRequest';
@@ -74,6 +75,10 @@ export class UpdatePersistedContentRoutine extends Flow {
     }
 
     private doHandlePage(context: RoutineContext): Q.Promise<void> {
+        return PageHelper.normalizeConfigValueTypes(this.viewedContent.getPage()).then(() => this.doSendPage(context));
+    }
+
+    private doSendPage(context: RoutineContext): Q.Promise<void> {
         const pageCUDRequest: PageCUDRequest = this.producePageCUDRequest(context.content, this.viewedContent);
 
         if (pageCUDRequest == null) {
