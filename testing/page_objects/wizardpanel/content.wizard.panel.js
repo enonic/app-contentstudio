@@ -314,6 +314,18 @@ class ContentWizardPanel extends Page {
             );
         }
     }
+    async waitForRedIconInTabNotDisplayed(stepName) {
+        try {
+            let locator = XPATH.container + XPATH.wizardStepWithRedIconByTitle(stepName);
+            return await this.waitForElementNotDisplayed(locator);
+        } catch (err) {
+            await this.handleError(
+                `Red icon should be displayed in the wizard step: ${stepName}`,
+                'err_wizard_step_red_icon',
+                err,
+            );
+        }
+    }
     async clickOnWizardStep(stepName) {
         try {
             let locator = XPATH.wizardStepByTitle(stepName);
@@ -328,7 +340,7 @@ class ContentWizardPanel extends Page {
     async waitForWizardStepByTitleNotVisible(title) {
         try {
             let stepXpath = XPATH.wizardStepByTitle(title);
-            return await this.waitForElementNotDisplayed(stepXpath, appConst.shortTimeout);
+            return await this.waitForElementNotDisplayed(stepXpath);
         } catch (err) {
             console.log('Wizard step is not visible: ' + title);
             return false;
@@ -697,6 +709,7 @@ class ContentWizardPanel extends Page {
         }
     }
 
+    // wait for red icon disappears in the wizard-toolbar Toolbar.Container data component
     async waitUntilInvalidIconDisappears() {
         const locator = XPATH.container + XPATH.toolbar + "//*[@data-component='StatusIcon']";
         await this.getBrowser().waitUntil(
