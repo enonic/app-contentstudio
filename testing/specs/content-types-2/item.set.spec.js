@@ -1,5 +1,5 @@
 /**
- * Created on 02.11.2021
+ * Created on 02.11.2021 updated on 14.09.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -19,11 +19,31 @@ describe('item.set.spec: tests for content with Item Set', function () {
     const TEXT_LINE_TEXT_1 = 'text 1';
     const TEXT_LINE_TEXT_2 = 'text 2';
 
+    it('GIVEN an occurrence with empty required inputs has been added in ItemSet form WHEN the content has been saved THEN red validation icon gets visible in the header of the occurrence', async () => {
+        let itemSetForm = new ItemSetForm();
+        let contentWizard = new ContentWizard();
+        await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.ITEM_SET_0_0);
+        // 1. Click on 'Add' button - an occurrence with empty required inputs is added:
+        await itemSetForm.clickOnAddButton();
+        // 2. Fill in the display name:
+        await contentWizard.typeDisplayName(appConst.generateRandomName('test'));
+        // 3. Collapse the occurrence - the validation icon is rendered in collapsed headers only:
+        await itemSetForm.collapseOccurrence('ItemSet', 0);
+        // 4. Verify that the validation icon is not displayed before the first save:
+        await itemSetForm.waitForOccurrenceInvalidIconNotDisplayed('ItemSet', 0);
+        await contentWizard.waitForRedIconInTabNotDisplayed(appConst.contentTypes.ITEM_SET_0_0);
+        // 5. Save the content - the validation gets triggered:
+        await contentWizard.waitAndClickOnSave();
+        await studioUtils.saveScreenshot('item_set_occurrence_invalid');
+        // 6. Verify that red validation icon gets visible in the header of the occurrence:
+        await itemSetForm.waitForOccurrenceInvalidIconDisplayed('ItemSet', 0);
+    });
+
     it("GIVEN ItemSet form has been added in the wizard WHEN 'add above' menu item has been clicked THEN 'Expand all' button gets visible", async () => {
         let itemSetForm = new ItemSetForm();
         let contentWizard = new ContentWizard();
         await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.ITEM_SET_0_0);
-        await contentWizard.typeDisplayName('test');
+        await contentWizard.typeDisplayName(appConst.generateRandomName('test'));
         // 1. Click on 'Add' button,
         await itemSetForm.clickOnAddButton();
         await contentWizard.pause(500);
@@ -46,17 +66,19 @@ describe('item.set.spec: tests for content with Item Set', function () {
         await contentWizard.typeDisplayName(ITEM_SET_CONTENT_NAME_2);
         // 2. Click on 'Add' button,
         await itemSetForm.clickOnAddButton();
+        await contentWizard.waitAndClickOnSave();
+        await contentWizard.waitForNotificationMessage();
+        // the content becomes invalid:
+        await contentWizard.waitForRedIconInTab(appConst.contentTypes.ITEM_SET_0_0);
         // 3. Fill in required inputs in the added form:
         await itemSetForm.typeTextInHtmlArea(0, 'hello htmlarea');
         await itemSetForm.typeTextInTextLine(0, TEXT_LINE_TEXT_1);
-        await contentWizard.waitAndClickOnSave();
-        await contentWizard.waitForNotificationMessage();
-        // 4. Verify that red border gets not visible in the ItemSet form:
-        let isRedBorderDisplayed = await itemSetForm.isItemSetFormInvalid(0);
-        assert.ok(isRedBorderDisplayed === false, 'red border should not be displayed');
-        // 5. Clear the required text area:
+        await contentWizard.waitForRedIconInTabNotDisplayed(appConst.contentTypes.ITEM_SET_0_0);
+        // red icon becomes not visible in the wizard-toolbar
+        await contentWizard.waitUntilInvalidIconDisappears();
+        // 4. Clear the required text area:
         await itemSetForm.clearTextLine(0);
-        // 6. Validation recording gets visible for the required text input:  This field is required
+        // 5. Validation recording gets visible for the required text input:  This field is required
         let recording = await itemSetForm.getValidationRecordingForTextInput(0);
         assert.equal(
             recording,
@@ -65,7 +87,7 @@ describe('item.set.spec: tests for content with Item Set', function () {
         );
         await contentWizard.waitAndClickOnSave();
         await contentWizard.waitForNotificationMessage();
-        // 7. Verify that red icon is visible in Tab.List:
+        // 6. Verify that red icon is visible in Tab.List:
         let tabName = appConst.contentTypes.ITEM_SET_0_0;
         await contentWizard.waitForRedIconInTab(tabName);
         await contentWizard.waitUntilInvalidIconAppears();
@@ -209,8 +231,7 @@ describe('item.set.spec: tests for content with Item Set', function () {
         await contentWizard.waitForNotificationMessage();
     });
 
-    // TODO
-    it.skip('GIVEN existing item set content with 2 filled forms is opened WHEN two items have been swapped THEN form items should be swapped', async () => {
+    it('GIVEN existing item set content with 2 filled forms is opened WHEN two items have been swapped THEN form items should be swapped', async () => {
         let itemSetForm = new ItemSetForm();
         let contentWizard = new ContentWizard();
         // 1. Open existing content with two filled items:
@@ -220,8 +241,8 @@ describe('item.set.spec: tests for content with Item Set', function () {
         await itemSetForm.swapItems(TEXT_LINE_TEXT_1, TEXT_LINE_TEXT_2);
         await studioUtils.saveScreenshot('item_set_swapped');
         // 3. Verify the items swapped places with each other:
-        let title1 = await itemSetForm.getItemSetTitle(0);
-        let title2 = await itemSetForm.getItemSetTitle(1);
+        let title1 = await itemSetForm.getOccurrenceLabel(0);
+        let title2 = await itemSetForm.getOccurrenceLabel(1);
         assert.equal(title1, TEXT_LINE_TEXT_2, 'form items should be swapped');
         assert.equal(title2, TEXT_LINE_TEXT_1, 'form items should be swapped');
         // 4. Verify that 'Save' button is enabled now:

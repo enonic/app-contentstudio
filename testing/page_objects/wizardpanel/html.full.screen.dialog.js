@@ -104,18 +104,19 @@ class HtmlFullScreenDialog extends Page {
         return this.clickOnElement(this.cancelButtonTop);
     }
 
-    waitForDialogLoaded() {
-        return this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout).catch((err) => {
-            this.saveScreenshot('err_open_full_screen_dialog');
-            throw new Error('Full Screen Dialog must be opened!' + err);
-        });
+    async waitForDialogLoaded() {
+        try {
+            return await this.waitForElementDisplayed(xpath.container);
+        } catch (err) {
+            await this.handleError('Full Screen Dialog must be opened!', 'err_open_full_screen_dialog', err);
+        }
     }
 
     async waitForDialogClosed() {
         try {
-            return await this.waitForElementNotDisplayed(xpath.container, appConst.shortTimeout);
+            return await this.waitForElementNotDisplayed(xpath.container);
         } catch (err) {
-            throw new Error('Full Screen dialog should be closed!: ' + err);
+            await this.handleError('Full Screen dialog should be closed!', 'err_close_full_screen_dialog', err);
         }
     }
 
@@ -211,6 +212,11 @@ class HtmlFullScreenDialog extends Page {
 
     waitForPasteModeButtonDisplayed() {
         return this.waitForElementDisplayed(this.pasteModeButton);
+    }
+
+    async clickOnPasteModeButton() {
+        await this.waitForPasteModeButtonDisplayed();
+        return await this.clickOnElement(this.pasteModeButton);
     }
 
     waitForSourceButtonDisplayed() {

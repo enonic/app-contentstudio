@@ -10,8 +10,12 @@ const xpath = {
     itemSet: "//div[@data-component='ItemSetView']",
     occurrenceView: "//div[@data-component='ItemSetOccurrenceView']",
     contextMenuTrigger: "//div[@data-component='ContextMenu.Trigger']",
-    occurrenceByText: (text) =>
-        `//div[contains(@id,'FormOccurrenceDraggableLabel') and contains(.,'${text}')]//div[contains(@class, 'drag-control')]`,
+    sortableOccurrence:
+        "//div[@data-component='SortableList']/div[@role='button' and @aria-roledescription='sortable' and descendant::div[@data-component='ItemSetOccurrenceView']]",
+    // The red validation icon - it is rendered inside the occurrence's label button, next to the title.
+    invalidIcon: "//*[contains(@class,'octagon-alert')]",
+    occurrenceLabel:
+        "//div[@data-component='ContextMenu.Trigger']//button[@aria-expanded]//span[contains(@class,'font-semibold')]",
     // The clickable label button that expands/collapses an occurrence:
     occurrenceLabelButton: (text) =>
         `//div[@data-component='ItemSetOccurrenceView']//button[descendant::span[contains(@class,'font-semibold') and contains(.,'${text}')]]`,
@@ -184,27 +188,149 @@ class ItemSetFormView extends Page {
     }
 
     async swapItems(sourceName, destinationName) {
-        let sourceElem = xpath.occurrenceByText(sourceName);
-        let destinationElem = xpath.occurrenceByText(destinationName);
-        let source = await this.findElement(sourceElem);
-        let destination = await this.findElement(destinationElem);
-        await source.dragAndDrop(destination);
-        return await this.pause(1000);
+        try {
+            let items = await this.findElements(xpath.sortableOccurrence);
+            let sourceIndex = -1;
+            let destinationIndex = -1;
+            for (let i = 0; i < items.length; i++) {
+                let text = await items[i].getText();
+                if (sourceIndex === -1 && text.includes(sourceName)) {
+                    sourceIndex = i;
+                }
+                if (destinationIndex === -1 && text.includes(destinationName)) {
+                    destinationIndex = i;
+                }
+            }
+            if (sourceIndex === -1 || destinationIndex === -1) {
+                throw new Error(
+                    `Occurrence not found - source: '${sourceName}'(${sourceIndex}), destination: '${destinationName}'(${destinationIndex})`,
+                );
+            }
+            if (sourceIndex === destinationIndex) {
+                return;
+            }
+            let source = items[sourceIndex];
+            // Focus the wrapper itself - a click would land on the label button and expand the occurrence:
+            await this.getBrowser().execute((el) => el.focus(), source);
+            await this.pause(200);
+            // Pick the occurrence up:
+            await this.keys('Space');
+            await this.getBrowser().waitUntil(
+                async () => {
+                    let dragging = await source.getAttribute('data-dragging');
+                    return dragging === 'true';
+                },
+                {
+                    timeout: appConst.shortTimeout,
+                    timeoutMsg: `DnD - the occurrence '${sourceName}' was not picked up`,
+                },
+            );
+            // Move it towards the destination position, one slot per arrow press:
+            let steps = destinationIndex - sourceIndex;
+            let arrowKey = steps > 0 ? 'ArrowDown' : 'ArrowUp';
+            for (let i = 0; i < Math.abs(steps); i++) {
+                await this.keys(arrowKey);
+                await this.pause(300);
+            }
+            // Drop the occurrence in its new position:
+            await this.keys('Space');
+            return await this.pause(1000);
+        } catch (err) {
+            await this.handleError(
+                `Item Set - error during items swap: '${sourceName}' and '${destinationName}'`,
+                'err_item_set_swap',
+                err,
+            );
+        }
     }
 
-    async getItemSetTitle(index) {
-        let locator = xpath.itemSet + "//div[contains(@id,'FormOccurrenceDraggableLabel')]";
-        let elements = await this.findElements(locator);
-        let result = await elements[index].getText(locator);
-        let tittle = result.split('\n');
-        return tittle[0].trim();
+    // Labels of all occurrences, in the order they are displayed in the form:
+    async getOccurrenceLabels() {
+        let locator = xpath.itemSet + xpath.occurrenceView + xpath.occurrenceLabel;
+        return await this.getTextInDisplayedElements(locator);
     }
 
-    async isItemSetFormInvalid(index) {
-        let locator = xpath.occurrenceView;
-        let elements = await this.findElements(locator);
-        let attr = await elements[index].getAttribute('class');
-        return attr.includes('invalid');
+    async getOccurrenceLabel(index) {
+        let labels = await this.getOccurrenceLabels();
+        if (index >= labels.length) {
+            throw new Error(
+                `Item Set - occurrence with the index ${index} was not found, total occurrences: ${labels.length}`,
+            );
+        }
+        return labels[index].trim();
+    }
+
+    // Returns true when the occurrence shows the red validation icon next to its title.
+    // Same parameters as 'clickOnFormOccurrence': the label narrows the occurrences down, the index
+    // picks one of them - occurrences with empty required inputs all fall back to the same default
+    // label (the set name), so the label alone is not unique exactly in the invalid state:
+    async isOccurrenceInvalid(label, index = 0) {
+        try {
+            let locator = await this.buildInvalidIconLocator(label, index);
+            return await this.isElementDisplayed(locator);
+        } catch (err) {
+            await this.handleError(
+                `Item Set - tried to check the validation icon in the occurrence '${label}'(${index})`,
+                'err_item_set_occurrence_icon',
+                err,
+            );
+        }
+    }
+
+    async waitForOccurrenceInvalidIconDisplayed(label, index = 0) {
+        try {
+            let locator = await this.buildInvalidIconLocator(label, index);
+            return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError(
+                `Item Set - the validation icon should be displayed in the occurrence '${label}'(${index})`,
+                'err_item_set_occurrence_icon',
+                err,
+            );
+        }
+    }
+
+    async waitForOccurrenceInvalidIconNotDisplayed(label, index = 0) {
+        try {
+            let locator = await this.buildInvalidIconLocator(label, index);
+            return await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError(
+                `Item Set - the validation icon should not be displayed in the occurrence '${label}'(${index})`,
+                'err_item_set_occurrence_icon',
+                err,
+            );
+        }
+    }
+
+    async isOccurrenceExpanded(label, index = 0) {
+        let locator = `(${xpath.occurrenceLabelButton(label)})[${index + 1}]`;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        let button = await this.findElement(locator);
+        let expanded = await button.getAttribute('aria-expanded');
+        return expanded === 'true';
+    }
+
+    // The validation icon is rendered in the header of collapsed occurrences only (an expanded one shows
+    // the errors in its inputs instead), so the state has to be ensured before checking the icon.
+    // Does nothing when the occurrence is already collapsed:
+    async collapseOccurrence(label, index = 0) {
+        if (await this.isOccurrenceExpanded(label, index)) {
+            await this.clickOnFormOccurrence(label, index);
+        }
+        return await this.pause(300);
+    }
+
+    // The label button is expected to exist - otherwise a missing occurrence would look like a valid one:
+    async buildInvalidIconLocator(label, index) {
+        let labelButton = xpath.occurrenceLabelButton(label);
+        let buttons = await this.findElements(labelButton);
+        if (index >= buttons.length) {
+            throw new Error(
+                `occurrence '${label}' with the index ${index} was not found, total occurrences with this label: ${buttons.length}`,
+            );
+        }
+        return `(${labelButton})[${index + 1}]` + xpath.invalidIcon;
     }
 
     async clickOnFormOccurrence(label, index) {
