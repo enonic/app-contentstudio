@@ -49,10 +49,12 @@ describe('layers.content.tree.dialog.spec - tests for Layers Content Tree modal 
         await settingsBrowsePanel.waitForNotificationMessage();
     });
 
+    // Verifies https://github.com/enonic/app-contentstudio/issues/11398
     it('Precondition 2 - the second layer(Norsk no) should be added in Default project', async () => {
         let settingsBrowsePanel = new SettingsBrowsePanel();
         // 1.Select the just created layer and create one more layer:
-        await projectUtils.selectParentAndOpenProjectWizardDialog(LAYER1_DISPLAY_NAME);
+        //await projectUtils.selectParentAndOpenProjectWizardDialog(LAYER1_DISPLAY_NAME);
+        await projectUtils.clickOnNewAndOpenProjectWizardDialog(LAYER1_DISPLAY_NAME);
         let layer = projectUtils.buildLayer(
             LAYER1_DISPLAY_NAME,
             appConst.LANGUAGES.NORSK_NO,

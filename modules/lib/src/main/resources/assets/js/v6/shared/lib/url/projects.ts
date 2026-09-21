@@ -12,7 +12,7 @@ export function resolveProjectIconUrl(
     }
 
     const url = `${getCmsRestUri('project/icon/')}${encodeURIComponent(projectName)}`;
-    
+
     return version != null ? `${url}?ts=${encodeURIComponent(version)}` : url;
 }
 
@@ -57,6 +57,44 @@ export function projectsToTreeListItems(
         });
 
     return flatten(null, 1);
+}
+
+/**
+ * Filters projects matching a search value into a flat list of FlatNode for rendering.
+ *
+ * Unlike {@link projectsToTreeListItems}, matches are collected from the whole project set
+ * instead of the currently expanded branches, so nested layers stay searchable while their
+ * parent is collapsed. Matches are rendered as root level rows without expand controls.
+ *
+ * @param projects - Array of projects to search in
+ * @param searchValue - Case insensitive substring matched against display name and name
+ * @returns Array of FlatNode for the matching projects, in the incoming order
+ *
+ * @example
+ * const treeListItems = searchProjectsToListItems([defaultProject, cfeLayer], 'cfe');
+ * // Returns: [{id: 'cfe', data: cfeLayer, level: 1, parentId: null, hasChildren: false, isExpanded: false}]
+ */
+export function searchProjectsToListItems(
+    projects: Readonly<Project>[],
+    searchValue: string,
+): FlatNode<Readonly<Project>>[] {
+    const search = searchValue.trim().toLowerCase();
+
+    return projects
+        .filter(
+            (project) =>
+                search.length === 0 ||
+                project.getDisplayName()?.toLowerCase().includes(search) ||
+                project.getName()?.toLowerCase().includes(search),
+        )
+        .map((project) => ({
+            id: project.getName(),
+            data: project,
+            level: 1,
+            parentId: null,
+            hasChildren: false,
+            isExpanded: false,
+        }));
 }
 
 /**
