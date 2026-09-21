@@ -1,60 +1,71 @@
-import {type Page, PageBuilder} from '../page/Page';
-import {Regions, type RegionsBuilder} from '../page/region/Regions';
-import {Region} from '../page/region/Region';
-import {type Component} from '../page/region/Component';
-import {LayoutComponent} from '../page/region/LayoutComponent';
+import { type Page, PageBuilder } from '../page/Page';
+import { Regions, type RegionsBuilder } from '../page/region/Regions';
+import { Region } from '../page/region/Region';
+import { type Component } from '../page/region/Component';
+import { LayoutComponent } from '../page/region/LayoutComponent';
 import Q from 'q';
-import {LayoutComponentType} from '../page/region/LayoutComponentType';
-import {type Descriptor} from '../page/Descriptor';
-import {type RegionDescriptor} from '../page/RegionDescriptor';
-import {type DescriptorKey} from '../page/DescriptorKey';
-import {type ComponentType} from '../page/region/ComponentType';
-import {GetComponentDescriptorRequest} from '../resource/GetComponentDescriptorRequest';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ConfigBasedComponent} from '../page/region/ConfigBasedComponent';
-import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {type ContentId} from '../content/ContentId';
-import {FragmentComponent} from '../page/region/FragmentComponent';
-import {ImageComponent} from '../page/region/ImageComponent';
-import {type Content} from '../content/Content';
-import {CreateFragmentRequest} from '../../page-editor/CreateFragmentRequest';
-import {ContentContext} from '../wizard/ContentContext';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import { LayoutComponentType } from '../page/region/LayoutComponentType';
+import { type Descriptor } from '../page/Descriptor';
+import { type RegionDescriptor } from '../page/RegionDescriptor';
+import { type DescriptorKey } from '../page/DescriptorKey';
+import { type ComponentType } from '../page/region/ComponentType';
+import { GetComponentDescriptorRequest } from '../resource/GetComponentDescriptorRequest';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { ConfigBasedComponent } from '../page/region/ConfigBasedComponent';
+import { type PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import { type ContentId } from '../content/ContentId';
+import { FragmentComponent } from '../page/region/FragmentComponent';
+import { ImageComponent } from '../page/region/ImageComponent';
+import { type Content } from '../content/Content';
+import { CreateFragmentRequest } from '../../page-editor/CreateFragmentRequest';
+import { ContentContext } from '../wizard/ContentContext';
+import { StringHelper } from '@enonic/lib-admin-ui/util/StringHelper';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { DescriptorBasedComponent } from '../page/region/DescriptorBasedComponent';
+import { normalizeFormValueTypes } from '../../v6/features/shared/form/normalizeFormValueTypes';
 
 export class PageHelper {
-
     public static fetchAndInjectLayoutRegions(layout: LayoutComponent): Q.Promise<void> {
         if (!layout?.hasDescriptor()) {
             return Q();
         }
 
-        return this.loadDescriptor(layout.getDescriptorKey(), LayoutComponentType.get()).then((descriptor: Descriptor) => {
-            return layout.setDescriptor(descriptor);
-        });
+        return this.loadDescriptor(layout.getDescriptorKey(), LayoutComponentType.get()).then(
+            (descriptor: Descriptor) => {
+                return layout.setDescriptor(descriptor);
+            },
+        );
     }
 
     public static loadDescriptor(key: DescriptorKey, type?: ComponentType): Q.Promise<Descriptor> {
-        return new GetComponentDescriptorRequest(key.toString(), type).sendAndParse().then((pageDescriptor: Descriptor) => {
-            return pageDescriptor;
-        }).catch(() => {
-            throw Error(i18n('live.view.page.error.descriptornotfound', key));
-        });
+        return new GetComponentDescriptorRequest(key.toString(), type)
+            .sendAndParse()
+            .then((pageDescriptor: Descriptor) => {
+                return pageDescriptor;
+            })
+            .catch(() => {
+                throw Error(i18n('live.view.page.error.descriptornotfound', key));
+            });
     }
 
     public static injectEmptyRegionsIntoPage(page: Page): Q.Promise<Page> {
         if (page.getController()) {
             return PageHelper.loadDescriptor(page.getController()).then((pageDescriptor: Descriptor) => {
                 //fetching descriptor, adding empty regions to page, traversing layouts and adding empty regions to them
-                const regionsFetchPromises: Q.Promise<Region>[] = pageDescriptor.getRegions().map((regionDesc: RegionDescriptor) => {
-                    const existingRegion: Region = page.getRegions()?.getRegionByName(regionDesc.getName())?.clone();
+                const regionsFetchPromises: Q.Promise<Region>[] = pageDescriptor
+                    .getRegions()
+                    .map((regionDesc: RegionDescriptor) => {
+                        const existingRegion: Region = page
+                            .getRegions()
+                            ?.getRegionByName(regionDesc.getName())
+                            ?.clone();
 
-                    if (existingRegion) {
-                        return this.updateExistingRegion(existingRegion);
-                    }
+                        if (existingRegion) {
+                            return this.updateExistingRegion(existingRegion);
+                        }
 
-                    return Q.resolve(Region.create().setName(regionDesc.getName()).build());
-                });
+                        return Q.resolve(Region.create().setName(regionDesc.getName()).build());
+                    });
 
                 return Q.all(regionsFetchPromises).then((descriptorRegions: Region[]) => {
                     const fullRegionsBuilder: RegionsBuilder = Regions.create();
@@ -64,11 +75,13 @@ export class PageHelper {
                     }
 
                     // adding items persisted in regions that are no longer in descriptor
-                    page.getRegions()?.getRegions().forEach((persistedRegion: Region) => {
-                        if (!descriptorRegions.some((d) => d.getName() === persistedRegion.getName())) {
-                            fullRegionsBuilder.addRegion(persistedRegion);
-                        }
-                    });
+                    page.getRegions()
+                        ?.getRegions()
+                        .forEach((persistedRegion: Region) => {
+                            if (!descriptorRegions.some((d) => d.getName() === persistedRegion.getName())) {
+                                fullRegionsBuilder.addRegion(persistedRegion);
+                            }
+                        });
 
                     const fullRegions: Regions = fullRegionsBuilder.build();
                     const fullPage: Page = new PageBuilder(page).setRegions(fullRegions).build();
@@ -87,8 +100,38 @@ export class PageHelper {
         return Q.resolve(page);
     }
 
+    public static normalizeConfigValueTypes(page: Page): Q.Promise<void> {
+        if (!page) {
+            return Q();
+        }
+
+        const promises: Q.Promise<void>[] = PageHelper.flattenPageComponents(page)
+            .filter((component: Component) => component instanceof DescriptorBasedComponent)
+            .filter((component: DescriptorBasedComponent) => component.hasDescriptor() && component.getConfig())
+            .map((component: DescriptorBasedComponent) =>
+                PageHelper.normalizeConfig(component.getDescriptorKey(), component.getType(), component.getConfig()),
+            );
+
+        if (page.getController() && page.getConfig()) {
+            promises.push(PageHelper.normalizeConfig(page.getController(), undefined, page.getConfig()));
+        }
+
+        return Q.all(promises).then(() => void 0);
+    }
+
+    private static normalizeConfig(key: DescriptorKey, type: ComponentType, config: PropertyTree): Q.Promise<void> {
+        return PageHelper.loadDescriptor(key, type)
+            .catch((): Descriptor => null)
+            .then((descriptor: Descriptor) => {
+                if (descriptor?.getConfig()) {
+                    normalizeFormValueTypes(descriptor.getConfig(), config.getRoot());
+                }
+            });
+    }
+
     private static updateExistingRegion(existingRegion: Region): Q.Promise<Region> {
-        const layoutsPromises: Q.Promise<void>[] = existingRegion.getComponents()
+        const layoutsPromises: Q.Promise<void>[] = existingRegion
+            .getComponents()
             .filter((component: Component) => component instanceof LayoutComponent)
             .filter((layout: LayoutComponent) => layout.getDescriptorKey())
             .map((layout: LayoutComponent) => PageHelper.fetchAndInjectLayoutRegions(layout));
@@ -96,15 +139,19 @@ export class PageHelper {
         return Q.all(layoutsPromises).then(() => existingRegion);
     }
 
-    public static getPropertyValueUsageCount(container: Page | LayoutComponent, name: string, value: string,
-                                             startFrom: number = 0): number {
+    public static getPropertyValueUsageCount(
+        container: Page | LayoutComponent,
+        name: string,
+        value: string,
+        startFrom: number = 0,
+    ): number {
         let counter: number = startFrom;
         const regions: Region[] = container.getRegions().getRegions();
 
         regions.forEach((region: Region) => {
             region.getComponents().forEach((component: Component) => {
                 if (component instanceof ConfigBasedComponent) {
-                    const config: PropertyTree = (component).getConfig();
+                    const config: PropertyTree = component.getConfig();
 
                     if (config.getProperty(name)?.getString() === value) {
                         counter++;
@@ -133,9 +180,7 @@ export class PageHelper {
                     return component.getImage().equals(id);
                 }
                 if (component instanceof LayoutComponent) {
-                    return this.doRegionsContainId(component.getRegions().getRegions(),
-                        id,
-                        fragments);
+                    return this.doRegionsContainId(component.getRegions().getRegions(), id, fragments);
                 }
                 return false;
             });
@@ -180,11 +225,10 @@ export class PageHelper {
         const contentId: ContentId = content?.getContentId();
         const config = null;
 
-        const request: CreateFragmentRequest =
-            new CreateFragmentRequest(contentId)
-                .setConfig(config)
-                .setComponent(component)
-                .setWorkflow(content.getContentSummary().getWorkflow());
+        const request: CreateFragmentRequest = new CreateFragmentRequest(contentId)
+            .setConfig(config)
+            .setComponent(component)
+            .setWorkflow(content.getContentSummary().getWorkflow());
 
         return request.sendAndParse();
     }
@@ -209,7 +253,10 @@ export class PageHelper {
                 if (component.getFragment()?.equals(fragmentId)) {
                     result = component;
                 } else if (component instanceof LayoutComponent) {
-                    result = PageHelper.findFragmentInRegionsByFragmentId(component.getRegions()?.getRegions(), fragmentId);
+                    result = PageHelper.findFragmentInRegionsByFragmentId(
+                        component.getRegions()?.getRegions(),
+                        fragmentId,
+                    );
                 }
             }
 
@@ -230,7 +277,7 @@ export class PageHelper {
 
         const result = PageHelper.getFlatPageComponents(page);
 
-        return type ? result.filter(component => component.getType().getShortName() === type.getShortName()) : result;
+        return type ? result.filter((component) => component.getType().getShortName() === type.getShortName()) : result;
     }
 
     private static getFlatPageComponents(page: Page): Component[] {
@@ -250,8 +297,8 @@ export class PageHelper {
     private static flattenRegionsComponents(regions: Regions): Component[] {
         const result = [];
 
-        regions.getRegions().forEach((region: Region) => {
-            PageHelper.flattenRegion(region).forEach(component => result.push(component));
+        regions?.getRegions().forEach((region: Region) => {
+            PageHelper.flattenRegion(region).forEach((component) => result.push(component));
         });
 
         return result;
@@ -260,8 +307,8 @@ export class PageHelper {
     private static flattenRegion(region: Region): Component[] {
         const result = [];
 
-        region.getComponents().forEach(component => {
-            PageHelper.flattenComponent(component).forEach(c => result.push(c));
+        region.getComponents().forEach((component) => {
+            PageHelper.flattenComponent(component).forEach((c) => result.push(c));
         });
 
         return result;
