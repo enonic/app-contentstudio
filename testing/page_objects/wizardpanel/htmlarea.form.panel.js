@@ -1,8 +1,8 @@
 /**
- * Created on 26.04.2018.
+ * Created on 26.04.2018. updated on 15.09.2026
  */
 const OccurrencesFormView = require('./occurrences.form.view');
-const {COMMON, BUTTONS} = require('../../libs/elements');
+const { COMMON, BUTTONS } = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const InsertLinkDialog = require('./html-area/insert.link.modal.dialog.cke');
 
@@ -23,13 +23,12 @@ const XPATH = {
             throw new Error('CKEDITOR instance с id ${id} не найден');
         }`;
     },
-    formatOptionByName: optionName => {
+    formatOptionByName: (optionName) => {
         return `//div[@title='Formatting Styles']//li[@class='cke_panel_listItem']//a[@title='${optionName}']`;
-    }
+    },
 };
 
 class HtmlAreaForm extends OccurrencesFormView {
-
     constructor(parentElementXpath = '') {
         super();
         this._container = parentElementXpath;
@@ -58,8 +57,12 @@ class HtmlAreaForm extends OccurrencesFormView {
     async waitForAddButtonNotDisplayed() {
         try {
             return await this.waitForElementNotDisplayed(this.addButton);
-        }catch (err){
-            await this.handleError('HtmlArea Form - Add button should not be displayed', 'err_add_btn_not_displayed_html_area', err);
+        } catch (err) {
+            await this.handleError(
+                'HtmlArea Form - Add button should not be displayed',
+                'err_add_btn_not_displayed_html_area',
+                err,
+            );
         }
     }
 
@@ -77,7 +80,7 @@ class HtmlAreaForm extends OccurrencesFormView {
     async typeTextInHtmlArea(texts) {
         const inputTexts = [].concat(texts);
         try {
-            await this.waitForElementDisplayed(XPATH.ckeWrapper, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(XPATH.ckeWrapper);
             const ids = await this.getIdOfHtmlAreas();
             if (inputTexts.length > ids.length) {
                 const errMsg = `Array of text (${inputTexts.length}) more, чем htmlAreas (${ids.length})`;
@@ -103,8 +106,8 @@ class HtmlAreaForm extends OccurrencesFormView {
     async getIdOfHtmlAreas() {
         try {
             const textAreaSelector = this.container
-                                     ? this.container +  COMMON.CKE.textAreaElement
-                                     : COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + COMMON.CKE.textAreaElement;
+                ? this.container + COMMON.CKE.textAreaElement
+                : COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + COMMON.CKE.textAreaElement;
             const elements = await this.findElements(textAreaSelector);
             if (!elements || elements.length === 0) {
                 console.warn('getIdOfHtmlAreas: htmlArea elements not found with selector: ' + textAreaSelector);
@@ -125,7 +128,6 @@ class HtmlAreaForm extends OccurrencesFormView {
             throw err;
         }
     }
-
 
     async isEditorToolbarVisible(index) {
         let elements = await this.findElements(this.container + XPATH.ckeToolbox);
@@ -152,7 +154,7 @@ class HtmlAreaForm extends OccurrencesFormView {
         try {
             await this.clickInTextArea();
             await this.pause(500);
-            let frameLocator = this.container + XPATH.ckeWrapper + "//iframe";
+            let frameLocator = this.container + XPATH.ckeWrapper + '//iframe';
             await this.switchToFrame(frameLocator);
             await this.pause(500);
             await this.doDoubleClick(`//body//p[contains(.,'${text}')]`);
@@ -166,26 +168,29 @@ class HtmlAreaForm extends OccurrencesFormView {
 
     getTextFromHtmlArea() {
         let strings = [];
-        return this.waitForElementDisplayed(this.container + XPATH.ckeWrapper).then(() => {
-            return this.getIdOfHtmlAreas();
-        }).then(ids => {
-            [].concat(ids).forEach(id => {
-                strings.push(this.execute(XPATH.getText(id)));
-            });
-            return Promise.all(strings);
-        }).then(response => {
-            let res = [];
-            response.forEach((str) => {
-                return res.push(str.trim());
+        return this.waitForElementDisplayed(this.container + XPATH.ckeWrapper)
+            .then(() => {
+                return this.getIdOfHtmlAreas();
             })
-            return res;
-        })
+            .then((ids) => {
+                [].concat(ids).forEach((id) => {
+                    strings.push(this.execute(XPATH.getText(id)));
+                });
+                return Promise.all(strings);
+            })
+            .then((response) => {
+                let res = [];
+                response.forEach((str) => {
+                    return res.push(str.trim());
+                });
+                return res;
+            });
     }
 
     // This method for getting text from a specific html-area by index (occurrences start from 0)
     async getTextFromHtmlAreaByIndex(index) {
         try {
-            await this.waitForElementDisplayed(XPATH.ckeWrapper, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(XPATH.ckeWrapper);
             let ids = await this.getIdOfHtmlAreas();
             return await this.execute(XPATH.getText(ids[index]));
         } catch (err) {
@@ -196,7 +201,7 @@ class HtmlAreaForm extends OccurrencesFormView {
     async showToolbar() {
         try {
             await this.clickInTextArea();
-            return await this.waitUntilDisplayed(this.container + XPATH.ckeToolbox, appConst.mediumTimeout)
+            return await this.waitUntilDisplayed(this.container + XPATH.ckeToolbox);
         } catch (err) {
             await this.handleError('HtmlArea Form - show toolbar', 'err_htmlarea_toolbar', err);
         }
@@ -218,7 +223,7 @@ class HtmlAreaForm extends OccurrencesFormView {
 
     // do double-lick in the html-area
     async doubleClickOnHtmlArea() {
-        await this.waitForElementDisplayed(XPATH.ckeWrapper, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(XPATH.ckeWrapper);
         await this.doDoubleClick(XPATH.ckeWrapper);
         return await this.pause(1000);
     }
@@ -226,7 +231,7 @@ class HtmlAreaForm extends OccurrencesFormView {
     // clicks on Format's dropdown handle and expands options
     async showToolbarAndClickOnFormatDropDownHandle() {
         await this.clickInTextArea();
-        await this.waitForElementDisplayed(XPATH.formatDropDownHandle, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(XPATH.formatDropDownHandle);
         return await this.clickOnElement(XPATH.formatDropDownHandle);
     }
 
@@ -251,29 +256,38 @@ class HtmlAreaForm extends OccurrencesFormView {
             // switches to the parent frame again
             return await this.getBrowser().switchToParentFrame();
         } catch (err) {
-            await this.handleError('HtmlArea toolbar - select a Formatting Styles option', 'err_select_format_option', err);
+            await this.handleError(
+                'HtmlArea toolbar - select a Formatting Styles option',
+                'err_select_format_option',
+                err,
+            );
         }
     }
 
     async showToolbarAndClickOnInsertAnchorButton() {
         await this.clickInTextArea();
-        await this.waitForElementDisplayed(COMMON.CKE.insertAnchorButton, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(COMMON.CKE.insertAnchorButton);
         await this.clickOnElement(COMMON.CKE.insertAnchorButton);
         return await this.pause(300);
     }
 
     async showToolbarAndClickOnTableButton() {
         await this.clickInTextArea();
-        await this.waitForElementDisplayed(COMMON.CKE.tableButton, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(COMMON.CKE.tableButton);
         await this.clickOnElement(COMMON.CKE.tableButton);
         return await this.pause(400);
     }
 
     async showToolbarAndClickOnFindAndReplaceButton() {
         await this.clickInTextArea();
-        await this.waitForElementDisplayed(COMMON.CKE.findAndReplaceButton, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(COMMON.CKE.findAndReplaceButton);
         await this.clickOnElement(COMMON.CKE.findAndReplaceButton);
         return await this.pause(400);
+    }
+    async showToolbarAndClickOnPasteMode() {
+        await this.clickInTextArea();
+        await this.waitForElementDisplayed(COMMON.CKE.pasteModeButton);
+        return await this.clickOnElement(COMMON.CKE.pasteModeButton);
     }
 
     async isTableMenuItemVisible() {
@@ -292,18 +306,33 @@ class HtmlAreaForm extends OccurrencesFormView {
 
     async showToolbarAndClickOnInsertSpecialCharactersButton() {
         await this.clickInTextArea();
-        await this.waitForElementDisplayed(COMMON.CKE.insertSpecialCharacter, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(COMMON.CKE.insertSpecialCharacter);
         await this.clickOnElement(COMMON.CKE.insertSpecialCharacter);
         return await this.pause(300);
     }
 
+    async showToolbarAndClickOnPasteModeButton() {
+        try {
+            await this.clickInTextArea();
+            await this.waitForElementDisplayed(COMMON.CKE.pasteModeButton);
+            await this.clickOnElement(COMMON.CKE.pasteModeButton);
+            return await this.pause(300);
+        } catch (err) {
+            await this.handleError('HtmlArea Form - tried to click on Paste mode button', 'err_paste_mode_button', err);
+        }
+    }
+
+    async getPasteModeButtonTooltip() {
+        return await this.getAttribute(COMMON.CKE.pasteModeButton, 'title');
+    }
+
     async clickInTextArea() {
-        await this.waitForElementDisplayed(this.container + XPATH.ckeWrapper, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.container + XPATH.ckeWrapper);
         await this.clickOnElement(this.container + XPATH.ckeWrapper);
         await this.pause(100);
     }
 
-    async waitForHtmlAreaDisplayed(){
+    async waitForHtmlAreaDisplayed() {
         return await this.waitForElementDisplayed(this.container + XPATH.ckeWrapper, appConst.mediumTimeout);
     }
 
@@ -359,53 +388,57 @@ class HtmlAreaForm extends OccurrencesFormView {
 
     async waitForSuperscriptButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(COMMON.CKE.superScriptButton, appConst.shortTimeout)
+            return await this.waitForElementDisplayed(COMMON.CKE.superScriptButton, appConst.shortTimeout);
         } catch (err) {
-            await this.handleError('HtmlArea toolbar - superscript button should be displayed', 'err_superscript_btn', err);
+            await this.handleError(
+                'HtmlArea toolbar - superscript button should be displayed',
+                'err_superscript_btn',
+                err,
+            );
         }
     }
 
     async waitForSubscriptButtonDisplayed() {
         try {
-            return this.waitForElementDisplayed(COMMON.CKE.subscriptButton, appConst.shortTimeout)
+            return this.waitForElementDisplayed(COMMON.CKE.subscriptButton, appConst.shortTimeout);
         } catch (err) {
             await this.handleError('HtmlArea toolbar - subscript button should be displayed', 'err_subscript_btn', err);
         }
     }
 
     isBulletedListButtonDisplayed() {
-        return this.waitForElementDisplayed(COMMON.CKE.bulletedButton, appConst.shortTimeout).catch(err => {
+        return this.waitForElementDisplayed(COMMON.CKE.bulletedButton, appConst.shortTimeout).catch((err) => {
             console.log('Bulleted List button is not visible! ' + err);
             return false;
-        })
+        });
     }
 
     isNumberedListButtonDisplayed() {
-        return this.waitForElementDisplayed(COMMON.CKE.numberedButton, appConst.shortTimeout).catch(err => {
+        return this.waitForElementDisplayed(COMMON.CKE.numberedButton, appConst.shortTimeout).catch((err) => {
             console.log('Numbered List button is not visible! ' + err);
             return false;
-        })
+        });
     }
 
     isAlignLeftButtonDisplayed() {
-        return this.waitForElementDisplayed(COMMON.CKE.alignLeftButton, appConst.shortTimeout).catch(err => {
+        return this.waitForElementDisplayed(COMMON.CKE.alignLeftButton, appConst.shortTimeout).catch((err) => {
             console.log('Align Left  button is not visible! ' + err);
             return false;
-        })
+        });
     }
 
     isAlignRightButtonDisplayed() {
-        return this.waitForElementDisplayed(COMMON.CKE.alignRightButton, appConst.shortTimeout).catch(err => {
+        return this.waitForElementDisplayed(COMMON.CKE.alignRightButton, appConst.shortTimeout).catch((err) => {
             console.log('Align Right  button is not visible! ' + err);
             return false;
-        })
+        });
     }
 
     isCenterButtonDisplayed() {
-        return this.waitForElementDisplayed(COMMON.CKE.centerButton, appConst.shortTimeout).catch(err => {
+        return this.waitForElementDisplayed(COMMON.CKE.centerButton, appConst.shortTimeout).catch((err) => {
             console.log('Center  button is not visible! ' + err);
             return false;
-        })
+        });
     }
 
     async waitForIncreaseIndentDisplayed() {
@@ -425,24 +458,24 @@ class HtmlAreaForm extends OccurrencesFormView {
     }
 
     isBlockQuoteButtonDisplayed() {
-        return this.waitForElementDisplayed(COMMON.CKE.blockQuoteButton, appConst.mediumTimeout).catch(err => {
+        return this.waitForElementDisplayed(COMMON.CKE.blockQuoteButton, appConst.mediumTimeout).catch((err) => {
             console.log('Block Quote  button is not visible! ' + err);
             return false;
-        })
+        });
     }
 
     isTableButtonDisplayed() {
-        return this.waitForElementDisplayed(COMMON.CKE.tableButton, appConst.mediumTimeout).catch(err => {
+        return this.waitForElementDisplayed(COMMON.CKE.tableButton, appConst.mediumTimeout).catch((err) => {
             console.log('Table  button is not visible! ' + err);
             return false;
-        })
+        });
     }
 
     isIncreaseIndentButtonDisplayed() {
-        return this.waitForElementDisplayed(COMMON.CKE.increaseIndentButton, appConst.mediumTimeout).catch(err => {
+        return this.waitForElementDisplayed(COMMON.CKE.increaseIndentButton, appConst.mediumTimeout).catch((err) => {
             console.log('Increase Indent  button is not visible! ' + err);
             return false;
-        })
+        });
     }
 
     async removeTextArea(index) {
