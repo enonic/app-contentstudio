@@ -291,18 +291,6 @@ module.exports = {
         }
         return contentWizardPanel;
     },
-    async selectContentAndClickOnLocalize(contentName) {
-        let contentWizardPanel = new ContentWizardPanel();
-        let browsePanel = new BrowsePanel();
-        await this.findAndSelectItem(contentName);
-        await browsePanel.waitForSpinnerNotVisible(appConst.mediumTimeout);
-        await browsePanel.clickOnLocalizeButton();
-        await this.doSwitchToNewWizard();
-        await contentWizardPanel.waitForOpened();
-        await contentWizardPanel.waitForDisplayNameInputFocused();
-        return contentWizardPanel;
-    },
-
     async doAddShortcut(shortcut) {
         let contentWizardPanel = new ContentWizardPanel();
         //Open new shortcut-wizard:
@@ -492,19 +480,6 @@ module.exports = {
         // 2. Click on Unpublish button:
         await contentUnpublishDialog.clickOnUnpublishButton();
         return await contentUnpublishDialog.waitForDialogClosed();
-    },
-    async doAddArticleContent(siteName, article) {
-        let contentWizardPanel = new ContentWizardPanel();
-        // 1. Select the site
-        await this.findAndSelectItem(siteName);
-        // 2. Open article-wizard:
-        await this.openContentWizard(article.contentType);
-        // 3.Type the data and save all
-        await contentWizardPanel.typeData(article);
-        await contentWizardPanel.waitAndClickOnSave();
-        await this.doCloseCurrentBrowserTab();
-        await this.doSwitchToContentBrowsePanel();
-        return await this.getBrowser().pause(500);
     },
     async findAndSelectItem(name) {
         try {
@@ -753,16 +728,36 @@ module.exports = {
         }
         throw new Error('Browser tab with title ' + title + ' was not found');
     },
-    async switchToTabContains(text) {
-        let handles = await this.getBrowser().getWindowHandles();
-        for (const handle of handles) {
-            await this.getBrowser().switchToWindow(handle);
-            let currentTitle = await this.getBrowser().getTitle();
-            if (currentTitle.includes(text)) {
-                return handle;
-            }
+    async waitForNewTabAndSwitch(expectedTitlePart) {
+        let matchedHandle = null;
+        try {
+            await this.getBrowser().waitUntil(
+                async () => {
+                    let handles = await this.getBrowser().getWindowHandles();
+                    for (const handle of handles) {
+                        try {
+                            await this.getBrowser().switchToWindow(handle);
+                            let currentTitle = await this.getBrowser().getTitle();
+                            if (currentTitle.includes(expectedTitlePart)) {
+                                matchedHandle = handle;
+                                return true;
+                            }
+                        } catch (err) {
+                            // the tab is not ready yet or has been closed
+                        }
+                    }
+                    return false;
+                },
+                {
+                    timeout: appConst.longTimeout,
+                    timeoutMsg: `A browser tab with the title containing '${expectedTitlePart}' was not opened`,
+                },
+            );
+            return matchedHandle;
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_new_tab_switch');
+            throw new Error(`Error when switching to the new browser tab: ${err} [screenshot]: ${screenshot}`);
         }
-        throw new Error('Browser tab with title ' + text + ' was not found');
     },
     async waitForBrowsePanelAndSelectDefaultContext() {
         try {
@@ -800,16 +795,12 @@ module.exports = {
         return await this.doCloseWindowTabAndSwitchToBrowsePanel();
     },
 
+    // No fallback to browser.switchWindow() here: it matches the URL first, and the browse panel URL
+    // ends with '/browse', so it lands on the browse tab for any name that is a substring of it, e.g. 'bro'
     async switchToContentTabWindow(contentDisplayName) {
-        try {
-            await this.switchToTabContains(contentDisplayName);
-            let contentWizardPanel = new ContentWizardPanel();
-            return await contentWizardPanel.waitForSpinnerNotVisible();
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_switch_window');
-            await this.getBrowser().pause(1000);
-            await this.getBrowser().switchWindow(contentDisplayName);
-        }
+        await this.waitForNewTabAndSwitch(contentDisplayName);
+        let contentWizardPanel = new ContentWizardPanel();
+        return await contentWizardPanel.waitForSpinnerNotVisible();
     },
     async doPressBackspace() {
         await this.getBrowser().keys('\uE003');

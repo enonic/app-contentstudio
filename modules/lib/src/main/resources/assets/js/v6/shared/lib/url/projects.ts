@@ -67,7 +67,7 @@ export function projectsToTreeListItems(
  * parent is collapsed. Matches are rendered as root level rows without expand controls.
  *
  * @param projects - Array of projects to search in
- * @param searchValue - Case insensitive substring matched against display name and name
+ * @param searchValue - Case insensitive substring matched against display name, name and description
  * @returns Array of FlatNode for the matching projects, in the incoming order
  *
  * @example
@@ -85,7 +85,8 @@ export function searchProjectsToListItems(
             (project) =>
                 search.length === 0 ||
                 project.getDisplayName()?.toLowerCase().includes(search) ||
-                project.getName()?.toLowerCase().includes(search),
+                project.getName()?.toLowerCase().includes(search) ||
+                project.getDescription()?.toLowerCase().includes(search),
         )
         .map((project) => ({
             id: project.getName(),

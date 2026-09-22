@@ -2,10 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { type Project } from '../../../../app/settings/data/project/Project';
 import { projectsToTreeListItems, searchProjectsToListItems } from './projects';
 
-const project = (name: string, displayName: string, parents: string[] = []): Readonly<Project> =>
+const project = (name: string, displayName: string, parents: string[] = [], description?: string): Readonly<Project> =>
     ({
         getName: () => name,
         getDisplayName: () => displayName,
+        getDescription: () => description,
         getParents: () => parents,
         hasMainParentByName: (parentName: string) => parents[0] === parentName,
     }) as unknown as Readonly<Project>;
@@ -57,6 +58,25 @@ describe('searchProjectsToListItems', () => {
     it('should match partially and ignore case on both display name and name', () => {
         expect(searchProjectsToListItems(projects, 'FEAT').map((item) => item.id)).toEqual(['features']);
         expect(searchProjectsToListItems(projects, 'eatur').map((item) => item.id)).toEqual(['features']);
+    });
+
+    it('should match on the description', () => {
+        const intranet = project('intranet', 'Intranet', [], 'Internal description123 site');
+
+        expect(searchProjectsToListItems([...projects, intranet], 'description123').map((item) => item.id)).toEqual([
+            'intranet',
+        ]);
+    });
+
+    it('should match the description partially and ignore case', () => {
+        const intranet = project('intranet', 'Intranet', [], 'Internal description123 site');
+
+        expect(searchProjectsToListItems([intranet], 'DESCRIPTION').map((item) => item.id)).toEqual(['intranet']);
+        expect(searchProjectsToListItems([intranet], 'rnal desc').map((item) => item.id)).toEqual(['intranet']);
+    });
+
+    it('should search projects without a description', () => {
+        expect(searchProjectsToListItems(projects, 'description123')).toEqual([]);
     });
 
     it('should match a project whose parent is missing from the list', () => {
