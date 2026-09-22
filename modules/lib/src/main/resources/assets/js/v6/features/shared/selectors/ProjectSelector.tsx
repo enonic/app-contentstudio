@@ -14,7 +14,7 @@ import {
 import { Virtuoso, type VirtuosoHandle } from 'react-virtuoso';
 import type { Project } from '../../../../app/settings/data/project/Project';
 import { $projects } from '../../../entities/project';
-import { projectsToTreeListItems } from '../../../shared/lib/url/projects';
+import { projectsToTreeListItems, searchProjectsToListItems } from '../../../shared/lib/url/projects';
 import { ProjectLabel } from '../../../entities/project/ui/ProjectLabel';
 import { useComboboxCollapse } from './shared/useComboboxCollapse';
 
@@ -57,16 +57,15 @@ export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
     const { rootRef, inputRef } = useComboboxCollapse(hideCombobox);
 
     // Items
-    const items = useMemo(() => projectsToTreeListItems(projects, expanded), [projects, expanded]);
-    const filteredItems = useMemo(() => {
-        if (!searchValue) return items;
-        const searchLower = searchValue.toLowerCase();
-        return items.filter(
-            (node) =>
-                node.data.getDisplayName().toLowerCase().includes(searchLower) ||
-                node.data.getName().toLowerCase().includes(searchLower),
-        );
-    }, [items, searchValue]);
+    // ? Searching matches the whole project set and renders a flat result list, otherwise layers
+    // ? nested under a collapsed project would be unreachable by name.
+    const items = useMemo(
+        () =>
+            searchValue
+                ? searchProjectsToListItems(projects, searchValue)
+                : projectsToTreeListItems(projects, expanded),
+        [projects, expanded, searchValue],
+    );
 
     // Handlers
     const handleExpand = (id: string): void => {
@@ -121,7 +120,7 @@ export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
                         <Combobox.Portal>
                             <Combobox.Popup className="mt-1.5">
                                 <ProjectSelectorTreeContent
-                                    items={filteredItems}
+                                    items={items}
                                     handleExpand={handleExpand}
                                     handleCollapse={handleCollapse}
                                     selectionMode={selectionMode}
