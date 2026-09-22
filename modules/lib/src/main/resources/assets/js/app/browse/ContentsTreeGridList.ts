@@ -21,6 +21,10 @@ export class ContentsTreeGridList
 
     private loading: boolean = false;
 
+    private loadVersion: number = 0;
+
+    private allLoaded: boolean = false;
+
     constructor(params?: TreeListBoxParams<ContentSummaryAndCompareStatus>) {
         super(params);
 
@@ -37,15 +41,22 @@ export class ContentsTreeGridList
     }
 
     protected handleLazyLoad(): void {
-        if (this.loading) {
+        if (this.loading || this.allLoaded) {
             return;
         }
 
         this.wasShownAndLoaded = true;
         this.loading = true;
 
+        const version: number = this.loadVersion;
+
         this.fetch().then((items: ContentSummaryAndCompareStatus[]) => {
+            if (version !== this.loadVersion) {
+                return;
+            }
+
             this.loading = false;
+            this.allLoaded = items.length < ContentsTreeGridList.FETCH_SIZE;
 
             if (items.length > 0) {
                 // first remove new items that are now to be added to avoid being shown twice
@@ -61,6 +72,10 @@ export class ContentsTreeGridList
                 this.addItems(items);
             }
         }).catch((e) => {
+            if (version !== this.loadVersion) {
+                return;
+            }
+
             DefaultErrorHandler.handle(e);
             this.loading = false;
         });
@@ -132,6 +147,9 @@ export class ContentsTreeGridList
     }
 
     reload(): void {
+        this.loadVersion++;
+        this.loading = false;
+        this.allLoaded = false;
         this.clearItems(true);
         this.newItems = new Map<string, ContentSummaryAndCompareStatus>();
         this.handleLazyLoad();
