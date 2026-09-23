@@ -26,7 +26,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
 
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('proj');
     const PROJECT2_DISPLAY_NAME = studioUtils.generateRandomName('proj');
-    const TEST_DESCRIPTION = 'test';
+    const TEST_DESCRIPTION = '123test';
     const PROJ_IDENTIFIER = studioUtils.generateRandomName('id');
     const IMPORTED_SITE = 'site040269';
     const IMPORTED_PROJECT = 'Default';
@@ -89,8 +89,8 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
         );
     });
 
-    // TODO Verify the bug https://github.com/enonic/app-contentstudio/issues/11343
-    it.skip(`WHEN Parent project step has been opened THEN new created project should be searchable by its Description in the dropdown`, async () => {
+    // Verifies the bug https://github.com/enonic/app-contentstudio/issues/11343
+    it(`WHEN Parent project step has been opened THEN new created project should be searchable by its Description in the dropdown`, async () => {
         let settingsBrowsePanel = new SettingsBrowsePanel();
         let parentProjectStep = new ProjectWizardDialogParentProjectStep();
         // 1. Open project wizard dialog:
@@ -100,7 +100,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
         let names = await parentProjectStep.getSelectedProjects();
         assert.equal(
             names[0],
-            PROJECT_DISPLAY_NAME,
+            PROJECT_DISPLAY_NAME + ' (en)',
             'Expected parent project should be present in the selected option',
         );
     });
