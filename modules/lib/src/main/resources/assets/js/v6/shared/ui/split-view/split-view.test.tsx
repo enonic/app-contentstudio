@@ -1,6 +1,6 @@
 import { act, render, screen } from '@testing-library/preact';
 import { createRef, type Ref } from 'react';
-import { type GroupImperativeHandle, type PanelImperativeHandle } from 'react-resizable-panels';
+import { type GroupImperativeHandle, type Layout, type PanelImperativeHandle } from 'react-resizable-panels';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SplitView } from './split-view';
 
@@ -121,6 +121,7 @@ type HarnessProps = {
     thin?: boolean;
     secondCollapsed?: boolean;
     withThird?: boolean;
+    resolveLayoutOnPanelsChange?: (previous: Layout, next: Layout) => Layout | undefined;
 };
 
 const Harness = ({
@@ -133,8 +134,14 @@ const Harness = ({
     thin,
     secondCollapsed,
     withThird,
+    resolveLayoutOnPanelsChange,
 }: HarnessProps) => (
-    <SplitView id="root" groupRef={groupRef} storageId={storageId}>
+    <SplitView
+        id="root"
+        groupRef={groupRef}
+        storageId={storageId}
+        resolveLayoutOnPanelsChange={resolveLayoutOnPanelsChange}
+    >
         <SplitView.Panel
             id="first"
             defaultSize="38%"
@@ -301,6 +308,32 @@ describe('SplitView', () => {
 
         expect(groupRef.current?.getLayout().second).toBeGreaterThan(0);
         expect(onCollapsedChange).not.toHaveBeenCalled();
+    });
+
+    it('applies the layout returned by the resolver when the set of panels changes', async () => {
+        const groupRef = createRef<GroupImperativeHandle>();
+        const resolve = vi.fn((previous: Layout, next: Layout): Layout | undefined =>
+            'third' in next
+                ? { first: previous.first, second: 100 - previous.first - next.third, third: next.third }
+                : undefined,
+        );
+        const props: HarnessProps = {
+            groupRef,
+            collapsed: false,
+            secondCollapsed: false,
+            resolveLayoutOnPanelsChange: resolve,
+        };
+
+        const result = await renderHarness(props);
+        const before = groupRef.current?.getLayout();
+
+        await rerenderHarness(result, { ...props, withThird: true });
+
+        expect(resolve).toHaveBeenCalledTimes(1);
+        expect(resolve.mock.calls[0][0]).toEqual(before);
+        expect(Object.keys(resolve.mock.calls[0][1]).sort()).toEqual(['first', 'second', 'third']);
+        expect(groupRef.current?.getLayout().first).toBeCloseTo(before?.first ?? -1, 5);
+        expect(groupRef.current?.getLayout().third).toBeCloseTo(25, 5);
     });
 
     it('shows the drag shield and dragging attribute only while dragging', async () => {

@@ -6,7 +6,9 @@ import {
     Panel as GroupPanel,
     Separator,
     useDefaultLayout,
+    type GroupImperativeHandle,
     type GroupProps,
+    type Layout,
     type Orientation,
     type PanelImperativeHandle,
     type PanelProps as GroupPanelProps,
@@ -35,16 +37,45 @@ const SplitViewContext = createContext<SplitViewContextValue>({
 // * SplitView.Root
 //
 
+const haveSamePanels = (a: Layout, b: Layout): boolean => {
+    const aKeys = Object.keys(a);
+    return aKeys.length === Object.keys(b).length && aKeys.every((key) => key in b);
+};
+
 export type SplitViewRootProps = {
     // Persists the layout to localStorage under this id; omit to disable persistence.
     storageId?: string;
+    resolveLayoutOnPanelsChange?: (previous: Layout, next: Layout) => Layout | undefined;
 } & Omit<GroupProps, 'defaultLayout' | 'onLayoutChange'>;
 
 const SplitViewRoot = forwardRef<HTMLDivElement, SplitViewRootProps>(
-    ({ orientation = 'horizontal', storageId, onLayoutChanged, className, children, ...props }, ref) => {
+    (
+        {
+            orientation = 'horizontal',
+            storageId,
+            resolveLayoutOnPanelsChange,
+            onLayoutChanged,
+            groupRef,
+            className,
+            children,
+            ...props
+        },
+        ref,
+    ) => {
         const fallbackId = useId();
         const [isDragging, setIsDragging] = useState(false);
         const panelSyncs = useRef(new Set<PanelLayoutSync>());
+        const groupHandleRef = useRef<GroupImperativeHandle | null>(null);
+        const lastLayoutRef = useRef<Layout | undefined>(undefined);
+
+        const composedGroupRef = useCallback(
+            (handle: GroupImperativeHandle | null) => {
+                groupHandleRef.current = handle;
+                if (typeof groupRef === 'function') groupRef(handle);
+                else if (groupRef != null) groupRef.current = handle;
+            },
+            [groupRef],
+        );
 
         const { defaultLayout, onLayoutChanged: persistLayout } = useDefaultLayout({
             id: storageId ?? fallbackId,
@@ -59,6 +90,14 @@ const SplitViewRoot = forwardRef<HTMLDivElement, SplitViewRootProps>(
         const contextValue = useMemo(() => ({ orientation, registerPanel }), [orientation, registerPanel]);
 
         const handleLayoutChanged: GroupProps['onLayoutChanged'] = (layout, meta) => {
+            const previous = lastLayoutRef.current;
+            lastLayoutRef.current = layout;
+
+            if (previous != null && !haveSamePanels(previous, layout)) {
+                const resolved = resolveLayoutOnPanelsChange?.(previous, layout);
+                if (resolved != null) groupHandleRef.current?.setLayout(resolved);
+            }
+
             if (storageId != null) persistLayout(layout, meta);
             onLayoutChanged?.(layout, meta);
             panelSyncs.current.forEach((sync) => sync(meta.isUserInteraction));
@@ -101,6 +140,7 @@ const SplitViewRoot = forwardRef<HTMLDivElement, SplitViewRootProps>(
                     data-dragging={isDragging || undefined}
                     orientation={orientation}
                     elementRef={ref}
+                    groupRef={composedGroupRef}
                     defaultLayout={storageId != null ? defaultLayout : undefined}
                     onLayoutChanged={handleLayoutChanged}
                     onPointerDownCapture={handlePointerDownCapture}
