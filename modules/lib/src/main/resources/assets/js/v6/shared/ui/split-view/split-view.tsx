@@ -1,16 +1,6 @@
 import { cn } from '@enonic/ui';
 import { cva, type VariantProps } from 'class-variance-authority';
-import {
-    createContext,
-    forwardRef,
-    useCallback,
-    useContext,
-    useEffect,
-    useId,
-    useMemo,
-    useRef,
-    useState,
-} from 'react';
+import { createContext, forwardRef, useCallback, useContext, useEffect, useId, useMemo, useRef, useState } from 'react';
 import {
     Group,
     Panel as GroupPanel,
@@ -29,7 +19,7 @@ import { useI18n } from '../../lib/hooks/useI18n';
 //
 
 // Called by Root after every layout change so panels can detect collapse transitions.
-type PanelLayoutSync = () => void;
+type PanelLayoutSync = (isUserInteraction: boolean) => void;
 
 type SplitViewContextValue = {
     orientation: Orientation;
@@ -71,7 +61,7 @@ const SplitViewRoot = forwardRef<HTMLDivElement, SplitViewRootProps>(
         const handleLayoutChanged: GroupProps['onLayoutChanged'] = (layout, meta) => {
             if (storageId != null) persistLayout(layout, meta);
             onLayoutChanged?.(layout, meta);
-            panelSyncs.current.forEach((sync) => sync());
+            panelSyncs.current.forEach((sync) => sync(meta.isUserInteraction));
         };
 
         const stopDraggingRef = useRef<(() => void) | undefined>(undefined);
@@ -107,7 +97,7 @@ const SplitViewRoot = forwardRef<HTMLDivElement, SplitViewRootProps>(
         return (
             <SplitViewContext.Provider value={contextValue}>
                 <Group
-                    data-component='SplitView.Root'
+                    data-component="SplitView.Root"
                     data-dragging={isDragging || undefined}
                     orientation={orientation}
                     elementRef={ref}
@@ -118,7 +108,7 @@ const SplitViewRoot = forwardRef<HTMLDivElement, SplitViewRootProps>(
                     {...props}
                 >
                     {children}
-                    {isDragging && <div data-component='SplitView.DragShield' className='absolute inset-0 z-50' />}
+                    {isDragging && <div data-component="SplitView.DragShield" className="absolute inset-0 z-50" />}
                 </Group>
             </SplitViewContext.Provider>
         );
@@ -141,6 +131,8 @@ const SplitViewPanel = forwardRef<HTMLDivElement, SplitViewPanelProps>(
         const { registerPanel } = useContext(SplitViewContext);
         const innerRef = useRef<PanelImperativeHandle | null>(null);
         const lastCollapsed = useRef<boolean | undefined>(undefined);
+        const collapsedRef = useRef(collapsed);
+        collapsedRef.current = collapsed;
         const onCollapsedChangeRef = useRef(onCollapsedChange);
         onCollapsedChangeRef.current = onCollapsedChange;
 
@@ -153,11 +145,19 @@ const SplitViewPanel = forwardRef<HTMLDivElement, SplitViewPanelProps>(
             [panelRef],
         );
 
-        const syncCollapsed = useCallback(() => {
+        const syncCollapsed = useCallback((isUserInteraction: boolean) => {
             const handle = innerRef.current;
             if (handle == null) return;
 
             const isNowCollapsed = handle.isCollapsed();
+
+            const controlled = collapsedRef.current;
+            if (!isUserInteraction && controlled != null && controlled !== isNowCollapsed) {
+                if (controlled) handle.collapse();
+                else handle.expand();
+                return;
+            }
+
             if (lastCollapsed.current === isNowCollapsed) return;
 
             const isFirstReport = lastCollapsed.current === undefined;
@@ -183,9 +183,7 @@ const SplitViewPanel = forwardRef<HTMLDivElement, SplitViewPanelProps>(
             else if (!collapsed && handle.isCollapsed()) handle.expand();
         }, [collapsed]);
 
-        return (
-            <GroupPanel data-component='SplitView.Panel' elementRef={ref} panelRef={composedPanelRef} {...props} />
-        );
+        return <GroupPanel data-component="SplitView.Panel" elementRef={ref} panelRef={composedPanelRef} {...props} />;
     },
 );
 SplitViewPanel.displayName = 'SplitView.Panel';
@@ -232,7 +230,7 @@ const SplitViewHandle = forwardRef<HTMLDivElement, SplitViewHandleProps>(
 
         return (
             <Separator
-                data-component='SplitView.Handle'
+                data-component="SplitView.Handle"
                 elementRef={ref}
                 aria-label={ariaLabel ?? defaultLabel}
                 className={cn(handleVariants({ variant, orientation }), className)}

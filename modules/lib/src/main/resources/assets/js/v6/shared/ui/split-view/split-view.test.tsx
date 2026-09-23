@@ -98,7 +98,10 @@ function stubLayout(): void {
         });
     }
 
-    for (const [property, axis] of [['offsetLeft', 'x'], ['offsetTop', 'y']] as const) {
+    for (const [property, axis] of [
+        ['offsetLeft', 'x'],
+        ['offsetTop', 'y'],
+    ] as const) {
         Object.defineProperty(HTMLElement.prototype, property, {
             configurable: true,
             get(this: HTMLElement) {
@@ -116,26 +119,46 @@ type HarnessProps = {
     storageId?: string;
     handleLabel?: string;
     thin?: boolean;
+    secondCollapsed?: boolean;
+    withThird?: boolean;
 };
 
-const Harness = ({ groupRef, panelRef, collapsed, onCollapsedChange, storageId, handleLabel, thin }: HarnessProps) => (
-    <SplitView id='root' groupRef={groupRef} storageId={storageId}>
+const Harness = ({
+    groupRef,
+    panelRef,
+    collapsed,
+    onCollapsedChange,
+    storageId,
+    handleLabel,
+    thin,
+    secondCollapsed,
+    withThird,
+}: HarnessProps) => (
+    <SplitView id="root" groupRef={groupRef} storageId={storageId}>
         <SplitView.Panel
-            id='first'
-            defaultSize='38%'
-            minSize='280px'
+            id="first"
+            defaultSize="38%"
+            minSize="280px"
             collapsible
-            collapsedSize='60px'
+            collapsedSize="60px"
             collapsed={collapsed}
             onCollapsedChange={onCollapsedChange}
             panelRef={panelRef}
         >
             <div>first content</div>
         </SplitView.Panel>
-        <SplitView.Handle id='handle' aria-label={handleLabel} variant={thin ? 'thin' : undefined} />
-        <SplitView.Panel id='second'>
+        <SplitView.Handle id="handle" aria-label={handleLabel} variant={thin ? 'thin' : undefined} />
+        <SplitView.Panel id="second" collapsible collapsed={secondCollapsed}>
             <div>second content</div>
         </SplitView.Panel>
+        {withThird && (
+            <>
+                <SplitView.Handle id="third-handle" />
+                <SplitView.Panel id="third" defaultSize="25%">
+                    <div>third content</div>
+                </SplitView.Panel>
+            </>
+        )}
     </SplitView>
 );
 Harness.displayName = 'Harness';
@@ -243,6 +266,41 @@ describe('SplitView', () => {
         await rerenderHarness(result, { panelRef, collapsed: false, onCollapsedChange });
         expect(panelRef.current?.isCollapsed()).toBe(false);
         expect(onCollapsedChange).toHaveBeenLastCalledWith(false);
+    });
+
+    it('keeps a controlled collapsed panel collapsed when a sibling panel mounts and unmounts', async () => {
+        const panelRef = createRef<PanelImperativeHandle>();
+        const onCollapsedChange = vi.fn();
+
+        const result = await renderHarness({ panelRef, collapsed: true, onCollapsedChange, withThird: true });
+        expect(panelRef.current?.isCollapsed()).toBe(true);
+
+        await rerenderHarness(result, { panelRef, collapsed: true, onCollapsedChange, withThird: false });
+        expect(panelRef.current?.isCollapsed()).toBe(true);
+
+        await rerenderHarness(result, { panelRef, collapsed: true, onCollapsedChange, withThird: true });
+        expect(panelRef.current?.isCollapsed()).toBe(true);
+        expect(onCollapsedChange).not.toHaveBeenCalled();
+    });
+
+    it('keeps a controlled expanded panel expanded when a stale stored layout collapses it', async () => {
+        // A layout stored for the two-panel combination while the second panel was collapsed.
+        window.localStorage.setItem('react-resizable-panels:test-split', JSON.stringify({ first: 100, second: 0 }));
+        const groupRef = createRef<GroupImperativeHandle>();
+        const onCollapsedChange = vi.fn();
+        const props: HarnessProps = {
+            groupRef,
+            collapsed: false,
+            onCollapsedChange,
+            storageId: 'test-split',
+            secondCollapsed: false,
+        };
+
+        const result = await renderHarness({ ...props, withThird: true });
+        await rerenderHarness(result, { ...props, withThird: false });
+
+        expect(groupRef.current?.getLayout().second).toBeGreaterThan(0);
+        expect(onCollapsedChange).not.toHaveBeenCalled();
     });
 
     it('shows the drag shield and dragging attribute only while dragging', async () => {
