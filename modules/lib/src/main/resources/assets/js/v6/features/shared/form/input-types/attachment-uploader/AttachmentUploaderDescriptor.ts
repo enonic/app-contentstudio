@@ -3,7 +3,7 @@ import { type AttachmentUploaderConfig } from './AttachmentUploaderConfig';
 import { type ValueType } from '@enonic/input-types/data';
 import { type Value } from '@enonic/input-types/data';
 import { ValueTypes } from '@enonic/input-types/data';
-import type { InputConfigJson } from '@enonic/ui-types';
+import type { InputConfigEntries } from '@enonic/input-types';
 
 export const AttachmentUploaderDescriptor: InputTypeDescriptor<AttachmentUploaderConfig> = {
     name: 'AttachmentUploader' as const,
@@ -12,7 +12,7 @@ export const AttachmentUploaderDescriptor: InputTypeDescriptor<AttachmentUploade
         return ValueTypes.STRING;
     },
 
-    readConfig(raw: InputConfigJson): AttachmentUploaderConfig {
+    readConfig(raw: InputConfigEntries): AttachmentUploaderConfig {
         return {
             hideDropZone: raw?.['hideDropZone']?.[0]?.value === true,
         };

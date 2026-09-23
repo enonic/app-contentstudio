@@ -6,8 +6,8 @@ import { type Value } from '@enonic/input-types/data';
 import { ValueTypes } from '@enonic/input-types/data';
 import { ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
-import type { InputConfigJson } from '@enonic/ui-types';
 import { $applications } from '../../../../../entities/application';
+import type { InputConfigEntries } from '@enonic/input-types';
 
 export const SiteConfiguratorDescriptor: InputTypeDescriptor<SiteConfiguratorConfig> = {
     name: 'SiteConfigurator' as const,
@@ -16,7 +16,7 @@ export const SiteConfiguratorDescriptor: InputTypeDescriptor<SiteConfiguratorCon
         return ValueTypes.DATA;
     },
 
-    readConfig(_raw: InputConfigJson): SiteConfiguratorConfig {
+    readConfig(_raw: InputConfigEntries): SiteConfiguratorConfig {
         return {};
     },
 

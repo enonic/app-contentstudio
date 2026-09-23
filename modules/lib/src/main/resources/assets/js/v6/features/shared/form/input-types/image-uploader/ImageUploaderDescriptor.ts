@@ -2,8 +2,8 @@ import { type InputTypeDescriptor, type ValidationResult } from '@enonic/input-t
 import { type ValueType } from '@enonic/input-types/data';
 import { type Value } from '@enonic/input-types/data';
 import { ValueTypes } from '@enonic/input-types/data';
-import type { InputConfigJson } from '@enonic/ui-types';
 import type { ImageUploaderConfig } from './ImageUploaderConfig';
+import type { InputConfigEntries } from '@enonic/input-types';
 
 export const ImageUploaderDescriptor: InputTypeDescriptor<ImageUploaderConfig> = {
     name: 'ImageUploader' as const,
@@ -12,7 +12,7 @@ export const ImageUploaderDescriptor: InputTypeDescriptor<ImageUploaderConfig> =
         return ValueTypes.STRING;
     },
 
-    readConfig(_raw: InputConfigJson): ImageUploaderConfig {
+    readConfig(_raw: InputConfigEntries): ImageUploaderConfig {
         return {};
     },
 
