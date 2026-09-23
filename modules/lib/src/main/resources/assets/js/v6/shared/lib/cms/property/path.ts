@@ -1,6 +1,6 @@
-import { PropertyPath, PropertyPathElement } from '@enonic/lib-admin-ui/data/PropertyPath';
-import { type Input } from '@enonic/lib-admin-ui/form/Input';
-import { type FormSet } from '@enonic/lib-admin-ui/form/set/FormSet';
+import { PropertyPath, PropertyPathElement } from '@enonic/input-types/data';
+import { type Input } from '@enonic/input-types/schema';
+import { type FormSet } from '@enonic/input-types/schema';
 
 function getIndexedPath(name: string, parentPath?: PropertyPath, index: number = 0): PropertyPath {
     const pathElement = new PropertyPathElement(name, index);

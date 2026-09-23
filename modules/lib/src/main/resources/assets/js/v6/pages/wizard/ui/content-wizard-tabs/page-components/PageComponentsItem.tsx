@@ -1,4 +1,4 @@
-import type { SortableListItemContext } from '@enonic/lib-admin-ui/form2/components';
+import type { SortableListItemContext } from '@enonic/input-types';
 import { cn } from '@enonic/ui';
 import { Box, ChevronRight, Columns2, Globe, type LucideIcon, OctagonAlert, PenLine, Puzzle } from 'lucide-react';
 import { type MouseEvent, type ReactElement } from 'react';

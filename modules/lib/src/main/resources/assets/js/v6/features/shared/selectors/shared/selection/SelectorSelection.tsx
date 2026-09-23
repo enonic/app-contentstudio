@@ -1,4 +1,4 @@
-import { SortableGridList, type SortableGridListItemContext } from '@enonic/lib-admin-ui/form2/components';
+import { SortableGridList, type SortableGridListItemContext } from '@enonic/input-types';
 import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
 import type { MovedContentItem } from '../../../../../../app/browse/MovedContentItem';
 import { ContentSummary, ContentSummaryBuilder } from '../../../../../../app/content/ContentSummary';

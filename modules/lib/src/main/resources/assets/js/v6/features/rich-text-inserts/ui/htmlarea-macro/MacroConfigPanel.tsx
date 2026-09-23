@@ -1,4 +1,4 @@
-import { ValidationVisibilityProvider } from '@enonic/lib-admin-ui/form2';
+import { ValidationVisibilityProvider } from '@enonic/input-types';
 import { type ReactElement } from 'react';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import { FormRenderer } from '../../../shared/form/FormRenderer';

@@ -1,43 +1,47 @@
-import {Class} from '@enonic/lib-admin-ui/Class';
-import {type PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
-import {Value} from '@enonic/lib-admin-ui/data/Value';
-import {type ValueType} from '@enonic/lib-admin-ui/data/ValueType';
-import {ValueTypeConverter} from '@enonic/lib-admin-ui/data/ValueTypeConverter';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {type Input} from '@enonic/lib-admin-ui/form/Input';
-import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
-import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {type BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
-import {type SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Reference} from '@enonic/lib-admin-ui/util/Reference';
-import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import { Class } from '@enonic/lib-admin-ui/Class';
+import { type PropertyArray } from '@enonic/lib-admin-ui/data/PropertyArray';
+import { Value } from '@enonic/lib-admin-ui/data/Value';
+import { type ValueType } from '@enonic/lib-admin-ui/data/ValueType';
+import { ValueTypeConverter } from '@enonic/lib-admin-ui/data/ValueTypeConverter';
+import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { type Input } from '@enonic/lib-admin-ui/form/Input';
+import { InputTypeManager } from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
+import { NotifyManager } from '@enonic/lib-admin-ui/notify/NotifyManager';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { type BaseSelectedOptionsView } from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import { type SelectedOption } from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { Reference } from '@enonic/lib-admin-ui/util/Reference';
+import { type SelectionChange } from '@enonic/lib-admin-ui/util/SelectionChange';
 import Q from 'q';
-import {type MovedContentItem} from '../../browse/MovedContentItem';
-import {CompareStatus} from '../../content/CompareStatus';
-import {type ContentId} from '../../content/ContentId';
-import {ContentPath} from '../../content/ContentPath';
-import {type ContentSummary, ContentSummaryBuilder} from '../../content/ContentSummary';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {type ContentServerChangeItem} from '../../event/ContentServerChangeItem';
-import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
-import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
-import {GetContentTypeByNameRequest} from '../../resource/GetContentTypeByNameRequest';
-import {type ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
-import {type ContentType} from '../schema/ContentType';
-import {ContentSelectedOptionsView} from '../ui/selector/ContentComboBox';
-import {ContentInputTypeManagingAdd} from '../ui/selector/ContentInputTypeManagingAdd';
-import {ContentSummaryOptionDataLoader, type ContentSummaryOptionDataLoaderBuilder} from '../ui/selector/ContentSummaryOptionDataLoader';
-import {ContentListBox} from './ContentListBox';
-import {type ContentSelectorDropdownOptions} from './ContentSelectorDropdown';
-import {ContentTreeSelectorDropdown, type ContentTreeSelectorDropdownOptions} from './ContentTreeSelectorDropdown';
-import {NewContentButton} from './ui/NewContentButton';
+import { type MovedContentItem } from '../../browse/MovedContentItem';
+import { CompareStatus } from '../../content/CompareStatus';
+import { type ContentId } from '../../content/ContentId';
+import { ContentPath } from '../../content/ContentPath';
+import { type ContentSummary, ContentSummaryBuilder } from '../../content/ContentSummary';
+import { ContentSummaryAndCompareStatus } from '../../content/ContentSummaryAndCompareStatus';
+import { type ContentServerChangeItem } from '../../event/ContentServerChangeItem';
+import { ContentServerEventsHandler } from '../../event/ContentServerEventsHandler';
+import { ContentTreeSelectorItem } from '../../item/ContentTreeSelectorItem';
+import { GetContentTypeByNameRequest } from '../../resource/GetContentTypeByNameRequest';
+import { type ContentInputTypeViewContext } from '../ContentInputTypeViewContext';
+import { type ContentType } from '../schema/ContentType';
+import { ContentSelectedOptionsView } from '../ui/selector/ContentComboBox';
+import { ContentInputTypeManagingAdd } from '../ui/selector/ContentInputTypeManagingAdd';
+import {
+    ContentSummaryOptionDataLoader,
+    type ContentSummaryOptionDataLoaderBuilder,
+} from '../ui/selector/ContentSummaryOptionDataLoader';
+import { ContentListBox } from './ContentListBox';
+import { type ContentSelectorDropdownOptions } from './ContentSelectorDropdown';
+import { ContentTreeSelectorDropdown, type ContentTreeSelectorDropdownOptions } from './ContentTreeSelectorDropdown';
+import { NewContentButton } from './ui/NewContentButton';
+import { RawInputConfig } from '@enonic/lib-admin-ui/form/Input';
 
-export class ContentSelector<T extends BaseSelectedOptionsView<ContentTreeSelectorItem> = ContentSelectedOptionsView>
-    extends ContentInputTypeManagingAdd<ContentTreeSelectorItem> {
-
+export class ContentSelector<
+    T extends BaseSelectedOptionsView<ContentTreeSelectorItem> = ContentSelectedOptionsView,
+> extends ContentInputTypeManagingAdd<ContentTreeSelectorItem> {
     protected contentSelectorDropdown: ContentTreeSelectorDropdown;
 
     protected contentSelectedOptionsView: T;
@@ -105,9 +109,12 @@ export class ContentSelector<T extends BaseSelectedOptionsView<ContentTreeSelect
                 const oldPath = oldPaths[index];
                 const newPath = renamed.getPath();
 
-                if (thisContentPath?.equals(newPath) || thisContentPath?.isDescendantOf(newPath) || thisContentPath?.equals(oldPath) ||
-                    thisContentPath?.isDescendantOf(oldPath)) {
-
+                if (
+                    thisContentPath?.equals(newPath) ||
+                    thisContentPath?.isDescendantOf(newPath) ||
+                    thisContentPath?.equals(oldPath) ||
+                    thisContentPath?.isDescendantOf(oldPath)
+                ) {
                     this.contentSelectorDropdown.setLoadWhenListShown();
                 }
 
@@ -140,7 +147,8 @@ export class ContentSelector<T extends BaseSelectedOptionsView<ContentTreeSelect
                 }
             });
 
-            paths.filter(deletedItem => selectedContentIdsMap.hasOwnProperty(deletedItem.getContentId().toString()))
+            paths
+                .filter((deletedItem) => selectedContentIdsMap.hasOwnProperty(deletedItem.getContentId().toString()))
                 .forEach((deletedItem) => {
                     const selectedOption = this.getSelectedOptionsView().getById(deletedItem.getContentId().toString());
                     if (selectedOption != null) {
@@ -166,9 +174,9 @@ export class ContentSelector<T extends BaseSelectedOptionsView<ContentTreeSelect
     }
 
     protected readInputConfig(): void {
-        const inputConfig: Record<string, Record<string, unknown>[]> = this.context.inputConfig;
-        this.treeMode = inputConfig['treeMode']?.[0]?.value as boolean || false;
-        this.hideToggleIcon = inputConfig['hideToggleIcon']?.[0]?.value as boolean || false;
+        const inputConfig: RawInputConfig = this.context.inputConfig;
+        this.treeMode = (inputConfig['treeMode']?.[0]?.value as boolean) || false;
+        this.hideToggleIcon = (inputConfig['hideToggleIcon']?.[0]?.value as boolean) || false;
 
         super.readInputConfig();
     }
@@ -187,7 +195,9 @@ export class ContentSelector<T extends BaseSelectedOptionsView<ContentTreeSelect
 
     availableSizeChanged() {
         if (ContentSelector.debug) {
-            console.log('Relationship.availableSizeChanged(' + this.getEl().getWidth() + 'x' + this.getEl().getWidth() + ')');
+            console.log(
+                'Relationship.availableSizeChanged(' + this.getEl().getWidth() + 'x' + this.getEl().getWidth() + ')',
+            );
         }
     }
 
@@ -206,7 +216,7 @@ export class ContentSelector<T extends BaseSelectedOptionsView<ContentTreeSelect
 
         return super.layout(input, propertyArray).then(() => {
             this.initiallySelectedItems = this.getSelectedItemsIds();
-                this.contentSelectorDropdown = this.createSelectorDropdown(input);
+            this.contentSelectorDropdown = this.createSelectorDropdown(input);
             this.appendChild(this.contentSelectorDropdown);
             return this.addExtraElementsOnLayout(input, propertyArray).then(() => this.doLayout(propertyArray));
         });
@@ -226,7 +236,6 @@ export class ContentSelector<T extends BaseSelectedOptionsView<ContentTreeSelect
             maxSelected: input.getOccurrences().getMaximum(),
             selectedOptionsView: this.contentSelectedOptionsView,
             getSelectedItems: this.getSelectedItemsIds.bind(this),
-
         };
 
         const contentSelectorDropdown = this.doCreateSelectorDropdown(listBox, dropdownOptions);
@@ -247,10 +256,12 @@ export class ContentSelector<T extends BaseSelectedOptionsView<ContentTreeSelect
             });
 
             selectionChange.deselected?.forEach((item: ContentTreeSelectorItem) => {
-                const property = this.getPropertyArray().getProperties().find((property) => {
-                    const propertyValue = property.hasNonNullValue() ? property.getString() : '';
-                    return propertyValue === item.getId();
-                });
+                const property = this.getPropertyArray()
+                    .getProperties()
+                    .find((property) => {
+                        const propertyValue = property.hasNonNullValue() ? property.getString() : '';
+                        return propertyValue === item.getId();
+                    });
 
                 if (property) {
                     this.handleDeselected(property.getIndex());
@@ -263,8 +274,10 @@ export class ContentSelector<T extends BaseSelectedOptionsView<ContentTreeSelect
         return contentSelectorDropdown;
     }
 
-    protected doCreateSelectorDropdown(listBox: ContentListBox<ContentTreeSelectorItem>,
-                                       dropdownOptions: ContentSelectorDropdownOptions): ContentTreeSelectorDropdown {
+    protected doCreateSelectorDropdown(
+        listBox: ContentListBox<ContentTreeSelectorItem>,
+        dropdownOptions: ContentSelectorDropdownOptions,
+    ): ContentTreeSelectorDropdown {
         return new ContentTreeSelectorDropdown(listBox, dropdownOptions);
     }
 
@@ -280,16 +293,20 @@ export class ContentSelector<T extends BaseSelectedOptionsView<ContentTreeSelect
         return new ContentSelectedOptionsView().setContextContent(this.context.content);
     }
 
-    protected createContentListBox(loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>): ContentListBox<ContentTreeSelectorItem> {
-        return new ContentListBox({loader: loader});
+    protected createContentListBox(
+        loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>,
+    ): ContentListBox<ContentTreeSelectorItem> {
+        return new ContentListBox({ loader: loader });
     }
 
     protected addExtraElementsOnLayout(input: Input, propertyArray: PropertyArray): Q.Promise<void> {
-        return this.isNewButtonToBeAdded().then((isNewButtonToBeAdded: boolean) => {
-            if (isNewButtonToBeAdded) {
-                this.addNewContentButton();
-            }
-        }).catch(DefaultErrorHandler.handle);
+        return this.isNewButtonToBeAdded()
+            .then((isNewButtonToBeAdded: boolean) => {
+                if (isNewButtonToBeAdded) {
+                    this.addNewContentButton();
+                }
+            })
+            .catch(DefaultErrorHandler.handle);
     }
 
     private isNewButtonToBeAdded(): Q.Promise<boolean> {
@@ -297,16 +314,21 @@ export class ContentSelector<T extends BaseSelectedOptionsView<ContentTreeSelect
             return Q.resolve(true);
         }
 
-        return new GetContentTypeByNameRequest(this.context.content.getType()).sendAndParse().then((contentType: ContentType) => {
-            return Q.resolve(contentType.isAllowChildContent());
-        });
+        return new GetContentTypeByNameRequest(this.context.content.getType())
+            .sendAndParse()
+            .then((contentType: ContentType) => {
+                return Q.resolve(contentType.isAllowChildContent());
+            });
     }
 
     private addNewContentButton(): void {
-        this.newContentButton = new NewContentButton(
-            {content: this.context.content, allowedContentTypes: this.allowedContentTypes, project: this.context.project});
+        this.newContentButton = new NewContentButton({
+            content: this.context.content,
+            allowedContentTypes: this.allowedContentTypes,
+            project: this.context.project,
+        });
         this.newContentButton.setTitle(i18n('action.addNew'));
-        this.newContentButton.onContentAdded((content: ContentSummary) =>  {
+        this.newContentButton.onContentAdded((content: ContentSummary) => {
             const item = ContentSummaryAndCompareStatus.fromContentAndCompareStatus(content, CompareStatus.NEW);
             this.contentSelectorDropdown.select(this.createSelectorItem(item));
         });
@@ -346,8 +368,9 @@ export class ContentSelector<T extends BaseSelectedOptionsView<ContentTreeSelect
         for (let i = 0; i < length; i++) {
             if (this.getPropertyArray().get(i).getValue().getString() === id) {
                 this.getPropertyArray().remove(i);
-                NotifyManager.get().showWarning('Failed to load content item with id ' + id +
-                                                '. The reference will be removed upon save.');
+                NotifyManager.get().showWarning(
+                    'Failed to load content item with id ' + id + '. The reference will be removed upon save.',
+                );
                 break;
             }
         }
@@ -396,15 +419,17 @@ export class ContentSelector<T extends BaseSelectedOptionsView<ContentTreeSelect
         this.ignorePropertyChange(true);
         this.getPropertyArray().removeAll(true);
 
-        this.contentSelectorDropdown.getSelectedOptions().filter((selectedOption: SelectedOption<ContentTreeSelectorItem>) => {
-            const contentId = selectedOption.getOption().getDisplayValue()?.getContentId();
-            if (!contentId) {
-                return false;
-            }
-            const reference: Reference = new Reference(contentId.toString());
-            const value: Value = new Value(reference, ValueTypes.REFERENCE);
-            this.getPropertyArray().add(value);
-        });
+        this.contentSelectorDropdown
+            .getSelectedOptions()
+            .filter((selectedOption: SelectedOption<ContentTreeSelectorItem>) => {
+                const contentId = selectedOption.getOption().getDisplayValue()?.getContentId();
+                if (!contentId) {
+                    return false;
+                }
+                const reference: Reference = new Reference(contentId.toString());
+                const value: Value = new Value(reference, ValueTypes.REFERENCE);
+                this.getPropertyArray().add(value);
+            });
 
         this.ignorePropertyChange(false);
     }
@@ -415,7 +440,8 @@ export class ContentSelector<T extends BaseSelectedOptionsView<ContentTreeSelect
 
         if (!this.getPropertyArray().containsValue(value)) {
             this.ignorePropertyChange(true);
-            if (this.contentSelectorDropdown.countSelected() === 1) { // overwrite initial value
+            if (this.contentSelectorDropdown.countSelected() === 1) {
+                // overwrite initial value
                 this.getPropertyArray().set(0, value);
             } else {
                 this.getPropertyArray().add(value);
@@ -451,7 +477,10 @@ export class ContentSelector<T extends BaseSelectedOptionsView<ContentTreeSelect
         }
     }
 
-    private updateSelectedItemsPathsIfParentRenamed(renamedContent: ContentSummaryAndCompareStatus, renamedItemOldPath: ContentPath): void {
+    private updateSelectedItemsPathsIfParentRenamed(
+        renamedContent: ContentSummaryAndCompareStatus,
+        renamedItemOldPath: ContentPath,
+    ): void {
         this.getSelectedOptions().forEach((selectedOption: SelectedOption<ContentTreeSelectorItem>) => {
             const selectedOptionPath = selectedOption.getOption().getDisplayValue().getPath();
 
@@ -461,34 +490,51 @@ export class ContentSelector<T extends BaseSelectedOptionsView<ContentTreeSelect
         });
     }
 
-    private updatePathForRenamedItemDescendant(selectedOption: SelectedOption<ContentTreeSelectorItem>, renamedItemOldPath: ContentPath,
-                                               renamedAncestor: ContentSummaryAndCompareStatus) {
+    private updatePathForRenamedItemDescendant(
+        selectedOption: SelectedOption<ContentTreeSelectorItem>,
+        renamedItemOldPath: ContentPath,
+        renamedAncestor: ContentSummaryAndCompareStatus,
+    ) {
         const selectedOptionPath = selectedOption.getOption().getDisplayValue().getPath();
         const option = selectedOption.getOption();
-        const newPath = this.makeNewPathForRenamedItemDescendant(selectedOptionPath, renamedItemOldPath, renamedAncestor);
+        const newPath = this.makeNewPathForRenamedItemDescendant(
+            selectedOptionPath,
+            renamedItemOldPath,
+            renamedAncestor,
+        );
         const newValue = this.makeNewItemWithUpdatedPath(option.getDisplayValue(), newPath);
         option.setDisplayValue(newValue);
         selectedOption.getOptionView().setOption(option);
     }
 
-    protected makeNewPathForRenamedItemDescendant(descendantItemPath: ContentPath, renamedItemOldPath: ContentPath,
-                                                  renamedItem: ContentSummaryAndCompareStatus): ContentPath {
+    protected makeNewPathForRenamedItemDescendant(
+        descendantItemPath: ContentPath,
+        renamedItemOldPath: ContentPath,
+        renamedItem: ContentSummaryAndCompareStatus,
+    ): ContentPath {
         const descendantItemPathAsString = descendantItemPath.toString();
         const renamedItemOldPathAsString = renamedItemOldPath.toString();
-        const newSelectedOptionPathAsString = descendantItemPathAsString.replace(renamedItemOldPathAsString,
-            renamedItem.getPath().toString());
+        const newSelectedOptionPathAsString = descendantItemPathAsString.replace(
+            renamedItemOldPathAsString,
+            renamedItem.getPath().toString(),
+        );
         return ContentPath.create().fromString(newSelectedOptionPathAsString).build();
     }
 
-    private makeNewItemWithUpdatedPath(oldValue: ContentTreeSelectorItem, newPath: ContentPath): ContentTreeSelectorItem {
+    private makeNewItemWithUpdatedPath(
+        oldValue: ContentTreeSelectorItem,
+        newPath: ContentPath,
+    ): ContentTreeSelectorItem {
         const content = oldValue.getContent();
         const newContentSummary = new ContentSummaryBuilder(content.getContentSummary()).setPath(newPath).build();
-        const csacs = ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(newContentSummary,
-            oldValue.getCompareStatus(), oldValue.getPublishStatus());
+        const csacs = ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(
+            newContentSummary,
+            oldValue.getCompareStatus(),
+            oldValue.getPublishStatus(),
+        );
 
         return this.createSelectorItem(csacs);
     }
-
 
     protected getNumberOfValids(): number {
         return this.getPropertyArray().getSize();

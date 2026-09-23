@@ -1,8 +1,8 @@
 import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
-import type { PropertyPath } from '@enonic/lib-admin-ui/data/PropertyPath';
+import type { PropertyPath } from '@enonic/input-types/data';
 import { NamePrettyfier } from '@enonic/lib-admin-ui/NamePrettyfier';
-import { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
-import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { PropertyTree } from '@enonic/input-types/data';
+import { ValueTypes } from '@enonic/input-types/data';
 import { atom, batched, computed, map } from 'nanostores';
 import type { Content } from '../../../../app/content/Content';
 import type { ContentName } from '../../../../app/content/ContentName';
@@ -28,7 +28,7 @@ import { createDebounce } from '../../../shared/lib/timing/createDebounce';
 import { $contextContent } from '../../../widgets/context-panel/model/contextContent.store';
 import { ContentPath } from '../../../../app/content/ContentPath';
 import { contentExistsByPath } from '../../../entities/content/api/contentExists.api';
-import { seedFormDefaults } from '../../../features/shared/form/seedFormDefaults';
+import { seedFormDefaults } from '@enonic/input-types';
 
 export {
     $isContentFormExpanded,
