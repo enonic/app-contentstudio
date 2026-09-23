@@ -3,8 +3,8 @@ import { type ContentSelectorConfig } from './ContentSelectorConfig';
 import { type ValueType } from '@enonic/input-types/data';
 import { type Value } from '@enonic/input-types/data';
 import { ValueTypes } from '@enonic/input-types/data';
-import type { InputConfigJson } from '@enonic/ui-types';
 import { SITE_PATH, readAllowPath } from '../../../../../shared/lib/form/form';
+import type { InputConfigEntries } from '@enonic/input-types';
 
 export const ContentSelectorDescriptor: InputTypeDescriptor<ContentSelectorConfig> = {
     name: 'ContentSelector' as const,
@@ -13,7 +13,7 @@ export const ContentSelectorDescriptor: InputTypeDescriptor<ContentSelectorConfi
         return ValueTypes.REFERENCE;
     },
 
-    readConfig(raw: InputConfigJson): ContentSelectorConfig {
+    readConfig(raw: InputConfigEntries): ContentSelectorConfig {
         const allowContentType = raw?.['allowContentType']?.map((cfg) => cfg['value'] as string).filter((val) => !!val);
         const allowPath = readAllowPath(raw, [SITE_PATH]);
         const treeMode = raw?.['treeMode']?.[0]?.value === true;
