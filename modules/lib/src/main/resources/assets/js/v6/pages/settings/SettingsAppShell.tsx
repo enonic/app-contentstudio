@@ -1,4 +1,4 @@
-import { initBuiltInTypes } from '@enonic/lib-admin-ui/form2';
+import { registerBuiltInTypes } from '@enonic/input-types';
 import { type ReactElement } from 'react';
 import { registerContentStudioInputTypes } from '../../features/shared/form/input-types';
 import { DeleteSettingsDialog } from './ui/DeleteSettingsDialog';
@@ -22,7 +22,7 @@ SettingsAppShell.displayName = 'SettingsAppShell';
 export class SettingsAppShellElement extends LegacyElement<typeof SettingsAppShell, {}> {
     constructor() {
         super({}, SettingsAppShell);
-        initBuiltInTypes();
+        registerBuiltInTypes();
         registerContentStudioInputTypes();
         setActiveProjectResolver(() => $projects.get().activeProjectId);
     }

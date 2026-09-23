@@ -1,8 +1,8 @@
 import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
-import type { PropertyPath } from '@enonic/lib-admin-ui/data/PropertyPath';
+import type { PropertyPath } from '@enonic/input-types/data';
 import { NamePrettyfier } from '@enonic/lib-admin-ui/NamePrettyfier';
-import { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
-import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { PropertyTree } from '@enonic/input-types/data';
+import { ValueTypes } from '@enonic/input-types/data';
 import { atom, batched, computed, map } from 'nanostores';
 import type { Content } from '../../../../app/content/Content';
 import type { ContentName } from '../../../../app/content/ContentName';
@@ -27,7 +27,7 @@ import { createDebounce } from '../../../shared/lib/timing/createDebounce';
 import { $contextContent } from '../../../widgets/context-panel/model/contextContent.store';
 import { ContentPath } from '../../../../app/content/ContentPath';
 import { contentExistsByPath } from '../../../entities/content/api/contentExists.api';
-import { seedFormDefaults } from '../../../features/shared/form/seedFormDefaults';
+import { seedFormDefaults } from '@enonic/input-types';
 
 //
 // * Types
@@ -347,20 +347,16 @@ export const $mixinsTabs = computed(
     (enabledNames, schemas, unknownNames): MixinTabInfo[] => {
         const knownTabs = schemas
             .filter((schema) => enabledNames.has(schema.getName()))
-            .map(
-                (schema): MixinTabInfo => ({
-                    name: schema.getName(),
-                    title: schema.getTitle() ?? schema.getName(),
-                }),
-            );
+            .map((schema): MixinTabInfo => ({
+                name: schema.getName(),
+                title: schema.getTitle() ?? schema.getName(),
+            }));
 
-        const unknownTabs = Array.from(unknownNames).map(
-            (name): MixinTabInfo => ({
-                name,
-                title: name,
-                unknown: true,
-            }),
-        );
+        const unknownTabs = Array.from(unknownNames).map((name): MixinTabInfo => ({
+            name,
+            title: name,
+            unknown: true,
+        }));
 
         return [...knownTabs, ...unknownTabs];
     },
@@ -377,24 +373,20 @@ export type MixinMenuItem = {
 export const $mixinsMenuItems = computed(
     [$mixinsDescriptors, $enabledMixinsNames, $unknownMixinsNames],
     (schemas, enabledNames, unknownNames): MixinMenuItem[] => {
-        const knownItems = schemas.map(
-            (schema): MixinMenuItem => ({
-                name: schema.getName(),
-                displayName: schema.getTitle() ?? schema.getName(),
-                isOptional: schema.isOptional(),
-                isEnabled: enabledNames.has(schema.getName()),
-            }),
-        );
+        const knownItems = schemas.map((schema): MixinMenuItem => ({
+            name: schema.getName(),
+            displayName: schema.getTitle() ?? schema.getName(),
+            isOptional: schema.isOptional(),
+            isEnabled: enabledNames.has(schema.getName()),
+        }));
 
-        const unknownItems = Array.from(unknownNames).map(
-            (name): MixinMenuItem => ({
-                name,
-                displayName: name,
-                isOptional: true,
-                isEnabled: true,
-                unknown: true,
-            }),
-        );
+        const unknownItems = Array.from(unknownNames).map((name): MixinMenuItem => ({
+            name,
+            displayName: name,
+            isOptional: true,
+            isEnabled: true,
+            unknown: true,
+        }));
 
         return [...knownItems, ...unknownItems];
     },
@@ -710,7 +702,9 @@ function isMixinDataDirty(draftMixin: Mixin | undefined, persistedMixin: Mixin |
         }
 
         const data = presentMixin.getData();
-        return data != null && !ContentDiffHelper.dataEquivalent(data, new PropertyTree(), mixinChangedPathsProvider(name));
+        return (
+            data != null && !ContentDiffHelper.dataEquivalent(data, new PropertyTree(), mixinChangedPathsProvider(name))
+        );
     }
 
     return !ContentDiffHelper.dataEquivalent(

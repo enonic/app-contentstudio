@@ -1,6 +1,6 @@
-import type { PropertyPath } from '@enonic/lib-admin-ui/data/PropertyPath';
-import type { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
-import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import type { PropertyPath } from '@enonic/input-types/data';
+import type { PropertyTree } from '@enonic/input-types/data';
+import { ValueTypes } from '@enonic/input-types/data';
 import { toPathKey } from '../../../shared/lib/cms/property/path';
 
 export type ChangedPathsStore = {

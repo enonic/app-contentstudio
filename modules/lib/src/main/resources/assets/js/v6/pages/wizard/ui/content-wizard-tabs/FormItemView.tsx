@@ -1,9 +1,9 @@
-import { type PropertyPath } from '@enonic/lib-admin-ui/data/PropertyPath';
-import { type FormItem } from '@enonic/lib-admin-ui/form/FormItem';
-import { Input } from '@enonic/lib-admin-ui/form/Input';
-import { FieldSet } from '@enonic/lib-admin-ui/form/set/fieldset/FieldSet';
-import { FormItemSet } from '@enonic/lib-admin-ui/form/set/itemset/FormItemSet';
-import { FormOptionSet } from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
+import { type PropertyPath } from '@enonic/input-types/data';
+import { type FormItem } from '@enonic/input-types/schema';
+import { Input } from '@enonic/input-types/schema';
+import { FieldSet } from '@enonic/input-types/schema';
+import { FormItemSet } from '@enonic/input-types/schema';
+import { FormOptionSet } from '@enonic/input-types/schema';
 import { type ReactElement } from 'react';
 import { FormInputView } from './FormInputView';
 import { FormUnsupportedView } from './FormUnsupportedView';

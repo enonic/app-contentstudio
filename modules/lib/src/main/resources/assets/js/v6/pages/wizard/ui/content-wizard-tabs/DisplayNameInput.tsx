@@ -1,5 +1,5 @@
 import { cn, useBlinkAttention } from '@enonic/ui';
-import { FieldError } from '@enonic/lib-admin-ui/form2/components/field-error';
+import { FieldError } from '@enonic/input-types';
 import { useStore } from '@nanostores/preact';
 import {
     useCallback,

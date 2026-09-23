@@ -1,4 +1,4 @@
-import { FieldRegistry } from '@enonic/lib-admin-ui/form2';
+import { FieldRegistry } from '@enonic/input-types';
 import type { AiFieldPath } from './ai-protocol';
 
 //

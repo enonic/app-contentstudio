@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
-import { type Value } from '@enonic/lib-admin-ui/data/Value';
-import { type Occurrences } from '@enonic/lib-admin-ui/form/Occurrences';
-import { type SelfManagedComponentProps } from '@enonic/lib-admin-ui/form2';
+import { ValueTypes } from '@enonic/input-types/data';
+import { type Value } from '@enonic/input-types/data';
+import { type Occurrences } from '@enonic/input-types/schema';
+import { type SelfManagedComponentProps } from '@enonic/input-types';
 import {
     deleteAttachment,
     uploadAttachmentFile,

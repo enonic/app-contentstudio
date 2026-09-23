@@ -1,22 +1,24 @@
-import type { SelfManagedComponentProps } from '@enonic/lib-admin-ui/form2';
+import type { SelfManagedComponentProps } from '@enonic/input-types';
 import type { ReactElement } from 'react';
 import { useStore } from '@nanostores/preact';
 import { $activeProject } from '../../../../../entities/project';
 import { useSelectorInput } from '../hooks';
-import { useFormRender } from '../../FormRenderContext';
+import { useFormRender } from '@enonic/input-types';
 import { ContentCombobox } from '../../../selectors/content';
 import { ContentRow } from '../../../selectors/shared/combobox/ContentRow';
 import { SelectorSelection, SelectorSelectionItem } from '../../../selectors/shared/selection';
 import type { ContentSelectorConfig } from './ContentSelectorConfig';
 import { MediaSelectorItemView } from '../../../selectors/media';
 import { ContentSelectorInputAddButton } from './ContentSelectorInputAddButton';
+import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 /**
  * Differently than MediaSelector and ImageSelector, here we don't reutilize the ContentSelector component.
  * Instead we reuse shared building blocks like ContentCombobox, SelectorSelection, SelectorSelectionItem, etc.
  */
 export const ContentSelectorInput = (props: SelfManagedComponentProps<ContentSelectorConfig>): ReactElement => {
     const activeProject = useStore($activeProject);
-    const { applicationKey } = useFormRender();
+    const { applicationKey: applicationKeyName } = useFormRender();
+    const applicationKey = applicationKeyName == null ? undefined : ApplicationKey.fromString(applicationKeyName);
 
     const {
         contextContent: selectorContextContent,

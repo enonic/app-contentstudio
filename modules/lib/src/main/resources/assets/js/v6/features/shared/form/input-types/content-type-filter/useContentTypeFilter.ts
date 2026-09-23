@@ -1,5 +1,5 @@
-import { type SelfManagedComponentProps } from '@enonic/lib-admin-ui/form2';
-import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { type SelfManagedComponentProps } from '@enonic/input-types';
+import { ValueTypes } from '@enonic/input-types/data';
 import { type ContentTypeSummary } from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { useStore } from '@nanostores/preact';

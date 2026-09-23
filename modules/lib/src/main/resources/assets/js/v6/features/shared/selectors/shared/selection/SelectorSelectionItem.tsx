@@ -5,7 +5,7 @@ import { type ContentSummary } from '../../../../../../app/content/ContentSummar
 import { PenIcon, XIcon } from 'lucide-react';
 import { EditContentEvent } from '../../../../../../app/event/EditContentEvent';
 import { type Project } from '../../../../../../app/settings/data/project/Project';
-import { type SortableGridListItemContext } from '@enonic/lib-admin-ui/form2/components';
+import { type SortableGridListItemContext } from '@enonic/input-types';
 
 export type SelectorSelectionItemProps = {
     /** The current active project */

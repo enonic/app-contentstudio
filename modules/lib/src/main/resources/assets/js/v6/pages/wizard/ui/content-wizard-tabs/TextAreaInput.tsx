@@ -1,4 +1,4 @@
-import { type PropertyPath } from '@enonic/lib-admin-ui/data/PropertyPath';
+import { type PropertyPath } from '@enonic/input-types/data';
 import { TextArea as UITextArea } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { type ChangeEvent, type ReactElement, useCallback } from 'react';

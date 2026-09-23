@@ -1,10 +1,10 @@
-import {type ReactElement} from 'react';
-import {CustomSelectorItemView} from './CustomSelectorItemView';
-import {type SortableGridListItemContext} from '@enonic/lib-admin-ui/form2/components';
-import {type ContentSummary} from '../../../../../../app/content/ContentSummary';
-import {type CustomSelectorItem} from './CustomSelectorInput';
-import {X} from 'lucide-react';
-import {cn, IconButton} from '@enonic/ui';
+import { type ReactElement } from 'react';
+import { CustomSelectorItemView } from './CustomSelectorItemView';
+import { type SortableGridListItemContext } from '@enonic/input-types';
+import { type ContentSummary } from '../../../../../../app/content/ContentSummary';
+import { type CustomSelectorItem } from './CustomSelectorInput';
+import { X } from 'lucide-react';
+import { cn, IconButton } from '@enonic/ui';
 
 type CustomSelectorSelectionItemViewProps = {
     items: CustomSelectorItem[];
@@ -20,7 +20,7 @@ export const CustomSelectorSelectionItemView = ({
     onRemove,
     className,
 }: CustomSelectorSelectionItemViewProps): ReactElement => {
-    const {index, item: content} = context;
+    const { index, item: content } = context;
     const item = items.find((item) => item.id === content.getId());
 
     if (!item) return null;

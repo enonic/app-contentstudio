@@ -1,34 +1,17 @@
-import { PropertyPath } from '@enonic/lib-admin-ui/data/PropertyPath';
-import { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import { PropertyPath } from '@enonic/input-types/data';
+import { PropertyTree } from '@enonic/input-types/data';
 import { FormBuilder, type Form } from '@enonic/lib-admin-ui/form/Form';
-import type { FormItem } from '@enonic/lib-admin-ui/form/FormItem';
-import { Input } from '@enonic/lib-admin-ui/form/Input';
-import { FieldSet } from '@enonic/lib-admin-ui/form/set/fieldset/FieldSet';
-import { FormItemSet } from '@enonic/lib-admin-ui/form/set/itemset/FormItemSet';
-import { FormOptionSet } from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
-import { FormOptionSetOption } from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSetOption';
-import { initBuiltInTypes } from '@enonic/lib-admin-ui/form2';
+import { FormItemFactoryImpl } from '@enonic/lib-admin-ui/form/FormItemFactoryImpl';
+import type { FormItemTypeWrapperJson } from '@enonic/lib-admin-ui/form/json/FormItemTypeWrapperJson';
+import type { FormItem } from '@enonic/input-types/schema';
+import { registerBuiltInTypes } from '@enonic/input-types';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { resolveDisplayNameExpression } from './displayNameExpression.utils';
 
 type Json = Record<string, unknown>;
 
 const factory = {
-    createFormItem: (json: Json): FormItem => {
-        if (json.Input) return Input.fromJson(json.Input as Parameters<typeof Input.fromJson>[0]);
-        if (json.FieldSet) return new FieldSet(json.FieldSet as ConstructorParameters<typeof FieldSet>[0], factory);
-        if (json.FormItemSet)
-            return new FormItemSet(json.FormItemSet as ConstructorParameters<typeof FormItemSet>[0], factory);
-        if (json.FormOptionSet)
-            return new FormOptionSet(json.FormOptionSet as ConstructorParameters<typeof FormOptionSet>[0], factory);
-        if (json.FormOptionSetOption) {
-            return new FormOptionSetOption(
-                json.FormOptionSetOption as ConstructorParameters<typeof FormOptionSetOption>[0],
-                factory,
-            );
-        }
-        return null as never;
-    },
+    createFormItem: (json: Json): FormItem => FormItemFactoryImpl.get().createFormItem(json as FormItemTypeWrapperJson),
 };
 
 function inputJson(name: string, inputType: string): Json {
@@ -55,7 +38,7 @@ function treeOf(values: Record<string, string>): PropertyTree {
 
 describe('resolveDisplayNameExpression', () => {
     beforeAll(() => {
-        initBuiltInTypes();
+        registerBuiltInTypes();
     });
 
     it('should substitute placeholders with the matching form values', () => {

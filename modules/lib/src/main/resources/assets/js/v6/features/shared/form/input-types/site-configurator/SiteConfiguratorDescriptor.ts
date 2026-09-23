@@ -1,12 +1,12 @@
-import { type InputTypeDescriptor, type ValidationResult } from '@enonic/lib-admin-ui/form2/descriptor';
-import { validateForm } from '@enonic/lib-admin-ui/form2';
+import { type InputTypeDescriptor, type ValidationResult } from '@enonic/input-types';
+import { validateForm } from '@enonic/input-types';
 import { type SiteConfiguratorConfig } from './SiteConfiguratorConfig';
-import { type ValueType } from '@enonic/lib-admin-ui/data/ValueType';
-import { type Value } from '@enonic/lib-admin-ui/data/Value';
-import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { type ValueType } from '@enonic/input-types/data';
+import { type Value } from '@enonic/input-types/data';
+import { ValueTypes } from '@enonic/input-types/data';
 import { ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
-import type { RawInputConfig } from '@enonic/lib-admin-ui/form/Input';
+import type { InputConfigJson } from '@enonic/ui-types';
 import { $applications } from '../../../../../entities/application';
 
 export const SiteConfiguratorDescriptor: InputTypeDescriptor<SiteConfiguratorConfig> = {
@@ -16,7 +16,7 @@ export const SiteConfiguratorDescriptor: InputTypeDescriptor<SiteConfiguratorCon
         return ValueTypes.DATA;
     },
 
-    readConfig(_raw: RawInputConfig): SiteConfiguratorConfig {
+    readConfig(_raw: InputConfigJson): SiteConfiguratorConfig {
         return {};
     },
 

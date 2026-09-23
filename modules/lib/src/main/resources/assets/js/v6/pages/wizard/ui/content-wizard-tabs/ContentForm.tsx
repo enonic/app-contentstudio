@@ -3,7 +3,7 @@ import {
     RawValueProvider,
     ServerErrorsProvider,
     ValidationVisibilityProvider,
-} from '@enonic/lib-admin-ui/form2';
+} from '@enonic/input-types';
 import { useStore } from '@nanostores/preact';
 import { type ReactElement, useEffect, useMemo } from 'react';
 import { EditLockOverlay } from '../../../../shared/ui/EditLockOverlay';

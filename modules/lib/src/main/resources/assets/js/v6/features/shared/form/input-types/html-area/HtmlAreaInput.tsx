@@ -1,11 +1,11 @@
 /*global CKEDITOR*/
 
 import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
-import type { Value } from '@enonic/lib-admin-ui/data/Value';
-import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
-import { FieldError } from '@enonic/lib-admin-ui/form2/components/field-error';
-import type { InputTypeComponentProps } from '@enonic/lib-admin-ui/form2/types';
-import { getFirstError } from '@enonic/lib-admin-ui/form2/utils/validation';
+import type { Value } from '@enonic/input-types/data';
+import { ValueTypes } from '@enonic/input-types/data';
+import { FieldError } from '@enonic/input-types';
+import type { InputTypeComponentProps } from '@enonic/input-types';
+import { getFirstError, useInputTypesPhrases } from '@enonic/input-types';
 import { cn, useBlinkAttention } from '@enonic/ui';
 import { useCKEditor } from 'ckeditor4-react';
 import { useEffect, useRef, useState, type JSX } from 'react';
@@ -548,6 +548,7 @@ export const HtmlAreaInput = ({
     highlight,
 }: InputTypeComponentProps<HtmlAreaConfig>): JSX.Element => {
     const { contentSummary, project, applicationKeys, assetsUri } = useHtmlAreaContext();
+    const t = useInputTypesPhrases();
 
     const editorId = `htmlarea-${input.getName()}-${index}`;
     const editorLabel = input.getLabel() || input.getName().toString();
@@ -611,7 +612,7 @@ export const HtmlAreaInput = ({
                 inputRef={inputRef}
                 highlight={highlight}
             />
-            {!processing && <FieldError message={getFirstError(errors)} />}
+            {!processing && <FieldError message={getFirstError(errors, t)} />}
         </>
     );
 };
