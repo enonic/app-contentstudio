@@ -1,5 +1,6 @@
 import { useStore } from '@nanostores/preact';
 import { ReactElement, type RefObject, useEffect, useRef } from 'react';
+import { $config } from '../../../shared/config/config.store';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import {
     setPublishScheduleFrom,
@@ -8,7 +9,6 @@ import {
     setPublishScheduleToError,
 } from '../model/publishDialog.commands';
 import { $publishDialog, $scheduleFromError, $scheduleToError } from '../model/publishDialog.store';
-import { $config } from '../../../shared/config/config.store';
 import { DateTimeSelector } from '../../shared/selectors/date/DateTimeSelector';
 
 const COMPONENT_NAME = 'PublishScheduleForm';
