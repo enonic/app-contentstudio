@@ -5,6 +5,8 @@ import { PageNavigationEventType } from '../../../../../app/wizard/PageNavigatio
 import type { PageNavigationHandler } from '../../../../../app/wizard/PageNavigationHandler';
 import { PageNavigationMediator } from '../../../../../app/wizard/PageNavigationMediator';
 import { PageState } from '../../../../../app/wizard/page/PageState';
+import { setPageComponentsViewCollapsed } from '../../../../shared/app-state/app.store';
+import { $isContentFormExpanded } from '../../../../pages/wizard/model/wizardContent.store';
 import { setContextOpen } from '../../../context-panel/model/contextWidgets.store';
 import {
     $contentContext,
@@ -102,6 +104,9 @@ export function initPageEditorBridge(options?: InitPageEditorBridgeOptions): voi
                 $inspectedPath.set(path?.toString() ?? null);
                 bumpSelectionEventNonce();
                 if (type === PageNavigationEventType.INSPECT || !isMobile) {
+                    if (type === PageNavigationEventType.INSPECT && isMobile && !$isContentFormExpanded.get()) {
+                        setPageComponentsViewCollapsed(true);
+                    }
                     setContextOpen(true);
                 }
                 return;
