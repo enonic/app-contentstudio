@@ -57,7 +57,6 @@ type PublishScheduleErrors = {
 
 type ScheduleValidationResult = {
     valid: boolean;
-    fromError?: string;
     toError?: string;
     rangeError?: string;
 };
@@ -353,7 +352,7 @@ export const $isScheduleValid = computed([$publishDialog, $publishScheduleErrors
 export const $scheduleFromError = computed(
     [$publishDialog, $publishScheduleErrors],
     ({ schedule }, { from, range }): string | undefined => {
-        return from ?? validateSchedule(schedule).fromError ?? range;
+        return from ?? range;
     },
 );
 
@@ -398,7 +397,7 @@ export const validateSchedule = (schedule: PublishSchedule | undefined): Schedul
     // The `publishingWizard.requiredPublishFrom` config makes "Online from" mandatory
     // whenever scheduling is active.
     if ($config.get().requiredPublishFrom && !schedule.from) {
-        return { valid: false, fromError: i18n('field.value.required') };
+        return { valid: false };
     }
     if (!schedule.from && !schedule.to) {
         return { valid: true };

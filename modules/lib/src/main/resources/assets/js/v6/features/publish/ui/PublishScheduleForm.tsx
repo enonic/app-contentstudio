@@ -8,6 +8,7 @@ import {
     setPublishScheduleToError,
 } from '../model/publishDialog.commands';
 import { $publishDialog, $scheduleFromError, $scheduleToError } from '../model/publishDialog.store';
+import { $config } from '../../../shared/config/config.store';
 import { DateTimeSelector } from '../../shared/selectors/date/DateTimeSelector';
 
 const COMPONENT_NAME = 'PublishScheduleForm';
@@ -22,6 +23,7 @@ export const PublishScheduleForm = ({ firstInputRef, defaultTimeValue }: Publish
     const { schedule } = useStore($publishDialog, { keys: ['schedule'] });
     const fromError = useStore($scheduleFromError);
     const toError = useStore($scheduleToError);
+    const { requiredPublishFrom } = useStore($config, { keys: ['requiredPublishFrom'] });
 
     const onlineFromLabel = useI18n('field.onlineFrom');
     const onlineToLabel = useI18n('field.onlineTo');
@@ -39,7 +41,7 @@ export const PublishScheduleForm = ({ firstInputRef, defaultTimeValue }: Publish
         >
             <DateTimeSelector
                 label={onlineFromLabel}
-                placeholder={nowLabel}
+                placeholder={requiredPublishFrom ? undefined : nowLabel}
                 initialValue={schedule?.from}
                 onChange={setPublishScheduleFrom}
                 onError={setPublishScheduleFromError}
