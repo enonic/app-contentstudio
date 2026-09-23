@@ -31,6 +31,7 @@ Only run Gradle when the task specifically requires it. For most changes, `pnpm 
 - **Target**: ECMAScript 2022, Preact with React compat layer (`preact/compat`). Radix UI ref type mismatches expected.
 - **lib-admin-ui**: linked via `.xp/dev/` directory (managed by Gradle); source: `../lib-admin-ui`
 - **@enonic/ui**: source: `../enonic-ui` or `../npm-enonic-ui` (use for component docs, examples, patterns)
+- **@enonic/input-types** (with `@enonic/ui-utils`, `@enonic/ui-types`): the property tree, the schema model, the input types and the form renderer; source: `../npm-enonic-ui-toolkit`. `v6/features/shared/form/` keeps only this app's own input types and the `FormRenderer` shell around the toolkit's. Legacy `app/` code still reaches the same classes through lib-admin-ui's re-exports.
 
 ## Git & GitHub
 

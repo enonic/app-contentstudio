@@ -1,4 +1,4 @@
-import { SortableGridList } from '@enonic/lib-admin-ui/form2/components/sortable-grid-list';
+import { SortableGridList } from '@enonic/input-types';
 import { Dialog, GridList, IconButton, ListItem, cn } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { GripVertical, X } from 'lucide-react';

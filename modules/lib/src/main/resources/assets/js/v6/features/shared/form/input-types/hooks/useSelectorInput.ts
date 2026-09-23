@@ -1,7 +1,7 @@
-import { type SelfManagedComponentProps } from '@enonic/lib-admin-ui/form2';
-import { Reference } from '@enonic/lib-admin-ui/util/Reference';
-import { Value } from '@enonic/lib-admin-ui/data/Value';
-import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { type SelfManagedComponentProps } from '@enonic/input-types';
+import { Reference } from '@enonic/ui-utils';
+import { Value } from '@enonic/input-types/data';
+import { ValueTypes } from '@enonic/input-types/data';
 import { useCallback, useMemo } from 'react';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { useStore } from '@nanostores/preact';

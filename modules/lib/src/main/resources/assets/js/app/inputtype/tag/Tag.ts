@@ -1,23 +1,21 @@
 import Q from 'q';
-import {type Input} from '@enonic/lib-admin-ui/form/Input';
-import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
-import {ValueTypeConverter} from '@enonic/lib-admin-ui/data/ValueTypeConverter';
-import {Class} from '@enonic/lib-admin-ui/Class';
-import {PropertyPath, PropertyPathElement} from '@enonic/lib-admin-ui/data/PropertyPath';
-import {type PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
-import {Value} from '@enonic/lib-admin-ui/data/Value';
-import {type ValueType} from '@enonic/lib-admin-ui/data/ValueType';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {ContentTagSuggester, ContentTagSuggesterBuilder} from './ContentTagSuggester';
-import {type Tags, TagsBuilder} from '../ui/tag/Tags';
-import {type TagRemovedEvent} from '../ui/tag/TagRemovedEvent';
-import {type TagAddedEvent} from '../ui/tag/TagAddedEvent';
-import {type ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
-import {BaseInputTypeManagingAdd} from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
+import { type Input } from '@enonic/lib-admin-ui/form/Input';
+import { InputTypeManager } from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
+import { ValueTypeConverter } from '@enonic/lib-admin-ui/data/ValueTypeConverter';
+import { Class } from '@enonic/lib-admin-ui/Class';
+import { PropertyPath, PropertyPathElement } from '@enonic/lib-admin-ui/data/PropertyPath';
+import { type PropertyArray } from '@enonic/lib-admin-ui/data/PropertyArray';
+import { Value } from '@enonic/lib-admin-ui/data/Value';
+import { type ValueType } from '@enonic/lib-admin-ui/data/ValueType';
+import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { ContentTagSuggester, ContentTagSuggesterBuilder } from './ContentTagSuggester';
+import { type Tags, TagsBuilder } from '../ui/tag/Tags';
+import { type TagRemovedEvent } from '../ui/tag/TagRemovedEvent';
+import { type TagAddedEvent } from '../ui/tag/TagAddedEvent';
+import { type ContentInputTypeViewContext } from '../ContentInputTypeViewContext';
+import { BaseInputTypeManagingAdd } from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
 
-export class Tag
-    extends BaseInputTypeManagingAdd {
-
+export class Tag extends BaseInputTypeManagingAdd {
     private tags: Tags;
 
     private allowedContentPaths: string[];
@@ -39,12 +37,12 @@ export class Tag
     }
 
     protected readInputConfig(): void {
-        const allowContentPathConfig: Record<string, unknown>[] = this.context.inputConfig['allowPath'] || [];
+        const allowContentPathConfig: readonly Record<string, unknown>[] = this.context.inputConfig['allowPath'] || [];
 
         this.allowedContentPaths =
             allowContentPathConfig.length > 0
-            ? allowContentPathConfig.map((cfg) => cfg['value'] as string).filter((val) => !!val)
-            : [ContentTagSuggester.SITE_PATH];
+                ? allowContentPathConfig.map((cfg) => cfg['value'] as string).filter((val) => !!val)
+                : [ContentTagSuggester.SITE_PATH];
     }
 
     getValueType(): ValueType {
@@ -61,8 +59,9 @@ export class Tag
         }
 
         return super.layout(input, propertyArray).then(() => {
-            const tagsBuilder =
-                new TagsBuilder().setTagSuggester(this.tagSuggester).setMaxTags(this.context.input.getOccurrences().getMaximum());
+            const tagsBuilder = new TagsBuilder()
+                .setTagSuggester(this.tagSuggester)
+                .setMaxTags(this.context.input.getOccurrences().getMaximum());
 
             propertyArray.forEach((property) => {
                 const value = property.getString();
@@ -131,7 +130,10 @@ export class Tag
 
     private static resolveDataPath(context: ContentInputTypeViewContext): PropertyPath {
         if (context.parentDataPath) {
-            return PropertyPath.fromParent(context.parentDataPath, PropertyPathElement.fromString(context.input.getName()));
+            return PropertyPath.fromParent(
+                context.parentDataPath,
+                PropertyPathElement.fromString(context.input.getName()),
+            );
         } else {
             return new PropertyPath([PropertyPathElement.fromString(context.input.getName())], false);
         }

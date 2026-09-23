@@ -1,13 +1,14 @@
-import { type Form } from '@enonic/lib-admin-ui/form/Form';
-import { type FormItem } from '@enonic/lib-admin-ui/form/FormItem';
-import { Input } from '@enonic/lib-admin-ui/form/Input';
-import { FieldSet } from '@enonic/lib-admin-ui/form/set/fieldset/FieldSet';
-import { FormItemSet } from '@enonic/lib-admin-ui/form/set/itemset/FormItemSet';
-import { FormOptionSet } from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
-import { FormOptionSetOption } from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSetOption';
-import { type PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import { type Form } from '@enonic/input-types/schema';
+import { type FormItem } from '@enonic/input-types/schema';
+import { Input } from '@enonic/input-types/schema';
+import { FieldSet } from '@enonic/input-types/schema';
+import { FormItemSet } from '@enonic/input-types/schema';
+import { FormOptionSet } from '@enonic/input-types/schema';
+import { FormOptionSetOption } from '@enonic/input-types/schema';
+import { type PropertyTree } from '@enonic/input-types/data';
 import { camelCase } from '../../../shared/lib/format/camelCase';
 import { instanceOf } from '../../../shared/lib/object/instanceOf';
+import { getValuesAsString } from '../../../shared/lib/data/propertySetValues';
 
 const EXCLUDED_INPUT_TYPES: readonly string[] = ['htmlarea'];
 
@@ -57,8 +58,7 @@ function getAllowedFieldNames(form: Form): string[] {
 function buildValueMap(data: PropertyTree, allowedFields: string[]): Map<string, string> {
     const map = new Map<string, string>();
 
-    data.getRoot()
-        .getValuesAsString()
+    getValuesAsString(data.getRoot())
         .filter((entry) => entry.value.length > 0 && allowedFields.includes(sanitiseName(entry.path)))
         .forEach((entry) => map.set(`\${${sanitiseName(entry.path)}}`, sanitiseValue(entry.value)));
 

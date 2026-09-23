@@ -1,9 +1,9 @@
-import { type InputTypeDescriptor, type ValidationResult } from '@enonic/lib-admin-ui/form2/descriptor';
+import { type InputTypeDescriptor, type ValidationResult } from '@enonic/input-types';
 import { type MediaSelectorConfig } from './MediaSelectorConfig';
-import { type ValueType } from '@enonic/lib-admin-ui/data/ValueType';
-import { type Value } from '@enonic/lib-admin-ui/data/Value';
-import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
-import type { RawInputConfig } from '@enonic/lib-admin-ui/form/Input';
+import { type ValueType } from '@enonic/input-types/data';
+import { type Value } from '@enonic/input-types/data';
+import { ValueTypes } from '@enonic/input-types/data';
+import type { InputConfigJson } from '@enonic/ui-types';
 import { readAllowPath } from '../../../../../shared/lib/form/form';
 
 export const MediaSelectorDescriptor: InputTypeDescriptor<MediaSelectorConfig> = {
@@ -13,7 +13,7 @@ export const MediaSelectorDescriptor: InputTypeDescriptor<MediaSelectorConfig> =
         return ValueTypes.REFERENCE;
     },
 
-    readConfig(raw: RawInputConfig): MediaSelectorConfig {
+    readConfig(raw: InputConfigJson): MediaSelectorConfig {
         const allowContentType = raw?.['allowContentType']
             ?.map((cfg) => cfg['value'] as string)
             .filter((val) => !!val && val.startsWith('media:'));

@@ -1,6 +1,6 @@
-import {hasOccurrenceError, useValidationVisibility} from '@enonic/lib-admin-ui/form2';
-import {type Occurrences} from '@enonic/lib-admin-ui/form/Occurrences';
-import {type OccurrenceValidationState} from '@enonic/lib-admin-ui/form2/descriptor';
+import { hasOccurrenceError, useValidationVisibility } from '@enonic/input-types';
+import { type Occurrences } from '@enonic/input-types/schema';
+import { type OccurrenceValidationState } from '@enonic/input-types';
 
 export const useSelectorInputHasError = (occurrences: Occurrences, errors: OccurrenceValidationState[]): boolean => {
     const visibility = useValidationVisibility();

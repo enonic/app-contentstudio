@@ -3,14 +3,14 @@ import { ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationC
 import { ApplicationEvent } from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 import { AuthHelper } from '@enonic/lib-admin-ui/auth/AuthHelper';
-import { type PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
-import { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
-import { Value } from '@enonic/lib-admin-ui/data/Value';
-import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
-import { type Form } from '@enonic/lib-admin-ui/form/Form';
-import type { SelfManagedComponentProps } from '@enonic/lib-admin-ui/form2';
-import { FieldError, getFirstError, validateForm } from '@enonic/lib-admin-ui/form2';
-import { type SortableGridListItemContext, SortableGridList } from '@enonic/lib-admin-ui/form2/components';
+import { type PropertySet } from '@enonic/input-types/data';
+import { PropertyTree } from '@enonic/input-types/data';
+import { Value } from '@enonic/input-types/data';
+import { ValueTypes } from '@enonic/input-types/data';
+import { type Form } from '@enonic/input-types/schema';
+import type { SelfManagedComponentProps } from '@enonic/input-types';
+import { FieldError, getFirstError, useInputTypesPhrases, validateForm } from '@enonic/input-types';
+import { type SortableGridListItemContext, SortableGridList } from '@enonic/input-types';
 import { Button, cn, Dialog, IconButton } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { Pencil, X } from 'lucide-react';
@@ -32,7 +32,7 @@ import { ApplicationIcon } from '../../../../../shared/ui/icons/ApplicationIcon'
 import { ItemLabel } from '../../../../../shared/ui/ItemLabel';
 import { ApplicationSelector } from '../../../selectors/ApplicationSelector';
 import { FormRenderer } from '../../FormRenderer';
-import { seedFormDefaults } from '../../seedFormDefaults';
+import { seedFormDefaults } from '@enonic/input-types';
 import type { SiteConfiguratorConfig } from './SiteConfiguratorConfig';
 
 const COMPONENT_NAME = 'SiteConfiguratorInput';
@@ -264,9 +264,10 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
     const editingApp = editing ? findApplicationByKey(editing.appKey) : undefined;
     const editingForm = editingApp?.getForm();
 
+    const t = useInputTypesPhrases();
     const errorMessage = useMemo(() => {
-        return errors.map((e) => getFirstError(e.validationResults)).find(Boolean);
-    }, [errors]);
+        return errors.map((e) => getFirstError(e.validationResults, t)).find(Boolean);
+    }, [errors, t]);
 
     return (
         <div data-component={COMPONENT_NAME} className="flex flex-col gap-1">

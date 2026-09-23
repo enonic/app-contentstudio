@@ -14,11 +14,11 @@ import {
     type ServerErrorEntry,
     type ValidationVisibility,
     validateForm,
-} from '@enonic/lib-admin-ui/form2';
+} from '@enonic/input-types';
 import { atom, computed } from 'nanostores';
-import type { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
-import type { Form } from '@enonic/lib-admin-ui/form/Form';
-import { Input } from '@enonic/lib-admin-ui/form/Input';
+import type { PropertyTree } from '@enonic/input-types/data';
+import type { Form } from '@enonic/input-types/schema';
+import { Input } from '@enonic/input-types/schema';
 import type { Descriptor } from '../../../../app/page/Descriptor';
 import { DescriptorBasedComponent } from '../../../../app/page/region/DescriptorBasedComponent';
 import { LayoutComponent } from '../../../../app/page/region/LayoutComponent';
@@ -106,7 +106,10 @@ function runValidation(): void {
 
     const contentResult = validateForm(contentType.getForm(), draftData.getRoot(), {
         rawValues: contentRawValueMap,
-        serverErrors: dataServerErrors,
+        serverErrors: dataServerErrors.flatMap((error) => {
+            const path = error.getPropertyPath();
+            return path == null ? [] : [{ path, message: error.getMessage() }];
+        }),
     });
 
     const nextInvalidTabs = new Set<string>();

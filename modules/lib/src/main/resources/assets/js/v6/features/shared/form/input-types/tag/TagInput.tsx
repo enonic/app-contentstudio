@@ -1,6 +1,6 @@
-import { PropertyPath } from '@enonic/lib-admin-ui/data/PropertyPath';
-import type { SelfManagedComponentProps } from '@enonic/lib-admin-ui/form2';
-import { TagInput as BaseTagInput } from '@enonic/lib-admin-ui/form2/components';
+import { PropertyPath } from '@enonic/input-types/data';
+import type { SelfManagedComponentProps } from '@enonic/input-types';
+import { TagInput as BaseTagInput } from '@enonic/input-types';
 import { useStore } from '@nanostores/preact';
 import { useCallback, useMemo, type ReactElement } from 'react';
 import { $contextContent } from '../../../../../widgets/context-panel/model/contextContent.store';

@@ -1,10 +1,10 @@
-import type { Value } from '@enonic/lib-admin-ui/data/Value';
-import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
-import { InputBuilder } from '@enonic/lib-admin-ui/form/Input';
-import { Occurrences } from '@enonic/lib-admin-ui/form/Occurrences';
-import { InputTypeName } from '@enonic/lib-admin-ui/form/InputTypeName';
-import type { NumberConfig } from '@enonic/lib-admin-ui/form2/descriptor/InputTypeConfig';
-import type { ValidationResult } from '@enonic/lib-admin-ui/form2/descriptor/ValidationResult';
+import type { Value } from '@enonic/input-types/data';
+import { ValueTypes } from '@enonic/input-types/data';
+import { InputBuilder } from '@enonic/input-types/schema';
+import { Occurrences } from '@enonic/input-types/schema';
+import { InputTypeName } from '@enonic/input-types/schema';
+import type { NumberConfig } from '@enonic/input-types';
+import type { ValidationResult } from '@enonic/input-types';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { map } from 'nanostores';
 import {

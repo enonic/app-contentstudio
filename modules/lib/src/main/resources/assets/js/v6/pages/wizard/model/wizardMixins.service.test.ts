@@ -1,4 +1,4 @@
-import { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import { PropertyTree } from '@enonic/input-types/data';
 import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { okAsync } from 'neverthrow';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';

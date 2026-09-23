@@ -1,5 +1,5 @@
 import type { ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import type { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import type { PropertyTree } from '@enonic/input-types/data';
 import type {
     ContentData,
     ContentLanguage,

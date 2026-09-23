@@ -1,5 +1,5 @@
-import { type PropertyPath } from '@enonic/lib-admin-ui/data/PropertyPath';
-import { type PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import { type PropertyPath } from '@enonic/input-types/data';
+import { type PropertyTree } from '@enonic/input-types/data';
 import { type ReadableAtom, type MapStore } from 'nanostores';
 import { createContext, useContext } from 'react';
 

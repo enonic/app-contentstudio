@@ -1,9 +1,9 @@
-import {type InputTypeDescriptor, type ValidationResult} from '@enonic/lib-admin-ui/form2/descriptor';
-import {type AttachmentUploaderConfig} from './AttachmentUploaderConfig';
-import {type ValueType} from '@enonic/lib-admin-ui/data/ValueType';
-import {type Value} from '@enonic/lib-admin-ui/data/Value';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import type {RawInputConfig} from '@enonic/lib-admin-ui/form/Input';
+import { type InputTypeDescriptor, type ValidationResult } from '@enonic/input-types';
+import { type AttachmentUploaderConfig } from './AttachmentUploaderConfig';
+import { type ValueType } from '@enonic/input-types/data';
+import { type Value } from '@enonic/input-types/data';
+import { ValueTypes } from '@enonic/input-types/data';
+import type { InputConfigJson } from '@enonic/ui-types';
 
 export const AttachmentUploaderDescriptor: InputTypeDescriptor<AttachmentUploaderConfig> = {
     name: 'AttachmentUploader' as const,
@@ -12,7 +12,7 @@ export const AttachmentUploaderDescriptor: InputTypeDescriptor<AttachmentUploade
         return ValueTypes.STRING;
     },
 
-    readConfig(raw: RawInputConfig): AttachmentUploaderConfig {
+    readConfig(raw: InputConfigJson): AttachmentUploaderConfig {
         return {
             hideDropZone: raw?.['hideDropZone']?.[0]?.value === true,
         };

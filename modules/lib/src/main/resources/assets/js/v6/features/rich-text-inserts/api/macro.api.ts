@@ -1,6 +1,6 @@
 import { type ResultAsync } from 'neverthrow';
 import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
-import type { PropertyArrayJson } from '@enonic/lib-admin-ui/data/PropertyArrayJson';
+import type { PropertyTreeJson } from '@enonic/ui-types';
 import { MacroDescriptor } from '@enonic/lib-admin-ui/macro/MacroDescriptor';
 import type { MacrosJson } from '@enonic/lib-admin-ui/macro/MacrosJson';
 import type {
@@ -39,7 +39,7 @@ export type MacroPreviewResult = {
  * Used by: features/rich-text-inserts/ui/htmlarea-macro/HtmlAreaMacroDialogContext.
  */
 export function fetchMacroPreview(
-    formData: PropertyArrayJson[],
+    formData: PropertyTreeJson,
     macroKey: string,
     contentPath: string,
     projectName?: string,
@@ -61,7 +61,7 @@ export function fetchMacroPreview(
  * Used by: features/rich-text-inserts/ui/htmlarea-macro/HtmlAreaMacroDialogContext.
  */
 export function fetchMacroPreviewString(
-    formData: PropertyArrayJson[],
+    formData: PropertyTreeJson,
     macroKey: string,
     projectName?: string,
 ): ResultAsync<string, AppError> {

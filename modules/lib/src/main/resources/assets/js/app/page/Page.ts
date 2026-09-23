@@ -1,23 +1,23 @@
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {type Cloneable} from '@enonic/lib-admin-ui/Cloneable';
-import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {PropertyTreeHelper} from '@enonic/lib-admin-ui/util/PropertyTreeHelper';
-import {PageTemplateKey} from './PageTemplateKey';
-import {type Regions} from './region/Regions';
-import {type Component} from './region/Component';
-import {type Region} from './region/Region';
-import {ComponentFactory} from './region/ComponentFactory';
-import {type PageJson} from './PageJson';
-import {ComponentPath} from './region/ComponentPath';
-import {DescriptorKey} from './DescriptorKey';
-import {type PageItem} from './region/PageItem';
-import {type ComponentAddedEvent} from './region/ComponentAddedEvent';
-import {type ComponentRemovedEvent} from './region/ComponentRemovedEvent';
-import {type ComponentUpdatedEvent} from './region/ComponentUpdatedEvent';
-import {type PageUpdatedEvent} from './event/PageUpdatedEvent';
-import {type PageItemType} from './region/PageItemType';
-import {LayoutComponent} from './region/LayoutComponent';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { type Cloneable } from '@enonic/lib-admin-ui/Cloneable';
+import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
+import { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import { PropertyTreeHelper } from '@enonic/lib-admin-ui/util/PropertyTreeHelper';
+import { PageTemplateKey } from './PageTemplateKey';
+import { type Regions } from './region/Regions';
+import { type Component } from './region/Component';
+import { type Region } from './region/Region';
+import { ComponentFactory } from './region/ComponentFactory';
+import { type PageJson } from './PageJson';
+import { ComponentPath } from './region/ComponentPath';
+import { DescriptorKey } from './DescriptorKey';
+import { type PageItem } from './region/PageItem';
+import { type ComponentAddedEvent } from './region/ComponentAddedEvent';
+import { type ComponentRemovedEvent } from './region/ComponentRemovedEvent';
+import { type ComponentUpdatedEvent } from './region/ComponentUpdatedEvent';
+import { type PageUpdatedEvent } from './event/PageUpdatedEvent';
+import { type PageItemType } from './region/PageItemType';
+import { LayoutComponent } from './region/LayoutComponent';
 
 export type PageUpdatedEventHandler = (event: PageUpdatedEvent) => void;
 export type PageTemplateSetHandler = (template: PageTemplateKey) => void;
@@ -25,9 +25,7 @@ export type PageControllerSetHandler = (controller: DescriptorKey) => void;
 export type PageResetHandler = () => void;
 export type PageConfigUpdateHandler = () => void;
 
-export class Page
-    implements Equitable, Cloneable, PageItem {
-
+export class Page implements Equitable, Cloneable, PageItem {
     private readonly controller: DescriptorKey;
 
     private readonly template: PageTemplateKey;
@@ -97,7 +95,6 @@ export class Page
     }
 
     equals(o: Equitable): boolean {
-
         if (!ObjectHelper.iFrameSafeInstanceOf(o, Page)) {
             return false;
         }
@@ -126,7 +123,7 @@ export class Page
             template: this.template ? this.template.toString() : undefined,
             regions: this.regions ? this.regions.toJson() : undefined,
             fragment: this.fragment?.toJson() || null,
-            config: this.config ? this.config.toJson() : undefined,
+            config: this.config ? [...this.config.toJson()] : undefined,
         };
     }
 
@@ -157,16 +154,18 @@ export class Page
 
         let result = null;
 
-        this.getActiveRegions()?.getRegions().some((region: Region) => {
-            if (region.getPath().equals(path)) {
-                result = region;
-                return true;
-            }
+        this.getActiveRegions()
+            ?.getRegions()
+            .some((region: Region) => {
+                if (region.getPath().equals(path)) {
+                    result = region;
+                    return true;
+                }
 
-            result = region.getComponentByPath(path);
+                result = region.getComponentByPath(path);
 
-            return !!result;
-        });
+                return !!result;
+            });
 
         return result;
     }
@@ -207,7 +206,6 @@ export class Page
 }
 
 export class PageBuilder {
-
     controller: DescriptorKey;
 
     template: PageTemplateKey;
@@ -232,9 +230,7 @@ export class PageBuilder {
         this.setController(json.controller ? DescriptorKey.fromString(json.controller) : null);
         this.setTemplate(json.template ? PageTemplateKey.fromString(json.template) : null);
         this.setRegions(json.regions != null ? ComponentFactory.createRegionsFromJson(json.regions) : null);
-        this.setConfig(json.config != null
-                       ? PropertyTree.fromJson(json.config)
-                       : null);
+        this.setConfig(json.config != null ? PropertyTree.fromJson(json.config) : null);
 
         if (json.fragment) {
             const component: Component = ComponentFactory.createFromJson(json.fragment, 0, null);

@@ -1,4 +1,4 @@
-import { FieldRegistryProvider, RawValueProvider, ValidationVisibilityProvider } from '@enonic/lib-admin-ui/form2';
+import { FieldRegistryProvider, RawValueProvider, ValidationVisibilityProvider } from '@enonic/input-types';
 import { Button } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { OctagonAlert } from 'lucide-react';

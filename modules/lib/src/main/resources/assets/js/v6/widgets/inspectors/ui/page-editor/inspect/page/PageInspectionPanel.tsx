@@ -1,4 +1,4 @@
-import { FieldRegistryProvider } from '@enonic/lib-admin-ui/form2';
+import { FieldRegistryProvider } from '@enonic/input-types';
 import { Button } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { type ReactElement, useCallback, useMemo, useState } from 'react';

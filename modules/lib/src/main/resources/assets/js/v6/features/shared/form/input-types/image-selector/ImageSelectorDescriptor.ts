@@ -1,9 +1,9 @@
-import { type InputTypeDescriptor, type ValidationResult } from '@enonic/lib-admin-ui/form2/descriptor';
+import { type InputTypeDescriptor, type ValidationResult } from '@enonic/input-types';
 import { type ImageSelectorConfig } from './ImageSelectorConfig';
-import { type ValueType } from '@enonic/lib-admin-ui/data/ValueType';
-import { type Value } from '@enonic/lib-admin-ui/data/Value';
-import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
-import type { RawInputConfig } from '@enonic/lib-admin-ui/form/Input';
+import { type ValueType } from '@enonic/input-types/data';
+import { type Value } from '@enonic/input-types/data';
+import { ValueTypes } from '@enonic/input-types/data';
+import type { InputConfigJson } from '@enonic/ui-types';
 import { readAllowPath } from '../../../../../shared/lib/form/form';
 
 export const ImageSelectorDescriptor: InputTypeDescriptor<ImageSelectorConfig> = {
@@ -13,7 +13,7 @@ export const ImageSelectorDescriptor: InputTypeDescriptor<ImageSelectorConfig> =
         return ValueTypes.REFERENCE;
     },
 
-    readConfig(raw: RawInputConfig): ImageSelectorConfig {
+    readConfig(raw: InputConfigJson): ImageSelectorConfig {
         const allowPath = readAllowPath(raw, []);
         const treeMode = raw?.['treeMode']?.[0]?.value === true;
         const hideToggleIcon = raw?.['hideToggleIcon']?.[0]?.value === true;

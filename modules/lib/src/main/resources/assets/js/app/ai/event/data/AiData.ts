@@ -1,10 +1,9 @@
-import {type PropertyArrayJson} from '@enonic/lib-admin-ui/data/PropertyArrayJson';
-import {type FormJson} from '@enonic/lib-admin-ui/form/json/FormJson';
+import type { FormJson, PropertyTreeJson } from '@enonic/ui-types';
 
 export interface ContentData {
     contentId: string;
     contentPath: string;
-    fields: PropertyArrayJson[];
+    fields: PropertyTreeJson;
     topic: string;
     project: string;
     mixins?: MixinContentData[];
@@ -13,12 +12,12 @@ export interface ContentData {
 
 export interface MixinContentData {
     name: string;
-    fields: PropertyArrayJson[];
+    fields: PropertyTreeJson;
 }
 
 export interface PageContentData {
     controller?: string;
-    config?: PropertyArrayJson[];
+    config?: PropertyTreeJson;
     components?: PageComponentData[];
 }
 
@@ -26,7 +25,7 @@ export interface PageComponentData {
     path: string;
     text?: string;
     descriptor?: string;
-    config?: PropertyArrayJson[];
+    config?: PropertyTreeJson;
 }
 
 export interface ContentSchema {

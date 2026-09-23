@@ -8,9 +8,9 @@ import {
     useRef,
     useState,
 } from 'react';
-import { type SelfManagedComponentProps } from '@enonic/lib-admin-ui/form2';
-import { type Value } from '@enonic/lib-admin-ui/data/Value';
-import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { type SelfManagedComponentProps } from '@enonic/input-types';
+import { type Value } from '@enonic/input-types/data';
+import { ValueTypes } from '@enonic/input-types/data';
 import { Button, cn, Link } from '@enonic/ui';
 import { UploadIcon } from 'lucide-react';
 import { type MediaUploaderAllowType, type MediaUploaderConfig } from './MediaUploaderConfig';
@@ -23,7 +23,12 @@ import { ContentId } from '../../../../../../app/content/ContentId';
 
 const MEDIA_UPLOADER_INPUT_NAME = 'MediaUploaderInput';
 
-export const MediaUploaderInput = ({ values, onChange, config, enabled }: SelfManagedComponentProps<MediaUploaderConfig>): ReactElement => {
+export const MediaUploaderInput = ({
+    values,
+    onChange,
+    config,
+    enabled,
+}: SelfManagedComponentProps<MediaUploaderConfig>): ReactElement => {
     const noMediaLabel = useI18n('field.content.noattachment');
     const uploadLabel = useI18n('action.upload');
 
@@ -69,7 +74,7 @@ export const MediaUploaderInput = ({ values, onChange, config, enabled }: SelfMa
                 new ContentRequiresSaveEvent(new ContentId(contentId)).fire();
             }
         },
-        [value, onChange, contentId]
+        [value, onChange, contentId],
     );
 
     const { isUploading, progress, handleFiles } = useMediaUploader({ contentId, onChange: handleChange });
@@ -91,7 +96,7 @@ export const MediaUploaderInput = ({ values, onChange, config, enabled }: SelfMa
             }
             e.currentTarget.value = '';
         },
-        [enabled, handleFiles, accept]
+        [enabled, handleFiles, accept],
     );
 
     const handleDrop = useCallback(
@@ -106,7 +111,7 @@ export const MediaUploaderInput = ({ values, onChange, config, enabled }: SelfMa
                 void handleFiles(matched);
             }
         },
-        [enabled, handleFiles, accept]
+        [enabled, handleFiles, accept],
     );
 
     const handleDragOver = useCallback(
@@ -116,7 +121,7 @@ export const MediaUploaderInput = ({ values, onChange, config, enabled }: SelfMa
             e.preventDefault();
             setIsDragging(true);
         },
-        [enabled]
+        [enabled],
     );
 
     const handleDragLeave = useCallback(() => {
@@ -125,7 +130,9 @@ export const MediaUploaderInput = ({ values, onChange, config, enabled }: SelfMa
         setIsDragging(false);
     }, [enabled]);
 
-    const dropHandlers = config.hideDropZone ? undefined : { onDrop: handleDrop, onDragOver: handleDragOver, onDragLeave: handleDragLeave };
+    const dropHandlers = config.hideDropZone
+        ? undefined
+        : { onDrop: handleDrop, onDragOver: handleDragOver, onDragLeave: handleDragLeave };
 
     return (
         <div data-component={MEDIA_UPLOADER_INPUT_NAME} className="flex flex-col gap-2.5" {...dropHandlers}>
@@ -139,7 +146,10 @@ export const MediaUploaderInput = ({ values, onChange, config, enabled }: SelfMa
             />
 
             <div
-                className={cn('w-full', !config.hideDropZone && isDragging && 'dash-border dash-border-select bg-bdr-select/8 rounded p-1')}
+                className={cn(
+                    'w-full',
+                    !config.hideDropZone && isDragging && 'dash-border dash-border-select bg-bdr-select/8 rounded p-1',
+                )}
             >
                 {attachmentUrl ? (
                     <Link className="flex items-center gap-2 truncate p-2" href={attachmentUrl} target="_blank">

@@ -1,10 +1,10 @@
 import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
-import { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import { PropertyTree } from '@enonic/input-types/data';
 import { FormBuilder } from '@enonic/lib-admin-ui/form/Form';
-import { Input } from '@enonic/lib-admin-ui/form/Input';
-import { initBuiltInTypes } from '@enonic/lib-admin-ui/form2';
-import { PropertyPath } from '@enonic/lib-admin-ui/data/PropertyPath';
-import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { Input } from '@enonic/input-types/schema';
+import { registerBuiltInTypes } from '@enonic/input-types';
+import { PropertyPath } from '@enonic/input-types/data';
+import { ValueTypes } from '@enonic/input-types/data';
 import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentBuilder, type Content } from '../../../../app/content/Content';
@@ -66,6 +66,7 @@ function checkboxForm(inputName: string): ReturnType<FormBuilder['build']> {
     const builder = new FormBuilder();
     builder.addFormItem(
         Input.fromJson({
+            formItemType: 'Input',
             name: inputName,
             inputType: 'Checkbox',
             label: inputName,
@@ -125,7 +126,7 @@ function createContent({
 
 describe('wizardContent.store', () => {
     beforeAll(() => {
-        initBuiltInTypes();
+        registerBuiltInTypes();
     });
 
     beforeEach(() => {
@@ -262,7 +263,7 @@ describe('wizardContent.store', () => {
 
         setDraftStringByPath(path, '');
         expect($wizardSectionChanges.get().data).toBe(false);
-        expect($wizardDraftData.get()?.getProperty(path.toString())).toBeNull();
+        expect($wizardDraftData.get()?.getProperty(path.toString())).toBeUndefined();
     });
 
     it('clears data change after editing and clearing explicitly-empty persisted field', () => {
@@ -276,7 +277,7 @@ describe('wizardContent.store', () => {
 
         setDraftStringByPath(path, '');
         expect($wizardSectionChanges.get().data).toBe(false);
-        expect($wizardDraftData.get()?.getProperty(path.toString())).not.toBeNull();
+        expect($wizardDraftData.get()?.getProperty(path.toString())).toBeDefined();
     });
 
     it('marks mixins as changed when optional mixin is enabled', () => {
@@ -513,7 +514,7 @@ describe('wizardContent.store', () => {
         expect(titleArray?.getSize()).toBe(3);
         expect(titleArray?.get(0)?.getString()).toBe('a');
         expect(titleArray?.get(1)?.getString()).toBe('c');
-        expect(titleArray?.get(2)?.getString()).toBeNull();
+        expect(titleArray?.get(2)?.getString()).toBeUndefined();
         expect($wizardSectionChanges.get().data).toBe(true);
     });
 
@@ -595,7 +596,7 @@ describe('wizardContent.store', () => {
         const titleArray = draftData?.getRoot().getPropertyArray('title');
         expect(titleArray?.getSize()).toBe(2);
         expect(titleArray?.get(0)?.getString()).toBe('b');
-        expect(titleArray?.get(1)?.getString()).toBeNull();
+        expect(titleArray?.get(1)?.getString()).toBeUndefined();
         expect($wizardSectionChanges.get().data).toBe(true);
     });
 
