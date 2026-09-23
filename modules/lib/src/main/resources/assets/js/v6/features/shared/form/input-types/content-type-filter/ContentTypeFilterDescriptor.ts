@@ -1,8 +1,7 @@
 import { type Value } from '@enonic/input-types/data';
 import { type ValueType } from '@enonic/input-types/data';
 import { ValueTypes } from '@enonic/input-types/data';
-import type { InputConfigJson } from '@enonic/ui-types';
-import type { InputTypeDescriptor } from '@enonic/input-types';
+import type { InputConfigEntries, InputTypeDescriptor } from '@enonic/input-types';
 import type { ValidationResult } from '@enonic/input-types';
 import { isBlank } from '../../../../../shared/lib/format/isBlank';
 import type { ContentTypeFilterConfig } from './ContentTypeFilterConfig';
@@ -14,7 +13,7 @@ export const ContentTypeFilterDescriptor: InputTypeDescriptor<ContentTypeFilterC
         return ValueTypes.STRING;
     },
 
-    readConfig(raw: InputConfigJson): ContentTypeFilterConfig {
+    readConfig(raw: InputConfigEntries): ContentTypeFilterConfig {
         return { context: raw?.['context']?.[0]?.value === true };
     },
 

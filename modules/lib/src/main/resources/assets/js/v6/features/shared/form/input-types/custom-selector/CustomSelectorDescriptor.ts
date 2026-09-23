@@ -3,7 +3,7 @@ import { type CustomSelectorConfig } from './CustomSelectorConfig';
 import { type ValueType } from '@enonic/input-types/data';
 import { type Value } from '@enonic/input-types/data';
 import { ValueTypes } from '@enonic/input-types/data';
-import type { InputConfigJson } from '@enonic/ui-types';
+import type { InputConfigEntries } from '@enonic/input-types';
 
 export const CustomSelectorDescriptor: InputTypeDescriptor<CustomSelectorConfig> = {
     name: 'CustomSelector' as const,
@@ -12,7 +12,7 @@ export const CustomSelectorDescriptor: InputTypeDescriptor<CustomSelectorConfig>
         return ValueTypes.STRING;
     },
 
-    readConfig(raw: InputConfigJson): CustomSelectorConfig {
+    readConfig(raw: InputConfigEntries): CustomSelectorConfig {
         return {
             extension: raw?.['extension']?.[0]?.value as string,
             service: raw?.['service']?.[0]?.value as string,

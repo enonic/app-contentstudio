@@ -3,7 +3,7 @@ import { type MediaUploaderConfig } from './MediaUploaderConfig';
 import { type ValueType } from '@enonic/input-types/data';
 import { type Value } from '@enonic/input-types/data';
 import { ValueTypes } from '@enonic/input-types/data';
-import type { InputConfigJson } from '@enonic/ui-types';
+import type { InputConfigEntries } from '@enonic/input-types';
 
 export const MediaUploaderDescriptor: InputTypeDescriptor<MediaUploaderConfig> = {
     name: 'MediaUploader' as const,
@@ -12,7 +12,7 @@ export const MediaUploaderDescriptor: InputTypeDescriptor<MediaUploaderConfig> =
         return ValueTypes.STRING;
     },
 
-    readConfig(raw: InputConfigJson): MediaUploaderConfig {
+    readConfig(raw: InputConfigEntries): MediaUploaderConfig {
         return {
             hideDropZone: raw?.['hideDropZone']?.[0]?.value === true,
             allowExtensions:

@@ -1,7 +1,7 @@
 import type { Value } from '@enonic/input-types/data';
 import type { ValueType } from '@enonic/input-types/data';
-import type { InputConfigJson } from '@enonic/ui-types';
 import {
+    type InputConfigEntries,
     TagDescriptor as BaseTagDescriptor,
     type InputTypeDescriptor,
     type ValidationResult,
@@ -16,7 +16,7 @@ export const TagDescriptor: InputTypeDescriptor<TagConfig> = {
         return BaseTagDescriptor.getValueType();
     },
 
-    readConfig(raw: InputConfigJson): TagConfig {
+    readConfig(raw: InputConfigEntries): TagConfig {
         return readTagConfig(raw);
     },
 
