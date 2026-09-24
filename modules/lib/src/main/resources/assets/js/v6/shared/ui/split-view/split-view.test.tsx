@@ -328,6 +328,9 @@ describe('SplitView', () => {
         const before = groupRef.current?.getLayout();
 
         await rerenderHarness(result, { ...props, withThird: true });
+        await act(async () => {
+            await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
+        });
 
         expect(resolve).toHaveBeenCalledTimes(1);
         expect(resolve.mock.calls[0][0]).toEqual(before);

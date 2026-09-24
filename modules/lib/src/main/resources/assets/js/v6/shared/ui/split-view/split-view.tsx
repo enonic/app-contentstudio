@@ -67,6 +67,15 @@ const SplitViewRoot = forwardRef<HTMLDivElement, SplitViewRootProps>(
         const panelSyncs = useRef(new Set<PanelLayoutSync>());
         const groupHandleRef = useRef<GroupImperativeHandle | null>(null);
         const lastLayoutRef = useRef<Layout | undefined>(undefined);
+        const pendingResolveRef = useRef<{ previous: Layout; frame: number } | undefined>(undefined);
+        const resolveLayoutRef = useRef(resolveLayoutOnPanelsChange);
+        resolveLayoutRef.current = resolveLayoutOnPanelsChange;
+        useEffect(
+            () => () => {
+                if (pendingResolveRef.current != null) cancelAnimationFrame(pendingResolveRef.current.frame);
+            },
+            [],
+        );
 
         const composedGroupRef = useCallback(
             (handle: GroupImperativeHandle | null) => {
@@ -93,9 +102,17 @@ const SplitViewRoot = forwardRef<HTMLDivElement, SplitViewRootProps>(
             const previous = lastLayoutRef.current;
             lastLayoutRef.current = layout;
 
-            if (previous != null && !haveSamePanels(previous, layout)) {
-                const resolved = resolveLayoutOnPanelsChange?.(previous, layout);
-                if (resolved != null) groupHandleRef.current?.setLayout(resolved);
+            if (previous != null && !haveSamePanels(previous, layout) && pendingResolveRef.current == null) {
+                const frame = requestAnimationFrame(() => {
+                    pendingResolveRef.current = undefined;
+                    const handle = groupHandleRef.current;
+                    if (handle == null) return;
+                    const current = handle.getLayout();
+                    if (haveSamePanels(previous, current)) return;
+                    const resolved = resolveLayoutRef.current?.(previous, current);
+                    if (resolved != null) handle.setLayout(resolved);
+                });
+                pendingResolveRef.current = { previous, frame };
             }
 
             if (storageId != null) persistLayout(layout, meta);

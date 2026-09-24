@@ -22,7 +22,7 @@ export function resolveWizardPanelLayout(
     const live = previous.live;
 
     if (!hasContext) {
-        return { form: previous.form + previous.context, live };
+        return { form: previous.form, live: live + previous.context };
     }
 
     const context = next.context;

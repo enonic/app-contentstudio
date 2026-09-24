@@ -22,10 +22,10 @@ describe('resolveWizardPanelLayout', () => {
         expect(layout).toBeUndefined();
     });
 
-    it('should give the context width back to the form when the context undocks', () => {
+    it('should give the context width to the live view and keep the form width when the context undocks', () => {
         const layout = resolveWizardPanelLayout({ form: 24, live: 50, context: 26 }, { form: 50, live: 50 }, options);
 
-        expect(layout).toEqual({ form: 50, live: 50 });
+        expect(layout).toEqual({ form: 24, live: 76 });
     });
 
     it('should leave the layout to the library when the form is collapsed', () => {
