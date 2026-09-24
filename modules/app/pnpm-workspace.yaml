@@ -16,6 +16,9 @@ minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
   - "@enonic/page-editor"
   - "@enonic/ui"
+  - "@enonic/input-types"
+  - "@enonic/ui-types"
+  - "@enonic/ui-utils"
   - "@enonic-types/*"
 
 overrides:
