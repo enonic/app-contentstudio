@@ -104,13 +104,16 @@ export class AI {
         AiTranslatorNoLicenseEvent.on(this.handleNoLicenseEvent);
 
         AI.onAILoaded(() => {
+            const operatorServiceUrl = new WebSocket(AI.getOptionalConfigString('services.aiContentOperatorWsServiceUrl')).url;
+            const translatorServiceUrl = new WebSocket(AI.getOptionalConfigString('services.aiTranslatorWsServiceUrl')).url;
+
             this.getContentOperator()?.setup({
                 sharedSocketUrl: CONFIG.getString('sharedSocketUrl'),
-                wsServiceUrl: AI.getOptionalConfigString('services.aiContentOperatorWsServiceUrl')
+                wsServiceUrl: operatorServiceUrl
             });
             this.getTranslator()?.setup({
                 licenseServiceUrl: CONFIG.getString('services.aiTranslatorLicenseServiceUrl'),
-                wsServiceUrl: CONFIG.getString('services.aiTranslatorWsServiceUrl')
+                wsServiceUrl: translatorServiceUrl
             });
 
             ProjectContext.get().whenInitialized(() => {
