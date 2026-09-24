@@ -67,12 +67,12 @@ const SplitViewRoot = forwardRef<HTMLDivElement, SplitViewRootProps>(
         const panelSyncs = useRef(new Set<PanelLayoutSync>());
         const groupHandleRef = useRef<GroupImperativeHandle | null>(null);
         const lastLayoutRef = useRef<Layout | undefined>(undefined);
-        const pendingResolveRef = useRef<{ previous: Layout; frame: number } | undefined>(undefined);
+        const resolvePendingRef = useRef(false);
         const resolveLayoutRef = useRef(resolveLayoutOnPanelsChange);
         resolveLayoutRef.current = resolveLayoutOnPanelsChange;
         useEffect(
             () => () => {
-                if (pendingResolveRef.current != null) cancelAnimationFrame(pendingResolveRef.current.frame);
+                resolvePendingRef.current = false;
             },
             [],
         );
@@ -102,9 +102,12 @@ const SplitViewRoot = forwardRef<HTMLDivElement, SplitViewRootProps>(
             const previous = lastLayoutRef.current;
             lastLayoutRef.current = layout;
 
-            if (previous != null && !haveSamePanels(previous, layout) && pendingResolveRef.current == null) {
-                const frame = requestAnimationFrame(() => {
-                    pendingResolveRef.current = undefined;
+            // ! Deferred out of the library's layout effect, but still before paint.
+            if (previous != null && !haveSamePanels(previous, layout) && !resolvePendingRef.current) {
+                resolvePendingRef.current = true;
+                queueMicrotask(() => {
+                    if (!resolvePendingRef.current) return;
+                    resolvePendingRef.current = false;
                     const handle = groupHandleRef.current;
                     if (handle == null) return;
                     const current = handle.getLayout();
@@ -112,7 +115,6 @@ const SplitViewRoot = forwardRef<HTMLDivElement, SplitViewRootProps>(
                     const resolved = resolveLayoutRef.current?.(previous, current);
                     if (resolved != null) handle.setLayout(resolved);
                 });
-                pendingResolveRef.current = { previous, frame };
             }
 
             if (storageId != null) persistLayout(layout, meta);
@@ -188,8 +190,13 @@ const SplitViewPanel = forwardRef<HTMLDivElement, SplitViewPanelProps>(
         const { registerPanel } = useContext(SplitViewContext);
         const innerRef = useRef<PanelImperativeHandle | null>(null);
         const lastCollapsed = useRef<boolean | undefined>(undefined);
-        const collapsedRef = useRef(collapsed);
-        collapsedRef.current = collapsed;
+        // The prop, or the user's drag or keyboard collapse since the prop last changed.
+        const intendedCollapsed = useRef(collapsed);
+        const lastCollapsedProp = useRef(collapsed);
+        if (lastCollapsedProp.current !== collapsed) {
+            lastCollapsedProp.current = collapsed;
+            intendedCollapsed.current = collapsed;
+        }
         const onCollapsedChangeRef = useRef(onCollapsedChange);
         onCollapsedChangeRef.current = onCollapsedChange;
 
@@ -208,11 +215,15 @@ const SplitViewPanel = forwardRef<HTMLDivElement, SplitViewPanelProps>(
 
             const isNowCollapsed = handle.isCollapsed();
 
-            const controlled = collapsedRef.current;
-            if (!isUserInteraction && controlled != null && controlled !== isNowCollapsed) {
-                if (controlled) handle.collapse();
-                else handle.expand();
-                return;
+            const intended = intendedCollapsed.current;
+            if (intended != null) {
+                if (isUserInteraction) {
+                    intendedCollapsed.current = isNowCollapsed;
+                } else if (intended !== isNowCollapsed) {
+                    if (intended) handle.collapse();
+                    else handle.expand();
+                    return;
+                }
             }
 
             if (lastCollapsed.current === isNowCollapsed) return;

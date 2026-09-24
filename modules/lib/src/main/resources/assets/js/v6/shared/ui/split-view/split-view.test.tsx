@@ -310,6 +310,23 @@ describe('SplitView', () => {
         expect(onCollapsedChange).not.toHaveBeenCalled();
     });
 
+    it('keeps a panel collapsed by the user when a sibling panel mounts, though its prop says expanded', async () => {
+        const groupRef = createRef<GroupImperativeHandle>();
+        const props: HarnessProps = { groupRef, collapsed: false, secondCollapsed: false };
+
+        const result = await renderHarness(props);
+        await act(async () => {
+            const handle = screen.getByRole('separator');
+            handle.focus();
+            handle.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }));
+        });
+        expect(groupRef.current?.getLayout().second).toBe(0);
+
+        await rerenderHarness(result, { ...props, withThird: true });
+
+        expect(groupRef.current?.getLayout().second).toBe(0);
+    });
+
     it('applies the layout returned by the resolver when the set of panels changes', async () => {
         const groupRef = createRef<GroupImperativeHandle>();
         const resolve = vi.fn((previous: Layout, next: Layout): Layout | undefined =>
@@ -328,9 +345,6 @@ describe('SplitView', () => {
         const before = groupRef.current?.getLayout();
 
         await rerenderHarness(result, { ...props, withThird: true });
-        await act(async () => {
-            await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
-        });
 
         expect(resolve).toHaveBeenCalledTimes(1);
         expect(resolve.mock.calls[0][0]).toEqual(before);

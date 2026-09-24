@@ -53,4 +53,28 @@ describe('resolveWizardPanelLayout', () => {
 
         expect(layout).toBeUndefined();
     });
+
+    it('should restore the layout the context was closed from when it reopens', () => {
+        const lastUndock = { docked: { form: 22, live: 62, context: 16 }, undocked: { form: 22, live: 78 } };
+
+        const layout = resolveWizardPanelLayout(
+            { form: 22, live: 78 },
+            { form: 30, live: 54, context: 16 },
+            { ...options, lastUndock },
+        );
+
+        expect(layout).toEqual({ form: 22, live: 62, context: 16 });
+    });
+
+    it('should take the context width from the form when the layout changed after the context closed', () => {
+        const lastUndock = { docked: { form: 22, live: 62, context: 16 }, undocked: { form: 22, live: 78 } };
+
+        const layout = resolveWizardPanelLayout(
+            { form: 40, live: 60 },
+            { form: 30, live: 54, context: 16 },
+            { ...options, lastUndock },
+        );
+
+        expect(layout).toEqual({ form: 24, live: 60, context: 16 });
+    });
 });

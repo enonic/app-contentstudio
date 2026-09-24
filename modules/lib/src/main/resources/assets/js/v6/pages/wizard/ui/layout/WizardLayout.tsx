@@ -13,7 +13,7 @@ import { $isContextOpen } from '../../../../widgets/context-panel/model/contextW
 import { FloatingContextPanel } from '../../../../widgets/context-panel/ui/FloatingContextPanel';
 import { $isContentFormExpanded, setContentFormExpanded } from '../../model/wizardContent.store';
 import { $wizardContextPanelMode, $wizardViewMode, setWizardLayoutMetrics } from '../../model/wizardLayout.store';
-import { resolveWizardPanelLayout } from './resolveWizardPanelLayout';
+import { resolveWizardPanelLayout, type WizardPanelUndock } from './resolveWizardPanelLayout';
 
 const CONTEXT_MIN_WIDTH = LayoutTokens.contextPanel.minWidth;
 // Below this the form is unusable; dragging past it collapses to the 60px rail instead.
@@ -118,14 +118,21 @@ export const WizardLayout = ({ formPanel, livePanel, contextPanel, onResized }: 
     const liveCollapsed = viewMode === 'form' || (isMobile && viewMode !== 'live' && formExpanded);
     const showFormLiveHandle = !isMobile && viewMode !== 'form' && formExpanded;
 
+    // Reopening the context right after closing it restores the layout it was closed from.
+    const lastUndockRef = useRef<WizardPanelUndock | undefined>(undefined);
     const handleResolveLayout = useCallback(
-        (previous: Layout, next: Layout): Layout | undefined =>
-            resolveWizardPanelLayout(previous, next, {
+        (previous: Layout, next: Layout): Layout | undefined => {
+            const resolved = resolveWizardPanelLayout(previous, next, {
                 totalWidth: totalWidthRef.current,
                 formMinWidth: FORM_MIN_WIDTH,
                 liveMinWidth: LIVE_MIN_WIDTH,
                 formCollapsed,
-            }),
+                lastUndock: lastUndockRef.current,
+            });
+            const undocked = previous.context != null && next.context == null;
+            lastUndockRef.current = undocked ? { docked: previous, undocked: resolved ?? next } : undefined;
+            return resolved;
+        },
         [formCollapsed],
     );
 
