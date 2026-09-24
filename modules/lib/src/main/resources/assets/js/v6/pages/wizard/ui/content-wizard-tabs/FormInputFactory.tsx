@@ -1,5 +1,5 @@
-import { type PropertyPath } from '@enonic/lib-admin-ui/data/PropertyPath';
-import { type Input } from '@enonic/lib-admin-ui/form/Input';
+import { type PropertyPath } from '@enonic/input-types/data';
+import { type Input } from '@enonic/input-types/schema';
 import { useStore } from '@nanostores/preact';
 import { type ReactElement } from 'react';
 import { toPathKey } from '../../../../shared/lib/cms/property/path';

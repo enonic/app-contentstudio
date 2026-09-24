@@ -22,7 +22,7 @@ import { ContentContext } from '../wizard/ContentContext';
 import { StringHelper } from '@enonic/lib-admin-ui/util/StringHelper';
 import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
 import { DescriptorBasedComponent } from '../page/region/DescriptorBasedComponent';
-import { normalizeFormValueTypes } from '../../v6/features/shared/form/normalizeFormValueTypes';
+import { normalizeFormValueTypes } from '@enonic/input-types';
 
 export class PageHelper {
     public static fetchAndInjectLayoutRegions(layout: LayoutComponent): Q.Promise<void> {

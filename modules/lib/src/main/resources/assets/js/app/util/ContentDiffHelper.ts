@@ -1,14 +1,14 @@
-import {type ContentDiff} from '../content/ContentDiff';
-import {PropertyTreeHelper} from '@enonic/lib-admin-ui/util/PropertyTreeHelper';
-import {type Mixin} from '../content/Mixin';
-import {MixinByMixinNameComparator} from '../content/MixinByMixinNameComparator';
-import {ContentSummaryHelper} from '../content/ContentSummaryHelper';
-import {type Content} from '../content/Content';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {type Property} from '@enonic/lib-admin-ui/data/Property';
-import {type PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
+import { type ContentDiff } from '../content/ContentDiff';
+import { PropertyTreeHelper } from '@enonic/lib-admin-ui/util/PropertyTreeHelper';
+import { type Mixin } from '../content/Mixin';
+import { MixinByMixinNameComparator } from '../content/MixinByMixinNameComparator';
+import { ContentSummaryHelper } from '../content/ContentSummaryHelper';
+import { type Content } from '../content/Content';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { type Property } from '@enonic/lib-admin-ui/data/Property';
+import { type PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
+import { type PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
 
 export class ContentDiffHelper {
     public static diff(item: Content, other: Content, ignoreEmptyDataValues: boolean = false): ContentDiff {
@@ -87,13 +87,16 @@ export class ContentDiffHelper {
             }
 
             const allNull = properties.length > 0 && properties.every((property) => property.hasNullValue());
-            if (allNull && !changedBaseKeys.has(ContentDiffHelper.toBasePathKey(ContentDiffHelper.toPathKey(properties[0])))) {
+            if (
+                allNull &&
+                !changedBaseKeys.has(ContentDiffHelper.toBasePathKey(ContentDiffHelper.toPathKey(properties[0])))
+            ) {
                 toRemove.push(...properties);
             }
         }
 
         set.removeProperties(toRemove);
-        set.removeEmptyArrays(set);
+        set.removeEmptyArrays();
     }
 
     private static toPathKey(property: Property): string {
@@ -107,9 +110,12 @@ export class ContentDiffHelper {
 
     public static extraDataEquals(extraData: Mixin[], other: Mixin[], ignoreEmptyValues: boolean = false): boolean {
         if (ignoreEmptyValues) {
-            const isOtherArrayEmpty: boolean = !other || other.length === 0 || other.every(ed => !ed.getData() || ed.getData().isEmpty());
+            const isOtherArrayEmpty: boolean =
+                !other || other.length === 0 || other.every((ed) => !ed.getData() || ed.getData().isEmpty());
             const isThisArrayEmpty: boolean =
-                !extraData || extraData.length === 0 || extraData.every(ed => !ed.getData() || ed.getData().isEmpty());
+                !extraData ||
+                extraData.length === 0 ||
+                extraData.every((ed) => !ed.getData() || ed.getData().isEmpty());
 
             if (isThisArrayEmpty && isOtherArrayEmpty) {
                 return true;

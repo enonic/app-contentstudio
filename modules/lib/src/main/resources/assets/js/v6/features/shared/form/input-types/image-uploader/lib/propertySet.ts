@@ -1,5 +1,5 @@
-import {type Value} from '@enonic/lib-admin-ui/data/Value';
-import {type Crop, type Dimensions, type Point} from './types';
+import { type Value } from '@enonic/input-types/data';
+import { type Crop, type Dimensions, type Point } from './types';
 
 export function isPropertySetDirty(value: Value): boolean {
     if (!value || value.isNull()) return false;
@@ -163,7 +163,7 @@ export function readNormalizedCropFromPropertySet(value: Value): Crop | null {
 
     if (left == null || top == null || right == null || bottom == null) return null;
 
-    return {x1: left, y1: top, x2: right, y2: bottom};
+    return { x1: left, y1: top, x2: right, y2: bottom };
 }
 
 export function readNormalizedFocusFromPropertySet(value: Value): Point | null {
@@ -176,7 +176,7 @@ export function readNormalizedFocusFromPropertySet(value: Value): Point | null {
 
     if (x == null || y == null) return null;
 
-    return {x, y};
+    return { x, y };
 }
 
 //

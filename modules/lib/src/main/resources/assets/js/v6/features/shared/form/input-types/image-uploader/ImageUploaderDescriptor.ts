@@ -1,9 +1,9 @@
-import {type InputTypeDescriptor, type ValidationResult} from '@enonic/lib-admin-ui/form2/descriptor';
-import {type ValueType} from '@enonic/lib-admin-ui/data/ValueType';
-import {type Value} from '@enonic/lib-admin-ui/data/Value';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import type {RawInputConfig} from '@enonic/lib-admin-ui/form/Input';
-import type {ImageUploaderConfig} from './ImageUploaderConfig';
+import { type InputTypeDescriptor, type ValidationResult } from '@enonic/input-types';
+import { type ValueType } from '@enonic/input-types/data';
+import { type Value } from '@enonic/input-types/data';
+import { ValueTypes } from '@enonic/input-types/data';
+import type { ImageUploaderConfig } from './ImageUploaderConfig';
+import type { InputConfigEntries } from '@enonic/input-types';
 
 export const ImageUploaderDescriptor: InputTypeDescriptor<ImageUploaderConfig> = {
     name: 'ImageUploader' as const,
@@ -12,7 +12,7 @@ export const ImageUploaderDescriptor: InputTypeDescriptor<ImageUploaderConfig> =
         return ValueTypes.STRING;
     },
 
-    readConfig(_raw: RawInputConfig): ImageUploaderConfig {
+    readConfig(_raw: InputConfigEntries): ImageUploaderConfig {
         return {};
     },
 

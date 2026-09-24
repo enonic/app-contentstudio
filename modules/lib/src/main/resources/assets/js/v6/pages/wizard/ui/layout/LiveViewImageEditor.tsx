@@ -1,11 +1,16 @@
-import type { PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
-import { Input } from '@enonic/lib-admin-ui/form/Input';
-import type { FormItem } from '@enonic/lib-admin-ui/form/FormItem';
-import { RawValueProvider, ValidationVisibilityProvider } from '@enonic/lib-admin-ui/form2';
+import type { PropertySet } from '@enonic/input-types/data';
+import { Input } from '@enonic/input-types/schema';
+import type { FormItem } from '@enonic/input-types/schema';
+import {
+    FormItemRenderer,
+    FormRenderProvider,
+    RawValueProvider,
+    ValidationVisibilityProvider,
+} from '@enonic/input-types';
 import { useStore } from '@nanostores/preact';
 import { type ReactElement, useMemo } from 'react';
 import { LegacyElement } from '../../../../shared/ui/LegacyElement';
-import { FormItemRenderer, FormRenderProvider } from '../../../../features/shared/form';
+import { FormI18nProvider } from '../../../../features/shared/form';
 import { ImageUploaderDescriptor } from '../../../../features/shared/form/input-types/image-uploader/ImageUploaderDescriptor';
 import { $contentType, $wizardDraftData, $wizardReadOnly } from '../../model/wizardContent.store';
 import { $validationVisibility, getContentRawValueMap } from '../../model/wizardValidation.store';
@@ -52,20 +57,22 @@ const LiveViewImageEditor = (): ReactElement | null => {
     return (
         <ValidationVisibilityProvider visibility={visibility}>
             <RawValueProvider map={rawValueMap}>
-                <FormRenderProvider enabled={!readOnly} applicationKey={applicationKey}>
-                    <div
-                        data-component={COMPONENT_NAME}
-                        className={cn(
-                            'flex flex-col flex-1 min-h-0 p-5',
-                            // Reuse the standard ImageUploader rendering but adapt it to the
-                            // preview area: hide the input label and let the input field grow
-                            // to fill the available height.
-                            "**:data-[component='InputLabel']:hidden **:data-[component='InputField']:flex-1 **:data-[component='InputField']:min-h-0",
-                        )}
-                    >
-                        <FormItemRenderer formItem={imageUploaderItem} propertySet={propertySet} />
-                    </div>
-                </FormRenderProvider>
+                <FormI18nProvider>
+                    <FormRenderProvider enabled={!readOnly} applicationKey={applicationKey?.toString()}>
+                        <div
+                            data-component={COMPONENT_NAME}
+                            className={cn(
+                                'flex flex-col flex-1 min-h-0 p-5',
+                                // Reuse the standard ImageUploader rendering but adapt it to the
+                                // preview area: hide the input label and let the input field grow
+                                // to fill the available height.
+                                "**:data-[component='InputLabel']:hidden **:data-[component='InputField']:flex-1 **:data-[component='InputField']:min-h-0",
+                            )}
+                        >
+                            <FormItemRenderer formItem={imageUploaderItem} propertySet={propertySet} />
+                        </div>
+                    </FormRenderProvider>
+                </FormI18nProvider>
             </RawValueProvider>
         </ValidationVisibilityProvider>
     );

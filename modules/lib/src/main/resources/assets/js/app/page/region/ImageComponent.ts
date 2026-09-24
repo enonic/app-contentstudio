@@ -1,24 +1,22 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {type Form, FormBuilder} from '@enonic/lib-admin-ui/form/Form';
-import {OccurrencesBuilder} from '@enonic/lib-admin-ui/form/Occurrences';
-import {TextArea} from '@enonic/lib-admin-ui/form/inputtype/text/TextArea';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {ComponentName} from './ComponentName';
-import {type ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
-import {type ImageComponentJson} from './ImageComponentJson';
-import {ImageComponentType} from './ImageComponentType';
-import {ConfigBasedComponent, ConfigBasedComponentBuilder} from './ConfigBasedComponent';
-import {type Content} from '../../content/Content';
-import {ImageHelper} from '../../util/ImageHelper';
-import {InputBuilder} from '@enonic/lib-admin-ui/form/Input';
-import {ContentId} from '../../content/ContentId';
-import {ComponentImageUpdatedEvent} from './ComponentImageUpdatedEvent';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
+import { type Form, FormBuilder } from '@enonic/lib-admin-ui/form/Form';
+import { OccurrencesBuilder } from '@enonic/lib-admin-ui/form/Occurrences';
+import { TextArea } from '@enonic/lib-admin-ui/form/inputtype/text/TextArea';
+import { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import { ComponentName } from './ComponentName';
+import { type ComponentTypeWrapperJson } from './ComponentTypeWrapperJson';
+import { type ImageComponentJson } from './ImageComponentJson';
+import { ImageComponentType } from './ImageComponentType';
+import { ConfigBasedComponent, ConfigBasedComponentBuilder } from './ConfigBasedComponent';
+import { type Content } from '../../content/Content';
+import { ImageHelper } from '../../util/ImageHelper';
+import { InputBuilder } from '@enonic/lib-admin-ui/form/Input';
+import { ContentId } from '../../content/ContentId';
+import { ComponentImageUpdatedEvent } from './ComponentImageUpdatedEvent';
 
-export class ImageComponent
-    extends ConfigBasedComponent {
-
+export class ImageComponent extends ConfigBasedComponent {
     public static PROPERTY_IMAGE: string = 'image';
 
     private image: ContentId;
@@ -36,8 +34,13 @@ export class ImageComponent
         const formBuilder = new FormBuilder();
 
         formBuilder.addFormItem(
-            new InputBuilder().setName('caption').setInputType(TextArea.getName()).setLabel(i18n('field.caption')).setOccurrences(
-                new OccurrencesBuilder().setMinimum(0).setMaximum(1).build()).build());
+            new InputBuilder()
+                .setName('caption')
+                .setInputType(TextArea.getName())
+                .setLabel(i18n('field.caption'))
+                .setOccurrences(new OccurrencesBuilder().setMinimum(0).setMaximum(1).build())
+                .build(),
+        );
 
         return formBuilder.build();
     }
@@ -91,18 +94,16 @@ export class ImageComponent
     }
 
     toJson(): ComponentTypeWrapperJson {
-
         const json: ImageComponentJson = {} as ImageComponentJson;
         json.image = this.image != null ? this.image.toString() : null;
-        json.config = this.config != null ? this.config.toJson() : null;
+        json.config = this.config != null ? [...this.config.toJson()] : null;
 
         return {
-            ImageComponent: json
+            ImageComponent: json,
         } as ComponentTypeWrapperJson;
     }
 
     equals(o: Equitable): boolean {
-
         if (!ObjectHelper.iFrameSafeInstanceOf(o, ImageComponent)) {
             return false;
         }
@@ -121,9 +122,7 @@ export class ImageComponent
     }
 }
 
-export class ImageComponentBuilder
-    extends ConfigBasedComponentBuilder {
-
+export class ImageComponentBuilder extends ConfigBasedComponentBuilder {
     image: ContentId;
 
     constructor(source?: ImageComponent) {

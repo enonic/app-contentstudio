@@ -1,6 +1,6 @@
 import { type ChangeEvent, type ReactElement, useCallback, useRef } from 'react';
 import { Button, cn } from '@enonic/ui';
-import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { ValueTypes } from '@enonic/input-types/data';
 import { UploadIcon } from 'lucide-react';
 import { useImageUploader } from '../useImageUploader';
 import { useImageUploaderContext } from '../ImageUploaderContext';

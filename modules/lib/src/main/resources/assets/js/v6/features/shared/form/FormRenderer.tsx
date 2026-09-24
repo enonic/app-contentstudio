@@ -1,57 +1,40 @@
 import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
-import type { Form } from '@enonic/lib-admin-ui/form/Form';
-import type { PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
-import { LocaleProvider } from '@enonic/lib-admin-ui/form2';
+import { showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
+import {
+    FormRenderer as ToolkitFormRenderer,
+    type FormRendererProps as ToolkitFormRendererProps,
+    LocaleProvider,
+} from '@enonic/input-types';
 import { useStore } from '@nanostores/preact';
-import { type ReactElement, type ReactNode, useMemo } from 'react';
-import { useApplicationKeys } from '../hooks/useApplicationKeys';
+import type { ReactElement, ReactNode } from 'react';
 import { $contextContent } from '../../../widgets/context-panel/model/contextContent.store';
 import { $activeProject } from '../../../entities/project';
 import { $config } from '../../../shared/config/config.store';
-import { Input } from '@enonic/lib-admin-ui/form/Input';
-import { instanceOf } from '../../../shared/lib/object/instanceOf';
-import { FormRenderProvider } from './FormRenderContext';
-import { FormItemRenderer } from './FormItemRenderer';
+import { useApplicationKeys } from '../hooks/useApplicationKeys';
+import { FormI18nProvider } from './FormI18nProvider';
 import { HtmlAreaProvider, useOptionalHtmlAreaContext } from './input-types/html-area';
 
-type FormRendererProps = {
-    form: Form;
-    propertySet: PropertySet;
-    enabled?: boolean;
-    applicationKey?: ApplicationKey;
-    excludeInputTypes?: string[];
+type FormRendererProps = Omit<ToolkitFormRendererProps, 'applicationKey' | 'notify' | 'registry'> & {
+    applicationKey?: ApplicationKey | string;
 };
 
-export const FormRenderer = ({
-    form,
-    propertySet,
-    enabled = true,
-    applicationKey,
-    excludeInputTypes,
-}: FormRendererProps): ReactElement => {
+const notifyWarning = (message: string): void => {
+    showWarning(message, true);
+};
+
+/**
+ * The toolkit's form with what Content Studio wraps around it: its phrases, the content's
+ * language, and the HTML area's context. A nested form finds the context above and adds nothing.
+ */
+export const FormRenderer = ({ applicationKey, ...props }: FormRendererProps): ReactElement => {
     const existingHtmlAreaContext = useOptionalHtmlAreaContext();
 
-    const excluded = useMemo(
-        () => new Set((excludeInputTypes ?? []).map((name) => name.toLowerCase())),
-        [excludeInputTypes],
-    );
-
-    const items =
-        excluded.size === 0
-            ? form.getFormItems()
-            : form.getFormItems().filter((item) => {
-                  if (!instanceOf(item, Input)) return true;
-                  return !excluded.has(item.getInputType().getName().toLowerCase());
-              });
-
     const renderedForm = (
-        <FormRenderProvider enabled={enabled} applicationKey={applicationKey}>
-            <div className="flex flex-col gap-7.5" data-component="FormRenderer">
-                {items.map((item) => (
-                    <FormItemRenderer key={item.getName()} formItem={item} propertySet={propertySet} />
-                ))}
-            </div>
-        </FormRenderProvider>
+        <ToolkitFormRenderer
+            {...props}
+            applicationKey={typeof applicationKey === 'string' ? applicationKey : applicationKey?.toString()}
+            notify={notifyWarning}
+        />
     );
 
     if (existingHtmlAreaContext) {
@@ -76,16 +59,18 @@ const HtmlAreaShell = ({ children }: { children: ReactNode }): ReactElement => {
     const applicationKeys = useApplicationKeys();
 
     return (
-        <LocaleProvider locale={contextContent?.getLanguage()}>
-            <HtmlAreaProvider
-                contentSummary={contextContent ?? undefined}
-                project={activeProject}
-                applicationKeys={applicationKeys}
-                assetsUri={assetsUri}
-            >
-                {children}
-            </HtmlAreaProvider>
-        </LocaleProvider>
+        <FormI18nProvider>
+            <LocaleProvider locale={contextContent?.getLanguage()}>
+                <HtmlAreaProvider
+                    contentSummary={contextContent ?? undefined}
+                    project={activeProject}
+                    applicationKeys={applicationKeys}
+                    assetsUri={assetsUri}
+                >
+                    {children}
+                </HtmlAreaProvider>
+            </LocaleProvider>
+        </FormI18nProvider>
     );
 };
 

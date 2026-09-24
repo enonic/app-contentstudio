@@ -1,14 +1,14 @@
-import {beforeEach, vi} from 'vitest';
+import { beforeEach, vi } from 'vitest';
 import jQuery from 'jquery';
 
 // Expose jQuery globally for jquery-ui and other plugins that expect it
-(globalThis as unknown as {jQuery: typeof jQuery}).jQuery = jQuery;
-(globalThis as unknown as {$: typeof jQuery}).$ = jQuery;
+(globalThis as unknown as { jQuery: typeof jQuery }).jQuery = jQuery;
+(globalThis as unknown as { $: typeof jQuery }).$ = jQuery;
 
 // Also set on window for browser-like environment
 if (typeof window !== 'undefined') {
-    (window as unknown as {jQuery: typeof jQuery}).jQuery = jQuery;
-    (window as unknown as {$: typeof jQuery}).$ = jQuery;
+    (window as unknown as { jQuery: typeof jQuery }).jQuery = jQuery;
+    (window as unknown as { $: typeof jQuery }).$ = jQuery;
 }
 
 //
@@ -31,7 +31,7 @@ function createInMemoryStorage(): Storage {
             entries = new Map();
         },
         getItem(key: string): string | null {
-            return entries.has(key) ? entries.get(key) as string : null;
+            return entries.has(key) ? (entries.get(key) as string) : null;
         },
         key(index: number): string | null {
             return Array.from(entries.keys())[index] ?? null;
@@ -46,9 +46,9 @@ function createInMemoryStorage(): Storage {
 }
 
 const inMemoryStorage = createInMemoryStorage();
-Object.defineProperty(globalThis, 'localStorage', {value: inMemoryStorage, configurable: true, writable: true});
+Object.defineProperty(globalThis, 'localStorage', { value: inMemoryStorage, configurable: true, writable: true });
 if (typeof window !== 'undefined') {
-    Object.defineProperty(window, 'localStorage', {value: inMemoryStorage, configurable: true, writable: true});
+    Object.defineProperty(window, 'localStorage', { value: inMemoryStorage, configurable: true, writable: true });
 }
 
 beforeEach(() => {
@@ -59,8 +59,8 @@ beforeEach(() => {
 // This mock is applied to all tests to avoid bundled @enonic/ui trying to import from 'react'
 vi.mock('@enonic/ui', () => {
     const createMockComponent = (name: string) => {
-        const Component = ({children, ...props}: {children?: unknown;[key: string]: unknown}) => {
-            return {type: 'div', props: {'data-testid': name, ...props, children}};
+        const Component = ({ children, ...props }: { children?: unknown; [key: string]: unknown }) => {
+            return { type: 'div', props: { 'data-testid': name, ...props, children } };
         };
         Component.displayName = name;
         return Component;
@@ -103,7 +103,16 @@ vi.mock('@enonic/ui', () => {
         RowSelectionControl: createMockComponent('virtualized-tree-list-row-selection-control'),
     });
 
+    const usePhrases =
+        (phrases: Record<string, string>) =>
+        (key: string, ...values: unknown[]) =>
+            (phrases[key] ?? key).replace(/\{(\d+)\}/g, (_match: string, index: string) =>
+                String(values[Number(index)] ?? ''),
+            );
+
     return {
+        I18nProvider: createMockComponent('i18n-provider'),
+        usePhrases,
         Combobox: MockCombobox,
         Listbox: MockListbox,
         ListItem: MockListItem,

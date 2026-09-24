@@ -1,7 +1,7 @@
-import type { RawInputConfig } from '@enonic/lib-admin-ui/form/Input';
+import type { InputConfigEntries } from '@enonic/input-types';
 
 export const SITE_PATH = '${site}';
 
-export function readAllowPath(raw: RawInputConfig, fallback: string[]): string[] {
+export function readAllowPath(raw: InputConfigEntries, fallback: string[]): string[] {
     return raw?.['allowPath']?.map((cfg) => cfg['value'] as string).filter((val) => !!val) ?? fallback;
 }

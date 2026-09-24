@@ -7,7 +7,7 @@ import {
     SortableList,
     type SortableListItemContext,
     type SortableListItemProps,
-} from '@enonic/lib-admin-ui/form2/components';
+} from '@enonic/input-types';
 import { cn, getIsMobile } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import {

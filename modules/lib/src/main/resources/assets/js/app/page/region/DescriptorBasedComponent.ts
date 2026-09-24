@@ -1,19 +1,17 @@
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
 import Q from 'q';
-import {seedFormDefaults} from '../../../v6/features/shared/form/seedFormDefaults';
-import {type Descriptor} from '../Descriptor';
-import {DescriptorKey} from '../DescriptorKey';
-import {ComponentDescriptorUpdatedEvent} from './ComponentDescriptorUpdatedEvent';
-import {ComponentName} from './ComponentName';
-import {ConfigBasedComponent, ConfigBasedComponentBuilder} from './ConfigBasedComponent';
-import {type DescriptorBasedComponentJson} from './DescriptorBasedComponentJson';
+import { seedFormDefaults } from '@enonic/input-types';
+import { type Descriptor } from '../Descriptor';
+import { DescriptorKey } from '../DescriptorKey';
+import { ComponentDescriptorUpdatedEvent } from './ComponentDescriptorUpdatedEvent';
+import { ComponentName } from './ComponentName';
+import { ConfigBasedComponent, ConfigBasedComponentBuilder } from './ConfigBasedComponent';
+import { type DescriptorBasedComponentJson } from './DescriptorBasedComponentJson';
 
-export abstract class DescriptorBasedComponent
-    extends ConfigBasedComponent {
-
+export abstract class DescriptorBasedComponent extends ConfigBasedComponent {
     private descriptorKey: DescriptorKey;
 
     protected constructor(builder: DescriptorBasedComponentBuilder) {
@@ -66,7 +64,6 @@ export abstract class DescriptorBasedComponent
     }
 
     toComponentJson(): DescriptorBasedComponentJson {
-
         return {
             descriptor: this.descriptorKey != null ? this.descriptorKey.toString() : null,
             config: this.config != null ? this.config.toJson() : null,
@@ -75,7 +72,6 @@ export abstract class DescriptorBasedComponent
     }
 
     equals(o: Equitable): boolean {
-
         if (!ObjectHelper.iFrameSafeInstanceOf(o, DescriptorBasedComponent)) {
             return false;
         }
@@ -94,9 +90,7 @@ export abstract class DescriptorBasedComponent
     }
 }
 
-export abstract class DescriptorBasedComponentBuilder
-    extends ConfigBasedComponentBuilder {
-
+export abstract class DescriptorBasedComponentBuilder extends ConfigBasedComponentBuilder {
     descriptor: DescriptorKey;
 
     description: string;

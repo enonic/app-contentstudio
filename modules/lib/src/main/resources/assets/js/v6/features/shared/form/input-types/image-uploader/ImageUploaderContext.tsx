@@ -9,7 +9,7 @@ import {
     useRef,
     useState,
 } from 'react';
-import { type Value } from '@enonic/lib-admin-ui/data/Value';
+import { type Value } from '@enonic/input-types/data';
 import { type ContentId } from '../../../../../../app/content/ContentId';
 import { type Project } from '../../../../../../app/settings/data/project/Project';
 import { $contextContent } from '../../../../../widgets/context-panel/model/contextContent.store';

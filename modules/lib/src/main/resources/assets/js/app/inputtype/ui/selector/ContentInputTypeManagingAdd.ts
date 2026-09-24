@@ -5,9 +5,10 @@ import { type ContentInputTypeViewContext } from '../../ContentInputTypeViewCont
 import { type ValueType } from '@enonic/lib-admin-ui/data/ValueType';
 import { BaseInputTypeManagingAdd } from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
 import { type ContentPath } from '../../../content/ContentPath';
-import { type ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 import { ApplicationBasedName } from '@enonic/lib-admin-ui/application/ApplicationBasedName';
 import { type FormItem } from '@enonic/lib-admin-ui/form/FormItem';
+import { RawInputConfig } from '@enonic/lib-admin-ui/form/Input';
 
 export abstract class ContentInputTypeManagingAdd<RAW_VALUE_TYPE> extends BaseInputTypeManagingAdd {
     declare protected context: ContentInputTypeViewContext;
@@ -41,15 +42,17 @@ export abstract class ContentInputTypeManagingAdd<RAW_VALUE_TYPE> extends BaseIn
         return new ApplicationBasedName(applicationKey, name).toString();
     }
 
-    private getAllowedContentTypes(inputConfig: Record<string, Record<string, unknown>[]>): string[] {
-        const applicationKey: ApplicationKey = (this.context.input as FormItem).getApplicationKey();
+    private getAllowedContentTypes(inputConfig: RawInputConfig): string[] {
+        const applicationKey: ApplicationKey = ApplicationKey.fromString(
+            (this.context.input as FormItem).getApplicationKey(),
+        );
         const allowContentTypeConfig = inputConfig['allowContentType'] || [];
         return allowContentTypeConfig
             .map((cfg) => this.prependApplicationName(applicationKey, cfg['value'] as string))
             .filter((val) => !!val);
     }
 
-    private getAllowedContentPaths(inputConfig: Record<string, Record<string, unknown>[]>): string[] {
+    private getAllowedContentPaths(inputConfig: RawInputConfig): string[] {
         const allowContentPathConfig = inputConfig['allowPath'] || [];
         if (allowContentPathConfig.length > 0) {
             return allowContentPathConfig.map((cfg) => cfg['value'] as string).filter((val) => !!val);
@@ -62,7 +65,7 @@ export abstract class ContentInputTypeManagingAdd<RAW_VALUE_TYPE> extends BaseIn
     }
 
     protected readInputConfig(): void {
-        const inputConfig: Record<string, Record<string, unknown>[]> = this.context.inputConfig;
+        const inputConfig: RawInputConfig = this.context.inputConfig;
 
         this.allowedContentTypes = this.getAllowedContentTypes(inputConfig);
         this.allowedContentPaths = this.getAllowedContentPaths(inputConfig);
