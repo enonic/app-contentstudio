@@ -167,7 +167,9 @@ export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProp
             return;
         }
 
-        focusPageComponentsRowAt(container, index);
+        if (focusPageComponentsRowAt(container, index)) {
+            setFocusedNodeId(pendingFocusNodeId);
+        }
     }, [flatNodes]);
 
     const handleFocusCapture = useCallback(
@@ -435,7 +437,7 @@ export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProp
                 {showTitle && <h3 className="text-base font-semibold">{componentsLabel}</h3>}
                 <SortableList
                     items={flatNodes}
-                    keyExtractor={(node) => node.id}
+                    keyExtractor={(node) => node.data?.dragId ?? node.id}
                     onDragStart={handleDragStart}
                     onMove={handleMove}
                     enabled={flatNodes.length > 1}

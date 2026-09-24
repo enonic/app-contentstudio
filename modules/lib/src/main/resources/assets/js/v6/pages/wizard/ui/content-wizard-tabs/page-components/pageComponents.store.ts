@@ -47,6 +47,8 @@ let lastRebuildVersion = -1;
 let lastLayoutsByPath = new Map<string, LayoutComponent>();
 let layoutFragmentResolutionId = 0;
 let layoutFragmentKindCache = createLayoutFragmentKindCache(null);
+let nextDragId = 0;
+const dragIds = new WeakMap<Page | Region | Component, string>();
 
 export function rebuildComponentsTree(preserveExpanded = true): void {
     const currentVersion = $pageVersion.get();
@@ -325,6 +327,7 @@ function buildPageTree(page: Page, nodes: CreateNodeOptions<PageComponentNodeDat
     nodes.push({
         id: PAGE_ROOT_ID,
         data: {
+            dragId: getDragId(page, 'Page'),
             displayName: 'Page',
             nodeType: 'page',
             draggable: false,
@@ -351,6 +354,7 @@ function buildFragmentTree(page: Page, nodes: CreateNodeOptions<PageComponentNod
     nodes.push({
         id: PAGE_ROOT_ID,
         data: {
+            dragId: getDragId(page, `${fragment.getName()?.toString() ?? 'Page'} fragment`),
             displayName: fragment.getName()?.toString() ?? 'Fragment',
             nodeType: getComponentNodeType(fragment),
             draggable: false,
@@ -375,6 +379,7 @@ function buildRegionNodes(region: Region, parentPath: string, nodes: CreateNodeO
     nodes.push({
         id: regionId,
         data: {
+            dragId: getDragId(region, `${region.getName()} region`),
             displayName: region.getName(),
             nodeType: 'region',
             draggable: false,
@@ -414,6 +419,7 @@ function buildComponentNodes(
     nodes.push({
         id: componentId,
         data: {
+            dragId: getDragId(component, `${fallbackName} ${nodeType}`),
             displayName,
             nodeType,
             draggable: true,
@@ -430,6 +436,17 @@ function buildComponentNodes(
     for (const region of regions) {
         buildRegionNodes(region, componentId, nodes);
     }
+}
+
+function getDragId(item: Page | Region | Component, label: string): string {
+    const existing = dragIds.get(item);
+    if (existing != null) {
+        return existing;
+    }
+
+    const dragId = `${label.trim() || 'Page component'} (${++nextDragId})`;
+    dragIds.set(item, dragId);
+    return dragId;
 }
 
 function resolveLayoutFragments(page: Page, resolutionId: number): void {
