@@ -1,5 +1,6 @@
 import { useStore } from '@nanostores/preact';
 import { ReactElement, type RefObject, useEffect, useRef } from 'react';
+import { $config } from '../../../shared/config/config.store';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import {
     setPublishScheduleFrom,
@@ -22,6 +23,7 @@ export const PublishScheduleForm = ({ firstInputRef, defaultTimeValue }: Publish
     const { schedule } = useStore($publishDialog, { keys: ['schedule'] });
     const fromError = useStore($scheduleFromError);
     const toError = useStore($scheduleToError);
+    const { requiredPublishFrom } = useStore($config, { keys: ['requiredPublishFrom'] });
 
     const onlineFromLabel = useI18n('field.onlineFrom');
     const onlineToLabel = useI18n('field.onlineTo');
@@ -39,7 +41,7 @@ export const PublishScheduleForm = ({ firstInputRef, defaultTimeValue }: Publish
         >
             <DateTimeSelector
                 label={onlineFromLabel}
-                placeholder={nowLabel}
+                placeholder={requiredPublishFrom ? undefined : nowLabel}
                 initialValue={schedule?.from}
                 onChange={setPublishScheduleFrom}
                 onError={setPublishScheduleFromError}

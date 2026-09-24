@@ -401,12 +401,12 @@ describe('publishDialog.store', () => {
             expect($scheduleFromError.get()).toBeUndefined();
         });
 
-        it('invalidates an empty "online from" when the config is on', () => {
+        it('invalidates an empty "online from" when the config is on without highlighting the field', () => {
             $config.setKey('requiredPublishFrom', true);
             setPublishSchedule({});
 
             expect($isScheduleValid.get()).toBe(false);
-            expect($scheduleFromError.get()).toBeTruthy();
+            expect($scheduleFromError.get()).toBeUndefined();
         });
 
         it('accepts a provided "online from" when the config is on', () => {
