@@ -16,8 +16,6 @@ overrides:
   vite@>=7.0.0 <=7.3.1: '>=7.3.2'
   vite@>=7.1.0 <=7.3.1: '>=7.3.2'
 
-pnpmfileChecksum: sha256-9ogr2U0XNyLQ8lb7m75vpEvesE6NouvxcvBvh+J8PDk=
-
 importers:
 
   .:
@@ -29,20 +27,20 @@ importers:
         specifier: ^10.0.0
         version: 10.0.0(@dnd-kit/core@6.3.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)
       '@enonic/input-types':
-        specifier: ^0.2.0
-        version: 0.2.0(preact@10.29.8)
+        specifier: ^0.3.0
+        version: 0.3.0(@dnd-kit/core@6.3.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@dnd-kit/sortable@10.0.0(@dnd-kit/core@6.3.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4))(@enonic/ui@1.3.0(@radix-ui/react-slot@1.3.3(@types/react@19.2.14)(react@19.2.4))(focus-trap-react@12.0.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(preact@10.29.8)(react-dom@19.2.4(react@19.2.4))(react-virtuoso@4.18.12(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(tw-animate-css@1.4.0))(focus-trap-react@12.0.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(neverthrow@8.2.0)(preact@10.29.8)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@enonic/page-editor':
         specifier: 2.0.1
         version: 2.0.1
       '@enonic/ui':
-        specifier: ^1.2.1
-        version: 1.2.1(@radix-ui/react-slot@1.3.3(@types/react@19.2.14)(react@19.2.4))(focus-trap-react@12.0.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(preact@10.29.8)(react-dom@19.2.4(react@19.2.4))(react-virtuoso@4.18.12(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(tw-animate-css@1.4.0)
+        specifier: ^1.3.0
+        version: 1.3.0(@radix-ui/react-slot@1.3.3(@types/react@19.2.14)(react@19.2.4))(focus-trap-react@12.0.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(preact@10.29.8)(react-dom@19.2.4(react@19.2.4))(react-virtuoso@4.18.12(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(tw-animate-css@1.4.0)
       '@enonic/ui-types':
-        specifier: ^0.2.0
-        version: 0.2.0
+        specifier: ^0.3.0
+        version: 0.3.0
       '@enonic/ui-utils':
-        specifier: ^0.2.0
-        version: 0.2.0
+        specifier: ^0.3.0
+        version: 0.3.0(neverthrow@8.2.0)
       '@nanostores/preact':
         specifier: ^1.0.0
         version: 1.1.0(nanostores@1.5.3)(preact@10.29.8)
@@ -261,26 +259,44 @@ packages:
   '@emnapi/wasi-threads@1.2.3':
     resolution: {integrity: sha512-ELEBe8PsLvvJ6QMr0zLt8ffvOHW/dc1m3CEzNMg7aJUv3bMaoDtw2TXyDAwkYBuroxxuHEwhRTLJSe5sya547g==}
 
-  '@enonic/input-types@0.2.0':
-    resolution: {integrity: sha512-oNBZsLgpfot9t7pjCaWerYDRnkE50bHLYpeCYzC72kGe4soFQlKYLiO21S6tnfymr+AHUmjIimH1Zx4gieUzVw==}
+  '@enonic/input-types@0.3.0':
+    resolution: {integrity: sha512-RBjliZpxCdg8l3q0KMkF21V56gcjYhRxzZ4Z3/9cEh7xTRGDdBwNmKvFkX9rv/c6qVfZadwDZFJEKqEC/YdCPA==}
     engines: {node: '>=22.12.0'}
     peerDependencies:
+      '@dnd-kit/core': ^6.3.1
+      '@dnd-kit/sortable': ^10.0.0
+      '@enonic/ui': ^1.3.0
+      focus-trap-react: ^12.0.0
       preact: '>=10.0.0'
+      react: ^19.0.0
+      react-dom: ^19.0.0
+    peerDependenciesMeta:
+      preact:
+        optional: true
+      react:
+        optional: true
+      react-dom:
+        optional: true
 
   '@enonic/page-editor@2.0.1':
     resolution: {integrity: sha512-ww7g5mym0HS51OUp+sUFJUkIRWFVXqBKTSgMG8Ejo2VyWO1EOwrV1cljnolWugkxt8RZ58X1LZu0KurDfz5stQ==}
     engines: {node: '>= 24.16.0', pnpm: '>= 11.4.0'}
 
-  '@enonic/ui-types@0.2.0':
-    resolution: {integrity: sha512-HGVgXKoOtT4HxNW3BQrI2VmuiT9vGPotxAWlBC1W3HCzG+yhU1kq3asDzWNWZEhok4DYEuMH8G2ZJxVZJaFwtw==}
+  '@enonic/ui-types@0.3.0':
+    resolution: {integrity: sha512-B3RXRApkhDc7wbAotFbscgXLaPwDqkSZNpx3fHuwGMJuE53QZXyH4H5qOJJjAoy8zvyLDodcmI+kH50ahSYd9A==}
     engines: {node: '>=22.12.0'}
 
-  '@enonic/ui-utils@0.2.0':
-    resolution: {integrity: sha512-yyxZl4Mi+eUiuNtA3a+SBONDFdWPAkUv4wMWTkt0kyjHod+oZad37feu17WyXERWZxRMmY/jNIj9QGNKa5EzKA==}
+  '@enonic/ui-utils@0.3.0':
+    resolution: {integrity: sha512-ks+F02bj+zzu3jWy+Vps4a+9ccDw59/NroOIOxoCurdCH3GIjXPfqPJ5HRJvwYFef9vmBJIdrfS0056HbQT3mw==}
     engines: {node: '>=22.12.0'}
+    peerDependencies:
+      neverthrow: ^8.2.0
+    peerDependenciesMeta:
+      neverthrow:
+        optional: true
 
-  '@enonic/ui@1.2.1':
-    resolution: {integrity: sha512-BbET7ZCe3bgf3ydwcButCsShHsgJWl7XeOPw3JSxlV07AXLzbgvWuZef+APRysG1xWRJI/FawNugG0S1QQx0Dw==}
+  '@enonic/ui@1.3.0':
+    resolution: {integrity: sha512-gVSyI6bC5bLcSo5qfJ2XLf4LgQJqA4BTYKCoITKAH+zhVwJAzW7AJGzp+CuX1LuDWJIKydJOerznKhGIUcxQtA==}
     engines: {node: '>=24.16.0', pnpm: '>=11.4.0'}
     peerDependencies:
       '@radix-ui/react-slot': ^1.2.0
@@ -3254,19 +3270,33 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
-  '@enonic/input-types@0.2.0(preact@10.29.8)':
+  '@enonic/input-types@0.3.0(@dnd-kit/core@6.3.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@dnd-kit/sortable@10.0.0(@dnd-kit/core@6.3.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4))(@enonic/ui@1.3.0(@radix-ui/react-slot@1.3.3(@types/react@19.2.14)(react@19.2.4))(focus-trap-react@12.0.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(preact@10.29.8)(react-dom@19.2.4(react@19.2.4))(react-virtuoso@4.18.12(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(tw-animate-css@1.4.0))(focus-trap-react@12.0.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(neverthrow@8.2.0)(preact@10.29.8)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
     dependencies:
+      '@dnd-kit/core': 6.3.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@dnd-kit/sortable': 10.0.0(@dnd-kit/core@6.3.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)
+      '@enonic/ui': 1.3.0(@radix-ui/react-slot@1.3.3(@types/react@19.2.14)(react@19.2.4))(focus-trap-react@12.0.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(preact@10.29.8)(react-dom@19.2.4(react@19.2.4))(react-virtuoso@4.18.12(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(tw-animate-css@1.4.0)
+      '@enonic/ui-types': 0.3.0
+      '@enonic/ui-utils': 0.3.0(neverthrow@8.2.0)
+      focus-trap-react: 12.0.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      lucide-react: 1.39.0(react@19.2.4)
+    optionalDependencies:
       preact: 10.29.8
+      react: 19.2.4
+      react-dom: 19.2.4(react@19.2.4)
+    transitivePeerDependencies:
+      - neverthrow
 
   '@enonic/page-editor@2.0.1':
     dependencies:
       nanostores: 1.5.3
 
-  '@enonic/ui-types@0.2.0': {}
+  '@enonic/ui-types@0.3.0': {}
 
-  '@enonic/ui-utils@0.2.0': {}
+  '@enonic/ui-utils@0.3.0(neverthrow@8.2.0)':
+    optionalDependencies:
+      neverthrow: 8.2.0
 
-  '@enonic/ui@1.2.1(@radix-ui/react-slot@1.3.3(@types/react@19.2.14)(react@19.2.4))(focus-trap-react@12.0.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(preact@10.29.8)(react-dom@19.2.4(react@19.2.4))(react-virtuoso@4.18.12(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(tw-animate-css@1.4.0)':
+  '@enonic/ui@1.3.0(@radix-ui/react-slot@1.3.3(@types/react@19.2.14)(react@19.2.4))(focus-trap-react@12.0.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(preact@10.29.8)(react-dom@19.2.4(react@19.2.4))(react-virtuoso@4.18.12(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(tw-animate-css@1.4.0)':
     dependencies:
       '@radix-ui/react-slot': 1.3.3(@types/react@19.2.14)(react@19.2.4)
       class-variance-authority: 0.7.1
