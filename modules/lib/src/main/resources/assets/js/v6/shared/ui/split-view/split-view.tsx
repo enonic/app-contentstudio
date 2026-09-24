@@ -1,22 +1,14 @@
 import { cn } from '@enonic/ui';
 import { cva, type VariantProps } from 'class-variance-authority';
-import {
-    createContext,
-    forwardRef,
-    useCallback,
-    useContext,
-    useEffect,
-    useId,
-    useMemo,
-    useRef,
-    useState,
-} from 'react';
+import { createContext, forwardRef, useCallback, useContext, useEffect, useId, useMemo, useRef, useState } from 'react';
 import {
     Group,
     Panel as GroupPanel,
     Separator,
     useDefaultLayout,
+    type GroupImperativeHandle,
     type GroupProps,
+    type Layout,
     type Orientation,
     type PanelImperativeHandle,
     type PanelProps as GroupPanelProps,
@@ -29,7 +21,7 @@ import { useI18n } from '../../lib/hooks/useI18n';
 //
 
 // Called by Root after every layout change so panels can detect collapse transitions.
-type PanelLayoutSync = () => void;
+type PanelLayoutSync = (isUserInteraction: boolean) => void;
 
 type SplitViewContextValue = {
     orientation: Orientation;
@@ -45,16 +37,54 @@ const SplitViewContext = createContext<SplitViewContextValue>({
 // * SplitView.Root
 //
 
+const haveSamePanels = (a: Layout, b: Layout): boolean => {
+    const aKeys = Object.keys(a);
+    return aKeys.length === Object.keys(b).length && aKeys.every((key) => key in b);
+};
+
 export type SplitViewRootProps = {
     // Persists the layout to localStorage under this id; omit to disable persistence.
     storageId?: string;
+    resolveLayoutOnPanelsChange?: (previous: Layout, next: Layout) => Layout | undefined;
 } & Omit<GroupProps, 'defaultLayout' | 'onLayoutChange'>;
 
 const SplitViewRoot = forwardRef<HTMLDivElement, SplitViewRootProps>(
-    ({ orientation = 'horizontal', storageId, onLayoutChanged, className, children, ...props }, ref) => {
+    (
+        {
+            orientation = 'horizontal',
+            storageId,
+            resolveLayoutOnPanelsChange,
+            onLayoutChanged,
+            groupRef,
+            className,
+            children,
+            ...props
+        },
+        ref,
+    ) => {
         const fallbackId = useId();
         const [isDragging, setIsDragging] = useState(false);
         const panelSyncs = useRef(new Set<PanelLayoutSync>());
+        const groupHandleRef = useRef<GroupImperativeHandle | null>(null);
+        const lastLayoutRef = useRef<Layout | undefined>(undefined);
+        const resolvePendingRef = useRef(false);
+        const resolveLayoutRef = useRef(resolveLayoutOnPanelsChange);
+        resolveLayoutRef.current = resolveLayoutOnPanelsChange;
+        useEffect(
+            () => () => {
+                resolvePendingRef.current = false;
+            },
+            [],
+        );
+
+        const composedGroupRef = useCallback(
+            (handle: GroupImperativeHandle | null) => {
+                groupHandleRef.current = handle;
+                if (typeof groupRef === 'function') groupRef(handle);
+                else if (groupRef != null) groupRef.current = handle;
+            },
+            [groupRef],
+        );
 
         const { defaultLayout, onLayoutChanged: persistLayout } = useDefaultLayout({
             id: storageId ?? fallbackId,
@@ -69,9 +99,27 @@ const SplitViewRoot = forwardRef<HTMLDivElement, SplitViewRootProps>(
         const contextValue = useMemo(() => ({ orientation, registerPanel }), [orientation, registerPanel]);
 
         const handleLayoutChanged: GroupProps['onLayoutChanged'] = (layout, meta) => {
+            const previous = lastLayoutRef.current;
+            lastLayoutRef.current = layout;
+
+            // ! Deferred out of the library's layout effect, but still before paint.
+            if (previous != null && !haveSamePanels(previous, layout) && !resolvePendingRef.current) {
+                resolvePendingRef.current = true;
+                queueMicrotask(() => {
+                    if (!resolvePendingRef.current) return;
+                    resolvePendingRef.current = false;
+                    const handle = groupHandleRef.current;
+                    if (handle == null) return;
+                    const current = handle.getLayout();
+                    if (haveSamePanels(previous, current)) return;
+                    const resolved = resolveLayoutRef.current?.(previous, current);
+                    if (resolved != null) handle.setLayout(resolved);
+                });
+            }
+
             if (storageId != null) persistLayout(layout, meta);
             onLayoutChanged?.(layout, meta);
-            panelSyncs.current.forEach((sync) => sync());
+            panelSyncs.current.forEach((sync) => sync(meta.isUserInteraction));
         };
 
         const stopDraggingRef = useRef<(() => void) | undefined>(undefined);
@@ -107,10 +155,11 @@ const SplitViewRoot = forwardRef<HTMLDivElement, SplitViewRootProps>(
         return (
             <SplitViewContext.Provider value={contextValue}>
                 <Group
-                    data-component='SplitView.Root'
+                    data-component="SplitView.Root"
                     data-dragging={isDragging || undefined}
                     orientation={orientation}
                     elementRef={ref}
+                    groupRef={composedGroupRef}
                     defaultLayout={storageId != null ? defaultLayout : undefined}
                     onLayoutChanged={handleLayoutChanged}
                     onPointerDownCapture={handlePointerDownCapture}
@@ -118,7 +167,7 @@ const SplitViewRoot = forwardRef<HTMLDivElement, SplitViewRootProps>(
                     {...props}
                 >
                     {children}
-                    {isDragging && <div data-component='SplitView.DragShield' className='absolute inset-0 z-50' />}
+                    {isDragging && <div data-component="SplitView.DragShield" className="absolute inset-0 z-50" />}
                 </Group>
             </SplitViewContext.Provider>
         );
@@ -141,6 +190,13 @@ const SplitViewPanel = forwardRef<HTMLDivElement, SplitViewPanelProps>(
         const { registerPanel } = useContext(SplitViewContext);
         const innerRef = useRef<PanelImperativeHandle | null>(null);
         const lastCollapsed = useRef<boolean | undefined>(undefined);
+        // The prop, or the user's drag or keyboard collapse since the prop last changed.
+        const intendedCollapsed = useRef(collapsed);
+        const lastCollapsedProp = useRef(collapsed);
+        if (lastCollapsedProp.current !== collapsed) {
+            lastCollapsedProp.current = collapsed;
+            intendedCollapsed.current = collapsed;
+        }
         const onCollapsedChangeRef = useRef(onCollapsedChange);
         onCollapsedChangeRef.current = onCollapsedChange;
 
@@ -153,11 +209,23 @@ const SplitViewPanel = forwardRef<HTMLDivElement, SplitViewPanelProps>(
             [panelRef],
         );
 
-        const syncCollapsed = useCallback(() => {
+        const syncCollapsed = useCallback((isUserInteraction: boolean) => {
             const handle = innerRef.current;
             if (handle == null) return;
 
             const isNowCollapsed = handle.isCollapsed();
+
+            const intended = intendedCollapsed.current;
+            if (intended != null) {
+                if (isUserInteraction) {
+                    intendedCollapsed.current = isNowCollapsed;
+                } else if (intended !== isNowCollapsed) {
+                    if (intended) handle.collapse();
+                    else handle.expand();
+                    return;
+                }
+            }
+
             if (lastCollapsed.current === isNowCollapsed) return;
 
             const isFirstReport = lastCollapsed.current === undefined;
@@ -183,9 +251,7 @@ const SplitViewPanel = forwardRef<HTMLDivElement, SplitViewPanelProps>(
             else if (!collapsed && handle.isCollapsed()) handle.expand();
         }, [collapsed]);
 
-        return (
-            <GroupPanel data-component='SplitView.Panel' elementRef={ref} panelRef={composedPanelRef} {...props} />
-        );
+        return <GroupPanel data-component="SplitView.Panel" elementRef={ref} panelRef={composedPanelRef} {...props} />;
     },
 );
 SplitViewPanel.displayName = 'SplitView.Panel';
@@ -232,7 +298,7 @@ const SplitViewHandle = forwardRef<HTMLDivElement, SplitViewHandleProps>(
 
         return (
             <Separator
-                data-component='SplitView.Handle'
+                data-component="SplitView.Handle"
                 elementRef={ref}
                 aria-label={ariaLabel ?? defaultLabel}
                 className={cn(handleVariants({ variant, orientation }), className)}
