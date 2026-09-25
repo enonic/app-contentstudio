@@ -70,9 +70,8 @@ import type { PageComponentNodeData } from './types';
 const PAGE_COMPONENTS_VIEW_NAME = 'PageComponentsView';
 
 // ? Only animate displaced items during an active drag.
-// ? After the drop, items snap to their new positions, preventing
-// ? dnd-kit from replaying a layout-shift animation when the
-// ? tree is rebuilt with changed positional keys.
+// ? After the drop, items snap to their new positions instead of
+// ? dnd-kit replaying the displacement as a layout-shift animation.
 const animateLayoutChanges = ({ isSorting }: { isSorting: boolean }): boolean => isSorting;
 
 export type PageComponentsViewProps = {
@@ -148,8 +147,9 @@ export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProp
         return () => cancelAnimationFrame(handle);
     }, [inspectedPath]);
 
-    // A keyboard drop unmounts the activator row, so focus is re-applied once the moved
-    // row is rendered. A single attempt keeps a missed restore from firing much later.
+    // After a drop the moved row keeps its element but changes index and path, so focus and
+    // the roving tab stop are re-synced once it is rendered. A single attempt keeps a missed
+    // restore from firing much later.
     useLayoutEffect(() => {
         const pendingFocusNodeId = pendingFocusNodeIdRef.current;
         if (pendingFocusNodeId == null) {

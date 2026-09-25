@@ -327,7 +327,7 @@ function buildPageTree(page: Page, nodes: CreateNodeOptions<PageComponentNodeDat
     nodes.push({
         id: PAGE_ROOT_ID,
         data: {
-            dragId: getDragId(page, 'Page'),
+            dragId: getDragId(page),
             displayName: 'Page',
             nodeType: 'page',
             draggable: false,
@@ -354,7 +354,7 @@ function buildFragmentTree(page: Page, nodes: CreateNodeOptions<PageComponentNod
     nodes.push({
         id: PAGE_ROOT_ID,
         data: {
-            dragId: getDragId(page, `${fragment.getName()?.toString() ?? 'Page'} fragment`),
+            dragId: getDragId(page),
             displayName: fragment.getName()?.toString() ?? 'Fragment',
             nodeType: getComponentNodeType(fragment),
             draggable: false,
@@ -379,7 +379,7 @@ function buildRegionNodes(region: Region, parentPath: string, nodes: CreateNodeO
     nodes.push({
         id: regionId,
         data: {
-            dragId: getDragId(region, `${region.getName()} region`),
+            dragId: getDragId(region),
             displayName: region.getName(),
             nodeType: 'region',
             draggable: false,
@@ -419,7 +419,7 @@ function buildComponentNodes(
     nodes.push({
         id: componentId,
         data: {
-            dragId: getDragId(component, `${fallbackName} ${nodeType}`),
+            dragId: getDragId(component),
             displayName,
             nodeType,
             draggable: true,
@@ -438,13 +438,13 @@ function buildComponentNodes(
     }
 }
 
-function getDragId(item: Page | Region | Component, label: string): string {
+function getDragId(item: Page | Region | Component): string {
     const existing = dragIds.get(item);
     if (existing != null) {
         return existing;
     }
 
-    const dragId = `${label.trim() || 'Page component'} (${++nextDragId})`;
+    const dragId = `page-item-${++nextDragId}`;
     dragIds.set(item, dragId);
     return dragId;
 }
