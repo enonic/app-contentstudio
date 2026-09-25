@@ -27,6 +27,7 @@ function createNode(
         parentId,
         level,
         data: {
+            dragId: id,
             displayName: id,
             nodeType: 'part',
             draggable: true,

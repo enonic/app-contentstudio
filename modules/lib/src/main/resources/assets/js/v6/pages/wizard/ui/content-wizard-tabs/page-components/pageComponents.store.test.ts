@@ -176,3 +176,31 @@ describe('pageComponents.store layout fragments', () => {
         expect(getLayoutFragment('/main/0')).toBe(false);
     });
 });
+
+describe('pageComponents.store drag identities', () => {
+    afterEach(() => {
+        $page.set(null);
+    });
+
+    it('keeps component drag identities stable after reindexing', () => {
+        const first = new LayoutComponentBuilder().build();
+        const second = new LayoutComponentBuilder().build();
+        const region = Region.create().setName('main').setComponents([first, second]).build();
+        const page = new PageBuilder().setRegions(Regions.create().addRegion(region).build()).build();
+
+        rebuild(page);
+        const firstDragId = $componentsTreeState.get().nodes.get('/main/0')?.data?.dragId;
+        const secondDragId = $componentsTreeState.get().nodes.get('/main/1')?.data?.dragId;
+
+        expect(firstDragId).toBeDefined();
+        expect(secondDragId).toBeDefined();
+        expect(firstDragId).not.toBe(secondDragId);
+
+        region.removeComponent(first);
+        region.addComponent(first, 1);
+        rebuild(page);
+
+        expect($componentsTreeState.get().nodes.get('/main/0')?.data?.dragId).toBe(secondDragId);
+        expect($componentsTreeState.get().nodes.get('/main/1')?.data?.dragId).toBe(firstDragId);
+    });
+});
