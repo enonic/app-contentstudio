@@ -10,7 +10,7 @@ import { useI18n } from '../../shared/lib/hooks/useI18n';
 import { $activeProjectName, $hasMultipleProjects, $noProjectMode } from '../../entities/project';
 import { setProjectSelectionDialogOpen } from '../../shared/dialogs/dialogs.store';
 import { $issuesStats } from '../../entities/issue';
-import { $activeWidget, isMainWidget } from '../../widgets/context-panel/model/sidebarWidgets.store';
+import { $activeWidget, isContentBrowseWidget } from '../../widgets/context-panel/model/sidebarWidgets.store';
 import type { IssueStatsJson } from '../../../app/issue/json/IssueStatsJson';
 import { LegacyElement } from '../../shared/ui/LegacyElement';
 import { BROWSE_SIDEBAR_ID, BROWSE_SIDEBAR_TOGGLE_ID } from './browseSidebar.constants';
@@ -18,8 +18,8 @@ import { $isBrowseSidebarOpen, setBrowseSidebarOpen } from './model/browseSideba
 
 const $widgetState = computed($activeWidget, (activeWidget) => ({
     appName: activeWidget?.getDisplayName() ?? '',
-    isIssuesButtonVisible: isMainWidget(activeWidget),
-    isProjectSelectorVisible: activeWidget == null || activeWidget.getConfig().getProperty('context') === 'project',
+    isContentBrowseActive: activeWidget == null || isContentBrowseWidget(activeWidget),
+    hasProjectContext: activeWidget == null || activeWidget.getConfig().getProperty('context') === 'project',
 }));
 
 function createIssuesLabelKeys(stats: Readonly<IssueStatsJson> | undefined): [`field.${string}`, ...string[]] {
@@ -40,7 +40,7 @@ export const BrowseAppBar = (): ReactElement => {
     const activeProjectName = useStore($activeProjectName);
     const noProjectMode = useStore($noProjectMode);
     const hasMultipleProjects = useStore($hasMultipleProjects);
-    const { appName, isIssuesButtonVisible, isProjectSelectorVisible } = useStore($widgetState);
+    const { appName, isContentBrowseActive, hasProjectContext } = useStore($widgetState);
     const { stats } = useStore($issuesStats);
     const applicationName = Store.instance().get('application').getName();
     const issuesStatsLabel = useI18n(...createIssuesLabelKeys(stats));
@@ -48,12 +48,17 @@ export const BrowseAppBar = (): ReactElement => {
     const issuesAriaLabel = useI18n('wcag.appbar.issues.label');
     const sidebarLabel = useI18n(isSidebarOpen ? 'tooltip.sidebar.close' : 'tooltip.sidebar.open');
     const isMobileSidebarOpen = !sm && isSidebarOpen;
+    const showProjectTitle = !noProjectMode && isContentBrowseActive;
+    const mobileTitle = showProjectTitle ? activeProjectName : appName || applicationName;
 
     return (
-        <header className="bg-surface-neutral h-15 px-3.5 sm:pl-5 py-2 pr-24 flex items-center gap-2.5 border-b border-bdr-soft">
+        <header className="bg-surface-neutral h-15 px-3.5 sm:pl-5 py-2 pr-24 flex items-center gap-2 sm:gap-2.5 border-b border-bdr-soft">
             <Toggle
                 id={BROWSE_SIDEBAR_TOGGLE_ID}
-                className={cn('relative z-20 size-9 shrink-0 p-0 sm:hidden', !hasMultipleProjects && 'max-sm:mr-auto')}
+                className={cn(
+                    'data-[active=true]:text-main active:text-main relative z-20 size-9 shrink-0 p-0 active:bg-transparent data-[active=true]:bg-transparent sm:hidden',
+                    !hasMultipleProjects && 'max-sm:mr-auto',
+                )}
                 size="md"
                 aria-label={sidebarLabel}
                 aria-controls={BROWSE_SIDEBAR_ID}
@@ -62,18 +67,31 @@ export const BrowseAppBar = (): ReactElement => {
                 onPressedChange={setBrowseSidebarOpen}
             >
                 <span className="relative size-5" aria-hidden="true">
-                    {isSidebarOpen ? (
-                        <X className="absolute inset-0 size-5" />
-                    ) : (
-                        <Menu className="absolute inset-0 size-5" />
-                    )}
+                    <X
+                        className={cn(
+                            'absolute inset-0 size-5 transition-[opacity,transform] duration-750 ease-out motion-reduce:transition-none',
+                            isSidebarOpen ? 'rotate-0 scale-100 opacity-100' : 'rotate-90 scale-75 opacity-0',
+                        )}
+                        strokeWidth={1.5}
+                    />
+                    <Menu
+                        className={cn(
+                            'absolute inset-0 size-5 transition-[opacity,transform] duration-750 ease-out motion-reduce:transition-none',
+                            isSidebarOpen ? '-rotate-90 scale-75 opacity-0' : 'rotate-0 scale-100 opacity-100',
+                        )}
+                        strokeWidth={1.5}
+                    />
                 </span>
             </Toggle>
 
             <div className="contents" inert={isMobileSidebarOpen} aria-hidden={isMobileSidebarOpen || undefined}>
-                {!noProjectMode && isProjectSelectorVisible ? (
+                <h1 title={mobileTitle} className="mr-auto min-w-0 truncate font-semibold sm:hidden">
+                    {mobileTitle}
+                </h1>
+
+                {!noProjectMode && hasProjectContext ? (
                     <Button
-                        className={cn('mr-auto min-w-0 disabled:opacity-100', !hasMultipleProjects && 'max-sm:hidden')}
+                        className="mr-auto min-w-0 disabled:opacity-100 max-sm:hidden"
                         size="sm"
                         endIcon={hasMultipleProjects ? ArrowLeftRight : undefined}
                         endIconClassName="shrink-0 size-3.5"
@@ -86,12 +104,15 @@ export const BrowseAppBar = (): ReactElement => {
                         </span>
                     </Button>
                 ) : (
-                    <h1 title={appName || applicationName} className="mr-auto min-w-0 truncate text-2xl font-semibold">
+                    <h1
+                        title={appName || applicationName}
+                        className="mr-auto hidden min-w-0 truncate text-2xl font-semibold sm:block"
+                    >
                         {appName || applicationName}
                     </h1>
                 )}
 
-                {!noProjectMode && isIssuesButtonVisible && (
+                {showProjectTitle && (
                     <Button
                         className="max-sm:hidden"
                         size="sm"

@@ -63,6 +63,7 @@ const TreeListToolbar = ({ enabled = true }: TreeListToolbarProps): ReactElement
                 icon={RefreshCcw}
                 disabled={isLoading || !enabled}
                 onClick={() => void reloadContentTree()}
+                className="max-sm:size-7.5"
             />
         </div>
     );
