@@ -92,7 +92,7 @@ export const EditPropertiesDialog = (): ReactElement => {
             <Dialog.Portal>
                 <Dialog.Overlay />
                 <Dialog.Content
-                    className="sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220 w-full h-full gap-7.5"
+                    className="sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220 w-full h-full max-sm:max-h-none gap-7.5"
                     data-component={EDIT_PROPERTIES_DIALOG_NAME}
                 >
                     <Dialog.DefaultHeader title={title} description={path} withClose />

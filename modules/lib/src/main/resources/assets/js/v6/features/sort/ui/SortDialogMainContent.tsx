@@ -68,7 +68,7 @@ export const SortDialogMainContent = (): ReactElement => {
         'focus-within:ring-offset-3 focus-within:ring-offset-ring-offset focus-within:border-bdr-solid rounded-sm';
 
     return (
-        <Dialog.Content className="w-full h-full gap-3 md:gap-7.5 p-4 md:p-10 sm:h-fit md:min-w-184 md:max-w-220">
+        <Dialog.Content className="w-full h-full max-sm:max-h-none sm:h-fit gap-3 md:gap-7.5 p-4 md:p-10 md:min-w-184 md:max-w-220">
             <Dialog.DefaultHeader title={title} className="p-1 md:p-0" withClose>
                 <SortElementSelector
                     label={sortElementLabel}

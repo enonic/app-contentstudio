@@ -44,7 +44,7 @@ const HtmlAreaImageDialogInner = (): ReactElement => {
             <Dialog.Portal>
                 <HtmlAreaDialogOverlay />
                 <Dialog.Content
-                    className="w-full h-full gap-10 sm:h-fit md:min-w-180 md:max-w-220 md:max-h-[85vh]"
+                    className="w-full h-full max-sm:max-h-none sm:h-fit gap-10 md:min-w-180 md:max-w-220 md:max-h-[85vh]"
                     data-component={DIALOG_NAME}
                 >
                     <Dialog.DefaultHeader title={title} withClose />

@@ -703,7 +703,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     return (
         <Dialog.Content
             data-component={ISSUE_DIALOG_DETAILS_CONTENT_NAME}
-            className="sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-236 flex min-h-0 flex-col gap-3 h-sm:gap-7.5 overflow-hidden py-5 px-5 h-sm:py-10"
+            className="h-full max-sm:max-h-none sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-236 flex min-h-0 flex-col gap-3 h-sm:gap-7.5 overflow-hidden py-5 px-5 h-sm:py-10"
         >
             <Dialog.Header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-4 px-5">
                 <div className="flex min-w-0 items-center gap-1.5">
