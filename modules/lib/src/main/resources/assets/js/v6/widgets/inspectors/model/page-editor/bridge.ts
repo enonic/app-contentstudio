@@ -6,8 +6,7 @@ import type { PageNavigationHandler } from '../../../../../app/wizard/PageNaviga
 import { PageNavigationMediator } from '../../../../../app/wizard/PageNavigationMediator';
 import { PageState } from '../../../../../app/wizard/page/PageState';
 import { setPageComponentsViewCollapsed } from '../../../../shared/app-state/app.store';
-import { $isContentFormExpanded } from '../../../../pages/wizard/model/wizardContent.store';
-import { setContextOpen } from '../../../context-panel/model/contextWidgets.store';
+import { $isContentFormExpanded, setContextOpen } from '../../../../shared/app-state/browsePanels.store';
 import {
     $contentContext,
     $defaultPageTemplateName,

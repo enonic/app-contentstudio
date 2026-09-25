@@ -21,6 +21,7 @@ import {
     $partDescriptorOptions,
 } from '../../../widgets/inspectors/model/component-inspection.store';
 import { $pageConfigDescriptor } from '../../../widgets/inspectors/model/page-inspection.store';
+import { $isContentFormExpanded } from '../../../shared/app-state/browsePanels.store';
 import { addStringOccurrence, removeStringOccurrence, setStringValue } from './wizardPropertyTree.utils';
 import { resolveDisplayNameExpression } from './displayNameExpression.utils';
 import { createDebounce } from '../../../shared/lib/timing/createDebounce';
@@ -28,6 +29,12 @@ import { $contextContent } from '../../../widgets/context-panel/model/contextCon
 import { ContentPath } from '../../../../app/content/ContentPath';
 import { contentExistsByPath } from '../../../entities/content/api/contentExists.api';
 import { seedFormDefaults } from '../../../features/shared/form/seedFormDefaults';
+
+export {
+    $isContentFormExpanded,
+    setContentFormExpanded,
+    toggleContentFormExpanded,
+} from '../../../shared/app-state/browsePanels.store';
 
 //
 // * Types
@@ -140,8 +147,6 @@ export const $mixinsDescriptors = atom<MixinDescriptor[]>([]);
 export const $wizardDataValidation = map<FormDataValidation>({});
 
 export const $wizardContentPathExists = map<WizardContentPathExists>({ fetching: false, exists: false });
-
-export const $isContentFormExpanded = atom<boolean>(true);
 
 export const $wizardReadOnly = atom<boolean>(true);
 
@@ -347,20 +352,16 @@ export const $mixinsTabs = computed(
     (enabledNames, schemas, unknownNames): MixinTabInfo[] => {
         const knownTabs = schemas
             .filter((schema) => enabledNames.has(schema.getName()))
-            .map(
-                (schema): MixinTabInfo => ({
-                    name: schema.getName(),
-                    title: schema.getTitle() ?? schema.getName(),
-                }),
-            );
+            .map((schema): MixinTabInfo => ({
+                name: schema.getName(),
+                title: schema.getTitle() ?? schema.getName(),
+            }));
 
-        const unknownTabs = Array.from(unknownNames).map(
-            (name): MixinTabInfo => ({
-                name,
-                title: name,
-                unknown: true,
-            }),
-        );
+        const unknownTabs = Array.from(unknownNames).map((name): MixinTabInfo => ({
+            name,
+            title: name,
+            unknown: true,
+        }));
 
         return [...knownTabs, ...unknownTabs];
     },
@@ -377,24 +378,20 @@ export type MixinMenuItem = {
 export const $mixinsMenuItems = computed(
     [$mixinsDescriptors, $enabledMixinsNames, $unknownMixinsNames],
     (schemas, enabledNames, unknownNames): MixinMenuItem[] => {
-        const knownItems = schemas.map(
-            (schema): MixinMenuItem => ({
-                name: schema.getName(),
-                displayName: schema.getTitle() ?? schema.getName(),
-                isOptional: schema.isOptional(),
-                isEnabled: enabledNames.has(schema.getName()),
-            }),
-        );
+        const knownItems = schemas.map((schema): MixinMenuItem => ({
+            name: schema.getName(),
+            displayName: schema.getTitle() ?? schema.getName(),
+            isOptional: schema.isOptional(),
+            isEnabled: enabledNames.has(schema.getName()),
+        }));
 
-        const unknownItems = Array.from(unknownNames).map(
-            (name): MixinMenuItem => ({
-                name,
-                displayName: name,
-                isOptional: true,
-                isEnabled: true,
-                unknown: true,
-            }),
-        );
+        const unknownItems = Array.from(unknownNames).map((name): MixinMenuItem => ({
+            name,
+            displayName: name,
+            isOptional: true,
+            isEnabled: true,
+            unknown: true,
+        }));
 
         return [...knownItems, ...unknownItems];
     },
@@ -710,7 +707,9 @@ function isMixinDataDirty(draftMixin: Mixin | undefined, persistedMixin: Mixin |
         }
 
         const data = presentMixin.getData();
-        return data != null && !ContentDiffHelper.dataEquivalent(data, new PropertyTree(), mixinChangedPathsProvider(name));
+        return (
+            data != null && !ContentDiffHelper.dataEquivalent(data, new PropertyTree(), mixinChangedPathsProvider(name))
+        );
     }
 
     return !ContentDiffHelper.dataEquivalent(
@@ -1035,14 +1034,6 @@ function disarmSeededMixinSnapshots(names: string[]): void {
         $mixinsNeedingSnapshot.set(nextNeeding);
     }
 }
-
-export const setContentFormExpanded = (isExpanded: boolean): void => {
-    $isContentFormExpanded.set(isExpanded);
-};
-
-export const toggleContentFormExpanded = (): void => {
-    $isContentFormExpanded.set(!$isContentFormExpanded.get());
-};
 
 export function setWizardReadOnly(readOnly: boolean): void {
     if ($wizardReadOnly.get() === readOnly) {
