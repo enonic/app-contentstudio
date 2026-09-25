@@ -171,7 +171,7 @@ export const PermissionsDialog = (): ReactElement => {
             <Dialog.Portal>
                 <Dialog.Overlay />
                 {view === 'main' && (
-                    <Dialog.Content className="w-full h-full gap-10 sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[90vh] lg:max-w-220">
+                    <Dialog.Content className="w-full h-full max-sm:max-h-none sm:h-fit gap-10 md:min-w-180 md:max-w-184 md:max-h-[90vh] lg:max-w-220">
                         {loading && (
                             <>
                                 <Dialog.Header className="flex flex-col gap-2.5">

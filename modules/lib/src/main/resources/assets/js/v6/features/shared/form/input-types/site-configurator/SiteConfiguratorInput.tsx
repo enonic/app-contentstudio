@@ -432,7 +432,7 @@ const SiteConfiguratorDialog = ({
                     <Dialog.Content
                         modal={!overlayOpen}
                         className={cn(
-                            'w-full h-full gap-6 sm:h-fit md:min-w-152 md:max-w-184 md:max-h-[85vh]',
+                            'w-full h-full max-sm:max-h-none gap-6 sm:h-fit md:min-w-152 md:max-w-184 md:max-h-[85vh]',
                             modalDialogOpen && 'invisible',
                         )}
                     >

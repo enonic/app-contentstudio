@@ -147,7 +147,7 @@ export const NewContentDialog = (): ReactElement => {
                 <Dialog.Overlay />
                 <Dialog.Content
                     ref={dialogContentRef}
-                    className="p-5 md:p-10 gap-5 md:gap-10 h-178 w-200 max-w-auto"
+                    className="p-5 md:p-10 gap-5 md:gap-10 h-full max-sm:max-h-none sm:h-178 w-200 max-w-auto"
                     onKeyDown={handleKeyDown}
                     onDragEnter={handleDragEnter}
                     onDragLeave={handleDragLeave}

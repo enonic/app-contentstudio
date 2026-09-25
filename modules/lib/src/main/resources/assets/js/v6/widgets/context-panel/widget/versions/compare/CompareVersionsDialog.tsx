@@ -99,7 +99,7 @@ export const CompareVersionsDialog = ({
             <Dialog.Portal>
                 <Dialog.Overlay />
                 <Dialog.Content
-                    className="w-full h-full gap-5 sm:h-fit md:min-w-184 md:max-w-220 md:max-h-[85vh]"
+                    className="w-full h-full max-sm:max-h-none sm:h-fit gap-5 md:min-w-184 md:max-w-220 md:max-h-[85vh]"
                     data-component={COMPARE_VERSIONS_DIALOG_NAME}
                 >
                     <Dialog.DefaultHeader title={title} withClose />

@@ -125,7 +125,7 @@ export const SpecialCharDialog = (): ReactElement => {
                     ref={contentRef}
                     onOpenAutoFocus={preventOpenAutoFocus}
                     onCloseAutoFocus={handleCloseAutoFocus}
-                    className="w-full gap-5.5 h-fit py-5 px-3 sm:py-10 sm:px-8 max-w-full md:max-w-240"
+                    className="w-full gap-5.5 h-full max-sm:max-h-none sm:h-fit py-5 px-3 sm:py-10 sm:px-8 max-w-full md:max-w-240"
                     data-component={SPECIAL_CHAR_DIALOG_NAME}
                 >
                     <Dialog.Header className="px-2 grid grid-cols-[minmax(0,1fr)_auto] gap-2.5">

@@ -51,7 +51,7 @@ export const MoveDialogMainContent = ({
 
     return (
         <Dialog.Content
-            className="w-full h-full gap-10 sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-220"
+            className="w-full h-full max-sm:max-h-none sm:h-fit gap-10  md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-220"
             onOpenAutoFocus={handleOpenAutoFocus}
             data-component={componentName}
         >
