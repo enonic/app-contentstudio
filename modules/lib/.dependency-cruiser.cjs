@@ -50,7 +50,6 @@ const KNOWN_DEBT = [
             `^${V6}/widgets/preview-panel/ui/PreviewToolbarRefreshItem.tsx`,
             `^${V6}/widgets/preview-panel/ui/PreviewToolbarVersionHistoryItem.tsx`,
             `^${V6}/widgets/preview-panel/ui/PreviewToolbarWidgetSelector.tsx`,
-            `^${V6}/widgets/inspectors/model/page-editor/bridge.ts`,
             `^${V6}/widgets/inspectors/ui/page-editor/PageEditorExtension.tsx`,
             `^${V6}/widgets/inspectors/ui/page-editor/inspect/text/TextEditor.tsx`,
         ],

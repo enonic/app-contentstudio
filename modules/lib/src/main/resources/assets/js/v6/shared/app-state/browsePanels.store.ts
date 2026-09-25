@@ -17,6 +17,7 @@ const $contextLayoutMetrics = map<ContextLayoutMetrics>({ totalWidth: 0, context
 export const $isContextOpen = atom<boolean>(false);
 export const $isMobilePreviewOpen = atom<boolean>(false);
 export const $isContentFilterOpen = atom<boolean>(false);
+export const $isContentFormExpanded = atom<boolean>(true);
 
 let lastOpenedPanel: 'context' | 'filter' = 'context';
 
@@ -94,4 +95,12 @@ export function shouldCollapseContextInitially(): boolean {
     const belowInitialThreshold = LayoutTokens.contextPanel.initialCollapseThreshold.isFitOrSmaller(windowWidth);
 
     return belowInitialThreshold || $contextPanelMode.get() !== 'docked';
+}
+
+export function setContentFormExpanded(isExpanded: boolean): void {
+    $isContentFormExpanded.set(isExpanded);
+}
+
+export function toggleContentFormExpanded(): void {
+    $isContentFormExpanded.set(!$isContentFormExpanded.get());
 }
