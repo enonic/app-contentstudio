@@ -17,6 +17,7 @@
 @source "../../../../../node_modules/@enonic/ui/";
 @source "../../../../../node_modules/@enonic/lib-admin-ui/ui2/";
 @source "../../../../../node_modules/@enonic/lib-admin-ui/form2/";
+@source "../../../../../node_modules/@enonic/input-types/dist/";
 
 @custom-variant h-sm (@media (min-height: 640px));
 @custom-variant h-md (@media (min-height: 768px));
