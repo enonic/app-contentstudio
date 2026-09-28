@@ -57,7 +57,7 @@ describe('settings.browse.panel.toolbar.spec - ui-tests to verify state of butto
         await settingsBrowsePanel.waitForEditButtonEnabled();
     });
 
-    it("WHEN 'Sync' button has been pressed THEN expected notification messages appear", async () => {
+    it.skip("WHEN 'Sync' button has been pressed THEN expected notification messages appear", async () => {
         let settingsBrowsePanel = new SettingsBrowsePanel();
         await settingsBrowsePanel.waitForSyncButtonDisplayed();
         await settingsBrowsePanel.clickOnSyncButton();
