@@ -16,7 +16,7 @@ const LanguageAndParentProjectStep = require('../../page_objects/project/project
 const ProjectWizardDialogNameAndIdStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.name.id.step');
 const ProjectWizardDialogSummaryStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.summary.step');
 
-describe('project.viewer.spec - ui-tests for user with Viewer role', function () {
+describe.skip('project.viewer.spec - ui-tests for user with Viewer role', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();

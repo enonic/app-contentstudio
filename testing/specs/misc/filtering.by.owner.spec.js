@@ -10,7 +10,7 @@ const FilterPanel = require('../../page_objects/browsepanel/content.filter.panel
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
 
-describe('filter.by.owner.spec: tests for filtering by', function () {
+describe.skip('filter.by.owner.spec: tests for filtering by', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();

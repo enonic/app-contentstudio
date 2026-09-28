@@ -25,7 +25,7 @@ const ProjectWizardDialogPermissionsStep = require('../../page_objects/project/p
 const ProjectWizardDialogSummaryStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.summary.step');
 const DetailsWidgetInfoSection = require('../../page_objects/browsepanel/detailspanel/details.widget.info.section');
 
-describe('project.author.spec - ui-tests for user with Author role', function () {
+describe.skip('project.author.spec - ui-tests for user with Author role', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();

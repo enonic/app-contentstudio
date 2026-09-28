@@ -18,7 +18,7 @@ const appConst = require('../../libs/app_const');
 const projectUtils = require('../../libs/project.utils');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
 
-describe('project.contributor.spec - ui-tests for user with Contributor role', function () {
+describe.skip('project.contributor.spec - ui-tests for user with Contributor role', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();

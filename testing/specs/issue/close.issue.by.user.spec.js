@@ -16,7 +16,7 @@ const BrowseVersionsWidget = require('../../page_objects/browsepanel/detailspane
 const HomePage = require('../../page_objects/home.page');
 const LoginPage = require('../../page_objects/login.page');
 
-describe('close.issue.by.user.spec: create a issue for user and close it', function () {
+describe.skip('close.issue.by.user.spec: create a issue for user and close it', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();

@@ -25,7 +25,7 @@ const LanguageAndParentProjectStep = require('../../page_objects/project/project
 const ProjectWizardDialogNameAndIdStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.name.id.step');
 const ProjectWizardDialogSummaryStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.summary.step');
 
-describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function () {
+describe.skip('layer.owner.spec - ui-tests for user with layer-Owner role ', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();

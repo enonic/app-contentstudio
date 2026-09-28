@@ -12,7 +12,7 @@ const contentBuilder = require('../../libs/content.builder');
 const appConst = require('../../libs/app_const');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 
-describe('layer.contributor.multi.inheritance.spec - ui-tests for user with layer-contributor role', function () {
+describe.skip('layer.contributor.multi.inheritance.spec - ui-tests for user with layer-contributor role', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();

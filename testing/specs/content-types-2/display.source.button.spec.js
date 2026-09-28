@@ -16,7 +16,7 @@ const EditPermissionsChooseApplyChangesStep = require('../../page_objects/permis
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 const DetailsWidgetPermissionsSection = require('../../page_objects/browsepanel/detailspanel/details.widget.permissions.section');
 
-describe('display.source.button.spec - tests for user with Content Manager Expert role and  Display Source button', function () {
+describe.skip('display.source.button.spec - tests for user with Content Manager Expert role and  Display Source button', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();

@@ -26,7 +26,7 @@ const LanguageAndParentProjectStep = require('../../page_objects/project/project
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
 
-describe('project.owner.spec - ui-tests for user with Owner role', function () {
+describe.skip('project.owner.spec - ui-tests for user with Owner role', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();

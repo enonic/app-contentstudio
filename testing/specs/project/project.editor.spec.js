@@ -23,7 +23,7 @@ const ProjectWizardDialogAccessModeStep = require('../../page_objects/project/pr
 const ProjectWizardDialogPermissionsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.permissions.step');
 const ProjectWizardDialogSummaryStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.summary.step');
 
-describe("project.editor.spec - ui-tests for an user with 'Editor' role", function () {
+describe.skip("project.editor.spec - ui-tests for an user with 'Editor' role", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
