@@ -365,7 +365,7 @@ export const DetachedPageComponentsView = (): ReactElement | null => {
                     onClick={toggleCollapsed}
                 />
             </div>
-            <div className="min-h-0 flex-1 overflow-auto overscroll-y-contain">
+            <div className="min-h-0 flex-1 overflow-auto overscroll-y-contain [scrollbar-gutter:stable]">
                 <div ref={panelFitContentRef} data-resize-region="content" className="px-3 pb-2 pointer-coarse:pb-4">
                     <PageComponentsView />
                 </div>
