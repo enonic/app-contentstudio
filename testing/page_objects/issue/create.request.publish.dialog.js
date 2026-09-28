@@ -286,12 +286,12 @@ class CreateRequestPublishDialog extends Page {
             );
         }
     }
-    
+
     async getOptionsInAssigneesDropdownList() {
         try {
             let principalComboBox = new AssigneeSelectorDropdown(xpath.container);
             return await principalComboBox.getPrincipalsDisplayNameInOptions();
-        }catch (e) {
+        } catch (e) {
             await this.handleError(
                 'Request Publish Dialog - error when getting options in Assignees dropdown list',
                 'err_get_options_assignees',
