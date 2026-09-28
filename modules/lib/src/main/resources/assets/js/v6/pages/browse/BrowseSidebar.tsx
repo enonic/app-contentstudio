@@ -104,11 +104,11 @@ export const BrowseSidebar = (): ReactElement => {
                 inert={isMobileSidebarClosed}
             >
                 <div className="h-15 w-full shrink-0 border-b border-bdr-soft px-3.5 sm:hidden">
-                    <div className="ml-11 flex h-full items-center">
-                        <h1 title={activeProjectName} className="block font-semibold min-w-0 truncate">
-                            {activeProjectName}
-                        </h1>
-                        {hasMultipleProjects && (
+                    {!noProjectMode && (
+                        <div className="ml-11 flex h-full items-center gap-2">
+                            <h1 title={activeProjectName} className="block font-semibold min-w-0 truncate">
+                                {activeProjectName}
+                            </h1>
                             <IconButton
                                 className="ml-auto shrink-0"
                                 size="sm"
@@ -116,9 +116,10 @@ export const BrowseSidebar = (): ReactElement => {
                                 iconSize={20}
                                 onClick={() => setProjectSelectionDialogOpen(true)}
                                 aria-label={projectAriaLabel}
+                                disabled={!hasMultipleProjects}
                             />
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
                 <div className="hidden sm:contents">
                     {noProjectMode ? (
@@ -190,7 +191,7 @@ export const BrowseSidebar = (): ReactElement => {
                         <Tooltip delay={300} value={version} side="right" className="max-sm:hidden">
                             <p
                                 aria-label={version}
-                                className="max-w-[40px] overflow-hidden text-center text-xs text-nowrap text-ellipsis text-subtle max-sm:hidden"
+                                className="max-w-[40px] overflow-hidden text-center text-xs text-nowrap text-ellipsis text-subtle max-sm:sr-only"
                             >
                                 {version}
                             </p>

@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
     sm: false,
     setActiveWidget: vi.fn(),
     hasMultipleProjects: false,
+    noProjectMode: false,
     activeWidgetId: undefined as string | undefined,
     widgets: [] as ReadonlyArray<{
         getDescriptorKey: () => { toString: () => string };
@@ -26,8 +27,8 @@ vi.mock('@enonic/lib-admin-ui/store/Store', () => ({
 
 vi.mock('@enonic/ui', () => ({
     cn: (...classes: unknown[]) => classes.filter(Boolean).join(' '),
-    IconButton: ({ 'aria-label': ariaLabel }: { 'aria-label'?: string }) => (
-        <button type="button" aria-label={ariaLabel} />
+    IconButton: ({ 'aria-label': ariaLabel, disabled }: { 'aria-label'?: string; disabled?: boolean }) => (
+        <button type="button" aria-label={ariaLabel} disabled={disabled} />
     ),
     Tooltip: ({ children }: { children?: ReactNode }) => <>{children}</>,
 }));
@@ -83,7 +84,7 @@ vi.mock('../../entities/project', () => ({
     $activeProject: { get: () => undefined },
     $activeProjectName: { get: () => 'My project' },
     $hasMultipleProjects: { get: () => mocks.hasMultipleProjects },
-    $noProjectMode: { get: () => false },
+    $noProjectMode: { get: () => mocks.noProjectMode },
 }));
 
 vi.mock('../../shared/config', () => ({
@@ -118,6 +119,7 @@ describe('BrowseSidebar', () => {
         mocks.sm = false;
         mocks.setActiveWidget.mockClear();
         mocks.hasMultipleProjects = false;
+        mocks.noProjectMode = false;
         mocks.activeWidgetId = 'studio:main';
         mocks.widgets = [createWidget('studio:main', 'Content'), createWidget('studio:settings', 'Settings')];
         setBrowseSidebarOpen(false);
@@ -196,5 +198,23 @@ describe('BrowseSidebar', () => {
         expect(mobileHeader?.classList.contains('border-bdr-soft')).toBe(true);
         expect(sidebarBody?.classList.contains('px-3.5')).toBe(true);
         expect(sidebarBody?.classList.contains('sm:px-0')).toBe(true);
+    });
+
+    it('shows a disabled project switcher when there is a single project', () => {
+        setBrowseSidebarOpen(true);
+        render(<BrowseSidebar />);
+
+        const switcher = screen.getByRole('button', { name: 'wcag.appbar.project.label' });
+        expect(switcher.hasAttribute('disabled')).toBe(true);
+    });
+
+    it('hides the project name and switcher in no-project mode', () => {
+        mocks.hasMultipleProjects = true;
+        mocks.noProjectMode = true;
+        setBrowseSidebarOpen(true);
+        render(<BrowseSidebar />);
+
+        expect(screen.queryByRole('heading', { name: 'My project' })).toBeNull();
+        expect(screen.queryByRole('button', { name: 'wcag.appbar.project.label' })).toBeNull();
     });
 });
