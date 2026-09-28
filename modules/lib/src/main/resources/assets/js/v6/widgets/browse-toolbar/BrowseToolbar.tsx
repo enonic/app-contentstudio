@@ -89,7 +89,7 @@ export const BrowseToolbar = ({
         <Toolbar>
             <Toolbar.Container
                 aria-label={useI18n('aria.browser.toolbar.label')}
-                className="bg-surface-neutral h-15 px-2.25 max-sm:pr-4 sm:px-5 py-2 flex items-center gap-2.5 sm:gap-2 border-b border-bdr-soft"
+                className="bg-surface-neutral h-15 px-3.5 max-sm:pr-4 sm:px-5 py-2 flex items-center gap-2.5 sm:gap-2 border-b border-bdr-soft"
             >
                 <div
                     ref={mobileContextWidgetSelectorTargetRef}
