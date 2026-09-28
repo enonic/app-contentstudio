@@ -287,6 +287,20 @@ class CreateRequestPublishDialog extends Page {
         }
     }
 
+    async typeTextInAssigneesFilterInput(text) {
+        try {
+            let principalComboBox = new AssigneeSelectorDropdown(this.container);
+            await principalComboBox.typeCharsInFilterItem(text);
+            return await this.pause(300);
+        } catch (err) {
+            await this.handleError(
+                `Request Publish Dialog - error when typing text in Assignees filter input: ${text}`,
+                'err_type_assignees_filter',
+                err,
+            );
+        }
+    }
+
     async getOptionsInAssigneesDropdownList() {
         try {
             let principalComboBox = new AssigneeSelectorDropdown(xpath.container);
