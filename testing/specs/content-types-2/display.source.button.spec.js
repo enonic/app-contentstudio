@@ -25,12 +25,13 @@ describe('display.source.button.spec - tests for user with Content Manager Exper
     let SITE;
 
     it(`Precondition 1: new user with 'Content Manager Expert' and Author roles should be created`, async () => {
-        // Do Log in with 'SU', navigate to 'Users' and create new user:
-        await studioUtils.navigateToUsersApp();
+        // Do Log in with 'SU', navigate to 'cs' and create new user:
+        await studioUtils.navigateToContentStudioApp();
         let userName = builder.generateRandomName('user');
         let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE, appConst.SYSTEM_ROLES.CM_APP_EXPERT, 'Default - Author'];
         USER = builder.buildUser(userName, appConst.PASSWORD.MEDIUM, builder.generateEmail(userName), roles);
-        await studioUtils.addSystemUser(USER);
+        USER = await studioUtils.createSystemUserViaApi(USER);
+        await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
     });
 
     it('Precondition 2: new site should be created by SU', async () => {

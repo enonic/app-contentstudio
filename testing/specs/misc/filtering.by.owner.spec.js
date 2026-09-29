@@ -19,7 +19,7 @@ describe('filter.by.owner.spec: tests for filtering by', function () {
     let FOLDER;
     it(`Precondition 1: new system user should be added`, async () => {
         // Do Log in with 'SU', navigate to 'Users' and create new system user:
-        await studioUtils.navigateToUsersApp();
+        await studioUtils.navigateToContentStudioApp();
         let userName = contentBuilder.generateRandomName('user');
         let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE, appConst.SYSTEM_ROLES.CM_ADMIN];
         USER = contentBuilder.buildUser(
@@ -28,7 +28,7 @@ describe('filter.by.owner.spec: tests for filtering by', function () {
             contentBuilder.generateEmail(userName),
             roles,
         );
-        await studioUtils.addSystemUser(USER);
+        await studioUtils.createSystemUserViaApi(USER);
         await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         await studioUtils.doLogout();
     });

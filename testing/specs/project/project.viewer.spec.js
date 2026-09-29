@@ -29,12 +29,12 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
     let PASSWORD = appConst.PASSWORD.MEDIUM;
 
     it(`Preconditions: new system user should be created`, async () => {
-        // Do Log in with 'SU', navigate to 'Users' and create new user:
-        await studioUtils.navigateToUsersApp();
+        // Do Log in with 'SU', navigate to 'cs' and create new user:
+        await studioUtils.navigateToContentStudioApp();
         let userName = builder.generateRandomName('viewer');
         let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
         USER = builder.buildUser(userName, PASSWORD, builder.generateEmail(userName), roles);
-        await studioUtils.addSystemUser(USER);
+        await studioUtils.createSystemUserViaApi(USER);
     });
 
     it('GIVEN SU is logged in AND new project wizard is opened WHEN existing user has been added as Viewer THEN expected user should be selected in Custom Access form', async () => {

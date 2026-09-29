@@ -580,6 +580,21 @@ module.exports = Object.freeze({
         EVERYONE: 'Everyone',
         AUDIT_LOG: 'Audit Log',
     },
+    // Principal keys of the roles listed in SYSTEM_ROLES (used by the Users GraphQL API)
+    SYSTEM_ROLE_KEYS: {
+        CM_ADMIN: 'role:cms.admin',
+        ADMIN_CONSOLE: 'role:system.admin.login',
+        CM_APP: 'role:cms.cm.app',
+        CM_APP_EXPERT: 'role:cms.expert',
+        ADMINISTRATOR: 'role:system.admin',
+        USERS_APP: 'role:system.user.app',
+        AUTHENTICATED: 'role:system.authenticated',
+        USERS_ADMINISTRATOR: 'role:system.user.admin',
+        EVERYONE: 'role:system.everyone',
+        AUDIT_LOG: 'role:system.auditlog',
+    },
+    // GraphQL endpoint of the Users admin extension (mounted under the Settings admin tool)
+    USERS_GRAPHQL_URL: '/admin/com.enonic.xp.app.settings/main/_/admin:extension/com.enonic.xp.app.users:users/graphql',
     PREVIEW_WIDGET: {
         AUTOMATIC: 'Automatic',
         ENONIC_RENDERING: 'Standard',

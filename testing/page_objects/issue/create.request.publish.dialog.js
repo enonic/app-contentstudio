@@ -287,10 +287,31 @@ class CreateRequestPublishDialog extends Page {
         }
     }
 
-    // TODO: Refactor this method for epic-enonic-ui
+    async typeTextInAssigneesFilterInput(text) {
+        try {
+            let principalComboBox = new AssigneeSelectorDropdown(this.container);
+            await principalComboBox.typeCharsInFilterItem(text);
+            return await this.pause(300);
+        } catch (err) {
+            await this.handleError(
+                `Request Publish Dialog - error when typing text in Assignees filter input: ${text}`,
+                'err_type_assignees_filter',
+                err,
+            );
+        }
+    }
+
     async getOptionsInAssigneesDropdownList() {
-        let principalComboBox = new AssigneeSelectorDropdown(xpath.container);
-        return await principalComboBox.getPrincipalsDisplayNameInOptions();
+        try {
+            let principalComboBox = new AssigneeSelectorDropdown(xpath.container);
+            return await principalComboBox.getPrincipalsDisplayNameInOptions();
+        } catch (e) {
+            await this.handleError(
+                'Request Publish Dialog - error when getting options in Assignees dropdown list',
+                'err_get_options_assignees',
+                e,
+            );
+        }
     }
 
     async clickOnIncludeChildItemsCheckbox(name) {

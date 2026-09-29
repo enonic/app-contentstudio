@@ -40,12 +40,12 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
     let SITE;
 
     it(`Precondition 1: new system user should be created`, async () => {
-        //Do Log in with 'SU', navigate to 'Users' and create new user:
-        await studioUtils.navigateToUsersApp();
+        //Do Log in with 'SU', navigate to 'cs' and create new user:
+        await studioUtils.navigateToContentStudioApp();
         let userName = builder.generateRandomName('author');
         let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
         USER = builder.buildUser(userName, PASSWORD, builder.generateEmail(userName), roles);
-        await studioUtils.addSystemUser(USER);
+        await studioUtils.createSystemUserViaApi(USER);
         await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
     });
 
