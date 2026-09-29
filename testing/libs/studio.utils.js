@@ -41,6 +41,9 @@ const InsertLinkDialogUrlPanel = require('../page_objects/wizardpanel/html-area/
 const PageInspectionPanel = require('../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 const LiveFormPanel = require('../page_objects/wizardpanel/liveform/live.form.panel');
 
+// Users GraphQL API detected by resolveUsersApi(), cached for the whole test run
+let usersApi = null;
+
 module.exports = {
     getBrowser() {
         if (typeof browser !== 'undefined') {
@@ -1043,10 +1046,9 @@ module.exports = {
         // 3. Save the data and close the wizard:
         return await this.saveAndCloseUserWizard(userData.displayName);
     },
-    // Sends a GraphQL request to the Users admin extension from the current page. The browser must
-    // already be logged in (session cookie) and stay on the XP admin origin, e.g. after doLogin().
-    async sendUsersGraphQlRequest(query, variables) {
-        let result = await this.getBrowser().executeAsync(
+    // Posts a GraphQL request from the current page and returns {status, text} without interpreting it.
+    async postGraphQl(url, query, variables) {
+        return await this.getBrowser().executeAsync(
             function (url, query, variables, done) {
                 fetch(url, {
                     method: 'POST',
@@ -1063,10 +1065,35 @@ module.exports = {
                         done({ status: 0, text: String(err) });
                     });
             },
-            appConst.USERS_GRAPHQL_URL,
+            url,
             query,
             variables,
         );
+    },
+    // Detects which Users GraphQL API the running XP provides (see appConst.USERS_API) and caches the result.
+    // The browser must already be logged in (session cookie) and stay on the XP admin origin, e.g. after doLogin().
+    async resolveUsersApi() {
+        if (usersApi) {
+            return usersApi;
+        }
+        let probe = '{ __typename }';
+        let attempts = [];
+        for (let name of Object.keys(appConst.USERS_API)) {
+            let api = appConst.USERS_API[name];
+            let result = await this.postGraphQl(api.url, probe, {});
+            if (result.status === 200) {
+                usersApi = Object.assign({ name }, api);
+                console.log(`Users GraphQL API detected: ${name} (${api.url})`);
+                return usersApi;
+            }
+            attempts.push(`${name} ${api.url} -> ${result.status} ${result.text.slice(0, 200)}`);
+        }
+        throw new Error('Users GraphQL API is not available. Is the browser logged in as SU?\n' + attempts.join('\n'));
+    },
+    // Sends a GraphQL request to the Users app API and returns its 'data'. Throws on HTTP or GraphQL errors.
+    async sendUsersGraphQlRequest(query, variables) {
+        let api = await this.resolveUsersApi();
+        let result = await this.postGraphQl(api.url, query, variables);
         let body;
         try {
             body = JSON.parse(result.text);
@@ -1105,19 +1132,39 @@ module.exports = {
     async createSystemUserViaApi(userData) {
         let roles = (userData.roles || []).map((role) => this.resolveRoleKey(role));
         let login = userData.login || userData.displayName;
-        let query = `mutation ($idProvider: String!, $name: String!, $displayName: String!, $email: String, $password: String, $roles: [String!]) {
-            createUser(idProvider: $idProvider, name: $name, displayName: $displayName, email: $email, password: $password, roles: $roles) {
-                key login displayName email
-            }
-        }`;
-        let data = await this.sendUsersGraphQlRequest(query, {
-            idProvider: 'system',
-            name: login,
-            displayName: userData.displayName,
-            email: userData.email,
-            password: userData.password,
-            roles: roles,
-        });
+        let api = await this.resolveUsersApi();
+        let query;
+        let variables;
+        if (api.name === 'LEGACY') {
+            query = `mutation ($key: String!, $displayName: String!, $email: String!, $login: String!, $password: String, $memberships: [String]) {
+                createUser(key: $key, displayName: $displayName, email: $email, login: $login, password: $password, memberships: $memberships) {
+                    key login displayName email
+                }
+            }`;
+            variables = {
+                key: 'user:system:' + login,
+                displayName: userData.displayName,
+                email: userData.email,
+                login: login,
+                password: userData.password,
+                memberships: roles,
+            };
+        } else {
+            query = `mutation ($idProvider: String!, $name: String!, $displayName: String!, $email: String, $password: String, $roles: [String!]) {
+                createUser(idProvider: $idProvider, name: $name, displayName: $displayName, email: $email, password: $password, roles: $roles) {
+                    key login displayName email
+                }
+            }`;
+            variables = {
+                idProvider: 'system',
+                name: login,
+                displayName: userData.displayName,
+                email: userData.email,
+                password: userData.password,
+                roles: roles,
+            };
+        }
+        let data = await this.sendUsersGraphQlRequest(query, variables);
         console.log('User created via API: ' + data.createUser.key);
         return Object.assign({}, userData, { key: data.createUser.key, login: data.createUser.login });
     },

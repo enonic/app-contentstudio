@@ -593,8 +593,17 @@ module.exports = Object.freeze({
         EVERYONE: 'role:system.everyone',
         AUDIT_LOG: 'role:system.auditlog',
     },
-    // GraphQL endpoint of the Users admin extension (mounted under the Settings admin tool)
-    USERS_GRAPHQL_URL: '/admin/com.enonic.xp.app.settings/main/_/admin:extension/com.enonic.xp.app.users:users/graphql',
+    // GraphQL endpoints of the Users app. Which one exists depends on the Users app version in the XP distro:
+    // EXTENSION - Users as a Settings admin extension (XP 8.1+ distros with the Settings app),
+    // LEGACY - Users as a standalone admin tool with the 'graphql' universal API.
+    USERS_API: {
+        EXTENSION: {
+            url: '/admin/com.enonic.xp.app.settings/main/_/admin:extension/com.enonic.xp.app.users:users/graphql',
+        },
+        LEGACY: {
+            url: '/admin/com.enonic.xp.app.users/main/_/com.enonic.xp.app.users:graphql',
+        },
+    },
     PREVIEW_WIDGET: {
         AUTOMATIC: 'Automatic',
         ENONIC_RENDERING: 'Standard',
