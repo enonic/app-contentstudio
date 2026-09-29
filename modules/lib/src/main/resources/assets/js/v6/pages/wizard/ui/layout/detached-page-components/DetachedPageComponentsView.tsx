@@ -5,18 +5,30 @@ import {
     createPortal,
     type CSSProperties,
     type KeyboardEvent as ReactKeyboardEvent,
+    type MouseEvent as ReactMouseEvent,
     type PointerEvent as ReactPointerEvent,
     useCallback,
     useEffect,
+    useLayoutEffect,
     useRef,
     useState,
     type ReactElement,
 } from 'react';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { $app, setPageComponentsViewCollapsed } from '../../../../../shared/app-state/app.store';
+import { PREVIEW_TOOLBAR_VERSION_HISTORY_FOCUS_SELECTOR } from '../../../../../widgets/preview-panel/ui/previewToolbarFocus';
 import { $hasPage, $isContentFormExpanded } from '../../../model/wizardContent.store';
 import { PageComponentsView } from '../../content-wizard-tabs/page-components/PageComponentsView';
 import { DetachedPanelResizeHandle } from './DetachedPanelResizeHandle';
+import {
+    DETACHED_PAGE_COMPONENTS_PANEL_ID,
+    DETACHED_PAGE_COMPONENTS_TRIGGER_ID,
+    DETACHED_PAGE_COMPONENTS_VIEW_NAME,
+    focusContentFormToggle,
+    focusDetachedPageComponentsList,
+    focusDetachedPageComponentsTrigger,
+    focusPreviewToolbarVersionHistory,
+} from './detachedPageComponentsFocus';
 import {
     clampPanelPosition,
     getPanelHeightRange,
@@ -29,13 +41,19 @@ import {
     type ViewportBounds,
 } from './detachedPanelResize';
 
-const DETACHED_PAGE_COMPONENTS_VIEW_NAME = 'DetachedPageComponentsView';
-const DETACHED_PAGE_COMPONENTS_PANEL_ID = 'detached-page-components-panel';
-
 const DEFAULT_TOP = 96;
 const DEFAULT_LEFT = 24;
 const KEYBOARD_RESIZE_STEP = 16;
 const RESIZE_EDGES: VerticalResizeEdge[] = ['top', 'bottom'];
+const CLOSE_BUTTON_SELECTOR = '[data-detached-page-components-close]';
+const TREE_ITEM_SELECTOR = '[role="treeitem"]';
+
+type FocusAfterToggle = 'list' | 'trigger' | null;
+
+function moveFocus(target: HTMLElement | null | undefined): boolean {
+    target?.focus();
+    return target != null;
+}
 
 export const DetachedPageComponentsView = (): ReactElement | null => {
     const isExpanded = useStore($isContentFormExpanded);
@@ -50,6 +68,7 @@ export const DetachedPageComponentsView = (): ReactElement | null => {
     const panelRef = useRef<HTMLDivElement>(null);
     const panelHeaderRef = useRef<HTMLDivElement>(null);
     const panelFitContentRef = useRef<HTMLDivElement>(null);
+    const focusAfterToggleRef = useRef<FocusAfterToggle>(null);
     const dragStateRef = useRef<{ pointerId: number; offsetX: number; offsetY: number } | null>(null);
 
     const [layout, setLayout] = useState<PanelLayout>({ top: DEFAULT_TOP, left: DEFAULT_LEFT });
@@ -130,9 +149,176 @@ export const DetachedPageComponentsView = (): ReactElement | null => {
         };
     }, [isVisible, collapsed, measureFitHeight]);
 
-    const toggleCollapsed = useCallback((): void => {
-        setPageComponentsViewCollapsed(!$app.get().pageComponentsViewCollapsed);
-    }, []);
+    useLayoutEffect(() => {
+        if (!isVisible) {
+            focusAfterToggleRef.current = null;
+            return;
+        }
+
+        const focusAfterToggle = focusAfterToggleRef.current;
+        focusAfterToggleRef.current = null;
+        if (collapsed && focusAfterToggle === 'trigger') {
+            focusDetachedPageComponentsTrigger();
+        } else if (!collapsed && focusAfterToggle === 'list') {
+            focusDetachedPageComponentsList('first');
+        }
+    }, [collapsed, isVisible]);
+
+    useEffect(() => {
+        if (!isVisible || collapsed) {
+            return;
+        }
+
+        // Version History lives outside this portal, so its reverse exit needs a document-level bridge.
+        const handleDocumentKeyDown = (event: KeyboardEvent): void => {
+            const target = event.target;
+            if (
+                event.key !== 'Tab' ||
+                !event.shiftKey ||
+                event.altKey ||
+                event.ctrlKey ||
+                event.metaKey ||
+                !(target instanceof Element) ||
+                target.closest(PREVIEW_TOOLBAR_VERSION_HISTORY_FOCUS_SELECTOR) == null ||
+                !focusDetachedPageComponentsList()
+            ) {
+                return;
+            }
+
+            event.preventDefault();
+            event.stopPropagation();
+        };
+
+        document.addEventListener('keydown', handleDocumentKeyDown, true);
+        return () => document.removeEventListener('keydown', handleDocumentKeyDown, true);
+    }, [collapsed, isVisible]);
+
+    const toggleCollapsed = (event: ReactMouseEvent<HTMLButtonElement>): void => {
+        const isCollapsed = $app.get().pageComponentsViewCollapsed;
+        focusAfterToggleRef.current = event.detail === 0 ? (isCollapsed ? 'list' : 'trigger') : null;
+        setPageComponentsViewCollapsed(!isCollapsed);
+    };
+
+    const handleTriggerKeyDown = (event: ReactKeyboardEvent<HTMLButtonElement>): void => {
+        if (
+            event.key !== 'ArrowUp' ||
+            event.altKey ||
+            event.ctrlKey ||
+            event.metaKey ||
+            event.shiftKey ||
+            !focusContentFormToggle()
+        ) {
+            return;
+        }
+
+        event.preventDefault();
+        event.stopPropagation();
+    };
+
+    const closePanelFromKeyboard = (): void => {
+        focusAfterToggleRef.current = 'trigger';
+        setPageComponentsViewCollapsed(true);
+    };
+
+    // The tree consumes arrow keys in capture phase; intercept only its outer boundaries first.
+    const handlePanelKeyDownCapture = (event: ReactKeyboardEvent<HTMLDivElement>): void => {
+        if (
+            !['ArrowUp', 'ArrowDown'].includes(event.key) ||
+            event.altKey ||
+            event.ctrlKey ||
+            event.metaKey ||
+            event.shiftKey
+        ) {
+            return;
+        }
+
+        const panel = panelRef.current;
+        const content = panelFitContentRef.current;
+        const target = event.target;
+        if (panel == null || content == null || !(target instanceof HTMLElement) || !panel.contains(target)) {
+            return;
+        }
+
+        const row = target.closest<HTMLElement>(TREE_ITEM_SELECTOR);
+        if (row == null || !content.contains(row) || row.dataset.dragging === 'true') {
+            return;
+        }
+
+        const rows = Array.from(content.querySelectorAll<HTMLElement>(TREE_ITEM_SELECTOR));
+        const edge =
+            event.key === 'ArrowUp' && row === rows[0]
+                ? 'top'
+                : event.key === 'ArrowDown' && row === rows[rows.length - 1]
+                  ? 'bottom'
+                  : null;
+        const focusTarget = edge == null ? null : panel.querySelector<HTMLElement>(`[data-resize-edge="${edge}"]`);
+        if (focusTarget == null) {
+            return;
+        }
+
+        focusTarget.focus();
+        event.preventDefault();
+        event.stopPropagation();
+    };
+
+    const handlePanelKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>): void => {
+        const panel = panelRef.current;
+        const target = event.target;
+        if (panel == null || !(target instanceof HTMLElement) || !panel.contains(target)) {
+            return;
+        }
+
+        const row = target.closest<HTMLElement>(TREE_ITEM_SELECTOR);
+        if (event.key === 'Escape') {
+            if (event.defaultPrevented || row?.dataset.dragging === 'true') {
+                return;
+            }
+
+            closePanelFromKeyboard();
+            event.preventDefault();
+            event.stopPropagation();
+            return;
+        }
+
+        if (event.altKey || event.ctrlKey || event.metaKey) {
+            return;
+        }
+
+        const closeButton = panel.querySelector<HTMLElement>(CLOSE_BUTTON_SELECTOR);
+        const topResizeHandle = panel.querySelector<HTMLElement>('[data-resize-edge="top"]');
+        const bottomResizeHandle = panel.querySelector<HTMLElement>('[data-resize-edge="bottom"]');
+        const isContentTarget = panelFitContentRef.current?.contains(target) === true;
+
+        let didMoveFocus = false;
+        if (event.key === 'Tab') {
+            if (row?.dataset.dragging === 'true') {
+                return;
+            }
+
+            if (isContentTarget) {
+                didMoveFocus = event.shiftKey ? moveFocus(closeButton) : focusPreviewToolbarVersionHistory();
+            } else if (target === closeButton) {
+                didMoveFocus = event.shiftKey ? focusContentFormToggle() : focusDetachedPageComponentsList();
+            } else if (target === topResizeHandle) {
+                didMoveFocus = event.shiftKey ? focusContentFormToggle() : focusDetachedPageComponentsList();
+            } else if (target === bottomResizeHandle) {
+                didMoveFocus = event.shiftKey
+                    ? focusDetachedPageComponentsList('last')
+                    : focusPreviewToolbarVersionHistory();
+            }
+        } else if (
+            !event.shiftKey &&
+            target === closeButton &&
+            (event.key === 'ArrowUp' || event.key === 'ArrowDown')
+        ) {
+            didMoveFocus = moveFocus(event.key === 'ArrowUp' ? topResizeHandle : bottomResizeHandle);
+        }
+
+        if (didMoveFocus) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    };
 
     const handlePointerDown = useCallback((event: ReactPointerEvent<HTMLDivElement>): void => {
         if (event.button !== 0) {
@@ -297,13 +483,17 @@ export const DetachedPageComponentsView = (): ReactElement | null => {
                 className="fixed bottom-3 left-2 z-40"
             >
                 <IconButton
+                    id={DETACHED_PAGE_COMPONENTS_TRIGGER_ID}
                     icon={Network}
                     iconSize="md"
                     size="sm"
                     shape="round"
                     variant="filled"
                     aria-label={showLabel}
+                    aria-controls={DETACHED_PAGE_COMPONENTS_PANEL_ID}
+                    aria-expanded="false"
                     onClick={toggleCollapsed}
+                    onKeyDown={handleTriggerKeyDown}
                 />
             </div>,
             document.body,
@@ -326,6 +516,8 @@ export const DetachedPageComponentsView = (): ReactElement | null => {
             ref={panelRef}
             data-component={DETACHED_PAGE_COMPONENTS_VIEW_NAME}
             id={DETACHED_PAGE_COMPONENTS_PANEL_ID}
+            onKeyDownCapture={handlePanelKeyDownCapture}
+            onKeyDown={handlePanelKeyDown}
             className={cn(
                 'fixed z-40 flex w-100 max-w-[calc(100vw-1rem)] flex-col rounded-sm border border-bdr-subtle bg-surface-neutral shadow-lg outline-none',
             )}
@@ -355,6 +547,7 @@ export const DetachedPageComponentsView = (): ReactElement | null => {
             >
                 <h3 className="flex-1 text-base font-semibold">{componentsLabel}</h3>
                 <IconButton
+                    data-detached-page-components-close="true"
                     icon={X}
                     iconSize="md"
                     size="sm"

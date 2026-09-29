@@ -1,0 +1,2 @@
+export const PREVIEW_TOOLBAR_VERSION_HISTORY_FOCUS_TARGET = 'preview-toolbar-version-history';
+export const PREVIEW_TOOLBAR_VERSION_HISTORY_FOCUS_SELECTOR = `[data-focus-target="${PREVIEW_TOOLBAR_VERSION_HISTORY_FOCUS_TARGET}"]`;

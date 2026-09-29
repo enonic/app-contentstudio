@@ -1,6 +1,6 @@
 import { Tab } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import { type ReactElement, useEffect, useState } from 'react';
+import { type ReactElement, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import {
     $contentTypeDisplayName,
@@ -8,6 +8,7 @@ import {
     $hasPage,
     $isContentFormExpanded,
     $mixinsTabs,
+    toggleContentFormExpanded,
 } from '../../model/wizardContent.store';
 import { $invalidTabs, $validationVisibility } from '../../model/wizardValidation.store';
 import { CollapsedFormPanel } from './CollapsedFormPanel';
@@ -32,7 +33,28 @@ export const ContentWizardTabs = ({ tabListAction }: ContentWizardTabsProps): Re
     const validationVisibility = useStore($validationVisibility);
     const pageTabLabel = useI18n('field.page');
     const [activeTab, setActiveTab] = useState('content');
+    const toggleFormButtonRef = useRef<HTMLButtonElement>(null);
+    const restoreToggleFocusRef = useRef(false);
+    const restoreToggleFocusFrameRef = useRef(0);
     const showErrors = validationVisibility === 'all';
+
+    const handleToggleForm = useCallback((): void => {
+        restoreToggleFocusRef.current = true;
+        toggleContentFormExpanded();
+    }, []);
+
+    useLayoutEffect(() => {
+        if (!restoreToggleFocusRef.current) {
+            return;
+        }
+
+        restoreToggleFocusRef.current = false;
+        toggleFormButtonRef.current?.focus();
+        cancelAnimationFrame(restoreToggleFocusFrameRef.current);
+        restoreToggleFocusFrameRef.current = requestAnimationFrame(() => toggleFormButtonRef.current?.focus());
+    }, [isExpanded]);
+
+    useEffect(() => () => cancelAnimationFrame(restoreToggleFocusFrameRef.current), []);
 
     useEffect(() => {
         const validTabs = ['content', ...(hasPage ? ['page'] : []), ...xDataTabs.map((tab) => tab.name)];
@@ -46,6 +68,8 @@ export const ContentWizardTabs = ({ tabListAction }: ContentWizardTabsProps): Re
             <CollapsedFormPanel
                 data-component={CONTENT_WIZARD_TABS_NAME}
                 displayName={displayName || contentTypeDisplayName}
+                onToggleForm={handleToggleForm}
+                toggleButtonRef={toggleFormButtonRef}
             />
         );
     }
@@ -55,6 +79,7 @@ export const ContentWizardTabs = ({ tabListAction }: ContentWizardTabsProps): Re
             data-component={CONTENT_WIZARD_TABS_NAME}
             value={activeTab}
             onValueChange={setActiveTab}
+            autoFocusTrigger={!restoreToggleFocusRef.current}
             className="flex flex-col gap-7.5"
         >
             <div className="flex items-center gap-1.5">
@@ -80,7 +105,7 @@ export const ContentWizardTabs = ({ tabListAction }: ContentWizardTabsProps): Re
                     </Tab.List>
                 </Tab.ListOverflow>
                 {tabListAction}
-                <ToggleFormButton />
+                <ToggleFormButton ref={toggleFormButtonRef} onToggle={handleToggleForm} />
             </div>
 
             <Tab.Content value="content">
