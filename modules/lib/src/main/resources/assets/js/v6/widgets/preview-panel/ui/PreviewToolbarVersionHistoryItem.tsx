@@ -13,6 +13,7 @@ import {
     createSecondaryStatusKey,
 } from '../../../shared/lib/cms/content/status';
 import { VERSIONS_WIDGET_NAME } from '../../../shared/lib/widget/versions/versions';
+import { PREVIEW_TOOLBAR_VERSION_HISTORY_FOCUS_TARGET } from './previewToolbarFocus';
 
 type PreviewToolbarVersionHistoryItemProps = {
     contentSummary: ContentSummary;
@@ -44,6 +45,7 @@ export function PreviewToolbarVersionHistoryItem({
     return (
         <Toolbar.Item asChild>
             <Button
+                data-focus-target={PREVIEW_TOOLBAR_VERSION_HISTORY_FOCUS_TARGET}
                 size="sm"
                 className={mobile ? 'min-w-9 shrink-0' : showStatus ? 'min-w-0 shrink' : 'min-w-9 @max-sm:p-0 shrink-0'}
                 aria-label={ariaLabel}
