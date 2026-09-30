@@ -1,7 +1,6 @@
 import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
 import { type Element } from '@enonic/lib-admin-ui/dom/Element';
 import { Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
-import { LoadMask } from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import { LiveViewImageEditorElement } from '../../../v6/pages/wizard/ui/layout/LiveViewImageEditor';
 import { PreviewToolbarElement } from '../../../v6/widgets/preview-panel/ui/PreviewToolbar';
 import { $isLiveViewImageEditorActive } from '../../../v6/widgets/inspectors/model/liveViewWidgets.store';
@@ -25,25 +24,14 @@ export class FrameContainer extends Panel {
 
         this.proxy = config.proxy;
         this.toolbar = new PreviewToolbarElement({ editorLayout: true });
-
-        // `frame-contents` groups the image editor and the iframe wrapper so the live
-        // load masks can be scoped to them and leave the toolbar interactive.
-        this.contents = new DivEl('frame-contents bg-surface-neutral');
-        // Keep editor loading independent of late iframe load events when switching widgets.
-        const imageLoadMask = new LoadMask(this.contents).addClass('live-load-mask preview-load-mask');
-        this.imageEditor = new LiveViewImageEditorElement({
-            onLoadingChange: (loading) => {
-                if (loading && $isLiveViewImageEditorActive.get()) {
-                    imageLoadMask.show();
-                } else {
-                    imageLoadMask.hide();
-                }
-            },
-        });
+        this.imageEditor = new LiveViewImageEditorElement();
 
         this.wrapper = new DivEl('wrapper');
         this.wrapper.appendChild(this.proxy.getIFrame());
 
+        // `frame-contents` groups the image editor and the iframe wrapper so the live
+        // load mask can be scoped to them and leave the toolbar interactive.
+        this.contents = new DivEl('frame-contents');
         this.contents.appendChild(this.imageEditor);
         this.contents.appendChild(this.wrapper);
 
@@ -57,10 +45,7 @@ export class FrameContainer extends Panel {
     }
 
     private updateIframeVisibility(): void {
-        const imageEditorActive = $isLiveViewImageEditorActive.get();
-        // Switch both roots together while Preact updates the editor's contents.
-        this.imageEditor.setVisible(imageEditorActive);
-        this.wrapper.setVisible(!imageEditorActive);
+        this.wrapper.setVisible(!$isLiveViewImageEditorActive.get());
     }
 
     public getToolbar(): PreviewToolbarElement {

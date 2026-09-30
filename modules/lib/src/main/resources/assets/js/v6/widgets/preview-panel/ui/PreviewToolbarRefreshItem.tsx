@@ -3,15 +3,15 @@ import { useStore } from '@nanostores/preact';
 import { RefreshCw } from 'lucide-react';
 import { type ReactElement } from 'react';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
-import { $isWidgetRenderable } from '../../context-panel/model/contextWidgets.store';
+import { $isPreviewFrameReady } from '../model/previewResolution.store';
 
 export const PreviewToolbarRefreshItem = ({ onRefresh }: { onRefresh?: () => void }): ReactElement => {
     const label = useI18n('action.refresh');
-    const isWidgetRenderable = useStore($isWidgetRenderable);
+    const isPreviewFrameReady = useStore($isPreviewFrameReady);
 
     return (
         <Tooltip value={label}>
-            <Toolbar.Item asChild disabled={!isWidgetRenderable}>
+            <Toolbar.Item asChild disabled={!isPreviewFrameReady}>
                 <IconButton
                     size="sm"
                     className="flex-shrink-0"

@@ -7,7 +7,6 @@ import { type ReactElement, useMemo } from 'react';
 import { LegacyElement } from '../../../../shared/ui/LegacyElement';
 import { FormItemRenderer, FormRenderProvider } from '../../../../features/shared/form';
 import { ImageUploaderDescriptor } from '../../../../features/shared/form/input-types/image-uploader/ImageUploaderDescriptor';
-import { ImageUploaderLoadingContext } from '../../../../features/shared/form/input-types/image-uploader/ImageUploaderContext';
 import { $contentType, $wizardDraftData, $wizardReadOnly } from '../../model/wizardContent.store';
 import { $validationVisibility, getContentRawValueMap } from '../../model/wizardValidation.store';
 import { instanceOf } from '../../../../shared/lib/object/instanceOf';
@@ -16,16 +15,12 @@ import { cn } from '@enonic/ui';
 
 const COMPONENT_NAME = 'LiveViewImageEditor';
 
-type LiveViewImageEditorProps = {
-    onLoadingChange: (loading: boolean) => void;
-};
-
 // Surfaces the form's ImageUploader input inside the preview area so the user can
 // crop/focus the image alongside the preview instead of in the left form panel.
 // Mounted into `FrameContainer` and active only when the auto widget is selected on
 // an image content type; `ContentForm` excludes the same input so it is not rendered
 // twice.
-const LiveViewImageEditor = ({ onLoadingChange }: LiveViewImageEditorProps): ReactElement | null => {
+const LiveViewImageEditor = (): ReactElement | null => {
     const active = useStore($activeWidget);
     const contentType = useStore($contentType);
     const draftData = useStore($wizardDraftData);
@@ -68,9 +63,7 @@ const LiveViewImageEditor = ({ onLoadingChange }: LiveViewImageEditorProps): Rea
                             "**:data-[component='InputLabel']:hidden **:data-[component='InputField']:flex-1 **:data-[component='InputField']:min-h-0",
                         )}
                     >
-                        <ImageUploaderLoadingContext.Provider value={onLoadingChange}>
-                            <FormItemRenderer formItem={imageUploaderItem} propertySet={propertySet} />
-                        </ImageUploaderLoadingContext.Provider>
+                        <FormItemRenderer formItem={imageUploaderItem} propertySet={propertySet} />
                     </div>
                 </FormRenderProvider>
             </RawValueProvider>
@@ -80,8 +73,8 @@ const LiveViewImageEditor = ({ onLoadingChange }: LiveViewImageEditorProps): Rea
 
 LiveViewImageEditor.displayName = COMPONENT_NAME;
 
-export class LiveViewImageEditorElement extends LegacyElement<typeof LiveViewImageEditor, LiveViewImageEditorProps> {
-    constructor(props: LiveViewImageEditorProps) {
-        super(props, LiveViewImageEditor);
+export class LiveViewImageEditorElement extends LegacyElement<typeof LiveViewImageEditor, Record<string, never>> {
+    constructor() {
+        super({}, LiveViewImageEditor);
     }
 }

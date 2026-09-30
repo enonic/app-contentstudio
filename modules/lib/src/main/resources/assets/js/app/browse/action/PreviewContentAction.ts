@@ -3,6 +3,7 @@ import { showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { getCurrentItems } from '../../../v6/entities/content';
 import { $activeWidget } from '../../../v6/widgets/inspectors/model/liveViewWidgets.store';
+import { getResolvedPreviewExtension } from '../../../v6/widgets/preview-panel/model/previewResolution.store';
 import { PreviewActionHelper } from '../../action/PreviewActionHelper';
 import { type ContentSummary } from '../../content/ContentSummary';
 import { ContentTreeGridAction } from './ContentTreeGridAction';
@@ -25,7 +26,7 @@ export class PreviewContentAction extends ContentTreeGridAction {
 
     protected handleExecuted() {
         if (this.totalSelected < PreviewContentAction.BLOCK_COUNT) {
-            const widget = $activeWidget.get();
+            const widget = getResolvedPreviewExtension() ?? $activeWidget.get();
             const contentSummaries: ContentSummary[] = [...getCurrentItems()];
 
             this.helper.openWindows(contentSummaries, widget);

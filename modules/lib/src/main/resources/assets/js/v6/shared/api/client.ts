@@ -76,6 +76,21 @@ export function requestJson<T>(url: string, options: RequestOptions = {}): Resul
 }
 
 /**
+ * HEAD request answering with the raw `Response` whatever its status, for probes
+ * that read the status and headers. Errs only when no response arrives (network
+ * failure, abort).
+ */
+export function requestHead(
+    url: string,
+    options: Pick<RequestOptions, 'signal'> = {},
+): ResultAsync<Response, AppError> {
+    return ResultAsync.fromPromise(
+        fetch(url, { method: 'HEAD', credentials: 'include', signal: options.signal }),
+        toAppError,
+    );
+}
+
+/**
  * Like `requestJson`, but tolerates empty responses: HTTP 204 or a null JSON
  * body resolve to `undefined`.
  */

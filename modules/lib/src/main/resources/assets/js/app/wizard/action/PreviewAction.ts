@@ -1,23 +1,11 @@
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import { type Extension } from '@enonic/lib-admin-ui/extension/Extension';
 import { type ContentWizardPanel } from '../ContentWizardPanel';
 import { Action } from '@enonic/lib-admin-ui/ui/Action';
 import { PreviewActionHelper } from '../../action/PreviewActionHelper';
 import { BrowserHelper } from '@enonic/lib-admin-ui/BrowserHelper';
-import {
-    $activeWidget,
-    $liveViewWidgets,
-    $isLiveViewImageEditorActive,
-} from '../../../v6/widgets/inspectors/model/liveViewWidgets.store';
-
-export function getContentWizardPreviewWidget(): Extension | undefined {
-    // Automatic displays the image editor; the external preview uses the Media endpoint.
-    if ($isLiveViewImageEditorActive.get()) {
-        return $liveViewWidgets.get().widgets.find((widget) => widget.getDescriptorKey().getName() === 'preview-media');
-    }
-    return $activeWidget.get();
-}
+import { $activeWidget } from '../../../v6/widgets/inspectors/model/liveViewWidgets.store';
+import { getResolvedPreviewExtension } from '../../../v6/widgets/preview-panel/model/previewResolution.store';
 
 export class PreviewAction extends Action {
     private writePermissions: boolean = false;
@@ -36,10 +24,7 @@ export class PreviewAction extends Action {
     }
 
     protected handleExecuted() {
-        const widget = getContentWizardPreviewWidget();
-        if (!widget) {
-            return;
-        }
+        const widget = getResolvedPreviewExtension() ?? $activeWidget.get();
         if (this.writePermissions && this.wizard.hasUnsavedChanges()) {
             this.wizard.setRequireValid(true);
             this.wizard

@@ -1,4 +1,5 @@
 import { type Extension } from '@enonic/lib-admin-ui/extension/Extension';
+import { type ContentType } from '../../../../app/inputtype/schema/ContentType';
 import { computed, map } from 'nanostores';
 import { fetchExtensions } from '../../../entities/extension';
 import { $contentType } from '../../../pages/wizard/model/wizardContent.store';
@@ -27,12 +28,14 @@ export const $autoModeWidgets = computed($liveViewWidgets, (store) => {
     );
 });
 
-export const $isLiveViewImageEditorActive = computed([$activeWidget, $contentType], (widget, contentType) => {
+export const $isLiveViewImageEditorActive = computed([$activeWidget, $contentType], isLiveViewImageEditorWidget);
+
+export function isLiveViewImageEditorWidget(widget: Extension | undefined, contentType: ContentType | null): boolean {
     return (
         widget?.getDescriptorKey().getName() === WIDGET_AUTO_DESCRIPTOR &&
         contentType?.getContentTypeName().isImage() === true
     );
-});
+}
 
 export function setActiveWidget(widget: Extension | undefined): void {
     const existsInStore = $liveViewWidgets.get().widgets.some((p) => getWidgetKey(p) === getWidgetKey(widget));

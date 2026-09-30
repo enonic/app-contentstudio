@@ -1,18 +1,24 @@
 import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
+import { type Extension } from '@enonic/lib-admin-ui/extension/Extension';
 import Q from 'q';
+import { $contentType } from '../../v6/pages/wizard/model/wizardContent.store';
 import { PreviewContextMenuElement } from '../../v6/shared/ui/PreviewContextMenu';
 import { capitalize } from '../../v6/shared/lib/format/capitalize';
+import { isLiveViewImageEditorWidget } from '../../v6/widgets/inspectors/model/liveViewWidgets.store';
+import { whenPreviewSettled } from '../../v6/widgets/preview-panel/model/previewResolution.store';
 import { type ContentSummary } from '../content/ContentSummary';
 import { type ViewExtensionEvent } from '../event/ViewExtensionEvent';
 import { RenderingMode } from '../rendering/RenderingMode';
-import { ExtensionRenderingHandler, PREVIEW_TYPE, type ExtensionRenderer } from '../view/ExtensionRenderingHandler';
+import {
+    ExtensionRenderingHandler,
+    PREVIEW_TYPE,
+    type ExtensionRenderer,
+    type FailedPreviewResult,
+} from '../view/ExtensionRenderingHandler';
 
 export class WizardExtensionRenderingHandler extends ExtensionRenderingHandler {
-    private hasControllersDeferred: Q.Deferred<boolean>;
-    private hasPageDeferred: Q.Deferred<boolean>;
     private emptyMenu: PreviewContextMenuElement;
     private errorMenu: PreviewContextMenuElement;
-    private renderController: AbortController;
 
     constructor(renderer: ExtensionRenderer) {
         super(renderer);
@@ -45,59 +51,39 @@ export class WizardExtensionRenderingHandler extends ExtensionRenderingHandler {
         this.errorMenu?.setProps({ messages, showIcon: true });
     }
 
-    async render(summary: ContentSummary, widget): Promise<boolean> {
-        this.cancelRender();
-        this.renderController = new AbortController();
-        this.hasControllersDeferred = Q.defer<boolean>();
-        this.hasPageDeferred = Q.defer<boolean>();
+    render(summary: ContentSummary, widget: Extension): Promise<boolean> {
         const pageName = summary.getDisplayName();
         const localName = summary.getType()?.getLocalName() ?? '';
         const pageType = localName ? capitalize(localName) : '';
         this.emptyMenu?.setProps({ pageName, pageType });
         this.errorMenu?.setProps({ pageName, pageType });
-        return super.render(summary, widget, this.renderController.signal);
+        return super.render(summary, widget);
     }
 
-    public cancelRender(): void {
-        this.renderController?.abort();
-        this.hasControllersDeferred?.resolve(false);
-        this.hasPageDeferred?.resolve(false);
+    // The image editor takes the iframe's place, so the preview is resolved but never loaded.
+    protected shouldShowFrame(extension: Extension): boolean {
+        return !isLiveViewImageEditorWidget(extension, $contentType.get());
     }
 
-    protected extractPreviewData(response: Response): Record<string, never> {
-        const data = super.extractPreviewData(response);
-        this.hasControllersDeferred.resolve(data?.hasControllers);
-        this.hasPageDeferred.resolve(data?.hasPage);
-        return data;
-    }
-
-    protected handlePreviewFailure(response?: Response, data?: Record<string, never>) {
-        if (data?.hasControllers && !data.hasPage) {
+    protected handlePreviewFailure(result: FailedPreviewResult) {
+        if (result.hasControllers && !result.hasPage) {
             // special handling for site engine to link to page settings
             super.setPreviewType(PREVIEW_TYPE.EMPTY);
             this.hideMask();
         } else {
-            super.handlePreviewFailure(response, data);
+            super.handlePreviewFailure(result);
         }
     }
 
-    protected override handleExtensionEvent(_event: ViewExtensionEvent): void {
-        // ContentWizardPanel handles widget changes through LiveFormPanel.
-    }
-
-    public override showMask(): void {
-        // Automatic images leave the iframe in empty-preview. Its first load still needs a mask.
-        if (this.renderer.isVisible()) {
-            this.renderer.getMask()?.show();
-            this.renderer.addClass('loading');
-        }
+    protected handleExtensionEvent(_event: ViewExtensionEvent) {
+        // do nothing, we want to handle it in LiveFormPanel
     }
 
     public hasControllers(): Q.Promise<boolean> {
-        return this.hasControllersDeferred ? this.hasControllersDeferred.promise : Q.resolve(false);
+        return Q(whenPreviewSettled()).then((result) => result?.hasControllers ?? false);
     }
 
     public hasPage(): Q.Promise<boolean> {
-        return this.hasPageDeferred ? this.hasPageDeferred.promise : Q.resolve(false);
+        return Q(whenPreviewSettled()).then((result) => result?.hasPage ?? false);
     }
 }
