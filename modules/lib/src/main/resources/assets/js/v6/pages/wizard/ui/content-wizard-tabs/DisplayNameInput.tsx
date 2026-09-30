@@ -25,6 +25,7 @@ import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import {
     $displayName,
     $displayNameInputFocusRequested,
+    $displayNamePlaceholder,
     $wizardReadOnly,
     clearDisplayNameInputFocusRequest,
     setDraftDisplayName,
@@ -59,7 +60,9 @@ export const DisplayNameInput = (): ReactElement => {
     const rootRef = useRef<HTMLDivElement | null>(null);
     const isBlinking = useBlinkAttention(rootRef, topicHighlight.count, { scrollIntoView: topicHighlight.scroll });
 
-    const placeholder = useI18n('field.displayName');
+    const contentTypePlaceholder = useStore($displayNamePlaceholder);
+    const defaultPlaceholder = useI18n('field.displayName');
+    const placeholder = contentTypePlaceholder || defaultPlaceholder;
     const requiredErrorMessage = useI18n('field.displayName.required');
 
     const isInvalid = displayName.trim().length === 0;
