@@ -56,15 +56,16 @@ describe('publish.request.create.close.spec - request publish dialog - open and 
     });
 
     // Verifies - Request Content Publish Dialog - roles should be filtered in Assignees -options #1312
-    it(`GIVEN existing folder(Ready to Publish) AND Publish Request dialog is opened WHEN assignees-options have been expanded THEN roles should not be present in the assignees options`, async () => {
+    it(`GIVEN existing folder(Ready to Publish) AND Publish Request dialog is opened WHEN a role name has been typed in the assignees filter THEN roles should not be present in the assignees options`, async () => {
         let browsePanel = new ContentBrowsePanel();
         let createRequestPublishDialog = new CreateRequestPublishDialog();
         await studioUtils.findAndSelectItem(TEST_FOLDER1.displayName);
         // 1. Open 'Publish Request' dialog:
         await browsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
         await createRequestPublishDialog.waitForDialogLoaded();
-        // 4. Click on Assignees dropdown handle:
-        await createRequestPublishDialog.clickOnDropDownHandleInAssigneesCombobox();
+        // 2. Type the role name in the Assignees filter input:
+        await createRequestPublishDialog.typeTextInAssigneesFilterInput('Authenticated');
+        // 3. 'No results' is expected, so an empty array is returned:
         let options = await createRequestPublishDialog.getOptionsInAssigneesDropdownList();
         await studioUtils.saveScreenshot('PublishRequest_AssigneesOptions');
         assert.ok(options.includes('Authenticated') === false, 'Roles should not be present in the assignees options');

@@ -41,6 +41,9 @@ const InsertLinkDialogUrlPanel = require('../page_objects/wizardpanel/html-area/
 const PageInspectionPanel = require('../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 const LiveFormPanel = require('../page_objects/wizardpanel/liveform/live.form.panel');
 
+// Users GraphQL API detected by resolveUsersApi(), cached for the whole test run
+let usersApi = null;
+
 module.exports = {
     getBrowser() {
         if (typeof browser !== 'undefined') {
@@ -1043,15 +1046,139 @@ module.exports = {
         // 3. Save the data and close the wizard:
         return await this.saveAndCloseUserWizard(userData.displayName);
     },
-    async selectAndDeleteUserItem(name) {
-        let userBrowsePanel = new UserBrowsePanel();
-        let confirmationDialog = new ConfirmationDialog();
-        await this.findAndSelectUserItem(name);
-        await userBrowsePanel.waitForDeleteButtonEnabled();
-        await userBrowsePanel.clickOnDeleteButton();
-        await confirmationDialog.waitForDialogOpened();
-        await confirmationDialog.clickOnYesButton();
-        return await userBrowsePanel.waitForSpinnerNotVisible();
+    // Posts a GraphQL request from the current page and returns {status, text} without interpreting it.
+    async postGraphQl(url, query, variables) {
+        return await this.getBrowser().executeAsync(
+            function (url, query, variables, done) {
+                fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ query: query, variables: variables }),
+                })
+                    .then(function (response) {
+                        return response.text().then(function (text) {
+                            done({ status: response.status, text: text });
+                        });
+                    })
+                    .catch(function (err) {
+                        done({ status: 0, text: String(err) });
+                    });
+            },
+            url,
+            query,
+            variables,
+        );
+    },
+    // Detects which Users GraphQL API the running XP provides (see appConst.USERS_API) and caches the result.
+    // The browser must already be logged in (session cookie) and stay on the XP admin origin, e.g. after doLogin().
+    async resolveUsersApi() {
+        if (usersApi) {
+            return usersApi;
+        }
+        let probe = '{ __typename }';
+        let attempts = [];
+        for (let name of Object.keys(appConst.USERS_API)) {
+            let api = appConst.USERS_API[name];
+            let result = await this.postGraphQl(api.url, probe, {});
+            if (result.status === 200) {
+                usersApi = Object.assign({ name }, api);
+                console.log(`Users GraphQL API detected: ${name} (${api.url})`);
+                return usersApi;
+            }
+            attempts.push(`${name} ${api.url} -> ${result.status} ${result.text.slice(0, 200)}`);
+        }
+        throw new Error('Users GraphQL API is not available. Is the browser logged in as SU?\n' + attempts.join('\n'));
+    },
+    // Sends a GraphQL request to the Users app API and returns its 'data'. Throws on HTTP or GraphQL errors.
+    async sendUsersGraphQlRequest(query, variables) {
+        let api = await this.resolveUsersApi();
+        let result = await this.postGraphQl(api.url, query, variables);
+        let body;
+        try {
+            body = JSON.parse(result.text);
+        } catch (err) {
+            throw new Error(`Users GraphQL: unexpected response (${result.status}): ${result.text}`);
+        }
+        if (result.status !== 200 || body.errors || body.error) {
+            throw new Error(`Users GraphQL request failed (${result.status}): ${result.text}`);
+        }
+        return body.data;
+    },
+    // Converts a role display name (as shown in the Users app) to its principal key:
+    // 'Administrator' -> 'role:system.admin', 'Default - Owner' -> 'role:cms.project.default.owner'.
+    // Project roles are resolved by lowercasing the project name, so it must match the project identifier.
+    // Principal keys ('role:...') are returned as is. Unknown names throw, because the Users API rejects
+    // them after the user principal is already written.
+    resolveRoleKey(role) {
+        if (role.startsWith('role:')) {
+            return role;
+        }
+        let systemRoleName = Object.keys(appConst.SYSTEM_ROLES).find((name) => appConst.SYSTEM_ROLES[name] === role);
+        if (systemRoleName) {
+            return appConst.SYSTEM_ROLE_KEYS[systemRoleName];
+        }
+        let projectRole = /^(.+) - (Owner|Editor|Author|Contributor|Viewer)$/i.exec(role);
+        if (projectRole) {
+            return `role:cms.project.${projectRole[1].trim().toLowerCase()}.${projectRole[2].toLowerCase()}`;
+        }
+        throw new Error(
+            `Unknown role '${role}': use a display name from appConst.SYSTEM_ROLES, a project role like 'Default - Owner', or a principal key 'role:...'`,
+        );
+    },
+    // Creates a user in the 'system' id provider via the Users GraphQL API instead of the Users app UI.
+    // userData is the object returned by builder.buildUser(): roles may be display names (see resolveRoleKey)
+    // or principal keys. Returns the created user with 'key' and 'login' fields.
+    async createSystemUserViaApi(userData) {
+        let roles = (userData.roles || []).map((role) => this.resolveRoleKey(role));
+        let login = userData.login || userData.displayName;
+        let api = await this.resolveUsersApi();
+        let query;
+        let variables;
+        if (api.name === 'LEGACY') {
+            query = `mutation ($key: String!, $displayName: String!, $email: String!, $login: String!, $password: String, $memberships: [String]) {
+                createUser(key: $key, displayName: $displayName, email: $email, login: $login, password: $password, memberships: $memberships) {
+                    key login displayName email
+                }
+            }`;
+            variables = {
+                key: 'user:system:' + login,
+                displayName: userData.displayName,
+                email: userData.email,
+                login: login,
+                password: userData.password,
+                memberships: roles,
+            };
+        } else {
+            query = `mutation ($idProvider: String!, $name: String!, $displayName: String!, $email: String, $password: String, $roles: [String!]) {
+                createUser(idProvider: $idProvider, name: $name, displayName: $displayName, email: $email, password: $password, roles: $roles) {
+                    key login displayName email
+                }
+            }`;
+            variables = {
+                idProvider: 'system',
+                name: login,
+                displayName: userData.displayName,
+                email: userData.email,
+                password: userData.password,
+                roles: roles,
+            };
+        }
+        let data = await this.sendUsersGraphQlRequest(query, variables);
+        console.log('User created via API: ' + data.createUser.key);
+        return Object.assign({}, userData, { key: data.createUser.key, login: data.createUser.login });
+    },
+    // Deletes principals (users, groups, roles) by keys, e.g. 'user:system:name', via the Users GraphQL API
+    async deletePrincipalsViaApi(keys) {
+        let query = `mutation ($keys: [String!]!) {
+            deletePrincipals(keys: $keys) { key deleted reason }
+        }`;
+        let data = await this.sendUsersGraphQlRequest(query, { keys: [].concat(keys) });
+        let failed = data.deletePrincipals.filter((item) => !item.deleted);
+        if (failed.length > 0) {
+            throw new Error('Principals were not deleted: ' + JSON.stringify(failed));
+        }
+        return data.deletePrincipals;
     },
     async typeNameInUserFilterPanel(name) {
         let browsePanel = new UserBrowsePanel();
@@ -1092,15 +1219,6 @@ module.exports = {
         await newPrincipalDialog.waitForDialogLoaded();
         await newPrincipalDialog.clickOnItem('User');
         return await userWizard.waitForOpened();
-    },
-    async typeNameInUsersFilterPanel(name) {
-        let browsePanel = new UserBrowsePanel();
-        let principalFilterPanel = new PrincipalFilterPanel();
-        await browsePanel.clickOnSearchButton();
-        await principalFilterPanel.waitForOpened();
-        await principalFilterPanel.typeSearchText(name);
-        await browsePanel.pause(700);
-        return await browsePanel.waitForSpinnerNotVisible();
     },
     async getDisplayedElements(selector) {
         let elements = await this.getBrowser().$$(selector);

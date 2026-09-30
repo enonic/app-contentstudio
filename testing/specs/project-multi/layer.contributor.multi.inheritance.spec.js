@@ -28,12 +28,12 @@ describe('layer.contributor.multi.inheritance.spec - ui-tests for user with laye
     const MULTI_PROJECTS = [PROJECT_DISPLAY_NAME, 'Default'];
 
     it(`Precondition 1: new system user should be created`, async () => {
-        // Do Log in with 'SU', navigate to 'Users' and create new user:
-        await studioUtils.navigateToUsersApp();
+        // Do Log in with 'SU', navigate to 'cs' and create new user:
+        await studioUtils.navigateToContentStudioApp();
         let userName = builder.generateRandomName('layer-contributor');
         let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
         USER = builder.buildUser(userName, PASSWORD, builder.generateEmail(userName), roles);
-        await studioUtils.addSystemUser(USER);
+        await studioUtils.createSystemUserViaApi(USER);
         await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
     });
 

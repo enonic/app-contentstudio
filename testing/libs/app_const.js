@@ -580,6 +580,30 @@ module.exports = Object.freeze({
         EVERYONE: 'Everyone',
         AUDIT_LOG: 'Audit Log',
     },
+    // Principal keys of the roles listed in SYSTEM_ROLES (used by the Users GraphQL API)
+    SYSTEM_ROLE_KEYS: {
+        CM_ADMIN: 'role:cms.admin',
+        ADMIN_CONSOLE: 'role:system.admin.login',
+        CM_APP: 'role:cms.cm.app',
+        CM_APP_EXPERT: 'role:cms.expert',
+        ADMINISTRATOR: 'role:system.admin',
+        USERS_APP: 'role:system.user.app',
+        AUTHENTICATED: 'role:system.authenticated',
+        USERS_ADMINISTRATOR: 'role:system.user.admin',
+        EVERYONE: 'role:system.everyone',
+        AUDIT_LOG: 'role:system.auditlog',
+    },
+    // GraphQL endpoints of the Users app. Which one exists depends on the Users app version in the XP distro:
+    // EXTENSION - Users as a Settings admin extension (XP 8.1+ distros with the Settings app),
+    // LEGACY - Users as a standalone admin tool with the 'graphql' universal API.
+    USERS_API: {
+        EXTENSION: {
+            url: '/admin/com.enonic.xp.app.settings/main/_/admin:extension/com.enonic.xp.app.users:users/graphql',
+        },
+        LEGACY: {
+            url: '/admin/com.enonic.xp.app.users/main/_/com.enonic.xp.app.users:graphql',
+        },
+    },
     PREVIEW_WIDGET: {
         AUTOMATIC: 'Automatic',
         ENONIC_RENDERING: 'Standard',

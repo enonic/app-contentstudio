@@ -40,10 +40,23 @@ class AssigneeSelector extends BasDropdown {
         }
     }
 
-    // Return display names of the options(principal display name) in the dropdown.
+    // Returns display names of the options (principal display names) in the dropdown.
+    // Returns an empty array when the popup shows the 'No results' message.
     async getPrincipalsDisplayNameInOptions() {
         let optionsLocator = DROPDOWN.COMBOBOX_POPUP + "//div[@role='option']/div/div[1]//span[1]";
-        await this.waitForElementDisplayed(optionsLocator, appConst.mediumTimeout);
+        await this.browser.waitUntil(
+            async () => {
+                let options = await this.getDisplayedElements(optionsLocator);
+                if (options.length > 0) {
+                    return true;
+                }
+                return await this.isElementDisplayed(DROPDOWN.COMBOBOX_EMPTY_OPTIONS);
+            },
+            {
+                timeout: appConst.mediumTimeout,
+                timeoutMsg: "Assignees dropdown: neither options nor the 'No results' message appeared",
+            },
+        );
         await this.pause(200);
         return await this.getTextInDisplayedElements(optionsLocator);
     }
