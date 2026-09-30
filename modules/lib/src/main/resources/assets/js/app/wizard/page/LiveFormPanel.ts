@@ -34,6 +34,7 @@ import { type Site } from '../../content/Site';
 import { type ContentType } from '../../inputtype/schema/ContentType';
 import { type ComponentPath } from '../../page/region/ComponentPath';
 import { type ExtensionRenderer } from '../../view/ExtensionRenderingHandler';
+import { getContentWizardPreviewWidget } from '../action/PreviewAction';
 import { SaveAsTemplateAction } from '../action/SaveAsTemplateAction';
 import { type ContentWizardPanel } from '../ContentWizardPanel';
 import { PageEventsManager } from '../PageEventsManager';
@@ -110,6 +111,10 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
     }
 
     private refresh(): void {
+        if ($isLiveViewImageEditorActive.get()) {
+            void this.loadPage(false);
+            return;
+        }
         const widget = $activeWidget.get();
         void this.widgetRenderingHandler.render(this.content, widget);
     }
@@ -179,6 +184,7 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
     }
 
     remove(): LiveFormPanel {
+        this.widgetRenderingHandler.cancelRender();
         ShowLiveEditEvent.un(this.showLoadMaskHandler);
         ShowContentFormEvent.un(this.hideLoadMaskHandler);
 
@@ -262,6 +268,9 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
 
         // Image content types under the auto widget are handled by `LiveViewImageEditor`.
         if ($isLiveViewImageEditorActive.get()) {
+            this.widgetRenderingHandler.cancelRender();
+            this.widgetRenderingHandler.hideMask();
+            this.getPreviewAction().setEnabled(!!getContentWizardPreviewWidget());
             return Promise.resolve(false);
         }
 
@@ -305,5 +314,4 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
     getFrameContainer() {
         return this.frameContainer;
     }
-
 }

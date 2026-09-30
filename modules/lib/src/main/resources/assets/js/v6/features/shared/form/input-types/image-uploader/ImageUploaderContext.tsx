@@ -5,6 +5,7 @@ import {
     useCallback,
     useContext,
     useEffect,
+    useLayoutEffect,
     useMemo,
     useRef,
     useState,
@@ -50,6 +51,9 @@ type ImageUploaderContextValue = {
 
 const ImageUploaderContext = createContext<ImageUploaderContextValue | undefined>(undefined);
 
+// Optional notification for hosts that cover the editor with their own load mask.
+export const ImageUploaderLoadingContext = createContext<((loading: boolean) => void) | undefined>(undefined);
+
 type ImageUploaderProviderProps = {
     values: Value[];
     enabled: boolean;
@@ -58,6 +62,7 @@ type ImageUploaderProviderProps = {
 
 export const ImageUploaderProvider = ({ values, enabled, children }: ImageUploaderProviderProps): ReactElement => {
     const value = values[0];
+    const onLoadingChange = useContext(ImageUploaderLoadingContext);
 
     // the context content id
     const [contentId, setContentId] = useState<ContentId>();
@@ -65,6 +70,12 @@ export const ImageUploaderProvider = ({ values, enabled, children }: ImageUpload
     const [project, setProject] = useState<Readonly<Project>>();
     // ready, crop, focus, loading, error
     const [mode, setMode] = useState<Mode>();
+    const loading = mode == null || mode === 'loading';
+
+    useLayoutEffect(() => {
+        onLoadingChange?.(loading);
+        return () => onLoadingChange?.(false);
+    }, [loading, onLoadingChange]);
     // 1 to 8, combining both rotation and mirror
     const [orientation, setOrientation] = useState<number>(readOrientationFromPropertySet(value));
     // committedOrientation tracks the orientation that the currently-rendered base64Image + dimensions correspond to.

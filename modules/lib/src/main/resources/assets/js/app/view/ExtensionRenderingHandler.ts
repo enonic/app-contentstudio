@@ -60,10 +60,13 @@ export class ExtensionRenderingHandler {
         this.setPreviewType(PREVIEW_TYPE.EMPTY);
     }
 
-    public async render(summary: ContentSummary, extension: Extension): Promise<boolean> {
+    public async render(summary: ContentSummary, extension: Extension, signal?: AbortSignal): Promise<boolean> {
         const deferred = Q.defer<boolean>();
 
         const wasRenderable = await this.isItemRenderable();
+        if (signal?.aborted) {
+            return false;
+        }
         this.itemRenderable = deferred.promise;
 
         if (!extension || !summary) {
@@ -81,8 +84,11 @@ export class ExtensionRenderingHandler {
 
         $isWidgetRenderable.set(false);
 
-        return this.doRender(summary, extension)
+        return this.doRender(summary, extension, signal)
             .then((result) => {
+                if (signal?.aborted) {
+                    return false;
+                }
                 isRenderable = result.isRenderable();
                 $isWidgetRenderable.set(isRenderable);
 
@@ -96,6 +102,9 @@ export class ExtensionRenderingHandler {
                 return isRenderable;
             })
             .catch((err) => {
+                if (signal?.aborted) {
+                    return false;
+                }
                 this.setPreviewType(PREVIEW_TYPE.FAILED);
                 this.hideMask();
                 isRenderable = false;
@@ -103,8 +112,8 @@ export class ExtensionRenderingHandler {
                 return false;
             })
             .finally(() => {
-                deferred.resolve(isRenderable);
-                if (isRenderable !== wasRenderable) {
+                deferred.resolve(signal?.aborted ? false : isRenderable);
+                if (!signal?.aborted && isRenderable !== wasRenderable) {
                     this.notifyRenderableChanged(isRenderable, wasRenderable);
                 }
                 return isRenderable;
@@ -236,7 +245,11 @@ export class ExtensionRenderingHandler {
         return {};
     }
 
-    private async doRender(summary: ContentSummary, selectedMode: Extension): Promise<RenderResult> {
+    private async doRender(
+        summary: ContentSummary,
+        selectedMode: Extension,
+        signal?: AbortSignal,
+    ): Promise<RenderResult> {
         if (!selectedMode || !summary) {
             return new RenderResult();
         }
@@ -252,16 +265,23 @@ export class ExtensionRenderingHandler {
         }
         for (extension of items) {
             const url = this.previewHelper.getUrl(summary, extension, this.mode) + '&auto=' + isAuto;
-            response = await fetch(url, { method: 'HEAD', credentials: 'include' });
+            response = await fetch(url, { method: 'HEAD', credentials: 'include', ...(signal && { signal }) });
+            signal?.throwIfAborted();
 
             data = this.extractPreviewData(response);
             if (data.redirect) {
                 // follow redirect manually to get data headers first
                 try {
-                    response = await fetch(data.redirect, { method: 'HEAD', credentials: 'include' });
+                    response = await fetch(data.redirect, {
+                        method: 'HEAD',
+                        credentials: 'include',
+                        ...(signal && { signal }),
+                    });
                 } catch (e) {
+                    signal?.throwIfAborted();
                     response = this.createErrorResponse(e, data.redirect);
                 }
+                signal?.throwIfAborted();
             }
 
             isOk = this.isResponseOk(response, isAuto);

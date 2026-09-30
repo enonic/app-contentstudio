@@ -12,6 +12,7 @@ export class WizardExtensionRenderingHandler extends ExtensionRenderingHandler {
     private hasPageDeferred: Q.Deferred<boolean>;
     private emptyMenu: PreviewContextMenuElement;
     private errorMenu: PreviewContextMenuElement;
+    private renderController: AbortController;
 
     constructor(renderer: ExtensionRenderer) {
         super(renderer);
@@ -45,6 +46,8 @@ export class WizardExtensionRenderingHandler extends ExtensionRenderingHandler {
     }
 
     async render(summary: ContentSummary, widget): Promise<boolean> {
+        this.cancelRender();
+        this.renderController = new AbortController();
         this.hasControllersDeferred = Q.defer<boolean>();
         this.hasPageDeferred = Q.defer<boolean>();
         const pageName = summary.getDisplayName();
@@ -52,7 +55,13 @@ export class WizardExtensionRenderingHandler extends ExtensionRenderingHandler {
         const pageType = localName ? capitalize(localName) : '';
         this.emptyMenu?.setProps({ pageName, pageType });
         this.errorMenu?.setProps({ pageName, pageType });
-        return super.render(summary, widget);
+        return super.render(summary, widget, this.renderController.signal);
+    }
+
+    public cancelRender(): void {
+        this.renderController?.abort();
+        this.hasControllersDeferred?.resolve(false);
+        this.hasPageDeferred?.resolve(false);
     }
 
     protected extractPreviewData(response: Response): Record<string, never> {
@@ -72,8 +81,16 @@ export class WizardExtensionRenderingHandler extends ExtensionRenderingHandler {
         }
     }
 
-    protected handleWidgetEvent(event: ViewExtensionEvent) {
-        // do nothing, we want to handle it in LiveFormPanel
+    protected override handleExtensionEvent(_event: ViewExtensionEvent): void {
+        // ContentWizardPanel handles widget changes through LiveFormPanel.
+    }
+
+    public override showMask(): void {
+        // Automatic images leave the iframe in empty-preview. Its first load still needs a mask.
+        if (this.renderer.isVisible()) {
+            this.renderer.getMask()?.show();
+            this.renderer.addClass('loading');
+        }
     }
 
     public hasControllers(): Q.Promise<boolean> {
