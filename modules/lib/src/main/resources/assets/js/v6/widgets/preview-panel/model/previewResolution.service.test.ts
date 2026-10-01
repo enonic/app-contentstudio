@@ -5,6 +5,7 @@ import { start, stop } from './previewResolution.service';
 import {
     $isLivePreviewRenderable,
     $isPreviewFrameReady,
+    $isPreviewResolved,
     clearPreview,
     getResolvedPreviewExtension,
     requestPreview,
@@ -70,6 +71,7 @@ describe('previewResolution.service', () => {
 
             expect(await whenPreviewSettled()).toMatchObject({ kind: 'rejected', status: 418 });
             expect(getResolvedPreviewExtension()).toBeUndefined();
+            expect($isPreviewResolved.get()).toBe(false);
         });
 
         it('should accept any status except 418 from an explicitly selected widget', async () => {
@@ -209,6 +211,7 @@ describe('previewResolution.service', () => {
 
             expect($isLivePreviewRenderable.get()).toBe(true);
             expect($isPreviewFrameReady.get()).toBe(false);
+            expect($isPreviewResolved.get()).toBe(false);
             expect(changes).toEqual([]);
             unsubscribe();
         });
@@ -222,6 +225,7 @@ describe('previewResolution.service', () => {
             expect(getResolvedPreviewExtension()).toBe(media);
             expect($isLivePreviewRenderable.get()).toBe(false);
             expect($isPreviewFrameReady.get()).toBe(false);
+            expect($isPreviewResolved.get()).toBe(true);
         });
     });
 });

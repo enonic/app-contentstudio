@@ -24,6 +24,11 @@ export const $isPreviewFrameReady = computed(
     ({ pending, result }) => !pending && isFrameRenderable(result),
 );
 
+export const $isPreviewResolved = computed(
+    $previewResolution,
+    ({ pending, result }) => !pending && result?.kind === 'ready',
+);
+
 //
 // * Commands
 //
