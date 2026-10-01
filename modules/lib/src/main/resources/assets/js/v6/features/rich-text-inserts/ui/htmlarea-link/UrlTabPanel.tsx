@@ -14,7 +14,7 @@ const PROTOCOLS: { value: UrlProtocol; label: string }[] = [
 
 export const UrlTabPanel = (): ReactElement => {
     const {
-        state: { urlProtocol, urlValue, urlTarget },
+        state: { urlProtocol, urlValue, urlInputPrefix, urlTarget },
         validationErrors: errors,
         setUrlProtocol,
         setUrlValue,
@@ -22,7 +22,6 @@ export const UrlTabPanel = (): ReactElement => {
     } = useHtmlAreaLinkDialogContext();
 
     const urlLabel = useI18n('dialog.link.formitem.url');
-    const typeLabel = useI18n('field.type');
     const openInNewTabLabel = useI18n('dialog.link.formitem.openinnewtab');
     const relativeLabel = useI18n('dialog.link.urlprotocols.relative');
 
@@ -33,7 +32,7 @@ export const UrlTabPanel = (): ReactElement => {
                 <div className="flex gap-2">
                     <Selector.Root value={urlProtocol} onValueChange={(val) => setUrlProtocol(val as UrlProtocol)}>
                         <Selector.Trigger className="w-fit shrink-0">
-                            <span className="flex-1">{`<${typeLabel}>`}</span>
+                            <span className="flex-1">{urlProtocol || relativeLabel}</span>
                             <Selector.Icon />
                         </Selector.Trigger>
                         <Selector.Content onPointerDown={(event) => event.stopPropagation()}>
@@ -52,10 +51,12 @@ export const UrlTabPanel = (): ReactElement => {
                         </Selector.Content>
                     </Selector.Root>
                     <Input
-                        value={urlValue}
+                        value={urlInputPrefix + urlValue}
                         required
                         error={errors.url}
-                        onChange={(e) => setUrlValue((e.target as HTMLInputElement).value)}
+                        onChange={(e) =>
+                            setUrlValue(e.currentTarget.value, 'inputType' in e && e.inputType === 'insertFromPaste')
+                        }
                         className="flex-1"
                     />
                 </div>

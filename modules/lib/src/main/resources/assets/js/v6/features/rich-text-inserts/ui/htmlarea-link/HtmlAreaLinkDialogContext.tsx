@@ -7,6 +7,9 @@ import { type ContentSummary } from '../../../../../app/content/ContentSummary';
 import { HTMLAreaHelper } from '../../../../../app/inputtype/ui/text/HTMLAreaHelper';
 import { type Project } from '../../../../../app/settings/data/project/Project';
 import { fetchContentById } from '../../../../entities/content';
+import { detectProtocol, parseUrlInput, type UrlProtocol } from './parseUrlInput';
+
+export type { UrlProtocol } from './parseUrlInput';
 
 //
 // * Types
@@ -14,7 +17,6 @@ import { fetchContentById } from '../../../../entities/content';
 
 export type LinkType = 'content' | 'url' | 'email' | 'anchor';
 export type MediaOption = 'open' | 'download' | 'link';
-export type UrlProtocol = 'https://' | 'http://' | 'ftp://' | 'tel:' | '';
 
 export type HtmlAreaLinkDialogState = {
     open: boolean;
@@ -37,7 +39,9 @@ export type HtmlAreaLinkDialogState = {
     queryParams: { key: string; value: string }[];
     // URL tab
     urlProtocol: UrlProtocol;
+    // Address only; a manually typed protocol is displayed separately.
     urlValue: string;
+    urlInputPrefix: string;
     urlTarget: boolean;
     // Email tab
     email: string;
@@ -77,6 +81,7 @@ const CLOSED_STATE: HtmlAreaLinkDialogState = {
     queryParams: [],
     urlProtocol: 'https://',
     urlValue: '',
+    urlInputPrefix: '',
     urlTarget: false,
     email: '',
     emailSubject: '',
@@ -125,9 +130,7 @@ const FTP_RE = new RegExp(
     `^ftp:\\/\\/([\\w\\d\\S]+\\@)?([\\w\\d\\S]+\\:[\\w\\d\\S]+\\@)?([a-zA-Z0-9][a-zA-Z0-9\\.]*)${PORT_RE}${PATH_RE}${EXT_RE}(\\;type=(a|i|d))?$`,
 );
 const TEL_RE = /^tel:\+?[0-9]+$/;
-const RELATIVE_RE = new RegExp(
-    `^([A-z0-9\\-\\%]|\\/|\\.\\/|(\\.\\.\\/)+)(([A-z0-9\\-\\%]+\\/?)+)?${EXT_RE}(\\/)?${QUERY_RE}${FRAGMENT_RE}$`,
-);
+const RELATIVE_RE = new RegExp(`^(?:/?[A-Za-z0-9._%:-]+(?:/[A-Za-z0-9._%:-]+)*/?|/)${QUERY_RE}${FRAGMENT_RE}$`);
 const EMAIL_RE = /[A-Za-z0-9]+([-+.'][A-Za-z0-9]+)*@[A-Za-z0-9]+([-\.][A-Za-z0-9]+)*\.[A-Za-z]{2,}/;
 
 function isValidUrl(value: string): boolean {
@@ -146,7 +149,9 @@ function isValidTel(value: string): boolean {
 }
 
 function isValidRelativeUrl(value: string): boolean {
-    return RELATIVE_RE.test(value.trim());
+    const trimmed = value.trim();
+    // A colon before the first slash would be a scheme, not a relative path.
+    return !/^[^/?#]*:/.test(trimmed) && RELATIVE_RE.test(trimmed);
 }
 
 function isValidEmail(value: string): boolean {
@@ -154,22 +159,24 @@ function isValidEmail(value: string): boolean {
 }
 
 function validateUrlValue(value: string, protocol: UrlProtocol): string | undefined {
-    if (isBlank(value)) {
+    const address = value.trim();
+    if (isBlank(address)) {
         return i18n('field.value.required');
     }
 
     const invalid = i18n('field.value.invalid');
+    const url = protocol + address;
 
     switch (protocol) {
         case 'https://':
         case 'http://':
-            return isValidUrl(value) ? undefined : invalid;
+            return isValidUrl(url) ? undefined : invalid;
         case 'ftp://':
-            return isValidFtpUrl(value) ? undefined : invalid;
+            return isValidFtpUrl(url) ? undefined : invalid;
         case 'tel:':
-            return isValidTel(value) ? undefined : invalid;
+            return isValidTel(url) ? undefined : invalid;
         default:
-            return isValidRelativeUrl(value) ? undefined : invalid;
+            return isValidRelativeUrl(address) ? undefined : invalid;
     }
 }
 
@@ -371,18 +378,8 @@ function detectTabFromUrl(link: string): DetectedLink {
     }
 
     result.tab = 'url';
-    if (link.startsWith('tel:')) {
-        result.protocol = 'tel:';
-    } else if (link.startsWith('https://')) {
-        result.protocol = 'https://';
-    } else if (link.startsWith('http://')) {
-        result.protocol = 'http://';
-    } else if (link.startsWith('ftp://')) {
-        result.protocol = 'ftp://';
-    } else {
-        result.protocol = '';
-    }
-    result.urlValue = link;
+    result.protocol = detectProtocol(link);
+    result.urlValue = link.slice(result.protocol.length);
 
     return result;
 }
@@ -408,22 +405,6 @@ function readLinkFromCke(ckeDialog: CKEDITOR.dialog): string {
             return StringHelper.isEmpty(val) ? '' : protocol + val;
         }
     }
-}
-
-function detectProtocol(value: string): UrlProtocol {
-    if (value.startsWith('tel:')) {
-        return 'tel:';
-    }
-    if (value.startsWith('https://')) {
-        return 'https://';
-    }
-    if (value.startsWith('http://')) {
-        return 'http://';
-    }
-    if (value.startsWith('ftp://')) {
-        return 'ftp://';
-    }
-    return '';
 }
 
 //
@@ -471,6 +452,7 @@ function computeOpenState(params: OpenHtmlAreaLinkDialogParams): HtmlAreaLinkDia
         queryParams: detected.queryParams,
         urlProtocol: detected.protocol,
         urlValue: detected.tab === 'url' ? detected.urlValue : '',
+        urlInputPrefix: '',
         urlTarget: detected.tab === 'url' ? target : false,
         email: detected.tab === 'email' ? detected.email : '',
         emailSubject: detected.tab === 'email' ? emailSubject || '' : '',
@@ -536,7 +518,7 @@ function writeContentLink(state: HtmlAreaLinkDialogState, ckeDialog: CKEDITOR.di
 function writeUrlLink(state: HtmlAreaLinkDialogState, ckeDialog: CKEDITOR.dialog): void {
     getOriginalLinkTypeElem(ckeDialog).setValue('url', false);
     getOriginalProtocolElem(ckeDialog).setValue('', false);
-    getOriginalUrlElem(ckeDialog).setValue(state.urlValue.trim(), false);
+    getOriginalUrlElem(ckeDialog).setValue(state.urlProtocol + state.urlValue.trim(), false);
     getOriginalTargetElem(ckeDialog).setValue(state.urlTarget ? '_blank' : '', false);
 }
 
@@ -576,7 +558,7 @@ type HtmlAreaLinkDialogContextValue = {
     setQueryParamKey: (index: number, key: string) => void;
     setQueryParamValue: (index: number, value: string) => void;
     setUrlProtocol: (protocol: UrlProtocol) => void;
-    setUrlValue: (val: string) => void;
+    setUrlValue: (val: string, isPaste?: boolean) => void;
     setUrlTarget: (val: boolean) => void;
     setEmail: (val: string) => void;
     setEmailSubject: (val: string) => void;
@@ -875,35 +857,26 @@ export function HtmlAreaLinkDialogProvider({ children, openRef }: HtmlAreaLinkDi
             if (!prev.open) {
                 return prev;
             }
-            const currentProtocol = prev.urlProtocol;
-            let newUrlValue = prev.urlValue;
-
-            if (currentProtocol && newUrlValue.startsWith(currentProtocol)) {
-                newUrlValue = protocol + newUrlValue.slice(currentProtocol.length);
-            } else {
-                newUrlValue = protocol + newUrlValue;
-            }
-
             return {
                 ...prev,
                 urlProtocol: protocol,
-                urlValue: newUrlValue,
-                touchedFields: { ...prev.touchedFields, url: true },
+                urlInputPrefix: prev.urlInputPrefix ? protocol : '',
+                touchedFields: isBlank(prev.urlValue) ? prev.touchedFields : { ...prev.touchedFields, url: true },
             };
         });
     }, []);
 
-    const setUrlValue = useCallback((val: string) => {
-        setState((prev) =>
-            prev.open
-                ? {
-                      ...prev,
-                      urlValue: val,
-                      urlProtocol: detectProtocol(val),
-                      touchedFields: { ...prev.touchedFields, url: true },
-                  }
-                : prev,
-        );
+    const setUrlValue = useCallback((val: string, isPaste = false) => {
+        setState((prev) => {
+            if (!prev.open) {
+                return prev;
+            }
+            return {
+                ...prev,
+                ...parseUrlInput(prev, val, isPaste),
+                touchedFields: { ...prev.touchedFields, url: true },
+            };
+        });
     }, []);
 
     const setUrlTarget = useCallback((val: boolean) => {
