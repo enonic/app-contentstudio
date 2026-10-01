@@ -30,6 +30,7 @@ describe('folder.content.revert.display.name.spec: tests for reverting of folder
         assert.equal(result, 1, 'One version item should be present in the widget');
         // 2. Save the folder and verify that the number of version items increases:
         await contentWizard.waitAndClickOnSave();
+        await wizardVersionsWidget.waitForNumberOfItems(3);
         result = await wizardVersionsWidget.countVersionItems();
         await studioUtils.saveScreenshot('number_versions_should_be_3');
         assert.equal(result, 3, 'Three version-items should be present in the widget');

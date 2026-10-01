@@ -98,6 +98,28 @@ class BaseVersionsWidget extends Page {
         return items.length;
     }
 
+    // Waits until at least `expectedNumber` version items are rendered in the widget (the list is loaded asynchronously):
+    async waitForNumberOfItems(expectedNumber, ms = appConst.mediumTimeout) {
+        try {
+            await this.getBrowser().waitUntil(
+                async () => {
+                    let items = await this.findElements(this.versionItems);
+                    return items.length >= expectedNumber;
+                },
+                {
+                    timeout: ms,
+                    timeoutMsg: `Versions Widget - expected at least ${expectedNumber} version items to be displayed in: ${ms} ms`,
+                },
+            );
+        } catch (err) {
+            await this.handleError(
+                `Versions Widget - waiting for ${expectedNumber} version items`,
+                'err_versions_number',
+                err,
+            );
+        }
+    }
+
     async waitForPermissionsUpdatedItemDisplayed() {
         try {
             await this.waitForElementDisplayed(this.permissionsUpdatedItems);

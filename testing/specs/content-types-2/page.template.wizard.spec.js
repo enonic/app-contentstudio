@@ -70,11 +70,13 @@ describe('page.template.wizard.spec tests for page template wizard', function ()
         await studioUtils.selectAndOpenContentInWizard(TEMPLATE_NAME);
         // 2. Click on 'Remove' icon and remove the support selected option:
         await pageTemplateForm.clickOnRemoveSupportIcon('Site');
+        await studioUtils.saveScreenshot('template_support_item_removed');
         // 3. Verify that the template is not valid now:
         let isInvalid = await contentWizard.isContentInvalid();
         assert.ok(isInvalid, 'Red icon gets displayed in Wizard after removing the support option');
         // 4. Click on 'Save' button:
         await contentWizard.waitAndClickOnSave();
+        await contentWizard.waitForNotificationMessage();
         // 5. Verify that validation recording gets visible:
         let validationRecording = await pageTemplateForm.getFormValidationRecording();
         assert.equal(validationRecording, appConst.requiredValidationMessage(1), 'Min 1 valid occurrence(s) required');
