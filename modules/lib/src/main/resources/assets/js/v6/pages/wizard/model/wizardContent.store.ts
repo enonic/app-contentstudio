@@ -162,6 +162,11 @@ export const $hasPage = computed($wizardDraftPage, (page) => page != null);
 
 export const $contentTypeDisplayName = computed($contentType, (contentType) => contentType?.getTitle() ?? '');
 
+export const $displayNamePlaceholder = computed(
+    $contentType,
+    (contentType) => contentType?.getDisplayNamePlaceholder()?.trim() ?? '',
+);
+
 export const $wizardDataChanged = computed(
     [$wizardPersistedData, $wizardDraftData, $wizardDataVersion],
     (persistedData, draftData): boolean => {

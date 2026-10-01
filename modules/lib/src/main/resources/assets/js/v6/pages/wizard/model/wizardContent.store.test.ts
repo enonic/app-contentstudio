@@ -9,6 +9,7 @@ import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentType
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentBuilder, type Content } from '../../../../app/content/Content';
 import { ContentName } from '../../../../app/content/ContentName';
+import { ContentTypeBuilder } from '../../../../app/inputtype/schema/ContentType';
 import { Mixin } from '../../../../app/content/Mixin';
 import type { MixinDescriptor } from '../../../../app/content/MixinDescriptor';
 import { MixinName } from '../../../../app/content/MixinName';
@@ -16,6 +17,7 @@ import { Workflow } from '../../../../app/content/Workflow';
 import { WorkflowState } from '../../../../app/content/WorkflowState';
 import { PageBuilder, type Page } from '../../../../app/page/Page';
 import {
+    $displayNamePlaceholder,
     $isContentFormExpanded,
     addDraftStringOccurrenceByPath,
     applyServerSidePersistedContent,
@@ -42,6 +44,7 @@ import {
     setDraftStringByPath,
     setDraftWorkflowState,
     setContentFormExpanded,
+    setContentType,
     toggleContentFormExpanded,
     setPersistedContent,
     setMixinsDescriptors,
@@ -1051,6 +1054,31 @@ describe('wizardContent.store', () => {
 
             expect($wizardSectionChanges.get().mixins).toBe(true);
             expect($wizardHasChanges.get()).toBe(true);
+        });
+    });
+
+    describe('display name placeholder', () => {
+        function setTypeWithPlaceholder(placeholder: string | undefined): void {
+            const builder = new ContentTypeBuilder();
+            builder.displayNamePlaceholder = placeholder;
+            builder.setForm(new FormBuilder().build());
+            setContentType(builder.build());
+        }
+
+        it('exposes the trimmed placeholder declared by the content type', () => {
+            setTypeWithPlaceholder('  Full Name  ');
+
+            expect($displayNamePlaceholder.get()).toBe('Full Name');
+        });
+
+        it.each([
+            ['no content type', (): void => undefined],
+            ['undefined placeholder', (): void => setTypeWithPlaceholder(undefined)],
+            ['whitespace-only placeholder', (): void => setTypeWithPlaceholder(' \t\n ')],
+        ])('is empty for %s', (_, arrange) => {
+            arrange();
+
+            expect($displayNamePlaceholder.get()).toBe('');
         });
     });
 });
