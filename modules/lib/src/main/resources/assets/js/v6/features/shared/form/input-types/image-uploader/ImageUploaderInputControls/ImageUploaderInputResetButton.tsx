@@ -1,4 +1,4 @@
-import { type ReactElement, useCallback, useEffect, useRef, useState } from 'react';
+import { type ReactElement, useCallback, useEffect, useState } from 'react';
 import { useI18n } from '../../../../../../shared/lib/hooks/useI18n';
 import { useImageUploaderContext } from '../ImageUploaderContext';
 import {
@@ -7,15 +7,16 @@ import {
     resetFocusInPropertySet,
     resetPropertySet,
 } from '../lib/propertySet';
-import { type Point } from '../lib/types';
+import { type Crop, type Dimensions, type Point } from '../lib/types';
 import { Button } from '@enonic/ui';
+
+// Max distance (in image pixels) from the default focus that still counts as default.
+const FOCUS_TOLERANCE_PX = 0.5;
 
 export const ImageUploaderInputResetButton = (): ReactElement | null => {
     const { mode, value, crop, focus, dimensions, setCrop, setFocus, reset } = useImageUploaderContext();
     const resetLabel = useI18n('action.reset');
     const [isDirty, setIsDirty] = useState(false);
-    const [hasFocusMoved, setHasFocusMoved] = useState(false);
-    const initialFocusRef = useRef<Point | null>(null);
 
     useEffect(() => {
         const set = value.getPropertySet();
@@ -28,23 +29,6 @@ export const ImageUploaderInputResetButton = (): ReactElement | null => {
 
         return () => set.unChanged(listener);
     }, [value]);
-
-    useEffect(() => {
-        if (mode !== 'focus') {
-            initialFocusRef.current = null;
-            setHasFocusMoved(false);
-            return;
-        }
-
-        if (!focus) return;
-
-        if (initialFocusRef.current === null) {
-            initialFocusRef.current = focus;
-            return;
-        }
-
-        setHasFocusMoved(focus.x !== initialFocusRef.current.x || focus.y !== initialFocusRef.current.y);
-    }, [mode, focus]);
 
     const handleReset = useCallback(() => {
         if (resetPropertySet(value)) {
@@ -63,11 +47,7 @@ export const ImageUploaderInputResetButton = (): ReactElement | null => {
 
     const handleFocusReset = useCallback(() => {
         if (resetFocusInPropertySet(value)) {
-            const newFocus = {
-                x: crop ? (crop.x1 + crop.x2) / 2 : dimensions.w / 2,
-                y: crop ? (crop.y1 + crop.y2) / 2 : dimensions.h / 2,
-            };
-            setFocus(newFocus);
+            setFocus(getDefaultFocus(crop, dimensions));
         }
     }, [value, crop, dimensions, setFocus]);
 
@@ -81,7 +61,14 @@ export const ImageUploaderInputResetButton = (): ReactElement | null => {
     }
 
     if (mode === 'focus') {
-        if (!hasFocusMoved) return null;
+        const defaultFocus = getDefaultFocus(crop, dimensions);
+        const isFocusDefault =
+            !focus ||
+            !defaultFocus ||
+            (Math.abs(focus.x - defaultFocus.x) <= FOCUS_TOLERANCE_PX &&
+                Math.abs(focus.y - defaultFocus.y) <= FOCUS_TOLERANCE_PX);
+
+        if (isFocusDefault) return null;
         return (
             <Button variant="text" onClick={handleFocusReset}>
                 {resetLabel}
@@ -99,3 +86,14 @@ export const ImageUploaderInputResetButton = (): ReactElement | null => {
 };
 
 ImageUploaderInputResetButton.displayName = 'ImageUploaderInputResetButton';
+
+//
+// * Internal
+//
+
+// Default (auto) focus: the crop center, or the image center when there is no crop.
+function getDefaultFocus(crop: Crop | undefined, dimensions: Dimensions | undefined): Point | null {
+    if (crop) return { x: (crop.x1 + crop.x2) / 2, y: (crop.y1 + crop.y2) / 2 };
+    if (dimensions) return { x: dimensions.w / 2, y: dimensions.h / 2 };
+    return null;
+}

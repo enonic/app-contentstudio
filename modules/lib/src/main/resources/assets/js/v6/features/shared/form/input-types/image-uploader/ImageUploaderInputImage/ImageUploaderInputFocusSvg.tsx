@@ -1,18 +1,23 @@
-import {cn} from '@enonic/ui';
-import {type ReactElement, useEffect, useRef, useState} from 'react';
-import {type TargetedMouseEvent, type TargetedTouchEvent} from 'preact';
-import {useImageUploaderContext} from '../ImageUploaderContext';
-import {getClientXYFromEvent} from '../lib/crop';
-import {type Point} from '../lib/types';
-import {FOCUS_STROKE_WIDTH, FOCUS_DASH_PX} from '../lib/focus';
+import { cn } from '@enonic/ui';
+import { type ReactElement, useEffect, useId, useRef, useState } from 'react';
+import { type TargetedMouseEvent, type TargetedTouchEvent } from 'preact';
+import { useImageUploaderContext } from '../ImageUploaderContext';
+import { getClientXYFromEvent } from '../lib/crop';
+import { type Point } from '../lib/types';
+import { FOCUS_STROKE_WIDTH, FOCUS_DASH_PX } from '../lib/focus';
+
+const COMPONENT_NAME = 'ImageUploaderInputFocusSvg';
 
 export const ImageUploaderInputFocusSvg = (): ReactElement => {
-    const {dimensions, crop, base64Image, mode, focus, setFocus} = useImageUploaderContext();
+    const { dimensions, crop, base64Image, mode, focus, setFocus } = useImageUploaderContext();
 
     const isFocusing = mode === 'focus';
     const [isDragging, setIsDragging] = useState(false);
     const [isOverCircle, setIsOverCircle] = useState(false);
     const svgRef = useRef<SVGSVGElement>(null);
+    const baseId = useId();
+    const maskId = `${COMPONENT_NAME}-${baseId}-mask`;
+    const clipId = `${COMPONENT_NAME}-${baseId}-clip`;
 
     const cropXCenter = crop ? (crop.x1 + crop.x2) / 2 : dimensions.w / 2;
     const cropYCenter = crop ? (crop.y1 + crop.y2) / 2 : dimensions.h / 2;
@@ -39,7 +44,7 @@ export const ImageUploaderInputFocusSvg = (): ReactElement => {
 
     // While in focus mode, default the circle to the crop/image center so it shows
     // immediately on entering focus mode, before any click.
-    const displayFocus = focus ?? (isFocusing ? {x: cropXCenter, y: cropYCenter} : null);
+    const displayFocus = focus ?? (isFocusing ? { x: cropXCenter, y: cropYCenter } : null);
 
     const handleMouseMove = (e: TargetedMouseEvent<SVGSVGElement>): void => {
         if (isDragging || !isFocusing || !displayFocus) return;
@@ -74,7 +79,7 @@ export const ImageUploaderInputFocusSvg = (): ReactElement => {
         if (!isDragging) return;
 
         const handleWindowMove = (e: MouseEvent | TouchEvent): void => {
-            const {clientX, clientY} = getClientXYFromEvent(e);
+            const { clientX, clientY } = getClientXYFromEvent(e);
             const p = toLocalFromClient(clientX, clientY);
             if (p) setFocus(p);
         };
@@ -86,7 +91,7 @@ export const ImageUploaderInputFocusSvg = (): ReactElement => {
 
         window.addEventListener('mousemove', handleWindowMove);
         window.addEventListener('mouseup', handleWindowUp);
-        window.addEventListener('touchmove', handleWindowMove, {passive: false});
+        window.addEventListener('touchmove', handleWindowMove, { passive: false });
         window.addEventListener('touchend', handleWindowUp);
 
         return () => {
@@ -120,8 +125,11 @@ export const ImageUploaderInputFocusSvg = (): ReactElement => {
         <svg
             ref={svgRef}
             viewBox={`${viewX} ${viewY} ${viewW} ${viewH}`}
-            className={cn('w-full h-full', isDragging ? 'cursor-grabbing' : isOverCircle ? 'cursor-grab' : isFocusing ? 'cursor-move' : '')}
-            style={{maxWidth: dimensions?.w, maxHeight: dimensions?.h}}
+            className={cn(
+                'w-full h-full',
+                isDragging ? 'cursor-grabbing' : isOverCircle ? 'cursor-grab' : isFocusing ? 'cursor-move' : '',
+            )}
+            style={{ maxWidth: dimensions?.w, maxHeight: dimensions?.h }}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseLeave={() => setIsOverCircle(false)}
@@ -129,20 +137,38 @@ export const ImageUploaderInputFocusSvg = (): ReactElement => {
         >
             <image href={base64Image} x={viewX} y={viewY} width={viewW} height={viewH} />
 
-            {isFocusing && displayFocus && (
-                <>
-                    <mask id="focus-mask">
-                        <rect x={viewX} y={viewY} width={viewW} height={viewH} fill="white" />
-                        <circle cx={displayFocus.x} cy={displayFocus.y} r={radius} fill="black" />
-                    </mask>
-                    <rect x={viewX} y={viewY} width={viewW} height={viewH} fill="black" fillOpacity={0.5} mask="url(#focus-mask)" />
-                    {renderFocusRing(displayFocus.x, displayFocus.y, radius)}
-                </>
-            )}
+            {/* The svg viewport is larger than the image, so clip the ring to the image/crop rect. */}
+            <clipPath id={clipId}>
+                <rect x={viewX} y={viewY} width={viewW} height={viewH} />
+            </clipPath>
 
-            {!isFocusing && focus && focus.x !== cropXCenter && focus.y !== cropYCenter && renderFocusRing(focus.x, focus.y, radius)}
+            <g clipPath={`url(#${clipId})`}>
+                {isFocusing && displayFocus && (
+                    <>
+                        <mask id={maskId}>
+                            <rect x={viewX} y={viewY} width={viewW} height={viewH} fill="white" />
+                            <circle cx={displayFocus.x} cy={displayFocus.y} r={radius} fill="black" />
+                        </mask>
+                        <rect
+                            x={viewX}
+                            y={viewY}
+                            width={viewW}
+                            height={viewH}
+                            fill="black"
+                            fillOpacity={0.5}
+                            mask={`url(#${maskId})`}
+                        />
+                        {renderFocusRing(displayFocus.x, displayFocus.y, radius)}
+                    </>
+                )}
+
+                {!isFocusing &&
+                    focus &&
+                    (focus.x !== cropXCenter || focus.y !== cropYCenter) &&
+                    renderFocusRing(focus.x, focus.y, radius)}
+            </g>
         </svg>
     );
 };
 
-ImageUploaderInputFocusSvg.displayName = 'ImageUploaderInputFocusSvg';
+ImageUploaderInputFocusSvg.displayName = COMPONENT_NAME;
