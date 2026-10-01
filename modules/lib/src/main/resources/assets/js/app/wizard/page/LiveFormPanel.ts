@@ -179,6 +179,7 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
     }
 
     remove(): LiveFormPanel {
+        this.widgetRenderingHandler.destroy();
         ShowLiveEditEvent.un(this.showLoadMaskHandler);
         ShowContentFormEvent.un(this.hideLoadMaskHandler);
 
@@ -260,9 +261,9 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
             return Promise.resolve(false);
         }
 
-        // Image content types under the auto widget are handled by `LiveViewImageEditor`.
+        // `LiveViewImageEditor` replaces the page, so only the preview is resolved.
         if ($isLiveViewImageEditorActive.get()) {
-            return Promise.resolve(false);
+            return this.widgetRenderingHandler.render(this.content, $activeWidget.get());
         }
 
         return this.liveEditPageProxy.load(this.widgetRenderingHandler, $activeWidget.get()).then((loaded) => {
@@ -305,5 +306,4 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
     getFrameContainer() {
         return this.frameContainer;
     }
-
 }

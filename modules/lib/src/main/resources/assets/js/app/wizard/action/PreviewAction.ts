@@ -5,6 +5,7 @@ import { Action } from '@enonic/lib-admin-ui/ui/Action';
 import { PreviewActionHelper } from '../../action/PreviewActionHelper';
 import { BrowserHelper } from '@enonic/lib-admin-ui/BrowserHelper';
 import { $activeWidget } from '../../../v6/widgets/inspectors/model/liveViewWidgets.store';
+import { getResolvedPreviewExtension } from '../../../v6/widgets/preview-panel/model/previewResolution.store';
 
 export class PreviewAction extends Action {
     private writePermissions: boolean = false;
@@ -23,7 +24,7 @@ export class PreviewAction extends Action {
     }
 
     protected handleExecuted() {
-        const widget = $activeWidget.get();
+        const widget = getResolvedPreviewExtension() ?? $activeWidget.get();
         if (this.writePermissions && this.wizard.hasUnsavedChanges()) {
             this.wizard.setRequireValid(true);
             this.wizard

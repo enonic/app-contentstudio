@@ -6,12 +6,20 @@ import { StatusCode } from '@enonic/lib-admin-ui/rest/StatusCode';
 import { type Action } from '@enonic/lib-admin-ui/ui/Action';
 import { type Mask } from '@enonic/lib-admin-ui/ui/mask/Mask';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
-import { listenKeys } from 'nanostores';
+import { listenKeys, type StoreValue } from 'nanostores';
 import Q from 'q';
 import { PreviewLabelElement } from '../../v6/shared/ui/PreviewLabel';
 import { $app, getResolvedTheme } from '../../v6/shared/app-state/app.store';
-import { $isWidgetRenderable } from '../../v6/widgets/context-panel/model/contextWidgets.store';
 import { $autoModeWidgets, WIDGET_AUTO_DESCRIPTOR } from '../../v6/widgets/inspectors/model/liveViewWidgets.store';
+import {
+    $isLivePreviewRenderable,
+    $previewResolution,
+    clearPreview,
+    isFrameRenderable,
+    requestPreview,
+    whenPreviewSettled,
+} from '../../v6/widgets/preview-panel/model/previewResolution.store';
+import { type PreviewRequest, type PreviewResult } from '../../v6/widgets/preview-panel/model/previewResolution.types';
 import { EmulatedDeviceEvent } from '../../v6/shared/lib/dom/events/registry';
 import { PreviewActionHelper } from '../action/PreviewActionHelper';
 import { type ContentSummary } from '../content/ContentSummary';
@@ -26,14 +34,15 @@ export enum PREVIEW_TYPE {
     MISSING,
 }
 
-export class ExtensionRenderingHandler {
-    private PREVIEW_HEADER_NAME = 'enonic-widget-data';
+type RenderableListener = (isRenderable: boolean, wasRenderable: boolean) => void;
 
+export type FailedPreviewResult = Exclude<PreviewResult, { kind: 'ready' }>;
+
+// Presents the preview resolved by `previewResolution.service` in the renderer's iframe.
+export class ExtensionRenderingHandler {
     protected readonly renderer: ExtensionRenderer;
 
     private previewType: PREVIEW_TYPE;
-
-    private itemRenderable: Q.Promise<boolean> = Q(false);
 
     private previewHelper: PreviewActionHelper;
 
@@ -49,7 +58,13 @@ export class ExtensionRenderingHandler {
 
     protected mode: RenderingMode;
 
-    protected renderableChangedListeners: ((isRenderable: boolean, wasRenderable: boolean) => void)[] = [];
+    private readonly renderableListeners = new Map<RenderableListener, () => void>();
+
+    private shownRequestId: number | undefined;
+
+    private appliedRequestId: number | undefined;
+
+    private readonly unsubscribeResolution: () => void;
 
     constructor(renderer: ExtensionRenderer, previewHelper?: PreviewActionHelper) {
         this.renderer = renderer;
@@ -58,61 +73,26 @@ export class ExtensionRenderingHandler {
         this.emptyView = this.createEmptyView();
         this.messageView = this.createErrorView();
         this.setPreviewType(PREVIEW_TYPE.EMPTY);
+        this.unsubscribeResolution = $previewResolution.subscribe((state) => this.handleResolutionChange(state));
     }
 
-    public async render(summary: ContentSummary, extension: Extension): Promise<boolean> {
-        const deferred = Q.defer<boolean>();
-
-        const wasRenderable = await this.isItemRenderable();
-        this.itemRenderable = deferred.promise;
-
+    public render(summary: ContentSummary, extension: Extension): Promise<boolean> {
         if (!extension || !summary) {
+            clearPreview();
             this.setPreviewType(PREVIEW_TYPE.EMPTY);
-            deferred.resolve(false);
-            return;
+            return Promise.resolve(false);
         }
 
         this.summary = summary;
         this.lastRenderKey = this.getRenderKey(summary, extension);
 
-        this.showMask();
-        this.renderer.getPreviewAction()?.setEnabled(false);
-        let isRenderable: boolean;
+        requestPreview(this.createPreviewRequest(summary, extension));
 
-        $isWidgetRenderable.set(false);
-
-        return this.doRender(summary, extension)
-            .then((result) => {
-                isRenderable = result.isRenderable();
-                $isWidgetRenderable.set(isRenderable);
-
-                if (isRenderable) {
-                    this.handlePreviewSuccess(result.getResponse(), result.getData());
-                } else {
-                    // handle last item failure meaning no one was successful
-                    this.handlePreviewFailure(result.getResponse(), result.getData());
-                }
-
-                return isRenderable;
-            })
-            .catch((err) => {
-                this.setPreviewType(PREVIEW_TYPE.FAILED);
-                this.hideMask();
-                isRenderable = false;
-
-                return false;
-            })
-            .finally(() => {
-                deferred.resolve(isRenderable);
-                if (isRenderable !== wasRenderable) {
-                    this.notifyRenderableChanged(isRenderable, wasRenderable);
-                }
-                return isRenderable;
-            });
+        return whenPreviewSettled().then(isFrameRenderable);
     }
 
     public isItemRenderable(): Q.Promise<boolean> {
-        return this.itemRenderable;
+        return Q(whenPreviewSettled()).then(isFrameRenderable);
     }
 
     public layout() {
@@ -122,7 +102,56 @@ export class ExtensionRenderingHandler {
     }
 
     public empty() {
+        clearPreview();
         this.setPreviewType(PREVIEW_TYPE.EMPTY);
+    }
+
+    public destroy(): void {
+        this.unsubscribeResolution();
+        this.renderableListeners.forEach((unsubscribe) => unsubscribe());
+        this.renderableListeners.clear();
+        clearPreview();
+    }
+
+    protected shouldShowFrame(_extension: Extension): boolean {
+        return true;
+    }
+
+    private createPreviewRequest(summary: ContentSummary, extension: Extension): Omit<PreviewRequest, 'id'> {
+        const auto = extension.getDescriptorKey().getName() === WIDGET_AUTO_DESCRIPTOR;
+        const extensions = auto ? $autoModeWidgets.get() : [extension];
+        const candidates = extensions.map((candidate) => ({
+            extension: candidate,
+            url: `${this.previewHelper.getUrl(summary, candidate, this.mode)}&auto=${auto}`,
+        }));
+
+        return { candidates, auto, showFrame: this.shouldShowFrame(extension) };
+    }
+
+    private handleResolutionChange({ request, pending, result }: StoreValue<typeof $previewResolution>): void {
+        if (pending) {
+            if (request.id === this.shownRequestId) return;
+            this.shownRequestId = request.id;
+            this.renderer.getPreviewAction()?.setEnabled(false);
+            if (request.showFrame) {
+                this.showMask();
+            }
+            return;
+        }
+
+        if (result == null) {
+            this.hideMask();
+            return;
+        }
+
+        if (result.requestId === this.appliedRequestId) return;
+        this.appliedRequestId = result.requestId;
+
+        if (result.kind === 'ready') {
+            this.handlePreviewSuccess(result);
+        } else {
+            this.handlePreviewFailure(result);
+        }
     }
 
     protected createEmptyView(): DivEl {
@@ -183,27 +212,31 @@ export class ExtensionRenderingHandler {
         this.messageLabel.setProps({ messages, showIcon: true });
     }
 
-    protected handlePreviewSuccess(response: Response, data: Record<string, never>) {
+    protected handlePreviewSuccess(result: Extract<PreviewResult, { kind: 'ready' }>) {
         this.renderer.getPreviewAction()?.setEnabled(true);
         this.setPreviewType(PREVIEW_TYPE.SUCCESS);
 
-        const contentType = response.headers.get('content-type');
-        let mainType = 'other';
-        if (contentType) {
-            mainType = contentType.split('/')[0];
+        if (!result.showFrame) {
+            this.hideMask();
+            return;
         }
 
-        this.renderer.getIFrameEl().setSrc(response.url).setClass(mainType);
+        this.renderer.getIFrameEl().setSrc(result.frameUrl).setClass(result.mediaType);
     }
 
-    protected handlePreviewFailure(response?: Response, data?: Record<string, never>) {
-        // previewAction was set to false in the beginning of loading
+    protected handlePreviewFailure(result: FailedPreviewResult) {
+        // previewAction was disabled when the request started
 
-        const statusCode = response.status;
-        if (statusCode > 0) {
-            const messages: string[] = (data?.messages as string[])?.length ? data.messages : undefined;
+        if (result.kind === 'error') {
+            this.setPreviewType(PREVIEW_TYPE.FAILED);
+            this.hideMask();
+            return;
+        }
 
-            switch (statusCode) {
+        if (result.status > 0) {
+            const messages: string[] = result.data.messages?.length ? result.data.messages : undefined;
+
+            switch (result.status) {
                 case StatusCode.NOT_FOUND:
                 case StatusCode.I_AM_A_TEAPOT:
                     this.setPreviewType(PREVIEW_TYPE.MISSING, messages || [this.getDefaultMessage()]);
@@ -222,73 +255,6 @@ export class ExtensionRenderingHandler {
 
     protected getDefaultMessage(): string {
         return i18n('field.preview.notAvailable');
-    }
-
-    protected extractPreviewData(response: Response): Record<string, never> {
-        try {
-            const data = response.headers.get(this.PREVIEW_HEADER_NAME);
-            if (data) {
-                return JSON.parse(data);
-            }
-        } catch (e) {
-            // no data
-        }
-        return {};
-    }
-
-    private async doRender(summary: ContentSummary, selectedMode: Extension): Promise<RenderResult> {
-        if (!selectedMode || !summary) {
-            return new RenderResult();
-        }
-        const isAuto = selectedMode.getDescriptorKey().getName() === WIDGET_AUTO_DESCRIPTOR;
-        const items = isAuto ? $autoModeWidgets.get() : [selectedMode];
-        let response: Response;
-        let extension: Extension;
-        let isOk: boolean;
-        let data: Record<string, never>;
-        if (isAuto) {
-            // clear previous preview url for this mode
-            this.previewHelper.setPreviewUrl(selectedMode);
-        }
-        for (extension of items) {
-            const url = this.previewHelper.getUrl(summary, extension, this.mode) + '&auto=' + isAuto;
-            response = await fetch(url, { method: 'HEAD', credentials: 'include' });
-
-            data = this.extractPreviewData(response);
-            if (data.redirect) {
-                // follow redirect manually to get data headers first
-                try {
-                    response = await fetch(data.redirect, { method: 'HEAD', credentials: 'include' });
-                } catch (e) {
-                    response = this.createErrorResponse(e, data.redirect);
-                }
-            }
-
-            isOk = this.isResponseOk(response, isAuto);
-            if (isOk) {
-                break;
-            }
-        }
-        if (isAuto && isOk) {
-            // don't save the final url, because they are different for different modes
-            this.previewHelper.setPreviewUrl(selectedMode, extension.getFullUrl());
-        }
-
-        return new RenderResult(isOk, extension, response, data);
-    }
-
-    private isResponseOk(response: Response, isAuto: boolean) {
-        return response.ok || (!isAuto && response.status !== StatusCode.I_AM_A_TEAPOT);
-    }
-
-    private createErrorResponse(error: Error, url: string): Response {
-        const resp = new Response(null, {
-            status: StatusCode.NOT_FOUND,
-            statusText: error.message || 'Endpoint not reachable',
-        });
-        // The url property cannot be set via the constructor, so we define it manually
-        Object.defineProperty(resp, 'url', { value: url, writable: false, enumerable: true, configurable: false });
-        return resp;
     }
 
     private applyImageStyles(frameWindow: Window) {
@@ -374,7 +340,10 @@ export class ExtensionRenderingHandler {
                 }
             });
 
-            this.hideMask();
+            // A late load of the previous page must not lift the mask of a newer request.
+            if (!$previewResolution.get().pending) {
+                this.hideMask();
+            }
 
             const frameWindow = iframe.getHTMLElement()['contentWindow'];
 
@@ -406,16 +375,15 @@ export class ExtensionRenderingHandler {
         this.renderer.removeClass('loading');
     }
 
-    public onRenderableChanged(listener: (isRenderable: boolean, wasRenderable: boolean) => void) {
-        this.renderableChangedListeners.push(listener);
+    public onRenderableChanged(listener: RenderableListener) {
+        if (this.renderableListeners.has(listener)) return;
+        const unsubscribe = $isLivePreviewRenderable.listen((isRenderable) => listener(isRenderable, !isRenderable));
+        this.renderableListeners.set(listener, unsubscribe);
     }
 
-    public unRenderableChanged(listener: (isRenderable: boolean, wasRenderable: boolean) => void) {
-        this.renderableChangedListeners = this.renderableChangedListeners.filter((l) => l !== listener);
-    }
-
-    protected notifyRenderableChanged(isRenderable: boolean, wasRenderable: boolean) {
-        this.renderableChangedListeners.forEach((listener) => listener(isRenderable, wasRenderable));
+    public unRenderableChanged(listener: RenderableListener) {
+        this.renderableListeners.get(listener)?.();
+        this.renderableListeners.delete(listener);
     }
 }
 
@@ -427,34 +395,4 @@ export interface ExtensionRenderer extends Element {
     getPreviewAction(): Action;
 
     getMask(): Mask;
-}
-
-class RenderResult {
-    private readonly renderable: boolean;
-    private readonly extension: Extension;
-    private readonly response: Response;
-    private readonly data: Record<string, never>;
-
-    constructor(renderable: boolean = false, extension?: Extension, response?: Response, data?: Record<string, never>) {
-        this.renderable = renderable;
-        this.extension = extension;
-        this.response = response;
-        this.data = data;
-    }
-
-    public isRenderable(): boolean {
-        return this.renderable;
-    }
-
-    public getExtension(): Extension {
-        return this.extension;
-    }
-
-    public getResponse(): Response {
-        return this.response;
-    }
-
-    public getData(): Record<string, never> {
-        return this.data;
-    }
 }

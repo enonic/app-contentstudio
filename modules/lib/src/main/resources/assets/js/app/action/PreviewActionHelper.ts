@@ -42,14 +42,6 @@ export class PreviewActionHelper {
         return isBlocked;
     }
 
-    setPreviewUrl(widget: Readonly<Extension>, url?: string) {
-        widget.getConfig().setProperty('previewUrl', url);
-    }
-
-    getPreviewUrl(widget: Readonly<Extension>): string {
-        return widget.getConfig().getProperty('previewUrl');
-    }
-
     getUrl(
         content: ContentSummary,
         extension?: Readonly<Extension>,
@@ -63,11 +55,7 @@ export class PreviewActionHelper {
             return UriHelper.getPortalUri(content.getPath().toString(), mode);
         }
 
-        let url = this.getPreviewUrl(extension);
-        // in case of automatic extension that will be url of the extension that actually renders the content
-        if (!url) {
-            url = extension.getFullUrl();
-        }
+        const url = extension.getFullUrl();
 
         const params = new URLSearchParams({
             contentPath: content.getPath().toString(),
