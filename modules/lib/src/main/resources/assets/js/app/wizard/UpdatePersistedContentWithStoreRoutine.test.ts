@@ -67,7 +67,7 @@ describe('UpdatePersistedContentWithStoreRoutine', () => {
         const viewedData = viewedContent.getContentData();
         const siteConfigs = viewedData.getPropertySets('siteConfig');
 
-        expect(viewedData.getString('baseUrl')).toBeNull();
+        expect(viewedData.getString('baseUrl')).toBeUndefined();
         expect(siteConfigs.length).toBe(2);
         expect(siteConfigs[0].getString('applicationKey')).toBe(ApplicationKey.PORTAL.toString());
         expect(siteConfigs[0].getPropertySet('config').getString('baseUrl')).toBe('https://example.com');
@@ -86,7 +86,7 @@ describe('UpdatePersistedContentWithStoreRoutine', () => {
         const viewedData = viewedContent.getContentData();
 
         expect(viewedData.getPropertySets('siteConfig')).toEqual([]);
-        expect(viewedData.getString('baseUrl')).toBeNull();
+        expect(viewedData.getString('baseUrl')).toBeUndefined();
     });
 
     it('handles empty baseUrl PropertyArray from form rendering', () => {
@@ -112,7 +112,7 @@ describe('UpdatePersistedContentWithStoreRoutine', () => {
 
         const viewedContent = buildViewedContentFromStore(persistedContent);
         const viewedData = viewedContent.getContentData();
-        expect(viewedData.getString('baseUrl')).toBeNull();
+        expect(viewedData.getString('baseUrl')).toBeUndefined();
     });
 
     it('keeps portal siteConfig when other config fields exist', () => {
@@ -132,7 +132,7 @@ describe('UpdatePersistedContentWithStoreRoutine', () => {
 
         expect(siteConfigs.length).toBe(1);
         expect(siteConfigs[0].getString('applicationKey')).toBe(ApplicationKey.PORTAL.toString());
-        expect(siteConfigs[0].getPropertySet('config').getString('baseUrl')).toBeNull();
+        expect(siteConfigs[0].getPropertySet('config').getString('baseUrl')).toBeUndefined();
         expect(siteConfigs[0].getPropertySet('config').getString('title')).toBe('Portal config');
     });
 });

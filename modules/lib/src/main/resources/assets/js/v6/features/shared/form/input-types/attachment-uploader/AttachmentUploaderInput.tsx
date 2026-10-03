@@ -7,7 +7,7 @@ import {
     useRef,
     useState,
 } from 'react';
-import { type SelfManagedComponentProps } from '@enonic/lib-admin-ui/form2';
+import { type SelfManagedComponentProps } from '@enonic/input-types';
 import { type AttachmentUploaderConfig } from './AttachmentUploaderConfig';
 import { useAttachmentUploader } from './useAttachmentUploader';
 import { useAttachmentServerErrors } from './useAttachmentServerErrors';

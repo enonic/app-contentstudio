@@ -1,9 +1,9 @@
 import { type ReactElement, useEffect, useMemo, useState } from 'react';
-import { type SelfManagedComponentProps } from '@enonic/lib-admin-ui/form2';
+import { type SelfManagedComponentProps } from '@enonic/input-types';
 import { type CustomSelectorConfig } from './CustomSelectorConfig';
 import { Combobox } from '@enonic/ui';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
-import { SortableGridList } from '@enonic/lib-admin-ui/form2/components';
+import { SortableGridList } from '@enonic/input-types';
 import { ContentId } from '../../../../../../app/content/ContentId';
 import { ContentSummary, ContentSummaryBuilder } from '../../../../../../app/content/ContentSummary';
 import { CustomSelectorInputComboboxList } from './CustomSelectorComboboxList';

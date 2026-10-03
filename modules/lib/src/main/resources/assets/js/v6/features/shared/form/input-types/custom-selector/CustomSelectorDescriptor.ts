@@ -1,9 +1,9 @@
-import {type InputTypeDescriptor, type ValidationResult} from '@enonic/lib-admin-ui/form2/descriptor';
-import {type CustomSelectorConfig} from './CustomSelectorConfig';
-import {type ValueType} from '@enonic/lib-admin-ui/data/ValueType';
-import {type Value} from '@enonic/lib-admin-ui/data/Value';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import type {RawInputConfig} from '@enonic/lib-admin-ui/form/Input';
+import { type InputTypeDescriptor, type ValidationResult } from '@enonic/input-types';
+import { type CustomSelectorConfig } from './CustomSelectorConfig';
+import { type ValueType } from '@enonic/input-types/data';
+import { type Value } from '@enonic/input-types/data';
+import { ValueTypes } from '@enonic/input-types/data';
+import type { InputConfigEntries } from '@enonic/input-types';
 
 export const CustomSelectorDescriptor: InputTypeDescriptor<CustomSelectorConfig> = {
     name: 'CustomSelector' as const,
@@ -12,14 +12,16 @@ export const CustomSelectorDescriptor: InputTypeDescriptor<CustomSelectorConfig>
         return ValueTypes.STRING;
     },
 
-    readConfig(raw: RawInputConfig): CustomSelectorConfig {
+    readConfig(raw: InputConfigEntries): CustomSelectorConfig {
         return {
             extension: raw?.['extension']?.[0]?.value as string,
             service: raw?.['service']?.[0]?.value as string,
-            params: Object.entries((raw?.['params']?.[0]?.value || {}) as Record<string, string>).map(([key, value]) => ({
-                label: key,
-                value,
-            })),
+            params: Object.entries((raw?.['params']?.[0]?.value || {}) as Record<string, string>).map(
+                ([key, value]) => ({
+                    label: key,
+                    value,
+                }),
+            ),
             galleryMode: raw?.['galleryMode']?.[0]?.value === true,
         };
     },

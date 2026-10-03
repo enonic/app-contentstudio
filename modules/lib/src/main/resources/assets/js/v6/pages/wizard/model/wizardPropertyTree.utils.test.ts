@@ -1,5 +1,5 @@
-import { PropertyPath } from '@enonic/lib-admin-ui/data/PropertyPath';
-import { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import { PropertyPath } from '@enonic/input-types/data';
+import { PropertyTree } from '@enonic/input-types/data';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
     type ChangedPathsStore,
@@ -159,7 +159,7 @@ describe('addStringOccurrence', () => {
 
         expect(result).toBe(true);
         expect(draft.getRoot().getPropertyArray('tags')?.getSize()).toBe(3);
-        expect(draft.getRoot().getPropertyArray('tags')?.get(2)?.getString()).toBeNull();
+        expect(draft.getRoot().getPropertyArray('tags')?.get(2)?.getString()).toBeUndefined();
         expect(changedPaths.value.tags).toBe(1);
     });
 

@@ -1,7 +1,7 @@
-import { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
-import { Input } from '@enonic/lib-admin-ui/form/Input';
+import { PropertyTree } from '@enonic/input-types/data';
+import { Input } from '@enonic/input-types/schema';
 import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import { type FormValidationResult, validateForm } from '@enonic/lib-admin-ui/form2';
+import { type FormValidationResult, validateForm } from '@enonic/input-types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentBuilder, type Content } from '../../../../app/content/Content';
 import { ContentName } from '../../../../app/content/ContentName';
@@ -36,16 +36,13 @@ import {
     setServerValidationErrors,
 } from './wizardValidation.store';
 
-vi.mock('@enonic/lib-admin-ui/form2', async () => {
+vi.mock('@enonic/input-types', async () => {
     // Real (pure) path matchers — the clear commands rely on them; only validateForm
     // is stubbed to keep form2's heavy React components out of the node test env.
-    const serverErrors = await vi.importActual<typeof import('@enonic/lib-admin-ui/form2/utils/serverErrors')>(
-        '@enonic/lib-admin-ui/form2/utils/serverErrors',
-    );
+    const serverErrors = await vi.importActual<typeof import('@enonic/input-types')>('@enonic/input-types');
     return {
+        ...serverErrors,
         validateForm: vi.fn(() => ({ isValid: true, children: [] })),
-        matchesFieldPath: serverErrors.matchesFieldPath,
-        matchesOccurrencePath: serverErrors.matchesOccurrencePath,
     };
 });
 

@@ -14,7 +14,7 @@ import { Flow, type RoutineContext } from './Flow';
 import { type ContentWizardPanel } from './ContentWizardPanel';
 import { UpdatePersistedContentRoutine } from './UpdatePersistedContentRoutine';
 import { isBlank } from '../../v6/shared/lib/format/isBlank';
-import { pruneUnselectedOptionData } from '../../v6/features/shared/form/sets/option-set/pruneUnselectedOptionData';
+import { pruneUnselectedOptionData } from '@enonic/input-types';
 
 export class UpdatePersistedContentWithStoreRoutine extends Flow {
     private static readonly BASE_URL_PROP = 'baseUrl';

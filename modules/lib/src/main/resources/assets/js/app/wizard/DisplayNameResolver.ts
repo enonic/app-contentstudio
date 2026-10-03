@@ -12,6 +12,7 @@ import { type InputTypeName } from '@enonic/lib-admin-ui/form/InputTypeName';
 import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
 import { camelCase } from '../../v6/shared/lib/format/camelCase';
 import { isBlank } from '../../v6/shared/lib/format/isBlank';
+import { getValuesAsString } from '../../v6/shared/lib/data/propertySetValues';
 
 export class DisplayNameResolver implements DisplayNameGenerator {
     private formView: FormView;
@@ -94,9 +95,7 @@ export class DisplayNameResolver implements DisplayNameGenerator {
         const map = {};
         const allowedFields = this.getNamesOfAllowedFields();
 
-        this.formView
-            .getData()
-            .getValuesAsString()
+        getValuesAsString(this.formView.getData())
             .filter(
                 (formValue) =>
                     formValue.value.length > 0 && allowedFields.indexOf(this.sanitiseName(formValue.path)) > -1,
