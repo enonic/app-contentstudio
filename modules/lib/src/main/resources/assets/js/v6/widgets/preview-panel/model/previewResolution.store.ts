@@ -1,5 +1,6 @@
 import { type Extension } from '@enonic/lib-admin-ui/extension/Extension';
 import { computed, map } from 'nanostores';
+import { createPreviewResolver } from './previewResolution.service';
 import { type PreviewRequest, type PreviewResult } from './previewResolution.types';
 
 type PreviewResolutionStore = {
@@ -35,9 +36,15 @@ export const $isPreviewResolved = computed(
 
 let lastRequestId = 0;
 
+// Resolution starts from the command itself, so a bundle that embeds the preview
+// without the app gets it too. The resolver aborts a superseded request.
+const resolver = createPreviewResolver(settlePreview);
+
 export function requestPreview(request: Omit<PreviewRequest, 'id'>): number {
     const id = ++lastRequestId;
-    $previewResolution.set({ ...$previewResolution.get(), request: { ...request, id }, pending: true });
+    const next = { ...request, id };
+    $previewResolution.set({ ...$previewResolution.get(), request: next, pending: true });
+    resolver.resolve(next);
     return id;
 }
 
@@ -48,6 +55,7 @@ export function settlePreview(result: PreviewResult): void {
 }
 
 export function clearPreview(): void {
+    resolver.abort();
     $previewResolution.set({ request: undefined, pending: false, result: undefined });
 }
 

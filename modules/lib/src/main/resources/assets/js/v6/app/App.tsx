@@ -19,7 +19,6 @@ import { start as startSortDialogService } from '../features/sort/model/sortDial
 import { start as startUnpublishDialogService } from '../features/unpublish/model/unpublishDialog.service';
 import { start as startContextContentService } from '../widgets/context-panel/model/contextContent.service';
 import { start as startPreviewPanelService } from '../widgets/preview-panel/model/previewPanel.service';
-import { start as startPreviewResolutionService } from '../widgets/preview-panel/model/previewResolution.service';
 import { setActiveProjectResolver } from '../shared/lib/url/cms';
 import { LegacyElement } from '../shared/ui/LegacyElement';
 import { $isWizard } from '../shared/app-state/app.store';
@@ -59,7 +58,6 @@ export class AppElement extends LegacyElement<typeof App> {
             startActionsService();
             startContextContentService();
             startPreviewPanelService();
-            startPreviewResolutionService();
             startDeleteDialogService();
             startDuplicateDialogService();
             startIssueDialogService();
