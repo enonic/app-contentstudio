@@ -64,13 +64,13 @@ describe('create.content.in.project.spec - create new content in the selected co
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizardPanel.openContextWindow();
             await contentWizardPanel.openDetailsWidget();
+            let actualProjectName = await contentWizardPanel.getProjectDisplayName();
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             await studioUtils.saveScreenshot('project_default_language');
             // 3. Verify the language in the wizard:
             let actualLanguage = await editSettingsDialog.getSelectedLanguage();
             assert.equal(actualLanguage, appConst.LANGUAGES.NORSK_NO, 'Expected language should be selected in the wizard step form');
             // 4. Verify that expected project display name is present in the wizard-toolbar:
-            let actualProjectName = await contentWizardPanel.getProjectDisplayName();
             assert.equal(actualProjectName, PROJECT_DISPLAY_NAME + ' (no)', 'Actual and expected display name should be equal');
         });
 
