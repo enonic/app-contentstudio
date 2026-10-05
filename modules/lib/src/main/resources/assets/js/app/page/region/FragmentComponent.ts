@@ -1,16 +1,14 @@
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {type ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
-import {type FragmentComponentJson} from './FragmentComponentJson';
-import {ComponentName} from './ComponentName';
-import {FragmentComponentType} from './FragmentComponentType';
-import {ConfigBasedComponent, ConfigBasedComponentBuilder} from './ConfigBasedComponent';
-import {ContentId} from '../../content/ContentId';
-import {ComponentFragmentUpdatedEvent} from './ComponentFragmentUpdatedEvent';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
+import { type ComponentTypeWrapperJson } from './ComponentTypeWrapperJson';
+import { type FragmentComponentJson } from './FragmentComponentJson';
+import { ComponentName } from './ComponentName';
+import { FragmentComponentType } from './FragmentComponentType';
+import { ConfigBasedComponent, ConfigBasedComponentBuilder } from './ConfigBasedComponent';
+import { ContentId } from '../../content/ContentId';
+import { ComponentFragmentUpdatedEvent } from './ComponentFragmentUpdatedEvent';
 
-export class FragmentComponent
-    extends ConfigBasedComponent {
-
+export class FragmentComponent extends ConfigBasedComponent {
     public static PROPERTY_FRAGMENT: string = 'fragment';
 
     private fragment: ContentId;
@@ -49,18 +47,16 @@ export class FragmentComponent
     }
 
     toJson(): ComponentTypeWrapperJson {
-
         const json: FragmentComponentJson = {} as FragmentComponentJson;
         json.fragment = this.fragment != null ? this.fragment.toString() : null;
-        json.config = this.config != null ? this.config.toJson() : null;
+        json.config = this.config != null ? [...this.config.toJson()] : null;
 
         return {
-            FragmentComponent: json
+            FragmentComponent: json,
         } as ComponentTypeWrapperJson;
     }
 
     equals(o: Equitable): boolean {
-
         if (!ObjectHelper.iFrameSafeInstanceOf(o, FragmentComponent)) {
             return false;
         }
@@ -79,9 +75,7 @@ export class FragmentComponent
     }
 }
 
-export class FragmentComponentBuilder
-    extends ConfigBasedComponentBuilder {
-
+export class FragmentComponentBuilder extends ConfigBasedComponentBuilder {
     fragment: ContentId;
 
     constructor(source?: FragmentComponent) {

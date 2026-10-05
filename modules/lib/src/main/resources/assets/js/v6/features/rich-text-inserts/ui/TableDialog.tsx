@@ -1,6 +1,6 @@
 import { Button, Dialog, Input, Selector } from '@enonic/ui';
-import type { Value } from '@enonic/lib-admin-ui/data/Value';
-import { LongInput } from '@enonic/lib-admin-ui/form2';
+import type { Value } from '@enonic/input-types/data';
+import { LongInput } from '@enonic/input-types';
 import { useStore } from '@nanostores/preact';
 import { type FormEvent, type ReactElement, useRef } from 'react';
 import {

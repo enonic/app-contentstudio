@@ -1,33 +1,31 @@
-import {Form, FormBuilder} from '@enonic/lib-admin-ui/form/Form';
-import {InputBuilder} from '@enonic/lib-admin-ui/form/Input';
-import {TextLine} from '@enonic/lib-admin-ui/form/inputtype/text/TextLine';
-import {OccurrencesBuilder} from '@enonic/lib-admin-ui/form/Occurrences';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ProjectApplicationsLoader} from '../../../../resource/applications/ProjectApplicationsLoader';
-import {ProjectApplicationsSelectedOptionsView} from './ProjectApplicationsSelectedOptionsView';
-import {Application, ApplicationBuilder} from '@enonic/lib-admin-ui/application/Application';
-import {type ProjectViewItem} from '../../../../view/ProjectViewItem';
-import {type ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { Form, FormBuilder } from '@enonic/lib-admin-ui/form/Form';
+import { InputBuilder } from '@enonic/lib-admin-ui/form/Input';
+import { TextLine } from '@enonic/lib-admin-ui/form/inputtype/text/TextLine';
+import { OccurrencesBuilder } from '@enonic/lib-admin-ui/form/Occurrences';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { ProjectApplicationsLoader } from '../../../../resource/applications/ProjectApplicationsLoader';
+import { ProjectApplicationsSelectedOptionsView } from './ProjectApplicationsSelectedOptionsView';
+import { Application, ApplicationBuilder } from '@enonic/lib-admin-ui/application/Application';
+import { type ProjectViewItem } from '../../../../view/ProjectViewItem';
+import { type ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 import Q from 'q';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {GetApplicationsRequest} from '../../../../../resource/GetApplicationsRequest';
-import {type ProjectApplicationSelectedOptionView} from './ProjectApplicationSelectedOptionView';
-import {type SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {type ProjectApplication} from './ProjectApplication';
-import {type ProjectApplicationsFormParams} from './ProjectApplicationsFormParams';
-import {FilterableListBoxWrapperWithSelectedView} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
-import {ProjectApplicationsListBox} from './ProjectApplicationsListBox';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
-import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
-import {type LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
-import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
-import {type Project} from '../../../../data/project/Project';
-import {type DataChangedEvent} from '@enonic/lib-admin-ui/ui/treegrid/DataChangedEvent';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { GetApplicationsRequest } from '../../../../../resource/GetApplicationsRequest';
+import { type ProjectApplicationSelectedOptionView } from './ProjectApplicationSelectedOptionView';
+import { type SelectedOption } from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import { type ProjectApplication } from './ProjectApplication';
+import { type ProjectApplicationsFormParams } from './ProjectApplicationsFormParams';
+import { FilterableListBoxWrapperWithSelectedView } from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
+import { ProjectApplicationsListBox } from './ProjectApplicationsListBox';
+import { Option } from '@enonic/lib-admin-ui/ui/selector/Option';
+import { FormInputEl } from '@enonic/lib-admin-ui/dom/FormInputEl';
+import { type LoadedDataEvent } from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
+import { type SelectionChange } from '@enonic/lib-admin-ui/util/SelectionChange';
+import { type Project } from '../../../../data/project/Project';
+import { type DataChangedEvent } from '@enonic/lib-admin-ui/ui/treegrid/DataChangedEvent';
 
-export class ProjectApplicationsComboBox
-    extends FilterableListBoxWrapperWithSelectedView<Application> {
-
+export class ProjectApplicationsComboBox extends FilterableListBoxWrapperWithSelectedView<Application> {
     private loader: ProjectApplicationsLoader;
 
     private dataChangedListeners: ((event: DataChangedEvent<Application>) => void)[];
@@ -43,7 +41,7 @@ export class ProjectApplicationsComboBox
             selectedOptionsView: new ProjectApplicationsSelectedOptionsView(params),
             className: 'project-applications-combobox',
             filter: ProjectApplicationsComboBox.filter,
-            maxSelected: 0
+            maxSelected: 0,
         });
 
         if (params.hasParentProjects()) {
@@ -64,7 +62,8 @@ export class ProjectApplicationsComboBox
         this.loader.onLoadedData((event: LoadedDataEvent<Application>) => {
             this.listBox.setItems(event.getData());
 
-            if (this.optionFilterInput.getValue()) { // triggering filtering if search string is present
+            if (this.optionFilterInput.getValue()) {
+                // triggering filtering if search string is present
                 this.optionFilterInput.forceChangedEvent();
             }
 
@@ -77,7 +76,8 @@ export class ProjectApplicationsComboBox
 
         this.onSelectionChanged((selectionChange: SelectionChange<Application>) => {
             selectionChange.selected?.forEach((item: Application) => {
-                setTimeout(() => { // to let layout finish, remove when layout is done in the parent class
+                setTimeout(() => {
+                    // to let layout finish, remove when layout is done in the parent class
                     this.handleItemSelected(item);
                 }, 50);
             });
@@ -118,7 +118,9 @@ export class ProjectApplicationsComboBox
     }
 
     removePortalApp(): void {
-        const selectedPortalApp = this.getSelectedItems().find(app => app.getName() === ApplicationKey.PORTAL.getName());
+        const selectedPortalApp = this.getSelectedItems().find(
+            (app) => app.getName() === ApplicationKey.PORTAL.getName(),
+        );
 
         if (selectedPortalApp) {
             this.deselect(selectedPortalApp);
@@ -126,12 +128,16 @@ export class ProjectApplicationsComboBox
     }
 
     private handleItemSelected(item: Application): void {
-        const view = this.selectedOptionsView.getById(item.getId()).getOptionView() as ProjectApplicationSelectedOptionView;
+        const view = this.selectedOptionsView
+            .getById(item.getId())
+            .getOptionView() as ProjectApplicationSelectedOptionView;
 
-        view?.layoutForm().finally(() => {
-            this.notifyDataChanged();
-            view.setDataChangedHandler(this.notifyDataChanged.bind(this));
-        }).catch(DefaultErrorHandler.handle);
+        view?.layoutForm()
+            .finally(() => {
+                this.notifyDataChanged();
+                view.setDataChangedHandler(this.notifyDataChanged.bind(this));
+            })
+            .catch(DefaultErrorHandler.handle);
     }
 
     private handleItemDeselected(): void {
@@ -158,20 +164,22 @@ export class ProjectApplicationsComboBox
     }
 
     private deselectNonSelectedApps(configs: ApplicationConfig[]): void {
-        this.getSelectedOptions().map(o => o.getOption().getDisplayValue()).forEach((app: Application) => {
-            const appKey: ApplicationKey = app.getApplicationKey();
+        this.getSelectedOptions()
+            .map((o) => o.getOption().getDisplayValue())
+            .forEach((app: Application) => {
+                const appKey: ApplicationKey = app.getApplicationKey();
 
-            if (!configs.some((config: ApplicationConfig) => config.getApplicationKey().equals(appKey))) {
-                this.deselect(app, true);
-            }
-        });
+                if (!configs.some((config: ApplicationConfig) => config.getApplicationKey().equals(appKey))) {
+                    this.deselect(app, true);
+                }
+            });
     }
 
     private layoutSelectedApps(configs: ApplicationConfig[]): Q.Promise<void> {
         return this.fetchSelectedApps(configs).then((selectedApps: Application[]) => {
             const layoutPromises: Q.Promise<void>[] = [];
 
-            if (configs.some(c => c.getApplicationKey().equals(ApplicationKey.PORTAL))) {
+            if (configs.some((c) => c.getApplicationKey().equals(ApplicationKey.PORTAL))) {
                 selectedApps.splice(0, 0, this.createPortalApp());
             }
 
@@ -199,21 +207,27 @@ export class ProjectApplicationsComboBox
     private createPortalAppForm(): Form {
         const formBuilder = new FormBuilder();
         formBuilder.addFormItem(
-            new InputBuilder().setName('baseUrl').setInputType(TextLine.getName()).setLabel(i18n('field.baseUrl')).setOccurrences(
-                new OccurrencesBuilder().setMinimum(0).setMaximum(1).build()).build())
-        return new Form(formBuilder);
+            new InputBuilder()
+                .setName('baseUrl')
+                .setInputType(TextLine.getName())
+                .setLabel(i18n('field.baseUrl'))
+                .setOccurrences(new OccurrencesBuilder().setMinimum(0).setMaximum(1).build())
+                .build(),
+        );
+        return formBuilder.build();
     }
 
     private getPortalConfig(): ApplicationConfig {
         const portalProjectApp = this.getSelectedApplications().find(
-            app => app.getApplication().getName() === ApplicationKey.PORTAL.getName());
+            (app) => app.getApplication().getName() === ApplicationKey.PORTAL.getName(),
+        );
         return portalProjectApp?.getConfig();
     }
 
     private whenPortalFormLayoutFinished(callback: () => void): void {
-        const view = this.getSelectedOptions().find(
-            option => option.getOption().getId() ===
-                      ApplicationKey.PORTAL.getName())?.getOptionView() as ProjectApplicationSelectedOptionView;
+        const view = this.getSelectedOptions()
+            .find((option) => option.getOption().getId() === ApplicationKey.PORTAL.getName())
+            ?.getOptionView() as ProjectApplicationSelectedOptionView;
         view?.whenFormLayoutFinished(callback);
     }
 
@@ -225,8 +239,11 @@ export class ProjectApplicationsComboBox
     }
 
     private getSelectedOptionViewByKey(key: ApplicationKey): ProjectApplicationSelectedOptionView {
-        return this.getSelectedOptions().find(
-            (option: SelectedOption<Application>) => option.getOption().getDisplayValue().getApplicationKey().equals(key))?.getOptionView() as ProjectApplicationSelectedOptionView;
+        return this.getSelectedOptions()
+            .find((option: SelectedOption<Application>) =>
+                option.getOption().getDisplayValue().getApplicationKey().equals(key),
+            )
+            ?.getOptionView() as ProjectApplicationSelectedOptionView;
     }
 
     private getOrGenerateAppByKey(apps: Application[], key: ApplicationKey): Application {
@@ -234,7 +251,9 @@ export class ProjectApplicationsComboBox
     }
 
     private fetchSelectedApps(configs: ApplicationConfig[]): Q.Promise<Application[]> {
-        return new GetApplicationsRequest(configs.map((config: ApplicationConfig) => config.getApplicationKey())).sendAndParse();
+        return new GetApplicationsRequest(
+            configs.map((config: ApplicationConfig) => config.getApplicationKey()),
+        ).sendAndParse();
     }
 
     private generateNotAvailableApp(key: ApplicationKey): Application {
@@ -247,9 +266,11 @@ export class ProjectApplicationsComboBox
     }
 
     getSelectedApplications(): ProjectApplication[] {
-        return this.getSelectedOptions().slice()
+        return this.getSelectedOptions()
+            .slice()
             .map((o: SelectedOption<Application>) => o.getOptionView() as ProjectApplicationSelectedOptionView)
-            .map((selected: ProjectApplicationSelectedOptionView) => selected.getCurrentConfig()).sort(this.sortProjectApplications);
+            .map((selected: ProjectApplicationSelectedOptionView) => selected.getCurrentConfig())
+            .sort(this.sortProjectApplications);
     }
 
     private sortProjectApplications(app1: ProjectApplication, app2: ProjectApplication): number {
@@ -272,8 +293,11 @@ export class ProjectApplicationsComboBox
         if (this.inheritedParentSiteConfigs.length === 0) {
             return this.getSelectedApplicationConfigs();
         }
-        return this.getSelectedApplicationConfigs().filter((config: ApplicationConfig) =>
-            this.inheritedParentSiteConfigs.findIndex((parentConfig: ApplicationConfig) => parentConfig.getApplicationKey().equals(config.getApplicationKey())) === - 1
+        return this.getSelectedApplicationConfigs().filter(
+            (config: ApplicationConfig) =>
+                this.inheritedParentSiteConfigs.findIndex((parentConfig: ApplicationConfig) =>
+                    parentConfig.getApplicationKey().equals(config.getApplicationKey()),
+                ) === -1,
         );
     }
 
@@ -290,9 +314,11 @@ export class ProjectApplicationsComboBox
     private static filter(item: Application, searchString: string): boolean {
         const str: string = searchString.toLowerCase().trim();
 
-        return item.getDisplayName()?.toLowerCase().indexOf(str) > -1 ||
-               item.getDescription()?.toLowerCase().indexOf(str) > -1 ||
-               item.getName()?.toLowerCase().indexOf(str) > -1;
+        return (
+            item.getDisplayName()?.toLowerCase().indexOf(str) > -1 ||
+            item.getDescription()?.toLowerCase().indexOf(str) > -1 ||
+            item.getName()?.toLowerCase().indexOf(str) > -1
+        );
     }
 
     createSelectedOption(item: Application): Option<Application> {
@@ -305,16 +331,21 @@ export class ProjectApplicationsComboBox
 
     private isReadonly(key: ApplicationKey): boolean {
         const hasParentConfigs: boolean = this.parentSiteConfigs !== undefined && this.parentSiteConfigs?.length > 0;
-        const parentAppKeys: ApplicationKey[] = hasParentConfigs ? this.parentSiteConfigs.map(
-            (config: ApplicationConfig) => config.getApplicationKey()) : [];
+        const parentAppKeys: ApplicationKey[] = hasParentConfigs
+            ? this.parentSiteConfigs.map((config: ApplicationConfig) => config.getApplicationKey())
+            : [];
         return hasParentConfigs ? !!parentAppKeys.find((appKey: ApplicationKey) => appKey.equals(key)) : false;
     }
 
     private getParentConfigsNotSelected(): ApplicationConfig[] {
         const selectedConfigs = this.getSelectedApplicationConfigs();
 
-        return this.parentSiteConfigs.filter((config: ApplicationConfig) =>
-            selectedConfigs.findIndex((selected: ApplicationConfig) => selected.getApplicationKey().equals(config.getApplicationKey())) === -1);
+        return this.parentSiteConfigs.filter(
+            (config: ApplicationConfig) =>
+                selectedConfigs.findIndex((selected: ApplicationConfig) =>
+                    selected.getApplicationKey().equals(config.getApplicationKey()),
+                ) === -1,
+        );
     }
 
     private getMergedConfigs(): ApplicationConfig[] {
@@ -322,14 +353,14 @@ export class ProjectApplicationsComboBox
 
         return [
             ...selectedConfigs,
-            ...this.parentSiteConfigs.filter((pc) => selectedConfigs.findIndex(sc => pc.getApplicationKey().equals(sc.getApplicationKey())) === -1),
+            ...this.parentSiteConfigs.filter(
+                (pc) => selectedConfigs.findIndex((sc) => pc.getApplicationKey().equals(sc.getApplicationKey())) === -1,
+            ),
         ];
     }
-
 }
 
 export class ProjectApplicationsComboBoxWrapper extends FormInputEl {
-
     private readonly selector: ProjectApplicationsComboBox;
 
     constructor(selector: ProjectApplicationsComboBox) {

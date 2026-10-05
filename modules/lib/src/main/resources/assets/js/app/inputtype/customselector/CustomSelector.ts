@@ -101,8 +101,7 @@ export class CustomSelector extends BaseInputTypeManagingAdd {
         }
         const serviceParams = cfg['param'] || [];
 
-        const params = serviceParams.reduce((prev, curr) => {
-            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+        const params = serviceParams.reduce<Record<string, unknown>>((prev, curr) => {
             prev[curr['@value'] as string] = curr['value'];
             return prev;
         }, {});

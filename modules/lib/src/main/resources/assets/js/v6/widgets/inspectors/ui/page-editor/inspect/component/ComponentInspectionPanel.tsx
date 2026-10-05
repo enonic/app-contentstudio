@@ -1,4 +1,4 @@
-import { FieldRegistryProvider } from '@enonic/lib-admin-ui/form2';
+import { FieldRegistryProvider } from '@enonic/input-types';
 import { useStore } from '@nanostores/preact';
 import { type ReactElement, useMemo } from 'react';
 import { DescriptorBasedComponent } from '../../../../../../../app/page/region/DescriptorBasedComponent';

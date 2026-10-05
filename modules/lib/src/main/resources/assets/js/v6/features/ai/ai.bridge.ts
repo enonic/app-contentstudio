@@ -1,6 +1,6 @@
 import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
-import { PropertyPath } from '@enonic/lib-admin-ui/data/PropertyPath';
-import { Value } from '@enonic/lib-admin-ui/data/Value';
+import { PropertyPath } from '@enonic/input-types/data';
+import { Value } from '@enonic/input-types/data';
 import { CompareStatusChecker } from '../../../app/content/CompareStatus';
 import { ComponentPath } from '../../../app/page/region/ComponentPath';
 import { DescriptorBasedComponent } from '../../../app/page/region/DescriptorBasedComponent';

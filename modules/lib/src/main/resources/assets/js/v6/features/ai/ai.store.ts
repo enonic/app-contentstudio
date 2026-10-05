@@ -1,4 +1,4 @@
-import type { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import type { PropertyTree } from '@enonic/input-types/data';
 import { atom, computed, map } from 'nanostores';
 import type { CompareStatus } from '../../../app/content/CompareStatus';
 import type { Content } from '../../../app/content/Content';

@@ -1,6 +1,6 @@
 import { type ReactElement } from 'react';
 import { cn, GridList, IconButton, Link } from '@enonic/ui';
-import { FieldError } from '@enonic/lib-admin-ui/form2';
+import { FieldError } from '@enonic/input-types';
 import { X } from 'lucide-react';
 import { getCmsApiUrl } from '../../../../../shared/lib/url/cms';
 

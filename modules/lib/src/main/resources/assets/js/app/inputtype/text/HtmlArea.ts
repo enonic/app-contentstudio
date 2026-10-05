@@ -362,7 +362,8 @@ export class HtmlArea extends BaseInputTypeNotManagingAdd {
     }
 
     private getTools(enabled: boolean): string[] {
-        const toolsObj: Record<string, unknown>[] = this.getContext().inputConfig[enabled ? 'include' : 'exclude'];
+        const toolsObj: readonly Record<string, unknown>[] =
+            this.getContext().inputConfig[enabled ? 'include' : 'exclude'];
         const result: string[] = [];
 
         if (toolsObj && toolsObj instanceof Array) {
