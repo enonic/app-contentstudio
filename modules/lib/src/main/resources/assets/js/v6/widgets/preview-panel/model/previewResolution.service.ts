@@ -1,6 +1,4 @@
-import { listenKeys } from 'nanostores';
 import { probePreview } from '../api/preview.api';
-import { $previewResolution, settlePreview } from './previewResolution.store';
 import {
     type PreviewData,
     type PreviewRequest,
@@ -12,52 +10,42 @@ const PREVIEW_DATA_HEADER = 'enonic-widget-data';
 const STATUS_NOT_FOUND = 404;
 const STATUS_CANNOT_RENDER = 418;
 
-let unsubscribers: (() => void)[] = [];
-let controller: AbortController | undefined;
-
-export const start = (): void => {
-    if (unsubscribers.length > 0) return;
-
-    unsubscribers = [
-        listenKeys($previewResolution, ['request'], ({ request }) => {
-            controller?.abort();
-            controller = undefined;
-            if (request) void run(request);
-        }),
-    ];
-
-    const { request, pending } = $previewResolution.get();
-    if (request && pending) void run(request);
+export type PreviewResolver = {
+    // Supersedes the request in flight, which then never settles.
+    resolve: (request: PreviewRequest) => void;
+    abort: () => void;
 };
 
-export const stop = (): void => {
-    controller?.abort();
-    controller = undefined;
-    unsubscribers.forEach((unsubscribe) => unsubscribe());
-    unsubscribers = [];
-};
+export function createPreviewResolver(settle: (result: PreviewResult) => void): PreviewResolver {
+    let controller: AbortController | undefined;
 
-async function run(request: PreviewRequest): Promise<void> {
-    const current = new AbortController();
-    controller = current;
+    const abort = (): void => {
+        controller?.abort();
+        controller = undefined;
+    };
 
-    let result: PreviewResult | undefined;
-    try {
-        result = await resolvePreview(request, current.signal);
-    } catch {
-        result = {
-            requestId: request.id,
-            showFrame: request.showFrame,
-            data: {},
-            hasControllers: false,
-            hasPage: false,
-            kind: 'error',
-        };
-    }
+    const resolve = (request: PreviewRequest): void => {
+        abort();
+        const current = new AbortController();
+        controller = current;
 
-    if (result && !current.signal.aborted) {
-        settlePreview(result);
-    }
+        void resolvePreview(request, current.signal)
+            .catch((): PreviewResult => ({
+                requestId: request.id,
+                showFrame: request.showFrame,
+                data: {},
+                hasControllers: false,
+                hasPage: false,
+                kind: 'error',
+            }))
+            .then((result) => {
+                if (result && !current.signal.aborted) {
+                    settle(result);
+                }
+            });
+    };
+
+    return { resolve, abort };
 }
 
 // Answers `undefined` once the request is aborted; a superseded request settles nothing.

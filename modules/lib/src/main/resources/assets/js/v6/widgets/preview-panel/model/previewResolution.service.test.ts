@@ -1,7 +1,6 @@
 import { type Extension } from '@enonic/lib-admin-ui/extension/Extension';
 import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
 import { restoreFetch, stubFetch } from '../../../shared/lib/test/fetch.test.utils';
-import { start, stop } from './previewResolution.service';
 import {
     $isLivePreviewRenderable,
     $isPreviewFrameReady,
@@ -25,11 +24,9 @@ let mockFetch: Mock;
 
 beforeEach(() => {
     mockFetch = stubFetch();
-    start();
 });
 
 afterEach(() => {
-    stop();
     clearPreview();
     restoreFetch();
     vi.restoreAllMocks();
@@ -152,18 +149,6 @@ describe('previewResolution.service', () => {
             requestPreview({ auto: false, showFrame: true, candidates: [{ extension: site, url: '/site' }] });
 
             expect(await whenPreviewSettled()).toMatchObject({ kind: 'ready', frameUrl: '/page' });
-        });
-    });
-
-    describe('lifecycle', () => {
-        it('should resolve a request that was pending before the service started', async () => {
-            stop();
-            mockFetch.mockResolvedValue(respond(200));
-            requestPreview(autoRequest);
-
-            start();
-
-            expect(await whenPreviewSettled()).toMatchObject({ kind: 'ready', extension: media });
         });
     });
 
