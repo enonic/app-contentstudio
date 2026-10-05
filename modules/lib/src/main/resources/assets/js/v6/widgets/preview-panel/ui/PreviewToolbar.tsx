@@ -32,23 +32,25 @@ const PreviewToolbar = ({
             <Toolbar.Container
                 aria-label="Preview toolbar"
                 className={cn(
-                    '@container bg-surface-neutral h-15 py-3.75 flex items-center justify-between border-b border-bdr-soft',
-                    editorLayout ? 'px-2' : 'px-5',
+                    '@container bg-surface-neutral h-15 py-3.75 flex items-center border-b border-bdr-soft',
+                    editorLayout ? 'gap-2 px-2 @md:gap-5' : 'justify-between px-5',
                     hideInMobileMode && mode === 'mobile' && 'hidden',
                 )}
             >
-                <PreviewToolbarVersionHistoryItem contentSummary={item.getContentSummary()} showStatus={editorLayout} />
-
                 {editorLayout ? (
                     <>
+                        <div className="min-w-0 flex-1">
+                            <PreviewToolbarVersionHistoryItem contentSummary={item.getContentSummary()} showStatus />
+                        </div>
                         <PreviewToolbarEmulatorSelector />
-                        <div className="flex items-center gap-2 flex-nowrap shrink-0">
-                            <PreviewToolbarWidgetSelector />
+                        <PreviewToolbarWidgetSelector />
+                        <div className="flex justify-end @sm:min-w-0 @sm:flex-1">
                             <PreviewToolbarRefreshItem onRefresh={onRefresh} />
                         </div>
                     </>
                 ) : (
                     <>
+                        <PreviewToolbarVersionHistoryItem contentSummary={item.getContentSummary()} />
                         <div className="flex gap-2 @md:gap-5 flex-nowrap shrink-0">
                             <PreviewToolbarEmulatorSelector />
                             <PreviewToolbarWidgetSelector />

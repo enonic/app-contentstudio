@@ -4,7 +4,7 @@ import { type ReactElement, useCallback, useLayoutEffect, useMemo, useRef, useSt
 import { getIsElementVisible } from '../../shared/lib/dom/getIsElementVisible';
 import { createThrottle } from '../../shared/lib/timing/createThrottle';
 import { ActionGroup } from './ActionGroup';
-import { calculateVisibleActionCount } from './OverflowActionRow.utils';
+import { calculateVisibleActionCount, getOverflowActions } from './OverflowActionRow.utils';
 import { SplitActionButton } from './SplitActionButton';
 import { ToolbarActionButton } from './ToolbarActionButton';
 import { useObservedActions } from './useObservedActions';
@@ -17,11 +17,13 @@ export type OverflowActionRowItem = {
 type Props = {
     actions: OverflowActionRowItem[];
     className?: string;
+    /** Action shown in the split button while another action remains directly visible. */
+    primaryOverflowActionId?: string;
 };
 
 const TOOLBAR_ACTION_GAP_PX = 8;
 
-export const OverflowActionRow = ({ actions, className }: Props): ReactElement | null => {
+export const OverflowActionRow = ({ actions, className, primaryOverflowActionId }: Props): ReactElement | null => {
     const containerRef = useRef<HTMLDivElement | null>(null);
     const actionButtonMeasureRefs = useRef<(HTMLDivElement | null)[]>([]);
     const splitButtonMeasureRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -84,7 +86,7 @@ export const OverflowActionRow = ({ actions, className }: Props): ReactElement |
         return () => {
             cancelAnimationFrame(animationFrameId);
         };
-    }, [calculateVisibleActions, renderVersion, visibleActionIds]);
+    }, [calculateVisibleActions, primaryOverflowActionId, renderVersion, visibleActionIds]);
 
     useLayoutEffect(() => {
         const container = containerRef.current;
@@ -112,14 +114,14 @@ export const OverflowActionRow = ({ actions, className }: Props): ReactElement |
             window.removeEventListener('resize', throttledCalculateVisibleActions);
             throttledCalculateVisibleActions.cancel();
         };
-    }, [calculateVisibleActions, visibleActionIds]);
+    }, [calculateVisibleActions, primaryOverflowActionId, visibleActionIds]);
 
     if (visibleActions.length === 0) {
         return null;
     }
 
     const visibleRowActions = visibleActions.slice(0, visibleActionsCount);
-    const overflowActions = visibleActions.slice(visibleActionsCount);
+    const overflowActions = getOverflowActions(visibleActions, visibleActionsCount, primaryOverflowActionId);
 
     return (
         <>
@@ -157,21 +159,29 @@ export const OverflowActionRow = ({ actions, className }: Props): ReactElement |
                     ))}
                 </div>
                 <div className="flex items-center gap-2">
-                    {visibleActions.map(({ id }, index) => (
-                        <div
-                            key={`measure-split-${id}`}
-                            ref={(element) => {
-                                splitButtonMeasureRefs.current[index] = element;
-                            }}
-                        >
-                            <SplitActionButton
-                                actions={[visibleActions.slice(index).map(({ action }) => action)]}
-                                disabled={true}
-                                primaryActionStrategy="firstVisible"
-                                disableMenuWhenAllMenuActionsDisabled={false}
-                            />
-                        </div>
-                    ))}
+                    {visibleActions.map(({ id }, index) => {
+                        const measuredOverflowActions = getOverflowActions(
+                            visibleActions,
+                            index,
+                            primaryOverflowActionId,
+                        );
+
+                        return (
+                            <div
+                                key={`measure-split-${id}`}
+                                ref={(element) => {
+                                    splitButtonMeasureRefs.current[index] = element;
+                                }}
+                            >
+                                <SplitActionButton
+                                    actions={[measuredOverflowActions.map(({ action }) => action)]}
+                                    disabled={true}
+                                    primaryActionStrategy="firstVisible"
+                                    disableMenuWhenAllMenuActionsDisabled={false}
+                                />
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
         </>

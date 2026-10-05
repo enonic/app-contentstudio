@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { calculateVisibleActionCount } from './OverflowActionRow.utils';
+import { calculateVisibleActionCount, getOverflowActions } from './OverflowActionRow.utils';
+
+describe('getOverflowActions', () => {
+    it('uses Preview during partial overflow and Save when fully collapsed', () => {
+        const actions = ['save', 'reset', 'preview'].map((id) => ({ id }));
+
+        expect(getOverflowActions(actions, 1, 'preview').map(({ id }) => id)).toEqual(['preview', 'reset']);
+        expect(getOverflowActions(actions, 0, 'preview').map(({ id }) => id)).toEqual(['save', 'reset', 'preview']);
+    });
+});
 
 describe('calculateVisibleActionCount', () => {
     it('keeps all actions visible when the full row fits', () => {

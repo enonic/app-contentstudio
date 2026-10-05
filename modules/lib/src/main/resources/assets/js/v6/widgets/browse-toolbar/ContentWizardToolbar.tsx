@@ -188,7 +188,7 @@ export const ContentWizardToolbar = ({
             <Toolbar.Container
                 aria-label={toolbarLabel}
                 className={cn(
-                    'content-wizard-toolbar w-full h-15 pl-3.5 pr-2 sm:pl-2 md:pr-5 py-1.75 flex items-center border-b border-bdr-soft bg-surface-neutral',
+                    'content-wizard-toolbar w-full h-15 pl-3.5 pr-2 sm:pl-2 md:pr-5 py-1.75 flex items-center border-b border-bdr-soft bg-surface-neutral justify-between',
                     className,
                 )}
             >
@@ -208,7 +208,7 @@ export const ContentWizardToolbar = ({
                                 isLayer={isLayerProject}
                                 className="size-6 shrink-0"
                             />
-                            <span className="hidden lg:flex">{projectViewLabel}</span>
+                            <span className="hidden max-w-40 truncate lg:block">{projectViewLabel}</span>
                         </Button>
                     </Toolbar.Item>
                     <div ref={mobileActionsSplitRef} className="sm:hidden shrink-0 min-w-fit">
@@ -218,9 +218,13 @@ export const ContentWizardToolbar = ({
                             menuOnlyLabel={actionsLabel}
                         />
                     </div>
-                    <OverflowActionRow actions={toolbarActions} className="hidden sm:flex min-w-0 flex-1" />
+                    <OverflowActionRow
+                        actions={toolbarActions}
+                        className="hidden sm:flex min-w-0 flex-1"
+                        primaryOverflowActionId="preview"
+                    />
                 </div>
-                <div className="flex min-w-0 flex-1 items-center justify-center px-0 sm:px-2">
+                <div className="flex min-w-0 items-center justify-center px-0 sm:px-2">
                     {isContentInherited && (
                         <Toolbar.Item className="inline-flex shrink-0">
                             <LayerIndicator
