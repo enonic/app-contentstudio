@@ -6,6 +6,20 @@ type CalculateVisibleActionCountParams = {
     epsilonPx?: number;
 };
 
+export const getOverflowActions = <T extends { id: string }>(
+    actions: readonly T[],
+    visibleActionCount: number,
+    primaryOverflowActionId?: string,
+): T[] => {
+    const overflowActions = actions.slice(visibleActionCount);
+    const primaryAction =
+        visibleActionCount > 0 ? overflowActions.find(({ id }) => id === primaryOverflowActionId) : undefined;
+
+    return primaryAction
+        ? [primaryAction, ...overflowActions.filter((action) => action !== primaryAction)]
+        : overflowActions;
+};
+
 export const calculateVisibleActionCount = ({
     actionButtonWidths,
     overflowButtonWidths,

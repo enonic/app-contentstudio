@@ -1188,9 +1188,17 @@ class ContentWizardPanel extends Page {
     }
 
     async getProjectDisplayName() {
-        let selector = XPATH.toolbar + `//button[@data-component='Toolbar.Item']//span[contains(@class,'lg:flex')]`;
-        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
-        return await this.getText(selector);
+        try {
+            let selector = XPATH.toolbar + `//button[@data-component='Toolbar.Item']/span`;
+            await this.waitForElementDisplayed(selector, appConst.shortTimeout);
+            return await this.getText(selector);
+        } catch (err) {
+            await this.handleError(
+                `Tried to get project display name from the toolbar`,
+                'err_get_project_display_name',
+                err,
+            );
+        }
     }
 
     isDisplayNameInputClickable() {
