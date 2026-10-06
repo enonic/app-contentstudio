@@ -140,10 +140,16 @@ class FilterByContentResourceTest
             .addFormItem( Input.create().name( "columns" ).label( "columns" ).inputType( InputTypeName.DOUBLE ).build() )
             .build();
 
-        final PartDescriptor layoutDescriptor =
+        final PartDescriptor partWithoutIcon =
             PartDescriptor.create().title( "Fancy part" ).config( form ).key( DescriptorKey.from( "module:fancy-part" ) ).build();
+        final PartDescriptor partWithIcon = PartDescriptor.create()
+            .title( "Icon part" )
+            .config( form )
+            .icon( Icon.from( new byte[]{123}, "image/svg+xml", Instant.now() ) )
+            .key( DescriptorKey.from( "module:icon-part" ) )
+            .build();
 
-        when( filterByContentResolver.parts( ContentId.from( "test" ) ) ).thenReturn( Stream.of( layoutDescriptor ) );
+        when( filterByContentResolver.parts( ContentId.from( "test" ) ) ).thenReturn( Stream.of( partWithoutIcon, partWithIcon ) );
         String jsonString =
             request().path( "cms/default/content/schema/filter/parts" ).queryParam( "contentId", "test" ).get().getAsString();
 

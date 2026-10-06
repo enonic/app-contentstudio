@@ -3,6 +3,7 @@ import { cn } from '@enonic/ui';
 import { Box, ChevronRight, Columns2, Globe, type LucideIcon, OctagonAlert, PenLine, Puzzle } from 'lucide-react';
 import { type MouseEvent, type ReactElement } from 'react';
 import type { FlatNode } from '../../../../../shared/lib/tree-store';
+import { DescriptorIcon } from '../../../../../shared/ui/icons/DescriptorIcon';
 import type { PageComponentNodeData, PageComponentNodeType } from './types';
 
 //
@@ -12,6 +13,7 @@ import type { PageComponentNodeData, PageComponentNodeType } from './types';
 export type PageComponentsItemProps = {
     context: SortableListItemContext<FlatNode<PageComponentNodeData>>;
     pageMetadata?: PageComponentPageMetadata;
+    iconUrl?: string;
     selected?: boolean;
     invalid?: boolean;
     onToggle: (id: string) => void;
@@ -52,6 +54,7 @@ export const calcSpacerWidth = (level: number): number => LEVEL_INDENT_PX * (lev
 export const PageComponentsItem = ({
     context,
     pageMetadata,
+    iconUrl,
     selected,
     invalid,
     onToggle,
@@ -105,7 +108,9 @@ export const PageComponentsItem = ({
             )}
 
             {Icon != null && (
-                <Icon
+                <DescriptorIcon
+                    iconUrl={data.nodeType === 'part' ? iconUrl : undefined}
+                    fallback={Icon}
                     className={cn(
                         'size-5 shrink-0',
                         selected ? 'text-alt' : isSubdued ? 'text-subtle' : 'text-default',

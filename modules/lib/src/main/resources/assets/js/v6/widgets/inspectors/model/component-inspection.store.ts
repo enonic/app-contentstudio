@@ -5,6 +5,7 @@ import type { Page } from '../../../../app/page/Page';
 import { ComponentPath } from '../../../../app/page/region/ComponentPath';
 import { DescriptorBasedComponent } from '../../../../app/page/region/DescriptorBasedComponent';
 import { FragmentComponent } from '../../../../app/page/region/FragmentComponent';
+import type { PageItem } from '../../../../app/page/region/PageItem';
 import type { SiteModel } from '../../../../app/site/SiteModel';
 import { createDebounce } from '../../../shared/lib/timing/createDebounce';
 import type { PageEditorContentContext } from './page-editor/types';
@@ -50,6 +51,16 @@ export function isComponentReferenceMissing(
     if (isLoading) return false;
 
     const component = page?.getComponentByPath(ComponentPath.fromString(nodeId)) ?? null;
+    return isResolvedComponentReferenceMissing(component, fragments, descriptors, false);
+}
+
+export function isResolvedComponentReferenceMissing(
+    component: PageItem | null,
+    fragments: ContentSummary[],
+    descriptors: Descriptor[],
+    isLoading: boolean,
+): boolean {
+    if (isLoading) return false;
 
     if (component instanceof FragmentComponent) {
         if (!component.hasFragment()) return false;
