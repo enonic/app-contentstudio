@@ -75,13 +75,14 @@ vi.mock('./hooks/useComponentDescriptorSelector', () => ({
     useComponentDescriptorSelector: () => mockSelectorState,
 }));
 
-import { render, screen } from '@testing-library/preact';
+import { fireEvent, render, screen } from '@testing-library/preact';
 import { ComponentDescriptorSelector } from './ComponentDescriptorSelector';
 
-const buildOption = (key: string, label: string): ComponentOption => ({
+const buildOption = (key: string, label: string, iconUrl?: string): ComponentOption => ({
     key,
     label,
     description: `${label} description`,
+    iconUrl,
 });
 
 describe('ComponentDescriptorSelector', () => {
@@ -116,7 +117,26 @@ describe('ComponentDescriptorSelector', () => {
         render(<ComponentDescriptorSelector componentType="part" />);
 
         expect(screen.getByText('Hero Part')).toBeDefined();
+        expect(screen.getByTestId('icon-box')).toBeDefined();
         expect(screen.queryByText('No matching items')).toBeNull();
+    });
+
+    it('should render a custom part icon in the selected value and list, then fall back when it fails', () => {
+        const option = buildOption('app:part-1', 'Hero Part', '/hero.svg');
+        mockSelectorState.filteredOptions = [option];
+        mockSelectorState.selectedOption = option;
+        mockSelectorState.selection = [option.key];
+
+        const { container } = render(<ComponentDescriptorSelector componentType="part" />);
+        const images = container.querySelectorAll('img[src="/hero.svg"]');
+
+        expect(images).toHaveLength(2);
+        expect(screen.queryByTestId('icon-box')).toBeNull();
+
+        fireEvent.error(images[0]);
+
+        expect(container.querySelectorAll('img[src="/hero.svg"]')).toHaveLength(1);
+        expect(screen.getByTestId('icon-box')).toBeDefined();
     });
 
     it('should show the not-found label and no popup when there are no descriptors at all', () => {

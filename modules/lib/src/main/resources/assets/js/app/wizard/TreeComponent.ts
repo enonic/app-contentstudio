@@ -1,7 +1,6 @@
-import {type PageItemType} from '../page/region/PageItemType';
+import { type PageItemType } from '../page/region/PageItemType';
 
 export class TreeComponent {
-
     private readonly type: PageItemType;
 
     private readonly displayName: string;
@@ -37,7 +36,7 @@ export class TreeComponent {
         return this.description;
     }
 
-    getIconUrl(): string {
+    getIconUrl(): string | undefined {
         return this.iconUrl;
     }
 
@@ -67,7 +66,6 @@ export class TreeComponent {
 }
 
 export class TreeComponentBuilder {
-
     type: PageItemType;
 
     displayName: string;
@@ -94,7 +92,7 @@ export class TreeComponentBuilder {
         return this;
     }
 
-    setIconUrl(iconUrl: string): this {
+    setIconUrl(iconUrl?: string): this {
         this.iconUrl = iconUrl;
         return this;
     }

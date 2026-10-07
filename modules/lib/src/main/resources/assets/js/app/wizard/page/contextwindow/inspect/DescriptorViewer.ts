@@ -1,11 +1,9 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
-import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
-import {type Descriptor} from '../../../../page/Descriptor';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { StyleHelper } from '@enonic/lib-admin-ui/StyleHelper';
+import { NamesAndIconViewer } from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
+import { type Descriptor } from '../../../../page/Descriptor';
 
-export class DescriptorViewer
-    extends NamesAndIconViewer<Descriptor> {
-
+export class DescriptorViewer extends NamesAndIconViewer<Descriptor> {
     resolveDisplayName(object: Descriptor): string {
         return object.getDisplayName();
     }
@@ -20,7 +18,7 @@ export class DescriptorViewer
         return (iconCls ? StyleHelper.getCommonIconCls(iconCls) + ' ' : '') + 'icon-large';
     }
 
-    resolveIconUrl(_object: Descriptor): string {
+    resolveIconUrl(_object: Descriptor): string | undefined {
         return _object.getIcon();
     }
 }

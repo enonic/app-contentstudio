@@ -1,8 +1,7 @@
-import {type FormJson} from '@enonic/lib-admin-ui/form/json/FormJson';
-import {type RegionsDescriptorJson} from './RegionsDescriptorJson';
+import { type FormJson } from '@enonic/lib-admin-ui/form/json/FormJson';
+import { type RegionsDescriptorJson } from './RegionsDescriptorJson';
 
 export interface DescriptorJson {
-
     key: string;
 
     name: string;
@@ -15,7 +14,7 @@ export interface DescriptorJson {
 
     config: FormJson;
 
-    icon: string;
+    icon?: string;
 
     regions: RegionsDescriptorJson[];
 
