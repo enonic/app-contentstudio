@@ -118,7 +118,11 @@ export const BrowseToolbar = ({
                                     )}
                                 </div>
                             ) : (
-                                <OverflowActionRow actions={toolbarActions} className="flex min-w-0 flex-1" />
+                                <OverflowActionRow
+                                    actions={toolbarActions}
+                                    className="flex min-w-0 flex-1"
+                                    primaryOverflowActionId="preview"
+                                />
                             )}
                         </div>
                         {isMobileMode ? (
