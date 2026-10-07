@@ -38,7 +38,7 @@ import {
     $isComponentInspectionLoading,
     $layoutDescriptorOptions,
     $partDescriptorOptions,
-    isResolvedComponentReferenceMissing,
+    isReferenceMissing,
 } from '../../../../../widgets/inspectors/model/component-inspection.store';
 import { $inspectedPath, $page, $pageVersion } from '../../../../../widgets/inspectors/model/page-editor/store';
 import { $wizardReadOnly } from '../../../model/wizardContent.store';
@@ -392,12 +392,7 @@ export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProp
         (context: SortableListItemContext<FlatNode<PageComponentNodeData>>): ReactElement | null => {
             const isSelected = context.item.id === inspectedPath;
             const component = page?.getComponentByPath(ComponentPath.fromString(context.item.id)) ?? null;
-            const referenceMissing = isResolvedComponentReferenceMissing(
-                component,
-                fragmentOptions,
-                descriptors,
-                referenceLoading,
-            );
+            const referenceMissing = !referenceLoading && isReferenceMissing(component, fragmentOptions, descriptors);
             const isInvalid = showErrors && (invalidComponentPaths.has(context.item.id) || referenceMissing);
             const iconUrl =
                 context.item.data?.nodeType === 'part' ? resolvePartIconUrl(component, partIconUrls) : undefined;

@@ -82,7 +82,7 @@ const buildOption = (key: string, label: string, iconUrl?: string): ComponentOpt
     key,
     label,
     description: `${label} description`,
-    ...(iconUrl ? { iconUrl } : {}),
+    iconUrl,
 });
 
 describe('ComponentDescriptorSelector', () => {

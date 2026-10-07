@@ -50,23 +50,18 @@ export function useComponentDescriptorSelector(componentType: 'part' | 'layout')
     const descriptors = componentType === 'part' ? partDescriptors : layoutDescriptors;
 
     const options = useMemo((): ComponentOption[] => {
-        const real = descriptors.map((d) => {
-            const iconUrl = componentType === 'part' ? d.getIcon() : undefined;
-
-            return {
-                key: d.getKey().toString(),
-                label: d.getDisplayName(),
-                description: d.getDescription() || noDescriptionLabel,
-                ...(iconUrl ? { iconUrl } : {}),
-            };
-        });
+        const real = descriptors.map((d) => ({
+            key: d.getKey().toString(),
+            label: d.getDisplayName(),
+            description: d.getDescription() || noDescriptionLabel,
+            iconUrl: componentType === 'part' ? d.getIcon() : undefined,
+        }));
 
         if (!selectedKey || real.some((o) => o.key === selectedKey)) {
             return real;
         }
 
         const cachedMatchesKey = cachedDescriptor?.getKey().toString() === selectedKey;
-        const cachedIconUrl = componentType === 'part' && cachedMatchesKey ? cachedDescriptor?.getIcon() : undefined;
         const fallbackLabel = cachedMatchesKey
             ? cachedDescriptor.getDisplayName()
             : DescriptorKey.fromString(selectedKey).getName().toString();
@@ -75,7 +70,7 @@ export function useComponentDescriptorSelector(componentType: 'part' | 'layout')
             key: selectedKey,
             label: fallbackLabel,
             description: notFoundLabel,
-            ...(cachedIconUrl ? { iconUrl: cachedIconUrl } : {}),
+            iconUrl: componentType === 'part' && cachedMatchesKey ? cachedDescriptor.getIcon() : undefined,
             isInvalid: true,
         };
         return [invalidOption, ...real];

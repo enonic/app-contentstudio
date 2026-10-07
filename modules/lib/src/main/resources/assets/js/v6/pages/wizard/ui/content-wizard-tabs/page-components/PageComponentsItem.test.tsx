@@ -15,13 +15,16 @@ vi.mock('lucide-react', () => ({
     Puzzle: (props: Record<string, unknown>) => <svg data-testid="icon-puzzle" {...props} />,
 }));
 
-const context = {
+const context: SortableListItemContext<FlatNode<PageComponentNodeData>> = {
     item: {
         id: '/main/0',
         parentId: '/main',
         level: 1,
         hasChildren: false,
         isExpanded: false,
+        isLoading: false,
+        isLoadingData: false,
+        nodeType: 'node',
         data: {
             dragId: 'drag-part',
             displayName: 'Heading',
@@ -31,8 +34,12 @@ const context = {
             hasDescriptor: true,
         },
     },
+    index: 0,
+    isDragging: false,
+    isDragActive: false,
+    isFocused: false,
     isMovable: true,
-} as SortableListItemContext<FlatNode<PageComponentNodeData>>;
+};
 
 const noop = (): void => undefined;
 
@@ -42,11 +49,12 @@ describe('PageComponentsItem', () => {
             <PageComponentsItem context={context} iconUrl="/heading.svg" onToggle={noop} onSelect={noop} />,
         );
 
-        const image = container.querySelector('img') as HTMLImageElement;
-        expect(image.getAttribute('src')).toBe('/heading.svg');
+        const image = container.querySelector('img');
+        expect(image).toBeInstanceOf(HTMLImageElement);
+        expect(image?.getAttribute('src')).toBe('/heading.svg');
         expect(screen.queryByTestId('icon-box')).toBeNull();
 
-        fireEvent.error(image);
+        if (image) fireEvent.error(image);
 
         expect(container.querySelector('img')).toBeNull();
         expect(screen.getByTestId('icon-box')).toBeDefined();

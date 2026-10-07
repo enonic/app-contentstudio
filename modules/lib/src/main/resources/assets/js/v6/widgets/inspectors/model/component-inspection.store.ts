@@ -51,17 +51,14 @@ export function isComponentReferenceMissing(
     if (isLoading) return false;
 
     const component = page?.getComponentByPath(ComponentPath.fromString(nodeId)) ?? null;
-    return isResolvedComponentReferenceMissing(component, fragments, descriptors, false);
+    return isReferenceMissing(component, fragments, descriptors);
 }
 
-export function isResolvedComponentReferenceMissing(
+export function isReferenceMissing(
     component: PageItem | null,
     fragments: ContentSummary[],
     descriptors: Descriptor[],
-    isLoading: boolean,
 ): boolean {
-    if (isLoading) return false;
-
     if (component instanceof FragmentComponent) {
         if (!component.hasFragment()) return false;
         const id = component.getFragment().toString();

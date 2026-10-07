@@ -109,7 +109,7 @@ export const PageComponentsItem = ({
 
             {Icon != null && (
                 <DescriptorIcon
-                    iconUrl={data.nodeType === 'part' ? iconUrl : undefined}
+                    iconUrl={iconUrl}
                     fallback={Icon}
                     className={cn(
                         'size-5 shrink-0',
