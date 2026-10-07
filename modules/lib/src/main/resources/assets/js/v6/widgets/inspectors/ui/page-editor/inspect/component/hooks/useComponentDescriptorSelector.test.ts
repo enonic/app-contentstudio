@@ -34,11 +34,12 @@ const $layoutOptions = componentInspectionStore.$layoutDescriptorOptions;
 const $cachedDescriptor = componentInspectionStore.$componentConfigDescriptor;
 const $loading = componentInspectionStore.$isComponentInspectionLoading;
 
-function makeDescriptor(key: string, displayName: string, description = ''): Descriptor {
+function makeDescriptor(key: string, displayName: string, description = '', iconUrl?: string): Descriptor {
     return {
         getKey: () => ({ toString: () => key }),
         getDisplayName: () => displayName,
         getDescription: () => description,
+        getIcon: () => iconUrl,
     } as unknown as Descriptor;
 }
 
@@ -115,13 +116,14 @@ describe('useComponentDescriptorSelector', () => {
     describe('persisted key matches a loaded descriptor', () => {
         it('should not synthesize an invalid option', () => {
             $selectedKey.set('tutorial.nxp:heading');
-            $partOptions.set([makeDescriptor('tutorial.nxp:heading', 'Heading', 'Renders an h1')]);
+            $partOptions.set([makeDescriptor('tutorial.nxp:heading', 'Heading', 'Renders an h1', '/heading.svg')]);
 
             const { result } = renderHook(() => useComponentDescriptorSelector('part'));
 
             expect(result.current.filteredOptions).toHaveLength(1);
             expect(result.current.filteredOptions[0].isInvalid).toBeUndefined();
             expect(result.current.filteredOptions[0].label).toBe('Heading');
+            expect(result.current.filteredOptions[0].iconUrl).toBe('/heading.svg');
             expect(result.current.selectedOption?.label).toBe('Heading');
             expect(result.current.isEmpty).toBe(false);
         });

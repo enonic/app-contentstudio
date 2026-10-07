@@ -16,6 +16,7 @@ export type ComponentOption = {
     key: string;
     label: string;
     description: string;
+    iconUrl?: string;
     isInvalid?: boolean;
 };
 
@@ -53,6 +54,7 @@ export function useComponentDescriptorSelector(componentType: 'part' | 'layout')
             key: d.getKey().toString(),
             label: d.getDisplayName(),
             description: d.getDescription() || noDescriptionLabel,
+            iconUrl: componentType === 'part' ? d.getIcon() : undefined,
         }));
 
         if (!selectedKey || real.some((o) => o.key === selectedKey)) {
@@ -68,6 +70,7 @@ export function useComponentDescriptorSelector(componentType: 'part' | 'layout')
             key: selectedKey,
             label: fallbackLabel,
             description: notFoundLabel,
+            iconUrl: componentType === 'part' && cachedMatchesKey ? cachedDescriptor.getIcon() : undefined,
             isInvalid: true,
         };
         return [invalidOption, ...real];

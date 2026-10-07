@@ -20,8 +20,13 @@ public final class PartDescriptorIconUrlResolver
 
     public String resolve( final PartDescriptor partDescriptor )
     {
-        final String baseUrl = DESCRIPTOR_ICON + partDescriptor.getKey().toString();
         final Icon icon = partDescriptor.getIcon();
+        if ( icon == null || icon.getSize() == 0 )
+        {
+            return null;
+        }
+
+        final String baseUrl = DESCRIPTOR_ICON + partDescriptor.getKey().toString();
         return generateIconUrl( baseUrl, icon );
     }
 

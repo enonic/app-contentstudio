@@ -2,6 +2,7 @@ import { cn, Combobox } from '@enonic/ui';
 import { Box, Columns2 } from 'lucide-react';
 import type { ReactElement } from 'react';
 import { useI18n } from '../../../../../../shared/lib/hooks/useI18n';
+import { DescriptorIcon } from '../../../../../../shared/ui/icons/DescriptorIcon';
 import { SelectorPopup } from '../SelectorPopup';
 import { useComponentDescriptorSelector } from './hooks/useComponentDescriptorSelector';
 
@@ -35,7 +36,7 @@ export const ComponentDescriptorSelector = ({
     const notFoundLabel = useI18n('field.descriptors.notFound');
     const noMatchingLabel = useI18n('field.option.noitems');
 
-    const Icon = COMPONENT_TYPE_ICON[componentType];
+    const FallbackIcon = COMPONENT_TYPE_ICON[componentType];
 
     if (isLoading) return null;
 
@@ -64,7 +65,12 @@ export const ComponentDescriptorSelector = ({
                         <Combobox.Search>
                             {selectedOption && (
                                 <Combobox.Value className="gap-2 w-full">
-                                    <Icon className="size-4 shrink-0" strokeWidth={1.75} />
+                                    <DescriptorIcon
+                                        iconUrl={selectedOption.iconUrl}
+                                        fallback={FallbackIcon}
+                                        className="size-4 shrink-0"
+                                        strokeWidth={1.75}
+                                    />
                                     <div className="flex flex-col overflow-hidden">
                                         <span className="leading-5.5 font-semibold truncate">
                                             {selectedOption.label}
@@ -83,18 +89,26 @@ export const ComponentDescriptorSelector = ({
                     </Combobox.Control>
                     <SelectorPopup options={filteredOptions} emptyLabel={noMatchingLabel}>
                         {(option) => (
-                            <div className="flex flex-col overflow-hidden">
-                                <span className="leading-5.5 font-semibold truncate group-data-[tone=inverse]:text-alt">
-                                    {option.label}
-                                </span>
-                                <small
-                                    className={cn(
-                                        'leading-4.5 text-sm truncate group-data-[tone=inverse]:text-alt',
-                                        option.isInvalid ? 'text-error' : 'text-subtle',
-                                    )}
-                                >
-                                    {option.description}
-                                </small>
+                            <div className="flex min-w-0 items-center gap-2">
+                                <DescriptorIcon
+                                    iconUrl={option.iconUrl}
+                                    fallback={FallbackIcon}
+                                    className="size-4 shrink-0"
+                                    strokeWidth={1.75}
+                                />
+                                <div className="flex min-w-0 flex-col overflow-hidden">
+                                    <span className="leading-5.5 font-semibold truncate group-data-[tone=inverse]:text-alt">
+                                        {option.label}
+                                    </span>
+                                    <small
+                                        className={cn(
+                                            'leading-4.5 text-sm truncate group-data-[tone=inverse]:text-alt',
+                                            option.isInvalid ? 'text-error' : 'text-subtle',
+                                        )}
+                                    >
+                                        {option.description}
+                                    </small>
+                                </div>
                             </div>
                         )}
                     </SelectorPopup>
