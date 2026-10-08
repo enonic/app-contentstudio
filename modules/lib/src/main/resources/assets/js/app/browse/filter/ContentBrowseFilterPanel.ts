@@ -5,6 +5,7 @@ import type { BucketAggregation } from '@enonic/lib-admin-ui/aggregation/BucketA
 import { BrowseFilterPanel } from '@enonic/lib-admin-ui/app/browse/filter/BrowseFilterPanel';
 import { TextSearchField } from '@enonic/lib-admin-ui/app/browse/filter/TextSearchField';
 import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
 import type { Element } from '@enonic/lib-admin-ui/dom/Element';
 import { SearchInputValues } from '@enonic/lib-admin-ui/query/SearchInputValues';
@@ -14,6 +15,7 @@ import { cn } from '@enonic/ui';
 import type Q from 'q';
 import {
     $contentFilterState,
+    $isDependencySearchPending,
     deselectAllFilterBuckets,
     getFilterSelection,
     getFilterValue,
@@ -46,9 +48,14 @@ export class ContentBrowseFilterPanel<
     protected aggregations: Map<string, AggregationGroupView>;
     protected displayNamesResolver: AggregationsDisplayNamesResolver;
     protected aggregationsFetcher: ContentAggregationsFetcher;
-    protected searchEventListeners: ((query?: ContentQuery) => void)[] = [];
+    protected searchEventListeners: ((query?: ContentQuery, dependencyRequestId?: number) => void)[] = [];
+    private dependencyRemovedListeners: (() => void)[] = [];
+    private dependencyRequestId = 0;
+    private aggregationsRequestId = 0;
+    private searchRequestId = 0;
 
     private dependenciesSection: BrowseDependenciesElement;
+    private mobileDependenciesSection: BrowseDependenciesElement;
     private elementsContainer: Element;
     private exportElement?: ContentExportElement;
     private targetBranch: Branch = Branch.DRAFT;
@@ -62,6 +69,10 @@ export class ContentBrowseFilterPanel<
         this.displayNamesResolver = new AggregationsDisplayNamesResolver();
         this.dependenciesSection = new BrowseDependenciesElement({
             onCancelClick: this.dependenciesCancelHandler.bind(this),
+        });
+        this.mobileDependenciesSection = new BrowseDependenciesElement({
+            onCancelClick: this.dependenciesCancelHandler.bind(this),
+            mobileOnly: true,
         });
         this.filterComponent = new BrowseFilterElement({
             bucketAggregations: [],
@@ -80,19 +91,39 @@ export class ContentBrowseFilterPanel<
         return new ContentAggregationsFetcher();
     }
 
-    onSearchEvent(listener: (query?: ContentQuery) => void): void {
+    onSearchEvent(listener: (query?: ContentQuery, dependencyRequestId?: number) => void): void {
         this.searchEventListeners.push(listener);
     }
 
-    unSearchEvent(listener: (query?: ContentQuery) => void): void {
-        this.searchEventListeners = this.searchEventListeners.filter((curr: (query?: ContentQuery) => void) => {
+    unSearchEvent(listener: (query?: ContentQuery, dependencyRequestId?: number) => void): void {
+        this.searchEventListeners = this.searchEventListeners.filter((curr) => {
             return curr !== listener;
         });
     }
 
-    private notifySearchEvent(query?: ContentQuery): void {
-        this.searchEventListeners.forEach((listener: (q?: ContentQuery) => void) => {
-            listener(query);
+    onDependencyRemoved(listener: () => void): void {
+        this.dependencyRemovedListeners.push(listener);
+    }
+
+    getDependencyRequestId(): number {
+        return this.dependencyRequestId;
+    }
+
+    clearDependencyRequest(): void {
+        this.dependencyRequestId++;
+        this.dependenciesSection.reset();
+        this.mobileDependenciesSection.reset();
+    }
+
+    cancelDependencyRequest(): void {
+        this.clearDependencyRequest();
+        this.setTargetBranch(Branch.DRAFT);
+        resetContentFilter();
+    }
+
+    private notifySearchEvent(query?: ContentQuery, dependencyRequestId?: number): void {
+        this.searchEventListeners.forEach((listener) => {
+            listener(query, dependencyRequestId);
         });
     }
 
@@ -103,7 +134,14 @@ export class ContentBrowseFilterPanel<
 
         const debouncedSearch = AppHelper.debounce(() => {
             if (this.isRendered()) {
-                this.search();
+                this.search().catch(DefaultErrorHandler.handle);
+            } else if ($isDependencySearchPending.get()) {
+                const dependencyRequestId = this.dependencyRequestId;
+                this.whenRendered(() => {
+                    if (dependencyRequestId === this.dependencyRequestId) {
+                        this.search().catch(DefaultErrorHandler.handle);
+                    }
+                });
             }
         }, 300);
 
@@ -201,14 +239,18 @@ export class ContentBrowseFilterPanel<
     }
 
     private removeDependencyItem() {
-        this.dependenciesSection.reset();
+        this.clearDependencyRequest();
+        this.dependencyRemovedListeners.forEach((listener) => listener());
         this.search();
         Router.get().back();
     }
 
     public setDependencyItem(item: ContentSummary, inbound: boolean, type?: string): void {
+        this.dependencyRequestId++;
         this.dependenciesSection.setDependencyItem(item);
         this.dependenciesSection.setInbound(inbound);
+        this.mobileDependenciesSection.setDependencyItem(item);
+        this.mobileDependenciesSection.setInbound(inbound);
 
         if (type) {
             const aggregationSelection = new AggregationSelection(ContentAggregation.CONTENT_TYPE);
@@ -244,7 +286,16 @@ export class ContentBrowseFilterPanel<
             return this.resetFacets(true);
         }
 
-        return this.getAndUpdateAggregations().then((aggregationsQueryResult: AggregationsQueryResult) => {
+        const dependencyRequestId = this.dependencyRequestId;
+        const request = this.getAndUpdateAggregations();
+        const aggregationsRequestId = this.aggregationsRequestId;
+        return request.then((aggregationsQueryResult: AggregationsQueryResult) => {
+            if (
+                dependencyRequestId !== this.dependencyRequestId ||
+                aggregationsRequestId !== this.aggregationsRequestId
+            ) {
+                return;
+            }
             if (aggregationsQueryResult.getMetadata().getTotalHits() > 0) {
                 return;
             }
@@ -291,18 +342,43 @@ export class ContentBrowseFilterPanel<
     }
 
     protected doSearch(): Q.Promise<void> {
+        const dependencyRequestId = this.dependencyRequestId;
         if (!this.isFilteredOrConstrained()) {
             return this.resetFacets();
         }
 
-        return this.getAndUpdateAggregations().then(() => {
-            this.notifySearchEvent(this.aggregationsFetcher.createContentQuery(this.getSearchInputValues()));
-        });
+        const searchRequestId = ++this.searchRequestId;
+        const request = this.getAndUpdateAggregations();
+        return request
+            .then(() => {
+                if (dependencyRequestId !== this.dependencyRequestId || searchRequestId !== this.searchRequestId) {
+                    return;
+                }
+                this.notifySearchEvent(
+                    this.aggregationsFetcher.createContentQuery(this.getSearchInputValues()),
+                    dependencyRequestId,
+                );
+            })
+            .catch((error) => {
+                if (
+                    dependencyRequestId === this.dependencyRequestId &&
+                    searchRequestId === this.searchRequestId &&
+                    $isDependencySearchPending.get()
+                ) {
+                    this.notifySearchEvent(undefined, dependencyRequestId);
+                }
+                throw error;
+            });
     }
 
     setSelectedItems(itemsIds: string[]) {
-        this.dependenciesSection.reset();
+        this.clearDependencyRequest();
+        this.dependencyRemovedListeners.forEach((listener) => listener());
         super.setSelectedItems(itemsIds);
+    }
+
+    public getMobileDependenciesSection(): BrowseDependenciesElement {
+        return this.mobileDependenciesSection;
     }
 
     protected isFilteredOrConstrained() {
@@ -310,17 +386,26 @@ export class ContentBrowseFilterPanel<
     }
 
     private getAndUpdateAggregations(): Q.Promise<AggregationsQueryResult> {
+        const dependencyRequestId = this.dependencyRequestId;
+        const aggregationsRequestId = ++this.aggregationsRequestId;
+        const isCurrent = () =>
+            dependencyRequestId === this.dependencyRequestId && aggregationsRequestId === this.aggregationsRequestId;
         this.exportElement?.setEnabled(false);
 
         return this.getAggregations().then((aggregationsQueryResult: AggregationsQueryResult) => {
+            if (!isCurrent()) {
+                return aggregationsQueryResult;
+            }
+
             this.updateHitsCounter(aggregationsQueryResult.getMetadata().getTotalHits());
             this.updateExportState(aggregationsQueryResult);
 
-            return this.processAggregations(aggregationsQueryResult.getAggregations() as BucketAggregation[]).then(
-                () => {
-                    return aggregationsQueryResult;
-                },
-            );
+            return this.processAggregations(
+                aggregationsQueryResult.getAggregations() as BucketAggregation[],
+                isCurrent,
+            ).then(() => {
+                return aggregationsQueryResult;
+            });
         });
     }
 
@@ -335,11 +420,13 @@ export class ContentBrowseFilterPanel<
         this.exportElement.setEnabled(aggregationsQueryResult.getMetadata().getTotalHits() > 0);
     }
 
-    private processAggregations(aggregations: BucketAggregation[]): Q.Promise<void> {
+    private processAggregations(aggregations: BucketAggregation[], isCurrent: () => boolean): Q.Promise<void> {
         this.sortAggregations(aggregations);
 
         return this.displayNamesResolver.updateAggregationsDisplayNames(aggregations).then(() => {
-            this.updateAggregations(aggregations);
+            if (isCurrent()) {
+                this.updateAggregations(aggregations);
+            }
         });
     }
 
@@ -358,11 +445,18 @@ export class ContentBrowseFilterPanel<
     }
 
     protected resetFacets(suppressEvent?: boolean, doResetAll?: boolean): Q.Promise<void> {
+        const dependencyRequestId = this.dependencyRequestId;
+        const searchRequestId = ++this.searchRequestId;
         this.setTargetBranch(Branch.DRAFT);
 
-        return this.getAndUpdateAggregations().then(() => {
-            if (!suppressEvent) {
-                this.notifySearchEvent();
+        const request = this.getAndUpdateAggregations();
+        return request.then(() => {
+            if (
+                !suppressEvent &&
+                dependencyRequestId === this.dependencyRequestId &&
+                searchRequestId === this.searchRequestId
+            ) {
+                this.notifySearchEvent(undefined, dependencyRequestId);
             }
         });
     }
@@ -391,6 +485,16 @@ export class ContentBrowseFilterPanel<
     private dependenciesCancelHandler(): void {
         resetContentFilter();
         this.removeDependencyItem();
-        this.getAndUpdateAggregations().then(() => this.notifySearchEvent());
+        const dependencyRequestId = this.dependencyRequestId;
+        const request = this.getAndUpdateAggregations();
+        const aggregationsRequestId = this.aggregationsRequestId;
+        request.then(() => {
+            if (
+                dependencyRequestId === this.dependencyRequestId &&
+                aggregationsRequestId === this.aggregationsRequestId
+            ) {
+                this.notifySearchEvent();
+            }
+        });
     }
 }

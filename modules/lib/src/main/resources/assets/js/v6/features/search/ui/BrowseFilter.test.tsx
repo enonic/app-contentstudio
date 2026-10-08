@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/preact';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/preact';
 import { forwardRef, type ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
@@ -6,6 +6,7 @@ import {
     $isContentFilterOpen,
     resetContentFilter,
     setContentFilterOpen,
+    setDependencySearchPending,
 } from '../model/contentFilter.store';
 
 const mocks = vi.hoisted(() => ({ breakpoints: { sm: false } }));
@@ -71,7 +72,19 @@ describe('BrowseFilter', () => {
         mocks.breakpoints = { sm: false };
         resetContentFilter();
         $contentFilterState.setKey('value', 'query');
+        setDependencySearchPending(false);
         setContentFilterOpen(true);
+    });
+
+    it('keeps focus out of hidden filter and restores it if the dependency query fails', async () => {
+        setDependencySearchPending(true);
+        render(<BrowseFilter hits={3} bucketAggregations={[]} />);
+
+        const input = screen.getByRole('textbox');
+        expect(document.activeElement).not.toBe(input);
+
+        act(() => setDependencySearchPending(false));
+        await waitFor(() => expect(document.activeElement).toBe(input));
     });
 
     it('names the mobile results action by its visible label', () => {
