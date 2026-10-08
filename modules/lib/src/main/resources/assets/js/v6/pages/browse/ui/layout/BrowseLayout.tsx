@@ -176,12 +176,12 @@ export const BrowseLayout = ({
                 />
             )}
             {showMobileContext && (
-                <div data-component="BrowseLayout.MobileContext" className="absolute inset-0 z-[1] bg-surface-neutral">
+                <div data-component="BrowseLayout.MobileContext" className="absolute inset-0 bg-surface-neutral">
                     <LegacyElementHost element={contextPanel} className="size-full" />
                 </div>
             )}
             {showMobileFilter && (
-                <div data-component="BrowseLayout.MobileFilter" className="absolute inset-0 z-[2] bg-surface-neutral">
+                <div data-component="BrowseLayout.MobileFilter" className="absolute inset-0 bg-surface-neutral">
                     <LegacyElementHost element={filterPanel} className="size-full" />
                 </div>
             )}

@@ -79,13 +79,13 @@ export const FloatingContextPanel = ({
 
     return (
         <div
-            data-component='FloatingContextPanel'
-            className='absolute inset-y-0 right-0 z-[2] flex bg-surface-neutral shadow-xl'
+            data-component="FloatingContextPanel"
+            className="absolute inset-y-0 right-0 flex bg-surface-neutral shadow-xl"
             style={{ width }}
         >
             <div
-                role='separator'
-                aria-orientation='vertical'
+                role="separator"
+                aria-orientation="vertical"
                 aria-label={label}
                 aria-valuenow={width}
                 aria-valuemin={CONTEXT_MIN_WIDTH}
@@ -98,7 +98,7 @@ export const FloatingContextPanel = ({
                 onPointerDown={handlePointerDown}
                 onKeyDown={handleKeyDown}
             />
-            <LegacyElementHost element={element} className='min-w-0 grow' />
+            <LegacyElementHost element={element} className="min-w-0 grow" />
         </div>
     );
 };
