@@ -4,7 +4,6 @@ import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeMan
 import {Class} from '@enonic/lib-admin-ui/Class';
 import {Property} from '@enonic/lib-admin-ui/data/Property';
 import {PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
-import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
 import {Value} from '@enonic/lib-admin-ui/data/Value';
 import {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
@@ -127,10 +126,7 @@ export class SiteConfigurator
             const selectedOptionViews = propertyArray.map(property =>
                 this.selectOptionFromProperty(property)?.getOptionView() as SiteConfiguratorSelectedOptionView);
 
-            const updatePromises = selectedOptionViews.filter(view => !!view).map((view, index) => {
-                const configSet = propertyArray.get(index).getPropertySet().getProperty(ApplicationConfig.PROPERTY_CONFIG).getPropertySet();
-                return view.getFormView().update(configSet, unchangedOnly);
-            });
+            const updatePromises = selectedOptionViews.filter(view => !!view).map((view) => view.updateFormView(unchangedOnly));
 
             return Q.all(updatePromises).then(() => {
                 this.ignorePropertyChange(ignorePropertyChange);
@@ -228,12 +224,8 @@ export class SiteConfigurator
                     const selectedOption: SelectedOption<Application> = comboBox.getSelectedOption(selected);
                     const view: SiteConfiguratorSelectedOptionView = selectedOption.getOptionView() as SiteConfiguratorSelectedOptionView;
 
-                    const propertyArray: PropertyArray = this.getPropertyArray();
-                    const configSet: PropertySet = propertyArray.get(selectedOption.getIndex()).getPropertySet().getProperty(
-                        ApplicationConfig.PROPERTY_CONFIG).getPropertySet();
-
                     view.whenRendered(() => {
-                        view.getFormView().update(configSet, false);
+                        view.updateFormView(false);
                     });
 
                     const key = selectedOption.getOption().getDisplayValue().getApplicationKey();
