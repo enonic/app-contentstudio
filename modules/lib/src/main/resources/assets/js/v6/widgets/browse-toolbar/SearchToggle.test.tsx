@@ -6,7 +6,9 @@ import {
     resetContentFilter,
     setContentFilterOpen,
     setContentFilterValue,
+    setDependencySearchPending,
 } from '../../features/search/model/contentFilter.store';
+import { setFilterActive } from '../../entities/content/model/active-tree.store';
 
 vi.mock('@enonic/ui', () => {
     type MockToggleProps = {
@@ -76,7 +78,7 @@ vi.mock('../../shared/lib/hooks/useI18n', () => ({
 
 vi.mock('lucide-react', () => ({
     Search: Object.assign(() => null, { displayName: 'Search' }),
-    SearchCheck: Object.assign(() => null, { displayName: 'SearchCheck' }),
+    ZoomIn: Object.assign(() => null, { displayName: 'ZoomIn' }),
 }));
 
 import { SearchToggle } from './SearchToggle';
@@ -99,6 +101,8 @@ describe('SearchToggle', () => {
     beforeEach(() => {
         setContentFilterOpen(false);
         resetContentFilter();
+        setDependencySearchPending(false);
+        setFilterActive(false);
     });
 
     afterEach(() => {
@@ -148,6 +152,45 @@ describe('SearchToggle', () => {
         expect(document.activeElement).toBe(toggle);
     });
 
+    it('keeps focus on results when a pending dependency closes the filter', async () => {
+        render(<SearchToggle action={createAction()} />);
+        const resultsHeading = document.createElement('h4');
+        resultsHeading.tabIndex = -1;
+        document.body.appendChild(resultsHeading);
+
+        try {
+            setDependencySearchPending(true);
+            setContentFilterOpen(true);
+            await flushStoreUpdates();
+            resultsHeading.focus();
+
+            setContentFilterOpen(false);
+            setDependencySearchPending(false);
+            await flushStoreUpdates();
+
+            expect(document.activeElement).toBe(resultsHeading);
+        } finally {
+            resultsHeading.remove();
+        }
+    });
+
+    it('restores normal focus behavior after a canceled dependency closes immediately', async () => {
+        render(<SearchToggle action={createAction()} />);
+
+        setDependencySearchPending(true);
+        setContentFilterOpen(true);
+        setContentFilterOpen(false);
+        setDependencySearchPending(false);
+        await flushStoreUpdates();
+
+        setContentFilterOpen(true);
+        await flushStoreUpdates();
+        setContentFilterOpen(false);
+        await flushStoreUpdates();
+
+        expect(document.activeElement).toBe(screen.getByRole('button'));
+    });
+
     it('should show the plain search icon while the filter is untouched', async () => {
         render(<SearchToggle action={createAction()} />);
         await flushStoreUpdates();
@@ -155,13 +198,22 @@ describe('SearchToggle', () => {
         expect(screen.getByRole('button').getAttribute('data-icon')).toBe('Search');
     });
 
-    it('should show the search-check icon once the filter is applied', async () => {
+    it('should show the plus icon once the filter is changed', async () => {
         render(<SearchToggle action={createAction()} />);
 
         setContentFilterValue('query');
         await flushStoreUpdates();
 
-        expect(screen.getByRole('button').getAttribute('data-icon')).toBe('SearchCheck');
+        expect(screen.getByRole('button').getAttribute('data-icon')).toBe('ZoomIn');
+    });
+
+    it('should show the plus icon for dependency results without text or facet filters', async () => {
+        render(<SearchToggle action={createAction()} />);
+
+        setFilterActive(true);
+        await flushStoreUpdates();
+
+        expect(screen.getByRole('button').getAttribute('data-icon')).toBe('ZoomIn');
     });
 
     it('should not focus the toggle button when the panel was never open', async () => {

@@ -487,10 +487,7 @@ export async function fetchRootChildrenIdsOnly(): Promise<string[]> {
  * reappears once its parent's children load, so the set is rescanned until no
  * node can be processed; vanished nodes are skipped, a project switch aborts.
  */
-async function restoreExpandedNodes(
-    expandedIds: ReadonlySet<string>,
-    projectName: string | undefined,
-): Promise<void> {
+async function restoreExpandedNodes(expandedIds: ReadonlySet<string>, projectName: string | undefined): Promise<void> {
     if (expandedIds.size === 0) return;
 
     const processed = new Set<string>();
@@ -917,6 +914,17 @@ export async function activateFilter(query: ContentQuery, branch: Branch = filte
             setFilterNodeLoading(null, false);
         }
     }
+}
+
+/** Show the existing filter loading rows while a dependency query is being prepared. */
+export function beginPendingFilter(): void {
+    filterRequestId++;
+    filterQuery = null;
+    resetVisibleFilterContentDataRetryState();
+    resetFilterChildrenIdsRetryState();
+    resetFilterTree();
+    setFilterNodeLoading(null, true);
+    setFilterActiveState(true);
 }
 
 /**

@@ -10,6 +10,7 @@ import {
     $contentFilterState,
     $isContentFilterDirty,
     $isContentFilterOpen,
+    $isDependencySearchPending,
     resetContentFilter,
     setContentFilterOpen,
     setContentFilterSelection,
@@ -42,6 +43,7 @@ export const BrowseFilter = ({
     const { value, selection } = useStore($contentFilterState);
     const isFilterDirty = useStore($isContentFilterDirty);
     const isOpen = useStore($isContentFilterOpen);
+    const isDependencySearchPending = useStore($isDependencySearchPending);
 
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -77,10 +79,10 @@ export const BrowseFilter = ({
     };
 
     useEffect(() => {
-        if (isOpen) {
+        if (isOpen && !isDependencySearchPending) {
             inputRef.current?.focus();
         }
-    }, [isOpen]);
+    }, [isOpen, isDependencySearchPending]);
 
     return (
         <div className="bg-surface-neutral">

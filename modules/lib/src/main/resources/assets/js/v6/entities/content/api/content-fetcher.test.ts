@@ -20,13 +20,21 @@ import {
 import { $activeId, $selection, clearSelection, setActive, setSelection } from '../model/content-selection.store';
 import { emitContentSorted } from '../../../shared/socket/socket.store';
 import { start as startContentService } from '../model/content.service';
-import { addFilterNodes, resetFilterTree, setFilterRootIds, $filterTreeState } from '../model/filter-tree.store';
+import {
+    addFilterNodes,
+    resetFilterTree,
+    setFilterRootIds,
+    $filterTreeState,
+    $filterLoadingState,
+} from '../model/filter-tree.store';
+import { $activeFlatNodes, $isFilterActive } from '../model/active-tree.store';
 import {
     clearChildrenIdsRetryCooldown,
     clearFilterChildrenIdsRetryCooldown,
     clearVisibleContentDataRetryCooldown,
     clearVisibleFilterContentDataRetryCooldown,
     activateFilter,
+    beginPendingFilter,
     deactivateFilter,
     fetchChildrenIdsOnly,
     fetchFilterChildrenIdsOnly,
@@ -581,6 +589,24 @@ describe('content-fetcher store integration', () => {
     });
 
     describe('filter branch behavior', () => {
+        it('shows existing filter skeleton while dependency query is prepared', async () => {
+            const query = createMockQuery();
+            mockOtherQueryApi.mockReturnValue(okAsync({ contents: [], totalHits: 0 }));
+
+            beginPendingFilter();
+
+            expect($isFilterActive.get()).toBe(true);
+            expect($filterLoadingState.get()).toBe('loading');
+            expect($activeFlatNodes.get()).toEqual([expect.objectContaining({ nodeType: 'loading', parentId: null })]);
+            expect(mockOtherQueryApi).not.toHaveBeenCalled();
+
+            await activateFilter(query);
+
+            expect($filterLoadingState.get()).toBe('ok');
+            expect(mockOtherQueryApi).toHaveBeenCalledTimes(1);
+            deactivateFilter();
+        });
+
         it('switches between master and draft branches', async () => {
             const query = createMockQuery();
             mockOtherQueryApi.mockReturnValue(okAsync({ contents: [], totalHits: 0 }));
@@ -796,9 +822,7 @@ describe('content-fetcher store integration', () => {
 
         it('keeps selected items that still resolve after reload', async () => {
             mockChildrenByParent({ __root__: ['a', 'b'] });
-            mockResolveContentSummaries.mockReturnValue(
-                okAsync([createMockContent('a'), createMockContent('b')]),
-            );
+            mockResolveContentSummaries.mockReturnValue(okAsync([createMockContent('a'), createMockContent('b')]));
 
             setTreeRootIds(['a', 'b']);
             setSelection(['a', 'b']);
@@ -838,9 +862,7 @@ describe('content-fetcher store integration', () => {
             setActive('f-1');
             setSelection(['f-1', 'f-2']);
 
-            mockResolveContentSummaries.mockReturnValue(
-                okAsync([createMockContent('f-1'), createMockContent('f-2')]),
-            );
+            mockResolveContentSummaries.mockReturnValue(okAsync([createMockContent('f-1'), createMockContent('f-2')]));
 
             await reloadContentTree();
 
@@ -849,9 +871,7 @@ describe('content-fetcher store integration', () => {
         });
 
         it('clears the active item when it no longer resolves after a filter reload', async () => {
-            mockOtherQueryApi.mockReturnValue(
-                okAsync({ contents: [createMockContent('f-1')], totalHits: 1 }),
-            );
+            mockOtherQueryApi.mockReturnValue(okAsync({ contents: [createMockContent('f-1')], totalHits: 1 }));
 
             await activateFilter(createMockQuery());
             setActive('f-gone');

@@ -1,4 +1,4 @@
-import { ReactElement } from 'react';
+import { ReactElement, useEffect, useRef } from 'react';
 import { ContentSummary } from '../../../../app/content/ContentSummary';
 import { LegacyElement } from '../../../shared/ui/LegacyElement';
 import { ContentId } from '../../../../app/content/ContentId';
@@ -6,29 +6,46 @@ import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import { ContentIcon } from '../../../shared/ui/icons/ContentIcon';
 import { X } from 'lucide-react';
 import { IconButton } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { $contextPanelMode } from '../../../shared/app-state/browsePanels.store';
 
 type BrowseDependenciesProps = {
     item?: ContentSummary;
     inbound?: boolean;
     onCancelClick?: () => void;
+    mobileOnly?: boolean;
 };
 
 const BROWSE_DEPENDENCIES_SECTION_NAME = 'BrowseDependencies';
 
-const BrowseDependencies = ({
+export const BrowseDependencies = ({
     item,
     inbound,
     onCancelClick = () => {},
+    mobileOnly = false,
 }: BrowseDependenciesProps): ReactElement | null => {
+    const mode = useStore($contextPanelMode);
     const inboundLabel = useI18n('panel.filter.dependencies.inbound');
     const outboundLabel = useI18n('panel.filter.dependencies.outbound');
+    const removeLabel = useI18n('action.remove');
     const label = inbound ? inboundLabel : outboundLabel;
+    const headingRef = useRef<HTMLHeadingElement>(null);
 
-    if (!item) return null;
+    useEffect(() => {
+        if (mobileOnly && item && mode === 'mobile') {
+            headingRef.current?.focus();
+        }
+    }, [item, mobileOnly, mode]);
+
+    if (!item || (mobileOnly && mode !== 'mobile')) {
+        return null;
+    }
 
     return (
         <div data-component={BROWSE_DEPENDENCIES_SECTION_NAME} className="bg-surface-primary p-5 mb-2.5 space-y-2">
-            <h4 className="font-semibold">{label}</h4>
+            <h4 ref={headingRef} tabIndex={mobileOnly ? -1 : undefined} className="font-semibold">
+                {label}
+            </h4>
             <div className="flex items-center justify-between gap-2.5 py-1.5 pl-4 pr-2 rounded-md bg-surface-neutral">
                 <div className="flex items-center gap-3 overflow-hidden">
                     <ContentIcon contentType={String(item.getType())} url={item.getIconUrl()} />
@@ -40,6 +57,7 @@ const BrowseDependencies = ({
                 <IconButton
                     variant="text"
                     icon={X}
+                    aria-label={`${removeLabel} ${label}`}
                     onClick={onCancelClick}
                     size="lg"
                     className="shrink-0 size-7 rounded-md"
