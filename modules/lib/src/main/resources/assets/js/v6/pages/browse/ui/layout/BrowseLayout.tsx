@@ -189,7 +189,7 @@ export const BrowseLayout = ({
                     data-component="BrowseLayout.MobileFilter"
                     aria-hidden={isDependencySearchPending || undefined}
                     className={cn(
-                        'absolute inset-0  bg-surface-neutral',
+                        'absolute inset-0 bg-surface-neutral',
                         isDependencySearchPending && 'invisible pointer-events-none',
                     )}
                 >

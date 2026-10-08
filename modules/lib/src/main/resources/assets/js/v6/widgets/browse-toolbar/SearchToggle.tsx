@@ -11,7 +11,7 @@ import {
     $isContentFilterDirty,
     $isDependencySearchPending,
 } from '../../features/search/model/contentFilter.store';
-import { $isFilterActive } from '../../entities/content/model/active-tree.store';
+import { $isFilterActive } from '../../entities/content';
 
 type Props = {
     action: Action;
