@@ -1,4 +1,4 @@
-import { Button, Toolbar } from '@enonic/ui';
+import { Button, Toolbar, cn } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { History } from 'lucide-react';
 import type { ReactElement } from 'react';
@@ -47,7 +47,11 @@ export function PreviewToolbarVersionHistoryItem({
             <Button
                 data-focus-target={PREVIEW_TOOLBAR_VERSION_HISTORY_FOCUS_TARGET}
                 size="sm"
-                className={mobile ? 'min-w-9 shrink-0' : showStatus ? 'min-w-0 shrink' : 'min-w-9 @max-sm:p-0 shrink-0'}
+                className={cn(
+                    !mobile && showStatus ? 'min-w-0 shrink' : 'min-w-9 shrink-0',
+                    mobile && 'px-2 gap-4',
+                    !mobile && !showStatus && '@max-sm:p-0',
+                )}
                 aria-label={ariaLabel}
                 startIcon={History}
                 startIconClassName={mobile ? 'size-5 shrink-0' : 'shrink-0'}
