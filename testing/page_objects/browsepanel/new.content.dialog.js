@@ -13,7 +13,7 @@ const XPATH = {
     allTabDiv: "//div[@role ='tabpanel' and contains(@id,'panel-all')]",
     searchInput: `//input[@aria-label='Search']`,
     header: `//div[contains(@id,'NewContentDialogHeader')]`,
-    typesList: `//ul//div[@data-component='ItemLabel']//span`,
+    typesList: `//ul//div[@data-component='ItemLabel']//span[not(@role='img')]`,
     typesLoader: "//div[@data-component='NewContentDialogContentTypesLoader']",
     mostPopularBlock: "//div[contains(@id,'MostPopularItemsBlock')]",
     emptyViewP: "//p[contains(.,'No content types found')]",

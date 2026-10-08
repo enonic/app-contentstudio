@@ -26,13 +26,19 @@ public final class ContentTypeIconUrlResolver
     {
         final String baseUrl = REST_SCHEMA_ICON_URL + contentType.getName().toString();
         final Icon icon = contentTypeIconResolver.resolveIcon( contentType );
-        return generateIconUrl( baseUrl, icon );
+        return resolveUrl( baseUrl, icon );
     }
 
     public String resolve( final ContentTypeName contentTypeName )
     {
         final String baseUrl = REST_SCHEMA_ICON_URL + contentTypeName.toString();
         final Icon icon = contentTypeIconResolver.resolveIcon( contentTypeName );
-        return generateIconUrl( baseUrl, icon );
+        return resolveUrl( baseUrl, icon );
+    }
+
+    private String resolveUrl( final String baseUrl, final Icon icon )
+    {
+        final String url = generateIconUrl( baseUrl, icon );
+        return ColorableIcon.isColorable( icon ) ? url + "&colorable=true" : url;
     }
 }
