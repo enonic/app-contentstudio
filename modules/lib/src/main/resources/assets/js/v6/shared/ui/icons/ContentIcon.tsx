@@ -84,6 +84,14 @@ const BUILT_IN_CONTENT_TYPE_ICON_MAP = new Map<string, LucideIcon>([
     [String(ContentTypeName.UNSTRUCTURED), Shapes],
 ]);
 
+/** Set by the server on SVG type icons painted only with `currentColor`. */
+const COLORABLE_PARAM = 'colorable';
+
+function isColorableIconUrl(url: string): boolean {
+    const queryIndex = url.indexOf('?');
+    return queryIndex >= 0 && new URLSearchParams(url.substring(queryIndex + 1)).get(COLORABLE_PARAM) === 'true';
+}
+
 const BuiltInIcon = ({ contentType, ...props }: BuiltInIconProps): React.ReactElement => {
     const Icon = BUILT_IN_CONTENT_TYPE_ICON_MAP.get(contentType) ?? FileIcon;
     return <Icon {...props} />;
@@ -107,19 +115,34 @@ export const ContentIcon = ({
         setImageBroken(false);
     }, [src]);
 
-    // A photo is a content's own image or uploaded thumbnail; rendered as-is, never inverted.
+    // A photo is a content's own image or uploaded thumbnail.
     const isPhoto = !typeIcon && (IMAGE_CONTENT_TYPES.has(contentType) || hasThumbnail);
 
-    // Custom types have no built-in icon; their server glyph is monochrome, inverted in dark mode.
-    const isCustomTypeGlyph = !BUILT_IN_CONTENT_TYPE_ICON_MAP.has(contentType);
+    // Custom type glyphs: a colorable SVG is masked with the text colour, like the built-in icons;
+    // anything else was authored for a light background and keeps one on dark surfaces.
+    const isCustomTypeGlyph = !isPhoto && !BUILT_IN_CONTENT_TYPE_ICON_MAP.has(contentType);
 
     if (src && !isImageBroken && (isPhoto || isCustomTypeGlyph)) {
+        if (isCustomTypeGlyph && isColorableIconUrl(src)) {
+            return (
+                <span
+                    role="img"
+                    aria-label={contentType}
+                    className={cn(
+                        'inline-block size-6 p-px bg-current mask-contain mask-center mask-no-repeat',
+                        className,
+                    )}
+                    style={{ maskImage: `url("${src}")` }}
+                />
+            );
+        }
+
         return (
             <Image
                 className={cn(
                     'size-6 p-px object-contain',
-                    !isPhoto && 'dark:invert-100 dark:brightness-75 dark:contrast-125',
-                    className
+                    !isPhoto && 'rounded-sm group-data-[tone=inverse]:bg-alt dark:bg-alt',
+                    className,
                 )}
                 alt={contentType}
                 src={src}
