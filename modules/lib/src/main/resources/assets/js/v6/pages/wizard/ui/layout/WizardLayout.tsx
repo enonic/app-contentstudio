@@ -198,7 +198,7 @@ export const WizardLayout = ({ formPanel, livePanel, contextPanel, onResized }: 
                 />
             )}
             {showMobileContext && (
-                <div data-component="WizardLayout.MobileContext" className="absolute inset-0 z-[1] bg-surface-neutral">
+                <div data-component="WizardLayout.MobileContext" className="absolute inset-0 bg-surface-neutral">
                     <LegacyElementHost element={contextPanel} className="size-full" />
                 </div>
             )}
