@@ -1,5 +1,5 @@
 import { type AggregationSelection } from '@enonic/lib-admin-ui/aggregation/AggregationSelection';
-import { computed, map } from 'nanostores';
+import { atom, computed, map } from 'nanostores';
 
 export { $isContentFilterOpen, setContentFilterOpen } from '../../../shared/app-state/browsePanels.store';
 
@@ -17,6 +17,12 @@ export const $isContentFilterDirty = computed(
     $contentFilterState,
     ({ value, selection }) => value.trim().length > 0 || selection.length > 0,
 );
+
+export const $isDependencySearchPending = atom(false);
+
+export function setDependencySearchPending(pending: boolean): void {
+    $isDependencySearchPending.set(pending);
+}
 
 export function setContentFilterValue(value: string): void {
     $contentFilterState.setKey('value', value);

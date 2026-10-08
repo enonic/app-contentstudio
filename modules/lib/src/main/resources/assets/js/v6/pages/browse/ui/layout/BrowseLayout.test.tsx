@@ -4,7 +4,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { setContextLayoutMetrics, setContextOpen } from '../../../../shared/app-state/browsePanels.store';
 import { setMobilePreviewOpen } from '../../model/browseLayout.store';
 import { setFloatingContextWidth } from '../../../../widgets/context-panel/model/floatingContextWidth.store';
-import { $isContentFilterOpen, setContentFilterOpen } from '../../../../features/search/model/contentFilter.store';
+import {
+    $isContentFilterOpen,
+    setContentFilterOpen,
+    setDependencySearchPending,
+} from '../../../../features/search/model/contentFilter.store';
 import { BrowseLayout } from './BrowseLayout';
 
 // Layout-engine stubs (happy-dom has none); see split-view.test.tsx for details.
@@ -154,6 +158,7 @@ describe('BrowseLayout', () => {
         layoutRootWidth = 2000;
         setContextOpen(false);
         setContentFilterOpen(false);
+        setDependencySearchPending(false);
         setMobilePreviewOpen(false);
         setFloatingContextWidth(0);
         setContextLayoutMetrics({ totalWidth: 0, contextWidth: 0, windowWidth: 0 });
@@ -292,6 +297,25 @@ describe('BrowseLayout', () => {
         const overlay = document.querySelector('[data-component="BrowseLayout.MobileFilter"]');
         expect(overlay).not.toBeNull();
         expect(overlay?.querySelector('.legacy-filter')).toBe(panels.filterPanel.getHTMLElement());
+    });
+
+    it('mounts mobile filter out of view while dependency query is pending', async () => {
+        layoutRootWidth = 700;
+        const panels = createPanels();
+        setDependencySearchPending(true);
+        setContentFilterOpen(true);
+
+        await renderLayout(panels);
+
+        const overlay = document.querySelector('[data-component="BrowseLayout.MobileFilter"]');
+        expect(overlay?.querySelector('.legacy-filter')).toBe(panels.filterPanel.getHTMLElement());
+        expect(overlay?.classList.contains('invisible')).toBe(true);
+        expect(overlay?.classList.contains('pointer-events-none')).toBe(true);
+        expect(overlay?.getAttribute('aria-hidden')).toBe('true');
+
+        await act(async () => setDependencySearchPending(false));
+        await settle();
+        expect(overlay?.classList.contains('invisible')).toBe(false);
     });
 
     it('closes the mobile filter when the context or preview panel opens', async () => {

@@ -13,7 +13,10 @@ import { LayoutTokens } from '../../../../shared/ui/layout.tokens';
 import { LegacyElement } from '../../../../shared/ui/LegacyElement';
 import { LegacyElementHost } from '../../../../shared/ui/LegacyElementHost';
 import { SplitView } from '../../../../shared/ui/split-view';
-import { $isContentFilterOpen } from '../../../../features/search/model/contentFilter.store';
+import {
+    $isContentFilterOpen,
+    $isDependencySearchPending,
+} from '../../../../features/search/model/contentFilter.store';
 import { FloatingContextPanel } from '../../../../widgets/context-panel/ui/FloatingContextPanel';
 
 const CONTEXT_MIN_WIDTH = LayoutTokens.contextPanel.minWidth;
@@ -53,6 +56,7 @@ export const BrowseLayout = ({
     const mode = useStore($contextPanelMode);
     const isMobilePreviewOpen = useStore($isMobilePreviewOpen);
     const isFilterOpen = useStore($isContentFilterOpen);
+    const isDependencySearchPending = useStore($isDependencySearchPending);
 
     const rootRef = useRef<HTMLDivElement>(null);
     const totalWidthRef = useRef(0);
@@ -181,7 +185,14 @@ export const BrowseLayout = ({
                 </div>
             )}
             {showMobileFilter && (
-                <div data-component="BrowseLayout.MobileFilter" className="absolute inset-0 bg-surface-neutral">
+                <div
+                    data-component="BrowseLayout.MobileFilter"
+                    aria-hidden={isDependencySearchPending || undefined}
+                    className={cn(
+                        'absolute inset-0  bg-surface-neutral',
+                        isDependencySearchPending && 'invisible pointer-events-none',
+                    )}
+                >
                     <LegacyElementHost element={filterPanel} className="size-full" />
                 </div>
             )}

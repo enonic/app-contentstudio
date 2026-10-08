@@ -9,6 +9,7 @@ export { compareContent } from './api/compare.api';
 export type { CompareResult } from './api/compare.api';
 export {
     activateFilter,
+    beginPendingFilter,
     clearChildrenIdsRetryCooldown,
     clearFilterChildrenIdsRetryCooldown,
     clearVisibleContentDataRetryCooldown,

@@ -10,6 +10,7 @@ import Q from 'q';
 import { getContentAsCSCS, getCurrentItemsAsCSCS, $treeState } from '../../v6/entities/content';
 import { type ContentTreeListElement } from '../../v6/widgets/browse-grid/ContentTreeListElement';
 import { TreeListToolbarElement } from '../../v6/widgets/browse-tree/TreeListToolbar';
+import { type BrowseDependenciesElement } from '../../v6/features/search/ui/BrowseDependencies';
 import { type ContentSummary } from '../content/ContentSummary';
 import { type ContentSummaryAndCompareStatus } from '../content/ContentSummaryAndCompareStatus';
 
@@ -17,6 +18,7 @@ export class ContentTreeListSelectablePanelProxy extends SelectableListBoxPanel<
     private readonly contentTreeList: ContentTreeListElement;
 
     private readonly toolbar: TreeListToolbarElement;
+    private mobileDependenciesSection?: BrowseDependenciesElement;
 
     constructor(
         listBoxWrapper: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>,
@@ -51,9 +53,16 @@ export class ContentTreeListSelectablePanelProxy extends SelectableListBoxPanel<
         return SelectionMode.SELECT;
     }
 
+    setMobileDependenciesSection(section: BrowseDependenciesElement): void {
+        this.mobileDependenciesSection = section;
+    }
+
     doRender(): Q.Promise<boolean> {
         this.addClass('selectable-list-box-panel flex flex-col');
 
+        if (this.mobileDependenciesSection) {
+            this.appendChild(this.mobileDependenciesSection);
+        }
         this.appendChild(this.toolbar);
         this.appendChild(this.contentTreeList);
 

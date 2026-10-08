@@ -16,7 +16,11 @@ import {
     setMobilePreviewOpen,
     shouldCollapseContextInitially,
 } from '../../v6/shared/app-state/browsePanels.store';
-import { $isContentFilterOpen, setContentFilterOpen } from '../../v6/features/search/model/contentFilter.store';
+import {
+    $isContentFilterOpen,
+    $isDependencySearchPending,
+    setContentFilterOpen,
+} from '../../v6/features/search/model/contentFilter.store';
 import { getContentAsCSCS } from '../../v6/entities/content';
 import { InspectEvent } from '../event/InspectEvent';
 import { type ContextView } from '../view/context/ContextView';
@@ -105,7 +109,13 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
                 this.toggleFilterPanelAction.setVisible(false);
                 this.toggleFilterPanelButton.removeClass('filtered');
                 // Focus after the batched render mounts the panel.
-                setTimeout(() => this.filterPanel.giveFocusToSearch(), 100);
+                if (!$isDependencySearchPending.get()) {
+                    setTimeout(() => {
+                        if ($isContentFilterOpen.get() && !$isDependencySearchPending.get()) {
+                            this.filterPanel.giveFocusToSearch();
+                        }
+                    }, 100);
+                }
             } else {
                 this.toggleFilterPanelAction.setVisible(true);
                 if (this.filterPanel.hasFilterSet()) this.toggleFilterPanelButton.addClass('filtered');

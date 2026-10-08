@@ -16,12 +16,15 @@ import { createElement } from 'react';
 import { $actionsNeedRefresh, clearActionsRefreshSignal } from '../../v6/app/actions.store';
 import {
     removeContent,
+    beginPendingFilter,
     setContent,
     hasCurrentItems,
     removeTreeNode,
     revealContentByPath,
 } from '../../v6/entities/content';
 import { onActiveProjectChanged, onNoProjectsAvailable } from '../../v6/entities/project';
+import { $contextPanelMode } from '../../v6/shared/app-state/browsePanels.store';
+import { setDependencySearchPending } from '../../v6/features/search/model/contentFilter.store';
 import { ContentTreeListElement } from '../../v6/widgets/browse-grid/ContentTreeListElement';
 import { BrowseToolbarElement } from '../../v6/widgets/browse-toolbar/BrowseToolbar';
 import { CurrentPreviewToolbarVersionHistoryItem } from '../../v6/widgets/preview-panel/ui/PreviewToolbarVersionHistoryItem';
@@ -87,9 +90,14 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
     private contentTreeList: ContentTreeListElement;
 
     private previewBus?: HostBus;
+    private pendingDependencySearchCleanup?: () => void;
 
     protected initElements() {
         super.initElements();
+
+        (this.selectableListBoxPanel as ContentTreeListSelectablePanelProxy).setMobileDependenciesSection(
+            this.filterPanel.getMobileDependenciesSection(),
+        );
 
         const browseActions = this.getBrowseActions();
 
@@ -168,6 +176,15 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
         this.filterPanel.onSearchEvent((query?: ContentQuery) => {
             this.contentTreeList.setFilterQuery(query, this.filterPanel.getTargetBranch());
         });
+
+        this.filterPanel.onDependencyRemoved(() => {
+            if (this.clearPendingDependencySearch()) {
+                this.contentTreeList.setFilterQuery(null);
+                this.hideFilterPanel();
+            }
+        });
+
+        this.onRemoved(() => this.cancelPendingDependencySearch());
 
         this.handleGlobalEvents();
 
@@ -327,20 +344,19 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
         });
 
         ToggleSearchPanelEvent.on(() => {
+            if (this.pendingDependencySearchCleanup) {
+                this.cancelPendingDependencySearch();
+                return;
+            }
             this.toggleFilterPanel();
         });
 
         ToggleSearchPanelWithDependenciesEvent.on((event: ToggleSearchPanelWithDependenciesEvent) => {
-            if (this.toolbar.getSelectionPanelToggler().isActive()) {
-                this.toolbar.getSelectionPanelToggler().setActive(false);
-            }
-
-            this.showFilterPanel();
-            this.filterPanel.setTargetBranch(event.getBranch());
-            this.filterPanel.setDependencyItem(event.getContent(), event.isInbound(), event.getType());
+            this.showDependencies(event);
         });
 
         SearchAndExpandItemEvent.on((event: SearchAndExpandItemEvent) => {
+            this.cancelPendingDependencySearch();
             const contentId: ContentId = event.getContentId();
 
             if (this.toolbar.getSelectionPanelToggler().isActive()) {
@@ -368,6 +384,7 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
         });
 
         onActiveProjectChanged(() => {
+            this.cancelPendingDependencySearch();
             this.selectionWrapper.deselectAll();
             this.updateActionsAndPreview();
             this.filterPanel.reset().then(() => {
@@ -381,6 +398,67 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
             this.selectionWrapper.deselectAll(true);
             this.treeListBox.clearItems(true);
         });
+    }
+
+    private showDependencies(event: ToggleSearchPanelWithDependenciesEvent): void {
+        this.cancelPendingDependencySearch();
+
+        if (this.toolbar.getSelectionPanelToggler().isActive()) {
+            this.toolbar.getSelectionPanelToggler().setActive(false);
+        }
+
+        const isMobile = $contextPanelMode.get() === 'mobile';
+        if (isMobile) {
+            beginPendingFilter();
+            setDependencySearchPending(true);
+        }
+
+        this.showFilterPanel();
+        this.filterPanel.setTargetBranch(event.getBranch());
+        this.filterPanel.setDependencyItem(event.getContent(), event.isInbound(), event.getType());
+
+        if (isMobile) {
+            const requestId = this.filterPanel.getDependencyRequestId();
+            const showResults = (query?: ContentQuery, completedRequestId?: number) => {
+                if (completedRequestId !== requestId) {
+                    return;
+                }
+
+                if (query) {
+                    this.hideFilterPanel();
+                }
+                this.clearPendingDependencySearch();
+            };
+            const cancelOnNavigation = () => this.cancelPendingDependencySearch();
+
+            this.filterPanel.onSearchEvent(showResults);
+            window.addEventListener('hashchange', cancelOnNavigation);
+            this.pendingDependencySearchCleanup = () => {
+                this.filterPanel.unSearchEvent(showResults);
+                window.removeEventListener('hashchange', cancelOnNavigation);
+                setDependencySearchPending(false);
+            };
+        }
+    }
+
+    private clearPendingDependencySearch(): boolean {
+        if (!this.pendingDependencySearchCleanup) {
+            return false;
+        }
+
+        this.pendingDependencySearchCleanup();
+        this.pendingDependencySearchCleanup = undefined;
+        return true;
+    }
+
+    private cancelPendingDependencySearch(): void {
+        if (!this.clearPendingDependencySearch()) {
+            return;
+        }
+
+        this.filterPanel.cancelDependencyRequest();
+        this.contentTreeList.setFilterQuery(null);
+        this.hideFilterPanel();
     }
 
     // Scopes a protocol host bus to the inline-preview iframe (which renders via
