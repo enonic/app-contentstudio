@@ -245,6 +245,12 @@ export class SiteConfiguratorSelectedOptionView
         });
     }
 
+    updateFormView(unchangedOnly?: boolean): Q.Promise<void> {
+        this.tempSiteConfig = this.makeTemporarySiteConfig();
+
+        return this.formView.update(this.tempSiteConfig.getConfig(), unchangedOnly);
+    }
+
     private makeTemporarySiteConfig(): ApplicationConfig {
         const propSet: PropertySet = (new PropertyTree(this.siteConfig.getConfig())).getRoot();
         return ApplicationConfig.create().setConfig(propSet).setApplicationKey(this.siteConfig.getApplicationKey()).build();
