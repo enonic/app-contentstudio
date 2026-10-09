@@ -4,14 +4,13 @@
 const OccurrencesFormView = require('../../wizardpanel/occurrences.form.view');
 const lib = require('../../../libs/elements-old');
 const appConst = require('../../../libs/app_const');
-const {COMMON} = require('../../../libs/elements');
+const { COMMON } = require('../../../libs/elements');
 
 const XPATH = {
     dataComponentInput: "//div[@data-component='TimeInput']",
 };
 
 class TimeForm extends OccurrencesFormView {
-
     get timeInput() {
         return COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + XPATH.dataComponentInput + COMMON.INPUTS.INPUT;
     }
@@ -42,7 +41,7 @@ class TimeForm extends OccurrencesFormView {
     async getValueInTimeInput(index) {
         let timeElements = await this.getDisplayedElements(this.timeInput);
         if (timeElements.length === 0) {
-            throw new Error("Time inputs were not found:")
+            throw new Error('Time inputs were not found:');
         }
         return await timeElements[index].getValue();
     }
@@ -56,19 +55,19 @@ class TimeForm extends OccurrencesFormView {
     }
 
     getValidationRecord() {
-        return this.getText(this.validationRecord).catch(err => {
+        return this.getText(this.validationRecord).catch((err) => {
             this.saveScreenshot('err_date_time_validation_record');
             throw new Error('getting Validation text: ' + err);
-        })
+        });
     }
 
     async isInvalidValue(index) {
         let inputs = await this.getDisplayedElements(this.dateTimeInput);
         if (inputs.length === 0) {
-            throw new Error("Date time Form - Time inputs were not found!");
+            throw new Error('Date time Form - Time inputs were not found!');
         }
-        let attr = await inputs[index].getAttribute("class");
-        return attr.includes("invalid");
+        let attr = await inputs[index].getAttribute('class');
+        return attr.includes('invalid');
     }
 
     async showPicker() {

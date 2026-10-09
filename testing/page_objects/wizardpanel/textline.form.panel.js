@@ -2,7 +2,7 @@
  * Created on 28.12.2017. updated on 24.04.2026
  */
 const OccurrencesFormView = require('./occurrences.form.view');
-const {COMMON} = require('../../libs/elements');
+const { COMMON } = require('../../libs/elements');
 
 const XPATH = {
     textLine: "//div[contains(@id,'TextLine')]",
@@ -12,9 +12,10 @@ const XPATH = {
 };
 
 class TextLineForm extends OccurrencesFormView {
-
     get textLineInput() {
-        return COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + COMMON.INPUTS.DATA_COMPONENT_INPUT_FIELD + COMMON.INPUTS.INPUT;
+        return (
+            COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + COMMON.INPUTS.DATA_COMPONENT_INPUT_FIELD + COMMON.INPUTS.INPUT
+        );
     }
 
     async getValueInTextLineInput(index) {
@@ -57,12 +58,11 @@ class TextLineForm extends OccurrencesFormView {
         await this.clearInputTextElement(inputs[index]);
     }
 
-
     async getTotalCounter(index) {
         let locator = "//div[@data-component='SortableGridList']//span[@data-component='Counter']";
         let elements = await this.findElements(locator);
         if (elements.length === 0) {
-            throw new Error("TextLine form - Counter element was not found: " + locator);
+            throw new Error('TextLine form - Counter element was not found: ' + locator);
         }
         return await elements[index].getText();
     }
