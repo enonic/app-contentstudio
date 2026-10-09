@@ -9,7 +9,10 @@ vi.mock('../../../../../model/page-editor', () => ({
 }));
 
 vi.mock('../../../../../model/component-inspection.store', () => ({
+    $arePartDescriptorsResolved: atom<boolean>(true),
+    $areLayoutDescriptorsResolved: atom<boolean>(true),
     $partDescriptorOptions: atom<Descriptor[]>([]),
+    $partIconUrls: atom<ReadonlyMap<string, string>>(new Map()),
     $layoutDescriptorOptions: atom<Descriptor[]>([]),
     $componentConfigDescriptor: atom<Descriptor | null>(null),
     $isComponentInspectionLoading: atom<boolean>(false),
@@ -30,9 +33,12 @@ import { useComponentDescriptorSelector } from './useComponentDescriptorSelector
 // `$selectedComponentDescriptorKey` is a computed in the real store but a writable atom in the mock above.
 const $selectedKey = componentInspectionStore.$selectedComponentDescriptorKey as unknown as WritableAtom<string | null>;
 const $partOptions = componentInspectionStore.$partDescriptorOptions;
+const $partIconUrls = componentInspectionStore.$partIconUrls;
 const $layoutOptions = componentInspectionStore.$layoutDescriptorOptions;
 const $cachedDescriptor = componentInspectionStore.$componentConfigDescriptor;
 const $loading = componentInspectionStore.$isComponentInspectionLoading;
+const $partResolved = componentInspectionStore.$arePartDescriptorsResolved;
+const $layoutResolved = componentInspectionStore.$areLayoutDescriptorsResolved;
 
 function makeDescriptor(key: string, displayName: string, description = '', iconUrl?: string): Descriptor {
     return {
@@ -46,9 +52,12 @@ function makeDescriptor(key: string, displayName: string, description = '', icon
 describe('useComponentDescriptorSelector', () => {
     afterEach(() => {
         $partOptions.set([]);
+        $partIconUrls.set(new Map());
         $layoutOptions.set([]);
         $cachedDescriptor.set(null);
         $loading.set(false);
+        $partResolved.set(true);
+        $layoutResolved.set(true);
         $selectedKey.set(null);
         vi.restoreAllMocks();
     });
@@ -101,6 +110,16 @@ describe('useComponentDescriptorSelector', () => {
             expect(result.current.filteredOptions[0].isInvalid).toBe(true);
         });
 
+        it('keeps a known custom icon when refreshed options omit the selected part', () => {
+            $selectedKey.set('tutorial.nxp:heading');
+            $partIconUrls.set(new Map([['tutorial.nxp:heading', '/heading.svg']]));
+
+            const { result } = renderHook(() => useComponentDescriptorSelector('part'));
+
+            expect(result.current.selectedOption?.iconUrl).toBe('/heading.svg');
+            expect(result.current.selectedOption?.isInvalid).toBe(true);
+        });
+
         it('should ignore a cached descriptor whose key does not match the persisted key', () => {
             $selectedKey.set('tutorial.nxp:heading');
             $partOptions.set([]);
@@ -127,6 +146,22 @@ describe('useComponentDescriptorSelector', () => {
             expect(result.current.selectedOption?.label).toBe('Heading');
             expect(result.current.isEmpty).toBe(false);
         });
+    });
+
+    it('keeps a resolved selection visible while refreshing and does not mark an unresolved reference missing', () => {
+        $selectedKey.set('tutorial.nxp:heading');
+        $partOptions.set([makeDescriptor('tutorial.nxp:heading', 'Heading')]);
+        $loading.set(true);
+
+        const { result, rerender } = renderHook(() => useComponentDescriptorSelector('part'));
+        expect(result.current.isInitialLoading).toBe(false);
+        expect(result.current.selectedOption?.label).toBe('Heading');
+
+        $partResolved.set(false);
+        $partOptions.set([]);
+        rerender();
+        expect(result.current.isInitialLoading).toBe(true);
+        expect(result.current.selectedOption?.isInvalid).toBe(false);
     });
 
     describe('no persisted key', () => {

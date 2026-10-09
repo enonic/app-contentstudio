@@ -36,6 +36,7 @@ vi.mock('../../../../../model/page-editor/store', () => ({
 }));
 
 vi.mock('../../../../../model/fragment-inspection.store', () => ({
+    $areFragmentOptionsResolved: atom<boolean>(true),
     $fragmentOptions: atom<unknown[]>([]),
     $isFragmentInspectionLoading: atom<boolean>(false),
     $selectedFragmentId: atom<string | null>(null),
@@ -62,6 +63,8 @@ import { useFragmentContentSelector } from './useFragmentContentSelector';
 const $inspected = $inspectedItem as unknown as WritableAtom<unknown>;
 const $options = fragmentInspectionStore.$fragmentOptions as unknown as WritableAtom<unknown[]>;
 const $selectedId = fragmentInspectionStore.$selectedFragmentId as unknown as WritableAtom<string | null>;
+const $resolved = fragmentInspectionStore.$areFragmentOptionsResolved;
+const $loading = fragmentInspectionStore.$isFragmentInspectionLoading;
 const $version = $pageVersion as WritableAtom<number>;
 
 function makeFragmentSummary(id: string, displayName: string, path = `/fragments/${id}`): unknown {
@@ -112,11 +115,29 @@ describe('useFragmentContentSelector', () => {
         $inspected.set(null);
         $options.set([]);
         $selectedId.set(null);
+        $resolved.set(true);
+        $loading.set(false);
         $version.set(0);
         vi.clearAllMocks();
     });
 
     describe('placeholder option for a missing fragment', () => {
+        it('keeps a previous selected fragment during refresh and waits before marking an unresolved one invalid', () => {
+            $selectedId.set('frag-a');
+            $options.set([makeFragmentSummary('frag-a', 'Fragment A')]);
+            $loading.set(true);
+
+            const { result, rerender } = renderHook(() => useFragmentContentSelector());
+            expect(result.current.isInitialLoading).toBe(false);
+            expect(result.current.selectedOption?.label).toBe('Fragment A');
+
+            $resolved.set(false);
+            $options.set([]);
+            rerender();
+            expect(result.current.isInitialLoading).toBe(true);
+            expect(result.current.selectedOption?.isInvalid).toBe(false);
+        });
+
         it('should synthesize an invalid option when the selected id is not among the loaded fragments', () => {
             $selectedId.set('missing-id');
             $options.set([makeFragmentSummary('other-id', 'Other Fragment')]);

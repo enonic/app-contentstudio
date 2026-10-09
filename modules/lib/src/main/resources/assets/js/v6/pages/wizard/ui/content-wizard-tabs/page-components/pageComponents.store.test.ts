@@ -1,7 +1,9 @@
 import { ContentId } from '../../../../../../app/content/ContentId';
+import { DescriptorKey } from '../../../../../../app/page/DescriptorKey';
 import { PageBuilder } from '../../../../../../app/page/Page';
 import { FragmentComponentBuilder } from '../../../../../../app/page/region/FragmentComponent';
 import { LayoutComponentBuilder } from '../../../../../../app/page/region/LayoutComponent';
+import { PartComponentBuilder } from '../../../../../../app/page/region/PartComponent';
 import { Region } from '../../../../../../app/page/region/Region';
 import { Regions } from '../../../../../../app/page/region/Regions';
 import { errAsync, okAsync, ResultAsync } from 'neverthrow';
@@ -174,6 +176,22 @@ describe('pageComponents.store layout fragments', () => {
         await new Promise((resolve) => setTimeout(resolve, 0));
 
         expect(getLayoutFragment('/main/0')).toBe(false);
+    });
+});
+
+describe('pageComponents.store part icons', () => {
+    afterEach(() => {
+        $page.set(null);
+    });
+
+    it('keeps the part descriptor key on the rendered tree node', () => {
+        const part = new PartComponentBuilder().setDescriptor(DescriptorKey.fromString('app:hero')).build();
+        const region = Region.create().setName('main').setComponents([part]).build();
+        const page = new PageBuilder().setRegions(Regions.create().addRegion(region).build()).build();
+
+        rebuild(page);
+
+        expect($componentsTreeState.get().nodes.get('/main/0')?.data?.descriptorKey).toBe('app:hero');
     });
 });
 

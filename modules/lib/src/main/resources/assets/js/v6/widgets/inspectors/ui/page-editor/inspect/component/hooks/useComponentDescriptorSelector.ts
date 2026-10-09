@@ -5,10 +5,13 @@ import { DescriptorBasedComponent } from '../../../../../../../../app/page/regio
 import { useI18n } from '../../../../../../../shared/lib/hooks/useI18n';
 import { $inspectedItem, requestSetComponentDescriptor } from '../../../../../model/page-editor';
 import {
+    $areLayoutDescriptorsResolved,
+    $arePartDescriptorsResolved,
     $componentConfigDescriptor,
     $isComponentInspectionLoading,
     $layoutDescriptorOptions,
     $partDescriptorOptions,
+    $partIconUrls,
     $selectedComponentDescriptorKey,
 } from '../../../../../model/component-inspection.store';
 
@@ -31,16 +34,20 @@ type UseComponentDescriptorSelectorResult = {
     selection: string[];
     handleSelectionChange: (selection: readonly string[]) => void;
     isLoading: boolean;
+    isInitialLoading: boolean;
     isEmpty: boolean;
 };
 
 export function useComponentDescriptorSelector(componentType: 'part' | 'layout'): UseComponentDescriptorSelectorResult {
     const item = useStore($inspectedItem);
     const partDescriptors = useStore($partDescriptorOptions);
+    const partIconUrls = useStore($partIconUrls);
     const layoutDescriptors = useStore($layoutDescriptorOptions);
     const selectedKey = useStore($selectedComponentDescriptorKey);
     const cachedDescriptor = useStore($componentConfigDescriptor);
     const isLoading = useStore($isComponentInspectionLoading);
+    const partResolved = useStore($arePartDescriptorsResolved);
+    const layoutResolved = useStore($areLayoutDescriptorsResolved);
 
     const noDescriptionLabel = useI18n('text.noDescription');
     const notFoundLabel = useI18n('notify.component.descriptor.notfound');
@@ -48,6 +55,7 @@ export function useComponentDescriptorSelector(componentType: 'part' | 'layout')
     const [searchValue, setSearchValue] = useState<string | undefined>();
 
     const descriptors = componentType === 'part' ? partDescriptors : layoutDescriptors;
+    const isResolved = componentType === 'part' ? partResolved : layoutResolved;
 
     const options = useMemo((): ComponentOption[] => {
         const real = descriptors.map((d) => ({
@@ -70,11 +78,14 @@ export function useComponentDescriptorSelector(componentType: 'part' | 'layout')
             key: selectedKey,
             label: fallbackLabel,
             description: notFoundLabel,
-            iconUrl: componentType === 'part' && cachedMatchesKey ? cachedDescriptor.getIcon() : undefined,
-            isInvalid: true,
+            iconUrl:
+                componentType === 'part'
+                    ? (partIconUrls.get(selectedKey) ?? (cachedMatchesKey ? cachedDescriptor.getIcon() : undefined))
+                    : undefined,
+            isInvalid: isResolved,
         };
         return [invalidOption, ...real];
-    }, [descriptors, selectedKey, cachedDescriptor, noDescriptionLabel, notFoundLabel]);
+    }, [descriptors, selectedKey, cachedDescriptor, partIconUrls, noDescriptionLabel, notFoundLabel, isResolved]);
 
     const filteredOptions = useMemo(() => {
         if (!searchValue) return options.toSorted(compareOptionsByLabel);
@@ -114,6 +125,7 @@ export function useComponentDescriptorSelector(componentType: 'part' | 'layout')
         selection,
         handleSelectionChange,
         isLoading,
+        isInitialLoading: isLoading && !isResolved,
         isEmpty,
     };
 }

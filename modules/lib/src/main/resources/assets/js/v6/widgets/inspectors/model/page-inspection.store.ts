@@ -6,6 +6,7 @@ import type { SiteModel } from '../../../../app/site/SiteModel';
 import { createDebounce } from '../../../shared/lib/timing/createDebounce';
 import {
     $contentContext,
+    $contentScopeKey,
     $hasDefaultPageTemplate,
     $page,
     $pageEditorLifecycle,
@@ -35,6 +36,8 @@ export const $isPageInspectionLoading = atom<boolean>(false);
 
 export const $arePageTemplatesResolved = atom<boolean>(false);
 
+export const $arePageControllersResolved = atom<boolean>(false);
+
 //
 // * Computed
 //
@@ -49,16 +52,9 @@ export const $selectedPageOptionKey = computed([$page, $pageVersion], (page): st
 // A template outside the loaded options was deleted, or its application is no
 // longer assigned to the site. Either way the reference is dead.
 export const $isSelectedTemplateMissing = computed(
-    [
-        $page,
-        $pageVersion,
-        $selectedPageOptionKey,
-        $pageTemplateOptions,
-        $arePageTemplatesResolved,
-        $isPageInspectionLoading,
-    ],
-    (page, _version, selectedKey, templates, isResolved, isLoading): boolean => {
-        if (isLoading || !isResolved) return false;
+    [$page, $pageVersion, $selectedPageOptionKey, $pageTemplateOptions, $arePageTemplatesResolved],
+    (page, _version, selectedKey, templates, isResolved): boolean => {
+        if (!isResolved) return false;
         if (selectedKey == null || selectedKey === AUTO_KEY) return false;
         if (page?.hasController() || !page?.hasTemplate()) return false;
 
@@ -79,9 +75,15 @@ export const $isCustomizeVisible = computed(
 );
 
 export const $isPageInspectionEmpty = computed(
-    [$pageTemplateOptions, $pageControllerOptions, $isPageInspectionLoading, $selectedPageOptionKey],
-    (templates, controllers, isLoading, selectedKey): boolean => {
-        if (isLoading) return false;
+    [
+        $pageTemplateOptions,
+        $pageControllerOptions,
+        $selectedPageOptionKey,
+        $arePageTemplatesResolved,
+        $arePageControllersResolved,
+    ],
+    (templates, controllers, selectedKey, templatesResolved, controllersResolved): boolean => {
+        if (!templatesResolved || !controllersResolved) return false;
         if (selectedKey !== AUTO_KEY) return false;
         return templates.length === 0 && controllers.length === 0;
     },
@@ -93,6 +95,17 @@ export const $isPageInspectionEmpty = computed(
 
 let abortController: AbortController | null = null;
 const cleanups: (() => void)[] = [];
+let activeSiteModel: SiteModel | null | undefined;
+let activeScopeKey: string | null = null;
+let activeListIdentityKey: string | null = null;
+let descriptorRequestId = 0;
+
+function listIdentityKey(): string | null {
+    const ctx = $contentContext.get();
+    return ctx
+        ? JSON.stringify([ctx.contentId.toString(), ctx.contentTypeName.toString(), ctx.siteId?.toString() ?? null])
+        : null;
+}
 
 function affectsPageInspection(summary: ContentSummary, ctx: PageEditorContentContext): boolean {
     const id = summary.getContentId().toString();
@@ -104,58 +117,97 @@ function affectsPageInspection(summary: ContentSummary, ctx: PageEditorContentCo
     return false;
 }
 
-type ResolvedTemplates = {
-    templates: PageTemplate[];
-    resolved: boolean;
-};
-
-const TEMPLATES_LOAD_FAILED: ResolvedTemplates = { templates: [], resolved: false };
-
-const NO_TEMPLATES: ResolvedTemplates = { templates: [], resolved: true };
-
 async function loadTemplatesAndControllers(ctx: PageEditorContentContext): Promise<void> {
+    const scopeKey = $contentScopeKey.get();
+    if (!scopeKey || scopeKey !== activeScopeKey) return;
+    const requestIdentityKey = activeListIdentityKey;
+
     $isPageInspectionLoading.set(true);
     abortController?.abort();
-    abortController = new AbortController();
-    const { signal } = abortController;
+    const controller = new AbortController();
+    abortController = controller;
+    const { signal } = controller;
 
     try {
         const { loadPageTemplatesByCanRender, loadPageControllers } = await import('../api/pageInspection.api');
+        if (signal.aborted) return;
 
-        const [templateResult, controllers] = await Promise.all([
-            ctx.siteId
-                ? loadPageTemplatesByCanRender(ctx.siteId, ctx.contentTypeName).match<ResolvedTemplates>(
-                      (templates) => ({ templates, resolved: true }),
-                      () => TEMPLATES_LOAD_FAILED,
-                  )
-                : Promise.resolve(NO_TEMPLATES),
-            loadPageControllers(ctx.contentId).unwrapOr([]),
+        const [templateResult, controllerResult] = await Promise.all([
+            ctx.siteId ? loadPageTemplatesByCanRender(ctx.siteId, ctx.contentTypeName, signal) : null,
+            loadPageControllers(ctx.contentId, signal),
         ]);
 
-        if (!signal.aborted) {
-            $pageTemplateOptions.set(templateResult.templates);
-            $arePageTemplatesResolved.set(templateResult.resolved);
-            $pageControllerOptions.set(controllers);
+        if (signal.aborted || requestIdentityKey !== activeListIdentityKey) return;
+        if (!ctx.siteId || templateResult?.isOk()) {
+            $pageTemplateOptions.set(templateResult?.isOk() ? templateResult.value : []);
+            $arePageTemplatesResolved.set(true);
+        }
+        if (controllerResult.isOk()) {
+            $pageControllerOptions.set(controllerResult.value);
+            $arePageControllersResolved.set(true);
         }
     } catch {
-        if (!signal.aborted) {
-            $arePageTemplatesResolved.set(false);
-        }
+        // Keep the last successful options on a failed refresh.
     } finally {
         if (!signal.aborted) {
+            abortController = null;
             $isPageInspectionLoading.set(false);
         }
     }
 }
 
-export function initPageInspectionService(siteModel?: SiteModel | null): void {
-    cleanupPageInspection();
+function unbindPageInspection(): void {
+    for (const fn of cleanups) fn();
+    cleanups.length = 0;
+    abortController?.abort();
+    abortController = null;
+    ++descriptorRequestId;
+    activeSiteModel = undefined;
+    $isPageInspectionLoading.set(false);
+}
 
-    const unsubContext = $contentContext.subscribe((ctx) => {
-        if (!ctx) return;
-        void loadTemplatesAndControllers(ctx);
-    });
-    cleanups.push(unsubContext);
+function clearPageInspectionOptions(): void {
+    $pageTemplateOptions.set([]);
+    $arePageTemplatesResolved.set(false);
+    $pageControllerOptions.set([]);
+    $arePageControllersResolved.set(false);
+    $pageConfigDescriptor.set(null);
+}
+
+export function initPageInspectionService(siteModel?: SiteModel | null): void {
+    const nextSiteModel = siteModel ?? null;
+    if (activeSiteModel !== undefined && activeSiteModel === nextSiteModel) {
+        if (
+            !$isPageInspectionLoading.get() &&
+            (!$arePageTemplatesResolved.get() || !$arePageControllersResolved.get())
+        ) {
+            const ctx = $contentContext.get();
+            if (ctx) void loadTemplatesAndControllers(ctx);
+        }
+        return;
+    }
+
+    const previousScope = activeScopeKey;
+    unbindPageInspection();
+    activeSiteModel = nextSiteModel;
+
+    cleanups.push(
+        $contentScopeKey.subscribe((scopeKey) => {
+            if (scopeKey === activeScopeKey) return;
+            const nextIdentityKey = listIdentityKey();
+            const sameIdentity = nextIdentityKey !== null && nextIdentityKey === activeListIdentityKey;
+            activeScopeKey = scopeKey;
+            activeListIdentityKey = nextIdentityKey;
+            if (sameIdentity) return;
+            abortController?.abort();
+            abortController = null;
+            $isPageInspectionLoading.set(false);
+            ++descriptorRequestId;
+            clearPageInspectionOptions();
+            const ctx = $contentContext.get();
+            if (scopeKey && ctx) void loadTemplatesAndControllers(ctx);
+        }),
+    );
 
     // Reload when the current content, the site, or a descendant page-template is updated.
     const reloadDebounced = createDebounce(() => {
@@ -172,9 +224,9 @@ export function initPageInspectionService(siteModel?: SiteModel | null): void {
         if (event.data.some((summary) => affectsPageInspection(summary, ctx))) reloadDebounced();
     };
 
-    const unsubContentCreated = $contentCreated.subscribe(onContentCreatedOrUpdated);
-    const unsubContentUpdated = $contentUpdated.subscribe(onContentCreatedOrUpdated);
-    const unsubContentDeleted = $contentDeleted.subscribe((event) => {
+    const unsubContentCreated = $contentCreated.listen(onContentCreatedOrUpdated);
+    const unsubContentUpdated = $contentUpdated.listen(onContentCreatedOrUpdated);
+    const unsubContentDeleted = $contentDeleted.listen((event) => {
         if (!event) return;
 
         const ctx = $contentContext.get();
@@ -207,15 +259,18 @@ export function initPageInspectionService(siteModel?: SiteModel | null): void {
     }
 
     // Load descriptor when controller changes
-    let lastControllerKey: string | null = null;
+    let lastRequestKey: string | null = null;
 
-    const unsubPage = computed([$page, $pageVersion], (page) => page).subscribe((page) => {
-        const controllerKey = page?.hasController() ? page.getController().toString() : null;
+    const unsubPage = computed([$page, $pageVersion, $contentScopeKey], (page, _version, scopeKey) => ({
+        controllerKey: page?.hasController() ? page.getController().toString() : null,
+        scopeKey,
+    })).subscribe(({ controllerKey, scopeKey }) => {
+        const requestKey = controllerKey && scopeKey ? JSON.stringify([scopeKey, controllerKey]) : null;
+        if (requestKey === lastRequestKey) return;
+        lastRequestKey = requestKey;
+        const requestId = ++descriptorRequestId;
 
-        if (controllerKey === lastControllerKey) return;
-        lastControllerKey = controllerKey;
-
-        if (!controllerKey) {
+        if (!requestKey) {
             $pageConfigDescriptor.set(null);
             return;
         }
@@ -223,26 +278,25 @@ export function initPageInspectionService(siteModel?: SiteModel | null): void {
         void (async () => {
             try {
                 const { loadPageDescriptor } = await import('../api/pageInspection.api');
+                if (requestId !== descriptorRequestId) return;
                 const descriptor = await loadPageDescriptor(controllerKey).unwrapOr(undefined);
-                $pageConfigDescriptor.set(descriptor ?? null);
+                if (requestId === descriptorRequestId) $pageConfigDescriptor.set(descriptor ?? null);
             } catch {
-                $pageConfigDescriptor.set(null);
+                if (requestId === descriptorRequestId) $pageConfigDescriptor.set(null);
             }
         })();
     });
     cleanups.push(unsubPage);
+
+    if (previousScope === activeScopeKey && previousScope !== null) {
+        const ctx = $contentContext.get();
+        if (ctx) void loadTemplatesAndControllers(ctx);
+    }
 }
 
 export function cleanupPageInspection(): void {
-    for (const fn of cleanups) fn();
-    cleanups.length = 0;
-
-    abortController?.abort();
-    abortController = null;
-
-    $pageTemplateOptions.set([]);
-    $arePageTemplatesResolved.set(false);
-    $pageControllerOptions.set([]);
-    $pageConfigDescriptor.set(null);
-    $isPageInspectionLoading.set(false);
+    unbindPageInspection();
+    activeScopeKey = null;
+    activeListIdentityKey = null;
+    clearPageInspectionOptions();
 }

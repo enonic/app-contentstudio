@@ -9,9 +9,9 @@ import { Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
 import type { default as Q } from 'q';
 import { type LiveEditModel } from '../../../page-editor/LiveEditModel';
 import {
-    cleanupComponentInspection,
-    initComponentInspectionService,
-} from '../../../v6/widgets/inspectors/model/component-inspection.store';
+    startComponentInspectionService,
+    stopComponentInspectionService,
+} from '../../../v6/widgets/inspectors/model/component-inspection.service';
 import {
     cleanupFragmentInspection,
     initFragmentInspectionService,
@@ -184,7 +184,7 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
         ShowContentFormEvent.un(this.hideLoadMaskHandler);
 
         this.liveEditPageProxy.remove();
-        cleanupComponentInspection();
+        stopComponentInspectionService();
         cleanupFragmentInspection();
         cleanupPageInspection();
         cleanupPageEditorBridge();
@@ -227,7 +227,7 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
         });
 
         initPageInspectionService(siteModel);
-        initComponentInspectionService(siteModel);
+        startComponentInspectionService(siteModel);
         initFragmentInspectionService();
 
         // Sync renderable state that may have been set before bridge init

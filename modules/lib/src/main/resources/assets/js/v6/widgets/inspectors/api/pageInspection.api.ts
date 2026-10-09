@@ -16,6 +16,7 @@ import { getCmsApiUrl, getCmsProjectUrl, getCmsRestUri } from '../../../shared/l
 export function loadPageTemplatesByCanRender(
     siteId: ContentId,
     contentTypeName: ContentTypeName,
+    signal?: AbortSignal,
 ): ResultAsync<PageTemplate[], AppError> {
     const params = new URLSearchParams({
         siteId: siteId.toString(),
@@ -23,7 +24,7 @@ export function loadPageTemplatesByCanRender(
     });
     const url = `${getCmsApiUrl('page/template/listByCanRender')}?${params}`;
 
-    return requestJson<{ contents?: ContentJson[] }>(url).map((json) =>
+    return requestJson<{ contents?: ContentJson[] }>(url, { signal }).map((json) =>
         (json.contents ?? []).map((c) => new PageTemplateBuilder().fromContentJson(c).build()),
     );
 }
@@ -32,11 +33,11 @@ export function loadPageTemplatesByCanRender(
  * Load page controller descriptors available for a given content.
  * Used by: widgets/inspectors/model/page-inspection.store.
  */
-export function loadPageControllers(contentId: ContentId): ResultAsync<Descriptor[], AppError> {
+export function loadPageControllers(contentId: ContentId, signal?: AbortSignal): ResultAsync<Descriptor[], AppError> {
     const params = new URLSearchParams({ contentId: contentId.toString() });
     const url = `${getCmsProjectUrl('content/schema/filter/pages')}?${params}`;
 
-    return requestJson<{ descriptors?: DescriptorJson[] }>(url).map((json) =>
+    return requestJson<{ descriptors?: DescriptorJson[] }>(url, { signal }).map((json) =>
         (json.descriptors ?? []).map((d) => Descriptor.fromJson(d)),
     );
 }

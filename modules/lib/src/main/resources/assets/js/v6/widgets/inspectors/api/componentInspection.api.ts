@@ -10,16 +10,17 @@ import { getCmsProjectUrl, getCmsRestUri } from '../../../shared/lib/url/cms';
 /**
  * Load component descriptors available for a given content, filtered by component type.
  * For parts: `.../schema/filter/parts`, for layouts: `.../schema/filter/layouts`.
- * Used by: widgets/inspectors/model/component-inspection.store.
+ * Used by: widgets/inspectors/model/component-inspection.service.
  */
 export function loadComponentDescriptors(
     componentType: string,
     contentId: ContentId,
+    signal?: AbortSignal,
 ): ResultAsync<Descriptor[], AppError> {
     const params = new URLSearchParams({ contentId: contentId.toString() });
     const url = `${getCmsProjectUrl(`content/schema/filter/${componentType}s`)}?${params}`;
 
-    return requestJson<{ descriptors?: DescriptorJson[] }>(url).map((json) =>
+    return requestJson<{ descriptors?: DescriptorJson[] }>(url, { signal }).map((json) =>
         (json.descriptors ?? []).map((d) =>
             Descriptor.fromJson(d).setComponentType(ComponentType.byShortName(componentType)),
         ),

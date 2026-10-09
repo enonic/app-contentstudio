@@ -27,6 +27,18 @@ export const $defaultPageTemplateName = atom<string | null>(null);
 
 export const $contentContext = atom<PageEditorContentContext | null>(null);
 
+// A save replaces the context object even when its inspection scope is unchanged.
+export const $contentScopeKey = computed($contentContext, (ctx): string | null =>
+    ctx
+        ? JSON.stringify([
+              ctx.contentId.toString(),
+              ctx.contentTypeName.toString(),
+              ctx.siteId?.toString() ?? null,
+              ctx.sitePath,
+          ])
+        : null,
+);
+
 export const $inspectedPath = atom<string | null>(null);
 
 // ? Bumps on every event accepted for inspection (SELECT/INSPECT/inspectItem),

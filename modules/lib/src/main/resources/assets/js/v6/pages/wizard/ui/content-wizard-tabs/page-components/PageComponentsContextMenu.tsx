@@ -25,8 +25,8 @@ import {
 } from '../../../../../widgets/inspectors/model/page-editor/commands';
 import { $config } from '../../../../../shared/config/config.store';
 import {
+    $areFragmentOptionsResolved,
     $fragmentOptions,
-    $isFragmentInspectionLoading,
 } from '../../../../../widgets/inspectors/model/fragment-inspection.store';
 import { isComponentReferenceMissing } from '../../../../../widgets/inspectors/model/component-inspection.store';
 import {
@@ -66,7 +66,7 @@ export const PageComponentsContextMenu = ({ node, children }: PageComponentsCont
     const contentContext = useStore($contentContext);
     const page = useStore($page);
     const fragmentOptions = useStore($fragmentOptions);
-    const isFragmentLoading = useStore($isFragmentInspectionLoading);
+    const areFragmentsResolved = useStore($areFragmentOptionsResolved);
 
     const selectParentLabel = useI18n('action.component.select.parent');
     const insertLabel = useI18n('widget.components.insert');
@@ -93,8 +93,8 @@ export const PageComponentsContextMenu = ({ node, children }: PageComponentsCont
     ) : null;
 
     const fragmentRemoved = useMemo(
-        () => isComponentReferenceMissing(node.id, page, fragmentOptions, [], isFragmentLoading),
-        [node.id, page, fragmentOptions, isFragmentLoading],
+        () => isComponentReferenceMissing(node.id, page, fragmentOptions, [], areFragmentsResolved),
+        [node.id, page, fragmentOptions, areFragmentsResolved],
     );
 
     if (data == null) {
