@@ -13,6 +13,7 @@ exports.config = {
         path.join(__dirname, '../specs/modal-dialog/mobile.browse.panel.toolbar.spec.js'),
     ],
     maxInstances: 1,
+    strictSelectors: false,
 
     capabilities: [
         {

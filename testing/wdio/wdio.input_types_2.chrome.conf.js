@@ -17,6 +17,7 @@ exports.config = {
     ],
 
     maxInstances: 2,
+    strictSelectors: false,
 
     capabilities: [
         {

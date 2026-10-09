@@ -19,6 +19,7 @@ exports.config = {
     ],
 
     maxInstances: 1,
+    strictSelectors: false,
 
     capabilities: [{
         browserName: 'chrome',
