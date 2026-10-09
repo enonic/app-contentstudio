@@ -11,12 +11,12 @@ WebDriverHelper.prototype.getBrowser = function () {
 };
 
 const makeChromeOptions = (headless, width, height) => ({
-    "args": [
-        ...(headless ? ["--headless", "--disable-gpu", "--no-sandbox"] : []),
-        "--lang=en",
+    args: [
+        ...(headless ? ['--headless', '--disable-gpu', '--no-sandbox'] : []),
+        '--lang=en',
         '--disable-extensions',
-        `--window-size=${width},${height}`
-    ]
+        `--window-size=${width},${height}`,
+    ],
 });
 
 /**
@@ -29,7 +29,8 @@ WebDriverHelper.prototype.setupBrowser = function setupBrowser(w, h) {
     let hh = h;
     before(async function () {
         let propertiesReaderModule = require('properties-reader');
-        let propertiesReader = propertiesReaderModule.propertiesReader || propertiesReaderModule.default || propertiesReaderModule;
+        let propertiesReader =
+            propertiesReaderModule.propertiesReader || propertiesReaderModule.default || propertiesReaderModule;
         let path = require('path');
         let webdriverio = require('webdriverio');
         let file = path.join(__dirname, '/../browser.properties');
@@ -48,11 +49,11 @@ WebDriverHelper.prototype.setupBrowser = function setupBrowser(w, h) {
             strictSelectors: false,
             automationProtocol: 'webdriver',
             capabilities: {
-                "wdio:enforceWebDriverClassic": true,
+                'wdio:enforceWebDriverClassic': true,
                 browserName: browser_name,
                 browserVersion: browser_version,
-                'goog:chromeOptions': makeChromeOptions(isHeadless, width, height)
-            }
+                'goog:chromeOptions': makeChromeOptions(isHeadless, width, height),
+            },
         };
         _this.browser = await webdriverio.remote(options);
         await _this.browser.url(baseUrl);

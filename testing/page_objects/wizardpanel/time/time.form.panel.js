@@ -35,13 +35,8 @@ class TimeForm extends OccurrencesFormView {
     }
 
     async getTimes() {
-        let values = [];
         let dateTimeElements = await this.getDisplayedElements(this.timeInput);
-        await Promise.all(dateTimeElements.map(async (el) => {
-            const value = await el.getValue();
-            values.push(value);
-        }));
-        return values;
+        return await Promise.all(dateTimeElements.map((el) => el.getValue()));
     }
 
     async getValueInTimeInput(index) {

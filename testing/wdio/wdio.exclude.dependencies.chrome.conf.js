@@ -1,6 +1,7 @@
 const path = require('path');
 const propertiesReaderModule = require('properties-reader');
-const propertiesReader = propertiesReaderModule.propertiesReader || propertiesReaderModule.default || propertiesReaderModule;
+const propertiesReader =
+    propertiesReaderModule.propertiesReader || propertiesReaderModule.default || propertiesReaderModule;
 const file = path.join(__dirname, '/../browser.properties');
 const properties = propertiesReader({ sourceFile: file });
 const browser_version = properties.get('browser.version');
@@ -8,11 +9,10 @@ const width = properties.get('browser.width');
 const height = properties.get('browser.height');
 
 exports.config = {
-
     specs: [
         path.join(__dirname, '../specs/exclude-dependencies/*.spec.js'),
         path.join(__dirname, '../specs/misc2/*.spec.js'),
-        path.join(__dirname, '../specs/permissions/*.spec.js')
+        path.join(__dirname, '../specs/permissions/*.spec.js'),
     ],
     exclude: [
         path.join(__dirname, '../specs/exclude-dependencies/project.not.available.dialog.spec.js'),
@@ -22,19 +22,23 @@ exports.config = {
     maxInstances: 1,
     strictSelectors: false,
 
-    capabilities: [{
-        browserName: 'chrome',
-        browserVersion: browser_version,
-        "wdio:enforceWebDriverClassic": true,
-        'goog:chromeOptions': {
-            "args": [
-                "--headless", "--disable-gpu", "--no-sandbox",
-                "--lang=en",
-                '--disable-extensions',
-                `--window-size=${width},${height}`
-            ]
-        }
-    }],
+    capabilities: [
+        {
+            browserName: 'chrome',
+            browserVersion: browser_version,
+            'wdio:enforceWebDriverClassic': true,
+            'goog:chromeOptions': {
+                args: [
+                    '--headless',
+                    '--disable-gpu',
+                    '--no-sandbox',
+                    '--lang=en',
+                    '--disable-extensions',
+                    `--window-size=${width},${height}`,
+                ],
+            },
+        },
+    ],
     logLevel: 'info',
     //
     // Enables colors for log output.
@@ -55,15 +59,21 @@ exports.config = {
     framework: 'mocha',
     mochaOpts: {
         ui: 'bdd',
-        timeout: 60000
+        timeout: 60000,
     },
     // Set directory to store all logs into
-    outputDir: "./build/reports/logs/",
+    outputDir: './build/reports/logs/',
 
     reporters: [
-        ['spec', {color: true}],
-        ['allure',
-            {outputDir: './build/reports/allure', disableWebdriverStepsReporting: true, disableWebdriverScreenshotsReporting: true}]
+        ['spec', { color: true }],
+        [
+            'allure',
+            {
+                outputDir: './build/reports/allure',
+                disableWebdriverStepsReporting: true,
+                disableWebdriverScreenshotsReporting: true,
+            },
+        ],
     ],
 
     // Hook that gets executed before the suite starts

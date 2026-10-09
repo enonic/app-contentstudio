@@ -24,13 +24,8 @@ class TextLineForm extends OccurrencesFormView {
     }
 
     async getTexLineValues() {
-        let values = [];
         let textLineElements = await this.getDisplayedElements(this.textLineInput);
-        await Promise.all(textLineElements.map(async (el) => {
-            const value = await el.getValue();
-            values.push(value);
-        }));
-        return values;
+        return await Promise.all(textLineElements.map((el) => el.getValue()));
     }
 
     async typeText(text, index) {

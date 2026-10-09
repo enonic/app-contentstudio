@@ -1,12 +1,12 @@
 const path = require('path');
 const propertiesReaderModule = require('properties-reader');
-const propertiesReader = propertiesReaderModule.propertiesReader || propertiesReaderModule.default || propertiesReaderModule;
+const propertiesReader =
+    propertiesReaderModule.propertiesReader || propertiesReaderModule.default || propertiesReaderModule;
 const file = path.join(__dirname, '/../browser.properties');
-const properties = propertiesReader({sourceFile: file});
+const properties = propertiesReader({ sourceFile: file });
 const browser_version = properties.get('browser.version');
 
 exports.config = {
-
     specs: [
         //path.join(__dirname, '../specs/project-multi/*.spec.js')
         path.join(__dirname, '../specs/project-multi/parent.project.step.multi.inheritance.spec.js'),
@@ -17,19 +17,23 @@ exports.config = {
     maxInstances: 1,
     strictSelectors: false,
 
-    capabilities: [{
-        browserName: 'chrome',
-        browserVersion: browser_version,
-        "wdio:enforceWebDriverClassic": true,
-        'goog:chromeOptions': {
-            "args": [
-                "--headless", "--disable-gpu", "--no-sandbox",
-                "--lang=en",
-                '--disable-extensions',
-                'window-size=1970,1000'
-            ]
-        }
-    }],
+    capabilities: [
+        {
+            browserName: 'chrome',
+            browserVersion: browser_version,
+            'wdio:enforceWebDriverClassic': true,
+            'goog:chromeOptions': {
+                args: [
+                    '--headless',
+                    '--disable-gpu',
+                    '--no-sandbox',
+                    '--lang=en',
+                    '--disable-extensions',
+                    'window-size=1970,1000',
+                ],
+            },
+        },
+    ],
     logLevel: 'info',
     //
     // Enables colors for log output.
@@ -50,16 +54,26 @@ exports.config = {
     framework: 'mocha',
     mochaOpts: {
         ui: 'bdd',
-        timeout: 160000
+        timeout: 160000,
     },
     // Set directory to store all logs into
-    outputDir: "./build/reports/logs/",
+    outputDir: './build/reports/logs/',
 
-    reporters: [['spec', {
-        color: true
-    }],
-        ['allure',
-            {outputDir: './build/reports/allure', disableWebdriverStepsReporting: true, disableWebdriverScreenshotsReporting: true}]
+    reporters: [
+        [
+            'spec',
+            {
+                color: true,
+            },
+        ],
+        [
+            'allure',
+            {
+                outputDir: './build/reports/allure',
+                disableWebdriverStepsReporting: true,
+                disableWebdriverScreenshotsReporting: true,
+            },
+        ],
     ],
 
     // Hook that gets executed before the suite starts

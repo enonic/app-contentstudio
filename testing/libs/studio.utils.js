@@ -946,17 +946,21 @@ module.exports = {
         return !str || 0 === str.length;
     },
     sendRequestGetHeaders() {
-        return this.getBrowser().executeAsync(
-            'var callback = arguments[arguments.length - 1];' +
-                'var xhr = new XMLHttpRequest();' +
-                "xhr.open('GET', '', true);" +
-                'xhr.onreadystatechange = function() {' +
-                '  if (xhr.readyState == 4) {' +
-                '    callback(xhr.getAllResponseHeaders());' +
-                '  }' +
-                '};' +
-                'xhr.send();',
-        );
+        return this.getBrowser().execute(function () {
+            return new Promise(function (resolve, reject) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', '', true);
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4) {
+                        resolve(xhr.getAllResponseHeaders());
+                    }
+                };
+                xhr.onerror = function () {
+                    reject(new Error('XHR request failed'));
+                };
+                xhr.send();
+            });
+        });
     },
     async openSettingsPanel() {
         try {
@@ -1048,22 +1052,20 @@ module.exports = {
     },
     // Posts a GraphQL request from the current page and returns {status, text} without interpreting it.
     async postGraphQl(url, query, variables) {
-        return await this.getBrowser().executeAsync(
-            function (url, query, variables, done) {
-                fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'same-origin',
-                    body: JSON.stringify({ query: query, variables: variables }),
-                })
-                    .then(function (response) {
-                        return response.text().then(function (text) {
-                            done({ status: response.status, text: text });
-                        });
-                    })
-                    .catch(function (err) {
-                        done({ status: 0, text: String(err) });
+        return await this.getBrowser().execute(
+            async function (url, query, variables) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'same-origin',
+                        body: JSON.stringify({ query: query, variables: variables }),
                     });
+                    const text = await response.text();
+                    return { status: response.status, text: text };
+                } catch (err) {
+                    return { status: 0, text: String(err) };
+                }
             },
             url,
             query,
@@ -1220,8 +1222,9 @@ module.exports = {
         await newPrincipalDialog.clickOnItem('User');
         return await userWizard.waitForOpened();
     },
+    // Returns a plain JS array: in WebdriverIO 10 the array returned by $$ has async map/filter (they return Promises).
     async getDisplayedElements(selector) {
-        let elements = await this.getBrowser().$$(selector);
+        let elements = Array.from(await this.getBrowser().$$(selector));
         if (elements.length === 0) {
             return [];
         }

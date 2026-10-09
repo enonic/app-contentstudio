@@ -45,7 +45,7 @@ class BaseAttachmentsWidgetItemView extends Page {
     async getAttachmentLinks() {
         let locator = this.attachmentsWidget + xpath.attachmentLink;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        let elements = await this.findElements(locator);
+        let elements = Array.from(await this.findElements(locator));
         return await Promise.all(elements.map(el => el.getAttribute('href')));
     }
 
