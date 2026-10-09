@@ -1,16 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { DescriptorBuilder } from '../../../../../../app/page/Descriptor';
-import { DescriptorKey } from '../../../../../../app/page/DescriptorKey';
-import { PartComponentBuilder } from '../../../../../../app/page/region/PartComponent';
-import { createPartIconUrls, resolvePartIconUrl } from './partIconUrl';
+import { resolvePartIconUrl } from './partIconUrl';
+import type { PageComponentNodeData } from './types';
 
 describe('partIconUrl', () => {
-    it('should resolve a part component through its descriptor icon', () => {
-        const descriptorKey = DescriptorKey.fromString('app:heading');
-        const descriptor = new DescriptorBuilder().setKey(descriptorKey).setIcon('/heading.svg').build();
-        const part = new PartComponentBuilder().setDescriptor(descriptorKey).build();
-
-        const iconUrl = resolvePartIconUrl(part, createPartIconUrls([descriptor]));
+    it('keeps the custom icon for a part row independently of the current page model', () => {
+        const node = { nodeType: 'part', descriptorKey: 'app:heading' } as PageComponentNodeData;
+        const iconUrl = resolvePartIconUrl(node, new Map([['app:heading', '/heading.svg']]));
 
         expect(iconUrl).toBe('/heading.svg');
     });

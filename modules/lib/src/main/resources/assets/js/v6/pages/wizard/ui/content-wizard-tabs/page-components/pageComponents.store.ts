@@ -349,7 +349,11 @@ function buildFragmentTree(page: Page, nodes: CreateNodeOptions<PageComponentNod
     const isLayout = fragment instanceof LayoutComponent;
     const regions = isLayout ? (fragment.getRegions()?.getRegions() ?? []) : [];
     const childIds = regions.map((r) => buildRegionPath(PAGE_ROOT_ID, r.getName()));
-    const fragmentHasDescriptor = fragment instanceof DescriptorBasedComponent && fragment.hasDescriptor();
+    const fragmentDescriptorKey =
+        fragment instanceof DescriptorBasedComponent && fragment.hasDescriptor()
+            ? fragment.getDescriptorKey().toString()
+            : undefined;
+    const fragmentHasDescriptor = fragmentDescriptorKey != null;
 
     nodes.push({
         id: PAGE_ROOT_ID,
@@ -360,6 +364,7 @@ function buildFragmentTree(page: Page, nodes: CreateNodeOptions<PageComponentNod
             draggable: false,
             layoutFragment: false,
             hasDescriptor: fragmentHasDescriptor,
+            descriptorKey: fragmentDescriptorKey,
         },
         parentId: null,
         hasChildren: childIds.length > 0,
@@ -427,6 +432,10 @@ function buildComponentNodes(
             // keeps a fast drag from nesting an unresolved layout fragment inside another layout.
             layoutFragment: fragmentId == null ? false : (layoutFragmentKindCache.resolved.get(fragmentId) ?? true),
             hasDescriptor: componentHasDescriptor,
+            descriptorKey:
+                component instanceof DescriptorBasedComponent && component.hasDescriptor()
+                    ? component.getDescriptorKey().toString()
+                    : undefined,
         },
         parentId: regionPath,
         hasChildren: childIds.length > 0,

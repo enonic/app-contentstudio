@@ -8,6 +8,7 @@ import { FragmentComponent } from '../../../../app/page/region/FragmentComponent
 import type { PageItem } from '../../../../app/page/region/PageItem';
 import type { SiteModel } from '../../../../app/site/SiteModel';
 import { createDebounce } from '../../../shared/lib/timing/createDebounce';
+import { loadComponentDescriptor } from '../api/componentInspection.api';
 import type { PageEditorContentContext } from './page-editor/types';
 import { $contentContext, $inspectedItem, $pageVersion } from './page-editor/store';
 
@@ -16,6 +17,9 @@ import { $contentContext, $inspectedItem, $pageVersion } from './page-editor/sto
 //
 
 export const $partDescriptorOptions = atom<Descriptor[]>([]);
+
+// Keep icons for components already on the page if a refresh briefly omits their descriptor.
+export const $partDescriptorIconUrls = atom<ReadonlyMap<string, string>>(new Map());
 
 export const $layoutDescriptorOptions = atom<Descriptor[]>([]);
 
@@ -80,8 +84,56 @@ export function isReferenceMissing(
 
 let abortController: AbortController | null = null;
 const cleanups: (() => void)[] = [];
+let activeSiteModel: SiteModel | null | undefined;
+let activeScopeKey: string | null = null;
+let activeContentId: string | null = null;
+let loadingScopeKey: string | null = null;
+let loadedPartScopeKey: string | null = null;
+let loadedLayoutScopeKey: string | null = null;
+let componentDescriptorRequestId = 0;
 
-async function loadDescriptors(ctx: PageEditorContentContext): Promise<void> {
+function getDescriptorScopeKey(ctx: PageEditorContentContext): string {
+    return JSON.stringify([
+        ctx.contentId.toString(),
+        ctx.contentTypeName.toString(),
+        ctx.siteId?.toString() ?? null,
+        ctx.sitePath,
+    ]);
+}
+
+function refreshDescriptors(ctx: PageEditorContentContext, force = false): void {
+    const scopeKey = getDescriptorScopeKey(ctx);
+    const contentId = ctx.contentId.toString();
+
+    if (activeScopeKey !== scopeKey) {
+        if (activeScopeKey !== null) {
+            $partDescriptorOptions.set([]);
+            $layoutDescriptorOptions.set([]);
+            $componentConfigDescriptor.set(null);
+        }
+        if (activeContentId !== contentId) {
+            $partDescriptorIconUrls.set(new Map());
+        }
+        activeScopeKey = scopeKey;
+        activeContentId = contentId;
+        loadedPartScopeKey = null;
+        loadedLayoutScopeKey = null;
+    }
+
+    if (
+        !force &&
+        (loadingScopeKey === scopeKey || (loadedPartScopeKey === scopeKey && loadedLayoutScopeKey === scopeKey))
+    ) {
+        return;
+    }
+
+    void loadDescriptors(ctx, scopeKey, force);
+}
+
+async function loadDescriptors(ctx: PageEditorContentContext, scopeKey: string, force: boolean): Promise<void> {
+    const loadParts = force || loadedPartScopeKey !== scopeKey;
+    const loadLayouts = force || loadedLayoutScopeKey !== scopeKey;
+    loadingScopeKey = scopeKey;
     $isComponentInspectionLoading.set(true);
     abortController?.abort();
     abortController = new AbortController();
@@ -90,48 +142,100 @@ async function loadDescriptors(ctx: PageEditorContentContext): Promise<void> {
     try {
         const { loadComponentDescriptors } = await import('../api/componentInspection.api');
 
-        const [parts, layouts] = await Promise.all([
-            loadComponentDescriptors('part', ctx.contentId).unwrapOr([]),
-            loadComponentDescriptors('layout', ctx.contentId).unwrapOr([]),
+        const [partsResult, layoutsResult] = await Promise.all([
+            loadParts ? loadComponentDescriptors('part', ctx.contentId) : null,
+            loadLayouts ? loadComponentDescriptors('layout', ctx.contentId) : null,
         ]);
 
-        if (!signal.aborted) {
-            $partDescriptorOptions.set(parts);
-            $layoutDescriptorOptions.set(layouts);
+        if (signal.aborted) {
+            return;
+        }
+
+        if (partsResult?.isOk()) {
+            const iconUrls = new Map($partDescriptorIconUrls.get());
+            for (const descriptor of partsResult.value) {
+                const key = descriptor.getKey().toString();
+                const iconUrl = descriptor.getIcon();
+                if (iconUrl) {
+                    iconUrls.set(key, iconUrl);
+                } else {
+                    iconUrls.delete(key);
+                }
+            }
+            $partDescriptorIconUrls.set(iconUrls);
+            $partDescriptorOptions.set(partsResult.value);
+            loadedPartScopeKey = scopeKey;
+        }
+        if (layoutsResult?.isOk()) {
+            $layoutDescriptorOptions.set(layoutsResult.value);
+            loadedLayoutScopeKey = scopeKey;
         }
     } catch {
-        // Aborted or failed
+        // Keep the last successful options when a request fails.
     } finally {
         if (!signal.aborted) {
+            loadingScopeKey = null;
             $isComponentInspectionLoading.set(false);
         }
     }
 }
 
+function stopComponentInspectionService(): void {
+    for (const fn of cleanups) {
+        fn();
+    }
+    cleanups.length = 0;
+
+    abortController?.abort();
+    abortController = null;
+    ++componentDescriptorRequestId;
+    activeSiteModel = undefined;
+    loadingScopeKey = null;
+    $isComponentInspectionLoading.set(false);
+}
+
 export function initComponentInspectionService(siteModel?: SiteModel | null): void {
-    cleanupComponentInspection();
+    const nextSiteModel = siteModel ?? null;
+    if (activeSiteModel !== undefined && activeSiteModel === nextSiteModel) {
+        return;
+    }
+
+    // A new SiteModel may still describe the same content. Keep visible options
+    // and icons until its replacement request finishes.
+    stopComponentInspectionService();
+    activeSiteModel = nextSiteModel;
+    loadedPartScopeKey = null;
+    loadedLayoutScopeKey = null;
 
     const unsubContext = $contentContext.subscribe((ctx) => {
         if (!ctx) return;
-        void loadDescriptors(ctx);
+        refreshDescriptors(ctx);
     });
     cleanups.push(unsubContext);
 
     // Reload when applications change in the SiteConfigurator dialog before any server round-trip.
     const reloadDebounced = createDebounce(() => {
         const ctx = $contentContext.get();
-        if (ctx) void loadDescriptors(ctx);
+        if (ctx) {
+            refreshDescriptors(ctx, true);
+        }
     }, 300);
 
     if (siteModel) {
         const onSiteModelChange = (): void => reloadDebounced();
         siteModel.onApplicationAdded(onSiteModelChange);
         siteModel.onApplicationRemoved(onSiteModelChange);
+        siteModel.onApplicationStarted(onSiteModelChange);
+        siteModel.onApplicationUnavailable(onSiteModelChange);
+        siteModel.onApplicationUninstalled(onSiteModelChange);
         siteModel.onSiteModelUpdated(onSiteModelChange);
         cleanups.push(() => {
             reloadDebounced.cancel();
             siteModel.unApplicationAdded(onSiteModelChange);
             siteModel.unApplicationRemoved(onSiteModelChange);
+            siteModel.unApplicationStarted(onSiteModelChange);
+            siteModel.unApplicationUnavailable(onSiteModelChange);
+            siteModel.unApplicationUninstalled(onSiteModelChange);
             siteModel.unSiteModelUpdated(onSiteModelChange);
         });
     } else {
@@ -142,12 +246,13 @@ export function initComponentInspectionService(siteModel?: SiteModel | null): vo
     let lastKey: string | null = null;
 
     const $derivedDescriptorInfo = computed(
-        [$inspectedItem, $pageVersion],
-        (item): { componentType: string; descriptorKey: string } | null => {
+        [$inspectedItem, $pageVersion, $contentContext],
+        (item, _pageVersion, ctx): { componentType: string; descriptorKey: string; scopeKey: string } | null => {
             if (item instanceof DescriptorBasedComponent && item.hasDescriptor()) {
                 return {
                     componentType: item.getType().getShortName(),
                     descriptorKey: item.getDescriptorKey().toString(),
+                    scopeKey: ctx ? getDescriptorScopeKey(ctx) : '',
                 };
             }
             return null;
@@ -155,10 +260,11 @@ export function initComponentInspectionService(siteModel?: SiteModel | null): vo
     );
 
     const unsubItem = $derivedDescriptorInfo.subscribe((info) => {
-        const newKey = info ? `${info.componentType}::${info.descriptorKey}` : null;
+        const newKey = info ? `${info.scopeKey}::${info.componentType}::${info.descriptorKey}` : null;
 
         if (newKey === lastKey) return;
         lastKey = newKey;
+        const requestId = ++componentDescriptorRequestId;
 
         if (!info) {
             $componentConfigDescriptor.set(null);
@@ -167,13 +273,16 @@ export function initComponentInspectionService(siteModel?: SiteModel | null): vo
 
         void (async () => {
             try {
-                const { loadComponentDescriptor } = await import('../api/componentInspection.api');
                 const descriptor = await loadComponentDescriptor(info.componentType, info.descriptorKey).unwrapOr(
                     undefined,
                 );
-                $componentConfigDescriptor.set(descriptor ?? null);
+                if (requestId === componentDescriptorRequestId) {
+                    $componentConfigDescriptor.set(descriptor ?? null);
+                }
             } catch {
-                $componentConfigDescriptor.set(null);
+                if (requestId === componentDescriptorRequestId) {
+                    $componentConfigDescriptor.set(null);
+                }
             }
         })();
     });
@@ -181,14 +290,14 @@ export function initComponentInspectionService(siteModel?: SiteModel | null): vo
 }
 
 export function cleanupComponentInspection(): void {
-    for (const fn of cleanups) fn();
-    cleanups.length = 0;
-
-    abortController?.abort();
-    abortController = null;
+    stopComponentInspectionService();
+    activeScopeKey = null;
+    activeContentId = null;
+    loadedPartScopeKey = null;
+    loadedLayoutScopeKey = null;
 
     $partDescriptorOptions.set([]);
+    $partDescriptorIconUrls.set(new Map());
     $layoutDescriptorOptions.set([]);
     $componentConfigDescriptor.set(null);
-    $isComponentInspectionLoading.set(false);
 }
