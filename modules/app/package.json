@@ -33,7 +33,7 @@
     "@enonic/page-editor": "2.0.2",
     "@enonic/ui": "^1.3.0",
     "@nanostores/preact": "^1.0.0",
-    "@radix-ui/react-slot": "^1.3.3",
+    "@radix-ui/react-slot": "^1.4.0",
     "chart.js": "^4.5.1",
     "ckeditor4-react": "5.2.1",
     "class-variance-authority": "^0.7.1",
