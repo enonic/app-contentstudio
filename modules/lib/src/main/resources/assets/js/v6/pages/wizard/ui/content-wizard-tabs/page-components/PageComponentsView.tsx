@@ -37,6 +37,7 @@ import {
 import {
     $isComponentInspectionLoading,
     $layoutDescriptorOptions,
+    $partDescriptorIconUrls,
     $partDescriptorOptions,
     isReferenceMissing,
 } from '../../../../../widgets/inspectors/model/component-inspection.store';
@@ -46,7 +47,7 @@ import { $invalidComponentPaths, $validationVisibility } from '../../../model/wi
 import { EditLockOverlay } from '../../../../../shared/ui/EditLockOverlay';
 import { PageComponentsContextMenu } from './PageComponentsContextMenu';
 import { calcSpacerWidth, PageComponentsItem, type PageComponentPageMetadata } from './PageComponentsItem';
-import { createPartIconUrls, resolvePartIconUrl } from './partIconUrl';
+import { resolvePartIconUrl } from './partIconUrl';
 import {
     computeTreeItemPositions,
     focusPageComponentsRowAt,
@@ -90,6 +91,7 @@ export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProp
     const fragmentOptions = useStore($fragmentOptions);
     const isFragmentLoading = useStore($isFragmentInspectionLoading);
     const partDescriptorOptions = useStore($partDescriptorOptions);
+    const partIconUrls = useStore($partDescriptorIconUrls);
     const layoutDescriptorOptions = useStore($layoutDescriptorOptions);
     const isComponentLoading = useStore($isComponentInspectionLoading);
     const invalidComponentPaths = useStore($invalidComponentPaths);
@@ -101,7 +103,6 @@ export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProp
         () => [...partDescriptorOptions, ...layoutDescriptorOptions],
         [partDescriptorOptions, layoutDescriptorOptions],
     );
-    const partIconUrls = useMemo(() => createPartIconUrls(partDescriptorOptions), [partDescriptorOptions]);
     const referenceLoading = isFragmentLoading || isComponentLoading;
     const [flatNodes, setFlatNodes] = useState(() => [...$componentsFlatNodes.get()]);
     // The roving tab stop follows real focus while the list has it, and falls back to the
@@ -394,8 +395,7 @@ export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProp
             const component = page?.getComponentByPath(ComponentPath.fromString(context.item.id)) ?? null;
             const referenceMissing = !referenceLoading && isReferenceMissing(component, fragmentOptions, descriptors);
             const isInvalid = showErrors && (invalidComponentPaths.has(context.item.id) || referenceMissing);
-            const iconUrl =
-                context.item.data?.nodeType === 'part' ? resolvePartIconUrl(component, partIconUrls) : undefined;
+            const iconUrl = resolvePartIconUrl(context.item.data, partIconUrls);
 
             return (
                 <PageComponentsContextMenu node={context.item}>
@@ -403,6 +403,7 @@ export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProp
                         context={context}
                         pageMetadata={pageMetadata}
                         iconUrl={iconUrl}
+                        iconRefreshToken={partIconUrls}
                         selected={isSelected}
                         invalid={isInvalid}
                         onToggle={toggleComponentExpand}
