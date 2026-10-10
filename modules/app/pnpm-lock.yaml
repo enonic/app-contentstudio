@@ -40,7 +40,7 @@ importers:
         version: 2.0.2
       '@enonic/ui':
         specifier: ^1.3.0
-        version: 1.3.0(@radix-ui/react-slot@1.4.0(@types/react@19.2.14)(react@19.2.4))(focus-trap-react@12.0.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(preact@10.29.8)(react-dom@19.2.4(react@19.2.4))(react-virtuoso@4.18.12(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(tw-animate-css@1.4.0)
+        version: 1.3.0(@radix-ui/react-slot@1.4.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(focus-trap-react@12.0.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(preact@10.29.8)(react-dom@19.2.4(react@19.2.4))(react-virtuoso@4.18.12(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(tw-animate-css@1.4.0)
       '@nanostores/preact':
         specifier: ^1.0.0
         version: 1.1.0(nanostores@1.5.3)(preact@10.29.8)
@@ -90,8 +90,8 @@ importers:
         specifier: ^0.7.6
         version: 0.7.6
       lucide-react:
-        specifier: ^1.39.0
-        version: 1.39.0(react@19.2.4)
+        specifier: ^1.52.0
+        version: 1.52.0(@types/react@19.2.14)(react@19.2.4)
       mousetrap:
         specifier: ^1.6.5
         version: 1.6.5
@@ -1295,10 +1295,14 @@ packages:
     resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
     hasBin: true
 
-  lucide-react@1.39.0:
-    resolution: {integrity: sha512-y8nXoEwvqqIsF927NBWXODa4bfMrcUeEb/9sgpwFqg0gUjgn3j5Hznk+v7STmPgZ2iQ11JKlbQGdFRuTOwvYkA==}
+  lucide-react@1.52.0:
+    resolution: {integrity: sha512-TUgPtl5ZI9WgxOcbu4ckaC5B3l1qxPQrCMgb6OfUB9owx/OvSJfcf93SMgUWAxRw5/1XDfh9uI5F5iNGXCcGDQ==}
     peerDependencies:
+      '@types/react': '*'
       react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   make-asynchronous@1.1.0:
     resolution: {integrity: sha512-ayF7iT+44LXdxJLTrTd3TLQpFDDvPCBxXxbv+pMUSuHA5Q8zyAfwkRP6aHHwNVFBUFWtxAHqwNJxF8vMZLAbVg==}
@@ -1906,12 +1910,12 @@ snapshots:
     dependencies:
       nanostores: 1.5.3
 
-  '@enonic/ui@1.3.0(@radix-ui/react-slot@1.4.0(@types/react@19.2.14)(react@19.2.4))(focus-trap-react@12.0.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(preact@10.29.8)(react-dom@19.2.4(react@19.2.4))(react-virtuoso@4.18.12(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(tw-animate-css@1.4.0)':
+  '@enonic/ui@1.3.0(@radix-ui/react-slot@1.4.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(focus-trap-react@12.0.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(preact@10.29.8)(react-dom@19.2.4(react@19.2.4))(react-virtuoso@4.18.12(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(tw-animate-css@1.4.0)':
     dependencies:
       '@radix-ui/react-slot': 1.4.0(@types/react@19.2.14)(react@19.2.4)
       class-variance-authority: 0.7.1
       clsx: 2.1.1
-      lucide-react: 1.39.0(react@19.2.4)
+      lucide-react: 1.52.0(@types/react@19.2.14)(react@19.2.4)
       tailwind-merge: 3.6.0
     optionalDependencies:
       focus-trap-react: 12.0.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -1920,6 +1924,8 @@ snapshots:
       react-dom: 19.2.4(react@19.2.4)
       react-virtuoso: 4.18.12(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       tw-animate-css: 1.4.0
+    transitivePeerDependencies:
+      - '@types/react'
 
   '@kurkle/color@0.3.4': {}
 
@@ -2618,9 +2624,11 @@ snapshots:
     dependencies:
       js-tokens: 4.0.0
 
-  lucide-react@1.39.0(react@19.2.4):
+  lucide-react@1.52.0(@types/react@19.2.14)(react@19.2.4):
     dependencies:
       react: 19.2.4
+    optionalDependencies:
+      '@types/react': 19.2.14
 
   make-asynchronous@1.1.0:
     dependencies:
