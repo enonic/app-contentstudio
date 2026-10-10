@@ -10,6 +10,7 @@ exports.config = {
     specs: [path.join(__dirname, '../specs/project-2/*.spec.js')],
 
     maxInstances: 1,
+    strictSelectors: false,
 
     capabilities: [
         {

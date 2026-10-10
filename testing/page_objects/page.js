@@ -52,8 +52,10 @@ class Page {
         return this.browser.getTitle();
     }
 
+    // Returns a plain JS array. In WebdriverIO 10 the array returned by $$ has async map/filter/forEach
+    // (they return Promises), so it must be converted before using synchronous array methods on it.
     async getDisplayedElements(selector) {
-        let elements = await this.findElements(selector);
+        let elements = Array.from(await this.findElements(selector));
         if (elements.length === 0) {
             return [];
         }
@@ -64,8 +66,20 @@ class Page {
         return this.browser.pause(ms);
     }
 
+    // An element can be removed from the DOM between findElements() and isDisplayed() (e.g. a closing dialog).
+    // WebdriverIO 10 (BiDi) reports it as a stale element error instead of 'not displayed', so treat it as hidden.
     async doFilterDisplayedElements(elements) {
-        let pr = await elements.map(async (el) => await el.isDisplayed());
+        elements = Array.from(elements);
+        let pr = elements.map(async (el) => {
+            try {
+                return await el.isDisplayed();
+            } catch (err) {
+                if (/stale element/i.test(err.message)) {
+                    return false;
+                }
+                throw err;
+            }
+        });
         let result = await Promise.all(pr);
         return elements.filter((el, i) => result[i]);
     }

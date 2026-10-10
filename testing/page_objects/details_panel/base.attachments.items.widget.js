@@ -12,7 +12,6 @@ const xpath = {
 };
 
 class BaseAttachmentsWidgetItemView extends Page {
-
     async waitForLoaded() {
         try {
             return await this.waitForElementDisplayed(this.attachmentsWidget);
@@ -45,8 +44,8 @@ class BaseAttachmentsWidgetItemView extends Page {
     async getAttachmentLinks() {
         let locator = this.attachmentsWidget + xpath.attachmentLink;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        let elements = await this.findElements(locator);
-        return await Promise.all(elements.map(el => el.getAttribute('href')));
+        let elements = Array.from(await this.findElements(locator));
+        return await Promise.all(elements.map((el) => el.getAttribute('href')));
     }
 
     async clickOnAttachmentLink(name) {
@@ -55,7 +54,11 @@ class BaseAttachmentsWidgetItemView extends Page {
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             await this.clickOnElement(locator);
         } catch (err) {
-            await this.handleError(`Attachments widget - link '${name}' should be clickable`, 'err_attachment_link', err);
+            await this.handleError(
+                `Attachments widget - link '${name}' should be clickable`,
+                'err_attachment_link',
+                err,
+            );
         }
     }
 

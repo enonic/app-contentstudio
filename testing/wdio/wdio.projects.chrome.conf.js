@@ -12,6 +12,7 @@ exports.config = {
     exclude: [path.join(__dirname, '../specs/project/layers.content.tree.dialog.spec.js')],
 
     maxInstances: 1,
+    strictSelectors: false,
 
     capabilities: [
         {
