@@ -1,14 +1,9 @@
 allowBuilds:
-  edgedriver: true
-  esbuild: true
-  geckodriver: true
+  edgedriver: false
+  esbuild: false
+  geckodriver: false
 
 minimumReleaseAge: 1440
-
-minimumReleaseAgeExclude:
-  - '@wdio/*'
-  - 'webdriver'
-  - 'webdriverio'
 
 overrides:
   basic-ftp@<=5.2.1: '>=5.2.2'

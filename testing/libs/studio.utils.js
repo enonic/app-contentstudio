@@ -952,11 +952,12 @@ module.exports = {
                 xhr.open('GET', '', true);
                 xhr.onreadystatechange = function () {
                     if (xhr.readyState == 4) {
-                        resolve(xhr.getAllResponseHeaders());
+                        if (xhr.status === 0) {
+                            reject(new Error('XHR request failed'));
+                        } else {
+                            resolve(xhr.getAllResponseHeaders());
+                        }
                     }
-                };
-                xhr.onerror = function () {
-                    reject(new Error('XHR request failed'));
                 };
                 xhr.send();
             });
@@ -1222,7 +1223,6 @@ module.exports = {
         await newPrincipalDialog.clickOnItem('User');
         return await userWizard.waitForOpened();
     },
-    // Returns a plain JS array: in WebdriverIO 10 the array returned by $$ has async map/filter (they return Promises).
     async getDisplayedElements(selector) {
         let elements = Array.from(await this.getBrowser().$$(selector));
         if (elements.length === 0) {
