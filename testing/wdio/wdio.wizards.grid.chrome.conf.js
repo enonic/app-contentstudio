@@ -1,15 +1,13 @@
 const path = require('path');
 const propertiesReaderModule = require('properties-reader');
-const propertiesReader = propertiesReaderModule.propertiesReader || propertiesReaderModule.default || propertiesReaderModule;
+const propertiesReader =
+    propertiesReaderModule.propertiesReader || propertiesReaderModule.default || propertiesReaderModule;
 const file = path.join(__dirname, '/../browser.properties');
 const properties = propertiesReader({ sourceFile: file });
 const browser_version = properties.get('browser.version');
 
 exports.config = {
-
-    specs: [
-        path.join(__dirname, '../specs/*.spec.js'),
-    ],
+    specs: [path.join(__dirname, '../specs/*.spec.js')],
     exclude: [
         path.join(__dirname, '../specs/browse.selection.controller.spec.js'),
         path.join(__dirname, '../specs/outbound.dependency.rollback.version.spec.js'),
@@ -19,21 +17,25 @@ exports.config = {
     ],
 
     maxInstances: 1,
+    strictSelectors: false,
 
-    capabilities: [{
-        browserName: 'chrome',
-        "wdio:enforceWebDriverClassic": true,
-        'goog:chromeOptions': {
-            "args": [
-                "--disable-gpu", "--no-sandbox",
-                "--lang=en",
-                "--headless=new",
-                '--disable-extensions',
-                '--disable-dev-shm-usage',
-                '--window-size=1970,1000'
-            ]
-        }
-    }],
+    capabilities: [
+        {
+            browserName: 'chrome',
+            'wdio:enforceWebDriverClassic': true,
+            'goog:chromeOptions': {
+                args: [
+                    '--disable-gpu',
+                    '--no-sandbox',
+                    '--lang=en',
+                    '--headless=new',
+                    '--disable-extensions',
+                    '--disable-dev-shm-usage',
+                    '--window-size=1970,1000',
+                ],
+            },
+        },
+    ],
     logLevel: 'info',
     //
     // Enables colors for log output.
@@ -54,16 +56,26 @@ exports.config = {
     framework: 'mocha',
     mochaOpts: {
         ui: 'bdd',
-        timeout: 160000
+        timeout: 160000,
     },
     // Set directory to store all logs into
-    outputDir: "./build/reports/logs/",
+    outputDir: './build/reports/logs/',
 
-    reporters: [['spec', {
-        color: true
-    }],
-        ['allure',
-            {outputDir: './build/reports/allure', disableWebdriverStepsReporting: true, disableWebdriverScreenshotsReporting: true}]
+    reporters: [
+        [
+            'spec',
+            {
+                color: true,
+            },
+        ],
+        [
+            'allure',
+            {
+                outputDir: './build/reports/allure',
+                disableWebdriverStepsReporting: true,
+                disableWebdriverScreenshotsReporting: true,
+            },
+        ],
     ],
 
     // Hook that gets executed before the suite starts
