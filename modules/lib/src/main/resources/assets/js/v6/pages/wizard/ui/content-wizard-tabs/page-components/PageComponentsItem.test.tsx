@@ -1,4 +1,4 @@
-import type { SortableListItemContext } from '@enonic/lib-admin-ui/form2/components';
+import type { SortableListItemContext } from '@enonic/input-types';
 import { fireEvent, render, screen } from '@testing-library/preact';
 import { describe, expect, it, vi } from 'vitest';
 import type { FlatNode } from '../../../../../shared/lib/tree-store';
