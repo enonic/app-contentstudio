@@ -79,6 +79,7 @@ import { type PageTemplate } from '../content/PageTemplate';
 import { type Site } from '../content/Site';
 import { BeforeContentSavedEvent } from '../event/BeforeContentSavedEvent';
 import { ContentLanguageUpdatedEvent } from '../event/ContentLanguageUpdatedEvent';
+import { ContentSettingsUpdatedEvent } from '../event/ContentSettingsUpdatedEvent';
 import { ContentRequiresSaveEvent } from '../event/ContentRequiresSaveEvent';
 import { type ContentServerChangeItem } from '../event/ContentServerChangeItem';
 import { ContentServerEventsHandler } from '../event/ContentServerEventsHandler';
@@ -282,6 +283,28 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         ContentLanguageUpdatedEvent.on((event: ContentLanguageUpdatedEvent) => {
             this.openTranslatorDialog(event.getLanguage());
         });
+
+        ContentSettingsUpdatedEvent.on((event: ContentSettingsUpdatedEvent) => {
+            this.handleContentSettingsUpdated(event.getContent());
+        });
+    }
+
+    private handleContentSettingsUpdated(content: Content): void {
+        if (!this.isCurrentContentId(content.getContentId())) {
+            return;
+        }
+
+        const wasDataInherited: boolean = this.getPersistedItem().isDataInherited();
+
+        this.replacePersistedContent(content);
+
+        if (wasDataInherited && !content.isDataInherited()) {
+            this.setEnabled(true);
+            setWizardReadOnly(false);
+            this.unLockPage();
+        }
+
+        this.wizardActions.refreshActions().catch(DefaultErrorHandler.handle);
     }
 
     private handleContentRequiresSaveEvent(): void {

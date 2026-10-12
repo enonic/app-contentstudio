@@ -4,8 +4,10 @@ import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { ResultAsync } from 'neverthrow';
 import { map } from 'nanostores';
+import type { Content } from '../../../../app/content/Content';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { ContentLanguageUpdatedEvent } from '../../../../app/event/ContentLanguageUpdatedEvent';
+import { ContentSettingsUpdatedEvent } from '../../../../app/event/ContentSettingsUpdatedEvent';
 import { fetchContentById } from '../../../entities/content';
 import { loadPrincipalsByKeys } from '../../../entities/principal';
 import { type AppError } from '../../../shared/api/errors';
@@ -110,6 +112,7 @@ export const applyEditPropertiesDialog = async (): Promise<void> => {
 
     const contentItem = contentResult.value;
 
+    const wasDataInherited = contentItem.isDataInherited();
     const previousLanguage = contentItem.getLanguage();
     const previousOwnerKey = contentItem.getOwner()?.toString();
     const nextLanguage = state.languageSelection[0];
@@ -118,7 +121,7 @@ export const applyEditPropertiesDialog = async (): Promise<void> => {
     const languageChanged = (nextLanguage ?? undefined) !== (previousLanguage ?? undefined);
     const ownerChanged = (nextOwnerKey ?? undefined) !== (previousOwnerKey ?? undefined);
 
-    const updates: ResultAsync<void, AppError>[] = [];
+    const updates: ResultAsync<Content, AppError>[] = [];
 
     if (ownerChanged) {
         updates.push(
@@ -141,7 +144,14 @@ export const applyEditPropertiesDialog = async (): Promise<void> => {
             return;
         }
 
-        showFeedback(i18n('notify.properties.settings.updated', contentItem.getName().toString()));
+        const updatedContent = result.value[result.value.length - 1];
+        new ContentSettingsUpdatedEvent(updatedContent).fire();
+
+        if (wasDataInherited && !updatedContent.isDataInherited()) {
+            showFeedback(i18n('notify.content.localized'));
+        } else {
+            showFeedback(i18n('notify.properties.settings.updated', contentItem.getName().toString()));
+        }
 
         if (languageChanged) {
             new ContentLanguageUpdatedEvent(nextLanguage).fire();
