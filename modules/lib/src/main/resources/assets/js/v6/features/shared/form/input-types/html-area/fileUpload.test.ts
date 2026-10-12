@@ -33,9 +33,10 @@ function createEditorStub(): { editor: CKEDITOR.editor; handlers: Record<string,
 function createUploadEvent() {
     const xhr = { open: vi.fn(), send: vi.fn() };
     const fileLoader = { fileName: 'img.png', file: new File(['x'], 'img.png'), uploadUrl: '/upload', xhr };
-    const evt = { data: { fileLoader }, stop: vi.fn(), editor: { document: { findOne: () => undefined } } };
+    const widget = { remove: vi.fn() };
+    const evt = { data: { fileLoader }, stop: vi.fn(), editor: { document: { findOne: () => widget } } };
 
-    return { evt, xhr };
+    return { evt, xhr, widget };
 }
 
 beforeEach(() => {
@@ -65,15 +66,17 @@ describe('setupFileUpload', () => {
         expect(evt.stop).toHaveBeenCalled();
     });
 
-    it('should not upload when there is no current content', () => {
+    it('should stop the default upload and drop the preview when there is no current content', () => {
         const { editor, handlers } = createEditorStub();
 
         setupFileUpload(editor, () => undefined, undefined);
 
-        const { evt, xhr } = createUploadEvent();
+        const { evt, xhr, widget } = createUploadEvent();
         handlers.fileUploadRequest(evt);
 
         expect(mocks.contentExistsByPath).not.toHaveBeenCalled();
         expect(xhr.send).not.toHaveBeenCalled();
+        expect(evt.stop).toHaveBeenCalled();
+        expect(widget.remove).toHaveBeenCalled();
     });
 });

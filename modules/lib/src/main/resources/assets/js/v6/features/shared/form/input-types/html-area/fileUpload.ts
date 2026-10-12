@@ -48,7 +48,12 @@ export function setupFileUpload(
         const fileLoader = evt.data.fileLoader;
         const contentSummary = getContentSummary();
 
-        if (!contentSummary) return;
+        if (!contentSummary) {
+            // Stop CKEditor's default handler, which would otherwise send the file without a parent
+            evt.editor.document.findOne('.cke_widget_uploadimage')?.remove();
+            evt.stop();
+            return;
+        }
 
         const parentPath = contentSummary.getPath();
         const contentPathAsString = ContentPath.create().fromParent(parentPath, fileLoader.fileName).build().toString();
