@@ -52,8 +52,9 @@ class Page {
         return this.browser.getTitle();
     }
 
+    // WebdriverIO 10: map/filter/forEach on the $$ result are async, convert to a plain array first.
     async getDisplayedElements(selector) {
-        let elements = await this.findElements(selector);
+        let elements = Array.from(await this.findElements(selector));
         if (elements.length === 0) {
             return [];
         }
@@ -64,8 +65,20 @@ class Page {
         return this.browser.pause(ms);
     }
 
+    // An element removed from the DOM between findElements() and isDisplayed() throws a stale element error,
+    // treat it as hidden.
     async doFilterDisplayedElements(elements) {
-        let pr = await elements.map(async (el) => await el.isDisplayed());
+        elements = Array.from(elements);
+        let pr = elements.map(async (el) => {
+            try {
+                return await el.isDisplayed();
+            } catch (err) {
+                if (/stale element/i.test(err.message)) {
+                    return false;
+                }
+                throw err;
+            }
+        });
         let result = await Promise.all(pr);
         return elements.filter((el, i) => result[i]);
     }
