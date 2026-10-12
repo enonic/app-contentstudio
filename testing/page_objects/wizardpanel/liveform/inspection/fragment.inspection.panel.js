@@ -2,7 +2,7 @@
  * Created on 19.02.2020. updated on 01.06.2026
  */
 const BaseComponentInspectionPanel = require('./base.component.inspection.panel');
-const {BUTTONS, DROPDOWN} = require('../../../../libs/elements');
+const { BUTTONS, DROPDOWN } = require('../../../../libs/elements');
 const FragmentDropdown = require('../../../components/selectors/fragment.dropdown');
 
 const xpath = {
@@ -12,7 +12,6 @@ const xpath = {
 
 //Content Wizard,Context Window, Inspect tab for Fragment Component
 class FragmentInspectionPanel extends BaseComponentInspectionPanel {
-
     get fragmentDropdown() {
         return xpath.container + xpath.fragmentContentSelector;
     }
@@ -25,8 +24,12 @@ class FragmentInspectionPanel extends BaseComponentInspectionPanel {
         return xpath.container + BUTTONS.buttonAriaLabel('Edit Fragment');
     }
 
-    waitForEditFragmentButtonEnabled() {
-        return this.waitForElementEnabled(this.editFragmentButton);
+    async waitForEditFragmentButtonEnabled() {
+        return await this.waitForElementEnabled(this.editFragmentButton);
+    }
+
+    async waitForEditFragmentButtonDisplayed() {
+        return await this.waitForElementDisplayed(this.editFragmentButton);
     }
 
     waitForEditFragmentButtonDisabled() {
@@ -34,9 +37,14 @@ class FragmentInspectionPanel extends BaseComponentInspectionPanel {
     }
 
     async clickOnEditFragmentButton() {
-        await this.waitForEditFragmentButtonEnabled();
-        await this.clickOnElement(this.editFragmentButton);
-        return await this.pause(1000);
+        try {
+            await this.waitForEditFragmentButtonDisplayed();
+            await this.waitForEditFragmentButtonEnabled();
+            await this.clickOnElement(this.editFragmentButton);
+            return await this.pause(1000);
+        } catch (err) {
+            await this.handleError('Fragment Inspection Panel', 'err_fragment_inspect_edit_button', err);
+        }
     }
 
     async clickOnFragmentDropdownHandle() {
@@ -45,7 +53,7 @@ class FragmentInspectionPanel extends BaseComponentInspectionPanel {
             await this.clickOnElement(this.fragmentDropdownHandle);
             return await this.pause(300);
         } catch (err) {
-            await this.handleError('Fragment Inspection Panel', 'err_fragment_inspect_dropdown_handle', err)
+            await this.handleError('Fragment Inspection Panel', 'err_fragment_inspect_dropdown_handle', err);
         }
     }
 
@@ -88,16 +96,19 @@ class FragmentInspectionPanel extends BaseComponentInspectionPanel {
         }
     }
 
-
     async waitForEmptyOptionsMessage() {
         try {
-            let locator = "//div[@data-component='Combobox.Popup']//span[contains(@class,'text-subtle') and contains(text(),'No matching items')]"
+            let locator =
+                "//div[@data-component='Combobox.Popup']//span[contains(@class,'text-subtle') and contains(text(),'No matching items')]";
             return await this.waitForElementDisplayed(locator);
         } catch (err) {
-            await this.handleError('Fragment Inspection Panel, Empty options text is not visible', 'err_empty_options', err);
+            await this.handleError(
+                'Fragment Inspection Panel, Empty options text is not visible',
+                'err_empty_options',
+                err,
+            );
         }
     }
 }
 
 module.exports = FragmentInspectionPanel;
-
