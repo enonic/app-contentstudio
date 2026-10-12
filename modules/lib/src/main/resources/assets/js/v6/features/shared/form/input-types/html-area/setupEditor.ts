@@ -2,30 +2,26 @@
 
 import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 import { BrowserHelper } from '@enonic/lib-admin-ui/BrowserHelper';
-import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { NotifyManager } from '@enonic/lib-admin-ui/notify/NotifyManager';
 import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
 import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
-import { StringHelper } from '@enonic/lib-admin-ui/util/StringHelper';
 import { isBlank } from '../../../../../shared/lib/format/isBlank';
-import { ContentPath } from '../../../../../../app/content/ContentPath';
 import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
 import { ContentRequiresSaveEvent } from '../../../../../../app/event/ContentRequiresSaveEvent';
 import { normalizeHtmlAreaLangDirection } from '../../../../../../app/inputtype/ui/text/HtmlAreaLangDirection';
-import { contentExistsByPath } from '../../../../../entities/content/api/contentExists.api';
 import { CreateHtmlAreaDialogEventGenerator } from '../../../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEventGenerator';
 import { bindListStyleDialogContextMenu } from '../../../../../../app/inputtype/ui/text/ListStyleDialogContextMenu';
 import { bindEditableBodyRuntimeState } from '../../../../../../app/inputtype/ui/text/EditableBodyRuntimeState';
 import { HTMLAreaHelper } from '../../../../../../app/inputtype/ui/text/HTMLAreaHelper';
 import { HtmlEditorParams } from '../../../../../../app/inputtype/ui/text/HtmlEditorParams';
 import { StyleHelper } from '../../../../../../app/inputtype/ui/text/styles/StyleHelper';
-import { buildImagePreviewUrl, buildImageRenderUrl } from '../../../../../shared/lib/url/images';
 import {
     type CreateHtmlAreaDialogEvent,
     type HtmlAreaDialogType,
 } from '../../../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import { HTMLAreaProxy } from '../../../../../../app/inputtype/ui/text/dialog/HTMLAreaProxy';
+import { setupFileUpload } from './fileUpload';
 import type { Project } from '../../../../../../app/settings/data/project/Project';
 import type {
     CodeDialogParams,
@@ -58,6 +54,8 @@ export type DialogOverrides = Partial<Record<HtmlAreaDialogType, (event: CreateH
 
 export type SetupEditorParams = {
     contentSummary: ContentSummary | undefined;
+    /** Resolves the current content at call time; used where the content may be renamed after setup (e.g. file upload). */
+    getContentSummary?: () => ContentSummary | undefined;
     project: Readonly<Project> | undefined;
     applicationKeys: ApplicationKey[];
     assetsUri: string;
@@ -435,85 +433,6 @@ function handleSpacePressed(editor: CKEDITOR.editor): void {
     }
 }
 
-function handleFileUpload(
-    editor: CKEDITOR.editor,
-    contentSummary: ContentSummary | undefined,
-    project: Readonly<Project> | undefined,
-): void {
-    // Wrapping dropped image into figure element — called after editor is ready,
-    // so modify uploadimage widget directly (no instanceReady wrapper needed).
-    if (editor.widgets?.registered?.uploadimage) {
-        editor.widgets.registered.uploadimage['onUploaded'] = function (upload) {
-            const imageId = StringHelper.substringBetween(upload.url, 'image/', '?');
-            const dataSrc = buildImageRenderUrl(imageId);
-
-            this['replaceWith'](
-                `<figure class="captioned ${StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS}">` +
-                    `<img src="${upload.url}" data-src="${dataSrc}" style="width:100%">` +
-                    '<figcaption> </figcaption>' +
-                    '</figure>',
-            );
-
-            editor.fire('change');
-        };
-    }
-
-    // Validate file doesn't already exist before upload
-    editor.on('fileUploadRequest', (evt: EventInfo) => {
-        const fileLoader = evt.data.fileLoader;
-
-        if (!contentSummary) return;
-
-        const contentPathAsString = ContentPath.create()
-            .setElements([contentSummary.getPath().toString(), fileLoader.fileName])
-            .build()
-            .toString();
-
-        void contentExistsByPath(contentPathAsString).match((exists) => {
-            if (exists) {
-                NotifyManager.get().showWarning(i18n('notify.fileExists', fileLoader.fileName));
-                evt.editor.document.findOne('.cke_widget_uploadimage')?.remove();
-            } else {
-                const formData = new FormData();
-                const xhr = fileLoader.xhr;
-
-                xhr.open('POST', fileLoader.uploadUrl, true);
-                formData.append('file', fileLoader.file, fileLoader.fileName);
-                formData.append('parent', contentSummary.getPath().toString());
-                formData.append('name', fileLoader.fileName);
-
-                fileLoader.xhr.send(formData);
-            }
-        }, DefaultErrorHandler.handle);
-
-        evt.stop();
-    });
-
-    // Parse image upload response
-    editor.on('fileUploadResponse', (evt: EventInfo) => {
-        evt.stop();
-
-        const data = evt.data;
-        const xhr = data.fileLoader.xhr;
-        const response = xhr.responseText.split('|');
-
-        if (response[1]) {
-            data.message = response[1];
-            evt.cancel();
-        } else {
-            const mediaContent = JSON.parse(response[0]);
-
-            const imgUrl = buildImagePreviewUrl({
-                contentId: mediaContent.id,
-                projectName: project?.getName(),
-                scaleWidth: true,
-            });
-
-            data.url = imgUrl;
-        }
-    });
-}
-
 function handlePaste(editor: CKEDITOR.editor): void {
     let isCleanupNbspRequired = false;
     let indexOfNbsp: number;
@@ -876,7 +795,7 @@ export function setupEditor(editor: CKEDITOR.editor, params: SetupEditorParams):
     handlePaste(editor);
     handleElementSelection(editor);
     handleImageAlignButtonPressed(editor);
-    handleFileUpload(editor, params.contentSummary, params.project);
+    setupFileUpload(editor, params.getContentSummary ?? (() => params.contentSummary), params.project);
     handleNativeNotifications(editor);
     handleTooltipForClickableElements(editor);
     setupDialogsToOpen(editor, editorParams);
