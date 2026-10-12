@@ -12,7 +12,7 @@ import { type ComponentType } from '../page/region/ComponentType';
 import { GetComponentDescriptorRequest } from '../resource/GetComponentDescriptorRequest';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { ConfigBasedComponent } from '../page/region/ConfigBasedComponent';
-import { type PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import type { PropertyTree } from '@enonic/input-types/data';
 import { type ContentId } from '../content/ContentId';
 import { FragmentComponent } from '../page/region/FragmentComponent';
 import { ImageComponent } from '../page/region/ImageComponent';

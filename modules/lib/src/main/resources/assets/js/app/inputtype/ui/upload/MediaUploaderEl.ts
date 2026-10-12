@@ -1,34 +1,29 @@
-import {type Element} from '@enonic/lib-admin-ui/dom/Element';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
-import {UploaderEl, type UploaderElConfig} from '@enonic/lib-admin-ui/ui/uploader/UploaderEl';
-import {CreateMediaFromUrlRequest} from '../../../resource/CreateMediaFromUrlRequest';
-import {type Content, ContentBuilder} from '../../../content/Content';
-import {type ContentJson} from '../../../content/ContentJson';
-import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
-import {type Value} from '@enonic/lib-admin-ui/data/Value';
-import {UrlHelper} from '../../../util/UrlHelper';
-import {ContentResourceRequest} from '../../../resource/ContentResourceRequest';
-import {type Project} from '../../../settings/data/project/Project';
+import { type Element } from '@enonic/lib-admin-ui/dom/Element';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { AEl } from '@enonic/lib-admin-ui/dom/AEl';
+import { ValueTypes, type Value } from '@enonic/input-types/data';
+import { UploadItem } from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
+import { UploaderEl, type UploaderElConfig } from '@enonic/lib-admin-ui/ui/uploader/UploaderEl';
+import { CreateMediaFromUrlRequest } from '../../../resource/CreateMediaFromUrlRequest';
+import { type Content, ContentBuilder } from '../../../content/Content';
+import { type ContentJson } from '../../../content/ContentJson';
+import { DateHelper } from '@enonic/lib-admin-ui/util/DateHelper';
+import { UrlHelper } from '../../../util/UrlHelper';
+import { ContentResourceRequest } from '../../../resource/ContentResourceRequest';
+import { type Project } from '../../../settings/data/project/Project';
 
 export enum MediaUploaderElOperation {
     create,
-    update
+    update,
 }
 
-export interface MediaUploaderElConfig
-    extends UploaderElConfig {
-
+export interface MediaUploaderElConfig extends UploaderElConfig {
     operation: MediaUploaderElOperation;
 
     project?: Project;
 }
 
-export class MediaUploaderEl
-    extends UploaderEl<Content> {
-
+export class MediaUploaderEl extends UploaderEl<Content> {
     declare protected config: MediaUploaderElConfig;
 
     private fileName: string;
@@ -36,7 +31,6 @@ export class MediaUploaderEl
     private link: AEl;
 
     constructor(config: MediaUploaderElConfig) {
-
         if (config.url == null) {
             config.url = `content/content/${MediaUploaderElOperation[config.operation]}Media`;
         }
@@ -49,7 +43,9 @@ export class MediaUploaderEl
     }
 
     protected beforeSubmit() {
-        this.uploader.setEndpoint(UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath(null, this.config.project)}/${this.config.url}`));
+        this.uploader.setEndpoint(
+            UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath(null, this.config.project)}/${this.config.url}`),
+        );
     }
 
     private initImageDropHandler() {
@@ -66,13 +62,15 @@ export class MediaUploaderEl
         }
 
         const data: string = dropEvent.dataTransfer.getData('text/html');
-        const isImgUrlDragged: boolean = data && !!(/<img.*\ssrc="/i.exec(data));
+        const isImgUrlDragged: boolean = data && !!/<img.*\ssrc="/i.exec(data);
 
         if (!isImgUrlDragged) {
             return;
         }
 
-        this.extractImagesFromDragData(data).map((img) => img.getAttribute('src')).forEach(this.uploadDraggedImg.bind(this));
+        this.extractImagesFromDragData(data)
+            .map((img) => img.getAttribute('src'))
+            .forEach(this.uploadDraggedImg.bind(this));
     }
 
     private extractImagesFromDragData(data: string): HTMLElement[] {
@@ -110,7 +108,7 @@ export class MediaUploaderEl
         const name: string = this.generateUniqueName(imgSrc);
         const parent: string = this.config.params.parent;
 
-        const uploadItem = new UploadItem<Content>({name});
+        const uploadItem = new UploadItem<Content>({ name });
         this.notifyFileUploadStarted([uploadItem]);
 
         new CreateMediaFromUrlRequest()
@@ -118,21 +116,30 @@ export class MediaUploaderEl
             .setName(name)
             .setUrl(imgSrc)
             .setParent(parent)
-            .sendAndParse().then((content: Content) => {
+            .sendAndParse()
+            .then((content: Content) => {
                 uploadItem.setModel(content);
                 this.notifyFileUploaded(uploadItem);
-            }).catch((reason) => {
-            DefaultErrorHandler.handle(reason);
-        }).done();
+            })
+            .catch((reason) => {
+                DefaultErrorHandler.handle(reason);
+            })
+            .done();
     }
 
     private generateUniqueName(imgSrc: string): string {
         const imgFormatRegExp: RegExpMatchArray = /image\/([a-z]+?);/i.exec(imgSrc);
-        const type: string = imgFormatRegExp ? imgFormatRegExp[1] ? imgFormatRegExp[1] : 'jpg' : 'jpg';
+        const type: string = imgFormatRegExp ? (imgFormatRegExp[1] ? imgFormatRegExp[1] : 'jpg') : 'jpg';
 
         const date: Date = new Date();
-        const dateParts: number[] =
-            [date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds()];
+        const dateParts: number[] = [
+            date.getFullYear(),
+            date.getMonth() + 1,
+            date.getDate(),
+            date.getHours(),
+            date.getMinutes(),
+            date.getSeconds(),
+        ];
 
         return 'image-' + dateParts.map(DateHelper.padNumber).join('') + '.' + type;
     }
@@ -153,12 +160,12 @@ export class MediaUploaderEl
         const mediaProperty = item.getContentData().getProperty('media');
         let mediaValue;
         switch (mediaProperty.getType()) {
-        case ValueTypes.DATA:
-            mediaValue = mediaProperty.getPropertySet().getProperty('attachment').getValue();
-            break;
-        case ValueTypes.STRING:
-            mediaValue = mediaProperty.getValue();
-            break;
+            case ValueTypes.DATA:
+                mediaValue = mediaProperty.getPropertySet().getProperty('attachment').getValue();
+                break;
+            case ValueTypes.STRING:
+                mediaValue = mediaProperty.getValue();
+                break;
         }
         return mediaValue;
     }
@@ -171,8 +178,7 @@ export class MediaUploaderEl
     }
 
     createResultItem(value: string): Element {
-        const path: string =
-            `${UrlHelper.getCMSPathForContentRoot(this.config.project)}/${ContentResourceRequest.CONTENT_PATH}/media/${value}`;
+        const path: string = `${UrlHelper.getCMSPathForContentRoot(this.config.project)}/${ContentResourceRequest.CONTENT_PATH}/media/${value}`;
         this.link = new AEl().setUrl(UrlHelper.getCmsRestUri(path), '_blank');
         this.link.setHtml(this.fileName != null && this.fileName !== '' ? this.fileName : value);
 

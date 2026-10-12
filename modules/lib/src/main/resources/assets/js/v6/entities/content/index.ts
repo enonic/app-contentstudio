@@ -40,6 +40,7 @@ export { fetchContentSummaries } from './lib/contentSummaries';
 export { formatCompareResult } from './lib/formatCompareResult';
 export { useItemsWithUnpublishedChildren } from './lib/useItemsWithUnpublishedChildren';
 export { $activeFlatNodes, $activeRawFlatNodes } from './model/active-tree.store';
+export { $contextContent, setWizardContent } from './model/context-content.store';
 export {
     $currentIds,
     $currentItem,

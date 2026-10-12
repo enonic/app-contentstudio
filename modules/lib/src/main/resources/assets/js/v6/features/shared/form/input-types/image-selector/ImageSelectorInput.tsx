@@ -2,13 +2,11 @@ import type { SelfManagedComponentProps } from '@enonic/input-types';
 import type { ImageSelectorConfig } from './ImageSelectorConfig';
 import type { ReactElement } from 'react';
 import { ImageSelector } from '../../../selectors/image';
-import { useSelectorInput } from '../hooks';
-import { useFormRender } from '@enonic/input-types';
+import { useFormApplicationKey, useSelectorInput } from '../hooks';
 import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 
 export const ImageSelectorInput = (props: SelfManagedComponentProps<ImageSelectorConfig>): ReactElement => {
-    const { applicationKey: applicationKeyName } = useFormRender();
-    const applicationKey = applicationKeyName == null ? undefined : ApplicationKey.fromString(applicationKeyName);
+    const applicationKey = useFormApplicationKey();
     const {
         contextContent,
         selectionMode,

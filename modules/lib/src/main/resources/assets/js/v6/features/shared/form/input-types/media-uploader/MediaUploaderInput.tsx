@@ -17,7 +17,7 @@ import { type MediaUploaderAllowType, type MediaUploaderConfig } from './MediaUp
 import { useMediaUploader } from './useMediaUploader';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { getCmsApiUrl } from '../../../../../shared/lib/url/cms';
-import { $contextContent } from '../../../../../widgets/context-panel/model/contextContent.store';
+import { $contextContent } from '../../../../../entities/content';
 import { ContentRequiresSaveEvent } from '../../../../../../app/event/ContentRequiresSaveEvent';
 import { ContentId } from '../../../../../../app/content/ContentId';
 

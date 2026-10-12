@@ -7,7 +7,7 @@ import { ContentRequiresSaveEvent } from '../../../../app/event/ContentRequiresS
 import { $applications, loadApplications } from '../../../entities/application';
 import { AppError } from '../../../shared/api/errors';
 import { fetchApplicationMixins, fetchContentMixins } from '../api/mixins.api';
-import { $contextContent } from '../../../widgets/context-panel/model/contextContent.store';
+import { $contextContent } from '../../../entities/content';
 import {
     $contentType,
     $mixinsDescriptors,

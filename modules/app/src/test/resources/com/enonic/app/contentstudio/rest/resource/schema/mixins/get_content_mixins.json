@@ -1,54 +1,48 @@
 {
-    "mixins": [
+  "mixins": [
+    {
+      "createdTime": "2013-01-01T12:00:00Z",
+      "deletable": false,
+      "editable": false,
+      "form": [
         {
-            "createdTime": "2013-01-01T12:00:00Z",
-            "deletable": false,
-            "editable": false,
-            "form": {
-                "formItems": [
-                    {
-                        "Input": {
-                            "config": {},
-                            "helpText": "Help text line 1",
-                            "inputType": "TextLine",
-                            "label": "Line Text 1",
-                            "name": "input_text_1",
-                            "occurrences": {
-                                "maximum": 1,
-                                "minimum": 1
-                            }
-                        }
-                    }
-                ]
-            },
-            "isOptional": false,
-            "name": "myapplication:input_text_1",
-            "title": "input_text_1"
-        },
-        {
-            "createdTime": "2013-01-01T12:00:00Z",
-            "deletable": false,
-            "editable": false,
-            "form": {
-                "formItems": [
-                    {
-                        "Input": {
-                            "config": {},
-                            "helpText": "Help text area",
-                            "inputType": "TextArea",
-                            "label": "Text Area",
-                            "name": "text_area_2",
-                            "occurrences": {
-                                "maximum": 1,
-                                "minimum": 1
-                            }
-                        }
-                    }
-                ]
-            },
-            "isOptional": false,
-            "name": "myapplication:text_area_2",
-            "title": "text_area_2"
+          "formItemType": "Input",
+          "config": {},
+          "helpText": "Help text line 1",
+          "inputType": "TextLine",
+          "label": "Line Text 1",
+          "name": "input_text_1",
+          "occurrences": {
+            "maximum": 1,
+            "minimum": 1
+          }
         }
-    ]
+      ],
+      "isOptional": false,
+      "name": "myapplication:input_text_1",
+      "title": "input_text_1"
+    },
+    {
+      "createdTime": "2013-01-01T12:00:00Z",
+      "deletable": false,
+      "editable": false,
+      "form": [
+        {
+          "formItemType": "Input",
+          "config": {},
+          "helpText": "Help text area",
+          "inputType": "TextArea",
+          "label": "Text Area",
+          "name": "text_area_2",
+          "occurrences": {
+            "maximum": 1,
+            "minimum": 1
+          }
+        }
+      ],
+      "isOptional": false,
+      "name": "myapplication:text_area_2",
+      "title": "text_area_2"
+    }
+  ]
 }

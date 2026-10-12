@@ -5,10 +5,7 @@ import { MixinByMixinNameComparator } from '../content/MixinByMixinNameComparato
 import { ContentSummaryHelper } from '../content/ContentSummaryHelper';
 import { type Content } from '../content/Content';
 import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
-import { type Property } from '@enonic/lib-admin-ui/data/Property';
-import { type PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
-import { type PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
-import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { type Property, type PropertySet, type PropertyTree, ValueTypes } from '@enonic/input-types/data';
 
 export class ContentDiffHelper {
     public static diff(item: Content, other: Content, ignoreEmptyDataValues: boolean = false): ContentDiff {

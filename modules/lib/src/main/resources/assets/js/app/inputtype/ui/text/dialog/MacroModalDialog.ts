@@ -1,35 +1,32 @@
-import {type ContentSummary} from '../../../../content/ContentSummary';
-import {HTMLAreaHelper} from '../HTMLAreaHelper';
-import {type Macro, type MacroDialogParams} from '../HtmlEditorTypes';
+import { type ContentSummary } from '../../../../content/ContentSummary';
+import { HTMLAreaHelper } from '../HTMLAreaHelper';
+import { type Macro, type MacroDialogParams } from '../HtmlEditorTypes';
 import type Q from 'q';
-import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {type FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
-import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
-import {type ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {type HtmlAreaModalDialogConfig, ModalDialog, ModalDialogFormItemBuilder} from './ModalDialog';
-import {MacroDockedPanel} from './MacroDockedPanel';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {type MacroDescriptor} from '@enonic/lib-admin-ui/macro/MacroDescriptor';
-import {GetMacrosRequest} from '../../../../macro/resource/GetMacrosRequest';
-import {MacroComboBox, MacroFormInputElWrapper} from '../../../../macro/MacroComboBox';
+import { showError } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { ResponsiveManager } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { type FormItem } from '@enonic/lib-admin-ui/ui/form/FormItem';
+import { Validators } from '@enonic/lib-admin-ui/ui/form/Validators';
+import { type ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { PropertySet } from '@enonic/input-types/data';
+import { type HtmlAreaModalDialogConfig, ModalDialog, ModalDialogFormItemBuilder } from './ModalDialog';
+import { MacroDockedPanel } from './MacroDockedPanel';
+import { Action } from '@enonic/lib-admin-ui/ui/Action';
+import { type MacroDescriptor } from '@enonic/lib-admin-ui/macro/MacroDescriptor';
+import { GetMacrosRequest } from '../../../../macro/resource/GetMacrosRequest';
+import { MacroComboBox, MacroFormInputElWrapper } from '../../../../macro/MacroComboBox';
 import DOMPurify from 'dompurify';
-import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import { type SelectionChange } from '@enonic/lib-admin-ui/util/SelectionChange';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
 
-export interface MacroModalDialogConfig
-    extends HtmlAreaModalDialogConfig {
+export interface MacroModalDialogConfig extends HtmlAreaModalDialogConfig {
     applicationKeys: ApplicationKey[];
     selectedMacro: Macro;
     content: ContentSummary;
 }
 
-export class MacroModalDialog
-    extends ModalDialog {
-
+export class MacroModalDialog extends ModalDialog {
     private macroDockedPanel: MacroDockedPanel;
 
     private applicationKeys: ApplicationKey[];
@@ -54,7 +51,7 @@ export class MacroModalDialog
             confirmation: {
                 yesCallback: () => this.getSubmitAction().execute(),
                 noCallback: () => this.close(),
-            }
+            },
         } as MacroModalDialogConfig);
 
         this.getEditor().focusManager.add(new CKEDITOR.dom.element(this.getHTMLElement()), true);
@@ -105,16 +102,15 @@ export class MacroModalDialog
 
         this.setElementToFocusOnShow(this.macroFormItem.getInput());
 
-        return [
-            this.macroFormItem
-        ];
+        return [this.macroFormItem];
     }
 
     private createMacroFormItem(): FormItem {
         const macroSelector: MacroComboBox = new MacroComboBox();
         macroSelector.getLoader().setApplicationKeys(this.applicationKeys);
-        const formItemBuilder = new ModalDialogFormItemBuilder('macroId', i18n('dialog.macro.formitem.macro')).setValidator(
-            Validators.required).setInputEl(new MacroFormInputElWrapper(macroSelector));
+        const formItemBuilder = new ModalDialogFormItemBuilder('macroId', i18n('dialog.macro.formitem.macro'))
+            .setValidator(Validators.required)
+            .setInputEl(new MacroFormInputElWrapper(macroSelector));
 
         return this.createFormItem(formItemBuilder);
     }
@@ -126,7 +122,10 @@ export class MacroModalDialog
             if (selectionChange.selected?.length > 0) {
                 this.macroFormItem.addClass('selected-item-preview');
                 this.addClass('shows-preview');
-                this.macroDockedPanel.setMacroDescriptor(selectionChange.selected[0], firstTimeSelected ? this.makeData() : null);
+                this.macroDockedPanel.setMacroDescriptor(
+                    selectionChange.selected[0],
+                    firstTimeSelected ? this.makeData() : null,
+                );
                 firstTimeSelected = false;
             } else if (selectionChange.deselected?.length > 0) {
                 this.macroFormItem.removeClass('selected-item-preview');
@@ -158,12 +157,16 @@ export class MacroModalDialog
     }
 
     private getSelectedMacroDescriptor(): Q.Promise<MacroDescriptor> {
-        return this.fetchMacros().then((macros: MacroDescriptor[]) => {
-            return macros.filter((macro: MacroDescriptor) => macro.getKey().getName() === this.selectedMacro.name).pop();
-        }).catch((reason) => {
-            DefaultErrorHandler.handle(reason);
-            return null;
-        });
+        return this.fetchMacros()
+            .then((macros: MacroDescriptor[]) => {
+                return macros
+                    .filter((macro: MacroDescriptor) => macro.getKey().getName() === this.selectedMacro.name)
+                    .pop();
+            })
+            .catch((reason) => {
+                DefaultErrorHandler.handle(reason);
+                return null;
+            });
     }
 
     private fetchMacros(): Q.Promise<MacroDescriptor[]> {
@@ -202,21 +205,22 @@ export class MacroModalDialog
     private makeData(): PropertySet {
         const data: PropertySet = new PropertySet();
 
-        this.selectedMacro?.attributes.forEach(item => {
+        this.selectedMacro?.attributes.forEach((item) => {
             const attr = item[0];
             const attrValue = MacroModalDialog.brToNl(this.sanitize(item[1]));
             data.addString(attr, attrValue);
         });
-
 
         if (!this.isNoBodyMacro()) {
             if (this.isSingleTagBodyMacro()) {
                 data.addString('body', this.sanitize(this.selectedMacro.body as string));
             } else if (this.isMultipleTagsBodyMacro()) {
                 const body = this.selectedMacro.body as HTMLElement[];
-                const bodyArrayText = body.map((elem) => elem.outerHTML).reduce((prev, curr) => {
-                    return prev + curr;
-                }, '');
+                const bodyArrayText = body
+                    .map((elem) => elem.outerHTML)
+                    .reduce((prev, curr) => {
+                        return prev + curr;
+                    }, '');
                 data.addString('body', this.sanitize(bodyArrayText));
             }
         }
@@ -237,18 +241,21 @@ export class MacroModalDialog
     }
 
     private insertMacroIntoTextArea(): void {
-        this.macroDockedPanel.getMacroPreviewString().then((macroString: string) => {
-            if (this.selectedMacro) {
-                this.insertUpdatedMacroIntoTextArea(macroString);
-            } else {
-                this.insertNewMacroIntoTextArea(macroString);
-            }
+        this.macroDockedPanel
+            .getMacroPreviewString()
+            .then((macroString: string) => {
+                if (this.selectedMacro) {
+                    this.insertUpdatedMacroIntoTextArea(macroString);
+                } else {
+                    this.insertNewMacroIntoTextArea(macroString);
+                }
 
-            this.close();
-        }).catch((reason) => {
-            DefaultErrorHandler.handle(reason);
-            showError(i18n('dialog.macro.error'));
-        });
+                this.close();
+            })
+            .catch((reason) => {
+                DefaultErrorHandler.handle(reason);
+                showError(i18n('dialog.macro.error'));
+            });
     }
 
     private insertUpdatedMacroIntoTextArea(macroString: string): void {
@@ -276,9 +283,10 @@ export class MacroModalDialog
     private updateSingleTagContainedMacro(sanitizedMacro: string, closingSequence: string): void {
         const currentElemText: string = this.selectedMacro.macroStart.$.innerText;
         const closingTagIndex: number = currentElemText.indexOf(closingSequence, this.selectedMacro.index);
-        const newElemText: string = currentElemText.substring(0, this.selectedMacro.index) +
-                                    sanitizedMacro +
-                                    currentElemText.substring(closingTagIndex + closingSequence.length);
+        const newElemText: string =
+            currentElemText.substring(0, this.selectedMacro.index) +
+            sanitizedMacro +
+            currentElemText.substring(closingTagIndex + closingSequence.length);
 
         if (this.isSystemMacro()) {
             this.selectedMacro.macroStart.$.innerText = newElemText;

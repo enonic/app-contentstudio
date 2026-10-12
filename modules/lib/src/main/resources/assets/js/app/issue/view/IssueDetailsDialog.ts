@@ -1,5 +1,5 @@
 import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
-import { PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
+import { PropertySet } from '@enonic/input-types/data';
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { AEl } from '@enonic/lib-admin-ui/dom/AEl';
 import { type ButtonEl } from '@enonic/lib-admin-ui/dom/ButtonEl';
@@ -22,7 +22,7 @@ import { type TabBarItem, TabBarItemBuilder } from '@enonic/lib-admin-ui/ui/tab/
 import { Tooltip } from '@enonic/lib-admin-ui/ui/Tooltip';
 import { type ActionButton } from '@enonic/lib-admin-ui/ui2/ActionButton';
 import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
-import { LocalDateTime } from '@enonic/lib-admin-ui/util/LocalDateTime';
+import { LocalDateTime } from '@enonic/ui-utils';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { type SelectionChange } from '@enonic/lib-admin-ui/util/SelectionChange';
 import { StringHelper } from '@enonic/lib-admin-ui/util/StringHelper';

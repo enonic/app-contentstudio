@@ -1,23 +1,20 @@
 import type Q from 'q';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {BaseInspectionPanel} from '../BaseInspectionPanel';
-import {type LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
-import {PageTemplateAndControllerForm} from './PageTemplateAndControllerForm';
-import {type ContentFormContext} from '../../../../../ContentFormContext';
-import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {FormContextBuilder} from '@enonic/lib-admin-ui/form/FormContext';
-import {FormView} from '@enonic/lib-admin-ui/form/FormView';
-import {type PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {type Descriptor} from '../../../../../page/Descriptor';
-import {PageState} from '../../../PageState';
-import {GetComponentDescriptorRequest} from '../../../../../resource/GetComponentDescriptorRequest';
-import {type PageTemplateAndControllerOption} from './PageTemplateAndSelectorViewer';
-import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { BaseInspectionPanel } from '../BaseInspectionPanel';
+import { type LiveEditModel } from '../../../../../../page-editor/LiveEditModel';
+import { PageTemplateAndControllerForm } from './PageTemplateAndControllerForm';
+import { type ContentFormContext } from '../../../../../ContentFormContext';
+import type { PropertyTree, PropertySet } from '@enonic/input-types/data';
+import { FormContextBuilder } from '@enonic/lib-admin-ui/form/FormContext';
+import { FormView } from '@enonic/lib-admin-ui/form/FormView';
+import { type Descriptor } from '../../../../../page/Descriptor';
+import { PageState } from '../../../PageState';
+import { GetComponentDescriptorRequest } from '../../../../../resource/GetComponentDescriptorRequest';
+import { type PageTemplateAndControllerOption } from './PageTemplateAndSelectorViewer';
+import { PEl } from '@enonic/lib-admin-ui/dom/PEl';
 
-export class PageInspectionPanel
-    extends BaseInspectionPanel {
-
+export class PageInspectionPanel extends BaseInspectionPanel {
     private pageTemplateAndControllerForm: PageTemplateAndControllerForm;
 
     private noControllerMessage: PEl;
@@ -53,7 +50,6 @@ export class PageInspectionPanel
         this.liveEditModel = liveEditModel;
 
         this.pageTemplateAndControllerForm.setModel(liveEditModel).then((controllerCount) => {
-
             const showForm = PageState.getState()?.hasController() || controllerCount > 0;
 
             this.pageTemplateAndControllerForm.setVisible(showForm);
@@ -88,14 +84,22 @@ export class PageInspectionPanel
         const context: ContentFormContext = this.liveEditModel?.getFormContext();
         const root: PropertySet = config ? config.getRoot() : null;
 
-        new GetComponentDescriptorRequest(PageState.getState().getController().toString()).sendAndParse().then((descriptor: Descriptor) => {
-            this.configForm = new FormView(context ? context : new FormContextBuilder().build(), descriptor.getConfig(), root);
-            this.configForm.setLazyRender(false);
-            this.appendChild(this.configForm);
+        new GetComponentDescriptorRequest(PageState.getState().getController().toString())
+            .sendAndParse()
+            .then((descriptor: Descriptor) => {
+                this.configForm = new FormView(
+                    context ? context : new FormContextBuilder().build(),
+                    descriptor.getConfig(),
+                    root,
+                );
+                this.configForm.setLazyRender(false);
+                this.appendChild(this.configForm);
 
-            this.configForm.layout().catch(DefaultErrorHandler.handle);
-        }).catch(DefaultErrorHandler.handle).finally(() => {
-            this.notifyLayoutListeners();
-        });
+                this.configForm.layout().catch(DefaultErrorHandler.handle);
+            })
+            .catch(DefaultErrorHandler.handle)
+            .finally(() => {
+                this.notifyLayoutListeners();
+            });
     }
 }

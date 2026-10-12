@@ -1,18 +1,15 @@
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {ContentTypeSummary, ContentTypeSummaryBuilder} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {type ContentTypeJson} from '../../resource/json/ContentTypeJson';
-import {Form, FormBuilder} from '@enonic/lib-admin-ui/form/Form';
-import {type Input, InputBuilder} from '@enonic/lib-admin-ui/form/Input';
-import {TextLine} from '@enonic/lib-admin-ui/form/inputtype/text/TextLine';
-import {OccurrencesBuilder} from '@enonic/lib-admin-ui/form/Occurrences';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
+import { ContentTypeSummary, ContentTypeSummaryBuilder } from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { type ContentTypeJson } from '../../resource/json/ContentTypeJson';
+import { FormBuilder } from '@enonic/lib-admin-ui/form/Form';
+import { Form, type Input, InputBuilder } from '@enonic/input-types/schema';
+import { TextLine } from '@enonic/lib-admin-ui/form/inputtype/text/TextLine';
+import { OccurrencesBuilder } from '@enonic/lib-admin-ui/form/Occurrences';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 
-export class ContentType
-    extends ContentTypeSummary
-    implements Equitable {
-
+export class ContentType extends ContentTypeSummary implements Equitable {
     private form: Form;
 
     constructor(builder: ContentTypeBuilder) {
@@ -25,7 +22,6 @@ export class ContentType
     }
 
     equals(o: Equitable): boolean {
-
         if (!ObjectHelper.iFrameSafeInstanceOf(o, ContentType)) {
             return false;
         }
@@ -48,9 +44,7 @@ export class ContentType
     }
 }
 
-export class ContentTypeBuilder
-    extends ContentTypeSummaryBuilder {
-
+export class ContentTypeBuilder extends ContentTypeSummaryBuilder {
     private static readonly SITE_CONFIG_INPUT_PROP = 'siteConfig';
 
     private static readonly BASE_URL_INPUT_PROP = 'baseUrl';
@@ -91,7 +85,9 @@ export class ContentTypeBuilder
             return form;
         }
 
-        const siteConfigIndex = formItems.findIndex((formItem) => formItem.getName() === ContentTypeBuilder.SITE_CONFIG_INPUT_PROP);
+        const siteConfigIndex = formItems.findIndex(
+            (formItem) => formItem.getName() === ContentTypeBuilder.SITE_CONFIG_INPUT_PROP,
+        );
         const insertAt = siteConfigIndex > -1 ? siteConfigIndex : 1;
         const patchedItems = [...formItems];
 
@@ -101,8 +97,12 @@ export class ContentTypeBuilder
     }
 
     private static createPortalBaseUrlFormItem(): Input {
-        return new InputBuilder().setName(ContentTypeBuilder.BASE_URL_INPUT_PROP).setInputType(TextLine.getName()).setLabel(
-            i18n('field.baseUrl')).setHelpText(i18n('field.baseUrl.help')).setOccurrences(
-            new OccurrencesBuilder().setMinimum(0).setMaximum(1).build()).build();
+        return new InputBuilder()
+            .setName(ContentTypeBuilder.BASE_URL_INPUT_PROP)
+            .setInputType(TextLine.getName())
+            .setLabel(i18n('field.baseUrl'))
+            .setHelpText(i18n('field.baseUrl.help'))
+            .setOccurrences(new OccurrencesBuilder().setMinimum(0).setMaximum(1).build())
+            .build();
     }
 }

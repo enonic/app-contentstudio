@@ -1,12 +1,10 @@
-import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {type MacroKey} from '@enonic/lib-admin-ui/macro/MacroKey';
-import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {PreviewRequest} from './PreviewRequest';
-import {type MacroPreviewStringJson} from './MacroPreviewJson';
+import type { PropertyTree } from '@enonic/input-types/data';
+import { type MacroKey } from '@enonic/lib-admin-ui/macro/MacroKey';
+import { type JsonResponse } from '@enonic/lib-admin-ui/rest/JsonResponse';
+import { PreviewRequest } from './PreviewRequest';
+import { type MacroPreviewStringJson } from './MacroPreviewJson';
 
-export class GetPreviewStringRequest
-    extends PreviewRequest<string> {
-
+export class GetPreviewStringRequest extends PreviewRequest<string> {
     constructor(data: PropertyTree, macroKey: MacroKey) {
         super(data, macroKey);
         this.addRequestPathElements('previewString');

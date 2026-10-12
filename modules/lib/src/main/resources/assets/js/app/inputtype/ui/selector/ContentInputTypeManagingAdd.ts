@@ -2,12 +2,12 @@ import { isBlank } from '../../../../v6/shared/lib/format/isBlank';
 import { type SelectedOption } from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import { type SelectedOptionsView } from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
 import { type ContentInputTypeViewContext } from '../../ContentInputTypeViewContext';
-import { type ValueType } from '@enonic/lib-admin-ui/data/ValueType';
+import type { ValueType } from '@enonic/input-types/data';
 import { BaseInputTypeManagingAdd } from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
 import { type ContentPath } from '../../../content/ContentPath';
 import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 import { ApplicationBasedName } from '@enonic/lib-admin-ui/application/ApplicationBasedName';
-import { type FormItem } from '@enonic/lib-admin-ui/form/FormItem';
+import type { FormItem } from '@enonic/input-types/schema';
 import { RawInputConfig } from '@enonic/lib-admin-ui/form/Input';
 
 export abstract class ContentInputTypeManagingAdd<RAW_VALUE_TYPE> extends BaseInputTypeManagingAdd {

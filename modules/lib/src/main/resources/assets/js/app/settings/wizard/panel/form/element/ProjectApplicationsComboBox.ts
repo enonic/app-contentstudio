@@ -1,5 +1,5 @@
-import { Form, FormBuilder } from '@enonic/lib-admin-ui/form/Form';
-import { InputBuilder } from '@enonic/lib-admin-ui/form/Input';
+import { FormBuilder } from '@enonic/lib-admin-ui/form/Form';
+import { Form, InputBuilder } from '@enonic/input-types/schema';
 import { TextLine } from '@enonic/lib-admin-ui/form/inputtype/text/TextLine';
 import { OccurrencesBuilder } from '@enonic/lib-admin-ui/form/Occurrences';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';

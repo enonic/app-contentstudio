@@ -1,20 +1,18 @@
-import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {type Content} from '../content/Content';
-import {type ContentJson} from '../content/ContentJson';
-import {type Mixin} from '../content/Mixin';
-import {type MixinJson} from './json/MixinJson';
-import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {type ContentName} from '../content/ContentName';
-import {type ContentPath} from '../content/ContentPath';
-import {ContentUnnamed} from '../content/ContentUnnamed';
-import {CmsContentResourceRequest} from './CmsContentResourceRequest';
-import {type Workflow} from '../content/Workflow';
+import { type JsonResponse } from '@enonic/lib-admin-ui/rest/JsonResponse';
+import { type Content } from '../content/Content';
+import { type ContentJson } from '../content/ContentJson';
+import { type Mixin } from '../content/Mixin';
+import { type MixinJson } from './json/MixinJson';
+import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import type { PropertyTree } from '@enonic/input-types/data';
+import { HttpMethod } from '@enonic/lib-admin-ui/rest/HttpMethod';
+import { type ContentName } from '../content/ContentName';
+import { type ContentPath } from '../content/ContentPath';
+import { ContentUnnamed } from '../content/ContentUnnamed';
+import { CmsContentResourceRequest } from './CmsContentResourceRequest';
+import { type Workflow } from '../content/Workflow';
 
-export class CreateContentRequest
-    extends CmsContentResourceRequest<Content> {
-
+export class CreateContentRequest extends CmsContentResourceRequest<Content> {
     private valid: boolean;
 
     private requireValid: boolean;
@@ -96,7 +94,7 @@ export class CreateContentRequest
             data: this.data.toJson(),
             meta: this.extraDataToJson(),
             displayName: this.displayName,
-            workflow: this.workflow.toJson()
+            workflow: this.workflow.toJson(),
         };
     }
 
@@ -107,5 +105,4 @@ export class CreateContentRequest
     protected parseResponse(response: JsonResponse<ContentJson>): Content {
         return this.fromJsonToContent(response.getResult());
     }
-
 }

@@ -8,7 +8,7 @@ import { FormOptionSetOption } from '@enonic/input-types/schema';
 import { type PropertyTree } from '@enonic/input-types/data';
 import { camelCase } from '../../../shared/lib/format/camelCase';
 import { instanceOf } from '../../../shared/lib/object/instanceOf';
-import { getValuesAsString } from '../../../shared/lib/data/propertySetValues';
+import { getValuesAsString } from '@enonic/lib-admin-ui/util/PropertySetValues';
 
 const EXCLUDED_INPUT_TYPES: readonly string[] = ['htmlarea'];
 

@@ -1,18 +1,21 @@
-import { Input } from '@enonic/lib-admin-ui/form/Input';
+import {
+    Input,
+    type FormItem,
+    Form,
+    FieldSet,
+    FormItemSet,
+    FormOptionSet,
+    FormOptionSetOption,
+    type InputTypeName,
+} from '@enonic/input-types/schema';
 import { type DisplayNameGenerator } from '@enonic/lib-admin-ui/app/wizard/DisplayNameGenerator';
 import { type FormView } from '@enonic/lib-admin-ui/form/FormView';
-import { type FormItem, type FormItemParent } from '@enonic/lib-admin-ui/form/FormItem';
-import { Form } from '@enonic/lib-admin-ui/form/Form';
-import { FieldSet } from '@enonic/lib-admin-ui/form/set/fieldset/FieldSet';
-import { FormItemSet } from '@enonic/lib-admin-ui/form/set/itemset/FormItemSet';
-import { FormOptionSet } from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
-import { FormOptionSetOption } from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSetOption';
+import { type FormItemParent } from '@enonic/lib-admin-ui/form/FormItem';
 import { assertNotNull } from '@enonic/lib-admin-ui/util/Assert';
-import { type InputTypeName } from '@enonic/lib-admin-ui/form/InputTypeName';
 import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
 import { camelCase } from '../../v6/shared/lib/format/camelCase';
 import { isBlank } from '../../v6/shared/lib/format/isBlank';
-import { getValuesAsString } from '../../v6/shared/lib/data/propertySetValues';
+import { getValuesAsString } from '@enonic/lib-admin-ui/util/PropertySetValues';
 
 export class DisplayNameResolver implements DisplayNameGenerator {
     private formView: FormView;

@@ -8,7 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Site } from '../../../../../../app/content/Site';
 import { fetchNearestSite } from '../../../../../entities/content';
 import { fetchAllContentTypes, fetchContentTypesByContent } from '../../../../../entities/schema/api/contentTypes.api';
-import { $contextContent } from '../../../../../widgets/context-panel/model/contextContent.store';
+import { $contextContent } from '../../../../../entities/content';
 import { $activeProject } from '../../../../../entities/project';
 import { $contentType } from '../../../../../pages/wizard/model/wizardContent.store';
 import type { ContentTypeFilterConfig } from './ContentTypeFilterConfig';

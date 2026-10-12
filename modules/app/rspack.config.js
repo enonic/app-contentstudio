@@ -51,6 +51,11 @@ module.exports = {
             // future hoist/dedupe drift can't reintroduce two ToolbarContext instances
             // in the bundle.
             '@enonic/ui': path.resolve(__dirname, 'node_modules/@enonic/ui'),
+            // One @enonic/input-types instance: its input type registry is module state. Exact
+            // matches per entry point, since an alias on the package root would bypass its exports map.
+            '@enonic/input-types$': path.resolve(__dirname, 'node_modules/@enonic/input-types/dist/index.js'),
+            '@enonic/input-types/data$': path.resolve(__dirname, 'node_modules/@enonic/input-types/dist/data.js'),
+            '@enonic/input-types/schema$': path.resolve(__dirname, 'node_modules/@enonic/input-types/dist/schema.js'),
         },
     },
     module: {
@@ -115,7 +120,9 @@ module.exports = {
             patterns: [{ from: 'icons/fonts/icomoon-studio-app.*', to: 'page-editor/fonts/[name][ext]' }],
         }),
         new rspack.CircularDependencyRspackPlugin({
-            exclude: /node_modules|v6[\\/]features[\\/]shared[\\/]form[\\/]/,
+            // The HTML area's macro dialog renders a form, which renders the HTML area: a known cycle
+            // through html-area/index; the rest of features/shared/form is checked.
+            exclude: /node_modules|v6[\\/]features[\\/]shared[\\/]form[\\/]input-types[\\/]html-area[\\/]/,
             failOnError: true,
         }),
     ],

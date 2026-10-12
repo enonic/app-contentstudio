@@ -26,7 +26,7 @@ import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { showSuccess } from '@enonic/lib-admin-ui/notify/MessageBus';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { type Descriptor } from '../../page/Descriptor';
-import { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import { PropertyTree } from '@enonic/input-types/data';
 import { PageHelper } from '../../util/PageHelper';
 import { PageControllerUpdatedEvent } from '../../page/event/PageControllerUpdatedEvent';
 import { PageTemplateUpdatedEvent } from '../../page/event/PageTemplateUpdatedEvent';

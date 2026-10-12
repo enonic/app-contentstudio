@@ -19,7 +19,7 @@ public class FormOptionSetJson
 
     private final OccurrencesJson occurrences;
 
-    private final OccurrencesJson multiselection;
+    private final OccurrencesJson selection;
 
     private final List<FormOptionSetOptionJson> options;
 
@@ -34,7 +34,7 @@ public class FormOptionSetJson
         this.localeMessageResolver = localeMessageResolver;
 
         this.occurrences = new OccurrencesJson( formOptionSet.getOccurrences() );
-        this.multiselection = new OccurrencesJson( formOptionSet.getMultiselection() );
+        this.selection = new OccurrencesJson( formOptionSet.getMultiselection() );
         this.options = StreamSupport.stream( formOptionSet.spliterator(), false ).
             map( formOptionSetOption -> new FormOptionSetOptionJson( formOptionSetOption, localeMessageResolver ) ).
             collect( Collectors.toList() );
@@ -68,9 +68,9 @@ public class FormOptionSetJson
         return occurrences;
     }
 
-    public OccurrencesJson getMultiselection()
+    public OccurrencesJson getSelection()
     {
-        return multiselection;
+        return selection;
     }
 
     public List<FormOptionSetOptionJson> getOptions()

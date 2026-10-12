@@ -1,10 +1,6 @@
-import type { Value } from '@enonic/input-types/data';
-import { ValueTypes } from '@enonic/input-types/data';
-import { InputBuilder } from '@enonic/input-types/schema';
-import { Occurrences } from '@enonic/input-types/schema';
-import { InputTypeName } from '@enonic/input-types/schema';
-import type { NumberConfig } from '@enonic/input-types';
-import type { ValidationResult } from '@enonic/input-types';
+import { type Value, ValueTypes } from '@enonic/input-types/data';
+import { InputBuilder, InputTypeName, Occurrences } from '@enonic/input-types/schema';
+import type { NumberConfig, ValidationResult } from '@enonic/input-types';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { map } from 'nanostores';
 import {

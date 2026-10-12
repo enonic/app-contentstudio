@@ -1,13 +1,11 @@
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {type Cloneable} from '@enonic/lib-admin-ui/Cloneable';
-import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {MixinName} from './MixinName';
-import {type MixinJson} from '../resource/json/MixinJson';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { type Cloneable } from '@enonic/lib-admin-ui/Cloneable';
+import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
+import { PropertyTree } from '@enonic/input-types/data';
+import { MixinName } from './MixinName';
+import { type MixinJson } from '../resource/json/MixinJson';
 
-export class Mixin
-    implements Cloneable, Equitable {
-
+export class Mixin implements Cloneable, Equitable {
     private name: MixinName;
 
     private data: PropertyTree;
@@ -50,12 +48,11 @@ export class Mixin
     toJson(): MixinJson {
         return {
             name: this.name.toString(),
-            data: this.data.toJson()
+            data: this.data.toJson(),
         };
     }
 
     getName(): MixinName {
         return this.name;
     }
-
 }

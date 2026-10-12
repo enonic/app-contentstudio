@@ -1,28 +1,28 @@
 import Q from 'q';
-import {type Input} from '@enonic/lib-admin-ui/form/Input';
-import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
-import {Class} from '@enonic/lib-admin-ui/Class';
-import {type PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {type SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {type UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
-import {type UploadFailedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadFailedEvent';
-import {ContentSelector} from './ContentSelector';
-import {type ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
-import {MediaUploaderEl, type MediaUploaderElConfig, MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
-import {type ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
-import {GetMimeTypesByContentTypeNamesRequest} from '../../resource/GetMimeTypesByContentTypeNamesRequest';
-import {type Content} from '../../content/Content';
-import {type UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
-import {ContentPath} from '../../content/ContentPath';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {CompareStatus} from '../../content/CompareStatus';
-import {type ContentSelectedOptionsView} from '../ui/selector/ContentComboBox';
-import {type BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import type { Input } from '@enonic/input-types/schema';
+import { InputTypeManager } from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
+import { Class } from '@enonic/lib-admin-ui/Class';
+import type { PropertyArray } from '@enonic/input-types/data';
+import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { type SelectedOption } from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import { type UploadedEvent } from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
+import { type UploadFailedEvent } from '@enonic/lib-admin-ui/ui/uploader/UploadFailedEvent';
+import { ContentSelector } from './ContentSelector';
+import { type ContentInputTypeViewContext } from '../ContentInputTypeViewContext';
+import { MediaUploaderEl, type MediaUploaderElConfig, MediaUploaderElOperation } from '../ui/upload/MediaUploaderEl';
+import { type ContentTreeSelectorItem } from '../../item/ContentTreeSelectorItem';
+import { GetMimeTypesByContentTypeNamesRequest } from '../../resource/GetMimeTypesByContentTypeNamesRequest';
+import { type Content } from '../../content/Content';
+import { type UploadItem } from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
+import { ContentPath } from '../../content/ContentPath';
+import { ContentSummaryAndCompareStatus } from '../../content/ContentSummaryAndCompareStatus';
+import { CompareStatus } from '../../content/CompareStatus';
+import { type ContentSelectedOptionsView } from '../ui/selector/ContentComboBox';
+import { type BaseSelectedOptionsView } from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 
-export class MediaSelector<T extends BaseSelectedOptionsView<ContentTreeSelectorItem> = ContentSelectedOptionsView>
-    extends ContentSelector<T> {
-
+export class MediaSelector<
+    T extends BaseSelectedOptionsView<ContentTreeSelectorItem> = ContentSelectedOptionsView,
+> extends ContentSelector<T> {
     protected uploader: MediaUploaderEl;
 
     constructor(context: ContentInputTypeViewContext) {
@@ -35,9 +35,9 @@ export class MediaSelector<T extends BaseSelectedOptionsView<ContentTreeSelector
             this.uploader = mediaUploader;
 
             this.contentSelectorDropdown.whenRendered(() => {
-               this.contentSelectorDropdown.appendChild(this.uploader);
-               this.uploader.addClass('extra-button');
-               this.contentSelectorDropdown.addClass('has-extra-button');
+                this.contentSelectorDropdown.appendChild(this.uploader);
+                this.uploader.addClass('extra-button');
+                this.contentSelectorDropdown.addClass('has-extra-button');
             });
 
             if (!this.contentSelectorDropdown.isVisible()) {
@@ -53,8 +53,10 @@ export class MediaSelector<T extends BaseSelectedOptionsView<ContentTreeSelector
     protected readInputConfig(): void {
         super.readInputConfig();
 
-        const allowedContentTypes: string[] = this.getDefaultContentTypes().map(type => type.toString());
-        let allowedMediaTypes: string[] = this.allowedContentTypes.filter(value => allowedContentTypes.indexOf(value) >= 0);
+        const allowedContentTypes: string[] = this.getDefaultContentTypes().map((type) => type.toString());
+        let allowedMediaTypes: string[] = this.allowedContentTypes.filter(
+            (value) => allowedContentTypes.indexOf(value) >= 0,
+        );
 
         if (allowedMediaTypes.length === 0) {
             allowedMediaTypes = allowedContentTypes;
@@ -72,7 +74,8 @@ export class MediaSelector<T extends BaseSelectedOptionsView<ContentTreeSelector
 
         if (this.allowedContentTypes.length > 0) {
             return new GetMimeTypesByContentTypeNamesRequest(
-                this.allowedContentTypes.map(name => new ContentTypeName(name)))
+                this.allowedContentTypes.map((name) => new ContentTypeName(name)),
+            )
                 .sendAndParse()
                 .then((mimeTypes: string[]) => {
                     config.allowMimeTypes = mimeTypes;
@@ -84,18 +87,18 @@ export class MediaSelector<T extends BaseSelectedOptionsView<ContentTreeSelector
     }
 
     protected createUploaderConfig(): MediaUploaderElConfig {
-        const isMultiSelection: boolean = (this.getInput().getOccurrences().getMaximum() !== 1);
+        const isMultiSelection: boolean = this.getInput().getOccurrences().getMaximum() !== 1;
 
         return {
             params: {
-                parent: this.context.content?.getContentId().toString() || ContentPath.getRoot().toString()
+                parent: this.context.content?.getContentId().toString() || ContentPath.getRoot().toString(),
             },
             operation: MediaUploaderElOperation.create,
             name: 'media-selector-upload-el',
             showCancel: false,
             showResult: false,
             getTotalAllowedToUpload: this.getRemainingOccurrences.bind(this),
-            allowMultiSelection: isMultiSelection
+            allowMultiSelection: isMultiSelection,
         };
     }
 
@@ -157,7 +160,9 @@ export class MediaSelector<T extends BaseSelectedOptionsView<ContentTreeSelector
         uploader.onUploadFailed((event: UploadFailedEvent<Content>) => {
             const item: UploadItem<Content> = event.getUploadItem();
 
-            const selectedOption: SelectedOption<ContentTreeSelectorItem> = this.getSelectedOptionsView().getById(item.getId());
+            const selectedOption: SelectedOption<ContentTreeSelectorItem> = this.getSelectedOptionsView().getById(
+                item.getId(),
+            );
             if (selectedOption) {
                 this.getSelectedOptionsView().removeOption(selectedOption.getOption());
             }

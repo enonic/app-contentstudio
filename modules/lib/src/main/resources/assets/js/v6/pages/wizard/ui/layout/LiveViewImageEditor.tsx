@@ -10,7 +10,7 @@ import {
 import { useStore } from '@nanostores/preact';
 import { type ReactElement, useMemo } from 'react';
 import { LegacyElement } from '../../../../shared/ui/LegacyElement';
-import { FormI18nProvider } from '../../../../features/shared/form';
+import { FormI18nProvider } from '../../../../shared/ui/providers/FormI18nProvider';
 import { ImageUploaderDescriptor } from '../../../../features/shared/form/input-types/image-uploader/ImageUploaderDescriptor';
 import { $contentType, $wizardDraftData, $wizardReadOnly } from '../../model/wizardContent.store';
 import { $validationVisibility, getContentRawValueMap } from '../../model/wizardValidation.store';

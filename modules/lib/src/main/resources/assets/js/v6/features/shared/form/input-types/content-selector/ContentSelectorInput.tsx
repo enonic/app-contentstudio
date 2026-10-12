@@ -2,8 +2,7 @@ import type { SelfManagedComponentProps } from '@enonic/input-types';
 import type { ReactElement } from 'react';
 import { useStore } from '@nanostores/preact';
 import { $activeProject } from '../../../../../entities/project';
-import { useSelectorInput } from '../hooks';
-import { useFormRender } from '@enonic/input-types';
+import { useFormApplicationKey, useSelectorInput } from '../hooks';
 import { ContentCombobox } from '../../../selectors/content';
 import { ContentRow } from '../../../selectors/shared/combobox/ContentRow';
 import { SelectorSelection, SelectorSelectionItem } from '../../../selectors/shared/selection';
@@ -17,8 +16,7 @@ import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey'
  */
 export const ContentSelectorInput = (props: SelfManagedComponentProps<ContentSelectorConfig>): ReactElement => {
     const activeProject = useStore($activeProject);
-    const { applicationKey: applicationKeyName } = useFormRender();
-    const applicationKey = applicationKeyName == null ? undefined : ApplicationKey.fromString(applicationKeyName);
+    const applicationKey = useFormApplicationKey();
 
     const {
         contextContent: selectorContextContent,

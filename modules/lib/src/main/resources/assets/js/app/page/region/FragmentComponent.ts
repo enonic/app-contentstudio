@@ -49,7 +49,7 @@ export class FragmentComponent extends ConfigBasedComponent {
     toJson(): ComponentTypeWrapperJson {
         const json: FragmentComponentJson = {} as FragmentComponentJson;
         json.fragment = this.fragment != null ? this.fragment.toString() : null;
-        json.config = this.config != null ? [...this.config.toJson()] : null;
+        json.config = this.config != null ? this.config.toJson() : null;
 
         return {
             FragmentComponent: json,

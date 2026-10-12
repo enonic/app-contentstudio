@@ -3,7 +3,7 @@ import type { SelfManagedComponentProps } from '@enonic/input-types';
 import { TagInput as BaseTagInput } from '@enonic/input-types';
 import { useStore } from '@nanostores/preact';
 import { useCallback, useMemo, type ReactElement } from 'react';
-import { $contextContent } from '../../../../../widgets/context-panel/model/contextContent.store';
+import { $contextContent } from '../../../../../entities/content';
 import { suggestContentTags } from './ContentTagSuggester';
 import type { TagConfig } from './TagConfig';
 

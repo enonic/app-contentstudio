@@ -1,32 +1,32 @@
 import Q from 'q';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {type Input} from '@enonic/lib-admin-ui/form/Input';
-import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
-import {Class} from '@enonic/lib-admin-ui/Class';
-import {type Property} from '@enonic/lib-admin-ui/data/Property';
-import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {type Value} from '@enonic/lib-admin-ui/data/Value';
-import {type ValueType} from '@enonic/lib-admin-ui/data/ValueType';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {type UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
-import {ImageUploaderEl} from '../ui/selector/image/ImageUploaderEl';
-import {ImageErrorEvent} from '../ui/selector/image/ImageErrorEvent';
-import {MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
-import {type ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
-import {GetContentByIdRequest} from '../../resource/GetContentByIdRequest';
-import {type ImageEditor, type Point, type Rect} from '../ui/selector/image/ImageEditor';
-import {type Content} from '../../content/Content';
-import {BaseInputTypeSingleOccurrence} from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeSingleOccurrence';
-import {InputValidationRecording} from '@enonic/lib-admin-ui/form/inputtype/InputValidationRecording';
-import {ValueTypeConverter} from '@enonic/lib-admin-ui/data/ValueTypeConverter';
-import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {InputValidityChangedEvent} from '@enonic/lib-admin-ui/form/inputtype/InputValidityChangedEvent';
-import {MediaUploader} from './MediaUploader';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import type { Input } from '@enonic/input-types/schema';
+import { InputTypeManager } from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
+import { Class } from '@enonic/lib-admin-ui/Class';
+import {
+    type Property,
+    PropertySet,
+    type Value,
+    type ValueType,
+    ValueTypes,
+    ValueTypeConverter,
+    PropertyTree,
+} from '@enonic/input-types/data';
+import { type UploadedEvent } from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
+import { ImageUploaderEl } from '../ui/selector/image/ImageUploaderEl';
+import { ImageErrorEvent } from '../ui/selector/image/ImageErrorEvent';
+import { MediaUploaderElOperation } from '../ui/upload/MediaUploaderEl';
+import { type ContentInputTypeViewContext } from '../ContentInputTypeViewContext';
+import { GetContentByIdRequest } from '../../resource/GetContentByIdRequest';
+import { type ImageEditor, type Point, type Rect } from '../ui/selector/image/ImageEditor';
+import { type Content } from '../../content/Content';
+import { BaseInputTypeSingleOccurrence } from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeSingleOccurrence';
+import { InputValidationRecording } from '@enonic/lib-admin-ui/form/inputtype/InputValidationRecording';
+import { showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { InputValidityChangedEvent } from '@enonic/lib-admin-ui/form/inputtype/InputValidityChangedEvent';
+import { MediaUploader } from './MediaUploader';
 
-export class ImageUploader
-    extends BaseInputTypeSingleOccurrence {
-
+export class ImageUploader extends BaseInputTypeSingleOccurrence {
     private imageUploader: ImageUploaderEl;
 
     private isCropAutoPositioned: boolean;
@@ -49,13 +49,13 @@ export class ImageUploader
         this.imageUploader = new ImageUploaderEl({
             imageEditorCreatedCallback: this.handleImageEditorCreated.bind(this),
             params: {
-                content: config.content.getContentId().toString()
+                content: config.content.getContentId().toString(),
             },
             operation: MediaUploaderElOperation.update,
             name: config.input.getName(),
             hideDefaultDropZone: true,
             selfIsDropzone: false,
-            project: config.project
+            project: config.project,
         });
 
         this.updateImageMimeType(config.content as Content);
@@ -97,7 +97,8 @@ export class ImageUploader
             this.imageUploader.setOriginalDimensions(
                 this.readSizeValue(content, 'imageWidth'),
                 this.readSizeValue(content, 'imageHeight'),
-                this.readOrientation(content));
+                this.readOrientation(content),
+            );
 
             this.saveToProperty(value);
             showFeedback(content.getDisplayName() + ' saved');
@@ -132,21 +133,21 @@ export class ImageUploader
             }
         });
 
-        this.imageUploader.onCropAutoPositionedChanged(auto => {
+        this.imageUploader.onCropAutoPositionedChanged((auto) => {
             this.isCropAutoPositioned = auto;
             if (auto) {
-                this.saveEditDataToProperty({x: 0, y: 0, x2: 1, y2: 1}, {x: 0, y: 0, x2: 1, y2: 1}, null);
+                this.saveEditDataToProperty({ x: 0, y: 0, x2: 1, y2: 1 }, { x: 0, y: 0, x2: 1, y2: 1 }, null);
             }
         });
 
-        this.imageUploader.onFocusAutoPositionedChanged(auto => {
+        this.imageUploader.onFocusAutoPositionedChanged((auto) => {
             this.isFocusAutoPositioned = auto;
             if (auto) {
-                this.saveEditDataToProperty(null, null, {x: 0.5, y: 0.5});
+                this.saveEditDataToProperty(null, null, { x: 0.5, y: 0.5 });
             }
         });
 
-        this.imageUploader.onOrientationChanged(orientation => {
+        this.imageUploader.onOrientationChanged((orientation) => {
             this.writeOrientation(this.getContext().content as Content, orientation);
         });
 
@@ -167,23 +168,23 @@ export class ImageUploader
         this.ignorePropertyChange = true;
         const property = this.getProperty();
         switch (property.getType()) {
-        case ValueTypes.DATA: {
-            // update the attachment name, and reset the focal point data
-            const set = property.getPropertySet();
-            set.setProperty('attachment', 0, value);
-            set.removeProperty('focalPoint', 0);
-            // these values are set on save by the server, setting them here for the contents to be equal
-            const focalSet = new PropertySet();
-            focalSet.addDouble('x', 0.5);
-            focalSet.addDouble('y', 0.5);
-            set.setPropertySet('focalPoint', 0, focalSet);
-            set.removeProperty('cropPosition', 0);
-            set.removeProperty('zoomPosition', 0);
-            break;
-        }
-        case ValueTypes.STRING:
-            property.setValue(value);
-            break;
+            case ValueTypes.DATA: {
+                // update the attachment name, and reset the focal point data
+                const set = property.getPropertySet();
+                set.setProperty('attachment', 0, value);
+                set.removeProperty('focalPoint', 0);
+                // these values are set on save by the server, setting them here for the contents to be equal
+                const focalSet = new PropertySet();
+                focalSet.addDouble('x', 0.5);
+                focalSet.addDouble('y', 0.5);
+                set.setPropertySet('focalPoint', 0, focalSet);
+                set.removeProperty('cropPosition', 0);
+                set.removeProperty('zoomPosition', 0);
+                break;
+            }
+            case ValueTypes.STRING:
+                property.setValue(value);
+                break;
         }
         this.validate();
         this.ignorePropertyChange = false;
@@ -191,25 +192,22 @@ export class ImageUploader
 
     updateProperty(_property: Property, unchangedOnly?: boolean): Q.Promise<void> {
         if ((!unchangedOnly || !this.imageUploader.isDirty()) && this.getContext().content.getContentId()) {
-
             return new GetContentByIdRequest(this.getContext().content.getContentId())
                 .setRequestProject((this.context as ContentInputTypeViewContext).project)
-                .sendAndParse().then((content: Content) => {
-
+                .sendAndParse()
+                .then((content: Content) => {
                     this.imageUploader.setOriginalDimensions(
                         this.readSizeValue(content, 'imageWidth'),
                         this.readSizeValue(content, 'imageHeight'),
-                        this.readOrientation(content));
-
-                    this.imageUploader.whenRendered(
-                        () => {
-                            this.imageUploader.setValue(content.getId(), false, false);
-                            this.configEditorsProperties(content);
-                        }
+                        this.readOrientation(content),
                     );
 
-
-                }).catch((reason) => {
+                    this.imageUploader.whenRendered(() => {
+                        this.imageUploader.setValue(content.getId(), false, false);
+                        this.configEditorsProperties(content);
+                    });
+                })
+                .catch((reason) => {
                     DefaultErrorHandler.handle(reason);
                 });
         } else if (this.imageUploader.isDirty()) {
@@ -282,22 +280,22 @@ export class ImageUploader
     private getPropertyContainer(property: Property): PropertySet {
         let container;
         switch (property.getType()) {
-        case ValueTypes.DATA:
-            container = property.getPropertySet();
-            break;
-        case ValueTypes.STRING: {
-            // save in new format always no matter what was the format originally
-            container = new PropertyTree().getRoot();
-            container.setString('attachment', 0, property.getString());
-            const propertyParent = property.getParent();
-            const propertyName = property.getName();
-            // remove old string property and set the new property set
-            propertyParent.removeProperty(propertyName, 0);
-            const newProperty = propertyParent.setPropertySet(propertyName, 0, container);
-            // update local property reference
-            this.registerProperty(newProperty);
-            break;
-        }
+            case ValueTypes.DATA:
+                container = property.getPropertySet();
+                break;
+            case ValueTypes.STRING: {
+                // save in new format always no matter what was the format originally
+                container = new PropertyTree().getRoot();
+                container.setString('attachment', 0, property.getString());
+                const propertyParent = property.getParent();
+                const propertyName = property.getName();
+                // remove old string property and set the new property set
+                propertyParent.removeProperty(propertyName, 0);
+                const newProperty = propertyParent.setPropertySet(propertyName, 0, container);
+                // update local property reference
+                this.registerProperty(newProperty);
+                break;
+            }
         }
         return container;
     }
@@ -319,7 +317,7 @@ export class ImageUploader
 
         return {
             x: x,
-            y: y
+            y: y,
         };
     }
 
@@ -336,7 +334,7 @@ export class ImageUploader
         const x2 = cropPositionSet.getDouble('right');
         const y2 = cropPositionSet.getDouble('bottom');
 
-        return {x, y, x2, y2};
+        return { x, y, x2, y2 };
     }
 
     private writeOrientation(content: Content, orientation: number) {
@@ -354,7 +352,7 @@ export class ImageUploader
         if (!property) {
             return this.readOriginalOrientation(content);
         }
-        return property && property.getLong() || 1;
+        return (property && property.getLong()) || 1;
     }
 
     private readOriginalOrientation(content: Content): number {
@@ -362,7 +360,7 @@ export class ImageUploader
         if (!property) {
             return 1;
         }
-        return property && property.getLong() || 1;
+        return (property && property.getLong()) || 1;
     }
 
     private readSizeValue(content: Content, propertyName: string): number {
@@ -414,8 +412,10 @@ export class ImageUploader
 
     validate(silent: boolean = true) {
         const propertyValue = this.getProperty().getValue();
-        const totalValid: number = (this.imageUploader.isFocalPointEditMode() || this.imageUploader.isCropEditMode() ||
-                                    propertyValue.isNull()) ? 0 : 1;
+        const totalValid: number =
+            this.imageUploader.isFocalPointEditMode() || this.imageUploader.isCropEditMode() || propertyValue.isNull()
+                ? 0
+                : 1;
         const recording = new InputValidationRecording(this.input.getOccurrences(), totalValid);
 
         if (!silent) {
@@ -442,7 +442,6 @@ export class ImageUploader
     unBlur(listener: (event: FocusEvent) => void) {
         this.imageUploader.unBlur(listener);
     }
-
 }
 
 InputTypeManager.register(new Class('ImageUploader', ImageUploader));

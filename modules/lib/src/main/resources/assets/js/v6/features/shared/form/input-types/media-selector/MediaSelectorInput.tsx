@@ -2,13 +2,11 @@ import type { SelfManagedComponentProps } from '@enonic/input-types';
 import type { MediaSelectorConfig } from './MediaSelectorConfig';
 import type { ReactElement } from 'react';
 import { MediaSelector } from '../../../selectors/media';
-import { useSelectorInput } from '../hooks';
-import { useFormRender } from '@enonic/input-types';
+import { useFormApplicationKey, useSelectorInput } from '../hooks';
 import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 
 export const MediaSelectorInput = (props: SelfManagedComponentProps<MediaSelectorConfig>): ReactElement => {
-    const { applicationKey: applicationKeyName } = useFormRender();
-    const applicationKey = applicationKeyName == null ? undefined : ApplicationKey.fromString(applicationKeyName);
+    const applicationKey = useFormApplicationKey();
     const {
         contextContent,
         selectionMode,

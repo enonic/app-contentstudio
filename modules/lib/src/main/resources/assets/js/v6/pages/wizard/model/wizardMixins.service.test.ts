@@ -35,7 +35,7 @@ vi.mock('../../../entities/application/applications.store', () => ({
     loadApplications: vi.fn(),
 }));
 
-vi.mock('../../../widgets/context-panel/model/contextContent.store', () => ({
+vi.mock('../../../entities/content/model/context-content.store', () => ({
     $contextContent: { get: () => ({ getId: () => 'content-1' }) },
 }));
 

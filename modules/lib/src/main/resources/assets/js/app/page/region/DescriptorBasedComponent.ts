@@ -1,4 +1,4 @@
-import { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import { PropertyTree } from '@enonic/input-types/data';
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
 import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';

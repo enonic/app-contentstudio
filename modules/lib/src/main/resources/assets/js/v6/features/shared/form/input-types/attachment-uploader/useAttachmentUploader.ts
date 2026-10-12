@@ -18,7 +18,7 @@ import {
 } from '../../../../../entities/content/model/uploads.store';
 import { clearAttachmentServerError } from '../../../../../pages/wizard/model/wizardValidation.store';
 import { listenKeys } from 'nanostores';
-import { $contextContent } from '../../../../../widgets/context-panel/model/contextContent.store';
+import { $contextContent } from '../../../../../entities/content';
 import { $wizardDraftPage } from '../../../../../pages/wizard/model/wizardContent.store';
 import { isAttachmentInUse } from '../../../../../shared/lib/page/isAttachmentInUse';
 import { ContentRequiresSaveEvent } from '../../../../../../app/event/ContentRequiresSaveEvent';

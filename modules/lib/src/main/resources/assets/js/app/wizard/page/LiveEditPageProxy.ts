@@ -4,6 +4,7 @@ import {
     type HostBus,
     type InitializePayload,
     type InsertableComponentKind,
+    type PageJson as LiveEditPageJson,
 } from '@enonic/page-editor/protocol';
 import { BeforeContentSavedEvent } from '../../event/BeforeContentSavedEvent';
 import { type ComponentAddedEvent } from '../../page/region/ComponentAddedEvent';
@@ -27,6 +28,7 @@ import { type PageUpdatedEvent } from '../../page/event/PageUpdatedEvent';
 import { PageControllerCustomizedEvent } from '../../page/event/PageControllerCustomizedEvent';
 import { SessionStorageHelper } from '../../util/SessionStorageHelper';
 import { getActiveProject } from '../../../v6/entities/project/activeProject.store';
+import { type PageJson } from '../../page/PageJson';
 import { type LiveEditModel } from '../../../page-editor/LiveEditModel';
 import { LiveEditParams } from '../../../page-editor/LiveEditParams';
 import { PageLockedEvent } from '../../../page-editor/event/outgoing/manipulation/PageLockedEvent';
@@ -260,7 +262,7 @@ export class LiveEditPageProxy implements PageNavigationHandler {
                     this.modifyPermissions,
                 ),
             },
-            page: PageState.getState()?.toJson() ?? undefined,
+            page: toLiveEditPageJson(PageState.getState()?.toJson()),
             phrases: this.resolvePhrases(),
             ...(locale ? { locale } : {}),
             content: this.resolveContentInfo(),
@@ -610,7 +612,7 @@ export class LiveEditPageProxy implements PageNavigationHandler {
 
     private postPageState(): void {
         if (this.isFrameLoaded) {
-            this.bus?.post('page-state', { page: PageState.getState()?.toJson() ?? undefined });
+            this.bus?.post('page-state', { page: toLiveEditPageJson(PageState.getState()?.toJson()) });
         }
     }
 
@@ -673,4 +675,10 @@ export class LiveEditPageProxy implements PageNavigationHandler {
         this.liveEditIFrame = this.createLiveEditIFrame();
         this.dragMask = new DragMask(this.liveEditIFrame);
     }
+}
+
+// The page editor's protocol types its config arrays as mutable, though it only reads them;
+// the page serializes readonly ones. Same shape, so a cast at the boundary.
+function toLiveEditPageJson(page: PageJson | undefined): LiveEditPageJson | undefined {
+    return page as unknown as LiveEditPageJson | undefined;
 }

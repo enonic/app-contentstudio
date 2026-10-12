@@ -1,21 +1,16 @@
 import Q from 'q';
-import {type Input} from '@enonic/lib-admin-ui/form/Input';
-import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
-import {Class} from '@enonic/lib-admin-ui/Class';
-import {type PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
-import {type Value} from '@enonic/lib-admin-ui/data/Value';
-import {type ValueType} from '@enonic/lib-admin-ui/data/ValueType';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {BaseInputTypeManagingAdd} from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
-import {type ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
+import type { Input } from '@enonic/input-types/schema';
+import { InputTypeManager } from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
+import { Class } from '@enonic/lib-admin-ui/Class';
+import { type PropertyArray, type Value, type ValueType, ValueTypes } from '@enonic/input-types/data';
+import { BaseInputTypeManagingAdd } from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
+import { type ContentInputTypeViewContext } from '../ContentInputTypeViewContext';
 
 /**
  * Legacy stub kept only to satisfy InputTypeManager lookup from the old form system (FormView/InputView).
  * The real UI is handled by the v6 SiteConfiguratorInput registered in InputTypeRegistry.
  */
-export class SiteConfigurator
-    extends BaseInputTypeManagingAdd {
-
+export class SiteConfigurator extends BaseInputTypeManagingAdd {
     constructor(context: ContentInputTypeViewContext) {
         super(context, 'application-configurator');
         this.hide();

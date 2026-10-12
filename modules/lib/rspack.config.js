@@ -48,6 +48,11 @@ module.exports = {
             // Parity with modules/app — lib's entries don't import @enonic/ui in JS today
             // (only CSS via Tailwind), so this is a no-op now but guards against drift.
             '@enonic/ui': path.resolve(__dirname, 'node_modules/@enonic/ui'),
+            // One @enonic/input-types instance: its input type registry is module state. Exact
+            // matches per entry point, since an alias on the package root would bypass its exports map.
+            '@enonic/input-types$': path.resolve(__dirname, 'node_modules/@enonic/input-types/dist/index.js'),
+            '@enonic/input-types/data$': path.resolve(__dirname, 'node_modules/@enonic/input-types/dist/data.js'),
+            '@enonic/input-types/schema$': path.resolve(__dirname, 'node_modules/@enonic/input-types/dist/schema.js'),
         },
     },
     module: {

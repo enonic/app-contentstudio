@@ -25,7 +25,7 @@ import { $isContentFormExpanded } from '../../../shared/app-state/browsePanels.s
 import { addStringOccurrence, removeStringOccurrence, setStringValue } from './wizardPropertyTree.utils';
 import { resolveDisplayNameExpression } from './displayNameExpression.utils';
 import { createDebounce } from '../../../shared/lib/timing/createDebounce';
-import { $contextContent } from '../../../widgets/context-panel/model/contextContent.store';
+import { $contextContent } from '../../../entities/content';
 import { ContentPath } from '../../../../app/content/ContentPath';
 import { contentExistsByPath } from '../../../entities/content/api/contentExists.api';
 import { seedFormDefaults } from '@enonic/input-types';

@@ -27,7 +27,7 @@ import { type Page } from '../../../../../page/Page';
 import { FilterableListBoxWrapper } from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
 import { PageOptionsList } from './PageOptionsList';
 import { type SelectionChange } from '@enonic/lib-admin-ui/util/SelectionChange';
-import { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import { PropertyTree } from '@enonic/input-types/data';
 import { isBlank } from '../../../../../../v6/shared/lib/format/isBlank';
 
 export class PageTemplateAndControllerSelector extends FilterableListBoxWrapper<PageTemplateAndControllerOption> {

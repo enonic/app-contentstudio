@@ -1,15 +1,12 @@
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {type Cloneable} from '@enonic/lib-admin-ui/Cloneable';
-import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {type Property} from '@enonic/lib-admin-ui/data/Property';
-import {type ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import {Content, ContentBuilder} from './Content';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { type Cloneable } from '@enonic/lib-admin-ui/Cloneable';
+import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
+import type { Property } from '@enonic/input-types/data';
+import { type ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import { Content, ContentBuilder } from './Content';
 
-export class Site
-    extends Content
-    implements Equitable, Cloneable {
-
+export class Site extends Content implements Equitable, Cloneable {
     constructor(builder: SiteBuilder) {
         super(builder);
     }
@@ -23,7 +20,6 @@ export class Site
     }
 
     getSiteConfigs(): ApplicationConfig[] {
-
         const siteConfigs: ApplicationConfig[] = [];
         this.getContentData().forEachProperty('siteConfig', (applicationProperty: Property) => {
             const siteConfigData = applicationProperty.getPropertySet();
@@ -41,7 +37,6 @@ export class Site
     }
 
     equals(o: Equitable, ignoreEmptyValues: boolean = false): boolean {
-
         if (!ObjectHelper.iFrameSafeInstanceOf(o, Site)) {
             return false;
         }
@@ -50,7 +45,6 @@ export class Site
     }
 
     clone(): Site {
-
         return this.newBuilder().build();
     }
 
@@ -59,9 +53,7 @@ export class Site
     }
 }
 
-export class SiteBuilder
-    extends ContentBuilder {
-
+export class SiteBuilder extends ContentBuilder {
     constructor(source?: Site) {
         super(source);
     }

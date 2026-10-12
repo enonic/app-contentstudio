@@ -1,10 +1,11 @@
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
 import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
-import { type Form, FormBuilder } from '@enonic/lib-admin-ui/form/Form';
+import { FormBuilder } from '@enonic/lib-admin-ui/form/Form';
+import { type Form, InputBuilder } from '@enonic/input-types/schema';
 import { OccurrencesBuilder } from '@enonic/lib-admin-ui/form/Occurrences';
 import { TextArea } from '@enonic/lib-admin-ui/form/inputtype/text/TextArea';
-import { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import { PropertyTree } from '@enonic/input-types/data';
 import { ComponentName } from './ComponentName';
 import { type ComponentTypeWrapperJson } from './ComponentTypeWrapperJson';
 import { type ImageComponentJson } from './ImageComponentJson';
@@ -12,7 +13,6 @@ import { ImageComponentType } from './ImageComponentType';
 import { ConfigBasedComponent, ConfigBasedComponentBuilder } from './ConfigBasedComponent';
 import { type Content } from '../../content/Content';
 import { ImageHelper } from '../../util/ImageHelper';
-import { InputBuilder } from '@enonic/lib-admin-ui/form/Input';
 import { ContentId } from '../../content/ContentId';
 import { ComponentImageUpdatedEvent } from './ComponentImageUpdatedEvent';
 
@@ -96,7 +96,7 @@ export class ImageComponent extends ConfigBasedComponent {
     toJson(): ComponentTypeWrapperJson {
         const json: ImageComponentJson = {} as ImageComponentJson;
         json.image = this.image != null ? this.image.toString() : null;
-        json.config = this.config != null ? [...this.config.toJson()] : null;
+        json.config = this.config != null ? this.config.toJson() : null;
 
         return {
             ImageComponent: json,

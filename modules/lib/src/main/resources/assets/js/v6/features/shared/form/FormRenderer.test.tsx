@@ -1,0 +1,107 @@
+import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { PropertySet, PropertyTree } from '@enonic/input-types/data';
+import { Form } from '@enonic/input-types/schema';
+import { cleanup, render, screen } from '@testing-library/preact';
+import type { ReactNode } from 'react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+const { mockShowWarning, mockToolkitRenderer, mockHtmlAreaContext } = vi.hoisted(() => ({
+    mockShowWarning: vi.fn(),
+    mockToolkitRenderer: vi.fn(),
+    mockHtmlAreaContext: vi.fn<() => object | undefined>(),
+}));
+
+vi.mock('@enonic/lib-admin-ui/notify/MessageBus', () => ({
+    showWarning: (...args: unknown[]) => mockShowWarning(...args),
+}));
+
+vi.mock('@enonic/input-types', () => ({
+    FormRenderer: (props: Record<string, unknown>) => {
+        mockToolkitRenderer(props);
+        return <div data-testid="toolkit-form" />;
+    },
+    LocaleProvider: ({ locale, children }: { locale?: string; children: ReactNode }) => (
+        <div data-testid="locale-provider" data-locale={locale ?? ''}>
+            {children}
+        </div>
+    ),
+}));
+
+vi.mock('../../../shared/ui/providers/FormI18nProvider', () => ({
+    FormI18nProvider: ({ children }: { children: ReactNode }) => <div data-testid="i18n-provider">{children}</div>,
+}));
+
+vi.mock('./input-types/html-area', () => ({
+    HtmlAreaProvider: ({ children }: { children: ReactNode }) => <div data-testid="html-area-provider">{children}</div>,
+    useOptionalHtmlAreaContext: () => mockHtmlAreaContext(),
+}));
+
+vi.mock('../hooks/useApplicationKeys', () => ({ useApplicationKeys: () => [] }));
+vi.mock('../../../entities/content', async () => {
+    const { atom } = await import('nanostores');
+    return { $contextContent: atom<{ getLanguage: () => string } | null>(null) };
+});
+vi.mock('../../../entities/project', async () => {
+    const { atom } = await import('nanostores');
+    return { $activeProject: atom(undefined) };
+});
+vi.mock('../../../shared/config/config.store', async () => {
+    const { map } = await import('nanostores');
+    return { $config: map({ assetsUri: '/assets' }) };
+});
+
+import { $contextContent } from '../../../entities/content';
+import { FormRenderer } from './FormRenderer';
+
+function renderForm(applicationKey?: ApplicationKey) {
+    const propertySet: PropertySet = new PropertyTree().getRoot();
+    return render(<FormRenderer form={new Form()} propertySet={propertySet} applicationKey={applicationKey} />);
+}
+
+describe('FormRenderer', () => {
+    beforeEach(() => {
+        mockShowWarning.mockReset();
+        mockToolkitRenderer.mockReset();
+        mockHtmlAreaContext.mockReturnValue(undefined);
+        ($contextContent as unknown as { set: (v: unknown) => void }).set({ getLanguage: () => 'nb' });
+    });
+
+    afterEach(cleanup);
+
+    it('wraps the toolkit form in the phrases, the content language and an HTML area context', () => {
+        renderForm();
+
+        const i18n = screen.getByTestId('i18n-provider');
+        const locale = screen.getByTestId('locale-provider');
+        const htmlArea = screen.getByTestId('html-area-provider');
+        expect(i18n.contains(locale)).toBe(true);
+        expect(locale.contains(htmlArea)).toBe(true);
+        expect(htmlArea.contains(screen.getByTestId('toolkit-form'))).toBe(true);
+        expect(locale.dataset.locale).toBe('nb');
+    });
+
+    it('keeps the phrases and the language but not a second HTML area context inside an existing one', () => {
+        mockHtmlAreaContext.mockReturnValue({});
+
+        renderForm();
+
+        expect(screen.queryByTestId('html-area-provider')).toBeNull();
+        const locale = screen.getByTestId('locale-provider');
+        expect(screen.getByTestId('i18n-provider').contains(locale)).toBe(true);
+        expect(locale.contains(screen.getByTestId('toolkit-form'))).toBe(true);
+    });
+
+    it("routes the form's notifications to a warning and passes the application key by name", () => {
+        renderForm(ApplicationKey.fromString('com.enonic.app.test'));
+
+        const props = mockToolkitRenderer.mock.calls[0]?.[0] as {
+            applicationKey?: string;
+            notify: (m: string) => void;
+        };
+        expect(props.applicationKey).toBe('com.enonic.app.test');
+
+        props.notify('Option data is dropped on save');
+
+        expect(mockShowWarning).toHaveBeenCalledWith('Option data is dropped on save', true);
+    });
+});

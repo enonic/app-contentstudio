@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { SITE_PATH } from '../../../../../shared/lib/form/form';
 import { type ContentSummary } from '../../../../../../app/content/ContentSummary';
 
-vi.mock('../../../../../widgets/context-panel/model/contextContent.store', () => ({
+vi.mock('../../../../../entities/content/model/context-content.store', () => ({
     $contextContent: atom<unknown>(null),
 }));
 
@@ -17,7 +17,7 @@ vi.mock('./useSelectorInputHasError', () => ({
 }));
 
 import { useSelectorInput } from './useSelectorInput';
-import * as contextContentStore from '../../../../../widgets/context-panel/model/contextContent.store';
+import * as contextContentStore from '../../../../../entities/content/model/context-content.store';
 
 const $contextContent = contextContentStore.$contextContent;
 

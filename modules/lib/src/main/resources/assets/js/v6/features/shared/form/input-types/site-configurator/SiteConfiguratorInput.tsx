@@ -21,7 +21,7 @@ import { ContentRequiresSaveEvent } from '../../../../../../app/event/ContentReq
 import { ProjectHelper } from '../../../../../../app/settings/data/project/ProjectHelper';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { $applications, loadApplications, reloadApplications } from '../../../../../entities/application';
-import { $contextContent } from '../../../../../widgets/context-panel/model/contextContent.store';
+import { $contextContent } from '../../../../../entities/content';
 import {
     $isHtmlAreaModalDialogOpen,
     $isHtmlAreaOverlayOpen,

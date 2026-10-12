@@ -6,9 +6,9 @@ import { fetchNearestSite } from '../../../../entities/content';
 import { type UploadMediaSuccess } from '../../../../entities/content/api/uploadMedia.api';
 import { type UploadError } from '../../../../shared/api';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
-import {isBlank} from '../../../../shared/lib/format/isBlank';
+import { isBlank } from '../../../../shared/lib/format/isBlank';
 import { useUploadMedia } from '../../../../entities/content/lib/useUploadMedia';
-import { $contextContent } from '../../../../widgets/context-panel/model/contextContent.store';
+import { $contextContent } from '../../../../entities/content';
 import { useStore } from '@nanostores/preact';
 import { type MediaOption, useHtmlAreaLinkDialogContext } from './HtmlAreaLinkDialogContext';
 import { ContentSelector } from '../../../shared/selectors/content';
@@ -243,7 +243,13 @@ export const ContentTabPanel = (): ReactElement => {
                                     onChange={(e) => setQueryParamValue(index, (e.target as HTMLInputElement).value)}
                                     className="flex-1"
                                 />
-                                <IconButton className="my-1.5" size="sm" variant="text" icon={X} onClick={() => removeQueryParam(index)}/>
+                                <IconButton
+                                    className="my-1.5"
+                                    size="sm"
+                                    variant="text"
+                                    icon={X}
+                                    onClick={() => removeQueryParam(index)}
+                                />
                             </div>
                         ))}
                     </div>

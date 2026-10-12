@@ -5,7 +5,7 @@ import { useStore } from '@nanostores/preact';
 import { listenKeys } from 'nanostores';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { $newContentDialog, openNewContentDialog } from '../../../../new-content/model/newContentDialog.store';
-import { $contextContent } from '../../../../../widgets/context-panel/model/contextContent.store';
+import { $contextContent } from '../../../../../entities/content';
 import { $contentCreated } from '../../../../../shared/socket/socket.store';
 import { $uploads, getUploadsForParent } from '../../../../../entities/content/model/uploads.store';
 

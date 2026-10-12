@@ -60,7 +60,10 @@ const $dataServerErrors = atom<DataValidationError[]>([]);
 
 // Server data errors flattened for the form fields to display by data path.
 export const $dataServerErrorEntries = computed($dataServerErrors, (errors): ServerErrorEntry[] =>
-    errors.map((e) => ({ path: e.getPropertyPath(), message: e.getMessage() })),
+    errors.flatMap((e) => {
+        const path = e.getPropertyPath();
+        return path == null ? [] : [{ path, message: e.getMessage() }];
+    }),
 );
 
 const $componentConfigErrors = atom<ComponentConfigValidationError[]>([]);
@@ -421,7 +424,10 @@ export function setServerValidationErrors(errors: ValidationError[]): void {
 // Drop the server errors on an edited occurrence's data path (and its descendants).
 export function clearServerErrorsAtPath(occurrencePath: string): void {
     const current = $dataServerErrors.get();
-    const next = current.filter((e) => !matchesOccurrencePath(e.getPropertyPath(), occurrencePath));
+    const next = current.filter((e) => {
+        const path = e.getPropertyPath();
+        return path == null || !matchesOccurrencePath(path, occurrencePath);
+    });
     if (next.length === current.length) return;
 
     $dataServerErrors.set(next);
@@ -433,7 +439,10 @@ export function clearServerErrorsAtPath(occurrencePath: string): void {
 // fresh errors arrive on the next save.
 export function clearServerErrorsForField(fieldPath: string): void {
     const current = $dataServerErrors.get();
-    const next = current.filter((e) => !matchesFieldPath(e.getPropertyPath(), fieldPath));
+    const next = current.filter((e) => {
+        const path = e.getPropertyPath();
+        return path == null || !matchesFieldPath(path, fieldPath);
+    });
     if (next.length === current.length) return;
 
     $dataServerErrors.set(next);

@@ -6,7 +6,7 @@ import type { UploadMediaSuccess } from '../../../../../entities/content/api/upl
 import type { UploadError } from '../../../../../shared/api';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { useUploadMedia } from '../../../../../entities/content/lib/useUploadMedia';
-import { $contextContent } from '../../../../../widgets/context-panel/model/contextContent.store';
+import { $contextContent } from '../../../../../entities/content';
 import { $uploads, removeUpload } from '../../../../../entities/content/model/uploads.store';
 
 //

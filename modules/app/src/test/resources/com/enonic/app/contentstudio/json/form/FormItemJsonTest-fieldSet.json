@@ -1,49 +1,46 @@
 {
-  "FieldSet": {
-    "items": [
-      {
-        "Input": {
-          "config": {},
-          "inputType": "TextLine",
-          "label": "myTextLine",
-          "name": "myTextLine",
-          "occurrences": {
-            "maximum": 1,
-            "minimum": 0
-          }
-        }
-      },
-      {
-        "Input": {
-          "config": {
-          },
-          "inputType": "Instant",
-          "label": "myDate",
-          "name": "myDate",
-          "occurrences": {
-            "maximum": 1,
-            "minimum": 0
-          }
-        }
-      },
-      {
-        "Input": {
-          "config": {
-              "alignment" : [ {
-                  "value" : "right"
-              } ]
-          },
-          "inputType": "CheckBox",
-          "label": "myOptions",
-          "name": "myOptions",
-          "occurrences": {
-            "maximum": 1,
-            "minimum": 0
-          }
-        }
+  "formItemType": "Layout",
+  "items": [
+    {
+      "formItemType": "Input",
+      "config": {},
+      "inputType": "TextLine",
+      "label": "myTextLine",
+      "name": "myTextLine",
+      "occurrences": {
+        "maximum": 1,
+        "minimum": 0
       }
-    ],
-    "label": "My field set",
-    "name": ""
-  }
+    },
+    {
+      "formItemType": "Input",
+      "config": {},
+      "inputType": "Instant",
+      "label": "myDate",
+      "name": "myDate",
+      "occurrences": {
+        "maximum": 1,
+        "minimum": 0
+      }
+    },
+    {
+      "formItemType": "Input",
+      "config": {
+        "alignment": [
+          {
+            "value": "right"
+          }
+        ]
+      },
+      "inputType": "CheckBox",
+      "label": "myOptions",
+      "name": "myOptions",
+      "occurrences": {
+        "maximum": 1,
+        "minimum": 0
+      }
+    }
+  ],
+  "label": "My field set",
+  "name": ""
 }

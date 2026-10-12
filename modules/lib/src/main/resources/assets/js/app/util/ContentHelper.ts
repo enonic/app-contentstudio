@@ -1,37 +1,33 @@
 import Q from 'q';
-import {QueryExpr} from '@enonic/lib-admin-ui/query/expr/QueryExpr';
-import {FieldExpr} from '@enonic/lib-admin-ui/query/expr/FieldExpr';
-import {CompareExpr} from '@enonic/lib-admin-ui/query/expr/CompareExpr';
-import {ValueExpr} from '@enonic/lib-admin-ui/query/expr/ValueExpr';
-import {ContentQueryRequest} from '../resource/ContentQueryRequest';
-import {type ContentQueryResult} from '../resource/ContentQueryResult';
-import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
-import {type Content} from '../content/Content';
-import {ContentQuery} from '../content/ContentQuery';
-import {QueryField} from '@enonic/lib-admin-ui/query/QueryField';
-import {type ContentSummary} from '../content/ContentSummary';
-import {type ContentId} from '../content/ContentId';
-import {type ContentSummaryJson} from '../content/ContentSummaryJson';
-import {CreateContentRequest} from '../resource/CreateContentRequest';
-import {ContentUnnamed} from '../content/ContentUnnamed';
-import {Workflow} from '../content/Workflow';
-import {WorkflowState} from '../content/WorkflowState';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {PageHelper} from './PageHelper';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {type Form} from '@enonic/lib-admin-ui/form/Form';
-import {type FormItemParent} from '@enonic/lib-admin-ui/form/FormItem';
-import {Input} from '@enonic/lib-admin-ui/form/Input';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {type PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {type Permission} from '../access/Permission';
-import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
-import {type AccessControlList} from '../access/AccessControlList';
-
+import { QueryExpr } from '@enonic/lib-admin-ui/query/expr/QueryExpr';
+import { FieldExpr } from '@enonic/lib-admin-ui/query/expr/FieldExpr';
+import { CompareExpr } from '@enonic/lib-admin-ui/query/expr/CompareExpr';
+import { ValueExpr } from '@enonic/lib-admin-ui/query/expr/ValueExpr';
+import { ContentQueryRequest } from '../resource/ContentQueryRequest';
+import { type ContentQueryResult } from '../resource/ContentQueryResult';
+import { GetContentByIdRequest } from '../resource/GetContentByIdRequest';
+import { type Content } from '../content/Content';
+import { ContentQuery } from '../content/ContentQuery';
+import { QueryField } from '@enonic/lib-admin-ui/query/QueryField';
+import { type ContentSummary } from '../content/ContentSummary';
+import { type ContentId } from '../content/ContentId';
+import { type ContentSummaryJson } from '../content/ContentSummaryJson';
+import { CreateContentRequest } from '../resource/CreateContentRequest';
+import { ContentUnnamed } from '../content/ContentUnnamed';
+import { Workflow } from '../content/Workflow';
+import { WorkflowState } from '../content/WorkflowState';
+import { PropertyTree, ValueTypes } from '@enonic/input-types/data';
+import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { PageHelper } from './PageHelper';
+import { type Form, Input } from '@enonic/input-types/schema';
+import { type FormItemParent } from '@enonic/lib-admin-ui/form/FormItem';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { type PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { type Permission } from '../access/Permission';
+import { RoleKeys } from '@enonic/lib-admin-ui/security/RoleKeys';
+import { type AccessControlList } from '../access/AccessControlList';
 
 export class ContentHelper {
-
     static isReferencedBy(content: ContentSummary, reference: ContentId) {
         if (!content) {
             return Q(false);
@@ -40,10 +36,14 @@ export class ContentHelper {
         const contentQuery: ContentQuery = new ContentQuery();
         contentQuery.setMustBeReferencedById(reference);
         contentQuery.setQueryExpr(
-            new QueryExpr(CompareExpr.eq(new FieldExpr(QueryField.ID), ValueExpr.string(content.getContentId().toString()))));
+            new QueryExpr(
+                CompareExpr.eq(new FieldExpr(QueryField.ID), ValueExpr.string(content.getContentId().toString())),
+            ),
+        );
 
-        return new ContentQueryRequest<ContentSummaryJson, ContentSummary>(contentQuery).sendAndParse().then(
-            (contentQueryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
+        return new ContentQueryRequest<ContentSummaryJson, ContentSummary>(contentQuery)
+            .sendAndParse()
+            .then((contentQueryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
                 return contentQueryResult.getMetadata().getTotalHits() > 0;
             });
     }
@@ -58,14 +58,17 @@ export class ContentHelper {
 
             // return page.doRegionComponentsContainId(contentId);
             const fragments: ContentId[] = [];
-            const containsId = page.getRegions() && PageHelper.doRegionsContainId(page.getRegions().getRegions(), contentId, fragments);
+            const containsId =
+                page.getRegions() &&
+                PageHelper.doRegionsContainId(page.getRegions().getRegions(), contentId, fragments);
             if (!containsId && fragments.length > 0) {
-                return Q.all(fragments.map(fragmentId => new GetContentByIdRequest(fragmentId).sendAndParse()))
-                    .then((fragmentContents: Content[]) => {
+                return Q.all(fragments.map((fragmentId) => new GetContentByIdRequest(fragmentId).sendAndParse())).then(
+                    (fragmentContents: Content[]) => {
                         return fragmentContents.some((fragmentContent: Content) => {
                             return PageHelper.doesFragmentContainId(fragmentContent.getPage().getFragment(), contentId);
                         });
-                    });
+                    },
+                );
             } else {
                 return Q(containsId);
             }
@@ -78,7 +81,7 @@ export class ContentHelper {
         return new CreateContentRequest()
             .setName(ContentUnnamed.newUnnamed())
             .setContentType(type)
-            .setDisplayName('')     // new content is created on wizard open so display name is always empty
+            .setDisplayName('') // new content is created on wizard open so display name is always empty
             .setData(new PropertyTree())
             .setExtraData([])
             .setWorkflow(Workflow.create().setState(WorkflowState.IN_PROGRESS).build());
@@ -129,8 +132,12 @@ export class ContentHelper {
         return result;
     }
 
-    public static isAnyPrincipalAllowed(permissions: AccessControlList, principalKeys: PrincipalKey[], permission: Permission): boolean {
-        if (principalKeys.some(key => RoleKeys.isAdmin(key))) {
+    public static isAnyPrincipalAllowed(
+        permissions: AccessControlList,
+        principalKeys: PrincipalKey[],
+        permission: Permission,
+    ): boolean {
+        if (principalKeys.some((key) => RoleKeys.isAdmin(key))) {
             return true;
         }
 

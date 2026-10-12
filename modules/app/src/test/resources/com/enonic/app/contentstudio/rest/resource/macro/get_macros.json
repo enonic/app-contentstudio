@@ -3,9 +3,7 @@
     {
       "description": "my description",
       "displayName": "A macro",
-      "form": {
-        "formItems": []
-      },
+      "form": [],
       "iconUrl": "/admin/rest-v2/cs/macro/icon/my.app1:macro1",
       "key": "my.app1:macro1",
       "name": "macro1"
@@ -13,9 +11,7 @@
     {
       "description": "my description",
       "displayName": "B macro",
-      "form": {
-        "formItems": []
-      },
+      "form": [],
       "iconUrl": "/admin/rest-v2/cs/macro/icon/my.app2:macro2",
       "key": "my.app2:macro2",
       "name": "macro2"
@@ -23,9 +19,7 @@
     {
       "description": "my description",
       "displayName": "C macro",
-      "form": {
-        "formItems": []
-      },
+      "form": [],
       "iconUrl": "/admin/rest-v2/cs/macro/icon/my.app3:macro3",
       "key": "my.app3:macro3",
       "name": "macro3"

@@ -1,6 +1,5 @@
 import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
 import { PropertyPath } from '@enonic/input-types/data';
-import { Value } from '@enonic/input-types/data';
 import { CompareStatusChecker } from '../../../app/content/CompareStatus';
 import { ComponentPath } from '../../../app/page/region/ComponentPath';
 import { DescriptorBasedComponent } from '../../../app/page/region/DescriptorBasedComponent';
@@ -84,7 +83,7 @@ function handleDataEvent(field: string, text: string): boolean {
         return false;
     }
 
-    prop.setValue(new Value(text, prop.getType()), true);
+    prop.setValue(prop.getType().newValue(text), true);
     return true;
 }
 
@@ -100,7 +99,7 @@ function handleMixinEvent(mixin: string, field: string, text: string): boolean {
         return false;
     }
 
-    prop.setValue(new Value(text, prop.getType()), true);
+    prop.setValue(prop.getType().newValue(text), true);
     return true;
 }
 
@@ -124,7 +123,7 @@ function handleComponentConfigEvent(component: string, field: string, text: stri
         if (!prop) {
             return false;
         }
-        prop.setValue(new Value(text, prop.getType()));
+        prop.setValue(prop.getType().newValue(text));
         return true;
     }
 
@@ -137,6 +136,6 @@ function handleComponentConfigEvent(component: string, field: string, text: stri
     if (!prop) {
         return false;
     }
-    prop.setValue(new Value(text, prop.getType()));
+    prop.setValue(prop.getType().newValue(text));
     return true;
 }

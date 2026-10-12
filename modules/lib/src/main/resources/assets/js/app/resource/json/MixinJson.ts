@@ -1,7 +1,7 @@
-import { type PropertyArrayJson } from '@enonic/lib-admin-ui/data/PropertyArrayJson';
+import type { PropertyTreeJson } from '@enonic/ui-types';
 
 export interface MixinJson {
     name: string;
 
-    data: readonly PropertyArrayJson[];
+    data: PropertyTreeJson;
 }

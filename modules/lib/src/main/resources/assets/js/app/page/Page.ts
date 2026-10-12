@@ -1,7 +1,7 @@
 import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
 import { type Cloneable } from '@enonic/lib-admin-ui/Cloneable';
 import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
-import { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import { PropertyTree } from '@enonic/input-types/data';
 import { PropertyTreeHelper } from '@enonic/lib-admin-ui/util/PropertyTreeHelper';
 import { PageTemplateKey } from './PageTemplateKey';
 import { type Regions } from './region/Regions';
@@ -123,7 +123,7 @@ export class Page implements Equitable, Cloneable, PageItem {
             template: this.template ? this.template.toString() : undefined,
             regions: this.regions ? this.regions.toJson() : undefined,
             fragment: this.fragment?.toJson() || null,
-            config: this.config ? [...this.config.toJson()] : undefined,
+            config: this.config ? this.config.toJson() : undefined,
         };
     }
 

@@ -1,4 +1,4 @@
-import { inputTypeRegistry } from '@enonic/input-types';
+import { inputTypeRegistry, registerBuiltInTypes } from '@enonic/input-types';
 import { ContentTypeFilterDescriptor, ContentTypeFilterInput } from './content-type-filter';
 import { HtmlAreaDescriptor, HtmlAreaInput } from './html-area/';
 import { ImageSelectorDescriptor, ImageSelectorInput } from './image-selector';
@@ -52,4 +52,14 @@ export function registerContentStudioInputTypes(): void {
     // Override the built-in Tag input with the Content Studio variant.
     // TagDescriptor is already registered by built-in types, so force=true is intentional.
     inputTypeRegistry.registerType({ mode: 'internal', descriptor: TagDescriptor, component: TagInput }, true);
+}
+
+let formTypesInitialized = false;
+
+/** Registers the toolkit's built-in input types and Content Studio's own, once per bundle. */
+export function initFormTypes(): void {
+    if (formTypesInitialized) return;
+    formTypesInitialized = true;
+    registerBuiltInTypes();
+    registerContentStudioInputTypes();
 }

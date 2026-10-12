@@ -27,7 +27,40 @@
     "no-extra-boolean-cast": "off",
     "no-prototype-builtins": "off",
     "no-empty-pattern": "off",
-    "prefer-const": "off"
+    "prefer-const": "off",
+    "no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          { "name": "@enonic/lib-admin-ui/form/Form", "importNames": ["Form"], "message": "Import from '@enonic/input-types/schema' (lib-admin-ui#4713)." },
+          { "name": "@enonic/lib-admin-ui/form/FormItem", "importNames": ["FormItem", "FormItemKind"], "message": "Import from '@enonic/input-types/schema' (lib-admin-ui#4713)." },
+          { "name": "@enonic/lib-admin-ui/form/Input", "importNames": ["Input", "InputBuilder"], "message": "Import from '@enonic/input-types/schema' (lib-admin-ui#4713)." },
+          { "name": "@enonic/lib-admin-ui/form/Occurrences", "importNames": ["Occurrences"], "message": "Import from '@enonic/input-types/schema' (lib-admin-ui#4713)." },
+          { "name": "@enonic/lib-admin-ui/form/FormItemPath", "message": "Import from '@enonic/input-types/schema' (lib-admin-ui#4713)." },
+          { "name": "@enonic/lib-admin-ui/form/InputTypeName", "message": "Import from '@enonic/input-types/schema' (lib-admin-ui#4713)." },
+          { "name": "@enonic/lib-admin-ui/data/PropertyArrayJson", "message": "Import from '@enonic/ui-types' (lib-admin-ui#4713)." },
+          { "name": "@enonic/lib-admin-ui/data/PropertyValueJson", "message": "Import from '@enonic/ui-types' (lib-admin-ui#4713)." }
+        ],
+        "patterns": [
+          { "group": ["@enonic/lib-admin-ui/data/*"], "message": "Import from '@enonic/input-types/data' (lib-admin-ui#4713)." },
+          { "group": ["@enonic/lib-admin-ui/form/set/*"], "message": "Import from '@enonic/input-types/schema' (lib-admin-ui#4713)." },
+          { "group": ["@enonic/lib-admin-ui/form2/*"], "message": "Import from '@enonic/input-types' (lib-admin-ui#4713)." },
+          {
+            "group": [
+              "@enonic/lib-admin-ui/util/BinaryReference",
+              "@enonic/lib-admin-ui/util/DateTime",
+              "@enonic/lib-admin-ui/util/GeoPoint",
+              "@enonic/lib-admin-ui/util/Link",
+              "@enonic/lib-admin-ui/util/LocalDate",
+              "@enonic/lib-admin-ui/util/LocalDateTime",
+              "@enonic/lib-admin-ui/util/LocalTime",
+              "@enonic/lib-admin-ui/util/Reference"
+            ],
+            "message": "Import from '@enonic/ui-utils' (lib-admin-ui#4713)."
+          }
+        ]
+      }
+    ]
   },
   "overrides": [
     {

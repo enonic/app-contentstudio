@@ -1,9 +1,8 @@
-import {type PropertyArrayJson} from '@enonic/lib-admin-ui/data/PropertyArrayJson';
-import {type RegionJson} from './region/RegionJson';
-import {type ComponentTypeWrapperJson} from './region/ComponentTypeWrapperJson';
+import type { PropertyTreeJson } from '@enonic/ui-types';
+import { type RegionJson } from './region/RegionJson';
+import { type ComponentTypeWrapperJson } from './region/ComponentTypeWrapperJson';
 
 export interface PageJson {
-
     controller: string;
 
     template: string;
@@ -12,6 +11,5 @@ export interface PageJson {
 
     fragment: ComponentTypeWrapperJson;
 
-    config: PropertyArrayJson[];
-
+    config: PropertyTreeJson;
 }

@@ -1,13 +1,16 @@
 import Q from 'q';
-import { type Input } from '@enonic/lib-admin-ui/form/Input';
+import type { Input } from '@enonic/input-types/schema';
 import { InputTypeManager } from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
-import { ValueTypeConverter } from '@enonic/lib-admin-ui/data/ValueTypeConverter';
+import {
+    ValueTypeConverter,
+    PropertyPath,
+    PropertyPathElement,
+    type PropertyArray,
+    Value,
+    type ValueType,
+    ValueTypes,
+} from '@enonic/input-types/data';
 import { Class } from '@enonic/lib-admin-ui/Class';
-import { PropertyPath, PropertyPathElement } from '@enonic/lib-admin-ui/data/PropertyPath';
-import { type PropertyArray } from '@enonic/lib-admin-ui/data/PropertyArray';
-import { Value } from '@enonic/lib-admin-ui/data/Value';
-import { type ValueType } from '@enonic/lib-admin-ui/data/ValueType';
-import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
 import { ContentTagSuggester, ContentTagSuggesterBuilder } from './ContentTagSuggester';
 import { type Tags, TagsBuilder } from '../ui/tag/Tags';
 import { type TagRemovedEvent } from '../ui/tag/TagRemovedEvent';

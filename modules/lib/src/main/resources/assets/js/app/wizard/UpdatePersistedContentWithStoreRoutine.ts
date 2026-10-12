@@ -1,6 +1,5 @@
 import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
-import type { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
-import { type PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
+import type { PropertyTree, PropertySet } from '@enonic/input-types/data';
 import Q from 'q';
 import {
     $wizardDraftData,
