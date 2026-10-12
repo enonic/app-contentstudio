@@ -141,13 +141,13 @@ export const ContentWizardToolbar = ({
 
     const toolbarActions: OverflowActionRowItem[] = useMemo(
         () => [
-            { id: 'save', action: saveAction },
+            { id: 'save', action: saveAction, primaryRank: 2 },
             { id: 'reset', action: resetAction },
             { id: 'localize', action: localizeAction },
             { id: 'archive', action: archiveAction },
             { id: 'duplicate', action: duplicateAction },
             { id: 'move', action: moveAction },
-            { id: 'preview', action: previewAction },
+            { id: 'preview', action: previewAction, primaryRank: 1 },
         ],
         [archiveAction, duplicateAction, localizeAction, moveAction, previewAction, resetAction, saveAction],
     );
@@ -193,24 +193,31 @@ export const ContentWizardToolbar = ({
                 )}
             >
                 <div className="flex min-w-fit max-w-fit items-center gap-2.5 sm:min-w-0 sm:max-w-none sm:flex-1 sm:basis-0">
-                    <Toolbar.Item asChild>
-                        <Button
-                            size="sm"
-                            variant="text"
-                            onClick={onProjectBack}
-                            className="size-9 min-w-fit p-0 sm:w-auto sm:px-3.5"
-                            aria-label={projectViewLabel}
-                        >
-                            <ProjectIcon
-                                projectName={projectName ?? projectViewLabel}
-                                language={projectLanguage || undefined}
-                                hasIcon={projectHasIcon}
-                                isLayer={isLayerProject}
-                                className="size-6 shrink-0"
-                            />
-                            <span className="hidden max-w-40 truncate lg:block">{projectViewLabel}</span>
-                        </Button>
-                    </Toolbar.Item>
+                    <Tooltip value={projectViewLabel}>
+                        <Toolbar.Item asChild>
+                            <Button
+                                size="sm"
+                                variant="text"
+                                onClick={onProjectBack}
+                                className="size-9 min-w-fit p-0 sm:w-auto sm:px-3.5"
+                                aria-label={projectViewLabel}
+                            >
+                                <ProjectIcon
+                                    projectName={projectName ?? projectViewLabel}
+                                    language={projectLanguage || undefined}
+                                    hasIcon={projectHasIcon}
+                                    isLayer={isLayerProject}
+                                    className="size-6 shrink-0"
+                                />
+                                <span
+                                    data-component="ContentWizardToolbar.ProjectName"
+                                    className="hidden max-w-40 truncate lg:block"
+                                >
+                                    {projectViewLabel}
+                                </span>
+                            </Button>
+                        </Toolbar.Item>
+                    </Tooltip>
                     <div ref={mobileActionsSplitRef} className="sm:hidden shrink-0 min-w-fit">
                         <SplitActionButton
                             actions={mobileSplitActions}
@@ -218,11 +225,7 @@ export const ContentWizardToolbar = ({
                             menuOnlyLabel={actionsLabel}
                         />
                     </div>
-                    <OverflowActionRow
-                        actions={toolbarActions}
-                        className="hidden sm:flex min-w-0 flex-1"
-                        primaryOverflowActionId="preview"
-                    />
+                    <OverflowActionRow actions={toolbarActions} className="hidden sm:flex min-w-0 flex-1" />
                 </div>
                 <div className="flex min-w-0 items-center justify-center px-0 sm:px-2">
                     {isContentInherited && (
@@ -252,6 +255,7 @@ export const ContentWizardToolbar = ({
                                     onClick={onContentPathClick}
                                 >
                                     <span
+                                        data-component="ContentWizardToolbar.ContentName"
                                         className={cn(
                                             'min-w-0 max-w-full overflow-hidden text-ellipsis whitespace-nowrap',
                                             contentPathExists && 'text-error',
