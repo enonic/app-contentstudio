@@ -117,6 +117,7 @@ type HarnessProps = {
     collapsed?: boolean;
     onCollapsedChange?: (collapsed: boolean) => void;
     storageId?: string;
+    panelIds?: string[];
     handleLabel?: string;
     thin?: boolean;
     secondCollapsed?: boolean;
@@ -124,12 +125,18 @@ type HarnessProps = {
     resolveLayoutOnPanelsChange?: (previous: Layout, next: Layout) => Layout | undefined;
 };
 
+const TWO_PANEL_IDS = ['first', 'second'];
+const THREE_PANEL_IDS = [...TWO_PANEL_IDS, 'third'];
+const TWO_PANEL_KEY = 'react-resizable-panels:test-split:first:second';
+const THREE_PANEL_KEY = 'react-resizable-panels:test-split:first:second:third';
+
 const Harness = ({
     groupRef,
     panelRef,
     collapsed,
     onCollapsedChange,
     storageId,
+    panelIds,
     handleLabel,
     thin,
     secondCollapsed,
@@ -140,6 +147,7 @@ const Harness = ({
         id="root"
         groupRef={groupRef}
         storageId={storageId}
+        panelIds={panelIds}
         resolveLayoutOnPanelsChange={resolveLayoutOnPanelsChange}
     >
         <SplitView.Panel
@@ -292,7 +300,7 @@ describe('SplitView', () => {
 
     it('keeps a controlled expanded panel expanded when a stale stored layout collapses it', async () => {
         // A layout stored for the two-panel combination while the second panel was collapsed.
-        window.localStorage.setItem('react-resizable-panels:test-split', JSON.stringify({ first: 100, second: 0 }));
+        window.localStorage.setItem(TWO_PANEL_KEY, JSON.stringify({ first: 100, second: 0 }));
         const groupRef = createRef<GroupImperativeHandle>();
         const onCollapsedChange = vi.fn();
         const props: HarnessProps = {
@@ -303,8 +311,8 @@ describe('SplitView', () => {
             secondCollapsed: false,
         };
 
-        const result = await renderHarness({ ...props, withThird: true });
-        await rerenderHarness(result, { ...props, withThird: false });
+        const result = await renderHarness({ ...props, withThird: true, panelIds: THREE_PANEL_IDS });
+        await rerenderHarness(result, { ...props, withThird: false, panelIds: TWO_PANEL_IDS });
 
         expect(groupRef.current?.getLayout().second).toBeGreaterThan(0);
         expect(onCollapsedChange).not.toHaveBeenCalled();
@@ -389,6 +397,47 @@ describe('SplitView', () => {
         });
 
         expect(window.localStorage.getItem('react-resizable-panels:test-split')).not.toBeNull();
+    });
+
+    it('persists each panel set under its own key', async () => {
+        const props: HarnessProps = { storageId: 'test-split', collapsed: false, secondCollapsed: false };
+        const resize = async (): Promise<void> => {
+            await act(async () => {
+                const handle = screen.getAllByRole('separator')[0];
+                handle.focus();
+                handle.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+            });
+        };
+
+        const result = await renderHarness({ ...props, panelIds: TWO_PANEL_IDS });
+        await resize();
+        const twoPanelLayout = window.localStorage.getItem(TWO_PANEL_KEY);
+        expect(twoPanelLayout).not.toBeNull();
+        expect(window.localStorage.getItem('react-resizable-panels:test-split')).toBeNull();
+
+        await rerenderHarness(result, { ...props, withThird: true, panelIds: THREE_PANEL_IDS });
+        await resize();
+
+        expect(window.localStorage.getItem(THREE_PANEL_KEY)).not.toBeNull();
+        expect(window.localStorage.getItem(TWO_PANEL_KEY)).toBe(twoPanelLayout);
+    });
+
+    it('restores the stored layout of a panel set when that set mounts', async () => {
+        window.localStorage.setItem(THREE_PANEL_KEY, JSON.stringify({ first: 30, second: 45, third: 25 }));
+        const groupRef = createRef<GroupImperativeHandle>();
+        const props: HarnessProps = { groupRef, storageId: 'test-split', collapsed: false, secondCollapsed: false };
+
+        const result = await renderHarness({ ...props, panelIds: TWO_PANEL_IDS });
+        expect(groupRef.current?.getLayout().first).toBeCloseTo(38, 0);
+
+        await rerenderHarness(result, { ...props, withThird: true, panelIds: THREE_PANEL_IDS });
+
+        expect(groupRef.current?.getLayout()).toEqual({ first: 30, second: 45, third: 25 });
+
+        await rerenderHarness(result, { ...props, withThird: false, panelIds: TWO_PANEL_IDS });
+        await rerenderHarness(result, { ...props, withThird: true, panelIds: THREE_PANEL_IDS });
+
+        expect(groupRef.current?.getLayout()).toEqual({ first: 30, second: 45, third: 25 });
     });
 
     it('does not persist anything without a storageId', async () => {

@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { resolveWizardPanelLayout } from './resolveWizardPanelLayout';
 
-const options = { totalWidth: 2000, formMinWidth: 360, liveMinWidth: 360, formCollapsed: false };
+const options = {
+    totalWidth: 2000,
+    formMinWidth: 360,
+    liveMinWidth: 360,
+    contextDefaultPercent: 16,
+    formCollapsed: false,
+};
 
 describe('resolveWizardPanelLayout', () => {
     it('should take the context width from the form and keep the live width when the context docks', () => {
@@ -52,6 +58,12 @@ describe('resolveWizardPanelLayout', () => {
         const layout = resolveWizardPanelLayout({ form: 40, live: 60 }, { form: 30, live: 70 }, options);
 
         expect(layout).toBeUndefined();
+    });
+
+    it('should fall back to the default context width when the last one does not fit', () => {
+        const layout = resolveWizardPanelLayout({ form: 20, live: 80 }, { form: 10, live: 20, context: 70 }, options);
+
+        expect(layout).toEqual({ form: 18, live: 66, context: 16 });
     });
 
     it('should take the context width from the form and keep the live width when the context reopens', () => {

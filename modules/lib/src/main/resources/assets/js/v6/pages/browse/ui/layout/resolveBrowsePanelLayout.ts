@@ -1,17 +1,29 @@
 import type { Layout } from 'react-resizable-panels';
 
-// Kept from the pre-flattened layout so saved layouts keep applying.
 export const GRID_PANEL_ID = 'grid-region';
 
 export type ResolveBrowsePanelLayoutOptions = {
     totalWidth: number;
     panelMinWidth: number;
+    filterDefaultWidth: number;
+    contextDefaultWidth: number;
 };
 
+type PanelToggle = {
+    panel: string;
+    donor: string;
+    keep: string;
+    defaultWidth: number;
+};
+
+// A panel that opens comes out of one neighbour only, the filter out of the
+// preview and the context out of the grid, so the panel between them keeps its
+// width. It opens at its last width, or at its default when that does not fit.
+// A panel that closes gives its width back to the same neighbour.
 export function resolveBrowsePanelLayout(
     previous: Layout,
     next: Layout,
-    { totalWidth, panelMinWidth }: ResolveBrowsePanelLayoutOptions,
+    { totalWidth, panelMinWidth, filterDefaultWidth, contextDefaultWidth }: ResolveBrowsePanelLayoutOptions,
 ): Layout | undefined {
     const filterChanged = (previous.filter != null) !== (next.filter != null);
     const contextChanged = (previous.context != null) !== (next.context != null);
@@ -22,42 +34,26 @@ export function resolveBrowsePanelLayout(
     }
     if (previousGrid <= 0 || previous.preview <= 0) return undefined;
 
-    const minPercent = (panelMinWidth / totalWidth) * 100;
-    const withPanel = (layout: Layout, name: string, size: number | undefined): Layout =>
-        size != null ? { ...layout, [name]: size } : layout;
+    const toPercent = (px: number): number => (px / totalWidth) * 100;
+    const toggle: PanelToggle = filterChanged
+        ? { panel: 'filter', donor: 'preview', keep: GRID_PANEL_ID, defaultWidth: filterDefaultWidth }
+        : { panel: 'context', donor: GRID_PANEL_ID, keep: 'preview', defaultWidth: contextDefaultWidth };
+    const { panel, donor, keep } = toggle;
 
-    if (filterChanged) {
-        const context = next.context;
-
-        if (next.filter == null) {
-            return withPanel(
-                { [GRID_PANEL_ID]: previousGrid, preview: previous.preview + previous.filter },
-                'context',
-                context,
-            );
-        }
-
-        const filter = next.filter;
-        const preview = 100 - previousGrid - filter - (context ?? 0);
-        if (preview < minPercent) return undefined;
-
-        return withPanel({ filter, [GRID_PANEL_ID]: previousGrid, preview }, 'context', context);
+    const opened = next[panel];
+    if (opened == null) {
+        const { [panel]: closed, ...rest } = previous;
+        return { ...rest, [donor]: previous[donor] + closed };
     }
 
-    const filter = next.filter;
-
-    if (next.context == null) {
-        return withPanel(
-            { [GRID_PANEL_ID]: previousGrid + previous.context, preview: previous.preview },
-            'filter',
-            filter,
-        );
+    const minSize = toPercent(panelMinWidth);
+    const others = 100 - previous[donor] - previous[keep];
+    for (const size of [opened, toPercent(toggle.defaultWidth)]) {
+        const donorSize = Math.max(minSize, 100 - others - previous[keep] - size);
+        const keepSize = 100 - others - donorSize - size;
+        if (keepSize < previous[keep] && keepSize < minSize) continue;
+        return { ...previous, [panel]: size, [donor]: donorSize, [keep]: keepSize };
     }
 
-    const context = next.context;
-    const grid = Math.max(minPercent, 100 - previous.preview - context - (filter ?? 0));
-    const preview = 100 - grid - context - (filter ?? 0);
-    if (preview < previous.preview && preview < minPercent) return undefined;
-
-    return withPanel({ [GRID_PANEL_ID]: grid, preview, context }, 'filter', filter);
+    return undefined;
 }

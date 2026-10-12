@@ -25,6 +25,9 @@ const DOCKED_PERCENT = LayoutTokens.contextPanel.dockedWidthPercent;
 const FLOATING_EDITOR_PERCENT = LayoutTokens.contextPanel.floatingWidthPercent.wizardWithEditor;
 const RESIZE_NOTIFY_DELAY_MS = 200;
 
+const PANEL_IDS = ['form', 'live'];
+const PANEL_IDS_WITH_CONTEXT = [...PANEL_IDS, 'context'];
+
 export type WizardLayoutProps = {
     // Owned by ContentWizardPanel; the layout only places them.
     formPanel: Element;
@@ -124,9 +127,10 @@ export const WizardLayout = ({ formPanel, livePanel, contextPanel, onResized }: 
                 totalWidth: totalWidthRef.current,
                 formMinWidth: FORM_MIN_WIDTH,
                 liveMinWidth: LIVE_MIN_WIDTH,
+                contextDefaultPercent: dockedPercent,
                 formCollapsed,
             }),
-        [formCollapsed],
+        [dockedPercent, formCollapsed],
     );
 
     const showDockedContext = isContextOpen && mode === 'docked';
@@ -143,6 +147,7 @@ export const WizardLayout = ({ formPanel, livePanel, contextPanel, onResized }: 
             <SplitView
                 orientation="horizontal"
                 storageId="wizard-layout"
+                panelIds={showDockedContext ? PANEL_IDS_WITH_CONTEXT : PANEL_IDS}
                 resolveLayoutOnPanelsChange={handleResolveLayout}
                 className="size-full"
             >
