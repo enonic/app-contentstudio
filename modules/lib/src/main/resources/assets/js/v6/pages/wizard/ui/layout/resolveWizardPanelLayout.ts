@@ -4,13 +4,17 @@ export type ResolveWizardPanelLayoutOptions = {
     totalWidth: number;
     formMinWidth: number;
     liveMinWidth: number;
+    contextDefaultPercent: number;
     formCollapsed: boolean;
 };
 
+// A docking context comes out of the form at its last width, or at its default
+// when that does not fit; the live view keeps its width. An undocking context
+// gives its width back to the form.
 export function resolveWizardPanelLayout(
     previous: Layout,
     next: Layout,
-    { totalWidth, formMinWidth, liveMinWidth, formCollapsed }: ResolveWizardPanelLayoutOptions,
+    { totalWidth, formMinWidth, liveMinWidth, contextDefaultPercent, formCollapsed }: ResolveWizardPanelLayoutOptions,
 ): Layout | undefined {
     const hadContext = previous.context != null;
     const hasContext = next.context != null;
@@ -25,10 +29,12 @@ export function resolveWizardPanelLayout(
         return { form: previous.form + previous.context, live };
     }
 
-    const context = next.context;
-    const form = Math.max(toPercent(formMinWidth), 100 - live - context);
-    const squeezedLive = 100 - form - context;
-    if (squeezedLive < live && squeezedLive < toPercent(liveMinWidth)) return undefined;
+    for (const context of [next.context, contextDefaultPercent]) {
+        const form = Math.max(toPercent(formMinWidth), 100 - live - context);
+        const squeezedLive = 100 - form - context;
+        if (squeezedLive < live && squeezedLive < toPercent(liveMinWidth)) continue;
+        return { form, live: squeezedLive, context };
+    }
 
-    return { form, live: squeezedLive, context };
+    return undefined;
 }

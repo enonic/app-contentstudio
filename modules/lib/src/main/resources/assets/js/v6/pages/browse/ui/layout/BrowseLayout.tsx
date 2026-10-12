@@ -23,13 +23,24 @@ import { GRID_PANEL_ID, resolveBrowsePanelLayout } from './resolveBrowsePanelLay
 
 const CONTEXT_MIN_WIDTH = LayoutTokens.contextPanel.minWidth;
 const RESIZE_NOTIFY_DELAY_MS = 200;
-// The grid takes half the width (legacy getFirstPanelSize). An opening filter
-// comes out of the preview, a docking context out of the grid, so the panel in
-// between keeps its width. Every hosted panel keeps a usable minimum.
-const GRID_DEFAULT_SIZE = '50%';
+// An opening filter comes out of the preview, a docking context out of the
+// grid, so the panel in between keeps its width. Every hosted panel keeps a
+// usable minimum.
+const GRID_DEFAULT_SIZE = '38%';
 const PANEL_MIN_WIDTH_PX = 300;
 const PANEL_MIN_WIDTH = `${PANEL_MIN_WIDTH_PX}px`;
-const FILTER_DEFAULT_WIDTH = '300px';
+const FILTER_DEFAULT_WIDTH_PX = 300;
+const FILTER_DEFAULT_WIDTH = `${FILTER_DEFAULT_WIDTH_PX}px`;
+
+const PANEL_IDS = [GRID_PANEL_ID, 'preview'];
+const PANEL_IDS_WITH_FILTER = ['filter', ...PANEL_IDS];
+const PANEL_IDS_WITH_CONTEXT = [...PANEL_IDS, 'context'];
+const PANEL_IDS_WITH_FILTER_AND_CONTEXT = ['filter', ...PANEL_IDS, 'context'];
+
+const getPanelIds = (withFilter: boolean, withContext: boolean): string[] => {
+    if (withFilter) return withContext ? PANEL_IDS_WITH_FILTER_AND_CONTEXT : PANEL_IDS_WITH_FILTER;
+    return withContext ? PANEL_IDS_WITH_CONTEXT : PANEL_IDS;
+};
 
 export type BrowseLayoutProps = {
     // Owned by ContentBrowsePanel; the layout only places them.
@@ -106,6 +117,8 @@ export const BrowseLayout = ({
             resolveBrowsePanelLayout(previous, next, {
                 totalWidth: totalWidthRef.current,
                 panelMinWidth: PANEL_MIN_WIDTH_PX,
+                filterDefaultWidth: FILTER_DEFAULT_WIDTH_PX,
+                contextDefaultWidth: CONTEXT_MIN_WIDTH,
             }),
         [],
     );
@@ -123,6 +136,8 @@ export const BrowseLayout = ({
     const showFloatingContext = isContextOpen && mode === 'floating';
     const showMobileContext = isContextOpen && isMobile;
 
+    const panelIds = getPanelIds(showFilterSplitPanel, showDockedContext);
+
     // top-15 clears the 60px legacy toolbar.
     return (
         <div
@@ -133,6 +148,7 @@ export const BrowseLayout = ({
             <SplitView
                 orientation="horizontal"
                 storageId={storageId}
+                panelIds={panelIds}
                 resolveLayoutOnPanelsChange={handleResolveLayout}
                 className="size-full"
             >
