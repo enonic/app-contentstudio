@@ -4,7 +4,7 @@
 // Mirror copies in app-ai-translator and app-ai-content-operator must stay
 // byte-identical. Do not edit a mirror copy.
 
-export const AI_PROTOCOL_VERSION = 2;
+export const AI_PROTOCOL_VERSION = 3;
 
 // ---- Identity ---------------------------------------------------------------
 

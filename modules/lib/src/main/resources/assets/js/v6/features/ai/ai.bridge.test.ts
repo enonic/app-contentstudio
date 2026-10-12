@@ -19,12 +19,22 @@ describe('setAiValueAtPath', () => {
         expect(prop.getLocalDate()?.toString()).toBe('2020-01-02');
     });
 
-    it('leaves a date field empty when the AI string is not a date, without throwing', () => {
+    it('keeps the date and reports a failure when the AI string is not a date', () => {
         const tree = new PropertyTree();
         const prop = tree.getRoot().addProperty('published', ValueTypes.LOCAL_DATE.newValue('2000-01-01'));
         $aiDataTree.set(tree);
 
-        expect(setAiValueAtPath({ kind: 'data', field: 'published' }, 'next week')).toBe(true);
+        expect(setAiValueAtPath({ kind: 'data', field: 'published' }, 'next week')).toBe(false);
+
+        expect(prop.getLocalDate()?.toString()).toBe('2000-01-01');
+    });
+
+    it('clears a date field when the AI string is blank', () => {
+        const tree = new PropertyTree();
+        const prop = tree.getRoot().addProperty('published', ValueTypes.LOCAL_DATE.newValue('2000-01-01'));
+        $aiDataTree.set(tree);
+
+        expect(setAiValueAtPath({ kind: 'data', field: 'published' }, '')).toBe(true);
 
         expect(prop.getValue().isNull()).toBe(true);
     });

@@ -1,5 +1,5 @@
 import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
-import { PropertyPath } from '@enonic/input-types/data';
+import { type Property, PropertyPath } from '@enonic/input-types/data';
 import { CompareStatusChecker } from '../../../app/content/CompareStatus';
 import { ComponentPath } from '../../../app/page/region/ComponentPath';
 import { DescriptorBasedComponent } from '../../../app/page/region/DescriptorBasedComponent';
@@ -83,8 +83,7 @@ function handleDataEvent(field: string, text: string): boolean {
         return false;
     }
 
-    prop.setValue(prop.getType().newValue(text), true);
-    return true;
+    return writeAiValue(prop, text, true);
 }
 
 function handleMixinEvent(mixin: string, field: string, text: string): boolean {
@@ -99,8 +98,7 @@ function handleMixinEvent(mixin: string, field: string, text: string): boolean {
         return false;
     }
 
-    prop.setValue(prop.getType().newValue(text), true);
-    return true;
+    return writeAiValue(prop, text, true);
 }
 
 function handleComponentEvent(component: string, text: string): boolean {
@@ -123,8 +121,7 @@ function handleComponentConfigEvent(component: string, field: string, text: stri
         if (!prop) {
             return false;
         }
-        prop.setValue(prop.getType().newValue(text));
-        return true;
+        return writeAiValue(prop, text);
     }
 
     const item: PageItem = PageState.getState()?.getComponentByPath(ComponentPath.fromString(component));
@@ -136,6 +133,17 @@ function handleComponentConfigEvent(component: string, field: string, text: stri
     if (!prop) {
         return false;
     }
-    prop.setValue(prop.getType().newValue(text));
+    return writeAiValue(prop, text);
+}
+
+// Non-blank text the field's type cannot parse is not written, so a bad AI value
+// never erases what the field holds.
+function writeAiValue(prop: Property, text: string, force?: boolean): boolean {
+    const value = prop.getType().newValue(text);
+    if (value.isNull() && !isBlank(text)) {
+        return false;
+    }
+
+    prop.setValue(value, force);
     return true;
 }
