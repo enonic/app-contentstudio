@@ -284,8 +284,13 @@ export class ContentWizardPanel extends WizardPanel<Content> {
             this.openTranslatorDialog(event.getLanguage());
         });
 
-        ContentSettingsUpdatedEvent.on((event: ContentSettingsUpdatedEvent) => {
+        const contentSettingsUpdatedHandler = (event: ContentSettingsUpdatedEvent) => {
             this.handleContentSettingsUpdated(event.getContent());
+        };
+
+        ContentSettingsUpdatedEvent.on(contentSettingsUpdatedHandler);
+        this.onClosed(() => {
+            ContentSettingsUpdatedEvent.un(contentSettingsUpdatedHandler);
         });
     }
 
@@ -297,6 +302,13 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         const wasDataInherited: boolean = this.getPersistedItem().isDataInherited();
 
         this.replacePersistedContent(content);
+        this.updateWithContentSummary(
+            ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(
+                content,
+                this.persistedCompareStatus,
+                this.currentPublishStatus,
+            ),
+        );
 
         if (wasDataInherited && !content.isDataInherited()) {
             this.setEnabled(true);

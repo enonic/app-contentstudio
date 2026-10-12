@@ -121,10 +121,10 @@ export const applyEditPropertiesDialog = async (): Promise<void> => {
     const languageChanged = (nextLanguage ?? undefined) !== (previousLanguage ?? undefined);
     const ownerChanged = (nextOwnerKey ?? undefined) !== (previousOwnerKey ?? undefined);
 
-    const updates: ResultAsync<Content, AppError>[] = [];
+    const updates: (() => ResultAsync<Content, AppError>)[] = [];
 
     if (ownerChanged) {
-        updates.push(
+        updates.push(() =>
             updateContentMetadata(
                 contentItem.getContentId(),
                 nextOwnerKey ? PrincipalKey.fromString(nextOwnerKey) : undefined,
@@ -133,18 +133,18 @@ export const applyEditPropertiesDialog = async (): Promise<void> => {
     }
 
     if (languageChanged) {
-        updates.push(updateContentLanguage(contentItem.getContentId(), nextLanguage));
+        updates.push(() => updateContentLanguage(contentItem.getContentId(), nextLanguage));
     }
 
     if (updates.length > 0) {
-        const result = await ResultAsync.combine(updates);
+        const result = await updates.slice(1).reduce((chain, update) => chain.andThen(update), updates[0]());
         if (result.isErr()) {
             DefaultErrorHandler.handle(result.error);
             $editPropertiesDialog.setKey('saving', false);
             return;
         }
 
-        const updatedContent = result.value[result.value.length - 1];
+        const updatedContent = result.value;
         new ContentSettingsUpdatedEvent(updatedContent).fire();
 
         if (wasDataInherited && !updatedContent.isDataInherited()) {
