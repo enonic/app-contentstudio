@@ -24,6 +24,7 @@ import Q from 'q';
 import { LiveEditModel } from '../../page-editor/LiveEditModel';
 import { cleanupWizardMixinsService, initWizardMixinsService } from '../../v6/pages/wizard/model/wizardMixins.service';
 import {
+    applyOwnContentUpdate,
     cleanupWizardContentSyncService,
     initWizardContentSyncService,
 } from '../../v6/pages/wizard/model/wizardContentSync.service';
@@ -301,7 +302,9 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
         const wasDataInherited: boolean = this.getPersistedItem().isDataInherited();
 
-        this.replacePersistedContent(content);
+        super.setPersistedItem(content);
+        applyOwnContentUpdate(content);
+        setAiContent(content);
         this.updateWithContentSummary(
             ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(
                 content,
