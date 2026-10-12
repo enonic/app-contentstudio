@@ -153,7 +153,7 @@ export const applyEditPropertiesDialog = async (): Promise<void> => {
             showFeedback(i18n('notify.properties.settings.updated', contentItem.getName().toString()));
         }
 
-        if (languageChanged) {
+        if (languageChanged && nextLanguage) {
             new ContentLanguageUpdatedEvent(nextLanguage).fire();
         }
     }
