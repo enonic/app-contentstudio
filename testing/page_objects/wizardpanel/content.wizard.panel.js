@@ -47,8 +47,9 @@ const XPATH = {
     previewToolbarMenuItem: (optionName) => {
         return `//div[contains(@id,'PreviewToolbar') and @role='menu']//div[@role='menuitemradio' and descendant::span[text()='${optionName}']]`;
     },
-    openRenameDialogButton: (name) => `//button[@data-component='Tooltip' and child::span[text()='${name}']]`,
-    nameInToolbarButton: `//button[@data-component='Tooltip' and contains(@id,'toolbar-item')]/span`,
+    openRenameDialogButton: (name) =>
+        `//button[span[@data-component='ContentWizardToolbar.ContentName' and text()='${name}']]`,
+    nameInToolbarButton: `//span[@data-component='ContentWizardToolbar.ContentName']`,
     publishMenuItemByName(name) {
         return `//div[@data-component='Menu.Item' and child::span[text()='${name}']]`;
     },
@@ -1189,7 +1190,7 @@ class ContentWizardPanel extends Page {
 
     async getProjectDisplayName() {
         try {
-            let selector = XPATH.toolbar + `//button[@data-component='Toolbar.Item']/span`;
+            let selector = XPATH.toolbar + `//*[@data-component='ContentWizardToolbar.ProjectName']`;
             await this.waitForElementDisplayed(selector, appConst.shortTimeout);
             return await this.getText(selector);
         } catch (err) {
