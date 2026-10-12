@@ -65,13 +65,13 @@ export const BrowseToolbar = ({
     const actionsLabel = useI18n('action.actions');
     const toolbarActions: OverflowActionRowItem[] = useMemo(
         () => [
-            { id: 'new', action: showNewDialogAction },
+            { id: 'new', action: showNewDialogAction, primaryRank: 2 },
             { id: 'edit', action: editAction },
             { id: 'archive', action: archiveAction },
             { id: 'duplicate', action: duplicateAction },
             { id: 'move', action: moveAction },
             { id: 'sort', action: sortAction },
-            { id: 'preview', action: previewAction },
+            { id: 'preview', action: previewAction, primaryRank: 1 },
         ],
         [archiveAction, duplicateAction, editAction, moveAction, previewAction, showNewDialogAction, sortAction],
     );
@@ -118,11 +118,7 @@ export const BrowseToolbar = ({
                                     )}
                                 </div>
                             ) : (
-                                <OverflowActionRow
-                                    actions={toolbarActions}
-                                    className="flex min-w-0 flex-1"
-                                    primaryOverflowActionId="preview"
-                                />
+                                <OverflowActionRow actions={toolbarActions} className="flex min-w-0 flex-1" />
                             )}
                         </div>
                         {isMobileMode ? (

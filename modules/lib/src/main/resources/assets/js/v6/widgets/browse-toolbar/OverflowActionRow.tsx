@@ -4,7 +4,7 @@ import { type ReactElement, useCallback, useLayoutEffect, useMemo, useRef, useSt
 import { getIsElementVisible } from '../../shared/lib/dom/getIsElementVisible';
 import { createThrottle } from '../../shared/lib/timing/createThrottle';
 import { ActionGroup } from './ActionGroup';
-import { calculateVisibleActionCount, getOverflowActions } from './OverflowActionRow.utils';
+import { calculateVisibleActionCount, getOverflowLayout } from './OverflowActionRow.utils';
 import { SplitActionButton } from './SplitActionButton';
 import { ToolbarActionButton } from './ToolbarActionButton';
 import { useObservedActions } from './useObservedActions';
@@ -12,18 +12,18 @@ import { useObservedActions } from './useObservedActions';
 export type OverflowActionRowItem = {
     id: string;
     action: Action;
+    /** When this item overflows, the highest rank takes the split button's main slot. */
+    primaryRank?: number;
 };
 
 type Props = {
     actions: OverflowActionRowItem[];
     className?: string;
-    /** Action shown in the split button while another action remains directly visible. */
-    primaryOverflowActionId?: string;
 };
 
 const TOOLBAR_ACTION_GAP_PX = 8;
 
-export const OverflowActionRow = ({ actions, className, primaryOverflowActionId }: Props): ReactElement | null => {
+export const OverflowActionRow = ({ actions, className }: Props): ReactElement | null => {
     const containerRef = useRef<HTMLDivElement | null>(null);
     const actionButtonMeasureRefs = useRef<(HTMLDivElement | null)[]>([]);
     const splitButtonMeasureRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -35,7 +35,10 @@ export const OverflowActionRow = ({ actions, className, primaryOverflowActionId 
         // ? invalidating the visibility filter without reading the counter directly.
         [actions, renderVersion],
     );
-    const visibleActionIds = useMemo(() => visibleActions.map(({ id }) => id).join('|'), [visibleActions]);
+    const visibleActionIds = useMemo(
+        () => visibleActions.map(({ id, primaryRank }) => `${id}:${primaryRank ?? 0}`).join('|'),
+        [visibleActions],
+    );
     const visibleActionsRef = useRef(visibleActions);
     const [visibleActionsCount, setVisibleActionsCount] = useState(visibleActions.length);
     const [isContainerVisible, setIsContainerVisible] = useState(false);
@@ -86,7 +89,7 @@ export const OverflowActionRow = ({ actions, className, primaryOverflowActionId 
         return () => {
             cancelAnimationFrame(animationFrameId);
         };
-    }, [calculateVisibleActions, primaryOverflowActionId, renderVersion, visibleActionIds]);
+    }, [calculateVisibleActions, renderVersion, visibleActionIds]);
 
     useLayoutEffect(() => {
         const container = containerRef.current;
@@ -114,30 +117,29 @@ export const OverflowActionRow = ({ actions, className, primaryOverflowActionId 
             window.removeEventListener('resize', throttledCalculateVisibleActions);
             throttledCalculateVisibleActions.cancel();
         };
-    }, [calculateVisibleActions, primaryOverflowActionId, visibleActionIds]);
+    }, [calculateVisibleActions, visibleActionIds]);
 
     if (visibleActions.length === 0) {
         return null;
     }
 
-    const visibleRowActions = visibleActions.slice(0, visibleActionsCount);
-    const overflowActions = getOverflowActions(visibleActions, visibleActionsCount, primaryOverflowActionId);
+    const { rowItems, overflowItems } = getOverflowLayout(visibleActions, visibleActionsCount);
 
     return (
         <>
             <div ref={containerRef} className={cn('min-w-0', className)}>
                 <div className="flex min-w-0 items-center gap-2">
-                    {visibleRowActions.length > 0 && (
+                    {rowItems.length > 0 && (
                         <ActionGroup>
-                            {visibleRowActions.map(({ id, action }) => (
+                            {rowItems.map(({ id, action }) => (
                                 <ToolbarActionButton key={id} action={action} disabled={!isContainerVisible} />
                             ))}
                         </ActionGroup>
                     )}
-                    {overflowActions.length > 0 && (
+                    {overflowItems.length > 0 && (
                         <SplitActionButton
-                            key={`toolbar-overflow-${overflowActions.map(({ id }) => id).join('-')}`}
-                            actions={[overflowActions.map(({ action }) => action)]}
+                            key={`toolbar-overflow-${overflowItems.map(({ id }) => id).join('-')}`}
+                            actions={[overflowItems.map(({ action }) => action)]}
                             disabled={!isContainerVisible}
                             primaryActionStrategy="firstVisible"
                             disableMenuWhenAllMenuActionsDisabled={false}
@@ -160,11 +162,7 @@ export const OverflowActionRow = ({ actions, className, primaryOverflowActionId 
                 </div>
                 <div className="flex items-center gap-2">
                     {visibleActions.map(({ id }, index) => {
-                        const measuredOverflowActions = getOverflowActions(
-                            visibleActions,
-                            index,
-                            primaryOverflowActionId,
-                        );
+                        const measuredOverflowItems = getOverflowLayout(visibleActions, index).overflowItems;
 
                         return (
                             <div
@@ -174,7 +172,7 @@ export const OverflowActionRow = ({ actions, className, primaryOverflowActionId 
                                 }}
                             >
                                 <SplitActionButton
-                                    actions={[measuredOverflowActions.map(({ action }) => action)]}
+                                    actions={[measuredOverflowItems.map(({ action }) => action)]}
                                     disabled={true}
                                     primaryActionStrategy="firstVisible"
                                     disableMenuWhenAllMenuActionsDisabled={false}
