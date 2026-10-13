@@ -22,10 +22,10 @@ describe('resolveWizardPanelLayout', () => {
         expect(layout).toBeUndefined();
     });
 
-    it('should give the context width to the live view and keep the form width when the context undocks', () => {
+    it('should give the context width back to the form and keep the live width when the context undocks', () => {
         const layout = resolveWizardPanelLayout({ form: 24, live: 50, context: 26 }, { form: 50, live: 50 }, options);
 
-        expect(layout).toEqual({ form: 24, live: 76 });
+        expect(layout).toEqual({ form: 50, live: 50 });
     });
 
     it('should leave the layout to the library when the form is collapsed', () => {
@@ -54,27 +54,9 @@ describe('resolveWizardPanelLayout', () => {
         expect(layout).toBeUndefined();
     });
 
-    it('should restore the layout the context was closed from when it reopens', () => {
-        const lastUndock = { docked: { form: 22, live: 62, context: 16 }, undocked: { form: 22, live: 78 } };
+    it('should take the context width from the form and keep the live width when the context reopens', () => {
+        const layout = resolveWizardPanelLayout({ form: 22, live: 78 }, { form: 30, live: 54, context: 16 }, options);
 
-        const layout = resolveWizardPanelLayout(
-            { form: 22, live: 78 },
-            { form: 30, live: 54, context: 16 },
-            { ...options, lastUndock },
-        );
-
-        expect(layout).toEqual({ form: 22, live: 62, context: 16 });
-    });
-
-    it('should take the context width from the form when the layout changed after the context closed', () => {
-        const lastUndock = { docked: { form: 22, live: 62, context: 16 }, undocked: { form: 22, live: 78 } };
-
-        const layout = resolveWizardPanelLayout(
-            { form: 40, live: 60 },
-            { form: 30, live: 54, context: 16 },
-            { ...options, lastUndock },
-        );
-
-        expect(layout).toEqual({ form: 24, live: 60, context: 16 });
+        expect(layout).toEqual({ form: 18, live: 66, context: 16 });
     });
 });

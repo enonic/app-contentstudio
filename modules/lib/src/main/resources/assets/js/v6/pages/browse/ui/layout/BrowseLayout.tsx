@@ -3,6 +3,7 @@ import { ResponsiveManager } from '@enonic/lib-admin-ui/ui/responsive/Responsive
 import { cn } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { useCallback, useEffect, useRef, type ReactElement } from 'react';
+import type { Layout } from 'react-resizable-panels';
 import {
     $contextPanelMode,
     $isContextOpen,
@@ -18,13 +19,16 @@ import {
     $isDependencySearchPending,
 } from '../../../../features/search/model/contentFilter.store';
 import { FloatingContextPanel } from '../../../../widgets/context-panel/ui/FloatingContextPanel';
+import { GRID_PANEL_ID, resolveBrowsePanelLayout } from './resolveBrowsePanelLayout';
 
 const CONTEXT_MIN_WIDTH = LayoutTokens.contextPanel.minWidth;
 const RESIZE_NOTIFY_DELAY_MS = 200;
-// The grid region takes half the width (legacy getFirstPanelSize); the filter,
-// when open, comes out of it. Every hosted panel keeps a usable minimum.
-const GRID_REGION_DEFAULT = '50%';
-const PANEL_MIN_WIDTH = '300px';
+// The grid takes half the width (legacy getFirstPanelSize). An opening filter
+// comes out of the preview, a docking context out of the grid, so the panel in
+// between keeps its width. Every hosted panel keeps a usable minimum.
+const GRID_DEFAULT_SIZE = '50%';
+const PANEL_MIN_WIDTH_PX = 300;
+const PANEL_MIN_WIDTH = `${PANEL_MIN_WIDTH_PX}px`;
 const FILTER_DEFAULT_WIDTH = '300px';
 
 export type BrowseLayoutProps = {
@@ -97,6 +101,15 @@ export const BrowseLayout = ({
         resizeTimerRef.current = window.setTimeout(() => ResponsiveManager.fireResizeEvent(), RESIZE_NOTIFY_DELAY_MS);
     }, []);
 
+    const handleResolveLayout = useCallback(
+        (previous: Layout, next: Layout): Layout | undefined =>
+            resolveBrowsePanelLayout(previous, next, {
+                totalWidth: totalWidthRef.current,
+                panelMinWidth: PANEL_MIN_WIDTH_PX,
+            }),
+        [],
+    );
+
     const isMobile = mode === 'mobile';
 
     // ! Grid and preview stay mounted through mode changes: re-parenting would
@@ -117,35 +130,35 @@ export const BrowseLayout = ({
             data-component={BROWSE_LAYOUT_NAME}
             className={cn('absolute inset-x-0 bottom-0 top-15', isMobile && 'overflow-hidden', LEGACY_PANEL_OVERRIDES)}
         >
-            <SplitView orientation="horizontal" storageId={storageId} className="size-full">
-                {/* Filter and grid share the left region, so opening the filter shrinks the
-                    grid — not the preview (which stays an outer sibling). Matches legacy. */}
+            <SplitView
+                orientation="horizontal"
+                storageId={storageId}
+                resolveLayoutOnPanelsChange={handleResolveLayout}
+                className="size-full"
+            >
+                {showFilterSplitPanel && (
+                    <>
+                        <SplitView.Panel
+                            id="filter"
+                            defaultSize={FILTER_DEFAULT_WIDTH}
+                            minSize={FILTER_DEFAULT_WIDTH}
+                            groupResizeBehavior="preserve-pixel-size"
+                            onResize={handlePanelResize}
+                        >
+                            <LegacyElementHost element={filterPanel} className="size-full bg-surface-neutral" />
+                        </SplitView.Panel>
+                        <SplitView.Handle id="filter-handle" variant="thin" />
+                    </>
+                )}
                 <SplitView.Panel
-                    id="grid-region"
-                    defaultSize={GRID_REGION_DEFAULT}
+                    id={GRID_PANEL_ID}
+                    defaultSize={GRID_DEFAULT_SIZE}
                     minSize={isMobile ? undefined : PANEL_MIN_WIDTH}
                     collapsible={isMobile}
                     collapsed={gridCollapsed}
                     onResize={handlePanelResize}
                 >
-                    <SplitView orientation="horizontal" storageId={`${storageId}-grid`} className="size-full">
-                        {showFilterSplitPanel && (
-                            <>
-                                <SplitView.Panel
-                                    id="filter"
-                                    defaultSize={FILTER_DEFAULT_WIDTH}
-                                    minSize={FILTER_DEFAULT_WIDTH}
-                                    groupResizeBehavior="preserve-pixel-size"
-                                >
-                                    <LegacyElementHost element={filterPanel} className="size-full bg-surface-neutral" />
-                                </SplitView.Panel>
-                                <SplitView.Handle id="filter-handle" variant="thin" />
-                            </>
-                        )}
-                        <SplitView.Panel id="grid" minSize={PANEL_MIN_WIDTH}>
-                            <LegacyElementHost element={gridPanel} className="size-full" />
-                        </SplitView.Panel>
-                    </SplitView>
+                    <LegacyElementHost element={gridPanel} className="size-full" />
                 </SplitView.Panel>
                 {!isMobile && <SplitView.Handle id="grid-preview-handle" variant="thin" />}
                 <SplitView.Panel
