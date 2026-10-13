@@ -8,8 +8,9 @@ import { FragmentComponent } from '../../../../app/page/region/FragmentComponent
 import type { PageItem } from '../../../../app/page/region/PageItem';
 import type { SiteModel } from '../../../../app/site/SiteModel';
 import { createDebounce } from '../../../shared/lib/timing/createDebounce';
-import type { PageEditorContentContext } from './page-editor/types';
-import { $contentContext, $inspectedItem, $pageVersion } from './page-editor/store';
+import { $contentContext, $contentScopeKey, $inspectedItem, $pageVersion } from './page-editor/store';
+import { isSameInspectionOwner } from './page-editor/inspectionScope';
+import { listenForSiteModelChanges } from './siteModelInspection';
 
 //
 // * State
@@ -18,6 +19,12 @@ import { $contentContext, $inspectedItem, $pageVersion } from './page-editor/sto
 export const $partDescriptorOptions = atom<Descriptor[]>([]);
 
 export const $layoutDescriptorOptions = atom<Descriptor[]>([]);
+
+export const $arePartDescriptorsResolved = atom(false);
+
+export const $areLayoutDescriptorsResolved = atom(false);
+
+export const $partDescriptorRefreshVersion = atom(0);
 
 export const $componentConfigDescriptor = atom<Descriptor | null>(null);
 
@@ -46,9 +53,11 @@ export function isComponentReferenceMissing(
     page: Page | null,
     fragments: ContentSummary[],
     descriptors: Descriptor[],
-    isLoading: boolean,
+    isResolved: boolean,
 ): boolean {
-    if (isLoading) return false;
+    if (!isResolved) {
+        return false;
+    }
 
     const component = page?.getComponentByPath(ComponentPath.fromString(nodeId)) ?? null;
     return isReferenceMissing(component, fragments, descriptors);
@@ -58,14 +67,22 @@ export function isReferenceMissing(
     component: PageItem | null,
     fragments: ContentSummary[],
     descriptors: Descriptor[],
+    resolved?: { fragment: boolean; part: boolean; layout: boolean },
 ): boolean {
     if (component instanceof FragmentComponent) {
+        if (resolved && !resolved.fragment) {
+            return false;
+        }
         if (!component.hasFragment()) return false;
         const id = component.getFragment().toString();
         return !fragments.some((f) => f.getId() === id);
     }
 
     if (component instanceof DescriptorBasedComponent) {
+        const type = component.getType().getShortName();
+        if (resolved && ((type === 'part' && !resolved.part) || (type === 'layout' && !resolved.layout))) {
+            return false;
+        }
         if (!component.hasDescriptor()) return false;
         const key = component.getDescriptorKey().toString();
         return !descriptors.some((d) => d.getKey().toString() === key);
@@ -80,115 +97,184 @@ export function isReferenceMissing(
 
 let abortController: AbortController | null = null;
 const cleanups: (() => void)[] = [];
+let activeSiteModel: SiteModel | null = null;
+let detachSiteModel = (): void => {};
+const failedTypes = new Set<'part' | 'layout'>();
+const reloadDebounced = createDebounce(() => {
+    void refreshDescriptors(true);
+}, 300);
 
-async function loadDescriptors(ctx: PageEditorContentContext): Promise<void> {
-    $isComponentInspectionLoading.set(true);
+async function refreshDescriptors(force = false): Promise<void> {
+    const ctx = $contentContext.get();
+    const scopeKey = $contentScopeKey.get();
+    if (!ctx || !scopeKey) {
+        return;
+    }
+
+    const loadParts = force || failedTypes.has('part') || !$arePartDescriptorsResolved.get();
+    const loadLayouts = force || failedTypes.has('layout') || !$areLayoutDescriptorsResolved.get();
+    if (!loadParts && !loadLayouts) {
+        return;
+    }
+
     abortController?.abort();
-    abortController = new AbortController();
-    const { signal } = abortController;
+    const controller = new AbortController();
+    abortController = controller;
+    const { signal } = controller;
+    $isComponentInspectionLoading.set(true);
 
     try {
         const { loadComponentDescriptors } = await import('../api/componentInspection.api');
-
-        const [parts, layouts] = await Promise.all([
-            loadComponentDescriptors('part', ctx.contentId).unwrapOr([]),
-            loadComponentDescriptors('layout', ctx.contentId).unwrapOr([]),
-        ]);
-
-        if (!signal.aborted) {
-            $partDescriptorOptions.set(parts);
-            $layoutDescriptorOptions.set(layouts);
+        if (signal.aborted || $contentScopeKey.get() !== scopeKey) {
+            return;
         }
+
+        await Promise.all(
+            (
+                [
+                    ['part', loadParts, $partDescriptorOptions, $arePartDescriptorsResolved],
+                    ['layout', loadLayouts, $layoutDescriptorOptions, $areLayoutDescriptorsResolved],
+                ] as const
+            ).map(async ([type, shouldLoad, options, resolved]) => {
+                if (!shouldLoad) {
+                    return;
+                }
+                try {
+                    const result = await loadComponentDescriptors(type, ctx.contentId, signal);
+                    if (signal.aborted || $contentScopeKey.get() !== scopeKey) {
+                        return;
+                    }
+                    if (result.isErr()) {
+                        failedTypes.add(type);
+                        return;
+                    }
+                    failedTypes.delete(type);
+                    options.set(result.value);
+                    resolved.set(true);
+                    if (type === 'part') {
+                        $partDescriptorRefreshVersion.set($partDescriptorRefreshVersion.get() + 1);
+                    }
+                } catch {
+                    // Keep the last successful options; retry this type on the next refresh.
+                    if (!signal.aborted && $contentScopeKey.get() === scopeKey) {
+                        failedTypes.add(type);
+                    }
+                }
+            }),
+        );
     } catch {
-        // Aborted or failed
+        // Keep the last successful options if the API module cannot load.
+        if (!signal.aborted && $contentScopeKey.get() === scopeKey) {
+            if (loadParts) {
+                failedTypes.add('part');
+            }
+            if (loadLayouts) {
+                failedTypes.add('layout');
+            }
+        }
     } finally {
-        if (!signal.aborted) {
+        if (abortController === controller) {
+            abortController = null;
             $isComponentInspectionLoading.set(false);
         }
     }
 }
 
 export function initComponentInspectionService(siteModel?: SiteModel | null): void {
-    cleanupComponentInspection();
+    const wasStarted = cleanups.length > 0;
+    if (!wasStarted) {
+        let previousContext: ReturnType<typeof $contentContext.get> = null;
+        cleanups.push(
+            $contentScopeKey.subscribe(() => {
+                const context = $contentContext.get();
+                const sameDescriptorOwner = isSameInspectionOwner(previousContext, context);
+                previousContext = context;
+                abortController?.abort();
+                abortController = null;
+                // A site rename changes the scope path, but its descriptors remain valid while refreshing.
+                if (!sameDescriptorOwner) {
+                    $partDescriptorOptions.set([]);
+                    $layoutDescriptorOptions.set([]);
+                }
+                failedTypes.clear();
+                $arePartDescriptorsResolved.set(false);
+                $areLayoutDescriptorsResolved.set(false);
+                $isComponentInspectionLoading.set(false);
+                void refreshDescriptors();
+            }),
+        );
 
-    const unsubContext = $contentContext.subscribe((ctx) => {
-        if (!ctx) return;
-        void loadDescriptors(ctx);
-    });
-    cleanups.push(unsubContext);
-
-    // Reload when applications change in the SiteConfigurator dialog before any server round-trip.
-    const reloadDebounced = createDebounce(() => {
-        const ctx = $contentContext.get();
-        if (ctx) void loadDescriptors(ctx);
-    }, 300);
-
-    if (siteModel) {
-        const onSiteModelChange = (): void => reloadDebounced();
-        siteModel.onApplicationAdded(onSiteModelChange);
-        siteModel.onApplicationRemoved(onSiteModelChange);
-        siteModel.onSiteModelUpdated(onSiteModelChange);
-        cleanups.push(() => {
-            reloadDebounced.cancel();
-            siteModel.unApplicationAdded(onSiteModelChange);
-            siteModel.unApplicationRemoved(onSiteModelChange);
-            siteModel.unSiteModelUpdated(onSiteModelChange);
-        });
-    } else {
-        cleanups.push(() => reloadDebounced.cancel());
+        // Load the active descriptor only when its key or scope changes.
+        let lastKey: string | null = null;
+        let requestId = 0;
+        cleanups.push(
+            computed([$inspectedItem, $pageVersion, $contentScopeKey], (item, _version, scopeKey) => {
+                if (!(item instanceof DescriptorBasedComponent) || !item.hasDescriptor() || !scopeKey) {
+                    return null;
+                }
+                return `${scopeKey}::${item.getType().getShortName()}::${item.getDescriptorKey().toString()}`;
+            }).subscribe((key) => {
+                if (key === lastKey) {
+                    return;
+                }
+                lastKey = key;
+                const currentRequest = ++requestId;
+                if (!key) {
+                    $componentConfigDescriptor.set(null);
+                    return;
+                }
+                const component = $inspectedItem.get() as DescriptorBasedComponent;
+                void (async () => {
+                    try {
+                        const { loadComponentDescriptor } = await import('../api/componentInspection.api');
+                        const descriptor = await loadComponentDescriptor(
+                            component.getType().getShortName(),
+                            component.getDescriptorKey().toString(),
+                        ).unwrapOr(undefined);
+                        if (currentRequest === requestId) {
+                            $componentConfigDescriptor.set(descriptor ?? null);
+                        }
+                    } catch {
+                        if (currentRequest === requestId) {
+                            $componentConfigDescriptor.set(null);
+                        }
+                    }
+                })();
+            }),
+            () => {
+                requestId++;
+            },
+        );
     }
 
-    // Load the active descriptor when the inspected component's descriptor key changes
-    let lastKey: string | null = null;
-
-    const $derivedDescriptorInfo = computed(
-        [$inspectedItem, $pageVersion],
-        (item): { componentType: string; descriptorKey: string } | null => {
-            if (item instanceof DescriptorBasedComponent && item.hasDescriptor()) {
-                return {
-                    componentType: item.getType().getShortName(),
-                    descriptorKey: item.getDescriptorKey().toString(),
-                };
-            }
-            return null;
-        },
-    );
-
-    const unsubItem = $derivedDescriptorInfo.subscribe((info) => {
-        const newKey = info ? `${info.componentType}::${info.descriptorKey}` : null;
-
-        if (newKey === lastKey) return;
-        lastKey = newKey;
-
-        if (!info) {
-            $componentConfigDescriptor.set(null);
-            return;
+    if ((siteModel ?? null) !== activeSiteModel) {
+        detachSiteModel();
+        activeSiteModel = siteModel ?? null;
+        detachSiteModel = siteModel ? listenForSiteModelChanges(siteModel, reloadDebounced) : () => {};
+        if (wasStarted) {
+            void refreshDescriptors(true);
         }
-
-        void (async () => {
-            try {
-                const { loadComponentDescriptor } = await import('../api/componentInspection.api');
-                const descriptor = await loadComponentDescriptor(info.componentType, info.descriptorKey).unwrapOr(
-                    undefined,
-                );
-                $componentConfigDescriptor.set(descriptor ?? null);
-            } catch {
-                $componentConfigDescriptor.set(null);
-            }
-        })();
-    });
-    cleanups.push(unsubItem);
+    } else if (wasStarted && !abortController) {
+        void refreshDescriptors();
+    }
 }
 
 export function cleanupComponentInspection(): void {
     for (const fn of cleanups) fn();
     cleanups.length = 0;
+    detachSiteModel();
+    detachSiteModel = () => {};
+    activeSiteModel = null;
+    reloadDebounced.cancel();
+    failedTypes.clear();
 
     abortController?.abort();
     abortController = null;
 
     $partDescriptorOptions.set([]);
     $layoutDescriptorOptions.set([]);
+    $arePartDescriptorsResolved.set(false);
+    $areLayoutDescriptorsResolved.set(false);
     $componentConfigDescriptor.set(null);
     $isComponentInspectionLoading.set(false);
 }

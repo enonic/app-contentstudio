@@ -15,7 +15,7 @@ export const FragmentContentSelector = (): ReactElement | null => {
         setSearchValue,
         selection,
         handleSelectionChange,
-        isLoading,
+        isInitialLoading,
         isEmpty,
         disabled,
     } = useFragmentContentSelector();
@@ -25,7 +25,9 @@ export const FragmentContentSelector = (): ReactElement | null => {
     const notFoundLabel = useI18n('field.fragments.notFound');
     const noMatchingLabel = useI18n('field.option.noitems');
 
-    if (isLoading) return null;
+    if (isInitialLoading) {
+        return null;
+    }
 
     if (isEmpty) {
         return (

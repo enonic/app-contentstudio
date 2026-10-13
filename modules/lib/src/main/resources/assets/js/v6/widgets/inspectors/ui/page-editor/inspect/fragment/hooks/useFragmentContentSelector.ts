@@ -9,6 +9,7 @@ import { useI18n } from '../../../../../../../shared/lib/hooks/useI18n';
 import { $inspectedItem, $pageEditorLifecycle, requestSetFragmentComponent } from '../../../../../model/page-editor';
 import { $pageVersion } from '../../../../../model/page-editor/store';
 import {
+    $areFragmentOptionsResolved,
     $fragmentOptions,
     $isFragmentInspectionLoading,
     $selectedFragmentId,
@@ -37,6 +38,7 @@ type UseFragmentContentSelectorResult = {
     handleSelectionChange: (selection: readonly string[]) => void;
     disabled: boolean;
     isLoading: boolean;
+    isInitialLoading: boolean;
     isEmpty: boolean;
 };
 
@@ -51,6 +53,7 @@ export function useFragmentContentSelector(): UseFragmentContentSelectorResult {
     const fragments = useStore($fragmentOptions);
     const selectedId = useStore($selectedFragmentId);
     const isLoading = useStore($isFragmentInspectionLoading);
+    const isResolved = useStore($areFragmentOptionsResolved);
 
     const noDescriptionLabel = useI18n('text.noDescription');
     const notFoundLabel = useI18n('notify.fragment.component.content.notfound');
@@ -79,10 +82,10 @@ export function useFragmentContentSelector(): UseFragmentContentSelectorResult {
             key: selectedId,
             label: fallbackLabel,
             description: notFoundLabel,
-            isInvalid: true,
+            isInvalid: isResolved,
         };
         return [placeholderOption, ...real];
-    }, [fragments, selectedId, fragment, notFoundLabel, noDescriptionLabel]);
+    }, [fragments, selectedId, fragment, notFoundLabel, noDescriptionLabel, isResolved]);
 
     const filteredOptions = useMemo(() => {
         if (!searchValue) return options.toSorted(compareOptionsByLabel);
@@ -140,6 +143,7 @@ export function useFragmentContentSelector(): UseFragmentContentSelectorResult {
         handleSelectionChange,
         disabled,
         isLoading,
+        isInitialLoading: isLoading && !isResolved && options.length === 0,
         isEmpty,
     };
 }

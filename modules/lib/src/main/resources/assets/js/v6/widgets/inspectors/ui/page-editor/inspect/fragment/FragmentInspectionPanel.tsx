@@ -7,7 +7,7 @@ import { FragmentComponent } from '../../../../../../../app/page/region/Fragment
 import { useI18n } from '../../../../../../shared/lib/hooks/useI18n';
 import { $inspectedItem, $pageEditorLifecycle } from '../../../../model/page-editor';
 import { $page, $pageVersion } from '../../../../model/page-editor/store';
-import { $fragmentOptions, $isFragmentInspectionLoading } from '../../../../model/fragment-inspection.store';
+import { $areFragmentOptionsResolved, $fragmentOptions } from '../../../../model/fragment-inspection.store';
 import { isComponentReferenceMissing } from '../../../../model/component-inspection.store';
 import { FragmentContentSelector } from './FragmentContentSelector';
 
@@ -19,7 +19,7 @@ export const FragmentInspectionPanel = (): ReactElement | null => {
     const lifecycle = useStore($pageEditorLifecycle);
     const page = useStore($page);
     const fragmentOptions = useStore($fragmentOptions);
-    const isFragmentLoading = useStore($isFragmentInspectionLoading);
+    const areFragmentsResolved = useStore($areFragmentOptionsResolved);
 
     const editLabel = useI18n('action.editFragment');
 
@@ -39,7 +39,7 @@ export const FragmentInspectionPanel = (): ReactElement | null => {
         page,
         fragmentOptions,
         [],
-        isFragmentLoading,
+        areFragmentsResolved,
     );
     const disabled = lifecycle.isPageLocked;
 

@@ -7,4 +7,5 @@ export type PageComponentNodeData = {
     draggable: boolean;
     layoutFragment: boolean;
     hasDescriptor: boolean;
+    descriptorKey?: string;
 };

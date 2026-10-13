@@ -68,6 +68,7 @@ let mockSelectorState: {
     selection: string[];
     handleSelectionChange: (selection: readonly string[]) => void;
     isLoading: boolean;
+    isInitialLoading: boolean;
     isEmpty: boolean;
 };
 
@@ -95,6 +96,7 @@ describe('ComponentDescriptorSelector', () => {
             selection: [],
             handleSelectionChange: vi.fn(),
             isLoading: false,
+            isInitialLoading: false,
             isEmpty: false,
         };
     });
@@ -148,5 +150,15 @@ describe('ComponentDescriptorSelector', () => {
         expect(screen.getByText('No descriptors found')).toBeDefined();
         expect(screen.queryByText('No matching items')).toBeNull();
         expect(screen.queryByTestId('combobox-popup')).toBeNull();
+    });
+
+    it('keeps the selected control mounted during a background refresh', () => {
+        mockSelectorState.isLoading = true;
+        mockSelectorState.selectedOption = mockSelectorState.filteredOptions[0];
+
+        render(<ComponentDescriptorSelector componentType="part" />);
+
+        expect(screen.getByTestId('combobox-root')).toBeDefined();
+        expect(screen.getAllByText('Hero Part')).toHaveLength(2);
     });
 });

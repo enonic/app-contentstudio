@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/preact';
+import { act, renderHook } from '@testing-library/preact';
 import { atom, type WritableAtom } from 'nanostores';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Descriptor } from '../../../../../../../../app/page/Descriptor';
@@ -9,6 +9,8 @@ vi.mock('../../../../../model/page-editor', () => ({
 }));
 
 vi.mock('../../../../../model/component-inspection.store', () => ({
+    $arePartDescriptorsResolved: atom<boolean>(true),
+    $areLayoutDescriptorsResolved: atom<boolean>(true),
     $partDescriptorOptions: atom<Descriptor[]>([]),
     $layoutDescriptorOptions: atom<Descriptor[]>([]),
     $componentConfigDescriptor: atom<Descriptor | null>(null),
@@ -33,6 +35,8 @@ const $partOptions = componentInspectionStore.$partDescriptorOptions;
 const $layoutOptions = componentInspectionStore.$layoutDescriptorOptions;
 const $cachedDescriptor = componentInspectionStore.$componentConfigDescriptor;
 const $loading = componentInspectionStore.$isComponentInspectionLoading;
+const $partResolved = componentInspectionStore.$arePartDescriptorsResolved;
+const $layoutResolved = componentInspectionStore.$areLayoutDescriptorsResolved;
 
 function makeDescriptor(key: string, displayName: string, description = '', iconUrl?: string): Descriptor {
     return {
@@ -49,6 +53,8 @@ describe('useComponentDescriptorSelector', () => {
         $layoutOptions.set([]);
         $cachedDescriptor.set(null);
         $loading.set(false);
+        $partResolved.set(true);
+        $layoutResolved.set(true);
         $selectedKey.set(null);
         vi.restoreAllMocks();
     });
@@ -152,6 +158,26 @@ describe('useComponentDescriptorSelector', () => {
             expect(result.current.selectedOption).toBeUndefined();
             expect(result.current.isEmpty).toBe(false);
         });
+    });
+
+    it('keeps a selected descriptor available without claiming it is missing during an unresolved refresh', () => {
+        $selectedKey.set('tutorial.nxp:heading');
+        $partResolved.set(false);
+        $loading.set(true);
+
+        const { result } = renderHook(() => useComponentDescriptorSelector('part'));
+
+        expect(result.current.selectedOption?.isInvalid).toBe(false);
+        expect(result.current.isInitialLoading).toBe(false);
+    });
+
+    it('clears a missing-reference warning while retained options refresh', async () => {
+        $selectedKey.set('tutorial.nxp:heading');
+        const { result } = renderHook(() => useComponentDescriptorSelector('part'));
+        expect(result.current.selectedOption?.isInvalid).toBe(true);
+
+        act(() => $partResolved.set(false));
+        await vi.waitFor(() => expect(result.current.selectedOption?.isInvalid).toBe(false));
     });
 
     describe('layout component type', () => {
