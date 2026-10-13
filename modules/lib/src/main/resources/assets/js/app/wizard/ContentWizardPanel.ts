@@ -314,9 +314,15 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         );
 
         if (wasDataInherited && !content.isDataInherited()) {
-            this.setEnabled(true);
-            setWizardReadOnly(false);
-            this.unLockPage();
+            this.checkIfEditIsAllowed()
+                .then((canModify: boolean) => {
+                    this.handleCanModify(canModify);
+
+                    if (canModify) {
+                        this.unLockPage();
+                    }
+                })
+                .catch(DefaultErrorHandler.handle);
         }
 
         this.wizardActions.refreshActions().catch(DefaultErrorHandler.handle);
