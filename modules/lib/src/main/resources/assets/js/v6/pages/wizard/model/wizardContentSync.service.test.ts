@@ -1,3 +1,4 @@
+import { showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
 import { okAsync } from 'neverthrow';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentId } from '../../../../app/content/ContentId';
@@ -6,6 +7,7 @@ import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { WorkflowState } from '../../../../app/content/WorkflowState';
 import { emitContentUpdated } from '../../../shared/socket/socket.store';
 import {
+    applyOwnContentUpdate,
     cleanupWizardContentSyncService,
     initWizardContentSyncService,
     recordOwnContentModification,
@@ -147,6 +149,22 @@ describe('wizardContentSync.service', () => {
 
         expect(mocks.fetchContentById).not.toHaveBeenCalled();
         expect(mocks.applyServerSidePersistedContent).not.toHaveBeenCalled();
+    });
+
+    it('merges an own content update without a server-update notice and treats its echo as own', () => {
+        const updatedMs = BASE_MODIFIED_MS + 1_000;
+
+        applyOwnContentUpdate({
+            getContentId: () => new ContentId(CONTENT_ID),
+            getModifiedTime: () => new Date(updatedMs),
+        } as unknown as Content);
+
+        expect(mocks.applyServerSidePersistedContent).toHaveBeenCalledTimes(1);
+        expect(showFeedback).not.toHaveBeenCalled();
+
+        emitContentUpdated([summary({ modifiedMs: updatedMs, workflowState: WorkflowState.IN_PROGRESS })]);
+
+        expect(mocks.fetchContentById).not.toHaveBeenCalled();
     });
 
     it('ignores events for other content', () => {

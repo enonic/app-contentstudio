@@ -36,8 +36,6 @@ function applyContentToStores(content: Content): void {
     for (const name of syncedMixinNames) {
         resetMixinChangedPaths(name);
     }
-
-    showFeedback(i18n('notify.wizard.serverUpdate'));
 }
 
 function findMatchingSummary(contents: readonly ContentSummary[] | undefined): ContentSummary | null {
@@ -75,6 +73,7 @@ async function fetchAndApply(contentId: ContentId): Promise<void> {
     }
 
     applyContentToStores(content);
+    showFeedback(i18n('notify.wizard.serverUpdate'));
     lastKnownModifiedTimeMs = fetchedMs;
 }
 
@@ -106,6 +105,11 @@ function handleSummaryEvent(contents: readonly ContentSummary[] | undefined): vo
 //
 // * Public API
 //
+
+export function applyOwnContentUpdate(content: Content): void {
+    applyContentToStores(content);
+    recordOwnContentModification(content);
+}
 
 export function recordOwnContentModification(content: Content | ContentSummary | null | undefined): void {
     const modifiedMs = getModifiedTimeMs(content);

@@ -4,8 +4,10 @@ import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { ResultAsync } from 'neverthrow';
 import { map } from 'nanostores';
+import type { Content } from '../../../../app/content/Content';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { ContentLanguageUpdatedEvent } from '../../../../app/event/ContentLanguageUpdatedEvent';
+import { ContentSettingsUpdatedEvent } from '../../../../app/event/ContentSettingsUpdatedEvent';
 import { fetchContentById } from '../../../entities/content';
 import { loadPrincipalsByKeys } from '../../../entities/principal';
 import { type AppError } from '../../../shared/api/errors';
@@ -110,6 +112,7 @@ export const applyEditPropertiesDialog = async (): Promise<void> => {
 
     const contentItem = contentResult.value;
 
+    const wasDataInherited = contentItem.isDataInherited();
     const previousLanguage = contentItem.getLanguage();
     const previousOwnerKey = contentItem.getOwner()?.toString();
     const nextLanguage = state.languageSelection[0];
@@ -118,10 +121,10 @@ export const applyEditPropertiesDialog = async (): Promise<void> => {
     const languageChanged = (nextLanguage ?? undefined) !== (previousLanguage ?? undefined);
     const ownerChanged = (nextOwnerKey ?? undefined) !== (previousOwnerKey ?? undefined);
 
-    const updates: ResultAsync<void, AppError>[] = [];
+    const updates: (() => ResultAsync<Content, AppError>)[] = [];
 
     if (ownerChanged) {
-        updates.push(
+        updates.push(() =>
             updateContentMetadata(
                 contentItem.getContentId(),
                 nextOwnerKey ? PrincipalKey.fromString(nextOwnerKey) : undefined,
@@ -130,20 +133,27 @@ export const applyEditPropertiesDialog = async (): Promise<void> => {
     }
 
     if (languageChanged) {
-        updates.push(updateContentLanguage(contentItem.getContentId(), nextLanguage));
+        updates.push(() => updateContentLanguage(contentItem.getContentId(), nextLanguage));
     }
 
     if (updates.length > 0) {
-        const result = await ResultAsync.combine(updates);
+        const result = await updates.slice(1).reduce((chain, update) => chain.andThen(update), updates[0]());
         if (result.isErr()) {
             DefaultErrorHandler.handle(result.error);
             $editPropertiesDialog.setKey('saving', false);
             return;
         }
 
-        showFeedback(i18n('notify.properties.settings.updated', contentItem.getName().toString()));
+        const updatedContent = result.value;
+        new ContentSettingsUpdatedEvent(updatedContent).fire();
 
-        if (languageChanged) {
+        if (wasDataInherited && !updatedContent.isDataInherited()) {
+            showFeedback(i18n('notify.content.localized'));
+        } else {
+            showFeedback(i18n('notify.properties.settings.updated', contentItem.getName().toString()));
+        }
+
+        if (languageChanged && nextLanguage) {
             new ContentLanguageUpdatedEvent(nextLanguage).fire();
         }
     }
