@@ -27,7 +27,7 @@ export const ComponentDescriptorSelector = ({
         setSearchValue,
         selection,
         handleSelectionChange,
-        isLoading,
+        isInitialLoading,
         isEmpty,
     } = useComponentDescriptorSelector(componentType);
 
@@ -38,7 +38,9 @@ export const ComponentDescriptorSelector = ({
 
     const FallbackIcon = COMPONENT_TYPE_ICON[componentType];
 
-    if (isLoading) return null;
+    if (isInitialLoading) {
+        return null;
+    }
 
     if (isEmpty) {
         return (

@@ -56,7 +56,10 @@ function buildFragmentQueryExpr(sitePath?: string): QueryExpr {
  * Fetch fragment content summaries, optionally scoped to a site path.
  * Used by: widgets/inspectors fragment-inspection.store.
  */
-export function fetchFragmentSummaries(sitePath?: string): ResultAsync<ContentSummary[], AppError> {
+export function fetchFragmentSummaries(
+    sitePath?: string,
+    signal?: AbortSignal,
+): ResultAsync<ContentSummary[], AppError> {
     const body = {
         queryExpr: buildFragmentQueryExpr(sitePath).toString(),
         from: 0,
@@ -69,7 +72,7 @@ export function fetchFragmentSummaries(sitePath?: string): ResultAsync<ContentSu
         branch: Branch.DRAFT,
     };
 
-    return requestJson<FragmentQueryResultJson>(getCmsApiUrl('query'), { method: 'POST', body }).map((json) =>
+    return requestJson<FragmentQueryResultJson>(getCmsApiUrl('query'), { method: 'POST', body, signal }).map((json) =>
         json.contents.map(ContentSummary.fromJson),
     );
 }

@@ -14,6 +14,7 @@ export type PageComponentsItemProps = {
     context: SortableListItemContext<FlatNode<PageComponentNodeData>>;
     pageMetadata?: PageComponentPageMetadata;
     iconUrl?: string;
+    iconRefreshVersion?: number;
     selected?: boolean;
     invalid?: boolean;
     onToggle: (id: string) => void;
@@ -55,6 +56,7 @@ export const PageComponentsItem = ({
     context,
     pageMetadata,
     iconUrl,
+    iconRefreshVersion,
     selected,
     invalid,
     onToggle,
@@ -109,12 +111,15 @@ export const PageComponentsItem = ({
 
             {Icon != null && (
                 <DescriptorIcon
+                    key={`${data.nodeType}:${data.descriptorKey ?? node.id}`}
                     iconUrl={iconUrl}
                     fallback={Icon}
+                    retainPreviousIcon
                     className={cn(
                         'size-5 shrink-0',
                         selected ? 'text-alt' : isSubdued ? 'text-subtle' : 'text-default',
                     )}
+                    refreshVersion={iconRefreshVersion}
                 />
             )}
 
