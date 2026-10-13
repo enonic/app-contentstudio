@@ -45,9 +45,11 @@ import {
     $areFragmentOptionsResolved,
     $fragmentOptions,
     $isFragmentInspectionLoading,
-    cleanupFragmentInspection,
-    initFragmentInspectionService,
 } from './fragment-inspection.store';
+import {
+    start as startFragmentInspectionService,
+    stop as stopFragmentInspectionService,
+} from './fragment-inspection.service';
 
 const $context = $contentContext as WritableAtom<PageEditorContentContext | null>;
 const $updated = $contentUpdated as WritableAtom<unknown>;
@@ -68,7 +70,7 @@ function createLocally(item: ContentSummary): void {
 describe('fragment inspection scope', () => {
     afterEach(() => {
         vi.useRealTimers();
-        cleanupFragmentInspection();
+        stopFragmentInspectionService();
         $context.set(null);
         $updated.set(null);
         $deleted.set(null);
@@ -78,7 +80,7 @@ describe('fragment inspection scope', () => {
     it('keeps a newly created fragment available through a save and a stale refresh', async () => {
         fetchFragmentSummaries.mockResolvedValueOnce(ok([]));
         $context.set(context());
-        initFragmentInspectionService();
+        startFragmentInspectionService();
         await vi.waitFor(() => expect($areFragmentOptionsResolved.get()).toBe(true));
 
         const created = fragment('new-fragment');
@@ -88,7 +90,7 @@ describe('fragment inspection scope', () => {
         expect($fragmentOptions.get()).toContain(created);
 
         $context.set(context());
-        initFragmentInspectionService();
+        startFragmentInspectionService();
         expect(fetchFragmentSummaries).toHaveBeenCalledTimes(2);
         pending.resolve(ok([]));
         await vi.waitFor(() => expect($isFragmentInspectionLoading.get()).toBe(false));
@@ -106,7 +108,7 @@ describe('fragment inspection scope', () => {
         const selected = fragment('selected');
         fetchFragmentSummaries.mockResolvedValueOnce(ok([selected]));
         $context.set(context());
-        initFragmentInspectionService();
+        startFragmentInspectionService();
         await vi.waitFor(() => expect($fragmentOptions.get()).toEqual([selected]));
 
         fetchFragmentSummaries.mockResolvedValueOnce(err(new Error('offline')));
@@ -129,7 +131,7 @@ describe('fragment inspection scope', () => {
         const selected = fragment('selected');
         fetchFragmentSummaries.mockResolvedValueOnce(ok([selected]));
         $context.set(context());
-        initFragmentInspectionService();
+        startFragmentInspectionService();
         await vi.waitFor(() => expect($fragmentOptions.get()).toEqual([selected]));
 
         const created = fragment('created');

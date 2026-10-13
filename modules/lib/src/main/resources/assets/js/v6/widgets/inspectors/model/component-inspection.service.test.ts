@@ -29,9 +29,11 @@ import {
     $isComponentInspectionLoading,
     $layoutDescriptorOptions,
     $partDescriptorOptions,
-    cleanupComponentInspection,
-    initComponentInspectionService,
 } from './component-inspection.store';
+import {
+    start as startComponentInspectionService,
+    stop as stopComponentInspectionService,
+} from './component-inspection.service';
 
 const $context = $contentContext as WritableAtom<PageEditorContentContext | null>;
 
@@ -42,7 +44,7 @@ function descriptor(key: string): Descriptor {
 describe('component inspection scope', () => {
     afterEach(() => {
         vi.useRealTimers();
-        cleanupComponentInspection();
+        stopComponentInspectionService();
         $context.set(null);
         loadComponentDescriptors.mockReset();
         loadComponentDescriptor.mockReset();
@@ -55,12 +57,12 @@ describe('component inspection scope', () => {
         );
         const firstModel = siteModel();
         $context.set(context());
-        initComponentInspectionService(firstModel.value);
+        startComponentInspectionService(firstModel.value);
         await vi.waitFor(() => expect($isComponentInspectionLoading.get()).toBe(false));
         expect($partDescriptorOptions.get()).toEqual([part]);
 
         $context.set(context());
-        initComponentInspectionService(firstModel.value);
+        startComponentInspectionService(firstModel.value);
         expect(loadComponentDescriptors).toHaveBeenCalledTimes(2);
 
         const pendingPart = deferred<Result<Descriptor[], Error>>();
@@ -69,7 +71,7 @@ describe('component inspection scope', () => {
             type === 'part' ? pendingPart.promise : pendingLayout.promise,
         );
         const replacement = siteModel();
-        initComponentInspectionService(replacement.value);
+        startComponentInspectionService(replacement.value);
         expect(firstModel.listeners.size).toBe(0);
         expect($partDescriptorOptions.get()).toEqual([part]);
         pendingPart.resolve(err(new Error('part unavailable')));
@@ -78,7 +80,7 @@ describe('component inspection scope', () => {
         expect($partDescriptorOptions.get()).toEqual([part]);
 
         loadComponentDescriptors.mockResolvedValue(ok([part]));
-        initComponentInspectionService(replacement.value);
+        startComponentInspectionService(replacement.value);
         await vi.waitFor(() => expect($isComponentInspectionLoading.get()).toBe(false));
         expect(loadComponentDescriptors.mock.calls.map(([type]) => type).slice(-1)).toEqual(['part']);
     });
@@ -89,7 +91,7 @@ describe('component inspection scope', () => {
             Promise.resolve(ok(type === 'part' ? [part] : [])),
         );
         $context.set(context());
-        initComponentInspectionService();
+        startComponentInspectionService();
         await vi.waitFor(() => expect($isComponentInspectionLoading.get()).toBe(false));
 
         const pendingPart = deferred<Result<Descriptor[], Error>>();
@@ -114,7 +116,7 @@ describe('component inspection scope', () => {
             Promise.resolve(type === 'part' ? err(new Error('offline')) : ok([])),
         );
         $context.set(context());
-        initComponentInspectionService();
+        startComponentInspectionService();
         await vi.waitFor(() => expect($isComponentInspectionLoading.get()).toBe(false));
         expect($arePartDescriptorsResolved.get()).toBe(false);
         expect($areLayoutDescriptorsResolved.get()).toBe(true);
@@ -123,7 +125,7 @@ describe('component inspection scope', () => {
         loadComponentDescriptors.mockImplementation((type: string) =>
             type === 'part' ? oldPart.promise : Promise.resolve(ok([])),
         );
-        initComponentInspectionService();
+        startComponentInspectionService();
         await vi.waitFor(() => expect(loadComponentDescriptors).toHaveBeenCalledTimes(3));
         expect(loadComponentDescriptors.mock.calls.map(([type]) => type)).toEqual(['part', 'layout', 'part']);
 
@@ -141,7 +143,7 @@ describe('component inspection scope', () => {
         );
         const model = siteModel();
         $context.set(context());
-        initComponentInspectionService(model.value);
+        startComponentInspectionService(model.value);
         await vi.waitFor(() => expect($isComponentInspectionLoading.get()).toBe(false));
 
         vi.useFakeTimers();
