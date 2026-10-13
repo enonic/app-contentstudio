@@ -36,6 +36,7 @@ vi.mock('../../../../../model/page-editor/store', () => ({
 }));
 
 vi.mock('../../../../../model/fragment-inspection.store', () => ({
+    $areFragmentOptionsResolved: atom<boolean>(true),
     $fragmentOptions: atom<unknown[]>([]),
     $isFragmentInspectionLoading: atom<boolean>(false),
     $selectedFragmentId: atom<string | null>(null),
@@ -63,6 +64,7 @@ const $inspected = $inspectedItem as unknown as WritableAtom<unknown>;
 const $options = fragmentInspectionStore.$fragmentOptions as unknown as WritableAtom<unknown[]>;
 const $selectedId = fragmentInspectionStore.$selectedFragmentId as unknown as WritableAtom<string | null>;
 const $version = $pageVersion as WritableAtom<number>;
+const $resolved = fragmentInspectionStore.$areFragmentOptionsResolved;
 
 function makeFragmentSummary(id: string, displayName: string, path = `/fragments/${id}`): unknown {
     return {
@@ -113,6 +115,8 @@ describe('useFragmentContentSelector', () => {
         $options.set([]);
         $selectedId.set(null);
         $version.set(0);
+        $resolved.set(true);
+        fragmentInspectionStore.$isFragmentInspectionLoading.set(false);
         vi.clearAllMocks();
     });
 
@@ -150,6 +154,27 @@ describe('useFragmentContentSelector', () => {
             expect(result.current.filteredOptions).toHaveLength(0);
             expect(result.current.isEmpty).toBe(true);
         });
+    });
+
+    it('does not mark a selected fragment missing before the options resolve', () => {
+        $selectedId.set('new-fragment');
+        $resolved.set(false);
+
+        const { result } = renderHook(() => useFragmentContentSelector());
+
+        expect(result.current.selectedOption?.isInvalid).toBe(false);
+        expect(result.current.isInitialLoading).toBe(false);
+    });
+
+    it('keeps the selected fragment available during a background refresh', () => {
+        $selectedId.set('frag-a');
+        $options.set([makeFragmentSummary('frag-a', 'Fragment A')]);
+        fragmentInspectionStore.$isFragmentInspectionLoading.set(true);
+
+        const { result } = renderHook(() => useFragmentContentSelector());
+
+        expect(result.current.selectedOption?.label).toBe('Fragment A');
+        expect(result.current.isInitialLoading).toBe(false);
     });
 
     describe('selection change', () => {
