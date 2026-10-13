@@ -13,8 +13,10 @@ import {
 import { $config } from '../../../shared/config/config.store';
 import {
     applyDraftPublishDialogSelection,
+    cancelDraftPublishDialogSelection,
     loadMoreDependants,
     openPublishDialog,
+    reloadPublishDialogData,
     resetPublishDialogContext,
     setPublishDialogDependantItemSelected,
     setPublishDialogItemWithChildrenSelected,
@@ -31,9 +33,11 @@ import {
     $hasMoreDependants,
     $hasSchedulableItems,
     $isPublishReady,
+    $isPublishSelectionSynced,
     $isScheduleValid,
     $publishCheckErrors,
     $publishDependantsSelection,
+    $publishChecks,
     $publishDialog,
     $publishDialogPending,
     $scheduleFromError,
@@ -494,15 +498,15 @@ describe('publishDialog.store', () => {
             expect(dependant.hidden).toBe(false);
         });
 
-        it('should re-include auto-excluded children when "include children" is applied', async () => {
+        it('should re-include auto-excluded children when "include children" is toggled', async () => {
             const itemId = new ContentId('item-1');
             mockFindIdsByParents.mockResolvedValue(ok([imageId]));
             mockFetchContentSummaries.mockResolvedValue([createMockContent('image-1')]);
             mockResolvePublishDependencies.mockImplementation(({ excludedIds = [] }: { excludedIds?: ContentId[] }) =>
                 Promise.resolve(
                     excludedIds.some((id) => id.equals(imageId))
-                        ? createResolveResult({ next: [imageId] })
-                        : createResolveResult({ dependants: [imageId] }),
+                        ? createResolveResult({ next: [imageId], publishable: [itemId] })
+                        : createResolveResult({ dependants: [imageId], publishable: [itemId] }),
                 ),
             );
 
@@ -510,9 +514,12 @@ describe('publishDialog.store', () => {
             await flushInitialReload();
 
             expect($dependantPublishItems.get()[0].included).toBe(false);
+            expect($isPublishReady.get()).toBe(true);
 
             setPublishDialogItemWithChildrenSelected(itemId, true);
-            applyDraftPublishDialogSelection();
+            expect($isPublishSelectionSynced.get()).toBe(true);
+            expect($publishDialog.get().excludedItemsWithChildrenIds).toHaveLength(0);
+            expect($isPublishReady.get()).toBe(false);
             await flushDebouncedReload();
 
             const [dependant] = $dependantPublishItems.get();
@@ -520,6 +527,172 @@ describe('publishDialog.store', () => {
             expect(dependant.hidden).toBe(false);
             expect($publishDialog.get().excludedDependantItemsIds).toHaveLength(0);
             expect($hasExcludedDependantItems.get()).toBe(false);
+            expect($isPublishReady.get()).toBe(true);
+
+            setPublishDialogItemWithChildrenSelected(itemId, false);
+            expect($isPublishSelectionSynced.get()).toBe(true);
+            expect($isPublishReady.get()).toBe(false);
+            await flushDebouncedReload();
+
+            expect(
+                mockResolvePublishDependencies.mock.lastCall?.[0].excludeChildrenIds.map((id: ContentId) =>
+                    id.toString(),
+                ),
+            ).toEqual(['item-1']);
+            expect($publishDialog.get().excludedItemsWithChildrenIds.map((id) => id.toString())).toEqual(['item-1']);
+        });
+
+        it('reloads a child toggle made during an existing resolve and keeps Publish blocked', async () => {
+            const itemId = new ContentId('item-1');
+            const oldResolve = createDeferredPromise<ReturnType<typeof createResolveResult>>();
+            const latestResolve = createDeferredPromise<ReturnType<typeof createResolveResult>>();
+            mockResolvePublishDependencies
+                .mockReturnValueOnce(oldResolve.promise)
+                .mockReturnValueOnce(latestResolve.promise);
+
+            openPublishDialog([createMockContent('item-1', { hasChildren: true })]);
+            await flushPromises();
+            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(1);
+
+            setPublishDialogItemWithChildrenSelected(itemId, true);
+            oldResolve.resolve(createResolveResult({ invalid: [itemId], publishable: [itemId] }));
+            await flushPromises(10);
+
+            expect($publishChecks.get().loading).toBe(true);
+            expect($isPublishReady.get()).toBe(false);
+            expect($publishCheckErrors.get().invalid.count).toBe(0);
+
+            await vi.advanceTimersByTimeAsync(150);
+            await flushPromises();
+
+            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
+            expect(mockResolvePublishDependencies.mock.lastCall?.[0].excludeChildrenIds).toHaveLength(0);
+            expect($publishChecks.get().loading).toBe(true);
+
+            latestResolve.resolve(createResolveResult({ publishable: [itemId] }));
+            await flushPromises(10);
+
+            expect($publishChecks.get().loading).toBe(false);
+            expect($publishCheckErrors.get().invalid.count).toBe(0);
+            expect($isPublishReady.get()).toBe(true);
+        });
+
+        it('ignores a superseded resolve failure while the latest child selection reloads', async () => {
+            const itemId = new ContentId('item-1');
+            const oldResolve = createDeferredPromise<ReturnType<typeof createResolveResult>>();
+            const latestResolve = createDeferredPromise<ReturnType<typeof createResolveResult>>();
+            mockResolvePublishDependencies
+                .mockReturnValueOnce(oldResolve.promise)
+                .mockReturnValueOnce(latestResolve.promise);
+
+            openPublishDialog([createMockContent('item-1', { hasChildren: true })]);
+            await flushPromises();
+            setPublishDialogItemWithChildrenSelected(itemId, true);
+            await vi.advanceTimersByTimeAsync(150);
+            await flushPromises();
+            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
+
+            oldResolve.reject(new Error('stale resolve failed'));
+            await flushPromises(10);
+
+            expect($publishDialog.get().failed).toBe(false);
+            expect($publishChecks.get().loading).toBe(true);
+            expect($isPublishReady.get()).toBe(false);
+
+            latestResolve.resolve(createResolveResult({ publishable: [itemId] }));
+            await flushPromises(10);
+
+            expect($publishDialog.get().failed).toBe(false);
+            expect($publishChecks.get().loading).toBe(false);
+            expect($isPublishReady.get()).toBe(true);
+        });
+
+        it('should preserve a staged dependant edit when include children triggers a reload', async () => {
+            $config.setKey('excludeDependencies', false);
+            const itemId = new ContentId('item-1');
+            const dependantId = new ContentId('dep-1');
+            mockFetchContentSummaries.mockResolvedValue([createMockContent('dep-1')]);
+            mockResolvePublishDependencies.mockResolvedValue(createResolveResult({ dependants: [dependantId] }));
+
+            openPublishDialog([createMockContent('item-1', { hasChildren: true })]);
+            await flushInitialReload();
+
+            setPublishDialogDependantItemSelected(dependantId, false);
+            setPublishDialogItemWithChildrenSelected(itemId, true);
+            await flushDebouncedReload();
+
+            expect($publishDialog.get().excludedItemsWithChildrenIds).toHaveLength(0);
+            expect($draftPublishDialogSelection.get().excludedItemsWithChildrenIds).toHaveLength(0);
+            expect($publishDialog.get().excludedDependantItemsIds).toHaveLength(0);
+            expect($draftPublishDialogSelection.get().excludedDependantItemsIds.map((id) => id.toString())).toEqual([
+                'dep-1',
+            ]);
+            expect($isPublishSelectionSynced.get()).toBe(false);
+
+            cancelDraftPublishDialogSelection();
+            expect($draftPublishDialogSelection.get().excludedDependantItemsIds).toHaveLength(0);
+            expect($publishDialog.get().excludedItemsWithChildrenIds).toHaveLength(0);
+            expect($isPublishSelectionSynced.get()).toBe(true);
+        });
+
+        it('should rebase a staged dependant edit onto newly resolved exclusions', async () => {
+            $config.setKey('excludeDependencies', true);
+            const itemId = new ContentId('item-1');
+            const oldDependantId = new ContentId('old-dep');
+            const newDependantId = new ContentId('new-dep');
+            mockFetchContentSummaries.mockImplementation((ids: ContentId[]) =>
+                ids.map((id) => createMockContent(id.toString())),
+            );
+            mockResolvePublishDependencies.mockImplementation(
+                ({
+                    excludedIds = [],
+                    excludeChildrenIds = [],
+                }: {
+                    excludedIds?: ContentId[];
+                    excludeChildrenIds?: ContentId[];
+                }) => {
+                    const dependantId = excludeChildrenIds.length > 0 ? newDependantId : oldDependantId;
+                    const dependants = excludedIds.some((id) => id.equals(dependantId)) ? [] : [dependantId];
+                    return Promise.resolve(createResolveResult({ dependants, publishable: [itemId] }));
+                },
+            );
+
+            openPublishDialog([createMockContent('item-1', { hasChildren: true })], true);
+            await flushInitialReload();
+            expect($publishDialog.get().excludedDependantItemsIds.map((id) => id.toString())).toEqual(['old-dep']);
+
+            setPublishDialogDependantItemSelected(oldDependantId, true);
+            setPublishDialogItemWithChildrenSelected(itemId, false);
+            await flushDebouncedReload();
+
+            expect($publishDialog.get().excludedDependantItemsIds.map((id) => id.toString())).toEqual(['new-dep']);
+            expect($draftPublishDialogSelection.get().excludedDependantItemsIds.map((id) => id.toString())).toEqual([
+                'new-dep',
+            ]);
+            expect($isPublishSelectionSynced.get()).toBe(true);
+        });
+
+        it('should keep Publish disabled when a children reload fails and recover on retry', async () => {
+            const itemId = new ContentId('item-1');
+            mockResolvePublishDependencies.mockResolvedValue(createResolveResult({ publishable: [itemId] }));
+
+            openPublishDialog([createMockContent('item-1', { hasChildren: true })]);
+            await flushInitialReload();
+            expect($isPublishReady.get()).toBe(true);
+
+            mockResolvePublishDependencies.mockResolvedValue(err(new Error('resolve failed')));
+            setPublishDialogItemWithChildrenSelected(itemId, true);
+            expect($isPublishReady.get()).toBe(false);
+            await flushDebouncedReload();
+
+            expect($publishDialog.get().failed).toBe(true);
+            expect($isPublishReady.get()).toBe(false);
+
+            mockResolvePublishDependencies.mockResolvedValue(createResolveResult({ publishable: [itemId] }));
+            await reloadPublishDialogData();
+
+            expect($publishDialog.get().failed).toBe(false);
+            expect($isPublishReady.get()).toBe(true);
         });
     });
 

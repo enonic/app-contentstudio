@@ -263,10 +263,18 @@ export const removeNewIssueItemsByIds = (ids: ContentId[]): void => {
 export const setNewIssueItemIncludeChildren = (id: ContentId, includeChildren: boolean): void => {
     const state = $newIssueDialog.get();
     const next = withIdExcluded(state.excludeChildrenIds, id, !includeChildren);
-
-    if (next !== state.excludeChildrenIds) {
-        $newIssueDialog.setKey('excludeChildrenIds', next);
+    if (next === state.excludeChildrenIds) {
+        return;
     }
+
+    $newIssueDialog.set({
+        ...state,
+        excludeChildrenIds: next,
+        appliedExcludeChildrenIds: next,
+        loading: true,
+    });
+    instanceId += 1;
+    reloadDependenciesDebounced();
 };
 
 export const applyDraftNewIssueDialogSelection = (): void => {
@@ -323,7 +331,7 @@ export const submitNewIssueDialog = async (): Promise<void> => {
     const state = $newIssueDialog.get();
     const title = state.title.trim();
 
-    if (!title || state.submitting || !$isNewIssueSelectionSynced.get()) {
+    if (!title || state.submitting || state.loading || state.failed || !$isNewIssueSelectionSynced.get()) {
         return;
     }
 
@@ -459,4 +467,14 @@ const reloadNewIssueDependencies = async (): Promise<void> => {
         });
         showError(error?.message ?? String(error));
     }
+};
+
+export const retryNewIssueDependencies = async (): Promise<void> => {
+    const state = $newIssueDialog.get();
+    if (!state.open || !state.failed || state.loading || state.submitting || state.items.length === 0) {
+        return;
+    }
+
+    reloadDependenciesDebounced.cancel();
+    await reloadNewIssueDependencies();
 };

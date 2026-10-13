@@ -15,6 +15,7 @@ import {
     loadMoreDependants,
     markAllAsReadyInProgressPublishItems,
     removePublishDialogItem,
+    reloadPublishDialogData,
     setPublishDialogDependantItemSelected,
     setPublishDialogItemWithChildrenSelected,
     setPublishDialogMessage,
@@ -152,6 +153,7 @@ export const PublishDialogMainContent = ({
                 showReady={isPublishReady}
                 onApply={applyDraftPublishDialogSelection}
                 onCancel={cancelDraftPublishDialogSelection}
+                onRetry={() => void reloadPublishDialogData()}
                 errors={{
                     inProgress: {
                         ...inProgress,

@@ -19,6 +19,7 @@ import {
     cancelDraftNewIssueDialogSelection,
     loadMoreNewIssueDependants,
     removeNewIssueItemsByIds,
+    retryNewIssueDependencies,
     setNewIssueAssignees,
     setNewIssueDependantIncluded,
     setNewIssueDescription,
@@ -116,7 +117,7 @@ export const NewIssueDialogContent = (): ReactElement => {
     const isItemsDisabled = submitting || loading;
 
     const createButtonLabel = createCount > 1 ? `${createLabel} (${createCount})` : createLabel;
-    const isCreateDisabled = submitting || loading || !isSelectionSynced || title.trim().length === 0;
+    const isCreateDisabled = submitting || loading || failed || !isSelectionSynced || title.trim().length === 0;
 
     const selectedIds = useMemo(() => items.map((item) => item.getContentId().toString()), [items]);
 
@@ -169,6 +170,7 @@ export const NewIssueDialogContent = (): ReactElement => {
                 editing={!isSelectionSynced}
                 onApply={applyDraftNewIssueDialogSelection}
                 onCancel={cancelDraftNewIssueDialogSelection}
+                onRetry={() => void retryNewIssueDependencies()}
             />
 
             <Dialog.Body className="min-h-0 overflow-y-auto rounded-sm outline-none focus:ring-2 focus:ring-ring/10 focus:ring-inset">

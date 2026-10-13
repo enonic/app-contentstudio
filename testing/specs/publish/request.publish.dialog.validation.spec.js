@@ -36,7 +36,6 @@ describe('request.publish.dialog.validation.spec - opens request publish modal d
         await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
         // 2. click on 'Include children items':
         await createRequestPublishDialog.clickOnIncludeChildItemsCheckbox(appConst.TEST_FOLDER_2_DISPLAY_NAME);
-        await createRequestPublishDialog.clickOnApplySelectionButton();
         await studioUtils.saveScreenshot('request_publish_include_children4');
         // 3. Invalid icon gets visible, because on of the children is not valid:
         await createRequestPublishDialog.waitForExcludeInvalidItemsButtonDisplayed();

@@ -141,7 +141,6 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
         await contentBrowsePanel.clickOnPublishButton();
         // 2. 'Include children' has been clicked
         await contentPublishDialog.clickOnIncludeChildrenCheckbox();
-        await contentPublishDialog.clickOnApplyButton();
         // 3. 'All' checkbox gets visible:
         await contentPublishDialog.waitForAllDependantsCheckboxDisplayed();
         let isSelected = await contentPublishDialog.isAllDependantsCheckboxSelected();
@@ -203,7 +202,6 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
         await contentPublishDialog.waitForDialogOpened();
         // 3. Uncheck the checkbox : Click on 'Include child items' checkbox icon
         await contentPublishDialog.clickOnIncludeChildrenCheckbox();
-        await contentPublishDialog.clickOnApplyButton();
         // 4. Verify that 'All' checkbox gets not visible:
         await contentPublishDialog.waitForAllDependantsCheckboxNotDisplayed();
         await contentPublishDialog.waitForPublishNowButtonEnabled();
@@ -253,7 +251,6 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
         // 2. OPen Publish Wizard:
         await contentWizard.clickOnPublishButton();
         await contentPublishDialog.clickOnIncludeChildrenCheckbox();
-        await contentPublishDialog.clickOnApplyButton();
         // 3. Uncheck the child item in Dependent block
         await contentPublishDialog.clickOnCheckboxInDependentItem(CHILD_FOLDER.displayName);
         // 4. Verify that Apply button gets visible then click on it:

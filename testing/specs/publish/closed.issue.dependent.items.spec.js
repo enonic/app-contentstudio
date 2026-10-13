@@ -33,24 +33,22 @@ describe('closed.issue.dependent.items.spec - tests for dependent items in close
         // 3. click on 'Include children items'
         await createIssueDialog.clickOnIncludeChildrenCheckbox(TEST_FOLDER_DISPLAY_NAME);
         await studioUtils.saveScreenshot('request_publish_include_children');
-        // 4. Apply the staged selection:
-        await createIssueDialog.clickOnApplySelectionButton();
-        // 5. Fill in the name input then click on 'Create Issue' button
+        // 4. Fill in the name input then click on 'Create Issue' button
         await createIssueDialog.typeTitle(ISSUE_NAME);
         await createIssueDialog.clickOnCreateIssueButton();
-        // 6. Go to 'Items' tab
+        // 5. Go to 'Items' tab
         await issueDetailsDialog.waitForDialogLoaded();
         await issueDetailsDialog.clickOnItemsTabItem();
-        // 7. Verify that 'All' checkbox is displayed
+        // 6. Verify that 'All' checkbox is displayed
         //await issueDetailsDialogItemsTab.waitForAllDependantsCheckboxDisplayed();
-        // 8. Expand the status selector  then click on "Closed" menu item:
+        // 7. Expand the status selector  then click on "Closed" menu item:
         await issueDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
-        // 9. Verify that the dependants block gets disabled in the closed issue:
+        // 8. Verify that the dependants block gets disabled in the closed issue:
         await issueDetailsDialogItemsTab.waitForDependantItemsDisabled();
-        // 10. Verify that 'All' checkbox is displayed but disabled:
+        // 9. Verify that 'All' checkbox is displayed but disabled:
         await issueDetailsDialogItemsTab.waitForAllDependantsCheckboxDisplayed();
         await issueDetailsDialogItemsTab.waitForAllDependantsCheckboxDisabled();
-        // 11. Verify that all dependent items are displayed but disabled:
+        // 10. Verify that all dependent items are displayed but disabled:
         let items = await issueDetailsDialogItemsTab.getDisplayNameInDisabledDependantItems();
         assert.equal(items.length, 10, '10 disabled dependent items should be displayed in the closed issue');
     });
