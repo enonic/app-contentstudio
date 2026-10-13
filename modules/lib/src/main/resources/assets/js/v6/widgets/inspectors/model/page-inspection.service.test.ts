@@ -37,16 +37,15 @@ import {
     $isPageInspectionLoading,
     $isSelectedTemplateMissing,
     $pageTemplateOptions,
-    cleanupPageInspection,
-    initPageInspectionService,
 } from './page-inspection.store';
+import { start as startPageInspectionService, stop as stopPageInspectionService } from './page-inspection.service';
 
 const $context = $contentContext as WritableAtom<PageEditorContentContext | null>;
 const $currentPage = $page as WritableAtom<Page | null>;
 
 describe('page inspection scope', () => {
     afterEach(() => {
-        cleanupPageInspection();
+        stopPageInspectionService();
         $context.set(null);
         $currentPage.set(null);
         loadPageTemplatesByCanRender.mockReset();
@@ -65,18 +64,18 @@ describe('page inspection scope', () => {
         loadPageControllers.mockResolvedValue(ok([]));
         const firstModel = siteModel();
         $context.set(context());
-        initPageInspectionService(firstModel.value);
+        startPageInspectionService(firstModel.value);
         await vi.waitFor(() => expect($pageTemplateOptions.get()).toEqual([template]));
         expect($isSelectedTemplateMissing.get()).toBe(false);
 
         $context.set(context());
-        initPageInspectionService(firstModel.value);
+        startPageInspectionService(firstModel.value);
         expect(loadPageTemplatesByCanRender).toHaveBeenCalledTimes(1);
 
         const pending = deferred<Result<PageTemplate[], Error>>();
         loadPageTemplatesByCanRender.mockReturnValueOnce(pending.promise);
         const replacement = siteModel();
-        initPageInspectionService(replacement.value);
+        startPageInspectionService(replacement.value);
         expect(firstModel.listeners.size).toBe(0);
         expect($pageTemplateOptions.get()).toEqual([template]);
         expect($isSelectedTemplateMissing.get()).toBe(false);
@@ -87,7 +86,7 @@ describe('page inspection scope', () => {
         expect($arePageTemplatesResolved.get()).toBe(true);
 
         loadPageTemplatesByCanRender.mockResolvedValueOnce(ok([]));
-        initPageInspectionService(replacement.value);
+        startPageInspectionService(replacement.value);
         await vi.waitFor(() => expect($isSelectedTemplateMissing.get()).toBe(true));
         expect($pageTemplateOptions.get()).toEqual([]);
     });
@@ -97,7 +96,7 @@ describe('page inspection scope', () => {
         loadPageTemplatesByCanRender.mockResolvedValueOnce(ok([template]));
         loadPageControllers.mockResolvedValue(ok([]));
         $context.set(context());
-        initPageInspectionService();
+        startPageInspectionService();
         await vi.waitFor(() => expect($pageTemplateOptions.get()).toEqual([template]));
 
         const pending = deferred<Result<PageTemplate[], Error>>();
@@ -119,7 +118,7 @@ describe('page inspection scope', () => {
         loadPageTemplatesByCanRender.mockResolvedValueOnce(ok([template]));
         loadPageControllers.mockResolvedValue(ok([]));
         $context.set(context());
-        initPageInspectionService();
+        startPageInspectionService();
         await vi.waitFor(() => expect($pageTemplateOptions.get()).toEqual([template]));
 
         const pending = deferred<Result<PageTemplate[], Error>>();

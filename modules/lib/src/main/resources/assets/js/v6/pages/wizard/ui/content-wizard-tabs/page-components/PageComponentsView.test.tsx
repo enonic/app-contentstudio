@@ -4,7 +4,11 @@ import { ok, type Result } from 'neverthrow';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Descriptor } from '../../../../../../app/page/Descriptor';
 import type { PageEditorContentContext } from '../../../../../widgets/inspectors/model/page-editor/types';
-import { deferred, inspectionContext as context } from '../../../../../widgets/inspectors/model/inspectionTestUtils';
+import {
+    deferred,
+    inspectionContext as context,
+    siteModel,
+} from '../../../../../widgets/inspectors/model/inspectionTestUtils';
 
 const { loadComponentDescriptors, loadComponentDescriptor } = vi.hoisted(() => ({
     loadComponentDescriptors: vi.fn(),
@@ -119,14 +123,14 @@ vi.mock('@enonic/ui', async (importOriginal) => ({
 
 import { $contentContext } from '../../../../../widgets/inspectors/model/page-editor/store';
 import {
-    cleanupComponentInspection,
-    initComponentInspectionService,
-} from '../../../../../widgets/inspectors/model/component-inspection.store';
+    start as startComponentInspectionService,
+    stop as stopComponentInspectionService,
+} from '../../../../../widgets/inspectors/model/component-inspection.service';
 import { PageComponentsView } from './PageComponentsView';
 
 describe('PageComponentsView inspection wiring', () => {
     afterEach(() => {
-        cleanupComponentInspection();
+        stopComponentInspectionService();
         $contentContext.set(null);
         vi.unstubAllGlobals();
         loadComponentDescriptors.mockReset();
@@ -146,7 +150,7 @@ describe('PageComponentsView inspection wiring', () => {
         vi.stubGlobal('cancelAnimationFrame', vi.fn());
 
         $contentContext.set(context());
-        initComponentInspectionService();
+        startComponentInspectionService();
         const { container } = render(<PageComponentsView />);
         await vi.waitFor(() => expect(container.querySelector('img[src="/hero.svg"]')).toBeTruthy());
         const image = container.querySelector('img[src="/hero.svg"]');
@@ -158,7 +162,7 @@ describe('PageComponentsView inspection wiring', () => {
         // Renaming non-site content leaves the site path and inspection scope unchanged.
         act(() => {
             $contentContext.set(context());
-            initComponentInspectionService();
+            startComponentInspectionService();
         });
 
         expect(container.querySelector('img[src="/hero.svg"]')).toBe(image);
@@ -176,5 +180,37 @@ describe('PageComponentsView inspection wiring', () => {
         await vi.waitFor(() => expect(loadComponentDescriptors).toHaveBeenCalledTimes(4));
         await act(async () => pendingPart.resolve(ok([part])));
         expect(container.querySelector('img[src="/hero.svg"]')).toBe(image);
+    });
+
+    it('retries a failed part icon after the descriptors refresh', async () => {
+        const part = {
+            getKey: () => ({ toString: () => 'app:hero' }),
+            getIcon: () => '/hero.svg',
+        } as Descriptor;
+        loadComponentDescriptors.mockImplementation((type: string) =>
+            Promise.resolve(ok(type === 'part' ? [part] : [])),
+        );
+        loadComponentDescriptor.mockReturnValue({ unwrapOr: async () => undefined });
+        vi.stubGlobal('requestAnimationFrame', () => 1);
+        vi.stubGlobal('cancelAnimationFrame', vi.fn());
+
+        $contentContext.set(context());
+        startComponentInspectionService(siteModel().value);
+        const { container } = render(<PageComponentsView />);
+        await vi.waitFor(() => expect(container.querySelector('img[src="/hero.svg"]')).not.toBeNull());
+
+        const image = container.querySelector('img[src="/hero.svg"]');
+        expect(image).not.toBeNull();
+        act(() => {
+            fireEvent.error(image as Element);
+        });
+        expect(container.querySelector('img[src="/hero.svg"]')).toBeNull();
+
+        await act(async () => {
+            startComponentInspectionService(siteModel().value);
+        });
+
+        await vi.waitFor(() => expect(container.querySelector('img[src="/hero.svg"]')).not.toBeNull());
+        expect(loadComponentDescriptors).toHaveBeenCalledTimes(4);
     });
 });
