@@ -113,6 +113,9 @@ const CKEditorWrapper = ({
     // Keep onChange ref fresh so debounced callback always uses the latest closure
     const onChangeRef = useRef(onChange);
     onChangeRef.current = onChange;
+    // Keep the content ref fresh so editor handlers set up once (e.g. file upload) see the renamed content
+    const contentSummaryRef = useRef(contentSummary);
+    contentSummaryRef.current = contentSummary;
 
     const dialogOverridesRef = useRef<DialogOverrides>({
         ...createImageDialogOverride(openImageDialogRef),
@@ -267,6 +270,7 @@ const CKEditorWrapper = ({
                 allowedHeadings: htmlAreaConfig.allowedHeadings,
                 editableSourceCode,
                 dialogOverrides: dialogOverridesRef.current,
+                getContentSummary: () => contentSummaryRef.current,
                 onSave: createContentSaveHandler(contentSummary),
             });
         }

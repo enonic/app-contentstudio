@@ -167,6 +167,8 @@ const TextEditorInner = ({
     const didAutoFocusRef = useRef(false);
     const textComponentRef = useRef(textComponent);
     textComponentRef.current = textComponent;
+    const contentSummaryRef = useRef(contentSummary);
+    contentSummaryRef.current = contentSummary;
 
     useInspectTextTracking();
 
@@ -297,6 +299,7 @@ const TextEditorInner = ({
                 allowedHeadings: TEXT_EDITOR_CONFIG.allowedHeadings,
                 editableSourceCode,
                 dialogOverrides: dialogOverridesRef.current,
+                getContentSummary: () => contentSummaryRef.current,
                 onSave: createContentSaveHandler(contentSummary),
             });
         }
