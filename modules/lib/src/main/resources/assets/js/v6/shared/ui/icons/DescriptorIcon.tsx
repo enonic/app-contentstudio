@@ -5,19 +5,19 @@ import { type ReactElement, useEffect, useState } from 'react';
 export type DescriptorIconProps = {
     iconUrl?: string;
     fallback: LucideIcon;
-    className?: string;
     strokeWidth?: number;
     retainPreviousIcon?: boolean;
     refreshVersion?: number;
+    className?: string;
 };
 
 export const DescriptorIcon = ({
     iconUrl,
     fallback: Fallback,
-    className,
     strokeWidth,
     retainPreviousIcon = false,
     refreshVersion,
+    className,
 }: DescriptorIconProps): ReactElement => {
     const [failedIcon, setFailedIcon] = useState<{ url: string; refreshVersion?: number }>();
     const [loadedIconUrl, setLoadedIconUrl] = useState<string>();
