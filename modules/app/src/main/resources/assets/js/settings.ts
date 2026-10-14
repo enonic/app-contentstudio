@@ -5,6 +5,8 @@ import { SettingsAppContainer } from '@enonic/lib-contentstudio/app/settings/Set
 import { CONFIG, ConfigObject } from '@enonic/lib-admin-ui/util/Config';
 import { ProjectConfigContext } from '@enonic/lib-contentstudio/app/settings/data/project/ProjectConfigContext';
 import { initConfig } from '@enonic/lib-contentstudio/v6/shared/config/config.store';
+import { setPhrases } from '@enonic/lib-contentstudio/v6/shared/i18n';
+import type { Phrases } from '@enonic/ui-utils';
 import { initLanguages } from '@enonic/lib-contentstudio/v6/entities/language/languages.store';
 import { initPrincipals } from '@enonic/lib-contentstudio/v6/entities/principal/principals.store';
 import { initProjects } from '@enonic/lib-contentstudio/v6/entities/project/projects.store';
@@ -34,6 +36,7 @@ const appendHtml = (widgetElem: Element): void => {
 const init = async (configScriptId: string, elemId: string): Promise<void> => {
     CONFIG.setConfig(JSON.parse(document.getElementById(configScriptId).innerText) as ConfigObject);
     initConfig(configScriptId);
+    setPhrases(JSON.parse(CONFIG.getString('phrasesAsJson')) as Phrases);
     initProjects();
     void initLanguages();
     initPrincipals();

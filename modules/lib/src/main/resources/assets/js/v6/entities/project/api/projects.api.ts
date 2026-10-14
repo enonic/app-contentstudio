@@ -3,6 +3,8 @@ import { type ApplicationConfig } from '@enonic/lib-admin-ui/application/Applica
 import { type PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
 import { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
 import { type TaskIdJson } from '@enonic/lib-admin-ui/task/TaskIdJson';
+import { requestJson } from '@enonic/ui-utils/request';
+import { AppError } from '@enonic/ui-utils';
 import { Project } from '../../../../app/settings/data/project/Project';
 import { ProjectHelper } from '../../../../app/settings/data/project/ProjectHelper';
 import { ProjectPermissions } from '../../../../app/settings/data/project/ProjectPermissions';
@@ -10,8 +12,6 @@ import { type ProjectReadAccess } from '../../../../app/settings/data/project/Pr
 import { type ProjectJson } from '../../../../app/settings/resource/json/ProjectJson';
 import { type ProjectPermissionsJson } from '../../../../app/settings/resource/json/ProjectPermissionsJson';
 import { type ProjectReadAccessJson } from '../../../../app/settings/resource/json/ProjectReadAccessJson';
-import { requestJson } from '../../../shared/api/client';
-import { AppError } from '../../../shared/api/errors';
 import { getCmsRestUri } from '../../../shared/lib/url/cms';
 
 export type UpdateProjectParams = {

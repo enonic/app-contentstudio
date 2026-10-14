@@ -91,9 +91,9 @@ describe('deleteAttachment', () => {
         expect(url).toContain('/rest-v2/cs/cms/test-project/content/content/deleteAttachment');
         expect(init).toMatchObject({
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ contentId: 'content-1', attachmentNames: ['doc.pdf'] }),
         });
+        expect(new Headers(init.headers).get('Content-Type')).toBe('application/json');
         expect(result.isOk()).toBe(true);
         expect(result._unsafeUnwrap()).toBeUndefined();
     });

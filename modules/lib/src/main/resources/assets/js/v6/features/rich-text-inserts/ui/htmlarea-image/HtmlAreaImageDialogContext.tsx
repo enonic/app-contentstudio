@@ -1,7 +1,7 @@
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import type { ReactNode } from 'react';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { i18n } from '../../../../shared/i18n';
 import { type ContentSummary } from '../../../../../app/content/ContentSummary';
 import { HTMLAreaHelper } from '../../../../../app/inputtype/ui/text/HTMLAreaHelper';
 import { HtmlEditor } from '../../../../../app/inputtype/ui/text/HtmlEditor';

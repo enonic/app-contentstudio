@@ -1,6 +1,6 @@
 import { errAsync, type ResultAsync } from 'neverthrow';
-import { requestJson } from '../../../shared/api/client';
-import { type AppError } from '../../../shared/api/errors';
+import { requestJson } from '@enonic/ui-utils/request';
+import type { AppError } from '@enonic/ui-utils';
 import { getCmsRestUri } from '../../../shared/lib/url/cms';
 
 // Keyed by the sorted, comma-joined type names. Failures are evicted so a later

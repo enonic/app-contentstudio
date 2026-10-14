@@ -1,4 +1,4 @@
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { i18n } from '../../shared/i18n';
 import { ComponentPath } from '../../../app/page/region/ComponentPath';
 import { PageEventsManager } from '../../../app/wizard/PageEventsManager';
 import type { AiAnimation, AiFieldPath, AiFieldState, AiFieldStateDetail } from './ai-protocol';

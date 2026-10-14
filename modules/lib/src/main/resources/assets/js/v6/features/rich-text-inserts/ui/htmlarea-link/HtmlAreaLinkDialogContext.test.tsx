@@ -9,7 +9,7 @@ import {
 import { UrlTabPanel } from './UrlTabPanel';
 
 vi.unmock('@enonic/ui');
-vi.mock('@enonic/lib-admin-ui/util/Messages', () => ({ i18n: (key: string) => key }));
+vi.mock('../../../../shared/i18n', () => ({ i18n: (key: string) => key }));
 vi.mock('../../../../shared/lib/hooks/useI18n', () => ({
     useI18n: (key: string) => (key === 'dialog.link.urlprotocols.relative' ? 'Relative' : key),
 }));

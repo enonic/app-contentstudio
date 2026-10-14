@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, type Mock } from 'vitest';
-import { AppError } from '../../../shared/api/errors';
+import { AppError } from '@enonic/ui-utils';
 import { errorResponse, jsonResponse, restoreFetch, stubFetch } from '../../../shared/lib/test/fetch.test.utils';
 import { clearMimeTypesCache, fetchMimeTypesByContentTypeNames } from './mimeTypes.api';
 

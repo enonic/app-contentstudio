@@ -1,5 +1,5 @@
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { StringHelper } from '@enonic/lib-admin-ui/util/StringHelper';
+import { i18n } from '../../../../shared/i18n';
 import { isBlank } from '../../../../shared/lib/format/isBlank';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';

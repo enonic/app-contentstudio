@@ -1,7 +1,7 @@
 import { type ResultAsync } from 'neverthrow';
+import { requestJson } from '@enonic/ui-utils/request';
+import { AppError } from '@enonic/ui-utils';
 import { RepositoryId } from '../../../../app/repository/RepositoryId';
-import { requestJson } from '../../../shared/api/client';
-import { AppError } from '../../../shared/api/errors';
 import { $config } from '../../../shared/config/config.store';
 
 export type ImportNodesError = {

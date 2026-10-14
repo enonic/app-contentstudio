@@ -1,4 +1,3 @@
-import { Messages } from '@enonic/lib-admin-ui/util/Messages';
 import type { Translate } from '@enonic/ui-utils';
 import { cleanup, render } from '@testing-library/preact';
 import type { ReactNode } from 'react';
@@ -13,12 +12,13 @@ vi.mock('@enonic/ui', () => ({
     },
 }));
 
+import { setPhrases } from '../../i18n';
 import { FormI18nProvider } from './FormI18nProvider';
 
 describe('FormI18nProvider', () => {
     beforeEach(() => {
         translate = undefined;
-        Messages.setMessages({
+        setPhrases({
             'enonic.inputTypes.set.add': 'Legg til',
             'enonic.inputTypes.occurrence.breaksMin': 'Minst {0} gyldige forekomster',
         });
@@ -27,7 +27,7 @@ describe('FormI18nProvider', () => {
 
     afterEach(() => {
         cleanup();
-        Messages.setMessages({});
+        setPhrases({});
     });
 
     it('answers a toolkit key from the phrases, with its placeholders filled', () => {

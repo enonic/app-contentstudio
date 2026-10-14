@@ -1,8 +1,8 @@
 import { Extension } from '@enonic/lib-admin-ui/extension/Extension';
 import { type ExtensionDescriptorJson } from '@enonic/lib-admin-ui/extension/ExtensionDescriptorJson';
 import { type ResultAsync } from 'neverthrow';
-import { requestJson } from '../../../shared/api/client';
-import { type AppError } from '../../../shared/api/errors';
+import { requestJson } from '@enonic/ui-utils/request';
+import type { AppError } from '@enonic/ui-utils';
 import { $config } from '../../../shared/config/config.store';
 
 /**

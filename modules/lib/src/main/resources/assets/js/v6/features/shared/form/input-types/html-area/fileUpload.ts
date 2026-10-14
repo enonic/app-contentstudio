@@ -2,7 +2,7 @@
 
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { NotifyManager } from '@enonic/lib-admin-ui/notify/NotifyManager';
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { i18n } from '../../../../../shared/i18n';
 import { StringHelper } from '@enonic/lib-admin-ui/util/StringHelper';
 import { ContentPath } from '../../../../../../app/content/ContentPath';
 import type { ContentSummary } from '../../../../../../app/content/ContentSummary';

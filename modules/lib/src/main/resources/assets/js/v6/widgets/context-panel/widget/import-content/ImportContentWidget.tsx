@@ -1,9 +1,9 @@
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { Button, IconButton, Input, RadioGroup, Separator, Tooltip } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { FolderInput, FolderOutput, RefreshCw, X } from 'lucide-react';
 import Q from 'q';
 import { type ChangeEvent, type ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import { i18n } from '../../../../shared/i18n';
 import { type ContentSummaryAndCompareStatus } from '../../../../../app/content/ContentSummaryAndCompareStatus';
 import { type ExtensionItemViewType } from '../../../../../app/view/context/ExtensionItemView';
 import { type ExportResult, fetchExports, type ImportResult } from '../../api/importContent.api';

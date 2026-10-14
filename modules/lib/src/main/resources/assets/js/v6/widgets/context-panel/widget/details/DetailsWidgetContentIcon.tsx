@@ -1,7 +1,7 @@
 import { Tooltip } from '@enonic/ui';
 import { showError } from '@enonic/lib-admin-ui/notify/MessageBus';
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { type ChangeEvent, type ReactElement, useRef, useState } from 'react';
+import { i18n } from '../../../../shared/i18n';
 import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 import { setContent } from '../../../../entities/content';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
@@ -25,7 +25,11 @@ export const DetailsWidgetContentIcon = ({ content }: Props): ReactElement => {
     const [isUploading, setIsUploading] = useState(false);
 
     const iconElement = (
-        <ContentIcon contentType={String(content.getType())} url={content.getIconUrl()} hasThumbnail={content.hasThumbnail()} />
+        <ContentIcon
+            contentType={String(content.getType())}
+            url={content.getIconUrl()}
+            hasThumbnail={content.hasThumbnail()}
+        />
     );
 
     const handleClick = (): void => {
@@ -46,7 +50,7 @@ export const DetailsWidgetContentIcon = ({ content }: Props): ReactElement => {
             },
             (error) => {
                 showError(i18n('notify.upload.error', file.name, error.message));
-            }
+            },
         );
         setProgress(0);
         setIsUploading(false);
@@ -74,7 +78,13 @@ export const DetailsWidgetContentIcon = ({ content }: Props): ReactElement => {
                     />
                 )}
                 {iconElement}
-                <input ref={inputRef} type="file" accept={ACCEPTED_ICON_TYPES} className="hidden" onChange={handleChange} />
+                <input
+                    ref={inputRef}
+                    type="file"
+                    accept={ACCEPTED_ICON_TYPES}
+                    className="hidden"
+                    onChange={handleChange}
+                />
             </button>
         </Tooltip>
     );

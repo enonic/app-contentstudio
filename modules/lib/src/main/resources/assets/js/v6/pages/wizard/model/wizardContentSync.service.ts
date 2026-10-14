@@ -1,6 +1,6 @@
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { i18n } from '../../../shared/i18n';
 import type { Content } from '../../../../app/content/Content';
 import type { ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';

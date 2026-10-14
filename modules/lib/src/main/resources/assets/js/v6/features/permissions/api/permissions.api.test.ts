@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, type Mock } from 'vitest';
+import { AppError } from '@enonic/ui-utils';
 import { AccessControlList } from '../../../../app/access/AccessControlList';
 import { type ContentPath } from '../../../../app/content/ContentPath';
 import { type ContentId } from '../../../../app/content/ContentId';
-import { AppError } from '../../../shared/api/errors';
 import { setActiveProjectResolver } from '../../../shared/lib/url/cms';
 import { errorResponse, jsonResponse, restoreFetch, stubFetch } from '../../../shared/lib/test/fetch.test.utils';
 import { applyContentPermissions, fetchRootPermissions, getDescendantsOfContents } from './permissions.api';

@@ -1,9 +1,9 @@
 import { showError, showSuccess } from '@enonic/lib-admin-ui/notify/MessageBus';
 import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { type ContentTypeSummary } from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { computed, listenKeys, map, task } from 'nanostores';
 import { errAsync } from 'neverthrow';
+import { i18n } from '../../../shared/i18n';
 import { type ContentSummary } from '../../../../app/content/ContentSummary';
 import {
     type AggregateContentTypesResult,

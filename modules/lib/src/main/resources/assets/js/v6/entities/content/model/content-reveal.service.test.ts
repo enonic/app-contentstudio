@@ -1,9 +1,9 @@
 import { errAsync, okAsync } from 'neverthrow';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { AppError } from '@enonic/ui-utils';
 import type { Content } from '../../../../app/content/Content';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import type { Project } from '../../../../app/settings/data/project/Project';
-import { AppError } from '../../../shared/api/errors';
 import { $activeProject } from '../../project/activeProject.store';
 import { setFilterActive } from './active-tree.store';
 import { clearRevealScroll, $revealScrollTarget } from './content-reveal.store';

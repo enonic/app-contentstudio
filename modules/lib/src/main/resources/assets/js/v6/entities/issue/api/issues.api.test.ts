@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
 import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { AppError } from '@enonic/ui-utils';
 import { IssueStatus } from '../../../../app/issue/IssueStatus';
 import { IssueType } from '../../../../app/issue/IssueType';
 import { type PublishRequest } from '../../../../app/issue/PublishRequest';
-import { AppError } from '../../../shared/api/errors';
 import { setActiveProjectResolver } from '../../../shared/lib/url/cms';
 import { errorResponse, jsonResponse, restoreFetch, stubFetch } from '../../../shared/lib/test/fetch.test.utils';
 import {

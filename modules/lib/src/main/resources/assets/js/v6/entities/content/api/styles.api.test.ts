@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, type Mock } from 'vitest';
+import { AppError } from '@enonic/ui-utils';
 import { Styles } from '../../../../app/inputtype/ui/text/styles/Styles';
-import { AppError } from '../../../shared/api/errors';
 import { $config } from '../../../shared/config/config.store';
 import { errorResponse, jsonResponse, restoreFetch, stubFetch } from '../../../shared/lib/test/fetch.test.utils';
 import { setActiveProjectResolver } from '../../../shared/lib/url/cms';

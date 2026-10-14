@@ -1,5 +1,5 @@
 import { ResultAsync } from 'neverthrow';
-import { AppError } from './errors';
+import { AppError } from '@enonic/ui-utils';
 
 //
 // * Types
@@ -95,6 +95,6 @@ export function requestUploadJson<T>(url: string, options: UploadRequestOptions)
                 xhr.send(formData);
             }
         }),
-        toAppError
+        toAppError,
     );
 }

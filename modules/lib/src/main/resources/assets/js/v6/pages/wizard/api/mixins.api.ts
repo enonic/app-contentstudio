@@ -1,11 +1,11 @@
 import { type ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { ResultAsync } from 'neverthrow';
+import { requestJson } from '@enonic/ui-utils/request';
+import { AppError } from '@enonic/ui-utils';
 import { type ContentId } from '../../../../app/content/ContentId';
 import { MixinDescriptor } from '../../../../app/content/MixinDescriptor';
 import { type MixinDescriptorListJson } from '../../../../app/resource/json/MixinDescriptorListJson';
-import { requestJson } from '../../../shared/api/client';
-import { AppError } from '../../../shared/api/errors';
 import { getCmsProjectUrl } from '../../../shared/lib/url/cms';
 
 /**

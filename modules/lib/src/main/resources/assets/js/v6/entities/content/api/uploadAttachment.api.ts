@@ -1,9 +1,10 @@
 import { Result, ResultAsync } from 'neverthrow';
+import { AppError } from '@enonic/ui-utils';
+import { requestOptionalJson } from '@enonic/ui-utils/request';
 import { type Attachment, AttachmentBuilder } from '../../../../app/attachment/Attachment';
 import { type AttachmentJson } from '../../../../app/attachment/AttachmentJson';
 import { type ContentJson } from '../../../../app/content/ContentJson';
-import { AppError, UploadError } from '../../../shared/api/errors';
-import { requestOptionalJson } from '../../../shared/api/client';
+import { UploadError } from '../../../shared/api/errors';
 import { requestUploadJson } from '../../../shared/api/upload';
 import { getCmsApiUrl } from '../../../shared/lib/url/cms';
 import { sanitizeName } from '../../../shared/lib/upload/upload';

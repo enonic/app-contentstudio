@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, type Mock } from 'vitest';
+import { AppError } from '@enonic/ui-utils';
 import { ContentId } from '../../../../app/content/ContentId';
 import { ChildOrder } from '../../../../app/resource/order/ChildOrder';
 import { FieldOrderExprBuilder } from '../../../../app/resource/order/FieldOrderExpr';
 import { OrderChildMovement } from '../../../../app/resource/order/OrderChildMovement';
 import { OrderChildMovements } from '../../../../app/resource/order/OrderChildMovements';
-import { AppError } from '../../../shared/api/errors';
 import { setActiveProjectResolver } from '../../../shared/lib/url/cms';
 import { errorResponse, jsonResponse, restoreFetch, stubFetch } from '../../../shared/lib/test/fetch.test.utils';
 import { reorderChildren, setChildOrder } from './sort.api';

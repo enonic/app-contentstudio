@@ -1,8 +1,8 @@
 import { type Value, ValueTypes } from '@enonic/input-types/data';
 import { InputBuilder, InputTypeName, Occurrences } from '@enonic/input-types/schema';
 import type { NumberConfig, ValidationResult } from '@enonic/input-types';
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { map } from 'nanostores';
+import { i18n } from '../../../shared/i18n';
 import {
     getDialogElement,
     hideOriginalDialog,

@@ -1,4 +1,4 @@
-import { AppError } from './AppError';
+import { AppError } from '@enonic/ui-utils';
 
 /**
  * Error raised during media/attachment upload operations.

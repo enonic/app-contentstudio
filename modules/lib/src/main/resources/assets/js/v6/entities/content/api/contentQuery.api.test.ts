@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
+import { AppError } from '@enonic/ui-utils';
 import { type ContentId } from '../../../../app/content/ContentId';
 import { ChildOrder } from '../../../../app/resource/order/ChildOrder';
 import { FieldOrderExprBuilder } from '../../../../app/resource/order/FieldOrderExpr';
-import { AppError } from '../../../shared/api/errors';
 import { setActiveProjectResolver } from '../../../shared/lib/url/cms';
 import { errorResponse, jsonResponse, restoreFetch, stubFetch } from '../../../shared/lib/test/fetch.test.utils';
 import { fetchReadOnlyContentIds, listContentByParent, listContentIdsByParent, queryContent } from './contentQuery.api';
@@ -112,9 +112,7 @@ describe('queryContent', () => {
     });
 
     it('should query the given branch when one is provided', async () => {
-        mockFetch.mockResolvedValue(
-            jsonResponse({ contents: [], metadata: { totalHits: 0 }, aggregations: [] }),
-        );
+        mockFetch.mockResolvedValue(jsonResponse({ contents: [], metadata: { totalHits: 0 }, aggregations: [] }));
 
         await queryContent({ queryExpr: '', from: 0, size: 10, branch: 'master' });
 

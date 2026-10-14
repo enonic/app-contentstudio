@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, type Mock } from 'vitest';
+import { AppError } from '@enonic/ui-utils';
 import type { ContentId } from '../../../../app/content/ContentId';
 import type { ContentPath } from '../../../../app/content/ContentPath';
-import { AppError } from '../../../shared/api/errors';
 import { errorResponse, jsonResponse, restoreFetch, stubFetch } from '../../../shared/lib/test/fetch.test.utils';
 import { duplicateContent, getDescendantsOfContents } from './duplicate.api';
 

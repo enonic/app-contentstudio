@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { listenKeys } from 'nanostores';
 import { showError, showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { ValueTypes } from '@enonic/input-types/data';
+import { i18n } from '../../../../../shared/i18n';
 import { type Content } from '../../../../../../app/content/Content';
 import { updateMediaFile, type UploadMediaSuccess } from '../../../../../entities/content/api/uploadMedia.api';
 import { type UploadError } from '../../../../../shared/api';

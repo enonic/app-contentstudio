@@ -3,13 +3,13 @@ import type { ApplicationKey } from '@enonic/lib-admin-ui/application/Applicatio
 import type { PropertyTreeJson } from '@enonic/ui-types';
 import { MacroDescriptor } from '@enonic/lib-admin-ui/macro/MacroDescriptor';
 import type { MacrosJson } from '@enonic/lib-admin-ui/macro/MacrosJson';
+import { requestJson } from '@enonic/ui-utils/request';
+import { AppError } from '@enonic/ui-utils';
 import type {
     MacroPreviewJson,
     MacroPreviewStringJson,
     PageContributionsJson,
 } from '../../../../app/macro/resource/MacroPreviewJson';
-import { requestJson } from '../../../shared/api/client';
-import { AppError } from '../../../shared/api/errors';
 import { getCmsProjectUrl } from '../../../shared/lib/url/cms';
 
 /**

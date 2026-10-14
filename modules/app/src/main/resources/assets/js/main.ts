@@ -22,6 +22,8 @@ import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
 import { CONFIG, ConfigObject } from '@enonic/lib-admin-ui/util/Config';
 import { CustomElement } from '@enonic/lib-admin-ui/dom/CustomElement';
 import { i18n, Messages } from '@enonic/lib-admin-ui/util/Messages';
+import { setPhrases } from '@enonic/lib-contentstudio/v6/shared/i18n';
+import type { Phrases } from '@enonic/ui-utils';
 import { ContentDuplicatePromptEvent } from '@enonic/lib-contentstudio/app/browse/ContentDuplicatePromptEvent';
 import { ContentPublishPromptEvent } from '@enonic/lib-contentstudio/app/browse/ContentPublishPromptEvent';
 import { CreateIssuePromptEvent } from '@enonic/lib-contentstudio/app/browse/CreateIssuePromptEvent';
@@ -584,6 +586,7 @@ async function startContentBrowser() {
     void initLanguages();
     initPrincipals();
     Messages.addMessages(JSON.parse(CONFIG.getString('phrasesAsJson')) as object);
+    setPhrases(JSON.parse(CONFIG.getString('phrasesAsJson')) as Phrases);
     AuthContext.init(
         Principal.fromJson(CONFIG.get('user') as PrincipalJson),
         (CONFIG.get('principals') as PrincipalJson[]).map(Principal.fromJson),

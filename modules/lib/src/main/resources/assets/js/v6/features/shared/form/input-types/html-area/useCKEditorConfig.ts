@@ -1,6 +1,6 @@
 /*global CKEDITOR*/
 
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { i18n } from '../../../../../shared/i18n';
 import { useEffect, useMemo, useState } from 'react';
 import { getHtmlAreaLangDirection } from '../../../../../../app/inputtype/ui/text/HtmlAreaLangDirection';
 import { StyleHelper } from '../../../../../../app/inputtype/ui/text/styles/StyleHelper';

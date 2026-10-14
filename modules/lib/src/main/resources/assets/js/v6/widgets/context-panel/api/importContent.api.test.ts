@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi, type Mock } from 'vitest';
-import { AppError } from '../../../shared/api/errors';
+import { AppError } from '@enonic/ui-utils';
 import { $config } from '../../../shared/config/config.store';
 import { jsonResponse, restoreFetch, stubFetch } from '../../../shared/lib/test/fetch.test.utils';
 import { exportContent, fetchExports, importContent } from './importContent.api';

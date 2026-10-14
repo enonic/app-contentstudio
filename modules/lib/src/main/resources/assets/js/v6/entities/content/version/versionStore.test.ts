@@ -55,7 +55,7 @@ import {
 // Mocks
 // ============================================================================
 
-vi.mock('@enonic/lib-admin-ui/util/Messages', () => ({
+vi.mock('../../../shared/i18n', () => ({
     i18n: (key: string) => key,
 }));
 

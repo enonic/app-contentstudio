@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, type Mock } from 'vitest';
-import { AppError } from '../../../shared/api/errors';
+import { AppError } from '@enonic/ui-utils';
 import { setActiveProjectResolver } from '../../../shared/lib/url/cms';
 import { errorResponse, jsonResponse, restoreFetch, stubFetch } from '../../../shared/lib/test/fetch.test.utils';
 import { contentExistsByPath } from './contentExists.api';

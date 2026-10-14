@@ -2,8 +2,8 @@ import { ResultAsync } from 'neverthrow';
 import { type TaskId } from '@enonic/lib-admin-ui/task/TaskId';
 import { TaskInfo } from '@enonic/lib-admin-ui/task/TaskInfo';
 import { type TaskInfoJson } from '@enonic/lib-admin-ui/task/TaskInfoJson';
-import { requestJson } from '../../../shared/api/client';
-import { AppError } from '../../../shared/api/errors';
+import { requestJson } from '@enonic/ui-utils/request';
+import { AppError } from '@enonic/ui-utils';
 import { getCmsRestUri } from '../../../shared/lib/url/cms';
 
 /**

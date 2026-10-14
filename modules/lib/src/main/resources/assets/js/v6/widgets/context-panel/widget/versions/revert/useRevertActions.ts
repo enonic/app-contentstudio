@@ -1,5 +1,5 @@
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { useMemo } from 'react';
+import { i18n } from '../../../../../shared/i18n';
 import { type ContentId } from '../../../../../../app/content/ContentId';
 import { useVersionsConfig } from '../config/VersionsConfigContext';
 import { hasPatchVersionsBefore } from './patchDetection';

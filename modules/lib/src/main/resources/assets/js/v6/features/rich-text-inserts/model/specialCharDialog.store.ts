@@ -1,5 +1,5 @@
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { map } from 'nanostores';
+import { i18n } from '../../../shared/i18n';
 import {
     type CkEditorBookmarks,
     captureEditorBookmarks,

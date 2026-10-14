@@ -1,16 +1,16 @@
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
 import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { ResultAsync } from 'neverthrow';
 import { map } from 'nanostores';
+import type { AppError } from '@enonic/ui-utils';
+import { i18n } from '../../../shared/i18n';
 import type { Content } from '../../../../app/content/Content';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { ContentLanguageUpdatedEvent } from '../../../../app/event/ContentLanguageUpdatedEvent';
 import { ContentSettingsUpdatedEvent } from '../../../../app/event/ContentSettingsUpdatedEvent';
 import { fetchContentById } from '../../../entities/content';
 import { loadPrincipalsByKeys } from '../../../entities/principal';
-import { type AppError } from '../../../shared/api/errors';
 import { updateContentLanguage, updateContentMetadata } from '../api/properties.api';
 
 //

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
+import { AppError } from '@enonic/ui-utils';
 import { ContentId } from '../../../../app/content/ContentId';
 import { Branch } from '../../../../app/versioning/Branch';
-import { AppError } from '../../../shared/api/errors';
 import { errorResponse, jsonResponse, restoreFetch, stubFetch } from '../../../shared/lib/test/fetch.test.utils';
 import { setActiveProjectResolver } from '../../../shared/lib/url/cms';
 import { resolveDependencies } from './dependencies.api';

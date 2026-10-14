@@ -1,6 +1,7 @@
 import { errAsync, okAsync } from 'neverthrow';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { AppError } from '@enonic/ui-utils';
 import { ContentId } from '../../../../../app/content/ContentId';
 import { ContentName } from '../../../../../app/content/ContentName';
 import { ContentPath } from '../../../../../app/content/ContentPath';
@@ -9,7 +10,6 @@ import { ContentSummaryAndCompareStatus } from '../../../../../app/content/Conte
 import { ContentTreeSelectorItem } from '../../../../../app/item/ContentTreeSelectorItem';
 import { ChildOrder } from '../../../../../app/resource/order/ChildOrder';
 import { FieldOrderExprBuilder } from '../../../../../app/resource/order/FieldOrderExpr';
-import { AppError } from '../../../../shared/api/errors';
 import { contentSelectorQuery, contentTreeSelectorQuery } from '../../../../entities/content/api/selectorQuery.api';
 import { ROOT_ID } from './PathSelectorRoot';
 import { loadChildItems, loadRootItems, searchItems } from './pathSelectorData';

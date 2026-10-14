@@ -68,6 +68,19 @@
       "rules": {
         "typescript/consistent-type-definitions": ["off", "type"]
       }
+    },
+    {
+      "files": ["**/v6/**/*.ts", "**/v6/**/*.tsx"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              { "name": "@enonic/lib-admin-ui/util/Messages", "message": "Import `i18n` from `v6/shared/i18n` (#11458)." }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

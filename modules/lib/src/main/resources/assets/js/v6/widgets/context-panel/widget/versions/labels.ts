@@ -1,5 +1,5 @@
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { Clock, ClockAlert, Pen, type LucideIcon } from 'lucide-react';
+import { i18n } from '../../../../shared/i18n';
 import { type ContentVersion } from '../../../../../app/ContentVersion';
 import {
     getVersionPublishStatus,

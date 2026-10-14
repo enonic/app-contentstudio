@@ -1,4 +1,6 @@
 import { okAsync, ResultAsync } from 'neverthrow';
+import { requestJson, requestOptionalJson } from '@enonic/ui-utils/request';
+import { AppError } from '@enonic/ui-utils';
 import { type Content } from '../../../../app/content/Content';
 import { type ContentId } from '../../../../app/content/ContentId';
 import { type ContentJson } from '../../../../app/content/ContentJson';
@@ -7,8 +9,6 @@ import { ContentSummary } from '../../../../app/content/ContentSummary';
 import { type ContentSummaryJson } from '../../../../app/content/ContentSummaryJson';
 import { type ListContentResult } from '../../../../app/resource/ListContentResult';
 import { parseContent } from '../lib/parseContent';
-import { requestJson, requestOptionalJson } from '../../../shared/api/client';
-import { AppError } from '../../../shared/api/errors';
 import { getCmsApiUrl } from '../../../shared/lib/url/cms';
 
 /**

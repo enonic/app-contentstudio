@@ -12,11 +12,11 @@ import { QueryExpr } from '@enonic/lib-admin-ui/query/expr/QueryExpr';
 import { ValueExpr } from '@enonic/lib-admin-ui/query/expr/ValueExpr';
 import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { type ResultAsync } from 'neverthrow';
+import { requestJson } from '@enonic/ui-utils/request';
+import type { AppError } from '@enonic/ui-utils';
 import { ContentSummary } from '../../../../app/content/ContentSummary';
 import { type ContentSummaryJson } from '../../../../app/content/ContentSummaryJson';
 import { Branch } from '../../../../app/versioning/Branch';
-import { requestJson } from '../../../shared/api/client';
-import { type AppError } from '../../../shared/api/errors';
 import { getCmsApiUrl } from '../../../shared/lib/url/cms';
 
 type FragmentQueryResultJson = {

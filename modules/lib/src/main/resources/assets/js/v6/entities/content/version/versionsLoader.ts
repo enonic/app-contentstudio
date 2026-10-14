@@ -1,6 +1,6 @@
 import { okAsync, type ResultAsync } from 'neverthrow';
+import type { AppError } from '@enonic/ui-utils';
 import { type ContentId } from '../../../../app/content/ContentId';
-import { type AppError } from '../../../shared/api/errors';
 import { fetchContentVersions } from '../api/versions.api';
 import type { ContentVersionsLoadResult } from '../../../shared/lib/widget/versions/versionsCache';
 import { cacheVersions, getCachedVersions } from '../../../shared/lib/widget/versions/versionsCache';

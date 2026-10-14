@@ -1,5 +1,5 @@
 import { showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { i18n } from '../../i18n';
 import { $config } from '../../config/config.store';
 import { resolveActiveProjectName } from './cms';
 

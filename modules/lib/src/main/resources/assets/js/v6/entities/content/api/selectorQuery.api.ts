@@ -1,12 +1,12 @@
 import { type QueryExpr } from '@enonic/lib-admin-ui/query/expr/QueryExpr';
 import { type ResultAsync } from 'neverthrow';
+import { requestJson } from '@enonic/ui-utils/request';
+import type { AppError } from '@enonic/ui-utils';
 import { ContentSummary } from '../../../../app/content/ContentSummary';
 import { type ContentSummaryJson } from '../../../../app/content/ContentSummaryJson';
 import { ContentTreeSelectorItem } from '../../../../app/item/ContentTreeSelectorItem';
 import { type ContentQueryResultJson } from '../../../../app/resource/json/ContentQueryResultJson';
 import { type ContentTreeSelectorListJson } from '../../../../app/resource/json/ContentTreeSelectorListJson';
-import { requestJson } from '../../../shared/api/client';
-import { type AppError } from '../../../shared/api/errors';
 import { getCmsApiUrl } from '../../../shared/lib/url/cms';
 import { buildSelectorSearchExpr } from '../lib/selectorQueryExpr';
 

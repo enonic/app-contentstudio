@@ -1,8 +1,8 @@
 import { atom, computed, map } from 'nanostores';
 import { okAsync, ResultAsync } from 'neverthrow';
 import { type TaskId } from '@enonic/lib-admin-ui/task/TaskId';
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { showError, showSuccess } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { i18n } from '../../../shared/i18n';
 import { type Project } from '../../../../app/settings/data/project/Project';
 import { ProjectConfigContext } from '../../../../app/settings/data/project/ProjectConfigContext';
 import { ProjectAccess } from '../../../../app/settings/access/ProjectAccess';

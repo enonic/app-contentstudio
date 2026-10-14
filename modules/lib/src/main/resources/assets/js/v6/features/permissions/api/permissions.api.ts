@@ -1,14 +1,14 @@
 import { ResultAsync, okAsync } from 'neverthrow';
 import { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
 import { type TaskIdJson } from '@enonic/lib-admin-ui/task/TaskIdJson';
+import { requestJson } from '@enonic/ui-utils/request';
+import { AppError } from '@enonic/ui-utils';
 import { AccessControlList } from '../../../../app/access/AccessControlList';
 import { type PermissionsJson } from '../../../../app/access/PermissionsJson';
 import { ContentId } from '../../../../app/content/ContentId';
 import { type ContentPath } from '../../../../app/content/ContentPath';
 import { type ApplyPermissionsScope } from '../../../../app/dialog/permissions/PermissionsData';
 import { type ContentIdBaseItemJson } from '../../../../app/resource/json/ContentIdBaseItemJson';
-import { requestJson } from '../../../shared/api/client';
-import { AppError } from '../../../shared/api/errors';
 import { getCmsApiUrl } from '../../../shared/lib/url/cms';
 
 export type ApplyContentPermissionsParams = {

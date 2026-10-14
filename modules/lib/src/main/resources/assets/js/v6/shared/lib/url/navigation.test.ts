@@ -9,7 +9,7 @@ vi.mock('@enonic/lib-admin-ui/notify/MessageBus', () => ({
     showWarning: (...args: unknown[]) => mockShowWarning(...args),
 }));
 
-vi.mock('@enonic/lib-admin-ui/util/Messages', () => ({
+vi.mock('../../i18n', () => ({
     i18n: (key: string) => key,
 }));
 
