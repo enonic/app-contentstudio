@@ -37,7 +37,7 @@ class ItemSetFormView extends Page {
     }
 
     get collapseAllButton() {
-        return xpath.itemSet + "//button[@data-component='InlineButton' and text()='Collapse all']";
+        return xpath.itemSet + "//button[@data-component='Button' and normalize-space(.)='Collapse all']";
     }
 
     get deleteItemSetButton() {
@@ -45,7 +45,7 @@ class ItemSetFormView extends Page {
     }
 
     get expandAllButton() {
-        return xpath.itemSet + "//button[@data-component='InlineButton' and text()='Expand all']";
+        return xpath.itemSet + "//button[@data-component='Button' and normalize-space(.)='Expand all']";
     }
 
     get htmlAreaValidationRecording() {
