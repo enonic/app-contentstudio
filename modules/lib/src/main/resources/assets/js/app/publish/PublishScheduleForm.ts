@@ -57,23 +57,20 @@ export class PublishScheduleForm extends DivEl {
     private createRangeFormItem(): FormItem {
         const fromTime = CONFIG.has('defaultPublishFromTime') ? CONFIG.getString('defaultPublishFromTime') : '12:00';
 
-        return (
-            new InputBuilder()
-                .setName('publish')
-                .setLabel(i18n('field.scheduledPublishing'))
-                .setHelpText(i18n('field.scheduledPublishing.helptext'))
-                .setInputType(DateTimeRange.getName())
-                .setOccurrences(new OccurrencesBuilder().setMinimum(1).setMaximum(1).build())
-                // !Type casting is incorrect, but kept as is, because code will be removed
-                .setInputTypeConfig({
-                    fromLabel: i18n('field.onlineFrom'),
-                    toLabel: i18n('field.onlineTo'),
-                    defaultFromTime: fromTime,
-                    fromPlaceholder: i18n('text.now'),
-                    optionalFrom: !CONFIG.isTrue('requiredPublishFrom'),
-                } as unknown as RawInputConfig)
-                .build()
-        );
+        return new InputBuilder()
+            .setName('publish')
+            .setLabel(i18n('field.scheduledPublishing'))
+            .setHelpText(i18n('field.scheduledPublishing.helptext'))
+            .setInputType(DateTimeRange.getName())
+            .setOccurrences(new OccurrencesBuilder().setMinimum(1).setMaximum(1).build())
+            .setInputTypeConfig({
+                fromLabel: [{ value: i18n('field.onlineFrom') }],
+                toLabel: [{ value: i18n('field.onlineTo') }],
+                defaultFromTime: [{ value: fromTime }],
+                fromPlaceholder: [{ value: i18n('text.now') }],
+                optionalFrom: [{ value: String(!CONFIG.isTrue('requiredPublishFrom')) }],
+            } satisfies RawInputConfig)
+            .build();
     }
 
     public layout(validate: boolean) {
