@@ -1,14 +1,23 @@
-import type {SelfManagedComponentProps} from '@enonic/lib-admin-ui/form2';
-import type {MediaSelectorConfig} from './MediaSelectorConfig';
-import type {ReactElement} from 'react';
-import {MediaSelector} from '../../../selectors/media';
-import {useSelectorInput} from '../hooks';
-import {useFormRender} from '../../FormRenderContext';
+import type { SelfManagedComponentProps } from '@enonic/input-types';
+import type { MediaSelectorConfig } from './MediaSelectorConfig';
+import type { ReactElement } from 'react';
+import { MediaSelector } from '../../../selectors/media';
+import { useFormApplicationKey, useSelectorInput } from '../hooks';
+import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 
 export const MediaSelectorInput = (props: SelfManagedComponentProps<MediaSelectorConfig>): ReactElement => {
-    const {applicationKey} = useFormRender();
-    const {contextContent, selectionMode, hasErrors, hideToggleIcon, listMode, selection, placeholder, emptyLabel, handleSelectionChange} =
-        useSelectorInput(props);
+    const applicationKey = useFormApplicationKey();
+    const {
+        contextContent,
+        selectionMode,
+        hasErrors,
+        hideToggleIcon,
+        listMode,
+        selection,
+        placeholder,
+        emptyLabel,
+        handleSelectionChange,
+    } = useSelectorInput(props);
 
     const contentTypeNames = props.config.allowContentType;
     const allowedContentPaths = props.config.allowPath;

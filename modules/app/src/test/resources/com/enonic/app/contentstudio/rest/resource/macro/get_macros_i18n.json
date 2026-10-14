@@ -3,23 +3,20 @@
     {
       "description": "my description",
       "displayName": "translated.A.displayName",
-      "form": {
-        "formItems": [
-          {
-            "Input": {
-              "config": {},
-              "helpText": "translated.helpText",
-              "inputType": "Double",
-              "label": "translated.label",
-              "name": "columns",
-              "occurrences": {
-                "maximum": 1,
-                "minimum": 0
-              }
-            }
+      "form": [
+        {
+          "formItemType": "Input",
+          "config": {},
+          "helpText": "translated.helpText",
+          "inputType": "Double",
+          "label": "translated.label",
+          "name": "columns",
+          "occurrences": {
+            "maximum": 1,
+            "minimum": 0
           }
-        ]
-      },
+        }
+      ],
       "iconUrl": "/admin/rest-v2/cs/macro/icon/my.app1:macro1",
       "key": "my.app1:macro1",
       "name": "macro1"
@@ -27,9 +24,7 @@
     {
       "description": "translated.description",
       "displayName": "translated.B.displayName",
-      "form": {
-        "formItems": []
-      },
+      "form": [],
       "iconUrl": "/admin/rest-v2/cs/macro/icon/my.app2:macro2",
       "key": "my.app2:macro2",
       "name": "macro2"
@@ -37,9 +32,7 @@
     {
       "description": "my description",
       "displayName": "translated.C.displayName",
-      "form": {
-        "formItems": []
-      },
+      "form": [],
       "iconUrl": "/admin/rest-v2/cs/macro/icon/my.app3:macro3",
       "key": "my.app3:macro3",
       "name": "macro3"

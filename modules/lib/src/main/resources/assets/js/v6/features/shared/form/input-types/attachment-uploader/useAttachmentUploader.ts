@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
-import { type Value } from '@enonic/lib-admin-ui/data/Value';
-import { type Occurrences } from '@enonic/lib-admin-ui/form/Occurrences';
-import { type SelfManagedComponentProps } from '@enonic/lib-admin-ui/form2';
+import { ValueTypes } from '@enonic/input-types/data';
+import { type Value } from '@enonic/input-types/data';
+import { type Occurrences } from '@enonic/input-types/schema';
+import { type SelfManagedComponentProps } from '@enonic/input-types';
 import {
     deleteAttachment,
     uploadAttachmentFile,
@@ -18,7 +18,7 @@ import {
 } from '../../../../../entities/content/model/uploads.store';
 import { clearAttachmentServerError } from '../../../../../pages/wizard/model/wizardValidation.store';
 import { listenKeys } from 'nanostores';
-import { $contextContent } from '../../../../../widgets/context-panel/model/contextContent.store';
+import { $contextContent } from '../../../../../entities/content';
 import { $wizardDraftPage } from '../../../../../pages/wizard/model/wizardContent.store';
 import { isAttachmentInUse } from '../../../../../shared/lib/page/isAttachmentInUse';
 import { ContentRequiresSaveEvent } from '../../../../../../app/event/ContentRequiresSaveEvent';

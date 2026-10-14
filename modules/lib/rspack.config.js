@@ -1,24 +1,26 @@
-const {rspack} = require('@rspack/core');
+const { rspack } = require('@rspack/core');
 const fs = require('fs');
 const path = require('path');
 
 const swcConfig = JSON.parse(fs.readFileSync('./.swcrc'));
 // Remove `module` and `exclude` — Rspack handles module format and file filtering natively
-const {module: _module, exclude: _exclude, ...swcOptions} = swcConfig;
+const { module: _module, exclude: _exclude, ...swcOptions } = swcConfig;
 
 const isProd = process.env.NODE_ENV === 'production';
 
 module.exports = {
     cache: !isProd,
     experiments: {
-        cache: isProd ? false : {
-            type: 'persistent',
-            buildDependencies: [__filename],
-            storage: {
-                type: 'filesystem',
-                directory: path.resolve(__dirname, 'node_modules/.cache/rspack'),
-            },
-        },
+        cache: isProd
+            ? false
+            : {
+                  type: 'persistent',
+                  buildDependencies: [__filename],
+                  storage: {
+                      type: 'filesystem',
+                      directory: path.resolve(__dirname, 'node_modules/.cache/rspack'),
+                  },
+              },
     },
     context: path.join(__dirname, '/src/main/resources/assets'),
     entry: {
@@ -26,27 +28,32 @@ module.exports = {
         'lib/ckeditor/plugins/pasteModeSwitcher/plugin': './lib/ckeditor/plugins/pasteModeSwitcher/plugin.raw.js',
         'lib/ckeditor/plugins/findAndReplace/plugin': './lib/ckeditor/plugins/findAndReplace/plugin.ts',
         'styles/html-editor-iframe': './styles/inputtype/text/htmlarea/html-editor-iframe.less',
-        'lib/ckeditor': ['./lib/ckepath.js', './lib/ckeditor/ckeditor.js']
+        'lib/ckeditor': ['./lib/ckepath.js', './lib/ckeditor/ckeditor.js'],
     },
     output: {
         path: path.join(__dirname, '/build/resources/main/assets'),
         filename: './[name].js',
-        chunkFilename: './[id].[contenthash:8].js'
+        chunkFilename: './[id].[contenthash:8].js',
     },
     resolve: {
         extensions: ['.tsx', '.ts', '.jsx', '.js', '.less', '.css'],
         conditionNames: ['import', 'node', 'default'],
         alias: {
-            'preact': path.resolve(__dirname, 'node_modules/preact'),
+            preact: path.resolve(__dirname, 'node_modules/preact'),
             'preact/hooks': path.resolve(__dirname, 'node_modules/preact/hooks'),
-            'react': path.resolve(__dirname, 'node_modules/preact/compat'),
+            react: path.resolve(__dirname, 'node_modules/preact/compat'),
             'react-dom': path.resolve(__dirname, 'node_modules/preact/compat'),
             'react/jsx-runtime': path.resolve(__dirname, 'node_modules/preact/jsx-runtime'),
             'react/jsx-dev-runtime': path.resolve(__dirname, 'node_modules/preact/jsx-dev-runtime'),
             // Parity with modules/app — lib's entries don't import @enonic/ui in JS today
             // (only CSS via Tailwind), so this is a no-op now but guards against drift.
-            '@enonic/ui': path.resolve(__dirname, 'node_modules/@enonic/ui')
-        }
+            '@enonic/ui': path.resolve(__dirname, 'node_modules/@enonic/ui'),
+            // One @enonic/input-types instance: its input type registry is module state. Exact
+            // matches per entry point, since an alias on the package root would bypass its exports map.
+            '@enonic/input-types$': path.resolve(__dirname, 'node_modules/@enonic/input-types/dist/index.js'),
+            '@enonic/input-types/data$': path.resolve(__dirname, 'node_modules/@enonic/input-types/dist/data.js'),
+            '@enonic/input-types/schema$': path.resolve(__dirname, 'node_modules/@enonic/input-types/dist/schema.js'),
+        },
     },
     module: {
         rules: [
@@ -66,16 +73,16 @@ module.exports = {
             {
                 test: /\.(?:less|css)$/,
                 use: [
-                    {loader: rspack.CssExtractRspackPlugin.loader, options: {publicPath: '../'}},
+                    { loader: rspack.CssExtractRspackPlugin.loader, options: { publicPath: '../' } },
                     {
                         loader: 'css-loader',
                         options: {
                             sourceMap: !isProd,
                             importLoaders: 1,
-                            url: {filter: url => !url.includes('admin/common/fonts/')}, // for loading fonts from lib-admin
+                            url: { filter: (url) => !url.includes('admin/common/fonts/') }, // for loading fonts from lib-admin
                         },
                     },
-                    {loader: 'less-loader', options: {sourceMap: !isProd}},
+                    { loader: 'less-loader', options: { sourceMap: !isProd } },
                 ],
                 type: 'javascript/auto',
             },
@@ -83,24 +90,24 @@ module.exports = {
                 test: /^((?!icomoon-studio-lib|flag-icons).)*\.(svg|png|jpg|gif)$/,
                 type: 'asset/resource',
                 generator: {
-                    filename: 'images/[name][ext]'
-                }
+                    filename: 'images/[name][ext]',
+                },
             },
             {
                 test: /^.*flag-icons.*(flags).*(1x1|4x3).*\.svg$/,
                 type: 'asset/resource',
                 generator: {
-                    filename: 'images/flags/[name][ext]'
-                }
+                    filename: 'images/flags/[name][ext]',
+                },
             },
             {
                 test: /\.(woff|woff2)$/i,
                 type: 'asset/resource',
                 generator: {
-                    filename: 'fonts/[name][ext][query]'
-                }
-            }
-        ]
+                    filename: 'fonts/[name][ext][query]',
+                },
+            },
+        ],
     },
     optimization: {
         chunkIds: 'named',
@@ -115,7 +122,7 @@ module.exports = {
                         keepFnNames: true,
                     },
                 },
-            })
+            }),
         ],
     },
     plugins: [
@@ -126,15 +133,15 @@ module.exports = {
         }),
         new rspack.CssExtractRspackPlugin({
             filename: '[name].css',
-            chunkFilename: './styles/[id].css'
+            chunkFilename: './styles/[id].css',
         }),
         new rspack.CircularDependencyRspackPlugin({
             exclude: /a\.js|node_modules/,
-            failOnError: true
+            failOnError: true,
         }),
     ],
     amd: {},
     mode: isProd ? 'production' : 'development',
     devtool: isProd ? false : 'source-map',
-    performance: {hints: false}
+    performance: { hints: false },
 };

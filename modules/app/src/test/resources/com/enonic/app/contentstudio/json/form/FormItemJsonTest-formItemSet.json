@@ -1,37 +1,34 @@
 {
-  "FormItemSet": {
-    "helpText": "Help text",
-    "items": [
-      {
-        "Input": {
-          "config": {},
-          "inputType": "TextLine",
-          "label": "myTextLine",
-          "name": "myTextLine",
-          "occurrences": {
-            "maximum": 1,
-            "minimum": 0
-          }
-        }
-      },
-      {
-        "Input": {
-          "config": {},
-          "inputType": "Date",
-          "label": "myDate",
-          "name": "myDate",
-          "occurrences": {
-            "maximum": 1,
-            "minimum": 0
-          }
-        }
+  "formItemType": "ItemSet",
+  "helpText": "Help text",
+  "items": [
+    {
+      "formItemType": "Input",
+      "config": {},
+      "inputType": "TextLine",
+      "label": "myTextLine",
+      "name": "myTextLine",
+      "occurrences": {
+        "maximum": 1,
+        "minimum": 0
       }
-    ],
-    "label": "My set",
-    "name": "mySet",
-    "occurrences": {
-      "maximum": 10,
-      "minimum": 0
+    },
+    {
+      "formItemType": "Input",
+      "config": {},
+      "inputType": "Date",
+      "label": "myDate",
+      "name": "myDate",
+      "occurrences": {
+        "maximum": 1,
+        "minimum": 0
+      }
     }
+  ],
+  "label": "My set",
+  "name": "mySet",
+  "occurrences": {
+    "maximum": 10,
+    "minimum": 0
   }
 }

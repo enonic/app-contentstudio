@@ -1,9 +1,9 @@
-import { type InputTypeDescriptor, type ValidationResult } from '@enonic/lib-admin-ui/form2/descriptor';
+import { type InputTypeDescriptor, type ValidationResult } from '@enonic/input-types';
 import { type MediaUploaderConfig } from './MediaUploaderConfig';
-import { type ValueType } from '@enonic/lib-admin-ui/data/ValueType';
-import { type Value } from '@enonic/lib-admin-ui/data/Value';
-import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
-import type { RawInputConfig } from '@enonic/lib-admin-ui/form/Input';
+import { type ValueType } from '@enonic/input-types/data';
+import { type Value } from '@enonic/input-types/data';
+import { ValueTypes } from '@enonic/input-types/data';
+import type { InputConfigEntries } from '@enonic/input-types';
 
 export const MediaUploaderDescriptor: InputTypeDescriptor<MediaUploaderConfig> = {
     name: 'MediaUploader' as const,
@@ -12,7 +12,7 @@ export const MediaUploaderDescriptor: InputTypeDescriptor<MediaUploaderConfig> =
         return ValueTypes.STRING;
     },
 
-    readConfig(raw: RawInputConfig): MediaUploaderConfig {
+    readConfig(raw: InputConfigEntries): MediaUploaderConfig {
         return {
             hideDropZone: raw?.['hideDropZone']?.[0]?.value === true,
             allowExtensions:

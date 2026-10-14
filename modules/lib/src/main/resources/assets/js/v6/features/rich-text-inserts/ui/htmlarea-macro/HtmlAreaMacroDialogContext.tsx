@@ -1,14 +1,14 @@
 import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import type { PropertyArrayJson } from '@enonic/lib-admin-ui/data/PropertyArrayJson';
-import { PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
-import { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
-import { Input } from '@enonic/lib-admin-ui/form/Input';
-import { InputTypeRegistry, validateForm } from '@enonic/lib-admin-ui/form2';
+import type { PropertyTreeJson } from '@enonic/ui-types';
+import { PropertySet } from '@enonic/input-types/data';
+import { PropertyTree } from '@enonic/input-types/data';
+import { Input } from '@enonic/input-types/schema';
+import { inputTypeRegistry, validateForm } from '@enonic/input-types';
 import type { MacroDescriptor } from '@enonic/lib-admin-ui/macro/MacroDescriptor';
-import { Reference } from '@enonic/lib-admin-ui/util/Reference';
+import { Reference } from '@enonic/ui-utils';
 import { StringHelper } from '@enonic/lib-admin-ui/util/StringHelper';
-import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { ValueTypes } from '@enonic/input-types/data';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { showError } from '@enonic/lib-admin-ui/notify/MessageBus';
 import DOMPurify from 'dompurify';
@@ -145,7 +145,7 @@ function isReferenceInput(descriptor: MacroDescriptor | undefined, attrName: str
     for (const item of form.getFormItems()) {
         if (instanceOf(item, Input) && item.getName() === attrName) {
             const inputTypeName = item.getInputType().getName();
-            const typeDescriptor = InputTypeRegistry.getDescriptor(inputTypeName);
+            const typeDescriptor = inputTypeRegistry.getDescriptor(inputTypeName);
             if (typeDescriptor) {
                 return typeDescriptor.getValueType() === ValueTypes.REFERENCE;
             }
@@ -194,11 +194,11 @@ function makeDataFromMacro(macro: Macro | undefined, descriptor: MacroDescriptor
     return data;
 }
 
-function propertySetToJson(data: PropertySet): PropertyArrayJson[] {
+function propertySetToJson(data: PropertySet): PropertyTreeJson {
     return new PropertyTree(data).toJson();
 }
 
-function getSanitizedFormData(data: PropertySet): PropertyArrayJson[] {
+function getSanitizedFormData(data: PropertySet): PropertyTreeJson {
     const tree = new PropertyTree(data);
     const bodyProperty = data.getProperty('body');
 

@@ -1,20 +1,17 @@
-import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {type PageCUDRequest} from '../resource/PageCUDRequest';
-import {PageTemplateResourceRequest} from '../resource/PageTemplateResourceRequest';
-import {type Content} from '../content/Content';
-import {type ContentJson} from '../content/ContentJson';
-import {type Regions} from '../page/region/Regions';
-import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {type DescriptorKey} from '../page/DescriptorKey';
-import {type ContentName} from '../content/ContentName';
-import {type ContentPath} from '../content/ContentPath';
+import { type JsonResponse } from '@enonic/lib-admin-ui/rest/JsonResponse';
+import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { type PageCUDRequest } from '../resource/PageCUDRequest';
+import { PageTemplateResourceRequest } from '../resource/PageTemplateResourceRequest';
+import { type Content } from '../content/Content';
+import { type ContentJson } from '../content/ContentJson';
+import { type Regions } from '../page/region/Regions';
+import type { PropertyTree } from '@enonic/input-types/data';
+import { HttpMethod } from '@enonic/lib-admin-ui/rest/HttpMethod';
+import { type DescriptorKey } from '../page/DescriptorKey';
+import { type ContentName } from '../content/ContentName';
+import { type ContentPath } from '../content/ContentPath';
 
-export class CreatePageTemplateRequest
-    extends PageTemplateResourceRequest<Content>
-    implements PageCUDRequest {
-
+export class CreatePageTemplateRequest extends PageTemplateResourceRequest<Content> implements PageCUDRequest {
     private controller: DescriptorKey;
 
     private config: PropertyTree;
@@ -78,7 +75,7 @@ export class CreatePageTemplateRequest
             displayName: this.displayName,
             name: this.name.toString(),
             site: this.site.toString(),
-            supports: this.supports.map(name => name.toString())
+            supports: this.supports.map((name) => name.toString()),
         };
     }
 

@@ -1,78 +1,74 @@
 {
-  "FormOptionSet": {
-    "expanded": false,
-    "helpText": "Option set help text",
-    "label": "My option set",
-    "multiselection": {
-      "maximum": 3,
-      "minimum": 1
+  "formItemType": "OptionSet",
+  "expanded": false,
+  "helpText": "Option set help text",
+  "label": "My option set",
+  "name": "myOptionSet",
+  "occurrences": {
+    "maximum": 1,
+    "minimum": 0
+  },
+  "options": [
+    {
+      "default": false,
+      "helpText": "Option help text",
+      "items": [
+        {
+          "formItemType": "Input",
+          "config": {},
+          "inputType": "TextLine",
+          "label": "myTextLine1",
+          "name": "myTextLine1",
+          "occurrences": {
+            "maximum": 1,
+            "minimum": 0
+          }
+        }
+      ],
+      "label": "option label1",
+      "name": "myOptionSetOption1"
     },
-    "name": "myOptionSet",
-    "occurrences": {
-      "maximum": 1,
-      "minimum": 0
+    {
+      "default": false,
+      "helpText": "Option help text",
+      "items": [
+        {
+          "formItemType": "Input",
+          "config": {},
+          "inputType": "TextLine",
+          "label": "myTextLine2",
+          "name": "myTextLine2",
+          "occurrences": {
+            "maximum": 1,
+            "minimum": 0
+          }
+        }
+      ],
+      "label": "option label2",
+      "name": "myOptionSetOption2"
     },
-    "options": [
-      {
-        "defaultOption": false,
-        "helpText": "Option help text",
-        "items": [
-          {
-            "Input": {
-              "config": {},
-              "inputType": "TextLine",
-              "label": "myTextLine1",
-              "name": "myTextLine1",
-              "occurrences": {
-                "maximum": 1,
-                "minimum": 0
-              }
-            }
+    {
+      "default": false,
+      "helpText": "Option help text",
+      "items": [
+        {
+          "formItemType": "Input",
+          "config": {},
+          "inputType": "TextLine",
+          "label": "myTextLine2",
+          "name": "myTextLine2",
+          "occurrences": {
+            "maximum": 1,
+            "minimum": 0
           }
-        ],
-        "label": "option label1",
-        "name": "myOptionSetOption1"
-      },
-      {
-        "defaultOption": false,
-        "helpText": "Option help text",
-        "items": [
-          {
-            "Input": {
-              "config": {},
-              "inputType": "TextLine",
-              "label": "myTextLine2",
-              "name": "myTextLine2",
-              "occurrences": {
-                "maximum": 1,
-                "minimum": 0
-              }
-            }
-          }
-        ],
-        "label": "option label2",
-        "name": "myOptionSetOption2"
-      },
-      {
-        "defaultOption": false,
-        "helpText": "Option help text",
-        "items": [
-          {
-            "Input": {
-              "config": {},
-              "inputType": "TextLine",
-              "label": "myTextLine2",
-              "name": "myTextLine2",
-              "occurrences": {
-                "maximum": 1,
-                "minimum": 0
-              }
-            }
-          }
-        ],
-        "label": "option label3",
-        "name": "myOptionSetOption3"
-      }
-    ]
+        }
+      ],
+      "label": "option label3",
+      "name": "myOptionSetOption3"
+    }
+  ],
+  "selection": {
+    "maximum": 3,
+    "minimum": 1
   }
 }

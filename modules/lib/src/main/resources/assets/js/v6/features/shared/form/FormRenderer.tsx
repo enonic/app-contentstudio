@@ -1,17 +1,16 @@
 import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
-import type { Form } from '@enonic/lib-admin-ui/form/Form';
-import type { PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
-import { LocaleProvider } from '@enonic/lib-admin-ui/form2';
+import { showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { FormRenderer as ToolkitFormRenderer, LocaleProvider } from '@enonic/input-types';
+import type { PropertySet } from '@enonic/input-types/data';
+import type { Form } from '@enonic/input-types/schema';
 import { useStore } from '@nanostores/preact';
-import { type ReactElement, type ReactNode, useMemo } from 'react';
-import { useApplicationKeys } from '../hooks/useApplicationKeys';
-import { $contextContent } from '../../../widgets/context-panel/model/contextContent.store';
+import type { ReactElement, ReactNode } from 'react';
+import type { ContentSummary } from '../../../../app/content/ContentSummary';
+import { $contextContent } from '../../../entities/content';
 import { $activeProject } from '../../../entities/project';
 import { $config } from '../../../shared/config/config.store';
-import { Input } from '@enonic/lib-admin-ui/form/Input';
-import { instanceOf } from '../../../shared/lib/object/instanceOf';
-import { FormRenderProvider } from './FormRenderContext';
-import { FormItemRenderer } from './FormItemRenderer';
+import { FormI18nProvider } from '../../../shared/ui/providers/FormI18nProvider';
+import { useApplicationKeys } from '../hooks/useApplicationKeys';
 import { HtmlAreaProvider, useOptionalHtmlAreaContext } from './input-types/html-area';
 
 type FormRendererProps = {
@@ -19,46 +18,38 @@ type FormRendererProps = {
     propertySet: PropertySet;
     enabled?: boolean;
     applicationKey?: ApplicationKey;
-    excludeInputTypes?: string[];
+    excludeInputTypes?: readonly string[];
+    revealFreshOccurrences?: boolean;
 };
 
-export const FormRenderer = ({
-    form,
-    propertySet,
-    enabled = true,
-    applicationKey,
-    excludeInputTypes,
-}: FormRendererProps): ReactElement => {
+const notifyWarning = (message: string): void => {
+    showWarning(message, true);
+};
+
+/**
+ * The toolkit's form with what Content Studio wraps around it: its phrases, the content's
+ * language, and the HTML area's context. A nested form reuses the HTML area context above it
+ * and still gets the phrases and the language, as the context may come from outside a form.
+ */
+export const FormRenderer = ({ applicationKey, ...props }: FormRendererProps): ReactElement => {
+    const contextContent = useStore($contextContent);
     const existingHtmlAreaContext = useOptionalHtmlAreaContext();
 
-    const excluded = useMemo(
-        () => new Set((excludeInputTypes ?? []).map((name) => name.toLowerCase())),
-        [excludeInputTypes],
-    );
-
-    const items =
-        excluded.size === 0
-            ? form.getFormItems()
-            : form.getFormItems().filter((item) => {
-                  if (!instanceOf(item, Input)) return true;
-                  return !excluded.has(item.getInputType().getName().toLowerCase());
-              });
-
     const renderedForm = (
-        <FormRenderProvider enabled={enabled} applicationKey={applicationKey}>
-            <div className="flex flex-col gap-7.5" data-component="FormRenderer">
-                {items.map((item) => (
-                    <FormItemRenderer key={item.getName()} formItem={item} propertySet={propertySet} />
-                ))}
-            </div>
-        </FormRenderProvider>
+        <ToolkitFormRenderer {...props} applicationKey={applicationKey?.toString()} notify={notifyWarning} />
     );
 
-    if (existingHtmlAreaContext) {
-        return renderedForm;
-    }
-
-    return <HtmlAreaShell>{renderedForm}</HtmlAreaShell>;
+    return (
+        <FormI18nProvider>
+            <LocaleProvider locale={contextContent?.getLanguage()}>
+                {existingHtmlAreaContext ? (
+                    renderedForm
+                ) : (
+                    <HtmlAreaShell contextContent={contextContent}>{renderedForm}</HtmlAreaShell>
+                )}
+            </LocaleProvider>
+        </FormI18nProvider>
+    );
 };
 
 FormRenderer.displayName = 'FormRenderer';
@@ -67,25 +58,26 @@ FormRenderer.displayName = 'FormRenderer';
 // * HtmlAreaShell
 //
 
-// Mounts only when no HtmlAreaProvider exists above. Subscriptions live here
-// so nested FormRenderers inheriting an existing provider don't pay for them.
-const HtmlAreaShell = ({ children }: { children: ReactNode }): ReactElement => {
-    const contextContent = useStore($contextContent);
+type HtmlAreaShellProps = {
+    contextContent: ContentSummary | null;
+    children: ReactNode;
+};
+
+// Mounts only when no HtmlAreaProvider exists above, so a nested form does not pay for its subscriptions.
+const HtmlAreaShell = ({ contextContent, children }: HtmlAreaShellProps): ReactElement => {
     const activeProject = useStore($activeProject);
     const { assetsUri } = useStore($config, { keys: ['assetsUri'] });
     const applicationKeys = useApplicationKeys();
 
     return (
-        <LocaleProvider locale={contextContent?.getLanguage()}>
-            <HtmlAreaProvider
-                contentSummary={contextContent ?? undefined}
-                project={activeProject}
-                applicationKeys={applicationKeys}
-                assetsUri={assetsUri}
-            >
-                {children}
-            </HtmlAreaProvider>
-        </LocaleProvider>
+        <HtmlAreaProvider
+            contentSummary={contextContent ?? undefined}
+            project={activeProject}
+            applicationKeys={applicationKeys}
+            assetsUri={assetsUri}
+        >
+            {children}
+        </HtmlAreaProvider>
     );
 };
 

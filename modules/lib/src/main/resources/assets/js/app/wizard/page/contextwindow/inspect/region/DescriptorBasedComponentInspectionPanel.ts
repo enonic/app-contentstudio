@@ -1,38 +1,36 @@
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
 import type Q from 'q';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {ComponentInspectionPanel, type ComponentInspectionPanelConfig} from './ComponentInspectionPanel';
-import {type LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
-import {type DescriptorBasedComponent} from '../../../../../page/region/DescriptorBasedComponent';
-import {DescriptorBasedDropdownForm} from './DescriptorBasedDropdownForm';
-import {ComponentDescriptorsDropdown} from './ComponentDescriptorsDropdown';
-import {type SiteModel} from '../../../../../site/SiteModel';
-import {FormView} from '@enonic/lib-admin-ui/form/FormView';
-import {type Descriptor} from '../../../../../page/Descriptor';
-import {type DescriptorKey} from '../../../../../page/DescriptorKey';
-import {type Form} from '@enonic/lib-admin-ui/form/Form';
-import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {type ApplicationEvent} from '@enonic/lib-admin-ui/application/ApplicationEvent';
-import {type ComponentType} from '../../../../../page/region/ComponentType';
-import {GetComponentDescriptorRequest} from '../../../../../resource/GetComponentDescriptorRequest';
-import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
-import {type ComponentUpdatedEventHandler} from '../../../../../page/region/Component';
-import {PageState} from '../../../PageState';
-import {type ComponentUpdatedEvent} from '../../../../../page/region/ComponentUpdatedEvent';
-import {ComponentDescriptorUpdatedEvent} from '../../../../../page/region/ComponentDescriptorUpdatedEvent';
-import {PageEventsManager} from '../../../../PageEventsManager';
-import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { ComponentInspectionPanel, type ComponentInspectionPanelConfig } from './ComponentInspectionPanel';
+import { type LiveEditModel } from '../../../../../../page-editor/LiveEditModel';
+import { type DescriptorBasedComponent } from '../../../../../page/region/DescriptorBasedComponent';
+import { DescriptorBasedDropdownForm } from './DescriptorBasedDropdownForm';
+import { ComponentDescriptorsDropdown } from './ComponentDescriptorsDropdown';
+import { type SiteModel } from '../../../../../site/SiteModel';
+import { FormView } from '@enonic/lib-admin-ui/form/FormView';
+import { type Descriptor } from '../../../../../page/Descriptor';
+import { type DescriptorKey } from '../../../../../page/DescriptorKey';
+import type { Form } from '@enonic/input-types/schema';
+import type { PropertyTree } from '@enonic/input-types/data';
+import { type ApplicationEvent } from '@enonic/lib-admin-ui/application/ApplicationEvent';
+import { type ComponentType } from '../../../../../page/region/ComponentType';
+import { GetComponentDescriptorRequest } from '../../../../../resource/GetComponentDescriptorRequest';
+import { LoadMask } from '@enonic/lib-admin-ui/ui/mask/LoadMask';
+import { type ComponentUpdatedEventHandler } from '../../../../../page/region/Component';
+import { PageState } from '../../../PageState';
+import { type ComponentUpdatedEvent } from '../../../../../page/region/ComponentUpdatedEvent';
+import { ComponentDescriptorUpdatedEvent } from '../../../../../page/region/ComponentDescriptorUpdatedEvent';
+import { PageEventsManager } from '../../../../PageEventsManager';
+import { type SelectionChange } from '@enonic/lib-admin-ui/util/SelectionChange';
 
-export interface DescriptorBasedComponentInspectionPanelConfig
-    extends ComponentInspectionPanelConfig {
-
+export interface DescriptorBasedComponentInspectionPanelConfig extends ComponentInspectionPanelConfig {
     componentType: ComponentType;
 }
 
-export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends DescriptorBasedComponent>
-    extends ComponentInspectionPanel<COMPONENT> {
-
+export abstract class DescriptorBasedComponentInspectionPanel<
+    COMPONENT extends DescriptorBasedComponent,
+> extends ComponentInspectionPanel<COMPONENT> {
     private formView: FormViewExt;
 
     private form: DescriptorBasedDropdownForm;
@@ -190,15 +188,19 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
             if (descriptor) {
                 this.setSelectorValue(descriptor);
             } else {
-                this.createGetDescriptorRequest(key).sendAndParse().then((receivedDescriptor: Descriptor) => {
-                    this.setSelectorValue(receivedDescriptor);
-                }).catch((reason) => {
-                    if (this.isNotFoundError(reason)) {
-                        this.setSelectorValue(null);
-                    } else {
-                        DefaultErrorHandler.handle(reason);
-                    }
-                }).done();
+                this.createGetDescriptorRequest(key)
+                    .sendAndParse()
+                    .then((receivedDescriptor: Descriptor) => {
+                        this.setSelectorValue(receivedDescriptor);
+                    })
+                    .catch((reason) => {
+                        if (this.isNotFoundError(reason)) {
+                            this.setSelectorValue(null);
+                        } else {
+                            DefaultErrorHandler.handle(reason);
+                        }
+                    })
+                    .done();
             }
         } else {
             this.setSelectorValue(null);
@@ -209,7 +211,10 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         this.selector.onSelectionChanged((selectionChange: SelectionChange<Descriptor>) => {
             if (selectionChange.selected?.length > 0) {
                 const descriptor: Descriptor = selectionChange.selected[0];
-                PageEventsManager.get().notifyComponentDescriptorSetRequested(this.getComponent().getPath(), descriptor.getKey());
+                PageEventsManager.get().notifyComponentDescriptorSetRequested(
+                    this.getComponent().getPath(),
+                    descriptor.getKey(),
+                );
             }
         });
     }
@@ -229,8 +234,10 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         this.appendChild(this.formView);
         this.component.setDisableEventForwarding(true);
 
-        this.timeoutId = setTimeout(() =>
-                this.formView.layout(false)
+        this.timeoutId = setTimeout(
+            () =>
+                this.formView
+                    .layout(false)
                     .catch((reason) => DefaultErrorHandler.handle(reason))
                     .finally(() => {
                         this.unmask();
@@ -238,8 +245,8 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
                         this.notifyLayoutListeners();
                     })
                     .done(),
-            100);
-
+            100,
+        );
     }
 
     private cleanFormView() {
@@ -291,7 +298,6 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 }
 
 class FormViewExt extends FormView {
-
     hasNonDefaultValues(): boolean {
         return this.formItemViews.some((formItem) => formItem.hasNonDefaultValues());
     }

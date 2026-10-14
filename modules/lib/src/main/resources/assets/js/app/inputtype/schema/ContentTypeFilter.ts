@@ -1,9 +1,6 @@
 import type Q from 'q';
-import { type Input } from '@enonic/lib-admin-ui/form/Input';
-import { type PropertyArray } from '@enonic/lib-admin-ui/data/PropertyArray';
-import { Value } from '@enonic/lib-admin-ui/data/Value';
-import { type ValueType } from '@enonic/lib-admin-ui/data/ValueType';
-import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import type { Input } from '@enonic/input-types/schema';
+import { type PropertyArray, Value, type ValueType, ValueTypes, ValueTypeConverter } from '@enonic/input-types/data';
 import { type ContentTypeSummary } from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import { type BaseLoader } from '@enonic/lib-admin-ui/util/loader/BaseLoader';
 import { BaseInputTypeManagingAdd } from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
@@ -11,7 +8,6 @@ import { type ContentInputTypeViewContext } from '../ContentInputTypeViewContext
 import { PageTemplateContentTypeLoader } from './PageTemplateContentTypeLoader';
 import { ContentTypeSummaryLoader } from './ContentTypeSummaryLoader';
 import { ContentTypeComparator } from './ContentTypeComparator';
-import { ValueTypeConverter } from '@enonic/lib-admin-ui/data/ValueTypeConverter';
 import { InputTypeManager } from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
 import { Class } from '@enonic/lib-admin-ui/Class';
 import { type ContentId } from '../../content/ContentId';

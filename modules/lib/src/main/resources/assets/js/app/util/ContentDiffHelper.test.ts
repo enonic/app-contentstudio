@@ -1,5 +1,4 @@
-import { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
-import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { PropertyTree, ValueTypes } from '@enonic/input-types/data';
 import { describe, expect, it } from 'vitest';
 import { ContentDiffHelper } from './ContentDiffHelper';
 

@@ -1,29 +1,26 @@
 import $ from 'jquery';
 import Q from 'q';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {FormView} from '@enonic/lib-admin-ui/form/FormView';
-import {DockedPanel} from '@enonic/lib-admin-ui/ui/panel/DockedPanel';
-import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
-import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
-import {ContentFormContext} from '../../../../ContentFormContext';
-import {type Content} from '../../../../content/Content';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
-import {type ContentSummary} from '../../../../content/ContentSummary';
-import {GetPreviewRequest} from '../../../../macro/resource/GetPreviewRequest';
-import {GetPreviewStringRequest} from '../../../../macro/resource/GetPreviewStringRequest';
-import {type MacroDescriptor} from '@enonic/lib-admin-ui/macro/MacroDescriptor';
-import {MacroPreview} from '../../../../macro/MacroPreview';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
+import { ResponsiveManager } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
+import { FormView } from '@enonic/lib-admin-ui/form/FormView';
+import { DockedPanel } from '@enonic/lib-admin-ui/ui/panel/DockedPanel';
+import { Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
+import { PropertySet, PropertyTree } from '@enonic/input-types/data';
+import { LoadMask } from '@enonic/lib-admin-ui/ui/mask/LoadMask';
+import { ContentFormContext } from '../../../../ContentFormContext';
+import { type Content } from '../../../../content/Content';
+import { IFrameEl } from '@enonic/lib-admin-ui/dom/IFrameEl';
+import { type ContentSummary } from '../../../../content/ContentSummary';
+import { GetPreviewRequest } from '../../../../macro/resource/GetPreviewRequest';
+import { GetPreviewStringRequest } from '../../../../macro/resource/GetPreviewStringRequest';
+import { type MacroDescriptor } from '@enonic/lib-admin-ui/macro/MacroDescriptor';
+import { MacroPreview } from '../../../../macro/MacroPreview';
+import { StringHelper } from '@enonic/lib-admin-ui/util/StringHelper';
 
-export class MacroDockedPanel
-    extends DockedPanel {
-
+export class MacroDockedPanel extends DockedPanel {
     private configurationTabName: string = i18n('dialog.macro.tab.configuration');
     private previewTabName: string = i18n('dialog.macro.tab.preview');
     private macroFormIncompleteMessage: string = i18n('dialog.macro.form.incomplete');
@@ -68,11 +65,11 @@ export class MacroDockedPanel
     }
 
     private createConfigurationPanel(): Panel {
-        return this.configPanel = new Panel('macro-config-panel');
+        return (this.configPanel = new Panel('macro-config-panel'));
     }
 
     private createPreviewPanel(): Panel {
-        return this.previewPanel = new Panel('macro-preview-panel');
+        return (this.previewPanel = new Panel('macro-preview-panel'));
     }
 
     private handlePreviewPanelShowEvent() {
@@ -81,16 +78,19 @@ export class MacroDockedPanel
                 if (!!this.macroDescriptor && !this.previewResolved) {
                     this.previewPanel.removeChildren();
                     this.previewPanelLoadMask.show();
-                    this.fetchPreview().then((macroPreview: MacroPreview) => {
-                        this.previewResolved = true;
-                        this.macroPreview = macroPreview;
-                        this.renderPreview(macroPreview);
-                    }).catch((reason) => {
-                        DefaultErrorHandler.handle(reason);
-                        this.renderPreviewWithMessage(this.previewLoadErrorMessage);
-                    }).finally(() => {
-                        this.previewPanelLoadMask.hide();
-                    });
+                    this.fetchPreview()
+                        .then((macroPreview: MacroPreview) => {
+                            this.previewResolved = true;
+                            this.macroPreview = macroPreview;
+                            this.renderPreview(macroPreview);
+                        })
+                        .catch((reason) => {
+                            DefaultErrorHandler.handle(reason);
+                            this.renderPreviewWithMessage(this.previewLoadErrorMessage);
+                        })
+                        .finally(() => {
+                            this.previewPanelLoadMask.hide();
+                        });
                 } else {
                     this.notifyPanelRendered();
                 }
@@ -107,10 +107,9 @@ export class MacroDockedPanel
     }
 
     private fetchPreview(): Q.Promise<MacroPreview> {
-        return new GetPreviewRequest(
-            new PropertyTree(this.data),
-            this.macroDescriptor.getKey(),
-            this.content.getPath()).sendAndParse().then((result: MacroPreview) => {
+        return new GetPreviewRequest(new PropertyTree(this.data), this.macroDescriptor.getKey(), this.content.getPath())
+            .sendAndParse()
+            .then((result: MacroPreview) => {
                 if (this.isSystemEmbedMacro()) {
                     return MacroPreview.create()
                         .setPageContributions(result.getPageContributions())
@@ -120,7 +119,7 @@ export class MacroDockedPanel
                 }
 
                 return result;
-        });
+            });
     }
 
     private isSystemEmbedMacro(): boolean {
@@ -148,13 +147,16 @@ export class MacroDockedPanel
             deferred.resolve(this.macroPreview.getMacroString());
         } else {
             this.configPanelLoadMask.show();
-            this.fetchMacroString().then((macroString: string) => {
-                deferred.resolve(StringHelper.htmlToString(macroString));
-            }).catch((reason) => {
-                deferred.reject(reason);
-            }).finally(() => {
-                this.configPanelLoadMask.hide();
-            });
+            this.fetchMacroString()
+                .then((macroString: string) => {
+                    deferred.resolve(StringHelper.htmlToString(macroString));
+                })
+                .catch((reason) => {
+                    deferred.reject(reason);
+                })
+                .finally(() => {
+                    this.configPanelLoadMask.hide();
+                });
         }
 
         return deferred.promise;
@@ -194,12 +196,12 @@ export class MacroDockedPanel
     }
 
     public getConfigForm(): FormView {
-        return (this.configPanel.getFirstChild()) as FormView;
+        return this.configPanel.getFirstChild() as FormView;
     }
 
     public validateMacroForm(): boolean {
         let isValid = true;
-        const form = (this.configPanel.getFirstChild()) as FormView;
+        const form = this.configPanel.getFirstChild() as FormView;
 
         if (form) {
             isValid = form.validate(false).isValid();
@@ -221,8 +223,12 @@ export class MacroDockedPanel
 
         if (macroDescriptor) {
             const formView: FormView = new FormView(
-                ContentFormContext.create().setPersistedContent(this.content as Content).build(),
-                macroDescriptor.getForm(), this.data);
+                ContentFormContext.create()
+                    .setPersistedContent(this.content as Content)
+                    .build(),
+                macroDescriptor.getForm(),
+                this.data,
+            );
 
             this.renderConfigView(formView);
         }
@@ -262,16 +268,18 @@ export class MacroDockedPanel
     }
 }
 
-export class MacroPreviewFrame
-    extends IFrameEl {
-
+export class MacroPreviewFrame extends IFrameEl {
     private id: string = 'macro-preview-frame-id';
 
     private macroPreview: MacroPreview;
 
-    private debouncedResizeHandler: () => void = AppHelper.debounce(() => {
-        this.adjustFrameHeight();
-    }, 500, false);
+    private debouncedResizeHandler: () => void = AppHelper.debounce(
+        () => {
+            this.adjustFrameHeight();
+        },
+        500,
+        false,
+    );
 
     private previewRenderedListeners: (() => void)[] = [];
 
@@ -285,7 +293,6 @@ export class MacroPreviewFrame
 
     private initFrameContent(macroPreview: MacroPreview) {
         this.onLoaded(() => {
-
             let doc = this.getHTMLElement()['contentWindow'] || this.getHTMLElement()['contentDocument'];
             if (doc.document) {
                 doc = doc.document;
@@ -316,7 +323,7 @@ export class MacroPreviewFrame
         const frameWindow = this.getHTMLElement()['contentWindow'];
         if (frameWindow) {
             const observer = new MutationObserver(this.debouncedResizeHandler);
-            const config = {attributes: true, childList: true, characterData: true};
+            const config = { attributes: true, childList: true, characterData: true };
 
             observer.observe(frameWindow.document.body, config);
         }
@@ -327,11 +334,20 @@ export class MacroPreviewFrame
             const frameWindow = this.getHTMLElement()['contentWindow'] || this.getHTMLElement()['contentDocument'];
             const scrollHeight = frameWindow.document.body.scrollHeight;
             const maxFrameHeight = this.getMaxFrameHeight();
-            this.getEl().setHeightPx(scrollHeight > 150
-                                     ? scrollHeight > maxFrameHeight ? maxFrameHeight : scrollHeight + (this.isInstagramPreview() ? 18 : 0)
-                                     : $('#' + this.id).contents().find('body').outerHeight());
+            this.getEl().setHeightPx(
+                scrollHeight > 150
+                    ? scrollHeight > maxFrameHeight
+                        ? maxFrameHeight
+                        : scrollHeight + (this.isInstagramPreview() ? 18 : 0)
+                    : $('#' + this.id)
+                          .contents()
+                          .find('body')
+                          .outerHeight(),
+            );
             this.notifyPreviewRendered();
-        } catch (error) { /* empty*/ }
+        } catch (error) {
+            /* empty*/
+        }
     }
 
     private getMaxFrameHeight(): number {
@@ -340,11 +356,23 @@ export class MacroPreviewFrame
 
     private makeContentForPreviewFrame(macroPreview: MacroPreview): string {
         let result = '';
-        macroPreview.getPageContributions().getHeadBegin().forEach(script => result += script);
-        macroPreview.getPageContributions().getHeadEnd().forEach(script => result += script);
-        macroPreview.getPageContributions().getBodyBegin().forEach(script => result += script);
+        macroPreview
+            .getPageContributions()
+            .getHeadBegin()
+            .forEach((script) => (result += script));
+        macroPreview
+            .getPageContributions()
+            .getHeadEnd()
+            .forEach((script) => (result += script));
+        macroPreview
+            .getPageContributions()
+            .getBodyBegin()
+            .forEach((script) => (result += script));
         result += macroPreview.getHtml();
-        macroPreview.getPageContributions().getBodyEnd().forEach(script => result += script);
+        macroPreview
+            .getPageContributions()
+            .getBodyEnd()
+            .forEach((script) => (result += script));
         return result;
     }
 

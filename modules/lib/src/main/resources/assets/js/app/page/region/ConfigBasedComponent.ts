@@ -1,16 +1,12 @@
-import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {type PropertyEvent} from '@enonic/lib-admin-ui/data/PropertyEvent';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {PropertyTreeHelper} from '@enonic/lib-admin-ui/util/PropertyTreeHelper';
-import {Component, ComponentBuilder} from './Component';
-import {ComponentConfigUpdatedEvent} from './ComponentConfigUpdatedEvent';
-import {type ConfigBasedComponentJson} from './ConfigBasedComponentJson';
+import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { type PropertyEvent, PropertyTree } from '@enonic/input-types/data';
+import { PropertyTreeHelper } from '@enonic/lib-admin-ui/util/PropertyTreeHelper';
+import { Component, ComponentBuilder } from './Component';
+import { ComponentConfigUpdatedEvent } from './ComponentConfigUpdatedEvent';
+import { type ConfigBasedComponentJson } from './ConfigBasedComponentJson';
 
-
-export abstract class ConfigBasedComponent
-    extends Component {
-
+export abstract class ConfigBasedComponent extends Component {
     public static PROPERTY_CONFIG: string = 'config';
 
     public static debug: boolean = false;
@@ -46,7 +42,6 @@ export abstract class ConfigBasedComponent
     }
 
     equals(o: Equitable): boolean {
-
         if (!ObjectHelper.iFrameSafeInstanceOf(o, ConfigBasedComponent)) {
             return false;
         }
@@ -65,9 +60,7 @@ export abstract class ConfigBasedComponent
     }
 }
 
-export abstract class ConfigBasedComponentBuilder
-    extends ComponentBuilder {
-
+export abstract class ConfigBasedComponentBuilder extends ComponentBuilder {
     config: PropertyTree;
 
     protected constructor(source?: ConfigBasedComponent) {

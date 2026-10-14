@@ -8,7 +8,7 @@ import { $applications } from '../../../../entities/application';
 import { ItemLabel } from '../../../../shared/ui/ItemLabel';
 import { ApplicationIcon } from '../../../../shared/ui/icons/ApplicationIcon';
 import { ApplicationSelector } from '../../../shared/selectors/ApplicationSelector';
-import { SortableGridList } from '@enonic/lib-admin-ui/form2/components/sortable-grid-list';
+import { SortableGridList } from '@enonic/input-types';
 
 export const ProjectDialogApplicationStepHeader = (): ReactElement => {
     const { mode, title } = useStore($projectDialog, { keys: ['mode', 'title'] });

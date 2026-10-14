@@ -1,13 +1,12 @@
-import { type Value } from '@enonic/lib-admin-ui/data/Value';
-import { type ValueType } from '@enonic/lib-admin-ui/data/ValueType';
-import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
-import type { RawInputConfig } from '@enonic/lib-admin-ui/form/Input';
-import type { InputTypeDescriptor } from '@enonic/lib-admin-ui/form2/descriptor/InputTypeDescriptor';
-import type { ValidationResult } from '@enonic/lib-admin-ui/form2/descriptor/ValidationResult';
+import { type Value } from '@enonic/input-types/data';
+import { type ValueType } from '@enonic/input-types/data';
+import { ValueTypes } from '@enonic/input-types/data';
+import type { InputConfigEntries, InputTypeDescriptor } from '@enonic/input-types';
+import type { ValidationResult } from '@enonic/input-types';
 import { isBlank } from '../../../../../shared/lib/format/isBlank';
 import type { HtmlAreaConfig } from './HtmlAreaConfig';
 
-function parseTools(raw: RawInputConfig, key: string): string[] {
+function parseTools(raw: InputConfigEntries, key: string): string[] {
     const toolsObj = raw[key] as { value: string }[] | undefined;
     const result: string[] = [];
 
@@ -27,7 +26,7 @@ export const HtmlAreaDescriptor: InputTypeDescriptor<HtmlAreaConfig> = {
         return ValueTypes.STRING;
     },
 
-    readConfig(raw: RawInputConfig): HtmlAreaConfig {
+    readConfig(raw: InputConfigEntries): HtmlAreaConfig {
         return {
             enabledTools: parseTools(raw, 'include'),
             disabledTools: parseTools(raw, 'exclude'),

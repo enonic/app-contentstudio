@@ -1,41 +1,35 @@
 {
-  "config": {
-    "formItems": [
-      {
-        "Input": {
-          "config": {},
-          "inputType": "TextLine",
-          "label": "some-label",
-          "name": "some-name",
-          "occurrences": {
-            "maximum": 1,
-            "minimum": 0
-          }
-        }
+  "config": [
+    {
+      "formItemType": "Input",
+      "config": {},
+      "inputType": "TextLine",
+      "label": "some-label",
+      "name": "some-name",
+      "occurrences": {
+        "maximum": 1,
+        "minimum": 0
       }
-    ]
-  },
+    }
+  ],
   "deletable": false,
   "description": "Application description",
   "displayName": "application display name",
   "editable": false,
   "iconUrl": "/admin/rest-v2/cs/application/icon/testapplication",
-  "idProviderConfig": {
-    "formItems": [
-      {
-        "Input": {
-          "config": {},
-          "inputType": "TextLine",
-          "label": "some-label",
-          "name": "some-name",
-          "occurrences": {
-            "maximum": 1,
-            "minimum": 0
-          }
-        }
+  "idProviderConfig": [
+    {
+      "formItemType": "Input",
+      "config": {},
+      "inputType": "TextLine",
+      "label": "some-label",
+      "name": "some-name",
+      "occurrences": {
+        "maximum": 1,
+        "minimum": 0
       }
-    ]
-  },
+    }
+  ],
   "key": "testapplication",
   "local": false,
   "maxSystemVersion": "5.1",

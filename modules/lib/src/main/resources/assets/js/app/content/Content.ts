@@ -1,26 +1,22 @@
-import {type Property} from '@enonic/lib-admin-ui/data/Property';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {type Attachments, AttachmentsBuilder} from '../attachment/Attachments';
-import {type  ContentJson} from './ContentJson';
-import {Mixin} from './Mixin';
-import {type MixinJson} from '../resource/json/MixinJson';
-import {type MixinName} from './MixinName';
-import {type Page, PageBuilder} from '../page/Page';
-import {AccessControlList} from '../access/AccessControlList';
-import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {type Cloneable} from '@enonic/lib-admin-ui/Cloneable';
-import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {ContentSummary, ContentSummaryBuilder} from './ContentSummary';
-import {ValidationError} from '@enonic/lib-admin-ui/ValidationError';
-import {type ContentDiff} from './ContentDiff';
-import {isEqual} from '../Diff';
-import {ContentDiffHelper} from '../util/ContentDiffHelper';
+import { type Property, PropertyTree } from '@enonic/input-types/data';
+import { type Attachments, AttachmentsBuilder } from '../attachment/Attachments';
+import { type ContentJson } from './ContentJson';
+import { Mixin } from './Mixin';
+import { type MixinJson } from '../resource/json/MixinJson';
+import { type MixinName } from './MixinName';
+import { type Page, PageBuilder } from '../page/Page';
+import { AccessControlList } from '../access/AccessControlList';
+import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
+import { type Cloneable } from '@enonic/lib-admin-ui/Cloneable';
+import { assertNotNull } from '@enonic/lib-admin-ui/util/Assert';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { ContentSummary, ContentSummaryBuilder } from './ContentSummary';
+import { ValidationError } from '@enonic/lib-admin-ui/ValidationError';
+import { type ContentDiff } from './ContentDiff';
+import { isEqual } from '../Diff';
+import { ContentDiffHelper } from '../util/ContentDiffHelper';
 
-export class Content
-    extends ContentSummary
-    implements Equitable, Cloneable {
-
+export class Content extends ContentSummary implements Equitable, Cloneable {
     private readonly data: PropertyTree;
 
     private readonly attachments: Attachments;
@@ -99,9 +95,7 @@ export class Content
     }
 }
 
-export class ContentBuilder
-    extends ContentSummaryBuilder {
-
+export class ContentBuilder extends ContentSummaryBuilder {
     data: PropertyTree;
 
     attachments: Attachments;
@@ -130,7 +124,6 @@ export class ContentBuilder
     }
 
     fromContentJson(json: ContentJson): this {
-
         super.fromContentSummaryJson(json);
 
         this.data = PropertyTree.fromJson(json.data);

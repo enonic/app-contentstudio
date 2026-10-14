@@ -1,34 +1,29 @@
 import Q from 'q';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {type Input} from '@enonic/lib-admin-ui/form/Input';
-import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
-import {Class} from '@enonic/lib-admin-ui/Class';
-import {type Property} from '@enonic/lib-admin-ui/data/Property';
-import {type Value} from '@enonic/lib-admin-ui/data/Value';
-import {type ValueType} from '@enonic/lib-admin-ui/data/ValueType';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {type UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
-import {MediaUploaderEl, MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
-import {BaseInputTypeSingleOccurrence} from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeSingleOccurrence';
-import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
-import {ValueTypeConverter} from '@enonic/lib-admin-ui/data/ValueTypeConverter';
-import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
-import {type ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
-import {type Content} from '../../content/Content';
-import {ImageUrlResolver} from '../../util/ImageUrlResolver';
-import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
-import {type ContentSummary} from '../../content/ContentSummary';
-import {type ContentId} from '../../content/ContentId';
+import { StringHelper } from '@enonic/lib-admin-ui/util/StringHelper';
+import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
+import type { Input } from '@enonic/input-types/schema';
+import { InputTypeManager } from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
+import { Class } from '@enonic/lib-admin-ui/Class';
+import { type Property, type Value, type ValueType, ValueTypes, ValueTypeConverter } from '@enonic/input-types/data';
+import { type UploadedEvent } from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
+import { MediaUploaderEl, MediaUploaderElOperation } from '../ui/upload/MediaUploaderEl';
+import { BaseInputTypeSingleOccurrence } from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeSingleOccurrence';
+import { ImgEl } from '@enonic/lib-admin-ui/dom/ImgEl';
+import { showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { Button } from '@enonic/lib-admin-ui/ui/button/Button';
+import { type ContentInputTypeViewContext } from '../ContentInputTypeViewContext';
+import { type Content } from '../../content/Content';
+import { ImageUrlResolver } from '../../util/ImageUrlResolver';
+import { ContentRequiresSaveEvent } from '../../event/ContentRequiresSaveEvent';
+import { type ContentSummary } from '../../content/ContentSummary';
+import { type ContentId } from '../../content/ContentId';
 
 export interface MediaUploaderConfigAllowType {
     name: string;
     extensions: string;
 }
 
-export class MediaUploader
-    extends BaseInputTypeSingleOccurrence {
+export class MediaUploader extends BaseInputTypeSingleOccurrence {
     private config: ContentInputTypeViewContext;
     private mediaUploaderEl: MediaUploaderEl;
     private uploaderWrapper: DivEl;
@@ -71,7 +66,6 @@ export class MediaUploader
         });
 
         this.mediaUploaderEl.onFileUploaded((event: UploadedEvent<Content>) => {
-
             const content = event.getUploadItem().getModel();
             const value = this.mediaUploaderEl.getMediaValue(content);
             const fileName = value.getString();
@@ -79,12 +73,12 @@ export class MediaUploader
             this.mediaUploaderEl.setFileName(fileName);
 
             switch (property.getType()) {
-            case ValueTypes.DATA:
-                property.getPropertySet().setProperty('attachment', 0, value);
-                break;
-            case ValueTypes.STRING:
-                property.setValue(ValueTypes.STRING.newValue(fileName));
-                break;
+                case ValueTypes.DATA:
+                    property.getPropertySet().setProperty('attachment', 0, value);
+                    break;
+                case ValueTypes.STRING:
+                    property.setValue(ValueTypes.STRING.newValue(fileName));
+                    break;
             }
 
             showFeedback(`"${fileName}" uploaded`);
@@ -124,7 +118,6 @@ export class MediaUploader
 
     updateProperty(property: Property, unchangedOnly?: boolean): Q.Promise<void> {
         if ((!unchangedOnly || !this.mediaUploaderEl.isDirty()) && this.getContext().content.getContentId()) {
-
             this.mediaUploaderEl.setValue(this.getContext().content.getContentId().toString());
 
             if (property.hasNonNullValue()) {
@@ -143,10 +136,10 @@ export class MediaUploader
     static getFileNameFromProperty(property: Property): string {
         if (property.getValue() != null) {
             switch (property.getType()) {
-            case ValueTypes.DATA:
-                return property.getPropertySet().getString('attachment');
-            case ValueTypes.STRING:
-                return property.getValue().getString();
+                case ValueTypes.DATA:
+                    return property.getPropertySet().getString('attachment');
+                case ValueTypes.STRING:
+                    return property.getValue().getString();
             }
         }
         return '';
@@ -157,24 +150,25 @@ export class MediaUploader
     }
 
     private propertyAlreadyHasAttachment(property: Property): boolean {
-        return (property.getValue() != null &&
-                property.getType() === ValueTypes.DATA &&
-                !StringHelper.isEmpty(property.getPropertySet().getString('attachment')));
+        return (
+            property.getValue() != null &&
+            property.getType() === ValueTypes.DATA &&
+            !StringHelper.isEmpty(property.getPropertySet().getString('attachment'))
+        );
     }
 
     private getAllowTypeFromFileName(fileName: string): MediaUploaderConfigAllowType[] {
-        return [{name: 'Media', extensions: this.getFileExtensionFromFileName(fileName)}];
+        return [{ name: 'Media', extensions: this.getFileExtensionFromFileName(fileName) }];
     }
 
     private resolveImageUrl(contentId: ContentId): string {
         return new ImageUrlResolver(null, this.config.project)
-                    .setContentId(contentId)
-                    .setTimestamp(new Date())
-                    .resolveForPreview();
+            .setContentId(contentId)
+            .setTimestamp(new Date())
+            .resolveForPreview();
     }
 
     private setVectorMediaUrl(content: ContentSummary) {
-
         const imgUrl = this.resolveImageUrl(content.getContentId());
 
         this.svgImage.setSrc(imgUrl);
@@ -212,7 +206,6 @@ export class MediaUploader
     }
 
     private createUploader(property: Property): MediaUploaderEl {
-
         let predefinedAllowTypes;
         const attachmentFileName = MediaUploader.getFileNameFromProperty(property);
 
@@ -220,14 +213,15 @@ export class MediaUploader
             predefinedAllowTypes = this.getAllowTypeFromFileName(attachmentFileName);
         }
 
-        const allowTypesConfig: MediaUploaderConfigAllowType[] = predefinedAllowTypes || this.config.inputConfig.allowExtensions || [];
+        const allowTypesConfig: MediaUploaderConfigAllowType[] =
+            predefinedAllowTypes || this.config.inputConfig.allowExtensions || [];
         const allowExtensions = allowTypesConfig.map((allowType: MediaUploaderConfigAllowType) => {
-            return {title: allowType.name, extensions: allowType.extensions};
+            return { title: allowType.name, extensions: allowType.extensions };
         });
 
         return new MediaUploaderEl({
             params: {
-                content: this.getContext().content.getContentId().toString()
+                content: this.getContext().content.getContentId().toString(),
             },
             operation: MediaUploaderElOperation.update,
             allowExtensions: allowExtensions,
@@ -236,7 +230,7 @@ export class MediaUploader
             hideDefaultDropZone: !!this.context.inputConfig.hideDropZone,
             deferred: true,
             hasUploadButton: false,
-            project: this.config.project
+            project: this.config.project,
         });
     }
 

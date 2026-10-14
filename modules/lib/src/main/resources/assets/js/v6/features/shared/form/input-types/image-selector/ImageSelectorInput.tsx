@@ -1,14 +1,23 @@
-import type {SelfManagedComponentProps} from '@enonic/lib-admin-ui/form2';
-import type {ImageSelectorConfig} from './ImageSelectorConfig';
-import type {ReactElement} from 'react';
-import {ImageSelector} from '../../../selectors/image';
-import {useSelectorInput} from '../hooks';
-import {useFormRender} from '../../FormRenderContext';
+import type { SelfManagedComponentProps } from '@enonic/input-types';
+import type { ImageSelectorConfig } from './ImageSelectorConfig';
+import type { ReactElement } from 'react';
+import { ImageSelector } from '../../../selectors/image';
+import { useFormApplicationKey, useSelectorInput } from '../hooks';
+import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 
 export const ImageSelectorInput = (props: SelfManagedComponentProps<ImageSelectorConfig>): ReactElement => {
-    const {applicationKey} = useFormRender();
-    const {contextContent, selectionMode, hasErrors, hideToggleIcon, listMode, selection, placeholder, emptyLabel, handleSelectionChange} =
-        useSelectorInput(props);
+    const applicationKey = useFormApplicationKey();
+    const {
+        contextContent,
+        selectionMode,
+        hasErrors,
+        hideToggleIcon,
+        listMode,
+        selection,
+        placeholder,
+        emptyLabel,
+        handleSelectionChange,
+    } = useSelectorInput(props);
 
     const allowedContentPaths = props.config.allowPath;
     const disabled = !props.enabled;

@@ -1,24 +1,26 @@
-const {rspack} = require('@rspack/core');
+const { rspack } = require('@rspack/core');
 const fs = require('fs');
 const path = require('path');
 
 const swcConfig = JSON.parse(fs.readFileSync('./.swcrc'));
 // Remove `module` and `exclude` — Rspack handles module format and file filtering natively
-const {module: _module, exclude: _exclude, ...swcOptions} = swcConfig;
+const { module: _module, exclude: _exclude, ...swcOptions } = swcConfig;
 
 const isProd = process.env.NODE_ENV === 'production';
 
 module.exports = {
     cache: !isProd,
     experiments: {
-        cache: isProd ? false : {
-            type: 'persistent',
-            buildDependencies: [__filename],
-            storage: {
-                type: 'filesystem',
-                directory: path.resolve(__dirname, 'node_modules/.cache/rspack'),
-            },
-        },
+        cache: isProd
+            ? false
+            : {
+                  type: 'persistent',
+                  buildDependencies: [__filename],
+                  storage: {
+                      type: 'filesystem',
+                      directory: path.resolve(__dirname, 'node_modules/.cache/rspack'),
+                  },
+              },
     },
     context: path.join(__dirname, '/src/main/resources/assets'),
     entry: {
@@ -26,21 +28,21 @@ module.exports = {
         'js/settings': './js/settings.ts',
         'page-editor/js/editor': './js/page-editor.ts',
         'page-editor/js/viewer': './js/page-viewer.ts',
-        'styles/extensions/stats': './styles/extensions/stats.less'
+        'styles/extensions/stats': './styles/extensions/stats.less',
     },
     output: {
         path: path.join(__dirname, '/build/resources/main/assets'),
         filename: './[name].js',
         chunkFilename: './[id].[contenthash:8].js',
-        assetModuleFilename: './[file]'
+        assetModuleFilename: './[file]',
     },
     resolve: {
         extensions: ['.tsx', '.ts', '.jsx', '.js', '.less', '.css'],
-        conditionNames: ['browser', 'import', 'default'],   // using node here will use SSR-safe stub of page-editor!
+        conditionNames: ['browser', 'import', 'default'], // using node here will use SSR-safe stub of page-editor!
         alias: {
-            'preact': path.resolve(__dirname, 'node_modules/preact'),
+            preact: path.resolve(__dirname, 'node_modules/preact'),
             'preact/hooks': path.resolve(__dirname, 'node_modules/preact/hooks'),
-            'react': path.resolve(__dirname, 'node_modules/preact/compat'),
+            react: path.resolve(__dirname, 'node_modules/preact/compat'),
             'react-dom': path.resolve(__dirname, 'node_modules/preact/compat'),
             'react/jsx-runtime': path.resolve(__dirname, 'node_modules/preact/jsx-runtime'),
             'react/jsx-dev-runtime': path.resolve(__dirname, 'node_modules/preact/jsx-dev-runtime'),
@@ -48,8 +50,13 @@ module.exports = {
             // currently resolve to the same hoisted copy, but pin the alias here so any
             // future hoist/dedupe drift can't reintroduce two ToolbarContext instances
             // in the bundle.
-            '@enonic/ui': path.resolve(__dirname, 'node_modules/@enonic/ui')
-        }
+            '@enonic/ui': path.resolve(__dirname, 'node_modules/@enonic/ui'),
+            // One @enonic/input-types instance: its input type registry is module state. Exact
+            // matches per entry point, since an alias on the package root would bypass its exports map.
+            '@enonic/input-types$': path.resolve(__dirname, 'node_modules/@enonic/input-types/dist/index.js'),
+            '@enonic/input-types/data$': path.resolve(__dirname, 'node_modules/@enonic/input-types/dist/data.js'),
+            '@enonic/input-types/schema$': path.resolve(__dirname, 'node_modules/@enonic/input-types/dist/schema.js'),
+        },
     },
     module: {
         rules: [
@@ -69,11 +76,11 @@ module.exports = {
             {
                 test: /\.(?:less|css)$/,
                 use: [
-                    {loader: rspack.CssExtractRspackPlugin.loader},
-                    {loader: 'css-loader', options: {sourceMap: !isProd, importLoaders: isProd ? 2 : 1}},
+                    { loader: rspack.CssExtractRspackPlugin.loader },
+                    { loader: 'css-loader', options: { sourceMap: !isProd, importLoaders: isProd ? 2 : 1 } },
                     // PostCSS (autoprefixer, normalize, media query sorting) only needed for production
-                    ...(isProd ? [{loader: 'postcss-loader'}] : []),
-                    {loader: 'less-loader', options: {sourceMap: !isProd}},
+                    ...(isProd ? [{ loader: 'postcss-loader' }] : []),
+                    { loader: 'less-loader', options: { sourceMap: !isProd } },
                 ],
                 type: 'javascript/auto',
             },
@@ -81,10 +88,10 @@ module.exports = {
                 test: /\.(woff|woff2|eot|ttf|otf)$/i,
                 type: 'asset/resource',
                 generator: {
-                    filename: 'fonts/[name][ext][query]'
-                }
-            }
-        ]
+                    filename: 'fonts/[name][ext][query]',
+                },
+            },
+        ],
     },
     optimization: {
         chunkIds: 'named',
@@ -96,7 +103,7 @@ module.exports = {
                         keepFnNames: true,
                     },
                 },
-            })
+            }),
         ],
     },
     plugins: [
@@ -107,20 +114,20 @@ module.exports = {
         }),
         new rspack.CssExtractRspackPlugin({
             filename: '[name].css',
-            chunkFilename: './styles/[id].css'
+            chunkFilename: './styles/[id].css',
         }),
         new rspack.CopyRspackPlugin({
-            patterns: [
-                {from: 'icons/fonts/icomoon-studio-app.*', to: 'page-editor/fonts/[name][ext]'}
-            ]
+            patterns: [{ from: 'icons/fonts/icomoon-studio-app.*', to: 'page-editor/fonts/[name][ext]' }],
         }),
         new rspack.CircularDependencyRspackPlugin({
-            exclude: /node_modules|v6[\\/]features[\\/]shared[\\/]form[\\/]/,
-            failOnError: true
+            // The HTML area's macro dialog renders a form, which renders the HTML area: a known cycle
+            // through html-area/index; the rest of features/shared/form is checked.
+            exclude: /node_modules|v6[\\/]features[\\/]shared[\\/]form[\\/]input-types[\\/]html-area[\\/]/,
+            failOnError: true,
         }),
     ],
     amd: {},
     mode: isProd ? 'production' : 'development',
     devtool: isProd ? false : 'source-map',
-    performance: {hints: false}
+    performance: { hints: false },
 };

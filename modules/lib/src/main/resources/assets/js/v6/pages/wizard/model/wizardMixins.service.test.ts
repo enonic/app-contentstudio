@@ -1,4 +1,4 @@
-import { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import { PropertyTree } from '@enonic/input-types/data';
 import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { okAsync } from 'neverthrow';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -35,7 +35,7 @@ vi.mock('../../../entities/application/applications.store', () => ({
     loadApplications: vi.fn(),
 }));
 
-vi.mock('../../../widgets/context-panel/model/contextContent.store', () => ({
+vi.mock('../../../entities/content/model/context-content.store', () => ({
     $contextContent: { get: () => ({ getId: () => 'content-1' }) },
 }));
 

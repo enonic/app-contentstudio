@@ -14,11 +14,11 @@ import {
     type ServerErrorEntry,
     type ValidationVisibility,
     validateForm,
-} from '@enonic/lib-admin-ui/form2';
+} from '@enonic/input-types';
 import { atom, computed } from 'nanostores';
-import type { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
-import type { Form } from '@enonic/lib-admin-ui/form/Form';
-import { Input } from '@enonic/lib-admin-ui/form/Input';
+import type { PropertyTree } from '@enonic/input-types/data';
+import type { Form } from '@enonic/input-types/schema';
+import { Input } from '@enonic/input-types/schema';
 import type { Descriptor } from '../../../../app/page/Descriptor';
 import { DescriptorBasedComponent } from '../../../../app/page/region/DescriptorBasedComponent';
 import { LayoutComponent } from '../../../../app/page/region/LayoutComponent';
@@ -60,7 +60,10 @@ const $dataServerErrors = atom<DataValidationError[]>([]);
 
 // Server data errors flattened for the form fields to display by data path.
 export const $dataServerErrorEntries = computed($dataServerErrors, (errors): ServerErrorEntry[] =>
-    errors.map((e) => ({ path: e.getPropertyPath(), message: e.getMessage() })),
+    errors.flatMap((e) => {
+        const path = e.getPropertyPath();
+        return path == null ? [] : [{ path, message: e.getMessage() }];
+    }),
 );
 
 const $componentConfigErrors = atom<ComponentConfigValidationError[]>([]);
@@ -106,7 +109,10 @@ function runValidation(): void {
 
     const contentResult = validateForm(contentType.getForm(), draftData.getRoot(), {
         rawValues: contentRawValueMap,
-        serverErrors: dataServerErrors,
+        serverErrors: dataServerErrors.flatMap((error) => {
+            const path = error.getPropertyPath();
+            return path == null ? [] : [{ path, message: error.getMessage() }];
+        }),
     });
 
     const nextInvalidTabs = new Set<string>();
@@ -418,7 +424,10 @@ export function setServerValidationErrors(errors: ValidationError[]): void {
 // Drop the server errors on an edited occurrence's data path (and its descendants).
 export function clearServerErrorsAtPath(occurrencePath: string): void {
     const current = $dataServerErrors.get();
-    const next = current.filter((e) => !matchesOccurrencePath(e.getPropertyPath(), occurrencePath));
+    const next = current.filter((e) => {
+        const path = e.getPropertyPath();
+        return path == null || !matchesOccurrencePath(path, occurrencePath);
+    });
     if (next.length === current.length) return;
 
     $dataServerErrors.set(next);
@@ -430,7 +439,10 @@ export function clearServerErrorsAtPath(occurrencePath: string): void {
 // fresh errors arrive on the next save.
 export function clearServerErrorsForField(fieldPath: string): void {
     const current = $dataServerErrors.get();
-    const next = current.filter((e) => !matchesFieldPath(e.getPropertyPath(), fieldPath));
+    const next = current.filter((e) => {
+        const path = e.getPropertyPath();
+        return path == null || !matchesFieldPath(path, fieldPath);
+    });
     if (next.length === current.length) return;
 
     $dataServerErrors.set(next);

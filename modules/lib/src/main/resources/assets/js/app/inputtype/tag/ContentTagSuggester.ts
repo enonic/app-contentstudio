@@ -1,22 +1,20 @@
 import Q from 'q';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {QueryExpr} from '@enonic/lib-admin-ui/query/expr/QueryExpr';
-import {type PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
-import {type Property} from '@enonic/lib-admin-ui/data/Property';
-import {type TagSuggester} from '../ui/tag/TagSuggester';
-import {type Content} from '../../content/Content';
-import {type ContentJson} from '../../content/ContentJson';
-import {ContentSelectorQueryRequest} from '../../resource/ContentSelectorQueryRequest';
-import {GetNearestSiteRequest} from '../../resource/GetNearestSiteRequest';
-import {type Site} from '../../content/Site';
-import {type Expression} from '@enonic/lib-admin-ui/query/expr/Expression';
-import {FulltextSearchExpressionBuilder} from '@enonic/lib-admin-ui/query/FulltextSearchExpression';
-import {QueryField} from '@enonic/lib-admin-ui/query/QueryField';
-import {Expand} from '@enonic/lib-admin-ui/rest/Expand';
-import {type ContentSummary} from '../../content/ContentSummary';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { QueryExpr } from '@enonic/lib-admin-ui/query/expr/QueryExpr';
+import type { PropertyPath, Property } from '@enonic/input-types/data';
+import { type TagSuggester } from '../ui/tag/TagSuggester';
+import { type Content } from '../../content/Content';
+import { type ContentJson } from '../../content/ContentJson';
+import { ContentSelectorQueryRequest } from '../../resource/ContentSelectorQueryRequest';
+import { GetNearestSiteRequest } from '../../resource/GetNearestSiteRequest';
+import { type Site } from '../../content/Site';
+import { type Expression } from '@enonic/lib-admin-ui/query/expr/Expression';
+import { FulltextSearchExpressionBuilder } from '@enonic/lib-admin-ui/query/FulltextSearchExpression';
+import { QueryField } from '@enonic/lib-admin-ui/query/QueryField';
+import { Expand } from '@enonic/lib-admin-ui/rest/Expand';
+import { type ContentSummary } from '../../content/ContentSummary';
 
 export class ContentTagSuggesterBuilder {
-
     dataPath: PropertyPath;
 
     content: ContentSummary;
@@ -43,9 +41,7 @@ export class ContentTagSuggesterBuilder {
     }
 }
 
-export class ContentTagSuggester
-    implements TagSuggester {
-
+export class ContentTagSuggester implements TagSuggester {
     static SITE_PATH: string = '${site}/*';
 
     private propertyPath: PropertyPath;
@@ -61,8 +57,8 @@ export class ContentTagSuggester
     }
 
     suggest(searchString: string): Q.Promise<string[]> {
-
-        const fieldName = 'data' + this.propertyPath.getParentPath().toString() + this.propertyPath.getLastElement().getName();
+        const fieldName =
+            'data' + this.propertyPath.getParentPath().toString() + this.propertyPath.getLastElement().getName();
 
         const fulltextExpression: Expression = new FulltextSearchExpressionBuilder()
             .setSearchString(searchString)
@@ -99,13 +95,16 @@ export class ContentTagSuggester
         return request.sendAndParse().then((list: Content[]) => {
             const suggestedTags: string[] = [];
             list.forEach((content: Content) => {
-                const propertySet = this.propertyPath.getParentPath().isRoot() ?
-                                    content.getContentData().getRoot() :
-                                    content.getContentData().getPropertySet(this.propertyPath);
+                const propertySet = this.propertyPath.getParentPath().isRoot()
+                    ? content.getContentData().getRoot()
+                    : content.getContentData().getPropertySet(this.propertyPath);
                 propertySet.forEachProperty(this.propertyPath.getLastElement().getName(), (property: Property) => {
                     if (property.hasNonNullValue()) {
                         const suggestedTag = property.getString();
-                        if (suggestedTag.search(new RegExp(searchString, 'i')) === 0 && suggestedTags.indexOf(suggestedTag) < 0) {
+                        if (
+                            suggestedTag.search(new RegExp(searchString, 'i')) === 0 &&
+                            suggestedTags.indexOf(suggestedTag) < 0
+                        ) {
                             suggestedTags.push(suggestedTag);
                         }
                     }

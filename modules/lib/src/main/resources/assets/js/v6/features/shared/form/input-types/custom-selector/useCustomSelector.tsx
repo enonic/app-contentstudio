@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Branch } from '../../../../../../app/versioning/Branch';
 import { UrlAction } from '../../../../../../app/UrlAction';
-import { $contextContent } from '../../../../../widgets/context-panel/model/contextContent.store';
+import { $contextContent } from '../../../../../entities/content';
 import { $activeProject } from '../../../../../entities/project';
 import { type CustomSelectorConfig } from './CustomSelectorConfig';
 import { type CustomSelectorItem } from './CustomSelectorInput';
 import { useDebouncedCallback } from '../../../../../shared/lib/hooks/useDebouncedCallback';
-import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
-import { type SelfManagedComponentProps } from '@enonic/lib-admin-ui/form2';
+import { ValueTypes } from '@enonic/input-types/data';
+import { type SelfManagedComponentProps } from '@enonic/input-types';
 import { errAsync, okAsync, ResultAsync } from 'neverthrow';
 import { formatError } from '../../../../../shared/lib/format/error';
 import { parseNumber } from '../../../../../shared/lib/format/values';

@@ -12,7 +12,7 @@ import { ProjectItemPermissionsBuilder } from '../../../../app/settings/data/pro
 import { type Principal } from '@enonic/lib-admin-ui/security/Principal';
 import { type Application } from '@enonic/lib-admin-ui/application/Application';
 import { ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import { PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
+import { PropertySet } from '@enonic/input-types/data';
 import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
 import { $applications, loadApplications } from '../../../entities/application';
 import { getProjectDetailedPermissions } from '../../../shared/lib/url/projects';

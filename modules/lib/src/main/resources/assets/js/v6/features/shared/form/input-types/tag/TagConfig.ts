@@ -1,5 +1,4 @@
-import type {RawInputConfig} from '@enonic/lib-admin-ui/form/Input';
-import {TextLineDescriptor, type TextLineConfig} from '@enonic/lib-admin-ui/form2/descriptor';
+import { type InputConfigEntries, TextLineDescriptor, type TextLineConfig } from '@enonic/input-types';
 
 export const TAG_SITE_PATH = '${site}/*';
 
@@ -8,12 +7,14 @@ export type TagConfig = TextLineConfig & {
     allowPathConfigured: boolean;
 };
 
-export function readTagConfig(raw: RawInputConfig): TagConfig {
+export function readTagConfig(raw: InputConfigEntries): TagConfig {
     const textLineConfig = TextLineDescriptor.readConfig(raw);
     const rawAllowPath = raw?.allowPath;
     const hasConfiguredAllowPath = rawAllowPath != null && rawAllowPath.length > 0;
     const allowPath = hasConfiguredAllowPath
-        ? rawAllowPath.map(cfg => (typeof cfg.value === 'string' ? cfg.value.trim() : '')).filter(value => value.length > 0)
+        ? rawAllowPath
+              .map((cfg) => (typeof cfg.value === 'string' ? cfg.value.trim() : ''))
+              .filter((value) => value.length > 0)
         : [TAG_SITE_PATH];
 
     return {

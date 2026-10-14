@@ -1,55 +1,51 @@
 {
   "abstract": false,
   "allowChildContent": true,
-  "allowChildContentType" : [ ],
+  "allowChildContentType": [],
   "createdTime": "2013-01-01T12:00:00Z",
   "deletable": false,
   "description": "My description",
   "editable": false,
   "final": true,
-  "form": {
-    "formItems": [
-      {
-        "FormOptionSet": {
-          "expanded": false,
+  "form": [
+    {
+      "formItemType": "OptionSet",
+      "expanded": false,
+      "helpText": "translated.helpText",
+      "label": "translated.label",
+      "name": "myOptionSet",
+      "occurrences": {
+        "maximum": 1,
+        "minimum": 0
+      },
+      "options": [
+        {
+          "default": false,
           "helpText": "translated.helpText",
-          "label": "translated.label",
-          "multiselection": {
-            "maximum": 1,
-            "minimum": 0
-          },
-          "name": "myOptionSet",
-          "occurrences": {
-            "maximum": 1,
-            "minimum": 0
-          },
-          "options": [
+          "items": [
             {
-              "defaultOption": false,
+              "formItemType": "Input",
+              "config": {},
               "helpText": "translated.helpText",
-              "items": [
-                {
-                  "Input": {
-                    "config": {},
-                    "helpText": "translated.helpText",
-                    "inputType": "TextLine",
-                    "label": "translated.label",
-                    "name": "myTextLine",
-                    "occurrences": {
-                      "maximum": 1,
-                      "minimum": 1
-                    }
-                  }
-                }
-              ],
+              "inputType": "TextLine",
               "label": "translated.label",
-              "name": "option"
+              "name": "myTextLine",
+              "occurrences": {
+                "maximum": 1,
+                "minimum": 1
+              }
             }
-          ]
+          ],
+          "label": "translated.label",
+          "name": "option"
         }
+      ],
+      "selection": {
+        "maximum": 1,
+        "minimum": 0
       }
-    ]
-  },
+    }
+  ],
   "iconUrl": "/admin/rest-v2/cs/schema/content/icon/myapplication:my_cty?hash=f95b70fdc3088560732a5ac135644506",
   "name": "myapplication:my_cty",
   "superType": "base:unstructured",

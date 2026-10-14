@@ -1,11 +1,9 @@
-import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {type MacroKey} from '@enonic/lib-admin-ui/macro/MacroKey';
-import {MacroResourceRequest} from './MacroResourceRequest';
-import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
+import type { PropertyTree } from '@enonic/input-types/data';
+import { type MacroKey } from '@enonic/lib-admin-ui/macro/MacroKey';
+import { MacroResourceRequest } from './MacroResourceRequest';
+import { HttpMethod } from '@enonic/lib-admin-ui/rest/HttpMethod';
 
-export class PreviewRequest<PARSED_TYPE>
-    extends MacroResourceRequest<PARSED_TYPE> {
-
+export class PreviewRequest<PARSED_TYPE> extends MacroResourceRequest<PARSED_TYPE> {
     protected data: PropertyTree;
 
     protected macroKey: MacroKey;
@@ -20,7 +18,7 @@ export class PreviewRequest<PARSED_TYPE>
     getParams(): object {
         return {
             form: this.data.toJson(),
-            macroKey: this.macroKey.getRefString()
+            macroKey: this.macroKey.getRefString(),
         };
     }
 }

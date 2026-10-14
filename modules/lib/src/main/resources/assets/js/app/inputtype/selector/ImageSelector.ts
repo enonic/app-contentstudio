@@ -1,37 +1,35 @@
-import {Class} from '@enonic/lib-admin-ui/Class';
-import {type PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
-import {type Input} from '@enonic/lib-admin-ui/form/Input';
-import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import {type BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
-import {type SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {type UploadFailedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadFailedEvent';
-import {type UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
-import {type UploadProgressEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadProgressEvent';
+import { Class } from '@enonic/lib-admin-ui/Class';
+import type { PropertyArray } from '@enonic/input-types/data';
+import type { Input } from '@enonic/input-types/schema';
+import { InputTypeManager } from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
+import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { ResponsiveManager } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import { type BaseSelectedOptionsView } from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import { type SelectedOption } from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import { type UploadFailedEvent } from '@enonic/lib-admin-ui/ui/uploader/UploadFailedEvent';
+import { type UploadItem } from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
+import { type UploadProgressEvent } from '@enonic/lib-admin-ui/ui/uploader/UploadProgressEvent';
 import Q from 'q';
-import {type Content} from '../../content/Content';
-import {type ContentPath} from '../../content/ContentPath';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {EditContentEvent} from '../../event/EditContentEvent';
-import {type ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
-import {GetMimeTypesByContentTypeNamesRequest} from '../../resource/GetMimeTypesByContentTypeNamesRequest';
-import {type ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
-import {type ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
-import {ImageOptionDataLoader, ImageOptionDataLoaderBuilder} from '../ui/selector/image/ImageOptionDataLoader';
-import {ImageSelectorSelectedOptionsView} from '../ui/selector/image/ImageSelectorSelectedOptionsView';
-import {type ImageSelectorSelectedOptionView} from '../ui/selector/image/ImageSelectorSelectedOptionView';
-import {ImageUploaderEl} from '../ui/selector/image/ImageUploaderEl';
-import {MediaTreeSelectorItem} from '../ui/selector/media/MediaTreeSelectorItem';
-import {type ContentListBox} from './ContentListBox';
-import {type ContentSelectorDropdownOptions} from './ContentSelectorDropdown';
-import {ImageContentListBox} from './ImageContentListBox';
-import {ImageSelectorDropdown} from './ImageSelectorDropdown';
-import {MediaSelector} from './MediaSelector';
+import { type Content } from '../../content/Content';
+import { type ContentPath } from '../../content/ContentPath';
+import { ContentSummaryAndCompareStatus } from '../../content/ContentSummaryAndCompareStatus';
+import { EditContentEvent } from '../../event/EditContentEvent';
+import { type ContentTreeSelectorItem } from '../../item/ContentTreeSelectorItem';
+import { GetMimeTypesByContentTypeNamesRequest } from '../../resource/GetMimeTypesByContentTypeNamesRequest';
+import { type ContentInputTypeViewContext } from '../ContentInputTypeViewContext';
+import { type ContentSummaryOptionDataLoader } from '../ui/selector/ContentSummaryOptionDataLoader';
+import { ImageOptionDataLoader, ImageOptionDataLoaderBuilder } from '../ui/selector/image/ImageOptionDataLoader';
+import { ImageSelectorSelectedOptionsView } from '../ui/selector/image/ImageSelectorSelectedOptionsView';
+import { type ImageSelectorSelectedOptionView } from '../ui/selector/image/ImageSelectorSelectedOptionView';
+import { ImageUploaderEl } from '../ui/selector/image/ImageUploaderEl';
+import { MediaTreeSelectorItem } from '../ui/selector/media/MediaTreeSelectorItem';
+import { type ContentListBox } from './ContentListBox';
+import { type ContentSelectorDropdownOptions } from './ContentSelectorDropdown';
+import { ImageContentListBox } from './ImageContentListBox';
+import { ImageSelectorDropdown } from './ImageSelectorDropdown';
+import { MediaSelector } from './MediaSelector';
 
-export class ImageSelector
-    extends MediaSelector<ImageSelectorSelectedOptionsView> {
-
+export class ImageSelector extends MediaSelector<ImageSelectorSelectedOptionsView> {
     constructor(context: ContentInputTypeViewContext) {
         super(context);
 
@@ -67,8 +65,11 @@ export class ImageSelector
 
     createLoader(): ContentSummaryOptionDataLoader<MediaTreeSelectorItem> {
         return ImageOptionDataLoader.build(
-            this.createOptionDataLoaderBuilder().setContent(this.context.content).setAllowedContentPaths(
-                this.allowedContentPaths).setAppendLoadResults(false));
+            this.createOptionDataLoaderBuilder()
+                .setContent(this.context.content)
+                .setAllowedContentPaths(this.allowedContentPaths)
+                .setAppendLoadResults(false),
+        );
     }
 
     protected createOptionDataLoaderBuilder(): ImageOptionDataLoaderBuilder {
@@ -86,7 +87,8 @@ export class ImageSelector
 
         if (this.allowedContentTypes.length > 0) {
             return new GetMimeTypesByContentTypeNamesRequest(
-                this.allowedContentTypes.map(name => new ContentTypeName(name)))
+                this.allowedContentTypes.map((name) => new ContentTypeName(name)),
+            )
                 .sendAndParse()
                 .then((mimeTypes: string[]) => {
                     config.allowMimeTypes = mimeTypes;
@@ -98,7 +100,6 @@ export class ImageSelector
     }
 
     protected doInitUploader(uploader: ImageUploaderEl): ImageUploaderEl {
-
         super.doInitUploader(uploader);
 
         uploader.onUploadProgress((event: UploadProgressEvent<Content>) => {
@@ -125,8 +126,9 @@ export class ImageSelector
         uploader.onUploadFailed((event: UploadFailedEvent<Content>) => {
             const item: UploadItem<Content> = event.getUploadItem();
 
-            const selectedOption: SelectedOption<MediaTreeSelectorItem> =
-                this.getSelectedOptionsView().getById(item.getId());
+            const selectedOption: SelectedOption<MediaTreeSelectorItem> = this.getSelectedOptionsView().getById(
+                item.getId(),
+            );
 
             if (selectedOption) {
                 this.getSelectedOptionsView().removeOption(selectedOption.getOption());
@@ -139,11 +141,13 @@ export class ImageSelector
     }
 
     protected createContentListBox(loader: ContentSummaryOptionDataLoader<MediaTreeSelectorItem>): ImageContentListBox {
-        return new ImageContentListBox({loader: loader});
+        return new ImageContentListBox({ loader: loader });
     }
 
-    protected doCreateSelectorDropdown(listBox: ContentListBox<ContentTreeSelectorItem>,
-                                       dropdownOptions: ContentSelectorDropdownOptions): ImageSelectorDropdown {
+    protected doCreateSelectorDropdown(
+        listBox: ContentListBox<ContentTreeSelectorItem>,
+        dropdownOptions: ContentSelectorDropdownOptions,
+    ): ImageSelectorDropdown {
         return new ImageSelectorDropdown(listBox, dropdownOptions);
     }
 
@@ -154,8 +158,10 @@ export class ImageSelector
     protected handleSelectedOptionDeleted(selectedOption: SelectedOption<ContentTreeSelectorItem>): void {
         const option = selectedOption.getOption();
         const contentId = option.getDisplayValue().getContentId();
-        const newValue = MediaTreeSelectorItem.create().setContent(ContentSummaryAndCompareStatus.fromId(contentId)).setAvailabilityStatus(
-            'NOT_FOUND').build();
+        const newValue = MediaTreeSelectorItem.create()
+            .setContent(ContentSummaryAndCompareStatus.fromId(contentId))
+            .setAvailabilityStatus('NOT_FOUND')
+            .build();
         option.setDisplayValue(newValue);
         selectedOption.getOptionView().setOption(option);
     }

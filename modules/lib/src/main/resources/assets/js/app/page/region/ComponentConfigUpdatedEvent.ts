@@ -1,10 +1,8 @@
-import {type ComponentPath} from './ComponentPath';
-import {ComponentUpdatedEvent} from './ComponentUpdatedEvent';
-import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import { type ComponentPath } from './ComponentPath';
+import { ComponentUpdatedEvent } from './ComponentUpdatedEvent';
+import type { PropertyTree } from '@enonic/input-types/data';
 
-export class ComponentConfigUpdatedEvent
-    extends ComponentUpdatedEvent {
-
+export class ComponentConfigUpdatedEvent extends ComponentUpdatedEvent {
     private readonly config: PropertyTree;
 
     constructor(componentPath: ComponentPath, config: PropertyTree) {

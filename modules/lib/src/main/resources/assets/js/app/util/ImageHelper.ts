@@ -1,9 +1,8 @@
-import {type Content} from '../content/Content';
-import {MixinName} from '../content/MixinName';
-import {type Property} from '@enonic/lib-admin-ui/data/Property';
+import { type Content } from '../content/Content';
+import { MixinName } from '../content/MixinName';
+import type { Property } from '@enonic/input-types/data';
 
 export class ImageHelper {
-
     static getImageCaption(imageContent: Content): string {
         const captionProperty: Property = imageContent.getProperty('caption');
 

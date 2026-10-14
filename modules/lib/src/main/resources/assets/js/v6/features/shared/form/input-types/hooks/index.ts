@@ -1,2 +1,3 @@
-export {useSelectorInput, type GeneralSelectorConfig} from './useSelectorInput';
-export {useSelectorInputHasError} from './useSelectorInputHasError';
+export { useSelectorInput, type GeneralSelectorConfig } from './useSelectorInput';
+export { useSelectorInputHasError } from './useSelectorInputHasError';
+export { useFormApplicationKey } from './useFormApplicationKey';

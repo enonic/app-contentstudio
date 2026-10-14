@@ -1,9 +1,6 @@
-import {type ComponentJson} from './ComponentJson';
-import {type PropertyArrayJson} from '@enonic/lib-admin-ui/data/PropertyArrayJson';
+import { type ComponentJson } from './ComponentJson';
+import type { PropertyTreeJson } from '@enonic/ui-types';
 
-export interface ConfigBasedComponentJson
-    extends ComponentJson {
-
-    config: PropertyArrayJson[];
-
+export interface ConfigBasedComponentJson extends ComponentJson {
+    config: PropertyTreeJson;
 }

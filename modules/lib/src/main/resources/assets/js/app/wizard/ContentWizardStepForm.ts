@@ -1,17 +1,15 @@
-import {type ContentFormContext} from '../ContentFormContext';
+import { type ContentFormContext } from '../ContentFormContext';
 import type Q from 'q';
-import {type Form} from '@enonic/lib-admin-ui/form/Form';
-import {type FormContext} from '@enonic/lib-admin-ui/form/FormContext';
-import {FormView} from '@enonic/lib-admin-ui/form/FormView';
-import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {WizardStepValidityChangedEvent} from '@enonic/lib-admin-ui/app/wizard/WizardStepValidityChangedEvent';
-import {WizardStepForm} from '@enonic/lib-admin-ui/app/wizard/WizardStepForm';
-import {type FormValidityChangedEvent} from '@enonic/lib-admin-ui/form/FormValidityChangedEvent';
-import {ValidationRecording} from '@enonic/lib-admin-ui/form/ValidationRecording';
+import type { Form } from '@enonic/input-types/schema';
+import { type FormContext } from '@enonic/lib-admin-ui/form/FormContext';
+import { FormView } from '@enonic/lib-admin-ui/form/FormView';
+import type { PropertyTree } from '@enonic/input-types/data';
+import { WizardStepValidityChangedEvent } from '@enonic/lib-admin-ui/app/wizard/WizardStepValidityChangedEvent';
+import { WizardStepForm } from '@enonic/lib-admin-ui/app/wizard/WizardStepForm';
+import { type FormValidityChangedEvent } from '@enonic/lib-admin-ui/form/FormValidityChangedEvent';
+import { ValidationRecording } from '@enonic/lib-admin-ui/form/ValidationRecording';
 
-export class ContentWizardStepForm
-    extends WizardStepForm {
-
+export class ContentWizardStepForm extends WizardStepForm {
     protected formContext: FormContext;
 
     protected form: Form;
@@ -94,7 +92,6 @@ export class ContentWizardStepForm
     }
 
     getData(): PropertyTree {
-
         return this.data;
     }
 

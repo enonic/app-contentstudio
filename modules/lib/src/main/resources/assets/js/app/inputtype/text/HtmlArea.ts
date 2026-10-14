@@ -1,11 +1,7 @@
 import { type ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 import { BrowserHelper } from '@enonic/lib-admin-ui/BrowserHelper';
 import { Class } from '@enonic/lib-admin-ui/Class';
-import { type Property } from '@enonic/lib-admin-ui/data/Property';
-import { type Value } from '@enonic/lib-admin-ui/data/Value';
-import { type ValueType } from '@enonic/lib-admin-ui/data/ValueType';
-import { ValueTypeConverter } from '@enonic/lib-admin-ui/data/ValueTypeConverter';
-import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { type Property, type Value, type ValueType, ValueTypeConverter, ValueTypes } from '@enonic/input-types/data';
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
 import { Element } from '@enonic/lib-admin-ui/dom/Element';
@@ -362,7 +358,8 @@ export class HtmlArea extends BaseInputTypeNotManagingAdd {
     }
 
     private getTools(enabled: boolean): string[] {
-        const toolsObj: Record<string, unknown>[] = this.getContext().inputConfig[enabled ? 'include' : 'exclude'];
+        const toolsObj: readonly Record<string, unknown>[] =
+            this.getContext().inputConfig[enabled ? 'include' : 'exclude'];
         const result: string[] = [];
 
         if (toolsObj && toolsObj instanceof Array) {

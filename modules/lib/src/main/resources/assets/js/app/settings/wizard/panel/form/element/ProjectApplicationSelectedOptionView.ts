@@ -1,22 +1,22 @@
-import {BaseSelectedOptionView, BaseSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
+import {
+    BaseSelectedOptionView,
+    BaseSelectedOptionViewBuilder,
+} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
 import Q from 'q';
-import {ProjectSelectedApplicationViewer} from './ProjectSelectedApplicationViewer';
-import {type Application} from '@enonic/lib-admin-ui/application/Application';
-import {SiteConfiguratorDialog} from '../../../../../inputtype/ui/siteconfigurator/SiteConfiguratorDialog';
-import {FormView} from '@enonic/lib-admin-ui/form/FormView';
-import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {type FormContext} from '@enonic/lib-admin-ui/form/FormContext';
-import {FormState} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
-import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {type FormValidityChangedEvent} from '@enonic/lib-admin-ui/form/FormValidityChangedEvent';
-import {ProjectApplication} from './ProjectApplication';
-import {ContentFormContext} from '../../../../../ContentFormContext';
-import {type Project} from '../../../../data/project/Project';
+import { ProjectSelectedApplicationViewer } from './ProjectSelectedApplicationViewer';
+import { type Application } from '@enonic/lib-admin-ui/application/Application';
+import { SiteConfiguratorDialog } from '../../../../../inputtype/ui/siteconfigurator/SiteConfiguratorDialog';
+import { FormView } from '@enonic/lib-admin-ui/form/FormView';
+import { PropertySet, PropertyTree } from '@enonic/input-types/data';
+import { type FormContext } from '@enonic/lib-admin-ui/form/FormContext';
+import { FormState } from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
+import { ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import { type FormValidityChangedEvent } from '@enonic/lib-admin-ui/form/FormValidityChangedEvent';
+import { ProjectApplication } from './ProjectApplication';
+import { ContentFormContext } from '../../../../../ContentFormContext';
+import { type Project } from '../../../../data/project/Project';
 
-export class ProjectApplicationSelectedOptionView
-    extends BaseSelectedOptionView<Application> {
-
+export class ProjectApplicationSelectedOptionView extends BaseSelectedOptionView<Application> {
     private projectApplicationViewer: ProjectSelectedApplicationViewer;
 
     private configureDialog?: SiteConfiguratorDialog;
@@ -50,7 +50,7 @@ export class ProjectApplicationSelectedOptionView
     layoutForm(): Q.Promise<void> {
         if (!this.formView) {
             this.formView = this.createFormView();
-            this.formViewCreatedListeners.forEach(callBack => callBack());
+            this.formViewCreatedListeners.forEach((callBack) => callBack());
             this.formViewCreatedListeners = [];
             return this.formView.layout();
         }
@@ -103,13 +103,12 @@ export class ProjectApplicationSelectedOptionView
 
     private initConfigurationDialog(): void {
         this.configureDialog = new SiteConfiguratorDialog({
-                application: this.getOption().getDisplayValue(),
-                formView: this.formView,
-                isDirtyCallback: this.isDialogDataDirty.bind(this),
-                okCallback: this.applyConfig.bind(this),
-                cancelCallback: this.revertFormView.bind(this)
-            }
-        );
+            application: this.getOption().getDisplayValue(),
+            formView: this.formView,
+            isDirtyCallback: this.isDialogDataDirty.bind(this),
+            okCallback: this.applyConfig.bind(this),
+            cancelCallback: this.revertFormView.bind(this),
+        });
     }
 
     private isDialogDataDirty(): boolean {
@@ -157,7 +156,6 @@ export class ProjectApplicationSelectedOptionView
 }
 
 export class ProjectApplicationSelectedOptionViewBuilder extends BaseSelectedOptionViewBuilder<Application> {
-
     project?: Project;
 
     setProject(value: Project): this {
@@ -167,7 +165,6 @@ export class ProjectApplicationSelectedOptionViewBuilder extends BaseSelectedOpt
 }
 
 class FormViewWrapper extends FormView {
-
     layout(validate?: boolean): Q.Promise<void> {
         return this.isLayoutFinished() ? Q.resolve() : super.layout(validate);
     }

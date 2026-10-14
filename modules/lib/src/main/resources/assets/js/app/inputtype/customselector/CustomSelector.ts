@@ -1,10 +1,7 @@
 import Q from 'q';
 import { StringHelper } from '@enonic/lib-admin-ui/util/StringHelper';
 import { isBlank } from '../../../v6/shared/lib/format/isBlank';
-import { type PropertyArray } from '@enonic/lib-admin-ui/data/PropertyArray';
-import { Value } from '@enonic/lib-admin-ui/data/Value';
-import { type ValueType } from '@enonic/lib-admin-ui/data/ValueType';
-import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { type PropertyArray, Value, type ValueType, ValueTypes, ValueTypeConverter } from '@enonic/input-types/data';
 import { UriHelper } from '../../rendering/UriHelper';
 import { UriHelper as LibUriHelper } from '@enonic/lib-admin-ui/util/UriHelper';
 import { type SelectedOption } from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
@@ -14,8 +11,7 @@ import { CustomSelectorComboBox, type CustomSelectorSelectedOptionsView } from '
 import { type CustomSelectorGallerySelectedOptionsView } from './CustomSelectorGallerySelectedOptionsView';
 import { type ContentInputTypeViewContext } from '../ContentInputTypeViewContext';
 import { BaseInputTypeManagingAdd } from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
-import { type Input } from '@enonic/lib-admin-ui/form/Input';
-import { ValueTypeConverter } from '@enonic/lib-admin-ui/data/ValueTypeConverter';
+import type { Input } from '@enonic/input-types/schema';
 import { InputTypeManager } from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
 import { Class } from '@enonic/lib-admin-ui/Class';
 import { UrlAction } from '../../UrlAction';
@@ -101,8 +97,7 @@ export class CustomSelector extends BaseInputTypeManagingAdd {
         }
         const serviceParams = cfg['param'] || [];
 
-        const params = serviceParams.reduce((prev, curr) => {
-            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+        const params = serviceParams.reduce<Record<string, unknown>>((prev, curr) => {
             prev[curr['@value'] as string] = curr['value'];
             return prev;
         }, {});

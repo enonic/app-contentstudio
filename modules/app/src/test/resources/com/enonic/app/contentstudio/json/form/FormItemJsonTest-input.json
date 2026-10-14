@@ -1,13 +1,12 @@
 {
-  "Input": {
-    "config": {},
-    "helpText": "Help text",
-    "inputType": "TextLine",
-    "label": "My TextLine",
-    "name": "myTextLine",
-    "occurrences": {
-      "maximum": 3,
-      "minimum": 1
-    }
+  "formItemType": "Input",
+  "config": {},
+  "helpText": "Help text",
+  "inputType": "TextLine",
+  "label": "My TextLine",
+  "name": "myTextLine",
+  "occurrences": {
+    "maximum": 3,
+    "minimum": 1
   }
 }

@@ -1,20 +1,19 @@
 {
-  "Input": {
-    "config": {
-      "options": [
-        {
-          "@i18n": "translate.option",
-          "value": "translatedOptionValue"
-        }
-      ]
-    },
-    "helpText": "Help text",
-    "inputType": "RadioButton",
-    "label": "My TextLine",
-    "name": "myTextLine",
-    "occurrences": {
-      "maximum": 3,
-      "minimum": 1
-    }
+  "formItemType": "Input",
+  "config": {
+    "options": [
+      {
+        "@i18n": "translate.option",
+        "value": "translatedOptionValue"
+      }
+    ]
+  },
+  "helpText": "Help text",
+  "inputType": "RadioButton",
+  "label": "My TextLine",
+  "name": "myTextLine",
+  "occurrences": {
+    "maximum": 3,
+    "minimum": 1
   }
 }

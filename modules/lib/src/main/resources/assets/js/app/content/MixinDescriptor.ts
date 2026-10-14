@@ -1,17 +1,13 @@
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {type MixinDescriptorJson} from '../resource/json/MixinDescriptorJson';
-import {MixinName} from './MixinName';
-import {Schema, SchemaBuilder} from '@enonic/lib-admin-ui/schema/Schema';
-import {type FormItem} from '@enonic/lib-admin-ui/form/FormItem';
-import {type Form, FormBuilder} from '@enonic/lib-admin-ui/form/Form';
-import {FormItemFactoryImpl} from '@enonic/lib-admin-ui/form/FormItemFactoryImpl';
-import {type ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
+import { type MixinDescriptorJson } from '../resource/json/MixinDescriptorJson';
+import { MixinName } from './MixinName';
+import { Schema, SchemaBuilder } from '@enonic/lib-admin-ui/schema/Schema';
+import { type FormItem, type Form, formItemsFromJson } from '@enonic/input-types/schema';
+import { FormBuilder } from '@enonic/lib-admin-ui/form/Form';
+import { type ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 
-export class MixinDescriptor
-    extends Schema
-    implements Equitable {
-
+export class MixinDescriptor extends Schema implements Equitable {
     private schemaKey: string;
 
     private formItems: FormItem[];
@@ -46,7 +42,6 @@ export class MixinDescriptor
     }
 
     equals(o: Equitable): boolean {
-
         if (!ObjectHelper.iFrameSafeInstanceOf(o, MixinDescriptor)) {
             return false;
         }
@@ -74,12 +69,9 @@ export class MixinDescriptor
     toForm(): Form {
         return new FormBuilder().addFormItems(this.formItems).build();
     }
-
 }
 
-export class MixinDescriptorBuilder
-    extends SchemaBuilder {
-
+export class MixinDescriptorBuilder extends SchemaBuilder {
     schemaKey: string;
 
     formItems: FormItem[];
@@ -96,19 +88,13 @@ export class MixinDescriptorBuilder
     }
 
     fromMixinDescriptorJson(mixinDescriptorJson: MixinDescriptorJson): MixinDescriptorBuilder {
-
         super.fromSchemaJson(mixinDescriptorJson);
 
-        this.formItems = [];
-        if (mixinDescriptorJson.form && mixinDescriptorJson.form.formItems) {
-            const applicationKey: ApplicationKey = new MixinName(this.name).getApplicationKey();
-            mixinDescriptorJson.form.formItems.forEach((formItemJson) => {
-                const formItem: FormItem = FormItemFactoryImpl.get().createFormItem(formItemJson, applicationKey);
-                if (formItem) {
-                    this.formItems.push(formItem);
-                }
-            });
-        }
+        const applicationKey: ApplicationKey = new MixinName(this.name).getApplicationKey();
+        this.formItems =
+            mixinDescriptorJson.form != null
+                ? formItemsFromJson(mixinDescriptorJson.form, applicationKey.toString())
+                : [];
         this.schemaKey = 'mixin:' + this.name;
         this.optional = mixinDescriptorJson.isOptional;
         return this;
@@ -117,5 +103,4 @@ export class MixinDescriptorBuilder
     build(): MixinDescriptor {
         return new MixinDescriptor(this);
     }
-
 }

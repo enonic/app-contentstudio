@@ -1,5 +1,5 @@
-import type { SelfManagedComponentProps } from '@enonic/lib-admin-ui/form2';
-import { SortableGridList } from '@enonic/lib-admin-ui/form2/components';
+import type { SelfManagedComponentProps } from '@enonic/input-types';
+import { SortableGridList } from '@enonic/input-types';
 import { Combobox } from '@enonic/ui';
 import { type ReactElement, useMemo, useState } from 'react';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';

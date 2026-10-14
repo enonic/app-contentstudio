@@ -13,7 +13,8 @@
  *
  * 1. FORM2_HOLDOUT — features/shared (form, selectors, lists, buckets, status,
  *    hooks) relocates together with the in-flight form2 migration; it is exempt
- *    both as source and target until then.
+ *    as a target until then, and as a source only for the files listed in
+ *    FORM2_HOLDOUT_PENDING.
  * 2. KNOWN_DEBT_FILES — files with documented cross-slice edges that need design
  *    work, not relocation: widget interaction through the context-widgets
  *    registry, page-editor coupling to the wizard form model, publish-from-issue
@@ -27,8 +28,20 @@ const V6 = 'src/main/resources/assets/js/v6';
 // Highest to lowest; the array order defines the import direction.
 const LAYERS = ['app', 'pages', 'widgets', 'features', 'entities', 'shared'];
 
-// Relocates with the form2 migration; exempt as source and target until then.
+// Relocates with the form2 migration; exempt as an import target until then.
 const FORM2_HOLDOUT = `^${V6}/features/shared/`;
+
+// The holdout files that still import upward or sideways; an entry goes when its edges do.
+const FORM2_HOLDOUT_PENDING = [
+    `^${V6}/features/shared/form/input-types/attachment-uploader/useAttachmentServerErrors.ts`,
+    `^${V6}/features/shared/form/input-types/attachment-uploader/useAttachmentUploader.ts`,
+    `^${V6}/features/shared/form/input-types/content-selector/ContentSelectorInputAddButton.tsx`,
+    `^${V6}/features/shared/form/input-types/content-type-filter/useContentTypeFilter.ts`,
+    `^${V6}/features/shared/form/input-types/html-area/HtmlAreaInput.tsx`,
+    `^${V6}/features/shared/form/input-types/site-configurator/SiteConfiguratorInput.tsx`,
+    `^${V6}/features/shared/hooks/useApplicationKeys.ts`,
+    `^${V6}/features/shared/icons/LayerIndicator.tsx`,
+];
 
 // Test files are not architecture: they may reach across slices for mocks,
 // fixtures, and assertions, so they are exempt as import sources.
@@ -83,17 +96,11 @@ const KNOWN_DEBT = [
         from: [`^${V6}/features/manage-project/model/projectDialog.store.ts`],
         to: [`^${V6}/pages/settings/model/`],
     },
-    {
-        name: 'debt-context-content-read',
-        comment: 'Link dialog reads the context panel subject; the current-content concept belongs to entities/content',
-        from: [`^${V6}/features/rich-text-inserts/ui/htmlarea-link/ContentTabPanel.tsx`],
-        to: [`^${V6}/widgets/context-panel/model/contextContent`],
-    },
 ];
 
 const KNOWN_DEBT_FILES = [...new Set(KNOWN_DEBT.flatMap((d) => d.from))];
 
-const FROM_EXEMPT = [FORM2_HOLDOUT, TEST_FILES, ...KNOWN_DEBT_FILES];
+const FROM_EXEMPT = [...FORM2_HOLDOUT_PENDING, TEST_FILES, ...KNOWN_DEBT_FILES];
 
 // One rule per layer below app: importing any layer above it is a violation.
 const noUpwardImports = LAYERS.slice(1).map((layer, i) => ({

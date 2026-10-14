@@ -1,5 +1,5 @@
-import { type SelfManagedComponentProps } from '@enonic/lib-admin-ui/form2';
-import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { type SelfManagedComponentProps } from '@enonic/input-types';
+import { ValueTypes } from '@enonic/input-types/data';
 import { type ContentTypeSummary } from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { useStore } from '@nanostores/preact';
@@ -8,7 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Site } from '../../../../../../app/content/Site';
 import { fetchNearestSite } from '../../../../../entities/content';
 import { fetchAllContentTypes, fetchContentTypesByContent } from '../../../../../entities/schema/api/contentTypes.api';
-import { $contextContent } from '../../../../../widgets/context-panel/model/contextContent.store';
+import { $contextContent } from '../../../../../entities/content';
 import { $activeProject } from '../../../../../entities/project';
 import { $contentType } from '../../../../../pages/wizard/model/wizardContent.store';
 import type { ContentTypeFilterConfig } from './ContentTypeFilterConfig';

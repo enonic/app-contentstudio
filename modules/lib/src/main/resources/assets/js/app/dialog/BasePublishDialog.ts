@@ -1,6 +1,5 @@
 import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
-import { type PropertyEvent } from '@enonic/lib-admin-ui/data/PropertyEvent';
-import { PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
+import { type PropertyEvent, PropertySet } from '@enonic/input-types/data';
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { type ButtonEl } from '@enonic/lib-admin-ui/dom/ButtonEl';
 import { showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';

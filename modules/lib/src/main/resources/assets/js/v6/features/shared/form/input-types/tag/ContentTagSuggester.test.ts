@@ -1,5 +1,5 @@
-import { PropertyPath } from '@enonic/lib-admin-ui/data/PropertyPath';
-import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import { PropertyPath } from '@enonic/input-types/data';
+import { ValueTypes } from '@enonic/input-types/data';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Content } from '../../../../../../app/content/Content';
 import type { ContentSummary } from '../../../../../../app/content/ContentSummary';

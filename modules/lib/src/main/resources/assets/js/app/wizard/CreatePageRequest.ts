@@ -1,20 +1,17 @@
-import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {type PageCUDRequest} from '../resource/PageCUDRequest';
-import {PageResourceRequest} from '../resource/PageResourceRequest';
-import {type Content} from '../content/Content';
-import {type ContentJson} from '../content/ContentJson';
-import {type PageTemplateKey} from '../page/PageTemplateKey';
-import {type Regions} from '../page/region/Regions';
-import {type Component} from '../page/region/Component';
-import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {type DescriptorKey} from '../page/DescriptorKey';
-import {type ContentId} from '../content/ContentId';
+import { type JsonResponse } from '@enonic/lib-admin-ui/rest/JsonResponse';
+import { type PageCUDRequest } from '../resource/PageCUDRequest';
+import { PageResourceRequest } from '../resource/PageResourceRequest';
+import { type Content } from '../content/Content';
+import { type ContentJson } from '../content/ContentJson';
+import { type PageTemplateKey } from '../page/PageTemplateKey';
+import { type Regions } from '../page/region/Regions';
+import { type Component } from '../page/region/Component';
+import type { PropertyTree } from '@enonic/input-types/data';
+import { HttpMethod } from '@enonic/lib-admin-ui/rest/HttpMethod';
+import { type DescriptorKey } from '../page/DescriptorKey';
+import { type ContentId } from '../content/ContentId';
 
-export class CreatePageRequest
-    extends PageResourceRequest<Content>
-    implements PageCUDRequest {
-
+export class CreatePageRequest extends PageResourceRequest<Content> implements PageCUDRequest {
     private contentId: ContentId;
 
     private controller: DescriptorKey;
@@ -66,7 +63,7 @@ export class CreatePageRequest
             template: this.template ? this.template.toString() : null,
             config: this.config ? this.config.toJson() : null,
             regions: this.regions != null ? this.regions.toJson() : null,
-            fragment: this.fragment != null ? this.fragment.toJson() : null
+            fragment: this.fragment != null ? this.fragment.toJson() : null,
         };
     }
 

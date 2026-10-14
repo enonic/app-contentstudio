@@ -1,15 +1,13 @@
-import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {type Content} from '../content/Content';
-import {type ContentJson} from '../content/ContentJson';
-import {type Mixin} from '../content/Mixin';
-import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {type ContentName} from '../content/ContentName';
-import {CmsContentResourceRequest} from './CmsContentResourceRequest';
+import { type JsonResponse } from '@enonic/lib-admin-ui/rest/JsonResponse';
+import { type Content } from '../content/Content';
+import { type ContentJson } from '../content/ContentJson';
+import { type Mixin } from '../content/Mixin';
+import type { PropertyTree } from '@enonic/input-types/data';
+import { HttpMethod } from '@enonic/lib-admin-ui/rest/HttpMethod';
+import { type ContentName } from '../content/ContentName';
+import { CmsContentResourceRequest } from './CmsContentResourceRequest';
 
-export class UpdateContentRequest
-    extends CmsContentResourceRequest<Content> {
-
+export class UpdateContentRequest extends CmsContentResourceRequest<Content> {
     private id: string;
 
     private name: ContentName;
@@ -84,5 +82,4 @@ export class UpdateContentRequest
     protected parseResponse(response: JsonResponse<ContentJson>): Content {
         return this.fromJsonToContent(response.getResult());
     }
-
 }

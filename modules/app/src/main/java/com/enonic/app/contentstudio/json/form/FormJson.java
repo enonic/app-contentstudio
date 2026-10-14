@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import com.enonic.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.app.contentstudio.rest.resource.schema.mixin.CmsFormFragmentResolver;
@@ -29,6 +30,7 @@ public class FormJson
         }
     }
 
+    @JsonValue
     public List<FormItemJson> getFormItems()
     {
         return items;

@@ -1,5 +1,5 @@
-import type { PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
-import type { Form } from '@enonic/lib-admin-ui/form/Form';
+import type { PropertySet } from '@enonic/input-types/data';
+import type { Form } from '@enonic/input-types/schema';
 import { useEffect } from 'react';
 import { resetInspectFormTracking, setInspectFormPresent } from '../../../model/inspect-panel.store';
 

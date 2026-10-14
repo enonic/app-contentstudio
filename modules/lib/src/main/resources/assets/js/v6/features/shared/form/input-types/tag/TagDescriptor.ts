@@ -1,9 +1,13 @@
-import type {Value} from '@enonic/lib-admin-ui/data/Value';
-import type {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
-import type {RawInputConfig} from '@enonic/lib-admin-ui/form/Input';
-import {TagDescriptor as BaseTagDescriptor, type InputTypeDescriptor, type ValidationResult} from '@enonic/lib-admin-ui/form2/descriptor';
-import type {TagConfig} from './TagConfig';
-import {readTagConfig} from './TagConfig';
+import type { Value } from '@enonic/input-types/data';
+import type { ValueType } from '@enonic/input-types/data';
+import {
+    type InputConfigEntries,
+    TagDescriptor as BaseTagDescriptor,
+    type InputTypeDescriptor,
+    type ValidationResult,
+} from '@enonic/input-types';
+import type { TagConfig } from './TagConfig';
+import { readTagConfig } from './TagConfig';
 
 export const TagDescriptor: InputTypeDescriptor<TagConfig> = {
     name: 'Tag',
@@ -12,7 +16,7 @@ export const TagDescriptor: InputTypeDescriptor<TagConfig> = {
         return BaseTagDescriptor.getValueType();
     },
 
-    readConfig(raw: RawInputConfig): TagConfig {
+    readConfig(raw: InputConfigEntries): TagConfig {
         return readTagConfig(raw);
     },
 

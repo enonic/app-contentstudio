@@ -1,36 +1,30 @@
 import Q from 'q';
-import {type Input} from '@enonic/lib-admin-ui/form/Input';
-import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
-import {Class} from '@enonic/lib-admin-ui/Class';
-import {type PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {type UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
-import {type UploadFailedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadFailedEvent';
-import {AttachmentUploaderEl, type AttachmentUploaderElConfig} from '../ui/upload/AttachmentUploaderEl';
-import {type ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
-import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
-import {type Attachment} from '../../attachment/Attachment';
-import {DeleteAttachmentRequest} from '../../resource/DeleteAttachmentRequest';
-import {type Content} from '../../content/Content';
-import {showError, showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {ValueTypeConverter} from '@enonic/lib-admin-ui/data/ValueTypeConverter';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
-import {Value} from '@enonic/lib-admin-ui/data/Value';
-import {type ValueType} from '@enonic/lib-admin-ui/data/ValueType';
-import {BaseInputTypeManagingAdd} from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {type Page} from '../../page/Page';
-import {type ValidationError} from '@enonic/lib-admin-ui/ValidationError';
-import {InputValidationRecording} from '@enonic/lib-admin-ui/form/inputtype/InputValidationRecording';
-import {type AttachmentItem} from '../ui/upload/AttachmentItem';
-import {ValueChangedEvent} from '@enonic/lib-admin-ui/form/inputtype/ValueChangedEvent';
-import {PageHelper} from '../../util/PageHelper';
+import type { Input } from '@enonic/input-types/schema';
+import { InputTypeManager } from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
+import { Class } from '@enonic/lib-admin-ui/Class';
+import { type PropertyArray, ValueTypes, ValueTypeConverter, Value, type ValueType } from '@enonic/input-types/data';
+import { type UploadedEvent } from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
+import { type UploadFailedEvent } from '@enonic/lib-admin-ui/ui/uploader/UploadFailedEvent';
+import { AttachmentUploaderEl, type AttachmentUploaderElConfig } from '../ui/upload/AttachmentUploaderEl';
+import { type ContentInputTypeViewContext } from '../ContentInputTypeViewContext';
+import { ContentRequiresSaveEvent } from '../../event/ContentRequiresSaveEvent';
+import { type Attachment } from '../../attachment/Attachment';
+import { DeleteAttachmentRequest } from '../../resource/DeleteAttachmentRequest';
+import { type Content } from '../../content/Content';
+import { showError, showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
+import { Button } from '@enonic/lib-admin-ui/ui/button/Button';
+import { BaseInputTypeManagingAdd } from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { type Page } from '../../page/Page';
+import { type ValidationError } from '@enonic/lib-admin-ui/ValidationError';
+import { InputValidationRecording } from '@enonic/lib-admin-ui/form/inputtype/InputValidationRecording';
+import { type AttachmentItem } from '../ui/upload/AttachmentItem';
+import { ValueChangedEvent } from '@enonic/lib-admin-ui/form/inputtype/ValueChangedEvent';
+import { PageHelper } from '../../util/PageHelper';
 
-export class AttachmentUploader
-    extends BaseInputTypeManagingAdd {
-
+export class AttachmentUploader extends BaseInputTypeManagingAdd {
     declare protected context: ContentInputTypeViewContext;
 
     private uploadButton: Button;
@@ -71,11 +65,13 @@ export class AttachmentUploader
     }
 
     private getFileNamesFromProperty(): string[] {
-        return this.getPropertyArray().getProperties().map((property) => {
-            if (property.hasNonNullValue()) {
-                return property.getString();
-            }
-        });
+        return this.getPropertyArray()
+            .getProperties()
+            .map((property) => {
+                if (property.hasNonNullValue()) {
+                    return property.getString();
+                }
+            });
     }
 
     private toggleUploadButtonVisibility() {
@@ -126,7 +122,7 @@ export class AttachmentUploader
     private createUploaderConfig(): AttachmentUploaderElConfig {
         return {
             params: {
-                id: this.context.content.getContentId().toString()
+                id: this.context.content.getContentId().toString(),
             },
             contentId: this.context.content.getContentId().toString(),
             name: this.context.input.getName(),
@@ -137,20 +133,22 @@ export class AttachmentUploader
             attachmentRemoveCallback: this.removeItemCallback.bind(this),
             getTotalAllowedToUpload: this.getTotalAllowedToUpload.bind(this),
             hasUploadButton: false,
-            project: this.context.project
+            project: this.context.project,
         };
     }
 
     private removeItemCallback(attachmentName: string) {
         this.toggleUploadButtonVisibility();
 
-        this.deleteAttachmentIfNotUsed(attachmentName).then(() => {
-            const values: string[] = this.getFileNamesFromProperty();
-            const index: number = values.indexOf(attachmentName);
-            this.getPropertyArray().remove(index);
+        this.deleteAttachmentIfNotUsed(attachmentName)
+            .then(() => {
+                const values: string[] = this.getFileNamesFromProperty();
+                const index: number = values.indexOf(attachmentName);
+                this.getPropertyArray().remove(index);
 
-            new ContentRequiresSaveEvent(this.context.content.getContentId()).fire();
-        }).catch(DefaultErrorHandler.handle);
+                new ContentRequiresSaveEvent(this.context.content.getContentId()).fire();
+            })
+            .catch(DefaultErrorHandler.handle);
     }
 
     private deleteAttachmentIfNotUsed(attachmentName: string): Q.Promise<void> {
@@ -285,7 +283,8 @@ export class AttachmentUploader
         }
 
         return this.getFileNamesFromProperty().filter(
-            (attachedName: string) => !attachmentNamesWithErrors.some((e: string) => e === attachedName)).length;
+            (attachedName: string) => !attachmentNamesWithErrors.some((e: string) => e === attachedName),
+        ).length;
     }
 
     private getCustomValidationErrors(): ValidationError[] {

@@ -1,19 +1,17 @@
-import {type Application} from '@enonic/lib-admin-ui/application/Application';
-import {type ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {type PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
-import {FormContext, FormContextBuilder} from '@enonic/lib-admin-ui/form/FormContext';
-import {type Input} from '@enonic/lib-admin-ui/form/Input';
-import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {type Content} from './content/Content';
-import {type ContentId} from './content/ContentId';
-import {type ContentPath} from './content/ContentPath';
-import {type Site} from './content/Site';
-import {type ContentInputTypeViewContext} from './inputtype/ContentInputTypeViewContext';
-import {type Project} from './settings/data/project/Project';
+import { type Application } from '@enonic/lib-admin-ui/application/Application';
+import { type ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import type { PropertyPath } from '@enonic/input-types/data';
+import { FormContext, FormContextBuilder } from '@enonic/lib-admin-ui/form/FormContext';
+import type { Input } from '@enonic/input-types/schema';
+import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { type Content } from './content/Content';
+import { type ContentId } from './content/ContentId';
+import { type ContentPath } from './content/ContentPath';
+import { type Site } from './content/Site';
+import { type ContentInputTypeViewContext } from './inputtype/ContentInputTypeViewContext';
+import { type Project } from './settings/data/project/Project';
 
-export class ContentFormContext
-    extends FormContext {
-
+export class ContentFormContext extends FormContext {
     private site?: Site;
 
     private persistedContent?: Content;
@@ -61,7 +59,7 @@ export class ContentFormContext
 
     setPersistedContent(content: Content): ContentFormContext {
         this.persistedContent = content;
-        this.contentUpdatedListeners.forEach(listener => listener(content));
+        this.contentUpdatedListeners.forEach((listener) => listener(content));
         return this;
     }
 
@@ -83,11 +81,14 @@ export class ContentFormContext
     }
 
     getStoppedApplicationByKey(appKey: ApplicationKey): Application | undefined {
-        return this.stoppedApplications?.find(app => app.getApplicationKey().equals(appKey));
+        return this.stoppedApplications?.find((app) => app.getApplicationKey().equals(appKey));
     }
 
-    createInputTypeViewContext(inputTypeConfig: ContentInputTypeViewContext['inputConfig'], parentPropertyPath: PropertyPath,
-                               input: Input): ContentInputTypeViewContext {
+    createInputTypeViewContext(
+        inputTypeConfig: ContentInputTypeViewContext['inputConfig'],
+        parentPropertyPath: PropertyPath,
+        input: Input,
+    ): ContentInputTypeViewContext {
         const viewContext = {
             formContext: this,
             input: input,
@@ -96,10 +97,10 @@ export class ContentFormContext
             site: this.getSite(),
             content: this.getPersistedContent(),
             project: this.getProject(),
-            applicationKey: this.applicationKey
+            applicationKey: this.applicationKey,
         } satisfies ContentInputTypeViewContext;
 
-        this.contentUpdatedListeners.push(content => {
+        this.contentUpdatedListeners.push((content) => {
             viewContext.content = content;
         });
 
@@ -124,9 +125,7 @@ export class ContentFormContext
     }
 }
 
-export class ContentFormContextBuilder
-    extends FormContextBuilder {
-
+export class ContentFormContextBuilder extends FormContextBuilder {
     site: Site;
 
     persistedContent: Content;

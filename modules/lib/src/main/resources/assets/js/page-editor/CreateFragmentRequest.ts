@@ -1,16 +1,14 @@
-import {FragmentResourceRequest} from './FragmentResourceRequest';
-import {type Content} from '../app/content/Content';
-import {type ContentJson} from '../app/content/ContentJson';
-import {type Component} from '../app/page/region/Component';
-import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {type ContentId} from '../app/content/ContentId';
-import {type Workflow} from '../app/content/Workflow';
+import { FragmentResourceRequest } from './FragmentResourceRequest';
+import { type Content } from '../app/content/Content';
+import { type ContentJson } from '../app/content/ContentJson';
+import { type Component } from '../app/page/region/Component';
+import type { PropertyTree } from '@enonic/input-types/data';
+import { type JsonResponse } from '@enonic/lib-admin-ui/rest/JsonResponse';
+import { HttpMethod } from '@enonic/lib-admin-ui/rest/HttpMethod';
+import { type ContentId } from '../app/content/ContentId';
+import { type Workflow } from '../app/content/Workflow';
 
-export class CreateFragmentRequest
-    extends FragmentResourceRequest<Content> {
-
+export class CreateFragmentRequest extends FragmentResourceRequest<Content> {
     private contentId: ContentId;
 
     private config: PropertyTree;
@@ -46,7 +44,7 @@ export class CreateFragmentRequest
             contentId: this.contentId.toString(),
             config: this.config ? this.config.toJson() : null,
             component: this.component != null ? this.component.toJson() : null,
-            workflow: this.workflow.toJson()
+            workflow: this.workflow.toJson(),
         };
     }
 

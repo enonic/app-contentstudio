@@ -1,9 +1,9 @@
 import { type Application } from '@enonic/lib-admin-ui/application/Application';
 import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
-import { type Value } from '@enonic/lib-admin-ui/data/Value';
+import { type Value } from '@enonic/input-types/data';
 import { FormBuilder } from '@enonic/lib-admin-ui/form/Form';
-import { Input } from '@enonic/lib-admin-ui/form/Input';
-import { initBuiltInTypes, type SelfManagedComponentProps } from '@enonic/lib-admin-ui/form2';
+import { Input } from '@enonic/input-types/schema';
+import { registerBuiltInTypes, type SelfManagedComponentProps } from '@enonic/input-types';
 import { cleanup, fireEvent, render, screen } from '@testing-library/preact';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { SiteConfiguratorConfig } from './SiteConfiguratorConfig';
@@ -50,6 +50,7 @@ function checkboxForm(): ReturnType<FormBuilder['build']> {
     const builder = new FormBuilder();
     builder.addFormItem(
         Input.fromJson({
+            formItemType: 'Input',
             name: 'agree',
             inputType: 'Checkbox',
             label: 'agree',
@@ -88,7 +89,7 @@ function renderInput(onAdd: (value?: Value) => void): void {
 
 describe('SiteConfiguratorInput', () => {
     beforeAll(() => {
-        initBuiltInTypes();
+        registerBuiltInTypes();
     });
 
     afterEach(() => {

@@ -28,7 +28,7 @@ import {
     cleanupWizardContentSyncService,
     initWizardContentSyncService,
 } from '../../v6/pages/wizard/model/wizardContentSync.service';
-import { setWizardContent } from '../../v6/widgets/context-panel/model/contextContent.store';
+import { setWizardContent } from '../../v6/entities/content';
 import { $isContextOpen, setContextOpen } from '../../v6/widgets/context-panel/model/contextWidgets.store';
 import { getActiveProject, getActiveProjectName } from '../../v6/entities/project';
 import {

@@ -1,7 +1,7 @@
-import type { Property } from '@enonic/lib-admin-ui/data/Property';
-import type { PropertyPath } from '@enonic/lib-admin-ui/data/PropertyPath';
-import type { PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
-import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import type { Property } from '@enonic/input-types/data';
+import type { PropertyPath } from '@enonic/input-types/data';
+import type { PropertySet } from '@enonic/input-types/data';
+import { ValueTypes } from '@enonic/input-types/data';
 import { FulltextSearchExpressionBuilder } from '@enonic/lib-admin-ui/query/FulltextSearchExpression';
 import { QueryExpr } from '@enonic/lib-admin-ui/query/expr/QueryExpr';
 import type { Expression } from '@enonic/lib-admin-ui/query/expr/Expression';

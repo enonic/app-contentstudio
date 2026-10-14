@@ -1,22 +1,20 @@
-import {type PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
-import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {type Element} from '@enonic/lib-admin-ui/dom/Element';
-import {FormBuilder} from '@enonic/lib-admin-ui/form/Form';
-import {FormContext} from '@enonic/lib-admin-ui/form/FormContext';
-import {type FormItem} from '@enonic/lib-admin-ui/form/FormItem';
-import {FormView} from '@enonic/lib-admin-ui/form/FormView';
-import {InputBuilder, type RawInputConfig} from '@enonic/lib-admin-ui/form/Input';
-import {DateTimeRange} from '@enonic/lib-admin-ui/form/inputtype/time/DateTimeRange';
-import {OccurrencesBuilder} from '@enonic/lib-admin-ui/form/Occurrences';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import type { PropertySet } from '@enonic/input-types/data';
+import { AEl } from '@enonic/lib-admin-ui/dom/AEl';
+import { ButtonEl } from '@enonic/lib-admin-ui/dom/ButtonEl';
+import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
+import { type Element } from '@enonic/lib-admin-ui/dom/Element';
+import { FormBuilder } from '@enonic/lib-admin-ui/form/Form';
+import { FormContext } from '@enonic/lib-admin-ui/form/FormContext';
+import { type FormItem, InputBuilder } from '@enonic/input-types/schema';
+import { FormView } from '@enonic/lib-admin-ui/form/FormView';
+import { type RawInputConfig } from '@enonic/lib-admin-ui/form/Input';
+import { DateTimeRange } from '@enonic/lib-admin-ui/form/inputtype/time/DateTimeRange';
+import { OccurrencesBuilder } from '@enonic/lib-admin-ui/form/Occurrences';
+import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import type Q from 'q';
 
-export class PublishScheduleForm
-    extends DivEl {
-
+export class PublishScheduleForm extends DivEl {
     private scheduleFormView: FormView;
     private scheduleFormWrapper: DivEl;
     private formVisibilityListeners: ((flag: boolean) => void)[] = [];
@@ -65,14 +63,13 @@ export class PublishScheduleForm
             .setHelpText(i18n('field.scheduledPublishing.helptext'))
             .setInputType(DateTimeRange.getName())
             .setOccurrences(new OccurrencesBuilder().setMinimum(1).setMaximum(1).build())
-            // !Type casting is incorrect, but kept as is, because code will be removed
             .setInputTypeConfig({
-                fromLabel: i18n('field.onlineFrom'),
-                toLabel: i18n('field.onlineTo'),
-                defaultFromTime: fromTime,
-                fromPlaceholder: i18n('text.now'),
-                optionalFrom: !CONFIG.isTrue('requiredPublishFrom')
-            } as unknown as RawInputConfig)
+                fromLabel: [{ value: i18n('field.onlineFrom') }],
+                toLabel: [{ value: i18n('field.onlineTo') }],
+                defaultFromTime: [{ value: fromTime }],
+                fromPlaceholder: [{ value: i18n('text.now') }],
+                optionalFrom: [{ value: String(!CONFIG.isTrue('requiredPublishFrom')) }],
+            } satisfies RawInputConfig)
             .build();
     }
 
@@ -102,7 +99,7 @@ export class PublishScheduleForm
             this.removeClass('invalid');
         }
 
-        this.scheduleFormView.displayValidationErrors(false);   // hide validation
+        this.scheduleFormView.displayValidationErrors(false); // hide validation
 
         if (!silent) {
             this.notifyFormVisibilityChanged(flag);
@@ -123,11 +120,11 @@ export class PublishScheduleForm
         }
         const from = dateSet.getProperty('from', 0);
         const to = dateSet.getProperty('to', 0);
-        return from && from.hasNonNullValue() || to && to.hasNonNullValue();
+        return (from && from.hasNonNullValue()) || (to && to.hasNonNullValue());
     }
 
     private notifyFormVisibilityChanged(flag: boolean) {
-        this.formVisibilityListeners.forEach(listener => listener(flag));
+        this.formVisibilityListeners.forEach((listener) => listener(flag));
     }
 
     public onFormVisibilityChanged(listener: (flag: boolean) => void) {
@@ -135,7 +132,7 @@ export class PublishScheduleForm
     }
 
     public unFormVisibilityChanged(listener: (flag: boolean) => void) {
-        this.formVisibilityListeners = this.formVisibilityListeners.filter(curr => curr !== listener);
+        this.formVisibilityListeners = this.formVisibilityListeners.filter((curr) => curr !== listener);
     }
 
     private updateTogglesState(flag: boolean) {

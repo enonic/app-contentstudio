@@ -84,7 +84,8 @@ vi.mock('./pageComponents.store', () => ({
     remapExpandedIdsAfterMove: vi.fn(),
     toggleComponentExpand: vi.fn(),
 }));
-vi.mock('@enonic/lib-admin-ui/form2/components', () => ({
+vi.mock('@enonic/input-types', async (importOriginal) => ({
+    ...(await importOriginal<typeof import('@enonic/input-types')>()),
     projectTreeDrop: vi.fn(),
     SortableList: ({
         items,

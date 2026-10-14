@@ -1,147 +1,135 @@
 {
   "abstract": false,
   "allowChildContent": true,
-  "allowChildContentType" : [ ],
+  "allowChildContentType": [],
   "createdTime": "2013-01-01T12:00:00Z",
   "deletable": false,
   "editable": false,
   "final": true,
-  "form": {
-    "formItems": [
-      {
-        "Input": {
+  "form": [
+    {
+      "formItemType": "Input",
+      "config": {},
+      "inputType": "TextLine",
+      "label": "My text line",
+      "name": "myTextLine",
+      "occurrences": {
+        "maximum": 1,
+        "minimum": 1
+      }
+    },
+    {
+      "formItemType": "Input",
+      "config": {},
+      "inputType": "CheckBox",
+      "label": "My checkbox input",
+      "name": "myCheckbox",
+      "occurrences": {
+        "maximum": 1,
+        "minimum": 0
+      }
+    },
+    {
+      "formItemType": "Layout",
+      "items": [
+        {
+          "formItemType": "Input",
+          "config": {},
+          "inputType": "TextLine",
+          "label": "My text line",
+          "name": "myTextLine2",
+          "occurrences": {
+            "maximum": 1,
+            "minimum": 0
+          }
+        }
+      ],
+      "label": "My field set",
+      "name": ""
+    },
+    {
+      "formItemType": "ItemSet",
+      "items": [
+        {
+          "formItemType": "Input",
           "config": {},
           "inputType": "TextLine",
           "label": "My text line",
           "name": "myTextLine",
           "occurrences": {
             "maximum": 1,
-            "minimum": 1
-          }
-        }
-      },
-      {
-        "Input": {
-          "config": {},
-          "inputType": "CheckBox",
-          "label": "My checkbox input",
-          "name": "myCheckbox",
-          "occurrences": {
-            "maximum": 1,
             "minimum": 0
           }
         }
-      },
-      {
-        "FieldSet": {
-          "items": [
-            {
-              "Input": {
-                "config": {},
-                "inputType": "TextLine",
-                "label": "My text line",
-                "name": "myTextLine2",
-                "occurrences": {
-                  "maximum": 1,
-                  "minimum": 0
-                }
-              }
-            }
-          ],
-          "label": "My field set",
-          "name": ""
-        }
-      },
-      {
-        "FormItemSet": {
-          "items": [
-            {
-              "Input": {
-                "config": {},
-                "inputType": "TextLine",
-                "label": "My text line",
-                "name": "myTextLine",
-                "occurrences": {
-                  "maximum": 1,
-                  "minimum": 0
-                }
-              }
-            }
-          ],
-          "label": "My form item set",
-          "name": "myFormItemSet",
-          "occurrences": {
-            "maximum": 1,
-            "minimum": 0
-          }
-        }
-      },
-      {
-        "FormFragment": {
-          "name": "mymixin",
-          "reference": "myapplication:mymixin"
-        }
-      },
-      {
-        "FormOptionSet": {
-          "expanded": false,
-          "helpText": "Option set help text",
-          "label": "My option set",
-          "multiselection": {
-            "maximum": 1,
-            "minimum": 0
-          },
-          "name": "myOptionSet",
-          "occurrences": {
-            "maximum": 1,
-            "minimum": 0
-          },
-          "options": [
-            {
-              "defaultOption": false,
-              "helpText": "Option help text",
-              "items": [
-                {
-                  "Input": {
-                    "config": {},
-                    "inputType": "TextLine",
-                    "label": "myTextLine1",
-                    "name": "myTextLine1",
-                    "occurrences": {
-                      "maximum": 1,
-                      "minimum": 0
-                    }
-                  }
-                }
-              ],
-              "label": "option label1",
-              "name": "myOptionSetOption1"
-            },
-            {
-              "defaultOption": false,
-              "helpText": "Option help text",
-              "items": [
-                {
-                  "Input": {
-                    "config": {},
-                    "inputType": "TextLine",
-                    "label": "myTextLine2",
-                    "name": "myTextLine2",
-                    "occurrences": {
-                      "maximum": 1,
-                      "minimum": 0
-                    }
-                  }
-                }
-              ],
-              "label": "option label2",
-              "name": "myOptionSetOption2"
-            }
-          ]
-        }
+      ],
+      "label": "My form item set",
+      "name": "myFormItemSet",
+      "occurrences": {
+        "maximum": 1,
+        "minimum": 0
       }
-    ]
-  },
+    },
+    {
+      "formItemType": "FormFragment",
+      "name": "mymixin",
+      "reference": "myapplication:mymixin"
+    },
+    {
+      "formItemType": "OptionSet",
+      "expanded": false,
+      "helpText": "Option set help text",
+      "label": "My option set",
+      "name": "myOptionSet",
+      "occurrences": {
+        "maximum": 1,
+        "minimum": 0
+      },
+      "options": [
+        {
+          "default": false,
+          "helpText": "Option help text",
+          "items": [
+            {
+              "formItemType": "Input",
+              "config": {},
+              "inputType": "TextLine",
+              "label": "myTextLine1",
+              "name": "myTextLine1",
+              "occurrences": {
+                "maximum": 1,
+                "minimum": 0
+              }
+            }
+          ],
+          "label": "option label1",
+          "name": "myOptionSetOption1"
+        },
+        {
+          "default": false,
+          "helpText": "Option help text",
+          "items": [
+            {
+              "formItemType": "Input",
+              "config": {},
+              "inputType": "TextLine",
+              "label": "myTextLine2",
+              "name": "myTextLine2",
+              "occurrences": {
+                "maximum": 1,
+                "minimum": 0
+              }
+            }
+          ],
+          "label": "option label2",
+          "name": "myOptionSetOption2"
+        }
+      ],
+      "selection": {
+        "maximum": 1,
+        "minimum": 0
+      }
+    }
+  ],
   "iconUrl": "/admin/rest-v2/cs/schema/content/icon/myapplication:my_cty?hash=f95b70fdc3088560732a5ac135644506",
   "name": "myapplication:my_cty",
   "superType": "base:unstructured",

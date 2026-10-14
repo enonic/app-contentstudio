@@ -1,14 +1,12 @@
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {AttachmentName} from './AttachmentName';
-import {type AttachmentJson} from './AttachmentJson';
-import {BinaryReference} from '@enonic/lib-admin-ui/util/BinaryReference';
-import {UrlHelper} from '../util/UrlHelper';
-import {type Project} from '../settings/data/project/Project';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
+import { AttachmentName } from './AttachmentName';
+import { type AttachmentJson } from './AttachmentJson';
+import { BinaryReference } from '@enonic/ui-utils';
+import { UrlHelper } from '../util/UrlHelper';
+import { type Project } from '../settings/data/project/Project';
 
-export class Attachment
-    implements Equitable {
-
+export class Attachment implements Equitable {
     private name: AttachmentName;
 
     private label: string;
@@ -83,7 +81,7 @@ export class Attachment
             label: this.getLabel(),
             mimeType: this.getMimeType(),
             size: this.getSize(),
-            sha512: this.getSha512()
+            sha512: this.getSha512(),
         };
     }
 
@@ -92,14 +90,16 @@ export class Attachment
     }
 
     static getUrl(contentId: string, attachmentName: string, contentRootPath?: string, project?: Project) {
-        const cmsPath = contentRootPath == null ? UrlHelper.getCMSPathForContentRoot() : UrlHelper.getCMSPath(contentRootPath, project);
+        const cmsPath =
+            contentRootPath == null
+                ? UrlHelper.getCMSPathForContentRoot()
+                : UrlHelper.getCMSPath(contentRootPath, project);
         const uri = `${cmsPath}/content/media/${contentId}/${encodeURIComponent(attachmentName)}`;
         return UrlHelper.getCmsRestUri(uri);
     }
 }
 
 export class AttachmentBuilder {
-
     name: AttachmentName;
 
     label: string;
@@ -111,7 +111,10 @@ export class AttachmentBuilder {
     sha512: string;
 
     public fromJson(json: AttachmentJson): AttachmentBuilder {
-        this.setName(new AttachmentName(json.name)).setLabel(json.label).setSize(json.size).setMimeType(json.mimeType)
+        this.setName(new AttachmentName(json.name))
+            .setLabel(json.label)
+            .setSize(json.size)
+            .setMimeType(json.mimeType)
             .setSha512(json.sha512);
         return this;
     }

@@ -12,7 +12,7 @@ import { type ComponentType } from '../page/region/ComponentType';
 import { GetComponentDescriptorRequest } from '../resource/GetComponentDescriptorRequest';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { ConfigBasedComponent } from '../page/region/ConfigBasedComponent';
-import { type PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
+import type { PropertyTree } from '@enonic/input-types/data';
 import { type ContentId } from '../content/ContentId';
 import { FragmentComponent } from '../page/region/FragmentComponent';
 import { ImageComponent } from '../page/region/ImageComponent';
@@ -22,7 +22,7 @@ import { ContentContext } from '../wizard/ContentContext';
 import { StringHelper } from '@enonic/lib-admin-ui/util/StringHelper';
 import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
 import { DescriptorBasedComponent } from '../page/region/DescriptorBasedComponent';
-import { normalizeFormValueTypes } from '../../v6/features/shared/form/normalizeFormValueTypes';
+import { normalizeFormValueTypes } from '@enonic/input-types';
 
 export class PageHelper {
     public static fetchAndInjectLayoutRegions(layout: LayoutComponent): Q.Promise<void> {

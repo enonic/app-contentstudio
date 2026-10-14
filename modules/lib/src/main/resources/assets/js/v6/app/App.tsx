@@ -1,6 +1,5 @@
 import { Body } from '@enonic/lib-admin-ui/dom/Body';
-import { initBuiltInTypes } from '@enonic/lib-admin-ui/form2';
-import { registerContentStudioInputTypes } from '../features/shared/form/input-types';
+import { initFormTypes } from '../features/shared/form/input-types';
 import { useStore } from '@nanostores/preact';
 import type { ReactElement } from 'react';
 import { start as startActionsService } from './actions.service';
@@ -48,8 +47,7 @@ export class AppElement extends LegacyElement<typeof App> {
 
     static initialize(): void {
         if (!AppElement.INSTANCE) {
-            initBuiltInTypes();
-            registerContentStudioInputTypes();
+            initFormTypes();
             setActiveProjectResolver(() => $projects.get().activeProjectId);
             startSocketService();
             startContentService();

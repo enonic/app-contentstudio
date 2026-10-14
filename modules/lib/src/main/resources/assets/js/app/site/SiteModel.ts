@@ -1,17 +1,14 @@
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {ApplicationRemovedEvent} from './ApplicationRemovedEvent';
-import {type Site} from '../content/Site';
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
-import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import {type PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
-import {type PropertyAddedEvent} from '@enonic/lib-admin-ui/data/PropertyAddedEvent';
-import {type PropertyRemovedEvent} from '@enonic/lib-admin-ui/data/PropertyRemovedEvent';
-import {type Property} from '@enonic/lib-admin-ui/data/Property';
-import {type ContentId} from '../content/ContentId';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { ApplicationRemovedEvent } from './ApplicationRemovedEvent';
+import { type Site } from '../content/Site';
+import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { ApplicationEvent, ApplicationEventType } from '@enonic/lib-admin-ui/application/ApplicationEvent';
+import { ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import { type PropertyChangedEvent } from '@enonic/lib-admin-ui/PropertyChangedEvent';
+import type { PropertyAddedEvent, PropertyRemovedEvent, Property } from '@enonic/input-types/data';
+import { type ContentId } from '../content/ContentId';
 
 export class SiteModel {
-
     private site: Site;
 
     private siteConfigs: ApplicationConfig[];
@@ -45,8 +42,10 @@ export class SiteModel {
         this.applicationPropertyAddedListener = (event: PropertyAddedEvent) => {
             const property: Property = event.getProperty();
 
-            if (property.getPath().toString().indexOf('.siteConfig') === 0 &&
-                property.getName() === ApplicationConfig.PROPERTY_CONFIG) {
+            if (
+                property.getPath().toString().indexOf('.siteConfig') === 0 &&
+                property.getName() === ApplicationConfig.PROPERTY_CONFIG
+            ) {
                 const siteConfig: ApplicationConfig = ApplicationConfig.create().fromData(property.getParent()).build();
 
                 if (!this.siteConfigs) {
@@ -62,25 +61,27 @@ export class SiteModel {
             const property: Property = event.getProperty();
 
             if (property.getName() === 'siteConfig') {
-                const applicationKey: ApplicationKey =
-                    ApplicationKey.fromString(property.getPropertySet().getString(ApplicationConfig.PROPERTY_KEY));
-                this.siteConfigs =
-                    this.siteConfigs.filter((siteConfig: ApplicationConfig) => !siteConfig.getApplicationKey().equals(applicationKey));
+                const applicationKey: ApplicationKey = ApplicationKey.fromString(
+                    property.getPropertySet().getString(ApplicationConfig.PROPERTY_KEY),
+                );
+                this.siteConfigs = this.siteConfigs.filter(
+                    (siteConfig: ApplicationConfig) => !siteConfig.getApplicationKey().equals(applicationKey),
+                );
                 this.notifyApplicationRemoved(applicationKey);
             }
         };
 
         this.applicationGlobalEventsListener = (event: ApplicationEvent) => {
             switch (event.getEventType()) {
-            case ApplicationEventType.STOPPED:
-                this.notifyApplicationStopped(event);
-                break;
-            case ApplicationEventType.STARTED:
-                this.notifyApplicationStarted(event);
-                break;
-            case ApplicationEventType.UNINSTALLED:
-                this.notifyApplicationUninstalled(event);
-                break;
+                case ApplicationEventType.STOPPED:
+                    this.notifyApplicationStopped(event);
+                    break;
+                case ApplicationEventType.STARTED:
+                    this.notifyApplicationStarted(event);
+                    break;
+                case ApplicationEventType.UNINSTALLED:
+                    this.notifyApplicationUninstalled(event);
+                    break;
             }
         };
     }
@@ -130,8 +131,9 @@ export class SiteModel {
     }
 
     unPropertyChanged(listener: (event: PropertyChangedEvent) => void) {
-        this.propertyChangedListeners =
-            this.propertyChangedListeners.filter((curr: (event: PropertyChangedEvent) => void) => listener !== curr);
+        this.propertyChangedListeners = this.propertyChangedListeners.filter(
+            (curr: (event: PropertyChangedEvent) => void) => listener !== curr,
+        );
     }
 
     onApplicationAdded(listener: (applicationConfig: ApplicationConfig) => void) {
@@ -139,8 +141,9 @@ export class SiteModel {
     }
 
     unApplicationAdded(listener: (applicationConfig: ApplicationConfig) => void) {
-        this.applicationAddedListeners =
-            this.applicationAddedListeners.filter((curr: (config: ApplicationConfig) => void) => listener !== curr);
+        this.applicationAddedListeners = this.applicationAddedListeners.filter(
+            (curr: (config: ApplicationConfig) => void) => listener !== curr,
+        );
     }
 
     private notifyApplicationAdded(applicationConfig: ApplicationConfig) {
@@ -154,8 +157,9 @@ export class SiteModel {
     }
 
     unApplicationRemoved(listener: (event: ApplicationRemovedEvent) => void) {
-        this.applicationRemovedListeners =
-            this.applicationRemovedListeners.filter((curr: (event: ApplicationRemovedEvent) => void) => listener !== curr);
+        this.applicationRemovedListeners = this.applicationRemovedListeners.filter(
+            (curr: (event: ApplicationRemovedEvent) => void) => listener !== curr,
+        );
     }
 
     private notifyApplicationRemoved(applicationKey: ApplicationKey) {
@@ -170,8 +174,9 @@ export class SiteModel {
     }
 
     unApplicationUnavailable(listener: (applicationEvent: ApplicationEvent) => void) {
-        this.applicationStoppedListeners =
-            this.applicationStoppedListeners.filter((curr: (applicationEvent: ApplicationEvent) => void) => listener !== curr);
+        this.applicationStoppedListeners = this.applicationStoppedListeners.filter(
+            (curr: (applicationEvent: ApplicationEvent) => void) => listener !== curr,
+        );
     }
 
     private notifyApplicationStopped(applicationEvent: ApplicationEvent) {
@@ -185,8 +190,9 @@ export class SiteModel {
     }
 
     unApplicationStarted(listener: (applicationEvent: ApplicationEvent) => void) {
-        this.applicationStartedListeners =
-            this.applicationStartedListeners.filter((curr: (applicationEvent: ApplicationEvent) => void) => listener !== curr);
+        this.applicationStartedListeners = this.applicationStartedListeners.filter(
+            (curr: (applicationEvent: ApplicationEvent) => void) => listener !== curr,
+        );
     }
 
     onApplicationUninstalled(listener: (applicationEvent: ApplicationEvent) => void) {
@@ -194,8 +200,9 @@ export class SiteModel {
     }
 
     unApplicationUninstalled(listener: (applicationEvent: ApplicationEvent) => void) {
-        this.applicationUninstalledListeners =
-            this.applicationUninstalledListeners.filter((curr: (applicationEvent: ApplicationEvent) => void) => listener !== curr);
+        this.applicationUninstalledListeners = this.applicationUninstalledListeners.filter(
+            (curr: (applicationEvent: ApplicationEvent) => void) => listener !== curr,
+        );
     }
 
     private notifyApplicationStarted(applicationEvent: ApplicationEvent) {
@@ -215,10 +222,9 @@ export class SiteModel {
     }
 
     unSiteModelUpdated(listener: () => void) {
-        this.siteModelUpdatedListeners =
-            this.siteModelUpdatedListeners.filter((curr: () => void) => {
-                return listener !== curr;
-            });
+        this.siteModelUpdatedListeners = this.siteModelUpdatedListeners.filter((curr: () => void) => {
+            return listener !== curr;
+        });
     }
 
     private notifySiteModelUpdated() {

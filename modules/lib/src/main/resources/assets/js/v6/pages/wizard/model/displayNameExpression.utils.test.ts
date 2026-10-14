@@ -1,48 +1,26 @@
-import { PropertyPath } from '@enonic/lib-admin-ui/data/PropertyPath';
-import { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
-import { FormBuilder, type Form } from '@enonic/lib-admin-ui/form/Form';
-import type { FormItem } from '@enonic/lib-admin-ui/form/FormItem';
-import { Input } from '@enonic/lib-admin-ui/form/Input';
-import { FieldSet } from '@enonic/lib-admin-ui/form/set/fieldset/FieldSet';
-import { FormItemSet } from '@enonic/lib-admin-ui/form/set/itemset/FormItemSet';
-import { FormOptionSet } from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
-import { FormOptionSetOption } from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSetOption';
-import { initBuiltInTypes } from '@enonic/lib-admin-ui/form2';
+import { PropertyPath, PropertyTree } from '@enonic/input-types/data';
+import { Form, formItemsFromJson } from '@enonic/input-types/schema';
+import type { FormItemJson } from '@enonic/ui-types';
+import { registerBuiltInTypes } from '@enonic/input-types';
+import { getValuesAsString } from '@enonic/lib-admin-ui/util/PropertySetValues';
+import { ValueTypes } from '@enonic/input-types/data';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { resolveDisplayNameExpression } from './displayNameExpression.utils';
 
-type Json = Record<string, unknown>;
-
-const factory = {
-    createFormItem: (json: Json): FormItem => {
-        if (json.Input) return Input.fromJson(json.Input as Parameters<typeof Input.fromJson>[0]);
-        if (json.FieldSet) return new FieldSet(json.FieldSet as ConstructorParameters<typeof FieldSet>[0], factory);
-        if (json.FormItemSet)
-            return new FormItemSet(json.FormItemSet as ConstructorParameters<typeof FormItemSet>[0], factory);
-        if (json.FormOptionSet)
-            return new FormOptionSet(json.FormOptionSet as ConstructorParameters<typeof FormOptionSet>[0], factory);
-        if (json.FormOptionSetOption) {
-            return new FormOptionSetOption(
-                json.FormOptionSetOption as ConstructorParameters<typeof FormOptionSetOption>[0],
-                factory,
-            );
-        }
-        return null as never;
-    },
-};
-
-function inputJson(name: string, inputType: string): Json {
+function inputJson(name: string, inputType: string): FormItemJson {
     return {
-        Input: { name, inputType, label: name, occurrences: { minimum: 0, maximum: 1 }, config: {}, helpText: '' },
+        formItemType: 'Input',
+        name,
+        inputType,
+        label: name,
+        occurrences: { minimum: 0, maximum: 1 },
+        config: {},
+        helpText: '',
     };
 }
 
-function formOf(...items: Json[]): Form {
-    const builder = new FormBuilder();
-    for (const item of items) {
-        builder.addFormItem(factory.createFormItem(item));
-    }
-    return builder.build();
+function formOf(...items: FormItemJson[]): Form {
+    return new Form(formItemsFromJson(items));
 }
 
 function treeOf(values: Record<string, string>): PropertyTree {
@@ -55,7 +33,7 @@ function treeOf(values: Record<string, string>): PropertyTree {
 
 describe('resolveDisplayNameExpression', () => {
     beforeAll(() => {
-        initBuiltInTypes();
+        registerBuiltInTypes();
     });
 
     it('should substitute placeholders with the matching form values', () => {
@@ -105,17 +83,38 @@ describe('resolveDisplayNameExpression', () => {
 
     it('should resolve nested field paths using underscore-joined names', () => {
         const form = formOf({
-            FormItemSet: {
-                name: 'address',
-                label: 'address',
-                occurrences: { minimum: 1, maximum: 1 },
-                items: [inputJson('city', 'TextLine')],
-            },
+            formItemType: 'ItemSet',
+            name: 'address',
+            label: 'address',
+            occurrences: { minimum: 1, maximum: 1 },
+            items: [inputJson('city', 'TextLine')],
         });
         const data = treeOf({ 'address.city': 'Oslo' });
 
         const result = resolveDisplayNameExpression('${address.city}', form, data);
 
         expect(result).toBe('Oslo');
+    });
+});
+
+describe('getValuesAsString', () => {
+    it('reads the first occurrence of every field, through nested sets, with its data path', () => {
+        const tree = new PropertyTree();
+        tree.getRoot().addStrings('tags', ['first', 'second']);
+        tree.getRoot().addPropertySet('address').addString('city', 'Oslo');
+
+        expect(getValuesAsString(tree.getRoot())).toEqual([
+            { name: 'tags', value: 'first', path: 'tags' },
+            { name: 'city', value: 'Oslo', path: 'address.city' },
+        ]);
+    });
+
+    it("leaves out an option set's _selected array and gives an empty value for a null", () => {
+        const tree = new PropertyTree();
+        const optionSet = tree.getRoot().addPropertySet('options');
+        optionSet.addStrings('_selected', ['one']);
+        optionSet.addProperty('note', ValueTypes.STRING.newNullValue());
+
+        expect(getValuesAsString(tree.getRoot())).toEqual([{ name: 'note', value: '', path: 'options.note' }]);
     });
 });

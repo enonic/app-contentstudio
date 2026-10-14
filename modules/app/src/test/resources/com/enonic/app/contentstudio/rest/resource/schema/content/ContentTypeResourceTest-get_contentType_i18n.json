@@ -1,30 +1,27 @@
 {
   "abstract": false,
   "allowChildContent": true,
-  "allowChildContentType" : [ ],
+  "allowChildContentType": [],
   "createdTime": "2013-01-01T12:00:00Z",
   "deletable": false,
   "description": "translated.description",
   "displayNamePlaceholder": "translated.displayNameLabel",
   "editable": false,
   "final": true,
-  "form": {
-    "formItems": [
-      {
-        "Input": {
-          "config": {},
-          "helpText": "translated.helpText",
-          "inputType": "TextLine",
-          "label": "translated.label",
-          "name": "myTextLine",
-          "occurrences": {
-            "maximum": 1,
-            "minimum": 1
-          }
-        }
+  "form": [
+    {
+      "formItemType": "Input",
+      "config": {},
+      "helpText": "translated.helpText",
+      "inputType": "TextLine",
+      "label": "translated.label",
+      "name": "myTextLine",
+      "occurrences": {
+        "maximum": 1,
+        "minimum": 1
       }
-    ]
-  },
+    }
+  ],
   "iconUrl": "/admin/rest-v2/cs/schema/content/icon/myapplication:my_cty?hash=f95b70fdc3088560732a5ac135644506",
   "name": "myapplication:my_cty",
   "superType": "base:unstructured",

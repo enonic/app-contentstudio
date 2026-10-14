@@ -70,7 +70,7 @@ public class FormOptionSetOptionJson
         }
     }
 
-    public boolean isDefaultOption()
+    public boolean isDefault()
     {
         return formOptionSetOption.isDefaultOption();
     }

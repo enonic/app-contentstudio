@@ -1,6 +1,5 @@
 import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
-import type { PropertyTree } from '@enonic/lib-admin-ui/data/PropertyTree';
-import { type PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
+import type { PropertyTree, PropertySet } from '@enonic/input-types/data';
 import Q from 'q';
 import {
     $wizardDraftData,
@@ -14,7 +13,7 @@ import { Flow, type RoutineContext } from './Flow';
 import { type ContentWizardPanel } from './ContentWizardPanel';
 import { UpdatePersistedContentRoutine } from './UpdatePersistedContentRoutine';
 import { isBlank } from '../../v6/shared/lib/format/isBlank';
-import { pruneUnselectedOptionData } from '../../v6/features/shared/form/sets/option-set/pruneUnselectedOptionData';
+import { pruneUnselectedOptionData } from '@enonic/input-types';
 
 export class UpdatePersistedContentWithStoreRoutine extends Flow {
     private static readonly BASE_URL_PROP = 'baseUrl';
