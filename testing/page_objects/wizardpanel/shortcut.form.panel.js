@@ -4,25 +4,30 @@
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
 const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
-const {COMMON} = require("../../libs/elements");
+const { COMMON } = require('../../libs/elements');
 const xpath = {
     stepForm: `//div[@data-component='ContentWizardTabs']`,
-    parametersSet: "//div[@data-component='ItemSetView' and child::div[@data-component='SetHeader']//span[text()='Parameters']]",
+    parametersSet:
+        "//div[@data-component='ItemSetView' and child::div[@data-component='SetHeader']//span[text()='Parameters']]",
     parametersFormOccurrence: "//div[@data-component='ItemSetOccurrenceView']",
-    parameterNameInput: "//div[@data-component='ItemSetOccurrenceView']" + COMMON.INPUTS.inputFieldByLabel('Name') + "//input",
-    parameterValueInput: "//div[@data-component='ItemSetOccurrenceView']" + COMMON.INPUTS.inputFieldByLabel('Value') + "//input",
+    parameterNameInput:
+        "//div[@data-component='ItemSetOccurrenceView']" + COMMON.INPUTS.inputFieldByLabel('Name') + '//input',
+    parameterValueInput:
+        "//div[@data-component='ItemSetOccurrenceView']" + COMMON.INPUTS.inputFieldByLabel('Value') + '//input',
     addParametersButton: "//button[@data-component='Button' and @aria-label='Add']",
-    collapseAllButton: "//div[@data-component='SetHeader']//button[@data-component='InlineButton' and text()='Collapse all']",
-    expandAllButton: "//div[@data-component='SetHeader']//button[@data-component='InlineButton' and text()='Expand all']",
+    collapseAllButton:
+        "//div[@data-component='SetHeader']//button[@data-component='Button' and normalize-space(.)='Collapse all']",
+    expandAllButton:
+        "//div[@data-component='SetHeader']//button[@data-component='Button' and normalize-space(.)='Expand all']",
     parameterOccurrenceMenuButton: "//div[@data-component='ItemSetOccurrenceView']//button[@aria-label='More actions']",
-    contextMenuItem: text => `//div[@data-component='ContextMenu.Content']//div[@data-component='ContextMenu.Item' and child::span[text()='${text}']]`,
+    contextMenuItem: (text) =>
+        `//div[@data-component='ContextMenu.Content']//div[@data-component='ContextMenu.Item' and child::span[text()='${text}']]`,
     parametersOccurrenceHeader: "//div[@data-component='ItemSetOccurrenceView']//button[@aria-expanded]",
-    removeSelectedTargetIcon:"//div[@data-component='SelectorSelectionItem']//button[@aria-label='Remove']",
-    editSelectedTargetIcon:"//div[@data-component='SelectorSelectionItem']//button[@aria-label='Edit']"
+    removeSelectedTargetIcon: "//div[@data-component='SelectorSelectionItem']//button[@aria-label='Remove']",
+    editSelectedTargetIcon: "//div[@data-component='SelectorSelectionItem']//button[@aria-label='Edit']",
 };
 
 class ShortcutForm extends Page {
-
     get addParametersButton() {
         return xpath.stepForm + xpath.parametersSet + xpath.addParametersButton;
     }
@@ -36,7 +41,11 @@ class ShortcutForm extends Page {
     }
 
     get helpTextInParametersForm() {
-        return xpath.stepForm + xpath.parametersSet + "//div[@data-component='SetHeader']//span[contains(@class,'text-subtle')]";
+        return (
+            xpath.stepForm +
+            xpath.parametersSet +
+            "//div[@data-component='SetHeader']//span[contains(@class,'text-subtle')]"
+        );
     }
 
     async waitForAddNewContentButtonDisplayed() {
@@ -63,17 +72,17 @@ class ShortcutForm extends Page {
     }
 
     waitForParametersFormVisible() {
-        return this.waitForElementDisplayed(xpath.parametersFormOccurrence, appConst.shortTimeout).catch(err => {
-            this.saveScreenshot("err_shortcut_parameters_form");
-            throw new Error("shortcut - parameters form should be visible " + err);
-        })
+        return this.waitForElementDisplayed(xpath.parametersFormOccurrence, appConst.shortTimeout).catch((err) => {
+            this.saveScreenshot('err_shortcut_parameters_form');
+            throw new Error('shortcut - parameters form should be visible ' + err);
+        });
     }
 
     waitForParametersFormNotVisible() {
-        return this.waitForElementNotDisplayed(xpath.parametersFormOccurrence, appConst.shortTimeout).catch(err => {
-            this.saveScreenshot("err_shortcut_parameters_form");
-            throw new Error("shortcut - parameters form should not be visible " + err);
-        })
+        return this.waitForElementNotDisplayed(xpath.parametersFormOccurrence, appConst.shortTimeout).catch((err) => {
+            this.saveScreenshot('err_shortcut_parameters_form');
+            throw new Error('shortcut - parameters form should not be visible ' + err);
+        });
     }
 
     typeParameterName(text) {
@@ -86,7 +95,7 @@ class ShortcutForm extends Page {
 
     async getParameterName() {
         try {
-            return await this.getTextInInput(xpath.parameterNameInput)
+            return await this.getTextInInput(xpath.parameterNameInput);
         } catch (err) {
             await this.handleError('Getting parameter name', 'err_shortcut_get_parameter_name', err);
         }
@@ -94,7 +103,7 @@ class ShortcutForm extends Page {
 
     async getParameterValue() {
         try {
-            return await this.getTextInInput(xpath.parameterValueInput)
+            return await this.getTextInInput(xpath.parameterValueInput);
         } catch (err) {
             await this.handleError('Getting parameter value', 'err_shortcut_get_parameter_value', err);
         }
@@ -106,7 +115,10 @@ class ShortcutForm extends Page {
 
     async waitForCollapseAllButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(xpath.stepForm + xpath.parametersSet + xpath.collapseAllButton, appConst.shortTimeout);
+            return await this.waitForElementDisplayed(
+                xpath.stepForm + xpath.parametersSet + xpath.collapseAllButton,
+                appConst.shortTimeout,
+            );
         } catch (err) {
             await this.handleError('Collapse all button should be visible', 'err_shortcut_collapse_all_btn', err);
         }
@@ -114,7 +126,10 @@ class ShortcutForm extends Page {
 
     async waitForExpandAllButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(xpath.stepForm + xpath.parametersSet + xpath.expandAllButton, appConst.shortTimeout);
+            return await this.waitForElementDisplayed(
+                xpath.stepForm + xpath.parametersSet + xpath.expandAllButton,
+                appConst.shortTimeout,
+            );
         } catch (err) {
             await this.handleError('Expand all button should be visible', 'err_shortcut_expand_all_btn', err);
         }
@@ -130,9 +145,11 @@ class ShortcutForm extends Page {
     }
 
     clickOnRemoveParameterButton() {
-        return this.clickOnElement(xpath.stepForm + xpath.parametersFormOccurrence + "//button[@aria-label='Remove']").catch(err => {
-            throw new Error("Error when click on `Remove` button! " + err);
-        })
+        return this.clickOnElement(
+            xpath.stepForm + xpath.parametersFormOccurrence + "//button[@aria-label='Remove']",
+        ).catch((err) => {
+            throw new Error('Error when click on `Remove` button! ' + err);
+        });
     }
 
     // Click to expand/collapse a parameter occurrence by index:
@@ -148,8 +165,10 @@ class ShortcutForm extends Page {
         await menuButtons[index].click();
         await this.pause(400);
         let res = await this.getDisplayedElements(xpath.contextMenuItem('Delete'));
-        await res[0].waitForEnabled(
-            {timeout: appConst.shortTimeout, timeoutMsg: "Shortcut Parameters - Delete menu item should be enabled!"});
+        await res[0].waitForEnabled({
+            timeout: appConst.shortTimeout,
+            timeoutMsg: 'Shortcut Parameters - Delete menu item should be enabled!',
+        });
         await res[0].click();
         return await this.pause(300);
     }
@@ -174,8 +193,8 @@ class ShortcutForm extends Page {
     }
 
     async getSelectedTargetDisplayName() {
-       let contentSelectorDropdown  = new ContentSelectorDropdown(xpath.stepForm);
-       return await contentSelectorDropdown.getSelectedOptionsDisplayName();
+        let contentSelectorDropdown = new ContentSelectorDropdown(xpath.stepForm);
+        return await contentSelectorDropdown.getSelectedOptionsDisplayName();
     }
 
     async clickOnRemoveTargetIcon() {
@@ -184,7 +203,7 @@ class ShortcutForm extends Page {
             await this.waitForElementDisplayed(locator);
             await this.clickOnElement(locator);
             return await this.pause(200);
-        }catch (err) {
+        } catch (err) {
             await this.handleError('Click on remove target icon', 'err_click_on_remove_target_icon', err);
         }
     }
@@ -196,10 +215,13 @@ class ShortcutForm extends Page {
     }
 
     async waitForFormValidationRecordingDisplayed() {
-        await this.getBrowser().waitUntil(async () => {
-            let elements = await this.getDisplayedElements(this.targetValidationRecording);
-            return elements.length > 0;
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Target Form Validation recording should be displayed"});
+        await this.getBrowser().waitUntil(
+            async () => {
+                let elements = await this.getDisplayedElements(this.targetValidationRecording);
+                return elements.length > 0;
+            },
+            { timeout: appConst.mediumTimeout, timeoutMsg: 'Target Form Validation recording should be displayed' },
+        );
     }
 
     async getHelpTextsInParametersForm() {
