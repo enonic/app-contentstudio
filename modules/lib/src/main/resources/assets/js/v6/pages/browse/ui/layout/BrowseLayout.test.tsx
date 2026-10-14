@@ -175,9 +175,9 @@ describe('BrowseLayout', () => {
 
         await renderLayout(panels);
 
-        const root = screen.getByTestId('grid').closest('[data-group]');
+        const root = screen.getByTestId('grid-region').closest('[data-group]');
         expect(root).not.toBeNull();
-        expect(screen.getByTestId('grid').querySelector('.legacy-grid')).toBe(panels.gridPanel.getHTMLElement());
+        expect(screen.getByTestId('grid-region').querySelector('.legacy-grid')).toBe(panels.gridPanel.getHTMLElement());
         expect(screen.getByTestId('preview').querySelector('.legacy-preview')).toBe(
             panels.previewPanel.getHTMLElement(),
         );
@@ -240,7 +240,7 @@ describe('BrowseLayout', () => {
         await renderLayout(panels);
 
         expect(document.querySelector('[data-group]')).not.toBeNull();
-        expect(screen.getByTestId('grid').querySelector('.legacy-grid')).toBe(panels.gridPanel.getHTMLElement());
+        expect(screen.getByTestId('grid-region').querySelector('.legacy-grid')).toBe(panels.gridPanel.getHTMLElement());
         expect(screen.getByTestId('preview').querySelector('.legacy-preview')).toBe(
             panels.previewPanel.getHTMLElement(),
         );
@@ -281,6 +281,9 @@ describe('BrowseLayout', () => {
 
         expect(screen.getByTestId('filter').querySelector('.legacy-filter')).toBe(panels.filterPanel.getHTMLElement());
         expect(document.querySelector('[data-testid="filter-handle"]')).not.toBeNull();
+        expect(screen.getByTestId('filter').closest('[data-group]')).toBe(
+            screen.getByTestId('preview').closest('[data-group]'),
+        );
 
         await act(async () => setContentFilterOpen(false));
         await settle();

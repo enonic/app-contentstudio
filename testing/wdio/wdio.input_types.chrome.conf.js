@@ -12,6 +12,7 @@ exports.config = {
     specs: [path.join(__dirname, '../specs/content-types/*.spec.js')],
 
     maxInstances: 1,
+    strictSelectors: false,
 
     capabilities: [
         {

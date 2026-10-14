@@ -9,13 +9,13 @@ import { Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
 import type { default as Q } from 'q';
 import { type LiveEditModel } from '../../../page-editor/LiveEditModel';
 import {
-    cleanupComponentInspection,
-    initComponentInspectionService,
-} from '../../../v6/widgets/inspectors/model/component-inspection.store';
+    start as startComponentInspectionService,
+    stop as stopComponentInspectionService,
+} from '../../../v6/widgets/inspectors/model/component-inspection.service';
 import {
-    cleanupFragmentInspection,
-    initFragmentInspectionService,
-} from '../../../v6/widgets/inspectors/model/fragment-inspection.store';
+    start as startFragmentInspectionService,
+    stop as stopFragmentInspectionService,
+} from '../../../v6/widgets/inspectors/model/fragment-inspection.service';
 import {
     $activeWidget,
     $isLiveViewImageEditorActive,
@@ -26,9 +26,9 @@ import {
     syncInitialRenderable,
 } from '../../../v6/widgets/inspectors/model/page-editor';
 import {
-    cleanupPageInspection,
-    initPageInspectionService,
-} from '../../../v6/widgets/inspectors/model/page-inspection.store';
+    start as startPageInspectionService,
+    stop as stopPageInspectionService,
+} from '../../../v6/widgets/inspectors/model/page-inspection.service';
 import { type Content } from '../../content/Content';
 import { type Site } from '../../content/Site';
 import { type ContentType } from '../../inputtype/schema/ContentType';
@@ -184,9 +184,9 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
         ShowContentFormEvent.un(this.hideLoadMaskHandler);
 
         this.liveEditPageProxy.remove();
-        cleanupComponentInspection();
-        cleanupFragmentInspection();
-        cleanupPageInspection();
+        stopComponentInspectionService();
+        stopFragmentInspectionService();
+        stopPageInspectionService();
         cleanupPageEditorBridge();
         super.remove();
         return this;
@@ -226,9 +226,9 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
             },
         });
 
-        initPageInspectionService(siteModel);
-        initComponentInspectionService(siteModel);
-        initFragmentInspectionService();
+        startPageInspectionService(siteModel);
+        startComponentInspectionService(siteModel);
+        startFragmentInspectionService();
 
         // Sync renderable state that may have been set before bridge init
         void this.widgetRenderingHandler.isItemRenderable().then((isRenderable: boolean) => {

@@ -1,5 +1,5 @@
 import type { SortableListItemContext } from '@enonic/input-types';
-import { fireEvent, render, screen } from '@testing-library/preact';
+import { act, fireEvent, render, screen } from '@testing-library/preact';
 import { describe, expect, it, vi } from 'vitest';
 import type { FlatNode } from '../../../../../shared/lib/tree-store';
 import { PageComponentsItem } from './PageComponentsItem';
@@ -32,6 +32,7 @@ const context: SortableListItemContext<FlatNode<PageComponentNodeData>> = {
             draggable: true,
             layoutFragment: false,
             hasDescriptor: true,
+            descriptorKey: 'app:heading',
         },
     },
     index: 0,
@@ -58,5 +59,52 @@ describe('PageComponentsItem', () => {
 
         expect(container.querySelector('img')).toBeNull();
         expect(screen.getByTestId('icon-box')).toBeDefined();
+    });
+
+    it('keeps the old icon visible while a replacement fails, then retries on a descriptor refresh', () => {
+        const preloads: { onload: (() => void) | null; onerror: (() => void) | null }[] = [];
+
+        class ImageMock {
+            onload: (() => void) | null = null;
+            onerror: (() => void) | null = null;
+            src = '';
+
+            constructor() {
+                preloads.push(this);
+            }
+        }
+
+        vi.stubGlobal('Image', ImageMock);
+        try {
+            const view = (iconUrl: string, iconRefreshVersion: number) => (
+                <PageComponentsItem
+                    context={context}
+                    iconUrl={iconUrl}
+                    iconRefreshVersion={iconRefreshVersion}
+                    onToggle={noop}
+                    onSelect={noop}
+                />
+            );
+            const { container, rerender } = render(view('/heading.svg', 1));
+            const visibleImage = container.querySelector('img');
+            if (visibleImage) {
+                fireEvent.load(visibleImage);
+            }
+
+            rerender(view('/updated.svg', 1));
+            expect(container.querySelector('img')).toBe(visibleImage);
+            expect(visibleImage?.getAttribute('src')).toBe('/heading.svg');
+            act(() => preloads[0].onerror?.());
+            expect(container.querySelector('img')?.getAttribute('src')).toBe('/heading.svg');
+
+            rerender(view('/updated.svg', 2));
+            expect(preloads).toHaveLength(2);
+            act(() => preloads[1].onload?.());
+            expect(container.querySelector('img')).toBe(visibleImage);
+            expect(visibleImage?.getAttribute('src')).toBe('/updated.svg');
+            expect(screen.queryByTestId('icon-box')).toBeNull();
+        } finally {
+            vi.unstubAllGlobals();
+        }
     });
 });

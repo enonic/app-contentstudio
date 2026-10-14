@@ -1,10 +1,18 @@
-import { afterEach, beforeEach, describe, expect, it, type Mock } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
 import { type ContentId } from '../../../../app/content/ContentId';
 import { AppError } from '../../../shared/api/errors';
 import { setActiveProjectResolver } from '../../../shared/lib/url/cms';
 import { errorResponse, jsonResponse, restoreFetch, stubFetch } from '../../../shared/lib/test/fetch.test.utils';
 import { updateContentLanguage, updateContentMetadata } from './properties.api';
+
+const { mockParseContent } = vi.hoisted(() => ({
+    mockParseContent: vi.fn((json: { id: string }) => ({ parsedId: json.id })),
+}));
+
+vi.mock('../../../entities/content/lib/parseContent', () => ({
+    parseContent: mockParseContent,
+}));
 
 const contentId = (id: string): ContentId => ({ toString: () => id }) as ContentId;
 
@@ -18,6 +26,7 @@ beforeEach(() => {
 afterEach(() => {
     restoreFetch();
     setActiveProjectResolver(() => undefined);
+    mockParseContent.mockClear();
 });
 
 describe('updateContentMetadata', () => {
@@ -33,7 +42,7 @@ describe('updateContentMetadata', () => {
             body: JSON.stringify({ contentId: 'c-1', owner: 'user:system:su' }),
         });
         expect(result.isOk()).toBe(true);
-        expect(result._unsafeUnwrap()).toBeUndefined();
+        expect(result._unsafeUnwrap()).toEqual({ parsedId: 'c-1' });
     });
 
     it('should omit the owner from the payload when clearing it', async () => {
@@ -68,7 +77,7 @@ describe('updateContentLanguage', () => {
             body: JSON.stringify({ contentId: 'c-1', language: 'no' }),
         });
         expect(result.isOk()).toBe(true);
-        expect(result._unsafeUnwrap()).toBeUndefined();
+        expect(result._unsafeUnwrap()).toEqual({ parsedId: 'c-1' });
     });
 
     it('should omit the language from the payload when clearing it', async () => {

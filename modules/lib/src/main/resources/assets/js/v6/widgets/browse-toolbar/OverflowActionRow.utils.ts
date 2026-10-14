@@ -6,18 +6,24 @@ type CalculateVisibleActionCountParams = {
     epsilonPx?: number;
 };
 
-export const getOverflowActions = <T extends { id: string }>(
-    actions: readonly T[],
-    visibleActionCount: number,
-    primaryOverflowActionId?: string,
-): T[] => {
-    const overflowActions = actions.slice(visibleActionCount);
-    const primaryAction =
-        visibleActionCount > 0 ? overflowActions.find(({ id }) => id === primaryOverflowActionId) : undefined;
+type OverflowLayout<T> = {
+    rowItems: T[];
+    overflowItems: T[];
+};
 
-    return primaryAction
-        ? [primaryAction, ...overflowActions.filter((action) => action !== primaryAction)]
-        : overflowActions;
+export const getOverflowLayout = <T extends { primaryRank?: number }>(
+    items: readonly T[],
+    visibleCount: number,
+): OverflowLayout<T> => {
+    const rowItems = items.slice(0, visibleCount);
+    const rest = items.slice(visibleCount);
+    const primary = rest.reduce<T | undefined>(
+        (best, item) => (best == null || (item.primaryRank ?? 0) > (best.primaryRank ?? 0) ? item : best),
+        undefined,
+    );
+    const overflowItems = primary ? [primary, ...rest.filter((item) => item !== primary)] : [];
+
+    return { rowItems, overflowItems };
 };
 
 export const calculateVisibleActionCount = ({

@@ -24,6 +24,7 @@ import Q from 'q';
 import { LiveEditModel } from '../../page-editor/LiveEditModel';
 import { cleanupWizardMixinsService, initWizardMixinsService } from '../../v6/pages/wizard/model/wizardMixins.service';
 import {
+    applyOwnContentUpdate,
     cleanupWizardContentSyncService,
     initWizardContentSyncService,
 } from '../../v6/pages/wizard/model/wizardContentSync.service';
@@ -79,6 +80,7 @@ import { type PageTemplate } from '../content/PageTemplate';
 import { type Site } from '../content/Site';
 import { BeforeContentSavedEvent } from '../event/BeforeContentSavedEvent';
 import { ContentLanguageUpdatedEvent } from '../event/ContentLanguageUpdatedEvent';
+import { ContentSettingsUpdatedEvent } from '../event/ContentSettingsUpdatedEvent';
 import { ContentRequiresSaveEvent } from '../event/ContentRequiresSaveEvent';
 import { type ContentServerChangeItem } from '../event/ContentServerChangeItem';
 import { ContentServerEventsHandler } from '../event/ContentServerEventsHandler';
@@ -282,6 +284,48 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         ContentLanguageUpdatedEvent.on((event: ContentLanguageUpdatedEvent) => {
             this.openTranslatorDialog(event.getLanguage());
         });
+
+        const contentSettingsUpdatedHandler = (event: ContentSettingsUpdatedEvent) => {
+            this.handleContentSettingsUpdated(event.getContent());
+        };
+
+        ContentSettingsUpdatedEvent.on(contentSettingsUpdatedHandler);
+        this.onClosed(() => {
+            ContentSettingsUpdatedEvent.un(contentSettingsUpdatedHandler);
+        });
+    }
+
+    private handleContentSettingsUpdated(content: Content): void {
+        if (!this.isCurrentContentId(content.getContentId())) {
+            return;
+        }
+
+        const wasDataInherited: boolean = this.getPersistedItem().isDataInherited();
+
+        super.setPersistedItem(content);
+        applyOwnContentUpdate(content);
+        setAiContent(content);
+        this.updateWithContentSummary(
+            ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(
+                content,
+                this.persistedCompareStatus,
+                this.currentPublishStatus,
+            ),
+        );
+
+        if (wasDataInherited && !content.isDataInherited()) {
+            this.checkIfEditIsAllowed()
+                .then((canModify: boolean) => {
+                    this.handleCanModify(canModify);
+
+                    if (canModify) {
+                        this.unLockPage();
+                    }
+                })
+                .catch(DefaultErrorHandler.handle);
+        }
+
+        this.wizardActions.refreshActions().catch(DefaultErrorHandler.handle);
     }
 
     private handleContentRequiresSaveEvent(): void {
