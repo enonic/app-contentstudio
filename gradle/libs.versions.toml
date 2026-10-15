@@ -12,7 +12,7 @@ nodeGradle = "7.1.0"
 commonsText = "1.15.0"
 libTextEncoding = "3.0.0"
 libMustache = "3.0.0"
-libHttpClient = "4.0.0"
+libHttpClient = "4.0.1"
 libRouter = "4.0.0"
 libStatic = "3.0.0"
 
