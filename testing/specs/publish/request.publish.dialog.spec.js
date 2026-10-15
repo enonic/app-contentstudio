@@ -57,8 +57,6 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
         await createRequestPublishDialog.clickOnIncludeChildItemsCheckbox(
             appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME,
         );
-        await createRequestPublishDialog.clickOnApplySelectionButton();
-
         await studioUtils.saveScreenshot('request_publish_include_children');
         // 4. 'Show dependent items' link should appear, because all children are Ready for publishing
         await createRequestPublishDialog.waitForAllDependantsCheckboxDisplayed();
@@ -79,7 +77,6 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
         await createRequestPublishDialog.clickOnIncludeChildItemsCheckbox(
             appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME,
         );
-        await createRequestPublishDialog.clickOnApplySelectionButton();
         // 4. Unselect 'All' checkbox
         await createRequestPublishDialog.clickOnAllDependantsCheckbox();
         await studioUtils.saveScreenshot('request_publish_include_all_unselected');
@@ -103,7 +100,6 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
         await createRequestPublishDialog.clickOnIncludeChildItemsCheckbox(
             appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME,
         );
-        await createRequestPublishDialog.clickOnApplySelectionButton();
         // 4. Unselect 'All' checkbox
         await createRequestPublishDialog.clickOnAllDependantsCheckbox();
         // 5. Click on 'Apply selection' button:
@@ -132,7 +128,6 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME,
         );
         await createRequestPublishDialog.typeInTitleInput('test');
-        await createRequestPublishDialog.clickOnApplySelectionButton();
         // 4. Unselect 'All' checkbox
         await createRequestPublishDialog.clickOnAllDependantsCheckbox();
         // 5. Click on 'Apply selection' button:
@@ -160,7 +155,6 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
         await createRequestPublishDialog.clickOnIncludeChildItemsCheckbox(
             appConst.TEST_DATA.SELENIUM_TESTS_FOLDER_DISPLAY_NAME,
         );
-        await createRequestPublishDialog.clickOnApplySelectionButton();
         // 5. Create button gets disabled now:
         await createRequestPublishDialog.waitForCreateRequestButtonDisabled();
         // 6. click on 'Exclude invalid items' button

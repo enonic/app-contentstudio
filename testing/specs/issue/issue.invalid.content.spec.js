@@ -37,19 +37,18 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
         await createIssueDialog.typeTitle(ISSUE_TITLE_2);
         // 3. Click on both 'include children items' icons:
         await createIssueDialog.clickOnIncludeChildrenCheckbox(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME);
+        await createIssueDialog.waitForCreateIssueButtonEnabled();
         await createIssueDialog.clickOnIncludeChildrenCheckbox(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_DISPLAY_NAME);
-        // 4. Apply the staged selection:
-        await createIssueDialog.clickOnApplySelectionButton();
-        // 5. click on 'create issue' button:
+        // 4. Click on 'create issue' button:
         await createIssueDialog.clickOnCreateIssueButton();
-        // 6. Go to 'Items' tab
+        // 5. Go to 'Items' tab
         await issueDetailsDialog.waitForDialogLoaded();
         await issueDetailsDialog.clickOnItemsTabItem();
         await studioUtils.saveScreenshot('issue_details_items_2_parent_selected');
         await issueDetailsDialog.pause(1000);
-        // 7. Verify that 'All' checkbox is displayed in the dialog:
+        // 6. Verify that 'All' checkbox is displayed in the dialog:
         await issueDetailsDialogItemsTab.waitForAllDependantsCheckboxDisplayed();
-        // 8. Verify that expected number of items is displayed in the Items tab-link:
+        // 7. Verify that expected number of items is displayed in the Items tab-link:
         let result = await issueDetailsDialog.getNumberInItemsTab();
         assert.equal(result, '25', "25 items should be displayed in the 'Items' link");
     });
@@ -66,14 +65,12 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
         await createIssueDialog.typeTitle(ISSUE_TITLE);
         await createIssueDialog.clickOnIncludeChildrenCheckbox(appConst.TEST_FOLDER_2_DISPLAY_NAME);
         await studioUtils.saveScreenshot('create_issue_dialog_1');
-        // 3. Apply the staged selection:
-        await createIssueDialog.clickOnApplySelectionButton();
-        // 4. click on create issue button:
+        // 3. Click on create issue button:
         await createIssueDialog.clickOnCreateIssueButton();
         await studioUtils.saveScreenshot('issue_details_should_be_loaded');
         await issueDetailsDialog.waitForDialogLoaded();
         await issueDetailsDialog.pause(1000);
-        // 5. 12 items should be in the issue-details dialog:
+        // 4. 12 items should be in the issue-details dialog:
         let result = await issueDetailsDialog.getNumberInItemsTab();
         assert.equal(result, '12', "12 items should be displayed in the 'Items' link");
     });

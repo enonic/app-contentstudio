@@ -94,7 +94,6 @@ describe('publish.work.in.progress.spec - publishes work in progress content', f
         await contentPublishDialog.waitForDialogOpened();
         // 2. Click on 'Include children' checkbox
         await contentPublishDialog.clickOnIncludeChildrenCheckbox();
-        await contentPublishDialog.clickOnApplyButton();
         // 3. Click on 'Publish Now' button
         await contentPublishDialog.clickOnPublishNowButton();
         await contentPublishDialog.waitForDialogClosed();

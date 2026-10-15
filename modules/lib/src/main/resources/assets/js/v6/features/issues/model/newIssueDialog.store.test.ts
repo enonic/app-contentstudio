@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { err } from 'neverthrow';
 import { ContentId } from '../../../../app/content/ContentId';
 import {
     emitContentArchived,
@@ -23,26 +24,40 @@ import {
     openNewIssueDialog,
     removeNewIssueItemsByIds,
     resetNewIssueDialogContext,
+    retryNewIssueDependencies,
+    setNewIssueAssignees,
     setNewIssueDependantIncluded,
+    setNewIssueDescription,
     setNewIssueItemIncludeChildren,
+    setNewIssueTitle,
+    submitNewIssueDialog,
     toggleNewIssueDependantsSelection,
     toggleNewIssueShowExcludedDependants,
 } from './newIssueDialog.store';
 import {
+    createDeferredPromise,
     createMockChangeItem,
     createMockContent,
     createResolveResult,
     flushDebouncedReload,
+    flushPromises,
 } from '../../../shared/lib/test/dialog.store.test.utils';
 
-const { mockFetchContentSummaries, mockResolvePublishDependencies, mockShowError, mockShowSuccess, mockShowWarning } =
-    vi.hoisted(() => ({
-        mockFetchContentSummaries: vi.fn(),
-        mockResolvePublishDependencies: vi.fn(),
-        mockShowError: vi.fn(),
-        mockShowSuccess: vi.fn(),
-        mockShowWarning: vi.fn(),
-    }));
+const {
+    mockCreateIssue,
+    mockFetchContentSummaries,
+    mockResolvePublishDependencies,
+    mockShowError,
+    mockShowSuccess,
+    mockShowWarning,
+} = vi.hoisted(() => ({
+    mockCreateIssue: vi.fn(),
+    mockFetchContentSummaries: vi.fn(),
+    mockResolvePublishDependencies: vi.fn(),
+    mockShowError: vi.fn(),
+    mockShowSuccess: vi.fn(),
+    mockShowWarning: vi.fn(),
+}));
 
 vi.mock('../../../entities/content/lib/contentSummaries', () => ({
     fetchContentSummaries: mockFetchContentSummaries,
@@ -50,6 +65,10 @@ vi.mock('../../../entities/content/lib/contentSummaries', () => ({
 
 vi.mock('../../../entities/content/api/publish.api', () => ({
     resolvePublishDependencies: mockResolvePublishDependencies,
+}));
+
+vi.mock('../../../entities/issue/api/issues.api', () => ({
+    createIssue: mockCreateIssue,
 }));
 
 vi.mock('@enonic/lib-admin-ui/notify/MessageBus', () => ({
@@ -83,6 +102,7 @@ describe('newIssueDialog.store', () => {
         vi.useFakeTimers();
         resetNewIssueDialogContext();
         mockFetchContentSummaries.mockReset().mockResolvedValue([]);
+        mockCreateIssue.mockReset();
         mockResolvePublishDependencies.mockReset().mockResolvedValue(createResolveResult({}));
         mockShowError.mockReset();
         mockShowSuccess.mockReset();
@@ -299,21 +319,119 @@ describe('newIssueDialog.store', () => {
             expect($isNewIssueSelectionSynced.get()).toBe(true);
         });
 
-        it('should stage an include-children toggle without re-resolving until Apply', async () => {
+        it('should resolve include-children changes immediately in both directions', async () => {
             await setupWithDependants();
             expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(1);
+            expect($newIssueDialog.get().loading).toBe(false);
 
             setNewIssueItemIncludeChildren(new ContentId('item-1'), true);
 
-            expect($isNewIssueSelectionSynced.get()).toBe(false);
+            expect($isNewIssueSelectionSynced.get()).toBe(true);
+            expect($newIssueDialog.get().loading).toBe(true);
             expect($newIssueDialog.get().excludeChildrenIds).toHaveLength(0);
-            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(1);
-
-            applyDraftNewIssueDialogSelection();
+            expect($newIssueDialog.get().appliedExcludeChildrenIds).toHaveLength(0);
             await flushNewIssueReload();
 
-            expect($isNewIssueSelectionSynced.get()).toBe(true);
             expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
+            expect(mockResolvePublishDependencies.mock.calls[1][0].excludeChildrenIds).toHaveLength(0);
+            expect($newIssueDialog.get().loading).toBe(false);
+
+            setNewIssueItemIncludeChildren(new ContentId('item-1'), false);
+            expect($isNewIssueSelectionSynced.get()).toBe(true);
+            expect($newIssueDialog.get().loading).toBe(true);
+            await flushNewIssueReload();
+
+            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(3);
+            expect(
+                mockResolvePublishDependencies.mock.calls[2][0].excludeChildrenIds.map((id: ContentId) =>
+                    id.toString(),
+                ),
+            ).toEqual(['item-1']);
+            expect($newIssueDialog.get().excludeChildrenIds.map((id) => id.toString())).toEqual(['item-1']);
+            expect($newIssueDialog.get().appliedExcludeChildrenIds.map((id) => id.toString())).toEqual(['item-1']);
+        });
+
+        it('should block creation while children reload is pending or failed', async () => {
+            await setupWithDependants();
+            setNewIssueTitle('Issue');
+            mockResolvePublishDependencies.mockResolvedValueOnce(err(new Error('resolve failed')));
+
+            setNewIssueItemIncludeChildren(new ContentId('item-1'), true);
+            await submitNewIssueDialog();
+            expect(mockCreateIssue).not.toHaveBeenCalled();
+
+            await flushNewIssueReload();
+            expect($newIssueDialog.get().failed).toBe(true);
+            await submitNewIssueDialog();
+            expect(mockCreateIssue).not.toHaveBeenCalled();
+        });
+
+        it('keeps Create blocked when a child toggle supersedes an in-flight resolve', async () => {
+            const itemId = new ContentId('item-1');
+            const oldResolve = createDeferredPromise<ReturnType<typeof createResolveResult>>();
+            const latestResolve = createDeferredPromise<ReturnType<typeof createResolveResult>>();
+            mockResolvePublishDependencies
+                .mockReturnValueOnce(oldResolve.promise)
+                .mockReturnValueOnce(latestResolve.promise);
+
+            openNewIssueDialog([createMockContent('item-1', { hasChildren: true })]);
+            setNewIssueTitle('Issue');
+            await flushNewIssueReload();
+            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(1);
+
+            setNewIssueItemIncludeChildren(itemId, true);
+            oldResolve.resolve(createResolveResult({}));
+            await flushPromises(10);
+
+            expect($newIssueDialog.get().loading).toBe(true);
+            expect($newIssueDialog.get().failed).toBe(false);
+            await submitNewIssueDialog();
+            expect(mockCreateIssue).not.toHaveBeenCalled();
+
+            await flushNewIssueReload();
+            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
+            expect(mockResolvePublishDependencies.mock.lastCall?.[0].excludeChildrenIds).toHaveLength(0);
+            expect($newIssueDialog.get().loading).toBe(true);
+
+            latestResolve.resolve(createResolveResult({}));
+            await flushPromises(10);
+
+            expect($newIssueDialog.get().loading).toBe(false);
+            expect($newIssueDialog.get().failed).toBe(false);
+        });
+
+        it('retries a failed dependant summary load without losing issue details', async () => {
+            const dependantId = new ContentId('dep-1');
+            mockResolvePublishDependencies.mockResolvedValue(createResolveResult({ dependants: [dependantId] }));
+
+            openNewIssueDialog([createMockContent('item-1')]);
+            setNewIssueTitle('Issue');
+            setNewIssueDescription('Keep this description');
+            setNewIssueAssignees(['user:system:editor']);
+            await flushNewIssueReload();
+
+            expect($newIssueDialog.get().failed).toBe(true);
+            expect($newIssueDialog.get().loading).toBe(false);
+            await submitNewIssueDialog();
+            expect(mockCreateIssue).not.toHaveBeenCalled();
+
+            mockFetchContentSummaries.mockResolvedValue([createMockContent('dep-1')]);
+            const retry = retryNewIssueDependencies();
+            expect($newIssueDialog.get().loading).toBe(true);
+            await submitNewIssueDialog();
+            expect(mockCreateIssue).not.toHaveBeenCalled();
+            await retry;
+
+            expect($newIssueDialog.get().failed).toBe(false);
+            expect($newIssueDialog.get().loading).toBe(false);
+            expect($newIssueDialog.get().dependantIds.map((id) => id.toString())).toEqual(['dep-1']);
+            expect($newIssueDialog.get().title).toBe('Issue');
+            expect($newIssueDialog.get().description).toBe('Keep this description');
+            expect($newIssueDialog.get().assigneeIds).toEqual(['user:system:editor']);
+
+            mockCreateIssue.mockResolvedValue(err(new Error('create failed')));
+            await submitNewIssueDialog();
+            expect(mockCreateIssue).toHaveBeenCalledTimes(1);
         });
 
         it('should keep counts live while a dependant edit is staged and re-resolve on Apply', async () => {
@@ -370,24 +488,30 @@ describe('newIssueDialog.store', () => {
             expect($newIssueDialog.get().dependantIds.map((id) => id.toString())).toEqual(['dep-1', 'dep-2']);
         });
 
-        it('should restore the applied selection on Cancel', async () => {
+        it('should cancel a staged dependant edit without undoing an include-children toggle', async () => {
             await setupWithDependants();
 
             setNewIssueDependantIncluded(new ContentId('dep-1'), false);
             setNewIssueItemIncludeChildren(new ContentId('item-1'), true);
+            await flushNewIssueReload();
+
             expect($isNewIssueSelectionSynced.get()).toBe(false);
+            expect($newIssueDialog.get().excludedDependantIds.map((id) => id.toString())).toEqual(['dep-1']);
+            expect($newIssueDialog.get().appliedExcludedDependantIds).toHaveLength(0);
 
             cancelDraftNewIssueDialogSelection();
 
             expect($isNewIssueSelectionSynced.get()).toBe(true);
             expect($newIssueDialog.get().excludedDependantIds).toHaveLength(0);
-            expect($newIssueDialog.get().excludeChildrenIds.map((id) => id.toString())).toEqual(['item-1']);
+            expect($newIssueDialog.get().excludeChildrenIds).toHaveLength(0);
+            expect($newIssueDialog.get().appliedExcludeChildrenIds).toHaveLength(0);
         });
 
-        it('should keep a staged edit when a background reload runs, resolving the applied selection', async () => {
+        it('should keep a staged dependant edit when a background reload runs', async () => {
             await setupWithDependants();
             expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(1);
 
+            setNewIssueDependantIncluded(new ContentId('dep-1'), false);
             setNewIssueItemIncludeChildren(new ContentId('item-1'), true);
             expect($isNewIssueSelectionSynced.get()).toBe(false);
 
@@ -396,12 +520,14 @@ describe('newIssueDialog.store', () => {
 
             expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
             const reloadArgs = mockResolvePublishDependencies.mock.calls[1][0];
-            expect(reloadArgs.excludeChildrenIds.map((id: ContentId) => id.toString())).toEqual(['item-1']);
+            expect(reloadArgs.excludeChildrenIds).toHaveLength(0);
+            expect(reloadArgs.excludedIds ?? []).toHaveLength(0);
             expect($newIssueDialog.get().excludeChildrenIds).toHaveLength(0);
+            expect($newIssueDialog.get().excludedDependantIds.map((id) => id.toString())).toEqual(['dep-1']);
             expect($isNewIssueSelectionSynced.get()).toBe(false);
         });
 
-        it('should keep staged edits on remaining items when another item is removed', async () => {
+        it('should keep an applied include-children toggle when another item is removed', async () => {
             mockResolvePublishDependencies.mockResolvedValue(
                 createResolveResult({ dependants: [new ContentId('dep-1')] }),
             );
@@ -416,14 +542,14 @@ describe('newIssueDialog.store', () => {
             await flushNewIssueReload();
 
             setNewIssueItemIncludeChildren(new ContentId('item-2'), true);
-            expect($isNewIssueSelectionSynced.get()).toBe(false);
+            expect($isNewIssueSelectionSynced.get()).toBe(true);
 
             removeNewIssueItemsByIds([new ContentId('item-1')]);
             await flushNewIssueReload();
 
             expect($newIssueDialog.get().excludeChildrenIds).toHaveLength(0);
-            expect($newIssueDialog.get().appliedExcludeChildrenIds.map((id) => id.toString())).toEqual(['item-2']);
-            expect($isNewIssueSelectionSynced.get()).toBe(false);
+            expect($newIssueDialog.get().appliedExcludeChildrenIds).toHaveLength(0);
+            expect($isNewIssueSelectionSynced.get()).toBe(true);
         });
     });
 

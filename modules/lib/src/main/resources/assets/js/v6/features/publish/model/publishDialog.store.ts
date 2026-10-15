@@ -358,9 +358,10 @@ export const $scheduleToError = computed($publishScheduleErrors, ({ to }): strin
 });
 
 export const $isPublishReady = computed(
-    [$publishChecks, $isPublishSelectionSynced, $totalPublishableItems, $isScheduleValid],
+    [$publishChecks, $publishDialog, $isPublishSelectionSynced, $totalPublishableItems, $isScheduleValid],
     (
         { loading, invalidIds, inProgressIds, notPublishableIds },
+        { failed },
         synced,
         totalPublishableItems,
         scheduleValid,
@@ -368,6 +369,7 @@ export const $isPublishReady = computed(
         return (
             synced &&
             !loading &&
+            !failed &&
             invalidIds.length === 0 &&
             inProgressIds.length === 0 &&
             notPublishableIds.length === 0 &&

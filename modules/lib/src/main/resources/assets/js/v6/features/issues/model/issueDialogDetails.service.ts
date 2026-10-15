@@ -178,18 +178,14 @@ const reloadIssueDialogDetailsForServerEvent = async (issueId: string): Promise<
     const dialogState = $issueDialog.get();
     const issueWithAssignees = dialogState.issues.find((item) => item.getIssue().getId() === issueId);
     const previousPublishRequest = getCurrentIssueDialogIssue()?.getPublishRequest();
+    const requestChanged = isPublishRequestChanged(previousPublishRequest, issue.getPublishRequest());
+
     applyUpdatedIssue(issue, dialogState, issueWithAssignees, {}, assignees);
 
-    await loadIssueDialogComments(issueId, { forceReload: true });
-    if (isStaleIssueDialogDetailsReload(issueId, requestId)) {
-        return;
-    }
-
-    // Items derive from the publish request alone: an unchanged one means a comment, a field edit, or
-    // the echo of our own save, which already reloaded. Content changes arrive over the sockets.
-    if (isPublishRequestChanged(previousPublishRequest, issue.getPublishRequest())) {
+    if (requestChanged) {
         void loadIssueDialogItems(issue, { forceReload: true });
     }
+    await loadIssueDialogComments(issueId, { forceReload: true });
 };
 
 const queueIssueDialogDetailsServerEventReload = createDebounce((issueId: string) => {

@@ -36,7 +36,6 @@ describe('request.publish.dialog.validation.spec - opens request publish modal d
         await createRequestPublishDialog.clickOnIncludeChildItemsCheckbox(PARENT_FOLDER.displayName);
         await studioUtils.saveScreenshot('request_publish_mark_as_ready_btn');
         // 3. Verify 'mark as ready' and 'Exclude items in progress' buttons:
-        await createRequestPublishDialog.clickOnApplySelectionButton();
         await createRequestPublishDialog.waitForMarkAsReadyButtonDisplayed();
         await createRequestPublishDialog.waitForExcludeItemsInProgressButtonDisplayed();
         // 4. Verify that Next button is disabled
@@ -52,7 +51,6 @@ describe('request.publish.dialog.validation.spec - opens request publish modal d
         await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
         // 2. click on 'Include children items'
         await createRequestPublishDialog.clickOnIncludeChildItemsCheckbox(PARENT_FOLDER.displayName);
-        await createRequestPublishDialog.clickOnApplySelectionButton();
         // 3. Click on 'Exclude items in progress' button:
         await createRequestPublishDialog.clickOnExcludeItemsInProgressButton();
         await studioUtils.saveScreenshot('request_publish_items_in_progress_excluded');
@@ -72,7 +70,6 @@ describe('request.publish.dialog.validation.spec - opens request publish modal d
         await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
         // 2. click on 'Include children items'
         await createRequestPublishDialog.clickOnIncludeChildItemsCheckbox(PARENT_FOLDER.displayName);
-        await createRequestPublishDialog.clickOnApplySelectionButton();
         await createRequestPublishDialog.typeInTitleInput(appConst.generateRandomName('request'));
         // 3. Click on 'Exclude items in progress' button:
         await createRequestPublishDialog.clickOnMarkAsReadyButton();

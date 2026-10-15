@@ -13,7 +13,10 @@ import {
 } from '../../../entities/content/api/publish.api';
 import { cleanupTask, trackTask } from '../../../entities/task';
 import type { TaskResultState } from '../../../entities/task';
-import { nextDependantExclusions } from '../../../shared/lib/cms/content/dependantsSelection';
+import {
+    nextDependantExclusions,
+    pruneExcludedDependantIds,
+} from '../../../shared/lib/cms/content/dependantsSelection';
 import { hasContentById, hasContentIdInIds, isIdsEqual, uniqueIds } from '../../../shared/lib/cms/content/ids';
 import { createDebounce } from '../../../shared/lib/timing/createDebounce';
 import { $config } from '../../../shared/config/config.store';
@@ -316,6 +319,12 @@ export const setPublishDialogItemWithChildrenSelected = (id: ContentId, selected
         ...rest,
         excludedItemsWithChildrenIds: newExcludedItemsWithChildrenIds,
     });
+    // Invalidate an in-flight resolve now, before the debounced replacement starts.
+    instanceId += 1;
+    resetExclusions = true;
+    $publishChecks.setKey('loading', true);
+    $publishDialog.setKey('excludedItemsWithChildrenIds', newExcludedItemsWithChildrenIds);
+    reloadPublishDialogDataDebounced();
 };
 
 export const setPublishDialogDependantItemSelected = (id: ContentId, selected: boolean) => {
@@ -480,15 +489,32 @@ export const loadMoreDependants = async (): Promise<void> => {
     }
 };
 
+const rebaseDependantExclusions = (
+    previousApplied: ContentId[],
+    draft: ContentId[],
+    resolved: ContentId[],
+    dependantIds: ContentId[],
+    requiredIds: ContentId[],
+): ContentId[] => {
+    const added = draft.filter((id) => !hasContentIdInIds(id, previousApplied));
+    const removed = previousApplied.filter((id) => !hasContentIdInIds(id, draft));
+    const rebased = uniqueIds([...resolved.filter((id) => !hasContentIdInIds(id, removed)), ...added]);
+
+    return pruneExcludedDependantIds(rebased, dependantIds, requiredIds);
+};
+
 export async function reloadPublishDialogData(): Promise<void> {
+    const currentInstanceId = ++instanceId;
+    compareInstanceId += 1;
     $compareStatuses.set(new Map());
     $compareStatusesLoading.set(false);
 
     try {
         $publishChecks.setKey('loading', true);
+        $publishDialog.setKey('failed', false);
 
-        const result = await resolvePublishDependencies();
-        if (!result) return;
+        const result = await resolvePublishDependencies(currentInstanceId);
+        if (currentInstanceId !== instanceId || !result) return;
 
         const { publishableContentIds, visibleDependantIds, excludedItemsIds, excludedDependantItemsIds, ...checks } =
             result;
@@ -497,17 +523,34 @@ export async function reloadPublishDialogData(): Promise<void> {
         $publishableContentIds.set(publishableContentIds);
         $visibleDependantIds.set(visibleDependantIds);
 
-        // Only update exclusion IDs in $publishDialog
+        const current = $publishDialog.get();
+        const draft = $draftPublishDialogSelection.get();
+        const hasDraftMainSelection = !isIdsEqual(draft.excludedItemsIds, current.excludedItemsIds);
+        const hasDraftDependantSelection = !isIdsEqual(
+            draft.excludedDependantItemsIds,
+            current.excludedDependantItemsIds,
+        );
+        const rebasedDependantExclusions = hasDraftDependantSelection
+            ? rebaseDependantExclusions(
+                  current.excludedDependantItemsIds,
+                  draft.excludedDependantItemsIds,
+                  excludedDependantItemsIds,
+                  $dependantIds.get(),
+                  checks.requiredIds,
+              )
+            : excludedDependantItemsIds;
+
+        // Keep pending selection edits while syncing the resolved exclusions.
         $publishDialog.set({
-            ...$publishDialog.get(),
+            ...current,
             excludedItemsIds,
             excludedDependantItemsIds,
         });
 
         $draftPublishDialogSelection.set({
-            ...$draftPublishDialogSelection.get(),
-            excludedItemsIds,
-            excludedDependantItemsIds,
+            ...draft,
+            excludedItemsIds: hasDraftMainSelection ? draft.excludedItemsIds : excludedItemsIds,
+            excludedDependantItemsIds: rebasedDependantExclusions,
         });
 
         $publishChecks.set({
@@ -517,19 +560,20 @@ export async function reloadPublishDialogData(): Promise<void> {
 
         // Fetch unpublished children status
         const { items } = $publishDialog.get();
-        await fetchHasUnpublishedChildren(items);
+        await fetchHasUnpublishedChildren(items, currentInstanceId);
+        if (currentInstanceId !== instanceId) return;
 
         // Verify compare status for online+modified items (non-blocking)
         void fetchCompareStatuses([...items, ...$publishDialogDependants.get()]);
     } catch (error) {
-        $publishDialog.setKey('failed', true);
+        if (currentInstanceId === instanceId) {
+            $publishDialog.setKey('failed', true);
+        }
         // TODO: Notify error
     } finally {
-        // ! Do not bump instanceId here: resolvePublishDependencies owns the guard
-        // token. Incrementing it after a stale reload bails would also invalidate a
-        // concurrently running reload, leaving both to skip their writes (0 publishable,
-        // no banner, disabled button).
-        $publishChecks.setKey('loading', false);
+        if (currentInstanceId === instanceId) {
+            $publishChecks.setKey('loading', false);
+        }
     }
 }
 
@@ -682,10 +726,9 @@ type ResolvePublishDependenciesResult = {
     notPublishableExcludable: boolean;
 };
 
-async function resolvePublishDependencies(): Promise<ResolvePublishDependenciesResult | undefined> {
-    instanceId += 1;
-    const currentInstanceId = instanceId;
-
+async function resolvePublishDependencies(
+    currentInstanceId: number,
+): Promise<ResolvePublishDependenciesResult | undefined> {
     const { items, excludedItemsIds, excludedDependantItemsIds, excludedItemsWithChildrenIds } = $publishDialog.get();
 
     const isCleanResolve = cleanLoad || resetExclusions;
@@ -704,6 +747,7 @@ async function resolvePublishDependencies(): Promise<ResolvePublishDependenciesR
     let childrenIds: ContentId[] = [];
     if (itemsWithChildrenIds.length > 0) {
         const childrenResult = await findIdsByParents(itemsWithChildrenIds);
+        if (currentInstanceId !== instanceId) return;
         if (childrenResult.isErr()) {
             $publishDialog.setKey('failed', true);
             return;
@@ -716,6 +760,7 @@ async function resolvePublishDependencies(): Promise<ResolvePublishDependenciesR
         excludedIds: excludedItemsIds,
         excludeChildrenIds: allExcludedItemsWithChildrenIds,
     });
+    if (currentInstanceId !== instanceId) return;
     if (maxResultResult.isErr()) {
         $publishDialog.setKey('failed', true);
         return;
@@ -741,6 +786,7 @@ async function resolvePublishDependencies(): Promise<ResolvePublishDependenciesR
             excludedIds: minExcludedIds,
             excludeChildrenIds: allExcludedItemsWithChildrenIds,
         });
+        if (currentInstanceId !== instanceId) return;
         if (minResultResult.isErr()) {
             $publishDialog.setKey('failed', true);
             return;
@@ -924,7 +970,7 @@ async function sendPublishRequest(): Promise<TaskId | undefined> {
     );
 }
 
-async function fetchHasUnpublishedChildren(items: ContentSummary[]): Promise<void> {
+async function fetchHasUnpublishedChildren(items: ContentSummary[], guardId: number): Promise<void> {
     const itemsWithChildren = items.filter((item) => item.hasChildren());
     if (itemsWithChildren.length === 0) {
         $hasUnpublishedChildrenIds.set(new Set());
@@ -933,6 +979,7 @@ async function fetchHasUnpublishedChildren(items: ContentSummary[]): Promise<voi
 
     const ids = itemsWithChildren.map((item) => item.getContentId());
     const result = await hasUnpublishedChildren(ids);
+    if (guardId !== instanceId) return;
 
     result.match(
         (map) => {

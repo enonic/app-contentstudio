@@ -362,10 +362,18 @@ export const setRequestPublishItems = (items: ContentSummary[], includeChildren 
 export const setRequestPublishItemIncludeChildren = (id: ContentId, includeChildren: boolean): void => {
     const state = $requestPublishDialog.get();
     const next = withIdExcluded(state.excludeChildrenIds, id, !includeChildren);
-
-    if (next !== state.excludeChildrenIds) {
-        $requestPublishDialog.setKey('excludeChildrenIds', next);
+    if (next === state.excludeChildrenIds) {
+        return;
     }
+
+    $requestPublishDialog.set({
+        ...state,
+        excludeChildrenIds: next,
+        appliedExcludeChildrenIds: next,
+        loading: true,
+    });
+    instanceId += 1;
+    reloadDependenciesDebounced();
 };
 
 export const applyDraftRequestPublishDialogSelection = (): void => {
