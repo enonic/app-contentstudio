@@ -57,6 +57,7 @@ import {
     excludeNotPublishablePublishItems,
     markAllAsReadyInProgressPublishItems,
     publishItems,
+    reloadPublishDialogData,
     syncPublishDialogContext,
 } from '../../../publish/model/publishDialog.commands';
 import {
@@ -177,6 +178,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         scheduleUpdating,
         itemsUpdating,
         itemsLoading,
+        itemsError,
         items,
         excludeChildrenIds,
         dependants,
@@ -200,6 +202,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
             'scheduleUpdating',
             'itemsUpdating',
             'itemsLoading',
+            'itemsError',
             'items',
             'excludeChildrenIds',
             'dependants',
@@ -501,7 +504,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     );
 
     const handleIncludeChildrenChange = useCallback((id: ContentId, includeChildren: boolean): void => {
-        setIssueDialogDetailsItemIncludeChildren(id, includeChildren);
+        void setIssueDialogDetailsItemIncludeChildren(id, includeChildren);
     }, []);
 
     const handleDependencyChange = useCallback((id: ContentId, included: boolean): void => {
@@ -511,6 +514,25 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const handleApplySelection = useCallback((): void => {
         void applyDraftIssueDialogDetailsSelection();
     }, []);
+
+    const handleRetryItems = useCallback((): void => {
+        if (issueData) {
+            void loadIssueDialogItems(issueData, { forceReload: true });
+        }
+    }, [issueData]);
+
+    const handleRetryPublish = useCallback((): void => {
+        void reloadPublishDialogData();
+    }, []);
+
+    const isPublishFailedShown = canShowSelectionStatusBar && publishDialogFailed;
+    const handleRetrySelection = (): void => {
+        if (itemsError) {
+            handleRetryItems();
+        } else if (isPublishFailedShown) {
+            handleRetryPublish();
+        }
+    };
 
     const handleScheduleFromChange = useCallback(
         (value: Date | undefined): void => {
@@ -687,6 +709,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         publishSubmitting ||
         publishDialogOpen ||
         isItemsDisabled ||
+        itemsError ||
         isClosed ||
         itemsLoading ||
         scheduleUpdating ||
@@ -792,11 +815,12 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                 <SelectionStatusBar
                                     className="mb-5"
                                     loading={itemsLoading || (canShowSelectionStatusBar && isPublishChecking)}
-                                    failed={canShowSelectionStatusBar && publishDialogFailed}
+                                    failed={itemsError || isPublishFailedShown}
                                     editing={!isSelectionSynced}
                                     showReady={canShowSelectionStatusBar && isPublishReady}
                                     onApply={handleApplySelection}
                                     onCancel={cancelDraftIssueDialogDetailsSelection}
+                                    onRetry={itemsError || isPublishFailedShown ? handleRetrySelection : undefined}
                                     errors={
                                         canShowSelectionStatusBar
                                             ? {

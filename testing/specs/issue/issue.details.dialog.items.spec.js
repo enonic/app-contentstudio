@@ -71,8 +71,6 @@ describe('issue.details.dialog.items.spec: open issue details dialog and check c
         await issueDetailsDialog.clickOnItemsTabItem();
         // 3. Click on 'Include Child' icon:
         await issueDetailsDialogItemsTab.clickOnIncludeChildrenCheckbox(TEST_FOLDER_WITH_IMAGES_DISPLAY_NAME);
-        // 4. The selection change is staged, so it is only saved after 'Apply':
-        await issueDetailsDialogItemsTab.clickOnApplySelectionButton();
         let message = await issueDetailsDialogItemsTab.waitForNotificationMessage();
         assert.equal(
             message,
@@ -134,9 +132,7 @@ describe('issue.details.dialog.items.spec: open issue details dialog and check c
         await issueDetailsDialog.clickOnItemsTabItem();
         // 3. Exclude child items(click on the toggler):
         await issueDetailsDialogItemsTab.clickOnIncludeChildrenCheckbox(TEST_FOLDER_WITH_IMAGES_DISPLAY_NAME);
-        // 4. Apply the staged selection so dependants are resolved again:
-        await issueDetailsDialogItemsTab.clickOnApplySelectionButton();
-        // 5. Verify that number of items in the tab link is changed to 1:
+        // 4. Verify that number of items in the tab link is changed to 1:
         await issueDetailsDialog.waitForNumberInItemsTab(1);
     });
 

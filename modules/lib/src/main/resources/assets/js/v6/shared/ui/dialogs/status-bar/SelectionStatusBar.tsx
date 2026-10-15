@@ -16,6 +16,7 @@ type Props = {
     warningText?: string;
     onApply: () => void;
     onCancel: () => void;
+    onRetry?: () => void;
     errors?: {
         inProgress: {
             count: number;
@@ -47,7 +48,7 @@ function getStatus({
     showReady,
     warningText,
     errors,
-}: Omit<Props, 'className' | 'onApply' | 'onCancel'>): Status {
+}: Omit<Props, 'className' | 'onApply' | 'onCancel' | 'onRetry'>): Status {
     if (loading) {
         return 'loading';
     }
@@ -71,12 +72,13 @@ function getStatus({
 
 const SELECTION_STATUS_BAR_NAME = 'SelectionStatusBar';
 
-export const SelectionStatusBar = ({ className, onApply, onCancel, ...props }: Props): React.ReactElement => {
+export const SelectionStatusBar = ({ className, onApply, onCancel, onRetry, ...props }: Props): React.ReactElement => {
     const loadingText = useI18n('dialog.statusBar.loading');
     const failedText = useI18n('dialog.statusBar.error.failed.text');
     const editingText = useI18n('dialog.state.editing');
     const applyText = useI18n('action.apply');
     const cancelText = useI18n('action.cancel');
+    const retryText = useI18n('action.retry');
     const readyText = useI18n('dialog.statusBar.error.ready.text');
     const inProgressText = useI18n('dialog.statusBar.error.inProgress.text');
     const invalidText = useI18n('dialog.statusBar.error.invalid.text');
@@ -105,6 +107,14 @@ export const SelectionStatusBar = ({ className, onApply, onCancel, ...props }: P
                 <StatusBarEntry className="bg-surface-error">
                     <StatusIcon className="w-6 h-6" status="invalid" />
                     <span className="text-sm font-semibold">{failedText}</span>
+                    {onRetry && (
+                        <StatusBarEntryButton
+                            onClick={onRetry}
+                            className="[--color-ring-offset:var(--color-surface-error)]"
+                        >
+                            {retryText}
+                        </StatusBarEntryButton>
+                    )}
                 </StatusBarEntry>
             )}
 
