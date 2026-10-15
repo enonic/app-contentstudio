@@ -3,13 +3,11 @@ import { AEl } from '@enonic/lib-admin-ui/dom/AEl';
 import { ButtonEl } from '@enonic/lib-admin-ui/dom/ButtonEl';
 import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
 import { type Element } from '@enonic/lib-admin-ui/dom/Element';
-import { FormBuilder } from '@enonic/lib-admin-ui/form/Form';
 import { FormContext } from '@enonic/lib-admin-ui/form/FormContext';
-import { type FormItem, InputBuilder } from '@enonic/input-types/schema';
+import { Form, type FormItem, InputBuilder, Occurrences } from '@enonic/input-types/schema';
 import { FormView } from '@enonic/lib-admin-ui/form/FormView';
-import { type RawInputConfig } from '@enonic/lib-admin-ui/form/Input';
+import type { InputConfigEntries } from '@enonic/input-types';
 import { DateTimeRange } from '@enonic/lib-admin-ui/form/inputtype/time/DateTimeRange';
-import { OccurrencesBuilder } from '@enonic/lib-admin-ui/form/Occurrences';
 import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import type Q from 'q';
@@ -40,7 +38,7 @@ export class PublishScheduleForm extends DivEl {
             this.toggleClass('invalid', !record.isValid());
         });
 
-        const scheduleForm = new FormBuilder().addFormItem(this.createRangeFormItem()).build();
+        const scheduleForm = new Form([this.createRangeFormItem()]);
         this.scheduleFormView = new FormView(FormContext.create().build(), scheduleForm, propertySet);
 
         const removeButton = new AEl('remove-button icon-close');
@@ -62,14 +60,14 @@ export class PublishScheduleForm extends DivEl {
             .setLabel(i18n('field.scheduledPublishing'))
             .setHelpText(i18n('field.scheduledPublishing.helptext'))
             .setInputType(DateTimeRange.getName())
-            .setOccurrences(new OccurrencesBuilder().setMinimum(1).setMaximum(1).build())
+            .setOccurrences(Occurrences.minmax(1, 1))
             .setInputTypeConfig({
                 fromLabel: [{ value: i18n('field.onlineFrom') }],
                 toLabel: [{ value: i18n('field.onlineTo') }],
                 defaultFromTime: [{ value: fromTime }],
                 fromPlaceholder: [{ value: i18n('text.now') }],
                 optionalFrom: [{ value: String(!CONFIG.isTrue('requiredPublishFrom')) }],
-            } satisfies RawInputConfig)
+            } satisfies InputConfigEntries)
             .build();
     }
 

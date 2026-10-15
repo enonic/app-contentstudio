@@ -32,10 +32,10 @@
       "error",
       {
         "paths": [
-          { "name": "@enonic/lib-admin-ui/form/Form", "importNames": ["Form"], "message": "Import from '@enonic/input-types/schema' (lib-admin-ui#4713)." },
-          { "name": "@enonic/lib-admin-ui/form/FormItem", "importNames": ["FormItem", "FormItemKind"], "message": "Import from '@enonic/input-types/schema' (lib-admin-ui#4713)." },
-          { "name": "@enonic/lib-admin-ui/form/Input", "importNames": ["Input", "InputBuilder"], "message": "Import from '@enonic/input-types/schema' (lib-admin-ui#4713)." },
-          { "name": "@enonic/lib-admin-ui/form/Occurrences", "importNames": ["Occurrences"], "message": "Import from '@enonic/input-types/schema' (lib-admin-ui#4713)." },
+          { "name": "@enonic/lib-admin-ui/form/Form", "message": "Import from '@enonic/input-types/schema' (lib-admin-ui#4713)." },
+          { "name": "@enonic/lib-admin-ui/form/FormItem", "message": "Import from '@enonic/input-types/schema' (lib-admin-ui#4713)." },
+          { "name": "@enonic/lib-admin-ui/form/Input", "message": "Import from '@enonic/input-types/schema' (lib-admin-ui#4713)." },
+          { "name": "@enonic/lib-admin-ui/form/Occurrences", "message": "Import from '@enonic/input-types/schema' (lib-admin-ui#4713)." },
           { "name": "@enonic/lib-admin-ui/form/FormItemPath", "message": "Import from '@enonic/input-types/schema' (lib-admin-ui#4713)." },
           { "name": "@enonic/lib-admin-ui/form/InputTypeName", "message": "Import from '@enonic/input-types/schema' (lib-admin-ui#4713)." },
           { "name": "@enonic/lib-admin-ui/data/PropertyArrayJson", "message": "Import from '@enonic/ui-types' (lib-admin-ui#4713)." },

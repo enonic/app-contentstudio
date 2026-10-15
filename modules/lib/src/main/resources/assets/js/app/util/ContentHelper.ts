@@ -19,13 +19,21 @@ import { WorkflowState } from '../content/WorkflowState';
 import { PropertyTree, ValueTypes } from '@enonic/input-types/data';
 import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { PageHelper } from './PageHelper';
-import { type Form, Input } from '@enonic/input-types/schema';
-import { type FormItemParent } from '@enonic/lib-admin-ui/form/FormItem';
+import {
+    type FieldSet,
+    type Form,
+    type FormItemSet,
+    type FormOptionSet,
+    type FormOptionSetOption,
+    Input,
+} from '@enonic/input-types/schema';
 import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
 import { type PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
 import { type Permission } from '../access/Permission';
 import { RoleKeys } from '@enonic/lib-admin-ui/security/RoleKeys';
 import { type AccessControlList } from '../access/AccessControlList';
+
+type FormItemParent = FieldSet | FormItemSet | FormOptionSet | FormOptionSetOption;
 
 export class ContentHelper {
     static isReferencedBy(content: ContentSummary, reference: ContentId) {

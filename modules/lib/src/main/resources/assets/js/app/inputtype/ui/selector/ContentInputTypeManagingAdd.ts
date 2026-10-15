@@ -8,7 +8,7 @@ import { type ContentPath } from '../../../content/ContentPath';
 import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 import { ApplicationBasedName } from '@enonic/lib-admin-ui/application/ApplicationBasedName';
 import type { FormItem } from '@enonic/input-types/schema';
-import { RawInputConfig } from '@enonic/lib-admin-ui/form/Input';
+import type { InputConfigEntries } from '@enonic/input-types';
 
 export abstract class ContentInputTypeManagingAdd<RAW_VALUE_TYPE> extends BaseInputTypeManagingAdd {
     declare protected context: ContentInputTypeViewContext;
@@ -42,7 +42,7 @@ export abstract class ContentInputTypeManagingAdd<RAW_VALUE_TYPE> extends BaseIn
         return new ApplicationBasedName(applicationKey, name).toString();
     }
 
-    private getAllowedContentTypes(inputConfig: RawInputConfig): string[] {
+    private getAllowedContentTypes(inputConfig: InputConfigEntries): string[] {
         const applicationKey: ApplicationKey = ApplicationKey.fromString(
             (this.context.input as FormItem).getApplicationKey(),
         );
@@ -52,7 +52,7 @@ export abstract class ContentInputTypeManagingAdd<RAW_VALUE_TYPE> extends BaseIn
             .filter((val) => !!val);
     }
 
-    private getAllowedContentPaths(inputConfig: RawInputConfig): string[] {
+    private getAllowedContentPaths(inputConfig: InputConfigEntries): string[] {
         const allowContentPathConfig = inputConfig['allowPath'] || [];
         if (allowContentPathConfig.length > 0) {
             return allowContentPathConfig.map((cfg) => cfg['value'] as string).filter((val) => !!val);
@@ -65,7 +65,7 @@ export abstract class ContentInputTypeManagingAdd<RAW_VALUE_TYPE> extends BaseIn
     }
 
     protected readInputConfig(): void {
-        const inputConfig: RawInputConfig = this.context.inputConfig;
+        const inputConfig: InputConfigEntries = this.context.inputConfig;
 
         this.allowedContentTypes = this.getAllowedContentTypes(inputConfig);
         this.allowedContentPaths = this.getAllowedContentPaths(inputConfig);

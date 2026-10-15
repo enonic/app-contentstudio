@@ -1,8 +1,7 @@
 import { type Application } from '@enonic/lib-admin-ui/application/Application';
 import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 import { type Value } from '@enonic/input-types/data';
-import { FormBuilder } from '@enonic/lib-admin-ui/form/Form';
-import { Input } from '@enonic/input-types/schema';
+import { Form, Input } from '@enonic/input-types/schema';
 import { registerBuiltInTypes, type SelfManagedComponentProps } from '@enonic/input-types';
 import { cleanup, fireEvent, render, screen } from '@testing-library/preact';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
@@ -46,9 +45,8 @@ vi.mock('../../../../../pages/wizard/model/wizardContent.store', () => ({
 import { $applications } from '../../../../../entities/application/applications.store';
 import { SiteConfiguratorInput } from './SiteConfiguratorInput';
 
-function checkboxForm(): ReturnType<FormBuilder['build']> {
-    const builder = new FormBuilder();
-    builder.addFormItem(
+function checkboxForm(): Form {
+    return new Form([
         Input.fromJson({
             formItemType: 'Input',
             name: 'agree',
@@ -58,11 +56,10 @@ function checkboxForm(): ReturnType<FormBuilder['build']> {
             config: { default: [{ value: 'checked' }] },
             helpText: '',
         } as Parameters<typeof Input.fromJson>[0]),
-    );
-    return builder.build();
+    ]);
 }
 
-function createApp(key: string, form: ReturnType<FormBuilder['build']>): Application {
+function createApp(key: string, form: Form): Application {
     return {
         getApplicationKey: () => ApplicationKey.fromString(key),
         getForm: () => form,

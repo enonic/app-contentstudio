@@ -1,9 +1,7 @@
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
 import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
-import { FormBuilder } from '@enonic/lib-admin-ui/form/Form';
-import { type Form, InputBuilder } from '@enonic/input-types/schema';
-import { OccurrencesBuilder } from '@enonic/lib-admin-ui/form/Occurrences';
+import { Form, InputBuilder, Occurrences } from '@enonic/input-types/schema';
 import { TextArea } from '@enonic/lib-admin-ui/form/inputtype/text/TextArea';
 import { PropertyTree } from '@enonic/input-types/data';
 import { ComponentName } from './ComponentName';
@@ -31,18 +29,14 @@ export class ImageComponent extends ConfigBasedComponent {
     }
 
     private createForm(): Form {
-        const formBuilder = new FormBuilder();
-
-        formBuilder.addFormItem(
+        return new Form([
             new InputBuilder()
                 .setName('caption')
                 .setInputType(TextArea.getName())
                 .setLabel(i18n('field.caption'))
-                .setOccurrences(new OccurrencesBuilder().setMinimum(0).setMaximum(1).build())
+                .setOccurrences(Occurrences.minmax(0, 1))
                 .build(),
-        );
-
-        return formBuilder.build();
+        ]);
     }
 
     getImage(): ContentId {
