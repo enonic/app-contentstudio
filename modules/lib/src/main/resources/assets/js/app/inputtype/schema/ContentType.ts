@@ -3,10 +3,8 @@ import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
 import { ContentTypeSummary, ContentTypeSummaryBuilder } from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { type ContentTypeJson } from '../../resource/json/ContentTypeJson';
-import { FormBuilder } from '@enonic/lib-admin-ui/form/Form';
-import { Form, type Input, InputBuilder } from '@enonic/input-types/schema';
+import { Form, type Input, InputBuilder, Occurrences } from '@enonic/input-types/schema';
 import { TextLine } from '@enonic/lib-admin-ui/form/inputtype/text/TextLine';
-import { OccurrencesBuilder } from '@enonic/lib-admin-ui/form/Occurrences';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 
 export class ContentType extends ContentTypeSummary implements Equitable {
@@ -93,7 +91,7 @@ export class ContentTypeBuilder extends ContentTypeSummaryBuilder {
 
         patchedItems.splice(insertAt, 0, ContentTypeBuilder.createPortalBaseUrlFormItem());
 
-        return new FormBuilder().addFormItems(patchedItems).build();
+        return new Form(patchedItems);
     }
 
     private static createPortalBaseUrlFormItem(): Input {
@@ -102,7 +100,7 @@ export class ContentTypeBuilder extends ContentTypeSummaryBuilder {
             .setInputType(TextLine.getName())
             .setLabel(i18n('field.baseUrl'))
             .setHelpText(i18n('field.baseUrl.help'))
-            .setOccurrences(new OccurrencesBuilder().setMinimum(0).setMaximum(1).build())
+            .setOccurrences(Occurrences.minmax(0, 1))
             .build();
     }
 }

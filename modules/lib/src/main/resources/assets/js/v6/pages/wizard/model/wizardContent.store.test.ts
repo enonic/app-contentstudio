@@ -1,7 +1,6 @@
 import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 import { PropertyTree } from '@enonic/input-types/data';
-import { FormBuilder } from '@enonic/lib-admin-ui/form/Form';
-import { Input } from '@enonic/input-types/schema';
+import { Form, Input } from '@enonic/input-types/schema';
 import { registerBuiltInTypes } from '@enonic/input-types';
 import { PropertyPath } from '@enonic/input-types/data';
 import { ValueTypes } from '@enonic/input-types/data';
@@ -58,13 +57,12 @@ function createMixinDescriptor(name: string, optional: boolean): MixinDescriptor
         getName: () => name,
         getDisplayName: () => name,
         isOptional: () => optional,
-        toForm: () => new FormBuilder().build(),
+        toForm: () => new Form(),
     } as unknown as MixinDescriptor;
 }
 
-function checkboxForm(inputName: string): ReturnType<FormBuilder['build']> {
-    const builder = new FormBuilder();
-    builder.addFormItem(
+function checkboxForm(inputName: string): Form {
+    return new Form([
         Input.fromJson({
             formItemType: 'Input',
             name: inputName,
@@ -74,15 +72,10 @@ function checkboxForm(inputName: string): ReturnType<FormBuilder['build']> {
             config: { default: [{ value: 'checked' }] },
             helpText: '',
         } as Parameters<typeof Input.fromJson>[0]),
-    );
-    return builder.build();
+    ]);
 }
 
-function createMixinDescriptorWithForm(
-    name: string,
-    optional: boolean,
-    form: ReturnType<FormBuilder['build']>,
-): MixinDescriptor {
+function createMixinDescriptorWithForm(name: string, optional: boolean, form: Form): MixinDescriptor {
     return {
         getName: () => name,
         getDisplayName: () => name,
@@ -1062,7 +1055,7 @@ describe('wizardContent.store', () => {
         function setTypeWithPlaceholder(placeholder: string | undefined): void {
             const builder = new ContentTypeBuilder();
             builder.displayNamePlaceholder = placeholder;
-            builder.setForm(new FormBuilder().build());
+            builder.setForm(new Form());
             setContentType(builder.build());
         }
 

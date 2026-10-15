@@ -33,7 +33,7 @@ import { ContentListBox } from './ContentListBox';
 import { type ContentSelectorDropdownOptions } from './ContentSelectorDropdown';
 import { ContentTreeSelectorDropdown, type ContentTreeSelectorDropdownOptions } from './ContentTreeSelectorDropdown';
 import { NewContentButton } from './ui/NewContentButton';
-import { RawInputConfig } from '@enonic/lib-admin-ui/form/Input';
+import type { InputConfigEntries } from '@enonic/input-types';
 
 export class ContentSelector<
     T extends BaseSelectedOptionsView<ContentTreeSelectorItem> = ContentSelectedOptionsView,
@@ -170,7 +170,7 @@ export class ContentSelector<
     }
 
     protected readInputConfig(): void {
-        const inputConfig: RawInputConfig = this.context.inputConfig;
+        const inputConfig: InputConfigEntries = this.context.inputConfig;
         this.treeMode = (inputConfig['treeMode']?.[0]?.value as boolean) || false;
         this.hideToggleIcon = (inputConfig['hideToggleIcon']?.[0]?.value as boolean) || false;
 

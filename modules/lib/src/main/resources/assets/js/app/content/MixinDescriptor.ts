@@ -3,8 +3,7 @@ import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
 import { type MixinDescriptorJson } from '../resource/json/MixinDescriptorJson';
 import { MixinName } from './MixinName';
 import { Schema, SchemaBuilder } from '@enonic/lib-admin-ui/schema/Schema';
-import { type FormItem, type Form, formItemsFromJson } from '@enonic/input-types/schema';
-import { FormBuilder } from '@enonic/lib-admin-ui/form/Form';
+import { type FormItem, Form, formItemsFromJson } from '@enonic/input-types/schema';
 import { type ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 
 export class MixinDescriptor extends Schema implements Equitable {
@@ -67,7 +66,7 @@ export class MixinDescriptor extends Schema implements Equitable {
     }
 
     toForm(): Form {
-        return new FormBuilder().addFormItems(this.formItems).build();
+        return new Form(this.formItems);
     }
 }
 

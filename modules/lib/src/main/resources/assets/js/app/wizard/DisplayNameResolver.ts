@@ -10,12 +10,13 @@ import {
 } from '@enonic/input-types/schema';
 import { type DisplayNameGenerator } from '@enonic/lib-admin-ui/app/wizard/DisplayNameGenerator';
 import { type FormView } from '@enonic/lib-admin-ui/form/FormView';
-import { type FormItemParent } from '@enonic/lib-admin-ui/form/FormItem';
 import { assertNotNull } from '@enonic/lib-admin-ui/util/Assert';
 import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
 import { camelCase } from '../../v6/shared/lib/format/camelCase';
 import { isBlank } from '../../v6/shared/lib/format/isBlank';
 import { getValuesAsString } from '@enonic/lib-admin-ui/util/PropertySetValues';
+
+type FormItemParent = FieldSet | FormItemSet | FormOptionSet | FormOptionSetOption;
 
 export class DisplayNameResolver implements DisplayNameGenerator {
     private formView: FormView;

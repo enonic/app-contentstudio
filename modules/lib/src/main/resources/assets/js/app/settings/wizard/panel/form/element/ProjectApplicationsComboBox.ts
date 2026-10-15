@@ -1,7 +1,5 @@
-import { FormBuilder } from '@enonic/lib-admin-ui/form/Form';
-import { Form, InputBuilder } from '@enonic/input-types/schema';
+import { Form, InputBuilder, Occurrences } from '@enonic/input-types/schema';
 import { TextLine } from '@enonic/lib-admin-ui/form/inputtype/text/TextLine';
-import { OccurrencesBuilder } from '@enonic/lib-admin-ui/form/Occurrences';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { ProjectApplicationsLoader } from '../../../../resource/applications/ProjectApplicationsLoader';
 import { ProjectApplicationsSelectedOptionsView } from './ProjectApplicationsSelectedOptionsView';
@@ -205,16 +203,14 @@ export class ProjectApplicationsComboBox extends FilterableListBoxWrapperWithSel
     }
 
     private createPortalAppForm(): Form {
-        const formBuilder = new FormBuilder();
-        formBuilder.addFormItem(
+        return new Form([
             new InputBuilder()
                 .setName('baseUrl')
                 .setInputType(TextLine.getName())
                 .setLabel(i18n('field.baseUrl'))
-                .setOccurrences(new OccurrencesBuilder().setMinimum(0).setMaximum(1).build())
+                .setOccurrences(Occurrences.minmax(0, 1))
                 .build(),
-        );
-        return formBuilder.build();
+        ]);
     }
 
     private getPortalConfig(): ApplicationConfig {
