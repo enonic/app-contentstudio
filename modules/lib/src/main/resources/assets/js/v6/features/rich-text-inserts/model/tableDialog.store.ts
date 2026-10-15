@@ -1,4 +1,5 @@
 import { type Value, ValueTypes } from '@enonic/input-types/data';
+import type { Input } from '@enonic/input-types/schema';
 import { InputBuilder, InputTypeName, Occurrences } from '@enonic/input-types/schema';
 import type { NumberConfig, ValidationResult } from '@enonic/input-types';
 import { map } from 'nanostores';
@@ -21,22 +22,24 @@ export const TABLE_DIALOG_LONG_INPUT_CONFIG: NumberConfig = {
     min: 1,
     max: undefined,
 };
-export const TABLE_DIALOG_ROWS_LONG_INPUT = new InputBuilder()
-    .setName('tableRows')
-    .setInputType(new InputTypeName('Long', false))
-    .setLabel(i18n('dialog.table.formitem.rows'))
-    .setOccurrences(Occurrences.minmax(0, 1))
-    .setHelpText('')
-    .setInputTypeConfig({})
-    .build();
-export const TABLE_DIALOG_COLS_LONG_INPUT = new InputBuilder()
-    .setName('tableColumns')
-    .setInputType(new InputTypeName('Long', false))
-    .setLabel(i18n('dialog.table.formitem.columns'))
-    .setOccurrences(Occurrences.minmax(0, 1))
-    .setHelpText('')
-    .setInputTypeConfig({})
-    .build();
+
+const buildLongInput = (name: string, labelKey: string): Input =>
+    new InputBuilder()
+        .setName(name)
+        .setInputType(new InputTypeName('Long', false))
+        .setLabel(i18n(labelKey))
+        .setOccurrences(Occurrences.minmax(0, 1))
+        .setHelpText('')
+        .setInputTypeConfig({})
+        .build();
+
+let rowsLongInput: Input | undefined;
+let colsLongInput: Input | undefined;
+
+export const getTableDialogRowsLongInput = (): Input =>
+    (rowsLongInput ??= buildLongInput('tableRows', 'dialog.table.formitem.rows'));
+export const getTableDialogColsLongInput = (): Input =>
+    (colsLongInput ??= buildLongInput('tableColumns', 'dialog.table.formitem.columns'));
 
 export const toInternalTableDialogHeaderValue = (value: string): string => {
     return value === 'row' || value === 'col' || value === 'both' ? value : TABLE_DIALOG_HEADER_NONE_VALUE;

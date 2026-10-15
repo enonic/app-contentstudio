@@ -5,6 +5,8 @@ import { AppError } from '@enonic/ui-utils';
  * Carries the media identifier for error tracking and reporting.
  */
 export class UploadError extends AppError {
+    override readonly name = 'UploadError';
+
     constructor(
         public readonly mediaIdentifier: string,
         message: string,

@@ -62,7 +62,7 @@ const initialState: TableQuicktablePopupStore = {
     cellPadding: DEFAULT_CELL_PADDING,
     cellSpacing: DEFAULT_CELL_SPACING,
     tableLabel: 'Table',
-    moreLabel: i18n('dialog.table.more'),
+    moreLabel: '',
     triggerButtonId: undefined,
     editor: undefined,
     bookmarks: undefined,
