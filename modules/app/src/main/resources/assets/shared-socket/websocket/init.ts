@@ -106,7 +106,6 @@ export function connect(url: string, customHandler: (message: Record<string, unk
         clearTimeout(connectionTimeout);
         cleanup(ws);
 
-        // Reconnecting would only be refused until the page signs in again
         if (event.code === SESSION_END_CLOSE_CODE) {
             $websocket.setKey('sessionEnded', true);
             return;

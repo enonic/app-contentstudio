@@ -117,7 +117,6 @@ function startConnectionNotifier(): void {
         }
 
         if ($isDown.get()) {
-            // Short reconnects should not flash a notification
             timeoutId = window.setTimeout(() => {
                 messageId = showErrorWithRefresh(i18n('notify.websockets.error'));
             }, 1000);
