@@ -10,15 +10,21 @@ import { useI18n } from '../../shared/lib/hooks/useI18n';
 import { $activeProjectName, $hasMultipleProjects, $noProjectMode } from '../../entities/project';
 import { setProjectSelectionDialogOpen } from '../../shared/dialogs/dialogs.store';
 import { $issuesStats } from '../../entities/issue';
-import { $activeWidget, isContentBrowseWidget } from '../../widgets/context-panel/model/sidebarWidgets.store';
+import {
+    $activeWidget,
+    isContentBrowseWidget,
+    isSettingsWidget,
+} from '../../widgets/context-panel/model/sidebarWidgets.store';
 import type { IssueStatsJson } from '../../../app/issue/json/IssueStatsJson';
 import { LegacyElement } from '../../shared/ui/LegacyElement';
+import { ThemeSwitcher } from '../../features/shared/ThemeSwitcher';
 import { BROWSE_SIDEBAR_ID, BROWSE_SIDEBAR_TOGGLE_ID } from './browseSidebar.constants';
 import { $isBrowseSidebarOpen, setBrowseSidebarOpen } from './model/browseSidebar.store';
 
 const $widgetState = computed($activeWidget, (activeWidget) => ({
     appName: activeWidget?.getDisplayName() ?? '',
     isContentBrowseActive: activeWidget == null || isContentBrowseWidget(activeWidget),
+    isSettingsActive: isSettingsWidget(activeWidget),
     hasProjectContext: activeWidget == null || activeWidget.getConfig().getProperty('context') === 'project',
 }));
 
@@ -40,7 +46,7 @@ export const BrowseAppBar = (): ReactElement => {
     const activeProjectName = useStore($activeProjectName);
     const noProjectMode = useStore($noProjectMode);
     const hasMultipleProjects = useStore($hasMultipleProjects);
-    const { appName, isContentBrowseActive, hasProjectContext } = useStore($widgetState);
+    const { appName, isContentBrowseActive, isSettingsActive, hasProjectContext } = useStore($widgetState);
     const { stats } = useStore($issuesStats);
     const applicationName = Store.instance().get('application').getName();
     const issuesStatsLabel = useI18n(...createIssuesLabelKeys(stats));
@@ -124,6 +130,8 @@ export const BrowseAppBar = (): ReactElement => {
                         label={issuesStatsLabel}
                     />
                 )}
+
+                {isSettingsActive && <ThemeSwitcher className="shrink-0" />}
             </div>
         </header>
     );

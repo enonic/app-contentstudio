@@ -194,7 +194,13 @@ function syncStore<S extends WritableStore, V extends StoreValue<S> = StoreValue
         }
     }
 
-    const unsubscribe = store.listen(throttledWrite);
+    let applyingRemote = false;
+
+    const unsubscribe = store.listen((value: V, oldValue: V | undefined): void => {
+        if (!applyingRemote) {
+            throttledWrite(value, oldValue);
+        }
+    });
 
     // Cross-tab synchronization (localStorage only)
     let storageListener: ((e: StorageEvent) => void) | null = null;
@@ -203,7 +209,12 @@ function syncStore<S extends WritableStore, V extends StoreValue<S> = StoreValue
             if (e.key === storageKey && e.newValue !== null && 'set' in store) {
                 try {
                     const newValue = decode(e.newValue);
-                    store.set(newValue);
+                    applyingRemote = true;
+                    try {
+                        store.set(newValue);
+                    } finally {
+                        applyingRemote = false;
+                    }
                 } catch (error: unknown) {
                     console.error(`Error syncing from other tab for ${storageKey}`, error);
                 }
@@ -366,7 +377,13 @@ export function syncMapStore<M extends Record<string, unknown>>(
 
     const decode = isPartialSync
         ? (raw: string): M => {
-              const partial = JSON.parse(raw) as Partial<M>;
+              const parsed = JSON.parse(raw) as Partial<M>;
+              const partial: Partial<M> = {};
+              for (const key of keys) {
+                  if (key in parsed) {
+                      partial[key] = parsed[key];
+                  }
+              }
               const current = store.get();
               return { ...current, ...partial };
           }
