@@ -1,10 +1,10 @@
 import { ResultAsync, errAsync } from 'neverthrow';
+import { requestJson } from '@enonic/ui-utils/request';
+import { AppError } from '@enonic/ui-utils';
 import type { ContentId } from '../../../../app/content/ContentId';
 import { Descriptor } from '../../../../app/page/Descriptor';
 import type { DescriptorJson } from '../../../../app/page/DescriptorJson';
 import { ComponentType } from '../../../../app/page/region/ComponentType';
-import { requestJson } from '../../../shared/api/client';
-import { AppError } from '../../../shared/api/errors';
 import { getCmsProjectUrl, getCmsRestUri } from '../../../shared/lib/url/cms';
 
 /**

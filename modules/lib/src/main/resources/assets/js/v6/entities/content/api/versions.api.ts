@@ -1,12 +1,12 @@
 import { type ResultAsync } from 'neverthrow';
+import { requestJson } from '@enonic/ui-utils/request';
+import type { AppError } from '@enonic/ui-utils';
 import { type ContentId } from '../../../../app/content/ContentId';
 import { type ContentJson } from '../../../../app/content/ContentJson';
 import { RepositoryId } from '../../../../app/repository/RepositoryId';
 import { GetContentVersionsResult } from '../../../../app/resource/GetContentVersionsResult';
 import { type ContentVersionJson } from '../../../../app/resource/json/ContentVersionJson';
 import { type GetContentVersionsForViewResultsJson } from '../../../../app/resource/json/GetContentVersionsForViewResultsJson';
-import { requestJson } from '../../../shared/api/client';
-import { type AppError } from '../../../shared/api/errors';
 import { $config } from '../../../shared/config/config.store';
 import { getCmsApiUrl } from '../../../shared/lib/url/cms';
 

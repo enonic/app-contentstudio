@@ -5,7 +5,7 @@ import { BrowserHelper } from '@enonic/lib-admin-ui/BrowserHelper';
 import { NotifyManager } from '@enonic/lib-admin-ui/notify/NotifyManager';
 import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
 import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { i18n } from '../../../../../shared/i18n';
 import { isBlank } from '../../../../../shared/lib/format/isBlank';
 import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
 import { ContentRequiresSaveEvent } from '../../../../../../app/event/ContentRequiresSaveEvent';

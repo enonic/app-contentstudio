@@ -4,8 +4,8 @@ import { Principal } from '@enonic/lib-admin-ui/security/Principal';
 import { type PrincipalJson } from '@enonic/lib-admin-ui/security/PrincipalJson';
 import { type PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
 import { PrincipalType } from '@enonic/lib-admin-ui/security/PrincipalType';
-import { requestJson } from '../../../shared/api/client';
-import { AppError } from '../../../shared/api/errors';
+import { requestJson } from '@enonic/ui-utils/request';
+import { AppError } from '@enonic/ui-utils';
 import { getCmsRestUri } from '../../../shared/lib/url/cms';
 
 export type FindPrincipalsParams = {

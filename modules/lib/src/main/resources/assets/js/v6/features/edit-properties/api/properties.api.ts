@@ -1,11 +1,11 @@
 import { ResultAsync } from 'neverthrow';
 import { type PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { requestJson } from '@enonic/ui-utils/request';
+import { AppError } from '@enonic/ui-utils';
 import { type Content } from '../../../../app/content/Content';
 import { type ContentId } from '../../../../app/content/ContentId';
 import { type ContentJson } from '../../../../app/content/ContentJson';
 import { parseContent } from '../../../entities/content/lib/parseContent';
-import { requestJson } from '../../../shared/api/client';
-import { AppError } from '../../../shared/api/errors';
 import { getCmsApiUrl } from '../../../shared/lib/url/cms';
 
 /**

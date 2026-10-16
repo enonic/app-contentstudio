@@ -8,6 +8,7 @@ import {
     uploadAttachmentFile,
     type UploadAttachmentSuccess,
 } from '../../../../../entities/content/api/uploadAttachment.api';
+import { i18n } from '../../../../../shared/i18n';
 import { type UploadError } from '../../../../../shared/api';
 import {
     $uploads,
@@ -24,7 +25,6 @@ import { isAttachmentInUse } from '../../../../../shared/lib/page/isAttachmentIn
 import { ContentRequiresSaveEvent } from '../../../../../../app/event/ContentRequiresSaveEvent';
 import { ContentId } from '../../../../../../app/content/ContentId';
 import { showError, showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 
 //
 // * Types

@@ -1,7 +1,7 @@
 import { type ResultAsync } from 'neverthrow';
+import type { AppError } from '@enonic/ui-utils';
 import { ContentSummaryAndCompareStatus } from '../../../../../app/content/ContentSummaryAndCompareStatus';
 import { ContentTreeSelectorItem } from '../../../../../app/item/ContentTreeSelectorItem';
-import { type AppError } from '../../../../shared/api/errors';
 import { contentSelectorQuery, contentTreeSelectorQuery } from '../../../../entities/content/api/selectorQuery.api';
 import { createRootContent } from './PathSelectorRoot';
 

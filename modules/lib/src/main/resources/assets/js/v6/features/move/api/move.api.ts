@@ -1,10 +1,10 @@
 import { ResultAsync, errAsync } from 'neverthrow';
 import { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
 import { type TaskIdJson } from '@enonic/lib-admin-ui/task/TaskIdJson';
+import { requestJson } from '@enonic/ui-utils/request';
+import { AppError } from '@enonic/ui-utils';
 import { type ContentId } from '../../../../app/content/ContentId';
 import { type ContentPath } from '../../../../app/content/ContentPath';
-import { requestJson } from '../../../shared/api/client';
-import { AppError } from '../../../shared/api/errors';
 import { getCmsApiUrl } from '../../../shared/lib/url/cms';
 
 /**

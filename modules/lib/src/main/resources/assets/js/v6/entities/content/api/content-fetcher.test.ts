@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { errAsync, okAsync, ResultAsync } from 'neverthrow';
+import { AppError } from '@enonic/ui-utils';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
-import { AppError } from '../../../shared/api/errors';
 import { Branch } from '../../../../app/versioning/Branch';
 import type { ContentQuery } from '../../../../app/content/ContentQuery';
 import { getContent, hasContent, getMissingIds } from '../model/content.store';

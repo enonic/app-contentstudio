@@ -13,9 +13,9 @@ import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import {
     $tableDialog,
     TABLE_DIALOG_HEADER_NONE_VALUE,
-    TABLE_DIALOG_COLS_LONG_INPUT,
+    getTableDialogColsLongInput,
     TABLE_DIALOG_LONG_INPUT_CONFIG,
-    TABLE_DIALOG_ROWS_LONG_INPUT,
+    getTableDialogRowsLongInput,
     closeTableDialog,
     finalizeTableDialogClose,
     isTableDialogSubmittable,
@@ -174,7 +174,7 @@ export const TableDialog = (): ReactElement => {
                                             validateTableDialogField('rows');
                                         }}
                                         config={TABLE_DIALOG_LONG_INPUT_CONFIG}
-                                        input={TABLE_DIALOG_ROWS_LONG_INPUT}
+                                        input={getTableDialogRowsLongInput()}
                                         enabled={!isPropertiesMode}
                                         index={0}
                                         errors={toTableDialogLongInputErrors(validationErrors.rows)}
@@ -193,7 +193,7 @@ export const TableDialog = (): ReactElement => {
                                             validateTableDialogField('cols');
                                         }}
                                         config={TABLE_DIALOG_LONG_INPUT_CONFIG}
-                                        input={TABLE_DIALOG_COLS_LONG_INPUT}
+                                        input={getTableDialogColsLongInput()}
                                         enabled={!isPropertiesMode}
                                         index={0}
                                         errors={toTableDialogLongInputErrors(validationErrors.cols)}

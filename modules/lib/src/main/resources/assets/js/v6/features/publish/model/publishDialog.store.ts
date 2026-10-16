@@ -1,6 +1,6 @@
 import type { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { atom, computed, map } from 'nanostores';
+import { i18n } from '../../../shared/i18n';
 import { type ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import type { CompareResult } from '../../../entities/content';

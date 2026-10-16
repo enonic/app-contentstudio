@@ -1,6 +1,6 @@
 import { type ResultAsync } from 'neverthrow';
+import type { AppError } from '@enonic/ui-utils';
 import { requestHead } from '../../../shared/api/client';
-import { type AppError } from '../../../shared/api/errors';
 
 /**
  * HEAD-probes a preview extension URL. Any HTTP status is a valid answer: the status

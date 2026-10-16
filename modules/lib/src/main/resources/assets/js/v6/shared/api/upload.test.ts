@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { AppError } from '@enonic/ui-utils';
 import { restoreXhr, stubXhr, type XhrStub } from '../lib/test/xhr.test.utils';
-import { AppError } from './errors';
 import { requestUploadJson } from './upload';
 
 let xhrs: XhrStub[];

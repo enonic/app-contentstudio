@@ -1,7 +1,7 @@
 import { Tooltip } from '@enonic/ui';
 import { showError } from '@enonic/lib-admin-ui/notify/MessageBus';
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { type ChangeEvent, type ReactElement, useEffect, useRef, useState } from 'react';
+import { i18n } from '../../../../shared/i18n';
 import { type Project } from '../../../../../app/settings/data/project/Project';
 import { updateProjectIcon } from '../../../../entities/project/api/updateProjectIcon.api';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
@@ -43,7 +43,7 @@ export const ProjectStatisticsIcon = ({ project }: Props): ReactElement => {
             },
             (error) => {
                 showError(i18n('notify.upload.error', file.name, error.message));
-            }
+            },
         );
         setProgress(0);
     };
@@ -72,7 +72,13 @@ export const ProjectStatisticsIcon = ({ project }: Props): ReactElement => {
                     isLayer={project.hasParents()}
                     className="size-14"
                 />
-                <input ref={inputRef} type="file" accept={ACCEPTED_ICON_TYPES} className="hidden" onChange={handleChange} />
+                <input
+                    ref={inputRef}
+                    type="file"
+                    accept={ACCEPTED_ICON_TYPES}
+                    className="hidden"
+                    onChange={handleChange}
+                />
             </button>
         </Tooltip>
     );

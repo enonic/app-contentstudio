@@ -11,7 +11,7 @@ import {
     type ReactElement,
 } from 'react';
 
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { i18n } from '../../../../shared/i18n';
 import { ContentId } from '../../../../../app/content/ContentId';
 import { IssueStatus } from '../../../../../app/issue/IssueStatus';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';

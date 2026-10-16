@@ -1,11 +1,11 @@
 import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { okAsync, ResultAsync } from 'neverthrow';
+import { AppError } from '@enonic/ui-utils';
 import type { Content } from '../../../../app/content/Content';
 import { ContentId } from '../../../../app/content/ContentId';
 import { ContentRequiresSaveEvent } from '../../../../app/event/ContentRequiresSaveEvent';
 import { $applications, loadApplications } from '../../../entities/application';
-import { AppError } from '../../../shared/api/errors';
 import { fetchApplicationMixins, fetchContentMixins } from '../api/mixins.api';
 import { $contextContent } from '../../../entities/content';
 import {

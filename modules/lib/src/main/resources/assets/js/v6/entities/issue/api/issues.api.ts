@@ -1,5 +1,7 @@
 import { type ResultAsync } from 'neverthrow';
 import { type PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { requestJson } from '@enonic/ui-utils/request';
+import type { AppError } from '@enonic/ui-utils';
 import { Issue } from '../../../../app/issue/Issue';
 import { IssueComment } from '../../../../app/issue/IssueComment';
 import { IssueStatus } from '../../../../app/issue/IssueStatus';
@@ -10,8 +12,6 @@ import { type IssueCommentJson } from '../../../../app/issue/json/IssueCommentJs
 import { type IssueJson } from '../../../../app/issue/json/IssueJson';
 import { type IssueWithAssigneesJson } from '../../../../app/issue/json/IssueWithAssigneesJson';
 import { type ResultMetadataJson } from '../../../../app/resource/json/ResultMetadataJson';
-import { requestJson } from '../../../shared/api/client';
-import { type AppError } from '../../../shared/api/errors';
 import { getCmsProjectUrl } from '../../../shared/lib/url/cms';
 
 export type ListIssuesParams = {

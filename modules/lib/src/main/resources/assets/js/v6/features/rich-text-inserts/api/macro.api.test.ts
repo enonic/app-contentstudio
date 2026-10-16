@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi, type Mock } from 'vitest';
 import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 import type { PropertyArrayJson } from '@enonic/ui-types';
-import { AppError } from '../../../shared/api/errors';
+import { AppError } from '@enonic/ui-utils';
 import { errorResponse, jsonResponse, restoreFetch, stubFetch } from '../../../shared/lib/test/fetch.test.utils';
 import { fetchMacros, fetchMacroPreview, fetchMacroPreviewString } from './macro.api';
 

@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
 import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
 import { type ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import { AppError } from '@enonic/ui-utils';
 import { type Project } from '../../../../app/settings/data/project/Project';
 import { type ProjectPermissions } from '../../../../app/settings/data/project/ProjectPermissions';
 import { type ProjectReadAccess } from '../../../../app/settings/data/project/ProjectReadAccess';
-import { AppError } from '../../../shared/api/errors';
 import { errorResponse, jsonResponse, restoreFetch, stubFetch } from '../../../shared/lib/test/fetch.test.utils';
 import {
     createProject,

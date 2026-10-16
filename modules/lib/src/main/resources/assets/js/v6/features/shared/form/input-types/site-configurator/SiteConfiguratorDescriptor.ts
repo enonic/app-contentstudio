@@ -1,11 +1,11 @@
 import { type InputTypeDescriptor, type ValidationResult } from '@enonic/input-types';
 import { validateForm } from '@enonic/input-types';
+import { i18n } from '../../../../../shared/i18n';
 import { type SiteConfiguratorConfig } from './SiteConfiguratorConfig';
 import { type ValueType } from '@enonic/input-types/data';
 import { type Value } from '@enonic/input-types/data';
 import { ValueTypes } from '@enonic/input-types/data';
 import { ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { $applications } from '../../../../../entities/application';
 import type { InputConfigEntries } from '@enonic/input-types';
 

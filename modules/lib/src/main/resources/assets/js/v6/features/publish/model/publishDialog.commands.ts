@@ -1,6 +1,6 @@
 import { showError, showFeedback, showSuccess } from '@enonic/lib-admin-ui/notify/MessageBus';
 import type { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { i18n } from '../../../shared/i18n';
 import { type ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { fetchContentSummaries, compareContent, hasUnpublishedChildren } from '../../../entities/content';

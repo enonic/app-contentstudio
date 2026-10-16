@@ -1,7 +1,7 @@
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { map } from 'nanostores';
+import { i18n } from '../../../shared/i18n';
 import { deleteProject } from '../../../entities/project/api/projects.api';
 import { clearPendingDeletedProject, markPendingDeletedProject } from '../../../entities/project/projects.store';
 

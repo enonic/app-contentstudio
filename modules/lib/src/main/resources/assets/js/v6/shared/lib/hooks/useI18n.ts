@@ -1,9 +1,6 @@
-import { Messages } from '@enonic/lib-admin-ui/util/Messages';
+import type { PhraseValue } from '@enonic/ui-utils';
+import { i18n } from '../../i18n';
 
-//! Not fully implemented yet
-export function useI18n(key: string, ...args: (string | number)[]): string {
-    const phrase = Messages.hasMessage(key) ? Messages.getMessage(key) : `#${key}#`;
-    return phrase
-        .replace(/{(\d+)}/g, (_substring: string, ...replaceArgs: number[]) => String(args[replaceArgs[0]]))
-        .trim();
+export function useI18n(key: string, ...values: PhraseValue[]): string {
+    return i18n(key, ...values);
 }

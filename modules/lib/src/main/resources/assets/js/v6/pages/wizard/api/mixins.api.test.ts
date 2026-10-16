@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
 import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { AppError } from '@enonic/ui-utils';
 import { type ContentId } from '../../../../app/content/ContentId';
-import { AppError } from '../../../shared/api/errors';
 import { setActiveProjectResolver } from '../../../shared/lib/url/cms';
 import { errorResponse, jsonResponse, restoreFetch, stubFetch } from '../../../shared/lib/test/fetch.test.utils';
 import { fetchApplicationMixins, fetchContentMixins } from './mixins.api';

@@ -1,5 +1,4 @@
-export { requestHead, requestJson, requestOptionalJson } from './client';
-export type { RequestMethod, RequestOptions } from './client';
+export { requestHead } from './client';
 export { requestUploadJson } from './upload';
 export type { UploadRequestOptions } from './upload';
-export { AppError, UploadError } from './errors';
+export { UploadError } from './errors';

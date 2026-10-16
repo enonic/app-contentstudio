@@ -9,9 +9,9 @@ import type { MacroDescriptor } from '@enonic/lib-admin-ui/macro/MacroDescriptor
 import { Reference } from '@enonic/ui-utils';
 import { StringHelper } from '@enonic/lib-admin-ui/util/StringHelper';
 import { ValueTypes } from '@enonic/input-types/data';
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { showError } from '@enonic/lib-admin-ui/notify/MessageBus';
 import DOMPurify from 'dompurify';
+import { i18n } from '../../../../shared/i18n';
 import { instanceOf } from '../../../../shared/lib/object/instanceOf';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';

@@ -1,7 +1,7 @@
 import { ApplicationEvent, ApplicationEventType } from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import { Extension, ExtensionConfig } from '@enonic/lib-admin-ui/extension/Extension';
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { computed, map } from 'nanostores';
+import { i18n } from '../../../shared/i18n';
 import { UrlAction } from '../../../../app/UrlAction';
 import { $config } from '../../../shared/config/config.store';
 import { fetchExtensions } from '../../../entities/extension';

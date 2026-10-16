@@ -1,8 +1,8 @@
 import { DateHelper } from '@enonic/lib-admin-ui/util/DateHelper';
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { Button, Checkbox, cn, Tooltip, useListbox } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { ComponentPropsWithoutRef, ReactElement, useCallback, useMemo } from 'react';
+import { i18n } from '../../../../shared/i18n';
 import { ContentId } from '../../../../../app/content/ContentId';
 import { ContentVersion } from '../../../../../app/ContentVersion';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { errAsync, okAsync } from 'neverthrow';
-import {AppError} from '../../shared/api';
+import { AppError } from '@enonic/ui-utils';
 
 type MockProject = {
     getName(): string;

@@ -1,8 +1,8 @@
 import { okAsync, type ResultAsync } from 'neverthrow';
+import { requestJson } from '@enonic/ui-utils/request';
+import type { AppError } from '@enonic/ui-utils';
 import { type StyleJson } from '../../../../app/inputtype/ui/text/styles/StylesDescriptor';
 import { Styles } from '../../../../app/inputtype/ui/text/styles/Styles';
-import { requestJson } from '../../../shared/api/client';
-import { type AppError } from '../../../shared/api/errors';
 import { $config } from '../../../shared/config/config.store';
 import { resolveActiveProjectName } from '../../../shared/lib/url/cms';
 

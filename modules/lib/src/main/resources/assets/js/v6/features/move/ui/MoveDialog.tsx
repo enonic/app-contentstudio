@@ -3,6 +3,7 @@ import { Button, Dialog } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { ResultAsync, okAsync } from 'neverthrow';
 import { useEffect, useState, type ReactElement } from 'react';
+import type { AppError } from '@enonic/ui-utils';
 import { type ContentSummary } from '../../../../app/content/ContentSummary';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import { useTaskProgress } from '../../../entities/task/useTaskProgress';
@@ -14,7 +15,6 @@ import {
     executeMoveDialogAction,
 } from '../model/moveDialog.store';
 import { clearSelection, fetchNearestSite, setActive } from '../../../entities/content';
-import { type AppError } from '../../../shared/api/errors';
 import { MoveDialogMainContent } from './MoveDialogMainContent';
 import { MoveDialogProgressContent } from './MoveDialogProgressContent';
 

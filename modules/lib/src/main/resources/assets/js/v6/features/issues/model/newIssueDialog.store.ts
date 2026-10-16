@@ -1,7 +1,7 @@
 import { showError, showSuccess, showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
 import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { atom, computed, map } from 'nanostores';
+import { i18n } from '../../../shared/i18n';
 import { ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { PublishRequest } from '../../../../app/issue/PublishRequest';

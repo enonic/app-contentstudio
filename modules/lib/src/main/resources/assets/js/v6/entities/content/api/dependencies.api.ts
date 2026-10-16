@@ -1,12 +1,12 @@
 import { type ResultAsync } from 'neverthrow';
+import { requestJson } from '@enonic/ui-utils/request';
+import type { AppError } from '@enonic/ui-utils';
 import { type ContentId } from '../../../../app/content/ContentId';
 import {
     ResolveDependenciesResult,
     type ResolveDependenciesResultJson,
 } from '../../../../app/resource/ResolveDependenciesResult';
 import { Branch } from '../../../../app/versioning/Branch';
-import { requestJson } from '../../../shared/api/client';
-import { type AppError } from '../../../shared/api/errors';
 import { getCmsApiUrl } from '../../../shared/lib/url/cms';
 
 /**

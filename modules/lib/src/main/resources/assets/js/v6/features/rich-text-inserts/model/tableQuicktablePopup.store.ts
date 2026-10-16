@@ -1,5 +1,5 @@
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { map } from 'nanostores';
+import { i18n } from '../../../shared/i18n';
 import type { TableQuicktablePopupParams } from '../../../../app/inputtype/ui/text/HtmlEditorTypes';
 import {
     type CkEditorBookmarks,
@@ -62,7 +62,7 @@ const initialState: TableQuicktablePopupStore = {
     cellPadding: DEFAULT_CELL_PADDING,
     cellSpacing: DEFAULT_CELL_SPACING,
     tableLabel: 'Table',
-    moreLabel: i18n('dialog.table.more'),
+    moreLabel: '',
     triggerButtonId: undefined,
     editor: undefined,
     bookmarks: undefined,

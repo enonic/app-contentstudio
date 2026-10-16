@@ -1,10 +1,10 @@
 import { type ResultAsync } from 'neverthrow';
+import type { AppError } from '@enonic/ui-utils';
 import { ContentId } from '../../../../app/content/ContentId';
 import { type ContentQuery } from '../../../../app/content/ContentQuery';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { Branch } from '../../../../app/versioning/Branch';
 import { type ChildOrder } from '../../../../app/resource/order/ChildOrder';
-import { type AppError } from '../../../shared/api/errors';
 import { resolveContentSummaries } from './content.api';
 import {
     fetchReadOnlyContentIds,

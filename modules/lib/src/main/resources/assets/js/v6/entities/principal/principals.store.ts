@@ -3,7 +3,7 @@ import { type Principal } from '@enonic/lib-admin-ui/security/Principal';
 import { computed, map } from 'nanostores';
 import { ResultAsync } from 'neverthrow';
 import { type PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
-import { type AppError } from '../../shared/api/errors';
+import type { AppError } from '@enonic/ui-utils';
 import { findPrincipals, resolvePrincipalsByKeys } from './api/principals.api';
 
 type PrincipalsStore = {

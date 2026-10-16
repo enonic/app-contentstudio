@@ -1,5 +1,5 @@
 import { NamePrettyfier } from '@enonic/lib-admin-ui/NamePrettyfier';
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { i18n } from '../../../i18n';
 import { type ContentPath } from '../../../../../app/content/ContentPath';
 import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 import { ContentUnnamed } from '../../../../../app/content/ContentUnnamed';

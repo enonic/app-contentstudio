@@ -1,7 +1,7 @@
 import { showError, showSuccess } from '@enonic/lib-admin-ui/notify/MessageBus';
 import { QueryField } from '@enonic/lib-admin-ui/query/QueryField';
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { computed, map } from 'nanostores';
+import { i18n } from '../../../shared/i18n';
 import { ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { ChildOrder } from '../../../../app/resource/order/ChildOrder';

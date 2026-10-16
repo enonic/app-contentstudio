@@ -1,8 +1,8 @@
 import { ResultAsync } from 'neverthrow';
 import { Application } from '@enonic/lib-admin-ui/application/Application';
 import { type ApplicationListResult } from '@enonic/lib-admin-ui/application/ApplicationListResult';
-import { requestJson } from '../../../shared/api/client';
-import { AppError } from '../../../shared/api/errors';
+import { requestJson } from '@enonic/ui-utils/request';
+import { AppError } from '@enonic/ui-utils';
 import { getCmsRestUri } from '../../../shared/lib/url/cms';
 
 /**

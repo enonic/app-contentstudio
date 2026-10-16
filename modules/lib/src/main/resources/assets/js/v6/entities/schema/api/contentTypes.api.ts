@@ -2,8 +2,8 @@ import { type ResultAsync } from 'neverthrow';
 import { type ContentId } from '../../../../app/content/ContentId';
 import { ContentTypeSummary } from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import { type ContentTypeSummaryJson } from '@enonic/lib-admin-ui/schema/content/ContentTypeSummaryJson';
-import { requestJson } from '../../../shared/api/client';
-import { type AppError } from '../../../shared/api/errors';
+import { requestJson } from '@enonic/ui-utils/request';
+import type { AppError } from '@enonic/ui-utils';
 import { getCmsProjectUrl, getCmsRestUri } from '../../../shared/lib/url/cms';
 
 type ContentTypesResponse = {

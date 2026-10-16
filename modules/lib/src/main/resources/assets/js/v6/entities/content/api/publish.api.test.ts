@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, type Mock } from 'vitest';
+import { AppError } from '@enonic/ui-utils';
 import type { ContentId } from '../../../../app/content/ContentId';
-import { AppError } from '../../../shared/api/errors';
 import { errorResponse, jsonResponse, restoreFetch, stubFetch } from '../../../shared/lib/test/fetch.test.utils';
 import { findIdsByParents, markAsReady, publishContent, resolvePublishDependencies } from './publish.api';
 

@@ -1,7 +1,7 @@
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { Button, Checkbox, type CheckboxChecked, Dialog, IconButton, Tooltip } from '@enonic/ui';
 import { Copy, FolderOutput, LoaderCircle } from 'lucide-react';
 import { type FormEvent, type ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { i18n } from '../../../../shared/i18n';
 import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 import { importContent, type ImportResult } from '../../api/importContent.api';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';

@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { listenKeys } from 'nanostores';
 import { showError, showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import {
     updateImageMedia,
     type UpdateImageMediaSuccess,
 } from '../../../../../entities/content/api/updateImageMedia.api';
+import { i18n } from '../../../../../shared/i18n';
 import { type UploadError } from '../../../../../shared/api';
 import { randomId } from '../../../../../shared/lib/crypto/id';
 import {

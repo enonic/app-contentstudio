@@ -1,7 +1,7 @@
 import { err, ok, type Result } from 'neverthrow';
+import type { AppError } from '@enonic/ui-utils';
 import { type ContentId } from '../../../../app/content/ContentId';
 import { type ResolvePublishDependenciesResult } from '../../../../app/resource/ResolvePublishDependenciesResult';
-import { type AppError } from '../../../shared/api/errors';
 import { resolvePublishDependencies } from '../api/publish.api';
 
 export type AppliedPublishDependencies = {

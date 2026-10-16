@@ -1,7 +1,7 @@
 import { ResultAsync } from 'neverthrow';
+import { requestJson } from '@enonic/ui-utils/request';
+import { AppError } from '@enonic/ui-utils';
 import { type ContentsExistByPathJson } from '../../../../app/resource/json/ContentsExistByPathJson';
-import { requestJson } from '../../../shared/api/client';
-import { AppError } from '../../../shared/api/errors';
 import { getCmsApiUrl } from '../../../shared/lib/url/cms';
 
 /**

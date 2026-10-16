@@ -1,10 +1,10 @@
 import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
 import { type Result, err, ok } from 'neverthrow';
 import { computed, map } from 'nanostores';
+import type { AppError } from '@enonic/ui-utils';
 import { IssueStatus } from '../../../../app/issue/IssueStatus';
 import { IssueType } from '../../../../app/issue/IssueType';
 import type { IssueWithAssignees } from '../../../../app/issue/IssueWithAssignees';
-import { type AppError } from '../../../shared/api/errors';
 import { fetchIssueStats } from '../../../entities/issue/api/issuesStats.api';
 import { createDebounce } from '../../../shared/lib/timing/createDebounce';
 import { $activeProject } from '../../../entities/project/activeProject.store';
