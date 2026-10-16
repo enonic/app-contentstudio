@@ -1,7 +1,7 @@
-import {batched, computed, map} from 'nanostores';
+import { batched, computed, map } from 'nanostores';
 
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {type InMessage, type JoinMessage, type LeaveMessage, MessageType} from './data/collaboration';
+import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
+import { type InMessage, type JoinMessage, type LeaveMessage, MessageType } from './data/collaboration';
 import {
     type ConnectedWorkerMessage,
     type InitWorkerMessage,
@@ -9,9 +9,9 @@ import {
     type ReceivedWorkerMessage,
     type SendWorkerMessage,
     type SubscribeWorkerMessage,
-    type UnsubscribeWorkerMessage
+    type UnsubscribeWorkerMessage,
 } from './data/worker';
-import {SharedSocketProxy} from './utils/SharedSocketProxy';
+import { SharedSocketProxy } from './utils/SharedSocketProxy';
 
 type WorkerLifecycle = 'mounting' | 'mounted' | 'unmounting' | 'unmounted';
 
@@ -21,6 +21,7 @@ interface WorkerStore {
     lifecycle: WorkerLifecycle;
     state: WorkerState;
     ready: boolean;
+    sessionEnded: boolean;
     connection: Optional<SharedSocketProxy>;
     clientId: Optional<string>;
     online: boolean;
@@ -32,6 +33,7 @@ const $worker = map<WorkerStore>({
     lifecycle: 'unmounted',
     state: 'disconnected',
     ready: false,
+    sessionEnded: false,
     connection: null,
     clientId: null,
     online: navigator.onLine,
@@ -43,24 +45,26 @@ const _listeners = new Set<ReceivedListener>();
 //* State
 //
 
-export const $isReady = computed($worker, ({connection, state, online, ready}) => {
+export const $isReady = computed($worker, ({ connection, state, online, ready }) => {
     return connection != null && state === 'connected' && online && ready;
 });
 
-export const $isDown = batched($worker, ({state, online, ready}) => {
+export const $isDown = batched($worker, ({ state, online, ready }) => {
     return !online || (state === 'connected' && !ready);
 });
+
+export const $isSessionEnded = computed($worker, ({ sessionEnded }) => sessionEnded);
 
 //
 //* Lifecycle
 //
 
-const $needsUnmount = computed([$worker], ({lifecycle}) => lifecycle === 'unmounting');
+const $needsUnmount = computed([$worker], ({ lifecycle }) => lifecycle === 'unmounting');
 
 let unsubscribeUnmount: Optional<() => void>;
 
 function mountWorker(): void {
-    const {lifecycle} = $worker.get();
+    const { lifecycle } = $worker.get();
 
     if (lifecycle === 'unmounting' || lifecycle === 'unmounted') {
         unsubscribeUnmount?.();
@@ -79,7 +83,7 @@ function mountWorker(): void {
 
 function unmountWorker(): void {
     $worker.setKey('lifecycle', 'unmounting');
-    unsubscribeUnmount = $needsUnmount.subscribe(needsUnmount => {
+    unsubscribeUnmount = $needsUnmount.subscribe((needsUnmount) => {
         if (!needsUnmount) {
             return;
         }
@@ -101,7 +105,7 @@ function unmountWorker(): void {
 //
 
 function connect(): void {
-    const {state, connection} = $worker.get();
+    const { state, connection } = $worker.get();
 
     if (state === 'connecting' || state === 'connected') {
         return;
@@ -121,7 +125,7 @@ function connect(): void {
 }
 
 function disconnect(): void {
-    const {state, connection} = $worker.get();
+    const { state, connection } = $worker.get();
     if (state !== 'disconnected' && state !== 'disconnecting') {
         $worker.setKey('state', 'disconnecting');
     }
@@ -140,11 +144,10 @@ function handleOffline(): void {
 function cleanup(proxy: Optional<SharedSocketProxy>): void {
     proxy?.close();
 
-    const {connection} = $worker.get();
+    const { connection } = $worker.get();
     if (connection !== proxy) {
         return;
     }
-
 
     $worker.setKey('state', 'disconnected');
     $worker.setKey('connection', null);
@@ -159,7 +162,7 @@ function handleConnected(message: ConnectedWorkerMessage): void {
 }
 
 function handleDisconnected(): void {
-    const {state} = $worker.get();
+    const { state } = $worker.get();
     if (state !== 'disconnected' && state !== 'disconnecting') {
         $worker.setKey('state', 'disconnected');
     }
@@ -178,10 +181,11 @@ function handleMessage(message: OutWorkerMessage): void {
 
         case 'status':
             $worker.setKey('ready', message.payload.ready);
+            $worker.setKey('sessionEnded', message.payload.sessionEnded);
             break;
 
         case 'received':
-            _listeners.forEach(listener => listener(message));
+            _listeners.forEach((listener) => listener(message));
             break;
 
         case 'disconnected':
@@ -194,7 +198,7 @@ function handleMessage(message: OutWorkerMessage): void {
 //* Listeners
 //
 
-export function subscribe(listener: ReceivedListener = () => { }): () => void {
+export function subscribe(listener: ReceivedListener = () => {}): () => void {
     const wasEmpty = _listeners.size === 0;
 
     _listeners.add(listener);
@@ -219,33 +223,33 @@ function unsubscribe(listener: ReceivedListener): void {
 //
 
 function sendInit(): void {
-    const {connection} = $worker.get();
+    const { connection } = $worker.get();
     connection?.send({
         type: 'init',
-        payload: {wsUrl: CONFIG.getString('services.eventsUrl')},
+        payload: { wsUrl: CONFIG.getString('services.eventsUrl') },
     } satisfies InitWorkerMessage);
 }
 
 export function subscribeToOperation(operation: string): void {
-    const {connection} = $worker.get();
+    const { connection } = $worker.get();
     connection?.send({
         type: 'subscribe',
-        payload: {operation},
+        payload: { operation },
     } satisfies SubscribeWorkerMessage);
 }
 
 export function unsubscribeFromOperation(operation: string): void {
-    const {connection} = $worker.get();
+    const { connection } = $worker.get();
     connection?.send({
         type: 'unsubscribe',
-        payload: {operation},
+        payload: { operation },
     } satisfies UnsubscribeWorkerMessage);
 }
 
 function sendMessage(message: InMessage): void {
-    const {connection, state} = $worker.get();
+    const { connection, state } = $worker.get();
     if (connection && state === 'connected') {
-        connection.send({type: 'send', payload: message} satisfies SendWorkerMessage);
+        connection.send({ type: 'send', payload: message } satisfies SendWorkerMessage);
     }
 }
 
@@ -254,27 +258,29 @@ function sendMessage(message: InMessage): void {
 //
 
 export function sendJoin(contentId: string, project: string): void {
-    const {clientId} = $worker.get();
+    const { clientId } = $worker.get();
     if (clientId) {
         sendMessage({
-            type: MessageType.JOIN, payload: {
+            type: MessageType.JOIN,
+            payload: {
                 contentId,
                 project,
                 clientId,
-            }
+            },
         } satisfies JoinMessage);
     }
 }
 
 export function sendLeave(contentId: string, project: string): void {
-    const {clientId} = $worker.get();
+    const { clientId } = $worker.get();
     if (clientId) {
         sendMessage({
-            type: MessageType.LEAVE, payload: {
+            type: MessageType.LEAVE,
+            payload: {
                 contentId,
                 project,
                 clientId,
-            }
+            },
         } satisfies LeaveMessage);
     }
 }

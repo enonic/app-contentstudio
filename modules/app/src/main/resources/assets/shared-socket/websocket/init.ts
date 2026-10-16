@@ -1,6 +1,6 @@
-import {computed, map} from 'nanostores';
-import {WS_PROTOCOL} from './constants';
-import {isWebSocketMessage, WebSocketMessage} from './data';
+import { computed, map } from 'nanostores';
+import { SESSION_END_CLOSE_CODE, WS_PROTOCOL } from './constants';
+import { isWebSocketMessage, WebSocketMessage } from './data';
 
 type WebSocketState = 'connecting' | 'connected' | 'disconnecting' | 'disconnected';
 
@@ -8,27 +8,35 @@ type WebSocketStore = {
     state: WebSocketState;
     connection: Optional<WebSocket>;
     reconnectAttempts: number;
+    sessionEnded: boolean;
 };
 
 const $websocket = map<WebSocketStore>({
     state: 'disconnected',
     connection: null,
     reconnectAttempts: 0,
+    sessionEnded: false,
 });
 
 //
 //* State
 //
 
-const $reconnectTimeout = computed($websocket, ({reconnectAttempts}) => Math.min(2 ** reconnectAttempts * 1000, 30000));
+const $reconnectTimeout = computed($websocket, ({ reconnectAttempts }) =>
+    Math.min(2 ** reconnectAttempts * 1000, 30000),
+);
 
 function incrementReconnectAttempts(): void {
     $websocket.setKey('reconnectAttempts', $websocket.get().reconnectAttempts + 1);
 }
 
-export const $isConnected = computed($websocket, ({connection, state}) => {
+export const $isConnected = computed($websocket, ({ connection, state }) => {
     return connection != null && connection.readyState === WebSocket.OPEN && state === 'connected';
 });
+
+export const $isSessionEnded = computed($websocket, ({ sessionEnded }) => sessionEnded);
+
+export const $status = computed([$isConnected, $isSessionEnded], (ready, sessionEnded) => ({ ready, sessionEnded }));
 
 function isActiveConnection(connection: Optional<WebSocket>): connection is WebSocket {
     return (
@@ -52,13 +60,15 @@ let reconnectTimeout: number;
 let customMessageHandler: (message: Record<string, unknown>) => void;
 
 export function connect(url: string, customHandler: (message: Record<string, unknown>) => void): void {
-    const {state, connection} = $websocket.get();
+    const { state, connection } = $websocket.get();
 
     if (state === 'connecting' || state === 'connected') {
         return;
     }
 
     customMessageHandler = customHandler;
+
+    $websocket.setKey('sessionEnded', false);
 
     if (isActiveConnection(connection)) {
         cleanup(connection);
@@ -79,10 +89,10 @@ export function connect(url: string, customHandler: (message: Record<string, unk
 
         $websocket.setKey('reconnectAttempts', 0);
 
-        sendMessage({type: 'connect'});
+        sendMessage({ type: 'connect' });
 
         pingInterval = setInterval(() => {
-            sendMessage({type: 'ping'});
+            sendMessage({ type: 'ping' });
             clearTimeout(pongTimeout);
             pongTimeout = setTimeout(() => {
                 disconnect();
@@ -92,19 +102,26 @@ export function connect(url: string, customHandler: (message: Record<string, unk
 
     ws.onmessage = handleMessage;
 
-    ws.onclose = () => {
+    ws.onclose = (event: CloseEvent) => {
         clearTimeout(connectionTimeout);
         cleanup(ws);
+
+        // Reconnecting would only be refused until the page signs in again
+        if (event.code === SESSION_END_CLOSE_CODE) {
+            $websocket.setKey('sessionEnded', true);
+            return;
+        }
+
         scheduleReconnect(url);
     };
 
-    ws.onerror = e => {
+    ws.onerror = (e) => {
         console.error(e);
     };
 }
 
 function disconnect(): void {
-    const {connection} = $websocket.get();
+    const { connection } = $websocket.get();
 
     if (isActiveConnection(connection)) {
         connection.onerror = null;
@@ -124,7 +141,7 @@ function cleanup(ws: WebSocket): void {
         ws.close();
     }
 
-    const {connection} = $websocket.get();
+    const { connection } = $websocket.get();
     if (ws !== connection) {
         return;
     }
@@ -138,14 +155,14 @@ function cleanup(ws: WebSocket): void {
 }
 
 function handleDisconnected(): void {
-    const {connection} = $websocket.get();
+    const { connection } = $websocket.get();
     if (isActiveConnection(connection)) {
         connection.close();
     }
 }
 
 export function sendMessage(message: WebSocketMessage): void {
-    const {connection} = $websocket.get();
+    const { connection } = $websocket.get();
 
     if (connection != null && connection.readyState === WebSocket.OPEN) {
         connection.send(JSON.stringify(message));
@@ -161,7 +178,7 @@ function handleMessage(event: MessageEvent<string>): void {
     switch (message.type) {
         case 'connected':
             $websocket.setKey('state', 'connected');
-            sendMessage({type: 'subscribe'});
+            sendMessage({ type: 'subscribe' });
             break;
 
         case 'pong':

@@ -1,5 +1,5 @@
-import type {InMessage as CollaborationInMessage, OutMessage as CollaborationOutMessage} from './collaboration';
-import type {OutMessage as ServerOutMessage} from './server';
+import type { InMessage as CollaborationInMessage, OutMessage as CollaborationOutMessage } from './collaboration';
+import type { OutMessage as ServerOutMessage } from './server';
 
 interface WorkerMessage<T> {
     type: T;
@@ -17,11 +17,11 @@ type OutMessage = CollaborationOutMessage | ServerOutMessage;
 //* Client -> Worker
 //
 
-export type InitWorkerMessage = WorkerMessageWithPayload<'init', {wsUrl: string}>;
+export type InitWorkerMessage = WorkerMessageWithPayload<'init', { wsUrl: string }>;
 
-export type SubscribeWorkerMessage = WorkerMessageWithPayload<'subscribe', {operation: string}>;
+export type SubscribeWorkerMessage = WorkerMessageWithPayload<'subscribe', { operation: string }>;
 
-export type UnsubscribeWorkerMessage = WorkerMessageWithPayload<'unsubscribe', {operation: string}>;
+export type UnsubscribeWorkerMessage = WorkerMessageWithPayload<'unsubscribe', { operation: string }>;
 
 export type SendWorkerMessage = WorkerMessageWithPayload<'send', InMessage>;
 
@@ -31,11 +31,11 @@ export type InWorkerMessage = InitWorkerMessage | SubscribeWorkerMessage | Unsub
 //* Worker -> Client
 //
 
-export type ConnectedWorkerMessage = WorkerMessageWithPayload<'connected', {clientId: string}>;
+export type ConnectedWorkerMessage = WorkerMessageWithPayload<'connected', { clientId: string }>;
 
 export type DisconnectedWorkerMessage = WorkerMessage<'disconnected'>;
 
-export type StatusWorkerMessage = WorkerMessageWithPayload<'status', {ready: boolean}>;
+export type StatusWorkerMessage = WorkerMessageWithPayload<'status', { ready: boolean; sessionEnded: boolean }>;
 
 export type ReceivedWorkerMessage = WorkerMessageWithPayload<'received', OutMessage>;
 
