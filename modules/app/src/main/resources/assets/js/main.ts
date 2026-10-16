@@ -112,7 +112,7 @@ function startConnectionNotifier(): void {
         hideMessage();
 
         if ($isSessionEnded.get()) {
-            messageId = showErrorWithRefresh(i18n('notify.session.ended'));
+            messageId = showErrorWithRefresh(i18n('notify.session.expired'));
             return;
         }
 
