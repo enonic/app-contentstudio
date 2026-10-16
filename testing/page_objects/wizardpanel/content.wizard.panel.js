@@ -14,6 +14,7 @@ const BrowsePanel = require('../../page_objects/browsepanel/content.browse.panel
 const RenamePublishedContentDialog = require('./rename.content.dialog');
 const ContentUnpublishDialog = require('../content.unpublish.dialog');
 const DetailsWidgetInfoSection = require('../browsepanel/detailspanel/details.widget.info.section');
+const EditSettingsDialog = require('../details_panel/edit.settings.dialog');
 const { Key } = require('webdriverio');
 
 const XPATH = {
