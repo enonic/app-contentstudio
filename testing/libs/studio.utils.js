@@ -21,11 +21,6 @@ const ContentUnpublishDialog = require('../page_objects/content.unpublish.dialog
 const CreateRequestPublishDialog = require('../page_objects/issue/create.request.publish.dialog');
 const ProjectSelectionDialog = require('../page_objects/project/project.selection.dialog');
 const SettingsBrowsePanel = require('../page_objects/project/settings.browse.panel');
-const UserBrowsePanel = require('../page_objects/users/userbrowse.panel');
-const AppBrowsePanel = require('../page_objects/applications/applications.browse.panel');
-const UserWizard = require('../page_objects/users/user.wizard');
-const NewPrincipalDialog = require('../page_objects/users/new.principal.dialog');
-const PrincipalFilterPanel = require('../page_objects/users/principal.filter.panel');
 const ConfirmationDialog = require('../page_objects/confirmation.dialog');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialog');
@@ -968,16 +963,6 @@ module.exports = {
     generateRandomName(part) {
         return part + Math.round(Math.random() * 1000000);
     },
-    async waitForUsersBrowsePanelLoaded() {
-        try {
-            let browsePanel = new UserBrowsePanel();
-            console.log('Users app loads...');
-            await browsePanel.waitForSpinnerNotVisible();
-            return browsePanel.waitForUsersGridLoaded(appConst.mediumTimeout);
-        } catch (err) {
-            throw new Error('Tried to navigate to Users App ' + err);
-        }
-    },
     // Posts a GraphQL request from the current page and returns {status, text} without interpreting it.
     async postGraphQl(url, query, variables) {
         return await this.getBrowser().execute(
@@ -1110,46 +1095,6 @@ module.exports = {
         }
         return data.deletePrincipals;
     },
-    async typeNameInUserFilterPanel(name) {
-        let browsePanel = new UserBrowsePanel();
-        let filterPanel = new PrincipalFilterPanel();
-        await browsePanel.clickOnSearchButton();
-        await filterPanel.waitForOpened();
-        await filterPanel.typeSearchText(name);
-        await browsePanel.pause(300);
-        return await browsePanel.waitForSpinnerNotVisible();
-    },
-    async findAndSelectUserItem(name) {
-        let userBrowsePanel = new UserBrowsePanel();
-        await this.typeNameInUserFilterPanel(name);
-        await userBrowsePanel.pause(400);
-        await userBrowsePanel.waitForRowByNameVisible(name);
-        await userBrowsePanel.clickOnRowByName(name);
-        return await userBrowsePanel.pause(300);
-    },
-    // Click on 'Save' button and close the wizard:
-    async saveAndCloseUserWizard(displayName) {
-        let wizardPanel = new UserWizard();
-        let browsePanel = new UserBrowsePanel();
-        await wizardPanel.pause(200);
-        await wizardPanel.waitAndClickOnSave();
-        await wizardPanel.waitForChangePasswordButtonDisplayed();
-        //await wizardPanel.waitForNotificationMessage();
-        await wizardPanel.pause(1000);
-        //Click on Close icon and close the wizard:
-        return await browsePanel.closeTabAndWaitForGrid(displayName);
-    },
-    async clickOnSystemOpenUserWizard() {
-        let browsePanel = new UserBrowsePanel();
-        let userWizard = new UserWizard();
-        let newPrincipalDialog = new NewPrincipalDialog();
-        await browsePanel.clickOnRowByName('system');
-        await browsePanel.waitForNewButtonEnabled();
-        await browsePanel.clickOnNewButton();
-        await newPrincipalDialog.waitForDialogLoaded();
-        await newPrincipalDialog.clickOnItem('User');
-        return await userWizard.waitForOpened();
-    },
     async getDisplayedElements(selector) {
         let elements = Array.from(await this.getBrowser().$$(selector));
         if (elements.length === 0) {
@@ -1211,14 +1156,6 @@ module.exports = {
         await detailsWidgetInfoSection.clickOnEditSettingsButton();
         await editSettingsDialog.waitForLoaded();
         return editSettingsDialog;
-    },
-    async doSwitchToApplicationsBrowsePanel() {
-        let appBrowsePanel = new AppBrowsePanel();
-        console.log('testUtils:switching to Applications app...');
-        await this.getBrowser().switchWindow(appConst.BROWSER_XP_TITLES.APPLICATIONS_TITLE);
-        console.log('switched to Applications app...');
-        await appBrowsePanel.waitForSpinnerNotVisible();
-        return await appBrowsePanel.waitForGridLoaded(appConst.mediumTimeout);
     },
     async saveScreen(name) {
         await this.getBrowser().saveScreen();
