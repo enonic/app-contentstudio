@@ -54,7 +54,7 @@
     "lucide-react": "^1.52.0",
     "mousetrap": "^1.6.5",
     "nanoid": "~6.0.2",
-    "nanostores": "^1.5.3",
+    "nanostores": "^1.5.5",
     "neverthrow": "^8.2.0",
     "preact": "^10.29.8",
     "q": "^1.5.1",
