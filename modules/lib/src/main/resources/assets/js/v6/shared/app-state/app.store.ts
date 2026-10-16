@@ -21,6 +21,7 @@ type AppStore = {
 //
 
 const SYNC_NAME = 'app';
+const THEME_STORAGE_KEY = 'enonic:theme';
 
 export const $app = map<AppStore>({
     theme: getInitialTheme(),
@@ -30,7 +31,7 @@ export const $app = map<AppStore>({
 
 // Sync persisted preferences to localStorage and across tabs
 syncMapStore($app, SYNC_NAME, {
-    keys: ['theme', 'pageComponentsViewCollapsed'],
+    keys: ['pageComponentsViewCollapsed'],
     loadInitial: true,
     syncTabs: true,
 });
@@ -47,6 +48,7 @@ export const $isWizard = computed($app, ({ page }) => page === 'wizard');
 
 export function setTheme(theme: Theme): void {
     $app.setKey('theme', theme);
+    saveTheme(theme);
 }
 
 /**
@@ -93,16 +95,17 @@ function getSystemPreference(): ResolvedTheme {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
+function isTheme(value: unknown): value is Theme {
+    return value === 'dark' || value === 'light' || value === 'system';
+}
+
 function getInitialTheme(): Theme {
     // Try to get saved theme from localStorage
     if (typeof window !== 'undefined') {
         try {
-            const saved = localStorage.getItem('enonic:cs:app');
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                if (parsed.theme === 'dark' || parsed.theme === 'light' || parsed.theme === 'system') {
-                    return parsed.theme;
-                }
+            const saved = localStorage.getItem(THEME_STORAGE_KEY);
+            if (isTheme(saved)) {
+                return saved;
             }
         } catch {
             // Fall through to default
@@ -111,6 +114,16 @@ function getInitialTheme(): Theme {
 
     // Default to system preference (most user-friendly)
     return 'system';
+}
+
+function saveTheme(theme: Theme): void {
+    if (typeof window === 'undefined') return;
+
+    try {
+        localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch (error: unknown) {
+        console.error(`Error writing to localStorage ${THEME_STORAGE_KEY}`, error);
+    }
 }
 
 /**
@@ -151,6 +164,15 @@ function applyTheme(theme: Theme): void {
 $app.subscribe((state) => {
     applyTheme(state.theme);
 });
+
+// Sync theme changes from other tabs
+if (typeof window !== 'undefined') {
+    window.addEventListener('storage', (e: StorageEvent) => {
+        if (e.key === THEME_STORAGE_KEY && isTheme(e.newValue)) {
+            $app.setKey('theme', e.newValue);
+        }
+    });
+}
 
 // Watch for system theme changes when in system mode
 if (typeof window !== 'undefined') {
