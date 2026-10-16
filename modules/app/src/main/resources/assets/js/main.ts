@@ -99,20 +99,29 @@ function showErrorWithRefresh(text: string): string {
 function startConnectionNotifier(): void {
     let messageId: string;
     let timeoutId: number;
+    let isSessionExpiredShown = false;
 
     const hideMessage = () => {
         if (messageId) {
             NotifyManager.get().hide(messageId);
             messageId = null;
         }
+        isSessionExpiredShown = false;
     };
 
     const update = () => {
         clearTimeout(timeoutId);
+
+        const isSessionEnded = $isSessionEnded.get();
+        if (isSessionEnded && isSessionExpiredShown && NotifyManager.get().getNotification(messageId) != null) {
+            return;
+        }
+
         hideMessage();
 
-        if ($isSessionEnded.get()) {
+        if (isSessionEnded) {
             messageId = showErrorWithRefresh(i18n('notify.session.expired'));
+            isSessionExpiredShown = true;
             return;
         }
 
