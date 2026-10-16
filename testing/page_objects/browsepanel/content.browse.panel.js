@@ -3,7 +3,6 @@
  */
 const ContentDuplicateDialog = require('../content.duplicate.dialog');
 const CreateIssueDialog = require('../issue/create.issue.dialog');
-const lib = require('../../libs/elements-old');
 const { BUTTONS, TREE_GRID, COMMON, DROPDOWN, LIVE_VIEW, WIZARD } = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ConfirmationDialog = require('../confirmation.dialog');
@@ -1170,16 +1169,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return status === 'Localised';
     }
 
-    async clickOnLocalizeButton() {
-        try {
-            await this.waitForElementEnabled(this.localizeButton, appConst.mediumTimeout);
-            await this.clickOnElement(this.localizeButton);
-            return await this.pause(1000);
-        } catch (err) {
-            await this.handleError('Clicked on Localize button', 'err_localize_btn', err);
-        }
-    }
-
     async rightClickOnItemByDisplayName(displayName) {
         try {
             const nameXpath =
@@ -1197,13 +1186,13 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     waitForDeleteButtonDisplayed() {
-        return this.waitForElementDisplayed(this.deleteButton, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.deleteButton);
     }
 
     async waitForDeleteButtonEnabled() {
         try {
             await this.waitForDeleteButtonDisplayed();
-            await this.waitForElementEnabled(this.deleteButton, appConst.mediumTimeout);
+            await this.waitForElementEnabled(this.deleteButton);
         } catch (err) {
             await this.handleError('Delete button should be enabled', 'err_delete_btn', err);
         }
@@ -1211,7 +1200,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async waitForDeleteButtonDisabled() {
         await this.waitForDeleteButtonDisplayed();
-        return await this.waitForElementDisabled(this.deleteButton, appConst.mediumTimeout);
+        return await this.waitForElementDisabled(this.deleteButton);
     }
 
     async clickOnDeleteButton() {
@@ -1221,44 +1210,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     async getNumberInSelectionToggler() {
-        await this.waitForElementDisplayed(this.numberInSelectionToggler, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.numberInSelectionToggler);
         return await this.getText(this.numberInSelectionToggler);
-    }
-
-    waitForMoreButtonDisplayed() {
-        return this.waitForElementDisplayed(this.moreButton, appConst.mediumTimeout);
-    }
-
-    waitForFoldWithNameButtonDisplayed(name) {
-        return this.waitForElementDisplayed(XPATH.foldButtonByName(name));
-    }
-
-    async clickOnFoldWithNameButton(name) {
-        await this.waitForFoldWithNameButtonDisplayed(name);
-        return await this.clickOnElement(XPATH.foldButtonByName(name));
-    }
-
-    // TODO
-    async waitForSortIconNotDisplayed(name) {
-        let selector = TREE_GRID.itemByName(name) + TREE_GRID.SORT_DIALOG_TOGGLE;
-        return await this.waitForElementNotDisplayed(selector, appConst.mediumTimeout);
-    }
-
-    // TODO
-    async waitForSortIconDisplayed(name) {
-        let selector = lib.TREE_GRID.itemTreeGridListElementByName(name) + lib.TREE_GRID.SORT_DIALOG_TOGGLE;
-        return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
-    }
-
-    async waitForGridRoleAttribute(expectedRole) {
-        let locator = XPATH.treeGrid;
-        await this.getBrowser().waitUntil(
-            async () => {
-                let text = await this.getAttribute(locator, 'role');
-                return text === expectedRole;
-            },
-            { timeout: appConst.shortTimeout, timeoutMsg: "Role attribute for Grid should set 'grid'" },
-        );
     }
 
     async getContentNamesInGrid() {
@@ -1281,7 +1234,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async waitForPreviewButtonNotDisplayed() {
         try {
-            return await this.waitForElementNotDisplayed(this.previewButton, appConst.mediumTimeout);
+            return await this.waitForElementNotDisplayed(this.previewButton);
         } catch (err) {
             await this.handleError(`Preview button should not be displayed`, 'err_preview_btn', err);
         }

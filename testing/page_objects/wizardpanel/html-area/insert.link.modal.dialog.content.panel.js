@@ -1,7 +1,7 @@
 const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
 const ContentSelectorDropdown = require('../../components/selectors/content.selector.dropdown');
-const { DROPDOWN, BUTTONS } = require('../../../libs/elements');
+const { BUTTONS } = require('../../../libs/elements');
 
 const XPATH = {
     container: `//div[@role='dialog' and @data-component='HtmlAreaLinkDialog']`,

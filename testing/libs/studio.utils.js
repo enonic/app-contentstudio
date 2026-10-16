@@ -29,7 +29,6 @@ const PrincipalFilterPanel = require('../page_objects/users/principal.filter.pan
 const ConfirmationDialog = require('../page_objects/confirmation.dialog');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialog');
-const DateTimeRange = require('../page_objects/components/datetime.range');
 const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget');
 const WizardContextPanel = require('../page_objects/wizardpanel/details/wizard.context.window.panel');
 const fs = require('fs');
@@ -387,12 +386,7 @@ module.exports = {
         let contentWizardPanel = new ContentWizardPanel();
         await this.openContentWizard(appConst.contentTypes.SITE);
         await contentWizardPanel.typeData(site);
-
-        if (site.data.controller) {
-            await contentWizardPanel.selectPageDescriptor(site.data.controller);
-        } else {
-            await contentWizardPanel.clickOnMarkAsReadyButton();
-        }
+        await contentWizardPanel.clickOnMarkAsReadyButton();
         await this.doCloseCurrentBrowserTab();
         await this.doSwitchToContentBrowsePanel();
         return await this.getBrowser().pause(1000);
@@ -673,9 +667,6 @@ module.exports = {
             throw new Error(`Error occurred after clicking on Content Studio link ,  screenshot:${screenshot}  ` + err);
         }
     },
-    async navigateToContentStudioAppMobile(userName, password) {
-        await this.navigateToContentStudioApp(userName, password);
-    },
     async doLogin(userName, password) {
         let loginPage = new LoginPage();
         let result = await loginPage.isLoaded();
@@ -874,12 +865,6 @@ module.exports = {
             throw new Error('Error occurred while switching to the new browser tab' + err);
         }
     },
-
-    async doCloseAllWindowTabsAndAndClickOnOpenXP_menu() {
-        await this.doCloseAllWindowTabs();
-        let contentBrowsePanel = new ContentBrowsePanel();
-        await contentBrowsePanel.clickOnShowXpMenuButton();
-    },
     async doCloseAllWindowTabsAndNavigateToHome() {
         await this.doCloseAllWindowTabs();
         await this.navigateToHomePage();
@@ -942,9 +927,6 @@ module.exports = {
         await browseContextWindow.openDependenciesWidget();
         return await browseDependenciesWidget.waitForWidgetLoaded();
     },
-    isStringEmpty(str) {
-        return !str || 0 === str.length;
-    },
     sendRequestGetHeaders() {
         return this.getBrowser().execute(function () {
             return new Promise(function (resolve, reject) {
@@ -986,17 +968,6 @@ module.exports = {
     generateRandomName(part) {
         return part + Math.round(Math.random() * 1000000);
     },
-    async navigateToUsersApp(userName, password) {
-        try {
-            await this.doLogin(userName, password);
-            let homePage = new HomePage();
-            await homePage.clickOnUsersLink();
-            await this.waitForUsersBrowsePanelLoaded();
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_navigate_users');
-            throw new Error(`Error occurred after clicking on Users link Home page,  screenshot:${screenshot}  ` + err);
-        }
-    },
     async waitForUsersBrowsePanelLoaded() {
         try {
             let browsePanel = new UserBrowsePanel();
@@ -1006,50 +977,6 @@ module.exports = {
         } catch (err) {
             throw new Error('Tried to navigate to Users App ' + err);
         }
-    },
-    async navigateToApplications(userName, password) {
-        try {
-            //let launcherPanel = new LauncherPanel();
-            //let isDisplayed = await launcherPanel.isDisplayed(appConst.mediumTimeout);
-            if (true) {
-                console.log('Launcher Panel is opened, click on the `Users` link...');
-                //await launcherPanel.pause(300);
-                //await launcherPanel.clickOnApplicationsLink();
-            } else {
-                console.log('Login Page is opened, type a password and name...');
-                let loginPage = new LoginPage();
-                await loginPage.doLogin(userName, password);
-                //await launcherPanel.clickOnApplicationsLink();
-            }
-            await this.doSwitchToApplicationsBrowsePanel();
-        } catch (err) {
-            await this.saveScreenshotUniqueName('err_navigate_to_users');
-            throw new Error('error when navigate to Applications app ' + err);
-        }
-    },
-    async doSwitchToUsersApp() {
-        try {
-            console.log('testUtils:switching to users app...');
-            let browsePanel = new UserBrowsePanel();
-            await this.getBrowser().switchWindow('Users - Enonic XP Admin');
-            console.log('switched to Users app...');
-            await browsePanel.waitForSpinnerNotVisible();
-            return browsePanel.waitForUsersGridLoaded(appConst.mediumTimeout);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_switch_to_users_app');
-            throw new Error(`Error during switching to Users App , screenshot:${screenshot} ` + err);
-        }
-    },
-    async addSystemUser(userData) {
-        let userWizard = new UserWizard();
-        // 1. Select System ID Provider folder:
-        await this.clickOnSystemOpenUserWizard();
-        // 2. Type the data:
-        await userWizard.typeData(userData);
-        await userWizard.clickOnRolesAndGroupsLink();
-        await this.saveScreenshot(appConst.generateRandomName('user'));
-        // 3. Save the data and close the wizard:
-        return await this.saveAndCloseUserWizard(userData.displayName);
     },
     // Posts a GraphQL request from the current page and returns {status, text} without interpreting it.
     async postGraphQl(url, query, variables) {
@@ -1242,16 +1169,6 @@ module.exports = {
             },
             { timeout: ms, timeoutMsg: 'Timeout exception. Element ' + selector + ' still not visible in: ' + ms },
         );
-    },
-    async scheduleContent(contentName, date) {
-        let contentBrowsePanel = new ContentBrowsePanel();
-        let dateTimeRange = new DateTimeRange("//div[contains(@id,'ContentPublishDialog')]");
-        await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
-        let contentPublishDialog = new ContentPublishDialog();
-        await contentPublishDialog.clickOnAddScheduleIcon();
-        await dateTimeRange.typeOnlineFrom(date);
-        await contentPublishDialog.clickOnScheduleButton();
-        return await contentPublishDialog.waitForDialogClosed();
     },
     async openWizardDependencyWidget() {
         let contentWizard = new ContentWizardPanel();

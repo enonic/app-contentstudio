@@ -10,7 +10,6 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const SingleSelectionOptionSet = require('../../page_objects/wizardpanel/optionset/single.selection.option.set.view');
 const MultiSelectionOptionSet = require('../../page_objects/wizardpanel/optionset/multi.selection.set.view');
 const ArticleForm = require('../../page_objects/wizardpanel/article.form.panel');
-const NotificationDialog = require('../../page_objects/notification.dialog');
 const OptionSetHelpFormView = require('../../page_objects/wizardpanel/optionset/option.set.help.text.form');
 const appConst = require('../../libs/app_const');
 
@@ -81,7 +80,6 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
 
     it(`GIVEN existing content with Option Set is opened AND text has been typed in the option with htmlArea WHEN the option has been unchecked AND confirmed THEN Save button should gets disabled again`, async () => {
         let contentWizard = new ContentWizard();
-        let notificationDialog = new NotificationDialog();
         let multiSelectionOptionSet = new MultiSelectionOptionSet();
         // 1. Open the existing content:
         await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME_1);

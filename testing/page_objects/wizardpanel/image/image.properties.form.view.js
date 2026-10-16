@@ -2,11 +2,10 @@
  * Created on 23.09.2021
  */
 const Page = require('../../page');
-const lib = require('../../../libs/elements-old');
-const appConst = require('../../../libs/app_const');
 
 const XPATH = {
-    container: "//div[contains(@id,'XDataWizardStepForm') and preceding-sibling::div[child::span[text()='Properties']]]",
+    container:
+        "//div[contains(@id,'XDataWizardStepForm') and preceding-sibling::div[child::span[text()='Properties']]]",
     sizePixelsInput: "//input[contains(@name,'pixelSize')]",
     heightInput: "//input[contains(@name,'imageHeight')]",
     widthInput: "//input[contains(@name,'imageWidth')]",
@@ -18,7 +17,6 @@ const XPATH = {
 };
 
 class ImagePropertiesForm extends Page {
-
     get sizePixelsInput() {
         return XPATH.container + XPATH.sizePixelsInput;
     }
@@ -52,35 +50,35 @@ class ImagePropertiesForm extends Page {
     }
 
     waitForWidthInputDisplayed() {
-        return this.waitForElementDisplayed(this.widthInput, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.widthInput);
     }
 
     waitForHeightInputDisplayed() {
-        return this.waitForElementDisplayed(this.heightInput, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.heightInput);
     }
 
     waitForByteSizeInputDisplayed() {
-        return this.waitForElementDisplayed(this.byteSizeInput, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.byteSizeInput);
     }
 
     waitForContentTypeInputDisplayed() {
-        return this.waitForElementDisplayed(this.contentTypeInput, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.contentTypeInput);
     }
 
     waitForSizePixelsInputDisplayed() {
-        return this.waitForElementDisplayed(this.sizePixelsInput, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.sizePixelsInput);
     }
 
     waitForFileSourceInputDisplayed() {
-        return this.waitForElementDisplayed(this.fileSourceInput, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.fileSourceInput);
     }
 
     waitForColorSpaceInputDisplayed() {
-        return this.waitForElementDisplayed(this.colorSpaceInput, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.colorSpaceInput);
     }
 
     waitForDescriptionInputDisplayed() {
-        return this.waitForElementDisplayed(this.descriptionInput, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.descriptionInput);
     }
 
     async typeDescription(description) {
@@ -107,5 +105,3 @@ class ImagePropertiesForm extends Page {
 }
 
 module.exports = ImagePropertiesForm;
-
-

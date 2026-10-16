@@ -13,7 +13,6 @@ exports.config = {
         path.join(__dirname, '../specs/outbound.dependency.rollback.version.spec.js'),
         path.join(__dirname, '../specs/site.app.uninstalled.spec.js'),
         path.join(__dirname, '../specs/site.configurator.htmlarea.spec.js'),
-        path.join(__dirname, '../specs/site.with.meta.fields.spec.js'),
     ],
 
     maxInstances: 1,

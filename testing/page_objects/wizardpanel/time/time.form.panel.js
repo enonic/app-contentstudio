@@ -2,8 +2,6 @@
  * Created on 12.10.2021
  */
 const OccurrencesFormView = require('../../wizardpanel/occurrences.form.view');
-const lib = require('../../../libs/elements-old');
-const appConst = require('../../../libs/app_const');
 const { COMMON } = require('../../../libs/elements');
 
 const XPATH = {
@@ -16,13 +14,7 @@ class TimeForm extends OccurrencesFormView {
     }
 
     get validationRecord() {
-        return lib.FORM_VIEW + XPATH.validationRecording;
-    }
-
-    async setTime(index, value) {
-        let timeElements = await this.getDisplayedElements(this.timeInput);
-        await timeElements[index].setValue(value);
-        return await this.pause(300);
+        return COMMON.FORM_VIEW + XPATH.validationRecording;
     }
 
     async typeTime(index, value) {
@@ -44,21 +36,6 @@ class TimeForm extends OccurrencesFormView {
             throw new Error('Time inputs were not found:');
         }
         return await timeElements[index].getValue();
-    }
-
-    waitForValidationRecording() {
-        return this.waitForElementDisplayed(this.validationRecord, appConst.shortTimeout);
-    }
-
-    isValidationRecordingVisible() {
-        return this.isElementDisplayed(this.validationRecord);
-    }
-
-    getValidationRecord() {
-        return this.getText(this.validationRecord).catch((err) => {
-            this.saveScreenshot('err_date_time_validation_record');
-            throw new Error('getting Validation text: ' + err);
-        });
     }
 
     async isInvalidValue(index) {

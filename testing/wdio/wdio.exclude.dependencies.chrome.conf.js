@@ -14,10 +14,7 @@ exports.config = {
         path.join(__dirname, '../specs/misc2/*.spec.js'),
         path.join(__dirname, '../specs/permissions/*.spec.js'),
     ],
-    exclude: [
-        path.join(__dirname, '../specs/exclude-dependencies/project.not.available.dialog.spec.js'),
-        path.join(__dirname, '../specs/exclude-dependencies/publish.wizard.default.time.picker.popup.spec.js'),
-    ],
+    exclude: [path.join(__dirname, '../specs/exclude-dependencies/publish.wizard.default.time.picker.popup.spec.js')],
 
     maxInstances: 1,
     strictSelectors: false,

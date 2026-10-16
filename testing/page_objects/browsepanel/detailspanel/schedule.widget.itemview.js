@@ -3,21 +3,15 @@
  */
 const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
-const lib = require('../../../libs/elements-old');
 
 const xpath = {
     container: `//div[contains(@id,'ExtensionView')]//div[contains(@id,'ExtensionOnlinePropertiesItemView')]`,
-    onlineFromDescriptionTerm: "//dd[contains(.,'Online from')]/following-sibling::dt[1]",//<dt>
+    onlineFromDescriptionTerm: "//dd[contains(.,'Online from')]/following-sibling::dt[1]", //<dt>
     onlineToDescriptionTerm: "//dd[contains(.,'Online to')]/following-sibling::dt[1]",
     editScheduleButton: "//a[contains(@class,'edit-settings-link') and text()='Edit Schedule']",
 };
 
 class ScheduleItemView extends Page {
-
-    get scheduleValidationRecord() {
-        return xpath.scheduleForm + lib.OCCURRENCE_ERROR_BLOCK;
-    }
-
     get onlineFromDateTimeTerm() {
         return xpath.container + xpath.onlineFromDescriptionTerm;
     }
@@ -29,7 +23,6 @@ class ScheduleItemView extends Page {
     get onlineToDateTimeTerm() {
         return xpath.container + xpath.onlineToDescriptionTerm;
     }
-
 
     waitForEditScheduleButtonDisplayed() {
         return this.waitForElementDisplayed(this.editScheduleButton, appConst.mediumTimeout);
@@ -58,5 +51,3 @@ class ScheduleItemView extends Page {
 }
 
 module.exports = ScheduleItemView;
-
-

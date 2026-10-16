@@ -2,8 +2,6 @@
  * Created on 23.09.2021
  */
 const Page = require('../../page');
-const lib = require('../../../libs/elements-old');
-const appConst = require('../../../libs/app_const');
 
 const XPATH = {
     container: "//div[contains(@id,'XDataWizardStepForm') and preceding-sibling::div[child::span[text()='Location']]]",
@@ -13,7 +11,6 @@ const XPATH = {
 };
 
 class ImageLocationForm extends Page {
-
     get altitudeInput() {
         return XPATH.container + XPATH.altitudeInput;
     }
@@ -27,15 +24,15 @@ class ImageLocationForm extends Page {
     }
 
     waitForAltitudeInputDisplayed() {
-        return this.waitForElementDisplayed(this.altitudeInput, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.altitudeInput);
     }
 
     waitForDirectionInputDisplayed() {
-        return this.waitForElementDisplayed(this.directionInput, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.directionInput);
     }
 
     waitForGeoPointInputDisplayed() {
-        return this.waitForElementDisplayed(this.geoPointInput, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.geoPointInput);
     }
 
     async typeAltitude(altitude) {
@@ -72,12 +69,10 @@ class ImageLocationForm extends Page {
     }
 
     async getGeoPointValidationRecording() {
-        let locator = XPATH.container + lib.OCCURRENCE_ERROR_BLOCK;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        let locator = XPATH.container + "//div[contains(@class,'x-form-error-msg')]";
+        await this.waitForElementDisplayed(locator);
         return await this.getTextInDisplayedElements(locator);
     }
 }
 
 module.exports = ImageLocationForm;
-
-

@@ -2,7 +2,6 @@
  * Created on 23.09.2021
  */
 const Page = require('../../page');
-const lib = require('../../../libs/elements-old');
 const appConst = require('../../../libs/app_const');
 
 const XPATH = {
@@ -26,11 +25,10 @@ const XPATH = {
     shutterTimeInput: "//input[contains(@name,'shutterTime')]",
     autoFlashCompensationInput: "//input[contains(@name,'autoFlashCompensation')]",
     meteringModeInput: "//input[contains(@name,'meteringMode')]",
-    focusDistanceInput: "//input[contains(@name,'focusDistance')]"
+    focusDistanceInput: "//input[contains(@name,'focusDistance')]",
 };
 
 class ImagePhotoInfoForm extends Page {
-
     get lensInput() {
         return XPATH.container + XPATH.lensInput;
     }
@@ -191,7 +189,6 @@ class ImagePhotoInfoForm extends Page {
         return this.waitForElementDisplayed(this.focusDistanceInput, appConst.mediumTimeout);
     }
 
-
     async typeMake(text) {
         await this.waitForMakeInputDisplayed();
         await this.typeTextInInput(this.makeInput, text);
@@ -216,5 +213,3 @@ class ImagePhotoInfoForm extends Page {
 }
 
 module.exports = ImagePhotoInfoForm;
-
-
