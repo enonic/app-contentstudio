@@ -45,6 +45,10 @@ const haveSamePanels = (a: Layout, b: Layout): boolean => {
 export type SplitViewRootProps = {
     // Persists the layout to localStorage under this id; omit to disable persistence.
     storageId?: string;
+    // Ids of the panels rendered right now, in group order. Each distinct set is
+    // persisted separately, so toggling a panel does not clobber the others' layout.
+    // Must be referentially stable between renders.
+    panelIds?: string[];
     resolveLayoutOnPanelsChange?: (previous: Layout, next: Layout) => Layout | undefined;
 } & Omit<GroupProps, 'defaultLayout' | 'onLayoutChange'>;
 
@@ -53,6 +57,7 @@ const SplitViewRoot = forwardRef<HTMLDivElement, SplitViewRootProps>(
         {
             orientation = 'horizontal',
             storageId,
+            panelIds,
             resolveLayoutOnPanelsChange,
             onLayoutChanged,
             groupRef,
@@ -88,6 +93,7 @@ const SplitViewRoot = forwardRef<HTMLDivElement, SplitViewRootProps>(
 
         const { defaultLayout, onLayoutChanged: persistLayout } = useDefaultLayout({
             id: storageId ?? fallbackId,
+            panelIds,
             onlySaveAfterUserInteractions: true,
         });
 
