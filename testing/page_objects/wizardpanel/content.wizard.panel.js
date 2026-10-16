@@ -2,7 +2,7 @@
  * Created on 5/30/2017.  updated on 07.09.2026
  */
 const Page = require('../page');
-const { BUTTONS, DROPDOWN, LIVE_VIEW, WIZARD, COMMON, TREE_GRID } = require('../../libs/elements');
+const { BUTTONS, LIVE_VIEW, WIZARD, COMMON, TREE_GRID } = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ContentStepForm = require('./content.wizard.step.form');
 const WizardContextPanel = require('./details/wizard.context.window.panel');
@@ -15,7 +15,6 @@ const RenamePublishedContentDialog = require('./rename.content.dialog');
 const ContentUnpublishDialog = require('../content.unpublish.dialog');
 const DetailsWidgetInfoSection = require('../browsepanel/detailspanel/details.widget.info.section');
 const EditSettingsDialog = require('../details_panel/edit.settings.dialog');
-const PageDescriptorDropdown = require('../components/selectors/page.descriptor.dropdown');
 const { Key } = require('webdriverio');
 
 const XPATH = {
@@ -362,7 +361,6 @@ class ContentWizardPanel extends Page {
 
     async hotKeySaveAndCloseWizard() {
         try {
-            let status = await this.getBrowser().status();
             await this.getBrowser().keys(['Control', 'Enter']);
             await this.doSwitchToContentBrowsePanel();
             return await this.pause(500);
@@ -504,13 +502,6 @@ class ContentWizardPanel extends Page {
 
     waitForLiveEditVisible() {
         return this.waitForElementDisplayed(LIVE_VIEW.LIVE_EDIT_FRAME, appConst.mediumTimeout);
-    }
-
-    async getLiveFramePosition() {
-        let el = await this.findElement(LIVE_VIEW.LIVE_EDIT_FRAME);
-        let xValue = parseInt(await el.getLocation('x'));
-        let yValue = parseInt(await el.getLocation('y'));
-        return { x: xValue, y: yValue };
     }
 
     async typeDisplayName(displayName) {
@@ -807,16 +798,6 @@ class ContentWizardPanel extends Page {
                 err,
             );
         }
-    }
-
-    // Select a page descriptor and wait for Context Window is loaded
-    async selectPageDescriptor(pageControllerDisplayName, checkContextPanel) {
-        let pageDescriptorDropdown = new PageDescriptorDropdown();
-        await pageDescriptorDropdown.selectFilteredControllerAndClickOnOk(pageControllerDisplayName);
-        if (typeof checkContextPanel === 'undefined' || checkContextPanel) {
-            //await this.waitForContextWindowVisible();
-        }
-        await this.pause(500);
     }
 
     switchToMainFrame() {

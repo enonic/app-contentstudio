@@ -1,6 +1,5 @@
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConst = require('../libs/app_const');
-const lib = require('../libs/elements-old');
 const path = require('path');
 const fs = require('fs');
 const { Key } = require('webdriverio');
@@ -414,24 +413,12 @@ class Page {
         }
     }
 
-    async waitForNotificationActionsText() {
-        let locator = lib.DIV.NOTIFICATION_ACTIONS_DIV + "//a[@class='action']";
-        await this.getBrowser().waitUntil(
-            async () => {
-                return await this.isElementDisplayed(locator);
-            },
-            { timeout: appConst.longTimeout, timeoutMsg: 'Error when wait for the notification message' },
-        );
-        await this.pause(200);
-        return await this.getText(locator);
-    }
-
     //returns array of messages
     async waitForNotificationMessages() {
         try {
-            await this.waitForElementDisplayed(lib.NOTIFICATION_TEXT);
-            await this.pause(300);
-            return await this.getTextInDisplayedElements(lib.NOTIFICATION_TEXT);
+            await this.waitForElementDisplayed(COMMON.NOTIFICATION_TEXT);
+            await this.pause(200);
+            return await this.getTextInDisplayedElements(COMMON.NOTIFICATION_TEXT);
         } catch (err) {
             await this.handleError('Wait for notification messages ', 'err_notification_messages', err);
         }

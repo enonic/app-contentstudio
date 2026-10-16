@@ -122,9 +122,9 @@ describe('image.editor.focus.spec: tests for focus button', function () {
         await imageEditor.waitForFocusCircleDisplayed();
     });
 
-    // TODO bug https://github.com/enonic/app-contentstudio/issues/11329
+    // Verifies -  bug https://github.com/enonic/app-contentstudio/issues/11329
     // Image Editor: "Reset Autofocus" button is missing when editing the focal point
-    it.skip(`GIVEN existing focused image is opened WHEN 'Reset' AND 'Apply' button have been pressed THEN button 'Reset' and focus circle become not visible in Image Editor`, async () => {
+    it(`GIVEN existing focused image is opened WHEN 'Reset' AND 'Apply' button have been pressed THEN button 'Reset' and focus circle become not visible in Image Editor`, async () => {
         let imageEditor = new LiveViewImageEditor();
         let imageFormPanel = new ImageFormPanel();
         let contentWizard = new ContentWizard();
@@ -140,8 +140,7 @@ describe('image.editor.focus.spec: tests for focus button', function () {
         // 4. Verify that 'Reset filters' button is not displayed
         await imageEditor.waitForResetButtonNotDisplayed();
         // 5. Verify that focus circle is not displayed in Image Editor
-        //await imageEditor.waitForFocusCircleNotDisplayed();
-
+        await imageEditor.waitForFocusCircleNotDisplayed();
         await contentWizard.waitAndClickOnSave();
     });
 

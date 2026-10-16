@@ -77,16 +77,16 @@ describe('page.template.wizard.spec tests for page template wizard', function ()
         // 4. Click on 'Save' button:
         await contentWizard.waitAndClickOnSave();
         await contentWizard.waitForNotificationMessage();
+        await studioUtils.saveScreenshot('template_support_item_removed_saved');
         // 5. Verify that validation recording gets visible:
         let validationRecording = await pageTemplateForm.getFormValidationRecording();
         assert.equal(validationRecording, appConst.requiredValidationMessage(1), 'Min 1 valid occurrence(s) required');
         let contentBrowsePanel = new ContentBrowsePanel();
         // 6. Go to Browse Panel
         await studioUtils.doSwitchToContentBrowsePanel();
-        // 7. Verify that the template is invalid in the grid:
-        let isDisplayed = await contentBrowsePanel.isRedIconDisplayed(TEMPLATE_NAME);
         await studioUtils.saveScreenshot('template_support_is_not_selected');
-        assert.ok(isDisplayed, 'red icon should be present near the content!');
+        // 7. Verify that the template is invalid in the grid:
+        await contentBrowsePanel.waitForRedIconDisplayed(TEMPLATE_NAME);
     });
 
     it('GIVEN the page-template is opened WHEN the previous version has been reverted THEN expected support option should be selected', async () => {

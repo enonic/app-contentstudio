@@ -1,6 +1,5 @@
 const Page = require('../../page');
-const lib = require('../../../libs/elements-old');
-const {BUTTONS} = require('../../../libs/elements');
+const { BUTTONS } = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 
 const XPATH = {
@@ -10,7 +9,6 @@ const XPATH = {
 };
 
 class InsertAnchorModalDialog extends Page {
-
     get closeButton() {
         return XPATH.container + BUTTONS.buttonAriaLabel('Close');
     }
@@ -25,7 +23,7 @@ class InsertAnchorModalDialog extends Page {
 
     async typeInTextInput(text) {
         try {
-            return await this.typeTextInInput(this.textInput, text)
+            return await this.typeTextInInput(this.textInput, text);
         } catch (err) {
             await this.handleError(`Insert Anchor Dialog`, 'err_insert_anchor_text_input', err);
         }
@@ -82,4 +80,3 @@ class InsertAnchorModalDialog extends Page {
 }
 
 module.exports = InsertAnchorModalDialog;
-

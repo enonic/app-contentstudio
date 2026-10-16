@@ -3,9 +3,7 @@
  */
 const BaseVersionsWidget = require('../../details_panel/base.versions.widget');
 
-
 class WizardVersionsWidget extends BaseVersionsWidget {
-
     constructor() {
         super();
         this._parentElement = "//div[contains(@id,'ContentWizardPanel')]";
