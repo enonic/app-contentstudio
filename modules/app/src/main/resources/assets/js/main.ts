@@ -585,8 +585,9 @@ async function startContentBrowser() {
     initProjects();
     void initLanguages();
     initPrincipals();
-    Messages.addMessages(JSON.parse(CONFIG.getString('phrasesAsJson')) as object);
-    setPhrases(JSON.parse(CONFIG.getString('phrasesAsJson')) as Phrases);
+    const phrases: Phrases = JSON.parse(CONFIG.getString('phrasesAsJson'));
+    Messages.addMessages(phrases);
+    setPhrases(phrases);
     AuthContext.init(
         Principal.fromJson(CONFIG.get('user') as PrincipalJson),
         (CONFIG.get('principals') as PrincipalJson[]).map(Principal.fromJson),

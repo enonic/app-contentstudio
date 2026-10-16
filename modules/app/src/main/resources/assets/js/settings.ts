@@ -36,7 +36,8 @@ const appendHtml = (widgetElem: Element): void => {
 const init = async (configScriptId: string, elemId: string): Promise<void> => {
     CONFIG.setConfig(JSON.parse(document.getElementById(configScriptId).innerText) as ConfigObject);
     initConfig(configScriptId);
-    setPhrases(JSON.parse(CONFIG.getString('phrasesAsJson')) as Phrases);
+    const phrases: Phrases = JSON.parse(CONFIG.getString('phrasesAsJson'));
+    setPhrases(phrases);
     initProjects();
     void initLanguages();
     initPrincipals();

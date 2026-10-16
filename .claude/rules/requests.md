@@ -13,9 +13,9 @@ the server any other way.
 
 ```typescript
 // v6/entities/content/api/publish.api.ts
+import type { AppError } from '@enonic/ui-utils';
+import { requestJson } from '@enonic/ui-utils/request';
 import { ResultAsync } from 'neverthrow';
-import { requestJson } from '../../../shared/api/client';
-import { AppError } from '../../../shared/api/errors';
 import { getCmsApiUrl } from '../../../shared/lib/url/cms';
 
 export function publishContent(req: PublishRequest): ResultAsync<TaskId, AppError> {
@@ -26,8 +26,10 @@ export function publishContent(req: PublishRequest): ResultAsync<TaskId, AppErro
 }
 ```
 
-- `requestJson<T>()` / `requestOptionalJson<T>()` from `v6/shared/api/client` are the
-  only entry points. Both return `ResultAsync<T, AppError>`.
+- `requestJson<T>()` / `requestOptionalJson<T>()` from `@enonic/ui-utils/request` are the
+  only entry points. Both return `ResultAsync<T, AppError>`; an error status is a
+  `RequestError` with `status`, an abort a `RequestAbortedError`, both `AppError`
+  subclasses from `@enonic/ui-utils`. `v6/shared/api/client` keeps only `requestHead`.
 - `requestOptionalJson` for endpoints where 204 / null is a valid "nothing" answer.
 - Parse JSON → domain with `.map(...)`; never expose raw `*Json` shapes past the `api/`.
 
