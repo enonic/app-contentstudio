@@ -43,7 +43,7 @@ importers:
         version: 0.5.2(neverthrow@8.2.0)
       '@nanostores/preact':
         specifier: ^1.0.0
-        version: 1.1.0(nanostores@1.5.3)(preact@10.29.8)
+        version: 1.1.0(nanostores@1.5.5)(preact@10.29.8)
       ckeditor4-react:
         specifier: 5.2.1
         version: 5.2.1(ckeditor4@4.25.1)(react@19.2.4)
@@ -90,8 +90,8 @@ importers:
         specifier: ~6.0.2
         version: 6.0.2
       nanostores:
-        specifier: ^1.5.3
-        version: 1.5.3
+        specifier: ^1.5.5
+        version: 1.5.5
       neverthrow:
         specifier: ^8.2.0
         version: 8.2.0
@@ -2542,8 +2542,8 @@ packages:
     engines: {node: ^22 || ^24 || >=26}
     hasBin: true
 
-  nanostores@1.5.3:
-    resolution: {integrity: sha512-rQLB6eV4f2AW/n3L0JmwCROpaisYy9EDEADvEFSd1C/qG8hB6O5TPlh9A791JRbJr4CnMQBzptDcvD9OR1+6WA==}
+  nanostores@1.5.5:
+    resolution: {integrity: sha512-FixtE239Gl6Gz0ZGCK0WzvNwObNCIwVT+L7zQcf1QgcA6AzBxblzqe9OT88qiucNkhsjSOqiogSaF5jVbJiqSA==}
     engines: {node: ^20.0.0 || >=22.0.0}
 
   needle@3.5.0:
@@ -3290,7 +3290,7 @@ snapshots:
 
   '@enonic/page-editor@2.0.2':
     dependencies:
-      nanostores: 1.5.3
+      nanostores: 1.5.5
 
   '@enonic/ui-types@0.5.2': {}
 
@@ -3417,9 +3417,9 @@ snapshots:
 
   '@keyv/serialize@1.1.1': {}
 
-  '@nanostores/preact@1.1.0(nanostores@1.5.3)(preact@10.29.8)':
+  '@nanostores/preact@1.1.0(nanostores@1.5.5)(preact@10.29.8)':
     dependencies:
-      nanostores: 1.5.3
+      nanostores: 1.5.5
       preact: 10.29.8
 
   '@napi-rs/nice-android-arm-eabi@1.1.1':
@@ -5098,7 +5098,7 @@ snapshots:
 
   nanoid@6.0.2: {}
 
-  nanostores@1.5.3: {}
+  nanostores@1.5.5: {}
 
   needle@3.5.0:
     dependencies:
