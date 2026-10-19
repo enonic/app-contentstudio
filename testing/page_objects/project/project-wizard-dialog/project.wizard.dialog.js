@@ -2,18 +2,17 @@
  * Created on 05.08.2022
  */
 const Page = require('../../page');
-const {BUTTONS} = require('../../../libs/elements');
+const { BUTTONS } = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 
 const XPATH = {
     title: "//h6[@class='xp-admin-common-main-name']",
-    stepDescription: "//header//p[2]",
+    stepDescription: '//header//p[2]',
     buttonRow: "//div[contains(@class,'button-container')]",
-    copyFromParentButton: parent => `//button[@data-component='InlineButton' and text()='Copy from ${parent}']`,
+    copyFromParentButton: (parent) => `//button[@data-component='InlineButton' and text()='Copy from ${parent}']`,
 };
 
 class ProjectWizardDialog extends Page {
-
     get container() {
         throw new Error(`${this.constructor.name}: override getter 'container' in subclass`);
     }
@@ -30,10 +29,9 @@ class ProjectWizardDialog extends Page {
         return this.container + BUTTONS.buttonByLabel('Previous');
     }
 
-
     async waitForCopyFromParentButtonNotDisplayed(parent) {
         try {
-            let locator = this.container + XPATH.copyFromParentButton(parent)
+            let locator = this.container + XPATH.copyFromParentButton(parent);
             return await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_copy_from_parent_button');
@@ -43,7 +41,7 @@ class ProjectWizardDialog extends Page {
 
     async waitForCopyFromParentButtonDisplayed(parent) {
         try {
-            let locator = this.container + XPATH.copyFromParentButton(parent)
+            let locator = this.container + XPATH.copyFromParentButton(parent);
             return await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_copy_from_parent_button');
@@ -56,8 +54,11 @@ class ProjectWizardDialog extends Page {
             let locator = this.container + XPATH.copyFromParentButton(parent);
             await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
             let elements = await this.getDisplayedElements(locator);
-            await elements[0].waitForEnabled(
-                {timeout: appConst.mediumTimeout, reverse: true, timeoutMsg: 'Copy button should be disabled!'});
+            await elements[0].waitForEnabled({
+                timeout: appConst.mediumTimeout,
+                reverse: true,
+                timeoutMsg: 'Copy button should be disabled!',
+            });
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_copy_from_parent_button');
             throw new Error(`Copy from parent button is not disabled, screenshot: ${screenshot} ` + err);
@@ -69,8 +70,10 @@ class ProjectWizardDialog extends Page {
             let locator = this.container + XPATH.copyFromParentButton(parent);
             await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
             let elements = await this.getDisplayedElements(locator);
-            await elements[0].waitForEnabled(
-                {timeout: appConst.mediumTimeout, timeoutMsg: 'Copy button should be enabled!'});
+            await elements[0].waitForEnabled({
+                timeout: appConst.mediumTimeout,
+                timeoutMsg: 'Copy button should be enabled!',
+            });
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_copy_from_parent_button');
             throw new Error(`Copy from parent button is not enabled, screenshot: ${screenshot} ` + err);
@@ -124,7 +127,7 @@ class ProjectWizardDialog extends Page {
             await this.clickOnElement(this.nextButton);
             return await this.pause(300);
         } catch (err) {
-            throw new Error("Project Wizard - Error occurred during clicking on Next button: " + err);
+            throw new Error('Project Wizard - Error occurred during clicking on Next button: ' + err);
         }
     }
 
@@ -149,7 +152,7 @@ class ProjectWizardDialog extends Page {
         try {
             return await this.waitForElementNotDisplayed(this.container, appConst.saveProjectTimeout);
         } catch (err) {
-           await this.handleError('Project Wizard dialog was not closed', 'err_dialog_not_closed', err);
+            await this.handleError('Project Wizard dialog was not closed', 'err_dialog_not_closed', err);
         }
     }
 
