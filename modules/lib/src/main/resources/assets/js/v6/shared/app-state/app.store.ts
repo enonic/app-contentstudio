@@ -157,42 +157,32 @@ function applyTheme(theme: Theme): void {
 }
 
 //
-// * Internal Subscriptions
+// * Document Binding
 //
 
-// Apply and listen for system theme changes to apply it to the document root
-$app.subscribe((state) => {
-    applyTheme(state.theme);
-});
+/**
+ * Applies the theme to the document and keeps it in sync with other tabs and the OS. Called once
+ * by the application entry: a widget bundle that carries its own copy of this store must not bind.
+ */
+export function initTheme(): void {
+    if (typeof window === 'undefined') return;
 
-// Sync theme changes from other tabs
-if (typeof window !== 'undefined') {
+    $app.subscribe((state) => {
+        applyTheme(state.theme);
+    });
+
     window.addEventListener('storage', (e: StorageEvent) => {
         if (e.key === THEME_STORAGE_KEY && isTheme(e.newValue)) {
             $app.setKey('theme', e.newValue);
         }
     });
-}
 
-// Watch for system theme changes when in system mode
-if (typeof window !== 'undefined') {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
-    const handleSystemThemeChange = (): void => {
-        const currentTheme = $app.get().theme;
-        if (currentTheme === 'system') {
+    mediaQuery.addEventListener('change', () => {
+        if ($app.get().theme === 'system') {
             applyTheme('system');
         }
-    };
-
-    // Modern API
-    if (mediaQuery.addEventListener) {
-        mediaQuery.addEventListener('change', handleSystemThemeChange);
-    }
-    // Fallback for older browsers
-    else if (mediaQuery.addListener) {
-        mediaQuery.addListener(handleSystemThemeChange);
-    }
+    });
 }
 
 //
