@@ -20,10 +20,23 @@ const CONTEXT_MIN_WIDTH = LayoutTokens.contextPanel.minWidth;
 const FORM_MIN_WIDTH = 360;
 const LIVE_MIN_WIDTH = 360;
 const MINIMIZED_RAIL_WIDTH = '60px';
-const FORM_DEFAULT_SIZE = '38%';
+const FORM_DEFAULT_PERCENT = 38;
+const FORM_DEFAULT_SIZE = `${FORM_DEFAULT_PERCENT}%`;
+const LIVE_DEFAULT_PERCENT = 100 - FORM_DEFAULT_PERCENT;
 const DOCKED_PERCENT = LayoutTokens.contextPanel.dockedWidthPercent;
 const FLOATING_EDITOR_PERCENT = LayoutTokens.contextPanel.floatingWidthPercent.wizardWithEditor;
 const RESIZE_NOTIFY_DELAY_MS = 200;
+
+// The live panel stays mounted when hidden, so the set is built from visibility.
+const PANEL_IDS_FORM = ['form'];
+const PANEL_IDS_FORM_CONTEXT = ['form', 'context'];
+const PANEL_IDS_FORM_LIVE = ['form', 'live'];
+const PANEL_IDS_FORM_LIVE_CONTEXT = ['form', 'live', 'context'];
+
+const getPanelIds = (withLive: boolean, withContext: boolean): string[] => {
+    if (withLive) return withContext ? PANEL_IDS_FORM_LIVE_CONTEXT : PANEL_IDS_FORM_LIVE;
+    return withContext ? PANEL_IDS_FORM_CONTEXT : PANEL_IDS_FORM;
+};
 
 export type WizardLayoutProps = {
     // Owned by ContentWizardPanel; the layout only places them.
@@ -124,14 +137,20 @@ export const WizardLayout = ({ formPanel, livePanel, contextPanel, onResized }: 
                 totalWidth: totalWidthRef.current,
                 formMinWidth: FORM_MIN_WIDTH,
                 liveMinWidth: LIVE_MIN_WIDTH,
+                contextMinWidth: CONTEXT_MIN_WIDTH,
+                liveDefaultPercent: LIVE_DEFAULT_PERCENT,
+                contextDefaultPercent: dockedPercent,
+                liveShown: !liveCollapsed,
                 formCollapsed,
             }),
-        [formCollapsed],
+        [dockedPercent, formCollapsed, liveCollapsed],
     );
 
     const showDockedContext = isContextOpen && mode === 'docked';
     const showFloatingContext = isContextOpen && mode === 'floating';
     const showMobileContext = isContextOpen && isMobile;
+
+    const panelIds = getPanelIds(!liveCollapsed, showDockedContext);
 
     // The host wrapper panel is offset below the toolbar; the layout fills it.
     return (
@@ -143,6 +162,7 @@ export const WizardLayout = ({ formPanel, livePanel, contextPanel, onResized }: 
             <SplitView
                 orientation="horizontal"
                 storageId="wizard-layout"
+                panelIds={panelIds}
                 resolveLayoutOnPanelsChange={handleResolveLayout}
                 className="size-full"
             >

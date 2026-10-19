@@ -4,31 +4,47 @@ export type ResolveWizardPanelLayoutOptions = {
     totalWidth: number;
     formMinWidth: number;
     liveMinWidth: number;
+    contextMinWidth: number;
+    liveDefaultPercent: number;
+    contextDefaultPercent: number;
+    liveShown: boolean;
     formCollapsed: boolean;
 };
 
+// Lays out a new panel set at its defaults: a context that docks or a live view
+// that opens or closes comes out of the form, a live view that stays open keeps
+// its width, and a docked context takes the default width of the new mode.
 export function resolveWizardPanelLayout(
     previous: Layout,
     next: Layout,
-    { totalWidth, formMinWidth, liveMinWidth, formCollapsed }: ResolveWizardPanelLayoutOptions,
+    {
+        totalWidth,
+        formMinWidth,
+        liveMinWidth,
+        contextMinWidth,
+        liveDefaultPercent,
+        contextDefaultPercent,
+        liveShown,
+        formCollapsed,
+    }: ResolveWizardPanelLayoutOptions,
 ): Layout | undefined {
+    if (formCollapsed || totalWidth <= 0) return undefined;
+    if (previous.form == null || previous.live == null || next.form == null || next.live == null) return undefined;
+
     const hadContext = previous.context != null;
     const hasContext = next.context != null;
-    if (hadContext === hasContext || formCollapsed || totalWidth <= 0) return undefined;
-    if (previous.form == null || previous.live == null || next.form == null || next.live == null) return undefined;
-    if (previous.live <= 0) return undefined;
+    const hadLive = previous.live > 0;
+    const hasLive = liveShown;
+    if (hadContext === hasContext && hadLive === hasLive) return undefined;
 
     const toPercent = (px: number): number => (px / totalWidth) * 100;
-    const live = previous.live;
+    const context = hasContext ? Math.max(contextDefaultPercent, toPercent(contextMinWidth)) : 0;
+    const liveTarget = hasLive ? (hadLive ? previous.live : liveDefaultPercent) : 0;
+    const form = Math.max(toPercent(formMinWidth), 100 - liveTarget - context);
+    const live = 100 - form - context;
+    if (hasLive && live < toPercent(liveMinWidth)) return undefined;
 
-    if (!hasContext) {
-        return { form: previous.form + previous.context, live };
-    }
-
-    const context = next.context;
-    const form = Math.max(toPercent(formMinWidth), 100 - live - context);
-    const squeezedLive = 100 - form - context;
-    if (squeezedLive < live && squeezedLive < toPercent(liveMinWidth)) return undefined;
-
-    return { form, live: squeezedLive, context };
+    const layout: Layout = { form, live };
+    if (hasContext) layout.context = context;
+    return layout;
 }
