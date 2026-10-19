@@ -59,6 +59,7 @@ import { ContentWizardPanelParams } from '@enonic/lib-contentstudio/app/wizard/C
 import { AppElement } from '@enonic/lib-contentstudio/v6/app/App';
 import { initAiHost } from '@enonic/lib-contentstudio/v6/features/ai';
 import { $isBrowseSidebarOpen } from '@enonic/lib-contentstudio/v6/pages/browse/model/browseSidebar.store';
+import { initTheme } from '@enonic/lib-contentstudio/v6/shared/app-state/app.store';
 import { initConfig } from '@enonic/lib-contentstudio/v6/shared/config/config.store';
 import { initLanguages } from '@enonic/lib-contentstudio/v6/entities/language/languages.store';
 import { initPrincipals } from '@enonic/lib-contentstudio/v6/entities/principal/principals.store';
@@ -587,6 +588,7 @@ async function startContentBrowser() {
 
     CONFIG.setConfig(JSON.parse(document.getElementById(configScriptId).innerText) as ConfigObject);
     initConfig(configScriptId);
+    initTheme();
     initProjects();
     void initLanguages();
     initPrincipals();

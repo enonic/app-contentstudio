@@ -75,6 +75,12 @@ vi.mock('../../widgets/context-panel/model/sidebarWidgets.store', () => ({
     $activeWidget: { get: () => mocks.activeWidget },
     isContentBrowseWidget: (widget: typeof mocks.activeWidget) =>
         widget?.getDescriptorKey().toString().endsWith('studio:main') ?? false,
+    isSettingsWidget: (widget: typeof mocks.activeWidget) =>
+        widget?.getDescriptorKey().toString().endsWith('studio:settings') ?? false,
+}));
+
+vi.mock('../../features/shared/ThemeSwitcher', () => ({
+    ThemeSwitcher: () => null,
 }));
 
 vi.mock('../../shared/ui/LegacyElement', () => ({
