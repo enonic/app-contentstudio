@@ -1,5 +1,5 @@
-import {type InWorkerMessage, type OutWorkerMessage} from '../data/worker';
-import {importScript} from './scripts';
+import { type InWorkerMessage, type OutWorkerMessage } from '../data/worker';
+import { importScript } from './scripts';
 
 export class SharedSocketProxy {
     private static readonly NS = 'shared-socket';
@@ -21,7 +21,7 @@ export class SharedSocketProxy {
 
         if (typeof SharedWorker !== 'undefined') {
             try {
-                this.worker = new SharedWorker(this.url, {type: 'module', name: 'shared-socket-worker'});
+                this.worker = new SharedWorker(this.url, { type: 'module', name: 'shared-socket-worker-v2' });
                 this.isReady = true;
                 this.initSharedWorkerListeners();
             } catch (err) {
@@ -36,7 +36,7 @@ export class SharedSocketProxy {
     }
 
     private static dispatchEvent(type: `${typeof SharedSocketProxy.NS}:${string}`, detail?: unknown): void {
-        window.dispatchEvent(new CustomEvent(type, {detail}));
+        window.dispatchEvent(new CustomEvent(type, { detail }));
     }
 
     private async initFallback(): Promise<void> {
@@ -64,7 +64,7 @@ export class SharedSocketProxy {
 
         this.worker.onerror = (event) => {
             console.error('[Shared Socket Proxy] SharedWorker global error:', event);
-            this.messageListener?.({type: 'disconnected'});
+            this.messageListener?.({ type: 'disconnected' });
         };
 
         this.worker.port.onmessageerror = (event) => {
@@ -84,7 +84,7 @@ export class SharedSocketProxy {
         };
 
         const windowErrorListener = () => {
-            this.messageListener?.({type: 'disconnected'});
+            this.messageListener?.({ type: 'disconnected' });
         };
 
         window.addEventListener(`${SharedSocketProxy.NS}:message:out`, windowMessageListener);
@@ -126,7 +126,6 @@ export class SharedSocketProxy {
             SharedSocketProxy.dispatchEvent(`${SharedSocketProxy.NS}:open`);
         }
     }
-
 
     close(): void {
         if (!this.isReady) {

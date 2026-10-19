@@ -9,7 +9,8 @@ import { Body } from '@enonic/lib-admin-ui/dom/Body';
 import { ImgEl } from '@enonic/lib-admin-ui/dom/ImgEl';
 import { WindowDOM } from '@enonic/lib-admin-ui/dom/WindowDOM';
 import { NamePrettyfier } from '@enonic/lib-admin-ui/NamePrettyfier';
-import { showError, showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { showError } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { Message } from '@enonic/lib-admin-ui/notify/Message';
 import { NotifyManager } from '@enonic/lib-admin-ui/notify/NotifyManager';
 import { PropertyChangedEvent } from '@enonic/lib-admin-ui/PropertyChangedEvent';
 import { Path } from '@enonic/lib-admin-ui/rest/Path';
@@ -17,7 +18,6 @@ import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentType
 import { Principal } from '@enonic/lib-admin-ui/security/Principal';
 import { PrincipalJson } from '@enonic/lib-admin-ui/security/PrincipalJson';
 import { Store } from '@enonic/lib-admin-ui/store/Store';
-import { ConnectionDetector } from '@enonic/lib-admin-ui/system/ConnectionDetector';
 import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
 import { CONFIG, ConfigObject } from '@enonic/lib-admin-ui/util/Config';
 import { CustomElement } from '@enonic/lib-admin-ui/dom/CustomElement';
@@ -50,7 +50,7 @@ import { GetContentByPathRequest } from '@enonic/lib-contentstudio/app/resource/
 import { GetContentTypeByNameRequest } from '@enonic/lib-contentstudio/app/resource/GetContentTypeByNameRequest';
 import { Router } from '@enonic/lib-contentstudio/app/Router';
 import { SettingsServerEventsListener } from '@enonic/lib-contentstudio/app/settings/event/SettingsServerEventsListener';
-import { $isDown, subscribe as subscribeToWorker } from '@enonic/lib-contentstudio/app/stores/worker';
+import { $isDown, $isSessionEnded, subscribe as subscribeToWorker } from '@enonic/lib-contentstudio/app/stores/worker';
 import { UrlAction } from '@enonic/lib-contentstudio/app/UrlAction';
 import { UrlHelper } from '@enonic/lib-contentstudio/app/util/UrlHelper';
 import { VersionHelper } from '@enonic/lib-contentstudio/app/util/VersionHelper';
@@ -92,44 +92,50 @@ function processApplicationPath(): Path {
     return Router.getPath();
 }
 
-function startLostConnectionDetector(): ConnectionDetector {
-    let readonlyMessageId: string;
+function showErrorWithRefresh(text: string): string {
+    const message = Message.newError(text, false);
+    message.addAction(i18n('action.refresh'), () => window.location.reload());
+    return NotifyManager.get().notify(message);
+}
 
-    const connectionDetector = ConnectionDetector.get(CONFIG.getString('statusApiUrl'))
-        .setAuthenticated(true)
-        .setSessionExpireRedirectUrl(CONFIG.getString('toolUri'))
-        .setNotificationMessage(i18n('notify.connection.loss'));
-
-    connectionDetector.onReadonlyStatusChanged((readonly: boolean) => {
-        if (readonly && !readonlyMessageId) {
-            readonlyMessageId = showWarning(i18n('notify.repo.readonly'), false);
-        } else if (readonlyMessageId) {
-            NotifyManager.get().hide(readonlyMessageId);
-            readonlyMessageId = null;
-        }
-    });
-
-    let wsConnectionErrorId: string;
+function startConnectionNotifier(): void {
+    let messageId: string;
     let timeoutId: number;
-    $isDown.subscribe((isDown) => {
+    let isSessionExpiredShown = false;
+
+    const hideMessage = () => {
+        if (messageId) {
+            NotifyManager.get().hide(messageId);
+            messageId = null;
+        }
+        isSessionExpiredShown = false;
+    };
+
+    const update = () => {
         clearTimeout(timeoutId);
 
-        if (isDown && connectionDetector.isConnected()) {
-            timeoutId = window.setTimeout(() => {
-                wsConnectionErrorId = showError(i18n('notify.websockets.error'), false);
-            }, 1000);
+        const isSessionEnded = $isSessionEnded.get();
+        if (isSessionEnded && isSessionExpiredShown && NotifyManager.get().getNotification(messageId) != null) {
             return;
         }
 
-        if (wsConnectionErrorId) {
-            NotifyManager.get().hide(wsConnectionErrorId);
-            wsConnectionErrorId = null;
+        hideMessage();
+
+        if (isSessionEnded) {
+            messageId = showErrorWithRefresh(i18n('notify.session.expired'));
+            isSessionExpiredShown = true;
+            return;
         }
-    });
 
-    connectionDetector.startPolling(true);
+        if ($isDown.get()) {
+            timeoutId = window.setTimeout(() => {
+                messageId = showErrorWithRefresh(i18n('notify.websockets.error'));
+            }, 1000);
+        }
+    };
 
-    return connectionDetector;
+    $isSessionEnded.subscribe(update);
+    $isDown.subscribe(update);
 }
 
 function initApplicationEventListener() {
@@ -287,7 +293,6 @@ function startServerEventListeners(application: Application) {
     new SettingsServerEventsListener(application);
 }
 
-let connectionDetector: ConnectionDetector;
 let contentViewStarted = false;
 
 function isProjectsResolved(): boolean {
@@ -304,7 +309,7 @@ async function startApplication() {
     initAiHost();
 
     const application: Application = getApplication();
-    connectionDetector = startLostConnectionDetector();
+    startConnectionNotifier();
     Store.instance().set('application', application);
 
     startServerEventListeners(application);
@@ -457,7 +462,7 @@ async function startContentWizard() {
     });
 
     WindowDOM.get().onBeforeUnload((event: UIEvent) => {
-        if (wizard.isContentDeleted() || !connectionDetector?.isConnected() || !connectionDetector?.isAuthenticated()) {
+        if (wizard.isContentDeleted()) {
             return;
         }
         if (wizard.hasUnsavedChanges() && !wizard.isReadOnly()) {

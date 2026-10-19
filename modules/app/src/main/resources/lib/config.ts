@@ -106,9 +106,6 @@ export function getConfig(locales: string[], aiEnabled: boolean, browseMode: boo
         extensionApiUrl: apiUrl({
             api: 'admin:extension',
         }),
-        statusApiUrl: apiUrl({
-            api: 'admin:status',
-        }),
         phrasesAsJson: JSON.stringify(geti18nPhrases(locales)),
         sharedSocketUrl: assetUrl({
             path: 'shared-socket.js',
