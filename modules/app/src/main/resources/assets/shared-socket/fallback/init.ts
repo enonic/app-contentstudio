@@ -1,6 +1,6 @@
 import { randomId } from '@enonic/lib-contentstudio/v6/shared/lib/crypto/id';
 import { WebSocketMessage } from '../websocket/data';
-import { $isConnected, connect as connectWebSocket, sendMessage } from '../websocket/init';
+import { $status, connect as connectWebSocket, sendMessage } from '../websocket/init';
 import { isInWorkerMessage, isMessageWithMetadata, OutWorkerMessage } from '../worker/data';
 import { subscribe, unsubscribe } from '../worker/subscriptions';
 import { NS } from './constants';
@@ -11,15 +11,15 @@ export function initialize(): void {
     window.addEventListener(`${NS}:open`, handleOpen);
     window.addEventListener(`${NS}:close`, handleClose);
 
-    $isConnected.subscribe((connected) => {
-        send({ type: 'status', payload: { ready: connected } });
+    $status.subscribe((status) => {
+        send({ type: 'status', payload: status });
     });
 }
 
 function handleOpen(): void {
     window.addEventListener(`${NS}:message:in`, handleMessage);
     send({ type: 'connected', payload: { clientId: CLIENT_ID } });
-    send({ type: 'status', payload: { ready: $isConnected.get() } });
+    send({ type: 'status', payload: $status.get() });
 }
 
 function handleClose(): void {

@@ -18,7 +18,6 @@ apis:
   - "styles"
   - "admin:events"
   - "admin:extension"
-  - "admin:status"
   - "com.enonic.app.contentstudio.plus:license"
   - "com.enonic.app.contentstudio.plus:layers"
   - "com.enonic.xp.app.main:events"
