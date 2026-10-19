@@ -76,6 +76,7 @@ export function connect(url: string, customHandler: (message: Record<string, unk
 
     const ws = new WebSocket(url, [WS_PROTOCOL]);
     $websocket.setKey('connection', ws);
+    let opened = false;
 
     $websocket.setKey('state', 'connecting');
     const connectionTimeout = setTimeout(() => {
@@ -85,6 +86,7 @@ export function connect(url: string, customHandler: (message: Record<string, unk
     }, CONNECTION_TIMEOUT);
 
     ws.onopen = () => {
+        opened = true;
         clearTimeout(connectionTimeout);
 
         $websocket.setKey('reconnectAttempts', 0);
@@ -111,6 +113,11 @@ export function connect(url: string, customHandler: (message: Record<string, unk
             return;
         }
 
+        if (!opened) {
+            probeSession(url);
+            return;
+        }
+
         scheduleReconnect(url);
     };
 
@@ -126,6 +133,25 @@ function disconnect(): void {
         connection.onerror = null;
         connection.close();
     }
+}
+
+function probeSession(url: string): void {
+    fetch(url.replace(/^ws/, 'http'), { cache: 'no-store', redirect: 'manual' })
+        .then((response) => {
+            if ($websocket.get().connection != null) {
+                return;
+            }
+            if (response.type === 'opaqueredirect' || response.status === 401 || response.status === 403) {
+                $websocket.setKey('sessionEnded', true);
+                return;
+            }
+            scheduleReconnect(url);
+        })
+        .catch(() => {
+            if ($websocket.get().connection == null) {
+                scheduleReconnect(url);
+            }
+        });
 }
 
 function scheduleReconnect(url: string): void {
