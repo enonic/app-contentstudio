@@ -9,62 +9,50 @@ type Props = {
     className?: string;
 };
 
-function getAriaLabel(currentTheme: Theme, i18n: typeof useI18n): string {
-    switch (currentTheme) {
-        case 'light':
-            return i18n('wcag.theme.switchToDark');
-        case 'dark':
-            return i18n('wcag.theme.switchToSystem');
-        case 'system':
-            return i18n('wcag.theme.switchToLight');
-    }
-}
+const ICON_CLASS = 'absolute transition-all duration-300';
+const SHOWN_CLASS = 'scale-100 rotate-0 opacity-100';
+const HIDDEN_CLASS = 'scale-0 -rotate-90 opacity-0';
 
-function getThemeTitle(currentTheme: Theme, i18n: typeof useI18n): string {
-    switch (currentTheme) {
-        case 'light':
-            return i18n('tooltip.theme.light');
-        case 'dark':
-            return i18n('tooltip.theme.dark');
-        case 'system':
-            return i18n('tooltip.theme.system');
-    }
-}
+const TITLE_KEYS: Record<Theme, string> = {
+    light: 'tooltip.theme.light',
+    dark: 'tooltip.theme.dark',
+    system: 'tooltip.theme.system',
+};
+
+const ACTION_KEYS: Record<Theme, string> = {
+    light: 'wcag.theme.switchToDark',
+    dark: 'wcag.theme.switchToSystem',
+    system: 'wcag.theme.switchToLight',
+};
 
 export const ThemeSwitcher = ({ className }: Props): ReactElement => {
     const { theme } = useStore($app);
 
+    const title = useI18n(TITLE_KEYS[theme]);
+    const action = useI18n(ACTION_KEYS[theme]);
+
     return (
-        <Tooltip delay={300} value={getThemeTitle(theme, useI18n)} asChild>
+        <Tooltip delay={300} value={title} asChild>
             <Button
                 size="sm"
                 variant="text"
                 onClick={cycleTheme}
-                aria-label={getAriaLabel(theme, useI18n)}
-                className={cn('relative size-9 rounded-full p-0', className)}
+                aria-label={action}
+                className={cn('relative size-9 rounded-sm p-0', className)}
             >
                 <Sun
-                    className={cn(
-                        'absolute transition-all duration-300',
-                        theme === 'light' ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-0',
-                    )}
-                    size={14}
+                    className={cn(ICON_CLASS, theme === 'light' ? SHOWN_CLASS : HIDDEN_CLASS)}
+                    size={16}
                     strokeWidth={1.5}
                 />
                 <Moon
-                    className={cn(
-                        'absolute transition-all duration-300',
-                        theme === 'dark' ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-0',
-                    )}
-                    size={14}
+                    className={cn(ICON_CLASS, theme === 'dark' ? SHOWN_CLASS : HIDDEN_CLASS)}
+                    size={16}
                     strokeWidth={1.5}
                 />
                 <SunMoon
-                    className={cn(
-                        'absolute transition-all duration-300',
-                        theme === 'system' ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-0',
-                    )}
-                    size={16}
+                    className={cn(ICON_CLASS, theme === 'system' ? SHOWN_CLASS : HIDDEN_CLASS)}
+                    size={18}
                     strokeWidth={1.5}
                 />
             </Button>

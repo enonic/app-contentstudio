@@ -15,9 +15,8 @@
     <script{{#nonce}} nonce="{{nonce}}"{{/nonce}}>
         try {
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const stored = localStorage.getItem('enonic:cs:app');
-            const storedTheme = JSON.parse(stored)?.theme;
-            const isDark = storedTheme === 'dark' || (storedTheme === 'system' && prefersDark) || (storedTheme === undefined && prefersDark);
+            const storedTheme = localStorage.getItem('enonic:theme');
+            const isDark = storedTheme === 'dark' || (storedTheme !== 'light' && prefersDark);
             document.documentElement.classList.toggle('dark', isDark);
             document.querySelector('meta[name="color-scheme"]').content = isDark ? 'dark' : 'light';
         } catch (e) {
