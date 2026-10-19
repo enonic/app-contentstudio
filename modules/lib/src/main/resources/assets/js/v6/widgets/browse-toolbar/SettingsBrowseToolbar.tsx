@@ -20,7 +20,7 @@ export const SettingsBrowseToolbar = ({ actions }: SettingsBrowseToolbarProps): 
         <Toolbar data-component={SETTINGS_BROWSE_TOOLBAR_NAME}>
             <Toolbar.Container
                 aria-label={ariaLabel}
-                className="bg-surface-neutral h-15 px-5 py-2 flex items-center gap-2 border-b border-bdr-soft"
+                className="bg-surface-neutral h-15 px-3.5 py-2 flex items-center gap-2 border-b border-bdr-soft"
             >
                 <ActionGroup>
                     {actions.map((action) => (
