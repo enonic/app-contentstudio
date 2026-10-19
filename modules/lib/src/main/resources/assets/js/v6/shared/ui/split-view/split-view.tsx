@@ -1,11 +1,10 @@
 import { cn } from '@enonic/ui';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { createContext, forwardRef, useCallback, useContext, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { createContext, forwardRef, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import {
     Group,
     Panel as GroupPanel,
     Separator,
-    useDefaultLayout,
     type GroupImperativeHandle,
     type GroupProps,
     type Layout,
@@ -42,13 +41,45 @@ const haveSamePanels = (a: Layout, b: Layout): boolean => {
     return aKeys.length === Object.keys(b).length && aKeys.every((key) => key in b);
 };
 
+const haveSameIds = (a: string[] | undefined, b: string[] | undefined): boolean =>
+    a === b || (a != null && b != null && a.length === b.length && a.every((id, index) => id === b[index]));
+
+const toStorageKey = (storageId: string, panelIds: string[] | undefined): string =>
+    ['react-resizable-panels', storageId, ...(panelIds ?? [])].join(':');
+
+const readStoredLayout = (key: string | undefined): Layout | undefined => {
+    if (key == null) return undefined;
+    try {
+        const parsed: unknown = JSON.parse(localStorage.getItem(key) ?? 'null');
+        if (parsed == null || typeof parsed !== 'object') return undefined;
+        const layout: Layout = {};
+        for (const [id, size] of Object.entries(parsed)) {
+            if (typeof size !== 'number') return undefined;
+            layout[id] = size;
+        }
+        return layout;
+    } catch {
+        return undefined;
+    }
+};
+
+const writeStoredLayout = (key: string, layout: Layout): void => {
+    try {
+        localStorage.setItem(key, JSON.stringify(layout));
+    } catch (error) {
+        console.error(error);
+    }
+};
+
 export type SplitViewRootProps = {
     // Persists the layout to localStorage under this id; omit to disable persistence.
     storageId?: string;
-    // Ids of the panels rendered right now, in group order. Each distinct set is
-    // persisted separately, so toggling a panel does not clobber the others' layout.
+    // Ids of the panels the user sees right now, in group order: mounted and not
+    // collapsed. Each distinct set keeps its own persisted layout, and a change of
+    // the set restores that layout or, when there is none, asks the resolver.
     // Must be referentially stable between renders.
     panelIds?: string[];
+    // Called when the set of panels changes and no layout is stored for the new set.
     resolveLayoutOnPanelsChange?: (previous: Layout, next: Layout) => Layout | undefined;
 } & Omit<GroupProps, 'defaultLayout' | 'onLayoutChange'>;
 
@@ -67,14 +98,20 @@ const SplitViewRoot = forwardRef<HTMLDivElement, SplitViewRootProps>(
         },
         ref,
     ) => {
-        const fallbackId = useId();
         const [isDragging, setIsDragging] = useState(false);
         const panelSyncs = useRef(new Set<PanelLayoutSync>());
         const groupHandleRef = useRef<GroupImperativeHandle | null>(null);
         const lastLayoutRef = useRef<Layout | undefined>(undefined);
+        const lastPanelIdsRef = useRef<string[] | undefined>(undefined);
         const resolvePendingRef = useRef(false);
         const resolveLayoutRef = useRef(resolveLayoutOnPanelsChange);
         resolveLayoutRef.current = resolveLayoutOnPanelsChange;
+        const panelIdsRef = useRef(panelIds);
+        panelIdsRef.current = panelIds;
+        const storageKey = storageId != null ? toStorageKey(storageId, panelIds) : undefined;
+        const storageKeyRef = useRef(storageKey);
+        storageKeyRef.current = storageKey;
+        const storedLayout = useMemo(() => readStoredLayout(storageKey), [storageKey]);
         useEffect(
             () => () => {
                 resolvePendingRef.current = false;
@@ -91,12 +128,6 @@ const SplitViewRoot = forwardRef<HTMLDivElement, SplitViewRootProps>(
             [groupRef],
         );
 
-        const { defaultLayout, onLayoutChanged: persistLayout } = useDefaultLayout({
-            id: storageId ?? fallbackId,
-            panelIds,
-            onlySaveAfterUserInteractions: true,
-        });
-
         const registerPanel = useCallback((sync: PanelLayoutSync) => {
             panelSyncs.current.add(sync);
             return () => panelSyncs.current.delete(sync);
@@ -106,10 +137,15 @@ const SplitViewRoot = forwardRef<HTMLDivElement, SplitViewRootProps>(
 
         const handleLayoutChanged: GroupProps['onLayoutChanged'] = (layout, meta) => {
             const previous = lastLayoutRef.current;
+            const previousIds = lastPanelIdsRef.current;
             lastLayoutRef.current = layout;
+            lastPanelIdsRef.current = panelIdsRef.current;
 
+            const panelsChanged =
+                previous != null &&
+                (!haveSamePanels(previous, layout) || !haveSameIds(previousIds, panelIdsRef.current));
             // ! Deferred out of the library's layout effect, but still before paint.
-            if (previous != null && !haveSamePanels(previous, layout) && !resolvePendingRef.current) {
+            if (panelsChanged && !resolvePendingRef.current) {
                 resolvePendingRef.current = true;
                 queueMicrotask(() => {
                     if (!resolvePendingRef.current) return;
@@ -117,13 +153,25 @@ const SplitViewRoot = forwardRef<HTMLDivElement, SplitViewRootProps>(
                     const handle = groupHandleRef.current;
                     if (handle == null) return;
                     const current = handle.getLayout();
-                    if (haveSamePanels(previous, current)) return;
-                    const resolved = resolveLayoutRef.current?.(previous, current);
-                    if (resolved != null) handle.setLayout(resolved);
+                    lastLayoutRef.current = current;
+                    if (haveSamePanels(previous, current) && haveSameIds(previousIds, panelIdsRef.current)) return;
+                    const stored = readStoredLayout(storageKeyRef.current);
+                    const resolved =
+                        stored != null && haveSamePanels(stored, current)
+                            ? stored
+                            : resolveLayoutRef.current?.(previous, current);
+                    if (resolved == null) return;
+                    handle.setLayout(resolved);
+                    // ! The library skips the report when the layout equals the last reported one,
+                    // so a controlled panel the applied layout collapsed is re-synced here.
+                    panelSyncs.current.forEach((sync) => sync(false));
+                    lastLayoutRef.current = handle.getLayout();
                 });
             }
 
-            if (storageId != null) persistLayout(layout, meta);
+            if (storageKey != null && meta.isUserInteraction) {
+                writeStoredLayout(storageKey, meta.requestedLayout ?? layout);
+            }
             onLayoutChanged?.(layout, meta);
             panelSyncs.current.forEach((sync) => sync(meta.isUserInteraction));
         };
@@ -166,7 +214,7 @@ const SplitViewRoot = forwardRef<HTMLDivElement, SplitViewRootProps>(
                     orientation={orientation}
                     elementRef={ref}
                     groupRef={composedGroupRef}
-                    defaultLayout={storageId != null ? defaultLayout : undefined}
+                    defaultLayout={storedLayout}
                     onLayoutChanged={handleLayoutChanged}
                     onPointerDownCapture={handlePointerDownCapture}
                     className={cn('relative', String.raw`[&[data-dragging]_iframe]:pointer-events-none`, className)}
