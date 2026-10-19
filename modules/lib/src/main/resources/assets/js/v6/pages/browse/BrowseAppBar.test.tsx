@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/preact';
-import type { ComponentPropsWithoutRef } from 'react';
+import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
@@ -30,7 +30,12 @@ vi.mock('@enonic/ui', () => {
         </button>
     );
 
-    return { Button: Control, Toggle: Control, cn: (...classes: unknown[]) => classes.filter(Boolean).join(' ') };
+    return {
+        Button: Control,
+        Toggle: Control,
+        I18nProvider: ({ children }: { children?: ReactNode }) => children,
+        cn: (...classes: unknown[]) => classes.filter(Boolean).join(' '),
+    };
 });
 
 vi.mock('@nanostores/preact', () => ({
@@ -57,6 +62,10 @@ vi.mock('../../shared/lib/hooks/useI18n', () => ({
     useI18n: (key: string) => key,
 }));
 
+vi.mock('../../shared/i18n', () => ({
+    translate: (_key: string, { defaultValue }: { defaultValue: string }) => defaultValue,
+}));
+
 vi.mock('../../entities/project', () => ({
     $activeProjectName: { get: () => 'My project' },
     $hasMultipleProjects: { get: () => mocks.hasMultipleProjects },
@@ -79,7 +88,7 @@ vi.mock('../../widgets/context-panel/model/sidebarWidgets.store', () => ({
         widget?.getDescriptorKey().toString().endsWith('studio:settings') ?? false,
 }));
 
-vi.mock('../../features/shared/ThemeSwitcher', () => ({
+vi.mock('@enonic/ui-kit', () => ({
     ThemeSwitcher: () => null,
 }));
 

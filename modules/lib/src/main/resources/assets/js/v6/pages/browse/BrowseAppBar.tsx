@@ -1,5 +1,6 @@
 import { Store } from '@enonic/lib-admin-ui/store/Store';
-import { Button, cn, Toggle } from '@enonic/ui';
+import { Button, cn, I18nProvider, Toggle } from '@enonic/ui';
+import { ThemeSwitcher } from '@enonic/ui-kit';
 import { useStore } from '@nanostores/preact';
 import { ArrowLeftRight, BellDotIcon, BellIcon, Menu, X } from 'lucide-react';
 import { computed } from 'nanostores';
@@ -7,6 +8,7 @@ import type { ReactElement } from 'react';
 import { ShowIssuesDialogEvent } from '../../../app/browse/ShowIssuesDialogEvent';
 import { useBreakpoints } from '../../shared/lib/hooks/useBreakpoints';
 import { useI18n } from '../../shared/lib/hooks/useI18n';
+import { translate } from '../../shared/i18n';
 import { $activeProjectName, $hasMultipleProjects, $noProjectMode } from '../../entities/project';
 import { setProjectSelectionDialogOpen } from '../../shared/dialogs/dialogs.store';
 import { $issuesStats } from '../../entities/issue';
@@ -17,7 +19,6 @@ import {
 } from '../../widgets/context-panel/model/sidebarWidgets.store';
 import type { IssueStatsJson } from '../../../app/issue/json/IssueStatsJson';
 import { LegacyElement } from '../../shared/ui/LegacyElement';
-import { ThemeSwitcher } from '../../features/shared/ThemeSwitcher';
 import { BROWSE_SIDEBAR_ID, BROWSE_SIDEBAR_TOGGLE_ID } from './browseSidebar.constants';
 import { $isBrowseSidebarOpen, setBrowseSidebarOpen } from './model/browseSidebar.store';
 
@@ -131,7 +132,11 @@ export const BrowseAppBar = (): ReactElement => {
                     />
                 )}
 
-                {isSettingsActive && <ThemeSwitcher className="shrink-0" />}
+                {isSettingsActive && (
+                    <I18nProvider translate={translate}>
+                        <ThemeSwitcher className="shrink-0" />
+                    </I18nProvider>
+                )}
             </div>
         </header>
     );

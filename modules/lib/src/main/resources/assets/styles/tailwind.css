@@ -7,6 +7,8 @@
 
 @import "@enonic/ui/preset.css";
 
+@import "@enonic/ui-kit/preset.css";
+
 @import "tw-animate-css";
 
 @import "tailwindcss/utilities.css" layer(utilities);
