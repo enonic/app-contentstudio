@@ -118,10 +118,6 @@ class ProjectWizardDialog extends Page {
 
     async clickOnNextButton() {
         try {
-            if (await this.isNotificationMessageDisplayed()) {
-                await this.removeNotificationMessage();
-            }
-            //await this.waitForNotificationMessage()
             await this.waitForNextButtonDisplayed();
             await this.waitForNextButtonEnabled();
             await this.pause(500);
