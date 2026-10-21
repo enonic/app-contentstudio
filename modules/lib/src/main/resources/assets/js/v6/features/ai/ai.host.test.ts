@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { okAsync } from 'neverthrow';
+import { errAsync, okAsync } from 'neverthrow';
 import type { Content } from '../../../app/content/Content';
 import type { Site } from '../../../app/content/Site';
 import type { Project } from '../../../app/settings/data/project/Project';
@@ -8,6 +8,7 @@ import type { AiPlugin, AiPluginContext, AiPluginInstance } from './ai-protocol'
 import {
     __resetAiHostForTest,
     getAiHost,
+    handleAssignedPluginsChange,
     handleDataActivePath,
     handleMediaUploaded,
     mountReadyPlugins,
@@ -202,6 +203,55 @@ describe('dialog open', () => {
     });
 });
 
+describe('assignment revoked', () => {
+    // Mounts a plugin that records every dialog:close command.
+    function mountCloseListener(): { closed: number[] } {
+        const closed: number[] = [];
+        getAiHost().register({
+            id: 'ai.contentOperator',
+            version: '1.0.0',
+            commands: ['dialog:close'],
+            mount: vi.fn((_c: HTMLElement, ctx: AiPluginContext) => {
+                ctx.api.on('dialog:close', () => closed.push(1));
+                return { dispose: vi.fn() };
+            }),
+        });
+        mountReadyPlugins();
+        return { closed };
+    }
+
+    beforeEach(() => {
+        __resetAiHostForTest();
+    });
+
+    it('closes an open dialog when the plugin app becomes unassigned', () => {
+        const { closed } = mountCloseListener();
+        $aiPluginDialogOpen.setKey('ai.contentOperator', true);
+
+        handleAssignedPluginsChange({ 'ai.translator': false, 'ai.contentOperator': false });
+
+        expect(closed).toHaveLength(1);
+    });
+
+    it('does not send dialog:close when the dialog is already closed', () => {
+        const { closed } = mountCloseListener();
+        $aiPluginDialogOpen.setKey('ai.contentOperator', false);
+
+        handleAssignedPluginsChange({ 'ai.translator': false, 'ai.contentOperator': false });
+
+        expect(closed).toEqual([]);
+    });
+
+    it('does not send dialog:close while the plugin app stays assigned', () => {
+        const { closed } = mountCloseListener();
+        $aiPluginDialogOpen.setKey('ai.contentOperator', true);
+
+        handleAssignedPluginsChange({ 'ai.translator': false, 'ai.contentOperator': true });
+
+        expect(closed).toEqual([]);
+    });
+});
+
 describe('image upload notification', () => {
     let projectConfigs: ReturnType<typeof fakeAppConfigs>;
 
@@ -325,6 +375,17 @@ describe('image upload notification', () => {
         const { received } = mountImageListener(['image:uploaded']);
         projectConfigs = fakeAppConfigs(OPERATOR_APP_KEY);
         setNearestSite(fakeSite('com.example.other'));
+
+        handleMediaUploaded(fakeUploadedContent('image-1', true));
+        await flush();
+
+        expect(received).toEqual([]);
+    });
+
+    it('does not notify when the nearest-site lookup fails', async () => {
+        const { received } = mountImageListener(['image:uploaded']);
+        projectConfigs = fakeAppConfigs(OPERATOR_APP_KEY);
+        fetchNearestSite.mockReturnValue(errAsync(new Error('lookup failed')));
 
         handleMediaUploaded(fakeUploadedContent('image-1', true));
         await flush();

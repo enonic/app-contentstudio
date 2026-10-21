@@ -200,7 +200,8 @@ export function notifyImageUploaded(contentId: string, project: string): void {
 // Uploads always target the active project; it travels with the command so the
 // plugin's backend can resolve the cms repo without a request-scoped context.
 // Only fires when the Content Operator app is added to the uploaded content's
-// nearest site, or to the project when the content is outside any site.
+// nearest site, or to the project when the content is outside any site. A failed
+// site lookup sends nothing, so an error can't be mistaken for "outside any site".
 export function handleMediaUploaded(content: Readonly<Content> | null): void {
     const type = content?.getType();
     if (type == null || !(type.isImage() || type.isVectorMedia())) {
@@ -212,15 +213,24 @@ export function handleMediaUploaded(content: Readonly<Content> | null): void {
         return;
     }
     const contentId = content.getContentId();
-    void fetchNearestSite(contentId)
-        .unwrapOr(undefined)
-        .then((site) => {
-            const configs = site ? site.getSiteConfigs() : project.getSiteConfigs();
-            if (!isAiPluginAssigned(configs, 'ai.contentOperator')) {
-                return;
-            }
-            notifyImageUploaded(contentId.toString(), projectName);
-        });
+    void fetchNearestSite(contentId).map((site) => {
+        const configs = site ? site.getSiteConfigs() : project.getSiteConfigs();
+        if (!isAiPluginAssigned(configs, 'ai.contentOperator')) {
+            return;
+        }
+        notifyImageUploaded(contentId.toString(), projectName);
+    });
+}
+
+// Closes a plugin's open dialog once its app is no longer assigned to the
+// current site/project, so a revoked plugin can't keep acting on the form.
+export function handleAssignedPluginsChange(assigned: Record<AiPluginId, boolean>): void {
+    const open = $aiPluginDialogOpen.get();
+    (Object.keys(assigned) as AiPluginId[]).forEach((id) => {
+        if (!assigned[id] && open[id]) {
+            closePluginDialog(id);
+        }
+    });
 }
 
 //
@@ -304,6 +314,7 @@ export function initAiHost(): void {
     $aiContentLanguage.subscribe(() => fanOutLanguage());
     $aiInstructions.subscribe(() => fanOutConfig());
     $mediaUploaded.subscribe((content) => handleMediaUploaded(content));
+    $aiAssignedPlugins.subscribe((assigned) => handleAssignedPluginsChange(assigned));
 
     getAiFieldRegistry('data').subscribeActivePath(handleDataActivePath);
 }
