@@ -7,7 +7,7 @@ import {
 } from './ai.store';
 
 // Read: stores
-export { $aiPluginDialogOpen, $aiReady, $aiRegisteredPlugins } from './ai.store';
+export { $aiAssignedPlugins, $aiPluginDialogOpen, $aiReady, $aiRegisteredPlugins } from './ai.store';
 
 // Write: signal commands
 export { clearAiTopicError } from './ai.commands';

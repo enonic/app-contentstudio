@@ -10,7 +10,13 @@ import { LayerIndicator } from '../../features/shared/icons/LayerIndicator';
 import { ProjectIcon } from '../../shared/ui/icons/ProjectIcon';
 import { StatusIcon } from '../../shared/ui/icons/StatusIcon';
 import { StatusBadge } from '../../features/shared/status/StatusBadge';
-import { $aiPluginDialogOpen, $aiRegisteredPlugins, closePluginDialog, openPluginDialog } from '../../features/ai';
+import {
+    $aiAssignedPlugins,
+    $aiPluginDialogOpen,
+    $aiRegisteredPlugins,
+    closePluginDialog,
+    openPluginDialog,
+} from '../../features/ai';
 import { setInspectSaveAction } from '../inspectors/model/inspect-panel.store';
 import { $wizardToolbar } from '../../pages/wizard/model/wizardToolbar.store';
 import { formatContentFullPath } from '../../shared/lib/cms/content/paths';
@@ -96,6 +102,9 @@ export const ContentWizardToolbar = ({
         ],
     });
     const { 'ai.contentOperator': isOperatorRegistered } = useStore($aiRegisteredPlugins, {
+        keys: ['ai.contentOperator'],
+    });
+    const { 'ai.contentOperator': isOperatorAssigned } = useStore($aiAssignedPlugins, {
         keys: ['ai.contentOperator'],
     });
     const { 'ai.contentOperator': isOperatorDialogOpen } = useStore($aiPluginDialogOpen, {
@@ -283,7 +292,7 @@ export const ContentWizardToolbar = ({
                     </div>
                 </div>
                 <div className="flex min-w-fit max-w-fit items-center justify-end gap-0 sm:min-w-fit sm:max-w-none sm:flex-1 sm:basis-0 sm:gap-0.5 md:gap-1 lg:gap-2.5">
-                    {isOperatorRegistered && (
+                    {isOperatorRegistered && isOperatorAssigned && (
                         <Tooltip delay={300} value={aiAssistantLabel}>
                             <Toolbar.Item asChild>
                                 <Toggle

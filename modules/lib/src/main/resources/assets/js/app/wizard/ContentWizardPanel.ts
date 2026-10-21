@@ -1840,8 +1840,9 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         return new ContentWizardStepsPanel(this.stepNavigator, this.formPanel);
     }
 
+    // Content inside a site uses the site's apps only; content outside any site uses the project's apps.
     private getApplicationsConfigs(): ApplicationConfig[] {
-        return [...(this.site?.getSiteConfigs() ?? []), ...getActiveProject().getSiteConfigs()];
+        return this.site ? this.site.getSiteConfigs() : getActiveProject().getSiteConfigs();
     }
 
     // Opens the AI Translator dialog via the `dialog:open` plugin command.
