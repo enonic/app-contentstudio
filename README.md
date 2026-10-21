@@ -27,6 +27,27 @@ Just copy the built JAR files to the `$XP_HOME/deploy` folder, or use the `deplo
 ./gradlew deploy
 ```
 
+## CSP extension contract
+
+When rendering the Content Studio main tool (browse or content wizard), Content Studio calls
+`/lib/xp/context.setCustomLocalAttribute('com.enonic.app.contentstudio.csp.enabled', enabled)`.
+The value is a **boolean**: `false` only when `app.config['contentSecurityPolicy.enabled'] === 'false'`,
+and `true` otherwise, including when the setting is absent.
+
+The flag is set before template rendering and before XP invokes the tool's extension response processors.
+Extensions can read it with
+`require('/lib/xp/context').get().attributes['custom.com.enonic.app.contentstudio.csp.enabled']`.
+Java processors can read the same prefixed key from `ContextAccessor.current().getLocalScope()`
+(as a `GenericValue`, using `asBoolean()`). XP adds the `custom.` prefix; callers must not add it when writing.
+An extension contributing CSP should skip that contribution when the value is explicitly `false`.
+
+This is an execution-local signal, not a session setting or response header. It is shared with nested
+context calls and the response processors for that tool request, but is not propagated to separate
+extension API requests, preview pages, or other tools. An absent value is not an explicit opt-out.
+It describes whether Content Studio applies its tool policy, not whether another component supplies CSP.
+Requires an XP version providing `setCustomLocalAttribute`.
+
+
 ## Building
 
 #### Default
