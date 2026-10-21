@@ -1,6 +1,7 @@
 const admin = require('/lib/xp/admin');
 const mustache = require('/lib/mustache');
 const portal = require('/lib/xp/portal');
+const context = require('/lib/xp/context');
 const i18n = require('/lib/xp/i18n');
 const aiLib = require('/lib/ai');
 const configLib = require('/lib/config');
@@ -20,7 +21,11 @@ exports.renderTemplate = function (params) {
 };
 
 function applySecurityPolicy(isBrowseMode) {
-    if (app.config['contentSecurityPolicy.enabled'] === 'false') {
+    const enabled = app.config['contentSecurityPolicy.enabled'] !== 'false';
+    // Shared with extension response processors, which XP invokes after this controller returns.
+    context.setCustomLocalAttribute('com.enonic.app.contentstudio.csp.enabled', enabled);
+
+    if (!enabled) {
         return undefined;
     }
 
