@@ -222,8 +222,6 @@ export function handleMediaUploaded(content: Readonly<Content> | null): void {
     });
 }
 
-// Closes a plugin's open dialog once its app is no longer assigned to the
-// current site/project, so a revoked plugin can't keep acting on the form.
 export function handleAssignedPluginsChange(assigned: Record<AiPluginId, boolean>): void {
     const open = $aiPluginDialogOpen.get();
     (Object.keys(assigned) as AiPluginId[]).forEach((id) => {

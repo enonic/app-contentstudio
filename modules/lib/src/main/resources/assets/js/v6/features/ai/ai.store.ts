@@ -66,9 +66,6 @@ export const $aiRegisteredPlugins = map<Record<AiPluginId, boolean>>({
     'ai.contentOperator': false,
 });
 
-// Tracks which AI plugin apps are added to the edited content's nearest site, or
-// to the active project when the content is outside any site. Plugins only
-// operate where their app is assigned.
 export const $aiAssignedPlugins = map<Record<AiPluginId, boolean>>({
     'ai.translator': false,
     'ai.contentOperator': false,

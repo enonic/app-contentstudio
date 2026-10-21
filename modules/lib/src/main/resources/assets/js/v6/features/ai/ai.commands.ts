@@ -94,7 +94,6 @@ function findPluginConfig(configs: ApplicationConfig[], plugin: EnonicAiPlugin):
     return configs.find((c) => c.getApplicationKey().getName() === appKey);
 }
 
-// True when the plugin's app is among the given site/project application configs.
 export function isAiPluginAssigned(configs: ApplicationConfig[], id: AiPluginId): boolean {
     return findPluginConfig(configs, ID_TO_PLUGIN[id]) != null;
 }

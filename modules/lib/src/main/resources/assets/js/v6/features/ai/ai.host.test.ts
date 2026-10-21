@@ -160,7 +160,6 @@ describe('Content Operator context', () => {
 });
 
 describe('dialog open', () => {
-    // Mounts a plugin that records every dialog:open command.
     function mountDialogListener(): { opened: number[] } {
         const opened: number[] = [];
         getAiHost().register({
@@ -204,7 +203,6 @@ describe('dialog open', () => {
 });
 
 describe('assignment revoked', () => {
-    // Mounts a plugin that records every dialog:close command.
     function mountCloseListener(): { closed: number[] } {
         const closed: number[] = [];
         getAiHost().register({
@@ -302,7 +300,6 @@ describe('image upload notification', () => {
         } as unknown as Content;
     }
 
-    // Lets the nearest-site lookup and the notify that follows it settle.
     async function flush(): Promise<void> {
         await new Promise((resolve) => setTimeout(resolve, 0));
     }
