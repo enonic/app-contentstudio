@@ -112,7 +112,15 @@ export const BulletedListDialog = (): ReactElement => {
                             </div>
                         </Dialog.Body>
                         <Dialog.Footer className="px-2">
-                            <Button ref={submitButtonRef} type="submit" size="lg" variant="solid" label={submitLabel} />
+                            <Dialog.Shortcut asChild>
+                                <Button
+                                    ref={submitButtonRef}
+                                    type="submit"
+                                    size="lg"
+                                    variant="solid"
+                                    label={submitLabel}
+                                />
+                            </Dialog.Shortcut>
                         </Dialog.Footer>
                     </form>
                 </Dialog.Content>

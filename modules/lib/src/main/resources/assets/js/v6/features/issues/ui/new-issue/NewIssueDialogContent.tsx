@@ -1,11 +1,13 @@
 import { Button, Checkbox, Dialog, GridList, Input, TextArea } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { CornerDownRight } from 'lucide-react';
-import { useCallback, useMemo, type ReactElement } from 'react';
+import { useCallback, useMemo, useRef, type ReactElement } from 'react';
 
 import { ContentId } from '../../../../../app/content/ContentId';
 import { IssueType } from '../../../../../app/issue/IssueType';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { useDialogInitialFocus } from '../../../../shared/lib/hooks/useDialogInitialFocus';
+import { useContentSelectionView } from '../../../../shared/lib/hooks/useContentSelectionView';
 import {
     $isNewIssueSelectionSynced,
     $newIssueDependantsSelection,
@@ -30,7 +32,6 @@ import {
     toggleNewIssueShowExcludedDependants,
 } from '../../model/newIssueDialog.store';
 import { useItemsWithUnpublishedChildren } from '../../../../entities/content';
-import { filterShownDependants } from '../../../../shared/lib/cms/content/dependantsSelection';
 import { ContentRow, DependantsSeparator, SplitList } from '../../../shared/lists';
 import { PrincipalSelector, usePrincipalSearch, usePrincipalSelection } from '../../../shared/selectors/principal';
 import { ContentCombobox } from '../../../shared/selectors/content';
@@ -91,23 +92,18 @@ export const NewIssueDialogContent = (): ReactElement => {
     const noResultsLabel = useI18n('dialog.search.result.noResults');
     const includeChildrenLabel = useI18n('dialog.includeChildren');
 
-    const excludeChildrenSet = useMemo(
-        () => new Set(excludeChildrenIds.map((id) => id.toString())),
-        [excludeChildrenIds],
-    );
-    const excludedDependantSet = useMemo(
-        () => new Set(excludedDependantIds.map((id) => id.toString())),
-        [excludedDependantIds],
-    );
-    const requiredDependantSet = useMemo(
-        () => new Set(requiredDependantIds.map((id) => id.toString())),
-        [requiredDependantIds],
-    );
+    const titleInputRef = useRef<HTMLInputElement>(null);
+    const handleOpenAutoFocus = useDialogInitialFocus(titleInputRef);
 
-    const visibleDependants = useMemo(
-        () => filterShownDependants(dependants, appliedExcludedDependantIds, showExcludedDependants),
-        [appliedExcludedDependantIds, dependants, showExcludedDependants],
-    );
+    const { excludeChildrenSet, excludedDependantSet, requiredDependantSet, visibleDependants } =
+        useContentSelectionView({
+            excludeChildrenIds,
+            excludedDependantIds,
+            requiredDependantIds,
+            dependants,
+            appliedExcludedDependantIds,
+            showExcludedDependants,
+        });
 
     const { options: assigneeOptions, handleSearchChange } = usePrincipalSearch();
     const selectedAssigneeOptions = usePrincipalSelection({ principalIds: assigneeIds });
@@ -152,6 +148,7 @@ export const NewIssueDialogContent = (): ReactElement => {
 
     return (
         <Dialog.Content
+            onOpenAutoFocus={handleOpenAutoFocus}
             data-component={NEW_ISSUE_DIALOG_CONTENT_NAME}
             className="h-full max-sm:max-h-none sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-236 gap-5 md:gap-7.5 p-5 md:p-10 px-0 md:px-5"
         >
@@ -177,6 +174,7 @@ export const NewIssueDialogContent = (): ReactElement => {
                 <div className="flex min-h-0 flex-col gap-7.5 px-5">
                     <Input
                         label={titleLabel}
+                        ref={titleInputRef}
                         value={title}
                         onChange={(event) => setNewIssueTitle(event.currentTarget.value)}
                         disabled={submitting}
@@ -331,13 +329,15 @@ export const NewIssueDialogContent = (): ReactElement => {
                 </div>
             </Dialog.Body>
             <Dialog.Footer className="px-5">
-                <Button
-                    variant="solid"
-                    size="lg"
-                    label={createButtonLabel}
-                    disabled={isCreateDisabled}
-                    onClick={handleCreate}
-                />
+                <Dialog.Shortcut asChild>
+                    <Button
+                        variant="solid"
+                        size="lg"
+                        label={createButtonLabel}
+                        disabled={isCreateDisabled}
+                        onClick={handleCreate}
+                    />
+                </Dialog.Shortcut>
             </Dialog.Footer>
         </Dialog.Content>
     );

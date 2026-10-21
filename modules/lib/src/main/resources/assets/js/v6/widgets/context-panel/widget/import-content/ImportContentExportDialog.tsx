@@ -1,10 +1,11 @@
 import { Button, Dialog, IconButton, Input, Tooltip } from '@enonic/ui';
-import { Copy, FolderInput, LoaderCircle } from 'lucide-react';
+import { Copy, FolderOutput, LoaderCircle } from 'lucide-react';
 import { type ChangeEvent, type FormEvent, type ReactElement, useCallback, useEffect, useRef, useState } from 'react';
 import { i18n } from '../../../../shared/i18n';
 import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 import { exportContent, type ExportResult } from '../../api/importContent.api';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { useDialogInitialFocus } from '../../../../shared/lib/hooks/useDialogInitialFocus';
 import { ContentLabel } from '../../../../entities/content/ui/content/ContentLabel';
 
 const IMPORT_CONTENT_EXPORT_DIALOG_NAME = 'ImportContentExportDialog';
@@ -36,15 +37,12 @@ export const ImportContentExportDialog = ({
     const copyLabel = useI18n('field.contextPanel.details.sections.info.copy');
 
     const defaultName = content.getName().toString();
-    const inputRef = useRef<HTMLInputElement | null>(null);
 
     const [name, setName] = useState<string>(defaultName);
     const [phase, setPhase] = useState<ExportPhase>({ kind: 'idle' });
 
-    const handleOpenAutoFocus = useCallback((event: Event) => {
-        event.preventDefault();
-        inputRef.current?.focus();
-    }, []);
+    const inputRef = useRef<HTMLInputElement | null>(null);
+    const handleOpenAutoFocus = useDialogInitialFocus(inputRef);
 
     useEffect(() => {
         if (!open) return;
@@ -127,15 +125,17 @@ export const ImportContentExportDialog = ({
                                 {phase.kind === 'error' && <span className="text-sm text-error">{phase.message}</span>}
                             </Dialog.Body>
                             <Dialog.Footer>
-                                <Button
-                                    type="submit"
-                                    size="lg"
-                                    variant="solid"
-                                    label={submitLabel}
-                                    startIcon={phase.kind === 'loading' ? LoaderCircle : FolderInput}
-                                    startIconClassName={phase.kind === 'loading' ? 'animate-spin' : undefined}
-                                    disabled={phase.kind === 'loading'}
-                                />
+                                <Dialog.Shortcut asChild>
+                                    <Button
+                                        type="submit"
+                                        size="lg"
+                                        variant="solid"
+                                        label={submitLabel}
+                                        startIcon={phase.kind === 'loading' ? LoaderCircle : FolderOutput}
+                                        startIconClassName={phase.kind === 'loading' ? 'animate-spin' : undefined}
+                                        disabled={phase.kind === 'loading'}
+                                    />
+                                </Dialog.Shortcut>
                             </Dialog.Footer>
                         </form>
                     )}

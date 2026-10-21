@@ -1,5 +1,15 @@
-import { cn, Combobox, VirtualizedTreeList } from '@enonic/ui';
-import { forwardRef, useEffect, useId, useMemo, useRef, useState, type HTMLAttributes, type ReactElement } from 'react';
+import { cn, Combobox, VirtualizedTreeList, useComposedRefs } from '@enonic/ui';
+import {
+    forwardRef,
+    useEffect,
+    useId,
+    useMemo,
+    useRef,
+    useState,
+    type HTMLAttributes,
+    type ReactElement,
+    type RefObject,
+} from 'react';
 import type { VirtuosoHandle } from 'react-virtuoso';
 import { Virtuoso } from 'react-virtuoso';
 import { buildKey } from '../../../shared/lib/format/keys';
@@ -25,6 +35,7 @@ export type LanguageSelectorProps = {
     searchPlaceholder?: string;
     emptyLabel?: string;
     closeOnBlur?: boolean;
+    inputRef?: RefObject<HTMLInputElement | null>;
     className?: string;
 };
 
@@ -97,6 +108,7 @@ export const LanguageSelector = ({
     searchPlaceholder,
     emptyLabel,
     closeOnBlur,
+    inputRef: externalInputRef,
     className,
 }: LanguageSelectorProps): ReactElement => {
     const virtuosoRef = useRef<VirtuosoHandle>(null);
@@ -110,6 +122,7 @@ export const LanguageSelector = ({
     const safeSelection = useMemo(() => new Set(selectedIds.map(toOptionKey)), [selectedIds]);
     const hideCombobox = selectedIds.some((id) => options.some((option) => option.id === id));
     const { rootRef, inputRef } = useComboboxCollapse(hideCombobox);
+    const composedInputRef = useComposedRefs(inputRef, externalInputRef);
 
     const optionKeyMap = useMemo(() => {
         return new Map(options.map((option) => [toOptionKey(option.id), option.id]));
@@ -208,7 +221,7 @@ export const LanguageSelector = ({
                             <Combobox.Search>
                                 <Combobox.SearchIcon />
                                 <Combobox.Input
-                                    ref={inputRef}
+                                    ref={composedInputRef}
                                     id={inputId}
                                     placeholder={searchPlaceholder ?? placeholder}
                                     aria-label={label}

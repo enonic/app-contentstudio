@@ -28,13 +28,16 @@ export const VersionSelectionToolbar = ({
     const showChangesButtonLabel = useI18n('text.versions.showChanges');
     const cancelButtonLabel = useI18n('action.cancel');
 
-    const handleShowChanges = useCallback(() => {
-        if (!content || selectedVersions.length !== 2) {
-            return;
-        }
+    const handleShowChanges = useCallback(
+        (event: React.MouseEvent<HTMLButtonElement>) => {
+            if (!content || selectedVersions.length !== 2) {
+                return;
+            }
 
-        openCompareVersionsDialog(content, [selectedVersions[0], selectedVersions[1]]);
-    }, [content, selectedVersions]);
+            openCompareVersionsDialog(content, [selectedVersions[0], selectedVersions[1]], event.detail === 0);
+        },
+        [content, selectedVersions],
+    );
 
     const handleCancel = useCallback(() => {
         resetVersionsSelection();

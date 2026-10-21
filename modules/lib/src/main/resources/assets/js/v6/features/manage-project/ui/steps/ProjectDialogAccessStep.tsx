@@ -3,7 +3,7 @@ import { PrincipalType } from '@enonic/lib-admin-ui/security/PrincipalType';
 import { Dialog, GridList, IconButton, RadioGroup } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { CircleUserRound, X } from 'lucide-react';
-import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import { ReactElement, type RefObject, useCallback, useEffect, useMemo, useState } from 'react';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import {
     $projectDialog,
@@ -39,10 +39,12 @@ ProjectDialogAccessStepHeader.displayName = 'ProjectDialogAccessStepHeader';
 
 export type ProjectDialogAccessStepContentProps = {
     locked?: boolean;
+    accessModeRef?: RefObject<HTMLButtonElement | null>;
 };
 
 export const ProjectDialogAccessStepContent = ({
     locked = false,
+    accessModeRef,
 }: ProjectDialogAccessStepContentProps): ReactElement => {
     // Hooks
     const { principals } = useStore($principals);
@@ -150,7 +152,13 @@ export const ProjectDialogAccessStepContent = ({
                 onValueChange={setAccessModeValue}
                 className="rounded-md -mx-2"
             >
-                <RadioGroup.Item value="public">
+                <RadioGroup.Item
+                    ref={accessModeRef}
+                    value="public"
+                    onFocus={() => {
+                        // Initial focus must not select Public; click and arrow keys still select an access mode.
+                    }}
+                >
                     <RadioGroup.Indicator />
                     <span className="ml-2 text-start">{publicLabel}</span>
                 </RadioGroup.Item>

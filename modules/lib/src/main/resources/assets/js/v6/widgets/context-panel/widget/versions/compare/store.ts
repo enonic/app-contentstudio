@@ -4,6 +4,7 @@ import { type ContentVersion } from '../../../../../../app/ContentVersion';
 
 type CompareVersionsDialogState = {
     open: boolean;
+    focusCheckbox: boolean;
     contentId: string | null;
     contentPath: string | null;
     leftVersion: ContentVersion | null;
@@ -13,6 +14,7 @@ type CompareVersionsDialogState = {
 
 const initialState: CompareVersionsDialogState = {
     open: false,
+    focusCheckbox: false,
     contentId: null,
     contentPath: null,
     leftVersion: null,
@@ -25,6 +27,7 @@ export const $compareVersionsDialog = map<CompareVersionsDialogState>({ ...initi
 export const openCompareVersionsDialog = (
     content: ContentSummary,
     versions: [ContentVersion, ContentVersion],
+    focusCheckbox = false,
 ): void => {
     const contentId = content.getContentId();
     if (!contentId) {
@@ -36,6 +39,7 @@ export const openCompareVersionsDialog = (
     $compareVersionsDialog.set({
         ...initialState,
         open: true,
+        focusCheckbox,
         contentId: contentId.toString(),
         contentPath: content.getPath()?.toString() ?? null,
         leftVersion: left,

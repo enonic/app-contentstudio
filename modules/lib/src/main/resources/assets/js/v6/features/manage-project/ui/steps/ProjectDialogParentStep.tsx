@@ -2,7 +2,7 @@ import { SortableGridList } from '@enonic/input-types';
 import { Dialog, GridList, IconButton, ListItem, cn } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { GripVertical, X } from 'lucide-react';
-import { type ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import { type ReactElement, type RefObject, useCallback, useEffect, useMemo, useState } from 'react';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import {
     $projectDialog,
@@ -17,6 +17,11 @@ import { ProjectSelector } from '../../../shared/selectors/ProjectSelector';
 import { LanguageSelector } from '../../../shared/selectors/LanguageSelector';
 import { InlineButton } from '../../../../shared/ui/InlineButton';
 import { FlagIcon } from '../../../../shared/ui/icons/FlagIcon';
+
+type ProjectDialogParentStepContentProps = {
+    projectSelectorRef?: RefObject<HTMLInputElement | null>;
+    languageSelectorRef?: RefObject<HTMLInputElement | null>;
+};
 
 export const ProjectDialogParentStepHeader = (): ReactElement => {
     const { mode, title } = useStore($projectDialog, { keys: ['mode', 'title'] });
@@ -37,7 +42,8 @@ export const ProjectDialogParentStepHeader = (): ReactElement => {
 
 ProjectDialogParentStepHeader.displayName = 'ProjectDialogParentStepHeader';
 
-export const ProjectDialogParentStepContent = (): ReactElement => {
+export const ProjectDialogParentStepContent = (props: ProjectDialogParentStepContentProps): ReactElement => {
+    const { projectSelectorRef, languageSelectorRef } = props;
     // Hooks
     const languages = useStore($languages);
     const { parentProjects, isMultiInheritance, defaultLanguage, mode } = useStore($projectDialog, {
@@ -121,6 +127,7 @@ export const ProjectDialogParentStepContent = (): ReactElement => {
                             selectionMode={isMultiInheritance ? 'staged' : 'single'}
                             placeholder={typeToSearchLabel}
                             emptyLabel={noProjectsFoundLabel}
+                            inputRef={projectSelectorRef}
                             closeOnBlur
                         />
                     )}
@@ -215,6 +222,7 @@ export const ProjectDialogParentStepContent = (): ReactElement => {
                         )}
                     </div>
                     <LanguageSelector
+                        inputRef={languageSelectorRef}
                         options={languages}
                         selection={languageSelection}
                         onSelectionChange={setLanguageSelection}

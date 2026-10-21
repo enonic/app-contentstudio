@@ -1,5 +1,5 @@
 import { Button, Checkbox, type CheckboxChecked, Dialog, IconButton, Tooltip } from '@enonic/ui';
-import { Copy, FolderOutput, LoaderCircle } from 'lucide-react';
+import { FolderInput, Copy, LoaderCircle } from 'lucide-react';
 import { type FormEvent, type ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { i18n } from '../../../../shared/i18n';
 import type { ContentSummary } from '../../../../../app/content/ContentSummary';
@@ -7,6 +7,7 @@ import { importContent, type ImportResult } from '../../api/importContent.api';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import { PathSelector } from '../../../../features/shared/selectors/path/PathSelector';
 import { createRootContent, ROOT_ID } from '../../../../features/shared/selectors/path/PathSelectorRoot';
+import { useDialogInitialFocus } from '../../../../shared/lib/hooks/useDialogInitialFocus';
 
 const IMPORT_CONTENT_IMPORT_DIALOG_NAME = 'ImportContentImportDialog';
 
@@ -42,6 +43,7 @@ export const ImportContentImportDialog = ({
     const initialId = content?.getContentId().toString() ?? ROOT_ID;
     const initialItem = useMemo(() => content ?? createRootContent(), [content]);
     const inputRef = useRef<HTMLInputElement | null>(null);
+    const importButtonRef = useRef<HTMLButtonElement>(null);
 
     const [targetId, setTargetId] = useState<string | null>(initialId);
     const [keepPublishFirst, setKeepPublishFirst] = useState<boolean>(true);
@@ -56,6 +58,9 @@ export const ImportContentImportDialog = ({
 
     const handleTargetChange = useCallback((id: string | null) => {
         setTargetId(id);
+        if (id) {
+            requestAnimationFrame(() => importButtonRef.current?.focus());
+        }
     }, []);
 
     const handleKeepChange = useCallback((checked: CheckboxChecked) => {
@@ -91,10 +96,7 @@ export const ImportContentImportDialog = ({
         [onClose],
     );
 
-    const handleOpenAutoFocus = useCallback((event: Event) => {
-        event.preventDefault();
-        inputRef.current?.focus();
-    }, []);
+    const handleOpenAutoFocus = useDialogInitialFocus([importButtonRef, inputRef]);
 
     return (
         <Dialog.Root open={open} onOpenChange={handleOpenChange}>
@@ -154,15 +156,18 @@ export const ImportContentImportDialog = ({
                                 {phase.kind === 'error' && <span className="text-sm text-error">{phase.message}</span>}
                             </Dialog.Body>
                             <Dialog.Footer>
-                                <Button
-                                    type="submit"
-                                    size="lg"
-                                    variant="solid"
-                                    label={submitLabel}
-                                    startIcon={phase.kind === 'loading' ? LoaderCircle : FolderOutput}
-                                    startIconClassName={phase.kind === 'loading' ? 'animate-spin' : undefined}
-                                    disabled={phase.kind === 'loading' || !targetId}
-                                />
+                                <Dialog.Shortcut asChild>
+                                    <Button
+                                        type="submit"
+                                        size="lg"
+                                        variant="solid"
+                                        label={submitLabel}
+                                        ref={importButtonRef}
+                                        startIcon={phase.kind === 'loading' ? LoaderCircle : FolderInput}
+                                        startIconClassName={phase.kind === 'loading' ? 'animate-spin' : undefined}
+                                        disabled={phase.kind === 'loading' || !targetId}
+                                    />
+                                </Dialog.Shortcut>
                             </Dialog.Footer>
                         </form>
                     )}
