@@ -110,12 +110,9 @@ export function getConfig(locales: string[], aiEnabled: boolean, browseMode: boo
         sharedSocketUrl: assetUrl({
             path: 'shared-socket.js',
         }),
-        menuUrl: extensionUrl({
+        menuLoaderUrl: extensionUrl({
             application: 'com.enonic.xp.app.main',
-            extension: 'menu',
-            params: {
-                appName: app.name,
-            },
+            extension: 'menu-loader',
         }),
         user,
         principals: getMemberships(user.key, true),
