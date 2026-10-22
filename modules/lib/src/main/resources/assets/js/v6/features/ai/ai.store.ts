@@ -66,6 +66,11 @@ export const $aiRegisteredPlugins = map<Record<AiPluginId, boolean>>({
     'ai.contentOperator': false,
 });
 
+export const $aiAssignedPlugins = map<Record<AiPluginId, boolean>>({
+    'ai.translator': false,
+    'ai.contentOperator': false,
+});
+
 // Display-name field is not registered in any FieldRegistry, so processing state for
 // the `__topic__` path is exposed here for DisplayNameInput to subscribe to directly.
 // Same reason for the error atom — translator failures on `__topic__` can't go

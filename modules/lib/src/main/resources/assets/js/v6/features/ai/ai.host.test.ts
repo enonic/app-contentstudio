@@ -1,11 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { errAsync, okAsync } from 'neverthrow';
 import type { Content } from '../../../app/content/Content';
+import type { Site } from '../../../app/content/Site';
 import type { Project } from '../../../app/settings/data/project/Project';
 import { $activeProject } from '../../entities/project/activeProject.store';
 import type { AiPlugin, AiPluginContext, AiPluginInstance } from './ai-protocol';
 import {
     __resetAiHostForTest,
     getAiHost,
+    handleAssignedPluginsChange,
     handleDataActivePath,
     handleMediaUploaded,
     mountReadyPlugins,
@@ -14,7 +17,17 @@ import {
 } from './ai.host';
 import { $languagesStore } from '../../entities/language/languages.store';
 import { $config } from '../../shared/config/config.store';
-import { $aiPluginDialogOpen } from './ai.store';
+import { $aiAssignedPlugins, $aiPluginDialogOpen } from './ai.store';
+
+const fetchNearestSite = vi.hoisted(() => vi.fn());
+
+vi.mock('../../entities/content/api/content.api', () => ({ fetchNearestSite }));
+
+const OPERATOR_APP_KEY = 'com.enonic.app.ai.contentoperator';
+
+function fakeAppConfigs(...appKeys: string[]): { getApplicationKey: () => { getName: () => string } }[] {
+    return appKeys.map((key) => ({ getApplicationKey: () => ({ getName: () => key }) }));
+}
 
 function fakePlugin(overrides: Partial<AiPlugin> = {}): {
     plugin: AiPlugin;
@@ -146,14 +159,122 @@ describe('Content Operator context', () => {
     });
 });
 
-describe('image upload notification', () => {
+describe('dialog open', () => {
+    function mountDialogListener(): { opened: number[] } {
+        const opened: number[] = [];
+        getAiHost().register({
+            id: 'ai.contentOperator',
+            version: '1.0.0',
+            commands: ['dialog:open'],
+            mount: vi.fn((_c: HTMLElement, ctx: AiPluginContext) => {
+                ctx.api.on('dialog:open', () => opened.push(1));
+                return { dispose: vi.fn() };
+            }),
+        });
+        mountReadyPlugins();
+        return { opened };
+    }
+
     beforeEach(() => {
         __resetAiHostForTest();
-        $activeProject.set({ getName: () => 'test-project', getLanguage: () => 'en' } as unknown as Project);
+    });
+
+    afterEach(() => {
+        $aiAssignedPlugins.setKey('ai.contentOperator', false);
+    });
+
+    it('sends dialog:open when the plugin app is assigned', () => {
+        const { opened } = mountDialogListener();
+        $aiAssignedPlugins.setKey('ai.contentOperator', true);
+
+        openPluginDialog('ai.contentOperator');
+
+        expect(opened).toHaveLength(1);
+    });
+
+    it('does not send dialog:open when the plugin app is not assigned', () => {
+        const { opened } = mountDialogListener();
+        $aiAssignedPlugins.setKey('ai.contentOperator', false);
+
+        openPluginDialog('ai.contentOperator');
+
+        expect(opened).toEqual([]);
+    });
+});
+
+describe('assignment revoked', () => {
+    function mountCloseListener(): { closed: number[] } {
+        const closed: number[] = [];
+        getAiHost().register({
+            id: 'ai.contentOperator',
+            version: '1.0.0',
+            commands: ['dialog:close'],
+            mount: vi.fn((_c: HTMLElement, ctx: AiPluginContext) => {
+                ctx.api.on('dialog:close', () => closed.push(1));
+                return { dispose: vi.fn() };
+            }),
+        });
+        mountReadyPlugins();
+        return { closed };
+    }
+
+    beforeEach(() => {
+        __resetAiHostForTest();
+    });
+
+    it('closes an open dialog when the plugin app becomes unassigned', () => {
+        const { closed } = mountCloseListener();
+        $aiPluginDialogOpen.setKey('ai.contentOperator', true);
+
+        handleAssignedPluginsChange({ 'ai.translator': false, 'ai.contentOperator': false });
+
+        expect(closed).toHaveLength(1);
+    });
+
+    it('does not send dialog:close when the dialog is already closed', () => {
+        const { closed } = mountCloseListener();
+        $aiPluginDialogOpen.setKey('ai.contentOperator', false);
+
+        handleAssignedPluginsChange({ 'ai.translator': false, 'ai.contentOperator': false });
+
+        expect(closed).toEqual([]);
+    });
+
+    it('does not send dialog:close while the plugin app stays assigned', () => {
+        const { closed } = mountCloseListener();
+        $aiPluginDialogOpen.setKey('ai.contentOperator', true);
+
+        handleAssignedPluginsChange({ 'ai.translator': false, 'ai.contentOperator': true });
+
+        expect(closed).toEqual([]);
+    });
+});
+
+describe('image upload notification', () => {
+    let projectConfigs: ReturnType<typeof fakeAppConfigs>;
+
+    function setNearestSite(site: Site | undefined): void {
+        fetchNearestSite.mockReturnValue(okAsync(site));
+    }
+
+    function fakeSite(...appKeys: string[]): Site {
+        return { getSiteConfigs: () => fakeAppConfigs(...appKeys) } as unknown as Site;
+    }
+
+    beforeEach(() => {
+        __resetAiHostForTest();
+        projectConfigs = fakeAppConfigs(OPERATOR_APP_KEY);
+        setNearestSite(undefined);
+        $activeProject.set({
+            getName: () => 'test-project',
+            getLanguage: () => 'en',
+            getSiteConfigs: () => projectConfigs,
+        } as unknown as Project);
     });
 
     afterEach(() => {
         $activeProject.set(undefined);
+        fetchNearestSite.mockReset();
     });
 
     // Mounts a plugin that records every image:uploaded payload.
@@ -174,9 +295,13 @@ describe('image upload notification', () => {
 
     function fakeUploadedContent(id: string, isImage: boolean, isVector = false): Content {
         return {
-            getId: () => id,
+            getContentId: () => ({ toString: () => id }),
             getType: () => ({ isImage: () => isImage, isVectorMedia: () => isVector }),
         } as unknown as Content;
+    }
+
+    async function flush(): Promise<void> {
+        await new Promise((resolve) => setTimeout(resolve, 0));
     }
 
     it('sends image:uploaded to a plugin declaring the command', () => {
@@ -195,34 +320,83 @@ describe('image upload notification', () => {
         expect(received).toEqual([]);
     });
 
-    it('notifies for uploaded image content', () => {
+    it('notifies for uploaded image content', async () => {
         const { received } = mountImageListener(['image:uploaded']);
 
         handleMediaUploaded(fakeUploadedContent('image-1', true));
+        await flush();
 
         expect(received).toEqual([{ contentId: 'image-1', project: 'test-project' }]);
     });
 
-    it('notifies for uploaded vector content', () => {
+    it('notifies for uploaded vector content', async () => {
         const { received } = mountImageListener(['image:uploaded']);
 
         handleMediaUploaded(fakeUploadedContent('vector-1', false, true));
+        await flush();
 
         expect(received).toEqual([{ contentId: 'vector-1', project: 'test-project' }]);
     });
 
-    it('ignores uploaded non-image media', () => {
+    it('ignores uploaded non-image media', async () => {
         const { received } = mountImageListener(['image:uploaded']);
 
         handleMediaUploaded(fakeUploadedContent('doc-1', false));
+        await flush();
+
+        expect(received).toEqual([]);
+        expect(fetchNearestSite).not.toHaveBeenCalled();
+    });
+
+    it('ignores a null upload event', async () => {
+        const { received } = mountImageListener(['image:uploaded']);
+
+        handleMediaUploaded(null);
+        await flush();
 
         expect(received).toEqual([]);
     });
 
-    it('ignores a null upload event', () => {
+    it('notifies when the operator app is assigned to the nearest site only', async () => {
         const { received } = mountImageListener(['image:uploaded']);
+        projectConfigs = fakeAppConfigs();
+        setNearestSite(fakeSite(OPERATOR_APP_KEY));
 
-        handleMediaUploaded(null);
+        handleMediaUploaded(fakeUploadedContent('image-1', true));
+        await flush();
+
+        expect(received).toEqual([{ contentId: 'image-1', project: 'test-project' }]);
+    });
+
+    it('ignores the project assignment when the content is inside a site without the app', async () => {
+        const { received } = mountImageListener(['image:uploaded']);
+        projectConfigs = fakeAppConfigs(OPERATOR_APP_KEY);
+        setNearestSite(fakeSite('com.example.other'));
+
+        handleMediaUploaded(fakeUploadedContent('image-1', true));
+        await flush();
+
+        expect(received).toEqual([]);
+    });
+
+    it('does not notify when the nearest-site lookup fails', async () => {
+        const { received } = mountImageListener(['image:uploaded']);
+        projectConfigs = fakeAppConfigs(OPERATOR_APP_KEY);
+        fetchNearestSite.mockReturnValue(errAsync(new Error('lookup failed')));
+
+        handleMediaUploaded(fakeUploadedContent('image-1', true));
+        await flush();
+
+        expect(received).toEqual([]);
+    });
+
+    it('does not notify when the content is outside any site and the project lacks the app', async () => {
+        const { received } = mountImageListener(['image:uploaded']);
+        projectConfigs = fakeAppConfigs('com.enonic.app.ai.translator');
+        setNearestSite(undefined);
+
+        handleMediaUploaded(fakeUploadedContent('image-1', true));
+        await flush();
 
         expect(received).toEqual([]);
     });
