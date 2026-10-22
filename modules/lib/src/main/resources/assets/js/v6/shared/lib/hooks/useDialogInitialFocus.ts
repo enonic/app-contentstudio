@@ -3,7 +3,7 @@ import { useOnceWhen } from './useOnce';
 
 type FocusTarget = RefObject<HTMLElement | null>;
 
-const focusFirstAvailable = (targets: readonly FocusTarget[], options?: FocusOptions): boolean => {
+const focusFirstAvailable = (targets: readonly FocusTarget[], options?: FocusOptions): HTMLElement | null => {
     for (const { current: target } of targets) {
         if (
             !target?.isConnected ||
@@ -13,9 +13,9 @@ const focusFirstAvailable = (targets: readonly FocusTarget[], options?: FocusOpt
             continue;
         }
         target.focus(options);
-        if (target.matches(':focus')) return true;
+        if (target.matches(':focus')) return target;
     }
-    return false;
+    return null;
 };
 
 /** Focuses the first available target on open and optionally once when ready. */
@@ -26,17 +26,27 @@ export const useDialogInitialFocus = (
 ): ((event: Event) => void) => {
     const targets = 'current' in targetRef ? [targetRef] : targetRef;
     const pendingOrigin = useRef<Element | null>(null);
+    const placedFocus = useRef<Element | null>(null);
 
     useOnceWhen(() => {
         pendingOrigin.current = null;
+        // The user may be typing elsewhere in the dialog by the time it becomes ready.
+        if (placedFocus.current && !placedFocus.current.matches(':focus')) return;
         focusFirstAvailable(targets, options);
     }, ready);
 
     // Conditional fallback controls can mount after loading without making the primary action ready.
     useEffect(() => {
         const origin = pendingOrigin.current;
-        if (origin && (!origin.matches(':focus') || focusFirstAvailable(targets, options))) {
+        if (!origin) return;
+        if (!origin.matches(':focus')) {
             pendingOrigin.current = null;
+            return;
+        }
+        const focused = focusFirstAvailable(targets, options);
+        if (focused) {
+            pendingOrigin.current = null;
+            placedFocus.current = focused;
         }
     });
 
@@ -46,7 +56,9 @@ export const useDialogInitialFocus = (
         while (origin?.shadowRoot?.activeElement) origin = origin.shadowRoot.activeElement;
 
         pendingOrigin.current = null;
-        if (focusFirstAvailable(targets, options)) {
+        const focused = focusFirstAvailable(targets, options);
+        placedFocus.current = focused ?? origin;
+        if (focused) {
             event.preventDefault();
         } else if (targets.length > 1) {
             pendingOrigin.current = origin;

@@ -18,7 +18,7 @@ import { LanguageSelector } from '../../../shared/selectors/LanguageSelector';
 import { InlineButton } from '../../../../shared/ui/InlineButton';
 import { FlagIcon } from '../../../../shared/ui/icons/FlagIcon';
 
-type ProjectDialogParentStepContentProps = {
+export type ProjectDialogParentStepContentProps = {
     projectSelectorRef?: RefObject<HTMLInputElement | null>;
     languageSelectorRef?: RefObject<HTMLInputElement | null>;
 };
@@ -42,8 +42,10 @@ export const ProjectDialogParentStepHeader = (): ReactElement => {
 
 ProjectDialogParentStepHeader.displayName = 'ProjectDialogParentStepHeader';
 
-export const ProjectDialogParentStepContent = (props: ProjectDialogParentStepContentProps): ReactElement => {
-    const { projectSelectorRef, languageSelectorRef } = props;
+export const ProjectDialogParentStepContent = ({
+    projectSelectorRef,
+    languageSelectorRef,
+}: ProjectDialogParentStepContentProps): ReactElement => {
     // Hooks
     const languages = useStore($languages);
     const { parentProjects, isMultiInheritance, defaultLanguage, mode } = useStore($projectDialog, {

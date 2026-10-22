@@ -62,7 +62,6 @@ export const PublishDialogMainContent = ({
     const { allowContentUpdate, defaultPublishFromTime } = useStore($config, {
         keys: ['allowContentUpdate', 'defaultPublishFromTime'],
     });
-    const ready = useStore($isPublishReady);
     const mainItems = useStore($mainPublishItems);
     const dependantItems = useStore($dependantPublishItems);
     const hasMoreDependants = useStore($hasMoreDependants);
@@ -147,7 +146,7 @@ export const PublishDialogMainContent = ({
             retryButtonRef,
             firstScheduleInputRef,
         ],
-        ready,
+        isPublishReady,
     );
 
     const handleSchedule = () => {

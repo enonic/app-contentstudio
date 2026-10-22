@@ -89,9 +89,9 @@ export const ImportContentExportDialog = ({
             <Dialog.Portal>
                 <Dialog.Overlay />
                 <Dialog.Content
-                    className="w-full gap-5.5 h-fit py-5 px-3 sm:py-8 sm:px-6 max-w-full md:max-w-120"
-                    data-component={IMPORT_CONTENT_EXPORT_DIALOG_NAME}
                     onOpenAutoFocus={handleOpenAutoFocus}
+                    data-component={IMPORT_CONTENT_EXPORT_DIALOG_NAME}
+                    className="w-full gap-5.5 h-fit py-5 px-3 sm:py-8 sm:px-6 max-w-full md:max-w-120"
                 >
                     <Dialog.Header className="grid grid-cols-[minmax(0,1fr)_auto] gap-2.5">
                         <Dialog.Title className="col-start-1 row-start-1 min-w-0 font-semibold text-xl">

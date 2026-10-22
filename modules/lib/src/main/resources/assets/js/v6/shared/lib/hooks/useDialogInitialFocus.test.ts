@@ -148,4 +148,23 @@ describe('useDialogInitialFocus', () => {
         rerender({ ready: true });
         expect(document.activeElement).toBe(fallback);
     });
+
+    it('does not take focus when ready if the user moved focus after open', () => {
+        primary.disabled = true;
+        fallback.remove();
+        fallbackRef.current = null;
+        const comment = document.createElement('textarea');
+        dialog.append(comment);
+        const { result, rerender } = renderHook(
+            ({ ready }) => useDialogInitialFocus([primaryRef, fallbackRef], ready),
+            { initialProps: { ready: false } },
+        );
+        act(() => result.current(new Event('openautofocus')));
+        expect(document.activeElement).toBe(dialog);
+
+        comment.focus();
+        primary.disabled = false;
+        rerender({ ready: true });
+        expect(document.activeElement).toBe(comment);
+    });
 });

@@ -59,7 +59,7 @@ export const ProjectDialog = (): ReactElement => {
     const languageInputRef = useRef<HTMLInputElement>(null);
     const nameStepRef = useRef<HTMLDivElement>(null);
     const navigationBackwardsRef = useRef(false);
-    const accessModeRef = useRef<HTMLButtonElement>(null);
+    const accessModeRef = useRef<HTMLDivElement>(null);
     const roleInputRef = useRef<HTMLInputElement>(null);
     const applicationInputRef = useRef<HTMLInputElement>(null);
     const footerRef = useRef<HTMLElement>(null);
@@ -79,7 +79,10 @@ export const ProjectDialog = (): ReactElement => {
             const targets = {
                 'step-parent': [parentProjects.length ? null : projectInputRef.current, languageInputRef.current],
                 'step-name': Array.from(nameInputs ?? []).filter((input) => !input.value.trim()),
-                'step-access': [accessModeRef.current],
+                'step-access': [
+                    accessModeRef.current?.querySelector<HTMLButtonElement>('[role="radio"][aria-checked="true"]') ??
+                        accessModeRef.current,
+                ],
                 'step-role': Object.keys(roles).length ? [] : [roleInputRef.current],
                 'step-application': applications.length ? [] : [applicationInputRef.current],
             };

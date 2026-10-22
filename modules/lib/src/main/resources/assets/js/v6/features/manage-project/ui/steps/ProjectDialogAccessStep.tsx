@@ -39,7 +39,7 @@ ProjectDialogAccessStepHeader.displayName = 'ProjectDialogAccessStepHeader';
 
 export type ProjectDialogAccessStepContentProps = {
     locked?: boolean;
-    accessModeRef?: RefObject<HTMLButtonElement | null>;
+    accessModeRef?: RefObject<HTMLDivElement | null>;
 };
 
 export const ProjectDialogAccessStepContent = ({
@@ -147,18 +147,13 @@ export const ProjectDialogAccessStepContent = ({
             </div>
 
             <RadioGroup.Root
+                ref={accessModeRef}
                 name="accessMode"
                 value={accessModeValue}
                 onValueChange={setAccessModeValue}
                 className="rounded-md -mx-2"
             >
-                <RadioGroup.Item
-                    ref={accessModeRef}
-                    value="public"
-                    onFocus={() => {
-                        // Initial focus must not select Public; click and arrow keys still select an access mode.
-                    }}
-                >
+                <RadioGroup.Item value="public">
                     <RadioGroup.Indicator />
                     <span className="ml-2 text-start">{publicLabel}</span>
                 </RadioGroup.Item>
