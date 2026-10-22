@@ -1,7 +1,9 @@
 import type { Content } from '../../../app/content/Content';
+import { fetchNearestSite } from '../../entities/content/api/content.api';
 import { $mediaUploaded } from '../../entities/content/model/uploads.store';
 import { $activeProject } from '../../entities/project/activeProject.store';
 import type { AiHost, AiPlugin, AiPluginId, AiPluginContext, AiPluginInstance } from './ai-protocol';
+import { isAiPluginAssigned } from './ai.commands';
 import { getAiFieldRegistry } from './ai.field-registry';
 import { createPluginApi, emitToPlugin, type PluginApiHandle } from './ai.plugin-api';
 import {
@@ -12,6 +14,7 @@ import {
     buildState,
 } from './ai.snapshots';
 import {
+    $aiAssignedPlugins,
     $aiContent,
     $aiContentLanguage,
     $aiContentType,
@@ -145,10 +148,11 @@ export function getAiHost(): AiHost {
 }
 
 // Sends the `dialog:open` command to a registered plugin. No-op if the plugin
-// is not registered or declares no 'dialog:open' command.
+// is not registered, its app is not assigned to the current site/project, or
+// it declares no 'dialog:open' command.
 export function openPluginDialog(id: AiPluginId): void {
     const registration = registry.get(id);
-    if (registration == null) {
+    if (registration == null || !$aiAssignedPlugins.get()[id]) {
         return;
     }
     if (registration.plugin.commands?.includes('dialog:open') !== true) {
@@ -195,16 +199,36 @@ export function notifyImageUploaded(contentId: string, project: string): void {
 
 // Uploads always target the active project; it travels with the command so the
 // plugin's backend can resolve the cms repo without a request-scoped context.
+// Only fires when the Content Operator app is added to the uploaded content's
+// nearest site, or to the project when the content is outside any site. A failed
+// site lookup sends nothing, so an error can't be mistaken for "outside any site".
 export function handleMediaUploaded(content: Readonly<Content> | null): void {
     const type = content?.getType();
     if (type == null || !(type.isImage() || type.isVectorMedia())) {
         return;
     }
-    const project = $activeProject.get()?.getName();
-    if (project == null) {
+    const project = $activeProject.get();
+    const projectName = project?.getName();
+    if (projectName == null) {
         return;
     }
-    notifyImageUploaded(content.getId(), project);
+    const contentId = content.getContentId();
+    void fetchNearestSite(contentId).map((site) => {
+        const configs = site ? site.getSiteConfigs() : project.getSiteConfigs();
+        if (!isAiPluginAssigned(configs, 'ai.contentOperator')) {
+            return;
+        }
+        notifyImageUploaded(contentId.toString(), projectName);
+    });
+}
+
+export function handleAssignedPluginsChange(assigned: Record<AiPluginId, boolean>): void {
+    const open = $aiPluginDialogOpen.get();
+    (Object.keys(assigned) as AiPluginId[]).forEach((id) => {
+        if (!assigned[id] && open[id]) {
+            closePluginDialog(id);
+        }
+    });
 }
 
 //
@@ -288,6 +312,7 @@ export function initAiHost(): void {
     $aiContentLanguage.subscribe(() => fanOutLanguage());
     $aiInstructions.subscribe(() => fanOutConfig());
     $mediaUploaded.subscribe((content) => handleMediaUploaded(content));
+    $aiAssignedPlugins.subscribe((assigned) => handleAssignedPluginsChange(assigned));
 
     getAiFieldRegistry('data').subscribeActivePath(handleDataActivePath);
 }

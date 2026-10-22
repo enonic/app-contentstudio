@@ -23,6 +23,7 @@ import { TextComponent } from '../../../app/page/region/TextComponent';
 import type { ContentWizardHeader } from '../../../app/wizard/ContentWizardHeader';
 import { $locales } from '../../entities/language';
 import {
+    $aiAssignedPlugins,
     $aiCompareStatus,
     $aiContent,
     $aiContentLanguage,
@@ -36,6 +37,7 @@ import {
     $aiWizardBridge,
     type AiWizardBridge,
 } from './ai.store';
+import type { AiPluginId } from './ai-protocol';
 import { AI_PLUGIN_KEYS, type EnonicAiPlugin } from './ai.types';
 import { getActiveProject, getActiveProjectName } from '../../entities/project/activeProject.store';
 
@@ -82,6 +84,20 @@ export function clearAiTopicError(): void {
     }
 }
 
+const ID_TO_PLUGIN: Record<AiPluginId, EnonicAiPlugin> = {
+    'ai.translator': 'translator',
+    'ai.contentOperator': 'contentOperator',
+};
+
+function findPluginConfig(configs: ApplicationConfig[], plugin: EnonicAiPlugin): ApplicationConfig | undefined {
+    const appKey = AI_PLUGIN_KEYS[plugin];
+    return configs.find((c) => c.getApplicationKey().getName() === appKey);
+}
+
+export function isAiPluginAssigned(configs: ApplicationConfig[], id: AiPluginId): boolean {
+    return findPluginConfig(configs, ID_TO_PLUGIN[id]) != null;
+}
+
 export function updateAiInstructions(configs: ApplicationConfig[]): void {
     const current = $aiInstructions.get();
     const next: Record<EnonicAiPlugin, string | undefined> = current
@@ -90,10 +106,11 @@ export function updateAiInstructions(configs: ApplicationConfig[]): void {
 
     let changed = current == null;
 
-    const plugins = Object.keys(AI_PLUGIN_KEYS) as EnonicAiPlugin[];
-    for (const plugin of plugins) {
-        const appKey = AI_PLUGIN_KEYS[plugin];
-        const pluginConfig = configs.find((c) => c.getApplicationKey().getName() === appKey);
+    const ids = Object.keys(ID_TO_PLUGIN) as AiPluginId[];
+    for (const id of ids) {
+        const plugin = ID_TO_PLUGIN[id];
+        const pluginConfig = findPluginConfig(configs, plugin);
+        $aiAssignedPlugins.setKey(id, pluginConfig != null);
         if (!pluginConfig) {
             continue;
         }

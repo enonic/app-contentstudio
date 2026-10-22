@@ -1841,7 +1841,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
     }
 
     private getApplicationsConfigs(): ApplicationConfig[] {
-        return [...(this.site?.getSiteConfigs() ?? []), ...getActiveProject().getSiteConfigs()];
+        return this.site ? this.site.getSiteConfigs() : getActiveProject().getSiteConfigs();
     }
 
     // Opens the AI Translator dialog via the `dialog:open` plugin command.
