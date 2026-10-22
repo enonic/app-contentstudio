@@ -20,9 +20,9 @@ import { PrincipalJson } from '@enonic/lib-admin-ui/security/PrincipalJson';
 import { Store } from '@enonic/lib-admin-ui/store/Store';
 import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
 import { CONFIG, ConfigObject } from '@enonic/lib-admin-ui/util/Config';
-import { CustomElement } from '@enonic/lib-admin-ui/dom/CustomElement';
 import { i18n, Messages } from '@enonic/lib-admin-ui/util/Messages';
 import { setPhrases } from '@enonic/lib-contentstudio/v6/shared/i18n';
+import { mountAdminMenu } from '@enonic/lib-contentstudio/v6/shared/menu';
 import type { Phrases } from '@enonic/ui-utils';
 import { ContentDuplicatePromptEvent } from '@enonic/lib-contentstudio/app/browse/ContentDuplicatePromptEvent';
 import { ContentPublishPromptEvent } from '@enonic/lib-contentstudio/app/browse/ContentPublishPromptEvent';
@@ -491,20 +491,18 @@ function getTheme(): string {
 }
 
 function appendMenuPanel(): void {
-    const menuUrl = CONFIG.getString('menuUrl');
-    if (!menuUrl) {
-        throw new Error('Menu URL is not defined');
+    const menuLoaderUrl = CONFIG.getString('menuLoaderUrl');
+    if (!menuLoaderUrl) {
+        throw new Error('Menu loader URL is not defined');
     }
-    const menuElement = CustomElement.create('xp-menu');
-    $isBrowseSidebarOpen.subscribe((isOpen) => {
-        menuElement.inert = isOpen;
-    });
-    document.body.appendChild(menuElement);
-    fetch(menuUrl)
-        .then((response) => response.text())
-        .then((html: string) => menuElement.setHtml(html))
+    mountAdminMenu(menuLoaderUrl)
+        .then((host) => {
+            $isBrowseSidebarOpen.subscribe((isOpen) => {
+                host.inert = isOpen;
+            });
+        })
         .catch((e: Error) => {
-            throw new Error(`Failed to fetch the Menu extension panel at ${menuUrl}: ${e.toString()}`);
+            throw new Error(`Failed to mount the menu from ${menuLoaderUrl}: ${e.toString()}`);
         });
 }
 
