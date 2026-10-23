@@ -131,43 +131,43 @@ importers:
     devDependencies:
       '@enonic-types/core':
         specifier: ^8
-        version: 8.0.4
+        version: 8.1.1
       '@enonic-types/global':
         specifier: ^8
-        version: 8.0.4
+        version: 8.1.1
       '@enonic-types/lib-admin':
         specifier: ^8
-        version: 8.0.4
+        version: 8.1.1
       '@enonic-types/lib-auth':
         specifier: ^8
-        version: 8.0.4
+        version: 8.1.1
       '@enonic-types/lib-common':
         specifier: ^8
-        version: 8.0.4
+        version: 8.1.1
       '@enonic-types/lib-context':
         specifier: ^8
-        version: 8.0.4
+        version: 8.1.1
       '@enonic-types/lib-event':
         specifier: ^8
-        version: 8.0.4
+        version: 8.1.1
       '@enonic-types/lib-grid':
         specifier: ^8
-        version: 8.0.4
+        version: 8.1.1
       '@enonic-types/lib-i18n':
         specifier: ^8
-        version: 8.0.4
+        version: 8.1.1
       '@enonic-types/lib-node':
         specifier: ^8
-        version: 8.0.4
+        version: 8.1.1
       '@enonic-types/lib-portal':
         specifier: ^8
-        version: 8.0.4
+        version: 8.1.1
       '@enonic-types/lib-value':
         specifier: ^8
-        version: 8.0.4
+        version: 8.1.1
       '@enonic-types/lib-websocket':
         specifier: ^8
-        version: 8.0.4
+        version: 8.1.1
       '@rspack/cli':
         specifier: ^2.2.8
         version: 2.2.8(@rspack/core@2.2.8)
@@ -276,44 +276,44 @@ packages:
   '@emnapi/wasi-threads@1.2.3':
     resolution: {integrity: sha512-ELEBe8PsLvvJ6QMr0zLt8ffvOHW/dc1m3CEzNMg7aJUv3bMaoDtw2TXyDAwkYBuroxxuHEwhRTLJSe5sya547g==}
 
-  '@enonic-types/core@8.0.4':
-    resolution: {integrity: sha512-8ZNsk4Yb0MZwq2DW9T6XUxKWCIedt0CUR2bCOriUge3LrY0diwJX2QwaZYrQQ7A4bF8g3dTczO3DDnDRQuPhFg==}
+  '@enonic-types/core@8.1.1':
+    resolution: {integrity: sha512-doqfZ7GSm5Q0IIZYED+J/b6KalGAYIcCkTjE6wCzFIVJivlUiJIQMg6hw18G280Vx7ovtVj5oOZgPjPou8SCNw==}
 
-  '@enonic-types/global@8.0.4':
-    resolution: {integrity: sha512-K32di6aJFFyGQMBwCPC+1Vo/zRFlhwC4iCBKOlQL8FGeFwrc8E+88ZfNhyPO7NVVI0E6TcCpovBmhfQMw7rj8A==}
+  '@enonic-types/global@8.1.1':
+    resolution: {integrity: sha512-Q8jNovJW9ylnPhyNcNbOOg9Z9LHj7tPLYzWYjNa6oZp3A7H8SyCvmmJrIoBAxr/yhjrjzIU07pv4kRKL/jCwuw==}
 
-  '@enonic-types/lib-admin@8.0.4':
-    resolution: {integrity: sha512-Af+/5xxHssKvPCJrLdWj0GtIVyUNasNJdf7Kd2K0CILoof7LsFhaDIYM5xHZcCd1QK7W1YdgHbVfjTeCIpzLMg==}
+  '@enonic-types/lib-admin@8.1.1':
+    resolution: {integrity: sha512-G9V/EMi5C0g3Obxg0na/fEJ7paM+WwA3wuluabVU+f4JPZrsBRizP4qBDVEh8Oc0nM/MCHm9Clr4JPK/shoUJQ==}
 
-  '@enonic-types/lib-auth@8.0.4':
-    resolution: {integrity: sha512-u2QFD3WshAG5btXWD10isCri7VWUIKww4i39vae6C2vtX+wef0/0EHORnGpMNXkA7pjo2fPg/b6+HXERyZjdUA==}
+  '@enonic-types/lib-auth@8.1.1':
+    resolution: {integrity: sha512-WaMfPCqQG8nP2oa6b2b9WAQY90JfKvpWT2UpD828jE5exzw/c+my2owrr+wUbSQyWGZKPjmHDh0nJqK6ab31pQ==}
 
-  '@enonic-types/lib-common@8.0.4':
-    resolution: {integrity: sha512-6nyfmUCxj+bm36AKoSCM0EBZ/Uuz/BI3mbjZ6sVCpSU9NKrOTLmgup2eB6eZWV5oSJxjBrniJs6rInuVKq82uw==}
+  '@enonic-types/lib-common@8.1.1':
+    resolution: {integrity: sha512-6VlI/yMlKHL6nEIKpwqXl/G+uw+EuDlIfY+3m5ORCuvAyzCKmk+cPY0H2uL5P2ygoXtw3WNnMaxuwlxpNQXGGw==}
 
-  '@enonic-types/lib-context@8.0.4':
-    resolution: {integrity: sha512-5E6x4Ow4O9lE1UCYXgwcHytC6GsRbtzdXp7rxSufQxrsJLKvF4+XyQqA2Hws4cGl8RbZhm2gboSB/NfC5TugCw==}
+  '@enonic-types/lib-context@8.1.1':
+    resolution: {integrity: sha512-FGOQhlf2abBsK3gFSQ4thX/e4C1Yxp4F7inofFKwPKr8dP+xJW2UqKACfMKJzx3ehGxmvlsN/FWjwGBKemA+CA==}
 
-  '@enonic-types/lib-event@8.0.4':
-    resolution: {integrity: sha512-RBmAE/n3EOvrnru/RTvvYFWk0hjahO5rJBD8LycQkBO/Zg8Q5fKFh7dKZpPb9LwbXWPJfJSa6uJZFPsONb606Q==}
+  '@enonic-types/lib-event@8.1.1':
+    resolution: {integrity: sha512-6F1K/8EUNow+zJd/gCe27xVlLU/bBW6gJqUUBnKst1RgK1o9aJh2tCZ6Rkaip4puQn7Eiy7BYDzZdT0EX8ZOug==}
 
-  '@enonic-types/lib-grid@8.0.4':
-    resolution: {integrity: sha512-asrJkibauLg+HqWDjRIOMATfkrqlyd0Xv9n9X5qGPNXzy4oQWSIilQeOcYZBpw+usmfFxA/+J4k0Rq/r23uOYw==}
+  '@enonic-types/lib-grid@8.1.1':
+    resolution: {integrity: sha512-P4mul5WvbjVdIKXJaWZQN6VyjZYGqW3XEgAxC6tQI/WUIZi7juOZ8oSjQZ5qb2ZfcISBS92cyVaSOmQ6c6soTg==}
 
-  '@enonic-types/lib-i18n@8.0.4':
-    resolution: {integrity: sha512-+KgHR2kCaUBY/IsQirwQ+Tpnrr/17aEguRuog5D6Wz1VZpL8vplWl9Tx6riHNU4jTVpLIsnlGcwlWqvxr/zfMA==}
+  '@enonic-types/lib-i18n@8.1.1':
+    resolution: {integrity: sha512-2gPq3nsxB0X1AnuFNltYH/l6wrlpTzR1EgZejYI0iTDSo4Z3OgIAxowHKaj1FL7/B6lCSP+YR6WK1ERzBW39Jg==}
 
-  '@enonic-types/lib-node@8.0.4':
-    resolution: {integrity: sha512-1ltjqQ+5a0DXDDHRWe7eQTfnpFOPXblDF+zKiJI+oMpY4PL9EzODeUTc938FxNl2wxG8gi2KMbdkvTTAelwAdw==}
+  '@enonic-types/lib-node@8.1.1':
+    resolution: {integrity: sha512-IUXBnP/B9IDUlcIsbT2iKTvADzqT4bwjOj0W/VM/xlF9i6MvT774AOAbUEDfRp1ZuDd0MEL2637Rbb2Kcp+Bqw==}
 
-  '@enonic-types/lib-portal@8.0.4':
-    resolution: {integrity: sha512-XetDnczRi2JnpDxj14hsjcTPgtTrMiZhOVij+RB4JXwnWmidgZv1WuDXVsOdJcPLh/41V9LGTqT8I1wbrkfoCQ==}
+  '@enonic-types/lib-portal@8.1.1':
+    resolution: {integrity: sha512-/BQcCqIQpQHiZPSxbuF1GDZV8u1QcorKAouR2uGco4hRRwzxVVrSW3OanRPj8i4XoOeEEpL0d8hSBrVFOnHTPg==}
 
-  '@enonic-types/lib-value@8.0.4':
-    resolution: {integrity: sha512-3GOc1OZdo+KZGnFtW77hofjsBkBxCn3HG/b5Zb8y4jQa5LC1JFNB1dyWvN1fC/dasc8Ah9W8l2F2smEQc526ig==}
+  '@enonic-types/lib-value@8.1.1':
+    resolution: {integrity: sha512-WrIUauFhVL+AXaY7iN+Q8UG4dGOwWXDPt9/3h1ALGY0FXhRwh3Iu36VrnXxBoS4HrrW1oRdNUbuau7ZSlaoOJw==}
 
-  '@enonic-types/lib-websocket@8.0.4':
-    resolution: {integrity: sha512-FReHVSRPJFkTMLcHjaxL6rQXcWc4LrtqC9qHO+t935mAWKGDByoEVsZbVHMJqNu3WcnT/RpDhTCPgZoFdif1gA==}
+  '@enonic-types/lib-websocket@8.1.1':
+    resolution: {integrity: sha512-k+68EVZhR5ExLDeEb4TbdmDxZWD3gBi/BP5lct44qKJNHaVD8qyZLXPiBoDgo2inM7BUzMvzsPjy5zfprA2cmA==}
 
   '@enonic/page-editor@2.0.2':
     resolution: {integrity: sha512-7p/EC1ByEflsOvk7TI1BF/PfyNZJDEJHbGH6JT4wvjNsKyBXcIhgCcybTzP8fcVJbYnSZXaDB7ojsWQ5YDWHjA==}
@@ -1884,49 +1884,49 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
-  '@enonic-types/core@8.0.4': {}
+  '@enonic-types/core@8.1.1': {}
 
-  '@enonic-types/global@8.0.4':
+  '@enonic-types/global@8.1.1':
     dependencies:
-      '@enonic-types/core': 8.0.4
+      '@enonic-types/core': 8.1.1
 
-  '@enonic-types/lib-admin@8.0.4':
+  '@enonic-types/lib-admin@8.1.1':
     dependencies:
-      '@enonic-types/core': 8.0.4
+      '@enonic-types/core': 8.1.1
 
-  '@enonic-types/lib-auth@8.0.4':
+  '@enonic-types/lib-auth@8.1.1':
     dependencies:
-      '@enonic-types/core': 8.0.4
+      '@enonic-types/core': 8.1.1
 
-  '@enonic-types/lib-common@8.0.4': {}
+  '@enonic-types/lib-common@8.1.1': {}
 
-  '@enonic-types/lib-context@8.0.4':
+  '@enonic-types/lib-context@8.1.1':
     dependencies:
-      '@enonic-types/core': 8.0.4
+      '@enonic-types/core': 8.1.1
 
-  '@enonic-types/lib-event@8.0.4': {}
+  '@enonic-types/lib-event@8.1.1': {}
 
-  '@enonic-types/lib-grid@8.0.4':
+  '@enonic-types/lib-grid@8.1.1':
     dependencies:
-      '@enonic-types/core': 8.0.4
+      '@enonic-types/core': 8.1.1
 
-  '@enonic-types/lib-i18n@8.0.4':
+  '@enonic-types/lib-i18n@8.1.1':
     dependencies:
-      '@enonic-types/core': 8.0.4
+      '@enonic-types/core': 8.1.1
 
-  '@enonic-types/lib-node@8.0.4':
+  '@enonic-types/lib-node@8.1.1':
     dependencies:
-      '@enonic-types/core': 8.0.4
+      '@enonic-types/core': 8.1.1
 
-  '@enonic-types/lib-portal@8.0.4':
+  '@enonic-types/lib-portal@8.1.1':
     dependencies:
-      '@enonic-types/core': 8.0.4
+      '@enonic-types/core': 8.1.1
 
-  '@enonic-types/lib-value@8.0.4':
+  '@enonic-types/lib-value@8.1.1':
     dependencies:
-      '@enonic-types/core': 8.0.4
+      '@enonic-types/core': 8.1.1
 
-  '@enonic-types/lib-websocket@8.0.4': {}
+  '@enonic-types/lib-websocket@8.1.1': {}
 
   '@enonic/input-types@0.5.2(@dnd-kit/core@6.3.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@dnd-kit/sortable@10.0.0(@dnd-kit/core@6.3.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4))(@enonic/ui-utils@0.5.2(neverthrow@8.2.0))(@enonic/ui@1.5.0(@radix-ui/react-slot@1.5.0(@types/react@19.2.14)(react@19.2.4))(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(preact@10.29.8)(react-dom@19.2.4(react@19.2.4))(react-virtuoso@4.18.19(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(tw-animate-css@1.4.0))(@types/react@19.2.14)(focus-trap-react@12.0.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(preact@10.29.8)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
     dependencies:
