@@ -63,7 +63,7 @@ export class ImageSelectorSelectedOptionView
         const newIconSrc = content.getImageUrl() + '?thumbnail=false&size=270';
         if (this.icon.getSrc().indexOf(newIconSrc) === -1) {
             const setSrc = () => {
-                if (this.isVisible() && !this.icon.isLoaded()) {
+                if (this.isVisible() && this.isWithinViewport() && !this.icon.isLoaded()) {
                     this.showSpinner();
                 }
                 this.icon.setSrc(newIconSrc);
@@ -71,6 +71,11 @@ export class ImageSelectorSelectedOptionView
 
             this.icon.whenRendered(() => setSrc());
         }
+    }
+
+    private isWithinViewport(): boolean {
+        const rect: DOMRect = this.getHTMLElement().getBoundingClientRect();
+        return rect.bottom > 0 && rect.top < window.innerHeight;
     }
 
     setProgress(value: number) {
