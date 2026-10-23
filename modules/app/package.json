@@ -94,7 +94,7 @@
     "oxlint": "1.88.0",
     "postcss-loader": "^8.2.0",
     "postcss-normalize": "^13.0.1",
-    "postcss-sort-media-queries": "^6.6.2",
+    "postcss-sort-media-queries": "^6.7.1",
     "typescript": "7.0.2"
   },
   "browserslist": [
