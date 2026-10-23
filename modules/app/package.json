@@ -33,6 +33,7 @@
     "@enonic/lib-contentstudio": "link:.xp/dev/lib-contentstudio",
     "@enonic/page-editor": "2.0.2",
     "@enonic/ui": "^1.5.0",
+    "@enonic/ui-kit": "^0.6.0",
     "@enonic/ui-types": "^0.6.0",
     "@enonic/ui-utils": "^0.6.0",
     "@nanostores/preact": "^1.0.0",

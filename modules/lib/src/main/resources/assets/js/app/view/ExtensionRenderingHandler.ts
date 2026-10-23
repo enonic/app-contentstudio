@@ -6,10 +6,10 @@ import { StatusCode } from '@enonic/lib-admin-ui/rest/StatusCode';
 import { type Action } from '@enonic/lib-admin-ui/ui/Action';
 import { type Mask } from '@enonic/lib-admin-ui/ui/mask/Mask';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
-import { listenKeys, type StoreValue } from 'nanostores';
+import { readResolvedTheme, subscribeResolvedTheme } from '@enonic/ui-utils';
+import { type StoreValue } from 'nanostores';
 import Q from 'q';
 import { PreviewLabelElement } from '../../v6/shared/ui/PreviewLabel';
-import { $app, getResolvedTheme } from '../../v6/shared/app-state/app.store';
 import { $autoModeWidgets, WIDGET_AUTO_DESCRIPTOR } from '../../v6/widgets/inspectors/model/liveViewWidgets.store';
 import {
     $isLivePreviewRenderable,
@@ -264,7 +264,7 @@ export class ExtensionRenderingHandler {
             body.style.justifyContent = 'center';
             body.style.alignItems = 'center';
             // Apply theme-aware background color
-            const isDark = getResolvedTheme() === 'dark';
+            const isDark = readResolvedTheme() === 'dark';
             body.style.backgroundColor = isDark ? '#242829' : '#ffffff';
         }
 
@@ -331,7 +331,7 @@ export class ExtensionRenderingHandler {
                 return;
             }
             // Subscribe to theme changes to update image background
-            unsubscribeTheme = listenKeys($app, ['theme'], () => {
+            unsubscribeTheme = subscribeResolvedTheme(() => {
                 if (iframe.getClass() === 'image') {
                     const frameWindow = iframe.getHTMLElement()['contentWindow'];
                     if (frameWindow) {

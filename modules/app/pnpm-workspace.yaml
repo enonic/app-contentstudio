@@ -19,6 +19,7 @@ minimumReleaseAgeExclude:
   - "@enonic/input-types"
   - "@enonic/ui-types"
   - "@enonic/ui-utils"
+  - "@enonic/ui-kit"
   - "@enonic-types/*"
 
 overrides:

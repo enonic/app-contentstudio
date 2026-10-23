@@ -32,6 +32,16 @@ interface FocusOptions {
 }
 
 //
+// Vite
+//
+
+// Vite's `?raw` import, for tests that read a phrase bundle as text.
+declare module '*.properties?raw' {
+    const content: string;
+    export default content;
+}
+
+//
 // JQuery
 //
 interface JQuery {
