@@ -4,6 +4,7 @@ import { ChevronDown } from 'lucide-react';
 import { createPortal, useCallback, useEffect, useMemo, useState, type FocusEvent, type KeyboardEvent } from 'react';
 import type { ExtensionView } from '../../../../app/view/context/ExtensionView';
 import { $contextPanelMode, $isContextOpen } from '../../../shared/app-state/browsePanels.store';
+import { focusContextPanelTarget } from '../../../shared/lib/dom/contextPanelFocus';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import { WidgetIcon } from '../../../shared/ui/icons/WidgetIcon';
 import { LegacyElement } from '../../../shared/ui/LegacyElement';
@@ -183,6 +184,17 @@ function WidgetsSelectorCombobox({ widgetViews, selectedWidgetView, selectedWidg
         [isOpen],
     );
 
+    const handleInputKeyDownCapture = (event: KeyboardEvent<HTMLInputElement>): void => {
+        if (event.key !== 'Tab' || !event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) {
+            return;
+        }
+
+        if (focusContextPanelTarget('toggle')) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    };
+
     useEffect(() => setSearchValue(undefined), [selectedWidgetKey]);
 
     return (
@@ -206,6 +218,7 @@ function WidgetsSelectorCombobox({ widgetViews, selectedWidgetView, selectedWidg
                             <Combobox.Input
                                 placeholder={placeholder}
                                 onFocus={handleInputFocus}
+                                onKeyDownCapture={handleInputKeyDownCapture}
                                 className={cn(selectedWidgetView && !isOpen && 'font-semibold pl-10')}
                             />
                             <Combobox.Toggle />
