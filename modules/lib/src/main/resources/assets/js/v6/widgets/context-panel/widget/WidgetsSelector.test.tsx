@@ -19,6 +19,18 @@ vi.mock('@enonic/ui', () => {
                 {children}
             </button>
         ),
+        Toggle: (props: {
+            onKeyDown?: (event: ReactKeyboardEvent<HTMLButtonElement>) => void;
+            'data-context-panel-toggle'?: boolean;
+        }) => (
+            <button
+                type="button"
+                data-context-panel-toggle={props['data-context-panel-toggle']}
+                onKeyDown={props.onKeyDown}
+            />
+        ),
+        Toolbar: { Item: ({ children }: ChildProps) => <>{children}</> },
+        Tooltip: ({ children }: ChildProps) => <>{children}</>,
         Menu: Object.assign(({ children }: ChildProps) => <>{children}</>, {
             Trigger: ({
                 children,
@@ -66,6 +78,7 @@ vi.mock('@enonic/ui', () => {
     };
 });
 
+import { ContextToggle } from '../../browse-toolbar/ContextToggle';
 import { WidgetsSelector } from './WidgetsSelector';
 
 vi.mock('../../../shared/lib/hooks/useI18n', () => ({
@@ -91,6 +104,41 @@ describe('WidgetsSelector', () => {
         setContextOpen(false);
         setContextLayoutMetrics({ totalWidth: 700, contextWidth: 360, windowWidth: 700 });
         setContextOpen(true);
+    });
+
+    it('moves from the context toggle to the selector with ArrowDown and back with Shift+Tab', async () => {
+        const { container } = render(
+            <>
+                <ContextToggle />
+                <WidgetsSelector />
+            </>,
+        );
+        const toggle = container.querySelector<HTMLButtonElement>('[data-context-panel-toggle]');
+        const input = container.querySelector<HTMLInputElement>('input[role="combobox"]');
+        const rect = new DOMRect(0, 0, 100, 30);
+        for (const element of [toggle, input]) {
+            vi.spyOn(element, 'getBoundingClientRect').mockReturnValue(rect);
+            vi.spyOn(element, 'getClientRects').mockReturnValue([rect] as unknown as DOMRectList);
+        }
+
+        toggle.focus();
+        expect(fireEvent.keyDown(toggle, { key: 'ArrowDown', ctrlKey: true })).toBe(true);
+        expect(document.activeElement).toBe(toggle);
+        expect(fireEvent.keyDown(toggle, { key: 'ArrowDown' })).toBe(false);
+        expect(document.activeElement).toBe(input);
+
+        expect(fireEvent.keyDown(input, { key: 'ArrowUp' })).toBe(true);
+        expect(fireEvent.keyDown(input, { key: 'Tab' })).toBe(true);
+        expect(document.activeElement).toBe(input);
+        expect(fireEvent.keyDown(input, { key: 'Tab', shiftKey: true })).toBe(false);
+        expect(document.activeElement).toBe(toggle);
+
+        await act(async () => {
+            setContextOpen(false);
+            await new Promise((resolve) => setTimeout(resolve, 0));
+        });
+        expect(fireEvent.keyDown(toggle, { key: 'ArrowDown' })).toBe(true);
+        expect(document.activeElement).toBe(toggle);
     });
 
     it('moves to a mobile toolbar target supplied after the initial render', () => {
