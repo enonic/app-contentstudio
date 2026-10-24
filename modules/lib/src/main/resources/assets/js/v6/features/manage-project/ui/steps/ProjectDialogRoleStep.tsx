@@ -3,7 +3,7 @@ import { PrincipalType } from '@enonic/lib-admin-ui/security/PrincipalType';
 import { Dialog, GridList, IconButton, Selector } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { CircleUserRound, X } from 'lucide-react';
-import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import { ReactElement, type RefObject, useCallback, useEffect, useMemo, useState } from 'react';
 import { ProjectAccess } from '../../../../../app/settings/access/ProjectAccess';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import { $projectDialog, setProjectDialogRolePrincipals, setProjectDialogRoles } from '../../model/projectDialog.store';
@@ -37,9 +37,13 @@ ProjectDialogRoleStepHeader.displayName = 'ProjectDialogRoleStepHeader';
 
 export type ProjectDialogRoleStepContentProps = {
     locked?: boolean;
+    roleInputRef?: RefObject<HTMLInputElement | null>;
 };
 
-export const ProjectDialogRoleStepContent = ({ locked = false }: ProjectDialogRoleStepContentProps): ReactElement => {
+export const ProjectDialogRoleStepContent = ({
+    locked = false,
+    roleInputRef,
+}: ProjectDialogRoleStepContentProps): ReactElement => {
     // Hooks
     const { principals } = useStore($principals);
     const { parentProjects, roles } = useStore($projectDialog, {
@@ -152,6 +156,7 @@ export const ProjectDialogRoleStepContent = ({ locked = false }: ProjectDialogRo
             </div>
 
             <PrincipalSelector
+                inputRef={roleInputRef}
                 ariaLabel={label}
                 options={principalOptions}
                 selection={selection}

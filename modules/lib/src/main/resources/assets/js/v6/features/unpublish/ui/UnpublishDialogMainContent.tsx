@@ -4,7 +4,7 @@ import { useCallback, useMemo, useRef, type ReactElement } from 'react';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { Branch } from '../../../../app/versioning/Branch';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
-import { useOnceWhen } from '../../../shared/lib/hooks/useOnce';
+import { useDialogInitialFocus } from '../../../shared/lib/hooks/useDialogInitialFocus';
 import {
     $hasMoreUnpublishDependants,
     $isUnpublishDialogReady,
@@ -47,15 +47,8 @@ export const UnpublishDialogMainContent = ({
     const unpublishButtonLabel = total > 1 ? `${unpublishLabel} (${total})` : unpublishLabel;
 
     const unpublishButtonRef = useRef<HTMLButtonElement>(null);
-
-    useOnceWhen(() => {
-        unpublishButtonRef.current?.focus();
-    }, ready);
-
-    const handleOpenAutoFocus = (event: Event) => {
-        event.preventDefault();
-        unpublishButtonRef.current?.focus();
-    };
+    const ignoreButtonRef = useRef<HTMLButtonElement>(null);
+    const handleOpenAutoFocus = useDialogInitialFocus([unpublishButtonRef, ignoreButtonRef], ready);
 
     const inboundCount = useMemo(() => {
         if (inboundIgnored) {
@@ -74,6 +67,7 @@ export const UnpublishDialogMainContent = ({
             <Dialog.DefaultHeader title={title} withClose />
 
             <InboundStatusBar
+                ignoreButtonRef={ignoreButtonRef}
                 loading={loading}
                 failed={failed}
                 errors={{
@@ -99,14 +93,16 @@ export const UnpublishDialogMainContent = ({
             </Dialog.Body>
 
             <Dialog.Footer className="flex items-center gap-1">
-                <Button
-                    ref={unpublishButtonRef}
-                    variant="solid"
-                    size="lg"
-                    label={unpublishButtonLabel}
-                    disabled={!ready}
-                    onClick={onUnpublish}
-                />
+                <Dialog.Shortcut asChild>
+                    <Button
+                        ref={unpublishButtonRef}
+                        variant="solid"
+                        size="lg"
+                        label={unpublishButtonLabel}
+                        disabled={!ready}
+                        onClick={onUnpublish}
+                    />
+                </Dialog.Shortcut>
             </Dialog.Footer>
         </Dialog.Content>
     );

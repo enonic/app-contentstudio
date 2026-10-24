@@ -216,6 +216,7 @@ export const PermissionsDialog = (): ReactElement => {
                                 <Dialog.Footer className="flex flex-col">
                                     <Dialog.StepIndicator
                                         dots
+                                        keyboardShortcuts
                                         previousLabel={previousLabel}
                                         nextLabel={nextLabel}
                                         lastStepLabel={

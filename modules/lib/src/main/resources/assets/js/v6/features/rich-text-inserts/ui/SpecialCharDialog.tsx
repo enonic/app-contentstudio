@@ -105,7 +105,7 @@ export const SpecialCharDialog = (): ReactElement => {
 
     const preventOpenAutoFocus = (event: Event): void => {
         event.preventDefault();
-        closeButtonRef.current?.focus({ focusVisible: true });
+        buttonRefs.current[0]?.focus({ focusVisible: true });
     };
 
     const handleCloseAutoFocus = (event: Event): void => {

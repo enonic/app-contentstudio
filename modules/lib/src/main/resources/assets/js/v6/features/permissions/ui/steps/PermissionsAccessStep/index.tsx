@@ -4,12 +4,13 @@ import { RoleKeys } from '@enonic/lib-admin-ui/security/RoleKeys';
 import { CheckboxChecked, Dialog, GridList, RadioGroup } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { LockKeyhole, LockKeyholeOpen } from 'lucide-react';
-import { Fragment, ReactElement, useCallback, useMemo, useState } from 'react';
+import { Fragment, ReactElement, useCallback, useMemo, useRef, useState } from 'react';
 import { AccessControlEntry } from '../../../../../../app/access/AccessControlEntry';
 import { Permission } from '../../../../../../app/access/Permission';
 import { Access } from '../../../../../../app/security/Access';
 import { AccessHelper } from '../../../../../../app/security/AccessHelper';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
+import { useDialogInitialFocus } from '../../../../../shared/lib/hooks/useDialogInitialFocus';
 import {
     $permissionsDialog,
     setPermissionsDialogAccessControlEntries,
@@ -47,12 +48,16 @@ PermissionsDialogAccessStepHeader.displayName = 'PermissionsDialogAccessStepHead
 export const PermissionsDialogAccessStepContent = (): ReactElement => {
     // Stores
     const { principals } = useStore($principals);
-    const { accessControlEntries, parentAccessControlEntries, accessMode, isContentRoot } = useStore(
+    const { accessControlEntries, parentAccessControlEntries, accessMode, isContentRoot, step } = useStore(
         $permissionsDialog,
         {
-            keys: ['accessControlEntries', 'parentAccessControlEntries', 'accessMode', 'isContentRoot'],
+            keys: ['accessControlEntries', 'parentAccessControlEntries', 'accessMode', 'isContentRoot', 'step'],
         },
     );
+
+    const inputRef = useRef<HTMLInputElement>(null);
+    // This component mounts after loading; focus once when its step is visible.
+    useDialogInitialFocus(inputRef, step === 'step-access');
 
     // States
     const [selection, setSelection] = useState<string[]>(accessControlEntriesToPrincipalKeys(accessControlEntries));
@@ -193,6 +198,7 @@ export const PermissionsDialogAccessStepContent = (): ReactElement => {
 
             <PrincipalSelector
                 ariaLabel={permissionsLabel}
+                inputRef={inputRef}
                 options={principalOptions}
                 selection={selection}
                 onSelectionChange={handleSelect}

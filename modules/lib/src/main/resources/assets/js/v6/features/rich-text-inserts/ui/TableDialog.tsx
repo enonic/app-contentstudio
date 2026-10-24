@@ -242,14 +242,16 @@ export const TableDialog = (): ReactElement => {
                             </div>
                         </Dialog.Body>
                         <Dialog.Footer className="px-2">
-                            <Button
-                                ref={submitButtonRef}
-                                type="submit"
-                                size="lg"
-                                variant="solid"
-                                label={submitLabel}
-                                disabled={isSubmitDisabled}
-                            />
+                            <Dialog.Shortcut asChild>
+                                <Button
+                                    ref={submitButtonRef}
+                                    type="submit"
+                                    size="lg"
+                                    variant="solid"
+                                    label={submitLabel}
+                                    disabled={isSubmitDisabled}
+                                />
+                            </Dialog.Shortcut>
                         </Dialog.Footer>
                     </form>
                 </Dialog.Content>

@@ -3,7 +3,7 @@ import { useStore } from '@nanostores/preact';
 import { useMemo, useRef, type ReactElement } from 'react';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
-import { useOnceWhen } from '../../../shared/lib/hooks/useOnce';
+import { useDialogInitialFocus } from '../../../shared/lib/hooks/useDialogInitialFocus';
 import {
     $duplicateDialog,
     $duplicateDraftIncludeChildrenIds,
@@ -46,15 +46,8 @@ export const DuplicateDialogMainContent = ({
     const duplicateButtonLabel = total > 1 ? `${duplicateLabel} (${total})` : duplicateLabel;
 
     const duplicateButtonRef = useRef<HTMLButtonElement>(null);
-
-    useOnceWhen(() => {
-        duplicateButtonRef.current?.focus({ focusVisible: true });
-    }, ready);
-
-    const handleOpenAutoFocus = (event: FocusEvent) => {
-        event.preventDefault();
-        duplicateButtonRef.current?.focus({ focusVisible: true });
-    };
+    const applyButtonRef = useRef<HTMLButtonElement>(null);
+    const handleOpenAutoFocus = useDialogInitialFocus([duplicateButtonRef, applyButtonRef], ready);
 
     const noop = () => undefined;
 
@@ -67,6 +60,7 @@ export const DuplicateDialogMainContent = ({
             <Dialog.DefaultHeader title={title} withClose />
 
             <SelectionStatusBar
+                applyButtonRef={applyButtonRef}
                 loading={loading}
                 editing={!synced}
                 failed={false}
@@ -121,14 +115,16 @@ export const DuplicateDialogMainContent = ({
             </Dialog.Body>
 
             <Dialog.Footer className="flex items-center gap-1">
-                <Button
-                    ref={duplicateButtonRef}
-                    variant="solid"
-                    size="lg"
-                    label={duplicateButtonLabel}
-                    disabled={!ready}
-                    onClick={onDuplicate}
-                />
+                <Dialog.Shortcut asChild>
+                    <Button
+                        ref={duplicateButtonRef}
+                        variant="solid"
+                        size="lg"
+                        label={duplicateButtonLabel}
+                        disabled={!ready}
+                        onClick={onDuplicate}
+                    />
+                </Dialog.Shortcut>
             </Dialog.Footer>
         </Dialog.Content>
     );

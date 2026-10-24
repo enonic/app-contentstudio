@@ -1015,7 +1015,9 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                 <div ref={setPortalContainer} />
             </Dialog.Body>
             <Dialog.Footer className="-mt-1.5 px-5 justify-between">
-                <Button ref={backButtonRef} variant="outline" size="lg" label={backLabel} onClick={handleBack} />
+                <Dialog.Shortcut asChild shortcut="secondary">
+                    <Button ref={backButtonRef} variant="outline" size="lg" label={backLabel} onClick={handleBack} />
+                </Dialog.Shortcut>
                 {isCommentsTab && (
                     <Button
                         variant="solid"
@@ -1044,13 +1046,15 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                             endIcon={!scheduleMode ? Calendar : undefined}
                             disabled={!scheduleMode && isPublishDisabled}
                         />
-                        <Button
-                            variant="solid"
-                            size="lg"
-                            label={scheduleMode && hasIssueSchedule ? scheduleLabelText : publishLabel}
-                            onClick={handlePublish}
-                            disabled={isPublishDisabled}
-                        />
+                        <Dialog.Shortcut asChild>
+                            <Button
+                                variant="solid"
+                                size="lg"
+                                label={scheduleMode && hasIssueSchedule ? scheduleLabelText : publishLabel}
+                                onClick={handlePublish}
+                                disabled={isPublishDisabled}
+                            />
+                        </Dialog.Shortcut>
                     </>
                 )}
             </Dialog.Footer>

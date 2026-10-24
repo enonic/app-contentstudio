@@ -1,5 +1,14 @@
-import { cn, Combobox, useCombobox, VirtualizedTreeList, type ComboboxRootProps, type FlatNode } from '@enonic/ui';
+import {
+    cn,
+    Combobox,
+    useCombobox,
+    VirtualizedTreeList,
+    type ComboboxRootProps,
+    type FlatNode,
+    useComposedRefs,
+} from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
+import type { RefObject } from 'react';
 import {
     forwardRef,
     useCallback,
@@ -27,6 +36,7 @@ type ProjectSelectorProps = {
     placeholder?: string;
     emptyLabel?: string;
     closeOnBlur?: boolean;
+    inputRef?: RefObject<HTMLInputElement | null>;
     className?: string;
 };
 
@@ -42,6 +52,7 @@ export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
         placeholder,
         emptyLabel,
         closeOnBlur,
+        inputRef: externalInputRef,
         className,
     } = props;
 
@@ -55,6 +66,7 @@ export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
     const hideCombobox =
         selectionMode === 'single' && selection.some((name) => projects.some((p) => p.getName() === name));
     const { rootRef, inputRef } = useComboboxCollapse(hideCombobox);
+    const composedInputRef = useComposedRefs(inputRef, externalInputRef);
 
     // Items
     // ? Searching matches the whole project set and renders a flat result list, otherwise layers
@@ -112,7 +124,7 @@ export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
                         <Combobox.Control>
                             <Combobox.Search>
                                 <Combobox.SearchIcon />
-                                <Combobox.Input ref={inputRef} id={inputId} placeholder={placeholder} />
+                                <Combobox.Input ref={composedInputRef} id={inputId} placeholder={placeholder} />
                                 <Combobox.Apply />
                                 <Combobox.Toggle />
                             </Combobox.Search>

@@ -1,5 +1,6 @@
 import { cn } from '@enonic/ui';
 import { LoaderCircle } from 'lucide-react';
+import type { RefObject } from 'react';
 import { useI18n } from '../../../lib/hooks/useI18n';
 import { StatusIcon } from '../../icons/StatusIcon';
 import { LegacyElement } from '../../LegacyElement';
@@ -17,22 +18,28 @@ type Props = {
     onApply: () => void;
     onCancel: () => void;
     onRetry?: () => void;
+    applyButtonRef?: RefObject<HTMLButtonElement | null>;
+    retryButtonRef?: RefObject<HTMLButtonElement | null>;
     errors?: {
         inProgress: {
             count: number;
             disabled?: boolean;
             onExclude: () => void;
+            excludeButtonRef?: RefObject<HTMLButtonElement | null>;
             onMarkAsReady?: () => void;
+            markAsReadyButtonRef?: RefObject<HTMLButtonElement | null>;
         };
         invalid: {
             count: number;
             disabled?: boolean;
             onExclude: () => void;
+            excludeButtonRef?: RefObject<HTMLButtonElement | null>;
         };
         noPermissions?: {
             count: number;
             disabled?: boolean;
             onExclude: () => void;
+            excludeButtonRef?: RefObject<HTMLButtonElement | null>;
         };
     };
 };
@@ -72,7 +79,15 @@ function getStatus({
 
 const SELECTION_STATUS_BAR_NAME = 'SelectionStatusBar';
 
-export const SelectionStatusBar = ({ className, onApply, onCancel, onRetry, ...props }: Props): React.ReactElement => {
+export const SelectionStatusBar = ({
+    className,
+    onApply,
+    onCancel,
+    onRetry,
+    applyButtonRef,
+    retryButtonRef,
+    ...props
+}: Props): React.ReactElement => {
     const loadingText = useI18n('dialog.statusBar.loading');
     const failedText = useI18n('dialog.statusBar.error.failed.text');
     const editingText = useI18n('dialog.state.editing');
@@ -109,6 +124,7 @@ export const SelectionStatusBar = ({ className, onApply, onCancel, onRetry, ...p
                     <span className="text-sm font-semibold">{failedText}</span>
                     {onRetry && (
                         <StatusBarEntryButton
+                            ref={retryButtonRef}
                             onClick={onRetry}
                             className="[--color-ring-offset:var(--color-surface-error)]"
                         >
@@ -122,7 +138,11 @@ export const SelectionStatusBar = ({ className, onApply, onCancel, onRetry, ...p
                 <StatusBarEntry className="bg-surface-info">
                     <StatusIcon className="w-6 h-6" status="info" />
                     <span className="text-sm font-semibold">{editingText}</span>
-                    <StatusBarEntryButton onClick={onApply} className="[--color-ring-offset:var(--color-surface-info)]">
+                    <StatusBarEntryButton
+                        ref={applyButtonRef}
+                        onClick={onApply}
+                        className="[--color-ring-offset:var(--color-surface-info)]"
+                    >
                         {applyText}
                     </StatusBarEntryButton>
                     <StatusBarEntryButton
@@ -152,6 +172,7 @@ export const SelectionStatusBar = ({ className, onApply, onCancel, onRetry, ...p
                 <StatusBarErrorEntry status="in-progress" label={`${inProgressText} (${inProgress.count})`}>
                     {!inProgress.disabled && (
                         <StatusBarEntryButton
+                            ref={inProgress.excludeButtonRef}
                             onClick={inProgress.onExclude}
                             className="[--color-ring-offset:var(--color-surface-warn)]"
                         >
@@ -160,6 +181,7 @@ export const SelectionStatusBar = ({ className, onApply, onCancel, onRetry, ...p
                     )}
                     {inProgress.onMarkAsReady && (
                         <StatusBarEntryButton
+                            ref={inProgress.markAsReadyButtonRef}
                             onClick={inProgress.onMarkAsReady}
                             className="[--color-ring-offset:var(--color-surface-warn)]"
                         >
@@ -176,6 +198,7 @@ export const SelectionStatusBar = ({ className, onApply, onCancel, onRetry, ...p
                     disabled={invalid.disabled}
                 >
                     <StatusBarEntryButton
+                        ref={invalid.excludeButtonRef}
                         onClick={invalid.onExclude}
                         className="[--color-ring-offset:var(--color-surface-error)]"
                     >
@@ -191,6 +214,7 @@ export const SelectionStatusBar = ({ className, onApply, onCancel, onRetry, ...p
                     disabled={noPermissions.disabled}
                 >
                     <StatusBarEntryButton
+                        ref={noPermissions.excludeButtonRef}
                         onClick={noPermissions.onExclude}
                         className="[--color-ring-offset:var(--color-surface-error)]"
                     >

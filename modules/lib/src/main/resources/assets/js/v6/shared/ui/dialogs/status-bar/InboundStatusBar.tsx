@@ -1,5 +1,6 @@
 import { cn } from '@enonic/ui';
 import { LoaderCircle } from 'lucide-react';
+import type { RefObject } from 'react';
 import { useI18n } from '../../../lib/hooks/useI18n';
 import { StatusIcon } from '../../icons/StatusIcon';
 import { StatusBarEntry } from './StatusBarEntry';
@@ -10,6 +11,7 @@ type Props = {
     className?: string;
     loading?: boolean;
     failed?: boolean;
+    ignoreButtonRef?: RefObject<HTMLButtonElement | null>;
     errors: {
         inbound: {
             count: number;
@@ -35,7 +37,7 @@ function getStatus({ loading, failed, errors }: Omit<Props, 'className'>): Statu
 
 const INBOUND_STATUS_BAR_NAME = 'InboundStatusBar';
 
-export const InboundStatusBar = ({ className, ...props }: Props): React.ReactElement => {
+export const InboundStatusBar = ({ className, ignoreButtonRef, ...props }: Props): React.ReactElement => {
     const loadingText = useI18n('dialog.statusBar.loading');
     const failedText = useI18n('dialog.statusBar.error.failed.text');
     const inboundText = useI18n('dialog.statusBar.error.inbound.text');
@@ -67,7 +69,9 @@ export const InboundStatusBar = ({ className, ...props }: Props): React.ReactEle
 
             {status === 'errors' && inbound.count > 0 && (
                 <StatusBarErrorEntry status="invalid" label={`${inboundText} (${inbound.count})`}>
-                    <StatusBarEntryButton onClick={inbound.onIgnore}>{ignoreActionText}</StatusBarEntryButton>
+                    <StatusBarEntryButton ref={ignoreButtonRef} onClick={inbound.onIgnore}>
+                        {ignoreActionText}
+                    </StatusBarEntryButton>
                 </StatusBarErrorEntry>
             )}
         </div>
