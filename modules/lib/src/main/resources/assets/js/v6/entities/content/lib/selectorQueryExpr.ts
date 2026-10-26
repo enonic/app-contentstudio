@@ -1,31 +1,42 @@
-import { FieldExpr } from '@enonic/lib-admin-ui/query/expr/FieldExpr';
-import { FieldOrderExpr } from '@enonic/lib-admin-ui/query/expr/FieldOrderExpr';
-import { OrderDirection } from '@enonic/lib-admin-ui/query/expr/OrderDirection';
-import { type OrderExpr } from '@enonic/lib-admin-ui/query/expr/OrderExpr';
-import { QueryExpr } from '@enonic/lib-admin-ui/query/expr/QueryExpr';
-import { PathMatchExpressionBuilder } from '@enonic/lib-admin-ui/query/PathMatchExpression';
-import { QueryField } from '@enonic/lib-admin-ui/query/QueryField';
+import {
+    DEFAULT_ORDER,
+    QUERY_FIELD,
+    and,
+    escapeSearchString,
+    fulltextSearch,
+    like,
+    or,
+    pathMatch,
+    query,
+    weightedField,
+} from './query';
 
-// Mirrors ContentSelectorRequest.DEFAULT_ORDER (_score DESC, modifiedTime DESC).
-const DEFAULT_ORDER: OrderExpr[] = [
-    new FieldOrderExpr(new FieldExpr('_score'), OrderDirection.DESC),
-    new FieldOrderExpr(new FieldExpr('modifiedTime'), OrderDirection.DESC),
+const MAX_PATH_LENGTH = 80;
+
+const SELECTOR_FIELDS = [
+    weightedField(QUERY_FIELD.DISPLAY_NAME, 5),
+    weightedField(QUERY_FIELD.NAME, 3),
+    weightedField(QUERY_FIELD.ALL),
 ];
 
-/**
- * Builds the content-selector search expression using the same lib-admin-ui
- * value classes as the legacy ContentSelectorRequest.createSearchExpression +
- * setSearchString pair, so the serialized query is reproduced byte-for-byte.
- * Used by: entities/content/api/selectorQuery.
- */
-export function buildSelectorSearchExpr(searchString: string, path: string): QueryExpr {
-    const constraint = new PathMatchExpressionBuilder()
-        .setSearchString(searchString)
-        .setPath(path)
-        .addField(new QueryField(QueryField.DISPLAY_NAME, 5))
-        .addField(new QueryField(QueryField.NAME, 3))
-        .addField(new QueryField(QueryField.ALL))
-        .build();
+function pathSearchString(searchString: string): string {
+    const withoutRoot = searchString.startsWith('/') ? searchString.slice(1) : searchString;
+    return `/content/*${withoutRoot.trim().replace(/\s+/g, '*')}*`;
+}
 
-    return new QueryExpr(constraint, DEFAULT_ORDER);
+/**
+ * Content-selector search: fulltext over the selector fields, or a wildcard path match on the
+ * search string, scoped to the context path. Serialized identically to the legacy
+ * ContentSelectorRequest. Used by: entities/content/api/selectorQuery.
+ */
+export function buildSelectorSearchExpr(searchString: string, path: string): string {
+    const text = fulltextSearch(SELECTOR_FIELDS, searchString);
+    const scope = pathMatch(path);
+
+    if (searchString.length > MAX_PATH_LENGTH) {
+        return query(and(text, scope), DEFAULT_ORDER);
+    }
+
+    const byPath = like(QUERY_FIELD.PATH, pathSearchString(escapeSearchString(searchString)));
+    return query(and(or(text, byPath), scope), DEFAULT_ORDER);
 }

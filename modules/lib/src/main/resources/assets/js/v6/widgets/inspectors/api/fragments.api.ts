@@ -1,15 +1,3 @@
-import { CompareExpr } from '@enonic/lib-admin-ui/query/expr/CompareExpr';
-import { type ConstraintExpr } from '@enonic/lib-admin-ui/query/expr/ConstraintExpr';
-import { DynamicConstraintExpr } from '@enonic/lib-admin-ui/query/expr/DynamicConstraintExpr';
-import { FieldExpr } from '@enonic/lib-admin-ui/query/expr/FieldExpr';
-import { FieldOrderExpr } from '@enonic/lib-admin-ui/query/expr/FieldOrderExpr';
-import { FunctionExpr } from '@enonic/lib-admin-ui/query/expr/FunctionExpr';
-import { LogicalExpr } from '@enonic/lib-admin-ui/query/expr/LogicalExpr';
-import { LogicalOperator } from '@enonic/lib-admin-ui/query/expr/LogicalOperator';
-import { OrderDirection } from '@enonic/lib-admin-ui/query/expr/OrderDirection';
-import { type OrderExpr } from '@enonic/lib-admin-ui/query/expr/OrderExpr';
-import { QueryExpr } from '@enonic/lib-admin-ui/query/expr/QueryExpr';
-import { ValueExpr } from '@enonic/lib-admin-ui/query/expr/ValueExpr';
 import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { type ResultAsync } from 'neverthrow';
 import { requestJson } from '@enonic/ui-utils/request';
@@ -17,16 +5,12 @@ import type { AppError } from '@enonic/ui-utils';
 import { ContentSummary } from '../../../../app/content/ContentSummary';
 import { type ContentSummaryJson } from '../../../../app/content/ContentSummaryJson';
 import { Branch } from '../../../../app/versioning/Branch';
+import { DEFAULT_ORDER, QUERY_FIELD, and, like, pathMatch, query } from '../../../entities/content/lib/query';
 import { getCmsApiUrl } from '../../../shared/lib/url/cms';
 
 type FragmentQueryResultJson = {
     contents: ContentSummaryJson[];
 };
-
-const FRAGMENT_QUERY_ORDER: OrderExpr[] = [
-    new FieldOrderExpr(new FieldExpr('_score'), OrderDirection.DESC),
-    new FieldOrderExpr(new FieldExpr('modifiedTime'), OrderDirection.DESC),
-];
 
 /**
  * Match every content item under the content root. This is the always-true base
@@ -34,22 +18,14 @@ const FRAGMENT_QUERY_ORDER: OrderExpr[] = [
  * search string, minus the redundant `fulltext`/`ngram`/`_path LIKE '/content/**'`
  * clauses it OR-ed alongside — the fragment set comes from the content-type filter.
  */
-function createContentRootConstraint(): ConstraintExpr {
-    return new DynamicConstraintExpr(
-        new FunctionExpr('pathMatch', [ValueExpr.stringValue('_path'), ValueExpr.stringValue('/content')]),
-    );
-}
-
-function buildFragmentQueryExpr(sitePath?: string): QueryExpr {
-    const base = createContentRootConstraint();
+function buildFragmentQueryExpr(sitePath?: string): string {
+    const base = pathMatch('');
 
     if (!sitePath) {
-        return new QueryExpr(base, FRAGMENT_QUERY_ORDER);
+        return query(base, DEFAULT_ORDER);
     }
 
-    const siteConstraint = CompareExpr.like(new FieldExpr('_path'), ValueExpr.string(`/content${sitePath}/*`));
-
-    return new QueryExpr(new LogicalExpr(base, LogicalOperator.AND, siteConstraint), FRAGMENT_QUERY_ORDER);
+    return query(and(base, like(QUERY_FIELD.PATH, `/content${sitePath}/*`)), DEFAULT_ORDER);
 }
 
 /**
@@ -61,7 +37,7 @@ export function fetchFragmentSummaries(
     signal?: AbortSignal,
 ): ResultAsync<ContentSummary[], AppError> {
     const body = {
-        queryExpr: buildFragmentQueryExpr(sitePath).toString(),
+        queryExpr: buildFragmentQueryExpr(sitePath),
         from: 0,
         size: -1,
         contentTypeNames: [ContentTypeName.FRAGMENT.toString()],
