@@ -3,7 +3,7 @@ import { fetchNearestSite } from '../../entities/content/api/content.api';
 import { $mediaUploaded } from '../../entities/content/model/uploads.store';
 import { $activeProject } from '../../entities/project/activeProject.store';
 import type { AiHost, AiPlugin, AiPluginId, AiPluginContext, AiPluginInstance } from './ai-protocol';
-import { isAiPluginAssigned } from './ai.commands';
+import { resolveAiPluginConfig } from './ai.commands';
 import { getAiFieldRegistry } from './ai.field-registry';
 import { createPluginApi, emitToPlugin, type PluginApiHandle } from './ai.plugin-api';
 import {
@@ -199,9 +199,9 @@ export function notifyImageUploaded(contentId: string, project: string): void {
 
 // Uploads always target the active project; it travels with the command so the
 // plugin's backend can resolve the cms repo without a request-scoped context.
-// Only fires when the Content Operator app is added to the uploaded content's
-// nearest site, or to the project when the content is outside any site. A failed
-// site lookup sends nothing, so an error can't be mistaken for "outside any site".
+// Only fires when the Content Operator app is added to the project or to the
+// uploaded content's nearest site. A project-level app needs no site lookup; a
+// failed lookup sends nothing, so an error can't be mistaken for "outside any site".
 export function handleMediaUploaded(content: Readonly<Content> | null): void {
     const type = content?.getType();
     if (type == null || !(type.isImage() || type.isVectorMedia())) {
@@ -213,9 +213,13 @@ export function handleMediaUploaded(content: Readonly<Content> | null): void {
         return;
     }
     const contentId = content.getContentId();
+    const projectConfigs = project.getSiteConfigs();
+    if (resolveAiPluginConfig(undefined, projectConfigs, 'ai.contentOperator') != null) {
+        notifyImageUploaded(contentId.toString(), projectName);
+        return;
+    }
     void fetchNearestSite(contentId).map((site) => {
-        const configs = site ? site.getSiteConfigs() : project.getSiteConfigs();
-        if (!isAiPluginAssigned(configs, 'ai.contentOperator')) {
+        if (resolveAiPluginConfig(site?.getSiteConfigs(), projectConfigs, 'ai.contentOperator') == null) {
             return;
         }
         notifyImageUploaded(contentId.toString(), projectName);
