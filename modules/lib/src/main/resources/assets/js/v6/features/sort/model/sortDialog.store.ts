@@ -1,5 +1,4 @@
 import { showError, showSuccess } from '@enonic/lib-admin-ui/notify/MessageBus';
-import { QueryField } from '@enonic/lib-admin-ui/query/QueryField';
 import { computed, map } from 'nanostores';
 import { i18n } from '../../../shared/i18n';
 import { ContentId } from '../../../../app/content/ContentId';
@@ -9,6 +8,7 @@ import { FieldOrderExprBuilder } from '../../../../app/resource/order/FieldOrder
 import { OrderChildMovement } from '../../../../app/resource/order/OrderChildMovement';
 import { OrderChildMovements } from '../../../../app/resource/order/OrderChildMovements';
 import { fetchContentByIds, $contentCache, getMissingIds } from '../../../entities/content';
+import { QUERY_FIELD } from '../../../entities/content/lib/query';
 import { reorderChildren, setChildOrder } from '../api/sort.api';
 import type {
     SortDialogRow,
@@ -75,11 +75,11 @@ const SORT_OPTION_MAP: Record<SortOrderOptionId, SortOrderOption> = {
 };
 
 const SORT_ELEMENT_FIELD: Record<SortElementId, string> = {
-    modified: QueryField.MODIFIED_TIME,
-    created: QueryField.CREATED_TIME,
-    displayName: QueryField.DISPLAY_NAME,
-    publish: QueryField.PUBLISH_FIRST,
-    manual: QueryField.MANUAL_ORDER_VALUE,
+    modified: QUERY_FIELD.MODIFIED_TIME,
+    created: QUERY_FIELD.CREATED_TIME,
+    displayName: QUERY_FIELD.DISPLAY_NAME,
+    publish: QUERY_FIELD.PUBLISH_FIRST,
+    manual: QUERY_FIELD.MANUAL_ORDER_VALUE,
 };
 
 //
@@ -193,16 +193,16 @@ const toSortOrderOptionIdFromChildOrder = (order: ChildOrder | null | undefined)
     const direction: SortDirection = order.isDesc() ? 'DESC' : 'ASC';
     const firstExprText = order.getOrderExpressions()[0]?.toString().toLowerCase() ?? '';
 
-    if (startsWithField(firstExprText, QueryField.CREATED_TIME)) {
+    if (startsWithField(firstExprText, QUERY_FIELD.CREATED_TIME)) {
         return `created:${direction}`;
     }
-    if (startsWithField(firstExprText, QueryField.DISPLAY_NAME)) {
+    if (startsWithField(firstExprText, QUERY_FIELD.DISPLAY_NAME)) {
         return `displayName:${direction}`;
     }
-    if (startsWithField(firstExprText, QueryField.PUBLISH_FIRST)) {
+    if (startsWithField(firstExprText, QUERY_FIELD.PUBLISH_FIRST)) {
         return `publish:${direction}`;
     }
-    if (startsWithField(firstExprText, QueryField.MODIFIED_TIME)) {
+    if (startsWithField(firstExprText, QUERY_FIELD.MODIFIED_TIME)) {
         return `modified:${direction}`;
     }
 

@@ -2,14 +2,11 @@ import type { Property } from '@enonic/input-types/data';
 import type { PropertyPath } from '@enonic/input-types/data';
 import type { PropertySet } from '@enonic/input-types/data';
 import { ValueTypes } from '@enonic/input-types/data';
-import { FulltextSearchExpressionBuilder } from '@enonic/lib-admin-ui/query/FulltextSearchExpression';
-import { QueryExpr } from '@enonic/lib-admin-ui/query/expr/QueryExpr';
-import type { Expression } from '@enonic/lib-admin-ui/query/expr/Expression';
-import { QueryField } from '@enonic/lib-admin-ui/query/QueryField';
 import type { Content } from '../../../../../../app/content/Content';
 import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
 import { contentFullSelectorQuery } from '../../../../../entities/content/api/selectorQueryFull.api';
 import { fetchNearestSite } from '../../../../../entities/content';
+import { fulltextSearch } from '../../../../../entities/content/lib/query';
 import { TAG_SITE_PATH, type TagConfig } from './TagConfig';
 
 const TAG_SUGGESTION_LIMIT = 10;
@@ -26,13 +23,8 @@ export function buildTagQueryField(dataPath: PropertyPath): string {
     return relativePath.length > 0 ? `data.${relativePath}` : 'data';
 }
 
-function buildTagQueryExpr(query: string, dataPath: PropertyPath): QueryExpr {
-    const fulltextExpression: Expression = new FulltextSearchExpressionBuilder()
-        .setSearchString(query)
-        .addField(new QueryField(buildTagQueryField(dataPath)))
-        .build();
-
-    return new QueryExpr(fulltextExpression);
+function buildTagQueryExpr(query: string, dataPath: PropertyPath): string {
+    return fulltextSearch([buildTagQueryField(dataPath)], query);
 }
 
 function isDefaultSiteScope(config: TagConfig): boolean {

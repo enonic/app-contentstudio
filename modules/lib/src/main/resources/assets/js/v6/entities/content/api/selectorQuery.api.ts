@@ -1,4 +1,3 @@
-import { type QueryExpr } from '@enonic/lib-admin-ui/query/expr/QueryExpr';
 import { type ResultAsync } from 'neverthrow';
 import { requestJson } from '@enonic/ui-utils/request';
 import type { AppError } from '@enonic/ui-utils';
@@ -18,7 +17,7 @@ export type ContentSelectorQueryParams = {
     /** Search string for the default path-match expression (ignored when queryExpr is set). */
     searchString?: string;
     /** Overrides the default expression built from searchString/contextPath. */
-    queryExpr?: QueryExpr;
+    queryExpr?: string;
     /** Content path scoping the default expression (empty when unset). */
     contextPath?: string;
     from: number;
@@ -56,7 +55,7 @@ export function buildSelectorBody(params: ContentSelectorQueryParams, expand: st
     const queryExpr = params.queryExpr ?? buildSelectorSearchExpr(params.searchString ?? '', params.contextPath ?? '');
 
     return {
-        queryExpr: queryExpr.toString(),
+        queryExpr,
         from: params.from,
         size: params.size,
         expand,
