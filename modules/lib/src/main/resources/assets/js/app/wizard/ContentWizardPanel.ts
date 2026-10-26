@@ -726,8 +726,11 @@ export class ContentWizardPanel
         };
 
         this.stepNavigator.onNavigationItemAdded((event: NavigatorEvent) => {
+            const item: TabBarItem = event.getItem() as TabBarItem;
+            item.unSelected(this.toggleMinimizeListener);
+
             if (this.isMinimized()) {
-                (event.getItem() as TabBarItem).onSelected(this.toggleMinimizeListener);
+                item.onSelected(this.toggleMinimizeListener);
             }
         });
 
