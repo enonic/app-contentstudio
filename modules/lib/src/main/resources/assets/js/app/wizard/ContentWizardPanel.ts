@@ -26,6 +26,7 @@ import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthe
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {TabItemSelectedEvent} from '@enonic/lib-admin-ui/ui/tab/TabItemSelectedEvent';
+import {NavigatorEvent} from '@enonic/lib-admin-ui/ui/NavigatorEvent';
 import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {KeyBindings} from '@enonic/lib-admin-ui/ui/KeyBindings';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
@@ -723,6 +724,12 @@ export class ContentWizardPanel
         this.toggleMinimizeListener = (event: TabItemSelectedEvent) => {
             this.toggleMinimize(event.getTab().getIndex());
         };
+
+        this.stepNavigator.onNavigationItemAdded((event: NavigatorEvent) => {
+            if (this.isMinimized()) {
+                (event.getItem() as TabBarItem).onSelected(this.toggleMinimizeListener);
+            }
+        });
 
         this.wizardActions.getShowLiveEditAction().setEnabled(true);
 
