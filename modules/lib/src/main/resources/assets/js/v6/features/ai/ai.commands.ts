@@ -94,34 +94,31 @@ function findPluginConfig(configs: ApplicationConfig[], plugin: EnonicAiPlugin):
     return configs.find((c) => c.getApplicationKey().getName() === appKey);
 }
 
-export function isAiPluginAssigned(configs: ApplicationConfig[], id: AiPluginId): boolean {
-    return findPluginConfig(configs, ID_TO_PLUGIN[id]) != null;
+export function resolveAiPluginConfig(
+    siteConfigs: ApplicationConfig[] | undefined,
+    projectConfigs: ApplicationConfig[],
+    id: AiPluginId,
+): ApplicationConfig | undefined {
+    const plugin = ID_TO_PLUGIN[id];
+    const siteConfig = siteConfigs ? findPluginConfig(siteConfigs, plugin) : undefined;
+    return siteConfig ?? findPluginConfig(projectConfigs, plugin);
 }
 
-export function updateAiInstructions(configs: ApplicationConfig[]): void {
+export function updateAiAppConfigs(
+    siteConfigs: ApplicationConfig[] | undefined,
+    projectConfigs: ApplicationConfig[],
+): void {
     const current = $aiInstructions.get();
-    const next: Record<EnonicAiPlugin, string | undefined> = current
-        ? { ...current }
-        : { contentOperator: undefined, translator: undefined };
-
-    let changed = current == null;
+    const next: Record<EnonicAiPlugin, string | undefined> = { contentOperator: undefined, translator: undefined };
 
     const ids = Object.keys(ID_TO_PLUGIN) as AiPluginId[];
     for (const id of ids) {
-        const plugin = ID_TO_PLUGIN[id];
-        const pluginConfig = findPluginConfig(configs, plugin);
+        const pluginConfig = resolveAiPluginConfig(siteConfigs, projectConfigs, id);
         $aiAssignedPlugins.setKey(id, pluginConfig != null);
-        if (!pluginConfig) {
-            continue;
-        }
-
-        const value = pluginConfig.getConfig()?.getString('instructions') ?? '';
-        if (next[plugin] !== value) {
-            next[plugin] = value;
-            changed = true;
-        }
+        next[ID_TO_PLUGIN[id]] = pluginConfig ? (pluginConfig.getConfig()?.getString('instructions') ?? '') : undefined;
     }
 
+    const changed = current == null || ids.some((id) => current[ID_TO_PLUGIN[id]] !== next[ID_TO_PLUGIN[id]]);
     if (changed) {
         $aiInstructions.set(next);
     }

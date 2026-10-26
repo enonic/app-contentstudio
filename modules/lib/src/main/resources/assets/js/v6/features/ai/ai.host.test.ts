@@ -357,7 +357,18 @@ describe('image upload notification', () => {
         expect(received).toEqual([]);
     });
 
-    it('notifies when the operator app is assigned to the nearest site only', async () => {
+    it('skips the site lookup when the operator app is added to the project', async () => {
+        const { received } = mountImageListener(['image:uploaded']);
+        setNearestSite(fakeSite('com.example.other'));
+
+        handleMediaUploaded(fakeUploadedContent('image-1', true));
+        await flush();
+
+        expect(received).toEqual([{ contentId: 'image-1', project: 'test-project' }]);
+        expect(fetchNearestSite).not.toHaveBeenCalled();
+    });
+
+    it('notifies when only the nearest site has the operator app', async () => {
         const { received } = mountImageListener(['image:uploaded']);
         projectConfigs = fakeAppConfigs();
         setNearestSite(fakeSite(OPERATOR_APP_KEY));
@@ -368,9 +379,9 @@ describe('image upload notification', () => {
         expect(received).toEqual([{ contentId: 'image-1', project: 'test-project' }]);
     });
 
-    it('ignores the project assignment when the content is inside a site without the app', async () => {
+    it('does not notify when the content is inside a site and neither it nor the project has the app', async () => {
         const { received } = mountImageListener(['image:uploaded']);
-        projectConfigs = fakeAppConfigs(OPERATOR_APP_KEY);
+        projectConfigs = fakeAppConfigs('com.enonic.app.ai.translator');
         setNearestSite(fakeSite('com.example.other'));
 
         handleMediaUploaded(fakeUploadedContent('image-1', true));
@@ -381,7 +392,7 @@ describe('image upload notification', () => {
 
     it('does not notify when the nearest-site lookup fails', async () => {
         const { received } = mountImageListener(['image:uploaded']);
-        projectConfigs = fakeAppConfigs(OPERATOR_APP_KEY);
+        projectConfigs = fakeAppConfigs();
         fetchNearestSite.mockReturnValue(errAsync(new Error('lookup failed')));
 
         handleMediaUploaded(fakeUploadedContent('image-1', true));
