@@ -1,7 +1,7 @@
 import { Dialog, IconButton, ListItem } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { X } from 'lucide-react';
-import { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ReactElement, type RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { $projectDialog, setProjectDialogApplications } from '../../model/projectDialog.store';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import { $applications } from '../../../../entities/application';
@@ -30,10 +30,12 @@ ProjectDialogApplicationStepHeader.displayName = 'ProjectDialogApplicationStepHe
 
 export type ProjectDialogApplicationStepContentProps = {
     locked?: boolean;
+    applicationInputRef?: RefObject<HTMLInputElement | null>;
 };
 
 export const ProjectDialogApplicationStepContent = ({
     locked = false,
+    applicationInputRef,
 }: ProjectDialogApplicationStepContentProps): ReactElement => {
     // Hooks
     const { applications: newProjectApplications, parentProjects } = useStore($projectDialog, {
@@ -112,6 +114,7 @@ export const ProjectDialogApplicationStepContent = ({
     return (
         <Dialog.StepContent step="step-application" locked={locked}>
             <ApplicationSelector
+                inputRef={applicationInputRef}
                 label={label}
                 selection={selection}
                 onSelectionChange={handleSelectionChange}

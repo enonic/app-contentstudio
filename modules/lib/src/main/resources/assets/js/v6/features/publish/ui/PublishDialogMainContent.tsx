@@ -5,6 +5,7 @@ import { useEffect, useId, useRef, useState, type ReactElement } from 'react';
 import { useBreakpoints } from '../../../shared/lib/hooks/useBreakpoints';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import { $config } from '../../../shared/config';
+import { useDialogInitialFocus } from '../../../shared/lib/hooks/useDialogInitialFocus';
 import {
     applyDraftPublishDialogSelection,
     cancelDraftPublishDialogSelection,
@@ -127,6 +128,26 @@ export const PublishDialogMainContent = ({
     const removeCommentLabel = useI18n('action.comment.remove');
     const commentToggleLabel = showComment ? removeCommentLabel : addCommentLabel;
     const moreActionsLabel = useI18n('tooltip.moreActions');
+    const actionButtonRef = useRef<HTMLButtonElement>(null);
+    const applyButtonRef = useRef<HTMLButtonElement>(null);
+    const inProgressExcludeButtonRef = useRef<HTMLButtonElement>(null);
+    const invalidExcludeButtonRef = useRef<HTMLButtonElement>(null);
+    const noPermissionsExcludeButtonRef = useRef<HTMLButtonElement>(null);
+    const markAsReadyButtonRef = useRef<HTMLButtonElement>(null);
+    const retryButtonRef = useRef<HTMLButtonElement>(null);
+    const handleOpenAutoFocus = useDialogInitialFocus(
+        [
+            actionButtonRef,
+            applyButtonRef,
+            inProgressExcludeButtonRef,
+            markAsReadyButtonRef,
+            invalidExcludeButtonRef,
+            noPermissionsExcludeButtonRef,
+            retryButtonRef,
+            firstScheduleInputRef,
+        ],
+        isPublishReady,
+    );
 
     const handleSchedule = () => {
         if (scheduleMode) {
@@ -143,10 +164,13 @@ export const PublishDialogMainContent = ({
         <Dialog.Content
             className="w-full h-full max-sm:max-h-none sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220"
             data-component={componentName}
+            onOpenAutoFocus={handleOpenAutoFocus}
         >
             <Dialog.DefaultHeader titleId={titleId} title={title} withClose />
 
             <SelectionStatusBar
+                applyButtonRef={applyButtonRef}
+                retryButtonRef={retryButtonRef}
                 editing={!isSelectionSynced}
                 failed={failed}
                 loading={loading}
@@ -157,6 +181,8 @@ export const PublishDialogMainContent = ({
                 errors={{
                     inProgress: {
                         ...inProgress,
+                        excludeButtonRef: inProgressExcludeButtonRef,
+                        markAsReadyButtonRef,
                         onMarkAsReady: allowContentUpdate
                             ? () => void markAllAsReadyInProgressPublishItems()
                             : undefined,
@@ -164,10 +190,12 @@ export const PublishDialogMainContent = ({
                     },
                     invalid: {
                         ...invalid,
+                        excludeButtonRef: invalidExcludeButtonRef,
                         onExclude: () => excludeInvalidPublishItems(),
                     },
                     noPermissions: {
                         ...noPermissions,
+                        excludeButtonRef: noPermissionsExcludeButtonRef,
                         onExclude: () => excludeNotPublishablePublishItems(),
                     },
                 }}
@@ -306,14 +334,18 @@ export const PublishDialogMainContent = ({
                 )}
             </Dialog.Body>
             <Dialog.Footer>
+                <Dialog.Shortcut shortcut="secondary" asChild>
+                    <Button
+                        className={md ? undefined : 'sr-only'}
+                        tabIndex={md ? undefined : -1}
+                        label={commentToggleLabel}
+                        endIcon={showComment ? X : Plus}
+                        variant="outline"
+                        onClick={handleToggleComment}
+                    />
+                </Dialog.Shortcut>
                 {md ? (
                     <>
-                        <Button
-                            label={commentToggleLabel}
-                            endIcon={showComment ? X : Plus}
-                            variant="outline"
-                            onClick={handleToggleComment}
-                        />
                         {showScheduleButton && (
                             <Button
                                 className="ml-auto"
@@ -332,23 +364,29 @@ export const PublishDialogMainContent = ({
                                 disabled={!scheduleMode && !isPublishReady}
                             />
                         )}
-                        <Button
-                            className={showScheduleButton ? undefined : 'ml-auto'}
-                            label={scheduleMode ? confirmScheduleLabel : publishLabel}
-                            variant="solid"
-                            onClick={onPublish}
-                            disabled={!isPublishReady}
-                        />
+                        <Dialog.Shortcut asChild>
+                            <Button
+                                className={showScheduleButton ? undefined : 'ml-auto'}
+                                label={scheduleMode ? confirmScheduleLabel : publishLabel}
+                                variant="solid"
+                                onClick={onPublish}
+                                disabled={!isPublishReady}
+                                ref={actionButtonRef}
+                            />
+                        </Dialog.Shortcut>
                     </>
                 ) : (
                     <div className="ml-auto flex items-stretch">
-                        <Button
-                            className="rounded-r-none border-r-0 focus-visible:z-1"
-                            label={scheduleMode ? confirmScheduleLabel : publishLabel}
-                            variant="solid"
-                            onClick={onPublish}
-                            disabled={!isPublishReady}
-                        />
+                        <Dialog.Shortcut asChild>
+                            <Button
+                                className="rounded-r-none border-r-0 focus-visible:z-1"
+                                label={scheduleMode ? confirmScheduleLabel : publishLabel}
+                                variant="solid"
+                                onClick={onPublish}
+                                disabled={!isPublishReady}
+                                ref={actionButtonRef}
+                            />
+                        </Dialog.Shortcut>
                         <Menu>
                             <Menu.Trigger asChild>
                                 <IconButton

@@ -109,13 +109,15 @@ export const RenameContentDialog = (): ReactElement => {
                         />
                     </Dialog.Body>
                     <Dialog.Footer>
-                        <Button
-                            size="lg"
-                            variant="solid"
-                            label={renameLabel}
-                            disabled={!canSubmit}
-                            onClick={submitRenameContentDialog}
-                        />
+                        <Dialog.Shortcut asChild>
+                            <Button
+                                size="lg"
+                                variant="solid"
+                                label={renameLabel}
+                                disabled={!canSubmit}
+                                onClick={submitRenameContentDialog}
+                            />
+                        </Dialog.Shortcut>
                     </Dialog.Footer>
                 </Dialog.Content>
             </Dialog.Portal>

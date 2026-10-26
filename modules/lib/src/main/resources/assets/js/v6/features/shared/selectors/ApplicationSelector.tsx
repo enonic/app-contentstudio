@@ -1,7 +1,7 @@
 import { type Application } from '@enonic/lib-admin-ui/application/Application';
 import { Checkbox, cn, Combobox, type ComboboxRootProps, Listbox, useCombobox } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import { type ReactElement, useId, useMemo, useState } from 'react';
+import { type ReactElement, type RefObject, useId, useMemo, useState } from 'react';
 import { $applications } from '../../../entities/application';
 import { ApplicationIcon } from '../../../shared/ui/icons/ApplicationIcon';
 import { ItemLabel } from '../../../shared/ui/ItemLabel';
@@ -16,6 +16,7 @@ type ApplicationSelectorProps = {
     placeholder?: string;
     emptyLabel?: string;
     closeOnBlur?: boolean;
+    inputRef?: RefObject<HTMLInputElement | null>;
     className?: string;
     inheritedKeys?: ReadonlySet<string>;
 };
@@ -33,6 +34,7 @@ export const ApplicationSelector = (props: ApplicationSelectorProps): ReactEleme
         placeholder,
         emptyLabel,
         closeOnBlur,
+        inputRef,
         className,
         inheritedKeys,
     } = props;
@@ -65,7 +67,7 @@ export const ApplicationSelector = (props: ApplicationSelectorProps): ReactEleme
                     <Combobox.Control>
                         <Combobox.Search>
                             <Combobox.SearchIcon />
-                            <Combobox.Input id={inputId} placeholder={placeholder} />
+                            <Combobox.Input ref={inputRef} id={inputId} placeholder={placeholder} />
                             {selectionMode === 'staged' && <Combobox.Apply />}
                             <Combobox.Toggle />
                         </Combobox.Search>

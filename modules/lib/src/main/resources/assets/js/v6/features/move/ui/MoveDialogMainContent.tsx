@@ -2,6 +2,7 @@ import { Button, Dialog } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { useRef, type ReactElement } from 'react';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
+import { useDialogInitialFocus } from '../../../shared/lib/hooks/useDialogInitialFocus';
 import {
     $moveDialog,
     $moveItemsCount,
@@ -43,11 +44,7 @@ export const MoveDialogMainContent = ({
     const selectedId = destinationId ?? null;
 
     const destinationInputRef = useRef<HTMLInputElement>(null);
-
-    const handleOpenAutoFocus = (event: Event): void => {
-        event.preventDefault();
-        destinationInputRef.current?.focus();
-    };
+    const handleOpenAutoFocus = useDialogInitialFocus(destinationInputRef);
 
     return (
         <Dialog.Content
@@ -74,7 +71,9 @@ export const MoveDialogMainContent = ({
                 </div>
             </Dialog.Body>
             <Dialog.Footer>
-                <Button variant="solid" size="lg" label={moveButtonLabel} disabled={!ready} onClick={onMove} />
+                <Dialog.Shortcut asChild>
+                    <Button variant="solid" size="lg" label={moveButtonLabel} disabled={!ready} onClick={onMove} />
+                </Dialog.Shortcut>
             </Dialog.Footer>
         </Dialog.Content>
     );

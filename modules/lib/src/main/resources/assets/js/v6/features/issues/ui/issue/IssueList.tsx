@@ -1,3 +1,4 @@
+import { Listbox } from '@enonic/ui';
 import { LoaderCircle } from 'lucide-react';
 import { type ReactElement } from 'react';
 import { IssueListItem } from './IssueListItem';
@@ -25,14 +26,24 @@ export const IssueList = ({ issues, emptyLabel, loading = false, onSelect }: Iss
                 </div>
             )}
             {showEmpty && <div className="text-subtle italic px-2.5">{emptyLabel}</div>}
-            <div
-                data-component={ISSUE_LIST_NAME}
-                className="flex flex-col p-2 gap-1.25 min-h-0 max-h-100 overflow-y-auto"
+            <Listbox.Root
+                selection={[]}
+                onSelectionChange={(selection) => {
+                    const issue = issues.find((issue) => issue.getIssue().getId() === selection[0]);
+                    if (issue) {
+                        onSelect?.(issue);
+                    }
+                }}
             >
-                {issues.map((issue) => (
-                    <IssueListItem key={issue.getIssue().getId()} issue={issue} onSelect={onSelect} />
-                ))}
-            </div>
+                <Listbox.Content
+                    data-component={ISSUE_LIST_NAME}
+                    className="flex flex-col items-stretch p-2 gap-1.25 min-h-0 max-h-100 overflow-y-auto"
+                >
+                    {issues.map((issue) => (
+                        <IssueListItem key={issue.getIssue().getId()} issue={issue} />
+                    ))}
+                </Listbox.Content>
+            </Listbox.Root>
         </>
     );
 };

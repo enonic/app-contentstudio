@@ -1,5 +1,5 @@
 import { Selector, cn } from '@enonic/ui';
-import { type ReactElement, useMemo } from 'react';
+import { type ReactElement, type RefObject, useMemo } from 'react';
 import { buildKey } from '../../../shared/lib/format/keys';
 
 export type SortElementSelectorOption = {
@@ -17,6 +17,7 @@ export type SortElementSelectorProps = {
     placeholder?: string;
     searchPlaceholder?: string;
     emptyLabel?: string;
+    inputRef?: RefObject<HTMLButtonElement | null>;
     className?: string;
 };
 
@@ -32,6 +33,7 @@ export const SortElementSelector = ({
     disabled = false,
     placeholder,
     emptyLabel,
+    inputRef,
     className,
 }: SortElementSelectorProps): ReactElement => {
     const selectedValue = selection[0];
@@ -66,7 +68,7 @@ export const SortElementSelector = ({
         <div data-component={SORT_ELEMENT_SELECTOR_NAME} className={cn('flex flex-col gap-2.5', className)}>
             {label && <span className="font-semibold">{label}</span>}
             <Selector.Root value={selectedInternalValue} onValueChange={handleValueChange} disabled={disabled}>
-                <Selector.Trigger aria-label={label}>
+                <Selector.Trigger ref={inputRef} aria-label={label}>
                     <Selector.Value placeholder={placeholder}>
                         {(value) => mappedOptionMap.get(value)?.label ?? value}
                     </Selector.Value>

@@ -1,7 +1,7 @@
 import { Dialog, Checkbox, cn } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { showUnchanged } from 'jsondiffpatch/formatters/html';
-import { ReactElement, useCallback, useEffect, useId, useMemo } from 'react';
+import { ReactElement, useCallback, useEffect, useId, useMemo, useRef } from 'react';
 import { ContentVersion } from '../../../../../../app/ContentVersion';
 import { fetchVersion as defaultFetchVersion } from '../../../../../entities/content';
 import { getVersionOperationTime } from '../../../../../entities/content/version';
@@ -31,7 +31,8 @@ type CompareVersionsDialogProps = {
 export const CompareVersionsDialog = ({
     fetchVersion = defaultFetchVersion,
 }: CompareVersionsDialogProps = {}): ReactElement => {
-    const { open, contentId, leftVersion, rightVersion, showAllContent } = useStore($compareVersionsDialog);
+    const { open, focusCheckbox, contentId, leftVersion, rightVersion, showAllContent } =
+        useStore($compareVersionsDialog);
 
     const title = useI18n('dialog.compareVersions.comparingVersions');
     const olderLabel = useI18n('dialog.compareVersions.olderVersion');
@@ -39,6 +40,8 @@ export const CompareVersionsDialog = ({
     const showEntireLabel = useI18n('field.content.showEntire');
     const loadingLabel = useI18n('widget.versions.loading');
     const versionsIdenticalLabel = useI18n('dialog.compareVersions.versionsIdentical');
+
+    const checkboxRef = useRef<HTMLInputElement>(null);
 
     const baseId = useId();
     const showAllCheckboxId = `${COMPARE_VERSIONS_DIALOG_NAME}-${baseId}-show-all`;
@@ -58,6 +61,12 @@ export const CompareVersionsDialog = ({
         open ? olderVersionId : undefined,
         open ? newerVersionId : undefined,
     );
+
+    useEffect(() => {
+        if (open && focusCheckbox && !isLoading) {
+            checkboxRef.current?.focus();
+        }
+    }, [open, focusCheckbox, isLoading]);
 
     const handleOpenChange = useCallback((nextOpen: boolean) => {
         if (!nextOpen) {
@@ -133,6 +142,7 @@ export const CompareVersionsDialog = ({
                         {orderedVersions && !isLoading && (
                             <Checkbox
                                 id={showAllCheckboxId}
+                                ref={checkboxRef}
                                 label={showEntireLabel}
                                 checked={showAllContent}
                                 onCheckedChange={handleShowAllChange}

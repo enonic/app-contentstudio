@@ -1,9 +1,10 @@
 import { SortableGridList } from '@enonic/input-types';
 import { Button, Dialog } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import { useRef, type ReactElement } from 'react';
+import { useEffect, useRef, type ReactElement } from 'react';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import { useSortDialogBatchLoader } from '../lib/useSortDialogBatchLoader';
+import { useDialogInitialFocus } from '../../../shared/lib/hooks/useDialogInitialFocus';
 import {
     $isSortDialogReady,
     $sortDialog,
@@ -61,17 +62,49 @@ export const SortDialogMainContent = (): ReactElement => {
         { id: 'publish:DESC', label: `${publishLabel} (${descendingLabel})` },
         { id: 'manual', label: manualLabel },
     ];
+
+    const sortInputRef = useRef<HTMLButtonElement>(null);
+    const saveButtonRef = useRef<HTMLButtonElement>(null);
+    const previousOptionId = useRef(selectedOptionId);
+    const pendingSaveFocus = useRef(false);
+    const handleOpenAutoFocus = useDialogInitialFocus(sortInputRef, !idsLoading);
+
     const isManualSorting = selectedOptionId === 'manual';
+
+    useEffect(() => {
+        const changed = previousOptionId.current !== selectedOptionId;
+        previousOptionId.current = selectedOptionId;
+        if (changed) {
+            pendingSaveFocus.current = selectedOptionId !== 'manual';
+        }
+        if (!pendingSaveFocus.current || !canSave) {
+            return;
+        }
+
+        // Wait until the selector has restored focus to its trigger.
+        const frame = requestAnimationFrame(() => {
+            const button = saveButtonRef.current;
+            if (!button || button.disabled) return;
+
+            button.focus({ focusVisible: true });
+            pendingSaveFocus.current = false;
+        });
+        return () => cancelAnimationFrame(frame);
+    }, [selectedOptionId, canSave]);
 
     const bodyClassName =
         'flex flex-col gap-5 focus-within:outline-none focus-within:ring-3 focus-within:ring-ring ' +
         'focus-within:ring-offset-3 focus-within:ring-offset-ring-offset focus-within:border-bdr-solid rounded-sm';
 
     return (
-        <Dialog.Content className="w-full h-full max-sm:max-h-none sm:h-fit gap-3 md:gap-7.5 p-4 md:p-10 md:min-w-184 md:max-w-220">
+        <Dialog.Content
+            onOpenAutoFocus={handleOpenAutoFocus}
+            className="w-full h-full max-sm:max-h-none sm:h-fit gap-3 md:gap-7.5 p-4 md:p-10 md:min-w-184 md:max-w-220"
+        >
             <Dialog.DefaultHeader title={title} className="p-1 md:p-0" withClose>
                 <SortElementSelector
                     label={sortElementLabel}
+                    inputRef={sortInputRef}
                     emptyLabel={sortElementEmptyLabel}
                     options={sortElementOptions}
                     selection={[selectedOptionId]}
@@ -136,6 +169,7 @@ export const SortDialogMainContent = (): ReactElement => {
             </Dialog.Body>
             <Dialog.Footer className="p-1 md:p-0">
                 <Button
+                    ref={saveButtonRef}
                     size="lg"
                     variant="solid"
                     label={saveLabel}

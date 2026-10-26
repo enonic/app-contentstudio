@@ -1,8 +1,9 @@
 import { Button, Dialog, GridList, IconButton } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import { useMemo, type ReactElement } from 'react';
+import { useMemo, useRef, type ReactElement } from 'react';
 import { PrincipalType } from '@enonic/lib-admin-ui/security/PrincipalType';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
+import { useDialogInitialFocus } from '../../../shared/lib/hooks/useDialogInitialFocus';
 import { PrincipalLabelOption, PrincipalSelector } from '../../shared/selectors/principal';
 import {
     $editPropertiesDialog,
@@ -58,6 +59,12 @@ export const EditPropertiesDialog = (): ReactElement => {
         [languageSelection, languages],
     );
 
+    const languageInputRef = useRef<HTMLInputElement>(null);
+    const removeLanguageButtonRef = useRef<HTMLButtonElement>(null);
+    const handleOpenAutoFocus = useDialogInitialFocus(
+        selectedLanguageOption ? removeLanguageButtonRef : languageInputRef,
+    );
+
     const { options: ownerOptions, onSearchChange: onOwnerSearchChange } = usePrincipalOptions({
         allowedTypes: OWNER_TYPES,
     });
@@ -94,6 +101,7 @@ export const EditPropertiesDialog = (): ReactElement => {
                 <Dialog.Content
                     className="sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220 w-full h-full max-sm:max-h-none gap-7.5"
                     data-component={EDIT_PROPERTIES_DIALOG_NAME}
+                    onOpenAutoFocus={handleOpenAutoFocus}
                 >
                     <Dialog.DefaultHeader title={title} description={path} withClose />
                     <Dialog.Body className="flex flex-col gap-7.5 p-2 -m-2">
@@ -101,6 +109,7 @@ export const EditPropertiesDialog = (): ReactElement => {
                         <div>
                             <LanguageSelector
                                 label={languageLabel}
+                                inputRef={languageInputRef}
                                 options={languages}
                                 selection={languageSelection}
                                 onSelectionChange={setEditPropertiesDialogLanguageSelection}
@@ -125,7 +134,12 @@ export const EditPropertiesDialog = (): ReactElement => {
                                         </GridList.Cell>
                                         <GridList.Cell>
                                             <GridList.Action>
-                                                <IconButton variant="text" icon={X} onClick={handleUnselectLanguage} />
+                                                <IconButton
+                                                    ref={removeLanguageButtonRef}
+                                                    variant="text"
+                                                    icon={X}
+                                                    onClick={handleUnselectLanguage}
+                                                />
                                             </GridList.Action>
                                         </GridList.Cell>
                                     </GridList.Row>
@@ -174,14 +188,16 @@ export const EditPropertiesDialog = (): ReactElement => {
                         </div>
                     </Dialog.Body>
                     <Dialog.Footer>
-                        <Button
-                            className="self-end"
-                            variant="solid"
-                            size="lg"
-                            label={applyLabel}
-                            onClick={handleApply}
-                            disabled={!canApply}
-                        />
+                        <Dialog.Shortcut asChild>
+                            <Button
+                                className="self-end"
+                                variant="solid"
+                                size="lg"
+                                label={applyLabel}
+                                onClick={handleApply}
+                                disabled={!canApply}
+                            />
+                        </Dialog.Shortcut>
                     </Dialog.Footer>
                 </Dialog.Content>
             </Dialog.Portal>

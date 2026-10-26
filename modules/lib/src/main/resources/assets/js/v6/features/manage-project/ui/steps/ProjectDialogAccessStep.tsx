@@ -3,7 +3,7 @@ import { PrincipalType } from '@enonic/lib-admin-ui/security/PrincipalType';
 import { Dialog, GridList, IconButton, RadioGroup } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { CircleUserRound, X } from 'lucide-react';
-import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import { ReactElement, type RefObject, useCallback, useEffect, useMemo, useState } from 'react';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import {
     $projectDialog,
@@ -39,10 +39,12 @@ ProjectDialogAccessStepHeader.displayName = 'ProjectDialogAccessStepHeader';
 
 export type ProjectDialogAccessStepContentProps = {
     locked?: boolean;
+    accessModeRef?: RefObject<HTMLDivElement | null>;
 };
 
 export const ProjectDialogAccessStepContent = ({
     locked = false,
+    accessModeRef,
 }: ProjectDialogAccessStepContentProps): ReactElement => {
     // Hooks
     const { principals } = useStore($principals);
@@ -145,6 +147,7 @@ export const ProjectDialogAccessStepContent = ({
             </div>
 
             <RadioGroup.Root
+                ref={accessModeRef}
                 name="accessMode"
                 value={accessModeValue}
                 onValueChange={setAccessModeValue}

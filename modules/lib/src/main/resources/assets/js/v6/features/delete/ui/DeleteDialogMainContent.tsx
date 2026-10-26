@@ -4,7 +4,7 @@ import { useCallback, useMemo, useRef, type ReactElement } from 'react';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { Branch } from '../../../../app/versioning/Branch';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
-import { useOnceWhen } from '../../../shared/lib/hooks/useOnce';
+import { useDialogInitialFocus } from '../../../shared/lib/hooks/useDialogInitialFocus';
 import {
     $deleteDialog,
     $deleteInboundIds,
@@ -50,15 +50,8 @@ export const DeleteDialogMainContent = ({
     const deleteButtonLabel = total > 1 ? `${deleteLabel} (${total})` : deleteLabel;
 
     const actionButtonRef = useRef<HTMLButtonElement>(null);
-
-    useOnceWhen(() => {
-        actionButtonRef.current?.focus();
-    }, ready);
-
-    const handleOpenAutoFocus = (event: Event) => {
-        event.preventDefault();
-        actionButtonRef.current?.focus();
-    };
+    const ignoreButtonRef = useRef<HTMLButtonElement>(null);
+    const handleOpenAutoFocus = useDialogInitialFocus([actionButtonRef, ignoreButtonRef], ready);
 
     const inboundCount = useMemo(() => {
         if (inboundIgnored) {
@@ -77,6 +70,7 @@ export const DeleteDialogMainContent = ({
             <Dialog.DefaultHeader title={title} description={description} withClose />
 
             <InboundStatusBar
+                ignoreButtonRef={ignoreButtonRef}
                 loading={loading}
                 failed={failed}
                 errors={{
@@ -102,14 +96,16 @@ export const DeleteDialogMainContent = ({
             </Dialog.Body>
 
             <Dialog.Footer className="flex items-center gap-2.5">
-                <Button
-                    variant="solid"
-                    size="lg"
-                    label={deleteButtonLabel}
-                    disabled={!ready}
-                    onClick={onArchive}
-                    ref={actionButtonRef}
-                />
+                <Dialog.Shortcut asChild>
+                    <Button
+                        variant="solid"
+                        size="lg"
+                        label={deleteButtonLabel}
+                        disabled={!ready}
+                        onClick={onArchive}
+                        ref={actionButtonRef}
+                    />
+                </Dialog.Shortcut>
             </Dialog.Footer>
         </Dialog.Content>
     );

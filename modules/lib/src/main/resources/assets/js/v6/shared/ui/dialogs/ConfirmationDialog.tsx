@@ -1,6 +1,7 @@
 import { Button, Dialog, cn } from '@enonic/ui';
-import type { ComponentPropsWithoutRef, ReactElement, ReactNode } from 'react';
-import { createContext, forwardRef, useContext, useMemo, useState } from 'react';
+import type { ComponentPropsWithoutRef, ReactElement, ReactNode, RefObject } from 'react';
+import { createContext, forwardRef, useContext, useMemo, useRef, useState } from 'react';
+import { useDialogInitialFocus } from '../../lib/hooks/useDialogInitialFocus';
 import { useI18n } from '../../lib/hooks/useI18n';
 
 //
@@ -10,6 +11,7 @@ import { useI18n } from '../../lib/hooks/useI18n';
 type ConfirmationDialogContextValue = {
     confirmEnabled: boolean;
     setConfirmEnabled: (confirmEnabled: boolean) => void;
+    closeButtonRef: RefObject<HTMLButtonElement | null>;
 };
 
 const ConfirmationDialogContext = createContext<ConfirmationDialogContextValue | null>(null);
@@ -25,18 +27,20 @@ export const useConfirmationDialog = (): ConfirmationDialogContextValue => {
 
 type ConfirmationDialogProviderProps = {
     defaultConfirmEnabled?: boolean;
+    closeButtonRef: RefObject<HTMLButtonElement | null>;
     children?: ReactNode;
 };
 
 const ConfirmationDialogProvider = ({
     defaultConfirmEnabled = true,
+    closeButtonRef,
     children,
 }: ConfirmationDialogProviderProps): ReactElement => {
     const [confirmEnabled, setConfirmEnabled] = useState<boolean>(defaultConfirmEnabled);
 
     const value = useMemo<ConfirmationDialogContextValue>(
-        () => ({ confirmEnabled, setConfirmEnabled }),
-        [confirmEnabled],
+        () => ({ confirmEnabled, closeButtonRef, setConfirmEnabled }),
+        [confirmEnabled, closeButtonRef],
     );
 
     return <ConfirmationDialogContext.Provider value={value}>{children}</ConfirmationDialogContext.Provider>;
@@ -54,13 +58,20 @@ export type ConfirmationDialogContentProps = {
 
 const ConfirmationDialogContent = forwardRef<HTMLDivElement, ConfirmationDialogContentProps>(
     ({ defaultConfirmEnabled = true, className, children, ...props }, ref): ReactElement => {
+        const closeButtonRef = useRef<HTMLButtonElement>(null);
+        const handleOpenAutoFocus = useDialogInitialFocus(closeButtonRef);
+
         return (
             <Dialog.Content
                 ref={ref}
+                onOpenAutoFocus={handleOpenAutoFocus}
                 className={cn('max-w-180 w-fit sm:min-w-152 text-main gap-10', className)}
                 {...props}
             >
-                <ConfirmationDialogProvider defaultConfirmEnabled={defaultConfirmEnabled}>
+                <ConfirmationDialogProvider
+                    defaultConfirmEnabled={defaultConfirmEnabled}
+                    closeButtonRef={closeButtonRef}
+                >
                     {children}
                 </ConfirmationDialogProvider>
             </Dialog.Content>
@@ -87,7 +98,7 @@ const ConfirmationDialogFooter = forwardRef<HTMLButtonElement, ConfirmationDialo
         { onCancel, onConfirm, closeOnCancel = true, closeOnConfirm = true, intent = 'default', className, ...props },
         ref,
     ): ReactElement => {
-        const { confirmEnabled } = useConfirmationDialog();
+        const { confirmEnabled, closeButtonRef } = useConfirmationDialog();
 
         const cancel = useI18n('action.cancel');
         const confirm = useI18n('action.confirm');
@@ -107,12 +118,18 @@ const ConfirmationDialogFooter = forwardRef<HTMLButtonElement, ConfirmationDialo
             />
         );
 
-        const CancelButton = <Button size="lg" label={cancel} variant="outline" onClick={onCancel} />;
+        const CancelButton = (
+            <Button ref={closeButtonRef} size="lg" label={cancel} variant="outline" onClick={onCancel} />
+        );
 
         return (
             <Dialog.Footer className={cn('mt-2.5', className)} {...props}>
-                {closeOnCancel ? <Dialog.Close asChild>{CancelButton}</Dialog.Close> : CancelButton}
-                {closeOnConfirm ? <Dialog.Close asChild>{ConfirmButton}</Dialog.Close> : ConfirmButton}
+                <Dialog.Shortcut shortcut="secondary" asChild>
+                    {closeOnCancel ? <Dialog.Close asChild>{CancelButton}</Dialog.Close> : CancelButton}
+                </Dialog.Shortcut>
+                <Dialog.Shortcut asChild>
+                    {closeOnConfirm ? <Dialog.Close asChild>{ConfirmButton}</Dialog.Close> : ConfirmButton}
+                </Dialog.Shortcut>
             </Dialog.Footer>
         );
     },

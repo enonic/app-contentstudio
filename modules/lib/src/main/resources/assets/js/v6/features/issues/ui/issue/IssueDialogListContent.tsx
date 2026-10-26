@@ -1,7 +1,7 @@
 import { Button, Dialog, Tab } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { Plus } from 'lucide-react';
-import { useMemo, type ReactElement } from 'react';
+import { useMemo, useRef, type ReactElement } from 'react';
 
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import {
@@ -16,6 +16,7 @@ import {
 import { openNewIssueDialog } from '../../model/newIssueDialog.store';
 import { IssueDialogSelector } from './IssueDialogSelector';
 import { IssueList } from './IssueList';
+import { useDialogInitialFocus } from '../../../../shared/lib/hooks/useDialogInitialFocus';
 
 import type { IssueWithAssignees } from '../../../../../app/issue/IssueWithAssignees';
 import type { IssueDialogFilter, IssueDialogTab } from './issueDialog.types';
@@ -65,6 +66,9 @@ export const IssueDialogListContent = (): ReactElement => {
         [allLabel, assignedToMeLabel, createdByMeLabel, publishRequestsLabel, issuesLabel],
     );
 
+    const newIssueRef = useRef<HTMLButtonElement | null>(null);
+    const handleOpenAutoFocus = useDialogInitialFocus(newIssueRef);
+
     const { openCount, closedCount, filterOptions } = useMemo(() => {
         const openCount = tabCounts.open ?? 0;
         const closedCount = tabCounts.closed ?? 0;
@@ -102,12 +106,14 @@ export const IssueDialogListContent = (): ReactElement => {
 
     return (
         <Dialog.Content
+            onOpenAutoFocus={handleOpenAutoFocus}
             data-component={ISSUE_DIALOG_LIST_CONTENT_NAME}
             className="h-full max-sm:max-h-none sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-236 gap-5.5 px-5"
         >
             <Dialog.DefaultHeader className="pb-2 px-5" title={title} withClose />
             <Dialog.Body>
                 <Tab.Root
+                    autoFocusTrigger={false}
                     value={tab}
                     onValueChange={(next) => {
                         if (!isIssueDialogTab(next)) {
@@ -161,7 +167,16 @@ export const IssueDialogListContent = (): ReactElement => {
                 </Tab.Root>
             </Dialog.Body>
             <Dialog.Footer className="px-5">
-                <Button variant="solid" size="lg" label={newIssueLabel} endIcon={Plus} onClick={handleCreateIssue} />
+                <Dialog.Shortcut asChild>
+                    <Button
+                        variant="solid"
+                        size="lg"
+                        ref={newIssueRef}
+                        label={newIssueLabel}
+                        endIcon={Plus}
+                        onClick={handleCreateIssue}
+                    />
+                </Dialog.Shortcut>
             </Dialog.Footer>
         </Dialog.Content>
     );

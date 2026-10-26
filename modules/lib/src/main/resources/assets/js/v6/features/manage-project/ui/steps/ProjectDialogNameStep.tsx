@@ -1,6 +1,6 @@
 import { Dialog, Input } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
+import { ReactElement, type RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import { $projectDialog, setProjectDialogName } from '../../model/projectDialog.store';
 import { $projects } from '../../../../entities/project';
@@ -28,9 +28,13 @@ ProjectDialogNameStepHeader.displayName = 'ProjectDialogNameStepHeader';
 
 export type ProjectDialogNameStepContentProps = {
     locked?: boolean;
+    nameStepRef?: RefObject<HTMLDivElement | null>;
 };
 
-export const ProjectDialogNameStepContent = ({ locked = false }: ProjectDialogNameStepContentProps): ReactElement => {
+export const ProjectDialogNameStepContent = ({
+    locked = false,
+    nameStepRef,
+}: ProjectDialogNameStepContentProps): ReactElement => {
     const { projects } = useStore($projects);
     const {
         nameData: {
@@ -166,7 +170,7 @@ export const ProjectDialogNameStepContent = ({ locked = false }: ProjectDialogNa
 
     return (
         <Dialog.StepContent step="step-name" locked={locked}>
-            <div className="flex flex-col gap-7.5">
+            <div ref={nameStepRef} className="flex flex-col gap-7.5">
                 {/* Name */}
                 <Input
                     label={projectNameLabel}

@@ -147,7 +147,7 @@ const ImportContentWidget = (): ReactElement | null => {
                         size="sm"
                         variant="outline"
                         label={exportLabel}
-                        startIcon={FolderInput}
+                        startIcon={FolderOutput}
                         disabled={!hasContent || busy != null}
                         onClick={handleOpenExportDialog}
                         className="self-start"
@@ -221,7 +221,7 @@ const ImportContentWidget = (): ReactElement | null => {
                         size="sm"
                         variant="outline"
                         label={importLabel}
-                        startIcon={FolderOutput}
+                        startIcon={FolderInput}
                         disabled={!selected || busy != null}
                         onClick={handleOpenImportDialog}
                     />
@@ -245,13 +245,15 @@ const ImportContentWidget = (): ReactElement | null => {
                 />
             )}
 
-            <ImportContentImportDialog
-                open={importDialogOpen}
-                content={content}
-                exportName={selected}
-                onClose={handleCloseImportDialog}
-                onSuccess={handleImportSuccess}
-            />
+            {importDialogOpen && (
+                <ImportContentImportDialog
+                    open
+                    content={content}
+                    exportName={selected}
+                    onClose={handleCloseImportDialog}
+                    onSuccess={handleImportSuccess}
+                />
+            )}
         </div>
     );
 };

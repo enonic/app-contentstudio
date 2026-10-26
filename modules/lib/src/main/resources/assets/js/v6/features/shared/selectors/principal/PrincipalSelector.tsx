@@ -1,6 +1,6 @@
-import { Combobox, IconButton, ListItem, Listbox, cn } from '@enonic/ui';
+import { Combobox, IconButton, ListItem, Listbox, cn, useComposedRefs } from '@enonic/ui';
 import { X } from 'lucide-react';
-import { useEffect, useId, useMemo, useRef, useState, type ReactElement, type ReactNode } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type ReactElement, type ReactNode, type RefObject } from 'react';
 import { createDebounce } from '../../../../shared/lib/timing/createDebounce';
 import { useComboboxCollapse } from '../shared/useComboboxCollapse';
 import { PrincipalOptionItem } from './PrincipalOptionItem';
@@ -36,6 +36,7 @@ export type PrincipalSelectorProps = {
     filterOptions?: boolean;
     onSearchChange?: (value: string) => void;
     debounceMs?: number;
+    inputRef?: RefObject<HTMLInputElement | null>;
     className?: string;
 };
 
@@ -77,6 +78,7 @@ export const PrincipalSelector = ({
     filterOptions,
     onSearchChange,
     debounceMs = DEFAULT_DEBOUNCE_MS,
+    inputRef: externalInputRef,
     className,
 }: PrincipalSelectorProps): ReactElement => {
     const [open, setOpen] = useState(false);
@@ -95,6 +97,7 @@ export const PrincipalSelector = ({
     // Single selection replaces the combobox with the caller's own rendering of the chosen option.
     const hideCombobox = selectionMode === 'single' && selectedIds.some((id) => options.some((o) => o.id === id));
     const { rootRef, inputRef } = useComboboxCollapse(hideCombobox);
+    const composedInputRef = useComposedRefs(inputRef, externalInputRef);
 
     const optionLookup = useMemo(() => {
         const merged = [...options, ...(selectedOptions ?? [])];
@@ -192,7 +195,7 @@ export const PrincipalSelector = ({
                             <Combobox.Search>
                                 <Combobox.SearchIcon />
                                 <Combobox.Input
-                                    ref={inputRef}
+                                    ref={composedInputRef}
                                     id={inputId}
                                     placeholder={searchPlaceholder ?? placeholder}
                                     aria-label={ariaLabel}
