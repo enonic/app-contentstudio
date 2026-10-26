@@ -28,7 +28,7 @@ export {
     setAiDataTree,
     setAiLanguage,
     setAiWizardBridge,
-    updateAiInstructions,
+    updateAiAppConfigs,
     whenAiReady,
 } from './ai.commands';
 

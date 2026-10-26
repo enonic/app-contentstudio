@@ -2,7 +2,6 @@ import { MinimizeWizardPanelEvent } from '@enonic/lib-admin-ui/app/wizard/Minimi
 import { type WizardHeader } from '@enonic/lib-admin-ui/app/wizard/WizardHeader';
 import { WizardPanel } from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
 import { type WizardStepsPanel } from '@enonic/lib-admin-ui/app/wizard/WizardStepsPanel';
-import { type ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import { AuthHelper } from '@enonic/lib-admin-ui/auth/AuthHelper';
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
@@ -64,7 +63,7 @@ import {
     setAiContentHeader,
     setAiContentType,
     setAiLanguage,
-    updateAiInstructions,
+    updateAiAppConfigs,
     whenAiReady,
 } from '../../v6/features/ai';
 import { ContentWizardToolbar } from '../browse/ContentWizardToolbar';
@@ -417,7 +416,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
                 this.currentPublishStatus = loader.publishStatus;
 
                 setAiContentType(this.contentType);
-                updateAiInstructions(this.getApplicationsConfigs());
+                this.updateAiAppConfigs();
                 setAiCompareStatus(this.persistedCompareStatus);
             })
             .then(() => super.doLoadData())
@@ -1486,7 +1485,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
     private updateSiteModel(site: Site): void {
         this.siteModel.update(site);
         this.site = site;
-        updateAiInstructions(this.getApplicationsConfigs());
+        this.updateAiAppConfigs();
     }
 
     private initOrUpdateSiteModel(site: Site): void {
@@ -1840,8 +1839,8 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         return new ContentWizardStepsPanel(this.stepNavigator, this.formPanel);
     }
 
-    private getApplicationsConfigs(): ApplicationConfig[] {
-        return this.site ? this.site.getSiteConfigs() : getActiveProject().getSiteConfigs();
+    private updateAiAppConfigs(): void {
+        updateAiAppConfigs(this.site?.getSiteConfigs(), getActiveProject().getSiteConfigs());
     }
 
     // Opens the AI Translator dialog via the `dialog:open` plugin command.
