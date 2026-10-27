@@ -88,7 +88,7 @@ export const MediaSelector = ({
     const activeProject = useStore($activeProject);
     const acceptMimeTypes = useAcceptMimeTypes(resolvedContentTypeNames);
 
-    const { handleFiles, progress, isUploading, dragProps } = useSelectorUpload({
+    const { canUpload, handleFiles, progress, isUploading, dragProps } = useSelectorUpload({
         selection,
         onSelectionChange,
         accept: acceptMimeTypes,
@@ -129,9 +129,9 @@ export const MediaSelector = ({
                         contextContent={contextContent}
                         applicationKey={applicationKey}
                         className="w-full focus-within:z-10"
-                        withRightButton={withUpload}
+                        withRightButton={withUpload && canUpload}
                     />
-                    {withUpload && (
+                    {withUpload && canUpload && (
                         <SelectorUploadButton
                             onFiles={handleFiles}
                             progress={progress}

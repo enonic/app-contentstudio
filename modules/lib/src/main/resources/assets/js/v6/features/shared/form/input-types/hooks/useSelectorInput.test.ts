@@ -1,11 +1,14 @@
 import { renderHook } from '@testing-library/preact';
-import { atom } from 'nanostores';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { SITE_PATH } from '../../../../../shared/lib/form/form';
 import { type ContentSummary } from '../../../../../../app/content/ContentSummary';
 
-vi.mock('../../../../../entities/content/model/context-content.store', () => ({
-    $contextContent: atom<unknown>(null),
+const { mockFormScope } = vi.hoisted(() => ({
+    mockFormScope: vi.fn<() => { project: unknown; content: unknown }>(),
+}));
+
+vi.mock('../../FormScopeContext', () => ({
+    useFormScope: () => mockFormScope(),
 }));
 
 vi.mock('../../../../../shared/lib/hooks/useI18n', () => ({
@@ -17,9 +20,6 @@ vi.mock('./useSelectorInputHasError', () => ({
 }));
 
 import { useSelectorInput } from './useSelectorInput';
-import * as contextContentStore from '../../../../../entities/content/model/context-content.store';
-
-const $contextContent = contextContentStore.$contextContent;
 
 const content = { getId: () => 'content-1' } as unknown as ContentSummary;
 
@@ -42,20 +42,20 @@ function makeProps(allowPath: string[]): Parameters<typeof useSelectorInput>[0] 
 
 describe('useSelectorInput', () => {
     afterEach(() => {
-        $contextContent.set(null);
+        mockFormScope.mockReset();
         vi.restoreAllMocks();
     });
 
-    it('always passes the context content, even when allowPath is only the site wildcard', () => {
-        $contextContent.set(content);
+    it('always passes the scoped content, even when allowPath is only the site wildcard', () => {
+        mockFormScope.mockReturnValue({ project: undefined, content });
 
         const { result } = renderHook(() => useSelectorInput(makeProps([SITE_PATH])));
 
         expect(result.current.contextContent).toBe(content);
     });
 
-    it('passes the context content for absolute allowPath as well', () => {
-        $contextContent.set(content);
+    it('passes the scoped content for absolute allowPath as well', () => {
+        mockFormScope.mockReturnValue({ project: undefined, content });
 
         const { result } = renderHook(() => useSelectorInput(makeProps(['/some/path'])));
 
@@ -63,7 +63,7 @@ describe('useSelectorInput', () => {
     });
 
     it('returns undefined context content when there is no content in scope', () => {
-        $contextContent.set(null);
+        mockFormScope.mockReturnValue({ project: undefined, content: undefined });
 
         const { result } = renderHook(() => useSelectorInput(makeProps([SITE_PATH])));
 

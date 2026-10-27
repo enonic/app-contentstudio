@@ -1,11 +1,10 @@
 import { Button, cn } from '@enonic/ui';
 import { Plus } from 'lucide-react';
 import { type ReactElement, useEffect, useRef, useState } from 'react';
-import { useStore } from '@nanostores/preact';
 import { listenKeys } from 'nanostores';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { $newContentDialog, openNewContentDialog } from '../../../../new-content/model/newContentDialog.store';
-import { $contextContent } from '../../../../../entities/content';
+import { useFormScope } from '../../FormScopeContext';
 import { $contentCreated } from '../../../../../shared/socket/socket.store';
 import { $uploads, getUploadsForParent } from '../../../../../entities/content/model/uploads.store';
 
@@ -23,7 +22,7 @@ export const ContentSelectorInputAddButton = ({
     const addLabel = useI18n('action.add');
     const [progress, setProgress] = useState(0);
     const [uploadIds, setUploadIds] = useState<string[]>([]);
-    const contextContent = useStore($contextContent);
+    const { content: contextContent } = useFormScope();
     const parentId = contextContent?.getContentId()?.toString() ?? undefined;
 
     // Refs
@@ -117,6 +116,9 @@ export const ContentSelectorInputAddButton = ({
         openNewContentDialog(contextContent);
         isWaitingForContentCreationRef.current = true;
     };
+
+    // New content needs a parent; without one in scope there is nothing to add to.
+    if (!contextContent) return null;
 
     return (
         <Button

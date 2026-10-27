@@ -1,13 +1,12 @@
 import { showError } from '@enonic/lib-admin-ui/notify/MessageBus';
-import { useStore } from '@nanostores/preact';
 import { listenKeys } from 'nanostores';
 import { type DragEvent as ReactDragEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { UploadMediaSuccess } from '../../../../../entities/content/api/uploadMedia.api';
 import type { UploadError } from '../../../../../shared/api';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { useUploadMedia } from '../../../../../entities/content/lib/useUploadMedia';
-import { $contextContent } from '../../../../../entities/content';
 import { $uploads, removeUpload } from '../../../../../entities/content/model/uploads.store';
+import { useFormScope } from '../../../form/FormScopeContext';
 
 //
 // * Types
@@ -32,6 +31,8 @@ export type SelectorUploadDragProps = {
 };
 
 export type UseSelectorUploadReturn = {
+    /** Whether uploads have a parent to land in; false hides the upload action and ignores drops */
+    canUpload: boolean;
     /** Upload the given files; completed uploads are appended to the selection */
     handleFiles: (files: FileList | File[]) => void;
     /** Aggregate upload progress (0-100) */
@@ -84,9 +85,11 @@ export const useSelectorUpload = ({
     const [uploadIds, setUploadIds] = useState<string[]>([]);
     const [newContentIds, setNewContentIds] = useState<string[]>([]);
     const [isDragging, setIsDragging] = useState<boolean>(false);
-    const uploadParent = useStore($contextContent);
+    const { content: uploadParent } = useFormScope();
     const highestProgress = useRef<number>(0);
     const isUploading = uploadIds.length > 0;
+    const canUpload = uploadParent != null;
+    const dropDisabled = disabled || !canUpload;
 
     const selectionRef = useRef(selection);
     selectionRef.current = selection;
@@ -159,13 +162,13 @@ export const useSelectorUpload = ({
     // Drag-and-drop handlers
     const onDragOver = useCallback(
         (event: ReactDragEvent<HTMLDivElement>) => {
-            if (disabled || !event.dataTransfer.types.includes('Files')) {
+            if (dropDisabled || !event.dataTransfer.types.includes('Files')) {
                 return;
             }
             event.preventDefault();
             setIsDragging(true);
         },
-        [disabled],
+        [dropDisabled],
     );
 
     const onDragLeave = useCallback((event: ReactDragEvent<HTMLDivElement>) => {
@@ -179,7 +182,7 @@ export const useSelectorUpload = ({
 
     const onDrop = useCallback(
         (event: ReactDragEvent<HTMLDivElement>) => {
-            if (disabled || !event.dataTransfer.types.includes('Files')) {
+            if (dropDisabled || !event.dataTransfer.types.includes('Files')) {
                 return;
             }
             event.preventDefault();
@@ -192,7 +195,7 @@ export const useSelectorUpload = ({
                 void uploadFiles(files);
             }
         },
-        [disabled, accept, multiple, uploadFiles],
+        [dropDisabled, accept, multiple, uploadFiles],
     );
 
     const dragProps = useMemo<SelectorUploadDragProps>(
@@ -201,7 +204,7 @@ export const useSelectorUpload = ({
     );
 
     return useMemo(
-        () => ({ handleFiles, progress, isUploading, dragProps }),
-        [handleFiles, progress, isUploading, dragProps],
+        () => ({ canUpload, handleFiles, progress, isUploading, dragProps }),
+        [canUpload, handleFiles, progress, isUploading, dragProps],
     );
 };

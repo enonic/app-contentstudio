@@ -71,7 +71,7 @@ export const ImageSelector = ({
     const acceptMimeTypes = useAcceptMimeTypes(IMAGE_SELECTOR_CONTENT_TYPE_NAMES);
     const accept = acceptMimeTypes ?? 'image/*';
 
-    const { handleFiles, progress, isUploading, dragProps } = useSelectorUpload({
+    const { canUpload, handleFiles, progress, isUploading, dragProps } = useSelectorUpload({
         selection,
         onSelectionChange,
         accept,
@@ -116,9 +116,9 @@ export const ImageSelector = ({
                         contextContent={contextContent}
                         applicationKey={applicationKey}
                         className="w-full focus-within:z-10"
-                        withRightButton={withUpload}
+                        withRightButton={withUpload && canUpload}
                     />
-                    {withUpload && (
+                    {withUpload && canUpload && (
                         <SelectorUploadButton
                             onFiles={handleFiles}
                             progress={progress}
