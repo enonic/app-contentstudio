@@ -12,7 +12,6 @@ import {
 import { type Value } from '@enonic/input-types/data';
 import { ContentId } from '../../../../../../app/content/ContentId';
 import { type Project } from '../../../../../../app/settings/data/project/Project';
-import { $activeProject } from '../../../../../entities/project';
 import { useFormScope } from '../../FormScopeContext';
 import { type Mode, type Crop, type Dimensions, type Point } from './lib/types';
 import {
@@ -57,7 +56,7 @@ type ImageUploaderProviderProps = {
 };
 
 export const ImageUploaderProvider = ({ values, enabled, children }: ImageUploaderProviderProps): ReactElement => {
-    const { content } = useFormScope();
+    const { project: scopedProject, content } = useFormScope();
     const value = values[0];
     const scopedContentId = content?.getId();
 
@@ -95,15 +94,13 @@ export const ImageUploaderProvider = ({ values, enabled, children }: ImageUpload
     // ============================================================
     // Keyed on the id string so a refreshed summary of the same content does not reload the image.
     useEffect(() => {
-        const project = $activeProject.get();
-
-        if (scopedContentId && project) {
+        if (scopedContentId && scopedProject) {
             const contentId = new ContentId(scopedContentId);
             setContentId(contentId);
-            setProject(project);
-            setImageUrl(getImageUrl(contentId, project));
+            setProject(scopedProject);
+            setImageUrl(getImageUrl(contentId, scopedProject));
         }
-    }, [scopedContentId]);
+    }, [scopedContentId, scopedProject]);
 
     // ============================================================
     // Image loading

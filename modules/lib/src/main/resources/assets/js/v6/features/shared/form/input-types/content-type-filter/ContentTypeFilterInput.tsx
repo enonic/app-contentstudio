@@ -33,7 +33,7 @@ export const ContentTypeFilterInput = ({
             onAdd,
             onRemove,
         });
-    const { enabled: scopeEnabled } = useFormScopeRequirement(input, { content: requiresContent });
+    const { enabled: scopeEnabled } = useFormScopeRequirement(input, { project: true, content: requiresContent });
 
     // i18n
     const placeholder = useI18n('field.option.placeholder');

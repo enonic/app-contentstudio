@@ -36,8 +36,8 @@ export const CustomSelectorInput = ({
     input,
     enabled: inputEnabled,
 }: SelfManagedComponentProps<CustomSelectorConfig>): ReactElement => {
-    // The service URL embeds the content id, so there is nothing to call without one.
-    const { enabled: scopeEnabled } = useFormScopeRequirement(input, { content: true });
+    // The service URL embeds the project and the content id, so there is nothing to call without them.
+    const { enabled: scopeEnabled } = useFormScopeRequirement(input, { project: true, content: true });
     const enabled = inputEnabled && scopeEnabled;
     const selection: string[] = useMemo(() => values.filter((v) => v.isNotNull()).map((v) => v.getString()), [values]);
     const [inputValue, setInputValue] = useState<string | undefined>();

@@ -22,6 +22,8 @@ import {
 
 type UseMediaUploaderOptions = {
     contentId?: string;
+    /** Project the content lives in; defaults to the active project. */
+    projectName?: string;
     onChange: (fileName: string) => void;
 };
 
@@ -35,7 +37,11 @@ type UseMediaUploaderResult = {
 // * Hook
 //
 
-export const useMediaUploader = ({ contentId, onChange }: UseMediaUploaderOptions): UseMediaUploaderResult => {
+export const useMediaUploader = ({
+    contentId,
+    projectName,
+    onChange,
+}: UseMediaUploaderOptions): UseMediaUploaderResult => {
     const [progress, setProgress] = useState<number>(0);
     const [uploadId, setUploadId] = useState<string>();
 
@@ -73,6 +79,7 @@ export const useMediaUploader = ({ contentId, onChange }: UseMediaUploaderOption
                 id: uploadId,
                 file,
                 contentId,
+                projectName,
                 onProgress: (id, prog) => {
                     updateUploadProgress(id, prog);
                 },
@@ -96,7 +103,7 @@ export const useMediaUploader = ({ contentId, onChange }: UseMediaUploaderOption
                 },
             );
         },
-        [contentId, onChange],
+        [contentId, projectName, onChange],
     );
 
     return { isUploading: !!uploadId, progress, handleFiles };

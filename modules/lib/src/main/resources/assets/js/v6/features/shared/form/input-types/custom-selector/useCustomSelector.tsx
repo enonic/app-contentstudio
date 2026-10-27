@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { Branch } from '../../../../../../app/versioning/Branch';
 import { UrlAction } from '../../../../../../app/UrlAction';
-import { $activeProject } from '../../../../../entities/project';
 import { useFormScope } from '../../FormScopeContext';
 import { type CustomSelectorConfig } from './CustomSelectorConfig';
 import { type CustomSelectorItem } from './CustomSelectorInput';
@@ -85,17 +84,13 @@ export const useCustomSelector = ({
     }, [key, totalMap, filteredItems.length]);
 
     // Scope
-    const { content } = useFormScope();
+    const { project, content } = useFormScope();
 
     // Refs
     const contentIdRef = useRef<string>();
     contentIdRef.current = content?.getId();
     const projectIdRef = useRef<string>();
-
-    // Get the active project on mount.
-    useEffect(() => {
-        projectIdRef.current = $activeProject.get()?.getName();
-    }, []);
+    projectIdRef.current = project?.getName();
 
     const fetchItems = useCallback(
         async (requestUrl: string) => {

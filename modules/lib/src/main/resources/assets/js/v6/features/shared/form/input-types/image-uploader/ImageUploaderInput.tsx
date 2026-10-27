@@ -13,7 +13,7 @@ export const ImageUploaderInput = ({
     input,
     enabled,
 }: SelfManagedComponentProps<ImageUploaderConfig>): ReactElement | null => {
-    const { enabled: scopeEnabled } = useFormScopeRequirement(input, { content: true });
+    const { enabled: scopeEnabled } = useFormScopeRequirement(input, { project: true, content: true });
 
     if (values.length === 0) return null;
 

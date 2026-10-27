@@ -29,8 +29,9 @@ export const MediaUploaderInput = ({
     input,
     enabled: inputEnabled,
 }: SelfManagedComponentProps<MediaUploaderConfig>): ReactElement => {
-    const { content } = useFormScope();
-    const { enabled: scopeEnabled } = useFormScopeRequirement(input, { content: true });
+    const { project, content } = useFormScope();
+    const { enabled: scopeEnabled } = useFormScopeRequirement(input, { project: true, content: true });
+    const projectName = project?.getName();
     const enabled = inputEnabled && scopeEnabled;
     const noMediaLabel = useI18n('field.content.noattachment');
     const uploadLabel = useI18n('action.upload');
@@ -45,8 +46,8 @@ export const MediaUploaderInput = ({
     const attachmentUrl = useMemo(() => {
         if (!contentId || !fileName) return undefined;
 
-        return getCmsApiUrl(`media/${contentId}/${encodeURIComponent(fileName)}`);
-    }, [contentId, fileName]);
+        return getCmsApiUrl(`media/${contentId}/${encodeURIComponent(fileName)}`, projectName);
+    }, [contentId, projectName, fileName]);
 
     // An existing DATA-format attachment locks replacement to the same extension (legacy parity);
     // otherwise the schema's allowExtensions applies, or no restriction when unset.
@@ -76,7 +77,7 @@ export const MediaUploaderInput = ({
         [value, onChange, contentId],
     );
 
-    const { isUploading, progress, handleFiles } = useMediaUploader({ contentId, onChange: handleChange });
+    const { isUploading, progress, handleFiles } = useMediaUploader({ contentId, projectName, onChange: handleChange });
 
     const openFileDialog = useCallback(() => {
         fileInputRef.current?.click();

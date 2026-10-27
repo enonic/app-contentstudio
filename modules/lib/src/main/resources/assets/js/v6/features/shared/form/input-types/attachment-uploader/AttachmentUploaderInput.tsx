@@ -28,7 +28,7 @@ export const AttachmentUploaderInput = ({
     config,
     enabled: inputEnabled,
 }: SelfManagedComponentProps<AttachmentUploaderConfig>): ReactElement => {
-    const { enabled: scopeEnabled } = useFormScopeRequirement(input, { content: true });
+    const { enabled: scopeEnabled } = useFormScopeRequirement(input, { project: true, content: true });
     const enabled = inputEnabled && scopeEnabled;
     const fileInputRef = useRef<HTMLInputElement>(null);
     const noAttachmentLabel = useI18n('field.content.noattachment');
@@ -39,7 +39,7 @@ export const AttachmentUploaderInput = ({
     );
     const serverErrors = useAttachmentServerErrors(attachmentNames);
     const [isDragging, setIsDragging] = useState(false);
-    const { progress, canUpload, isUploading, isMultiple, contentId, handleFiles, handleRemove } =
+    const { progress, canUpload, isUploading, isMultiple, contentId, projectName, handleFiles, handleRemove } =
         useAttachmentUploader({
             values,
             onAdd,
@@ -120,6 +120,7 @@ export const AttachmentUploaderInput = ({
                 <AttachmentUploaderList
                     names={attachmentNames}
                     contentId={contentId}
+                    projectName={projectName}
                     onRemove={handleRemove}
                     disabled={!enabled}
                     errors={serverErrors}

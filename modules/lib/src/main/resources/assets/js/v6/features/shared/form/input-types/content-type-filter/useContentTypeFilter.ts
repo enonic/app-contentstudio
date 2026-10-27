@@ -8,7 +8,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Site } from '../../../../../../app/content/Site';
 import { fetchNearestSite } from '../../../../../entities/content';
 import { fetchAllContentTypes, fetchContentTypesByContent } from '../../../../../entities/schema/api/contentTypes.api';
-import { $activeProject } from '../../../../../entities/project';
 import { useFormScope } from '../../FormScopeContext';
 import { $contentType } from '../../../../../pages/wizard/model/wizardContent.store';
 import type { ContentTypeFilterConfig } from './ContentTypeFilterConfig';
@@ -33,9 +32,8 @@ export const useContentTypeFilter = ({ config, selection, query, onAdd, onRemove
     const [hasError, setHasError] = useState(false);
 
     // Stores
-    const { content: contextContent } = useFormScope();
+    const { project, content: contextContent } = useFormScope();
     const contentType = useStore($contentType);
-    const project = useStore($activeProject);
 
     // Page templates and `context` mode list the types of the content's site; the rest is global.
     const isPageTemplate = Boolean(contentType?.getContentTypeName()?.isPageTemplate());
@@ -53,13 +51,13 @@ export const useContentTypeFilter = ({ config, selection, query, onAdd, onRemove
         if (!project || (requiresContent && !contentId)) return okAsync<ContentTypeSummary[], Error>([]);
 
         if (isPageTemplate) {
-            return ResultAsync.combine([fetchAllContentTypes(), fetchNearestSite(contentId)])
+            return ResultAsync.combine([fetchAllContentTypes(), fetchNearestSite(contentId, project.getName())])
                 .map(([types, site]) => (site ? filterForPageTemplate(types, site) : types).sort(sortByDisplayName))
                 .mapErr((error) => new Error(`Error fetching content types for page template. ${error.message}`));
         }
 
         if (config.context) {
-            return fetchContentTypesByContent(contentId)
+            return fetchContentTypesByContent(contentId, project.getName())
                 .map((types) => types.sort(sortByDisplayName))
                 .mapErr((error) => new Error(`Error fetching content types of content. ${error.message}`));
         }
