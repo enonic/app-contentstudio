@@ -2,10 +2,12 @@ import type { SelfManagedComponentProps } from '@enonic/input-types';
 import type { MediaSelectorConfig } from './MediaSelectorConfig';
 import type { ReactElement } from 'react';
 import { MediaSelector } from '../../../selectors/media';
+import { useFormScopeRequirement } from '../../FormScopeContext';
 import { useFormApplicationKey, useSelectorInput } from '../hooks';
 import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 
 export const MediaSelectorInput = (props: SelfManagedComponentProps<MediaSelectorConfig>): ReactElement => {
+    const { enabled: scopeEnabled } = useFormScopeRequirement(props.input, { project: true });
     const applicationKey = useFormApplicationKey();
     const {
         contextContent,
@@ -21,7 +23,7 @@ export const MediaSelectorInput = (props: SelfManagedComponentProps<MediaSelecto
 
     const contentTypeNames = props.config.allowContentType;
     const allowedContentPaths = props.config.allowPath;
-    const disabled = !props.enabled;
+    const disabled = !props.enabled || !scopeEnabled;
     const canAdd = props.occurrences.getMaximum() === 0 || props.values.length < props.occurrences.getMaximum();
 
     return (

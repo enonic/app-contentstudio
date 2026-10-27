@@ -85,7 +85,7 @@ export const useSelectorUpload = ({
     const [uploadIds, setUploadIds] = useState<string[]>([]);
     const [newContentIds, setNewContentIds] = useState<string[]>([]);
     const [isDragging, setIsDragging] = useState<boolean>(false);
-    const { content: uploadParent } = useFormScope();
+    const { project, content: uploadParent } = useFormScope();
     const highestProgress = useRef<number>(0);
     const isUploading = uploadIds.length > 0;
     const canUpload = uploadParent != null;
@@ -147,6 +147,7 @@ export const useSelectorUpload = ({
 
     const { handleFiles: uploadFiles } = useUploadMedia({
         parentContent: uploadParent,
+        projectName: project?.getName(),
         onUploadStart,
         onUploadComplete,
         onUploadError,

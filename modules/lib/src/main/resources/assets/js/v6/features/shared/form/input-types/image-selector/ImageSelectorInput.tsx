@@ -2,10 +2,12 @@ import type { SelfManagedComponentProps } from '@enonic/input-types';
 import type { ImageSelectorConfig } from './ImageSelectorConfig';
 import type { ReactElement } from 'react';
 import { ImageSelector } from '../../../selectors/image';
+import { useFormScopeRequirement } from '../../FormScopeContext';
 import { useFormApplicationKey, useSelectorInput } from '../hooks';
 import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 
 export const ImageSelectorInput = (props: SelfManagedComponentProps<ImageSelectorConfig>): ReactElement => {
+    const { enabled: scopeEnabled } = useFormScopeRequirement(props.input, { project: true });
     const applicationKey = useFormApplicationKey();
     const {
         contextContent,
@@ -20,7 +22,7 @@ export const ImageSelectorInput = (props: SelfManagedComponentProps<ImageSelecto
     } = useSelectorInput(props);
 
     const allowedContentPaths = props.config.allowPath;
-    const disabled = !props.enabled;
+    const disabled = !props.enabled || !scopeEnabled;
     const canAdd = props.occurrences.getMaximum() === 0 || props.values.length < props.occurrences.getMaximum();
 
     return (

@@ -1,10 +1,9 @@
 import { Tooltip } from '@enonic/ui';
-import { useStore } from '@nanostores/preact';
 import { type ReactElement } from 'react';
 import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 import { buildImagePreviewUrl } from '../../../../shared/lib/url/images';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
-import { $activeProject } from '../../../../entities/project';
+import { useFormScope } from '../../form/FormScopeContext';
 import { calcTreePublishStatus } from '../../../../shared/lib/cms/content/status';
 import { StatusBadge } from '../../status/StatusBadge';
 
@@ -22,7 +21,7 @@ const IMAGE_SELECTOR_ITEM_VIEW = 'ImageSelectorItemView';
 // clamped to the box width so vertical images stay within a square. For that, add @container class to the element you want to use as reference for the box size.
 export const ImageSelectorItemView = ({ content, hideStatus = false }: ImageSelectorItemViewProps): ReactElement => {
     const imageNotAvailableLabel = useI18n('text.image.notavailable');
-    const activeProject = useStore($activeProject);
+    const { project } = useFormScope();
 
     // Content without a path is considered removed (deleted or archived)
     const isRemoved = !content.getPath();
@@ -48,7 +47,7 @@ export const ImageSelectorItemView = ({ content, hideStatus = false }: ImageSele
     const subName = content.getPath() ? content.getPath().toString() : '';
     const iconUrl = buildImagePreviewUrl({
         contentId: content.getContentId().toString(),
-        projectName: activeProject?.getName(),
+        projectName: project?.getName(),
         timestamp: content.getModifiedTime() ?? undefined,
         size: 480,
         crop: false,

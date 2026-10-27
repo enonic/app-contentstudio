@@ -7,19 +7,25 @@ import { suggestContentTags } from './ContentTagSuggester';
 import type { TagConfig } from './TagConfig';
 
 export const TagInput = (props: SelfManagedComponentProps<TagConfig>): ReactElement => {
-    const { content: contextContent } = useFormScope();
+    const { project, content: contextContent } = useFormScope();
+    const projectName = project?.getName();
     const fallbackDataPath = useMemo(() => PropertyPath.fromString(props.input.getPath().toString()), [props.input]);
     const dataPath = props.dataPath ?? fallbackDataPath;
 
+    // Suggestions come from the project's content; without a project the input still takes tags.
     const suggestTags = useCallback(
-        (query: string) =>
-            suggestContentTags({
+        (query: string) => {
+            if (!projectName) return Promise.resolve<string[]>([]);
+
+            return suggestContentTags({
                 query,
                 dataPath,
                 content: contextContent,
                 config: props.config,
-            }),
-        [contextContent, dataPath, props.config],
+                projectName,
+            });
+        },
+        [projectName, contextContent, dataPath, props.config],
     );
 
     return <BaseTagInput {...props} suggestTags={suggestTags} />;
