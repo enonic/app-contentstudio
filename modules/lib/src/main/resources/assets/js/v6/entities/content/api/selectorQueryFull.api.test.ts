@@ -53,3 +53,13 @@ describe('contentFullSelectorQuery', () => {
         expect(result._unsafeUnwrapErr()).toBeInstanceOf(AppError);
     });
 });
+
+describe('project scoping', () => {
+    it('should query the given project instead of the active one', async () => {
+        mockFetch.mockResolvedValue(jsonResponse({ contents: [], metadata: { hits: 0, totalHits: 0 } }));
+
+        await contentFullSelectorQuery({ from: 0, size: 1 }, 'other-project');
+
+        expect(mockFetch.mock.calls[0][0]).toContain('/cms/other-project/content/content/selectorQuery');
+    });
+});

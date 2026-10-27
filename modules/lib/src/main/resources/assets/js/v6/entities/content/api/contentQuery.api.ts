@@ -116,12 +116,12 @@ export function queryContent(params: QueryContentParams): ResultAsync<QueryConte
  * the server.
  * Used by: entities/content/api/content-fetcher.
  */
-export function fetchReadOnlyContentIds(ids: ContentId[]): ResultAsync<string[], AppError> {
+export function fetchReadOnlyContentIds(ids: ContentId[], projectName?: string): ResultAsync<string[], AppError> {
     if (ids.length === 0) {
         return okAsync([]);
     }
 
-    return requestJson<string[]>(getCmsApiUrl('isReadOnlyContent'), {
+    return requestJson<string[]>(getCmsApiUrl('isReadOnlyContent', projectName), {
         method: 'POST',
         body: { contentIds: ids.map((id) => id.toString()) },
     });

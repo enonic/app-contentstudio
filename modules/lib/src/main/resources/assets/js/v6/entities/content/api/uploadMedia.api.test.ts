@@ -207,3 +207,15 @@ describe('uploadRemoteImage', () => {
         expect(result._unsafeUnwrapErr()).toMatchObject({ mediaIdentifier: 'r-1', message: 'Remote fetch failed' });
     });
 });
+
+describe('project scoping', () => {
+    it('should upload into the given project', () => {
+        const file = new File(['bits'], 'scoped.png');
+
+        void uploadMediaFile({ id: 'u-p', file, parentContent: parentStub, projectName: 'other-project' });
+        void updateMediaFile({ id: 'm-p', file, contentId: 'content-1', projectName: 'other-project' });
+
+        expect(xhrs[0].url).toContain('/cms/other-project/content/content/createMedia');
+        expect(xhrs[1].url).toContain('/cms/other-project/content/content/updateMedia');
+    });
+});

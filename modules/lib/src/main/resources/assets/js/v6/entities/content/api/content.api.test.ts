@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi, type Mock } from 'vite
 import { AppError } from '@enonic/ui-utils';
 import type { ContentId } from '../../../../app/content/ContentId';
 import { errorResponse, jsonResponse, restoreFetch, stubFetch } from '../../../shared/lib/test/fetch.test.utils';
-import { fetchContentById, fetchContentByPath, fetchNearestSite } from './content.api';
+import { fetchContentById, fetchContentByPath, fetchNearestSite, resolveContentSummaries } from './content.api';
 
 const { mockParseContent } = vi.hoisted(() => ({
     mockParseContent: vi.fn((json: { id: string }) => ({ parsedId: json.id })),
@@ -96,5 +96,17 @@ describe('fetchNearestSite', () => {
         expect(result.isOk()).toBe(true);
         expect(result._unsafeUnwrap()).toBeUndefined();
         expect(mockParseContent).not.toHaveBeenCalled();
+    });
+});
+
+describe('project scoping', () => {
+    it('should resolve summaries and the nearest site in the given project', async () => {
+        mockFetch.mockResolvedValue(jsonResponse({ contents: [] }));
+
+        await resolveContentSummaries([contentId('a')], 'other-project');
+        await fetchNearestSite(contentId('a'), 'other-project');
+
+        expect(mockFetch.mock.calls[0][0]).toContain('/cms/other-project/content/content/resolveByIds');
+        expect(mockFetch.mock.calls[1][0]).toContain('/cms/other-project/content/content/nearestSite');
     });
 });

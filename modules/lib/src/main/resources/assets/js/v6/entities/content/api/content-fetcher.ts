@@ -147,8 +147,11 @@ function buildQueryParams(
  * Fetches which of the given summaries are read-only and marks the matching ones
  * in place. Replaces the legacy fetcher.updateReadOnly mutation.
  */
-function enrichReadOnly(summaries: ContentSummary[]): ResultAsync<ContentSummary[], AppError> {
-    return fetchReadOnlyContentIds(summaries.map((content) => content.getContentId())).map((readOnlyIds) => {
+function enrichReadOnly(summaries: ContentSummary[], projectName?: string): ResultAsync<ContentSummary[], AppError> {
+    return fetchReadOnlyContentIds(
+        summaries.map((content) => content.getContentId()),
+        projectName,
+    ).map((readOnlyIds) => {
         readOnlyIds.forEach((id) => {
             summaries.find((content) => content.getId() === id)?.setReadOnly(true);
         });
@@ -323,23 +326,26 @@ export async function fetchFilteredRootChildren(
  * Only fetches IDs that are missing from cache.
  *
  * @param ids - Content IDs to fetch
+ * @param projectName - Project to fetch from and cache under; defaults to the active project
  * @returns All requested content (from cache + freshly fetched)
  */
-export async function fetchContentByIds(ids: string[]): Promise<ContentSummary[]> {
+export async function fetchContentByIds(ids: string[], projectName?: string): Promise<ContentSummary[]> {
     if (ids.length === 0) return [];
 
-    const projectName = captureActiveProjectName();
+    const resolvedProjectName = projectName ?? captureActiveProjectName();
 
-    const missingIds = getMissingIds(ids, projectName);
+    const missingIds = getMissingIds(ids, resolvedProjectName);
 
     if (missingIds.length > 0) {
         const contentIds = missingIds.map((id) => new ContentId(id));
-        const result = await resolveContentSummaries(contentIds).andThen(enrichReadOnly);
+        const result = await resolveContentSummaries(contentIds, resolvedProjectName).andThen((summaries) =>
+            enrichReadOnly(summaries, resolvedProjectName),
+        );
         if (result.isErr()) throw result.error;
-        setContents(result.value, projectName);
+        setContents(result.value, resolvedProjectName);
     }
 
-    return getContents(ids, projectName);
+    return getContents(ids, resolvedProjectName);
 }
 
 /**

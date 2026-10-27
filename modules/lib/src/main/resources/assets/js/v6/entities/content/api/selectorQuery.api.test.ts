@@ -130,3 +130,15 @@ describe('contentTreeSelectorQuery', () => {
         expect(result._unsafeUnwrapErr()).toBeInstanceOf(AppError);
     });
 });
+
+describe('project scoping', () => {
+    it('should query the given project instead of the active one', async () => {
+        mockFetch.mockResolvedValue(jsonResponse({ contents: [], metadata: { hits: 0, totalHits: 0 } }));
+
+        await contentSelectorQuery({ from: 0, size: 1 }, 'other-project');
+        await contentTreeSelectorQuery({ from: 0, size: 1 }, 'other-project');
+
+        expect(mockFetch.mock.calls[0][0]).toContain('/cms/other-project/content/content/selectorQuery');
+        expect(mockFetch.mock.calls[1][0]).toContain('/cms/other-project/content/content/treeSelectorQuery');
+    });
+});

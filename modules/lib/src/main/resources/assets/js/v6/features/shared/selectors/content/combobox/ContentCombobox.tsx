@@ -48,6 +48,8 @@ export type ContentComboboxProps = {
     /** Maximum height for the dropdown in pixels */
     dropdownMaxHeight?: number;
 
+    /** Project to search in; defaults to the active project */
+    projectName?: string;
     /** Content types to filter by (e.g., ['app:article', 'media:image']) */
     contentTypeNames?: string[];
     /** Allowed content paths for site restriction (e.g., ['${site}']) */
@@ -90,6 +92,7 @@ export const ContentCombobox = ({
     rowFlatHeight,
     rowFlatHeightRatio,
     dropdownMaxHeight,
+    projectName,
     contentTypeNames = EMPTY_STRING_ARRAY,
     allowedContentPaths = EMPTY_STRING_ARRAY,
     contextContent,
@@ -109,12 +112,13 @@ export const ContentCombobox = ({
     // Memoize filter options to avoid recreating on every render
     const filterOptions: UseContentComboboxControllerOptions['filters'] = useMemo(
         () => ({
+            projectName,
             contextContent,
             contentTypeNames,
             allowedContentPaths,
             applicationKey,
         }),
-        [contextContent, contentTypeNames, allowedContentPaths, applicationKey],
+        [projectName, contextContent, contentTypeNames, allowedContentPaths, applicationKey],
     );
 
     const dropdownOptions: UseContentComboboxControllerOptions['dropdown'] = useMemo(

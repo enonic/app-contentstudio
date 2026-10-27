@@ -120,12 +120,15 @@ const BATCH_SIZE = 50;
  * ContentSummaryAndCompareStatusFetcher.updateReadOnly (rejects on error so the
  * caller's catch arm records it).
  */
-async function updateReadOnly(summaries: ContentSummary[]): Promise<ContentSummary[]> {
+async function updateReadOnly(summaries: ContentSummary[], projectName?: string): Promise<ContentSummary[]> {
     if (summaries.length === 0) {
         return summaries;
     }
 
-    const result = await fetchReadOnlyContentIds(summaries.map((summary) => summary.getContentId()));
+    const result = await fetchReadOnlyContentIds(
+        summaries.map((summary) => summary.getContentId()),
+        projectName,
+    );
     if (result.isErr()) {
         throw result.error;
     }
@@ -236,6 +239,7 @@ function deduplicateById<T extends { getId(): string }>(items: T[]): T[] {
  */
 function createFilterKey(filters: ContentFilterOptions): string {
     return JSON.stringify({
+        projectName: filters.projectName,
         contextContent: filters.contextContent?.getId(),
         contentTypeNames: filters.contentTypeNames ? [...filters.contentTypeNames].sort() : undefined,
         allowedContentPaths: filters.allowedContentPaths ? [...filters.allowedContentPaths].sort() : undefined,
@@ -304,7 +308,7 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
             }
 
             try {
-                const enriched = await updateReadOnly(summaries);
+                const enriched = await updateReadOnly(summaries, filtersRef.current.projectName);
                 if (requestId !== treeRequestIdRef.current) {
                     return summaries;
                 }
@@ -411,14 +415,17 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
         setError(null);
 
         try {
-            const result = await contentTreeSelectorQuery({
-                from: 0,
-                size: BATCH_SIZE,
-                searchString: treeQueryRef.current,
-                contextPath: filtersRef.current.contextContent?.getPath().toString(),
-                ...buildFilterParams(filtersRef.current),
-                childOrder: createRootChildOrder().toString(),
-            });
+            const result = await contentTreeSelectorQuery(
+                {
+                    from: 0,
+                    size: BATCH_SIZE,
+                    searchString: treeQueryRef.current,
+                    contextPath: filtersRef.current.contextContent?.getPath().toString(),
+                    ...buildFilterParams(filtersRef.current),
+                    childOrder: createRootChildOrder().toString(),
+                },
+                filtersRef.current.projectName,
+            );
             if (result.isErr()) throw result.error;
             const { items: rawItems, totalHits } = result.value;
             const items = deduplicateById(rawItems);
@@ -460,14 +467,17 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
         try {
             const offset = tree.state.rootIds.length;
 
-            const result = await contentTreeSelectorQuery({
-                from: offset,
-                size: BATCH_SIZE,
-                searchString: treeQueryRef.current,
-                contextPath: filtersRef.current.contextContent?.getPath().toString(),
-                ...buildFilterParams(filtersRef.current),
-                childOrder: createRootChildOrder().toString(),
-            });
+            const result = await contentTreeSelectorQuery(
+                {
+                    from: offset,
+                    size: BATCH_SIZE,
+                    searchString: treeQueryRef.current,
+                    contextPath: filtersRef.current.contextContent?.getPath().toString(),
+                    ...buildFilterParams(filtersRef.current),
+                    childOrder: createRootChildOrder().toString(),
+                },
+                filtersRef.current.projectName,
+            );
             if (result.isErr()) throw result.error;
             const rawItems = result.value.items;
             const items = deduplicateById(rawItems);
@@ -512,14 +522,17 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
                 const parentNode = treeGetNode(parentId);
                 const parentContent = parentNode?.data?.item;
 
-                const result = await contentTreeSelectorQuery({
-                    from: 0,
-                    size: BATCH_SIZE,
-                    searchString: treeQueryRef.current,
-                    contextPath: filtersRef.current.contextContent?.getPath().toString(),
-                    ...buildFilterParams(filtersRef.current),
-                    ...resolveTreeScope(parentContent, filtersRef.current.contextContent),
-                });
+                const result = await contentTreeSelectorQuery(
+                    {
+                        from: 0,
+                        size: BATCH_SIZE,
+                        searchString: treeQueryRef.current,
+                        contextPath: filtersRef.current.contextContent?.getPath().toString(),
+                        ...buildFilterParams(filtersRef.current),
+                        ...resolveTreeScope(parentContent, filtersRef.current.contextContent),
+                    },
+                    filtersRef.current.projectName,
+                );
                 if (result.isErr()) throw result.error;
                 const { items: rawItems, totalHits } = result.value;
                 const items = deduplicateById(rawItems);
@@ -569,14 +582,17 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
                 const offset = node.childIds.length;
                 const parentContent = node.data?.item;
 
-                const result = await contentTreeSelectorQuery({
-                    from: offset,
-                    size: BATCH_SIZE,
-                    searchString: treeQueryRef.current,
-                    contextPath: filtersRef.current.contextContent?.getPath().toString(),
-                    ...buildFilterParams(filtersRef.current),
-                    ...resolveTreeScope(parentContent, filtersRef.current.contextContent),
-                });
+                const result = await contentTreeSelectorQuery(
+                    {
+                        from: offset,
+                        size: BATCH_SIZE,
+                        searchString: treeQueryRef.current,
+                        contextPath: filtersRef.current.contextContent?.getPath().toString(),
+                        ...buildFilterParams(filtersRef.current),
+                        ...resolveTreeScope(parentContent, filtersRef.current.contextContent),
+                    },
+                    filtersRef.current.projectName,
+                );
                 if (result.isErr()) throw result.error;
                 const rawItems = result.value.items;
                 const items = deduplicateById(rawItems);
@@ -632,19 +648,22 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
         setError(null);
 
         try {
-            const result = await contentSelectorQuery({
-                from: 0,
-                size: BATCH_SIZE,
-                searchString: query,
-                ...buildFilterParams(filtersRef.current),
-            });
+            const result = await contentSelectorQuery(
+                {
+                    from: 0,
+                    size: BATCH_SIZE,
+                    searchString: query,
+                    ...buildFilterParams(filtersRef.current),
+                },
+                filtersRef.current.projectName,
+            );
             if (result.isErr()) throw result.error;
             const { contents, hits, totalHits } = result.value;
 
             // Stale request check
             if (currentRequestId !== flatRequestIdRef.current) return;
 
-            const summaries = await updateReadOnly(contents);
+            const summaries = await updateReadOnly(contents, filtersRef.current.projectName);
 
             if (currentRequestId !== flatRequestIdRef.current) return;
 
@@ -690,19 +709,22 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
         setError(null);
 
         try {
-            const result = await contentSelectorQuery({
-                from: flatFromRef.current,
-                size: BATCH_SIZE,
-                searchString: query,
-                ...buildFilterParams(filtersRef.current),
-            });
+            const result = await contentSelectorQuery(
+                {
+                    from: flatFromRef.current,
+                    size: BATCH_SIZE,
+                    searchString: query,
+                    ...buildFilterParams(filtersRef.current),
+                },
+                filtersRef.current.projectName,
+            );
             if (result.isErr()) throw result.error;
             const { contents, hits } = result.value;
 
             // Stale request check
             if (currentRequestId !== flatRequestIdRef.current) return;
 
-            const summaries = await updateReadOnly(contents);
+            const summaries = await updateReadOnly(contents, filtersRef.current.projectName);
 
             if (currentRequestId !== flatRequestIdRef.current) return;
 

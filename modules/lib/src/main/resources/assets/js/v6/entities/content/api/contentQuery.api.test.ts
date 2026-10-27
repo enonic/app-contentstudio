@@ -178,3 +178,13 @@ describe('listContentIdsByParent', () => {
         expect(result._unsafeUnwrapErr()).toBeInstanceOf(AppError);
     });
 });
+
+describe('project scoping', () => {
+    it('should check read-only ids in the given project', async () => {
+        mockFetch.mockResolvedValue(jsonResponse([]));
+
+        await fetchReadOnlyContentIds([contentId('a')], 'other-project');
+
+        expect(mockFetch.mock.calls[0][0]).toContain('/cms/other-project/content/content/isReadOnlyContent');
+    });
+});

@@ -71,11 +71,13 @@ export function buildSelectorBody(params: ContentSelectorQueryParams, expand: st
  * Flat content-selector query expanding to summaries. Mirrors the legacy
  * ContentSelectorQueryRequest with Expand.SUMMARY.
  * Used by: features/shared/hooks/useContentComboboxData.
+ * @param projectName - Optional project name, defaults to the active project
  */
 export function contentSelectorQuery(
     params: ContentSelectorQueryParams,
+    projectName?: string,
 ): ResultAsync<ContentSelectorQueryResult, AppError> {
-    return requestJson<ContentQueryResultJson<ContentSummaryJson>>(getCmsApiUrl('selectorQuery'), {
+    return requestJson<ContentQueryResultJson<ContentSummaryJson>>(getCmsApiUrl('selectorQuery', projectName), {
         method: 'POST',
         body: buildSelectorBody(params, EXPAND_SUMMARY),
     }).map((json) => ({
@@ -90,9 +92,11 @@ export function contentSelectorQuery(
  * the base body merged with parentPath (null when unset) and childOrder ('' when
  * unset). Empty results carry a zero total, matching the legacy zero-metadata path.
  * Used by: features/shared/hooks/useContentComboboxData.
+ * @param projectName - Optional project name, defaults to the active project
  */
 export function contentTreeSelectorQuery(
     params: ContentTreeSelectorQueryParams,
+    projectName?: string,
 ): ResultAsync<ContentTreeSelectorQueryResult, AppError> {
     const body = {
         ...buildSelectorBody(params, EXPAND_SUMMARY),
@@ -100,7 +104,7 @@ export function contentTreeSelectorQuery(
         childOrder: params.childOrder ?? '',
     };
 
-    return requestJson<ContentTreeSelectorListJson>(getCmsApiUrl('treeSelectorQuery'), {
+    return requestJson<ContentTreeSelectorListJson>(getCmsApiUrl('treeSelectorQuery', projectName), {
         method: 'POST',
         body,
     }).map((json) => {

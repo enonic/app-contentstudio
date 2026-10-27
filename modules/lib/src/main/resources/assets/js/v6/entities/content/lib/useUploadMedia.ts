@@ -10,6 +10,8 @@ import { addUpload, completeUpload, failUpload, updateUploadProgress } from '../
 
 export type UseUploadMediaOptions = {
     parentContent?: ContentSummary;
+    /** Project to upload into; defaults to the active project. */
+    projectName?: string;
     onUploadStart?: (file: File) => void;
     onUploadProgress?: (mediaIdentifier: string, progress: number) => void;
     onUploadComplete?: (success: UploadMediaSuccess) => void;
@@ -29,18 +31,26 @@ const NOOP = () => {};
 
 export const useUploadMedia = ({
     parentContent,
+    projectName,
     onUploadStart = NOOP,
     onUploadProgress = NOOP,
     onUploadComplete = NOOP,
     onUploadError = NOOP,
 }: UseUploadMediaOptions): UseUploadMediaReturn => {
-    const ref = useRef({ parentContent, onUploadStart, onUploadProgress, onUploadComplete, onUploadError });
-    ref.current = { parentContent, onUploadStart, onUploadProgress, onUploadComplete, onUploadError };
+    const ref = useRef({
+        parentContent,
+        projectName,
+        onUploadStart,
+        onUploadProgress,
+        onUploadComplete,
+        onUploadError,
+    });
+    ref.current = { parentContent, projectName, onUploadStart, onUploadProgress, onUploadComplete, onUploadError };
 
     const handleFiles = useCallback(async (files: FileList | File[]) => {
         if (!files || files.length === 0) return;
 
-        const { parentContent, onUploadStart } = ref.current;
+        const { parentContent, projectName, onUploadStart } = ref.current;
 
         const dataTransfer = new DataTransfer();
 
@@ -54,6 +64,7 @@ export const useUploadMedia = ({
                 id: file.name,
                 file,
                 parentContent,
+                projectName,
                 onProgress: (mediaIdentifier, progress) => {
                     updateUploadProgress(mediaIdentifier, progress);
                     ref.current.onUploadProgress(mediaIdentifier, progress);

@@ -65,8 +65,8 @@ export function loadComponentDescriptor(content: Content): ResultAsync<Descripto
  * Used by: features/shared/hooks/useApplicationKeys,
  * widgets/context-panel/widget/details/DetailsWidgetTemplateSection.
  */
-export function loadNearestSite(contentId: ContentId): ResultAsync<Site | undefined, AppError> {
-    const url = getCmsApiUrl('nearestSite');
+export function loadNearestSite(contentId: ContentId, projectName?: string): ResultAsync<Site | undefined, AppError> {
+    const url = getCmsApiUrl('nearestSite', projectName);
 
     return requestOptionalJson<ContentJson>(url, {
         method: 'POST',

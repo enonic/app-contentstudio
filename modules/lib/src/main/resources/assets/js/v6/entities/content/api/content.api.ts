@@ -15,13 +15,17 @@ import { getCmsApiUrl } from '../../../shared/lib/url/cms';
  * Resolve content summaries for the given ids via the `resolveByIds` endpoint.
  * Empty input never hits the server.
  * Used by: entities/content/api/content-fetcher, entities/content/lib/contentSummaries.
+ * @param projectName - Optional project name, defaults to the active project
  */
-export function resolveContentSummaries(contentIds: ContentId[]): ResultAsync<ContentSummary[], AppError> {
+export function resolveContentSummaries(
+    contentIds: ContentId[],
+    projectName?: string,
+): ResultAsync<ContentSummary[], AppError> {
     if (contentIds.length === 0) {
         return okAsync([]);
     }
 
-    const url = getCmsApiUrl('resolveByIds');
+    const url = getCmsApiUrl('resolveByIds', projectName);
 
     const payload = {
         contentIds: contentIds.map((id) => id.toString()),
@@ -44,8 +48,8 @@ export function fetchContentByPath(path: string, projectName?: string): ResultAs
     return requestJson<ContentJson>(url).map(parseContent);
 }
 
-export function fetchNearestSite(contentId: ContentId): ResultAsync<Site | undefined, AppError> {
-    const url = getCmsApiUrl('nearestSite');
+export function fetchNearestSite(contentId: ContentId, projectName?: string): ResultAsync<Site | undefined, AppError> {
+    const url = getCmsApiUrl('nearestSite', projectName);
 
     return requestOptionalJson<ContentJson>(url, {
         method: 'POST',

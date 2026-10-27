@@ -22,11 +22,13 @@ export type ContentFullSelectorQueryResult = {
  * ContentSelectorQueryRequest with Expand.FULL. Kept separate from
  * selectorQuery.api so the Content class is not loaded by the summary/tree tests.
  * Used by: features/shared/form/input-types/tag/ContentTagSuggester.
+ * @param projectName - Optional project name, defaults to the active project
  */
 export function contentFullSelectorQuery(
     params: ContentSelectorQueryParams,
+    projectName?: string,
 ): ResultAsync<ContentFullSelectorQueryResult, AppError> {
-    return requestJson<ContentQueryResultJson<ContentJson>>(getCmsApiUrl('selectorQuery'), {
+    return requestJson<ContentQueryResultJson<ContentJson>>(getCmsApiUrl('selectorQuery', projectName), {
         method: 'POST',
         body: buildSelectorBody(params, EXPAND_FULL),
     }).map((json) => ({
