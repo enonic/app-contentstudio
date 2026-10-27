@@ -120,7 +120,8 @@ export const ContentTabPanel = (): ReactElement => {
         fileInputRef.current?.click();
     }, []);
 
-    const showUpload = !selectedContentId;
+    // Uploads need a parent, so no upload without content
+    const showUpload = !selectedContentId && contentSummary != null;
 
     return (
         <div data-component={COMPONENT_NAME} className="flex flex-col gap-4 pt-4">

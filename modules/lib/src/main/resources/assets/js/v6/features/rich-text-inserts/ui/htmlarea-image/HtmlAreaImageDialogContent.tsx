@@ -12,7 +12,7 @@ import { ImageUploadZone } from './ImageUploadZone';
 
 export const HtmlAreaImageDialogContent = (): ReactElement => {
     const {
-        state: { selectedImageId, selectedImageContent, caption, project },
+        state: { selectedImageId, selectedImageContent, caption, project, parentContent },
         deselectImage,
         selectImageById,
         setCaption,
@@ -56,7 +56,7 @@ export const HtmlAreaImageDialogContent = (): ReactElement => {
                         disabled={!project}
                         withUpload
                     />
-                    {project && <ImageUploadZone />}
+                    {project && parentContent && <ImageUploadZone />}
                 </>
             )}
 
