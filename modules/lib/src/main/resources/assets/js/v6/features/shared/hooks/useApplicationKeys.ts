@@ -4,10 +4,10 @@ import { useEffect, useMemo, useState } from 'react';
 import type { Site } from '../../../../app/content/Site';
 import { loadNearestSite } from '../../../widgets/inspectors/api/details.api';
 import { $activeProject } from '../../../entities/project/activeProject.store';
-import { $contextContent } from '../../../entities/content';
+import { useFormScope } from '../form/FormScopeContext';
 
 export function useApplicationKeys(): ApplicationKey[] {
-    const contextContent = useStore($contextContent);
+    const { content: contextContent } = useFormScope();
     const activeProject = useStore($activeProject);
     const [nearestSite, setNearestSite] = useState<Site | undefined>(undefined);
     const [siteLoaded, setSiteLoaded] = useState(false);

@@ -9,6 +9,7 @@ import { ContentSummary, ContentSummaryBuilder } from '../../../../../../app/con
 import { CustomSelectorInputComboboxList } from './CustomSelectorComboboxList';
 import { CustomSelectorSelectionItemView } from './CustomSelectorSelectionItemView';
 import { useCustomSelector } from './useCustomSelector';
+import { useFormScopeRequirement } from '../../FormScopeContext';
 import { useSelectorInputHasError } from '../hooks';
 
 export type CustomSelectorItem = {
@@ -32,8 +33,12 @@ export const CustomSelectorInput = ({
     config,
     values,
     errors,
-    enabled,
+    input,
+    enabled: inputEnabled,
 }: SelfManagedComponentProps<CustomSelectorConfig>): ReactElement => {
+    // The service URL embeds the content id, so there is nothing to call without one.
+    const { enabled: scopeEnabled } = useFormScopeRequirement(input, { content: true });
+    const enabled = inputEnabled && scopeEnabled;
     const selection: string[] = useMemo(() => values.filter((v) => v.isNotNull()).map((v) => v.getString()), [values]);
     const [inputValue, setInputValue] = useState<string | undefined>();
     const { allItems, filteredItems, isLoading, hasError, hasMore, preLoad, load, onSelectionChange } =
