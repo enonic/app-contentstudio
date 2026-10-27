@@ -32,7 +32,23 @@ vi.mock('../../../shared/ui/providers/FormI18nProvider', () => ({
 }));
 
 vi.mock('./input-types/html-area', () => ({
-    HtmlAreaProvider: ({ children }: { children: ReactNode }) => <div data-testid="html-area-provider">{children}</div>,
+    HtmlAreaProvider: ({
+        children,
+        contentSummary,
+        project,
+    }: {
+        children: ReactNode;
+        contentSummary?: { getLanguage: () => string };
+        project?: { getName: () => string };
+    }) => (
+        <div
+            data-testid="html-area-provider"
+            data-content={contentSummary?.getLanguage() ?? ''}
+            data-project={project?.getName() ?? ''}
+        >
+            {children}
+        </div>
+    ),
     useOptionalHtmlAreaContext: () => mockHtmlAreaContext(),
 }));
 
@@ -50,12 +66,29 @@ vi.mock('../../../shared/config/config.store', async () => {
     return { $config: map({ assetsUri: '/assets' }) };
 });
 
+import type { ContentSummary } from '../../../../app/content/ContentSummary';
+import type { Project } from '../../../../app/settings/data/project/Project';
 import { $contextContent } from '../../../entities/content';
+import { $activeProject } from '../../../entities/project';
 import { FormRenderer } from './FormRenderer';
 
-function renderForm(applicationKey?: ApplicationKey) {
+type RenderFormOptions = {
+    applicationKey?: ApplicationKey;
+    project?: Readonly<Project> | null;
+    content?: ContentSummary | null;
+};
+
+function renderForm({ applicationKey, project, content }: RenderFormOptions = {}) {
     const propertySet: PropertySet = new PropertyTree().getRoot();
-    return render(<FormRenderer form={new Form()} propertySet={propertySet} applicationKey={applicationKey} />);
+    return render(
+        <FormRenderer
+            form={new Form()}
+            propertySet={propertySet}
+            applicationKey={applicationKey}
+            project={project}
+            content={content}
+        />,
+    );
 }
 
 describe('FormRenderer', () => {
@@ -64,6 +97,7 @@ describe('FormRenderer', () => {
         mockToolkitRenderer.mockReset();
         mockHtmlAreaContext.mockReturnValue(undefined);
         ($contextContent as unknown as { set: (v: unknown) => void }).set({ getLanguage: () => 'nb' });
+        ($activeProject as unknown as { set: (v: unknown) => void }).set({ getName: () => 'active' });
     });
 
     afterEach(cleanup);
@@ -78,6 +112,29 @@ describe('FormRenderer', () => {
         expect(locale.contains(htmlArea)).toBe(true);
         expect(htmlArea.contains(screen.getByTestId('toolkit-form'))).toBe(true);
         expect(locale.dataset.locale).toBe('nb');
+        expect(htmlArea.dataset.content).toBe('nb');
+        expect(htmlArea.dataset.project).toBe('active');
+    });
+
+    it('should scope the language and the HTML area context to the given project and content', () => {
+        renderForm({
+            project: { getName: () => 'scoped' } as unknown as Project,
+            content: { getLanguage: () => 'de' } as unknown as ContentSummary,
+        });
+
+        const htmlArea = screen.getByTestId('html-area-provider');
+        expect(screen.getByTestId('locale-provider').dataset.locale).toBe('de');
+        expect(htmlArea.dataset.content).toBe('de');
+        expect(htmlArea.dataset.project).toBe('scoped');
+    });
+
+    it('should give the form no language and no HTML area content or project for an explicit null scope', () => {
+        renderForm({ project: null, content: null });
+
+        const htmlArea = screen.getByTestId('html-area-provider');
+        expect(screen.getByTestId('locale-provider').dataset.locale).toBe('');
+        expect(htmlArea.dataset.content).toBe('');
+        expect(htmlArea.dataset.project).toBe('');
     });
 
     it('keeps the phrases and the language but not a second HTML area context inside an existing one', () => {
@@ -92,7 +149,7 @@ describe('FormRenderer', () => {
     });
 
     it("routes the form's notifications to a warning and passes the application key by name", () => {
-        renderForm(ApplicationKey.fromString('com.enonic.app.test'));
+        renderForm({ applicationKey: ApplicationKey.fromString('com.enonic.app.test') });
 
         const props = mockToolkitRenderer.mock.calls[0]?.[0] as {
             applicationKey?: string;
