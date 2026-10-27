@@ -10,10 +10,10 @@ import {
     useState,
 } from 'react';
 import { type Value } from '@enonic/input-types/data';
-import { type ContentId } from '../../../../../../app/content/ContentId';
+import { ContentId } from '../../../../../../app/content/ContentId';
 import { type Project } from '../../../../../../app/settings/data/project/Project';
-import { $contextContent } from '../../../../../entities/content';
 import { $activeProject } from '../../../../../entities/project';
+import { useFormScope } from '../../FormScopeContext';
 import { type Mode, type Crop, type Dimensions, type Point } from './lib/types';
 import {
     readNormalizedCropFromPropertySet,
@@ -57,7 +57,9 @@ type ImageUploaderProviderProps = {
 };
 
 export const ImageUploaderProvider = ({ values, enabled, children }: ImageUploaderProviderProps): ReactElement => {
+    const { content } = useFormScope();
     const value = values[0];
+    const scopedContentId = content?.getId();
 
     // the context content id
     const [contentId, setContentId] = useState<ContentId>();
@@ -91,16 +93,17 @@ export const ImageUploaderProvider = ({ values, enabled, children }: ImageUpload
     // ============================================================
     // Content & Project id initialization
     // ============================================================
+    // Keyed on the id string so a refreshed summary of the same content does not reload the image.
     useEffect(() => {
-        const contentId = $contextContent.get()?.getContentId();
         const project = $activeProject.get();
 
-        if (contentId && project) {
+        if (scopedContentId && project) {
+            const contentId = new ContentId(scopedContentId);
             setContentId(contentId);
             setProject(project);
             setImageUrl(getImageUrl(contentId, project));
         }
-    }, []);
+    }, [scopedContentId]);
 
     // ============================================================
     // Image loading

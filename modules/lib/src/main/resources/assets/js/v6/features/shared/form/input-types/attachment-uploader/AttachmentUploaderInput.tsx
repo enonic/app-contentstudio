@@ -14,6 +14,7 @@ import { useAttachmentServerErrors } from './useAttachmentServerErrors';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { AttachmentUploaderButton } from './AttachmentUploaderButton';
 import { AttachmentUploaderList } from './AttachmentUploaderList';
+import { useFormScopeRequirement } from '../../FormScopeContext';
 import { cn } from '@enonic/ui';
 
 const ATTACHMENT_UPLOADER_INPUT_NAME = 'AttachmentUploaderInput';
@@ -25,8 +26,10 @@ export const AttachmentUploaderInput = ({
     values,
     input,
     config,
-    enabled,
+    enabled: inputEnabled,
 }: SelfManagedComponentProps<AttachmentUploaderConfig>): ReactElement => {
+    const { enabled: scopeEnabled } = useFormScopeRequirement(input, { content: true });
+    const enabled = inputEnabled && scopeEnabled;
     const fileInputRef = useRef<HTMLInputElement>(null);
     const noAttachmentLabel = useI18n('field.content.noattachment');
     const uploadLabel = useI18n('action.upload');
