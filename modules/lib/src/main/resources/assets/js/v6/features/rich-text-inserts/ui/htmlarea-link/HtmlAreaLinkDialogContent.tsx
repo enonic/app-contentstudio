@@ -11,7 +11,7 @@ const COMPONENT_NAME = 'HtmlAreaLinkDialogContent';
 
 export const HtmlAreaLinkDialogContent = (): ReactElement => {
     const {
-        state: { open, linkText, linkTextEditable, tooltip, activeTab, anchors },
+        state: { open, linkText, linkTextEditable, tooltip, activeTab, anchors, project },
         validationErrors: errors,
         setActiveTab,
         setLinkText,
@@ -28,6 +28,7 @@ export const HtmlAreaLinkDialogContent = (): ReactElement => {
     const anchorTabLabel = useI18n('dialog.link.tabname.anchor');
 
     const hasAnchors = anchors.length > 0;
+    const hasProject = project != null;
 
     useEffect(() => {
         const justOpened = open && !wasOpenRef.current;
@@ -57,14 +58,16 @@ export const HtmlAreaLinkDialogContent = (): ReactElement => {
             />
             <Tab.Root value={activeTab} onValueChange={(value) => setActiveTab(value as LinkType)}>
                 <Tab.List>
-                    <Tab.DefaultTrigger value="content">{contentTabLabel}</Tab.DefaultTrigger>
+                    {hasProject && <Tab.DefaultTrigger value="content">{contentTabLabel}</Tab.DefaultTrigger>}
                     <Tab.DefaultTrigger value="url">{urlTabLabel}</Tab.DefaultTrigger>
                     <Tab.DefaultTrigger value="email">{emailTabLabel}</Tab.DefaultTrigger>
                     {hasAnchors && <Tab.DefaultTrigger value="anchor">{anchorTabLabel}</Tab.DefaultTrigger>}
                 </Tab.List>
-                <Tab.Content value="content">
-                    <ContentTabPanel />
-                </Tab.Content>
+                {hasProject && (
+                    <Tab.Content value="content">
+                        <ContentTabPanel />
+                    </Tab.Content>
+                )}
                 <Tab.Content value="url">
                     <UrlTabPanel />
                 </Tab.Content>

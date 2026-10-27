@@ -441,7 +441,8 @@ function computeOpenState(params: OpenHtmlAreaLinkDialogParams): HtmlAreaLinkDia
         linkText: linkDisplayText || '',
         linkTextEditable,
         tooltip: tooltip || '',
-        activeTab: detected.tab,
+        // The content tab is hidden without a project
+        activeTab: !project && detected.tab === 'content' ? 'url' : detected.tab,
         selectedContentId: detected.tab === 'content' ? detected.contentId : undefined,
         selectedContent: undefined,
         mediaOption: detected.mediaOption,

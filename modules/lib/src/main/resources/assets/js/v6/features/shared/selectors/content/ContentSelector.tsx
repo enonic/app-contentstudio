@@ -1,44 +1,45 @@
-import {cn} from '@enonic/ui';
-import type {ReactElement} from 'react';
-import {ContentCombobox} from './combobox';
-import type {ContentSelectorFilterOptions, ContentSelectorMode} from './content-selector.types';
-import {ContentSelection} from './selection';
-import {type ContentRowProps} from '../shared/combobox/ContentRow';
+import { cn } from '@enonic/ui';
+import type { ReactElement } from 'react';
+import { useFormScope } from '../../form/FormScopeContext';
+import { ContentCombobox } from './combobox';
+import type { ContentSelectorFilterOptions, ContentSelectorMode } from './content-selector.types';
+import { ContentSelection } from './selection';
+import { type ContentRowProps } from '../shared/combobox/ContentRow';
 
 //
 // * Types
 //
 export type ContentSelectorProps = {
     /** Selected content IDs */
-    'selection': readonly string[];
+    selection: readonly string[];
     /** Callback when selection changes */
-    'onSelectionChange': (selection: readonly string[]) => void;
+    onSelectionChange: (selection: readonly string[]) => void;
     /** Selection mode */
-    'selectionMode'?: ContentSelectorMode;
+    selectionMode?: ContentSelectorMode;
     /** List mode */
-    'listMode'?: 'tree' | 'flat';
+    listMode?: 'tree' | 'flat';
     /** Whether to close the combobox when the input is blurred */
-    'closeOnBlur'?: boolean;
+    closeOnBlur?: boolean;
     /** Whether the selector is disabled */
-    'disabled'?: boolean;
+    disabled?: boolean;
     /** Label for the selector */
-    'label'?: string;
+    label?: string;
     /** Placeholder text for the search input */
-    'placeholder'?: string;
+    placeholder?: string;
     /** Text shown when no results found */
-    'emptyLabel'?: string;
+    emptyLabel?: string;
     /** Additional CSS class for the wrapper */
-    'className'?: string;
+    className?: string;
     /** Aria label for accessibility */
     'aria-label'?: string;
     /** Whether to hide the toggle icon */
-    'hideToggleIcon'?: boolean;
+    hideToggleIcon?: boolean;
     /** Whether the selector has an error */
-    'error'?: boolean;
+    error?: boolean;
     /** Whether a button is placed to the right (removes right-side border radius) */
-    'withRightButton'?: boolean;
+    withRightButton?: boolean;
     /** Custom row renderer */
-    'rowRenderer'?: (props: ContentRowProps) => ReactElement;
+    rowRenderer?: (props: ContentRowProps) => ReactElement;
 } & ContentSelectorFilterOptions;
 
 //
@@ -85,6 +86,8 @@ export const ContentSelector = ({
     applicationKey,
     rowRenderer,
 }: ContentSelectorProps): ReactElement => {
+    const { project } = useFormScope();
+    const projectName = project?.getName();
     const isSingleMode = selectionMode === 'single';
     const hasSelection = selection.length > 0;
     const hideCombobox = isSingleMode && hasSelection;
@@ -108,12 +111,18 @@ export const ContentSelector = ({
                     allowedContentPaths={allowedContentPaths}
                     contextContent={contextContent}
                     applicationKey={applicationKey}
+                    projectName={projectName}
                     rowRenderer={rowRenderer}
                     closeOnBlur={closeOnBlur}
                     withRightButton={withRightButton}
                 />
             )}
-            <ContentSelection selection={selection} onSelectionChange={onSelectionChange} disabled={disabled} />
+            <ContentSelection
+                selection={selection}
+                onSelectionChange={onSelectionChange}
+                disabled={disabled}
+                projectName={projectName}
+            />
         </div>
     );
 };

@@ -8,7 +8,7 @@ import type { InputTypeComponentProps } from '@enonic/input-types';
 import { getFirstError, useInputTypesPhrases } from '@enonic/input-types';
 import { cn, useBlinkAttention } from '@enonic/ui';
 import { useCKEditor } from 'ckeditor4-react';
-import { useEffect, useRef, useState, type JSX } from 'react';
+import { useEffect, useMemo, useRef, useState, type JSX } from 'react';
 import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
 import { HTMLAreaHelper } from '../../../../../../app/inputtype/ui/text/HTMLAreaHelper';
 import { shouldIgnoreHtmlAreaBlur } from '../../../../../../app/inputtype/ui/text/HtmlAreaOverlayState';
@@ -556,6 +556,15 @@ export const HtmlAreaInput = ({
     const { contentSummary, project, applicationKeys, assetsUri } = useHtmlAreaContext();
     const t = useInputTypesPhrases();
 
+    // Without a project the image and macro dialogs have nothing to search or list.
+    const scopedConfig = useMemo<HtmlAreaConfig>(() => {
+        const disabledTools = config.disabledTools ?? [];
+        if (project || disabledTools.includes('*')) {
+            return config;
+        }
+        return { ...config, disabledTools: [...disabledTools, 'Image', 'Macro'] };
+    }, [config, project]);
+
     const editorId = `htmlarea-${input.getName()}-${index}`;
     const editorLabel = input.getLabel() || input.getName().toString();
     const [editableSourceCode, setEditableSourceCode] = useState<boolean | undefined>(undefined);
@@ -572,7 +581,7 @@ export const HtmlAreaInput = ({
     }, []);
 
     const { editorConfig } = useCKEditorConfig({
-        config,
+        config: scopedConfig,
         editorId,
         assetsUri,
         contentSummary,
@@ -598,7 +607,7 @@ export const HtmlAreaInput = ({
         <>
             <CKEditorWrapper
                 editorConfig={editorConfig}
-                htmlAreaConfig={config}
+                htmlAreaConfig={scopedConfig}
                 editorId={editorId}
                 editorLabel={editorLabel}
                 previewContent={previewContent}

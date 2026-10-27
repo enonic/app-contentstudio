@@ -28,7 +28,7 @@ afterEach(() => {
     vi.unstubAllGlobals();
 });
 
-function openDialog(protocol: UrlProtocol = '', address = '') {
+function openDialog(protocol: UrlProtocol = '', address = '', project?: OpenHtmlAreaLinkDialogParams['project']) {
     const field = (value = '') => ({ getValue: () => value, setValue: vi.fn() });
     const url = field(address);
     const nativeProtocol = field(protocol);
@@ -62,10 +62,29 @@ function openDialog(protocol: UrlProtocol = '', address = '') {
             </HtmlAreaLinkDialogProvider>
         ),
     });
-    act(() => openRef.current({ ckeDialog, ckeEditor }));
+    act(() => openRef.current({ ckeDialog, ckeEditor, project }));
+    const activeTabOnOpen = result.current.state.activeTab;
     act(() => result.current.setActiveTab('url'));
-    return { result, url, nativeProtocol, click, input: screen.getByRole('textbox') as HTMLInputElement };
+    return {
+        result,
+        url,
+        nativeProtocol,
+        click,
+        activeTabOnOpen,
+        input: screen.getByRole('textbox') as HTMLInputElement,
+    };
 }
+
+describe('link dialog tabs', () => {
+    it('opens on the URL tab when there is no project', () => {
+        expect(openDialog().activeTabOnOpen).toBe('url');
+    });
+
+    it('opens on the content tab when there is a project', () => {
+        const project = { getName: () => 'a' } as unknown as OpenHtmlAreaLinkDialogParams['project'];
+        expect(openDialog('', '', project).activeTabOnOpen).toBe('content');
+    });
+});
 
 describe('link URL input integration', () => {
     it.each(['https://', 'http://', 'ftp://', 'tel:', ''] as UrlProtocol[])(

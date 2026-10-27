@@ -8,8 +8,6 @@ import { type UploadError } from '../../../../shared/api';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import { isBlank } from '../../../../shared/lib/format/isBlank';
 import { useUploadMedia } from '../../../../entities/content/lib/useUploadMedia';
-import { $contextContent } from '../../../../entities/content';
-import { useStore } from '@nanostores/preact';
 import { type MediaOption, useHtmlAreaLinkDialogContext } from './HtmlAreaLinkDialogContext';
 import { ContentSelector } from '../../../shared/selectors/content';
 import { resolveAllowedContentPaths } from './resolveAllowedContentPaths';
@@ -28,6 +26,7 @@ export const ContentTabPanel = (): ReactElement => {
             fragmentVisible,
             queryParams,
             contentSummary,
+            project,
         },
         validationErrors: errors,
         selectContentById,
@@ -64,7 +63,7 @@ export const ContentTabPanel = (): ReactElement => {
             setIsInSite(false);
             return;
         }
-        fetchNearestSite(contentId).match(
+        fetchNearestSite(contentId, project?.getName()).match(
             (site) => {
                 setIsInSite(!!site);
             },
@@ -72,7 +71,7 @@ export const ContentTabPanel = (): ReactElement => {
                 setIsInSite(false);
             },
         );
-    }, [contentSummary]);
+    }, [contentSummary, project]);
 
     const selection = selectedContentId ? [selectedContentId] : [];
     const isMedia = selectedContent?.getType()?.isDescendantOfMedia() ?? false;
@@ -98,7 +97,6 @@ export const ContentTabPanel = (): ReactElement => {
 
     // Media upload
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const uploadParent = useStore($contextContent);
 
     const onUploadComplete = useCallback(
         (success: UploadMediaSuccess) => {
@@ -112,7 +110,8 @@ export const ContentTabPanel = (): ReactElement => {
     }, []);
 
     const { handleInputChange } = useUploadMedia({
-        parentContent: uploadParent ?? undefined,
+        parentContent: contentSummary,
+        projectName: project?.getName(),
         onUploadComplete,
         onUploadError,
     });
