@@ -128,6 +128,15 @@ describe('FormRenderer', () => {
         expect(htmlArea.dataset.project).toBe('scoped');
     });
 
+    it('should fall back to the project language without a content', () => {
+        renderForm({
+            project: { getName: () => 'scoped', getLanguage: () => 'sv' } as unknown as Project,
+            content: null,
+        });
+
+        expect(screen.getByTestId('locale-provider').dataset.locale).toBe('sv');
+    });
+
     it('should give the form no language and no HTML area content or project for an explicit null scope', () => {
         renderForm({ project: null, content: null });
 

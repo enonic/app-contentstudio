@@ -53,8 +53,9 @@ FormRenderer.displayName = 'FormRenderer';
 type ScopedFormProps = Omit<FormRendererProps, 'project' | 'content'>;
 
 const ScopedForm = ({ applicationKey, ...props }: ScopedFormProps): ReactElement => {
-    const { content } = useFormScope();
+    const { project, content } = useFormScope();
     const existingHtmlAreaContext = useOptionalHtmlAreaContext();
+    const language = content?.getLanguage() ?? project?.getLanguage();
 
     const renderedForm = (
         <ToolkitFormRenderer {...props} applicationKey={applicationKey?.toString()} notify={notifyWarning} />
@@ -62,7 +63,7 @@ const ScopedForm = ({ applicationKey, ...props }: ScopedFormProps): ReactElement
 
     return (
         <FormI18nProvider>
-            <LocaleProvider locale={content?.getLanguage()}>
+            <LocaleProvider locale={language}>
                 {existingHtmlAreaContext ? renderedForm : <HtmlAreaShell>{renderedForm}</HtmlAreaShell>}
             </LocaleProvider>
         </FormI18nProvider>
