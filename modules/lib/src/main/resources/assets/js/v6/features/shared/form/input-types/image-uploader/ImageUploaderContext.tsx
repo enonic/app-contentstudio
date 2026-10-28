@@ -59,6 +59,7 @@ export const ImageUploaderProvider = ({ values, enabled, children }: ImageUpload
     const { project: scopedProject, content } = useFormScope();
     const value = values[0];
     const scopedContentId = content?.getId();
+    const scopedProjectName = scopedProject?.getName();
 
     // the context content id
     const [contentId, setContentId] = useState<ContentId>();
@@ -92,7 +93,8 @@ export const ImageUploaderProvider = ({ values, enabled, children }: ImageUpload
     // ============================================================
     // Content & Project id initialization
     // ============================================================
-    // Keyed on the id string so a refreshed summary of the same content does not reload the image.
+    // Keyed on the content id and the project name: a refreshed summary or project instance
+    // (every project list load publishes one) must not fetch the image again.
     useEffect(() => {
         if (scopedContentId && scopedProject) {
             const contentId = new ContentId(scopedContentId);
@@ -100,7 +102,7 @@ export const ImageUploaderProvider = ({ values, enabled, children }: ImageUpload
             setProject(scopedProject);
             setImageUrl(getImageUrl(contentId, scopedProject));
         }
-    }, [scopedContentId, scopedProject]);
+    }, [scopedContentId, scopedProjectName]);
 
     // ============================================================
     // Image loading
