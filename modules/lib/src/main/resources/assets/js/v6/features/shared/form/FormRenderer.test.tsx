@@ -32,23 +32,7 @@ vi.mock('../../../shared/ui/providers/FormI18nProvider', () => ({
 }));
 
 vi.mock('./input-types/html-area', () => ({
-    HtmlAreaProvider: ({
-        children,
-        contentSummary,
-        project,
-    }: {
-        children: ReactNode;
-        contentSummary?: { getLanguage: () => string };
-        project?: { getName: () => string };
-    }) => (
-        <div
-            data-testid="html-area-provider"
-            data-content={contentSummary?.getLanguage() ?? ''}
-            data-project={project?.getName() ?? ''}
-        >
-            {children}
-        </div>
-    ),
+    HtmlAreaProvider: ({ children }: { children: ReactNode }) => <div data-testid="html-area-provider">{children}</div>,
     useOptionalHtmlAreaContext: () => mockHtmlAreaContext(),
 }));
 
@@ -112,20 +96,15 @@ describe('FormRenderer', () => {
         expect(locale.contains(htmlArea)).toBe(true);
         expect(htmlArea.contains(screen.getByTestId('toolkit-form'))).toBe(true);
         expect(locale.dataset.locale).toBe('nb');
-        expect(htmlArea.dataset.content).toBe('nb');
-        expect(htmlArea.dataset.project).toBe('active');
     });
 
-    it('should scope the language and the HTML area context to the given project and content', () => {
+    it('should scope the language to the given content', () => {
         renderForm({
             project: { getName: () => 'scoped' } as unknown as Project,
             content: { getLanguage: () => 'de' } as unknown as ContentSummary,
         });
 
-        const htmlArea = screen.getByTestId('html-area-provider');
         expect(screen.getByTestId('locale-provider').dataset.locale).toBe('de');
-        expect(htmlArea.dataset.content).toBe('de');
-        expect(htmlArea.dataset.project).toBe('scoped');
     });
 
     it('should fall back to the project language without a content', () => {
@@ -137,13 +116,10 @@ describe('FormRenderer', () => {
         expect(screen.getByTestId('locale-provider').dataset.locale).toBe('sv');
     });
 
-    it('should give the form no language and no HTML area content or project for an explicit null scope', () => {
+    it('should give the form no language for an explicit null scope', () => {
         renderForm({ project: null, content: null });
 
-        const htmlArea = screen.getByTestId('html-area-provider');
         expect(screen.getByTestId('locale-provider').dataset.locale).toBe('');
-        expect(htmlArea.dataset.content).toBe('');
-        expect(htmlArea.dataset.project).toBe('');
     });
 
     it('keeps the phrases and the language but not a second HTML area context inside an existing one', () => {
@@ -155,6 +131,15 @@ describe('FormRenderer', () => {
         const locale = screen.getByTestId('locale-provider');
         expect(screen.getByTestId('i18n-provider').contains(locale)).toBe(true);
         expect(locale.contains(screen.getByTestId('toolkit-form'))).toBe(true);
+    });
+
+    it('should mount its own HTML area context inside an existing one when the form sets its own scope', () => {
+        mockHtmlAreaContext.mockReturnValue({});
+
+        renderForm({ project: { getName: () => 'scoped', getLanguage: () => 'sv' } as unknown as Project });
+
+        const htmlArea = screen.getByTestId('html-area-provider');
+        expect(htmlArea.contains(screen.getByTestId('toolkit-form'))).toBe(true);
     });
 
     it("routes the form's notifications to a warning and passes the application key by name", () => {

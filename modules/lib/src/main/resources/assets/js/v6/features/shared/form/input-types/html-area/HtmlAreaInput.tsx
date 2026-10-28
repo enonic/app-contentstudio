@@ -42,6 +42,7 @@ import {
 import type { OpenHtmlAreaMacroDialogParams } from '../../../../rich-text-inserts/ui/htmlarea-macro/HtmlAreaMacroDialogContext';
 import type { HtmlAreaConfig } from './HtmlAreaConfig';
 import { dispatchSyntheticTabKey, focusAdjacentDocumentTabStop } from './editorIframeNavigation';
+import { useFormScope } from '../../FormScopeContext';
 import { useHtmlAreaContext } from './HtmlAreaContext';
 import { createContentSaveHandler, setupEditor, setupEditorUi, type DialogOverrides } from './setupEditor';
 import { useCKEditorConfig } from './useCKEditorConfig';
@@ -553,7 +554,8 @@ export const HtmlAreaInput = ({
     inputRef,
     highlight,
 }: InputTypeComponentProps<HtmlAreaConfig>): JSX.Element => {
-    const { contentSummary, project, applicationKeys, assetsUri } = useHtmlAreaContext();
+    const { applicationKeys, assetsUri } = useHtmlAreaContext();
+    const { project, content: contentSummary } = useFormScope();
     const t = useInputTypesPhrases();
 
     // Without a project the image dialog has nothing to search; a macro renders against a content.

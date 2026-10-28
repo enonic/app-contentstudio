@@ -548,12 +548,7 @@ const TextEditorInner = ({
             </div>
             <HtmlAreaImageDialog openRef={openImageDialogRef} />
             <HtmlAreaLinkDialog openRef={openLinkDialogRef} />
-            <HtmlAreaProvider
-                contentSummary={contentSummary}
-                project={project}
-                applicationKeys={applicationKeys}
-                assetsUri={assetsUri}
-            >
+            <HtmlAreaProvider applicationKeys={applicationKeys} assetsUri={assetsUri}>
                 <HtmlAreaMacroDialog openRef={openMacroDialogRef} />
             </HtmlAreaProvider>
             <HtmlAreaDialogs editorId={editorId} />

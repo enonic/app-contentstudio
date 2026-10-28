@@ -32,14 +32,17 @@ const notifyWarning = (message: string): void => {
 
 /**
  * The toolkit's form with what Content Studio wraps around it: its scope (project and
- * content), its phrases, the content's language, and the HTML area's context. A nested
- * form reuses the scope and the HTML area context above it and still gets the phrases
- * and the language, as the context may come from outside a form.
+ * content), its phrases, the language, and what its HTML areas share (the app keys and
+ * the assets). A nested form reuses the scope and the HTML area context above it unless
+ * it sets its own scope, and still gets the phrases and the language, as the context may
+ * come from outside a form.
  */
 export const FormRenderer = ({ project, content, ...props }: FormRendererProps): ReactElement => {
+    const ownScope = project !== undefined || content !== undefined;
+
     return (
         <FormScopeProvider project={project} content={content}>
-            <ScopedForm {...props} />
+            <ScopedForm {...props} ownScope={ownScope} />
         </FormScopeProvider>
     );
 };
@@ -50,12 +53,16 @@ FormRenderer.displayName = 'FormRenderer';
 // * ScopedForm
 //
 
-type ScopedFormProps = Omit<FormRendererProps, 'project' | 'content'>;
+type ScopedFormProps = Omit<FormRendererProps, 'project' | 'content'> & {
+    ownScope: boolean;
+};
 
-const ScopedForm = ({ applicationKey, ...props }: ScopedFormProps): ReactElement => {
+const ScopedForm = ({ applicationKey, ownScope, ...props }: ScopedFormProps): ReactElement => {
     const { project, content } = useFormScope();
     const existingHtmlAreaContext = useOptionalHtmlAreaContext();
     const language = content?.getLanguage() ?? project?.getLanguage();
+    // The app keys above were derived from another scope when this form sets its own.
+    const reuseHtmlAreaContext = existingHtmlAreaContext !== undefined && !ownScope;
 
     const renderedForm = (
         <ToolkitFormRenderer {...props} applicationKey={applicationKey?.toString()} notify={notifyWarning} />
@@ -64,7 +71,7 @@ const ScopedForm = ({ applicationKey, ...props }: ScopedFormProps): ReactElement
     return (
         <FormI18nProvider>
             <LocaleProvider locale={language}>
-                {existingHtmlAreaContext ? renderedForm : <HtmlAreaShell>{renderedForm}</HtmlAreaShell>}
+                {reuseHtmlAreaContext ? renderedForm : <HtmlAreaShell>{renderedForm}</HtmlAreaShell>}
             </LocaleProvider>
         </FormI18nProvider>
     );
@@ -80,19 +87,14 @@ type HtmlAreaShellProps = {
     children: ReactNode;
 };
 
-// Mounts only when no HtmlAreaProvider exists above, so a nested form does not pay for its subscriptions.
+// Shares the scope's app keys with every HTML area in the form. Mounts only when no HtmlAreaProvider
+// exists above or the form sets its own scope, so a nested form without one does not pay for the subscriptions.
 const HtmlAreaShell = ({ children }: HtmlAreaShellProps): ReactElement => {
-    const { project, content } = useFormScope();
     const { assetsUri } = useStore($config, { keys: ['assetsUri'] });
     const applicationKeys = useApplicationKeys();
 
     return (
-        <HtmlAreaProvider
-            contentSummary={content}
-            project={project}
-            applicationKeys={applicationKeys}
-            assetsUri={assetsUri}
-        >
+        <HtmlAreaProvider applicationKeys={applicationKeys} assetsUri={assetsUri}>
             {children}
         </HtmlAreaProvider>
     );

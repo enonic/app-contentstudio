@@ -1,11 +1,8 @@
-import type {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {type ReactElement, type ReactNode, createContext, useContext, useMemo} from 'react';
-import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
-import type {Project} from '../../../../../../app/settings/data/project/Project';
+import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { type ReactElement, type ReactNode, createContext, useContext, useMemo } from 'react';
 
+// What every HTML area in a form shares. The project and the content come from the form scope.
 type HtmlAreaContextValue = {
-    contentSummary: ContentSummary | undefined;
-    project: Readonly<Project> | undefined;
     applicationKeys: ApplicationKey[];
     assetsUri: string;
 };
@@ -16,23 +13,10 @@ type HtmlAreaProviderProps = HtmlAreaContextValue & {
     children: ReactNode;
 };
 
-export const HtmlAreaProvider = ({
-    contentSummary,
-    project,
-    applicationKeys,
-    assetsUri,
-    children,
-}: HtmlAreaProviderProps): ReactElement => {
-    const value = useMemo(
-        () => ({contentSummary, project, applicationKeys, assetsUri}),
-        [contentSummary, project, applicationKeys, assetsUri],
-    );
+export const HtmlAreaProvider = ({ applicationKeys, assetsUri, children }: HtmlAreaProviderProps): ReactElement => {
+    const value = useMemo(() => ({ applicationKeys, assetsUri }), [applicationKeys, assetsUri]);
 
-    return (
-        <HtmlAreaContext.Provider value={value}>
-            {children}
-        </HtmlAreaContext.Provider>
-    );
+    return <HtmlAreaContext.Provider value={value}>{children}</HtmlAreaContext.Provider>;
 };
 
 HtmlAreaProvider.displayName = 'HtmlAreaProvider';
