@@ -604,12 +604,7 @@ module.exports = {
         try {
             let browsePanel = new BrowsePanel();
             let filterPanel = new FilterPanel();
-            let result = await filterPanel.isPanelVisible();
-            if (!result) {
-                console.log(`The Filter panel is closed, click on 'Search Panel' button`);
-                await browsePanel.clickOnSearchButton();
-                await filterPanel.waitForOpened();
-            }
+            await filterPanel.openIfClosed();
             let isDisplayed = await filterPanel.isClearButtonDisplayed();
             if (isDisplayed) {
                 await filterPanel.clearSearchInput();
@@ -618,17 +613,18 @@ module.exports = {
             await browsePanel.waitForSpinnerNotVisible(appConst.longTimeout);
             return await browsePanel.pause(300);
         } catch (err) {
-            await this.saveScreenshotUniqueName('err_filter_panel');
-            throw new Error('Filter Panel-  error : ' + err);
+            // handleError() in page objects has already saved a screenshot, do not take another one:
+            let screenshot = err?.screenshotTaken
+                ? err.screenshotName
+                : await this.saveScreenshotUniqueName('err_filter_panel');
+            throw new Error(`Filter Panel - error occurred while typing '${name}', screenshot: ${screenshot} ` + err);
         }
     },
 
     async openFilterPanel() {
         try {
-            let browsePanel = new BrowsePanel();
             let filterPanel = new FilterPanel();
-            await browsePanel.clickOnSearchButton();
-            return await filterPanel.waitForOpened();
+            return await filterPanel.openIfClosed();
         } catch (err) {
             throw new Error('Error when opening Filter Panel! ' + err);
         }

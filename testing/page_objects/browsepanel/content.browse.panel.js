@@ -383,11 +383,19 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    // Opens Filter Panel:
+    // Toggles Filter Panel (opens it when closed, closes it when opened)
     async clickOnSearchButton() {
         await this.waitForSearchButtonDisplayed();
+        // the toggle is backed by a tree-grid action, which gets enabled asynchronously after the app starts.
+        // A click on the disabled button is silently ignored by the browser, so wait for it to be enabled first:
+        await this.waitForSearchButtonEnabled();
         await this.clickOnElement(this.searchButton);
         await this.pause(200);
+    }
+
+    // returns true if the 'Search Panel' toggle is pressed (the app's state says the Filter Panel is opened)
+    isSearchPanelToggleActive() {
+        return this.isElementDisplayed(this.searchButton + "[@aria-pressed='true']");
     }
 
     async clickOnHideSearchPanelButton() {
@@ -448,6 +456,18 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     waitForSearchButtonDisplayed() {
         return this.waitForElementDisplayed(this.searchButton, appConst.mediumTimeout);
+    }
+
+    async waitForSearchButtonEnabled() {
+        try {
+            await this.waitForDisplayedElementEnabled(this.searchButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError(
+                "Browse Panel: 'Search Panel' button should be enabled",
+                'err_search_btn_enabled',
+                err,
+            );
+        }
     }
 
     async waitForContextWindowToggleButtonDisplayed() {
