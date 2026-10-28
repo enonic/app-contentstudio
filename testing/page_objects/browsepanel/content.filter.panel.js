@@ -65,35 +65,29 @@ class BrowseFilterPanel extends Page {
     // asynchronously), so the result of the click is verified and the click is repeated once when the panel did not open.
     async openIfClosed() {
         let contentBrowsePanel = new ContentBrowsePanel();
-        // The pressed state of the 'Search Panel' toggle is the app's source of truth for the opened panel,
-        // so it is checked instead of the panel's DOM, otherwise a click would close the panel that is still rendering
-        if (await contentBrowsePanel.isSearchPanelToggleActive()) {
-            await this.waitForOpened();
-            return;
-        }
-        console.log(`The Filter panel is closed, click on 'Search Panel' button`);
-        await contentBrowsePanel.clickOnSearchButton();
-        try {
-            await this.waitForOpened();
-            return;
-        } catch (err) {
-            console.log(
-                `Filter Panel is not displayed after clicking on 'Search Panel' button, retrying: ${err.message}`,
-            );
-        }
-        // Click again only when the app still considers the panel closed, otherwise the second click would close it:
-        let isToggleActive = await contentBrowsePanel.isSearchPanelToggleActive();
-        if (!isToggleActive) {
-            await contentBrowsePanel.clickOnSearchButton();
-        }
-        try {
-            await this.waitForOpened();
-        } catch (err) {
-            await this.handleError(
-                `Filter Panel did not open after clicking on 'Search Panel' button (toggle was ${isToggleActive ? 'active' : 'inactive'} after the first click)`,
-                'err_filter_panel_not_opened',
-                err,
-            );
+        const attempts = 2;
+        for (let attempt = 1; attempt <= attempts; attempt++) {
+            // The pressed state of the 'Search Panel' toggle is the app's source of truth for the opened panel. It is
+            // checked instead of the panel's DOM, otherwise a click would close the panel that is still rendering:
+            let isToggleActive = await contentBrowsePanel.isSearchPanelToggleActive();
+            if (!isToggleActive) {
+                console.log(`The Filter panel is closed, click on 'Search Panel' button (attempt ${attempt})`);
+                await contentBrowsePanel.clickOnSearchButton();
+            }
+            try {
+                // waitForOpened() is not used here: this method runs before every search and must not add a fixed pause
+                await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
+                return;
+            } catch (err) {
+                if (attempt === attempts) {
+                    await this.handleError(
+                        `Filter Panel did not open, 'Search Panel' toggle was ${isToggleActive ? 'active' : 'inactive'} before the last attempt`,
+                        'err_filter_panel_not_opened',
+                        err,
+                    );
+                }
+                console.log(`Filter Panel is not displayed after clicking on 'Search Panel' button: ${err.message}`);
+            }
         }
     }
 

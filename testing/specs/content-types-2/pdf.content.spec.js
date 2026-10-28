@@ -42,8 +42,7 @@ describe('pdf.content.spec tests for extraction data for pdf content', function 
         let contentFilterPanel = new ContentFilterPanel();
         let contentBrowsePanel = new ContentBrowsePanel();
         // 1. Open Filter Panel:
-        await contentBrowsePanel.clickOnSearchButton();
-        await contentFilterPanel.waitForOpened();
+        await studioUtils.openFilterPanel();
         // 2. Open the pdf-content
         await contentFilterPanel.typeSearchText(PDF_CONTENT_DISPLAY_NAME);
         await contentBrowsePanel.waitForRowByNameVisible(PDF_CONTENT_DISPLAY_NAME);

@@ -877,10 +877,10 @@ class Page {
         wrapped.screenshotName = error?.screenshotName;
 
         if (!wrapped.screenshotTaken) {
-            wrapped.screenshotName = screenshotName;
+            // keep the generated (unique) file name, so the error message points to the file that really exists:
+            wrapped.screenshotName = await this.saveScreenshotUniqueName(screenshotName);
             wrapped.screenshotTaken = true;
-            wrapped.message += `[Screenshot]: ${screenshotName}`;
-            await this.saveScreenshotUniqueName(wrapped.screenshotName);
+            wrapped.message += `[Screenshot]: ${wrapped.screenshotName}`;
         }
         throw wrapped;
     }

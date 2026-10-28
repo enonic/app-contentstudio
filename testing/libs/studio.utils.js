@@ -613,7 +613,7 @@ module.exports = {
             await browsePanel.waitForSpinnerNotVisible(appConst.longTimeout);
             return await browsePanel.pause(300);
         } catch (err) {
-            // handleError() in page objects has already saved a screenshot, do not take another one:
+            // handleError() in page objects has already saved a screenshot and keeps its name, do not take another one:
             let screenshot = err?.screenshotTaken
                 ? err.screenshotName
                 : await this.saveScreenshotUniqueName('err_filter_panel');
@@ -751,12 +751,12 @@ module.exports = {
             let isLoaded = await projectSelectionDialog.isDialogLoaded();
             if (isLoaded) {
                 await projectSelectionDialog.selectContext('Default');
-
                 await projectSelectionDialog.waitForDialogClosed();
-                return await this.getBrowser().pause(200);
             }
             console.log('Content browse panel loads...');
             await browsePanel.waitForGridLoaded(appConst.longTimeout);
+            // toolbar actions get enabled after the grid, wait for them, otherwise the first click can be lost:
+            await browsePanel.waitForSearchButtonEnabled();
             return browsePanel;
         } catch (err) {
             throw new Error('Error when navigating to Content Studio(selecting Default context)' + err);
