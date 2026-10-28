@@ -13,7 +13,6 @@ import { KeyBindings } from '@enonic/lib-admin-ui/ui/KeyBindings';
 import { LoadMask } from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import { Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
 import { ResponsiveManager } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import { ResponsiveRanges } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
 import { type Toolbar, type ToolbarConfig } from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 import { type UploadedEvent } from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
 import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
@@ -560,6 +559,8 @@ export class ContentWizardPanel extends WizardPanel<Content> {
             unsubscribeInitialOpen?.();
             unsubscribeInitialOpen = undefined;
 
+            this.toggleLiveEdit();
+
             if (!shouldCollapseWizardContextInitially() && contextPanel.getActiveExtension()) {
                 setContextOpen(true);
             }
@@ -970,13 +971,12 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         ViewExtensionEvent.on((event: ViewExtensionEvent) => {
             this.getLivePanel()
                 ?.loadPage()
-                .then((renderable) => {
+                .then(() => {
                     if (firstLoad) {
                         if (ContentWizardPanel.debug) {
                             console.debug('ContentWizardPanel.ViewWidgetEvent: first page load');
                         }
                         firstLoad = false;
-                        this.toggleLiveEdit();
                         this.updateButtonsState();
                         this.toggleClass('rendered', true);
                     }
@@ -1471,15 +1471,8 @@ export class ContentWizardPanel extends WizardPanel<Content> {
             return Q.resolve();
         }
 
-        return Q.allSettled([this.shouldAndCanOpenEditorByDefault(), this.hasControllers()])
-            .then(([canOpenEditor, hasControllers]) => {
-                if (canOpenEditor.value || hasControllers.value) {
-                    this.showLiveEdit();
-                } else {
-                    this.showForm();
-                }
-            })
-            .catch(DefaultErrorHandler.handle);
+        this.showLiveEdit();
+        return Q.resolve();
     }
 
     private updateSiteModel(site: Site): void {
@@ -1676,21 +1669,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
     private getContentTypeName(): ContentTypeName {
         return this.contentType ? this.contentType.getContentTypeName() : this.getCurrentItem().getType();
-    }
-
-    // Image content types previously opted out of the live editor and showed the form
-    // panel only. They now open the editor by default so `LiveViewImageEditor` can
-    // render the image-uploader under the preview toolbar.
-    private shouldOpenEditorByDefault(): Q.Promise<boolean> {
-        return Q.resolve(!!this.contentType);
-    }
-
-    private shouldAndCanOpenEditorByDefault(): Q.Promise<boolean> {
-        if (!ResponsiveRanges._960_1200.isFitOrBigger(this.getEl().getWidth())) {
-            return Q.resolve(false);
-        }
-
-        return this.shouldOpenEditorByDefault();
     }
 
     private updateButtonsState(): Q.Promise<void> {
