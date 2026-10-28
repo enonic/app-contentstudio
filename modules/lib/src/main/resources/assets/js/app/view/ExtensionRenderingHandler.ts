@@ -361,7 +361,7 @@ export class ExtensionRenderingHandler {
     }
 
     public showMask() {
-        if (this.renderer.hasClass('empty-preview')) {
+        if (this.appliedRequestId != null && this.renderer.hasClass('empty-preview')) {
             return;
         }
         if (this.renderer.isVisible()) {
