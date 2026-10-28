@@ -4,6 +4,7 @@ import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import { type LinkType, useHtmlAreaLinkDialogContext } from './HtmlAreaLinkDialogContext';
 import { AnchorTabPanel } from './AnchorTabPanel';
 import { ContentTabPanel } from './ContentTabPanel';
+import { ContentTabReadOnlyPanel } from './ContentTabReadOnlyPanel';
 import { EmailTabPanel } from './EmailTabPanel';
 import { UrlTabPanel } from './UrlTabPanel';
 
@@ -11,7 +12,7 @@ const COMPONENT_NAME = 'HtmlAreaLinkDialogContent';
 
 export const HtmlAreaLinkDialogContent = (): ReactElement => {
     const {
-        state: { open, linkText, linkTextEditable, tooltip, activeTab, anchors, project },
+        state: { open, linkText, linkTextEditable, tooltip, activeTab, anchors, project, uneditableLink },
         validationErrors: errors,
         setActiveTab,
         setLinkText,
@@ -29,6 +30,8 @@ export const HtmlAreaLinkDialogContent = (): ReactElement => {
 
     const hasAnchors = anchors.length > 0;
     const hasProject = project != null;
+    // Without a project the tab stays for a link that already points at a content.
+    const showContentTab = hasProject || uneditableLink !== '';
 
     useEffect(() => {
         const justOpened = open && !wasOpenRef.current;
@@ -58,14 +61,14 @@ export const HtmlAreaLinkDialogContent = (): ReactElement => {
             />
             <Tab.Root value={activeTab} onValueChange={(value) => setActiveTab(value as LinkType)}>
                 <Tab.List>
-                    {hasProject && <Tab.DefaultTrigger value="content">{contentTabLabel}</Tab.DefaultTrigger>}
+                    {showContentTab && <Tab.DefaultTrigger value="content">{contentTabLabel}</Tab.DefaultTrigger>}
                     <Tab.DefaultTrigger value="url">{urlTabLabel}</Tab.DefaultTrigger>
                     <Tab.DefaultTrigger value="email">{emailTabLabel}</Tab.DefaultTrigger>
                     {hasAnchors && <Tab.DefaultTrigger value="anchor">{anchorTabLabel}</Tab.DefaultTrigger>}
                 </Tab.List>
-                {hasProject && (
+                {showContentTab && (
                     <Tab.Content value="content">
-                        <ContentTabPanel />
+                        {hasProject ? <ContentTabPanel /> : <ContentTabReadOnlyPanel />}
                     </Tab.Content>
                 )}
                 <Tab.Content value="url">

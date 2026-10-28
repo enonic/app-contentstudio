@@ -7,13 +7,17 @@ import {
     useHtmlAreaLinkDialogContext,
 } from './HtmlAreaLinkDialogContext';
 import { UrlTabPanel } from './UrlTabPanel';
+import { fetchContentById } from '../../../../entities/content';
 
 vi.unmock('@enonic/ui');
 vi.mock('../../../../shared/i18n', () => ({ i18n: (key: string) => key }));
 vi.mock('../../../../shared/lib/hooks/useI18n', () => ({
     useI18n: (key: string) => (key === 'dialog.link.urlprotocols.relative' ? 'Relative' : key),
 }));
-vi.mock('../../../../entities/content', () => ({ fetchContentById: vi.fn() }));
+vi.mock('../../../../entities/content', async () => {
+    const { okAsync } = await import('neverthrow');
+    return { fetchContentById: vi.fn(() => okAsync(undefined)) };
+});
 vi.mock('../../../../../app/inputtype/ui/text/HTMLAreaHelper', () => ({ HTMLAreaHelper: { isNbsp: () => false } }));
 
 beforeEach(() => {
@@ -83,6 +87,48 @@ describe('link dialog tabs', () => {
     it('opens on the content tab when there is a project', () => {
         const project = { getName: () => 'a' } as unknown as OpenHtmlAreaLinkDialogParams['project'];
         expect(openDialog('', '', project).activeTabOnOpen).toBe('content');
+    });
+});
+
+describe('content link without a project', () => {
+    const project = { getName: () => 'a' } as unknown as OpenHtmlAreaLinkDialogParams['project'];
+
+    beforeEach(() => {
+        vi.mocked(fetchContentById).mockClear();
+    });
+
+    it('opens on the content tab, keeps the link for display and fetches nothing', () => {
+        const { activeTabOnOpen, result } = openDialog('', 'content://abc');
+
+        expect(activeTabOnOpen).toBe('content');
+        expect(result.current.state.uneditableLink).toBe('content://abc');
+        expect(result.current.state.selectedContentId).toBe('abc');
+        expect(fetchContentById).not.toHaveBeenCalled();
+    });
+
+    it('keeps a media link for display', () => {
+        expect(openDialog('', 'media://download/def').result.current.state.uneditableLink).toBe('media://download/def');
+    });
+
+    it('has nothing to display for a plain URL', () => {
+        expect(openDialog('https://', 'example.com').result.current.state.uneditableLink).toBe('');
+    });
+
+    it('writes the link back unchanged on submit', () => {
+        const { result, url, click } = openDialog('', 'media://download/def');
+
+        act(() => result.current.setActiveTab('content'));
+        act(() => result.current.submit());
+
+        expect(url.setValue).toHaveBeenCalledWith('media://download/def', false);
+        expect(click).toHaveBeenCalledOnce();
+    });
+
+    it('fetches the content and displays nothing when there is a project', () => {
+        const { result } = openDialog('', 'content://abc', project);
+
+        expect(result.current.state.uneditableLink).toBe('');
+        expect(fetchContentById).toHaveBeenCalledWith('abc', 'a');
     });
 });
 
