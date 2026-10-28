@@ -1,14 +1,15 @@
 (() => {
-    if (!document.currentScript) {
+    const script = document.currentScript;
+
+    if (!script) {
         throw 'Legacy browsers are not supported';
     }
 
-    const assetsPath = document.currentScript.getAttribute('data-asset-url');
-    const ckeBasePath =`${assetsPath}/lib/ckeditor`;
+    const src = script.src;
 
-    if (!ckeBasePath) {
+    if (!/\/ckeditor\.js(\?.*)?$/.test(src)) {
         throw 'Unable to init cke basepath';
     }
 
-    window.CKEDITOR_BASEPATH = `${ckeBasePath}/`;
+    window.CKEDITOR_BASEPATH = src.replace(/\/ckeditor\.js(\?.*)?$/, '/ckeditor/');
 })();

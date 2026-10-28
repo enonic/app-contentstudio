@@ -428,8 +428,6 @@ const refreshTabOnContentUpdate = (content: Content) => {
 };
 
 async function startContentWizard() {
-    window['CKEDITOR'].config.language = CONFIG.getString('locale');
-
     const { ContentWizardPanel } = await import('@enonic/lib-contentstudio/app/wizard/ContentWizardPanel');
     const { setMode } = await import('@enonic/lib-contentstudio/v6/shared/app-state/mode.store');
 

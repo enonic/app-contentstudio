@@ -12,6 +12,7 @@ describe('buildPluginConfig', () => {
             adminUrl: '/admin',
             assetsUri: '',
             toolUri: '',
+            locale: '',
             user: undefined,
             excludeDependencies: false,
             allowContentUpdate: false,

@@ -14,6 +14,7 @@ import { HTMLAreaHelper } from '../../../../../../app/inputtype/ui/text/HTMLArea
 import { shouldIgnoreHtmlAreaBlur } from '../../../../../../app/inputtype/ui/text/HtmlAreaOverlayState';
 import { HtmlAreaSanitizer } from '../../../../../../app/inputtype/ui/text/HtmlAreaSanitizer';
 import type { Project } from '../../../../../../app/settings/data/project/Project';
+import { getCKEditorUrl } from '../../../../../shared/lib/ckeditor/loadCKEditor';
 import { createAnchorDialogOverride } from '../../../../rich-text-inserts/ui/AnchorDialog';
 import { createBulletedListDialogOverride } from '../../../../rich-text-inserts/ui/BulletedListDialog';
 import { createCodeDialogOverride } from '../../../../rich-text-inserts/ui/CodeDialog';
@@ -198,6 +199,7 @@ const CKEditorWrapper = ({
     const { editor, status } = useCKEditor({
         element,
         config: editorConfig,
+        editorUrl: getCKEditorUrl(assetsUri),
         type: 'classic',
         initContent: previewContent,
     });
