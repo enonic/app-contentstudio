@@ -195,8 +195,8 @@ function toNodeData(summary: ContentSummary, selectable = true): ContentCombobox
     };
 }
 
-function toNodeDataFromTreeItem(item: ContentTreeSelectorItem): ContentComboboxNodeData {
-    const cachedContent = getContent(item.getId());
+function toNodeDataFromTreeItem(item: ContentTreeSelectorItem, projectName?: string): ContentComboboxNodeData {
+    const cachedContent = getContent(item.getId(), projectName);
     const summary = cachedContent ?? item.getContent()?.getContentSummary() ?? item.getContentSummary();
     return {
         id: item.getId(),
@@ -214,10 +214,11 @@ function toNodeDataFromTreeItem(item: ContentTreeSelectorItem): ContentComboboxN
 function toNodeOptionsFromTreeItem(
     item: ContentTreeSelectorItem,
     parentId: string | null,
+    projectName?: string,
 ): CreateNodeOptions<ContentComboboxNodeData> {
     return {
         id: item.getId(),
-        data: toNodeDataFromTreeItem(item),
+        data: toNodeDataFromTreeItem(item, projectName),
         parentId,
         hasChildren: item.isExpandable(),
     };
@@ -328,7 +329,7 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
                 .filter((summary): summary is ContentSummary => !!summary);
             const enriched = await enrichReadonly(summaries, requestId);
             if (requestId !== treeRequestIdRef.current) return false;
-            setContents(enriched);
+            setContents(enriched, filtersRef.current.projectName);
             return true;
         },
         [enrichReadonly],
@@ -436,7 +437,9 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
             if (!(await enrichAndCache(items, currentRequestId))) return;
 
             // Update local tree state
-            const nodeOptions = items.map((item) => toNodeOptionsFromTreeItem(item, null));
+            const nodeOptions = items.map((item) =>
+                toNodeOptionsFromTreeItem(item, null, filtersRef.current.projectName),
+            );
             treeSetNodes(nodeOptions);
             treeSetRootIds(items.map((item) => item.getId()));
             // Server totalHits may count matching leaves, not unique parents.
@@ -490,7 +493,9 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
             // Append to tree state, filtering out IDs already present
             const existingRootIds = new Set(tree.state.rootIds);
             const newItems = items.filter((item) => !existingRootIds.has(item.getId()));
-            const nodeOptions = newItems.map((item) => toNodeOptionsFromTreeItem(item, null));
+            const nodeOptions = newItems.map((item) =>
+                toNodeOptionsFromTreeItem(item, null, filtersRef.current.projectName),
+            );
             treeSetNodes(nodeOptions);
             const newRootIds = [...tree.state.rootIds, ...newItems.map((item) => item.getId())];
             treeSetRootIds(newRootIds);
@@ -545,7 +550,9 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
                 if (!(await enrichAndCache(items, currentRequestId))) return;
 
                 // Update tree state
-                const nodeOptions = items.map((item) => toNodeOptionsFromTreeItem(item, parentId));
+                const nodeOptions = items.map((item) =>
+                    toNodeOptionsFromTreeItem(item, parentId, filtersRef.current.projectName),
+                );
                 treeSetNodes(nodeOptions);
                 treeSetChildren(
                     parentId,
@@ -605,7 +612,9 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
                 // Append to tree state, filtering out already-known childIds
                 const existingChildIds = new Set(node.childIds);
                 const newItems = items.filter((item) => !existingChildIds.has(item.getId()));
-                const nodeOptions = newItems.map((item) => toNodeOptionsFromTreeItem(item, parentId));
+                const nodeOptions = newItems.map((item) =>
+                    toNodeOptionsFromTreeItem(item, parentId, filtersRef.current.projectName),
+                );
                 treeSetNodes(nodeOptions);
                 treeAppendChildren(
                     parentId,
@@ -667,8 +676,8 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
 
             if (currentRequestId !== flatRequestIdRef.current) return;
 
-            // Update global cache
-            setContents(summaries);
+            // Cache under the scoped project
+            setContents(summaries, filtersRef.current.projectName);
 
             // Convert to flat nodes
             const flatNodes: ContentComboboxFlatNode[] = summaries.map((summary) => ({
@@ -728,8 +737,8 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
 
             if (currentRequestId !== flatRequestIdRef.current) return;
 
-            // Update global cache
-            setContents(summaries);
+            // Cache under the scoped project
+            setContents(summaries, filtersRef.current.projectName);
 
             // Convert to flat nodes
             const flatNodes: ContentComboboxFlatNode[] = summaries.map((summary) => ({

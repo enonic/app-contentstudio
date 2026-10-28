@@ -7,7 +7,19 @@
  *
  * Integration tests with the actual API would provide more comprehensive coverage.
  */
-import { describe, expect, it, vi } from 'vitest';
+import { act, renderHook } from '@testing-library/preact';
+import { okAsync } from 'neverthrow';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { ContentId } from '../../../../app/content/ContentId';
+import { ContentName } from '../../../../app/content/ContentName';
+import { ContentPath } from '../../../../app/content/ContentPath';
+import { ContentSummaryBuilder, type ContentSummary } from '../../../../app/content/ContentSummary';
+import { ContentSummaryAndCompareStatus } from '../../../../app/content/ContentSummaryAndCompareStatus';
+import { ContentTreeSelectorItem } from '../../../../app/item/ContentTreeSelectorItem';
+import { contentSelectorQuery, contentTreeSelectorQuery } from '../../../entities/content/api/selectorQuery.api';
+import { setContents } from '../../../entities/content/model/content.commands';
+import { getContent } from '../../../entities/content/model/content.store';
 
 // Mock the selector-query api the hook drives, so importing the hook stays cheap.
 vi.mock('../../../entities/content/api/selectorQuery.api', async () => {
@@ -36,6 +48,11 @@ vi.mock('../../../entities/content/model/content.commands', () => ({
     clearAllContentCaches: vi.fn(),
 }));
 
+vi.mock('../../../entities/content/model/content.store', async (importOriginal) => ({
+    ...(await importOriginal<object>()),
+    getContent: vi.fn(() => undefined),
+}));
+
 vi.mock('../../../shared/lib/cms/content/workflow', () => ({
     calcContentState: vi.fn(() => null),
 }));
@@ -46,7 +63,24 @@ vi.mock('../../../shared/lib/cms/content/prettify', () => ({
 }));
 
 // Import types for testing
-import { getLoadingNodeParentId } from './useContentComboboxData';
+import { getLoadingNodeParentId, useContentComboboxData } from './useContentComboboxData';
+
+//
+// * Fixtures
+//
+
+const createSummary = (id: string): ContentSummary =>
+    new ContentSummaryBuilder()
+        .setId(id)
+        .setContentId(new ContentId(id))
+        .setName(new ContentName(id))
+        .setDisplayName(id)
+        .setPath(ContentPath.create().fromString(`/${id}`).build())
+        .setType(ContentTypeName.FOLDER)
+        .build();
+
+const createTreeItem = (summary: ContentSummary): ContentTreeSelectorItem =>
+    ContentTreeSelectorItem.create().setContent(ContentSummaryAndCompareStatus.fromContentSummary(summary)).build();
 
 describe('useContentComboboxData', () => {
     describe('getLoadingNodeParentId', () => {
@@ -78,6 +112,40 @@ describe('useContentComboboxData', () => {
         it('re-exports getLoadingNodeParentId from tree-store', () => {
             // Verify the function is exported
             expect(typeof getLoadingNodeParentId).toBe('function');
+        });
+    });
+
+    // A layer shares ids with its parent, so the cache must be keyed by the scoped project.
+    describe('scoped project cache', () => {
+        const folder = createSummary('folder');
+
+        beforeEach(() => {
+            vi.clearAllMocks();
+        });
+
+        it('caches a flat search under the scoped project', async () => {
+            vi.mocked(contentSelectorQuery).mockReturnValue(okAsync({ contents: [folder], hits: 1, totalHits: 1 }));
+            const { result } = renderHook(() =>
+                useContentComboboxData({ filters: { projectName: 'layer-b' }, isOpen: false }),
+            );
+
+            await act(() => result.current.search('folder'));
+
+            expect(setContents).toHaveBeenCalledWith([folder], 'layer-b');
+        });
+
+        it('caches and reads tree items under the scoped project', async () => {
+            vi.mocked(contentTreeSelectorQuery).mockReturnValue(
+                okAsync({ items: [createTreeItem(folder)], totalHits: 1 }),
+            );
+            const { result } = renderHook(() =>
+                useContentComboboxData({ filters: { projectName: 'layer-b' }, isOpen: false }),
+            );
+
+            await act(() => result.current.loadTree());
+
+            expect(setContents).toHaveBeenCalledWith([folder], 'layer-b');
+            expect(getContent).toHaveBeenCalledWith('folder', 'layer-b');
         });
     });
 });
