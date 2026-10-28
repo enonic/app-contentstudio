@@ -1,12 +1,12 @@
-import { act, fireEvent, render } from '@testing-library/preact';
+import { act, fireEvent, render, waitFor } from '@testing-library/preact';
 import { createContext, useContext, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ExtensionView } from '../../../../app/view/context/ExtensionView';
 import { setContextLayoutMetrics, setContextOpen } from '../../../shared/app-state/browsePanels.store';
 
-vi.mock('@enonic/ui', () => {
+vi.mock('@enonic/ui', async (importOriginal) => {
+    const { Combobox, Listbox } = await importOriginal<typeof import('@enonic/ui')>();
     type ChildProps = { children?: ReactNode; className?: string };
-    const Container = ({ children, className }: ChildProps) => <div className={className}>{children}</div>;
     const RadioContext = createContext({
         value: '',
         onValueChange: (_value: string) => {},
@@ -49,20 +49,8 @@ vi.mock('@enonic/ui', () => {
                 );
             },
         }),
-        Combobox: {
-            Root: Container,
-            Content: Container,
-            Control: Container,
-            Search: Container,
-            Input: (props: Record<string, unknown>) => <input role="combobox" {...props} />,
-            Toggle: () => <button type="button" />,
-            Portal: ({ children }: ChildProps) => <>{children}</>,
-            Popup: Container,
-        },
-        Listbox: {
-            Content: Container,
-            Item: Container,
-        },
+        Combobox,
+        Listbox,
     };
 });
 
@@ -70,6 +58,10 @@ import { WidgetsSelector } from './WidgetsSelector';
 
 vi.mock('../../../shared/lib/hooks/useI18n', () => ({
     useI18n: (key: string) => key,
+}));
+
+vi.mock('../../../shared/lib/dom/getIsElementVisible', () => ({
+    getIsElementVisible: vi.fn(() => true),
 }));
 
 const createWidgetView = (key: string, name: string): ExtensionView =>
@@ -91,6 +83,55 @@ describe('WidgetsSelector', () => {
         setContextOpen(false);
         setContextLayoutMetrics({ totalWidth: 700, contextWidth: 360, windowWidth: 700 });
         setContextOpen(true);
+    });
+
+    it('preserves open dropdown navigation and returns to the toggle after Escape', async () => {
+        const firstWidget = createWidgetView('first', 'First widget');
+        const secondWidget = createWidgetView('second', 'Second widget');
+        const { container, getAllByRole } = render(
+            <>
+                <button type="button" data-context-panel-toggle />
+                <WidgetsSelector widgetViews={[firstWidget, secondWidget]} externalSelectedWidgetView={firstWidget} />
+            </>,
+        );
+        const toggle = container.querySelector<HTMLButtonElement>('[data-context-panel-toggle]');
+        const input = container.querySelector<HTMLInputElement>('input[role="combobox"]');
+        act(() => input.focus());
+        fireEvent.keyDown(input, { key: 'ArrowDown' });
+        expect(input.getAttribute('aria-expanded')).toBe('true');
+
+        const [firstOption, secondOption] = getAllByRole('option');
+        await waitFor(() => expect(document.activeElement).toBe(firstOption));
+        fireEvent.keyDown(firstOption, { key: 'ArrowDown' });
+        await waitFor(() => expect(document.activeElement).toBe(secondOption));
+        fireEvent.keyDown(secondOption, { key: 'ArrowUp' });
+        await waitFor(() => expect(document.activeElement).toBe(firstOption));
+
+        act(() => input.focus());
+        fireEvent.keyDown(input, { key: 'ArrowUp' });
+        expect(input.getAttribute('aria-expanded')).toBe('true');
+        expect(document.activeElement).not.toBe(toggle);
+        await waitFor(() => expect(document.activeElement).toBe(firstOption));
+
+        fireEvent.keyDown(firstOption, { key: 'Escape' });
+        await waitFor(() => expect(document.activeElement).toBe(input));
+        expect(input.getAttribute('aria-expanded')).toBe('false');
+        fireEvent.keyDown(input, { key: 'ArrowUp' });
+        expect(document.activeElement).toBe(toggle);
+    });
+
+    it.each(['shiftKey', 'altKey', 'ctrlKey', 'metaKey'])('does not return on ArrowUp with %s', (modifier) => {
+        const { container } = render(
+            <>
+                <button type="button" data-context-panel-toggle />
+                <WidgetsSelector />
+            </>,
+        );
+        const toggle = container.querySelector<HTMLButtonElement>('[data-context-panel-toggle]');
+        const input = container.querySelector<HTMLInputElement>('input[role="combobox"]');
+        act(() => input.focus());
+        fireEvent.keyDown(input, { key: 'ArrowUp', [modifier]: true });
+        expect(document.activeElement).not.toBe(toggle);
     });
 
     it('moves to a mobile toolbar target supplied after the initial render', () => {
