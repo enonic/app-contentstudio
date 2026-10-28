@@ -7,6 +7,7 @@ import { StyleHelper } from '../../../../../../app/inputtype/ui/text/styles/Styl
 import { Styles } from '../../../../../../app/inputtype/ui/text/styles/Styles';
 import { fetchStyles } from '../../../../../entities/content/api/styles.api';
 import { getCmsApiUrl } from '../../../../../shared/lib/url/cms';
+import { useCKEditorLoaded } from '../../../../../shared/lib/ckeditor/loadCKEditor';
 import type { HtmlAreaConfig } from './HtmlAreaConfig';
 import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
 import type { Project } from '../../../../../../app/settings/data/project/Project';
@@ -232,6 +233,7 @@ function buildConfig(params: UseCKEditorConfigParams, cssPaths: string[]): CKEDI
 
 export function useCKEditorConfig(params: UseCKEditorConfigParams): UseCKEditorConfigResult {
     const { config, editorId, assetsUri, contentSummary, project, editableSourceCode } = params;
+    const loaded = useCKEditorLoaded(assetsUri);
 
     // Async: fetch custom styles CSS paths (depends only on content).
     const [cssPaths, setCssPaths] = useState<string[] | undefined>(undefined);
@@ -262,14 +264,14 @@ export function useCKEditorConfig(params: UseCKEditorConfigParams): UseCKEditorC
         };
     }, [contentSummary]);
 
-    // Sync: build config immediately when all inputs are available.
+    // Sync: build config as soon as CKEditor and all inputs are available.
     // useMemo ensures the config updates in the same render when
     // editableSourceCode or other params change — no stale config.
     const editorConfig = useMemo(() => {
-        if (cssPaths === undefined) return undefined;
+        if (!loaded || cssPaths === undefined) return undefined;
 
         return buildConfig({ config, editorId, assetsUri, contentSummary, project, editableSourceCode }, cssPaths);
-    }, [config, editorId, assetsUri, contentSummary, project, editableSourceCode, cssPaths]);
+    }, [loaded, config, editorId, assetsUri, contentSummary, project, editableSourceCode, cssPaths]);
 
     return { editorConfig };
 }

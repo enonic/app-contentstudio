@@ -12,7 +12,7 @@ const AI_CONTENT_OPERATOR_APP_KEY = 'com.enonic.app.ai.contentoperator';
 exports.renderTemplate = function (params) {
     const view = resolve('./main.html');
 
-    params.nonce = applySecurityPolicy(params.isBrowseMode);
+    applySecurityPolicy();
 
     return {
         contentType: 'text/html',
@@ -20,13 +20,13 @@ exports.renderTemplate = function (params) {
     };
 };
 
-function applySecurityPolicy(isBrowseMode) {
+function applySecurityPolicy() {
     const enabled = app.config['contentSecurityPolicy.enabled'] !== 'false';
     // Shared with extension response processors, which XP invokes after this controller returns.
     context.setCustomLocalAttribute('com.enonic.app.contentstudio.csp.enabled', enabled);
 
     if (!enabled) {
-        return undefined;
+        return;
     }
 
     const csp = portal.csp();
@@ -52,22 +52,14 @@ function applySecurityPolicy(isBrowseMode) {
     }
 
     // Operator-configured permissions (e.g. for an embedded widget that loads external resources) are
-    // unioned on top of the baseline, never replacing it: the script-src nonce/'strict-dynamic' that
-    // protects the admin UI stays in force, so a misconfigured value cannot silently disable it.
+    // unioned on top of the baseline, never replacing it, so a misconfigured value cannot silently
+    // disable it.
     csp.merge(app.config['contentSecurityPolicy.header'] || '');
 
-    if (!isBrowseMode) {
-        // The content wizard loads CKEditor 4, which writes inline scripts into its own editing
-        // iframe that cannot carry a per-request nonce; a nonce or 'strict-dynamic' would disable
-        // 'unsafe-inline' and break the editor. So the wizard document falls back to 'unsafe-inline'.
-        csp.scriptSrc(portal.CspSource.SELF, portal.CspSource.UNSAFE_INLINE);
-        return undefined;
-    }
-
-    // The browse view loads no CKEditor, so script-src stays nonce-based with 'strict-dynamic'.
-    csp.scriptSrc(portal.CspSource.STRICT_DYNAMIC);
-
-    return csp.nonceScriptSrc();
+    // CKEditor 4, loaded on demand for HtmlArea inputs on both views, writes an inline script into
+    // its editing iframe and uses inline event handlers in its UI, so script-src cannot be
+    // nonce-based or 'strict-dynamic'.
+    csp.scriptSrc(portal.CspSource.SELF, portal.CspSource.UNSAFE_INLINE);
 }
 
 exports.getParams = function (path, locales) {

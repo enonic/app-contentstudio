@@ -50,6 +50,7 @@ import {
     type DialogOverrides,
 } from '../../../../../../features/shared/form/input-types/html-area/setupEditor';
 import { useCKEditorConfig } from '../../../../../../features/shared/form/input-types/html-area/useCKEditorConfig';
+import { getCKEditorUrl } from '../../../../../../shared/lib/ckeditor/loadCKEditor';
 import { $contextContent } from '../../../../../context-panel/model/contextContent.store';
 import { requestUpdateTextComponent } from '../../../../model/page-editor';
 import { $activeProject } from '../../../../../../entities/project';
@@ -253,6 +254,7 @@ const TextEditorInner = ({
     const { editor, status } = useCKEditor({
         element,
         config: editorConfig,
+        editorUrl: getCKEditorUrl(assetsUri),
         type: 'classic',
         initContent: initialPreviewContent,
     });
