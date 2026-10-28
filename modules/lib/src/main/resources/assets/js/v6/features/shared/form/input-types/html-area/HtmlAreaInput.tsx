@@ -113,6 +113,8 @@ const CKEditorWrapper = ({
     // Keep onChange ref fresh so debounced callback always uses the latest closure
     const onChangeRef = useRef(onChange);
     onChangeRef.current = onChange;
+    const stringValueRef = useRef(stringValue);
+    stringValueRef.current = stringValue;
     // Keep the content ref fresh so editor handlers set up once (e.g. file upload) see the renamed content
     const contentSummaryRef = useRef(contentSummary);
     contentSummaryRef.current = contentSummary;
@@ -166,6 +168,9 @@ const CKEditorWrapper = ({
                 const rawData = editorInstanceRef.current.getData();
                 const sanitized = sanitizer.sanitize(rawData);
                 const renderSrc = HTMLAreaHelper.convertPreviewSrcToRenderSrc(sanitized);
+                if (renderSrc.trimEnd() === stringValueRef.current.trimEnd()) {
+                    return;
+                }
                 lastSentValueRef.current = renderSrc;
                 onChangeRef.current(ValueTypes.STRING.newValue(renderSrc));
             };
