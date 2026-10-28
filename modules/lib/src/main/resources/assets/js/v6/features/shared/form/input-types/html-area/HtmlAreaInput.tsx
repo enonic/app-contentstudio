@@ -556,14 +556,13 @@ export const HtmlAreaInput = ({
     const { contentSummary, project, applicationKeys, assetsUri } = useHtmlAreaContext();
     const t = useInputTypesPhrases();
 
-    // Without a project the image and macro dialogs have nothing to search or list.
+    // Without a project the image dialog has nothing to search; a macro renders against a content.
     const scopedConfig = useMemo<HtmlAreaConfig>(() => {
         const disabledTools = config.disabledTools ?? [];
-        if (project || disabledTools.includes('*')) {
-            return config;
-        }
-        return { ...config, disabledTools: [...disabledTools, 'Image', 'Macro'] };
-    }, [config, project]);
+        if (disabledTools.includes('*')) return config;
+        const scopedOut = [...(project ? [] : ['Image']), ...(project && contentSummary ? [] : ['Macro'])];
+        return scopedOut.length === 0 ? config : { ...config, disabledTools: [...disabledTools, ...scopedOut] };
+    }, [config, project, contentSummary]);
 
     const editorId = `htmlarea-${input.getName()}-${index}`;
     const editorLabel = input.getLabel() || input.getName().toString();
