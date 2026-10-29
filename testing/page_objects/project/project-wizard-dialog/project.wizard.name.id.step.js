@@ -1,40 +1,45 @@
 /**
  * Created on 05.08.2022
  */
-const {COMMON, PROJECTS} = require('../../../libs/elements');
+const { COMMON, PROJECTS } = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const ProjectWizardDialog = require('./project.wizard.dialog');
 
 const XPATH = {
     container: "//div[@role='dialog' and descendant::h2[contains(.,'Name your project')]]",
 };
-const DESCRIPTION = "Give the new project a name and a unique identifier";
+const DESCRIPTION = 'Give the new project a name and a unique identifier';
 
 class ProjectWizardDialogNameAndIdStep extends ProjectWizardDialog {
-
     get container() {
         return XPATH.container;
     }
 
     get projectIdentifierInput() {
-        return PROJECTS.PROJECT_STEP_COMPONENT + COMMON.INPUTS.dataComponentInputByLabel("Identifier") + "//input";
+        return PROJECTS.PROJECT_STEP_COMPONENT + COMMON.INPUTS.dataComponentInputByLabel('Identifier') + '//input';
     }
 
     get projectIdentifierValidationMessage() {
-        return PROJECTS.PROJECT_STEP_COMPONENT + COMMON.INPUTS.dataComponentInputByLabel("Identifier") +
-               "//div[contains(@class,'text-error')]";
+        return (
+            PROJECTS.PROJECT_STEP_COMPONENT +
+            COMMON.INPUTS.dataComponentInputByLabel('Identifier') +
+            "//div[contains(@class,'text-error')]"
+        );
     }
     get projectNameValidationMessage() {
-        return PROJECTS.PROJECT_STEP_COMPONENT + COMMON.INPUTS.dataComponentInputByLabel("Display Name") +
-               "//div[contains(@class,'text-error')]";
+        return (
+            PROJECTS.PROJECT_STEP_COMPONENT +
+            COMMON.INPUTS.dataComponentInputByLabel('Display Name') +
+            "//div[contains(@class,'text-error')]"
+        );
     }
 
     get displayNameInput() {
-        return PROJECTS.PROJECT_STEP_COMPONENT + COMMON.INPUTS.dataComponentInputByLabel("Display Name") + "//input";
+        return PROJECTS.PROJECT_STEP_COMPONENT + COMMON.INPUTS.dataComponentInputByLabel('Display Name') + '//input';
     }
 
     get descriptionInput() {
-        return PROJECTS.PROJECT_STEP_COMPONENT + COMMON.INPUTS.dataComponentInputByLabel("Description") + "//input";
+        return PROJECTS.PROJECT_STEP_COMPONENT + COMMON.INPUTS.dataComponentInputByLabel('Description') + '//input';
     }
 
     // A keystroke is occasionally lost on loaded CI runners, so the typed value is verified and retyped.
@@ -52,7 +57,10 @@ class ProjectWizardDialogNameAndIdStep extends ProjectWizardDialog {
                 return;
             }
         }
-        await this.handleError(`Display name was not typed: expected '${name}', got '${actual}'`, 'err_type_display_name');
+        await this.handleError(
+            `Display name was not typed: expected '${name}', got '${actual}'`,
+            'err_type_display_name',
+        );
     }
 
     async clearIdInput() {
