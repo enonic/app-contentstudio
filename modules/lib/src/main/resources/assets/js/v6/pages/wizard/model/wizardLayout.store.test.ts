@@ -7,8 +7,10 @@ import {
     setWizardViewMode,
 } from './wizardLayout.store';
 
-// Wizard thresholds: mobile <= 720 (total); floating when left panel is at or
-// below 960 (form mode), 1380 (maximized editor), 720 (minimized editor).
+// Wizard thresholds: mobile <= 720 (total); floating when the left panel (total
+// minus the nominal docked context width, 38% in form mode and 16% with the
+// editor, at least 360px) is at or below 960 (form mode), 1380 (maximized
+// editor), 720 (minimized editor).
 
 describe('setWizardViewMode', () => {
     it('updates the mode', () => {
@@ -22,12 +24,12 @@ describe('setWizardViewMode', () => {
 
 describe('$wizardContextPanelMode', () => {
     it('is docked before the layout is measured', () => {
-        setWizardLayoutMetrics({ totalWidth: 0, contextWidth: 0 });
+        setWizardLayoutMetrics({ totalWidth: 0 });
         expect($wizardContextPanelMode.get()).toBe('docked');
     });
 
     it('is mobile at or below the mobile threshold', () => {
-        setWizardLayoutMetrics({ totalWidth: 700, contextWidth: 360 });
+        setWizardLayoutMetrics({ totalWidth: 700 });
         expect($wizardContextPanelMode.get()).toBe('mobile');
     });
 
@@ -35,10 +37,10 @@ describe('$wizardContextPanelMode', () => {
         setWizardViewMode('form');
         setContentFormExpanded(true);
 
-        setWizardLayoutMetrics({ totalWidth: 1300, contextWidth: 360 });
+        setWizardLayoutMetrics({ totalWidth: 1540 });
         expect($wizardContextPanelMode.get()).toBe('floating');
 
-        setWizardLayoutMetrics({ totalWidth: 1400, contextWidth: 360 });
+        setWizardLayoutMetrics({ totalWidth: 1560 });
         expect($wizardContextPanelMode.get()).toBe('docked');
     });
 
@@ -46,10 +48,10 @@ describe('$wizardContextPanelMode', () => {
         setWizardViewMode('split');
         setContentFormExpanded(true);
 
-        setWizardLayoutMetrics({ totalWidth: 1700, contextWidth: 360 });
+        setWizardLayoutMetrics({ totalWidth: 1740 });
         expect($wizardContextPanelMode.get()).toBe('floating');
 
-        setWizardLayoutMetrics({ totalWidth: 1800, contextWidth: 360 });
+        setWizardLayoutMetrics({ totalWidth: 1760 });
         expect($wizardContextPanelMode.get()).toBe('docked');
     });
 
@@ -57,12 +59,26 @@ describe('$wizardContextPanelMode', () => {
         setWizardViewMode('split');
         setContentFormExpanded(false);
 
-        setWizardLayoutMetrics({ totalWidth: 1070, contextWidth: 360 });
+        setWizardLayoutMetrics({ totalWidth: 1070 });
         expect($wizardContextPanelMode.get()).toBe('floating');
 
-        setWizardLayoutMetrics({ totalWidth: 1100, contextWidth: 360 });
+        setWizardLayoutMetrics({ totalWidth: 1100 });
         expect($wizardContextPanelMode.get()).toBe('docked');
 
         setContentFormExpanded(true);
+    });
+
+    it('derives the docked width from the current view mode without a new measurement', () => {
+        setWizardViewMode('form');
+        setContentFormExpanded(true);
+        setWizardLayoutMetrics({ totalWidth: 2000 });
+        expect($wizardContextPanelMode.get()).toBe('docked');
+
+        // With the form-mode width (38%) the left panel would be 1240 and floating.
+        setWizardViewMode('split');
+        expect($wizardContextPanelMode.get()).toBe('docked');
+
+        setWizardLayoutMetrics({ totalWidth: 1700 });
+        expect($wizardContextPanelMode.get()).toBe('floating');
     });
 });
