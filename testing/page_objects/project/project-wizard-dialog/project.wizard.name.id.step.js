@@ -37,9 +37,22 @@ class ProjectWizardDialogNameAndIdStep extends ProjectWizardDialog {
         return PROJECTS.PROJECT_STEP_COMPONENT + COMMON.INPUTS.dataComponentInputByLabel("Description") + "//input";
     }
 
+    // A keystroke is occasionally lost on loaded CI runners, so the typed value is verified and retyped.
     async typeDisplayName(name) {
         await this.waitForElementDisplayed(this.displayNameInput);
-        return await this.typeChars(this.displayNameInput, name);
+        let actual;
+        for (let attempt = 0; attempt < 3; attempt++) {
+            if (attempt > 0) {
+                console.log(`Display name mismatch: expected '${name}', got '${actual}'. Retyping...`);
+                await this.clearInputText(this.displayNameInput);
+            }
+            await this.typeChars(this.displayNameInput, name);
+            actual = await this.getTextInInput(this.displayNameInput);
+            if (actual === name) {
+                return;
+            }
+        }
+        await this.handleError(`Display name was not typed: expected '${name}', got '${actual}'`, 'err_type_display_name');
     }
 
     async clearIdInput() {
