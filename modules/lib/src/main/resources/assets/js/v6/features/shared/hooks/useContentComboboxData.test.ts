@@ -18,6 +18,7 @@ import { ContentSummaryBuilder, type ContentSummary } from '../../../../app/cont
 import { ContentSummaryAndCompareStatus } from '../../../../app/content/ContentSummaryAndCompareStatus';
 import { ContentTreeSelectorItem } from '../../../../app/item/ContentTreeSelectorItem';
 import { contentSelectorQuery, contentTreeSelectorQuery } from '../../../entities/content/api/selectorQuery.api';
+import { fetchReadOnlyContentIds } from '../../../entities/content/api/contentQuery.api';
 import { setContents } from '../../../entities/content/model/content.commands';
 import { getContent } from '../../../entities/content/model/content.store';
 
@@ -115,15 +116,15 @@ describe('useContentComboboxData', () => {
         });
     });
 
-    // A layer shares ids with its parent, so the cache must be keyed by the scoped project.
-    describe('scoped project cache', () => {
+    // A layer shares ids with its parent: the requests and the cache must use the scoped project.
+    describe('scoped project', () => {
         const folder = createSummary('folder');
 
         beforeEach(() => {
             vi.clearAllMocks();
         });
 
-        it('caches a flat search under the scoped project', async () => {
+        it('searches, checks read-only and caches a flat search under the scoped project', async () => {
             vi.mocked(contentSelectorQuery).mockReturnValue(okAsync({ contents: [folder], hits: 1, totalHits: 1 }));
             const { result } = renderHook(() =>
                 useContentComboboxData({ filters: { projectName: 'layer-b' }, isOpen: false }),
@@ -131,10 +132,12 @@ describe('useContentComboboxData', () => {
 
             await act(() => result.current.search('folder'));
 
+            expect(contentSelectorQuery).toHaveBeenCalledWith(expect.anything(), 'layer-b');
+            expect(fetchReadOnlyContentIds).toHaveBeenCalledWith(expect.any(Array), 'layer-b');
             expect(setContents).toHaveBeenCalledWith([folder], 'layer-b');
         });
 
-        it('caches and reads tree items under the scoped project', async () => {
+        it('loads, caches and reads tree items under the scoped project', async () => {
             vi.mocked(contentTreeSelectorQuery).mockReturnValue(
                 okAsync({ items: [createTreeItem(folder)], totalHits: 1 }),
             );
@@ -144,6 +147,7 @@ describe('useContentComboboxData', () => {
 
             await act(() => result.current.loadTree());
 
+            expect(contentTreeSelectorQuery).toHaveBeenCalledWith(expect.anything(), 'layer-b');
             expect(setContents).toHaveBeenCalledWith([folder], 'layer-b');
             expect(getContent).toHaveBeenCalledWith('folder', 'layer-b');
         });

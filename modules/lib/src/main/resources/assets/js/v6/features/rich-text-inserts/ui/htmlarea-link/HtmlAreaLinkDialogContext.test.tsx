@@ -80,20 +80,19 @@ function openDialog(protocol: UrlProtocol = '', address = '', project?: Project)
     };
 }
 
+const project = { getName: () => 'a' } as unknown as Project;
+
 describe('link dialog tabs', () => {
     it('opens on the URL tab when there is no project', () => {
         expect(openDialog().activeTabOnOpen).toBe('url');
     });
 
     it('opens on the content tab when there is a project', () => {
-        const project = { getName: () => 'a' } as unknown as Project;
         expect(openDialog('', '', project).activeTabOnOpen).toBe('content');
     });
 });
 
 describe('content link without a project', () => {
-    const project = { getName: () => 'a' } as unknown as Project;
-
     beforeEach(() => {
         vi.mocked(fetchContentById).mockClear();
     });
@@ -126,8 +125,14 @@ describe('content link without a project', () => {
         expect(url.setValue).toHaveBeenCalledWith('media://download/def', false);
         expect(click).toHaveBeenCalledOnce();
     });
+});
 
-    it('selects and fetches the content, displays nothing and waits to submit when there is a project', () => {
+describe('content link with a project', () => {
+    beforeEach(() => {
+        vi.mocked(fetchContentById).mockClear();
+    });
+
+    it('selects and fetches the content, displays nothing and waits for it to submit', () => {
         const { result } = openDialog('', 'content://abc', project);
 
         expect(result.current.state.uneditableLink).toBe('');

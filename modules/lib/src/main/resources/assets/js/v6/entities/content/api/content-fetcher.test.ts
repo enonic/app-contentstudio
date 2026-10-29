@@ -37,6 +37,7 @@ import {
     beginPendingFilter,
     deactivateFilter,
     fetchChildrenIdsOnly,
+    fetchContentByIds,
     fetchFilterChildrenIdsOnly,
     fetchVisibleContentData,
     fetchVisibleFilterContentData,
@@ -213,6 +214,34 @@ describe('content-fetcher store integration', () => {
 
             expect(hasContent('1')).toBe(false);
             expect(hasContent('2')).toBe(false);
+        });
+    });
+
+    describe('fetchContentByIds per project', () => {
+        it('should resolve and cache under the given project, not the active one', async () => {
+            const shared = createMockContent('shared');
+            mockResolveContentSummaries.mockReturnValue(okAsync([shared]));
+
+            const result = await fetchContentByIds(['shared'], 'layer-b');
+
+            expect(result).toEqual([shared]);
+            expect(mockResolveContentSummaries).toHaveBeenCalledWith(expect.any(Array), 'layer-b');
+            expect(mockFetchReadOnlyContentIds).toHaveBeenCalledWith(expect.any(Array), 'layer-b');
+            expect(getContent('shared', 'layer-b')).toBe(shared);
+            expect(getContent('shared', 'default')).toBeUndefined();
+            expect(getContent('shared')).toBeUndefined();
+        });
+
+        it('should serve the project slice on a second call and fetch again for another project', async () => {
+            mockResolveContentSummaries.mockReturnValue(okAsync([createMockContent('shared')]));
+
+            await fetchContentByIds(['shared'], 'layer-b');
+            await fetchContentByIds(['shared'], 'layer-b');
+            expect(mockResolveContentSummaries).toHaveBeenCalledTimes(1);
+
+            await fetchContentByIds(['shared'], 'default');
+            expect(mockResolveContentSummaries).toHaveBeenCalledTimes(2);
+            expect(mockResolveContentSummaries).toHaveBeenLastCalledWith(expect.any(Array), 'default');
         });
     });
 
