@@ -676,7 +676,6 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
 
             if (currentRequestId !== flatRequestIdRef.current) return;
 
-            // Cache under the scoped project
             setContents(summaries, filtersRef.current.projectName);
 
             // Convert to flat nodes
@@ -737,7 +736,6 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
 
             if (currentRequestId !== flatRequestIdRef.current) return;
 
-            // Cache under the scoped project
             setContents(summaries, filtersRef.current.projectName);
 
             // Convert to flat nodes

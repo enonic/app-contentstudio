@@ -58,7 +58,7 @@ export function setupFileUpload(
         const parentPath = contentSummary.getPath();
         const contentPathAsString = ContentPath.create().fromParent(parentPath, fileLoader.fileName).build().toString();
 
-        void contentExistsByPath(contentPathAsString).match((exists) => {
+        void contentExistsByPath(contentPathAsString, project.getName()).match((exists) => {
             if (exists) {
                 NotifyManager.get().showWarning(i18n('notify.fileExists', fileLoader.fileName));
                 evt.editor.document.findOne('.cke_widget_uploadimage')?.remove();

@@ -6,10 +6,6 @@ import { useHtmlAreaLinkDialogContext } from './HtmlAreaLinkDialogContext';
 
 const COMPONENT_NAME = 'ContentTabReadOnlyPanel';
 
-/**
- * The content tab of a link opened without a project. The target is shown as it was read and
- * written back unchanged, as nothing can be fetched or selected.
- */
 export const ContentTabReadOnlyPanel = (): ReactElement => {
     const {
         state: { uneditableLink },

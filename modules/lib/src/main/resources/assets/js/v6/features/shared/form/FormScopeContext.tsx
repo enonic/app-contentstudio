@@ -42,8 +42,7 @@ type FormScopeProviderProps = FormScope & {
     children: ReactNode;
 };
 
-// Merges with the scope above it: only the props that were given override the parent's keys,
-// so a nested form without props keeps the outer scope, including an explicit `null`.
+// Merges with the scope above it: only the props that were given override the parent's keys.
 export const FormScopeProvider = ({ project, content, children }: FormScopeProviderProps): ReactElement => {
     const parent = useContext(FormScopeContext);
 
@@ -66,7 +65,6 @@ FormScopeProvider.displayName = 'FormScopeProvider';
 /**
  * The project and the content the enclosing form works against. Use instead of
  * `useStore($activeProject)` / `useStore($contextContent)` inside a `FormRenderer`.
- * A value the form set wins, `null` included; an unset one falls back to the store.
  * Both come back as `undefined` when there is none.
  */
 export const useFormScope = (): ResolvedFormScope => {

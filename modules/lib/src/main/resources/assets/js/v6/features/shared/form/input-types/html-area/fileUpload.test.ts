@@ -61,7 +61,7 @@ describe('setupFileUpload', () => {
 
         await vi.waitFor(() => expect(xhr.send).toHaveBeenCalledTimes(1));
 
-        expect(mocks.contentExistsByPath).toHaveBeenCalledWith('/site/test5557/img.png');
+        expect(mocks.contentExistsByPath).toHaveBeenCalledWith('/site/test5557/img.png', 'a');
         const formData = xhr.send.mock.calls[0][0] as FormData;
         expect(formData.get('parent')).toBe('/site/test5557');
         expect(formData.get('name')).toBe('img.png');

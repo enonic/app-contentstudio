@@ -444,8 +444,6 @@ function computeOpenState(params: OpenHtmlAreaLinkDialogParams): HtmlAreaLinkDia
         linkText: linkDisplayText || '',
         linkTextEditable,
         tooltip: tooltip || '',
-        // Without a project the content tab exists only for a link that already points at a content;
-        // it then shows the link as read, nothing is fetched or selected.
         activeTab: detected.tab === 'content' && !project && !hasExistingLink ? 'url' : detected.tab,
         uneditableLink: !project && detected.tab === 'content' ? link : '',
         selectedContentId: detected.tab === 'content' && project ? detected.contentId : undefined,
@@ -496,7 +494,6 @@ function buildFragmentString(fragment: string, hasQueryParams: boolean): string 
     return hasQueryParams ? `&${encoded}` : `?${encoded}`;
 }
 
-// Without a project the kind of the target is unknown, so the link goes back as it was read.
 function writeUneditableLink(state: HtmlAreaLinkDialogState, ckeDialog: CKEDITOR.dialog): void {
     getOriginalLinkTypeElem(ckeDialog).setValue('url', false);
     getOriginalProtocolElem(ckeDialog).setValue('', false);

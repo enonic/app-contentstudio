@@ -83,7 +83,6 @@ export const useCustomSelector = ({
         return filteredItems.length < total;
     }, [key, totalMap, filteredItems.length]);
 
-    // Scope
     const { project, content } = useFormScope();
 
     // Refs

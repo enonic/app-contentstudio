@@ -1,7 +1,6 @@
 import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 import { type ReactElement, type ReactNode, createContext, useContext, useMemo } from 'react';
 
-// What every HTML area in a form shares. The project and the content come from the form scope.
 type HtmlAreaContextValue = {
     applicationKeys: ApplicationKey[];
     assetsUri: string;

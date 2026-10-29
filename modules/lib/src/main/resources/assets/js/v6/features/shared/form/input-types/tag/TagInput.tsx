@@ -12,7 +12,6 @@ export const TagInput = (props: SelfManagedComponentProps<TagConfig>): ReactElem
     const fallbackDataPath = useMemo(() => PropertyPath.fromString(props.input.getPath().toString()), [props.input]);
     const dataPath = props.dataPath ?? fallbackDataPath;
 
-    // Suggestions come from the project's content; without a project the input still takes tags.
     const suggestTags = useCallback(
         (query: string) => {
             if (!projectName) return Promise.resolve<string[]>([]);

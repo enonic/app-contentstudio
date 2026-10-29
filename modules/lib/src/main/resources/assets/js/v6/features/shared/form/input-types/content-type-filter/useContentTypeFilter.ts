@@ -31,7 +31,6 @@ export const useContentTypeFilter = ({ config, selection, query, onAdd, onRemove
     const [isLoading, setIsLoading] = useState(false);
     const [hasError, setHasError] = useState(false);
 
-    // Stores
     const { project, content: contextContent } = useFormScope();
     const contentType = useStore($contentType);
 

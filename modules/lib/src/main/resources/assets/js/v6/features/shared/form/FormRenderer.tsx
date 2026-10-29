@@ -5,26 +5,22 @@ import type { PropertySet } from '@enonic/input-types/data';
 import type { Form } from '@enonic/input-types/schema';
 import { useStore } from '@nanostores/preact';
 import type { ReactElement, ReactNode } from 'react';
-import type { ContentSummary } from '../../../../app/content/ContentSummary';
-import type { Project } from '../../../../app/settings/data/project/Project';
 import { $config } from '../../../shared/config/config.store';
 import { FormI18nProvider } from '../../../shared/ui/providers/FormI18nProvider';
 import { useApplicationKeys } from '../hooks/useApplicationKeys';
-import { FormScopeProvider, useFormScope } from './FormScopeContext';
+import { type FormScope, FormScopeProvider, useFormScope } from './FormScopeContext';
 import { HtmlAreaProvider, useOptionalHtmlAreaContext } from './input-types/html-area';
 
-type FormRendererProps = {
+type FormRendererOwnProps = {
     form: Form;
     propertySet: PropertySet;
     enabled?: boolean;
     applicationKey?: ApplicationKey;
     excludeInputTypes?: readonly string[];
     revealFreshOccurrences?: boolean;
-    /** The project the inputs work against. Absent: the active project. `null`: none. */
-    project?: Readonly<Project> | null;
-    /** The content the inputs belong to. Absent: the context content. `null`: none. */
-    content?: ContentSummary | null;
 };
+
+type FormRendererProps = FormScope & FormRendererOwnProps;
 
 const notifyWarning = (message: string): void => {
     showWarning(message, true);
@@ -53,7 +49,7 @@ FormRenderer.displayName = 'FormRenderer';
 // * ScopedForm
 //
 
-type ScopedFormProps = Omit<FormRendererProps, 'project' | 'content'> & {
+type ScopedFormProps = FormRendererOwnProps & {
     ownScope: boolean;
 };
 
@@ -62,7 +58,6 @@ const ScopedForm = ({ applicationKey, ownScope, ...props }: ScopedFormProps): Re
     const existingHtmlAreaContext = useOptionalHtmlAreaContext();
     // A content without a language gets none, not the project's.
     const language = content ? content.getLanguage() : project?.getLanguage();
-    // The app keys above were derived from another scope when this form sets its own.
     const reuseHtmlAreaContext = existingHtmlAreaContext !== undefined && !ownScope;
 
     const renderedForm = (
@@ -88,8 +83,7 @@ type HtmlAreaShellProps = {
     children: ReactNode;
 };
 
-// Shares the scope's app keys with every HTML area in the form. Mounts only when no HtmlAreaProvider
-// exists above or the form sets its own scope, so a nested form without one does not pay for the subscriptions.
+// The app keys and the assets every HTML area in the form shares.
 const HtmlAreaShell = ({ children }: HtmlAreaShellProps): ReactElement => {
     const { assetsUri } = useStore($config, { keys: ['assetsUri'] });
     const applicationKeys = useApplicationKeys();

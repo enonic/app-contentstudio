@@ -7,6 +7,7 @@ import {
     useHtmlAreaLinkDialogContext,
 } from './HtmlAreaLinkDialogContext';
 import { UrlTabPanel } from './UrlTabPanel';
+import type { Project } from '../../../../../app/settings/data/project/Project';
 import { fetchContentById } from '../../../../entities/content';
 
 vi.unmock('@enonic/ui');
@@ -32,7 +33,7 @@ afterEach(() => {
     vi.unstubAllGlobals();
 });
 
-function openDialog(protocol: UrlProtocol = '', address = '', project?: OpenHtmlAreaLinkDialogParams['project']) {
+function openDialog(protocol: UrlProtocol = '', address = '', project?: Project) {
     const field = (value = '') => ({ getValue: () => value, setValue: vi.fn() });
     const url = field(address);
     const nativeProtocol = field(protocol);
@@ -85,13 +86,13 @@ describe('link dialog tabs', () => {
     });
 
     it('opens on the content tab when there is a project', () => {
-        const project = { getName: () => 'a' } as unknown as OpenHtmlAreaLinkDialogParams['project'];
+        const project = { getName: () => 'a' } as unknown as Project;
         expect(openDialog('', '', project).activeTabOnOpen).toBe('content');
     });
 });
 
 describe('content link without a project', () => {
-    const project = { getName: () => 'a' } as unknown as OpenHtmlAreaLinkDialogParams['project'];
+    const project = { getName: () => 'a' } as unknown as Project;
 
     beforeEach(() => {
         vi.mocked(fetchContentById).mockClear();

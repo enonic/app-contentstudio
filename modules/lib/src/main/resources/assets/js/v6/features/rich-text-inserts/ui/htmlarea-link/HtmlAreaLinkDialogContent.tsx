@@ -30,7 +30,6 @@ export const HtmlAreaLinkDialogContent = (): ReactElement => {
 
     const hasAnchors = anchors.length > 0;
     const hasProject = project != null;
-    // Without a project the tab stays for a link that already points at a content.
     const showContentTab = hasProject || uneditableLink !== '';
 
     useEffect(() => {
