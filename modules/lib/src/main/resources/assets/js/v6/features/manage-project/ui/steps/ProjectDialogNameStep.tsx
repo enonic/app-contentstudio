@@ -52,8 +52,12 @@ export const ProjectDialogNameStepContent = ({
     const [nameError, setNameError] = useState<string>();
     const [identifierError, setIdentifierError] = useState<string>();
     const [descriptionError, setDescriptionError] = useState<string>();
-    const isInitialRender = useRef(!projectNameHasError);
-    const lastAutoIdentifierRef = useRef(prettifyProjectIdentifier(projectName, false));
+    const isInitialRender = useRef(true);
+    const hasStoredErrorsRef = useRef(projectNameHasError);
+    // The identifier follows the display name until the user types a different identifier.
+    const isIdentifierCustomRef = useRef(
+        projectIdentifier.length > 0 && projectIdentifier !== prettifyProjectIdentifier(projectName, false),
+    );
 
     const projectNameLabel = `${useI18n('field.displayName')} *`;
     const projectIdentifierLabel = `${useI18n('settings.field.project.name')} *`;
@@ -63,35 +67,33 @@ export const ProjectDialogNameStepContent = ({
     const errorInvalidField = useI18n('field.value.invalid');
     const errorIdentifierTooLong = useI18n('settings.wizard.project.identifier.tooLong', MAX_IDENTIFIER_LENGTH);
 
-    const updateIdentifier = useCallback(
-        (value: string, isUserInput?: boolean) => {
-            const prettifiedIdentifier = prettifyProjectIdentifier(value, isUserInput);
+    const validateName = useCallback(
+        (value: string): void => {
+            setNameError(value.length === 0 ? errorRequiredField : '');
+        },
+        [errorRequiredField],
+    );
 
-            setIdentifier(prettifiedIdentifier);
-            if (identifierRef.current) identifierRef.current.value = prettifiedIdentifier;
-
-            setIdentifierError('');
-
-            if (prettifiedIdentifier.length === 0) {
+    const validateIdentifier = useCallback(
+        (value: string): void => {
+            if (value.length === 0) {
                 setIdentifierError(errorRequiredField);
                 return;
             }
 
-            if (prettifiedIdentifier.length > MAX_IDENTIFIER_LENGTH) {
+            if (value.length > MAX_IDENTIFIER_LENGTH) {
                 setIdentifierError(errorIdentifierTooLong);
                 return;
             }
 
-            if (!validateProjectIdentifier(prettifiedIdentifier)) {
+            if (!validateProjectIdentifier(value)) {
                 setIdentifierError(errorInvalidField);
                 return;
             }
 
             // In edit mode, the identifier is static and cannot be changed.
-            if (mode !== 'edit') {
-                const alreadyExists = projects.some((p) => p.getName() === prettifiedIdentifier);
-                setIdentifierError(alreadyExists ? projectErrorIdentifierAlreadyExists : '');
-            }
+            const alreadyExists = mode !== 'edit' && projects.some((p) => p.getName() === value);
+            setIdentifierError(alreadyExists ? projectErrorIdentifierAlreadyExists : '');
         },
         [
             mode,
@@ -103,55 +105,50 @@ export const ProjectDialogNameStepContent = ({
         ],
     );
 
-    // Processors
-    const processName = useCallback(
-        (value: string): void => {
-            setName(value);
-            setNameError('');
+    const updateIdentifier = (value: string, isUserInput?: boolean): void => {
+        const prettifiedIdentifier = prettifyProjectIdentifier(value, isUserInput);
 
-            if (value.length === 0) {
-                setNameError(errorRequiredField);
-            }
-        },
-        [errorRequiredField],
-    );
-    const processIdentifier = useCallback(
-        (value: string): void => {
-            updateIdentifier(value, true);
-        },
-        [updateIdentifier],
-    );
-    const processDescription = useCallback((value: string): void => {
+        setIdentifier(prettifiedIdentifier);
+        if (identifierRef.current) identifierRef.current.value = prettifiedIdentifier;
+        validateIdentifier(prettifiedIdentifier);
+    };
+
+    // The values are updated here, synchronously with the input event. An effect that sets them
+    // runs later and overwrites the keystrokes typed before it has run.
+    const handleNameChange = (value: string): void => {
+        setName(value);
+        validateName(value);
+
+        if (mode !== 'edit' && !isIdentifierCustomRef.current) {
+            updateIdentifier(value, false);
+        }
+    };
+
+    const handleIdentifierChange = (value: string): void => {
+        const prettifiedIdentifier = prettifyProjectIdentifier(value, true);
+
+        isIdentifierCustomRef.current =
+            prettifiedIdentifier.length > 0 && prettifiedIdentifier !== prettifyProjectIdentifier(name, false);
+        updateIdentifier(value, true);
+    };
+
+    const handleDescriptionChange = (value: string): void => {
         setDescription(value);
         setDescriptionError('');
-    }, []);
+    };
 
-    // Process values. Skip initial render.
-    // Dialog view goes back to 'main' => Re-render this component => Re-process to show possible errors
-    useEffect(() => {
-        if (isInitialRender.current) return;
-
-        processName(name);
-        processIdentifier(identifier);
-        processDescription(description);
-    }, [name, identifier, description, processName, processIdentifier, processDescription]);
-
-    // Map name to identifier on user input. Skip initial render. Skip in edit mode.
+    // Shows the errors of the stored values when the step is rendered again with errors (the dialog
+    // view returned to 'main') and re-checks the identifier when the projects list changes.
+    // Only the errors are set here, see handleNameChange.
     useEffect(() => {
         if (isInitialRender.current) {
             isInitialRender.current = false;
-            return;
+            if (!hasStoredErrorsRef.current) return;
         }
 
-        if (mode === 'edit') return;
-
-        const shouldSync = identifier === lastAutoIdentifierRef.current;
-        lastAutoIdentifierRef.current = prettifyProjectIdentifier(name, false);
-
-        if (shouldSync) {
-            updateIdentifier(name, false);
-        }
-    }, [mode, name, identifier, updateIdentifier]);
+        validateName(name);
+        validateIdentifier(identifier);
+    }, [name, identifier, validateName, validateIdentifier]);
 
     // Sync with the store
     useEffect(() => {
@@ -176,7 +173,7 @@ export const ProjectDialogNameStepContent = ({
                     label={projectNameLabel}
                     value={name}
                     error={nameError}
-                    onChange={(e) => processName(e.currentTarget.value)}
+                    onChange={(e) => handleNameChange(e.currentTarget.value)}
                 />
 
                 {/* Identifier */}
@@ -186,7 +183,7 @@ export const ProjectDialogNameStepContent = ({
                         label={projectIdentifierLabel}
                         value={identifier}
                         error={identifierError}
-                        onChange={(e) => processIdentifier(e.currentTarget.value)}
+                        onChange={(e) => handleIdentifierChange(e.currentTarget.value)}
                     />
                 )}
                 {mode === 'edit' && (
@@ -201,7 +198,7 @@ export const ProjectDialogNameStepContent = ({
                     label={projectDescriptionLabel}
                     value={description}
                     error={descriptionError}
-                    onChange={(e) => processDescription(e.currentTarget.value)}
+                    onChange={(e) => handleDescriptionChange(e.currentTarget.value)}
                 />
             </div>
         </Dialog.StepContent>
