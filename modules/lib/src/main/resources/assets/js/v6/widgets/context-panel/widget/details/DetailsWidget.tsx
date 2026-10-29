@@ -1,9 +1,5 @@
 import { useStore } from '@nanostores/preact';
-import Q from 'q';
 import type { ReactElement } from 'react';
-import type { ContentSummaryAndCompareStatus } from '../../../../../app/content/ContentSummaryAndCompareStatus';
-import type { ExtensionItemViewType } from '../../../../../app/view/context/ExtensionItemView';
-import { LegacyElement } from '../../../../shared/ui/LegacyElement';
 import { $contextContent } from '../../model/contextContent.store';
 import { $activeWidgetId, $isContextOpen } from '../../model/contextWidgets.store';
 import { getDetailsWidgetKey } from '../../../../shared/lib/widget/details';
@@ -37,33 +33,3 @@ export const DetailsWidget = (): ReactElement => {
 };
 
 DetailsWidget.displayName = DETAILS_WIDGET_NAME;
-
-export class DetailsWidgetElement extends LegacyElement<typeof DetailsWidget> implements ExtensionItemViewType {
-    constructor() {
-        super({}, DetailsWidget);
-    }
-
-    // Backward compatibility
-
-    public static debug: boolean = false;
-
-    public layout(): Q.Promise<void> {
-        return Q();
-    }
-
-    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<null | void> {
-        return Q();
-    }
-
-    public fetchExtensionContents(url: string, contentId: string): Q.Promise<void> {
-        return Q();
-    }
-
-    public hide(): void {
-        return;
-    }
-
-    public show(): void {
-        return;
-    }
-}

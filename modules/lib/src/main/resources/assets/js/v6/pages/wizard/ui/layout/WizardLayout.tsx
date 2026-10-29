@@ -9,8 +9,11 @@ import { LayoutTokens } from '../../../../shared/ui/layout.tokens';
 import { LegacyElement } from '../../../../shared/ui/LegacyElement';
 import { LegacyElementHost } from '../../../../shared/ui/LegacyElementHost';
 import { SplitView } from '../../../../shared/ui/split-view';
+import { PAGE_EDITOR_WIDGET_NAME } from '../../../../shared/lib/widget/pageEditor';
 import { $isContextOpen } from '../../../../widgets/context-panel/model/contextWidgets.store';
+import { ContextPanelView, type ContextWidgetComponents } from '../../../../widgets/context-panel/ui/ContextPanelView';
 import { FloatingContextPanel } from '../../../../widgets/context-panel/ui/FloatingContextPanel';
+import { PageEditorExtension } from '../../../../widgets/inspectors/ui/page-editor';
 import { $isContentFormExpanded, setContentFormExpanded } from '../../model/wizardContent.store';
 import { $wizardContextPanelMode, $wizardViewMode, setWizardLayoutMetrics } from '../../model/wizardLayout.store';
 import { resolveWizardPanelLayout } from './resolveWizardPanelLayout';
@@ -27,6 +30,8 @@ const DOCKED_PERCENT = LayoutTokens.contextPanel.dockedWidthPercent;
 const FLOATING_EDITOR_PERCENT = LayoutTokens.contextPanel.floatingWidthPercent.wizardWithEditor;
 const RESIZE_NOTIFY_DELAY_MS = 200;
 
+const WIZARD_CONTEXT_WIDGETS: ContextWidgetComponents = { [PAGE_EDITOR_WIDGET_NAME]: PageEditorExtension };
+
 // The live panel stays mounted when hidden, so the set is built from visibility.
 const PANEL_IDS_FORM = ['form'];
 const PANEL_IDS_FORM_CONTEXT = ['form', 'context'];
@@ -42,19 +47,12 @@ export type WizardLayoutProps = {
     // Owned by ContentWizardPanel; the layout only places them.
     formPanel: Element;
     livePanel: Element;
-    contextPanel: Element;
     onResized?: () => void;
 };
 
 const WIZARD_LAYOUT_NAME = 'WizardLayout';
 
-// `!` beats the unlayered legacy CSS.
-const LEGACY_PANEL_OVERRIDES = cn(
-    '[&_.context-panel]:!absolute [&_.context-panel]:!inset-0 [&_.context-panel]:!w-auto',
-    '[&_.context-panel]:!h-auto [&_.context-panel]:!transition-none',
-);
-
-export const WizardLayout = ({ formPanel, livePanel, contextPanel, onResized }: WizardLayoutProps): ReactElement => {
+export const WizardLayout = ({ formPanel, livePanel, onResized }: WizardLayoutProps): ReactElement => {
     const viewMode = useStore($wizardViewMode);
     const formExpanded = useStore($isContentFormExpanded);
     const isContextOpen = useStore($isContextOpen);
@@ -152,7 +150,7 @@ export const WizardLayout = ({ formPanel, livePanel, contextPanel, onResized }: 
         <div
             ref={rootRef}
             data-component={WIZARD_LAYOUT_NAME}
-            className={cn('absolute inset-0', isMobile && 'overflow-hidden', LEGACY_PANEL_OVERRIDES)}
+            className={cn('absolute inset-0', isMobile && 'overflow-hidden')}
         >
             <SplitView
                 orientation="horizontal"
@@ -192,22 +190,23 @@ export const WizardLayout = ({ formPanel, livePanel, contextPanel, onResized }: 
                             minSize={`${CONTEXT_MIN_WIDTH}px`}
                             onResize={handlePanelResize}
                         >
-                            <LegacyElementHost element={contextPanel} className="size-full" />
+                            <ContextPanelView widgets={WIZARD_CONTEXT_WIDGETS} />
                         </SplitView.Panel>
                     </>
                 )}
             </SplitView>
             {showFloatingContext && (
                 <FloatingContextPanel
-                    element={contextPanel}
                     boundsSelector='[data-component="WizardLayout"]'
                     defaultWidth={floatingDefaultWidth}
                     onResized={handlePanelResize}
-                />
+                >
+                    <ContextPanelView widgets={WIZARD_CONTEXT_WIDGETS} className="min-w-0 grow" />
+                </FloatingContextPanel>
             )}
             {showMobileContext && (
                 <div data-component="WizardLayout.MobileContext" className="absolute inset-0 bg-surface-neutral">
-                    <LegacyElementHost element={contextPanel} className="size-full" />
+                    <ContextPanelView widgets={WIZARD_CONTEXT_WIDGETS} />
                 </div>
             )}
         </div>

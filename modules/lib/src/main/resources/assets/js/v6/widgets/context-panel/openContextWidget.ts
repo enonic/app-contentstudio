@@ -1,5 +1,5 @@
-import { InspectEvent } from '../../../app/event/InspectEvent';
-import { $registeredWidgets } from './model/contextWidgets.store';
+import { $activeId, setActive } from '../../entities/content';
+import { findContextWidget, setActiveWidget, setContextOpen } from './model/contextWidgets.store';
 
 export type OpenContextWidgetOptions = {
     applicationKey?: string;
@@ -10,22 +10,18 @@ export type OpenContextWidgetOptions = {
 export function openContextWidget(name: string, options: OpenContextWidgetOptions = {}): boolean {
     const { applicationKey, showPanel = true, contentId } = options;
 
-    if (!isContextWidgetRegistered(name, applicationKey)) return false;
+    const widget = findContextWidget(name, applicationKey);
+    if (widget == null) return false;
 
-    InspectEvent.create()
-        .setWidgetName(name, applicationKey)
-        .setContentId(contentId)
-        .setShowPanel(showPanel)
-        .build()
-        .fire();
+    if (contentId != null && $activeId.get() !== contentId) setActive(contentId);
+
+    setActiveWidget(widget.key);
+
+    if (showPanel) setContextOpen(true);
 
     return true;
 }
 
 export function isContextWidgetRegistered(name: string, applicationKey?: string): boolean {
-    return $registeredWidgets.get().some((w) => {
-        if (w.name !== name) return false;
-        if (applicationKey === undefined) return true;
-        return w.applicationKey === applicationKey;
-    });
+    return findContextWidget(name, applicationKey) != null;
 }

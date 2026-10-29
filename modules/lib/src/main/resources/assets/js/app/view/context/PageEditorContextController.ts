@@ -1,40 +1,33 @@
-import { type ContentSummaryAndCompareStatus } from '../../content/ContentSummaryAndCompareStatus';
 import { getIsMobile } from '@enonic/ui';
-import { InspectEvent } from '../../event/InspectEvent';
+import { $contextContent } from '../../../v6/entities/content';
+import { getDetailsWidgetKey } from '../../../v6/shared/lib/widget/details';
+import { getPageEditorWidgetKey } from '../../../v6/shared/lib/widget/pageEditor';
+import {
+    $activeWidgetId,
+    activateDefaultWidget,
+    setDefaultWidget,
+} from '../../../v6/widgets/context-panel/model/contextWidgets.store';
 import { PageEventsManager } from '../../wizard/PageEventsManager';
 import { type PageNavigationEvent } from '../../wizard/PageNavigationEvent';
 import { PageNavigationEventType } from '../../wizard/PageNavigationEventType';
 import { type PageNavigationHandler } from '../../wizard/PageNavigationHandler';
 import { PageNavigationMediator } from '../../wizard/PageNavigationMediator';
-import { type ContextView } from './ContextView';
-import { type ExtensionView } from './ExtensionView';
 
 export class PageEditorContextController implements PageNavigationHandler {
-    private readonly contextView: ContextView;
-    private readonly pageEditorWidget: ExtensionView;
-    private readonly fallbackWidget: ExtensionView;
-    private readonly versionsWidget: ExtensionView;
-
-    private getItem: () => ContentSummaryAndCompareStatus | null;
-
     private isPageRenderable: boolean | undefined;
 
-    private pageEditorIsDefault: boolean = false;
+    private readonly renderableHandler = (renderable: boolean): void => {
+        const wasRenderable = this.isPageRenderable;
+        this.isPageRenderable = renderable;
 
-    constructor(params: {
-        contextView: ContextView;
-        pageEditorWidget: ExtensionView;
-        fallbackWidget: ExtensionView;
-        versionsWidget: ExtensionView;
-        getItem: () => ContentSummaryAndCompareStatus | null;
-    }) {
-        this.contextView = params.contextView;
-        this.pageEditorWidget = params.pageEditorWidget;
-        this.fallbackWidget = params.fallbackWidget;
-        this.versionsWidget = params.versionsWidget;
-        this.getItem = params.getItem;
+        if (wasRenderable !== undefined && renderable !== wasRenderable) {
+            this.refresh();
+        }
+    };
 
-        this.subscribe();
+    constructor() {
+        PageEventsManager.get().onRenderableChanged(this.renderableHandler);
+        PageNavigationMediator.get().addPageNavigationHandler(this);
     }
 
     handle(event: PageNavigationEvent): void {
@@ -44,10 +37,14 @@ export class PageEditorContextController implements PageNavigationHandler {
         }
     }
 
+    destroy(): void {
+        PageEventsManager.get().unRenderableChanged(this.renderableHandler);
+        PageNavigationMediator.get().removePageNavigationItem(this);
+    }
+
     private refresh(): void {
-        const item = this.getItem();
-        const shouldActivate =
-            (this.isPageRenderable && !item?.getType()?.isShortcut()) || item?.getContentSummary()?.isPage();
+        const item = $contextContent.get();
+        const shouldActivate = (this.isPageRenderable && !item?.getType()?.isShortcut()) || item?.isPage();
 
         if (shouldActivate) {
             this.activatePageEditor();
@@ -56,49 +53,18 @@ export class PageEditorContextController implements PageNavigationHandler {
         }
     }
 
-    private subscribe(): void {
-        const inspectHandler = (event: InspectEvent) => {
-            const isVersionsActive = this.contextView.getActiveExtension() === this.versionsWidget;
-
-            if (event.isShowExtension() && !isVersionsActive && this.pageEditorIsDefault) {
-                this.contextView.activateDefaultWidget();
-            }
-        };
-
-        const renderableHandler = (renderable: boolean) => {
-            const wasRenderable = this.isPageRenderable;
-            this.isPageRenderable = renderable;
-
-            if (wasRenderable !== undefined && renderable !== wasRenderable) {
-                this.refresh();
-            }
-        };
-
-        InspectEvent.on(inspectHandler);
-        PageEventsManager.get().onRenderableChanged(renderableHandler);
-        PageNavigationMediator.get().addPageNavigationHandler(this);
-
-        this.contextView.onRemoved(() => {
-            InspectEvent.un(inspectHandler);
-            PageEventsManager.get().unRenderableChanged(renderableHandler);
-            PageNavigationMediator.get().removePageNavigationItem(this);
-        });
-    }
-
     private activatePageEditor(): void {
-        this.contextView.setDefaultWidget(this.pageEditorWidget);
-        this.pageEditorIsDefault = true;
-        this.contextView.activateDefaultWidget();
+        setDefaultWidget(getPageEditorWidgetKey());
+        activateDefaultWidget();
     }
 
     private deactivatePageEditor(): void {
-        const wasPageEditorActive = this.pageEditorWidget.isSameAs(this.contextView.getActiveExtension());
+        const wasPageEditorActive = $activeWidgetId.get() === getPageEditorWidgetKey();
 
-        this.contextView.setDefaultWidget(this.fallbackWidget);
-        this.pageEditorIsDefault = false;
+        setDefaultWidget(getDetailsWidgetKey());
 
         if (wasPageEditorActive) {
-            this.contextView.activateDefaultWidget();
+            activateDefaultWidget();
         }
     }
 }
