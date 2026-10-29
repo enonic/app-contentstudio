@@ -30,7 +30,10 @@ export function setActiveProject(project: Readonly<Project> | undefined): void {
 
     $activeProject.set(project);
 
-    if (project && project !== previousProject) {
+    // ? Reloading the projects list replaces the active Project instance without switching
+    // ? the project. Handlers react to a switch (reset the filter, reload issues), so the
+    // ? name is compared instead of the instance.
+    if (project && project.getName() !== previousProject?.getName()) {
         notifyProjectChanged(project as Project);
     }
 }

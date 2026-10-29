@@ -28,8 +28,9 @@ const XPATH = {
     // v6: treeitem highlighted (bg-surface-selected) with checkbox not checked (aria-checked='false')
     highlightedRowNotChecked: `//div[@role='treeitem' and contains(@class,'bg-surface-selected') and descendant::div[@role='checkbox' and @aria-checked='false']]`,
     searchButton: "//button[contains(@aria-label, 'Search Panel')]",
-    hideSearchPanelButton: "//button[contains(@aria-label, 'Hide Search Panel')]",
-    showSearchPanelButton: "//button[contains(@aria-label, 'Show Search Panel')]",
+    // the pressed state of the toggle is the app's state of the Filter Panel (aria-label text depends on the action label)
+    hideSearchPanelButton: "//button[contains(@aria-label, 'Search Panel') and @aria-pressed='true']",
+    showSearchPanelButton: "//button[contains(@aria-label, 'Search Panel') and @aria-pressed='false']",
     showIssuesListButton: "//button[contains(@id,'ShowIssuesDialogButton')]/button", //'Assigned to Me' or 'Show Issues'
     markAsReadyMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Mark as ready']",
     showIssuesButton: "//button[@aria-label='View project issues']",
@@ -384,11 +385,16 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    // Opens Filter Panel:
+    // Toggles Filter Panel (opens it when closed, closes it when opened)
     async clickOnSearchButton() {
-        await this.waitForSearchButtonDisplayed();
+        await this.waitForSearchButtonEnabled();
         await this.clickOnElement(this.searchButton);
         await this.pause(200);
+    }
+
+    // returns true if the 'Search Panel' toggle is pressed (the app's state says the Filter Panel is opened)
+    isSearchPanelToggleActive() {
+        return this.isElementDisplayed(this.hideSearchPanelButton);
     }
 
     async clickOnHideSearchPanelButton() {
@@ -403,6 +409,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     async clickOnShowSearchPanelButton() {
         try {
             await this.waitForElementDisplayed(this.showSearchPanelButton);
+            await this.waitForSearchButtonEnabled();
             return await this.clickOnElement(this.showSearchPanelButton);
         } catch (err) {
             await this.handleError('Clicked on Show Search Panel button', 'err_click_show_search_panel_button', err);
@@ -449,6 +456,21 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     waitForSearchButtonDisplayed() {
         return this.waitForElementDisplayed(this.searchButton, appConst.mediumTimeout);
+    }
+
+    // The 'Search Panel' toggle is backed by a tree-grid action, which gets enabled asynchronously after the app starts
+    // (after the permissions request). A click on the disabled button is silently ignored by the browser.
+    async waitForSearchButtonEnabled() {
+        try {
+            await this.waitForSearchButtonDisplayed();
+            await this.waitForDisplayedElementEnabled(this.searchButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError(
+                "Browse Panel: 'Search Panel' button should be enabled",
+                'err_search_btn_enabled',
+                err,
+            );
+        }
     }
 
     async waitForContextWindowToggleButtonDisplayed() {

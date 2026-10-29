@@ -49,12 +49,12 @@ describe('layer.owner.multi.inheritance.spec - ui-tests for user with layer-owne
         await studioUtils.closeProjectSelectionDialog();
         await studioUtils.openSettingsPanel();
         // 2. Save the new project (mode access is Private):
-        //await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, null, null, null, null, appConst.APP_CONTENT_TYPES);
         await projectUtils.saveTestProject({
             name: PROJECT_DISPLAY_NAME,
             accessMode: appConst.PROJECT_ACCESS_MODE.PRIVATE,
             applications: appConst.APP_CONTENT_TYPES,
         });
+        await studioUtils.saveScreenshot('issue_save_test_project');
     });
 
     it('Precondition 3: new site should be created in the parent project', async () => {
