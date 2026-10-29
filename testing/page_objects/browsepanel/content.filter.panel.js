@@ -60,14 +60,40 @@ class BrowseFilterPanel extends Page {
         await this.clearInputTextElement(input);
     }
 
+    // Opens the Filter Panel when it is closed. Does nothing when the panel is already opened.
+    // Right after the app has loaded a click on the 'Search Panel' toggle can be lost (the toggle action is wired
+    // asynchronously), so the result of the click is verified and the click is repeated once when the panel did not open.
+    async openIfClosed() {
+        let contentBrowsePanel = new ContentBrowsePanel();
+        const attempts = 2;
+        for (let attempt = 1; attempt <= attempts; attempt++) {
+            // The pressed state of the 'Search Panel' toggle is the app's source of truth for the opened panel. It is
+            // checked instead of the panel's DOM, otherwise a click would close the panel that is still rendering:
+            let isToggleActive = await contentBrowsePanel.isSearchPanelToggleActive();
+            if (!isToggleActive) {
+                console.log(`The Filter panel is closed, click on 'Search Panel' button (attempt ${attempt})`);
+                await contentBrowsePanel.clickOnSearchButton();
+            }
+            try {
+                // waitForOpened() is not used here: this method runs before every search and must not add a fixed pause
+                await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
+                return;
+            } catch (err) {
+                if (attempt === attempts) {
+                    await this.handleError(
+                        `Filter Panel did not open, 'Search Panel' toggle was ${isToggleActive ? 'active' : 'inactive'} before the last attempt`,
+                        'err_filter_panel_not_opened',
+                        err,
+                    );
+                }
+                console.log(`Filter Panel is not displayed after clicking on 'Search Panel' button: ${err.message}`);
+            }
+        }
+    }
+
     async typeSearchText(text) {
         try {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            let result = await this.isPanelVisible();
-            if (!result) {
-                await contentBrowsePanel.clickOnSearchButton();
-                await this.waitForOpened();
-            }
+            await this.openIfClosed();
             await this.waitForElementDisplayed(this.searchTextInput);
             await this.typeTextInInput(this.searchTextInput, text);
             return await this.pause(500);
