@@ -104,7 +104,10 @@ function stubLayout(): void {
         });
     }
 
-    for (const [property, axis] of [['offsetLeft', 'x'], ['offsetTop', 'y']] as const) {
+    for (const [property, axis] of [
+        ['offsetLeft', 'x'],
+        ['offsetTop', 'y'],
+    ] as const) {
         Object.defineProperty(HTMLElement.prototype, property, {
             configurable: true,
             get(this: HTMLElement) {
@@ -150,7 +153,7 @@ describe('WizardLayout', () => {
         setContentFormExpanded(true);
         setContextOpen(false);
         setFloatingContextWidth(0);
-        setWizardLayoutMetrics({ totalWidth: 0, contextWidth: 0 });
+        setWizardLayoutMetrics({ totalWidth: 0 });
     });
 
     afterEach(() => {
@@ -241,12 +244,12 @@ describe('WizardLayout', () => {
         const liveHost = liveElement.parentElement;
         expect(liveHost).not.toBeNull();
 
-        await act(async () => setWizardLayoutMetrics({ totalWidth: 700, contextWidth: 360 }));
+        await act(async () => setWizardLayoutMetrics({ totalWidth: 700 }));
         await settle();
         expect(liveElement.parentElement).toBe(liveHost);
         expect(liveElement.isConnected).toBe(true);
 
-        await act(async () => setWizardLayoutMetrics({ totalWidth: 2000, contextWidth: 360 }));
+        await act(async () => setWizardLayoutMetrics({ totalWidth: 2000 }));
         await settle();
         expect(liveElement.parentElement).toBe(liveHost);
         expect(liveElement.isConnected).toBe(true);

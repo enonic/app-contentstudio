@@ -68,13 +68,8 @@ export const WizardLayout = ({ formPanel, livePanel, contextPanel, onResized }: 
     const dockedPercent = editorShown ? DOCKED_PERCENT.wizardWithEditor : DOCKED_PERCENT.wizardNoEditor;
 
     const publishMetrics = useCallback(() => {
-        const totalWidth = totalWidthRef.current;
-        // ! Mode uses the nominal docked width, never the live-dragged width:
-        // dragging the panel wider must not flip it to floating mid-drag.
-        const contextWidth = Math.max(CONTEXT_MIN_WIDTH, (totalWidth * dockedPercent) / 100);
-
-        setWizardLayoutMetrics({ totalWidth, contextWidth });
-    }, [dockedPercent]);
+        setWizardLayoutMetrics({ totalWidth: totalWidthRef.current });
+    }, []);
 
     useEffect(() => {
         const root = rootRef.current;
