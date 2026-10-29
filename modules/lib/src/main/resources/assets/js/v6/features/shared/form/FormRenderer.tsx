@@ -60,7 +60,8 @@ type ScopedFormProps = Omit<FormRendererProps, 'project' | 'content'> & {
 const ScopedForm = ({ applicationKey, ownScope, ...props }: ScopedFormProps): ReactElement => {
     const { project, content } = useFormScope();
     const existingHtmlAreaContext = useOptionalHtmlAreaContext();
-    const language = content?.getLanguage() ?? project?.getLanguage();
+    // A content without a language gets none, not the project's.
+    const language = content ? content.getLanguage() : project?.getLanguage();
     // The app keys above were derived from another scope when this form sets its own.
     const reuseHtmlAreaContext = existingHtmlAreaContext !== undefined && !ownScope;
 

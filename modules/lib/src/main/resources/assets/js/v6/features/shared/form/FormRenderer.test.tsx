@@ -116,6 +116,15 @@ describe('FormRenderer', () => {
         expect(screen.getByTestId('locale-provider').dataset.locale).toBe('sv');
     });
 
+    it('should give the form no language for a content without one, not the project language', () => {
+        renderForm({
+            project: { getName: () => 'scoped', getLanguage: () => 'ar' } as unknown as Project,
+            content: { getLanguage: () => undefined } as unknown as ContentSummary,
+        });
+
+        expect(screen.getByTestId('locale-provider').dataset.locale).toBe('');
+    });
+
     it('should give the form no language for an explicit null scope', () => {
         renderForm({ project: null, content: null });
 
