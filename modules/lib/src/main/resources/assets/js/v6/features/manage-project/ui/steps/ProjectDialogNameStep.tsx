@@ -135,6 +135,9 @@ export const ProjectDialogNameStepContent = ({
     const handleDescriptionChange = (value: string): void => {
         setDescription(value);
         setDescriptionError('');
+        // Typing a description surfaces the errors of the required fields left empty.
+        validateName(name);
+        validateIdentifier(identifier);
     };
 
     // Shows the errors of the stored values when the step is rendered again with errors (the dialog

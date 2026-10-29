@@ -69,10 +69,11 @@ describe('ProjectDialogNameStepContent', () => {
         vi.restoreAllMocks();
     });
 
-    function getInputs(): { name: HTMLInputElement; identifier: HTMLInputElement } {
+    function getInputs(): { name: HTMLInputElement; identifier: HTMLInputElement; description: HTMLInputElement } {
         return {
             name: screen.getByLabelText('field.displayName *') as HTMLInputElement,
             identifier: screen.getByLabelText('settings.field.project.name *') as HTMLInputElement,
+            description: screen.getByLabelText('field.description') as HTMLInputElement,
         };
     }
 
@@ -113,6 +114,21 @@ describe('ProjectDialogNameStepContent', () => {
         await act(async () => typeWithoutFlush(name, 'My Project 2'));
 
         expect(identifier.value).toBe('custom-id');
+    });
+
+    it('should show the required errors when a description is typed while the name is empty', async () => {
+        render(<ProjectDialogNameStepContent />);
+        const { description } = getInputs();
+
+        expect(screen.queryAllByRole('alert')).toHaveLength(0);
+
+        await act(async () => typeWithoutFlush(description, 'Some description'));
+
+        const errors = screen.getAllByRole('alert').map((el) => el.textContent);
+        expect(errors).toEqual(['field.value.required', 'field.value.required']);
+        expect(mocks.setProjectDialogName).toHaveBeenLastCalledWith(
+            expect.objectContaining({ description: 'Some description', hasError: true }),
+        );
     });
 
     it('should show the required error when the display name is cleared', async () => {
