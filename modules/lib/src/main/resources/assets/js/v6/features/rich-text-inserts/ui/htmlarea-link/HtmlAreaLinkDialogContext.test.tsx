@@ -97,12 +97,12 @@ describe('content link without a project', () => {
         vi.mocked(fetchContentById).mockClear();
     });
 
-    it('opens on the content tab, keeps the link for display and fetches nothing', () => {
+    it('opens on the content tab, keeps the link for display, selects and fetches nothing', () => {
         const { activeTabOnOpen, result } = openDialog('', 'content://abc');
 
         expect(activeTabOnOpen).toBe('content');
         expect(result.current.state.uneditableLink).toBe('content://abc');
-        expect(result.current.state.selectedContentId).toBe('abc');
+        expect(result.current.state.selectedContentId).toBeUndefined();
         expect(fetchContentById).not.toHaveBeenCalled();
     });
 
@@ -114,21 +114,27 @@ describe('content link without a project', () => {
         expect(openDialog('https://', 'example.com').result.current.state.uneditableLink).toBe('');
     });
 
-    it('writes the link back unchanged on submit', () => {
+    it('can submit and writes the link back unchanged', () => {
         const { result, url, click } = openDialog('', 'media://download/def');
 
         act(() => result.current.setActiveTab('content'));
+        expect(result.current.canSubmit).toBe(true);
+
         act(() => result.current.submit());
 
         expect(url.setValue).toHaveBeenCalledWith('media://download/def', false);
         expect(click).toHaveBeenCalledOnce();
     });
 
-    it('fetches the content and displays nothing when there is a project', () => {
+    it('selects and fetches the content, displays nothing and waits to submit when there is a project', () => {
         const { result } = openDialog('', 'content://abc', project);
 
         expect(result.current.state.uneditableLink).toBe('');
+        expect(result.current.state.selectedContentId).toBe('abc');
         expect(fetchContentById).toHaveBeenCalledWith('abc', 'a');
+
+        act(() => result.current.setActiveTab('content'));
+        expect(result.current.canSubmit).toBe(false);
     });
 });
 

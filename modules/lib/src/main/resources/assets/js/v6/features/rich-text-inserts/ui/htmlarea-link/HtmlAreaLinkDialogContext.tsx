@@ -192,7 +192,7 @@ function computeValidationErrors(state: HtmlAreaLinkDialogState): Record<string,
 
     switch (state.activeTab) {
         case 'content':
-            if (!state.selectedContentId) {
+            if (!state.selectedContentId && !state.uneditableLink) {
                 errors.content = i18n('field.value.required');
             }
             if (state.queryParams.some((p) => isBlank(p.key))) {
@@ -448,7 +448,7 @@ function computeOpenState(params: OpenHtmlAreaLinkDialogParams): HtmlAreaLinkDia
         // it then shows the link as read, nothing is fetched or selected.
         activeTab: detected.tab === 'content' && !project && !hasExistingLink ? 'url' : detected.tab,
         uneditableLink: !project && detected.tab === 'content' ? link : '',
-        selectedContentId: detected.tab === 'content' ? detected.contentId : undefined,
+        selectedContentId: detected.tab === 'content' && project ? detected.contentId : undefined,
         selectedContent: undefined,
         mediaOption: detected.mediaOption,
         showAllContent: false,
@@ -626,6 +626,7 @@ export function HtmlAreaLinkDialogProvider({ children, openRef }: HtmlAreaLinkDi
             state.linkTextEditable,
             state.activeTab,
             state.selectedContentId,
+            state.uneditableLink,
             state.queryParams,
             state.urlValue,
             state.urlProtocol,
@@ -676,8 +677,7 @@ export function HtmlAreaLinkDialogProvider({ children, openRef }: HtmlAreaLinkDi
     }, []);
 
     useEffect(() => {
-        // No project, no fetch: the request would fall back to the active project.
-        if (!state.open || !state.project || !state.selectedContentId || state.selectedContent) {
+        if (!state.open || !state.selectedContentId || state.selectedContent) {
             return;
         }
         void loadContentById(state.selectedContentId);
