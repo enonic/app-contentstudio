@@ -146,15 +146,10 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
         await projectUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
     });
 
+    // A failed test can leave the browser on any page (e.g. 404), so always return to the Home page,
+    // otherwise the next tests fail at login as well:
     afterEach(async () => {
-        let title = await studioUtils.getBrowser().getTitle();
-        if (
-            title.includes(appConst.CONTENT_STUDIO_TITLE) ||
-            title.includes('Users') ||
-            title.includes(appConst.TAB_TITLE_PART)
-        ) {
-            return await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
-        }
+        return await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
     });
     before(async () => {
         if (typeof browser !== 'undefined') {

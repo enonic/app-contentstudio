@@ -59,33 +59,35 @@ export const ProjectDialogNameStepContent = ({ locked = false }: ProjectDialogNa
     const errorInvalidField = useI18n('field.value.invalid');
     const errorIdentifierTooLong = useI18n('settings.wizard.project.identifier.tooLong', MAX_IDENTIFIER_LENGTH);
 
-    const updateIdentifier = useCallback(
-        (value: string, isUserInput?: boolean) => {
-            const prettifiedIdentifier = prettifyProjectIdentifier(value, isUserInput);
+    const validateName = useCallback(
+        (value: string): void => {
+            setNameError(value.length === 0 ? errorRequiredField : '');
+        },
+        [errorRequiredField],
+    );
 
-            setIdentifier(prettifiedIdentifier);
-            if (identifierRef.current) identifierRef.current.value = prettifiedIdentifier;
-
+    const validateIdentifier = useCallback(
+        (value: string): void => {
             setIdentifierError('');
 
-            if (prettifiedIdentifier.length === 0) {
+            if (value.length === 0) {
                 setIdentifierError(errorRequiredField);
                 return;
             }
 
-            if (prettifiedIdentifier.length > MAX_IDENTIFIER_LENGTH) {
+            if (value.length > MAX_IDENTIFIER_LENGTH) {
                 setIdentifierError(errorIdentifierTooLong);
                 return;
             }
 
-            if (!validateProjectIdentifier(prettifiedIdentifier)) {
+            if (!validateProjectIdentifier(value)) {
                 setIdentifierError(errorInvalidField);
                 return;
             }
 
             // In edit mode, the identifier is static and cannot be changed.
             if (mode !== 'edit') {
-                const alreadyExists = projects.some((p) => p.getName() === prettifiedIdentifier);
+                const alreadyExists = projects.some((p) => p.getName() === value);
                 setIdentifierError(alreadyExists ? projectErrorIdentifierAlreadyExists : '');
             }
         },
@@ -99,17 +101,24 @@ export const ProjectDialogNameStepContent = ({ locked = false }: ProjectDialogNa
         ],
     );
 
+    const updateIdentifier = useCallback(
+        (value: string, isUserInput?: boolean) => {
+            const prettifiedIdentifier = prettifyProjectIdentifier(value, isUserInput);
+
+            setIdentifier(prettifiedIdentifier);
+            if (identifierRef.current) identifierRef.current.value = prettifiedIdentifier;
+            validateIdentifier(prettifiedIdentifier);
+        },
+        [validateIdentifier],
+    );
+
     // Processors
     const processName = useCallback(
         (value: string): void => {
             setName(value);
-            setNameError('');
-
-            if (value.length === 0) {
-                setNameError(errorRequiredField);
-            }
+            validateName(value);
         },
-        [errorRequiredField],
+        [validateName],
     );
     const processIdentifier = useCallback(
         (value: string): void => {
@@ -122,15 +131,17 @@ export const ProjectDialogNameStepContent = ({ locked = false }: ProjectDialogNa
         setDescriptionError('');
     }, []);
 
-    // Process values. Skip initial render.
-    // Dialog view goes back to 'main' => Re-render this component => Re-process to show possible errors
+    // Re-validate values. Skip initial render.
+    // Dialog view goes back to 'main' => Re-render this component => Re-validate to show possible errors
+    // Values are set only in the onChange handlers: Preact flushes a pending effect before the next render,
+    // so a setter called here would overwrite a keystroke typed in between.
     useEffect(() => {
         if (isInitialRender.current) return;
 
-        processName(name);
-        processIdentifier(identifier);
-        processDescription(description);
-    }, [name, identifier, description, processName, processIdentifier, processDescription]);
+        validateName(name);
+        validateIdentifier(identifier);
+        setDescriptionError('');
+    }, [name, identifier, description, validateName, validateIdentifier]);
 
     // Map name to identifier on user input. Skip initial render. Skip in edit mode.
     useEffect(() => {
