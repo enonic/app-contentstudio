@@ -1,19 +1,17 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {GetPermittedActionsRequest} from '../../resource/GetPermittedActionsRequest';
-import {CreatePageTemplateRequest} from '../CreatePageTemplateRequest';
-import {EditContentEvent} from '../../event/EditContentEvent';
-import {type Site} from '../../content/Site';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {Permission} from '../../access/Permission';
-import {type ContentSummary} from '../../content/ContentSummary';
-import {PageState} from '../page/PageState';
-import {PageEventsManager} from '../PageEventsManager';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { Action } from '@enonic/lib-admin-ui/ui/Action';
+import { GetPermittedActionsRequest } from '../../resource/GetPermittedActionsRequest';
+import { CreatePageTemplateRequest } from '../CreatePageTemplateRequest';
+import { EditContentEvent } from '../../event/EditContentEvent';
+import { type Site } from '../../content/Site';
+import { ContentSummaryAndCompareStatus } from '../../content/ContentSummaryAndCompareStatus';
+import { Permission } from '../../access/Permission';
+import { type ContentSummary } from '../../content/ContentSummary';
+import { PageState } from '../page/PageState';
+import { PageEventsManager } from '../PageEventsManager';
 
-export class SaveAsTemplateAction
-    extends Action {
-
+export class SaveAsTemplateAction extends Action {
     private static INSTANCE: SaveAsTemplateAction;
 
     private userHasCreateRights: boolean;
@@ -29,7 +27,7 @@ export class SaveAsTemplateAction
     private constructor() {
         super(i18n('action.saveAsTemplate'));
 
-        this.onExecuted(action => {
+        this.onExecuted((action) => {
             new CreatePageTemplateRequest()
                 .setController(PageState.getState().getController())
                 .setRegions(PageState.getState().getRegions())
@@ -38,12 +36,18 @@ export class SaveAsTemplateAction
                 .setSite(this.site ? this.site.getPath() : null)
                 .setSupports(this.contentSummary.getType())
                 .setName(this.contentSummary.getName())
-                .sendAndParse().then(createdTemplate => {
-                new EditContentEvent([ContentSummaryAndCompareStatus.fromContentSummary(createdTemplate)]).fire();
-            }).catch((reason) => {
-                DefaultErrorHandler.handle(reason);
-            }).done();
+                .sendAndParse()
+                .then((createdTemplate) => {
+                    new EditContentEvent([ContentSummaryAndCompareStatus.fromContentSummary(createdTemplate)]).fire();
+                })
+                .catch((reason) => {
+                    DefaultErrorHandler.handle(reason);
+                })
+                .done();
         });
+
+        // The Live Edit page context menu requests the action through this event.
+        PageEventsManager.get().onPageSaveAsTemplate(() => this.execute());
 
         PageEventsManager.get().onRenderableChanged((isRenderable) => {
             this.isPageRenderable = isRenderable;
@@ -67,16 +71,21 @@ export class SaveAsTemplateAction
 
     updateVisibility() {
         // check for renderable because it can have a controller/template but not be renderable (e.g. app is turned off )
-        if (!this.isPageLocked && this.isPageRenderable && PageState.getState()?.hasController() && !this.contentSummary.isPageTemplate()) {
+        if (
+            !this.isPageLocked &&
+            this.isPageRenderable &&
+            PageState.getState()?.hasController() &&
+            !this.contentSummary.isPageTemplate()
+        ) {
             if (this.userHasCreateRights === undefined) {
                 new GetPermittedActionsRequest()
                     .addContentIds(this.contentSummary.getContentId())
                     .addPermissionsToBeChecked(Permission.CREATE)
-                    .sendAndParse().then((allowedPermissions: Permission[]) => {
-
-                    this.userHasCreateRights = allowedPermissions.indexOf(Permission.CREATE) > -1;
-                    this.setVisible(this.userHasCreateRights.valueOf());
-                });
+                    .sendAndParse()
+                    .then((allowedPermissions: Permission[]) => {
+                        this.userHasCreateRights = allowedPermissions.indexOf(Permission.CREATE) > -1;
+                        this.setVisible(this.userHasCreateRights.valueOf());
+                    });
             } else {
                 this.setVisible(this.userHasCreateRights.valueOf());
             }
