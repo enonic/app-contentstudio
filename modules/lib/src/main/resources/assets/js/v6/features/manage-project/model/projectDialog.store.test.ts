@@ -75,12 +75,15 @@ import {
     $isProjectDialogDirty,
     $projectDialog,
     $projectDialogConfigScope,
+    $projectDialogInheritedAppKeys,
     closeProjectDialog,
+    moveProjectDialogApplication,
     openCreateProjectDialog,
     openEditProjectDialog,
+    selectProjectDialogApplications,
     setProjectDialogApplicationConfig,
-    setProjectDialogApplications,
     setProjectDialogParentProjects,
+    unselectProjectDialogApplication,
     updateProject,
 } from './projectDialog.store';
 
@@ -124,6 +127,7 @@ function createProject(name: string, siteConfigs: ApplicationConfig[]): Project 
 }
 
 const configOf = (key: string) => $projectDialog.get().applicationConfigs[key];
+const listedKeys = () => $projectDialog.get().applications.map((app) => app.getApplicationKey().toString());
 
 describe('projectDialog.store application configs', () => {
     beforeAll(() => {
@@ -184,6 +188,69 @@ describe('projectDialog.store application configs', () => {
 
             expect($projectDialog.get().project).toBe(project);
         });
+
+        it('should list the inherited apps after the own ones and open clean', async () => {
+            const parent = createProject('parent', [
+                createSiteConfig('app:c', { size: 'large' }),
+                createSiteConfig('app:b', { color: 'blue' }),
+            ]);
+            const layer = createProject('layer', [createSiteConfig('app:b', { color: 'red' })]);
+
+            await openEditProjectDialog(layer, [parent]);
+
+            expect(listedKeys()).toEqual(['app:b', 'app:c']);
+            expect($isProjectDialogDirty.get()).toBe(false);
+        });
+
+        it('should skip an inherited app that is not installed', async () => {
+            const parent = createProject('parent', [createSiteConfig('app:gone', { k: 'v' })]);
+
+            await openEditProjectDialog(createProject('layer', []), [parent]);
+
+            expect(listedKeys()).toEqual([]);
+        });
+    });
+
+    describe('$projectDialogInheritedAppKeys', () => {
+        it('should collect the keys of every parent in parent order', async () => {
+            const p1 = createProject('p1', [createSiteConfig('app:a', {}), createSiteConfig('app:b', {})]);
+            const p2 = createProject('p2', [createSiteConfig('app:a', {}), createSiteConfig('app:c', {})]);
+
+            await openCreateProjectDialog([p1, p2]);
+
+            expect([...$projectDialogInheritedAppKeys.get()]).toEqual(['app:a', 'app:b', 'app:c']);
+        });
+    });
+
+    describe('setProjectDialogParentProjects', () => {
+        it('should keep the still inherited apps, drop the rest and append the new ones', async () => {
+            const p1 = createProject('p1', [createSiteConfig('app:a', {}), createSiteConfig('app:b', {})]);
+            const p2 = createProject('p2', [createSiteConfig('app:a', {}), createSiteConfig('app:c', {})]);
+            await openCreateProjectDialog([p1]);
+
+            setProjectDialogParentProjects([p2]);
+
+            expect(listedKeys()).toEqual(['app:a', 'app:c']);
+        });
+
+        it('should keep an app picked by hand across a parent switch', async () => {
+            await openCreateProjectDialog([]);
+            selectProjectDialogApplications(['app:a']);
+
+            setProjectDialogParentProjects([createProject('p2', [createSiteConfig('app:b', {})])]);
+            expect(listedKeys()).toEqual(['app:a', 'app:b']);
+
+            setProjectDialogParentProjects([]);
+            expect(listedKeys()).toEqual(['app:a']);
+        });
+
+        it('should take the parent config for a newly inherited app', async () => {
+            await openCreateProjectDialog([]);
+
+            setProjectDialogParentProjects([createProject('parent', [createSiteConfig('app:b', { color: 'blue' })])]);
+
+            expect(configOf('app:b')?.getString('color')).toBe('blue');
+        });
     });
 
     describe('openCreateProjectDialog', () => {
@@ -199,6 +266,25 @@ describe('projectDialog.store application configs', () => {
             await openCreateProjectDialog([createProject('parent', [])]);
 
             expect($projectDialog.get().project).toBeUndefined();
+        });
+
+        it('should open clean with the inherited apps and get dirty once one is picked', async () => {
+            await openCreateProjectDialog([createProject('parent', [createSiteConfig('app:b', { color: 'blue' })])]);
+            expect($isProjectDialogDirty.get()).toBe(false);
+
+            selectProjectDialogApplications(['app:a']);
+
+            expect($isProjectDialogDirty.get()).toBe(true);
+        });
+
+        it('should get dirty when an inherited config is edited', async () => {
+            await openCreateProjectDialog([createProject('parent', [createSiteConfig('app:b', { color: 'blue' })])]);
+
+            const edited = new PropertyTree().getRoot();
+            edited.setString('color', 0, 'green');
+            setProjectDialogApplicationConfig('app:b', edited);
+
+            expect($isProjectDialogDirty.get()).toBe(true);
         });
     });
 
@@ -218,33 +304,65 @@ describe('projectDialog.store application configs', () => {
         });
     });
 
-    describe('setProjectDialogApplications', () => {
+    describe('selectProjectDialogApplications', () => {
+        it('should append the new apps in order and keep the order of the rest', async () => {
+            await openCreateProjectDialog([]);
+            selectProjectDialogApplications(['app:b']);
+
+            selectProjectDialogApplications(['app:c', 'app:b', 'app:a']);
+
+            expect(listedKeys()).toEqual(['app:b', 'app:c', 'app:a']);
+        });
+
         it('should keep the configs of apps that stay and drop the removed ones', async () => {
             await openEditProjectDialog(createProject('layer', [createSiteConfig('app:b', { color: 'red' })]), []);
 
-            setProjectDialogApplications([createApp('app:b'), createApp('app:c')]);
+            selectProjectDialogApplications(['app:b', 'app:c']);
             expect(configOf('app:b')?.getString('color')).toBe('red');
             expect(configOf('app:c')).toBeDefined();
 
-            setProjectDialogApplications([createApp('app:c')]);
+            selectProjectDialogApplications(['app:c']);
             expect(configOf('app:b')).toBeUndefined();
         });
 
-        it('should take the parent config for an app inherited from a parent picked after opening', async () => {
-            await openCreateProjectDialog([]);
-            setProjectDialogParentProjects([createProject('parent', [createSiteConfig('app:b', { color: 'blue' })])]);
+        it('should keep an inherited app left out of the selection', async () => {
+            await openCreateProjectDialog([createProject('parent', [createSiteConfig('app:b', {})])]);
 
-            setProjectDialogApplications([createApp('app:b')]);
+            selectProjectDialogApplications(['app:a']);
 
-            expect(configOf('app:b')?.getString('color')).toBe('blue');
+            expect(listedKeys()).toEqual(['app:b', 'app:a']);
         });
 
         it('should seed the form defaults for a newly added app', async () => {
             await openCreateProjectDialog([]);
 
-            setProjectDialogApplications([createApp('app:a', checkboxForm())]);
+            selectProjectDialogApplications(['app:a']);
 
             expect(configOf('app:a')?.getPropertyArray('agree')?.get(0)?.getValue().getBoolean()).toBe(true);
+        });
+    });
+
+    describe('unselectProjectDialogApplication', () => {
+        it('should remove an own app and ignore an inherited one', async () => {
+            await openCreateProjectDialog([createProject('parent', [createSiteConfig('app:b', {})])]);
+            selectProjectDialogApplications(['app:a']);
+
+            unselectProjectDialogApplication('app:b');
+            expect(listedKeys()).toEqual(['app:b', 'app:a']);
+
+            unselectProjectDialogApplication('app:a');
+            expect(listedKeys()).toEqual(['app:b']);
+        });
+    });
+
+    describe('moveProjectDialogApplication', () => {
+        it('should reorder the list', async () => {
+            await openCreateProjectDialog([]);
+            selectProjectDialogApplications(['app:a', 'app:b', 'app:c']);
+
+            moveProjectDialogApplication(2, 0);
+
+            expect(listedKeys()).toEqual(['app:c', 'app:a', 'app:b']);
         });
     });
 
