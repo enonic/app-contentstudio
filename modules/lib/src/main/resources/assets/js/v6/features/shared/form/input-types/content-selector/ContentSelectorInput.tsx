@@ -1,7 +1,6 @@
 import type { SelfManagedComponentProps } from '@enonic/input-types';
 import type { ReactElement } from 'react';
-import { useStore } from '@nanostores/preact';
-import { $activeProject } from '../../../../../entities/project';
+import { useFormScope, useFormScopeRequirement } from '../../FormScopeContext';
 import { useFormApplicationKey, useSelectorInput } from '../hooks';
 import { ContentCombobox } from '../../../selectors/content';
 import { ContentRow } from '../../../selectors/shared/combobox/ContentRow';
@@ -15,7 +14,9 @@ import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey'
  * Instead we reuse shared building blocks like ContentCombobox, SelectorSelection, SelectorSelectionItem, etc.
  */
 export const ContentSelectorInput = (props: SelfManagedComponentProps<ContentSelectorConfig>): ReactElement => {
-    const activeProject = useStore($activeProject);
+    const { project } = useFormScope();
+    const { enabled: scopeEnabled } = useFormScopeRequirement(props.input, { project: true });
+    const projectName = project?.getName();
     const applicationKey = useFormApplicationKey();
 
     const {
@@ -33,7 +34,7 @@ export const ContentSelectorInput = (props: SelfManagedComponentProps<ContentSel
     const canAdd = props.occurrences.getMaximum() === 0 || props.values.length < props.occurrences.getMaximum();
     const contentTypeNames = props.config.allowContentType;
     const allowedContentPaths = props.config.allowPath;
-    const disabled = !props.enabled;
+    const disabled = !props.enabled || !scopeEnabled;
 
     return (
         <div className="flex flex-col gap-2.5">
@@ -49,6 +50,7 @@ export const ContentSelectorInput = (props: SelfManagedComponentProps<ContentSel
                         hideToggleIcon={hideToggleIcon}
                         contentTypeNames={contentTypeNames}
                         allowedContentPaths={allowedContentPaths}
+                        projectName={projectName}
                         contextContent={selectorContextContent}
                         applicationKey={applicationKey}
                         listMode={listMode}
@@ -72,9 +74,10 @@ export const ContentSelectorInput = (props: SelfManagedComponentProps<ContentSel
                 selection={selection}
                 onSelectionChange={handleSelectionChange}
                 disabled={disabled}
+                projectName={projectName}
                 renderItem={(context) => (
                     <SelectorSelectionItem
-                        project={activeProject}
+                        project={project}
                         context={context}
                         disabled={disabled}
                         selection={selection}

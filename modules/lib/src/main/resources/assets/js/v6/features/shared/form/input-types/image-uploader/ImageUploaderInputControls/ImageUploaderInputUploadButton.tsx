@@ -38,7 +38,11 @@ export const ImageUploaderInputUploadButton = (): ReactElement => {
         [contentId, project, value, setOrientation, setImageUrl, setCrop, setFocus],
     );
 
-    const { isUploading, progress, handleFiles } = useImageUploader({ contentId, onChange: handleChange });
+    const { isUploading, progress, handleFiles } = useImageUploader({
+        contentId,
+        projectName: project?.getName(),
+        onChange: handleChange,
+    });
 
     const handleUploadClick = useCallback(() => {
         fileInputRef.current?.click();

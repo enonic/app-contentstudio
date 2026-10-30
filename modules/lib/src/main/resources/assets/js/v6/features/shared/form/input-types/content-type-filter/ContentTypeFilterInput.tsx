@@ -8,6 +8,7 @@ import { ContentTypeFilterComboboxList } from './ContentTypeFilterComboboxList';
 import { ContentTypeFilterSelectionItemView } from './ContentTypeFilterSelectionItemView';
 import { useContentTypeFilter } from './useContentTypeFilter';
 import { useSelectorInputHasError } from '../hooks';
+import { useFormScopeRequirement } from '../../FormScopeContext';
 
 const COMPONENT_NAME = 'ContentTypeFilterInput';
 
@@ -19,17 +20,20 @@ export const ContentTypeFilterInput = ({
     config,
     errors,
     occurrences,
+    input,
     enabled,
 }: SelfManagedComponentProps<ContentTypeFilterConfig>): ReactElement => {
     const [inputValue, setInputValue] = useState<string | undefined>();
     const selection: string[] = useMemo(() => values.filter((v) => v.isNotNull()).map((v) => v.getString()), [values]);
-    const { allContentTypes, filteredContentTypes, isLoading, hasError, onSelectionChange } = useContentTypeFilter({
-        config,
-        selection,
-        query: inputValue,
-        onAdd,
-        onRemove,
-    });
+    const { requiresContent, allContentTypes, filteredContentTypes, isLoading, hasError, onSelectionChange } =
+        useContentTypeFilter({
+            config,
+            selection,
+            query: inputValue,
+            onAdd,
+            onRemove,
+        });
+    const { enabled: scopeEnabled } = useFormScopeRequirement(input, { project: true, content: requiresContent });
 
     // i18n
     const placeholder = useI18n('field.option.placeholder');
@@ -41,7 +45,7 @@ export const ContentTypeFilterInput = ({
     const resolvedSelectionMode = occurrences.getMaximum() === 1 ? 'single' : 'staged';
     const canAdd = occurrences.getMaximum() === 0 || values.length < occurrences.getMaximum();
     const resolvedHasErrors = useSelectorInputHasError(occurrences, errors);
-    const disabled = !enabled;
+    const disabled = !enabled || !scopeEnabled;
     const popupLabel = useMemo(() => {
         if (isLoading) return loadingLabel;
         if (hasError) return errorLabel;

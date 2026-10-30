@@ -8,7 +8,7 @@ import type { InputTypeComponentProps } from '@enonic/input-types';
 import { getFirstError, useInputTypesPhrases } from '@enonic/input-types';
 import { cn, useBlinkAttention } from '@enonic/ui';
 import { useCKEditor } from 'ckeditor4-react';
-import { useEffect, useRef, useState, type JSX } from 'react';
+import { useEffect, useMemo, useRef, useState, type JSX } from 'react';
 import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
 import { HTMLAreaHelper } from '../../../../../../app/inputtype/ui/text/HTMLAreaHelper';
 import { shouldIgnoreHtmlAreaBlur } from '../../../../../../app/inputtype/ui/text/HtmlAreaOverlayState';
@@ -42,6 +42,7 @@ import {
 import type { OpenHtmlAreaMacroDialogParams } from '../../../../rich-text-inserts/ui/htmlarea-macro/HtmlAreaMacroDialogContext';
 import type { HtmlAreaConfig } from './HtmlAreaConfig';
 import { dispatchSyntheticTabKey, focusAdjacentDocumentTabStop } from './editorIframeNavigation';
+import { useFormScope } from '../../FormScopeContext';
 import { useHtmlAreaContext } from './HtmlAreaContext';
 import { createContentSaveHandler, setupEditor, setupEditorUi, type DialogOverrides } from './setupEditor';
 import { useCKEditorConfig } from './useCKEditorConfig';
@@ -558,8 +559,17 @@ export const HtmlAreaInput = ({
     inputRef,
     highlight,
 }: InputTypeComponentProps<HtmlAreaConfig>): JSX.Element => {
-    const { contentSummary, project, applicationKeys, assetsUri } = useHtmlAreaContext();
+    const { applicationKeys, assetsUri } = useHtmlAreaContext();
+    const { project, content: contentSummary } = useFormScope();
     const t = useInputTypesPhrases();
+
+    // Without a project the image dialog has nothing to search; a macro renders against a content.
+    const scopedConfig = useMemo<HtmlAreaConfig>(() => {
+        const disabledTools = config.disabledTools ?? [];
+        if (disabledTools.includes('*')) return config;
+        const scopedOut = [...(project ? [] : ['Image']), ...(project && contentSummary ? [] : ['Macro'])];
+        return scopedOut.length === 0 ? config : { ...config, disabledTools: [...disabledTools, ...scopedOut] };
+    }, [config, project, contentSummary]);
 
     const editorId = `htmlarea-${input.getName()}-${index}`;
     const editorLabel = input.getLabel() || input.getName().toString();
@@ -577,7 +587,7 @@ export const HtmlAreaInput = ({
     }, []);
 
     const { editorConfig } = useCKEditorConfig({
-        config,
+        config: scopedConfig,
         editorId,
         assetsUri,
         contentSummary,
@@ -603,7 +613,7 @@ export const HtmlAreaInput = ({
         <>
             <CKEditorWrapper
                 editorConfig={editorConfig}
-                htmlAreaConfig={config}
+                htmlAreaConfig={scopedConfig}
                 editorId={editorId}
                 editorLabel={editorLabel}
                 previewContent={previewContent}

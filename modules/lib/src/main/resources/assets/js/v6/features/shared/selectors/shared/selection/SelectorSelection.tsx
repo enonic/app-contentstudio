@@ -27,6 +27,8 @@ export type SelectorSelectionProps = {
     renderItem: SelectorSelectionRenderItem;
     /** Whether the selection is disabled */
     disabled?: boolean;
+    /** Project the selected content lives in; defaults to the active project */
+    projectName?: string;
     /** Additional CSS class */
     className?: string;
 };
@@ -40,6 +42,7 @@ export const SelectorSelection = ({
     selection,
     onSelectionChange,
     renderItem,
+    projectName,
     className,
 }: SelectorSelectionProps): ReactElement | null => {
     const requestIdRef = useRef(0);
@@ -57,7 +60,7 @@ export const SelectorSelection = ({
             return;
         }
 
-        fetchContentByIds(contentIds).then((items) => {
+        fetchContentByIds(contentIds, projectName).then((items) => {
             if (requestId !== requestIdRef.current) return;
             const itemMap = new Map(items.map((item) => [item.getId(), item]));
             // Preserve selection order; use stub for IDs not found (deleted)
@@ -65,7 +68,7 @@ export const SelectorSelection = ({
             setContents(ordered);
             contentsRef.current = ordered;
         });
-    }, [selection]);
+    }, [selection, projectName]);
 
     // Handlers
     const handleReorder = useCallback(

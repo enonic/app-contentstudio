@@ -7,6 +7,8 @@ import { getCmsApiUrl } from '../../../../../shared/lib/url/cms';
 export type AttachmentUploaderListProps = {
     names: string[];
     contentId: string | undefined;
+    /** Project the content lives in; defaults to the active project */
+    projectName?: string;
     onRemove: (index: number) => void;
     disabled: boolean;
     errors?: ReadonlyMap<string, string>;
@@ -14,6 +16,7 @@ export type AttachmentUploaderListProps = {
 
 export const AttachmentUploaderList = ({
     contentId,
+    projectName,
     names,
     onRemove,
     disabled,
@@ -24,7 +27,7 @@ export const AttachmentUploaderList = ({
     return (
         <GridList disabled={disabled} className="rounded p-2 -m-2">
             {names.map((name, index) => {
-                const url = getCmsApiUrl(`media/${contentId}/${encodeURIComponent(name)}`);
+                const url = getCmsApiUrl(`media/${contentId}/${encodeURIComponent(name)}`, projectName);
                 const error = errors?.get(name);
 
                 return (

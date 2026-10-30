@@ -3,7 +3,6 @@ import {
     type DragEvent as ReactDragEvent,
     type ReactElement,
     useCallback,
-    useEffect,
     useMemo,
     useRef,
     useState,
@@ -17,7 +16,7 @@ import { type MediaUploaderAllowType, type MediaUploaderConfig } from './MediaUp
 import { useMediaUploader } from './useMediaUploader';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { getCmsApiUrl } from '../../../../../shared/lib/url/cms';
-import { $contextContent } from '../../../../../entities/content';
+import { useFormScope, useFormScopeRequirement } from '../../FormScopeContext';
 import { ContentRequiresSaveEvent } from '../../../../../../app/event/ContentRequiresSaveEvent';
 import { ContentId } from '../../../../../../app/content/ContentId';
 
@@ -27,14 +26,19 @@ export const MediaUploaderInput = ({
     values,
     onChange,
     config,
-    enabled,
+    input,
+    enabled: inputEnabled,
 }: SelfManagedComponentProps<MediaUploaderConfig>): ReactElement => {
+    const { project, content } = useFormScope();
+    const { enabled: scopeEnabled } = useFormScopeRequirement(input, { project: true, content: true });
+    const projectName = project?.getName();
+    const enabled = inputEnabled && scopeEnabled;
     const noMediaLabel = useI18n('field.content.noattachment');
     const uploadLabel = useI18n('action.upload');
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const value = values[0];
-    const [contentId, setContentId] = useState<string>();
+    const contentId = content?.getId();
     // Local display source: single-occurrence value is only mutated through this component.
     const [fileName, setFileName] = useState<string>(() => getFileNameFromValue(value));
     const [isDragging, setIsDragging] = useState(false);
@@ -42,12 +46,8 @@ export const MediaUploaderInput = ({
     const attachmentUrl = useMemo(() => {
         if (!contentId || !fileName) return undefined;
 
-        return getCmsApiUrl(`media/${contentId}/${encodeURIComponent(fileName)}`);
-    }, [contentId, fileName]);
-
-    useEffect(() => {
-        setContentId($contextContent.get()?.getId());
-    }, []);
+        return getCmsApiUrl(`media/${contentId}/${encodeURIComponent(fileName)}`, projectName);
+    }, [contentId, projectName, fileName]);
 
     // An existing DATA-format attachment locks replacement to the same extension (legacy parity);
     // otherwise the schema's allowExtensions applies, or no restriction when unset.
@@ -77,7 +77,7 @@ export const MediaUploaderInput = ({
         [value, onChange, contentId],
     );
 
-    const { isUploading, progress, handleFiles } = useMediaUploader({ contentId, onChange: handleChange });
+    const { isUploading, progress, handleFiles } = useMediaUploader({ contentId, projectName, onChange: handleChange });
 
     const openFileDialog = useCallback(() => {
         fileInputRef.current?.click();

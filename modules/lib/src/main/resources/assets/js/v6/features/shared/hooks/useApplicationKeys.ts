@@ -1,14 +1,12 @@
 import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
-import { useStore } from '@nanostores/preact';
 import { useEffect, useMemo, useState } from 'react';
 import type { Site } from '../../../../app/content/Site';
 import { loadNearestSite } from '../../../widgets/inspectors/api/details.api';
-import { $activeProject } from '../../../entities/project/activeProject.store';
-import { $contextContent } from '../../../entities/content';
+import { useFormScope } from '../form/FormScopeContext';
 
 export function useApplicationKeys(): ApplicationKey[] {
-    const contextContent = useStore($contextContent);
-    const activeProject = useStore($activeProject);
+    const { project, content: contextContent } = useFormScope();
+    const projectName = project?.getName();
     const [nearestSite, setNearestSite] = useState<Site | undefined>(undefined);
     const [siteLoaded, setSiteLoaded] = useState(false);
 
@@ -26,7 +24,7 @@ export function useApplicationKeys(): ApplicationKey[] {
 
         let cancelled = false;
 
-        loadNearestSite(contentId)
+        loadNearestSite(contentId, projectName)
             .unwrapOr(undefined)
             .then((site) => {
                 if (!cancelled) {
@@ -38,7 +36,7 @@ export function useApplicationKeys(): ApplicationKey[] {
         return () => {
             cancelled = true;
         };
-    }, [contentId]);
+    }, [contentId, projectName]);
 
     return useMemo(() => {
         if (!siteLoaded) {
@@ -51,11 +49,11 @@ export function useApplicationKeys(): ApplicationKey[] {
         }
 
         // Fall back to project site configs for non-site content (e.g. headless)
-        const projectSiteConfigs = activeProject?.getSiteConfigs();
+        const projectSiteConfigs = project?.getSiteConfigs();
         if (projectSiteConfigs) {
             return projectSiteConfigs.map((config) => config.getApplicationKey());
         }
 
         return [];
-    }, [siteLoaded, nearestSite, activeProject]);
+    }, [siteLoaded, nearestSite, project]);
 }

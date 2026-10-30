@@ -108,3 +108,13 @@ describe('updateImageMedia', () => {
         expect(result._unsafeUnwrapErr()).toMatchObject({ mediaIdentifier: 'i-1', message: 'Network error' });
     });
 });
+
+describe('project scoping', () => {
+    it('should update the image in the given project', () => {
+        const file = new File(['bits'], 'scoped.png');
+
+        void updateImageMedia({ id: 'i-p', file, contentId: 'content-1', projectName: 'other-project' });
+
+        expect(xhrs[0].url).toContain('/cms/other-project/content/content/updateMedia');
+    });
+});

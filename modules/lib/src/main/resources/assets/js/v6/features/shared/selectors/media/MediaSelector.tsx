@@ -5,8 +5,7 @@ import { type MediaSelectorFilterOptions, type MediaSelectorMode } from './media
 import { ContentCombobox } from '../content';
 import { SelectorUploadButton, useSelectorUpload } from '../shared/upload';
 import { SelectorSelection, SelectorSelectionItem } from '../shared/selection';
-import { useStore } from '@nanostores/preact';
-import { $activeProject } from '../../../../entities/project';
+import { useFormScope } from '../../form/FormScopeContext';
 import { ContentRow } from '../shared/combobox/ContentRow';
 import { MediaSelectorItemView } from './MediaSelectorItemView';
 import { useAcceptMimeTypes } from '../../../../entities/schema';
@@ -85,10 +84,11 @@ export const MediaSelector = ({
 }: MediaSelectorProps): ReactElement => {
     const resolvedContentTypeNames =
         contentTypeNames && contentTypeNames.length > 0 ? contentTypeNames : MEDIA_SELECTOR_CONTENT_TYPE_NAMES;
-    const activeProject = useStore($activeProject);
+    const { project } = useFormScope();
+    const projectName = project?.getName();
     const acceptMimeTypes = useAcceptMimeTypes(resolvedContentTypeNames);
 
-    const { handleFiles, progress, isUploading, dragProps } = useSelectorUpload({
+    const { canUpload, handleFiles, progress, isUploading, dragProps } = useSelectorUpload({
         selection,
         onSelectionChange,
         accept: acceptMimeTypes,
@@ -123,15 +123,16 @@ export const MediaSelector = ({
                         aria-label={ariaLabel}
                         error={error}
                         hideToggleIcon={hideToggleIcon}
+                        projectName={projectName}
                         rowRenderer={ContentRow}
                         contentTypeNames={resolvedContentTypeNames}
                         allowedContentPaths={allowedContentPaths}
                         contextContent={contextContent}
                         applicationKey={applicationKey}
                         className="w-full focus-within:z-10"
-                        withRightButton={withUpload}
+                        withRightButton={withUpload && canUpload}
                     />
-                    {withUpload && (
+                    {withUpload && canUpload && (
                         <SelectorUploadButton
                             onFiles={handleFiles}
                             progress={progress}
@@ -148,10 +149,11 @@ export const MediaSelector = ({
                 selection={selection}
                 onSelectionChange={onSelectionChange}
                 disabled={disabled}
+                projectName={projectName}
                 className={className}
                 renderItem={(context) => (
                     <SelectorSelectionItem
-                        project={activeProject}
+                        project={project}
                         context={context}
                         disabled={disabled}
                         selection={selection}

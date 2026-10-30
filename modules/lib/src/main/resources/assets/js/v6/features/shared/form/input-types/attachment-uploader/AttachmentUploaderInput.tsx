@@ -14,6 +14,7 @@ import { useAttachmentServerErrors } from './useAttachmentServerErrors';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { AttachmentUploaderButton } from './AttachmentUploaderButton';
 import { AttachmentUploaderList } from './AttachmentUploaderList';
+import { useFormScopeRequirement } from '../../FormScopeContext';
 import { cn } from '@enonic/ui';
 
 const ATTACHMENT_UPLOADER_INPUT_NAME = 'AttachmentUploaderInput';
@@ -25,8 +26,10 @@ export const AttachmentUploaderInput = ({
     values,
     input,
     config,
-    enabled,
+    enabled: inputEnabled,
 }: SelfManagedComponentProps<AttachmentUploaderConfig>): ReactElement => {
+    const { enabled: scopeEnabled } = useFormScopeRequirement(input, { project: true, content: true });
+    const enabled = inputEnabled && scopeEnabled;
     const fileInputRef = useRef<HTMLInputElement>(null);
     const noAttachmentLabel = useI18n('field.content.noattachment');
     const uploadLabel = useI18n('action.upload');
@@ -36,7 +39,7 @@ export const AttachmentUploaderInput = ({
     );
     const serverErrors = useAttachmentServerErrors(attachmentNames);
     const [isDragging, setIsDragging] = useState(false);
-    const { progress, canUpload, isUploading, isMultiple, contentId, handleFiles, handleRemove } =
+    const { progress, canUpload, isUploading, isMultiple, contentId, projectName, handleFiles, handleRemove } =
         useAttachmentUploader({
             values,
             onAdd,
@@ -117,6 +120,7 @@ export const AttachmentUploaderInput = ({
                 <AttachmentUploaderList
                     names={attachmentNames}
                     contentId={contentId}
+                    projectName={projectName}
                     onRemove={handleRemove}
                     disabled={!enabled}
                     errors={serverErrors}

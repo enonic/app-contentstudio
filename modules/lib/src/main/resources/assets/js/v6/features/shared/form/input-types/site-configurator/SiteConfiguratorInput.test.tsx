@@ -42,6 +42,11 @@ vi.mock('../../../../../pages/wizard/model/wizardContent.store', () => ({
     requestMixinSeed: vi.fn(),
 }));
 
+vi.mock('../../FormScopeContext', () => ({
+    useFormScope: () => ({ project: undefined, content: undefined }),
+    useFormScopeRequirement: () => ({ enabled: true, missing: [] }),
+}));
+
 import { $applications } from '../../../../../entities/application/applications.store';
 import { SiteConfiguratorInput } from './SiteConfiguratorInput';
 

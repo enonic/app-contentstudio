@@ -4,9 +4,7 @@ import { Value } from '@enonic/input-types/data';
 import { ValueTypes } from '@enonic/input-types/data';
 import { useCallback, useMemo } from 'react';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
-import { useStore } from '@nanostores/preact';
-import { $contextContent } from '../../../../../entities/content';
-import { type ContentSummary } from '../../../../../../app/content/ContentSummary';
+import { useFormScope } from '../../FormScopeContext';
 import { useSelectorInputHasError } from './useSelectorInputHasError';
 
 export type GeneralSelectorConfig = {
@@ -25,11 +23,10 @@ export const useSelectorInput = <T extends Omit<GeneralSelectorConfig, 'allowCon
     errors,
     occurrences,
 }: SelfManagedComponentProps<T>) => {
-    // Stores
-    const contextContent = useStore($contextContent);
+    // Scope
+    const { content: resolvedContextContent } = useFormScope();
 
     // Constants
-    const resolvedContextContent: ContentSummary | undefined = contextContent ?? undefined;
     const resolvedSelectionMode: 'single' | 'multiple' = occurrences.getMaximum() === 1 ? 'single' : 'multiple';
     const resolvedListMode: 'tree' | 'flat' = config.treeMode ? 'tree' : 'flat';
     const resolvedHasErrors: boolean = useSelectorInputHasError(occurrences, errors);

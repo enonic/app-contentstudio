@@ -5,8 +5,7 @@ import { type ImageSelectorFilterOptions, type ImageSelectorMode } from './image
 import { ContentCombobox } from '../content';
 import { SelectorUploadButton, useSelectorUpload } from '../shared/upload';
 import { SelectorSelection, SelectorSelectionItem } from '../shared/selection';
-import { useStore } from '@nanostores/preact';
-import { $activeProject } from '../../../../entities/project';
+import { useFormScope } from '../../form/FormScopeContext';
 import { ContentRow, type ContentRowProps } from '../shared/combobox/ContentRow';
 import { ImageSelectorItemView } from './ImageSelectorItemView';
 import { useAcceptMimeTypes } from '../../../../entities/schema';
@@ -67,11 +66,12 @@ export const ImageSelector = ({
     contextContent,
     applicationKey,
 }: ImageSelectorProps): ReactElement => {
-    const activeProject = useStore($activeProject);
+    const { project } = useFormScope();
+    const projectName = project?.getName();
     const acceptMimeTypes = useAcceptMimeTypes(IMAGE_SELECTOR_CONTENT_TYPE_NAMES);
     const accept = acceptMimeTypes ?? 'image/*';
 
-    const { handleFiles, progress, isUploading, dragProps } = useSelectorUpload({
+    const { canUpload, handleFiles, progress, isUploading, dragProps } = useSelectorUpload({
         selection,
         onSelectionChange,
         accept,
@@ -106,6 +106,7 @@ export const ImageSelector = ({
                         aria-label={ariaLabel}
                         error={error}
                         hideToggleIcon={hideToggleIcon}
+                        projectName={projectName}
                         rowRenderer={ImageComboboxRow}
                         rowTreeHeight={48}
                         rowFlatHeight={270}
@@ -116,9 +117,9 @@ export const ImageSelector = ({
                         contextContent={contextContent}
                         applicationKey={applicationKey}
                         className="w-full focus-within:z-10"
-                        withRightButton={withUpload}
+                        withRightButton={withUpload && canUpload}
                     />
-                    {withUpload && (
+                    {withUpload && canUpload && (
                         <SelectorUploadButton
                             onFiles={handleFiles}
                             progress={progress}
@@ -135,9 +136,10 @@ export const ImageSelector = ({
                 selection={selection}
                 onSelectionChange={onSelectionChange}
                 disabled={disabled}
+                projectName={projectName}
                 renderItem={(context) => (
                     <SelectorSelectionItem
-                        project={activeProject}
+                        project={project}
                         context={context}
                         disabled={disabled}
                         selection={selection}

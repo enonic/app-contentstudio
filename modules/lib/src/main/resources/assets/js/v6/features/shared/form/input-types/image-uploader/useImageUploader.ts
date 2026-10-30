@@ -24,6 +24,8 @@ import type { ContentId } from '../../../../../../app/content/ContentId';
 
 type UseImageUploaderOptions = {
     contentId?: ContentId;
+    /** Project the content lives in; defaults to the active project. */
+    projectName?: string;
     onChange: (value: string) => void;
 };
 
@@ -37,7 +39,11 @@ type UseImageUploaderResult = {
 // * Hook
 //
 
-export const useImageUploader = ({ contentId, onChange }: UseImageUploaderOptions): UseImageUploaderResult => {
+export const useImageUploader = ({
+    contentId,
+    projectName,
+    onChange,
+}: UseImageUploaderOptions): UseImageUploaderResult => {
     const [progress, setProgress] = useState<number>(0);
     const [uploadId, setUploadId] = useState<string>();
 
@@ -75,6 +81,7 @@ export const useImageUploader = ({ contentId, onChange }: UseImageUploaderOption
                 id: uploadId,
                 file,
                 contentId: contentId.toString(),
+                projectName,
                 onProgress: (id, prog) => {
                     updateUploadProgress(id, prog);
                 },
@@ -98,7 +105,7 @@ export const useImageUploader = ({ contentId, onChange }: UseImageUploaderOption
                 },
             );
         },
-        [contentId, onChange],
+        [contentId, projectName, onChange],
     );
 
     return { isUploading: !!uploadId, progress, handleFiles };

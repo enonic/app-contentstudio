@@ -15,12 +15,16 @@ export type UploadAttachmentFileOptions = {
     id: string;
     file: File;
     contentId: string;
+    /** Project the content lives in; defaults to the active project. */
+    projectName?: string;
     onProgress?: (id: string, progress: number) => void;
 };
 
 export type DeleteAttachmentOptions = {
     contentId: string;
     attachmentNames: string[];
+    /** Project the content lives in; defaults to the active project. */
+    projectName?: string;
 };
 
 /** Used by: features/shared/form/input-types/attachment-uploader */
@@ -28,6 +32,7 @@ export function uploadAttachmentFile({
     id,
     file,
     contentId,
+    projectName,
     onProgress,
 }: UploadAttachmentFileOptions): ResultAsync<UploadAttachmentSuccess, UploadError> {
     const formData = new FormData();
@@ -35,7 +40,7 @@ export function uploadAttachmentFile({
     formData.append('name', sanitizeName(file.name));
     formData.append('id', contentId);
 
-    return requestUploadJson<AttachmentJson>(getCmsApiUrl('createAttachment'), {
+    return requestUploadJson<AttachmentJson>(getCmsApiUrl('createAttachment', projectName), {
         formData,
         onProgress: (progress) => onProgress?.(id, progress),
     })
@@ -44,9 +49,13 @@ export function uploadAttachmentFile({
 }
 
 /** Used by: features/shared/form/input-types/attachment-uploader */
-export function deleteAttachment({ contentId, attachmentNames }: DeleteAttachmentOptions): ResultAsync<void, AppError> {
+export function deleteAttachment({
+    contentId,
+    attachmentNames,
+    projectName,
+}: DeleteAttachmentOptions): ResultAsync<void, AppError> {
     // The endpoint answers 200 with the updated content JSON, which the caller discards.
-    return requestOptionalJson<ContentJson>(getCmsApiUrl('deleteAttachment'), {
+    return requestOptionalJson<ContentJson>(getCmsApiUrl('deleteAttachment', projectName), {
         method: 'POST',
         body: { contentId, attachmentNames },
     }).map(() => undefined);

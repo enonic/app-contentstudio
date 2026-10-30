@@ -21,7 +21,7 @@ import { ContentRequiresSaveEvent } from '../../../../../../app/event/ContentReq
 import { ProjectHelper } from '../../../../../../app/settings/data/project/ProjectHelper';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { $applications, loadApplications, reloadApplications } from '../../../../../entities/application';
-import { $contextContent } from '../../../../../entities/content';
+import { useFormScope, useFormScopeRequirement } from '../../FormScopeContext';
 import {
     $isHtmlAreaModalDialogOpen,
     $isHtmlAreaOverlayOpen,
@@ -50,7 +50,10 @@ type AppItem = {
 };
 
 export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfiguratorConfig>): ReactElement => {
-    const { values, onAdd, onRemove, onMove, enabled, errors } = props;
+    const { values, onAdd, onRemove, onMove, input, enabled, errors } = props;
+    const { content } = useFormScope();
+    const { enabled: scopeEnabled } = useFormScopeRequirement(input, { content: true });
+    const contentId = content?.getId();
     const { applications } = useStore($applications, { keys: ['applications'] });
     const [isReadOnly, setIsReadOnly] = useState(!AuthHelper.isContentAdmin());
     const [editing, setEditing] = useState<EditingState | null>(null);
@@ -164,10 +167,10 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
             if (added.length > 0) {
                 requestMixinSeed(added);
             } else {
-                fireContentRequiresSave();
+                fireContentRequiresSave(contentId);
             }
         },
-        [selectedKeys, values, onAdd, onRemove, findApplicationByKey],
+        [selectedKeys, values, onAdd, onRemove, findApplicationByKey, contentId],
     );
 
     const handleRemove = useCallback(
@@ -178,10 +181,10 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
             });
             if (index >= 0) {
                 onRemove(index);
-                fireContentRequiresSave();
+                fireContentRequiresSave(contentId);
             }
         },
-        [values, onRemove],
+        [values, onRemove, contentId],
     );
 
     const openConfigDialog = useCallback(
@@ -211,11 +214,11 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
             configSet.addProperty(prop.getName(), prop.getValue());
         });
 
-        fireContentRequiresSave();
+        fireContentRequiresSave(contentId);
 
         setEditing(null);
         setView('main');
-    }, [editing, getConfigPropertySet]);
+    }, [editing, getConfigPropertySet, contentId]);
 
     const closeDialog = useCallback(() => {
         setEditing(null);
@@ -259,7 +262,7 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
         return () => ApplicationEvent.un(handler);
     }, []);
 
-    const disabled = !enabled || isReadOnly;
+    const disabled = !enabled || isReadOnly || !scopeEnabled;
 
     const editingApp = editing ? findApplicationByKey(editing.appKey) : undefined;
     const editingForm = editingApp?.getForm();
@@ -553,8 +556,7 @@ const SiteConfigApplyButton = ({
 
 SiteConfigApplyButton.displayName = 'SiteConfigApplyButton';
 
-const fireContentRequiresSave = (): void => {
-    const id = $contextContent.get()?.getId();
-    if (!id) return;
-    new ContentRequiresSaveEvent(new ContentId(id)).fire();
+const fireContentRequiresSave = (contentId: string | undefined): void => {
+    if (!contentId) return;
+    new ContentRequiresSaveEvent(new ContentId(contentId)).fire();
 };

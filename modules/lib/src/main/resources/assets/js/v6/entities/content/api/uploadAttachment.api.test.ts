@@ -107,3 +107,16 @@ describe('deleteAttachment', () => {
         expect(result._unsafeUnwrapErr().message).toBe('Server Error');
     });
 });
+
+describe('project scoping', () => {
+    it('should upload and delete attachments in the given project', async () => {
+        const file = new File(['bits'], 'scoped.pdf');
+        mockFetch.mockResolvedValue(jsonResponse({ id: 'content-1' }));
+
+        void uploadAttachmentFile({ id: 'a-p', file, contentId: 'content-1', projectName: 'other-project' });
+        await deleteAttachment({ contentId: 'content-1', attachmentNames: ['x'], projectName: 'other-project' });
+
+        expect(xhrs[0].url).toContain('/cms/other-project/content/content/createAttachment');
+        expect(mockFetch.mock.calls[0][0]).toContain('/cms/other-project/content/content/deleteAttachment');
+    });
+});

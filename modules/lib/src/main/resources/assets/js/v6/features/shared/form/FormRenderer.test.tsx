@@ -50,12 +50,29 @@ vi.mock('../../../shared/config/config.store', async () => {
     return { $config: map({ assetsUri: '/assets' }) };
 });
 
+import type { ContentSummary } from '../../../../app/content/ContentSummary';
+import type { Project } from '../../../../app/settings/data/project/Project';
 import { $contextContent } from '../../../entities/content';
+import { $activeProject } from '../../../entities/project';
 import { FormRenderer } from './FormRenderer';
 
-function renderForm(applicationKey?: ApplicationKey) {
+type RenderFormOptions = {
+    applicationKey?: ApplicationKey;
+    project?: Readonly<Project> | null;
+    content?: ContentSummary | null;
+};
+
+function renderForm({ applicationKey, project, content }: RenderFormOptions = {}) {
     const propertySet: PropertySet = new PropertyTree().getRoot();
-    return render(<FormRenderer form={new Form()} propertySet={propertySet} applicationKey={applicationKey} />);
+    return render(
+        <FormRenderer
+            form={new Form()}
+            propertySet={propertySet}
+            applicationKey={applicationKey}
+            project={project}
+            content={content}
+        />,
+    );
 }
 
 describe('FormRenderer', () => {
@@ -64,6 +81,7 @@ describe('FormRenderer', () => {
         mockToolkitRenderer.mockReset();
         mockHtmlAreaContext.mockReturnValue(undefined);
         ($contextContent as unknown as { set: (v: unknown) => void }).set({ getLanguage: () => 'nb' });
+        ($activeProject as unknown as { set: (v: unknown) => void }).set({ getName: () => 'active' });
     });
 
     afterEach(cleanup);
@@ -80,6 +98,39 @@ describe('FormRenderer', () => {
         expect(locale.dataset.locale).toBe('nb');
     });
 
+    it('should scope the language to the given content', () => {
+        renderForm({
+            project: { getName: () => 'scoped' } as unknown as Project,
+            content: { getLanguage: () => 'de' } as unknown as ContentSummary,
+        });
+
+        expect(screen.getByTestId('locale-provider').dataset.locale).toBe('de');
+    });
+
+    it('should fall back to the project language without a content', () => {
+        renderForm({
+            project: { getName: () => 'scoped', getLanguage: () => 'sv' } as unknown as Project,
+            content: null,
+        });
+
+        expect(screen.getByTestId('locale-provider').dataset.locale).toBe('sv');
+    });
+
+    it('should give the form no language for a content without one, not the project language', () => {
+        renderForm({
+            project: { getName: () => 'scoped', getLanguage: () => 'ar' } as unknown as Project,
+            content: { getLanguage: () => undefined } as unknown as ContentSummary,
+        });
+
+        expect(screen.getByTestId('locale-provider').dataset.locale).toBe('');
+    });
+
+    it('should give the form no language for an explicit null scope', () => {
+        renderForm({ project: null, content: null });
+
+        expect(screen.getByTestId('locale-provider').dataset.locale).toBe('');
+    });
+
     it('keeps the phrases and the language but not a second HTML area context inside an existing one', () => {
         mockHtmlAreaContext.mockReturnValue({});
 
@@ -91,8 +142,17 @@ describe('FormRenderer', () => {
         expect(locale.contains(screen.getByTestId('toolkit-form'))).toBe(true);
     });
 
+    it('should mount its own HTML area context inside an existing one when the form sets its own scope', () => {
+        mockHtmlAreaContext.mockReturnValue({});
+
+        renderForm({ project: { getName: () => 'scoped', getLanguage: () => 'sv' } as unknown as Project });
+
+        const htmlArea = screen.getByTestId('html-area-provider');
+        expect(htmlArea.contains(screen.getByTestId('toolkit-form'))).toBe(true);
+    });
+
     it("routes the form's notifications to a warning and passes the application key by name", () => {
-        renderForm(ApplicationKey.fromString('com.enonic.app.test'));
+        renderForm({ applicationKey: ApplicationKey.fromString('com.enonic.app.test') });
 
         const props = mockToolkitRenderer.mock.calls[0]?.[0] as {
             applicationKey?: string;

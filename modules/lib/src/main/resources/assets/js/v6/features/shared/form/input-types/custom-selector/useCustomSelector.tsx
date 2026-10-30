@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { Branch } from '../../../../../../app/versioning/Branch';
 import { UrlAction } from '../../../../../../app/UrlAction';
-import { $contextContent } from '../../../../../entities/content';
-import { $activeProject } from '../../../../../entities/project';
+import { useFormScope } from '../../FormScopeContext';
 import { type CustomSelectorConfig } from './CustomSelectorConfig';
 import { type CustomSelectorItem } from './CustomSelectorInput';
 import { useDebouncedCallback } from '../../../../../shared/lib/hooks/useDebouncedCallback';
@@ -84,15 +83,13 @@ export const useCustomSelector = ({
         return filteredItems.length < total;
     }, [key, totalMap, filteredItems.length]);
 
+    const { project, content } = useFormScope();
+
     // Refs
     const contentIdRef = useRef<string>();
+    contentIdRef.current = content?.getId();
     const projectIdRef = useRef<string>();
-
-    // Get the context content and active project on mount.
-    useEffect(() => {
-        contentIdRef.current = $contextContent.get()?.getId();
-        projectIdRef.current = $activeProject.get()?.getName();
-    }, []);
+    projectIdRef.current = project?.getName();
 
     const fetchItems = useCallback(
         async (requestUrl: string) => {

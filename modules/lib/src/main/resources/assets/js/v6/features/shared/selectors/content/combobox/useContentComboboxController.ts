@@ -123,12 +123,19 @@ export function useContentComboboxController(
     // Memoize filter options to avoid recreating on every render
     const filterOptions: ContentFilterOptions = useMemo(
         () => ({
+            projectName: filters.projectName,
             contextContent: filters.contextContent,
             contentTypeNames: filters.contentTypeNames ? [...filters.contentTypeNames].sort() : undefined,
             allowedContentPaths: filters.allowedContentPaths ? [...filters.allowedContentPaths].sort() : undefined,
             applicationKey: filters.applicationKey,
         }),
-        [filters.contextContent, filters.contentTypeNames, filters.allowedContentPaths, filters.applicationKey],
+        [
+            filters.projectName,
+            filters.contextContent,
+            filters.contentTypeNames,
+            filters.allowedContentPaths,
+            filters.applicationKey,
+        ],
     );
 
     // Data hook

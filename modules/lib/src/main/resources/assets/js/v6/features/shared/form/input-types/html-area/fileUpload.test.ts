@@ -1,6 +1,7 @@
 import { okAsync } from 'neverthrow';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentPath } from '../../../../../../app/content/ContentPath';
+import type { Project } from '../../../../../../app/settings/data/project/Project';
 import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
 import { setupFileUpload } from './fileUpload';
 
@@ -44,12 +45,14 @@ beforeEach(() => {
     mocks.contentExistsByPath.mockReturnValue(okAsync(false));
 });
 
+const project = { getName: () => 'a' } as unknown as Project;
+
 describe('setupFileUpload', () => {
     it('should resolve the parent content at upload time, not at setup time', async () => {
         let current: ContentSummary | undefined = summaryAt('/site/__unnamed__abc');
         const { editor, handlers } = createEditorStub();
 
-        setupFileUpload(editor, () => current, undefined);
+        setupFileUpload(editor, () => current, project);
 
         current = summaryAt('/site/test5557');
 
@@ -58,7 +61,7 @@ describe('setupFileUpload', () => {
 
         await vi.waitFor(() => expect(xhr.send).toHaveBeenCalledTimes(1));
 
-        expect(mocks.contentExistsByPath).toHaveBeenCalledWith('/site/test5557/img.png');
+        expect(mocks.contentExistsByPath).toHaveBeenCalledWith('/site/test5557/img.png', 'a');
         const formData = xhr.send.mock.calls[0][0] as FormData;
         expect(formData.get('parent')).toBe('/site/test5557');
         expect(formData.get('name')).toBe('img.png');
@@ -70,6 +73,20 @@ describe('setupFileUpload', () => {
         const { editor, handlers } = createEditorStub();
 
         setupFileUpload(editor, () => undefined, undefined);
+
+        const { evt, xhr, widget } = createUploadEvent();
+        handlers.fileUploadRequest(evt);
+
+        expect(mocks.contentExistsByPath).not.toHaveBeenCalled();
+        expect(xhr.send).not.toHaveBeenCalled();
+        expect(evt.stop).toHaveBeenCalled();
+        expect(widget.remove).toHaveBeenCalled();
+    });
+
+    it('should stop the default upload and drop the preview when there is no project', () => {
+        const { editor, handlers } = createEditorStub();
+
+        setupFileUpload(editor, () => summaryAt('/site/test5557'), undefined);
 
         const { evt, xhr, widget } = createUploadEvent();
         handlers.fileUploadRequest(evt);

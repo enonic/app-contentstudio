@@ -52,6 +52,8 @@ export type HtmlAreaLinkDialogState = {
     // UI
     isEditing: boolean;
     touchedFields: Readonly<Record<string, true>>;
+    // A content or media link opened without a project: shown as read, written back unchanged.
+    uneditableLink: string;
 };
 
 export type OpenHtmlAreaLinkDialogParams = {
@@ -89,6 +91,7 @@ const CLOSED_STATE: HtmlAreaLinkDialogState = {
     anchors: [],
     isEditing: false,
     touchedFields: {},
+    uneditableLink: '',
 };
 
 const ALL_TOUCHED: Readonly<Record<string, true>> = {
@@ -189,7 +192,7 @@ function computeValidationErrors(state: HtmlAreaLinkDialogState): Record<string,
 
     switch (state.activeTab) {
         case 'content':
-            if (!state.selectedContentId) {
+            if (!state.selectedContentId && !state.uneditableLink) {
                 errors.content = i18n('field.value.required');
             }
             if (state.queryParams.some((p) => isBlank(p.key))) {
@@ -441,8 +444,9 @@ function computeOpenState(params: OpenHtmlAreaLinkDialogParams): HtmlAreaLinkDia
         linkText: linkDisplayText || '',
         linkTextEditable,
         tooltip: tooltip || '',
-        activeTab: detected.tab,
-        selectedContentId: detected.tab === 'content' ? detected.contentId : undefined,
+        activeTab: detected.tab === 'content' && !project && !hasExistingLink ? 'url' : detected.tab,
+        uneditableLink: !project && detected.tab === 'content' ? link : '',
+        selectedContentId: detected.tab === 'content' && project ? detected.contentId : undefined,
         selectedContent: undefined,
         mediaOption: detected.mediaOption,
         showAllContent: false,
@@ -488,6 +492,14 @@ function buildFragmentString(fragment: string, hasQueryParams: boolean): string 
     }
     const encoded = `${FRAGMENT_PREFIX}${encodeURIComponent(trimmed)}`;
     return hasQueryParams ? `&${encoded}` : `?${encoded}`;
+}
+
+function writeUneditableLink(state: HtmlAreaLinkDialogState, ckeDialog: CKEDITOR.dialog): void {
+    getOriginalLinkTypeElem(ckeDialog).setValue('url', false);
+    getOriginalProtocolElem(ckeDialog).setValue('', false);
+    getOriginalUrlElem(ckeDialog).setValue(state.uneditableLink, false);
+    const target = state.mediaOption !== 'download' && state.contentTarget ? '_blank' : '';
+    getOriginalTargetElem(ckeDialog).setValue(target, false);
 }
 
 function writeContentLink(state: HtmlAreaLinkDialogState, ckeDialog: CKEDITOR.dialog): void {
@@ -611,6 +623,7 @@ export function HtmlAreaLinkDialogProvider({ children, openRef }: HtmlAreaLinkDi
             state.linkTextEditable,
             state.activeTab,
             state.selectedContentId,
+            state.uneditableLink,
             state.queryParams,
             state.urlValue,
             state.urlProtocol,
@@ -697,7 +710,8 @@ export function HtmlAreaLinkDialogProvider({ children, openRef }: HtmlAreaLinkDi
 
         switch (s.activeTab) {
             case 'content':
-                writeContentLink(s, ckeDialog);
+                if (s.uneditableLink) writeUneditableLink(s, ckeDialog);
+                else writeContentLink(s, ckeDialog);
                 break;
             case 'url':
                 writeUrlLink(s, ckeDialog);

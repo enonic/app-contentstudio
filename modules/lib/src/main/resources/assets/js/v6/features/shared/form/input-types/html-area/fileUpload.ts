@@ -48,8 +48,8 @@ export function setupFileUpload(
         const fileLoader = evt.data.fileLoader;
         const contentSummary = getContentSummary();
 
-        if (!contentSummary) {
-            // Stop CKEditor's default handler, which would otherwise send the file without a parent
+        if (!contentSummary || !project) {
+            // Stop CKEditor's default handler, which would otherwise send the file without a parent or to the active project
             evt.editor.document.findOne('.cke_widget_uploadimage')?.remove();
             evt.stop();
             return;
@@ -58,7 +58,7 @@ export function setupFileUpload(
         const parentPath = contentSummary.getPath();
         const contentPathAsString = ContentPath.create().fromParent(parentPath, fileLoader.fileName).build().toString();
 
-        void contentExistsByPath(contentPathAsString).match((exists) => {
+        void contentExistsByPath(contentPathAsString, project.getName()).match((exists) => {
             if (exists) {
                 NotifyManager.get().showWarning(i18n('notify.fileExists', fileLoader.fileName));
                 evt.editor.document.findOne('.cke_widget_uploadimage')?.remove();
@@ -94,7 +94,7 @@ export function setupFileUpload(
 
             const imgUrl = buildImagePreviewUrl({
                 contentId: mediaContent.id,
-                projectName: project?.getName(),
+                projectName: project.getName(),
                 scaleWidth: true,
             });
 

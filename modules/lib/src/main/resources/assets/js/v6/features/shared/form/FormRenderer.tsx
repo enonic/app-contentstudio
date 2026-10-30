@@ -5,15 +5,13 @@ import type { PropertySet } from '@enonic/input-types/data';
 import type { Form } from '@enonic/input-types/schema';
 import { useStore } from '@nanostores/preact';
 import type { ReactElement, ReactNode } from 'react';
-import type { ContentSummary } from '../../../../app/content/ContentSummary';
-import { $contextContent } from '../../../entities/content';
-import { $activeProject } from '../../../entities/project';
 import { $config } from '../../../shared/config/config.store';
 import { FormI18nProvider } from '../../../shared/ui/providers/FormI18nProvider';
 import { useApplicationKeys } from '../hooks/useApplicationKeys';
+import { type FormScope, FormScopeProvider, useFormScope } from './FormScopeContext';
 import { HtmlAreaProvider, useOptionalHtmlAreaContext } from './input-types/html-area';
 
-type FormRendererProps = {
+type FormRendererOwnProps = {
     form: Form;
     propertySet: PropertySet;
     enabled?: boolean;
@@ -22,18 +20,45 @@ type FormRendererProps = {
     revealFreshOccurrences?: boolean;
 };
 
+type FormRendererProps = FormScope & FormRendererOwnProps;
+
 const notifyWarning = (message: string): void => {
     showWarning(message, true);
 };
 
 /**
- * The toolkit's form with what Content Studio wraps around it: its phrases, the content's
- * language, and the HTML area's context. A nested form reuses the HTML area context above it
- * and still gets the phrases and the language, as the context may come from outside a form.
+ * The toolkit's form with what Content Studio wraps around it: its scope (project and
+ * content), its phrases, the language, and what its HTML areas share (the app keys and
+ * the assets). A nested form reuses the scope and the HTML area context above it unless
+ * it sets its own scope, and still gets the phrases and the language, as the context may
+ * come from outside a form.
  */
-export const FormRenderer = ({ applicationKey, ...props }: FormRendererProps): ReactElement => {
-    const contextContent = useStore($contextContent);
+export const FormRenderer = ({ project, content, ...props }: FormRendererProps): ReactElement => {
+    const ownScope = project !== undefined || content !== undefined;
+
+    return (
+        <FormScopeProvider project={project} content={content}>
+            <ScopedForm {...props} ownScope={ownScope} />
+        </FormScopeProvider>
+    );
+};
+
+FormRenderer.displayName = 'FormRenderer';
+
+//
+// * ScopedForm
+//
+
+type ScopedFormProps = FormRendererOwnProps & {
+    ownScope: boolean;
+};
+
+const ScopedForm = ({ applicationKey, ownScope, ...props }: ScopedFormProps): ReactElement => {
+    const { project, content } = useFormScope();
     const existingHtmlAreaContext = useOptionalHtmlAreaContext();
+    // A content without a language gets none, not the project's.
+    const language = content ? content.getLanguage() : project?.getLanguage();
+    const reuseHtmlAreaContext = existingHtmlAreaContext !== undefined && !ownScope;
 
     const renderedForm = (
         <ToolkitFormRenderer {...props} applicationKey={applicationKey?.toString()} notify={notifyWarning} />
@@ -41,41 +66,30 @@ export const FormRenderer = ({ applicationKey, ...props }: FormRendererProps): R
 
     return (
         <FormI18nProvider>
-            <LocaleProvider locale={contextContent?.getLanguage()}>
-                {existingHtmlAreaContext ? (
-                    renderedForm
-                ) : (
-                    <HtmlAreaShell contextContent={contextContent}>{renderedForm}</HtmlAreaShell>
-                )}
+            <LocaleProvider locale={language}>
+                {reuseHtmlAreaContext ? renderedForm : <HtmlAreaShell>{renderedForm}</HtmlAreaShell>}
             </LocaleProvider>
         </FormI18nProvider>
     );
 };
 
-FormRenderer.displayName = 'FormRenderer';
+ScopedForm.displayName = 'ScopedForm';
 
 //
 // * HtmlAreaShell
 //
 
 type HtmlAreaShellProps = {
-    contextContent: ContentSummary | null;
     children: ReactNode;
 };
 
-// Mounts only when no HtmlAreaProvider exists above, so a nested form does not pay for its subscriptions.
-const HtmlAreaShell = ({ contextContent, children }: HtmlAreaShellProps): ReactElement => {
-    const activeProject = useStore($activeProject);
+// The app keys and the assets every HTML area in the form shares.
+const HtmlAreaShell = ({ children }: HtmlAreaShellProps): ReactElement => {
     const { assetsUri } = useStore($config, { keys: ['assetsUri'] });
     const applicationKeys = useApplicationKeys();
 
     return (
-        <HtmlAreaProvider
-            contentSummary={contextContent ?? undefined}
-            project={activeProject}
-            applicationKeys={applicationKeys}
-            assetsUri={assetsUri}
-        >
+        <HtmlAreaProvider applicationKeys={applicationKeys} assetsUri={assetsUri}>
             {children}
         </HtmlAreaProvider>
     );

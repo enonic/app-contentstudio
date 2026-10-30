@@ -6,6 +6,8 @@ import type { ContentSummary } from '../../../../../app/content/ContentSummary';
  * fields of the content selector and tree selector endpoints.
  */
 export type ContentFilterOptions = {
+    /** Project to query; defaults to the active project. */
+    projectName?: string;
     /** Context content; contributes the contentId of the selector query. */
     contextContent?: ContentSummary;
     /** Content types to filter by (e.g., ['app:article', 'media:image']). */

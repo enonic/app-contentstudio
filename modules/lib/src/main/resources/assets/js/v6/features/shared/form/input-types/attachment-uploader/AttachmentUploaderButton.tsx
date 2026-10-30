@@ -20,7 +20,8 @@ export const AttachmentUploaderButton = ({
         <Button
             onClick={onClick}
             variant="outline"
-            className={cn((disabled || progress > 0) && 'pointer-events-none', 'relative text-sm')}
+            disabled={disabled}
+            className={cn(progress > 0 && 'pointer-events-none', 'relative text-sm')}
         >
             {progress > 0 && (
                 <div

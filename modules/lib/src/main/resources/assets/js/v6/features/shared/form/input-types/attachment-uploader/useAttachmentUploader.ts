@@ -19,7 +19,7 @@ import {
 } from '../../../../../entities/content/model/uploads.store';
 import { clearAttachmentServerError } from '../../../../../pages/wizard/model/wizardValidation.store';
 import { listenKeys } from 'nanostores';
-import { $contextContent } from '../../../../../entities/content';
+import { useFormScope } from '../../FormScopeContext';
 import { $wizardDraftPage } from '../../../../../pages/wizard/model/wizardContent.store';
 import { isAttachmentInUse } from '../../../../../shared/lib/page/isAttachmentInUse';
 import { ContentRequiresSaveEvent } from '../../../../../../app/event/ContentRequiresSaveEvent';
@@ -55,18 +55,15 @@ export const useAttachmentUploader = ({
     occurrences,
     inputName,
 }: UseAttachmentUploaderOptions) => {
+    const { project, content } = useFormScope();
     const [progress, setProgress] = useState<number>(0);
     const [uploads, setUploads] = useState<UploadingItem[]>([]);
-    const [contentId, setContentId] = useState<string>();
+    const contentId = content?.getId();
+    const projectName = project?.getName();
     const highestProgress = useRef<number>(0);
     const uploadIds = useMemo(() => uploads.map((item) => item.id), [uploads]);
     const isUploading = useMemo(() => uploads.length > 0, [uploads]);
     const isMultiple = occurrences.getMaximum() !== 1;
-
-    // Get content ID from context content
-    useEffect(() => {
-        setContentId($contextContent.get()?.getId());
-    }, []);
 
     // Progress tracking (all attachments)
     useEffect(() => {
@@ -129,6 +126,7 @@ export const useAttachmentUploader = ({
                         id: uploadId,
                         file,
                         contentId,
+                        projectName,
                         onProgress: (id, progress) => {
                             updateUploadProgress(id, progress);
                             setUploads((prev) => prev.map((item) => (item.id === id ? { ...item, progress } : item)));
@@ -157,7 +155,7 @@ export const useAttachmentUploader = ({
                 fireContentRequiresSaveEvent(contentId);
             });
         },
-        [occurrences, values.length, uploads.length, onAdd, contentId],
+        [occurrences, values.length, uploads.length, onAdd, contentId, projectName],
     );
 
     const handleRemove = useCallback(
@@ -175,7 +173,7 @@ export const useAttachmentUploader = ({
                 return;
             }
 
-            const result = await deleteAttachment({ contentId, attachmentNames: [attachmentName] });
+            const result = await deleteAttachment({ contentId, attachmentNames: [attachmentName], projectName });
 
             result.match(
                 () => {
@@ -188,10 +186,10 @@ export const useAttachmentUploader = ({
                 },
             );
         },
-        [values, onRemove, contentId, inputName],
+        [values, onRemove, contentId, projectName, inputName],
     );
 
-    return { progress, canUpload, isUploading, isMultiple, contentId, handleFiles, handleRemove };
+    return { progress, canUpload, isUploading, isMultiple, contentId, projectName, handleFiles, handleRemove };
 };
 
 // Utilities

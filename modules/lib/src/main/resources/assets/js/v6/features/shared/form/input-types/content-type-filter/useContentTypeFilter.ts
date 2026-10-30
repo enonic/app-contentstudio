@@ -8,8 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Site } from '../../../../../../app/content/Site';
 import { fetchNearestSite } from '../../../../../entities/content';
 import { fetchAllContentTypes, fetchContentTypesByContent } from '../../../../../entities/schema/api/contentTypes.api';
-import { $contextContent } from '../../../../../entities/content';
-import { $activeProject } from '../../../../../entities/project';
+import { useFormScope } from '../../FormScopeContext';
 import { $contentType } from '../../../../../pages/wizard/model/wizardContent.store';
 import type { ContentTypeFilterConfig } from './ContentTypeFilterConfig';
 
@@ -32,10 +31,12 @@ export const useContentTypeFilter = ({ config, selection, query, onAdd, onRemove
     const [isLoading, setIsLoading] = useState(false);
     const [hasError, setHasError] = useState(false);
 
-    // Stores
-    const contextContent = useStore($contextContent);
+    const { project, content: contextContent } = useFormScope();
     const contentType = useStore($contentType);
-    const project = useStore($activeProject);
+
+    // Page templates and `context` mode list the types of the content's site; the rest is global.
+    const isPageTemplate = Boolean(contentType?.getContentTypeName()?.isPageTemplate());
+    const requiresContent = isPageTemplate || Boolean(config.context);
 
     // Memoized values
     const filteredContentTypes = useMemo(
@@ -45,18 +46,17 @@ export const useContentTypeFilter = ({ config, selection, query, onAdd, onRemove
 
     const fetchContentTypes = useCallback(async () => {
         const contentId = contextContent?.getContentId();
-        const isPageTemplate = contentType?.getContentTypeName()?.isPageTemplate();
 
-        if (!contentId || !project) return okAsync<ContentTypeSummary[], Error>([]);
+        if (!project || (requiresContent && !contentId)) return okAsync<ContentTypeSummary[], Error>([]);
 
         if (isPageTemplate) {
-            return ResultAsync.combine([fetchAllContentTypes(), fetchNearestSite(contentId)])
+            return ResultAsync.combine([fetchAllContentTypes(), fetchNearestSite(contentId, project.getName())])
                 .map(([types, site]) => (site ? filterForPageTemplate(types, site) : types).sort(sortByDisplayName))
                 .mapErr((error) => new Error(`Error fetching content types for page template. ${error.message}`));
         }
 
         if (config.context) {
-            return fetchContentTypesByContent(contentId)
+            return fetchContentTypesByContent(contentId, project.getName())
                 .map((types) => types.sort(sortByDisplayName))
                 .mapErr((error) => new Error(`Error fetching content types of content. ${error.message}`));
         }
@@ -64,7 +64,7 @@ export const useContentTypeFilter = ({ config, selection, query, onAdd, onRemove
         return fetchAllContentTypes()
             .map((types) => types.sort(sortByDisplayName))
             .mapErr((error) => new Error(`Error fetching all content types. ${error.message}`));
-    }, [config, contextContent, contentType, project]);
+    }, [config, contextContent, isPageTemplate, requiresContent, project]);
 
     // Fetch content types on mount.
     useEffect(() => {
@@ -108,7 +108,7 @@ export const useContentTypeFilter = ({ config, selection, query, onAdd, onRemove
         [selection, onAdd, onRemove],
     );
 
-    return { allContentTypes, filteredContentTypes, isLoading, hasError, onSelectionChange };
+    return { requiresContent, allContentTypes, filteredContentTypes, isLoading, hasError, onSelectionChange };
 };
 
 //

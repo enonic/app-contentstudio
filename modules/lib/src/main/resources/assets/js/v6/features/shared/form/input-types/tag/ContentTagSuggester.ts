@@ -16,6 +16,8 @@ export type SuggestContentTagsParams = {
     dataPath: PropertyPath;
     content: ContentSummary | null;
     config: TagConfig;
+    /** Project to search in; defaults to the active project. */
+    projectName?: string;
 };
 
 export function buildTagQueryField(dataPath: PropertyPath): string {
@@ -35,12 +37,12 @@ function shouldPrecheckNearestSite(config: TagConfig): boolean {
     return !config.allowPathConfigured && isDefaultSiteScope(config);
 }
 
-async function hasNearestSite(content: ContentSummary | null): Promise<boolean> {
+async function hasNearestSite(content: ContentSummary | null, projectName?: string): Promise<boolean> {
     if (content == null) {
         return false;
     }
 
-    return fetchNearestSite(content.getContentId()).match(
+    return fetchNearestSite(content.getContentId(), projectName).match(
         (site) => site != null,
         () => false,
     );
@@ -103,23 +105,27 @@ export async function suggestContentTags({
     dataPath,
     content,
     config,
+    projectName,
 }: SuggestContentTagsParams): Promise<string[]> {
     const normalizedQuery = query.trim();
     if (normalizedQuery.length === 0) {
         return [];
     }
 
-    if (shouldPrecheckNearestSite(config) && !(await hasNearestSite(content))) {
+    if (shouldPrecheckNearestSite(config) && !(await hasNearestSite(content, projectName))) {
         return [];
     }
 
-    const result = await contentFullSelectorQuery({
-        from: 0,
-        size: TAG_SUGGESTION_LIMIT,
-        contentId: content?.getContentId().toString(),
-        allowedContentPaths: config.allowPath,
-        queryExpr: buildTagQueryExpr(normalizedQuery, dataPath),
-    });
+    const result = await contentFullSelectorQuery(
+        {
+            from: 0,
+            size: TAG_SUGGESTION_LIMIT,
+            contentId: content?.getContentId().toString(),
+            allowedContentPaths: config.allowPath,
+            queryExpr: buildTagQueryExpr(normalizedQuery, dataPath),
+        },
+        projectName,
+    );
 
     // Tag autocomplete is best-effort: a failed query yields no suggestions,
     // matching the legacy request's error-swallowing send().

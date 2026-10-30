@@ -1,10 +1,8 @@
 import { IconButton, Input, Tooltip } from '@enonic/ui';
-import { useStore } from '@nanostores/preact';
 import { PenIcon, XIcon } from 'lucide-react';
 import { type ReactElement, useCallback, useMemo } from 'react';
 import { EditContentEvent } from '../../../../../app/event/EditContentEvent';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
-import { $activeProject } from '../../../../entities/project';
 import { ImageSelector } from '../../../shared/selectors/image';
 import { useHtmlAreaImageDialogContext } from './HtmlAreaImageDialogContext';
 import { ImageAccessibilityField } from './ImageAccessibilityField';
@@ -14,7 +12,7 @@ import { ImageUploadZone } from './ImageUploadZone';
 
 export const HtmlAreaImageDialogContent = (): ReactElement => {
     const {
-        state: { selectedImageId, selectedImageContent, caption },
+        state: { selectedImageId, selectedImageContent, caption, project, parentContent },
         deselectImage,
         selectImageById,
         setCaption,
@@ -39,13 +37,11 @@ export const HtmlAreaImageDialogContent = (): ReactElement => {
         [selectImageById, deselectImage],
     );
 
-    const activeProject = useStore($activeProject);
-
     const handleEdit = useCallback(() => {
         if (selectedImageContent) {
-            new EditContentEvent([selectedImageContent], activeProject?.getName()).fire();
+            new EditContentEvent([selectedImageContent], project?.getName()).fire();
         }
-    }, [selectedImageContent, activeProject]);
+    }, [selectedImageContent, project]);
 
     return (
         <div className="flex flex-col gap-5">
@@ -57,9 +53,10 @@ export const HtmlAreaImageDialogContent = (): ReactElement => {
                         selectionMode="single"
                         listMode="flat"
                         label={imageLabel}
+                        disabled={!project}
                         withUpload
                     />
-                    <ImageUploadZone />
+                    {project && parentContent && <ImageUploadZone />}
                 </>
             )}
 

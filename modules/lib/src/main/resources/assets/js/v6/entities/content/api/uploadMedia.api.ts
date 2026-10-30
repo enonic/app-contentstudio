@@ -16,6 +16,8 @@ export type UploadMediaFileOptions = {
     id: string;
     file: File;
     parentContent?: ContentSummary;
+    /** Project to upload into; defaults to the active project. */
+    projectName?: string;
     onProgress?: (id: string, progress: number) => void;
 };
 
@@ -30,6 +32,8 @@ export type UpdateMediaFileOptions = {
     id: string;
     file: File;
     contentId: string;
+    /** Project the content lives in; defaults to the active project. */
+    projectName?: string;
     onProgress?: (id: string, progress: number) => void;
 };
 
@@ -38,6 +42,7 @@ export function uploadMediaFile({
     id,
     file,
     parentContent,
+    projectName,
     onProgress,
 }: UploadMediaFileOptions): ResultAsync<UploadMediaSuccess, UploadError> {
     const formData = new FormData();
@@ -45,7 +50,7 @@ export function uploadMediaFile({
     formData.append('name', sanitizeName(file.name));
     formData.append('parent', getParentPath(parentContent));
 
-    return requestUploadJson<ContentJson>(getCmsApiUrl('createMedia'), {
+    return requestUploadJson<ContentJson>(getCmsApiUrl('createMedia', projectName), {
         formData,
         onProgress: (progress) => onProgress?.(id, progress),
     })
@@ -81,6 +86,7 @@ export function updateMediaFile({
     id,
     file,
     contentId,
+    projectName,
     onProgress,
 }: UpdateMediaFileOptions): ResultAsync<UploadMediaSuccess, UploadError> {
     const formData = new FormData();
@@ -88,7 +94,7 @@ export function updateMediaFile({
     formData.append('name', sanitizeName(file.name));
     formData.append('content', contentId);
 
-    return requestUploadJson<ContentJson>(getCmsApiUrl('updateMedia'), {
+    return requestUploadJson<ContentJson>(getCmsApiUrl('updateMedia', projectName), {
         formData,
         onProgress: (progress) => onProgress?.(id, progress),
     })

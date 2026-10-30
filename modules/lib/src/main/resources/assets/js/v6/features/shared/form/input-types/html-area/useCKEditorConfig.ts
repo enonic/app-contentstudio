@@ -235,7 +235,7 @@ export function useCKEditorConfig(params: UseCKEditorConfigParams): UseCKEditorC
     const { config, editorId, assetsUri, contentSummary, project, editableSourceCode } = params;
     const loaded = useCKEditorLoaded(assetsUri);
 
-    // Async: fetch custom styles CSS paths (depends only on content).
+    // Async: fetch custom styles CSS paths (depends only on the content and its project).
     const [cssPaths, setCssPaths] = useState<string[] | undefined>(undefined);
 
     useEffect(() => {
@@ -246,7 +246,7 @@ export function useCKEditorConfig(params: UseCKEditorConfigParams): UseCKEditorC
             return;
         }
 
-        void fetchStyles(contentSummary.getId()).match(
+        void fetchStyles(contentSummary.getId(), project?.getName()).match(
             () => {
                 if (!cancelled) {
                     setCssPaths(Styles.getCssPaths(contentSummary.getId()));
@@ -262,7 +262,7 @@ export function useCKEditorConfig(params: UseCKEditorConfigParams): UseCKEditorC
         return () => {
             cancelled = true;
         };
-    }, [contentSummary]);
+    }, [contentSummary, project]);
 
     // Sync: build config as soon as CKEditor and all inputs are available.
     // useMemo ensures the config updates in the same render when

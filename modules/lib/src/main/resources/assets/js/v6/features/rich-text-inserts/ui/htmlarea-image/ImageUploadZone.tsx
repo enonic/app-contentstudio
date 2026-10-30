@@ -7,7 +7,7 @@ import { DropZone } from '../../../../shared/ui/DropZone';
 
 export const ImageUploadZone = (): ReactElement => {
     const {
-        state: { uploading, uploadProgress, uploadError, parentContent },
+        state: { uploading, uploadProgress, uploadError, parentContent, project },
         selectImage,
         setUploadState,
     } = useHtmlAreaImageDialogContext();
@@ -30,6 +30,7 @@ export const ImageUploadZone = (): ReactElement => {
                 id,
                 file,
                 parentContent: parentContent ?? undefined,
+                projectName: project?.getName(),
                 onProgress: (_id, progress) => {
                     setUploadState(true, progress, undefined);
                 },
@@ -43,7 +44,7 @@ export const ImageUploadZone = (): ReactElement => {
                 },
             );
         },
-        [parentContent, selectImage, setUploadState],
+        [parentContent, project, selectImage, setUploadState],
     );
 
     if (uploading) {

@@ -10,6 +10,8 @@ import { ContentSelectionItem } from './ContentSelectionItem';
 //
 
 export type ContentSelectionProps = {
+    /** Project the selected content lives in; defaults to the active project */
+    projectName?: string;
     /** IDs of selected content items */
     selection: readonly string[];
     /** Callback when selection changes (item removed) */
@@ -67,6 +69,7 @@ export const ContentSelection = ({
     selection,
     onSelectionChange,
     disabled = false,
+    projectName,
     className,
 }: ContentSelectionProps): ReactElement | null => {
     const [loadedItems, setLoadedItems] = useState<ContentSummary[]>([]);
@@ -83,7 +86,7 @@ export const ContentSelection = ({
         }
 
         setLoading(true);
-        fetchContentByIds([...selection])
+        fetchContentByIds([...selection], projectName)
             .then((items) => {
                 if (requestId !== requestIdRef.current) return;
                 // Preserve selection order; use a pathless stub for ids not found (deleted/missing)
@@ -94,7 +97,7 @@ export const ContentSelection = ({
             .finally(() => {
                 if (requestId === requestIdRef.current) setLoading(false);
             });
-    }, [selection]);
+    }, [selection, projectName]);
 
     const handleRemove = useCallback(
         (id: string) => {

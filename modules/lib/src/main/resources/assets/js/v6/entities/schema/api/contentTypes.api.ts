@@ -24,8 +24,11 @@ export function fetchAllContentTypes(): ResultAsync<ContentTypeSummary[], AppErr
  * Fetch the content types available for the given content (project-scoped).
  * Used by: features/shared/form/input-types/content-type-filter/useContentTypeFilter.
  */
-export function fetchContentTypesByContent(contentId: ContentId): ResultAsync<ContentTypeSummary[], AppError> {
-    const url = `${getCmsProjectUrl('content/schema/content/byContent')}?contentId=${encodeURIComponent(contentId.toString())}`;
+export function fetchContentTypesByContent(
+    contentId: ContentId,
+    projectName?: string,
+): ResultAsync<ContentTypeSummary[], AppError> {
+    const url = `${getCmsProjectUrl('content/schema/content/byContent', projectName)}?contentId=${encodeURIComponent(contentId.toString())}`;
 
     return requestJson<ContentTypesResponse>(url).map((response) =>
         response.contentTypes.map((json) => ContentTypeSummary.fromJson(json)),
