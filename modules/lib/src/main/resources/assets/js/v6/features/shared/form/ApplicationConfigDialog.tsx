@@ -12,10 +12,12 @@ import { ConfirmationDialog } from '../../../shared/ui/dialogs/ConfirmationDialo
 import { ApplicationIcon } from '../../../shared/ui/icons/ApplicationIcon';
 import { $isHtmlAreaModalDialogOpen, $isHtmlAreaOverlayOpen } from '../../rich-text-inserts/model/htmlAreaModal.store';
 import { FormRenderer } from './FormRenderer';
+import type { FormScope } from './FormScopeContext';
 
 const COMPONENT_NAME = 'ApplicationConfigDialog';
 
-export type ApplicationConfigDialogProps = {
+/** `project` and `content` scope the form; a key left out falls back to the stores. */
+export type ApplicationConfigDialogProps = FormScope & {
     /** The application whose config form is edited. The key is the fallback title when it is unknown. */
     application: Application | undefined;
     applicationKey: string;
@@ -41,6 +43,8 @@ export const ApplicationConfigDialog = ({
     configSet,
     enabled,
     stacked = false,
+    project,
+    content,
     onApply,
     onClose,
 }: ApplicationConfigDialogProps): ReactElement => {
@@ -114,7 +118,14 @@ export const ApplicationConfigDialog = ({
                         </Dialog.Header>
 
                         <Dialog.Body className="p-2 -m-2">
-                            <FormRenderer form={form} propertySet={configSet} enabled={enabled} applicationKey={key} />
+                            <FormRenderer
+                                form={form}
+                                propertySet={configSet}
+                                enabled={enabled}
+                                applicationKey={key}
+                                project={project}
+                                content={content}
+                            />
                         </Dialog.Body>
 
                         <Dialog.Footer>
