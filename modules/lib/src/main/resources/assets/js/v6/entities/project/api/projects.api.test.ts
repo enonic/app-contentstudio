@@ -10,6 +10,7 @@ import {
     createProject,
     deleteProject,
     listProjects,
+    syncProjects,
     updateProject,
     updateProjectPermissions,
     updateProjectReadAccess,
@@ -165,6 +166,29 @@ describe('updateProjectReadAccess', () => {
         expect(JSON.parse(init.body)).toEqual({ name: 'p-1', readAccess: { type: 'public' } });
         expect(result.isOk()).toBe(true);
         expect(result._unsafeUnwrap().toString()).toBe('t-ra');
+    });
+});
+
+describe('syncProjects', () => {
+    it('should POST to the syncAll endpoint and parse the task id', async () => {
+        mockFetch.mockResolvedValue(jsonResponse({ taskId: 't-sync' }));
+
+        const result = await syncProjects();
+
+        const [url, init] = mockFetch.mock.calls[0];
+        expect(url).toContain('/rest-v2/cs/project/syncAll');
+        expect(init.method).toBe('POST');
+        expect(result.isOk()).toBe(true);
+        expect(result._unsafeUnwrap().toString()).toBe('t-sync');
+    });
+
+    it('should err on a failed response', async () => {
+        mockFetch.mockResolvedValue(errorResponse(500));
+
+        const result = await syncProjects();
+
+        expect(result.isErr()).toBe(true);
+        expect(result._unsafeUnwrapErr()).toBeInstanceOf(AppError);
     });
 });
 
