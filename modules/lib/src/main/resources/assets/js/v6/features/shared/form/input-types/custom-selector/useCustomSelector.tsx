@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Branch } from '../../../../../../app/versioning/Branch';
 import { UrlAction } from '../../../../../../app/UrlAction';
+import { RepositoryId } from '../../../../../../app/repository/RepositoryId';
 import { useFormScope } from '../../FormScopeContext';
 import { type CustomSelectorConfig } from './CustomSelectorConfig';
 import { type CustomSelectorItem } from './CustomSelectorInput';
@@ -320,7 +321,12 @@ function buildRequestUrl({
     if (extension) {
         const extensionBaseUrl = $config.get().extensionApiUrl.replace(/\/+$/, '');
         const extensionPrefix = `${extensionBaseUrl}/${extension}/`;
-        url = appendUrlParams(extensionPrefix, params);
+        url = appendUrlParams(extensionPrefix, {
+            ...params,
+            contentId,
+            repository: `${RepositoryId.CONTENT_REPO_PREFIX}${projectId}`,
+            branch: Branch.DRAFT,
+        });
     } else if (service) {
         const servicePrefix = getServiceBaseUrl(projectId, contentId);
         url = `${servicePrefix}/${appendUrlParams(service, params)}`;
