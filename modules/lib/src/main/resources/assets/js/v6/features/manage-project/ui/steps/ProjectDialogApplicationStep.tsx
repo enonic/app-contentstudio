@@ -7,6 +7,7 @@ import {
     $projectDialog,
     $projectDialogConfigScope,
     $projectDialogInheritedAppKeys,
+    getProjectDialogApplicationConfig,
     moveProjectDialogApplication,
     selectProjectDialogApplications,
     setProjectDialogApplicationConfig,
@@ -52,9 +53,7 @@ export const ProjectDialogApplicationStepContent = ({
     applicationInputRef,
 }: ProjectDialogApplicationStepContentProps): ReactElement => {
     // Hooks
-    const { applications, applicationConfigs } = useStore($projectDialog, {
-        keys: ['applications', 'applicationConfigs'],
-    });
+    const { applications } = useStore($projectDialog, { keys: ['applications'] });
     const inheritedKeys = useStore($projectDialogInheritedAppKeys);
     const configScope = useStore($projectDialogConfigScope);
     // Stable while the list is, so the selector does not see a new selection on every render.
@@ -73,13 +72,10 @@ export const ProjectDialogApplicationStepContent = ({
 
     // Handlers
     // The dialog edits a clone; the store gets it only on apply.
-    const handleEdit = useCallback(
-        (key: string): void => {
-            const json = applicationConfigs[key]?.toJson() ?? [];
-            setEditing({ appKey: key, configSet: PropertyTree.fromJson(json).getRoot() });
-        },
-        [applicationConfigs],
-    );
+    const handleEdit = useCallback((key: string): void => {
+        const json = getProjectDialogApplicationConfig(key)?.toJson() ?? [];
+        setEditing({ appKey: key, configSet: PropertyTree.fromJson(json).getRoot() });
+    }, []);
 
     const handleApplyConfig = useCallback((): void => {
         if (!editing) return;
