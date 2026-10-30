@@ -128,18 +128,18 @@ export const ContentSelectorInputAddButton = ({
             project: $activeProject.get(),
         }).catch((error) => {
             console.error(error);
-            return [];
+            return undefined;
         });
 
         setIsLoadingTypes(false);
         isWaitingForContentCreationRef.current = true;
 
-        if (types.length === 1 && !types[0].getContentTypeName().isDescendantOfMedia()) {
+        if (types?.length === 1 && !types[0].getContentTypeName().isDescendantOfMedia()) {
             new NewContentEvent(types[0], contextContent).fire();
             return;
         }
 
-        openNewContentDialog(contextContent, allowedContentTypes);
+        openNewContentDialog(contextContent, { allowedContentTypes, contentTypes: types });
     };
 
     // New content needs a parent; without one in scope there is nothing to add to.
