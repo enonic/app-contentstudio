@@ -2,7 +2,8 @@ import { type PropertySet, PropertyTree } from '@enonic/input-types/data';
 import { Dialog, IconButton, ListItem } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { Pencil, X } from 'lucide-react';
-import { ReactElement, type RefObject, useCallback, useMemo, useState } from 'react';
+import { listenKeys } from 'nanostores';
+import { ReactElement, type RefObject, useCallback, useMemo, useState, useSyncExternalStore } from 'react';
 import {
     $projectDialog,
     $projectDialogConfigScope,
@@ -19,6 +20,10 @@ import { ApplicationIcon } from '../../../../shared/ui/icons/ApplicationIcon';
 import { ApplicationSelector } from '../../../shared/selectors/ApplicationSelector';
 import { SortableGridList } from '@enonic/input-types';
 import { ApplicationConfigDialog } from '../../../shared/form';
+
+const subscribeToApplications = (onChange: () => void): (() => void) =>
+    listenKeys($projectDialog, ['applications'], onChange);
+const getApplications = () => $projectDialog.get().applications;
 
 export const ProjectDialogApplicationStepHeader = (): ReactElement => {
     const { mode, title } = useStore($projectDialog, { keys: ['mode', 'title'] });
@@ -53,10 +58,9 @@ export const ProjectDialogApplicationStepContent = ({
     applicationInputRef,
 }: ProjectDialogApplicationStepContentProps): ReactElement => {
     // Hooks
-    const { applications } = useStore($projectDialog, { keys: ['applications'] });
+    const applications = useSyncExternalStore(subscribeToApplications, getApplications);
     const inheritedKeys = useStore($projectDialogInheritedAppKeys);
     const configScope = useStore($projectDialogConfigScope);
-    // Stable while the list is, so the selector does not see a new selection on every render.
     const selection = useMemo(() => applications.map((app) => app.getApplicationKey().toString()), [applications]);
 
     // Constants

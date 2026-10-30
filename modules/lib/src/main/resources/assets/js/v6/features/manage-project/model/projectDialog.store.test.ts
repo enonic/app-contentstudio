@@ -84,6 +84,7 @@ import {
     openEditProjectDialog,
     selectProjectDialogApplications,
     setProjectDialogApplicationConfig,
+    setProjectDialogName,
     setProjectDialogParentProjects,
     unselectProjectDialogApplication,
     updateProject,
@@ -131,6 +132,10 @@ function createProject(name: string, siteConfigs: ApplicationConfig[]): Project 
 const configOf = (key: string) => getProjectDialogApplicationConfig(key);
 const ownConfigOf = (key: string) => $projectDialog.get().applicationConfigs[key];
 const listedKeys = () => $projectDialog.get().applications.map((app) => app.getApplicationKey().toString());
+const sentConfigs = (mock: typeof mockUpdateProject): ApplicationConfig[] =>
+    (mock.mock.calls[0][0] as { applicationConfigs: ApplicationConfig[] }).applicationConfigs;
+const rename = (): void =>
+    setProjectDialogName({ name: 'renamed', identifier: 'layer', description: '', hasError: false });
 
 describe('projectDialog.store application configs', () => {
     beforeAll(() => {
@@ -456,6 +461,63 @@ describe('projectDialog.store application configs', () => {
             await updateProject();
 
             expect(mockUpdateProject).not.toHaveBeenCalled();
+        });
+
+        it('should send the inherited config of a listed app', async () => {
+            mockUpdateProject.mockReturnValue(okAsync({}));
+            const parent = createProject('parent', [createSiteConfig('app:b', { color: 'blue' })]);
+            await openEditProjectDialog(createProject('layer', []), [parent]);
+
+            rename();
+            await updateProject();
+
+            const configs = sentConfigs(mockUpdateProject);
+            expect(configs.map((c) => c.getApplicationKey().toString())).toEqual(['app:b']);
+            expect(configs[0].getConfig().getString('color')).toBe('blue');
+        });
+    });
+
+    describe('preserved configs', () => {
+        const projectWithUnlisted = () =>
+            createProject('layer', [
+                createSiteConfig('portal', { baseUrl: '/site' }),
+                createSiteConfig('app:b', { color: 'red' }),
+                createSiteConfig('app:gone', { k: 'v' }),
+            ]);
+
+        it('should list only the installed apps and open clean', async () => {
+            await openEditProjectDialog(projectWithUnlisted(), []);
+
+            expect(listedKeys()).toEqual(['app:b']);
+            expect($projectDialog.get().preservedSiteConfigs.map((c) => c.getApplicationKey().toString())).toEqual([
+                'portal',
+                'app:gone',
+            ]);
+            expect($isProjectDialogDirty.get()).toBe(false);
+        });
+
+        it('should send the portal and uninstalled configs back unchanged, around the listed apps', async () => {
+            mockUpdateProject.mockReturnValue(okAsync({}));
+            await openEditProjectDialog(projectWithUnlisted(), []);
+
+            rename();
+            await updateProject();
+
+            const configs = sentConfigs(mockUpdateProject);
+            expect(configs.map((c) => c.getApplicationKey().toString())).toEqual(['portal', 'app:b', 'app:gone']);
+            expect(configs[0].getConfig().getString('baseUrl')).toBe('/site');
+            expect(configs[1].getConfig().getString('color')).toBe('red');
+            expect(configs[2].getConfig().getString('k')).toBe('v');
+        });
+
+        it('should preserve nothing on create', async () => {
+            mockCreateProject.mockReturnValue(okAsync(createProject('layer', [])));
+            mockUpdateProjectPermissions.mockReturnValue(okAsync({}));
+            await openCreateProjectDialog([]);
+
+            await createProjectAction();
+
+            expect(sentConfigs(mockCreateProject)).toEqual([]);
         });
     });
 });
