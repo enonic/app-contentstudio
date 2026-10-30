@@ -7,31 +7,25 @@ import { type PropertySet } from '@enonic/input-types/data';
 import { PropertyTree } from '@enonic/input-types/data';
 import { Value } from '@enonic/input-types/data';
 import { ValueTypes } from '@enonic/input-types/data';
-import { type Form } from '@enonic/input-types/schema';
 import type { SelfManagedComponentProps } from '@enonic/input-types';
-import { FieldError, getFirstError, useInputTypesPhrases, validateForm } from '@enonic/input-types';
+import { FieldError, getFirstError, useInputTypesPhrases } from '@enonic/input-types';
 import { type SortableGridListItemContext, SortableGridList } from '@enonic/input-types';
-import { Button, cn, Dialog, IconButton } from '@enonic/ui';
+import { IconButton } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { Pencil, X } from 'lucide-react';
 import type { ReactElement } from 'react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ContentId } from '../../../../../../app/content/ContentId';
 import { ContentRequiresSaveEvent } from '../../../../../../app/event/ContentRequiresSaveEvent';
 import { ProjectHelper } from '../../../../../../app/settings/data/project/ProjectHelper';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { $applications, loadApplications, reloadApplications } from '../../../../../entities/application';
 import { useFormScope, useFormScopeRequirement } from '../../FormScopeContext';
-import {
-    $isHtmlAreaModalDialogOpen,
-    $isHtmlAreaOverlayOpen,
-} from '../../../../rich-text-inserts/model/htmlAreaModal.store';
 import { requestMixinSeed } from '../../../../../pages/wizard/model/wizardContent.store';
-import { ConfirmationDialog } from '../../../../../shared/ui/dialogs/ConfirmationDialog';
 import { ApplicationIcon } from '../../../../../shared/ui/icons/ApplicationIcon';
 import { ItemLabel } from '../../../../../shared/ui/ItemLabel';
 import { ApplicationSelector } from '../../../selectors/ApplicationSelector';
-import { FormRenderer } from '../../FormRenderer';
+import { ApplicationConfigDialog } from '../../ApplicationConfigDialog';
 import { seedFormDefaults } from '@enonic/input-types';
 import type { SiteConfiguratorConfig } from './SiteConfiguratorConfig';
 
@@ -57,15 +51,9 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
     const { applications } = useStore($applications, { keys: ['applications'] });
     const [isReadOnly, setIsReadOnly] = useState(!AuthHelper.isContentAdmin());
     const [editing, setEditing] = useState<EditingState | null>(null);
-    const [view, setView] = useState<'main' | 'confirmation'>('main');
-    const dirtyRef = useRef(false);
-    const baselineRef = useRef<string | null>(null);
 
     const placeholder = useI18n('field.option.placeholder');
     const emptyLabel = useI18n('dialog.project.wizard.application.noApplicationsFound');
-    const applyLabel = useI18n('action.apply');
-    const confirmTitle = useI18n('dialog.confirm.title');
-    const confirmDescription = useI18n('dialog.confirm.applyChanges');
 
     useEffect(() => {
         void loadApplications();
@@ -192,10 +180,7 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
             const configSet = getConfigPropertySet(index);
             const json = configSet ? configSet.toJson() : [];
             const clonedTree = PropertyTree.fromJson(json);
-            baselineRef.current = null;
-            dirtyRef.current = false;
             setEditing({ appKey: key, valueIndex: index, editingSet: clonedTree.getRoot() });
-            setView('main');
         },
         [getConfigPropertySet],
     );
@@ -217,37 +202,11 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
         fireContentRequiresSave(contentId);
 
         setEditing(null);
-        setView('main');
     }, [editing, getConfigPropertySet, contentId]);
 
     const closeDialog = useCallback(() => {
         setEditing(null);
-        setView('main');
     }, []);
-
-    const handleDirtyChange = useCallback((dirty: boolean) => {
-        dirtyRef.current = dirty;
-    }, []);
-
-    const handleDialogOpenChange = useCallback(
-        (open: boolean) => {
-            if (open) return;
-
-            if ($isHtmlAreaOverlayOpen.get()) return;
-
-            if (view === 'confirmation') {
-                setView('main');
-                return;
-            }
-
-            if (dirtyRef.current) {
-                setView('confirmation');
-            } else {
-                closeDialog();
-            }
-        },
-        [view, closeDialog],
-    );
 
     useEffect(() => {
         const handler = (event: ApplicationEvent) => {
@@ -265,7 +224,6 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
     const disabled = !enabled || isReadOnly || !scopeEnabled;
 
     const editingApp = editing ? findApplicationByKey(editing.appKey) : undefined;
-    const editingForm = editingApp?.getForm();
 
     const t = useInputTypesPhrases();
     const errorMessage = useMemo(() => {
@@ -305,21 +263,17 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
 
             <FieldError message={errorMessage} />
 
-            <SiteConfiguratorDialog
-                editing={editing}
-                view={view}
-                application={editingApp}
-                form={editingForm}
-                disabled={disabled}
-                applyLabel={applyLabel}
-                confirmTitle={confirmTitle}
-                confirmDescription={confirmDescription}
-                baselineRef={baselineRef}
-                onOpenChange={handleDialogOpenChange}
-                onApply={applyConfig}
-                onConfirmDiscard={closeDialog}
-                onDirtyChange={handleDirtyChange}
-            />
+            {editing && (
+                <ApplicationConfigDialog
+                    application={editingApp}
+                    applicationKey={editing.appKey}
+                    form={editingApp?.getForm()}
+                    configSet={editing.editingSet}
+                    enabled={!disabled}
+                    onApply={applyConfig}
+                    onClose={closeDialog}
+                />
+            )}
         </div>
     );
 };
@@ -382,179 +336,6 @@ const SiteConfiguratorRow = ({
 };
 
 SiteConfiguratorRow.displayName = 'SiteConfiguratorRow';
-
-//
-// * Dialog component
-//
-
-type SiteConfiguratorDialogProps = {
-    editing: EditingState | null;
-    view: 'main' | 'confirmation';
-    application: Application | undefined;
-    form: Form | undefined;
-    disabled: boolean;
-    applyLabel: string;
-    confirmTitle: string;
-    confirmDescription: string;
-    baselineRef: React.RefObject<string | null>;
-    onOpenChange: (open: boolean) => void;
-    onApply: () => void;
-    onConfirmDiscard: () => void;
-    onDirtyChange: (dirty: boolean) => void;
-};
-
-const SiteConfiguratorDialog = ({
-    editing,
-    view,
-    application,
-    form,
-    disabled,
-    applyLabel,
-    confirmTitle,
-    confirmDescription,
-    baselineRef,
-    onOpenChange,
-    onApply,
-    onConfirmDiscard,
-    onDirtyChange,
-}: SiteConfiguratorDialogProps): ReactElement | null => {
-    const applicationKey = useMemo(
-        () => (editing ? ApplicationKey.fromString(editing.appKey) : undefined),
-        [editing?.appKey],
-    );
-
-    const overlayOpen = useStore($isHtmlAreaOverlayOpen);
-    const modalDialogOpen = useStore($isHtmlAreaModalDialogOpen);
-
-    if (!editing) return null;
-
-    return (
-        <Dialog.Root open onOpenChange={onOpenChange}>
-            <Dialog.Portal>
-                {!modalDialogOpen && <Dialog.Overlay />}
-                {view === 'main' && form && (
-                    <Dialog.Content
-                        modal={!overlayOpen}
-                        className={cn(
-                            'w-full h-full max-sm:max-h-none gap-6 sm:h-fit md:min-w-152 md:max-w-184 md:max-h-[85vh]',
-                            modalDialogOpen && 'invisible',
-                        )}
-                    >
-                        <Dialog.Header className="flex items-center gap-4">
-                            <div className="flex items-center gap-3 flex-1 min-w-0">
-                                {application && (
-                                    <ApplicationIcon application={application} className="size-8 shrink-0" />
-                                )}
-                                <div className="flex flex-col min-w-0">
-                                    <Dialog.Title className="truncate">
-                                        {application?.getDisplayName() ?? editing.appKey}
-                                    </Dialog.Title>
-                                    {application?.getDescription() && (
-                                        <Dialog.Description className="truncate text-sm text-subtle">
-                                            {application.getDescription()}
-                                        </Dialog.Description>
-                                    )}
-                                </div>
-                            </div>
-                            <Dialog.DefaultClose className="self-start" />
-                        </Dialog.Header>
-
-                        <Dialog.Body className="p-2 -m-2">
-                            <FormRenderer
-                                form={form}
-                                propertySet={editing.editingSet}
-                                enabled={!disabled}
-                                applicationKey={applicationKey}
-                            />
-                        </Dialog.Body>
-
-                        <Dialog.Footer>
-                            <SiteConfigApplyButton
-                                label={applyLabel}
-                                editing={editing}
-                                form={form}
-                                baselineRef={baselineRef}
-                                onApply={onApply}
-                                onDirtyChange={onDirtyChange}
-                            />
-                        </Dialog.Footer>
-                    </Dialog.Content>
-                )}
-                {view === 'confirmation' && (
-                    <ConfirmationDialog.Content>
-                        <ConfirmationDialog.DefaultHeader title={confirmTitle} description={confirmDescription} />
-                        <ConfirmationDialog.Footer onConfirm={onConfirmDiscard} />
-                    </ConfirmationDialog.Content>
-                )}
-            </Dialog.Portal>
-        </Dialog.Root>
-    );
-};
-
-SiteConfiguratorDialog.displayName = 'SiteConfiguratorDialog';
-
-//
-// * Apply button
-//
-
-type SiteConfigApplyButtonProps = {
-    label: string;
-    editing: EditingState;
-    form: Form;
-    baselineRef: React.RefObject<string | null>;
-    onApply: () => void;
-    onDirtyChange: (dirty: boolean) => void;
-};
-
-const SiteConfigApplyButton = ({
-    label,
-    editing,
-    form,
-    baselineRef,
-    onApply,
-    onDirtyChange,
-}: SiteConfigApplyButtonProps): ReactElement => {
-    const [dirty, setDirty] = useState(false);
-    const [valid, setValid] = useState(true);
-
-    useEffect(() => {
-        const check = () => {
-            if (baselineRef.current == null) return;
-            const current = JSON.stringify(editing.editingSet.toJson());
-            const isDirty = current !== baselineRef.current;
-            setDirty(isDirty);
-            onDirtyChange(isDirty);
-            setValid(validateForm(form, editing.editingSet).isValid);
-        };
-
-        let frameId: number | undefined;
-        if (baselineRef.current == null) {
-            frameId = requestAnimationFrame(() => {
-                baselineRef.current = JSON.stringify(editing.editingSet.toJson());
-                frameId = undefined;
-            });
-        } else {
-            check();
-        }
-
-        editing.editingSet.onChanged(check);
-
-        return () => {
-            if (frameId != null) {
-                cancelAnimationFrame(frameId);
-            }
-            editing.editingSet.unChanged(check);
-        };
-    }, [editing, form, baselineRef, onDirtyChange]);
-
-    return (
-        <Dialog.Close asChild>
-            <Button size="lg" label={label} variant="solid" disabled={!dirty || !valid} onClick={onApply} />
-        </Dialog.Close>
-    );
-};
-
-SiteConfigApplyButton.displayName = 'SiteConfigApplyButton';
 
 const fireContentRequiresSave = (contentId: string | undefined): void => {
     if (!contentId) return;
