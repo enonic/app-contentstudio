@@ -121,6 +121,17 @@ export function updateProjectReadAccess(name: string, readAccess: ProjectReadAcc
 }
 
 /**
+ * Start a synchronization of every layer with its parents. Returns the id of
+ * the server task to track.
+ * Used by: pages/settings/model/settingsActions.store.
+ */
+export function syncProjects(): ResultAsync<TaskId, AppError> {
+    const url = getCmsRestUri('project/syncAll');
+
+    return requestJson<TaskIdJson>(url, { method: 'POST', body: {} }).map(TaskId.fromJson);
+}
+
+/**
  * Delete a project by name.
  * Used by: pages/settings/model/deleteSettingsDialog.store.
  */

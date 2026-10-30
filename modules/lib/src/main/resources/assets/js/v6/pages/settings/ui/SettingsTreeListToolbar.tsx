@@ -1,10 +1,10 @@
-import { LegacyElement } from '@enonic/lib-admin-ui/ui2/LegacyElement';
 import { Checkbox, type CheckboxChecked, IconButton } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
 import { RefreshCcw } from 'lucide-react';
 import { type ReactElement, useMemo } from 'react';
-import { useStore } from '@nanostores/preact';
-import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import { reloadProjects } from '../../../entities/project';
+import { useI18n } from '../../../shared/lib/hooks/useI18n';
+import { resetSettingsTreeForReload } from '../model/settings-tree.store';
 import {
     $isAllSelected,
     $isNoneSelected,
@@ -13,11 +13,8 @@ import {
     selectAll,
     setActive,
 } from '../model/settingsTreeSelection.store';
-import { resetSettingsTreeForReload } from '../model/settings-tree.store';
 
-type SettingsTreeListToolbarProps = {
-    enabled?: boolean;
-};
+const SETTINGS_TREE_LIST_TOOLBAR_NAME = 'SettingsTreeListToolbar';
 
 const handleReload = (): void => {
     clearSelection();
@@ -26,14 +23,14 @@ const handleReload = (): void => {
     reloadProjects();
 };
 
-const SettingsTreeListToolbar = ({ enabled = true }: SettingsTreeListToolbarProps): ReactElement => {
+export const SettingsTreeListToolbar = (): ReactElement => {
     const isAllSelected = useStore($isAllSelected);
     const totalSelected = useStore($selectionCount);
     const isNoneSelected = useStore($isNoneSelected);
     const reloadLabel = useI18n('action.reload.projects');
-    const selectAllLabel = isNoneSelected
-        ? useI18n('field.selection.selectAll')
-        : useI18n('field.selection.clear', totalSelected);
+    const selectAllLabel = useI18n('field.selection.selectAll');
+    const clearLabel = useI18n('field.selection.clear', totalSelected);
+    const checkboxLabel = isNoneSelected ? selectAllLabel : clearLabel;
 
     const checkedStatus = useMemo<CheckboxChecked>(() => {
         if (isAllSelected) return true;
@@ -41,7 +38,7 @@ const SettingsTreeListToolbar = ({ enabled = true }: SettingsTreeListToolbarProp
         return 'indeterminate';
     }, [isAllSelected, isNoneSelected]);
 
-    const handleCheckboxClick = () => {
+    const handleCheckboxClick = (): void => {
         if (isNoneSelected) {
             selectAll();
         } else {
@@ -50,44 +47,23 @@ const SettingsTreeListToolbar = ({ enabled = true }: SettingsTreeListToolbarProp
     };
 
     return (
-        <div className="bg-surface-neutral flex items-center justify-between px-3.5 sm:px-5 py-2.5 gap-2">
+        <div
+            data-component={SETTINGS_TREE_LIST_TOOLBAR_NAME}
+            className="bg-surface-neutral flex items-center justify-between px-3.5 sm:px-5 py-2.5 gap-2"
+        >
             <div className="ml-2.5 flex items-center gap-2.5">
                 <Checkbox
-                    aria-label={selectAllLabel}
-                    label={selectAllLabel}
+                    aria-label={checkboxLabel}
+                    label={checkboxLabel}
                     defaultChecked={false}
                     checked={checkedStatus}
-                    disabled={!enabled}
                     onClick={handleCheckboxClick}
                 />
             </div>
 
-            <IconButton
-                aria-label={reloadLabel}
-                icon={RefreshCcw}
-                disabled={!enabled}
-                onClick={handleReload}
-                className="max-sm:size-7.5"
-            />
+            <IconButton aria-label={reloadLabel} icon={RefreshCcw} onClick={handleReload} className="max-sm:size-7.5" />
         </div>
     );
 };
 
-SettingsTreeListToolbar.displayName = 'SettingsTreeListToolbar';
-
-export class SettingsTreeListToolbarElement extends LegacyElement<
-    typeof SettingsTreeListToolbar,
-    SettingsTreeListToolbarProps
-> {
-    constructor(props?: SettingsTreeListToolbarProps) {
-        super(props ?? {}, SettingsTreeListToolbar);
-    }
-
-    disable() {
-        this.props.setKey('enabled', false);
-    }
-
-    enable() {
-        this.props.setKey('enabled', true);
-    }
-}
+SettingsTreeListToolbar.displayName = SETTINGS_TREE_LIST_TOOLBAR_NAME;
