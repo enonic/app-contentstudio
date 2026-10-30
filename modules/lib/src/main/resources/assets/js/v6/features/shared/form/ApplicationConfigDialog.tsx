@@ -5,13 +5,16 @@ import { type Form } from '@enonic/input-types/schema';
 import { validateForm } from '@enonic/input-types';
 import { Button, cn, Dialog } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
+import { AlertTriangle } from 'lucide-react';
 import type { ReactElement } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import { ConfirmationDialog } from '../../../shared/ui/dialogs/ConfirmationDialog';
+import { StatusBarEntry } from '../../../shared/ui/dialogs/status-bar/StatusBarEntry';
 import { ApplicationIcon } from '../../../shared/ui/icons/ApplicationIcon';
 import { $isHtmlAreaModalDialogOpen, $isHtmlAreaOverlayOpen } from '../../rich-text-inserts/model/htmlAreaModal.store';
 import { FormRenderer } from './FormRenderer';
+import { hasScopeDisabledInputs } from './formScopeRequirements';
 import type { FormScope } from './FormScopeContext';
 
 const COMPONENT_NAME = 'ApplicationConfigDialog';
@@ -58,6 +61,8 @@ export const ApplicationConfigDialog = ({
     const applyLabel = useI18n('action.apply');
     const confirmTitle = useI18n('dialog.confirm.title');
     const confirmDescription = useI18n('dialog.confirm.applyChanges');
+    const disabledInputsText = useI18n('dialog.applicationConfig.disabledInputs');
+    const hasDisabledInputs = form != null && hasScopeDisabledInputs(form, { project, content });
 
     const key = useMemo(() => ApplicationKey.fromString(applicationKey), [applicationKey]);
 
@@ -118,6 +123,12 @@ export const ApplicationConfigDialog = ({
                         </Dialog.Header>
 
                         <Dialog.Body className="p-2 -m-2">
+                            {hasDisabledInputs && (
+                                <StatusBarEntry className="mb-4 bg-surface-warn">
+                                    <AlertTriangle className="size-6 shrink-0" />
+                                    <span className="text-sm font-semibold">{disabledInputsText}</span>
+                                </StatusBarEntry>
+                            )}
                             <FormRenderer
                                 form={form}
                                 propertySet={configSet}

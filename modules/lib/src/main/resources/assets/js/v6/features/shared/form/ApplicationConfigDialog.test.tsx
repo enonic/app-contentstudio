@@ -1,7 +1,7 @@
 import { Form, Input } from '@enonic/input-types/schema';
 import { registerBuiltInTypes } from '@enonic/input-types';
 import { PropertyTree } from '@enonic/input-types/data';
-import { cleanup, render } from '@testing-library/preact';
+import { cleanup, render, screen } from '@testing-library/preact';
 import type { ReactNode } from 'react';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
@@ -46,23 +46,29 @@ vi.mock('./FormRenderer', () => ({
 import type { Project } from '../../../../app/settings/data/project/Project';
 import { ApplicationConfigDialog } from './ApplicationConfigDialog';
 
-const form = new Form([
-    Input.fromJson({
-        formItemType: 'Input',
-        name: 'title',
-        inputType: 'TextLine',
-        label: 'Title',
-        occurrences: { minimum: 0, maximum: 1 },
-        config: {},
-        helpText: '',
-    } as Parameters<typeof Input.fromJson>[0]),
-]);
+const createForm = (inputType: string): Form =>
+    new Form([
+        Input.fromJson({
+            formItemType: 'Input',
+            name: 'title',
+            inputType,
+            label: 'Title',
+            occurrences: { minimum: 0, maximum: 1 },
+            config: {},
+            helpText: '',
+        } as Parameters<typeof Input.fromJson>[0]),
+    ]);
+
+const form = createForm('TextLine');
+const contentSelectorForm = createForm('ContentSelector');
+
+const WARNING_KEY = 'dialog.applicationConfig.disabledInputs';
 
 const project = { getName: () => 'layer' } as unknown as Project;
 
 type Scope = { project?: Readonly<Project> | null; content?: null };
 
-const renderDialog = (scope: Scope = {}) =>
+const renderDialog = (props: Scope & { form?: Form } = {}) =>
     render(
         <ApplicationConfigDialog
             application={undefined}
@@ -72,7 +78,7 @@ const renderDialog = (scope: Scope = {}) =>
             enabled
             onApply={vi.fn()}
             onClose={vi.fn()}
-            {...scope}
+            {...props}
         />,
     );
 
@@ -109,5 +115,23 @@ describe('ApplicationConfigDialog', () => {
         renderDialog();
 
         expect(getFormScope()).toEqual({ project: undefined, content: undefined });
+    });
+
+    it('should warn above the form when the scope disables one of its inputs', () => {
+        renderDialog({ form: contentSelectorForm, project: null, content: null });
+
+        expect(screen.getByText(WARNING_KEY)).toBeTruthy();
+    });
+
+    it('should not warn when no input depends on what the scope lacks', () => {
+        renderDialog({ project: null, content: null });
+
+        expect(screen.queryByText(WARNING_KEY)).toBeNull();
+    });
+
+    it('should not warn when the scope is left to the stores', () => {
+        renderDialog({ form: contentSelectorForm });
+
+        expect(screen.queryByText(WARNING_KEY)).toBeNull();
     });
 });
