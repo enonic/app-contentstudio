@@ -12,7 +12,8 @@ import { ProjectItemPermissionsBuilder } from '../../../../app/settings/data/pro
 import { type Principal } from '@enonic/lib-admin-ui/security/Principal';
 import { type Application } from '@enonic/lib-admin-ui/application/Application';
 import { ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import { PropertySet } from '@enonic/input-types/data';
+import { PropertySet, PropertyTree } from '@enonic/input-types/data';
+import { seedFormDefaults } from '@enonic/input-types';
 import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
 import { $applications, loadApplications } from '../../../entities/application';
 import { getProjectDetailedPermissions } from '../../../shared/lib/url/projects';
@@ -61,6 +62,8 @@ type ProjectDialogStore = {
     roles: Record<string, ProjectAccess>;
     rolePrincipals: Principal[];
     applications: Application[];
+    /** Config per application key, for every selected application, inherited ones included. */
+    applicationConfigs: Record<string, PropertySet>;
     nameData: ProjectNameData;
 };
 
@@ -72,6 +75,8 @@ type EditProjectSnapshot = {
     permissions: Principal[];
     roles: Record<string, ProjectAccess>;
     applications: Application[];
+    /** Serialized applications with their configs, see `serializeApplicationConfigs`. */
+    applicationConfigs: string;
 };
 
 const initialState: ProjectDialogStore = {
@@ -93,6 +98,7 @@ const initialState: ProjectDialogStore = {
     roles: {},
     rolePrincipals: [],
     applications: [],
+    applicationConfigs: {},
     nameData: {
         name: '',
         identifier: '',
@@ -133,11 +139,9 @@ export const $isProjectDialogDirty = computed(
                 currentRoleKeys.length !== snapshotRoleKeys.length ||
                 currentRoleKeys.some((k) => state.roles[k] !== snapshot.roles[k]);
 
-            const currentAppKeys = state.applications.map((a) => a.getApplicationKey().toString());
-            const snapshotAppKeys = snapshot.applications.map((a) => a.getApplicationKey().toString());
             const appsDirty =
-                currentAppKeys.length !== snapshotAppKeys.length ||
-                currentAppKeys.some((k, i) => k !== snapshotAppKeys[i]);
+                serializeApplicationConfigs(state.applications, state.applicationConfigs) !==
+                snapshot.applicationConfigs;
 
             return (
                 permissionsDirty ||
@@ -196,6 +200,7 @@ export const openCreateProjectDialog = async (selectedProjects: Project[]): Prom
         open: true,
         parentProjects: selectedProjects,
         applications: selectedApplications,
+        applicationConfigs: collectSiteConfigs(selectedProjects),
         isMultiInheritance: isMultiInheritance,
     });
 };
@@ -225,6 +230,9 @@ export const openEditProjectDialog = async (project: Project, parentProjects: Pr
         )
         .filter(Boolean);
 
+    // The project's own configs win; parents fill in the inherited apps it has no config for.
+    const applicationConfigs = collectSiteConfigs([project, ...parentProjects]);
+
     const snapshot: EditProjectSnapshot = {
         name: project.getDisplayName() || '',
         description: project.getDescription() || '',
@@ -233,6 +241,7 @@ export const openEditProjectDialog = async (project: Project, parentProjects: Pr
         roles,
         permissions: permissionPrincipals,
         applications: projectApplications,
+        applicationConfigs: serializeApplicationConfigs(projectApplications, applicationConfigs),
     };
 
     $editProjectSnapshot.set(snapshot);
@@ -251,6 +260,7 @@ export const openEditProjectDialog = async (project: Project, parentProjects: Pr
         roles: snapshot.roles,
         rolePrincipals: rolePrincipals,
         applications: projectApplications,
+        applicationConfigs,
         nameData: {
             name: snapshot.name,
             identifier: project.getName(),
@@ -323,8 +333,29 @@ export const setProjectDialogRolePrincipals = (rolePrincipals: Principal[]): voi
     $projectDialog.setKey('rolePrincipals', rolePrincipals);
 };
 
+/**
+ * Sets the selection; keeps the configs of apps that stay, takes the parents' configs for
+ * new inherited ones, and seeds form defaults for the rest.
+ */
 export const setProjectDialogApplications = (applications: Application[]): void => {
+    const { applicationConfigs: previous, parentProjects } = $projectDialog.get();
+    const parentConfigs = collectSiteConfigs(parentProjects);
+    const applicationConfigs: Record<string, PropertySet> = {};
+
+    for (const application of applications) {
+        const key = application.getApplicationKey().toString();
+        applicationConfigs[key] = previous[key] ?? parentConfigs[key] ?? createDefaultConfig(application);
+    }
+
     $projectDialog.setKey('applications', applications);
+    $projectDialog.setKey('applicationConfigs', applicationConfigs);
+};
+
+export const setProjectDialogApplicationConfig = (applicationKey: string, config: PropertySet): void => {
+    $projectDialog.setKey('applicationConfigs', {
+        ...$projectDialog.get().applicationConfigs,
+        [applicationKey]: config,
+    });
 };
 
 export const setProjectDialogName = (data: ProjectNameData): void => {
@@ -472,15 +503,18 @@ export const updateProject = (): ResultAsync<void, Error> => {
 //
 
 function getDataForRequests() {
-    const { accessMode, permissions, roles, applications } = $projectDialog.get();
+    const { accessMode, permissions, roles, applications, applicationConfigs } = $projectDialog.get();
 
     const readAccess = new ProjectReadAccess(
         accessMode as ProjectReadAccessType,
         permissions.map((p: Principal) => p.getKey()),
     );
 
-    const applicationConfigs = applications.map((app: Application) =>
-        ApplicationConfig.create().setApplicationKey(app.getApplicationKey()).setConfig(new PropertySet()).build(),
+    const requestConfigs = applications.map((app: Application) =>
+        ApplicationConfig.create()
+            .setApplicationKey(app.getApplicationKey())
+            .setConfig(applicationConfigs[app.getApplicationKey().toString()] ?? new PropertySet())
+            .build(),
     );
 
     const rolesEntries = Object.entries(roles);
@@ -507,7 +541,7 @@ function getDataForRequests() {
 
     return {
         readAccess,
-        applicationConfigs,
+        applicationConfigs: requestConfigs,
         projectRoles,
     };
 }
@@ -531,18 +565,16 @@ function getRequestsGuards(): RequestGuards {
         permissions,
         roles,
         applications,
+        applicationConfigs,
         nameData: { name, description },
     } = $projectDialog.get();
 
-    const currentAppKeys = applications.map((a) => a.getApplicationKey().toString());
-    const snapshotAppKeys = snapshot.applications.map((a) => a.getApplicationKey().toString());
     const currentPermKeys = permissions.map((p) => p.getKey().toString());
     const snapshotPermKeys = snapshot.permissions.map((p) => p.getKey().toString());
     const currentRoleKeys = Object.keys(roles);
     const snapshotRoleKeys = Object.keys(snapshot.roles);
 
-    const appsDirty =
-        currentAppKeys.length !== snapshotAppKeys.length || currentAppKeys.some((k, i) => k !== snapshotAppKeys[i]);
+    const appsDirty = serializeApplicationConfigs(applications, applicationConfigs) !== snapshot.applicationConfigs;
     const permissionsDirty =
         currentPermKeys.length !== snapshotPermKeys.length || currentPermKeys.some((k, i) => k !== snapshotPermKeys[i]);
     const rolesDirty =
@@ -562,6 +594,38 @@ function getRequestsGuards(): RequestGuards {
         (accessMode !== 'custom' && snapshot.accessMode === 'custom' && permissions.length > 0);
 
     return { updateGuard, permissionsGuard, accessGuard };
+}
+
+/** Keys in selection order with their config JSON, so one string compares apps, order and configs. */
+function serializeApplicationConfigs(applications: Application[], configs: Record<string, PropertySet>): string {
+    return JSON.stringify(
+        applications.map((app) => {
+            const key = app.getApplicationKey().toString();
+            return [key, configs[key]?.toJson() ?? []];
+        }),
+    );
+}
+
+/** Clones the site configs of the given projects by app key; the first project to carry a key wins. */
+function collectSiteConfigs(projects: readonly Readonly<Project>[]): Record<string, PropertySet> {
+    const configs: Record<string, PropertySet> = {};
+
+    for (const project of projects) {
+        for (const siteConfig of project.getSiteConfigs() ?? []) {
+            const key = siteConfig.getApplicationKey().toString();
+            if (key in configs || !siteConfig.getConfig()) continue;
+            configs[key] = PropertyTree.fromJson(siteConfig.getConfig().toJson()).getRoot();
+        }
+    }
+
+    return configs;
+}
+
+function createDefaultConfig(application: Application): PropertySet {
+    const root = new PropertyTree().getRoot();
+    const form = application.getForm();
+    if (form) seedFormDefaults(form, root);
+    return root;
 }
 
 function refreshAndSelectProject(projectId: string) {

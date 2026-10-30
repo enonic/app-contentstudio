@@ -1,14 +1,20 @@
+import { type PropertySet, PropertyTree } from '@enonic/input-types/data';
 import { Dialog, IconButton, ListItem } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import { X } from 'lucide-react';
+import { Pencil, X } from 'lucide-react';
 import { ReactElement, type RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { $projectDialog, setProjectDialogApplications } from '../../model/projectDialog.store';
+import {
+    $projectDialog,
+    setProjectDialogApplicationConfig,
+    setProjectDialogApplications,
+} from '../../model/projectDialog.store';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import { $applications } from '../../../../entities/application';
 import { ItemLabel } from '../../../../shared/ui/ItemLabel';
 import { ApplicationIcon } from '../../../../shared/ui/icons/ApplicationIcon';
 import { ApplicationSelector } from '../../../shared/selectors/ApplicationSelector';
 import { SortableGridList } from '@enonic/input-types';
+import { ApplicationConfigDialog } from '../../../shared/form';
 
 export const ProjectDialogApplicationStepHeader = (): ReactElement => {
     const { mode, title } = useStore($projectDialog, { keys: ['mode', 'title'] });
@@ -33,13 +39,22 @@ export type ProjectDialogApplicationStepContentProps = {
     applicationInputRef?: RefObject<HTMLInputElement | null>;
 };
 
+type EditingState = {
+    appKey: string;
+    configSet: PropertySet;
+};
+
 export const ProjectDialogApplicationStepContent = ({
     locked = false,
     applicationInputRef,
 }: ProjectDialogApplicationStepContentProps): ReactElement => {
     // Hooks
-    const { applications: newProjectApplications, parentProjects } = useStore($projectDialog, {
-        keys: ['applications', 'parentProjects'],
+    const {
+        applications: newProjectApplications,
+        applicationConfigs,
+        parentProjects,
+    } = useStore($projectDialog, {
+        keys: ['applications', 'applicationConfigs', 'parentProjects'],
     });
     const { applications } = useStore($applications, { keys: ['applications'] });
     const inheritedKeySet = useMemo(
@@ -52,6 +67,8 @@ export const ProjectDialogApplicationStepContent = ({
     const typeToSearchLabel = useI18n('field.option.placeholder');
     const noApplicationsFoundLabel = useI18n('dialog.project.wizard.application.noApplicationsFound');
     const reorderLabel = useI18n('field.occurrence.action.reorder');
+    const editLabel = useI18n('action.edit');
+    const removeLabel = useI18n('action.remove');
 
     // Refs
     const prevInheritedRef = useRef<Set<string>>(inheritedKeySet);
@@ -60,6 +77,7 @@ export const ProjectDialogApplicationStepContent = ({
     const [selection, setSelection] = useState<string[]>(() =>
         newProjectApplications.map((app) => app.getApplicationKey().toString()),
     );
+    const [editing, setEditing] = useState<EditingState | null>(null);
 
     // Reconcile orderedKeys when inherited apps change (parent added/removed in step 1)
     useEffect(() => {
@@ -111,6 +129,29 @@ export const ProjectDialogApplicationStepContent = ({
         });
     }, []);
 
+    // The dialog edits a clone; the store gets it only on apply.
+    const handleEdit = useCallback(
+        (key: string): void => {
+            const json = applicationConfigs[key]?.toJson() ?? [];
+            setEditing({ appKey: key, configSet: PropertyTree.fromJson(json).getRoot() });
+        },
+        [applicationConfigs],
+    );
+
+    const handleApplyConfig = useCallback((): void => {
+        if (!editing) return;
+        setProjectDialogApplicationConfig(editing.appKey, editing.configSet);
+        setEditing(null);
+    }, [editing]);
+
+    const handleCloseConfig = useCallback((): void => {
+        setEditing(null);
+    }, []);
+
+    const editingApp = editing
+        ? applications.find((app) => app.getApplicationKey().toString() === editing.appKey)
+        : undefined;
+
     return (
         <Dialog.StepContent step="step-application" locked={locked}>
             <ApplicationSelector
@@ -137,6 +178,7 @@ export const ProjectDialogApplicationStepContent = ({
                         const application = applications.find((app) => app.getApplicationKey().toString() === key);
                         const name = application?.getDisplayName();
                         const description = application?.getDescription();
+                        const hasForm = application?.getForm()?.getFormItems().length > 0;
 
                         return (
                             <ListItem className="pl-0 py-0 flex-1 bg-unset">
@@ -147,13 +189,38 @@ export const ProjectDialogApplicationStepContent = ({
                                         secondary={description}
                                         className="flex-1 self-stretch"
                                     />
+                                    {hasForm && (
+                                        <IconButton
+                                            variant="text"
+                                            icon={Pencil}
+                                            aria-label={editLabel}
+                                            onClick={() => handleEdit(key)}
+                                        />
+                                    )}
                                     {!inheritedKeySet.has(key) && (
-                                        <IconButton variant="text" icon={X} onClick={() => handleUnselect(key)} />
+                                        <IconButton
+                                            variant="text"
+                                            icon={X}
+                                            aria-label={removeLabel}
+                                            onClick={() => handleUnselect(key)}
+                                        />
                                     )}
                                 </ListItem.Content>
                             </ListItem>
                         );
                     }}
+                />
+            )}
+            {editing && (
+                <ApplicationConfigDialog
+                    application={editingApp}
+                    applicationKey={editing.appKey}
+                    form={editingApp?.getForm()}
+                    configSet={editing.configSet}
+                    enabled
+                    stacked
+                    onApply={handleApplyConfig}
+                    onClose={handleCloseConfig}
                 />
             )}
         </Dialog.StepContent>
