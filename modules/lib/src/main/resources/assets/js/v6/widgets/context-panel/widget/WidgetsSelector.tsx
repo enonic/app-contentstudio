@@ -25,7 +25,6 @@ const stopToolbarKeyHandling = (event: KeyboardEvent<HTMLButtonElement>): void =
     }
 };
 
-// Descriptor keys carry characters that are invalid in element ids.
 const toSelectorId = (widget: ContextWidget): string => widget.key.replace(/[.:]/g, '-');
 
 const findBySelectorId = (widgets: readonly ContextWidget[], id: string | undefined): ContextWidget | undefined =>
@@ -45,7 +44,6 @@ function useWidgetSelection(): SelectionState {
     const selection = useMemo(() => (selectedWidget ? [toSelectorId(selectedWidget)] : []), [selectedWidget]);
 
     const onSelect = useCallback((next: readonly string[]) => {
-        // A widget cannot be deselected.
         if (next.length === 0) return;
 
         const widget = findBySelectorId($contextWidgets.get(), next[0]);

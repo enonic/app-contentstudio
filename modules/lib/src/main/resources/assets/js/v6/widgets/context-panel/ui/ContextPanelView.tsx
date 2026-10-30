@@ -43,7 +43,6 @@ const ContextWidgetContent = ({ widget, widgets }: ContextWidgetContentProps): R
 ContextWidgetContent.displayName = 'ContextWidgetContent';
 
 export type ContextPanelViewProps = {
-    // Built-in widgets by descriptor name, on top of the ones this panel owns.
     widgets?: ContextWidgetComponents;
     selector?: boolean;
     className?: string;

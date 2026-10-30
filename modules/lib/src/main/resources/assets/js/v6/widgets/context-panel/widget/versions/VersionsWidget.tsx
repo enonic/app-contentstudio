@@ -7,6 +7,8 @@ import { createContentStudioDefaults } from './config/defaults';
 import { VersionsConfigProvider } from './config/VersionsConfigContext';
 import { VersionsList } from './VersionsList';
 
+const VERSIONS_WIDGET_NAME = 'VersionsWidget';
+
 export const VersionsWidget = (): ReactElement | null => {
     const isContextOpen = useStore($isContextOpen);
     const activeWidget = useStore($activeWidgetId);
@@ -19,10 +21,12 @@ export const VersionsWidget = (): ReactElement | null => {
     }
 
     return (
-        <VersionsConfigProvider config={config}>
-            <VersionsList content={content} />
-        </VersionsConfigProvider>
+        <div data-component={VERSIONS_WIDGET_NAME}>
+            <VersionsConfigProvider config={config}>
+                <VersionsList content={content} />
+            </VersionsConfigProvider>
+        </div>
     );
 };
 
-VersionsWidget.displayName = 'VersionsWidget';
+VersionsWidget.displayName = VERSIONS_WIDGET_NAME;

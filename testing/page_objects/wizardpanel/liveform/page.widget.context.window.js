@@ -5,7 +5,7 @@ const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
 
 const xpath = {
-    container: `//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'ContextView')]`,
+    container: `//div[contains(@id,'ContentWizardPanel')]//div[@data-component='ContextPanelView']`,
     pageEditorExtensionDiv: "//div[@data-component='PageEditorExtension']",
     tabBarButtonByName: (name) => `//button[@role='tab' and child::span[text()='${name}']]`,
     // The selected tab gets aria-selected='true' and data-state='active'
