@@ -41,6 +41,7 @@ type NewContentDialogStore = {
     isMediaAllowed: boolean;
     // Content
     parentContent?: ContentSummary;
+    allowedContentTypes?: string[];
     baseContentTypes: ContentTypeSummary[];
     suggestedContentTypes: ContentTypeSummary[];
 };
@@ -53,6 +54,7 @@ const initialState: NewContentDialogStore = {
     isDragging: false,
     isMediaAllowed: false,
     parentContent: undefined,
+    allowedContentTypes: undefined,
     baseContentTypes: [],
     suggestedContentTypes: [],
 };
@@ -72,7 +74,7 @@ export const $filteredSuggestedContentTypes = computed($newContentDialog, ({ sug
 
 let loadCounter = 0;
 
-listenKeys($newContentDialog, ['open', 'parentContent'], ({ open, parentContent }) => {
+listenKeys($newContentDialog, ['open', 'parentContent'], ({ open, parentContent, allowedContentTypes }) => {
     const activeProject = $activeProject.get();
 
     if (!open || !activeProject) return;
@@ -83,6 +85,7 @@ listenKeys($newContentDialog, ['open', 'parentContent'], ({ open, parentContent 
     task(async () => {
         const allContentTypes = await ContentTypesHelper.getAvailableContentTypes({
             contentId: parentContent?.getContentId(),
+            allowedContentTypes,
             project: activeProject,
         });
 
@@ -116,11 +119,12 @@ listenKeys($newContentDialog, ['open', 'parentContent'], ({ open, parentContent 
 // * Public API
 //
 
-export const openNewContentDialog = (parentContent?: ContentSummary): void => {
+export const openNewContentDialog = (parentContent?: ContentSummary, allowedContentTypes?: string[]): void => {
     $newContentDialog.set({
         ...structuredClone(initialState),
         open: true,
         parentContent,
+        allowedContentTypes,
     });
 };
 

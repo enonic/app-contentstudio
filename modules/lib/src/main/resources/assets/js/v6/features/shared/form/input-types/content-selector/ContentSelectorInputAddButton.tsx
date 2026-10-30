@@ -1,7 +1,10 @@
 import { Button, cn } from '@enonic/ui';
-import { Plus } from 'lucide-react';
+import { Loader2, Plus } from 'lucide-react';
 import { type ReactElement, useEffect, useRef, useState } from 'react';
 import { listenKeys } from 'nanostores';
+import { NewContentEvent } from '../../../../../../app/create/NewContentEvent';
+import { ContentTypesHelper } from '../../../../../../app/util/ContentTypesHelper';
+import { $activeProject } from '../../../../../entities/project';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { $newContentDialog, openNewContentDialog } from '../../../../new-content/model/newContentDialog.store';
 import { useFormScope } from '../../FormScopeContext';
@@ -10,17 +13,20 @@ import { $uploads, getUploadsForParent } from '../../../../../entities/content/m
 
 type ContentSelectorInputAddButtonProps = {
     disabled: boolean;
+    allowedContentTypes?: string[];
     selection: readonly string[];
     onSelectionChange: (selection: readonly string[]) => void;
 };
 
 export const ContentSelectorInputAddButton = ({
     disabled,
+    allowedContentTypes,
     selection,
     onSelectionChange,
 }: ContentSelectorInputAddButtonProps): ReactElement => {
     const addLabel = useI18n('action.add');
     const [progress, setProgress] = useState(0);
+    const [isLoadingTypes, setIsLoadingTypes] = useState(false);
     const [uploadIds, setUploadIds] = useState<string[]>([]);
     const { content: contextContent } = useFormScope();
     const parentId = contextContent?.getContentId()?.toString() ?? undefined;
@@ -111,10 +117,29 @@ export const ContentSelectorInputAddButton = ({
     }, [contextContent, parentId]);
 
     // Handler
-    const handleClick = () => {
+    const handleClick = async () => {
         if (!contextContent) return;
-        openNewContentDialog(contextContent);
+
+        setIsLoadingTypes(true);
+
+        const types = await ContentTypesHelper.getAvailableContentTypes({
+            contentId: contextContent.getContentId(),
+            allowedContentTypes,
+            project: $activeProject.get(),
+        }).catch((error) => {
+            console.error(error);
+            return [];
+        });
+
+        setIsLoadingTypes(false);
         isWaitingForContentCreationRef.current = true;
+
+        if (types.length === 1 && !types[0].getContentTypeName().isDescendantOfMedia()) {
+            new NewContentEvent(types[0], contextContent).fire();
+            return;
+        }
+
+        openNewContentDialog(contextContent, allowedContentTypes);
     };
 
     // New content needs a parent; without one in scope there is nothing to add to.
@@ -124,7 +149,7 @@ export const ContentSelectorInputAddButton = ({
         <Button
             variant="solid"
             onClick={handleClick}
-            disabled={disabled}
+            disabled={disabled || isLoadingTypes}
             aria-label={addLabel}
             className={cn(
                 isUploading && 'pointer-events-none',
@@ -139,7 +164,7 @@ export const ContentSelectorInputAddButton = ({
                     style={{ width: `${progress}%` }}
                 />
             )}
-            <Plus size={20} />
+            {isLoadingTypes ? <Loader2 size={20} className="animate-spin" /> : <Plus size={20} />}
         </Button>
     );
 };
