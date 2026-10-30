@@ -274,8 +274,6 @@ module.exports = {
             await nameAndIdStep.waitForLoaded();
             await this.fillNameAndDescriptionStep(project.name, project.identifier, project.description);
             await this.saveScreenshot(project.name);
-            // the identifier is derived from the display name by the app, specs need the actual value (e.g. for URLs):
-            const identifier = await nameAndIdStep.getProjectIdentifier();
             await nameAndIdStep.clickOnNextButton();
 
             let accessModeStep = new ProjectWizardDialogAccessModeStep();
@@ -299,7 +297,6 @@ module.exports = {
             let projectWizardDialogSummaryStep = new ProjectWizardDialogSummaryStep();
             await projectWizardDialogSummaryStep.waitForLoaded();
             await projectWizardDialogSummaryStep.pause(1000);
-            return identifier;
         } catch (err) {
             if (err && err.isHandledError) {
                 throw err;
@@ -316,16 +313,14 @@ module.exports = {
         let element = await this.getBrowser().$(locator);
         return await element.waitForDisplayed(ms);
     },
-    // returns the identifier of the created project (it is derived from the display name by the app)
     async fillFormsWizardAndClickOnCreateButton(project) {
         let settingsBrowsePanel = new SettingsBrowsePanel();
         let summaryStep = new ProjectWizardDialogSummaryStep();
-        const identifier = await this.fillFormsWizard(project);
+        await this.fillFormsWizard(project);
         await summaryStep.clickOnCreateProjectButton();
         await summaryStep.waitForDialogClosed();
         await settingsBrowsePanel.waitForSpinnerNotVisible();
-        await settingsBrowsePanel.pause(1000);
-        return identifier;
+        return await settingsBrowsePanel.pause(500);
     },
     async selectAndDeleteProject(projectName, identifier) {
         let confirmValueDialog = new ConfirmValueDialog();

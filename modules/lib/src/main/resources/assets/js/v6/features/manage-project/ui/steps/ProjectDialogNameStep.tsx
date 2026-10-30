@@ -52,12 +52,8 @@ export const ProjectDialogNameStepContent = ({
     const [nameError, setNameError] = useState<string>();
     const [identifierError, setIdentifierError] = useState<string>();
     const [descriptionError, setDescriptionError] = useState<string>();
-    const isInitialRender = useRef(true);
-    const hasStoredErrorsRef = useRef(projectNameHasError);
-    // The identifier follows the display name until the user types a different identifier.
-    const isIdentifierCustomRef = useRef(
-        projectIdentifier.length > 0 && projectIdentifier !== prettifyProjectIdentifier(projectName, false),
-    );
+    const isInitialRender = useRef(!projectNameHasError);
+    const lastAutoIdentifierRef = useRef(prettifyProjectIdentifier(projectName, false));
 
     const projectNameLabel = `${useI18n('field.displayName')} *`;
     const projectIdentifierLabel = `${useI18n('settings.field.project.name')} *`;
@@ -76,6 +72,8 @@ export const ProjectDialogNameStepContent = ({
 
     const validateIdentifier = useCallback(
         (value: string): void => {
+            setIdentifierError('');
+
             if (value.length === 0) {
                 setIdentifierError(errorRequiredField);
                 return;
@@ -92,8 +90,10 @@ export const ProjectDialogNameStepContent = ({
             }
 
             // In edit mode, the identifier is static and cannot be changed.
-            const alreadyExists = mode !== 'edit' && projects.some((p) => p.getName() === value);
-            setIdentifierError(alreadyExists ? projectErrorIdentifierAlreadyExists : '');
+            if (mode !== 'edit') {
+                const alreadyExists = projects.some((p) => p.getName() === value);
+                setIdentifierError(alreadyExists ? projectErrorIdentifierAlreadyExists : '');
+            }
         },
         [
             mode,
@@ -105,53 +105,64 @@ export const ProjectDialogNameStepContent = ({
         ],
     );
 
-    const updateIdentifier = (value: string, isUserInput?: boolean): void => {
-        const prettifiedIdentifier = prettifyProjectIdentifier(value, isUserInput);
+    const updateIdentifier = useCallback(
+        (value: string, isUserInput?: boolean) => {
+            const prettifiedIdentifier = prettifyProjectIdentifier(value, isUserInput);
 
-        setIdentifier(prettifiedIdentifier);
-        if (identifierRef.current) identifierRef.current.value = prettifiedIdentifier;
-        validateIdentifier(prettifiedIdentifier);
-    };
+            setIdentifier(prettifiedIdentifier);
+            if (identifierRef.current) identifierRef.current.value = prettifiedIdentifier;
+            validateIdentifier(prettifiedIdentifier);
+        },
+        [validateIdentifier],
+    );
 
-    // The values are updated here, synchronously with the input event. An effect that sets them
-    // runs later and overwrites the keystrokes typed before it has run.
-    const handleNameChange = (value: string): void => {
-        setName(value);
-        validateName(value);
-
-        if (mode !== 'edit' && !isIdentifierCustomRef.current) {
-            updateIdentifier(value, false);
-        }
-    };
-
-    const handleIdentifierChange = (value: string): void => {
-        const prettifiedIdentifier = prettifyProjectIdentifier(value, true);
-
-        isIdentifierCustomRef.current =
-            prettifiedIdentifier.length > 0 && prettifiedIdentifier !== prettifyProjectIdentifier(name, false);
-        updateIdentifier(value, true);
-    };
-
-    const handleDescriptionChange = (value: string): void => {
+    // Processors
+    const processName = useCallback(
+        (value: string): void => {
+            setName(value);
+            validateName(value);
+        },
+        [validateName],
+    );
+    const processIdentifier = useCallback(
+        (value: string): void => {
+            updateIdentifier(value, true);
+        },
+        [updateIdentifier],
+    );
+    const processDescription = useCallback((value: string): void => {
         setDescription(value);
         setDescriptionError('');
-        // Typing a description surfaces the errors of the required fields left empty.
+    }, []);
+
+    // Re-validate values. Skip initial render.
+    // Dialog view goes back to 'main' => Re-render this component => Re-validate to show possible errors
+    // Values are set only in the onChange handlers: Preact flushes a pending effect before the next render,
+    // so a setter called here would overwrite a keystroke typed in between.
+    useEffect(() => {
+        if (isInitialRender.current) return;
+
         validateName(name);
         validateIdentifier(identifier);
-    };
+        setDescriptionError('');
+    }, [name, identifier, description, validateName, validateIdentifier]);
 
-    // Shows the errors of the stored values when the step is rendered again with errors (the dialog
-    // view returned to 'main') and re-checks the identifier when the projects list changes.
-    // Only the errors are set here, see handleNameChange.
+    // Map name to identifier on user input. Skip initial render. Skip in edit mode.
     useEffect(() => {
         if (isInitialRender.current) {
             isInitialRender.current = false;
-            if (!hasStoredErrorsRef.current) return;
+            return;
         }
 
-        validateName(name);
-        validateIdentifier(identifier);
-    }, [name, identifier, validateName, validateIdentifier]);
+        if (mode === 'edit') return;
+
+        const shouldSync = identifier === lastAutoIdentifierRef.current;
+        lastAutoIdentifierRef.current = prettifyProjectIdentifier(name, false);
+
+        if (shouldSync) {
+            updateIdentifier(name, false);
+        }
+    }, [mode, name, identifier, updateIdentifier]);
 
     // Sync with the store
     useEffect(() => {
@@ -176,7 +187,7 @@ export const ProjectDialogNameStepContent = ({
                     label={projectNameLabel}
                     value={name}
                     error={nameError}
-                    onChange={(e) => handleNameChange(e.currentTarget.value)}
+                    onChange={(e) => processName(e.currentTarget.value)}
                 />
 
                 {/* Identifier */}
@@ -186,7 +197,7 @@ export const ProjectDialogNameStepContent = ({
                         label={projectIdentifierLabel}
                         value={identifier}
                         error={identifierError}
-                        onChange={(e) => handleIdentifierChange(e.currentTarget.value)}
+                        onChange={(e) => processIdentifier(e.currentTarget.value)}
                     />
                 )}
                 {mode === 'edit' && (
@@ -201,7 +212,7 @@ export const ProjectDialogNameStepContent = ({
                     label={projectDescriptionLabel}
                     value={description}
                     error={descriptionError}
-                    onChange={(e) => handleDescriptionChange(e.currentTarget.value)}
+                    onChange={(e) => processDescription(e.currentTarget.value)}
                 />
             </div>
         </Dialog.StepContent>

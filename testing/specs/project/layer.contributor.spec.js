@@ -20,8 +20,6 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
 
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('proj');
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName('layer');
-    // the identifier is derived from the display name by the app, it is read from the wizard when the layer is created
-    let LAYER_IDENTIFIER;
     const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const SITE_NAME = contentBuilder.generateRandomName('site');
     let SITE;
@@ -77,7 +75,8 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
             null,
         );
         await projectUtils.selectParentAndOpenProjectWizardDialog(PROJECT_DISPLAY_NAME);
-        LAYER_IDENTIFIER = await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
+        await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
+        await settingsBrowsePanel.waitForNotificationMessage();
         // Do log out:
         await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         await studioUtils.doLogout();
@@ -99,7 +98,6 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
         await contentBrowsePanel.clickOnOpenButton();
         await studioUtils.doSwitchToNextTab();
         await contentWizard.waitForOpened();
-        await studioUtils.saveScreenshot(`issue_project_layer_contributor`);
         // 5. Verify that the site is opened in read-only mode for the contributor-user- so all inputs are disabled:
         await contentWizard.waitForContentFormLocked();
         // 6. Verify that the display name input is disabled as well:
@@ -116,7 +114,7 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
         // 2. load existing site from the current layer:
         let url =
             'http://localhost:8080/admin/com.enonic.app.contentstudio/site/preview' +
-            `/${LAYER_IDENTIFIER}/draft/${SITE_NAME}`;
+            `/${LAYER_DISPLAY_NAME}/draft/${SITE_NAME}`;
         await studioUtils.getBrowser().url(url);
         // 3. Verify that expected site is loaded:
         let actualTitle = await studioUtils.getBrowser().getTitle();
@@ -145,7 +143,7 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
         await studioUtils.navigateToContentStudioCloseProjectSelectionDialog('su', 'password');
         await studioUtils.openSettingsPanel();
         // 1.Select and delete the layer:
-        await projectUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME, LAYER_IDENTIFIER);
+        await projectUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
     });
 
     // A failed test can leave the browser on any page (e.g. 404), so always return to the Home page,
