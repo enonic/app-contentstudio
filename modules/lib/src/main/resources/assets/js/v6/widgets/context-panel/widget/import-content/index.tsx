@@ -1,1 +1,1 @@
-export { ImportContentWidget, ImportContentWidgetElement } from './ImportContentWidget';
+export { ImportContentWidget } from './ImportContentWidget';

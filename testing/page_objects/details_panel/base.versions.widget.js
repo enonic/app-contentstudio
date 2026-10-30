@@ -6,7 +6,7 @@ const appConst = require('../../libs/app_const');
 const { BUTTONS } = require('../../libs/elements');
 
 const xpath = {
-    extensionViewDiv: "//div[contains(@id,'ExtensionView') and contains (@class,'versions-widget')]",
+    extensionViewDiv: "//div[@data-component='VersionsWidget']",
     versionsListComponent: "//div[@data-component='VersionsListContent']",
     versionsListItemComponent: "//div[@data-component='VersionsListItem']",
     versionsListItemByName: (name) => {

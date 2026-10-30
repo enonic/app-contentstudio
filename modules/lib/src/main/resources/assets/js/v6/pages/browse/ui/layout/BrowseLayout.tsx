@@ -18,6 +18,7 @@ import {
     $isContentFilterOpen,
     $isDependencySearchPending,
 } from '../../../../features/search/model/contentFilter.store';
+import { ContextPanelView } from '../../../../widgets/context-panel/ui/ContextPanelView';
 import { FloatingContextPanel } from '../../../../widgets/context-panel/ui/FloatingContextPanel';
 import { GRID_PANEL_ID, resolveBrowsePanelLayout } from './resolveBrowsePanelLayout';
 
@@ -46,7 +47,6 @@ export type BrowseLayoutProps = {
     // Owned by ContentBrowsePanel; the layout only places them.
     gridPanel: Element;
     previewPanel: Element;
-    contextPanel: Element;
     filterPanel?: Element;
     storageId?: string;
 };
@@ -54,16 +54,11 @@ export type BrowseLayoutProps = {
 const BROWSE_LAYOUT_NAME = 'BrowseLayout';
 
 // Legacy panels must fill their hosts; `!` beats the unlayered legacy CSS.
-const LEGACY_PANEL_OVERRIDES = cn(
-    '[&_.context-panel]:!absolute [&_.context-panel]:!inset-0 [&_.context-panel]:!w-auto',
-    '[&_.context-panel]:!h-auto [&_.context-panel]:!transition-none',
-    '[&_.filter-panel]:!inset-0 [&_.filter-panel]:!w-auto',
-);
+const LEGACY_PANEL_OVERRIDES = '[&_.filter-panel]:!inset-0 [&_.filter-panel]:!w-auto';
 
 export const BrowseLayout = ({
     gridPanel,
     previewPanel,
-    contextPanel,
     filterPanel,
     storageId = 'browse-layout',
 }: BrowseLayoutProps): ReactElement => {
@@ -196,21 +191,19 @@ export const BrowseLayout = ({
                             groupResizeBehavior="preserve-pixel-size"
                             onResize={handlePanelResize}
                         >
-                            <LegacyElementHost element={contextPanel} className="size-full" />
+                            <ContextPanelView />
                         </SplitView.Panel>
                     </>
                 )}
             </SplitView>
             {showFloatingContext && (
-                <FloatingContextPanel
-                    element={contextPanel}
-                    boundsSelector='[data-component="BrowseLayout"]'
-                    onResized={handlePanelResize}
-                />
+                <FloatingContextPanel boundsSelector='[data-component="BrowseLayout"]' onResized={handlePanelResize}>
+                    <ContextPanelView className="min-w-0 grow" />
+                </FloatingContextPanel>
             )}
             {showMobileContext && (
                 <div data-component="BrowseLayout.MobileContext" className="absolute inset-0 bg-surface-neutral">
-                    <LegacyElementHost element={contextPanel} className="size-full" />
+                    <ContextPanelView selector={false} />
                 </div>
             )}
             {showMobileFilter && (

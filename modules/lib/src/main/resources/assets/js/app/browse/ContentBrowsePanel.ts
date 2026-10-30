@@ -27,10 +27,10 @@ import { $contextPanelMode } from '../../v6/shared/app-state/browsePanels.store'
 import { setDependencySearchPending } from '../../v6/features/search/model/contentFilter.store';
 import { ContentTreeListElement } from '../../v6/widgets/browse-grid/ContentTreeListElement';
 import { BrowseToolbarElement } from '../../v6/widgets/browse-toolbar/BrowseToolbar';
+import { WidgetsSelectorMenu } from '../../v6/widgets/context-panel/widget/WidgetsSelector';
 import { CurrentPreviewToolbarVersionHistoryItem } from '../../v6/widgets/preview-panel/ui/PreviewToolbarVersionHistoryItem';
 import { PreviewToolbarWidgetSelector } from '../../v6/widgets/preview-panel/ui/PreviewToolbarWidgetSelector';
 import { type ContentId } from '../content/ContentId';
-import { ContentPath } from '../content/ContentPath';
 import { type ContentQuery } from '../content/ContentQuery';
 import { ContentSummaryBuilder } from '../content/ContentSummary';
 import { ContentSummaryAndCompareStatus } from '../content/ContentSummaryAndCompareStatus';
@@ -45,9 +45,6 @@ import { GetContentSummaryByIdRequest } from '../resource/GetContentSummaryByIdR
 import { Router } from '../Router';
 import { UrlAction } from '../UrlAction';
 import { type ContentItemPreviewPanel } from '../view/ContentItemPreviewPanel';
-import { buildDefaultContextWidgets, listDefaultContextWidgets } from '../view/context/buildDefaultContextWidgets';
-import { ContextView } from '../view/context/ContextView';
-import { loadCustomContextWidgets, watchCustomContextWidgets } from '../view/context/customContextWidgets';
 import { type PreviewContentAction } from './action/PreviewContentAction';
 import { ContentBrowseItemPanel } from './ContentBrowseItemPanel';
 import { ContentBrowsePanelKeyNavigator } from './ContentBrowsePanelKeyNavigator';
@@ -117,8 +114,9 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
                 markAsReadyAction: browseActions.getAction(ActionName.MARK_AS_READY),
                 requestPublishAction: browseActions.getAction(ActionName.REQUEST_PUBLISH),
                 createIssueAction: browseActions.getAction(ActionName.CREATE_ISSUE),
-                mobileContextWidgetSelectorTargetRef: (target) =>
-                    this.contextView.setMobileWidgetSelectorTarget(target ?? undefined),
+                mobileContextWidgetSelector: createElement(WidgetsSelectorMenu, {
+                    className: 'min-w-0 flex-1 self-stretch',
+                }),
                 mobilePreviewVersionHistoryButton: createElement(CurrentPreviewToolbarVersionHistoryItem, {}),
                 mobilePreviewWidgetSelector: createElement(PreviewToolbarWidgetSelector, { compact: true }),
             }),
@@ -306,18 +304,6 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
         this.hideFilterPanel();
         super.disableSelectionMode();
         this.contentTreeList.setFilterQuery(null);
-    }
-
-    protected createContextView(): ContextView {
-        const contextView = new ContextView();
-        const widgets = buildDefaultContextWidgets(contextView);
-
-        contextView.setWidgets(listDefaultContextWidgets(widgets), widgets.properties);
-
-        void loadCustomContextWidgets(contextView);
-        watchCustomContextWidgets(contextView);
-
-        return contextView;
     }
 
     doRender(): Q.Promise<boolean> {
@@ -639,7 +625,6 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
             removeTreeNode(id);
         });
 
-        this.updateContextPanelOnNodesDelete(items);
         this.refreshFilterWithDelay();
     }
 
@@ -702,20 +687,6 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
             .catch(DefaultErrorHandler.handle);
     }
 
-    private updateContextPanelOnNodesDelete(items: DeletedContentItem[]) {
-        const itemInDetailPanel: ContentSummaryAndCompareStatus = this.contextView.getItem();
-
-        if (!itemInDetailPanel) {
-            return;
-        }
-
-        const itemPath: ContentPath = itemInDetailPanel.getContentSummary().getPath();
-
-        if (items.some((item: DeletedContentItem) => item.path.equals(itemPath))) {
-            this.doUpdateContextPanel(null);
-        }
-    }
-
     private handleContentPublished(data: ContentSummaryAndCompareStatus[]) {
         if (ContentBrowsePanel.debug) {
             console.debug('ContentBrowsePanel: published', data);
@@ -738,37 +709,12 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
 
     private doHandleContentUpdate(data: ContentSummaryAndCompareStatus[]) {
         this.handleCUD();
-        this.updateContextPanel(data);
 
         data.forEach((newItem: ContentSummaryAndCompareStatus) => {
             setContent(newItem.getContentSummary());
         });
 
         this.refreshFilterWithDelay();
-    }
-
-    private updateContextPanel(data: ContentSummaryAndCompareStatus[]) {
-        const itemInDetailPanel: ContentSummaryAndCompareStatus = this.contextView.getItem();
-
-        if (!itemInDetailPanel) {
-            return;
-        }
-
-        let content: ContentSummaryAndCompareStatus = null;
-        const isItemInContextPanelUpdated: boolean = data.some((contentItem: ContentSummaryAndCompareStatus) => {
-            if (contentItem.getId() === itemInDetailPanel.getId()) {
-                content = contentItem;
-                return true;
-            }
-        });
-
-        if (isItemInContextPanelUpdated) {
-            this.doUpdateContextPanel(content);
-        }
-    }
-
-    private doUpdateContextPanel(item: ContentSummaryAndCompareStatus) {
-        this.contextView.setItem(item);
     }
 
     private getPreviewPanel(): ContentItemPreviewPanel {
@@ -829,10 +775,6 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
         this.browseActionsAndPreviewUpdateRequired = false;
 
         super.updateActionsAndPreview();
-    }
-
-    protected updateContextView(item: ContentSummaryAndCompareStatus): Q.Promise<void> {
-        return this.contextView.setItem(item?.hasContentSummary() ? item : null);
     }
 
     setContentTreeState(state: State) {

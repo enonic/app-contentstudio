@@ -1,15 +1,13 @@
 import { useStore } from '@nanostores/preact';
-import Q from 'q';
 import { useMemo, type ReactElement } from 'react';
-import type { ContentSummaryAndCompareStatus } from '../../../../../app/content/ContentSummaryAndCompareStatus';
-import type { ExtensionItemViewType } from '../../../../../app/view/context/ExtensionItemView';
-import { LegacyElement } from '../../../../shared/ui/LegacyElement';
 import { $contextContent } from '../../model/contextContent.store';
 import { $activeWidgetId, $isContextOpen } from '../../model/contextWidgets.store';
 import { getVersionsWidgetKey } from '../../../../shared/lib/widget/versions/versions';
 import { createContentStudioDefaults } from './config/defaults';
 import { VersionsConfigProvider } from './config/VersionsConfigContext';
 import { VersionsList } from './VersionsList';
+
+const VERSIONS_WIDGET_NAME = 'VersionsWidget';
 
 export const VersionsWidget = (): ReactElement | null => {
     const isContextOpen = useStore($isContextOpen);
@@ -23,34 +21,12 @@ export const VersionsWidget = (): ReactElement | null => {
     }
 
     return (
-        <VersionsConfigProvider config={config}>
-            <VersionsList content={content} />
-        </VersionsConfigProvider>
+        <div data-component={VERSIONS_WIDGET_NAME}>
+            <VersionsConfigProvider config={config}>
+                <VersionsList content={content} />
+            </VersionsConfigProvider>
+        </div>
     );
 };
 
-export class VersionsWidgetElement extends LegacyElement<typeof VersionsWidget> implements ExtensionItemViewType {
-    constructor() {
-        super({}, VersionsWidget);
-    }
-
-    public layout(): Q.Promise<void> {
-        return Q();
-    }
-
-    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<null | void> {
-        return Q();
-    }
-
-    public fetchExtensionContents(url: string, contentId: string): Q.Promise<void> {
-        return Q();
-    }
-
-    public hide(): void {
-        return;
-    }
-
-    public show(): void {
-        return;
-    }
-}
+VersionsWidget.displayName = VERSIONS_WIDGET_NAME;

@@ -1,12 +1,8 @@
 import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { useStore } from '@nanostores/preact';
-import Q from 'q';
 import { type ReactElement, useEffect, useState } from 'react';
 import { DependencyType } from '../../../../../app/browse/DependencyType';
-import type { ContentSummaryAndCompareStatus } from '../../../../../app/content/ContentSummaryAndCompareStatus';
-import type { ExtensionItemViewType } from '../../../../../app/view/context/ExtensionItemView';
 import { resolveDependencies } from '../../../../entities/content';
-import { LegacyElement } from '../../../../shared/ui/LegacyElement';
 import { $contextContent } from '../../model/contextContent.store';
 import { $activeWidgetId, $isContextOpen } from '../../model/contextWidgets.store';
 import { getDependenciesWidgetKey } from '../../../../shared/lib/widget/dependencies';
@@ -22,7 +18,7 @@ export type DependencyItem = {
 
 const DEPENDENCIES_WIDGET_NAME = 'DependenciesWidget';
 
-const DependenciesWidget = (): ReactElement => {
+export const DependenciesWidget = (): ReactElement | null => {
     const isContextOpen = useStore($isContextOpen);
     const activeWidget = useStore($activeWidgetId);
     const isActiveWidget = activeWidget === getDependenciesWidgetKey();
@@ -97,36 +93,3 @@ const DependenciesWidget = (): ReactElement => {
 };
 
 DependenciesWidget.displayName = DEPENDENCIES_WIDGET_NAME;
-
-export class DependenciesWidgetElement
-    extends LegacyElement<typeof DependenciesWidget>
-    implements ExtensionItemViewType
-{
-    constructor() {
-        super({}, DependenciesWidget);
-    }
-
-    // Backwards compatibility
-
-    public static debug: boolean = false;
-
-    public layout(): Q.Promise<void> {
-        return Q();
-    }
-
-    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<null | void> {
-        return Q();
-    }
-
-    public fetchExtensionContents(url: string, contentId: string): Q.Promise<void> {
-        return Q();
-    }
-
-    public hide(): void {
-        return;
-    }
-
-    public show(): void {
-        return;
-    }
-}
