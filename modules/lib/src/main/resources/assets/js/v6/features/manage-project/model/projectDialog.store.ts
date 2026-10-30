@@ -12,6 +12,7 @@ import { ProjectItemPermissionsBuilder } from '../../../../app/settings/data/pro
 import { type Principal } from '@enonic/lib-admin-ui/security/Principal';
 import { type Application } from '@enonic/lib-admin-ui/application/Application';
 import { ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 import { PropertySet, PropertyTree } from '@enonic/input-types/data';
 import { seedFormDefaults } from '@enonic/input-types';
 import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
@@ -71,6 +72,8 @@ type ProjectDialogStore = {
      * without one resolves to its first parent's, else to the form defaults.
      */
     applicationConfigs: Record<string, PropertySet>;
+    /** The edited project's site configs step 2 does not list, portal and uninstalled apps; sent back as they are. */
+    preservedSiteConfigs: ApplicationConfig[];
     nameData: ProjectNameData;
 };
 
@@ -106,6 +109,7 @@ const initialState: ProjectDialogStore = {
     rolePrincipals: [],
     applications: [],
     applicationConfigs: {},
+    preservedSiteConfigs: [],
     nameData: {
         name: '',
         identifier: '',
@@ -242,6 +246,10 @@ export const openEditProjectDialog = async (project: Project, parentProjects: Pr
     const projectApplications = resolveApplications([...ownKeys, ...inheritedKeys]);
 
     const applicationConfigs = collectSiteConfigs([project]);
+    const listedKeys = new Set(projectApplications.map(keyOf));
+    const preservedSiteConfigs = project
+        .getSiteConfigs()
+        .filter((c) => !listedKeys.has(c.getApplicationKey().toString()));
 
     const snapshot: EditProjectSnapshot = {
         name: project.getDisplayName() || '',
@@ -272,6 +280,7 @@ export const openEditProjectDialog = async (project: Project, parentProjects: Pr
         rolePrincipals: rolePrincipals,
         applications: projectApplications,
         applicationConfigs,
+        preservedSiteConfigs,
         nameData: {
             name: snapshot.name,
             identifier: project.getName(),
@@ -556,19 +565,27 @@ export const updateProject = (): ResultAsync<void, Error> => {
 //
 
 function getDataForRequests() {
-    const { accessMode, permissions, roles, applications, applicationConfigs, parentProjects } = $projectDialog.get();
+    const { accessMode, permissions, roles, applications, applicationConfigs, parentProjects, preservedSiteConfigs } =
+        $projectDialog.get();
 
     const readAccess = new ProjectReadAccess(
         accessMode as ProjectReadAccessType,
         permissions.map((p: Principal) => p.getKey()),
     );
 
-    const requestConfigs = applications.map((app: Application) =>
+    const listedConfigs = applications.map((app: Application) =>
         ApplicationConfig.create()
             .setApplicationKey(app.getApplicationKey())
             .setConfig(resolveApplicationConfig(app, applicationConfigs, parentProjects))
             .build(),
     );
+    // The preserved entries go around the listed apps: portal first, the rest last.
+    const isPortal = (config: ApplicationConfig): boolean => config.getApplicationKey().equals(ApplicationKey.PORTAL);
+    const requestConfigs = [
+        ...preservedSiteConfigs.filter(isPortal),
+        ...listedConfigs,
+        ...preservedSiteConfigs.filter((config) => !isPortal(config)),
+    ];
 
     const rolesEntries = Object.entries(roles);
 
