@@ -74,6 +74,7 @@ import { $applications } from '../../../entities/application';
 import {
     $isProjectDialogDirty,
     $projectDialog,
+    $projectDialogConfigScope,
     closeProjectDialog,
     openCreateProjectDialog,
     openEditProjectDialog,
@@ -175,6 +176,14 @@ describe('projectDialog.store application configs', () => {
 
             expect(siteConfig.getConfig().getString('color')).toBe('red');
         });
+
+        it('should keep the edited project for the config forms', async () => {
+            const project = createProject('layer', []);
+
+            await openEditProjectDialog(project, []);
+
+            expect($projectDialog.get().project).toBe(project);
+        });
     });
 
     describe('openCreateProjectDialog', () => {
@@ -184,6 +193,28 @@ describe('projectDialog.store application configs', () => {
             await openCreateProjectDialog([parent]);
 
             expect(configOf('app:b')?.getString('color')).toBe('blue');
+        });
+
+        it('should have no project while creating', async () => {
+            await openCreateProjectDialog([createProject('parent', [])]);
+
+            expect($projectDialog.get().project).toBeUndefined();
+        });
+    });
+
+    describe('$projectDialogConfigScope', () => {
+        it('should have the project and no content on edit', async () => {
+            const project = createProject('layer', []);
+
+            await openEditProjectDialog(project, []);
+
+            expect($projectDialogConfigScope.get()).toEqual({ project, content: null });
+        });
+
+        it('should have no project and no content on create', async () => {
+            await openCreateProjectDialog([createProject('parent', [])]);
+
+            expect($projectDialogConfigScope.get()).toEqual({ project: null, content: null });
         });
     });
 

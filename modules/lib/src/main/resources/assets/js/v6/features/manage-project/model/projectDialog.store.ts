@@ -31,6 +31,7 @@ import { clearSelection, setActive } from '../../../pages/settings/model/setting
 import { $settingsTreeState, resetSettingsTreeForReload } from '../../../pages/settings/model/settings-tree.store';
 import { $projects, reloadProjects } from '../../../entities/project/projects.store';
 import { setProjectSelectionDialogOpen } from '../../../shared/dialogs/dialogs.store';
+import { type FormScope } from '../../shared/form';
 
 //
 // * Store State
@@ -55,6 +56,8 @@ type ProjectDialogStore = {
     readAccessProgress: number | null;
 
     // data
+    /** The edited project; unset while creating. */
+    project?: Readonly<Project>;
     parentProjects: Readonly<Project>[];
     defaultLanguage: string;
     accessMode: string;
@@ -122,6 +125,12 @@ export const $isProjectDialogAccessModeDirty = computed(
         return true;
     },
 );
+
+/** The scope of an application's config form: the edited project, if any, and no content. */
+export const $projectDialogConfigScope = computed($projectDialog, ({ project }): FormScope => ({
+    project: project ?? null,
+    content: null,
+}));
 
 export const $isProjectDialogDirty = computed(
     [$projectDialog, $editProjectSnapshot, $initialParentNames],
@@ -253,6 +262,7 @@ export const openEditProjectDialog = async (project: Project, parentProjects: Pr
         open: true,
         mode: 'edit',
         isMultiInheritance,
+        project,
         parentProjects,
         defaultLanguage: snapshot.defaultLanguage,
         accessMode: snapshot.accessMode || '',

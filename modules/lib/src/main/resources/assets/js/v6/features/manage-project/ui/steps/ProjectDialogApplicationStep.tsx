@@ -5,6 +5,7 @@ import { Pencil, X } from 'lucide-react';
 import { ReactElement, type RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     $projectDialog,
+    $projectDialogConfigScope,
     setProjectDialogApplicationConfig,
     setProjectDialogApplications,
 } from '../../model/projectDialog.store';
@@ -56,6 +57,7 @@ export const ProjectDialogApplicationStepContent = ({
     } = useStore($projectDialog, {
         keys: ['applications', 'applicationConfigs', 'parentProjects'],
     });
+    const configScope = useStore($projectDialogConfigScope);
     const { applications } = useStore($applications, { keys: ['applications'] });
     const inheritedKeySet = useMemo(
         () => new Set(parentProjects.flatMap((p) => p.getSiteConfigs()).map((c) => c.getApplicationKey().toString())),
@@ -219,6 +221,7 @@ export const ProjectDialogApplicationStepContent = ({
                     configSet={editing.configSet}
                     enabled
                     stacked
+                    {...configScope}
                     onApply={handleApplyConfig}
                     onClose={handleCloseConfig}
                 />
