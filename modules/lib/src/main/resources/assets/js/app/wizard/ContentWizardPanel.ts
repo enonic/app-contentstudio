@@ -25,7 +25,8 @@ import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeNa
 import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {ActivatedEvent} from '@enonic/lib-admin-ui/ui/ActivatedEvent';
+import {TabItemSelectedEvent} from '@enonic/lib-admin-ui/ui/tab/TabItemSelectedEvent';
+import {NavigatorEvent} from '@enonic/lib-admin-ui/ui/NavigatorEvent';
 import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {KeyBindings} from '@enonic/lib-admin-ui/ui/KeyBindings';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
@@ -109,6 +110,7 @@ import {ContentSaveAction} from './action/ContentSaveAction';
 import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentContext} from './ContentContext';
 import {ContentTabBarItem} from './ContentTabBarItem';
+import {TabBarItem} from '@enonic/lib-admin-ui/ui/tab/TabBarItem';
 import {ContentWizardContextSplitPanel} from './ContentWizardContextSplitPanel';
 import {ContentWizardDataLoader} from './ContentWizardDataLoader';
 import {ContentWizardHeader} from './ContentWizardHeader';
@@ -192,7 +194,7 @@ export class ContentWizardPanel
 
     private minimizeEditButton?: DivEl;
 
-    private toggleMinimizeListener?: (event: ActivatedEvent) => void;
+    private toggleMinimizeListener?: (event: TabItemSelectedEvent) => void;
 
     private splitPanel?: SplitPanel;
 
@@ -469,7 +471,7 @@ export class ContentWizardPanel
         this.minimized = !this.minimized;
         this.splitPanel.setSplitterIsHidden(this.minimized);
 
-        this.stepNavigator.unNavigationItemActivated(this.toggleMinimizeListener);
+        this.stepNavigator.getNavigationItems().forEach((item: TabBarItem) => item.unSelected(this.toggleMinimizeListener));
         this.formPanel.toggleClass('minimized');
         this.minimizeEditButton.toggleClass('icon-arrow-right', this.minimized);
         this.minimizeEditButton.toggleClass('icon-arrow-left', !this.minimized);
@@ -482,7 +484,7 @@ export class ContentWizardPanel
             this.scrollPosition = scroll;
             this.splitPanel.savePanelSizesAndDistribute(SplitPanelSize.PIXELS(40));
             this.splitPanel.hideSplitter();
-            this.stepNavigator.onNavigationItemActivated(this.toggleMinimizeListener);
+            this.stepNavigator.getNavigationItems().forEach((item: TabBarItem) => item.onSelected(this.toggleMinimizeListener));
             this.undockPCV();
         } else {
             this.splitPanel.loadPanelSizesAndDistribute();
@@ -719,9 +721,18 @@ export class ContentWizardPanel
             liveEditModel: this.liveEditModel,
         } as LiveFormPanelConfig);
 
-        this.toggleMinimizeListener = (event: ActivatedEvent) => {
-            this.toggleMinimize(event.getIndex());
+        this.toggleMinimizeListener = (event: TabItemSelectedEvent) => {
+            this.toggleMinimize(event.getTab().getIndex());
         };
+
+        this.stepNavigator.onNavigationItemAdded((event: NavigatorEvent) => {
+            const item: TabBarItem = event.getItem() as TabBarItem;
+            item.unSelected(this.toggleMinimizeListener);
+
+            if (this.isMinimized()) {
+                item.onSelected(this.toggleMinimizeListener);
+            }
+        });
 
         this.wizardActions.getShowLiveEditAction().setEnabled(true);
 
@@ -1255,6 +1266,7 @@ export class ContentWizardPanel
                                        renderable &&
                                        this.getLivePanel().isShown() &&
                                        !this.contextSplitPanel.isMobileMode() &&
+                                       !this.contextSplitPanel.isFloatingMode() &&
                                        ResponsiveRanges._1380_1620.isFitOrSmaller(this.getEl().getWidthWithBorder());
                 if (minimizeWizard) {
                     this.toggleMinimize();
