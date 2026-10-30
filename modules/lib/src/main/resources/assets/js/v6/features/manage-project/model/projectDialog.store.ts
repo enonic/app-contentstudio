@@ -64,6 +64,7 @@ type ProjectDialogStore = {
     permissions: Principal[];
     roles: Record<string, ProjectAccess>;
     rolePrincipals: Principal[];
+    /** The listed applications in order: the project's own and the inherited ones. */
     applications: Application[];
     /** Config per application key, for every selected application, inherited ones included. */
     applicationConfigs: Record<string, PropertySet>;
@@ -113,6 +114,8 @@ const initialState: ProjectDialogStore = {
 export const $projectDialog = map<ProjectDialogStore>(structuredClone(initialState));
 const $editProjectSnapshot = atom<EditProjectSnapshot | undefined>(undefined);
 const $initialParentNames = atom<readonly string[]>([]);
+/** The apps seeded from the parents on create, serialized like the edit snapshot's. */
+const $initialApplicationConfigs = atom<string>(serializeApplicationConfigs([], {}));
 const $confirmedAccessMode = atom<string | undefined>(undefined);
 
 export const $isProjectDialogAccessModeDirty = computed(
@@ -132,9 +135,15 @@ export const $projectDialogConfigScope = computed($projectDialog, ({ project }):
     content: null,
 }));
 
+/** The keys of the apps inherited from the parent projects, in parent order. */
+export const $projectDialogInheritedAppKeys = computed(
+    $projectDialog,
+    ({ parentProjects }): ReadonlySet<string> => new Set(getInheritedAppKeys(parentProjects)),
+);
+
 export const $isProjectDialogDirty = computed(
-    [$projectDialog, $editProjectSnapshot, $initialParentNames],
-    (state, snapshot, initialParents): boolean => {
+    [$projectDialog, $editProjectSnapshot, $initialParentNames, $initialApplicationConfigs],
+    (state, snapshot, initialParents, initialApplicationConfigs): boolean => {
         if (state.mode === 'edit' && snapshot) {
             const currentPermissionKeys = state.permissions.map((p) => p.getKey().toString());
             const snapshotPermissionKeys = snapshot.permissions.map((p) => p.getKey().toString());
@@ -175,7 +184,7 @@ export const $isProjectDialogDirty = computed(
             state.permissions.length > 0 ||
             Object.keys(state.roles).length > 0 ||
             state.rolePrincipals.length > 0 ||
-            state.applications.length > 0 ||
+            serializeApplicationConfigs(state.applications, state.applicationConfigs) !== initialApplicationConfigs ||
             state.nameData.name !== '' ||
             state.nameData.identifier !== '' ||
             state.nameData.description !== ''
@@ -192,24 +201,18 @@ export const openCreateProjectDialog = async (selectedProjects: Project[]): Prom
 
     await loadApplications();
 
-    const applications = $applications.get().applications;
-
-    const seen = new Set<string>();
-    const selectedApplications = selectedProjects
-        .flatMap((p) => p.getSiteConfigs())
-        .map((c) => c.getApplicationKey().toString())
-        .filter((k) => !seen.has(k) && (seen.add(k), true))
-        .map((k) => applications.find((a) => a.getApplicationKey().toString() === k))
-        .filter(Boolean);
+    const selectedApplications = resolveApplications(getInheritedAppKeys(selectedProjects));
+    const applicationConfigs = collectSiteConfigs(selectedProjects);
 
     $initialParentNames.set(selectedProjects.map((p) => p.getName()));
+    $initialApplicationConfigs.set(serializeApplicationConfigs(selectedApplications, applicationConfigs));
     $projectDialog.set({
         ...structuredClone(initialState),
         title: i18n('dialog.project.wizard.title'),
         open: true,
         parentProjects: selectedProjects,
         applications: selectedApplications,
-        applicationConfigs: collectSiteConfigs(selectedProjects),
+        applicationConfigs,
         isMultiInheritance: isMultiInheritance,
     });
 };
@@ -231,13 +234,10 @@ export const openEditProjectDialog = async (project: Project, parentProjects: Pr
 
     await loadApplications();
 
-    const applications = $applications.get().applications;
-    const projectApplications = project
-        .getSiteConfigs()
-        .map((config) =>
-            applications.find((app) => app.getApplicationKey().toString() === config.getApplicationKey().toString()),
-        )
-        .filter(Boolean);
+    // The project's own apps first, then the inherited ones it has no config for.
+    const ownKeys = project.getSiteConfigs().map((config) => config.getApplicationKey().toString());
+    const inheritedKeys = getInheritedAppKeys(parentProjects).filter((key) => !ownKeys.includes(key));
+    const projectApplications = resolveApplications([...ownKeys, ...inheritedKeys]);
 
     // The project's own configs win; parents fill in the inherited apps it has no config for.
     const applicationConfigs = collectSiteConfigs([project, ...parentProjects]);
@@ -283,6 +283,7 @@ export const openEditProjectDialog = async (project: Project, parentProjects: Pr
 export const closeProjectDialog = (): void => {
     $editProjectSnapshot.set(undefined);
     $initialParentNames.set([]);
+    $initialApplicationConfigs.set(serializeApplicationConfigs([], {}));
     $confirmedAccessMode.set(undefined);
     $projectDialog.set(structuredClone(initialState));
 };
@@ -302,8 +303,19 @@ export const setProjectDialogStep = (step: string): void => {
     $projectDialog.setKey('step', step);
 };
 
+/** Sets the parents; drops the apps no longer inherited and appends the newly inherited ones. */
 export const setProjectDialogParentProjects = (parentProjects: Readonly<Project>[]): void => {
+    const state = $projectDialog.get();
+    const before = new Set(getInheritedAppKeys(state.parentProjects));
+    const after = getInheritedAppKeys(parentProjects);
+    const afterSet = new Set(after);
+    const listed = new Set(state.applications.map(keyOf));
+
+    const kept = state.applications.filter((app) => !before.has(keyOf(app)) || afterSet.has(keyOf(app)));
+    const added = resolveApplications(after.filter((key) => !listed.has(key)));
+
     $projectDialog.setKey('parentProjects', parentProjects);
+    setApplications([...kept, ...added]);
 };
 
 export const setProjectDialogDefaultLanguage = (defaultLanguage: string): void => {
@@ -343,23 +355,54 @@ export const setProjectDialogRolePrincipals = (rolePrincipals: Principal[]): voi
     $projectDialog.setKey('rolePrincipals', rolePrincipals);
 };
 
+/** Applies a selection: new keys are appended in order, inherited apps stay even when left out. */
+export const selectProjectDialogApplications = (keys: readonly string[]): void => {
+    const { applications, parentProjects } = $projectDialog.get();
+    const inherited = new Set(getInheritedAppKeys(parentProjects));
+    const selected = new Set(keys);
+    const listed = new Set(applications.map(keyOf));
+
+    const kept = applications.filter((app) => selected.has(keyOf(app)) || inherited.has(keyOf(app)));
+    const added = resolveApplications(keys.filter((key) => !listed.has(key)));
+    if (kept.length === applications.length && added.length === 0) return;
+
+    setApplications([...kept, ...added]);
+};
+
+/** Removes an app from the list; inherited apps cannot be removed. */
+export const unselectProjectDialogApplication = (key: string): void => {
+    const { applications, parentProjects } = $projectDialog.get();
+    if (getInheritedAppKeys(parentProjects).includes(key)) return;
+
+    setApplications(applications.filter((app) => keyOf(app) !== key));
+};
+
+export const moveProjectDialogApplication = (fromIndex: number, toIndex: number): void => {
+    const next = [...$projectDialog.get().applications];
+    const [moved] = next.splice(fromIndex, 1);
+    if (!moved) return;
+
+    next.splice(toIndex, 0, moved);
+    $projectDialog.setKey('applications', next);
+};
+
 /**
- * Sets the selection; keeps the configs of apps that stay, takes the parents' configs for
+ * Sets the list; keeps the configs of apps that stay, takes the parents' configs for
  * new inherited ones, and seeds form defaults for the rest.
  */
-export const setProjectDialogApplications = (applications: Application[]): void => {
+function setApplications(applications: Application[]): void {
     const { applicationConfigs: previous, parentProjects } = $projectDialog.get();
     const parentConfigs = collectSiteConfigs(parentProjects);
     const applicationConfigs: Record<string, PropertySet> = {};
 
     for (const application of applications) {
-        const key = application.getApplicationKey().toString();
-        applicationConfigs[key] = previous[key] ?? parentConfigs[key] ?? createDefaultConfig(application);
+        applicationConfigs[keyOf(application)] =
+            previous[keyOf(application)] ?? parentConfigs[keyOf(application)] ?? createDefaultConfig(application);
     }
 
     $projectDialog.setKey('applications', applications);
     $projectDialog.setKey('applicationConfigs', applicationConfigs);
-};
+}
 
 export const setProjectDialogApplicationConfig = (applicationKey: string, config: PropertySet): void => {
     $projectDialog.setKey('applicationConfigs', {
@@ -614,6 +657,22 @@ function serializeApplicationConfigs(applications: Application[], configs: Recor
             return [key, configs[key]?.toJson() ?? []];
         }),
     );
+}
+
+const keyOf = (application: Application): string => application.getApplicationKey().toString();
+
+/** The app keys the given projects carry a site config for, deduped, in project order. */
+function getInheritedAppKeys(projects: readonly Readonly<Project>[]): string[] {
+    const keys = projects
+        .flatMap((project) => project.getSiteConfigs() ?? [])
+        .map((c) => c.getApplicationKey().toString());
+    return [...new Set(keys)];
+}
+
+/** The installed applications for the given keys, in order; keys of uninstalled apps are skipped. */
+function resolveApplications(keys: readonly string[]): Application[] {
+    const installed = $applications.get().applications;
+    return keys.map((key) => installed.find((app) => keyOf(app) === key)).filter(Boolean);
 }
 
 /** Clones the site configs of the given projects by app key; the first project to carry a key wins. */
