@@ -90,7 +90,7 @@
     "css-loader": "^7.1.5",
     "cssnano": "^8.0.2",
     "less-loader": "^13.1.0",
-    "oxfmt": "0.74.0",
+    "oxfmt": "0.75.0",
     "oxlint": "1.90.0",
     "postcss-loader": "^8.2.0",
     "postcss-normalize": "^13.0.1",
