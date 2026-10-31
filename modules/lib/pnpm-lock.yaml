@@ -184,8 +184,8 @@ importers:
         specifier: ^3.7.1
         version: 3.7.1
       less-loader:
-        specifier: ^13.0.0
-        version: 13.0.0(@rspack/core@2.2.9)(less@4.6.7)
+        specifier: ^13.1.0
+        version: 13.1.0(@rspack/core@2.2.9)(less@4.6.7)
       minimist:
         specifier: ^1.2.8
         version: 1.2.8
@@ -2273,8 +2273,8 @@ packages:
     resolution: {integrity: sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==}
     engines: {node: '>=6'}
 
-  less-loader@13.0.0:
-    resolution: {integrity: sha512-TIa8d6znKH634Mg+7OU3jevZT6KeOhh0amW+YeMPD0GM9buUn5Y7HvtyCR5pUDdLaFfqLA8AX5PTSIHMNSexEA==}
+  less-loader@13.1.0:
+    resolution: {integrity: sha512-oUzF3nuumJeMbYSwCVcEb/DwNn+0R/YdeC9OLIf+oQqcwF2/I42Z4972aNPxUy6R8uEkNdX6vEhYs45T+wiooQ==}
     engines: {node: '>= 22.11.0'}
     peerDependencies:
       '@rspack/core': 0.x || ^1.0.0 || ^2.0.0-0
@@ -4878,7 +4878,7 @@ snapshots:
 
   kleur@3.0.3: {}
 
-  less-loader@13.0.0(@rspack/core@2.2.9)(less@4.6.7):
+  less-loader@13.1.0(@rspack/core@2.2.9)(less@4.6.7):
     dependencies:
       '@types/less': 3.0.8
       less: 4.6.7
