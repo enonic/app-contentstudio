@@ -1,14 +1,29 @@
+import { type PropertySet, PropertyTree } from '@enonic/input-types/data';
 import { Dialog, IconButton, ListItem } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import { X } from 'lucide-react';
-import { ReactElement, type RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { $projectDialog, setProjectDialogApplications } from '../../model/projectDialog.store';
+import { Pencil, X } from 'lucide-react';
+import { listenKeys } from 'nanostores';
+import { ReactElement, type RefObject, useCallback, useMemo, useState, useSyncExternalStore } from 'react';
+import {
+    $projectDialog,
+    $projectDialogConfigScope,
+    $projectDialogInheritedAppKeys,
+    getProjectDialogApplicationConfig,
+    moveProjectDialogApplication,
+    selectProjectDialogApplications,
+    setProjectDialogApplicationConfig,
+    unselectProjectDialogApplication,
+} from '../../model/projectDialog.store';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
-import { $applications } from '../../../../entities/application';
 import { ItemLabel } from '../../../../shared/ui/ItemLabel';
 import { ApplicationIcon } from '../../../../shared/ui/icons/ApplicationIcon';
 import { ApplicationSelector } from '../../../shared/selectors/ApplicationSelector';
 import { SortableGridList } from '@enonic/input-types';
+import { ApplicationConfigDialog } from '../../../shared/form';
+
+const subscribeToApplications = (onChange: () => void): (() => void) =>
+    listenKeys($projectDialog, ['applications'], onChange);
+const getApplications = () => $projectDialog.get().applications;
 
 export const ProjectDialogApplicationStepHeader = (): ReactElement => {
     const { mode, title } = useStore($projectDialog, { keys: ['mode', 'title'] });
@@ -33,83 +48,52 @@ export type ProjectDialogApplicationStepContentProps = {
     applicationInputRef?: RefObject<HTMLInputElement | null>;
 };
 
+type EditingState = {
+    appKey: string;
+    configSet: PropertySet;
+};
+
 export const ProjectDialogApplicationStepContent = ({
     locked = false,
     applicationInputRef,
 }: ProjectDialogApplicationStepContentProps): ReactElement => {
     // Hooks
-    const { applications: newProjectApplications, parentProjects } = useStore($projectDialog, {
-        keys: ['applications', 'parentProjects'],
-    });
-    const { applications } = useStore($applications, { keys: ['applications'] });
-    const inheritedKeySet = useMemo(
-        () => new Set(parentProjects.flatMap((p) => p.getSiteConfigs()).map((c) => c.getApplicationKey().toString())),
-        [parentProjects],
-    );
+    const applications = useSyncExternalStore(subscribeToApplications, getApplications);
+    const inheritedKeys = useStore($projectDialogInheritedAppKeys);
+    const configScope = useStore($projectDialogConfigScope);
+    const selection = useMemo(() => applications.map((app) => app.getApplicationKey().toString()), [applications]);
 
     // Constants
     const label = useI18n('settings.items.wizard.step.applications');
     const typeToSearchLabel = useI18n('field.option.placeholder');
     const noApplicationsFoundLabel = useI18n('dialog.project.wizard.application.noApplicationsFound');
     const reorderLabel = useI18n('field.occurrence.action.reorder');
-
-    // Refs
-    const prevInheritedRef = useRef<Set<string>>(inheritedKeySet);
+    const editLabel = useI18n('action.edit');
+    const removeLabel = useI18n('action.remove');
 
     // States
-    const [selection, setSelection] = useState<string[]>(() =>
-        newProjectApplications.map((app) => app.getApplicationKey().toString()),
-    );
-
-    // Reconcile orderedKeys when inherited apps change (parent added/removed in step 1)
-    useEffect(() => {
-        const prevInherited = prevInheritedRef.current;
-        prevInheritedRef.current = inheritedKeySet;
-
-        setSelection((prev) => {
-            const removed = new Set([...prevInherited].filter((k) => !inheritedKeySet.has(k)));
-            const existingSet = new Set(prev);
-            const added = [...inheritedKeySet].filter((k) => !existingSet.has(k));
-            if (removed.size === 0 && added.length === 0) return prev;
-            return [...prev.filter((k) => !removed.has(k)), ...added];
-        });
-    }, [inheritedKeySet]);
-
-    // Sync with the store
-    useEffect(() => {
-        const apps = selection
-            .map((id) => applications.find((application) => application.getApplicationKey().toString() === id))
-            .filter(Boolean);
-        setProjectDialogApplications(apps);
-    }, [selection, applications]);
+    const [editing, setEditing] = useState<EditingState | null>(null);
 
     // Handlers
-    const handleSelectionChange = useCallback(
-        (newSelection: string[]): void => {
-            setSelection((prev) => {
-                const prevSet = new Set(prev);
-                const newSet = new Set(newSelection);
-                const added = newSelection.filter((k) => !prevSet.has(k));
-                const removed = new Set(prev.filter((k) => !newSet.has(k) && !inheritedKeySet.has(k)));
-                if (added.length === 0 && removed.size === 0) return prev;
-                return [...prev.filter((k) => !removed.has(k)), ...added];
-            });
-        },
-        [inheritedKeySet],
-    );
-
-    const handleUnselect = useCallback((key: string): void => {
-        setSelection((prev) => prev.filter((k) => k !== key));
+    // The dialog edits a clone; the store gets it only on apply.
+    const handleEdit = useCallback((key: string): void => {
+        const json = getProjectDialogApplicationConfig(key)?.toJson() ?? [];
+        setEditing({ appKey: key, configSet: PropertyTree.fromJson(json).getRoot() });
     }, []);
 
-    const handleReorder = useCallback((fromIndex: number, toIndex: number): void => {
-        setSelection((prev) => {
-            const next = [...prev];
-            const [moved] = next.splice(fromIndex, 1);
-            next.splice(toIndex, 0, moved);
-            return next;
-        });
+    const handleApplyConfig = useCallback((): void => {
+        if (!editing) return;
+        setProjectDialogApplicationConfig(editing.appKey, editing.configSet);
+        setEditing(null);
+    }, [editing]);
+
+    const handleCloseConfig = useCallback((): void => {
+        setEditing(null);
     }, []);
+
+    const editingApp = editing
+        ? applications.find((app) => app.getApplicationKey().toString() === editing.appKey)
+        : undefined;
 
     return (
         <Dialog.StepContent step="step-application" locked={locked}>
@@ -117,43 +101,68 @@ export const ProjectDialogApplicationStepContent = ({
                 inputRef={applicationInputRef}
                 label={label}
                 selection={selection}
-                onSelectionChange={handleSelectionChange}
+                onSelectionChange={selectProjectDialogApplications}
                 selectionMode="staged"
                 placeholder={typeToSearchLabel}
                 emptyLabel={noApplicationsFoundLabel}
-                inheritedKeys={inheritedKeySet}
+                inheritedKeys={inheritedKeys}
                 closeOnBlur
             />
-            {selection.length > 0 && (
+            {applications.length > 0 && (
                 <SortableGridList
-                    items={Array.from(selection)}
-                    keyExtractor={(key) => key}
-                    onMove={handleReorder}
+                    items={applications}
+                    keyExtractor={(app) => app.getApplicationKey().toString()}
+                    onMove={moveProjectDialogApplication}
                     enabled
                     fullRowDraggable
                     dragLabel={reorderLabel}
                     className="flex flex-col gap-y-2.5 rounded-md mb-2.5 py-2.5 px-1"
-                    renderItem={({ item: key }) => {
-                        const application = applications.find((app) => app.getApplicationKey().toString() === key);
-                        const name = application?.getDisplayName();
-                        const description = application?.getDescription();
+                    renderItem={({ item: application }) => {
+                        const key = application.getApplicationKey().toString();
+                        const hasForm = application.getForm()?.getFormItems().length > 0;
 
                         return (
                             <ListItem className="pl-0 py-0 flex-1 bg-unset">
                                 <ListItem.Content className="flex items-center gap-2.5 p-1.5 rounded cursor-move">
                                     <ItemLabel
-                                        icon={application ? <ApplicationIcon application={application} /> : null}
-                                        primary={name}
-                                        secondary={description}
+                                        icon={<ApplicationIcon application={application} />}
+                                        primary={application.getDisplayName()}
+                                        secondary={application.getDescription()}
                                         className="flex-1 self-stretch"
                                     />
-                                    {!inheritedKeySet.has(key) && (
-                                        <IconButton variant="text" icon={X} onClick={() => handleUnselect(key)} />
+                                    {hasForm && (
+                                        <IconButton
+                                            variant="text"
+                                            icon={Pencil}
+                                            aria-label={editLabel}
+                                            onClick={() => handleEdit(key)}
+                                        />
+                                    )}
+                                    {!inheritedKeys.has(key) && (
+                                        <IconButton
+                                            variant="text"
+                                            icon={X}
+                                            aria-label={removeLabel}
+                                            onClick={() => unselectProjectDialogApplication(key)}
+                                        />
                                     )}
                                 </ListItem.Content>
                             </ListItem>
                         );
                     }}
+                />
+            )}
+            {editing && (
+                <ApplicationConfigDialog
+                    application={editingApp}
+                    applicationKey={editing.appKey}
+                    form={editingApp?.getForm()}
+                    configSet={editing.configSet}
+                    enabled
+                    stacked
+                    {...configScope}
+                    onApply={handleApplyConfig}
+                    onClose={handleCloseConfig}
                 />
             )}
         </Dialog.StepContent>

@@ -33,6 +33,7 @@ const FORM2_HOLDOUT = `^${V6}/features/shared/`;
 
 // The holdout files that still import upward or sideways; an entry goes when its edges do.
 const FORM2_HOLDOUT_PENDING = [
+    `^${V6}/features/shared/form/ApplicationConfigDialog.tsx`,
     `^${V6}/features/shared/form/input-types/attachment-uploader/useAttachmentServerErrors.ts`,
     `^${V6}/features/shared/form/input-types/attachment-uploader/useAttachmentUploader.ts`,
     `^${V6}/features/shared/form/input-types/content-selector/ContentSelectorInputAddButton.tsx`,

@@ -1,7 +1,7 @@
 /**
  * Created on 05.08.2022
  */
-const {DROPDOWN, TREE_GRID, BUTTONS} = require('../../../libs/elements');
+const { DROPDOWN, TREE_GRID, BUTTONS } = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const ProjectWizardDialog = require('./project.wizard.dialog');
 const ProjectApplicationsCombobox = require('../../components/projects/project.applications.combobox');
@@ -17,16 +17,15 @@ const XPATH = {
     selectedAppDisplayNameSpan:
         SELECTED_APPS_GRID +
         "//div[@data-component='ListItem']//div[@data-component='ItemLabel']//span[contains(@class,'font-semibold')]",
-    // The remove (X) IconButton for a given app display name. Empty aria-label means we key on data-component.
-    removeAppIconByDisplayName: displayName =>
+    // The remove (X) IconButton for a given app display name.
+    removeAppIconByDisplayName: (displayName) =>
         SELECTED_APPS_GRID +
         `//div[@data-component='ListItem' and descendant::div[@data-component='ItemLabel']//span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]` +
-        "//button[@data-component='IconButton']",
+        BUTTONS.BUTTON_REMOVE_ICON,
 };
-const DESCRIPTION = "Select applications for the project content";
+const DESCRIPTION = 'Select applications for the project content';
 
 class ProjectWizardDialogApplicationsStep extends ProjectWizardDialog {
-
     get container() {
         return XPATH.container;
     }
@@ -51,7 +50,11 @@ class ProjectWizardDialogApplicationsStep extends ProjectWizardDialog {
             await projectApplicationsComboBox.clickOnApplySelectionButton();
             return await this.pause(500);
         } catch (err) {
-            await this.handleError("Project Wizard Dialog, error while selecting an application in dropdown", 'err_select_app_dropdown', err);
+            await this.handleError(
+                'Project Wizard Dialog, error while selecting an application in dropdown',
+                'err_select_app_dropdown',
+                err,
+            );
         }
     }
 
@@ -59,7 +62,7 @@ class ProjectWizardDialogApplicationsStep extends ProjectWizardDialog {
         try {
             await this.waitForElementDisplayed(XPATH.container);
         } catch (err) {
-            await this.handleError("Project Wizard Dialog, app step was not loaded", 'err_name_step', err);
+            await this.handleError('Project Wizard Dialog, app step was not loaded', 'err_name_step', err);
         }
     }
 
@@ -71,14 +74,15 @@ class ProjectWizardDialogApplicationsStep extends ProjectWizardDialog {
         let result = Promise.resolve();
         appDisplayNames.forEach((displayName) => {
             result = result.then(() => {
-                return this.selectApplication(displayName)
+                return this.selectApplication(displayName);
             });
         });
         return result;
     }
 
     async waitForRemoveAppIconNotDisplayed(appName) {
-        const removeIconLocator = XPATH.container + TREE_GRID.gridListRowByDisplayName(appName) + BUTTONS.BUTTON_REMOVE_ICON;//XPATH.removeAppIconByDisplayName(appName);
+        const removeIconLocator =
+            XPATH.container + TREE_GRID.gridListRowByDisplayName(appName) + BUTTONS.BUTTON_REMOVE_ICON; //XPATH.removeAppIconByDisplayName(appName);
         await this.waitForElementNotDisplayed(removeIconLocator, appConst.mediumTimeout);
     }
 
@@ -112,4 +116,3 @@ class ProjectWizardDialogApplicationsStep extends ProjectWizardDialog {
 }
 
 module.exports = ProjectWizardDialogApplicationsStep;
-
