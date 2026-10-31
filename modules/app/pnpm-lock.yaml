@@ -208,8 +208,8 @@ importers:
         specifier: ^8.0.2
         version: 8.0.2(postcss@8.5.26)
       less-loader:
-        specifier: ^13.0.0
-        version: 13.0.0(@rspack/core@2.2.9)(less@4.6.7)
+        specifier: ^13.1.0
+        version: 13.1.0(@rspack/core@2.2.9)(less@4.6.7)
       oxfmt:
         specifier: 0.74.0
         version: 0.74.0
@@ -1340,8 +1340,8 @@ packages:
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
 
-  less-loader@13.0.0:
-    resolution: {integrity: sha512-TIa8d6znKH634Mg+7OU3jevZT6KeOhh0amW+YeMPD0GM9buUn5Y7HvtyCR5pUDdLaFfqLA8AX5PTSIHMNSexEA==}
+  less-loader@13.1.0:
+    resolution: {integrity: sha512-oUzF3nuumJeMbYSwCVcEb/DwNn+0R/YdeC9OLIf+oQqcwF2/I42Z4972aNPxUy6R8uEkNdX6vEhYs45T+wiooQ==}
     engines: {node: '>= 22.11.0'}
     peerDependencies:
       '@rspack/core': 0.x || ^1.0.0 || ^2.0.0-0
@@ -2740,7 +2740,7 @@ snapshots:
     dependencies:
       '@dmsnell/diff-match-patch': 1.1.0
 
-  less-loader@13.0.0(@rspack/core@2.2.9)(less@4.6.7):
+  less-loader@13.1.0(@rspack/core@2.2.9)(less@4.6.7):
     dependencies:
       '@types/less': 3.0.8
       less: 4.6.7
