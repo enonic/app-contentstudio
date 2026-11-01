@@ -249,6 +249,19 @@ describe('projectDialog.store application configs', () => {
 
             expect([...$projectDialogInheritedAppKeys.get()]).toEqual(['app:a', 'app:b', 'app:c']);
         });
+
+        it('should keep the same set across an unrelated change and replace it on a parent switch', async () => {
+            const p1 = createProject('p1', [createSiteConfig('app:a', {})]);
+            await openCreateProjectDialog([p1]);
+            const before = $projectDialogInheritedAppKeys.get();
+
+            rename();
+            expect($projectDialogInheritedAppKeys.get()).toBe(before);
+
+            setProjectDialogParentProjects([createProject('p2', [createSiteConfig('app:b', {})])]);
+            expect($projectDialogInheritedAppKeys.get()).not.toBe(before);
+            expect([...$projectDialogInheritedAppKeys.get()]).toEqual(['app:b']);
+        });
     });
 
     describe('setProjectDialogParentProjects', () => {

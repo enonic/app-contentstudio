@@ -98,6 +98,13 @@ type EditProjectSnapshot = {
     applicationConfigs: string;
 };
 
+type SerializedApplicationConfigs = {
+    applications: Application[];
+    ownConfigs: Record<string, PropertySet>;
+    parentProjects: readonly Readonly<Project>[];
+    result: string;
+};
+
 const initialState: ProjectDialogStore = {
     // config
     title: '',
@@ -131,6 +138,10 @@ const initialState: ProjectDialogStore = {
 export const $projectDialog = map<ProjectDialogStore>(structuredClone(initialState));
 const $editProjectSnapshot = atom<EditProjectSnapshot | undefined>(undefined);
 const $initialParentNames = atom<readonly string[]>([]);
+
+// The last serialization, by its inputs; the dirty check runs on every store change, the inputs rarely.
+let serializedApplicationConfigs: SerializedApplicationConfigs | undefined;
+
 /** The apps seeded from the parents on create, serialized like the edit snapshot's. */
 const $initialApplicationConfigs = atom<string>(serializeApplicationConfigs([], {}, []));
 const $confirmedAccessMode = atom<string | undefined>(undefined);
@@ -152,11 +163,16 @@ export const $projectDialogConfigScope = computed($projectDialog, ({ project }):
     content: null,
 }));
 
+// The last derived set, by the parents it came from; the same instance keeps the step from re-rendering.
+let inheritedAppKeysMemo: { parentProjects: readonly Readonly<Project>[]; keys: ReadonlySet<string> } | undefined;
+
 /** The keys of the apps inherited from the parent projects, in parent order. */
-export const $projectDialogInheritedAppKeys = computed(
-    $projectDialog,
-    ({ parentProjects }): ReadonlySet<string> => new Set(getInheritedAppKeys(parentProjects)),
-);
+export const $projectDialogInheritedAppKeys = computed($projectDialog, ({ parentProjects }): ReadonlySet<string> => {
+    if (inheritedAppKeysMemo?.parentProjects !== parentProjects) {
+        inheritedAppKeysMemo = { parentProjects, keys: new Set(getInheritedAppKeys(parentProjects)) };
+    }
+    return inheritedAppKeysMemo.keys;
+});
 
 export const $isProjectDialogDirty = computed(
     [$projectDialog, $editProjectSnapshot, $initialParentNames, $initialApplicationConfigs],
@@ -723,15 +739,30 @@ function getRequestsGuards(): RequestGuards {
     return { updateGuard, permissionsGuard, accessGuard };
 }
 
-/** Keys in selection order with their resolved config JSON, so one string compares apps, order and configs. */
+/**
+ * Keys in selection order with their resolved config JSON, so one string compares apps, order and configs.
+ * Cached on the identity of the inputs, which the commands replace rather than mutate.
+ */
 function serializeApplicationConfigs(
     applications: Application[],
     ownConfigs: Record<string, PropertySet>,
     parentProjects: readonly Readonly<Project>[],
 ): string {
-    return JSON.stringify(
+    const last = serializedApplicationConfigs;
+    if (
+        last &&
+        last.applications === applications &&
+        last.ownConfigs === ownConfigs &&
+        last.parentProjects === parentProjects
+    ) {
+        return last.result;
+    }
+
+    const result = JSON.stringify(
         applications.map((app) => [keyOf(app), resolveApplicationConfig(app, ownConfigs, parentProjects).toJson()]),
     );
+    serializedApplicationConfigs = { applications, ownConfigs, parentProjects, result };
+    return result;
 }
 
 /** The config an app saves with: its own, else the first parent's carrying it, else the form defaults. */
