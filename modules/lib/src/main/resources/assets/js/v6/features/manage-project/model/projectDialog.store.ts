@@ -50,7 +50,7 @@ type ProjectDialogStore = {
     title: string;
     open: boolean;
     mode: 'create' | 'edit';
-    view: 'main' | 'dirty-confirmation' | 'access-confirmation' | 'progress';
+    view: 'main' | 'dirty-confirmation' | 'access-confirmation' | 'progress' | 'config' | 'config-discard';
     isMultiInheritance: boolean;
     step: string;
     submitting: boolean;
@@ -74,7 +74,16 @@ type ProjectDialogStore = {
     applicationConfigs: Record<string, PropertySet>;
     /** The edited project's site configs step 2 does not list, portal and uninstalled apps; sent back as they are. */
     preservedSiteConfigs: ApplicationConfig[];
+    /** The app whose config the `config` view edits, on a clone the store gets back on apply. */
+    editingConfig?: EditingConfig;
+    /** Whether the edited config differs from its state on open; reported by the view. */
+    configDirty: boolean;
     nameData: ProjectNameData;
+};
+
+type EditingConfig = {
+    application: Application;
+    configSet: PropertySet;
 };
 
 type EditProjectSnapshot = {
@@ -110,6 +119,7 @@ const initialState: ProjectDialogStore = {
     applications: [],
     applicationConfigs: {},
     preservedSiteConfigs: [],
+    configDirty: false,
     nameData: {
         name: '',
         identifier: '',
@@ -419,6 +429,51 @@ export const getProjectDialogApplicationConfig = (applicationKey: string): Prope
     const application = applications.find((app) => keyOf(app) === applicationKey);
     return application && resolveApplicationConfig(application, applicationConfigs, parentProjects);
 };
+
+/** Opens the `config` view on a clone of the app's resolved config; the store gets it back on apply. */
+export const openProjectDialogApplicationConfig = (applicationKey: string): void => {
+    const { applications, applicationConfigs, parentProjects } = $projectDialog.get();
+    const application = applications.find((app) => keyOf(app) === applicationKey);
+    if (!application) return;
+
+    const config = resolveApplicationConfig(application, applicationConfigs, parentProjects);
+    const configSet = PropertyTree.fromJson(config.toJson()).getRoot();
+
+    $projectDialog.setKey('editingConfig', { application, configSet });
+    $projectDialog.setKey('configDirty', false);
+    $projectDialog.setKey('view', 'config');
+};
+
+export const setProjectDialogConfigDirty = (dirty: boolean): void => {
+    $projectDialog.setKey('configDirty', dirty);
+};
+
+export const applyProjectDialogApplicationConfig = (): void => {
+    const { editingConfig } = $projectDialog.get();
+    if (!editingConfig) return;
+
+    setProjectDialogApplicationConfig(keyOf(editingConfig.application), editingConfig.configSet);
+    closeConfigView();
+};
+
+/** Leaves the `config` view, asking first when the config has changes. */
+export const closeProjectDialogApplicationConfig = (): void => {
+    if ($projectDialog.get().configDirty) {
+        $projectDialog.setKey('view', 'config-discard');
+    } else {
+        closeConfigView();
+    }
+};
+
+export const discardProjectDialogApplicationConfig = (): void => {
+    closeConfigView();
+};
+
+function closeConfigView(): void {
+    $projectDialog.setKey('editingConfig', undefined);
+    $projectDialog.setKey('configDirty', false);
+    $projectDialog.setKey('view', 'main');
+}
 
 export const setProjectDialogName = (data: ProjectNameData): void => {
     $projectDialog.setKey('nameData', data);

@@ -6,7 +6,7 @@ import { validateForm } from '@enonic/input-types';
 import { Button, Dialog } from '@enonic/ui';
 import { AlertTriangle } from 'lucide-react';
 import type { ReactElement } from 'react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import { StatusBarEntry } from '../../../shared/ui/dialogs/status-bar/StatusBarEntry';
 import { ApplicationIcon } from '../../../shared/ui/icons/ApplicationIcon';
@@ -15,6 +15,12 @@ import { hasScopeDisabledInputs } from './formScopeRequirements';
 import type { FormScope } from './FormScopeContext';
 
 const COMPONENT_NAME = 'ApplicationConfigDialogContent';
+
+/**
+ * The serialized set as it was a frame after the first mount, by the set. Kept out of React state so
+ * it survives the host unmounting the content, e.g. while its discard confirmation shows.
+ */
+const baselines = new WeakMap<PropertySet, string>();
 
 /** `project` and `content` scope the form; a key left out falls back to the stores. */
 export type ApplicationConfigDialogContentProps = FormScope & {
@@ -33,7 +39,7 @@ export type ApplicationConfigDialogContentProps = FormScope & {
 /**
  * The content of an application's config dialog: header, a warning when the scope disables
  * some inputs, the form, and an Apply button that enables once the set is dirty and valid.
- * Mount it only while editing; its dirty baseline is taken on mount.
+ * The dirty baseline is taken on the first mount of a given set.
  */
 export const ApplicationConfigDialogContent = ({
     application,
@@ -46,8 +52,6 @@ export const ApplicationConfigDialogContent = ({
     onApply,
     onDirtyChange,
 }: ApplicationConfigDialogContentProps): ReactElement => {
-    const baselineRef = useRef<string | null>(null);
-
     const applyLabel = useI18n('action.apply');
     const disabledInputsText = useI18n('dialog.applicationConfig.disabledInputs');
     const hasDisabledInputs = hasScopeDisabledInputs(form, { project, content });
@@ -95,7 +99,6 @@ export const ApplicationConfigDialogContent = ({
                     label={applyLabel}
                     configSet={configSet}
                     form={form}
-                    baselineRef={baselineRef}
                     onApply={onApply}
                     onDirtyChange={onDirtyChange}
                 />
@@ -114,36 +117,28 @@ type ApplyButtonProps = {
     label: string;
     configSet: PropertySet;
     form: Form;
-    baselineRef: React.RefObject<string | null>;
     onApply: () => void;
     onDirtyChange?: (dirty: boolean) => void;
 };
 
-const ApplyButton = ({
-    label,
-    configSet,
-    form,
-    baselineRef,
-    onApply,
-    onDirtyChange,
-}: ApplyButtonProps): ReactElement => {
+const ApplyButton = ({ label, configSet, form, onApply, onDirtyChange }: ApplyButtonProps): ReactElement => {
     const [dirty, setDirty] = useState(false);
     const [valid, setValid] = useState(true);
 
     useEffect(() => {
         const check = () => {
-            if (baselineRef.current == null) return;
-            const current = JSON.stringify(configSet.toJson());
-            const isDirty = current !== baselineRef.current;
+            const baseline = baselines.get(configSet);
+            if (baseline == null) return;
+            const isDirty = JSON.stringify(configSet.toJson()) !== baseline;
             setDirty(isDirty);
             onDirtyChange?.(isDirty);
             setValid(validateForm(form, configSet).isValid);
         };
 
         let frameId: number | undefined;
-        if (baselineRef.current == null) {
+        if (!baselines.has(configSet)) {
             frameId = requestAnimationFrame(() => {
-                baselineRef.current = JSON.stringify(configSet.toJson());
+                baselines.set(configSet, JSON.stringify(configSet.toJson()));
                 frameId = undefined;
             });
         } else {
@@ -158,7 +153,7 @@ const ApplyButton = ({
             }
             configSet.unChanged(check);
         };
-    }, [configSet, form, baselineRef, onDirtyChange]);
+    }, [configSet, form, onDirtyChange]);
 
     return <Button size="lg" label={label} variant="solid" disabled={!dirty || !valid} onClick={onApply} />;
 };

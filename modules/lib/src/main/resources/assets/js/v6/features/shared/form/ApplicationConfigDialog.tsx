@@ -21,8 +21,6 @@ export type ApplicationConfigDialogProps = FormScope & {
     /** The set the form edits. Pass a clone; the caller copies it back on apply. */
     configSet: PropertySet;
     enabled: boolean;
-    /** Set when the dialog opens over another dialog. */
-    stacked?: boolean;
     onApply: () => void;
     onClose: () => void;
 };
@@ -37,7 +35,6 @@ export const ApplicationConfigDialog = ({
     form,
     configSet,
     enabled,
-    stacked = false,
     project,
     content,
     onApply,
@@ -78,10 +75,9 @@ export const ApplicationConfigDialog = ({
     return (
         <Dialog.Root open onOpenChange={handleOpenChange}>
             <Dialog.Portal>
-                {!overlayHidden && <Dialog.Overlay className={cn(stacked && 'z-40 bg-transparent')} />}
+                {!overlayHidden && <Dialog.Overlay />}
                 {view === 'main' && form && (
                     <Dialog.Content
-                        data-click-outside-ignore={stacked || undefined}
                         modal={contentProps.modal}
                         className={cn(
                             'w-full h-full max-sm:max-h-none gap-6 sm:h-fit md:min-w-152 md:max-w-184 md:max-h-[85vh]',
@@ -102,7 +98,7 @@ export const ApplicationConfigDialog = ({
                     </Dialog.Content>
                 )}
                 {view === 'confirmation' && (
-                    <ConfirmationDialog.Content data-click-outside-ignore={stacked || undefined}>
+                    <ConfirmationDialog.Content>
                         <ConfirmationDialog.DefaultHeader title={confirmTitle} description={confirmDescription} />
                         <ConfirmationDialog.Footer onConfirm={onClose} />
                     </ConfirmationDialog.Content>

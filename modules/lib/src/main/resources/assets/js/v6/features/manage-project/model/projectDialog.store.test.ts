@@ -73,17 +73,22 @@ vi.mock('../../../../app/settings/data/project/ProjectConfigContext', () => ({
 import { $applications } from '../../../entities/application';
 import {
     $isProjectDialogDirty,
+    applyProjectDialogApplicationConfig,
     $projectDialog,
     createProject as createProjectAction,
     $projectDialogConfigScope,
     $projectDialogInheritedAppKeys,
     closeProjectDialog,
+    closeProjectDialogApplicationConfig,
+    discardProjectDialogApplicationConfig,
     getProjectDialogApplicationConfig,
     moveProjectDialogApplication,
     openCreateProjectDialog,
     openEditProjectDialog,
+    openProjectDialogApplicationConfig,
     selectProjectDialogApplications,
     setProjectDialogApplicationConfig,
+    setProjectDialogConfigDirty,
     setProjectDialogName,
     setProjectDialogParentProjects,
     unselectProjectDialogApplication,
@@ -432,6 +437,72 @@ describe('projectDialog.store application configs', () => {
             const restored = new PropertyTree().getRoot();
             restored.setString('color', 0, 'red');
             setProjectDialogApplicationConfig('app:b', restored);
+            expect($isProjectDialogDirty.get()).toBe(false);
+        });
+    });
+
+    describe('application config view', () => {
+        const editing = () => $projectDialog.get().editingConfig;
+        const view = () => $projectDialog.get().view;
+
+        it('should open the config view on a clone of the resolved config', async () => {
+            await openEditProjectDialog(createProject('layer', [createSiteConfig('app:b', { color: 'red' })]), []);
+
+            openProjectDialogApplicationConfig('app:b');
+
+            expect(view()).toBe('config');
+            expect(editing()?.application.getApplicationKey().toString()).toBe('app:b');
+            expect(editing()?.configSet.getString('color')).toBe('red');
+            expect(editing()?.configSet).not.toBe(configOf('app:b'));
+            expect($projectDialog.get().configDirty).toBe(false);
+        });
+
+        it('should ignore an app that is not listed', async () => {
+            await openCreateProjectDialog([]);
+
+            openProjectDialogApplicationConfig('app:b');
+
+            expect(view()).toBe('main');
+            expect(editing()).toBeUndefined();
+        });
+
+        it('should store the edited clone as the own config on apply', async () => {
+            await openEditProjectDialog(createProject('layer', [createSiteConfig('app:b', { color: 'red' })]), []);
+            openProjectDialogApplicationConfig('app:b');
+            editing()?.configSet.setString('color', 0, 'green');
+
+            applyProjectDialogApplicationConfig();
+
+            expect(view()).toBe('main');
+            expect(editing()).toBeUndefined();
+            expect(ownConfigOf('app:b').getString('color')).toBe('green');
+            expect($isProjectDialogDirty.get()).toBe(true);
+        });
+
+        it('should close without asking when the config is clean', async () => {
+            await openEditProjectDialog(createProject('layer', [createSiteConfig('app:b', { color: 'red' })]), []);
+            openProjectDialogApplicationConfig('app:b');
+
+            closeProjectDialogApplicationConfig();
+
+            expect(view()).toBe('main');
+            expect(editing()).toBeUndefined();
+        });
+
+        it('should ask before closing when the config is dirty, then drop the edit on discard', async () => {
+            await openEditProjectDialog(createProject('layer', [createSiteConfig('app:b', { color: 'red' })]), []);
+            openProjectDialogApplicationConfig('app:b');
+            editing()?.configSet.setString('color', 0, 'green');
+            setProjectDialogConfigDirty(true);
+
+            closeProjectDialogApplicationConfig();
+            expect(view()).toBe('config-discard');
+            expect(editing()).toBeDefined();
+
+            discardProjectDialogApplicationConfig();
+            expect(view()).toBe('main');
+            expect(editing()).toBeUndefined();
+            expect(ownConfigOf('app:b').getString('color')).toBe('red');
             expect($isProjectDialogDirty.get()).toBe(false);
         });
     });
