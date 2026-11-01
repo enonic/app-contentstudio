@@ -13,27 +13,18 @@ vi.mock('@enonic/ui', () => {
         cn: (...args: unknown[]) => args.filter(Boolean).join(' '),
         Button: ({ label }: { label?: string }) => <button type="button">{label}</button>,
         Dialog: {
-            Root: passthrough,
-            Portal: passthrough,
-            Overlay: () => null,
-            Content: passthrough,
             Header: passthrough,
             Title: passthrough,
             Description: passthrough,
             DefaultClose: () => null,
             Body: passthrough,
             Footer: passthrough,
-            Close: passthrough,
         },
     };
 });
 
 vi.mock('../../../shared/lib/hooks/useI18n', () => ({
     useI18n: (key: string) => key,
-}));
-
-vi.mock('../../../shared/ui/dialogs/ConfirmationDialog', () => ({
-    ConfirmationDialog: { Content: () => null, DefaultHeader: () => null, Footer: () => null },
 }));
 
 vi.mock('./FormRenderer', () => ({
@@ -44,7 +35,7 @@ vi.mock('./FormRenderer', () => ({
 }));
 
 import type { Project } from '../../../../app/settings/data/project/Project';
-import { ApplicationConfigDialog } from './ApplicationConfigDialog';
+import { ApplicationConfigDialogContent } from './ApplicationConfigDialogContent';
 
 const createForm = (inputType: string): Form =>
     new Form([
@@ -68,16 +59,15 @@ const project = { getName: () => 'layer' } as unknown as Project;
 
 type Scope = { project?: Readonly<Project> | null; content?: null };
 
-const renderDialog = (props: Scope & { form?: Form } = {}) =>
+const renderContent = (props: Scope & { form?: Form } = {}) =>
     render(
-        <ApplicationConfigDialog
+        <ApplicationConfigDialogContent
             application={undefined}
             applicationKey="app:test"
             form={form}
             configSet={new PropertyTree().getRoot()}
             enabled
             onApply={vi.fn()}
-            onClose={vi.fn()}
             {...props}
         />,
     );
@@ -87,7 +77,7 @@ const getFormScope = (): Scope => {
     return { project, content };
 };
 
-describe('ApplicationConfigDialog', () => {
+describe('ApplicationConfigDialogContent', () => {
     beforeAll(() => {
         registerBuiltInTypes();
     });
@@ -99,38 +89,38 @@ describe('ApplicationConfigDialog', () => {
     });
 
     it('should pass an empty scope to the form as given', () => {
-        renderDialog({ project: null, content: null });
+        renderContent({ project: null, content: null });
 
         expect(getFormScope()).toEqual({ project: null, content: null });
     });
 
     it('should pass the project to the form with no content', () => {
-        renderDialog({ project, content: null });
+        renderContent({ project, content: null });
 
         expect(getFormScope().project).toBe(project);
         expect(getFormScope().content).toBeNull();
     });
 
     it('should leave the scope to the form when none is given', () => {
-        renderDialog();
+        renderContent();
 
         expect(getFormScope()).toEqual({ project: undefined, content: undefined });
     });
 
     it('should warn above the form when the scope disables one of its inputs', () => {
-        renderDialog({ form: contentSelectorForm, project: null, content: null });
+        renderContent({ form: contentSelectorForm, project: null, content: null });
 
         expect(screen.getByText(WARNING_KEY)).toBeTruthy();
     });
 
     it('should not warn when no input depends on what the scope lacks', () => {
-        renderDialog({ project: null, content: null });
+        renderContent({ project: null, content: null });
 
         expect(screen.queryByText(WARNING_KEY)).toBeNull();
     });
 
     it('should not warn when the scope is left to the stores', () => {
-        renderDialog({ form: contentSelectorForm });
+        renderContent({ form: contentSelectorForm });
 
         expect(screen.queryByText(WARNING_KEY)).toBeNull();
     });
