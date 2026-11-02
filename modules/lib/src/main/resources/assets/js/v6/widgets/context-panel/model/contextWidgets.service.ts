@@ -27,6 +27,8 @@ const REMOVE_EVENT_TYPES = new Set([ApplicationEventType.UNINSTALLED, Applicatio
 
 let isStarted = false;
 let reloadTimer: number | undefined;
+let loadGeneration = 0;
+let isLoading = false;
 
 export const start = (): void => {
     if (isStarted) return;
@@ -42,6 +44,7 @@ export const stop = (): void => {
     isStarted = false;
 
     window.clearTimeout(reloadTimer);
+    invalidateLoad();
     ApplicationEvent.un(handleApplicationEvent);
     setContextWidgets([]);
 };
@@ -110,7 +113,13 @@ function createDefaultWidgets(editorMode: boolean): ContextWidget[] {
 //
 
 async function loadCustomWidgets(): Promise<void> {
+    const generation = ++loadGeneration;
+    isLoading = true;
+
     const result = await fetchExtensions(CONTEXT_PANEL_INTERFACE);
+    if (generation !== loadGeneration) return;
+
+    isLoading = false;
     if (!isStarted) return;
 
     result.match(
@@ -119,18 +128,31 @@ async function loadCustomWidgets(): Promise<void> {
     );
 }
 
+function invalidateLoad(): void {
+    loadGeneration += 1;
+    isLoading = false;
+}
+
+function scheduleReload(): void {
+    window.clearTimeout(reloadTimer);
+    reloadTimer = window.setTimeout(() => void loadCustomWidgets(), RELOAD_DEBOUNCE_MS);
+}
+
 function handleApplicationEvent(event: ApplicationEvent): void {
     const type = event.getEventType();
 
     if (REMOVE_EVENT_TYPES.has(type)) {
         removeContextWidgetsByApplication(event.getApplicationKey().toString());
+
+        // A reload that started before this event may still list the removed application.
+        if (isLoading) {
+            invalidateLoad();
+            scheduleReload();
+        }
         return;
     }
 
-    if (!RELOAD_EVENT_TYPES.has(type)) return;
-
-    window.clearTimeout(reloadTimer);
-    reloadTimer = window.setTimeout(() => void loadCustomWidgets(), RELOAD_DEBOUNCE_MS);
+    if (RELOAD_EVENT_TYPES.has(type)) scheduleReload();
 }
 
 function toContextWidget(extension: Extension): ContextWidget {

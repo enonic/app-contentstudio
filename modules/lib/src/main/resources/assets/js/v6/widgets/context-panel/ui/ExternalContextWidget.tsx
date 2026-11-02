@@ -25,7 +25,7 @@ export const ExternalContextWidget = ({ widget, className }: ExternalContextWidg
     const [status, setStatus] = useState<Status>('loading');
     const [resizeNonce, setResizeNonce] = useState(0);
 
-    const { url, renderOnResize } = widget;
+    const { renderOnResize } = widget;
 
     useEffect(() => {
         const host = hostRef.current;
@@ -42,8 +42,10 @@ export const ExternalContextWidget = ({ widget, className }: ExternalContextWidg
         return () => observer.disconnect();
     }, [renderOnResize]);
 
+    // Depends on the descriptor itself: an application update replaces it while the URL stays the same.
     useEffect(() => {
         const host = hostRef.current;
+        const { url } = widget;
         if (host == null || url == null) return;
 
         const controller = new AbortController();
@@ -86,9 +88,9 @@ export const ExternalContextWidget = ({ widget, className }: ExternalContextWidg
             element.cleanup();
             element.remove();
         };
-    }, [url, content, resizeNonce]);
+    }, [widget, content, resizeNonce]);
 
-    if (url == null) return null;
+    if (widget.url == null) return null;
 
     return (
         <div

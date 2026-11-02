@@ -1,4 +1,4 @@
-import { $activeId, setActive } from '../../entities/content';
+import { $activeId, setActive, setBrowseContextTarget } from '../../entities/content';
 import { findContextWidget, setActiveWidget, setContextOpen } from './model/contextWidgets.store';
 
 export type OpenContextWidgetOptions = {
@@ -13,7 +13,10 @@ export function openContextWidget(name: string, options: OpenContextWidgetOption
     const widget = findContextWidget(name, applicationKey);
     if (widget == null) return false;
 
-    if (contentId != null && $activeId.get() !== contentId) setActive(contentId);
+    if (contentId != null) {
+        if ($activeId.get() !== contentId) setActive(contentId);
+        setBrowseContextTarget(contentId);
+    }
 
     setActiveWidget(widget.key);
 
