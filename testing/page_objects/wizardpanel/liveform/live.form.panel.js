@@ -25,6 +25,7 @@ const xpath = {
     textComponentContainingText: (text) => `//*[@data-portal-component-type='text'][contains(.,'${text}')]`,
     partComponentByName: (name) => `//*[@data-portal-component-type='part']//h2[contains(text(),'${name}')]`,
     captionByText: (text) => `//*[@data-portal-component-type='text']//figcaption[contains(.,'${text}')]`,
+    regionByName: (name) => `//*[@data-portal-region='${name}']`,
 };
 
 class LiveFormPanel extends Page {
@@ -144,6 +145,25 @@ class LiveFormPanel extends Page {
             await this.handleError(
                 `Try to open the context menu for text component`,
                 'err_live_frame_right_click',
+                err,
+            );
+        }
+    }
+
+    // Opens the context menu for the region with the given name ('main' etc.).
+    // Switch to the Live Edit frame before calling this method.
+    async doRightClickOnRegion(regionName) {
+        try {
+            let selector = xpath.regionByName(regionName);
+            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+            let element = await this.findElement(selector);
+            await element.click({ button: 2 });
+            await this.waitForItemViewContextMenu();
+            return await this.pause(300);
+        } catch (err) {
+            await this.handleError(
+                `Try to open the context menu for '${regionName}' region`,
+                'err_live_frame_right_click_region',
                 err,
             );
         }
