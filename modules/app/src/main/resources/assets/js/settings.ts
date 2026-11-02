@@ -1,36 +1,34 @@
-import { Body } from '@enonic/lib-admin-ui/dom/Body';
-import { Element } from '@enonic/lib-admin-ui/dom/Element';
-import { ElementEvent } from '@enonic/lib-admin-ui/dom/ElementEvent';
-import { SettingsAppContainer } from '@enonic/lib-contentstudio/app/settings/SettingsAppContainer';
+import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { PrincipalJson } from '@enonic/lib-admin-ui/security/PrincipalJson';
 import { CONFIG, ConfigObject } from '@enonic/lib-admin-ui/util/Config';
 import { ProjectConfigContext } from '@enonic/lib-contentstudio/app/settings/data/project/ProjectConfigContext';
-import { initConfig } from '@enonic/lib-contentstudio/v6/shared/config/config.store';
-import { setPhrases } from '@enonic/lib-contentstudio/v6/shared/i18n';
-import type { Phrases } from '@enonic/ui-utils';
+import { mountSettingsApp } from '@enonic/lib-contentstudio/v6/app/settingsApp';
 import { initLanguages } from '@enonic/lib-contentstudio/v6/entities/language/languages.store';
 import { initPrincipals } from '@enonic/lib-contentstudio/v6/entities/principal/principals.store';
 import { initProjects } from '@enonic/lib-contentstudio/v6/entities/project/projects.store';
-import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
-import { Principal } from '@enonic/lib-admin-ui/security/Principal';
-import { PrincipalJson } from '@enonic/lib-admin-ui/security/PrincipalJson';
-import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { initConfig } from '@enonic/lib-contentstudio/v6/shared/config/config.store';
+import { setPhrases } from '@enonic/lib-contentstudio/v6/shared/i18n';
+import type { Phrases } from '@enonic/ui-utils';
 
-const waitForWidgetElemAttached = (elemId: string): void => {
-    const body: Body = Body.get();
+// The widget script may run before the widget element is attached to the page.
+const whenHostAttached = (elemId: string, callback: (host: HTMLElement) => void): void => {
+    const host = document.getElementById(elemId);
+    if (host) {
+        callback(host);
+        return;
+    }
 
-    const handler = (event: ElementEvent) => {
-        if (event.getElement().getId() === elemId) {
-            body.unDescendantAdded();
-            appendHtml(event.getElement());
-        }
-    };
+    const observer = new MutationObserver(() => {
+        const attached = document.getElementById(elemId);
+        if (!attached) return;
 
-    body.onDescendantAdded(handler);
-};
+        observer.disconnect();
+        callback(attached);
+    });
 
-const appendHtml = (widgetElem: Element): void => {
-    const c: SettingsAppContainer = new SettingsAppContainer();
-    widgetElem.appendChild(c);
+    observer.observe(document.body, { childList: true, subtree: true });
 };
 
 const init = async (configScriptId: string, elemId: string): Promise<void> => {
@@ -47,14 +45,7 @@ const init = async (configScriptId: string, elemId: string): Promise<void> => {
     );
     await ProjectConfigContext.get().init();
 
-    const body: Body = Body.get();
-    const widgetEl: Element = body.findChildById(elemId, true);
-
-    if (widgetEl) {
-        appendHtml(widgetEl);
-    } else {
-        waitForWidgetElemAttached(elemId);
-    }
+    whenHostAttached(elemId, mountSettingsApp);
 };
 
 (() => {

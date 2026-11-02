@@ -7,15 +7,10 @@ const BaseBrowsePanel = require('../../page_objects/base.browse.panel');
 const ProjectWizardDialogParentProjectStep = require('./project-wizard-dialog/project.wizard.parent.project.step');
 
 const XPATH = {
-    container: "//div[contains(@id,'SettingsBrowsePanel')]",
-    settingsAppContainer: "//div[contains(@id,'ContentAppBar')]",
-    appBar: "//div[contains(@id,'ContentAppBar')]",
-    appBarTabMenu: "//div[contains(@id,'AppBarTabMenu')]",
-    homeButton: "//div[contains(@class,'home-button') and descendant::span[text()='Settings']]",
+    container: "//div[@data-component='SettingsBrowsePanel']",
     toolbarDiv: `//div[@data-component='Toolbar.Container'  and @aria-label='Project settings menu bar']`,
-    itemsTreeGrid: `//div[contains(@id,'SettingsItemsTreeGrid')]`,
     settingsTreeListDataComponent: `//div[@data-component='SettingsTreeList']`,
-    treeListToolbarDiv: `//div[@id='SettingsTreeListToolbarElement']`,
+    treeListToolbarDiv: `//div[@data-component='SettingsTreeListToolbar']`,
 
     projectItemByDisplayName: (displayName) =>
         `//div[@data-component='VirtualizedTreeList.Row' and descendant::div[@data-component='ProjectLabel']//span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]`,
@@ -25,14 +20,6 @@ const XPATH = {
     projectCheckboxByName: (name) =>
         `//div[@data-component='VirtualizedTreeList.Row' and descendant::div[@data-component='ProjectLabel']//span[contains(@class,'font-semibold') and contains(.,'${name}')]]` +
         `//div[@data-component='VirtualizedTreeList.RowSelectionControl']`,
-
-    projectCheckboxByIdentifier: (id) => {
-        return `//div[contains(@id,'ProjectItemViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${id}')]]/..//..//div[contains(@id,'Checkbox')]/label`;
-    },
-
-    tabCloseIcon: (projectDisplayName) =>
-        XPATH.appBarTabMenu +
-        `//li[contains(@id,'AppBarTabMenuItem') and descendant::a[contains(.,'${projectDisplayName}')]]/button`,
 };
 
 class SettingsBrowsePanel extends BaseBrowsePanel {
@@ -42,10 +29,6 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     get deleteButton() {
         return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('Delete');
-    }
-
-    get homeButton() {
-        return XPATH.appBar + XPATH.homeButton;
     }
 
     get newButton() {
@@ -113,23 +96,6 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    async waitForLanguageIconDisplayed(displayName) {
-        try {
-            let locatorIcon =
-                XPATH.settingsTreeListDataComponent +
-                lib.PROJECTS.projectByName(displayName) +
-                "//div[contains(@id,'Flag')]";
-            await this.waitForElementDisplayed(locatorIcon, appConst.longTimeout);
-            return await this.getAttribute(locatorIcon, 'data-code');
-        } catch (err) {
-            await this.handleError(
-                `Settings: language icon was not found for: ${displayName}`,
-                'err_language_icon',
-                err,
-            );
-        }
-    }
-
     async waitForProjectNotDisplayed(projectDisplayName) {
         try {
             let locator = XPATH.settingsTreeListDataComponent + TREE_GRID.itemByDisplayName(projectDisplayName);
@@ -141,12 +107,6 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
                 err,
             );
         }
-    }
-
-    //Click on SETTINGS button:
-    async clickOnHomeButton() {
-        await this.waitForElementDisplayed(this.homeButton);
-        return await this.clickOnElement(this.homeButton);
     }
 
     async clickOnRowByDisplayName(displayName) {
@@ -208,17 +168,6 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
                 'err_projects_folder_checkbox',
                 err,
             );
-        }
-    }
-
-    async clickOnCheckboxAndSelectRowByIdentifier(id) {
-        try {
-            let nameXpath = XPATH.projectCheckboxByIdentifier(id);
-            await this.waitForElementDisplayed(nameXpath, appConst.shortTimeout);
-            await this.clickOnElement(nameXpath);
-            return await this.pause(300);
-        } catch (err) {
-            await this.handleError(`Project's checkbox was not found for id: ${id}`, 'err_checkbox_proj', err);
         }
     }
 

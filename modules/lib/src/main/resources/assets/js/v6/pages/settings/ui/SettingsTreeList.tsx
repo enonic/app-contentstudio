@@ -4,16 +4,20 @@ import { Folder, FolderOpen } from 'lucide-react';
 import { type ReactElement, useCallback, useEffect, useMemo, useRef } from 'react';
 import type { ListRange, VirtuosoHandle } from 'react-virtuoso';
 import { Virtuoso } from 'react-virtuoso';
-import { EditSettingsItemEvent } from '../../../../app/settings/event/EditSettingsItemEvent';
 import { type SettingsViewItem } from '../../../../app/settings/view/SettingsViewItem';
 import { ProjectHelper } from '../../../../app/settings/data/project/ProjectHelper';
-import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
 import { virtuosoComponents } from '../../../features/shared/lists';
 import { ProjectLabel } from '../../../entities/project/ui/ProjectLabel';
 import { ItemLabel } from '../../../shared/ui/ItemLabel';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import type { FlatNode } from '../../../shared/lib/tree-store';
-import { $settingsFlatNodes, collapseSettingsNode, expandSettingsNode } from '../model/settings-tree.store';
+import {
+    $settingsFlatNodes,
+    collapseSettingsNode,
+    expandSettingsNode,
+    isProjectViewItem,
+} from '../model/settings-tree.store';
+import { editSettingsItem } from '../model/settingsActions.store';
 import {
     $activeId,
     $revealId,
@@ -23,21 +27,13 @@ import {
     setActive,
     setSelection,
 } from '../model/settingsTreeSelection.store';
-import { SettingsTreeContextMenu, type SettingsTreeContextMenuProps } from './SettingsTreeContextMenu';
-import { ProjectViewItem } from '../../../../app/settings/view/ProjectViewItem';
+import { SettingsTreeContextMenu } from './SettingsTreeContextMenu';
 
 type SettingsFlatNode = FlatNode<SettingsViewItem>;
 
-export type SettingsTreeListProps = {
-    contextMenuActions?: SettingsTreeContextMenuProps['actions'];
-};
-
 const SETTINGS_TREE_LIST_NAME = 'SettingsTreeList';
 
-const isProjectViewItem = (item: SettingsViewItem): item is ProjectViewItem =>
-    ObjectHelper.iFrameSafeInstanceOf(item, ProjectViewItem);
-
-export const SettingsTreeList = ({ contextMenuActions = [] }: SettingsTreeListProps): ReactElement => {
+export const SettingsTreeList = (): ReactElement => {
     const virtuosoRef = useRef<VirtuosoHandle>(null);
     const suppressNextClickForIdRef = useRef<string | null>(null);
     const flatNodes = useStore($settingsFlatNodes);
@@ -57,11 +53,7 @@ export const SettingsTreeList = ({ contextMenuActions = [] }: SettingsTreeListPr
     const handleActivate = useCallback(
         (id: string) => {
             const node = flatNodes.find((n) => n.id === id);
-            if (!node?.data) return;
-
-            if (ObjectHelper.iFrameSafeInstanceOf(node.data, ProjectViewItem)) {
-                new EditSettingsItemEvent([node.data]).fire();
-            }
+            if (node?.data) editSettingsItem(node.data);
         },
         [flatNodes],
     );
@@ -110,12 +102,12 @@ export const SettingsTreeList = ({ contextMenuActions = [] }: SettingsTreeListPr
             clearActiveOnReclick={true}
             virtuosoRef={virtuosoRef}
             aria-label="Settings tree"
-            className="w-full flex-1 min-h-0 settings-tree-list"
+            className="w-full flex-1 min-h-0"
         >
             {({ items, getItemProps, containerProps }) => {
                 const { className: containerClassName, ...restContainerProps } = containerProps;
                 return (
-                    <SettingsTreeContextMenu actions={contextMenuActions}>
+                    <SettingsTreeContextMenu>
                         <Virtuoso<SettingsFlatNode>
                             ref={virtuosoRef}
                             data={items as SettingsFlatNode[]}

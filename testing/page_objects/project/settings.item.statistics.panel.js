@@ -5,7 +5,7 @@ const Page = require('../page');
 const appConst = require('../../libs/app_const');
 
 const XPATH = {
-    container: "//div[contains(@id,'SettingsItemStatisticsPanel')]",
+    container: "//div[@data-component='SettingsItemPanel']",
     settingsItemStatistics: "//div[@data-component='SettingsItemStatistics']",
     projectStatistics: "//div[@data-component='ProjectStatistics']",
     folderStatistics: "//div[@data-component='FolderStatistics']",

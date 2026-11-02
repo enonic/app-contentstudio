@@ -1,3 +1,4 @@
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
 import { atom, computed } from 'nanostores';
 import { i18n } from '../../../shared/i18n';
 import { type Project } from '../../../../app/settings/data/project/Project';
@@ -21,6 +22,9 @@ export type SettingsTreeState = TreeState<SettingsViewItem>;
 const $settingsTreeState = atom<SettingsTreeState>(createEmptyState<SettingsViewItem>());
 
 export const $settingsFlatNodes = computed($settingsTreeState, flattenTree);
+
+export const isProjectViewItem = (item: SettingsViewItem | undefined): item is ProjectViewItem =>
+    item != null && ObjectHelper.iFrameSafeInstanceOf(item, ProjectViewItem);
 
 export function getSettingsItem(id: string): SettingsViewItem | undefined {
     return $settingsTreeState.get().nodes.get(id)?.data ?? undefined;

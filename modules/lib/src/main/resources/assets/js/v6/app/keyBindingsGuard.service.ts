@@ -1,14 +1,9 @@
 import { KeyBindings } from '@enonic/lib-admin-ui/ui/KeyBindings';
-
-// Standard ARIA markers of @enonic/ui modals. Keyed on role + aria-modal (not
-// data-component, which consumers override); legacy ModalDialog sets neither.
-const MODAL_DIALOG_SELECTOR = '[role="dialog"][aria-modal="true"]';
+import { hasOpenModal } from '../shared/lib/dom/hasOpenModal';
 
 let started = false;
 let shelved = false;
 let pendingUnshelve = false;
-
-const hasOpenModal = (): boolean => document.querySelector(MODAL_DIALOG_SELECTOR) != null;
 
 const sync = (): void => {
     if (hasOpenModal()) {
