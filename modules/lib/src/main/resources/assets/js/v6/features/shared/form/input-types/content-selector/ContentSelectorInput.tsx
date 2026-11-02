@@ -63,6 +63,7 @@ export const ContentSelectorInput = (props: SelfManagedComponentProps<ContentSel
                     <div className="flex items-center justify-center self-stretch">
                         <ContentSelectorInputAddButton
                             disabled={disabled}
+                            allowedContentTypes={contentTypeNames}
                             selection={selection}
                             onSelectionChange={handleSelectionChange}
                         />
