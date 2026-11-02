@@ -43,20 +43,11 @@ only job is `render()` + imperative prop setters.
 ## Reverse Bridge: React Hosts Legacy
 
 Inverting the root needs the opposite direction — a React component embedding a still-legacy
-`Element` — which today is ad-hoc (`ProjectDAGWrapper.tsx`, `SettingsItemPanelElement.tsx`).
-Formalize it into one shared `shared/ui/LegacyIsland` (ref + `appendChild` + `render` +
-cleanup on unmount) so shells can be React while their heavy legacy children stay embedded
-temporarily.
-
-```typescript
-// pattern to formalize (from ProjectDAGWrapper.tsx)
-useEffect(() => {
-    ref.current = new LegacyPanel(itemId);
-    container.current.appendChild(ref.current.getHTMLElement());
-    void ref.current.render();
-    return () => ref.current?.remove();   // MUST clean up
-}, [itemId]);
-```
+`Element`. That is `shared/ui/LegacyElementHost`: it wraps the container via
+`Element.fromHtmlElement` so the legacy `onAdded` lifecycle fires, renders the element once,
+and detaches (not destroys) it on unmount so the legacy owner can re-host it. `BrowseLayout`,
+`WizardLayout` and `FloatingContextPanel` use it to keep their heavy legacy children embedded
+while the shell is React. Do not hand-roll `appendChild` + `render` in a component.
 
 ## Fix the Unmount Leak First
 
@@ -72,17 +63,18 @@ since churny lists (`ContentListItem`) create and drop roots constantly.
 3. Presentational leaves + preview panel (`PreviewLabel`, `PreviewContextMenu`,
    `PreviewToolbar`, `ContentItemPreviewPanel`).
 4. Browse shell — fold `AppWrapper` + `ContentAppContainer` into a React `BrowseAppShell`;
-   embed the legacy browse panel via `LegacyIsland` temporarily.
+   embed the legacy browse panel via `LegacyElementHost` temporarily.
 5. Browse toolbar + filter — move `Action[]` coupling into `app/actions.store` first.
 6. Browse tree + selection bridge (`ContentTreeList`) — replace the `SelectionChange`
    callback with store subscriptions; then dismantle legacy `ContentBrowsePanel`.
-7. Settings app (self-contained second entry).
+7. ~~Settings app~~ — done: `settings.ts` mounts `SettingsPage` as a single React root
+   via `mountSettingsApp`; no legacy shell remains.
 8. Dialog leaves (`PublishItemsList`, `SelectionStatusBar`, `ContentListItem`) as their
    host dialogs port.
 9. Wizard toolbar & tabs — after actions are store-backed.
 10. Live-view + page editor, then `ContentWizardPanel` / `FrameContainer` — deepest, last.
 11. Collapse: `AppElement` renders the full layout; retire the legacy shell append in
-    `main.ts`/`settings.ts`; replace remaining lib-admin-ui `ui2/*` roots with native React.
+    `main.ts`; replace remaining lib-admin-ui `ui2/*` roots with native React.
 
 ## Don't Add New Roots
 

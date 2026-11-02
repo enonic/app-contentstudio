@@ -78,7 +78,7 @@ export function createSettingsItem(): void {
 }
 
 export function editSettingsItem(item: SettingsViewItem): void {
-    if (!isProjectViewItem(item)) return;
+    if (!isProjectViewItem(item) || !item.isEditAllowed()) return;
 
     const project = item.getData();
     const parentProjects = (project.getParents() ?? [])

@@ -204,6 +204,15 @@ describe('editCurrentSettingsItem', () => {
 
         expect(dialogs.openEditProjectDialog).not.toHaveBeenCalled();
     });
+
+    it('should not open the edit dialog when the user may not edit the project', () => {
+        auth.isContentAdmin = false;
+        setActive('layer');
+
+        editCurrentSettingsItem();
+
+        expect(dialogs.openEditProjectDialog).not.toHaveBeenCalled();
+    });
 });
 
 describe('deleteCurrentSettingsItem', () => {
