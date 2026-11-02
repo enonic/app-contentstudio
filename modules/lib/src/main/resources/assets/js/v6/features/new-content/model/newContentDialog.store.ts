@@ -27,6 +27,11 @@ type UploadOptions = {
     parentContent?: ContentSummary;
 };
 
+type OpenNewContentDialogOptions = {
+    allowedContentTypes?: string[];
+    contentTypes?: ContentTypeSummary[];
+};
+
 //
 // * Store State
 //
@@ -41,6 +46,8 @@ type NewContentDialogStore = {
     isMediaAllowed: boolean;
     // Content
     parentContent?: ContentSummary;
+    allowedContentTypes?: string[];
+    preloadedContentTypes?: ContentTypeSummary[];
     baseContentTypes: ContentTypeSummary[];
     suggestedContentTypes: ContentTypeSummary[];
 };
@@ -53,6 +60,8 @@ const initialState: NewContentDialogStore = {
     isDragging: false,
     isMediaAllowed: false,
     parentContent: undefined,
+    allowedContentTypes: undefined,
+    preloadedContentTypes: undefined,
     baseContentTypes: [],
     suggestedContentTypes: [],
 };
@@ -72,7 +81,8 @@ export const $filteredSuggestedContentTypes = computed($newContentDialog, ({ sug
 
 let loadCounter = 0;
 
-listenKeys($newContentDialog, ['open', 'parentContent'], ({ open, parentContent }) => {
+listenKeys($newContentDialog, ['open', 'parentContent'], (state) => {
+    const { open, parentContent, allowedContentTypes, preloadedContentTypes } = state;
     const activeProject = $activeProject.get();
 
     if (!open || !activeProject) return;
@@ -81,10 +91,13 @@ listenKeys($newContentDialog, ['open', 'parentContent'], ({ open, parentContent 
     $newContentDialog.setKey('loading', true);
 
     task(async () => {
-        const allContentTypes = await ContentTypesHelper.getAvailableContentTypes({
-            contentId: parentContent?.getContentId(),
-            project: activeProject,
-        });
+        const allContentTypes =
+            preloadedContentTypes ??
+            (await ContentTypesHelper.getAvailableContentTypes({
+                contentId: parentContent?.getContentId(),
+                allowedContentTypes,
+                project: activeProject,
+            }));
 
         const aggregatedContentTypes = await ContentTypesHelper.getAggregatedTypesByContent(
             parentContent,
@@ -116,11 +129,13 @@ listenKeys($newContentDialog, ['open', 'parentContent'], ({ open, parentContent 
 // * Public API
 //
 
-export const openNewContentDialog = (parentContent?: ContentSummary): void => {
+export const openNewContentDialog = (parentContent?: ContentSummary, options?: OpenNewContentDialogOptions): void => {
     $newContentDialog.set({
         ...structuredClone(initialState),
         open: true,
         parentContent,
+        allowedContentTypes: options?.allowedContentTypes,
+        preloadedContentTypes: options?.contentTypes,
     });
 };
 
