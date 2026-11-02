@@ -19,6 +19,7 @@ describe('article.customize.on.create.config.spec: UI test for automatic content
     const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_579992;
     const EXPECTED_CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
 
+    // Test to verify Support automatic customization of a new content that uses a template #11263
     it(`WHEN wizard for article whose schema has 'customizeOnCreate: true' is opened THEN 'Customize page' button is not displayed in the Inspect tab but 'Page' step is displayed`, async () => {
         let contentWizard = new ContentWizard();
         // 1. Open wizard for new article whose schema has customizeOnCreate: true
