@@ -4,7 +4,6 @@ import { type ReactElement, useEffect, useRef, useState } from 'react';
 import { listenKeys } from 'nanostores';
 import { NewContentEvent } from '../../../../../../app/create/NewContentEvent';
 import { ContentTypesHelper } from '../../../../../../app/util/ContentTypesHelper';
-import { $activeProject } from '../../../../../entities/project';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { $newContentDialog, openNewContentDialog } from '../../../../new-content/model/newContentDialog.store';
 import { useFormScope } from '../../FormScopeContext';
@@ -28,7 +27,7 @@ export const ContentSelectorInputAddButton = ({
     const [progress, setProgress] = useState(0);
     const [isLoadingTypes, setIsLoadingTypes] = useState(false);
     const [uploadIds, setUploadIds] = useState<string[]>([]);
-    const { content: contextContent } = useFormScope();
+    const { content: contextContent, project } = useFormScope();
     const parentId = contextContent?.getContentId()?.toString() ?? undefined;
 
     // Refs
@@ -125,7 +124,7 @@ export const ContentSelectorInputAddButton = ({
         const types = await ContentTypesHelper.getAvailableContentTypes({
             contentId: contextContent.getContentId(),
             allowedContentTypes,
-            project: $activeProject.get(),
+            project,
         }).catch((error) => {
             console.error(error);
             return undefined;
