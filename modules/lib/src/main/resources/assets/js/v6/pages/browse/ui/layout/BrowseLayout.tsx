@@ -18,7 +18,7 @@ import {
     $isContentFilterOpen,
     $isDependencySearchPending,
 } from '../../../../features/search/model/contentFilter.store';
-import { ContextPanelView } from '../../../../widgets/context-panel/ui/ContextPanelView';
+import { type ContextPanelConfig, ContextPanelView } from '../../../../widgets/context-panel/ui/ContextPanelView';
 import { FloatingContextPanel } from '../../../../widgets/context-panel/ui/FloatingContextPanel';
 import { GRID_PANEL_ID, resolveBrowsePanelLayout } from './resolveBrowsePanelLayout';
 
@@ -43,13 +43,20 @@ const getPanelIds = (withFilter: boolean, withContext: boolean): string[] => {
     return withContext ? PANEL_IDS_WITH_CONTEXT : PANEL_IDS;
 };
 
+// Everything a browse host (content browse, Archive in CS+) configures
+// besides the panels it owns. The React browse page takes the same config.
+export type BrowseHostConfig = {
+    // Distinct per host: browse and Archive must not share persisted layouts.
+    storageId?: string;
+    contextPanel?: ContextPanelConfig;
+};
+
 export type BrowseLayoutProps = {
     // Owned by ContentBrowsePanel; the layout only places them.
     gridPanel: Element;
     previewPanel: Element;
     filterPanel?: Element;
-    storageId?: string;
-};
+} & BrowseHostConfig;
 
 const BROWSE_LAYOUT_NAME = 'BrowseLayout';
 
@@ -61,6 +68,7 @@ export const BrowseLayout = ({
     previewPanel,
     filterPanel,
     storageId = 'browse-layout',
+    contextPanel,
 }: BrowseLayoutProps): ReactElement => {
     const isContextOpen = useStore($isContextOpen);
     const mode = useStore($contextPanelMode);
@@ -191,19 +199,19 @@ export const BrowseLayout = ({
                             groupResizeBehavior="preserve-pixel-size"
                             onResize={handlePanelResize}
                         >
-                            <ContextPanelView />
+                            <ContextPanelView config={contextPanel} />
                         </SplitView.Panel>
                     </>
                 )}
             </SplitView>
             {showFloatingContext && (
                 <FloatingContextPanel boundsSelector='[data-component="BrowseLayout"]' onResized={handlePanelResize}>
-                    <ContextPanelView className="min-w-0 grow" />
+                    <ContextPanelView config={contextPanel} className="min-w-0 grow" />
                 </FloatingContextPanel>
             )}
             {showMobileContext && (
                 <div data-component="BrowseLayout.MobileContext" className="absolute inset-0 bg-surface-neutral">
-                    <ContextPanelView selector={false} />
+                    <ContextPanelView config={contextPanel} selector={false} />
                 </div>
             )}
             {showMobileFilter && (

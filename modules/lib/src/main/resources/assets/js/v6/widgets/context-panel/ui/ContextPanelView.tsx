@@ -1,6 +1,8 @@
 import { cn } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
+import type { ReadableAtom } from 'nanostores';
 import type { ComponentType, ReactElement } from 'react';
+import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import { DEPENDENCIES_WIDGET_NAME } from '../../../shared/lib/widget/dependencies';
 import { DETAILS_WIDGET_NAME } from '../../../shared/lib/widget/details';
@@ -21,6 +23,14 @@ const CONTEXT_PANEL_VIEW_NAME = 'ContextPanelView';
 
 export type ContextWidgetComponents = Record<string, ComponentType>;
 
+// What a host (browse, wizard, Archive in CS+) plugs into the panel.
+export type ContextPanelConfig = {
+    // Components for widget names the host provides or overrides.
+    widgets?: ContextWidgetComponents;
+    // The content the panel is about; defaults to Studio's own context content.
+    content?: ReadableAtom<ContentSummary | null>;
+};
+
 const DEFAULT_WIDGETS: ContextWidgetComponents = {
     [DETAILS_WIDGET_NAME]: DetailsWidget,
     [VERSIONS_WIDGET_NAME]: VersionsWidget,
@@ -31,10 +41,11 @@ const DEFAULT_WIDGETS: ContextWidgetComponents = {
 type ContextWidgetContentProps = {
     widget: ContextWidget;
     widgets: ContextWidgetComponents;
+    content: ContentSummary | null;
 };
 
-const ContextWidgetContent = ({ widget, widgets }: ContextWidgetContentProps): ReactElement | null => {
-    if (widget.url != null) return <ExternalContextWidget widget={widget} />;
+const ContextWidgetContent = ({ widget, widgets, content }: ContextWidgetContentProps): ReactElement | null => {
+    if (widget.url != null) return <ExternalContextWidget widget={widget} content={content} />;
 
     const Widget = widgets[widget.name];
     return Widget ? <Widget /> : null;
@@ -43,14 +54,14 @@ const ContextWidgetContent = ({ widget, widgets }: ContextWidgetContentProps): R
 ContextWidgetContent.displayName = 'ContextWidgetContent';
 
 export type ContextPanelViewProps = {
-    widgets?: ContextWidgetComponents;
+    config?: ContextPanelConfig;
     selector?: boolean;
     className?: string;
 };
 
-export const ContextPanelView = ({ widgets, selector = true, className }: ContextPanelViewProps): ReactElement => {
+export const ContextPanelView = ({ config, selector = true, className }: ContextPanelViewProps): ReactElement => {
     const activeWidget = useStore($activeWidget);
-    const content = useStore($contextContent);
+    const content = useStore(config?.content ?? $contextContent);
     const emptyMessage = useI18n('field.contextPanel.empty');
 
     const isEmpty = content == null && (activeWidget?.requiresContent ?? true);
@@ -68,7 +79,11 @@ export const ContextPanelView = ({ widgets, selector = true, className }: Contex
             ) : (
                 <div className="relative min-h-0 grow overflow-y-auto p-5 pb-7.5">
                     {activeWidget && (
-                        <ContextWidgetContent widget={activeWidget} widgets={{ ...DEFAULT_WIDGETS, ...widgets }} />
+                        <ContextWidgetContent
+                            widget={activeWidget}
+                            widgets={{ ...DEFAULT_WIDGETS, ...config?.widgets }}
+                            content={content}
+                        />
                     )}
                 </div>
             )}

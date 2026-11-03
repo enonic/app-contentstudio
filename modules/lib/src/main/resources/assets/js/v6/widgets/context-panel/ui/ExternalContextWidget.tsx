@@ -1,10 +1,9 @@
 import { cn, Skeleton } from '@enonic/ui';
-import { useStore } from '@nanostores/preact';
 import { type ReactElement, useEffect, useRef, useState } from 'react';
+import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { ContextPanelExtensionElement } from '../../../../app/extension/ContextPanelExtensionElement';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import { fetchContextWidgetHtml } from '../api/contextWidget.api';
-import { $contextContent } from '../model/contextContent.store';
 import type { ContextWidget } from '../model/contextWidget.types';
 
 const EXTERNAL_CONTEXT_WIDGET_NAME = 'ExternalContextWidget';
@@ -15,13 +14,13 @@ type Status = 'loading' | 'ready' | 'error';
 
 export type ExternalContextWidgetProps = {
     widget: ContextWidget;
+    content?: ContentSummary | null;
     className?: string;
 };
 
-export const ExternalContextWidget = ({ widget, className }: ExternalContextWidgetProps): ReactElement => {
+export const ExternalContextWidget = ({ widget, content, className }: ExternalContextWidgetProps): ReactElement => {
     const hostRef = useRef<HTMLDivElement>(null);
     const renderedWidthRef = useRef(0);
-    const content = useStore($contextContent);
     const errorMessage = useI18n('widget.render.error');
 
     const [status, setStatus] = useState<Status>('loading');

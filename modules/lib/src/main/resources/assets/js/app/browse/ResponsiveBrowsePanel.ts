@@ -5,7 +5,7 @@ import { Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
 import { Toolbar, type ToolbarConfig } from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import type Q from 'q';
-import { BrowseLayoutElement } from '../../v6/pages/browse/ui/layout/BrowseLayout';
+import { type BrowseHostConfig, BrowseLayoutElement } from '../../v6/pages/browse/ui/layout/BrowseLayout';
 import {
     $contextPanelMode,
     $isContextLayoutMeasured,
@@ -45,7 +45,7 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
             gridPanel: this.selectableListBoxPanel,
             previewPanel: this.browseItemPanel,
             filterPanel: this.filterPanel ?? undefined,
-            storageId: this.getLayoutStorageId(),
+            ...this.getBrowseHostConfig(),
         });
 
         this.selectableListBoxPanel.getWrapper().setSkipFirstClickOnFocus(true);
@@ -131,9 +131,9 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
         return !$isContentFilterOpen.get();
     }
 
-    // Distinct per subclass: browse and Archive (CS+) must not share persisted layouts.
-    protected getLayoutStorageId(): string {
-        return 'browse-layout';
+    // The one place a subclass (Archive in CS+) configures the v6 layout.
+    protected getBrowseHostConfig(): BrowseHostConfig {
+        return { storageId: 'browse-layout' };
     }
 
     protected createToolbar(): Toolbar<ToolbarConfig> {

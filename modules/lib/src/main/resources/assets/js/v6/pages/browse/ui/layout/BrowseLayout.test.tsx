@@ -12,8 +12,18 @@ import {
 import { BrowseLayout } from './BrowseLayout';
 
 vi.mock('../../../../widgets/context-panel/ui/ContextPanelView', () => ({
-    ContextPanelView: ({ className }: { className?: string }) => (
-        <div data-component="ContextPanelView" className={className} />
+    ContextPanelView: ({
+        className,
+        config,
+    }: {
+        className?: string;
+        config?: { widgets?: Record<string, unknown> };
+    }) => (
+        <div
+            data-component="ContextPanelView"
+            className={className}
+            data-widgets={Object.keys(config?.widgets ?? {}).join(',')}
+        />
     ),
 }));
 
@@ -197,6 +207,20 @@ describe('BrowseLayout', () => {
 
         expect(screen.getByTestId('context').querySelector('[data-component="ContextPanelView"]')).not.toBeNull();
         expect(document.querySelector('[data-component="FloatingContextPanel"]')).toBeNull();
+    });
+
+    it('passes the host context panel config to the context panel', async () => {
+        const panels = createPanels();
+        const ArchiveDetails = (): null => null;
+        setContextOpen(true);
+
+        await act(async () => {
+            render(<BrowseLayout {...panels} contextPanel={{ widgets: { details: ArchiveDetails } }} />);
+        });
+        await settle();
+
+        const view = screen.getByTestId('context').querySelector('[data-component="ContextPanelView"]');
+        expect(view?.getAttribute('data-widgets')).toBe('details');
     });
 
     it('floats the context panel as an overlay on narrow screens', async () => {

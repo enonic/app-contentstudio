@@ -11,7 +11,7 @@ import { LegacyElementHost } from '../../../../shared/ui/LegacyElementHost';
 import { SplitView } from '../../../../shared/ui/split-view';
 import { PAGE_EDITOR_WIDGET_NAME } from '../../../../shared/lib/widget/pageEditor';
 import { $isContextOpen } from '../../../../widgets/context-panel/model/contextWidgets.store';
-import { ContextPanelView, type ContextWidgetComponents } from '../../../../widgets/context-panel/ui/ContextPanelView';
+import { type ContextPanelConfig, ContextPanelView } from '../../../../widgets/context-panel/ui/ContextPanelView';
 import { FloatingContextPanel } from '../../../../widgets/context-panel/ui/FloatingContextPanel';
 import { PageEditorExtension } from '../../../../widgets/inspectors/ui/page-editor';
 import { $isContentFormExpanded, setContentFormExpanded } from '../../model/wizardContent.store';
@@ -30,7 +30,7 @@ const DOCKED_PERCENT = LayoutTokens.contextPanel.dockedWidthPercent;
 const FLOATING_EDITOR_PERCENT = LayoutTokens.contextPanel.floatingWidthPercent.wizardWithEditor;
 const RESIZE_NOTIFY_DELAY_MS = 200;
 
-const WIZARD_CONTEXT_WIDGETS: ContextWidgetComponents = { [PAGE_EDITOR_WIDGET_NAME]: PageEditorExtension };
+const WIZARD_CONTEXT_PANEL: ContextPanelConfig = { widgets: { [PAGE_EDITOR_WIDGET_NAME]: PageEditorExtension } };
 
 // The live panel stays mounted when hidden, so the set is built from visibility.
 const PANEL_IDS_FORM = ['form'];
@@ -190,7 +190,7 @@ export const WizardLayout = ({ formPanel, livePanel, onResized }: WizardLayoutPr
                             minSize={`${CONTEXT_MIN_WIDTH}px`}
                             onResize={handlePanelResize}
                         >
-                            <ContextPanelView widgets={WIZARD_CONTEXT_WIDGETS} />
+                            <ContextPanelView config={WIZARD_CONTEXT_PANEL} />
                         </SplitView.Panel>
                     </>
                 )}
@@ -201,12 +201,12 @@ export const WizardLayout = ({ formPanel, livePanel, onResized }: WizardLayoutPr
                     defaultWidth={floatingDefaultWidth}
                     onResized={handlePanelResize}
                 >
-                    <ContextPanelView widgets={WIZARD_CONTEXT_WIDGETS} className="min-w-0 grow" />
+                    <ContextPanelView config={WIZARD_CONTEXT_PANEL} className="min-w-0 grow" />
                 </FloatingContextPanel>
             )}
             {showMobileContext && (
                 <div data-component="WizardLayout.MobileContext" className="absolute inset-0 bg-surface-neutral">
-                    <ContextPanelView widgets={WIZARD_CONTEXT_WIDGETS} />
+                    <ContextPanelView config={WIZARD_CONTEXT_PANEL} />
                 </div>
             )}
         </div>
