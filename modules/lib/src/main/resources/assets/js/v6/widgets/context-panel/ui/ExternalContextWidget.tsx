@@ -8,6 +8,8 @@ import { $contextContent } from '../model/contextContent.store';
 import type { ContextWidget } from '../model/contextWidget.types';
 
 const EXTERNAL_CONTEXT_WIDGET_NAME = 'ExternalContextWidget';
+// Window event fired by extensions (e.g. CS+ after a license upload) to refetch the open widget.
+const RELOAD_EVENT_NAME = 'ReloadActiveExtensionEvent';
 
 type Status = 'loading' | 'ready' | 'error';
 
@@ -24,8 +26,16 @@ export const ExternalContextWidget = ({ widget, className }: ExternalContextWidg
 
     const [status, setStatus] = useState<Status>('loading');
     const [resizeNonce, setResizeNonce] = useState(0);
+    const [reloadNonce, setReloadNonce] = useState(0);
 
     const { renderOnResize } = widget;
+
+    useEffect(() => {
+        const handleReload = (): void => setReloadNonce((nonce) => nonce + 1);
+        window.addEventListener(RELOAD_EVENT_NAME, handleReload);
+
+        return () => window.removeEventListener(RELOAD_EVENT_NAME, handleReload);
+    }, []);
 
     useEffect(() => {
         const host = hostRef.current;
@@ -88,7 +98,7 @@ export const ExternalContextWidget = ({ widget, className }: ExternalContextWidg
             element.cleanup();
             element.remove();
         };
-    }, [widget, content, resizeNonce]);
+    }, [widget, content, resizeNonce, reloadNonce]);
 
     if (widget.url == null) return null;
 
