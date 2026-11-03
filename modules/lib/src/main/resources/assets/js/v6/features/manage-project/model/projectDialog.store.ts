@@ -166,7 +166,7 @@ export const $projectDialogConfigScope = computed($projectDialog, ({ project }):
 // The last derived set, by the parents it came from; the same instance keeps the step from re-rendering.
 let inheritedAppKeysMemo: { parentProjects: readonly Readonly<Project>[]; keys: ReadonlySet<string> } | undefined;
 
-/** The keys of the apps inherited from the parent projects, in parent order. */
+/** The keys of the apps inherited from the first parent project. */
 export const $projectDialogInheritedAppKeys = computed($projectDialog, ({ parentProjects }): ReadonlySet<string> => {
     if (inheritedAppKeysMemo?.parentProjects !== parentProjects) {
         inheritedAppKeysMemo = { parentProjects, keys: new Set(getInheritedAppKeys(parentProjects)) };
@@ -271,7 +271,7 @@ export const openEditProjectDialog = async (project: Project, parentProjects: Pr
     const inheritedKeys = getInheritedAppKeys(parentProjects).filter((key) => !ownKeys.includes(key));
     const projectApplications = resolveApplications([...ownKeys, ...inheritedKeys]);
 
-    const applicationConfigs = collectSiteConfigs([project]);
+    const applicationConfigs = collectSiteConfigs(project);
     const listedKeys = new Set(projectApplications.map(keyOf));
     const preservedSiteConfigs = project
         .getSiteConfigs()
@@ -771,7 +771,7 @@ function serializeApplicationConfigs(
     return result;
 }
 
-/** The config an app saves with: its own, else the first parent's carrying it, else the form defaults. */
+/** The config an app saves with: its own, else the first parent's, else the form defaults. */
 function resolveApplicationConfig(
     application: Application,
     ownConfigs: Record<string, PropertySet>,
@@ -781,13 +781,10 @@ function resolveApplicationConfig(
     return ownConfigs[key] ?? findInheritedConfig(parentProjects, key) ?? createDefaultConfig(application);
 }
 
-/** The config of the first parent carrying the key, as the parent holds it; callers must not edit it. */
+/** The first parent's config for the key, as the parent holds it; callers must not edit it. */
 function findInheritedConfig(parentProjects: readonly Readonly<Project>[], key: string): PropertySet | undefined {
-    for (const parent of parentProjects) {
-        const siteConfig = parent.getSiteConfigs()?.find((c) => c.getApplicationKey().toString() === key);
-        if (siteConfig?.getConfig()) return siteConfig.getConfig();
-    }
-    return undefined;
+    const siteConfig = parentProjects[0]?.getSiteConfigs()?.find((c) => c.getApplicationKey().toString() === key);
+    return siteConfig?.getConfig() ?? undefined;
 }
 
 const keyOf = (application: Application): string => application.getApplicationKey().toString();
@@ -795,12 +792,9 @@ const keyOf = (application: Application): string => application.getApplicationKe
 const haveSameNames = (a: readonly Readonly<Project>[], b: readonly Readonly<Project>[]): boolean =>
     a.length === b.length && a.every((project, i) => project.getName() === b[i].getName());
 
-/** The app keys the given projects carry a site config for, deduped, in project order. */
-function getInheritedAppKeys(projects: readonly Readonly<Project>[]): string[] {
-    const keys = projects
-        .flatMap((project) => project.getSiteConfigs() ?? [])
-        .map((c) => c.getApplicationKey().toString());
-    return [...new Set(keys)];
+/** The app keys the first parent carries a site config for; the other parents do not inherit. */
+function getInheritedAppKeys(parentProjects: readonly Readonly<Project>[]): string[] {
+    return (parentProjects[0]?.getSiteConfigs() ?? []).map((c) => c.getApplicationKey().toString());
 }
 
 /** The installed applications for the given keys, in order; keys of uninstalled apps are skipped. */
@@ -809,16 +803,14 @@ function resolveApplications(keys: readonly string[]): Application[] {
     return keys.map((key) => installed.find((app) => keyOf(app) === key)).filter(Boolean);
 }
 
-/** Clones the site configs of the given projects by app key; the first project to carry a key wins. */
-function collectSiteConfigs(projects: readonly Readonly<Project>[]): Record<string, PropertySet> {
+/** Clones the project's site configs by app key. */
+function collectSiteConfigs(project: Readonly<Project>): Record<string, PropertySet> {
     const configs: Record<string, PropertySet> = {};
 
-    for (const project of projects) {
-        for (const siteConfig of project.getSiteConfigs() ?? []) {
-            const key = siteConfig.getApplicationKey().toString();
-            if (key in configs || !siteConfig.getConfig()) continue;
-            configs[key] = PropertyTree.fromJson(siteConfig.getConfig().toJson()).getRoot();
-        }
+    for (const siteConfig of project.getSiteConfigs() ?? []) {
+        if (!siteConfig.getConfig()) continue;
+        const key = siteConfig.getApplicationKey().toString();
+        configs[key] = PropertyTree.fromJson(siteConfig.getConfig().toJson()).getRoot();
     }
 
     return configs;

@@ -241,13 +241,13 @@ describe('projectDialog.store application configs', () => {
     });
 
     describe('$projectDialogInheritedAppKeys', () => {
-        it('should collect the keys of every parent in parent order', async () => {
+        it('should collect the keys of the first parent only', async () => {
             const p1 = createProject('p1', [createSiteConfig('app:a', {}), createSiteConfig('app:b', {})]);
             const p2 = createProject('p2', [createSiteConfig('app:a', {}), createSiteConfig('app:c', {})]);
 
             await openCreateProjectDialog([p1, p2]);
 
-            expect([...$projectDialogInheritedAppKeys.get()]).toEqual(['app:a', 'app:b', 'app:c']);
+            expect([...$projectDialogInheritedAppKeys.get()]).toEqual(['app:a', 'app:b']);
         });
 
         it('should keep the same set across an unrelated change and replace it on a parent switch', async () => {
@@ -317,7 +317,7 @@ describe('projectDialog.store application configs', () => {
             expect(ownConfigOf('app:b')).toBeUndefined();
         });
 
-        it('should resolve to the first parent carrying the app', async () => {
+        it('should resolve to the first parent and follow a reorder', async () => {
             const p1 = createProject('p1', [createSiteConfig('app:a', { color: 'red' })]);
             const p2 = createProject('p2', [createSiteConfig('app:a', { color: 'blue' })]);
 
@@ -326,6 +326,16 @@ describe('projectDialog.store application configs', () => {
 
             setProjectDialogParentProjects([p2, p1]);
             expect(configOf('app:a')?.getString('color')).toBe('blue');
+        });
+
+        it('should not inherit an app only the second parent carries', async () => {
+            const p1 = createProject('p1', [createSiteConfig('app:a', { color: 'red' })]);
+            const p2 = createProject('p2', [createSiteConfig('app:b', { color: 'blue' })]);
+
+            await openCreateProjectDialog([p1, p2]);
+
+            expect(listedKeys()).toEqual(['app:a']);
+            expect(configOf('app:b')).toBeUndefined();
         });
 
         it('should send the new parent config after a parent switch', async () => {
