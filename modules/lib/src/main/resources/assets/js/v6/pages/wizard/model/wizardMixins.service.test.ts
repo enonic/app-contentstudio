@@ -1,5 +1,4 @@
 import { PropertyTree } from '@enonic/input-types/data';
-import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { okAsync } from 'neverthrow';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentBuilder, type Content } from '../../../../app/content/Content';
@@ -21,6 +20,8 @@ import {
     setContentType,
 } from './wizardContent.store';
 import { cleanupWizardMixinsService, initWizardMixinsService } from './wizardMixins.service';
+import { CONTENT_TYPE } from '../../../shared/lib/cms/schema/contentTypeName';
+import { toLegacyContentTypeName } from '../../../shared/lib/cms/schema/legacy';
 
 const mocks = vi.hoisted(() => ({
     fire: vi.fn(),
@@ -65,7 +66,7 @@ function createContent({ mixins = [], id }: { mixins?: Mixin[]; id?: string } = 
     const builder = new ContentBuilder();
     builder.setData(new PropertyTree());
     builder.setName(new ContentName('content'));
-    builder.setType(ContentTypeName.SITE);
+    builder.setType(toLegacyContentTypeName(CONTENT_TYPE.SITE));
     builder.setDisplayName('Content');
     builder.setMixins(mixins);
     builder.setWorkflow(Workflow.create().setState(WorkflowState.IN_PROGRESS).build());
@@ -92,7 +93,7 @@ describe('wizardMixins.service', () => {
     it('should seed mandatory mixins of a requested application into the draft only and trigger a save', async () => {
         initializeWizardContentState(createContent(), null, [], WorkflowState.IN_PROGRESS);
         setContentType({
-            getContentTypeName: () => ContentTypeName.SITE,
+            getContentTypeName: () => CONTENT_TYPE.SITE,
             getTitle: () => 'Site',
             hasDisplayNameExpression: () => false,
         } as unknown as ContentType);

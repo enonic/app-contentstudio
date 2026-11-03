@@ -1,7 +1,6 @@
-import { type Application } from '@enonic/lib-admin-ui/application/Application';
-import { ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import { ApplicationEvent } from '@enonic/lib-admin-ui/application/ApplicationEvent';
-import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { type Application } from '../../../../../entities/application';
+import { APPLICATION_KEY } from '../../../../../shared/lib/cms/application/applicationKey';
+import { APPLICATION_CONFIG_PROPERTY } from '../../../../../shared/lib/cms/application/applicationConfig';
 import { AuthHelper } from '@enonic/lib-admin-ui/auth/AuthHelper';
 import { type PropertySet } from '@enonic/input-types/data';
 import { PropertyTree } from '@enonic/input-types/data';
@@ -19,7 +18,13 @@ import { ContentId } from '../../../../../../app/content/ContentId';
 import { ContentRequiresSaveEvent } from '../../../../../../app/event/ContentRequiresSaveEvent';
 import { ProjectHelper } from '../../../../../../app/settings/data/project/ProjectHelper';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
-import { $applications, loadApplications, reloadApplications } from '../../../../../entities/application';
+import {
+    $applications,
+    isSettledApplicationChange,
+    loadApplications,
+    onApplicationEvent,
+    reloadApplications,
+} from '../../../../../entities/application';
 import { useFormScope, useFormScopeRequirement } from '../../FormScopeContext';
 import { requestMixinSeed } from '../../../../../pages/wizard/model/wizardContent.store';
 import { ApplicationIcon } from '../../../../../shared/ui/icons/ApplicationIcon';
@@ -31,7 +36,7 @@ import type { SiteConfiguratorConfig } from './SiteConfiguratorConfig';
 import { SITE_CONFIGURATOR_SCOPE_REQUIREMENT } from './SiteConfiguratorDescriptor';
 
 const COMPONENT_NAME = 'SiteConfiguratorInput';
-const PORTAL_APP_KEY = ApplicationKey.PORTAL.toString();
+const PORTAL_APP_KEY = APPLICATION_KEY.PORTAL;
 
 type EditingState = {
     appKey: string;
@@ -80,7 +85,7 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
     const selectedKeys = useMemo(() => {
         return values
             .filter((v) => !v.isNull())
-            .map((v) => v.getPropertySet()?.getString(ApplicationConfig.PROPERTY_KEY))
+            .map((v) => v.getPropertySet()?.getString(APPLICATION_CONFIG_PROPERTY.KEY))
             .filter((key): key is string => !!key && key !== PORTAL_APP_KEY);
     }, [values]);
 
@@ -88,7 +93,7 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
         const items: AppItem[] = [];
         values.forEach((v, index) => {
             if (v.isNull()) return;
-            const key = v.getPropertySet()?.getString(ApplicationConfig.PROPERTY_KEY);
+            const key = v.getPropertySet()?.getString(APPLICATION_CONFIG_PROPERTY.KEY);
             if (key && key !== PORTAL_APP_KEY) {
                 items.push({ key, index });
             }
@@ -105,7 +110,7 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
 
     const findApplicationByKey = useCallback(
         (key: string): Application | undefined => {
-            return applications.find((app) => app.getApplicationKey().toString() === key);
+            return applications.find((app) => app.key === key);
         },
         [applications],
     );
@@ -113,7 +118,7 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
     const getConfigPropertySet = useCallback(
         (index: number): PropertySet | undefined => {
             const propertySet = values[index]?.getPropertySet();
-            return propertySet?.getPropertySet(ApplicationConfig.PROPERTY_CONFIG);
+            return propertySet?.getPropertySet(APPLICATION_CONFIG_PROPERTY.CONFIG);
         },
         [values],
     );
@@ -127,7 +132,7 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
                 .map((key) =>
                     values.findIndex((v) => {
                         if (v.isNull()) return false;
-                        return v.getPropertySet()?.getString(ApplicationConfig.PROPERTY_KEY) === key;
+                        return v.getPropertySet()?.getString(APPLICATION_CONFIG_PROPERTY.KEY) === key;
                     }),
                 )
                 .filter((i) => i >= 0)
@@ -140,9 +145,9 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
             for (const key of added) {
                 const tree = new PropertyTree();
                 const root = tree.getRoot();
-                root.setStringByPath(ApplicationConfig.PROPERTY_KEY, key);
-                const configSet = root.addPropertySet(ApplicationConfig.PROPERTY_CONFIG);
-                const form = findApplicationByKey(key)?.getForm();
+                root.setStringByPath(APPLICATION_CONFIG_PROPERTY.KEY, key);
+                const configSet = root.addPropertySet(APPLICATION_CONFIG_PROPERTY.CONFIG);
+                const form = findApplicationByKey(key)?.form;
                 if (form) {
                     seedFormDefaults(form, configSet);
                 }
@@ -166,7 +171,7 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
         (key: string) => {
             const index = values.findIndex((v) => {
                 if (v.isNull()) return false;
-                return v.getPropertySet()?.getString(ApplicationConfig.PROPERTY_KEY) === key;
+                return v.getPropertySet()?.getString(APPLICATION_CONFIG_PROPERTY.KEY) === key;
             });
             if (index >= 0) {
                 onRemove(index);
@@ -209,18 +214,17 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
         setEditing(null);
     }, []);
 
-    useEffect(() => {
-        const handler = (event: ApplicationEvent) => {
-            if (!event.isNeedToUpdateApplication()) {
-                return;
-            }
+    useEffect(
+        () =>
+            onApplicationEvent((change) => {
+                if (!isSettledApplicationChange(change)) {
+                    return;
+                }
 
-            void reloadApplications();
-        };
-
-        ApplicationEvent.on(handler);
-        return () => ApplicationEvent.un(handler);
-    }, []);
+                void reloadApplications();
+            }),
+        [],
+    );
 
     const disabled = !enabled || isReadOnly || !scopeEnabled;
 
@@ -268,7 +272,7 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
                 <ApplicationConfigDialog
                     application={editingApp}
                     applicationKey={editing.appKey}
-                    form={editingApp?.getForm()}
+                    form={editingApp?.form}
                     configSet={editing.editingSet}
                     enabled={!disabled}
                     onApply={applyConfig}
@@ -303,19 +307,20 @@ const SiteConfiguratorRow = ({
     onRemove,
 }: SiteConfiguratorRowProps): ReactElement => {
     const { item } = context;
-    const application = applications.find((app) => app.getApplicationKey().toString() === item.key);
-    const hasForm = application?.getForm()?.getFormItems().length > 0;
+    const application = applications.find((app) => app.key === item.key);
+    const hasForm = application?.form?.getFormItems().length > 0;
     const hasError = errors[item.index]?.validationResults.length > 0;
 
     const stoppedLabel = useI18n('text.application.is.stopped', item.key);
     const unavailableLabel = useI18n('text.application.not.available', item.key);
 
-    const name = application?.getDisplayName() ?? item.key;
-    const description = application?.isStopped()
-        ? stoppedLabel
-        : !application?.getState()
-          ? unavailableLabel
-          : application?.getDescription();
+    const name = application?.displayName ?? item.key;
+    const description =
+        application?.state === 'stopped'
+            ? stoppedLabel
+            : !application?.state
+              ? unavailableLabel
+              : application?.description;
 
     return (
         <div className={`flex items-center gap-1.5 p-1 w-full${hasError ? ' text-error' : ''}`}>

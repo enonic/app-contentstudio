@@ -1,6 +1,5 @@
 import { type ReactElement } from 'react';
 import { cn } from '@enonic/ui';
-import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { type MediaSelectorFilterOptions, type MediaSelectorMode } from './media-selector.types';
 import { ContentCombobox } from '../content';
 import { SelectorUploadButton, useSelectorUpload } from '../shared/upload';
@@ -9,6 +8,7 @@ import { useFormScope } from '../../form/FormScopeContext';
 import { ContentRow } from '../shared/combobox/ContentRow';
 import { MediaSelectorItemView } from './MediaSelectorItemView';
 import { useAcceptMimeTypes } from '../../../../entities/schema';
+import { CONTENT_TYPE } from '../../../../shared/lib/cms/schema/contentTypeName';
 
 export type MediaSelectorProps = {
     /** Selected content IDs */
@@ -45,20 +45,20 @@ export type MediaSelectorProps = {
 
 const MEDIA_SELECTOR_NAME = 'MediaSelector';
 const MEDIA_SELECTOR_CONTENT_TYPE_NAMES = [
-    ContentTypeName.MEDIA.toString(),
-    ContentTypeName.MEDIA_TEXT.toString(),
-    ContentTypeName.MEDIA_DATA.toString(),
-    ContentTypeName.MEDIA_AUDIO.toString(),
-    ContentTypeName.MEDIA_VIDEO.toString(),
-    ContentTypeName.MEDIA_IMAGE.toString(),
-    ContentTypeName.MEDIA_VECTOR.toString(),
-    ContentTypeName.MEDIA_ARCHIVE.toString(),
-    ContentTypeName.MEDIA_DOCUMENT.toString(),
-    ContentTypeName.MEDIA_SPREADSHEET.toString(),
-    ContentTypeName.MEDIA_PRESENTATION.toString(),
-    ContentTypeName.MEDIA_CODE.toString(),
-    ContentTypeName.MEDIA_EXECUTABLE.toString(),
-    ContentTypeName.MEDIA_UNKNOWN.toString(),
+    CONTENT_TYPE.MEDIA,
+    CONTENT_TYPE.MEDIA_TEXT,
+    CONTENT_TYPE.MEDIA_DATA,
+    CONTENT_TYPE.MEDIA_AUDIO,
+    CONTENT_TYPE.MEDIA_VIDEO,
+    CONTENT_TYPE.MEDIA_IMAGE,
+    CONTENT_TYPE.MEDIA_VECTOR,
+    CONTENT_TYPE.MEDIA_ARCHIVE,
+    CONTENT_TYPE.MEDIA_DOCUMENT,
+    CONTENT_TYPE.MEDIA_SPREADSHEET,
+    CONTENT_TYPE.MEDIA_PRESENTATION,
+    CONTENT_TYPE.MEDIA_CODE,
+    CONTENT_TYPE.MEDIA_EXECUTABLE,
+    CONTENT_TYPE.MEDIA_UNKNOWN,
 ];
 
 export const MediaSelector = ({

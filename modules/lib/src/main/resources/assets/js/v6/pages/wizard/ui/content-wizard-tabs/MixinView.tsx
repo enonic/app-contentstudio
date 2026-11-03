@@ -41,7 +41,7 @@ export const MixinView = ({ mixinName }: MixinViewProps): ReactElement | null =>
 
     const form = useMemo(() => descriptor?.toForm(), [descriptor]);
 
-    const applicationKey = useMemo(() => descriptor?.getMixinName().getApplicationKey(), [descriptor]);
+    const applicationKey = useMemo(() => descriptor?.getMixinName().getApplicationKey().toString(), [descriptor]);
 
     const fieldRegistry = useMemo(() => getAiFieldRegistry('mixin'), []);
 

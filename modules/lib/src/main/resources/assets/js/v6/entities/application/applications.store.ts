@@ -1,8 +1,8 @@
-import { type Application } from '@enonic/lib-admin-ui/application/Application';
-import { ApplicationEvent, ApplicationEventType } from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import { handleError } from '../../shared/notifications';
 import { map } from 'nanostores';
 import { fetchSiteApplications } from './api/applications.api';
+import { type Application } from './lib/application';
+import { type ApplicationEventKind, onApplicationEvent } from './lib/applicationEvents';
 
 //
 // * Types
@@ -55,7 +55,7 @@ async function fetchApplications(): Promise<void> {
 
     await fetchSiteApplications().match(
         (applications) => {
-            const sorted = applications.sort((a, b) => a.getDisplayName().localeCompare(b.getDisplayName()));
+            const sorted = applications.sort((a, b) => a.displayName.localeCompare(b.displayName));
 
             $applications.set({
                 applications: sorted,
@@ -74,16 +74,16 @@ async function fetchApplications(): Promise<void> {
 // * Initialization
 //
 
-const TRACKED_EVENT_TYPES = new Set<ApplicationEventType>([
-    ApplicationEventType.INSTALLED,
-    ApplicationEventType.UNINSTALLED,
-    ApplicationEventType.STARTED,
-    ApplicationEventType.STOPPED,
-    ApplicationEventType.UPDATED,
+const TRACKED_EVENT_KINDS = new Set<ApplicationEventKind>([
+    'installed',
+    'uninstalled',
+    'started',
+    'stopped',
+    'updated',
 ]);
 
-ApplicationEvent.on((event: ApplicationEvent) => {
-    if (!TRACKED_EVENT_TYPES.has(event.getEventType())) {
+onApplicationEvent(({ kind }) => {
+    if (!TRACKED_EVENT_KINDS.has(kind)) {
         return;
     }
     void reloadApplications();

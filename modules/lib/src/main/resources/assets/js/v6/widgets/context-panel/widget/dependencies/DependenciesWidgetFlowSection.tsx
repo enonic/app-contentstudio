@@ -1,4 +1,3 @@
-import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { Button } from '@enonic/ui';
 import { ReactElement, useCallback } from 'react';
 import { DependencyItem } from '.';
@@ -9,6 +8,8 @@ import { ContentId } from '../../../../../app/content/ContentId';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import { ContentIcon } from '../../../../shared/ui/icons/ContentIcon';
 import { capitalize } from '../../../../shared/lib/format/capitalize';
+import { type ContentTypeName } from '../../../../shared/lib/cms/schema/contentTypeName';
+import { toLegacyContentTypeName } from '../../../../shared/lib/cms/schema/legacy';
 
 type DependenciesProps = {
     type: DependencyType;
@@ -69,7 +70,7 @@ const DependenciesList = ({ type, dependencies, contentId }: DependenciesProps) 
                 DependencyParams.create()
                     .setContentId(contentId)
                     .setDependencyType(type)
-                    .setContentType(dependency.contentType)
+                    .setContentType(toLegacyContentTypeName(dependency.contentType))
                     .build(),
             ).fire();
         },

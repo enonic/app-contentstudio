@@ -1,4 +1,4 @@
-import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { type ApplicationKey } from '../../../../shared/lib/cms/application/applicationKey';
 import { handleError, notifyError } from '../../../../shared/notifications';
 import type { PropertyTreeJson } from '@enonic/ui-types';
 import { PropertySet } from '@enonic/input-types/data';

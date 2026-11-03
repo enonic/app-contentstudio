@@ -1,4 +1,4 @@
-import { type Application } from '@enonic/lib-admin-ui/application/Application';
+import { type Application } from '../../../entities/application';
 import { Checkbox, cn, Combobox, type ComboboxRootProps, Listbox, useCombobox } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { type ReactElement, type RefObject, useId, useMemo, useState } from 'react';
@@ -43,7 +43,7 @@ export const ApplicationSelector = (props: ApplicationSelectorProps): ReactEleme
         if (!searchValue) return applications;
 
         return applications.filter((application) =>
-            application.getDisplayName().toLowerCase().includes(searchValue.toLowerCase()),
+            application.displayName.toLowerCase().includes(searchValue.toLowerCase()),
         );
     }, [applications, searchValue]);
 
@@ -102,9 +102,9 @@ const ApplicationSelectorList = (props: ApplicationSelectorListProps): ReactElem
     return (
         <Combobox.ListContent className="max-h-60 rounded-sm">
             {items.map((application) => {
-                const key = application.getApplicationKey().toString();
-                const name = application.getDisplayName();
-                const description = application.getDescription();
+                const key = application.key;
+                const name = application.displayName;
+                const description = application.description;
 
                 return (
                     <Listbox.Item key={key} value={key} disabled={inheritedKeys?.has(key)}>

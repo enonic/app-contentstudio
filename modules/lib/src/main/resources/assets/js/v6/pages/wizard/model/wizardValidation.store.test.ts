@@ -1,6 +1,5 @@
 import { PropertyTree } from '@enonic/input-types/data';
 import { Input } from '@enonic/input-types/schema';
-import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { type FormValidationResult, validateForm } from '@enonic/input-types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentBuilder, type Content } from '../../../../app/content/Content';
@@ -35,6 +34,8 @@ import {
     resetValidation,
     setServerValidationErrors,
 } from './wizardValidation.store';
+import { CONTENT_TYPE } from '../../../shared/lib/cms/schema/contentTypeName';
+import { toLegacyContentTypeName } from '../../../shared/lib/cms/schema/legacy';
 
 vi.mock('@enonic/input-types', async () => {
     // Real (pure) path matchers — the clear commands rely on them; only validateForm
@@ -120,7 +121,7 @@ function createContent({
     const builder = new ContentBuilder();
     builder.setData(data);
     builder.setName(new ContentName('content'));
-    builder.setType(ContentTypeName.UNSTRUCTURED);
+    builder.setType(toLegacyContentTypeName(CONTENT_TYPE.UNSTRUCTURED));
     builder.setDisplayName(displayName);
     builder.setMixins(mixins);
     builder.setWorkflow(workflow);

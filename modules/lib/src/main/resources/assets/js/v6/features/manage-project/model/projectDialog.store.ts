@@ -10,13 +10,16 @@ import { ProjectReadAccess } from '../../../../app/settings/data/project/Project
 import { type ProjectReadAccessType } from '../../../../app/settings/data/project/ProjectReadAccessType';
 import { ProjectItemPermissionsBuilder } from '../../../../app/settings/data/project/ProjectPermissions';
 import { type Principal } from '@enonic/lib-admin-ui/security/Principal';
-import { type Application, ApplicationBuilder } from '@enonic/lib-admin-ui/application/Application';
-import { ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 import { PropertySet, PropertyTree } from '@enonic/input-types/data';
 import { seedFormDefaults } from '@enonic/input-types';
 import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
 import { $applications, loadApplications } from '../../../entities/application';
+import { type Application } from '../../../entities/application';
+import {
+    type ApplicationConfig,
+    fromLegacyApplicationConfig,
+} from '../../../shared/lib/cms/application/applicationConfig';
+import { APPLICATION_KEY } from '../../../shared/lib/cms/application/applicationKey';
 import { getProjectDetailedPermissions } from '../../../shared/lib/url/projects';
 import { $principals, loadPrincipalsByKeys } from '../../../entities/principal';
 import {
@@ -265,18 +268,14 @@ export const openEditProjectDialog = async (project: Project, parentProjects: Pr
     await loadApplications();
 
     // The project's own apps first, then the inherited ones it has no config for; the portal is no app.
-    const ownKeys = project
-        .getSiteConfigs()
-        .filter((config) => !isPortalConfig(config))
-        .map((config) => config.getApplicationKey().toString());
+    const siteConfigs = getSiteConfigs(project);
+    const ownKeys = siteConfigs.filter((config) => !isPortalConfig(config)).map((config) => config.applicationKey);
     const inheritedKeys = getInheritedAppKeys(parentProjects).filter((key) => !ownKeys.includes(key));
     const projectApplications = resolveApplications([...ownKeys, ...inheritedKeys]);
 
-    const applicationConfigs = collectSiteConfigs(project);
-    const listedKeys = new Set(projectApplications.map(keyOf));
-    const preservedSiteConfigs = project
-        .getSiteConfigs()
-        .filter((c) => !listedKeys.has(c.getApplicationKey().toString()));
+    const applicationConfigs = collectSiteConfigs(siteConfigs);
+    const listedKeys = new Set(projectApplications.map((app) => app.key));
+    const preservedSiteConfigs = siteConfigs.filter((config) => !listedKeys.has(config.applicationKey));
 
     const snapshot: EditProjectSnapshot = {
         name: project.getDisplayName() || '',
@@ -661,12 +660,10 @@ function getDataForRequests() {
         permissions.map((p: Principal) => p.getKey()),
     );
 
-    const listedConfigs = applications.map((app: Application) =>
-        ApplicationConfig.create()
-            .setApplicationKey(app.getApplicationKey())
-            .setConfig(resolveApplicationConfig(app, applicationConfigs))
-            .build(),
-    );
+    const listedConfigs = applications.map((app): ApplicationConfig => ({
+        applicationKey: app.key,
+        config: resolveApplicationConfig(app, applicationConfigs),
+    }));
     // The preserved entries go around the listed apps: portal first, the rest last.
     const requestConfigs = [
         ...preservedSiteConfigs.filter(isPortalConfig),
@@ -772,21 +769,26 @@ function serializeApplicationConfigs(applications: Application[], ownConfigs: Re
 
 /** The config an app saves with: its own, else the form defaults. A parent's config is never copied. */
 function resolveApplicationConfig(application: Application, ownConfigs: Record<string, PropertySet>): PropertySet {
-    return ownConfigs[keyOf(application)] ?? createDefaultConfig(application);
+    return ownConfigs[application.key] ?? createDefaultConfig(application);
 }
 
-const keyOf = (application: Application): string => application.getApplicationKey().toString();
+const keyOf = (application: Application): string => application.key;
 
-const isPortalConfig = (config: ApplicationConfig): boolean => config.getApplicationKey().equals(ApplicationKey.PORTAL);
+const isPortalConfig = (config: ApplicationConfig): boolean => config.applicationKey === APPLICATION_KEY.PORTAL;
+
+const getSiteConfigs = (project: Readonly<Project>): ApplicationConfig[] =>
+    (project.getSiteConfigs() ?? []).map(fromLegacyApplicationConfig);
 
 const haveSameNames = (a: readonly Readonly<Project>[], b: readonly Readonly<Project>[]): boolean =>
     a.length === b.length && a.every((project, i) => project.getName() === b[i].getName());
 
 /** The app keys the first parent carries a site config for, the portal left out; the other parents do not inherit. */
 function getInheritedAppKeys(parentProjects: readonly Readonly<Project>[]): string[] {
-    return (parentProjects[0]?.getSiteConfigs() ?? [])
+    const parent = parentProjects[0];
+    if (!parent) return [];
+    return getSiteConfigs(parent)
         .filter((config) => !isPortalConfig(config))
-        .map((config) => config.getApplicationKey().toString());
+        .map((config) => config.applicationKey);
 }
 
 /**
@@ -795,29 +797,22 @@ function getInheritedAppKeys(parentProjects: readonly Readonly<Project>[]): stri
  */
 function resolveApplications(keys: readonly string[]): Application[] {
     const installed = $applications.get().applications;
-    return keys.map((key) => installed.find((app) => keyOf(app) === key) ?? createUnavailableApplication(key));
+    return keys.map((key) => installed.find((app) => app.key === key) ?? createUnavailableApplication(key));
 }
 
 /** A stand-in for an app this node does not run: the key as name, no form, no state. */
-function createUnavailableApplication(key: string): Application {
-    const builder = new ApplicationBuilder();
-    builder.applicationKey = ApplicationKey.fromString(key);
-    builder.id = key;
-    builder.displayName = key;
-    return builder.build();
-}
+const createUnavailableApplication = (key: string): Application => ({ key, displayName: key });
 
 /** Whether the app is a stand-in, see `createUnavailableApplication`. */
-const isUnavailable = (application: Application): boolean => application.getState() == null;
+const isUnavailable = (application: Application): boolean => application.state == null;
 
-/** Clones the project's site configs by app key. */
-function collectSiteConfigs(project: Readonly<Project>): Record<string, PropertySet> {
+/** Clones the site configs by app key. */
+function collectSiteConfigs(siteConfigs: readonly ApplicationConfig[]): Record<string, PropertySet> {
     const configs: Record<string, PropertySet> = {};
 
-    for (const siteConfig of project.getSiteConfigs() ?? []) {
-        if (!siteConfig.getConfig()) continue;
-        const key = siteConfig.getApplicationKey().toString();
-        configs[key] = PropertyTree.fromJson(siteConfig.getConfig().toJson()).getRoot();
+    for (const { applicationKey, config } of siteConfigs) {
+        if (!config) continue;
+        configs[applicationKey] = PropertyTree.fromJson(config.toJson()).getRoot();
     }
 
     return configs;
@@ -825,7 +820,7 @@ function collectSiteConfigs(project: Readonly<Project>): Record<string, Property
 
 function createDefaultConfig(application: Application): PropertySet {
     const root = new PropertyTree().getRoot();
-    const form = application.getForm();
+    const form = application.form;
     if (form) seedFormDefaults(form, root);
     return root;
 }

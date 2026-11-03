@@ -1,4 +1,3 @@
-import { ApplicationEvent, ApplicationEventType } from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import { Extension, ExtensionConfig } from '@enonic/lib-admin-ui/extension/Extension';
 import { computed, map } from 'nanostores';
 import { i18n } from '../../../shared/i18n';
@@ -6,6 +5,7 @@ import { UrlAction } from '../../../../app/UrlAction';
 import { $config } from '../../../shared/config/config.store';
 import { fetchExtensions } from '../../../entities/extension';
 import { $noProjectMode } from '../../../entities/project/projects.store';
+import { onApplicationEvent } from '../../../entities/application';
 
 type WidgetsStore = {
     widgets: Readonly<Extension>[];
@@ -158,21 +158,15 @@ function createStudioWidget(): Readonly<Extension> {
 
 void loadWidgets();
 
-ApplicationEvent.on((event: ApplicationEvent) => {
-    const stoppedOrUninstalledEvent =
-        ApplicationEventType.STOPPED === event.getEventType() ||
-        ApplicationEventType.UNINSTALLED === event.getEventType();
-
-    const startedOrInstalledEvent =
-        ApplicationEventType.STARTED === event.getEventType() ||
-        ApplicationEventType.INSTALLED === event.getEventType();
+onApplicationEvent(({ applicationKey, kind }) => {
+    const stoppedOrUninstalledEvent = kind === 'stopped' || kind === 'uninstalled';
+    const startedOrInstalledEvent = kind === 'started' || kind === 'installed';
 
     if (startedOrInstalledEvent) {
         loadWidgets();
     } else if (stoppedOrUninstalledEvent) {
         const { widgets } = $sidebarWidgets.get();
-        const appKey = String(event.getApplicationKey());
-        const filteredWidgets = widgets.filter((w) => getWidgetKey(w) !== appKey);
+        const filteredWidgets = widgets.filter((w) => getWidgetKey(w) !== applicationKey);
 
         $sidebarWidgets.setKey('widgets', filteredWidgets);
     }

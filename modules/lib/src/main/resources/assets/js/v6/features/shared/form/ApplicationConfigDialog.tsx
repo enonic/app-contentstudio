@@ -1,9 +1,9 @@
-import { type Application } from '@enonic/lib-admin-ui/application/Application';
 import { type PropertySet } from '@enonic/input-types/data';
 import { type Form } from '@enonic/input-types/schema';
 import { cn, Dialog } from '@enonic/ui';
 import type { ReactElement } from 'react';
 import { useCallback, useRef, useState } from 'react';
+import { type Application } from '../../../entities/application';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import { ConfirmationDialog } from '../../../shared/ui/dialogs/ConfirmationDialog';
 import { useHtmlAreaDialogYield } from '../hooks/useHtmlAreaDialogYield';

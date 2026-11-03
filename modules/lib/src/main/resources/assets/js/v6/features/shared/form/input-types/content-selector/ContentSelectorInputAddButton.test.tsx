@@ -1,4 +1,3 @@
-import { ContentTypeSummaryBuilder } from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import { cleanup, fireEvent, render, screen } from '@testing-library/preact';
 import type { ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -37,8 +36,8 @@ vi.mock('../../../../../../app/create/NewContentEvent', () => ({
         fire = mockFire;
     },
 }));
-vi.mock('../../../../../../app/util/ContentTypesHelper', () => ({
-    ContentTypesHelper: { getAvailableContentTypes: mockGetAvailableContentTypes },
+vi.mock('../../../../new-content/model/creatableContentTypes', () => ({
+    loadCreatableContentTypes: mockGetAvailableContentTypes,
 }));
 vi.mock('../../../../../entities/content', async () => {
     const { atom } = await import('nanostores');
@@ -58,12 +57,11 @@ vi.mock('../../../../new-content/model/newContentDialog.store', async () => {
 });
 
 import { ContentSelectorInputAddButton } from './ContentSelectorInputAddButton';
+import { type ContentTypeSummary } from '../../../../../entities/schema';
+import { type ContentTypeName } from '../../../../../shared/lib/cms/schema/contentTypeName';
 
-const createContentType = (name: string) => {
-    const builder = new ContentTypeSummaryBuilder();
-    builder.name = name;
-    builder.title = name;
-    return builder.build();
+const createContentType = (name: ContentTypeName): ContentTypeSummary => {
+    return { name, title: name, abstract: false };
 };
 
 const person = createContentType('com.app:person');
@@ -127,7 +125,7 @@ describe('ContentSelectorInputAddButton', () => {
         renderButton();
         await clickAdd();
 
-        expect(newContentEvents).toEqual([[person, parent]]);
+        expect(newContentEvents).toEqual([[person.name, parent]]);
         expect(mockFire).toHaveBeenCalledOnce();
         expect(mockOpenNewContentDialog).not.toHaveBeenCalled();
     });

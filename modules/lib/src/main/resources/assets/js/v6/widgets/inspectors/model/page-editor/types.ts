@@ -1,6 +1,6 @@
-import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
-import type { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { type ApplicationKey } from '../../../../shared/lib/cms/application/applicationKey';
 import type { ContentId } from '../../../../../app/content/ContentId';
+import { type ContentTypeName } from '../../../../shared/lib/cms/schema/contentTypeName';
 
 export type PageEditorLifecycle = {
     // The frame has live-edit markup to interact with. Without it the page

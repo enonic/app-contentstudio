@@ -1,4 +1,4 @@
-import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { type ApplicationKey } from '../../../shared/lib/cms/application/applicationKey';
 import { PropertySet, PropertyTree } from '@enonic/input-types/data';
 import { Form } from '@enonic/input-types/schema';
 import { cleanup, render, screen } from '@testing-library/preact';
@@ -152,7 +152,7 @@ describe('FormRenderer', () => {
     });
 
     it("routes the form's notifications to a warning and passes the application key by name", () => {
-        renderForm({ applicationKey: ApplicationKey.fromString('com.enonic.app.test') });
+        renderForm({ applicationKey: 'com.enonic.app.test' });
 
         const props = mockToolkitRenderer.mock.calls[0]?.[0] as {
             applicationKey?: string;

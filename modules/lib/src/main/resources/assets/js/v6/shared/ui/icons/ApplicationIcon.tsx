@@ -1,16 +1,18 @@
-import { Application } from '@enonic/lib-admin-ui/application/Application';
 import { cn } from '@enonic/ui';
 import { Box } from 'lucide-react';
 import type { ReactElement } from 'react';
 
 export type ApplicationIconProps = {
-    application: Application;
+    application: {
+        displayName: string;
+        iconUrl?: string;
+    };
     className?: string;
 };
 
 export const ApplicationIcon = ({ application, className }: ApplicationIconProps): ReactElement => {
-    const name = application.getDisplayName();
-    const url = application.getIconUrl();
+    const name = application.displayName;
+    const url = application.iconUrl;
 
     if (url) {
         return (

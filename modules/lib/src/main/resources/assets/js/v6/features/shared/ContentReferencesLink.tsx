@@ -1,12 +1,12 @@
 import { cn, Link, type LinkProps } from '@enonic/ui';
 import { forwardRef, useMemo } from 'react';
 import { Link as LinkIcon } from 'lucide-react';
-import type { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { useStore } from '@nanostores/preact';
 import { type Branch } from '../../../app/versioning/Branch';
 import { useI18n } from '../../shared/lib/hooks/useI18n';
 import { getInboundReferencesUrl } from '../../shared/lib/url/navigation';
 import { $activeProject } from '../../entities/project';
+import { type ContentTypeName } from '../../shared/lib/cms/schema/contentTypeName';
 
 export type ContentReferencesLinkProps = {
     contentId: string;

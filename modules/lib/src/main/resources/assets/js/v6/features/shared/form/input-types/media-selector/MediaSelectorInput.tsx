@@ -4,7 +4,7 @@ import type { ReactElement } from 'react';
 import { MediaSelector } from '../../../selectors/media';
 import { useFormScopeRequirement } from '../../FormScopeContext';
 import { useFormApplicationKey, useSelectorInput } from '../hooks';
-import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { type ApplicationKey } from '../../../../../shared/lib/cms/application/applicationKey';
 import { MEDIA_SELECTOR_SCOPE_REQUIREMENT } from './MediaSelectorDescriptor';
 
 export const MediaSelectorInput = (props: SelfManagedComponentProps<MediaSelectorConfig>): ReactElement => {

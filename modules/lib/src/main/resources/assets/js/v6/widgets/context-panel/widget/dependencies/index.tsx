@@ -1,4 +1,3 @@
-import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { useStore } from '@nanostores/preact';
 import { type ReactElement, useEffect, useState } from 'react';
 import { DependencyType } from '../../../../../app/browse/DependencyType';
@@ -8,6 +7,7 @@ import { $activeWidgetId, $isContextOpen } from '../../model/contextWidgets.stor
 import { getDependenciesWidgetKey } from '../../../../shared/lib/widget/dependencies';
 import { DependenciesWidgetContentSection } from './DependenciesWidgetContentSection';
 import { DependenciesWidgetFlowSection } from './DependenciesWidgetFlowSection';
+import { type ContentTypeName, toContentTypeName } from '../../../../shared/lib/cms/schema/contentTypeName';
 
 export type DependencyItem = {
     type: DependencyType;
@@ -50,7 +50,7 @@ export const DependenciesWidget = (): ReactElement | null => {
                     type: DependencyType.INBOUND,
                     itemCount: item.count,
                     iconUrl: item.iconUrl,
-                    contentType: new ContentTypeName(item.type),
+                    contentType: toContentTypeName(item.type),
                 }));
 
                 setInboundDependencies(inbound);
@@ -59,7 +59,7 @@ export const DependenciesWidget = (): ReactElement | null => {
                     type: DependencyType.OUTBOUND,
                     itemCount: item.count,
                     iconUrl: item.iconUrl,
-                    contentType: new ContentTypeName(item.type),
+                    contentType: toContentTypeName(item.type),
                 }));
 
                 setOutboundDependencies(outbound);

@@ -6,9 +6,10 @@ import { ContentName } from '../../../../../app/content/ContentName';
 import { ContentPath } from '../../../../../app/content/ContentPath';
 import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 import { ContentSummaryBuilder } from '../../../../../app/content/ContentSummary';
-import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { ItemLabel } from '../../../../shared/ui/ItemLabel';
 import { cn } from '@enonic/ui';
+import { CONTENT_TYPE } from '../../../../shared/lib/cms/schema/contentTypeName';
+import { toLegacyContentTypeName } from '../../../../shared/lib/cms/schema/legacy';
 
 export const ROOT_ID = 'root';
 
@@ -22,7 +23,7 @@ export const createRootContent = () =>
         .setName(new ContentName(ROOT_ID))
         .setDisplayName(i18n('field.root'))
         .setPath(ContentPath.getRoot())
-        .setType(ContentTypeName.FOLDER)
+        .setType(toLegacyContentTypeName(CONTENT_TYPE.FOLDER))
         .build();
 
 export const isRootContent = (content: ContentSummary): boolean => content.getContentId()?.toString() === ROOT_ID;

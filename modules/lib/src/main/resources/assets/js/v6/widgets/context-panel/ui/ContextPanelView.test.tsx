@@ -1,4 +1,3 @@
-import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { render } from '@testing-library/preact';
 import { atom } from 'nanostores';
 import type { ReactElement } from 'react';
@@ -10,6 +9,8 @@ import { type ContentSummary, ContentSummaryBuilder } from '../../../../app/cont
 import type { ContextWidget } from '../model/contextWidget.types';
 import { setActiveWidget, setContextWidgets } from '../model/contextWidgets.store';
 import { ContextPanelView } from './ContextPanelView';
+import { CONTENT_TYPE } from '../../../shared/lib/cms/schema/contentTypeName';
+import { toLegacyContentTypeName } from '../../../shared/lib/cms/schema/legacy';
 
 vi.mock('@enonic/ui', () => ({
     cn: (...args: unknown[]) => args.filter(Boolean).join(' '),
@@ -48,7 +49,7 @@ const createContent = (id: string): ContentSummary =>
         .setName(new ContentName(id))
         .setDisplayName(id)
         .setPath(ContentPath.create().fromString(`/${id}`).build())
-        .setType(ContentTypeName.FOLDER)
+        .setType(toLegacyContentTypeName(CONTENT_TYPE.FOLDER))
         .build();
 
 const DETAILS: ContextWidget = {

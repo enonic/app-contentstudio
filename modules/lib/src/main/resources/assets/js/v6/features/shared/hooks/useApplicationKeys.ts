@@ -1,4 +1,4 @@
-import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { type ApplicationKey } from '../../../shared/lib/cms/application/applicationKey';
 import { useEffect, useMemo, useState } from 'react';
 import type { Site } from '../../../../app/content/Site';
 import { loadNearestSite } from '../../../widgets/inspectors/api/details.api';
@@ -45,13 +45,13 @@ export function useApplicationKeys(): ApplicationKey[] {
 
         // If content is under a site, use the site's application keys
         if (nearestSite) {
-            return nearestSite.getApplicationKeys();
+            return nearestSite.getApplicationKeys().map((key) => key.toString());
         }
 
         // Fall back to project site configs for non-site content (e.g. headless)
         const projectSiteConfigs = project?.getSiteConfigs();
         if (projectSiteConfigs) {
-            return projectSiteConfigs.map((config) => config.getApplicationKey());
+            return projectSiteConfigs.map((config) => config.getApplicationKey().toString());
         }
 
         return [];

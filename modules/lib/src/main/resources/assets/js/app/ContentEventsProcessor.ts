@@ -9,12 +9,13 @@ import { type EditContentEvent } from './event/EditContentEvent';
 import { ContentUrlHelper } from './util/ContentUrlHelper';
 import { ContentCreateParams } from './wizard/ContentCreateParams';
 import { ContentEditParams } from './wizard/ContentEditParams';
+import { toLegacyContentTypeName } from '../v6/shared/lib/cms/schema/legacy';
 
 export class ContentEventsProcessor {
     static handleNew(newContentEvent: NewContentEvent): void {
         const params: ContentCreateParams = ContentCreateParams.create()
             .setParentContentId(newContentEvent.getParentContent()?.getContentId())
-            .setContentTypeName(newContentEvent.getContentType().getContentTypeName())
+            .setContentTypeName(toLegacyContentTypeName(newContentEvent.getContentTypeName()))
             .build();
 
         ContentUrlHelper.openNewContentTab(params);

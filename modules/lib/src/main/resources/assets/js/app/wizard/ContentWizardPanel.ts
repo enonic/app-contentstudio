@@ -27,6 +27,7 @@ import {
     initWizardContentSyncService,
 } from '../../v6/pages/wizard/model/wizardContentSync.service';
 import { setWizardContent } from '../../v6/entities/content';
+import { fromLegacyApplicationConfig } from '../../v6/shared/lib/cms/application/applicationConfig';
 import { $activeWidgetId, setContextOpen } from '../../v6/widgets/context-panel/model/contextWidgets.store';
 import { getActiveProject, getActiveProjectName } from '../../v6/entities/project';
 import {
@@ -1743,7 +1744,10 @@ export class ContentWizardPanel extends WizardPanel<Content> {
     }
 
     private updateAiAppConfigs(): void {
-        updateAiAppConfigs(this.site?.getSiteConfigs(), getActiveProject().getSiteConfigs());
+        updateAiAppConfigs(
+            this.site?.getSiteConfigs().map(fromLegacyApplicationConfig),
+            getActiveProject().getSiteConfigs().map(fromLegacyApplicationConfig),
+        );
     }
 
     // Opens the AI Translator dialog via the `dialog:open` plugin command.

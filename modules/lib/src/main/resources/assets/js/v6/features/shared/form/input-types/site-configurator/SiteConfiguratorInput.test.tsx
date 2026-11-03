@@ -1,5 +1,4 @@
-import { type Application } from '@enonic/lib-admin-ui/application/Application';
-import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { type Application } from '../../../../../entities/application';
 import { type Value } from '@enonic/input-types/data';
 import { Form, Input } from '@enonic/input-types/schema';
 import { registerBuiltInTypes, type SelfManagedComponentProps } from '@enonic/input-types';
@@ -65,14 +64,7 @@ function checkboxForm(): Form {
 }
 
 function createApp(key: string, form: Form): Application {
-    return {
-        getApplicationKey: () => ApplicationKey.fromString(key),
-        getForm: () => form,
-        getDisplayName: () => key,
-        isStopped: () => false,
-        getState: () => 'started',
-        getDescription: () => '',
-    } as unknown as Application;
+    return { key, form, displayName: key, state: 'started', description: '' };
 }
 
 function renderInput(onAdd: (value?: Value) => void): void {

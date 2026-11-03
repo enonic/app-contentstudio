@@ -1,13 +1,7 @@
-import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, type Mock } from 'vitest';
 import { AppError } from '@enonic/ui-utils';
 import { errorResponse, jsonResponse, restoreFetch, stubFetch } from '../../../shared/lib/test/fetch.test.utils';
 import { fetchSiteApplications } from './applications.api';
-
-vi.mock('@enonic/lib-admin-ui/application/Application', () => ({
-    Application: {
-        fromJsonArray: (json: unknown[]) => json.map((item) => ({ appFrom: item })),
-    },
-}));
 
 let mockFetch: Mock;
 
@@ -21,7 +15,20 @@ afterEach(() => {
 
 describe('fetchSiteApplications', () => {
     it('should GET the getSiteApplications endpoint without params and parse the applications', async () => {
-        mockFetch.mockResolvedValue(jsonResponse({ applications: [{ key: 'com.app.one' }] }));
+        mockFetch.mockResolvedValue(
+            jsonResponse({
+                applications: [
+                    {
+                        key: 'com.app.one',
+                        displayName: 'App One',
+                        description: 'd',
+                        state: 'started',
+                        iconUrl: '/icon',
+                        version: '1.0.0',
+                    },
+                ],
+            }),
+        );
 
         const result = await fetchSiteApplications();
 
@@ -30,7 +37,16 @@ describe('fetchSiteApplications', () => {
         expect(url).not.toContain('?');
         expect(init.method).toBe('GET');
         expect(result.isOk()).toBe(true);
-        expect(result._unsafeUnwrap()).toEqual([{ appFrom: { key: 'com.app.one' } }]);
+        expect(result._unsafeUnwrap()).toEqual([
+            {
+                key: 'com.app.one',
+                displayName: 'App One',
+                description: 'd',
+                state: 'started',
+                iconUrl: '/icon',
+                form: undefined,
+            },
+        ]);
     });
 
     it('should return an AppError for non-ok responses', async () => {

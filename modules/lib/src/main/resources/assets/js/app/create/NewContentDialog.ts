@@ -36,6 +36,7 @@ import { ContentPath } from '../content/ContentPath';
 import { type ContentSummary } from '../content/ContentSummary';
 import { ContentTypesHelper, type GetTypesParams } from '../util/ContentTypesHelper';
 import { type Project } from '../settings/data/project/Project';
+import { toContentTypeName } from '../../v6/shared/lib/cms/schema/contentTypeName';
 
 type TypesAndAggregations = [ContentTypeSummary[], AggregateContentTypesResult];
 
@@ -191,7 +192,10 @@ export class NewContentDialog extends ModalDialog {
         if (this.typeSelectedHandler) {
             this.typeSelectedHandler(event.getItem().getContentType(), this.parentContent);
         } else {
-            new NewContentEvent(event.getItem().getContentType(), this.parentContent).fire();
+            new NewContentEvent(
+                toContentTypeName(event.getItem().getContentType().getName()),
+                this.parentContent,
+            ).fire();
         }
 
         this.close();

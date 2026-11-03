@@ -1,6 +1,6 @@
 /*global CKEDITOR*/
 
-import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { type ApplicationKey } from '../../../../../shared/lib/cms/application/applicationKey';
 import { BrowserHelper } from '@enonic/lib-admin-ui/BrowserHelper';
 import { notifyError, notifyInfo, notifySuccess } from '../../../../../shared/notifications';
 import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
@@ -28,6 +28,7 @@ import type {
     FullScreenDialogParams,
     HtmlEditorCursorPosition,
 } from '../../../../../../app/inputtype/ui/text/HtmlEditorTypes';
+import { toLegacyApplicationKey } from '../../../../../shared/lib/cms/application/legacy';
 
 type EventInfo = CKEDITOR.eventInfo;
 
@@ -85,7 +86,7 @@ function buildEditorParams(editor: CKEDITOR.editor, params: SetupEditorParams): 
         .setInline(false)
         .setCreateDialogHandler(createDialogHandler(params.dialogOverrides))
         .setContent(params.contentSummary)
-        .setApplicationKeys(params.applicationKeys)
+        .setApplicationKeys(params.applicationKeys.map(toLegacyApplicationKey))
         .setEnabledTools(params.enabledTools)
         .setDisabledTools(params.disabledTools)
         .setAllowedHeadings(params.allowedHeadings)

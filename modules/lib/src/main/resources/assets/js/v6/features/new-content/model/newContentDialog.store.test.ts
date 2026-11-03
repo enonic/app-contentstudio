@@ -1,4 +1,3 @@
-import { ContentTypeSummaryBuilder } from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentId } from '../../../../app/content/ContentId';
 import { ContentPath } from '../../../../app/content/ContentPath';
@@ -17,9 +16,11 @@ vi.mock('../../../shared/notifications', () => ({
 }));
 vi.mock('../../../../app/util/ContentTypesHelper', () => ({
     ContentTypesHelper: {
-        getAvailableContentTypes: mockGetAvailableContentTypes,
         getAggregatedTypesByContent: mockGetAggregatedTypesByContent,
     },
+}));
+vi.mock('./creatableContentTypes', () => ({
+    loadCreatableContentTypes: mockGetAvailableContentTypes,
 }));
 vi.mock('../../../entities/content', () => ({
     reloadParentChildren: vi.fn(),
@@ -38,12 +39,11 @@ vi.mock('../../../entities/project/activeProject.store', async () => {
 
 import { $activeProject } from '../../../entities/project/activeProject.store';
 import { $newContentDialog, closeNewContentDialog, openNewContentDialog } from './newContentDialog.store';
+import { type ContentTypeSummary } from '../../../entities/schema';
+import { type ContentTypeName } from '../../../shared/lib/cms/schema/contentTypeName';
 
-const createContentType = (name: string, title: string) => {
-    const builder = new ContentTypeSummaryBuilder();
-    builder.name = name;
-    builder.title = title;
-    return builder.build();
+const createContentType = (name: ContentTypeName, title: string): ContentTypeSummary => {
+    return { name, title, abstract: false };
 };
 
 const person = createContentType('com.app:person', 'Person');

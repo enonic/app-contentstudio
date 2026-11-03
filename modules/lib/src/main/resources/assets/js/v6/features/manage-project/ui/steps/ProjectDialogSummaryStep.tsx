@@ -233,8 +233,8 @@ export const ProjectDialogSummaryStepContent = ({
                         <dt className="font-semibold">{applicationsLabel}</dt>
                         <dd className="grid grid-cols-[auto_1fr] items-center gap-x-1 gap-y-2.5">
                             {applications.map((application) => {
-                                const key = application.getApplicationKey().toString();
-                                const name = application.getDisplayName();
+                                const key = application.key;
+                                const name = application.displayName;
 
                                 return (
                                     <div className="contents" key={key}>

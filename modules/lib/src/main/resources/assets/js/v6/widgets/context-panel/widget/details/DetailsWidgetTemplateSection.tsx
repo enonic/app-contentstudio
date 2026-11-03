@@ -16,6 +16,7 @@ import { getEditContentUrl } from '../../../../shared/lib/url/navigation';
 import { TemplateIcon } from '../../../../shared/ui/icons/TemplateIcon';
 import { ItemLabel } from '../../../../shared/ui/ItemLabel';
 import { $detailsWidgetContent } from '../../model/detailsWidgets.store';
+import { toContentTypeName } from '../../../../shared/lib/cms/schema/contentTypeName';
 
 type State = {
     mode: PageMode;
@@ -37,7 +38,9 @@ async function attemptAutomaticMode(content: Content): Promise<State> {
     const site = await loadNearestSite(content.getContentId()).unwrapOr(undefined);
 
     const defaultPageTemplate = site
-        ? await loadDefaultPageTemplate(site.getContentId(), content.getType()).unwrapOr(undefined)
+        ? await loadDefaultPageTemplate(site.getContentId(), toContentTypeName(content.getType().toString())).unwrapOr(
+              undefined,
+          )
         : undefined;
 
     if (defaultPageTemplate?.isPage()) {

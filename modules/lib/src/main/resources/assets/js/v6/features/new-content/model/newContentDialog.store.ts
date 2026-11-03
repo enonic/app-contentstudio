@@ -1,6 +1,5 @@
 import { notifyError, notifySuccess } from '../../../shared/notifications';
-import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import { type ContentTypeSummary } from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import { type ContentTypeSummary } from '../../../entities/schema';
 import { computed, listenKeys, map, task } from 'nanostores';
 import { errAsync } from 'neverthrow';
 import { i18n } from '../../../shared/i18n';
@@ -21,6 +20,8 @@ import { UploadError } from '../../../shared/api';
 import { generateUniqueName } from '../../../shared/lib/image/generateUniqueName';
 import { $activeProject } from '../../../entities/project/activeProject.store';
 import { addUpload, removeUpload, updateUploadProgress } from '../../../entities/content/model/uploads.store';
+import { CONTENT_TYPE, isDescendantOfMedia } from '../../../shared/lib/cms/schema/contentTypeName';
+import { loadCreatableContentTypes } from './creatableContentTypes';
 
 type UploadOptions = {
     dataTransfer: DataTransfer;
@@ -93,7 +94,7 @@ listenKeys($newContentDialog, ['open', 'parentContent'], (state) => {
     task(async () => {
         const allContentTypes =
             preloadedContentTypes ??
-            (await ContentTypesHelper.getAvailableContentTypes({
+            (await loadCreatableContentTypes({
                 contentId: parentContent?.getContentId(),
                 allowedContentTypes,
                 project: activeProject,
@@ -109,7 +110,7 @@ listenKeys($newContentDialog, ['open', 'parentContent'], (state) => {
 
         const baseContentTypes = getBaseContentTypes(allContentTypes);
         const suggestedContentTypes = getSuggestedContentTypes(allContentTypes, aggregatedContentTypes);
-        const isMediaAllowed = allContentTypes.some((type) => type.getContentTypeName().isDescendantOfMedia());
+        const isMediaAllowed = allContentTypes.some((type) => isDescendantOfMedia(type.name));
 
         $newContentDialog.setKey('isMediaAllowed', isMediaAllowed);
         $newContentDialog.setKey('baseContentTypes', baseContentTypes);
@@ -227,13 +228,13 @@ function filterByTitle(contentTypes: ContentTypeSummary[], searchText: string): 
     if (searchText.length === 0) return contentTypes;
 
     const searchTextLower = searchText.toLowerCase();
-    return contentTypes.filter((contentType) => contentType.getTitle().toLowerCase().includes(searchTextLower));
+    return contentTypes.filter((contentType) => contentType.title.toLowerCase().includes(searchTextLower));
 }
 
 function getBaseContentTypes(contentTypes: ContentTypeSummary[]): ContentTypeSummary[] {
     return contentTypes
-        .filter((contentType) => !contentType.getContentTypeName().isDescendantOfMedia())
-        .sort((a, b) => a.getTitle().localeCompare(b.getTitle()));
+        .filter((contentType) => !isDescendantOfMedia(contentType.name))
+        .sort((a, b) => a.title.localeCompare(b.title));
 }
 
 function getSuggestedContentTypes(
@@ -242,18 +243,20 @@ function getSuggestedContentTypes(
 ): ContentTypeSummary[] {
     const DEFAULT_MAX_ITEMS = 100;
 
-    const isAllowedContentType = (contentType: ContentTypeName) =>
-        !contentType.isMedia() && !contentType.isDescendantOfMedia() && !contentType.isFragment();
+    const isAllowedContentType = (contentType: string) =>
+        contentType !== CONTENT_TYPE.MEDIA &&
+        !isDescendantOfMedia(contentType) &&
+        contentType !== CONTENT_TYPE.FRAGMENT;
 
     const allowedContentTypeAggregations: ContentTypeAggregation[] = aggregations
         .getAggregations()
-        .filter((aggregation: ContentTypeAggregation) => isAllowedContentType(aggregation.getContentType()));
+        .filter((aggregation: ContentTypeAggregation) => isAllowedContentType(aggregation.getContentType().toString()));
 
     return allowedContentTypeAggregations
         .slice(0, DEFAULT_MAX_ITEMS)
         .sort((a, b) => b.getCount() - a.getCount())
         .map((aggregation) =>
-            contentTypes.find((type: ContentTypeSummary) => type.getName() === aggregation.getContentType().toString()),
+            contentTypes.find((type: ContentTypeSummary) => type.name === aggregation.getContentType().toString()),
         )
         .filter(Boolean);
 }

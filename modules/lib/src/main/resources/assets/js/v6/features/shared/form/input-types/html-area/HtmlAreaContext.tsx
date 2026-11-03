@@ -1,4 +1,4 @@
-import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { type ApplicationKey } from '../../../../../shared/lib/cms/application/applicationKey';
 import { type ReactElement, type ReactNode, createContext, useContext, useMemo } from 'react';
 
 type HtmlAreaContextValue = {
