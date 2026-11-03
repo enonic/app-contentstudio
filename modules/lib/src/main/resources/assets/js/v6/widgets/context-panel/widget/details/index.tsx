@@ -1,1 +1,1 @@
-export { DetailsWidget, DetailsWidgetElement } from './DetailsWidget';
+export { DetailsWidget } from './DetailsWidget';

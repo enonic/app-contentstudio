@@ -6,7 +6,7 @@ const BaseContextWindowPanel = require('../../details_panel/base.context.window.
 const { DROPDOWN } = require('../../../libs/elements');
 
 const xpath = {
-    container: `//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'DockedContextPanel') or contains(@id,'FloatingContextPanel')]`,
+    container: `//div[contains(@id,'ContentWizardPanel')]//div[@data-component='ContextPanelView']`,
     widgetItem: `//div[contains(@id,'ExtensionContentItemView')]`,
 };
 
@@ -47,25 +47,24 @@ class WizardContextWindowPanel extends BaseContextWindowPanel {
         }
     }
 
-    isOpened() {
-        return this.getBrowser()
-            .waitUntil(
-                () => {
-                    return this.findElement(xpath.container)
-                        .then((el) => {
-                            return this.getBrowser().getElementCSSValue(el.elementId, 'width');
-                        })
-                        .then((width) => {
-                            console.log('width: ' + width);
-                            return this.getPanelWidth(width) > 0;
-                        });
+    async isOpened() {
+        try {
+            await this.getBrowser().waitUntil(
+                async () => {
+                    if (!(await this.isElementDisplayed(xpath.container))) {
+                        return false;
+                    }
+                    let el = await this.findElement(xpath.container);
+                    let width = await this.getBrowser().getElementCSSValue(el.elementId, 'width');
+                    return this.getPanelWidth(width) > 0;
                 },
                 { timeout: appConst.shortTimeout },
-            )
-            .catch((err) => {
-                console.log('Wizard Context Window is not loaded' + err);
-                return false;
-            });
+            );
+            return true;
+        } catch (err) {
+            console.log('Wizard Context Window is not loaded' + err);
+            return false;
+        }
     }
 
     async openDependenciesWidget() {

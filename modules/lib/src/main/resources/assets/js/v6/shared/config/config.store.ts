@@ -36,6 +36,7 @@ type ConfigStore = {
     browseMode: boolean;
     // Services
     extensionApiUrl: string;
+    branch: string;
     services: ConfigServices;
 };
 
@@ -57,6 +58,7 @@ type ConfigJson = {
     sharedSocketUrl?: unknown;
     browseMode?: unknown;
     extensionApiUrl?: unknown;
+    branch?: unknown;
     services?: {
         contentUrl?: unknown;
         stylesUrl?: unknown;
@@ -85,6 +87,7 @@ const DEFAULT_CONFIG: Readonly<ConfigStore> = {
     sharedSocketUrl: '',
     browseMode: false,
     extensionApiUrl: '',
+    branch: '',
     services: {
         contentUrl: '',
         stylesUrl: '',
@@ -136,6 +139,7 @@ function parseConfig(content: string): ConfigStore | undefined {
             sharedSocketUrl: parseString(config.sharedSocketUrl),
             browseMode: parseBoolean(config.browseMode),
             extensionApiUrl: parseString(config.extensionApiUrl),
+            branch: parseString(config.branch),
             services: {
                 contentUrl: parseString(config.services?.contentUrl),
                 stylesUrl: parseString(config.services?.stylesUrl),

@@ -1,10 +1,8 @@
-import { type Element } from '@enonic/lib-admin-ui/dom/Element';
 import { cn } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import { type ReactElement } from 'react';
+import { type ReactElement, type ReactNode } from 'react';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import { LayoutTokens } from '../../../shared/ui/layout.tokens';
-import { LegacyElementHost } from '../../../shared/ui/LegacyElementHost';
 import { $floatingContextWidth, setFloatingContextWidth } from '../model/floatingContextWidth.store';
 
 const CONTEXT_MIN_WIDTH = LayoutTokens.contextPanel.minWidth;
@@ -16,19 +14,19 @@ function clampWidth(width: number, maxWidth: number): number {
 }
 
 export type FloatingContextPanelProps = {
-    element: Element;
     // Selector of the layout root that bounds the resize.
     boundsSelector: string;
     defaultWidth?: number;
     onResized: () => void;
+    children?: ReactNode;
 };
 
 // Floating stays resizable, as the legacy splitter did.
 export const FloatingContextPanel = ({
-    element,
     boundsSelector,
     defaultWidth = CONTEXT_MIN_WIDTH,
     onResized,
+    children,
 }: FloatingContextPanelProps): ReactElement => {
     const storedWidth = useStore($floatingContextWidth);
     const width = storedWidth > 0 ? storedWidth : Math.max(defaultWidth, CONTEXT_MIN_WIDTH);
@@ -98,7 +96,7 @@ export const FloatingContextPanel = ({
                 onPointerDown={handlePointerDown}
                 onKeyDown={handleKeyDown}
             />
-            <LegacyElementHost element={element} className="min-w-0 grow" />
+            {children}
         </div>
     );
 };

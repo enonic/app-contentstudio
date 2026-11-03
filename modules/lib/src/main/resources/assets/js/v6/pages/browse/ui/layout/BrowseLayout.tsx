@@ -18,6 +18,7 @@ import {
     $isContentFilterOpen,
     $isDependencySearchPending,
 } from '../../../../features/search/model/contentFilter.store';
+import { type ContextPanelConfig, ContextPanelView } from '../../../../widgets/context-panel/ui/ContextPanelView';
 import { FloatingContextPanel } from '../../../../widgets/context-panel/ui/FloatingContextPanel';
 import { GRID_PANEL_ID, resolveBrowsePanelLayout } from './resolveBrowsePanelLayout';
 
@@ -42,30 +43,32 @@ const getPanelIds = (withFilter: boolean, withContext: boolean): string[] => {
     return withContext ? PANEL_IDS_WITH_CONTEXT : PANEL_IDS;
 };
 
+// Everything a browse host (content browse, Archive in CS+) configures
+// besides the panels it owns. The React browse page takes the same config.
+export type BrowseHostConfig = {
+    // Distinct per host: browse and Archive must not share persisted layouts.
+    storageId?: string;
+    contextPanel?: ContextPanelConfig;
+};
+
 export type BrowseLayoutProps = {
     // Owned by ContentBrowsePanel; the layout only places them.
     gridPanel: Element;
     previewPanel: Element;
-    contextPanel: Element;
     filterPanel?: Element;
-    storageId?: string;
-};
+} & BrowseHostConfig;
 
 const BROWSE_LAYOUT_NAME = 'BrowseLayout';
 
 // Legacy panels must fill their hosts; `!` beats the unlayered legacy CSS.
-const LEGACY_PANEL_OVERRIDES = cn(
-    '[&_.context-panel]:!absolute [&_.context-panel]:!inset-0 [&_.context-panel]:!w-auto',
-    '[&_.context-panel]:!h-auto [&_.context-panel]:!transition-none',
-    '[&_.filter-panel]:!inset-0 [&_.filter-panel]:!w-auto',
-);
+const LEGACY_PANEL_OVERRIDES = '[&_.filter-panel]:!inset-0 [&_.filter-panel]:!w-auto';
 
 export const BrowseLayout = ({
     gridPanel,
     previewPanel,
-    contextPanel,
     filterPanel,
     storageId = 'browse-layout',
+    contextPanel,
 }: BrowseLayoutProps): ReactElement => {
     const isContextOpen = useStore($isContextOpen);
     const mode = useStore($contextPanelMode);
@@ -196,21 +199,19 @@ export const BrowseLayout = ({
                             groupResizeBehavior="preserve-pixel-size"
                             onResize={handlePanelResize}
                         >
-                            <LegacyElementHost element={contextPanel} className="size-full" />
+                            <ContextPanelView config={contextPanel} />
                         </SplitView.Panel>
                     </>
                 )}
             </SplitView>
             {showFloatingContext && (
-                <FloatingContextPanel
-                    element={contextPanel}
-                    boundsSelector='[data-component="BrowseLayout"]'
-                    onResized={handlePanelResize}
-                />
+                <FloatingContextPanel boundsSelector='[data-component="BrowseLayout"]' onResized={handlePanelResize}>
+                    <ContextPanelView config={contextPanel} className="min-w-0 grow" />
+                </FloatingContextPanel>
             )}
             {showMobileContext && (
                 <div data-component="BrowseLayout.MobileContext" className="absolute inset-0 bg-surface-neutral">
-                    <LegacyElementHost element={contextPanel} className="size-full" />
+                    <ContextPanelView config={contextPanel} selector={false} />
                 </div>
             )}
             {showMobileFilter && (

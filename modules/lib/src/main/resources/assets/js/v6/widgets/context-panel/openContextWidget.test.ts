@@ -1,89 +1,86 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { InspectEvent } from '../../../app/event/InspectEvent';
-import { setRegisteredWidgets } from './model/contextWidgets.store';
+import { setContextLayoutMetrics, setContextOpen } from '../../shared/app-state/browsePanels.store';
+import type { ContextWidget } from './model/contextWidget.types';
+import { $activeWidgetId, $isContextOpen, setContextWidgets } from './model/contextWidgets.store';
 import { isContextWidgetRegistered, openContextWidget } from './openContextWidget';
 
-const LAYERS = { name: 'layers', applicationKey: 'com.cs-plus', key: 'com.cs-plus:layers' };
-const VERSIONS = { name: 'versions', applicationKey: 'com.cs', key: 'com.cs:versions' };
+const widget = (applicationKey: string, name: string): ContextWidget => ({
+    key: `${applicationKey}:${name}`,
+    name,
+    applicationKey,
+    title: name,
+    description: '',
+});
 
-let captured: InspectEvent[] = [];
-
-const handler = (event: InspectEvent) => {
-    captured.push(event);
-};
+const DETAILS = widget('com.cs', 'details');
+const LAYERS = widget('com.cs-plus', 'layers');
+const VERSIONS = widget('com.cs', 'versions');
 
 beforeEach(() => {
-    captured = [];
-    InspectEvent.on(handler);
+    setContextLayoutMetrics({ totalWidth: 1400, contextWidth: 360, windowWidth: 1400 });
+    setContextOpen(false);
 });
 
 afterEach(() => {
-    InspectEvent.un(handler);
-    setRegisteredWidgets([]);
+    setContextWidgets([]);
 });
 
 describe('isContextWidgetRegistered', () => {
     it('should return false when no widget matches the name', () => {
-        setRegisteredWidgets([VERSIONS]);
+        setContextWidgets([VERSIONS]);
         expect(isContextWidgetRegistered('layers')).toBe(false);
     });
 
     it('should return true when a widget with the name is registered', () => {
-        setRegisteredWidgets([LAYERS]);
+        setContextWidgets([LAYERS]);
         expect(isContextWidgetRegistered('layers')).toBe(true);
     });
 
     it('should match against the provided applicationKey', () => {
-        setRegisteredWidgets([LAYERS]);
+        setContextWidgets([LAYERS]);
         expect(isContextWidgetRegistered('layers', 'com.cs-plus')).toBe(true);
         expect(isContextWidgetRegistered('layers', 'com.other')).toBe(false);
     });
 });
 
 describe('openContextWidget', () => {
-    it('should return false and not fire when widget is missing', () => {
-        setRegisteredWidgets([VERSIONS]);
+    it('should return false and change nothing when the widget is missing', () => {
+        setContextWidgets([DETAILS, VERSIONS], DETAILS.key);
 
-        const result = openContextWidget('layers');
-
-        expect(result).toBe(false);
-        expect(captured).toHaveLength(0);
+        expect(openContextWidget('layers')).toBe(false);
+        expect($activeWidgetId.get()).toBe(DETAILS.key);
+        expect($isContextOpen.get()).toBe(false);
     });
 
-    it('should fire InspectEvent and return true when widget is registered', () => {
-        setRegisteredWidgets([LAYERS]);
+    it('should activate the widget and open the panel', () => {
+        setContextWidgets([DETAILS, LAYERS], DETAILS.key);
 
-        const result = openContextWidget('layers');
-
-        expect(result).toBe(true);
-        expect(captured).toHaveLength(1);
-        expect(captured[0].getWidgetName()).toBe('layers');
-        expect(captured[0].getWidgetApplicationKey()).toBeUndefined();
-        expect(captured[0].isShowPanel()).toBe(true);
+        expect(openContextWidget('layers')).toBe(true);
+        expect($activeWidgetId.get()).toBe(LAYERS.key);
+        expect($isContextOpen.get()).toBe(true);
     });
 
-    it('should forward applicationKey on the event', () => {
-        setRegisteredWidgets([LAYERS]);
+    it('should pick the widget of the given application', () => {
+        setContextWidgets([DETAILS, widget('com.other', 'layers'), LAYERS], DETAILS.key);
 
         openContextWidget('layers', { applicationKey: 'com.cs-plus' });
 
-        expect(captured[0].getWidgetApplicationKey()).toBe('com.cs-plus');
+        expect($activeWidgetId.get()).toBe(LAYERS.key);
     });
 
-    it('should respect showPanel option', () => {
-        setRegisteredWidgets([LAYERS]);
+    it('should respect the showPanel option', () => {
+        setContextWidgets([DETAILS, LAYERS], DETAILS.key);
 
         openContextWidget('layers', { showPanel: false });
 
-        expect(captured[0].isShowPanel()).toBe(false);
+        expect($activeWidgetId.get()).toBe(LAYERS.key);
+        expect($isContextOpen.get()).toBe(false);
     });
 
-    it('should not fire when applicationKey is pinned and no owner matches', () => {
-        setRegisteredWidgets([LAYERS]);
+    it('should not activate when the applicationKey is pinned and no owner matches', () => {
+        setContextWidgets([DETAILS, LAYERS], DETAILS.key);
 
-        const result = openContextWidget('layers', { applicationKey: 'com.other' });
-
-        expect(result).toBe(false);
-        expect(captured).toHaveLength(0);
+        expect(openContextWidget('layers', { applicationKey: 'com.other' })).toBe(false);
+        expect($activeWidgetId.get()).toBe(DETAILS.key);
     });
 });

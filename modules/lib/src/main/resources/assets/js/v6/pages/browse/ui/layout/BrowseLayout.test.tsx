@@ -11,6 +11,22 @@ import {
 } from '../../../../features/search/model/contentFilter.store';
 import { BrowseLayout } from './BrowseLayout';
 
+vi.mock('../../../../widgets/context-panel/ui/ContextPanelView', () => ({
+    ContextPanelView: ({
+        className,
+        config,
+    }: {
+        className?: string;
+        config?: { widgets?: Record<string, unknown> };
+    }) => (
+        <div
+            data-component="ContextPanelView"
+            className={className}
+            data-widgets={Object.keys(config?.widgets ?? {}).join(',')}
+        />
+    ),
+}));
+
 // Layout-engine stubs (happy-dom has none); see split-view.test.tsx for details.
 // The BrowseLayout root width is parametrized per test to drive the mode store.
 
@@ -125,7 +141,6 @@ function stubLayout(): void {
 type Panels = {
     gridPanel: DivEl;
     previewPanel: DivEl;
-    contextPanel: DivEl;
     filterPanel: DivEl;
 };
 
@@ -133,7 +148,6 @@ function createPanels(): Panels {
     return {
         gridPanel: new DivEl('legacy-grid'),
         previewPanel: new DivEl('legacy-preview'),
-        contextPanel: new DivEl('legacy-context'),
         filterPanel: new DivEl('legacy-filter'),
     };
 }
@@ -182,7 +196,7 @@ describe('BrowseLayout', () => {
             panels.previewPanel.getHTMLElement(),
         );
         expect(screen.getByRole('separator')).toBeTruthy();
-        expect(document.querySelector('.legacy-context')).toBeNull();
+        expect(document.querySelector('[data-component="ContextPanelView"]')).toBeNull();
     });
 
     it('docks the context panel into the split view on wide screens', async () => {
@@ -191,10 +205,22 @@ describe('BrowseLayout', () => {
 
         await renderLayout(panels);
 
-        expect(screen.getByTestId('context').querySelector('.legacy-context')).toBe(
-            panels.contextPanel.getHTMLElement(),
-        );
+        expect(screen.getByTestId('context').querySelector('[data-component="ContextPanelView"]')).not.toBeNull();
         expect(document.querySelector('[data-component="FloatingContextPanel"]')).toBeNull();
+    });
+
+    it('passes the host context panel config to the context panel', async () => {
+        const panels = createPanels();
+        const ArchiveDetails = (): null => null;
+        setContextOpen(true);
+
+        await act(async () => {
+            render(<BrowseLayout {...panels} contextPanel={{ widgets: { details: ArchiveDetails } }} />);
+        });
+        await settle();
+
+        const view = screen.getByTestId('context').querySelector('[data-component="ContextPanelView"]');
+        expect(view?.getAttribute('data-widgets')).toBe('details');
     });
 
     it('floats the context panel as an overlay on narrow screens', async () => {
@@ -206,7 +232,7 @@ describe('BrowseLayout', () => {
 
         const overlay = document.querySelector('[data-component="FloatingContextPanel"]');
         expect(overlay).not.toBeNull();
-        expect(overlay?.querySelector('.legacy-context')).toBe(panels.contextPanel.getHTMLElement());
+        expect(overlay?.querySelector('[data-component="ContextPanelView"]')).not.toBeNull();
         expect(document.querySelector('[data-testid="context"]')).toBeNull();
     });
 
@@ -351,14 +377,14 @@ describe('BrowseLayout', () => {
         const panels = createPanels();
 
         await renderLayout(panels);
-        expect(document.querySelector('.legacy-context')).toBeNull();
+        expect(document.querySelector('[data-component="ContextPanelView"]')).toBeNull();
 
         await act(async () => setContextOpen(true));
         await settle();
-        expect(screen.getByTestId('context').querySelector('.legacy-context')).not.toBeNull();
+        expect(screen.getByTestId('context').querySelector('[data-component="ContextPanelView"]')).not.toBeNull();
 
         await act(async () => setContextOpen(false));
         await settle();
-        expect(document.querySelector('.legacy-context')).toBeNull();
+        expect(document.querySelector('[data-component="ContextPanelView"]')).toBeNull();
     });
 });

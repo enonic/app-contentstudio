@@ -2,7 +2,7 @@
  * Created on 04/07/2018.
  */
 const BaseContextWindowPanel = require('../../details_panel/base.context.window.panel');
-const {DROPDOWN} = require('../../../libs/elements');
+const { DROPDOWN } = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 
 const xpath = {
@@ -10,7 +10,6 @@ const xpath = {
 };
 
 class BrowseContextWindowPanel extends BaseContextWindowPanel {
-
     get container() {
         return xpath.container;
     }
@@ -24,7 +23,7 @@ class BrowseContextWindowPanel extends BaseContextWindowPanel {
     }
 
     async isPanelVisible() {
-        return await this.isElementDisplayed(xpath.container +"//div[contains(@id,'ContextView')]");
+        return await this.isElementDisplayed(xpath.container + "//div[@data-component='ContextPanelView']");
     }
 
     async waitForDetailsPanelClosed() {
@@ -36,18 +35,19 @@ class BrowseContextWindowPanel extends BaseContextWindowPanel {
     }
 
     waitForLoaded() {
-        return this.waitForElementDisplayed(xpath.container, appConst.shortTimeout).catch(err => {
+        return this.waitForElementDisplayed(xpath.container, appConst.shortTimeout).catch((err) => {
             throw new Error('Details Panel was not loaded in ' + err);
         });
     }
 
-    waitForDetailsPanelCleared() {
-        let selector = xpath.container + "//div[contains(@id,'ContextView')]";
-        return this.getBrowser().waitUntil(() => {
-            return this.getAttribute(selector, 'class').then(result => {
-                return result.includes('no-selection');
-            })
-        }, {timeout: appConst.shortTimeout, timeoutMsg: 'Browse Context Window should be cleared'});
+    async waitForDetailsPanelCleared() {
+        try {
+            let selector =
+                xpath.container + "//div[@data-component='ContextPanelView']//div[@data-component='PreviewLabel']";
+            await this.waitForElementDisplayed(selector, appConst.shortTimeout);
+        } catch (err) {
+            await this.handleError('Browse Context Window should be cleared', 'err_context_window_cleared', err);
+        }
     }
 
     async waitForWidgetDropdownRoleAttribute(expectedValue) {
@@ -57,4 +57,3 @@ class BrowseContextWindowPanel extends BaseContextWindowPanel {
 }
 
 module.exports = BrowseContextWindowPanel;
-

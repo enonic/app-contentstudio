@@ -7,6 +7,16 @@ import { setContentFormExpanded } from '../../model/wizardContent.store';
 import { setWizardLayoutMetrics, setWizardViewMode } from '../../model/wizardLayout.store';
 import { WizardLayout } from './WizardLayout';
 
+vi.mock('../../../../widgets/inspectors/ui/page-editor', () => ({
+    PageEditorExtension: () => null,
+}));
+
+vi.mock('../../../../widgets/context-panel/ui/ContextPanelView', () => ({
+    ContextPanelView: ({ className }: { className?: string }) => (
+        <div data-component="ContextPanelView" className={className} />
+    ),
+}));
+
 // Layout-engine stubs (happy-dom has none); see split-view.test.tsx for details.
 
 let layoutRootWidth = 2000;
@@ -120,14 +130,12 @@ function stubLayout(): void {
 type Panels = {
     formPanel: DivEl;
     livePanel: DivEl;
-    contextPanel: DivEl;
 };
 
 function createPanels(): Panels {
     return {
         formPanel: new DivEl('legacy-form'),
         livePanel: new DivEl('legacy-live'),
-        contextPanel: new DivEl('legacy-context'),
     };
 }
 
@@ -169,7 +177,7 @@ describe('WizardLayout', () => {
 
         expect(screen.getByTestId('form').querySelector('.legacy-form')).toBe(panels.formPanel.getHTMLElement());
         expect(screen.getByTestId('live').querySelector('.legacy-live')).toBe(panels.livePanel.getHTMLElement());
-        expect(document.querySelector('.legacy-context')).toBeNull();
+        expect(document.querySelector('[data-component="ContextPanelView"]')).toBeNull();
     });
 
     it('collapses the live panel in form mode and unmounts the handle', async () => {
@@ -203,9 +211,7 @@ describe('WizardLayout', () => {
 
         await renderLayout(panels);
 
-        expect(screen.getByTestId('context').querySelector('.legacy-context')).toBe(
-            panels.contextPanel.getHTMLElement(),
-        );
+        expect(screen.getByTestId('context').querySelector('[data-component="ContextPanelView"]')).not.toBeNull();
     });
 
     it('floats the context panel on narrow screens', async () => {
@@ -217,7 +223,7 @@ describe('WizardLayout', () => {
 
         const overlay = document.querySelector('[data-component="FloatingContextPanel"]');
         expect(overlay).not.toBeNull();
-        expect(overlay?.querySelector('.legacy-context')).toBe(panels.contextPanel.getHTMLElement());
+        expect(overlay?.querySelector('[data-component="ContextPanelView"]')).not.toBeNull();
     });
 
     it('keeps the split view mounted in mobile mode', async () => {

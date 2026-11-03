@@ -5,7 +5,7 @@ const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
 
 const xpath = {
-    container: `//div[contains(@id,'ExtensionView')]//*[@data-component='DetailsWidgetTemplateSection']`,
+    container: `//div[@data-component='ContextPanelView']//*[@data-component='DetailsWidgetTemplateSection']`,
     // Bold primary line of the ItemLabel - holds the controller type ('Custom' / 'Automatic'):
     typeLocator: `//*[@data-component='ItemLabel']//span[contains(@class,'font-semibold')]`,
     // Secondary line - descriptor display name (controller name):
@@ -15,7 +15,6 @@ const xpath = {
 };
 
 class PageTemplateWidget extends Page {
-
     get controllerTypeLocator() {
         return xpath.container + xpath.typeLocator;
     }
@@ -32,14 +31,22 @@ class PageTemplateWidget extends Page {
         try {
             return await this.waitForElementDisplayed(xpath.container, appConst.shortTimeout);
         } catch (err) {
-           await this.handleError('Page Template Widget, error on waiting for widget loaded: ', 'err_wait_for_template_widget_loaded', err);
+            await this.handleError(
+                'Page Template Widget, error on waiting for widget loaded: ',
+                'err_wait_for_template_widget_loaded',
+                err,
+            );
         }
     }
     async waitForNotDisplayed() {
         try {
             return await this.waitForElementNotDisplayed(xpath.container);
         } catch (err) {
-            await this.handleError('Page Template Widget, error on waiting for widget loaded: ', 'err_template_widget', err);
+            await this.handleError(
+                'Page Template Widget, error on waiting for widget loaded: ',
+                'err_template_widget',
+                err,
+            );
         }
     }
 

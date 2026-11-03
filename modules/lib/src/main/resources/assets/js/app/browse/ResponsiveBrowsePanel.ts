@@ -1,17 +1,14 @@
 import { BrowsePanel } from '@enonic/lib-admin-ui/app/browse/BrowsePanel';
 import { ToggleFilterPanelAction } from '@enonic/lib-admin-ui/app/browse/action/ToggleFilterPanelAction';
-import { type ViewItem } from '@enonic/lib-admin-ui/app/view/ViewItem';
-import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { Body } from '@enonic/lib-admin-ui/dom/Body';
 import { Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
 import { Toolbar, type ToolbarConfig } from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import type Q from 'q';
-import { BrowseLayoutElement } from '../../v6/pages/browse/ui/layout/BrowseLayout';
+import { type BrowseHostConfig, BrowseLayoutElement } from '../../v6/pages/browse/ui/layout/BrowseLayout';
 import {
     $contextPanelMode,
     $isContextLayoutMeasured,
-    $isContextOpen,
     setContextOpen,
     setMobilePreviewOpen,
     shouldCollapseContextInitially,
@@ -21,20 +18,13 @@ import {
     $isDependencySearchPending,
     setContentFilterOpen,
 } from '../../v6/features/search/model/contentFilter.store';
-import { getContentAsCSCS } from '../../v6/entities/content';
-import { InspectEvent } from '../event/InspectEvent';
-import { type ContextView } from '../view/context/ContextView';
-import { DockedContextPanel } from '../view/context/DockedContextPanel';
+import { $activeWidgetId } from '../../v6/widgets/context-panel/model/contextWidgets.store';
 
 export abstract class ResponsiveBrowsePanel extends BrowsePanel {
     static MOBILE_MODE_CLASS = 'mobile-mode';
 
     declare protected browseToolbar: Toolbar<ToolbarConfig>;
-    protected contextView: ContextView;
-    protected dockedContextPanel: DockedContextPanel;
     protected browseLayout: BrowseLayoutElement;
-
-    private skipNextContextOpenRefresh: boolean = false;
 
     // Bypasses BrowsePanel splits: placement is owned by the v6 BrowseLayout.
     protected initElements(): void {
@@ -51,14 +41,11 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
             this.setupFilterPanelWiring();
         }
 
-        this.contextView = this.createContextView();
-        this.dockedContextPanel = new DockedContextPanel(this.contextView);
         this.browseLayout = new BrowseLayoutElement({
             gridPanel: this.selectableListBoxPanel,
             previewPanel: this.browseItemPanel,
-            contextPanel: this.dockedContextPanel,
             filterPanel: this.filterPanel ?? undefined,
-            storageId: this.getLayoutStorageId(),
+            ...this.getBrowseHostConfig(),
         });
 
         this.selectableListBoxPanel.getWrapper().setSkipFirstClickOnFocus(true);
@@ -78,27 +65,6 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
             Body.get().toggleClass(ResponsiveBrowsePanel.MOBILE_MODE_CLASS, isMobile);
             this.toggleClass(ResponsiveBrowsePanel.MOBILE_MODE_CLASS, isMobile);
             this.selectableListBoxPanel.toggleClass(ResponsiveBrowsePanel.MOBILE_MODE_CLASS, isMobile);
-        });
-
-        InspectEvent.on((event: InspectEvent) => {
-            const contentId = event.getContentId();
-            if (contentId !== undefined) {
-                const item = getContentAsCSCS(contentId);
-                if (item) {
-                    void this.contextView.setItem(item);
-                }
-            }
-
-            const widgetName = event.getWidgetName();
-            if (widgetName !== undefined) {
-                this.contextView.setActiveExtensionByName(widgetName, event.getWidgetApplicationKey());
-                // The activation above already loads the widget; skip the open-refresh.
-                this.skipNextContextOpenRefresh = event.isShowPanel();
-            }
-
-            if (event.isShowPanel()) {
-                setContextOpen(true);
-            }
         });
 
         $isContentFilterOpen.subscribe((isOpen: boolean, wasOpen: boolean) => {
@@ -122,16 +88,6 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
             }
         });
 
-        // Custom legacy widgets still fetch through ContextView on open.
-        $isContextOpen.subscribe((isOpen: boolean, wasOpen: boolean) => {
-            const skipRefresh = this.skipNextContextOpenRefresh;
-            this.skipNextContextOpenRefresh = false;
-
-            if (isOpen && !wasOpen && !skipRefresh && this.dockedContextPanel.getItem()) {
-                this.contextView.updateActiveExtension();
-            }
-        });
-
         // Auto-open on wide screens once the layout reports its first measurement.
         let unsubscribeInitialOpen: (() => void) | undefined;
         unsubscribeInitialOpen = $isContextLayoutMeasured.subscribe((measured: boolean) => {
@@ -139,7 +95,7 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
             unsubscribeInitialOpen?.();
             unsubscribeInitialOpen = undefined;
 
-            if (!shouldCollapseContextInitially() && this.dockedContextPanel.getActiveExtension()) {
+            if (!shouldCollapseContextInitially() && $activeWidgetId.get() != null) {
                 setContextOpen(true);
             }
         });
@@ -175,29 +131,18 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
         return !$isContentFilterOpen.get();
     }
 
-    // Distinct per subclass: browse and Archive (CS+) must not share persisted layouts.
-    protected getLayoutStorageId(): string {
-        return 'browse-layout';
+    // The one place a subclass (Archive in CS+) configures the v6 layout.
+    protected getBrowseHostConfig(): BrowseHostConfig {
+        return { storageId: 'browse-layout' };
     }
 
     protected createToolbar(): Toolbar<ToolbarConfig> {
         return new Toolbar();
     }
 
-    protected abstract createContextView(): ContextView;
-
     protected togglePreviewPanelDependingOnScreenSize(): void {
         // Preview visibility is owned by BrowseLayout.
     }
-
-    protected updatePreviewItem(): void {
-        super.updatePreviewItem();
-
-        const item: ViewItem = this.selectableListBoxPanel.getLastSelectedItem();
-        this.updateContextView(item).catch(DefaultErrorHandler.handle);
-    }
-
-    protected abstract updateContextView(item: ViewItem): Q.Promise<void>;
 
     // Bypasses BrowsePanel.doRender.
     doRender(): Q.Promise<boolean> {

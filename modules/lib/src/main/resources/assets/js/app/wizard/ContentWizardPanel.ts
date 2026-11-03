@@ -27,7 +27,7 @@ import {
     initWizardContentSyncService,
 } from '../../v6/pages/wizard/model/wizardContentSync.service';
 import { setWizardContent } from '../../v6/entities/content';
-import { $isContextOpen, setContextOpen } from '../../v6/widgets/context-panel/model/contextWidgets.store';
+import { $activeWidgetId, setContextOpen } from '../../v6/widgets/context-panel/model/contextWidgets.store';
 import { getActiveProject, getActiveProjectName } from '../../v6/entities/project';
 import {
     $displayNameInputFocusRequested,
@@ -103,10 +103,6 @@ import { UrlAction } from '../UrlAction';
 import { ContentHelper } from '../util/ContentHelper';
 import { PageHelper } from '../util/PageHelper';
 import { UrlHelper } from '../util/UrlHelper';
-import { buildDefaultContextWidgets, listDefaultContextWidgets } from '../view/context/buildDefaultContextWidgets';
-import { ContextView } from '../view/context/ContextView';
-import { loadCustomContextWidgets, watchCustomContextWidgets } from '../view/context/customContextWidgets';
-import { DockedContextPanel } from '../view/context/DockedContextPanel';
 import { PageEditorContextController } from '../view/context/PageEditorContextController';
 import { AccessControlHelper } from './AccessControlHelper';
 import { ContentWizardActions } from './action/ContentWizardActions';
@@ -118,8 +114,6 @@ import {
     setWizardViewMode,
     shouldCollapseWizardContextInitially,
 } from '../../v6/pages/wizard/model/wizardLayout.store';
-import { InspectEvent } from '../event/InspectEvent';
-import { getContentAsCSCS } from '../../v6/entities/content';
 import { isDeletedTemplateForContent } from '../../v6/shared/lib/page/templateEvent';
 import { ContentContext } from './ContentContext';
 import { ContentWizardDataLoader } from './ContentWizardDataLoader';
@@ -140,8 +134,6 @@ import { ThumbnailUploaderEl } from './ThumbnailUploaderEl';
 import { UpdatePersistedContentWithStoreRoutine } from './UpdatePersistedContentWithStoreRoutine';
 
 export class ContentWizardPanel extends WizardPanel<Content> {
-    private contextView: ContextView;
-
     private livePanel?: LiveFormPanel;
 
     private liveEditPage?: LiveEditPageProxy;
@@ -183,8 +175,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
     private minimized: boolean = false;
 
     private wizardLayout: WizardLayoutElement;
-
-    private skipNextContextOpenRefresh: boolean = false;
 
     private minimizedFromFormOnly: boolean = false;
 
@@ -478,67 +468,19 @@ export class ContentWizardPanel extends WizardPanel<Content> {
     }
 
     private createWizardLayoutPanel(): Panel {
-        this.contextView = new ContextView();
-        const editorMode = !!this.livePanel;
-        const widgets = buildDefaultContextWidgets(this.contextView, { editorMode });
-        this.contextView.setWidgets(listDefaultContextWidgets(widgets), widgets.properties);
-
-        if (widgets.pageEditor) {
-            new PageEditorContextController({
-                contextView: this.contextView,
-                pageEditorWidget: widgets.pageEditor,
-                fallbackWidget: widgets.properties,
-                versionsWidget: widgets.versions,
-                getItem: () => this.contextView.getItem(),
-            });
+        if (this.livePanel) {
+            const pageEditorContextController = new PageEditorContextController();
+            this.onRemoved(() => pageEditorContextController.destroy());
         }
 
-        void loadCustomContextWidgets(this.contextView);
-        watchCustomContextWidgets(this.contextView);
-
-        this.contextView.setItem(this.getContent());
         setWizardContent(this.getContent().getContentSummary());
-
-        const contextPanel = new DockedContextPanel(this.contextView);
 
         setContextOpen(false);
 
         this.wizardLayout = new WizardLayoutElement({
             formPanel: this.formPanel,
             livePanel: this.livePanel,
-            contextPanel,
             onResized: () => this.updateStickyToolbar(),
-        });
-
-        InspectEvent.on((event: InspectEvent) => {
-            const contentId = event.getContentId();
-            if (contentId !== undefined) {
-                const item = getContentAsCSCS(contentId);
-                if (item) {
-                    void this.contextView.setItem(item);
-                }
-            }
-
-            const widgetName = event.getWidgetName();
-            if (widgetName !== undefined) {
-                this.contextView.setActiveExtensionByName(widgetName, event.getWidgetApplicationKey());
-                // The activation above already loads the widget; skip the open-refresh.
-                this.skipNextContextOpenRefresh = event.isShowPanel();
-            }
-
-            if (event.isShowPanel()) {
-                setContextOpen(true);
-            }
-        });
-
-        // Custom legacy widgets still fetch through ContextView on open.
-        $isContextOpen.subscribe((isOpen: boolean, wasOpen: boolean) => {
-            const skipRefresh = this.skipNextContextOpenRefresh;
-            this.skipNextContextOpenRefresh = false;
-
-            if (isOpen && !wasOpen && !skipRefresh && contextPanel.getItem()) {
-                this.contextView.updateActiveExtension();
-            }
         });
 
         $wizardContextPanelMode.subscribe((mode, prevMode) => {
@@ -561,7 +503,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
             this.toggleLiveEdit();
 
-            if (!shouldCollapseWizardContextInitially() && contextPanel.getActiveExtension()) {
+            if (!shouldCollapseWizardContextInitially() && $activeWidgetId.get() != null) {
                 setContextOpen(true);
             }
         });
@@ -816,7 +758,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
                         // because content path is used to load the page
                         this.updateLiveEditModel(currentContent);
 
-                        this.contextView?.setItem(this.getContent());
+                        setWizardContent(this.getContent().getContentSummary());
 
                         if (this.reloadPageEditorOnSave && this.livePanel) {
                             this.livePanel.loadPage(clearInspection).then(() => {
@@ -1095,7 +1037,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
             if (currentItem) {
                 this.wizardActions.setContent(currentItem).refreshState();
-                this.contextView.setItem(currentItem);
+                setWizardContent(currentItem.getContentSummary());
             }
         };
 
@@ -1724,7 +1666,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
         setAiCompareStatus(this.persistedCompareStatus);
 
-        this.contextView?.setItem(content);
+        setWizardContent(content.getContentSummary());
     }
 
     protected checkIfEditIsAllowed(): Q.Promise<boolean> {

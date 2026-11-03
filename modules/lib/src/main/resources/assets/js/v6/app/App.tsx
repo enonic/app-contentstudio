@@ -17,6 +17,7 @@ import { start as startRequestPublishDialogService } from '../features/request-p
 import { start as startSortDialogService } from '../features/sort/model/sortDialog.service';
 import { start as startUnpublishDialogService } from '../features/unpublish/model/unpublishDialog.service';
 import { start as startContextContentService } from '../widgets/context-panel/model/contextContent.service';
+import { start as startContextWidgetsService } from '../widgets/context-panel/model/contextWidgets.service';
 import { start as startPreviewPanelService } from '../widgets/preview-panel/model/previewPanel.service';
 import { setActiveProjectResolver } from '../shared/lib/url/cms';
 import { LegacyElement } from '../shared/ui/LegacyElement';
@@ -55,6 +56,7 @@ export class AppElement extends LegacyElement<typeof App> {
             startKeyBindingsGuard();
             startActionsService();
             startContextContentService();
+            startContextWidgetsService();
             startPreviewPanelService();
             startDeleteDialogService();
             startDuplicateDialogService();

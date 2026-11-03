@@ -31,7 +31,7 @@ type Props = {
     markAsReadyAction: Action;
     requestPublishAction: Action;
     createIssueAction: Action;
-    mobileContextWidgetSelectorTargetRef: (target: HTMLDivElement | null) => void;
+    mobileContextWidgetSelector: ReactElement;
     mobilePreviewVersionHistoryButton: ReactElement;
     mobilePreviewWidgetSelector: ReactElement;
 };
@@ -51,7 +51,7 @@ export const BrowseToolbar = ({
     markAsReadyAction,
     requestPublishAction,
     createIssueAction,
-    mobileContextWidgetSelectorTargetRef,
+    mobileContextWidgetSelector,
     mobilePreviewVersionHistoryButton,
     mobilePreviewWidgetSelector,
 }: Props): ReactElement => {
@@ -91,10 +91,7 @@ export const BrowseToolbar = ({
                 aria-label={useI18n('aria.browser.toolbar.label')}
                 className="bg-surface-neutral h-15 px-3.5 max-sm:pr-4 sm:px-5 py-2 flex items-center gap-2.5 sm:gap-2 border-b border-bdr-soft"
             >
-                <div
-                    ref={mobileContextWidgetSelectorTargetRef}
-                    className={showMobileContext ? 'min-w-0 flex-1 self-stretch' : 'hidden'}
-                />
+                {showMobileContext && mobileContextWidgetSelector}
                 {showMobilePreview ? (
                     <>
                         {mobilePreviewVersionHistoryButton}

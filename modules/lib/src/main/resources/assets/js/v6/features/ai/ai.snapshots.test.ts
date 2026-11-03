@@ -24,6 +24,7 @@ describe('buildPluginConfig', () => {
             sharedSocketUrl: 'wss://shared',
             browseMode: false,
             extensionApiUrl: '',
+            branch: '',
             services: {
                 contentUrl: '',
                 stylesUrl: '',

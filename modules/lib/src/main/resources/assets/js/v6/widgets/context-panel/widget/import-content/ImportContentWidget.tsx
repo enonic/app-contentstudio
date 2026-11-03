@@ -1,14 +1,10 @@
 import { Button, IconButton, Input, RadioGroup, Separator, Tooltip } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { FolderInput, FolderOutput, RefreshCw, X } from 'lucide-react';
-import Q from 'q';
 import { type ChangeEvent, type ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { i18n } from '../../../../shared/i18n';
-import { type ContentSummaryAndCompareStatus } from '../../../../../app/content/ContentSummaryAndCompareStatus';
-import { type ExtensionItemViewType } from '../../../../../app/view/context/ExtensionItemView';
 import { type ExportResult, fetchExports, type ImportResult } from '../../api/importContent.api';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
-import { LegacyElement } from '../../../../shared/ui/LegacyElement';
 import { ContentLabel } from '../../../../entities/content/ui/content/ContentLabel';
 import { $contextContent } from '../../model/contextContent.store';
 import { $activeWidgetId, $isContextOpen } from '../../model/contextWidgets.store';
@@ -259,36 +255,5 @@ const ImportContentWidget = (): ReactElement | null => {
 };
 
 ImportContentWidget.displayName = IMPORT_CONTENT_WIDGET_NAME;
-
-export class ImportContentWidgetElement
-    extends LegacyElement<typeof ImportContentWidget>
-    implements ExtensionItemViewType
-{
-    constructor() {
-        super({}, ImportContentWidget);
-    }
-
-    public static debug: boolean = false;
-
-    public layout(): Q.Promise<void> {
-        return Q();
-    }
-
-    public setContentAndUpdateView(_item: ContentSummaryAndCompareStatus): Q.Promise<null | void> {
-        return Q();
-    }
-
-    public fetchExtensionContents(_url: string, _contentId: string): Q.Promise<void> {
-        return Q();
-    }
-
-    public hide(): void {
-        return;
-    }
-
-    public show(): void {
-        return;
-    }
-}
 
 export { ImportContentWidget };
