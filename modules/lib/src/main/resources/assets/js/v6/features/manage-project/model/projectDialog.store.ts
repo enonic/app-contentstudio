@@ -339,9 +339,15 @@ export const setProjectDialogStep = (step: string): void => {
     $projectDialog.setKey('step', step);
 };
 
-/** Sets the parents; drops the apps no longer inherited and appends the newly inherited ones. */
+/**
+ * Sets the parents; drops the apps no longer inherited and appends the newly inherited ones.
+ * The same names again are a no-op: the step syncs on every mount of the main view, and the
+ * memos and the step's rendering hang on the identity of the arrays this replaces.
+ */
 export const setProjectDialogParentProjects = (parentProjects: Readonly<Project>[]): void => {
     const state = $projectDialog.get();
+    if (haveSameNames(state.parentProjects, parentProjects)) return;
+
     const before = new Set(getInheritedAppKeys(state.parentProjects));
     const after = getInheritedAppKeys(parentProjects);
     const afterSet = new Set(after);
@@ -785,6 +791,9 @@ function findInheritedConfig(parentProjects: readonly Readonly<Project>[], key: 
 }
 
 const keyOf = (application: Application): string => application.getApplicationKey().toString();
+
+const haveSameNames = (a: readonly Readonly<Project>[], b: readonly Readonly<Project>[]): boolean =>
+    a.length === b.length && a.every((project, i) => project.getName() === b[i].getName());
 
 /** The app keys the given projects carry a site config for, deduped, in project order. */
 function getInheritedAppKeys(projects: readonly Readonly<Project>[]): string[] {

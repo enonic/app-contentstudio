@@ -83,9 +83,11 @@ export const ProjectDialogParentStepContent = ({
         return hasParentProjects && hasParentProjectLanguage && isParentProjectLanguageDifferent && !!parentProjectName;
     }, [parentProjects, selectedLanguage, parentProjectName]);
 
-    // Sync project selection with the store
+    // Sync project selection with the store; a parent the user cannot see has no project to resolve to.
     useEffect(() => {
-        const resolvedProjects = Array.from(projectSelection).map((id) => projects.find((p) => p.getName() === id));
+        const resolvedProjects = Array.from(projectSelection)
+            .map((id) => projects.find((p) => p.getName() === id))
+            .filter((p) => p != null);
         setProjectDialogParentProjects(resolvedProjects);
     }, [projectSelection, projects]);
 

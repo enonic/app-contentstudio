@@ -293,6 +293,18 @@ describe('projectDialog.store application configs', () => {
 
             expect(configOf('app:b')?.getString('color')).toBe('blue');
         });
+
+        it('should ignore the same parents set again', async () => {
+            await openCreateProjectDialog([createProject('p1', [createSiteConfig('app:a', {})])]);
+            const { applications, applicationConfigs } = $projectDialog.get();
+            const inheritedKeys = $projectDialogInheritedAppKeys.get();
+
+            setProjectDialogParentProjects([createProject('p1', [createSiteConfig('app:a', {})])]);
+
+            expect($projectDialog.get().applications).toBe(applications);
+            expect($projectDialog.get().applicationConfigs).toBe(applicationConfigs);
+            expect($projectDialogInheritedAppKeys.get()).toBe(inheritedKeys);
+        });
     });
 
     describe('openCreateProjectDialog', () => {
