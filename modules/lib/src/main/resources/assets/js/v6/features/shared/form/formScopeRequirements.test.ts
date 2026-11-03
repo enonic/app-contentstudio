@@ -1,17 +1,22 @@
+import { inputTypeRegistry, registerBuiltInTypes } from '@enonic/input-types';
+import { PropertyTree } from '@enonic/input-types/data';
 import { Form, FormItemSet, Input, InputTypeName, Occurrences } from '@enonic/input-types/schema';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import type { Project } from '../../../../app/settings/data/project/Project';
-import { hasScopeDisabledInputs } from './formScopeRequirements';
+import { hasScopeDisabledInputs, isFormValidInScope } from './formScopeRequirements';
+import { ContentSelectorDescriptor } from './input-types/content-selector/ContentSelectorDescriptor';
+import { ImageUploaderDescriptor } from './input-types/image-uploader/ImageUploaderDescriptor';
 
 const project = { getName: () => 'layer' } as unknown as Project;
 
-const input = (name: string, type: string): Input =>
+const input = (name: string, type: string, minimum = 0): Input =>
     Input.create()
         .setName(name)
         .setInputType(new InputTypeName(type))
         .setLabel(name)
-        .setOccurrences(Occurrences.minmax(0, 1))
+        .setOccurrences(Occurrences.minmax(minimum, 1))
         .build();
+const required = (name: string, type: string): Input => input(name, type, 1);
 
 describe('hasScopeDisabledInputs', () => {
     it('should be true for a project-bound input in a scope without a project', () => {
@@ -54,5 +59,37 @@ describe('hasScopeDisabledInputs', () => {
         const form = new Form([input('hero', 'ImageUploader')]);
 
         expect(hasScopeDisabledInputs(form, {})).toBe(false);
+    });
+});
+
+describe('isFormValidInScope', () => {
+    beforeAll(() => {
+        registerBuiltInTypes();
+        inputTypeRegistry.registerType({ mode: 'internal', descriptor: ContentSelectorDescriptor }, true);
+        inputTypeRegistry.registerType({ mode: 'internal', descriptor: ImageUploaderDescriptor }, true);
+    });
+
+    it('should not count a required project-bound input while creating, so a change to a plain input validates', () => {
+        const form = new Form([input('title', 'TextLine'), required('related', 'ContentSelector')]);
+        const set = new PropertyTree().getRoot();
+        set.setString('title', 0, 'hello');
+
+        expect(isFormValidInScope(form, set, { project: null, content: null })).toBe(true);
+        expect(isFormValidInScope(form, set, { project, content: null })).toBe(false);
+    });
+
+    it('should not count a required content-bound input in a project config', () => {
+        const form = new Form([required('hero', 'ImageUploader')]);
+        const set = new PropertyTree().getRoot();
+
+        expect(isFormValidInScope(form, set, { project, content: null })).toBe(true);
+        expect(isFormValidInScope(form, set, {})).toBe(false);
+    });
+
+    it('should still fail on a required plain input', () => {
+        const form = new Form([required('title', 'TextLine'), required('related', 'ContentSelector')]);
+        const set = new PropertyTree().getRoot();
+
+        expect(isFormValidInScope(form, set, { project: null, content: null })).toBe(false);
     });
 });
