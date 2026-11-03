@@ -9,6 +9,7 @@ import { ContentTypeFilterSelectionItemView } from './ContentTypeFilterSelection
 import { useContentTypeFilter } from './useContentTypeFilter';
 import { useSelectorInputHasError } from '../hooks';
 import { useFormScopeRequirement } from '../../FormScopeContext';
+import { CONTENT_TYPE_FILTER_SCOPE_REQUIREMENT } from './ContentTypeFilterDescriptor';
 
 const COMPONENT_NAME = 'ContentTypeFilterInput';
 
@@ -33,7 +34,10 @@ export const ContentTypeFilterInput = ({
             onAdd,
             onRemove,
         });
-    const { enabled: scopeEnabled } = useFormScopeRequirement(input, { project: true, content: requiresContent });
+    const { enabled: scopeEnabled } = useFormScopeRequirement(input, {
+        ...CONTENT_TYPE_FILTER_SCOPE_REQUIREMENT,
+        content: requiresContent,
+    });
 
     // i18n
     const placeholder = useI18n('field.option.placeholder');

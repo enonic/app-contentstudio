@@ -1,18 +1,55 @@
 import { type Form, type FormItem, Input } from '@enonic/input-types/schema';
 import type { FormScope, FormScopeRequirement } from './FormScopeContext';
+import {
+    ATTACHMENT_UPLOADER_SCOPE_REQUIREMENT,
+    AttachmentUploaderDescriptor,
+} from './input-types/attachment-uploader/AttachmentUploaderDescriptor';
+import {
+    CONTENT_SELECTOR_SCOPE_REQUIREMENT,
+    ContentSelectorDescriptor,
+} from './input-types/content-selector/ContentSelectorDescriptor';
+import {
+    CONTENT_TYPE_FILTER_SCOPE_REQUIREMENT,
+    ContentTypeFilterDescriptor,
+} from './input-types/content-type-filter/ContentTypeFilterDescriptor';
+import {
+    CUSTOM_SELECTOR_SCOPE_REQUIREMENT,
+    CustomSelectorDescriptor,
+} from './input-types/custom-selector/CustomSelectorDescriptor';
+import {
+    IMAGE_SELECTOR_SCOPE_REQUIREMENT,
+    ImageSelectorDescriptor,
+} from './input-types/image-selector/ImageSelectorDescriptor';
+import {
+    IMAGE_UPLOADER_SCOPE_REQUIREMENT,
+    ImageUploaderDescriptor,
+} from './input-types/image-uploader/ImageUploaderDescriptor';
+import {
+    MEDIA_SELECTOR_SCOPE_REQUIREMENT,
+    MediaSelectorDescriptor,
+} from './input-types/media-selector/MediaSelectorDescriptor';
+import {
+    MEDIA_UPLOADER_SCOPE_REQUIREMENT,
+    MediaUploaderDescriptor,
+} from './input-types/media-uploader/MediaUploaderDescriptor';
+import {
+    SITE_CONFIGURATOR_SCOPE_REQUIREMENT,
+    SiteConfiguratorDescriptor,
+} from './input-types/site-configurator/SiteConfiguratorDescriptor';
 
-// What each input type cannot work without; mirrors its `useFormScopeRequirement` call.
+// What each input type needs from the scope, declared next to its descriptor and used by its hook call.
+// Imported from the descriptor files, not the folder indexes, which pull in the inputs' UI.
 // ? ContentTypeFilter needs the content only in its content-bound mode; counted as project-only.
 const SCOPE_REQUIREMENTS: Record<string, FormScopeRequirement> = {
-    AttachmentUploader: { project: true, content: true },
-    ContentSelector: { project: true },
-    ContentTypeFilter: { project: true },
-    CustomSelector: { project: true, content: true },
-    ImageSelector: { project: true },
-    ImageUploader: { project: true, content: true },
-    MediaSelector: { project: true },
-    MediaUploader: { project: true, content: true },
-    SiteConfigurator: { content: true },
+    [AttachmentUploaderDescriptor.name]: ATTACHMENT_UPLOADER_SCOPE_REQUIREMENT,
+    [ContentSelectorDescriptor.name]: CONTENT_SELECTOR_SCOPE_REQUIREMENT,
+    [ContentTypeFilterDescriptor.name]: CONTENT_TYPE_FILTER_SCOPE_REQUIREMENT,
+    [CustomSelectorDescriptor.name]: CUSTOM_SELECTOR_SCOPE_REQUIREMENT,
+    [ImageSelectorDescriptor.name]: IMAGE_SELECTOR_SCOPE_REQUIREMENT,
+    [ImageUploaderDescriptor.name]: IMAGE_UPLOADER_SCOPE_REQUIREMENT,
+    [MediaSelectorDescriptor.name]: MEDIA_SELECTOR_SCOPE_REQUIREMENT,
+    [MediaUploaderDescriptor.name]: MEDIA_UPLOADER_SCOPE_REQUIREMENT,
+    [SiteConfiguratorDescriptor.name]: SITE_CONFIGURATOR_SCOPE_REQUIREMENT,
 };
 
 /**

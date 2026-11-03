@@ -5,6 +5,7 @@ import { type Value } from '@enonic/input-types/data';
 import { ValueTypes } from '@enonic/input-types/data';
 import { readAllowPath } from '../../../../../shared/lib/form/form';
 import type { InputConfigEntries } from '@enonic/input-types';
+import type { FormScopeRequirement } from '../../FormScopeContext';
 
 export const ImageSelectorDescriptor: InputTypeDescriptor<ImageSelectorConfig> = {
     name: 'ImageSelector' as const,
@@ -37,3 +38,6 @@ export const ImageSelectorDescriptor: InputTypeDescriptor<ImageSelectorConfig> =
         return value.isNull();
     },
 };
+
+/** What the input needs from the form scope; see `formScopeRequirements`. */
+export const IMAGE_SELECTOR_SCOPE_REQUIREMENT: FormScopeRequirement = { project: true };

@@ -8,6 +8,7 @@ import { ValueTypes } from '@enonic/input-types/data';
 import { ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import { $applications } from '../../../../../entities/application';
 import type { InputConfigEntries } from '@enonic/input-types';
+import type { FormScopeRequirement } from '../../FormScopeContext';
 
 export const SiteConfiguratorDescriptor: InputTypeDescriptor<SiteConfiguratorConfig> = {
     name: 'SiteConfigurator' as const,
@@ -52,3 +53,6 @@ export const SiteConfiguratorDescriptor: InputTypeDescriptor<SiteConfiguratorCon
         return value.isNull();
     },
 };
+
+/** What the input needs from the form scope; see `formScopeRequirements`. */
+export const SITE_CONFIGURATOR_SCOPE_REQUIREMENT: FormScopeRequirement = { content: true };

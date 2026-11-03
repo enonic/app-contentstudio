@@ -28,6 +28,7 @@ import { ApplicationSelector } from '../../../selectors/ApplicationSelector';
 import { ApplicationConfigDialog } from '../../ApplicationConfigDialog';
 import { seedFormDefaults } from '@enonic/input-types';
 import type { SiteConfiguratorConfig } from './SiteConfiguratorConfig';
+import { SITE_CONFIGURATOR_SCOPE_REQUIREMENT } from './SiteConfiguratorDescriptor';
 
 const COMPONENT_NAME = 'SiteConfiguratorInput';
 const PORTAL_APP_KEY = ApplicationKey.PORTAL.toString();
@@ -46,7 +47,7 @@ type AppItem = {
 export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfiguratorConfig>): ReactElement => {
     const { values, onAdd, onRemove, onMove, input, enabled, errors } = props;
     const { content } = useFormScope();
-    const { enabled: scopeEnabled } = useFormScopeRequirement(input, { content: true });
+    const { enabled: scopeEnabled } = useFormScopeRequirement(input, SITE_CONFIGURATOR_SCOPE_REQUIREMENT);
     const contentId = content?.getId();
     const { applications } = useStore($applications, { keys: ['applications'] });
     const [isReadOnly, setIsReadOnly] = useState(!AuthHelper.isContentAdmin());

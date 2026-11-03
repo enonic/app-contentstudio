@@ -5,6 +5,7 @@ import { ImageUploaderProvider } from './ImageUploaderContext';
 import { ImageUploaderInputImage } from './ImageUploaderInputImage';
 import { ImageUploaderInputControls } from './ImageUploaderInputControls';
 import { useFormScopeRequirement } from '../../FormScopeContext';
+import { IMAGE_UPLOADER_SCOPE_REQUIREMENT } from './ImageUploaderDescriptor';
 
 const IMAGE_UPLOADER_INPUT_NAME = 'ImageUploaderInput';
 
@@ -13,7 +14,7 @@ export const ImageUploaderInput = ({
     input,
     enabled,
 }: SelfManagedComponentProps<ImageUploaderConfig>): ReactElement | null => {
-    const { enabled: scopeEnabled } = useFormScopeRequirement(input, { project: true, content: true });
+    const { enabled: scopeEnabled } = useFormScopeRequirement(input, IMAGE_UPLOADER_SCOPE_REQUIREMENT);
 
     if (values.length === 0) return null;
 

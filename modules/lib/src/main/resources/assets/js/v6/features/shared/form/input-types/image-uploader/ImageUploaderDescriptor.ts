@@ -4,6 +4,7 @@ import { type Value } from '@enonic/input-types/data';
 import { ValueTypes } from '@enonic/input-types/data';
 import type { ImageUploaderConfig } from './ImageUploaderConfig';
 import type { InputConfigEntries } from '@enonic/input-types';
+import type { FormScopeRequirement } from '../../FormScopeContext';
 
 export const ImageUploaderDescriptor: InputTypeDescriptor<ImageUploaderConfig> = {
     name: 'ImageUploader' as const,
@@ -28,3 +29,6 @@ export const ImageUploaderDescriptor: InputTypeDescriptor<ImageUploaderConfig> =
         return value.isNull();
     },
 };
+
+/** What the input needs from the form scope; see `formScopeRequirements`. */
+export const IMAGE_UPLOADER_SCOPE_REQUIREMENT: FormScopeRequirement = { project: true, content: true };

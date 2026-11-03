@@ -9,13 +9,14 @@ import type { ContentSelectorConfig } from './ContentSelectorConfig';
 import { MediaSelectorItemView } from '../../../selectors/media';
 import { ContentSelectorInputAddButton } from './ContentSelectorInputAddButton';
 import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { CONTENT_SELECTOR_SCOPE_REQUIREMENT } from './ContentSelectorDescriptor';
 /**
  * Differently than MediaSelector and ImageSelector, here we don't reutilize the ContentSelector component.
  * Instead we reuse shared building blocks like ContentCombobox, SelectorSelection, SelectorSelectionItem, etc.
  */
 export const ContentSelectorInput = (props: SelfManagedComponentProps<ContentSelectorConfig>): ReactElement => {
     const { project } = useFormScope();
-    const { enabled: scopeEnabled } = useFormScopeRequirement(props.input, { project: true });
+    const { enabled: scopeEnabled } = useFormScopeRequirement(props.input, CONTENT_SELECTOR_SCOPE_REQUIREMENT);
     const projectName = project?.getName();
     const applicationKey = useFormApplicationKey();
 

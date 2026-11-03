@@ -4,6 +4,7 @@ import { type ValueType } from '@enonic/input-types/data';
 import { type Value } from '@enonic/input-types/data';
 import { ValueTypes } from '@enonic/input-types/data';
 import type { InputConfigEntries } from '@enonic/input-types';
+import type { FormScopeRequirement } from '../../FormScopeContext';
 
 export const CustomSelectorDescriptor: InputTypeDescriptor<CustomSelectorConfig> = {
     name: 'CustomSelector' as const,
@@ -38,3 +39,6 @@ export const CustomSelectorDescriptor: InputTypeDescriptor<CustomSelectorConfig>
         return value.isNull();
     },
 };
+
+/** What the input needs from the form scope; see `formScopeRequirements`. */
+export const CUSTOM_SELECTOR_SCOPE_REQUIREMENT: FormScopeRequirement = { project: true, content: true };
