@@ -656,12 +656,13 @@ function getDataForRequests() {
             .setConfig(resolveApplicationConfig(app, applicationConfigs, parentProjects))
             .build(),
     );
-    // The preserved entries go around the listed apps: portal first, the rest last.
-    const isPortal = (config: ApplicationConfig): boolean => config.getApplicationKey().equals(ApplicationKey.PORTAL);
+    // The preserved entries go around the listed apps: portal first, the rest last, then the parent's unlisted ones.
+    const ownKeys = new Set([...listedConfigs, ...preservedSiteConfigs].map((c) => c.getApplicationKey().toString()));
     const requestConfigs = [
-        ...preservedSiteConfigs.filter(isPortal),
+        ...preservedSiteConfigs.filter(isPortalConfig),
         ...listedConfigs,
-        ...preservedSiteConfigs.filter((config) => !isPortal(config)),
+        ...preservedSiteConfigs.filter((config) => !isPortalConfig(config)),
+        ...getUnlistedParentConfigs(parentProjects, ownKeys),
     ];
 
     const rolesEntries = Object.entries(roles);
@@ -788,6 +789,22 @@ function findInheritedConfig(parentProjects: readonly Readonly<Project>[], key: 
 }
 
 const keyOf = (application: Application): string => application.getApplicationKey().toString();
+
+const isPortalConfig = (config: ApplicationConfig): boolean => config.getApplicationKey().equals(ApplicationKey.PORTAL);
+
+/**
+ * The first parent's site configs for apps the step does not list, the layer's own entries and the
+ * portal left out. Legacy copied them into the layer too, so the config of an app that is stopped or
+ * uninstalled on this node is not lost on the way. Built at save time, so they follow a parent switch.
+ */
+function getUnlistedParentConfigs(
+    parentProjects: readonly Readonly<Project>[],
+    ownKeys: ReadonlySet<string>,
+): ApplicationConfig[] {
+    return (parentProjects[0]?.getSiteConfigs() ?? []).filter(
+        (config) => !isPortalConfig(config) && !ownKeys.has(config.getApplicationKey().toString()),
+    );
+}
 
 const haveSameNames = (a: readonly Readonly<Project>[], b: readonly Readonly<Project>[]): boolean =>
     a.length === b.length && a.every((project, i) => project.getName() === b[i].getName());

@@ -626,4 +626,56 @@ describe('projectDialog.store application configs', () => {
             expect(sentConfigs(mockCreateProject)).toEqual([]);
         });
     });
+
+    describe('parent configs the step does not list', () => {
+        beforeEach(() => {
+            mockCreateProject.mockReturnValue(okAsync(createProject('layer', [])));
+            mockUpdateProjectPermissions.mockReturnValue(okAsync({}));
+            mockUpdateProject.mockReturnValue(okAsync({}));
+        });
+
+        it('should send the first parent config of an uninstalled app on create, after the listed apps, and not its portal', async () => {
+            const parent = createProject('parent', [
+                createSiteConfig('portal', { baseUrl: '/parent' }),
+                createSiteConfig('app:a', { color: 'red' }),
+                createSiteConfig('app:gone', { k: 'v' }),
+            ]);
+            await openCreateProjectDialog([parent]);
+
+            await createProjectAction();
+
+            const configs = sentConfigs(mockCreateProject);
+            expect(configs.map((c) => c.getApplicationKey().toString())).toEqual(['app:a', 'app:gone']);
+            expect(configs[1].getConfig().getString('k')).toBe('v');
+        });
+
+        it('should replace them after a parent switch while creating', async () => {
+            const p1 = createProject('p1', [createSiteConfig('app:gone1', { k: '1' })]);
+            const p2 = createProject('p2', [createSiteConfig('app:gone2', { k: '2' })]);
+            await openCreateProjectDialog([p1]);
+
+            setProjectDialogParentProjects([p2]);
+            await createProjectAction();
+
+            expect(sentConfigs(mockCreateProject).map((c) => c.getApplicationKey().toString())).toEqual(['app:gone2']);
+        });
+
+        it('should append them on an edit save, the own entry winning, without getting dirty', async () => {
+            const layer = createProject('layer', [createSiteConfig('app:gone', { k: 'own' })]);
+            const parent = createProject('parent', [
+                createSiteConfig('app:gone', { k: 'parent' }),
+                createSiteConfig('app:other', { k: 'other' }),
+            ]);
+            await openEditProjectDialog(layer, [parent]);
+            expect($isProjectDialogDirty.get()).toBe(false);
+
+            rename();
+            await updateProject();
+
+            const configs = sentConfigs(mockUpdateProject);
+            expect(configs.map((c) => c.getApplicationKey().toString())).toEqual(['app:gone', 'app:other']);
+            expect(configs[0].getConfig().getString('k')).toBe('own');
+            expect(configs[1].getConfig().getString('k')).toBe('other');
+        });
+    });
 });
