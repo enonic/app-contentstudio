@@ -44,6 +44,7 @@ import { type Extension } from '@enonic/lib-admin-ui/extension/Extension';
 import { type WizardExtensionRenderingHandler } from '../WizardExtensionRenderingHandler';
 import { setLiveEditDraggableHost } from './LiveEditDraggableHost';
 import { type PortalComponentType } from '../../../v6/widgets/inspectors/model/page-editor/drag';
+import { PREVIEW_FRAME_ATTRIBUTE } from '../../../v6/shared/lib/dom/suppressInitialPreviewFocus';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy implements PageNavigationHandler {
@@ -95,6 +96,7 @@ export class LiveEditPageProxy implements PageNavigationHandler {
 
     private createLiveEditIFrame(): IFrameEl {
         const liveEditIFrame = new IFrameEl('live-edit-frame');
+        liveEditIFrame.getEl().setAttribute(PREVIEW_FRAME_ATTRIBUTE, '');
 
         // The editor posts the protocol `editor-loaded` once it has booted. The
         // host bus must already be listening, so it is (re)created on every

@@ -5,6 +5,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.text.StringSubstitutor;
 import org.osgi.service.component.annotations.Activate;
@@ -12,6 +14,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.Maps;
+import com.google.common.net.MediaType;
 
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalRequestAccessor;
@@ -24,10 +27,11 @@ import com.enonic.xp.portal.url.PortalUrlService;
 import com.enonic.xp.project.ProjectConstants;
 import com.enonic.xp.repository.RepositoryId;
 import com.enonic.xp.util.Exceptions;
+import com.enonic.xp.web.WebResponse;
 import com.enonic.xp.web.csp.ContentSecurityPolicy;
 import com.enonic.xp.web.csp.CspSource;
 
-@Component(immediate = true, service = PostProcessInjection.class)
+@Component(immediate = true, service = {PostProcessInjection.class, LiveEditInjection.class})
 public final class LiveEditInjection
     implements PostProcessInjection
 {
@@ -37,17 +41,31 @@ public final class LiveEditInjection
 
     private static final char ESCAPE = '\\';
 
+    private static final String TAG_END = "(?:[^>\"']++|\"[^\"]*\"|'[^']*')*+>";
+
+    private static final String LEADING_SPACE = "\\s*+(?:(?:<!--.*?-->|<\\?[^>]*>)\\s*+)*+";
+
+    private static final Pattern DOCUMENT_PREFIX =
+        Pattern.compile( "\\A\\uFEFF?" + LEADING_SPACE + "(?:<!doctype\\s" + TAG_END + ")?", Pattern.CASE_INSENSITIVE | Pattern.DOTALL );
+
+    private static final Pattern HEAD_PREFIX =
+        Pattern.compile( LEADING_SPACE + "(?:<html(?=[\\s>])" + TAG_END + LEADING_SPACE + ")?<head(?=[\\s>])" + TAG_END,
+                         Pattern.CASE_INSENSITIVE | Pattern.DOTALL );
+
     private final String bodyEndTemplate;
 
     private final PortalUrlService portalUrlService;
 
     private final String inlineBodyEndTemplate;
 
+    private final String previewFocusTemplate;
+
     @Activate
     public LiveEditInjection( @Reference PortalUrlService portalUrlService )
     {
         this.bodyEndTemplate = loadTemplate( "liveEditBodyEnd.html" );
         this.inlineBodyEndTemplate = loadTemplate( "liveViewBodyEnd.html" );
+        this.previewFocusTemplate = loadTemplate( "previewFocus.html" );
         this.portalUrlService = portalUrlService;
     }
 
@@ -64,6 +82,42 @@ public final class LiveEditInjection
         }
 
         return null;
+    }
+
+    public WebResponse injectPreviewFocus( final PortalRequest request, final WebResponse response )
+    {
+        if ( ( request.getMode() != RenderMode.INLINE && request.getMode() != RenderMode.EDIT ) || request.getEndpointPath() != null ||
+            !( response.getBody() instanceof String html ) || html.isBlank() || response.getContentType() == null ||
+            !response.getContentType().is( MediaType.HTML_UTF_8.withoutParameters() ) )
+        {
+            return response;
+        }
+
+        PortalRequestAccessor.set( request );
+        try
+        {
+            final Map<String, String> model = makeModelForInjection( request );
+            model.put( "nonceAttr", request.getMode() == RenderMode.EDIT
+                ? " nonce=\"" + request.getContentSecurityPolicy().nonceScriptSrc() + "\""
+                : inlineNonceAttribute( request.getContentSecurityPolicy() ) );
+            final String bootstrap = injectUsingTemplate( this.previewFocusTemplate, model );
+            // Insert before site scripts even when optional html/head/body tags are omitted.
+            // Keep the doctype first so the bootstrap cannot switch a standards document into quirks mode.
+            final Matcher prefix = DOCUMENT_PREFIX.matcher( html );
+            prefix.find();
+            int offset = prefix.end();
+            // Preserve attributes on an explicit head; a script before it would create an implicit head instead.
+            final Matcher head = HEAD_PREFIX.matcher( html ).region( offset, html.length() );
+            if ( head.lookingAt() )
+            {
+                offset = head.end();
+            }
+            return WebResponse.create( response ).body( html.substring( 0, offset ) + bootstrap + html.substring( offset ) ).build();
+        }
+        finally
+        {
+            PortalRequestAccessor.remove();
+        }
     }
 
     private List<String> injectEditContributions( final PortalRequest portalRequest, final HtmlTag htmlTag )
@@ -90,29 +144,8 @@ public final class LiveEditInjection
         {
             if ( htmlTag == HtmlTag.BODY_END )
             {
-                final ContentSecurityPolicy policy = portalRequest.getContentSecurityPolicy();
-                // viewer.js is a same-origin external script, so 'self' admits it - and also contains the
-                // rendered page's own scripts to same-origin. Only do this because the viewer is actually
-                // being injected (an error page that injects nothing gets no script-src from us). If the
-                // page declared script-src-elem, that directive (not script-src) governs script elements
-                // per the CSP fallback chain, so mirror 'self' into it too, otherwise the viewer is blocked.
-                final boolean scriptSrcElemDeclared = policy.directive( "script-src-elem" ).isPresent();
-                policy.scriptSrc( CspSource.SELF );
-                if ( scriptSrcElemDeclared )
-                {
-                    policy.scriptSrcElem( CspSource.SELF );
-                }
                 final Map<String, String> model = makeModelForInjection( portalRequest );
-                // 'self' admits the viewer unless the governing directive uses 'strict-dynamic', which
-                // ignores 'self'/host sources. Only then does the viewer need the request nonce stamped
-                // and wired into that directive (minting one if the page was hash-based) - a value that
-                // exists only when it is genuinely needed, never blindly.
-                final String governing = scriptSrcElemDeclared ? "script-src-elem" : "script-src";
-                final boolean strictDynamic =
-                    policy.directive( governing ).orElse( List.of() ).contains( CspSource.STRICT_DYNAMIC );
-                model.put( "nonceAttr", strictDynamic
-                    ? " nonce=\"" + ( scriptSrcElemDeclared ? policy.nonceScriptSrcElem() : policy.nonceScriptSrc() ) + "\""
-                    : "" );
+                model.put( "nonceAttr", inlineNonceAttribute( portalRequest.getContentSecurityPolicy() ) );
                 return Collections.singletonList( injectUsingTemplate( this.inlineBodyEndTemplate, model ) );
             }
         }
@@ -121,6 +154,21 @@ public final class LiveEditInjection
             PortalRequestAccessor.remove();
         }
         return null;
+    }
+
+    private String inlineNonceAttribute( final ContentSecurityPolicy policy )
+    {
+        // Same-origin external bootstraps need 'self' in the governing script directive.
+        final boolean scriptSrcElemDeclared = policy.directive( "script-src-elem" ).isPresent();
+        policy.scriptSrc( CspSource.SELF );
+        if ( scriptSrcElemDeclared )
+        {
+            policy.scriptSrcElem( CspSource.SELF );
+        }
+        // strict-dynamic ignores 'self', so stamp the request nonce only when required.
+        final String governing = scriptSrcElemDeclared ? "script-src-elem" : "script-src";
+        final boolean strictDynamic = policy.directive( governing ).orElse( List.of() ).contains( CspSource.STRICT_DYNAMIC );
+        return strictDynamic ? " nonce=\"" + ( scriptSrcElemDeclared ? policy.nonceScriptSrcElem() : policy.nonceScriptSrc() ) + "\"" : "";
     }
 
     private String injectBodyEnd( final PortalRequest portalRequest )

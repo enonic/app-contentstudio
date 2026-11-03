@@ -28,6 +28,7 @@ module.exports = {
         'js/settings': './js/settings.ts',
         'page-editor/js/editor': './js/page-editor.ts',
         'page-editor/js/viewer': './js/page-viewer.ts',
+        'page-editor/js/preview-focus': './js/preview-focus.ts',
         'styles/extensions/stats': './styles/extensions/stats.less',
     },
     output: {
