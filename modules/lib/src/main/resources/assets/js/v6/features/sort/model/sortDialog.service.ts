@@ -1,4 +1,4 @@
-import { showError } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyError } from '../../../shared/notifications';
 import type { ContentServerChangeItem } from '../../../../app/event/ContentServerChangeItem';
 import { listContentIdsByParent } from '../../../entities/content/api/contentQuery.api';
 import { $contentArchived, $contentDeleted, type ContentEvent } from '../../../shared/socket/socket.store';
@@ -50,7 +50,7 @@ async function reloadSortDialogIds(): Promise<void> {
     if (result.isErr()) {
         $sortDialog.setKey('idsFailed', true);
         $sortDialog.setKey('idsLoading', false);
-        showError(result.error.message);
+        notifyError(result.error.message);
         return;
     }
 

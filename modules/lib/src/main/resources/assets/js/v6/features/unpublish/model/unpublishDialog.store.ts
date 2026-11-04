@@ -1,4 +1,4 @@
-import { showError, showSuccess } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyError, notifySuccess } from '../../../shared/notifications';
 import type { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
 import { computed, map } from 'nanostores';
 import { i18n } from '../../../shared/i18n';
@@ -250,9 +250,9 @@ export const confirmUnpublishAction = async (selectedItems: ContentSummary[]): P
                             total > 1
                                 ? i18n('dialog.unpublish.success.multiple', total)
                                 : i18n('dialog.unpublish.success.single', pendingPrimaryName ?? '');
-                        showSuccess(successMessage);
+                        notifySuccess(successMessage);
                     } else {
-                        showError(message);
+                        notifyError(message);
                     }
                     resetUnpublishDialogContext();
                 },
@@ -261,7 +261,7 @@ export const confirmUnpublishAction = async (selectedItems: ContentSummary[]): P
             return true;
         },
         (error) => {
-            showError(error.message);
+            notifyError(error.message);
             $unpublishDialogPending.set(initialPendingState);
             $unpublishDialog.setKey('failed', true);
             return false;

@@ -24,7 +24,7 @@ import { $wizardDraftPage } from '../../../../../pages/wizard/model/wizardConten
 import { isAttachmentInUse } from '../../../../../shared/lib/page/isAttachmentInUse';
 import { ContentRequiresSaveEvent } from '../../../../../../app/event/ContentRequiresSaveEvent';
 import { ContentId } from '../../../../../../app/content/ContentId';
-import { showError, showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyError, notifyInfo } from '../../../../../shared/notifications';
 
 //
 // * Types
@@ -142,12 +142,12 @@ export const useAttachmentUploader = ({
                                 onAdd(ValueTypes.STRING.newValue(attachmentName));
                             }
 
-                            showFeedback(i18n('notify.upload.success', attachmentName));
+                            notifyInfo(i18n('notify.upload.success', attachmentName));
                         },
                         (error: UploadError) => {
                             failUpload(error.mediaIdentifier, error.message);
                             setUploads((prev) => prev.filter((item) => item.id !== error.mediaIdentifier));
-                            showError(i18n('notify.upload.error', file.name, error.message));
+                            notifyError(i18n('notify.upload.error', file.name, error.message));
                         },
                     );
                 }),
@@ -182,7 +182,7 @@ export const useAttachmentUploader = ({
                     fireContentRequiresSaveEvent(contentId);
                 },
                 (error) => {
-                    showError(error.message);
+                    notifyError(error.message);
                 },
             );
         },

@@ -1,4 +1,4 @@
-import { showError, showSuccess } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyError, notifySuccess } from '../../../shared/notifications';
 import type { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
 import { computed, map } from 'nanostores';
 import { i18n } from '../../../shared/i18n';
@@ -122,7 +122,7 @@ export const executeMoveDialogAction = async (): Promise<boolean> => {
     const items = state.items;
     const destinationPath = state.destinationItem?.getPath();
     if (!destinationPath) {
-        showError(i18n('notify.item.nothingToMove'));
+        notifyError(i18n('notify.item.nothingToMove'));
         return false;
     }
 
@@ -133,7 +133,7 @@ export const executeMoveDialogAction = async (): Promise<boolean> => {
 
     const result = await moveContent(contentIds, destinationPath);
     if (result.isErr()) {
-        showError(result.error.message);
+        notifyError(result.error.message);
         $moveDialog.set({
             ...$moveDialog.get(),
             submitting: false,
@@ -161,7 +161,7 @@ export const executeMoveDialogAction = async (): Promise<boolean> => {
             if (resultState === 'SUCCESS') {
                 handleMoveSuccess();
             } else {
-                showError(message || i18n('notify.process.failed', i18n('action.move')));
+                notifyError(message || i18n('notify.process.failed', i18n('action.move')));
                 resetMoveDialogContext();
             }
         },
@@ -181,6 +181,6 @@ const handleMoveSuccess = (): void => {
     const baseMessage = i18n(total > 1 ? 'notify.items.moved.to.multi' : 'notify.items.moved.to.single', total);
     const message = $isWizard.get() ? baseMessage : `${baseMessage} ${destinationLabel}`;
 
-    showSuccess(message);
+    notifySuccess(message);
     resetMoveDialogContext();
 };

@@ -1,4 +1,4 @@
-import { showError, showSuccess } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyError, notifySuccess } from '../../../shared/notifications';
 import type { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
 import { atom, computed, map } from 'nanostores';
 import { i18n } from '../../../shared/i18n';
@@ -177,7 +177,7 @@ export const executeDuplicateDialogAction = async (): Promise<boolean> => {
                     if (resultState === 'SUCCESS') {
                         handleDuplicateSuccess();
                     } else {
-                        showError(message || i18n('notify.duplicate.failed'));
+                        notifyError(message || i18n('notify.duplicate.failed'));
                         unsubscribeOpenTab();
                         resetDuplicateDialogContext();
                     }
@@ -187,7 +187,7 @@ export const executeDuplicateDialogAction = async (): Promise<boolean> => {
             return true;
         },
         (error) => {
-            showError(error.message);
+            notifyError(error.message);
             unsubscribeOpenTab();
             $duplicateDialog.set({
                 ...$duplicateDialog.get(),
@@ -260,6 +260,6 @@ const handleDuplicateSuccess = (): void => {
     const multipleMessage = i18n('dialog.duplicate.success.multiple', total);
     const message = total > 1 ? multipleMessage : singleMessage;
 
-    showSuccess(message);
+    notifySuccess(message);
     resetDuplicateDialogContext();
 };

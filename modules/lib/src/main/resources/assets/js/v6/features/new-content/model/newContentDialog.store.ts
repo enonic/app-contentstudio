@@ -1,4 +1,4 @@
-import { showError, showSuccess } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyError, notifySuccess } from '../../../shared/notifications';
 import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { type ContentTypeSummary } from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import { computed, listenKeys, map, task } from 'nanostores';
@@ -274,14 +274,14 @@ function extractImageSources(htmlData: string): string[] {
 
 function onEachSuccess(success: UploadMediaSuccess): boolean {
     removeUpload(success.mediaIdentifier);
-    showSuccess(i18n('notify.upload.success', success.mediaIdentifier));
+    notifySuccess(i18n('notify.upload.success', success.mediaIdentifier));
     return true;
 }
 
 function onEachError(error: UploadError): boolean {
     console.error(error);
     removeUpload(error.mediaIdentifier);
-    showError(i18n('notify.upload.error', error.mediaIdentifier, error.message));
+    notifyError(i18n('notify.upload.error', error.mediaIdentifier, error.message));
     return false;
 }
 

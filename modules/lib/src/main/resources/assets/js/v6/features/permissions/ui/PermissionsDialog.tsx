@@ -1,4 +1,4 @@
-import { showError, showSuccess, showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyError, notifySuccess, notifyWarning } from '../../../shared/notifications';
 import { Dialog, Skeleton, Tooltip } from '@enonic/ui';
 import { ReactElement, useCallback, useMemo } from 'react';
 import {
@@ -131,11 +131,11 @@ export const PermissionsDialog = (): ReactElement => {
 
         updatePermissions((resultState, _) => {
             if (resultState === 'SUCCESS') {
-                showSuccess(successMessage);
+                notifySuccess(successMessage);
             } else if (resultState === 'WARNING') {
-                showWarning(failedMessage);
+                notifyWarning(failedMessage);
             } else {
-                showError(failedMessage);
+                notifyError(failedMessage);
             }
         });
     }, [

@@ -2,11 +2,12 @@ import { act, renderHook } from '@testing-library/preact';
 import { atom, type WritableAtom } from 'nanostores';
 import { okAsync } from 'neverthrow';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { notifyWarning } from '../../../../../../../shared/notifications';
 
 const { fetchContentByIdMock } = vi.hoisted(() => ({ fetchContentByIdMock: vi.fn() }));
 
-vi.mock('@enonic/lib-admin-ui/notify/MessageBus', () => ({
-    showWarning: vi.fn(),
+vi.mock('../../../../../../../shared/notifications', () => ({
+    notifyWarning: vi.fn(),
 }));
 
 vi.mock('../../../../../../../../app/page/region/FragmentComponent', () => ({
@@ -51,7 +52,6 @@ vi.mock('../../../../../../../shared/lib/hooks/useI18n', () => ({
     },
 }));
 
-import { showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
 import { FragmentComponent } from '../../../../../../../../app/page/region/FragmentComponent';
 import { LayoutComponent } from '../../../../../../../../app/page/region/LayoutComponent';
 import { LayoutComponentType } from '../../../../../../../../app/page/region/LayoutComponentType';
@@ -236,7 +236,7 @@ describe('useFragmentContentSelector', () => {
 
             await act(async () => result.current.handleSelectionChange(['frag-b']));
 
-            expect(showWarning).toHaveBeenCalledWith('Nested layouts are not allowed');
+            expect(notifyWarning).toHaveBeenCalledWith('Nested layouts are not allowed');
             expect(requestSetFragmentComponent).not.toHaveBeenCalled();
         });
 

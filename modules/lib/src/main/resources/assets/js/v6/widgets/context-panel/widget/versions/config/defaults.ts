@@ -1,5 +1,4 @@
-import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import { NotifyManager } from '@enonic/lib-admin-ui/notify/NotifyManager';
+import { handleError, notifySuccess } from '../../../../../shared/notifications';
 import { fetchVersion, revert } from '../../../../../entities/content';
 import {
     $versionsCacheInvalidated,
@@ -35,7 +34,7 @@ export const createContentStudioDefaults = (): VersionsConfig => ({
         subscribeContentInvalidation,
     },
     notify: {
-        showSuccess: (message) => NotifyManager.get().showSuccess(message),
+        showSuccess: notifySuccess,
     },
-    handleError: (err) => DefaultErrorHandler.handle(err),
+    handleError,
 });

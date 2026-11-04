@@ -1,5 +1,5 @@
 import { Tooltip } from '@enonic/ui';
-import { showError } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyError } from '../../../../shared/notifications';
 import { type ChangeEvent, type ReactElement, useRef, useState } from 'react';
 import { i18n } from '../../../../shared/i18n';
 import type { ContentSummary } from '../../../../../app/content/ContentSummary';
@@ -49,7 +49,7 @@ export const DetailsWidgetContentIcon = ({ content }: Props): ReactElement => {
                 setWizardContent(updated);
             },
             (error) => {
-                showError(i18n('notify.upload.error', file.name, error.message));
+                notifyError(i18n('notify.upload.error', file.name, error.message));
             },
         );
         setProgress(0);

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { listenKeys } from 'nanostores';
-import { showError, showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyError, notifyInfo } from '../../../../../shared/notifications';
 import { ValueTypes } from '@enonic/input-types/data';
 import { i18n } from '../../../../../shared/i18n';
 import { type Content } from '../../../../../../app/content/Content';
@@ -93,13 +93,13 @@ export const useMediaUploader = ({
 
                     const fileName = getMediaFileName(success.content);
                     onChange(fileName);
-                    showFeedback(i18n('notify.upload.success', fileName));
+                    notifyInfo(i18n('notify.upload.success', fileName));
                 },
                 (error: UploadError) => {
                     failUpload(error.mediaIdentifier, error.message);
                     removeUpload(error.mediaIdentifier);
                     setUploadId(undefined);
-                    showError(i18n('notify.upload.error', file.name, error.message));
+                    notifyError(i18n('notify.upload.error', file.name, error.message));
                 },
             );
         },

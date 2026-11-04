@@ -1,5 +1,5 @@
 import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
-import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { handleError, notifyError } from '../../../../shared/notifications';
 import type { PropertyTreeJson } from '@enonic/ui-types';
 import { PropertySet } from '@enonic/input-types/data';
 import { PropertyTree } from '@enonic/input-types/data';
@@ -9,7 +9,6 @@ import type { MacroDescriptor } from '@enonic/lib-admin-ui/macro/MacroDescriptor
 import { Reference } from '@enonic/ui-utils';
 import { StringHelper } from '@enonic/lib-admin-ui/util/StringHelper';
 import { ValueTypes } from '@enonic/input-types/data';
-import { showError } from '@enonic/lib-admin-ui/notify/MessageBus';
 import DOMPurify from 'dompurify';
 import { i18n } from '../../../../shared/i18n';
 import { instanceOf } from '../../../../shared/lib/object/instanceOf';
@@ -387,7 +386,7 @@ export function HtmlAreaMacroDialogProvider({ children, openRef }: HtmlAreaMacro
                 if (sessionIdRef.current !== requestSessionId) {
                     return;
                 }
-                DefaultErrorHandler.handle(error);
+                handleError(error);
                 setState((prev) => (prev.open ? { ...prev, macrosLoading: false } : prev));
             },
         );
@@ -551,7 +550,7 @@ export function HtmlAreaMacroDialogProvider({ children, openRef }: HtmlAreaMacro
                     return;
                 }
 
-                DefaultErrorHandler.handle(error);
+                handleError(error);
                 setState((prev) =>
                     prev.open
                         ? {
@@ -636,8 +635,8 @@ export function HtmlAreaMacroDialogProvider({ children, openRef }: HtmlAreaMacro
                     if (sessionIdRef.current !== requestSessionId) {
                         return;
                     }
-                    DefaultErrorHandler.handle(error);
-                    showError(i18n('dialog.macro.error'));
+                    handleError(error);
+                    notifyError(i18n('dialog.macro.error'));
                     setState((prev) => (prev.open ? { ...prev, configLoading: false } : prev));
                 },
             );

@@ -1,5 +1,4 @@
-import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import { showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { handleError, notifyInfo } from '../../../shared/notifications';
 import { i18n } from '../../../shared/i18n';
 import type { Content } from '../../../../app/content/Content';
 import type { ContentId } from '../../../../app/content/ContentId';
@@ -59,7 +58,7 @@ async function fetchAndApply(contentId: ContentId): Promise<void> {
     if (token !== pendingFetchToken) return;
 
     if (result.isErr()) {
-        DefaultErrorHandler.handle(result.error);
+        handleError(result.error);
         return;
     }
 
@@ -73,7 +72,7 @@ async function fetchAndApply(contentId: ContentId): Promise<void> {
     }
 
     applyContentToStores(content);
-    showFeedback(i18n('notify.wizard.serverUpdate'));
+    notifyInfo(i18n('notify.wizard.serverUpdate'));
     lastKnownModifiedTimeMs = fetchedMs;
 }
 

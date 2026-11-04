@@ -1,4 +1,4 @@
-import { showError, showSuccess } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyError, notifySuccess } from '../../../shared/notifications';
 import type { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
 import { computed, map } from 'nanostores';
 import { i18n } from '../../../shared/i18n';
@@ -234,9 +234,9 @@ export const executeDeleteDialogAction = async (): Promise<boolean> => {
                             total > 1
                                 ? i18n('dialog.archive.success.multiple', total)
                                 : i18n('dialog.archive.success.single', pendingPrimaryName ?? '');
-                        showSuccess(successMessage);
+                        notifySuccess(successMessage);
                     } else {
-                        showError(message);
+                        notifyError(message);
                     }
                     resetDeleteDialogContext();
                 },
@@ -245,7 +245,7 @@ export const executeDeleteDialogAction = async (): Promise<boolean> => {
             return true;
         },
         (error) => {
-            showError(error.message);
+            notifyError(error.message);
             $deleteDialog.set({
                 ...$deleteDialog.get(),
                 submitting: false,

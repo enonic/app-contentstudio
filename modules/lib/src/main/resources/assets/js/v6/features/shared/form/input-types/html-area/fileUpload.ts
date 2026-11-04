@@ -1,7 +1,6 @@
 /*global CKEDITOR*/
 
-import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import { NotifyManager } from '@enonic/lib-admin-ui/notify/NotifyManager';
+import { handleError, notifyWarning } from '../../../../../shared/notifications';
 import { i18n } from '../../../../../shared/i18n';
 import { StringHelper } from '@enonic/lib-admin-ui/util/StringHelper';
 import { ContentPath } from '../../../../../../app/content/ContentPath';
@@ -60,7 +59,7 @@ export function setupFileUpload(
 
         void contentExistsByPath(contentPathAsString, project.getName()).match((exists) => {
             if (exists) {
-                NotifyManager.get().showWarning(i18n('notify.fileExists', fileLoader.fileName));
+                notifyWarning(i18n('notify.fileExists', fileLoader.fileName));
                 evt.editor.document.findOne('.cke_widget_uploadimage')?.remove();
             } else {
                 const formData = new FormData();
@@ -73,7 +72,7 @@ export function setupFileUpload(
 
                 fileLoader.xhr.send(formData);
             }
-        }, DefaultErrorHandler.handle);
+        }, handleError);
 
         evt.stop();
     });

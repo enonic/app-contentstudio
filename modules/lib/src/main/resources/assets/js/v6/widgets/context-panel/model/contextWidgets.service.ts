@@ -1,7 +1,7 @@
 import { ApplicationEvent, ApplicationEventType } from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import { AuthHelper } from '@enonic/lib-admin-ui/auth/AuthHelper';
 import type { Extension } from '@enonic/lib-admin-ui/extension/Extension';
-import { showError } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyError } from '../../../shared/notifications';
 import { FolderInput, History, Link, List, SquareChartGantt } from 'lucide-react';
 import { fetchExtensions } from '../../../entities/extension';
 import { $isWizard } from '../../../shared/app-state/app.store';
@@ -124,7 +124,7 @@ async function loadCustomWidgets(): Promise<void> {
 
     result.match(
         (extensions) => extensions.forEach((extension) => addContextWidget(toContextWidget(extension))),
-        (error) => showError(error.message || i18n('notify.widget.error')),
+        (error) => notifyError(error.message || i18n('notify.widget.error')),
     );
 }
 

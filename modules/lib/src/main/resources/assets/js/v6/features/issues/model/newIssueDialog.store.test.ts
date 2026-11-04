@@ -71,10 +71,10 @@ vi.mock('../../../entities/issue/api/issues.api', () => ({
     createIssue: mockCreateIssue,
 }));
 
-vi.mock('@enonic/lib-admin-ui/notify/MessageBus', () => ({
-    showError: mockShowError,
-    showSuccess: mockShowSuccess,
-    showWarning: mockShowWarning,
+vi.mock('../../../shared/notifications', () => ({
+    notifyError: mockShowError,
+    notifySuccess: mockShowSuccess,
+    notifyWarning: mockShowWarning,
 }));
 
 vi.mock('../../../shared/i18n', () => ({

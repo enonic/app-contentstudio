@@ -1,4 +1,4 @@
-import { showError, showFeedback, showSuccess, showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyError, notifyInfo, notifySuccess, notifyWarning } from '../../../shared/notifications';
 import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
 import { atom, computed, map } from 'nanostores';
 import { i18n } from '../../../shared/i18n';
@@ -548,21 +548,21 @@ export const submitRequestPublishDialog = async (): Promise<void> => {
 
         if (result.isErr()) {
             console.error(result.error);
-            showError(result.error.message);
+            notifyError(result.error.message);
             return;
         }
 
         const issue = result.value;
 
-        showSuccess(i18n('notify.publishRequest.created'));
+        notifySuccess(i18n('notify.publishRequest.created'));
         if (approvers.length > issue.getApprovers().length) {
-            showWarning(i18n('notify.issue.assignees.norights'));
+            notifyWarning(i18n('notify.issue.assignees.norights'));
         }
 
         resetRequestPublishDialogContext();
     } catch (error) {
         console.error(error);
-        showError(error?.message ?? String(error));
+        notifyError(error?.message ?? String(error));
     } finally {
         $requestPublishDialog.setKey('submitting', false);
 
@@ -612,7 +612,7 @@ const reloadRequestPublishDependencies = async (): Promise<void> => {
         if (resolution.isErr()) {
             console.error(resolution.error);
             $requestPublishDialog.set({ ...$requestPublishDialog.get(), loading: false, failed: true });
-            showError(resolution.error.message);
+            notifyError(resolution.error.message);
             return;
         }
 
@@ -691,7 +691,7 @@ const reloadRequestPublishDependencies = async (): Promise<void> => {
             loading: false,
             failed: true,
         });
-        showError(error?.message ?? String(error));
+        notifyError(error?.message ?? String(error));
     }
 };
 
@@ -704,11 +704,11 @@ const markIdsReady = async (ids: ContentId[]): Promise<ContentId[]> => {
                 count > 1
                     ? i18n('notify.item.markedAsReady.multiple', count)
                     : i18n('notify.item.markedAsReady', ids[0].toString());
-            showFeedback(message);
+            notifyInfo(message);
             return ids;
         },
         () => {
-            showError(i18n('notify.item.markedAsReady.error', ids.length));
+            notifyError(i18n('notify.item.markedAsReady.error', ids.length));
             return [];
         },
     );

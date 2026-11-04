@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { listenKeys } from 'nanostores';
-import { showError, showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyError, notifyInfo } from '../../../../../shared/notifications';
 import {
     updateImageMedia,
     type UpdateImageMediaSuccess,
@@ -95,13 +95,13 @@ export const useImageUploader = ({
                     const content = success.content;
                     const attachmentName = content.getAttachments().getAttachment(0)?.getName()?.toString() ?? '';
                     onChange(attachmentName);
-                    showFeedback(i18n('notify.upload.success', content.getDisplayName()));
+                    notifyInfo(i18n('notify.upload.success', content.getDisplayName()));
                 },
                 (error: UploadError) => {
                     failUpload(error.mediaIdentifier, error.message);
                     removeUpload(error.mediaIdentifier);
                     setUploadId(undefined);
-                    showError(i18n('notify.upload.error', file.name, error.message));
+                    notifyError(i18n('notify.upload.error', file.name, error.message));
                 },
             );
         },

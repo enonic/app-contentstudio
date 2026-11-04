@@ -1,5 +1,5 @@
 import { Button, Checkbox, IconButton, Input, RadioGroup } from '@enonic/ui';
-import { showError } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyError } from '../../../../shared/notifications';
 import { UploadIcon, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 import { fetchNearestSite } from '../../../../entities/content';
@@ -106,7 +106,7 @@ export const ContentTabPanel = (): ReactElement => {
     );
 
     const onUploadError = useCallback((error: UploadError) => {
-        showError(useI18n('notify.upload.error', error.mediaIdentifier, error.message));
+        notifyError(useI18n('notify.upload.error', error.mediaIdentifier, error.message));
     }, []);
 
     const { handleInputChange } = useUploadMedia({

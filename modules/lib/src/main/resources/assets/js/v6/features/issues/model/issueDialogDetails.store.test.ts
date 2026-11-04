@@ -98,9 +98,9 @@ vi.mock('../../../entities/issue/api/issuesStats.api', () => ({
     fetchIssueStats: () => okAsync({}),
 }));
 
-vi.mock('@enonic/lib-admin-ui/notify/MessageBus', () => ({
-    showError: mockShowError,
-    showFeedback: mockShowFeedback,
+vi.mock('../../../shared/notifications', () => ({
+    notifyError: mockShowError,
+    notifyInfo: mockShowFeedback,
 }));
 
 vi.mock('../../../shared/i18n', () => ({

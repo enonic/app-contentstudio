@@ -18,8 +18,8 @@ const sync = vi.hoisted(() => ({
     syncProjects: vi.fn<() => unknown>(),
     trackTask: vi.fn<TaskTracker>(),
     cleanupTask: vi.fn(),
-    showFeedback: vi.fn(),
-    showWarning: vi.fn(),
+    notifyInfo: vi.fn(),
+    notifyWarning: vi.fn(),
 }));
 const config = vi.hoisted(() => ({ isMultiInheritance: false }));
 
@@ -27,9 +27,9 @@ vi.mock('@enonic/lib-admin-ui/auth/AuthHelper', () => ({
     AuthHelper: { isContentAdmin: () => auth.isContentAdmin, isAdmin: () => auth.isAdmin },
 }));
 
-vi.mock('@enonic/lib-admin-ui/notify/MessageBus', () => ({
-    showFeedback: sync.showFeedback,
-    showWarning: sync.showWarning,
+vi.mock('../../../shared/notifications', () => ({
+    notifyInfo: sync.notifyInfo,
+    notifyWarning: sync.notifyWarning,
 }));
 
 vi.mock('../../../../app/settings/data/project/ProjectConfigContext', () => ({
@@ -250,12 +250,12 @@ describe('syncLayers', () => {
 
         syncLayers();
 
-        expect(sync.showFeedback).toHaveBeenCalledTimes(1);
+        expect(sync.notifyInfo).toHaveBeenCalledTimes(1);
         expect($settingsActions.get().sync.enabled).toBe(false);
 
         complete?.('SUCCESS', '');
 
-        expect(sync.showFeedback).toHaveBeenCalledTimes(2);
+        expect(sync.notifyInfo).toHaveBeenCalledTimes(2);
         expect(sync.cleanupTask).toHaveBeenCalledWith('task-1');
         expect($settingsActions.get().sync.enabled).toBe(true);
     });
@@ -271,7 +271,7 @@ describe('syncLayers', () => {
 
         syncLayers();
 
-        expect(sync.showWarning).toHaveBeenCalledTimes(1);
+        expect(sync.notifyWarning).toHaveBeenCalledTimes(1);
         expect($settingsActions.get().sync.enabled).toBe(true);
     });
 });

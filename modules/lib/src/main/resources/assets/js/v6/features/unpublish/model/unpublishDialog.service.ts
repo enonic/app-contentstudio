@@ -1,4 +1,4 @@
-import { showError } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyError } from '../../../shared/notifications';
 import { type ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { fetchContentSummaries } from '../../../entities/content';
@@ -87,7 +87,7 @@ const reloadUnpublishDialogData = async (): Promise<void> => {
             return;
         }
         $unpublishDialog.setKey('failed', true);
-        showError(error?.message ?? String(error));
+        notifyError(error?.message ?? String(error));
     } finally {
         if (currentInstance === $unpublishDialog.get().instance) {
             $unpublishDialog.setKey('loading', false);
@@ -111,7 +111,7 @@ const resolveDependantsAndInbound = async (
 
     if (result.isErr()) {
         $unpublishDialog.setKey('failed', true);
-        showError(result.error.message);
+        notifyError(result.error.message);
         return undefined;
     }
 

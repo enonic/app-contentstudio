@@ -1,5 +1,5 @@
 import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
-import { showError, showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyError, notifyInfo } from '../../../shared/notifications';
 import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
 import { atom, computed, map } from 'nanostores';
 import { i18n } from '../../../shared/i18n';
@@ -352,7 +352,7 @@ export const loadIssueDialogItems = async (issue?: Issue, options: IssueDialogIt
                 itemsLoading: false,
                 itemsError: true,
             });
-            showError(resolution.error.message);
+            notifyError(resolution.error.message);
             return;
         }
 
@@ -417,7 +417,7 @@ export const loadIssueDialogItems = async (issue?: Issue, options: IssueDialogIt
             itemsLoading: false,
             itemsError: true,
         });
-        showError(error?.message ?? String(error));
+        notifyError(error?.message ?? String(error));
     }
 };
 
@@ -574,7 +574,7 @@ export const submitIssueDialogComment = async (): Promise<boolean> => {
         const errorMessage = result.error.message;
         const fallbackMessage =
             errorMessage && errorMessage !== baseMessage ? `${baseMessage} ${errorMessage}` : baseMessage;
-        showError(fallbackMessage);
+        notifyError(fallbackMessage);
         return false;
     }
 
@@ -589,7 +589,7 @@ export const submitIssueDialogComment = async (): Promise<boolean> => {
         commentText: '',
         commentSubmitting: false,
     });
-    showFeedback(i18n(getCommentMessageKey(issueType)));
+    notifyInfo(i18n(getCommentMessageKey(issueType)));
     return true;
 };
 
@@ -614,7 +614,7 @@ export const updateIssueDialogComment = async (commentId: string, text: string):
 
     if (result.isErr()) {
         console.error(result.error);
-        showError(result.error.message);
+        notifyError(result.error.message);
         return false;
     }
 
@@ -634,7 +634,7 @@ export const updateIssueDialogComment = async (commentId: string, text: string):
             return updatedComment;
         }),
     });
-    showFeedback(i18n(getCommentUpdatedMessageKey(issueType)));
+    notifyInfo(i18n(getCommentUpdatedMessageKey(issueType)));
     return true;
 };
 
@@ -653,7 +653,7 @@ export const deleteIssueDialogComment = async (commentId: string): Promise<boole
 
     if (result.isErr()) {
         console.error(result.error);
-        showError(result.error.message);
+        notifyError(result.error.message);
         return false;
     }
 
@@ -668,7 +668,7 @@ export const deleteIssueDialogComment = async (commentId: string): Promise<boole
         ...latestState,
         comments: latestState.comments.filter((comment) => comment.getId() !== commentId),
     });
-    showFeedback(i18n(getCommentDeletedMessageKey(issueType)));
+    notifyInfo(i18n(getCommentDeletedMessageKey(issueType)));
     return true;
 };
 
@@ -705,7 +705,7 @@ const updateIssueDialogStatusNow = async (nextStatus: IssueStatus): Promise<bool
     if (result.isErr()) {
         console.error(result.error);
         $issueDialogDetails.setKey('statusUpdating', false);
-        showError(result.error.message);
+        notifyError(result.error.message);
         return false;
     }
 
@@ -714,7 +714,7 @@ const updateIssueDialogStatusNow = async (nextStatus: IssueStatus): Promise<bool
     applyUpdatedIssue(updatedIssue, dialogState, issueWithAssignees, { statusUpdating: false });
 
     void loadIssueDialogList();
-    showFeedback(i18n(getStatusMessageKey(updatedIssue.getType(), nextStatus)));
+    notifyInfo(i18n(getStatusMessageKey(updatedIssue.getType(), nextStatus)));
     return true;
 };
 
@@ -754,7 +754,7 @@ const updateIssueDialogTitleNow = async (nextTitle: string): Promise<void> => {
     if (result.isErr()) {
         console.error(result.error);
         $issueDialogDetails.setKey('titleUpdating', false);
-        showError(result.error.message);
+        notifyError(result.error.message);
         return;
     }
 
@@ -763,7 +763,7 @@ const updateIssueDialogTitleNow = async (nextTitle: string): Promise<void> => {
     applyUpdatedIssue(updatedIssue, dialogState, issueWithAssignees, { titleUpdating: false });
 
     const prefix = updatedIssue.getType() === IssueType.PUBLISH_REQUEST ? 'notify.publishRequest.' : 'notify.issue.';
-    showFeedback(i18n(`${prefix}updated`));
+    notifyInfo(i18n(`${prefix}updated`));
     void loadIssueDialogList();
 };
 
@@ -806,7 +806,7 @@ const updateIssueDialogAssigneesNow = async (nextAssigneeIds: readonly string[])
     if (updateResult.isErr()) {
         console.error(updateResult.error);
         $issueDialogDetails.setKey('assigneesUpdating', false);
-        showError(updateResult.error.message);
+        notifyError(updateResult.error.message);
         return;
     }
 
@@ -833,7 +833,7 @@ const updateIssueDialogAssigneesNow = async (nextAssigneeIds: readonly string[])
     applyUpdatedIssue(updatedIssue, dialogState, issueWithAssignees, { assigneesUpdating: false }, assignees);
 
     const prefix = updatedIssue.getType() === IssueType.PUBLISH_REQUEST ? 'notify.publishRequest.' : 'notify.issue.';
-    showFeedback(i18n(`${prefix}updated`));
+    notifyInfo(i18n(`${prefix}updated`));
     void loadIssueDialogList();
 };
 
@@ -871,7 +871,7 @@ const updateIssueDialogScheduleNow = async (
     if (result.isErr()) {
         console.error(result.error);
         $issueDialogDetails.setKey('scheduleUpdating', false);
-        showError(result.error.message);
+        notifyError(result.error.message);
         return;
     }
 
@@ -880,7 +880,7 @@ const updateIssueDialogScheduleNow = async (
 
     void loadIssueDialogList();
     const prefix = updatedIssue.getType() === IssueType.PUBLISH_REQUEST ? 'notify.publishRequest.' : 'notify.issue.';
-    showFeedback(i18n(`${prefix}updated`));
+    notifyInfo(i18n(`${prefix}updated`));
 };
 
 export const updateIssueDialogItems = (nextItemIds: ContentId[]): Promise<void> =>
@@ -1406,7 +1406,7 @@ const updateIssueWithPublishRequest = async ({
         console.error(result.error);
         onFailure?.();
         $issueDialogDetails.setKey('itemsUpdating', false);
-        showError(result.error.message);
+        notifyError(result.error.message);
         await flushQueuedIssueDialogItemsReload(issueId);
         return false;
     }
@@ -1426,7 +1426,7 @@ const updateIssueWithPublishRequest = async ({
     await flushQueuedIssueDialogItemsReload(issueId);
 
     const prefix = updatedIssue.getType() === IssueType.PUBLISH_REQUEST ? 'notify.publishRequest.' : 'notify.issue.';
-    showFeedback(i18n(`${prefix}updated`));
+    notifyInfo(i18n(`${prefix}updated`));
     void loadIssueDialogList();
 
     return true;

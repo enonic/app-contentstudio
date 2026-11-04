@@ -1,4 +1,4 @@
-import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { handleError } from '../../../../shared/notifications';
 import type { ReactNode } from 'react';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { i18n } from '../../../../shared/i18n';
@@ -436,7 +436,7 @@ export function HtmlAreaImageDialogProvider({ children, openRef }: HtmlAreaImage
                 setState((prev) => mergeFetchedImageContent(prev, imageId, content, mode));
             },
             (error) => {
-                DefaultErrorHandler.handle(error);
+                handleError(error);
             },
         );
     }, []);
