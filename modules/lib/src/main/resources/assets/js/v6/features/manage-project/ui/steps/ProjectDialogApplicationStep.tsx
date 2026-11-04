@@ -1,3 +1,4 @@
+import { type Application } from '@enonic/lib-admin-ui/application/Application';
 import { Dialog, IconButton, ListItem } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { Pencil, X } from 'lucide-react';
@@ -16,10 +17,6 @@ import { ItemLabel } from '../../../../shared/ui/ItemLabel';
 import { ApplicationIcon } from '../../../../shared/ui/icons/ApplicationIcon';
 import { ApplicationSelector } from '../../../shared/selectors/ApplicationSelector';
 import { SortableGridList } from '@enonic/input-types';
-
-const subscribeToApplications = (onChange: () => void): (() => void) =>
-    listenKeys($projectDialog, ['applications'], onChange);
-const getApplications = () => $projectDialog.get().applications;
 
 export const ProjectDialogApplicationStepHeader = (): ReactElement => {
     const { mode, title } = useStore($projectDialog, { keys: ['mode', 'title'] });
@@ -49,6 +46,7 @@ export const ProjectDialogApplicationStepContent = ({
     applicationInputRef,
 }: ProjectDialogApplicationStepContentProps): ReactElement => {
     // Hooks
+    const { mode } = useStore($projectDialog, { keys: ['mode'] });
     const applications = useSyncExternalStore(subscribeToApplications, getApplications);
     const inheritedKeys = useStore($projectDialogInheritedAppKeys);
     const selection = useMemo(() => applications.map((app) => app.getApplicationKey().toString()), [applications]);
@@ -60,6 +58,9 @@ export const ProjectDialogApplicationStepContent = ({
     const reorderLabel = useI18n('field.occurrence.action.reorder');
     const editLabel = useI18n('action.edit');
     const removeLabel = useI18n('action.remove');
+    const configsDisabledText = useI18n('dialog.project.wizard.application.configsDisabled');
+    const isCreating = mode === 'create';
+    const hasConfigurableApp = applications.some(hasForm);
 
     return (
         <Dialog.StepContent step="step-application" locked={locked}>
@@ -85,7 +86,6 @@ export const ProjectDialogApplicationStepContent = ({
                     className="flex flex-col gap-y-2.5 rounded-md mb-2.5 py-2.5 px-1"
                     renderItem={({ item: application }) => {
                         const key = application.getApplicationKey().toString();
-                        const hasForm = application.getForm()?.getFormItems().length > 0;
 
                         return (
                             <ListItem className="pl-0 py-0 flex-1 bg-unset">
@@ -96,11 +96,12 @@ export const ProjectDialogApplicationStepContent = ({
                                         secondary={application.getDescription()}
                                         className="flex-1 self-stretch"
                                     />
-                                    {hasForm && (
+                                    {hasForm(application) && (
                                         <IconButton
                                             variant="text"
                                             icon={Pencil}
                                             aria-label={editLabel}
+                                            disabled={isCreating}
                                             onClick={() => openProjectDialogApplicationConfig(key)}
                                         />
                                     )}
@@ -118,8 +119,25 @@ export const ProjectDialogApplicationStepContent = ({
                     }}
                 />
             )}
+            {isCreating && hasConfigurableApp && (
+                <p className="py-2 text-sm text-subtle italic">{configsDisabledText}</p>
+            )}
         </Dialog.StepContent>
     );
 };
 
 ProjectDialogApplicationStepContent.displayName = 'ProjectDialogApplicationStepContent';
+
+//
+// * Internal
+//
+
+// Subscribes to the listed apps only, so the other keys of the store leave the step alone.
+const subscribeToApplications = (onChange: () => void): (() => void) =>
+    listenKeys($projectDialog, ['applications'], onChange);
+
+// The listed apps, read on every notification.
+const getApplications = () => $projectDialog.get().applications;
+
+// Whether the app has a config form worth a pencil.
+const hasForm = (application: Application): boolean => application.getForm()?.getFormItems().length > 0;

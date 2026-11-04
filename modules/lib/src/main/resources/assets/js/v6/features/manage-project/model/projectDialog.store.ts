@@ -452,9 +452,14 @@ export const getProjectDialogApplicationConfig = (applicationKey: string): Prope
     return application && resolveApplicationConfig(application, applicationConfigs, parentProjects);
 };
 
-/** Opens the `config` view on a clone of the app's resolved config; the store gets it back on apply. */
+/**
+ * Opens the `config` view on a clone of the app's resolved config; the store gets it back on apply.
+ * A no-op while creating: configs are editable once the project exists, and the step says so.
+ */
 export const openProjectDialogApplicationConfig = (applicationKey: string): void => {
-    const { applications, applicationConfigs, parentProjects } = $projectDialog.get();
+    const { mode, applications, applicationConfigs, parentProjects } = $projectDialog.get();
+    if (mode === 'create') return;
+
     const application = applications.find((app) => keyOf(app) === applicationKey);
     if (!application) return;
 

@@ -493,9 +493,19 @@ describe('projectDialog.store application configs', () => {
         });
 
         it('should ignore an app that is not listed', async () => {
-            await openCreateProjectDialog([]);
+            await openEditProjectDialog(createProject('layer', []), []);
 
             openProjectDialogApplicationConfig('app:b');
+
+            expect(view()).toBe('main');
+            expect(editing()).toBeUndefined();
+        });
+
+        it('should not open the config view while creating', async () => {
+            await openCreateProjectDialog([]);
+            selectProjectDialogApplications(['app:a']);
+
+            openProjectDialogApplicationConfig('app:a');
 
             expect(view()).toBe('main');
             expect(editing()).toBeUndefined();
