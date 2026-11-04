@@ -6,8 +6,10 @@ import { start as startUnpublishDialogService } from './unpublishDialog.service'
 import {
     $hasMoreUnpublishDependants,
     $unpublishDialog,
+    $unpublishInboundCount,
     $unpublishInboundIds,
     $unpublishItemsCount,
+    ignoreUnpublishInboundDependencies,
     loadMoreUnpublishDependants,
     openUnpublishDialog,
     resetUnpublishDialogContext,
@@ -157,5 +159,26 @@ describe('unpublishDialog.store', () => {
         await flushDebouncedReload();
 
         expect(mockResolveUnpublish).toHaveBeenCalledTimes(1);
+    });
+
+    it('counts inbound targets by id, including those beyond the loaded window', async () => {
+        const item = createMockContent('item-1');
+        const dependantIds = Array.from({ length: 40 }, (_, index) => `dep-${index}`);
+        const inbound = dependantIds.map((target) => ({ target, sources: ['ref-1'] }));
+
+        mockResolveUnpublish.mockResolvedValue(ok(createUnpublishResolveResult(['item-1', ...dependantIds], inbound)));
+        mockFetchContentSummaries.mockImplementation((ids: ContentId[]) =>
+            Promise.resolve(ids.map((id) => createMockContent(id.toString()))),
+        );
+
+        openUnpublishDialog([item]);
+        await flushInitialReload();
+
+        expect($unpublishDialog.get().dependants).toHaveLength(36);
+        expect($unpublishInboundCount.get()).toBe(40);
+
+        ignoreUnpublishInboundDependencies();
+
+        expect($unpublishInboundCount.get()).toBe(0);
     });
 });
