@@ -11,12 +11,11 @@ const json = {
     iconUrl: '/icon/demo',
     config: [
         {
-            Input: {
-                name: 'title',
-                inputType: 'TextLine',
-                label: 'Title',
-                occurrences: { minimum: 0, maximum: 1 },
-            },
+            formItemType: 'Input',
+            name: 'title',
+            inputType: 'TextLine',
+            label: 'Title',
+            occurrences: { minimum: 0, maximum: 1 },
         },
     ],
 } as unknown as ApplicationJson;
@@ -32,6 +31,7 @@ describe('parseApplication', () => {
         expect(application.state).toBe(legacy.getState());
         expect(application.state === 'stopped').toBe(legacy.isStopped());
         expect(application.iconUrl).toBe(legacy.getIconUrl());
+        expect(application.form?.getInputByName('title')?.getInputType().getName()).toBe('TextLine');
         expect(application.form?.toJson()).toEqual(legacy.getForm().toJson());
     });
 
