@@ -56,8 +56,6 @@ export const ProjectDialogApplicationStepContent = ({
     const typeToSearchLabel = useI18n('field.option.placeholder');
     const noApplicationsFoundLabel = useI18n('dialog.project.wizard.application.noApplicationsFound');
     const reorderLabel = useI18n('field.occurrence.action.reorder');
-    const editLabel = useI18n('action.edit');
-    const removeLabel = useI18n('action.remove');
     const configsDisabledText = useI18n('dialog.project.wizard.application.configsDisabled');
     const isCreating = mode === 'create';
     const hasConfigurableApp = applications.some(hasForm);
@@ -84,39 +82,13 @@ export const ProjectDialogApplicationStepContent = ({
                     fullRowDraggable
                     dragLabel={reorderLabel}
                     className="flex flex-col gap-y-2.5 rounded-md mb-2.5 py-2.5 px-1"
-                    renderItem={({ item: application }) => {
-                        const key = application.getApplicationKey().toString();
-
-                        return (
-                            <ListItem className="pl-0 py-0 flex-1 bg-unset">
-                                <ListItem.Content className="flex items-center gap-2.5 p-1.5 rounded cursor-move">
-                                    <ItemLabel
-                                        icon={<ApplicationIcon application={application} />}
-                                        primary={application.getDisplayName()}
-                                        secondary={application.getDescription()}
-                                        className="flex-1 self-stretch"
-                                    />
-                                    {hasForm(application) && (
-                                        <IconButton
-                                            variant="text"
-                                            icon={Pencil}
-                                            aria-label={editLabel}
-                                            disabled={isCreating}
-                                            onClick={() => openProjectDialogApplicationConfig(key)}
-                                        />
-                                    )}
-                                    {!inheritedKeys.has(key) && (
-                                        <IconButton
-                                            variant="text"
-                                            icon={X}
-                                            aria-label={removeLabel}
-                                            onClick={() => unselectProjectDialogApplication(key)}
-                                        />
-                                    )}
-                                </ListItem.Content>
-                            </ListItem>
-                        );
-                    }}
+                    renderItem={({ item: application }) => (
+                        <ProjectDialogApplicationRow
+                            application={application}
+                            inherited={inheritedKeys.has(application.getApplicationKey().toString())}
+                            editDisabled={isCreating}
+                        />
+                    )}
                 />
             )}
             {isCreating && hasConfigurableApp && (
@@ -127,6 +99,63 @@ export const ProjectDialogApplicationStepContent = ({
 };
 
 ProjectDialogApplicationStepContent.displayName = 'ProjectDialogApplicationStepContent';
+
+//
+// * ProjectDialogApplicationRow
+//
+
+type ProjectDialogApplicationRowProps = {
+    application: Application;
+    inherited: boolean;
+    editDisabled: boolean;
+};
+
+/** A listed app: name, description, pencil when it has a form, X unless inherited. A stand-in reads as unavailable. */
+const ProjectDialogApplicationRow = ({
+    application,
+    inherited,
+    editDisabled,
+}: ProjectDialogApplicationRowProps): ReactElement => {
+    const key = application.getApplicationKey().toString();
+
+    const editLabel = useI18n('action.edit');
+    const removeLabel = useI18n('action.remove');
+    const unavailableLabel = useI18n('text.application.not.available', key);
+
+    const description = application.getState() ? application.getDescription() : unavailableLabel;
+
+    return (
+        <ListItem className="pl-0 py-0 flex-1 bg-unset">
+            <ListItem.Content className="flex items-center gap-2.5 p-1.5 rounded">
+                <ItemLabel
+                    icon={<ApplicationIcon application={application} />}
+                    primary={application.getDisplayName()}
+                    secondary={description}
+                    className="flex-1 self-stretch"
+                />
+                {hasForm(application) && (
+                    <IconButton
+                        variant="text"
+                        icon={Pencil}
+                        aria-label={editLabel}
+                        disabled={editDisabled}
+                        onClick={() => openProjectDialogApplicationConfig(key)}
+                    />
+                )}
+                {!inherited && (
+                    <IconButton
+                        variant="text"
+                        icon={X}
+                        aria-label={removeLabel}
+                        onClick={() => unselectProjectDialogApplication(key)}
+                    />
+                )}
+            </ListItem.Content>
+        </ListItem>
+    );
+};
+
+ProjectDialogApplicationRow.displayName = 'ProjectDialogApplicationRow';
 
 //
 // * Internal

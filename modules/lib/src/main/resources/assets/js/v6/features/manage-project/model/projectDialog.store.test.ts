@@ -115,6 +115,7 @@ function createApp(key: string, form?: Form): Application {
         getForm: () => form,
         getDisplayName: () => key,
         getDescription: () => '',
+        getState: () => 'started',
     } as unknown as Application;
 }
 
@@ -229,12 +230,16 @@ describe('projectDialog.store application configs', () => {
             expect($isProjectDialogDirty.get()).toBe(false);
         });
 
-        it('should skip an inherited app that is not installed', async () => {
+        it('should list an inherited app that is not installed as unavailable, not removable', async () => {
             const parent = createProject('parent', [createSiteConfig('app:gone', { k: 'v' })]);
 
             await openEditProjectDialog(createProject('layer', []), [parent]);
 
-            expect(listedKeys()).toEqual([]);
+            expect(listedKeys()).toEqual(['app:gone']);
+            expect($projectDialog.get().applications[0].getState()).toBeUndefined();
+
+            unselectProjectDialogApplication('app:gone');
+            expect(listedKeys()).toEqual(['app:gone']);
         });
     });
 
@@ -589,7 +594,7 @@ describe('projectDialog.store application configs', () => {
         });
     });
 
-    describe('preserved configs', () => {
+    describe('unavailable apps and preserved configs', () => {
         const projectWithUnlisted = () =>
             createProject('layer', [
                 createSiteConfig('portal', { baseUrl: '/site' }),
@@ -597,18 +602,35 @@ describe('projectDialog.store application configs', () => {
                 createSiteConfig('app:gone', { k: 'v' }),
             ]);
 
-        it('should list only the installed apps and open clean', async () => {
+        it('should list the own apps, installed or not, preserve the portal and open clean', async () => {
             await openEditProjectDialog(projectWithUnlisted(), []);
 
-            expect(listedKeys()).toEqual(['app:b']);
+            expect(listedKeys()).toEqual(['app:b', 'app:gone']);
+            expect($projectDialog.get().applications[1].getState()).toBeUndefined();
             expect($projectDialog.get().preservedSiteConfigs.map((c) => c.getApplicationKey().toString())).toEqual([
                 'portal',
-                'app:gone',
             ]);
             expect($isProjectDialogDirty.get()).toBe(false);
         });
 
-        it('should send the portal and uninstalled configs back unchanged, around the listed apps', async () => {
+        it('should keep an unavailable app across a selection apply and drop it on remove', async () => {
+            mockUpdateProject.mockReturnValue(okAsync({}));
+            await openEditProjectDialog(projectWithUnlisted(), []);
+
+            selectProjectDialogApplications(['app:b', 'app:a']);
+            expect(listedKeys()).toEqual(['app:b', 'app:gone', 'app:a']);
+
+            unselectProjectDialogApplication('app:gone');
+            await updateProject();
+
+            expect(sentConfigs(mockUpdateProject).map((c) => c.getApplicationKey().toString())).toEqual([
+                'portal',
+                'app:b',
+                'app:a',
+            ]);
+        });
+
+        it('should send the portal first and the config of an unavailable app back unchanged', async () => {
             mockUpdateProject.mockReturnValue(okAsync({}));
             await openEditProjectDialog(projectWithUnlisted(), []);
 

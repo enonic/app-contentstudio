@@ -10,7 +10,7 @@ import { ProjectReadAccess } from '../../../../app/settings/data/project/Project
 import { type ProjectReadAccessType } from '../../../../app/settings/data/project/ProjectReadAccessType';
 import { ProjectItemPermissionsBuilder } from '../../../../app/settings/data/project/ProjectPermissions';
 import { type Principal } from '@enonic/lib-admin-ui/security/Principal';
-import { type Application } from '@enonic/lib-admin-ui/application/Application';
+import { type Application, ApplicationBuilder } from '@enonic/lib-admin-ui/application/Application';
 import { ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 import { PropertySet, PropertyTree } from '@enonic/input-types/data';
@@ -72,7 +72,7 @@ type ProjectDialogStore = {
      * without one resolves to the form defaults; a parent's config is never copied.
      */
     applicationConfigs: Record<string, PropertySet>;
-    /** The edited project's site configs step 2 does not list, portal and uninstalled apps; sent back as they are. */
+    /** The edited project's site configs step 2 does not list, the portal's; sent back as it is. */
     preservedSiteConfigs: ApplicationConfig[];
     /** The app whose config the `config` view edits, on a clone the store gets back on apply. */
     editingConfig?: EditingConfig;
@@ -264,8 +264,11 @@ export const openEditProjectDialog = async (project: Project, parentProjects: Pr
 
     await loadApplications();
 
-    // The project's own apps first, then the inherited ones it has no config for.
-    const ownKeys = project.getSiteConfigs().map((config) => config.getApplicationKey().toString());
+    // The project's own apps first, then the inherited ones it has no config for; the portal is no app.
+    const ownKeys = project
+        .getSiteConfigs()
+        .filter((config) => !isPortalConfig(config))
+        .map((config) => config.getApplicationKey().toString());
     const inheritedKeys = getInheritedAppKeys(parentProjects).filter((key) => !ownKeys.includes(key));
     const projectApplications = resolveApplications([...ownKeys, ...inheritedKeys]);
 
@@ -395,14 +398,19 @@ export const setProjectDialogRolePrincipals = (rolePrincipals: Principal[]): voi
     $projectDialog.setKey('rolePrincipals', rolePrincipals);
 };
 
-/** Applies a selection: new keys are appended in order, inherited apps stay even when left out. */
+/**
+ * Applies a selection: new keys are appended in order. Inherited apps stay even when left out,
+ * and so do unavailable ones, which the selector cannot list; the X removes those.
+ */
 export const selectProjectDialogApplications = (keys: readonly string[]): void => {
     const { applications, parentProjects } = $projectDialog.get();
     const inherited = new Set(getInheritedAppKeys(parentProjects));
     const selected = new Set(keys);
     const listed = new Set(applications.map(keyOf));
 
-    const kept = applications.filter((app) => selected.has(keyOf(app)) || inherited.has(keyOf(app)));
+    const kept = applications.filter(
+        (app) => selected.has(keyOf(app)) || inherited.has(keyOf(app)) || isUnavailable(app),
+    );
     const added = resolveApplications(keys.filter((key) => !listed.has(key)));
     if (kept.length === applications.length && added.length === 0) return;
 
@@ -774,16 +782,33 @@ const isPortalConfig = (config: ApplicationConfig): boolean => config.getApplica
 const haveSameNames = (a: readonly Readonly<Project>[], b: readonly Readonly<Project>[]): boolean =>
     a.length === b.length && a.every((project, i) => project.getName() === b[i].getName());
 
-/** The app keys the first parent carries a site config for; the other parents do not inherit. */
+/** The app keys the first parent carries a site config for, the portal left out; the other parents do not inherit. */
 function getInheritedAppKeys(parentProjects: readonly Readonly<Project>[]): string[] {
-    return (parentProjects[0]?.getSiteConfigs() ?? []).map((c) => c.getApplicationKey().toString());
+    return (parentProjects[0]?.getSiteConfigs() ?? [])
+        .filter((config) => !isPortalConfig(config))
+        .map((config) => config.getApplicationKey().toString());
 }
 
-/** The installed applications for the given keys, in order; keys of uninstalled apps are skipped. */
+/**
+ * The applications for the given keys, in order: the installed one, else a placeholder the step
+ * shows as unavailable, so a stopped or uninstalled app stays visible and removable, as in legacy.
+ */
 function resolveApplications(keys: readonly string[]): Application[] {
     const installed = $applications.get().applications;
-    return keys.map((key) => installed.find((app) => keyOf(app) === key)).filter(Boolean);
+    return keys.map((key) => installed.find((app) => keyOf(app) === key) ?? createUnavailableApplication(key));
 }
+
+/** A stand-in for an app this node does not run: the key as name, no form, no state. */
+function createUnavailableApplication(key: string): Application {
+    const builder = new ApplicationBuilder();
+    builder.applicationKey = ApplicationKey.fromString(key);
+    builder.id = key;
+    builder.displayName = key;
+    return builder.build();
+}
+
+/** Whether the app is a stand-in, see `createUnavailableApplication`. */
+const isUnavailable = (application: Application): boolean => application.getState() == null;
 
 /** Clones the project's site configs by app key. */
 function collectSiteConfigs(project: Readonly<Project>): Record<string, PropertySet> {
