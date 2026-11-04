@@ -46,6 +46,14 @@ const orderDependantIdsByInbound = (ids: ContentId[], inboundTargets: ContentId[
     return [...inbound, ...rest];
 };
 
+// The first window grows to cover every inbound dependant (they lead the ordered list),
+// so all blocking items are visible at once; the rest still loads lazily by window.
+const getInitialDependantWindow = (orderedIds: ContentId[], inboundTargets: ContentId[]): number => {
+    const inboundSet = new Set(inboundTargets.map((id) => id.toString()));
+    const inboundCount = orderedIds.filter((id) => inboundSet.has(id.toString())).length;
+    return Math.min(Math.max(DEPENDANT_LOAD_SIZE, inboundCount), orderedIds.length);
+};
+
 const reloadUnpublishDialogData = async (): Promise<void> => {
     const currentInstance = $unpublishDialog.get().instance + 1;
     $unpublishDialog.setKey('instance', currentInstance);
@@ -66,8 +74,8 @@ const reloadUnpublishDialogData = async (): Promise<void> => {
         const { dependantIds: resolvedDependantIds, inboundTargets, referenceIds } = resolved;
 
         const dependantIds = orderDependantIdsByInbound(resolvedDependantIds, inboundTargets);
-        const dependants =
-            dependantIds.length > 0 ? await fetchContentSummaries(dependantIds.slice(0, DEPENDANT_LOAD_SIZE)) : [];
+        const initialWindow = getInitialDependantWindow(dependantIds, inboundTargets);
+        const dependants = initialWindow > 0 ? await fetchContentSummaries(dependantIds.slice(0, initialWindow)) : [];
 
         if (currentInstance !== $unpublishDialog.get().instance) return;
 
@@ -75,7 +83,7 @@ const reloadUnpublishDialogData = async (): Promise<void> => {
             ...$unpublishDialog.get(),
             dependantIds,
             dependants: orderSummariesByIds(dependants, dependantIds),
-            dependantWindow: Math.min(DEPENDANT_LOAD_SIZE, dependantIds.length),
+            dependantWindow: initialWindow,
             inboundTargets,
             inboundIgnored: inboundTargets.length === 0,
             referenceIds,

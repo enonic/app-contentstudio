@@ -173,7 +173,7 @@ describe('deleteDialog.store', () => {
         expect($deleteItemsCount.get()).toBe(41);
     });
 
-    it('counts inbound targets by id, including those beyond the loaded window', async () => {
+    it('loads every inbound dependant in the first window and counts them by id', async () => {
         const item = createMockContent('item-1');
         const dependantIds = Array.from({ length: 40 }, (_, index) => `dep-${index}`);
         const inbound = dependantIds.map((target) => ({ target, sources: ['ref-1'] }));
@@ -186,11 +186,33 @@ describe('deleteDialog.store', () => {
         openDeleteDialog([item]);
         await flushInitialReload();
 
-        expect($deleteDialog.get().dependants).toHaveLength(36);
+        // The first window grows to cover all inbound dependants (40 > 36).
+        expect($deleteDialog.get().dependants).toHaveLength(40);
+        expect($hasMoreDeleteDependants.get()).toBe(false);
         expect($deleteInboundCount.get()).toBe(40);
 
         ignoreDeleteInboundDependencies();
 
         expect($deleteInboundCount.get()).toBe(0);
+    });
+
+    it('keeps the default first window when inbound dependants fit in it', async () => {
+        const item = createMockContent('item-1');
+        const dependantIds = Array.from({ length: 40 }, (_, index) => `dep-${index}`);
+
+        mockResolveForDelete.mockResolvedValue(
+            ok(createDeleteResolveResult(['item-1', ...dependantIds], [{ target: 'dep-39', sources: ['ref-1'] }])),
+        );
+        mockFetchContentSummaries.mockImplementation((ids: ContentId[]) =>
+            Promise.resolve(ids.map((id) => createMockContent(id.toString()))),
+        );
+
+        openDeleteDialog([item]);
+        await flushInitialReload();
+
+        expect($deleteDialog.get().dependants).toHaveLength(36);
+        expect($deleteDialog.get().dependants[0]?.getContentId().toString()).toBe('dep-39');
+        expect($hasMoreDeleteDependants.get()).toBe(true);
+        expect($deleteInboundCount.get()).toBe(1);
     });
 });
