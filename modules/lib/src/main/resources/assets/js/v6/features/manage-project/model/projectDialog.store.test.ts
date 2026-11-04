@@ -172,21 +172,21 @@ describe('projectDialog.store application configs', () => {
             expect($isProjectDialogDirty.get()).toBe(false);
         });
 
-        it('should resolve the own config over the parent one, and the parent one when there is no own', async () => {
+        it('should resolve the own config, and the form defaults for an inherited app, never the parent one', async () => {
             const parent = createProject('parent', [
+                createSiteConfig('app:a', { agree: 'no' }),
                 createSiteConfig('app:b', { color: 'blue' }),
-                createSiteConfig('app:c', { size: 'large' }),
             ]);
             const layer = createProject('layer', [createSiteConfig('app:b', { color: 'red' })]);
 
             await openEditProjectDialog(layer, [parent]);
 
             expect(configOf('app:b')?.getString('color')).toBe('red');
-            expect(configOf('app:c')?.getString('size')).toBe('large');
-            expect(ownConfigOf('app:c')).toBeUndefined();
+            expect(configOf('app:a')?.getPropertyArray('agree')?.get(0)?.getValue().getBoolean()).toBe(true);
+            expect(ownConfigOf('app:a')).toBeUndefined();
         });
 
-        it('should mark an edited inherited config dirty and a restored one clean', async () => {
+        it('should mark an edited inherited config dirty and one back at the defaults clean', async () => {
             const parent = createProject('parent', [createSiteConfig('app:b', { color: 'blue' })]);
             await openEditProjectDialog(createProject('layer', []), [parent]);
 
@@ -195,9 +195,7 @@ describe('projectDialog.store application configs', () => {
             setProjectDialogApplicationConfig('app:b', edited);
             expect($isProjectDialogDirty.get()).toBe(true);
 
-            const restored = new PropertyTree().getRoot();
-            restored.setString('color', 0, 'blue');
-            setProjectDialogApplicationConfig('app:b', restored);
+            setProjectDialogApplicationConfig('app:b', new PropertyTree().getRoot());
             expect($isProjectDialogDirty.get()).toBe(false);
         });
 
@@ -286,12 +284,12 @@ describe('projectDialog.store application configs', () => {
             expect(listedKeys()).toEqual(['app:a']);
         });
 
-        it('should take the parent config for a newly inherited app', async () => {
+        it('should give a newly inherited app the form defaults, not the parent config', async () => {
             await openCreateProjectDialog([]);
 
             setProjectDialogParentProjects([createProject('parent', [createSiteConfig('app:b', { color: 'blue' })])]);
 
-            expect(configOf('app:b')?.getString('color')).toBe('blue');
+            expect(configOf('app:b')?.toJson()).toEqual([]);
         });
 
         it('should ignore the same parents set again', async () => {
@@ -308,24 +306,24 @@ describe('projectDialog.store application configs', () => {
     });
 
     describe('openCreateProjectDialog', () => {
-        it('should resolve an inherited config from the parent and keep no own one', async () => {
+        it('should list an inherited app at the form defaults and keep no own config', async () => {
             const parent = createProject('parent', [createSiteConfig('app:b', { color: 'blue' })]);
 
             await openCreateProjectDialog([parent]);
 
-            expect(configOf('app:b')?.getString('color')).toBe('blue');
+            expect(configOf('app:b')?.toJson()).toEqual([]);
             expect(ownConfigOf('app:b')).toBeUndefined();
         });
 
-        it('should resolve to the first parent and follow a reorder', async () => {
+        it('should list the first parent apps and follow a reorder', async () => {
             const p1 = createProject('p1', [createSiteConfig('app:a', { color: 'red' })]);
-            const p2 = createProject('p2', [createSiteConfig('app:a', { color: 'blue' })]);
+            const p2 = createProject('p2', [createSiteConfig('app:b', { color: 'blue' })]);
 
             await openCreateProjectDialog([p1, p2]);
-            expect(configOf('app:a')?.getString('color')).toBe('red');
+            expect(listedKeys()).toEqual(['app:a']);
 
             setProjectDialogParentProjects([p2, p1]);
-            expect(configOf('app:a')?.getString('color')).toBe('blue');
+            expect(listedKeys()).toEqual(['app:b']);
         });
 
         it('should not inherit an app only the second parent carries', async () => {
@@ -338,21 +336,19 @@ describe('projectDialog.store application configs', () => {
             expect(configOf('app:b')).toBeUndefined();
         });
 
-        it('should send the new parent config after a parent switch', async () => {
+        it('should send the form defaults for an inherited app, whichever parent it came from', async () => {
             mockCreateProject.mockReturnValue(okAsync(createProject('layer', [])));
             mockUpdateProjectPermissions.mockReturnValue(okAsync({}));
-            const p1 = createProject('p1', [createSiteConfig('app:a', { color: 'red' })]);
-            const p2 = createProject('p2', [createSiteConfig('app:a', { color: 'blue' })]);
+            const p1 = createProject('p1', [createSiteConfig('app:a', { agree: 'no' })]);
+            const p2 = createProject('p2', [createSiteConfig('app:a', { agree: 'maybe' })]);
             await openCreateProjectDialog([p1]);
 
             setProjectDialogParentProjects([p2]);
             await createProjectAction();
 
-            const { applicationConfigs } = mockCreateProject.mock.calls[0][0] as {
-                applicationConfigs: ApplicationConfig[];
-            };
-            expect(applicationConfigs.map((c) => c.getApplicationKey().toString())).toEqual(['app:a']);
-            expect(applicationConfigs[0].getConfig().getString('color')).toBe('blue');
+            const configs = sentConfigs(mockCreateProject);
+            expect(configs.map((c) => c.getApplicationKey().toString())).toEqual(['app:a']);
+            expect(configs[0].getConfig().getPropertyArray('agree')?.get(0)?.getValue().getBoolean()).toBe(true);
         });
 
         it('should have no project while creating', async () => {
@@ -579,7 +575,7 @@ describe('projectDialog.store application configs', () => {
             expect(mockUpdateProject).not.toHaveBeenCalled();
         });
 
-        it('should send the inherited config of a listed app', async () => {
+        it('should send the form defaults for an inherited app, not the parent config', async () => {
             mockUpdateProject.mockReturnValue(okAsync({}));
             const parent = createProject('parent', [createSiteConfig('app:b', { color: 'blue' })]);
             await openEditProjectDialog(createProject('layer', []), [parent]);
@@ -589,7 +585,7 @@ describe('projectDialog.store application configs', () => {
 
             const configs = sentConfigs(mockUpdateProject);
             expect(configs.map((c) => c.getApplicationKey().toString())).toEqual(['app:b']);
-            expect(configs[0].getConfig().getString('color')).toBe('blue');
+            expect(configs[0].getConfig().toJson()).toEqual([]);
         });
     });
 
@@ -634,58 +630,6 @@ describe('projectDialog.store application configs', () => {
             await createProjectAction();
 
             expect(sentConfigs(mockCreateProject)).toEqual([]);
-        });
-    });
-
-    describe('parent configs the step does not list', () => {
-        beforeEach(() => {
-            mockCreateProject.mockReturnValue(okAsync(createProject('layer', [])));
-            mockUpdateProjectPermissions.mockReturnValue(okAsync({}));
-            mockUpdateProject.mockReturnValue(okAsync({}));
-        });
-
-        it('should send the first parent config of an uninstalled app on create, after the listed apps, and not its portal', async () => {
-            const parent = createProject('parent', [
-                createSiteConfig('portal', { baseUrl: '/parent' }),
-                createSiteConfig('app:a', { color: 'red' }),
-                createSiteConfig('app:gone', { k: 'v' }),
-            ]);
-            await openCreateProjectDialog([parent]);
-
-            await createProjectAction();
-
-            const configs = sentConfigs(mockCreateProject);
-            expect(configs.map((c) => c.getApplicationKey().toString())).toEqual(['app:a', 'app:gone']);
-            expect(configs[1].getConfig().getString('k')).toBe('v');
-        });
-
-        it('should replace them after a parent switch while creating', async () => {
-            const p1 = createProject('p1', [createSiteConfig('app:gone1', { k: '1' })]);
-            const p2 = createProject('p2', [createSiteConfig('app:gone2', { k: '2' })]);
-            await openCreateProjectDialog([p1]);
-
-            setProjectDialogParentProjects([p2]);
-            await createProjectAction();
-
-            expect(sentConfigs(mockCreateProject).map((c) => c.getApplicationKey().toString())).toEqual(['app:gone2']);
-        });
-
-        it('should append them on an edit save, the own entry winning, without getting dirty', async () => {
-            const layer = createProject('layer', [createSiteConfig('app:gone', { k: 'own' })]);
-            const parent = createProject('parent', [
-                createSiteConfig('app:gone', { k: 'parent' }),
-                createSiteConfig('app:other', { k: 'other' }),
-            ]);
-            await openEditProjectDialog(layer, [parent]);
-            expect($isProjectDialogDirty.get()).toBe(false);
-
-            rename();
-            await updateProject();
-
-            const configs = sentConfigs(mockUpdateProject);
-            expect(configs.map((c) => c.getApplicationKey().toString())).toEqual(['app:gone', 'app:other']);
-            expect(configs[0].getConfig().getString('k')).toBe('own');
-            expect(configs[1].getConfig().getString('k')).toBe('other');
         });
     });
 });
