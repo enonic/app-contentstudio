@@ -1,14 +1,18 @@
 import { ContextMenu, getIsMobile } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { Box, Columns2, PenLine, Puzzle } from 'lucide-react';
-import { type ReactElement, type ReactNode, useCallback, useMemo, useState } from 'react';
+import { type ReactElement, type ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { SaveAsTemplateAction } from '../../../../../../app/wizard/action/SaveAsTemplateAction';
 import { FragmentComponent } from '../../../../../../app/page/region/FragmentComponent';
 import { ComponentPath } from '../../../../../../app/page/region/ComponentPath';
 import { ComponentType } from '../../../../../../app/page/region/ComponentType';
 import { PageNavigationEvent } from '../../../../../../app/wizard/PageNavigationEvent';
-import { PageNavigationEventData } from '../../../../../../app/wizard/PageNavigationEventData';
+import {
+    PageNavigationEventData,
+    PageNavigationEventSource,
+} from '../../../../../../app/wizard/PageNavigationEventData';
 import { PageNavigationEventType } from '../../../../../../app/wizard/PageNavigationEventType';
+import type { PageNavigationHandler } from '../../../../../../app/wizard/PageNavigationHandler';
 import { PageNavigationMediator } from '../../../../../../app/wizard/PageNavigationMediator';
 import type { FlatNode } from '../../../../../shared/lib/tree-store';
 import { getNode } from '../../../../../shared/lib/tree-store';
@@ -62,6 +66,28 @@ const ROOT_NODE_ID = '/';
 export const PageComponentsContextMenu = ({ node, children }: PageComponentsContextMenuProps): ReactElement => {
     const data = node.data;
     const [open, setOpen] = useState(false);
+
+    useEffect(() => {
+        if (!open) {
+            return;
+        }
+
+        const mediator = PageNavigationMediator.get();
+        const handler: PageNavigationHandler = {
+            handle(event: PageNavigationEvent): void {
+                // Iframe interactions do not bubble to the host. Listen to each editor selection,
+                // including right-clicks on the already selected component.
+                if (
+                    event.getType() === PageNavigationEventType.SELECT &&
+                    event.getData().getSource() === PageNavigationEventSource.EDITOR
+                ) {
+                    setOpen(false);
+                }
+            },
+        };
+        mediator.addPageNavigationHandler(handler);
+        return () => mediator.removePageNavigationItem(handler);
+    }, [open]);
 
     const contentContext = useStore($contentContext);
     const page = useStore($page);
