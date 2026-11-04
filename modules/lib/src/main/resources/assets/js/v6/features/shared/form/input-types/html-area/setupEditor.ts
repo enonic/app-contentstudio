@@ -576,7 +576,10 @@ function handleNativeNotifications(editor: CKEDITOR.editor): void {
                 break;
             case 'progress':
                 if (!progressNotifications[messageId]) {
-                    progressNotifications[messageId] = notifyInfo(message, { autoHide: false });
+                    progressNotifications[messageId] = notifyInfo(message, {
+                        autoHide: false,
+                        owner: `${editor.name}:${messageId}`,
+                    });
                 }
                 break;
         }
