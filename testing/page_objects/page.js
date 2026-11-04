@@ -384,7 +384,9 @@ class Page {
 
     async removeNotificationMessage() {
         try {
-            let selector = "//div[@class='notification-wrapper']//button[@aria-label='Close notification']";
+            let selector =
+                "//div[@class='notification-wrapper']//button[@aria-label='Close notification'] | " +
+                "//div[@data-component='NotificationList']//button[@aria-label='Close notification']";
             await this.clickOnElement(selector);
             return await this.pause(300);
         } catch (err) {
@@ -426,7 +428,9 @@ class Page {
 
     async waitForExpectedNotificationMessage(expectedMessage) {
         try {
-            let selector = `//div[contains(@id,'NotificationMessage')]//p[contains(.,'${expectedMessage}')]`;
+            let selector =
+                `//div[contains(@id,'NotificationMessage')]//p[contains(.,'${expectedMessage}')] | ` +
+                `//div[@data-component='NotificationList']//p[@data-component='Toast.Description'][contains(.,'${expectedMessage}')]`;
             await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         } catch (err) {
             await this.handleError(
