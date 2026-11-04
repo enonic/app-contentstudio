@@ -1,7 +1,7 @@
 import { createPortal, forwardRef, useCallback, useMemo, useState, type ReactElement } from 'react';
 import type { FormOptionSet } from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
 import type { FormOptionSetOption } from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSetOption';
-import { Button, Combobox, Listbox } from '@enonic/ui';
+import { Button, Combobox, Listbox, usePortalContainer } from '@enonic/ui';
 import { ItemLabel } from '../../../../../shared/ui/ItemLabel';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { ConfirmFocusTrap } from './ConfirmFocusTrap';
@@ -18,6 +18,7 @@ export const OptionSetConfirmAdd = forwardRef<HTMLDivElement, OptionSetConfirmAd
     ({ optionSet, position, onCancel, onConfirm }, ref): ReactElement => {
         const cancelLabel = useI18n('action.cancel');
         const placeholder = useI18n('field.option.placeholder');
+        const portalTarget = usePortalContainer() ?? document.body;
         const [value, setValue] = useState('');
         const filteredOptions: FormOptionSetOption[] = useMemo(
             () =>
@@ -80,7 +81,7 @@ export const OptionSetConfirmAdd = forwardRef<HTMLDivElement, OptionSetConfirmAd
                     </Combobox.Content>
                 </Combobox.Root>
             </ConfirmFocusTrap>,
-            document.body,
+            portalTarget,
         );
     },
 );
