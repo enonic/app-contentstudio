@@ -1,5 +1,5 @@
 /**
- * Created on 09.07.2020.  updated on 02.07.2026
+ * Created on 09.07.2020.  updated on 04.11.2026
  */
 const { BUTTONS } = require('../../libs/elements');
 const BaseSelectorForm = require('./base.selector.form');
@@ -14,32 +14,29 @@ const XPATH = {
 };
 
 class ContentSelectorForm extends BaseSelectorForm {
+    // The dropdown is stateless (holds only the container xpath), so one instance is shared by all methods
+    #dropdown = new ContentSelectorDropdown(XPATH.container);
+
     get optionsFilterInput() {
-        let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
-        return contentSelectorDropdown.optionsFilterInput();
+        return this.#dropdown.optionsFilterInput();
     }
 
     async waitForOptionFilterInputDisplayed() {
-        let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
-        return await contentSelectorDropdown.waitForOptionFilterInputDisplayed();
+        return await this.#dropdown.waitForOptionFilterInputDisplayed();
     }
 
     async clickOnModeTogglerButton() {
-        let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
-        await contentSelectorDropdown.clickOnModeTogglerButton();
+        await this.#dropdown.clickOnModeTogglerButton();
         await this.pause(1000);
     }
 
     async clickOnDropdownHandle() {
-        let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
-        await contentSelectorDropdown.clickOnDropdownHandle();
+        await this.#dropdown.clickOnDropdownHandle();
         await this.pause(1000);
     }
 
     async clickOnCheckboxInDropdown(index) {
-        let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
-        await contentSelectorDropdown.clickOnCheckboxInDropdown(index);
-        await this.pause(500);
+        await this.#dropdown.clickOnCheckboxInDropdown(index);
     }
 
     selectedOptionByDisplayName(displayName) {
@@ -94,14 +91,12 @@ class ContentSelectorForm extends BaseSelectorForm {
     }
 
     async getSelectedOptions() {
-        let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
-        return await contentSelectorDropdown.getSelectedOptionsDisplayName();
+        return await this.#dropdown.getSelectedOptionsDisplayName();
     }
 
     async waitForAddNewContentButtonDisplayed() {
         try {
-            let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
-            await contentSelectorDropdown.waitForAddNewContentButtonDisplayed();
+            await this.#dropdown.waitForAddNewContentButtonDisplayed();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_add_new_btn');
             throw new Error(`'Add new' button is not displayed, screenshot:${screenshot} ` + err);
@@ -110,8 +105,7 @@ class ContentSelectorForm extends BaseSelectorForm {
 
     async waitForAddNewContentButtonNotDisplayed() {
         try {
-            let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
-            await contentSelectorDropdown.waitForAddNewContentButtonNotDisplayed();
+            await this.#dropdown.waitForAddNewContentButtonNotDisplayed();
         } catch (err) {
             await this.handleError(
                 `Content selector, 'Add new' button should not be displayed`,
@@ -122,17 +116,20 @@ class ContentSelectorForm extends BaseSelectorForm {
     }
 
     async clickOnAddNewContentButton() {
-        await this.waitForAddNewContentButtonDisplayed();
-        return await this.clickOnElement(this.addNewContentButton);
+        try {
+            await this.#dropdown.waitForAddNewContentButtonDisplayed();
+            await this.#dropdown.clickOnAddNewContentButton();
+        } catch (err) {
+            await this.handleError(`Content selector, 'Add new' button:`, 'err_click_add_new_btn', err);
+        }
     }
 
     // Selects an option by the display-name then click on Apply selection  button:
     async clickOnOptionByDisplayNameAndApply(optionDisplayName) {
         try {
-            let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
-            await contentSelectorDropdown.doFilterItem(optionDisplayName);
-            await contentSelectorDropdown.clickOnListItemOptionByDisplayName(optionDisplayName);
-            await contentSelectorDropdown.clickOnApplySelectionButton();
+            await this.#dropdown.doFilterItem(optionDisplayName);
+            await this.#dropdown.clickOnListItemOptionByDisplayName(optionDisplayName);
+            await this.#dropdown.clickOnApplySelectionButton();
         } catch (err) {
             await this.handleError(
                 `Content selector, tried to click on the option: ${optionDisplayName} and click on Apply button`,
@@ -146,16 +143,14 @@ class ContentSelectorForm extends BaseSelectorForm {
     // Insert a text in Filter input, switches to flat mode, then click on the filtered by displayName item
     async doFilterOptionInTreeModeAndApply(optionDisplayName) {
         try {
-            let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
-            await contentSelectorDropdown.clearOptionsFilterInput();
-            await contentSelectorDropdown.doFilterItem(optionDisplayName);
-            await contentSelectorDropdown.pause(800);
+            await this.#dropdown.clearOptionsFilterInput();
+            await this.#dropdown.doFilterItem(optionDisplayName);
             let mode = await this.getOptionsMode();
             // TODO check the mode
             // 2. Wait for the required option is displayed then click on it:
-            await contentSelectorDropdown.clickOnTreeItemOptionByDisplayName(optionDisplayName);
+            await this.#dropdown.clickOnTreeItemOptionByDisplayName(optionDisplayName);
             // 3. Click on 'Apply' button:
-            return await contentSelectorDropdown.clickOnApplySelectionButton();
+            return await this.#dropdown.clickOnApplySelectionButton();
         } catch (err) {
             await this.handleError(
                 `Content selector, tried to select: ${optionDisplayName} in tree mode and Apply`,
@@ -167,8 +162,7 @@ class ContentSelectorForm extends BaseSelectorForm {
 
     async clickOnApplySelectionButton() {
         try {
-            let contentSelector = new ContentSelectorDropdown(XPATH.container);
-            await contentSelector.clickOnApplySelectionButton();
+            await this.#dropdown.clickOnApplySelectionButton();
         } catch (err) {
             await this.handleError(`Content selector, tried to click on Apply button`, 'err_apply_btn', err);
         }
@@ -176,8 +170,7 @@ class ContentSelectorForm extends BaseSelectorForm {
 
     async getOptionsDisplayNameInTreeMode() {
         try {
-            let contentSelector = new ContentSelectorDropdown(XPATH.container);
-            return await contentSelector.getOptionsDisplayNameInTreeMode();
+            return await this.#dropdown.getOptionsDisplayNameInTreeMode();
         } catch (err) {
             await this.handleError(
                 `Content selector, tried to get options display name in tree mode`,
@@ -189,8 +182,7 @@ class ContentSelectorForm extends BaseSelectorForm {
 
     async getOptionsDisplayNameInFlatMode() {
         try {
-            let contentSelector = new ContentSelectorDropdown(XPATH.container);
-            return await contentSelector.getOptionsDisplayNameInFlatMode();
+            return await this.#dropdown.getOptionsDisplayNameInFlatMode();
         } catch (err) {
             await this.handleError(
                 `Content selector, tried to get options display name in flat mode`,
@@ -205,7 +197,6 @@ class ContentSelectorForm extends BaseSelectorForm {
             const locator = XPATH.container + XPATH.selectedItemByDisplayName(displayName) + BUTTONS.BUTTON_REMOVE_ICON;
             await this.waitForElementDisplayed(locator);
             await this.clickOnElement(locator);
-            return await this.pause(500);
         } catch (err) {
             await this.handleError(
                 `Content selector form, tried to remove the selected option: ${displayName}`,
@@ -220,7 +211,6 @@ class ContentSelectorForm extends BaseSelectorForm {
             const locator = XPATH.container + XPATH.selectedItemByDisplayName(displayName) + BUTTONS.BUTTON_EDIT_ICON;
             await this.waitForElementDisplayed(locator);
             await this.clickOnElement(locator);
-            return await this.pause(500);
         } catch (err) {
             await this.handleError(
                 `Content selector , tried to edit the selected option: ${displayName}`,
@@ -231,13 +221,11 @@ class ContentSelectorForm extends BaseSelectorForm {
     }
 
     async getOptionsMode() {
-        let contentSelector = new ContentSelectorDropdown(XPATH.container);
-        return await contentSelector.getMode();
+        return await this.#dropdown.getMode();
     }
 
     async getCheckedOptionsDisplayNameInDropdownList() {
-        let contentSelector = new ContentSelectorDropdown(XPATH.container);
-        return await contentSelector.getCheckedOptionsDisplayNameInDropdownList();
+        return await this.#dropdown.getCheckedOptionsDisplayNameInDropdownList();
     }
 }
 

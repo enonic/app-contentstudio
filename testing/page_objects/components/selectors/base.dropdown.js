@@ -96,7 +96,6 @@ class BaseDropdown extends Page {
 
     async waitForApplySelectionButtonDisplayed() {
         await this.waitUntilDisplayed(this.applySelectionButton);
-        await this.pause(100);
     }
 
     async waitForApplySelectionButtonNotDisplayed() {
@@ -191,7 +190,6 @@ class BaseDropdown extends Page {
             DROPDOWN.COMBOBOX_POPUP +
             "//div[@data-component='VirtualizedTreeList.Row']//div[@data-component='ContentLabel']//span[contains(@class,'font-semibold')]";
         await this.waitForElementDisplayed(locator);
-        await this.pause(200);
         return await this.getTextInDisplayedElements(locator);
     }
 
@@ -232,7 +230,6 @@ class BaseDropdown extends Page {
                 `//div[@data-component='VirtualizedTreeList.Row' and @aria-level>'0' and descendant::div[@data-component='ContentLabel']//span[contains(@class,'font-semibold') and text()='${displayName}']]`;
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             await this.clickOnElement(locator);
-            return await this.pause(300);
         } catch (err) {
             await this.handleError(`Dropdown, tried to click on tree item: ${displayName}`, 'err_click_tree_item', err);
         }
