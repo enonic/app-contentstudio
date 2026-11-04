@@ -17,7 +17,7 @@ const XPATH = {
     typesLoader: "//div[@data-component='NewContentDialogContentTypesLoader']",
     mostPopularBlock: "//div[contains(@id,'MostPopularItemsBlock')]",
     emptyViewP: "//p[contains(.,'No content types found')]",
-    dialogPath: "//header//h3/following-sibling::p",
+    dialogPath: '//header//h3/following-sibling::p',
     footerHint: '//footer//p',
     clearSearchButton: "//button[@aria-label='Clear']",
     tabButtonByLabel(label) {
@@ -404,10 +404,17 @@ class NewContentDialog extends Page {
         }
     }
 
+    // Polls an exact comparison: 'inactive' contains 'active', so a substring check would pass for any tab
     async waitForTabSelected(tabLabel) {
         try {
             let locator = XPATH.container + XPATH.tabButtonByLabel(tabLabel);
-            return await this.waitForAttributeHasValue(locator, 'data-state', 'active');
+            return await this.getBrowser().waitUntil(
+                async () => (await this.getAttribute(locator, 'data-state')) === 'active',
+                {
+                    timeout: appConst.shortTimeout,
+                    timeoutMsg: `'${tabLabel}' tab should be selected in New Content dialog`,
+                },
+            );
         } catch (err) {
             await this.handleError(
                 `New Content dialog, '${tabLabel}' tab should be selected:`,
