@@ -42,12 +42,13 @@ describe('image.content.flip.rotate.spec: Open an image and flip and rotate it',
         await imageEditor.waitForResetButtonDisplayed();
         await imageEditor.waitForRotateButtonEnabled();
         await studioUtils.saveScreenshot('image_rotated');
-        // 3. Verify that Save buttons gets enabled
-        await contentWizard.waitForSaveButtonEnabled();
+        // 3. Draft rotation does not enable Save until Apply.
+        await contentWizard.waitForSaveButtonDisabled();
         // 4. Click on 'Reset' button
         await imageEditor.waitForResetButtonDisplayed();
-        await imageEditor.waitForUploadButtonDisplayed();
+        await imageEditor.waitForUploadButtonNotDisplayed();
         await imageEditor.clickOnResetButton();
+        await imageEditor.clickOnApplyButton();
         await studioUtils.saveScreenshot('image_rotate_reset_filter_pressed3');
         // 5. Verify that Save button is disabled now
         await contentWizard.waitForSaveButtonDisabled();
@@ -66,10 +67,11 @@ describe('image.content.flip.rotate.spec: Open an image and flip and rotate it',
         // 2. Verify that 'Reset' button gets visible
         await imageEditor.waitForResetButtonDisplayed();
         await studioUtils.saveScreenshot('image_flip_reset_filter_pressed2');
-        // 3. Verify that 'Save' button is enabled
-        await contentWizard.waitForSaveButtonEnabled();
+        // 3. Draft flip does not enable Save until Apply.
+        await contentWizard.waitForSaveButtonDisabled();
         // 4. Click on 'Reset' button
         await imageEditor.clickOnResetButton();
+        await imageEditor.clickOnApplyButton();
         await studioUtils.saveScreenshot('image_flip_reset_filter_pressed3');
         // Save gets disabled again. Exception will be thrown after the timeout:
         await contentWizard.waitForSaveButtonDisabled();
@@ -82,6 +84,7 @@ describe('image.content.flip.rotate.spec: Open an image and flip and rotate it',
         await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.NORD);
         await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
         await imageEditor.clickOnRotateButton();
+        await imageEditor.clickOnApplyButton();
         await contentWizard.waitAndClickOnSave();
         await studioUtils.doCloseWizardAndSwitchToGrid();
         //clicks on Edit button and open this selected content:
@@ -102,6 +105,7 @@ describe('image.content.flip.rotate.spec: Open an image and flip and rotate it',
         await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.CAPE);
         await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
         await imageEditor.clickOnRotateButton();
+        await imageEditor.clickOnApplyButton();
         await studioUtils.saveScreenshot('image_rotated');
         // 2. Save the image:
         await contentWizard.waitAndClickOnSave();

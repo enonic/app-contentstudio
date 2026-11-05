@@ -7,9 +7,8 @@ const { COMMON } = require('../../libs/elements');
 
 const xpath = {
     parentListElement: "//ancestor::div[contains(@class,'item-view-wrapper')]",
-    pageComponentsItemName: "//div[@data-component='ContextMenu.Trigger']//span[text()]",
-    fragmentsName:
-        "//div[@data-component='ContextMenu.Trigger'][.//*[contains(@class,'lucide-puzzle')]]//span[contains(@class,'truncate')]",
+    pageComponentsItemName: "//div[@role='treeitem']//span[text()]",
+    fragmentsName: "//div[@role='treeitem'][.//*[contains(@class,'lucide-puzzle')]]//span[contains(@class,'truncate')]",
     pageComponentsItemViewer: "//div[contains(@id,'PageComponentsItemViewer')]",
     contextMenuItems: "//div[@data-component='ContextMenu.Content']//div[@data-component='ContextMenu.Item']",
     pageComponentsItemViewerByType(componentType) {
@@ -17,7 +16,7 @@ const xpath = {
     },
     pageComponentsTreeGrid: `//div[contains(@id,'PageComponentsTreeGrid')]`,
     contextMenuTrigger(name) {
-        return `//div[@data-component='ContextMenu.Trigger']//span[@class and contains(@class, 'truncate') and text()='${name}']`;
+        return `//div[@role='treeitem']//span[@class and contains(@class, 'truncate') and text()='${name}']`;
     },
     contextMenuItemByName(name) {
         return `//div[@data-component='ContextMenu.Content']//div[@data-component='ContextMenu.Item' and text()='${name}']`;
@@ -30,9 +29,9 @@ const xpath = {
     contextSubMenuItemByName(name) {
         return `//div[@data-component='ContextMenu.SubContent']//div[@data-component='ContextMenu.Item' and normalize-space(.)='${name}']`;
     },
-    // Expand/collapse button inside the ContextMenu.Trigger row for the given component name
+    // Expand/collapse button inside the treeitem row for the given component name
     rowExpanderButton(name) {
-        return `//div[@data-component='ContextMenu.Trigger' and .//span[contains(@class,'truncate') and text()='${name}']]//button`;
+        return `//div[@role='treeitem' and .//span[contains(@class,'truncate') and text()='${name}']]//button`;
     },
 };
 
@@ -77,7 +76,7 @@ class BasePageComponentView extends Page {
         try {
             let locator =
                 this.container +
-                `//div[@data-component='ContextMenu.Trigger']//span[contains(@class,'truncate') and text()='${displayName}']` +
+                `//div[@role='treeitem']//span[contains(@class,'truncate') and text()='${displayName}']` +
                 `/ancestor::div[@role='treeitem']`;
             await this.waitForElementDisplayed(locator, appConst.shortTimeout);
             let attr = await this.getAttribute(locator, 'class');
@@ -91,7 +90,7 @@ class BasePageComponentView extends Page {
     async waitForItemSelected(displayName) {
         let locator =
             this.container +
-            `//div[@data-component='ContextMenu.Trigger']//span[contains(@class,'truncate') and text()='${displayName}']` +
+            `//div[@role='treeitem']//span[contains(@class,'truncate') and text()='${displayName}']` +
             `/ancestor::div[@role='treeitem']`;
         await this.getBrowser().waitUntil(
             async () => {
@@ -105,7 +104,7 @@ class BasePageComponentView extends Page {
     async waitForItemNotSelected(displayName) {
         let locator =
             this.container +
-            `//div[@data-component='ContextMenu.Trigger']//span[contains(@class,'truncate') and text()='${displayName}']` +
+            `//div[@role='treeitem']//span[contains(@class,'truncate') and text()='${displayName}']` +
             `/ancestor::div[@role='treeitem']`;
         await this.getBrowser().waitUntil(
             async () => {
@@ -118,8 +117,7 @@ class BasePageComponentView extends Page {
 
     async waitForComponentItemDisplayed(displayName) {
         let selector =
-            this.container +
-            `//div[@data-component='ContextMenu.Trigger']//span[contains(@class,'truncate') and text()='${displayName}']`;
+            this.container + `//div[@role='treeitem']//span[contains(@class,'truncate') and text()='${displayName}']`;
         return await this.waitForElementDisplayed(selector);
     }
 
@@ -127,7 +125,7 @@ class BasePageComponentView extends Page {
         try {
             let selector =
                 this.container +
-                `//div[@data-component='ContextMenu.Trigger']//span[contains(@class,'truncate') and text()='${displayName}']`;
+                `//div[@role='treeitem']//span[contains(@class,'truncate') and text()='${displayName}']`;
             await this.waitForElementDisplayed(selector);
             await this.clickOnElement(selector);
             return await this.pause(400);
@@ -342,7 +340,7 @@ class BasePageComponentView extends Page {
     async getTextComponentsDisplayName() {
         let locator =
             this.container +
-            `//div[@data-component='ContextMenu.Trigger'][.//*[contains(@class,'lucide-pen-line')]]` +
+            `//div[@role='treeitem'][.//*[contains(@class,'lucide-pen-line')]]` +
             `//span[contains(@class,'truncate')]`;
         return await this.getTextInDisplayedElements(locator);
     }
@@ -351,7 +349,7 @@ class BasePageComponentView extends Page {
         try {
             let locator =
                 this.container +
-                `//div[@data-component='ContextMenu.Trigger']//span[contains(@class,'truncate') and text()='${itemDisplayName}']`;
+                `//div[@role='treeitem']//span[contains(@class,'truncate') and text()='${itemDisplayName}']`;
             return await this.waitForElementDisplayed(locator);
         } catch (err) {
             await this.handleError(
@@ -366,7 +364,7 @@ class BasePageComponentView extends Page {
         try {
             let locator =
                 this.container +
-                `//div[@data-component='ContextMenu.Trigger' and descendant::span[contains(@class,'truncate') and text()='${name}']]` +
+                `//div[@role='treeitem' and descendant::span[contains(@class,'truncate') and text()='${name}']]` +
                 `//*[contains(@class,'lucide-octagon-alert')]`;
             return await this.isElementDisplayed(locator);
         } catch (err) {
