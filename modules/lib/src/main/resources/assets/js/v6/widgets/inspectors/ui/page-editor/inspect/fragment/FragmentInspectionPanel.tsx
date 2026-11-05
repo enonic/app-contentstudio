@@ -5,7 +5,7 @@ import { ContentSummaryAndCompareStatus } from '../../../../../../../app/content
 import { EditContentEvent } from '../../../../../../../app/event/EditContentEvent';
 import { FragmentComponent } from '../../../../../../../app/page/region/FragmentComponent';
 import { useI18n } from '../../../../../../shared/lib/hooks/useI18n';
-import { $inspectedItem, $pageEditorLifecycle } from '../../../../model/page-editor';
+import { $inspectedItem, $isPageLocked } from '../../../../model/page-editor';
 import { $page, $pageVersion } from '../../../../model/page-editor/store';
 import { $areFragmentOptionsResolved, $fragmentOptions } from '../../../../model/fragment-inspection.store';
 import { isComponentReferenceMissing } from '../../../../model/component-inspection.store';
@@ -16,7 +16,7 @@ const FRAGMENT_INSPECTION_PANEL_NAME = 'FragmentInspectionPanel';
 export const FragmentInspectionPanel = (): ReactElement | null => {
     const item = useStore($inspectedItem);
     useStore($pageVersion);
-    const lifecycle = useStore($pageEditorLifecycle);
+    const isPageLocked = useStore($isPageLocked);
     const page = useStore($page);
     const fragmentOptions = useStore($fragmentOptions);
     const areFragmentsResolved = useStore($areFragmentOptionsResolved);
@@ -41,7 +41,7 @@ export const FragmentInspectionPanel = (): ReactElement | null => {
         [],
         areFragmentsResolved,
     );
-    const disabled = lifecycle.isPageLocked;
+    const disabled = isPageLocked;
 
     return (
         <div data-component={FRAGMENT_INSPECTION_PANEL_NAME} className="flex flex-col gap-5">

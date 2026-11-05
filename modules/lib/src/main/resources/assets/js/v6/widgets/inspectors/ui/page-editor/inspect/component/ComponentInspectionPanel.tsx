@@ -4,7 +4,7 @@ import { type ReactElement, useMemo } from 'react';
 import { DescriptorBasedComponent } from '../../../../../../../app/page/region/DescriptorBasedComponent';
 import { FormRenderer } from '../../../../../../features/shared/form/FormRenderer';
 import { getAiFieldRegistry } from '../../../../../../features/ai/ai.field-registry';
-import { $contentContext, $inspectedItem, $inspectedPath, $pageEditorLifecycle } from '../../../../model/page-editor';
+import { $contentContext, $inspectedItem, $inspectedPath, $isPageLocked } from '../../../../model/page-editor';
 import { $componentConfigDescriptor } from '../../../../model/component-inspection.store';
 import { useInspectFormTracking } from '../useInspectFormTracking';
 import { ComponentDescriptorSelector } from './ComponentDescriptorSelector';
@@ -19,7 +19,7 @@ export const ComponentInspectionPanel = ({ componentType }: ComponentInspectionP
     const item = useStore($inspectedItem);
     const inspectedPath = useStore($inspectedPath);
     const ctx = useStore($contentContext);
-    const lifecycle = useStore($pageEditorLifecycle);
+    const isPageLocked = useStore($isPageLocked);
     const descriptor = useStore($componentConfigDescriptor);
 
     const isDescriptorComponent = item instanceof DescriptorBasedComponent;
@@ -47,7 +47,7 @@ export const ComponentInspectionPanel = ({ componentType }: ComponentInspectionP
                         key={formKey}
                         form={configForm}
                         propertySet={configRoot}
-                        enabled={!lifecycle.isPageLocked}
+                        enabled={!isPageLocked}
                         applicationKey={ctx?.applicationKey ?? undefined}
                     />
                 </FieldRegistryProvider>

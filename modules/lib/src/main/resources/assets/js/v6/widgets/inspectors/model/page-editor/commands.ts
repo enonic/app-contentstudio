@@ -7,7 +7,13 @@ import { PageStateEvent } from '../../../../../page-editor/event/incoming/common
 import { PageEventsManager } from '../../../../../app/wizard/PageEventsManager';
 import { PageState } from '../../../../../app/wizard/page/PageState';
 import { setDraftPage } from '../../../../pages/wizard/model/wizardContent.store';
-import { $hasDefaultPageTemplate, $inspectedPath, $pageEditorLifecycle, bumpSelectionEventNonce } from './store';
+import {
+    $hasDefaultPageTemplate,
+    $inspectedPath,
+    $isPageModifyAllowed,
+    $pageEditorLifecycle,
+    bumpSelectionEventNonce,
+} from './store';
 
 //
 // * Actions — store state
@@ -15,6 +21,10 @@ import { $hasDefaultPageTemplate, $inspectedPath, $pageEditorLifecycle, bumpSele
 
 export function setHasDefaultPageTemplate(value: boolean): void {
     $hasDefaultPageTemplate.set(value);
+}
+
+export function setPageModifyAllowed(value: boolean): void {
+    $isPageModifyAllowed.set(value);
 }
 
 // ? Used by LiveFormPanel to sync renderable state that

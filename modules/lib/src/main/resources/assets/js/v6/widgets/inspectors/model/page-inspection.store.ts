@@ -4,6 +4,7 @@ import type { Descriptor } from '../../../../app/page/Descriptor';
 import {
     $contentContext,
     $hasDefaultPageTemplate,
+    $isPageLocked,
     $page,
     $pageEditorLifecycle,
     $pageVersion,
@@ -52,9 +53,17 @@ export const $isSelectedTemplateMissing = computed(
 );
 
 export const $isCustomizeVisible = computed(
-    [$pageEditorLifecycle, $contentContext, $page, $pageVersion, $hasDefaultPageTemplate, $isSelectedTemplateMissing],
-    (lifecycle, ctx, page, _version, hasDefaultTemplate, isTemplateMissing): boolean => {
-        if (!ctx || !lifecycle.isPageLocked || !lifecycle.isPageRenderable) return false;
+    [
+        $pageEditorLifecycle,
+        $isPageLocked,
+        $contentContext,
+        $page,
+        $pageVersion,
+        $hasDefaultPageTemplate,
+        $isSelectedTemplateMissing,
+    ],
+    (lifecycle, isPageLocked, ctx, page, _version, hasDefaultTemplate, isTemplateMissing): boolean => {
+        if (!ctx || !isPageLocked || !lifecycle.isPageRenderable) return false;
         // Only a template-driven page can be detached from its template.
         if (page?.hasController() || isTemplateMissing) return false;
         if (!hasDefaultTemplate && !page?.hasTemplate()) return false;

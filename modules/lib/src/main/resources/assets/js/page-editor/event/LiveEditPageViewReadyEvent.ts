@@ -1,11 +1,17 @@
-import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
+import { ClassHelper } from '@enonic/lib-admin-ui/ClassHelper';
+import { IframeEvent } from '@enonic/lib-admin-ui/event/IframeEvent';
 
-export class LiveEditPageViewReadyEvent
-    extends IframeEvent {
+export class LiveEditPageViewReadyEvent extends IframeEvent {
+    private readonly inlineEditing?: boolean;
 
-    constructor() {
+    constructor(inlineEditing?: boolean) {
         super();
+        this.inlineEditing = inlineEditing;
+    }
+
+    // Undefined when the page editor predates the `ready.inlineEditing` field.
+    getInlineEditing(): boolean | undefined {
+        return this.inlineEditing;
     }
 
     static on(handler: (event: LiveEditPageViewReadyEvent) => void, contextWindow: Window = window) {

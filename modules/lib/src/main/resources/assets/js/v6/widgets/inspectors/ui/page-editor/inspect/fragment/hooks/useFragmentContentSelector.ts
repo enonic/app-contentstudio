@@ -6,7 +6,7 @@ import { LayoutComponent } from '../../../../../../../../app/page/region/LayoutC
 import { LayoutComponentType } from '../../../../../../../../app/page/region/LayoutComponentType';
 import { fetchContentById } from '../../../../../../../entities/content';
 import { useI18n } from '../../../../../../../shared/lib/hooks/useI18n';
-import { $inspectedItem, $pageEditorLifecycle, requestSetFragmentComponent } from '../../../../../model/page-editor';
+import { $inspectedItem, $isPageLocked, requestSetFragmentComponent } from '../../../../../model/page-editor';
 import { $pageVersion } from '../../../../../model/page-editor/store';
 import {
     $areFragmentOptionsResolved,
@@ -49,7 +49,7 @@ type UseFragmentContentSelectorResult = {
 export function useFragmentContentSelector(): UseFragmentContentSelectorResult {
     const item = useStore($inspectedItem);
     useStore($pageVersion);
-    const lifecycle = useStore($pageEditorLifecycle);
+    const isPageLocked = useStore($isPageLocked);
     const fragments = useStore($fragmentOptions);
     const selectedId = useStore($selectedFragmentId);
     const isLoading = useStore($isFragmentInspectionLoading);
@@ -62,7 +62,7 @@ export function useFragmentContentSelector(): UseFragmentContentSelectorResult {
     const [searchValue, setSearchValue] = useState<string | undefined>();
 
     const fragment = item instanceof FragmentComponent ? item : null;
-    const disabled = lifecycle.isPageLocked;
+    const disabled = isPageLocked;
 
     const isInsideLayout = fragment?.getParent()?.getParent() instanceof LayoutComponent;
 
