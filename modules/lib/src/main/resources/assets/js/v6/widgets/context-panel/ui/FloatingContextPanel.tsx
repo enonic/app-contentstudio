@@ -1,6 +1,6 @@
 import { cn } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import { type ReactElement, type ReactNode } from 'react';
+import { type ReactElement, type ReactNode, useId, useLayoutEffect, useRef, useState } from 'react';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import { LayoutTokens } from '../../../shared/ui/layout.tokens';
 import { $floatingContextWidth, setFloatingContextWidth } from '../model/floatingContextWidth.store';
@@ -29,13 +29,32 @@ export const FloatingContextPanel = ({
     children,
 }: FloatingContextPanelProps): ReactElement => {
     const storedWidth = useStore($floatingContextWidth);
-    const width = storedWidth > 0 ? storedWidth : Math.max(defaultWidth, CONTEXT_MIN_WIDTH);
     const label = useI18n('field.splitView.resize');
+    const panelId = useId();
+    const panelRef = useRef<HTMLDivElement>(null);
+    const [maxWidth, setMaxWidth] = useState(CONTEXT_MIN_WIDTH);
+    const width = clampWidth(storedWidth > 0 ? storedWidth : defaultWidth, maxWidth);
 
     const getMaxWidth = (handle: HTMLElement): number => {
         const layoutWidth = handle.closest(boundsSelector)?.getBoundingClientRect().width;
         return (layoutWidth ?? window.innerWidth) - MIN_LEFT_GAP;
     };
+
+    useLayoutEffect(() => {
+        const panel = panelRef.current;
+        const bounds = panel?.closest(boundsSelector);
+        if (panel == null || bounds == null) {
+            return;
+        }
+
+        const updateMaxWidth = (): void => {
+            setMaxWidth(Math.max(getMaxWidth(panel), CONTEXT_MIN_WIDTH));
+        };
+        updateMaxWidth();
+        const observer = new ResizeObserver(updateMaxWidth);
+        observer.observe(bounds);
+        return () => observer.disconnect();
+    }, [boundsSelector]);
 
     const handlePointerDown = (event: { pointerId: number; clientX: number; currentTarget: EventTarget | null }) => {
         const handle = event.currentTarget;
@@ -77,6 +96,8 @@ export const FloatingContextPanel = ({
 
     return (
         <div
+            ref={panelRef}
+            id={panelId}
             data-component="FloatingContextPanel"
             className="absolute inset-y-0 right-0 flex bg-surface-neutral shadow-xl"
             style={{ width }}
@@ -87,6 +108,8 @@ export const FloatingContextPanel = ({
                 aria-label={label}
                 aria-valuenow={width}
                 aria-valuemin={CONTEXT_MIN_WIDTH}
+                aria-valuemax={maxWidth}
+                aria-controls={panelId}
                 tabIndex={0}
                 className={cn(
                     'relative w-px shrink-0 cursor-col-resize bg-bdr-soft transition-colors',

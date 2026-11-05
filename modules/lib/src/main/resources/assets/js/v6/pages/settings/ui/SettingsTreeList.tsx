@@ -143,7 +143,8 @@ export const SettingsTreeList = (): ReactElement => {
                                         data-tone={showAsSelected ? 'inverse' : undefined}
                                         onContextMenu={(event) => {
                                             event.preventDefault();
-                                            suppressNextClickForIdRef.current = id;
+                                            suppressNextClickForIdRef.current =
+                                                event.button === 2 || event.ctrlKey ? id : null;
                                             if (selection.size > 0) {
                                                 if (selection.has(id)) {
                                                     if (selection.size > 1) {

@@ -5,15 +5,14 @@ const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
 
 const xpath = {
-    container: "//ul[@data-component='InsertPanel']",
+    container: "//*[@data-component='InsertPanel' and @role='toolbar']",
     gridUL: "//ul[contains(@id,'InsertablesGrid')]",
     componentsName: "//div[@data-component='ItemLabel']//span[text()]",
-    title: "Drag and drop components into the page",
+    title: 'Drag and drop components into the page',
 };
 
 // Context Window - Insert tab of Page widget
 class InsertablesPanel extends Page {
-
     get title() {
         return xpath.container + '/p';
     }
@@ -37,4 +36,3 @@ class InsertablesPanel extends Page {
 }
 
 module.exports = InsertablesPanel;
-

@@ -1,7 +1,7 @@
 import { TabContent } from '../../../../shared/ui/TabContent';
 import { Tab } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import { type ReactElement } from 'react';
+import { type ReactElement, useLayoutEffect, useRef } from 'react';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import { $activeWidgetId, $isContextOpen } from '../../../context-panel/model/contextWidgets.store';
 import {
@@ -20,6 +20,8 @@ import { InspectPanel } from './inspect';
 const PAGE_EDITOR_EXTENSION_NAME = 'PageEditorExtension';
 
 export const PageEditorExtension = (): ReactElement | null => {
+    const inspectPanelRef = useRef<HTMLDivElement>(null);
+    const pendingInspectFocusRef = useRef<{ path: string; trigger: HTMLButtonElement } | null>(null);
     const isContextOpen = useStore($isContextOpen);
     const activeWidgetId = useStore($activeWidgetId);
     const isInsertTabAvailable = useStore($isInsertTabAvailable);
@@ -37,8 +39,34 @@ export const PageEditorExtension = (): ReactElement | null => {
 
     const insertLabel = useI18n('action.insert');
     const inspectLabel = useI18n('action.inspect');
+    const isVisible = isContextOpen && activeWidgetId === getPageEditorWidgetKey();
 
-    if (!isContextOpen || activeWidgetId !== getPageEditorWidgetKey()) {
+    useLayoutEffect(() => {
+        const pending = pendingInspectFocusRef.current;
+        if (!pending) {
+            return;
+        }
+        if (!isVisible) {
+            pendingInspectFocusRef.current = null;
+            return;
+        }
+        if (activeTab !== 'inspect') {
+            return;
+        }
+
+        pendingInspectFocusRef.current = null;
+        const panel = inspectPanelRef.current;
+        if (!panel || inspectedPath !== pending.path) {
+            return;
+        }
+        const active = panel.ownerDocument.activeElement;
+        // The Insert button has unmounted. Preserve focus if another control already took it.
+        if (active === panel.ownerDocument.body || active === pending.trigger) {
+            panel.focus({ preventScroll: true });
+        }
+    }, [activeTab, inspectedPath, isVisible]);
+
+    if (!isVisible) {
         return dragState ? <DragPreview /> : null;
     }
 
@@ -61,9 +89,18 @@ export const PageEditorExtension = (): ReactElement | null => {
                 </Tab.List>
 
                 <TabContent value="insert">
-                    <InsertPanel />
+                    <InsertPanel
+                        onInserted={(path, trigger) => {
+                            pendingInspectFocusRef.current = { path, trigger };
+                        }}
+                    />
                 </TabContent>
-                <TabContent value="inspect" className="mt-0">
+                <TabContent
+                    value="inspect"
+                    ref={inspectPanelRef}
+                    tabIndex={-1}
+                    className="mt-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
                     <InspectPanel />
                 </TabContent>
             </Tab.Root>
