@@ -32,6 +32,21 @@ interface FocusOptions {
 }
 
 //
+// Vite
+//
+
+// Vite's `?raw` import, for tests that read a phrase bundle as text.
+declare module '*.properties?raw' {
+    const content: string;
+    export default content;
+}
+
+// Vite's `import.meta.glob`, for tests that read every phrase bundle as text.
+interface ImportMeta {
+    glob(pattern: string, options: { query: string; import: string; eager: true }): Record<string, unknown>;
+}
+
+//
 // JQuery
 //
 interface JQuery {
