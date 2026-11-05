@@ -1,23 +1,38 @@
 import { cn } from '@enonic/ui';
 import { type ReactElement, useEffect, useId, useRef, useState } from 'react';
 import { type TargetedMouseEvent, type TargetedTouchEvent } from 'preact';
+import { useI18n } from '../../../../../../shared/lib/hooks/useI18n';
 import { useImageUploaderContext } from '../ImageUploaderContext';
 import { getClientXYFromEvent } from '../lib/crop';
 import { type Point } from '../lib/types';
 import { FOCUS_STROKE_WIDTH, FOCUS_DASH_PX } from '../lib/focus';
+import { useImageArrowKeys } from '../useImageArrowKeys';
+import { ImageUploaderInputCrosshair } from './ImageUploaderInputCrosshair';
+import { getImagePercent, ImageUploaderInputKeyboardDescription } from './ImageUploaderInputKeyboardDescription';
 
 const COMPONENT_NAME = 'ImageUploaderInputFocusSvg';
 
-export const ImageUploaderInputFocusSvg = (): ReactElement => {
-    const { dimensions, crop, base64Image, mode, focus, setFocus } = useImageUploaderContext();
+export const ImageUploaderInputFocusSvg = ({
+    keyboardStep,
+    pixelRatio,
+}: {
+    keyboardStep: number;
+    pixelRatio: number;
+}): ReactElement => {
+    const { dimensions, crop, base64Image, mode, focus, setFocus, enabled } = useImageUploaderContext();
+    const label = useI18n('editor.setautofocus');
+    const keyboardHelp = useI18n('editor.setautofocus.keyboard.help');
 
-    const isFocusing = mode === 'focus';
+    const isFocusing = mode === 'focus' && enabled;
     const [isDragging, setIsDragging] = useState(false);
     const [isOverCircle, setIsOverCircle] = useState(false);
+    const [hasControlFocus, setHasControlFocus] = useState(false);
     const svgRef = useRef<SVGSVGElement>(null);
+    const keyboardFocusRef = useRef<Point | null>(null);
     const baseId = useId();
     const maskId = `${COMPONENT_NAME}-${baseId}-mask`;
     const clipId = `${COMPONENT_NAME}-${baseId}-clip`;
+    const descriptionId = `${COMPONENT_NAME}-${baseId}-description`;
 
     const cropXCenter = crop ? (crop.x1 + crop.x2) / 2 : dimensions.w / 2;
     const cropYCenter = crop ? (crop.y1 + crop.y2) / 2 : dimensions.h / 2;
@@ -45,6 +60,42 @@ export const ImageUploaderInputFocusSvg = (): ReactElement => {
     // While in focus mode, default the circle to the crop/image center so it shows
     // immediately on entering focus mode, before any click.
     const displayFocus = focus ?? (isFocusing ? { x: cropXCenter, y: cropYCenter } : null);
+    keyboardFocusRef.current = displayFocus;
+    const position = useI18n(
+        'editor.setautofocus.position',
+        getImagePercent(displayFocus?.x ?? 0, dimensions.w),
+        getImagePercent(displayFocus?.y ?? 0, dimensions.h),
+    );
+
+    const keyboard = useImageArrowKeys({
+        enabled: isFocusing,
+        onStep: ({ keys }, multiplier) => {
+            const point = keyboardFocusRef.current;
+            if (!point) {
+                return;
+            }
+
+            const dx = Number(keys.has('ArrowRight')) - Number(keys.has('ArrowLeft'));
+            const dy = Number(keys.has('ArrowDown')) - Number(keys.has('ArrowUp'));
+            const step = keyboardStep * multiplier;
+            const nextFocus = {
+                x: Math.max(viewX, Math.min(viewX + viewW, point.x + dx * step)),
+                y: Math.max(viewY, Math.min(viewY + viewH, point.y + dy * step)),
+            };
+            if (nextFocus.x === point.x && nextFocus.y === point.y) {
+                return;
+            }
+
+            keyboardFocusRef.current = nextFocus;
+            setFocus(nextFocus);
+        },
+    });
+
+    useEffect(() => {
+        if (isFocusing) {
+            svgRef.current?.focus({ preventScroll: true });
+        }
+    }, [isFocusing]);
 
     const handleMouseMove = (e: TargetedMouseEvent<SVGSVGElement>): void => {
         if (isDragging || !isFocusing || !displayFocus) return;
@@ -58,6 +109,7 @@ export const ImageUploaderInputFocusSvg = (): ReactElement => {
     const handleMouseDown = (e: TargetedMouseEvent<SVGSVGElement>): void => {
         if (!isFocusing) return;
         e.preventDefault();
+        e.currentTarget.focus({ preventScroll: true });
         const p = toLocalFromClient(e.clientX, e.clientY);
         if (!p) return;
         setIsDragging(true);
@@ -67,6 +119,7 @@ export const ImageUploaderInputFocusSvg = (): ReactElement => {
     const handleTouchStart = (e: TargetedTouchEvent<SVGSVGElement>): void => {
         if (!isFocusing) return;
         e.preventDefault();
+        e.currentTarget.focus({ preventScroll: true });
         const touch = e.touches[0];
         if (!touch) return;
         const p = toLocalFromClient(touch.clientX, touch.clientY);
@@ -117,27 +170,39 @@ export const ImageUploaderInputFocusSvg = (): ReactElement => {
             <>
                 <circle {...props} stroke="white" />
                 <circle {...props} stroke="red" strokeDashoffset={FOCUS_DASH_PX} />
+                <ImageUploaderInputCrosshair cx={cx} cy={cy} pixelRatio={pixelRatio} />
             </>
         );
     };
 
-    return (
+    const imageSvg = (
         <svg
             ref={svgRef}
+            role={isFocusing ? 'application' : undefined}
+            aria-label={isFocusing ? label : undefined}
+            aria-describedby={isFocusing ? descriptionId : undefined}
+            aria-keyshortcuts={isFocusing ? 'ArrowUp ArrowDown ArrowLeft ArrowRight' : undefined}
+            tabindex={isFocusing ? 0 : undefined}
             viewBox={`${viewX} ${viewY} ${viewW} ${viewH}`}
             className={cn(
                 'w-full h-full',
                 isDragging ? 'cursor-grabbing' : isOverCircle ? 'cursor-grab' : isFocusing ? 'cursor-move' : '',
             )}
-            style={{ maxWidth: dimensions?.w, maxHeight: dimensions?.h }}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseLeave={() => setIsOverCircle(false)}
             onTouchStart={handleTouchStart}
+            onKeyDown={keyboard.onKeyDown}
+            onKeyUp={keyboard.onKeyUp}
+            onFocus={() => setHasControlFocus(true)}
+            onBlur={() => {
+                keyboard.onBlur();
+                setHasControlFocus(false);
+            }}
         >
             <image href={base64Image} x={viewX} y={viewY} width={viewW} height={viewH} />
 
-            {/* The svg viewport is larger than the image, so clip the ring to the image/crop rect. */}
+            {/* Keep the focal-point ring inside the image/crop rect at the edges. */}
             <clipPath id={clipId}>
                 <rect x={viewX} y={viewY} width={viewW} height={viewH} />
             </clipPath>
@@ -168,6 +233,21 @@ export const ImageUploaderInputFocusSvg = (): ReactElement => {
                     renderFocusRing(focus.x, focus.y, radius)}
             </g>
         </svg>
+    );
+
+    return (
+        <>
+            {imageSvg}
+            {isFocusing && (
+                <ImageUploaderInputKeyboardDescription
+                    id={descriptionId}
+                    help={keyboardHelp}
+                    position={position}
+                    changeKey={`${displayFocus?.x},${displayFocus?.y}`}
+                    active={hasControlFocus}
+                />
+            )}
+        </>
     );
 };
 

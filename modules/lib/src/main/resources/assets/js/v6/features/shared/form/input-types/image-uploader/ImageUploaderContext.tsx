@@ -1,6 +1,7 @@
 import {
     type ReactElement,
     type ReactNode,
+    type RefObject,
     createContext,
     useCallback,
     useContext,
@@ -33,6 +34,9 @@ type ImageUploaderContextValue = {
     enabled: boolean;
     mode?: Mode;
     setMode: (mode: Mode) => void;
+    cropButtonRef: RefObject<HTMLButtonElement>;
+    focusButtonRef: RefObject<HTMLButtonElement>;
+    finishEditing: () => void;
     orientation: number;
     setOrientation: (orientation: number) => void;
     imageUrl?: string;
@@ -89,6 +93,16 @@ export const ImageUploaderProvider = ({ values, enabled, children }: ImageUpload
     const focusInitializedRef = useRef(false);
     const prevCropRef = useRef<Crop | undefined>(undefined);
     const loadRequestIdRef = useRef(0);
+    const imageLoadingRef = useRef(false);
+    const cropButtonRef = useRef<HTMLButtonElement>(null);
+    const focusButtonRef = useRef<HTMLButtonElement>(null);
+    const pendingFocusRef = useRef<{ button: HTMLButtonElement; source: Element | null }>(null);
+
+    const finishEditing = useCallback(() => {
+        const button = (mode === 'crop' ? cropButtonRef : focusButtonRef).current;
+        pendingFocusRef.current = button ? { button, source: button.ownerDocument.activeElement } : null;
+        setMode('ready');
+    }, [mode]);
 
     // ============================================================
     // Content & Project id initialization
@@ -109,6 +123,8 @@ export const ImageUploaderProvider = ({ values, enabled, children }: ImageUpload
     // ============================================================
     // Derived flag used as a dep so the effect re-runs when entering/leaving crop mode.
     const isCropEditing = mode === 'crop';
+    // The source image stays uncropped while its edges are being edited.
+    const imageCrop = isCropEditing ? null : crop;
 
     useEffect(() => {
         if (!imageUrl) return;
@@ -121,10 +137,12 @@ export const ImageUploaderProvider = ({ values, enabled, children }: ImageUpload
 
         const fetchedOrientation = orientation;
         const requestId = ++loadRequestIdRef.current;
+        imageLoadingRef.current = true;
 
-        getBase64Image(imageUrl, fetchedOrientation, isCropEditing ? null : crop)
+        getBase64Image(imageUrl, fetchedOrientation, imageCrop)
             .then(({ base64Image, dimensions }) => {
                 if (requestId !== loadRequestIdRef.current) return;
+                imageLoadingRef.current = false;
                 setBase64Image(base64Image);
                 setDimensions(dimensions);
                 setCommittedOrientation(fetchedOrientation);
@@ -132,9 +150,28 @@ export const ImageUploaderProvider = ({ values, enabled, children }: ImageUpload
             })
             .catch(() => {
                 if (requestId !== loadRequestIdRef.current) return;
+                imageLoadingRef.current = false;
                 setMode('error');
             });
-    }, [imageUrl, orientation, crop, isCropEditing]);
+    }, [imageUrl, orientation, imageCrop, isCropEditing]);
+
+    useEffect(() => {
+        const pending = pendingFocusRef.current;
+        if (!pending) return;
+        if (!enabled || mode === 'error' || mode === 'crop' || mode === 'focus') {
+            pendingFocusRef.current = null;
+            return;
+        }
+        // Leaving crop mode reloads the preview; wait until its toolbar is enabled again.
+        if (mode !== 'ready' || imageLoadingRef.current) return;
+
+        pendingFocusRef.current = null;
+        const { button, source } = pending;
+        const active = button.ownerDocument.activeElement;
+        if (button.isConnected && !button.disabled && (active === source || active === button.ownerDocument.body)) {
+            button.focus({ preventScroll: true });
+        }
+    }, [mode, enabled, base64Image]);
 
     // ============================================================
     // Crop
@@ -292,6 +329,9 @@ export const ImageUploaderProvider = ({ values, enabled, children }: ImageUpload
             enabled,
             mode,
             setMode,
+            cropButtonRef,
+            focusButtonRef,
+            finishEditing,
             orientation,
             setOrientation,
             imageUrl,
@@ -312,6 +352,7 @@ export const ImageUploaderProvider = ({ values, enabled, children }: ImageUpload
             enabled,
             mode,
             setMode,
+            finishEditing,
             orientation,
             imageUrl,
             base64Image,

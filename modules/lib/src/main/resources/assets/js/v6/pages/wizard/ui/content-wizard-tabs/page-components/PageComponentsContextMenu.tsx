@@ -1,7 +1,7 @@
 import { ContextMenu, getIsMobile } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { Box, Columns2, PenLine, Puzzle } from 'lucide-react';
-import { type ReactElement, type ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+import { type MouseEvent, type ReactElement, type ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { SaveAsTemplateAction } from '../../../../../../app/wizard/action/SaveAsTemplateAction';
 import { FragmentComponent } from '../../../../../../app/page/region/FragmentComponent';
 import { ComponentPath } from '../../../../../../app/page/region/ComponentPath';
@@ -46,13 +46,14 @@ import {
     rebuildComponentsTree,
 } from './pageComponents.store';
 import type { PageComponentNodeData } from './types';
+import { getPageComponentsRow, getPageComponentsRowIndex } from './pageComponentsKeyboardNavigation';
 
 //
 // * Types
 //
 
 export type PageComponentsContextMenuProps = {
-    node: FlatNode<PageComponentNodeData>;
+    nodes: FlatNode<PageComponentNodeData>[];
     children: ReactNode;
 };
 
@@ -63,9 +64,9 @@ export type PageComponentsContextMenuProps = {
 const PAGE_COMPONENTS_CONTEXT_MENU_NAME = 'PageComponentsContextMenu';
 const ROOT_NODE_ID = '/';
 
-export const PageComponentsContextMenu = ({ node, children }: PageComponentsContextMenuProps): ReactElement => {
-    const data = node.data;
+export const PageComponentsContextMenu = ({ nodes, children }: PageComponentsContextMenuProps): ReactElement => {
     const [open, setOpen] = useState(false);
+    const [node, setNode] = useState<FlatNode<PageComponentNodeData> | null>(null);
 
     useEffect(() => {
         if (!open) {
@@ -89,6 +90,51 @@ export const PageComponentsContextMenu = ({ node, children }: PageComponentsCont
         return () => mediator.removePageNavigationItem(handler);
     }, [open]);
 
+    const handleContextMenu = (event: MouseEvent<HTMLDivElement>): void => {
+        const row = getPageComponentsRow(event.currentTarget, event.target);
+        setNode(row == null ? null : (nodes[getPageComponentsRowIndex(event.currentTarget, row)] ?? null));
+    };
+
+    const handlePointerDownOutside = useCallback((event: PointerEvent): void => {
+        if (getIsMobile()) {
+            event.preventDefault();
+        }
+    }, []);
+
+    return (
+        <ContextMenu
+            open={open && node?.data != null}
+            onOpenChange={setOpen}
+            data-component={PAGE_COMPONENTS_CONTEXT_MENU_NAME}
+        >
+            <ContextMenu.Trigger className="min-w-0" onContextMenu={handleContextMenu}>
+                {children}
+            </ContextMenu.Trigger>
+            <ContextMenu.Portal>
+                {node?.data != null && (
+                    <>
+                        {getIsMobile() && (
+                            <div
+                                aria-hidden
+                                className="fixed inset-0 z-40"
+                                onPointerDown={(event) => event.stopPropagation()}
+                                onClick={() => setOpen(false)}
+                            />
+                        )}
+                        <ContextMenu.Content className="min-w-48" onPointerDownOutside={handlePointerDownOutside}>
+                            <PageComponentsContextMenuItems node={node} />
+                        </ContextMenu.Content>
+                    </>
+                )}
+            </ContextMenu.Portal>
+        </ContextMenu>
+    );
+};
+
+PageComponentsContextMenu.displayName = PAGE_COMPONENTS_CONTEXT_MENU_NAME;
+
+const PageComponentsContextMenuItems = ({ node }: { node: FlatNode<PageComponentNodeData> }): ReactElement => {
+    const data = node.data;
     const contentContext = useStore($contentContext);
     const page = useStore($page);
     const fragmentOptions = useStore($fragmentOptions);
@@ -105,91 +151,52 @@ export const PageComponentsContextMenu = ({ node, children }: PageComponentsCont
     const editFragmentLabel = useI18n('action.editFragment');
     const saveAsTemplateLabel = useI18n('action.saveAsTemplate');
 
-    const handlePointerDownOutside = useCallback((event: PointerEvent): void => {
-        if (getIsMobile()) event.preventDefault();
-    }, []);
-
-    const mobileDismissLayer = getIsMobile() ? (
-        <div
-            aria-hidden
-            className="fixed inset-0 z-40"
-            onPointerDown={(event) => event.stopPropagation()}
-            onClick={() => setOpen(false)}
-        />
-    ) : null;
-
     const fragmentRemoved = useMemo(
         () => isComponentReferenceMissing(node.id, page, fragmentOptions, [], areFragmentsResolved),
         [node.id, page, fragmentOptions, areFragmentsResolved],
     );
 
-    if (data == null) {
-        return <>{children}</>;
-    }
-
     const isPageRoot = data.nodeType === 'page' || node.id === ROOT_NODE_ID;
-
     if (isPageRoot) {
         return (
-            <ContextMenu open={open} onOpenChange={setOpen} data-component={PAGE_COMPONENTS_CONTEXT_MENU_NAME}>
-                <ContextMenu.Trigger className="flex-1 min-w-0">{children}</ContextMenu.Trigger>
-                <ContextMenu.Portal>
-                    {mobileDismissLayer}
-                    <ContextMenu.Content className="min-w-48" onPointerDownOutside={handlePointerDownOutside}>
-                        <InspectItem nodeId={ROOT_NODE_ID} label={inspectLabel} />
-                        <PageResetItem label={resetLabel} onSelect={requestPageReset} />
-                        <SaveAsTemplateItem label={saveAsTemplateLabel} />
-                    </ContextMenu.Content>
-                </ContextMenu.Portal>
-            </ContextMenu>
+            <>
+                <InspectItem nodeId={ROOT_NODE_ID} label={inspectLabel} />
+                <PageResetItem label={resetLabel} onSelect={requestPageReset} />
+                <SaveAsTemplateItem label={saveAsTemplateLabel} />
+            </>
         );
     }
 
-    const isRegion = data.nodeType === 'region';
-    const isComponent = !isRegion;
+    const isComponent = data.nodeType !== 'region';
     const isFragmentComponent = data.nodeType === 'fragment';
     const isEmpty = isComponentEmpty(node.id);
 
     return (
-        <ContextMenu open={open} onOpenChange={setOpen} data-component={PAGE_COMPONENTS_CONTEXT_MENU_NAME}>
-            <ContextMenu.Trigger className="flex-1 min-w-0">{children}</ContextMenu.Trigger>
-            <ContextMenu.Portal>
-                {mobileDismissLayer}
-                <ContextMenu.Content className="min-w-48" onPointerDownOutside={handlePointerDownOutside}>
-                    <SelectParentItem nodeId={node.id} label={selectParentLabel} />
-                    <InsertSubMenu nodeId={node.id} label={insertLabel} />
-                    {isComponent && (
-                        <>
-                            <InspectItem nodeId={node.id} label={inspectLabel} />
-                            {!isEmpty && <ResetItem nodeId={node.id} label={resetLabel} />}
-                            <RemoveItem nodeId={node.id} label={removeLabel} />
-                            <DuplicateItem nodeId={node.id} label={duplicateLabel} />
-                            {!isEmpty && !isFragmentComponent && !contentContext?.isPageTemplate && (
-                                <SaveAsFragmentItem nodeId={node.id} label={saveAsFragmentLabel} />
-                            )}
-                            {isFragmentComponent && !isEmpty && (
-                                <DetachFragmentItem
-                                    nodeId={node.id}
-                                    label={detachFragmentLabel}
-                                    disabled={fragmentRemoved}
-                                />
-                            )}
-                            {isFragmentComponent && (
-                                <EditFragmentItem
-                                    nodeId={node.id}
-                                    label={editFragmentLabel}
-                                    disabled={fragmentRemoved}
-                                />
-                            )}
-                        </>
+        <>
+            <SelectParentItem nodeId={node.id} label={selectParentLabel} />
+            <InsertSubMenu nodeId={node.id} label={insertLabel} />
+            {isComponent && (
+                <>
+                    <InspectItem nodeId={node.id} label={inspectLabel} />
+                    {!isEmpty && <ResetItem nodeId={node.id} label={resetLabel} />}
+                    <RemoveItem nodeId={node.id} label={removeLabel} />
+                    <DuplicateItem nodeId={node.id} label={duplicateLabel} />
+                    {!isEmpty && !isFragmentComponent && !contentContext?.isPageTemplate && (
+                        <SaveAsFragmentItem nodeId={node.id} label={saveAsFragmentLabel} />
                     )}
-                </ContextMenu.Content>
-            </ContextMenu.Portal>
-        </ContextMenu>
+                    {isFragmentComponent && !isEmpty && (
+                        <DetachFragmentItem nodeId={node.id} label={detachFragmentLabel} disabled={fragmentRemoved} />
+                    )}
+                    {isFragmentComponent && (
+                        <EditFragmentItem nodeId={node.id} label={editFragmentLabel} disabled={fragmentRemoved} />
+                    )}
+                </>
+            )}
+        </>
     );
 };
 
-PageComponentsContextMenu.displayName = PAGE_COMPONENTS_CONTEXT_MENU_NAME;
+PageComponentsContextMenuItems.displayName = 'PageComponentsContextMenuItems';
 
 //
 // * Page root menu items

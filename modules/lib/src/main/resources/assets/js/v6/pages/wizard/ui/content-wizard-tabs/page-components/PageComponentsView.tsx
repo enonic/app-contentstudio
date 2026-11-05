@@ -404,18 +404,16 @@ export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProp
             const iconUrl = resolvePartIconUrl(context.item.data, partIconUrls);
 
             return (
-                <PageComponentsContextMenu node={context.item}>
-                    <PageComponentsItem
-                        context={context}
-                        pageMetadata={pageMetadata}
-                        iconUrl={iconUrl}
-                        iconRefreshVersion={partRefreshVersion}
-                        selected={isSelected}
-                        invalid={isInvalid}
-                        onToggle={toggleComponentExpand}
-                        onSelect={handleSelect}
-                    />
-                </PageComponentsContextMenu>
+                <PageComponentsItem
+                    context={context}
+                    pageMetadata={pageMetadata}
+                    iconUrl={iconUrl}
+                    iconRefreshVersion={partRefreshVersion}
+                    selected={isSelected}
+                    invalid={isInvalid}
+                    onToggle={toggleComponentExpand}
+                    onSelect={handleSelect}
+                />
             );
         },
         [
@@ -444,24 +442,26 @@ export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProp
                 onKeyDownCapture={handleKeyDownCapture}
             >
                 {showTitle && <h3 className="text-base font-semibold">{componentsLabel}</h3>}
-                <SortableList
-                    items={flatNodes}
-                    keyExtractor={(node) => node.data?.dragId ?? node.id}
-                    onDragStart={handleDragStart}
-                    onMove={handleMove}
-                    enabled={flatNodes.length > 1}
-                    fullRowDraggable={!getIsMobile()}
-                    dragLabel={moveLabel}
-                    isItemMovable={isItemMovable}
-                    resolveDrop={resolveDrop}
-                    animateLayoutChanges={animateLayoutChanges}
-                    itemClassName={itemClassName}
-                    containerProps={{ role: 'tree', 'aria-label': componentsLabel }}
-                    getItemProps={getItemProps}
-                    restoreFocus={false}
-                    renderItem={renderItem}
-                    className="flex flex-col gap-1.5"
-                />
+                <PageComponentsContextMenu nodes={flatNodes}>
+                    <SortableList
+                        items={flatNodes}
+                        keyExtractor={(node) => node.data?.dragId ?? node.id}
+                        onDragStart={handleDragStart}
+                        onMove={handleMove}
+                        enabled={flatNodes.length > 1}
+                        fullRowDraggable={!getIsMobile()}
+                        dragLabel={moveLabel}
+                        isItemMovable={isItemMovable}
+                        resolveDrop={resolveDrop}
+                        animateLayoutChanges={animateLayoutChanges}
+                        itemClassName={itemClassName}
+                        containerProps={{ role: 'tree', 'aria-label': componentsLabel }}
+                        getItemProps={getItemProps}
+                        restoreFocus={false}
+                        renderItem={renderItem}
+                        className="flex flex-col gap-1.5"
+                    />
+                </PageComponentsContextMenu>
             </div>
         </EditLockOverlay>
     );
