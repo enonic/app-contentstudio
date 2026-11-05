@@ -1,6 +1,6 @@
 // Read: stores
 export { $contentContext, $defaultPageTemplateName, $pageEditorLifecycle } from './store';
-export { $hasControllerOrTemplate, $isFragment, $isInsertTabAvailable } from './store';
+export { $hasControllerOrTemplate, $isFragment, $isInsertTabAvailable, $isPageLocked } from './store';
 export { $isInspecting, $inspectedPath, $inspectedItem, $inspectedItemType, $selectionEventNonce } from './store';
 export { $insertTabActivateNonce, bumpInsertTabActivateNonce } from './store';
 export { $dragState, startDrag, updateDrag, endDrag } from './drag';
@@ -11,6 +11,7 @@ export { usePageState } from './hooks';
 // Write: commands
 export {
     setHasDefaultPageTemplate,
+    setPageModifyAllowed,
     syncInitialRenderable,
     requestSetPageTemplate,
     requestSetPageController,

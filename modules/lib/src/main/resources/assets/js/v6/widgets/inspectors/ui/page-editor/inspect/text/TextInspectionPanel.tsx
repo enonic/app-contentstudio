@@ -5,7 +5,7 @@ import { useRef, type ReactElement } from 'react';
 import type { PageItem } from '../../../../../../../app/page/region/PageItem';
 import { TextComponent } from '../../../../../../../app/page/region/TextComponent';
 import { ItemLabel } from '../../../../../../shared/ui/ItemLabel';
-import { $inspectedItem, $pageEditorLifecycle } from '../../../../model/page-editor';
+import { $inspectedItem, $isPageLocked } from '../../../../model/page-editor';
 import { $pageVersion } from '../../../../model/page-editor/store';
 import { TextEditor } from './TextEditor';
 
@@ -25,7 +25,7 @@ const TEXT_INSPECTION_PANEL_NAME = 'TextInspectionPanel';
 export const TextInspectionPanel = (): ReactElement | null => {
     const item = useStore($inspectedItem);
     useStore($pageVersion);
-    const lifecycle = useStore($pageEditorLifecycle);
+    const isPageLocked = useStore($isPageLocked);
 
     // ? Path can stay the same when a new component is inserted at the
     // ? selected path (the previous one shifts forward). Keying the editor
@@ -55,7 +55,7 @@ export const TextInspectionPanel = (): ReactElement | null => {
             <TextEditor
                 key={`${path?.toString()}-${itemEpochRef.current}`}
                 textComponent={item}
-                disabled={lifecycle.isPageLocked}
+                disabled={isPageLocked}
             />
         </div>
     );

@@ -3,7 +3,9 @@ import type { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/Conten
 import type { ContentId } from '../../../../../app/content/ContentId';
 
 export type PageEditorLifecycle = {
-    isPageLocked: boolean;
+    // The frame has live-edit markup to interact with. Without it the page
+    // is still edited through the panel, and reloads as a whole after Apply.
+    inlineEditing: boolean;
     isPageRenderable: boolean | undefined;
     isPageReady: boolean;
 };

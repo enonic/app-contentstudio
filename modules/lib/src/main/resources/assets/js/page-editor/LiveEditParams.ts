@@ -1,14 +1,13 @@
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {type LiveEditModel} from './LiveEditModel';
-import {ComponentPath} from '../app/page/region/ComponentPath';
-import {FragmentComponent} from '../app/page/region/FragmentComponent';
-import {PageHelper} from '../app/util/PageHelper';
-import {PageState} from '../app/wizard/page/PageState';
-import {TextComponent} from '../app/page/region/TextComponent';
-import {type PageItem} from '../app/page/region/PageItem';
+import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
+import { type LiveEditModel } from './LiveEditModel';
+import { ComponentPath } from '../app/page/region/ComponentPath';
+import { FragmentComponent } from '../app/page/region/FragmentComponent';
+import { PageHelper } from '../app/util/PageHelper';
+import { PageState } from '../app/wizard/page/PageState';
+import { TextComponent } from '../app/page/region/TextComponent';
+import { type PageItem } from '../app/page/region/PageItem';
 
 export class LiveEditParams {
-
     readonly isFragment?: boolean;
 
     readonly isFragmentAllowed?: boolean;
@@ -64,7 +63,12 @@ export class LiveEditParams {
         return new LiveEditParamsBuilder();
     }
 
-    static fromLiveEditModel(liveEditModel: LiveEditModel, applicationKeys: string[], modifyPermissions: boolean): LiveEditParams {
+    static fromLiveEditModel(
+        liveEditModel: LiveEditModel,
+        applicationKeys: string[],
+        modifyPermissions: boolean,
+        locked: boolean,
+    ): LiveEditParams {
         const isPageTemplate = liveEditModel.getContent().isPageTemplate();
         const isFragment = liveEditModel.getContent().getType().isFragment();
 
@@ -72,7 +76,7 @@ export class LiveEditParams {
             .setIsPageTemplate(isPageTemplate)
             .setIsFragment(isFragment)
             .setDisplayName(liveEditModel.getContent().getDisplayName())
-            .setLocked(!isPageTemplate && !PageState.getState()?.hasController() && !isFragment)
+            .setLocked(locked)
             .setIsFragmentAllowed(liveEditModel.isFragmentAllowed())
             .setIsResetEnabled(PageState.getState()?.hasController())
             .setPageName(liveEditModel.getContent().getDisplayName())
@@ -136,7 +140,6 @@ export class LiveEditParams {
 }
 
 export class LiveEditParamsBuilder {
-
     isFragment?: boolean;
 
     isFragmentAllowed?: boolean;
