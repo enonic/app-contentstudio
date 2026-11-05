@@ -12,7 +12,7 @@ import { Component } from '../../../../../app/page/region/Component';
 //
 
 export const $pageEditorLifecycle = map<PageEditorLifecycle>({
-    isPageLocked: false,
+    inlineEditing: true,
     isPageRenderable: undefined,
     isPageReady: false,
 });
@@ -26,6 +26,9 @@ export const $hasDefaultPageTemplate = atom<boolean>(false);
 export const $defaultPageTemplateName = atom<string | null>(null);
 
 export const $contentContext = atom<PageEditorContentContext | null>(null);
+
+// Mirrors what the wizard tells the page editor through `set-modify-allowed`.
+export const $isPageModifyAllowed = atom<boolean>(true);
 
 // A save replaces the context object without changing what inspection data applies.
 export const $contentScopeKey = computed($contentContext, (ctx): string | null =>
@@ -59,10 +62,22 @@ export const $hasControllerOrTemplate = computed([$page, $pageVersion], (page): 
 
 export const $isFragment = computed([$page, $pageVersion], (page): boolean => page?.isFragment() ?? false);
 
+// The page model is not editable: it is driven by a template (Customize
+// detaches it) or the content is read-only. Derived from the host's own
+// state only; the page editor never decides this.
+export const $isPageLocked = computed(
+    [$contentContext, $page, $pageVersion, $isPageModifyAllowed],
+    (ctx, page, _version, modifyAllowed): boolean => {
+        if (!modifyAllowed) return true;
+        if (ctx == null) return false;
+        return !ctx.isPageTemplate && !ctx.contentTypeName.isFragment() && !page?.hasController();
+    },
+);
+
 export const $isInsertTabAvailable = computed(
-    [$pageEditorLifecycle, $hasControllerOrTemplate, $hasDefaultPageTemplate],
-    (lifecycle, hasControllerOrTemplate, hasDefaultTemplate): boolean => {
-        if (!lifecycle.isPageReady || lifecycle.isPageLocked || !lifecycle.isPageRenderable) {
+    [$pageEditorLifecycle, $isPageLocked, $hasControllerOrTemplate, $hasDefaultPageTemplate],
+    (lifecycle, isPageLocked, hasControllerOrTemplate, hasDefaultTemplate): boolean => {
+        if (!lifecycle.isPageReady || !lifecycle.inlineEditing || !lifecycle.isPageRenderable || isPageLocked) {
             return false;
         }
         return hasControllerOrTemplate || hasDefaultTemplate;

@@ -1,5 +1,6 @@
 import { getIsMobile } from '@enonic/ui';
 import { PageEventsManager } from '../../../../../app/wizard/PageEventsManager';
+import type { LiveEditPageViewReadyEvent } from '../../../../../page-editor/event/LiveEditPageViewReadyEvent';
 import type { PageNavigationEvent } from '../../../../../app/wizard/PageNavigationEvent';
 import { PageNavigationEventType } from '../../../../../app/wizard/PageNavigationEventType';
 import type { PageNavigationHandler } from '../../../../../app/wizard/PageNavigationHandler';
@@ -12,6 +13,8 @@ import {
     $defaultPageTemplateName,
     $hasDefaultPageTemplate,
     $inspectedPath,
+    $isPageLocked,
+    $isPageModifyAllowed,
     $page,
     $pageEditorLifecycle,
     $pageVersion,
@@ -41,11 +44,23 @@ export function initPageEditorBridge(options?: InitPageEditorBridgeOptions): voi
 
     // Lifecycle events from PageEventsManager
 
-    const onLocked = () => $pageEditorLifecycle.setKey('isPageLocked', true);
+    // ? Page editor < 2.1 reports no `inlineEditing`; it only adds its own
+    // ? lock when the frame has no live-edit markup. A lock echoed back while
+    // ? the host itself did not lock is read as that fact. Under a host lock
+    // ? the echo tells nothing, so the frame is reloaded once it is unlocked
+    // ? by permissions to find out.
+    let editorLocked = false;
+    let inferredUnderLock = false;
+
+    const onLocked = () => {
+        editorLocked = true;
+    };
     mgr.onPageLocked(onLocked);
     cleanups.push(() => mgr.unPageLocked(onLocked));
 
-    const onUnlocked = () => $pageEditorLifecycle.setKey('isPageLocked', false);
+    const onUnlocked = () => {
+        editorLocked = false;
+    };
     mgr.onPageUnlocked(onUnlocked);
     cleanups.push(() => mgr.unPageUnlocked(onUnlocked));
 
@@ -53,13 +68,40 @@ export function initPageEditorBridge(options?: InitPageEditorBridgeOptions): voi
     mgr.onRenderableChanged(onRenderable);
     cleanups.push(() => mgr.unRenderableChanged(onRenderable));
 
-    const onReady = () => $pageEditorLifecycle.setKey('isPageReady', true);
+    const onReady = (event: LiveEditPageViewReadyEvent) => {
+        const reported = event.getInlineEditing();
+        const hostLocked = $isPageLocked.get();
+        inferredUnderLock = reported == null && editorLocked && hostLocked;
+        const inlineEditing = reported ?? !(editorLocked && !hostLocked);
+        $pageEditorLifecycle.set({ ...$pageEditorLifecycle.get(), inlineEditing, isPageReady: true });
+    };
     mgr.onLiveEditPageViewReady(onReady);
     cleanups.push(() => mgr.unLiveEditPageViewReady(onReady));
 
-    const onBeforeLoad = () => $pageEditorLifecycle.setKey('isPageReady', false);
+    // Every frame load starts a new echo; `onLoaded` covers the toolbar
+    // Refresh and in-frame reloads, which bypass `onBeforeLoad`.
+    const resetEditorState = () => {
+        editorLocked = false;
+        inferredUnderLock = false;
+    };
+
+    const onBeforeLoad = () => {
+        resetEditorState();
+        $pageEditorLifecycle.set({ ...$pageEditorLifecycle.get(), inlineEditing: true, isPageReady: false });
+    };
     mgr.onBeforeLoad(onBeforeLoad);
     cleanups.push(() => mgr.unBeforeLoad(onBeforeLoad));
+
+    mgr.onLoaded(resetEditorState);
+    cleanups.push(() => mgr.unLoaded(resetEditorState));
+
+    cleanups.push(
+        $isPageModifyAllowed.listen((allowed) => {
+            if (!allowed || !inferredUnderLock) return;
+            inferredUnderLock = false;
+            mgr.notifyPageReloadRequested();
+        }),
+    );
 
     // Page model events from PageState.getEvents()
 
@@ -147,12 +189,13 @@ export function cleanupPageEditorBridge(): void {
     unsubscribePageEditorBridge();
 
     $pageEditorLifecycle.set({
-        isPageLocked: false,
+        inlineEditing: true,
         isPageRenderable: undefined,
         isPageReady: false,
     });
     $page.set(null);
     $pageVersion.set(0);
+    $isPageModifyAllowed.set(true);
     $hasDefaultPageTemplate.set(false);
     $defaultPageTemplateName.set(null);
     $contentContext.set(null);

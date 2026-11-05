@@ -86,7 +86,6 @@ import { ViewExtensionEvent } from '../event/ViewExtensionEvent';
 import { type ContentType } from '../inputtype/schema/ContentType';
 import { ImageErrorEvent } from '../inputtype/ui/selector/image/ImageErrorEvent';
 import { PageControllerCustomizedEvent } from '../page/event/PageControllerCustomizedEvent';
-import { PageControllerUpdatedEvent } from '../page/event/PageControllerUpdatedEvent';
 import { type PageUpdatedEvent } from '../page/event/PageUpdatedEvent';
 import { type Page } from '../page/Page';
 import { type PublishStatus } from '../publish/PublishStatus';
@@ -315,10 +314,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
             this.checkIfEditIsAllowed()
                 .then((canModify: boolean) => {
                     this.handleCanModify(canModify);
-
-                    if (canModify) {
-                        this.unLockPage();
-                    }
                 })
                 .catch(DefaultErrorHandler.handle);
         }
@@ -989,17 +984,9 @@ export class ContentWizardPanel extends WizardPanel<Content> {
             setDraftPage(PageState.getState());
             this.setMarkedAsReady(false);
 
-            if (event instanceof PageControllerCustomizedEvent) {
-                this.unLockPage();
-            } else {
-                // saving page on all page updates except when page is being customized
+            // saving page on all page updates except when page is being customized
+            if (!(event instanceof PageControllerCustomizedEvent)) {
                 this.saveChanges().catch(DefaultErrorHandler.handle);
-            }
-
-            if (event instanceof PageControllerUpdatedEvent) {
-                if (this.liveEditPage?.isLocked()) {
-                    this.unLockPage();
-                }
             }
         });
     }
@@ -1653,10 +1640,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
         this.getEl().toggleClass('no-modify-permissions', !value);
         this.getLivePanel()?.setEnabled(value);
-    }
-
-    unLockPage(): void {
-        this.liveEditPage?.setLocked(false);
     }
 
     isReadOnly(): boolean {

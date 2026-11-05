@@ -21,8 +21,11 @@ import {
     $isLiveViewImageEditorActive,
 } from '../../../v6/widgets/inspectors/model/liveViewWidgets.store';
 import {
+    $isPageLocked,
+    $pageEditorLifecycle,
     cleanupPageEditorBridge,
     initPageEditorBridge,
+    setPageModifyAllowed,
     syncInitialRenderable,
 } from '../../../v6/widgets/inspectors/model/page-editor';
 import {
@@ -81,6 +84,8 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
     private showLoadMaskHandler: () => void;
     private hideLoadMaskHandler: () => void;
 
+    private unsubscribePageLocked: () => void;
+
     constructor(config: LiveFormPanelConfig) {
         super('live-form-panel extension-preview-panel');
 
@@ -95,6 +100,8 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
         this.initElements();
 
         this.setModel(config.liveEditModel);
+
+        this.unsubscribePageLocked = $isPageLocked.listen((locked) => this.liveEditPageProxy?.setLocked(locked));
     }
 
     getIFrameEl(): IFrameEl {
@@ -154,7 +161,13 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
         this.contentWizardPanel
             .saveChangesWithoutValidation(false)
             .then(() => {
-                this.liveEditPageProxy?.loadComponent(path, existing);
+                if ($pageEditorLifecycle.get().inlineEditing) {
+                    this.liveEditPageProxy?.loadComponent(path, existing);
+                    return;
+                }
+
+                this.pageSkipReload = false;
+                void this.loadPage(false);
             })
             .catch(DefaultErrorHandler.handle)
             .finally(() => {
@@ -183,6 +196,7 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
         ShowLiveEditEvent.un(this.showLoadMaskHandler);
         ShowContentFormEvent.un(this.hideLoadMaskHandler);
 
+        this.unsubscribePageLocked();
         this.liveEditPageProxy.remove();
         stopComponentInspectionService();
         stopFragmentInspectionService();
@@ -284,6 +298,7 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
 
     setEnabled(enabled: boolean): void {
         this.modifyPermissions = enabled;
+        setPageModifyAllowed(enabled);
         this.liveEditPageProxy?.setModifyPermissions(enabled);
     }
 

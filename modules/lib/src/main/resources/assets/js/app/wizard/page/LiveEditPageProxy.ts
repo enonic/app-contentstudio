@@ -5,6 +5,7 @@ import {
     type InitializePayload,
     type InsertableComponentKind,
 } from '@enonic/page-editor/protocol';
+import { $isPageLocked } from '../../../v6/widgets/inspectors/model/page-editor';
 import { BeforeContentSavedEvent } from '../../event/BeforeContentSavedEvent';
 import { type ComponentAddedEvent } from '../../page/region/ComponentAddedEvent';
 import { ComponentDuplicatedEvent } from '../../page/region/ComponentDuplicatedEvent';
@@ -60,8 +61,6 @@ export class LiveEditPageProxy implements PageNavigationHandler {
     private static debug: boolean = false;
 
     private modifyPermissions: boolean;
-
-    private isPageLocked: boolean;
 
     private isContentRenderable: boolean = false;
 
@@ -203,7 +202,6 @@ export class LiveEditPageProxy implements PageNavigationHandler {
 
     public unload(): void {
         this.liveEditIFrame?.getEl().removeAttribute('src');
-        this.isPageLocked = false;
         this.isContentRenderable = false;
 
         if (this.isFrameLoaded) {
@@ -224,7 +222,6 @@ export class LiveEditPageProxy implements PageNavigationHandler {
         }
 
         this.isFrameLoaded = true;
-        this.isPageLocked = false;
 
         if (this.isLiveEditAllowed()) {
             if (LiveEditPageProxy.debug) {
@@ -258,6 +255,7 @@ export class LiveEditPageProxy implements PageNavigationHandler {
                     this.liveEditModel,
                     this.resolveApplicationKeys(),
                     this.modifyPermissions,
+                    $isPageLocked.get(),
                 ),
             },
             page: PageState.getState()?.toJson() ?? undefined,
@@ -325,10 +323,6 @@ export class LiveEditPageProxy implements PageNavigationHandler {
         );
     }
 
-    isLocked(): boolean {
-        return this.isPageLocked;
-    }
-
     setLocked(locked: boolean): void {
         if (this.isFrameLoaded) {
             this.bus?.post('set-page-lock-state', { locked });
@@ -378,14 +372,12 @@ export class LiveEditPageProxy implements PageNavigationHandler {
 
         cleanups.push(
             bus.on('page-locked', () => {
-                this.isPageLocked = true;
                 eventsManager.notifyPageLocked(new PageLockedEvent());
             }),
         );
 
         cleanups.push(
             bus.on('page-unlocked', () => {
-                this.isPageLocked = false;
                 eventsManager.notifyPageUnlocked(new PageUnlockedEvent());
             }),
         );
@@ -432,8 +424,12 @@ export class LiveEditPageProxy implements PageNavigationHandler {
         );
 
         cleanups.push(
-            bus.on('ready', () => {
-                eventsManager.notifyLiveEditPageViewReady(new LiveEditPageViewReadyEvent());
+            bus.on('ready', (payload) => {
+                const inlineEditing =
+                    'inlineEditing' in payload && typeof payload.inlineEditing === 'boolean'
+                        ? payload.inlineEditing
+                        : undefined;
+                eventsManager.notifyLiveEditPageViewReady(new LiveEditPageViewReadyEvent(inlineEditing));
             }),
         );
 
@@ -469,7 +465,7 @@ export class LiveEditPageProxy implements PageNavigationHandler {
                 const type: ComponentType = ComponentType.byShortName(payload.kind);
 
                 // if an item is added on a locked non-customized page, we need to customize it first, and then add a new item
-                if (this.isPageLocked) {
+                if ($isPageLocked.get()) {
                     // in future might perform some validation here, access rights check etc
                     this.addItemOnPageCustomized(path, type);
                     PageEventsManager.get().notifyCustomizePageRequested();

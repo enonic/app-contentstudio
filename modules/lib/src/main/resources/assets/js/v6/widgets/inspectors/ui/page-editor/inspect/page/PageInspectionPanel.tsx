@@ -9,7 +9,7 @@ import { FormRenderer } from '../../../../../../features/shared/form/FormRendere
 import { getAiFieldRegistry } from '../../../../../../features/ai/ai.field-registry';
 import {
     $contentContext,
-    $pageEditorLifecycle,
+    $isPageLocked,
     bumpInsertTabActivateNonce,
     requestCustomizePage,
     usePageState,
@@ -33,7 +33,7 @@ const PAGE_INSPECTION_PANEL_NAME = 'PageInspectionPanel';
 export const PageInspectionPanel = (): ReactElement => {
     const page = usePageState();
     const ctx = useStore($contentContext);
-    const lifecycle = useStore($pageEditorLifecycle);
+    const isPageLocked = useStore($isPageLocked);
     const descriptor = useStore($pageConfigDescriptor);
     const isCustomizeVisible = useStore($isCustomizeVisible);
     const isEmpty = useStore($isPageInspectionEmpty);
@@ -86,7 +86,7 @@ export const PageInspectionPanel = (): ReactElement => {
                         <FormRenderer
                             form={configForm}
                             propertySet={configRoot}
-                            enabled={!lifecycle.isPageLocked}
+                            enabled={!isPageLocked}
                             applicationKey={ctx?.applicationKey ?? undefined}
                         />
                     </FieldRegistryProvider>
