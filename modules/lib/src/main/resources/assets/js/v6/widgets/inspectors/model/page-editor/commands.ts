@@ -1,16 +1,26 @@
 import type { ComponentPath } from '../../../../../app/page/region/ComponentPath';
 import type { ComponentTextUpdatedOrigin } from '../../../../../app/page/region/ComponentTextUpdatedOrigin';
-import type { ComponentType } from '../../../../../app/page/region/ComponentType';
+import { ComponentType } from '../../../../../app/page/region/ComponentType';
+import { getIsMobile } from '@enonic/ui';
 import type { DescriptorKey } from '../../../../../app/page/DescriptorKey';
 import type { PageTemplateKey } from '../../../../../app/page/PageTemplateKey';
 import { PageStateEvent } from '../../../../../page-editor/event/incoming/common/PageStateEvent';
 import { PageEventsManager } from '../../../../../app/wizard/PageEventsManager';
 import { PageState } from '../../../../../app/wizard/page/PageState';
+import { PageNavigationEvent } from '../../../../../app/wizard/PageNavigationEvent';
+import { PageNavigationEventData } from '../../../../../app/wizard/PageNavigationEventData';
+import { PageNavigationEventType } from '../../../../../app/wizard/PageNavigationEventType';
+import { PageNavigationMediator } from '../../../../../app/wizard/PageNavigationMediator';
+import { $config } from '../../../../shared/config/config.store';
 import { setDraftPage } from '../../../../pages/wizard/model/wizardContent.store';
+import { getComponentInsertionPath } from './componentInsertion';
+import type { PortalComponentType } from './drag';
 import {
     $hasDefaultPageTemplate,
     $inspectedPath,
     $isPageModifyAllowed,
+    $isInsertTabAvailable,
+    $page,
     $pageEditorLifecycle,
     bumpSelectionEventNonce,
 } from './store';
@@ -83,6 +93,33 @@ export function requestSetFragmentComponent(path: ComponentPath, id: string, nam
 
 export function requestComponentAdd(path: ComponentPath, type: ComponentType): void {
     PageEventsManager.get().notifyComponentAddRequested(path, type);
+}
+
+export function requestComponentInsert(type: PortalComponentType): ComponentPath | null {
+    const page = $page.get();
+    if (!$isInsertTabAvailable.get() || !page) {
+        return null;
+    }
+    if ((type === 'text' && !$config.get().enableTextComponent) || (type === 'layout' && page.isFragment())) {
+        return null;
+    }
+
+    const path = getComponentInsertionPath(page, $inspectedPath.get(), type);
+    const componentType = ComponentType.byShortName(type);
+    if (!path || !componentType) {
+        return null;
+    }
+
+    requestComponentAdd(path, componentType);
+    PageNavigationMediator.get().notify(
+        new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(path)),
+    );
+    if (getIsMobile()) {
+        PageNavigationMediator.get().notify(
+            new PageNavigationEvent(PageNavigationEventType.INSPECT, new PageNavigationEventData(path)),
+        );
+    }
+    return path;
 }
 
 export function requestComponentRemove(path: ComponentPath): void {

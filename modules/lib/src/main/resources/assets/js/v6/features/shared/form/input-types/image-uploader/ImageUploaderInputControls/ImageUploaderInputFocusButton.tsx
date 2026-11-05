@@ -5,14 +5,18 @@ import { useImageUploaderContext } from '../ImageUploaderContext';
 import { useI18n } from '../../../../../../shared/lib/hooks/useI18n';
 
 export const ImageUploaderInputFocusButton = (): ReactElement => {
-    const { enabled, mode, setMode } = useImageUploaderContext();
+    const { enabled, mode, setMode, focusButtonRef } = useImageUploaderContext();
     const label = useI18n('editor.setautofocus');
 
     return (
         <Tooltip value={label} delay={300}>
             <IconButton
+                ref={focusButtonRef}
                 className={cn(mode === 'focus' && 'disabled:opacity-100')}
                 onClick={() => setMode('focus')}
+                onKeyDown={(event) => {
+                    if (event.key === 'Enter' && event.repeat) event.preventDefault();
+                }}
                 disabled={!enabled || mode !== 'ready'}
                 icon={Focus}
                 aria-label={label}

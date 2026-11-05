@@ -100,8 +100,8 @@ class LiveViewImageEditor extends Page {
             await this.waitForElementDisplayed(this.buttonFlip);
             await this.waitForElementEnabled(this.buttonFlip);
             await this.clickOnElement(this.buttonFlip);
-            // flip switches the editor to 'loading' mode, wait for 'ready' mode again:
-            await this.waitForElementEnabled(this.buttonFlip);
+            // The transform stays in edit mode until Apply or Cancel.
+            await this.waitForElementEnabled(this.buttonApply);
             return await this.pause(300);
         } catch (err) {
             await this.handleError('Image Editor, button flip', 'err_click_on_flip_button', err);
@@ -113,8 +113,8 @@ class LiveViewImageEditor extends Page {
             await this.waitForElementDisplayed(this.buttonRotate);
             await this.waitForElementEnabled(this.buttonRotate);
             await this.clickOnElement(this.buttonRotate);
-            // rotate switches the editor to 'loading' mode, wait for 'ready' mode again:
-            await this.waitForElementEnabled(this.buttonRotate);
+            // Wait for the transformed preview before applying or resetting it.
+            await this.waitForElementEnabled(this.buttonApply);
             return await this.pause(300);
         } catch (err) {
             await this.handleError('Image Editor, button rotate', 'err_click_on_rotate_button', err);
@@ -354,6 +354,7 @@ class LiveViewImageEditor extends Page {
 
     async clickOnApplyButton() {
         await this.waitForApplyButtonDisplayed();
+        await this.waitForElementEnabled(this.buttonApply);
         await this.clickOnElement(this.buttonApply);
         return await this.pause(500);
     }
