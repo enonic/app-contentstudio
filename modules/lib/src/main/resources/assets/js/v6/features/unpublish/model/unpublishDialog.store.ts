@@ -87,6 +87,18 @@ export const $unpublishInboundIds = computed($unpublishDialog, ({ inboundTargets
     inboundTargets.map((id) => id.toString()),
 );
 
+// Count uses the full id lists, not just the loaded dependant window.
+export const $unpublishInboundCount = computed(
+    $unpublishDialog,
+    ({ items, dependantIds, inboundTargets, inboundIgnored }) => {
+        if (inboundIgnored) {
+            return 0;
+        }
+        const targetIds = new Set([...items.map((item) => item.getContentId()), ...dependantIds].map(String));
+        return inboundTargets.filter((id) => targetIds.has(id.toString())).length;
+    },
+);
+
 export const $isUnpublishDialogReady = computed(
     [$unpublishDialog, $unpublishDialogPending, $isUnpublishBlockedByInbound],
     (state, pending, hasInbound) => {
