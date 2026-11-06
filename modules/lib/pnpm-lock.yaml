@@ -81,8 +81,8 @@ importers:
         specifier: ^1.14.1
         version: 1.14.2
       jsondiffpatch:
-        specifier: ^0.7.6
-        version: 0.7.6
+        specifier: ^0.7.7
+        version: 0.7.7
       lucide-react:
         specifier: ^1.67.0
         version: 1.67.0(@types/react@19.2.14)(react@19.2.4)
@@ -2263,8 +2263,8 @@ packages:
     engines: {node: '>=6'}
     hasBin: true
 
-  jsondiffpatch@0.7.6:
-    resolution: {integrity: sha512-zE9+AXFq+MkTolDor2Cw1nJzLC0aleqPkYf52Kb4Kn4mJcka/gFHpGI2JBVEJCfWOvBl0OoxZS+wuLdislQcqg==}
+  jsondiffpatch@0.7.7:
+    resolution: {integrity: sha512-C3375q+xluwQYS6Je613YqXpZhW9uSi2YFRR+8QTJVYhdk0GZiDr7HD9bXNrdV9PJCpmwsCgJM9ZXXESSZPCzA==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
 
@@ -4812,7 +4812,7 @@ snapshots:
 
   json5@2.2.3: {}
 
-  jsondiffpatch@0.7.6:
+  jsondiffpatch@0.7.7:
     dependencies:
       '@dmsnell/diff-match-patch': 1.1.0
 
