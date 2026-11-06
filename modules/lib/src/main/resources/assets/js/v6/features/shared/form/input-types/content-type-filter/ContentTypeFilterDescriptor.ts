@@ -5,6 +5,7 @@ import type { InputConfigEntries, InputTypeDescriptor } from '@enonic/input-type
 import type { ValidationResult } from '@enonic/input-types';
 import { isBlank } from '../../../../../shared/lib/format/isBlank';
 import type { ContentTypeFilterConfig } from './ContentTypeFilterConfig';
+import type { FormScopeRequirement } from '../../FormScopeContext';
 
 export const ContentTypeFilterDescriptor: InputTypeDescriptor<ContentTypeFilterConfig> = {
     name: 'ContentTypeFilter' as const,
@@ -30,3 +31,9 @@ export const ContentTypeFilterDescriptor: InputTypeDescriptor<ContentTypeFilterC
         return value.isNull() || !value.getType().equals(ValueTypes.STRING) || isBlank(value.getString());
     },
 };
+
+/**
+ * What the input needs from the form scope; see `formScopeRequirements`.
+ * The content too in a page template or `context` mode, at runtime.
+ */
+export const CONTENT_TYPE_FILTER_SCOPE_REQUIREMENT: FormScopeRequirement = { project: true };

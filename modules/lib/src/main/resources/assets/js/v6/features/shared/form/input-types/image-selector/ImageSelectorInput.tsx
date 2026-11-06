@@ -5,9 +5,10 @@ import { ImageSelector } from '../../../selectors/image';
 import { useFormScopeRequirement } from '../../FormScopeContext';
 import { useFormApplicationKey, useSelectorInput } from '../hooks';
 import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { IMAGE_SELECTOR_SCOPE_REQUIREMENT } from './ImageSelectorDescriptor';
 
 export const ImageSelectorInput = (props: SelfManagedComponentProps<ImageSelectorConfig>): ReactElement => {
-    const { enabled: scopeEnabled } = useFormScopeRequirement(props.input, { project: true });
+    const { enabled: scopeEnabled } = useFormScopeRequirement(props.input, IMAGE_SELECTOR_SCOPE_REQUIREMENT);
     const applicationKey = useFormApplicationKey();
     const {
         contextContent,

@@ -6,3 +6,7 @@ export type {
     FormScopeRequirementResult,
     ResolvedFormScope,
 } from './FormScopeContext';
+export { ApplicationConfigDialogContent } from './ApplicationConfigDialogContent';
+export type { ApplicationConfigDialogContentProps } from './ApplicationConfigDialogContent';
+export { ApplicationConfigDialog } from './ApplicationConfigDialog';
+export type { ApplicationConfigDialogProps } from './ApplicationConfigDialog';

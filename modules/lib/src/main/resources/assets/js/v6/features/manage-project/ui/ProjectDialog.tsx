@@ -7,14 +7,18 @@ import {
     $isProjectDialogDirty,
     $projectDialog,
     cancelProjectDialog,
+    closeProjectDialogApplicationConfig,
     confirmProjectDialogAccessMode,
     createProject,
+    discardProjectDialogApplicationConfig,
     revertProjectDialogAccessMode,
     updateProject,
     setProjectDialogStep,
     setProjectDialogView,
 } from '../model/projectDialog.store';
 import { ConfirmationDialog } from '../../../shared/ui/dialogs/ConfirmationDialog';
+import { useHtmlAreaDialogYield } from '../../shared/hooks/useHtmlAreaDialogYield';
+import { ProjectDialogConfigContent } from './ProjectDialogConfigContent';
 import { ProjectDialogSteps } from './steps';
 import { ProgressDialogContent } from '../../../shared/ui/dialogs/ProgressDialogContent';
 
@@ -36,6 +40,7 @@ export const ProjectDialog = (): ReactElement => {
 
     const isDirty = useStore($isProjectDialogDirty);
     const isProjectDialogAccessModeDirty = useStore($isProjectDialogAccessModeDirty);
+    const { overlayHidden, shouldIgnoreClose } = useHtmlAreaDialogYield();
     const pendingStep = useRef<string | null>(null);
 
     const previousLabel = useI18n('action.previous');
@@ -125,6 +130,19 @@ export const ProjectDialog = (): ReactElement => {
         (open: boolean) => {
             if (open) return;
 
+            // The config view hosts HtmlAreas; a close request may be theirs, and closes the view, not the dialog.
+            if (view === 'config') {
+                if (!shouldIgnoreClose()) {
+                    closeProjectDialogApplicationConfig();
+                }
+                return;
+            }
+
+            if (view === 'config-discard') {
+                setProjectDialogView('config');
+                return;
+            }
+
             if (view === 'dirty-confirmation' || view === 'access-confirmation') {
                 setProjectDialogView('main');
                 return;
@@ -137,7 +155,7 @@ export const ProjectDialog = (): ReactElement => {
 
             cancelProjectDialog();
         },
-        [isDirty, view],
+        [isDirty, view, shouldIgnoreClose],
     );
 
     const handleSubmit = useCallback(() => {
@@ -182,7 +200,7 @@ export const ProjectDialog = (): ReactElement => {
     return (
         <Dialog.Root open={open} onOpenChange={handleOpenChange} step={step} onStepChange={handleStepChange}>
             <Dialog.Portal>
-                <Dialog.Overlay />
+                {!overlayHidden && <Dialog.Overlay />}
                 {view === 'main' && (
                     <Dialog.Content
                         className="w-full h-full max-sm:max-h-none sm:h-fit gap-10 p-5 md:p-10  md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220"
@@ -254,6 +272,19 @@ export const ProjectDialog = (): ReactElement => {
                             description={accessConfirmDescription}
                         />
                         <ConfirmationDialog.Footer onConfirm={handleAccessConfirm} onCancel={handleAccessCancel} />
+                    </ConfirmationDialog.Content>
+                )}
+                {view === 'config' && <ProjectDialogConfigContent />}
+                {view === 'config-discard' && (
+                    <ConfirmationDialog.Content>
+                        <ConfirmationDialog.DefaultHeader
+                            title={dirtyConfirmTitle}
+                            description={dirtyConfirmDescription}
+                        />
+                        <ConfirmationDialog.Footer
+                            onConfirm={discardProjectDialogApplicationConfig}
+                            closeOnConfirm={false}
+                        />
                     </ConfirmationDialog.Content>
                 )}
                 {view === 'progress' && (

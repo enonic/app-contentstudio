@@ -5,6 +5,7 @@ import { type Value } from '@enonic/input-types/data';
 import { ValueTypes } from '@enonic/input-types/data';
 import { readAllowPath } from '../../../../../shared/lib/form/form';
 import type { InputConfigEntries } from '@enonic/input-types';
+import type { FormScopeRequirement } from '../../FormScopeContext';
 
 export const MediaSelectorDescriptor: InputTypeDescriptor<MediaSelectorConfig> = {
     name: 'MediaSelector' as const,
@@ -41,3 +42,6 @@ export const MediaSelectorDescriptor: InputTypeDescriptor<MediaSelectorConfig> =
         return value.isNull();
     },
 };
+
+/** What the input needs from the form scope; see `formScopeRequirements`. */
+export const MEDIA_SELECTOR_SCOPE_REQUIREMENT: FormScopeRequirement = { project: true };

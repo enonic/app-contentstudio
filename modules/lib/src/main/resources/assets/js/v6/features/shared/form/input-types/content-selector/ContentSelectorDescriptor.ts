@@ -5,6 +5,7 @@ import { type Value } from '@enonic/input-types/data';
 import { ValueTypes } from '@enonic/input-types/data';
 import { SITE_PATH, readAllowPath } from '../../../../../shared/lib/form/form';
 import type { InputConfigEntries } from '@enonic/input-types';
+import type { FormScopeRequirement } from '../../FormScopeContext';
 
 export const ContentSelectorDescriptor: InputTypeDescriptor<ContentSelectorConfig> = {
     name: 'ContentSelector' as const,
@@ -39,3 +40,6 @@ export const ContentSelectorDescriptor: InputTypeDescriptor<ContentSelectorConfi
         return value.isNull();
     },
 };
+
+/** What the input needs from the form scope; see `formScopeRequirements`. */
+export const CONTENT_SELECTOR_SCOPE_REQUIREMENT: FormScopeRequirement = { project: true };

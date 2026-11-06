@@ -5,9 +5,10 @@ import { MediaSelector } from '../../../selectors/media';
 import { useFormScopeRequirement } from '../../FormScopeContext';
 import { useFormApplicationKey, useSelectorInput } from '../hooks';
 import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { MEDIA_SELECTOR_SCOPE_REQUIREMENT } from './MediaSelectorDescriptor';
 
 export const MediaSelectorInput = (props: SelfManagedComponentProps<MediaSelectorConfig>): ReactElement => {
-    const { enabled: scopeEnabled } = useFormScopeRequirement(props.input, { project: true });
+    const { enabled: scopeEnabled } = useFormScopeRequirement(props.input, MEDIA_SELECTOR_SCOPE_REQUIREMENT);
     const applicationKey = useFormApplicationKey();
     const {
         contextContent,

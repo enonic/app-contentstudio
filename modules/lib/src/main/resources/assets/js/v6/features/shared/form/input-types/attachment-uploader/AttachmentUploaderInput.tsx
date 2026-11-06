@@ -16,6 +16,7 @@ import { AttachmentUploaderButton } from './AttachmentUploaderButton';
 import { AttachmentUploaderList } from './AttachmentUploaderList';
 import { useFormScopeRequirement } from '../../FormScopeContext';
 import { cn } from '@enonic/ui';
+import { ATTACHMENT_UPLOADER_SCOPE_REQUIREMENT } from './AttachmentUploaderDescriptor';
 
 const ATTACHMENT_UPLOADER_INPUT_NAME = 'AttachmentUploaderInput';
 
@@ -28,7 +29,7 @@ export const AttachmentUploaderInput = ({
     config,
     enabled: inputEnabled,
 }: SelfManagedComponentProps<AttachmentUploaderConfig>): ReactElement => {
-    const { enabled: scopeEnabled } = useFormScopeRequirement(input, { project: true, content: true });
+    const { enabled: scopeEnabled } = useFormScopeRequirement(input, ATTACHMENT_UPLOADER_SCOPE_REQUIREMENT);
     const enabled = inputEnabled && scopeEnabled;
     const fileInputRef = useRef<HTMLInputElement>(null);
     const noAttachmentLabel = useI18n('field.content.noattachment');

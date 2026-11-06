@@ -19,6 +19,7 @@ import { getCmsApiUrl } from '../../../../../shared/lib/url/cms';
 import { useFormScope, useFormScopeRequirement } from '../../FormScopeContext';
 import { ContentRequiresSaveEvent } from '../../../../../../app/event/ContentRequiresSaveEvent';
 import { ContentId } from '../../../../../../app/content/ContentId';
+import { MEDIA_UPLOADER_SCOPE_REQUIREMENT } from './MediaUploaderDescriptor';
 
 const MEDIA_UPLOADER_INPUT_NAME = 'MediaUploaderInput';
 
@@ -30,7 +31,7 @@ export const MediaUploaderInput = ({
     enabled: inputEnabled,
 }: SelfManagedComponentProps<MediaUploaderConfig>): ReactElement => {
     const { project, content } = useFormScope();
-    const { enabled: scopeEnabled } = useFormScopeRequirement(input, { project: true, content: true });
+    const { enabled: scopeEnabled } = useFormScopeRequirement(input, MEDIA_UPLOADER_SCOPE_REQUIREMENT);
     const projectName = project?.getName();
     const enabled = inputEnabled && scopeEnabled;
     const noMediaLabel = useI18n('field.content.noattachment');
