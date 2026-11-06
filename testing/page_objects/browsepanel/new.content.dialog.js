@@ -17,6 +17,12 @@ const XPATH = {
     typesLoader: "//div[@data-component='NewContentDialogContentTypesLoader']",
     mostPopularBlock: "//div[contains(@id,'MostPopularItemsBlock')]",
     emptyViewP: "//p[contains(.,'No content types found')]",
+    dialogPath: '//header//h3/following-sibling::p',
+    footerHint: '//footer//p',
+    clearSearchButton: "//button[@aria-label='Clear']",
+    tabButtonByLabel(label) {
+        return `//button[@data-component='Tab.Trigger' and contains(.,'${label}')]`;
+    },
     contentTypeContainsName(name) {
         return `//button[descendant::span[contains(.,'${name}')]]`;
     },
@@ -80,6 +86,18 @@ class NewContentDialog extends Page {
             await this.handleError(
                 `New Content dialog, Suggested tab button should be disabled:`,
                 'err_suggested_tab_disabled',
+                err,
+            );
+        }
+    }
+
+    async waitForSuggestedTabButtonEnabled() {
+        try {
+            return await this.waitForElementEnabled(this.suggestedButton);
+        } catch (err) {
+            await this.handleError(
+                `New Content dialog, Suggested tab button should be enabled:`,
+                'err_suggested_tab_enabled',
                 err,
             );
         }
@@ -242,6 +260,184 @@ class NewContentDialog extends Page {
 
     async getItemsInAllTab() {
         let locator = XPATH.allTabDiv + XPATH.typesList;
+        await this.waitForElementDisplayed(locator);
+        return await this.getTextInElements(locator);
+    }
+
+    get dialogPath() {
+        return XPATH.container + XPATH.dialogPath;
+    }
+
+    get footerHint() {
+        return XPATH.container + XPATH.footerHint;
+    }
+
+    get clearSearchButton() {
+        return XPATH.container + XPATH.clearSearchButton;
+    }
+
+    get uploadHint() {
+        return XPATH.container + XPATH.mediaTabDiv + XPATH.mediaDropZone + '//p';
+    }
+
+    // Path of the parent the content will be created in ('/' for the root)
+    async getDialogPathText() {
+        try {
+            await this.waitForElementDisplayed(this.dialogPath);
+            return await this.getText(this.dialogPath);
+        } catch (err) {
+            await this.handleError('New Content dialog, parent path:', 'err_new_content_dlg_path', err);
+        }
+    }
+
+    // 'Start typing to filter the list' hint, it is shown in the footer while the search input is empty
+    async getFooterHintText() {
+        try {
+            await this.waitForElementDisplayed(this.footerHint);
+            return await this.getText(this.footerHint);
+        } catch (err) {
+            await this.handleError('New Content dialog, footer hint:', 'err_new_content_dlg_hint', err);
+        }
+    }
+
+    async waitForFooterHintDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.footerHint);
+        } catch (err) {
+            await this.handleError(
+                'New Content dialog, footer hint should be displayed:',
+                'err_new_content_dlg_hint',
+                err,
+            );
+        }
+    }
+
+    async waitForFooterHintNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.footerHint);
+        } catch (err) {
+            await this.handleError(
+                'New Content dialog, footer hint should not be displayed:',
+                'err_new_content_dlg_hint',
+                err,
+            );
+        }
+    }
+
+    // 'Click here or drop files to upload' hint in the Media tab
+    async getUploadHintText() {
+        try {
+            await this.waitForElementDisplayed(this.uploadHint);
+            return await this.getText(this.uploadHint);
+        } catch (err) {
+            await this.handleError('New Content dialog, upload hint:', 'err_new_content_dlg_upload_hint', err);
+        }
+    }
+
+    // The search input is hidden until the first character is typed
+    async waitForSearchInputDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.searchInput);
+        } catch (err) {
+            await this.handleError(
+                'New Content dialog, search input should be displayed:',
+                'err_new_content_dlg_search',
+                err,
+            );
+        }
+    }
+
+    async waitForSearchInputNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.searchInput);
+        } catch (err) {
+            await this.handleError(
+                'New Content dialog, search input should not be displayed:',
+                'err_new_content_dlg_search',
+                err,
+            );
+        }
+    }
+
+    async waitForClearSearchButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.clearSearchButton);
+        } catch (err) {
+            await this.handleError(
+                'New Content dialog, Clear button should be displayed:',
+                'err_new_content_dlg_clear_button',
+                err,
+            );
+        }
+    }
+
+    async clickOnClearSearchButton() {
+        try {
+            await this.waitForElementDisplayed(this.clearSearchButton);
+            await this.clickOnElement(this.clearSearchButton);
+            return await this.pause(400);
+        } catch (err) {
+            await this.handleError('New Content dialog, Clear button:', 'err_new_content_dlg_clear_button', err);
+        }
+    }
+
+    async waitForCloseButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.closeButton);
+        } catch (err) {
+            await this.handleError(
+                'New Content dialog, Close button should be displayed:',
+                'err_new_content_dlg_close_button',
+                err,
+            );
+        }
+    }
+
+    // The selected tab button gets data-state='active'
+    async isTabSelected(tabLabel) {
+        try {
+            let locator = XPATH.container + XPATH.tabButtonByLabel(tabLabel);
+            let state = await this.getAttribute(locator, 'data-state');
+            return state === 'active';
+        } catch (err) {
+            await this.handleError(`New Content dialog, '${tabLabel}' tab:`, 'err_new_content_dlg_tab', err);
+        }
+    }
+
+    // Polls an exact comparison: 'inactive' contains 'active', so a substring check would pass for any tab
+    async waitForTabSelected(tabLabel) {
+        try {
+            let locator = XPATH.container + XPATH.tabButtonByLabel(tabLabel);
+            return await this.getBrowser().waitUntil(
+                async () => (await this.getAttribute(locator, 'data-state')) === 'active',
+                {
+                    timeout: appConst.shortTimeout,
+                    timeoutMsg: `'${tabLabel}' tab should be selected in New Content dialog`,
+                },
+            );
+        } catch (err) {
+            await this.handleError(
+                `New Content dialog, '${tabLabel}' tab should be selected:`,
+                'err_new_content_dlg_tab',
+                err,
+            );
+        }
+    }
+
+    async waitForSuggestedTabDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(XPATH.container + XPATH.suggestedTabDiv);
+        } catch (err) {
+            await this.handleError(
+                'New Content dialog, Suggested tab panel should be displayed:',
+                'err_new_content_dlg_suggested_tab',
+                err,
+            );
+        }
+    }
+
+    async getItemsInSuggestedTab() {
+        let locator = XPATH.container + XPATH.suggestedTabDiv + XPATH.typesList;
         await this.waitForElementDisplayed(locator);
         return await this.getTextInElements(locator);
     }
