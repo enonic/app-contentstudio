@@ -25,12 +25,8 @@ export function notifyError(message: string, options?: NotificationOptions): () 
     return notify('error', message, options);
 }
 
-export function errorMessage(error: unknown): string {
-    return error instanceof Error ? error.message : String(error);
-}
-
 /** Logs the error and shows it as an error toast. Never throws. */
-export function handleError(error: unknown): void {
+export function handleError(error: Error): void {
     console.error(error);
-    notifyError(errorMessage(error));
+    notifyError(error.message);
 }

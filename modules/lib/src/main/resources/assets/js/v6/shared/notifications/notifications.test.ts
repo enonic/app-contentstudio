@@ -1,14 +1,6 @@
 import { AppError } from '@enonic/ui-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-    errorMessage,
-    handleError,
-    notifications,
-    notifyError,
-    notifyInfo,
-    notifySuccess,
-    notifyWarning,
-} from './notifications';
+import { handleError, notifications, notifyError, notifyInfo, notifySuccess, notifyWarning } from './notifications';
 
 describe('notifications', () => {
     beforeEach(() => {
@@ -45,21 +37,6 @@ describe('notifications', () => {
         });
     });
 
-    describe('errorMessage', () => {
-        it('should take the message of an Error', () => {
-            expect(errorMessage(new Error('Broken'))).toBe('Broken');
-        });
-
-        it('should take the message of an AppError', () => {
-            expect(errorMessage(new AppError('Not allowed'))).toBe('Not allowed');
-        });
-
-        it('should stringify anything else', () => {
-            expect(errorMessage('plain')).toBe('plain');
-            expect(errorMessage(42)).toBe('42');
-        });
-    });
-
     describe('handleError', () => {
         it('should log the error and show it as an error toast', () => {
             const error = new Error('Failed');
@@ -71,11 +48,12 @@ describe('notifications', () => {
             expect(notifications.notifications.get()).toMatchObject([{ tone: 'error', message: 'Failed' }]);
         });
 
-        it('should not throw for a non-Error value', () => {
+        it('should show the message of an AppError', () => {
             vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
-            expect(() => handleError({ reason: 'odd' })).not.toThrow();
-            expect(notifications.notifications.get()).toMatchObject([{ tone: 'error', message: '[object Object]' }]);
+            handleError(new AppError('Not allowed'));
+
+            expect(notifications.notifications.get()).toMatchObject([{ tone: 'error', message: 'Not allowed' }]);
         });
     });
 });

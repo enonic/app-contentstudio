@@ -1,4 +1,4 @@
-import { notifyError, notifySuccess, notifyWarning } from '../../shared/notifications';
+import { notifyError, notifyInfo, notifyWarning } from '../../shared/notifications';
 import { ContentRequiresSaveEvent } from '../../../app/event/ContentRequiresSaveEvent';
 import type {
     AiAnimation,
@@ -85,7 +85,7 @@ export function createPluginApi(id: AiPluginId): PluginApiHandle {
             } else if (level === 'warn') {
                 notifyWarning(message);
             } else {
-                notifySuccess(message);
+                notifyInfo(message);
             }
         },
     };

@@ -1,5 +1,4 @@
 export {
-    errorMessage,
     handleError,
     notifications,
     notify,
