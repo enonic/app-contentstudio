@@ -41,6 +41,11 @@ declare module '*.properties?raw' {
     export default content;
 }
 
+// Vite's `import.meta.glob`, for tests that read every phrase bundle as text.
+interface ImportMeta {
+    glob(pattern: string, options: { query: string; import: string; eager: true }): Record<string, unknown>;
+}
+
 //
 // JQuery
 //

@@ -13,7 +13,7 @@
     "format:check": "pnpm -C modules/lib run format:check && pnpm -C modules/app run format:check"
   },
   "nano-staged": {
-    "*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}": "oxfmt -c .oxfmtrc.json --write"
+    "*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}": "oxfmt -c .oxfmtrc.json --write --no-error-on-unmatched-pattern"
   },
   "packageManager": "pnpm@10.33.4",
   "engines": {
