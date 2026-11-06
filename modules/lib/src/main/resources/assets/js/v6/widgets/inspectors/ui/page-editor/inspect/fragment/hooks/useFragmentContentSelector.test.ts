@@ -27,7 +27,7 @@ vi.mock('../../../../../../../entities/content', () => ({
 
 vi.mock('../../../../../model/page-editor', () => ({
     $inspectedItem: atom<unknown>(null),
-    $pageEditorLifecycle: atom({ isPageLocked: false }),
+    $isPageLocked: atom(false),
     requestSetFragmentComponent: vi.fn(),
 }));
 

@@ -31,7 +31,6 @@ export class LocalizeContentAction extends Action {
                     NotifyManager.get().showFeedback(i18n('notify.content.localized'));
                     wizardPanel.setEnabled(true);
                     setWizardReadOnly(false);
-                    wizardPanel.unLockPage();
                     wizardPanel.openTranslatorDialog(language);
 
                     return wizardActions.refreshActions();

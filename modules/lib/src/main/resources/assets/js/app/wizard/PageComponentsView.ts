@@ -1,48 +1,49 @@
-import {Component} from '../page/region/Component';
-import {type ComponentAddedEvent} from '../page/region/ComponentAddedEvent';
-import {ComponentPath} from '../page/region/ComponentPath';
-import {type ComponentRemovedEvent} from '../page/region/ComponentRemovedEvent';
-import {type ComponentUpdatedEvent} from '../page/region/ComponentUpdatedEvent';
-import {LayoutComponentType} from '../page/region/LayoutComponentType';
-import {Page} from '../page/Page';
-import {PageEventsManager} from './PageEventsManager';
-import {type PageItem} from '../page/region/PageItem';
-import {PageNavigationEvent} from './PageNavigationEvent';
-import {PageNavigationEventData} from './PageNavigationEventData';
-import {PageNavigationEventType} from './PageNavigationEventType';
-import {type PageNavigationHandler} from './PageNavigationHandler';
-import {PageNavigationMediator} from './PageNavigationMediator';
-import {PageState} from './page/PageState';
-import {Region} from '../page/region/Region';
-import {TextComponentType} from '../page/region/TextComponentType';
+import { Component } from '../page/region/Component';
+import { type ComponentAddedEvent } from '../page/region/ComponentAddedEvent';
+import { ComponentPath } from '../page/region/ComponentPath';
+import { type ComponentRemovedEvent } from '../page/region/ComponentRemovedEvent';
+import { type ComponentUpdatedEvent } from '../page/region/ComponentUpdatedEvent';
+import { LayoutComponentType } from '../page/region/LayoutComponentType';
+import { Page } from '../page/Page';
+import { PageEventsManager } from './PageEventsManager';
+import { type PageItem } from '../page/region/PageItem';
+import { PageNavigationEvent } from './PageNavigationEvent';
+import { PageNavigationEventData } from './PageNavigationEventData';
+import { PageNavigationEventType } from './PageNavigationEventType';
+import { type PageNavigationHandler } from './PageNavigationHandler';
+import { PageNavigationMediator } from './PageNavigationMediator';
+import { PageState } from './page/PageState';
+import { Region } from '../page/region/Region';
+import { TextComponentType } from '../page/region/TextComponentType';
 import Q from 'q';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {Body} from '@enonic/lib-admin-ui/dom/Body';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {type Element} from '@enonic/lib-admin-ui/dom/Element';
-import {type ElementHelper} from '@enonic/lib-admin-ui/dom/ElementHelper';
-import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
-import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
-import {KeyBindings} from '@enonic/lib-admin-ui/ui/KeyBindings';
-import {type ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
-import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {SelectableTreeListBoxKeyNavigator} from '@enonic/lib-admin-ui/ui/selector/list/SelectableTreeListBoxKeyNavigator';
-import {ItemViewContextMenu} from '../../page-editor/ItemViewContextMenu';
-import {PageViewController} from '../../page-editor/PageViewController';
-import {SaveAsTemplateAction} from './action/SaveAsTemplateAction';
-import {ComponentsTreeItem} from './ComponentsTreeItem';
-import {type LiveEditPageProxy} from './page/LiveEditPageProxy';
-import {PageActionsHelper} from './PageActionsHelper';
-import {type PageComponentsListElement, PageComponentsTreeGrid} from './PageComponentsTreeGrid';
-import {type TreeComponent} from './TreeComponent';
-import {PageComponentsViewDragHandler} from './PageComponentsViewDragHandler';
-import {PageComponentsViewExpandHelper} from './PageComponentsViewExpandHelper';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { Body } from '@enonic/lib-admin-ui/dom/Body';
+import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
+import { type Element } from '@enonic/lib-admin-ui/dom/Element';
+import { type ElementHelper } from '@enonic/lib-admin-ui/dom/ElementHelper';
+import { WindowDOM } from '@enonic/lib-admin-ui/dom/WindowDOM';
+import { Action } from '@enonic/lib-admin-ui/ui/Action';
+import { Button } from '@enonic/lib-admin-ui/ui/button/Button';
+import { KeyBinding } from '@enonic/lib-admin-ui/ui/KeyBinding';
+import { KeyBindings } from '@enonic/lib-admin-ui/ui/KeyBindings';
+import { type ResponsiveItem } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
+import { ResponsiveManager } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import { ResponsiveRanges } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { SelectableListBoxWrapper } from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
+import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
+import { SelectableTreeListBoxKeyNavigator } from '@enonic/lib-admin-ui/ui/selector/list/SelectableTreeListBoxKeyNavigator';
+import { ItemViewContextMenu } from '../../page-editor/ItemViewContextMenu';
+import { PageViewController } from '../../page-editor/PageViewController';
+import { SaveAsTemplateAction } from './action/SaveAsTemplateAction';
+import { ComponentsTreeItem } from './ComponentsTreeItem';
+import { type LiveEditPageProxy } from './page/LiveEditPageProxy';
+import { $isPageLocked } from '../../v6/widgets/inspectors/model/page-editor';
+import { PageActionsHelper } from './PageActionsHelper';
+import { type PageComponentsListElement, PageComponentsTreeGrid } from './PageComponentsTreeGrid';
+import { type TreeComponent } from './TreeComponent';
+import { PageComponentsViewDragHandler } from './PageComponentsViewDragHandler';
+import { PageComponentsViewExpandHelper } from './PageComponentsViewExpandHelper';
 
 enum Modifiers {
     LOCKED = 'locked',
@@ -50,10 +51,7 @@ enum Modifiers {
     ANIMATING = 'animating',
 }
 
-export class PageComponentsView
-    extends DivEl
-    implements PageNavigationHandler {
-
+export class PageComponentsView extends DivEl implements PageNavigationHandler {
     private static PCV_COLLAPSED_KEY: string = 'contentstudio:pcv:collapsed';
 
     private liveEditPage: LiveEditPageProxy;
@@ -109,7 +107,9 @@ export class PageComponentsView
 
     private initElements(): void {
         this.expandHelper = new PageComponentsViewExpandHelper();
-        this.toggleButton = new Button().addClass('minimize-button icon-newtab').setTitle(i18n('field.hideComponent')) as Button;
+        this.toggleButton = new Button()
+            .addClass('minimize-button icon-newtab')
+            .setTitle(i18n('field.hideComponent')) as Button;
 
         this.toggleButton.onClicked((event: MouseEvent) => {
             event.stopPropagation();
@@ -143,7 +143,7 @@ export class PageComponentsView
         this.onHidden(() => this.hideContextMenu());
 
         this.onShown(() => {
-            if (this.liveEditPage?.isLocked()) {
+            if ($isPageLocked.get()) {
                 this.addClass(Modifiers.LOCKED);
             }
         });
@@ -217,7 +217,10 @@ export class PageComponentsView
             this.constrainToParent();
         }
 
-        this.toggleButton.setTitle(this.isCollapsed() ? i18n('field.showComponent') : i18n('field.hideComponent'), false);
+        this.toggleButton.setTitle(
+            this.isCollapsed() ? i18n('field.showComponent') : i18n('field.hideComponent'),
+            false,
+        );
     }
 
     reload(): void {
@@ -233,7 +236,7 @@ export class PageComponentsView
         this.isToBeEnabled = enabled;
 
         if (enabled) {
-            if (!this.liveEditPage.isLocked()) {
+            if (!$isPageLocked.get()) {
                 this.setLocked(false);
             }
         } else {
@@ -251,7 +254,7 @@ export class PageComponentsView
         eventsManager.onLoaded(() => {
             this.removeClass('loading');
 
-            if (this.isToBeEnabled && !this.liveEditPage.isLocked()) {
+            if (this.isToBeEnabled && !$isPageLocked.get()) {
                 this.setLocked(false);
             }
         });
@@ -266,7 +269,7 @@ export class PageComponentsView
     }
 
     private createTree(): void {
-        this.tree = new PageComponentsTreeGrid({className: 'page-components-tree-grid'});
+        this.tree = new PageComponentsTreeGrid({ className: 'page-components-tree-grid' });
         this.pageComponentsWrapper = new SelectableListBoxWrapper(this.tree, {
             maxSelected: 1,
             className: 'page-components-selectable-wrapper',
@@ -283,17 +286,23 @@ export class PageComponentsView
 
             if (selectedItem) {
                 const path: ComponentPath = this.getPathByItem(selectedItem);
-                if (!this.lastSelectedPath) { // not spawning event if item was selected as a result of the same event
+                if (!this.lastSelectedPath) {
+                    // not spawning event if item was selected as a result of the same event
                     PageNavigationMediator.get().notify(
-                        new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(path)), this);
+                        new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(path)),
+                        this,
+                    );
                 }
 
                 if (this.contextMenuItemPath && !this.contextMenuItemPath.equals(path)) {
                     this.hideContextMenu();
                 }
-            } else { // if item was deselected by clicking in the pcv grid then need to deselect it in the live edit
+            } else {
+                // if item was deselected by clicking in the pcv grid then need to deselect it in the live edit
                 PageNavigationMediator.get().notify(
-                    new PageNavigationEvent(PageNavigationEventType.DESELECT, new PageNavigationEventData()), this);
+                    new PageNavigationEvent(PageNavigationEventType.DESELECT, new PageNavigationEventData()),
+                    this,
+                );
             }
 
             this.lastSelectedPath = null;
@@ -314,11 +323,7 @@ export class PageComponentsView
             }
             return true;
         };
-        this.keyBinding = [
-            new KeyBinding('del', removeHandler),
-            new KeyBinding('backspace', removeHandler)
-        ];
-
+        this.keyBinding = [new KeyBinding('del', removeHandler), new KeyBinding('backspace', removeHandler)];
     }
 
     isDraggable(): boolean {
@@ -342,7 +347,7 @@ export class PageComponentsView
                         this.mouseDown = true;
                         lastPos = {
                             x: event.clientX,
-                            y: event.clientY
+                            y: event.clientY,
                         };
                     }
                 };
@@ -377,12 +382,12 @@ export class PageComponentsView
                         const el = this.getEl();
                         const newPos = {
                             x: event.clientX,
-                            y: event.clientY
+                            y: event.clientY,
                         };
                         const offset = el.getOffset();
                         const newOffset = {
                             top: offset.top + newPos.y - lastPos.y,
-                            left: offset.left + newPos.x - lastPos.x
+                            left: offset.left + newPos.x - lastPos.x,
                         };
 
                         this.constrainToParent(newOffset);
@@ -426,16 +431,22 @@ export class PageComponentsView
             parentEl = WindowDOM.get();
             parentOffset = {
                 top: 0,
-                left: 0
+                left: 0,
             };
         }
 
         el.setMaxHeightPx(parentEl.getHeight() - 48);
 
-        const top =
-            Math.max(parentOffset.top, Math.min(elOffset.top, parentOffset.top + parentEl.getHeight() - el.getHeightWithBorder()), 48);
-        const left =
-            Math.max(parentOffset.left, Math.min(elOffset.left, parentOffset.left + parentEl.getWidth() - el.getWidthWithBorder()), 48);
+        const top = Math.max(
+            parentOffset.top,
+            Math.min(elOffset.top, parentOffset.top + parentEl.getHeight() - el.getHeightWithBorder()),
+            48,
+        );
+        const left = Math.max(
+            parentOffset.left,
+            Math.min(elOffset.left, parentOffset.left + parentEl.getWidth() - el.getWidthWithBorder()),
+            48,
+        );
 
         el.setTop(`${top}px`);
         el.setLeft(`${left}px`);
@@ -461,8 +472,9 @@ export class PageComponentsView
             this.contextMenuDataView?.addClass('menu-open');
         }
 
-        const contextMenuActions: Action[] = this.liveEditPage.isLocked() ?
-                                             this.getLockedPageActions() : this.getItemContextMenuActions(item);
+        const contextMenuActions: Action[] = $isPageLocked.get()
+            ? this.getLockedPageActions()
+            : this.getItemContextMenuActions(item);
 
         if (!this.contextMenu) {
             this.contextMenu = new ItemViewContextMenu(null, contextMenuActions, false);
@@ -482,12 +494,13 @@ export class PageComponentsView
             this.contextMenu.getMenu().unAfterAction(this.afterActionHandler);
         } else {
             this.afterActionHandler = (action: Action) => {
-                const isViewVisible = (this.getHTMLElement().offsetHeight > 0);
+                const isViewVisible = this.getHTMLElement().offsetHeight > 0;
 
                 setTimeout(() => {
                     //TODO: Probably doesn't work
                     PageViewController.get().setContextMenuDisabled(false);
-                    if (!isViewVisible) { // if PCV not visible, for example fragment created, hide highlighter
+                    if (!isViewVisible) {
+                        // if PCV not visible, for example fragment created, hide highlighter
                         //TODO: Should not be directly manipulated outsite of page editor
                         // Highlighter.get().hide();
                     }
@@ -508,7 +521,11 @@ export class PageComponentsView
 
         unlockAction.onExecuted(() => {
             PageNavigationMediator.get().notify(
-                new PageNavigationEvent(PageNavigationEventType.INSPECT, new PageNavigationEventData(ComponentPath.root())));
+                new PageNavigationEvent(
+                    PageNavigationEventType.INSPECT,
+                    new PageNavigationEventData(ComponentPath.root()),
+                ),
+            );
         });
 
         return [unlockAction];
@@ -518,7 +535,6 @@ export class PageComponentsView
         if (!item || !item.getComponent()) {
             return [];
         }
-
 
         const page: Page = PageState.getState();
         const path: ComponentPath = this.getPathByItem(item);
@@ -593,7 +609,8 @@ export class PageComponentsView
     }
 
     handle(event: PageNavigationEvent): void {
-        if (!PageState.getState()) { // no tree, event was triggered when clicking on the template generated page
+        if (!PageState.getState()) {
+            // no tree, event was triggered when clicking on the template generated page
             this.lastSelectedPath = null;
             return;
         }
@@ -604,11 +621,13 @@ export class PageComponentsView
             this.lastSelectedPath = isItemSelected ? null : path;
 
             if (!isItemSelected) {
-                this.selectItemByPath(path).then(() => {
-                    if (this.isUndocked && !this.isCollapsed()) {
-                        this.scrollToItem(path);
-                    }
-                }).catch(DefaultErrorHandler.handle);
+                this.selectItemByPath(path)
+                    .then(() => {
+                        if (this.isUndocked && !this.isCollapsed()) {
+                            this.scrollToItem(path);
+                        }
+                    })
+                    .catch(DefaultErrorHandler.handle);
             }
 
             return;
@@ -658,15 +677,18 @@ export class PageComponentsView
         const item: PageItem = PageState.getState().getComponentByPath(path);
 
         if (item instanceof Component) {
-            this.tree.fetchComponentItem(item).then((updatedComponent: TreeComponent) => {
-                const oldItem = listElement.getItem();
-                const updatedItem = new ComponentsTreeItem(updatedComponent, +oldItem.getId());
-                listElement.getParentList().replaceItems(updatedItem);
+            this.tree
+                .fetchComponentItem(item)
+                .then((updatedComponent: TreeComponent) => {
+                    const oldItem = listElement.getItem();
+                    const updatedItem = new ComponentsTreeItem(updatedComponent, +oldItem.getId());
+                    listElement.getParentList().replaceItems(updatedItem);
 
-                if (updatedItem.getType() instanceof LayoutComponentType && listElement.hasChildren()) {
-                    listElement.expand();
-                }
-            }).catch(DefaultErrorHandler.handle);
+                    if (updatedItem.getType() instanceof LayoutComponentType && listElement.hasChildren()) {
+                        listElement.expand();
+                    }
+                })
+                .catch(DefaultErrorHandler.handle);
         }
     }
 
@@ -675,8 +697,10 @@ export class PageComponentsView
             return false;
         }
 
-        return this.pageComponentsWrapper.getSelectedItems().map(item => this.getPathByItem(item)).some(
-            (selectedItemPath: ComponentPath) => selectedItemPath?.equals(path));
+        return this.pageComponentsWrapper
+            .getSelectedItems()
+            .map((item) => this.getPathByItem(item))
+            .some((selectedItemPath: ComponentPath) => selectedItemPath?.equals(path));
     }
 
     private getPathByItem(item: ComponentsTreeItem): ComponentPath | undefined {
@@ -705,8 +729,9 @@ export class PageComponentsView
             this.expandHelper.expandToTheTop(listElement);
             this.pageComponentsWrapper.select(listElement.getItem());
         } else {
-            return this.expandHelper.loadAndExpandToItemRecursively(path, this.tree, ComponentPath.root()).then(
-                (item: ComponentsTreeItem) => {
+            return this.expandHelper
+                .loadAndExpandToItemRecursively(path, this.tree, ComponentPath.root())
+                .then((item: ComponentsTreeItem) => {
                     if (item) {
                         this.pageComponentsWrapper.select(item);
                     }

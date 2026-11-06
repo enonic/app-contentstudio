@@ -21,7 +21,8 @@ vi.mock('./page-editor/store', () => {
         ),
         $page: atom<Page | null>(null),
         $pageVersion: atom(0),
-        $pageEditorLifecycle: atom({ isPageLocked: false, isPageRenderable: true }),
+        $pageEditorLifecycle: atom({ inlineEditing: true, isPageRenderable: true }),
+        $isPageLocked: atom(false),
         $hasDefaultPageTemplate: atom(false),
     };
 });

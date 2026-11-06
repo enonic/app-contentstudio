@@ -10,6 +10,7 @@ import { Permission } from '../../access/Permission';
 import { type ContentSummary } from '../../content/ContentSummary';
 import { PageState } from '../page/PageState';
 import { PageEventsManager } from '../PageEventsManager';
+import { $isPageLocked } from '../../../v6/widgets/inspectors/model/page-editor';
 
 export class SaveAsTemplateAction extends Action {
     private static INSTANCE: SaveAsTemplateAction;
@@ -21,8 +22,6 @@ export class SaveAsTemplateAction extends Action {
     private site: Site;
 
     private isPageRenderable: boolean = false;
-
-    private isPageLocked: boolean = false;
 
     private constructor() {
         super(i18n('action.saveAsTemplate'));
@@ -52,13 +51,6 @@ export class SaveAsTemplateAction extends Action {
         PageEventsManager.get().onRenderableChanged((isRenderable) => {
             this.isPageRenderable = isRenderable;
         });
-
-        PageEventsManager.get().onPageLocked(() => {
-            this.isPageLocked = true;
-        });
-        PageEventsManager.get().onPageUnlocked(() => {
-            this.isPageLocked = false;
-        });
     }
 
     static get(): SaveAsTemplateAction {
@@ -72,7 +64,7 @@ export class SaveAsTemplateAction extends Action {
     updateVisibility() {
         // check for renderable because it can have a controller/template but not be renderable (e.g. app is turned off )
         if (
-            !this.isPageLocked &&
+            !$isPageLocked.get() &&
             this.isPageRenderable &&
             PageState.getState()?.hasController() &&
             !this.contentSummary.isPageTemplate()
