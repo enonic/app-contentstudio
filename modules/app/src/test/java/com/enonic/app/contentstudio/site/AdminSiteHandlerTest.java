@@ -6,11 +6,16 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.google.common.net.MediaType;
+
 import jakarta.servlet.http.HttpServletRequest;
+
+import com.enonic.app.contentstudio.LiveEditInjection;
 
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.RenderMode;
+import com.enonic.xp.portal.url.PortalUrlService;
 import com.enonic.xp.project.ProjectService;
 import com.enonic.xp.web.HttpStatus;
 import com.enonic.xp.web.WebResponse;
@@ -38,7 +43,7 @@ class AdminSiteHandlerTest
         throws Exception
     {
         this.handler = new AdminSiteHandler( mock( ContentService.class ), mock( ProjectService.class ), mock( ExceptionMapper.class ),
-                                             mock( ExceptionRenderer.class ) );
+                                             mock( ExceptionRenderer.class ), new LiveEditInjection( mock( PortalUrlService.class ) ) );
         activate( "" );
 
         final Map<String, Object> attributes = new HashMap<>();
@@ -66,6 +71,27 @@ class AdminSiteHandlerTest
         throws Exception
     {
         this.handler.doHandle( this.portalRequest, WebResponse.create().build(), this.chain );
+    }
+
+    @Test
+    void injectsStartupGuardAfterTheFinalEditPolicyIsApplied()
+        throws Exception
+    {
+        final PortalUrlService urls = mock( PortalUrlService.class );
+        when( urls.assetUrl( any() ) ).thenReturn( "/assets" );
+        this.handler = new AdminSiteHandler( mock( ContentService.class ), mock( ProjectService.class ), mock( ExceptionMapper.class ),
+                                             mock( ExceptionRenderer.class ), new LiveEditInjection( urls ) );
+        this.portalRequest.setMode( RenderMode.EDIT );
+        this.portalRequest.getContentSecurityPolicy().add( "script-src-elem", "'none'" );
+        when( this.chain.handle( any(), any() ) ).thenReturn(
+            WebResponse.create().contentType( MediaType.HTML_UTF_8 ).body( "<!doctype html><input autofocus>" ).build() );
+
+        final WebResponse response = this.handler.doHandle( this.portalRequest, WebResponse.create().build(), this.chain );
+        final String body = (String) response.getBody();
+        final String nonce = this.portalRequest.getContentSecurityPolicy().nonceScriptSrc();
+
+        assertThat( body ).startsWith( "<!doctype html><script " ).contains( "nonce=\"" + nonce + "\"" );
+        assertThat( this.portalRequest.getContentSecurityPolicy().directive( "script-src-elem" ) ).isEmpty();
     }
 
     @Test

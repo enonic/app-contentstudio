@@ -10,6 +10,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 
+import com.enonic.app.contentstudio.LiveEditInjection;
+
 import com.enonic.xp.branch.Branch;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
@@ -62,19 +64,23 @@ public class AdminSiteHandler
 
     private final ProjectService projectService;
 
+    private final LiveEditInjection liveEditInjection;
+
     private volatile String inlineContentSecurityPolicy;
 
     private volatile String previewContentSecurityPolicy;
 
     @Activate
     public AdminSiteHandler( @Reference final ContentService contentService, @Reference final ProjectService projectService,
-                             @Reference final ExceptionMapper exceptionMapper, @Reference final ExceptionRenderer exceptionRenderer )
+                             @Reference final ExceptionMapper exceptionMapper, @Reference final ExceptionRenderer exceptionRenderer,
+                             @Reference final LiveEditInjection liveEditInjection )
     {
         super( -51 );
         this.contentService = contentService;
         this.projectService = projectService;
         this.exceptionMapper = exceptionMapper;
         this.exceptionRenderer = exceptionRenderer;
+        this.liveEditInjection = liveEditInjection;
     }
 
     @Activate
@@ -249,7 +255,7 @@ public class AdminSiteHandler
                 .sandbox( SandboxFlag.ALLOW_SCRIPTS, SandboxFlag.ALLOW_SAME_ORIGIN )
                 .nonceScriptSrc();
         }
-        return response;
+        return liveEditInjection.injectPreviewFocus( request, response );
     }
 
     private static void applyBaseline( final ContentSecurityPolicy policy, final String baseline )
