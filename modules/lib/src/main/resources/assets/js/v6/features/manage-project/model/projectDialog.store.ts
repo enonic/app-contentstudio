@@ -434,6 +434,17 @@ export const moveProjectDialogApplication = (fromIndex: number, toIndex: number)
     $projectDialog.setKey('applications', next);
 };
 
+/**
+ * Re-resolves the listed apps against the installed ones, so a stopped or uninstalled app reads
+ * as unavailable and an installed one gets its form back. Keys, order and own configs stay.
+ */
+export const refreshProjectDialogApplications = (): void => {
+    const { open, applications } = $projectDialog.get();
+    if (!open || applications.length === 0) return;
+
+    $projectDialog.setKey('applications', resolveApplications(applications.map(keyOf)));
+};
+
 /** Sets the list and drops the own configs of the apps no longer on it. */
 function setApplications(applications: Application[]): void {
     const { applicationConfigs: previous } = $projectDialog.get();

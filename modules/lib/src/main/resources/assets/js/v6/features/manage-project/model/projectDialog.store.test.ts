@@ -86,6 +86,7 @@ import {
     openCreateProjectDialog,
     openEditProjectDialog,
     openProjectDialogApplicationConfig,
+    refreshProjectDialogApplications,
     selectProjectDialogApplications,
     setProjectDialogApplicationConfig,
     setProjectDialogConfigDirty,
@@ -652,6 +653,73 @@ describe('projectDialog.store application configs', () => {
             await createProjectAction();
 
             expect(sentConfigs(mockCreateProject)).toEqual([]);
+        });
+    });
+    describe('refreshProjectDialogApplications', () => {
+        const install = (...apps: Application[]): void =>
+            $applications.set({ applications: apps, loading: false, loaded: true });
+        const listedAt = (index: number): Application => $projectDialog.get().applications[index];
+
+        it('should do nothing while the dialog is closed', () => {
+            refreshProjectDialogApplications();
+
+            expect(listedKeys()).toEqual([]);
+        });
+
+        it('should give a placeholder its state and form once installed, keeping order and own config', async () => {
+            const project = createProject('layer', [
+                createSiteConfig('app:gone', { k: 'v' }),
+                createSiteConfig('app:b', { color: 'red' }),
+            ]);
+            await openEditProjectDialog(project, []);
+            expect(listedAt(0).getState()).toBeUndefined();
+
+            install(createApp('app:gone', checkboxForm()), createApp('app:b'));
+            refreshProjectDialogApplications();
+
+            expect(listedKeys()).toEqual(['app:gone', 'app:b']);
+            expect(listedAt(0).getState()).toBe('started');
+            expect(listedAt(0).getForm()).toBeDefined();
+            expect(configOf('app:gone')?.getString('k')).toBe('v');
+            expect($isProjectDialogDirty.get()).toBe(false);
+        });
+
+        it('should turn a listed app into a placeholder once gone, its own config untouched', async () => {
+            await openEditProjectDialog(createProject('layer', [createSiteConfig('app:b', { color: 'red' })]), []);
+
+            install(createApp('app:a', checkboxForm()));
+            refreshProjectDialogApplications();
+
+            expect(listedKeys()).toEqual(['app:b']);
+            expect(listedAt(0).getState()).toBeUndefined();
+            expect(listedAt(0).getDisplayName()).toBe('app:b');
+            expect(configOf('app:b')?.getString('color')).toBe('red');
+            expect($isProjectDialogDirty.get()).toBe(false);
+        });
+
+        it('should flip dirty for an inherited app installed without an own config', async () => {
+            const parent = createProject('parent', [createSiteConfig('app:gone', { k: 'v' })]);
+            await openEditProjectDialog(createProject('layer', []), [parent]);
+            expect($isProjectDialogDirty.get()).toBe(false);
+
+            install(createApp('app:gone', checkboxForm()));
+            refreshProjectDialogApplications();
+
+            expect(configOf('app:gone')?.getPropertyArray('agree')?.get(0)?.getValue().getBoolean()).toBe(true);
+            expect($isProjectDialogDirty.get()).toBe(true);
+        });
+
+        it('should leave an open config view on its application', async () => {
+            await openEditProjectDialog(createProject('layer', [createSiteConfig('app:a', { agree: 'no' })]), []);
+            openProjectDialogApplicationConfig('app:a');
+            const { editingConfig } = $projectDialog.get();
+
+            install(createApp('app:b'));
+            refreshProjectDialogApplications();
+
+            expect($projectDialog.get().view).toBe('config');
+            expect($projectDialog.get().editingConfig).toBe(editingConfig);
+            expect(listedAt(0).getState()).toBeUndefined();
         });
     });
 });
