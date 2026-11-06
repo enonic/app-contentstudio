@@ -143,7 +143,6 @@ describe('unpublishDialog.store', () => {
 
         expect($unpublishInboundIds.get()).toEqual(['dep-39']);
         expect($unpublishDialog.get().dependants[0]?.getContentId().toString()).toBe('dep-39');
-        // A single inbound dependant fits in the default window, so it is not widened.
         expect($unpublishDialog.get().dependants).toHaveLength(36);
         expect($hasMoreUnpublishDependants.get()).toBe(true);
         expect($unpublishInboundCount.get()).toBe(1);
@@ -165,7 +164,7 @@ describe('unpublishDialog.store', () => {
         expect(mockResolveUnpublish).toHaveBeenCalledTimes(1);
     });
 
-    it('loads every inbound dependant in the first window and counts them by id', async () => {
+    it('counts every inbound dependant by id regardless of the loaded window', async () => {
         const item = createMockContent('item-1');
         const dependantIds = Array.from({ length: 40 }, (_, index) => `dep-${index}`);
         const inbound = dependantIds.map((target) => ({ target, sources: ['ref-1'] }));
@@ -178,9 +177,13 @@ describe('unpublishDialog.store', () => {
         openUnpublishDialog([item]);
         await flushInitialReload();
 
-        // The first window grows to cover all inbound dependants (40 > 36).
+        expect($unpublishDialog.get().dependants).toHaveLength(36);
+        expect($hasMoreUnpublishDependants.get()).toBe(true);
+        expect($unpublishInboundCount.get()).toBe(40);
+
+        await loadMoreUnpublishDependants();
+
         expect($unpublishDialog.get().dependants).toHaveLength(40);
-        expect($hasMoreUnpublishDependants.get()).toBe(false);
         expect($unpublishInboundCount.get()).toBe(40);
 
         ignoreUnpublishInboundDependencies();

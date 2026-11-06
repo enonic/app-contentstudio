@@ -173,7 +173,7 @@ describe('deleteDialog.store', () => {
         expect($deleteItemsCount.get()).toBe(41);
     });
 
-    it('loads every inbound dependant in the first window and counts them by id', async () => {
+    it('counts every inbound dependant by id regardless of the loaded window', async () => {
         const item = createMockContent('item-1');
         const dependantIds = Array.from({ length: 40 }, (_, index) => `dep-${index}`);
         const inbound = dependantIds.map((target) => ({ target, sources: ['ref-1'] }));
@@ -186,9 +186,13 @@ describe('deleteDialog.store', () => {
         openDeleteDialog([item]);
         await flushInitialReload();
 
-        // The first window grows to cover all inbound dependants (40 > 36).
+        expect($deleteDialog.get().dependants).toHaveLength(36);
+        expect($hasMoreDeleteDependants.get()).toBe(true);
+        expect($deleteInboundCount.get()).toBe(40);
+
+        await loadMoreDeleteDependants();
+
         expect($deleteDialog.get().dependants).toHaveLength(40);
-        expect($hasMoreDeleteDependants.get()).toBe(false);
         expect($deleteInboundCount.get()).toBe(40);
 
         ignoreDeleteInboundDependencies();
@@ -196,7 +200,7 @@ describe('deleteDialog.store', () => {
         expect($deleteInboundCount.get()).toBe(0);
     });
 
-    it('keeps the default first window when inbound dependants fit in it', async () => {
+    it('orders inbound dependants first so they land in the first window', async () => {
         const item = createMockContent('item-1');
         const dependantIds = Array.from({ length: 40 }, (_, index) => `dep-${index}`);
 
