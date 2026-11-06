@@ -11,9 +11,9 @@ const { mockGetAvailableContentTypes, mockGetAggregatedTypesByContent } = vi.hoi
     mockGetAggregatedTypesByContent: vi.fn(),
 }));
 
-vi.mock('@enonic/lib-admin-ui/notify/MessageBus', () => ({
-    showError: vi.fn(),
-    showSuccess: vi.fn(),
+vi.mock('../../../shared/notifications', () => ({
+    notifyError: vi.fn(),
+    notifySuccess: vi.fn(),
 }));
 vi.mock('../../../../app/util/ContentTypesHelper', () => ({
     ContentTypesHelper: {

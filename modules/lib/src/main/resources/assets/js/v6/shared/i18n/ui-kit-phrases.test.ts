@@ -1,4 +1,4 @@
-import { themeSwitcherPhrases } from '@enonic/ui-kit';
+import { notificationListPhrases, themeSwitcherPhrases } from '@enonic/ui-kit';
 import { comparePhrases, type Phrases } from '@enonic/ui-utils';
 import { describe, expect, it, vi } from 'vitest';
 import bundle from '../../../../../i18n/phrases.properties?raw';
@@ -25,7 +25,9 @@ function readBundle(): Phrases {
 
 describe('phrases.properties against the kit', () => {
     it('should carry every label of the kit components in use, placeholders and all', () => {
-        expect(comparePhrases(themeSwitcherPhrases, readBundle())).toEqual({
+        const bundle = readBundle();
+
+        expect(comparePhrases({ ...themeSwitcherPhrases, ...notificationListPhrases }, bundle)).toEqual({
             missing: [],
             placeholderMismatch: [],
         });

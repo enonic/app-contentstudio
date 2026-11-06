@@ -1,7 +1,7 @@
 import { Principal } from '@enonic/lib-admin-ui/security/Principal';
 import { RoleKeys } from '@enonic/lib-admin-ui/security/RoleKeys';
 import { type TaskId } from '@enonic/lib-admin-ui/task/TaskId';
-import { showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyWarning } from '../../../shared/notifications';
 import { computed, listenKeys, map } from 'nanostores';
 import { ResultAsync } from 'neverthrow';
 import { i18n } from '../../../shared/i18n';
@@ -168,7 +168,7 @@ export const openPermissionsDialog = (event: OpenEditPermissionsDialogEvent): vo
         })
         .mapErr((error) => {
             $permissionsDialog.setKey('loading', false);
-            showWarning(i18n('notify.permissions.inheritError', event.getDisplayName()));
+            notifyWarning(i18n('notify.permissions.inheritError', event.getDisplayName()));
             console.error('Failed to open permissions dialog:', error);
         });
 };

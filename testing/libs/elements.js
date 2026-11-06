@@ -16,7 +16,9 @@ const COMMON = {
     CONTENT_WIZARD_DATA_COMPONENT: "//div[@data-component='ContentWizardTabs']",
     FOOTER_ELEMENT: `//footer`,
     CSS_POINTER_EVENTS: 'pointer-events-none',
-    NOTIFICATION_TEXT: "//div[@class='notification-wrapper']//p",
+    NOTIFICATION_TEXT:
+        "//div[@class='notification-wrapper']//p | " +
+        "//div[@data-component='NotificationList']//p[@data-component='Toast.Description']",
     FORM_VIEW: `//div[contains(@id,'FormView')]`,
     FORM_ITEM: "//div[contains(@id,'FormItem')]",
     TEXT_INPUT: "//input[@type='text']",

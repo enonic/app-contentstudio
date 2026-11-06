@@ -1,7 +1,7 @@
 import { atom, computed, map } from 'nanostores';
 import { okAsync, ResultAsync } from 'neverthrow';
 import { type TaskId } from '@enonic/lib-admin-ui/task/TaskId';
-import { showError, showSuccess } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyError, notifySuccess } from '../../../shared/notifications';
 import { i18n } from '../../../shared/i18n';
 import { type Project } from '../../../../app/settings/data/project/Project';
 import { ProjectConfigContext } from '../../../../app/settings/data/project/ProjectConfigContext';
@@ -545,11 +545,11 @@ export const createProject = (): ResultAsync<void, Error> => {
             $projectDialog.setKey('submitting', false);
             closeProjectDialog();
             new ProjectCreatedEvent(project.getName()).fire();
-            showSuccess(i18n('notify.settings.project.created', project.getDisplayName()));
+            notifySuccess(i18n('notify.settings.project.created', project.getDisplayName()));
         })
         .mapErr((error) => {
             $projectDialog.setKey('submitting', false);
-            showError(i18n('notify.settings.project.createFailed'));
+            notifyError(i18n('notify.settings.project.createFailed'));
             console.error(error);
             return error;
         });
@@ -571,7 +571,7 @@ export const updateProject = (): ResultAsync<void, Error> => {
         $projectDialog.setKey('readAccessProgress', null);
         closeProjectDialog();
         new ProjectUpdatedEvent(identifier).fire();
-        showSuccess(i18n('notify.settings.project.modified', name));
+        notifySuccess(i18n('notify.settings.project.modified', name));
         refreshAndSelectProject(identifier);
     };
 
@@ -579,7 +579,7 @@ export const updateProject = (): ResultAsync<void, Error> => {
         $projectDialog.setKey('submitting', false);
         $projectDialog.setKey('readAccessProgress', null);
         $projectDialog.setKey('view', 'main');
-        showError(i18n('notify.settings.project.modifyFailed'));
+        notifyError(i18n('notify.settings.project.modifyFailed'));
         if (message) console.error(message);
     };
 

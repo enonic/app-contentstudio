@@ -1,4 +1,4 @@
-import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { handleError } from '../../../shared/notifications';
 import { computed, map } from 'nanostores';
 import { ContentPath } from '../../../../app/content/ContentPath';
 import { contentExistsByPath } from '../../../entities/content/api/contentExists.api';
@@ -114,7 +114,7 @@ const runAvailabilityCheck = async (requestId: number, path: ContentPath): Promi
     }
 
     if (result.isErr()) {
-        DefaultErrorHandler.handle(result.error);
+        handleError(result.error);
 
         const state = $renameContentDialog.get();
         if (!state.open) {

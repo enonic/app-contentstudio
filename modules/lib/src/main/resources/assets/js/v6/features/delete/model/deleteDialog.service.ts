@@ -1,4 +1,4 @@
-import { showError } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyError } from '../../../shared/notifications';
 import { type ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { type ContentServerChangeItem } from '../../../../app/event/ContentServerChangeItem';
@@ -64,7 +64,7 @@ const reloadDeleteDialogData = async (): Promise<void> => {
 
         if (resolved.isErr()) {
             $deleteDialog.setKey('failed', true);
-            showError(resolved.error.message);
+            notifyError(resolved.error.message);
             return;
         }
 
@@ -100,7 +100,7 @@ const reloadDeleteDialogData = async (): Promise<void> => {
         if (currentInstance !== $deleteDialog.get().instance) return;
 
         $deleteDialog.setKey('failed', true);
-        showError(error?.message ?? String(error));
+        notifyError(error?.message ?? String(error));
     } finally {
         $deleteDialog.setKey('instance', $deleteDialog.get().instance + 1);
         $deleteDialog.setKey('loading', false);

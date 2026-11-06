@@ -1,5 +1,5 @@
 import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
-import { showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyWarning } from '../../../shared/notifications';
 import { FormRenderer as ToolkitFormRenderer, LocaleProvider } from '@enonic/input-types';
 import type { PropertySet } from '@enonic/input-types/data';
 import type { Form } from '@enonic/input-types/schema';
@@ -21,10 +21,6 @@ type FormRendererOwnProps = {
 };
 
 type FormRendererProps = FormScope & FormRendererOwnProps;
-
-const notifyWarning = (message: string): void => {
-    showWarning(message, true);
-};
 
 /**
  * The toolkit's form with what Content Studio wraps around it: its scope (project and

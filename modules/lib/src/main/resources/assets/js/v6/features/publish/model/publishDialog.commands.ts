@@ -1,4 +1,4 @@
-import { showError, showFeedback, showSuccess } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyError, notifyInfo, notifySuccess } from '../../../shared/notifications';
 import type { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
 import { i18n } from '../../../shared/i18n';
 import { type ContentId } from '../../../../app/content/ContentId';
@@ -676,9 +676,9 @@ export const publishItems = async (
                         total > 1
                             ? i18n('dialog.publish.success.multiple', total)
                             : i18n('dialog.publish.success.single', pendingPrimaryName ?? '');
-                    showSuccess(successMessage);
+                    notifySuccess(successMessage);
                 } else {
-                    showError(message);
+                    notifyError(message);
                 }
                 resetPublishDialogContext();
                 onComplete?.(resultState, message);
@@ -903,11 +903,11 @@ async function markIdsReady(ids: ContentId[]): Promise<ContentId[]> {
                 count > 1
                     ? i18n('notify.item.markedAsReady.multiple', count)
                     : i18n('notify.item.markedAsReady', ids[0].toString());
-            showFeedback(msg);
+            notifyInfo(msg);
             return ids;
         },
         () => {
-            showError(i18n('notify.item.markedAsReady.error', ids.length));
+            notifyError(i18n('notify.item.markedAsReady.error', ids.length));
             return [];
         },
     );
@@ -964,7 +964,7 @@ async function sendPublishRequest(): Promise<TaskId | undefined> {
     return result.match(
         (taskId) => taskId,
         () => {
-            showError(i18n('dialog.publish.publishing.error'));
+            notifyError(i18n('dialog.publish.publishing.error'));
             return undefined;
         },
     );

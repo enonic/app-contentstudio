@@ -2,7 +2,7 @@
 
 import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 import { BrowserHelper } from '@enonic/lib-admin-ui/BrowserHelper';
-import { NotifyManager } from '@enonic/lib-admin-ui/notify/NotifyManager';
+import { notifyError, notifyInfo, notifySuccess } from '../../../../../shared/notifications';
 import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
 import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
 import { i18n } from '../../../../../shared/i18n';
@@ -536,7 +536,7 @@ function handleTooltipForClickableElements(editor: CKEDITOR.editor): void {
 }
 
 function handleNativeNotifications(editor: CKEDITOR.editor): void {
-    const progressNotifications: Record<string, string> = {};
+    const progressNotifications: Record<string, () => void> = {};
 
     editor.on('notificationShow', function (evt: EventInfo) {
         evt.cancel();
@@ -549,14 +549,14 @@ function handleNativeNotifications(editor: CKEDITOR.editor): void {
 
         switch (notification.type) {
             case 'success':
-                NotifyManager.get().showSuccess(notification.message);
+                notifySuccess(notification.message);
                 break;
             case 'info':
             case 'progress':
-                NotifyManager.get().showFeedback(notification.message);
+                notifyInfo(notification.message);
                 break;
             case 'warning':
-                NotifyManager.get().showError(notification.message);
+                notifyError(notification.message);
                 break;
         }
     });
@@ -568,15 +568,18 @@ function handleNativeNotifications(editor: CKEDITOR.editor): void {
 
         switch (type) {
             case 'success':
-                NotifyManager.get().showSuccess(message);
+                notifySuccess(message);
                 if (progressNotifications[messageId]) {
-                    NotifyManager.get().hide(progressNotifications[messageId]);
+                    progressNotifications[messageId]();
                     delete progressNotifications[messageId];
                 }
                 break;
             case 'progress':
                 if (!progressNotifications[messageId]) {
-                    progressNotifications[messageId] = NotifyManager.get().showFeedback(message, false);
+                    progressNotifications[messageId] = notifyInfo(message, {
+                        autoHide: false,
+                        owner: `${editor.name}:${messageId}`,
+                    });
                 }
                 break;
         }

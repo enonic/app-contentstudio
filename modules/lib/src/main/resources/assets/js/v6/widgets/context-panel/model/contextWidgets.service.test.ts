@@ -12,8 +12,8 @@ vi.mock('@enonic/lib-admin-ui/auth/AuthHelper', () => ({
     AuthHelper: { isContentAdmin: () => false },
 }));
 
-vi.mock('@enonic/lib-admin-ui/notify/MessageBus', () => ({
-    showError: vi.fn(),
+vi.mock('../../../shared/notifications', () => ({
+    notifyError: vi.fn(),
 }));
 
 vi.mock('../../../shared/i18n', () => ({

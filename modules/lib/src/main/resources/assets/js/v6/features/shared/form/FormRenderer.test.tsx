@@ -11,8 +11,8 @@ const { mockShowWarning, mockToolkitRenderer, mockHtmlAreaContext } = vi.hoisted
     mockHtmlAreaContext: vi.fn<() => object | undefined>(),
 }));
 
-vi.mock('@enonic/lib-admin-ui/notify/MessageBus', () => ({
-    showWarning: (...args: unknown[]) => mockShowWarning(...args),
+vi.mock('../../../shared/notifications', () => ({
+    notifyWarning: (...args: unknown[]) => mockShowWarning(...args),
 }));
 
 vi.mock('@enonic/input-types', () => ({
@@ -162,6 +162,6 @@ describe('FormRenderer', () => {
 
         props.notify('Option data is dropped on save');
 
-        expect(mockShowWarning).toHaveBeenCalledWith('Option data is dropped on save', true);
+        expect(mockShowWarning).toHaveBeenCalledWith('Option data is dropped on save');
     });
 });

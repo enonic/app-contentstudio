@@ -1,4 +1,4 @@
-import { showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyWarning } from '../../../../../../../shared/notifications';
 import { useStore } from '@nanostores/preact';
 import { useCallback, useMemo, useState } from 'react';
 import { FragmentComponent } from '../../../../../../../../app/page/region/FragmentComponent';
@@ -115,7 +115,7 @@ export function useFragmentContentSelector(): UseFragmentContentSelectorResult {
                         const fragmentComp = content.getPage()?.getFragment() ?? null;
 
                         if (fragmentComp?.getType() instanceof LayoutComponentType) {
-                            showWarning(nestedLayoutsWarning);
+                            notifyWarning(nestedLayoutsWarning);
                         } else {
                             requestSetFragmentComponent(fragment.getPath(), newId, content.getDisplayName());
                         }

@@ -1,4 +1,4 @@
-import { showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyInfo } from '../../../shared/notifications';
 import { okAsync } from 'neverthrow';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentId } from '../../../../app/content/ContentId';
@@ -44,16 +44,13 @@ vi.mock('../../../entities/content/api/content.api', () => ({
     fetchContentById: mocks.fetchContentById,
 }));
 
-vi.mock('@enonic/lib-admin-ui/notify/MessageBus', () => ({
-    showFeedback: vi.fn(),
+vi.mock('../../../shared/notifications', () => ({
+    handleError: vi.fn(),
+    notifyInfo: vi.fn(),
 }));
 
 vi.mock('../../../shared/i18n', () => ({
     i18n: (key: string) => key,
-}));
-
-vi.mock('@enonic/lib-admin-ui/DefaultErrorHandler', () => ({
-    DefaultErrorHandler: { handle: vi.fn() },
 }));
 
 function summary({
@@ -160,7 +157,7 @@ describe('wizardContentSync.service', () => {
         } as unknown as Content);
 
         expect(mocks.applyServerSidePersistedContent).toHaveBeenCalledTimes(1);
-        expect(showFeedback).not.toHaveBeenCalled();
+        expect(notifyInfo).not.toHaveBeenCalled();
 
         emitContentUpdated([summary({ modifiedMs: updatedMs, workflowState: WorkflowState.IN_PROGRESS })]);
 

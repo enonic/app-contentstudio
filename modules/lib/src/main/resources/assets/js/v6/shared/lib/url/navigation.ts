@@ -1,4 +1,4 @@
-import { showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyWarning } from '../../notifications';
 import { i18n } from '../../i18n';
 import { $config } from '../../config/config.store';
 import { resolveActiveProjectName } from './cms';
@@ -108,6 +108,6 @@ export function openEditContentTab(contentId: string): void {
     const win = openTabOrFocusExisting(url, tabName);
 
     if (isPopupBlocked(win)) {
-        showWarning(i18n(POPUP_BLOCKED_KEY), false);
+        notifyWarning(i18n(POPUP_BLOCKED_KEY), { autoHide: false });
     }
 }

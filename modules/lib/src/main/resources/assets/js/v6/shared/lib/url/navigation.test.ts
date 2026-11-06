@@ -5,8 +5,8 @@ import { getEditContentUrl, getInboundReferencesUrl, openEditContentTab } from '
 
 const mockShowWarning = vi.fn();
 
-vi.mock('@enonic/lib-admin-ui/notify/MessageBus', () => ({
-    showWarning: (...args: unknown[]) => mockShowWarning(...args),
+vi.mock('../../notifications', () => ({
+    notifyWarning: (...args: unknown[]) => mockShowWarning(...args),
 }));
 
 vi.mock('../../i18n', () => ({
@@ -80,7 +80,7 @@ describe('openEditContentTab', () => {
 
         openEditContentTab('frag-2');
 
-        expect(mockShowWarning).toHaveBeenCalledWith('notify.popupBlocker.admin', false);
+        expect(mockShowWarning).toHaveBeenCalledWith('notify.popupBlocker.admin', { autoHide: false });
     });
 
     it('should focus the already-open tab instead of opening a duplicate', () => {

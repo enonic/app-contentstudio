@@ -1,5 +1,5 @@
 import { AuthHelper } from '@enonic/lib-admin-ui/auth/AuthHelper';
-import { showFeedback, showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyInfo, notifyWarning } from '../../../shared/notifications';
 import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
 import { atom, computed } from 'nanostores';
 import { type Project } from '../../../../app/settings/data/project/Project';
@@ -105,14 +105,14 @@ export function syncLayers(): void {
     if ($isSyncInProgress.get()) return;
 
     $isSyncInProgress.set(true);
-    showFeedback(i18n('settings.actions.sync.started'));
+    notifyInfo(i18n('settings.actions.sync.started'));
 
     const finish = (succeeded: boolean): void => {
         $isSyncInProgress.set(false);
         if (succeeded) {
-            showFeedback(i18n('settings.actions.sync.finished'));
+            notifyInfo(i18n('settings.actions.sync.finished'));
         } else {
-            showWarning(i18n('settings.actions.sync.failed'));
+            notifyWarning(i18n('settings.actions.sync.failed'));
         }
     };
 

@@ -1,5 +1,5 @@
 import { Tooltip } from '@enonic/ui';
-import { showError } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyError } from '../../../../shared/notifications';
 import { type ChangeEvent, type ReactElement, useEffect, useRef, useState } from 'react';
 import { i18n } from '../../../../shared/i18n';
 import { type Project } from '../../../../../app/settings/data/project/Project';
@@ -42,7 +42,7 @@ export const ProjectStatisticsIcon = ({ project }: Props): ReactElement => {
                 setIconVersion(String(Date.now()));
             },
             (error) => {
-                showError(i18n('notify.upload.error', file.name, error.message));
+                notifyError(i18n('notify.upload.error', file.name, error.message));
             },
         );
         setProgress(0);

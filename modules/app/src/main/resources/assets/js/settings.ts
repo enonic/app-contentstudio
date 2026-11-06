@@ -4,6 +4,7 @@ import { Principal } from '@enonic/lib-admin-ui/security/Principal';
 import { PrincipalJson } from '@enonic/lib-admin-ui/security/PrincipalJson';
 import { CONFIG, ConfigObject } from '@enonic/lib-admin-ui/util/Config';
 import { ProjectConfigContext } from '@enonic/lib-contentstudio/app/settings/data/project/ProjectConfigContext';
+import { mountNotifications } from '@enonic/lib-contentstudio/v6/app/notificationsRoot';
 import { mountSettingsApp } from '@enonic/lib-contentstudio/v6/app/settingsApp';
 import { initLanguages } from '@enonic/lib-contentstudio/v6/entities/language/languages.store';
 import { initPrincipals } from '@enonic/lib-contentstudio/v6/entities/principal/principals.store';
@@ -45,6 +46,7 @@ const init = async (configScriptId: string, elemId: string): Promise<void> => {
     );
     await ProjectConfigContext.get().init();
 
+    mountNotifications();
     whenHostAttached(elemId, mountSettingsApp);
 };
 

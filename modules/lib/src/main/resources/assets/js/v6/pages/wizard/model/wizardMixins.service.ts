@@ -1,5 +1,5 @@
 import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
-import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { handleError } from '../../../shared/notifications';
 import { okAsync, ResultAsync } from 'neverthrow';
 import { AppError } from '@enonic/ui-utils';
 import type { Content } from '../../../../app/content/Content';
@@ -55,7 +55,7 @@ async function loadDescriptors(contentId: ContentId): Promise<void> {
     }
 
     if (result.isErr()) {
-        DefaultErrorHandler.handle(result.error);
+        handleError(result.error);
         return;
     }
 

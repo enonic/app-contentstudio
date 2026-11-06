@@ -1,4 +1,4 @@
-import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { handleError } from '../../../shared/notifications';
 import { Button, Dialog } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { ResultAsync, okAsync } from 'neverthrow';
@@ -60,7 +60,7 @@ export const MoveDialog = (): ReactElement => {
     const handleMove = async () => {
         const result = await checkContentWillMoveOutOfSite();
         if (result.isErr()) {
-            DefaultErrorHandler.handle(result.error);
+            handleError(result.error);
             return;
         }
 

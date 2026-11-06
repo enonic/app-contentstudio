@@ -1,5 +1,4 @@
-import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import { showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { handleError, notifyInfo } from '../../../shared/notifications';
 import { map } from 'nanostores';
 import { i18n } from '../../../shared/i18n';
 import { deleteProject } from '../../../entities/project/api/projects.api';
@@ -49,11 +48,11 @@ export const executeDeleteSettingsDialogAction = (): void => {
     void deleteProject(projectName).match(
         () => {
             closeDeleteSettingsDialog();
-            showFeedback(i18n('notify.settings.project.deleted', projectName));
+            notifyInfo(i18n('notify.settings.project.deleted', projectName));
         },
         (error) => {
             clearPendingDeletedProject(projectName);
-            DefaultErrorHandler.handle(error);
+            handleError(error);
         },
     );
 };

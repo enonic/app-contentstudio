@@ -1,6 +1,6 @@
 import { type Application } from '@enonic/lib-admin-ui/application/Application';
 import { ApplicationEvent, ApplicationEventType } from '@enonic/lib-admin-ui/application/ApplicationEvent';
-import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { handleError } from '../../shared/notifications';
 import { map } from 'nanostores';
 import { fetchSiteApplications } from './api/applications.api';
 
@@ -64,7 +64,7 @@ async function fetchApplications(): Promise<void> {
             });
         },
         (error) => {
-            DefaultErrorHandler.handle(error);
+            handleError(error);
             $applications.setKey('loading', false);
         },
     );

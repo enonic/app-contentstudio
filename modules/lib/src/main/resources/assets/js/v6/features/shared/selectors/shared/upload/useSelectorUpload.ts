@@ -1,4 +1,4 @@
-import { showError } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyError } from '../../../../../shared/notifications';
 import { listenKeys } from 'nanostores';
 import { type DragEvent as ReactDragEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { UploadMediaSuccess } from '../../../../../entities/content/api/uploadMedia.api';
@@ -142,7 +142,7 @@ export const useSelectorUpload = ({
     const onUploadError = useCallback((error: UploadError) => {
         removeUpload(error.mediaIdentifier);
         setUploadIds((prev) => prev.filter((id) => id !== error.mediaIdentifier));
-        showError(useI18n('notify.upload.error', error.mediaIdentifier, error.message));
+        notifyError(useI18n('notify.upload.error', error.mediaIdentifier, error.message));
     }, []);
 
     const { handleFiles: uploadFiles } = useUploadMedia({

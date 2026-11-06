@@ -1,4 +1,4 @@
-import { showError, showSuccess } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyError, notifySuccess } from '../../../shared/notifications';
 import { computed, map } from 'nanostores';
 import { i18n } from '../../../shared/i18n';
 import { ContentId } from '../../../../app/content/ContentId';
@@ -281,7 +281,7 @@ export const ensureSortDialogBatchLoaded = async (index: number): Promise<void> 
             return;
         }
         markFailedBatch(batchStart);
-        showError(error instanceof Error ? error.message : String(error));
+        notifyError(error instanceof Error ? error.message : String(error));
     } finally {
         if (callId === $sortDialog.get().instance) {
             loadingBatches.delete(batchStart);
@@ -363,13 +363,13 @@ export const submitSortDialogAction = async (): Promise<boolean> => {
     const result = await request;
 
     if (result.isErr()) {
-        showError(i18n('dialog.sort.failed'));
+        notifyError(i18n('dialog.sort.failed'));
         $sortDialog.setKey('submitting', false);
         return false;
     }
 
     const parentDisplayName = parent.getDisplayName() || parent.getPath()?.toString() || i18n('dialog.sort');
-    showSuccess(i18n('dialog.sort.success', parentDisplayName));
+    notifySuccess(i18n('dialog.sort.success', parentDisplayName));
     closeSortDialog();
     return true;
 };

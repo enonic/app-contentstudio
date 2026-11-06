@@ -1,4 +1,4 @@
-import { showError, showSuccess, showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyError, notifySuccess, notifyWarning } from '../../../shared/notifications';
 import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
 import { atom, computed, map } from 'nanostores';
 import { i18n } from '../../../shared/i18n';
@@ -352,16 +352,16 @@ export const submitNewIssueDialog = async (): Promise<void> => {
 
     if (result.isErr()) {
         console.error(result.error);
-        showError(result.error.message);
+        notifyError(result.error.message);
         $newIssueDialog.setKey('submitting', false);
         return;
     }
 
     const issue = result.value;
 
-    showSuccess(i18n('notify.issue.created'));
+    notifySuccess(i18n('notify.issue.created'));
     if (approvers.length > issue.getApprovers().length) {
-        showWarning(i18n('notify.issue.assignees.norights'));
+        notifyWarning(i18n('notify.issue.assignees.norights'));
     }
 
     resetNewIssueDialogContext();
@@ -407,7 +407,7 @@ const reloadNewIssueDependencies = async (): Promise<void> => {
                 loading: false,
                 failed: true,
             });
-            showError(resolution.error.message);
+            notifyError(resolution.error.message);
             return;
         }
 
@@ -465,7 +465,7 @@ const reloadNewIssueDependencies = async (): Promise<void> => {
             loading: false,
             failed: true,
         });
-        showError(error?.message ?? String(error));
+        notifyError(error?.message ?? String(error));
     }
 };
 

@@ -1,4 +1,4 @@
-import { NotifyManager } from '@enonic/lib-admin-ui/notify/NotifyManager';
+import { notifyError, notifyInfo, notifyWarning } from '../../shared/notifications';
 import { ContentRequiresSaveEvent } from '../../../app/event/ContentRequiresSaveEvent';
 import type {
     AiAnimation,
@@ -80,13 +80,12 @@ export function createPluginApi(id: AiPluginId): PluginApiHandle {
         },
 
         notify(level: AiNotifyLevel, message: string): void {
-            const manager = NotifyManager.get();
             if (level === 'error') {
-                manager.showError(message);
+                notifyError(message);
             } else if (level === 'warn') {
-                manager.showWarning(message);
+                notifyWarning(message);
             } else {
-                manager.showSuccess(message);
+                notifyInfo(message);
             }
         },
     };

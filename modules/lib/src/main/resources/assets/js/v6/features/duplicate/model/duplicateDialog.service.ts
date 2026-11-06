@@ -1,4 +1,4 @@
-import { showError } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { notifyError } from '../../../shared/notifications';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { fetchContentSummaries } from '../../../entities/content';
 import { isIdsEqual } from '../../../shared/lib/cms/content/ids';
@@ -57,7 +57,7 @@ async function reloadDuplicateDialogData(): Promise<void> {
 
         if (descendants.isErr()) {
             $duplicateDialog.setKey('failed', true);
-            showError(descendants.error.message);
+            notifyError(descendants.error.message);
             return;
         }
 
@@ -76,7 +76,7 @@ async function reloadDuplicateDialogData(): Promise<void> {
     } catch (error) {
         if (currentInstance !== $duplicateDialog.get().instance) return;
         $duplicateDialog.setKey('failed', true);
-        showError(error?.message ?? String(error));
+        notifyError(error?.message ?? String(error));
     } finally {
         if (currentInstance === $duplicateDialog.get().instance) {
             $duplicateDialog.setKey('loading', false);

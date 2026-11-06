@@ -57,6 +57,7 @@ import { VersionHelper } from '@enonic/lib-contentstudio/app/util/VersionHelper'
 import { ContentAppHelper } from '@enonic/lib-contentstudio/app/wizard/ContentAppHelper';
 import { ContentWizardPanelParams } from '@enonic/lib-contentstudio/app/wizard/ContentWizardPanelParams';
 import { AppElement } from '@enonic/lib-contentstudio/v6/app/App';
+import { mountNotifications } from '@enonic/lib-contentstudio/v6/app/notificationsRoot';
 import { initAiHost } from '@enonic/lib-contentstudio/v6/features/ai';
 import { $isBrowseSidebarOpen } from '@enonic/lib-contentstudio/v6/pages/browse/model/browseSidebar.store';
 import { initTheme } from '@enonic/lib-contentstudio/v6/shared/app-state/app.store';
@@ -306,6 +307,7 @@ function hasActiveProject(): boolean {
 
 async function startApplication() {
     // v6 app initialization
+    mountNotifications();
     AppElement.initialize();
     initAiHost();
 

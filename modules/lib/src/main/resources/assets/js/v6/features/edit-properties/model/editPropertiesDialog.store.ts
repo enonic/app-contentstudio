@@ -1,5 +1,4 @@
-import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import { showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { handleError, notifyInfo } from '../../../shared/notifications';
 import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
 import { ResultAsync } from 'neverthrow';
 import { map } from 'nanostores';
@@ -105,7 +104,7 @@ export const applyEditPropertiesDialog = async (): Promise<void> => {
 
     const contentResult = await fetchContentById(contentSummary.getContentId().toString());
     if (contentResult.isErr()) {
-        DefaultErrorHandler.handle(contentResult.error);
+        handleError(contentResult.error);
         $editPropertiesDialog.setKey('saving', false);
         return;
     }
@@ -139,7 +138,7 @@ export const applyEditPropertiesDialog = async (): Promise<void> => {
     if (updates.length > 0) {
         const result = await updates.slice(1).reduce((chain, update) => chain.andThen(update), updates[0]());
         if (result.isErr()) {
-            DefaultErrorHandler.handle(result.error);
+            handleError(result.error);
             $editPropertiesDialog.setKey('saving', false);
             return;
         }
@@ -148,9 +147,9 @@ export const applyEditPropertiesDialog = async (): Promise<void> => {
         new ContentSettingsUpdatedEvent(updatedContent).fire();
 
         if (wasDataInherited && !updatedContent.isDataInherited()) {
-            showFeedback(i18n('notify.content.localized'));
+            notifyInfo(i18n('notify.content.localized'));
         } else {
-            showFeedback(i18n('notify.properties.settings.updated', contentItem.getName().toString()));
+            notifyInfo(i18n('notify.properties.settings.updated', contentItem.getName().toString()));
         }
 
         if (languageChanged && nextLanguage) {
