@@ -1,27 +1,14 @@
-import { type ReactElement, useCallback } from 'react';
+import { type ReactElement } from 'react';
 import { Button } from '@enonic/ui';
-import { useImageUploaderContext } from '../ImageUploaderContext';
 import { useI18n } from '../../../../../../shared/lib/hooks/useI18n';
-import { setCropInPropertySet, setFocusInPropertySet } from '../lib/propertySet';
+import { useImageUploaderApply } from '../useImageUploaderActions';
 
 export const ImageUploaderInputApplyButton = (): ReactElement => {
-    const { value, focus, mode, setMode, crop, dimensions } = useImageUploaderContext();
+    const { canApply, apply } = useImageUploaderApply();
     const applyLabel = useI18n('action.apply');
 
-    const handleApply = useCallback(() => {
-        if (mode === 'focus') {
-            setMode('ready');
-            setFocusInPropertySet(value, focus, dimensions);
-        }
-
-        if (mode === 'crop') {
-            setMode('ready');
-            setCropInPropertySet(value, crop, dimensions);
-        }
-    }, [value, mode, setMode, focus, crop, dimensions]);
-
     return (
-        <Button variant="filled" onClick={handleApply}>
+        <Button variant="filled" onClick={apply} disabled={!canApply} aria-keyshortcuts="Enter">
             {applyLabel}
         </Button>
     );
