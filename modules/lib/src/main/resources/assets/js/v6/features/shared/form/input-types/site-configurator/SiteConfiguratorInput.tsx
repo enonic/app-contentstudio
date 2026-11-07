@@ -306,6 +306,8 @@ const SiteConfiguratorRow = ({
     onEdit,
     onRemove,
 }: SiteConfiguratorRowProps): ReactElement => {
+    const editLabel = useI18n('action.edit');
+    const removeLabel = useI18n('action.remove');
     const { item } = context;
     const application = applications.find((app) => app.key === item.key);
     const hasForm = application?.form?.getFormItems().length > 0;
@@ -333,9 +335,16 @@ const SiteConfiguratorRow = ({
             </div>
             <div className="flex items-center gap-1.5 ml-auto shrink-0">
                 {hasForm && !disabled && (
-                    <IconButton variant="text" icon={Pencil} onClick={() => onEdit(item.key, item.index)} />
+                    <IconButton
+                        aria-label={editLabel}
+                        variant="text"
+                        icon={Pencil}
+                        onClick={() => onEdit(item.key, item.index)}
+                    />
                 )}
-                {!disabled && <IconButton variant="text" icon={X} onClick={() => onRemove(item.key)} />}
+                {!disabled && (
+                    <IconButton aria-label={removeLabel} variant="text" icon={X} onClick={() => onRemove(item.key)} />
+                )}
             </div>
         </div>
     );
