@@ -5,6 +5,7 @@ import { type ContentSummary } from '../../../../../app/content/ContentSummary';
 import { EditContentEvent } from '../../../../../app/event/EditContentEvent';
 import { ContentLabel } from '../content/ContentLabel';
 import { DiffStatusBadge } from '../../../../features/shared/status/DiffStatusBadge';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 
 export type ContentListItemRemovableProps = {
     content: ContentSummary;
@@ -30,6 +31,7 @@ export const ContentListItemRemovable = ({
     tabIndex,
     ...props
 }: ContentListItemRemovableProps): ReactElement => {
+    const removeLabel = useI18n('action.remove');
     const handleClick = () => {
         new EditContentEvent([content]).fire();
     };
@@ -43,11 +45,12 @@ export const ContentListItemRemovable = ({
         <ListItem role="row" className={cn('py-0', className)} {...props}>
             <ListItem.Left>
                 <IconButton
+                    aria-label={removeLabel}
                     icon={X}
                     variant="text"
                     size="sm"
                     className="size-6"
-                    title="Remove"
+                    title={removeLabel}
                     onClick={handleRemove}
                     disabled={disabled}
                     tabIndex={tabIndex}

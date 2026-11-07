@@ -41,6 +41,7 @@ export const EditPropertiesDialog = (): ReactElement => {
     const languageLabel = useI18n('field.lang');
     const ownerLabel = useI18n('field.owner');
     const searchPlaceholder = useI18n('field.option.placeholder');
+    const removeLabel = useI18n('action.remove');
 
     const path = content?.getPath()?.toString();
     const initialLanguage = content?.getLanguage() ?? '';
@@ -135,6 +136,7 @@ export const EditPropertiesDialog = (): ReactElement => {
                                         <GridList.Cell>
                                             <GridList.Action>
                                                 <IconButton
+                                                    aria-label={removeLabel}
                                                     ref={removeLanguageButtonRef}
                                                     variant="text"
                                                     icon={X}
@@ -179,7 +181,12 @@ export const EditPropertiesDialog = (): ReactElement => {
                                         </GridList.Cell>
                                         <GridList.Cell>
                                             <GridList.Action>
-                                                <IconButton variant="text" icon={X} onClick={handleUnselectOwner} />
+                                                <IconButton
+                                                    aria-label={removeLabel}
+                                                    variant="text"
+                                                    icon={X}
+                                                    onClick={handleUnselectOwner}
+                                                />
                                             </GridList.Action>
                                         </GridList.Cell>
                                     </GridList.Row>
