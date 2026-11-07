@@ -58,6 +58,7 @@ export const ProjectDialogParentStepContent = ({
     const typeToSearchLabel = useI18n('field.option.placeholder');
     const noProjectsFoundLabel = useI18n('settings.projects.notfound');
     const helptextLabel = useI18n('dialog.project.wizard.parent.helptext');
+    const removeLabel = useI18n('action.remove');
     const projectLabel = isMultiInheritance ? parentProjectsLabel : parentProjectLabel;
     const languageLabel = useI18n('settings.projects.language.label');
     const noLanguagesFoundLabel = useI18n('dialog.project.wizard.parent.noLanguagesFound');
@@ -174,6 +175,7 @@ export const ProjectDialogParentStepContent = ({
                                         <ListItem.Content className="flex items-center gap-2.5 p-1.5 rounded cursor-move">
                                             <ProjectLabel project={project} className="flex-1 self-stretch" />
                                             <IconButton
+                                                aria-label={removeLabel}
                                                 variant="text"
                                                 icon={X}
                                                 onClick={() => handleUnselectProject(projectName)}
@@ -198,6 +200,7 @@ export const ProjectDialogParentStepContent = ({
                                         <GridList.Cell>
                                             <GridList.Action>
                                                 <IconButton
+                                                    aria-label={removeLabel}
                                                     variant="text"
                                                     icon={X}
                                                     onClick={() => handleUnselectProject(projectName)}
@@ -245,7 +248,12 @@ export const ProjectDialogParentStepContent = ({
                                 </GridList.Cell>
                                 <GridList.Cell>
                                     <GridList.Action>
-                                        <IconButton variant="text" icon={X} onClick={handleUnselectLanguage} />
+                                        <IconButton
+                                            aria-label={removeLabel}
+                                            variant="text"
+                                            icon={X}
+                                            onClick={handleUnselectLanguage}
+                                        />
                                     </GridList.Action>
                                 </GridList.Cell>
                             </GridList.Row>

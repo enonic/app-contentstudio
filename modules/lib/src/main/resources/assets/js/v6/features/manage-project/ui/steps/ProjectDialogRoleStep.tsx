@@ -44,6 +44,7 @@ export const ProjectDialogRoleStepContent = ({
     locked = false,
     roleInputRef,
 }: ProjectDialogRoleStepContentProps): ReactElement => {
+    const removeLabel = useI18n('action.remove');
     // Hooks
     const { principals } = useStore($principals);
     const { parentProjects, roles } = useStore($projectDialog, {
@@ -216,6 +217,7 @@ export const ProjectDialogRoleStepContent = ({
                                 <GridList.Cell>
                                     <GridList.Action>
                                         <IconButton
+                                            aria-label={removeLabel}
                                             variant="text"
                                             icon={X}
                                             onClick={() => handleUnselect(principal.getKey().toString())}

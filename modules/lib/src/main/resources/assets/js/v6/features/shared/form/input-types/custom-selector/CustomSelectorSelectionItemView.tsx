@@ -5,6 +5,7 @@ import { type ContentSummary } from '../../../../../../app/content/ContentSummar
 import { type CustomSelectorItem } from './CustomSelectorInput';
 import { X } from 'lucide-react';
 import { cn, IconButton } from '@enonic/ui';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 
 type CustomSelectorSelectionItemViewProps = {
     items: CustomSelectorItem[];
@@ -20,6 +21,7 @@ export const CustomSelectorSelectionItemView = ({
     onRemove,
     className,
 }: CustomSelectorSelectionItemViewProps): ReactElement => {
+    const removeLabel = useI18n('action.remove');
     const { index, item: content } = context;
     const item = items.find((item) => item.id === content.getId());
 
@@ -28,7 +30,7 @@ export const CustomSelectorSelectionItemView = ({
     return (
         <div className={cn('flex items-center gap-2.5 w-full min-w-0', className)}>
             <CustomSelectorItemView item={item} listMode={listMode} />
-            <IconButton icon={X} onClick={() => onRemove(index)} className="shrink-0" />
+            <IconButton aria-label={removeLabel} icon={X} onClick={() => onRemove(index)} className="shrink-0" />
         </div>
     );
 };

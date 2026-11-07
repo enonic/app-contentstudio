@@ -3,6 +3,7 @@ import { cn, GridList, IconButton, Link } from '@enonic/ui';
 import { FieldError } from '@enonic/input-types';
 import { X } from 'lucide-react';
 import { getCmsApiUrl } from '../../../../../shared/lib/url/cms';
+import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 
 export type AttachmentUploaderListProps = {
     names: string[];
@@ -22,6 +23,7 @@ export const AttachmentUploaderList = ({
     disabled,
     errors,
 }: AttachmentUploaderListProps): ReactElement => {
+    const removeLabel = useI18n('action.remove');
     if (names.length === 0) return null;
 
     return (
@@ -49,6 +51,7 @@ export const AttachmentUploaderList = ({
                         <GridList.Cell>
                             <GridList.Action>
                                 <IconButton
+                                    aria-label={removeLabel}
                                     icon={X}
                                     variant="text"
                                     onClick={() => onRemove(index)}
