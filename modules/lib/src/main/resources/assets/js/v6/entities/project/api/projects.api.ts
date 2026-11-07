@@ -1,5 +1,4 @@
 import { ResultAsync } from 'neverthrow';
-import { type ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import { type PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
 import { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
 import { type TaskIdJson } from '@enonic/lib-admin-ui/task/TaskIdJson';
@@ -13,6 +12,11 @@ import { type ProjectJson } from '../../../../app/settings/resource/json/Project
 import { type ProjectPermissionsJson } from '../../../../app/settings/resource/json/ProjectPermissionsJson';
 import { type ProjectReadAccessJson } from '../../../../app/settings/resource/json/ProjectReadAccessJson';
 import { getCmsRestUri } from '../../../shared/lib/url/cms';
+import {
+    type ApplicationConfig,
+    type ApplicationConfigJson,
+    applicationConfigToJson,
+} from '../../../shared/lib/cms/application/applicationConfig';
 
 export type UpdateProjectParams = {
     name: string;
@@ -32,7 +36,7 @@ type ProjectMutationPayload = {
     displayName: string;
     description?: string;
     language?: string;
-    applicationConfigs: object[];
+    applicationConfigs: ApplicationConfigJson[];
     parents?: string[];
     readAccess?: ProjectReadAccessJson;
 };
@@ -43,7 +47,7 @@ function toMutationPayload(params: UpdateProjectParams): ProjectMutationPayload 
         displayName: params.displayName,
         description: params.description,
         language: params.language,
-        applicationConfigs: params.applicationConfigs.map((config) => config.toJson()),
+        applicationConfigs: params.applicationConfigs.map(applicationConfigToJson),
     };
 }
 

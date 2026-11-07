@@ -1,23 +1,21 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
-import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {type ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
-import {type ContentSummary} from '../content/ContentSummary';
+import { Event } from '@enonic/lib-admin-ui/event/Event';
+import { ClassHelper } from '@enonic/lib-admin-ui/ClassHelper';
+import { type ContentSummary } from '../content/ContentSummary';
+import { type ContentTypeName } from '../../v6/shared/lib/cms/schema/contentTypeName';
 
-export class NewContentEvent
-    extends Event {
-
-    private readonly contentType: ContentTypeSummary;
+export class NewContentEvent extends Event {
+    private readonly contentTypeName: ContentTypeName;
 
     private readonly parentContent: ContentSummary;
 
-    constructor(contentType: ContentTypeSummary, parentContent: ContentSummary) {
+    constructor(contentTypeName: ContentTypeName, parentContent: ContentSummary) {
         super();
-        this.contentType = contentType;
+        this.contentTypeName = contentTypeName;
         this.parentContent = parentContent;
     }
 
-    getContentType(): ContentTypeSummary {
-        return this.contentType;
+    getContentTypeName(): ContentTypeName {
+        return this.contentTypeName;
     }
 
     getParentContent(): ContentSummary {

@@ -1,6 +1,6 @@
 /*global CKEDITOR*/
 
-import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { type ApplicationKey } from '../../../../../../shared/lib/cms/application/applicationKey';
 import { cn } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { useCKEditor } from 'ckeditor4-react';

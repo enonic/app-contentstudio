@@ -1,5 +1,4 @@
-import { ApplicationEvent, ApplicationEventType } from '@enonic/lib-admin-ui/application/ApplicationEvent';
-import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import type { ApplicationChange, ApplicationEventKind } from '../../../entities/application';
 import type { Extension } from '@enonic/lib-admin-ui/extension/Extension';
 import type { AppError } from '@enonic/ui-utils';
 import { ok, type Result } from 'neverthrow';
@@ -25,6 +24,17 @@ const { fetchExtensions } = vi.hoisted(() => ({
 }));
 
 vi.mock('../../../entities/extension', () => ({ fetchExtensions }));
+
+const { applicationListeners } = vi.hoisted(() => ({
+    applicationListeners: new Set<(change: ApplicationChange) => void>(),
+}));
+
+vi.mock('../../../entities/application', () => ({
+    onApplicationEvent: (handler: (change: ApplicationChange) => void) => {
+        applicationListeners.add(handler);
+        return () => applicationListeners.delete(handler);
+    },
+}));
 
 type Deferred = {
     resolve: (extensions: Extension[]) => void;
@@ -53,8 +63,8 @@ const createExtension = (applicationKey: string, name: string): Extension =>
         getConfig: () => undefined,
     }) as unknown as Extension;
 
-const fire = (applicationKey: string, type: ApplicationEventType): void => {
-    new ApplicationEvent(ApplicationKey.fromString(applicationKey), type, false).fire();
+const fire = (applicationKey: string, kind: ApplicationEventKind): void => {
+    applicationListeners.forEach((listener) => listener({ applicationKey, kind }));
 };
 
 const customWidgetKeys = (): string[] =>
@@ -95,11 +105,11 @@ describe('contextWidgets.service', () => {
         await flush();
 
         const reload = defer();
-        fire('com.app', ApplicationEventType.STARTED);
+        fire('com.app', 'started');
         await vi.advanceTimersByTimeAsync(1000);
         expect(fetchExtensions).toHaveBeenCalledTimes(2);
 
-        fire('com.app', ApplicationEventType.STOPPED);
+        fire('com.app', 'stopped');
         expect(customWidgetKeys()).toEqual([]);
 
         reload.resolve([createExtension('com.app', 'layers')]);
@@ -115,10 +125,10 @@ describe('contextWidgets.service', () => {
         await flush();
 
         const reload = defer();
-        fire('com.app', ApplicationEventType.STARTED);
+        fire('com.app', 'started');
         await vi.advanceTimersByTimeAsync(1000);
 
-        fire('com.other', ApplicationEventType.STOPPED);
+        fire('com.other', 'stopped');
         reload.resolve([createExtension('com.app', 'layers'), createExtension('com.other', 'stale')]);
         await flush();
         expect(customWidgetKeys()).toEqual([]);

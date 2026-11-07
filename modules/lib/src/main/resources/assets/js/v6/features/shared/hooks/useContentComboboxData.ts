@@ -1,5 +1,4 @@
-import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
-import type { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { type ApplicationKey } from '../../../shared/lib/cms/application/applicationKey';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import type { ContentTreeSelectorItem } from '../../../../app/item/ContentTreeSelectorItem';
@@ -31,6 +30,8 @@ import type { ContentState } from '../../../../app/content/ContentState';
 import { resolveDisplayName, resolveSubName } from '../../../shared/lib/cms/content/prettify';
 import { calcContentState } from '../../../shared/lib/cms/content/workflow';
 import { calcTreePublishStatus } from '../../../shared/lib/cms/content/status';
+import { type ContentTypeName } from '../../../shared/lib/cms/schema/contentTypeName';
+import { toContentTypeName } from '../../../shared/lib/cms/schema/contentTypeName';
 
 //
 // * Types
@@ -188,7 +189,7 @@ function toNodeData(summary: ContentSummary, selectable = true): ContentCombobox
         name: resolveSubName(summary),
         publishStatus: calcTreePublishStatus(summary),
         contentState: calcContentState(summary),
-        contentType: summary.getType(),
+        contentType: toContentTypeName(summary.getType().toString()),
         iconUrl: summary.getIconUrl(),
         item: summary,
         selectable,
@@ -204,7 +205,7 @@ function toNodeDataFromTreeItem(item: ContentTreeSelectorItem, projectName?: str
         name: item.getName()?.toString() ?? '',
         publishStatus: summary ? calcTreePublishStatus(summary) : item.getPublishStatus(),
         contentState: calcContentState(summary ?? item.getContentSummary()),
-        contentType: summary?.getType() ?? item.getType(),
+        contentType: toContentTypeName((summary?.getType() ?? item.getType()).toString()),
         iconUrl: summary?.getIconUrl() ?? item.getIconUrl(),
         item: summary ?? item.getContentSummary(),
         selectable: item.isSelectable(),

@@ -1,6 +1,7 @@
-import { type Application } from '@enonic/lib-admin-ui/application/Application';
-import { ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import { ApplicationConfig as LegacyApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { type Application } from '../../../entities/application';
+import { type ApplicationConfig } from '../../../shared/lib/cms/application/applicationConfig';
 import { PropertyTree } from '@enonic/input-types/data';
 import { Form, Input } from '@enonic/input-types/schema';
 import { registerBuiltInTypes } from '@enonic/input-types';
@@ -110,22 +111,16 @@ function checkboxForm(): Form {
 }
 
 function createApp(key: string, form?: Form): Application {
-    return {
-        getApplicationKey: () => ApplicationKey.fromString(key),
-        getForm: () => form,
-        getDisplayName: () => key,
-        getDescription: () => '',
-        getState: () => 'started',
-    } as unknown as Application;
+    return { key, form, displayName: key, description: '', state: 'started' };
 }
 
-function createSiteConfig(key: string, values: Record<string, string>): ApplicationConfig {
+function createSiteConfig(key: string, values: Record<string, string>): LegacyApplicationConfig {
     const root = new PropertyTree().getRoot();
     Object.entries(values).forEach(([name, value]) => root.setString(name, 0, value));
-    return ApplicationConfig.create().setApplicationKey(ApplicationKey.fromString(key)).setConfig(root).build();
+    return LegacyApplicationConfig.create().setApplicationKey(ApplicationKey.fromString(key)).setConfig(root).build();
 }
 
-function createProject(name: string, siteConfigs: ApplicationConfig[]): Project {
+function createProject(name: string, siteConfigs: LegacyApplicationConfig[]): Project {
     return Project.create()
         .setName(name)
         .setDisplayName(name)
@@ -137,7 +132,7 @@ function createProject(name: string, siteConfigs: ApplicationConfig[]): Project 
 
 const configOf = (key: string) => getProjectDialogApplicationConfig(key);
 const ownConfigOf = (key: string) => $projectDialog.get().applicationConfigs[key];
-const listedKeys = () => $projectDialog.get().applications.map((app) => app.getApplicationKey().toString());
+const listedKeys = () => $projectDialog.get().applications.map((app) => app.key);
 const sentConfigs = (mock: typeof mockUpdateProject): ApplicationConfig[] =>
     (mock.mock.calls[0][0] as { applicationConfigs: ApplicationConfig[] }).applicationConfigs;
 const rename = (): void =>
@@ -236,7 +231,7 @@ describe('projectDialog.store application configs', () => {
             await openEditProjectDialog(createProject('layer', []), [parent]);
 
             expect(listedKeys()).toEqual(['app:gone']);
-            expect($projectDialog.get().applications[0].getState()).toBeUndefined();
+            expect($projectDialog.get().applications[0].state).toBeUndefined();
 
             unselectProjectDialogApplication('app:gone');
             expect(listedKeys()).toEqual(['app:gone']);
@@ -352,8 +347,8 @@ describe('projectDialog.store application configs', () => {
             await createProjectAction();
 
             const configs = sentConfigs(mockCreateProject);
-            expect(configs.map((c) => c.getApplicationKey().toString())).toEqual(['app:a']);
-            expect(configs[0].getConfig().getPropertyArray('agree')?.get(0)?.getValue().getBoolean()).toBe(true);
+            expect(configs.map((c) => c.applicationKey)).toEqual(['app:a']);
+            expect(configs[0].config.getPropertyArray('agree')?.get(0)?.getValue().getBoolean()).toBe(true);
         });
 
         it('should have no project while creating', async () => {
@@ -487,7 +482,7 @@ describe('projectDialog.store application configs', () => {
             openProjectDialogApplicationConfig('app:b');
 
             expect(view()).toBe('config');
-            expect(editing()?.application.getApplicationKey().toString()).toBe('app:b');
+            expect(editing()?.application.key).toBe('app:b');
             expect(editing()?.configSet.getString('color')).toBe('red');
             expect(editing()?.configSet).not.toBe(configOf('app:b'));
             expect($projectDialog.get().configDirty).toBe(false);
@@ -568,8 +563,8 @@ describe('projectDialog.store application configs', () => {
                 applicationConfigs: ApplicationConfig[];
             };
             expect(applicationConfigs).toHaveLength(1);
-            expect(applicationConfigs[0].getApplicationKey().toString()).toBe('app:b');
-            expect(applicationConfigs[0].getConfig().getString('color')).toBe('green');
+            expect(applicationConfigs[0].applicationKey).toBe('app:b');
+            expect(applicationConfigs[0].config.getString('color')).toBe('green');
         });
 
         it('should skip the update request when only the selection order is unchanged', async () => {
@@ -589,8 +584,8 @@ describe('projectDialog.store application configs', () => {
             await updateProject();
 
             const configs = sentConfigs(mockUpdateProject);
-            expect(configs.map((c) => c.getApplicationKey().toString())).toEqual(['app:b']);
-            expect(configs[0].getConfig().toJson()).toEqual([]);
+            expect(configs.map((c) => c.applicationKey)).toEqual(['app:b']);
+            expect(configs[0].config.toJson()).toEqual([]);
         });
     });
 
@@ -606,10 +601,8 @@ describe('projectDialog.store application configs', () => {
             await openEditProjectDialog(projectWithUnlisted(), []);
 
             expect(listedKeys()).toEqual(['app:b', 'app:gone']);
-            expect($projectDialog.get().applications[1].getState()).toBeUndefined();
-            expect($projectDialog.get().preservedSiteConfigs.map((c) => c.getApplicationKey().toString())).toEqual([
-                'portal',
-            ]);
+            expect($projectDialog.get().applications[1].state).toBeUndefined();
+            expect($projectDialog.get().preservedSiteConfigs.map((c) => c.applicationKey)).toEqual(['portal']);
             expect($isProjectDialogDirty.get()).toBe(false);
         });
 
@@ -623,11 +616,7 @@ describe('projectDialog.store application configs', () => {
             unselectProjectDialogApplication('app:gone');
             await updateProject();
 
-            expect(sentConfigs(mockUpdateProject).map((c) => c.getApplicationKey().toString())).toEqual([
-                'portal',
-                'app:b',
-                'app:a',
-            ]);
+            expect(sentConfigs(mockUpdateProject).map((c) => c.applicationKey)).toEqual(['portal', 'app:b', 'app:a']);
         });
 
         it('should send the portal first and the config of an unavailable app back unchanged', async () => {
@@ -638,10 +627,10 @@ describe('projectDialog.store application configs', () => {
             await updateProject();
 
             const configs = sentConfigs(mockUpdateProject);
-            expect(configs.map((c) => c.getApplicationKey().toString())).toEqual(['portal', 'app:b', 'app:gone']);
-            expect(configs[0].getConfig().getString('baseUrl')).toBe('/site');
-            expect(configs[1].getConfig().getString('color')).toBe('red');
-            expect(configs[2].getConfig().getString('k')).toBe('v');
+            expect(configs.map((c) => c.applicationKey)).toEqual(['portal', 'app:b', 'app:gone']);
+            expect(configs[0].config.getString('baseUrl')).toBe('/site');
+            expect(configs[1].config.getString('color')).toBe('red');
+            expect(configs[2].config.getString('k')).toBe('v');
         });
 
         it('should preserve nothing on create', async () => {

@@ -38,7 +38,10 @@ export const ContentForm = (): ReactElement | null => {
 
     const isReady = contentType != null && draftData != null;
     const rawValueMap = useMemo(() => getContentRawValueMap(), []);
-    const applicationKey = useMemo(() => contentType?.getContentTypeName().getApplicationKey(), [contentType]);
+    const applicationKey = useMemo(
+        () => contentType?.getContentTypeName().getApplicationKey().toString(),
+        [contentType],
+    );
     const fieldRegistry = useMemo(() => getAiFieldRegistry('data'), []);
 
     useEffect(() => {

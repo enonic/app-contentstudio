@@ -1,12 +1,11 @@
-import { type Application } from '@enonic/lib-admin-ui/application/Application';
-import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 import { type PropertySet } from '@enonic/input-types/data';
 import { type Form } from '@enonic/input-types/schema';
 import { ValidationVisibilityProvider } from '@enonic/input-types';
 import { Button, Dialog } from '@enonic/ui';
 import { AlertTriangle } from 'lucide-react';
 import type { ReactElement } from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { type Application } from '../../../entities/application';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import { StatusBarEntry } from '../../../shared/ui/dialogs/status-bar/StatusBarEntry';
 import { ApplicationIcon } from '../../../shared/ui/icons/ApplicationIcon';
@@ -56,20 +55,16 @@ export const ApplicationConfigDialogContent = ({
     const disabledInputsText = useI18n('dialog.applicationConfig.disabledInputs');
     const hasDisabledInputs = hasScopeDisabledInputs(form, { project, content });
 
-    const key = useMemo(() => ApplicationKey.fromString(applicationKey), [applicationKey]);
-
     return (
         <>
             <Dialog.Header className="flex items-center gap-4">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                     {application && <ApplicationIcon application={application} className="size-8 shrink-0" />}
                     <div className="flex flex-col min-w-0">
-                        <Dialog.Title className="truncate">
-                            {application?.getDisplayName() ?? applicationKey}
-                        </Dialog.Title>
-                        {application?.getDescription() && (
+                        <Dialog.Title className="truncate">{application?.displayName ?? applicationKey}</Dialog.Title>
+                        {application?.description && (
                             <Dialog.Description className="truncate text-sm text-subtle">
-                                {application.getDescription()}
+                                {application.description}
                             </Dialog.Description>
                         )}
                     </div>
@@ -90,7 +85,7 @@ export const ApplicationConfigDialogContent = ({
                         form={form}
                         propertySet={configSet}
                         enabled={enabled}
-                        applicationKey={key}
+                        applicationKey={applicationKey}
                         project={project}
                         content={content}
                     />

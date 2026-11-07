@@ -10,7 +10,6 @@
 import { act, renderHook } from '@testing-library/preact';
 import { okAsync } from 'neverthrow';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { ContentId } from '../../../../app/content/ContentId';
 import { ContentName } from '../../../../app/content/ContentName';
 import { ContentPath } from '../../../../app/content/ContentPath';
@@ -65,6 +64,8 @@ vi.mock('../../../shared/lib/cms/content/prettify', () => ({
 
 // Import types for testing
 import { getLoadingNodeParentId, useContentComboboxData } from './useContentComboboxData';
+import { CONTENT_TYPE } from '../../../shared/lib/cms/schema/contentTypeName';
+import { toLegacyContentTypeName } from '../../../shared/lib/cms/schema/legacy';
 
 //
 // * Fixtures
@@ -77,7 +78,7 @@ const createSummary = (id: string): ContentSummary =>
         .setName(new ContentName(id))
         .setDisplayName(id)
         .setPath(ContentPath.create().fromString(`/${id}`).build())
-        .setType(ContentTypeName.FOLDER)
+        .setType(toLegacyContentTypeName(CONTENT_TYPE.FOLDER))
         .build();
 
 const createTreeItem = (summary: ContentSummary): ContentTreeSelectorItem =>

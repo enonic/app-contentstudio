@@ -1,6 +1,5 @@
 import { errAsync, okAsync } from 'neverthrow';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { AppError } from '@enonic/ui-utils';
 import { ContentId } from '../../../../../app/content/ContentId';
 import { ContentName } from '../../../../../app/content/ContentName';
@@ -13,6 +12,8 @@ import { FieldOrderExprBuilder } from '../../../../../app/resource/order/FieldOr
 import { contentSelectorQuery, contentTreeSelectorQuery } from '../../../../entities/content/api/selectorQuery.api';
 import { ROOT_ID } from './PathSelectorRoot';
 import { loadChildItems, loadRootItems, searchItems } from './pathSelectorData';
+import { CONTENT_TYPE } from '../../../../shared/lib/cms/schema/contentTypeName';
+import { toLegacyContentTypeName } from '../../../../shared/lib/cms/schema/legacy';
 
 vi.mock('../../../../entities/content/api/selectorQuery.api', () => ({
     contentSelectorQuery: vi.fn(),
@@ -30,7 +31,7 @@ const createSummary = (id: string, path: string): ContentSummary =>
         .setName(new ContentName(id))
         .setDisplayName(id)
         .setPath(ContentPath.create().fromString(path).build())
-        .setType(ContentTypeName.FOLDER)
+        .setType(toLegacyContentTypeName(CONTENT_TYPE.FOLDER))
         .build();
 
 const createTreeItem = (summary: ContentSummary): ContentTreeSelectorItem =>

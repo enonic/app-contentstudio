@@ -1,10 +1,10 @@
-import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { AppError } from '@enonic/ui-utils';
 import type { ContentId } from '../../../../app/content/ContentId';
 import { errorResponse, jsonResponse, restoreFetch, stubFetch } from '../../../shared/lib/test/fetch.test.utils';
 import { setActiveProjectResolver } from '../../../shared/lib/url/cms';
 import { loadPageControllers, loadPageDescriptor, loadPageTemplatesByCanRender } from './pageInspection.api';
+import { type ContentTypeName } from '../../../shared/lib/cms/schema/contentTypeName';
 
 const { mockFromJson } = vi.hoisted(() => ({
     mockFromJson: vi.fn((json: { key: string }) => ({ key: json.key })),

@@ -3,12 +3,13 @@ import { Loader2, Plus } from 'lucide-react';
 import { type ReactElement, useEffect, useRef, useState } from 'react';
 import { listenKeys } from 'nanostores';
 import { NewContentEvent } from '../../../../../../app/create/NewContentEvent';
-import { ContentTypesHelper } from '../../../../../../app/util/ContentTypesHelper';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { $newContentDialog, openNewContentDialog } from '../../../../new-content/model/newContentDialog.store';
 import { useFormScope } from '../../FormScopeContext';
 import { $contentCreated } from '../../../../../shared/socket/socket.store';
 import { $uploads, getUploadsForParent } from '../../../../../entities/content/model/uploads.store';
+import { loadCreatableContentTypes } from '../../../../new-content/model/creatableContentTypes';
+import { isDescendantOfMedia } from '../../../../../shared/lib/cms/schema/contentTypeName';
 
 type ContentSelectorInputAddButtonProps = {
     disabled: boolean;
@@ -121,7 +122,7 @@ export const ContentSelectorInputAddButton = ({
 
         setIsLoadingTypes(true);
 
-        const types = await ContentTypesHelper.getAvailableContentTypes({
+        const types = await loadCreatableContentTypes({
             contentId: contextContent.getContentId(),
             allowedContentTypes,
             project,
@@ -133,8 +134,8 @@ export const ContentSelectorInputAddButton = ({
         setIsLoadingTypes(false);
         isWaitingForContentCreationRef.current = true;
 
-        if (types?.length === 1 && !types[0].getContentTypeName().isDescendantOfMedia()) {
-            new NewContentEvent(types[0], contextContent).fire();
+        if (types?.length === 1 && !isDescendantOfMedia(types[0].name)) {
+            new NewContentEvent(types[0].name, contextContent).fire();
             return;
         }
 

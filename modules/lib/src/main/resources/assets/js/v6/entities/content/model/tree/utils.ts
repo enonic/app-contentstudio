@@ -5,6 +5,7 @@ import type { ContentData } from '../ContentData';
 import { calcContentState } from '../../../../shared/lib/cms/content/workflow';
 import { calcTreePublishStatus } from '../../../../shared/lib/cms/content/status';
 import { getIdByPath } from '../content.store';
+import { toContentTypeName } from '../../../../shared/lib/cms/schema/contentTypeName';
 
 /**
  * Converts a tree FlatNode to ContentData format for rendering.
@@ -62,7 +63,7 @@ export function toTreeNodeData(summary: ContentSummary): ContentTreeNodeData {
         name: summary.getName().toString(),
         publishStatus: calcTreePublishStatus(summary),
         contentState: calcContentState(summary),
-        contentType: summary.getType(),
+        contentType: toContentTypeName(summary.getType().toString()),
         iconUrl: summary.getIconUrl(),
     };
 }

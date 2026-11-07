@@ -59,10 +59,7 @@ export const ContentTypeFilterInput = ({
 
     // Memoized values
     const selectedContentTypes = useMemo(
-        () =>
-            selection
-                .map((name) => allContentTypes.find((ct) => ct.getContentTypeName().toString() === name))
-                .filter(Boolean),
+        () => selection.map((name) => allContentTypes.find((ct) => ct.name === name)).filter(Boolean),
         [selection, allContentTypes],
     );
 
@@ -102,7 +99,7 @@ export const ContentTypeFilterInput = ({
             )}
             <SortableGridList
                 items={selectedContentTypes}
-                keyExtractor={(ct) => ct.getContentTypeName().toString()}
+                keyExtractor={(ct) => ct.name}
                 onMove={onMove}
                 enabled={!disabled}
                 fullRowDraggable

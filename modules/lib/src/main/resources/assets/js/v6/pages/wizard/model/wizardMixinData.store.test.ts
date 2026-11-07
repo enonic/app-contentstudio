@@ -1,6 +1,5 @@
 import { PropertyPath } from '@enonic/input-types/data';
 import { PropertyTree } from '@enonic/input-types/data';
-import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentBuilder, type Content } from '../../../../app/content/Content';
 import { ContentName } from '../../../../app/content/ContentName';
@@ -10,6 +9,8 @@ import { Workflow } from '../../../../app/content/Workflow';
 import { WorkflowState } from '../../../../app/content/WorkflowState';
 import { $wizardSectionChanges, initializeWizardContentState, resetWizardContent } from './wizardContent.store';
 import { getMixinDataContext } from './wizardMixinData.store';
+import { CONTENT_TYPE } from '../../../shared/lib/cms/schema/contentTypeName';
+import { toLegacyContentTypeName } from '../../../shared/lib/cms/schema/legacy';
 
 function createContentWithMixins(mixins: Mixin[]): Content {
     const workflow = Workflow.create().setState(WorkflowState.IN_PROGRESS).build();
@@ -17,7 +18,7 @@ function createContentWithMixins(mixins: Mixin[]): Content {
 
     builder.setData(new PropertyTree());
     builder.setName(new ContentName('content'));
-    builder.setType(ContentTypeName.UNSTRUCTURED);
+    builder.setType(toLegacyContentTypeName(CONTENT_TYPE.UNSTRUCTURED));
     builder.setDisplayName('Content');
     builder.setMixins(mixins);
     builder.setWorkflow(workflow);

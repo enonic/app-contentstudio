@@ -1,4 +1,3 @@
-import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { AppError } from '@enonic/ui-utils';
 import type { Content } from '../../../../app/content/Content';
@@ -6,6 +5,7 @@ import type { ContentId } from '../../../../app/content/ContentId';
 import { errorResponse, jsonResponse, restoreFetch, stubFetch } from '../../../shared/lib/test/fetch.test.utils';
 import { setActiveProjectResolver } from '../../../shared/lib/url/cms';
 import { loadComponentDescriptor, loadDefaultPageTemplate, loadNearestSite, loadPageTemplate } from './details.api';
+import { type ContentTypeName } from '../../../shared/lib/cms/schema/contentTypeName';
 
 const { mockParseContent, mockFromJson } = vi.hoisted(() => ({
     mockParseContent: vi.fn((json: { id: string }) => ({ parsedId: json.id })),

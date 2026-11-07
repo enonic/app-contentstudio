@@ -1,4 +1,4 @@
-import { ContentTypeSummary } from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import { type ContentTypeSummary } from '../../../entities/schema';
 import { Button, Tab } from '@enonic/ui';
 import { Loader2 } from 'lucide-react';
 import { type KeyboardEvent, type ReactElement, useRef, useState } from 'react';
@@ -30,13 +30,13 @@ export const NewContentDialogContentTypesTab = ({
     const [focusedContentType, setFocusedContentType] = useState<string>();
     const focusedIndex = Math.max(
         0,
-        contentTypes.findIndex((type) => type.getName() === focusedContentType),
+        contentTypes.findIndex((type) => type.name === focusedContentType),
     );
 
     buttonRefs.current.length = contentTypes.length;
 
     const handleContentTypeSelected = (contentType: ContentTypeSummary) => {
-        new NewContentEvent(contentType, parentContent).fire();
+        new NewContentEvent(contentType.name, parentContent).fire();
         closeNewContentDialog();
     };
 
@@ -108,11 +108,11 @@ export const NewContentDialogContentTypesTab = ({
             {!loading && contentTypes.length > 0 && (
                 <ul className="grid grid-cols-1 md:grid-cols-2 gap-y-1.5 gap-x-7.5">
                     {contentTypes.map((contentType, index) => {
-                        const key = contentType.getName();
-                        const displayName = contentType.getTitle();
-                        const description = contentType.getDescription() ?? '';
-                        const iconUrl = contentType.getIconUrl();
-                        const contentTypeName = String(contentType.getContentTypeName());
+                        const key = contentType.name;
+                        const displayName = contentType.title;
+                        const description = contentType.description ?? '';
+                        const iconUrl = contentType.iconUrl;
+                        const contentTypeName = contentType.name;
 
                         return (
                             <li key={key}>

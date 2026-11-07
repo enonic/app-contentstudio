@@ -25,8 +25,10 @@ vi.mock('../../entities/content/api/content.api', () => ({ fetchNearestSite }));
 
 const OPERATOR_APP_KEY = 'com.enonic.app.ai.contentoperator';
 
-function fakeAppConfigs(...appKeys: string[]): { getApplicationKey: () => { getName: () => string } }[] {
-    return appKeys.map((key) => ({ getApplicationKey: () => ({ getName: () => key }) }));
+type FakeAppConfig = { getApplicationKey: () => { toString: () => string }; getConfig: () => undefined };
+
+function fakeAppConfigs(...appKeys: string[]): FakeAppConfig[] {
+    return appKeys.map((key) => ({ getApplicationKey: () => ({ toString: () => key }), getConfig: () => undefined }));
 }
 
 function fakePlugin(overrides: Partial<AiPlugin> = {}): {

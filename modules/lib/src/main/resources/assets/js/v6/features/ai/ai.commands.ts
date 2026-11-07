@@ -1,4 +1,4 @@
-import type { ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import type { ApplicationConfig } from '../../shared/lib/cms/application/applicationConfig';
 import type { PropertyTree } from '@enonic/input-types/data';
 import type {
     ContentData,
@@ -91,7 +91,7 @@ const ID_TO_PLUGIN: Record<AiPluginId, EnonicAiPlugin> = {
 
 function findPluginConfig(configs: ApplicationConfig[], plugin: EnonicAiPlugin): ApplicationConfig | undefined {
     const appKey = AI_PLUGIN_KEYS[plugin];
-    return configs.find((c) => c.getApplicationKey().getName() === appKey);
+    return configs.find((c) => c.applicationKey === appKey);
 }
 
 export function resolveAiPluginConfig(
@@ -115,7 +115,7 @@ export function updateAiAppConfigs(
     for (const id of ids) {
         const pluginConfig = resolveAiPluginConfig(siteConfigs, projectConfigs, id);
         $aiAssignedPlugins.setKey(id, pluginConfig != null);
-        next[ID_TO_PLUGIN[id]] = pluginConfig ? (pluginConfig.getConfig()?.getString('instructions') ?? '') : undefined;
+        next[ID_TO_PLUGIN[id]] = pluginConfig ? (pluginConfig.config?.getString('instructions') ?? '') : undefined;
     }
 
     const changed = current == null || ids.some((id) => current[ID_TO_PLUGIN[id]] !== next[ID_TO_PLUGIN[id]]);
