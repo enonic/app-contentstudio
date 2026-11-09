@@ -116,6 +116,7 @@ tasks.register( 'pnpmBuild', PnpmTask ) {
     inputs.dir 'src/main/resources/shared' // build:server (swc)
     inputs.file 'rspack.config.js'
     inputs.file 'rspack.worker.config.js'
+    inputs.file 'react-compat.mjs'
     inputs.file 'build.server.mjs'
     outputs.dir "$buildDir/resources/main/assets" // build:client + build:worker
     outputs.dir "$buildDir/resources/main/lib"    // build:server
