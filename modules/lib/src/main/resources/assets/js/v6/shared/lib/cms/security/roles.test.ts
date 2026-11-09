@@ -37,4 +37,13 @@ describe('roles', () => {
         expect(hasContentAdminRole(['group:myidp:editors', 'role:cms.admin'])).toBe(true);
         expect(hasContentAdminRole(['group:myidp:editors', 'role:cms.expert'])).toBe(false);
     });
+
+    it('should not take a group or user with a role id for that role, unlike RoleKeys', () => {
+        const lookalikes: PrincipalKey[] = ['group:myidp:cms.admin', 'user:myidp:system.admin'];
+
+        expect(hasContentAdminRole(lookalikes)).toBe(false);
+        expect(hasAdminRole(lookalikes)).toBe(false);
+        expect(legacyAnswer(RoleKeys.isContentAdmin)(lookalikes)).toBe(true);
+        expect(legacyAnswer(RoleKeys.isAdmin)(lookalikes)).toBe(true);
+    });
 });

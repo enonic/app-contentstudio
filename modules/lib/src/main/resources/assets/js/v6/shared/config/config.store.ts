@@ -1,4 +1,5 @@
 import { type Principal } from '@enonic/ui-types';
+import { isPrincipalKey } from '@enonic/ui-utils';
 import { map } from 'nanostores';
 import { parseBoolean, parseString } from '../lib/format/values';
 import { parsePrincipal, type PrincipalJson } from '../lib/cms/security/principal';
@@ -121,6 +122,14 @@ export function initConfig(scriptId: string): void {
 // * Utilities
 //
 
+function parsePrincipals(value: unknown): Principal[] {
+    if (!Array.isArray(value)) {
+        return [];
+    }
+
+    return (value as PrincipalJson[]).filter((json) => isPrincipalKey(json?.key ?? '')).map(parsePrincipal);
+}
+
 function parseConfig(content: string): ConfigStore | undefined {
     try {
         const config = JSON.parse(content) as ConfigJson;
@@ -133,9 +142,7 @@ function parseConfig(content: string): ConfigStore | undefined {
             toolUri: parseString(config.toolUri),
             locale: parseString(config.locale),
             user: config.user ? parsePrincipal(config.user as PrincipalJson) : undefined,
-            principals: Array.isArray(config.principals)
-                ? (config.principals as PrincipalJson[]).map(parsePrincipal)
-                : [],
+            principals: parsePrincipals(config.principals),
             excludeDependencies: parseBoolean(config.excludeDependencies),
             allowContentUpdate: parseBoolean(config.allowContentUpdate),
             allowPathTransliteration: parseBoolean(config.allowPathTransliteration),
