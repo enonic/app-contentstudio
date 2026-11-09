@@ -64,6 +64,13 @@ class Page {
         return this.browser.pause(ms);
     }
 
+    // A closed dialog restores focus to its trigger in the next animation frame; that focus move closes a menu opened earlier.
+    waitForAnimationFrames() {
+        return this.browser.execute(
+            () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))),
+        );
+    }
+
     // An element removed from the DOM between findElements() and isDisplayed() throws a stale element error,
     // treat it as hidden.
     async doFilterDisplayedElements(elements) {

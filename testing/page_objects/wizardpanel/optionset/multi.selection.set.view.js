@@ -15,7 +15,7 @@ const xpath = {
     occurrenceItemLabel:
         "//div[@data-component='OptionSetOccurrenceView']//div[@data-component='ItemLabel']//span[contains(@class,'font-semibold')]",
     occurrenceItemLabelContainer: "//div[@data-component='OptionSetOccurrenceView']//div[@data-component='ItemLabel']",
-    validationMessage: "//div[contains(@class,'text-error')]",
+    validationMessage: "//div[contains(@class,'text-error') and normalize-space()]",
     optionLabelLocator: (option) => `//div[@data-component='Checkbox' and descendant::span[text()='${option}']]//label`,
     optionCheckboxLocator: (option) =>
         `//div[@data-component='Checkbox' and descendant::span[text()='${option}']]//input[@type='checkbox']`,
@@ -146,13 +146,15 @@ class MultiSelectionOptionSet extends Page {
     }
 
     async getValidationRecording() {
-        let locator = xpath.container + xpath.multiOptionsView + "//div[contains(@class,'text-error')]";
+        let locator =
+            xpath.container + xpath.multiOptionsView + "//div[contains(@class,'text-error') and normalize-space()]";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator);
     }
 
     waitForValidationRecordingNotDisplayed() {
-        let locator = xpath.container + xpath.multiOptionsView + "//div[contains(@class,'text-error')]";
+        let locator =
+            xpath.container + xpath.multiOptionsView + "//div[contains(@class,'text-error') and normalize-space()]";
         return this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
     }
 

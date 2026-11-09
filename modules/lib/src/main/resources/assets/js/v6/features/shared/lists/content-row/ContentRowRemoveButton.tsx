@@ -25,6 +25,7 @@ export const ContentRowRemoveButton = ({
         >
             <GridList.Action>
                 <IconButton
+                    aria-label={title ?? removeLabel}
                     className="size-8"
                     icon={X}
                     variant="text"

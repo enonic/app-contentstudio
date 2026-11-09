@@ -23,14 +23,14 @@ class ProjectWizardDialogNameAndIdStep extends ProjectWizardDialog {
         return (
             PROJECTS.PROJECT_STEP_COMPONENT +
             COMMON.INPUTS.dataComponentInputByLabel('Identifier') +
-            "//div[contains(@class,'text-error')]"
+            "//div[contains(@class,'text-error') and normalize-space()]"
         );
     }
     get projectNameValidationMessage() {
         return (
             PROJECTS.PROJECT_STEP_COMPONENT +
             COMMON.INPUTS.dataComponentInputByLabel('Display Name') +
-            "//div[contains(@class,'text-error')]"
+            "//div[contains(@class,'text-error') and normalize-space()]"
         );
     }
 

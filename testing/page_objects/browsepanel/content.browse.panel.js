@@ -963,6 +963,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     async openPublishMenu() {
+        await this.waitForAnimationFrames();
         await this.clickOnElement(this.showPublishMenuButton);
         return await this.pause(500);
     }
@@ -970,6 +971,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     async openPublishMenuSelectItem(menuItem) {
         try {
             await this.waitForShowPublishMenuDropDownVisible();
+            await this.waitForAnimationFrames();
             await this.clickOnElement(this.showPublishMenuButton);
             let menuItemLocator = XPATH.browseToolbarMenuItem(menuItem);
             await this.waitForElementEnabled(menuItemLocator);

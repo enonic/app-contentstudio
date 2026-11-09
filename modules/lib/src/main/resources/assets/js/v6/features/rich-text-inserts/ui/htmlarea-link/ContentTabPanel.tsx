@@ -51,6 +51,7 @@ export const ContentTabPanel = (): ReactElement => {
     const fragmentLabel = useI18n('dialog.link.fragment');
     const paramsLabel = useI18n('dialog.link.parameters');
     const paramNameLabel = useI18n('dialog.link.parameters.name');
+    const removeLabel = useI18n('action.remove');
     const paramValueLabel = useI18n('dialog.link.parameters.value');
     const addLabel = useI18n('action.add');
     const uploadMediaLabel = useI18n('tooltip.button.uploadMedia');
@@ -209,7 +210,13 @@ export const ContentTabPanel = (): ReactElement => {
                                 <Button size="sm" variant="text" label={addLabel} onClick={toggleFragmentVisible} />
                             )}
                             {fragmentVisible && (
-                                <IconButton size="sm" variant="text" icon={X} onClick={toggleFragmentVisible} />
+                                <IconButton
+                                    aria-label={removeLabel}
+                                    size="sm"
+                                    variant="text"
+                                    icon={X}
+                                    onClick={toggleFragmentVisible}
+                                />
                             )}
                         </div>
                         {fragmentVisible && (
@@ -244,6 +251,7 @@ export const ContentTabPanel = (): ReactElement => {
                                     className="flex-1"
                                 />
                                 <IconButton
+                                    aria-label={removeLabel}
                                     className="my-1.5"
                                     size="sm"
                                     variant="text"

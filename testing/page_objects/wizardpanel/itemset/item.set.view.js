@@ -21,10 +21,10 @@ const xpath = {
         `//div[@data-component='ItemSetOccurrenceView']//button[descendant::span[contains(@class,'font-semibold') and contains(.,'${text}')]]`,
     // Validation message for the TextLine input inside an occurrence:
     textLineValidationRecording:
-        "//div[@data-component='InputField' and descendant::input[@aria-label='TextLine']]//div[contains(@class,'text-error')]",
+        "//div[@data-component='InputField' and descendant::input[@aria-label='TextLine']]//div[contains(@class,'text-error') and normalize-space()]",
     // Validation message for the HtmlArea input inside an occurrence:
     htmlAreaValidationRecording:
-        "//div[@data-component='InputField' and descendant::div[@data-name='CKEditorWrapper']]//div[contains(@class,'text-error')]",
+        "//div[@data-component='InputField' and descendant::div[@data-name='CKEditorWrapper']]//div[contains(@class,'text-error') and normalize-space()]",
 };
 
 class ItemSetFormView extends Page {

@@ -30,6 +30,7 @@ export const AccessControlRow = ({
     const accessWriteLabel = useI18n('security.access.write');
     const accessReadLabel = useI18n('security.access.read');
     const accessCustomLabel = useI18n('security.access.custom');
+    const removeLabel = useI18n('action.remove');
     const accessLabelMap = new Map([
         [Access.FULL, accessFullLabel],
         [Access.PUBLISH, accessPublishLabel],
@@ -76,7 +77,7 @@ export const AccessControlRow = ({
 
             <GridList.Cell>
                 <GridList.Action>
-                    <IconButton variant="text" icon={X} onClick={onUnselect} />
+                    <IconButton aria-label={removeLabel} variant="text" icon={X} onClick={onUnselect} />
                 </GridList.Action>
             </GridList.Cell>
         </GridList.Row>

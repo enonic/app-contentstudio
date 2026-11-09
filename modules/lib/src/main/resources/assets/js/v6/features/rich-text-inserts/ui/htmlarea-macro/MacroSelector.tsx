@@ -141,6 +141,7 @@ type MacroSelectedViewProps = {
 };
 
 const MacroSelectedView = ({ descriptor, onRemove }: MacroSelectedViewProps): ReactElement => {
+    const removeLabel = useI18n('action.remove');
     return (
         <div className="flex items-center gap-2.5 min-w-0">
             {descriptor.getIconUrl() && (
@@ -157,7 +158,7 @@ const MacroSelectedView = ({ descriptor, onRemove }: MacroSelectedViewProps): Re
                 )}
             </div>
             <div className="flex gap-1.5 shrink-0">
-                <IconButton icon={XIcon} onClick={onRemove} />
+                <IconButton aria-label={removeLabel} icon={XIcon} onClick={onRemove} />
             </div>
         </div>
     );

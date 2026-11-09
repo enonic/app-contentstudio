@@ -97,6 +97,7 @@ export const ProjectDialogAccessStepContent = ({
 
     // Constants
     const accessModeLabel = useI18n('dialog.projectAccess');
+    const removeLabel = useI18n('action.remove');
     const publicLabel = useI18n('settings.items.wizard.readaccess.public.description');
     const privateLabel = useI18n('settings.items.wizard.readaccess.private.description');
     const customLabel = useI18n('settings.items.wizard.readaccess.custom.description');
@@ -210,6 +211,7 @@ export const ProjectDialogAccessStepContent = ({
                                         <GridList.Cell>
                                             <GridList.Action>
                                                 <IconButton
+                                                    aria-label={removeLabel}
                                                     variant="text"
                                                     icon={X}
                                                     onClick={() => handleUnselect(key)}

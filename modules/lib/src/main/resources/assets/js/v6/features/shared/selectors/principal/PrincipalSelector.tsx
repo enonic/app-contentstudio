@@ -7,6 +7,7 @@ import { PrincipalOptionItem } from './PrincipalOptionItem';
 import { PrincipalOptionRow } from './PrincipalOptionRow';
 import { PrincipalOptionsContent } from './PrincipalOptionsContent';
 import type { PrincipalOption } from './principal.types';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 
 export type PrincipalSelectorProps = {
     /** Accessible name for the search input and the options listbox. */
@@ -81,6 +82,7 @@ export const PrincipalSelector = ({
     inputRef: externalInputRef,
     className,
 }: PrincipalSelectorProps): ReactElement => {
+    const removeLabel = useI18n('action.remove');
     const [open, setOpen] = useState(false);
     const [inputValue, setInputValue] = useState('');
     // Null until this instance has searched. The option source can outlive the selector — the issue
@@ -239,6 +241,7 @@ export const PrincipalSelector = ({
                             </ListItem.Content>
                             <ListItem.Right className="flex items-center gap-2.5">
                                 <IconButton
+                                    aria-label={removeLabel}
                                     icon={X}
                                     size="sm"
                                     variant="text"

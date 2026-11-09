@@ -6,7 +6,7 @@ const XPATH = {
     container: `//div[@role='dialog' and @data-component='HtmlAreaLinkDialog']`,
     emailPanel: "//div[@data-component='EmailTabPanel']",
     tabTriggerByName: (name) => `//button[@role='tab' and child::span[contains(.,'${name}')]]`,
-    errorMessage: "//div[contains(@class,'text-error')]",
+    errorMessage: "//div[contains(@class,'text-error') and normalize-space()]",
 };
 
 class InsertLinkDialog extends Page {
@@ -129,7 +129,7 @@ class InsertLinkDialog extends Page {
     }
 
     get emailInputValidationMessage() {
-        return XPATH.container + XPATH.emailPanel + "//div[contains(@class,'text-error')]";
+        return XPATH.container + XPATH.emailPanel + "//div[contains(@class,'text-error') and normalize-space()]";
     }
 
     async typeTextInEmailInput(email) {
@@ -156,7 +156,8 @@ class InsertLinkDialog extends Page {
 
     async waitForValidationMessageForTextInputDisplayed() {
         let locator =
-            XPATH.container + "//label[contains(.,'Text')]/ancestor::div[2]//div[contains(@class,'text-error')]";
+            XPATH.container +
+            "//label[contains(.,'Text')]/ancestor::div[2]//div[contains(@class,'text-error') and normalize-space()]";
         return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
 
@@ -164,7 +165,8 @@ class InsertLinkDialog extends Page {
     async getTextInputValidationMessage() {
         await this.waitForValidationMessageForTextInputDisplayed();
         let locator =
-            XPATH.container + "//label[contains(.,'Text')]/ancestor::div[2]//div[contains(@class,'text-error')]";
+            XPATH.container +
+            "//label[contains(.,'Text')]/ancestor::div[2]//div[contains(@class,'text-error') and normalize-space()]";
         return await this.getText(locator);
     }
 }

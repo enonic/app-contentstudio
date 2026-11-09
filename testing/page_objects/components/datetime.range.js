@@ -2,7 +2,7 @@
  * Created on 02.08.2019.
  */
 const appConst = require('../../libs/app_const');
-const {BUTTONS} = require('../../libs/elements');
+const { BUTTONS } = require('../../libs/elements');
 const Page = require('../page');
 const XPATH = {
     container: `//div[@data-component='PublishScheduleForm']`,
@@ -11,8 +11,8 @@ const XPATH = {
     onlineFromTrigger: `//div[@data-component='DatePicker.Root' and descendant::label[contains(.,'Online from')]]//button[@data-component='DatePicker.Trigger']`,
     onlineToTrigger: `//div[@data-component='DatePicker.Root' and descendant::label[contains(.,'Online to')]]//button[@data-component='DatePicker.Trigger']`,
     // Validation message (e.g. 'Invalid format. Use YYYY-MM-DD hh:mm') shown below each input:
-    onlineFromValidationRecord: `//div[@data-component='DatePicker.Root' and descendant::label[contains(.,'Online from')]]//div[contains(@class,'text-error')]`,
-    onlineToValidationRecord: `//div[@data-component='DatePicker.Root' and descendant::label[contains(.,'Online to')]]//div[contains(@class,'text-error')]`,
+    onlineFromValidationRecord: `//div[@data-component='DatePicker.Root' and descendant::label[contains(.,'Online from')]]//div[contains(@class,'text-error') and normalize-space()]`,
+    onlineToValidationRecord: `//div[@data-component='DatePicker.Root' and descendant::label[contains(.,'Online to')]]//div[contains(@class,'text-error') and normalize-space()]`,
     // The date picker dialog is portaled out of the form; each Content is matched to its own field
     // by joining its @aria-labelledby to the corresponding trigger's @id:
     onlineFromPickerPopup: `//div[@data-component='DatePicker.Content' and @data-state='open' and @aria-labelledby=//div[@data-component='DatePicker.Root' and descendant::label[contains(.,'Online from')]]//button[@data-component='DatePicker.Trigger']/@id]`,
@@ -22,7 +22,6 @@ const XPATH = {
 
 // ScheduleWizardStepForm, DateTimeRange form
 class DateTimeRange extends Page {
-
     constructor(xpath) {
         super();
         this.parentContainer = xpath === undefined ? '' : xpath;
@@ -112,7 +111,6 @@ class DateTimeRange extends Page {
         return this.waitForElementNotDisplayed(this.onlineFromValidationRecording, appConst.shortTimeout);
     }
 
-
     async getOnlineToValidationRecord() {
         try {
             return await this.getText(this.onlineToValidationRecording);
@@ -145,7 +143,7 @@ class DateTimeRange extends Page {
         try {
             return await this.waitUntilDisplayed(XPATH.onlineToPickerPopup, appConst.shortTimeout);
         } catch (err) {
-            throw new Error("Online from picker popup should be opened!" + err);
+            throw new Error('Online from picker popup should be opened!' + err);
         }
     }
 
@@ -160,7 +158,11 @@ class DateTimeRange extends Page {
             await elems[0].click();
             return await this.pause(300);
         } catch (err) {
-            await this.handleError('DateTimeRange - try to click on HoursArrow online From', 'err_click_on_hours_arrow_online_from', err);
+            await this.handleError(
+                'DateTimeRange - try to click on HoursArrow online From',
+                'err_click_on_hours_arrow_online_from',
+                err,
+            );
         }
     }
 }
