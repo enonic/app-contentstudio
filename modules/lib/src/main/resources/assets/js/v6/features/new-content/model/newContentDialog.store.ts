@@ -117,6 +117,12 @@ listenKeys($newContentDialog, ['open', 'parentContent'], (state) => {
         $newContentDialog.setKey('isMediaAllowed', isMediaAllowed);
         $newContentDialog.setKey('baseContentTypes', baseContentTypes);
         $newContentDialog.setKey('suggestedContentTypes', suggestedContentTypes);
+
+        // Only media can be created here: start on the upload tab instead of an empty list.
+        if (baseContentTypes.length === 0 && isMediaAllowed) {
+            $newContentDialog.setKey('selectedTab', 'media');
+        }
+
         $newContentDialog.setKey('loading', false);
     }).catch((error) => {
         console.error(error);

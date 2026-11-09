@@ -110,6 +110,20 @@ describe('newContentDialog.store', () => {
             expect(state.loading).toBe(false);
         });
 
+        it('should open on the media tab when only media types can be created', async () => {
+            openNewContentDialog(parent, { contentTypes: [image] });
+            await flushPromises();
+
+            expect($newContentDialog.get().selectedTab).toBe('media');
+        });
+
+        it('should stay on the all tab when there is something besides media to create', async () => {
+            openNewContentDialog(parent, { contentTypes: [image, person] });
+            await flushPromises();
+
+            expect($newContentDialog.get().selectedTab).toBe('all');
+        });
+
         it('should not allow media when the preloaded types have none', async () => {
             openNewContentDialog(parent, { contentTypes: [person] });
             await flushPromises();
