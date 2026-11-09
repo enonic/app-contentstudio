@@ -4,6 +4,7 @@ import { computed, listenKeys, map, task } from 'nanostores';
 import { errAsync } from 'neverthrow';
 import { i18n } from '../../../shared/i18n';
 import { type ContentSummary } from '../../../../app/content/ContentSummary';
+import { type Project } from '../../../../app/settings/data/project/Project';
 import {
     type AggregateContentTypesResult,
     type ContentTypeAggregation,
@@ -31,6 +32,8 @@ type UploadOptions = {
 type OpenNewContentDialogOptions = {
     allowedContentTypes?: string[];
     contentTypes?: ContentTypeSummary[];
+    /** Project to load the types in; defaults to the active project. */
+    project?: Readonly<Project>;
 };
 
 //
@@ -46,6 +49,7 @@ type NewContentDialogStore = {
     isDragging: boolean;
     isMediaAllowed: boolean;
     // Content
+    project?: Readonly<Project>;
     parentContent?: ContentSummary;
     allowedContentTypes?: string[];
     preloadedContentTypes?: ContentTypeSummary[];
@@ -60,6 +64,7 @@ const initialState: NewContentDialogStore = {
     selectedTab: 'all',
     isDragging: false,
     isMediaAllowed: false,
+    project: undefined,
     parentContent: undefined,
     allowedContentTypes: undefined,
     preloadedContentTypes: undefined,
@@ -84,9 +89,9 @@ let loadCounter = 0;
 
 listenKeys($newContentDialog, ['open', 'parentContent'], (state) => {
     const { open, parentContent, allowedContentTypes, preloadedContentTypes } = state;
-    const activeProject = $activeProject.get();
+    const project = state.project ?? $activeProject.get();
 
-    if (!open || !activeProject) return;
+    if (!open || !project) return;
 
     const loadId = ++loadCounter;
     $newContentDialog.setKey('loading', true);
@@ -97,13 +102,10 @@ listenKeys($newContentDialog, ['open', 'parentContent'], (state) => {
             (await loadCreatableContentTypes({
                 contentId: parentContent?.getContentId(),
                 allowedContentTypes,
-                project: activeProject,
+                project,
             }));
 
-        const aggregatedContentTypes = await ContentTypesHelper.getAggregatedTypesByContent(
-            parentContent,
-            activeProject,
-        );
+        const aggregatedContentTypes = await ContentTypesHelper.getAggregatedTypesByContent(parentContent, project);
 
         // Discard a stale response if the dialog was closed or reopened while loading
         if (loadId !== loadCounter || !$newContentDialog.get().open) return;
@@ -134,6 +136,7 @@ export const openNewContentDialog = (parentContent?: ContentSummary, options?: O
     $newContentDialog.set({
         ...structuredClone(initialState),
         open: true,
+        project: options?.project,
         parentContent,
         allowedContentTypes: options?.allowedContentTypes,
         preloadedContentTypes: options?.contentTypes,

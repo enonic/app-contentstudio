@@ -117,8 +117,32 @@ describe('newContentDialog.store', () => {
             expect($newContentDialog.get().isMediaAllowed).toBe(false);
         });
 
+        it('should load the types in the given project instead of the active one', async () => {
+            const other = Project.create().setName('other').build();
+
+            openNewContentDialog(undefined, { project: other });
+            await flushPromises();
+
+            expect(mockGetAvailableContentTypes).toHaveBeenCalledWith({
+                contentId: undefined,
+                allowedContentTypes: undefined,
+                project: other,
+            });
+            expect(mockGetAggregatedTypesByContent).toHaveBeenCalledWith(undefined, other);
+        });
+
+        it('should load the types in the given project when there is no active one', async () => {
+            $activeProject.set(undefined);
+
+            openNewContentDialog(undefined, { project, contentTypes: [person] });
+            await flushPromises();
+
+            expect(mockGetAggregatedTypesByContent).toHaveBeenCalledWith(undefined, project);
+            expect($newContentDialog.get().loading).toBe(false);
+        });
+
         it('should drop the options of a previous opening', async () => {
-            openNewContentDialog(parent, { allowedContentTypes: ['com.app:person'], contentTypes: [person] });
+            openNewContentDialog(parent, { allowedContentTypes: ['com.app:person'], contentTypes: [person], project });
             await flushPromises();
             closeNewContentDialog();
 
@@ -128,6 +152,7 @@ describe('newContentDialog.store', () => {
             const state = $newContentDialog.get();
             expect(state.allowedContentTypes).toBeUndefined();
             expect(state.preloadedContentTypes).toBeUndefined();
+            expect(state.project).toBeUndefined();
             expect(mockGetAvailableContentTypes).toHaveBeenCalledOnce();
             expect(mockGetAvailableContentTypes).toHaveBeenCalledWith({
                 contentId: parent.getContentId(),

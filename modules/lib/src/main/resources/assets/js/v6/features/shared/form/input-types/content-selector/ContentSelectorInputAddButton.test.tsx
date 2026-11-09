@@ -6,7 +6,7 @@ import { ContentPath } from '../../../../../../app/content/ContentPath';
 import { ContentSummaryBuilder } from '../../../../../../app/content/ContentSummary';
 import { Project } from '../../../../../../app/settings/data/project/Project';
 import { createDeferredPromise, flushPromises } from '../../../../../shared/lib/test/dialog.store.test.utils';
-import { FormScopeProvider } from '../../FormScopeContext';
+import { type FormScope, FormScopeProvider } from '../../FormScopeContext';
 
 const { mockGetAvailableContentTypes, mockOpenNewContentDialog, mockFire, newContentEvents, $activeProject } =
     await vi.hoisted(async () => {
@@ -77,9 +77,9 @@ const parent = new ContentSummaryBuilder()
 const scopeProject = Project.create().setName('scope-project').build();
 const allowedContentTypes = ['com.app:person'];
 
-const renderButton = () =>
+const renderButton = (scope: FormScope = { project: scopeProject, content: parent }) =>
     render(
-        <FormScopeProvider project={scopeProject} content={parent}>
+        <FormScopeProvider {...scope}>
             <ContentSelectorInputAddButton
                 disabled={false}
                 allowedContentTypes={allowedContentTypes}
@@ -182,5 +182,52 @@ describe('ContentSelectorInputAddButton', () => {
         await flushPromises();
         expect(button.hasAttribute('disabled')).toBe(false);
         expect(mockOpenNewContentDialog).toHaveBeenCalledOnce();
+    });
+
+    it('should render nothing with neither a content nor a project in scope', () => {
+        renderButton({ project: null, content: null });
+
+        expect(screen.queryByRole('button')).toBeNull();
+    });
+
+    describe('without a content in scope', () => {
+        const renderRoot = () => renderButton({ project: scopeProject, content: null });
+
+        it('should load the types of the scope project root with the allowed names', async () => {
+            mockGetAvailableContentTypes.mockResolvedValue([person, movie]);
+
+            renderRoot();
+            await clickAdd();
+
+            expect(mockGetAvailableContentTypes).toHaveBeenCalledWith({ allowedContentTypes, project: scopeProject });
+        });
+
+        it('should open the dialog in the scope project root without firing a new content event', async () => {
+            mockGetAvailableContentTypes.mockResolvedValue([person, movie]);
+
+            renderRoot();
+            await clickAdd();
+
+            expect(newContentEvents).toEqual([]);
+            expect(mockOpenNewContentDialog).toHaveBeenCalledWith(undefined, {
+                allowedContentTypes,
+                contentTypes: [person, movie],
+                project: scopeProject,
+            });
+        });
+
+        it('should open the dialog without preloaded types when the request fails', async () => {
+            vi.spyOn(console, 'error').mockImplementation(() => undefined);
+            mockGetAvailableContentTypes.mockRejectedValue(new Error('boom'));
+
+            renderRoot();
+            await clickAdd();
+
+            expect(mockOpenNewContentDialog).toHaveBeenCalledWith(undefined, {
+                allowedContentTypes,
+                contentTypes: undefined,
+                project: scopeProject,
+            });
+        });
     });
 });

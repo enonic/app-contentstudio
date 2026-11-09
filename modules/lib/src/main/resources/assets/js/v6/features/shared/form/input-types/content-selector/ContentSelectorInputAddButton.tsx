@@ -116,9 +116,27 @@ export const ContentSelectorInputAddButton = ({
         return unlisten;
     }, [contextContent, parentId]);
 
-    // Handler
+    // Handlers
+    // ? Root mode: a project without a content, as in the project dialog. The settings page has
+    // ? no socket events or `NewContentEvent` listener, so nothing waits for a created event here.
+    const handleRootClick = async () => {
+        setIsLoadingTypes(true);
+
+        const types = await loadCreatableContentTypes({ allowedContentTypes, project }).catch((error) => {
+            console.error(error);
+            return undefined;
+        });
+
+        setIsLoadingTypes(false);
+
+        openNewContentDialog(undefined, { allowedContentTypes, contentTypes: types, project });
+    };
+
     const handleClick = async () => {
-        if (!contextContent) return;
+        if (!contextContent) {
+            await handleRootClick();
+            return;
+        }
 
         setIsLoadingTypes(true);
 
@@ -142,8 +160,8 @@ export const ContentSelectorInputAddButton = ({
         openNewContentDialog(contextContent, { allowedContentTypes, contentTypes: types });
     };
 
-    // New content needs a parent; without one in scope there is nothing to add to.
-    if (!contextContent) return null;
+    // New content needs a parent or, without one, a project to land in the root of.
+    if (!contextContent && !project) return null;
 
     return (
         <Button
