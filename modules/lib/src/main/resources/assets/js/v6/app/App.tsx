@@ -12,6 +12,7 @@ import { start as startDuplicateDialogService } from '../features/duplicate/mode
 import { start as startIssueDialogService } from '../features/issues/model/issueDialog.service';
 import { start as startIssueDialogDetailsService } from '../features/issues/model/issueDialogDetails.service';
 import { start as startNewIssueDialogService } from '../features/issues/model/newIssueDialog.service';
+import { start as startProjectDialogService } from '../features/manage-project/model/projectDialog.service';
 import { start as startPublishDialogService } from '../features/publish/model/publishDialog.service';
 import { start as startRequestPublishDialogService } from '../features/request-publish/model/requestPublishDialog.service';
 import { start as startSortDialogService } from '../features/sort/model/sortDialog.service';
@@ -63,6 +64,7 @@ export class AppElement extends LegacyElement<typeof App> {
             startIssueDialogService();
             startIssueDialogDetailsService();
             startNewIssueDialogService();
+            startProjectDialogService();
             startPublishDialogService();
             startRequestPublishDialogService();
             startSortDialogService();
