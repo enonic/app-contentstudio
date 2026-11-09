@@ -33,6 +33,10 @@ describe('getEditContentUrl', () => {
         expect(getEditContentUrl('abc', 'other-project')).toBe('/admin/tool/other-project/edit/abc');
     });
 
+    it('should append the display-as-new flag when asked', () => {
+        expect(getEditContentUrl('c-1', 'other', true)).toBe('/admin/tool/other/edit/c-1?displayAsNew=true');
+    });
+
     it('should fall back to an empty project segment when none is active', () => {
         setActiveProjectResolver(() => undefined);
         expect(getEditContentUrl('abc')).toBe('/admin/tool//edit/abc');
@@ -81,6 +85,18 @@ describe('openEditContentTab', () => {
         openEditContentTab('frag-2');
 
         expect(mockShowWarning).toHaveBeenCalledWith('notify.popupBlocker.admin', { autoHide: false });
+    });
+
+    it('should open the tab in the given project, as new, and name it after that project', () => {
+        const fakeWindow = { focus: vi.fn(), closed: false, name: 'edit:other:c-9' } as unknown as Window;
+        const openSpy = vi.spyOn(window, 'open').mockReturnValue(fakeWindow);
+
+        openEditContentTab('c-9', { project: 'other', displayAsNew: true });
+        openEditContentTab('c-9', { project: 'other' });
+
+        expect(openSpy).toHaveBeenCalledTimes(1);
+        expect(openSpy).toHaveBeenCalledWith('/admin/tool/other/edit/c-9?displayAsNew=true');
+        expect(fakeWindow.focus).toHaveBeenCalled();
     });
 
     it('should focus the already-open tab instead of opening a duplicate', () => {

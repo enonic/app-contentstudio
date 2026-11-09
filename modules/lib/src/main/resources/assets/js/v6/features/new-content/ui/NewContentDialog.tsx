@@ -24,7 +24,8 @@ export const NewContentDialog = (): ReactElement => {
     const inputRef = useRef<HTMLInputElement>(null);
     const dialogContentRef = useRef<HTMLDivElement>(null);
     const shouldFocusInput = useRef(false);
-    const { open, selectedTab, inputValue, parentContent, isMediaAllowed, loading } = useStore($newContentDialog);
+    const { open, selectedTab, inputValue, parentContent, isMediaAllowed, loading, onTypeSelected } =
+        useStore($newContentDialog);
     const filteredBaseContentTypes = useStore($filteredBaseContentTypes);
     const filteredSuggestedContentTypes = useStore($filteredSuggestedContentTypes);
     const isTemplateFolder = parentContent?.getType().isTemplateFolder() ?? false;
@@ -205,6 +206,7 @@ export const NewContentDialog = (): ReactElement => {
                                     contentTypes={filteredBaseContentTypes}
                                     parentContent={parentContent}
                                     loading={loading}
+                                    onTypeSelected={onTypeSelected}
                                 />
 
                                 <NewContentDialogContentTypesTab
@@ -212,6 +214,7 @@ export const NewContentDialog = (): ReactElement => {
                                     contentTypes={filteredSuggestedContentTypes}
                                     parentContent={parentContent}
                                     loading={loading}
+                                    onTypeSelected={onTypeSelected}
                                 />
 
                                 <NewContentDialogMediaTab tabName="media" />

@@ -155,8 +155,22 @@ describe('newContentDialog.store', () => {
             expect($newContentDialog.get().loading).toBe(false);
         });
 
+        it('should keep the type handler of the opening', async () => {
+            const onTypeSelected = vi.fn();
+
+            openNewContentDialog(parent, { contentTypes: [person], onTypeSelected });
+            await flushPromises();
+
+            expect($newContentDialog.get().onTypeSelected).toBe(onTypeSelected);
+        });
+
         it('should drop the options of a previous opening', async () => {
-            openNewContentDialog(parent, { allowedContentTypes: ['com.app:person'], contentTypes: [person], project });
+            openNewContentDialog(parent, {
+                allowedContentTypes: ['com.app:person'],
+                contentTypes: [person],
+                project,
+                onTypeSelected: vi.fn(),
+            });
             await flushPromises();
             closeNewContentDialog();
 
@@ -167,6 +181,7 @@ describe('newContentDialog.store', () => {
             expect(state.allowedContentTypes).toBeUndefined();
             expect(state.preloadedContentTypes).toBeUndefined();
             expect(state.project).toBeUndefined();
+            expect(state.onTypeSelected).toBeUndefined();
             expect(mockGetAvailableContentTypes).toHaveBeenCalledOnce();
             expect(mockGetAvailableContentTypes).toHaveBeenCalledWith({
                 contentId: parent.getContentId(),

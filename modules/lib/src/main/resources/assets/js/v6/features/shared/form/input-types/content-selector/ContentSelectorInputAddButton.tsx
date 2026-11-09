@@ -11,6 +11,8 @@ import { $uploads, getUploadsForParent } from '../../../../../entities/content/m
 import { loadCreatableContentTypes } from '../../../../new-content/model/creatableContentTypes';
 import { isDescendantOfMedia } from '../../../../../shared/lib/cms/schema/contentTypeName';
 import { type ApplicationKey } from '../../../../../shared/lib/cms/application/applicationKey';
+import { type ContentTypeSummary } from '../../../../../entities/schema';
+import { addContentInProjectRoot } from './contentSelectorAdd.service';
 
 type ContentSelectorInputAddButtonProps = {
     disabled: boolean;
@@ -122,6 +124,13 @@ export const ContentSelectorInputAddButton = ({
     // Handlers
     // ? Root mode: a project without a content, as in the project dialog. The settings page has
     // ? no socket events or `NewContentEvent` listener, so nothing waits for a created event here.
+    const handleRootTypeSelected = async (contentType: ContentTypeSummary) => {
+        if (!project) return;
+
+        const contentId = await addContentInProjectRoot(contentType.name, project);
+        if (contentId) onSelectionChangeRef.current([...selectionRef.current, contentId]);
+    };
+
     const handleRootClick = async () => {
         setIsLoadingTypes(true);
 
@@ -134,7 +143,12 @@ export const ContentSelectorInputAddButton = ({
 
         setIsLoadingTypes(false);
 
-        openNewContentDialog(undefined, { allowedContentTypes, contentTypes: types, project });
+        openNewContentDialog(undefined, {
+            allowedContentTypes,
+            contentTypes: types,
+            project,
+            onTypeSelected: handleRootTypeSelected,
+        });
     };
 
     const handleClick = async () => {

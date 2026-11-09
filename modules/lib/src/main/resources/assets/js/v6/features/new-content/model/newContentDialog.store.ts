@@ -34,6 +34,8 @@ type OpenNewContentDialogOptions = {
     contentTypes?: ContentTypeSummary[];
     /** Project to load the types in; defaults to the active project. */
     project?: Readonly<Project>;
+    /** Handles a picked type instead of firing `NewContentEvent`, for a host without the content app's listeners. */
+    onTypeSelected?: (contentType: ContentTypeSummary) => void;
 };
 
 //
@@ -55,6 +57,7 @@ type NewContentDialogStore = {
     preloadedContentTypes?: ContentTypeSummary[];
     baseContentTypes: ContentTypeSummary[];
     suggestedContentTypes: ContentTypeSummary[];
+    onTypeSelected?: (contentType: ContentTypeSummary) => void;
 };
 
 const initialState: NewContentDialogStore = {
@@ -70,6 +73,7 @@ const initialState: NewContentDialogStore = {
     preloadedContentTypes: undefined,
     baseContentTypes: [],
     suggestedContentTypes: [],
+    onTypeSelected: undefined,
 };
 
 export const $newContentDialog = map<NewContentDialogStore>(structuredClone(initialState));
@@ -146,6 +150,7 @@ export const openNewContentDialog = (parentContent?: ContentSummary, options?: O
         parentContent,
         allowedContentTypes: options?.allowedContentTypes,
         preloadedContentTypes: options?.contentTypes,
+        onTypeSelected: options?.onTypeSelected,
     });
 };
 
