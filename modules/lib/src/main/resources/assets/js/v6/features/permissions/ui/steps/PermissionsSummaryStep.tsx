@@ -1,5 +1,5 @@
 import { Dialog } from '@enonic/ui';
-import { RoleKeys } from '@enonic/lib-admin-ui/security/RoleKeys';
+import { EVERYONE_ROLE_KEY } from '@enonic/ui-utils';
 import { useStore } from '@nanostores/preact';
 import { type ReactElement, useMemo } from 'react';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
@@ -9,6 +9,7 @@ import { MoveRight } from 'lucide-react';
 import { Access } from '../../../../../app/security/Access';
 import { AccessHelper } from '../../../../../app/security/AccessHelper';
 import { PrincipalLabel } from '../../../../shared/ui/PrincipalLabel';
+import { fromLegacyPrincipal } from '../../../../shared/lib/cms/security/legacy';
 
 export const PermissionsDialogSummaryStepHeader = (): ReactElement => {
     const { contentDisplayName, contentDescendantsCount } = useStore($permissionsDialog, {
@@ -55,11 +56,15 @@ export const PermissionsDialogSummaryStepContent = ({ locked }: { locked: boolea
         );
 
         // Omit Everyone principal
-        const addedWithoutPrincipal = added.filter((entry) => !entry.getPrincipalKey().equals(RoleKeys.EVERYONE));
-        const modifiedWithoutPrincipal = modified.filter((entry) => !entry.getPrincipalKey().equals(RoleKeys.EVERYONE));
-        const removedWithoutPrincipal = removed.filter((entry) => !entry.getPrincipalKey().equals(RoleKeys.EVERYONE));
+        const addedWithoutPrincipal = added.filter((entry) => entry.getPrincipalKey().toString() !== EVERYONE_ROLE_KEY);
+        const modifiedWithoutPrincipal = modified.filter(
+            (entry) => entry.getPrincipalKey().toString() !== EVERYONE_ROLE_KEY,
+        );
+        const removedWithoutPrincipal = removed.filter(
+            (entry) => entry.getPrincipalKey().toString() !== EVERYONE_ROLE_KEY,
+        );
         const unchangedWithoutPrincipal = unchanged.filter(
-            (entry) => !entry.getPrincipalKey().equals(RoleKeys.EVERYONE),
+            (entry) => entry.getPrincipalKey().toString() !== EVERYONE_ROLE_KEY,
         );
 
         return {
@@ -147,8 +152,8 @@ export const PermissionsDialogSummaryStepContent = ({ locked }: { locked: boolea
                         <h3 className="font-semibold">{addedLabel}</h3>
                         <ul className="flex flex-col gap-2.5 ml-5 mr-2.5">
                             {added.map((entry) => {
-                                const principal = entry.getPrincipal();
-                                const key = principal.getKey().toString();
+                                const principal = fromLegacyPrincipal(entry.getPrincipal());
+                                const key = principal.key;
                                 const accessValue = AccessHelper.getAccessValueFromPermissions(
                                     entry.getAllowedPermissions(),
                                 );
@@ -171,10 +176,10 @@ export const PermissionsDialogSummaryStepContent = ({ locked }: { locked: boolea
                         <h3 className="font-semibold">{modifiedLabel}</h3>
                         <ul className="flex flex-col gap-2.5 ml-5 mr-2.5">
                             {modified.map((newEntry) => {
-                                const principal = newEntry.getPrincipal();
-                                const key = principal.getKey().toString();
-                                const initialEntry = initialAccessControlEntries.find((initialEntry) =>
-                                    initialEntry.getPrincipal().getKey().equals(principal.getKey()),
+                                const principal = fromLegacyPrincipal(newEntry.getPrincipal());
+                                const key = principal.key;
+                                const initialEntry = initialAccessControlEntries.find(
+                                    (initialEntry) => initialEntry.getPrincipalKey().toString() === principal.key,
                                 );
                                 const initialAccessValue = AccessHelper.getAccessValueFromPermissions(
                                     initialEntry?.getAllowedPermissions(),
@@ -206,8 +211,8 @@ export const PermissionsDialogSummaryStepContent = ({ locked }: { locked: boolea
                         <h3 className="font-semibold">{removedLabel}</h3>
                         <ul className="flex flex-col gap-2.5 ml-5 mr-2.5">
                             {removed.map((entry) => {
-                                const principal = entry.getPrincipal();
-                                const key = principal.getKey().toString();
+                                const principal = fromLegacyPrincipal(entry.getPrincipal());
+                                const key = principal.key;
                                 const accessValue = AccessHelper.getAccessValueFromPermissions(
                                     entry.getAllowedPermissions(),
                                 );
@@ -233,8 +238,8 @@ export const PermissionsDialogSummaryStepContent = ({ locked }: { locked: boolea
                         <h3 className="font-semibold">{unchangedLabel}</h3>
                         <ul className="flex flex-col gap-2.5 ml-5 mr-2.5">
                             {unchanged.map((entry) => {
-                                const principal = entry.getPrincipal();
-                                const key = principal.getKey().toString();
+                                const principal = fromLegacyPrincipal(entry.getPrincipal());
+                                const key = principal.key;
                                 const accessValue = AccessHelper.getAccessValueFromPermissions(
                                     entry.getAllowedPermissions(),
                                 );

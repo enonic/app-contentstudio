@@ -1,5 +1,4 @@
-import type { Principal } from '@enonic/lib-admin-ui/security/Principal';
-import type { PrincipalType } from '@enonic/lib-admin-ui/security/PrincipalType';
+import type { Principal, PrincipalType } from '@enonic/ui-types';
 import { useStore } from '@nanostores/preact';
 import { useCallback, useEffect, useMemo } from 'react';
 import { $principals, initPrincipals, loadPrincipals } from './principals.store';
@@ -23,10 +22,10 @@ export const usePrincipalOptions = ({ allowedTypes, customFilter }: PrincipalOpt
 
     const options = useMemo(() => {
         return principals
-            .filter((principal) => allowedTypes.includes(principal.getType()) && (customFilter?.(principal) ?? true))
+            .filter((principal) => allowedTypes.includes(principal.type) && (customFilter?.(principal) ?? true))
             .map((principal) => ({
-                id: principal.getKey().toString(),
-                label: principal.getDisplayName(),
+                id: principal.key,
+                label: principal.displayName,
                 principal,
             }));
     }, [principals, allowedTypesKey, customFilter]);

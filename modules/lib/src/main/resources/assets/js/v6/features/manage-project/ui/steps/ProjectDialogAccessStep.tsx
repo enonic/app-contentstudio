@@ -1,5 +1,5 @@
-import { Principal } from '@enonic/lib-admin-ui/security/Principal';
-import { PrincipalType } from '@enonic/lib-admin-ui/security/PrincipalType';
+import { type Principal, type PrincipalType } from '@enonic/ui-types';
+import { principalPath } from '@enonic/ui-utils';
 import { Dialog, GridList, IconButton, RadioGroup } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { CircleUserRound, X } from 'lucide-react';
@@ -11,12 +11,14 @@ import {
     setProjectDialogPermissions,
 } from '../../model/projectDialog.store';
 import { $principals, getPrincipalsByKeys, usePrincipalOptions } from '../../../../entities/principal';
+import { isAnonymousPrincipal } from '../../../../shared/lib/cms/security/principal';
+import { fromLegacyPrincipalKey } from '../../../../shared/lib/cms/security/legacy';
 import { InlineButton } from '../../../../shared/ui/InlineButton';
 import { ItemLabel } from '../../../../shared/ui/ItemLabel';
 import { PrincipalLabelOption, PrincipalSelector } from '../../../shared/selectors/principal';
 
-const filterAnonymousUserOut = (principal: Principal) => !principal.getKey().isAnonymous();
-const ACCESS_PRINCIPAL_TYPES = [PrincipalType.USER, PrincipalType.GROUP];
+const filterAnonymousUserOut = (principal: Principal) => !isAnonymousPrincipal(principal.key);
+const ACCESS_PRINCIPAL_TYPES: PrincipalType[] = ['user', 'group'];
 const PRINCIPAL_SEARCH_DEBOUNCE_MS = 500;
 
 export const ProjectDialogAccessStepHeader = (): ReactElement => {
@@ -51,7 +53,7 @@ export const ProjectDialogAccessStepContent = ({
     const { parentProjects, accessMode, permissions } = useStore($projectDialog, {
         keys: ['parentProjects', 'accessMode', 'permissions'],
     });
-    const [selection, setSelection] = useState<string[]>(permissions.map((principal) => principal.getKey().toString()));
+    const [selection, setSelection] = useState<string[]>(permissions.map((principal) => principal.key));
     const [accessModeValue, setAccessModeValue] = useState(accessMode || '');
     const { options: principalOptions, onSearchChange: onPrincipalSearchChange } = usePrincipalOptions({
         allowedTypes: ACCESS_PRINCIPAL_TYPES,
@@ -59,7 +61,7 @@ export const ProjectDialogAccessStepContent = ({
     });
 
     const selectedPrincipals = useMemo(
-        () => principals.filter((principal) => selection.includes(principal.getKey().toString())),
+        () => principals.filter((principal) => selection.includes(principal.key)),
         [principals, selection],
     );
 
@@ -121,12 +123,12 @@ export const ProjectDialogAccessStepContent = ({
             setAccessModeValue('custom');
         }
 
-        const keys = parentProjectReadAccess.getPrincipalsKeys();
+        const keys = parentProjectReadAccess.getPrincipalsKeys().map(fromLegacyPrincipalKey);
 
         if (keys.length === 0) return;
 
         getPrincipalsByKeys(keys).map((principals) => {
-            setSelection(principals.map((principal) => principal.getKey().toString()));
+            setSelection(principals.map((principal) => principal.key));
         });
     }, [parentProjects, canCopyFromParentProject]);
 
@@ -192,9 +194,9 @@ export const ProjectDialogAccessStepContent = ({
                     {selection.length > 0 && (
                         <GridList className="rounded-md mb-2.5 py-2.5 pl-4 pr-1">
                             {selectedPrincipals.map((principal) => {
-                                const key = principal.getKey().toString();
-                                const principalDisplayName = principal.getDisplayName();
-                                const principalPath = principal.getKey().toPath();
+                                const key = principal.key;
+                                const principalDisplayName = principal.displayName;
+                                const path = principalPath(principal.key);
 
                                 return (
                                     <GridList.Row key={key} id={key} className="p-1 gap-1.5">
@@ -203,7 +205,7 @@ export const ProjectDialogAccessStepContent = ({
                                                 <ItemLabel
                                                     icon={<CircleUserRound />}
                                                     primary={principalDisplayName}
-                                                    secondary={principalPath}
+                                                    secondary={path}
                                                 />
                                             </div>
                                         </GridList.Cell>

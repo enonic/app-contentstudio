@@ -1,5 +1,5 @@
 import { Checkbox, CheckboxChecked, GridList } from '@enonic/ui';
-import { Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { type Principal } from '@enonic/ui-types';
 import { ReactElement } from 'react';
 import { Permission } from '../../../../../../app/access/Permission';
 import { getPrincipalAllowedPermissions } from '../../../../../shared/lib/cms/permissions/accessControl';
@@ -15,7 +15,7 @@ type CustomPermissionsRowProps = {
 export const CustomPermissionsRow = ({ principal, onCheckedChange }: CustomPermissionsRowProps): ReactElement => {
     const { accessControlEntries } = useStore($permissionsDialog, { keys: ['accessControlEntries'] });
 
-    const key = principal.getKey().toString();
+    const key = principal.key;
     const allowedPermissions = getPrincipalAllowedPermissions(accessControlEntries, key);
 
     const permissionReadLabel = useI18n('security.permission.read');

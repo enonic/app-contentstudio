@@ -9,10 +9,11 @@ import { ProjectAccess } from '../../../../app/settings/access/ProjectAccess';
 import { ProjectReadAccess } from '../../../../app/settings/data/project/ProjectReadAccess';
 import { type ProjectReadAccessType } from '../../../../app/settings/data/project/ProjectReadAccessType';
 import { ProjectItemPermissionsBuilder } from '../../../../app/settings/data/project/ProjectPermissions';
-import { type Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { type Principal } from '@enonic/ui-types';
+import { parsePrincipalKey } from '@enonic/ui-utils';
 import { PropertySet, PropertyTree } from '@enonic/input-types/data';
 import { seedFormDefaults } from '@enonic/input-types';
-import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { fromLegacyPrincipalKey, toLegacyPrincipalKey } from '../../../shared/lib/cms/security/legacy';
 import { $applications, loadApplications } from '../../../entities/application';
 import { type Application } from '../../../entities/application';
 import {
@@ -180,8 +181,8 @@ export const $isProjectDialogDirty = computed(
     [$projectDialog, $editProjectSnapshot, $initialParentNames, $initialApplicationConfigs],
     (state, snapshot, initialParents, initialApplicationConfigs): boolean => {
         if (state.mode === 'edit' && snapshot) {
-            const currentPermissionKeys = state.permissions.map((p) => p.getKey().toString());
-            const snapshotPermissionKeys = snapshot.permissions.map((p) => p.getKey().toString());
+            const currentPermissionKeys = state.permissions.map((p) => p.key);
+            const snapshotPermissionKeys = snapshot.permissions.map((p) => p.key);
             const permissionsDirty =
                 currentPermissionKeys.length !== snapshotPermissionKeys.length ||
                 currentPermissionKeys.some((k, i) => k !== snapshotPermissionKeys[i]);
@@ -254,16 +255,13 @@ export const openEditProjectDialog = async (project: Project, parentProjects: Pr
     const isMultiInheritance = Boolean(ProjectConfigContext.get().getProjectConfig()?.isMultiInheritance());
     const { principalKeys: rolePrincipalKeys, roles } = getProjectDetailedPermissions(project);
 
-    const accessPrincipalKeys = project
-        .getReadAccess()
-        .getPrincipalsKeys()
-        .map((k) => k.toString());
+    const accessPrincipalKeys = project.getReadAccess().getPrincipalsKeys().map(fromLegacyPrincipalKey);
 
-    await loadPrincipalsByKeys([...rolePrincipalKeys, ...accessPrincipalKeys].map((k) => PrincipalKey.fromString(k)));
+    await loadPrincipalsByKeys([...rolePrincipalKeys, ...accessPrincipalKeys]);
 
     const principals = $principals.get().principals;
-    const rolePrincipals = principals.filter((p) => rolePrincipalKeys.includes(p.getKey().toString()));
-    const permissionPrincipals = principals.filter((p) => accessPrincipalKeys.includes(p.getKey().toString()));
+    const rolePrincipals = principals.filter((p) => rolePrincipalKeys.includes(p.key));
+    const permissionPrincipals = principals.filter((p) => accessPrincipalKeys.includes(p.key));
 
     await loadApplications();
 
@@ -548,7 +546,7 @@ export const createProject = (): ResultAsync<void, Error> => {
             updateProjectPermissions(
                 identifier,
                 projectRoles,
-                permissions.map((p: Principal) => p.getKey()),
+                permissions.map((p) => p.key),
             ).map(() => project),
         )
         .map((project) => {
@@ -614,7 +612,7 @@ export const updateProject = (): ResultAsync<void, Error> => {
                     updateProjectPermissions(
                         identifier,
                         projectRoles,
-                        accessMode === 'custom' ? permissions.map((p: Principal) => p.getKey()) : [],
+                        accessMode === 'custom' ? permissions.map((p) => p.key) : [],
                     ),
                 );
             }
@@ -668,7 +666,7 @@ function getDataForRequests() {
 
     const readAccess = new ProjectReadAccess(
         accessMode as ProjectReadAccessType,
-        permissions.map((p: Principal) => p.getKey()),
+        permissions.map((p) => toLegacyPrincipalKey(p.key)),
     );
 
     const listedConfigs = applications.map((app): ApplicationConfig => ({
@@ -686,16 +684,16 @@ function getDataForRequests() {
 
     const owners = rolesEntries
         .filter(([_, value]) => value === ProjectAccess.OWNER)
-        .map(([key]) => PrincipalKey.fromString(key));
+        .map(([key]) => toLegacyPrincipalKey(parsePrincipalKey(key)));
     const contributors = rolesEntries
         .filter(([_, value]) => value === ProjectAccess.CONTRIBUTOR)
-        .map(([key]) => PrincipalKey.fromString(key));
+        .map(([key]) => toLegacyPrincipalKey(parsePrincipalKey(key)));
     const editors = rolesEntries
         .filter(([_, value]) => value === ProjectAccess.EDITOR)
-        .map(([key]) => PrincipalKey.fromString(key));
+        .map(([key]) => toLegacyPrincipalKey(parsePrincipalKey(key)));
     const authors = rolesEntries
         .filter(([_, value]) => value === ProjectAccess.AUTHOR)
-        .map(([key]) => PrincipalKey.fromString(key));
+        .map(([key]) => toLegacyPrincipalKey(parsePrincipalKey(key)));
 
     const projectRoles = new ProjectItemPermissionsBuilder()
         .setOwners(owners)
@@ -734,8 +732,8 @@ function getRequestsGuards(): RequestGuards {
         nameData: { name, description },
     } = $projectDialog.get();
 
-    const currentPermKeys = permissions.map((p) => p.getKey().toString());
-    const snapshotPermKeys = snapshot.permissions.map((p) => p.getKey().toString());
+    const currentPermKeys = permissions.map((p) => p.key);
+    const snapshotPermKeys = snapshot.permissions.map((p) => p.key);
     const currentRoleKeys = Object.keys(roles);
     const snapshotRoleKeys = Object.keys(snapshot.roles);
 

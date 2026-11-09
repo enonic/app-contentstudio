@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
-import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
 import { AppError } from '@enonic/ui-utils';
 import { type ContentId } from '../../../../app/content/ContentId';
 import { setActiveProjectResolver } from '../../../shared/lib/url/cms';
@@ -33,7 +32,7 @@ describe('updateContentMetadata', () => {
     it('should POST the content id and owner to the updateMetadata endpoint', async () => {
         mockFetch.mockResolvedValue(jsonResponse({ id: 'c-1' }));
 
-        const result = await updateContentMetadata(contentId('c-1'), PrincipalKey.fromString('user:system:su'));
+        const result = await updateContentMetadata(contentId('c-1'), 'user:system:su');
 
         const [url, init] = mockFetch.mock.calls[0];
         expect(url).toContain('/rest-v2/cs/cms/test-project/content/content/updateMetadata');

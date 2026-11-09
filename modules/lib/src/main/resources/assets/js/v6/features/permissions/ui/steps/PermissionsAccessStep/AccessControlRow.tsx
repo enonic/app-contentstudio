@@ -1,4 +1,4 @@
-import { Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { type Principal } from '@enonic/ui-types';
 import { ReactElement } from 'react';
 import { GridList, IconButton, Selector } from '@enonic/ui';
 import { X } from 'lucide-react';
@@ -38,7 +38,7 @@ export const AccessControlRow = ({
         [Access.CUSTOM, accessCustomLabel],
     ]);
 
-    const key = principal.getKey().toString();
+    const key = principal.key;
 
     const allowedPermissions = getPrincipalAllowedPermissions(accessControlEntries, key);
     const accessValue = AccessHelper.getAccessValueFromPermissions(allowedPermissions);

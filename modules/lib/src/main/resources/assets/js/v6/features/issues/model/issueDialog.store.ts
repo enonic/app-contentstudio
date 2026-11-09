@@ -1,4 +1,4 @@
-import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
+import { getCurrentUser } from '../../../shared/lib/cms/security/auth';
 import { type Result, err, ok } from 'neverthrow';
 import { computed, map } from 'nanostores';
 import type { AppError } from '@enonic/ui-utils';
@@ -227,12 +227,13 @@ const matchesFilter = (
     }
 
     if (filter === 'createdByMe') {
-        return issue.getCreator() === AuthContext.get().getUser().getKey().toString();
+        return issue.getCreator() === getCurrentUser()?.key;
     }
 
     if (filter === 'assignedToMe') {
         const assignees = issueWithAssignees.getAssignees() ?? [];
-        return assignees.some((assignee) => assignee.equals(AuthContext.get().getUser()));
+        const userKey = getCurrentUser()?.key;
+        return assignees.some((assignee) => assignee.getKey().toString() === userKey);
     }
 
     if (filter === 'publishRequests') {

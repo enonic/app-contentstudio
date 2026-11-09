@@ -1,5 +1,5 @@
 import { notifyError, notifySuccess, notifyWarning } from '../../../shared/notifications';
-import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { parsePrincipalKey } from '@enonic/ui-utils';
 import { atom, computed, map } from 'nanostores';
 import { i18n } from '../../../shared/i18n';
 import { ContentId } from '../../../../app/content/ContentId';
@@ -337,7 +337,7 @@ export const submitNewIssueDialog = async (): Promise<void> => {
 
     $newIssueDialog.setKey('submitting', true);
 
-    const approvers = state.assigneeIds.map((id) => PrincipalKey.fromString(id));
+    const approvers = state.assigneeIds.map(parsePrincipalKey);
     const publishRequest = PublishRequest.create()
         .addExcludeIds(state.excludedDependantIds)
         .addPublishRequestItems(buildItems(state.items, state.excludeChildrenIds))

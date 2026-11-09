@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeEach } from 'vitest';
-import { Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { parsePrincipal } from '../../shared/lib/cms/security/principal';
 import { $config } from '../../shared/config/config.store';
 import { $aiInstructions } from './ai.store';
 import { buildPluginConfig } from './ai.snapshots';
@@ -14,6 +14,7 @@ describe('buildPluginConfig', () => {
             toolUri: '',
             locale: '',
             user: undefined,
+            principals: [],
             excludeDependencies: false,
             allowContentUpdate: false,
             allowPathTransliteration: true,
@@ -54,7 +55,7 @@ describe('buildPluginConfig', () => {
     it('includes the current user when set', () => {
         $config.setKey(
             'user',
-            Principal.fromJson({
+            parsePrincipal({
                 key: 'user:system:edloidas',
                 displayName: 'Mikita Taukachou',
                 modifiedTime: new Date().toISOString(),

@@ -7,7 +7,7 @@ import { ProjectHelper } from '../../../../app/settings/data/project/ProjectHelp
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import { selectProject, $projects } from '../../../entities/project';
 import { flattenProjects } from '../../../shared/lib/cms/projects/flattenProjects';
-import { AuthHelper } from '@enonic/lib-admin-ui/auth/AuthHelper';
+import { isContentAdmin } from '../../../shared/lib/cms/security/auth';
 import { $dialogs, setProjectSelectionDialogOpen } from '../../../shared/dialogs/dialogs.store';
 import { ProjectLabel } from '../../../entities/project/ui/ProjectLabel';
 import { openCreateProjectDialog } from '../model/projectDialog.store';
@@ -40,9 +40,7 @@ export const ProjectSelectionDialog = (): ReactElement => {
     const hasAvailableProjects = firstAvailableProjectId != null;
     const hasActiveProject = activeProjectId != null;
 
-    // TODO: Enonic UI - Move auth data to store
-    // It's currently okay, as authentication data is loaded from CONFIG and can be considered static
-    const isAdmin = AuthHelper.isContentAdmin();
+    const isAdmin = isContentAdmin();
 
     return (
         <Dialog.Root open={projectSelectionDialogOpen} onOpenChange={setProjectSelectionDialogOpen}>

@@ -1,4 +1,5 @@
-import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
+import { getCurrentUser } from '../../../../shared/lib/cms/security/auth';
+import { fromLegacyPrincipal } from '../../../../shared/lib/cms/security/legacy';
 import { Avatar, cn, Tooltip } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { type ReactElement, useRef } from 'react';
@@ -27,8 +28,8 @@ const PermissionItem = ({ permission }: { permission: EffectivePermission }): Re
     ]);
 
     const status = accessLabelMap.get(permission.getAccess());
-    const principals = sortPrincipals(permission.getMembers().map((epm) => epm.toPrincipal()));
-    const currentUser = AuthContext.get().getUser();
+    const principals = sortPrincipals(permission.getMembers().map((epm) => fromLegacyPrincipal(epm.toPrincipal())));
+    const currentUser = getCurrentUser();
     const { visibleCount } = useVisibleAvatars(listRef, principals.length, AVATAR_OVERFLOW_OFFSET);
     // +N avatar takes space of a regular avatar, render regular instead
     const maxVisibleCount = visibleCount + 1;
@@ -42,19 +43,19 @@ const PermissionItem = ({ permission }: { permission: EffectivePermission }): Re
 
             <div ref={listRef} className="flex overflow-hidden -space-x-2">
                 {principals.map((p, index) => {
-                    const principalKey = p.getKey().toString();
+                    const principalKey = p.key;
 
                     return (
-                        <Tooltip delay={300} key={principalKey} value={p.getDisplayName()}>
+                        <Tooltip delay={300} key={principalKey} value={p.displayName}>
                             <Avatar
                                 className={cn(
                                     'border-2 border-surface-neutral',
-                                    currentUser?.getKey().equals(p.getKey()) && 'border-info',
+                                    currentUser?.key === p.key && 'border-info',
                                     index >= maxVisibleCount && 'invisible order-last',
                                 )}
                             >
                                 <Avatar.Fallback className="text-alt font-semibold">
-                                    {getInitials(p.getDisplayName())}
+                                    {getInitials(p.displayName)}
                                 </Avatar.Fallback>
                             </Avatar>
                         </Tooltip>

@@ -1,5 +1,5 @@
 import { ReactElement } from 'react';
-import { Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { type Principal } from '@enonic/ui-types';
 import { ProjectViewItem } from '../../../../../app/settings/view/ProjectViewItem';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import { useLanguageDisplay } from './hooks/useLanguageDisplay';

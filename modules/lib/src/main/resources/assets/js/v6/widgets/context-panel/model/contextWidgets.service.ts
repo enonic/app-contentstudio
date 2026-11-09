@@ -1,4 +1,4 @@
-import { AuthHelper } from '@enonic/lib-admin-ui/auth/AuthHelper';
+import { isContentAdmin } from '../../../shared/lib/cms/security/auth';
 import type { Extension } from '@enonic/lib-admin-ui/extension/Extension';
 import { notifyError } from '../../../shared/notifications';
 import { FolderInput, History, Link, List, SquareChartGantt } from 'lucide-react';
@@ -101,7 +101,7 @@ function createDefaultWidgets(editorMode: boolean): ContextWidget[] {
     };
 
     const widgets = editorMode ? [details, pageEditor, versions, dependencies] : [details, versions, dependencies];
-    if (AuthHelper.isContentAdmin()) widgets.push(importContent);
+    if (isContentAdmin()) widgets.push(importContent);
 
     return widgets;
 }

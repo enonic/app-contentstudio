@@ -6,8 +6,8 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/preact';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { SiteConfiguratorConfig } from './SiteConfiguratorConfig';
 
-vi.mock('@enonic/lib-admin-ui/auth/AuthHelper', () => ({
-    AuthHelper: { isContentAdmin: () => true },
+vi.mock('../../../../../shared/lib/cms/security/auth', () => ({
+    isContentAdmin: () => true,
 }));
 
 vi.mock('../../../../../shared/lib/hooks/useI18n', () => ({

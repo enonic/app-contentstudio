@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
-import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
 import { PropertyTree } from '@enonic/input-types/data';
 import { type ApplicationConfig } from '../../../shared/lib/cms/application/applicationConfig';
 import { AppError } from '@enonic/ui-utils';
@@ -136,9 +135,7 @@ describe('updateProjectPermissions', () => {
     it('should POST the permissions with the viewer list merged in', async () => {
         mockFetch.mockResolvedValue(jsonResponse({ owner: [] }));
 
-        const result = await updateProjectPermissions('p-1', permissionsStub, [
-            PrincipalKey.fromString('user:system:su'),
-        ]);
+        const result = await updateProjectPermissions('p-1', permissionsStub, ['user:system:su']);
 
         const [url, init] = mockFetch.mock.calls[0];
         expect(url).toContain('/rest-v2/cs/project/modifyPermissions');

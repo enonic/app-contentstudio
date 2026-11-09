@@ -1,5 +1,5 @@
 import { type ResultAsync } from 'neverthrow';
-import { type PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { type PrincipalKey } from '@enonic/ui-types';
 import { requestJson } from '@enonic/ui-utils/request';
 import type { AppError } from '@enonic/ui-utils';
 import { Issue } from '../../../../app/issue/Issue';
@@ -104,7 +104,7 @@ export function createIssue({
     const body = {
         title,
         description,
-        ...(approvers != null && { approvers: approvers.map((key) => key.toString()) }),
+        ...(approvers != null && { approvers }),
         publishRequest: publishRequest.toJson(),
         ...(type != null && { type: IssueType[type] }),
         schedule: null,
@@ -147,7 +147,7 @@ export function updateIssue({
         },
         isPublish: false,
         autoSave: false,
-        ...(approvers != null && { approvers: approvers.map((key) => key.toString()) }),
+        ...(approvers != null && { approvers }),
         ...(publishRequest != null && { publishRequest: publishRequest.toJson() }),
     };
 
@@ -180,7 +180,7 @@ export function createIssueComment({
     text,
     creator,
 }: CreateIssueCommentParams): ResultAsync<IssueComment, AppError> {
-    const body = { issue: issueId, text, creator: creator.toString() };
+    const body = { issue: issueId, text, creator };
 
     return requestJson<IssueCommentJson>(getCmsProjectUrl('issue/comment'), { method: 'POST', body }).map(
         IssueComment.fromJson,

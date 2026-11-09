@@ -1,5 +1,5 @@
 import { handleError, notifyInfo } from '../../../shared/notifications';
-import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { parsePrincipalKey } from '@enonic/ui-utils';
 import { ResultAsync } from 'neverthrow';
 import { map } from 'nanostores';
 import type { AppError } from '@enonic/ui-utils';
@@ -72,7 +72,7 @@ export const openEditPropertiesDialog = (content: ContentSummary): void => {
     });
 
     if (ownerKey) {
-        void loadPrincipalsByKeys([PrincipalKey.fromString(ownerKey)]);
+        void loadPrincipalsByKeys([parsePrincipalKey(ownerKey)]);
     }
 };
 
@@ -126,7 +126,7 @@ export const applyEditPropertiesDialog = async (): Promise<void> => {
         updates.push(() =>
             updateContentMetadata(
                 contentItem.getContentId(),
-                nextOwnerKey ? PrincipalKey.fromString(nextOwnerKey) : undefined,
+                nextOwnerKey ? parsePrincipalKey(nextOwnerKey) : undefined,
             ),
         );
     }

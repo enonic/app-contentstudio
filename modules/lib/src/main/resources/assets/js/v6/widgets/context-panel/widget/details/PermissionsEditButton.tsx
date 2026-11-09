@@ -1,4 +1,5 @@
-import { AuthHelper } from '@enonic/lib-admin-ui/auth/AuthHelper';
+import { getUserPrincipalKeys } from '../../../../shared/lib/cms/security/auth';
+import { toLegacyPrincipalKey } from '../../../../shared/lib/cms/security/legacy';
 import { Button, ButtonProps } from '@enonic/ui';
 import { ReactElement } from 'react';
 import { Permission } from '../../../../../app/access/Permission';
@@ -16,7 +17,7 @@ export function PermissionsEditButton({ content, ...props }: PermissionsEditButt
 
     const hasPermission = ContentHelper.isAnyPrincipalAllowed(
         content.getPermissions(),
-        AuthHelper.getPrincipalsKeys(),
+        getUserPrincipalKeys().map(toLegacyPrincipalKey),
         Permission.WRITE_PERMISSIONS,
     );
 

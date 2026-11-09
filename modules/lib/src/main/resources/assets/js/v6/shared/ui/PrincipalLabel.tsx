@@ -1,4 +1,5 @@
-import { Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { type Principal } from '@enonic/ui-types';
+import { principalPath } from '@enonic/ui-utils';
 import { ComponentPropsWithoutRef, ReactElement } from 'react';
 import { ItemLabel } from './ItemLabel';
 import { Avatar } from '@enonic/ui';
@@ -12,9 +13,9 @@ export type PrincipalLabelProps = {
 };
 
 export const PrincipalLabel = ({ principal, className }: PrincipalLabelProps): ReactElement => {
-    const displayName = principal.getDisplayName();
+    const displayName = principal.displayName;
     const initials = getInitials(displayName);
-    const path = principal.getKey().toPath();
+    const path = principalPath(principal.key);
 
     let Icon = (
         <Avatar className="size-5.5">
@@ -22,11 +23,11 @@ export const PrincipalLabel = ({ principal, className }: PrincipalLabelProps): R
         </Avatar>
     );
 
-    if (principal.isGroup()) {
+    if (principal.type === 'group') {
         Icon = <UserGroupIcon strokeWidth={1.5} />;
     }
 
-    if (principal.isRole()) {
+    if (principal.type === 'role') {
         Icon = <CircleUserTieIcon strokeWidth={1.5} />;
     }
 

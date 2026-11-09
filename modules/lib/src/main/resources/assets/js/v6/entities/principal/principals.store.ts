@@ -1,8 +1,6 @@
-import { PrincipalType } from '@enonic/lib-admin-ui/security/PrincipalType';
-import { type Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { type Principal, type PrincipalKey } from '@enonic/ui-types';
 import { computed, map } from 'nanostores';
 import { ResultAsync } from 'neverthrow';
-import { type PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
 import type { AppError } from '@enonic/ui-utils';
 import { findPrincipals, resolvePrincipalsByKeys } from './api/principals.api';
 
@@ -17,15 +15,15 @@ export const $principals = map<PrincipalsStore>({
 });
 
 export const userPrincipals = computed($principals, (store) => {
-    return store.principals.filter((principal) => principal.getType() === PrincipalType.USER);
+    return store.principals.filter((principal) => principal.type === 'user');
 });
 
 export const groupPrincipals = computed($principals, (store) => {
-    return store.principals.filter((principal) => principal.getType() === PrincipalType.GROUP);
+    return store.principals.filter((principal) => principal.type === 'group');
 });
 
 export const rolePrincipals = computed($principals, (store) => {
-    return store.principals.filter((principal) => principal.getType() === PrincipalType.ROLE);
+    return store.principals.filter((principal) => principal.type === 'role');
 });
 
 //
@@ -36,7 +34,7 @@ export function loadPrincipals(query: string, size: number = 10): void {
     $principals.setKey('loading', true);
 
     findPrincipals({
-        types: [PrincipalType.USER, PrincipalType.GROUP, PrincipalType.ROLE],
+        types: ['user', 'group', 'role'],
         query,
         size,
     })
@@ -45,12 +43,12 @@ export function loadPrincipals(query: string, size: number = 10): void {
 
             const updatedPrincipals = [...$principals.get().principals, ...principals]
                 .filter((principal) => {
-                    const key = principal.getKey().toString();
+                    const key = principal.key;
                     if (seen.has(key)) return false;
                     seen.add(key);
                     return true;
                 })
-                .sort((a, b) => a.getDisplayName().localeCompare(b.getDisplayName()));
+                .sort((a, b) => a.displayName.localeCompare(b.displayName));
 
             $principals.setKey('principals', updatedPrincipals);
             $principals.setKey('loading', false);
@@ -70,12 +68,12 @@ export function loadPrincipalsByKeys(keys: PrincipalKey[]): ResultAsync<Principa
 
             const updatedPrincipals = [...$principals.get().principals, ...principals]
                 .filter((principal) => {
-                    const key = principal.getKey().toString();
+                    const key = principal.key;
                     if (seen.has(key)) return false;
                     seen.add(key);
                     return true;
                 })
-                .sort((a, b) => a.getDisplayName().localeCompare(b.getDisplayName()));
+                .sort((a, b) => a.displayName.localeCompare(b.displayName));
 
             $principals.setKey('principals', updatedPrincipals);
             $principals.setKey('loading', false);

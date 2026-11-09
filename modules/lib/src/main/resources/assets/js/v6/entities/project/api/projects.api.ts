@@ -1,5 +1,5 @@
 import { ResultAsync } from 'neverthrow';
-import { type PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { type PrincipalKey } from '@enonic/ui-types';
 import { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
 import { type TaskIdJson } from '@enonic/lib-admin-ui/task/TaskIdJson';
 import { requestJson } from '@enonic/ui-utils/request';
@@ -104,7 +104,7 @@ export function updateProjectPermissions(
 
     const permissionsJson = permissions.toJson();
     if (viewers != null) {
-        permissionsJson.viewer = viewers.map((key) => key.toString());
+        permissionsJson.viewer = viewers;
     }
 
     const payload = { name, permissions: permissionsJson };

@@ -1,17 +1,19 @@
 import { ResultAsync, okAsync } from 'neverthrow';
-import { type FindPrincipalsResultJson } from '@enonic/lib-admin-ui/security/FindPrincipalsResultJson';
-import { Principal } from '@enonic/lib-admin-ui/security/Principal';
-import { type PrincipalJson } from '@enonic/lib-admin-ui/security/PrincipalJson';
-import { type PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
-import { PrincipalType } from '@enonic/lib-admin-ui/security/PrincipalType';
+import { type Principal, type PrincipalKey, type PrincipalType } from '@enonic/ui-types';
 import { requestJson } from '@enonic/ui-utils/request';
 import { AppError } from '@enonic/ui-utils';
 import { getCmsRestUri } from '../../../shared/lib/url/cms';
+import { parsePrincipal, type PrincipalJson } from '../../../shared/lib/cms/security/principal';
 
 export type FindPrincipalsParams = {
     types: PrincipalType[];
     query?: string;
     size?: number;
+};
+
+type FindPrincipalsResultJson = {
+    principals: PrincipalJson[];
+    totalSize: number;
 };
 
 /**
@@ -20,7 +22,7 @@ export type FindPrincipalsParams = {
  */
 export function findPrincipals(params: FindPrincipalsParams): ResultAsync<Principal[], AppError> {
     const query = new URLSearchParams();
-    query.append('types', params.types.map((type) => PrincipalType[type].toUpperCase()).join(','));
+    query.append('types', params.types.map((type) => type.toUpperCase()).join(','));
     if (params.query) {
         query.append('query', params.query);
     }
@@ -30,7 +32,7 @@ export function findPrincipals(params: FindPrincipalsParams): ResultAsync<Princi
 
     const url = `${getCmsRestUri('security/principals')}?${query.toString()}`;
 
-    return requestJson<FindPrincipalsResultJson>(url).map((json) => json.principals.map(Principal.fromJson));
+    return requestJson<FindPrincipalsResultJson>(url).map((json) => json.principals.map(parsePrincipal));
 }
 
 /**
@@ -45,11 +47,9 @@ export function resolvePrincipalsByKeys(keys: PrincipalKey[]): ResultAsync<Princ
     const url = getCmsRestUri('security/principals/resolveByKeys');
 
     const payload = {
-        keys: keys.map((key) => key.toString()),
+        keys,
         memberships: false,
     };
 
-    return requestJson<PrincipalJson[]>(url, { method: 'POST', body: payload }).map((json) =>
-        json.map(Principal.fromJson),
-    );
+    return requestJson<PrincipalJson[]>(url, { method: 'POST', body: payload }).map((json) => json.map(parsePrincipal));
 }

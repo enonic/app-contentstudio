@@ -1,6 +1,5 @@
-import { Principal } from '@enonic/lib-admin-ui/security/Principal';
-import { PrincipalType } from '@enonic/lib-admin-ui/security/PrincipalType';
-import { RoleKeys } from '@enonic/lib-admin-ui/security/RoleKeys';
+import { type Principal, type PrincipalType } from '@enonic/ui-types';
+import { EVERYONE_ROLE_KEY } from '@enonic/ui-utils';
 import { CheckboxChecked, Dialog, GridList, RadioGroup } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { LockKeyhole, LockKeyholeOpen } from 'lucide-react';
@@ -22,16 +21,18 @@ import {
     areAccessControlEntriesEqual,
     getPrincipalsInCustomAccess,
 } from '../../../../../shared/lib/cms/permissions/accessControl';
+import { isAnonymousPrincipal } from '../../../../../shared/lib/cms/security/principal';
+import { toLegacyPrincipal } from '../../../../../shared/lib/cms/security/legacy';
 import { InlineButton } from '../../../../../shared/ui/InlineButton';
 import { PrincipalLabelOption, PrincipalSelector } from '../../../../shared/selectors/principal';
 import { AccessControlRow } from './AccessControlRow';
 import { CustomPermissionsRow } from './CustomPermissionsRow';
 
-const filterAnonymousUserOut = (principal: Principal) => !principal.getKey().isAnonymous();
-const filterEveryonePrincipalOut = (principal: Principal) => !principal.getKey().equals(RoleKeys.EVERYONE);
+const filterAnonymousUserOut = (principal: Principal) => !isAnonymousPrincipal(principal.key);
+const filterEveryonePrincipalOut = (principal: Principal) => principal.key !== EVERYONE_ROLE_KEY;
 const filterSelectablePrincipals = (principal: Principal): boolean =>
     filterEveryonePrincipalOut(principal) && filterAnonymousUserOut(principal);
-const ACCESS_PRINCIPAL_TYPES = [PrincipalType.USER, PrincipalType.GROUP, PrincipalType.ROLE];
+const ACCESS_PRINCIPAL_TYPES: PrincipalType[] = ['user', 'group', 'role'];
 const PRINCIPAL_SEARCH_DEBOUNCE_MS = 500;
 
 export const PermissionsDialogAccessStepHeader = (): ReactElement => {
@@ -74,8 +75,7 @@ export const PermissionsDialogAccessStepContent = (): ReactElement => {
     const selectedPrincipals = useMemo(
         () =>
             principals.filter(
-                (principal) =>
-                    filterEveryonePrincipalOut(principal) && selection.includes(principal.getKey().toString()),
+                (principal) => filterEveryonePrincipalOut(principal) && selection.includes(principal.key),
             ),
         [principals, selection],
     );
@@ -114,9 +114,9 @@ export const PermissionsDialogAccessStepContent = (): ReactElement => {
             const existingKeys = new Set(existingEntries.map((entry) => entry.getPrincipalKey().toString()));
             const newEntries = selection
                 .filter((key) => !existingKeys.has(key))
-                .map((key) => principals.find((p) => p.getKey().toString() === key))
+                .map((key) => principals.find((p) => p.key === key))
                 .filter(Boolean)
-                .map((principal) => new AccessControlEntry(principal).allow(Permission.READ));
+                .map((principal) => new AccessControlEntry(toLegacyPrincipal(principal)).allow(Permission.READ));
 
             setSelection(selection);
             setPermissionsDialogAccessControlEntries([...existingEntries, ...newEntries]);
@@ -218,7 +218,7 @@ export const PermissionsDialogAccessStepContent = (): ReactElement => {
                 <>
                     <GridList className="rounded-md py-1.5 pl-4 pr-1 flex flex-col gap-2.5">
                         {selectedPrincipals.map((principal) => {
-                            const key = principal.getKey().toString();
+                            const key = principal.key;
 
                             return (
                                 <Fragment key={key}>

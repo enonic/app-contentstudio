@@ -23,6 +23,12 @@ const sync = vi.hoisted(() => ({
 }));
 const config = vi.hoisted(() => ({ isMultiInheritance: false }));
 
+vi.mock('../../../shared/lib/cms/security/auth', () => ({
+    isContentAdmin: () => auth.isContentAdmin,
+    isAdmin: () => auth.isAdmin,
+}));
+
+// The legacy ProjectViewItem.isEditAllowed still asks the lib helper.
 vi.mock('@enonic/lib-admin-ui/auth/AuthHelper', () => ({
     AuthHelper: { isContentAdmin: () => auth.isContentAdmin, isAdmin: () => auth.isAdmin },
 }));

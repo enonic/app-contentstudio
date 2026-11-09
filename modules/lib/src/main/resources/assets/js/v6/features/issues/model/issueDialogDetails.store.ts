@@ -1,6 +1,7 @@
-import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
+import { requireCurrentUser } from '../../../shared/lib/cms/security/auth';
+import { fromLegacyPrincipalKey, toLegacyPrincipal } from '../../../shared/lib/cms/security/legacy';
 import { notifyError, notifyInfo } from '../../../shared/notifications';
-import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { parsePrincipalKey } from '@enonic/ui-utils';
 import { atom, computed, map } from 'nanostores';
 import { i18n } from '../../../shared/i18n';
 import { type ContentId } from '../../../../app/content/ContentId';
@@ -564,7 +565,7 @@ export const submitIssueDialogComment = async (): Promise<boolean> => {
     const result = await createIssueComment({
         issueId,
         text: trimmedComment,
-        creator: AuthContext.get().getUser().getKey(),
+        creator: requireCurrentUser().key,
     });
 
     if (result.isErr()) {
@@ -742,7 +743,7 @@ const updateIssueDialogTitleNow = async (nextTitle: string): Promise<void> => {
         title: trimmedTitle,
         description: issue.getDescription(),
         status: issue.getIssueStatus(),
-        approvers: issue.getApprovers(),
+        approvers: issue.getApprovers().map(fromLegacyPrincipalKey),
         publishFrom: issue.getPublishFrom(),
         publishTo: issue.getPublishTo(),
     });
@@ -788,7 +789,7 @@ const updateIssueDialogAssigneesNow = async (nextAssigneeIds: readonly string[])
 
     $issueDialogDetails.setKey('assigneesUpdating', true);
 
-    const approvers = nextAssigneeIds.map((id) => PrincipalKey.fromString(id));
+    const approvers = nextAssigneeIds.map(parsePrincipalKey);
     const updateResult = await updateIssue({
         id: issueId,
         title: issue.getTitle(),
@@ -820,7 +821,7 @@ const updateIssueDialogAssigneesNow = async (nextAssigneeIds: readonly string[])
         }
         result.match(
             (principals) => {
-                assignees = principals;
+                assignees = principals.map(toLegacyPrincipal);
             },
             (error) => {
                 console.error(error);
@@ -858,7 +859,7 @@ const updateIssueDialogScheduleNow = async (
         title: issue.getTitle(),
         description: issue.getDescription(),
         status: issue.getIssueStatus(),
-        approvers: issue.getApprovers(),
+        approvers: issue.getApprovers().map(fromLegacyPrincipalKey),
         publishRequest: issue.getPublishRequest() ?? undefined,
         publishFrom,
         publishTo,
@@ -1392,7 +1393,7 @@ const updateIssueWithPublishRequest = async ({
         title: issue.getTitle(),
         description: issue.getDescription(),
         status: issue.getIssueStatus(),
-        approvers: issue.getApprovers(),
+        approvers: issue.getApprovers().map(fromLegacyPrincipalKey),
         publishRequest: nextPublishRequest,
         publishFrom: issue.getPublishFrom(),
         publishTo: issue.getPublishTo(),

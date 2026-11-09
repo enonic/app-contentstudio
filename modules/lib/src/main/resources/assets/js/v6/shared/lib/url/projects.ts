@@ -1,7 +1,9 @@
 import { type FlatNode } from '@enonic/ui';
+import { type PrincipalKey } from '@enonic/ui-types';
 import { getCmsRestUri } from './cms';
 import { type Project } from '../../../../app/settings/data/project/Project';
 import { ProjectAccess } from '../../../../app/settings/access/ProjectAccess';
+import { fromLegacyPrincipalKey } from '../cms/security/legacy';
 
 export function resolveProjectIconUrl(
     projectName: string | undefined | null,
@@ -113,15 +115,15 @@ export function searchProjectsToListItems(
  */
 export const getProjectDetailedPermissions = (
     project: Readonly<Project>,
-): { principalKeys: string[]; roles: Record<string, ProjectAccess> } => {
+): { principalKeys: PrincipalKey[]; roles: Record<string, ProjectAccess> } => {
     const permissions = project.getPermissions();
 
-    const owners = permissions.getOwners();
-    const editors = permissions.getEditors();
-    const contributors = permissions.getContributors();
-    const authors = permissions.getAuthors();
+    const owners = permissions.getOwners().map(fromLegacyPrincipalKey);
+    const editors = permissions.getEditors().map(fromLegacyPrincipalKey);
+    const contributors = permissions.getContributors().map(fromLegacyPrincipalKey);
+    const authors = permissions.getAuthors().map(fromLegacyPrincipalKey);
 
-    const principalKeys = [...owners, ...editors, ...contributors, ...authors].map((principal) => principal.toString());
+    const principalKeys = [...owners, ...editors, ...contributors, ...authors];
 
     const roles: Record<string, ProjectAccess> = Object.fromEntries([
         ...owners.map((owner) => [owner, ProjectAccess.OWNER]),

@@ -1,4 +1,4 @@
-import { RoleKeys } from '@enonic/lib-admin-ui/security/RoleKeys';
+import { EVERYONE_ROLE_KEY } from '@enonic/ui-utils';
 import { LockKeyhole, LockKeyholeOpen } from 'lucide-react';
 import { ReactElement } from 'react';
 import { Content } from '../../../../../app/content/Content';
@@ -30,7 +30,7 @@ export const PermissionsAccessDescription = ({ content }: PermissionsAccessDescr
     const hasEveryoneEntry = content
         .getPermissions()
         .getEntries()
-        .some((entry) => entry.getPrincipalKey().equals(RoleKeys.EVERYONE));
+        .some((entry) => entry.getPrincipalKey().toString() === EVERYONE_ROLE_KEY);
 
     const Icon = hasEveryoneEntry ? LockKeyholeOpen : LockKeyhole;
     const text = hasEveryoneEntry ? accessTextMap.get(getEveryoneAccess(content)) : restrictedText;
