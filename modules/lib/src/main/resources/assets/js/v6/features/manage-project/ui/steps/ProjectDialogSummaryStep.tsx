@@ -1,4 +1,4 @@
-import type { Principal } from '@enonic/lib-admin-ui/security/Principal';
+import type { Principal } from '@enonic/ui-types';
 import { Avatar, cn, Dialog, Tooltip } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { type ReactElement, useRef } from 'react';
@@ -21,8 +21,8 @@ const PermissionAvatars = ({ principals }: { principals: Principal[] }): ReactEl
     return (
         <div ref={listRef} className="flex min-w-0 gap-2.5">
             {principals.map((principal, index) => {
-                const principalDisplayName = principal.getDisplayName();
-                const principalKey = principal.getKey().toString();
+                const principalDisplayName = principal.displayName;
+                const principalKey = principal.key;
 
                 return (
                     <Tooltip delay={150} key={principalKey} value={principalDisplayName}>
@@ -44,7 +44,7 @@ const PermissionAvatars = ({ principals }: { principals: Principal[] }): ReactEl
                 <Tooltip
                     delay={150}
                     className="whitespace-pre-line"
-                    value={hiddenPrincipals.map((principal) => principal.getDisplayName()).join('\n')}
+                    value={hiddenPrincipals.map((principal) => principal.displayName).join('\n')}
                 >
                     <Avatar size="sm" className="size-6 -my-0.5 text-alt font-semibold">
                         <Avatar.Fallback>+{hiddenPrincipals.length}</Avatar.Fallback>
@@ -138,18 +138,10 @@ export const ProjectDialogSummaryStepContent = ({
     const principalsByRole = (() => {
         const bucket: Map<string, Principal[]> = new Map<string, Principal[]>();
 
-        const owners = rolePrincipals.filter(
-            (principal) => roles[principal.getKey().toString()] === ProjectAccess.OWNER,
-        );
-        const editors = rolePrincipals.filter(
-            (principal) => roles[principal.getKey().toString()] === ProjectAccess.EDITOR,
-        );
-        const contributors = rolePrincipals.filter(
-            (principal) => roles[principal.getKey().toString()] === ProjectAccess.CONTRIBUTOR,
-        );
-        const authors = rolePrincipals.filter(
-            (principal) => roles[principal.getKey().toString()] === ProjectAccess.AUTHOR,
-        );
+        const owners = rolePrincipals.filter((principal) => roles[principal.key] === ProjectAccess.OWNER);
+        const editors = rolePrincipals.filter((principal) => roles[principal.key] === ProjectAccess.EDITOR);
+        const contributors = rolePrincipals.filter((principal) => roles[principal.key] === ProjectAccess.CONTRIBUTOR);
+        const authors = rolePrincipals.filter((principal) => roles[principal.key] === ProjectAccess.AUTHOR);
 
         if (owners.length > 0) bucket.set(ownerLabel, owners);
         if (editors.length > 0) bucket.set(editorLabel, editors);

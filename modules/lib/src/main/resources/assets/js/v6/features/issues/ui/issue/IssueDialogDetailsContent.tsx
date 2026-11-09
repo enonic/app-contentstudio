@@ -75,6 +75,7 @@ import { createDebounce } from '../../../../shared/lib/timing/createDebounce';
 import { ContentRow, DependantsSeparator, SplitList } from '../../../shared/lists';
 import { EditableText } from '../../../../shared/ui/primitives/EditableText';
 import { PrincipalSelector, usePrincipalSearch, usePrincipalSelection } from '../../../shared/selectors/principal';
+import { fromLegacyPrincipal } from '../../../../shared/lib/cms/security/legacy';
 import { ContentCombobox } from '../../../shared/selectors/content';
 import { IssueStatusBadge } from '../../../shared/status/IssueStatusBadge';
 import { DependantsSelectAll } from '../../../../shared/ui/dialogs/dependants/DependantsSelectAll';
@@ -401,9 +402,10 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     );
     const itemsWithUnpublishedChildren = useItemsWithUnpublishedChildren(items);
 
+    const assignees = useMemo(() => issueWithAssignees?.getAssignees()?.map(fromLegacyPrincipal), [issueWithAssignees]);
     const selectedAssigneeOptions = usePrincipalSelection({
         principalIds: assigneeIds,
-        principals: issueWithAssignees?.getAssignees(),
+        principals: assignees,
         filterSystem: true,
     });
 

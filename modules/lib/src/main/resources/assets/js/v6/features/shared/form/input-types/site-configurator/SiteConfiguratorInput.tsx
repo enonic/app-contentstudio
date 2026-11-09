@@ -1,7 +1,7 @@
 import { type Application } from '../../../../../entities/application';
 import { APPLICATION_KEY } from '../../../../../shared/lib/cms/application/applicationKey';
 import { APPLICATION_CONFIG_PROPERTY } from '../../../../../shared/lib/cms/application/applicationConfig';
-import { AuthHelper } from '@enonic/lib-admin-ui/auth/AuthHelper';
+import { isContentAdmin } from '../../../../../shared/lib/cms/security/auth';
 import { type PropertySet } from '@enonic/input-types/data';
 import { PropertyTree } from '@enonic/input-types/data';
 import { Value } from '@enonic/input-types/data';
@@ -55,7 +55,7 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
     const { enabled: scopeEnabled } = useFormScopeRequirement(input, SITE_CONFIGURATOR_SCOPE_REQUIREMENT);
     const contentId = content?.getId();
     const { applications } = useStore($applications, { keys: ['applications'] });
-    const [isReadOnly, setIsReadOnly] = useState(!AuthHelper.isContentAdmin());
+    const [isReadOnly, setIsReadOnly] = useState(!isContentAdmin());
     const [editing, setEditing] = useState<EditingState | null>(null);
 
     const placeholder = useI18n('field.option.placeholder');
@@ -66,7 +66,7 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
     }, []);
 
     useEffect(() => {
-        if (AuthHelper.isContentAdmin()) {
+        if (isContentAdmin()) {
             setIsReadOnly(false);
             return;
         }

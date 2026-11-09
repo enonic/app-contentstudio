@@ -1,4 +1,4 @@
-import { AuthHelper } from '@enonic/lib-admin-ui/auth/AuthHelper';
+import { isContentAdmin } from '../../../shared/lib/cms/security/auth';
 import { type ContentId } from '../../../../app/content/ContentId';
 import { type Project } from '../../../../app/settings/data/project/Project';
 import { ProjectHelper } from '../../../../app/settings/data/project/ProjectHelper';
@@ -24,7 +24,7 @@ export async function loadCreatableContentTypes({
 
     if (result.isErr()) throw result.error;
 
-    const canCreateSites = AuthHelper.isContentAdmin() || (await ProjectHelper.isUserProjectOwner(project));
+    const canCreateSites = isContentAdmin() || (await ProjectHelper.isUserProjectOwner(project));
 
     return canCreateSites ? result.value : result.value.filter((type) => type.name !== CONTENT_TYPE.SITE);
 }

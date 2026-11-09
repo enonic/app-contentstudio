@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
-import { PrincipalType } from '@enonic/lib-admin-ui/security/PrincipalType';
-import type { Principal } from '@enonic/lib-admin-ui/security/Principal';
+import type { Principal } from '@enonic/ui-types';
+import { parsePrincipalKey } from '@enonic/ui-utils';
 import { findPrincipals, resolvePrincipalsByKeys } from '../../../../../entities/principal/api/principals.api';
+import { isSystemUser, principalDescription } from '../../../../../shared/lib/cms/security/principal';
 import type { PrincipalOption } from '../principal.types';
 
 export const buildPrincipalOption = (principal: Principal): PrincipalOption => {
-    const key = principal.getKey().toString();
-    const label = principal.getDisplayName() || key;
-    const description = principal.getDescription() || key;
+    const key = principal.key;
+    const label = principal.displayName || key;
+    const description = principalDescription(principal) || key;
     return {
         id: key,
         label,
@@ -17,10 +17,7 @@ export const buildPrincipalOption = (principal: Principal): PrincipalOption => {
     };
 };
 
-export const shouldSkipPrincipal = (principal: Principal): boolean => {
-    const key = principal.getKey();
-    return key.equals(PrincipalKey.ofAnonymous()) || key.equals(PrincipalKey.ofSU());
-};
+export const shouldSkipPrincipal = (principal: Principal): boolean => isSystemUser(principal.key);
 
 export type UsePrincipalSearchResult = {
     options: PrincipalOption[];
@@ -35,7 +32,7 @@ export const usePrincipalSearch = (): UsePrincipalSearchResult => {
     const loadOptions = useCallback(async (query: string): Promise<void> => {
         const requestId = ++requestIdRef.current;
 
-        const result = await findPrincipals({ types: [PrincipalType.USER], query, size: 20 });
+        const result = await findPrincipals({ types: ['user'], query, size: 20 });
 
         if (result.isErr()) {
             console.error(result.error);
@@ -99,7 +96,7 @@ export const usePrincipalSelection = ({
             return;
         }
 
-        const keys = principalIds.map((id) => PrincipalKey.fromString(id));
+        const keys = principalIds.map(parsePrincipalKey);
         void resolvePrincipalsByKeys(keys).match(
             (resolved) => {
                 if (requestId !== requestIdRef.current) {

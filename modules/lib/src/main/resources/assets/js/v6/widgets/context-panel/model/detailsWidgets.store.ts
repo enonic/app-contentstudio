@@ -8,9 +8,10 @@ import { type ContentId } from '../../../../app/content/ContentId';
 import { fetchContentAttachments, fetchContentById, fetchEffectivePermissions } from '../../../entities/content';
 import { type Access } from '../../../../app/security/Access';
 import { AccessControlEntryView } from '../../../../app/view/AccessControlEntryView';
-import { RoleKeys } from '@enonic/lib-admin-ui/security/RoleKeys';
-import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
-import { type Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { type Principal } from '@enonic/ui-types';
+import { EVERYONE_ROLE_KEY } from '@enonic/ui-utils';
+import { getCurrentUser } from '../../../shared/lib/cms/security/auth';
+import { toLegacyPrincipalKey } from '../../../shared/lib/cms/security/legacy';
 import {
     $contentCreated,
     $contentDeleted,
@@ -86,7 +87,7 @@ onMount($detailsContentRefreshSignal, () => {
 
         const contentId = contextContent.getContentId();
         if (event.data.some((id) => id.equals(contentId))) refresh();
-    }
+    };
 
     const onTemplateCreatedOrUpdated = (event: Readonly<ContentEvent<ContentSummary[]>> | null): void => {
         if (!event?.data) return;
@@ -102,7 +103,7 @@ onMount($detailsContentRefreshSignal, () => {
         if (!contextContent) return;
 
         if (event.data.some((item) => isDeletedTemplateForContent(item.getPath(), contextContent))) refresh();
-    }
+    };
 
     const unsubPermissionsUpdated = $contentPermissionsUpdated.subscribe(onPermissionsUpdated);
     const unsubCreated = $contentCreated.subscribe(onTemplateCreatedOrUpdated);
@@ -122,16 +123,16 @@ onMount($detailsContentRefreshSignal, () => {
 //
 
 export function getEveryoneAccess(content: Content): Access {
-    const entry = content.getPermissions().getEntry(RoleKeys.EVERYONE);
+    const entry = content.getPermissions().getEntry(toLegacyPrincipalKey(EVERYONE_ROLE_KEY));
 
     return entry ? AccessControlEntryView.getAccessValueFromEntry(entry) : null;
 }
 
 export function sortPrincipals(principals: Principal[]): Principal[] {
-    const currentUser = AuthContext.get().getUser();
+    const currentUser = getCurrentUser();
 
     return principals.sort((a, _) => {
-        if (currentUser && currentUser.getKey().equals(a.getKey())) {
+        if (currentUser && currentUser.key === a.key) {
             return -1;
         }
         return 1;

@@ -1,7 +1,7 @@
 import { Button, Dialog, GridList, IconButton } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { useMemo, useRef, type ReactElement } from 'react';
-import { PrincipalType } from '@enonic/lib-admin-ui/security/PrincipalType';
+import { type PrincipalType } from '@enonic/ui-types';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import { useDialogInitialFocus } from '../../../shared/lib/hooks/useDialogInitialFocus';
 import { PrincipalLabelOption, PrincipalSelector } from '../../shared/selectors/principal';
@@ -20,7 +20,7 @@ import { PrincipalLabel } from '../../../shared/ui/PrincipalLabel';
 import { LanguageSelector } from '../../shared/selectors/LanguageSelector';
 import { X } from 'lucide-react';
 
-const OWNER_TYPES = [PrincipalType.USER];
+const OWNER_TYPES: PrincipalType[] = ['user'];
 const PRINCIPAL_SEARCH_DEBOUNCE_MS = 500;
 
 const EDIT_PROPERTIES_DIALOG_NAME = 'EditPropertiesDialog';
@@ -71,8 +71,7 @@ export const EditPropertiesDialog = (): ReactElement => {
     });
 
     const selectedOwnerPrincipal = useMemo(
-        () =>
-            ownerSelection.length > 0 ? principals.find((p) => p.getKey().toString() === ownerSelection[0]) : undefined,
+        () => (ownerSelection.length > 0 ? principals.find((p) => p.key === ownerSelection[0]) : undefined),
         [ownerSelection, principals],
     );
 
@@ -172,8 +171,8 @@ export const EditPropertiesDialog = (): ReactElement => {
                             {selectedOwnerPrincipal && (
                                 <GridList className="rounded-md py-2.5 pl-4 pr-1">
                                     <GridList.Row
-                                        key={selectedOwnerPrincipal.getKey().toString()}
-                                        id={selectedOwnerPrincipal.getKey().toString()}
+                                        key={selectedOwnerPrincipal.key}
+                                        id={selectedOwnerPrincipal.key}
                                         className="p-1 gap-1.5"
                                     >
                                         <GridList.Cell interactive={false} className="flex-1 self-stretch">

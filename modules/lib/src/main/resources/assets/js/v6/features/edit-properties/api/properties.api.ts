@@ -1,5 +1,5 @@
 import { ResultAsync } from 'neverthrow';
-import { type PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { type PrincipalKey } from '@enonic/ui-types';
 import { requestJson } from '@enonic/ui-utils/request';
 import { AppError } from '@enonic/ui-utils';
 import { type Content } from '../../../../app/content/Content';
@@ -17,7 +17,7 @@ export function updateContentMetadata(contentId: ContentId, owner?: PrincipalKey
 
     const payload = {
         contentId: contentId.toString(),
-        ...(owner != null && { owner: owner.toString() }),
+        ...(owner != null && { owner }),
     };
 
     return requestJson<ContentJson>(url, { method: 'POST', body: payload }).map(parseContent);

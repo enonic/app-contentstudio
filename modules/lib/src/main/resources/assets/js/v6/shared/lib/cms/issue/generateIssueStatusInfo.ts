@@ -1,5 +1,5 @@
 import { DateHelper } from '@enonic/lib-admin-ui/util/DateHelper';
-import type { Principal } from '@enonic/lib-admin-ui/security/Principal';
+import type { Principal } from '@enonic/ui-types';
 import { IssueStatus } from '../../../../../app/issue/IssueStatus';
 
 import type { Issue } from '../../../../../app/issue/Issue';
@@ -16,6 +16,6 @@ export function generateIssueStatusInfo(
               ? 'field.issue.updated'
               : 'field.issue.opened';
     const lastModifiedBy = issue.getModifier() || issue.getCreator();
-    const modifiedBy = user && lastModifiedBy === user.getKey().toString() ? t('field.me') : lastModifiedBy;
+    const modifiedBy = user && lastModifiedBy === user.key ? t('field.me') : lastModifiedBy;
     return t(key, modifiedBy, DateHelper.getModifiedString(issue.getModifiedTime()));
 }

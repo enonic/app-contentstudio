@@ -1,5 +1,4 @@
-import { Principal } from '@enonic/lib-admin-ui/security/Principal';
-import { PrincipalType } from '@enonic/lib-admin-ui/security/PrincipalType';
+import { type Principal, type PrincipalType } from '@enonic/ui-types';
 import { Dialog, GridList, IconButton, Selector } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { CircleUserRound, X } from 'lucide-react';
@@ -12,9 +11,10 @@ import { InlineButton } from '../../../../shared/ui/InlineButton';
 import { PrincipalLabelOption, PrincipalSelector } from '../../../shared/selectors/principal';
 import { getProjectDetailedPermissions } from '../../../../shared/lib/url/projects';
 import { PrincipalLabel } from '../../../../shared/ui/PrincipalLabel';
+import { isAnonymousPrincipal } from '../../../../shared/lib/cms/security/principal';
 
-const filterAnonymousUserOut = (principal: Principal) => !principal.getKey().isAnonymous();
-const ROLE_PRINCIPAL_TYPES = [PrincipalType.USER, PrincipalType.GROUP];
+const filterAnonymousUserOut = (principal: Principal) => !isAnonymousPrincipal(principal.key);
+const ROLE_PRINCIPAL_TYPES: PrincipalType[] = ['user', 'group'];
 const PRINCIPAL_SEARCH_DEBOUNCE_MS = 500;
 
 export const ProjectDialogRoleStepHeader = (): ReactElement => {
@@ -57,7 +57,7 @@ export const ProjectDialogRoleStepContent = ({
     });
 
     const selectedPrincipals = useMemo(
-        () => principals.filter((principal) => selection.includes(principal.getKey().toString())),
+        () => principals.filter((principal) => selection.includes(principal.key)),
         [principals, selection],
     );
     const [selectedRoles, setSelectedRoles] = useState<Record<string, ProjectAccess>>(roles);
@@ -68,7 +68,7 @@ export const ProjectDialogRoleStepContent = ({
         setSelectedRoles((prevRoles) =>
             Object.fromEntries(
                 selectedPrincipals.map((principal) => {
-                    const principalKey = principal.getKey().toString();
+                    const principalKey = principal.key;
                     const role = prevRoles[principalKey] || ProjectAccess.CONTRIBUTOR;
                     return [principalKey, role];
                 }),
@@ -141,7 +141,7 @@ export const ProjectDialogRoleStepContent = ({
 
     const handleSelectRole = useCallback(
         (principal: Principal, role: ProjectAccess): void => {
-            const key = principal.getKey().toString();
+            const key = principal.key;
             setSelectedRoles({ ...selectedRoles, [key]: role });
         },
         [setSelectedRoles, selectedRoles],
@@ -177,8 +177,8 @@ export const ProjectDialogRoleStepContent = ({
             {selection.length > 0 && (
                 <GridList className="rounded-md mb-2.5 py-2.5 pl-4 pr-1">
                     {selectedPrincipals.map((principal) => {
-                        const key = principal.getKey().toString();
-                        const principalRole = selectedRoles[principal.getKey().toString()];
+                        const key = principal.key;
+                        const principalRole = selectedRoles[principal.key];
                         const principalRoleLabel = roleOptions.find((role) => role.role === principalRole)?.label;
 
                         return (
@@ -220,7 +220,7 @@ export const ProjectDialogRoleStepContent = ({
                                             aria-label={removeLabel}
                                             variant="text"
                                             icon={X}
-                                            onClick={() => handleUnselect(principal.getKey().toString())}
+                                            onClick={() => handleUnselect(principal.key)}
                                         />
                                     </GridList.Action>
                                 </GridList.Cell>

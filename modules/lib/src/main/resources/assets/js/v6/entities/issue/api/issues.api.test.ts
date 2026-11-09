@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
-import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
 import { AppError } from '@enonic/ui-utils';
 import { IssueStatus } from '../../../../app/issue/IssueStatus';
 import { IssueType } from '../../../../app/issue/IssueType';
@@ -97,7 +96,7 @@ describe('createIssue', () => {
         const result = await createIssue({
             title: 'My issue',
             description: 'Details',
-            approvers: [PrincipalKey.fromString('user:system:su')],
+            approvers: ['user:system:su'],
             publishRequest: publishRequestStub,
         });
 
@@ -174,7 +173,7 @@ describe('updateIssue', () => {
             title: 'Renamed',
             description: 'd',
             status: IssueStatus.CLOSED,
-            approvers: [PrincipalKey.fromString('user:system:su')],
+            approvers: ['user:system:su'],
             publishRequest: publishRequestStub,
             publishFrom: new Date('2030-01-01T00:00:00.000Z'),
         });
@@ -257,7 +256,7 @@ describe('createIssueComment', () => {
         const result = await createIssueComment({
             issueId: 'iss-1',
             text: 'hello',
-            creator: PrincipalKey.fromString('user:system:su'),
+            creator: 'user:system:su',
         });
 
         const [url, init] = mockFetch.mock.calls[0];

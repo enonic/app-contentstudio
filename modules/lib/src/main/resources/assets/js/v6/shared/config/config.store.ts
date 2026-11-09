@@ -1,7 +1,8 @@
-import { Principal } from '@enonic/lib-admin-ui/security/Principal';
-import type { PrincipalJson } from '@enonic/lib-admin-ui/security/PrincipalJson';
+import { type Principal } from '@enonic/ui-types';
+import { isPrincipalKey } from '@enonic/ui-utils';
 import { map } from 'nanostores';
 import { parseBoolean, parseString } from '../lib/format/values';
+import { parsePrincipal, type PrincipalJson } from '../lib/cms/security/principal';
 
 type ConfigServices = {
     contentUrl: string;
@@ -22,6 +23,8 @@ type ConfigStore = {
     locale: string;
     // Session
     user?: Principal;
+    /** The groups and roles the current user is a member of, directly or transitively. */
+    principals: Principal[];
     // Flags
     excludeDependencies: boolean;
     allowContentUpdate: boolean;
@@ -48,6 +51,7 @@ type ConfigJson = {
     toolUri?: unknown;
     locale?: unknown;
     user: unknown;
+    principals?: unknown;
     excludeDependencies?: unknown;
     allowContentUpdate?: unknown;
     allowPathTransliteration?: unknown;
@@ -77,6 +81,7 @@ const DEFAULT_CONFIG: Readonly<ConfigStore> = {
     toolUri: '',
     locale: '',
     user: undefined,
+    principals: [],
     excludeDependencies: true,
     allowContentUpdate: false,
     allowPathTransliteration: true,
@@ -117,6 +122,14 @@ export function initConfig(scriptId: string): void {
 // * Utilities
 //
 
+function parsePrincipals(value: unknown): Principal[] {
+    if (!Array.isArray(value)) {
+        return [];
+    }
+
+    return (value as PrincipalJson[]).filter((json) => isPrincipalKey(json?.key ?? '')).map(parsePrincipal);
+}
+
 function parseConfig(content: string): ConfigStore | undefined {
     try {
         const config = JSON.parse(content) as ConfigJson;
@@ -128,7 +141,8 @@ function parseConfig(content: string): ConfigStore | undefined {
             assetsUri: parseString(config.assetsUri),
             toolUri: parseString(config.toolUri),
             locale: parseString(config.locale),
-            user: config.user ? Principal.fromJson(config.user as PrincipalJson) : undefined,
+            user: config.user ? parsePrincipal(config.user as PrincipalJson) : undefined,
+            principals: parsePrincipals(config.principals),
             excludeDependencies: parseBoolean(config.excludeDependencies),
             allowContentUpdate: parseBoolean(config.allowContentUpdate),
             allowPathTransliteration: parseBoolean(config.allowPathTransliteration),

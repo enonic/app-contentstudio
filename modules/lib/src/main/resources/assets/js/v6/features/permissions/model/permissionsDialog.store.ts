@@ -1,5 +1,4 @@
-import { Principal } from '@enonic/lib-admin-ui/security/Principal';
-import { RoleKeys } from '@enonic/lib-admin-ui/security/RoleKeys';
+import { EVERYONE_ROLE_KEY } from '@enonic/ui-utils';
 import { type TaskId } from '@enonic/lib-admin-ui/task/TaskId';
 import { notifyWarning } from '../../../shared/notifications';
 import { computed, listenKeys, map } from 'nanostores';
@@ -23,6 +22,7 @@ import { trackTask } from '../../../entities/task';
 import type { TaskResultState } from '../../../entities/task';
 import { Permission } from '../../../../app/access/Permission';
 import { compareAccessControlEntries } from '../../../shared/lib/cms/permissions/accessControl';
+import { fromLegacyPrincipalKey, toLegacyPrincipal } from '../../../shared/lib/cms/security/legacy';
 
 //
 // * Store State
@@ -129,7 +129,7 @@ export const openPermissionsDialog = (event: OpenEditPermissionsDialogEvent): vo
             const accessControlEntries = AccessControlHelper.removeRedundantPermissions(permissions);
             const parentAccessControlEntries = AccessControlHelper.removeRedundantPermissions(parentPermissions);
             const principalKeys = [...accessControlEntries, ...parentAccessControlEntries].map((entry) =>
-                entry.getPrincipalKey(),
+                fromLegacyPrincipalKey(entry.getPrincipalKey()),
             );
 
             return { descendants, accessControlEntries, parentAccessControlEntries, principalKeys };
@@ -139,8 +139,8 @@ export const openPermissionsDialog = (event: OpenEditPermissionsDialogEvent): vo
             return loadPrincipalsByKeys(principalKeys).map(() => {
                 const contentId = event.getContentId();
                 const contentDisplayName = event.getDisplayName();
-                const accessMode = accessControlEntries.some((entry) =>
-                    entry.getPrincipalKey().equals(RoleKeys.EVERYONE),
+                const accessMode = accessControlEntries.some(
+                    (entry) => entry.getPrincipalKey().toString() === EVERYONE_ROLE_KEY,
                 )
                     ? 'public'
                     : 'restricted';
@@ -258,12 +258,12 @@ listenKeys($permissionsDialog, ['applyTo'], ({ applyTo }) => {
 // Prepend or remove everyone entry based on access mode
 listenKeys($permissionsDialog, ['accessMode', 'accessControlEntries'], ({ accessMode, accessControlEntries }) => {
     const everyoneEntry = new AccessControlEntry(
-        Principal.create().setKey(RoleKeys.EVERYONE).setDisplayName('Everyone').build(),
+        toLegacyPrincipal({ type: 'role', key: EVERYONE_ROLE_KEY, displayName: 'Everyone' }),
     );
     everyoneEntry.allow(Permission.READ);
 
     const accessControlEntriesWithoutEveryone = accessControlEntries.filter(
-        (entry) => !entry.getPrincipalKey().equals(RoleKeys.EVERYONE),
+        (entry) => entry.getPrincipalKey().toString() !== EVERYONE_ROLE_KEY,
     );
 
     const finalAccessControlEntries =

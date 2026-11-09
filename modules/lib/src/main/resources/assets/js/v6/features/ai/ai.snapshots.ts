@@ -52,8 +52,8 @@ function buildUserSnapshot(): AiUser | undefined {
     }
 
     return {
-        key: user.getKey().toString(),
-        displayName: user.getDisplayName(),
+        key: user.key,
+        displayName: user.displayName,
     };
 }
 

@@ -1,4 +1,4 @@
-import { AuthHelper } from '@enonic/lib-admin-ui/auth/AuthHelper';
+import { isAdmin, isContentAdmin } from '../../../shared/lib/cms/security/auth';
 import { notifyInfo, notifyWarning } from '../../../shared/notifications';
 import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
 import { atom, computed } from 'nanostores';
@@ -52,11 +52,11 @@ const hasChildren = (item: SettingsViewItem, projects: readonly Readonly<Project
 export const $settingsActions = computed(
     [$currentItems, $projects, $noProjectMode, $isSyncInProgress],
     (items, { projects }, noProjectMode, isSyncInProgress): SettingsActionsState => {
-        const canCreate = AuthHelper.isContentAdmin();
+        const canCreate = isContentAdmin();
         const canEdit = !noProjectMode && items.length > 0 && items.every((item) => item.isEditAllowed());
         const canDelete =
             !noProjectMode && items.length === 1 && items[0].isDeleteAllowed() && !hasChildren(items[0], projects);
-        const canSync = !noProjectMode && AuthHelper.isAdmin() && projects.length >= SYNC_MIN_PROJECTS;
+        const canSync = !noProjectMode && isAdmin() && projects.length >= SYNC_MIN_PROJECTS;
 
         return {
             new: { enabled: canCreate, visible: true },
@@ -72,7 +72,7 @@ export const $settingsActions = computed(
 //
 
 export function createSettingsItem(): void {
-    if (!AuthHelper.isContentAdmin()) return;
+    if (!isContentAdmin()) return;
 
     void openCreateProjectDialog(getSelectedProjects());
 }

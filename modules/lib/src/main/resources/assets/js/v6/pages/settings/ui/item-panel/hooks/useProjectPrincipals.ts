@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { type Principal } from '@enonic/lib-admin-ui/security/Principal';
-import { type PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { type Principal, type PrincipalKey } from '@enonic/ui-types';
 import { type ProjectViewItem } from '../../../../../../app/settings/view/ProjectViewItem';
 import { getPrincipalsByKeys } from '../../../../../entities/principal';
+import { fromLegacyPrincipalKey } from '../../../../../shared/lib/cms/security/legacy';
 
 type PrincipalsByRole = {
     owners: Principal[];
@@ -23,7 +23,7 @@ const emptyResult: PrincipalsByRole = {
 };
 
 function filterPrincipalsByKeys(principals: Principal[], keys: PrincipalKey[]): Principal[] {
-    return principals.filter((principal) => keys.some((key) => key.equals(principal.getKey())));
+    return principals.filter((principal) => keys.includes(principal.key));
 }
 
 export function useProjectPrincipals(item: ProjectViewItem | null): PrincipalsByRole {
@@ -44,11 +44,11 @@ export function useProjectPrincipals(item: ProjectViewItem | null): PrincipalsBy
             return;
         }
 
-        const ownersKeys = permissions.getOwners() ?? [];
-        const editorsKeys = permissions.getEditors() ?? [];
-        const authorsKeys = permissions.getAuthors() ?? [];
-        const contributorsKeys = permissions.getContributors() ?? [];
-        const canReadKeys = readAccess.getPrincipalsKeys() ?? [];
+        const ownersKeys = (permissions.getOwners() ?? []).map(fromLegacyPrincipalKey);
+        const editorsKeys = (permissions.getEditors() ?? []).map(fromLegacyPrincipalKey);
+        const authorsKeys = (permissions.getAuthors() ?? []).map(fromLegacyPrincipalKey);
+        const contributorsKeys = (permissions.getContributors() ?? []).map(fromLegacyPrincipalKey);
+        const canReadKeys = (readAccess.getPrincipalsKeys() ?? []).map(fromLegacyPrincipalKey);
 
         const allKeys = [...ownersKeys, ...editorsKeys, ...authorsKeys, ...contributorsKeys, ...canReadKeys];
 

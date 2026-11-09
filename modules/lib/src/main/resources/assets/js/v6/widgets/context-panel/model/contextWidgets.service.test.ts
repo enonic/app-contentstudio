@@ -7,8 +7,8 @@ import { $config } from '../../../shared/config/config.store';
 import { $contextWidgets } from './contextWidgets.store';
 import { start, stop } from './contextWidgets.service';
 
-vi.mock('@enonic/lib-admin-ui/auth/AuthHelper', () => ({
-    AuthHelper: { isContentAdmin: () => false },
+vi.mock('../../../shared/lib/cms/security/auth', () => ({
+    isContentAdmin: () => false,
 }));
 
 vi.mock('../../../shared/notifications', () => ({

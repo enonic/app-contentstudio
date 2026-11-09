@@ -5,6 +5,7 @@ import type { IssueServerEvent } from '../../../../app/event/IssueServerEvent';
 import { IssueServerEventsHandler } from '../../../../app/issue/event/IssueServerEventsHandler';
 import { pruneDependantWindow } from '../../../entities/content/lib/dependantWindow';
 import { resolvePrincipalsByKeys } from '../../../entities/principal/api/principals.api';
+import { fromLegacyPrincipalKey, toLegacyPrincipal } from '../../../shared/lib/cms/security/legacy';
 import { isIdsEqual } from '../../../shared/lib/cms/content/ids';
 import { findContentIdsWithCreatedDescendants } from '../../../shared/lib/cms/content/paths';
 import {
@@ -141,10 +142,10 @@ const fetchIssueAssignees = async (issue: Issue): Promise<IssueAssignees | undef
         return [];
     }
 
-    const result = await resolvePrincipalsByKeys(approvers);
+    const result = await resolvePrincipalsByKeys(approvers.map(fromLegacyPrincipalKey));
 
     return result.match(
-        (principals) => principals,
+        (principals) => principals.map(toLegacyPrincipal),
         (error) => {
             console.error(error);
             return undefined;

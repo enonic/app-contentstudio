@@ -1,4 +1,4 @@
-import type { Principal } from '@enonic/lib-admin-ui/security/Principal';
+import type { Principal } from '@enonic/ui-types';
 
 export type PrincipalOption = {
     id: string;

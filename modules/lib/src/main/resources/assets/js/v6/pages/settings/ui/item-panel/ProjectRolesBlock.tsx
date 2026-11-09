@@ -1,5 +1,5 @@
 import { ReactElement } from 'react';
-import { Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { type Principal } from '@enonic/ui-types';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import { PrincipalsList } from './PrincipalsList';
 import { StatisticsBlock } from './StatisticsBlock';
