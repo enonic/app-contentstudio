@@ -661,14 +661,14 @@ describe('projectDialog.store application configs', () => {
                 createSiteConfig('app:b', { color: 'red' }),
             ]);
             await openEditProjectDialog(project, []);
-            expect(listedAt(0).getState()).toBeUndefined();
+            expect(listedAt(0).state).toBeUndefined();
 
             install(createApp('app:gone', checkboxForm()), createApp('app:b'));
             refreshProjectDialogApplications();
 
             expect(listedKeys()).toEqual(['app:gone', 'app:b']);
-            expect(listedAt(0).getState()).toBe('started');
-            expect(listedAt(0).getForm()).toBeDefined();
+            expect(listedAt(0).state).toBe('started');
+            expect(listedAt(0).form).toBeDefined();
             expect(configOf('app:gone')?.getString('k')).toBe('v');
             expect($isProjectDialogDirty.get()).toBe(false);
         });
@@ -680,8 +680,8 @@ describe('projectDialog.store application configs', () => {
             refreshProjectDialogApplications();
 
             expect(listedKeys()).toEqual(['app:b']);
-            expect(listedAt(0).getState()).toBeUndefined();
-            expect(listedAt(0).getDisplayName()).toBe('app:b');
+            expect(listedAt(0).state).toBeUndefined();
+            expect(listedAt(0).displayName).toBe('app:b');
             expect(configOf('app:b')?.getString('color')).toBe('red');
             expect($isProjectDialogDirty.get()).toBe(false);
         });
@@ -708,7 +708,7 @@ describe('projectDialog.store application configs', () => {
 
             expect($projectDialog.get().view).toBe('config');
             expect($projectDialog.get().editingConfig).toBe(editingConfig);
-            expect(listedAt(0).getState()).toBeUndefined();
+            expect(listedAt(0).state).toBeUndefined();
         });
     });
 });
