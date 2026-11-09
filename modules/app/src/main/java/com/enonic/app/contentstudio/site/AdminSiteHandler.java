@@ -1,6 +1,7 @@
 package com.enonic.app.contentstudio.site;
 
 import java.util.Arrays;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -66,6 +67,14 @@ public class AdminSiteHandler
 
     private volatile String previewContentSecurityPolicy;
 
+    private volatile String editContentSecurityPolicy;
+
+    private static final Set<String> FALLS_BACK_TO_DEFAULT_SRC =
+        Set.of( CspDirective.CHILD_SRC, CspDirective.CONNECT_SRC, CspDirective.FONT_SRC, CspDirective.FRAME_SRC, CspDirective.IMG_SRC,
+                CspDirective.MANIFEST_SRC, CspDirective.MEDIA_SRC, CspDirective.OBJECT_SRC, CspDirective.SCRIPT_SRC,
+                CspDirective.SCRIPT_SRC_ELEM, CspDirective.SCRIPT_SRC_ATTR, CspDirective.STYLE_SRC, CspDirective.STYLE_SRC_ELEM,
+                CspDirective.STYLE_SRC_ATTR, CspDirective.WORKER_SRC );
+
     @Activate
     public AdminSiteHandler( @Reference final ContentService contentService, @Reference final ProjectService projectService,
                              @Reference final ExceptionMapper exceptionMapper, @Reference final ExceptionRenderer exceptionRenderer )
@@ -84,6 +93,8 @@ public class AdminSiteHandler
         previewContentSecurityPolicy = config.site_preview_contentSecurityPolicy();
         final String inline = config.site_inline_contentSecurityPolicy();
         inlineContentSecurityPolicy = nullToEmpty( inline ).isBlank() ? previewContentSecurityPolicy : inline;
+        final String edit = config.site_edit_contentSecurityPolicy();
+        editContentSecurityPolicy = nullToEmpty( edit ).isBlank() ? previewContentSecurityPolicy : edit;
     }
 
     @Override
@@ -236,6 +247,7 @@ public class AdminSiteHandler
             // submit and popups, modals, top-window navigation and downloads are blocked, none of which
             // the editor needs (its same-origin DOM access keeps working via allow-same-origin).
             policy.reportOnly().resetTo( "" ).clearAdditionalPolicies();
+            applyBaseline( policy, editContentSecurityPolicy );
             policy.clearAdditionalPolicies().frameAncestors( CspSource.SELF )
                 .imgSrc( CspSource.WILDCARD, CspSource.DATA )
                 .fontSrc( CspSource.WILDCARD, CspSource.DATA )
@@ -261,10 +273,12 @@ public class AdminSiteHandler
         {
             return;
         }
+        final boolean hasDefaultSrc = policy.directive( CspDirective.DEFAULT_SRC ).isPresent();
         for ( final String part : baseline.split( ";" ) )
         {
             final String[] tokens = part.trim().split( "\\s+" );
-            if ( !tokens[0].isEmpty() && policy.directive( tokens[0] ).isEmpty() )
+            if ( !tokens[0].isEmpty() && policy.directive( tokens[0] ).isEmpty() &&
+                !( hasDefaultSrc && FALLS_BACK_TO_DEFAULT_SRC.contains( tokens[0] ) ) )
             {
                 policy.add( tokens[0], Arrays.copyOfRange( tokens, 1, tokens.length ) );
             }

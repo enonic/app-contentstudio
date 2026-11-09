@@ -1,6 +1,7 @@
 package com.enonic.app.contentstudio.site;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -59,6 +60,7 @@ class AdminSiteHandlerTest
         final AdminSiteConfig config = mock( AdminSiteConfig.class );
         when( config.site_inline_contentSecurityPolicy() ).thenReturn( contentSecurityPolicy );
         when( config.site_preview_contentSecurityPolicy() ).thenReturn( contentSecurityPolicy );
+        when( config.site_edit_contentSecurityPolicy() ).thenReturn( contentSecurityPolicy );
         this.handler.activate( config );
     }
 
@@ -84,6 +86,101 @@ class AdminSiteHandlerTest
             "connect-src 'self'; font-src * data:; frame-ancestors 'self'; img-src 'self' * data:; " +
                 "object-src 'none'; sandbox allow-scripts allow-same-origin; script-src 'self' 'nonce-" + nonce +
                 "'; style-src * 'unsafe-inline'" );
+    }
+
+    @Test
+    void editUnionsSelfIntoThePagesConnectSrc()
+        throws Exception
+    {
+        this.portalRequest.setMode( RenderMode.EDIT );
+        this.portalRequest.getContentSecurityPolicy().add( "connect-src", "https://tiles.example.com" );
+
+        doHandle();
+
+        assertThat( this.portalRequest.getContentSecurityPolicy().directive( "connect-src" ) ).contains(
+            List.of( "https://tiles.example.com", "'self'" ) );
+    }
+
+    @Test
+    void editGapFillsTheBaselineForAPageWithoutCsp()
+        throws Exception
+    {
+        activate( "script-src 'self'; connect-src 'self'; form-action 'self'; object-src 'none'; worker-src 'self'" );
+        this.portalRequest.setMode( RenderMode.EDIT );
+
+        doHandle();
+
+        final String nonce = this.portalRequest.getContentSecurityPolicy().nonceScriptSrc();
+        assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo(
+            "connect-src 'self'; font-src * data:; form-action 'self'; frame-ancestors 'self'; img-src * data:; " +
+                "object-src 'none'; sandbox allow-scripts allow-same-origin; script-src 'self' 'nonce-" + nonce +
+                "'; style-src * 'unsafe-inline'; worker-src 'self'" );
+    }
+
+    @Test
+    void editBaselineDoesNotNarrowAPageDeclaredConnectSrc()
+        throws Exception
+    {
+        activate( "connect-src 'self'; worker-src 'self'" );
+        this.portalRequest.setMode( RenderMode.EDIT );
+        this.portalRequest.getContentSecurityPolicy().add( "connect-src", "https://tiles.example.com" );
+
+        doHandle();
+
+        assertThat( this.portalRequest.getContentSecurityPolicy().directive( "connect-src" ) ).contains(
+            List.of( "https://tiles.example.com", "'self'" ) );
+        assertThat( this.portalRequest.getContentSecurityPolicy().directive( "worker-src" ) ).contains( List.of( "'self'" ) );
+    }
+
+    @Test
+    void editFallsBackToPreviewBaselineWhenEditUnset()
+        throws Exception
+    {
+        final AdminSiteConfig config = mock( AdminSiteConfig.class );
+        when( config.site_inline_contentSecurityPolicy() ).thenReturn( "" );
+        when( config.site_edit_contentSecurityPolicy() ).thenReturn( "" );
+        when( config.site_preview_contentSecurityPolicy() ).thenReturn( "connect-src 'self'; worker-src 'self'" );
+        this.handler.activate( config );
+
+        this.portalRequest.setMode( RenderMode.EDIT );
+
+        doHandle();
+
+        assertThat( this.portalRequest.getContentSecurityPolicy().directive( "connect-src" ) ).contains( List.of( "'self'" ) );
+        assertThat( this.portalRequest.getContentSecurityPolicy().directive( "worker-src" ) ).contains( List.of( "'self'" ) );
+    }
+
+    @Test
+    void editUsesItsOwnBaselineOverPreview()
+        throws Exception
+    {
+        final AdminSiteConfig config = mock( AdminSiteConfig.class );
+        when( config.site_inline_contentSecurityPolicy() ).thenReturn( "" );
+        when( config.site_edit_contentSecurityPolicy() ).thenReturn( "connect-src 'self' https://tiles.example.com" );
+        when( config.site_preview_contentSecurityPolicy() ).thenReturn( "connect-src 'self'; worker-src 'self'" );
+        this.handler.activate( config );
+
+        this.portalRequest.setMode( RenderMode.EDIT );
+
+        doHandle();
+
+        assertThat( this.portalRequest.getContentSecurityPolicy().directive( "connect-src" ) ).contains(
+            List.of( "'self'", "https://tiles.example.com" ) );
+        assertThat( this.portalRequest.getContentSecurityPolicy().directive( "worker-src" ) ).isEmpty();
+    }
+
+    @Test
+    void previewDoesNotGapFillAFetchDirectiveThePageLeftToItsDefaultSrc()
+        throws Exception
+    {
+        activate( "script-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'self'" );
+        this.portalRequest.setMode( RenderMode.PREVIEW );
+        this.portalRequest.getContentSecurityPolicy().add( "default-src", "'self'", "https://cdn.example.com" );
+
+        doHandle();
+
+        assertThat( this.portalRequest.getContentSecurityPolicy().serialize() ).isEqualTo(
+            "base-uri 'self'; default-src 'self' https://cdn.example.com; form-action 'self'" );
     }
 
     @Test
@@ -186,6 +283,7 @@ class AdminSiteHandlerTest
     {
         final AdminSiteConfig config = mock( AdminSiteConfig.class );
         when( config.site_inline_contentSecurityPolicy() ).thenReturn( "" );
+        when( config.site_edit_contentSecurityPolicy() ).thenReturn( "" );
         when( config.site_preview_contentSecurityPolicy() ).thenReturn( "connect-src 'self'; worker-src 'self'" );
         this.handler.activate( config );
 
