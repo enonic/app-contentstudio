@@ -102,7 +102,7 @@ export const PageInspectionPanel = (): ReactElement => {
                 {confirmDialog && (
                     <ConfirmationDialog.Portal>
                         <ConfirmationDialog.Overlay />
-                        <ConfirmationDialog.Content>
+                        <ConfirmationDialog.Content aria-label={confirmDialog.question}>
                             <ConfirmationDialog.Body>{confirmDialog.question}</ConfirmationDialog.Body>
                             <ConfirmationDialog.Footer
                                 onConfirm={() => {

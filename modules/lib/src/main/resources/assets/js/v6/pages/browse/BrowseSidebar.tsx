@@ -187,10 +187,7 @@ export const BrowseSidebar = (): ReactElement => {
                             />
                         )}
                         <Tooltip delay={300} value={version} side="right" className="max-sm:hidden">
-                            <p
-                                aria-label={version}
-                                className="max-w-[40px] overflow-hidden text-center text-xs text-nowrap text-ellipsis text-subtle max-sm:sr-only"
-                            >
+                            <p className="max-w-[40px] overflow-hidden text-center text-xs text-nowrap text-ellipsis text-subtle max-sm:sr-only">
                                 {version}
                             </p>
                         </Tooltip>

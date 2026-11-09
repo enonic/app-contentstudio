@@ -1,5 +1,6 @@
+import { TabContent } from '../../../shared/ui/TabContent';
 import { type ContentTypeSummary } from '../../../entities/schema';
-import { Button, Tab } from '@enonic/ui';
+import { Button } from '@enonic/ui';
 import { Loader2 } from 'lucide-react';
 import { type KeyboardEvent, type ReactElement, useRef, useState } from 'react';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
@@ -98,7 +99,7 @@ export const NewContentDialogContentTypesTab = ({
     };
 
     return (
-        <Tab.Content
+        <TabContent
             value={tabName}
             tabIndex={!loading && contentTypes.length > 0 ? -1 : -0}
             className="mt-0 pt-2 h-full"
@@ -156,7 +157,7 @@ export const NewContentDialogContentTypesTab = ({
             )}
 
             {!loading && contentTypes.length === 0 && <p className="text-sm text-subtle">{notFoundLabel}</p>}
-        </Tab.Content>
+        </TabContent>
     );
 };
 

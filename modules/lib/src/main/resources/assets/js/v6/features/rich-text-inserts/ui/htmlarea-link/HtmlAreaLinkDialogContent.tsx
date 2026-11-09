@@ -1,3 +1,4 @@
+import { TabContent } from '../../../../shared/ui/TabContent';
 import { Input, Tab } from '@enonic/ui';
 import { type ReactElement, useEffect, useRef } from 'react';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
@@ -66,20 +67,20 @@ export const HtmlAreaLinkDialogContent = (): ReactElement => {
                     {hasAnchors && <Tab.DefaultTrigger value="anchor">{anchorTabLabel}</Tab.DefaultTrigger>}
                 </Tab.List>
                 {showContentTab && (
-                    <Tab.Content value="content">
+                    <TabContent value="content">
                         {hasProject ? <ContentTabPanel /> : <ContentTabReadOnlyPanel />}
-                    </Tab.Content>
+                    </TabContent>
                 )}
-                <Tab.Content value="url">
+                <TabContent value="url">
                     <UrlTabPanel />
-                </Tab.Content>
-                <Tab.Content value="email">
+                </TabContent>
+                <TabContent value="email">
                     <EmailTabPanel />
-                </Tab.Content>
+                </TabContent>
                 {hasAnchors && (
-                    <Tab.Content value="anchor">
+                    <TabContent value="anchor">
                         <AnchorTabPanel />
-                    </Tab.Content>
+                    </TabContent>
                 )}
             </Tab.Root>
         </div>
