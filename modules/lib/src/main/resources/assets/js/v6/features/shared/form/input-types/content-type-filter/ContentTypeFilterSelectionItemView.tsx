@@ -1,5 +1,5 @@
 import { type SortableGridListItemContext } from '@enonic/input-types';
-import { type ContentTypeSummary } from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import { type ContentTypeSummary } from '../../../../../entities/schema';
 import { cn, IconButton } from '@enonic/ui';
 import { X } from 'lucide-react';
 import { type ReactElement } from 'react';

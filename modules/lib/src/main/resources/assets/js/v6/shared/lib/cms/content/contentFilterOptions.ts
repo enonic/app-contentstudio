@@ -1,4 +1,4 @@
-import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { type ApplicationKey } from '../application/applicationKey';
 import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 
 /**

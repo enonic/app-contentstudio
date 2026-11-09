@@ -29,7 +29,7 @@ export const MacroConfigPanel = (): ReactElement => {
         );
     }
 
-    const applicationKey = selectedDescriptor.getKey().getApplicationKey();
+    const applicationKey = selectedDescriptor.getKey().getApplicationKey().toString();
 
     return (
         <div data-component={COMPONENT_NAME} className="relative py-2">

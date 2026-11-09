@@ -1,5 +1,5 @@
-import type {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import type {ContentSummary} from '../../../../../app/content/ContentSummary';
+import { type ApplicationKey } from '../../../../shared/lib/cms/application/applicationKey';
+import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 
 /**
  * Shared types for ContentSelector components.

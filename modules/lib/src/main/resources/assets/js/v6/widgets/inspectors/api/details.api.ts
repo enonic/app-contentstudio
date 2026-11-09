@@ -1,4 +1,3 @@
-import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { ResultAsync, errAsync } from 'neverthrow';
 import { requestJson, requestOptionalJson } from '@enonic/ui-utils/request';
 import { AppError } from '@enonic/ui-utils';
@@ -11,6 +10,7 @@ import { Descriptor } from '../../../../app/page/Descriptor';
 import { type DescriptorJson } from '../../../../app/page/DescriptorJson';
 import { getCmsApiUrl, getCmsRestUri } from '../../../shared/lib/url/cms';
 import { parseContent } from '../../../entities/content/lib/parseContent';
+import { type ContentTypeName } from '../../../shared/lib/cms/schema/contentTypeName';
 
 export { parseContent };
 

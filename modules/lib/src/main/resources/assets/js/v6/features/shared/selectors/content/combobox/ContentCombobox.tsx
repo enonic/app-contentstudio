@@ -1,4 +1,4 @@
-import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { type ApplicationKey } from '../../../../../shared/lib/cms/application/applicationKey';
 import { Button, cn, Combobox, Toggle, Tooltip } from '@enonic/ui';
 import { AlertCircle, ListTree, RefreshCw } from 'lucide-react';
 import { useId, useMemo, type ReactElement } from 'react';

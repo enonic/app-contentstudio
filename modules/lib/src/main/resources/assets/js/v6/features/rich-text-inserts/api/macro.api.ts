@@ -1,5 +1,5 @@
 import { type ResultAsync } from 'neverthrow';
-import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { type ApplicationKey } from '../../../shared/lib/cms/application/applicationKey';
 import type { PropertyTreeJson } from '@enonic/ui-types';
 import { MacroDescriptor } from '@enonic/lib-admin-ui/macro/MacroDescriptor';
 import type { MacrosJson } from '@enonic/lib-admin-ui/macro/MacrosJson';
@@ -24,7 +24,7 @@ export function fetchMacros(
 
     return requestJson<MacrosJson>(url, {
         method: 'POST',
-        body: { appKeys: applicationKeys.map((key) => key.toString()) },
+        body: { appKeys: applicationKeys },
     }).map((json) => json.macros.map((macro) => MacroDescriptor.fromJson(macro)));
 }
 

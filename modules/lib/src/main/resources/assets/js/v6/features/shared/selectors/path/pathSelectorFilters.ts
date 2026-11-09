@@ -1,36 +1,30 @@
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import type {ContentPath} from '../../../../../app/content/ContentPath';
-import type {ContentTreeSelectorItem} from '../../../../../app/item/ContentTreeSelectorItem';
+import type { ContentPath } from '../../../../../app/content/ContentPath';
+import type { ContentTreeSelectorItem } from '../../../../../app/item/ContentTreeSelectorItem';
+import { CONTENT_TYPE } from '../../../../shared/lib/cms/schema/contentTypeName';
 
 const INVALID_TARGET_TYPES = [
-    ContentTypeName.IMAGE,
-    ContentTypeName.MEDIA,
-    ContentTypeName.PAGE_TEMPLATE,
-    ContentTypeName.FRAGMENT,
-    ContentTypeName.MEDIA_DATA,
-    ContentTypeName.MEDIA_AUDIO,
-    ContentTypeName.MEDIA_ARCHIVE,
-    ContentTypeName.MEDIA_VIDEO,
-    ContentTypeName.MEDIA_CODE,
-    ContentTypeName.MEDIA_EXECUTABLE,
-    ContentTypeName.MEDIA_PRESENTATION,
-    ContentTypeName.MEDIA_SPREADSHEET,
-    ContentTypeName.MEDIA_UNKNOWN,
-    ContentTypeName.MEDIA_DOCUMENT,
-    ContentTypeName.MEDIA_VECTOR,
+    CONTENT_TYPE.MEDIA_IMAGE,
+    CONTENT_TYPE.MEDIA,
+    CONTENT_TYPE.PAGE_TEMPLATE,
+    CONTENT_TYPE.FRAGMENT,
+    CONTENT_TYPE.MEDIA_DATA,
+    CONTENT_TYPE.MEDIA_AUDIO,
+    CONTENT_TYPE.MEDIA_ARCHIVE,
+    CONTENT_TYPE.MEDIA_VIDEO,
+    CONTENT_TYPE.MEDIA_CODE,
+    CONTENT_TYPE.MEDIA_EXECUTABLE,
+    CONTENT_TYPE.MEDIA_PRESENTATION,
+    CONTENT_TYPE.MEDIA_SPREADSHEET,
+    CONTENT_TYPE.MEDIA_UNKNOWN,
+    CONTENT_TYPE.MEDIA_DOCUMENT,
+    CONTENT_TYPE.MEDIA_VECTOR,
 ];
 
-export const getFilterContentPaths = (
-    items: readonly {getPath(): ContentPath | null}[],
-): ContentPath[] => {
-    return items
-        .map((item) => item.getPath())
-        .filter((path): path is ContentPath => !!path);
+export const getFilterContentPaths = (items: readonly { getPath(): ContentPath | null }[]): ContentPath[] => {
+    return items.map((item) => item.getPath()).filter((path): path is ContentPath => !!path);
 };
 
-export const getFilterExactPaths = (
-    paths: readonly ContentPath[],
-): ContentPath[] => {
+export const getFilterExactPaths = (paths: readonly ContentPath[]): ContentPath[] => {
     if (paths.length === 0) {
         return [];
     }
@@ -49,11 +43,11 @@ export const getFilterExactPaths = (
 };
 
 export const isInvalidTargetType = (item: ContentTreeSelectorItem): boolean => {
-    const type = item.getType();
+    const type = item.getType()?.toString();
     if (!type) {
         return false;
     }
-    return INVALID_TARGET_TYPES.some((invalidType) => type.equals(invalidType));
+    return INVALID_TARGET_TYPES.some((invalidType) => type === invalidType);
 };
 
 export const isInvalidMoveTarget = (

@@ -1,22 +1,25 @@
 import { type SelfManagedComponentProps } from '@enonic/input-types';
 import { ValueTypes } from '@enonic/input-types/data';
-import { type ContentTypeSummary } from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
-import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {
+    type ContentTypeSummary,
+    fetchAllContentTypes,
+    fetchContentTypesByContent,
+} from '../../../../../entities/schema';
 import { useStore } from '@nanostores/preact';
 import { okAsync, ResultAsync } from 'neverthrow';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Site } from '../../../../../../app/content/Site';
 import { fetchNearestSite } from '../../../../../entities/content';
-import { fetchAllContentTypes, fetchContentTypesByContent } from '../../../../../entities/schema/api/contentTypes.api';
 import { useFormScope } from '../../FormScopeContext';
 import { $contentType } from '../../../../../pages/wizard/model/wizardContent.store';
 import type { ContentTypeFilterConfig } from './ContentTypeFilterConfig';
+import {
+    applicationKeyOf,
+    CONTENT_TYPE,
+    isDescendantOfMedia,
+} from '../../../../../shared/lib/cms/schema/contentTypeName';
 
-const TYPES_ALLOWED_EVERYWHERE = new Set([
-    String(ContentTypeName.UNSTRUCTURED),
-    String(ContentTypeName.FOLDER),
-    String(ContentTypeName.SITE),
-]);
+const TYPES_ALLOWED_EVERYWHERE = new Set<string>([CONTENT_TYPE.UNSTRUCTURED, CONTENT_TYPE.FOLDER, CONTENT_TYPE.SITE]);
 
 type UseContentTypeFilterOptions = {
     config: ContentTypeFilterConfig;
@@ -118,24 +121,23 @@ function filterForPageTemplate(contentTypes: ContentTypeSummary[], site: Site): 
     const siteAppKeys = new Set(site.getApplicationKeys().map((key) => key.toString()));
 
     return contentTypes.filter((item) => {
-        if (item.isAbstract()) return false;
-        const name = item.getContentTypeName();
-        if (name.isDescendantOfMedia()) return true;
-        if (TYPES_ALLOWED_EVERYWHERE.has(name.toString())) return true;
-        if (siteAppKeys.has(name.getApplicationKey().toString())) return true;
+        if (item.abstract) return false;
+        if (isDescendantOfMedia(item.name)) return true;
+        if (TYPES_ALLOWED_EVERYWHERE.has(item.name)) return true;
+        if (siteAppKeys.has(applicationKeyOf(item.name))) return true;
         return false;
     });
 }
 
 function sortByDisplayName(a: ContentTypeSummary, b: ContentTypeSummary): number {
-    return a.getTitle().localeCompare(b.getTitle());
+    return a.title.localeCompare(b.title);
 }
 
 function matchesSearch(contentType: ContentTypeSummary, search: string): boolean {
     if (!search) return true;
 
     return (
-        contentType.getTitle().toLowerCase().includes(search.toLowerCase()) ||
-        contentType.getContentTypeName().toString().toLowerCase().includes(search.toLowerCase())
+        contentType.title.toLowerCase().includes(search.toLowerCase()) ||
+        contentType.name.toLowerCase().includes(search.toLowerCase())
     );
 }

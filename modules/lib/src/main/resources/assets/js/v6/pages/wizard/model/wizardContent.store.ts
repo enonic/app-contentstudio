@@ -1,4 +1,4 @@
-import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { APPLICATION_KEY } from '../../../shared/lib/cms/application/applicationKey';
 import type { PropertyPath } from '@enonic/input-types/data';
 import { NamePrettyfier } from '@enonic/lib-admin-ui/NamePrettyfier';
 import { PropertyTree } from '@enonic/input-types/data';
@@ -82,7 +82,7 @@ const APPLICATION_KEY_PROP = 'applicationKey';
 
 const CONFIG_PROP = 'config';
 
-const PORTAL_APPLICATION_KEY = ApplicationKey.PORTAL.toString();
+const PORTAL_APPLICATION_KEY = APPLICATION_KEY.PORTAL;
 
 const WIZARD_FORM_VALIDATION_KEY = '__wizardForm';
 

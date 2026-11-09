@@ -1,4 +1,3 @@
-import { type Application } from '@enonic/lib-admin-ui/application/Application';
 import { Dialog, IconButton, ListItem } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { Pencil, X } from 'lucide-react';
@@ -17,6 +16,7 @@ import { ItemLabel } from '../../../../shared/ui/ItemLabel';
 import { ApplicationIcon } from '../../../../shared/ui/icons/ApplicationIcon';
 import { ApplicationSelector } from '../../../shared/selectors/ApplicationSelector';
 import { SortableGridList } from '@enonic/input-types';
+import { type Application } from '../../../../entities/application';
 
 export const ProjectDialogApplicationStepHeader = (): ReactElement => {
     const { mode, title } = useStore($projectDialog, { keys: ['mode', 'title'] });
@@ -49,7 +49,7 @@ export const ProjectDialogApplicationStepContent = ({
     const { mode } = useStore($projectDialog, { keys: ['mode'] });
     const applications = useSyncExternalStore(subscribeToApplications, getApplications);
     const inheritedKeys = useStore($projectDialogInheritedAppKeys);
-    const selection = useMemo(() => applications.map((app) => app.getApplicationKey().toString()), [applications]);
+    const selection = useMemo(() => applications.map((app) => app.key), [applications]);
 
     // Constants
     const label = useI18n('settings.items.wizard.step.applications');
@@ -76,7 +76,7 @@ export const ProjectDialogApplicationStepContent = ({
             {applications.length > 0 && (
                 <SortableGridList
                     items={applications}
-                    keyExtractor={(app) => app.getApplicationKey().toString()}
+                    keyExtractor={(app) => app.key}
                     onMove={moveProjectDialogApplication}
                     enabled
                     fullRowDraggable
@@ -85,7 +85,7 @@ export const ProjectDialogApplicationStepContent = ({
                     renderItem={({ item: application }) => (
                         <ProjectDialogApplicationRow
                             application={application}
-                            inherited={inheritedKeys.has(application.getApplicationKey().toString())}
+                            inherited={inheritedKeys.has(application.key)}
                             editDisabled={isCreating}
                         />
                     )}
@@ -116,20 +116,20 @@ const ProjectDialogApplicationRow = ({
     inherited,
     editDisabled,
 }: ProjectDialogApplicationRowProps): ReactElement => {
-    const key = application.getApplicationKey().toString();
+    const key = application.key;
 
     const editLabel = useI18n('action.edit');
     const removeLabel = useI18n('action.remove');
     const unavailableLabel = useI18n('text.application.not.available', key);
 
-    const description = application.getState() ? application.getDescription() : unavailableLabel;
+    const description = application.state ? application.description : unavailableLabel;
 
     return (
         <ListItem className="pl-0 py-0 flex-1 bg-unset">
             <ListItem.Content className="flex items-center gap-2.5 p-1.5 rounded">
                 <ItemLabel
                     icon={<ApplicationIcon application={application} />}
-                    primary={application.getDisplayName()}
+                    primary={application.displayName}
                     secondary={description}
                     className="flex-1 self-stretch"
                 />
@@ -169,4 +169,4 @@ const subscribeToApplications = (onChange: () => void): (() => void) =>
 const getApplications = () => $projectDialog.get().applications;
 
 // Whether the app has a config form worth a pencil.
-const hasForm = (application: Application): boolean => application.getForm()?.getFormItems().length > 0;
+const hasForm = (application: Application): boolean => application.form?.getFormItems().length > 0;

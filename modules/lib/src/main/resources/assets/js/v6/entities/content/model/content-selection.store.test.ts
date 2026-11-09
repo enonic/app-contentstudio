@@ -1,4 +1,3 @@
-import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { PublishStatus } from '../../../../app/publish/PublishStatus';
@@ -32,6 +31,7 @@ import {
 import { addFilterNodes, resetFilterTree, setFilterRootIds } from './filter-tree.store';
 import { addTreeNodes, collapseNode, expandNode, resetTree, setTreeRootIds } from './content-tree.store';
 import type { ContentTreeNodeData } from './tree/types';
+import { type ContentTypeName } from '../../../shared/lib/cms/schema/contentTypeName';
 
 // Mock tree node data - minimal valid structure for testing
 function createMockNodeData(id: string): ContentTreeNodeData {
@@ -41,7 +41,7 @@ function createMockNodeData(id: string): ContentTreeNodeData {
         name: `node-${id}`,
         publishStatus: PublishStatus.ONLINE,
         contentState: null,
-        contentType: new ContentTypeName('base:folder'),
+        contentType: 'base:folder',
         iconUrl: null,
     };
 }

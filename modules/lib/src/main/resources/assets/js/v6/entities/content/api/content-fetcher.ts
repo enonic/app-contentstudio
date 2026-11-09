@@ -105,7 +105,7 @@ function toTreeNodeData(content: ContentSummary): ContentTreeNodeData {
         name: resolveSubName(content),
         publishStatus: calcTreePublishStatus(content),
         contentState: calcContentState(content),
-        contentType: content.getType(),
+        contentType: toContentTypeName(content.getType().toString()),
         iconUrl: content.getIconUrl(),
         item: content,
     };
@@ -885,6 +885,7 @@ import {
     setFilterNodeTotalChildren,
     resetFilterTree,
 } from '../model/filter-tree.store';
+import { toContentTypeName } from '../../../shared/lib/cms/schema/contentTypeName';
 
 /**
  * Activates filter mode: resets the filter tree and fetches fresh results.

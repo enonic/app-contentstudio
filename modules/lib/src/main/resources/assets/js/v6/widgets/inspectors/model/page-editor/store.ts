@@ -5,6 +5,7 @@ import type { PageItem } from '../../../../../app/page/region/PageItem';
 import type { PageItemType } from '../../../../../app/page/region/PageItemType';
 import { PageState } from '../../../../../app/wizard/page/PageState';
 import type { PageEditorContentContext, PageEditorLifecycle } from './types';
+import { CONTENT_TYPE } from '../../../../shared/lib/cms/schema/contentTypeName';
 import { Component } from '../../../../../app/page/region/Component';
 
 //
@@ -33,12 +34,7 @@ export const $isPageModifyAllowed = atom<boolean>(true);
 // A save replaces the context object without changing what inspection data applies.
 export const $contentScopeKey = computed($contentContext, (ctx): string | null =>
     ctx
-        ? JSON.stringify([
-              ctx.contentId.toString(),
-              ctx.contentTypeName.toString(),
-              ctx.siteId?.toString() ?? null,
-              ctx.sitePath,
-          ])
+        ? JSON.stringify([ctx.contentId.toString(), ctx.contentTypeName, ctx.siteId?.toString() ?? null, ctx.sitePath])
         : null,
 );
 
@@ -70,7 +66,7 @@ export const $isPageLocked = computed(
     (ctx, page, _version, modifyAllowed): boolean => {
         if (!modifyAllowed) return true;
         if (ctx == null) return false;
-        return !ctx.isPageTemplate && !ctx.contentTypeName.isFragment() && !page?.hasController();
+        return !ctx.isPageTemplate && ctx.contentTypeName !== CONTENT_TYPE.FRAGMENT && !page?.hasController();
     },
 );
 

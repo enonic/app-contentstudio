@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import type { ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import type { PropertySet } from '@enonic/input-types/data';
+import type { ApplicationConfig } from '../../shared/lib/cms/application/applicationConfig';
 import { resolveAiPluginConfig, updateAiAppConfigs } from './ai.commands';
 import { $aiAssignedPlugins, $aiInstructions } from './ai.store';
 
@@ -8,9 +9,9 @@ const TRANSLATOR = 'com.enonic.app.ai.translator';
 
 function fakeConfig(appKey: string, instructions?: string): ApplicationConfig {
     return {
-        getApplicationKey: () => ({ getName: () => appKey }),
-        getConfig: () => ({ getString: () => instructions }),
-    } as unknown as ApplicationConfig;
+        applicationKey: appKey,
+        config: { getString: () => instructions } as unknown as PropertySet,
+    };
 }
 
 describe('resolveAiPluginConfig', () => {

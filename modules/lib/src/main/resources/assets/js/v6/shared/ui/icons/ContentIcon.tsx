@@ -1,4 +1,3 @@
-import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { useEffect, useState } from 'react';
 
 import {
@@ -7,7 +6,6 @@ import {
     FileChartPie,
     FileCog,
     FileIcon,
-    FileImage,
     FileMusic,
     FileQuestionMark,
     FileSpreadsheet,
@@ -30,6 +28,7 @@ import {
 import { Image } from '../primitives/Image';
 import { createImageUrl } from '../../lib/url/images';
 import { cn } from '@enonic/ui';
+import { CONTENT_TYPE } from '../../lib/cms/schema/contentTypeName';
 
 type Props = {
     className?: string;
@@ -53,35 +52,30 @@ type Props = {
 
 type BuiltInIconProps = Pick<Props, 'contentType'> & React.ComponentProps<LucideIcon>;
 
-const IMAGE_CONTENT_TYPES = new Set<string>([
-    String(ContentTypeName.IMAGE),
-    String(ContentTypeName.MEDIA_IMAGE),
-    String(ContentTypeName.MEDIA_VECTOR),
-]);
+const IMAGE_CONTENT_TYPES = new Set<string>([CONTENT_TYPE.MEDIA_IMAGE, CONTENT_TYPE.MEDIA_VECTOR]);
 
 const BUILT_IN_CONTENT_TYPE_ICON_MAP = new Map<string, LucideIcon>([
-    [String(ContentTypeName.FOLDER), FolderOpen],
-    [String(ContentTypeName.FRAGMENT), FileChartPie],
-    [String(ContentTypeName.IMAGE), FileImage],
-    [String(ContentTypeName.MEDIA), SquarePlay],
-    [String(ContentTypeName.MEDIA_ARCHIVE), Archive],
-    [String(ContentTypeName.MEDIA_AUDIO), FileMusic],
-    [String(ContentTypeName.MEDIA_CODE), SquareCode],
-    [String(ContentTypeName.MEDIA_DATA), Database],
-    [String(ContentTypeName.MEDIA_DOCUMENT), FileText],
-    [String(ContentTypeName.MEDIA_EXECUTABLE), FileTerminal],
-    [String(ContentTypeName.MEDIA_IMAGE), ImageIcon],
-    [String(ContentTypeName.MEDIA_PRESENTATION), Presentation],
-    [String(ContentTypeName.MEDIA_SPREADSHEET), FileSpreadsheet],
-    [String(ContentTypeName.MEDIA_TEXT), FileType],
-    [String(ContentTypeName.MEDIA_UNKNOWN), FileQuestionMark],
-    [String(ContentTypeName.MEDIA_VECTOR), SplinePointer],
-    [String(ContentTypeName.MEDIA_VIDEO), Film],
-    [String(ContentTypeName.PAGE_TEMPLATE), FileCog],
-    [String(ContentTypeName.SHORTCUT), SquareArrowOutUpRight],
-    [String(ContentTypeName.SITE), Globe],
-    [String(ContentTypeName.TEMPLATE_FOLDER), FolderCog],
-    [String(ContentTypeName.UNSTRUCTURED), Shapes],
+    [CONTENT_TYPE.FOLDER, FolderOpen],
+    [CONTENT_TYPE.FRAGMENT, FileChartPie],
+    [CONTENT_TYPE.MEDIA, SquarePlay],
+    [CONTENT_TYPE.MEDIA_ARCHIVE, Archive],
+    [CONTENT_TYPE.MEDIA_AUDIO, FileMusic],
+    [CONTENT_TYPE.MEDIA_CODE, SquareCode],
+    [CONTENT_TYPE.MEDIA_DATA, Database],
+    [CONTENT_TYPE.MEDIA_DOCUMENT, FileText],
+    [CONTENT_TYPE.MEDIA_EXECUTABLE, FileTerminal],
+    [CONTENT_TYPE.MEDIA_IMAGE, ImageIcon],
+    [CONTENT_TYPE.MEDIA_PRESENTATION, Presentation],
+    [CONTENT_TYPE.MEDIA_SPREADSHEET, FileSpreadsheet],
+    [CONTENT_TYPE.MEDIA_TEXT, FileType],
+    [CONTENT_TYPE.MEDIA_UNKNOWN, FileQuestionMark],
+    [CONTENT_TYPE.MEDIA_VECTOR, SplinePointer],
+    [CONTENT_TYPE.MEDIA_VIDEO, Film],
+    [CONTENT_TYPE.PAGE_TEMPLATE, FileCog],
+    [CONTENT_TYPE.SHORTCUT, SquareArrowOutUpRight],
+    [CONTENT_TYPE.SITE, Globe],
+    [CONTENT_TYPE.TEMPLATE_FOLDER, FolderCog],
+    [CONTENT_TYPE.UNSTRUCTURED, Shapes],
 ]);
 
 /** Set by the server on SVG type icons painted only with `currentColor`. */

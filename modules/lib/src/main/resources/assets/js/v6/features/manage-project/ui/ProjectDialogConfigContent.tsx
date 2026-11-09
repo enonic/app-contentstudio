@@ -18,7 +18,7 @@ export const ProjectDialogConfigContent = (): ReactElement | null => {
     const configScope = useStore($projectDialogConfigScope);
     const { contentProps } = useHtmlAreaDialogYield();
 
-    const form = editingConfig?.application.getForm();
+    const form = editingConfig?.application.form;
     if (!editingConfig || !form) return null;
 
     return (
@@ -32,7 +32,7 @@ export const ProjectDialogConfigContent = (): ReactElement | null => {
         >
             <ApplicationConfigDialogContent
                 application={editingConfig.application}
-                applicationKey={editingConfig.application.getApplicationKey().toString()}
+                applicationKey={editingConfig.application.key}
                 form={form}
                 configSet={editingConfig.configSet}
                 enabled

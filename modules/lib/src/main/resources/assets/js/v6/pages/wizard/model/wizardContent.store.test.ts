@@ -1,10 +1,9 @@
-import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { APPLICATION_KEY } from '../../../shared/lib/cms/application/applicationKey';
 import { PropertyTree } from '@enonic/input-types/data';
 import { Form, Input } from '@enonic/input-types/schema';
 import { registerBuiltInTypes } from '@enonic/input-types';
 import { PropertyPath } from '@enonic/input-types/data';
 import { ValueTypes } from '@enonic/input-types/data';
-import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentBuilder, type Content } from '../../../../app/content/Content';
 import { ContentName } from '../../../../app/content/ContentName';
@@ -51,6 +50,8 @@ import {
     notifyMixinMounted,
 } from './wizardContent.store';
 import { getMixinDataContext } from './wizardMixinData.store';
+import { CONTENT_TYPE, type ContentTypeName } from '../../../shared/lib/cms/schema/contentTypeName';
+import { toLegacyContentTypeName } from '../../../shared/lib/cms/schema/legacy';
 
 function createMixinDescriptor(name: string, optional: boolean): MixinDescriptor {
     return {
@@ -90,7 +91,7 @@ function createContent({
     mixins = [],
     page = null,
     workflowState = WorkflowState.IN_PROGRESS,
-    contentType = ContentTypeName.UNSTRUCTURED,
+    contentType = CONTENT_TYPE.UNSTRUCTURED,
     touched = false,
 }: {
     displayName?: string;
@@ -105,7 +106,7 @@ function createContent({
     const builder = new ContentBuilder();
     builder.setData(data);
     builder.setName(new ContentName('content'));
-    builder.setType(contentType);
+    builder.setType(toLegacyContentTypeName(contentType));
     builder.setDisplayName(displayName);
     builder.setPage(page);
     builder.setMixins(mixins);
@@ -203,10 +204,10 @@ describe('wizardContent.store', () => {
     it('hydrates baseUrl draft from portal site config for site content', () => {
         const persistedData = new PropertyTree();
         const portalSiteConfig = persistedData.addPropertySet('siteConfig');
-        portalSiteConfig.setString('applicationKey', 0, ApplicationKey.PORTAL.toString());
+        portalSiteConfig.setString('applicationKey', 0, APPLICATION_KEY.PORTAL);
         portalSiteConfig.addPropertySet('config').setString('baseUrl', 0, 'https://example.com');
         initializeWizardContentState(
-            createContent({ data: persistedData, contentType: ContentTypeName.SITE }),
+            createContent({ data: persistedData, contentType: CONTENT_TYPE.SITE }),
             null,
             [],
             WorkflowState.IN_PROGRESS,

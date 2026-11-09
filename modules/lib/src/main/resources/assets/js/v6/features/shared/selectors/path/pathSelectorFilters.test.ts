@@ -1,9 +1,15 @@
-import {describe, expect, it} from 'vitest';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {ContentPath} from '../../../../../app/content/ContentPath';
-import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
-import type {ContentTreeSelectorItem} from '../../../../../app/item/ContentTreeSelectorItem';
-import {getFilterContentPaths, getFilterExactPaths, isInvalidMoveTarget, isInvalidTargetType} from './pathSelectorFilters';
+import { describe, expect, it } from 'vitest';
+import { ContentPath } from '../../../../../app/content/ContentPath';
+import type { ContentSummaryAndCompareStatus } from '../../../../../app/content/ContentSummaryAndCompareStatus';
+import type { ContentTreeSelectorItem } from '../../../../../app/item/ContentTreeSelectorItem';
+import {
+    getFilterContentPaths,
+    getFilterExactPaths,
+    isInvalidMoveTarget,
+    isInvalidTargetType,
+} from './pathSelectorFilters';
+import { CONTENT_TYPE, type ContentTypeName } from '../../../../shared/lib/cms/schema/contentTypeName';
+import { toLegacyContentTypeName } from '../../../../shared/lib/cms/schema/legacy';
 
 function createPath(pathStr: string): ContentPath {
     return ContentPath.create().fromString(pathStr).build();
@@ -12,7 +18,7 @@ function createPath(pathStr: string): ContentPath {
 function createMockItem(pathStr: string | null, typeName?: ContentTypeName): ContentTreeSelectorItem {
     return {
         getPath: () => (pathStr ? createPath(pathStr) : null),
-        getType: () => typeName ?? null,
+        getType: () => (typeName ? toLegacyContentTypeName(typeName) : null),
     } as ContentTreeSelectorItem;
 }
 
@@ -71,31 +77,31 @@ describe('getFilterExactPaths', () => {
 
 describe('isInvalidTargetType', () => {
     it('should return true for IMAGE type', () => {
-        expect(isInvalidTargetType(createMockItem('/a', ContentTypeName.IMAGE))).toBe(true);
+        expect(isInvalidTargetType(createMockItem('/a', CONTENT_TYPE.MEDIA_IMAGE))).toBe(true);
     });
 
     it('should return true for MEDIA type', () => {
-        expect(isInvalidTargetType(createMockItem('/a', ContentTypeName.MEDIA))).toBe(true);
+        expect(isInvalidTargetType(createMockItem('/a', CONTENT_TYPE.MEDIA))).toBe(true);
     });
 
     it('should return true for PAGE_TEMPLATE type', () => {
-        expect(isInvalidTargetType(createMockItem('/a', ContentTypeName.PAGE_TEMPLATE))).toBe(true);
+        expect(isInvalidTargetType(createMockItem('/a', CONTENT_TYPE.PAGE_TEMPLATE))).toBe(true);
     });
 
     it('should return true for FRAGMENT type', () => {
-        expect(isInvalidTargetType(createMockItem('/a', ContentTypeName.FRAGMENT))).toBe(true);
+        expect(isInvalidTargetType(createMockItem('/a', CONTENT_TYPE.FRAGMENT))).toBe(true);
     });
 
     it('should return true for MEDIA_VIDEO type', () => {
-        expect(isInvalidTargetType(createMockItem('/a', ContentTypeName.MEDIA_VIDEO))).toBe(true);
+        expect(isInvalidTargetType(createMockItem('/a', CONTENT_TYPE.MEDIA_VIDEO))).toBe(true);
     });
 
     it('should return false for FOLDER type', () => {
-        expect(isInvalidTargetType(createMockItem('/a', ContentTypeName.FOLDER))).toBe(false);
+        expect(isInvalidTargetType(createMockItem('/a', CONTENT_TYPE.FOLDER))).toBe(false);
     });
 
     it('should return false for SITE type', () => {
-        expect(isInvalidTargetType(createMockItem('/a', ContentTypeName.SITE))).toBe(false);
+        expect(isInvalidTargetType(createMockItem('/a', CONTENT_TYPE.SITE))).toBe(false);
     });
 
     it('should return false when type is null', () => {
@@ -123,14 +129,18 @@ describe('isInvalidMoveTarget', () => {
     });
 
     it('should return true when target has invalid type', () => {
-        const result = isInvalidMoveTarget(createMockItem('/other', ContentTypeName.IMAGE), [], []);
+        const result = isInvalidMoveTarget(createMockItem('/other', CONTENT_TYPE.MEDIA_IMAGE), [], []);
         expect(result).toBe(true);
     });
 
     it('should return false for valid target', () => {
         const contentPaths = [createPath('/site/a')];
         const exactPaths = [createPath('/site')];
-        const result = isInvalidMoveTarget(createMockItem('/other/folder', ContentTypeName.FOLDER), contentPaths, exactPaths);
+        const result = isInvalidMoveTarget(
+            createMockItem('/other/folder', CONTENT_TYPE.FOLDER),
+            contentPaths,
+            exactPaths,
+        );
         expect(result).toBe(false);
     });
 

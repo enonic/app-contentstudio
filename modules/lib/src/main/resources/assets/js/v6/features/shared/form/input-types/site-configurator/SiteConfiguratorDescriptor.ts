@@ -5,7 +5,7 @@ import { type SiteConfiguratorConfig } from './SiteConfiguratorConfig';
 import { type ValueType } from '@enonic/input-types/data';
 import { type Value } from '@enonic/input-types/data';
 import { ValueTypes } from '@enonic/input-types/data';
-import { ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import { APPLICATION_CONFIG_PROPERTY } from '../../../../../shared/lib/cms/application/applicationConfig';
 import { $applications } from '../../../../../entities/application';
 import type { InputConfigEntries } from '@enonic/input-types';
 import type { FormScopeRequirement } from '../../FormScopeContext';
@@ -31,19 +31,19 @@ export const SiteConfiguratorDescriptor: InputTypeDescriptor<SiteConfiguratorCon
         const propertySet = value.getPropertySet();
         if (!propertySet) return [];
 
-        const appKey = propertySet.getString(ApplicationConfig.PROPERTY_KEY);
+        const appKey = propertySet.getString(APPLICATION_CONFIG_PROPERTY.KEY);
         if (!appKey) return [];
 
-        const app = $applications.get().applications.find((a) => a.getApplicationKey().toString() === appKey);
-        const appForm = app?.getForm();
+        const app = $applications.get().applications.find((a) => a.key === appKey);
+        const appForm = app?.form;
         if (!appForm || appForm.getFormItems().length === 0) return [];
 
-        const configSet = propertySet.getPropertySet(ApplicationConfig.PROPERTY_CONFIG);
+        const configSet = propertySet.getPropertySet(APPLICATION_CONFIG_PROPERTY.CONFIG);
         if (!configSet) return [];
 
         const result = validateForm(appForm, configSet);
         if (!result.isValid) {
-            return [{ message: i18n('field.siteConfig.invalid', app.getDisplayName() ?? appKey) }];
+            return [{ message: i18n('field.siteConfig.invalid', app.displayName ?? appKey) }];
         }
 
         return [];

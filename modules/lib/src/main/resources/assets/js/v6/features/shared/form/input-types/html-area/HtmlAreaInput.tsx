@@ -1,6 +1,6 @@
 /*global CKEDITOR*/
 
-import type { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { type ApplicationKey } from '../../../../../shared/lib/cms/application/applicationKey';
 import type { Value } from '@enonic/input-types/data';
 import { ValueTypes } from '@enonic/input-types/data';
 import { FieldError } from '@enonic/input-types';

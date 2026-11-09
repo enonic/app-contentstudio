@@ -1,6 +1,5 @@
 import { type ReactElement } from 'react';
 import { cn } from '@enonic/ui';
-import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { type ImageSelectorFilterOptions, type ImageSelectorMode } from './image-selector.types';
 import { ContentCombobox } from '../content';
 import { SelectorUploadButton, useSelectorUpload } from '../shared/upload';
@@ -9,6 +8,7 @@ import { useFormScope } from '../../form/FormScopeContext';
 import { ContentRow, type ContentRowProps } from '../shared/combobox/ContentRow';
 import { ImageSelectorItemView } from './ImageSelectorItemView';
 import { useAcceptMimeTypes } from '../../../../entities/schema';
+import { CONTENT_TYPE } from '../../../../shared/lib/cms/schema/contentTypeName';
 
 export type ImageSelectorProps = {
     /** Selected content IDs */
@@ -44,7 +44,7 @@ export type ImageSelectorProps = {
 } & ImageSelectorFilterOptions;
 
 const IMAGE_SELECTOR_NAME = 'ImageSelector';
-const IMAGE_SELECTOR_CONTENT_TYPE_NAMES = [ContentTypeName.IMAGE.toString(), ContentTypeName.MEDIA_VECTOR.toString()];
+const IMAGE_SELECTOR_CONTENT_TYPE_NAMES = [CONTENT_TYPE.MEDIA_IMAGE, CONTENT_TYPE.MEDIA_VECTOR];
 
 export const ImageSelector = ({
     selection,

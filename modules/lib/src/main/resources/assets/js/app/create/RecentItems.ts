@@ -1,14 +1,11 @@
-import {NewContentEvent} from './NewContentEvent';
-import {type ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
-import {CookieHelper} from '@enonic/lib-admin-ui/util/CookieHelper';
+import { NewContentEvent } from './NewContentEvent';
+import { CookieHelper } from '@enonic/lib-admin-ui/util/CookieHelper';
 
 NewContentEvent.on((event: NewContentEvent) => {
-        RecentItems.get().addItemName(event.getContentType());
-    }
-);
+    RecentItems.get().addItemName(event.getContentTypeName());
+});
 
 export class RecentItems {
-
     private static INSTANCE: RecentItems = new RecentItems();
 
     private maximum: number = 7;
@@ -23,9 +20,8 @@ export class RecentItems {
         return RecentItems.INSTANCE;
     }
 
-    public addItemName(contentType: ContentTypeSummary) {
+    public addItemName(name: string) {
         let itemsNames = this.getRecentItemsNames();
-        const name = contentType.getName();
 
         itemsNames = itemsNames.filter((storedName: string) => storedName !== name);
         itemsNames.unshift(name);
@@ -38,5 +34,4 @@ export class RecentItems {
         const cookies = CookieHelper.getCookie(this.cookieKey);
         return cookies ? cookies.split(this.valueSeparator) : [];
     }
-
 }

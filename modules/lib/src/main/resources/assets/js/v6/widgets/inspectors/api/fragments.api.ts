@@ -1,4 +1,3 @@
-import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { type ResultAsync } from 'neverthrow';
 import { requestJson } from '@enonic/ui-utils/request';
 import type { AppError } from '@enonic/ui-utils';
@@ -7,6 +6,7 @@ import { type ContentSummaryJson } from '../../../../app/content/ContentSummaryJ
 import { Branch } from '../../../../app/versioning/Branch';
 import { DEFAULT_ORDER, QUERY_FIELD, and, like, pathMatch, query } from '../../../entities/content/lib/query';
 import { getCmsApiUrl } from '../../../shared/lib/url/cms';
+import { CONTENT_TYPE } from '../../../shared/lib/cms/schema/contentTypeName';
 
 type FragmentQueryResultJson = {
     contents: ContentSummaryJson[];
@@ -40,7 +40,7 @@ export function fetchFragmentSummaries(
         queryExpr: buildFragmentQueryExpr(sitePath),
         from: 0,
         size: -1,
-        contentTypeNames: [ContentTypeName.FRAGMENT.toString()],
+        contentTypeNames: [CONTENT_TYPE.FRAGMENT],
         mustBeReferencedById: null,
         expand: 'summary',
         aggregationQueries: [],

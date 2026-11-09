@@ -24,6 +24,7 @@ import {
     $aiRegisteredPlugins,
 } from './ai.store';
 import { toPluginContextPath } from './ai.tool-path';
+import { fromLegacyApplicationConfig } from '../../shared/lib/cms/application/applicationConfig';
 
 //
 // * AI plugin host
@@ -213,13 +214,19 @@ export function handleMediaUploaded(content: Readonly<Content> | null): void {
         return;
     }
     const contentId = content.getContentId();
-    const projectConfigs = project.getSiteConfigs();
+    const projectConfigs = project.getSiteConfigs().map(fromLegacyApplicationConfig);
     if (resolveAiPluginConfig(undefined, projectConfigs, 'ai.contentOperator') != null) {
         notifyImageUploaded(contentId.toString(), projectName);
         return;
     }
     void fetchNearestSite(contentId).map((site) => {
-        if (resolveAiPluginConfig(site?.getSiteConfigs(), projectConfigs, 'ai.contentOperator') == null) {
+        if (
+            resolveAiPluginConfig(
+                site?.getSiteConfigs().map(fromLegacyApplicationConfig),
+                projectConfigs,
+                'ai.contentOperator',
+            ) == null
+        ) {
             return;
         }
         notifyImageUploaded(contentId.toString(), projectName);

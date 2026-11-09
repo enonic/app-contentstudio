@@ -8,7 +8,7 @@ import { SelectorSelection, SelectorSelectionItem } from '../../../selectors/sha
 import type { ContentSelectorConfig } from './ContentSelectorConfig';
 import { MediaSelectorItemView } from '../../../selectors/media';
 import { ContentSelectorInputAddButton } from './ContentSelectorInputAddButton';
-import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { type ApplicationKey } from '../../../../../shared/lib/cms/application/applicationKey';
 import { CONTENT_SELECTOR_SCOPE_REQUIREMENT } from './ContentSelectorDescriptor';
 /**
  * Differently than MediaSelector and ImageSelector, here we don't reutilize the ContentSelector component.

@@ -1,5 +1,4 @@
 import { ResultAsync, errAsync } from 'neverthrow';
-import type { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { requestJson } from '@enonic/ui-utils/request';
 import { AppError } from '@enonic/ui-utils';
 import type { ContentId } from '../../../../app/content/ContentId';
@@ -8,6 +7,7 @@ import { type PageTemplate, PageTemplateBuilder } from '../../../../app/content/
 import { Descriptor } from '../../../../app/page/Descriptor';
 import type { DescriptorJson } from '../../../../app/page/DescriptorJson';
 import { getCmsApiUrl, getCmsProjectUrl, getCmsRestUri } from '../../../shared/lib/url/cms';
+import { type ContentTypeName } from '../../../shared/lib/cms/schema/contentTypeName';
 
 /**
  * Load page templates that can render the given content type within a site.

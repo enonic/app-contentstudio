@@ -1,4 +1,3 @@
-import { ApplicationEvent, ApplicationEventType } from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import { AuthHelper } from '@enonic/lib-admin-ui/auth/AuthHelper';
 import type { Extension } from '@enonic/lib-admin-ui/extension/Extension';
 import { notifyError } from '../../../shared/notifications';
@@ -15,17 +14,15 @@ import { getPageEditorWidgetKey, PAGE_EDITOR_WIDGET_NAME } from '../../../shared
 import { getVersionsWidgetKey, VERSIONS_WIDGET_NAME } from '../../../shared/lib/widget/versions/versions';
 import type { ContextWidget } from './contextWidget.types';
 import { addContextWidget, removeContextWidgetsByApplication, setContextWidgets } from './contextWidgets.store';
+import { type ApplicationChange, type ApplicationEventKind, onApplicationEvent } from '../../../entities/application';
 
 const CONTEXT_PANEL_INTERFACE = 'contentstudio.contextpanel';
 const RELOAD_DEBOUNCE_MS = 1000;
-const RELOAD_EVENT_TYPES = new Set([
-    ApplicationEventType.INSTALLED,
-    ApplicationEventType.STARTED,
-    ApplicationEventType.UPDATED,
-]);
-const REMOVE_EVENT_TYPES = new Set([ApplicationEventType.UNINSTALLED, ApplicationEventType.STOPPED]);
+const RELOAD_EVENT_KINDS = new Set<ApplicationEventKind>(['installed', 'started', 'updated']);
+const REMOVE_EVENT_KINDS = new Set<ApplicationEventKind>(['uninstalled', 'stopped']);
 
 let isStarted = false;
+let unsubscribeApplicationEvents: (() => void) | undefined;
 let reloadTimer: number | undefined;
 let loadGeneration = 0;
 let isLoading = false;
@@ -36,7 +33,7 @@ export const start = (): void => {
 
     setContextWidgets(createDefaultWidgets($isWizard.get()), getDetailsWidgetKey());
     void loadCustomWidgets();
-    ApplicationEvent.on(handleApplicationEvent);
+    unsubscribeApplicationEvents = onApplicationEvent(handleApplicationChange);
 };
 
 export const stop = (): void => {
@@ -45,7 +42,8 @@ export const stop = (): void => {
 
     window.clearTimeout(reloadTimer);
     invalidateLoad();
-    ApplicationEvent.un(handleApplicationEvent);
+    unsubscribeApplicationEvents?.();
+    unsubscribeApplicationEvents = undefined;
     setContextWidgets([]);
 };
 
@@ -138,11 +136,9 @@ function scheduleReload(): void {
     reloadTimer = window.setTimeout(() => void loadCustomWidgets(), RELOAD_DEBOUNCE_MS);
 }
 
-function handleApplicationEvent(event: ApplicationEvent): void {
-    const type = event.getEventType();
-
-    if (REMOVE_EVENT_TYPES.has(type)) {
-        removeContextWidgetsByApplication(event.getApplicationKey().toString());
+function handleApplicationChange({ applicationKey, kind }: ApplicationChange): void {
+    if (REMOVE_EVENT_KINDS.has(kind)) {
+        removeContextWidgetsByApplication(applicationKey);
 
         // A reload that started before this event may still list the removed application.
         if (isLoading) {
@@ -152,7 +148,7 @@ function handleApplicationEvent(event: ApplicationEvent): void {
         return;
     }
 
-    if (RELOAD_EVENT_TYPES.has(type)) scheduleReload();
+    if (RELOAD_EVENT_KINDS.has(kind)) scheduleReload();
 }
 
 function toContextWidget(extension: Extension): ContextWidget {

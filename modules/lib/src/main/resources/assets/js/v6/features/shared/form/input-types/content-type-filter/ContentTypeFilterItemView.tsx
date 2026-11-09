@@ -1,4 +1,4 @@
-import { type ContentTypeSummary } from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import { type ContentTypeSummary } from '../../../../../entities/schema';
 import { type ReactElement } from 'react';
 import { ContentIcon } from '../../../../../shared/ui/icons/ContentIcon';
 import { ItemLabel } from '../../../../../shared/ui/ItemLabel';
@@ -10,9 +10,9 @@ type ContentTypeFilterItemViewProps = {
 const COMPONENT_NAME = 'ContentTypeFilterItemView';
 
 export const ContentTypeFilterItemView = ({ contentType }: ContentTypeFilterItemViewProps): ReactElement => {
-    const key = contentType.getContentTypeName().toString();
-    const displayName = contentType.getTitle();
-    const iconUrl = contentType.getIconUrl();
+    const key = contentType.name;
+    const displayName = contentType.title;
+    const iconUrl = contentType.iconUrl;
 
     return (
         <ItemLabel

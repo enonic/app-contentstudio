@@ -1,4 +1,4 @@
-import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { type ApplicationKey } from '../../../shared/lib/cms/application/applicationKey';
 import { handleError } from '../../../shared/notifications';
 import { okAsync, ResultAsync } from 'neverthrow';
 import { AppError } from '@enonic/ui-utils';
@@ -17,6 +17,7 @@ import {
     markMixinsAsUserChanged,
     setMixinsDescriptors,
 } from './wizardContent.store';
+import { toContentTypeName } from '../../../shared/lib/cms/schema/contentTypeName';
 
 //
 // * State
@@ -41,7 +42,7 @@ function buildAppSignature(): string {
         return '';
     }
     return applications
-        .map((app) => `${app.getApplicationKey().toString()}:${app.getState()}`)
+        .map((app) => `${app.key}:${app.state}`)
         .sort()
         .join('|');
 }
@@ -68,11 +69,9 @@ function seedMixinsForApplications(applicationKeys: string[]): ResultAsync<void,
         return okAsync(undefined);
     }
 
-    const contentTypeName = contentType.getContentTypeName();
+    const contentTypeName = toContentTypeName(contentType.getContentTypeName().toString());
 
-    const requests = applicationKeys.map((key) =>
-        fetchApplicationMixins(contentTypeName, ApplicationKey.fromString(key)),
-    );
+    const requests = applicationKeys.map((key) => fetchApplicationMixins(contentTypeName, key));
 
     return ResultAsync.combine(requests).map((results) => {
         const previousNames = new Set($mixinsDescriptors.get().map((descriptor) => descriptor.getName()));

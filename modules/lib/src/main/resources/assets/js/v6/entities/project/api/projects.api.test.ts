@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
 import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
-import { type ApplicationConfig } from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import { PropertyTree } from '@enonic/input-types/data';
+import { type ApplicationConfig } from '../../../shared/lib/cms/application/applicationConfig';
 import { AppError } from '@enonic/ui-utils';
 import { type Project } from '../../../../app/settings/data/project/Project';
 import { type ProjectPermissions } from '../../../../app/settings/data/project/ProjectPermissions';
@@ -24,7 +25,7 @@ vi.mock('../../../../app/settings/data/project/ProjectHelper', () => ({
     ProjectHelper: { sortProjects: () => 0 },
 }));
 
-const appConfigStub = { toJson: () => ({ key: 'com.app', config: {} }) } as unknown as ApplicationConfig;
+const appConfigStub: ApplicationConfig = { applicationKey: 'com.app', config: new PropertyTree().getRoot() };
 const readAccessStub = { toJson: () => ({ type: 'public' }) } as unknown as ProjectReadAccess;
 const permissionsStub = {
     toJson: () => ({ owner: ['user:system:su'], editor: [], contributor: [], author: [] }),
@@ -93,7 +94,7 @@ describe('createProject', () => {
             'parents',
             'readAccess',
         ]);
-        expect(body.applicationConfigs).toEqual([{ key: 'com.app', config: {} }]);
+        expect(body.applicationConfigs).toEqual([{ applicationKey: 'com.app', config: [] }]);
         expect(body.parents).toEqual(['parent-project']);
         expect(body.readAccess).toEqual({ type: 'public' });
         expect(result.isOk()).toBe(true);

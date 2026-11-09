@@ -1,12 +1,8 @@
-import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
+import { type ApplicationKey } from '../../../../../shared/lib/cms/application/applicationKey';
 import { useFormRender } from '@enonic/input-types';
-import { useMemo } from 'react';
 
-/** The application whose schema the form renders, as the key object, memoised per render context. */
+/** The application whose schema the form renders. */
 export function useFormApplicationKey(): ApplicationKey | undefined {
     const { applicationKey } = useFormRender();
-    return useMemo(
-        () => (applicationKey == null ? undefined : ApplicationKey.fromString(applicationKey)),
-        [applicationKey],
-    );
+    return applicationKey;
 }

@@ -49,6 +49,7 @@ import { WizardExtensionRenderingHandler } from '../WizardExtensionRenderingHand
 import { FrameContainer } from './FrameContainer';
 import { type LiveEditPageProxy } from './LiveEditPageProxy';
 import { PageState } from './PageState';
+import { toContentTypeName } from '../../../v6/shared/lib/cms/schema/contentTypeName';
 
 export interface LiveFormPanelConfig {
     contentType: ContentType;
@@ -230,13 +231,13 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
             defaultPageTemplateName: defaultModels?.getDefaultPageTemplate()?.getDisplayName() ?? null,
             contentContext: {
                 contentId: content.getContentId(),
-                contentTypeName: content.getType(),
+                contentTypeName: toContentTypeName(content.getType().toString()),
                 siteId: site?.getContentId() ?? null,
                 sitePath: site?.getPath().toString() ?? null,
                 isPageTemplate: content.isPageTemplate(),
                 isInherited: content.isInherited(),
                 isDataInherited: content.isDataInherited(),
-                applicationKey: controller?.getApplicationKey() ?? null,
+                applicationKey: controller?.getApplicationKey().toString() ?? null,
             },
         });
 

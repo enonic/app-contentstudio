@@ -1,16 +1,19 @@
 import { ResultAsync } from 'neverthrow';
-import { Application } from '@enonic/lib-admin-ui/application/Application';
-import { type ApplicationListResult } from '@enonic/lib-admin-ui/application/ApplicationListResult';
 import { requestJson } from '@enonic/ui-utils/request';
 import { AppError } from '@enonic/ui-utils';
 import { getCmsRestUri } from '../../../shared/lib/url/cms';
+import { type Application, type ApplicationJson, parseApplication } from '../lib/application';
+
+type ApplicationListJson = {
+    applications: ApplicationJson[];
+};
 
 /**
  * Fetch the applications available for sites.
  * Used by: entities/application/applications.store.
  */
 export function fetchSiteApplications(): ResultAsync<Application[], AppError> {
-    return requestJson<ApplicationListResult>(getCmsRestUri('application/getSiteApplications')).map((json) =>
-        Application.fromJsonArray(json.applications),
+    return requestJson<ApplicationListJson>(getCmsRestUri('application/getSiteApplications')).map((json) =>
+        json.applications.map(parseApplication),
     );
 }
