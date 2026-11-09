@@ -42,6 +42,7 @@ module.exports = {
         alias: {
             preact: path.resolve(__dirname, 'node_modules/preact'),
             'preact/hooks': path.resolve(__dirname, 'node_modules/preact/hooks'),
+            react$: path.resolve(__dirname, 'react-compat.mjs'),
             react: path.resolve(__dirname, 'node_modules/preact/compat'),
             'react-dom': path.resolve(__dirname, 'node_modules/preact/compat'),
             'react/jsx-runtime': path.resolve(__dirname, 'node_modules/preact/jsx-runtime'),
