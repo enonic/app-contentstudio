@@ -1,6 +1,7 @@
 import { cn, Dialog } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { type ReactElement, useCallback, useEffect, useMemo, useRef } from 'react';
+import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import { useCkEditorFocusManager } from '../../../shared/lib/ckeditor/useCkEditorFocusManager';
 import {
     type CreateHtmlAreaDialogEvent,
@@ -23,6 +24,7 @@ const isOtherHtmlAreaDialogOpen = (): boolean => {
 };
 
 export const FullscreenDialog = (): ReactElement => {
+    const title = useI18n('dialog.fullscreen.title');
     const { open, initializing, editorContainerId, hideBold, hideItalic, hideUnderline } = useStore($fullscreenDialog, {
         keys: ['open', 'initializing', 'editorContainerId', 'hideBold', 'hideItalic', 'hideUnderline'],
     });
@@ -87,6 +89,7 @@ export const FullscreenDialog = (): ReactElement => {
             <Dialog.Portal>
                 <Dialog.Overlay className={cn(childModalOpen && 'opacity-0')} />
                 <Dialog.Content
+                    aria-label={title}
                     ref={contentRef}
                     onOpenAutoFocus={preventAutoFocus}
                     onCloseAutoFocus={preventAutoFocus}

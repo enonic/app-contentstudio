@@ -1,6 +1,9 @@
 {
   "$schema": "./modules/lib/node_modules/oxlint/configuration_schema.json",
   "plugins": ["typescript", "oxc"],
+    "jsPlugins": [
+        "./scripts/oxlint-plugin-content-studio.mjs"
+    ],
   "categories": {
     "correctness": "error"
   },
@@ -14,6 +17,7 @@
     "**/node_modules/**"
   ],
   "rules": {
+      "content-studio/icon-button-label": "error",
     "typescript/consistent-type-imports": [
       "off",
       {

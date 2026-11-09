@@ -1,3 +1,4 @@
+import { TabContent } from '../../../../shared/ui/TabContent';
 import { Button, Checkbox, Dialog, GridList, Tab, TextArea } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { Calendar, CornerDownRight } from 'lucide-react';
@@ -785,7 +786,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                     </div>
 
                     <div className="flex min-h-0 flex-1 flex-col px-5 pb-1.5">
-                        <Tab.Content value="comments" className="mt-0 flex min-h-0 flex-1 flex-col">
+                        <TabContent value="comments" className="mt-0 flex min-h-0 flex-1 flex-col">
                             <div className="flex min-h-0 flex-1 flex-col gap-3 h-sm:gap-7.5">
                                 <IssueCommentsList
                                     comments={comments}
@@ -810,9 +811,9 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                     className="[&_textarea]:max-h-75 [&_textarea]:overflow-y-auto"
                                 />
                             </div>
-                        </Tab.Content>
+                        </TabContent>
 
-                        <Tab.Content value="items" className="mt-0 min-h-0 flex flex-1 flex-col">
+                        <TabContent value="items" className="mt-0 min-h-0 flex flex-1 flex-col">
                             {canEditSelection && (
                                 <SelectionStatusBar
                                     className="mb-5"
@@ -992,9 +993,9 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                     />
                                 )}
                             </div>
-                        </Tab.Content>
+                        </TabContent>
 
-                        <Tab.Content value="assignees" className="mt-0 min-h-0 flex flex-1 flex-col">
+                        <TabContent value="assignees" className="mt-0 min-h-0 flex flex-1 flex-col">
                             <PrincipalSelector
                                 ariaLabel={assigneesLabel}
                                 options={assigneeOptions}
@@ -1011,7 +1012,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                 className="min-h-0 flex-1"
                                 selectedListClassName="min-h-0 flex-1 overflow-y-auto"
                             />
-                        </Tab.Content>
+                        </TabContent>
                     </div>
                 </Tab.Root>
                 <div ref={setPortalContainer} />

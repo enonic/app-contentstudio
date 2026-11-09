@@ -1,3 +1,4 @@
+import { TabContent } from '../../../../shared/ui/TabContent';
 import { Tab } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { type ReactElement } from 'react';
@@ -59,12 +60,12 @@ export const PageEditorExtension = (): ReactElement | null => {
                     <Tab.DefaultTrigger value="inspect">{inspectLabel}</Tab.DefaultTrigger>
                 </Tab.List>
 
-                <Tab.Content value="insert">
+                <TabContent value="insert">
                     <InsertPanel />
-                </Tab.Content>
-                <Tab.Content value="inspect" className="mt-0">
+                </TabContent>
+                <TabContent value="inspect" className="mt-0">
                     <InspectPanel />
-                </Tab.Content>
+                </TabContent>
             </Tab.Root>
             <DragPreview />
         </>
