@@ -153,6 +153,13 @@ export const ContentSelectorInputAddButton = ({
         );
 
         setIsLoadingTypes(false);
+
+        // One creatable type that is not media needs no dialog, as the content path and legacy do.
+        if (types?.length === 1 && !isDescendantOfMedia(types[0].name)) {
+            await handleRootTypeSelected(types[0]);
+            return;
+        }
+
         isWaitingForContentCreationRef.current = true;
 
         openNewContentDialog(undefined, {

@@ -223,6 +223,33 @@ describe('ContentSelectorInputAddButton', () => {
             });
         });
 
+        it('should create a single non-media type in the scope project root without the dialog', async () => {
+            mockGetAvailableContentTypes.mockResolvedValue([person]);
+            mockAddContentInProjectRoot.mockResolvedValue('new-1');
+            const onSelectionChange = vi.fn();
+
+            renderRoot(onSelectionChange);
+            await clickAdd();
+
+            expect(mockAddContentInProjectRoot).toHaveBeenCalledWith(person.name, scopeProject);
+            expect(onSelectionChange).toHaveBeenCalledWith(['old-1', 'new-1']);
+            expect(mockOpenNewContentDialog).not.toHaveBeenCalled();
+            expect(newContentEvents).toEqual([]);
+        });
+
+        it('should still open the dialog when the single type is a media type', async () => {
+            mockGetAvailableContentTypes.mockResolvedValue([image]);
+
+            renderRoot();
+            await clickAdd();
+
+            expect(mockAddContentInProjectRoot).not.toHaveBeenCalled();
+            expect(mockOpenNewContentDialog).toHaveBeenCalledWith(
+                undefined,
+                expect.objectContaining({ contentTypes: [image], project: scopeProject }),
+            );
+        });
+
         it('should open the dialog in the scope project root without firing a new content event', async () => {
             mockGetAvailableContentTypes.mockResolvedValue([person, movie]);
 
