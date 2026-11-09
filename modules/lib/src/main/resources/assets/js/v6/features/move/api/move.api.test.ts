@@ -34,7 +34,7 @@ describe('moveContent', () => {
             body: JSON.stringify({ contentIds: ['a', 'b'], parentContentPath: '/target' }),
         });
         expect(result.isOk()).toBe(true);
-        expect(result._unsafeUnwrap().toString()).toBe('t-move');
+        expect(result._unsafeUnwrap()).toBe('t-move');
     });
 
     it('should send an empty parent path when no destination is given', async () => {

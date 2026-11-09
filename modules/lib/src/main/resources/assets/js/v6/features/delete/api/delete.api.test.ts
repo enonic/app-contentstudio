@@ -25,7 +25,7 @@ describe('archiveContent', () => {
         const result = await archiveContent([contentId('a'), contentId('b')]);
 
         expect(result.isOk()).toBe(true);
-        expect(result._unsafeUnwrap().toString()).toBe('t-archive');
+        expect(result._unsafeUnwrap()).toBe('t-archive');
         const [url, init] = mockFetch.mock.calls[0];
         expect(url).toContain('/content/content/archive/archive');
         expect(init).toMatchObject({
@@ -69,7 +69,7 @@ describe('deleteContent', () => {
         const result = await deleteContent([contentPath('/a'), contentPath('/b')]);
 
         expect(result.isOk()).toBe(true);
-        expect(result._unsafeUnwrap().toString()).toBe('t-delete');
+        expect(result._unsafeUnwrap()).toBe('t-delete');
         const [url, init] = mockFetch.mock.calls[0];
         expect(url).toContain('/content/content/delete');
         expect(init).toMatchObject({

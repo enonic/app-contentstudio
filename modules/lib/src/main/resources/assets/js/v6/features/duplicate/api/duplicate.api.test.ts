@@ -25,7 +25,7 @@ describe('duplicateContent', () => {
         const result = await duplicateContent([{ contentId: contentId('a'), includeChildren: false }]);
 
         expect(result.isOk()).toBe(true);
-        expect(result._unsafeUnwrap().toString()).toBe('t-dup');
+        expect(result._unsafeUnwrap()).toBe('t-dup');
         const [url, init] = mockFetch.mock.calls[0];
         expect(url).toContain('/content/content/duplicate');
         expect(init).toMatchObject({

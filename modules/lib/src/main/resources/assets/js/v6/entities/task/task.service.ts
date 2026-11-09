@@ -1,5 +1,4 @@
 import type { TaskInfo } from '@enonic/ui-types';
-import type { AppError } from '@enonic/ui-utils';
 import { pollTask, TaskFailedError, taskProgressPercent } from '@enonic/ui-utils/task';
 import { MessageType } from '../../../app/stores/data/server';
 import type { ReceivedWorkerMessage } from '../../../app/stores/data/worker';
@@ -40,6 +39,8 @@ type ActiveTracker = {
 //
 
 const activeTrackers = new Map<string, ActiveTracker>();
+
+const POLL_RETRY_MS = 2000;
 
 //
 // * Private
@@ -106,15 +107,6 @@ const handleTaskInfo = (taskId: string, taskInfo: TaskInfo, config: TaskTrackerC
     }
 };
 
-const handleError = (taskId: string, error: AppError, config: TaskTrackerConfig): void => {
-    if (error instanceof TaskFailedError) {
-        handleFailed(taskId, error.task, config);
-        return;
-    }
-
-    finishTracking(taskId, undefined, 'ERROR', error.message, config);
-};
-
 //
 // * Public API
 //
@@ -141,7 +133,8 @@ export const getTaskPhaseInfo = (taskInfo: TaskInfo | undefined): TaskPhaseInfo 
 /**
  * Start tracking a task's progress.
  * Follows the task events from the server socket, and polls the task until the first event
- * arrives, for a task that ends before the subscription or a socket that is down.
+ * arrives, for a task that ends before the subscription or a socket that is down. A failed
+ * read is retried, never taken for the task's result.
  *
  * @param taskId - The task ID to track
  * @param config - Optional configuration for callbacks
@@ -171,25 +164,40 @@ export const trackTask = (taskId: string, config: TaskTrackerConfig = {}): (() =
         handleTaskInfo(taskId, taskInfo, config);
     });
 
-    void pollTask(getCmsRestUri('tasks'), taskId, {
-        signal: poll.signal,
-        onProgress: (taskInfo) => {
-            if (isPolling()) {
-                handleProgress(taskId, taskInfo, config);
-            }
-        },
-    }).match(
-        (taskInfo) => {
-            if (isPolling()) {
-                handleFinished(taskId, taskInfo, config);
-            }
-        },
-        (error) => {
-            if (isPolling()) {
-                handleError(taskId, error, config);
-            }
-        },
-    );
+    const startPolling = (): void => {
+        void pollTask(getCmsRestUri('tasks'), taskId, {
+            signal: poll.signal,
+            onProgress: (taskInfo) => {
+                if (isPolling()) {
+                    handleProgress(taskId, taskInfo, config);
+                }
+            },
+        }).match(
+            (taskInfo) => {
+                if (isPolling()) {
+                    handleFinished(taskId, taskInfo, config);
+                }
+            },
+            (error) => {
+                if (!isPolling()) {
+                    return;
+                }
+
+                if (error instanceof TaskFailedError) {
+                    handleFailed(taskId, error.task, config);
+                    return;
+                }
+
+                setTimeout(() => {
+                    if (isPolling()) {
+                        startPolling();
+                    }
+                }, POLL_RETRY_MS);
+            },
+        );
+    };
+
+    startPolling();
 
     return () => stopTracking(taskId);
 };

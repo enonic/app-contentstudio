@@ -107,15 +107,24 @@ describe('trackTask', () => {
         expect(getTaskState('task-1')).toMatchObject({ state: 'failed', resultState: 'ERROR', resultMessage: 'Boom' });
     });
 
-    it('should complete as an error when reading the task fails', async () => {
-        mockFetch.mockResolvedValueOnce(errorResponse(404, 'Not Found'));
+    it('should retry a failed read instead of failing the task', async () => {
+        mockFetch
+            .mockResolvedValueOnce(errorResponse(503, 'Service Unavailable'))
+            .mockRejectedValueOnce(new TypeError('Failed to fetch'))
+            .mockResolvedValueOnce(jsonResponse(task('FINISHED', '{"state":"SUCCESS","message":"Done"}')));
         const onComplete = vi.fn();
 
         trackTask('task-1', { onComplete });
         await vi.advanceTimersByTimeAsync(0);
 
-        expect(onComplete).toHaveBeenCalledWith('ERROR', expect.any(String));
-        expect(getTaskState('task-1')).toMatchObject({ state: 'failed', resultState: 'ERROR' });
+        expect(onComplete).not.toHaveBeenCalled();
+        expect(getTaskState('task-1')).toMatchObject({ state: 'pending' });
+
+        await vi.advanceTimersByTimeAsync(4000);
+
+        expect(mockFetch).toHaveBeenCalledTimes(3);
+        expect(onComplete).toHaveBeenCalledOnce();
+        expect(onComplete).toHaveBeenCalledWith('SUCCESS', 'Done');
     });
 
     it('should poll a task once when it is tracked twice', async () => {
@@ -192,6 +201,20 @@ describe('trackTask with task events', () => {
         expect(onComplete).toHaveBeenCalledTimes(1);
         expect(onComplete).toHaveBeenCalledWith('ERROR', 'Boom');
         expect(getTaskState('task-1')).toMatchObject({ state: 'failed', resultMessage: 'Boom' });
+    });
+
+    it('should keep listening to the socket while reads fail', async () => {
+        mockFetch.mockResolvedValue(errorResponse(503, 'Service Unavailable'));
+        const onComplete = vi.fn();
+
+        trackTask('task-1', { onComplete });
+        await vi.advanceTimersByTimeAsync(0);
+        emit('task.finished', task('FINISHED', '{"state":"SUCCESS","message":"Done"}'));
+        await vi.advanceTimersByTimeAsync(4000);
+
+        expect(onComplete).toHaveBeenCalledOnce();
+        expect(onComplete).toHaveBeenCalledWith('SUCCESS', 'Done');
+        expect(mockFetch).toHaveBeenCalledTimes(1);
     });
 
     it('should ignore events of other tasks and removed tasks', async () => {
