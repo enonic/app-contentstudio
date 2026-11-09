@@ -1,5 +1,4 @@
 import { notifyError, notifyInfo, notifySuccess } from '../../../shared/notifications';
-import type { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
 import { i18n } from '../../../shared/i18n';
 import { type ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
@@ -941,7 +940,7 @@ function buildPublishRequestData(): PublishRequestData {
     };
 }
 
-async function sendPublishRequest(): Promise<TaskId | undefined> {
+async function sendPublishRequest(): Promise<string | undefined> {
     const { message, schedule } = $publishDialog.get();
     const publishRequestData = buildPublishRequestData();
 

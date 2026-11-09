@@ -1,5 +1,4 @@
 import { EVERYONE_ROLE_KEY } from '@enonic/ui-utils';
-import { type TaskId } from '@enonic/lib-admin-ui/task/TaskId';
 import { notifyWarning } from '../../../shared/notifications';
 import { computed, listenKeys, map } from 'nanostores';
 import { ResultAsync } from 'neverthrow';
@@ -53,7 +52,7 @@ type PermissionsDialogStore = {
     replaceAllChildPermissions: boolean;
 
     // Task
-    taskId?: TaskId;
+    taskId?: string;
 };
 
 const initialState: PermissionsDialogStore = {

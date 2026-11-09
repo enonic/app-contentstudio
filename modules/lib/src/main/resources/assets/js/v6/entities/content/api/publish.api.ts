@@ -1,6 +1,4 @@
 import { ResultAsync, errAsync, okAsync } from 'neverthrow';
-import { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
-import { type TaskIdJson } from '@enonic/lib-admin-ui/task/TaskIdJson';
 import { requestJson, requestOptionalJson } from '@enonic/ui-utils/request';
 import { AppError } from '@enonic/ui-utils';
 import { ContentId } from '../../../../app/content/ContentId';
@@ -88,10 +86,10 @@ export function markAsReady(contentIds: ContentId[]): ResultAsync<void, AppError
 
 /**
  * Publish content items.
- * Returns a TaskId that can be tracked for progress.
+ * Returns a task id that can be tracked for progress.
  * Used by: features/publish/model/publishDialog.commands.
  */
-export function publishContent(params: PublishContentParams): ResultAsync<TaskId, AppError> {
+export function publishContent(params: PublishContentParams): ResultAsync<string, AppError> {
     if (params.ids.length === 0) {
         return errAsync(new AppError('No content to publish'));
     }
@@ -114,7 +112,7 @@ export function publishContent(params: PublishContentParams): ResultAsync<TaskId
         message: params.message,
     };
 
-    return requestJson<TaskIdJson>(url, { method: 'POST', body: payload }).map(TaskId.fromJson);
+    return requestJson<{ taskId: string }>(url, { method: 'POST', body: payload }).map(({ taskId }) => taskId);
 }
 
 /**

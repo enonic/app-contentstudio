@@ -1,5 +1,4 @@
 import { notifyError, notifySuccess } from '../../../shared/notifications';
-import type { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
 import { computed, map } from 'nanostores';
 import { i18n } from '../../../shared/i18n';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
@@ -19,7 +18,7 @@ type MoveDialogStore = {
     destinationItem: ContentSummary | null;
     destinationPath: string | null;
     excludedIds: string[];
-    taskId?: TaskId;
+    taskId?: string;
     pendingTotal: number;
     pendingPrimaryName?: string;
     pendingDestinationPath?: string;

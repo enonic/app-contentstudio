@@ -1,5 +1,4 @@
 import { notifyError, notifySuccess } from '../../../shared/notifications';
-import type { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
 import { atom, computed, map } from 'nanostores';
 import { i18n } from '../../../shared/i18n';
 import { type ContentId } from '../../../../app/content/ContentId';
@@ -28,7 +27,7 @@ type DuplicateDialogStore = {
     pendingIds: string[];
     pendingTotal: number;
     pendingPrimaryName?: string;
-    taskId?: TaskId;
+    taskId?: string;
 };
 
 //

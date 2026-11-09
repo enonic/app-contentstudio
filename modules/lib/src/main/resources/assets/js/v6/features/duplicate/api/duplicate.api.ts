@@ -1,6 +1,4 @@
 import { ResultAsync, errAsync, okAsync } from 'neverthrow';
-import { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
-import { type TaskIdJson } from '@enonic/lib-admin-ui/task/TaskIdJson';
 import { requestJson } from '@enonic/ui-utils/request';
 import { AppError } from '@enonic/ui-utils';
 import { CompareStatus } from '../../../../app/content/CompareStatus';
@@ -27,10 +25,10 @@ export type DuplicateContentParams = {
 
 /**
  * Duplicate content items.
- * Returns a TaskId that can be tracked for progress.
+ * Returns a task id that can be tracked for progress.
  * Used by: features/duplicate/model/duplicateDialog.store.
  */
-export function duplicateContent(params: DuplicateContentParams[]): ResultAsync<TaskId, AppError> {
+export function duplicateContent(params: DuplicateContentParams[]): ResultAsync<string, AppError> {
     if (params.length === 0) {
         return errAsync(new AppError('No content to duplicate'));
     }
@@ -47,7 +45,7 @@ export function duplicateContent(params: DuplicateContentParams[]): ResultAsync<
         })),
     };
 
-    return requestJson<TaskIdJson>(url, { method: 'POST', body: payload }).map(TaskId.fromJson);
+    return requestJson<{ taskId: string }>(url, { method: 'POST', body: payload }).map(({ taskId }) => taskId);
 }
 
 /**
