@@ -7,6 +7,7 @@ import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import { useOnceWhen } from '../../../shared/lib/hooks/useOnce';
 import {
     $deleteDialog,
+    $deleteInboundCount,
     $deleteInboundIds,
     $deleteItemsCount,
     $hasMoreDeleteDependants,
@@ -28,13 +29,14 @@ export const DeleteDialogMainContent = ({
     onArchive,
     'data-component': componentName = DELETE_DIALOG_MAIN_CONTENT_NAME,
 }: DeleteDialogMainContentProps): ReactElement => {
-    const { loading, failed, items, dependants, inboundIgnored } = useStore($deleteDialog, {
-        keys: ['loading', 'failed', 'items', 'dependants', 'inboundIgnored'],
+    const { loading, failed, items, dependants } = useStore($deleteDialog, {
+        keys: ['loading', 'failed', 'items', 'dependants'],
     });
     const ready = useStore($isDeleteDialogReady);
     const total = useStore($deleteItemsCount);
     const hasMoreDependants = useStore($hasMoreDeleteDependants);
     const inboundIds = useStore($deleteInboundIds);
+    const inboundCount = useStore($deleteInboundCount);
     const inboundSet = useMemo(() => new Set(inboundIds), [inboundIds]);
     const isInbound = useCallback(
         (content: ContentSummary) => inboundSet.has(content.getContentId().toString()),
@@ -59,14 +61,6 @@ export const DeleteDialogMainContent = ({
         event.preventDefault();
         actionButtonRef.current?.focus();
     };
-
-    const inboundCount = useMemo(() => {
-        if (inboundIgnored) {
-            return 0;
-        }
-        const allItems = [...items, ...dependants];
-        return allItems.filter((item) => inboundSet.has(item.getContentId().toString())).length;
-    }, [items, dependants, inboundSet, inboundIgnored]);
 
     return (
         <Dialog.Content

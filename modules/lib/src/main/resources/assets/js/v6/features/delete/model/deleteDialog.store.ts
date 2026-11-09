@@ -91,6 +91,18 @@ export const $deleteInboundIds = computed($deleteDialog, ({ inboundTargets }) =>
     return inboundTargets.map((id) => id.toString());
 });
 
+// Count uses the full id lists, not just the loaded dependant window.
+export const $deleteInboundCount = computed(
+    $deleteDialog,
+    ({ items, dependantIds, inboundTargets, inboundIgnored }) => {
+        if (inboundIgnored) {
+            return 0;
+        }
+        const targetIds = new Set([...items.map((item) => item.getContentId()), ...dependantIds].map(String));
+        return inboundTargets.filter((id) => targetIds.has(id.toString())).length;
+    },
+);
+
 export const $isDeleteDialogReady = computed([$deleteDialog, $isDeleteBlockedByInbound], (state, isBlocked) => {
     return state.open && !state.loading && !state.failed && !state.submitting && state.items.length > 0 && !isBlocked;
 });

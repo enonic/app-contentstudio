@@ -5,9 +5,11 @@ import { emitContentArchived, emitContentDeleted, emitContentUpdated } from '../
 import { start as startDeleteDialogService } from './deleteDialog.service';
 import {
     $deleteDialog,
+    $deleteInboundCount,
     $deleteInboundIds,
     $deleteItemsCount,
     $hasMoreDeleteDependants,
+    ignoreDeleteInboundDependencies,
     loadMoreDeleteDependants,
     openDeleteDialog,
     resetDeleteDialogContext,
@@ -169,5 +171,52 @@ describe('deleteDialog.store', () => {
         expect($deleteDialog.get().dependants).toHaveLength(40);
         expect($hasMoreDeleteDependants.get()).toBe(false);
         expect($deleteItemsCount.get()).toBe(41);
+    });
+
+    it('counts every inbound dependant by id regardless of the loaded window', async () => {
+        const item = createMockContent('item-1');
+        const dependantIds = Array.from({ length: 40 }, (_, index) => `dep-${index}`);
+        const inbound = dependantIds.map((target) => ({ target, sources: ['ref-1'] }));
+
+        mockResolveForDelete.mockResolvedValue(ok(createDeleteResolveResult(['item-1', ...dependantIds], inbound)));
+        mockFetchContentSummaries.mockImplementation((ids: ContentId[]) =>
+            Promise.resolve(ids.map((id) => createMockContent(id.toString()))),
+        );
+
+        openDeleteDialog([item]);
+        await flushInitialReload();
+
+        expect($deleteDialog.get().dependants).toHaveLength(36);
+        expect($hasMoreDeleteDependants.get()).toBe(true);
+        expect($deleteInboundCount.get()).toBe(40);
+
+        await loadMoreDeleteDependants();
+
+        expect($deleteDialog.get().dependants).toHaveLength(40);
+        expect($deleteInboundCount.get()).toBe(40);
+
+        ignoreDeleteInboundDependencies();
+
+        expect($deleteInboundCount.get()).toBe(0);
+    });
+
+    it('orders inbound dependants first so they land in the first window', async () => {
+        const item = createMockContent('item-1');
+        const dependantIds = Array.from({ length: 40 }, (_, index) => `dep-${index}`);
+
+        mockResolveForDelete.mockResolvedValue(
+            ok(createDeleteResolveResult(['item-1', ...dependantIds], [{ target: 'dep-39', sources: ['ref-1'] }])),
+        );
+        mockFetchContentSummaries.mockImplementation((ids: ContentId[]) =>
+            Promise.resolve(ids.map((id) => createMockContent(id.toString()))),
+        );
+
+        openDeleteDialog([item]);
+        await flushInitialReload();
+
+        expect($deleteDialog.get().dependants).toHaveLength(36);
+        expect($deleteDialog.get().dependants[0]?.getContentId().toString()).toBe('dep-39');
+        expect($hasMoreDeleteDependants.get()).toBe(true);
+        expect($deleteInboundCount.get()).toBe(1);
     });
 });

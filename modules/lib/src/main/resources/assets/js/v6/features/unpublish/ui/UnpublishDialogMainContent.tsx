@@ -9,6 +9,7 @@ import {
     $hasMoreUnpublishDependants,
     $isUnpublishDialogReady,
     $unpublishDialog,
+    $unpublishInboundCount,
     $unpublishInboundIds,
     $unpublishItemsCount,
     ignoreUnpublishInboundDependencies,
@@ -28,13 +29,14 @@ export const UnpublishDialogMainContent = ({
     onUnpublish,
     'data-component': componentName = UNPUBLISH_DIALOG_MAIN_CONTENT_NAME,
 }: UnpublishDialogMainContentProps): ReactElement => {
-    const { loading, failed, items, dependants, inboundIgnored } = useStore($unpublishDialog, {
-        keys: ['loading', 'failed', 'items', 'dependants', 'inboundIgnored'],
+    const { loading, failed, items, dependants } = useStore($unpublishDialog, {
+        keys: ['loading', 'failed', 'items', 'dependants'],
     });
     const ready = useStore($isUnpublishDialogReady);
     const total = useStore($unpublishItemsCount);
     const hasMoreDependants = useStore($hasMoreUnpublishDependants);
     const inboundIds = useStore($unpublishInboundIds);
+    const inboundCount = useStore($unpublishInboundCount);
     const inboundSet = useMemo(() => new Set(inboundIds), [inboundIds]);
     const isInbound = useCallback(
         (content: ContentSummary) => inboundSet.has(content.getContentId().toString()),
@@ -56,14 +58,6 @@ export const UnpublishDialogMainContent = ({
         event.preventDefault();
         unpublishButtonRef.current?.focus();
     };
-
-    const inboundCount = useMemo(() => {
-        if (inboundIgnored) {
-            return 0;
-        }
-        const allItems = [...items, ...dependants];
-        return allItems.filter((item) => inboundSet.has(item.getContentId().toString())).length;
-    }, [items, dependants, inboundSet, inboundIgnored]);
 
     return (
         <Dialog.Content
