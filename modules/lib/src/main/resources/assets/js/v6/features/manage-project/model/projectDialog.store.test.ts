@@ -78,6 +78,7 @@ import {
     $projectDialog,
     createProject as createProjectAction,
     $projectDialogConfigScope,
+    $projectDialogHasUnsavedApplications,
     $projectDialogInheritedAppKeys,
     closeProjectDialog,
     closeProjectDialogApplicationConfig,
@@ -391,6 +392,39 @@ describe('projectDialog.store application configs', () => {
             await openCreateProjectDialog([createProject('parent', [])]);
 
             expect($projectDialogConfigScope.get()).toEqual({ project: null, content: null });
+        });
+    });
+
+    describe('$projectDialogHasUnsavedApplications', () => {
+        it('should be false while the listed apps are the saved ones', async () => {
+            await openEditProjectDialog(createProject('layer', [createSiteConfig('app:b', {})]), []);
+
+            expect($projectDialogHasUnsavedApplications.get()).toBe(false);
+        });
+
+        it('should be true once an app is added, and false again once it is removed', async () => {
+            await openEditProjectDialog(createProject('layer', [createSiteConfig('app:b', {})]), []);
+
+            selectProjectDialogApplications(['app:b', 'app:c']);
+            expect($projectDialogHasUnsavedApplications.get()).toBe(true);
+
+            selectProjectDialogApplications(['app:b']);
+            expect($projectDialogHasUnsavedApplications.get()).toBe(false);
+        });
+
+        it('should not count an inherited app as unsaved', async () => {
+            const parent = createProject('parent', [createSiteConfig('app:b', {})]);
+
+            await openEditProjectDialog(createProject('layer', []), [parent]);
+
+            expect($projectDialogHasUnsavedApplications.get()).toBe(false);
+        });
+
+        it('should be false on create', async () => {
+            await openCreateProjectDialog([]);
+            selectProjectDialogApplications(['app:a']);
+
+            expect($projectDialogHasUnsavedApplications.get()).toBe(false);
         });
     });
 

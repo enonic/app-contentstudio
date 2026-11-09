@@ -59,7 +59,7 @@ const project = { getName: () => 'layer' } as unknown as Project;
 
 type Scope = { project?: Readonly<Project> | null; content?: null };
 
-const renderContent = (props: Scope & { form?: Form } = {}) =>
+const renderContent = (props: Scope & { form?: Form; notice?: string } = {}) =>
     render(
         <ApplicationConfigDialogContent
             application={undefined}
@@ -123,5 +123,11 @@ describe('ApplicationConfigDialogContent', () => {
         renderContent({ form: contentSelectorForm });
 
         expect(screen.queryByText(WARNING_KEY)).toBeNull();
+    });
+
+    it('should show the notice above the form when given', () => {
+        renderContent({ notice: 'Types appear after saving.' });
+
+        expect(screen.getByText('Types appear after saving.')).toBeTruthy();
     });
 });

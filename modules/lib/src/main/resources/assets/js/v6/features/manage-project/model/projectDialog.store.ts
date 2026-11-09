@@ -165,6 +165,23 @@ export const $projectDialogConfigScope = computed($projectDialog, ({ project }):
     content: null,
 }));
 
+/**
+ * Whether the dialog lists an app the saved project has not got yet, inherited ones aside: the
+ * server builds the root content types from the saved project, so a config form's selectors
+ * see the app's types only after the project is saved.
+ */
+export const $projectDialogHasUnsavedApplications = computed(
+    $projectDialog,
+    ({ mode, project, applications, parentProjects }): boolean => {
+        if (mode !== 'edit' || !project) return false;
+
+        const saved = new Set((project.getSiteConfigs() ?? []).map((config) => config.getApplicationKey().toString()));
+        const inherited = new Set(getInheritedAppKeys(parentProjects));
+
+        return applications.some((application) => !saved.has(application.key) && !inherited.has(application.key));
+    },
+);
+
 // The last derived set, by the parents it came from; the same instance keeps the step from re-rendering.
 let inheritedAppKeysMemo: { parentProjects: readonly Readonly<Project>[]; keys: ReadonlySet<string> } | undefined;
 

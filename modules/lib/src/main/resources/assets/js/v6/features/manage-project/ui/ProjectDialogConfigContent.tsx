@@ -1,13 +1,16 @@
 import { cn, Dialog } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import type { ReactElement } from 'react';
+import { type ReactElement, useMemo } from 'react';
+import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import {
     $projectDialog,
     $projectDialogConfigScope,
+    $projectDialogHasUnsavedApplications,
     applyProjectDialogApplicationConfig,
     setProjectDialogConfigDirty,
 } from '../model/projectDialog.store';
 import { ApplicationConfigDialogContent } from '../../shared/form';
+import { hasCreatableTypeInputs } from '../../shared/form/formScopeRequirements';
 import { useFormDialogYield } from '../../shared/hooks/useFormDialogYield';
 
 const COMPONENT_NAME = 'ProjectDialogConfigContent';
@@ -16,9 +19,17 @@ const COMPONENT_NAME = 'ProjectDialogConfigContent';
 export const ProjectDialogConfigContent = (): ReactElement | null => {
     const { editingConfig } = useStore($projectDialog, { keys: ['editingConfig'] });
     const configScope = useStore($projectDialogConfigScope);
+    const hasUnsavedApplications = useStore($projectDialogHasUnsavedApplications);
     const { contentProps } = useFormDialogYield();
+    const unsavedAppsNotice = useI18n('dialog.applicationConfig.unsavedApps');
 
     const form = editingConfig?.application.form;
+    // Only a form that offers creatable types can miss the ones of an unsaved app.
+    const showUnsavedAppsNotice = useMemo(
+        () => hasUnsavedApplications && form != null && hasCreatableTypeInputs(form),
+        [hasUnsavedApplications, form],
+    );
+
     if (!editingConfig || !form) return null;
 
     return (
@@ -36,6 +47,7 @@ export const ProjectDialogConfigContent = (): ReactElement | null => {
                 form={form}
                 configSet={editingConfig.configSet}
                 enabled
+                notice={showUnsavedAppsNotice ? unsavedAppsNotice : undefined}
                 {...configScope}
                 onApply={applyProjectDialogApplicationConfig}
                 onDirtyChange={setProjectDialogConfigDirty}

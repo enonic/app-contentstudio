@@ -2,7 +2,7 @@ import { type PropertySet } from '@enonic/input-types/data';
 import { type Form } from '@enonic/input-types/schema';
 import { ValidationVisibilityProvider } from '@enonic/input-types';
 import { Button, Dialog } from '@enonic/ui';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Info } from 'lucide-react';
 import type { ReactElement } from 'react';
 import { useEffect, useState } from 'react';
 import { type Application } from '../../../entities/application';
@@ -30,6 +30,8 @@ export type ApplicationConfigDialogContentProps = FormScope & {
     /** The set the form edits. Pass a clone; the caller copies it back on apply. */
     configSet: PropertySet;
     enabled: boolean;
+    /** A line of information shown above the form, e.g. about what the form cannot offer yet. */
+    notice?: string;
     onApply: () => void;
     /** Whether the set differs from its state on mount; reported on every change. */
     onDirtyChange?: (dirty: boolean) => void;
@@ -46,6 +48,7 @@ export const ApplicationConfigDialogContent = ({
     form,
     configSet,
     enabled,
+    notice,
     project,
     content,
     onApply,
@@ -77,6 +80,12 @@ export const ApplicationConfigDialogContent = ({
                     <StatusBarEntry className="mb-4 bg-surface-warn">
                         <AlertTriangle className="size-6 shrink-0" />
                         <span className="text-sm font-semibold">{disabledInputsText}</span>
+                    </StatusBarEntry>
+                )}
+                {notice && (
+                    <StatusBarEntry className="mb-4 bg-surface-info">
+                        <Info className="size-6 shrink-0" />
+                        <span className="text-sm font-semibold">{notice}</span>
                     </StatusBarEntry>
                 )}
                 {/* `interactive` shows errors on touched inputs only, so a disabled one shows none. */}
