@@ -13,7 +13,7 @@ commonsText = "1.15.0"
 libTextEncoding = "3.0.0"
 libMustache = "3.0.0"
 libHttpClient = "4.0.1"
-libRouter = "4.0.0"
+libRouter = "4.0.1"
 libStatic = "3.0.0"
 
 # Rest
