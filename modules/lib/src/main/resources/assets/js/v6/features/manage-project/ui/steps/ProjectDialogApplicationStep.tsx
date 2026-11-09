@@ -142,7 +142,9 @@ const ProjectDialogApplicationRow = ({
                         onClick={() => openProjectDialogApplicationConfig(key)}
                     />
                 )}
-                {!inherited && (
+                {inherited ? (
+                    <span aria-hidden className="size-10 shrink-0" />
+                ) : (
                     <IconButton
                         variant="text"
                         icon={X}
