@@ -22,6 +22,7 @@
     "check:devdeps": "node ../../scripts/check-dev-deps.mjs",
     "check:types": "tsc --skipLibCheck --declaration --noEmit",
     "check:lint": "oxlint -c ../../.oxlintrc.json --quiet src/main/resources/assets/js",
+    "check:lint-rules": "node --test ../../scripts/oxlint-plugin-content-studio.test.mjs",
     "check:lint:fix": "oxlint -c ../../.oxlintrc.json --quiet --fix src/main/resources/assets/js",
     "test": "vitest",
     "test:ui": "vitest --ui",

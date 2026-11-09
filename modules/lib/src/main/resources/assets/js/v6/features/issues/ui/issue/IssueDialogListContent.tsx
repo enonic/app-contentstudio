@@ -1,3 +1,4 @@
+import { TabContent } from '../../../../shared/ui/TabContent';
 import { Button, Dialog, Tab } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { Plus } from 'lucide-react';
@@ -147,22 +148,22 @@ export const IssueDialogListContent = (): ReactElement => {
                             </Tab.DefaultTrigger>
                         </Tab.List>
 
-                        <Tab.Content value="open" className="col-span-2 mt-0 min-h-0">
+                        <TabContent value="open" className="col-span-2 mt-0 min-h-0">
                             <IssueList
                                 issues={issues}
                                 emptyLabel={emptyLabel}
                                 loading={loading}
                                 onSelect={handleIssueSelect}
                             />
-                        </Tab.Content>
-                        <Tab.Content value="closed" className="col-span-2 mt-0 min-h-0">
+                        </TabContent>
+                        <TabContent value="closed" className="col-span-2 mt-0 min-h-0">
                             <IssueList
                                 issues={issues}
                                 emptyLabel={emptyLabel}
                                 loading={loading}
                                 onSelect={handleIssueSelect}
                             />
-                        </Tab.Content>
+                        </TabContent>
                     </div>
                 </Tab.Root>
             </Dialog.Body>

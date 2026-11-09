@@ -1,4 +1,4 @@
-import { Tab } from '@enonic/ui';
+import { TabContent } from '../../../shared/ui/TabContent';
 import { useStore } from '@nanostores/preact';
 import { Image } from 'lucide-react';
 import { type ReactElement, useCallback } from 'react';
@@ -38,7 +38,7 @@ export const NewContentDialogMediaTab = ({ tabName }: NewContentDialogMediaTabPr
     );
 
     return (
-        <Tab.Content value={tabName} className="mt-0 h-full" data-component={NEW_CONTENT_DIALOG_MEDIA_TAB_NAME}>
+        <TabContent value={tabName} className="mt-0 h-full" data-component={NEW_CONTENT_DIALOG_MEDIA_TAB_NAME}>
             <DropZone
                 icon={<Image size={28} />}
                 hint={hintLabel}
@@ -46,7 +46,7 @@ export const NewContentDialogMediaTab = ({ tabName }: NewContentDialogMediaTabPr
                 isDragging={isDragging}
                 onFiles={handleFiles}
             />
-        </Tab.Content>
+        </TabContent>
     );
 };
 
