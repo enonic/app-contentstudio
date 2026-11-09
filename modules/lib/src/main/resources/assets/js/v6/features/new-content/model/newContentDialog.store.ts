@@ -3,6 +3,7 @@ import { type ContentTypeSummary } from '../../../entities/schema';
 import { computed, listenKeys, map, task } from 'nanostores';
 import { errAsync } from 'neverthrow';
 import { i18n } from '../../../shared/i18n';
+import { type Content } from '../../../../app/content/Content';
 import { type ContentSummary } from '../../../../app/content/ContentSummary';
 import { type Project } from '../../../../app/settings/data/project/Project';
 import {
@@ -27,6 +28,10 @@ import { loadCreatableContentTypes } from './creatableContentTypes';
 type UploadOptions = {
     dataTransfer: DataTransfer;
     parentContent?: ContentSummary;
+    /** Project to upload into; defaults to the active project. */
+    projectName?: string;
+    /** Receives the uploaded contents instead of the browse tree revealing them, for a host without a tree. */
+    onUploaded?: (contents: Content[]) => void;
 };
 
 type OpenNewContentDialogOptions = {
@@ -36,6 +41,8 @@ type OpenNewContentDialogOptions = {
     project?: Readonly<Project>;
     /** Handles a picked type instead of firing `NewContentEvent`, for a host without the content app's listeners. */
     onTypeSelected?: (contentType: ContentTypeSummary) => void;
+    /** Receives what the Media tab uploaded instead of the browse tree revealing it. */
+    onUploaded?: (contents: Content[]) => void;
 };
 
 //
@@ -58,6 +65,7 @@ type NewContentDialogStore = {
     baseContentTypes: ContentTypeSummary[];
     suggestedContentTypes: ContentTypeSummary[];
     onTypeSelected?: (contentType: ContentTypeSummary) => void;
+    onUploaded?: (contents: Content[]) => void;
 };
 
 const initialState: NewContentDialogStore = {
@@ -74,6 +82,7 @@ const initialState: NewContentDialogStore = {
     baseContentTypes: [],
     suggestedContentTypes: [],
     onTypeSelected: undefined,
+    onUploaded: undefined,
 };
 
 export const $newContentDialog = map<NewContentDialogStore>(structuredClone(initialState));
@@ -151,6 +160,7 @@ export const openNewContentDialog = (parentContent?: ContentSummary, options?: O
         allowedContentTypes: options?.allowedContentTypes,
         preloadedContentTypes: options?.contentTypes,
         onTypeSelected: options?.onTypeSelected,
+        onUploaded: options?.onUploaded,
     });
 };
 
@@ -170,9 +180,24 @@ export const setIsDragging = (isDragging: boolean): void => {
     $newContentDialog.setKey('isDragging', isDragging);
 };
 
-// TODO: replace places invoking this function with the useUploadMedia hook
-export async function uploadMediaFiles({ dataTransfer, parentContent }: UploadOptions): Promise<void> {
-    if (dataTransfer.files.length === 0) return;
+/**
+ * Uploads the files and the dragged web images of a drop, then hands the contents to the
+ * host or reveals them in the browse tree, once for the whole drop.
+ */
+// TODO: replace with the useUploadMedia hook
+export async function uploadDroppedMedia(options: UploadOptions): Promise<void> {
+    const [files, images] = await Promise.all([uploadMediaFiles(options), uploadDragImages(options)]);
+    const contents = [...files, ...images];
+
+    if (options.onUploaded) {
+        options.onUploaded(contents);
+    } else if (contents.length > 0) {
+        await revealUploadedContent(options.parentContent);
+    }
+}
+
+async function uploadMediaFiles({ dataTransfer, parentContent, projectName }: UploadOptions): Promise<Content[]> {
+    if (dataTransfer.files.length === 0) return [];
 
     const files = Array.from(dataTransfer.files);
 
@@ -187,23 +212,21 @@ export async function uploadMediaFiles({ dataTransfer, parentContent }: UploadOp
             id,
             file,
             parentContent,
+            projectName,
             onProgress: (id, progress) => updateUploadProgress(id, progress),
         });
     });
 
     const results = await Promise.all(tasks.map((task) => task.match(onEachSuccess, onEachError)));
 
-    if (results.some(Boolean)) {
-        await revealUploadedContent(parentContent);
-    }
+    return results.filter((content): content is Content => content != null);
 }
 
-// TODO: replace places invoking this function with the useUploadMedia hook
-export async function uploadDragImages({ dataTransfer, parentContent }: UploadOptions) {
+async function uploadDragImages({ dataTransfer, parentContent, projectName }: UploadOptions): Promise<Content[]> {
     const htmlData = dataTransfer.getData('text/html');
     const imgSources = extractImageSources(htmlData);
 
-    if (imgSources.length === 0) return;
+    if (imgSources.length === 0) return [];
 
     const tasks = imgSources.map((src) => {
         const id = src;
@@ -216,6 +239,7 @@ export async function uploadDragImages({ dataTransfer, parentContent }: UploadOp
             id,
             imageSource: src,
             parentContent,
+            projectName,
             onProgress: (id, progress) => updateUploadProgress(id, progress),
         };
 
@@ -229,9 +253,7 @@ export async function uploadDragImages({ dataTransfer, parentContent }: UploadOp
 
     const results = await Promise.all(tasks.map((task) => task.match(onEachSuccess, onEachError)));
 
-    if (results.some(Boolean)) {
-        await revealUploadedContent(parentContent);
-    }
+    return results.filter((content): content is Content => content != null);
 }
 
 //
@@ -289,17 +311,17 @@ function extractImageSources(htmlData: string): string[] {
         .filter((src): src is string => src != null);
 }
 
-function onEachSuccess(success: UploadMediaSuccess): boolean {
+function onEachSuccess(success: UploadMediaSuccess): Content {
     removeUpload(success.mediaIdentifier);
     notifySuccess(i18n('notify.upload.success', success.mediaIdentifier));
-    return true;
+    return success.content;
 }
 
-function onEachError(error: UploadError): boolean {
+function onEachError(error: UploadError): undefined {
     console.error(error);
     removeUpload(error.mediaIdentifier);
     notifyError(i18n('notify.upload.error', error.mediaIdentifier, error.message));
-    return false;
+    return undefined;
 }
 
 // Reveal uploaded items under their target parent: expand it (unless already

@@ -37,8 +37,17 @@ vi.mock('../../../entities/project/activeProject.store', async () => {
     return { $activeProject: atom(undefined) };
 });
 
+import { okAsync } from 'neverthrow';
+import { type Content } from '../../../../app/content/Content';
+import { reloadParentChildren } from '../../../entities/content';
+import { uploadMediaFile } from '../../../entities/content/api/uploadMedia.api';
 import { $activeProject } from '../../../entities/project/activeProject.store';
-import { $newContentDialog, closeNewContentDialog, openNewContentDialog } from './newContentDialog.store';
+import {
+    $newContentDialog,
+    closeNewContentDialog,
+    openNewContentDialog,
+    uploadDroppedMedia,
+} from './newContentDialog.store';
 import { type ContentTypeSummary } from '../../../entities/schema';
 import { type ContentTypeName } from '../../../shared/lib/cms/schema/contentTypeName';
 
@@ -155,13 +164,15 @@ describe('newContentDialog.store', () => {
             expect($newContentDialog.get().loading).toBe(false);
         });
 
-        it('should keep the type handler of the opening', async () => {
+        it('should keep the handlers of the opening', async () => {
             const onTypeSelected = vi.fn();
+            const onUploaded = vi.fn();
 
-            openNewContentDialog(parent, { contentTypes: [person], onTypeSelected });
+            openNewContentDialog(parent, { contentTypes: [person], onTypeSelected, onUploaded });
             await flushPromises();
 
             expect($newContentDialog.get().onTypeSelected).toBe(onTypeSelected);
+            expect($newContentDialog.get().onUploaded).toBe(onUploaded);
         });
 
         it('should drop the options of a previous opening', async () => {
@@ -170,6 +181,7 @@ describe('newContentDialog.store', () => {
                 contentTypes: [person],
                 project,
                 onTypeSelected: vi.fn(),
+                onUploaded: vi.fn(),
             });
             await flushPromises();
             closeNewContentDialog();
@@ -182,12 +194,55 @@ describe('newContentDialog.store', () => {
             expect(state.preloadedContentTypes).toBeUndefined();
             expect(state.project).toBeUndefined();
             expect(state.onTypeSelected).toBeUndefined();
+            expect(state.onUploaded).toBeUndefined();
             expect(mockGetAvailableContentTypes).toHaveBeenCalledOnce();
             expect(mockGetAvailableContentTypes).toHaveBeenCalledWith({
                 contentId: parent.getContentId(),
                 allowedContentTypes: undefined,
                 project,
             });
+        });
+    });
+
+    describe('uploadDroppedMedia', () => {
+        const uploaded = { getId: () => 'm-1' } as unknown as Content;
+        const drop = (files: File[]) => ({ files, getData: () => '' }) as unknown as DataTransfer;
+
+        beforeEach(() => {
+            vi.mocked(uploadMediaFile).mockReturnValue(okAsync({ mediaIdentifier: 'a.png', content: uploaded }));
+            vi.mocked(reloadParentChildren).mockResolvedValue(undefined);
+        });
+
+        it('should upload into the given project root and hand the contents to the handler, not the tree', async () => {
+            const onUploaded = vi.fn();
+
+            await uploadDroppedMedia({
+                dataTransfer: drop([new File(['x'], 'a.png')]),
+                projectName: 'other',
+                onUploaded,
+            });
+
+            expect(uploadMediaFile).toHaveBeenCalledWith(
+                expect.objectContaining({ id: 'a.png', parentContent: undefined, projectName: 'other' }),
+            );
+            expect(onUploaded).toHaveBeenCalledOnce();
+            expect(onUploaded).toHaveBeenCalledWith([uploaded]);
+            expect(reloadParentChildren).not.toHaveBeenCalled();
+        });
+
+        it('should reveal the uploads in the tree when there is no handler', async () => {
+            await uploadDroppedMedia({ dataTransfer: drop([new File(['x'], 'a.png')]) });
+
+            expect(reloadParentChildren).toHaveBeenCalledWith(null);
+        });
+
+        it('should hand over an empty list when nothing was dropped', async () => {
+            const onUploaded = vi.fn();
+
+            await uploadDroppedMedia({ dataTransfer: drop([]), onUploaded });
+
+            expect(uploadMediaFile).not.toHaveBeenCalled();
+            expect(onUploaded).toHaveBeenCalledWith([]);
         });
     });
 });

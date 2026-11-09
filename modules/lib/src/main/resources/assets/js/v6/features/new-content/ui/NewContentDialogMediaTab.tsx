@@ -7,7 +7,7 @@ import {
     $newContentDialog,
     closeNewContentDialog,
     setIsDragging,
-    uploadMediaFiles,
+    uploadDroppedMedia,
 } from '../model/newContentDialog.store';
 import { DropZone } from '../../../shared/ui/DropZone';
 
@@ -18,7 +18,9 @@ type NewContentDialogMediaTabProps = {
 };
 
 export const NewContentDialogMediaTab = ({ tabName }: NewContentDialogMediaTabProps): ReactElement => {
-    const { parentContent, isDragging } = useStore($newContentDialog, { keys: ['parentContent', 'isDragging'] });
+    const { parentContent, project, isDragging, onUploaded } = useStore($newContentDialog, {
+        keys: ['parentContent', 'project', 'isDragging', 'onUploaded'],
+    });
     const hintLabel = useI18n('dialog.new.hint.upload');
 
     const handleFiles = useCallback(
@@ -28,14 +30,11 @@ export const NewContentDialogMediaTab = ({ tabName }: NewContentDialogMediaTabPr
             const dataTransfer = new DataTransfer();
             Array.from(files).forEach((file) => dataTransfer.items.add(file));
 
-            void uploadMediaFiles({
-                dataTransfer,
-                parentContent,
-            });
+            void uploadDroppedMedia({ dataTransfer, parentContent, projectName: project?.getName(), onUploaded });
 
             closeNewContentDialog();
         },
-        [parentContent, setIsDragging],
+        [parentContent, project, onUploaded],
     );
 
     return (

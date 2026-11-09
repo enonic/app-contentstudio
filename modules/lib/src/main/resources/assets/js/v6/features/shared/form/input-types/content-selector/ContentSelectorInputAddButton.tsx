@@ -12,6 +12,7 @@ import { loadCreatableContentTypes } from '../../../../new-content/model/creatab
 import { isDescendantOfMedia } from '../../../../../shared/lib/cms/schema/contentTypeName';
 import { type ApplicationKey } from '../../../../../shared/lib/cms/application/applicationKey';
 import { type ContentTypeSummary } from '../../../../../entities/schema';
+import { type Content } from '../../../../../../app/content/Content';
 import { addContentInProjectRoot } from './contentSelectorAdd.service';
 
 type ContentSelectorInputAddButtonProps = {
@@ -34,7 +35,8 @@ export const ContentSelectorInputAddButton = ({
     const [isLoadingTypes, setIsLoadingTypes] = useState(false);
     const [uploadIds, setUploadIds] = useState<string[]>([]);
     const { content: contextContent, project } = useFormScope();
-    const parentId = contextContent?.getContentId()?.toString() ?? undefined;
+    // Uploads land under the content, or under no parent in the project root.
+    const parentId = contextContent?.getContentId()?.toString() ?? null;
 
     // Refs
     const isWaitingForContentCreationRef = useRef(false);
@@ -125,10 +127,19 @@ export const ContentSelectorInputAddButton = ({
     // ? Root mode: a project without a content, as in the project dialog. The settings page has
     // ? no socket events or `NewContentEvent` listener, so nothing waits for a created event here.
     const handleRootTypeSelected = async (contentType: ContentTypeSummary) => {
+        isWaitingForContentCreationRef.current = false;
         if (!project) return;
 
         const contentId = await addContentInProjectRoot(contentType.name, project);
         if (contentId) onSelectionChangeRef.current([...selectionRef.current, contentId]);
+    };
+
+    // The dialog uploads a whole drop and reports it once, so one selection change covers it.
+    const handleRootUploaded = (contents: Content[]) => {
+        isWaitingForContentCreationRef.current = false;
+        if (contents.length === 0) return;
+
+        onSelectionChangeRef.current([...selectionRef.current, ...contents.map((content) => content.getId())]);
     };
 
     const handleRootClick = async () => {
@@ -142,12 +153,14 @@ export const ContentSelectorInputAddButton = ({
         );
 
         setIsLoadingTypes(false);
+        isWaitingForContentCreationRef.current = true;
 
         openNewContentDialog(undefined, {
             allowedContentTypes,
             contentTypes: types,
             project,
             onTypeSelected: handleRootTypeSelected,
+            onUploaded: handleRootUploaded,
         });
     };
 

@@ -207,6 +207,9 @@ describe('ContentSelectorInputAddButton', () => {
         const pickedTypeHandler = (): ((type: ContentTypeSummary) => Promise<void>) =>
             mockOpenNewContentDialog.mock.calls[0][1].onTypeSelected;
 
+        const uploadedHandler = (): ((contents: { getId: () => string }[]) => void) =>
+            mockOpenNewContentDialog.mock.calls[0][1].onUploaded;
+
         it('should load the types of the scope project root with the allowed names', async () => {
             mockGetAvailableContentTypes.mockResolvedValue([person, movie]);
 
@@ -232,7 +235,31 @@ describe('ContentSelectorInputAddButton', () => {
                 contentTypes: [person, movie],
                 project: scopeProject,
                 onTypeSelected: expect.any(Function),
+                onUploaded: expect.any(Function),
             });
+        });
+
+        it('should add what the dialog uploaded to the selection in one change', async () => {
+            mockGetAvailableContentTypes.mockResolvedValue([person, movie]);
+            const onSelectionChange = vi.fn();
+
+            renderRoot(onSelectionChange);
+            await clickAdd();
+            uploadedHandler()([{ getId: () => 'm-1' }, { getId: () => 'm-2' }]);
+
+            expect(onSelectionChange).toHaveBeenCalledOnce();
+            expect(onSelectionChange).toHaveBeenCalledWith(['old-1', 'm-1', 'm-2']);
+        });
+
+        it('should leave the selection alone when nothing was uploaded', async () => {
+            mockGetAvailableContentTypes.mockResolvedValue([person, movie]);
+            const onSelectionChange = vi.fn();
+
+            renderRoot(onSelectionChange);
+            await clickAdd();
+            uploadedHandler()([]);
+
+            expect(onSelectionChange).not.toHaveBeenCalled();
         });
 
         it('should create a picked type in the scope project root and add it to the selection', async () => {
@@ -272,6 +299,7 @@ describe('ContentSelectorInputAddButton', () => {
                 contentTypes: undefined,
                 project: scopeProject,
                 onTypeSelected: expect.any(Function),
+                onUploaded: expect.any(Function),
             });
         });
     });
