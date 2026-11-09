@@ -173,7 +173,8 @@ class SingleSelectionOptionSet extends Page {
 
     async getValidationRecording() {
         try {
-            let locator = this.container + xpath.occurrenceBody + "//div[contains(@class,'text-error')]";
+            let locator =
+                this.container + xpath.occurrenceBody + "//div[contains(@class,'text-error') and normalize-space()]";
             await this.waitForElementDisplayed(locator);
             return await this.getText(locator);
         } catch (err) {
@@ -186,7 +187,8 @@ class SingleSelectionOptionSet extends Page {
     }
 
     waitForValidationRecordingNotDisplayed() {
-        let locator = this.container + xpath.occurrenceBody + "//div[contains(@class,'text-error')]";
+        let locator =
+            this.container + xpath.occurrenceBody + "//div[contains(@class,'text-error') and normalize-space()]";
         return this.waitForElementNotDisplayed(locator);
     }
 }

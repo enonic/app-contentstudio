@@ -49,7 +49,7 @@ class InsertAnchorModalDialog extends Page {
 
     async waitForValidationMessage() {
         try {
-            let locator = XPATH.container + "//div[contains(@class,'text-error')]";
+            let locator = XPATH.container + "//div[contains(@class,'text-error') and normalize-space()]";
             return await this.waitForElementDisplayed(locator, appConst.shortTimeout);
         } catch (err) {
             await this.handleError(`Insert Anchor Dialog`, 'err_wait_for_validation_message', err);
@@ -57,7 +57,7 @@ class InsertAnchorModalDialog extends Page {
     }
 
     async getValidationMessage() {
-        let locator = XPATH.container + "//div[contains(@class,'text-error')]";
+        let locator = XPATH.container + "//div[contains(@class,'text-error') and normalize-space()]";
         await this.waitForValidationMessage();
         return await this.getText(locator);
     }

@@ -4,22 +4,21 @@ const appConst = require('../../../libs/app_const');
 const XPATH = {
     container: `//div[@role='dialog' and @data-component='HtmlAreaLinkDialog']`,
     urlPanel: "//div[@data-component='UrlTabPanel']",
-    urlTypeOption: option => `//div[@role='listbox']//div[@role='option' and child::span[text()='${option}']]`,
+    urlTypeOption: (option) => `//div[@role='listbox']//div[@role='option' and child::span[text()='${option}']]`,
 };
 
 class InsertLinkDialogUrlPanel extends Page {
-
     get urlInput() {
-        return XPATH.container + XPATH.urlPanel + "//input";
+        return XPATH.container + XPATH.urlPanel + '//input';
     }
 
     get urlInputValidationMessage() {
-        return XPATH.container + XPATH.urlPanel + "//div[contains(@class,'text-error')]";
+        return XPATH.container + XPATH.urlPanel + "//div[contains(@class,'text-error') and normalize-space()]";
     }
 
     // types text in URL input(URL tab)
     typeUrl(url) {
-        return this.typeTextInInput(this.urlInput, url).catch(err => {
+        return this.typeTextInInput(this.urlInput, url).catch((err) => {
             this.saveScreenshot('err_type_link_url');
             throw new Error('error when type URL in Insert Link modal dialog ' + err);
         });
@@ -68,8 +67,8 @@ class InsertLinkDialogUrlPanel extends Page {
         try {
             return await this.waitForElementDisplayed(this.urlInputValidationMessage, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_validation"));
-            throw new Error("Validation message for URL input is not displayed " + err);
+            await this.saveScreenshot(appConst.generateRandomName('err_validation'));
+            throw new Error('Validation message for URL input is not displayed ' + err);
         }
     }
 
@@ -77,18 +76,17 @@ class InsertLinkDialogUrlPanel extends Page {
         try {
             return await this.waitForElementNotDisplayed(this.urlInputValidationMessage, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_close_insert_link"));
-            throw new Error("Insert link dialog should be closed " + err);
+            await this.saveScreenshot(appConst.generateRandomName('err_close_insert_link'));
+            throw new Error('Insert link dialog should be closed ' + err);
         }
     }
 
     async isUrlTypeOptionSelected(option) {
-        let locator =  XPATH.urlTypeOption(option);
+        let locator = XPATH.urlTypeOption(option);
         let el = await this.findElements(locator);
-        let attr= await el[0].getAttribute('aria-selected');
-        return attr==='true';
+        let attr = await el[0].getAttribute('aria-selected');
+        return attr === 'true';
     }
-
 }
 
 module.exports = InsertLinkDialogUrlPanel;

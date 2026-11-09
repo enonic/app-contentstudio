@@ -3,7 +3,7 @@
  */
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
-const {COMMON, BUTTONS} = require('../../libs/elements');
+const { COMMON, BUTTONS } = require('../../libs/elements');
 const XPATH = {
     removeButton: "//button[@class='remove-button']",
     hideDetailsButton: "//button[contains(@id,'TogglerButton') and child::span[text()='Hide details']]",
@@ -15,7 +15,6 @@ const XPATH = {
 };
 
 class OccurrencesFormView extends Page {
-
     get formValidationRecording() {
         return COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + COMMON.INPUTS.VALIDATION_RECORDING;
     }
@@ -26,7 +25,7 @@ class OccurrencesFormView extends Page {
     }
 
     get inputOccurrenceErrorRecording() {
-        return COMMON.INPUTS.OCCURRENCES_DATA_COMPONENT + "//div[contains(@class,'text-error')]";
+        return COMMON.INPUTS.OCCURRENCES_DATA_COMPONENT + "//div[contains(@class,'text-error') and normalize-space()]";
     }
 
     get addButton() {
@@ -54,10 +53,13 @@ class OccurrencesFormView extends Page {
     }
 
     async waitForFormValidationRecordingDisplayed() {
-        await this.getBrowser().waitUntil(async () => {
-            let elements = await this.getDisplayedElements(this.formValidationRecording);
-            return elements.length > 0;
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Form Validation recording should be displayed'});
+        await this.getBrowser().waitUntil(
+            async () => {
+                let elements = await this.getDisplayedElements(this.formValidationRecording);
+                return elements.length > 0;
+            },
+            { timeout: appConst.mediumTimeout, timeoutMsg: 'Form Validation recording should be displayed' },
+        );
     }
 
     async getFormValidationRecording() {
@@ -67,10 +69,13 @@ class OccurrencesFormView extends Page {
     }
 
     async waitForFormValidationRecordingNotDisplayed() {
-        await this.getBrowser().waitUntil(async () => {
-            let elements = await this.getDisplayedElements(this.formValidationRecording);
-            return elements.length === 0;
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Form Validation recording should not be displayed'});
+        await this.getBrowser().waitUntil(
+            async () => {
+                let elements = await this.getDisplayedElements(this.formValidationRecording);
+                return elements.length === 0;
+            },
+            { timeout: appConst.mediumTimeout, timeoutMsg: 'Form Validation recording should not be displayed' },
+        );
     }
 
     async waitForOccurrenceValidationRecordingNotDisplayedAt(index) {
@@ -78,7 +83,11 @@ class OccurrencesFormView extends Page {
             let errorSelector = await this.getOccurrenceErrorSelectorAt(index);
             return await this.waitForElementNotDisplayed(errorSelector);
         } catch (err) {
-            await this.handleError('Occurrence Validation record should not be displayed', 'err_occurrence_valid_recording', err);
+            await this.handleError(
+                'Occurrence Validation record should not be displayed',
+                'err_occurrence_valid_recording',
+                err,
+            );
         }
     }
 
@@ -86,26 +95,33 @@ class OccurrencesFormView extends Page {
     // the multi-occurrence (SortableGridList rows) and single-occurrence (Input) layouts.
     async getOccurrenceErrorSelectorAt(index) {
         let sortableRows = await this.findElements(XPATH.sortableOccurrence);
-        let occurrenceSelector = sortableRows.length > 0
-                                 ? `(${XPATH.sortableOccurrence})[${index + 1}]`
-                                 : `(${COMMON.INPUTS.OCCURRENCES_DATA_COMPONENT}${COMMON.INPUTS.DATA_COMPONENT_INPUT})[${index + 1}]`;
+        let occurrenceSelector =
+            sortableRows.length > 0
+                ? `(${XPATH.sortableOccurrence})[${index + 1}]`
+                : `(${COMMON.INPUTS.OCCURRENCES_DATA_COMPONENT}${COMMON.INPUTS.DATA_COMPONENT_INPUT})[${index + 1}]`;
         return occurrenceSelector + COMMON.INPUTS.VALIDATION_RECORDING;
     }
 
     async waitForOccurrenceValidationRecordingDisplayedAt(index, expectedMessage) {
         try {
             let errorSelector = await this.getOccurrenceErrorSelectorAt(index);
-            await this.getBrowser().waitUntil(async () => {
-                let elements = await this.findElements(errorSelector);
-                if (elements.length === 0) {
-                    return false;
-                }
-                let text = await elements[0].getText();
-                return text === expectedMessage;
-            }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Occurrence Validation recording should be displayed'});
+            await this.getBrowser().waitUntil(
+                async () => {
+                    let elements = await this.findElements(errorSelector);
+                    if (elements.length === 0) {
+                        return false;
+                    }
+                    let text = await elements[0].getText();
+                    return text === expectedMessage;
+                },
+                { timeout: appConst.mediumTimeout, timeoutMsg: 'Occurrence Validation recording should be displayed' },
+            );
         } catch (err) {
-            await this.handleError(`Occurrence Validation recording should be displayed: ${expectedMessage} `, 'err_occur_valid_recording',
-                err);
+            await this.handleError(
+                `Occurrence Validation recording should be displayed: ${expectedMessage} `,
+                'err_occur_valid_recording',
+                err,
+            );
         }
     }
 
@@ -139,7 +155,6 @@ class OccurrencesFormView extends Page {
             await this.handleError('Add button should be displayed', 'err_click_add_button', err);
         }
     }
-
 }
 
 module.exports = OccurrencesFormView;

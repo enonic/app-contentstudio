@@ -45,7 +45,7 @@ const COMMON = {
         inputFieldByLabel: (label) =>
             `//div[@data-component='InputField' and descendant::div[@data-component='InputLabel' and contains(.,'${label}')]]`,
         OCCURRENCES_DATA_COMPONENT: "//div[@data-component='OccurrenceList']",
-        VALIDATION_RECORDING: "//div[contains(@class,'text-error')]",
+        VALIDATION_RECORDING: "//div[contains(@class,'text-error') and normalize-space()]",
         CHECKBOX_INPUT_CHECKED: "//input[@type='checkbox' and @aria-checked='true']",
         TEXT: "//input[@type='text']",
         TEXTAREA: '//textarea',
