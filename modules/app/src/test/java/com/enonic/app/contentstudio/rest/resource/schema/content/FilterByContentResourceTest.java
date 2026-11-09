@@ -16,6 +16,7 @@ import jakarta.ws.rs.core.MediaType;
 import com.enonic.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.app.contentstudio.rest.resource.AdminResourceTestSupport;
 import com.enonic.app.contentstudio.rest.resource.content.JsonObjectsFactory;
+import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.descriptor.DescriptorKey;
 import com.enonic.xp.form.Form;
@@ -81,7 +82,7 @@ class FilterByContentResourceTest
             .icon( Icon.from( new byte[]{123}, "image/gif", Instant.now() ) )
             .build();
 
-        when( filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of() ) ).thenReturn( Stream.of( contentTypeToMap ) );
+        when( filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of(), null ) ).thenReturn( Stream.of( contentTypeToMap ) );
         String jsonString = request().path( "cms/default/content/schema/filter/contentTypes" )
             .entity( "{\"contentId\":\"test\"}", MediaType.APPLICATION_JSON_TYPE )
             .post()
@@ -101,9 +102,30 @@ class FilterByContentResourceTest
             .icon( Icon.from( new byte[]{123}, "image/gif", Instant.now() ) )
             .build();
 
-        when( filterByContentResolver.contentTypes( isNull(), eq( Set.of() ) ) ).thenReturn( Stream.of( contentTypeToMap ) );
+        when( filterByContentResolver.contentTypes( isNull(), eq( Set.of() ), isNull() ) ).thenReturn( Stream.of( contentTypeToMap ) );
         String jsonString = request().path( "cms/default/content/schema/filter/contentTypes" )
             .entity( "{}", MediaType.APPLICATION_JSON_TYPE )
+            .post()
+            .getAsString();
+
+        assertJson( "filter_content_types.json", jsonString );
+    }
+
+    @Test
+    void contentTypes_root_allowedContentTypes_and_applicationKey()
+        throws Exception
+    {
+        final ContentType contentTypeToMap = ContentType.create()
+            .superType( ContentTypeName.structured() )
+            .title( "My type" )
+            .name( "application:test-type" )
+            .icon( Icon.from( new byte[]{123}, "image/gif", Instant.now() ) )
+            .build();
+
+        when( filterByContentResolver.contentTypes( isNull(), eq( Set.of( "test-*" ) ), eq( ApplicationKey.from( "application" ) ) ) ).thenReturn(
+            Stream.of( contentTypeToMap ) );
+        String jsonString = request().path( "cms/default/content/schema/filter/contentTypes" )
+            .entity( "{\"allowedContentTypes\":[\"test-*\"],\"applicationKey\":\"application\"}", MediaType.APPLICATION_JSON_TYPE )
             .post()
             .getAsString();
 

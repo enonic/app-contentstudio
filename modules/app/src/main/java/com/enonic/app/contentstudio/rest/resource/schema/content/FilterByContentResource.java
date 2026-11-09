@@ -42,7 +42,7 @@ public class FilterByContentResource
     @Path("contentTypes")
     public ContentTypeSummaryListJson contentTypes( GetContentTypesJson json, @Context HttpServletRequest request )
     {
-        return new ContentTypeSummaryListJson( filterByContentResolver.contentTypes( json.getContentId(), json.getAllowedContentTypes() )
+        return new ContentTypeSummaryListJson( filterByContentResolver.contentTypes( json.getContentId(), json.getAllowedContentTypes(), json.getApplicationKey() )
                                                    .map( t -> jsonObjectsFactory.createContentTypeSummaryJson(t, request) )
                                                    .collect( Collectors.toUnmodifiableList() ) );
     }

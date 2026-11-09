@@ -1,5 +1,6 @@
 import { type ResultAsync } from 'neverthrow';
 import { type ContentId } from '../../../../app/content/ContentId';
+import { type ApplicationKey } from '../../../shared/lib/cms/application/applicationKey';
 import { requestJson } from '@enonic/ui-utils/request';
 import type { AppError } from '@enonic/ui-utils';
 import { getCmsProjectUrl, getCmsRestUri } from '../../../shared/lib/url/cms';
@@ -39,6 +40,8 @@ export function fetchContentTypesByContent(
 export type CreatableContentTypesParams = {
     contentId?: ContentId;
     allowedContentTypes?: string[];
+    /** Resolves `${app}` in the allowed patterns when there is no content; a content's own application does otherwise. */
+    applicationKey?: ApplicationKey;
     projectName?: string;
 };
 
@@ -49,10 +52,11 @@ export type CreatableContentTypesParams = {
 export function fetchCreatableContentTypes({
     contentId,
     allowedContentTypes,
+    applicationKey,
     projectName,
 }: CreatableContentTypesParams): ResultAsync<ContentTypeSummary[], AppError> {
     return requestJson<ContentTypesResponse>(getCmsProjectUrl('content/schema/filter/contentTypes', projectName), {
         method: 'POST',
-        body: { contentId: contentId?.toString(), allowedContentTypes },
+        body: { contentId: contentId?.toString(), allowedContentTypes, applicationKey },
     }).map((response) => response.contentTypes.map(parseContentTypeSummary));
 }

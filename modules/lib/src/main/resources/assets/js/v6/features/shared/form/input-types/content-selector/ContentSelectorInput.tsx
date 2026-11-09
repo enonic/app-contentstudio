@@ -65,6 +65,7 @@ export const ContentSelectorInput = (props: SelfManagedComponentProps<ContentSel
                         <ContentSelectorInputAddButton
                             disabled={disabled}
                             allowedContentTypes={contentTypeNames}
+                            applicationKey={applicationKey}
                             selection={selection}
                             onSelectionChange={handleSelectionChange}
                         />

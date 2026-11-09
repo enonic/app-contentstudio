@@ -76,6 +76,7 @@ const parent = new ContentSummaryBuilder()
 
 const scopeProject = Project.create().setName('scope-project').build();
 const allowedContentTypes = ['com.app:person'];
+const applicationKey = 'com.app';
 
 const renderButton = (scope: FormScope = { project: scopeProject, content: parent }) =>
     render(
@@ -83,6 +84,7 @@ const renderButton = (scope: FormScope = { project: scopeProject, content: paren
             <ContentSelectorInputAddButton
                 disabled={false}
                 allowedContentTypes={allowedContentTypes}
+                applicationKey={applicationKey}
                 selection={[]}
                 onSelectionChange={vi.fn()}
             />
@@ -199,7 +201,11 @@ describe('ContentSelectorInputAddButton', () => {
             renderRoot();
             await clickAdd();
 
-            expect(mockGetAvailableContentTypes).toHaveBeenCalledWith({ allowedContentTypes, project: scopeProject });
+            expect(mockGetAvailableContentTypes).toHaveBeenCalledWith({
+                allowedContentTypes,
+                applicationKey,
+                project: scopeProject,
+            });
         });
 
         it('should open the dialog in the scope project root without firing a new content event', async () => {

@@ -1,5 +1,6 @@
 package com.enonic.app.contentstudio.rest.resource.schema.content;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -94,11 +95,19 @@ public class FilterByContentResolver
 
     private ProjectService projectService;
 
-    public Stream<ContentType> contentTypes( final ContentId contentId, final Set<String> allowedContentTypes )
+    public Stream<ContentType> contentTypes( final ContentId contentId, final Set<String> allowedContentTypes,
+                                             final ApplicationKey applicationKey )
     {
         if ( contentId == null )
         {
-            return Stream.concat( mapToContentTypes( DEFAULT_CONTENT_TYPE_NAMES ), getProjectContentTypes() ).filter( distinctByName() );
+            // No parent content to resolve the patterns against, so the form's application does; without one the
+            // root is not narrowed, as before.
+            final Predicate<ContentTypeName> allowedContentTypesPredicate =
+                applicationKey == null ? s -> true : allowContentTypeFilter( applicationKey, allowedContentTypes );
+
+            return Stream.concat( mapToContentTypes( DEFAULT_CONTENT_TYPE_NAMES ), getProjectContentTypes() )
+                .filter( distinctByName() )
+                .filter( type -> allowedContentTypesPredicate.test( type.getName() ) );
         }
 
         final Content content = contentService.getById( contentId );
@@ -236,7 +245,7 @@ public class FilterByContentResolver
         return allowContentTypeFilter( descriptor.getKey().getApplicationKey(), allowOnContentType ).test( contentTypeName );
     }
 
-    private Predicate<ContentTypeName> allowContentTypeFilter( final ApplicationKey applicationKey, final List<String> wildcards )
+    private Predicate<ContentTypeName> allowContentTypeFilter( final ApplicationKey applicationKey, final Collection<String> wildcards )
     {
         final ApplicationWildcardMatcher<ContentTypeName> wildcardMatcher =
             new ApplicationWildcardMatcher<>( applicationKey, ContentTypeName::toString);

@@ -10,10 +10,12 @@ import { $contentCreated } from '../../../../../shared/socket/socket.store';
 import { $uploads, getUploadsForParent } from '../../../../../entities/content/model/uploads.store';
 import { loadCreatableContentTypes } from '../../../../new-content/model/creatableContentTypes';
 import { isDescendantOfMedia } from '../../../../../shared/lib/cms/schema/contentTypeName';
+import { type ApplicationKey } from '../../../../../shared/lib/cms/application/applicationKey';
 
 type ContentSelectorInputAddButtonProps = {
     disabled: boolean;
     allowedContentTypes?: string[];
+    applicationKey?: ApplicationKey;
     selection: readonly string[];
     onSelectionChange: (selection: readonly string[]) => void;
 };
@@ -21,6 +23,7 @@ type ContentSelectorInputAddButtonProps = {
 export const ContentSelectorInputAddButton = ({
     disabled,
     allowedContentTypes,
+    applicationKey,
     selection,
     onSelectionChange,
 }: ContentSelectorInputAddButtonProps): ReactElement => {
@@ -122,10 +125,12 @@ export const ContentSelectorInputAddButton = ({
     const handleRootClick = async () => {
         setIsLoadingTypes(true);
 
-        const types = await loadCreatableContentTypes({ allowedContentTypes, project }).catch((error) => {
-            console.error(error);
-            return undefined;
-        });
+        const types = await loadCreatableContentTypes({ allowedContentTypes, applicationKey, project }).catch(
+            (error) => {
+                console.error(error);
+                return undefined;
+            },
+        );
 
         setIsLoadingTypes(false);
 
