@@ -45,7 +45,7 @@ export const PathSelectorTreeRow = ({
     const isDisabled = !selectable;
 
     return (
-        <VirtualizedTreeList.Row {...itemProps} selectable={selectable} onClick={onClick}>
+        <VirtualizedTreeList.Row {...itemProps} onClick={onClick} className={cn(isDisabled && 'cursor-default')}>
             <VirtualizedTreeList.RowLeft>
                 <VirtualizedTreeList.RowLevelSpacer level={node.level} />
                 <VirtualizedTreeList.RowExpandControl
