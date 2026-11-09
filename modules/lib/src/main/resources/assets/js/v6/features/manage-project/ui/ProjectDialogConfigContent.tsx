@@ -8,7 +8,7 @@ import {
     setProjectDialogConfigDirty,
 } from '../model/projectDialog.store';
 import { ApplicationConfigDialogContent } from '../../shared/form';
-import { useHtmlAreaDialogYield } from '../../shared/hooks/useHtmlAreaDialogYield';
+import { useFormDialogYield } from '../../shared/hooks/useFormDialogYield';
 
 const COMPONENT_NAME = 'ProjectDialogConfigContent';
 
@@ -16,7 +16,7 @@ const COMPONENT_NAME = 'ProjectDialogConfigContent';
 export const ProjectDialogConfigContent = (): ReactElement | null => {
     const { editingConfig } = useStore($projectDialog, { keys: ['editingConfig'] });
     const configScope = useStore($projectDialogConfigScope);
-    const { contentProps } = useHtmlAreaDialogYield();
+    const { contentProps } = useFormDialogYield();
 
     const form = editingConfig?.application.form;
     if (!editingConfig || !form) return null;
