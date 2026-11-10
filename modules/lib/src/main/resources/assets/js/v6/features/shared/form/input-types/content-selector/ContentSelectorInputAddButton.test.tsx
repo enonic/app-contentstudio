@@ -259,6 +259,7 @@ describe('ContentSelectorInputAddButton', () => {
             expect(newContentEvents).toEqual([]);
             expect(mockOpenNewContentDialog).toHaveBeenCalledWith(undefined, {
                 allowedContentTypes,
+                applicationKey,
                 contentTypes: [person, movie],
                 project: scopeProject,
                 onTypeSelected: expect.any(Function),
@@ -314,7 +315,7 @@ describe('ContentSelectorInputAddButton', () => {
             expect(onSelectionChange).not.toHaveBeenCalled();
         });
 
-        it('should open the dialog without preloaded types when the request fails', async () => {
+        it('should open the dialog with the application key and no preloaded types when the request fails', async () => {
             vi.spyOn(console, 'error').mockImplementation(() => undefined);
             mockGetAvailableContentTypes.mockRejectedValue(new Error('boom'));
 
@@ -323,6 +324,7 @@ describe('ContentSelectorInputAddButton', () => {
 
             expect(mockOpenNewContentDialog).toHaveBeenCalledWith(undefined, {
                 allowedContentTypes,
+                applicationKey,
                 contentTypes: undefined,
                 project: scopeProject,
                 onTypeSelected: expect.any(Function),

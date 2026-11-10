@@ -164,6 +164,7 @@ export const ContentSelectorInputAddButton = ({
 
         openNewContentDialog(undefined, {
             allowedContentTypes,
+            applicationKey,
             contentTypes: types,
             project,
             onTypeSelected: handleRootTypeSelected,

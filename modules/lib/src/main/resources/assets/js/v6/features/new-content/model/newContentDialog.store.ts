@@ -22,6 +22,7 @@ import { UploadError } from '../../../shared/api';
 import { generateUniqueName } from '../../../shared/lib/image/generateUniqueName';
 import { $activeProject } from '../../../entities/project/activeProject.store';
 import { addUpload, removeUpload, updateUploadProgress } from '../../../entities/content/model/uploads.store';
+import { type ApplicationKey } from '../../../shared/lib/cms/application/applicationKey';
 import { CONTENT_TYPE, isDescendantOfMedia } from '../../../shared/lib/cms/schema/contentTypeName';
 import { loadCreatableContentTypes } from './creatableContentTypes';
 
@@ -35,7 +36,11 @@ type UploadOptions = {
 };
 
 type OpenNewContentDialogOptions = {
+    /** Content type names or patterns the picker is limited to, as `allowContentType` gives them. */
     allowedContentTypes?: string[];
+    /** Resolves `${app}` in the allowed names when the types are loaded without a parent. */
+    applicationKey?: ApplicationKey;
+    /** Types loaded by the opener; skips the dialog's own load. */
     contentTypes?: ContentTypeSummary[];
     /** Project to load the types in; defaults to the active project. */
     project?: Readonly<Project>;
@@ -61,6 +66,7 @@ type NewContentDialogStore = {
     project?: Readonly<Project>;
     parentContent?: ContentSummary;
     allowedContentTypes?: string[];
+    applicationKey?: ApplicationKey;
     preloadedContentTypes?: ContentTypeSummary[];
     baseContentTypes: ContentTypeSummary[];
     suggestedContentTypes: ContentTypeSummary[];
@@ -78,6 +84,7 @@ const initialState: NewContentDialogStore = {
     project: undefined,
     parentContent: undefined,
     allowedContentTypes: undefined,
+    applicationKey: undefined,
     preloadedContentTypes: undefined,
     baseContentTypes: [],
     suggestedContentTypes: [],
@@ -101,7 +108,7 @@ export const $filteredSuggestedContentTypes = computed($newContentDialog, ({ sug
 let loadCounter = 0;
 
 listenKeys($newContentDialog, ['open', 'parentContent'], (state) => {
-    const { open, parentContent, allowedContentTypes, preloadedContentTypes } = state;
+    const { open, parentContent, allowedContentTypes, applicationKey, preloadedContentTypes } = state;
     const project = state.project ?? $activeProject.get();
 
     if (!open || !project) return;
@@ -115,6 +122,7 @@ listenKeys($newContentDialog, ['open', 'parentContent'], (state) => {
             (await loadCreatableContentTypes({
                 contentId: parentContent?.getContentId(),
                 allowedContentTypes,
+                applicationKey,
                 project,
             }));
 
@@ -158,6 +166,7 @@ export const openNewContentDialog = (parentContent?: ContentSummary, options?: O
         project: options?.project,
         parentContent,
         allowedContentTypes: options?.allowedContentTypes,
+        applicationKey: options?.applicationKey,
         preloadedContentTypes: options?.contentTypes,
         onTypeSelected: options?.onTypeSelected,
         onUploaded: options?.onUploaded,

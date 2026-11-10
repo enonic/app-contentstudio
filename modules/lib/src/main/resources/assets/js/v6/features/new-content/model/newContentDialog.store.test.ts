@@ -154,6 +154,18 @@ describe('newContentDialog.store', () => {
             expect(mockGetAggregatedTypesByContent).toHaveBeenCalledWith(undefined, other);
         });
 
+        it('should resolve the allowed names against the given application key when loading without a parent', async () => {
+            openNewContentDialog(undefined, { allowedContentTypes: ['${app}:person'], applicationKey: 'com.app' });
+            await flushPromises();
+
+            expect(mockGetAvailableContentTypes).toHaveBeenCalledWith({
+                contentId: undefined,
+                allowedContentTypes: ['${app}:person'],
+                applicationKey: 'com.app',
+                project,
+            });
+        });
+
         it('should load the types in the given project when there is no active one', async () => {
             $activeProject.set(undefined);
 
@@ -178,6 +190,7 @@ describe('newContentDialog.store', () => {
         it('should drop the options of a previous opening', async () => {
             openNewContentDialog(parent, {
                 allowedContentTypes: ['com.app:person'],
+                applicationKey: 'com.app',
                 contentTypes: [person],
                 project,
                 onTypeSelected: vi.fn(),
@@ -191,6 +204,7 @@ describe('newContentDialog.store', () => {
 
             const state = $newContentDialog.get();
             expect(state.allowedContentTypes).toBeUndefined();
+            expect(state.applicationKey).toBeUndefined();
             expect(state.preloadedContentTypes).toBeUndefined();
             expect(state.project).toBeUndefined();
             expect(state.onTypeSelected).toBeUndefined();
