@@ -3,7 +3,7 @@
 import { type ApplicationKey } from '../../../../../../shared/lib/cms/application/applicationKey';
 import { cn } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import { useCKEditor } from 'ckeditor4-react';
+import { CKEditorEventAction, useCKEditor, type CKEditorEventDispatcher } from 'ckeditor4-react';
 import { useEffect, useMemo, useRef, useState, type JSX } from 'react';
 import type { ContentSummary } from '../../../../../../../app/content/ContentSummary';
 import { BeforeContentSavedEvent } from '../../../../../../../app/event/BeforeContentSavedEvent';
@@ -48,6 +48,7 @@ import {
     setupEditor,
     setupEditorUi,
     type DialogOverrides,
+    type SetupEditorParams,
 } from '../../../../../../features/shared/form/input-types/html-area/setupEditor';
 import { useCKEditorConfig } from '../../../../../../features/shared/form/input-types/html-area/useCKEditorConfig';
 import { getCKEditorUrl } from '../../../../../../shared/lib/ckeditor/loadCKEditor';
@@ -161,7 +162,6 @@ const TextEditorInner = ({
     const openLinkDialogRef = useRef<((params: OpenHtmlAreaLinkDialogParams) => void) | undefined>(undefined);
     const openMacroDialogRef = useRef<((params: OpenHtmlAreaMacroDialogParams) => void) | undefined>(undefined);
     const mountedRef = useRef(true);
-    const editorUiReadyRef = useRef(false);
     const editorReadyRef = useRef(false);
     const editorInstanceRef = useRef<CKEDITOR.editor | null>(null);
     const lastSentValueRef = useRef<string>('');
@@ -251,37 +251,39 @@ const TextEditorInner = ({
     // * CKEditor lifecycle
     //
 
+    const uiParamsRef = useRef<SetupEditorParams>(undefined);
+    uiParamsRef.current = {
+        contentSummary,
+        project,
+        applicationKeys,
+        assetsUri,
+        enabledTools: TEXT_EDITOR_CONFIG.enabledTools,
+        disabledTools: TEXT_EDITOR_CONFIG.disabledTools,
+        allowedHeadings: TEXT_EDITOR_CONFIG.allowedHeadings,
+        editableSourceCode,
+        dialogOverrides: dialogOverridesRef.current,
+    };
+
+    // ? Toolbar buttons must exist before CKEditor builds the toolbar, which can happen before an effect runs.
+    const handleEditorEvent = useRef<CKEditorEventDispatcher>(({ type, payload }) => {
+        if (type === CKEditorEventAction.pluginsLoaded) {
+            setupEditorUi(payload.editor, uiParamsRef.current);
+        }
+    }).current;
+
     const { editor, status } = useCKEditor({
         element,
         config: editorConfig,
         editorUrl: getCKEditorUrl(assetsUri),
         type: 'classic',
         initContent: initialPreviewContent,
+        subscribeTo: ['pluginsLoaded'],
+        dispatchEvent: handleEditorEvent,
     });
 
     useEffect(() => {
         editorInstanceRef.current = editor ?? null;
     }, [editor]);
-
-    useEffect(() => {
-        if (!editor || editorUiReadyRef.current) {
-            return;
-        }
-
-        editorUiReadyRef.current = true;
-
-        setupEditorUi(editor, {
-            contentSummary,
-            project,
-            applicationKeys,
-            assetsUri,
-            enabledTools: TEXT_EDITOR_CONFIG.enabledTools,
-            disabledTools: TEXT_EDITOR_CONFIG.disabledTools,
-            allowedHeadings: TEXT_EDITOR_CONFIG.allowedHeadings,
-            editableSourceCode,
-            dialogOverrides: dialogOverridesRef.current,
-        });
-    }, [editor, contentSummary, project, applicationKeys, assetsUri, editableSourceCode]);
 
     useEffect(() => {
         if (status !== 'ready' || !editor) {
@@ -521,7 +523,6 @@ const TextEditorInner = ({
 
     useEffect(() => {
         return () => {
-            editorUiReadyRef.current = false;
             editorReadyRef.current = false;
         };
     }, []);
