@@ -127,6 +127,24 @@ describe('trackTask', () => {
         expect(onComplete).toHaveBeenCalledWith('SUCCESS', 'Done');
     });
 
+    it.each([
+        [401, 'Unauthorized'],
+        [404, 'Not Found'],
+    ])('should fail the task and stop polling on a %i read', async (status, statusText) => {
+        mockFetch.mockResolvedValue(errorResponse(status, statusText));
+        const onComplete = vi.fn();
+
+        trackTask('task-1', { onComplete });
+        await vi.advanceTimersByTimeAsync(4000);
+
+        expect(mockFetch).toHaveBeenCalledTimes(1);
+        expect(onComplete).toHaveBeenCalledOnce();
+        expect(onComplete).toHaveBeenCalledWith('ERROR', expect.any(String));
+        expect(getTaskState('task-1')).toMatchObject({ state: 'failed', resultState: 'ERROR' });
+        expect(isTracking('task-1')).toBe(false);
+        expect(worker.listeners.size).toBe(0);
+    });
+
     it('should poll a task once when it is tracked twice', async () => {
         mockFetch.mockResolvedValue(jsonResponse(task('RUNNING', '', 1, 4)));
 

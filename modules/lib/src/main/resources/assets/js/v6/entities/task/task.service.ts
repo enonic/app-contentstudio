@@ -1,4 +1,5 @@
 import type { TaskInfo } from '@enonic/ui-types';
+import { RequestError } from '@enonic/ui-utils';
 import { pollTask, TaskFailedError, taskProgressPercent } from '@enonic/ui-utils/task';
 import { MessageType } from '../../../app/stores/data/server';
 import type { ReceivedWorkerMessage } from '../../../app/stores/data/worker';
@@ -133,8 +134,8 @@ export const getTaskPhaseInfo = (taskInfo: TaskInfo | undefined): TaskPhaseInfo 
 /**
  * Start tracking a task's progress.
  * Follows the task events from the server socket, and polls the task until the first event
- * arrives, for a task that ends before the subscription or a socket that is down. A failed
- * read is retried, never taken for the task's result.
+ * arrives, for a task that ends before the subscription or a socket that is down. A rejected
+ * read (4xx) ends the task as failed; a server or network error is retried.
  *
  * @param taskId - The task ID to track
  * @param config - Optional configuration for callbacks
@@ -185,6 +186,11 @@ export const trackTask = (taskId: string, config: TaskTrackerConfig = {}): (() =
 
                 if (error instanceof TaskFailedError) {
                     handleFailed(taskId, error.task, config);
+                    return;
+                }
+
+                if (error instanceof RequestError && error.status >= 400 && error.status < 500) {
+                    finishTracking(taskId, undefined, 'ERROR', error.message, config);
                     return;
                 }
 
