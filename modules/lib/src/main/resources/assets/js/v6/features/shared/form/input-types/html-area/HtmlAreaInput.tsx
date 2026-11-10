@@ -7,7 +7,7 @@ import { FieldError } from '@enonic/input-types';
 import type { InputTypeComponentProps } from '@enonic/input-types';
 import { getFirstError, useInputTypesPhrases } from '@enonic/input-types';
 import { cn, useBlinkAttention } from '@enonic/ui';
-import { useCKEditor } from 'ckeditor4-react';
+import { CKEditorEventAction, useCKEditor, type CKEditorEventDispatcher } from 'ckeditor4-react';
 import { useEffect, useMemo, useRef, useState, type JSX } from 'react';
 import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
 import { HTMLAreaHelper } from '../../../../../../app/inputtype/ui/text/HTMLAreaHelper';
@@ -44,7 +44,13 @@ import type { HtmlAreaConfig } from './HtmlAreaConfig';
 import { dispatchSyntheticTabKey, focusAdjacentDocumentTabStop } from './editorIframeNavigation';
 import { useFormScope } from '../../FormScopeContext';
 import { useHtmlAreaContext } from './HtmlAreaContext';
-import { createContentSaveHandler, setupEditor, setupEditorUi, type DialogOverrides } from './setupEditor';
+import {
+    createContentSaveHandler,
+    setupEditor,
+    setupEditorUi,
+    type DialogOverrides,
+    type SetupEditorParams,
+} from './setupEditor';
 import { useCKEditorConfig } from './useCKEditorConfig';
 
 const sanitizer = new HtmlAreaSanitizer();
@@ -107,7 +113,6 @@ const CKEditorWrapper = ({
     const openLinkDialogRef = useRef<((params: OpenHtmlAreaLinkDialogParams) => void) | undefined>(undefined);
     const openMacroDialogRef = useRef<((params: OpenHtmlAreaMacroDialogParams) => void) | undefined>(undefined);
     const mountedRef = useRef(true);
-    const editorUiReadyRef = useRef(false);
     const editorReadyRef = useRef(false);
     const editorInstanceRef = useRef<CKEDITOR.editor | null>(null);
     // Track the last value we sent via onChange to avoid external sync conflicts
@@ -202,12 +207,34 @@ const CKEditorWrapper = ({
         };
     }, [debouncedOnChange]);
 
+    const uiParamsRef = useRef<SetupEditorParams>(undefined);
+    uiParamsRef.current = {
+        contentSummary,
+        project,
+        applicationKeys,
+        assetsUri,
+        enabledTools: htmlAreaConfig.enabledTools,
+        disabledTools: htmlAreaConfig.disabledTools,
+        allowedHeadings: htmlAreaConfig.allowedHeadings,
+        editableSourceCode,
+        dialogOverrides: dialogOverridesRef.current,
+    };
+
+    // ? Toolbar buttons must exist before CKEditor builds the toolbar, which can happen before an effect runs.
+    const handleEditorEvent = useRef<CKEditorEventDispatcher>(({ type, payload }) => {
+        if (type === CKEditorEventAction.pluginsLoaded) {
+            setupEditorUi(payload.editor, uiParamsRef.current);
+        }
+    }).current;
+
     const { editor, status } = useCKEditor({
         element,
         config: editorConfig,
         editorUrl: getCKEditorUrl(assetsUri),
         type: 'classic',
         initContent: previewContent,
+        subscribeTo: ['pluginsLoaded'],
+        dispatchEvent: handleEditorEvent,
     });
 
     const focusEditorFromWrapper = () => {
@@ -228,36 +255,6 @@ const CKEditorWrapper = ({
     useEffect(() => {
         editorInstanceRef.current = editor ?? null;
     }, [editor]);
-
-    useEffect(() => {
-        if (!editor || editorUiReadyRef.current) {
-            return;
-        }
-
-        editorUiReadyRef.current = true;
-
-        setupEditorUi(editor, {
-            contentSummary,
-            project,
-            applicationKeys,
-            assetsUri,
-            enabledTools: htmlAreaConfig.enabledTools,
-            disabledTools: htmlAreaConfig.disabledTools,
-            allowedHeadings: htmlAreaConfig.allowedHeadings,
-            editableSourceCode,
-            dialogOverrides: dialogOverridesRef.current,
-        });
-    }, [
-        editor,
-        contentSummary,
-        project,
-        applicationKeys,
-        assetsUri,
-        htmlAreaConfig.enabledTools,
-        htmlAreaConfig.disabledTools,
-        htmlAreaConfig.allowedHeadings,
-        editableSourceCode,
-    ]);
 
     // Setup editor when ready + register listeners with proper cleanup
     useEffect(() => {
@@ -465,7 +462,6 @@ const CKEditorWrapper = ({
     // Reset ready flag on unmount
     useEffect(() => {
         return () => {
-            editorUiReadyRef.current = false;
             editorReadyRef.current = false;
         };
     }, []);
