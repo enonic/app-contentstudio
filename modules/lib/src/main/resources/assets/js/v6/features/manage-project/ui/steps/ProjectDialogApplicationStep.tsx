@@ -1,6 +1,6 @@
-import { Dialog, IconButton, ListItem } from '@enonic/ui';
+import { Dialog, IconButton, ListItem, Tooltip } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import { Pencil, X } from 'lucide-react';
+import { Layers, Pencil, X } from 'lucide-react';
 import { listenKeys } from 'nanostores';
 import { ReactElement, type RefObject, useMemo, useSyncExternalStore } from 'react';
 import {
@@ -110,7 +110,7 @@ type ProjectDialogApplicationRowProps = {
     editDisabled: boolean;
 };
 
-/** A listed app: name, description, pencil when it has a form, X unless inherited. A stand-in reads as unavailable. */
+/** A listed app: name, description, pencil when it has a form, X, or a layers icon when inherited. A stand-in reads as unavailable. */
 const ProjectDialogApplicationRow = ({
     application,
     inherited,
@@ -120,6 +120,7 @@ const ProjectDialogApplicationRow = ({
 
     const editLabel = useI18n('action.edit');
     const removeLabel = useI18n('action.remove');
+    const inheritedLabel = useI18n('text.application.inherited');
     const unavailableLabel = useI18n('text.application.not.available', key);
 
     const description = application.state ? application.description : unavailableLabel;
@@ -143,7 +144,14 @@ const ProjectDialogApplicationRow = ({
                     />
                 )}
                 {inherited ? (
-                    <span aria-hidden className="size-10 shrink-0" />
+                    <Tooltip value={inheritedLabel} delay={300} trigger="hover">
+                        <Layers
+                            aria-label={inheritedLabel}
+                            focusable="false"
+                            strokeWidth={1.5}
+                            className="size-10 shrink-0 p-2.5 text-subtle"
+                        />
+                    </Tooltip>
                 ) : (
                     <IconButton
                         variant="text"
