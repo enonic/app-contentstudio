@@ -24,6 +24,7 @@ import com.enonic.xp.form.Input;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.icon.Icon;
 import com.enonic.xp.inputtype.InputTypeName;
+import com.enonic.xp.jaxrs.impl.MockRestResponse;
 import com.enonic.xp.page.PageDescriptor;
 import com.enonic.xp.region.LayoutDescriptor;
 import com.enonic.xp.region.PartDescriptor;
@@ -33,10 +34,14 @@ import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeService;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class FilterByContentResourceTest
@@ -130,6 +135,18 @@ class FilterByContentResourceTest
             .getAsString();
 
         assertJson( "filter_content_types.json", jsonString );
+    }
+
+    @Test
+    void contentTypes_root_invalid_applicationKey()
+        throws Exception
+    {
+        final MockRestResponse response = request().path( "cms/default/content/schema/filter/contentTypes" )
+            .entity( "{\"applicationKey\":\"bad key!\"}", MediaType.APPLICATION_JSON_TYPE )
+            .post();
+
+        assertEquals( 400, response.getStatus() );
+        verify( filterByContentResolver, never() ).contentTypes( any(), any(), any() );
     }
 
     @Test

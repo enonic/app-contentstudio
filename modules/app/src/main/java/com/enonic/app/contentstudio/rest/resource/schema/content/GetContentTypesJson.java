@@ -6,7 +6,6 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.content.ContentId;
 
 public class GetContentTypesJson
@@ -15,7 +14,7 @@ public class GetContentTypesJson
 
     private final Set<String> allowedContentTypes;
 
-    private final ApplicationKey applicationKey;
+    private final String applicationKey;
 
     @JsonCreator
     public GetContentTypesJson( @JsonProperty("contentId") String contentId,
@@ -24,7 +23,7 @@ public class GetContentTypesJson
     {
         this.contentId = contentId != null ? ContentId.from( contentId ) : null;
         this.allowedContentTypes = allowedContentTypes != null ? allowedContentTypes : Set.of();
-        this.applicationKey = applicationKey != null ? ApplicationKey.from( applicationKey ) : null;
+        this.applicationKey = applicationKey;
     }
 
     public ContentId getContentId()
@@ -37,8 +36,8 @@ public class GetContentTypesJson
         return allowedContentTypes;
     }
 
-    /** The application the allowed content type patterns are resolved against when there is no parent content. */
-    public ApplicationKey getApplicationKey()
+    /** The application the allowed content type patterns are resolved against when there is no parent content, unparsed. */
+    public String getApplicationKey()
     {
         return applicationKey;
     }
