@@ -65,7 +65,9 @@ vi.mock('../../../../new-content/model/newContentDialog.store', async () => {
 });
 
 import { ContentSelectorInputAddButton } from './ContentSelectorInputAddButton';
+import { addUpload, clearUploads } from '../../../../../entities/content/model/uploads.store';
 import { type ContentTypeSummary } from '../../../../../entities/schema';
+import { $newContentDialog } from '../../../../new-content/model/newContentDialog.store';
 import { type ContentTypeName } from '../../../../../shared/lib/cms/schema/contentTypeName';
 
 const createContentType = (name: ContentTypeName): ContentTypeSummary => {
@@ -111,6 +113,8 @@ describe('ContentSelectorInputAddButton', () => {
 
     afterEach(() => {
         cleanup();
+        clearUploads();
+        $newContentDialog.setKey('open', false);
         vi.clearAllMocks();
         newContentEvents.length = 0;
     });
@@ -313,6 +317,37 @@ describe('ContentSelectorInputAddButton', () => {
             await pickedTypeHandler()(person);
 
             expect(onSelectionChange).not.toHaveBeenCalled();
+        });
+
+        // The dialog store is mocked, so its opening and closing is driven by hand here.
+        const closeDialog = async (rootUploadIds: string[] = []) => {
+            $newContentDialog.setKey('open', true);
+            rootUploadIds.forEach((id) => addUpload(id, id, null));
+            $newContentDialog.setKey('open', false);
+            await flushPromises();
+        };
+
+        const isShowingProgress = () => screen.getByRole('button').className.includes('pointer-events-none');
+
+        it('should show the progress of the root uploads running when the dialog it opened closes', async () => {
+            mockGetAvailableContentTypes.mockResolvedValue([person, movie]);
+
+            renderRoot();
+            await clickAdd();
+            await closeDialog(['a.png']);
+
+            expect(isShowingProgress()).toBe(true);
+        });
+
+        it('should ignore the root uploads of a later dialog once its own closed without a pick', async () => {
+            mockGetAvailableContentTypes.mockResolvedValue([person, movie]);
+
+            renderRoot();
+            await clickAdd();
+            await closeDialog();
+            await closeDialog(['b.png']);
+
+            expect(isShowingProgress()).toBe(false);
         });
 
         it('should open the dialog with the application key and no preloaded types when the request fails', async () => {

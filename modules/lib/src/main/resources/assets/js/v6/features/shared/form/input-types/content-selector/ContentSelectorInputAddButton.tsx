@@ -62,6 +62,11 @@ export const ContentSelectorInputAddButton = ({
             if (active.length > 0) {
                 setUploadIds(active.map((u) => u.id));
             }
+
+            // ? Root mode waits for no socket event: end the wait, or a later dialog's uploads land here.
+            if (parentId === null) {
+                isWaitingForContentCreationRef.current = false;
+            }
         });
 
         return unlisten;
