@@ -44,7 +44,7 @@ const sync = (): void => {
  * Shelving is global (`Mousetrap.reset`), so a single observer covers every
  * shell in the window - browse, wizard, settings and archive.
  *
- * Call once from the main app bootstrap (`AppElement.initialize`). Settings and
+ * Call once from the main app bootstrap (`mountApp`). Settings and
  * archive mount as separate apps into the same window afterwards, so the single
  * window-wide observer already covers their dialogs. Safe to call multiple times.
  */

@@ -1,5 +1,4 @@
 import type { Extension } from '@enonic/lib-admin-ui/extension/Extension';
-import { Store } from '@enonic/lib-admin-ui/store/Store';
 import { cn, IconButton, Tooltip } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { ArrowLeftRight, type LucideIcon, Pen, Settings } from 'lucide-react';
@@ -9,7 +8,6 @@ import { useBreakpoints } from '../../shared/lib/hooks/useBreakpoints';
 import { useI18n } from '../../shared/lib/hooks/useI18n';
 import { DefaultProjectIcon } from '../../shared/ui/icons/DefaultProjectIcon';
 import { ProjectIcon } from '../../shared/ui/icons/ProjectIcon';
-import { LegacyElement } from '../../shared/ui/LegacyElement';
 import { WidgetButton } from '../../shared/ui/WidgetButton';
 import { $activeProject, $activeProjectName, $hasMultipleProjects, $noProjectMode } from '../../entities/project';
 import { $config } from '../../shared/config';
@@ -47,7 +45,7 @@ export const BrowseSidebar = (): ReactElement => {
     const activeProject = useStore($activeProject);
     const noProjectMode = useStore($noProjectMode);
     const { widgets, activeWidgetId } = useStore($sidebarWidgets);
-    const applicationName = Store.instance().get('application').getName();
+    const applicationName = useI18n('admin.tool.displayName');
     const { appVersion } = useStore($config, { keys: ['appVersion'] });
     const version = `v${stripVersionSuffix(appVersion)}`;
     const mainWidgets = noProjectMode ? [] : widgets.slice(0, -1);
@@ -204,9 +202,3 @@ export const BrowseSidebar = (): ReactElement => {
 };
 
 BrowseSidebar.displayName = 'BrowseSidebar';
-
-export class BrowseSidebarElement extends LegacyElement<typeof BrowseSidebar> {
-    constructor() {
-        super({}, BrowseSidebar);
-    }
-}

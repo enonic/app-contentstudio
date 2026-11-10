@@ -17,7 +17,6 @@ import { Path } from '@enonic/lib-admin-ui/rest/Path';
 import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { Principal } from '@enonic/lib-admin-ui/security/Principal';
 import { PrincipalJson } from '@enonic/lib-admin-ui/security/PrincipalJson';
-import { Store } from '@enonic/lib-admin-ui/store/Store';
 import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
 import { CONFIG, ConfigObject } from '@enonic/lib-admin-ui/util/Config';
 import { i18n, Messages } from '@enonic/lib-admin-ui/util/Messages';
@@ -56,7 +55,7 @@ import { UrlHelper } from '@enonic/lib-contentstudio/app/util/UrlHelper';
 import { VersionHelper } from '@enonic/lib-contentstudio/app/util/VersionHelper';
 import { ContentAppHelper } from '@enonic/lib-contentstudio/app/wizard/ContentAppHelper';
 import { ContentWizardPanelParams } from '@enonic/lib-contentstudio/app/wizard/ContentWizardPanelParams';
-import { AppElement } from '@enonic/lib-contentstudio/v6/app/App';
+import { mountApp } from '@enonic/lib-contentstudio/v6/app/App';
 import { mountNotifications } from '@enonic/lib-contentstudio/v6/app/notificationsRoot';
 import { initAiHost } from '@enonic/lib-contentstudio/v6/features/ai';
 import { $isBrowseSidebarOpen } from '@enonic/lib-contentstudio/v6/pages/browse/model/browseSidebar.store';
@@ -306,14 +305,12 @@ function hasActiveProject(): boolean {
 }
 
 async function startApplication() {
-    // v6 app initialization
     mountNotifications();
-    AppElement.initialize();
+    mountApp();
     initAiHost();
 
     const application: Application = getApplication();
     startConnectionNotifier();
-    Store.instance().set('application', application);
 
     startServerEventListeners(application);
     initApplicationEventListener();
@@ -507,19 +504,15 @@ function appendMenuPanel(): void {
 }
 
 async function startContentBrowser() {
-    await import('@enonic/lib-contentstudio/app/ContentAppPanel');
-    const { setMode } = await import('@enonic/lib-contentstudio/v6/shared/app-state/mode.store');
+    const { startBrowseApp } = await import('@enonic/lib-contentstudio/v6/app/browseApp');
 
-    const AppWrapper = (await import('@enonic/lib-contentstudio/app/AppWrapper')).AppWrapper;
-    const commonWrapper = new AppWrapper(getTheme());
-    setMode('browser');
+    startBrowseApp();
 
     if (CONFIG.isTrue('checkLatestVersion') && AuthHelper.isContentAdmin()) {
         VersionHelper.checkAndNotifyIfNewerVersionExists();
     }
 
     appendMenuPanel();
-    Body.get().appendChild(commonWrapper);
 
     if (invalidEditUrlNotificationPending) {
         showError(i18n('text.content.not.found'));

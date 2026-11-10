@@ -14,14 +14,6 @@ const mocks = vi.hoisted(() => ({
     noProjectMode: false,
 }));
 
-vi.mock('@enonic/lib-admin-ui/store/Store', () => ({
-    Store: {
-        instance: () => ({
-            get: () => ({ getName: () => 'Content Studio' }),
-        }),
-    },
-}));
-
 vi.mock('@enonic/ui', () => {
     const Control = ({ children, label, ...props }: ComponentPropsWithoutRef<'button'> & { label?: string }) => (
         <button type="button" {...props}>

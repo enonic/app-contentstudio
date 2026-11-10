@@ -2,26 +2,6 @@ body {
   // Temporary override artifacts font size
   font-size: 16px;
 
-  &.no-projects {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    .no-projects-text {
-      text-align: center;
-      font-size: 14px;
-
-      .open-create-project-dialog-action {
-        margin: 20px auto;
-        .dialog-button();
-      }
-    }
-
-    .main-app-wrapper {
-      display: none;
-    }
-  }
-
   &.blurred {
     > .live-load-mask {
       z-index: @z-index-mask;

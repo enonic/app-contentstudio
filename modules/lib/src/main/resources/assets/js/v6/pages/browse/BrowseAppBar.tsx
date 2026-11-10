@@ -1,4 +1,3 @@
-import { Store } from '@enonic/lib-admin-ui/store/Store';
 import { Button, cn, I18nProvider, Toggle } from '@enonic/ui';
 import { ThemeSwitcher } from '@enonic/ui-kit';
 import { useStore } from '@nanostores/preact';
@@ -18,7 +17,6 @@ import {
     isSettingsWidget,
 } from '../../widgets/context-panel/model/sidebarWidgets.store';
 import type { IssueStatsJson } from '../../../app/issue/json/IssueStatsJson';
-import { LegacyElement } from '../../shared/ui/LegacyElement';
 import { BROWSE_SIDEBAR_ID, BROWSE_SIDEBAR_TOGGLE_ID } from './browseSidebar.constants';
 import { $isBrowseSidebarOpen, setBrowseSidebarOpen } from './model/browseSidebar.store';
 
@@ -49,7 +47,7 @@ export const BrowseAppBar = (): ReactElement => {
     const hasMultipleProjects = useStore($hasMultipleProjects);
     const { appName, isContentBrowseActive, isSettingsActive, hasProjectContext } = useStore($widgetState);
     const { stats } = useStore($issuesStats);
-    const applicationName = Store.instance().get('application').getName();
+    const applicationName = useI18n('admin.tool.displayName');
     const issuesStatsLabel = useI18n(...createIssuesLabelKeys(stats));
     const projectAriaLabel = useI18n('wcag.appbar.project.label');
     const issuesAriaLabel = useI18n('wcag.appbar.issues.label');
@@ -143,22 +141,3 @@ export const BrowseAppBar = (): ReactElement => {
 };
 
 BrowseAppBar.displayName = 'BrowseAppBar';
-
-export class BrowseAppBarElement extends LegacyElement<typeof BrowseAppBar> {
-    constructor() {
-        super({}, BrowseAppBar);
-    }
-
-    static getInstance(): BrowseAppBarElement {
-        let instance: BrowseAppBarElement = Store.instance().get(BrowseAppBarElement.name);
-
-        if (instance == null) {
-            instance = new BrowseAppBarElement();
-            Store.instance().set(BrowseAppBarElement.name, instance);
-        }
-
-        return instance;
-    }
-
-    disable() {}
-}
