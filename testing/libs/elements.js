@@ -25,7 +25,7 @@ const COMMON = {
     CONTEXT_WINDOW_WIDGET_SELECTOR_SEARCH_INPUT:
         "//div[@data-component='WidgetsSelector']//input[@aria-label='Search']",
     CONTEXT_WINDOW_TOGGLE_BUTTON: `//button[@aria-label='Hide Context Panel' or @aria-label='Show Context Panel']`,
-    CONTENT_APP_BAR_DIV: "//div[contains(@id,'BrowseAppBarElement')]",
+    CONTENT_APP_BAR_DIV: "//header[@data-component='BrowseAppBar']",
     SELECT_ALL_CHECKBOX_LABEL: "//label[descendant::input[@type='checkbox' and @aria-label='Select all']]",
     CLEAR_SELECTION_CHECKBOX_LABEL:
         "//label[descendant::input[@type='checkbox' and contains(@aria-label,'Clear selection')]]",

@@ -39,6 +39,8 @@ function createIssuesLabelKeys(stats: Readonly<IssueStatsJson> | undefined): [`f
     return ['field.noOpenIssues'];
 }
 
+const BROWSE_APP_BAR_NAME = 'BrowseAppBar';
+
 export const BrowseAppBar = (): ReactElement => {
     const isSidebarOpen = useStore($isBrowseSidebarOpen);
     const { sm } = useBreakpoints();
@@ -57,7 +59,10 @@ export const BrowseAppBar = (): ReactElement => {
     const mobileTitle = showProjectTitle ? activeProjectName : appName || applicationName;
 
     return (
-        <header className="bg-surface-neutral h-15 px-3.5 sm:pl-5 py-2 pr-24 flex items-center gap-2 sm:gap-2.5 border-b border-bdr-soft">
+        <header
+            data-component={BROWSE_APP_BAR_NAME}
+            className="bg-surface-neutral h-15 px-3.5 sm:pl-5 py-2 pr-24 flex items-center gap-2 sm:gap-2.5 border-b border-bdr-soft"
+        >
             <Toggle
                 id={BROWSE_SIDEBAR_TOGGLE_ID}
                 className={cn(
@@ -140,4 +145,4 @@ export const BrowseAppBar = (): ReactElement => {
     );
 };
 
-BrowseAppBar.displayName = 'BrowseAppBar';
+BrowseAppBar.displayName = BROWSE_APP_BAR_NAME;
