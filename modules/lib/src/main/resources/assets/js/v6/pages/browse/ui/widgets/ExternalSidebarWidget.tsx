@@ -81,7 +81,7 @@ export const ExternalSidebarWidget = ({ widget, active, className }: ExternalSid
             className={cn('relative size-full', className)}
             aria-busy={status === 'loading' || undefined}
         >
-            <div ref={hostRef} className="size-full" />
+            <div ref={hostRef} className="size-full" hidden={status === 'error'} />
             {status === 'error' && <div className="py-5 text-center text-subtle">{errorMessage}</div>}
         </div>
     );

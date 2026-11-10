@@ -1,7 +1,7 @@
 import { Extension, ExtensionConfig } from '@enonic/lib-admin-ui/extension/Extension';
 import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
 import { act, render, waitFor } from '@testing-library/preact';
-import { okAsync } from 'neverthrow';
+import { errAsync, okAsync } from 'neverthrow';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { $config } from '../../../../shared/config/config.store';
 import { $sidebarWidgets, setActiveWidget } from '../../../../widgets/context-panel/model/sidebarWidgets.store';
@@ -58,6 +58,7 @@ describe('SidebarWidgetPanels', () => {
     });
 
     afterEach(() => {
+        vi.restoreAllMocks();
         document.head.replaceChildren();
     });
 
@@ -109,6 +110,20 @@ describe('SidebarWidgetPanels', () => {
             expect(document.head.querySelector('script[data-widget-id="widget-settings"]')).not.toBeNull();
         });
         expect(mocks.fetchSidebarWidgetHtml).toHaveBeenCalledTimes(1);
+    });
+
+    it('shows the error in place of the widget host when the widget fails to load', async () => {
+        vi.spyOn(console, 'error').mockImplementation(() => undefined);
+        mocks.fetchSidebarWidgetHtml.mockReturnValue(errAsync(new Error('failed')));
+
+        act(() => setActiveWidget(settings));
+        const { container, findByText } = render(<SidebarWidgetPanels />);
+
+        const message = await findByText('widget.render.error');
+        const widget = container.querySelector<HTMLElement>('[data-component="ExternalSidebarWidget"]');
+
+        expect(widget?.contains(message)).toBe(true);
+        expect(widget?.querySelector<HTMLElement>(':scope > div[hidden]')).not.toBeNull();
     });
 
     it('keeps the mounted widget when the extensions list is rebuilt with the same URL', async () => {
