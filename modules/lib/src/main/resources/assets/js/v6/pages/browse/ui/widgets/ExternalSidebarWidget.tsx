@@ -22,6 +22,10 @@ export const ExternalSidebarWidget = ({ widget, active, className }: ExternalSid
 
     const [status, setStatus] = useState<Status>('loading');
 
+    // ! The extensions list is rebuilt whenever an application starts or stops, so the widget object
+    // ! changes while its URL does not; reloading on the object would wipe the mounted widget.
+    const url = widget.getFullUrl();
+
     useEffect(() => {
         const host = hostRef.current;
         if (host == null) return;
@@ -31,7 +35,7 @@ export const ExternalSidebarWidget = ({ widget, active, className }: ExternalSid
         const load = async (): Promise<void> => {
             setStatus('loading');
 
-            const result = await fetchSidebarWidgetHtml(widget.getFullUrl(), controller.signal);
+            const result = await fetchSidebarWidgetHtml(url, controller.signal);
             if (controller.signal.aborted) return;
 
             if (result.isErr()) {
@@ -56,7 +60,7 @@ export const ExternalSidebarWidget = ({ widget, active, className }: ExternalSid
             assetsRef.current = [];
             host.replaceChildren();
         };
-    }, [widget]);
+    }, [url]);
 
     // ! The widget stays mounted while another one is shown, but its stylesheets
     // ! must leave the document so they cannot restyle the active widget.

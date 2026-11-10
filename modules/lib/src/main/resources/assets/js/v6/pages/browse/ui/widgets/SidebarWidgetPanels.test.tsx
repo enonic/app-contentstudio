@@ -110,4 +110,33 @@ describe('SidebarWidgetPanels', () => {
         });
         expect(mocks.fetchSidebarWidgetHtml).toHaveBeenCalledTimes(1);
     });
+
+    it('keeps the mounted widget when the extensions list is rebuilt with the same URL', async () => {
+        act(() => setActiveWidget(settings));
+        const { container } = render(<SidebarWidgetPanels />);
+
+        await waitFor(() => {
+            expect(container.querySelector('widget#widget-settings')).not.toBeNull();
+        });
+
+        const input = document.createElement('input');
+        input.value = 'unsaved';
+        container.querySelector('widget#widget-settings')?.append(input);
+
+        act(() => {
+            $sidebarWidgets.set({
+                ...$sidebarWidgets.get(),
+                widgets: [
+                    createWidget('com.enonic.app.contentstudio:main', 'browse'),
+                    createWidget('com.enonic.app.contentstudio:settings', 'settings'),
+                ],
+            });
+        });
+        await act(async () => {
+            await new Promise((resolve) => setTimeout(resolve, 20));
+        });
+
+        expect(container.querySelector<HTMLInputElement>('widget#widget-settings input')?.value).toBe('unsaved');
+        expect(mocks.fetchSidebarWidgetHtml).toHaveBeenCalledTimes(1);
+    });
 });

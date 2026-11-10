@@ -1,4 +1,5 @@
 import { KeyBindings } from '@enonic/lib-admin-ui/ui/KeyBindings';
+import { setKeyBindingsShelved } from '../shared/app-state/keyBindingsShelved.store';
 import { hasOpenModal } from '../shared/lib/dom/hasOpenModal';
 
 let started = false;
@@ -11,6 +12,7 @@ const sync = (): void => {
         if (!shelved) {
             KeyBindings.get().shelveBindings();
             shelved = true;
+            setKeyBindingsShelved(true);
         }
         return;
     }
@@ -30,6 +32,7 @@ const sync = (): void => {
         if (!hasOpenModal()) {
             KeyBindings.get().unshelveBindings();
             shelved = false;
+            setKeyBindingsShelved(false);
         }
     });
 };
