@@ -1,4 +1,5 @@
-import type { TaskInfo } from '@enonic/lib-admin-ui/task/TaskInfo';
+import type { TaskInfo } from '@enonic/ui-types';
+import { taskProgressPercent } from '@enonic/ui-utils/task';
 import { map } from 'nanostores';
 
 //
@@ -75,7 +76,7 @@ export const updateTaskProgress = (taskId: string, taskInfo: TaskInfo, state: Ta
     }
 
     const newTasks = new Map(current.tasks);
-    const progress = taskInfo.getProgressPercentage();
+    const progress = taskProgressPercent(taskInfo);
 
     newTasks.set(taskId, {
         ...existing,
@@ -88,7 +89,7 @@ export const updateTaskProgress = (taskId: string, taskInfo: TaskInfo, state: Ta
 
 export const completeTask = (
     taskId: string,
-    taskInfo: TaskInfo,
+    taskInfo: TaskInfo | undefined,
     resultState: TaskResultState,
     resultMessage: string,
 ): void => {
@@ -103,7 +104,7 @@ export const completeTask = (
         ...existing,
         state: resultState === 'SUCCESS' ? 'finished' : 'failed',
         progress: resultState === 'SUCCESS' ? 100 : existing.progress,
-        taskInfo,
+        taskInfo: taskInfo ?? existing.taskInfo,
         resultState,
         resultMessage,
     });

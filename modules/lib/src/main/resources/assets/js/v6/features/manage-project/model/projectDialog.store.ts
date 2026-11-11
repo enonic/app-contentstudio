@@ -1,6 +1,5 @@
 import { atom, computed, map } from 'nanostores';
 import { okAsync, ResultAsync } from 'neverthrow';
-import { type TaskId } from '@enonic/lib-admin-ui/task/TaskId';
 import { notifyError, notifySuccess } from '../../../shared/notifications';
 import { i18n } from '../../../shared/i18n';
 import { type Project } from '../../../../app/settings/data/project/Project';
@@ -638,15 +637,15 @@ export const updateProject = (): ResultAsync<void, Error> => {
                 $projectDialog.setKey('view', 'progress');
                 const readAccessResult = updateProjectReadAccess(identifier, readAccess);
                 return ResultAsync.combine([...requests, readAccessResult]).map(
-                    (results) => results[results.length - 1] as TaskId,
+                    (results) => results[results.length - 1] as string,
                 );
             }
 
             if (requests.length === 0) {
-                return okAsync(null as TaskId | null);
+                return okAsync(null as string | null);
             }
 
-            return ResultAsync.combine(requests).map(() => null as TaskId | null);
+            return ResultAsync.combine(requests).map(() => null as string | null);
         })
         .map((taskId) => {
             if (taskId) {

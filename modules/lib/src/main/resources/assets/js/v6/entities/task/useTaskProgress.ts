@@ -1,4 +1,3 @@
-import type { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
 import { useStore } from '@nanostores/preact';
 import { useEffect, useRef } from 'react';
 import {
@@ -47,7 +46,7 @@ export type UseTaskProgressResult = {
  * });
  */
 export const useTaskProgress = (
-    taskId: TaskId | null | undefined,
+    taskId: string | null | undefined,
     config?: TaskTrackerConfig,
 ): UseTaskProgressResult => {
     const store = useStore($taskStore);
@@ -63,7 +62,7 @@ export const useTaskProgress = (
 
         const cleanup = trackTaskService(taskId, configRef.current);
         return cleanup;
-    }, [taskId?.toString()]);
+    }, [taskId]);
 
     if (!taskId) {
         return {
@@ -74,8 +73,7 @@ export const useTaskProgress = (
         };
     }
 
-    const taskIdStr = taskId.toString();
-    const taskState = store.tasks.get(taskIdStr);
+    const taskState = store.tasks.get(taskId);
 
     if (!taskState) {
         return {
@@ -115,7 +113,7 @@ export const useTaskProgress = (
  * });
  * // Later: stopTracking();
  */
-export const trackTask = (taskId: TaskId, config?: TaskTrackerConfig): FnVoid => {
+export const trackTask = (taskId: string, config?: TaskTrackerConfig): FnVoid => {
     return trackTaskService(taskId, config);
 };
 
@@ -125,6 +123,6 @@ export const trackTask = (taskId: TaskId, config?: TaskTrackerConfig): FnVoid =>
  *
  * @param taskId - The task ID to clean up
  */
-export const cleanupTask = (taskId: TaskId): void => {
+export const cleanupTask = (taskId: string): void => {
     cleanupTaskService(taskId);
 };

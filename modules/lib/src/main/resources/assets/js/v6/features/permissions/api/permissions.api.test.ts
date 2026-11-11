@@ -108,7 +108,7 @@ describe('applyContentPermissions', () => {
         expect(body.permissions[0].principal.key).toBe('role:cms.admin');
 
         expect(result.isOk()).toBe(true);
-        expect(result._unsafeUnwrap().toString()).toBe('t-perm');
+        expect(result._unsafeUnwrap()).toBe('t-perm');
     });
 
     it('should POST add and remove permission lists for the merge branch', async () => {

@@ -1,4 +1,3 @@
-import type { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
 import { atom, computed, map } from 'nanostores';
 import { i18n } from '../../../shared/i18n';
 import { type ContentId } from '../../../../app/content/ContentId';
@@ -100,7 +99,7 @@ type PublishDialogPendingStore = {
     pendingIds: string[];
     pendingTotal: number;
     pendingPrimaryName?: string;
-    taskId?: TaskId;
+    taskId?: string;
 };
 
 export type SyncedPublishContext = {

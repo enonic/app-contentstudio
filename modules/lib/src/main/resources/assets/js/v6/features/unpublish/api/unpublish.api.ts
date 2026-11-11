@@ -1,6 +1,4 @@
 import { ResultAsync } from 'neverthrow';
-import { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
-import { type TaskIdJson } from '@enonic/lib-admin-ui/task/TaskIdJson';
 import { requestJson } from '@enonic/ui-utils/request';
 import { AppError } from '@enonic/ui-utils';
 import { ContentId } from '../../../../app/content/ContentId';
@@ -49,10 +47,10 @@ export type UnpublishOptions = {
 
 /**
  * Unpublish content items.
- * Returns a TaskId that can be tracked for progress.
+ * Returns a task id that can be tracked for progress.
  * Used by: features/unpublish/model/unpublishDialog.store.
  */
-export function unpublishContent(options: UnpublishOptions): ResultAsync<TaskId, AppError> {
+export function unpublishContent(options: UnpublishOptions): ResultAsync<string, AppError> {
     const url = getCmsApiUrl('unpublish');
 
     const payload = {
@@ -60,5 +58,5 @@ export function unpublishContent(options: UnpublishOptions): ResultAsync<TaskId,
         includeChildren: options.includeChildren ?? true,
     };
 
-    return requestJson<TaskIdJson>(url, { method: 'POST', body: payload }).map(TaskId.fromJson);
+    return requestJson<{ taskId: string }>(url, { method: 'POST', body: payload }).map(({ taskId }) => taskId);
 }

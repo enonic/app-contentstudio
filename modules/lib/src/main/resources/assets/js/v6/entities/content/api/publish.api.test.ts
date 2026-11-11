@@ -95,7 +95,7 @@ describe('publishContent', () => {
         expect(init.method).toBe('POST');
         expect(init.body).toBe(JSON.stringify({ ids: ['a'], excludedIds: [], excludeChildrenIds: [], schedule: null }));
         expect(result.isOk()).toBe(true);
-        expect(result._unsafeUnwrap().toString()).toBe('t-pub');
+        expect(result._unsafeUnwrap()).toBe('t-pub');
     });
 
     it('should serialize exclusions, schedule, and message into the payload', async () => {

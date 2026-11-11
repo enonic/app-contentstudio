@@ -163,7 +163,7 @@ describe('updateProjectReadAccess', () => {
         expect(url).toContain('/rest-v2/cs/project/modifyReadAccess');
         expect(JSON.parse(init.body)).toEqual({ name: 'p-1', readAccess: { type: 'public' } });
         expect(result.isOk()).toBe(true);
-        expect(result._unsafeUnwrap().toString()).toBe('t-ra');
+        expect(result._unsafeUnwrap()).toBe('t-ra');
     });
 });
 
@@ -177,7 +177,7 @@ describe('syncProjects', () => {
         expect(url).toContain('/rest-v2/cs/project/syncAll');
         expect(init.method).toBe('POST');
         expect(result.isOk()).toBe(true);
-        expect(result._unsafeUnwrap().toString()).toBe('t-sync');
+        expect(result._unsafeUnwrap()).toBe('t-sync');
     });
 
     it('should err on a failed response', async () => {

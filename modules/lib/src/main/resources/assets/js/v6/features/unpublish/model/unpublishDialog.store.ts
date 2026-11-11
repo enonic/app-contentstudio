@@ -1,5 +1,4 @@
 import { notifyError, notifySuccess } from '../../../shared/notifications';
-import type { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
 import { computed, map } from 'nanostores';
 import { i18n } from '../../../shared/i18n';
 import { type ContentId } from '../../../../app/content/ContentId';
@@ -32,7 +31,7 @@ type UnpublishDialogPendingStore = {
     pendingIds: string[];
     pendingTotal: number;
     pendingPrimaryName?: string;
-    taskId?: TaskId;
+    taskId?: string;
 };
 
 // Initial state snapshot for reset

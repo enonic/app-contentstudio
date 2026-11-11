@@ -1,6 +1,4 @@
 import { ResultAsync, okAsync } from 'neverthrow';
-import { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
-import { type TaskIdJson } from '@enonic/lib-admin-ui/task/TaskIdJson';
 import { requestJson } from '@enonic/ui-utils/request';
 import { AppError } from '@enonic/ui-utils';
 import { AccessControlList } from '../../../../app/access/AccessControlList';
@@ -50,7 +48,7 @@ export function fetchRootPermissions(): ResultAsync<AccessControlList, AppError>
  * Apply permissions to a content, optionally propagating to its descendants.
  * Used by: features/permissions/model/permissionsDialog.store.
  */
-export function applyContentPermissions(params: ApplyContentPermissionsParams): ResultAsync<TaskId, AppError> {
+export function applyContentPermissions(params: ApplyContentPermissionsParams): ResultAsync<string, AppError> {
     const { contentId, scope, permissions, addPermissions, removePermissions } = params;
 
     const body = {
@@ -61,5 +59,7 @@ export function applyContentPermissions(params: ApplyContentPermissionsParams): 
         scope: scope.toUpperCase(),
     };
 
-    return requestJson<TaskIdJson>(getCmsApiUrl('applyPermissions'), { method: 'POST', body }).map(TaskId.fromJson);
+    return requestJson<{ taskId: string }>(getCmsApiUrl('applyPermissions'), { method: 'POST', body }).map(
+        ({ taskId }) => taskId,
+    );
 }

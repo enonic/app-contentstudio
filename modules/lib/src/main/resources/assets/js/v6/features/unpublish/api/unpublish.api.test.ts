@@ -69,7 +69,7 @@ describe('unpublishContent', () => {
         const result = await unpublishContent({ contentIds: [contentId('a'), contentId('b')] });
 
         expect(result.isOk()).toBe(true);
-        expect(result._unsafeUnwrap().toString()).toBe('t-unpub');
+        expect(result._unsafeUnwrap()).toBe('t-unpub');
         const [url, init] = mockFetch.mock.calls[0];
         expect(url).toContain('/content/content/unpublish');
         expect(init).toMatchObject({

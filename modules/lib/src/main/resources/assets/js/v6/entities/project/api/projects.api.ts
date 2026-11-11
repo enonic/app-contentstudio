@@ -1,7 +1,5 @@
 import { ResultAsync } from 'neverthrow';
 import { type PrincipalKey } from '@enonic/ui-types';
-import { TaskId } from '@enonic/lib-admin-ui/task/TaskId';
-import { type TaskIdJson } from '@enonic/lib-admin-ui/task/TaskIdJson';
 import { requestJson } from '@enonic/ui-utils/request';
 import { AppError } from '@enonic/ui-utils';
 import { Project } from '../../../../app/settings/data/project/Project';
@@ -116,12 +114,12 @@ export function updateProjectPermissions(
  * Update a project's read access. Returns a task id to track the async apply.
  * Used by: features/manage-project/model/projectDialog.store.
  */
-export function updateProjectReadAccess(name: string, readAccess: ProjectReadAccess): ResultAsync<TaskId, AppError> {
+export function updateProjectReadAccess(name: string, readAccess: ProjectReadAccess): ResultAsync<string, AppError> {
     const url = getCmsRestUri('project/modifyReadAccess');
 
     const payload = { name, readAccess: readAccess.toJson() };
 
-    return requestJson<TaskIdJson>(url, { method: 'POST', body: payload }).map(TaskId.fromJson);
+    return requestJson<{ taskId: string }>(url, { method: 'POST', body: payload }).map(({ taskId }) => taskId);
 }
 
 /**
@@ -129,10 +127,10 @@ export function updateProjectReadAccess(name: string, readAccess: ProjectReadAcc
  * the server task to track.
  * Used by: pages/settings/model/settingsActions.store.
  */
-export function syncProjects(): ResultAsync<TaskId, AppError> {
+export function syncProjects(): ResultAsync<string, AppError> {
     const url = getCmsRestUri('project/syncAll');
 
-    return requestJson<TaskIdJson>(url, { method: 'POST', body: {} }).map(TaskId.fromJson);
+    return requestJson<{ taskId: string }>(url, { method: 'POST', body: {} }).map(({ taskId }) => taskId);
 }
 
 /**
