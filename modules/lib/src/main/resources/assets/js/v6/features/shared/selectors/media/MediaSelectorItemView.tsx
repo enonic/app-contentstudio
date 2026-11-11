@@ -1,7 +1,7 @@
 import { Tooltip } from '@enonic/ui';
 import { type ReactElement } from 'react';
 import type { ContentSummary } from '../../../../../app/content/ContentSummary';
-import { calcContentState } from '../../../../shared/lib/cms/content/workflow';
+import { getMediaSelectorStatus } from './media-selector.utils';
 import { calcTreePublishStatus } from '../../../../shared/lib/cms/content/status';
 import { WorkflowContentIcon } from '../../../../shared/ui/icons/WorkflowContentIcon';
 import { StatusBadge } from '../../status/StatusBadge';
@@ -25,8 +25,7 @@ export const MediaSelectorItemView = ({ content, hideStatus = false }: MediaSele
     const contentId = content.getId();
     const displayName = content.getDisplayName() || content.getType()?.getLocalName();
     const subName = content.getPath() ? content.getPath().toString() : '';
-    const statusHidden = hideStatus || !!content.getPublishTime();
-    const status = statusHidden ? null : calcContentState(content);
+    const status = getMediaSelectorStatus(content, hideStatus);
 
     if (isRemoved) {
         return <ContentNotAvailable contentId={contentId} />;
@@ -47,8 +46,9 @@ export const MediaSelectorItemView = ({ content, hideStatus = false }: MediaSele
                 </span>
                 <Tooltip delay={300} value={subName}>
                     <span
+                        tabIndex={0}
                         dir="rtl"
-                        className="text-subtle text-sm block whitespace-nowrap overflow-hidden text-ellipsis text-left group-data-[tone=inverse]:text-alt"
+                        className="text-subtle text-sm block whitespace-nowrap overflow-hidden text-ellipsis text-left group-data-[tone=inverse]:text-alt focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
                     >
                         <bdi>{subName}</bdi>
                     </span>

@@ -1,5 +1,5 @@
 import { DateHelper } from '@enonic/lib-admin-ui/util/DateHelper';
-import { Button, Checkbox, cn, Tooltip, useListbox } from '@enonic/ui';
+import { Button, Checkbox, cn, useListbox } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { ComponentPropsWithoutRef, ReactElement, useCallback, useMemo } from 'react';
 import { i18n } from '../../../../shared/i18n';
@@ -18,8 +18,9 @@ import {
     $selectedVersions,
     toggleVersionSelection,
 } from '../../../../entities/content/version';
-import { getOperationLabel, getVersionBranch, VersionBranch } from './labels';
+import { getOperationLabel, getVersionBranch } from './labels';
 import { useRevertActions } from './revert/useRevertActions';
+import { VersionBranchMarker } from './VersionBranchMarker';
 
 const COMPONENT_NAME = 'VersionsListItem';
 
@@ -69,17 +70,6 @@ const useVersionItemState = (version: ContentVersion) => {
 // ============================================================================
 // Subcomponents
 // ============================================================================
-
-type VersionBranchMarkerProps = {
-    branch: VersionBranch;
-};
-
-// Compact (D)/(M) tag whose tooltip names the target branch (draft/master).
-const VersionBranchMarker = ({ branch }: VersionBranchMarkerProps): ReactElement => (
-    <Tooltip delay={300} value={branch} asChild>
-        <span className="text-subtle text-sm font-semibold">({branch.charAt(0).toUpperCase()})</span>
-    </Tooltip>
-);
 
 type VersionItemMainInfoProps = {
     version: ContentVersion;
