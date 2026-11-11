@@ -126,6 +126,33 @@ describe('SidebarWidgetPanels', () => {
         expect(widget?.querySelector<HTMLElement>(':scope > div[hidden]')).not.toBeNull();
     });
 
+    it('loads the failed widget again when it is shown the next time', async () => {
+        vi.spyOn(console, 'error').mockImplementation(() => undefined);
+        mocks.fetchSidebarWidgetHtml.mockReturnValue(errAsync(new Error('failed')));
+
+        act(() => setActiveWidget(settings));
+        const { container, findByText, queryByText } = render(<SidebarWidgetPanels />);
+
+        await findByText('widget.render.error');
+        expect(mocks.fetchSidebarWidgetHtml).toHaveBeenCalledTimes(1);
+
+        mocks.fetchSidebarWidgetHtml.mockReturnValue(okAsync(SETTINGS_HTML));
+        act(() => setActiveWidget(studio));
+
+        await waitFor(() => {
+            expect(container.querySelector<HTMLElement>('[data-widget$=":settings"]')?.hidden).toBe(true);
+        });
+        expect(mocks.fetchSidebarWidgetHtml).toHaveBeenCalledTimes(1);
+
+        act(() => setActiveWidget(settings));
+
+        await waitFor(() => {
+            expect(container.querySelector('widget#widget-settings')).not.toBeNull();
+        });
+        expect(mocks.fetchSidebarWidgetHtml).toHaveBeenCalledTimes(2);
+        expect(queryByText('widget.render.error')).toBeNull();
+    });
+
     it('keeps the mounted widget when the extensions list is rebuilt with the same URL', async () => {
         act(() => setActiveWidget(settings));
         const { container } = render(<SidebarWidgetPanels />);

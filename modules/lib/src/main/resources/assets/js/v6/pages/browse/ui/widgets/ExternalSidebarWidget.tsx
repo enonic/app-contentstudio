@@ -21,6 +21,8 @@ export const ExternalSidebarWidget = ({ widget, active, className }: ExternalSid
     const errorMessage = useI18n('widget.render.error');
 
     const [status, setStatus] = useState<Status>('loading');
+    const [attempt, setAttempt] = useState(0);
+    const wasActiveRef = useRef(active);
 
     // ! The extensions list is rebuilt whenever an application starts or stops, so the widget object
     // ! changes while its URL does not; reloading on the object would wipe the mounted widget.
@@ -60,7 +62,16 @@ export const ExternalSidebarWidget = ({ widget, active, className }: ExternalSid
             assetsRef.current = [];
             host.replaceChildren();
         };
-    }, [url]);
+    }, [url, attempt]);
+
+    useEffect(() => {
+        const wasActive = wasActiveRef.current;
+        wasActiveRef.current = active;
+
+        if (active && !wasActive && status === 'error') {
+            setAttempt((value) => value + 1);
+        }
+    }, [active, status]);
 
     // ! The widget stays mounted while another one is shown, but its stylesheets
     // ! must leave the document so they cannot restyle the active widget.

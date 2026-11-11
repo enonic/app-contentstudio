@@ -59,7 +59,7 @@ import { mountApp } from '@enonic/lib-contentstudio/v6/app/App';
 import { mountNotifications } from '@enonic/lib-contentstudio/v6/app/notificationsRoot';
 import { initAiHost } from '@enonic/lib-contentstudio/v6/features/ai';
 import { $isBrowseSidebarOpen } from '@enonic/lib-contentstudio/v6/pages/browse/model/browseSidebar.store';
-import { initTheme } from '@enonic/lib-contentstudio/v6/shared/app-state/app.store';
+import { initTheme, setPage } from '@enonic/lib-contentstudio/v6/shared/app-state/app.store';
 import { initConfig } from '@enonic/lib-contentstudio/v6/shared/config/config.store';
 import { initLanguages } from '@enonic/lib-contentstudio/v6/entities/language/languages.store';
 import { initPrincipals } from '@enonic/lib-contentstudio/v6/entities/principal/principals.store';
@@ -271,6 +271,7 @@ function preLoadApplication(): Promise<void> {
                 .catch(() => {
                     invalidEditUrlNotificationPending = true;
                     history.replaceState(null, '', UrlHelper.createContentBrowseUrl(wizardParams.projectName));
+                    setPage('browse');
                     wizardParams = undefined;
                 }),
         ).then(() => undefined);
