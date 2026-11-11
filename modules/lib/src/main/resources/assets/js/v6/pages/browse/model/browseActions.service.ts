@@ -8,6 +8,15 @@ import { clearAllowsChildContentCache, fetchAllowsChildContent } from '../../../
 import { i18n } from '../../../shared/i18n';
 import { handleError, notifyWarning } from '../../../shared/notifications';
 import {
+    $contentCreated,
+    $contentDeleted,
+    $contentDuplicated,
+    $contentPermissionsUpdated,
+    $contentPublished,
+    $contentUnpublished,
+    $contentUpdated,
+} from '../../../shared/socket/socket.store';
+import {
     $browseActionFacts,
     type BrowseActionFacts,
     isBrowseActionsStashed,
@@ -19,13 +28,24 @@ import {
 // * Browse Actions Service
 //
 // Keeps the facts behind the browse actions (permissions, whether the content
-// type allows children, unpublished descendants) in step with the current items.
+// type allows children, unpublished descendants) in step with the current items
+// and with the content changes the server reports.
 // Started explicitly with the browse app; never a side effect of importing.
 //
 
 const ROOT_PERMISSIONS: readonly ContentPermission[] = ['CREATE'];
 const ITEM_PERMISSIONS: readonly ContentPermission[] = ['CREATE', 'DELETE', 'PUBLISH', 'MODIFY'];
 const CONTENT_CHANGE_DELAY_MS = 300;
+
+const CONTENT_CHANGES = [
+    $contentCreated,
+    $contentUpdated,
+    $contentDeleted,
+    $contentPublished,
+    $contentUnpublished,
+    $contentDuplicated,
+    $contentPermissionsUpdated,
+];
 
 let unsubscribers: Array<() => void> = [];
 let requestId = 0;
@@ -91,9 +111,10 @@ export function refreshBrowseActions(): void {
     }, handleError);
 }
 
-/** Refreshes after a pause, so a burst of server events about the current items costs one round of requests. */
-export function scheduleBrowseActionsRefresh(): void {
-    if (unsubscribers.length === 0) return;
+// ! Any content change counts, not only one to the current items: publishing a child
+// ! changes what Publish tree and Request publish offer for its parent.
+function handleContentChanged(event: unknown): void {
+    if (event == null || $currentItems.get().length === 0) return;
 
     clearTimeout(pendingRefresh);
     pendingRefresh = setTimeout(refreshBrowseActions, CONTENT_CHANGE_DELAY_MS);
@@ -116,6 +137,7 @@ export const start = (): void => {
             }
         }),
         onActiveProjectChanged(refreshBrowseActions),
+        ...CONTENT_CHANGES.map((store) => store.listen(handleContentChanged)),
         onApplicationEvent(clearAllowsChildContentCache),
     ];
 

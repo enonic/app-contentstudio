@@ -62,6 +62,7 @@ vi.mock('./browseActions.store', async () => {
     };
 });
 
+import { emitContentPublished } from '../../../shared/socket/socket.store';
 import { start, stop } from './browseActions.service';
 import { $browseActionFacts } from './browseActions.store';
 
@@ -145,6 +146,34 @@ describe('browseActions.service', () => {
 
         expect($browseActionFacts.get().items).toEqual([current]);
         expect($browseActionFacts.get().permissions).toEqual(['CREATE']);
+    });
+
+    it('should ask again after a content change elsewhere while something is current', async () => {
+        vi.useFakeTimers();
+        start();
+        stores.$currentItems.set([createItem('parent')]);
+        await vi.advanceTimersByTimeAsync(0);
+        const calls = mocks.fetchPermittedActions.mock.calls.length;
+
+        emitContentPublished([createItem('child')]);
+        emitContentPublished([createItem('other-child')]);
+        await vi.advanceTimersByTimeAsync(300);
+
+        expect(mocks.fetchPermittedActions).toHaveBeenCalledTimes(calls + 1);
+        vi.useRealTimers();
+    });
+
+    it('should ignore content changes while nothing is current', async () => {
+        vi.useFakeTimers();
+        start();
+        await vi.advanceTimersByTimeAsync(0);
+        const calls = mocks.fetchPermittedActions.mock.calls.length;
+
+        emitContentPublished([createItem('child')]);
+        await vi.advanceTimersByTimeAsync(300);
+
+        expect(mocks.fetchPermittedActions).toHaveBeenCalledTimes(calls);
+        vi.useRealTimers();
     });
 
     it('should ask again when the active project changes', async () => {

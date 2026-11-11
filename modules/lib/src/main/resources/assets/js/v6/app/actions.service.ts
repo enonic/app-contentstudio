@@ -1,5 +1,4 @@
 import { $currentIds } from '../entities/content';
-import { scheduleBrowseActionsRefresh } from '../pages/browse/model/browseActions.service';
 import {
     $contentPermissionsUpdated,
     $contentPublished,
@@ -26,7 +25,6 @@ function checkAndSignalRefresh(changedIds: string[]): void {
     const changedSet = new Set(changedIds);
     if (currentIds.some((id) => changedSet.has(id))) {
         $actionsNeedRefresh.set(Date.now());
-        scheduleBrowseActionsRefresh();
     }
 }
 
