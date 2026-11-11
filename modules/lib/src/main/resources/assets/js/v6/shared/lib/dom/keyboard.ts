@@ -49,8 +49,8 @@ const isApplePlatform = (): boolean =>
 /**
  * Checks if a keyboard event matches a `mod+e` style shortcut. `mod` is Meta
  * on Apple platforms and Control elsewhere; every other modifier must match
- * exactly. A letter is matched by the typed character, falling back to the
- * physical key only for Alt chords, where macOS types a dead character.
+ * exactly. A letter or Space is matched by the typed character, falling back to
+ * the physical key only for Alt chords, where macOS types another character.
  */
 export const matchesShortcut = (event: ShortcutEventLike, shortcut: string, isApple = isApplePlatform()): boolean => {
     const tokens = shortcut.toLowerCase().split('+');
@@ -67,8 +67,11 @@ export const matchesShortcut = (event: ShortcutEventLike, shortcut: string, isAp
     const expected = KEY_ALIASES[key] ?? key;
     if (event.key.toLowerCase() === expected) return true;
 
+    if (!event.altKey) return false;
+    if (expected === ' ') return event.code === 'Space';
+
     const isLetter = expected.length === 1 && /[a-z]/.test(expected);
-    return isLetter && event.altKey && event.code === `Key${expected.toUpperCase()}`;
+    return isLetter && event.code === `Key${expected.toUpperCase()}`;
 };
 
 /**

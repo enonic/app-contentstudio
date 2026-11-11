@@ -1,26 +1,17 @@
-import {SelectableTreeListBoxKeyNavigator} from '@enonic/lib-admin-ui/ui/selector/list/SelectableTreeListBoxKeyNavigator';
-import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {type ContentTreeActions} from './ContentTreeActions';
-import {type SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
-import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
+import { SelectableTreeListBoxKeyNavigator } from '@enonic/lib-admin-ui/ui/selector/list/SelectableTreeListBoxKeyNavigator';
+import { type ContentSummaryAndCompareStatus } from '../content/ContentSummaryAndCompareStatus';
+import { KeyBinding } from '@enonic/lib-admin-ui/ui/KeyBinding';
+import { executeBrowseAction } from '../../v6/pages/browse/model/browseActions.commands';
 
-export class ContentBrowsePanelKeyNavigator
-    extends SelectableTreeListBoxKeyNavigator<ContentSummaryAndCompareStatus> {
-
-    private readonly treeActions: ContentTreeActions;
-
-    constructor(selectableListBoxWrapper: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>, treeActions: ContentTreeActions) {
-        super(selectableListBoxWrapper);
-
-        this.treeActions = treeActions;
-    }
-
+export class ContentBrowsePanelKeyNavigator extends SelectableTreeListBoxKeyNavigator<ContentSummaryAndCompareStatus> {
     protected createKeyBindings(): KeyBinding[] {
         const keyBindings = super.createKeyBindings();
 
-        keyBindings.push(new KeyBinding('enter', () => {
-            this.treeActions.getEditAction().execute();
-        }));
+        keyBindings.push(
+            new KeyBinding('enter', () => {
+                executeBrowseAction('edit');
+            }),
+        );
 
         return keyBindings;
     }

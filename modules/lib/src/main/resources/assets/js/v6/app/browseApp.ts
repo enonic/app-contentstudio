@@ -1,4 +1,5 @@
 import { Router } from '../../app/Router';
+import { start as startBrowseActionsService } from '../pages/browse/model/browseActions.service';
 import { routeBrowseUrl } from '../pages/browse/model/browseRoute.service';
 import { setMode } from '../shared/app-state/mode.store';
 import { start as startSidebarWidgetsService } from '../widgets/context-panel/model/sidebarWidgets.service';
@@ -12,6 +13,7 @@ export function startBrowseApp(): void {
     const path = Router.getPath();
 
     startSidebarWidgetsService();
+    startBrowseActionsService();
     setMode('browser');
     routeBrowseUrl(path);
 }

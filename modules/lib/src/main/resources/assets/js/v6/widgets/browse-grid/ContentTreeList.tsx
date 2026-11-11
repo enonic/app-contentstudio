@@ -1,7 +1,7 @@
 import { Button, cn, VirtualizedTreeList } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { AlertCircle, LoaderCircle } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { type ComponentType, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ListRange, VirtuosoHandle } from 'react-virtuoso';
 import { Virtuoso } from 'react-virtuoso';
 import { EditContentEvent } from '../../../app/event/EditContentEvent';
@@ -47,7 +47,6 @@ import { ProgressBar } from '../../shared/ui/primitives/ProgressBar';
 import { $activeProject } from '../../entities/project';
 import { useDebouncedCallback } from '../../shared/lib/hooks/useDebouncedCallback';
 import type { ContentData } from '../../entities/content/model/ContentData';
-import { ContentTreeContextMenu, type ContentTreeContextMenuProps } from './ContentTreeContextMenu';
 import { ContentTreeListItem } from './ContentTreeListItem';
 import { ContentTreeListSkeletonRow } from './ContentTreeListSkeletonRow';
 import type { ContentUploadData } from '../../entities/content/model/ContentUploadData';
@@ -161,17 +160,24 @@ const ERROR_ROW_PREFIX = '__error_batch__';
 // * Main Component
 //
 
+const NoContextMenu = ({ children }: { children: ReactNode }): React.ReactElement => <>{children}</>;
+
 export type ContentTreeListProps = {
-    contextMenuActions?: ContentTreeContextMenuProps['actions'];
+    /** Wraps the list to give it a context menu. */
+    contextMenu?: ComponentType<{ children: ReactNode }>;
+    /** Called when Enter is pressed on the list itself. */
+    onEdit?: () => void;
 };
 
 const CONTENT_TREE_LIST_NAME = 'ContentTreeList';
 
-export const ContentTreeList = ({ contextMenuActions = {} }: ContentTreeListProps): React.ReactElement => {
+export const ContentTreeList = ({
+    contextMenu: ContextMenuWrapper = NoContextMenu,
+    onEdit,
+}: ContentTreeListProps): React.ReactElement => {
     const virtuosoRef = useRef<VirtuosoHandle>(null);
     const visibleDataLoadInFlightRef = useRef(false);
     const [isVisibleDataLoadInFlight, setIsVisibleDataLoadInFlight] = useState(false);
-    const editAction = contextMenuActions.editAction;
     const flatNodes = useStore($activeFlatNodes);
     const selection = useStore($selection);
     const activeId = useStore($activeId);
@@ -553,10 +559,10 @@ export const ContentTreeList = ({ contextMenuActions = {} }: ContentTreeListProp
             {({ getItemProps, containerProps }) => {
                 const { className: containerClassName, onKeyDown, ...restContainerProps } = containerProps;
                 const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
-                    if (event.key === 'Enter' && event.target === event.currentTarget && editAction) {
+                    if (event.key === 'Enter' && event.target === event.currentTarget && onEdit) {
                         event.preventDefault();
                         event.stopPropagation();
-                        editAction.execute();
+                        onEdit();
                         return;
                     }
 
@@ -564,7 +570,7 @@ export const ContentTreeList = ({ contextMenuActions = {} }: ContentTreeListProp
                 };
 
                 return (
-                    <ContentTreeContextMenu actions={contextMenuActions}>
+                    <ContextMenuWrapper>
                         <Virtuoso<ContentFlatNode>
                             ref={virtuosoRef}
                             data={visibleItems}
@@ -718,7 +724,7 @@ export const ContentTreeList = ({ contextMenuActions = {} }: ContentTreeListProp
                                 return null;
                             }}
                         />
-                    </ContentTreeContextMenu>
+                    </ContextMenuWrapper>
                 );
             }}
         </VirtualizedTreeList>

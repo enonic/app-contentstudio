@@ -13,14 +13,13 @@ import {
     $filterRefreshNeeded,
     clearFilterRefreshNeeded,
 } from '../../entities/content';
-import { ContentTreeContextMenuProps } from './ContentTreeContextMenu';
 import { ContentTreeList, ContentTreeListProps } from './ContentTreeList';
 
 export class ContentTreeListElement extends LegacyElement<typeof ContentTreeList, ContentTreeListProps> {
     private selectionChangedListeners: ((selectionChange: SelectionChange<ContentSummary>) => void)[] = [];
 
-    constructor() {
-        super({}, ContentTreeList);
+    constructor(props: ContentTreeListProps = {}) {
+        super(props, ContentTreeList);
 
         this.initListeners();
     }
@@ -101,9 +100,5 @@ export class ContentTreeListElement extends LegacyElement<typeof ContentTreeList
             // Deactivate filter mode, return to main tree
             deactivateFilter();
         }
-    }
-
-    setContextMenuActions(actions: ContentTreeContextMenuProps['actions']): void {
-        this.props.setKey('contextMenuActions', actions);
     }
 }

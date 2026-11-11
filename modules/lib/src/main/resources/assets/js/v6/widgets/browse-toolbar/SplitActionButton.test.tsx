@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/preact';
 import { type ReactElement, type ReactNode, cloneElement, isValidElement } from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { Action } from '@enonic/lib-admin-ui/ui/Action';
 
 vi.mock('@enonic/ui', () => {
     type MockButtonProps = {
@@ -110,6 +109,7 @@ vi.mock('lucide-react', () => ({
 }));
 
 import { SplitActionButton } from './SplitActionButton';
+import { type ToolbarAction } from './toolbarAction';
 
 const createAction = ({
     label,
@@ -119,13 +119,7 @@ const createAction = ({
     label: string;
     enabled?: boolean;
     visible?: boolean;
-}) => {
-    const action = new Action(label);
-    action.setEnabled(enabled);
-    action.setVisible(visible);
-
-    return action;
-};
+}): ToolbarAction => ({ id: label, label, enabled, visible, execute: () => undefined });
 
 describe('SplitActionButton', () => {
     it('filters out invisible actions before choosing the primary action and menu items', () => {

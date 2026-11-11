@@ -16,7 +16,7 @@ import { atom } from 'nanostores';
 //
 // This store can be extended to centralize action state calculations:
 //
-// 1. Move enabled/disabled logic from ContentTreeActions.updateActionsEnabledState()
+// 1. Move enabled/disabled logic from the browse actions service
 //    to computed stores here, e.g.:
 //    - $canPublish = computed([$currentItems, $permissions], ...)
 //    - $canDelete = computed([$currentItems, $permissions], ...)

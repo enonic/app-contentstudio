@@ -67,7 +67,8 @@ since churny lists (`ContentListItem`) create and drop roots constantly.
 4. ~~Browse shell~~ — done: `BrowseAppShell` renders the sidebar, the app bar and the
    sidebar widget panels; the legacy browse panel is a `LegacyElementHost` island in
    `ContentBrowseWidget` until phases 5–6 dismantle it.
-5. Browse toolbar + filter — move `Action[]` coupling into `app/actions.store` first.
+5. Browse toolbar + filter — the toolbar actions are done: `pages/browse/model/browseActions.store`
+   holds their state, `browseActions.commands` runs them. The filter still takes `Aggregation` props.
 6. Browse tree + selection bridge (`ContentTreeList`) — replace the `SelectionChange`
    callback with store subscriptions; then dismantle legacy `ContentBrowsePanel`.
 7. ~~Settings app~~ — done: `settings.ts` mounts `SettingsPage` as a single React root

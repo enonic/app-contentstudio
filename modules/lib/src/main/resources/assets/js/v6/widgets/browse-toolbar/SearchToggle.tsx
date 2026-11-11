@@ -1,9 +1,7 @@
-import { type Action } from '@enonic/lib-admin-ui/ui/Action';
 import { cn, Toggle, Toolbar, Tooltip } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { Search, ZoomIn } from 'lucide-react';
 import { type ReactElement, useEffect, useRef } from 'react';
-import { useAction } from '../../shared/lib/hooks/useAction';
 import { useBreakpoints } from '../../shared/lib/hooks/useBreakpoints';
 import { useI18n } from '../../shared/lib/hooks/useI18n';
 import {
@@ -14,22 +12,22 @@ import {
 import { $isFilterActive } from '../../entities/content';
 
 type Props = {
-    action: Action;
+    onToggle: () => void;
+    disabled?: boolean;
     className?: string;
 };
 
-export const SearchToggle = ({ action, className }: Props): ReactElement => {
+export const SearchToggle = ({ onToggle, disabled = false, className }: Props): ReactElement => {
     const toggleRef = useRef<HTMLButtonElement>(null);
     const isContentFilterOpen = useStore($isContentFilterOpen);
     const wasContentFilterOpen = useRef(isContentFilterOpen);
     const skipFocusReturnRef = useRef(false);
     const isFilterDirty = useStore($isContentFilterDirty);
     const isFilterActive = useStore($isFilterActive);
-    const { label, enabled, execute } = useAction(action);
 
     const showReachLabel = useI18n('tooltip.filterPanel.show');
     const hideReachLabel = useI18n('tooltip.filterPanel.hide');
-    const searchLabel = label || (isContentFilterOpen ? hideReachLabel : showReachLabel);
+    const searchLabel = isContentFilterOpen ? hideReachLabel : showReachLabel;
 
     const { sm } = useBreakpoints();
 
@@ -58,7 +56,7 @@ export const SearchToggle = ({ action, className }: Props): ReactElement => {
 
     return (
         <Tooltip side={sm ? 'bottom' : 'right'} delay={300} value={searchLabel} asChild>
-            <Toolbar.Item asChild disabled={!enabled}>
+            <Toolbar.Item asChild disabled={disabled}>
                 <Toggle
                     ref={toggleRef}
                     className={cn('size-9 p-0', className)}
@@ -68,7 +66,7 @@ export const SearchToggle = ({ action, className }: Props): ReactElement => {
                     aria-label={searchLabel}
                     startIcon={isFilterDirty || isFilterActive ? ZoomIn : Search}
                     pressed={isContentFilterOpen}
-                    onPressedChange={() => execute()}
+                    onPressedChange={() => onToggle()}
                 />
             </Toolbar.Item>
         </Tooltip>

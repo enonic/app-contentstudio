@@ -1,18 +1,15 @@
 import { RepositoryEvent } from '@enonic/lib-admin-ui/content/event/RepositoryEvent';
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { type Action } from '@enonic/lib-admin-ui/ui/Action';
-import { MenuButtonDropdownPos } from '@enonic/lib-admin-ui/ui/button/MenuButton';
+import { ManagedActionManager } from '@enonic/lib-admin-ui/managedaction/ManagedActionManager';
+import { ManagedActionState } from '@enonic/lib-admin-ui/managedaction/ManagedActionState';
 import { type SelectableListBoxPanel } from '@enonic/lib-admin-ui/ui/panel/SelectableListBoxPanel';
-import { type ResponsiveItem } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
-import { ResponsiveManager } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import { ResponsiveRanges } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
 import { ListBoxToolbar } from '@enonic/lib-admin-ui/ui/selector/list/ListBoxToolbar';
 import { SelectableListBoxWrapper } from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 import { type SelectableTreeListBoxKeyNavigator } from '@enonic/lib-admin-ui/ui/selector/list/SelectableTreeListBoxKeyNavigator';
 import { TreeListBoxExpandedHolder } from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
 import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
 import type Q from 'q';
-import { createElement } from 'react';
 import { $actionsNeedRefresh, clearActionsRefreshSignal } from '../../v6/app/actions.store';
 import {
     removeContent,
@@ -26,15 +23,14 @@ import { onActiveProjectChanged, onNoProjectsAvailable } from '../../v6/entities
 import { $contextPanelMode } from '../../v6/shared/app-state/browsePanels.store';
 import { setDependencySearchPending } from '../../v6/features/search/model/contentFilter.store';
 import { ContentTreeListElement } from '../../v6/widgets/browse-grid/ContentTreeListElement';
-import { BrowseToolbarElement } from '../../v6/widgets/browse-toolbar/BrowseToolbar';
-import { WidgetsSelectorMenu } from '../../v6/widgets/context-panel/widget/WidgetsSelector';
-import { CurrentPreviewToolbarVersionHistoryItem } from '../../v6/widgets/preview-panel/ui/PreviewToolbarVersionHistoryItem';
-import { PreviewToolbarWidgetSelector } from '../../v6/widgets/preview-panel/ui/PreviewToolbarWidgetSelector';
+import { executeBrowseAction } from '../../v6/pages/browse/model/browseActions.commands';
+import { setBrowseActionsStashed } from '../../v6/pages/browse/model/browseActions.store';
+import { BrowseToolbarElement } from '../../v6/pages/browse/ui/BrowseToolbar';
+import { BrowseTreeContextMenu } from '../../v6/pages/browse/ui/BrowseTreeContextMenu';
 import { type ContentId } from '../content/ContentId';
 import { type ContentQuery } from '../content/ContentQuery';
 import { ContentSummaryBuilder } from '../content/ContentSummary';
 import { ContentSummaryAndCompareStatus } from '../content/ContentSummaryAndCompareStatus';
-import { ContentActionMenuButton } from '../ContentActionMenuButton';
 import { type ContentServerChangeItem } from '../event/ContentServerChangeItem';
 import { ContentServerEventsHandler } from '../event/ContentServerEventsHandler';
 import { EditContentEvent } from '../event/EditContentEvent';
@@ -45,13 +41,11 @@ import { GetContentSummaryByIdRequest } from '../resource/GetContentSummaryByIdR
 import { Router } from '../Router';
 import { UrlAction } from '../UrlAction';
 import { type ContentItemPreviewPanel } from '../view/ContentItemPreviewPanel';
-import { type PreviewContentAction } from './action/PreviewContentAction';
 import { ContentBrowseItemPanel } from './ContentBrowseItemPanel';
 import { ContentBrowsePanelKeyNavigator } from './ContentBrowsePanelKeyNavigator';
 import { ContentBrowseToolbar } from './ContentBrowseToolbar';
 import { type ContentsTreeGridList, type ContentsTreeGridListElement } from './ContentsTreeGridList';
 import { ContentsTreeGridRootList } from './ContentsTreeGridRootList';
-import { ActionName, ContentTreeActions } from './ContentTreeActions';
 import { ContentTreeListSelectablePanelProxy } from './ContentTreeListSelectablePanelProxy';
 import { DeletedContentItem } from './DeletedContentItem';
 import { ContentBrowseFilterPanel } from './filter/ContentBrowseFilterPanel';
@@ -74,8 +68,6 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
 
     protected treeListBox: ContentsTreeGridRootList;
 
-    declare protected treeActions: ContentTreeActions;
-
     protected toolbar: ListBoxToolbar<ContentTreeSelectorItem>;
 
     protected selectionWrapper: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>;
@@ -96,48 +88,7 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
             this.filterPanel.getMobileDependenciesSection(),
         );
 
-        const browseActions = this.getBrowseActions();
-
-        this.prependChild(
-            new BrowseToolbarElement({
-                toggleFilterPanelAction: browseActions.getToggleSearchPanelAction(),
-                showNewDialogAction: browseActions.getAction(ActionName.SHOW_NEW_DIALOG),
-                editAction: browseActions.getAction(ActionName.EDIT),
-                archiveAction: browseActions.getAction(ActionName.ARCHIVE),
-                duplicateAction: browseActions.getAction(ActionName.DUPLICATE),
-                moveAction: browseActions.getAction(ActionName.MOVE),
-                sortAction: browseActions.getAction(ActionName.SORT),
-                previewAction: browseActions.getAction(ActionName.PREVIEW),
-                publishAction: browseActions.getAction(ActionName.PUBLISH),
-                unpublishAction: browseActions.getAction(ActionName.UNPUBLISH),
-                publishTreeAction: browseActions.getAction(ActionName.PUBLISH_TREE),
-                markAsReadyAction: browseActions.getAction(ActionName.MARK_AS_READY),
-                requestPublishAction: browseActions.getAction(ActionName.REQUEST_PUBLISH),
-                createIssueAction: browseActions.getAction(ActionName.CREATE_ISSUE),
-                mobileContextWidgetSelector: createElement(WidgetsSelectorMenu, {
-                    className: 'min-w-0 flex-1 self-stretch',
-                }),
-                mobilePreviewVersionHistoryButton: createElement(CurrentPreviewToolbarVersionHistoryItem, {}),
-                mobilePreviewWidgetSelector: createElement(PreviewToolbarWidgetSelector, { compact: true }),
-            }),
-        );
-
-        this.contentTreeList.setContextMenuActions({
-            showNewDialogAction: browseActions.getAction(ActionName.SHOW_NEW_DIALOG),
-            editAction: browseActions.getAction(ActionName.EDIT),
-            archiveAction: browseActions.getAction(ActionName.ARCHIVE),
-            duplicateAction: browseActions.getAction(ActionName.DUPLICATE),
-            moveAction: browseActions.getAction(ActionName.MOVE),
-            sortAction: browseActions.getAction(ActionName.SORT),
-            previewAction: browseActions.getAction(ActionName.PREVIEW),
-            publishAction: browseActions.getAction(ActionName.PUBLISH),
-            unpublishAction: browseActions.getAction(ActionName.UNPUBLISH),
-        });
-
-        this.browseToolbar.addActions(browseActions.getAllActionsNoPublish());
-
-        const previewAction = this.getBrowseActions().getAction(ActionName.PREVIEW) as PreviewContentAction;
-        this.getPreviewPanel().setPreviewAction(previewAction);
+        this.prependChild(new BrowseToolbarElement());
 
         this.debouncedFilterRefresh = AppHelper.debounce(this.refreshFilter.bind(this), 1000);
         this.debouncedBrowseActionsAndPreviewRefreshOnDemand = AppHelper.debounce(() => {
@@ -145,18 +96,14 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
                 this.updateActionsAndPreview();
             }
         }, 300);
-
-        this.getBrowseActions().updateActionsEnabledState([]);
     }
 
     private handleProjectNotSet() {
-        this.getBrowseActions().setState(State.DISABLED);
         this.toggleFilterPanelAction.setEnabled(false);
         this.setContentTreeState(State.DISABLED);
 
         let unsubscribeProjectSetHandler = () => undefined;
         const projectSetHandler = () => {
-            this.getBrowseActions().setState(State.ENABLED);
             this.toggleFilterPanelAction.setEnabled(true);
             this.setContentTreeState(State.ENABLED);
             Router.get().setHash(UrlAction.BROWSE);
@@ -239,8 +186,10 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
             refreshAction: () => this.treeListBox.reload(),
         });
 
-        this.contentTreeList = new ContentTreeListElement();
-        this.treeActions = new ContentTreeActions();
+        this.contentTreeList = new ContentTreeListElement({
+            contextMenu: BrowseTreeContextMenu,
+            onEdit: () => executeBrowseAction('edit'),
+        });
 
         const panel = new ContentTreeListSelectablePanelProxy(
             this.selectionWrapper,
@@ -253,20 +202,11 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
     }
 
     protected createKeyNavigator(): SelectableTreeListBoxKeyNavigator<ContentSummaryAndCompareStatus> {
-        return new ContentBrowsePanelKeyNavigator(this.selectionWrapper, this.treeActions);
-    }
-
-    protected getBrowseActions(): ContentTreeActions {
-        return this.treeActions;
+        return new ContentBrowsePanelKeyNavigator(this.selectionWrapper);
     }
 
     getActions(): Action[] {
-        return [
-            ...super.getActions(),
-            ...this.getPreviewPanel().getActions(),
-            ...this.getBrowseActions().getPublishActions(),
-            this.getBrowseActions().getToggleSearchPanelAction(),
-        ];
+        return [...super.getActions(), ...this.getPreviewPanel().getActions()];
     }
 
     protected createToolbar(): ContentBrowseToolbar {
@@ -310,8 +250,6 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
         return super
             .doRender()
             .then((rendered) => {
-                this.createContentPublishMenuButton();
-
                 this.addClass('content-browse-panel');
 
                 return rendered;
@@ -323,10 +261,12 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
     }
 
     private handleGlobalEvents() {
-        ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {
-            this.getBrowseActions()
-                .getToggleSearchPanelAction()
-                .setVisible(item.isInRangeOrSmaller(ResponsiveRanges._540_720));
+        ManagedActionManager.instance().onManagedActionStateChanged((state: ManagedActionState) => {
+            if (state === ManagedActionState.PREPARING) {
+                setBrowseActionsStashed(true);
+            } else if (state === ManagedActionState.ENDED) {
+                setBrowseActionsStashed(false);
+            }
         });
 
         ToggleSearchPanelEvent.on(() => {
@@ -723,45 +663,6 @@ export class ContentBrowsePanel extends ResponsiveBrowsePanel {
 
     getBrowseItemPanel(): ContentBrowseItemPanel {
         return super.getBrowseItemPanel() as ContentBrowseItemPanel;
-    }
-
-    private createContentPublishMenuButton() {
-        const browseActions: ContentTreeActions = this.getBrowseActions();
-        const contentActionMenuButton: ContentActionMenuButton = new ContentActionMenuButton({
-            defaultAction: browseActions.getAction(ActionName.MARK_AS_READY),
-            menuActions: [
-                browseActions.getAction(ActionName.MARK_AS_READY),
-                browseActions.getAction(ActionName.PUBLISH),
-                browseActions.getAction(ActionName.PUBLISH_TREE),
-                browseActions.getAction(ActionName.UNPUBLISH),
-                browseActions.getAction(ActionName.CREATE_ISSUE),
-                browseActions.getAction(ActionName.REQUEST_PUBLISH),
-            ],
-            defaultActionNoContent: browseActions.getAction(ActionName.CREATE_ISSUE),
-            debounceRequests: 500,
-            dropdownPosition: MenuButtonDropdownPos.RIGHT,
-        });
-
-        this.selectionWrapper.onSelectionChanged(() => {
-            const totalSelected: number = this.selectionWrapper.getSelectedItems().length;
-
-            if (totalSelected === 0) {
-                contentActionMenuButton.setItem(null);
-            } else if (totalSelected === 1) {
-                const item = this.selectionWrapper.getSelectedItems()[0];
-                contentActionMenuButton.setItem(item.hasUploadItem() ? null : item);
-            }
-        });
-
-        this.browseToolbar.addContainer(contentActionMenuButton, contentActionMenuButton.getChildControls());
-
-        browseActions.onBeforeActionsStashed(() => {
-            contentActionMenuButton.setRefreshDisabled(true);
-        });
-
-        browseActions.onActionsUnStashed(() => {
-            contentActionMenuButton.setRefreshDisabled(false);
-        });
     }
 
     private handleCUD() {
