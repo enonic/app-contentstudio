@@ -9,10 +9,13 @@ import { AccessHelper } from '../../../../../../app/security/AccessHelper';
 import { $permissionsDialog } from '../../../model/permissionsDialog.store';
 import { useStore } from '@nanostores/preact';
 import { PrincipalLabel } from '../../../../../shared/ui/PrincipalLabel';
+import { GridSelectorCell } from '../../../../../shared/ui/GridSelectorCell';
 
 type AccessControlRowProps = {
     principal: Principal;
     principalsInCustomAccess: string[];
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
     onSelect: (value: Access) => void;
     onUnselect: () => void;
 };
@@ -20,6 +23,8 @@ type AccessControlRowProps = {
 export const AccessControlRow = ({
     principal,
     principalsInCustomAccess,
+    open,
+    onOpenChange,
     onSelect,
     onUnselect,
 }: AccessControlRowProps): ReactElement => {
@@ -55,8 +60,8 @@ export const AccessControlRow = ({
                 </div>
             </GridList.Cell>
 
-            <GridList.Cell>
-                <Selector.Root value={accessValue} onValueChange={onSelect}>
+            <Selector.Root value={accessValue} onValueChange={onSelect} open={open} onOpenChange={onOpenChange}>
+                <GridSelectorCell>
                     <GridList.Action>
                         <Selector.Trigger className="border-none text-sm h-10">
                             <Selector.Value>{accessControlEntryLabel}</Selector.Value>
@@ -72,8 +77,8 @@ export const AccessControlRow = ({
                             ))}
                         </Selector.Viewport>
                     </Selector.Content>
-                </Selector.Root>
-            </GridList.Cell>
+                </GridSelectorCell>
+            </Selector.Root>
 
             <GridList.Cell>
                 <GridList.Action>

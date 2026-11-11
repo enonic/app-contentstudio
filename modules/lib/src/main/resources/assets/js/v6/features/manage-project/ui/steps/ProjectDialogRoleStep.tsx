@@ -11,6 +11,7 @@ import { InlineButton } from '../../../../shared/ui/InlineButton';
 import { PrincipalLabelOption, PrincipalSelector } from '../../../shared/selectors/principal';
 import { getProjectDetailedPermissions } from '../../../../shared/lib/url/projects';
 import { PrincipalLabel } from '../../../../shared/ui/PrincipalLabel';
+import { GridSelectorCell } from '../../../../shared/ui/GridSelectorCell';
 import { isAnonymousPrincipal } from '../../../../shared/lib/cms/security/principal';
 
 const filterAnonymousUserOut = (principal: Principal) => !isAnonymousPrincipal(principal.key);
@@ -51,6 +52,7 @@ export const ProjectDialogRoleStepContent = ({
         keys: ['parentProjects', 'roles'],
     });
     const [selection, setSelection] = useState<string[]>(Object.keys(roles));
+    const [openSelector, setOpenSelector] = useState<string | null>(null);
     const { options: principalOptions, onSearchChange: onPrincipalSearchChange } = usePrincipalOptions({
         allowedTypes: ROLE_PRINCIPAL_TYPES,
         customFilter: filterAnonymousUserOut,
@@ -190,11 +192,15 @@ export const ProjectDialogRoleStepContent = ({
                                 </GridList.Cell>
 
                                 {/* Manage selected principal role */}
-                                <GridList.Cell>
-                                    <Selector.Root
-                                        value={principalRole}
-                                        onValueChange={(value) => handleSelectRole(principal, value as ProjectAccess)}
-                                    >
+                                <Selector.Root
+                                    value={principalRole}
+                                    onValueChange={(value) => handleSelectRole(principal, value as ProjectAccess)}
+                                    open={openSelector === key}
+                                    onOpenChange={(open) =>
+                                        setOpenSelector((current) => (open ? key : current === key ? null : current))
+                                    }
+                                >
+                                    <GridSelectorCell>
                                         <GridList.Action>
                                             <Selector.Trigger className="border-none text-sm h-10">
                                                 <Selector.Value>{principalRoleLabel}</Selector.Value>
@@ -210,8 +216,8 @@ export const ProjectDialogRoleStepContent = ({
                                                 ))}
                                             </Selector.Viewport>
                                         </Selector.Content>
-                                    </Selector.Root>
-                                </GridList.Cell>
+                                    </GridSelectorCell>
+                                </Selector.Root>
 
                                 {/* Unselect principal */}
                                 <GridList.Cell>
