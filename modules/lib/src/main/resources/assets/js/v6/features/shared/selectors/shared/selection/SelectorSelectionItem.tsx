@@ -49,7 +49,11 @@ export const SelectorSelectionItem = ({
     }, [content, selection, onSelectionChange]);
 
     return (
-        <div data-component={SELECTOR_SELECTION_ITEM_NAME} className="min-w-0 flex-1">
+        <div
+            data-component={SELECTOR_SELECTION_ITEM_NAME}
+            tabIndex={selection.length === 1 ? 0 : undefined}
+            className="min-w-0 flex-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+        >
             <ListItem key={content.getId()} className="@container py-2.5 px-0" role="presentation">
                 <ListItem.Content>{renderContent(content)}</ListItem.Content>
 
