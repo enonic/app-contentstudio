@@ -1,7 +1,8 @@
-import { Body } from '@enonic/lib-admin-ui/dom/Body';
-import { initFormTypes } from '../features/shared/form/input-types';
+import { IdProvider } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import type { ReactElement } from 'react';
+import { render } from 'react-dom';
+import { initFormTypes } from '../features/shared/form/input-types';
 import { start as startActionsService } from './actions.service';
 import { start as startKeyBindingsGuard } from './keyBindingsGuard.service';
 import { start as startProjectSwitchService } from './projectSwitch.service';
@@ -21,16 +22,16 @@ import { start as startContextContentService } from '../widgets/context-panel/mo
 import { start as startContextWidgetsService } from '../widgets/context-panel/model/contextWidgets.service';
 import { start as startPreviewPanelService } from '../widgets/preview-panel/model/previewPanel.service';
 import { setActiveProjectResolver } from '../shared/lib/url/cms';
-import { LegacyElement } from '../shared/ui/LegacyElement';
 import { $isWizard } from '../shared/app-state/app.store';
 import { $projects } from '../entities/project';
 import { BrowsePage } from '../pages/browse/BrowsePage';
 import { WizardPage } from '../pages/wizard/ui/WizardPage';
 
+const APP_NAME = 'App';
+
 /**
- * AppShell component that renders the whole application layout.
- * This component is rendered at the app root level to ensure dialogs
- * are portaled correctly and don't interfere with app layout.
+ * The application root. The browse page owns the whole browse layout; the
+ * wizard page still renders only dialogs next to the legacy wizard panel.
  */
 const App = (): ReactElement => {
     const isWizard = useStore($isWizard);
@@ -38,39 +39,49 @@ const App = (): ReactElement => {
     return isWizard ? <WizardPage /> : <BrowsePage />;
 };
 
-App.displayName = 'App';
+App.displayName = APP_NAME;
 
-export class AppElement extends LegacyElement<typeof App> {
-    private static INSTANCE: AppElement;
+let host: HTMLElement | undefined;
 
-    private constructor() {
-        super({}, App);
+/**
+ * Starts the app-wide services and renders the application root into the body.
+ * Called once from the application bootstrap; later calls are no-ops.
+ */
+export function mountApp(): void {
+    if (host) {
+        return;
     }
 
-    static initialize(): void {
-        if (!AppElement.INSTANCE) {
-            initFormTypes();
-            setActiveProjectResolver(() => $projects.get().activeProjectId);
-            startSocketService();
-            startContentService();
-            startProjectSwitchService();
-            startKeyBindingsGuard();
-            startActionsService();
-            startContextContentService();
-            startContextWidgetsService();
-            startPreviewPanelService();
-            startDeleteDialogService();
-            startDuplicateDialogService();
-            startIssueDialogService();
-            startIssueDialogDetailsService();
-            startNewIssueDialogService();
-            startProjectDialogService();
-            startPublishDialogService();
-            startRequestPublishDialogService();
-            startSortDialogService();
-            startUnpublishDialogService();
-            AppElement.INSTANCE = new AppElement();
-            Body.get().appendChild(AppElement.INSTANCE);
-        }
-    }
+    initFormTypes();
+    setActiveProjectResolver(() => $projects.get().activeProjectId);
+    startSocketService();
+    startContentService();
+    startProjectSwitchService();
+    startKeyBindingsGuard();
+    startActionsService();
+    startContextContentService();
+    startContextWidgetsService();
+    startPreviewPanelService();
+    startDeleteDialogService();
+    startDuplicateDialogService();
+    startIssueDialogService();
+    startIssueDialogDetailsService();
+    startNewIssueDialogService();
+    startProjectDialogService();
+    startPublishDialogService();
+    startRequestPublishDialogService();
+    startSortDialogService();
+    startUnpublishDialogService();
+
+    host = document.createElement('div');
+    host.dataset.component = APP_NAME;
+    host.className = 'contents';
+    document.body.appendChild(host);
+
+    render(
+        <IdProvider prefix={APP_NAME}>
+            <App />
+        </IdProvider>,
+        host,
+    );
 }

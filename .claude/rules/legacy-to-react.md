@@ -8,16 +8,18 @@ paths:
 # Legacy → Single React Root
 
 Goal: the app becomes pure React under one root at `Body`, with logic in v6 stores.
-Today the visible shell is still legacy lib-admin-ui (`AppWrapper`, `ContentBrowsePanel`,
-`ContentWizardPanel`, `ContextView`) and v6 React is embedded as many islands. We unwrap
-those islands leaves-first until the React root owns the whole layout.
+The browse shell is React (`mountApp` → `App` → `BrowseAppShell`), but the browse panel
+(`ContentBrowsePanel`) and the wizard (`ContentWizardPanel`) are still legacy lib-admin-ui
+with v6 React embedded as islands. We unwrap those islands leaves-first until the React
+root owns the whole layout.
 
 ## The Bridge Is One-Directional
 
 `LegacyElement<C>` (v6/shared/ui) mounts a React component **inside** the legacy `Element`
 tree (legacy-hosts-React). Every `<Name>Element` adapter is this pattern, and **every
-instance creates its own React root** — that is the "many roots" problem. `AppElement`
-(the v6 root) currently renders only portaled dialogs, not the layout.
+instance creates its own React root** — that is the "many roots" problem. The v6 root
+(`mountApp` in `v6/app/App.tsx`) renders the browse layout; in the wizard it still renders
+only portaled dialogs.
 
 State crosses the boundary only through:
 1. **Shared nanostores** — the real backbone; both sides read/write `entities/*`,
@@ -62,8 +64,9 @@ since churny lists (`ContentListItem`) create and drop roots constantly.
 2. `WidgetsSelector` + context-panel host.
 3. Presentational leaves + preview panel (`PreviewLabel`, `PreviewContextMenu`,
    `PreviewToolbar`, `ContentItemPreviewPanel`).
-4. Browse shell — fold `AppWrapper` + `ContentAppContainer` into a React `BrowseAppShell`;
-   embed the legacy browse panel via `LegacyElementHost` temporarily.
+4. ~~Browse shell~~ — done: `BrowseAppShell` renders the sidebar, the app bar and the
+   sidebar widget panels; the legacy browse panel is a `LegacyElementHost` island in
+   `ContentBrowseWidget` until phases 5–6 dismantle it.
 5. Browse toolbar + filter — move `Action[]` coupling into `app/actions.store` first.
 6. Browse tree + selection bridge (`ContentTreeList`) — replace the `SelectionChange`
    callback with store subscriptions; then dismantle legacy `ContentBrowsePanel`.
@@ -73,8 +76,8 @@ since churny lists (`ContentListItem`) create and drop roots constantly.
    host dialogs port.
 9. Wizard toolbar & tabs — after actions are store-backed.
 10. Live-view + page editor, then `ContentWizardPanel` / `FrameContainer` — deepest, last.
-11. Collapse: `AppElement` renders the full layout; retire the legacy shell append in
-    `main.ts`; replace remaining lib-admin-ui `ui2/*` roots with native React.
+11. Collapse: `App` renders the full layout in the wizard too; retire the legacy wizard
+    append in `main.ts`; replace remaining lib-admin-ui `ui2/*` roots with native React.
 
 ## Don't Add New Roots
 

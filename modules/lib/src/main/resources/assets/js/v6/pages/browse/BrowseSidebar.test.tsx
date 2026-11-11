@@ -17,14 +17,6 @@ const mocks = vi.hoisted(() => ({
     }>,
 }));
 
-vi.mock('@enonic/lib-admin-ui/store/Store', () => ({
-    Store: {
-        instance: () => ({
-            get: () => ({ getName: () => 'Content Studio' }),
-        }),
-    },
-}));
-
 vi.mock('@enonic/ui', () => ({
     cn: (...classes: unknown[]) => classes.filter(Boolean).join(' '),
     IconButton: ({ 'aria-label': ariaLabel, disabled }: { 'aria-label'?: string; disabled?: boolean }) => (

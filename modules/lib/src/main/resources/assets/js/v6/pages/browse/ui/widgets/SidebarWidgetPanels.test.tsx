@@ -1,0 +1,184 @@
+import { Extension, ExtensionConfig } from '@enonic/lib-admin-ui/extension/Extension';
+import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
+import { act, render, waitFor } from '@testing-library/preact';
+import { errAsync, okAsync } from 'neverthrow';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { $config } from '../../../../shared/config/config.store';
+import { $sidebarWidgets, setActiveWidget } from '../../../../widgets/context-panel/model/sidebarWidgets.store';
+import { setBrowseSidebarOpen } from '../../model/browseSidebar.store';
+import { SidebarWidgetPanels } from './SidebarWidgetPanels';
+
+const mocks = vi.hoisted(() => ({
+    fetchSidebarWidgetHtml: vi.fn(),
+}));
+
+vi.mock('../../api/sidebarWidget.api', () => ({
+    fetchSidebarWidgetHtml: mocks.fetchSidebarWidgetHtml,
+}));
+
+vi.mock('./ContentBrowseWidget', () => ({
+    ContentBrowseWidget: ({ active }: { active: boolean }) => (
+        <div data-component="ContentBrowseWidget" data-active={active} />
+    ),
+}));
+
+vi.mock('../../../../shared/lib/hooks/useI18n', () => ({
+    useI18n: (key: string) => key,
+}));
+
+vi.mock('../../../../entities/extension', () => ({
+    fetchExtensions: () => Promise.resolve({ isErr: () => true, error: new Error('not in test') }),
+}));
+
+const SETTINGS_HTML = `<widget id="widget-settings">
+    <script src="/admin/assets/js/settings.js" data-config-script-id="cfg" data-widget-id="widget-settings"></script>
+</widget>`;
+
+function createWidget(key: string, url: string): Readonly<Extension> {
+    return Extension.create()
+        .setExtensionDescriptorKey(key)
+        .setDisplayName(key)
+        .setUrl(url)
+        .setConfig(new ExtensionConfig())
+        .build();
+}
+
+describe('SidebarWidgetPanels', () => {
+    const studio = createWidget('com.enonic.app.contentstudio:main', 'browse');
+    const settings = createWidget('com.enonic.app.contentstudio:settings', 'settings');
+
+    beforeEach(() => {
+        CONFIG.setConfig({ extensionApiUrl: '/admin/ext' });
+        $config.setKey('appId', 'com.enonic.app.contentstudio');
+        mocks.fetchSidebarWidgetHtml.mockReset();
+        mocks.fetchSidebarWidgetHtml.mockReturnValue(okAsync(SETTINGS_HTML));
+        $sidebarWidgets.set({ widgets: [studio, settings], activeWidgetId: undefined });
+        setBrowseSidebarOpen(false);
+        document.head.replaceChildren();
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
+        document.head.replaceChildren();
+    });
+
+    it('mounts the external widget on activation and moves its script to the head', async () => {
+        act(() => setActiveWidget(studio));
+        const { container } = render(<SidebarWidgetPanels />);
+
+        expect(container.querySelector('[data-component="ContentBrowseWidget"]')).not.toBeNull();
+        expect(container.querySelector('[data-widget$=":settings"]')).toBeNull();
+
+        act(() => setActiveWidget(settings));
+
+        await waitFor(() => {
+            expect(container.querySelector('widget#widget-settings')).not.toBeNull();
+        });
+
+        const settingsPanel = container.querySelector<HTMLElement>('[data-widget$=":settings"]');
+        const studioPanel = container.querySelector<HTMLElement>('[data-widget$=":main"]');
+        expect(settingsPanel?.hidden).toBe(false);
+        expect(studioPanel?.hidden).toBe(true);
+        expect(mocks.fetchSidebarWidgetHtml).toHaveBeenCalledTimes(1);
+
+        await waitFor(() => {
+            const script = document.head.querySelector<HTMLScriptElement>('script[data-widget-id="widget-settings"]');
+            expect(script?.getAttribute('src')).toBe('/admin/assets/js/settings.js');
+            expect(script?.getAttribute('data-config-script-id')).toBe('cfg');
+        });
+    });
+
+    it('keeps the widget mounted and removes its script while another widget is shown', async () => {
+        act(() => setActiveWidget(settings));
+        const { container } = render(<SidebarWidgetPanels />);
+
+        await waitFor(() => {
+            expect(document.head.querySelector('script[data-widget-id="widget-settings"]')).not.toBeNull();
+        });
+
+        act(() => setActiveWidget(studio));
+
+        await waitFor(() => {
+            expect(container.querySelector<HTMLElement>('[data-widget$=":settings"]')?.hidden).toBe(true);
+            expect(document.head.querySelector('script[data-widget-id="widget-settings"]')).toBeNull();
+        });
+        expect(container.querySelector('widget#widget-settings')).not.toBeNull();
+
+        act(() => setActiveWidget(settings));
+
+        await waitFor(() => {
+            expect(document.head.querySelector('script[data-widget-id="widget-settings"]')).not.toBeNull();
+        });
+        expect(mocks.fetchSidebarWidgetHtml).toHaveBeenCalledTimes(1);
+    });
+
+    it('shows the error in place of the widget host when the widget fails to load', async () => {
+        vi.spyOn(console, 'error').mockImplementation(() => undefined);
+        mocks.fetchSidebarWidgetHtml.mockReturnValue(errAsync(new Error('failed')));
+
+        act(() => setActiveWidget(settings));
+        const { container, findByText } = render(<SidebarWidgetPanels />);
+
+        const message = await findByText('widget.render.error');
+        const widget = container.querySelector<HTMLElement>('[data-component="ExternalSidebarWidget"]');
+
+        expect(widget?.contains(message)).toBe(true);
+        expect(widget?.querySelector<HTMLElement>(':scope > div[hidden]')).not.toBeNull();
+    });
+
+    it('loads the failed widget again when it is shown the next time', async () => {
+        vi.spyOn(console, 'error').mockImplementation(() => undefined);
+        mocks.fetchSidebarWidgetHtml.mockReturnValue(errAsync(new Error('failed')));
+
+        act(() => setActiveWidget(settings));
+        const { container, findByText, queryByText } = render(<SidebarWidgetPanels />);
+
+        await findByText('widget.render.error');
+        expect(mocks.fetchSidebarWidgetHtml).toHaveBeenCalledTimes(1);
+
+        mocks.fetchSidebarWidgetHtml.mockReturnValue(okAsync(SETTINGS_HTML));
+        act(() => setActiveWidget(studio));
+
+        await waitFor(() => {
+            expect(container.querySelector<HTMLElement>('[data-widget$=":settings"]')?.hidden).toBe(true);
+        });
+        expect(mocks.fetchSidebarWidgetHtml).toHaveBeenCalledTimes(1);
+
+        act(() => setActiveWidget(settings));
+
+        await waitFor(() => {
+            expect(container.querySelector('widget#widget-settings')).not.toBeNull();
+        });
+        expect(mocks.fetchSidebarWidgetHtml).toHaveBeenCalledTimes(2);
+        expect(queryByText('widget.render.error')).toBeNull();
+    });
+
+    it('keeps the mounted widget when the extensions list is rebuilt with the same URL', async () => {
+        act(() => setActiveWidget(settings));
+        const { container } = render(<SidebarWidgetPanels />);
+
+        await waitFor(() => {
+            expect(container.querySelector('widget#widget-settings')).not.toBeNull();
+        });
+
+        const input = document.createElement('input');
+        input.value = 'unsaved';
+        container.querySelector('widget#widget-settings')?.append(input);
+
+        act(() => {
+            $sidebarWidgets.set({
+                ...$sidebarWidgets.get(),
+                widgets: [
+                    createWidget('com.enonic.app.contentstudio:main', 'browse'),
+                    createWidget('com.enonic.app.contentstudio:settings', 'settings'),
+                ],
+            });
+        });
+        await act(async () => {
+            await new Promise((resolve) => setTimeout(resolve, 20));
+        });
+
+        expect(container.querySelector<HTMLInputElement>('widget#widget-settings input')?.value).toBe('unsaved');
+        expect(mocks.fetchSidebarWidgetHtml).toHaveBeenCalledTimes(1);
+    });
+});

@@ -1,4 +1,5 @@
 import { KeyBindings } from '@enonic/lib-admin-ui/ui/KeyBindings';
+import { setKeyBindingsShelved } from '../shared/app-state/keyBindingsShelved.store';
 import { hasOpenModal } from '../shared/lib/dom/hasOpenModal';
 
 let started = false;
@@ -11,6 +12,7 @@ const sync = (): void => {
         if (!shelved) {
             KeyBindings.get().shelveBindings();
             shelved = true;
+            setKeyBindingsShelved(true);
         }
         return;
     }
@@ -30,6 +32,7 @@ const sync = (): void => {
         if (!hasOpenModal()) {
             KeyBindings.get().unshelveBindings();
             shelved = false;
+            setKeyBindingsShelved(false);
         }
     });
 };
@@ -44,7 +47,7 @@ const sync = (): void => {
  * Shelving is global (`Mousetrap.reset`), so a single observer covers every
  * shell in the window - browse, wizard, settings and archive.
  *
- * Call once from the main app bootstrap (`AppElement.initialize`). Settings and
+ * Call once from the main app bootstrap (`mountApp`). Settings and
  * archive mount as separate apps into the same window afterwards, so the single
  * window-wide observer already covers their dialogs. Safe to call multiple times.
  */

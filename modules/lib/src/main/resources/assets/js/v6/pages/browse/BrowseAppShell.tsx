@@ -1,39 +1,23 @@
 import type { ReactElement } from 'react';
-import { CompareVersionsDialog } from '../../widgets/context-panel/widget/versions/compare/CompareVersionsDialog';
-import { DeleteDialog } from '../../features/delete/ui/DeleteDialog';
-import { DuplicateDialog } from '../../features/duplicate/ui/DuplicateDialog';
-import { IssueDialog } from '../../features/issues/ui/issue/IssueDialog';
-import { NewContentDialog } from '../../features/new-content/ui/NewContentDialog';
-import { MoveDialog } from '../../features/move/ui/MoveDialog';
-import { NewIssueDialog } from '../../features/issues/ui/new-issue/NewIssueDialog';
-import { ProjectDialog } from '../../features/manage-project/ui/ProjectDialog';
-import { ProjectSelectionDialog } from '../../features/manage-project/ui/ProjectSelectionDialog';
-import { PublishDialog } from '../../features/publish/ui/PublishDialog';
-import { RequestPublishDialog } from '../../features/request-publish/ui/RequestPublishDialog';
-import { SortDialog } from '../../features/sort/ui/SortDialog';
-import { UnpublishDialog } from '../../features/unpublish/ui/UnpublishDialog';
-import { PermissionsDialog } from '../../features/permissions/ui/PermissionsDialog';
+import { BrowseAppBar } from './BrowseAppBar';
+import { BrowseSidebar } from './BrowseSidebar';
+import { SidebarWidgetPanels } from './ui/widgets/SidebarWidgetPanels';
 
+const BROWSE_APP_SHELL_NAME = 'BrowseAppShell';
+
+// The browse layout: sidebar, app bar and the panel of whichever sidebar widget is active.
 export const BrowseAppShell = (): ReactElement => {
     return (
-        <>
-            {/* Shared dialogs */}
-            <CompareVersionsDialog />
-            <DeleteDialog />
-            <DuplicateDialog />
-            <IssueDialog />
-            <MoveDialog />
-            <NewContentDialog />
-            <NewIssueDialog />
-            <ProjectDialog />
-            <ProjectSelectionDialog />
-            <PermissionsDialog />
-            <PublishDialog />
-            <RequestPublishDialog />
-            <SortDialog />
-            <UnpublishDialog />
-        </>
+        <div data-component={BROWSE_APP_SHELL_NAME} role="main" className="relative h-dvh text-main">
+            <BrowseSidebar />
+            <div className="header-widgets-block sm:ml-15">
+                <BrowseAppBar />
+                <SidebarWidgetPanels />
+            </div>
+        </div>
     );
 };
 
-BrowseAppShell.displayName = 'BrowseAppShell';
+BrowseAppShell.displayName = BROWSE_APP_SHELL_NAME;
+
+export default BrowseAppShell;
