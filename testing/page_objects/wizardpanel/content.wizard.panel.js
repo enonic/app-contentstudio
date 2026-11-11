@@ -26,9 +26,8 @@ const XPATH = {
     toolbar: `//div[@data-component='Toolbar.Container' and @role='toolbar']`,
     publishMenuItem: `//div[contains(@id,'ContentWizardToolbar') and @role='menu']`,
     contentItemPreviewToolbar: `//div[contains(@id,'PreviewToolbar')]`,
-    toolbarStateIcon: `//div[contains(@class,'toolbar-state-icon')]`,
-    // v6: workflow state SVG in the toolbar — aria-label is 'invalid', 'in-progress', or 'ready'
-    toolbarWorkflowStateIcon: `//svg[@aria-label and not(@aria-hidden='true')]`,
+    // data-status survives Toolbar.Item asChild composition, which replaces data-component.
+    toolbarWorkflowStateIcon: `//*[@data-status]`,
     publishMenuButton: "//div[contains(@id,'ContentWizardPublishMenuButton')]",
     inspectionPanelToggler: "//button[contains(@id, 'TogglerButton') and contains(@class,'icon-cog')]",
     thumbnailUploader: "//div[contains(@id,'ThumbnailUploaderEl')]",
@@ -684,10 +683,10 @@ class ContentWizardPanel extends Page {
 
     async waitUntilInvalidIconAppears() {
         try {
-            const locator = XPATH.container + XPATH.toolbar + "//*[@data-component='StatusIcon']";
+            const locator = XPATH.container + XPATH.toolbar + XPATH.toolbarWorkflowStateIcon;
             await this.getBrowser().waitUntil(
                 async () => {
-                    let text = await this.getAttribute(locator, 'aria-label');
+                    let text = await this.getAttribute(locator, 'data-status');
                     return text === 'invalid';
                 },
                 { timeout: appConst.shortTimeout, timeoutMsg: 'Content wizard - invalid icon should appear' },
@@ -703,10 +702,10 @@ class ContentWizardPanel extends Page {
 
     // wait for red icon disappears in the wizard-toolbar Toolbar.Container data component
     async waitUntilInvalidIconDisappears() {
-        const locator = XPATH.container + XPATH.toolbar + "//*[@data-component='StatusIcon']";
+        const locator = XPATH.container + XPATH.toolbar + XPATH.toolbarWorkflowStateIcon;
         await this.getBrowser().waitUntil(
             async () => {
-                let text = await this.getAttribute(locator, 'aria-label');
+                let text = await this.getAttribute(locator, 'data-status');
                 return text !== 'invalid';
             },
             { timeout: appConst.shortTimeout, timeoutMsg: 'Content wizard - invalid icon should disappear' },
@@ -1130,7 +1129,7 @@ class ContentWizardPanel extends Page {
     // wait for Workflow icon is not displayed in the toolbar
     async waitForStateIconNotDisplayed() {
         try {
-            let selector = XPATH.toolbar + XPATH.toolbarStateIcon;
+            let selector = XPATH.container + XPATH.toolbar + XPATH.toolbarWorkflowStateIcon;
             return await this.waitForElementNotDisplayed(selector, appConst.TIMEOUT_4);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_workflow_state');
@@ -1141,9 +1140,9 @@ class ContentWizardPanel extends Page {
     // Returns 'invalid', 'in-progress', 'ready', or '' when the icon is absent (e.g. Published)
     async getContentWorkflowState() {
         try {
-            const toolbar = XPATH.container + XPATH.toolbar + "//*[@data-component='StatusIcon']";
+            const toolbar = XPATH.container + XPATH.toolbar + XPATH.toolbarWorkflowStateIcon;
             let result = await this.getDisplayedElements(toolbar);
-            let value = await result[0].getAttribute('aria-label');
+            let value = await result[0].getAttribute('data-status');
             return value;
         } catch (err) {
             await this.handleError(

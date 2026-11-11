@@ -1,7 +1,7 @@
-import { cn, Tooltip } from '@enonic/ui';
+import { cn, Tooltip, type TooltipTrigger } from '@enonic/ui';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { CircleAlert, CircleCheck, CircleX, Info, type LucideIcon } from 'lucide-react';
-import { type ComponentProps, type ReactElement } from 'react';
+import { type ComponentPropsWithoutRef, forwardRef, type ReactElement } from 'react';
 import { useI18n } from '../../lib/hooks/useI18n';
 
 const statusIconVariants = cva(
@@ -36,8 +36,9 @@ type Status = VariantProps<typeof statusIconVariants>['status'];
 type Props = {
     status: Status;
     withTooltip?: boolean;
+    tooltipTrigger?: TooltipTrigger;
     'data-component'?: string;
-} & ComponentProps<LucideIcon>;
+} & ComponentPropsWithoutRef<LucideIcon>;
 
 function getIcon(status: Status): LucideIcon {
     switch (status) {
@@ -52,7 +53,7 @@ function getIcon(status: Status): LucideIcon {
     }
 }
 
-function getTooltipKey(status: Status): string {
+export function getStatusTooltipKey(status: Status): string {
     switch (status) {
         case 'info':
             return 'field.contextPanel.details.sections.info';
@@ -67,27 +68,44 @@ function getTooltipKey(status: Status): string {
 
 const STATUS_ICON_NAME = 'StatusIcon';
 
-export const StatusIcon = ({
-    className,
-    status,
-    withTooltip,
-    'data-component': componentName = STATUS_ICON_NAME,
-    ...props
-}: Props): ReactElement => {
-    const classNames = cn(statusIconVariants({ status }), className);
-    const Icon = getIcon(status);
-    const tooltip = useI18n(getTooltipKey(status));
-    const icon = (
-        <Icon data-component={componentName} className={classNames} aria-label={status} {...props} focusable="false" />
-    );
+export const StatusIcon = forwardRef<SVGSVGElement, Props>(
+    (
+        {
+            className,
+            status,
+            withTooltip,
+            tooltipTrigger = 'hover',
+            'data-component': componentName = STATUS_ICON_NAME,
+            ...props
+        },
+        ref,
+    ): ReactElement => {
+        const classNames = cn(statusIconVariants({ status }), className);
+        const Icon = getIcon(status);
+        const tooltip = useI18n(getStatusTooltipKey(status));
+        const icon = (
+            <Icon
+                ref={ref}
+                data-component={componentName}
+                data-status={status}
+                className={classNames}
+                role="img"
+                aria-label={tooltip}
+                {...props}
+                focusable={props.tabIndex == null ? 'false' : undefined}
+            />
+        );
 
-    if (!withTooltip) return icon;
+        if (!withTooltip) {
+            return icon;
+        }
 
-    return (
-        <Tooltip side="top" delay={300} value={tooltip} trigger="hover">
-            {icon}
-        </Tooltip>
-    );
-};
+        return (
+            <Tooltip side="top" delay={300} value={tooltip} trigger={tooltipTrigger}>
+                {icon}
+            </Tooltip>
+        );
+    },
+);
 
 StatusIcon.displayName = STATUS_ICON_NAME;

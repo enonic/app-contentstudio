@@ -38,6 +38,7 @@ export const ContentLabel = ({
     const status = statusHidden ? null : calcContentState(content);
     const Icon = (
         <WorkflowContentIcon
+            key={content.getId()}
             status={status}
             contentType={content.getType().toString()}
             url={content.getIconUrl()}
@@ -51,7 +52,15 @@ export const ContentLabel = ({
     const primaryText = isCompact ? pathStr : titleText;
     const secondaryText = isCompact ? undefined : pathStr;
 
-    return <ItemLabel data-component={dataComponent} icon={Icon} primary={primaryText} secondary={secondaryText} {...props} />;
+    return (
+        <ItemLabel
+            data-component={dataComponent}
+            icon={Icon}
+            primary={primaryText}
+            secondary={secondaryText}
+            {...props}
+        />
+    );
 };
 
 ContentLabel.displayName = CONTENT_LABEL_NAME;

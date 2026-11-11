@@ -144,13 +144,15 @@ const ProjectDialogApplicationRow = ({
                     />
                 )}
                 {inherited ? (
-                    <Tooltip value={inheritedLabel} delay={300} trigger="hover">
-                        <Layers
+                    <Tooltip value={inheritedLabel} delay={300}>
+                        <span
+                            role="img"
                             aria-label={inheritedLabel}
-                            focusable="false"
-                            strokeWidth={1.5}
-                            className="size-10 shrink-0 p-2.5 text-subtle"
-                        />
+                            tabIndex={0}
+                            className="size-10 shrink-0 p-2.5 text-subtle rounded-sm focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
+                        >
+                            <Layers aria-hidden="true" focusable="false" strokeWidth={1.5} className="size-full" />
+                        </span>
                     </Tooltip>
                 ) : (
                     <IconButton

@@ -18,8 +18,14 @@ export default defineConfig({
         },
         server: {
             deps: {
-                // Inline @enonic/ui and react-resizable-panels to avoid ESM/CJS interop issues with preact aliasing
-                inline: ['@enonic/ui', '@enonic/input-types', '@enonic/ui-utils', /react-resizable-panels/],
+                // Inline UI dependencies so their React imports use the Preact aliases.
+                inline: [
+                    '@enonic/ui',
+                    '@enonic/input-types',
+                    '@enonic/ui-utils',
+                    /react-resizable-panels/,
+                    /@radix-ui/,
+                ],
             },
         },
     },
@@ -28,6 +34,7 @@ export default defineConfig({
             '@': path.resolve(__dirname, './src/main/resources/assets/js'),
             // Force the ESM build so the react import below gets aliased (the CJS build would require() real react)
             'react-resizable-panels': 'react-resizable-panels/dist/react-resizable-panels.js',
+            'lucide-react': path.resolve(__dirname, './node_modules/lucide-react/dist/esm/lucide-react.mjs'),
             // Preact compat aliases for @testing-library/react
             react: 'preact/compat',
             'react-dom': 'preact/compat',

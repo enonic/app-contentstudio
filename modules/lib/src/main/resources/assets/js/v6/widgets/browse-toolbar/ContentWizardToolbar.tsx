@@ -22,6 +22,7 @@ import { $wizardToolbar } from '../../pages/wizard/model/wizardToolbar.store';
 import { formatContentFullPath } from '../../shared/lib/cms/content/paths';
 import { getInitials } from '../../shared/lib/format/initials';
 import { useElementVisibility } from '../../shared/lib/hooks/useElementVisibility';
+import { useBreakpoints } from '../../shared/lib/hooks/useBreakpoints';
 import { ContextToggle } from './ContextToggle';
 import { OverflowActionRow, type OverflowActionRowItem } from './OverflowActionRow';
 import { SplitActionButton } from './SplitActionButton';
@@ -70,6 +71,7 @@ export const ContentWizardToolbar = ({
     createIssueAction,
     className,
 }: ContentWizardToolbarProps): ReactElement => {
+    const { md, xl } = useBreakpoints();
     const {
         projectLabel,
         projectName,
@@ -247,11 +249,14 @@ export const ContentWizardToolbar = ({
                         </Toolbar.Item>
                     )}
                     {contentState && (
-                        <StatusIcon
-                            status={contentState}
-                            withTooltip
-                            className="size-3.5 my-auto mx-1.5 md:mx-2.75 shrink-0"
-                        />
+                        <Toolbar.Item asChild>
+                            <StatusIcon
+                                status={contentState}
+                                withTooltip
+                                tooltipTrigger="hover-focus"
+                                className="size-3.5 my-auto mx-1.5 md:mx-2.75 shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                            />
+                        </Toolbar.Item>
                     )}
                     <div ref={desktopPathRef} className="hidden md:flex min-w-0">
                         <Tooltip delay={300} value={pathTitle}>
@@ -311,31 +316,39 @@ export const ContentWizardToolbar = ({
                         <div className="-space-x-2 items-center px-3.5 hidden md:flex shrink-0">
                             {collaborators[0] && (
                                 <Tooltip key={collaborators[0].key} value={collaborators[0].label}>
-                                    <Avatar
-                                        className={cn(
-                                            'ring-2 ring-surface-neutral size-7',
-                                            collaborators[0].isCurrent && 'ring-info',
-                                        )}
-                                    >
-                                        <Avatar.Fallback className="text-alt font-semibold">
-                                            <span>{getInitials(collaborators[0].label)}</span>
-                                        </Avatar.Fallback>
-                                    </Avatar>
+                                    <Toolbar.Item asChild disabled={!md}>
+                                        <Avatar
+                                            role="img"
+                                            aria-label={collaborators[0].label}
+                                            className={cn(
+                                                'ring-2 ring-surface-neutral size-7 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+                                                collaborators[0].isCurrent && 'ring-info',
+                                            )}
+                                        >
+                                            <Avatar.Fallback className="text-alt font-semibold">
+                                                <span>{getInitials(collaborators[0].label)}</span>
+                                            </Avatar.Fallback>
+                                        </Avatar>
+                                    </Toolbar.Item>
                                 </Tooltip>
                             )}
 
                             {collaborators[1] && (
                                 <Tooltip key={collaborators[1].key} value={collaborators[1].label}>
-                                    <Avatar
-                                        className={cn(
-                                            'hidden xl:inline-flex ring-2 ring-surface-neutral size-7 z-10',
-                                            collaborators[1].isCurrent && 'ring-info',
-                                        )}
-                                    >
-                                        <Avatar.Fallback className="text-alt font-semibold">
-                                            <span>{getInitials(collaborators[1].label)}</span>
-                                        </Avatar.Fallback>
-                                    </Avatar>
+                                    <Toolbar.Item asChild disabled={!xl}>
+                                        <Avatar
+                                            role="img"
+                                            aria-label={collaborators[1].label}
+                                            className={cn(
+                                                'hidden xl:inline-flex ring-2 ring-surface-neutral size-7 z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+                                                collaborators[1].isCurrent && 'ring-info',
+                                            )}
+                                        >
+                                            <Avatar.Fallback className="text-alt font-semibold">
+                                                <span>{getInitials(collaborators[1].label)}</span>
+                                            </Avatar.Fallback>
+                                        </Avatar>
+                                    </Toolbar.Item>
                                 </Tooltip>
                             )}
 

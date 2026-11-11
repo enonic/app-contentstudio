@@ -1,19 +1,17 @@
 import { getCurrentUser } from '../../../../shared/lib/cms/security/auth';
 import { fromLegacyPrincipal } from '../../../../shared/lib/cms/security/legacy';
-import { Avatar, cn, Tooltip } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import { type ReactElement, useRef } from 'react';
+import { type ReactElement } from 'react';
 import { Access } from '../../../../../app/security/Access';
-import type { EffectivePermission } from '../../../../../app/security/EffectivePermission';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
-import { useVisibleAvatars } from '../../../../shared/lib/hooks/useVisibleAvatars';
+import { PrincipalAvatarGrid } from '../../../../shared/ui/PrincipalAvatarGrid';
 import { $detailsWidgetEffectivePermissions, sortPrincipals } from '../../model/detailsWidgets.store';
-import { getInitials } from '../../../../shared/lib/format/initials';
 
-const AVATAR_OVERFLOW_OFFSET = 50;
+const PERMISSIONS_LIST_NAME = 'PermissionsList';
 
-const PermissionItem = ({ permission }: { permission: EffectivePermission }): ReactElement => {
-    const listRef = useRef<HTMLDivElement>(null);
+export const PermissionsList = (): ReactElement => {
+    const permissions = useStore($detailsWidgetEffectivePermissions);
+    const title = useI18n('field.contextPanel.details.sections.permissions');
     const accessFullLabel = useI18n('security.access.full');
     const accessPublishLabel = useI18n('security.access.publish');
     const accessWriteLabel = useI18n('security.access.write');
@@ -26,67 +24,23 @@ const PermissionItem = ({ permission }: { permission: EffectivePermission }): Re
         [Access.READ, accessReadLabel],
         [Access.CUSTOM, accessCustomLabel],
     ]);
-
-    const status = accessLabelMap.get(permission.getAccess());
-    const principals = sortPrincipals(permission.getMembers().map((epm) => fromLegacyPrincipal(epm.toPrincipal())));
-    const currentUser = getCurrentUser();
-    const { visibleCount } = useVisibleAvatars(listRef, principals.length, AVATAR_OVERFLOW_OFFSET);
-    // +N avatar takes space of a regular avatar, render regular instead
-    const maxVisibleCount = visibleCount + 1;
-    const hiddenCount = Math.max(principals.length - maxVisibleCount, 0);
-
-    if (!status) return null;
+    const rows = permissions
+        .map((permission) => ({
+            id: permission.getAccess().toString(),
+            label: accessLabelMap.get(permission.getAccess()),
+            principals: sortPrincipals(permission.getMembers().map((epm) => fromLegacyPrincipal(epm.toPrincipal()))),
+        }))
+        .filter((row) => row.label != null);
 
     return (
-        <>
-            <span className="text-xs text-subtle text-nowrap">{status}</span>
-
-            <div ref={listRef} className="flex overflow-hidden -space-x-2">
-                {principals.map((p, index) => {
-                    const principalKey = p.key;
-
-                    return (
-                        <Tooltip delay={300} key={principalKey} value={p.displayName}>
-                            <Avatar
-                                className={cn(
-                                    'border-2 border-surface-neutral',
-                                    currentUser?.key === p.key && 'border-info',
-                                    index >= maxVisibleCount && 'invisible order-last',
-                                )}
-                            >
-                                <Avatar.Fallback className="text-alt font-semibold">
-                                    {getInitials(p.displayName)}
-                                </Avatar.Fallback>
-                            </Avatar>
-                        </Tooltip>
-                    );
-                })}
-                {hiddenCount > 0 && (
-                    <Avatar className="border-2 border-surface-neutral text-alt font-semibold">
-                        <Avatar.Fallback>+{hiddenCount}</Avatar.Fallback>
-                    </Avatar>
-                )}
-            </div>
-        </>
-    );
-};
-
-PermissionItem.displayName = 'PermissionItem';
-
-const PERMISSIONS_LIST_NAME = 'PermissionsList';
-
-export const PermissionsList = (): ReactElement => {
-    const permissions = useStore($detailsWidgetEffectivePermissions);
-
-    return (
-        <div
+        <PrincipalAvatarGrid
             data-component={PERMISSIONS_LIST_NAME}
-            className="grid grid-cols-[max-content_1fr] items-center gap-y-2.5 gap-x-12"
-        >
-            {permissions.map((permission: EffectivePermission) => (
-                <PermissionItem key={permission.getAccess().toString()} permission={permission} />
-            ))}
-        </div>
+            label={title}
+            rows={rows}
+            variant="stacked"
+            highlightedPrincipalKey={getCurrentUser()?.key}
+            className="gap-x-12 text-xs text-subtle text-nowrap"
+        />
     );
 };
 

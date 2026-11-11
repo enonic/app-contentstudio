@@ -121,7 +121,11 @@ export const DetailsWidgetTemplateSection = (): ReactElement => {
                         </Tooltip>
                     ) : state.descriptor ? (
                         <Tooltip delay={150} value={state.descriptor.getKey().toString()}>
-                            <span className="text-xs text-subtle truncate" title={state.descriptor.getDisplayName()}>
+                            <span
+                                tabIndex={0}
+                                className="text-xs text-subtle truncate focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
+                                title={state.descriptor.getDisplayName()}
+                            >
                                 {state.descriptor.getDisplayName()}
                             </span>
                         </Tooltip>
