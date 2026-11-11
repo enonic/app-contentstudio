@@ -17,7 +17,7 @@ import {
     setProjectDialogView,
 } from '../model/projectDialog.store';
 import { ConfirmationDialog } from '../../../shared/ui/dialogs/ConfirmationDialog';
-import { useHtmlAreaDialogYield } from '../../shared/hooks/useHtmlAreaDialogYield';
+import { useFormDialogYield } from '../../shared/hooks/useFormDialogYield';
 import { ProjectDialogConfigContent } from './ProjectDialogConfigContent';
 import { ProjectDialogSteps } from './steps';
 import { ProgressDialogContent } from '../../../shared/ui/dialogs/ProgressDialogContent';
@@ -40,7 +40,7 @@ export const ProjectDialog = (): ReactElement => {
 
     const isDirty = useStore($isProjectDialogDirty);
     const isProjectDialogAccessModeDirty = useStore($isProjectDialogAccessModeDirty);
-    const { overlayHidden, shouldIgnoreClose } = useHtmlAreaDialogYield();
+    const { overlayHidden, shouldIgnoreClose } = useFormDialogYield();
     const pendingStep = useRef<string | null>(null);
 
     const previousLabel = useI18n('action.previous');
@@ -130,7 +130,8 @@ export const ProjectDialog = (): ReactElement => {
         (open: boolean) => {
             if (open) return;
 
-            // The config view hosts HtmlAreas; a close request may be theirs, and closes the view, not the dialog.
+            // The config view hosts a form; a close request may belong to a dialog its inputs opened,
+            // and closes the view, not the dialog.
             if (view === 'config') {
                 if (!shouldIgnoreClose()) {
                     closeProjectDialogApplicationConfig();

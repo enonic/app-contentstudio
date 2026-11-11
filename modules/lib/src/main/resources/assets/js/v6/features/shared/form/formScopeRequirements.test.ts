@@ -3,7 +3,7 @@ import { PropertyTree } from '@enonic/input-types/data';
 import { Form, FormItemSet, Input, InputTypeName, Occurrences } from '@enonic/input-types/schema';
 import { beforeAll, describe, expect, it } from 'vitest';
 import type { Project } from '../../../../app/settings/data/project/Project';
-import { hasScopeDisabledInputs, isFormValidInScope } from './formScopeRequirements';
+import { hasCreatableTypeInputs, hasScopeDisabledInputs, isFormValidInScope } from './formScopeRequirements';
 import { ContentSelectorDescriptor } from './input-types/content-selector/ContentSelectorDescriptor';
 import { ImageUploaderDescriptor } from './input-types/image-uploader/ImageUploaderDescriptor';
 
@@ -59,6 +59,30 @@ describe('hasScopeDisabledInputs', () => {
         const form = new Form([input('hero', 'ImageUploader')]);
 
         expect(hasScopeDisabledInputs(form, {})).toBe(false);
+    });
+});
+
+describe('hasCreatableTypeInputs', () => {
+    it('should be true for a content selector, also nested in an item set', () => {
+        expect(hasCreatableTypeInputs(new Form([input('related', 'ContentSelector')]))).toBe(true);
+
+        const nested = new FormItemSet({
+            name: 'links',
+            label: 'Links',
+            occurrences: Occurrences.minmax(0, 5),
+            items: [input('related', 'ContentSelector')],
+        });
+        expect(hasCreatableTypeInputs(new Form([input('title', 'TextLine'), nested]))).toBe(true);
+    });
+
+    it('should be false for selectors that take only media, and for plain inputs', () => {
+        const form = new Form([
+            input('title', 'TextLine'),
+            input('hero', 'ImageSelector'),
+            input('files', 'MediaSelector'),
+        ]);
+
+        expect(hasCreatableTypeInputs(form)).toBe(false);
     });
 });
 

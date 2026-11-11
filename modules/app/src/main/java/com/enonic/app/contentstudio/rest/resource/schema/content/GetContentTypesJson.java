@@ -14,12 +14,16 @@ public class GetContentTypesJson
 
     private final Set<String> allowedContentTypes;
 
+    private final String applicationKey;
+
     @JsonCreator
     public GetContentTypesJson( @JsonProperty("contentId") String contentId,
-                                @JsonProperty("allowedContentTypes") final Set<String> allowedContentTypes )
+                                @JsonProperty("allowedContentTypes") final Set<String> allowedContentTypes,
+                                @JsonProperty("applicationKey") final String applicationKey )
     {
         this.contentId = contentId != null ? ContentId.from( contentId ) : null;
         this.allowedContentTypes = allowedContentTypes != null ? allowedContentTypes : Set.of();
+        this.applicationKey = applicationKey;
     }
 
     public ContentId getContentId()
@@ -30,5 +34,11 @@ public class GetContentTypesJson
     public Set<String> getAllowedContentTypes()
     {
         return allowedContentTypes;
+    }
+
+    /** The application the allowed content type patterns are resolved against when there is no parent content, unparsed. */
+    public String getApplicationKey()
+    {
+        return applicationKey;
     }
 }

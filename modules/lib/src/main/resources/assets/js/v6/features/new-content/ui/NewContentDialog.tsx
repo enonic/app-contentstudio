@@ -10,8 +10,7 @@ import {
     setInputValue,
     setIsDragging,
     setSelectedTab,
-    uploadDragImages,
-    uploadMediaFiles,
+    uploadDroppedMedia,
 } from '../model/newContentDialog.store';
 import { isTypingCharacter } from '../../../shared/lib/dom/keyboard';
 import { NewContentDialogContentTypesTab } from './NewContentDialogContentTypesTab';
@@ -24,7 +23,17 @@ export const NewContentDialog = (): ReactElement => {
     const inputRef = useRef<HTMLInputElement>(null);
     const dialogContentRef = useRef<HTMLDivElement>(null);
     const shouldFocusInput = useRef(false);
-    const { open, selectedTab, inputValue, parentContent, isMediaAllowed, loading } = useStore($newContentDialog);
+    const {
+        open,
+        selectedTab,
+        inputValue,
+        parentContent,
+        project,
+        isMediaAllowed,
+        loading,
+        onTypeSelected,
+        onUploaded,
+    } = useStore($newContentDialog);
     const filteredBaseContentTypes = useStore($filteredBaseContentTypes);
     const filteredSuggestedContentTypes = useStore($filteredSuggestedContentTypes);
     const isTemplateFolder = parentContent?.getType().isTemplateFolder() ?? false;
@@ -128,15 +137,7 @@ export const NewContentDialog = (): ReactElement => {
 
         if (!dataTransfer) return;
 
-        void uploadMediaFiles({
-            dataTransfer,
-            parentContent,
-        });
-
-        void uploadDragImages({
-            dataTransfer,
-            parentContent,
-        });
+        void uploadDroppedMedia({ dataTransfer, parentContent, projectName: project?.getName(), onUploaded });
 
         closeNewContentDialog();
     };
@@ -205,6 +206,7 @@ export const NewContentDialog = (): ReactElement => {
                                     contentTypes={filteredBaseContentTypes}
                                     parentContent={parentContent}
                                     loading={loading}
+                                    onTypeSelected={onTypeSelected}
                                 />
 
                                 <NewContentDialogContentTypesTab
@@ -212,6 +214,7 @@ export const NewContentDialog = (): ReactElement => {
                                     contentTypes={filteredSuggestedContentTypes}
                                     parentContent={parentContent}
                                     loading={loading}
+                                    onTypeSelected={onTypeSelected}
                                 />
 
                                 <NewContentDialogMediaTab tabName="media" />

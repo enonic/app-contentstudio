@@ -9,6 +9,8 @@ import { resolveActiveProjectName } from './cms';
 
 const EDIT_ACTION = 'edit';
 const INBOUND_ACTION = 'inbound';
+// Read by the legacy ContentAppHelper from the wizard's location.
+const DISPLAY_AS_NEW_PARAM = 'displayAsNew';
 const POPUP_BLOCKED_KEY = 'notify.popupBlocker.admin';
 
 export type InboundReferencesUrlParams = {
@@ -24,15 +26,16 @@ function getToolUri(): string {
 
 /**
  * Build the client-side edit URL for a content item. Reproduces the legacy
- * ContentUrlHelper.generateEditContentUrl for the no-flag case (v6 callers never
- * set displayAsNew/localized, so no query string is appended).
+ * ContentUrlHelper.generateEditContentUrl (no v6 caller sets the localized flag).
  *
  * @param contentId - Content identifier.
  * @param project - Optional project override; defaults to the active project.
+ * @param displayAsNew - Show the wizard as for a content just created.
  */
-export function getEditContentUrl(contentId: string, project?: string): string {
+export function getEditContentUrl(contentId: string, project?: string, displayAsNew = false): string {
     const projectName = project ?? resolveActiveProjectName() ?? '';
-    return `${getToolUri()}/${projectName}/${EDIT_ACTION}/${contentId}`;
+    const query = displayAsNew ? `?${DISPLAY_AS_NEW_PARAM}=true` : '';
+    return `${getToolUri()}/${projectName}/${EDIT_ACTION}/${contentId}${query}`;
 }
 
 /**
@@ -94,16 +97,23 @@ export function openTabOrFocusExisting(url: string, name: string): Window | null
     return openNewTab(url);
 }
 
+export type OpenEditContentTabOptions = {
+    /** Project the content lives in; defaults to the active project. */
+    project?: string;
+    /** Show the wizard as for a content just created. */
+    displayAsNew?: boolean;
+};
+
 /**
  * Open (or focus an already-open) browser tab for editing a content item. Warns
  * via the message bus when the browser's popup blocker prevents opening the tab.
  *
  * @param contentId - Content identifier to edit.
  */
-export function openEditContentTab(contentId: string): void {
-    const project = resolveActiveProjectName() ?? '';
-    const url = getEditContentUrl(contentId, project);
-    const tabName = `${EDIT_ACTION}:${project}:${contentId}`;
+export function openEditContentTab(contentId: string, { project, displayAsNew }: OpenEditContentTabOptions = {}): void {
+    const projectName = project ?? resolveActiveProjectName() ?? '';
+    const url = getEditContentUrl(contentId, projectName, displayAsNew);
+    const tabName = `${EDIT_ACTION}:${projectName}:${contentId}`;
 
     const win = openTabOrFocusExisting(url, tabName);
 

@@ -175,6 +175,20 @@ describe('updateMediaFile', () => {
 });
 
 describe('uploadRemoteImage', () => {
+    it('should upload into the given project', async () => {
+        const resultPromise = uploadRemoteImage({
+            id: 'r-1',
+            imageSource: 'https://example.com/pic',
+            projectName: 'other',
+        });
+
+        const [xhr] = xhrs;
+        expect(xhr.url).toContain('/rest-v2/cs/cms/other/content/content/createMediaFromUrl');
+
+        xhr.respond(200, { id: 'c-2' });
+        await resultPromise;
+    });
+
     it('should POST a JSON payload to the createMediaFromUrl endpoint', async () => {
         const resultPromise = uploadRemoteImage({ id: 'r-1', imageSource: 'https://example.com/pic' });
 

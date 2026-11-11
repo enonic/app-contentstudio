@@ -31,7 +31,7 @@ export type SelectorUploadDragProps = {
 };
 
 export type UseSelectorUploadReturn = {
-    /** Whether uploads have a parent to land in; false hides the upload action and ignores drops */
+    /** Whether uploads land in the scoped content or project root; false hides upload and ignores drops */
     canUpload: boolean;
     /** Upload the given files; completed uploads are appended to the selection */
     handleFiles: (files: FileList | File[]) => void;
@@ -88,7 +88,7 @@ export const useSelectorUpload = ({
     const { project, content: uploadParent } = useFormScope();
     const highestProgress = useRef<number>(0);
     const isUploading = uploadIds.length > 0;
-    const canUpload = uploadParent != null;
+    const canUpload = uploadParent != null || project != null;
     const dropDisabled = disabled || !canUpload;
 
     const selectionRef = useRef(selection);

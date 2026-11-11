@@ -6,20 +6,27 @@ import { ContentPath } from '../../../../../../app/content/ContentPath';
 import { ContentSummaryBuilder } from '../../../../../../app/content/ContentSummary';
 import { Project } from '../../../../../../app/settings/data/project/Project';
 import { createDeferredPromise, flushPromises } from '../../../../../shared/lib/test/dialog.store.test.utils';
-import { FormScopeProvider } from '../../FormScopeContext';
+import { type FormScope, FormScopeProvider } from '../../FormScopeContext';
 
-const { mockGetAvailableContentTypes, mockOpenNewContentDialog, mockFire, newContentEvents, $activeProject } =
-    await vi.hoisted(async () => {
-        const { atom } = await import('nanostores');
-        const newContentEvents: unknown[][] = [];
-        return {
-            mockGetAvailableContentTypes: vi.fn(),
-            mockOpenNewContentDialog: vi.fn(),
-            mockFire: vi.fn(),
-            newContentEvents,
-            $activeProject: atom<Readonly<Project> | undefined>(undefined),
-        };
-    });
+const {
+    mockGetAvailableContentTypes,
+    mockOpenNewContentDialog,
+    mockAddContentInProjectRoot,
+    mockFire,
+    newContentEvents,
+    $activeProject,
+} = await vi.hoisted(async () => {
+    const { atom } = await import('nanostores');
+    const newContentEvents: unknown[][] = [];
+    return {
+        mockGetAvailableContentTypes: vi.fn(),
+        mockOpenNewContentDialog: vi.fn(),
+        mockAddContentInProjectRoot: vi.fn(),
+        mockFire: vi.fn(),
+        newContentEvents,
+        $activeProject: atom<Readonly<Project> | undefined>(undefined),
+    };
+});
 
 vi.mock('@enonic/ui', () => ({
     Button: ({ children, ...props }: { children?: ReactNode; [key: string]: unknown }) => (
@@ -39,6 +46,7 @@ vi.mock('../../../../../../app/create/NewContentEvent', () => ({
 vi.mock('../../../../new-content/model/creatableContentTypes', () => ({
     loadCreatableContentTypes: mockGetAvailableContentTypes,
 }));
+vi.mock('./contentSelectorAdd.service', () => ({ addContentInProjectRoot: mockAddContentInProjectRoot }));
 vi.mock('../../../../../entities/content', async () => {
     const { atom } = await import('nanostores');
     return { $contextContent: atom(null) };
@@ -57,7 +65,9 @@ vi.mock('../../../../new-content/model/newContentDialog.store', async () => {
 });
 
 import { ContentSelectorInputAddButton } from './ContentSelectorInputAddButton';
+import { addUpload, clearUploads } from '../../../../../entities/content/model/uploads.store';
 import { type ContentTypeSummary } from '../../../../../entities/schema';
+import { $newContentDialog } from '../../../../new-content/model/newContentDialog.store';
 import { type ContentTypeName } from '../../../../../shared/lib/cms/schema/contentTypeName';
 
 const createContentType = (name: ContentTypeName): ContentTypeSummary => {
@@ -76,15 +86,17 @@ const parent = new ContentSummaryBuilder()
 
 const scopeProject = Project.create().setName('scope-project').build();
 const allowedContentTypes = ['com.app:person'];
+const applicationKey = 'com.app';
 
-const renderButton = () =>
+const renderButton = (scope: FormScope = { project: scopeProject, content: parent }, onSelectionChange = vi.fn()) =>
     render(
-        <FormScopeProvider project={scopeProject} content={parent}>
+        <FormScopeProvider {...scope}>
             <ContentSelectorInputAddButton
                 disabled={false}
                 allowedContentTypes={allowedContentTypes}
-                selection={[]}
-                onSelectionChange={vi.fn()}
+                applicationKey={applicationKey}
+                selection={['old-1']}
+                onSelectionChange={onSelectionChange}
             />
         </FormScopeProvider>,
     );
@@ -101,6 +113,8 @@ describe('ContentSelectorInputAddButton', () => {
 
     afterEach(() => {
         cleanup();
+        clearUploads();
+        $newContentDialog.setKey('open', false);
         vi.clearAllMocks();
         newContentEvents.length = 0;
     });
@@ -182,5 +196,175 @@ describe('ContentSelectorInputAddButton', () => {
         await flushPromises();
         expect(button.hasAttribute('disabled')).toBe(false);
         expect(mockOpenNewContentDialog).toHaveBeenCalledOnce();
+    });
+
+    it('should render nothing with neither a content nor a project in scope', () => {
+        renderButton({ project: null, content: null });
+
+        expect(screen.queryByRole('button')).toBeNull();
+    });
+
+    describe('without a content in scope', () => {
+        const renderRoot = (onSelectionChange = vi.fn()) =>
+            renderButton({ project: scopeProject, content: null }, onSelectionChange);
+
+        const pickedTypeHandler = (): ((type: ContentTypeSummary) => Promise<void>) =>
+            mockOpenNewContentDialog.mock.calls[0][1].onTypeSelected;
+
+        const uploadedHandler = (): ((contents: { getId: () => string }[]) => void) =>
+            mockOpenNewContentDialog.mock.calls[0][1].onUploaded;
+
+        it('should load the types of the scope project root with the allowed names', async () => {
+            mockGetAvailableContentTypes.mockResolvedValue([person, movie]);
+
+            renderRoot();
+            await clickAdd();
+
+            expect(mockGetAvailableContentTypes).toHaveBeenCalledWith({
+                allowedContentTypes,
+                applicationKey,
+                project: scopeProject,
+            });
+        });
+
+        it('should create a single non-media type in the scope project root without the dialog', async () => {
+            mockGetAvailableContentTypes.mockResolvedValue([person]);
+            mockAddContentInProjectRoot.mockResolvedValue('new-1');
+            const onSelectionChange = vi.fn();
+
+            renderRoot(onSelectionChange);
+            await clickAdd();
+
+            expect(mockAddContentInProjectRoot).toHaveBeenCalledWith(person.name, scopeProject);
+            expect(onSelectionChange).toHaveBeenCalledWith(['old-1', 'new-1']);
+            expect(mockOpenNewContentDialog).not.toHaveBeenCalled();
+            expect(newContentEvents).toEqual([]);
+        });
+
+        it('should still open the dialog when the single type is a media type', async () => {
+            mockGetAvailableContentTypes.mockResolvedValue([image]);
+
+            renderRoot();
+            await clickAdd();
+
+            expect(mockAddContentInProjectRoot).not.toHaveBeenCalled();
+            expect(mockOpenNewContentDialog).toHaveBeenCalledWith(
+                undefined,
+                expect.objectContaining({ contentTypes: [image], project: scopeProject }),
+            );
+        });
+
+        it('should open the dialog in the scope project root without firing a new content event', async () => {
+            mockGetAvailableContentTypes.mockResolvedValue([person, movie]);
+
+            renderRoot();
+            await clickAdd();
+
+            expect(newContentEvents).toEqual([]);
+            expect(mockOpenNewContentDialog).toHaveBeenCalledWith(undefined, {
+                allowedContentTypes,
+                applicationKey,
+                contentTypes: [person, movie],
+                project: scopeProject,
+                onTypeSelected: expect.any(Function),
+                onUploaded: expect.any(Function),
+            });
+        });
+
+        it('should add what the dialog uploaded to the selection in one change', async () => {
+            mockGetAvailableContentTypes.mockResolvedValue([person, movie]);
+            const onSelectionChange = vi.fn();
+
+            renderRoot(onSelectionChange);
+            await clickAdd();
+            uploadedHandler()([{ getId: () => 'm-1' }, { getId: () => 'm-2' }]);
+
+            expect(onSelectionChange).toHaveBeenCalledOnce();
+            expect(onSelectionChange).toHaveBeenCalledWith(['old-1', 'm-1', 'm-2']);
+        });
+
+        it('should leave the selection alone when nothing was uploaded', async () => {
+            mockGetAvailableContentTypes.mockResolvedValue([person, movie]);
+            const onSelectionChange = vi.fn();
+
+            renderRoot(onSelectionChange);
+            await clickAdd();
+            uploadedHandler()([]);
+
+            expect(onSelectionChange).not.toHaveBeenCalled();
+        });
+
+        it('should create a picked type in the scope project root and add it to the selection', async () => {
+            mockGetAvailableContentTypes.mockResolvedValue([person, movie]);
+            mockAddContentInProjectRoot.mockResolvedValue('new-1');
+            const onSelectionChange = vi.fn();
+
+            renderRoot(onSelectionChange);
+            await clickAdd();
+            await pickedTypeHandler()(person);
+
+            expect(mockAddContentInProjectRoot).toHaveBeenCalledWith(person.name, scopeProject);
+            expect(onSelectionChange).toHaveBeenCalledWith(['old-1', 'new-1']);
+        });
+
+        it('should leave the selection alone when the creation failed', async () => {
+            mockGetAvailableContentTypes.mockResolvedValue([person, movie]);
+            mockAddContentInProjectRoot.mockResolvedValue(undefined);
+            const onSelectionChange = vi.fn();
+
+            renderRoot(onSelectionChange);
+            await clickAdd();
+            await pickedTypeHandler()(person);
+
+            expect(onSelectionChange).not.toHaveBeenCalled();
+        });
+
+        // The dialog store is mocked, so its opening and closing is driven by hand here.
+        const closeDialog = async (rootUploadIds: string[] = []) => {
+            $newContentDialog.setKey('open', true);
+            rootUploadIds.forEach((id) => addUpload(id, id, null));
+            $newContentDialog.setKey('open', false);
+            await flushPromises();
+        };
+
+        const isShowingProgress = () => screen.getByRole('button').className.includes('pointer-events-none');
+
+        it('should show the progress of the root uploads running when the dialog it opened closes', async () => {
+            mockGetAvailableContentTypes.mockResolvedValue([person, movie]);
+
+            renderRoot();
+            await clickAdd();
+            await closeDialog(['a.png']);
+
+            expect(isShowingProgress()).toBe(true);
+        });
+
+        it('should ignore the root uploads of a later dialog once its own closed without a pick', async () => {
+            mockGetAvailableContentTypes.mockResolvedValue([person, movie]);
+
+            renderRoot();
+            await clickAdd();
+            await closeDialog();
+            await closeDialog(['b.png']);
+
+            expect(isShowingProgress()).toBe(false);
+        });
+
+        it('should open the dialog with the application key and no preloaded types when the request fails', async () => {
+            vi.spyOn(console, 'error').mockImplementation(() => undefined);
+            mockGetAvailableContentTypes.mockRejectedValue(new Error('boom'));
+
+            renderRoot();
+            await clickAdd();
+
+            expect(mockOpenNewContentDialog).toHaveBeenCalledWith(undefined, {
+                allowedContentTypes,
+                applicationKey,
+                contentTypes: undefined,
+                project: scopeProject,
+                onTypeSelected: expect.any(Function),
+                onUploaded: expect.any(Function),
+            });
+        });
     });
 });

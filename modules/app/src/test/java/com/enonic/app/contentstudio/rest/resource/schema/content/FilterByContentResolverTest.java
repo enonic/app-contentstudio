@@ -124,7 +124,7 @@ class FilterByContentResolverTest
 
         when( contentTypeService.getByApplication( ApplicationKey.from( "application" ) ) ).thenReturn( ContentTypes.from( contentType ) );
 
-        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of() );
+        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of(), null );
         assertThat( contentTypes.map( ContentType::getName ) ).doesNotHaveDuplicates().contains(ContentTypeName.folder(),
                                                                         ContentTypeName.site(),
                                                                         ContentTypeName.shortcut(),
@@ -153,7 +153,7 @@ class FilterByContentResolverTest
 
         when( contentTypeService.getByApplication( ApplicationKey.from( "application" ) ) ).thenReturn( ContentTypes.from( contentType ) );
 
-        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of() );
+        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of(), null );
         assertThat( contentTypes.map( ContentType::getName ) ).containsExactly( ContentTypeName.folder(),
                                                                                 ContentTypeName.from( "application:test-type" ) );
     }
@@ -175,14 +175,14 @@ class FilterByContentResolverTest
         when( contentService.getById( ContentId.from( "test" ) ) ).thenReturn(
             someContent( ContentTypeName.from( "application:test-type" ) ) );
 
-        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of() );
+        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of(), null );
         assertThat( contentTypes ).isEmpty();
     }
 
     @Test
     void contentTypes_root()
     {
-        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( null, Set.of() );
+        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( null, Set.of(), null );
 
         verify( contentService, never() ).getById( any() );
         assertThat( contentTypes.map( ContentType::getName ) ).doesNotHaveDuplicates().contains( ContentTypeName.folder(),
@@ -196,7 +196,7 @@ class FilterByContentResolverTest
     {
         when( contentService.getById( ContentId.from( "test" ) ) ).thenReturn( someContent( ContentTypeName.templateFolder() ) );
 
-        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of() );
+        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of(), null );
 
         assertThat( contentTypes.map( ContentType::getName ) ).containsExactly( ContentTypeName.pageTemplate() );
     }
@@ -231,7 +231,7 @@ class FilterByContentResolverTest
         when( contentTypeService.getByApplication( ApplicationKey.from( "application" ) ) ).thenReturn(
             ContentTypes.from( content, abstractContent ) );
 
-        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of() );
+        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of(), null );
         assertThat( contentTypes
                 .map( ContentType::getName ) )
                 .contains( ContentTypeName.folder(),
@@ -272,7 +272,7 @@ class FilterByContentResolverTest
         when( contentTypeService.getByApplication( ApplicationKey.from( "application" ) ) ).thenReturn(
             ContentTypes.from( content, disabledContent ) );
 
-        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of() );
+        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of(), null );
         assertThat( contentTypes
                 .map( ContentType::getName ) )
                 .contains( ContentTypeName.folder(),
@@ -322,7 +322,7 @@ class FilterByContentResolverTest
 
         final Stream<ContentType> contentTypes =
             ContextBuilder.from( ContextAccessor.current() ).repositoryId( project.getName().getRepoId() ).build().callWith(
-                () -> filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of() ) );
+                () -> filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of(), null ) );
 
         assertThat( contentTypes
                     .map( ContentType::getName ) )
@@ -355,7 +355,7 @@ class FilterByContentResolverTest
 
         when( contentTypeService.getByApplication( ApplicationKey.from( "application" ) ) ).thenReturn( ContentTypes.from( contentType ) );
 
-        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of() );
+        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of(), null );
         assertThat( contentTypes.map( ContentType::getName ) ).doesNotHaveDuplicates()
             .containsOnlyOnce( ContentTypeName.site(), ContentTypeName.templateFolder(), ContentTypeName.folder(),
                                ContentTypeName.shortcut(), ContentTypeName.from( "application:test-type" ) )
@@ -382,13 +382,50 @@ class FilterByContentResolverTest
 
         final Stream<ContentType> contentTypes =
             ContextBuilder.from( ContextAccessor.current() ).repositoryId( project.getName().getRepoId() ).build().callWith(
-                () -> filterByContentResolver.contentTypes( null, Set.of() ) );
+                () -> filterByContentResolver.contentTypes( null, Set.of(), null ) );
 
         assertThat( contentTypes.map( ContentType::getName ) ).doesNotHaveDuplicates()
             .containsOnlyOnce( ContentTypeName.site(), ContentTypeName.folder() )
             .doesNotContain( ContentTypeName.templateFolder(), ContentTypeName.pageTemplate(), ContentTypeName.fragment() );
 
         verify( contentTypeService, never() ).getByApplication( any() );
+    }
+
+    @Test
+    void contentTypes_root_allowedContentTypes_filter()
+    {
+        final ContentType contentType = ContentType.create()
+            .superType( ContentTypeName.structured() )
+            .title( "My type" )
+            .name( "application:test-type" )
+            .build();
+
+        final Project project = Project.create()
+            .name( ProjectName.from( "default" ) )
+            .displayName( "Default" )
+            .addSiteConfig( SiteConfig.create().application( ApplicationKey.from( "application" ) ).config( new PropertyTree() ).build() )
+            .build();
+
+        when( projectService.get( ProjectName.from( "default" ) ) ).thenReturn( project );
+        when( contentTypeService.getByApplication( ApplicationKey.from( "application" ) ) ).thenReturn( ContentTypes.from( contentType ) );
+
+        final Stream<ContentType> contentTypes =
+            ContextBuilder.from( ContextAccessor.current() ).repositoryId( project.getName().getRepoId() ).build().callWith(
+                () -> filterByContentResolver.contentTypes( null, Set.of( "${app}:test-*", "base:folder" ),
+                                                            ApplicationKey.from( "application" ) ) );
+
+        verify( contentService, never() ).getById( any() );
+        assertThat( contentTypes.map( ContentType::getName ) ).containsExactlyInAnyOrder( ContentTypeName.folder(),
+                                                                                           ContentTypeName.from( "application:test-type" ) );
+    }
+
+    @Test
+    void contentTypes_root_allowedContentTypes_ignored_without_application_key()
+    {
+        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( null, Set.of( "base:folder" ), null );
+
+        assertThat( contentTypes.map( ContentType::getName ) ).contains( ContentTypeName.folder(), ContentTypeName.site(),
+                                                                         ContentTypeName.shortcut() );
     }
 
     @Test
@@ -410,10 +447,10 @@ class FilterByContentResolverTest
 
         when( contentTypeService.getByApplication( ApplicationKey.from( "application" ) ) ).thenReturn( ContentTypes.from( contentType ) );
 
-        Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of( "test-type" ) );
+        Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of( "test-type" ), null );
         assertThat( contentTypes.map( ContentType::getName ) ).containsExactly( ContentTypeName.from( "application:test-type" ) );
 
-        contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of( "base:folder" ) );
+        contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of( "base:folder" ), null );
         assertThat( contentTypes.map( ContentType::getName ) ).containsExactly( ContentTypeName.folder() );
     }
 

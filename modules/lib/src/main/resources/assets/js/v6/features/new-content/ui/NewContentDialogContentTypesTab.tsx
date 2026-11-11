@@ -17,6 +17,8 @@ type NewContentDialogContentTypesTabProps = {
     contentTypes: ContentTypeSummary[];
     parentContent: ContentSummary;
     loading: boolean;
+    /** Handles the picked type instead of firing `NewContentEvent`. */
+    onTypeSelected?: (contentType: ContentTypeSummary) => void;
 };
 
 export const NewContentDialogContentTypesTab = ({
@@ -24,6 +26,7 @@ export const NewContentDialogContentTypesTab = ({
     contentTypes,
     parentContent,
     loading,
+    onTypeSelected,
 }: NewContentDialogContentTypesTabProps): ReactElement => {
     const notFoundLabel = useI18n('dialog.new.notFound');
     const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -36,7 +39,11 @@ export const NewContentDialogContentTypesTab = ({
     buttonRefs.current.length = contentTypes.length;
 
     const handleContentTypeSelected = (contentType: ContentTypeSummary) => {
-        new NewContentEvent(contentType.name, parentContent).fire();
+        if (onTypeSelected) {
+            onTypeSelected(contentType);
+        } else {
+            new NewContentEvent(contentType.name, parentContent).fire();
+        }
         closeNewContentDialog();
     };
 

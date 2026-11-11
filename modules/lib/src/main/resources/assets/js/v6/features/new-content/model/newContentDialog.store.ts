@@ -3,7 +3,9 @@ import { type ContentTypeSummary } from '../../../entities/schema';
 import { computed, listenKeys, map, task } from 'nanostores';
 import { errAsync } from 'neverthrow';
 import { i18n } from '../../../shared/i18n';
+import { type Content } from '../../../../app/content/Content';
 import { type ContentSummary } from '../../../../app/content/ContentSummary';
+import { type Project } from '../../../../app/settings/data/project/Project';
 import {
     type AggregateContentTypesResult,
     type ContentTypeAggregation,
@@ -20,17 +22,32 @@ import { UploadError } from '../../../shared/api';
 import { generateUniqueName } from '../../../shared/lib/image/generateUniqueName';
 import { $activeProject } from '../../../entities/project/activeProject.store';
 import { addUpload, removeUpload, updateUploadProgress } from '../../../entities/content/model/uploads.store';
+import { type ApplicationKey } from '../../../shared/lib/cms/application/applicationKey';
 import { CONTENT_TYPE, isDescendantOfMedia } from '../../../shared/lib/cms/schema/contentTypeName';
 import { loadCreatableContentTypes } from './creatableContentTypes';
 
 type UploadOptions = {
     dataTransfer: DataTransfer;
     parentContent?: ContentSummary;
+    /** Project to upload into; defaults to the active project. */
+    projectName?: string;
+    /** Receives the uploaded contents instead of the browse tree revealing them, for a host without a tree. */
+    onUploaded?: (contents: Content[]) => void;
 };
 
 type OpenNewContentDialogOptions = {
+    /** Content type names or patterns the picker is limited to, as `allowContentType` gives them. */
     allowedContentTypes?: string[];
+    /** Resolves `${app}` in the allowed names when the types are loaded without a parent. */
+    applicationKey?: ApplicationKey;
+    /** Types loaded by the opener; skips the dialog's own load. */
     contentTypes?: ContentTypeSummary[];
+    /** Project to load the types in; defaults to the active project. */
+    project?: Readonly<Project>;
+    /** Handles a picked type instead of firing `NewContentEvent`, for a host without the content app's listeners. */
+    onTypeSelected?: (contentType: ContentTypeSummary) => void;
+    /** Receives what the Media tab uploaded instead of the browse tree revealing it. */
+    onUploaded?: (contents: Content[]) => void;
 };
 
 //
@@ -46,11 +63,15 @@ type NewContentDialogStore = {
     isDragging: boolean;
     isMediaAllowed: boolean;
     // Content
+    project?: Readonly<Project>;
     parentContent?: ContentSummary;
     allowedContentTypes?: string[];
+    applicationKey?: ApplicationKey;
     preloadedContentTypes?: ContentTypeSummary[];
     baseContentTypes: ContentTypeSummary[];
     suggestedContentTypes: ContentTypeSummary[];
+    onTypeSelected?: (contentType: ContentTypeSummary) => void;
+    onUploaded?: (contents: Content[]) => void;
 };
 
 const initialState: NewContentDialogStore = {
@@ -60,11 +81,15 @@ const initialState: NewContentDialogStore = {
     selectedTab: 'all',
     isDragging: false,
     isMediaAllowed: false,
+    project: undefined,
     parentContent: undefined,
     allowedContentTypes: undefined,
+    applicationKey: undefined,
     preloadedContentTypes: undefined,
     baseContentTypes: [],
     suggestedContentTypes: [],
+    onTypeSelected: undefined,
+    onUploaded: undefined,
 };
 
 export const $newContentDialog = map<NewContentDialogStore>(structuredClone(initialState));
@@ -83,10 +108,10 @@ export const $filteredSuggestedContentTypes = computed($newContentDialog, ({ sug
 let loadCounter = 0;
 
 listenKeys($newContentDialog, ['open', 'parentContent'], (state) => {
-    const { open, parentContent, allowedContentTypes, preloadedContentTypes } = state;
-    const activeProject = $activeProject.get();
+    const { open, parentContent, allowedContentTypes, applicationKey, preloadedContentTypes } = state;
+    const project = state.project ?? $activeProject.get();
 
-    if (!open || !activeProject) return;
+    if (!open || !project) return;
 
     const loadId = ++loadCounter;
     $newContentDialog.setKey('loading', true);
@@ -97,13 +122,11 @@ listenKeys($newContentDialog, ['open', 'parentContent'], (state) => {
             (await loadCreatableContentTypes({
                 contentId: parentContent?.getContentId(),
                 allowedContentTypes,
-                project: activeProject,
+                applicationKey,
+                project,
             }));
 
-        const aggregatedContentTypes = await ContentTypesHelper.getAggregatedTypesByContent(
-            parentContent,
-            activeProject,
-        );
+        const aggregatedContentTypes = await ContentTypesHelper.getAggregatedTypesByContent(parentContent, project);
 
         // Discard a stale response if the dialog was closed or reopened while loading
         if (loadId !== loadCounter || !$newContentDialog.get().open) return;
@@ -115,6 +138,12 @@ listenKeys($newContentDialog, ['open', 'parentContent'], (state) => {
         $newContentDialog.setKey('isMediaAllowed', isMediaAllowed);
         $newContentDialog.setKey('baseContentTypes', baseContentTypes);
         $newContentDialog.setKey('suggestedContentTypes', suggestedContentTypes);
+
+        // Only media can be created here: start on the upload tab instead of an empty list.
+        if (baseContentTypes.length === 0 && isMediaAllowed) {
+            $newContentDialog.setKey('selectedTab', 'media');
+        }
+
         $newContentDialog.setKey('loading', false);
     }).catch((error) => {
         console.error(error);
@@ -134,9 +163,13 @@ export const openNewContentDialog = (parentContent?: ContentSummary, options?: O
     $newContentDialog.set({
         ...structuredClone(initialState),
         open: true,
+        project: options?.project,
         parentContent,
         allowedContentTypes: options?.allowedContentTypes,
+        applicationKey: options?.applicationKey,
         preloadedContentTypes: options?.contentTypes,
+        onTypeSelected: options?.onTypeSelected,
+        onUploaded: options?.onUploaded,
     });
 };
 
@@ -156,9 +189,24 @@ export const setIsDragging = (isDragging: boolean): void => {
     $newContentDialog.setKey('isDragging', isDragging);
 };
 
-// TODO: replace places invoking this function with the useUploadMedia hook
-export async function uploadMediaFiles({ dataTransfer, parentContent }: UploadOptions): Promise<void> {
-    if (dataTransfer.files.length === 0) return;
+/**
+ * Uploads the files and the dragged web images of a drop, then hands the contents to the
+ * host or reveals them in the browse tree, once for the whole drop.
+ */
+// TODO: replace with the useUploadMedia hook
+export async function uploadDroppedMedia(options: UploadOptions): Promise<void> {
+    const [files, images] = await Promise.all([uploadMediaFiles(options), uploadDragImages(options)]);
+    const contents = [...files, ...images];
+
+    if (options.onUploaded) {
+        options.onUploaded(contents);
+    } else if (contents.length > 0) {
+        await revealUploadedContent(options.parentContent);
+    }
+}
+
+async function uploadMediaFiles({ dataTransfer, parentContent, projectName }: UploadOptions): Promise<Content[]> {
+    if (dataTransfer.files.length === 0) return [];
 
     const files = Array.from(dataTransfer.files);
 
@@ -173,23 +221,21 @@ export async function uploadMediaFiles({ dataTransfer, parentContent }: UploadOp
             id,
             file,
             parentContent,
+            projectName,
             onProgress: (id, progress) => updateUploadProgress(id, progress),
         });
     });
 
     const results = await Promise.all(tasks.map((task) => task.match(onEachSuccess, onEachError)));
 
-    if (results.some(Boolean)) {
-        await revealUploadedContent(parentContent);
-    }
+    return results.filter((content): content is Content => content != null);
 }
 
-// TODO: replace places invoking this function with the useUploadMedia hook
-export async function uploadDragImages({ dataTransfer, parentContent }: UploadOptions) {
+async function uploadDragImages({ dataTransfer, parentContent, projectName }: UploadOptions): Promise<Content[]> {
     const htmlData = dataTransfer.getData('text/html');
     const imgSources = extractImageSources(htmlData);
 
-    if (imgSources.length === 0) return;
+    if (imgSources.length === 0) return [];
 
     const tasks = imgSources.map((src) => {
         const id = src;
@@ -202,6 +248,7 @@ export async function uploadDragImages({ dataTransfer, parentContent }: UploadOp
             id,
             imageSource: src,
             parentContent,
+            projectName,
             onProgress: (id, progress) => updateUploadProgress(id, progress),
         };
 
@@ -215,9 +262,7 @@ export async function uploadDragImages({ dataTransfer, parentContent }: UploadOp
 
     const results = await Promise.all(tasks.map((task) => task.match(onEachSuccess, onEachError)));
 
-    if (results.some(Boolean)) {
-        await revealUploadedContent(parentContent);
-    }
+    return results.filter((content): content is Content => content != null);
 }
 
 //
@@ -275,17 +320,17 @@ function extractImageSources(htmlData: string): string[] {
         .filter((src): src is string => src != null);
 }
 
-function onEachSuccess(success: UploadMediaSuccess): boolean {
+function onEachSuccess(success: UploadMediaSuccess): Content {
     removeUpload(success.mediaIdentifier);
     notifySuccess(i18n('notify.upload.success', success.mediaIdentifier));
-    return true;
+    return success.content;
 }
 
-function onEachError(error: UploadError): boolean {
+function onEachError(error: UploadError): undefined {
     console.error(error);
     removeUpload(error.mediaIdentifier);
     notifyError(i18n('notify.upload.error', error.mediaIdentifier, error.message));
-    return false;
+    return undefined;
 }
 
 // Reveal uploaded items under their target parent: expand it (unless already

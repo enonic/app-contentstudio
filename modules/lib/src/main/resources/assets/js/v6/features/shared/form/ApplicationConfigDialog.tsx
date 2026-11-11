@@ -6,7 +6,7 @@ import { useCallback, useRef, useState } from 'react';
 import { type Application } from '../../../entities/application';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import { ConfirmationDialog } from '../../../shared/ui/dialogs/ConfirmationDialog';
-import { useHtmlAreaDialogYield } from '../hooks/useHtmlAreaDialogYield';
+import { useFormDialogYield } from '../hooks/useFormDialogYield';
 import { ApplicationConfigDialogContent } from './ApplicationConfigDialogContent';
 import type { FormScope } from './FormScopeContext';
 
@@ -40,7 +40,7 @@ export const ApplicationConfigDialog = ({
     onApply,
     onClose,
 }: ApplicationConfigDialogProps): ReactElement => {
-    const { overlayHidden, contentProps, shouldIgnoreClose } = useHtmlAreaDialogYield();
+    const { overlayHidden, contentProps, shouldIgnoreClose } = useFormDialogYield();
 
     const [view, setView] = useState<'main' | 'confirmation'>('main');
     const dirtyRef = useRef(false);

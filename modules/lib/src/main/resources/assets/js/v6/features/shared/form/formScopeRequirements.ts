@@ -54,6 +54,9 @@ const SCOPE_REQUIREMENTS: Record<string, FormScopeRequirement> = {
     [SiteConfiguratorDescriptor.name]: SITE_CONFIGURATOR_SCOPE_REQUIREMENT,
 };
 
+// The input types whose add flow lists the content types creatable at the form's scope.
+const CREATABLE_TYPE_INPUT_TYPES: ReadonlySet<string> = new Set([ContentSelectorDescriptor.name]);
+
 /**
  * Whether the form has an input the scope disables: one that needs a project or a
  * content item the scope sets to `null`. A key left out falls back to the stores and
@@ -63,6 +66,10 @@ export const hasScopeDisabledInputs = (form: Form, scope: FormScope): boolean =>
     const disabled = getScopeDisabledTypes(scope);
     return disabled.size > 0 && hasInputOfType(form.getFormItems(), disabled);
 };
+
+/** Whether the form has an input that offers creatable content types, anywhere in its nesting. */
+export const hasCreatableTypeInputs = (form: Form): boolean =>
+    hasInputOfType(form.getFormItems(), CREATABLE_TYPE_INPUT_TYPES);
 
 /**
  * Whether the set is valid for what the scope lets the user fill: an input the scope disables

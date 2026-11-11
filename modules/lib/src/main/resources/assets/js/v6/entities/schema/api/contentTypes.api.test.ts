@@ -77,13 +77,18 @@ describe('fetchCreatableContentTypes', () => {
         const result = await fetchCreatableContentTypes({
             contentId: contentId('c-1'),
             allowedContentTypes: ['my:type'],
+            applicationKey: 'my',
             projectName: 'other-project',
         });
 
         const [url, init] = mockFetch.mock.calls[0];
         expect(url).toContain('/rest-v2/cs/cms/other-project/content/schema/filter/contentTypes');
         expect(init.method).toBe('POST');
-        expect(JSON.parse(init.body)).toEqual({ contentId: 'c-1', allowedContentTypes: ['my:type'] });
+        expect(JSON.parse(init.body)).toEqual({
+            contentId: 'c-1',
+            allowedContentTypes: ['my:type'],
+            applicationKey: 'my',
+        });
         expect(result._unsafeUnwrap()).toEqual([parsedType]);
     });
 

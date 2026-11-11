@@ -16,6 +16,7 @@ import jakarta.ws.rs.core.MediaType;
 import com.enonic.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.app.contentstudio.rest.resource.AdminResourceTestSupport;
 import com.enonic.app.contentstudio.rest.resource.content.JsonObjectsFactory;
+import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.descriptor.DescriptorKey;
 import com.enonic.xp.form.Form;
@@ -23,6 +24,7 @@ import com.enonic.xp.form.Input;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.icon.Icon;
 import com.enonic.xp.inputtype.InputTypeName;
+import com.enonic.xp.jaxrs.impl.MockRestResponse;
 import com.enonic.xp.page.PageDescriptor;
 import com.enonic.xp.region.LayoutDescriptor;
 import com.enonic.xp.region.PartDescriptor;
@@ -32,10 +34,14 @@ import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeService;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class FilterByContentResourceTest
@@ -81,7 +87,7 @@ class FilterByContentResourceTest
             .icon( Icon.from( new byte[]{123}, "image/gif", Instant.now() ) )
             .build();
 
-        when( filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of() ) ).thenReturn( Stream.of( contentTypeToMap ) );
+        when( filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of(), null ) ).thenReturn( Stream.of( contentTypeToMap ) );
         String jsonString = request().path( "cms/default/content/schema/filter/contentTypes" )
             .entity( "{\"contentId\":\"test\"}", MediaType.APPLICATION_JSON_TYPE )
             .post()
@@ -101,13 +107,46 @@ class FilterByContentResourceTest
             .icon( Icon.from( new byte[]{123}, "image/gif", Instant.now() ) )
             .build();
 
-        when( filterByContentResolver.contentTypes( isNull(), eq( Set.of() ) ) ).thenReturn( Stream.of( contentTypeToMap ) );
+        when( filterByContentResolver.contentTypes( isNull(), eq( Set.of() ), isNull() ) ).thenReturn( Stream.of( contentTypeToMap ) );
         String jsonString = request().path( "cms/default/content/schema/filter/contentTypes" )
             .entity( "{}", MediaType.APPLICATION_JSON_TYPE )
             .post()
             .getAsString();
 
         assertJson( "filter_content_types.json", jsonString );
+    }
+
+    @Test
+    void contentTypes_root_allowedContentTypes_and_applicationKey()
+        throws Exception
+    {
+        final ContentType contentTypeToMap = ContentType.create()
+            .superType( ContentTypeName.structured() )
+            .title( "My type" )
+            .name( "application:test-type" )
+            .icon( Icon.from( new byte[]{123}, "image/gif", Instant.now() ) )
+            .build();
+
+        when( filterByContentResolver.contentTypes( isNull(), eq( Set.of( "test-*" ) ), eq( ApplicationKey.from( "application" ) ) ) ).thenReturn(
+            Stream.of( contentTypeToMap ) );
+        String jsonString = request().path( "cms/default/content/schema/filter/contentTypes" )
+            .entity( "{\"allowedContentTypes\":[\"test-*\"],\"applicationKey\":\"application\"}", MediaType.APPLICATION_JSON_TYPE )
+            .post()
+            .getAsString();
+
+        assertJson( "filter_content_types.json", jsonString );
+    }
+
+    @Test
+    void contentTypes_root_invalid_applicationKey()
+        throws Exception
+    {
+        final MockRestResponse response = request().path( "cms/default/content/schema/filter/contentTypes" )
+            .entity( "{\"applicationKey\":\"bad key!\"}", MediaType.APPLICATION_JSON_TYPE )
+            .post();
+
+        assertEquals( 400, response.getStatus() );
+        verify( filterByContentResolver, never() ).contentTypes( any(), any(), any() );
     }
 
     @Test

@@ -25,6 +25,7 @@ export type UploadRemoteImageOptions = {
     id: string;
     imageSource: string;
     parentContent?: ContentSummary;
+    projectName?: string;
     onProgress?: (id: string, progress: number) => void;
 };
 
@@ -64,6 +65,7 @@ export function uploadRemoteImage({
     id,
     imageSource,
     parentContent,
+    projectName,
     onProgress,
 }: UploadRemoteImageOptions): ResultAsync<UploadMediaSuccess, UploadError> {
     const body = {
@@ -72,7 +74,7 @@ export function uploadRemoteImage({
         parent: getParentPath(parentContent),
     };
 
-    return requestUploadJson<ContentJson>(getCmsApiUrl('createMediaFromUrl'), {
+    return requestUploadJson<ContentJson>(getCmsApiUrl('createMediaFromUrl', projectName), {
         body,
         onProgress: (progress) => onProgress?.(id, progress),
     })

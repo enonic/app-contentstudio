@@ -12,14 +12,17 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import com.enonic.app.contentstudio.json.content.page.PageDescriptorListJson;
 import com.enonic.app.contentstudio.json.content.page.region.LayoutDescriptorsJson;
 import com.enonic.app.contentstudio.json.content.page.region.PartDescriptorsJson;
 import com.enonic.app.contentstudio.json.schema.content.ContentTypeSummaryListJson;
 import com.enonic.app.contentstudio.rest.resource.content.JsonObjectsFactory;
+import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.jaxrs.JaxRsComponent;
 import com.enonic.xp.security.RoleKeys;
@@ -42,9 +45,28 @@ public class FilterByContentResource
     @Path("contentTypes")
     public ContentTypeSummaryListJson contentTypes( GetContentTypesJson json, @Context HttpServletRequest request )
     {
-        return new ContentTypeSummaryListJson( filterByContentResolver.contentTypes( json.getContentId(), json.getAllowedContentTypes() )
+        final ApplicationKey applicationKey = parseApplicationKey( json.getApplicationKey() );
+
+        return new ContentTypeSummaryListJson( filterByContentResolver.contentTypes( json.getContentId(), json.getAllowedContentTypes(), applicationKey )
                                                    .map( t -> jsonObjectsFactory.createContentTypeSummaryJson(t, request) )
                                                    .collect( Collectors.toUnmodifiableList() ) );
+    }
+
+    private static ApplicationKey parseApplicationKey( final String applicationKey )
+    {
+        if ( applicationKey == null )
+        {
+            return null;
+        }
+
+        try
+        {
+            return ApplicationKey.from( applicationKey );
+        }
+        catch ( IllegalArgumentException e )
+        {
+            throw new WebApplicationException( e.getMessage(), e, Response.Status.BAD_REQUEST );
+        }
     }
 
     @GET
