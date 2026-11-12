@@ -23,8 +23,9 @@ import { formatContentFullPath } from '../../shared/lib/cms/content/paths';
 import { getInitials } from '../../shared/lib/format/initials';
 import { useElementVisibility } from '../../shared/lib/hooks/useElementVisibility';
 import { ContextToggle } from './ContextToggle';
-import { OverflowActionRow, type OverflowActionRowItem } from './OverflowActionRow';
+import { OverflowActionRow } from './OverflowActionRow';
 import { SplitActionButton } from './SplitActionButton';
+import { useLegacyToolbarActions } from './useLegacyToolbarActions';
 import { $wizardContentPathExists, $wizardReadOnly } from '../../pages/wizard/model/wizardContent.store';
 
 export type ContentWizardToolbarProps = {
@@ -148,7 +149,7 @@ export const ContentWizardToolbar = ({
         return () => setInspectSaveAction(null);
     }, [saveAction]);
 
-    const toolbarActions: OverflowActionRowItem[] = useMemo(
+    const toolbarActionSources = useMemo(
         () => [
             { id: 'save', action: saveAction, primaryRank: 2 },
             { id: 'reset', action: resetAction },
@@ -160,6 +161,7 @@ export const ContentWizardToolbar = ({
         ],
         [archiveAction, duplicateAction, localizeAction, moveAction, previewAction, resetAction, saveAction],
     );
+    const toolbarActions = useLegacyToolbarActions(toolbarActionSources);
     const [desktopPathRef, isDesktopPathVisible] = useElementVisibility<HTMLDivElement>();
     const [mobilePathRef, isMobilePathVisible] = useElementVisibility<HTMLDivElement>();
     const [desktopPublishSplitRef, isDesktopPublishSplitVisible] = useElementVisibility<HTMLDivElement>();
@@ -173,16 +175,32 @@ export const ContentWizardToolbar = ({
         }
     };
 
-    const publishSplitActions: Action[] = [
-        markAsReadyAction,
-        publishAction,
-        publishTreeAction,
-        unpublishAction,
-        requestPublishAction,
-        openRequestAction,
-        createIssueAction,
-    ];
-    const mobileSplitActions: Action[][] = [toolbarActions.map(({ action }) => action), publishSplitActions];
+    const publishSplitSources = useMemo(
+        () => [
+            { id: 'markAsReady', action: markAsReadyAction },
+            { id: 'publish', action: publishAction },
+            { id: 'publishTree', action: publishTreeAction },
+            { id: 'unpublish', action: unpublishAction },
+            { id: 'requestPublish', action: requestPublishAction },
+            { id: 'openRequest', action: openRequestAction },
+            { id: 'createIssue', action: createIssueAction },
+        ],
+        [
+            createIssueAction,
+            markAsReadyAction,
+            openRequestAction,
+            publishAction,
+            publishTreeAction,
+            requestPublishAction,
+            unpublishAction,
+        ],
+    );
+    const publishSplitActions = useLegacyToolbarActions(publishSplitSources);
+    const mobileSplitActions = useMemo(
+        () => [toolbarActions, publishSplitActions],
+        [publishSplitActions, toolbarActions],
+    );
+    const desktopSplitActions = useMemo(() => [publishSplitActions], [publishSplitActions]);
 
     const aiToggleClassName = cn(
         'hidden size-9 p-0 shrink-0 sm:flex',
@@ -359,7 +377,7 @@ export const ContentWizardToolbar = ({
                     <StatusBadge status={publishStatus} className="my-auto px-1.5 md:px-2.75 shrink-0 relative z-0" />
                     <div ref={desktopPublishSplitRef} className="hidden sm:flex shrink-0 min-w-fit relative z-1">
                         <SplitActionButton
-                            actions={[publishSplitActions]}
+                            actions={desktopSplitActions}
                             disabled={!isDesktopPublishSplitVisible || isPathFetchingDelayed}
                         />
                     </div>

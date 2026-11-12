@@ -5,6 +5,7 @@ import { type ReactElement, useEffect, useState } from 'react';
 import { ContentBrowsePanel } from '../../../../../app/browse/ContentBrowsePanel';
 import { $keyBindingsShelved } from '../../../../shared/app-state/keyBindingsShelved.store';
 import { LegacyElementHost } from '../../../../shared/ui/LegacyElementHost';
+import { useBrowseShortcuts } from '../useBrowseShortcuts';
 
 const CONTENT_BROWSE_WIDGET_NAME = 'ContentBrowseWidget';
 
@@ -24,9 +25,11 @@ export const ContentBrowseWidget = ({ active }: ContentBrowseWidgetProps): React
         setPanel(new ContentBrowsePanel());
     }, []);
 
-    // The browse shortcuts still live on legacy actions; they bind only while this widget is the visible one.
-    // ! Never while a dialog has the bindings shelved: keys bound then stay live behind the dialog
-    // ! and are dropped when it closes and the shelf is restored.
+    // The shortcuts bind only while this widget is the visible one, and never while a dialog has the bindings shelved.
+    useBrowseShortcuts(active && !shelved);
+
+    // What is left on legacy actions: the filter panel toggle and the preview panel.
+    // ! Keys bound while shelved stay live behind the dialog and are dropped when it closes and the shelf is restored.
     useEffect(() => {
         if (!active || panel == null || shelved) return;
 

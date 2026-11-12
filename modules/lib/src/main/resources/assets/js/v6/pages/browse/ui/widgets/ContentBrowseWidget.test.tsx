@@ -15,6 +15,15 @@ vi.mock('../../../../../app/browse/ContentBrowsePanel', () => ({
     },
 }));
 
+// ! Loads the preview widgets over the network on import.
+vi.mock('../../../../widgets/inspectors/model/liveViewWidgets.store', () => ({
+    $activeWidget: { get: () => undefined },
+}));
+
+vi.mock('../../../../shared/ui/dialogs/DialogPreset', () => ({
+    DialogPresetConfirmElement: class {},
+}));
+
 vi.mock('../../../../shared/ui/LegacyElementHost', () => ({
     LegacyElementHost: () => <div data-component="LegacyElementHost" />,
 }));

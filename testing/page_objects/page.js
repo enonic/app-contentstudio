@@ -71,6 +71,20 @@ class Page {
         );
     }
 
+    // Clicking an item before the opened menu focuses its active item can start an endless focus loop
+    // between menu items in @enonic/ui 1.6.0, freezing the page.
+    async waitForMenuItemFocused() {
+        await this.browser.waitUntil(
+            () =>
+                this.browser.execute(
+                    () =>
+                        document.activeElement?.getAttribute('role') === 'menuitem' &&
+                        document.activeElement.closest("[role='menu']") != null,
+                ),
+            { timeout: appConst.mediumTimeout, timeoutMsg: 'Opened menu should focus its active item' },
+        );
+    }
+
     // An element removed from the DOM between findElements() and isDisplayed() throws a stale element error,
     // treat it as hidden.
     async doFilterDisplayedElements(elements) {

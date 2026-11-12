@@ -1,12 +1,11 @@
-import { type Action } from '@enonic/lib-admin-ui/ui/Action';
 import { Button, cn, IconButton, Menu, Toolbar, Tooltip } from '@enonic/ui';
 import { ChevronDown } from 'lucide-react';
 import { Fragment, type ReactElement, useMemo } from 'react';
 import { useI18n } from '../../shared/lib/hooks/useI18n';
-import { useObservedActions } from './useObservedActions';
+import { type ToolbarAction } from './toolbarAction';
 
 type Props = {
-    actions: Action[][];
+    actions: ToolbarAction[][];
     className?: string;
     disabled?: boolean;
     /** Render one button that opens every action instead of executing a primary action. */
@@ -27,20 +26,6 @@ type Props = {
     disableMenuWhenAllMenuActionsDisabled?: boolean;
 };
 
-type ActionState = {
-    action: Action;
-    label: string;
-    enabled: boolean;
-    visible: boolean;
-};
-
-const getActionState = (action: Action): ActionState => ({
-    action,
-    label: action.getLabel(),
-    enabled: action.isEnabled(),
-    visible: action.isVisible(),
-});
-
 const SPLIT_ACTION_BUTTON_NAME = 'SplitActionButton';
 
 // TODO: Enonic UI - Move to @enonic/ui
@@ -60,13 +45,7 @@ export const SplitActionButton = ({
     disableMenuWhenAllMenuActionsDisabled = true,
 }: Props): ReactElement | null => {
     const moreLabel = useI18n('tooltip.moreActions');
-    const observedActions = useMemo(() => actions.flat(), [actions]);
-    const renderVersion = useObservedActions(observedActions);
-
-    const actionStates = useMemo(
-        () => observedActions.map(getActionState).filter(({ visible }) => visible),
-        [observedActions, renderVersion],
-    );
+    const actionStates = useMemo(() => actions.flat().filter(({ visible }) => visible), [actions]);
 
     const primaryIndex = useMemo(() => {
         if (primaryActionStrategy === 'firstVisible') {
@@ -81,13 +60,9 @@ export const SplitActionButton = ({
     const menuActionGroups = useMemo(
         () =>
             actions
-                .map((group) =>
-                    group
-                        .map(getActionState)
-                        .filter(({ action, visible }) => visible && action !== primaryState?.action),
-                )
+                .map((group) => group.filter(({ id, visible }) => visible && id !== primaryState?.id))
                 .filter((group) => group.length > 0),
-        [actions, primaryState?.action, renderVersion],
+        [actions, primaryState?.id],
     );
 
     const menuStates = menuActionGroups.flat();
@@ -107,12 +82,8 @@ export const SplitActionButton = ({
                 {menuActionGroups.map((group, groupIndex) => (
                     <Fragment key={groupIndex}>
                         {groupIndex > 0 && <Menu.Separator className="my-0 w-full" />}
-                        {group.map(({ enabled, label, action }, index) => (
-                            <Menu.Item
-                                key={`${groupIndex}-${index}`}
-                                disabled={!enabled}
-                                onSelect={() => action.execute()}
-                            >
+                        {group.map(({ id, enabled, label, execute }) => (
+                            <Menu.Item key={id} disabled={!enabled} onSelect={() => execute()}>
                                 <span className="font-semibold">{label}</span>
                             </Menu.Item>
                         ))}
@@ -158,7 +129,7 @@ export const SplitActionButton = ({
                     iconStrokeWidth={2}
                     aria-label={primaryState.label}
                     label={primaryState.label}
-                    onClick={() => primaryState.action.execute()}
+                    onClick={() => primaryState.execute()}
                 />
             </Toolbar.Item>
 

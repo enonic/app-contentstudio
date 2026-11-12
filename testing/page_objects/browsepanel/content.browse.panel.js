@@ -975,6 +975,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.clickOnElement(this.showPublishMenuButton);
             let menuItemLocator = XPATH.browseToolbarMenuItem(menuItem);
             await this.waitForElementEnabled(menuItemLocator);
+            await this.waitForMenuItemFocused();
             await this.clickOnElement(menuItemLocator);
             return await this.pause(300);
         } catch (err) {

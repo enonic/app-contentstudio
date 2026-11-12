@@ -40,6 +40,18 @@ describe('matchesShortcut', () => {
         expect(matchesShortcut(event({ key: '˜', code: 'KeyN', ctrlKey: true }), 'mod+n', false)).toBe(false);
     });
 
+    it('should fall back to the physical key for letters typed in a non-Latin layout', () => {
+        expect(matchesShortcut(event({ key: 'у', code: 'KeyE', ctrlKey: true }), 'mod+e', false)).toBe(true);
+        expect(matchesShortcut(event({ key: 'А', code: 'KeyF', shiftKey: true }), 'shift+f', false)).toBe(true);
+        expect(matchesShortcut(event({ key: 'у', code: 'KeyD', ctrlKey: true }), 'mod+e', false)).toBe(false);
+    });
+
+    it('should match Space in an Alt chord by the physical key', () => {
+        expect(matchesShortcut(event({ key: ' ', code: 'Space', altKey: true }), 'alt+space', true)).toBe(true);
+        expect(matchesShortcut(event({ key: '\u00a0', code: 'Space', altKey: true }), 'alt+space', true)).toBe(true);
+        expect(matchesShortcut(event({ key: '\u00a0', code: 'Space' }), 'space', true)).toBe(false);
+    });
+
     it('should accept an upper-case key value', () => {
         expect(matchesShortcut(event({ key: 'N', altKey: true }), 'alt+n', false)).toBe(true);
     });

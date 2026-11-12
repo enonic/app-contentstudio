@@ -1,3 +1,4 @@
+export { clearAllowsChildContentCache, fetchAllowsChildContent } from './api/allowsChildContent.api';
 export { fetchAllContentTypes, fetchContentTypesByContent, fetchCreatableContentTypes } from './api/contentTypes.api';
 export { useAcceptMimeTypes } from './lib/useAcceptMimeTypes';
 export type { CreatableContentTypesParams } from './api/contentTypes.api';
