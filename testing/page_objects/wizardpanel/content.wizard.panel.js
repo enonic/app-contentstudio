@@ -1022,6 +1022,7 @@ class ContentWizardPanel extends Page {
         try {
             await this.waitForShowPublishMenuButtonVisible();
             await this.clickOnElement(this.publishDropDownHandle);
+            await this.waitForMenuItemFocused();
             let selector = XPATH.publishMenuItemByName(menuItem);
             await this.clickOnElement(selector);
             return await this.pause(300);
