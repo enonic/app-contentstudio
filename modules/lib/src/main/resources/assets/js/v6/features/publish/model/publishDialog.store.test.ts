@@ -15,6 +15,7 @@ import {
     applyDraftPublishDialogSelection,
     cancelDraftPublishDialogSelection,
     loadMoreDependants,
+    markAllAsReadyInProgressPublishItems,
     openPublishDialog,
     reloadPublishDialogData,
     resetPublishDialogContext,
@@ -99,6 +100,14 @@ vi.mock('../../../entities/task/task.service', () => ({
     trackTask: mockTrackTask,
 }));
 
+const { mockI18n } = vi.hoisted(() => ({ mockI18n: vi.fn() }));
+
+vi.mock('../../../shared/i18n', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('../../../shared/i18n')>();
+    mockI18n.mockImplementation(actual.i18n);
+    return { ...actual, i18n: mockI18n };
+});
+
 async function flushInitialReload(): Promise<void> {
     await flushPromises(10);
 }
@@ -129,6 +138,7 @@ describe('publishDialog.store', () => {
         mockFindIdsByParents.mockReset().mockResolvedValue(ok([]));
         mockMarkAsReady.mockReset();
         mockPublishContent.mockReset();
+        mockI18n.mockClear();
         // By default treat the requested (main) items as publishable, mirroring the
         // server's publishableContents (status != EQUAL) for typical scenarios.
         mockResolvePublishDependencies
@@ -170,6 +180,23 @@ describe('publishDialog.store', () => {
         expect($publishCheckErrors.get().inProgress.count).toBe(0);
         expect($isPublishReady.get()).toBe(true);
         expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
+    });
+
+    it('names the marked item by display name in the mark-as-ready notification', async () => {
+        const itemId = new ContentId('item-1');
+        const item = createMockContent('item-1', { displayName: 'My folder' });
+
+        mockResolvePublishDependencies.mockResolvedValue(
+            createResolveResult({ inProgress: [itemId], publishable: [itemId] }),
+        );
+        mockMarkAsReady.mockResolvedValue(ok(undefined));
+
+        openPublishDialog([item]);
+        await flushInitialReload();
+
+        await markAllAsReadyInProgressPublishItems();
+
+        expect(mockI18n).toHaveBeenCalledWith('notify.item.markedAsReady', 'My folder');
     });
 
     it('keeps publishable state consistent when an in-flight reload is superseded', async () => {

@@ -891,6 +891,13 @@ async function resolvePublishDependencies(
 // * Requests
 //
 
+const getPublishItemLabel = (id: ContentId): string => {
+    const { items } = $publishDialog.get();
+    const dependants = $publishDialogDependants.get();
+    const item = [...items, ...dependants].find((summary) => summary.getContentId().equals(id));
+    return item?.getDisplayName() || item?.getPath()?.toString() || id.toString();
+};
+
 // TODO: Add mechanism to prevent conflicting requests for reload, mark as ready, and server updates
 // Right now we just lock the dialog and pray. Amen
 async function markIdsReady(ids: ContentId[]): Promise<ContentId[]> {
@@ -901,7 +908,7 @@ async function markIdsReady(ids: ContentId[]): Promise<ContentId[]> {
             const msg =
                 count > 1
                     ? i18n('notify.item.markedAsReady.multiple', count)
-                    : i18n('notify.item.markedAsReady', ids[0].toString());
+                    : i18n('notify.item.markedAsReady', getPublishItemLabel(ids[0]));
             notifyInfo(msg);
             return ids;
         },
