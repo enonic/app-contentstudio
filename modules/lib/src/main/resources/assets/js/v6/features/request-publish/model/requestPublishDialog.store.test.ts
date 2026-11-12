@@ -24,6 +24,7 @@ import {
     applyDraftRequestPublishDialogSelection,
     cancelDraftRequestPublishDialogSelection,
     loadMoreRequestPublishDependants,
+    markAllAsReadyInProgressRequestPublishItems,
     openRequestPublishDialog,
     removeRequestPublishItem,
     resetRequestPublishDialogContext,
@@ -45,6 +46,7 @@ import {
 const {
     mockCreateIssue,
     mockFetchContentSummaries,
+    mockI18n,
     mockMarkAsReady,
     mockResolvePublishDependencies,
     mockShowError,
@@ -54,6 +56,7 @@ const {
 } = vi.hoisted(() => ({
     mockCreateIssue: vi.fn(),
     mockFetchContentSummaries: vi.fn(),
+    mockI18n: vi.fn((key: string) => key),
     mockMarkAsReady: vi.fn(),
     mockResolvePublishDependencies: vi.fn(),
     mockShowError: vi.fn(),
@@ -83,7 +86,7 @@ vi.mock('../../../shared/notifications', () => ({
 }));
 
 vi.mock('../../../shared/i18n', () => ({
-    i18n: (key: string) => key,
+    i18n: mockI18n,
 }));
 
 const requestPublishMainItemEventCases = [
@@ -130,6 +133,7 @@ describe('requestPublishDialog.store', () => {
         mockCreateIssue.mockReset().mockReturnValue(okAsync({ getApprovers: () => [] }));
         mockMarkAsReady.mockReset();
         mockResolvePublishDependencies.mockReset().mockResolvedValue(createResolveResult({}));
+        mockI18n.mockClear();
         mockShowError.mockReset();
         mockShowFeedback.mockReset();
         mockShowSuccess.mockReset();
@@ -166,6 +170,24 @@ describe('requestPublishDialog.store', () => {
         expect($requestPublishDialogErrors.get().inProgress.count).toBe(0);
         expect($isRequestPublishReady.get()).toBe(true);
         expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
+    });
+
+    it('names the marked item by display name in the mark-as-ready notification', async () => {
+        const itemId = new ContentId('item-1');
+        const item = createMockContent('item-1', { displayName: 'My folder' });
+
+        mockResolvePublishDependencies.mockResolvedValue(
+            createResolveResult({ inProgress: [itemId], publishable: [itemId] }),
+        );
+        mockMarkAsReady.mockResolvedValue(okAsync(undefined));
+
+        openRequestPublishDialog([item]);
+        await flushRequestPublishReload();
+
+        await markAllAsReadyInProgressRequestPublishItems();
+        await flushRequestPublishReload();
+
+        expect(mockI18n).toHaveBeenCalledWith('notify.item.markedAsReady', 'My folder');
     });
 
     it('should not block create-readiness when the user lacks publish permission', async () => {

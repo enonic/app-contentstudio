@@ -695,6 +695,12 @@ const reloadRequestPublishDependencies = async (): Promise<void> => {
     }
 };
 
+const getRequestPublishItemLabel = (id: ContentId): string => {
+    const { items, dependants } = $requestPublishDialog.get();
+    const item = [...items, ...dependants].find((summary) => summary.getContentId().equals(id));
+    return item?.getDisplayName() || item?.getPath()?.toString() || id.toString();
+};
+
 const markIdsReady = async (ids: ContentId[]): Promise<ContentId[]> => {
     const result = await markAsReady(ids);
     return result.match(
@@ -703,7 +709,7 @@ const markIdsReady = async (ids: ContentId[]): Promise<ContentId[]> => {
             const message =
                 count > 1
                     ? i18n('notify.item.markedAsReady.multiple', count)
-                    : i18n('notify.item.markedAsReady', ids[0].toString());
+                    : i18n('notify.item.markedAsReady', getRequestPublishItemLabel(ids[0]));
             notifyInfo(message);
             return ids;
         },
