@@ -1,3 +1,4 @@
+import { saveWizardContent } from '../../v6/pages/wizard/model/wizardActions.commands';
 import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { Body } from '@enonic/lib-admin-ui/dom/Body';
@@ -21,7 +22,6 @@ import { ProjectListRequest } from '../settings/resource/ProjectListRequest';
 import { subscribe as subscribeToCollaborators } from '../stores/collaboration';
 import { UrlHelper } from '../util/UrlHelper';
 import { type ContentWizardActions } from '../wizard/action/ContentWizardActions';
-import { ContentWizardToolbarPublishControls } from '../wizard/ContentWizardToolbarPublishControls';
 import { PublishStatus } from '../publish/PublishStatus';
 import {
     $wizardToolbar,
@@ -42,7 +42,7 @@ import { openRenameContentDialog } from '../../v6/features/rename/model/renameCo
 import type { WizardToolbarCollaborator } from '../../v6/pages/wizard/model/wizardToolbar.types';
 import { calcTreePublishStatus } from '../../v6/shared/lib/cms/content/status';
 import { LAYERS_WIDGET_NAME } from '../../v6/shared/lib/widget/layers';
-import { ContentWizardToolbarElement as V6ContentWizardToolbarElement } from '../../v6/widgets/browse-toolbar/ContentWizardToolbar';
+import { ContentWizardToolbarElement as V6ContentWizardToolbarElement } from '../../v6/pages/wizard/ui/ContentWizardToolbar';
 import { openContextWidget } from '../../v6/widgets/context-panel/openContextWidget';
 
 export type ContentWizardToolbarConfig = ToolbarConfig & {
@@ -56,8 +56,6 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
     private readonly config: ContentWizardToolbarConfig;
 
     private item: ContentSummaryAndCompareStatus;
-
-    private contentWizardToolbarPublishControls: ContentWizardToolbarPublishControls;
 
     private hiddenElementsHost?: DivEl;
 
@@ -88,20 +86,7 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
             onContentPathClick: () => {
                 this.handleContentPathClicked();
             },
-            saveAction: actions.getSaveAction(),
-            resetAction: actions.getResetAction(),
-            localizeAction: actions.getLocalizeAction(),
-            archiveAction: actions.getArchiveAction(),
-            duplicateAction: actions.getDuplicateAction(),
-            moveAction: actions.getMoveAction(),
             previewAction: actions.getPreviewAction(),
-            markAsReadyAction: actions.getMarkAsReadyAction(),
-            publishAction: actions.getPublishAction(),
-            publishTreeAction: actions.getPublishTreeAction(),
-            unpublishAction: actions.getUnpublishAction(),
-            requestPublishAction: actions.getRequestPublishAction(),
-            openRequestAction: actions.getOpenRequestAction(),
-            createIssueAction: actions.getCreateIssueAction(),
         });
 
         this.config = config;
@@ -131,8 +116,6 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
             this.addStateIcon();
         }
 
-        this.addHiddenPublishControls();
-
         this.fetchProjectInfo();
 
         if (this.isCollaborationEnabled() && this.getItem()) {
@@ -150,23 +133,6 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
                     })
                     .catch(DefaultErrorHandler.handle);
             }
-        });
-
-        this.whenRendered(() => {
-            const onPublishControlsInitialised = () => {
-                this.contentWizardToolbarPublishControls.getPublishButton().show();
-                this.contentWizardToolbarPublishControls
-                    .getPublishButton()
-                    .unActionUpdated(onPublishControlsInitialised);
-            };
-
-            this.contentWizardToolbarPublishControls.getPublishButton().onActionUpdated(onPublishControlsInitialised);
-
-            this.contentWizardToolbarPublishControls
-                .getPublishButton()
-                .onPublishRequestActionChanged((added: boolean) => {
-                    this.toggleClass('publish-request', added);
-                });
         });
 
         this.onRemoved(() => {
@@ -187,7 +153,6 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
         setWizardToolbarCanRenameContentPath(!!item?.getPath());
         setWizardToolbarIsContentOnline(this.isOnline(publishStatus));
         setWizardToolbarContentInheritance(!!item?.isInherited(), !!item?.isDataInherited());
-        this.contentWizardToolbarPublishControls.setContent(item);
 
         if (this.isCollaborationEnabled()) {
             this.subscribeToCollaboration(item.getContentId().toString());
@@ -380,24 +345,12 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
 
             this.config.onContentRenameConfirmed?.(newName);
 
-            const saveAction = this.config.actions.getSaveAction();
-            saveAction.setEnabled(true);
-            saveAction.execute();
+            void saveWizardContent();
         });
     }
 
     private handleLayersClicked(): void {
         openContextWidget(LAYERS_WIDGET_NAME);
-    }
-
-    private addHiddenPublishControls(): void {
-        this.contentWizardToolbarPublishControls = new ContentWizardToolbarPublishControls(this.config.actions);
-        this.contentWizardToolbarPublishControls.hide();
-
-        const publishButton = this.contentWizardToolbarPublishControls.getPublishButton();
-        publishButton.hide();
-
-        this.hiddenElementsHost?.appendChild(this.contentWizardToolbarPublishControls);
     }
 
     private addStateIcon(): void {
@@ -407,10 +360,6 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
 
     private isCollaborationEnabled(): boolean {
         return CONFIG.isTrue('enableCollaboration');
-    }
-
-    getContentWizardToolbarPublishControls(): ContentWizardToolbarPublishControls {
-        return this.contentWizardToolbarPublishControls;
     }
 
     getStateIcon(): DivEl {

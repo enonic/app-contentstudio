@@ -537,11 +537,13 @@ export class LiveEditPageProxy implements PageNavigationHandler {
             }),
         );
 
-        // Simulate iframe keyboard event to allow shortcuts work when iframe is focused.
-        // The payload carries legacy keyCode/charCode for jquery-simulate.
+        // Replay the iframe keyboard event so that shortcuts work while the iframe is focused.
+        // ! Twice: jquery-simulate carries the legacy keyCode/charCode the lib-admin-ui key bindings match,
+        // ! a real event carries the key and code the v6 shortcuts match. Neither matches the other's.
         cleanups.push(
             bus.on('keyboard-relay', (payload) => {
                 $(document).simulate(payload.type, payload.init);
+                document.dispatchEvent(new KeyboardEvent(payload.type, { ...payload.init, keyCode: 0, charCode: 0 }));
             }),
         );
     }
