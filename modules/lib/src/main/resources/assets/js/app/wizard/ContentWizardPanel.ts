@@ -579,11 +579,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
             this.getContentWizardToolbar().setItem(this.getContent());
             this.isContentFormValid = this.isWizardContentValid();
-            this.wizardActions
-                .setContent(this.getContent())
-                .setContentCanBePublished(this.checkContentCanBePublished())
-                .setIsValid(this.isContentFormValid)
-                .refreshState();
+            this.wizardActions.setContent(this.getContent()).refreshState();
 
             if (this.contentType?.hasDisplayNameExpression()) {
                 this.displayNameResolver.setExpression(this.contentType.getDisplayNameExpression());
@@ -613,10 +609,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
                     return;
                 }
 
-                this.wizardActions
-                    .setContentCanBePublished(this.checkContentCanBePublished())
-                    .setIsValid(isThisValid)
-                    .refreshState();
+                this.wizardActions.refreshState();
             });
 
             thumbnailUploader.setEnabled(this.contentType ? !this.contentType?.isImage() : false);

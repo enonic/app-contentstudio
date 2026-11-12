@@ -5,18 +5,24 @@ import { type ContentSummaryAndCompareStatus } from '../../content/ContentSummar
 import { Permission } from '../../access/Permission';
 import { isOnline, isPublished } from '../../../v6/shared/lib/cms/content/status';
 import {
-    $wizardContentPathExists,
-    $wizardContentState,
-    $wizardHasChanges,
-} from '../../../v6/pages/wizard/model/wizardContent.store';
+    $wizardActionEnvironment,
+    $wizardActionFacts,
+    $wizardActions,
+    needsUnpublishedChildrenCheck,
+    patchWizardActionFacts,
+    resetWizardActionFacts,
+    setWizardActionsStashed,
+    setWizardCanRequestPublish,
+    type WizardActionId,
+    type WizardActionsState,
+} from '../../../v6/pages/wizard/model/wizardActions.store';
+import { $wizardHasChanges } from '../../../v6/pages/wizard/model/wizardContent.store';
 import { CloseAction } from '@enonic/lib-admin-ui/app/wizard/CloseAction';
 import { WizardActions } from '@enonic/lib-admin-ui/app/wizard/WizardActions';
 import { type ManagedActionExecutor } from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
 import { ManagedActionManager } from '@enonic/lib-admin-ui/managedaction/ManagedActionManager';
 import { ManagedActionState } from '@enonic/lib-admin-ui/managedaction/ManagedActionState';
 import { type Action } from '@enonic/lib-admin-ui/ui/Action';
-import { type ActionsMap, type ActionsState, ActionsStateManager } from '@enonic/lib-admin-ui/ui/ActionsStateManager';
-import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
 import { GetContentByPathRequest } from '../../resource/GetContentByPathRequest';
@@ -48,48 +54,41 @@ import { ShowFormAction } from './ShowFormAction';
 import { ShowLiveEditAction } from './ShowLiveEditAction';
 import { UnpublishAction } from './UnpublishAction';
 
+type MirroredActions = Record<WizardActionId, Action>;
+
+//
+// The state of the actions lives in `wizardActions.store`. This class writes the facts
+// the store derives it from and mirrors the result into the lib-admin-ui `Action` objects
+// the toolbar, the shortcuts and the live edit still use.
+//
 export class ContentWizardActions extends WizardActions<Content> {
-    private deleteOnlyMode: boolean = false;
-
-    private persistedContent: Content;
-
-    private contentCanBePublished: boolean = false;
-
-    private userCanPublish: boolean = true;
-
-    private userCanModify: boolean = true;
-
-    private isContentValid: boolean = false;
-
-    private hasPublishRequest: boolean = false;
-
-    private contentCanBeMarkedAsReady: boolean = false;
-
     private content: ContentSummaryAndCompareStatus;
 
     private wizardPanel: ContentWizardPanel;
 
-    private actionsMap: ActionsMap;
+    private mirroredActions: MirroredActions;
 
-    private stateManager: ActionsStateManager;
+    private saveAction: ContentSaveAction;
 
-    private checkSaveActionStateHandler: () => void;
+    private previewAction: PreviewAction;
 
-    private wizardHasChangesUnsubscribe?: () => void;
+    private closeAction: Action;
 
-    private wizardContentStateUnsubscribe?: () => void;
+    private showLiveEditAction: Action;
 
-    private wizardPathExistsUnsubscribe?: () => void;
+    private showFormAction: Action;
+
+    private unsubscribers: (() => void)[] = [];
 
     private beforeActionsStashedListeners: (() => void)[] = [];
 
     private actionsUnstashedListeners: (() => void)[] = [];
 
-    private publishTreeRequestId: number = 0;
+    private parentPermissionRequestId: number = 0;
+
+    private unpublishedChildrenRequestId: number = 0;
 
     private hasCheckedUnpublishedChildren: boolean = false;
-
-    private hasUnpublishedChildren: boolean = false;
 
     constructor(wizardPanel: ContentWizardPanel) {
         const contentSaveAction = new ContentSaveAction(wizardPanel);
@@ -133,146 +132,75 @@ export class ContentWizardActions extends WizardActions<Content> {
         );
 
         this.wizardPanel = wizardPanel;
+        this.saveAction = contentSaveAction;
+        this.previewAction = previewAction;
+        this.closeAction = closeAction;
+        this.showLiveEditAction = showLiveEditAction;
+        this.showFormAction = showFormAction;
 
-        this.actionsMap = {
-            SAVE: contentSaveAction,
-            RESET: resetContentAction,
-            ARCHIVE: archiveContentAction,
-            DUPLICATE: duplicateContentAction,
-            MOVE: moveContentAction,
-            PREVIEW: previewAction,
-            PUBLISH: publishAction,
-            PUBLISH_TREE: publishTreeAction,
-            CREATE_ISSUE: createIssueAction,
-            UNPUBLISH: unpublishAction,
-            MARK_AS_READY: markAsReadyAction,
-            REQUEST_PUBLISH: requestPublishAction,
-            OPEN_REQUEST: openRequestAction,
-            CLOSE: closeAction,
-            SHOW_LIVE_EDIT: showLiveEditAction,
-            SHOW_FORM: showFormAction,
-            SAVE_AND_CLOSE: saveAndCloseAction,
-            LOCALIZE: localizeContentAction,
+        this.mirroredActions = {
+            save: contentSaveAction,
+            saveAndClose: saveAndCloseAction,
+            archive: archiveContentAction,
+            duplicate: duplicateContentAction,
+            move: moveContentAction,
+            publish: publishAction,
+            publishTree: publishTreeAction,
+            unpublish: unpublishAction,
+            markAsReady: markAsReadyAction,
+            requestPublish: requestPublishAction,
+            openRequest: openRequestAction,
+            createIssue: createIssueAction,
+            reset: resetContentAction,
+            localize: localizeContentAction,
         };
-
-        const stashableActionsMap: ActionsMap = {
-            ARCHIVE: this.actionsMap.ARCHIVE,
-            DUPLICATE: this.actionsMap.DUPLICATE,
-            MOVE: this.actionsMap.MOVE,
-            PUBLISH: this.actionsMap.PUBLISH,
-            PUBLISH_TREE: this.actionsMap.PUBLISH_TREE,
-            UNPUBLISH: this.actionsMap.UNPUBLISH,
-        };
-
-        this.stateManager = new ActionsStateManager(this.actionsMap);
 
         ManagedActionManager.instance().onManagedActionStateChanged(
-            (state: ManagedActionState, executor: ManagedActionExecutor) => {
+            (state: ManagedActionState, _executor: ManagedActionExecutor) => {
                 if (state === ManagedActionState.PREPARING) {
                     this.notifyBeforeActionsStashed();
-                    this.stateManager.stashActions(stashableActionsMap, false);
+                    setWizardActionsStashed(true);
                 } else if (state === ManagedActionState.ENDED) {
-                    this.stateManager.unstashActions(stashableActionsMap);
+                    setWizardActionsStashed(false);
                     this.notifyActionsUnstashed();
                 }
             },
         );
 
-        this.initUnsavedChangesListeners();
+        resetWizardActionFacts();
+        this.initStoreListeners();
     }
 
-    private initUnsavedChangesListeners() {
-        this.wizardHasChangesUnsubscribe?.();
+    private initStoreListeners() {
+        this.cleanupUnsavedChangesListeners();
 
-        let checkSaveStateOnWizardRendered: boolean = false;
+        this.unsubscribers = [
+            $wizardActions.subscribe((state) => this.mirror(state)),
+            $wizardActionFacts.listen(() => this.checkUnpublishedChildren()),
+            $wizardActionEnvironment.listen(() => this.checkUnpublishedChildren()),
+        ];
+    }
 
-        this.checkSaveActionStateHandler = AppHelper.debounce(
-            () => {
-                if (this.wizardPanel.isRendered()) {
-                    this.doCheckSaveActionStateHandler();
-                } else {
-                    if (!checkSaveStateOnWizardRendered) {
-                        this.wizardPanel.whenRendered(() => {
-                            this.doCheckSaveActionStateHandler();
-                            checkSaveStateOnWizardRendered = false;
-                        });
+    private mirror(state: WizardActionsState): void {
+        for (const id of Object.keys(this.mirroredActions) as WizardActionId[]) {
+            const action = this.mirroredActions[id];
 
-                        checkSaveStateOnWizardRendered = true;
-                    }
-                }
-            },
-            100,
-            false,
-        );
+            action.setEnabled(state[id].enabled);
+            action.setVisible(state[id].visible);
+        }
 
-        this.wizardHasChangesUnsubscribe = $wizardHasChanges.subscribe((hasChanges, previousHasChanges) => {
-            if (previousHasChanges === undefined || hasChanges === previousHasChanges) {
-                return;
-            }
-
-            this.checkSaveActionStateHandler();
-        });
-
-        this.wizardContentStateUnsubscribe = $wizardContentState.subscribe((contentState) => {
-            if (contentState == null) {
-                return;
-            }
-
-            const isValid = contentState !== 'invalid';
-            this.setContentCanBeMarkedAsReady(contentState === 'in-progress')
-                .setContentCanBePublished(this.wizardPanel.checkContentCanBePublished())
-                .setIsValid(isValid)
-                .refreshState();
-        });
-
-        this.wizardPathExistsUnsubscribe = $wizardContentPathExists.subscribe((store, prevStore) => {
-            if (store?.exists === prevStore?.exists) {
-                return;
-            }
-
-            this.checkSaveActionStateHandler();
-        });
-
-        this.wizardPanel.onPageStateChanged(this.checkSaveActionStateHandler);
+        const canSave = $wizardHasChanges.get() || state.save.enabled || !this.saveAction.isSavedStateEnabled();
+        this.saveAction.setLabel(i18n(canSave ? 'action.save' : 'action.saved'));
     }
 
     cleanupUnsavedChangesListeners(): void {
-        this.wizardHasChangesUnsubscribe?.();
-        this.wizardHasChangesUnsubscribe = undefined;
-        this.wizardContentStateUnsubscribe?.();
-        this.wizardContentStateUnsubscribe = undefined;
-        this.wizardPathExistsUnsubscribe?.();
-        this.wizardPathExistsUnsubscribe = undefined;
-        this.publishTreeRequestId++;
-    }
-
-    private isPersistedUnnamed(): boolean {
-        return !this.persistedContent || this.persistedContent.getName().isUnnamed();
-    }
-
-    private doCheckSaveActionStateHandler(): void {
-        let isEnabled: boolean = this.hasUnsavedChanges() && !this.pathAlreadyExists();
-
-        if (this.persistedContent) {
-            isEnabled =
-                isEnabled &&
-                this.persistedContent.isEditable() &&
-                this.userCanModify &&
-                !this.persistedContent.isDataInherited();
-        }
-        this.enableActions({ SAVE: isEnabled });
-
-        const canSave = this.hasUnsavedChanges() || isEnabled || !this.getSaveAction().isSavedStateEnabled();
-        this.getSaveAction().setLabel(i18n(canSave ? 'action.save' : 'action.saved'));
-    }
-
-    private enableActions(state: ActionsState) {
-        this.stateManager.enableActions(state);
+        this.unsubscribers.forEach((unsubscribe) => unsubscribe());
+        this.unsubscribers = [];
+        this.parentPermissionRequestId++;
+        this.unpublishedChildrenRequestId++;
     }
 
     refreshActions(): Q.Promise<void> {
-        this.actionsMap.SAVE.setVisible(!this.wizardPanel.getPersistedItem().isDataInherited());
-
         if (this.wizardPanel.isNew()) {
             this.enableActionsForNew();
         } else {
@@ -283,138 +211,77 @@ export class ContentWizardActions extends WizardActions<Content> {
     }
 
     enableActionsForNew() {
-        this.persistedContent = null;
-        this.stateManager.enableActions({});
-        this.enableActions({
-            SAVE: this.hasUnsavedChanges() && !this.pathAlreadyExists(),
-            ARCHIVE: true,
-            MOVE: !this.isPersistedUnnamed(),
-        });
-        this.actionsMap.RESET.setVisible(false);
-        this.actionsMap.LOCALIZE.setVisible(false);
-        (this.actionsMap.PREVIEW as PreviewAction).setWritePermissions(true);
+        patchWizardActionFacts({ persisted: undefined });
+        this.previewAction.setWritePermissions(true);
     }
 
     enableActionsForExisting(existing: Content): Q.Promise<void> {
-        const nameAppeared = this.isPersistedUnnamed() && !existing.getName().isUnnamed();
+        const permissions = existing.getPermissions();
+        const canModify = AccessControlHelper.hasPermission(Permission.MODIFY, permissions);
 
-        this.persistedContent = existing;
-
-        this.enableActions({
-            ARCHIVE: existing.isDeletable(),
-            ...(nameAppeared ? { MOVE: !this.deleteOnlyMode } : {}),
+        patchWizardActionFacts({
+            persisted: {
+                unnamed: existing.getName().isUnnamed(),
+                deletable: existing.isDeletable(),
+                editable: existing.isEditable(),
+                dataInherited: existing.isDataInherited(),
+                canDelete: AccessControlHelper.hasPermission(Permission.DELETE, permissions),
+            },
+            canModify,
+            canPublish: AccessControlHelper.hasPermission(Permission.PUBLISH, permissions),
         });
 
-        this.enableActionsForExistingByPermissions(existing);
-        this.enableActions({
-            SAVE:
-                existing.isEditable() &&
-                this.hasUnsavedChanges() &&
-                !existing.isDataInherited() &&
-                !this.pathAlreadyExists(),
-        });
+        this.previewAction.setWritePermissions(canModify);
+        this.checkParentCreatePermission(existing);
 
         return Q();
     }
 
-    setDeleteOnlyMode(content: Content, valueOn: boolean = true) {
-        if (this.deleteOnlyMode === valueOn) {
-            return;
-        }
-        this.deleteOnlyMode = valueOn;
-        const nonDeleteMode = !valueOn;
-
-        this.enableActions({
-            DUPLICATE: nonDeleteMode,
-            MOVE: nonDeleteMode && !this.isPersistedUnnamed(),
-            PUBLISH: nonDeleteMode,
-            PUBLISH_TREE: nonDeleteMode,
-            CREATE_ISSUE: nonDeleteMode,
-            UNPUBLISH: nonDeleteMode,
-        });
-
-        if (valueOn) {
-            this.enableDeleteIfAllowed(content);
-        } else {
-            this.enableActions({ ARCHIVE: true });
-            this.enableActionsForExistingByPermissions(content);
-        }
+    setDeleteOnlyMode(_content: Content, valueOn: boolean = true) {
+        patchWizardActionFacts({ deleteOnly: valueOn });
     }
 
-    private enableDeleteIfAllowed(content: Content) {
-        const hasDeletePermission = AccessControlHelper.hasPermission(Permission.DELETE, content.getPermissions());
-        this.enableActions({ ARCHIVE: hasDeletePermission });
-    }
+    // Duplicate puts the copy next to the content, so the parent decides.
+    private checkParentCreatePermission(existing: Content): void {
+        const requestId = ++this.parentPermissionRequestId;
 
-    private enableActionsForExistingByPermissions(existing: Content): void {
-        this.userCanModify = AccessControlHelper.hasPermission(Permission.MODIFY, existing.getPermissions());
-        const hasDeletePermission = AccessControlHelper.hasPermission(Permission.DELETE, existing.getPermissions());
-        this.userCanPublish = AccessControlHelper.hasPermission(Permission.PUBLISH, existing.getPermissions());
+        const request: Q.Promise<AccessControlList> = existing.hasParent()
+            ? new GetContentByPathRequest(existing.getPath().getParentPath())
+                  .sendAndParse()
+                  .then((parent: Content) => new GetContentPermissionsByIdRequest(parent.getContentId()).sendAndParse())
+            : new GetContentRootPermissionsRequest().sendAndParse();
 
-        (this.actionsMap.PREVIEW as PreviewAction).setWritePermissions(this.userCanModify);
-
-        if (!this.userCanModify) {
-            this.enableActions({
-                SAVE: false,
-                SAVE_AND_CLOSE: false,
-                MARK_AS_READY: false,
-                RESET: false,
-                LOCALIZE: false,
-            });
-        }
-        if (!hasDeletePermission) {
-            this.enableActions({ ARCHIVE: false });
-        }
-        if (!this.userCanPublish) {
-            this.enableActions({
-                PUBLISH: false,
-                CREATE_ISSUE: true,
-                UNPUBLISH: false,
-                PUBLISH_TREE: false,
-            });
-        }
-
-        if (existing.hasParent()) {
-            new GetContentByPathRequest(existing.getPath().getParentPath()).sendAndParse().then((parent: Content) => {
-                new GetContentPermissionsByIdRequest(parent.getContentId())
-                    .sendAndParse()
-                    .then((accessControlList: AccessControlList) => {
-                        const hasParentCreatePermission = AccessControlHelper.hasPermission(
-                            Permission.CREATE,
-                            accessControlList,
-                        );
-
-                        if (!hasParentCreatePermission) {
-                            this.enableActions({ DUPLICATE: false });
-                        }
-                    });
-            });
-        } else {
-            new GetContentRootPermissionsRequest().sendAndParse().then((accessControlList: AccessControlList) => {
-                const hasParentCreatePermission = AccessControlHelper.hasPermission(
-                    Permission.CREATE,
-                    accessControlList,
-                );
-
-                if (!hasParentCreatePermission) {
-                    this.enableActions({ DUPLICATE: false });
+        request
+            .then((accessControlList: AccessControlList) => {
+                if (requestId !== this.parentPermissionRequestId) {
+                    return;
                 }
-            });
-        }
-    }
 
-    private hasUnsavedChanges(): boolean {
-        return $wizardHasChanges.get();
-    }
-
-    private pathAlreadyExists(): boolean {
-        return $wizardContentPathExists.get().exists;
+                patchWizardActionFacts({
+                    parentCanCreate: AccessControlHelper.hasPermission(Permission.CREATE, accessControlList),
+                });
+            })
+            .catch(DefaultErrorHandler.handle);
     }
 
     setContent(content: ContentSummaryAndCompareStatus): ContentWizardActions {
-        this.hasCheckedUnpublishedChildren = false;
-        this.hasUnpublishedChildren = false;
         this.content = content;
+        this.hasCheckedUnpublishedChildren = false;
+
+        const summary = content.getContentSummary();
+
+        patchWizardActionFacts({
+            summary: {
+                online: isOnline(summary),
+                published: isPublished(summary),
+                hasChildren: content.hasChildren(),
+                inProgress: summary.isInProgress(),
+                dataInherited: content.isDataInherited(),
+                hasOriginProject: content.hasOriginProject(),
+            },
+            hasUnpublishedChildren: undefined,
+        });
+
         return this;
     }
 
@@ -423,148 +290,55 @@ export class ContentWizardActions extends WizardActions<Content> {
         return this;
     }
 
-    setContentCanBePublished(value: boolean): ContentWizardActions {
-        this.contentCanBePublished = value;
-        return this;
-    }
-
     setUserCanPublish(value: boolean): ContentWizardActions {
-        this.userCanPublish = value;
+        patchWizardActionFacts({ canPublish: value });
         return this;
     }
 
     setUserCanModify(value: boolean): ContentWizardActions {
-        this.userCanModify = value;
-        return this;
-    }
-
-    setIsValid(value: boolean): ContentWizardActions {
-        this.isContentValid = value;
-        return this;
-    }
-
-    setContentCanBeMarkedAsReady(value: boolean): ContentWizardActions {
-        this.contentCanBeMarkedAsReady = value;
+        patchWizardActionFacts({ canModify: value });
         return this;
     }
 
     setHasPublishRequest(value: boolean): ContentWizardActions {
-        this.hasPublishRequest = value;
+        patchWizardActionFacts({ hasPublishRequest: value });
         return this;
     }
 
+    // The facts that are not stores yet are read again here: the project helper and the place in the parent project.
     refreshState() {
         if (!this.content) {
             return;
         }
 
-        this.doRefreshState();
+        setWizardCanRequestPublish(ProjectHelper.canRequestPublish());
+        patchWizardActionFacts({ existsInParentProject: this.wizardPanel.isContentExistsInParentProject() });
+        this.checkUnpublishedChildren();
     }
 
-    private doRefreshState() {
-        const canBePublished: boolean = this.canBePublished();
-        const canPublishTree: boolean = this.canPublishTree();
-        const canBeUnpublished: boolean = isPublished(this.content.getContentSummary()) && this.userCanPublish;
-        const canBeMarkedAsReady: boolean = this.contentCanBeMarkedAsReady && this.userCanModify;
-        const canBeRequestedPublish: boolean = this.canBeRequestedPublish();
-        const isInheritedItem: boolean =
-            this.wizardPanel.isContentExistsInParentProject() && this.content.hasOriginProject();
-        const canBeLocalized: boolean = isInheritedItem && this.content.isDataInherited();
-        const canBeReset: boolean = isInheritedItem && !this.content.isDataInherited();
-
-        this.enableActions({
-            PUBLISH: canBePublished,
-            PUBLISH_TREE: canPublishTree && this.hasUnpublishedChildren,
-            CREATE_ISSUE: true,
-            UNPUBLISH: canBeUnpublished,
-            MARK_AS_READY: canBeMarkedAsReady,
-            REQUEST_PUBLISH: canBeRequestedPublish,
-            OPEN_REQUEST: this.hasPublishRequest,
-            RESET: this.userCanModify && canBeReset,
-            LOCALIZE: this.userCanModify && canBeLocalized,
-        });
-
-        this.actionsMap.OPEN_REQUEST.setVisible(this.hasPublishRequest);
-        this.actionsMap.RESET.setVisible(canBeReset);
-        this.actionsMap.LOCALIZE.setVisible(canBeLocalized);
-
-        this.updateActionsRequiringChildrenInfo(canPublishTree);
-    }
-
-    private canBeRequestedPublish(): boolean {
-        return (
-            ProjectHelper.canRequestPublish() &&
-            this.isContentValid &&
-            (!this.isOnline() || this.hasUnpublishedChildren)
-        );
-    }
-
-    canBePublished(): boolean {
-        if (!this.contentCanBePublished) {
-            return false;
-        }
-
-        if (!this.userCanPublish) {
-            return false;
-        }
-
-        if (this.isOnline()) {
-            return false;
-        }
-
-        if (!this.userCanModify && this.content.getContentSummary().isInProgress()) {
-            return false;
-        }
-
-        return true;
-    }
-
-    canPublishTree(): boolean {
-        if (!this.contentCanBePublished) {
-            return false;
-        }
-
-        if (!this.userCanPublish) {
-            return false;
-        }
-
-        if (!this.content.hasChildren()) {
-            return false;
-        }
-
-        if (!this.userCanModify && this.content.getContentSummary().isInProgress()) {
-            return false;
-        }
-
-        return true;
-    }
-
-    private updateActionsRequiringChildrenInfo(canPublishTree: boolean): void {
-        if (this.hasCheckedUnpublishedChildren || !this.content?.hasChildren()) {
+    private checkUnpublishedChildren(): void {
+        if (this.hasCheckedUnpublishedChildren || !this.content) {
             return;
         }
 
-        const isRelevantForRequestPublish = this.isContentValid && ProjectHelper.canRequestPublish();
-        if (!canPublishTree && !isRelevantForRequestPublish) {
+        if (!needsUnpublishedChildrenCheck($wizardActionFacts.get(), $wizardActionEnvironment.get())) {
             return;
         }
 
         this.hasCheckedUnpublishedChildren = true;
-        const requestId = ++this.publishTreeRequestId;
+        const requestId = ++this.unpublishedChildrenRequestId;
 
         new HasUnpublishedChildrenRequest([this.content.getContentId()])
             .sendAndParse()
-            .then((hasUnpublishedChildrenResult: HasUnpublishedChildrenResult) => {
-                if (requestId !== this.publishTreeRequestId) {
+            .then((result: HasUnpublishedChildrenResult) => {
+                if (requestId !== this.unpublishedChildrenRequestId) {
                     return;
                 }
 
-                this.hasUnpublishedChildren = hasUnpublishedChildrenResult
-                    .getResult()
-                    .some((item: HasUnpublishedChildren) => item.getHasChildren());
-                this.enableActions({
-                    PUBLISH_TREE: canPublishTree && this.hasUnpublishedChildren,
-                    REQUEST_PUBLISH: this.canBeRequestedPublish(),
+                patchWizardActionFacts({
+                    hasUnpublishedChildren: result
+                        .getResult()
+                        .some((item: HasUnpublishedChildren) => item.getHasChildren()),
                 });
             })
             .catch((err: unknown) => {
@@ -598,70 +372,70 @@ export class ContentWizardActions extends WizardActions<Content> {
     }
 
     getArchiveAction(): Action {
-        return this.actionsMap.ARCHIVE;
+        return this.mirroredActions.archive;
     }
 
     getResetAction(): Action {
-        return this.actionsMap.RESET;
+        return this.mirroredActions.reset;
     }
 
     getLocalizeAction(): Action {
-        return this.actionsMap.LOCALIZE;
+        return this.mirroredActions.localize;
     }
 
     getSaveAction(): ContentSaveAction {
-        return this.actionsMap.SAVE as ContentSaveAction;
+        return this.saveAction as ContentSaveAction;
     }
 
     getDuplicateAction(): Action {
-        return this.actionsMap.DUPLICATE;
+        return this.mirroredActions.duplicate;
     }
 
     getMoveAction(): Action {
-        return this.actionsMap.MOVE;
+        return this.mirroredActions.move;
     }
 
     getCloseAction(): Action {
-        return this.actionsMap.CLOSE;
+        return this.closeAction;
     }
 
     getPublishAction(): PublishAction {
-        return this.actionsMap.PUBLISH as PublishAction;
+        return this.mirroredActions.publish as PublishAction;
     }
 
     getPublishTreeAction(): Action {
-        return this.actionsMap.PUBLISH_TREE;
+        return this.mirroredActions.publishTree;
     }
 
     getCreateIssueAction(): Action {
-        return this.actionsMap.CREATE_ISSUE;
+        return this.mirroredActions.createIssue;
     }
 
     getUnpublishAction(): Action {
-        return this.actionsMap.UNPUBLISH;
+        return this.mirroredActions.unpublish;
     }
 
     getMarkAsReadyAction(): Action {
-        return this.actionsMap.MARK_AS_READY;
+        return this.mirroredActions.markAsReady;
     }
 
     getRequestPublishAction(): Action {
-        return this.actionsMap.REQUEST_PUBLISH;
+        return this.mirroredActions.requestPublish;
     }
 
     getOpenRequestAction(): Action {
-        return this.actionsMap.OPEN_REQUEST;
+        return this.mirroredActions.openRequest;
     }
 
     getPreviewAction(): Action {
-        return this.actionsMap.PREVIEW;
+        return this.previewAction;
     }
 
     getShowLiveEditAction(): Action {
-        return this.actionsMap.SHOW_LIVE_EDIT;
+        return this.showLiveEditAction;
     }
 
     getShowFormAction(): Action {
-        return this.actionsMap.SHOW_FORM;
+        return this.showFormAction;
     }
 }
