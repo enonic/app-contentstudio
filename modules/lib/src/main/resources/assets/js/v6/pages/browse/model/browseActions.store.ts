@@ -160,16 +160,16 @@ export function needsChildrenAllowedCheck({ items, permissions }: BrowseActionFa
     return items.length === 1 && permissions.includes('CREATE');
 }
 
-/** Whether the current items need a check for unpublished descendants. */
-export function needsUnpublishedChildrenCheck(
-    facts: BrowseActionFacts,
-    env: Pick<BrowseActionEnvironment, 'stashed' | 'canRequestPublish'>,
-): boolean {
-    const summary = summarize(facts, env.stashed);
+/**
+ * Whether the current items need a check for unpublished descendants.
+ * Never depends on the stash: nothing asks again when it lifts, and the answer would be missing then.
+ */
+export function needsUnpublishedChildrenCheck(facts: BrowseActionFacts, canRequestPublish: boolean): boolean {
+    const summary = summarize(facts, false);
     if (summary.empty || summary.allLeafs) return false;
     if (summary.publishTreeAllowed) return true;
 
-    return summary.allOnline && summary.allValid && env.canRequestPublish;
+    return summary.allOnline && summary.allValid && canRequestPublish;
 }
 
 export function resolveBrowseActions(facts: BrowseActionFacts, env: BrowseActionEnvironment): BrowseActionsState {
@@ -230,8 +230,6 @@ const $browseActionsStashed = atom(false);
 export function setBrowseActionsStashed(stashed: boolean): void {
     $browseActionsStashed.set(stashed);
 }
-
-export const isBrowseActionsStashed = (): boolean => $browseActionsStashed.get();
 
 export const $browseActions = computed(
     [$browseActionFacts, $browseActionsStashed, $noProjectMode, $isPreviewResolved],
