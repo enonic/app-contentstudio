@@ -3,6 +3,7 @@ import { ProjectViewItem } from '../../../../../app/settings/view/ProjectViewIte
 import { ProjectHelper } from '../../../../../app/settings/data/project/ProjectHelper';
 import { useProjectPrincipals } from './hooks/useProjectPrincipals';
 import { ItemHeader } from './ItemHeader';
+import { ProjectApplicationsBlock } from './ProjectApplicationsBlock';
 import { ProjectMetaBlock } from './ProjectMetaBlock';
 import { ProjectRolesBlock } from './ProjectRolesBlock';
 import { ProjectStatisticsIcon } from './ProjectStatisticsIcon';
@@ -42,6 +43,7 @@ export const ProjectStatistics = ({ item }: ProjectStatisticsProps): ReactElemen
                         authors={authors}
                         contributors={contributors}
                     />
+                    <ProjectApplicationsBlock item={item} />
                 </div>
             )}
         </div>

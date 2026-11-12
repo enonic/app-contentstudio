@@ -1025,7 +1025,6 @@ class ContentWizardPanel extends Page {
             await this.waitForMenuItemFocused();
             let selector = XPATH.publishMenuItemByName(menuItem);
             await this.clickOnElement(selector);
-            return await this.pause(300);
         } catch (err) {
             await this.handleError(
                 `Tried to open Publish menu and select item: ${menuItem}`,
