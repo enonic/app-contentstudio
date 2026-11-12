@@ -13,6 +13,7 @@ import {
     uploadDroppedMedia,
 } from '../model/newContentDialog.store';
 import { isTypingCharacter } from '../../../shared/lib/dom/keyboard';
+import { getNewContentLocation } from '../model/newContentLocation';
 import { NewContentDialogContentTypesTab } from './NewContentDialogContentTypesTab';
 import { NewContentDialogMediaTab } from './NewContentDialogMediaTab';
 import { NewContentDialogSearch } from './NewContentDialogSearch';
@@ -51,7 +52,7 @@ export const NewContentDialog = (): ReactElement => {
     const mediaTabLabel = useI18n('dialog.new.tab.media');
     const hintLabel = useI18n('dialog.new.hint.filter');
 
-    const dialogDescriptionLabel = parentContent ? parentContent?.getPath().toString() + '/' : '/';
+    const dialogDescriptionLabel = getNewContentLocation(parentContent, project?.getName());
 
     const handleOpenChange = (open: boolean) => {
         if (open) return;
