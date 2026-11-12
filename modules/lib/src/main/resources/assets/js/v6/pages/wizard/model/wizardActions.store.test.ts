@@ -13,6 +13,7 @@ vi.mock('./wizardContent.store', async () => {
 
 import {
     needsUnpublishedChildrenCheck,
+    resolveSaveLabel,
     resolveWizardActions,
     type WizardActionEnvironment,
     type WizardActionFacts,
@@ -273,6 +274,41 @@ describe('resolveWizardActions', () => {
                 expect(enabled(id, all, stashed)).toBe(true);
             }
         });
+    });
+});
+
+describe('activity', () => {
+    it('should hold back Save and Save and close while Save is saving', () => {
+        const saving = env({ hasChanges: true, activity: { saving: true, saved: false } });
+
+        expect(enabled('save', facts(), saving)).toBe(false);
+        expect(enabled('saveAndClose', facts(), saving)).toBe(false);
+        expect(enabled('publish', facts(), saving)).toBe(true);
+    });
+
+    it('should hold back the action that is saving before it opens its dialog', () => {
+        const busy = env({ activity: { busy: 'publish', saving: false, saved: false } });
+
+        expect(enabled('publish', facts(), busy)).toBe(false);
+        expect(enabled('requestPublish', facts(), busy)).toBe(true);
+    });
+});
+
+describe('resolveSaveLabel', () => {
+    it('should say Save until the Save action has saved once', () => {
+        expect(resolveSaveLabel(false, env())).toBe('save');
+    });
+
+    it('should say Saving while the Save action is saving', () => {
+        expect(resolveSaveLabel(false, env({ activity: { saving: true, saved: true } }))).toBe('saving');
+    });
+
+    it('should say Saved after a save until there is something to save again', () => {
+        const saved = { saving: false, saved: true };
+
+        expect(resolveSaveLabel(false, env({ activity: saved }))).toBe('saved');
+        expect(resolveSaveLabel(false, env({ activity: saved, hasChanges: true }))).toBe('save');
+        expect(resolveSaveLabel(true, env({ activity: saved }))).toBe('save');
     });
 });
 

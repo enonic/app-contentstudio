@@ -67,6 +67,18 @@ export type WizardActionFacts = {
     hasPublishRequest: boolean;
 };
 
+/** What the commands are doing right now. */
+export type WizardActionActivity = {
+    /** The action that is saving the content before it opens its dialog. */
+    busy?: WizardActionId;
+    /** The Save action is saving. */
+    saving: boolean;
+    /** The Save action has saved at least once and the last save did not fail. */
+    saved: boolean;
+};
+
+export type WizardSaveLabel = 'save' | 'saving' | 'saved';
+
 export type WizardActionEnvironment = {
     hasChanges: boolean;
     pathExists: boolean;
@@ -74,7 +86,10 @@ export type WizardActionEnvironment = {
     hasContentType: boolean;
     canRequestPublish: boolean;
     stashed: boolean;
+    activity?: WizardActionActivity;
 };
+
+const SAVING: ReadonlySet<WizardActionId> = new Set(['save', 'saveAndClose']);
 
 const ACTION_IDS: readonly WizardActionId[] = [
     'save',
@@ -176,9 +191,13 @@ export function resolveWizardActions(facts: WizardActionFacts, env: WizardAction
 
     const result = {} as WizardActionsState;
 
+    const { busy, saving = false } = env.activity ?? {};
+
     for (const id of ACTION_IDS) {
+        const held = (env.stashed && STASHABLE.has(id)) || busy === id || (saving && SAVING.has(id));
+
         result[id] = {
-            enabled: enabled[id] && !(env.stashed && STASHABLE.has(id)),
+            enabled: enabled[id] && !held,
             visible: visible[id] ?? true,
         };
     }
@@ -186,7 +205,24 @@ export function resolveWizardActions(facts: WizardActionFacts, env: WizardAction
     return result;
 }
 
+/** What the Save button says: the legacy label rules, without the action object. */
+export function resolveSaveLabel(saveEnabled: boolean, env: WizardActionEnvironment): WizardSaveLabel {
+    const { saving = false, saved = false } = env.activity ?? {};
+
+    if (saving) return 'saving';
+
+    return env.hasChanges || saveEnabled || !saved ? 'save' : 'saved';
+}
+
 export const $wizardActionFacts = atom<WizardActionFacts>(INITIAL_WIZARD_ACTION_FACTS);
+
+const INITIAL_ACTIVITY: WizardActionActivity = { saving: false, saved: false };
+
+const $wizardActionActivity = atom<WizardActionActivity>(INITIAL_ACTIVITY);
+
+export function patchWizardActionActivity(patch: Partial<WizardActionActivity>): void {
+    $wizardActionActivity.set({ ...$wizardActionActivity.get(), ...patch });
+}
 
 const $wizardActionsStashed = atom(false);
 
@@ -200,6 +236,7 @@ export function resetWizardActionFacts(): void {
     $wizardActionFacts.set(INITIAL_WIZARD_ACTION_FACTS);
     $wizardActionsStashed.set(false);
     $canRequestPublish.set(false);
+    $wizardActionActivity.set(INITIAL_ACTIVITY);
 }
 
 export function setWizardActionsStashed(stashed: boolean): void {
@@ -219,18 +256,32 @@ export const $wizardActionEnvironment = computed(
         $contentType,
         $canRequestPublish,
         $wizardActionsStashed,
+        $wizardActionActivity,
     ],
-    (hasChanges, pathExists, contentState, contentType, canRequestPublish, stashed): WizardActionEnvironment => ({
+    (
+        hasChanges,
+        pathExists,
+        contentState,
+        contentType,
+        canRequestPublish,
+        stashed,
+        activity,
+    ): WizardActionEnvironment => ({
         hasChanges,
         pathExists: pathExists.exists,
         contentState,
         hasContentType: contentType != null,
         canRequestPublish,
         stashed,
+        activity,
     }),
 );
 
 export const $wizardActions = computed(
     [$wizardActionFacts, $wizardActionEnvironment],
     (facts, env): WizardActionsState => resolveWizardActions(facts, env),
+);
+
+export const $wizardSaveLabel = computed([$wizardActions, $wizardActionEnvironment], (actions, env): WizardSaveLabel =>
+    resolveSaveLabel(actions.save.enabled, env),
 );

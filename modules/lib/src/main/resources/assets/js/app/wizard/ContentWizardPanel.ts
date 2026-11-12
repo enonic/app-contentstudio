@@ -120,7 +120,6 @@ import { ContentWizardDataLoader } from './ContentWizardDataLoader';
 import { ContentWizardHeader } from './ContentWizardHeader';
 import { type ContentWizardPanelParams } from './ContentWizardPanelParams';
 import { ContentWizardStepsPanel } from './ContentWizardStepsPanel';
-import { type ContentWizardToolbarPublishControls } from './ContentWizardToolbarPublishControls';
 import { DisplayNameResolver } from './DisplayNameResolver';
 import { type RoutineContext } from './Flow';
 import { MaskContentWizardPanelEvent } from './MaskContentWizardPanelEvent';
@@ -256,6 +255,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         this.contentFetcher = new ContentSummaryAndCompareStatusFetcher();
     }
 
+    // Only Preview and Close are left here; the v6 wizard shell binds the shortcuts of the other actions.
     private initBindings() {
         const nextActions = this.getActions();
         const currentKeyBindings = Action.getKeyBindings(nextActions);
@@ -356,19 +356,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
     }
 
     protected createWizardActions(): ContentWizardActions {
-        const wizardActions: ContentWizardActions = new ContentWizardActions(this);
-
-        const publishActionHandler = () => {
-            if (this.hasUnsavedChanges()) {
-                escalateVisibility('all');
-            }
-        };
-
-        wizardActions.getPublishAction().onExecuted(publishActionHandler);
-        wizardActions.getUnpublishAction().onExecuted(publishActionHandler);
-        wizardActions.getPublishTreeAction().onExecuted(publishActionHandler);
-
-        return wizardActions;
+        return new ContentWizardActions(this);
     }
 
     protected doLoadData(): Q.Promise<Content> {
@@ -615,13 +603,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
             thumbnailUploader.setEnabled(this.contentType ? !this.contentType?.isImage() : false);
             thumbnailUploader.onFileUploaded(this.onFileUploaded.bind(this));
             thumbnailUploader.toggleClass('icon-variant', this.getPersistedItem().isVariant());
-
-            this.getContentWizardToolbarPublishControls()
-                .getPublishButton()
-                .onPublishRequestActionChanged((added: boolean) => {
-                    this.wizardActions.setHasPublishRequest(added);
-                    this.wizardActions.refreshState();
-                });
 
             if (this.livePanel) {
                 this.livePanel.addClass('rendering');
@@ -1545,10 +1526,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
     private isLiveView(): boolean {
         return $wizardViewMode.get() === 'live';
-    }
-
-    getContentWizardToolbarPublishControls(): ContentWizardToolbarPublishControls {
-        return this.getContentWizardToolbar().getContentWizardToolbarPublishControls();
     }
 
     getContent(): ContentSummaryAndCompareStatus {

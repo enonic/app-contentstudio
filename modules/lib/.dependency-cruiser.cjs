@@ -59,7 +59,6 @@ const KNOWN_DEBT = [
             'Widgets coordinate through the context-widgets registry and inspect panel state; needs an interaction contract below the widgets layer',
         from: [
             `^${V6}/widgets/browse-grid/ContentTreeListItem.tsx`,
-            `^${V6}/widgets/browse-toolbar/ContentWizardToolbar.tsx`,
             `^${V6}/widgets/browse-toolbar/ContextToggle.tsx`,
             `^${V6}/widgets/context-panel/widget/details/DetailsWidgetTemplateSection.tsx`,
             `^${V6}/widgets/preview-panel/ui/PreviewToolbarRefreshItem.tsx`,
@@ -76,9 +75,8 @@ const KNOWN_DEBT = [
     {
         name: 'debt-page-editor-wizard-model',
         comment:
-            'Page editor and toolbar read the wizard form model; the edited-content state should sink below the widgets layer',
+            'Page editor reads the wizard form model; the edited-content state should sink below the widgets layer',
         from: [
-            `^${V6}/widgets/browse-toolbar/ContentWizardToolbar.tsx`,
             `^${V6}/widgets/inspectors/model/liveViewWidgets.store.ts`,
             `^${V6}/widgets/inspectors/model/page-editor/commands.ts`,
             `^${V6}/widgets/inspectors/ui/page-editor/inspect/page/PageInspectionPanel.tsx`,

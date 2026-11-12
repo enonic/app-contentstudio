@@ -3,72 +3,62 @@ import { Avatar, Button, cn, IconButton, Toggle, Toolbar, Tooltip } from '@enoni
 import { useStore } from '@nanostores/preact';
 import { Link2 } from 'lucide-react';
 import { type ReactElement, useEffect, useMemo, useState } from 'react';
-import { useI18n } from '../../shared/lib/hooks/useI18n';
-import { LegacyElement } from '../../shared/ui/LegacyElement';
-import { JukeIcon } from '../../shared/ui/icons/JukeIcon';
-import { LayerIndicator } from '../../features/shared/icons/LayerIndicator';
-import { ProjectIcon } from '../../shared/ui/icons/ProjectIcon';
-import { StatusIcon } from '../../shared/ui/icons/StatusIcon';
-import { StatusBadge } from '../../features/shared/status/StatusBadge';
+import { useI18n } from '../../../shared/lib/hooks/useI18n';
+import { LegacyElement } from '../../../shared/ui/LegacyElement';
+import { JukeIcon } from '../../../shared/ui/icons/JukeIcon';
+import { LayerIndicator } from '../../../features/shared/icons/LayerIndicator';
+import { ProjectIcon } from '../../../shared/ui/icons/ProjectIcon';
+import { StatusIcon } from '../../../shared/ui/icons/StatusIcon';
+import { StatusBadge } from '../../../features/shared/status/StatusBadge';
 import {
     $aiAssignedPlugins,
     $aiPluginDialogOpen,
     $aiRegisteredPlugins,
     closePluginDialog,
     openPluginDialog,
-} from '../../features/ai';
-import { setInspectSaveAction } from '../inspectors/model/inspect-panel.store';
-import { $wizardToolbar } from '../../pages/wizard/model/wizardToolbar.store';
-import { formatContentFullPath } from '../../shared/lib/cms/content/paths';
-import { getInitials } from '../../shared/lib/format/initials';
-import { useElementVisibility } from '../../shared/lib/hooks/useElementVisibility';
-import { ContextToggle } from './ContextToggle';
-import { OverflowActionRow } from './OverflowActionRow';
-import { SplitActionButton } from './SplitActionButton';
-import { useLegacyToolbarActions } from './useLegacyToolbarActions';
-import { $wizardContentPathExists, $wizardReadOnly } from '../../pages/wizard/model/wizardContent.store';
+} from '../../../features/ai';
+import { setInspectSave } from '../../../widgets/inspectors/model/inspect-panel.store';
+import { $wizardToolbar } from '../model/wizardToolbar.store';
+import { formatContentFullPath } from '../../../shared/lib/cms/content/paths';
+import { getInitials } from '../../../shared/lib/format/initials';
+import { useElementVisibility } from '../../../shared/lib/hooks/useElementVisibility';
+import { ContextToggle } from '../../../widgets/browse-toolbar/ContextToggle';
+import { OverflowActionRow } from '../../../widgets/browse-toolbar/OverflowActionRow';
+import { SplitActionButton } from '../../../widgets/browse-toolbar/SplitActionButton';
+import { useLegacyToolbarActions } from '../../../widgets/browse-toolbar/useLegacyToolbarActions';
+import { useWizardToolbarActions } from './useWizardToolbarActions';
+import { executeWizardAction } from '../model/wizardActions.commands';
+import { $wizardActions } from '../model/wizardActions.store';
+import { $wizardContentPathExists, $wizardReadOnly } from '../model/wizardContent.store';
 
 export type ContentWizardToolbarProps = {
     onProjectBack?: () => void;
     onLayersClick?: () => void;
     onContentPathClick?: () => void;
-    saveAction: Action;
-    resetAction: Action;
-    localizeAction: Action;
-    archiveAction: Action;
-    duplicateAction: Action;
-    moveAction: Action;
+    // Preview is switched on and off by the live edit, so it is still a legacy action.
     previewAction: Action;
-    markAsReadyAction: Action;
-    publishAction: Action;
-    publishTreeAction: Action;
-    unpublishAction: Action;
-    requestPublishAction: Action;
-    openRequestAction: Action;
-    createIssueAction: Action;
     className?: string;
 };
 
 const CONTENT_WIZARD_TOOLBAR_NAME = 'ContentWizardToolbar';
 
+const TOOLBAR_ACTION_IDS = ['save', 'reset', 'localize', 'archive', 'duplicate', 'move'] as const;
+
+const PUBLISH_ACTION_IDS = [
+    'markAsReady',
+    'publish',
+    'publishTree',
+    'unpublish',
+    'requestPublish',
+    'openRequest',
+    'createIssue',
+] as const;
+
 export const ContentWizardToolbar = ({
     onProjectBack,
     onLayersClick,
     onContentPathClick,
-    saveAction,
-    resetAction,
-    localizeAction,
-    archiveAction,
-    duplicateAction,
-    moveAction,
     previewAction,
-    markAsReadyAction,
-    publishAction,
-    publishTreeAction,
-    unpublishAction,
-    requestPublishAction,
-    openRequestAction,
-    createIssueAction,
     className,
 }: ContentWizardToolbarProps): ReactElement => {
     const {
@@ -144,24 +134,25 @@ export const ContentWizardToolbar = ({
         : contentNameLabel;
     const pathTitle = contentPathExists ? pathExistsLabel : contentFullPath;
 
-    useEffect(() => {
-        setInspectSaveAction(saveAction);
-        return () => setInspectSaveAction(null);
-    }, [saveAction]);
+    const wizardActions = useStore($wizardActions);
+    const isSaveEnabled = wizardActions.save.enabled;
 
-    const toolbarActionSources = useMemo(
+    useEffect(() => {
+        setInspectSave({ enabled: isSaveEnabled, execute: () => executeWizardAction('save') });
+    }, [isSaveEnabled]);
+
+    useEffect(() => () => setInspectSave(null), []);
+
+    const storeToolbarActions = useWizardToolbarActions(TOOLBAR_ACTION_IDS);
+    const previewSources = useMemo(() => [{ id: 'preview', action: previewAction }], [previewAction]);
+    const [previewToolbarAction] = useLegacyToolbarActions(previewSources);
+    const toolbarActions = useMemo(
         () => [
-            { id: 'save', action: saveAction, primaryRank: 2 },
-            { id: 'reset', action: resetAction },
-            { id: 'localize', action: localizeAction },
-            { id: 'archive', action: archiveAction },
-            { id: 'duplicate', action: duplicateAction },
-            { id: 'move', action: moveAction },
-            { id: 'preview', action: previewAction, primaryRank: 1 },
+            ...storeToolbarActions.map((action) => (action.id === 'save' ? { ...action, primaryRank: 2 } : action)),
+            { ...previewToolbarAction, primaryRank: 1 },
         ],
-        [archiveAction, duplicateAction, localizeAction, moveAction, previewAction, resetAction, saveAction],
+        [previewToolbarAction, storeToolbarActions],
     );
-    const toolbarActions = useLegacyToolbarActions(toolbarActionSources);
     const [desktopPathRef, isDesktopPathVisible] = useElementVisibility<HTMLDivElement>();
     const [mobilePathRef, isMobilePathVisible] = useElementVisibility<HTMLDivElement>();
     const [desktopPublishSplitRef, isDesktopPublishSplitVisible] = useElementVisibility<HTMLDivElement>();
@@ -175,27 +166,7 @@ export const ContentWizardToolbar = ({
         }
     };
 
-    const publishSplitSources = useMemo(
-        () => [
-            { id: 'markAsReady', action: markAsReadyAction },
-            { id: 'publish', action: publishAction },
-            { id: 'publishTree', action: publishTreeAction },
-            { id: 'unpublish', action: unpublishAction },
-            { id: 'requestPublish', action: requestPublishAction },
-            { id: 'openRequest', action: openRequestAction },
-            { id: 'createIssue', action: createIssueAction },
-        ],
-        [
-            createIssueAction,
-            markAsReadyAction,
-            openRequestAction,
-            publishAction,
-            publishTreeAction,
-            requestPublishAction,
-            unpublishAction,
-        ],
-    );
-    const publishSplitActions = useLegacyToolbarActions(publishSplitSources);
+    const publishSplitActions = useWizardToolbarActions(PUBLISH_ACTION_IDS);
     const mobileSplitActions = useMemo(
         () => [toolbarActions, publishSplitActions],
         [publishSplitActions, toolbarActions],
