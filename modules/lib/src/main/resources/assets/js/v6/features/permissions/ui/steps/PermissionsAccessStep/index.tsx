@@ -62,6 +62,7 @@ export const PermissionsDialogAccessStepContent = (): ReactElement => {
 
     // States
     const [selection, setSelection] = useState<string[]>(accessControlEntriesToPrincipalKeys(accessControlEntries));
+    const [openSelector, setOpenSelector] = useState<string | null>(null);
     const [principalsInCustomAccess, setPrincipalsInCustomAccess] = useState<string[]>(
         getPrincipalsInCustomAccess(accessControlEntries),
     );
@@ -225,6 +226,12 @@ export const PermissionsDialogAccessStepContent = (): ReactElement => {
                                     <AccessControlRow
                                         principal={principal}
                                         principalsInCustomAccess={principalsInCustomAccess}
+                                        open={openSelector === key}
+                                        onOpenChange={(open) =>
+                                            setOpenSelector((current) =>
+                                                open ? key : current === key ? null : current,
+                                            )
+                                        }
                                         onSelect={(access: Access) => handlePrincipalAccessChange(key, access)}
                                         onUnselect={() => handleUnselect(key)}
                                     />
