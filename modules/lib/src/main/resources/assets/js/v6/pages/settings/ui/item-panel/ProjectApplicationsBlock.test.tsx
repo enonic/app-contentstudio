@@ -39,6 +39,10 @@ function item(appKeys: string[]): ProjectViewItem {
     return ProjectViewItem.create().setData(project).build();
 }
 
+function setLoaded(applications: Application[]): void {
+    $applications.set({ applications, loading: false, loaded: true });
+}
+
 afterEach(() => {
     cleanup();
     vi.clearAllMocks();
@@ -59,14 +63,10 @@ describe('ProjectApplicationsBlock', () => {
     });
 
     it('lists the installed applications by name, description and in the project order', () => {
-        $applications.set({
-            applications: [
-                app('com.features', 'Features App', 'Features description'),
-                app('com.all', 'All Content Types App', 'All description'),
-            ],
-            loading: false,
-            loaded: true,
-        });
+        setLoaded([
+            app('com.features', 'Features App', 'Features description'),
+            app('com.all', 'All Content Types App', 'All description'),
+        ]);
 
         render(<ProjectApplicationsBlock item={item(['com.features', 'com.all'])} />);
 
@@ -75,11 +75,31 @@ describe('ProjectApplicationsBlock', () => {
         expect(names).toEqual(['Features AppFeatures description', 'All Content Types AppAll description']);
     });
 
-    it('shows an application this node does not run by its key as unavailable', () => {
+    it('shows only the key while the applications are still loading', () => {
+        $applications.set({ applications: [], loading: true, loaded: false });
+
+        render(<ProjectApplicationsBlock item={item(['com.features'])} />);
+
+        expect(screen.getByText('com.features')).toBeTruthy();
+        expect(screen.queryByText('text.application.unavailable')).toBeNull();
+    });
+
+    it('shows an application this node does not run by its key as unavailable once the list has loaded', () => {
+        setLoaded([app('com.other', 'Other App')]);
+
         render(<ProjectApplicationsBlock item={item(['com.missing'])} />);
 
         expect(screen.getByText('com.missing')).toBeTruthy();
-        expect(screen.getByText('text.application.not.available:com.missing')).toBeTruthy();
+        expect(screen.getByText('text.application.unavailable')).toBeTruthy();
+    });
+
+    it('carries the full application key in the row title', () => {
+        setLoaded([app('com.features', 'Features App')]);
+
+        render(<ProjectApplicationsBlock item={item(['com.features', 'com.missing'])} />);
+
+        const titles = screen.getAllByRole('listitem').map((li) => li.querySelector('[title]')?.getAttribute('title'));
+        expect(titles).toEqual(['com.features', 'com.missing']);
     });
 
     it('requests the applications on mount', () => {

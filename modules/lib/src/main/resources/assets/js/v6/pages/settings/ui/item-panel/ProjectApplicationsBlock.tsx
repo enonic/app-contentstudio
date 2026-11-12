@@ -17,7 +17,7 @@ const PROJECT_APPLICATIONS_BLOCK_NAME = 'ProjectApplicationsBlock';
 /** The project's own applications, in the order they were selected; the portal is no app. */
 export const ProjectApplicationsBlock = ({ item }: ProjectApplicationsBlockProps): ReactElement | null => {
     const headerText = useI18n('settings.items.wizard.step.applications');
-    const { applications: installed } = useStore($applications, { keys: ['applications'] });
+    const { applications: installed, loaded } = useStore($applications, { keys: ['applications', 'loaded'] });
 
     const keys = useMemo(
         () =>
@@ -45,7 +45,7 @@ export const ProjectApplicationsBlock = ({ item }: ProjectApplicationsBlockProps
             <ul className="flex flex-col gap-2 mt-5">
                 {applications.map((application) => (
                     <li key={application.key}>
-                        <ProjectApplicationLabel application={application} />
+                        <ProjectApplicationLabel application={application} loaded={loaded} />
                     </li>
                 ))}
             </ul>
@@ -61,15 +61,25 @@ ProjectApplicationsBlock.displayName = PROJECT_APPLICATIONS_BLOCK_NAME;
 
 type ProjectApplicationLabelProps = {
     application: Application;
+    /** Whether the installed applications have been fetched, so a missing one is really unavailable. */
+    loaded: boolean;
 };
 
-/** Name, icon and description of an app; one this node does not run reads as unavailable. */
-const ProjectApplicationLabel = ({ application }: ProjectApplicationLabelProps): ReactElement => {
-    const unavailableLabel = useI18n('text.application.not.available', application.key);
-    const description = application.state ? application.description : unavailableLabel;
+/** Name, icon and description of an app; one this node does not run reads as unavailable once the list is known. */
+const ProjectApplicationLabel = ({ application, loaded }: ProjectApplicationLabelProps): ReactElement => {
+    const unavailableLabel = useI18n('text.application.unavailable');
+    const isInstalled = application.state != null;
+
+    let description: string | undefined;
+    if (isInstalled) {
+        description = application.description;
+    } else if (loaded) {
+        description = unavailableLabel;
+    }
 
     return (
         <ItemLabel
+            title={application.key}
             icon={<ApplicationIcon application={application} />}
             primary={application.displayName}
             secondary={description}

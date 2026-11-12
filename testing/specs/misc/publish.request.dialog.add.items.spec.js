@@ -38,9 +38,7 @@ describe('publish.request.dialog.add.items.spec - request publish dialog - check
         await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
         await studioUtils.saveScreenshot('pub_req_step2');
         await createRequestPublishDialog.typeInTitleInput('req title');
-        await studioUtils.saveScreenshot('pub_req_step3');
         await createRequestPublishDialog.clickOnCreateRequestButton();
-        await studioUtils.saveScreenshot('pub_req_step4');
         // 4. Verify that Issue Details dialog closes after creating a publishing request:
         await publishRequestDetailsDialog.waitForClosed();
         // 5. Reopen Issue Details dialog and verify control elements:
