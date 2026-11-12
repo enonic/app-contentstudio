@@ -194,14 +194,12 @@ describe('needsChildrenAllowedCheck', () => {
 });
 
 describe('needsUnpublishedChildrenCheck', () => {
-    const env = { stashed: false, canRequestPublish: true };
-
     it('should skip items without children', () => {
-        expect(needsUnpublishedChildrenCheck({ items: [createItem()], permissions: ALL }, env)).toBe(false);
+        expect(needsUnpublishedChildrenCheck({ items: [createItem()], permissions: ALL }, true)).toBe(false);
     });
 
     it('should ask when Publish tree is possible', () => {
-        expect(needsUnpublishedChildrenCheck({ items: [createItem({ children: true })], permissions: ALL }, env)).toBe(
+        expect(needsUnpublishedChildrenCheck({ items: [createItem({ children: true })], permissions: ALL }, true)).toBe(
             true,
         );
     });
@@ -212,7 +210,7 @@ describe('needsUnpublishedChildrenCheck', () => {
             permissions: ['CREATE'],
         };
 
-        expect(needsUnpublishedChildrenCheck(facts, env)).toBe(true);
-        expect(needsUnpublishedChildrenCheck(facts, { ...env, canRequestPublish: false })).toBe(false);
+        expect(needsUnpublishedChildrenCheck(facts, true)).toBe(true);
+        expect(needsUnpublishedChildrenCheck(facts, false)).toBe(false);
     });
 });

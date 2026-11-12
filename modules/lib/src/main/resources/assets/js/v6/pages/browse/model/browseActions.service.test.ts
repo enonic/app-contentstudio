@@ -56,13 +56,12 @@ vi.mock('./browseActions.store', async () => {
 
     return {
         $browseActionFacts: createAtom({ items: [], permissions: [] }),
-        isBrowseActionsStashed: () => false,
         needsChildrenAllowedCheck: ({ items }: { items: unknown[] }) => items.length === 1,
         needsUnpublishedChildrenCheck: () => false,
     };
 });
 
-import { emitContentPublished } from '../../../shared/socket/socket.store';
+import { emitContentMoved, emitContentPublished } from '../../../shared/socket/socket.store';
 import { start, stop } from './browseActions.service';
 import { $browseActionFacts } from './browseActions.store';
 
@@ -176,12 +175,29 @@ describe('browseActions.service', () => {
         vi.useRealTimers();
     });
 
-    it('should ask again when the active project changes', async () => {
+    it('should ask again after content is moved', async () => {
+        vi.useFakeTimers();
+        start();
+        stores.$currentItems.set([createItem('parent')]);
+        await vi.advanceTimersByTimeAsync(0);
+        const calls = mocks.fetchPermittedActions.mock.calls.length;
+
+        emitContentMoved([]);
+        await vi.advanceTimersByTimeAsync(300);
+
+        expect(mocks.fetchPermittedActions).toHaveBeenCalledTimes(calls + 1);
+        vi.useRealTimers();
+    });
+
+    it('should ask again when the active project changes, once the switch is complete', async () => {
         start();
         await flush();
         const calls = mocks.fetchPermittedActions.mock.calls.length;
 
         mocks.projectChangedHandlers.forEach((handler) => handler());
+
+        expect(mocks.fetchPermittedActions).toHaveBeenCalledTimes(calls);
+
         await flush();
 
         expect(mocks.fetchPermittedActions).toHaveBeenCalledTimes(calls + 1);

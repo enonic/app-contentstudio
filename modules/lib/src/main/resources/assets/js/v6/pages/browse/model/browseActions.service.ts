@@ -11,6 +11,7 @@ import {
     $contentCreated,
     $contentDeleted,
     $contentDuplicated,
+    $contentMoved,
     $contentPermissionsUpdated,
     $contentPublished,
     $contentUnpublished,
@@ -19,7 +20,6 @@ import {
 import {
     $browseActionFacts,
     type BrowseActionFacts,
-    isBrowseActionsStashed,
     needsChildrenAllowedCheck,
     needsUnpublishedChildrenCheck,
 } from './browseActions.store';
@@ -41,6 +41,7 @@ const CONTENT_CHANGES = [
     $contentCreated,
     $contentUpdated,
     $contentDeleted,
+    $contentMoved,
     $contentPublished,
     $contentUnpublished,
     $contentDuplicated,
@@ -78,8 +79,7 @@ function checkChildrenAllowed(id: number, facts: BrowseActionFacts): void {
 }
 
 function checkUnpublishedChildren(id: number, facts: BrowseActionFacts): void {
-    const env = { stashed: isBrowseActionsStashed(), canRequestPublish: ProjectHelper.canRequestPublish() };
-    if (!needsUnpublishedChildrenCheck(facts, env)) return;
+    if (!needsUnpublishedChildrenCheck(facts, ProjectHelper.canRequestPublish())) return;
 
     void hasUnpublishedChildren(facts.items.map((item) => item.getContentId())).match(
         (result) => mergeFacts(id, { hasUnpublishedChildren: [...result.values()].some(Boolean) }),
@@ -111,6 +111,10 @@ export function refreshBrowseActions(): void {
     }, handleError);
 }
 
+function refreshForProject(): void {
+    if (unsubscribers.length > 0) refreshBrowseActions();
+}
+
 // ! Any content change counts, not only one to the current items: publishing a child
 // ! changes what Publish tree and Request publish offer for its parent.
 function handleContentChanged(event: unknown): void {
@@ -136,7 +140,9 @@ export const start = (): void => {
                 refreshBrowseActions();
             }
         }),
-        onActiveProjectChanged(refreshBrowseActions),
+        // ! The handlers run before the project store takes the new project id, which the request
+        // ! urls are built from: asking right away would read the permissions of the previous project.
+        onActiveProjectChanged(() => queueMicrotask(refreshForProject)),
         ...CONTENT_CHANGES.map((store) => store.listen(handleContentChanged)),
         onApplicationEvent(clearAllowsChildContentCache),
     ];
