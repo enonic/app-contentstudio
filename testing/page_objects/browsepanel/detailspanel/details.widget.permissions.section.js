@@ -4,19 +4,18 @@
 const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
 const EditPermissionsGeneralStep = require('../../permissions/edit.permissions.general.step');
-const {BUTTONS} = require('../../../libs/elements');
+const { BUTTONS } = require('../../../libs/elements');
 
 const xpath = {
     container: "//section[contains(@data-component,'DetailsWidgetPermissionsSection')]",
     description: "//div[contains(@data-component,'PermissionsAccessDescription')]/span",
     permissionsListDiv: "//div[contains(@data-component,'PermissionsList')]",
     principalCompactViewer: "//div[contains(@id,'PrincipalViewerCompact')]",
-    getOperation: userCompactName => `/span[contains(@class,'text-subtle') and following-sibling::div[1][child::span[contains(.,'${userCompactName}')]]]`,
-
+    getOperation: (userCompactName) =>
+        `//div[@role='row'][.//div[@role='gridcell']//span[@data-component='Avatar.Fallback' and contains(.,'${userCompactName}')]]/div[@role='gridcell'][1]`,
 };
 
 class DetailsWidgetPermissionsSection extends Page {
-
     get editPermissionsButton() {
         return xpath.container + BUTTONS.buttonAriaLabel('Edit permissions');
     }
@@ -34,7 +33,10 @@ class DetailsWidgetPermissionsSection extends Page {
     }
 
     async getPrincipalsCompactName() {
-        let locator = xpath.container + xpath.permissionsListDiv +  "/div/span/span";
+        let locator =
+            xpath.container +
+            xpath.permissionsListDiv +
+            "//div[@role='gridcell']//span[@data-component='Avatar.Fallback']";
         await this.waitForElementDisplayed(locator, appConst.shortTimeout);
         return await this.getTextInElements(locator);
     }
@@ -61,5 +63,3 @@ class DetailsWidgetPermissionsSection extends Page {
 }
 
 module.exports = DetailsWidgetPermissionsSection;
-
-

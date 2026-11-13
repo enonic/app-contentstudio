@@ -10,6 +10,7 @@ import { $contextContent } from '../../model/contextContent.store';
 import { $activeWidgetId, $isContextOpen } from '../../model/contextWidgets.store';
 import { getImportContentWidgetKey } from '../../../../shared/lib/widget/import-content';
 import { ImportContentExportDialog } from './ImportContentExportDialog';
+import { ImportContentExportItem } from './ImportContentExportItem';
 import { ImportContentImportDialog } from './ImportContentImportDialog';
 
 const IMPORT_CONTENT_WIDGET_NAME = 'ImportContentWidget';
@@ -198,16 +199,7 @@ const ImportContentWidget = (): ReactElement | null => {
                         className="flex flex-col gap-1 border border-bdr-soft rounded-sm overflow-y-auto overflow-x-hidden p-1.5 flex-1 min-h-0"
                     >
                         {visibleExports.map((name) => (
-                            <RadioGroup.Item
-                                key={name}
-                                value={name}
-                                className="flex items-center gap-2.5 px-3 py-2 rounded-sm cursor-pointer hover:bg-surface-neutral-hover w-full min-w-0"
-                            >
-                                <RadioGroup.Indicator />
-                                <Tooltip value={name} side="left" className="flex-1 min-w-0">
-                                    <span className="font-mono text-sm text-left truncate block w-full">{name}</span>
-                                </Tooltip>
-                            </RadioGroup.Item>
+                            <ImportContentExportItem key={name} name={name} />
                         ))}
                     </RadioGroup.Root>
                 )}

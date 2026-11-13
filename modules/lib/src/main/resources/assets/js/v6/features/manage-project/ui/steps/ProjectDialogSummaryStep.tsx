@@ -1,61 +1,13 @@
-import type { Principal } from '@enonic/ui-types';
-import { Avatar, cn, Dialog, Tooltip } from '@enonic/ui';
+import { Dialog } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import { type ReactElement, useRef } from 'react';
+import { type ReactElement } from 'react';
 import { ProjectAccess } from '../../../../../app/settings/access/ProjectAccess';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import { $projectDialog } from '../../model/projectDialog.store';
 import { $languages } from '../../../../entities/language';
-import { getInitials } from '../../../../shared/lib/format/initials';
-import { useVisibleAvatars } from '../../../../shared/lib/hooks/useVisibleAvatars';
+import { PrincipalAvatarGrid } from '../../../../shared/ui/PrincipalAvatarGrid';
 import { ApplicationIcon } from '../../../../shared/ui/icons/ApplicationIcon';
 import { FlagIcon } from '../../../../shared/ui/icons/FlagIcon';
-
-const PermissionAvatars = ({ principals }: { principals: Principal[] }): ReactElement => {
-    const listRef = useRef<HTMLDivElement>(null);
-    const { visibleCount } = useVisibleAvatars(listRef, principals.length, 0);
-    const maxVisiblePermissionAvatars =
-        principals.length > visibleCount ? Math.max(visibleCount - 1, 0) : principals.length;
-    const hiddenPrincipals = principals.slice(maxVisiblePermissionAvatars);
-
-    return (
-        <div ref={listRef} className="flex min-w-0 gap-2.5">
-            {principals.map((principal, index) => {
-                const principalDisplayName = principal.displayName;
-                const principalKey = principal.key;
-
-                return (
-                    <Tooltip delay={150} key={principalKey} value={principalDisplayName}>
-                        <Avatar
-                            size="sm"
-                            className={cn(
-                                'size-6 -my-0.5',
-                                index >= maxVisiblePermissionAvatars && 'invisible order-last',
-                            )}
-                        >
-                            <Avatar.Fallback className="text-alt font-semibold">
-                                {getInitials(principalDisplayName)}
-                            </Avatar.Fallback>
-                        </Avatar>
-                    </Tooltip>
-                );
-            })}
-            {hiddenPrincipals.length > 0 && (
-                <Tooltip
-                    delay={150}
-                    className="whitespace-pre-line"
-                    value={hiddenPrincipals.map((principal) => principal.displayName).join('\n')}
-                >
-                    <Avatar size="sm" className="size-6 -my-0.5 text-alt font-semibold">
-                        <Avatar.Fallback>+{hiddenPrincipals.length}</Avatar.Fallback>
-                    </Avatar>
-                </Tooltip>
-            )}
-        </div>
-    );
-};
-
-PermissionAvatars.displayName = 'PermissionAvatars';
 
 export const ProjectDialogSummaryStepHeader = (): ReactElement => {
     const { mode, title } = useStore($projectDialog, { keys: ['mode', 'title'] });
@@ -135,21 +87,17 @@ export const ProjectDialogSummaryStepContent = ({
         }
     })();
 
-    const principalsByRole = (() => {
-        const bucket: Map<string, Principal[]> = new Map<string, Principal[]>();
-
-        const owners = rolePrincipals.filter((principal) => roles[principal.key] === ProjectAccess.OWNER);
-        const editors = rolePrincipals.filter((principal) => roles[principal.key] === ProjectAccess.EDITOR);
-        const contributors = rolePrincipals.filter((principal) => roles[principal.key] === ProjectAccess.CONTRIBUTOR);
-        const authors = rolePrincipals.filter((principal) => roles[principal.key] === ProjectAccess.AUTHOR);
-
-        if (owners.length > 0) bucket.set(ownerLabel, owners);
-        if (editors.length > 0) bucket.set(editorLabel, editors);
-        if (contributors.length > 0) bucket.set(contributorLabel, contributors);
-        if (authors.length > 0) bucket.set(authorLabel, authors);
-
-        return bucket;
-    })();
+    const principalsByRole = [
+        { id: ProjectAccess.OWNER, label: ownerLabel },
+        { id: ProjectAccess.EDITOR, label: editorLabel },
+        { id: ProjectAccess.CONTRIBUTOR, label: contributorLabel },
+        { id: ProjectAccess.AUTHOR, label: authorLabel },
+    ]
+        .map((role) => ({
+            ...role,
+            principals: rolePrincipals.filter((principal) => roles[principal.key] === role.id),
+        }))
+        .filter((row) => row.principals.length > 0);
 
     const defaultLanguage = languages.find((language) => language.id === defaultLanguageId);
 
@@ -199,23 +147,26 @@ export const ProjectDialogSummaryStepContent = ({
                 {accessMode && (
                     <div className="contents">
                         <dt className="font-semibold">{accessModeLabel}</dt>
-                        <dd className="flex gap-2.5">
-                            <span>{selectedAccessModeLabel}</span>
-                            {accessMode === 'custom' && <PermissionAvatars principals={permissions} />}
+                        <dd className="min-w-0">
+                            {accessMode === 'custom' ? (
+                                <PrincipalAvatarGrid
+                                    label={accessModeLabel}
+                                    rows={[
+                                        { id: 'read-access', label: selectedAccessModeLabel, principals: permissions },
+                                    ]}
+                                />
+                            ) : (
+                                <span>{selectedAccessModeLabel}</span>
+                            )}
                         </dd>
                     </div>
                 )}
 
-                {principalsByRole.size > 0 && (
+                {principalsByRole.length > 0 && (
                     <div className="contents">
                         <dt className="font-semibold">{permissionsLabel}</dt>
-                        <dd className="grid grid-cols-[auto_1fr] items-center gap-2.5">
-                            {Array.from(principalsByRole.entries()).map(([label, principals]) => (
-                                <div className="contents" key={label}>
-                                    <span>{label}</span>
-                                    <PermissionAvatars principals={principals} />
-                                </div>
-                            ))}
+                        <dd className="min-w-0">
+                            <PrincipalAvatarGrid label={permissionsLabel} rows={principalsByRole} />
                         </dd>
                     </div>
                 )}

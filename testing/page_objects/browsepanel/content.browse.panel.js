@@ -835,17 +835,17 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     // this method does not wait, it just checks the attribute
     async isRedIconDisplayed(contentName) {
         let locator = XPATH.container + TREE_GRID.itemByName(contentName) + "//*[@data-component='StatusIcon']";
-        let result = await this.getAttribute(locator, 'aria-label');
-        return result.includes('invalid');
+        let result = await this.getAttribute(locator, 'data-status');
+        return result === 'invalid';
     }
 
-    // this method waits until 'invalid' appears in the @class
+    // Waits until the workflow state is invalid.
     async waitForRedIconDisplayed(contentName) {
         try {
             let locator = XPATH.container + TREE_GRID.itemByName(contentName) + "//*[@data-component='StatusIcon']";
             await this.getBrowser().waitUntil(
                 async () => {
-                    let text = await this.getAttribute(locator, 'aria-label');
+                    let text = await this.getAttribute(locator, 'data-status');
                     return text === 'invalid';
                 },
                 { timeout: appConst.shortTimeout, timeoutMsg: 'Content wizard - invalid icon should appear' },
@@ -1015,16 +1015,13 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             const treeItem = await this.findElements(
                 XPATH.contentsTreeListDiv + TREE_GRID.itemByDisplayName(displayName),
             );
-            const svgElement = await treeItem[0].$('svg[aria-label]');
+            const svgElement = await treeItem[0].$('svg[data-status]');
             await svgElement.waitForDisplayed({ timeout: appConst.mediumTimeout });
-            let attrValue = await svgElement.getAttribute('aria-label');
+            let attrValue = await svgElement.getAttribute('data-status');
 
-            // 3. Get the class attribute
-            //const attrValue = await this.getAttribute(xpath, 'aria-label');
             if (!attrValue) {
-                throw new Error(`No aria-label attribute found for displayName: ${displayName}`);
+                throw new Error(`No data-status attribute found for displayName: ${displayName}`);
             }
-            // 4. Map class names to workflow states
             if (attrValue === 'in-progress') {
                 return appConst.WORKFLOW_STATE.WORK_IN_PROGRESS;
             }
@@ -1034,7 +1031,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             if (attrValue.includes('published')) {
                 return appConst.WORKFLOW_STATE.PUBLISHED;
             }
-            throw new Error(`Unknown workflow state for displayName: ${displayName}, class: ${attrValue}`);
+            throw new Error(`Unknown workflow state for displayName: ${displayName}, data-status: ${attrValue}`);
         } catch (err) {
             await this.handleError(
                 `Workflow state by displayName: ${displayName}`,
@@ -1048,11 +1045,11 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     async getWorkflowStateByName(name) {
         try {
             const treeItem = await this.findElements(XPATH.contentsTreeListDiv + TREE_GRID.itemByName(name));
-            const svgElement = await treeItem[0].$('svg[aria-label]');
+            const svgElement = await treeItem[0].$('svg[data-status]');
             await svgElement.waitForDisplayed({ timeout: appConst.mediumTimeout });
-            let attrValue = await svgElement.getAttribute('aria-label');
+            let attrValue = await svgElement.getAttribute('data-status');
             if (!attrValue) {
-                throw new Error(`No aria-label attribute found for name: ${name}`);
+                throw new Error(`No data-status attribute found for name: ${name}`);
             }
             if (attrValue === 'in-progress') {
                 return appConst.WORKFLOW_STATE.WORK_IN_PROGRESS;
@@ -1063,7 +1060,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             if (attrValue.includes('published')) {
                 return appConst.WORKFLOW_STATE.PUBLISHED;
             }
-            throw new Error(`Unknown workflow state for name: ${name}, aria-label: ${attrValue}`);
+            throw new Error(`Unknown workflow state for name: ${name}, data-status: ${attrValue}`);
         } catch (err) {
             await this.handleError(`Workflow state by name: ${name}`, 'err_get_workflow_state_by_name', err);
             throw err;

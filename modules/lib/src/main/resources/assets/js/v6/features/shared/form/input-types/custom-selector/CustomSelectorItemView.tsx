@@ -7,14 +7,16 @@ import { Tooltip } from '@enonic/ui';
 export const CustomSelectorItemView = ({
     item,
     listMode,
+    tooltipTabIndex = 0,
 }: {
     item: CustomSelectorItem;
     listMode: 'list' | 'flat';
+    tooltipTabIndex?: 0 | -1;
 }): ReactElement => {
     return listMode === 'list' ? (
         <CustomSelectorItemListView item={item} />
     ) : (
-        <CustomSelectorItemFlatView item={item} />
+        <CustomSelectorItemFlatView item={item} tooltipTabIndex={tooltipTabIndex} />
     );
 };
 
@@ -40,8 +42,10 @@ const CustomSelectorItemListView = ({
 
 const CustomSelectorItemFlatView = ({
     item: { displayName, description, icon, iconUrl },
+    tooltipTabIndex,
 }: {
     item: CustomSelectorItem;
+    tooltipTabIndex: 0 | -1;
 }): ReactElement => {
     const hasIcon = icon || iconUrl;
 
@@ -71,7 +75,10 @@ const CustomSelectorItemFlatView = ({
 
                 {description && (
                     <Tooltip delay={300} value={description}>
-                        <span className="text-subtle text-sm block whitespace-nowrap overflow-hidden text-ellipsis text-left group-data-[tone=inverse]:text-alt">
+                        <span
+                            tabIndex={tooltipTabIndex}
+                            className="text-subtle text-sm block whitespace-nowrap overflow-hidden text-ellipsis text-left group-data-[tone=inverse]:text-alt focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
+                        >
                             {description}
                         </span>
                     </Tooltip>

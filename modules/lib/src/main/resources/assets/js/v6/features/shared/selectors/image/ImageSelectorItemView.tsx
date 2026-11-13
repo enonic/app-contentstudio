@@ -12,6 +12,7 @@ export type ImageSelectorItemViewProps = {
     content: ContentSummary;
     /** Whether to hide the status */
     hideStatus?: boolean;
+    tooltipTabIndex?: 0 | -1;
 };
 
 const IMAGE_SELECTOR_ITEM_VIEW = 'ImageSelectorItemView';
@@ -19,7 +20,11 @@ const IMAGE_SELECTOR_ITEM_VIEW = 'ImageSelectorItemView';
 // Gets an image content and renders its image within a box, with its name and path to the side of the box.
 // The box width is 36% of the element's width (capped at 240px) and its height follows the image's aspect ratio,
 // clamped to the box width so vertical images stay within a square. For that, add @container class to the element you want to use as reference for the box size.
-export const ImageSelectorItemView = ({ content, hideStatus = false }: ImageSelectorItemViewProps): ReactElement => {
+export const ImageSelectorItemView = ({
+    content,
+    hideStatus = false,
+    tooltipTabIndex = 0,
+}: ImageSelectorItemViewProps): ReactElement => {
     const imageNotAvailableLabel = useI18n('text.image.notavailable');
     const { project } = useFormScope();
 
@@ -69,8 +74,9 @@ export const ImageSelectorItemView = ({ content, hideStatus = false }: ImageSele
                 </span>
                 <Tooltip delay={300} value={subName}>
                     <span
+                        tabIndex={tooltipTabIndex}
                         dir="rtl"
-                        className="text-subtle text-sm block whitespace-nowrap overflow-hidden text-ellipsis text-left group-data-[tone=inverse]:text-alt"
+                        className="text-subtle text-sm block whitespace-nowrap overflow-hidden text-ellipsis text-left group-data-[tone=inverse]:text-alt focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
                     >
                         <bdi>{subName}</bdi>
                     </span>
