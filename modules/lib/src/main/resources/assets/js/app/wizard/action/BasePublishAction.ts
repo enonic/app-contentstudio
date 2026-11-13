@@ -4,6 +4,7 @@ import { type ContentWizardPanel } from '../ContentWizardPanel';
 import type { ContentSummary } from '../../content/ContentSummary';
 import { Action } from '@enonic/lib-admin-ui/ui/Action';
 import { $wizardContentState } from '../../../v6/pages/wizard/model/wizardContent.store';
+import { fetchContentSummaries } from '../../../v6/entities/content';
 
 export interface BasePublishActionConfig {
     wizard: ContentWizardPanel;
@@ -53,7 +54,10 @@ export abstract class BasePublishAction extends Action {
     }
 
     private firePromptEvent(): void {
-        this.createPromptEvent([this.config.wizard.getPersistedItem()]);
+        const persistedItem = this.config.wizard.getPersistedItem();
+        void fetchContentSummaries([persistedItem.getContentId()]).then(([summary]) => {
+            this.createPromptEvent([summary ?? persistedItem]);
+        });
     }
 
     private checkOnExecuted(callback: () => void) {
