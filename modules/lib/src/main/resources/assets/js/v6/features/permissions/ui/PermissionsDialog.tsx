@@ -68,6 +68,7 @@ export const PermissionsDialog = (): ReactElement => {
     // Constants
     const { progress } = useTaskProgress(taskId);
     const previousLabel = useI18n('action.previous');
+    const permissionsLabel = useI18n('field.contextPanel.details.sections.permissions');
     const nextLabel = useI18n('action.next');
     const permissionsAppliedSingleLabel = useI18n('dialog.permissions.permissionsAppliedSingle');
     const permissionsAppliedMultipleLabel = useI18n(
@@ -171,7 +172,10 @@ export const PermissionsDialog = (): ReactElement => {
             <Dialog.Portal>
                 <Dialog.Overlay />
                 {view === 'main' && (
-                    <Dialog.Content className="w-full h-full max-sm:max-h-none sm:h-fit gap-10 md:min-w-180 md:max-w-184 md:max-h-[90vh] lg:max-w-220">
+                    <Dialog.Content
+                        aria-label={loading ? permissionsLabel : undefined}
+                        className="w-full h-full max-sm:max-h-none sm:h-fit gap-10 md:min-w-180 md:max-w-184 md:max-h-[90vh] lg:max-w-220"
+                    >
                         {loading && (
                             <>
                                 <Dialog.Header className="flex flex-col gap-2.5">

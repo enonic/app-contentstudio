@@ -1,3 +1,4 @@
+import { TabContent } from '../../../../shared/ui/TabContent';
 import { Tab } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { type ReactElement, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -108,20 +109,20 @@ export const ContentWizardTabs = ({ tabListAction }: ContentWizardTabsProps): Re
                 <ToggleFormButton ref={toggleFormButtonRef} onToggle={handleToggleForm} />
             </div>
 
-            <Tab.Content value="content">
+            <TabContent value="content">
                 <ContentForm />
-            </Tab.Content>
+            </TabContent>
 
             {hasPage && (
-                <Tab.Content value="page">
+                <TabContent value="page">
                     <PageComponentsView showTitle />
-                </Tab.Content>
+                </TabContent>
             )}
 
             {xDataTabs.map((tab) => (
-                <Tab.Content key={tab.name} value={tab.name}>
+                <TabContent key={tab.name} value={tab.name}>
                     <MixinView mixinName={tab.name} />
-                </Tab.Content>
+                </TabContent>
             ))}
         </Tab.Root>
     );

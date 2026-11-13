@@ -164,8 +164,12 @@ export const NewContentDialog = (): ReactElement => {
                         <Dialog.Header className="flex flex-col gap-2.5">
                             <div className="flex justify-between">
                                 <div className="space-y-2.5">
-                                    <h3 className="font-semibold text-md mt-0 mb-2">{titleLabel}</h3>
-                                    <p className="text-2xl font-semibold">{dialogDescriptionLabel}</p>
+                                    <Dialog.Title asChild className="font-semibold text-md mt-0 mb-2">
+                                        <h3>{titleLabel}</h3>
+                                    </Dialog.Title>
+                                    <Dialog.Description className="text-2xl font-semibold">
+                                        {dialogDescriptionLabel}
+                                    </Dialog.Description>
                                 </div>
 
                                 <Dialog.DefaultClose />

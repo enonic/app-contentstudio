@@ -36,7 +36,7 @@ export const PageResetDialog = (): ReactElement => {
         <ConfirmationDialog.Root open={open} onOpenChange={setOpen}>
             <ConfirmationDialog.Portal>
                 <ConfirmationDialog.Overlay />
-                <ConfirmationDialog.Content data-component={PAGE_RESET_DIALOG_NAME}>
+                <ConfirmationDialog.Content data-component={PAGE_RESET_DIALOG_NAME} aria-label={question}>
                     <ConfirmationDialog.Body>{question}</ConfirmationDialog.Body>
                     <ConfirmationDialog.Footer
                         intent="danger"

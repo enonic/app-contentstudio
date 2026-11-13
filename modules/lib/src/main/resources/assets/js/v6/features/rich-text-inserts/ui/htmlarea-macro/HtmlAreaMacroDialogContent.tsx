@@ -1,3 +1,4 @@
+import { TabContent } from '../../../../shared/ui/TabContent';
 import { Tab } from '@enonic/ui';
 import { type ReactElement, useCallback, useEffect } from 'react';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
@@ -44,12 +45,12 @@ export const HtmlAreaMacroDialogContent = (): ReactElement => {
                         <Tab.DefaultTrigger value="configuration">{configTabLabel}</Tab.DefaultTrigger>
                         <Tab.DefaultTrigger value="preview">{previewTabLabel}</Tab.DefaultTrigger>
                     </Tab.List>
-                    <Tab.Content value="configuration">
+                    <TabContent value="configuration">
                         <MacroConfigPanel />
-                    </Tab.Content>
-                    <Tab.Content value="preview">
+                    </TabContent>
+                    <TabContent value="preview">
                         <MacroPreviewPanel />
-                    </Tab.Content>
+                    </TabContent>
                 </Tab.Root>
             )}
         </div>
