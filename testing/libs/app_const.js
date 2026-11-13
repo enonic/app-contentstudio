@@ -212,7 +212,7 @@ module.exports = Object.freeze({
     saveProjectTimeout: 20000,
     shortTimeout: 2000,
     TIMEOUT_1: 1000,
-    SUITE_TIMEOUT: 180000,
+    SUITE_TIMEOUT: 90000,
     DELETE_INBOUND_MESSAGE: 'One or more items are referenced from another content',
     BROWSER_WIDTH: 1950,
     BROWSER_HEIGHT: 1050,

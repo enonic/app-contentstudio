@@ -1,83 +1,53 @@
 JavaScript UI Testing
 ===
 
-### Building
+WebdriverIO + Mocha tests for Content Studio. Specs live in `specs/`, page objects in `page_objects/`, shared helpers in `libs/`.
 
-Before trying to run tests, you need to verify that the following software are installed:
+### Requirements
 
-* Java 11 for building and running;
-* node.js installed on system;
-* Git installed on system;
+* Java 25 (the version used in CI)
+* Node.js 24.15.0 and pnpm — Gradle downloads both, so they are only needed to run `pnpm` by hand
+* Chrome
 
-There are 2 modes for running tests.
+### Suites
 
-`Standalone` mode is convenient for running one suite(file) with tests
-1. Start your local XP
-2. Go to `/app-contentstudio/testing/` folder and install required libs
-    ``` npm install ```
-3. make sure that your local configuration files do not differ from the files located in the folder `/app-contentstudio/testing/test-applications/common-config/`
-4. copy all test-applications (`app-contentstudio/testing/test-applications/`) from  into your local `deploy` folder, these applications will import test data
-5. Open a `*.spec` file in `Idea` and press 'Run' button in `Idea` toolbar
-6. Specify the path to `Mocha package` in Idea-Run modal dialog: `app-contentstudio\testing\node_modules\mocha`
+Each suite is a WebdriverIO config in `wdio/`, built on `wdio/wdio.base.conf.js`, and a Gradle task in `build.gradle`.
 
- After these steps special `Browser for testing` will be installed and started on your local environment
- While the tests are running, you should not perform any actions in you local Content Studio, as this may affect the test results
+| Gradle task | Specs | XP config |
+|---|---|---|
+| `testInputTypes` | `content-types/` | common |
+| `testInputTypes_2` | `content-types-2/` | common |
+| `testModalDialog` | `modal-dialog/` | common |
+| `testWizardsGrid` | `specs/*.spec.js` | common |
+| `testPublishIssues` | `publish/`, `issue/` | common |
+| `testProjects` | `project/` | common |
+| `testProjects_2` | `project-2/` | common |
+| `testProjects_multi` | `project-multi/` | `project-multi-config` |
+| `testPageEditor` | `page-editor/` | common |
+| `testExcludeDependencies` | `exclude-dependencies/`, `misc2/`, `permissions/` | `custom-config` |
+| `miscTests` | `misc/` | common |
 
+All of them run in parallel in the `selenium-test` job of `.github/workflows/gradle.yml`.
 
-`WDIO` mode is suitable for testing on big scale.(on GitHub)
-Start ui-tests on your local environment:
-1. Start your local XP
-2. make sure that your local configuration files do not differ from the files located in the folder `/app-contentstudio/testing/test-applications/common-config/`
-3. copy all test-applications (`app-contentstudio/testing/test-applications/`) from  into your local `deploy` folder, these applications will import test data
-4. open `app-contentstudio/testing/wdio/wdio.input_types.chrome.conf.js` in Idea and check the specifications that will be run.
-   You can specify a single test or folder with files
+### Running on a fresh XP
 
-    ``` specs: [
-        path.join(__dirname, '../specs/content-types/*.spec.js')
-    ],```
-
-5. go to `app-contentstudio` and run the command:
-    ```gradlew testInputTypesLocal```  run ui-tests for Input Types
-
-6. If you want to see how tests are executed in the browser, then remove ``headless`` option in `wdio.input_types.chrome.conf.js`
+From the repository root:
 
 ```
- 'goog:chromeOptions': {
-            "args": [
-                "--headless", "--disable-gpu", "--no-sandbox",
-                "--lang=en",
-                '--disable-extensions',
-                `window-size=${width},${height}`
-            ]
+./gradlew :testing:testInputTypes
 ```
 
-```gradlew testInputTypes_2_Local``` run ui-tests for Input Types(the second part)
-```gradlew testModalDialogLocal```   run ui-tests for common modal dialogs
-```gradlew testWizardsGridLocal```   run ui-tests for Content Wizard and content grid
-```gradlew testPublishIssuesLocal``` run ui-tests for creating issues, requests and Publish wizard
-```gradlew testPageEditorLocal```    run ui-tests for Page Editor
-```gradlew testProjectsLocal```      run ui-tests for Projects
-```testExcludeDependencies```           run ui-tests with `settings.hideDefaultProject=true publishingWizard.excludeDependencies=true` properties
+The task downloads the XP distribution, copies the config from `test-config/` and the test applications into it, deploys `modules/app/build/libs/contentstudio.jar`, starts the server, runs the suite and stops the server. Reports and screenshots are written to `testing/build/reports/`.
 
+### Running against a local XP
 
+1. Start your local XP with the config from `test-config/common-config/` (or the config the suite needs, see the table).
+2. Deploy the test applications listed in the `apps` configuration of `build.gradle`.
+3. Run the `Local` variant of the task, e.g. `./gradlew :testing:testInputTypesLocal` or `./gradlew :testing:testInputTypes_2_Local`.
 
-Start ui-tests on GitHub environment,  go to `app-contentstudio`:
- All these commands downloads XP distro, unpacks and starts the server(test apps will be copied to the `deploy` folder before the starting)
-```gradlew testInputTypes```       run ui-tests for Input Types
-```gradlew testInputTypes_2```     run ui-tests for Input Types(the second part)
-```gradlew testModalDialog```      run ui-tests common modal dialogs
-```gradlew testPageEditor```       run ui-tests for Page Editor
-```gradlew testProjects```         run ui-tests for Projects
+To run a single spec, narrow `specs` in the suite config. To watch the browser, remove `--headless=new` from `wdio/wdio.base.conf.js`.
 
+### Timeouts
 
-Specify all these tests-configs in ``gradle.yml``
-
-```
-selenium-test:
-        strategy:
-            fail-fast: false
-            matrix:
-                suite: [ testProjects, testProjects_2, testPageEditor, testInputTypes, testInputTypes_2, testWizardsGrid, testPublishIssues, testModalDialog, testExcludeDependencies ]
-```
-
-Test reports and screenshot you can find in the folder: ```app-contentstudio\testing\build\reports\```
+* `appConst.SUITE_TIMEOUT` (`libs/app_const.js`) bounds every test and every hook of a spec: each spec sets it with `this.timeout()`, which overrides `mochaOpts.timeout`.
+* `connectionRetryTimeout` and `connectionRetryCount` in `wdio/wdio.base.conf.js` bound a single WebDriver request. A hung request blocks the worker for `connectionRetryTimeout × (connectionRetryCount + 1)`, so keep them low.
