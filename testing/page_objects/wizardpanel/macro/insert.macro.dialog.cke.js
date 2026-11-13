@@ -1,5 +1,5 @@
 const Page = require('../../page');
-const {BUTTONS} = require('../../../libs/elements');
+const { BUTTONS } = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const MacroComboBox = require('../../components/selectors/insert.macro.combobox');
 
@@ -10,13 +10,12 @@ const XPATH = {
     textInPreviewTab: "//div[contains(@class,'preview-content')]",
     embedPreview: "//div[contains(@class,'embed-preview')]",
     warningInPreviewTab: "//div[contains(@class,'preview-message')]",
-    tabTriggerByName: name => `//button[@role='tab' and contains(.,'${name}')]`,
+    tabTriggerByName: (name) => `//button[@role='tab' and contains(.,'${name}')]`,
     macroSelector: "//div[@data-component='MacroSelector']",
     validationError: "//span[contains(@class,'text-error')]",
 };
 
 class InsertMacroModalDialog extends Page {
-
     get cancelButton() {
         return XPATH.container + "//button[@aria-label='Close']";
     }
@@ -42,11 +41,11 @@ class InsertMacroModalDialog extends Page {
     }
 
     get configTextArea() {
-        return XPATH.container + XPATH.configPanel + "//textarea";
+        return XPATH.container + XPATH.configPanel + '//textarea';
     }
 
     get optionFilterInput() {
-        return XPATH.container + XPATH.macroSelector + "//input";
+        return XPATH.container + XPATH.macroSelector + '//input';
     }
 
     async typeTextInConfigurationTextArea(text) {
@@ -55,19 +54,23 @@ class InsertMacroModalDialog extends Page {
     }
 
     typeTextInOptionFilterInput(text) {
-        return this.typeTextInInput(this.optionFilterInput, text).catch(err => {
+        return this.typeTextInInput(this.optionFilterInput, text).catch((err) => {
             this.saveScreenshot('err_insert_macro');
             throw new Error(err);
-        })
+        });
     }
 
     async selectOption(option) {
         try {
-            let macroComboBox= new MacroComboBox(XPATH.container);
+            let macroComboBox = new MacroComboBox(XPATH.container);
             await macroComboBox.selectFilteredByDisplayNameItem(option);
             return await this.pause(500);
         } catch (err) {
-            await this.handleError(`Error occurred during selecting the macro option '${option}'!`, 'err_select_macro_option', err);
+            await this.handleError(
+                `Error occurred during selecting the macro option '${option}'!`,
+                'err_select_macro_option',
+                err,
+            );
         }
     }
 
@@ -78,7 +81,6 @@ class InsertMacroModalDialog extends Page {
     async clickOnPreviewTabItem() {
         try {
             await this.waitForElementDisplayed(this.previewTabItem, appConst.mediumTimeout);
-            await this.pause(500);
             await this.clickOnElement(this.previewTabItem);
             return await this.pause(500);
         } catch (err) {
@@ -89,7 +91,6 @@ class InsertMacroModalDialog extends Page {
 
     async clickOnInsertButton() {
         await this.waitForElementDisplayed(this.insertButton);
-        await this.pause(300);
         await this.clickOnElement(this.insertButton);
         return await this.pause(500);
     }
@@ -100,7 +101,6 @@ class InsertMacroModalDialog extends Page {
 
     async clickOnUpdateButton() {
         await this.waitForUpdateButtonDisplayed();
-        await this.pause(300);
         await this.clickOnElement(this.updateButton);
         return await this.pause(500);
     }
@@ -126,7 +126,7 @@ class InsertMacroModalDialog extends Page {
         try {
             await this.waitForElementNotDisplayed(XPATH.container);
             return await this.pause(500);
-        }catch (err) {
+        } catch (err) {
             await this.handleError('Insert Macro Dialog should be closed!', 'err_insert_macro_dialog_closed', err);
         }
     }
