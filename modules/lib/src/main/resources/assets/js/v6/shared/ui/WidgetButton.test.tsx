@@ -15,6 +15,14 @@ vi.mock('@enonic/ui', () => ({
 }));
 
 describe('WidgetButton', () => {
+    it('keeps the Settings name separate from its displayed version', () => {
+        render(<WidgetButton label="Settings" mobileTrailing={<span aria-hidden="true">v6.2.0</span>} />);
+
+        const button = screen.getByRole('button', { name: 'Settings' });
+        expect(button.textContent).toContain('v6.2.0');
+        expect(button.getAttribute('aria-label')).toBe('Settings');
+    });
+
     it('highlights the full mobile row while retaining the desktop icon-button appearance', () => {
         render(<WidgetButton label="Content" icon={Pen} active />);
 

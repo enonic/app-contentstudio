@@ -24,6 +24,8 @@ export const PreviewToolbarEmulatorSelector = (): ReactElement => {
     const [isOpen, setIsOpen] = useState(false);
     const [selectedDevice, setSelectedDevice] = useState<EmulatorDevice>(EmulatorDevice.getFullscreen());
     const [radioControlKey, setRadioControlKey] = useState<string>(getEmulatorKey(EmulatorDevice.getFullscreen()));
+    const emulatorSelectorLabel = useI18n('wcag.preview.toolbar.emulatorSelector.label');
+    const buttonLabel = selectedDevice.getWidthWithUnits();
 
     const handleDeviceSelect = useCallback((device: EmulatorDevice) => {
         setSelectedDevice(device);
@@ -39,9 +41,9 @@ export const PreviewToolbarEmulatorSelector = (): ReactElement => {
                         className="hidden @sm:inline-flex"
                         endIcon={isOpen ? ChevronUp : ChevronDown}
                         size="sm"
-                        aria-label={useI18n('wcag.preview.toolbar.emulatorSelector.label')}
+                        aria-label={`${buttonLabel}, ${emulatorSelectorLabel}`}
                     >
-                        <span>{selectedDevice.getWidthWithUnits()}</span>
+                        <span>{buttonLabel}</span>
                     </Button>
                 </Menu.Trigger>
             </Toolbar.Item>
