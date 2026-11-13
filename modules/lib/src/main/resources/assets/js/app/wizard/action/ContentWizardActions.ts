@@ -7,15 +7,13 @@ import { isOnline, isPublished } from '../../../v6/shared/lib/cms/content/status
 import {
     $wizardActionEnvironment,
     $wizardActionFacts,
-    $wizardActions,
     needsUnpublishedChildrenCheck,
     patchWizardActionFacts,
     resetWizardActionFacts,
     setWizardActionsStashed,
     setWizardCanRequestPublish,
-    type WizardActionsState,
 } from '../../../v6/pages/wizard/model/wizardActions.store';
-import { type LegacyWizardActionId, registerWizardController } from '../../../v6/pages/wizard/model/wizardController';
+import { registerWizardController } from '../../../v6/pages/wizard/model/wizardController';
 import {
     refreshWizardPublishRequest,
     start as startPublishRequestService,
@@ -39,9 +37,7 @@ import {
 import { type ContentWizardPanel } from '../ContentWizardPanel';
 import { AccessControlHelper } from '../AccessControlHelper';
 import { ProjectHelper } from '../../settings/data/project/ProjectHelper';
-import { LocalizeContentAction } from './LocalizeContentAction';
 import { PreviewAction } from './PreviewAction';
-import { ResetContentAction } from './ResetContentAction';
 import { ShowFormAction } from './ShowFormAction';
 import { ShowLiveEditAction } from './ShowLiveEditAction';
 
@@ -55,10 +51,6 @@ export class ContentWizardActions extends WizardActions<Content> {
     private content: ContentSummaryAndCompareStatus;
 
     private wizardPanel: ContentWizardPanel;
-
-    private resetAction: Action;
-
-    private localizeAction: Action;
 
     private previewAction: PreviewAction;
 
@@ -77,25 +69,14 @@ export class ContentWizardActions extends WizardActions<Content> {
     private hasCheckedUnpublishedChildren: boolean = false;
 
     constructor(wizardPanel: ContentWizardPanel) {
-        const resetContentAction = new ResetContentAction(wizardPanel);
-        const localizeContentAction = new LocalizeContentAction(wizardPanel);
         const previewAction = new PreviewAction(wizardPanel);
         const closeAction = new CloseAction(wizardPanel);
         const showLiveEditAction = new ShowLiveEditAction(wizardPanel);
         const showFormAction = new ShowFormAction(wizardPanel);
 
-        super(
-            resetContentAction,
-            localizeContentAction,
-            previewAction,
-            closeAction,
-            showLiveEditAction,
-            showFormAction,
-        );
+        super(previewAction, closeAction, showLiveEditAction, showFormAction);
 
         this.wizardPanel = wizardPanel;
-        this.resetAction = resetContentAction;
-        this.localizeAction = localizeContentAction;
         this.previewAction = previewAction;
         this.closeAction = closeAction;
         this.showLiveEditAction = showLiveEditAction;
@@ -116,22 +97,22 @@ export class ContentWizardActions extends WizardActions<Content> {
     }
 
     private registerController(): () => void {
-        const legacyActions: Record<LegacyWizardActionId, Action> = {
-            reset: this.resetAction,
-            localize: this.localizeAction,
-        };
-
         return registerWizardController({
             getPersistedContent: () => this.wizardPanel.getPersistedItem() ?? undefined,
             hasUnsavedChanges: () => this.wizardPanel.hasUnsavedChanges(),
-            save: () =>
+            save: (options) =>
                 new Promise((resolve, reject) => {
-                    this.wizardPanel.saveChanges().then((content) => resolve(content ?? undefined), reject);
+                    this.wizardPanel.saveChanges(options).then((content) => resolve(content ?? undefined), reject);
                 }),
             close: () => this.wizardPanel.close(true),
-            isMarkedAsReady: () => this.wizardPanel.isMarkedAsReady(),
-            setMarkedAsReady: (value: boolean) => this.wizardPanel.setMarkedAsReady(value),
-            executeLegacy: (id: LegacyWizardActionId) => legacyActions[id].execute(),
+            replaceContent: (content, editable) => {
+                this.wizardPanel.replacePersistedContent(content);
+                this.setContent(this.wizardPanel.getContent()).refreshState();
+                this.wizardPanel.setEnabled(editable);
+
+                return Promise.resolve(this.refreshActions());
+            },
+            openTranslator: (language) => this.wizardPanel.openTranslatorDialog(language),
         });
     }
 
@@ -143,18 +124,9 @@ export class ContentWizardActions extends WizardActions<Content> {
         this.unsubscribers = [
             stopPublishRequestService,
             this.registerController(),
-            $wizardActions.subscribe((state) => this.mirror(state)),
             $wizardActionFacts.listen(() => this.checkUnpublishedChildren()),
             $wizardActionEnvironment.listen(() => this.checkUnpublishedChildren()),
         ];
-    }
-
-    // Reset and Localize are still run by their legacy actions, which refuse to run while disabled.
-    private mirror(state: WizardActionsState): void {
-        this.resetAction.setEnabled(state.reset.enabled);
-        this.resetAction.setVisible(state.reset.visible);
-        this.localizeAction.setEnabled(state.localize.enabled);
-        this.localizeAction.setVisible(state.localize.visible);
     }
 
     cleanupUnsavedChangesListeners(): void {

@@ -47,7 +47,6 @@ import { openContextWidget } from '../../v6/widgets/context-panel/openContextWid
 
 export type ContentWizardToolbarConfig = ToolbarConfig & {
     actions: ContentWizardActions;
-    onContentRenameConfirmed?: (newName: string) => void;
 };
 
 class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
@@ -343,9 +342,7 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
 
             setDraftName(new ContentName(newName));
 
-            this.config.onContentRenameConfirmed?.(newName);
-
-            void saveWizardContent();
+            void saveWizardContent({ renamed: true });
         });
     }
 
