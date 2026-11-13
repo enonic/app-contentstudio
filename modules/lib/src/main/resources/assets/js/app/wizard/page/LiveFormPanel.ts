@@ -160,7 +160,7 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
     private saveAndReloadComponent(path: ComponentPath, existing: boolean): void {
         this.pageSkipReload = true;
         this.contentWizardPanel
-            .saveChangesWithoutValidation(false)
+            .saveChanges({ reloadPageEditor: false })
             .then(() => {
                 if ($pageEditorLifecycle.get().inlineEditing) {
                     this.liveEditPageProxy?.loadComponent(path, existing);

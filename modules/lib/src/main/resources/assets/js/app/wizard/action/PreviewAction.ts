@@ -26,7 +26,6 @@ export class PreviewAction extends Action {
     protected handleExecuted() {
         const widget = getResolvedPreviewExtension() ?? $activeWidget.get();
         if (this.writePermissions && this.wizard.hasUnsavedChanges()) {
-            this.wizard.setRequireValid(true);
             this.wizard
                 .saveChanges()
                 .then((content) => this.helper.openWindow(content, widget))

@@ -35,7 +35,6 @@ import {
     $isContentFormExpanded,
     $wizardContentState,
     $wizardHasChanges,
-    $wizardIsMarkedAsReady,
     clearDisplayNameInputFocusRequest,
     initializeWizardContentState,
     requestDisplayNameInputFocus,
@@ -72,7 +71,6 @@ import { type CompareStatus } from '../content/CompareStatus';
 import { type Content } from '../content/Content';
 import { ContentIconUrlResolver } from '../content/ContentIconUrlResolver';
 import { type ContentId } from '../content/ContentId';
-import { type ContentName } from '../content/ContentName';
 import { ContentPath } from '../content/ContentPath';
 import { ContentSummaryAndCompareStatus } from '../content/ContentSummaryAndCompareStatus';
 import { type PageTemplate } from '../content/PageTemplate';
@@ -94,7 +92,6 @@ import { RepositoryId } from '../repository/RepositoryId';
 import { ContentsExistRequest } from '../resource/ContentsExistRequest';
 import { type ContentsExistResult } from '../resource/ContentsExistResult';
 import { ContentSummaryAndCompareStatusFetcher } from '../resource/ContentSummaryAndCompareStatusFetcher';
-import { type CreateContentRequest } from '../resource/CreateContentRequest';
 import { GetPageTemplateByKeyRequest } from '../resource/GetPageTemplateByKeyRequest';
 import { Router } from '../Router';
 import { ProjectDeletedEvent } from '../settings/event/ProjectDeletedEvent';
@@ -116,21 +113,29 @@ import {
 } from '../../v6/pages/wizard/model/wizardLayout.store';
 import { isDeletedTemplateForContent } from '../../v6/shared/lib/page/templateEvent';
 import { ContentContext } from './ContentContext';
-import { ContentWizardDataLoader } from './ContentWizardDataLoader';
 import { ContentWizardHeader } from './ContentWizardHeader';
 import { type ContentWizardPanelParams } from './ContentWizardPanelParams';
+import {
+    loadDefaultModels,
+    loadNearestSite,
+    loadWizardData,
+    type WizardLoadedData,
+} from '../../v6/pages/wizard/model/wizardLoad.service';
+import {
+    createWizardContent,
+    resolveSavedMessage,
+    updateWizardContent,
+} from '../../v6/pages/wizard/model/wizardSave.service';
+import { type WizardSaveOptions } from '../../v6/pages/wizard/model/wizardController';
 import { ContentWizardStepsPanel } from './ContentWizardStepsPanel';
 import { DisplayNameResolver } from './DisplayNameResolver';
-import { type RoutineContext } from './Flow';
 import { MaskContentWizardPanelEvent } from './MaskContentWizardPanelEvent';
 import { type DefaultModels } from './page/DefaultModels';
 import { LiveEditPageProxy } from './page/LiveEditPageProxy';
 import { LiveFormPanel, type LiveFormPanelConfig } from './page/LiveFormPanel';
 import { PageState } from './page/PageState';
 import { PageEventsManager } from './PageEventsManager';
-import { PersistNewContentRoutine } from './PersistNewContentRoutine';
 import { ThumbnailUploaderEl } from './ThumbnailUploaderEl';
-import { UpdatePersistedContentWithStoreRoutine } from './UpdatePersistedContentWithStoreRoutine';
 
 export class ContentWizardPanel extends WizardPanel<Content> {
     private livePanel?: LiveFormPanel;
@@ -159,8 +164,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
     private displayNameResolver: DisplayNameResolver;
 
-    private requireValid: boolean;
-
     private isContentFormValid: boolean;
 
     private inMobileViewMode: boolean;
@@ -183,8 +186,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
     private contentDeleted: boolean;
 
-    private reloadPageEditorOnSave: boolean = true;
-
     private debouncedEditorReload: (
         clearInspection?: boolean,
         toggleLiveEdit?: boolean,
@@ -196,8 +197,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
     public static debug: boolean = false;
 
     private contentFetcher: ContentSummaryAndCompareStatusFetcher;
-
-    private isRename: boolean;
 
     private contentFormExpandedUnsubscribe?: () => void;
 
@@ -225,7 +224,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         super.initElements();
 
         this.isContentFormValid = false;
-        this.requireValid = false;
         this.contentUpdateDisabled = false;
         this.isFirstUpdateAndRenameEventSkiped = false;
         this.displayNameResolver = new DisplayNameResolver();
@@ -315,7 +313,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
     private handleContentRequiresSaveEvent(): void {
         const contentRequiresSaveHandler = (event: ContentRequiresSaveEvent) => {
             if (this.isCurrentContentId(event.getContentId()) && this.hasUnsavedChanges()) {
-                this.setMarkedAsReady(false);
+                setWizardMarkedAsReady(false);
                 this.saveChanges();
             }
         };
@@ -363,30 +361,28 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         if (ContentWizardPanel.debug) {
             console.debug('ContentWizardPanel.doLoadData at ' + new Date().toISOString());
         }
-        return new ContentWizardDataLoader()
-            .loadData(this.params)
-            .then((loader: ContentWizardDataLoader) => {
+        return Q(loadWizardData(this.params))
+            .then((loaded: WizardLoadedData) => {
                 if (ContentWizardPanel.debug) {
-                    console.debug('ContentWizardPanel.doLoadData: loaded data at ' + new Date().toISOString(), loader);
+                    console.debug('ContentWizardPanel.doLoadData: loaded data at ' + new Date().toISOString(), loaded);
                 }
-                if (loader.content) {
-                    // in case of new content will be created in super.loadData()
+                if (loaded.content) {
                     this.formState.setIsNew(this.params.displayAsNew);
-                    this.setPersistedItem(loader.content);
+                    this.setPersistedItem(loaded.content);
 
                     if (this.params.displayAsNew) {
                         showFeedback(i18n('notify.content.created'));
                     }
                 }
 
-                this.defaultModels = loader.defaultModels;
-                this.site = loader.siteContent;
-                this.contentType = loader.contentType;
-                this.parentContent = loader.parentContent;
-                this.contentExistsInParentProject = !!loader.contentExistsInParentProject;
-                this.persistedCompareStatus = loader.compareStatus;
-                this.currentCompareStatus = loader.compareStatus;
-                this.currentPublishStatus = loader.publishStatus;
+                this.defaultModels = loaded.defaultModels;
+                this.site = loaded.site;
+                this.contentType = loaded.contentType;
+                this.parentContent = loaded.parentContent;
+                this.contentExistsInParentProject = loaded.existsInParentProject;
+                this.persistedCompareStatus = loaded.compareStatus;
+                this.currentCompareStatus = loaded.compareStatus;
+                this.currentPublishStatus = loaded.publishStatus;
 
                 setAiContentType(this.contentType);
                 this.updateAiAppConfigs();
@@ -429,9 +425,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
     protected createMainToolbar(): Toolbar<ToolbarConfig> {
         return new ContentWizardToolbar({
             actions: this.wizardActions,
-            onContentRenameConfirmed: () => {
-                this.isRename = true;
-            },
         }) as unknown as Toolbar<ToolbarConfig>;
     }
 
@@ -702,19 +695,20 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         }
     }
 
-    saveChanges(clearInspection: boolean = false): Q.Promise<Content> {
+    saveChanges(options: WizardSaveOptions = {}): Q.Promise<Content> {
+        const { clearInspection = false, reloadPageEditor = true, renamed = false } = options;
         // save happens right after data loaded with new content
         // so layout is not done yet and livePanel is not present yet
         this.livePanel?.skipNextReloadConfirmation(true);
 
-        this.setRequireValid(false);
         this.contentUpdateDisabled = true;
         this.isFirstUpdateAndRenameEventSkiped = false;
         new BeforeContentSavedEvent().fire();
         const previousPersistedItem = this.getPersistedItem();
 
-        return super
-            .saveChanges()
+        return Q(
+            previousPersistedItem ? this.updatePersistedContent(previousPersistedItem, renamed) : this.createContent(),
+        )
             .then(() => {
                 const currentContent = this.getCurrentItem();
 
@@ -730,7 +724,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
                         setWizardContent(this.getContent().getContentSummary());
 
-                        if (this.reloadPageEditorOnSave && this.livePanel) {
+                        if (reloadPageEditor && this.livePanel) {
                             this.livePanel.loadPage(clearInspection).then(() => {
                                 this.refreshLivePanel(currentContent).then(() => {
                                     resolve(currentContent);
@@ -746,11 +740,48 @@ export class ContentWizardPanel extends WizardPanel<Content> {
             })
             .finally(() => {
                 this.contentUpdateDisabled = false;
-                this.isRename = false;
                 if (this.isRendered()) {
                     this.updateButtonsState();
                 }
             });
+    }
+
+    private async createContent(): Promise<void> {
+        const parentPath = this.parentContent != null ? this.parentContent.getPath() : ContentPath.getRoot();
+        const content = await createWizardContent(this.getContentTypeName(), parentPath);
+
+        this.setPersistedItem(content);
+        // persist new happens before render to init dummy entity and is still considered as new
+        if (this.isRendered()) {
+            this.formState.setIsNew(false);
+            this.updateToolbarActions();
+        }
+
+        showFeedback(i18n('notify.content.created'));
+    }
+
+    private async updatePersistedContent(persistedContent: Content, renamed: boolean): Promise<void> {
+        const wasInherited = persistedContent.isDataInherited();
+        const result = await updateWizardContent(persistedContent);
+        const content = result.content;
+
+        if (persistedContent.getName().isUnnamed() && !content.getName().isUnnamed()) {
+            this.handleContentNamed(content);
+        }
+
+        if (result.dataUpdated || result.pageUpdated || result.workflowUpdated) {
+            showFeedback(resolveSavedMessage(content, { wasInherited, renamed }));
+        }
+
+        this.setPersistedItem(content);
+        this.formState.setIsNew(false);
+        this.updateToolbarActions();
+
+        escalateVisibility('all');
+        // The update is re-validated server-side and carries fresh validationErrors;
+        // the in-memory draft has none, which would wipe the errors on save.
+        setServerValidationErrors(content.getValidationErrors());
+        this.notifyGeneralValidationErrors();
     }
 
     private handleBrokenImageInTheWizard() {
@@ -850,7 +881,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         });
 
         PageState.getEvents().onPageReset(() => {
-            this.setMarkedAsReady(false);
+            setWizardMarkedAsReady(false);
 
             // ! When persisted content already has no page (e.g. after a prior
             // ! reset followed by Customize Page, which mutates only in-memory
@@ -858,7 +889,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
             // ! iframe — leaving the customized page visible. Force a reload
             // ! in that case; otherwise saveChanges handles it.
             if (this.getPersistedItem()?.getPage()) {
-                this.saveChanges(true).catch(DefaultErrorHandler.handle);
+                this.saveChanges({ clearInspection: true }).catch(DefaultErrorHandler.handle);
             } else {
                 void this.getLivePanel()?.loadPage(true);
             }
@@ -899,7 +930,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
             // ! Sync draft before saveChanges — diff reads $wizardDraftPage,
             // ! the updateTabsElement listener fires later in the chain.
             setDraftPage(PageState.getState());
-            this.setMarkedAsReady(false);
+            setWizardMarkedAsReady(false);
 
             // saving page on all page updates except when page is being customized
             if (!(event instanceof PageControllerCustomizedEvent)) {
@@ -913,7 +944,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         this.setPersistedItem(newPersistedContent.clone());
         this.updateThumbnailWithContent(newPersistedContent);
 
-        this.showFeedbackContentSaved(newPersistedContent);
+        showFeedback(resolveSavedMessage(newPersistedContent, { wasInherited: false, renamed: false }));
     }
 
     private listenToContentEvents() {
@@ -974,8 +1005,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
             // checks if parent site has been modified
             if (this.isParentSiteModified(contentId)) {
-                new ContentWizardDataLoader()
-                    .loadSite(contentId)
+                Q(loadNearestSite(contentId))
                     .then(this.updateSiteModel.bind(this))
                     .catch(DefaultErrorHandler.handle)
                     .done();
@@ -1232,7 +1262,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
         if (isPageInAutoRenderingMode && this.isSameRootWithPersisted(template)) {
             // update default models if page is rendered automatically and updated template might be or become the one rendering
-            ContentWizardDataLoader.loadDefaultModels(this.site, this.getPersistedItem().getType())
+            Q(loadDefaultModels(this.site, this.getPersistedItem().getType()))
                 .then((defaultModels: DefaultModels) => {
                     const isAutoUpdated: boolean =
                         this.defaultModels.getDefaultPageTemplate()?.getId() === template.getId() ||
@@ -1263,7 +1293,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         const isCurrentTemplate: boolean = deletedIds.some((id: ContentId) => this.isCurrentTemplateId(id));
         const previousTemplateId: string = this.defaultModels?.getDefaultPageTemplate()?.getId() ?? null;
 
-        ContentWizardDataLoader.loadDefaultModels(this.site, this.getPersistedItem().getType())
+        Q(loadDefaultModels(this.site, this.getPersistedItem().getType()))
             .then((defaultModels: DefaultModels) => {
                 const templateId: string = defaultModels?.getDefaultPageTemplate()?.getId() ?? null;
                 const hasDefaultChanged: boolean = templateId !== previousTemplateId;
@@ -1344,15 +1374,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         return AccessControlHelper.hasPermission(Permission.MODIFY, this.getPersistedItem().getPermissions());
     }
 
-    saveChangesWithoutValidation(reloadPageEditor?: boolean): Q.Promise<Content> {
-        this.reloadPageEditorOnSave = reloadPageEditor;
-
-        return this.saveChanges().then((content: Content) => {
-            this.reloadPageEditorOnSave = true;
-            return content;
-        });
-    }
-
     private updateThumbnailWithContent(content: Content) {
         const thumbnailUploader: ThumbnailUploaderEl = this.getFormIcon();
         thumbnailUploader.toggleClass('has-origin-project', !!content.getOriginProject());
@@ -1404,88 +1425,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
             .build();
     }
 
-    persistNewItem(): Q.Promise<Content> {
-        return new PersistNewContentRoutine(this)
-            .setCreateContentRequestProducer(this.produceCreateContentRequest)
-            .execute()
-            .then((context: RoutineContext) => {
-                showFeedback(i18n('notify.content.created'));
-                return context.content;
-            });
-    }
-
-    postPersistNewItem(persistedContent: Content): Q.Promise<Content> {
-        return Q(persistedContent);
-    }
-
-    private produceCreateContentRequest(): Q.Promise<CreateContentRequest | null> {
-        return this.getContentTypeName().isMedia() ? Q(null) : Q(this.doCreateContentRequest());
-    }
-
-    private doCreateContentRequest(): CreateContentRequest {
-        const parentPath: ContentPath =
-            this.parentContent != null ? this.parentContent.getPath() : ContentPath.getRoot();
-        return ContentHelper.makeNewContentRequest(this.getContentTypeName())
-            .setParent(parentPath)
-            .setRequireValid(this.requireValid);
-    }
-
-    updatePersistedItem(): Q.Promise<Content> {
-        const persistedContent: Content = this.getPersistedItem();
-        const isInherited: boolean = persistedContent.isDataInherited();
-        const updateContentRoutine = new UpdatePersistedContentWithStoreRoutine(this, persistedContent);
-        updateContentRoutine.setRequireValid(this.requireValid);
-
-        return updateContentRoutine.execute().then((context: RoutineContext) => {
-            const content: Content = context.content;
-
-            if (persistedContent.getName().isUnnamed() && !content.getName().isUnnamed()) {
-                this.handleContentNamed(content);
-            }
-
-            if (context.dataUpdated || context.pageUpdated || context.workflowUpdated) {
-                this.showFeedbackContentSaved(content, isInherited);
-            }
-
-            return content;
-        });
-    }
-
-    /*
-     * Callback after local save of content
-     * */
-    postUpdatePersistedItem(persistedItem: Content): Q.Promise<Content> {
-        // set the new property set to the form so that we receive change events
-        // should happen before resetWizard which clears dirty state on inputs
-        escalateVisibility('all');
-        // Use the server-saved item — the update is re-validated server-side and
-        // carries fresh validationErrors. getCurrentItem() is the in-memory draft
-        // built from the form and has none, which would wipe the errors on save.
-        setServerValidationErrors(persistedItem.getValidationErrors());
-        this.notifyGeneralValidationErrors();
-
-        return Q.resolve(persistedItem);
-    }
-
-    private showFeedbackContentSaved(content: Content, wasInherited: boolean = false) {
-        const name: ContentName = content.getName();
-        let message: string;
-
-        if (wasInherited) {
-            message = i18n('notify.content.localized');
-        } else if (name.isUnnamed()) {
-            message = i18n('notify.item.savedUnnamed');
-        } else if (this.isRename) {
-            message = i18n('notify.wizard.contentRenamed', name);
-        } else if (content.isReady()) {
-            message = i18n('notify.item.markedAsReady', name);
-        } else {
-            message = i18n('notify.item.saved', name);
-        }
-
-        showFeedback(message);
-    }
-
     hasUnsavedChanges(): boolean {
         if (!this.isRendered()) {
             return false;
@@ -1498,18 +1437,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         }
 
         return $wizardHasChanges.get();
-    }
-
-    setRequireValid(requireValid: boolean) {
-        this.requireValid = requireValid;
-    }
-
-    setMarkedAsReady(value: boolean) {
-        setWizardMarkedAsReady(value);
-    }
-
-    isMarkedAsReady(): boolean {
-        return $wizardIsMarkedAsReady.get();
     }
 
     showForm(): void {
@@ -1543,9 +1470,11 @@ export class ContentWizardPanel extends WizardPanel<Content> {
             return;
         }
 
-        new ContentWizardDataLoader().loadSite(content.getContentId()).then((site) => {
-            this.site = site;
-        });
+        loadNearestSite(content.getContentId())
+            .then((site) => {
+                this.site = site;
+            })
+            .catch(DefaultErrorHandler.handle);
     }
 
     setEnabled(value: boolean) {

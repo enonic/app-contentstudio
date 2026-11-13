@@ -1,19 +1,18 @@
 import { ApplicationKey } from '@enonic/lib-admin-ui/application/ApplicationKey';
 import { PropertyArray, PropertyPath, PropertyTree, ValueTypes } from '@enonic/input-types/data';
 import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest';
-import { ContentBuilder, type Content } from '../content/Content';
-import { ContentName } from '../content/ContentName';
-import { Workflow } from '../content/Workflow';
-import { WorkflowState } from '../content/WorkflowState';
+import { ContentBuilder, type Content } from '../../../../app/content/Content';
+import { ContentName } from '../../../../app/content/ContentName';
+import { Workflow } from '../../../../app/content/Workflow';
+import { WorkflowState } from '../../../../app/content/WorkflowState';
 import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {
     $wizardDraftData,
     initializeWizardContentState,
     resetWizardContent,
     setDraftStringByPath,
-} from '../../v6/pages/wizard/model/wizardContent.store';
-import { type ContentWizardPanel } from './ContentWizardPanel';
-import { UpdatePersistedContentWithStoreRoutine } from './UpdatePersistedContentWithStoreRoutine';
+} from './wizardContent.store';
+import { buildViewedContent } from './wizardViewedContent.utils';
 
 function createContent(data: PropertyTree): Content {
     const workflow = Workflow.create().setState(WorkflowState.IN_PROGRESS).build();
@@ -38,12 +37,7 @@ function addSiteConfig(data: PropertyTree, applicationKey: string, config: Recor
     });
 }
 
-function buildViewedContentFromStore(content: Content): Content {
-    const routine = new UpdatePersistedContentWithStoreRoutine({} as ContentWizardPanel, content);
-    return (routine as unknown as { buildViewedContentFromStore: () => Content }).buildViewedContentFromStore();
-}
-
-describe('UpdatePersistedContentWithStoreRoutine', () => {
+describe('buildViewedContent', () => {
     beforeEach(() => {
         resetWizardContent();
     });
@@ -60,7 +54,7 @@ describe('UpdatePersistedContentWithStoreRoutine', () => {
         initializeWizardContentState(persistedContent, null, [], WorkflowState.IN_PROGRESS);
         setDraftStringByPath(PropertyPath.fromString('baseUrl'), 'https://example.com');
 
-        const viewedContent = buildViewedContentFromStore(persistedContent);
+        const viewedContent = buildViewedContent(persistedContent);
         const viewedData = viewedContent.getContentData();
         const siteConfigs = viewedData.getPropertySets('siteConfig');
 
@@ -79,7 +73,7 @@ describe('UpdatePersistedContentWithStoreRoutine', () => {
         initializeWizardContentState(persistedContent, null, [], WorkflowState.IN_PROGRESS);
         setDraftStringByPath(PropertyPath.fromString('baseUrl'), '');
 
-        const viewedContent = buildViewedContentFromStore(persistedContent);
+        const viewedContent = buildViewedContent(persistedContent);
         const viewedData = viewedContent.getContentData();
 
         expect(viewedData.getPropertySets('siteConfig')).toEqual([]);
@@ -105,9 +99,9 @@ describe('UpdatePersistedContentWithStoreRoutine', () => {
         draftData.getRoot().addPropertyArray(emptyArray);
 
         // This should not throw even though baseUrl PropertyArray is empty
-        expect(() => buildViewedContentFromStore(persistedContent)).not.toThrow();
+        expect(() => buildViewedContent(persistedContent)).not.toThrow();
 
-        const viewedContent = buildViewedContentFromStore(persistedContent);
+        const viewedContent = buildViewedContent(persistedContent);
         const viewedData = viewedContent.getContentData();
         expect(viewedData.getString('baseUrl')).toBeUndefined();
     });
@@ -123,7 +117,7 @@ describe('UpdatePersistedContentWithStoreRoutine', () => {
         initializeWizardContentState(persistedContent, null, [], WorkflowState.IN_PROGRESS);
         setDraftStringByPath(PropertyPath.fromString('baseUrl'), '');
 
-        const viewedContent = buildViewedContentFromStore(persistedContent);
+        const viewedContent = buildViewedContent(persistedContent);
         const viewedData = viewedContent.getContentData();
         const siteConfigs = viewedData.getPropertySets('siteConfig');
 

@@ -15,6 +15,9 @@ const mocks = vi.hoisted(() => ({
     requestPublish: vi.fn(),
     escalateVisibility: vi.fn(),
     openPublishRequest: vi.fn(),
+    setMarkedAsReady: vi.fn(),
+    resetInheritance: vi.fn(),
+    localize: vi.fn(),
 }));
 
 const stores = vi.hoisted(
@@ -22,6 +25,7 @@ const stores = vi.hoisted(
         ({}) as {
             $wizardActions: ReturnType<typeof atom<Record<string, { enabled: boolean; visible: boolean }>>>;
             $wizardContentState: ReturnType<typeof atom<string | null>>;
+            $wizardIsMarkedAsReady: ReturnType<typeof atom<boolean>>;
         },
 );
 
@@ -66,11 +70,21 @@ vi.mock('./wizardContent.store', async () => {
     const { atom: createAtom } = await import('nanostores');
     stores.$wizardContentState = createAtom<string | null>('ready');
 
-    return { $wizardContentState: stores.$wizardContentState };
+    stores.$wizardIsMarkedAsReady = createAtom(false);
+
+    return {
+        $wizardContentState: stores.$wizardContentState,
+        $wizardIsMarkedAsReady: stores.$wizardIsMarkedAsReady,
+        setWizardMarkedAsReady: mocks.setMarkedAsReady,
+    };
 });
 
 vi.mock('./wizardValidation.store', () => ({ escalateVisibility: mocks.escalateVisibility }));
 vi.mock('./wizardPublishRequest.service', () => ({ openWizardPublishRequest: mocks.openPublishRequest }));
+vi.mock('./wizardInheritance.commands', () => ({
+    resetWizardInheritance: mocks.resetInheritance,
+    localizeWizardContent: mocks.localize,
+}));
 
 import { executeWizardAction, mustSaveBeforeWizardAction, saveWizardContent } from './wizardActions.commands';
 import { registerWizardController, type WizardController } from './wizardController';
@@ -103,9 +117,8 @@ const createController = (overrides: Partial<WizardController> = {}): WizardCont
     hasUnsavedChanges: () => false,
     save: vi.fn(() => Promise.resolve(CONTENT)),
     close: vi.fn(),
-    isMarkedAsReady: () => false,
-    setMarkedAsReady: vi.fn(),
-    executeLegacy: vi.fn(),
+    replaceContent: vi.fn(() => Promise.resolve()),
+    openTranslator: vi.fn(),
     ...overrides,
 });
 
@@ -151,14 +164,14 @@ describe('wizardActions.commands', () => {
         expect(mocks.openMoveDialog).toHaveBeenCalledWith([CONTENT]);
     });
 
-    it('should hand reset and localize to the legacy wizard', () => {
-        const controller = register();
+    it('should run reset and localize as inheritance commands', () => {
+        register();
 
         executeWizardAction('reset');
         executeWizardAction('localize');
 
-        expect(controller.executeLegacy).toHaveBeenCalledTimes(2);
-        expect(controller.executeLegacy).toHaveBeenLastCalledWith('localize');
+        expect(mocks.resetInheritance).toHaveBeenCalledTimes(1);
+        expect(mocks.localize).toHaveBeenCalledTimes(1);
     });
 
     it('should open the publish request the content is in', () => {
@@ -262,7 +275,7 @@ describe('wizardActions.commands', () => {
             executeWizardAction('markAsReady');
             await flush();
 
-            expect(controller.setMarkedAsReady).toHaveBeenCalledWith(true);
+            expect(mocks.setMarkedAsReady).toHaveBeenCalledWith(true);
             expect(controller.save).toHaveBeenCalledTimes(1);
             expect(mocks.openPublishDialog).toHaveBeenCalledWith([CONTENT]);
         });
@@ -286,8 +299,9 @@ describe('wizardActions.commands', () => {
             expect(mustSaveBeforeWizardAction('publish')).toBe(false);
             expect(mustSaveBeforeWizardAction('markAsReady')).toBe(true);
 
-            register({ isMarkedAsReady: () => true });
+            stores.$wizardIsMarkedAsReady.set(true);
             expect(mustSaveBeforeWizardAction('markAsReady')).toBe(false);
+            stores.$wizardIsMarkedAsReady.set(false);
 
             register({ hasUnsavedChanges: () => true });
             expect(mustSaveBeforeWizardAction('publish')).toBe(true);

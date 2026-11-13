@@ -10,16 +10,17 @@ import { openUnpublishDialog } from '../../../features/unpublish/model/unpublish
 import { i18n } from '../../../shared/i18n';
 import { handleError, notifyWarning } from '../../../shared/notifications';
 import { $wizardActions, patchWizardActionActivity, type WizardActionId } from './wizardActions.store';
-import { $wizardContentState } from './wizardContent.store';
+import { $wizardContentState, $wizardIsMarkedAsReady, setWizardMarkedAsReady } from './wizardContent.store';
 import { escalateVisibility } from './wizardValidation.store';
-import { getWizardController, type WizardController } from './wizardController';
+import { getWizardController, type WizardController, type WizardSaveOptions } from './wizardController';
+import { localizeWizardContent, resetWizardInheritance } from './wizardInheritance.commands';
 import { openWizardPublishRequest } from './wizardPublishRequest.service';
 
 //
 // * Wizard Actions Commands
 //
-// Runs the wizard actions. What still lives in the legacy wizard panel (saving,
-// closing, reset and localize) is reached through the wizard controller.
+// Runs the wizard actions. What still lives in the legacy wizard panel (saving
+// and closing) is reached through the wizard controller.
 //
 
 type PublishCommand = {
@@ -56,7 +57,7 @@ export function mustSaveBeforeWizardAction(id: WizardActionId): boolean {
     const controller = getWizardController();
     if (!controller) return false;
 
-    const becomesReady = PUBLISH_COMMANDS[id]?.markAsReady === true && !controller.isMarkedAsReady();
+    const becomesReady = PUBLISH_COMMANDS[id]?.markAsReady === true && !$wizardIsMarkedAsReady.get();
 
     return becomesReady || controller.hasUnsavedChanges();
 }
@@ -83,7 +84,7 @@ function runPublishCommand(id: WizardActionId, command: PublishCommand, controll
     }
 
     patchWizardActionActivity({ busy: id });
-    if (command.markAsReady) controller.setMarkedAsReady(true);
+    if (command.markAsReady) setWizardMarkedAsReady(true);
 
     controller
         .save()
@@ -96,13 +97,13 @@ function runPublishCommand(id: WizardActionId, command: PublishCommand, controll
 }
 
 /** Saves the content the way the Save button does, whether or not the button is enabled. */
-export function saveWizardContent(): Promise<void> {
+export function saveWizardContent(options?: WizardSaveOptions): Promise<void> {
     const controller = getWizardController();
     if (!controller) return Promise.resolve();
 
     patchWizardActionActivity({ saving: true });
 
-    return controller.save().then(
+    return controller.save(options).then(
         () => patchWizardActionActivity({ saving: false, saved: true }),
         (error: Error) => {
             patchWizardActionActivity({ saving: false, saved: false });
@@ -141,8 +142,10 @@ export function executeWizardAction(id: WizardActionId): void {
             openWizardPublishRequest();
             break;
         case 'reset':
+            resetWizardInheritance();
+            break;
         case 'localize':
-            controller.executeLegacy(id);
+            localizeWizardContent();
             break;
     }
 }
