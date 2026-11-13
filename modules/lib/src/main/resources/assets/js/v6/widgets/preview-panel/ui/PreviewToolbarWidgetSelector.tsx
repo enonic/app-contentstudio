@@ -46,6 +46,8 @@ export const PreviewToolbarWidgetSelector = ({ compact = false }: Props): ReactE
 
     if (!activeWidget) return <></>;
 
+    const buttonLabel = activeWidget.getDisplayName();
+
     return (
         <Menu data-component={COMPONENT_NAME} open={isOpen} onOpenChange={setIsOpen}>
             <Toolbar.Item asChild>
@@ -55,7 +57,7 @@ export const PreviewToolbarWidgetSelector = ({ compact = false }: Props): ReactE
                         endIcon={isOpen ? ChevronUp : ChevronDown}
                         endIconClassName={compact ? 'size-4 shrink-0' : undefined}
                         size="sm"
-                        aria-label={widgetSelectorLabel}
+                        aria-label={`${buttonLabel}, ${widgetSelectorLabel}`}
                     >
                         <img
                             className={cn(
@@ -63,9 +65,9 @@ export const PreviewToolbarWidgetSelector = ({ compact = false }: Props): ReactE
                                 !compact && '@sm:hidden',
                             )}
                             src={activeWidget.getFullIconUrl()}
-                            alt={activeWidget.getDisplayName()}
+                            alt={buttonLabel}
                         />
-                        {!compact && <span className="hidden @sm:inline">{activeWidget.getDisplayName()}</span>}
+                        {!compact && <span className="hidden @sm:inline">{buttonLabel}</span>}
                     </Button>
                 </Menu.Trigger>
             </Toolbar.Item>

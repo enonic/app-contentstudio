@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/preact';
 import type { ComponentPropsWithoutRef, ReactNode } from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
     activeWidget: undefined as
@@ -12,6 +12,9 @@ const mocks = vi.hoisted(() => ({
         | undefined,
     hasMultipleProjects: false,
     noProjectMode: false,
+    projectName: 'My project',
+    stats: undefined as { open: number; openAssignedToMe: number } | undefined,
+    phrases: {} as Record<string, string>,
 }));
 
 vi.mock('@enonic/ui', () => {
@@ -51,7 +54,8 @@ vi.mock('../../shared/lib/hooks/useBreakpoints', () => ({
 }));
 
 vi.mock('../../shared/lib/hooks/useI18n', () => ({
-    useI18n: (key: string) => key,
+    useI18n: (key: string, ...values: string[]) =>
+        (mocks.phrases[key] ?? key).replace(/\{(\d+)\}/g, (_match, index) => values[Number(index)] ?? ''),
 }));
 
 vi.mock('../../shared/i18n', () => ({
@@ -59,7 +63,7 @@ vi.mock('../../shared/i18n', () => ({
 }));
 
 vi.mock('../../entities/project', () => ({
-    $activeProjectName: { get: () => 'My project' },
+    $activeProjectName: { get: () => mocks.projectName },
     $hasMultipleProjects: { get: () => mocks.hasMultipleProjects },
     $noProjectMode: { get: () => mocks.noProjectMode },
 }));
@@ -69,7 +73,7 @@ vi.mock('../../shared/dialogs/dialogs.store', () => ({
 }));
 
 vi.mock('../../entities/issue', () => ({
-    $issuesStats: { get: () => ({ stats: undefined }) },
+    $issuesStats: { get: () => ({ stats: mocks.stats }) },
 }));
 
 vi.mock('../../widgets/context-panel/model/sidebarWidgets.store', () => ({
@@ -104,6 +108,21 @@ function createWidget(key: string, label: string, context?: string): NonNullable
 }
 
 describe('BrowseAppBar', () => {
+    beforeEach(() => {
+        mocks.activeWidget = undefined;
+        mocks.hasMultipleProjects = false;
+        mocks.noProjectMode = false;
+        mocks.projectName = 'My project';
+        mocks.stats = undefined;
+        mocks.phrases = {
+            'wcag.appbar.project.label': 'Switch project',
+            'wcag.appbar.issues.label': 'View project issues',
+            'field.noOpenIssues': 'No open issues',
+            'field.openIssuesCount': 'Open issues ({0})',
+            'field.assignedToMeCount': 'Assigned to me ({0})',
+        };
+    });
+
     it('keeps the mobile project title while preserving the desktop project selector', () => {
         mocks.activeWidget = createWidget('studio:main', 'Content', 'project');
         mocks.noProjectMode = false;
@@ -128,7 +147,7 @@ describe('BrowseAppBar', () => {
         rerender(<BrowseAppBar />);
         expect(screen.getByRole('heading', { name: 'Archive' }).classList.contains('sm:hidden')).toBe(true);
         const archiveProjectSelector = screen.getByRole<HTMLButtonElement>('button', {
-            name: 'wcag.appbar.project.label',
+            name: 'My project, Switch project',
         });
         expect(archiveProjectSelector.className).toContain('mr-auto');
         expect(archiveProjectSelector.className).toContain('max-sm:hidden');
@@ -143,5 +162,42 @@ describe('BrowseAppBar', () => {
         expect(header.classList.contains('h-15')).toBe(true);
         expect(header.classList.contains('border-b')).toBe(true);
         expect(header.classList.contains('border-bdr-soft')).toBe(true);
+    });
+
+    it('includes the current project name in the selector name after project and language changes', () => {
+        mocks.hasMultipleProjects = true;
+        mocks.projectName = 'Enonic Homepage (en)';
+        const { rerender } = render(<BrowseAppBar />);
+
+        expect(screen.getByRole('button', { name: 'Enonic Homepage (en), Switch project' }).textContent).toBe(
+            'Enonic Homepage (en)',
+        );
+
+        mocks.projectName = 'Nyheter (nb)';
+        mocks.phrases['wcag.appbar.project.label'] = 'Bytt prosjekt';
+        rerender(<BrowseAppBar />);
+
+        expect(screen.getByRole('button', { name: 'Nyheter (nb), Bytt prosjekt' }).textContent).toBe('Nyheter (nb)');
+    });
+
+    it('includes the current issues label and count in the accessible name', () => {
+        const { rerender } = render(<BrowseAppBar />);
+        expect(screen.getByRole('button', { name: 'No open issues, View project issues' }).textContent).toBe(
+            'No open issues',
+        );
+
+        mocks.stats = { open: 3, openAssignedToMe: 0 };
+        rerender(<BrowseAppBar />);
+        expect(screen.getByRole('button', { name: 'Open issues (3), View project issues' }).textContent).toBe(
+            'Open issues (3)',
+        );
+
+        mocks.stats = { open: 3, openAssignedToMe: 2 };
+        mocks.phrases['field.assignedToMeCount'] = 'Tildelt meg ({0})';
+        mocks.phrases['wcag.appbar.issues.label'] = 'Vis prosjektsaker';
+        rerender(<BrowseAppBar />);
+        expect(screen.getByRole('button', { name: 'Tildelt meg (2), Vis prosjektsaker' }).textContent).toBe(
+            'Tildelt meg (2)',
+        );
     });
 });

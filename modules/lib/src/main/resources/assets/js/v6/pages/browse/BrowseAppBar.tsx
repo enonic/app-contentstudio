@@ -106,7 +106,7 @@ export const BrowseAppBar = (): ReactElement => {
                         endIcon={hasMultipleProjects ? ArrowLeftRight : undefined}
                         endIconClassName="shrink-0 size-3.5"
                         onClick={() => setProjectSelectionDialogOpen(true)}
-                        aria-label={hasMultipleProjects ? projectAriaLabel : undefined}
+                        aria-label={hasMultipleProjects ? `${activeProjectName}, ${projectAriaLabel}` : undefined}
                         disabled={!hasMultipleProjects}
                     >
                         <span title={activeProjectName} className="block min-w-0 truncate">
@@ -130,7 +130,7 @@ export const BrowseAppBar = (): ReactElement => {
                         onClick={() => {
                             new ShowIssuesDialogEvent().fire();
                         }}
-                        aria-label={issuesAriaLabel}
+                        aria-label={`${issuesStatsLabel}, ${issuesAriaLabel}`}
                         label={issuesStatsLabel}
                     />
                 )}
