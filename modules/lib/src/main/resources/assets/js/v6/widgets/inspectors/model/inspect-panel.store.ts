@@ -1,15 +1,18 @@
-import type { Action } from '@enonic/lib-admin-ui/ui/Action';
 import { atom, computed } from 'nanostores';
 
 //
 // * State
 //
 
-export const $inspectSaveAction = atom<Action | null>(null);
+export type InspectSave = {
+    enabled: boolean;
+    execute: () => void;
+};
+
+// Set by the wizard toolbar: the inspector applies its form by saving the content.
+const $inspectSave = atom<InspectSave | null>(null);
 
 export const $inspectFormPresent = atom<boolean>(false);
-
-const $inspectSaveActionEnabled = atom<boolean>(false);
 
 //
 // * Computed
@@ -18,34 +21,16 @@ const $inspectSaveActionEnabled = atom<boolean>(false);
 export const $isApplyVisible = computed($inspectFormPresent, (present): boolean => present);
 
 export const $isApplyEnabled = computed(
-    [$inspectFormPresent, $inspectSaveActionEnabled],
-    (present, enabled): boolean => present && enabled,
+    [$inspectFormPresent, $inspectSave],
+    (present, save): boolean => present && save?.enabled === true,
 );
 
 //
 // * Commands
 //
 
-let unsubscribeSaveAction: (() => void) | null = null;
-
-export function setInspectSaveAction(action: Action | null): void {
-    unsubscribeSaveAction?.();
-    unsubscribeSaveAction = null;
-
-    $inspectSaveAction.set(action);
-
-    if (action == null) {
-        $inspectSaveActionEnabled.set(false);
-        return;
-    }
-
-    const sync = (): void => {
-        $inspectSaveActionEnabled.set(action.isEnabled());
-    };
-
-    sync();
-    action.onPropertyChanged(sync);
-    unsubscribeSaveAction = () => action.unPropertyChanged(sync);
+export function setInspectSave(save: InspectSave | null): void {
+    $inspectSave.set(save);
 }
 
 export function setInspectFormPresent(present: boolean): void {
@@ -57,8 +42,8 @@ export function resetInspectFormTracking(): void {
 }
 
 export function executeInspectSave(): void {
-    const action = $inspectSaveAction.get();
-    if (action != null && action.isEnabled()) {
-        action.execute();
+    const save = $inspectSave.get();
+    if (save?.enabled) {
+        save.execute();
     }
 }

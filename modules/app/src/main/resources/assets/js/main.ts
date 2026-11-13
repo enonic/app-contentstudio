@@ -6,15 +6,10 @@ import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
 import { AuthHelper } from '@enonic/lib-admin-ui/auth/AuthHelper';
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { Body } from '@enonic/lib-admin-ui/dom/Body';
-import { ImgEl } from '@enonic/lib-admin-ui/dom/ImgEl';
-import { WindowDOM } from '@enonic/lib-admin-ui/dom/WindowDOM';
-import { NamePrettyfier } from '@enonic/lib-admin-ui/NamePrettyfier';
 import { showError } from '@enonic/lib-admin-ui/notify/MessageBus';
 import { Message } from '@enonic/lib-admin-ui/notify/Message';
 import { NotifyManager } from '@enonic/lib-admin-ui/notify/NotifyManager';
-import { PropertyChangedEvent } from '@enonic/lib-admin-ui/PropertyChangedEvent';
 import { Path } from '@enonic/lib-admin-ui/rest/Path';
-import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { Principal } from '@enonic/lib-admin-ui/security/Principal';
 import { PrincipalJson } from '@enonic/lib-admin-ui/security/PrincipalJson';
 import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
@@ -31,15 +26,11 @@ import { ShowDependenciesEvent } from '@enonic/lib-contentstudio/app/browse/Show
 import { ShowIssuesDialogEvent } from '@enonic/lib-contentstudio/app/browse/ShowIssuesDialogEvent';
 import { ShowNewContentDialogEvent } from '@enonic/lib-contentstudio/app/browse/ShowNewContentDialogEvent';
 import { Content } from '@enonic/lib-contentstudio/app/content/Content';
-import { ContentIconUrlResolver } from '@enonic/lib-contentstudio/app/content/ContentIconUrlResolver';
 import { ContentSummary } from '@enonic/lib-contentstudio/app/content/ContentSummary';
 import { ContentEventsListener } from '@enonic/lib-contentstudio/app/ContentEventsListener';
 import { ContentEventsProcessor } from '@enonic/lib-contentstudio/app/ContentEventsProcessor';
-import { NewContentEvent } from '@enonic/lib-contentstudio/app/create/NewContentEvent';
 import { AggregatedServerEventsListener } from '@enonic/lib-contentstudio/app/event/AggregatedServerEventsListener';
 import { ContentServerEventsHandler } from '@enonic/lib-contentstudio/app/event/ContentServerEventsHandler';
-import { ContentUpdatedEvent } from '@enonic/lib-contentstudio/app/event/ContentUpdatedEvent';
-import { EditContentEvent } from '@enonic/lib-contentstudio/app/event/EditContentEvent';
 import { OpenEditPermissionsDialogEvent } from '@enonic/lib-contentstudio/app/event/OpenEditPermissionsDialogEvent';
 import { IssueServerEventsHandler } from '@enonic/lib-contentstudio/app/issue/event/IssueServerEventsHandler';
 import { IssueDialogsManager } from '@enonic/lib-contentstudio/app/issue/IssueDialogsManager';
@@ -56,6 +47,14 @@ import { VersionHelper } from '@enonic/lib-contentstudio/app/util/VersionHelper'
 import { ContentAppHelper } from '@enonic/lib-contentstudio/app/wizard/ContentAppHelper';
 import { ContentWizardPanelParams } from '@enonic/lib-contentstudio/app/wizard/ContentWizardPanelParams';
 import { mountApp } from '@enonic/lib-contentstudio/v6/app/App';
+import {
+    canShowContentFavicon,
+    clearWizardTabFavicon,
+    followContentInWizardTab,
+    resolveUnnamedTabTitle,
+    setWizardTabTitle,
+    showContentInWizardTab,
+} from '@enonic/lib-contentstudio/v6/pages/wizard/model/wizardTab.service';
 import { mountNotifications } from '@enonic/lib-contentstudio/v6/app/notificationsRoot';
 import { initAiHost } from '@enonic/lib-contentstudio/v6/features/ai';
 import { $isBrowseSidebarOpen } from '@enonic/lib-contentstudio/v6/pages/browse/model/browseSidebar.store';
@@ -65,7 +64,6 @@ import { initLanguages } from '@enonic/lib-contentstudio/v6/entities/language/la
 import { initPrincipals } from '@enonic/lib-contentstudio/v6/entities/principal/principals.store';
 import { $activeProject } from '@enonic/lib-contentstudio/v6/entities/project/activeProject.store';
 import { $projects, initProjects } from '@enonic/lib-contentstudio/v6/entities/project/projects.store';
-import $ from 'jquery';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
@@ -168,19 +166,6 @@ function initApplicationEventListener() {
     });
 }
 
-function updateTabTitle(title: string) {
-    $('title').text(`${title} / ${i18n('app.name')}`);
-}
-
-function shouldUpdateFavicon(contentTypeName: ContentTypeName): boolean {
-    // Chrome currently doesn't support SVG favicons which are served for not image contents
-    return contentTypeName.isImage() || navigator.userAgent.search('Chrome') === -1;
-}
-
-const faviconCache: Record<string, HTMLElement> = {};
-
-const iconUrlResolver = new ContentIconUrlResolver();
-
 // ? dataPreloaded is set inside the preload .then so that startContentWizard can
 // ? skip favicon/title work that already happened. Safe because startApplication
 // ? is gated on preLoadPromise — by the time the wizard runs, the request has
@@ -190,57 +175,6 @@ let dataPreloaded: boolean = false;
 let invalidEditUrlNotificationPending: boolean = false;
 
 let wizardParams: ContentWizardPanelParams | undefined;
-
-const svgFaviconLink = document.querySelector('link[rel~="icon"][type="image/svg+xml"]');
-
-// the svg favicon outranks the png ones, so it is put back exactly where it was declared
-const firstRasterFaviconLink = document.querySelector('link[rel~="icon"][type="image/png"]');
-
-function clearFavicon() {
-    // save current favicon hrefs
-    $('link[rel*=icon][sizes]').each((index, link: HTMLElement) => {
-        let href = link.getAttribute('href');
-        faviconCache[href] = link;
-        link.setAttribute('href', ImgEl.PLACEHOLDER);
-    });
-
-    // a png href cannot override the svg favicon, so it has to leave the document entirely
-    // while the tab shows the content icon
-    svgFaviconLink?.remove();
-}
-
-function updateFavicon(content: ContentSummary) {
-    let resolver = iconUrlResolver.setContent(content).setCrop(false);
-    let shouldUpdate = shouldUpdateFavicon(content.getType());
-    for (let href in faviconCache) {
-        if (faviconCache.hasOwnProperty(href)) {
-            let link = faviconCache[href];
-            if (shouldUpdate) {
-                let sizes = link.getAttribute('sizes').split('x');
-                if (sizes.length > 0) {
-                    try {
-                        resolver.setSize(parseInt(sizes[0], 10));
-                    } catch (e) {
-                        /* empty */
-                    }
-                }
-                link.setAttribute('href', resolver.resolve());
-            } else {
-                link.setAttribute('href', href);
-            }
-            delete faviconCache[href];
-        }
-    }
-
-    if (svgFaviconLink && !svgFaviconLink.isConnected && !shouldUpdate) {
-        document.head.insertBefore(svgFaviconLink, firstRasterFaviconLink);
-    }
-}
-
-const refreshTab = function (content: ContentSummary) {
-    updateFavicon(content);
-    updateTabTitle(content.getDisplayName());
-};
 
 function preLoadApplication(): Promise<void> {
     if (!wizardParams) {
@@ -262,10 +196,10 @@ function preLoadApplication(): Promise<void> {
                         return;
                     }
                     dataPreloaded = true;
-                    clearFavicon();
-                    refreshTab(content);
-                    if (shouldUpdateFavicon(content.getType())) {
-                        refreshTabOnContentUpdate(content);
+                    clearWizardTabFavicon();
+                    showContentInWizardTab(content);
+                    if (canShowContentFavicon(content.getType())) {
+                        followContentInWizardTab(content.getContentId());
                     }
                 })
                 .catch(() => {
@@ -279,9 +213,9 @@ function preLoadApplication(): Promise<void> {
 
     if (shouldPreloadTabData) {
         dataPreloaded = true;
-        clearFavicon();
+        clearWizardTabFavicon();
         new GetContentTypeByNameRequest(wizardParams.contentTypeName).sendAndParse().then((contentType) => {
-            updateTabTitle(NamePrettyfier.prettifyUnnamed(contentType.getTitle()));
+            setWizardTabTitle(resolveUnnamedTabTitle(contentType.getTitle()));
         });
     }
 
@@ -418,66 +352,10 @@ async function startApplication() {
     IssueServerEventsHandler.getInstance().start();
 }
 
-const refreshTabOnContentUpdate = (content: Content) => {
-    ContentUpdatedEvent.on((event: ContentUpdatedEvent) => {
-        if (event.getContentId().equals(content.getContentId())) {
-            clearFavicon();
-            refreshTab(event.getContentSummary());
-        }
-    });
-};
-
 async function startContentWizard() {
-    const { ContentWizardPanel } = await import('@enonic/lib-contentstudio/app/wizard/ContentWizardPanel');
-    const { setMode } = await import('@enonic/lib-contentstudio/v6/shared/app-state/mode.store');
+    const { startWizardApp } = await import('@enonic/lib-contentstudio/v6/app/wizardApp');
 
-    const wizard = new ContentWizardPanel(wizardParams, getTheme());
-    setMode('wizard');
-
-    wizard.onDataLoaded((content: Content) => {
-        let contentType = wizard.getContentType();
-        if (!wizardParams.contentId || !dataPreloaded) {
-            // update favicon for new wizard after content has been created or in case data hasn't been preloaded
-            updateFavicon(content);
-
-            if (shouldUpdateFavicon(content.getType())) {
-                refreshTabOnContentUpdate(content);
-            }
-        }
-        if (!dataPreloaded) {
-            updateTabTitle(content.getDisplayName() || NamePrettyfier.prettifyUnnamed(contentType.getTitle()));
-        }
-    });
-    wizard.onWizardHeaderCreated(() => {
-        // header will be ready after rendering is complete
-        wizard.getWizardHeader().onPropertyChanged((event: PropertyChangedEvent) => {
-            if (event.getPropertyName() === 'displayName') {
-                let contentType = wizard.getContentType();
-                let name = (event.getNewValue() as string) || NamePrettyfier.prettifyUnnamed(contentType.getTitle());
-
-                updateTabTitle(name);
-            }
-        });
-    });
-
-    WindowDOM.get().onBeforeUnload((event: UIEvent) => {
-        if (wizard.isContentDeleted()) {
-            return;
-        }
-        if (wizard.hasUnsavedChanges() && !wizard.isReadOnly()) {
-            const message = i18n('dialog.wizard.unsavedChanges');
-            const e: UIEvent | object = event || { returnValue: '' };
-            e['returnValue'] = message;
-            return message;
-        }
-    });
-
-    wizard.onClosed(() => window.close());
-
-    EditContentEvent.on(ContentEventsProcessor.handleEdit);
-    NewContentEvent.on(ContentEventsProcessor.handleNew);
-
-    Body.get().addClass('wizard-page').appendChild(wizard);
+    startWizardApp(wizardParams, { theme: getTheme(), tabPreloaded: dataPreloaded });
 }
 
 function getTheme(): string {

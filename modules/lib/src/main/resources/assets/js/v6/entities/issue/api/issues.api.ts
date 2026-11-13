@@ -90,6 +90,28 @@ export function listIssues({ from, size }: ListIssuesParams): ResultAsync<ListIs
     );
 }
 
+const OPEN_ISSUES_FETCH_SIZE = 10;
+
+/**
+ * Find the open issues that include the content, the most recently modified first.
+ * Used by: pages/wizard/model/wizardPublishRequest.service.
+ */
+export function findOpenIssues(contentId: string): ResultAsync<Issue[], AppError> {
+    const body = {
+        status: IssueStatus[IssueStatus.OPEN],
+        from: 0,
+        size: OPEN_ISSUES_FETCH_SIZE,
+        contentIds: [contentId],
+    };
+
+    return requestJson<{ issues: IssueJson[] }>(getCmsProjectUrl('issue/findIssues'), { method: 'POST', body }).map(
+        (json) =>
+            json.issues
+                .map((issue) => Issue.fromJson(issue))
+                .sort((a, b) => b.getModifiedTime().getTime() - a.getModifiedTime().getTime()),
+    );
+}
+
 /**
  * Create an issue (project-scoped, non-content endpoint).
  * Used by: features/issues/model/newIssueDialog.store.

@@ -20,9 +20,7 @@ export { closePluginDialog, openPluginDialog, sendPluginContext } from './ai.hos
 
 // Write: commands
 export {
-    setAiCompareStatus,
     setAiContent,
-    setAiContentHeader,
     setAiContentType,
     setAiCurrentData,
     setAiDataTree,
