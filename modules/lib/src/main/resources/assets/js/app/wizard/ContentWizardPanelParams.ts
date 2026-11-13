@@ -1,12 +1,9 @@
-import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {type Application} from '@enonic/lib-admin-ui/app/Application';
-import {type ContentId} from '../content/ContentId';
-import {type WizardPanelParams} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
-import {type Content} from '../content/Content';
-import {type AppBarTabId} from '@enonic/lib-admin-ui/app/bar/AppBarTabId';
+import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { type Application } from '@enonic/lib-admin-ui/app/Application';
+import { type ContentId } from '../content/ContentId';
+import { type AppBarTabId } from '@enonic/lib-admin-ui/app/bar/AppBarTabId';
 
-export class ContentWizardPanelParams implements WizardPanelParams<Content> {
-
+export class ContentWizardPanelParams {
     application: Application;
 
     createSite: boolean = false;
@@ -69,5 +66,4 @@ export class ContentWizardPanelParams implements WizardPanelParams<Content> {
         this.displayAsNew = value;
         return this;
     }
-
 }

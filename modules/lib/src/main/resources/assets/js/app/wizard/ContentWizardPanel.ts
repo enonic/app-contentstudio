@@ -1,4 +1,3 @@
-import { WizardPanel } from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
 import { AuthHelper } from '@enonic/lib-admin-ui/auth/AuthHelper';
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
@@ -10,7 +9,6 @@ import { KeyBindings } from '@enonic/lib-admin-ui/ui/KeyBindings';
 import { LoadMask } from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import { Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
 import { ResponsiveManager } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import { type Toolbar, type ToolbarConfig } from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
@@ -104,22 +102,49 @@ import {
     updateWizardContent,
 } from '../../v6/pages/wizard/model/wizardSave.service';
 import { type WizardSaveOptions } from '../../v6/pages/wizard/model/wizardController';
-import { DisplayNameResolver } from './DisplayNameResolver';
-import { MaskContentWizardPanelEvent } from './MaskContentWizardPanelEvent';
 import { type DefaultModels } from './page/DefaultModels';
 import { LiveEditPageProxy } from './page/LiveEditPageProxy';
 import { LiveFormPanel, type LiveFormPanelConfig } from './page/LiveFormPanel';
 import { PageState } from './page/PageState';
 import { PageEventsManager } from './PageEventsManager';
 
-export class ContentWizardPanel extends WizardPanel<Content> {
+//
+// What lib-admin-ui `WizardPanel` did for the content wizard is inlined here: waiting
+// for the data and for the panel to be shown before rendering, the load masks, the
+// persisted and the edited content, and the close listeners.
+//
+export class ContentWizardPanel extends Panel {
     private livePanel?: LiveFormPanel;
 
     private liveEditPage?: LiveEditPageProxy;
 
-    declare protected wizardActions: ContentWizardActions;
+    private readonly params: ContentWizardPanelParams;
 
-    declare protected params: ContentWizardPanelParams;
+    private wizardActions: ContentWizardActions;
+
+    private mainToolbar: ContentWizardToolbarElement;
+
+    private formPanel: Panel;
+
+    private leftPanelAndToolbar: Panel;
+
+    private formMask?: LoadMask;
+
+    private liveMask?: LoadMask;
+
+    private persistedItem: Content;
+
+    private currentItem: Content;
+
+    private newContent: boolean = true;
+
+    private canModify: boolean = false;
+
+    private dataLoaded: boolean = false;
+
+    private closedListeners: (() => void)[] = [];
+
+    private dataLoadedListeners: ((content: Content) => void)[] = [];
 
     private parentContent: Content;
 
@@ -134,8 +159,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
     private siteModel: SiteModel;
 
     private liveEditModel: LiveEditModel;
-
-    private displayNameResolver: DisplayNameResolver;
 
     private currentCompareStatus: CompareStatus;
 
@@ -160,7 +183,12 @@ export class ContentWizardPanel extends WizardPanel<Content> {
     private contentFetcher: ContentSummaryAndCompareStatusFetcher;
 
     constructor(params: ContentWizardPanelParams, cls?: string) {
-        super(params);
+        super('wizard-panel');
+
+        this.params = params;
+        this.initElements();
+        this.initEventsListeners();
+        this.mainToolbar = this.createMainToolbar();
 
         this.getEl().setAttribute('role', 'main');
 
@@ -179,11 +207,13 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         this.initBindings();
     }
 
-    protected initElements() {
-        super.initElements();
+    private initElements() {
+        this.wizardActions = new ContentWizardActions(this);
+        // ! `panel-strip-scrollable` is what makes the form scroll.
+        this.formPanel = new Panel('form-panel rendering panel-strip-scrollable');
+        this.leftPanelAndToolbar = new Panel();
 
         this.contentUpdateDisabled = false;
-        this.displayNameResolver = new DisplayNameResolver();
 
         this.debouncedEditorReload = AppHelper.debounce(
             (clearInspection: boolean, toggleLiveEdit: boolean, skipConfirmation: boolean) => {
@@ -212,13 +242,47 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
     // Only Preview and Close are left here; the v6 wizard shell binds the shortcuts of the other actions.
     private initBindings() {
-        const nextActions = this.getActions();
+        const nextActions = this.wizardActions.getActions();
         const currentKeyBindings = Action.getKeyBindings(nextActions);
         KeyBindings.get().bindKeys(currentKeyBindings);
     }
 
-    protected initEventsListeners() {
-        super.initEventsListeners();
+    private initEventsListeners() {
+        this.onShown(() => {
+            if (!this.formPanel.isRendered()) {
+                this.formMask?.show();
+            }
+        });
+
+        this.onHidden(() => {
+            if (this.formMask?.isVisible()) {
+                this.formMask.hide();
+            }
+            if (this.liveMask?.isVisible()) {
+                this.liveMask.hide();
+            }
+        });
+
+        this.formPanel.onAdded(() => {
+            this.formMask = new LoadMask(this.formPanel);
+            this.formMask.show();
+        });
+
+        this.formPanel.onRendered(() => {
+            this.formMask?.hide();
+            this.formPanel.removeClass('rendering');
+            this.mainToolbar.removeClass('rendering');
+
+            this.checkIfEditIsAllowed()
+                .then((editIsAllowed: boolean) => editIsAllowed && this.giveInitialFocus())
+                .catch(DefaultErrorHandler.handle);
+
+            if (this.getPersistedItem()) {
+                this.wizardActions.refreshState();
+            }
+        });
+
+        ResponsiveManager.onAvailableSizeChanged(this.formPanel);
 
         this.listenToContentEvents();
         this.handleContentRequiresSaveEvent();
@@ -245,7 +309,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
         const wasDataInherited: boolean = this.getPersistedItem().isDataInherited();
 
-        super.setPersistedItem(content);
+        this.storePersistedItem(content);
         applyOwnContentUpdate(content);
         setAiContent(content);
         this.updateWithContentSummary(
@@ -281,51 +345,73 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         });
     }
 
-    protected createWizardActions(): ContentWizardActions {
-        return new ContentWizardActions(this);
+    onDataLoaded(listener: (content: Content) => void): void {
+        this.dataLoadedListeners.push(listener);
     }
 
-    protected doLoadData(): Q.Promise<Content> {
+    onClosed(listener: () => void): void {
+        this.closedListeners.push(listener);
+    }
+
+    private loadData(): void {
+        this.dataLoaded = false;
+
+        this.doLoadData().done(
+            (content: Content) => {
+                this.dataLoaded = true;
+                this.dataLoadedListeners.forEach((listener) => listener(content));
+            },
+            (reason) => DefaultErrorHandler.handle(reason),
+        );
+    }
+
+    private doLoadData(): Q.Promise<Content> {
         if (ContentWizardPanel.debug) {
             console.debug('ContentWizardPanel.doLoadData at ' + new Date().toISOString());
         }
-        return Q(loadWizardData(this.params))
-            .then((loaded: WizardLoadedData) => {
-                if (ContentWizardPanel.debug) {
-                    console.debug('ContentWizardPanel.doLoadData: loaded data at ' + new Date().toISOString(), loaded);
-                }
-                if (loaded.content) {
-                    this.formState.setIsNew(this.params.displayAsNew);
-                    this.setPersistedItem(loaded.content);
-
-                    if (this.params.displayAsNew) {
-                        showFeedback(i18n('notify.content.created'));
+        return (
+            Q(loadWizardData(this.params))
+                .then((loaded: WizardLoadedData) => {
+                    if (ContentWizardPanel.debug) {
+                        console.debug(
+                            'ContentWizardPanel.doLoadData: loaded data at ' + new Date().toISOString(),
+                            loaded,
+                        );
                     }
-                }
+                    if (loaded.content) {
+                        this.newContent = this.params.displayAsNew;
+                        this.setPersistedItem(loaded.content);
 
-                this.defaultModels = loaded.defaultModels;
-                this.site = loaded.site;
-                this.contentType = loaded.contentType;
-                this.parentContent = loaded.parentContent;
-                this.contentExistsInParentProject = loaded.existsInParentProject;
-                this.persistedCompareStatus = loaded.compareStatus;
-                this.currentCompareStatus = loaded.compareStatus;
-                this.currentPublishStatus = loaded.publishStatus;
+                        if (this.params.displayAsNew) {
+                            showFeedback(i18n('notify.content.created'));
+                        }
+                    }
 
-                setAiContentType(this.contentType);
-                this.updateAiAppConfigs();
-            })
-            .then(() => super.doLoadData())
-            .then((loadedContent: Content) => {
-                // persisted item is always present now
-                // for existing content it was loaded
-                // for new content it was saved in super.doLoadData()
-                const currentItem: Content = this.getCurrentItem();
-                this.initOrUpdateSiteModel(currentItem.isSite() ? (currentItem as Site) : this.site);
-                this.liveEditModel = this.initLiveEditModel(currentItem);
+                    this.defaultModels = loaded.defaultModels;
+                    this.site = loaded.site;
+                    this.contentType = loaded.contentType;
+                    this.parentContent = loaded.parentContent;
+                    this.contentExistsInParentProject = loaded.existsInParentProject;
+                    this.persistedCompareStatus = loaded.compareStatus;
+                    this.currentCompareStatus = loaded.compareStatus;
+                    this.currentPublishStatus = loaded.publishStatus;
 
-                return this.loadAndSetPageState(currentItem.getPage()?.clone()).then(() => loadedContent);
-            });
+                    setAiContentType(this.contentType);
+                    this.updateAiAppConfigs();
+                })
+                // an unnamed, empty content is created before a new wizard renders
+                .then(() => this.getPersistedItem() ?? this.saveChanges())
+                .then((loadedContent: Content) => {
+                    // persisted item is always present now
+                    // for existing content it was loaded
+                    // for new content it was just created
+                    const currentItem: Content = this.getCurrentItem();
+                    this.initOrUpdateSiteModel(currentItem.isSite() ? (currentItem as Site) : this.site);
+                    this.liveEditModel = this.initLiveEditModel(currentItem);
+
+                    return this.loadAndSetPageState(currentItem.getPage()?.clone()).then(() => loadedContent);
+                })
+        );
     }
 
     private loadAndSetPageState(page: Page): Q.Promise<void> {
@@ -338,17 +424,12 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         });
     }
 
-    // ! lib `WizardPanel` needs an element here; it never reaches the DOM.
-    protected createFormIcon(): DivEl {
-        return new DivEl();
-    }
-
-    protected createMainToolbar(): Toolbar<ToolbarConfig> {
+    private createMainToolbar(): ContentWizardToolbarElement {
         const toolbar = new ContentWizardToolbarElement({ previewAction: this.wizardActions.getPreviewAction() });
         toolbar.getHTMLElement().classList.remove('contents');
         toolbar.onRemoved(startWizardToolbar());
 
-        return toolbar as unknown as Toolbar<ToolbarConfig>;
+        return toolbar;
     }
 
     private getWidgetToolbar(): PreviewToolbarElement {
@@ -377,7 +458,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         const stopLayout = startWizardLayout(
             {
                 applyLiveEdit: (shown) => {
-                    this.getMainToolbar().toggleClass('live', shown);
+                    this.mainToolbar.toggleClass('live', shown);
                     this.toggleClass('form', !shown);
                     this.toggleClass('wizard-panel--live', shown);
 
@@ -436,10 +517,82 @@ export class ContentWizardPanel extends WizardPanel<Content> {
     }
 
     getWizardActions(): ContentWizardActions {
-        return super.getWizardActions() as ContentWizardActions;
+        return this.wizardActions;
     }
 
-    doRenderOnDataLoaded(rendered: boolean): Q.Promise<boolean> {
+    // Renders once the data is loaded and the panel is shown.
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            const renderWhenShown = (): Q.Promise<boolean> => {
+                const deferred = Q.defer<boolean>();
+
+                const render = (): void => {
+                    this.doRenderOnDataLoaded(rendered)
+                        .then((nextRendered: boolean) =>
+                            this.doLayout(this.getPersistedItem()).then(() => {
+                                this.checkIfEditIsAllowed()
+                                    .then((canModify: boolean) => this.handleCanModify(canModify))
+                                    .catch(DefaultErrorHandler.handle)
+                                    .finally(() => deferred.resolve(nextRendered));
+                            }),
+                        )
+                        .catch((reason) => {
+                            deferred.reject(reason);
+                            DefaultErrorHandler.handle(reason);
+                        })
+                        .done();
+                };
+
+                if (this.isVisible()) {
+                    render();
+                } else {
+                    const shownHandler = (): void => {
+                        this.unShown(shownHandler);
+                        render();
+                    };
+                    this.onShown(shownHandler);
+                }
+
+                return deferred.promise;
+            };
+
+            if (this.dataLoaded) {
+                return renderWhenShown();
+            }
+
+            const deferred = Q.defer<boolean>();
+            this.onDataLoaded(() => {
+                renderWhenShown().then(
+                    (nextRendered) => deferred.resolve(nextRendered),
+                    (reason) => deferred.reject(reason),
+                );
+            });
+
+            return deferred.promise;
+        });
+    }
+
+    private updateToolbarActions(): void {
+        if (this.newContent) {
+            this.wizardActions.enableActionsForNew();
+        } else {
+            void this.wizardActions.enableActionsForExisting(this.getPersistedItem());
+        }
+    }
+
+    private assembleElements(): void {
+        this.updateToolbarActions();
+        this.mainToolbar.addClass('rendering');
+
+        // ! Stands in for the legacy steps panel: its rule in lib-admin-ui gives the form its bottom padding.
+        this.formPanel.appendChild(new DivEl('panel panel-strip wizard-steps-panel'));
+
+        this.leftPanelAndToolbar.prependChild(this.mainToolbar);
+        this.leftPanelAndToolbar.appendChild(this.prepareMainPanel());
+        this.appendChild(this.leftPanelAndToolbar);
+    }
+
+    private doRenderOnDataLoaded(rendered: boolean): Q.Promise<boolean> {
         this.initListeners();
 
         if (ContentWizardPanel.debug) {
@@ -455,17 +608,15 @@ export class ContentWizardPanel extends WizardPanel<Content> {
             'live-load-mask',
         ) as LoadMask;
 
-        return super.doRenderOnDataLoaded(rendered).then(() => {
+        this.assembleElements();
+
+        return Q(rendered).then(() => {
             if (ContentWizardPanel.debug) {
                 console.debug('ContentWizardPanel.doRenderOnDataLoaded continue at ' + new Date().toISOString());
             }
 
             setWizardToolbarItem(this.getContent());
             this.wizardActions.setContent(this.getContent()).refreshState();
-
-            if (this.contentType?.hasDisplayNameExpression()) {
-                this.displayNameResolver.setExpression(this.contentType.getDisplayNameExpression());
-            }
 
             this.addClass('content-wizard-panel');
 
@@ -474,24 +625,16 @@ export class ContentWizardPanel extends WizardPanel<Content> {
                 resetWizardContent();
             });
 
-            this.onValidityChanged(() => {
-                if (this.getPersistedItem()) {
-                    this.wizardActions.refreshState();
-                }
-            });
-
             if (this.livePanel) {
                 this.livePanel.addClass('rendering');
                 ResponsiveManager.onAvailableSizeChanged(this.formPanel);
             }
 
-            this.stepNavigatorAndToolbarContainer?.getParentElement()?.remove(); // removing legacy nav bar
-
             return rendered;
         });
     }
 
-    protected prepareMainPanel(): Panel {
+    private prepareMainPanel(): Panel {
         this.formPanel.addClass('content-wizard-form-panel px-5 py-3');
 
         if (this.getPersistedItem()) {
@@ -520,7 +663,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
     }
 
     isNew(): boolean {
-        return this.formState.isNew();
+        return this.newContent;
     }
 
     private refreshLivePanel(content: Content): Q.Promise<void> {
@@ -542,12 +685,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
             return Q();
         });
-    }
-
-    // ! lib `WizardPanel` calls this on every form scroll to stick the step navigator,
-    // ! which the content wizard does not have, and reads the header it no longer creates.
-    updateStickyToolbar(): void {
-        // nothing to stick
     }
 
     saveChanges(options: WizardSaveOptions = {}): Q.Promise<Content> {
@@ -607,7 +744,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         this.setPersistedItem(content);
         // persist new happens before render to init dummy entity and is still considered as new
         if (this.isRendered()) {
-            this.formState.setIsNew(false);
+            this.newContent = false;
             this.updateToolbarActions();
         }
 
@@ -628,7 +765,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         }
 
         this.setPersistedItem(content);
-        this.formState.setIsNew(false);
+        this.newContent = false;
         this.updateToolbarActions();
 
         escalateVisibility('all');
@@ -655,7 +792,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         return this.contentType;
     }
 
-    giveInitialFocus() {
+    private giveInitialFocus() {
         if (!this.canModify) {
             clearDisplayNameInputFocusRequest();
             return;
@@ -667,13 +804,11 @@ export class ContentWizardPanel extends WizardPanel<Content> {
             if ($isContentFormExpanded.get()) {
                 requestDisplayNameInputFocus();
             }
-
-            this.startRememberFocus();
         });
     }
 
-    doLayout(persistedContent: Content): Q.Promise<void> {
-        return super.doLayout(persistedContent).then(() => {
+    private doLayout(persistedContent: Content): Q.Promise<void> {
+        return Q().then(() => {
             this.updateTabsElement();
 
             if (this.params.localized) {
@@ -687,12 +822,12 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         });
     }
 
-    close(checkCanClose: boolean = false) {
+    close(_checkCanClose: boolean = false) {
         const liveFormPanel = this.getLivePanel();
         if (liveFormPanel) {
             liveFormPanel.skipNextReloadConfirmation(true);
         }
-        super.close(checkCanClose);
+        this.closedListeners.forEach((listener) => listener());
     }
 
     private isCurrentContentId(id: ContentId): boolean {
@@ -708,12 +843,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
     }
 
     private initListeners() {
-        MaskContentWizardPanelEvent.on((event) => {
-            if (this.getPersistedItem().getContentId().equals(event.getContentId())) {
-                this.wizardActions.suspendActions(event.isMask());
-            }
-        });
-
         PageState.getEvents().onPageReset(() => {
             setWizardMarkedAsReady(false);
 
@@ -1049,8 +1178,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
     }
 
     setEnabled(value: boolean) {
-        super.setEnabled(value);
-
         this.getEl().toggleClass('no-modify-permissions', !value);
         this.getLivePanel()?.setEnabled(value);
     }
@@ -1098,8 +1225,22 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         window.name = `${action}:${getActiveProjectName()}:${this.getPersistedItem().getId()}`;
     }
 
-    protected setPersistedItem(newPersistedItem: Content): void {
-        super.setPersistedItem(newPersistedItem);
+    getPersistedItem(): Content {
+        return this.persistedItem;
+    }
+
+    // The content being edited: a copy of the persisted one.
+    private getCurrentItem(): Content {
+        return this.currentItem;
+    }
+
+    private storePersistedItem(content: Content): void {
+        this.persistedItem = content;
+        this.currentItem = content ? content.clone() : null;
+    }
+
+    private setPersistedItem(newPersistedItem: Content): void {
+        this.storePersistedItem(newPersistedItem);
 
         setWizardPersistedContent(newPersistedItem);
 
@@ -1110,10 +1251,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         this.setPersistedItem(newContent);
     }
 
-    protected convertToCurrentItem(content: Content): Content {
-        return content ? content.clone() : null;
-    }
-
     private setPersistedContent(content: ContentSummaryAndCompareStatus) {
         ContentContext.get().setContent(content);
         this.persistedCompareStatus = content.getCompareStatus();
@@ -1121,7 +1258,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         setWizardContent(content.getContentSummary());
     }
 
-    protected checkIfEditIsAllowed(): Q.Promise<boolean> {
+    private checkIfEditIsAllowed(): Q.Promise<boolean> {
         if (this.getPersistedItem().isDataInherited()) {
             return Q.resolve(false);
         }
@@ -1139,8 +1276,9 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         return Q.resolve(hasModifyPermissions && !this.getPersistedItem().isDataInherited());
     }
 
-    protected handleCanModify(canModify: boolean): void {
-        super.handleCanModify(canModify);
+    private handleCanModify(canModify: boolean): void {
+        this.canModify = canModify;
+        this.setEnabled(canModify);
 
         setWizardReadOnly(!canModify);
         this.updateUrlAction();

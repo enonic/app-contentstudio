@@ -19,12 +19,10 @@ import {
     start as startPublishRequestService,
     stop as stopPublishRequestService,
 } from '../../../v6/pages/wizard/model/wizardPublishRequest.service';
-import { CloseAction } from '@enonic/lib-admin-ui/app/wizard/CloseAction';
-import { WizardActions } from '@enonic/lib-admin-ui/app/wizard/WizardActions';
 import { type ManagedActionExecutor } from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
 import { ManagedActionManager } from '@enonic/lib-admin-ui/managedaction/ManagedActionManager';
 import { ManagedActionState } from '@enonic/lib-admin-ui/managedaction/ManagedActionState';
-import { type Action } from '@enonic/lib-admin-ui/ui/Action';
+import { Action } from '@enonic/lib-admin-ui/ui/Action';
 import Q from 'q';
 import { GetContentByPathRequest } from '../../resource/GetContentByPathRequest';
 import { GetContentPermissionsByIdRequest } from '../../resource/GetContentPermissionsByIdRequest';
@@ -45,7 +43,7 @@ import { PreviewAction } from './PreviewAction';
 // writes the facts the store derives the state from, and keeps the few `Action`
 // objects the live edit, the layout and lib-admin-ui `WizardPanel` still use.
 //
-export class ContentWizardActions extends WizardActions<Content> {
+export class ContentWizardActions {
     private content: ContentSummaryAndCompareStatus;
 
     private wizardPanel: ContentWizardPanel;
@@ -64,9 +62,8 @@ export class ContentWizardActions extends WizardActions<Content> {
 
     constructor(wizardPanel: ContentWizardPanel) {
         const previewAction = new PreviewAction(wizardPanel);
-        const closeAction = new CloseAction(wizardPanel);
-
-        super(previewAction, closeAction);
+        const closeAction = new Action('Close', 'alt+w', true);
+        closeAction.onExecuted(() => wizardPanel.close());
 
         this.wizardPanel = wizardPanel;
         this.previewAction = previewAction;
@@ -271,6 +268,11 @@ export class ContentWizardActions extends WizardActions<Content> {
 
     getPreviewAction(): Action {
         return this.previewAction;
+    }
+
+    /** The actions that still bind their shortcuts through lib-admin-ui `KeyBindings`. */
+    getActions(): Action[] {
+        return [this.previewAction, this.closeAction];
     }
 
     getCloseAction(): Action {
