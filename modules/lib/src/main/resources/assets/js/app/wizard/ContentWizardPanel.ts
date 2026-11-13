@@ -1,7 +1,7 @@
 import { WizardPanel } from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
-import { type WizardStepsPanel } from '@enonic/lib-admin-ui/app/wizard/WizardStepsPanel';
 import { AuthHelper } from '@enonic/lib-admin-ui/auth/AuthHelper';
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
 import { showFeedback, showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
 import { NotifyManager } from '@enonic/lib-admin-ui/notify/NotifyManager';
 import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
@@ -11,10 +11,8 @@ import { LoadMask } from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import { Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
 import { ResponsiveManager } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import { type Toolbar, type ToolbarConfig } from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
-import { type UploadedEvent } from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
 import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
-import { type ValidityChangedEvent } from '@enonic/lib-admin-ui/ValidityChangedEvent';
 import Q from 'q';
 import { LiveEditModel } from '../../page-editor/LiveEditModel';
 import { cleanupWizardMixinsService, initWizardMixinsService } from '../../v6/pages/wizard/model/wizardMixins.service';
@@ -30,7 +28,6 @@ import { getActiveProject, getActiveProjectName } from '../../v6/entities/projec
 import {
     $displayNameInputFocusRequested,
     $isContentFormExpanded,
-    $wizardContentState,
     $wizardHasChanges,
     clearDisplayNameInputFocusRequest,
     initializeWizardContentState,
@@ -63,7 +60,6 @@ import { ContentWizardToolbarElement } from '../../v6/pages/wizard/ui/ContentWiz
 import { setWizardToolbarItem, startWizardToolbar } from '../../v6/pages/wizard/model/wizardToolbar.service';
 import { type CompareStatus } from '../content/CompareStatus';
 import { type Content } from '../content/Content';
-import { ContentIconUrlResolver } from '../content/ContentIconUrlResolver';
 import { type ContentId } from '../content/ContentId';
 import { ContentPath } from '../content/ContentPath';
 import { ContentSummaryAndCompareStatus } from '../content/ContentSummaryAndCompareStatus';
@@ -108,7 +104,6 @@ import {
     updateWizardContent,
 } from '../../v6/pages/wizard/model/wizardSave.service';
 import { type WizardSaveOptions } from '../../v6/pages/wizard/model/wizardController';
-import { ContentWizardStepsPanel } from './ContentWizardStepsPanel';
 import { DisplayNameResolver } from './DisplayNameResolver';
 import { MaskContentWizardPanelEvent } from './MaskContentWizardPanelEvent';
 import { type DefaultModels } from './page/DefaultModels';
@@ -116,7 +111,6 @@ import { LiveEditPageProxy } from './page/LiveEditPageProxy';
 import { LiveFormPanel, type LiveFormPanelConfig } from './page/LiveFormPanel';
 import { PageState } from './page/PageState';
 import { PageEventsManager } from './PageEventsManager';
-import { ThumbnailUploaderEl } from './ThumbnailUploaderEl';
 
 export class ContentWizardPanel extends WizardPanel<Content> {
     private livePanel?: LiveFormPanel;
@@ -142,8 +136,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
     private liveEditModel: LiveEditModel;
 
     private displayNameResolver: DisplayNameResolver;
-
-    private isContentFormValid: boolean;
 
     private currentCompareStatus: CompareStatus;
 
@@ -190,7 +182,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
     protected initElements() {
         super.initElements();
 
-        this.isContentFormValid = false;
         this.contentUpdateDisabled = false;
         this.displayNameResolver = new DisplayNameResolver();
 
@@ -347,15 +338,9 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         });
     }
 
-    protected createFormIcon(): ThumbnailUploaderEl {
-        return new ThumbnailUploaderEl({
-            name: 'thumbnail-uploader',
-            deferred: true,
-        });
-    }
-
-    public getFormIcon(): ThumbnailUploaderEl {
-        return super.getFormIcon() as ThumbnailUploaderEl;
+    // ! lib `WizardPanel` needs an element here; it never reaches the DOM.
+    protected createFormIcon(): DivEl {
+        return new DivEl();
     }
 
     protected createMainToolbar(): Toolbar<ToolbarConfig> {
@@ -476,7 +461,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
             }
 
             setWizardToolbarItem(this.getContent());
-            this.isContentFormValid = this.isWizardContentValid();
             this.wizardActions.setContent(this.getContent()).refreshState();
 
             if (this.contentType?.hasDisplayNameExpression()) {
@@ -490,30 +474,15 @@ export class ContentWizardPanel extends WizardPanel<Content> {
                 resetWizardContent();
             });
 
-            const thumbnailUploader: ThumbnailUploaderEl = this.getFormIcon();
-
-            this.onValidityChanged((event: ValidityChangedEvent) => {
-                const isThisValid: boolean = this.isWizardContentValid();
-                this.isContentFormValid = isThisValid;
-
-                if (!this.getPersistedItem()) {
-                    return;
+            this.onValidityChanged(() => {
+                if (this.getPersistedItem()) {
+                    this.wizardActions.refreshState();
                 }
-
-                this.wizardActions.refreshState();
             });
-
-            thumbnailUploader.setEnabled(this.contentType ? !this.contentType?.isImage() : false);
-            thumbnailUploader.onFileUploaded(this.onFileUploaded.bind(this));
-            thumbnailUploader.toggleClass('icon-variant', this.getPersistedItem().isVariant());
 
             if (this.livePanel) {
                 this.livePanel.addClass('rendering');
                 ResponsiveManager.onAvailableSizeChanged(this.formPanel);
-            }
-
-            if (this.params.createSite || this.getPersistedItem().isSite()) {
-                thumbnailUploader.addClass('site');
             }
 
             this.stepNavigatorAndToolbarContainer?.getParentElement()?.remove(); // removing legacy nav bar
@@ -705,7 +674,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
     doLayout(persistedContent: Content): Q.Promise<void> {
         return super.doLayout(persistedContent).then(() => {
-            this.updateThumbnailWithContent(persistedContent);
             this.updateTabsElement();
 
             if (this.params.localized) {
@@ -725,16 +693,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
             liveFormPanel.skipNextReloadConfirmation(true);
         }
         super.close(checkCanClose);
-    }
-
-    public checkContentCanBePublished(): boolean {
-        return this.isWizardContentValid() && this.contentType != null;
-    }
-
-    private isWizardContentValid(): boolean {
-        const contentState = $wizardContentState.get();
-
-        return contentState != null && contentState !== 'invalid';
     }
 
     private isCurrentContentId(id: ContentId): boolean {
@@ -813,14 +771,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
                 this.saveChanges().catch(DefaultErrorHandler.handle);
             }
         });
-    }
-
-    private onFileUploaded(event: UploadedEvent<Content>) {
-        const newPersistedContent: Content = event.getUploadItem().getModel();
-        this.setPersistedItem(newPersistedContent.clone());
-        this.updateThumbnailWithContent(newPersistedContent);
-
-        showFeedback(resolveSavedMessage(newPersistedContent, { wasInherited: false, renamed: false }));
     }
 
     private listenToContentEvents() {
@@ -1037,16 +987,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         return AccessControlHelper.hasPermission(Permission.MODIFY, this.getPersistedItem().getPermissions());
     }
 
-    private updateThumbnailWithContent(content: Content) {
-        const thumbnailUploader: ThumbnailUploaderEl = this.getFormIcon();
-        thumbnailUploader.toggleClass('has-origin-project', !!content.getOriginProject());
-        const id: string = content.getContentId().toString();
-        thumbnailUploader
-            .setParams({ id })
-            .setEnabled(this.contentType ? !content.isImage() : false)
-            .setValue(new ContentIconUrlResolver().setContent(content).resolve());
-    }
-
     private updateSiteModel(site: Site): void {
         this.siteModel.update(site);
         this.site = site;
@@ -1257,10 +1197,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         }
 
         return Q.resolve(this.defaultModels?.getDefaultPageTemplate());
-    }
-
-    protected createWizardStepsPanel(): WizardStepsPanel {
-        return new ContentWizardStepsPanel(this.stepNavigator, this.formPanel);
     }
 
     private updateAiAppConfigs(): void {
