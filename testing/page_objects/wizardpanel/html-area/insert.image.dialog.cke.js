@@ -2,7 +2,7 @@
  * Updated on 03.08.2026
  */
 const Page = require('../../page');
-const {BUTTONS, DROPDOWN} = require('../../../libs/elements');
+const { BUTTONS, DROPDOWN } = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const ImageSelectorDropdown = require('../../components/selectors/image.selector.dropdown');
 
@@ -24,7 +24,6 @@ const XPATH = {
 };
 
 class InsertImageDialog extends Page {
-
     get dialogTitle() {
         return XPATH.container + XPATH.title;
     }
@@ -42,11 +41,19 @@ class InsertImageDialog extends Page {
     }
 
     get accessibilityDecorativeImageRadioButton() {
-        return XPATH.container + XPATH.divRadioGroupAccessibility + "//button[@role='radio' and contains(@id,'decorative')]";
+        return (
+            XPATH.container +
+            XPATH.divRadioGroupAccessibility +
+            "//button[@role='radio' and contains(@id,'decorative')]"
+        );
     }
 
     get accessibilityAlternativeTextRadioButton() {
-        return XPATH.container + XPATH.divRadioGroupAccessibility + "//button[@role='radio' and contains(@id,'informative')]";
+        return (
+            XPATH.container +
+            XPATH.divRadioGroupAccessibility +
+            "//button[@role='radio' and contains(@id,'informative')]"
+        );
     }
 
     get accessibilityAlternativeTextInput() {
@@ -54,7 +61,7 @@ class InsertImageDialog extends Page {
     }
 
     get imageOptionsFilterInput() {
-        return XPATH.container + XPATH.imageSelector + "//input";
+        return XPATH.container + XPATH.imageSelector + '//input';
     }
 
     get captionInput() {
@@ -99,7 +106,6 @@ class InsertImageDialog extends Page {
     async clickOnDecorativeImageRadioButton() {
         try {
             await this.waitForDecorativeImageRadioButtonDisplayed();
-            await this.pause(500);
             await this.clickOnElement(this.accessibilityDecorativeImageRadioButton);
             return await this.pause(200);
         } catch (err) {
@@ -113,7 +119,11 @@ class InsertImageDialog extends Page {
             await this.clickOnElement(this.accessibilityAlternativeTextRadioButton);
             return await this.pause(200);
         } catch (err) {
-            await this.handleError(`Insert Image Dialog, alternative text radio...`, 'err_clicking_on_alternative_text_radio', err);
+            await this.handleError(
+                `Insert Image Dialog, alternative text radio...`,
+                'err_clicking_on_alternative_text_radio',
+                err,
+            );
         }
     }
 
@@ -137,7 +147,11 @@ class InsertImageDialog extends Page {
         try {
             return await this.waitForElementDisabled(this.accessibilityAlternativeTextInput);
         } catch (err) {
-            await this.handleError(`Insert Image Dialog, alternative text input should be disabled`, 'err_alt_text_input_disabled', err);
+            await this.handleError(
+                `Insert Image Dialog, alternative text input should be disabled`,
+                'err_alt_text_input_disabled',
+                err,
+            );
         }
     }
 
@@ -145,7 +159,11 @@ class InsertImageDialog extends Page {
         try {
             return await this.waitForElementEnabled(this.accessibilityAlternativeTextInput);
         } catch (err) {
-            await this.handleError(`Insert Image Dialog, alternative text input should be enabled`, 'err_alt_text_input_disabled', err);
+            await this.handleError(
+                `Insert Image Dialog, alternative text input should be enabled`,
+                'err_alt_text_input_disabled',
+                err,
+            );
         }
     }
 
@@ -179,7 +197,7 @@ class InsertImageDialog extends Page {
 
     async typeCaption(text) {
         await this.waitForElementDisplayed(this.captionInput);
-        return await this.typeTextInInput(this.captionInput + "//input", text);
+        return await this.typeTextInInput(this.captionInput + '//input', text);
     }
 
     async clickOnCustomWidthCheckBox() {
@@ -188,7 +206,11 @@ class InsertImageDialog extends Page {
             await this.clickOnElement(this.customWidthCheckboxLabel);
             return await this.pause(200);
         } catch (err) {
-            await this.handleError(`Insert Image Dialog, Custom width checkbox`, 'err_clicking_on_custom_width_checkbox', err);
+            await this.handleError(
+                `Insert Image Dialog, Custom width checkbox`,
+                'err_clicking_on_custom_width_checkbox',
+                err,
+            );
         }
     }
 
@@ -293,7 +315,7 @@ class InsertImageDialog extends Page {
             await this.typeTextInInput(this.imageOptionsFilterInput, imageDisplayName);
             await this.pause(1000);
             // Click on the filtered item in the dropdown
-            let itemLocator = DROPDOWN.COMBOBOX_POPUP + DROPDOWN.imageItemView(imageDisplayName);//`//div[@data-component='ImageSelectorItemView' and descendant::span[contains(text(),'${imageDisplayName}')]]`;
+            let itemLocator = DROPDOWN.COMBOBOX_POPUP + DROPDOWN.imageItemView(imageDisplayName); //`//div[@data-component='ImageSelectorItemView' and descendant::span[contains(text(),'${imageDisplayName}')]]`;
             await this.waitForElementDisplayed(itemLocator);
             await this.clickOnElement(itemLocator);
             await this.pause(1000);
@@ -312,7 +334,11 @@ class InsertImageDialog extends Page {
             await this.clickOnElement(itemLocator);
             await this.pause(400);
         } catch (err) {
-            await this.handleError(`Insert Image Dialog, filter and select image by path`, 'err_filter_and_select_image_by_path', err);
+            await this.handleError(
+                `Insert Image Dialog, filter and select image by path`,
+                'err_filter_and_select_image_by_path',
+                err,
+            );
         }
     }
 
@@ -380,7 +406,11 @@ class InsertImageDialog extends Page {
             await this.waitForElementDisplayed(this.paragraphCenterButton, appConst.mediumTimeout);
             await this.clickOnElement(this.paragraphCenterButton);
         } catch (err) {
-            await this.handleError(`Insert Image Dialog, align center button`, 'err_click_on_paragraph_center_button', err);
+            await this.handleError(
+                `Insert Image Dialog, align center button`,
+                'err_click_on_paragraph_center_button',
+                err,
+            );
         }
     }
 }

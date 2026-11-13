@@ -175,7 +175,6 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
     async clickOnPublishNowButton() {
         try {
             await this.waitForPublishNowButtonEnabled();
-            await this.pause(300);
             await this.clickOnElement(this.publishNowButton);
             return await this.pause(700);
         } catch (err) {

@@ -123,7 +123,6 @@ class ProjectWizardDialog extends Page {
         try {
             await this.waitForNextButtonDisplayed();
             await this.waitForNextButtonEnabled();
-            await this.pause(500);
             await this.clickOnElement(this.nextButton);
             return await this.pause(300);
         } catch (err) {

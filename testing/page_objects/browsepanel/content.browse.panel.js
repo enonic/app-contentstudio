@@ -326,13 +326,11 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async clickOnPublishButton() {
         await this.waitForPublishButtonVisible();
-        await this.pause(200);
         return await this.clickOnElement(this.publishButton);
     }
 
     async clickOnSortButton() {
         await this.waitForElementEnabled(this.sortButton);
-        await this.pause(200);
         await this.clickOnElement(this.sortButton);
     }
 

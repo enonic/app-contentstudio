@@ -3,19 +3,21 @@
  */
 const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
-const {BUTTONS, COMMON} = require('../../../libs/elements');
+const { BUTTONS, COMMON } = require('../../../libs/elements');
 
 const xpath = {
     itemSet: "//div[@data-component='ItemSetView']",
     // nested 'Input' item set (holds the Add button and occurrences)
-    inputSetView: "//div[@data-component='ItemSetView' and child::div[@data-component='SetHeader']//span[text()='Input']]",
-    elementTypeSetView: "//div[@data-component='OptionSetView' and child::div[@data-component='SetHeader']//span[text()='element type']]",
-    inputTypeSetView: "//div[@data-component='OptionSetView' and child::div[@data-component='SetHeader']//span[text()='input type']]",
+    inputSetView:
+        "//div[@data-component='ItemSetView' and child::div[@data-component='SetHeader']//span[text()='Input']]",
+    elementTypeSetView:
+        "//div[@data-component='OptionSetView' and child::div[@data-component='SetHeader']//span[text()='element type']]",
+    inputTypeSetView:
+        "//div[@data-component='OptionSetView' and child::div[@data-component='SetHeader']//span[text()='input type']]",
     contextMenuTrigger: "//div[@data-component='ContextMenu.Trigger']",
 };
 
 class FreeFormView extends Page {
-
     get addButton() {
         return xpath.inputSetView + BUTTONS.buttonAriaLabel('Add');
     }
@@ -27,7 +29,6 @@ class FreeFormView extends Page {
     async clickOnAddButton() {
         try {
             await this.waitForAddButtonDisplayed();
-            await this.pause(300);
             await this.scrollAndClickOnElement(this.addButton);
             return await this.pause(300);
         } catch (err) {
@@ -46,7 +47,7 @@ class FreeFormView extends Page {
     }
 
     async clickOnItemSetOccurrenceHeader(index) {
-        let locator = xpath.itemSet + "//button[@aria-expanded]";
+        let locator = xpath.itemSet + '//button[@aria-expanded]';
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         let items = await this.findElements(locator);
         await items[index].click();

@@ -1,5 +1,5 @@
 const Page = require('../page');
-const {BUTTONS, DROPDOWN, ISSUE} = require('../../libs/elements');
+const { BUTTONS, DROPDOWN, ISSUE } = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
 const XPATH = {
@@ -17,13 +17,12 @@ const XPATH = {
     issueCommentTextArea: `//div[contains(@id,'IssueCommentTextArea')]`,
     issueCommentsListItem: `//div[contains(@id,'IssueCommentsListItem')]`,
     noActionLabel: `//div[@class='no-action-message']`,
-    tabByLabel: label => `//button[contains(@role,'tab') and child::span[contains(.,'${label}')]]`,
+    tabByLabel: (label) => `//button[contains(@role,'tab') and child::span[contains(.,'${label}')]]`,
     closedMenuOption: "//span[@data-component='IssueStatusBadge' and child::span[text()='Closed']]",
     openMenuOption: "//span[@data-component='IssueStatusBadge' and child::span[text()='Open']]",
 };
 
 class BaseIssueDetailsDialog extends Page {
-
     get backButton() {
         return XPATH.container + BUTTONS.buttonByLabel('Back to issues');
     }
@@ -76,7 +75,11 @@ class BaseIssueDetailsDialog extends Page {
             await this.waitForElementDisplayed(this.backButton);
             return this.clickOnElement(this.backButton);
         } catch (err) {
-            await this.handleError('Issue Details Dialog, tried to click on Back to Issues button', 'err_click_back_to_issues_btn', err);
+            await this.handleError(
+                'Issue Details Dialog, tried to click on Back to Issues button',
+                'err_click_back_to_issues_btn',
+                err,
+            );
         }
     }
 
@@ -84,7 +87,11 @@ class BaseIssueDetailsDialog extends Page {
         try {
             return await this.waitForElementDisplayed(this.backButton);
         } catch (err) {
-            await this.handleError('Issue Details Dialog, Back to Issues button not displayed', 'err_back_to_issues_btn', err);
+            await this.handleError(
+                'Issue Details Dialog, Back to Issues button not displayed',
+                'err_back_to_issues_btn',
+                err,
+            );
         }
     }
 
@@ -110,7 +117,11 @@ class BaseIssueDetailsDialog extends Page {
             await this.pause(400);
             await this.clickOnElement(XPATH.container);
         } catch (err) {
-            await this.handleError('Issue Details Dialog, tried to update the issue title', 'err_update_issue_title', err);
+            await this.handleError(
+                'Issue Details Dialog, tried to update the issue title',
+                'err_update_issue_title',
+                err,
+            );
         }
     }
 
@@ -136,7 +147,11 @@ class BaseIssueDetailsDialog extends Page {
             await this.clickOnElement(optionItemLocator);
             return await this.waitForNotificationMessage();
         } catch (err) {
-            await this.handleError('Issue Details Dialog, tried to click on "Closed" option', 'err_issue_status_selector', err);
+            await this.handleError(
+                'Issue Details Dialog, tried to click on "Closed" option',
+                'err_issue_status_selector',
+                err,
+            );
         }
     }
 
@@ -183,45 +198,56 @@ class BaseIssueDetailsDialog extends Page {
 
     async getCurrentStatusInStatusSelector() {
         try {
-            let locator = this.issueStatusSelector + "//span[2]";
+            let locator = this.issueStatusSelector + '//span[2]';
             await this.waitForElementDisplayed(locator);
             return await this.getText(locator);
         } catch (err) {
-            await this.handleError('Issue Details Dialog, tried to get the current status in status selector', 'err_get_current_status',
-                err);
+            await this.handleError(
+                'Issue Details Dialog, tried to get the current status in status selector',
+                'err_get_current_status',
+                err,
+            );
         }
     }
 
     async clickOnIncludeChildrenCheckbox(displayName) {
         try {
-            let includeIcon = ISSUE.contentRowByName(displayName) + "/following-sibling::div[contains(@id,'children')]//label";
+            let includeIcon =
+                ISSUE.contentRowByName(displayName) + "/following-sibling::div[contains(@id,'children')]//label";
             await this.waitForElementDisplayed(includeIcon, appConst.shortTimeout);
             await this.clickOnElement(includeIcon);
             return await this.pause(1000);
         } catch (err) {
-            await this.handleError(`Tried to click on 'include children' checkbox for the content: ${displayName}`, 'err_include_children',
-                err);
+            await this.handleError(
+                `Tried to click on 'include children' checkbox for the content: ${displayName}`,
+                'err_include_children',
+                err,
+            );
         }
     }
 
     async clickOnCloseMenuOptionItem() {
         try {
             await this.waitForElementDisplayed(XPATH.closedMenuOption);
-            await this.pause(200);
             await this.clickOnElement(XPATH.closedMenuOption);
         } catch (err) {
-            await this.handleError('Issue Details Dialog: error during clicking on Close Issue menu item',
-                'err_click_close_issue_menu_item', err);
+            await this.handleError(
+                'Issue Details Dialog: error during clicking on Close Issue menu item',
+                'err_click_close_issue_menu_item',
+                err,
+            );
         }
     }
     async clickOnOpenMenuOptionItem() {
         try {
             await this.waitForElementDisplayed(XPATH.openMenuOption);
-            await this.pause(200);
             await this.clickOnElement(XPATH.openMenuOption);
         } catch (err) {
-            await this.handleError('Issue Details Dialog: error during clicking on Close Issue menu item',
-                'err_click_close_issue_menu_item', err);
+            await this.handleError(
+                'Issue Details Dialog: error during clicking on Close Issue menu item',
+                'err_click_close_issue_menu_item',
+                err,
+            );
         }
     }
 }
