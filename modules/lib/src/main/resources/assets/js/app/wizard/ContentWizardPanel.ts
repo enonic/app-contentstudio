@@ -1,4 +1,3 @@
-import { MinimizeWizardPanelEvent } from '@enonic/lib-admin-ui/app/wizard/MinimizeWizardPanelEvent';
 import { type WizardHeader } from '@enonic/lib-admin-ui/app/wizard/WizardHeader';
 import { WizardPanel } from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
 import { type WizardStepsPanel } from '@enonic/lib-admin-ui/app/wizard/WizardStepsPanel';
@@ -28,7 +27,7 @@ import {
 } from '../../v6/pages/wizard/model/wizardContentSync.service';
 import { setWizardContent } from '../../v6/entities/content';
 import { fromLegacyApplicationConfig } from '../../v6/shared/lib/cms/application/applicationConfig';
-import { $activeWidgetId, setContextOpen } from '../../v6/widgets/context-panel/model/contextWidgets.store';
+import { setContextOpen } from '../../v6/widgets/context-panel/model/contextWidgets.store';
 import { getActiveProject, getActiveProjectName } from '../../v6/entities/project';
 import {
     $displayNameInputFocusRequested,
@@ -39,7 +38,6 @@ import {
     initializeWizardContentState,
     requestDisplayNameInputFocus,
     resetWizardContent,
-    setContentFormExpanded,
     setDraftPage,
     setContentType as setWizardContentType,
     setWizardMarkedAsReady,
@@ -98,17 +96,11 @@ import { PageEditorContextController } from '../view/context/PageEditorContextCo
 import { AccessControlHelper } from './AccessControlHelper';
 import { ContentWizardActions } from './action/ContentWizardActions';
 import { WizardLayoutElement } from '../../v6/pages/wizard/ui/layout/WizardLayout';
-import {
-    $isWizardLayoutMeasured,
-    $wizardContextPanelMode,
-    $wizardViewMode,
-    setWizardViewMode,
-    shouldCollapseWizardContextInitially,
-} from '../../v6/pages/wizard/model/wizardLayout.store';
 import { ContentContext } from './ContentContext';
 import { ContentWizardHeader } from './ContentWizardHeader';
 import { type ContentWizardPanelParams } from './ContentWizardPanelParams';
 import { startWizardServerEvents } from '../../v6/pages/wizard/model/wizardServerEvents.service';
+import { openWizardLiveEdit, startWizardLayout } from '../../v6/pages/wizard/model/wizardLayout.service';
 import {
     loadDefaultModels,
     loadNearestSite,
@@ -160,21 +152,13 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
     private isContentFormValid: boolean;
 
-    private inMobileViewMode: boolean;
-
     private currentCompareStatus: CompareStatus;
 
     private currentPublishStatus: PublishStatus;
 
     private persistedCompareStatus: CompareStatus;
 
-    private minimized: boolean = false;
-
     private wizardLayout: WizardLayoutElement;
-
-    private minimizedFromFormOnly: boolean = false;
-
-    private restoreSplitViewAfterMobile: boolean = false;
 
     private contentUpdateDisabled: boolean;
 
@@ -189,8 +173,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
     public static debug: boolean = false;
 
     private contentFetcher: ContentSummaryAndCompareStatusFetcher;
-
-    private contentFormExpandedUnsubscribe?: () => void;
 
     constructor(params: ContentWizardPanelParams, cls?: string) {
         super(params);
@@ -233,7 +215,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
                         })
                         .then(() => {
                             if (toggleLiveEdit) {
-                                return this.toggleLiveEdit();
+                                openWizardLiveEdit();
                             }
                         });
                 });
@@ -313,35 +295,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         this.onClosed(() => {
             ContentRequiresSaveEvent.un(contentRequiresSaveHandler);
         });
-    }
-
-    toggleMinimize() {
-        this.minimized = !this.minimized;
-        this.formPanel.toggleClass('minimized');
-        this.formPanel.toggleClass('border-r', this.minimized);
-        this.formPanel.toggleClass('border-bdr-soft', this.minimized);
-
-        new MinimizeWizardPanelEvent().fire();
-
-        if (this.minimized) {
-            this.minimizedFromFormOnly = $wizardViewMode.get() === 'form';
-            if (this.minimizedFromFormOnly) {
-                if (this.inMobileViewMode) {
-                    this.restoreSplitViewAfterMobile = true;
-                }
-
-                setWizardViewMode('split');
-            }
-        } else if (this.minimizedFromFormOnly) {
-            this.minimizedFromFormOnly = false;
-            setWizardViewMode('form');
-        }
-
-        if (this.helpTextToggleButton) {
-            this.helpTextToggleButton.setVisible(!this.minimized);
-        }
-
-        setContentFormExpanded(!this.minimized);
     }
 
     protected createWizardActions(): ContentWizardActions {
@@ -449,36 +402,26 @@ export class ContentWizardPanel extends WizardPanel<Content> {
             onResized: () => this.updateStickyToolbar(),
         });
 
-        $wizardContextPanelMode.subscribe((mode, prevMode) => {
-            const isMobile = mode === 'mobile';
-            if (prevMode !== undefined && isMobile === (prevMode === 'mobile')) return;
-            if (prevMode === undefined && !isMobile) {
-                this.inMobileViewMode = false;
-                return;
-            }
+        const stopLayout = startWizardLayout(
+            {
+                applyLiveEdit: (shown) => {
+                    this.getMainToolbar().toggleClass('live', shown);
+                    this.toggleClass('form', !shown);
+                    this.toggleClass('wizard-panel--live', shown);
 
-            this.handleMobileModeChanged(isMobile);
-        });
-
-        // Auto-open on wide screens once the layout reports its first measurement.
-        let unsubscribeInitialOpen: (() => void) | undefined;
-        unsubscribeInitialOpen = $isWizardLayoutMeasured.subscribe((measured: boolean) => {
-            if (!measured) return;
-            unsubscribeInitialOpen?.();
-            unsubscribeInitialOpen = undefined;
-
-            this.toggleLiveEdit();
-
-            if (!shouldCollapseWizardContextInitially() && $activeWidgetId.get() != null) {
-                setContextOpen(true);
-            }
-        });
-
-        this.contentFormExpandedUnsubscribe = $isContentFormExpanded.listen((isExpanded) => {
-            if (isExpanded === this.minimized) {
-                this.toggleMinimize();
-            }
-        });
+                    if (!shown && this.liveMask?.isVisible()) {
+                        this.liveMask.hide();
+                    }
+                },
+                applyMinimized: (minimized) => {
+                    this.formPanel.toggleClass('minimized', minimized);
+                    this.formPanel.toggleClass('border-r', minimized);
+                    this.formPanel.toggleClass('border-bdr-soft', minimized);
+                },
+            },
+            { hasContentType: !!this.contentType },
+        );
+        this.onRemoved(stopLayout);
 
         const wrapper = new Panel('wizard-layout-panel');
         wrapper.setDoOffset(false);
@@ -497,8 +440,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
             liveEditPage: this.liveEditPage,
             liveEditModel: this.liveEditModel,
         } as LiveFormPanelConfig);
-
-        this.wizardActions.getShowLiveEditAction().setEnabled(true);
 
         liveFormPanel.whenRendered(() => {
             if (ContentWizardPanel.debug) {
@@ -557,15 +498,11 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
             this.addClass('content-wizard-panel');
 
-            this.inMobileViewMode = false;
-
             ResponsiveManager.onAvailableSizeChanged(this, this.availableSizeChangedHandler.bind(this));
 
             this.onRemoved(() => {
                 ResponsiveManager.unAvailableSizeChanged(this);
                 this.wizardActions.cleanupUnsavedChangesListeners();
-                this.contentFormExpandedUnsubscribe?.();
-                this.contentFormExpandedUnsubscribe = undefined;
                 resetWizardContent();
             });
 
@@ -657,30 +594,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
     private availableSizeChangedHandler() {
         if (this.isVisible()) {
             this.updateStickyToolbar();
-        }
-    }
-
-    // One mobile definition for behavior and layout: $wizardContextPanelMode.
-    private handleMobileModeChanged(isMobile: boolean): void {
-        this.inMobileViewMode = isMobile;
-
-        if (isMobile) {
-            this.restoreSplitViewAfterMobile =
-                this.restoreSplitViewAfterMobile || this.isSplitView() || this.isLiveView();
-
-            if (this.isSplitView() && !this.isMinimized()) {
-                this.showForm();
-            }
-        } else {
-            if (this.restoreSplitViewAfterMobile || this.isLiveView()) {
-                if (this.isMinimized()) {
-                    this.minimizedFromFormOnly = false;
-                }
-
-                this.showLiveEdit();
-            }
-
-            this.restoreSplitViewAfterMobile = false;
         }
     }
 
@@ -1155,22 +1068,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
             .setValue(new ContentIconUrlResolver().setContent(content).resolve());
     }
 
-    private toggleLiveEdit(): Q.Promise<void> {
-        if (ContentWizardPanel.debug) {
-            console.debug('ContentWizardPanel.toggleLiveEdit at ' + new Date().toISOString());
-        }
-
-        if ($wizardContextPanelMode.get() === 'mobile') {
-            this.inMobileViewMode = true;
-            this.restoreSplitViewAfterMobile = !!this.contentType;
-            this.showForm();
-            return Q.resolve();
-        }
-
-        this.showLiveEdit();
-        return Q.resolve();
-    }
-
     private updateSiteModel(site: Site): void {
         this.siteModel.update(site);
         this.site = site;
@@ -1208,22 +1105,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         }
 
         return $wizardHasChanges.get();
-    }
-
-    showForm(): void {
-        this.wizardActions.getShowFormAction().execute();
-    }
-
-    showLiveEdit(): void {
-        this.wizardActions.getShowLiveEditAction().execute();
-    }
-
-    private isSplitView(): boolean {
-        return $wizardViewMode.get() === 'split';
-    }
-
-    private isLiveView(): boolean {
-        return $wizardViewMode.get() === 'live';
     }
 
     getContent(): ContentSummaryAndCompareStatus {
@@ -1352,10 +1233,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         return !!this.contentExistsInParentProject;
     }
 
-    isMinimized(): boolean {
-        return this.minimized;
-    }
-
     isRenderable(): Q.Promise<boolean> {
         if (!this.livePanel) {
             // may happen if invoked before rendered
@@ -1386,10 +1263,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
             }
             return hasControllers ?? false;
         });
-    }
-
-    isInMobileViewMode(): boolean {
-        return this.inMobileViewMode;
     }
 
     private getTemplateForCustomize(): Q.Promise<PageTemplate> {

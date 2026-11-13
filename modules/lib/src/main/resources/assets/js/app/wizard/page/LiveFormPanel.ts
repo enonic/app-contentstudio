@@ -43,8 +43,6 @@ import { PageEventsManager } from '../PageEventsManager';
 import { type PageNavigationEvent } from '../PageNavigationEvent';
 import { type PageNavigationHandler } from '../PageNavigationHandler';
 import { PageNavigationMediator } from '../PageNavigationMediator';
-import { ShowContentFormEvent } from '../ShowContentFormEvent';
-import { ShowLiveEditEvent } from '../ShowLiveEditEvent';
 import { WizardExtensionRenderingHandler } from '../WizardExtensionRenderingHandler';
 import { FrameContainer } from './FrameContainer';
 import { type LiveEditPageProxy } from './LiveEditPageProxy';
@@ -81,9 +79,6 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
     private liveEditPageProxy?: LiveEditPageProxy;
 
     private widgetRenderingHandler: WizardExtensionRenderingHandler;
-
-    private showLoadMaskHandler: () => void;
-    private hideLoadMaskHandler: () => void;
 
     private unsubscribePageLocked: () => void;
 
@@ -194,8 +189,6 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
 
     remove(): LiveFormPanel {
         this.widgetRenderingHandler.destroy();
-        ShowLiveEditEvent.un(this.showLoadMaskHandler);
-        ShowContentFormEvent.un(this.hideLoadMaskHandler);
 
         this.unsubscribePageLocked();
         this.liveEditPageProxy.remove();
