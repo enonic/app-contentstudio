@@ -3,11 +3,9 @@
  */
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
-const contentBuilder = require('../../libs/content.builder');
 const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
-const ShortcutForm = require('../../page_objects/wizardpanel/shortcut.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentDuplicateDialog = require('../../page_objects/content.duplicate.dialog');
 const PageComponentView = require('../../page_objects/wizardpanel/liveform/page.components.view');
@@ -20,8 +18,8 @@ describe('publish.wizard.deleted.dependencies.spec: tests for dependant items', 
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let IMPORTED_SITE_NAME = 'site624991';
-    let IMPORTED_SHORTCUT_NAME = 'sh518816';
+    let IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_624991;
+    let IMPORTED_SHORTCUT_NAME = appConst.TEST_DATA.IMPORTED_SHORTCUT_518816;
     const TEST_IMAGE_PATH = appConst.TEST_IMAGES.CAPE + '.jpg-copy';
 
     it(`Precondition 1: new site should be created`, async () => {
@@ -61,7 +59,8 @@ describe('publish.wizard.deleted.dependencies.spec: tests for dependant items', 
 
     // Verify Missing outbound references prevent publishing of content #7066
     // https://github.com/enonic/app-contentstudio/issues/7066
-    it(`GIVEN outbound dependency has been deleted WHEN shortcut with outbound dependency has been selected AND Publish menu item has been clicked THEN Publish wizard should be loaded with 'Mark as Ready' button`, async () => {
+    it(`GIVEN outbound dependency has been deleted WHEN shortcut with outbound dependency has been selected AND Publish menu item has been clicked THEN Publish wizard should be loaded with Outbound dependencies are not required for publishing AND outbound reference to a deleted item should not prevent publishing.
+`, async () => {
         let deleteContentDialog = new DeleteContentDialog();
         let contentPublishDialog = new ContentPublishDialog();
         let contentBrowsePanel = new ContentBrowsePanel();
@@ -74,14 +73,11 @@ describe('publish.wizard.deleted.dependencies.spec: tests for dependant items', 
         await deleteContentDialog.waitForDialogClosed();
         // 2. Select the shortcut:
         await studioUtils.findAndSelectItem(IMPORTED_SHORTCUT_NAME);
-        // 3. Click on Publish... menu item
-        await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
+        // 3. Click on Publish button
+        await contentBrowsePanel.clickOnPublishButton();
         await contentPublishDialog.waitForDialogOpened();
         await studioUtils.saveScreenshot('publish_outbound_item_deleted');
-        // 4. Verify that 'Mark as Ready' button is displayed in the dialog, then click on it
-        await contentPublishDialog.waitForMarkAsReadyButtonDisplayed();
-        await contentPublishDialog.clickOnMarkAsReadyButton();
-        // 5. Verify that Publish Now button is enabled
+        // 4. Verify that Publish Now button is enabled
         await contentPublishDialog.waitForPublishNowButtonEnabled();
     });
 

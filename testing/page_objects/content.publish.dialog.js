@@ -868,6 +868,28 @@ class ContentPublishDialog extends Page {
         const diffStatusBadge = new DiffStatusBadge(rowXpath);
         return await diffStatusBadge.getWorkflowIconState();
     }
+
+    // Waits until the workflow icon of the main item gets the expected state: 'ready' or 'in-progress'
+    async waitForWorkflowIconState(contentName, expectedState) {
+        try {
+            await this.getBrowser().waitUntil(
+                async () => {
+                    let actualState = await this.getWorkflowIconState(contentName);
+                    return actualState === expectedState;
+                },
+                {
+                    timeout: appConst.mediumTimeout,
+                    timeoutMsg: `Workflow icon of '${contentName}' should be '${expectedState}'`,
+                },
+            );
+        } catch (err) {
+            await this.handleError(
+                `Publish Dialog, workflow icon of '${contentName}' should be '${expectedState}' `,
+                'err_publish_dialog_workflow_icon',
+                err,
+            );
+        }
+    }
 }
 
 module.exports = ContentPublishDialog;
